@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+           http://www.springframework.org/schema/security
+           http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+
+ 
+	<http auto-config='true' access-denied-page='/accessDenied.xhtml'>
+		<intercept-url pattern="/resources/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<intercept-url pattern="/javax.faces.resource/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<intercept-url pattern="/login.xhtml" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<intercept-url pattern="/register.xhtml" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<intercept-url pattern="/verify.xhtml" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<intercept-url pattern="/passwordReset.xhtml" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<intercept-url pattern="/recovery.xhtml" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<intercept-url pattern="/terms.xhtml" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<intercept-url pattern="/publicprofile.xhtml" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<intercept-url pattern="/files/images/users/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<intercept-url pattern="/admin/**" access="ROLE_ADMIN"/>
+		<intercept-url pattern="/manage/**" access="ROLE_MANAGER"/>
+		<intercept-url pattern="/**" access="ROLE_USER,ROLE_MANAGER,ROLE_ADMIN"/>
+		<form-login 
+			login-page='/login.xhtml'/>
+		<remember-me key="...verylonganduniquekey..." />
+	</http>
+	
+	<!-- business logic (method) security -->
+	<!-- global-method-security secured-annotations="enabled" jsr250-annotations="enabled" /-->
+	
+	<beans:bean id="daoAuthenticationProvider" class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+		<beans:property name="userDetailsService" ref="userDetailsService" />
+		<beans:property name="passwordEncoder" ref="org.prosolo.services.authentication.PasswordEncrypter" />
+	</beans:bean>
+
+	<beans:bean id="authenticationManager"
+		class="org.prosolo.core.spring.security.SerializableProviderManager">
+		<beans:property name="providers">
+			<beans:list>
+				<beans:ref local="daoAuthenticationProvider" />
+			</beans:list>
+		</beans:property>
+	</beans:bean>
+
+	<authentication-manager >
+		<authentication-provider user-service-ref="userDetailsService" />
+	</authentication-manager>
+	
+</beans:beans>

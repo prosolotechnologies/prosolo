@@ -1,0 +1,195 @@
+{{> src/main/resources/org/prosolo/web/email/html/header.html}}
+
+<table style="border-collapse: collapse" width="100%">
+	<tr style="padding: 0;">
+		<td style="padding: 30px 0;">
+			<h1 style="font-size: 24px;
+						font: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+						color: #555; 
+						font-weight: bold; 
+						margin: 0;">
+				Hi {{name}},
+			</h1>
+			<p style="font: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+						color: #555; 
+						font-size: 14px; 
+						line-height: 1.3; 
+						margin-bottom: 20px">
+				Here are your updates form ProSolo based on your preferences.
+			</p>
+		 
+			{{#feedsDigests}}
+			
+			<h2 style="font-size: 18px;
+						font: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+						color: #555; 
+						font-weight: bold; 
+						margin-bottom: 15px;">
+				{{categoryName}}
+			</h2>
+			<table>
+				{{#entries}}
+				<tr>
+					<td>
+						<div style="margin: 0 0 10px 0; 
+							border-bottom: 1px solid #e5e5e5;
+							padding-bottom: 10px;">
+							
+							{{#image}}
+								<div class="feedContent box">
+									<div class="imgInfoContainer100" style="max-width: 100px;
+																			max-height: 100px;
+																			overflow: hidden;
+																			float: left;
+																			padding: 0 10px 0 0;
+																			margin: 0;">
+																			
+										<div class="actImages" style="overflow: hidden;
+																		display: inline;">
+																	
+											<img src="{{image}}" style="max-width: 100px;
+															max-height: 100px;
+															overflow: hidden;
+															float: left;
+															padding: 0 10px 0 0;"/>	
+										</div>
+									</div>
+									
+									<div class="feedInfo short" style="width: 419px;
+																		display: inline-block;">
+																		
+										<a href="{{link}}" target="_blank" style="width: 355px;
+																		font-size: 13px;
+																		display: block;
+																		font-weight: bold;
+																		word-break: break-all;
+																		word-wrap: break-word;
+																		white-space: normal;
+																		color: #136DB2;
+																		text-decoration: none;
+																		float: left;">
+											{{title}}
+										</a>												
+
+										<span class="date" style="margin: 0;
+																	float: right;
+																	color: #a1a1a1;
+																	font-size: 10px;">
+											{{date}}
+										</span>
+										
+										<div class="clear" style="clear: both;
+																	height: 1px;">
+										</div>
+										
+										<a href="{{link}}" target="_blank" style="font-size: 10px;
+																			display: block;
+																			word-break: break-all;
+																			color: #136DB2;
+																			text-decoration: none;">
+											{{link}}
+										</a>
+									</div>
+									<div class="clear" style="clear: both;
+																		height: 1px;">
+											</div>
+									
+									<p style="margin: 10px 0;">
+										{{description}}
+									</p>
+								</div>
+							{{/image}}
+								
+							{{^image}}
+								<div class="feedContent box">
+									<div class="feedInfo short" style="width: 100%;
+																		display: inline-block;">
+																		
+										<a href="{{link}}" target="_blank" style="width: 470px;
+																		font-size: 13px;
+																		display: block;
+																		float: left;
+																		font-weight: bold;
+																		word-break: break-all;
+																		word-wrap: break-word;
+																		white-space: normal;
+																		color: #136DB2;
+																		text-decoration: none;
+																		float: left;"">
+											{{title}}
+										</a>												
+
+										<span class="date" style="margin: 0;
+																	float: right;
+																	color: #a1a1a1;
+																	font-size: 10px;">
+											{{date}}
+										</span>
+										
+										<div class="clear" style="clear: both;
+																	height: 1px;">
+										</div>
+										
+										<a href="{{link}}" target="_blank" style="font-size: 10px;
+																			display: block;
+																			word-break: break-all;
+																			color: #136DB2;
+																			text-decoration: none;">
+											{{link}}
+										</a>
+									</div>
+									<div class="clear" style="clear: both;
+																		height: 1px;">
+											</div>
+									
+									<p style="margin: 10px 0;">
+										{{description}}
+									</p>
+								</div>
+							{{/image}}
+							<div class="clear"></div>
+						</div>
+					<td>
+				<tr>
+				{{/entries}}
+			</table>
+			
+			{{#moreToLoad}}
+				<a href="{{domain}}/digest.xhtml?filter={{filter}}&interval={{interval}}&date={{dashedDate}}" class="ui-commandlink ui-widget loadMore" style="height: 28px;
+					  display: block;
+					  line-height: 28px;
+					  text-align: center;
+					  text-transform: uppercase;
+					  background: #f8f8f8;
+					  background: -moz-linear-gradient(top, #ffffff 0%, #f8f8f8 100%);
+					  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#f8f8f8));
+					  background: -webkit-linear-gradient(top, #ffffff 0%,#f8f8f8 100%);
+					  background: -o-linear-gradient(top, #ffffff 0%,#f8f8f8 100%);
+					  background: -ms-linear-gradient(top, #ffffff 0%,#f8f8f8 100%);
+					  background: linear-gradient(top, #ffffff 0%,#f8f8f8 100%);
+					  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#f8f8f8',GradientType=0 );
+					  -webkit-border-radius: 2px;
+					  -moz-border-radius: 2px;
+					  border-radius: 2px;
+					  border: 1px solid #f1f1f1;
+					  color: #a1a1a1;
+					  cursor: pointer;
+					  text-decoration: none;">
+					  
+					Show more
+				</a>
+			{{/moreToLoad}}
+			
+			{{^entries}}
+				<span style="font-size: 11px;
+							color: #A1A1A1;">
+					There are no updates.
+				</span>
+			{{/entries}}
+			
+			{{/feedsDigests}}
+		</td>
+	</tr>
+</table>
+
+{{> src/main/resources/org/prosolo/web/email/html/footer.html}}

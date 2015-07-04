@@ -1,0 +1,514 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class-diagram version="1.1.5" icons="true" automaticImage="PNG" always-add-relationships="false" generalizations="true" 
+  realizations="true" associations="true" dependencies="true" nesting-relationships="true">  
+  <enumeration id="1" language="java" name="org.prosolo.domainmodel.user.Priority" project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/Priority.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="113" width="135" x="622" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </enumeration>  
+  <class id="2" language="java" name="org.prosolo.domainmodel.user.UserOauthTokens" project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/UserOauthTokens.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="95" width="135" x="224" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="3" language="java" name="org.prosolo.domainmodel.user.AnonUser" project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/AnonUser.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="113" width="148" x="950" y="1144"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <enumeration id="4" language="java" name="org.prosolo.domainmodel.user.UserType" project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/UserType.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="95" width="167" x="743" y="1144"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </enumeration>  
+  <class id="5" language="java" name="org.prosolo.domainmodel.user.UserDefinedPriority" project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/UserDefinedPriority.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="113" width="138" x="422" y="244"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="6" language="java" name="org.prosolo.domainmodel.user.User" project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/User.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="311" width="150" x="847" y="793"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="7" language="java" name="org.prosolo.domainmodel.user.Email" project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/Email.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="149" width="135" x="447" y="1144"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="8" language="java" name="org.prosolo.domainmodel.user.FollowedUserEntity" project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/FollowedUserEntity.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="77" width="135" x="824" y="469"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="9" language="java" name="org.prosolo.domainmodel.user.LearningGoal" project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/LearningGoal.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="113" width="135" x="1400" y="1369"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <enumeration id="10" language="java" name="org.prosolo.domainmodel.user.TimeFrame" project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/TimeFrame.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="131" width="141" x="43" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </enumeration>  
+  <class id="11" language="java" name="org.prosolo.domainmodel.user.OpenIDAccount" project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/OpenIDAccount.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="113" width="184" x="600" y="244"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="12" language="java" name="org.prosolo.domainmodel.user.FollowedEntity" project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/FollowedEntity.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="113" width="154" x="824" y="244"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="13" language="java" name="org.prosolo.domainmodel.user.TargetLearningGoal" project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/TargetLearningGoal.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="185" width="277" x="1102" y="1144"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="14" language="java" name="org.prosolo.domainmodel.user.SimpleOfflineMessage" project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/SimpleOfflineMessage.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="113" width="152" x="847" y="640"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="15" language="java" name="org.prosolo.domainmodel.user.UserSocialNetworks" project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/UserSocialNetworks.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="95" width="142" x="219" y="640"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="16" language="java" name="org.prosolo.domainmodel.user.MessagesThread" project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/MessagesThread.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="131" width="135" x="1020" y="469"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <enumeration id="17" language="java" name="org.prosolo.domainmodel.user.UserPriorityType" 
+    project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/UserPriorityType.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="113" width="278" x="422" y="469"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </enumeration>  
+  <enumeration id="18" language="java" name="org.prosolo.domainmodel.user.SocialNetworkName" 
+    project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/SocialNetworkName.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="131" width="188" x="219" y="1144"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </enumeration>  
+  <class id="19" language="java" name="org.prosolo.domainmodel.user.OauthAccessToken" project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/OauthAccessToken.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="185" width="137" x="224" y="244"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="20" language="java" name="org.prosolo.domainmodel.user.FollowedResourceEntity" 
+    project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/FollowedResourceEntity.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="77" width="163" x="1195" y="469"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="21" language="java" name="org.prosolo.domainmodel.user.SocialNetworkAccount" project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/SocialNetworkAccount.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="113" width="155" x="43" y="793"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="22" language="java" name="org.prosolo.domainmodel.general.BaseEntity" project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/general/BaseEntity.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="167" width="147" x="1020" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="23" language="java" name="org.prosolo.domainmodel.general.Node" project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/general/Node.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="113" width="166" x="1400" y="640"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <dependency id="24">    
+    <bendpoint x="1117" y="244"/>    
+    <end type="SOURCE" refId="20"/>    
+    <end type="TARGET" refId="22"/>  
+  </dependency>  
+  <generalization id="25">    
+    <end type="SOURCE" refId="20"/>    
+    <end type="TARGET" refId="12"/>  
+  </generalization>  
+  <dependency id="26">    
+    <bendpoint x="1008" y="244"/>    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="22"/>  
+  </dependency>  
+  <association id="27">    
+    <end type="SOURCE" refId="23" navigable="false">      
+      <attribute id="28" name="maker"/>      
+      <multiplicity id="29" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="6" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="30">    
+    <bendpoint x="1409" y="1144"/>    
+    <bendpoint x="1409" y="793"/>    
+    <end type="SOURCE" refId="9"/>    
+    <end type="TARGET" refId="23"/>  
+  </generalization>  
+  <association id="31">    
+    <end type="SOURCE" refId="14" navigable="false">      
+      <attribute id="32" name="sender"/>      
+      <multiplicity id="33" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="6" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="34">    
+    <bendpoint x="1050" y="640"/>    
+    <end type="SOURCE" refId="16" navigable="false">      
+      <attribute id="35" name="creator"/>      
+      <multiplicity id="36" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="6" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="37">    
+    <bendpoint x="1260" y="793"/>    
+    <end type="SOURCE" refId="13"/>    
+    <end type="TARGET" refId="23"/>  
+  </generalization>  
+  <generalization id="38">    
+    <bendpoint x="1369" y="640"/>    
+    <bendpoint x="1388" y="469"/>    
+    <bendpoint x="1388" y="244"/>    
+    <end type="SOURCE" refId="6"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="39">    
+    <bendpoint x="1029" y="640"/>    
+    <end type="SOURCE" refId="16" navigable="false">      
+      <attribute id="40" name="participants"/>      
+      <multiplicity id="41" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="6" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="42">    
+    <end type="SOURCE" refId="14" navigable="false">      
+      <attribute id="43" name="messageThread"/>      
+      <multiplicity id="44" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="45">    
+    <end type="SOURCE" refId="12"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="46">    
+    <bendpoint x="816" y="640"/>    
+    <end type="SOURCE" refId="8" navigable="false">      
+      <attribute id="47" name="followedUser"/>      
+      <multiplicity id="48" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="6" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="49">    
+    <bendpoint x="391" y="793"/>    
+    <bendpoint x="391" y="640"/>    
+    <bendpoint x="391" y="469"/>    
+    <bendpoint x="391" y="244"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <generalization id="50">    
+    <end type="SOURCE" refId="19"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="51">    
+    <end type="SOURCE" refId="6" navigable="false">      
+      <attribute id="52" name="email"/>      
+      <multiplicity id="53" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="7" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="54">    
+    <bendpoint x="989" y="469"/>    
+    <bendpoint x="1029" y="244"/>    
+    <end type="SOURCE" refId="14"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="55">    
+    <end type="SOURCE" refId="15" navigable="false">      
+      <attribute id="56" name="user"/>      
+      <multiplicity id="57" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="6" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="58">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="6"/>  
+  </generalization>  
+  <generalization id="59">    
+    <end type="SOURCE" refId="5"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="60">    
+    <end type="SOURCE" refId="9" navigable="false">      
+      <attribute id="61" name="basedOn"/>      
+      <multiplicity id="62" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="9" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <dependency id="63">    
+    <bendpoint x="228" y="793"/>    
+    <end type="SOURCE" refId="15"/>    
+    <end type="TARGET" refId="18"/>  
+  </dependency>  
+  <association id="64">    
+    <end type="SOURCE" refId="5" navigable="false">      
+      <attribute id="65" name="priorityType"/>      
+      <multiplicity id="66" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="17" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="67">    
+    <end type="SOURCE" refId="2" navigable="false">      
+      <attribute id="68" name="token"/>      
+      <multiplicity id="69" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="19" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="70">    
+    <end type="SOURCE" refId="6" navigable="false">      
+      <attribute id="71" name="learningGoals"/>      
+      <multiplicity id="72" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="13" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="73">    
+    <end type="SOURCE" refId="21" navigable="false">      
+      <attribute id="74" name="socialNetwork"/>      
+      <multiplicity id="75" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="18" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="76">    
+    <end type="SOURCE" refId="15" navigable="false">      
+      <attribute id="77" name="socialNetworkAccounts"/>      
+      <multiplicity id="78" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="21" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="79">    
+    <end type="SOURCE" refId="11"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <generalization id="80">    
+    <bendpoint x="1050" y="244"/>    
+    <end type="SOURCE" refId="16"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="81">    
+    <bendpoint x="370" y="469"/>    
+    <bendpoint x="412" y="640"/>    
+    <end type="SOURCE" refId="19" navigable="false">      
+      <attribute id="82" name="user"/>      
+      <multiplicity id="83" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="6" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="84">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="12"/>  
+  </generalization>  
+  <association id="85">    
+    <end type="SOURCE" refId="16" navigable="false">      
+      <attribute id="86" name="messages"/>      
+      <multiplicity id="87" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="14" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="88">    
+    <end type="SOURCE" refId="20" navigable="false">      
+      <attribute id="89" name="followedNode"/>      
+      <multiplicity id="90" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="23" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="91">    
+    <end type="SOURCE" refId="13" navigable="false">      
+      <attribute id="92" name="learningGoal"/>      
+      <multiplicity id="93" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="9" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="94">    
+    <end type="SOURCE" refId="6" navigable="false">      
+      <attribute id="95" name="userType"/>      
+      <multiplicity id="96" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="4" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="97">    
+    <bendpoint x="733" y="469"/>    
+    <bendpoint x="733" y="640"/>    
+    <end type="SOURCE" refId="11" navigable="false">      
+      <attribute id="98" name="user"/>      
+      <multiplicity id="99" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="6" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="100">    
+    <bendpoint x="1409" y="469"/>    
+    <bendpoint x="1409" y="244"/>    
+    <end type="SOURCE" refId="23"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="101">    
+    <bendpoint x="793" y="469"/>    
+    <bendpoint x="793" y="640"/>    
+    <end type="SOURCE" refId="12" navigable="false">      
+      <attribute id="102" name="user"/>      
+      <multiplicity id="103" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="6" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="104">    
+    <end type="SOURCE" refId="14" navigable="false">      
+      <attribute id="105" name="receiver"/>      
+      <multiplicity id="106" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="6" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+    accessors="true" visibility="true">    
+    <attributes public="true" package="true" protected="true" private="true" static="true"/>    
+    <operations public="false" package="false" protected="false" private="false" static="false"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>

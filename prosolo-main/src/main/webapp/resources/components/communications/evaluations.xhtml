@@ -1,0 +1,165 @@
+<ui:composition 
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks">
+	
+	<utilcomp:messagesBundle var="msg" />
+	
+	<div id="evaluations" class="evaluations">
+		<h2>#{msg['communications.evaluations.title']}</h2>
+		
+		<h:form id="evaluationForm">
+			<p:growl id="evaluationGrowl" showDetail="true" />
+			
+			<h:panelGroup layout="block" id="updatableRegion">
+				<p:commandLink styleClass="dateSort"
+					rendered="#{!evaluations.sortDesc}"
+					action="#{evaluations.changeSort(true)}"
+					update=":evaluationForm:updatableRegion">
+					Date <span class="upArrow dark inlineBlock"></span>
+				</p:commandLink>
+				<p:commandLink styleClass="dateSort"
+					rendered="#{evaluations.sortDesc}"
+					action="#{evaluations.changeSort(false)}"
+					update=":evaluationForm:updatableRegion">
+					Date <span class="downArrow dark inlineBlock"></span>
+				</p:commandLink>
+			
+			
+				<h:inputHidden value="#{evaluations.filter}" id="hiddenFilter" />
+				<h:panelGroup layout="block" id="filter" class="filter">
+					Filter:
+					<ul class="aHolder">
+						<li>
+							<a class="evalFilterDrop button gray size16">#{evaluations.filter}<span></span></a>
+							<div class="dropdown hidden">
+								<ul>
+									<li class="#{evaluations.filter == 'ALL' ? 'selected' : ''}">
+										<p:commandLink value="All"
+											actionListener="#{evaluations.setFilter('ALL')}"
+											action="#{evaluations.init()}"
+											update=":evaluationForm:updatableRegion" />
+									</li>
+									<li class="#{evaluations.filter == 'DRAFT' ? 'selected' : ''}">
+										<p:commandLink value="Drafts"
+											actionListener="#{evaluations.setFilter('DRAFT')}"
+											action="#{evaluations.init()}"
+											update=":evaluationForm:updatableRegion" />
+									</li>
+									<li class="#{evaluations.filter == 'SUBMITTED' ? 'selected' : ''}">
+										<p:commandLink value="Submitted"
+											actionListener="#{evaluations.setFilter('SUBMITTED')}"
+											action="#{evaluations.init()}"
+											update=":evaluationForm:updatableRegion" />
+									</li>
+								</ul>
+							</div>
+						</li>
+					</ul>
+					<script type="text/javascript">
+						enableDropdown('#evaluations .evalFilterDrop');
+					</script>
+				</h:panelGroup>
+				
+				<div class="clear"></div>
+				
+				<h:panelGroup layout="block" id="evaluationList" class="evaluationList" varStatus="iterator">
+					<ui:repeat value="#{evaluations.evaluations}" var="ev">
+						
+						<div class="box">
+							<div class="avatar">
+								<link:user
+				    				userData="#{ev.user}"
+				    				mode="image"
+				    				imageSize="30"
+				    				idPrefix="evaluation#{iterator.index}Image"
+				    				context="evaluationSubmissionList.image"/>
+							</div>
+							
+							<div class="textWrapper">
+								<div class="user">
+									#{msg['communications.evaluations.title.part1.evaluationForUser']}
+									<link:user 
+					    				userData="#{ev.user}"
+					    				mode="name"
+					    				imageSize="30"
+					    				idPrefix="evaluation#{iterator.index}Name"
+					    				context="evaluationSubmissionList.name"
+					    				divClass="name" />
+									
+									for
+									
+									#{ev.resource.shortType}
+									<link:resourceLink
+										resourceId="#{ev.resource.id}" 
+										type="#{ev.resource.clazz.simpleName}"
+										title="#{ev.resource.title}"
+										styleClass="bold" />
+										
+								</div>
+								<div class="clear"></div>
+								<div class="message">"#{ev.message}"</div>
+							</div>
+							
+							<div class="date">
+								<h:outputText rendered="#{!ev.draft}" value="#{ev.dateSubmitted}" />
+								
+					            <h:panelGroup rendered="#{ev.draft}"
+				                	class="draft">
+				                	Draft
+				                </h:panelGroup>
+							</div>
+							
+							<h:panelGroup layout="block" class="badgeContainer">
+								<ui:repeat value="#{ev.badges}" var="badge">
+									<div class="badgeWrapper">
+			    						<h:panelGroup layout="block" styleClass="badge size20 badge#{badge.capitalizedName}" />
+					    			</div>
+								</ui:repeat>
+							</h:panelGroup>
+			                
+			                <div class="clear"></div>
+			                
+			                
+			                <div class="marginTop10">
+								<h:link 
+									styleClass="button green size20 left"
+									outcome="/evaluation" includeViewParams="true">
+					                <f:param  name="id" value="#{ev.evaluationSubmissionId}" />
+					                <h:outputText value="#{ev.draft ? msg['communications.evaluations.button.edit'] : 'View'}" />
+					            </h:link>
+			                </div>
+						</div>
+						
+						<div class="separator clear"></div>
+					</ui:repeat>
+					<h:panelGroup layout="block" rendered="#{empty evaluations.evaluations}" class="noContentMessage">
+						#{msg['communications.evaluations.noEvaluations']}
+					</h:panelGroup>
+				</h:panelGroup>
+			</h:panelGroup>
+				
+			<utilcomp:lazyLoad 
+				parentClass="evaluations"
+				updateOnComplete=":evaluationForm:evaluationList"
+				loaderContainer=".evaluationList"
+				initializeAction="#{evaluations.init()}"
+				async="true"
+			/>
+			
+			<script type="text/javascript">
+			$(function() {
+				$('.box .name.resource').shortenedText({showChar: 40, mode: 'static'});
+				$('.box .message').shortenedText({showChar: 160, mode: 'static'});
+			});
+		
+			function setFilter(filter, updateQuery) {
+				$(escapeColons('#evaluationForm:hiddenFilter')).val(filter);
+			}
+			</script>
+		</h:form>
+	</div>
+</ui:composition>

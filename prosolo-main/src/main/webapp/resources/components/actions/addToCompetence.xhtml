@@ -1,0 +1,63 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:pt="http://java.sun.com/jsf/passthrough">
+
+	<!-- activity:  if activity is used, then link and linkTitle are not needed -->	
+
+	<composite:interface>
+		<composite:attribute name="activity" /> 
+		<composite:attribute name="link" type="java.lang.String" default="null"/>
+		<composite:attribute name="linkTitle" type="java.lang.String" />
+		<composite:attribute name="toRender" default="true"/>
+		<composite:attribute name="title" type="java.lang.String" default="Add to Competence"/>
+		<composite:attribute name="styleClass" type="java.lang.String"/>
+		<composite:attribute name="onclick" type="java.lang.String"/>
+		<composite:attribute name="buttonSize" default="20"/>
+		<composite:attribute name="resetStyle" default="false"/>
+		<composite:attribute name="tooltip" default=""/>
+		<composite:attribute name="context" />
+		<composite:attribute name="targetCompIdToPreselect" />
+		<composite:attribute name="toUpdateAfterAdding" type="java.lang.String" />
+		<composite:attribute name="disabled" type="java.lang.Boolean" />
+		<composite:attribute name="disabledTooltip" type="java.lang.String" />
+	</composite:interface>
+	
+	<composite:implementation>
+		
+		<ui:param name="resetStyle" value="hasTooltip #{cc.attrs.styleClass}" />
+		<ui:param name="notResetStyle" value="hasTooltip button green size#{cc.attrs.buttonSize} #{cc.attrs.styleClass}" />
+		
+		<p:commandLink rendered="#{cc.attrs.toRender and cc.attrs.activity != null}"
+			value="#{cc.attrs.title}"
+			title="#{cc.attrs.tooltip}"
+			styleClass="#{cc.attrs.resetStyle ? resetStyle : notResetStyle }"
+			disabled="#{cc.attrs.disabled}"
+			pt:title="#{cc.attrs.disabledTooltip}"
+			onclick="#{cc.attrs.onclick};$('#addToCompetenceDialog').dialog('open');"
+			actionListener="#{addToCompetenceDialog.prepareAddToCompetenceForActivity(cc.attrs.activity, cc.attrs.context)}"
+			action="#{addToCompetenceDialog.setToUpdateAfterAdding(cc.attrs.toUpdateAfterAdding)}"
+			update=":#{p:component('addToCompetenceForm')}">
+			<f:param name="targetCompIdToSelect" value="#{cc.attrs.targetCompIdToPreselect}" />
+		</p:commandLink>
+		
+		<p:commandLink rendered="#{cc.attrs.toRender and cc.attrs.link != null and cc.attrs.linkTitle != null}"
+			value="#{cc.attrs.title}"
+			title="#{cc.attrs.tooltip}"
+			styleClass="#{cc.attrs.resetStyle ? resetStyle : notResetStyle }"
+			disabled="#{cc.attrs.disabled}"
+			pt:title="#{cc.attrs.disabledTooltip}"
+			onclick="#{cc.attrs.onclick};$('#addToCompetenceDialog').dialog('open');"
+			actionListener="#{addToCompetenceDialog.prepareAddToCompetenceForActivity(cc.attrs.link, cc.attrs.linkTitle, cc.attrs.context)}"
+			action="#{addToCompetenceDialog.setToUpdateAfterAdding(cc.attrs.toUpdateAfterAdding)}"
+			update=":addToCompetenceForm">
+			<f:param name="targetCompIdToSelect" value="#{cc.attrs.targetCompIdToPreselect}" />
+		</p:commandLink>
+		
+	</composite:implementation>
+</ui:component>

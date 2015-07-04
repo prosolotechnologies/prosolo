@@ -1,0 +1,420 @@
+<ui:composition
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:compcourses="http://java.sun.com/jsf/composite/components/courses"
+	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	
+	<utilcomp:messagesBundle var="msg" />
+	
+	<h:outputScript library="javascript" name="prosolo.slider.js" />
+	
+	<h:panelGroup layout="block" id="goalDetails">
+		<h:panelGroup layout="block" rendered="#{learninggoals.selectedGoalData != null}">
+			<ui:include src="/resources/components/bubbleArrows/sendGoalToPortfolio.xhtml" />
+			
+			<h:form id="goalDetailsForm" prependId="false" class="goalsTripStep3 goalsTripStep4">
+				<script>
+				$(function() {
+					$('.tagsReadMode.keywords').tags({editMode: false});
+					$('.tagsEditMode.keywords').tags();
+					$('.tagsReadMode.hashtags').tags({editMode: false, prefix: '#'});
+					$('.tagsEditMode.hashtags').tags({prefix: '#'});
+					
+					prosolo.slider.enable('#goalProgress', '#goalProgressBar', true);
+					prosolo.slider.enable('#editGoalProgress', '#editGoalProgressBar', false);
+					
+					$('#editGoalProgressBar').on("slidechange",
+						function(event, ui) {
+							$('#editGoalDetailsForm .progressCheckbox').attr('checked', false);
+						}
+					);
+					
+					$( ".editGoal .deadlineField" ).datepicker({
+						showOn: "button",
+						buttonImage: "resources/css/prosolo-theme/images/calendar18x15.png",
+						buttonImageOnly: true,
+						dateFormat: "dd.mm.yy"
+					});
+					
+					roundImages();
+				});
+				</script>
+				<div class="main">
+					<div class="aboutGoal">
+						<p:growl id="goalDetailsFormGrowl" showDetail="true" />
+						
+						<h2>
+							<icon:goal styleClass="icon"/>
+							<h:outputText id="goalTitleId" value="#{learninggoals.selectedGoalData.data.title}" />
+						</h2>
+						
+						<table class="progressDeadlineContainer">
+							<tr>
+								<td>
+									<strong>Progress:</strong>&#160;
+									<div id="goalProgressBar" class="barCont"></div>&#160;
+									<h:outputText id="goalProgress" value="#{learninggoals.selectedGoalData.data.progress}" />% 
+									<div><h:outputText class="actd" value="(Activity dependent)" rendered="#{learninggoals.selectedGoalData.data.progressActivityDependent}"/></div>
+								</td>
+								<td class="deadline">
+									<strong>Deadline:</strong>&#160;
+									<h:outputText id="goalDeadline"	value="#{learninggoals.selectedGoalData.data.prettyDeadline}" />
+								</td>
+							</tr>
+						</table>
+						
+						<table>
+							<tr>
+								<td class="col01">Description:</td>
+								<td class="col02 justify">
+									<h:outputText id="goalDescriptionId" 
+										class="description" 
+										value="#{learninggoals.selectedGoalData.data.description}" />
+									<script>
+									$(function(){
+										$('#goalDetails .aboutGoal .description').readmore({
+											maxHeight: 60,
+											afterToggle: function(trigger, elem, expanded) {
+												sendServiceUse('MOUSE_CLICK', {context: 'learn.targetGoal.#{learninggoals.selectedGoalData.data.targetGoalId}.goalDetails.description', link: expanded ? 'more' : 'less'});
+											}
+										});
+									});
+									</script>
+								</td>
+							</tr>
+						</table>
+					</div>	
+	
+					<div id="aboutGoalHidden" class="aboutGoal">
+						<table>
+							<tr>
+								<td class="col01 keywords">Keywords:</td>
+								<td class="col02">
+									<h:inputText class="tagsReadMode keywords" value="#{learninggoals.selectedGoalData.data.tagsString}" />
+								</td>
+							</tr>
+							<tr>
+								<td class="col01">Hashtags:</td>
+								<td class="col02">
+									<h:inputText class="tagsReadMode hashtags" value="#{learninggoals.selectedGoalData.data.hashtagsString}" />
+								</td>
+							</tr>
+						</table>
+					</div>	
+				</div>
+				
+				<div class="rightSidebar aboutGoalRight">
+					<p:commandLink styleClass="btnGoalDelete"
+						rendered="#{!learninggoals.selectedGoalData.data.connectedWithCourse}"
+						oncomplete="$('#deleteGoalModalDialog').dialog('open');"
+						process="@this"
+						async="true"
+						update=":deleteGoalDialogForm"
+					>
+						<span></span>
+					</p:commandLink>
+					
+					<p:commandLink styleClass="btnGoalDelete"
+						rendered="#{learninggoals.selectedGoalData.data.connectedWithCourse}"
+						onclick='$("#removeCourseFormModalDialog").dialog("open");'
+						action="#{deleteGoalCourseDialog.setCourseToDelete(learninggoals.selectedGoalData.data.course)}"
+						update=":removeCourse:removeCourseForm"
+					>
+						<span></span>
+					</p:commandLink>
+					
+	
+					<p:commandLink rendered="#{learninggoals.selectedGoalData.data.progress lt 100}"
+						styleClass="button green size20 btnGoalComplete" value="Complete"
+						action="#{learninggoals.markAsComplete()}"
+						process="@this"
+						update=":goalDetails :activities:actSearchForm :competenceList 
+							:newCompetenceButtonForm :compSearchForm :compRecommendationsForm :activities:actSearchForm "
+					/>
+						
+					<p:commandLink rendered="#{learninggoals.selectedGoalData.data.progress == 100}"
+						styleClass="btnGoalMoveToPortfolio" value="Archive"
+						action="#{learninggoals.archiveGoal(true)}"
+						process="@this"
+						update=":goalDetails :goalListForm :goalsControl"
+					/>
+					
+					<script>
+						$(function(){
+							$('.goalsPage .aboutGoalRight .btnGoalMoveToPortfolio').on('click', function(){
+								history.replaceState({}, null, removeQueryParameter('id'));
+								history.replaceState({}, null, removeQueryParameter('comp'));
+							});
+						})
+					</script>
+						
+					<p:commandLink id="btnEditGoal"
+						rendered="#{!learninggoals.selectedGoalData.data.connectedWithCourse}"
+						styleClass="button gray size24 btnGoalEdit" 
+						value="Edit"
+						onclick="toggleEditMode('#goalDetailsForm','#editGoalDetailsForm');" />
+					
+					<p:commandLink
+						rendered="#{learninggoals.selectedGoalData.data.connectedWithCourse}"
+						styleClass="button gray size24 disabled btnGoalEdit hasTooltip"
+						title="#{msg['goals.details.button.edit.disabled.tooltip']}"
+						value="Edit" />
+						
+					<utilcomp:tooltip target=".hasTooltip[title]" />
+						
+					<div class="clear"></div>	
+					
+					<!-- course details -->
+					<h:panelGroup layout="block"
+						rendered="#{learninggoals.selectedGoalData.data.connectedWithCourse}"
+						class="course">
+						
+						<icon:course styleClass="middleAlign" tooltipTitle=""/>
+						<span class="label">#{msg['goals.details.connectedWithCourse']}</span>
+					</h:panelGroup>
+				</div>
+				
+				<div id="aboutGoalRightHidden" class="rightSidebar aboutGoalRight">					
+					<div class="members">
+						<strong>Creator:</strong>
+						
+						<link:user value="userDetailsFollowers" 
+		    				userData="#{learninggoals.selectedGoalData.data.creator}"
+		    				idPrefix="goalDetails"
+		    				mode="imageName"
+		    				context="goalDetails.imageName"/>
+					</div>
+					
+					<p><strong>Membership:</strong>&#160;<h:outputText value="#{learninggoals.selectedGoalData.data.freeToJoin =='true' ? 'Free to Join' : 'Ask to Join'}" /></p>
+				</div>
+				
+				<div class="clear"></div>
+				<a href="#aboutGoalHidden" class="boxMore clear separator">expand</a>
+				<script>
+					$('.boxMore').moreLessBox();
+				</script>
+			</h:form>
+	
+			<!-- Remove goal dialog -->
+			<div id="deleteGoalModalDialog" class="deleteGoalModalDialog" style="display: none;">
+				<h:form id="deleteGoalDialogForm">
+					<h4 class="warningMessage">
+						Are you sure you want to delete this learning goal?
+					</h4>
+					
+					<p>
+						<h:outputText rendered="#{!learninggoals.selectedGoalData.data.connectedWithCourse and 
+							empty learninggoals.selectedGoalData.collaborators}"
+							value="#{msg['learn.dialog.deleteGoal.info.hasColalborators']}" />
+							
+						<h:outputText rendered="#{!learninggoals.selectedGoalData.data.connectedWithCourse and 
+							not empty learninggoals.selectedGoalData.collaborators}"
+							value="#{msg['learn.dialog.deleteGoal.info.noColalborators']}" />
+							
+						<h:outputText rendered="#{learninggoals.selectedGoalData.data.connectedWithCourse}"
+							value="#{msg['learn.dialog.deleteGoal.connectedWithCourse']}" />
+					</p>
+		
+					<p:commandLink value="Yes"
+						styleClass="button green size30 right deleteYes"
+						onclick="$('#deleteGoalModalDialog').dialog('close');"
+					 	action="#{learninggoals.deleteSelectedGoal()}"
+					 	process="@this"
+					 	async="true"
+					 	update=":goalListForm :goalDetails :goalsControl"
+					/>
+					
+					<script>
+						$(function(){
+							$('#deleteGoalModalDialog .deleteYes').on('click', function(){
+								history.replaceState({}, null, removeQueryParameter('id'));
+								history.replaceState({}, null, removeQueryParameter('comp'));
+							});
+						})
+					</script>
+					
+					&#160;
+					<a class="button gray size30 right"
+						onclick="$('#deleteGoalModalDialog').dialog('close');">Cancel</a>
+			 	</h:form>
+			</div>
+			
+			<script>
+			$(function() {
+				$('#deleteGoalModalDialog').dialog({
+					title: 'Delete goal',
+					dialogClass: 'warning',
+					show : 'slide',
+					autoOpen: false,
+					width: 400,
+					modal: true,
+					resizable: false,
+					open: function() {
+						if ($(this).parent().find('.ui-dialog-titlebar .warningIcon').length == 0) {
+							$(this).parent()
+						        .children('.ui-dialog-titlebar')
+						        .prepend('<span class="warningIcon"></span>');
+						}
+					}
+				});
+				$('#deleteGoalModalDialog').show();
+			});
+			</script>
+			
+			
+			<h:form id="editGoalDetailsForm" prependId="false" class="editGoal hidden">
+				<div class="main">
+					<div class="aboutGoal">
+						
+						<h2>
+							<icon:goal styleClass="icon"/>
+							<h:inputText id="editGoalTitle" class="titleField" value="#{learninggoals.selectedGoalData.data.title}" />
+						</h2>
+						<table class="progressDeadlineContainer">
+							<tr>
+								<td>
+									<strong>Progress:</strong>&#160;
+									<div id="editGoalProgressBar" class="barCont"></div>&#160;
+									<h:inputText id="editGoalProgress" class="progressField" value="#{learninggoals.selectedGoalData.data.progress}" />&#160;%
+									<div class="clear"></div>
+									<label>
+										<h:selectBooleanCheckbox class="progressCheckbox" id="progressCheckbox" value="#{learninggoals.selectedGoalData.data.progressActivityDependent}" />
+										Activity dependent
+									</label>
+								</td>
+								<td class="deadline">
+									<strong>Deadline:</strong>&#160;
+									<h:inputText id="editGoalDeadline" class="deadlineField"
+										value="#{learninggoals.selectedGoalData.data.deadline}" required="false" onfocus="blur();">
+									    <f:convertDateTime pattern="dd.MM.yyyy" />
+									</h:inputText>
+								</td>
+							</tr>
+						</table>
+					</div>	
+					<div id="aboutGoalHidden" class="aboutGoal">
+						<table>
+							<tr>
+								<td class="col01">Description:</td>
+								<td class="col02">
+									<h:inputTextarea id="editGoalDescription" 
+										class="goalDescription" 
+										value="#{learninggoals.selectedGoalData.data.description}"
+										placeholder="#{msg['textarea.description']}" />
+									
+									<script>
+										$(function() {
+											$('.aboutGoal .goalDescription').autosize();
+										});
+									</script>
+								</td>
+							</tr>
+							<tr>
+								<td class="col01 keywords">Keywords:</td>
+								<td class="col02">
+									<h:inputText class="tagsEditMode keywords" value="#{learninggoals.selectedGoalData.data.tagsString}" />
+								</td>
+							</tr>
+							<tr>
+								<td class="col01">Hashtags:</td>
+								<td class="col02">
+									<h:inputText class="tagsEditMode hashtags" value="#{learninggoals.selectedGoalData.data.hashtagsString}" />
+									<span class="noContentMessage block">HINT: write hashtags without hash sign (#) and separated with comma (,). . ProSolo will import the Tweets with these hashtags on your goal wall.</span>
+								</td>
+							</tr>
+						</table>
+					</div>	
+				</div>
+				
+				<div class="rightSidebar aboutGoalRight">
+					<p:commandLink styleClass="button gray size20 btnGoalCancel" value="Cancel" 
+						onclick="toggleEditMode('#goalDetailsForm','#editGoalDetailsForm');"
+					/>
+						
+					<p:commandLink styleClass="button green size20 btnGoalEdit" value="Save" 
+						action="#{learninggoals.saveGoalEdit()}" 
+						onclick="toggleEditMode('#goalDetailsForm','#editGoalDetailsForm');"
+						update=":goalDetails :goalListForm :goalWall:goalWallForm:goalWall 
+							:competenceList :newCompetenceButtonForm :compSearchForm :compRecommendationsForm :activities:actSearchForm "
+					/>
+				</div>
+				
+				<div id="aboutGoalRightHidden" class="rightSidebar aboutGoalRight">					
+					<div class="members">
+						<strong>Creator:</strong>
+						<link:user value="userDetailsFollowers" 
+		    				userData="#{learninggoals.selectedGoalData.data.creator}"
+		    				idPrefix="goalEdit"
+		    				mode="imageName"
+		    				context="learn.targetGoal.#{learninggoals.selectedGoalData.data.targetGoalId}.goalDetails.imageName"/>
+					</div>
+					<p>
+						<strong style="float:left">Membership:</strong>
+						<h:selectOneRadio value="#{learninggoals.selectedGoalData.data.freeToJoin}" layout="pageDirection" style="float: left; margin-left: 15px;">
+							<f:selectItem itemValue="#{false}" itemLabel="Ask to join" />
+							<f:selectItem itemValue="#{true}" itemLabel="Free to join" />
+						</h:selectOneRadio>
+					</p>
+				</div>
+			</h:form>
+		</h:panelGroup>
+	</h:panelGroup>
+	
+	<div id="goalCourseDetails" class="hidden">
+		<h:form>
+			<div class="header marginBottom10">
+				<icon:course styleClass="left" />
+				<span class="title">
+					<link:course
+						onclick="$('#goalDetails .course').qtip().hide();"
+						courseData="#{learninggoals.selectedGoalData.data.course}"/>
+				</span>
+			</div>
+			
+			<div class="actions marginTop10">
+				<link:course 
+					courseData="#{learninggoals.selectedGoalData.data.course}"
+					styleClass="button blue size30 left"
+					onclick="$('#goalDetails .course').qtip().hide();"
+					title="Gantogram"/>
+					
+				<p:commandLink 
+					styleClass="button gray size30 btnGoalEdit" 
+					value="Withdraw" 
+					onclick="$('#goalDetails .course').qtip().hide();$('#withdrawFromCourseDialog').dialog('open');" />
+			</div>
+		</h:form>
+	</div>
+	
+	<script>
+	$('#goalDetails .course').qtip({
+		content: {
+			text: $("#goalCourseDetails"),
+			title: {
+				text: "",
+				button: false
+			}
+		},
+		position: {
+			at: 'bottom center', // Position the tooltip above the link
+			my: 'top center',
+			viewport: $(window), // Keep the tooltip on-screen at all times
+		},
+		hide: {
+			when: {
+				event:'mouseout'
+			}, 
+			fixed: true, 
+			delay: 500
+		},
+		style: {
+			classes: 'ui-tooltip-wiki ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-width-unbounded no-close-button'
+		}
+	});
+	</script>
+</ui:composition>

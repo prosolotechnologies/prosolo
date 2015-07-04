@@ -1,0 +1,70 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:searchcomps="http://java.sun.com/jsf/composite/components/search"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+	<composite:interface>
+	</composite:interface>
+	
+	<composite:implementation>
+		<div id="suggestedCompFormModalDialog" style="display: none;">
+	    
+			<h:form id="suggestedCompForm" class="suggestedCompForm">
+			
+				<ui:repeat id="compSuggestions" value="#{courseBean.suggestedCompetences}" var="compData" varStatus="iterator">
+					<searchcomps:competenceItem compData="#{compData}" showAddToGoalLink="false" />
+					
+					<p:commandLink value="#{msg['courses.dialog.suggestedCompetence.button.addToCourse']}"
+						styleClass="button green size25 left marginBottom10 marginTop10"
+						action="#{courseBean.addSuggestedCompetence(compData)}"
+						onclick="$('#suggestedCompFormModalDialog').dialog('close');"
+						update=":#{p:component('newCourseAddedCompsContainer')} :#{p:component('ganttContainer')} 
+							:#{p:component('prereqCoreqCompetenceForm')} :#{p:component('coursesFormGrowl')}"
+					/>
+					
+					<div class="separator clear"></div>
+				</ui:repeat>
+				
+				<h:panelGroup layout="block" class="noResultsPanel" rendered="#{empty courseBean.suggestedCompetences}">
+					No suggestions found.
+				</h:panelGroup>
+	
+				<div class="clear"></div>
+				
+				<a class="button gray size30 right" 
+					onclick="$('#suggestedCompFormModalDialog').dialog('close');">
+					Close
+				</a>
+			
+				<script>
+					$('.suggestedCompForm .message').shortenedText({showChar: 150, mode: 'static'});
+				</script>	
+			</h:form>
+		</div>
+		<script>
+		$(function() {
+			$('#suggestedCompFormModalDialog').dialog({
+				title: 'Suggested Competences',
+				autoOpen: false,
+				show : 'slide',
+				width: 600,
+				modal: true,
+				resizable: false,
+				open: function(event, ui) { 
+					$(this).children('.suggestedCompForm')
+						.css('text-align', 'center')
+						.css('padding-top', '50px')
+						.html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
+				},
+			});
+			$('#suggestedCompFormModalDialog').show();
+		});
+		</script>
+		
+	</composite:implementation>
+</ui:component>

@@ -1,0 +1,117 @@
+<ui:composition
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:dlgAnalytics="http://java.sun.com/jsf/composite/components/dialogs/analytics"
+	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:portfolio="http://java.sun.com/jsf/composite/components/portfolio">
+
+	<script>
+		$(function() {
+			lazyLoadAchievedCompetence();
+		});
+	
+		function beforeLazyLoadAchievedCompetences() {
+			$('#achievedCompForm .competencesContainer').show();
+			$('#achievedCompForm .competencesContainer').html('<img class="loader" src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif"/>');
+		}
+	</script>
+
+	<h:form id="achievedCompForm">
+		<p:growl id="achievedCompFormGrowl" showDetail="true" />
+		
+		<p:remoteCommand name="lazyLoadAchievedCompetence" 
+			onstart="beforeLazyLoadAchievedCompetences();"
+			action="#{portfolio.initAchievedCompetences()}" 
+			update=":#{p:component('achievedCompForm')}"
+			oncomplete="registerLazyLoadCompleted();"
+			async="true" />
+	
+		<div class="profileComp">
+			<h2><icon:competence styleClass="icon" />Competences</h2>
+			<div class="clear"></div>
+			
+			<div class="competencesContainer" style="display: none;">
+				<h3>Ongoing Competences</h3>
+			
+				<h:panelGroup rendered="#{empty learninggoals.ongoingCompetencesAsAchievedCompetenceData}" styleClass="noContentMessage">
+					There are no ongoing competences.
+				</h:panelGroup>
+			
+				<ui:repeat value="#{learninggoals.ongoingCompetencesAsAchievedCompetenceData}" var="compIterator" id="ongoingCompsRepeat" varStatus="iterator">
+					<portfolio:competenceItem
+						compData="#{compIterator}"
+						idSufix="ongoingComp#{iterator.index}"
+						styleClass="#{iterator.index % 2 == 1 ? 'noMargin' : '' }"
+						editable="true"
+						canBeBrushedUp="false"
+						context="profile.competences.ongoing" />
+				</ui:repeat>
+				
+				<div class="clear marginBottom10"></div>
+				
+				<h3>Completed Competences</h3>
+			
+				<h:panelGroup rendered="#{empty portfolio.completedComps}" styleClass="noContentMessage">
+					There are no achieved competences.
+				</h:panelGroup>
+			
+				<ui:repeat value="#{portfolio.completedComps}" var="compIterator" id="completedAchievedCompsRepeat" varStatus="iterator">
+					<portfolio:competenceItem
+						compData="#{compIterator}"
+						idSufix="completedComp#{iterator.index}"
+						styleClass="#{iterator.index % 2 == 1 ? 'noMargin' : '' }"
+						editable="true"
+						canBeBrushedUp="true"
+						context="profile.competences.completed" />
+				</ui:repeat>
+				<script>
+					$('#achievedCompForm .competencesContainer').fadeIn();
+				</script>
+			</div>
+			
+			<script>
+				$(function(){
+					enableDropdown('.profileComp .drop');
+					
+					$('.profileComp .compsMore').moreLessBox({
+						lessClass:'',
+						lessText:'See less',
+						moreClass:'',
+						moreText:'See all',
+					});
+					
+					$('.profileComp .profileItem h4 .firstLine').shortenedText({showChar: 60, mode: 'static'});
+				});
+
+				$(window).bind("load", function() {
+					var evaluationParameter = parseInt(#{portfolio.evaluationParameter});
+					
+					if (evaluationParameter > 0) {
+						$('#evListEvaluationListDialog').dialog( "option", "evaluationToHighlight", evaluationParameter );
+						$('.initializeEvaluationDialogHandler').trigger('click');
+					}
+				});
+			</script>
+			<p:commandLink styleClass="initializeEvaluationDialogHandler"
+				onclick="$('#evListEvaluationListDialog').dialog('open');"
+				action="#{evaluationlist.initialize(portfolio.returnEvaluatedResource())}"
+				update=":#{p:component('evaluationListForm')}"
+				style="display: none"
+				>
+			</p:commandLink>
+		</div>
+		
+		<utilcomp:tooltip target=".hasTooltip[title]" />
+	</h:form>
+	
+	<script>
+		$('#achievedCompForm .competencesContainer').hide();
+	</script>
+	
+	<dlgAnalytics:competence id="compAnalytics" />
+</ui:composition>

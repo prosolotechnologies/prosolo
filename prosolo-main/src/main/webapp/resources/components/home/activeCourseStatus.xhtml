@@ -1,0 +1,64 @@
+<ui:composition
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	
+	<h:outputScript library="javascript" name="goals.js" target="head" />
+	<h:outputScript library="javascript" name="prosolo.slider.js" />
+	<utilcomp:messagesBundle var="msg" />
+	
+	<div class="sideBox sideCourses indexTripStep21">
+	
+		<h:form id="courseStatusForm">
+			<h4>
+				#{msg['home.activeCourse.title']}
+				<utilcomp:infotooltip position="ACTIVE_COURSE" context="index.activeCourses" />
+			</h4>
+		
+			<h:panelGroup layout="block" id="courseStatusContainer" class="courseStatusContainer" style="display: none;">
+				<h:link value="Set now..." outcome="/plan"
+					onclick="sendLogPageNavigation('plan.xhtml','index.activeCourses');"
+					rendered="#{empty coursePortfolioBean.activeCourses}"
+					class="button green size25"
+				/>
+				
+				<h:panelGroup rendered="#{not empty coursePortfolioBean.activeCourses}">
+					<ui:repeat value="#{coursePortfolioBean.activeCourses}" var="courseData" varStatus="iterator">
+						<div class="course">
+							<h:link class="title" outcome="/course" 
+								onclick="sendLogPageNavigation('course.xhtml?id=#{courseData.course.id}','index.activeCourses');">
+								<f:param name="id" value="#{courseData.course.id}" />
+								#{courseData.title} <span class="bold nobreak">(#{courseData.progress} %)</span>
+							</h:link>
+	
+							<div class="sliderContainer">
+								<div id="courseProgressBar#{iterator.index}" class="barCont"></div>
+								<span id="courseProgress#{iterator.index}" class="hidden">#{courseData.progress}</span>
+							</div>
+						</div>
+	
+						<script>
+							$(function(){
+								prosolo.slider.enable('#courseProgress#{iterator.index}', '#courseProgressBar#{iterator.index}', true);
+							})
+						</script>
+					</ui:repeat>
+				</h:panelGroup>
+					
+				<utilcomp:tooltip target=".hasTooltip[title]" />
+				
+				<div class="clear"></div>
+			</h:panelGroup>
+			
+			<utilcomp:lazyLoad 
+				parentClass="sideCourses"
+				updateOnComplete=":courseStatusForm:courseStatusContainer"
+				loaderContainer=".courseStatusContainer"
+				initializeAction="#{coursePortfolioBean.initializeCoursePortfolio()}"
+				async="true"
+			/>
+		</h:form>
+	</div>
+</ui:composition>

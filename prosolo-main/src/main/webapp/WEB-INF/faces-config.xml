@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<faces-config xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+        http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_2.xsd"
+    version="2.2">
+
+	<application>
+		<el-resolver>org.springframework.web.jsf.el.SpringBeanFacesELResolver</el-resolver>
+		<locale-config>
+			<default-locale>en</default-locale>
+		</locale-config>
+
+		<!-- 
+		<resource-bundle>
+			<base-name>org.prosolo.web.messages</base-name>
+			<var>msg</var>
+		</resource-bundle>
+		 -->
+		 
+		<message-bundle>
+			org.prosolo.web.generic_messages
+		</message-bundle>
+	</application>
+
+	<factory>
+		<exception-handler-factory>org.omnifaces.exceptionhandler.FullAjaxExceptionHandlerFactory</exception-handler-factory>
+	    <render-kit-factory>org.omnifaces.renderkit.Html5RenderKitFactory</render-kit-factory>
+	</factory>
+	
+	<render-kit>
+		<renderer>
+			<component-family>org.primefaces.component</component-family>
+	        <renderer-type>org.primefaces.component.FileUploadRenderer</renderer-type>
+	        <renderer-class>org.prosolo.core.jsf.renderers.FileUploadRenderer</renderer-class>
+		</renderer>
+	</render-kit>
+
+	<converter>
+		<converter-for-class>java.lang.Enum</converter-for-class>
+		<converter-class>javax.faces.convert.EnumConverter</converter-class>
+	</converter>
+</faces-config>

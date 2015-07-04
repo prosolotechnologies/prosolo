@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+<h:head>
+</h:head>
+
+<composite:interface>
+</composite:interface>
+
+<composite:implementation xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	
+	<utilcomp:messagesBundle var="msg" />
+
+   <div id="newOrganizationModalDialog" title="Create new Organization">
+						
+		<h:form id="newOrganizationForm" prependId="false">
+			<p:growl id="newOrganizationFormGrowl" showDetail="true" /> 
+			<h:panelGrid columns="2">
+				<h:outputLabel for="name">Name:</h:outputLabel>
+				<h:inputText id="name" value="#{organizations.formData.name}" required="true" requiredMessage="Name field is required"
+				validator="#{organizations.validateName}"/>
+
+				<h:outputLabel for="abbreviatedName">Abbreviated Name:</h:outputLabel>
+				<h:inputText id="abbreviatedName" value="#{organizations.formData.abbreviatedName}" />
+
+				<h:outputLabel for="description">Description:</h:outputLabel>
+				
+				<h:inputTextarea id="description" 
+					rows="4" cols="55"
+					value="#{organizations.formData.description}"
+					placeholder="#{msg['textarea.description']}" />
+
+				<p:commandButton id="save" value="Save" 
+					onclick='$("#newOrganizationModalDialog").dialog("close");'
+				 	actionListener="#{organizations.saveNewOrganization}" 
+				 	update=":newOrganizationForm :organizationsForm" />
+				
+
+				<p:commandButton id="cancel" value="Cancel" 
+					onclick='$("#newOrganizationModalDialog").dialog("close");'
+					actionListener="#{organizations.resetFormData}"
+					immediate="true"
+					update=":newOrganizationForm" />
+				
+			</h:panelGrid>
+		</h:form>
+	</div>
+	
+	<script>
+	$(function() {
+		$( "#newOrganizationModalDialog" ).dialog({
+			autoOpen: false,
+			height: 400,
+			width: 500,
+			modal: true,
+		});
+	});
+	</script>
+</composite:implementation>
+</html>

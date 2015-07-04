@@ -1,0 +1,43 @@
+package org.prosolo.services.email.generators;
+
+import java.util.List;
+
+import org.prosolo.domainmodel.user.TimeFrame;
+import org.prosolo.web.digest.data.FeedsDigestData;
+
+public class FeedsEmailGenerator extends EmailContentGenerator {
+	
+	@Override
+	String getTemplateName() {
+		return "feedDigest";
+	}
+	
+	private String name;
+	private List<FeedsDigestData> feedsDigests;
+	private String dashedDate;
+	private String interval;
+	
+	public FeedsEmailGenerator(String name, List<FeedsDigestData> feedsDigests, String dashedDate, TimeFrame interval) {
+		this.name = name;
+		this.feedsDigests = feedsDigests;
+		this.dashedDate = dashedDate;
+		this.interval = interval.name().toLowerCase();
+	}
+	
+	public String getName() {
+		return name;
+	}
+
+	public List<FeedsDigestData> getFeedsDigests() {
+		return feedsDigests;
+	}
+
+	public String getDashedDate() {
+		return dashedDate;
+	}
+
+	public String getInterval() {
+		return interval;
+	}
+	
+}

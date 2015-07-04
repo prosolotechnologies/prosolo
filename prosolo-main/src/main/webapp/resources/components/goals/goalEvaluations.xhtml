@@ -1,0 +1,80 @@
+<ui:composition
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+	<utilcomp:messagesBundle var="msg" />
+	
+	<div class="goalEvaluations">
+		<script>
+		var goalEvaluationControl = {
+			opened: false,
+		};
+		</script>
+	
+		<h3>#{msg['learn.goals.evaluations.title']}</h3>
+		
+		<p:commandLink value="#{msg['learn.goals.evaluations.button.askForEvaluations.title']}" 
+			styleClass="button green size20 left marginRight10 uppercase"
+			onclick="$( '#askForEvaluationDialog' ).dialog('open');"
+			action="#{askForEvaluation.setResourceById(learninggoals.selectedGoalData.data.targetGoalId, 'learn.targetGoal.'.concat(learninggoals.selectedGoalData.data.targetGoalId))}"
+			update=":askForEvaluationDialogForm"
+		/>
+		<div class="clear"></div>
+					
+		<h:form id="selectedGoalEvaluations" class="marginTop20">
+			<h:panelGroup id="evaluations" class="goalEvaluations">
+				
+				<span class="bold left">#{msg['learn.goals.evaluations.approvedEvaluations']}&#160;</span>
+				<p:commandLink id="evaluationCount"
+					value="#{learninggoals.selectedGoalData.evaluations != null ? 
+						learninggoals.selectedGoalData.data.evaluationCount : '0'} #{msg['learn.goals.evaluations.numberOfEvaluations']}"
+					onclick="goalEvaluationControl.opened = true;$('#evaluationListDialog').dialog('open');"
+					action="#{evaluationlist.initializeTargetGoalEvaluations(learninggoals.selectedGoalData.data.targetGoalId, true, 'learn.targetGoal.'.concat(learninggoals.selectedGoalData.data.targetGoalId))}"
+					update=":#{p:component('evaluationListForm')}"
+					styleClass="left showEvaluationsBtn"
+				/>
+				<div class="clear"></div>
+				
+				<span class="bold left">#{msg['learn.goals.evaluations.rejectedEvaluations']}&#160;</span>
+				<p:commandLink id="rejectedEvaluationCount"
+					value="#{learninggoals.selectedGoalData.evaluations != null ? 
+						learninggoals.selectedGoalData.data.rejectedEvaluationCount : '0'} #{msg['learn.goals.evaluations.numberOfEvaluations']}"
+					onclick="goalEvaluationControl.opened = true;$('#evaluationListDialog').dialog('open');"
+					action="#{evaluationlist.initializeTargetGoalEvaluations(learninggoals.selectedGoalData.data.targetGoalId, false, 'learn.targetGoal.'.concat(learninggoals.selectedGoalData.data.targetGoalId))}"
+					update=":#{p:component('evaluationListForm')}"
+					styleClass="left showEvaluationsBtn"
+				/>
+				
+				<script>
+				$(function(){
+					if (!goalEvaluationControl.opened) {
+						var evaluationParameter = parseInt(getHashValue('ev'));
+						var evaluationIds = #{not empty learninggoals.selectedGoalData.evaluationIds ? learninggoals.selectedGoalData.evaluationIds : 0};
+						
+						if (evaluationParameter > 0) {
+							if ($.inArray(evaluationParameter, evaluationIds) > -1) {
+								$('#evaluationListEvaluationListDialog').dialog('option', 'evaluationToHighlight', evaluationParameter);
+								$('.goalEvaluations .goalEvaluations .showEvaluationsBtn').trigger('click');
+							}
+						}
+					}
+				});
+				</script>
+			</h:panelGroup>
+			
+			<utilcomp:lazyLoad 
+				parentClass="goalEvaluations"
+				updateOnComplete=":selectedGoalEvaluations:evaluations"
+				loaderContainer=".goalEvaluations"
+				initializeAction="#{learninggoals.selectedGoalData.initializeEvaluations()}"
+				loaderClass="left"
+				disabled="#{learninggoals.selectedGoalData == null}"
+			/>
+			<div class="clear marginBottom10"></div>
+		</h:form>
+	</div>
+</ui:composition>

@@ -1,0 +1,111 @@
+<ui:component
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:socialWall="http://java.sun.com/jsf/composite/components/socialWall"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post">
+
+	<!-- mode: 
+		USER - have actions enabled
+		MANAGER - have actions disabled/hidden
+	-->
+
+	<composite:interface>
+		<composite:attribute name="parentid" type="java.lang.String" required="true" />
+		<composite:attribute name="activities" required="true" />
+		<composite:attribute name="cantdisplaymessage" default="There are no activities" />
+		<composite:attribute name="mode" default="USER" /> 
+		<composite:attribute name="width" /> 
+		<composite:attribute name="context" /> 
+		<composite:attribute name="removeActivityMethod"
+			method-signature="void removeActivity()"
+			required="false"/>
+		<composite:attribute name="activityToRemoveHolder" required="false"/>
+	</composite:interface>
+	
+	<composite:implementation>
+		
+		<h:panelGroup layout="block" id="availableUsedActivities" class="compPlans noPlans noContentMessage" rendered="#{empty cc.attrs.activities}">
+			<h:outputText value="#{cc.attrs.cantdisplaymessage}" />
+		</h:panelGroup>
+		
+		<h:panelGroup layout="block" id="recommendedPlans" class="compPlans usedPlan" forceId="true" rendered="#{! empty cc.attrs.activities}">
+			<ui:repeat value="#{cc.attrs.activities}" var="actData" varStatus="iterator">
+				<div class="actBlock act#{iterator.index}">
+					<div class="title">
+						<span class="position">#{iterator.index+1}.</span>
+					
+						<span class="#{actData.completed ? 'titleText' : 'titleTextWide'}">
+							#{actData.activity.title}
+						</span>
+					
+						<p:commandLink styleClass="iconRemove" value="x"
+							rendered="#{cc.attrs.removeActivityMethod != null}"
+							action="#{cc.attrs.removeActivityMethod}" 
+							update="@form">
+							<f:setPropertyActionListener target="#{cc.attrs.activityToRemoveHolder}" value="#{actData}" />
+						</p:commandLink>
+						
+						<span class="status #{actData.completed ? 'iconCheck' : 'iconUnCheck'}"></span>
+						
+						<span class="date">#{actData.dateCompleted}</span>
+					</div>
+					 <h:panelGroup rendered="#{actData.haveScore}">Latest grade on this activity: #{actData.score}</h:panelGroup>
+					<socialWall:attachmentPreview 
+						attachmentPreview="#{actData.attachmentPreview}"
+						toRender="#{actData.attachmentPreview.contentType != 'UPLOAD_ASSIGNMENT'}"
+						width="#{cc.attrs.width}"
+						uniqueParentSelector="##{cc.attrs.parentid} .compPlans .act#{iterator.index}"
+						context="#{cc.attrs.context}.activity.#{actData.id}" />
+							
+					<socialWall:uploadAssignment
+						activityData="#{actData}"
+						mode="#{cc.attrs.mode}"
+						toRender="#{actData.attachmentPreview.contentType == 'UPLOAD_ASSIGNMENT'}"
+						context="#{cc.attrs.context}.activity.#{actData.id}"
+					/>
+					
+					<h:panelGroup layout="block" id="commentBoxId" styleClass="commentsBox" rendered="#{actData.comments.size() > 0}" prependId="true">
+						<div class="arrow"></div>
+						<div class="comments">
+							<p class="likes">
+								<h:panelGroup layout="block">
+									<a href="#" onclick="$('##{cc.attrs.parentid} .act#{iterator.index} .commentsContainer').toggle();return false;">#{actData.comments.size()} comments</a>
+								</h:panelGroup>
+							</p>
+							
+							<div class="commentsContainer hidden">
+								<ui:repeat value="#{actData.comments}" var="commentData" varStatus="commentIterator">
+									<post:comment 
+										commentData="#{commentData}" 
+										idPrefix="#{cc.attrs.parentid}I#{iterator.index}I#{commentIterator.index}"
+										context="#{cc.attrs.context}.activity.#{actData.id}"
+										update="@this"/>
+								</ui:repeat>
+							</div>
+						</div>
+					</h:panelGroup>
+						
+					<div class="clear splitter marginTop10"></div>
+				</div>
+				<script>
+					$(function() {
+						var urlLength = #{actData.attachmentPreview != null ? 38 : 65};
+						$('.postBlock .richContent .atcUrl').shortenedText({showChar: urlLength, mode: 'static'});
+						$('.postBlock .richContent .atcTitle').shortenedText({showChar: urlLength, mode: 'static'});
+						$('.postBlock .richContent .atcDesc').shortenedText({showChar: 130, mode: 'link'});
+						
+						$('##{cc.attrs.parentid} .usedPlan .commentHandler').click(function() {
+							var s = $(this).parent().parent().parent().find('.commentsContainer');
+							s.slideToggle();
+						});
+					});
+				</script>
+			</ui:repeat>
+		</h:panelGroup>
+	</composite:implementation>
+</ui:component>

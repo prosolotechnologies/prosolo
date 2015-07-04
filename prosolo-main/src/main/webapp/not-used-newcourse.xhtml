@@ -1,0 +1,149 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	template="templates/masterLayout.xhtml"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:dlgportfolio="http://java.sun.com/jsf/composite/components/dialogs/portfolio"
+	xmlns:compcourses="http://java.sun.com/jsf/composite/components/courses"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	>
+
+<ui:define name="windowTitle">
+	Create New Course | ProSolo
+</ui:define>
+
+<ui:define name="content">
+	<div id="courses" class="container courses newCourse">
+	
+		<div class="content wide">
+		    <h:form id="newCourseForm">
+		    	<span class="courseIcon30 left marginRight10"></span>
+				<h2 class="left	">New Course</h2>
+		    	<div class="clear"></div>
+		    
+		    	<h:link class="button size30 green left" value="Create New" outcome="/course" />
+
+				<h2 class="left marginRight10"> or </h2>
+				
+				<div class="searchCourseForm">
+					<script>
+					var courseSearch;
+					$(function() {
+						$('.courses').prosolosearch({
+							resultContainer: '#newCourseForm .courseSearchContainer',
+							loaderContainer: '#newCourseForm .courseSearchContainer .courseSearchPanel',
+							searchInput: '#newCourseForm .courseSearchOuterContainer .searchInput',
+							watermark: 'Search existing courses'
+						});
+						courseSearch = $('.courses').data('prosolo.search');
+					});
+					</script>
+					
+					<div class="courseSearchOuterContainer searchContainer">
+						<h:panelGroup layout="group" class="mGlass" />
+					  	<h:inputText size="20" 
+					  		class="searchInput"
+							valueChangeListener="#{courseBean.searchCoursesListener}">
+							<f:ajax 
+								render="courseSearchResultPanel" 
+								execute="@this" event="keyup"/>
+						</h:inputText>
+						
+						<div id="suggestionscourse" class="genericSearchContainer courseSearchContainer">
+			 				<h:panelGroup layout="block" id="courseSearchResultPanel" class="courseSearchPanel">
+								
+								<script>
+								$(function() {
+									courseSearch.clearTimeout();
+								});
+								</script>
+							
+			 					<h:panelGroup layout="block" id="courseSearchResultPanelContent" rendered="#{not empty courseBean.searchResults}">
+				 				 	<div class="category">
+				 				 		Courses(#{courseBean.resultNo})
+				 				 		<span class="right">
+				 				 			<ui:remove>
+											<h:outputLink class="seeAllLink" value="search.xhtml">
+												<h:outputText value="See all" />
+												<f:param name="tab" value="goals" />
+												<f:param name="query" value="" />
+											</h:outputLink>
+											</ui:remove>
+										</span>
+									</div>
+				 				 	
+									<ui:repeat value="#{courseBean.searchResults}" var="objData" >
+										<div class="searchRecord">
+											<div class="image">
+												<span class="courseIcon30"></span>
+											</div>
+											
+											<div class="info">
+												<div class="bold">
+													#{objData.title}
+												</div>
+												
+												<div>
+													Creator: 
+													<h:panelGroup rendered="#{objData.creatorType == 'ORGANIZATION'}">
+														Organizational
+													</h:panelGroup>
+													<h:panelGroup rendered="#{objData.creatorType == 'USER'}">
+														<link:user value="userDetailsImage" 
+										    				user="#{objData.creator}"
+										    				mode="name"
+										    				idPrefix="objSearchCreator#{iterator.index}" 
+										    				context="newcourse"/>
+													</h:panelGroup>
+												</div>
+												
+												<div class="actions">
+												<p:commandLink  value="Details"
+																update=":courseDetails:courseDetailsForm" 
+																action="#{courseDialog.openCourseDialogById(objData.course.id)}"
+																onclick='$("#courseDetailsModalDialog").dialog("open");'>
+												</p:commandLink>
+												<span class="bullet"></span>
+													<p:commandLink value="Choose"
+														actionListener="#{courseBean.chooseNewCourse(objData.course)}"
+														update=":basedOnCourse:newCourseForm" 
+														oncomplete="courseSearch.hideResults();$('#basedOnCourse\\:newCourseForm').show();" 
+													/>
+												</div>
+												
+											</div>
+										</div>
+										
+										<div class="break"></div>
+									</ui:repeat>
+			 					</h:panelGroup>
+			 					
+								<h:panelGroup id="noCourseResultsPanel" class="noResultsPanel" rendered="#{empty courseBean.searchResults}">
+									No results found
+								</h:panelGroup>
+							</h:panelGroup>
+				 		</div>
+					</div> <!-- end courseSearchOuterContainer -->
+					
+					<div class="clear"></div>
+				</div> <!-- end searchCourseForm -->
+			
+				<p:growl id="coursesFormGrowl" showDetail="true" />
+			</h:form>
+			<div class="clear marginBottom10 marginTop10"></div>
+			
+			<dlgportfolio:activityList id="newCourse" />
+			
+			<compcourses:course id="basedOnCourse"
+				initiallyHidden="true"/>
+			
+		</div><!-- .content -->
+	
+		<div class="clear"></div>
+	</div><!-- .container end -->
+<dlg:courseDetails id="courseDetails" />
+</ui:define>
+</ui:composition>

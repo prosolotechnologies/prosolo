@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui">
+<body>
+	<ui:composition
+		xmlns:comp="http://java.sun.com/jsf/composite/components"
+		xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+		xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+		xmlns:action="http://java.sun.com/jsf/composite/components/actions">
+		
+		 	<div id="logsFilterFormModalDialog" title="Logs filter" style="display: none;">
+			<h:form id="logsFilterForm">
+				<p:growl id="logsFilterFormDialogGrowl" showDetail="true" />
+				    	<p class="text">
+		    	Choose users you wish to see logs for:
+	    	</p>
+	    	
+	    	<div class="search">
+	    	
+		    	<h:panelGroup layout="block" styleClass="searchInputDiv" id="searchInputDiv">
+			    	<div class="mGlass"></div>
+		    		
+		    		<ui:repeat value="#{logsFilterBean.usersList}" var="user">
+		    			<div class="selectedUsers">
+			    			<span class="name">#{user.name}</span>
+			    			
+			    			<p:commandLink styleClass="remove"
+			    				action="#{logsFilterBean.removeUser(user)}"
+			    				update=":logsFilterForm:searchInputDiv"
+		    				/>
+		    			</div>
+		    		</ui:repeat>
+		    	<p:remoteCommand name="sendFilterUsersAjaxical" update="userSearchResultPanel" action="#{logsFilterBean.executeUsersSearch}"/>
+ 
+			    	<h:inputText class="hiddenSearchInput"
+			    		id="userSearchInput"
+			    		value="#{logsFilterBean.searchText}"  
+		  				onkeyup="ajaxFilterUsersDelay()">
+					</h:inputText>
+					<script>
+						$(function() {
+							$('#logsFilterFormModalDialog .search .searchInputDiv input')
+								.autoGrowInput({comfortZone: 10}).focus().val('');
+							
+							$('#logsFilterFormModalDialog .search .searchInputDiv input').keydown(function(event) {
+								if (event.keyCode == 13) {
+									event.preventDefault();
+									return false;
+								}
+							});
+						});
+						var delay = (function() {
+   							 var timer = 0;
+    						return function(callback, ms) {
+        					clearTimeout (timer);
+        					timer = setTimeout(callback, ms);
+    					};
+						})();
+						function ajaxFilterUsersDelay(){ 
+							delay(function() { 
+							sendFilterUsersAjaxical(); 
+						}, 500);}
+					</script>
+		    	</h:panelGroup>
+		    	<div>
+				<span class="noContentMessage">HINT: Type the username and choose one of suggested users</span>
+				</div>
+				
+					<h:panelGroup layout="block" id="userSearchResultPanel" styleClass="resultsPanel">
+					<h:panelGroup layout="block" styleClass="results noResult"
+						rendered="#{empty logsFilterBean.userSearchResults and not empty logsFilterBean.searchText}">
+						No result
+					</h:panelGroup>
+				
+					<h:panelGroup layout="block" styleClass="results"
+						rendered="#{logsFilterBean.userSearchResults.size() > 0}" >
+				
+						<ui:repeat value="#{logsFilterBean.userSearchResults}" var="user" id="foundUserList">
+							<p:commandLink
+								styleClass="resultContainer"
+				    			actionListener="#{logsFilterBean.addUser(user)}"
+				    			update=":#{p:component('searchInputDiv')} :#{p:component('userSearchResultPanel')}" >
+				    			
+								<div class="result">
+									<h:graphicImage styleClass="imageRound image30 avatar"
+										value="#{user.avatarUrl}"
+										width="22" height="22" alt="" />
+									
+									<div class="infoContainer" style="float: left">
+										<div class="title">#{user.name}</div>
+										<div class="position">#{user.position}</div>
+									</div>
+								</div>
+							</p:commandLink>
+							<div class="clear"></div>
+						</ui:repeat>
+				
+					</h:panelGroup>
+							<script>
+					$(function() {
+					roundImages();
+				$(document).on('click', function(){
+					$('#logsFilterFormModalDialog .search .resultsPanel').fadeOut();
+					});
+					});
+					</script>
+				
+				</h:panelGroup>
+				</div>
+				<div>
+					<p:selectBooleanCheckbox value="#{logsFilterBean.twitterPosts}" />  &#160;&#160;
+        			<h:outputText value="Exclude Twitter posts " />  
+				</div>
+			<br/>
+				<div>
+				<p:selectCheckboxMenu value="#{logsFilterBean.selectedEventTypes}" label="Select Event Type" filter="false"  panelStyle="width:220px">  
+       				 <f:selectItems value="#{logsFilterBean.eventTypes}" />  
+    			</p:selectCheckboxMenu>  
+    			&#160;&#160;
+    				<p:selectCheckboxMenu value="#{logsFilterBean.selectedObjectTypes}" label="Select Object Type" filter="false"  panelStyle="width:220px">  
+       				 <f:selectItems value="#{logsFilterBean.objectTypes}" />  
+    			</p:selectCheckboxMenu>  
+		 
+				</div>
+				<br/>
+			
+				 <div>
+				<h:panelGroup>
+				<p:commandLink value="Reset Filters"
+						styleClass="button grey size30 right"
+						action="#{logsBean.resetFilters}"
+						update=":logsForm:logTable :logsFilterForm"/>
+				<p:commandLink value="Apply Filters"
+						styleClass="button blue size30 right"
+						action="#{logsBean.applyFilters}"
+						update=":logsForm:logTable"
+						onclick="$('#logsFilterFormModalDialog').dialog('close');"/>
+					</h:panelGroup>
+				</div> 
+			</h:form>
+		</div>
+
+		<script>
+			$(function() {
+				$('#logsFilterFormModalDialog').dialog({
+					autoOpen : false,
+					show : 'slide',
+					width : 600,
+					height: 500,
+					modal : true,
+					resizable : false,
+					open : function(event, ui) {
+						$(this).children(':first')
+								.css('text-align', 'center')
+								.css('padding-top', '50px')
+								.html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
+					},
+					close : function(event, ui) {
+						
+					}
+				});
+				$('#logsFilterFormModalDialog').show();
+				
+			});
+	
+	 
+	
+		</script>
+	</ui:composition>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<ui:composition
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+	<h:form id="logging_form" style="display: none">
+		<h:inputText value="#{loggingBean.userId}"
+			id="loggingPageUserId" styleClass="loggingPageUserId" />
+
+		<h:inputText value="#{loggingBean.link}"
+			id="loggingPageUrlFieldValue" styleClass="loggingPageUrlFieldValue" />
+
+		<h:inputText value="#{loggingBean.context}"
+			id="loggingPageContextFieldValue"
+			styleClass="loggingPageContextFieldValue" />
+
+		<h:inputText value="#{loggingBean.component}"
+			id="loggingComponentNameFieldValue"
+			styleClass="loggingComponentNameFieldValue" />
+
+		<h:inputText value="#{loggingBean.parameters}"
+			id="loggingParametersFieldValue"
+			styleClass="loggingParametersFieldValue" />
+
+		<h:commandLink id="loggingPageSubmitButton"
+			styleClass="loggingPageSubmitButton"  value="submit">
+			<f:ajax event="click" execute="@form"
+				listener="#{loggingBean.submitPageNavigation()}">
+			</f:ajax>
+		</h:commandLink>
+
+		<p:commandLink 
+			id="loggingTabButton"
+			styleClass="loggingTabButton"
+			action="#{loggingBean.submitTabNavigation()}" />
+			
+		<script>
+			$('.loggingTabButton').click(function(e){
+				e.stopPropagation();
+			});
+		</script>
+	</h:form>
+
+	<h:form id="logging_serviceuse_form" style="display: none">
+		<h:inputText value="#{loggingBean.userId}"
+			id="loggingServiceUseUserId" styleClass="loggingServiceUseUserId" />
+			
+		<h:inputText value="#{loggingBean.component}"
+			id="loggingComponentNameFieldValue"
+			styleClass="loggingComponentNameFieldValue" />
+			
+		<h:inputText value="#{loggingBean.parameters}"
+			id="loggingParametersFieldValue"
+			styleClass="loggingParametersFieldValue" />
+			
+		<p:commandLink 
+			id="loggingServiceUseSubmitButton"
+			styleClass="loggingServiceUseSubmitButton"
+			action="#{loggingBean.submitServiceUse()}" />
+		
+		<script>
+			$('.loggingServiceUseSubmitButton').click(function(e){
+				e.stopPropagation();
+			});
+		</script>
+	</h:form>
+</ui:composition>

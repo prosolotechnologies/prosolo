@@ -1,0 +1,85 @@
+<ui:composition
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:func="http://org.prosolo/functions"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	
+	<utilcomp:messagesBundle var="msg" />
+	
+	<div id="freeJoinGoalModalDialog" title="Join goal"	style="display: none">
+		<h:form id="freeJoinGoalForm" prependId="false" class="freeJoinGoalForm">
+		
+			<h:panelGroup rendered="#{!freeToJoinGoalDialog.canBeJoined}">
+				You already have this goal.
+			</h:panelGroup>
+
+			<h:panelGroup rendered="#{freeToJoinGoalDialog.canBeJoined}">
+				<p>
+					This goal is free to join. Are you sure you want to join learning goal
+					<link:goal
+						goalId="#{freeToJoinGoalDialog.learningGoal.goalId}" 
+						title="#{freeToJoinGoalDialog.learningGoal.title}" 
+						context="freeJoinGoal" />?
+				</p>
+								
+				<input type="text" class="goalId" style="display: none;" value="#{freeToJoinGoalDialog.id}" />
+				<input type="text" class="context" style="display: none;" value="#{freeToJoinGoalDialog.context}" />
+				
+				<div class="actions marginTop20">
+					<p:commandLink value="Yes"
+						styleClass="button green size30 right"
+						onclick="$('#freeJoinGoalModalDialog').dialog('option', 'submit', true);$('#freeJoinGoalModalDialog').dialog('close');"
+						action="#{freeToJoinGoalDialog.joinGoal()}"
+						update="freeJoinGoalFormGrowl" />
+					&#160;
+					<p:commandLink value="Cancel" type="button"
+						styleClass="button gray size30 right"
+						onclick='$("#freeJoinGoalModalDialog").dialog("close");' />
+				</div>
+	
+				<p:growl id="freeJoinGoalFormGrowl" showDetail="true" />
+				
+				<script>
+					$(function() {
+						roundImages();
+					});
+				</script>
+			</h:panelGroup>
+		</h:form>
+	</div>
+	<script>
+		$(function() {
+			$('#freeJoinGoalModalDialog').dialog({
+				modal : true,
+				width: 400,
+				show : 'slide',
+				autoOpen : false,
+				resizable : false,
+				open : function(event, ui) {
+					$(this).children(':first')
+						.css('text-align', 'center')
+						.css('padding-top', '50px')
+						.html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
+				},
+				close: function() {
+					var submitted = $(this).dialog('option', 'submit');
+					
+					if (!submitted) {
+						var id = $('#freeJoinGoalModalDialog .goalId').val();
+						var context = $('#freeJoinGoalModalDialog .context').val();
+						sendServiceUse('MOUSE_CLICK', {context: context+'.freeJoinGoalDialog', 'link': 'cancel', 'goalId': id});
+					}
+					
+					$(this).dialog('option', 'submit', false);
+				}
+			});
+			$('#freeJoinGoalModalDialog').show();
+		});
+	</script>
+</ui:composition>

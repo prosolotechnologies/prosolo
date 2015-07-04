@@ -1,0 +1,127 @@
+<ui:composition
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:func="http://org.prosolo/functions"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons">
+	
+	<utilcomp:messagesBundle var="msg" />
+	
+	<div id="requestToJoinGoalModalDialog" title="Request to join goal"	style="display: none">
+		<h:form id="requestToJoinGoalForm" prependId="false" class="requestToJoinGoalForm">
+		
+			<h:panelGroup rendered="#{!requestToJoinGoalBean.canBeRequestedToJoin}">
+				You already have this goal.
+			</h:panelGroup>
+		
+			<h:panelGroup rendered="#{requestToJoinGoalBean.canBeRequestedToJoin}">
+				<h:panelGroup rendered="#{requestToJoinGoalBean.goalStatus == 'NO_GOAL_COURSE_CONNECTED'}" class="course">
+					<icon:course styleClass="icon left" />
+					<div class="text">
+						This learning goal is connected to a credential 
+						<link:course toRender="#{requestToJoinGoalBean.learningGoal.course != null}" 
+							directLlink="true"
+							courseId="#{requestToJoinGoalBean.learningGoal.course.id}"
+							title="#{requestToJoinGoalBean.learningGoal.course.title}" />. By joining this learning goal, you will be enrolled into the credential too.
+					</div>
+				</h:panelGroup>
+								
+				<p>
+					In order to join learning goal
+					<link:goal
+						goalId="#{requestToJoinGoalBean.learningGoal.goalId}" 
+						title="#{requestToJoinGoalBean.learningGoal.title}" 
+						context="requestToJoinGoal" />, you must send a request.
+				</p>
+				
+				<table>
+					<tr>
+						<td class="col1">To:</td>
+						<td> 
+				 			<link:user value="userDetails" 
+			    				userData="#{requestToJoinGoalBean.receiver}"
+			    				mode="imageName"
+			    				imageSize="22"
+			    				idPrefix="requestToJoinGoalForm"
+			    				context="requestToJoinGoal.imageName"/>
+						</td>
+					</tr>
+					<tr>
+						<td class="label col1">
+							<h:outputLabel for="requestMessageContent">Message:</h:outputLabel>
+						</td>
+						<td>
+							<h:inputTextarea styleClass="messageTextarea" id="requestMessageContent"
+								value="#{requestToJoinGoalBean.messageContent}"
+								placeholder="#{msg['textarea.message']}" />
+								
+							<script>
+							$(function() {
+								$('#requestToJoinGoalModalDialog .messageTextarea').autosize(); 
+							});
+							</script>
+						</td>
+					</tr>
+				</table>
+				
+				<input type="text" class="id" style="display: none;" value="#{requestToJoinGoalBean.learningGoal != null ? requestToJoinGoalBean.learningGoal.goalId : '0'}" />
+				<input type="text" class="context" style="display: none;" value="#{requestToJoinGoalBean.context}" />
+				
+				<div class="actions">
+					<p:commandLink value="Send"
+						styleClass="button green size30 right"
+						onclick="$('#requestToJoinGoalModalDialog').dialog('option', 'submit', true);$('#requestToJoinGoalModalDialog').dialog('close');"
+						actionListener="#{requestToJoinGoalBean.sendRequestToJoinGoal}"
+						update="newRequestToJoinFormGrowl" />
+					&#160;
+					<p:commandLink value="Cancel" type="button"
+						styleClass="button gray size30 right"
+						onclick='$("#requestToJoinGoalModalDialog").dialog("close");' />
+				</div>
+	
+				<p:growl id="newRequestToJoinFormGrowl" for="newRequestToJoinFormGrowl" showDetail="true" />
+				
+				<script>
+					$(function() {
+						roundImages();
+					});
+				</script>
+			</h:panelGroup>
+		</h:form>
+	</div>
+	<script>
+		$(function() {
+			$('#requestToJoinGoalModalDialog').dialog({
+				modal : true,
+				width: 465,
+				show : 'slide',
+				autoOpen : false,
+				resizable : false,
+				open : function(event, ui) {
+					$(this).children(':first')
+						.css('text-align', 'center')
+						.css('padding-top', '50px')
+						.html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
+				},
+				close: function() {
+					var submitted = $(this).dialog('option', 'submit');
+					
+					if (!submitted) {
+						var id = $('#requestToJoinGoalModalDialog .id').val();
+						var context = $('#requestToJoinGoalModalDialog .context').val();
+						sendServiceUse('MOUSE_CLICK', {context: context+'.requestToJoinGoalDialog', 'link': 'cancel', 'goalId': id});
+					}
+					
+					$(this).dialog('option', 'submit', false);
+				}
+			});
+			$('#requestToJoinGoalModalDialog').show();
+		});
+	</script>
+</ui:composition>

@@ -1,0 +1,79 @@
+{
+  "document": {
+    "properties": {
+      "title": {
+        "type": "string",
+        "store": false
+      },
+      "description": {
+        "type": "string",
+        "store": "yes"
+      },
+      "contentType": {
+        "type": "string",
+        "store": "yes"
+      },
+      "dateCreated": {
+        "store": "yes",
+        "type": "date"
+      },
+      "url": {
+        "store": "yes",
+        "type": "string"
+      },
+      "visibility": {
+        "store": "yes",
+        "type": "string"
+      },
+      "ownerId": {
+        "type": "long",
+        "store": "yes"
+      },
+      "relatedToType": {
+        "type": "string",
+        "store": "yes"
+      },
+      "relatedToId": {
+        "type": "long",
+        "store": "yes"
+      },
+      "uniqueness": {
+        "type": "string",
+        "store": "yes"
+      },
+      "file": {
+        "type": "attachment",
+        "fields": {
+          "author": {
+            "type": "string"
+          },
+          "title": {
+            "store": false,
+            "type": "string"
+          },
+          "keywords": {
+            "type": "string"
+          },
+          "file": {
+            "store": false,
+            "term_vector": "with_positions_offsets",
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "content_length": {
+            "type": "integer"
+          },
+          "date": {
+            "format": "dateOptionalTime",
+            "type": "date"
+          },
+          "content_type": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,46 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:p="http://primefaces.org/ui">
+
+<f:view contentType="text/html">
+	<h:head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/style.css?#{loggeduser.loginTime}" />
+		<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+		<link rel="icon" href="#{request.contextPath}/favicon.ico" type="image/x-icon" />
+		<title>Access Denied | ProSolo</title>
+	</h:head>
+	
+	<div class="signContainer passwordReset">
+		<div class="signTop">
+			<h1>
+				<h:link outcome="/login">
+					<span class="logo"></span>
+				</h:link>
+			</h1>
+		</div>
+		
+		<div class="signMain">
+			<h3>Access Denied</h3>
+			<p>You don't have permissions to access this page.</p>
+			
+			<div id="link"></div>
+			
+			<script>
+			console.log(document.referrer);
+				if (document.referrer.length > 0) {
+					$('#link').append('<a href="'+document.referrer+'" class="button grey size30 left">Back</a>');
+				}
+				</script>
+		</div><!-- .main end -->
+		
+		<div class="clear"></div>
+	</div><!-- .signContainer end -->
+	
+	<comp:footer styleClass="public" />
+</f:view>
+</html>
+	

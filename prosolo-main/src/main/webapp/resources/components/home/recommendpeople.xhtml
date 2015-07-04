@@ -1,0 +1,393 @@
+<ui:composition 
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:actions="http://java.sun.com/jsf/composite/components/actions"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks">
+	
+	<utilcomp:messagesBundle var="msg" />
+
+	<script type="text/javascript">
+		$(function() {
+			$('#recommendPeopleTab').tabs();
+		});
+	</script>
+
+	<div id="recommendPeopleTab" 
+		class="sideBoxFrame sidePeopleRecommendation indexTripStep17">
+
+		<h3 class="sideContent">
+			#{msg['home.recommendedUsers.title']}
+			<utilcomp:infotooltip position="PEOPLE_RECOMMEND" context="recommendpeople"/>
+		</h3>
+
+		<ul class="sideTabs">
+			<li>
+				<a class="tabLink" 
+					onclick="logTabNavigation('similarity', 'recommendpeople');"
+					for-tab="tabSimilarityRecommend">Similarity</a></li>
+			<li>
+				<a class="tabLink" 
+					onclick="logTabNavigation('activity', 'recommendpeople');"
+					for-tab="tabActivityRecommend">Activity</a></li>
+			<li>
+				<a class="tabLink" 
+					onclick="logTabNavigation('location', 'recommendpeople');"
+					for-tab="tabLocationRecommend">Location</a></li>
+		</ul>
+
+		
+		<div id="tabSimilarityRecommend" tab-id="tabSimilarityRecommend"
+			class="sideContent tabContent hidden">
+
+			<h:form id="similarityRecommendForm">
+				<h:panelGroup id="similarityRecommendPanel" class="similarityRecommendPanel inlineBlock">
+
+					<h:panelGroup class="noContentMessage"
+						rendered="#{empty peoplerecommend.similarityRecommendedUsers}">
+						There are no recommendations
+					</h:panelGroup>
+
+					<h:panelGroup layout="block" rendered="#{not empty peoplerecommend.similarityRecommendedUsers}">
+						<ui:repeat value="#{peoplerecommend.similarityRecommendedUsers}" 
+							var="similarityUser" varStatus="iterator">
+	
+							<div class="user198">
+								<div class="image">
+									<link:user value="userDetailsImage" 
+										userData="#{similarityUser}"
+										mode="image" 
+										imageSize="30"
+										idPrefix="similarityUserImage#{iterator.index}"
+										context="recommendpeople.similarity.image" />
+								</div>
+	
+								<div class="info">
+									<link:user 
+										value="userDetailsFollowed" 
+										userData="#{similarityUser}"
+										divClass="name"
+										mode="name"
+										idPrefix="similarityUserName#{iterator.index}"
+										context="recommendpeople.similarity.name" />
+										
+									<div class="font11">#{similarityUser.position}</div>
+									<div class="clear"></div>
+	
+									<div class="actions">
+										<actions:directMessage
+											receiverData="#{similarityUser}"
+											context="recommendpeople.similarity" />
+	
+										<p:commandLink id="followButton"
+											rendered="#{!peopleActionBean.isLoggedUserFollowingCollegueById(similarityUser.id)}"
+											action="#{peopleActionBean.followCollegueById(similarityUser.id, 'recommendpeople.similarity')}"
+											update=":listFollowingPeopleForm:followingUsersPanel
+													:listfollowersform:followersPanel
+													:locationRecommendForm:locationRecommendPanel
+													:activityRecommendForm:activityRecommendPanel
+													:similarityRecommendForm:similarityRecommendPanel
+													:listFollowingPeopleForm:followingUsersPanelGrowl"
+											oncomplete="roundImages()">
+											<span class="bullet"></span>
+											Follow
+										</p:commandLink>
+	
+										<p:commandLink
+											rendered="#{peopleActionBean.isLoggedUserFollowingCollegueById(similarityUser.id)}"
+											action="#{peopleActionBean.unfollowCollegueById(similarityUser.id, 'recommendpeople.similarity')}"
+											update=":listFollowingPeopleForm:followingUsersPanel
+													:listfollowersform:followersPanel
+													:locationRecommendForm:locationRecommendPanel
+													:activityRecommendForm:activityRecommendPanel
+													:similarityRecommendForm:similarityRecommendPanel
+													:listFollowingPeopleForm:followingUsersPanelGrowl"
+											oncomplete="roundImages()">
+											<span class="bullet"></span>
+											Unfollow
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+						</ui:repeat>
+					</h:panelGroup>
+					
+					<ui:remove>
+					<div class="prevlink">
+						<p:commandLink value="Prev" styleClass="button gray size16 left"
+							rendered="#{peoplerecommend.hasPrevFollower}"
+							action="#{peoplerecommend.prevFollowersAction}"
+							update=":similarityRecommendForm:similarityRecommendPanel" />
+					</div>
+					<div class="nextlink">
+						<p:commandLink value="Next" styleClass="button gray size16 right"
+							rendered="#{peoplerecommend.hasMoreFollowers}"
+							action="#{peoplerecommend.nextFollowersAction}"
+							update=":similarityRecommendForm:similarityRecommendPanel" />
+					</div>
+					</ui:remove>
+
+					<script>
+					$(function() {
+						$('.similarityRecommendPanel').show();
+					});
+					</script>
+				</h:panelGroup>
+
+				<utilcomp:lazyLoad parentClass="sidePeopleRecommendation"
+					specificClassIdentifier="goals"
+					updateOnComplete=":similarityRecommendForm:similarityRecommendPanel"
+					loaderContainer=".similarityRecommendPanel"
+					initializeAction="#{peoplerecommend.initSimilarityRecommend()}" async="true" />
+			</h:form>
+		</div>
+		
+
+		<div id="tabActivityRecommend" tab-id="tabActivityRecommend"
+			class="sideContent tabContent hidden">
+
+			<h:form id="activityRecommendForm">
+				<h:panelGroup id="activityRecommendPanel" class="activityRecommendPanel inlineBlock">
+
+					<h:panelGroup class="noContentMessage"
+						rendered="#{empty peoplerecommend.activityRecommendedUsers}">
+						There are no recommendations
+					</h:panelGroup>
+
+					<h:panelGroup layout="block" rendered="#{not empty peoplerecommend.activityRecommendedUsers}">
+						<ui:repeat value="#{peoplerecommend.activityRecommendedUsers}" 
+							var="activityUser" varStatus="iterator">
+	
+							<div class="user198">
+								<div class="image">
+									<link:user value="userDetailsImage" 
+										userData="#{activityUser}"
+										mode="image" 
+										imageSize="30"
+										idPrefix="activityUserImage#{iterator.index}"
+										context="recommendpeople.activity.image" />
+								</div>
+	
+								<div class="info">
+									<link:user 
+										value="userDetailsFollowed" 
+										userData="#{activityUser}"
+										divClass="name" 
+										mode="name"
+										idPrefix="activityUserName#{iterator.index}"
+										context="recommendpeople.activity.name" />
+										
+									<div class="font11">#{activityUser.position}</div>
+									<div class="clear"></div>
+									
+								 
+									<div class="font11">Last activity: #{util:timeDifferenceAgoFromNow(activityUser.lastAction)}</div>
+									<div class="clear"></div>
+							 
+	
+									<div class="actions">
+										<actions:directMessage
+											receiverData="#{activityUser}"
+											context="recommendpeople.activity" />
+	
+										<p:commandLink id="followButton"
+											rendered="#{!peopleActionBean.isLoggedUserFollowingCollegueById(activityUser.id)}"
+											action="#{peopleActionBean.followCollegueById(activityUser.id, 'recommendpeople.activity')}"
+											update=":listFollowingPeopleForm:followingUsersPanel
+													:listfollowersform:followersPanel
+													:locationRecommendForm:locationRecommendPanel
+													:activityRecommendForm:activityRecommendPanel
+													:similarityRecommendForm:similarityRecommendPanel
+													:listFollowingPeopleForm:followingUsersPanelGrowl"
+											oncomplete="roundImages()">
+											<span class="bullet"></span>
+											Follow
+										</p:commandLink>
+	
+										<p:commandLink
+											rendered="#{peopleActionBean.isLoggedUserFollowingCollegueById(activityUser.id)}"
+											action="#{peopleActionBean.unfollowCollegueById(activityUser.id, 'recommendpeople.activity')}"
+											update=":listFollowingPeopleForm:followingUsersPanel
+													:listfollowersform:followersPanel
+													:locationRecommendForm:locationRecommendPanel
+													:activityRecommendForm:activityRecommendPanel
+													:similarityRecommendForm:similarityRecommendPanel
+													:listFollowingPeopleForm:followingUsersPanelGrowl"
+											oncomplete="roundImages()">
+											<span class="bullet"></span>
+											Unfollow
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+						</ui:repeat>
+					</h:panelGroup>
+					
+					<ui:remove>
+					<div class="prevlink">
+						<p:commandLink value="Prev" styleClass="button gray size16 left"
+							rendered="#{peoplerecommend.hasPrevFollower}"
+							action="#{peoplerecommend.prevFollowersAction}"
+							update=":activityRecommendForm:activityRecommendPanel" />
+					</div>
+					<div class="nextlink">
+						<p:commandLink value="Next" styleClass="button gray size16 right"
+							rendered="#{peoplerecommend.hasMoreFollowers}"
+							action="#{peoplerecommend.nextFollowersAction}"
+							update=":activityRecommendForm:activityRecommendPanel" />
+					</div>
+					</ui:remove>
+
+					<script>
+					$(function() {
+						$('.activityRecommendPanel').show();
+					});
+					</script>
+				</h:panelGroup>
+
+				<utilcomp:lazyLoad parentClass="sidePeopleRecommendation"
+					specificClassIdentifier="activity"
+					updateOnComplete=":activityRecommendForm:activityRecommendPanel"
+					loaderContainer=".activityRecommendPanel"
+					initializeAction="#{peoplerecommend.initActivityRecommend()}" async="true" />
+			</h:form>
+		</div>
+
+		
+		<div id="tabLocationRecommend" tab-id="tabLocationRecommend"
+			class="sideContent tabContent inlineBlock">
+
+			<h:form id="locationRecommendForm">
+
+				<h:panelGroup layout="block" id="locationRecommendPanel"
+					class="locationRecommendPanel"
+					style="display: none;">
+
+					<ui:include src="/resources/components/dialogs/locationRecommendationDialog.xhtml" />
+
+					<h:panelGroup class="noContentMessage"
+						rendered="#{loggeduser.user.locationName == null}">
+						#{msg['home.recommendedUsers.locationNotSet']}
+						
+						<h:link value="Profile Settings" outcome="/settings" >
+			                <f:param  name="tab" value="profile" />  
+			            </h:link>.
+					</h:panelGroup>
+					
+					<h:panelGroup class="noContentMessage"
+						rendered="#{loggeduser.user.locationName != null and empty peoplerecommend.locationRecommendedUsers}">
+						#{msg['home.recommendedUsers.noRecommendations']}
+					</h:panelGroup>
+					
+					<h:panelGroup layout="block" rendered="#{loggeduser.user.locationName != null and not empty peoplerecommend.locationRecommendedUsers}">
+						<ui:repeat value="#{peoplerecommend.locationRecommendedUsers}"
+							var="locationUser" varStatus="iterator">
+	
+							<div class="user198">
+								<div class="image">
+									<link:user value="userDetailsImage" 
+										userData="#{locationUser}"
+										mode="image" 
+										imageSize="30"
+										idPrefix="locationUserImage#{iterator.index}"
+										context="recommendpeople.location.image" />
+								</div>
+	
+								<div class="info">
+									<link:user value="userDetails" 
+										userData="#{locationUser}"
+										divClass="name" 
+										mode="name"
+										idPrefix="locationUserName#{iterator.index}"
+										context="recommendpeople.location.name" />
+	
+									<div class="font11">#{locationUser.position}</div>
+									<div class="font11 location">
+										<p:commandLink value="#{locationUser.locationName}"
+											onclick="$('#locationRecommendationDialog').dialog('option', 'userIdToOpen', #{locationUser.id}).dialog('open');sendServiceUse('LOCATIONRECOMMENDATIONDIALOG', {context: 'recommendpeople.location', userId: #{locationUser.id}});"
+										/>
+									</div>
+									<div class="clear"></div>
+	
+									<div class="actions">
+										<actions:directMessage 
+											receiverData="#{locationUser}"
+											context="recommendpeople.location" />
+	
+										<p:commandLink id="followButton"
+											rendered="#{!peopleActionBean.isLoggedUserFollowingCollegueById(locationUser.id)}"
+											action="#{peopleActionBean.followCollegueById(locationUser.id, 'recommendpeople.location')}"
+											update=":listFollowingPeopleForm:followingUsersPanel
+													:listfollowersform:followersPanel
+													:locationRecommendForm:locationRecommendPanel
+													:activityRecommendForm:activityRecommendPanel
+													:similarityRecommendForm:similarityRecommendPanel
+													:listFollowingPeopleForm:followingUsersPanelGrowl"
+											oncomplete="roundImages()">
+											<span class="bullet"></span>
+											Follow
+										</p:commandLink>
+
+										<p:commandLink
+											rendered="#{peopleActionBean.isLoggedUserFollowingCollegueById(locationUser.id)}"
+											action="#{peopleActionBean.unfollowCollegueById(locationUser.id, 'recommendpeople.location')}"
+											update=":listFollowingPeopleForm:followingUsersPanel
+													:listfollowersform:followersPanel
+													:locationRecommendForm:locationRecommendPanel
+													:activityRecommendForm:activityRecommendPanel
+													:similarityRecommendForm:similarityRecommendPanel
+													:listFollowingPeopleForm:followingUsersPanelGrowl"
+											oncomplete="roundImages()">
+											<span class="bullet"></span>
+											Unfollow
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+							<div class="clear"></div>
+						</ui:repeat>
+						
+						<script>
+							$('#tabLocationRecommend .location a').shortenedText({showChar: 50, mode: 'static'});
+						</script>
+					</h:panelGroup>
+
+					<ui:remove>
+					<div class="prevlink">
+						<p:commandLink value="Prev" styleClass="button gray size16 left"
+							rendered="#{peoplerecommend.hasPrevFollowedUsers}"
+							action="#{peoplerecommend.prevFollowedUsersAction}"
+							update=":locationRecommendForm:locationRecommendPanel" />
+					</div>
+					<div class="nextlink">
+						<p:commandLink value="Next" styleClass="button gray size16 right"
+							rendered="#{peoplerecommend.hasMoreFollowedUsers}"
+							action="#{peoplerecommend.nextFollowedUsersAction}"
+							update=":locationRecommendForm:locationRecommendPanel" />
+					</div>
+					</ui:remove>
+					
+					<script>
+					$(function() {
+						roundImages();
+						$('.locationRecommendPanel').show();
+					});
+					</script>
+				</h:panelGroup>
+				
+				<utilcomp:lazyLoad parentClass="sidePeopleRecommendation"
+					specificClassIdentifier="location"
+					updateOnComplete=":locationRecommendForm:locationRecommendPanel"
+					loaderContainer=".locationRecommendPanel"
+					initializeAction="#{peoplerecommend.initLocationRecommend()}"
+					async="true" />
+			</h:form>
+		</div>
+			
+	</div>
+</ui:composition>

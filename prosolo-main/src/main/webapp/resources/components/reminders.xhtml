@@ -1,0 +1,81 @@
+<ui:composition
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	
+	<utilcomp:messagesBundle var="msg" />
+	
+	<div class="sideBox sideReminders indexTripStep22">
+		<ui:include src="/resources/components/dialogs/reminderDialog.xhtml" />
+		
+		<h:form id="remindersForm">
+			<h3>
+				#{msg['reminders.title']}
+				
+				<span class="right calendarLink">
+					<span class="iconCalendar left"></span>
+					<h:link value="Calendar" outcome="/calendar"
+						onclick="sendLogPageNavigation('calendar.xhtml','index.reminders');"
+						class="font11"
+					/>
+				</span>
+			</h3>
+				
+			<h:panelGroup id="remindersPanel" class="remindersContainer">
+				<h:panelGroup layout="block" class="noContentMessage" 
+					rendered="#{empty remindersBean.reminders}">
+					No reminders
+				</h:panelGroup>
+			
+				<ul class="bullets">
+					<ui:repeat value="#{remindersBean.reminders}" var="reminderData" 
+						id="remindersListId" offset="0"
+						size="#{remindersBean.remindersSize}">
+						
+						<li>
+							<p:commandLink id="reminderCommandLinkId"
+								rendered="#{!reminderData.completed}"
+								onclick="$('#remainderDetailsFormModalDialog').dialog('open');"
+								action="#{reminderBeanDialog.setReminder(reminderData, 'index.reminders')}"
+								update=":reminderDetailsFormDialog"
+								async="true">
+				
+								<div class="">
+									<h:outputFormat value="#{msg['reminders.label']}">
+										<f:param value="#{reminderData.resourceType}" />
+										<f:param value="#{reminderData.title}" />
+									</h:outputFormat>
+									deadline is
+									<h:outputFormat value="#{reminderData.deadline}">
+										<f:convertDateTime dateStyle="full" />
+									</h:outputFormat>
+								</div>
+							</p:commandLink>
+						</li>
+					</ui:repeat>
+				</ul>
+	 
+				<div class="clear"></div>
+				
+				<h:panelGroup id="seeAllReminders">
+					<h:panelGroup rendered="#{remindersBean.hasMoreReminders()}">
+						<h:link value="See all" outcome="/search"
+							onclick="sendLogPageNavigation('search.xhtml?tab=reminders','index.reminders');">
+							<f:param  name="tab" value="reminders" />
+						</h:link>
+					</h:panelGroup>
+				</h:panelGroup>
+			</h:panelGroup>
+			
+			<utilcomp:lazyLoad 
+				parentClass="sideReminders"
+				updateOnComplete=":remindersForm:remindersPanel"
+				loaderContainer=".remindersContainer"
+				initializeAction="#{remindersBean.init()}"
+				async="true"
+			/>
+		</h:form>
+	</div>
+</ui:composition>

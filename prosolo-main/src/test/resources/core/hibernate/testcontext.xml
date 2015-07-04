@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-3.2.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-3.2.xsd">
+	
+	<!-- Adding exception translation to a template-less Hibernate DAO  -->
+	<bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
+	
+	
+	<!-- ================ Persistence Manager ========================
+	<bean id="org.prosolo.core.persistance.PersistenceManager"
+			class="org.prosolo.core.hibernate.HibernatePersistenceManager"
+			scope="singleton">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	-->
+	
+	<!-- 
+	<bean id="hibernateProperties"
+		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="properties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</prop>
+				<prop key="hibernate.connection.pool_size">200</prop>
+				<prop key="hibernate.connection.charSet">UTF-8</prop>
+			    <prop key="hibernate.connection.characterEncoding">UTF-8</prop>
+			    <prop key="hibernate.connection.useUnicode">true</prop>
+				<prop key="hibernate.show_sql">false</prop> 
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+				
+				<prop key="hibernate.cache.user_query_cache">true</prop>
+				<prop key="hibernate.max_fetch_depth">0</prop>
+				<prop key="hibernate.connection.autocommit">false</prop> 
+				<prop key="hibernate.jdbc.batch_size">50</prop>
+				<prop key="hibernate.cache.use_second_level_cache">true</prop>
+                <prop key="hibernate.cache.use_query_cache">true</prop>
+                <prop key="hibernate.cache.use_structured_entries">true</prop>
+                <prop key="hibernate.cache.region.factory_class">org.hibernate.cache.EhCacheRegionFactory</prop>
+
+
+			</props>
+		</property>
+	</bean>
+	 -->
+	
+	<!-- Hibernate SessionFactory for the datasource -->
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="hibernateProperties" ref="hibernateProperties" />
+		<property name="packagesToScan">
+			<list>
+				<value>org.prosolo.domainmodel</value>
+				<value>org.prosolo.services.logging.domain</value>
+				<value>org.prosolo.services.tree.settings.model</value>
+			</list>
+		</property>
+		<property name="namingStrategy">
+			<bean class="org.hibernate.cfg.ImprovedNamingStrategy" />
+		</property>
+	</bean>
+	
+</beans>

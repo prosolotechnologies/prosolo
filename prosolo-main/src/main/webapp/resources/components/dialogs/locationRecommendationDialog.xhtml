@@ -1,0 +1,44 @@
+<ui:composition
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	
+	<h:outputScript library="javascript" name="dialog.locationRecommendation.js" />
+	<utilcomp:messagesBundle var="msg" />
+
+	<style>
+		#locationRecommendationDialog .map-canvas {
+			width: 575px;
+			height: 537px;
+		}
+	</style>
+
+	<div id="locationRecommendationDialog" title="#{msg['dialog.locationRecommendation.title']}">
+		<div class="map-canvas"></div>
+		
+	</div>
+	
+	<script>
+	$(function(){
+		$('#locationRecommendationDialog').dialog({
+			autoOpen: false,
+			show: 'slideDown',
+			width: 600,
+			height: 600,
+			modal: true,
+			resizable: false,
+			open: function(event, ui) {
+				try {
+					var data = #{peoplerecommend.getLocationRecommendedUsersAsJSON()};
+					initializeDialogMap(data, $(this).dialog('option', 'userIdToOpen'));
+				}catch(e){
+					console.log(e);
+				}
+			},
+		});
+		$('#locationRecommendationDialog').show();
+	});
+	</script>
+</ui:composition>

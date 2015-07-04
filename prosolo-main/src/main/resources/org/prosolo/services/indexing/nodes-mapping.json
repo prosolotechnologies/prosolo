@@ -1,0 +1,36 @@
+{
+    "nodes":{
+		"properties":{
+			"id":{
+				"store": false,
+				"type":"integer"
+				},
+				"url":{
+					"store": false,
+					"type":"string"
+				},
+				"title":{
+					"store": false,
+					"type":"string"
+				},
+				"description":{
+					"store": false,
+					"type":"string"
+				},
+				"visibility":{
+					"store": false,
+					"type":"string"
+				},
+				"tags":{
+					"properties":{
+						"title":{
+							"store": false,
+							"type":"string"
+						} 
+					}
+				}
+		}
+			
+		}
+
+}

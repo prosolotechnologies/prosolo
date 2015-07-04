@@ -1,0 +1,312 @@
+<ui:component
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post">
+
+	<composite:interface>
+		<composite:attribute name="dialogTitle" default="Create new activity" />
+		<composite:attribute name="activityData" required="true" />
+		<composite:attribute name="regionToUpdate" />
+	</composite:interface>
+	
+	<composite:implementation>
+	
+		<script src="http://tinymce.cachefly.net/4.1/tinymce.min.js"></script>
+		<script src="http://tinymce.cachefly.net/4.1/jquery.tinymce.min.js"></script>
+		
+		<utilcomp:messagesBundle var="msg" />
+		
+		<div id="newActivityFormModalDialog" style="display: none;">
+		
+			<h:form id="newActivityForm" class="newActivityForm" enctype="multipart/form-data">
+				<p:growl id="newActivityFormGrowl" showDetail="true" />
+				
+				<script>
+				function showContainer(container){
+					$('.newActivityForm .richContent .resourceActions').hide();
+					$('.newActivityForm .richContent .resourceContainer').hide();
+					$('.newActivityForm .richContent .'+container).show();
+				}
+					
+				function hideAllContainers() {
+					$('.newActivityForm .richContent .resourceActions').show();
+					$('.newActivityForm .richContent .resourceContainer').hide();
+				}
+				</script>
+	
+				<table>
+					<tr>
+						<td>
+							<label for="activityName">Name:</label>
+						</td>
+						<td>
+							<h:inputText id="activityName" class="activityName"
+								value="#{cc.attrs.activityData.title}"
+								placeholder="#{msg['textfield.title']}" />
+						</td>
+					</tr>
+					<tr class="description">
+						<td class="label">
+							<label for="activityDescription">Description:</label>
+						</td>
+						
+						<td>
+							<h:inputTextarea id="activityDescription" 
+								class="descriptionInput" 
+								value="#{cc.attrs.activityData.description}" />
+						</td>
+					</tr>
+					<tr class="description">
+						<td class="label">
+							<label for="activityDescription">Mandatory:</label>
+						</td>
+						<td>
+							<h:selectBooleanCheckbox
+								value="#{cc.attrs.activityData.mandatory}" />
+						</td>
+					</tr>
+					<tr class="type">
+						<td class="label">
+							<label for="activityDescription">Type:</label>
+						</td>
+						<td>
+							<h:selectOneMenu value="#{activityDialogBean.activityType}" layout="lineDirection">
+								<f:selectItems value="#{activityDialogBean.activityTypes}" var="activityType" itemValue="activityType"/>
+								<f:ajax event="change" render="activitySpecificPanels" />
+							</h:selectOneMenu>
+						</td>
+					</tr>
+				</table>
+							
+				<h:panelGroup layout="block" id="activitySpecificPanels">				
+					<h:panelGroup layout="block" id="resourceActivityGroup" 
+						rendered="#{activityDialogBean.isType('RESOURCE')}"
+						class="richContent addNoteBox">
+										
+						<h4>Resource Details</h4>
+						
+						<span class="#{cc.attrs.activityData.attachmentPreview != null 
+								and cc.attrs.activityData.attachmentPreview.initialized ? 'hidden' : ''} resourceActions">
+							
+							<a class="button containerControl uploadFile blue size20 left">Upload file</a>							
+							
+							<script>
+								$(function(){
+									$('#newActivityFormModalDialog .button.containerControl.uploadFile').click(function(){
+										$('#newActivityFormModalDialog .browseFileAction').trigger('click');
+									});
+								})
+							</script>	
+							<a class="button containerControl addLinkBtn blue size20" 
+								onclick="showContainer('linkContainer');$('.newActivityForm .richContent .linkContainer .linkInput').focus();">Add link</a>
+						</span>
+										
+						<div class="hidden">
+							<script>
+								function startUploadProcess() {
+									$('#newActivityFormModalDialog .uploadContainer .uploadDetails').html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
+									$('#newActivityFormModalDialog .resourceActions').hide();
+									$('#newActivityFormModalDialog .uploadContainer .uploadDetails').show();
+								}
+							</script>							
+							<p:fileUpload styleClass="browseFileAction"
+								fileUploadListener="#{activityDialogBean.handleFileUpload}"  
+					            mode="advanced"  
+					            fileLimit="1"
+					            auto="true"
+					            onstart="startUploadProcess()"
+					            update="uploadPreview" 
+					            label="Choose a file"
+				            />
+						</div>
+									
+						<h:panelGroup layout="block" id="linkAdd" class="linkContainer resourceContainer 
+							#{cc.attrs.activityData.attachmentPreview != null 
+								and !cc.attrs.activityData.attachmentPreview.initialized
+								and cc.attrs.activityData.attachmentPreview.contentType == 'LINK' ? '' : 'hidden'}">
+							
+							<h:inputText type="text" class="linkInput"
+								value="#{cc.attrs.activityData.link}" />
+							
+							<p:commandLink styleClass="addLinkBtn button blue size25"
+								value="Add link"
+								onclick="$('.newActivityForm .richContent .linkContainer .loader').show();"
+								action="#{activityDialogBean.handleLink}" 
+								update="linkAdd linkPreview" 
+								oncomplete="$('.newActivityForm .richContent .linkContainer .loader').hide();"
+							/>
+							
+							<img class="loader hidden" src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" />
+	
+							<a class="hideLinkForm" onclick="hideAllContainers();">x</a>
+						</h:panelGroup>
+							
+						<h:panelGroup layout="block" id="linkPreview" class="resourceContainer
+							#{cc.attrs.activityData.attachmentPreview != null 
+								and cc.attrs.activityData.attachmentPreview.initialized
+								and cc.attrs.activityData.attachmentPreview.contentType == 'LINK' ? '' : 'hidden'}">
+								
+							<post:linkPreview id="link"
+								attachmentPreview="#{cc.attrs.activityData.attachmentPreview}"
+								showHideLink="false"
+								styleClass="left"
+							/>
+							<a class="hideLinkForm right" onclick="hideAllContainers();">x</a>
+							<script>
+								$('.newActivityForm .linkPreview textarea').autosize();
+							</script>
+						</h:panelGroup>
+						
+						<h:panelGroup layout="block" id="uploadPreview" class="uploadContainer resourceContainer 
+							#{cc.attrs.activityData.attachmentPreview != null 
+								and cc.attrs.activityData.attachmentPreview.initialized
+								and cc.attrs.activityData.attachmentPreview.contentType == 'UPLOAD' ? '' : 'hidden'}">
+							
+							<post:uploadDetails id="upload"
+								attachmentPreview="#{cc.attrs.activityData.attachmentPreview}"
+								containerDiv=".newActivityForm"
+								onclickHideLink="$('#newActivityFormModalDialog .uploadContainer').hide();$('#newActivityFormModalDialog .resourceActions').show();"
+							/>
+						</h:panelGroup>
+					</h:panelGroup>
+					
+					
+					<h:panelGroup layout="block" id="assignemtUploadActivityGroup"
+						rendered="#{activityDialogBean.isType('ASSIGNMENTUPLOAD')}">
+			 			<table>
+							<tr class="description">
+								<td class="label">
+									<label for="activityVisibility">Visible to everyone:</label>
+								</td>
+								<td>
+									<h:selectBooleanCheckbox id="activityVisibility"
+										value="#{cc.attrs.activityData.visibleToEveryone}"/>
+								</td>
+							</tr>
+							<tr class="validity">
+								<td>
+									<label for="duration">Duration:</label>
+								</td>
+								<td>
+									<h:inputText id="duration"
+										value="#{cc.attrs.activityData.duration}"/> day(s)
+								</td>
+							</tr>
+							<tr class="validity">
+								<td>
+									<label for="maxNumberOfFiles">Maximum number of files:</label>
+								</td>
+								<td>
+									<h:inputText id="maxNumberOfFiles"
+										value="#{cc.attrs.activityData.maxNumberOfFiles}"/>
+								</td>
+							</tr>
+						</table>
+		 			</h:panelGroup>
+		 			
+		 			<h:panelGroup layout="block" id="ltitoolActivityGroup"
+						rendered="#{activityDialogBean.isType('EXTERNALTOOL')}">
+			 			<table>
+			 			
+							<tr class="description">
+								<td class="label">
+									<label for="launchUrl">Launch URL:</label>
+								</td>
+								<td>
+									<h:inputText id="launchUrl"
+										value="#{cc.attrs.activityData.launchUrl}" />
+								</td>
+							</tr>
+							<tr class="description">
+								<td>
+									<label for="sharedSecret">Shared Secret:</label>
+								</td>
+								<td>
+									<h:inputText id="sharedSecret"
+										value="#{cc.attrs.activityData.sharedSecret}" /> 
+								</td>
+							</tr>
+							<tr class="description">
+								<td>
+									<label for="consumerKey">Consumer Key (Optional):</label>
+								</td>
+								<td>
+									<h:inputText id="consumerKey"
+										value="#{cc.attrs.activityData.consumerKey}" />
+								</td>
+							</tr>
+							<tr class="description">
+								<td class="label">
+									<label for="acceptGrades">Accept Grades:</label>
+								</td>
+								<td>
+									<h:selectBooleanCheckbox id="acceptGrades"
+										value="#{cc.attrs.activityData.acceptGrades}" />
+								</td>
+							</tr>
+							
+						</table>
+		 			</h:panelGroup>
+				</h:panelGroup>
+	
+				<div class="clear"></div>
+	
+				<div class="marginTop10">
+					<p:commandLink value="Save" id="save"
+						styleClass="button green size30 right"
+						onclick="$('#newActivityFormModalDialog').dialog('close');"
+						action="#{activityDialogBean.saveActivity()}"
+						update="@form #{cc.attrs.regionToUpdate}" />
+					&#160;
+					
+					<p:commandLink value="Cancel" styleClass="button gray size30 right"
+						onclick="$('#newActivityFormModalDialog').dialog('close');" />
+				</div>
+	
+	
+				<script>
+			 	$('.newActivityForm .button.uploadFile').on('click', function(e){
+			 		e.stopPropagation();
+					$('.fileUploadContainer .browseFile').trigger('click');
+				});
+			 	</script>
+				
+				<script>
+				// Prevent jQuery UI dialog from blocking focusin
+				$(document).on('focusin', function(e) {
+				    if ($(e.target).closest(".mce-window, .moxman-window").length) {
+						e.stopImmediatePropagation();
+					}
+				});
+				</script>
+			</h:form>
+		</div>
+		
+		<script>
+			function openNewActivityDialog() {
+				$('#newActivityFormModalDialog').dialog({
+					title: '#{cc.attrs.dialogTitle}',
+					width: 630,
+					modal: true,
+					resizable: false,
+					open: function() {
+						$('#newActivityFormModalDialog .descriptionInput').tinymce({
+							toolbar: 'link',
+							plugins: 'link'
+						});
+						tinymce.execCommand('mceAddEditor',true,'#newActivityFormModalDialog .descriptionInput');
+					},
+					close: function() {
+						tinymce.execCommand('mceRemoveEditor',true,'#newActivityFormModalDialog .descriptionInput');
+					}
+				});
+			}
+		</script>
+	</composite:implementation>
+</ui:component>

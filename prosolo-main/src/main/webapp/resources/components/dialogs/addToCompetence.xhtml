@@ -1,0 +1,150 @@
+<ui:composition
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	
+	<utilcomp:messagesBundle var="msg" />
+
+	<div id="addToCompetenceDialog" title="Add to Competence" class="addToCompetenceDialog" style="display: none;">
+		<h:form enctype="multipart/form-data" id="addToCompetenceForm" prependId="false" class="addToCompetence">	
+			<p:growl id="addToCompetenceDialogGrowl" showDetail="true" />
+			
+			<h:panelGroup rendered="#{!addToCompetenceDialog.noActiveCompetences}">
+				<h:panelGroup layout="block" rendered="#{addToCompetenceDialog.newPostData != null}" class="marginBottom10">
+					<post:newpostNoForm value="addToCompetenceDialogPost" id="addToCompetenceDialogPost" 
+						handleFileUpload="#{addToCompetenceDialog.handleFileUpload}"
+						content="#{addToCompetenceDialog.newPostData}" 
+						containerDiv=".addToCompetenceDialog"
+						hideActions="true"
+					/>
+					
+					<script>
+						addToCompetenceDialogPostNewPost.expandPostInput().showLinkPreview().detectLinks();
+					</script>
+						
+					<div class="clear"></div>
+					
+					Choose a competence you want to add this activity to:
+				</h:panelGroup>
+				
+				<h:panelGroup layout="block" rendered="#{addToCompetenceDialog.activity != null}" class="marginBottom10">
+					<h4>Activity</h4>
+										
+					<div class="box">
+						<div class="textWrapper actBlock">
+							<p class="title">#{addToCompetenceDialog.activity.title}</p>
+							
+							<h:panelGroup layout="block" class="richContent" rendered="#{addToCompetenceDialog.activity.link != null}">
+								<h:panelGroup layout="block"  
+									styleClass="imgInfoContainer #{addToCompetenceDialog.activity.link == 'UPLOAD' ? 'imgInfoContainer50' : 'imgInfoContainer100'}">
+									<div class="atcImages">
+										<a href="#{addToCompetenceDialog.activity.link}" target="_blank">
+											<img src="#{addToCompetenceDialog.activity.imageUrl}" alt="" class="imgInfoContainer100" />
+										</a>
+									</div>
+								</h:panelGroup>
+								
+								<div id="atcInfo" class="actInfo actInfoSmallImgBig">
+									<a href="#{addToCompetenceDialog.activity.link}" target="_blank" class="atcTitle">#{addToCompetenceDialog.activity.previewTitle}</a>
+									<div class="atcUrl">#{addToCompetenceDialog.activity.link}</div> 
+									
+									<div class="clear"></div> 
+									<div class="atcDesc">
+										#{addToCompetenceDialog.activity.previewDescription}
+									</div>
+								</div>
+							</h:panelGroup>
+						</div>
+		            </div>
+						
+					<div class="clear"></div>
+					
+					Choose a competence you want to add this activity to:
+				</h:panelGroup>
+				
+				<h:selectOneMenu id="competences" value="#{addToCompetenceDialog.selectedCompetence}">
+					<f:selectItems value="#{addToCompetenceDialog.competenceItems}"
+						var="compData" itemValue="#{compData.targetCompetence.id}" />
+					<f:ajax render="actions" />
+				</h:selectOneMenu>
+				
+				<div class="clear"></div>
+				
+				<h:panelGroup class="noContentMessage" rendered="#{addToCompetenceDialog.activity != null}">
+					(disabled competences already contain this activity)
+				</h:panelGroup>
+				
+				<h:panelGroup class="marginBottom10 block" rendered="#{addToCompetenceDialog.newPostData != null}" />
+				<div class="clear"></div>
+				
+				<h:panelGroup id="actions">
+					<p:commandLink rendered="#{addToCompetenceDialog.selectedCompetence != -1}"
+						value="#{msg['dialog.addToCompetence.submit']}"
+						styleClass="button green size30 right"
+						onclick="$('#addToCompetenceDialog').dialog('close');"
+						action="#{addToCompetenceDialog.addToCompetence()}"
+						update="addToCompetenceDialogGrowl :#{p:component('addToCompetenceForm')} #{addToCompetenceDialog.toUpdateAfterAdding}"
+					/>
+					
+					<p:commandLink value="#{msg['dialog.addToCompetence.submit.disabled']}"
+						rendered="#{addToCompetenceDialog.selectedCompetence == -1}"
+						styleClass="button gray size30 right disabled hasTooltip"
+						title="#{msg['dialog.addToCompetence.submit.disabled.tooltip']}" />
+					
+					<a class="button gray size30 right"	
+						onclick="$('#addToCompetenceDialog').dialog('close');">Cancel</a>
+						
+					<utilcomp:tooltip target=".hasTooltip[title]" />
+				</h:panelGroup>
+					
+				<script>
+					$(function() {
+						roundImages();
+						
+						$('.addToCompetenceDialog .actBlock .richContent .atcUrl').shortenedText({showChar: 60, mode: 'static'});
+					});
+				</script>
+			</h:panelGroup>
+			
+			<h:panelGroup rendered="#{addToCompetenceDialog.noActiveCompetences}">
+			
+				<h:outputText value="#{msg['dialog.addToGoal.noCompetences.message1']}" />&#160;<h:link 
+						
+					value="#{msg['dialog.addToGoal.noCompetences.learnButton']}"
+						class="bold"
+						outcome="/learn" />&#160;<h:outputText 
+						
+					value="#{msg['dialog.addToGoal.noCompetences.message2']}" />&#160;<h:link 
+						
+					value="#{msg['dialog.addToGoal.noCompetences.coursesButton']}"
+						class="bold"
+						outcome="/plan" />.
+						
+			</h:panelGroup>
+		</h:form>
+	</div>
+	<script>
+		$(function() {
+			$('#addToCompetenceDialog').dialog({
+				autoOpen : false,
+				show : 'slide',
+				modal : true,
+				width : 500,
+				resizable : false,
+				open: function(event, ui) { 
+					$(this).children(':first')
+						.css('text-align', 'center')
+						.css('padding-top', '50px')
+						.html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
+				},
+			});
+			$('#addToCompetenceDialog').show();
+		});
+	</script>
+</ui:composition>

@@ -1,0 +1,71 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:func="http://org.prosolo/functions"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:action="http://java.sun.com/jsf/composite/components/actions"
+	xmlns:compcourses="http://java.sun.com/jsf/composite/components/courses">
+
+	<composite:interface>
+		<composite:attribute name="page" type="java.lang.String" required="true"/>
+		<composite:attribute name="steps" required="true"/>
+		<composite:attribute name="toRender" default="true"/>
+	</composite:interface>
+	
+	<composite:implementation>
+		<div id="introTutorialDialog" class="introTutorialDialog" title="Tutorial" style="display: none">
+			<h:form id="introTutorialDialogForm">
+				<p>
+					<h:outputText rendered="#{cc.attrs.page == 'index'}">
+						Welcome to ProSolo! 
+					</h:outputText>
+					Would you like a tour around the #{cc.attrs.page} page?
+				</p>
+				
+				<label>
+					<h:selectBooleanCheckbox value="#{loggeduser.doNotShowTutorial}" /> Do not show this anymore
+				</label>
+				
+				<div class="actions">
+					<p:commandLink styleClass="button green size30 right" 
+						onclick="$('#introTutorialDialog').dialog('close');tutorialControl.start();"
+						action="#{loggeduser.tutorialPlayed(true, cc.attrs.page)}"
+						async="true"
+						value="Show me"
+					/>
+					<p:commandLink styleClass="button gray size30 right" 
+						onclick="$('#introTutorialDialog').dialog('close');"
+						action="#{loggeduser.tutorialPlayed(false, cc.attrs.page)}"
+						async="true"
+						value="Close"
+					/>
+				</div>
+			</h:form>
+		</div>
+		<script>
+			$(function() {
+				$('#introTutorialDialog').dialog({
+					autoOpen: false,
+					show : 'slide',
+					width: 300,
+					modal: true,
+					resizable: false,
+				});
+				$('#introTutorialDialog').show();
+				
+				if (#{loggeduser.toPlayTutorial(cc.attrs.page) and cc.attrs.toRender}){
+					$('#introTutorialDialog').dialog('open');
+				}
+			});
+			
+			var #{cc.attrs.page}Steps = "#{tooltips.getAllTutorialStepTexts(cc.attrs.page, cc.attrs.steps)}";
+			var tutorialControl = prosolo.tutorialTrip.createTutorial(#{cc.attrs.page}Steps, '#{cc.attrs.page}');
+			tutorialControl.page = '#{cc.attrs.page}';
+		</script>
+	</composite:implementation>
+</ui:component>

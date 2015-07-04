@@ -1,0 +1,29 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	template="templates/masterLayout.xhtml"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:compcourses="http://java.sun.com/jsf/composite/components/courses"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	>
+
+<ui:define name="windowTitle">
+	<utilcomp:messagesBundle var="msg" />
+
+	#{msg['manager.courses.pageTitle.browseCourses']}
+</ui:define>
+
+<ui:define name="content">
+
+	<div class="container admin">
+		<compcourses:browseCourses id="browseCourses"
+			role="MANAGER"
+			newCoursePagePath="/manage/newCourse"
+			courseDetailsPagePath="/manage/course" />
+	</div>
+</ui:define>
+
+</ui:composition>

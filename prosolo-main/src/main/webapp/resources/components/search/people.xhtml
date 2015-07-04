@@ -1,0 +1,110 @@
+<ui:composition
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks">
+	
+	<script>
+		document.title = 'Search: People';
+	</script>
+	
+	<div id="searchPeople">
+		<h2>Search: People</h2>
+		
+		<h:form id="peopleSearchForm" class="filteredSearch">
+			<div>
+				<p:commandLink styleClass="button blue size25 right search"
+					value="Search" type="submit"
+					onclick="addLoaderToSearchContainer();"
+					actionListener="#{searchPeopleBean.searchPeople()}"
+					update=":peopleSearchForm:resultContainer"/>
+				
+				<div class="inputContainer">
+					<div class="mGlass"></div>
+				  	<h:inputText size="20" class="searchInput"
+				  		onclick="$(this).select();" 
+				  		onkeydown="searchListener();" />
+				  	<h:inputHidden class="searchInputHidden"
+				  		value="#{searchPeopleBean.query}" 
+				  	/>
+				</div>
+			</div>
+
+			<div class="separator clear"></div>
+			
+			<h:panelGroup layout="block" class="resultContainer" id="resultContainer">
+				<ui:repeat value="#{searchPeopleBean.users}" var="userData" id="peopleList" varStatus="iterator">
+		
+					<div class="box">
+						<div class="avatar">
+							<link:user value="userDetailsImage" 
+			    				userData="#{userData}"
+			    				mode="image"
+			    				imageSize="48"
+			    				idPrefix="peopleSearch#{iterator.index}"
+			    				context="people.image" />
+						</div>
+						
+						<div class="textWrapper">
+							<div class="user">
+								<link:user value="userDetailsImage" 
+				    				userData="#{userData}"
+				    				mode="name"
+				    				idPrefix="peopleSearchName#{iterator.index}"
+				    				context="search.people.name" />
+								<div class="clear"></div>
+								<span class="position">#{userData.position}</span>
+							</div>
+						</div>
+
+						<div class="actions">
+							<p:commandLink styleClass="button green size25"
+								rendered="#{!userData.followed}"
+								value="Follow"
+								actionListener="#{peopleActionBean.followCollegueData(userData,'people')}"
+						 		update=":peopleSearchForm:resultContainer"
+							/>
+								
+							<p:commandLink styleClass="button gray size25"
+								rendered="#{userData.followed}"
+								value="Unfollow"
+								actionListener="#{peopleActionBean.unfollowCollegueData(userData,'people')}"
+							 	update=":peopleSearchForm:resultContainer"
+							 />
+						</div>
+					   </div>
+					
+					<div class="separator clear"></div>
+				</ui:repeat>
+				
+				<p:commandLink id="refresh" styleClass="refresh" 
+					actionListener="#{searchPeopleBean.refreshCurrentSearch()}"
+					update=":peopleSearchForm" />
+				
+				<p:commandLink id="loadMore" rendered="#{searchPeopleBean.moreToLoad}" styleClass="loadMore"
+					actionListener="#{searchPeopleBean.loadMoreUsers}"
+					update=":peopleSearchForm">
+					<h:outputText value="SHOW MORE" />
+				</p:commandLink>
+				
+				<script type="text/javascript">
+				$(function() {
+					roundImages();
+					
+					$('form.filteredSearch .loadMore').on('click', function() {
+						$(this).html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" id="loginloader" style="margin-top: 9px;"/>');
+						return false;
+					});
+					
+					var input = $('form.filteredSearch .inputContainer .searchInput');
+					input[0].selectionStart = input[0].selectionEnd = input.val().length;
+					
+					$('.search .resultContainer').fadeIn();
+				});
+				</script>
+			</h:panelGroup>
+		</h:form>
+	</div>
+</ui:composition>

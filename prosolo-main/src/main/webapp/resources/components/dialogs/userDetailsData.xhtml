@@ -1,0 +1,115 @@
+<ui:composition
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:actions="http://java.sun.com/jsf/composite/components/actions"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+	<h:panelGroup layout="block" id="userDetailsTooltip" class="userDetailsTooltip">
+		<div class="userDetails tooltip user#{userDetailsBean.userData.id}" >
+			<div class="avatarContainer">
+				<h:link class="userDetailsLink"	rendered="#{userDetailsBean.userData.profileUrl == null or userDetailsBean.userData.profileUrl.length() == 0}"
+					outcome="/publicprofile" >
+					<f:param name="user" value="#{userDetailsBean.userData.id}" />
+					
+					<h:panelGroup class="overlay twitter" rendered="#{userDetailsBean.userData.externalUser}" />
+
+					<h:graphicImage styleClass="avatar imageRound image60"
+						value="#{(userDetailsBean != null and userDetailsBean.userData != null) ? userDetailsBean.userData.avatarUrl : '&#160;'}" width="60"
+						height="60" alt="avatar" />
+				</h:link>
+
+				<h:outputLink
+					rendered="#{userDetailsBean.userData.profileUrl.length() > 0}"
+					class="userDetailsLink"
+					value="#{userDetailsBean.userData.profileUrl}" 
+					target="_blank">
+
+					<h:panelGroup class="overlay twitter" rendered="#{userDetailsBean.userData.externalUser}" />
+					
+					<h:graphicImage styleClass="avatar imageRound image60"
+						value="#{userDetailsBean.userData.avatarUrl}" width="60"
+						height="60" alt="&#160;" />
+				</h:outputLink>
+			</div>
+			
+			<div class="infoContainer">
+				<h2 class="name">
+					<h:link rendered="#{userDetailsBean.userData.profileUrl == null or userDetailsBean.userData.profileUrl.length() == 0}"
+						value="#{userDetailsBean.userData.name}" outcome="/publicprofile" >
+		                <f:param  name="user" value="#{userDetailsBean.userData.id}" />  
+		            </h:link>
+
+		            <h:outputLink rendered="#{userDetailsBean.userData.profileUrl != null}"
+						value="#{userDetailsBean.userData.profileUrl}" 
+						target="_blank">
+						
+						#{userDetailsBean.userData.name}
+					</h:outputLink>
+				</h2>
+				<div class="position">#{userDetailsBean.userData.position}</div>
+				<h:panelGroup rendered="#{userDetailsBean.userData.locationName != null}" class="position location">
+					<a href="#" onclick="$('#locationDialog').dialog('option', 'data', ['#{userDetailsBean.userData.locationName}', #{userDetailsBean.userData.latitude}, #{userDetailsBean.userData.longitude}]).dialog('open');return false;">#{userDetailsBean.userData.locationName}</a>
+				</h:panelGroup>
+			</div>
+			<div class="clear"></div>
+			
+			<h:form id="userDetailsForm">
+				<h:panelGroup class="actions"
+					rendered="#{loggeduser.loggedIn and 
+							!userDetailsBean.userData.loggedUser and 
+							!userDetailsBean.userData.externalUser}">
+					
+					<p:growl id="userDetailsGrowl" showDetail="true" />
+					
+					<actions:directMessage
+						receiverData="#{userDetailsBean.userData}"
+						styleClass="button gray size20 marginRight10"
+						context="userDetails" />&#160;
+					
+					<h:panelGroup id="followAction">
+						<p:commandLink id="followButton"
+							styleClass="button gray size20"
+							rendered="#{!peopleActionBean.isLoggedUserFollowingCollegueById(userDetailsBean.userData.id)}"
+							action="#{peopleActionBean.followCollegueById(userDetailsBean.userData.id, 'userDetails')}"
+							update="followAction"
+							oncomplete="roundImages()">
+							<span class="bullet"></span>
+							Follow
+						</p:commandLink>
+						
+						<p:commandLink
+							styleClass="button gray size20 unfollowButton"
+							rendered="#{peopleActionBean.isLoggedUserFollowingCollegueById(userDetailsBean.userData.id)}"
+							action="#{peopleActionBean.unfollowCollegueById(userDetailsBean.userData.id, 'userDetails')}"
+							update="followAction"
+							style="width: 85px">
+							<span class="check"></span>
+							<span class="text">Following</span>
+						</p:commandLink>
+						<script>
+							$('.userDetails .unfollowButton').hover(
+								function(){
+									var width = $(this).css('width');
+									$(this).css('width', width);
+									$(this).find('.check').hide();
+									$(this).find('.text').html('Unfollow');
+								},
+								function(){
+									$(this).find('.check').show();
+									$(this).find('.text').html('Following');
+								});
+						</script>
+					</h:panelGroup>
+				</h:panelGroup>
+			</h:form>
+		</div>
+		<script>
+			$(function() {
+				roundImages();
+				$('.userDetails.user#{userDetailsBean.userData.id} .location').shortenedText({showChar: 20});
+			});
+		</script>
+	</h:panelGroup>
+</ui:composition>

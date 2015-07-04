@@ -1,0 +1,59 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+	<composite:interface>
+		<composite:attribute name="courseData" type="org.prosolo.web.courses.data.CourseData" />
+		<composite:attribute name="refreshAfterAction" type="java.lang.String" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<utilcomp:messagesBundle var="msg" />
+	
+		<div id="withdrawFromCourseDialog" class="withdrawFromCourseDialog" style="display: none;">
+			<h:form id="deleteCourseForm">
+				<h4 class="warningMessage">#{msg['courses.dialog.withdraw.message']} '#{cc.attrs.courseData.title}'?</h4>
+				<br/><br/>
+		
+				<p:commandButton value="Withdraw"
+					id="withdrawBtn"
+					styleClass="button green size30 right"
+					onclick='$("#withdrawFromCourseDialog").dialog("close");'
+				 	action="#{courseBean.withdrawFromCourse(cc.attrs.courseData)}"
+					update="#{cc.attrs.refreshAfterAction}"
+				/>
+		
+				<a class="button gray size30 right"
+					onclick='$("#withdrawFromCourseDialog").dialog("close");'>Cancel</a>
+					
+				<p:defaultCommand target=":#{cc.clientId}:deleteCourseForm:withdrawBtn" />
+			</h:form>
+		</div>
+		<script>
+		$(function() {
+			$('#withdrawFromCourseDialog').dialog({
+				title: "#{msg['courses.dialog.withdraw.title']}",
+				dialogClass: 'warning',
+				autoOpen: false,
+				show : 'slide',
+				width: 400,
+				modal: true,
+				resizable: false,
+				open: function() {
+					$(this).parent()
+			        .children('.ui-dialog-titlebar')
+			        .prepend('<span class="warningIcon"></span>');
+				}
+			});
+			$('#withdrawFromCourseDialog').show();
+		});
+		</script>
+	</composite:implementation>
+</ui:component>

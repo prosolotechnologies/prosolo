@@ -1,0 +1,245 @@
+<ui:composition
+   	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+   	xmlns:comp="http://java.sun.com/jsf/composite/components"
+   	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+   	xmlns:post="http://java.sun.com/jsf/composite/components/post"
+   	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+   	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons"
+   	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+   	
+   <utilcomp:messagesBundle var="msg" />
+	
+	<div id="newExternalCredit" class="newExternalCredit" title="Add new external credit" style="display: none;">
+				
+		<!-- need a separate form because of the bug in PF disallowing to have to p:fileUpload in one form -->		
+		<h:form prependId="false" enctype="multipart/form-data">
+			<div class="certUploadContainer">
+				<p:fileUpload styleClass="browseFile"
+					fileUploadListener="#{newExternalCreditBean.uploadCertificate}"  
+		            mode="advanced"  
+		            auto="true"
+		            update=":newExternalCreditForm:certificateContainer"
+	            />
+			</div>
+		</h:form>
+		
+		<h:form id="newExternalCreditForm">
+			<p:growl id="newExternalCreditGrowl" showDetail="true" />
+			
+			<table>
+				<tr class="title">
+					<td class="col1">
+						<label for="exCreditTitle">Title:</label>
+					</td>
+					<td colspan="3">
+						<h:inputText id="exCreditTitle" 
+							value="#{newExternalCreditBean.newCredit.title}"
+							placeholder="#{msg['textfield.title']}" />
+					</td>
+				</tr>
+				<tr class="description">
+					<td class="label col1">
+						<label for="exCreditDescription">Description:</label>
+					</td>
+					<td colspan="3">
+						<h:inputTextarea id="exCreditDescription" 
+							rows="4" cols="55"
+							value="#{newExternalCreditBean.newCredit.description}"
+							placeholder="#{msg['textarea.description']}" />
+					</td>
+				</tr>
+				<tr class="description">
+					<td class="label col1">
+						<label for="startDate">Start date:</label>
+					</td>
+					<td class="deadline">
+						<h:inputText id="startDate" class="startDateField"
+							value="#{newExternalCreditBean.newCredit.start}" onfocus="blur();">
+						    <f:convertDateTime pattern="dd.MM.yyyy" />
+						</h:inputText>
+					</td>
+					<td class="label col3">
+						<label for="endDate">End date:</label>
+					</td>
+					<td class="deadline">
+						<h:inputText id="endDate" class="endDateField"
+							value="#{newExternalCreditBean.newCredit.end}" 
+							onfocus="blur();">
+						    <f:convertDateTime pattern="dd.MM.yyyy" />
+						</h:inputText>
+					</td>
+				</tr>
+				<tr class="description">
+					<td class="label col1">
+						Certificate:
+					</td>
+					<td colspan="3">
+						<h:panelGroup id="certificateContainer">
+							<h:panelGroup id="certificateUploadButton"
+								class="certificate button blue size20" 
+								rendered="#{newExternalCreditBean.certificateToUpload == null}">
+								Upload certificate
+							</h:panelGroup>
+							<h:panelGroup rendered="#{newExternalCreditBean.certificateToUpload != null}">
+								<h:outputText id="certificateName"
+									class="certificateName" 
+									value="#{newExternalCreditBean.certificateToUpload.fileName}" />
+								<p:commandLink styleClass="iconRemove"
+									value="x"
+									action="#{newExternalCreditBean.setCertificateToUpload(null)}"
+									update=":newExternalCreditForm" /> 
+							</h:panelGroup>
+							<script>
+							$(function() {
+								$('#newExternalCredit .certificateName').shortenedText({showChar: 60, mode: 'static'});;
+							});
+							</script>
+						</h:panelGroup>
+					</td>
+				</tr>
+			</table>
+				
+			<div class="clear"></div>				
+			<div class="activityCompetenceWrapper">
+				<h:panelGroup layout="block" id="activities" class="activityWrapper">
+					<div class="title bold">Activities you have used:</div>
+
+					<p:commandLink styleClass="button blue size25 left"
+						value="New Activity"
+						onclick="$('#newActivityForExCreditFormModalDialog').dialog('open');"
+						update=":newActivityForExCredit:newActivityForm"
+						oncomplete="newActivityForExCreditcreateNewActivityNewPost.expandPostInput();"
+					/>
+						
+					<span class="searchText">
+						or search
+					</span>
+					
+					<comp:searchActivities value="exCredActivities"
+						container=".newExternalCredit .activityCompetenceWrapper"
+						actionLinkName="Add"
+						actionBean="#{newExternalCreditBean}"
+						toExcludeIds="#{newExternalCreditBean.getAllActivitiesIds()}"
+						regionToRenderOnAction=":newExternalCreditForm"
+					/>
+					
+					<div class="clear"></div>
+					
+					<comp:planused
+						id="newCreditActivities"
+						parentid="newExternalCredit"
+						activities="#{newExternalCreditBean.newCredit.activities}"
+						cantdisplaymessage="No activities added."
+						removeActivityMethod="#{newExternalCreditBean.newCredit.removeActivity()}"
+						activityToRemoveHolder="#{newExternalCreditBean.newCredit.activityToDelete}"
+						width="335"
+					/>
+				</h:panelGroup>
+				
+				<div class="compSearchContainer">
+					<div class="title bold">Claim competences:</div>
+					
+					
+					<div class="competenceSearchFormContainer">
+						<comp:searchCompetences value="exCreditCompetences"
+							container=".competenceSearchFormContainer"
+							regionToRenderOnAction=":#{p:component('compList')}"
+							actionLinkName="Add"
+							actionBean="#{newExternalCreditBean}"
+							excludeAddedCompetences="true"
+							toExclude="#{newExternalCreditBean.newCredit.competences}" />
+					</div>
+				
+					<h:panelGroup layout="block" id="compList">
+						<ul>
+							<ui:repeat value="#{newExternalCreditBean.newCredit.competences}" var="comp">
+								<li>
+									<icon:competence size="16" />
+									<link:competence 
+										resource="#{comp}"
+										type="Competence"
+										title="#{comp.title}"
+										styleClass="compTitle" 
+										context="newExternalCredit"/>
+										
+									<p:commandLink styleClass="iconRemove"
+										action="#{newExternalCreditBean.newCredit.removeCompetence(comp)}"
+										update=":newExternalCreditForm:compList"
+									/>
+								</li>
+							</ui:repeat>
+						</ul>
+						
+						<utilcomp:tooltip target=".hasTooltip[title]" />
+					</h:panelGroup>
+				</div><!-- end sideSearch -->
+			</div>
+			
+			<div class="clear"></div>
+			
+			<div class="actionButtons">
+				<p:commandButton value="Save" type="submit"
+					styleClass="button green size30 right"
+					action="#{newExternalCreditBean.saveNewExternalCredit}"
+					onclick="$('#newExternalCredit').dialog('option', 'submit', true);$('#newExternalCredit').dialog('close');" 
+					update="@form"
+					oncomplete="exCreditPageData.initExCredits();"/>
+												
+				<p:commandLink value="Cancel"
+					styleClass="button gray size30 right cancel"
+					action="#{newExternalCreditBean.reset}"
+					onclick="$('#newExternalCredit').dialog('close');"
+					update="@form" />
+			</div>
+			<div class="clear"></div>
+			<script>
+			$(function() {
+				$('#newExternalCredit').dialog({
+					autoOpen: false,
+					show : 'slide',
+					width: 750,
+					modal: true,
+					resizable: false,
+					close: function() {
+						var submitted = $(this).dialog('option', 'submit');
+						
+						if (!submitted) {
+							sendServiceUse('MOUSE_CLICK', {context: 'profile.credits.newCreditDialog', link: 'cancel'});
+						}
+						
+						$(this).dialog('option', 'submit', false);
+					}
+				});
+				$('#newExternalCredit').show();
+				
+				$('#newExternalCredit .startDateField, #newExternalCredit .endDateField').datepicker({
+					showOn: 'button',
+					buttonImage: 'resources/css/prosolo-theme/images/calendar18x15.png',
+					buttonImageOnly: true,
+					dateFormat: "dd.mm.yy"
+				});
+				
+				$('#newExternalCredit .description textarea').autosize();
+			});
+			</script>
+			
+			<p:growl id="newExternalCrediGrowl" showDetail="true"/>
+			<script>
+				$('#newExternalCredit .button.certificate').on('click', function(e){
+					$('#newExternalCredit .certUploadContainer .browseFile').trigger('click');
+				});
+				$('#newExternalCredit').parent().css('overflow', 'initial');
+			</script>
+		</h:form>
+	</div>
+	
+	<dlg:newActivity id="newActivityForExCredit"
+		value="newActivityForExCredit"
+		activityData="#{newExternalCreditBean.newActivityData}"
+		handleFileUpload="#{newExternalCreditBean.handleFileUpload}"
+		regionToUpdate=":newExternalCreditForm"
+		createActivityAction="#{newExternalCreditBean.createActivity()}" />
+</ui:composition>

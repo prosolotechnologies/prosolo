@@ -1,0 +1,20 @@
+{
+    "tags":{
+		"properties":{
+			"id":{
+				"store": false,
+				"type":"string"
+				},
+			"url":{
+					"store": false,
+					"type":"string"
+				},
+			"title":{
+					"store": false,
+					"type":"string"
+				}  
+		}
+			
+		}
+
+}

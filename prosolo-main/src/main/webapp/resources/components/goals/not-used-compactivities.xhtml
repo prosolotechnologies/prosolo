@@ -1,0 +1,61 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:action="http://java.sun.com/jsf/composite/components/actions"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:socialWall="http://java.sun.com/jsf/composite/components/socialWall"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:goalcomp="http://java.sun.com/jsf/composite/components/goals"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post">
+
+	<!-- 
+		actionBean: must have method for adding an activity to a competence with the following signature:
+					void connectActivity(Activity)
+	-->
+
+	<composite:interface>
+		<composite:attribute name="loadingMsg" required="false" default="Loading activities..."/>
+		<composite:attribute name="updateAfterDelete" required="false"/>
+		<composite:attribute name="addCommentMsg" required="false" default="Add a comment..."/>
+		<composite:attribute name="allActivities" required="true" />
+		<composite:attribute name="readOnly" default="false" />
+		<composite:attribute name="actionBean" />
+		<composite:attribute name="initializeHandler" 
+			method-signature="void initializeActivities()"
+			required="true"/>
+			
+	</composite:interface>
+	
+	<composite:implementation>
+		
+		<h:form id="#{cc.attrs.value}Form" class="#{cc.attrs.value}Form" enctype="multipart/form-data">
+			<script>
+				$(function() {
+					addLoader('.goalCompWall div.#{cc.attrs.value}', '#{cc.attrs.loadingMsg}');
+					refreshCompetenceActivityWall();
+				});
+				
+				function refreshCompetenceActivityWall() {
+					$('.goalCompWall a.refreshAllHanler').trigger('click');
+				}
+			</script>
+		
+			<goalcomp:compactivitiesNoForm value="#{cc.attrs.value}"
+				parentComponent="#{cc.attrs.value}Form"
+				loadingMsg="#{cc.attrs.loadingMsg}"
+				updateAfterDelete="#{cc.attrs.updateAfterDelete}"
+				addCommentMsg="#{cc.attrs.addCommentMsg}"
+				allActivities="#{cc.attrs.allActivities}"
+				actionBean="#{cc.attrs.actionBean}"
+				readOnly="#{cc.attrs.readOnly}"
+				initializeHandler="#{cc.attrs.initializeHandler}"
+				context="learn.targetGoal.#{learninggoals.selectedGoalData.data.targetGoalId}.targetComp.#{learninggoals.selectedGoalData.selectedCompetence.data.id}.compWall"
+			/>
+		</h:form>
+	</composite:implementation>
+</ui:component>

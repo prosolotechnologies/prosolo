@@ -1,0 +1,185 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	template="templates/masterLayout.xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs">
+
+	<ui:define name="windowTitle">
+		Search | ProSolo
+	</ui:define>
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewParam name="tab" value="#{search.selectedMenu}" />
+		</f:metadata>
+	</ui:define>
+
+	<ui:define name="content">
+		<script type="text/javascript">
+			$(function() {
+				var query = "#{param['query']}";
+				
+				//if (query.length > 0) {
+					$('.filteredSearch .inputContainer .searchInput').val("#{param['query']}");
+					$('.filteredSearch .inputContainer .searchInput').next('input').val("#{param['query']}");
+					executeSearch();
+				//}
+			});
+			
+			function addLoaderToSearchContainer() {
+			}
+			
+			function updateUrlQuery(){
+				setQueryParam('query', $('.filteredSearch .inputContainer .searchInput').val());
+			}
+			
+			function executeSearch(){
+				$('.filteredSearch .search.button').trigger('click');
+			}
+			
+			var keystrokeTimeout;
+			
+			function searchListener() {
+				updateUrlQuery(); 
+
+				var delayedSearch = function(){
+					$('.filteredSearch .inputContainer .searchInput').next('input').val($('.filteredSearch .inputContainer .searchInput').val());
+					executeSearch();
+				};
+				
+				window.clearTimeout(keystrokeTimeout);
+				keystrokeTimeout = window.setTimeout(delayedSearch, 350);
+			}
+		</script>
+
+		<div class="container goalsPage tabbedLayout">
+			<dlg:appendedActivities id="appActivities"/>
+				
+			<div class="leftSidebar">
+				<div class="leftNav">
+					<ul>
+						<ui:remove>
+							<li class="#{search.selectedMenu == 'goals' ? 'selected' : ''}">
+								<h:link value="Goals" outcome="/search"
+									onclick="logTabNavigation('goals', 'search.navigation');">
+									<f:param  name="tab" value="goals" />
+								</h:link>
+							</li>
+						</ui:remove>
+						
+						<li class="#{search.selectedMenu == 'competences' ? 'selected' : ''}">
+							<h:link value="Competences" outcome="/search"
+								onclick="logTabNavigation('competences', 'search.navigation');">
+								<f:param  name="tab" value="competences" />
+							</h:link>
+						</li>
+						
+						<li class="#{search.selectedMenu == 'activities' ? 'selected' : ''}">
+							<h:link value="Activities" outcome="/search"
+								onclick="logTabNavigation('activities', 'search.navigation');">
+								<f:param  name="tab" value="activities" />
+							</h:link>
+						</li>
+						
+						<li class="#{search.selectedMenu == 'people' ? 'selected' : ''}">
+							<h:link value="People" outcome="/search" 
+								onclick="logTabNavigation('people', 'search.navigation');">
+								<f:param  name="tab" value="people" />
+							</h:link>
+						</li>
+						
+						<li class="#{search.selectedMenu == 'reminders' ? 'selected' : ''}">
+							<h:link value="Reminders" outcome="/search"
+								onclick="logTabNavigation('reminders', 'search.navigation');">
+								<f:param  name="tab" value="reminders" />
+							</h:link>
+						</li>
+						
+						<li class="#{search.selectedMenu == 'featuredNews' ? 'selected' : ''}">
+							<h:link value="Featured News" outcome="/search"
+								onclick="logTabNavigation('featuredNews', 'search.navigation');">
+								<f:param  name="tab" value="featuredNews" />
+							</h:link>
+						</li>
+						
+						<li class="#{search.selectedMenu == 'hashtags' ? 'selected' : ''}">
+							<h:link value="Hashtags" outcome="/search"
+								onclick="logTabNavigation('hashtags', 'search.navigation');">
+								<f:param  name="tab" value="hashtags" />
+							</h:link>
+						</li>
+						
+						
+						<li class="#{search.selectedMenu == 'suggestedLearning' ? 'selected' : ''}">
+							<h:link value="Suggested Learning" outcome="/search"
+								onclick="logTabNavigation('suggestedLearning', 'search.navigation');">
+								<f:param  name="tab" value="suggestedLearning" />
+							</h:link>
+						</li>
+						<ui:remove>
+						<li class="#{search.selectedMenu == 'documents' ? 'selected' : ''}">
+							<h:link value="Documents/Links" outcome="/search"
+								onclick="logTabNavigation('documents', 'search.navigation');">
+								<f:param  name="tab" value="documents" />
+							</h:link>
+						</li>
+						</ui:remove>
+					</ul>
+				</div>	
+				
+			</div><!-- .leftSidebar -->
+		
+			<h:panelGroup layout="block" class="content search">
+				<!-- 
+				<h:panelGroup layout="block" rendered="#{search.selectedMenu == 'general'}">
+					<ui:include src="/resources/components/search/general.xhtml" />
+				</h:panelGroup>
+				-->
+				<c:if test="#{search.selectedMenu == 'goals'}">
+					<ui:include src="/resources/components/search/goals.xhtml" />
+				</c:if>
+				
+				<c:if test="#{search.selectedMenu == 'competences'}">
+					<ui:include src="/resources/components/search/competences.xhtml" />
+				</c:if>
+				
+				<c:if test="#{search.selectedMenu == 'activities'}">
+					<ui:include src="/resources/components/search/activities.xhtml" />
+				</c:if>
+				
+				<c:if test="#{search.selectedMenu == 'people'}">
+					<ui:include src="/resources/components/search/people.xhtml" />
+				</c:if>
+				
+				<c:if test="#{search.selectedMenu == 'reminders'}">
+					<ui:include src="/resources/components/search/reminders.xhtml" />
+				</c:if>
+				
+				<c:if test="#{search.selectedMenu == 'featuredNews'}">
+					<ui:include src="/resources/components/search/featuredNews.xhtml" />
+				</c:if>
+				
+				<c:if test="#{search.selectedMenu == 'hashtags'}">
+					<ui:include src="/resources/components/search/hashtags.xhtml" />
+				</c:if>
+
+							
+				<c:if test="#{search.selectedMenu == 'suggestedLearning'}">
+					<ui:include src="/resources/components/search/suggestedLearning.xhtml" />
+				</c:if>
+				<ui:remove>	
+				<c:if test="#{search.selectedMenu == 'documents'}">
+					<ui:include src="/resources/components/search/documents.xhtml" />
+				</c:if>
+				</ui:remove>
+			</h:panelGroup><!-- .content -->
+			
+			<div class="clear"></div>
+		</div><!-- .container end -->
+	</ui:define>
+
+</ui:composition>

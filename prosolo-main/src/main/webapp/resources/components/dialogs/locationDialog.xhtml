@@ -1,0 +1,41 @@
+<ui:composition
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+	
+	<h:outputScript library="javascript" name="dialog.location.js" />
+
+	<style>
+		#locationDialog .map-canvas {
+			width: 575px;
+			height: 537px;
+		}
+	</style>
+
+	<div id="locationDialog" title="Location">
+		<div class="map-canvas"></div>
+		
+	</div>
+	
+	<script>
+	$(function(){
+		$('#locationDialog').dialog({
+			autoOpen: false,
+			show: 'slide',
+			width: 600,
+			height: 600,
+			modal: true,
+			resizable: false,
+			open: function(event, ui) {
+				try {
+					initializeLocationDialogMap($(this).dialog('option', 'data'));
+				}catch(e){
+					console.log(e);
+				}
+			},
+		});
+		$('#locationDialog').show();
+	});
+	</script>
+</ui:composition>

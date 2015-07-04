@@ -1,0 +1,67 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<meta http-equiv="content-type" content="text/html" charset="UTF-8" />
+	<script
+		src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/style.css?#{loggeduser.loginTime}" />
+	<link rel="icon" href="#{request.contextPath}/favicon.ico" type="image/x-icon" />
+	<title>Email verification | ProSolo</title>
+</h:head>
+
+<f:view contentType="text/html">
+	<f:metadata>
+		<f:viewParam name="key" value="#{selfRegistrationBean.verifyKey}" />
+	</f:metadata>
+	<script>
+		$(function() {
+			$('form:first input[type!=hidden]:first').focus();
+		});
+
+		function showLoader() {
+			$('#loginloader').show();
+		}
+	</script>
+	
+	<f:metadata>
+		<f:event type="preRenderView" listener="#{loggeduser.checkIfLoggedIn}" />
+	</f:metadata>
+
+	<div class="signContainer">
+		<div class="signTop">
+			<h1>
+				<h:link outcome="/login">
+					<span class="logo"></span>
+				</h:link>
+			</h1>
+		</div>
+		
+		<div class="signMain">
+			<h:panelGroup layout="block" rendered="#{!selfRegistrationBean.verifyKeyValid}">
+				This link is not valid. Please contact system administrator to provide you link with valid key.
+			</h:panelGroup>
+			 
+			<h:panelGroup rendered="#{selfRegistrationBean.verifyKeyValid}">
+				<div class="registerSuccess">
+					<h:panelGroup layout="block">
+						<h3>Congratulations!</h3>
+						<h4>You've successfully verified your email address.</h4>
+						<p>
+							You may continue to use ProSolo. Please go to the <h:link outcome="login">login page</h:link>.
+						</p>
+					</h:panelGroup>
+				</div>
+			</h:panelGroup>
+		</div>
+		<!-- .main end -->
+		<div class="clear"></div>
+	</div>
+	<!-- .signContainer end -->
+</f:view>
+</html>
+

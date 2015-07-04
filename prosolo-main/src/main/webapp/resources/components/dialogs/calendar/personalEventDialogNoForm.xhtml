@@ -1,0 +1,127 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:func="http://org.prosolo/functions"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+	<composite:interface>
+		<composite:attribute name="dialogId" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<p:growl id="personalEventDetailsGrowl" showDetail="true" />
+		
+		<h:panelGroup layout="block" class="personalEventDialog">
+			<table>
+				<tr>
+					<td class="col1">
+						<h:outputLabel for="eventTitle">Title:</h:outputLabel>
+					</td>
+					<td class="col3">
+						<h:inputText id="eventTitle" 
+							value="#{calendar.event.title}"
+							placeholder="#{msg['textfield.title']}" />
+					</td>
+				</tr>
+				<tr class="description">
+					<td class="label col1">
+						<label for="eventDescription">Description:</label>
+					</td>
+					<td>
+						<h:inputTextarea id="eventDescription" 
+							rows="4" cols="55"
+							value="#{calendar.event.description}"
+							placeholder="#{msg['textarea.description']}" />
+					</td>
+				</tr>
+			</table>
+			
+			<div class="dateTimePicker">
+				<h:panelGroup layout="block" id="calendarDatePicker">
+					From
+					<h:inputText id="startEventDate" class="datePicker"
+						value="#{calendar.event.startDate}" required="false"
+						onfocus="blur();">
+						<f:convertDateTime pattern="dd.MM.yyyy." />
+					</h:inputText>
+					
+					<h:inputText id="startEventTime" class="timePicker"
+						value="#{calendar.event.startTime}" required="false"
+						rendered="#{!calendar.event.allDay}">
+						<f:convertDateTime pattern="HH.mm" />
+					</h:inputText>
+					to
+					<h:inputText id="endEventDate" class="datePicker"
+						value="#{calendar.event.endDate}" required="false"
+						onfocus="blur();">
+						<f:convertDateTime pattern="dd.MM.yyyy." />
+					</h:inputText>
+					
+					<h:inputText id="endEventTime" class="timePicker"
+						value="#{calendar.event.endTime}" required="false"
+						rendered="#{!calendar.event.allDay}">
+						<f:convertDateTime pattern="HH.mm" />
+					</h:inputText>
+					
+					<label class="marginLeft10">
+						<h:selectBooleanCheckbox id="allDay" value="#{calendar.event.allDay}">
+							<f:ajax render="calendarDatePicker" />
+						</h:selectBooleanCheckbox>
+						All day
+					</label>
+	
+					<script>
+						$(function() {
+							$(".personalEventDialog .datePicker").datepicker({
+								inline : true,
+								dateFormat : "dd.mm.yy"
+							});
+	
+							$(".personalEventDialog .timePicker").timepicker({
+								'scrollDefaultNow' : true,
+								'timeFormat' : 'H.i'
+							});
+							
+							$('.personalEventDialog td textarea').autosize(); 
+						});
+					</script>
+				</h:panelGroup>
+	
+				<div class="eventGuests">
+					Add guests for this	event:
+				
+					<utilcomp:userInputField id="eventGuestsSearch"
+			    		users="#{calendar.event.guestsList}"
+			    		toExcludeIds="#{calendar.toExcludeIds}"
+			    		keywordHolder="#{calendar.keyword}"
+			    		actionBean="#{calendar}"
+			    		searchResult="#{calendar.userSearchResults}" />
+	
+					<label>
+						<h:selectBooleanCheckbox id="guestsCanModify" value="#{calendar.event.guestsCanModify}" />
+						Guests can modify event
+					</label>
+				</div>
+				
+				<div class="clear"></div>
+				
+				<div class="actions">
+					<p:commandLink value="Save"
+						styleClass="button green size30 right"
+						action="#{calendar.addEvent}"
+						update=":calendarForm"
+						onclick="$('##{cc.attrs.dialogId}').dialog('close');" />
+						
+					<p:commandLink value="Cancel"
+						styleClass="button gray size30 right"
+						onclick="$('##{cc.attrs.dialogId}').dialog('close');" />
+				</div>
+			</div>
+		</h:panelGroup>
+	</composite:implementation>
+</ui:component>

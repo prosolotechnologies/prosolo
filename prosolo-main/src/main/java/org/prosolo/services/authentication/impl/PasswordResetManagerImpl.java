@@ -1,0 +1,146 @@
+/**
+ * 
+ */
+package org.prosolo.services.authentication.impl;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
+
+import org.apache.log4j.Logger;
+import org.hibernate.Session;
+import org.prosolo.app.Settings;
+import org.prosolo.domainmodel.app.ResetKey;
+import org.prosolo.domainmodel.user.User;
+import org.prosolo.services.authentication.PasswordResetManager;
+import org.prosolo.services.authentication.exceptions.ResetKeyDoesNotExistException;
+import org.prosolo.services.authentication.exceptions.ResetKeyExpiredException;
+import org.prosolo.services.authentication.exceptions.ResetKeyInvalidatedException;
+import org.prosolo.services.email.generators.PasswordRecoveryEmailContentGenerator;
+import org.prosolo.services.email.EmailSender;
+import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.util.date.DateUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+/**
+ * @author "Nikola Milikic"
+ *
+ */
+@Service("org.prosolo.services.authentication.PasswordResetManager")
+public class PasswordResetManagerImpl extends AbstractManagerImpl implements PasswordResetManager {
+	
+	private static final long serialVersionUID = 7929317962497049673L;
+	
+	private static Logger logger = Logger.getLogger(PasswordResetManager.class);
+	
+	@Autowired private EmailSender emailSender;
+
+	@Override
+	public boolean resetPassword(User user, String email, String serverAddress) {
+		email = email.toLowerCase();
+		
+		// first invalidate all other user's request key
+		invalidateUserRequestKeys(user);
+		
+		ResetKey key = new ResetKey();
+		key.setUser(user);
+		key.setDateCreated(new Date());
+		key.setUid(UUID.randomUUID().toString().replace("-", ""));
+		saveEntity(key);
+		
+		try {
+			String resetAddress = serverAddress+"?key="+key.getUid();
+			
+			PasswordRecoveryEmailContentGenerator contentGenerator = new PasswordRecoveryEmailContentGenerator(user.getName(), resetAddress);
+			
+			emailSender.sendEmail(contentGenerator,  email, "Password Reset Instructions");
+			return true;
+		} catch (AddressException e) {
+			logger.error(e);
+		} catch (MessagingException e) {
+			logger.error(e);
+		} catch (UnsupportedEncodingException e) {
+			logger.error(e);
+		} catch (FileNotFoundException e) {
+			logger.error(e);
+		} catch (IOException e) {
+			logger.error(e);
+		}
+		return false;
+	}
+	
+	@Override
+	public User checkIfKeyIsValid(String resetKey) throws ResetKeyDoesNotExistException, ResetKeyInvalidatedException, ResetKeyExpiredException {
+		ResetKey result = getResetKey(resetKey);
+		
+		if (result != null) {
+			if (result.isInvalid()) {
+				throw new ResetKeyInvalidatedException("Reset key: "+ resetKey +" is not valid.");
+			}
+			
+			boolean keyExpired = DateUtil.hoursBetween(result.getDateCreated(), new Date()) > Settings.getInstance().config.application.passwordResetKeyValidityHours;
+			
+			if (keyExpired) {
+				throw new ResetKeyExpiredException("Reset key: "+ resetKey +" has expired.");
+			}
+			
+			return result.getUser();
+		} else {
+			throw new ResetKeyDoesNotExistException("Reset key: "+ resetKey +" does not exist.");
+		}
+	}
+
+	public ResetKey getResetKey(String resetKey) {
+		Session session = persistence.currentManager();
+		
+		String query = 
+			"SELECT resetKey " +
+			"FROM ResetKey resetKey " +
+			"WHERE resetKey.uid = :resetKey ";
+		
+		ResetKey result = (ResetKey) session.createQuery(query).
+				setString("resetKey", resetKey).
+				uniqueResult();
+		return result;
+	}
+	
+	public void invalidateUserRequestKeys(User user) {
+		Session session = persistence.currentManager();
+		
+		String query = 
+			"SELECT resetKey " +
+			"FROM ResetKey resetKey " +
+			"WHERE resetKey.user = :user " +
+				"AND resetKey.invalid = :invalid";
+		
+		@SuppressWarnings("unchecked")
+		List<ResetKey> keys = session.createQuery(query)
+				.setEntity("user", user)
+				.setBoolean("invalid", false)
+				.list();
+		
+		if (keys != null && !keys.isEmpty()) {
+			for (ResetKey resetKey : keys) {
+				resetKey.setInvalid(true);
+				saveEntity(resetKey);
+			}
+		}
+	}
+	
+	@Override
+	public void invalidateResetKey(String resetKey) {
+		ResetKey resetK = getResetKey(resetKey);
+		
+		if (resetK != null) {
+			resetK.setInvalid(true);
+			saveEntity(resetK);
+		}
+	}
+}

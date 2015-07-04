@@ -1,0 +1,37 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons"
+	xmlns:util="http://www.prosolo.com/util">
+
+	<!-- mode: USER, MANAGER -->
+
+	<composite:interface>
+		<composite:attribute name="activityData" type="org.prosolo.web.activitywall.data.ActivityWallData" />
+		<composite:attribute name="styleClass" type="java.lang.String" />
+		<composite:attribute name="containerClass" type="java.lang.String" />
+		<composite:attribute name="toRender" type="java.lang.Boolean" default="true" />
+		<composite:attribute name="context" type="java.lang.String"/> 
+	</composite:interface>
+	
+	<composite:implementation>
+
+		<div class="box"> <h:panelGroup rendered="#{cc.attrs.activityData.haveScore}">Your grade on this activity: #{cc.attrs.activityData.score}</h:panelGroup>
+			<h:panelGroup layout="block" rendered="#{cc.attrs.toRender}" class="uploadAssignment richContent #{cc.attrs.styleClass}">
+				<h:link value="Load external activity" class="button blue size20 left"  outcome="/lti">
+					<f:param name="launchUrl" value="#{cc.attrs.activityData.activity.launchUrl}"/>
+					<f:param name="sharedSecret" value="#{cc.attrs.activityData.activity.sharedSecret}"/>
+					<f:param name="consumerKey" value="#{cc.attrs.activityData.activity.consumerKey}"/>
+					<f:param name="targetActivityId" value="#{cc.attrs.activityData.id}"/>
+					<f:param name="activityId" value="#{cc.attrs.activityData.activity.id}"/>
+				</h:link>
+				<div class="clear"></div>
+			</h:panelGroup>
+		</div>
+	</composite:implementation>
+</ui:component>

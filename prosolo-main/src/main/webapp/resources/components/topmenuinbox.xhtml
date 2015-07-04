@@ -1,0 +1,115 @@
+<ui:composition
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:pt="http://java.sun.com/jsf/passthrough">
+
+	<h:form id="inboxForm">
+		<p:growl id="messagesGrowl" showDetail="true" />
+	
+		<p:poll interval="#{topInboxBean.refreshRate}"
+			oncomplete="roundImages" update=":inboxForm:messagesInboxPanel"
+			widgetVar="messagesPoll" autoStart="true" />
+			
+		<h:panelGroup id="messagesInboxPanel">
+			<div class="messagesContainer">
+				<p:commandLink
+					pt:position="s"
+					styleClass="btnMessagesClass indexTripStep7 inlineBlock right"
+					action="#{topInboxBean.readMessages()}" 
+					actionListener="#{topInboxBean.logInboxServiceUse()}"
+					oncomplete="$('.messagesContainer .inboxCircle').hide();"
+					async="true"
+					update=":inboxForm:messagesContainer">
+					
+					<h:panelGroup layout="block" class="inboxCircle" rendered="#{topInboxBean.unreadThreadsNo > 0}">
+						#{topInboxBean.unreadThreadsNo}
+					</h:panelGroup>
+				</p:commandLink>
+			</div>
+			
+			<div id="messages" >
+				<div class="beeperNub"></div>
+				
+				<h:panelGroup layout="block" id="messagesContainer" class="messagesContainer">
+					<h:panelGroup layout="block" id="messagesResultPanelContent" rendered="#{!empty topInboxBean.messagesThreads}">
+						<div class="category">
+							Messages
+						</div>
+						
+						<div class="itemsContainer">
+							<ui:repeat value="#{topInboxBean.messagesThreads}" var="messageThreadData" varStatus="iterator">
+								
+								<h:link outcome="/messages" 
+									class="item #{messageThreadData.readed == 'false' ? 'unread' : ''}"
+									onclick="sendLogPageNavigationWithParameters('messages.xhtml', { context:'mainmenu', thread: #{messageThreadData.id}});" >
+									<f:param  name="id" value="#{messageThreadData.id}" />
+
+					    			<img class="imageRound image30 left" 
+					    				src="#{messageThreadData.participantsWithoutLoggedUser.get(0).avatarUrl != null ? messageThreadData.participantsWithoutLoggedUser.get(0).avatarUrl : colleguesBean.avatarUrlByUserId(messageThreadData.participantsWithoutLoggedUser.get(0).id, 60)}" 
+										width="30" height="30" alt="#{messageThreadData.participantsWithoutLoggedUser.get(0).name}" />
+										
+									<div class="contentContainer">
+										<span class="user">
+											#{messageThreadData.participantsWithoutLoggedUser.get(0).name}
+										</span>
+										<span class="time">
+											#{messageThreadData.updateTime}
+										</span>
+	
+										<div class="clear"></div>
+	
+										<span>
+											"#{messageThreadData.latest.shortContent}"
+										</span>
+										<div class="clear"></div>
+									
+										<div class="links">
+											Read message
+										</div>
+									</div>
+								</h:link>
+								<div class="clear"></div>
+							</ui:repeat>
+						</div>
+					</h:panelGroup>
+						
+					<h:panelGroup layout="block" id="noResultsPanel" styleClass="noResults"
+						rendered="#{empty topInboxBean.messagesThreads}">
+						<h:outputText value="There are no new messages" />
+					</h:panelGroup>
+									
+					<h:link styleClass="seeAll" value="See all messages" outcome="/messages" />
+										
+					<script type="text/javascript">
+						$(function() {
+							roundImages();
+						});
+					</script>
+				</h:panelGroup>
+			</div>
+			
+			<script type="text/javascript">
+			$(function() {
+				$('.btnMessagesClass').on('click', function(e){
+					e.stopPropagation();
+					if ($('#messages').hasClass('shown')) {
+						$('#messages').fadeOut();
+						$('#messages').removeClass('shown');
+					} else {
+						$('#messages .messagesResultPanel').html('<div class="center marginTop10 marginBottom10"><img src="#{request.contextPath}/resources/images/style/ajax-loader-white.gif" style="vertical-align:middle;"/></div>');
+						$('#messages').fadeIn();
+						$('#messages').addClass('shown');
+					}
+				});
+				$(document).on('click', function(){
+					$('#messages').fadeOut();
+					$('#messages').removeClass('shown');
+				});
+			});
+			</script>
+		</h:panelGroup>	
+	</h:form>
+</ui:composition>

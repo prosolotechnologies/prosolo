@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+<h:head>
+</h:head>
+
+<composite:interface>
+</composite:interface>
+
+<composite:implementation>
+	<utilcomp:messagesBundle var="msg" />
+
+	<div id="editUserDetailsDialog" class="admin adminUserDetails" 
+		title="#{msg['admin.user.dialog.edit.title']}" 
+		style="display: none;">
+		
+		<h:form id="userDetailsForm" prependId="false">
+			<table>
+				<tr>
+					<td class="col1">
+						<h:outputLabel for="name">Name:</h:outputLabel>
+					</td>
+					<td>
+						<h:inputText id="name" 
+							value="#{adminUsers.formData.name}"
+							required="true" 
+							requiredMessage="Name is required" />
+							
+						<p:message for="name" />
+					</td>
+				</tr>
+				<tr>
+					<td class="col1">
+						<h:outputLabel for="lastName">Last Name:</h:outputLabel>
+					</td>
+					<td>
+						<h:inputText id="lastName" 
+							value="#{adminUsers.formData.lastName}"
+							required="true" 
+							requiredMessage="Lastname is required" />
+							
+						<p:message for="lastName" />
+					</td>
+				</tr>
+				<tr>
+					<td class="col1">
+						<h:outputLabel for="email">Email Address:</h:outputLabel>
+					</td>
+					<td>
+						<h:inputText id="email" 
+							value="#{adminUsers.formData.email}"
+							required="true" 
+							requiredMessage="E-mail Address is required">
+							
+								<f:validateRegex
+									pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$" />
+						</h:inputText>
+						
+						<p:message for="email" />
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<h:outputLabel for="changepassword">Change password?</h:outputLabel>
+					</td>
+					<td>
+						<h:selectBooleanCheckbox id="changepassword" 
+							value="#{adminUsers.formData.changePassword}">
+							<f:ajax event="click" execute="changepassword" render="password reEnterPassword" />
+						</h:selectBooleanCheckbox>
+					</td>
+				</tr>
+				<tr>
+					<td class="col1">
+						<h:outputLabel for="password">Password:</h:outputLabel>
+					</td>
+					<td>
+						<h:inputSecret id="password" 
+							value="#{adminUsers.formData.password}"
+							disabled="#{!adminUsers.formData.changePassword}"
+							required="#{adminUsers.formData.changePassword ? true : false}"
+							requiredMessage="Enter password" />
+							
+						<p:message for="password" />
+					</td>
+				</tr>
+				<tr>
+					<td class="col1">
+						<h:outputLabel for="reEnterPassword">Reenter Password:</h:outputLabel>
+					</td>
+					<td>
+						<h:inputSecret id="reEnterPassword"
+							value="#{adminUsers.formData.reEnterPassword}"
+							disabled="#{!adminUsers.formData.changePassword}"
+							required="#{adminUsers.formData.changePassword ? true : false}"
+							requiredMessage="Renter password"
+							validator="#{adminUsers.validatePassword}" />
+							
+						<p:message for="reEnterPassword" />
+					</td>
+				</tr>
+				<tr>
+					<td class="col1">
+						<h:outputLabel for="position">Organization position:</h:outputLabel>
+					</td>
+					<td>
+						<h:inputText id="position" 
+							value="#{adminUsers.formData.position}"
+							required="true" 
+							requiredMessage="Organization position is required" />
+					
+						<p:message for="position" />
+					</td>
+				</tr>
+				<tr>
+					<td class="col1">
+						<h:outputLabel for="notifyViaEmail">Notify via email:</h:outputLabel>
+					</td>
+					<td>
+						<h:selectBooleanCheckbox id="notifyViaEmail" value="#{adminUsers.formData.sendEmail}" />
+					</td>
+				</tr>
+			</table>
+		
+			<div class="actions">
+				<p:commandLink id="save" value="Save"
+					styleClass="button green size30 right"
+					oncomplete="
+						if (args &amp;&amp; !args.validationFailed)
+							$('#editUserDetailsDialog').dialog('close');"
+					action="#{adminUsers.updateUser}"
+					update="@form" />
+
+				<p:commandLink id="cancel" value="Cancel"
+					styleClass="button gray size30 right"
+					onclick='$("#editUserDetailsDialog").dialog("close");' />
+			</div>
+		</h:form>
+	</div>
+
+	<script>
+		$(function() {
+			$('#editUserDetailsDialog').dialog({
+				autoOpen : false,
+				show : 'slide',
+				width : 550,
+				modal : true,
+				resizable : false,
+				open : function(event, ui) {
+					$(this).children(':first')
+						.css('text-align', 'center')
+						.css('padding-top', '200px')
+						.html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
+				}
+			});
+			$('#editUserDetailsDialog').show();
+		});
+	</script>
+   </composite:implementation>
+</html>

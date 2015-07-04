@@ -1,0 +1,108 @@
+<ui:composition
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	
+	<utilcomp:messagesBundle var="msg" />
+	
+	<h:panelGroup id="newDirectMessagePanelId">
+	
+		<div id="newDirectMessageModalDialog" title="Direct message" class="messageDialog" style="display: none;">
+		
+			<h:form id="newDirectMessageForm" prependId="false">
+				<table>
+					<tr>
+						<td class="col1">To:</td>
+						<td>
+							<link:user value="userDetails" 
+			    				userData="#{directMessagesDialog.receiver}"
+			    				mode="imageName"
+			    				imageSize="22"
+			    				idPrefix="directMessage"
+			    				context="directMessageDialog.imageName" />
+			    				
+				    		<script>
+							$(function() {
+								roundImages();
+							});
+							</script>
+						</td>
+					</tr>
+					
+					<tr class="description">
+						<td class="label col1">
+							<h:outputLabel for="messageContent">Message:</h:outputLabel>
+						</td>
+						<td>
+							<h:inputTextarea styleClass="messageContent" id="messageContent"
+								value="#{directMessagesDialog.messageContent}"
+								placeholder="#{msg['textarea.message']}" />
+								
+							<script>
+								$(function() {
+									$('#newDirectMessageModalDialog .messageContent').autosize(); 
+									$('#newDirectMessageModalDialog .messageContent').focus(); 
+								});
+							</script>
+						</td>
+					</tr>
+				</table>
+				
+				<input type="text" class="id" style="display: none;" value="#{directMessagesDialog.receiver.id}" />
+				<input type="text" class="context" style="display: none;" value="#{directMessagesDialog.context}" />
+
+				<div  class="actionButtons">
+					<p:commandLink value="Send"
+						styleClass="button green size30 right"
+						onclick="$('#newDirectMessageModalDialog').dialog('option', 'submit', true);$('#newDirectMessageModalDialog').dialog('close');"
+						action="#{directMessagesDialog.sendMessage()}"
+						update="newDirectMessageFormGrowl" />
+					&#160;
+					<p:commandLink id="cancelButton" value="Cancel" type="button"
+						styleClass="button gray size30 right"
+						onclick='$("#newDirectMessageModalDialog").dialog("close");' />
+				</div>
+						
+				<p:growl id="newDirectMessageFormGrowl" showDetail="true" />
+			</h:form>
+		</div>
+		<br/>
+	</h:panelGroup>
+	
+	<script>
+	$(function() {
+		$('#newDirectMessageModalDialog').dialog({
+			autoOpen: false,
+			width: 465,
+			show : 'slide',
+			resizable: false,
+			modal: true,
+			open: function(event, ui) { 
+				$(this).children(':first')
+					.css('text-align','center')
+					.css('padding-top','50px')
+					.html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
+			},
+			close: function() {
+				var submitted = $(this).dialog('option', 'submit');
+				
+				if (!submitted) {
+					var id = $('#newDirectMessageModalDialog .id').val();
+					var context = $('#newDirectMessageModalDialog .context').val();
+					sendServiceUse('MOUSE_CLICK', {context: context+'.directMessageDialog', link: 'cancel', user: id});
+				}
+				
+				$(this).dialog('option', 'submit', false);
+			}
+		});
+
+		$('#newDirectMessageModalDialog').show();
+	});
+	function openDirectMessageDialog(){
+		$('#newDirectMessageModalDialog').dialog('open');
+	}
+	</script>
+</ui:composition>

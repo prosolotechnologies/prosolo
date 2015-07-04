@@ -1,0 +1,146 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+	<composite:interface>
+	</composite:interface>
+	
+	<composite:implementation>
+		<utilcomp:messagesBundle var="msg" />
+	
+		<div id="addToGoalDialog" title="Add to Learning" class="addToGoalDialog" style="display: none;">
+			<h:form id="addToGoalForm" enctype="multipart/form-data" class="addToGoal">	
+				<p:growl id="addToGoalDialogGrowl" showDetail="true" />
+
+				<h:panelGroup rendered="#{addToGoalDialog.goalsOptions.size() != 1}">
+					<h:panelGroup layout="block" rendered="#{addToGoalDialog.competenceToAdd != null}" class="marginBottom10">
+						Choose one of your active learning goals which you want to add the competence 
+						<link:competence 
+							resource="#{addToGoalDialog.competenceToAdd}"
+							type="Competence"
+							title="#{addToGoalDialog.competenceToAdd.title}"
+							regionToUpdate=":#{p:component('competenceDetailsForm')}"
+							context="addToGoal"
+						/>
+						to:
+					</h:panelGroup>
+	
+					<h:panelGroup layout="block" rendered="#{addToGoalDialog.newPostData != null}" class="marginBottom10">
+						<post:newpostNoForm value="addToGoalDialogPost" id="addToGoalDialogPost" 
+							handleFileUpload="#{addToGoalDialog.handleFileUpload}"
+							content="#{addToGoalDialog.newPostData}" 
+							containerDiv=".addToGoalDialog"
+							hideActions="true"
+						/>
+							
+						<div class="clear"></div>
+						
+						Choose your active learning goal you want to post this link to:
+					</h:panelGroup>
+	
+					<ui:remove>
+						<h:selectOneRadio value="#{addToGoalDialog.chosenGoal}" layout="pageDirection">
+							<f:selectItems value="#{addToGoalDialog.goalsOptions}" />
+						</h:selectOneRadio>
+					</ui:remove>
+					
+					<h:selectOneMenu value="#{addToGoalDialog.chosenGoal}">
+					   <f:selectItems value="#{addToGoalDialog.goalsOptions}" />
+					   <f:ajax render="actions" />
+					</h:selectOneMenu>
+					<div class="clear"></div>
+					
+					<h:panelGroup class="noContentMessage" rendered="#{addToGoalDialog.competenceToAdd != null}">
+						(disabled goals already contain this competence)
+					</h:panelGroup>
+					
+					<h:panelGroup class="marginBottom10 block" rendered="#{addToGoalDialog.newPostData != null}" />
+					<div class="clear"></div>
+					
+					<h:panelGroup id="actions">
+						<p:commandLink 
+							rendered="#{addToGoalDialog.competenceToAdd != null and addToGoalDialog.chosenGoal != -1}"
+							value="#{msg['dialog.addToGoal.submit']}"
+							styleClass="button green size30 right"
+							onclick="$('#addToGoalDialog').dialog('close');"
+							action="#{addToGoalDialog.addCompetenceToChosenGoal()}"
+							update=":#{cc.clientId}:addToGoalForm:addToGoalDialogGrowl #{addToGoalDialog.updateAfterAddToGoal}"
+						/>
+						
+						<p:commandLink rendered="#{addToGoalDialog.newPostData != null and addToGoalDialog.chosenGoal != -1}"
+							value="#{msg['dialog.addToGoal.submit']}"
+							styleClass="button green size30 right"
+							onclick="$('#addToGoalDialog').dialog('close');"
+							action="#{addToGoalDialog.addLinkToChosenGoal()}"
+							update=":#{cc.clientId}:addToGoalForm:addToGoalDialogGrowl #{addToGoalDialog.updateAfterAddToGoal}"
+						/>
+						
+						<p:commandLink value="#{msg['dialog.addToGoal.submit.disabled']}"
+							rendered="#{addToGoalDialog.chosenGoal == -1}"
+							styleClass="button gray size30 right disabled hasTooltip"
+							title="#{msg['dialog.addToGoal.submit.disabled.tooltip']}" />
+							
+						<a class="button gray size30 right" onclick="$('#addToGoalDialog').dialog('close');">Cancel</a>
+						
+						<utilcomp:tooltip target=".hasTooltip[title]" />
+					</h:panelGroup>
+		
+					<script>
+						$(function() {
+							roundImages();
+						});
+					</script>
+				</h:panelGroup>
+				
+				<h:panelGroup rendered="#{addToGoalDialog.goalsOptions.size() == 1}">
+					<h:outputText rendered="#{addToGoalDialog.competenceToAdd != null}" 
+						value="#{msg['dialog.addToGoal.noGoals.addingCompetence.message1']}" />
+					
+					<h:outputText rendered="#{addToGoalDialog.newPostData != null}" 
+						value="#{msg['dialog.addToGoal.noGoals.addingPost.message1']}" />&#160;<h:link 
+						
+					value="#{msg['dialog.addToGoal.noGoals.learnButton']}"
+						class="bold"
+						outcome="/learn" />&#160;<h:outputText 
+						
+					rendered="#{addToGoalDialog.competenceToAdd != null}" 
+						value="#{msg['dialog.addToGoal.noGoals.addingCompetence.message2']}" />
+					<h:outputText rendered="#{addToGoalDialog.newPostData != null}" 
+						value="#{msg['dialog.addToGoal.noGoals.addingPost.message2']}" />&#160;<h:link 
+						
+					value="#{msg['dialog.addToGoal.noGoals.coursesButton']}"
+						class="bold"
+						outcome="/plan" />.
+				</h:panelGroup>
+			</h:form>
+		</div>
+		<script>
+			$(function() {
+				$('#addToGoalDialog').dialog({
+					autoOpen : false,
+					show : 'slide',
+					modal : true,
+					width : 500,
+					resizable : false,
+					open: function(event, ui) { 
+						$(this).children(':first')
+							.css('text-align', 'center')
+							.css('padding-top', '50px')
+							.html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
+					},
+				});
+				$('#addToGoalDialog').show();
+			});
+		</script>
+	</composite:implementation>
+</ui:component>

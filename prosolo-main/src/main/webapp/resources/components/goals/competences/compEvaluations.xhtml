@@ -1,0 +1,70 @@
+<ui:composition
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:goalscomps="http://java.sun.com/jsf/composite/components/goals"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	
+	<utilcomp:messagesBundle var="msg" />
+	
+	<div class="competenceEvaluations">
+		<script>
+		var competenceEvaluationControl = {
+			opened: false,
+		};
+		</script>
+		
+		<h3>#{msg['learn.competences.evaluations.title']}</h3>
+		
+		<p:commandLink value="#{msg['learn.competences.evaluations.button.askForEvaluations.title']}" 
+			styleClass="button green size20 left marginRight10"
+			onclick="$( '#askForEvaluationDialog' ).dialog('open');"
+			action="#{askForEvaluation.setResourceById(learninggoals.selectedGoalData.selectedCompetence.data.id, 'learn.targetGoal.'.concat(learninggoals.selectedGoalData.data.targetGoalId).concat('.targetComp.').concat(learninggoals.selectedGoalData.selectedCompetence.data.id))}"
+			process="@this"
+			update=":askForEvaluationDialogForm"
+			async="true"
+		/>
+					
+		<h:panelGroup id="selectedCompetenceEvaluations">
+			<h:panelGroup id="compEvaluations" class="compEvaluations">
+				<p:commandLink 
+					value="#{learninggoals.selectedGoalData.selectedCompetence.evaluationCount} #{msg['learn.competences.evaluations.numberOfEvaluations']}"
+					onclick="competenceEvaluationControl.opened = true;$('#evaluationListDialog').dialog('open');"
+					action="#{evaluationlist.initializeTargetCompetenceEvaluations(learninggoals.selectedGoalData.selectedCompetence.data.id, true, 'learn.targetGoal.'.concat(learninggoals.selectedGoalData.data.targetGoalId).concat('.targetComp.').concat(learninggoals.selectedGoalData.selectedCompetence.data.id))}"
+					process="@this"
+					update=":#{p:component('evaluationListForm')}"
+					styleClass="left showEvaluationsBtn"
+					async="true"
+				/>
+				
+				<script>
+				$(function(){
+					if (!competenceEvaluationControl.opened) {
+						var evaluationParameter = parseInt(getHashValue('ev'));
+						var evaluationIds = #{not empty learninggoals.selectedGoalData.selectedCompetence.evaluationIds ? learninggoals.selectedGoalData.selectedCompetence.evaluationIds : 0};
+						
+						if (evaluationParameter > 0) {
+							if ($.inArray(evaluationParameter, evaluationIds) > -1) {
+								$('#evaluationListtDialog').dialog( "option", "evaluationToHighlight", evaluationParameter );
+								$('.competenceDetails .compEvaluations .showEvaluationsBtn').trigger('click');
+							}
+						}
+					}
+				});
+				</script>
+			</h:panelGroup>
+			
+			<utilcomp:lazyLoad 
+				parentClass="competenceEvaluations"
+				updateOnComplete=":activities:compEvaluations"
+				loaderContainer=".compEvaluations"
+				initializeAction="#{learninggoals.selectedGoalData.selectedCompetence.initializeEvaluations()}"
+				loaderClass="left"
+			/>
+		</h:panelGroup>
+		
+		<div class="clear marginBottom10"></div>
+	</div>
+</ui:composition>

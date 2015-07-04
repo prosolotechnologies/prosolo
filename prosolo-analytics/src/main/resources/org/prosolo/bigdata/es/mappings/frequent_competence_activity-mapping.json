@@ -1,0 +1,18 @@
+{
+  "frequent_competence_activity":{
+		"properties":{
+			"id":{
+				"store": false,
+				"type":"integer"
+				},	 
+			"activities":{
+					"properties":{
+						"id":{
+							"store": false,
+							"type":"integer"
+						} 
+					}
+				} 
+		}
+	}
+}

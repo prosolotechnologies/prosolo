@@ -1,0 +1,165 @@
+<ui:component
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:dlgAnalytics="http://java.sun.com/jsf/composite/components/dialogs/analytics"
+	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:action="http://java.sun.com/jsf/composite/components/actions">
+
+	<composite:interface>
+		<composite:attribute name="goalData" type="org.prosolo.web.data.GoalData" required="true" />
+		<composite:attribute name="styleClass" />
+		<composite:attribute name="idSufix" />
+		<composite:attribute name="canBeSentBackToLearning" default="true" />
+		<composite:attribute name="canBeAskedForRequestToJoin" default="false" />
+		<composite:attribute name="editable" type="java.lang.Boolean" default="false" />
+		<composite:attribute name="updateAfterVisibilityUpdate" />
+		<composite:attribute name="userOwner" />
+		<composite:attribute name="context" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<utilcomp:messagesBundle var="msg" />
+		
+		<div id="goalItem#{cc.attrs.idSufix}" class="goalProfileItem profileItem profileItemYellow #{cc.attrs.styleClass}" >
+			<div class="topContent">
+				<h4>
+					<link:goal
+						styleClass="firstLine"
+						targetGoalId="#{cc.attrs.goalData.targetGoalId}"
+						title="#{cc.attrs.goalData.title}"
+						context="#{cc.attrs.context}"
+					/>
+				</h4>
+				
+				<p>
+					<h:panelGroup rendered="#{cc.attrs.goalData.dateCompleted == null}">
+						<div class="barCont goalProgressBar"></div>&#160;
+						<h:outputText class="goalProgress" value="#{cc.attrs.goalData.progress}" />%
+					</h:panelGroup>
+					
+					<h:panelGroup class="date"
+						rendered="#{cc.attrs.goalData.dateCompleted != null}">
+						<h:outputText value="#{cc.attrs.goalData.dateStartedString}" />
+						-
+						<h:outputText value="#{cc.attrs.goalData.dateCompletedString}" />
+					</h:panelGroup>
+				</p>
+				
+				<p:commandLink
+					rendered="#{cc.attrs.goalData.badgeCount > 0}"
+					styleClass="profLinkBadges link"
+					onclick="$('#badgeListDialog').dialog('open');"
+					action="#{badgelist.initializeById(cc.attrs.goalData.targetGoalId, cc.attrs.context)}"
+					update=":badgeListForm"
+					>
+					<span class="icon active"></span>
+					<span class="count">#{cc.attrs.goalData.badgeCount}</span> badges								
+				</p:commandLink>
+				<h:panelGroup layout="block"
+					rendered="#{cc.attrs.goalData.badgeCount == 0}"
+					styleClass="link profLinkBadges inactive"
+					>
+					<span class="icon"></span>
+					<span class="count">#{cc.attrs.goalData.badgeCount}</span> badges								
+				</h:panelGroup>
+				
+				<p:commandLink
+					styleClass="link profLinkEvals"
+					rendered="#{cc.attrs.goalData.evaluationCount > 0}"
+					onclick="$('#evaluationListDialog').dialog('open');"
+					action="#{evaluationlist.initializeTargetGoalEvaluations(cc.attrs.goalData.targetGoalId, true, cc.attrs.context)}"
+					update=":#{p:component('evaluationListForm')}"
+					>
+					<span class="icon active"></span>
+					<span class="count">#{cc.attrs.goalData.evaluationCount}</span> #{msg['portfolio.evaluatedItem.evaluationsNumber']}
+				</p:commandLink>
+				<h:panelGroup layout="block"
+					rendered="#{cc.attrs.goalData.evaluationCount == 0}"
+					styleClass="link profLinkEvals inactive"
+					>
+					<span class="icon"></span>
+					<span class="count">#{cc.attrs.goalData.evaluationCount}</span> #{msg['portfolio.evaluatedItem.evaluationsNumber']}
+				</h:panelGroup>
+				
+				<p:commandLink
+					styleClass="link profLinkStats"
+					onclick='$("#goalStatisticsDialog").dialog("open");'
+					action="#{goalAnalyticsBean.initializeForTargetLearningGoal(cc.attrs.goalData.targetGoalId, cc.attrs.context)}"
+					update=":goalAnalytics:goalStatisticsDialogForm">
+					
+					<span class="icon"></span>
+					Statistics
+				</p:commandLink>
+				
+				<utilcomp:visibility 
+					visibility="#{cc.attrs.goalData.visibility}"
+					toRender="#{cc.attrs.editable}"
+					containerDiv="#goalItem#{cc.attrs.idSufix}"
+					contentType="node"
+					changeNodeVisibility="#{portfolioutil.changeNodeVisibility(cc.attrs.goalData)}"
+					context="#{cc.attrs.context}.targetGoal.#{cc.attrs.goalData.targetGoalId}" />
+				
+				<div class="clear"></div>
+			</div>
+			
+			<h:panelGroup layout="block" rendered="#{cc.attrs.editable}" class="profilePrivateSection">
+				<span class="title">
+					Private
+				
+					<utilcomp:infotooltip position="PROFILE_ITEM_PRIVATE_SECTION" context="#{cc.attrs.context}" />
+				</span>
+				<div class="clear"></div>
+				
+				<p:commandLink
+					styleClass="link profLinkEvals"
+					rendered="#{cc.attrs.goalData.evaluationCount > 0}"
+					onclick="$('#evaluationListDialog').dialog('open');"
+					action="#{evaluationlist.initializeTargetGoalEvaluations(cc.attrs.goalData.targetGoalId, false, cc.attrs.context)}"
+					update=":#{p:component('evaluationListForm')}"
+					>
+					<span class="icon active"></span>
+					<span class="count">#{cc.attrs.goalData.rejectedEvaluationCount}</span> rejected #{msg['portfolio.evaluatedItem.evaluationsNumber']}
+				</p:commandLink>
+			</h:panelGroup>
+			
+			<h:panelGroup layout="block" rendered="#{cc.attrs.editable}" class="bottomEdit">
+				<p:commandLink value="#{msg['portfolio.evaluatedItem.button.askForEvaluation.title']}" 
+					onclick="$( '#askForEvaluationDialog' ).dialog('open');"
+					action="#{askForEvaluation.setResourceById(cc.attrs.goalData.targetGoalId, cc.attrs.context)}"
+					update=":askForEvaluationDialogForm"
+				/>
+				
+				<c:if test="#{cc.attrs.canBeSentBackToLearning}">
+					<p:commandLink value="Send to Learn"
+						onclick="$('#sendToGoalsModalDialog').dialog('open');"
+						action="#{portfolio.setGoalDataToBeSentToGoals(cc.attrs.goalData, cc.attrs.context)}"
+						update=":sendToGoalsForm"
+					/>
+				</c:if>
+			</h:panelGroup>
+
+			<h:panelGroup layout="block" rendered="#{cc.attrs.canBeAskedForRequestToJoin}" class="bottomEdit">
+				<action:requestToJoinGoal toRender="#{!cc.attrs.goalData.freeToJoin}"
+					goalData="#{cc.attrs.goalData}"
+					requestFromUser="#{cc.attrs.userOwner}"
+					context="#{cc.attrs.context}" />
+					
+				<action:joinGoal toRender="#{cc.attrs.goalData.freeToJoin}"
+					goalData="#{cc.attrs.goalData}"
+					context="#{cc.attrs.context}" />
+			</h:panelGroup>
+		</div>
+		
+		<h:panelGroup rendered="#{cc.attrs.goalData.dateCompleted == null}">
+			<script>
+				prosolo.slider.enable('#goalItem#{cc.attrs.idSufix} .goalProgress', '#goalItem#{cc.attrs.idSufix} .goalProgressBar', true);
+			</script>
+		</h:panelGroup>
+	</composite:implementation>
+</ui:component>

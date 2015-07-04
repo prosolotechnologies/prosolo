@@ -1,0 +1,180 @@
+package org.prosolo.services.logging;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.log4j.Logger;
+import org.hibernate.Session;
+import org.prosolo.app.Settings;
+import org.prosolo.domainmodel.activities.Activity;
+import org.prosolo.domainmodel.activities.ExternalToolActivity;
+import org.prosolo.domainmodel.activities.ResourceActivity;
+import org.prosolo.domainmodel.activities.TargetActivity;
+import org.prosolo.domainmodel.activities.UploadAssignmentActivity;
+import org.prosolo.domainmodel.activities.events.EventType;
+import org.prosolo.domainmodel.activities.requests.NodeRequest;
+import org.prosolo.domainmodel.competences.Competence;
+import org.prosolo.domainmodel.competences.TargetCompetence;
+import org.prosolo.domainmodel.content.GoalNote;
+import org.prosolo.domainmodel.content.Post;
+import org.prosolo.domainmodel.course.Course;
+import org.prosolo.domainmodel.general.BaseEntity;
+import org.prosolo.domainmodel.general.Node;
+import org.prosolo.domainmodel.user.LearningGoal;
+import org.prosolo.domainmodel.user.TargetLearningGoal;
+import org.prosolo.domainmodel.user.User;
+import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.services.event.Event;
+import org.prosolo.services.event.EventObserver;
+import org.prosolo.services.interaction.AnalyticalServiceCollector;
+import org.prosolo.services.interaction.AnalyticalServiceDataFactory;
+import org.prosolo.services.nodes.DefaultManager;
+import org.prosolo.util.date.DateUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+/**
+ *
+ * @author Zoran Jeremic, Aug 20, 2014
+ *
+ */
+@Service("org.prosolo.services.logging.UserActivityObserver")
+public class UserActivityObserver  implements EventObserver {
+	protected static Logger logger = Logger.getLogger(UserActivityObserver.class);
+	@Autowired private LoggingService loggingService;
+	@Autowired private AnalyticalServiceDataFactory analyticalServiceFactory;
+	@Autowired private AnalyticalServiceCollector analyticalServiceCollector;
+	@Autowired private DefaultManager defaultManager;
+	
+	@Override
+	public EventType[] getSupportedEvents() {
+		return new EventType[] { 
+				EventType.Create, 
+				EventType.Attach,
+				EventType.Detach, 
+				EventType.Delete, 
+ 				EventType.Comment,
+				EventType.Edit, 
+				EventType.Like, 
+				EventType.Dislike,
+				EventType.RemoveDislike,
+				EventType.Post, 
+				EventType.PostShare, 
+				EventType.AddNote,
+				EventType.FileUploaded,
+				EventType.LinkAdded,
+				EventType.JOIN_GOAL_REQUEST,
+				EventType.JOIN_GOAL_INVITATION,
+				EventType.EVALUATION_REQUEST,
+				EventType.SEND_MESSAGE,
+				EventType.START_MESSAGE_THREAD,
+				EventType.ENROLL_COURSE,
+				EventType.COURSE_COMPLETED,
+				EventType.RemoveLike
+			};
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Class<? extends BaseEntity>[] getResourceClasses() {
+		Class<? extends BaseEntity>[] resources=new Class[] { 
+				Course.class,
+				LearningGoal.class, 
+				TargetLearningGoal.class, 
+				TargetCompetence.class, 
+				Activity.class,
+				Post.class,
+				GoalNote.class,
+				User.class,
+				NodeRequest.class,
+				ExternalToolActivity.class,
+				ResourceActivity.class,
+				UploadAssignmentActivity.class,
+				Node.class
+			};
+		return resources;
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		Session session = (Session) defaultManager.getPersistence().openSession();
+		System.out.println("UserActivityObserver handling event");
+		logger.info("comming in event with action: " + event.getAction());
+		logger.info("comming in event with actor: " + event.getActor());
+		logger.info("comming in event with object: " + event.getObject());
+		logger.info("comming in event with target: " + event.getTarget());
+		
+ 		try {
+			if (event.getActor() != null) {
+				long userid = event.getActor().getId();
+				
+				BaseEntity object = (BaseEntity) session.merge(event.getObject());
+				if (Settings.getInstance().config.analyticalServerConfig.enabled) {
+					logger.debug("Handling user action:" + event.getAction().name() + " " + event.getObject().getClass().getName() + " userid:" + userid);
+					analyticalServiceCollector.increaseUserActivityLog(userid, DateUtil.getDaysSinceEpoch());
+				} else {
+					loggingService.increaseUserActivityLog(userid, DateUtil.getDaysSinceEpoch());
+				}			
+				logger.debug("Handling user action:" + event.getAction().name() + " " + event.getObject().getClass().getName() + " userid:" + userid);
+				 
+				BaseEntity target = event.getTarget();
+				
+				if (object != null) {
+					object = HibernateUtil.initializeAndUnproxy(object);
+				}
+			
+				if (Settings.getInstance().config.analyticalServerConfig.enabled) {
+					if (object instanceof TargetActivity) {
+						TargetActivity targetActivity = (TargetActivity) session.load(TargetActivity.class, object.getId());
+						Activity activity = targetActivity.getActivity();
+						TargetCompetence targetCompetence = targetActivity.getParentCompetence();
+						Competence competence = targetCompetence.getCompetence();						
+						System.out.println("TargetActivity:" + object.getId() + "Activity:" + activity.getId() + " tc:" + targetCompetence.getId()
+								+ " comp:" + competence.getId());						
+						analyticalServiceCollector.createActivityInteractionData(competence.getId(), activity.getId());
+						
+						List<TargetActivity> tActivities=targetCompetence.getTargetActivities();
+						System.out.println("Target Competence has:"+targetCompetence.getId());
+//						List<Long> activities=new ArrayList<Long>();
+//						for(TargetActivity tActivity:tActivities){
+//							activities.add(tActivity.getActivity().getId());
+//						}
+						analyticalServiceCollector.createTargetCompetenceActivitiesData(competence.getId(), targetCompetence.getId(),tActivities);
+					}
+					TargetLearningGoal targetLearningGoal=null;
+					if(target instanceof TargetLearningGoal){						
+						targetLearningGoal=(TargetLearningGoal) target;
+						System.out.println("Target is TargetLearningGoal:"+targetLearningGoal.getId()+" LG:"+targetLearningGoal.getLearningGoal().getId());
+					}else if(target instanceof TargetCompetence){
+						TargetCompetence targetCompetence =(TargetCompetence) target;
+						targetLearningGoal=targetCompetence.getParentGoal();
+						System.out.println("Target is TargetCompetence:"+targetLearningGoal.getId()+" LG:"+targetLearningGoal.getLearningGoal().getId());
+					}else if(target instanceof TargetActivity){
+						TargetActivity targetActivity =(TargetActivity) target;
+						TargetCompetence targetCompetence = targetActivity.getParentCompetence();
+						targetLearningGoal=targetCompetence.getParentGoal();
+						System.out.println("Target is TargetActivity:"+targetLearningGoal.getId()+" LG:"+targetLearningGoal.getLearningGoal().getId());
+					}else if(object instanceof TargetActivity){
+						TargetActivity targetActivity =(TargetActivity) object;
+						TargetCompetence targetCompetence = targetActivity.getParentCompetence();
+						targetLearningGoal=targetCompetence.getParentGoal();
+						System.out.println("Object is TargetActivity:"+targetLearningGoal.getId()+" LG:"+targetLearningGoal.getLearningGoal().getId());
+					}
+					if(targetLearningGoal!=null){
+						analyticalServiceCollector.increaseUserActivityForLearningGoalLog(userid, targetLearningGoal.getLearningGoal().getId(),DateUtil.getDaysSinceEpoch());
+					}
+		
+				}
+			} else {
+				logger.debug("Event without actor:" + event.getAction().name() + " " + event.getObject().getClass().getName());
+			}
+			
+		} catch (Exception e) {
+			logger.error("Exception in handling message", e);
+		}
+		finally {
+			HibernateUtil.close(session);
+		}
+	}
+
+}

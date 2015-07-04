@@ -1,0 +1,160 @@
+<ui:composition
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:p="http://primefaces.org/ui">
+	
+	<style>
+	.stream-item .content,.permalink-tweet .content {
+		margin-left: 10px;
+	}
+	
+	a.twitter.timeline-link {
+		color: #0084B4;
+	}
+	
+	a.twitter-hashtag {
+		color: #0084B4;
+	}
+	
+	a.twitter-url {
+		color: #0084B4;
+	}
+	
+	.stream-item-header a.account-group {
+		color: #999999;
+	}
+	
+	.tweet {
+		cursor: pointer;
+		white-space: pre-wrap;
+		word-wrap: break-word;
+	}
+	
+	.in-reply-to>ol>li,li.stream-item,.tweets-wrapper li,.recent-tweets li {
+		line-height: inherit;
+	}
+	
+	.stream,.stream-items {
+		list-style: none outside none;
+	}
+	
+	.stream-item-header .account-group {
+		color: #999999;
+	}
+	
+	a {
+		text-decoration: none;
+	}
+	
+	.stream-item-header .avatar,.permalink-header .avatar {
+		float: left;
+		margin-top: 3px;
+	}
+	
+	.avatar {
+		-moz-force-broken-image-icon: 1;
+		border-radius: 5px 5px 5px 5px;
+		height: 48px;
+		width: 48px;
+		margin-right: 10px;
+	}
+	
+	img {
+		border: 0 none;
+	}
+	
+	.fullname {
+		color: #333333;
+		font-weight: bold;
+	}
+	
+	.username {
+		direction: ltr;
+		unicode-bidi: embed;
+	}
+	
+	.username,.time,.time a,.metadata,.metadata button.btn-link,.metadata a
+		{
+		color: #999999;
+		font-size: 12px;
+	}
+	
+	.tweet .time {
+		color: #BBBBBB;
+		float: right;
+		margin-top: 1px;
+		position: relative;
+	}
+	</style>
+
+	<h:link class="button gray size20 marginBottom10" value="Back to Archive">
+		<f:param name="tab" value="#{digestBean.selectedMenu}" />
+	</h:link>
+	
+	<div id="twitterUpdates" class="container">
+		<div class="content2 wide">
+ 
+			<c:if test="#{digestBean.selectedMenu == 'coursetwitter'}">
+				<h2 class="left	marginTop10">Digest for #{personalFeedsBean.feedData.date} based on course hashtags</h2>
+			</c:if>
+ <c:if test="#{digestBean.selectedMenu == 'twitter'}">
+				<h2 class="left	marginTop10">Digest for #{personalFeedsBean.feedData.date} based on your personal hashtags</h2>
+			</c:if>
+ 
+			<div class="clear"></div>
+			
+			<h:panelGroup rendered="#{empty hashtagsBean.tagsTweets}">There are no twitter tags ready for you yet. Please add some hashtags to follow and generate your diggest.</h:panelGroup>
+			
+			<ui:repeat id="twitterUpdatesList" value="#{hashtagsBean.retrieveSelectedMenuTweets()}" var="personalTagTweet" varStatus="iterator">
+				<br />
+
+				<h:panelGroup layout="block" class="feedContent" rendered="true">
+					
+					<ui:repeat id="twitterHashTagTweets" value="#{personalTagTweet.tweets}" var="tweet"	varStatus="tweetIterator">
+					  
+						<div class="feedContent box">
+							<div class="imgInfoContainer100">
+								<div class="atcImages">
+									<h:outputLink target="_blank" value="https://twitter.com/#{tweet.screenName}">
+										<h:graphicImage value="#{tweet.profileImage}" styleClass="imgInfoContainer100" alt="https://twitter.com/#{tweet.screenName}"/>
+									</h:outputLink>
+								</div>
+							</div>
+							<div class="textWrapper">
+								<span class="date"> #{tweet.getPrettyDateCreated()} </span>
+								
+								<h:outputLink styleClass="atcTitle" target="_blank"
+									value="https://twitter.com/#{tweet.screenName}">
+									<h:outputText value="#{tweet.creatorName}" />&#160;
+									<h:outputText value="@#{tweet.screenName}" /> 
+								</h:outputLink>
+							</div>
+
+							<span class="description">
+								<h:outputText value="#{tweet.text}" escape="false" />
+							</span>
+							
+							<div class="clear"></div>
+							<br/>
+							<h:panelGroup rendered="#{personalTagTweet.learningGoal!=null}">
+								<span class="goalIcon16 icon">&#160;</span>&#160;&#160;
+								
+								<link:goal
+									styleClass="title"
+									goal="#{personalTagTweet.learningGoal}" 
+									title="#{personalTagTweet.learningGoal.title}" 
+									context="twitterUpdates" />
+							</h:panelGroup>
+						</div>
+					</ui:repeat>
+
+				</h:panelGroup>
+			</ui:repeat>
+		</div>
+
+		<div class="clear"></div>
+	</div>
+</ui:composition>

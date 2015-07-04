@@ -1,0 +1,214 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<meta http-equiv="content-type" content="text/html" charset="UTF-8" />
+	<script
+		src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/style.css?#{loggeduser.loginTime}" />
+	<link rel="icon" href="#{request.contextPath}/favicon.ico" type="image/x-icon" />
+	<title>Registration | ProSolo</title>
+</h:head>
+
+<f:view contentType="text/html">
+	<f:metadata>
+		<f:viewParam name="key" value="#{selfRegistrationBean.key}" />
+	</f:metadata>
+	
+	<script>
+		$(function() {
+			$('form:first input[type!=hidden]:first').focus();
+		});
+
+		function showLoader() {
+			$('#loginloader').show();
+		}
+	</script>
+	
+	<f:metadata>
+		<f:event type="preRenderView" listener="#{loggeduser.checkIfLoggedIn}" />
+	</f:metadata>
+
+	<div class="registerContainer">
+		<div class="registerTop">
+			<h1>
+				<h:link outcome="/login">
+					<span class="logo"></span>
+				</h:link>
+			</h1>
+		</div>
+		
+		<div class="registerLeft">
+			<h:form>
+				<h1>Register Here</h1>
+				
+				<div class="clear marginBottom10"></div>
+							
+				<h:panelGroup layout="block" rendered="#{!selfRegistrationBean.keyValid and !selfRegistrationBean.bot}">
+					<p>This key is not valid. Please contact the system
+						administrator to provide you with a valid registration key.</p>
+	
+					<h:link styleClass="button gray size30 left" 
+						value="Back"
+						outcome="/login" />
+				</h:panelGroup>
+
+				<h:panelGroup layout="block" rendered="#{selfRegistrationBean.bot and selfRegistrationBean.keyValid}">
+					<div class="ui-messages ui-widget" aria-live="polite">
+						<div class="ui-messages-error ui-corner-all">
+							<span class="ui-messages-error-icon"></span>
+							<ul>
+								<li>
+									<span class="ui-messages-error-summary">You are unable to register!</span>
+									<p class="ui-messages-error-detail">
+										We are really sorry, but for some reason, our system recognize you as a bot. 
+										We are sorry for this inconvenience. Please contact the ProSolo
+										administrator and explain your problem or try to register again.	
+									</p>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</h:panelGroup>
+	
+				<h:panelGroup rendered="#{!selfRegistrationBean.registrationSuccess}">
+					<h:panelGroup layout="block" rendered="#{selfRegistrationBean.keyValid}">
+						<table>
+							<tr>
+								<td class="col1">
+									<h:outputLabel for="name">First name:</h:outputLabel>
+								</td>
+								<td>
+									<h:inputText id="name" value="#{selfRegistrationBean.name}"
+										placeholder="Your Name"
+										required="true" requiredMessage="Name is required" />
+									<p:message for="name" />
+								</td>
+							</tr>
+							<tr>
+								<td class="col1">
+									<h:outputLabel for="lastName">Last name:</h:outputLabel>
+								</td>
+								<td>
+									<h:inputText id="lastName"
+										value="#{selfRegistrationBean.lastName}" required="true"
+										placeholder="Your Last Name"
+										requiredMessage="Last name is required" />
+									<p:message for="lastName" />
+								</td>
+							</tr>
+							<tr>
+								<td class="col1">
+									<h:outputLabel for="email">Email address:</h:outputLabel>
+								</td>
+								<td>
+									<h:inputText id="email" value="#{selfRegistrationBean.email}"
+										placeholder="Your Email"
+										required="true" requiredMessage="Email address is required">
+										<f:validator binding="#{emailValidator}" />
+									</h:inputText>
+									<p:message for="email" />
+								</td>
+							</tr>
+							<tr>
+								<td class="col1">
+									<h:outputLabel for="password">Create password:</h:outputLabel>
+								</td>
+								<td>
+									<h:inputSecret id="password"
+										value="#{selfRegistrationBean.password}" required="true"
+										placeholder="Password"
+										requiredMessage="Enter password">
+										<f:validator binding="#{passwordValidator}" />
+										<f:attribute name="confirm" value="#{confirm}" />
+									</h:inputSecret>
+									<div class="noContentMessage">
+										HINT: Use at least seven characters and include at least one number, one uppercase and one lowercase letter</div>
+									<p:message for="password" />
+								</td>
+							</tr>
+							<tr>
+								<td class="col1">
+									<h:outputLabel for="confirm">Confirm password:</h:outputLabel>
+								</td>
+								<td>
+									<h:inputSecret id="confirm" binding="#{confirm}" required="true"
+										placeholder="Confirm Password"
+										requiredMessage="Confirm password">
+									</h:inputSecret>
+									<p:message for="confirm" />
+								</td>
+							</tr>
+							<tr>
+								<td colspan="2">
+								</td>
+							</tr>
+						</table>
+						
+						<div class="marginTop10">
+							<h:selectBooleanCheckbox id="agree" requiredMessage="You must agree with Terms of Use!">
+								<f:validator validatorId="omnifaces.RequiredCheckboxValidator" />
+							</h:selectBooleanCheckbox>
+							
+							I agree to the 
+								
+							<h:link 
+								value="ProSolo Terms of Use"
+								outcome="/terms"
+								target="_blank">
+								<ui:remove>
+									<f:param name="origin" value="/register.xhtml?key=#{param['key']}" />
+								</ui:remove>
+								<f:param name="backAction" value="true" />
+							</h:link>
+						
+	           				<p:message for="agree" />
+	           				
+	           				<h:inputText class="hon" value="#{selfRegistrationBean.honeypot}" />
+						</div>
+					
+						<div class="actions">
+							<h:commandButton id="save" value="Register"
+								styleClass="button green size30 left"
+								actionListener="#{selfRegistrationBean.registerUser()}"
+							/>
+	
+							<p:commandLink id="cancel" value="Cancel"
+								styleClass="button gray size30 left" />
+						</div>
+					</h:panelGroup>
+				</h:panelGroup>
+	
+				<h:panelGroup layout="block" rendered="#{selfRegistrationBean.registrationSuccess and !selfRegistrationBean.bot}">
+					<h4>
+						Congratulations! You've successfully created your ProSolo account.
+					</h4>
+					<p>
+						Before you get started, please confirm your e-mail address by
+						clicking the link in email that was sent to your email. After
+						your email is confirmed, you can login at
+						<h:link outcome="login">login page</h:link>
+						.
+					</p>
+				</h:panelGroup>
+			</h:form>
+		</div>
+		<!-- .left end -->
+		
+		<div class="registerRight">
+			<div class="title">Already Have an Account?</div>
+			
+			<p>If you already have a ProSolo account, please <h:link outcome="login">login here</h:link>.</p>
+		</div>
+		
+		<div class="clear"></div>
+	</div>
+	<!-- .signContainer end -->
+	
+	<comp:footer styleClass="register" />
+</f:view>
+</html>

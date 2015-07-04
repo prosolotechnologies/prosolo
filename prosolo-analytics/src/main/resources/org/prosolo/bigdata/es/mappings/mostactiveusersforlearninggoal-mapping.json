@@ -1,0 +1,26 @@
+{
+  "mostactiveusersforlearninggoal":{
+		"properties":{
+			"learninggoalid":{
+				"store": false,
+				"type":"integer"
+				},
+			"date":{
+				"store": false,
+				"type":"double"
+			},	
+	 		"mostactiveusers":{
+					"properties":{
+						"id":{
+							"store": false,
+							"type":"integer"
+						} ,
+						"score":{
+							"store": false,
+							"type":"integer"
+						} 
+					}
+				}			 
+		}
+	}
+}

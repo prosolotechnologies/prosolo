@@ -1,0 +1,349 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	template="templates/masterLayout.xhtml"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:dlgcourse="http://java.sun.com/jsf/composite/components/dialogs/course"
+	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons">
+
+	<ui:define name="windowTitle">
+		Plan | ProSolo
+	</ui:define>
+
+	<ui:define name="content">
+		<utilcomp:messagesBundle var="msg" />
+		
+		<h:outputScript library="javascript" name="goals.js" target="head" />
+		<h:outputScript library="javascript" name="prosolo.slider.js" />
+
+		<div id="courses" class="container courses">
+		
+			<div class="content wide">
+			    <h:form id="coursePortfolio" class="coursePortfolio">
+					<h:panelGroup layout="block" id="formContainer" class="formContainer" >
+						
+						<h:panelGroup id="emptyCoursesInfoMessageContainer">
+							<h:panelGroup layout="block" class="infoBlockYellowMessage"
+								rendered="#{coursePortfolioBean.portfolioEmpty}">
+								#{msg['courses.coursePortfolio.coursesEmptyInfoMessage']}
+							</h:panelGroup>
+						</h:panelGroup>
+						
+						<div class="clear"></div>
+						
+						<h2 class="left icon">
+							<icon:course styleClass="icon" />
+							#{msg['courses.coursePortfolio.title']}
+						</h2>
+						
+						<h:link class="button size30 green right"
+							onclick="sendLogPageNavigation('courseBrowse.xhtml','plan.enroll');" 
+							value="#{msg['courses.coursePortfolio.button.enrollInCourse']}" outcome="/courseBrowse" />
+						
+						<div class="clear"></div>
+						<h3 class="first">#{msg['courses.coursePortfolio.activeCourses.title']}</h3>
+						
+						<h:panelGroup layout="block" id="activeCourseOuterContainer">
+							<h:panelGroup layout="block" id="activeCourseContainer" class="activeCourseContainer profileItemContainer" style="display: none">
+								<h:panelGroup layout="block" class="noContentMessage"
+									rendered="#{empty coursePortfolioBean.activeCourses}">
+									#{msg['courses.coursePortfolio.activeCourses.noCoursesMessage']}
+								</h:panelGroup>
+								
+								<ui:repeat id="activeCourses" value="#{coursePortfolioBean.activeCourses}" var="courseData" varStatus="iterator">
+									<div class="profileItem profileItemGreen #{iterator.index % 3 != 2 ? 'rightMargin' : '' } #{iterator.index ge 3 ? 'topMargin' : '' }">
+										<div class="topContent">
+											<h4>
+												<h:link value="#{courseData.title}" outcome="/course"
+													class="title"
+													onclick="sendLogPageNavigationWithParameters('course.xhtml', {context: 'plan.activeCourses.#{courseData.id}.title', course: '#{courseData.id}'});">
+													<f:param name="id" value="#{courseData.id}" />
+												</h:link>
+									 		</h4>
+									 		
+									 		<div class="left sliderContainer">
+												<div id="courseProgressBar#{iterator.index}" class="barCont"></div>
+												<span id="courseProgress#{iterator.index}" class="hidden">#{courseData.progress}</span>
+											</div>
+
+											<span class="right bold nobreak">(#{courseData.progress} %)</span>
+									 		<div class="clear"></div>
+									 		
+									 		<p>
+												Started: <h:outputText class="bold" value="#{courseData.dateStartedString}" />
+											</p>
+											
+							 				<h:link value="Details" class="link profLinkDetails" outcome="/course"
+							 					onclick="sendLogPageNavigationWithParameters('course.xhtml', {context: 'plan.activeCourses.#{courseData.id}.details', course: '#{courseData.id}'});">
+												<f:param name="id" value="#{courseData.id}"/>
+												<span class="icon active"></span>
+											</h:link>
+											
+											<ui:remove>
+												<a class="link profLinkStats" href="#"><span class="icon"></span>Statistics</a>
+											</ui:remove>
+											
+											<script>
+												$(function(){
+													prosolo.slider.enable('#courseProgress#{iterator.index}', '#courseProgressBar#{iterator.index}', true);
+												})
+											</script>
+										</div>
+										
+										<div class="bottomEdit">
+											<p:commandLink value="Withdraw"
+												onclick='$("#removeCourseFormModalDialog").dialog("open");'
+												action="#{deleteGoalCourseDialog.initialize(courseData, 'plan.active.'.concat(courseData.id))}"
+												update=":removeCourse:removeCourseForm"
+											/>
+										</div>
+									</div>
+								</ui:repeat>
+								
+								<script>
+									$('.activeCourseContainer .title').shortenedText({showChar: 70, mode: 'static'});
+								</script>
+							</h:panelGroup>
+							
+							<utilcomp:lazyLoad 
+								parentClass="formContainer"
+								specificClassIdentifier="activeObj"
+								updateOnComplete=":coursePortfolio:activeCourseContainer"
+								loaderContainer=".activeCourseContainer"
+								loaderClass="loader left"
+								initializeAction="#{coursePortfolioBean.initializeCoursePortfolio()}"
+							/>
+						</h:panelGroup>
+						
+						<div class="clear"></div>
+						
+						<h3>#{msg['courses.coursePortfolio.futureCourses.title']}</h3>
+						
+						<h:panelGroup layout="block" id="futureCourseOuterContainer">
+							<h:panelGroup layout="block" id="futureCourseContainer" class="futureCourseContainer profileItemContainer" style="display: none">
+								<h:panelGroup layout="block" class="noContentMessage"
+									rendered="#{empty coursePortfolioBean.futureCourses}">
+									#{msg['courses.coursePortfolio.futureCourses.noCoursesMessage']}
+								</h:panelGroup>
+								
+								<ui:repeat id="futureCourses" value="#{coursePortfolioBean.futureCourses}" var="courseData" varStatus="iterator">
+									<div class="profileItem profileItemGreen #{iterator.index % 3 != 2 ? 'rightMargin' : '' } #{iterator.index ge 3 ? 'topMargin' : '' }">
+										<div class="topContent">
+											<h4>							 
+												<h:link value="#{courseData.title}" outcome="/course"
+													class="title"
+													onclick="sendLogPageNavigationWithParameters('course.xhtml', {context: 'plan.future.#{courseData.id}.title', course: '#{courseData.id}'});">
+													<f:param name="id" value="#{courseData.id}" />
+												</h:link>
+											</h4>
+											
+							 				<h:link value="Details" class="link profLinkDetails"  outcome="/course"
+							 					onclick="sendLogPageNavigationWithParameters('course.xhtml', {context: 'plan.future.#{courseData.id}.details', course: '#{courseData.id}'});">
+												<f:param name="id" value="#{courseData.id}"/>
+												<span class="icon active"></span>
+											</h:link>
+											
+											<ui:remove>
+												<a class="link profLinkStats" href="#"><span class="icon"></span>Statistics</a>
+											</ui:remove>
+										</div>
+										
+										<div class="bottomEdit">
+											<p:commandLink value="Activate"
+												onclick='$("#activateCourseFormModalDialog").dialog("open");'
+												action="#{activateCourseDialog.initialize(courseData, 'plan.future.'.concat(courseData.id))}"
+												update=":activateCourse:activateCourseForm"
+											/>
+											<p:commandLink value="Withdraw"
+												onclick='$("#removeCourseFormModalDialog").dialog("open");'
+												action="#{deleteGoalCourseDialog.initialize(courseData, 'plan.future.'.concat(courseData.id))}"
+												update=":removeCourse:removeCourseForm"
+											/>
+										</div>
+									</div>
+								</ui:repeat>
+								
+								<script>
+									$('.futureCourseContainer .title').shortenedText({showChar: 70, mode: 'static'});
+								</script>
+							</h:panelGroup>
+							
+							<utilcomp:lazyLoad 
+								parentClass="formContainer"
+								specificClassIdentifier="futureObj"
+								updateOnComplete=":coursePortfolio:futureCourseContainer"
+								loaderContainer=".futureCourseContainer"
+								loaderClass="loader left"
+								initializeAction="#{coursePortfolioBean.initializeCoursePortfolio()}"
+							/>
+						</h:panelGroup>
+						<div class="clear"></div>
+						
+						<h3>#{msg['courses.coursePortfolio.completedCourses.title']}</h3>
+						
+						<h:panelGroup layout="block" id="completedCourseOuterContainer">
+							<h:panelGroup layout="block" id="completedCourseContainer" class="completedCourseContainer profileItemContainer" style="display: none">
+								<h:panelGroup layout="block" class="noContentMessage"
+									rendered="#{empty coursePortfolioBean.completedCourses}">
+									#{msg['courses.coursePortfolio.completedCourses.noCoursesMessage']}
+								</h:panelGroup>
+								
+								<ui:repeat id="completedCourses" value="#{coursePortfolioBean.completedCourses}" var="courseData" varStatus="iterator">
+									<div class="profileItem profileItemGreen #{iterator.index % 3 != 2 ? 'rightMargin' : '' } #{iterator.index ge 3 ? 'topMargin' : '' }">
+										<div class="topContent">
+											<h4>	
+												<h:link value="#{courseData.title}" outcome="/course"
+													class="title"
+													onclick="sendLogPageNavigationWithParameters('course.xhtml', {context: 'plan.completed.#{courseData.id}.title', course: '#{courseData.id}'});">
+													<f:param name="id" value="#{courseData.id}" />
+												</h:link>
+											</h4>
+											
+											<p>
+												<span class="marginRight10">Started: <h:outputText class="bold" value="#{courseData.dateStartedString}" /></span>
+												<span class="marginLeft10">Completed: <h:outputText class="bold" value="#{courseData.dateFinishedString}" /></span>
+											</p>
+											
+											<h:link value="Details"  class="link profLinkDetails" outcome="/course"
+												onclick="sendLogPageNavigationWithParameters('course.xhtml', {context: 'plan.completed.#{courseData.id}.details', course: '#{courseData.id}'});">
+												<f:param name="id" value="#{courseData.id}" />
+												<span class="icon active"></span>
+											</h:link>
+											
+											<ui:remove>
+												<a class="link profLinkStats" href="#"><span class="icon"></span>Statistics</a>
+											</ui:remove>
+										</div>
+									</div>
+								</ui:repeat>
+								
+								<script>
+									$('.completedCourseContainer .title').shortenedText({showChar: 70, mode: 'static'});
+								</script>
+							</h:panelGroup>
+							
+							<utilcomp:lazyLoad 
+								parentClass="formContainer"
+								specificClassIdentifier="completedObj"
+								updateOnComplete=":coursePortfolio:completedCourseContainer"
+								loaderContainer=".completedCourseContainer"
+								loaderClass="loader left"
+								initializeAction="#{coursePortfolioBean.initializeCoursePortfolio()}"
+							/>
+							<div class="clear"></div>
+						</h:panelGroup>
+						<div class="clear"></div>
+						
+						<h3>#{msg['courses.coursePortfolio.withdrawnCourses.title']}</h3>
+						
+						<h:panelGroup layout="block" id="withdrawnCourseOuterContainer">
+							<h:panelGroup layout="block" id="withdrawnCourseContainer" class="withdrawnCourseContainer profileItemContainer" style="display: none">
+								<h:panelGroup layout="block" class="noContentMessage"
+									rendered="#{empty coursePortfolioBean.withdrawnCourses}">
+									#{msg['courses.coursePortfolio.withdrawnCourses.noCoursesMessage']}
+								</h:panelGroup>
+								
+								<ui:repeat id="withdrawnCourses" value="#{coursePortfolioBean.withdrawnCourses}" var="courseData" varStatus="iterator">
+									<div class="profileItem profileItemGreen #{iterator.index % 3 != 2 ? 'rightMargin' : '' } #{iterator.index ge 3 ? 'topMargin' : '' }">
+										<div class="topContent">
+											<h4>	
+												<h:link value="#{courseData.title}" outcome="/course"
+													class="title"
+													onclick="sendLogPageNavigationWithParameters('course.xhtml', {context: 'plan.withdrawn.#{courseData.id}.title', course: '#{courseData.id}'});">
+													<f:param name="id" value="#{courseData.id}" />
+												</h:link>
+											</h4>
+											
+											<p>
+												<span class="marginRight10">Started: <h:outputText class="bold" value="#{courseData.dateStartedString}" /></span>
+												<span class="marginLeft10">Completed: <h:outputText class="bold" value="#{courseData.dateFinishedString}" /></span>
+											</p>
+											
+											<h:link value="Details"  class="link profLinkDetails" outcome="/course"
+												onclick="sendLogPageNavigationWithParameters('course.xhtml', {context: 'plan.withdrawn.#{courseData.id}.details', course: '#{courseData.id}'});">
+												<f:param name="id" value="#{courseData.id}" />
+												<span class="icon active"></span>
+											</h:link>
+											
+											<ui:remove>
+												<a class="link profLinkStats" href="#"><span class="icon"></span>Statistics</a>
+											</ui:remove>
+										</div>
+										
+										<div class="bottomEdit">
+											<p:commandLink value="Activate"
+												rendered="#{courseData.targetGoalId > 0}"
+												onclick='$("#activateCourseFormModalDialog").dialog("open");'
+												action="#{activateCourseDialog.initialize(courseData, 'plan.withdrawn.'.concat(courseData.id))}"
+												update=":activateCourse:activateCourseForm"
+											/>
+											
+											<p:commandLink value="Activate"
+												rendered="#{courseData.targetGoalId == 0}"
+												action="#{coursePortfolioBean.activateCourse(courseData, false, 'plan.withdrawn.'.concat(courseData.id))}"
+												update=":coursePortfolio:activeCourseOuterContainer 
+													:coursePortfolio:futureCourseOuterContainer 
+													:coursePortfolio:withdrawnCourseOuterContainer
+													:coursePortfolio:coursePortfolioGrowl"
+											/>
+										</div>
+									</div>
+								</ui:repeat>
+								
+								<script>
+									$('.withdrawnCourseContainer .title').shortenedText({showChar: 70, mode: 'static'});
+								</script>
+							</h:panelGroup>
+							
+							<utilcomp:lazyLoad 
+								parentClass="formContainer"
+								specificClassIdentifier="withdrawnObj"
+								updateOnComplete=":coursePortfolio:withdrawnCourseContainer"
+								loaderContainer=".withdrawnCourseContainer"
+								loaderClass="loader left"
+								initializeAction="#{coursePortfolioBean.initializeCoursePortfolio()}"
+							/>
+							<div class="clear"></div>
+						</h:panelGroup>
+					</h:panelGroup>
+					
+					<p:growl id="coursePortfolioGrowl" showDetail="true" />
+					
+					<utilcomp:lazyLoad 
+						parentClass="courses"
+						initializeAction="#{coursePortfolioBean.initializeCoursePortfolio()}"
+						withLoader="false"
+						removeContentBeforeLoader="false"
+					/>
+					
+					<utilcomp:tooltip target=".hasTooltip[title]" />
+				</h:form>
+				<div class="clear"></div>
+			</div><!-- .content -->
+		
+			<div class="clear"></div>
+		</div><!-- .container end -->
+
+		<dlgcourse:deleteCourse id="removeCourse"
+			updateOncomplete=":coursePortfolio:emptyCoursesInfoMessageContainer 
+					:coursePortfolio:futureCourseOuterContainer 
+					:coursePortfolio:activeCourseOuterContainer
+					:coursePortfolio:withdrawnCourseOuterContainer 
+					:coursePortfolio:coursePortfolioGrowl"
+		/>
+
+		<dlgcourse:activateCourse id="activateCourse"
+			updateOncomplete=":coursePortfolio:activeCourseOuterContainer 
+				:coursePortfolio:futureCourseOuterContainer 
+				:coursePortfolio:withdrawnCourseOuterContainer
+				:coursePortfolio:coursePortfolioGrowl"
+		/>
+
+
+	</ui:define>
+</ui:composition>

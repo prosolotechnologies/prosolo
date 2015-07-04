@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+<body>
+
+<ui:composition 
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks">
+
+	<utilcomp:messagesBundle var="msg" />
+
+	<div id="logs" class="account">
+		<h:form id="logsForm" class="logsForm">
+		
+			<h1 class="marginBottom10">Log Reports</h1>
+		
+			<script>
+				$(function(){
+					$.extend($.datepicker,{_checkOffset:function(inst,offset,isFixed){return offset}});
+					$( ".dateField" ).datepicker({
+						showOn: "both",
+						buttonImage: "../resources/css/prosolo-theme/images/calendar18x15.png",
+						buttonImageOnly: true,
+						dateFormat: "dd.mm.yy.",
+						changeMonth: true,
+						changeYear: true,
+						showOtherMonths: true,
+						selectOtherMonths: true,
+					});
+				});
+			</script>
+			
+			<div class="filters">
+				<h4>Filters</h4>
+				<p:growl id="logsFilterFormDialogGrowl" showDetail="true" />
+    	
+    			<div class="userFilter">
+			    	<p>#{msg['manager.logs.selectUserInfo']}</p>
+			    	
+			    	<utilcomp:userInputField id="userFilterForReports"
+			    		users="#{logsFilterBean.usersList}"
+			    		actionBean="#{logsFilterBean}"
+			    		toExcludeIds="#{logsFilterBean.toExcludeIds}"
+			    		keywordHolder="#{logsFilterBean.searchText}"
+			    		searchResult="#{logsFilterBean.userSearchResults}" />
+    			</div>
+    			
+    			<div class="dateFiter">
+    				<p>Choose date range:</p>
+    			
+    				<strong>From:</strong>&#160;
+					<h:inputText class="dateField"
+						value="#{logsFilterBean.startDate}" required="false" onfocus="blur();">
+					    <f:convertDateTime pattern="dd.MM.yyyy" />
+					</h:inputText>
+					
+					&#160;&#160;
+					
+    				<strong>To:</strong>&#160;
+					<h:inputText class="dateField"
+						value="#{logsFilterBean.endDate}" required="false" onfocus="blur();">
+					    <f:convertDateTime pattern="dd.MM.yyyy" />
+					</h:inputText>
+    				
+	    			<ui:remove>
+	    				<p:calendar styleClass="filterDatePicker" 
+    			 			id="startDate" 
+    			 			value="#{logsFilterBean.startDate}"
+    			 			pattern="MM/dd/yyyy HH:mm" />
+    			 
+    			 		<p:watermark for="startDate" value="Select start date" />
+    			 		
+    			 		&#160;&#160;
+    			  
+    			  		<p:calendar styleClass="filterDatePicker" 
+    			  			id="endDate" 
+    			  			value="#{logsFilterBean.endDate}" 
+    			  			pattern="MM/dd/yyyy HH:mm" />
+				
+						<p:watermark for="endDate" value="Select end date" />
+	    			</ui:remove>
+    			</div>
+		    	
+		    	<ui:remove>
+    			<p:selectBooleanCheckbox value="#{logsFilterBean.twitterPosts}" />
+    			&#160;       				
+      				<h:outputText value="Exclude Twitter posts " />
+		    	</ui:remove>
+
+				<div class="clear"></div>
+
+				<div class="resourceFilter">
+					<p>Select events and resources to show:</p>
+				
+					<p:selectCheckboxMenu value="#{logsFilterBean.selectedEventTypes}"
+						label="Event Type" filter="false" 
+						panelStyle="width: 220px">  
+						<f:selectItems value="#{logsFilterBean.eventTypes}" />
+   					</p:selectCheckboxMenu>  
+   					
+   					&#160;&#160;
+   					
+   					<p:selectCheckboxMenu value="#{logsFilterBean.selectedObjectTypes}" 
+   						label="Object Type" 
+   						filter="false" 
+   						panelStyle="width:220px">  
+      				 		<f:selectItems value="#{logsFilterBean.objectTypes}" />  
+   					</p:selectCheckboxMenu>
+				</div>
+				
+				<div class="predefinedFilters">
+					<p>Predefined filters:</p>
+					<label>
+						<h:selectBooleanCheckbox value="#{logsFilterBean.twitterPosts}" />
+						Exclude Twitter posts
+					</label>
+				</div>
+				
+				<div class="clear"></div>
+				
+				<div class="actions">
+					<h:panelGroup>
+						<p:commandLink value="Apply Filters"
+							styleClass="button blue size30 left"
+							action="#{logsBean.applyFilters}"
+							update=":logsForm:logTable" />
+							
+						<p:commandLink value="Reset Filters"
+							styleClass="button gray size30 left"
+							action="#{logsBean.resetFilters}"
+							update=":logsForm:logTable :logsForm" />
+							
+						<p:commandLink value="Export data"
+							onclick="addLoader(this);"
+							styleClass="button gray size30 left"
+							action="#{logsBean.exportData}"
+							update=":logsForm:logTable :logsForm" />												
+						
+						<h:outputLink rendered="#{logsBean.exportDataLink != null || logsBean.exportDataLabel != null}" 
+							value="#{logsBean.exportDataLink}"
+							styleClass="bottom">
+						    <h:outputText value="#{logsBean.exportDataLabel}" />
+						</h:outputLink>	
+					</h:panelGroup>
+				</div>
+	 		</div>
+
+			<div class="clear filterSeparator"></div>
+			
+			<p:dataTable var="log" value="#{logsBean.lazyModel}" paginator="true" rows="10"  
+				paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink} "  
+				rowsPerPageTemplate="10,20,30" selectionMode="single" 
+				selection="#{logsBean.selectedLog}" id="logTable" lazy="true"
+				emptyMessage="#{msg['manager.reports.logs.noLogsMessage']}" >
+
+				<p:ajax event="rowSelect"
+					listener="#{logsBean.onRowSelect}"
+					update=":logsForm:display"
+					oncomplete="PF('logDialog').show()" />
+				
+				<p:column headerText="Time">
+					<h:outputText value="#{log.prettyTime}" />
+				</p:column>
+     
+	            <p:column headerText="#{msg['manager.logs.table.column.user']}">
+	                <h:outputText value="#{log.actorFullname}" />
+	            </p:column>
+	      		
+	            <p:column headerText="Action">
+	                <h:outputText value="#{log.action}" />
+	            </p:column>
+     
+	            <p:column headerText="Object">
+	            	<link:resourceLink
+						resourceId="#{log.objectId}" 
+						type="#{log.objectType}"
+						title="#{log.objectType}"
+						context="manager.logs.object" />
+	            </p:column>
+           
+	            <p:column headerText="Target">
+	            	<link:resourceLink
+						resourceId="#{log.targetId}" 
+						type="#{log.targetType}"
+						title="#{log.targetType}"
+						context="manager.logs.target" />
+	            </p:column>
+           
+	            <p:column headerText="Parameters">
+	                <h:outputText value="#{log.parametersString}" />
+	            </p:column>
+			</p:dataTable>
+			
+			<script>
+			$(function() {
+				roundImages();
+				$(document).on('click', function() {
+					$('form.logsForm .search .resultsPanel .results').fadeOut();
+				});
+			});
+			</script>
+		
+			<p:dialog header="Log Details" widgetVar="logDialog"
+				resizable="false"
+				showEffect="explode"
+				hideEffect="explode">
+ 					
+ 					<h:panelGrid id="display" columns="2" cellpadding="4">
+					<ui:repeat value="#{logsBean.selectedLog.parameters}" var="parameter" id="parameter">
+						<h:outputText value="#{parameter.key}" />:
+						<h:outputText value="#{parameter.value}" style="font-weight:bold" />
+						<br/>
+					</ui:repeat>
+				</h:panelGrid>
+			</p:dialog>
+			
+		</h:form> 
+	</div>
+</ui:composition>
+</body>
+</html>

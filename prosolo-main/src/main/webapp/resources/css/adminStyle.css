@@ -1,0 +1,23 @@
+@charset "utf-8";
+
+#navigationContainer{
+	float: left;
+	clear: both;
+	margin-bottom: 20px;
+	margin-top: 20px
+}
+
+#adminNavigation{
+	float: left;
+}
+
+#adminNavigation li{
+	float: left;
+	display: inline-block;
+	margin-right: 20px;
+}
+
+#adminNavigation li.selected,
+#adminNavigation li:hover{
+	background: #539fda;
+}

@@ -1,0 +1,223 @@
+package org.prosolo.services.indexing.impl;
+
+import static org.elasticsearch.client.Requests.clusterHealthRequest;
+import static org.elasticsearch.client.Requests.createIndexRequest;
+import static org.elasticsearch.client.Requests.deleteIndexRequest;
+import static org.elasticsearch.client.Requests.indexRequest;
+import static org.elasticsearch.client.Requests.putMappingRequest;
+import static org.elasticsearch.client.Requests.refreshRequest;
+import static org.elasticsearch.common.io.Streams.copyToStringFromClasspath;
+import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URL;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+
+import org.apache.log4j.Logger;
+import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.prosolo.app.Settings;
+import org.prosolo.bigdata.common.config.ElasticSearchConfig;
+import org.prosolo.bigdata.common.enums.ESIndexTypes;
+//import org.prosolo.config.ElasticSearchConfig;
+import org.prosolo.recommendation.impl.DocumentType;
+import org.prosolo.services.es.MoreDocumentsLikeThis;
+import org.prosolo.services.es.impl.MoreDocumentsLikeThisImpl;
+import org.prosolo.services.indexing.ESAdministration;
+import org.prosolo.services.indexing.ESIndexNames;
+import org.prosolo.services.indexing.ElasticSearchFactory;
+import org.prosolo.services.indexing.TikaExtractor;
+import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
+import org.prosolo.domainmodel.organization.VisibilityType;
+import org.springframework.stereotype.Service;
+
+/**
+ * @author Zoran Jeremic 2013-06-28
+ * 
+ */
+@Service("org.prosolo.services.indexing.ESAdministration")
+public class ESAdministrationImpl implements ESAdministration {
+
+	private static final long serialVersionUID = 830150223713546004L;
+	private static Logger logger = Logger.getLogger(ESAdministrationImpl.class);
+	
+	@Override
+	public boolean createIndexes() throws IndexingServiceNotAvailable {
+		List<String> indexes = ESIndexNames.getAllIndexes();
+		
+		for (String index : indexes) {
+			createIndex(index);
+		}
+		return true;
+	}
+	
+	@Override
+	public void createIndex(String indexName) throws IndexingServiceNotAvailable {
+		Client client = ElasticSearchFactory.getClient();
+		boolean exists = client.admin().indices().prepareExists(indexName)
+				.execute().actionGet().isExists();
+		if (!exists) {
+			ElasticSearchConfig elasticSearchConfig = Settings.getInstance().config.elasticSearch;
+			ImmutableSettings.Builder elasticsearchSettings = ImmutableSettings.settingsBuilder()
+	                  .put("http.enabled", "false")
+	                  .put("cluster.name", elasticSearchConfig.clusterName)
+	                  .put("index.number_of_replicas", elasticSearchConfig.replicasNumber) 
+	                  .put("index.number_of_shards", elasticSearchConfig.shardsNumber);
+			client.admin()
+					.indices()
+					.create(createIndexRequest(indexName).settings(elasticsearchSettings)
+							//)
+							).actionGet();
+			logger.debug("Running Cluster Health");
+			ClusterHealthResponse clusterHealth = client.admin().cluster()
+					.health(clusterHealthRequest().waitForGreenStatus())
+					.actionGet();
+			logger.debug("Done Cluster Health, status "
+					+ clusterHealth.getStatus());
+			
+			//String indexType="";
+			//String mappingPath=null;
+			if (indexName.equals(ESIndexNames.INDEX_DOCUMENTS)) {
+				//indexType=ESIndexTypes.DOCUMENT;
+				//mappingPath="/org/prosolo/services/indexing/"+indexName+"-mapping.json";
+				this.addMapping(client,  indexName, ESIndexTypes.DOCUMENT);
+			} else if (indexName.equals(ESIndexNames.INDEX_NODES)) {
+				//mappingPath="/org/prosolo/services/indexing/"+indexName+"-mapping.json";
+				this.addMapping(client, indexName, ESIndexTypes.ACTIVITY);
+				this.addMapping(client, indexName, ESIndexTypes.COMPETENCE);
+				this.addMapping(client, indexName, ESIndexTypes.COURSE);
+				this.addMapping(client, indexName, ESIndexTypes.LEARNINGGOAL);
+				//mappingPath="/org/prosolo/services/indexing/tags-mapping.json";
+				this.addMapping(client, indexName, ESIndexTypes.TAGS);
+			} else if (indexName.equals(ESIndexNames.INDEX_USERS)) {
+				//mappingPath="/org/prosolo/services/indexing/users-mapping.json";
+				this.addMapping(client,  indexName, ESIndexTypes.USER);
+			}
+		}
+	}
+	
+	private void addMapping(Client client, String indexName, String indexType) {
+		String mappingPath = "/org/prosolo/services/indexing/" + indexType + "-mapping.json";
+		String mapping = null;
+		
+		try {
+			mapping = copyToStringFromClasspath(mappingPath);
+		} catch (IOException e1) {
+			logger.error(e1);
+		}
+		client.admin().indices().putMapping(putMappingRequest(indexName).type(indexType).source(mapping)).actionGet();
+	}
+ 
+
+	@Override
+	public boolean deleteIndexes() throws IndexingServiceNotAvailable {
+		List<String> indexes = ESIndexNames.getAllIndexes();
+		
+		for (String index : indexes) {
+			deleteIndex(index);
+		}
+		return true;
+	}
+	
+	@Override
+	public void deleteIndex(String indexName) throws IndexingServiceNotAvailable {
+		logger.debug("deleting index [" + indexName + "]");
+
+		Client client = ElasticSearchFactory.getClient();
+		boolean exists = client.admin().indices().prepareExists(indexName).execute().actionGet().isExists();
+		if (exists) {
+			client.admin().indices().delete(deleteIndexRequest(indexName)).actionGet();
+		}
+		//client.close();
+	}
+	
+	@Override
+	public void indexTrainingSet(){
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("org/prosolo/services/indexing/webpages_trainingset.txt");
+		
+				try {
+					TikaExtractor tika = new TikaExtractorImpl();
+					MoreDocumentsLikeThis mdlt = new MoreDocumentsLikeThisImpl();
+					String indexName = ESIndexNames.INDEX_DOCUMENTS;
+					String indexType = ESIndexTypes.DOCUMENT;
+					String mapping = copyToStringFromClasspath("/org/prosolo/services/indexing/document-mapping.json");
+					Client client = ElasticSearchFactory.getClient();
+					client.admin().indices().putMapping(putMappingRequest(indexName).type(indexType).source(mapping)).actionGet();
+					BufferedReader br;
+					
+					Reader r = new InputStreamReader(is, "UTF-8");
+					br = new BufferedReader(r);
+					
+					String line;
+					
+					while ((line = br.readLine()) != null) {
+						if (line.length() > 20) {
+							indexWebPageFromLink(line, client, indexName, indexType, tika, mdlt);
+						}
+					}
+					br.close();
+				} catch (FileNotFoundException e) {
+					logger.error(e);
+				} catch (IOException e) {
+					logger.error(e);
+				} catch (IndexingServiceNotAvailable e) {
+					logger.error(e);
+				}
+			}
+		}).start();
+	}
+	 private void indexWebPageFromLink(String link, Client client, String indexName, String indexType, TikaExtractor tika, MoreDocumentsLikeThis mdlt) throws IOException, IndexingServiceNotAvailable{
+		logger.debug("INDEXING:" + link);
+		try {
+			URL url = new URL(link);
+			InputStream input = url.openStream();
+			ExtractedTikaDocument doc = tika.parseInputStream(input);
+			String content = doc.getContent();
+			List<String> duplicates = mdlt.findDocumentDuplicates(content);
+				//byte[] html = org.elasticsearch.common.io.Streams.copyToByteArray(input);
+			DocumentType docType = null;
+				//if (richContent.getContentType().equals(ContentType.LINK)) {
+			docType = DocumentType.WEBPAGE;
+				//} 
+			VisibilityType visibility = VisibilityType.PUBLIC;
+			XContentBuilder builder = jsonBuilder().startObject();
+			builder.field("file", content.getBytes());
+			builder.field("title", doc.getTitle());
+			builder.field("visibility", visibility.name().toLowerCase());
+			// builder.field("description",richContent.getDescription());
+			builder.field("contentType", docType.name().toLowerCase());
+			builder.field("dateCreated", new Date());
+			builder.field("url", link);
+			String uniqueness = null;
+			if (duplicates.size() == 0) {
+				uniqueness = UUID.randomUUID().toString();
+			} else {
+				uniqueness = duplicates.get(0);
+			}
+			builder.field("uniqueness", uniqueness);
+			builder.endObject();
+			IndexResponse iResponse = client.index(indexRequest(indexName).type(indexType).source(builder)).actionGet();
+			client.admin().indices().refresh(refreshRequest()).actionGet();
+			
+			input.close();
+		} catch (ElasticsearchException e) {
+			logger.error(e);
+		} catch (IOException e) {
+			logger.error(e);
+		}
+	 }
+}

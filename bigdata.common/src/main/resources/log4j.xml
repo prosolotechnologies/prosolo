@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd" >
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/"
+	debug="false">
+	<appender name="console" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%5p\t[%d] [%t] %c{3} (%F:%L)     \t%m%n" />
+		</layout>
+	</appender>
+	<appender name="default.file" class="org.apache.log4j.FileAppender">
+		<param name="file" value="logs/prosolo-default.log" />
+		<param name="append" value="false" />
+		<param name="threshold" value="debug" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{ISO8601} %-5p [%c{1}] - %m%n" />
+		</layout>
+	</appender>
+	<appender name="analytics.file" class="org.apache.log4j.FileAppender">
+		<param name="file" value="logs/prosolo-analytics.log" />
+		<param name="append" value="false" />
+		<param name="threshold" value="debug" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{ISO8601} %-5p [%c{1}] - %m%n" />
+		</layout>
+	</appender>
+ 
+	<logger name="org.apache.spark">
+		<level value="ERROR" />
+		<appender-ref ref="console" />
+	</logger>
+		<logger name="javax.persistence">
+		<level value="DEBUG" />
+		<appender-ref ref="console" />
+	</logger>
+	<logger name="org.hibernate.jpa">
+		<level value="DEBUG" />
+		<appender-ref ref="console" />
+	</logger>
+ 
+	<logger name="org.prosolo.bigdata.streaming" additivity="false">
+		<level value="DEBUG" />
+		<appender-ref ref="console" />
+		<appender-ref ref="default.file" />
+	</logger>
+	<logger name="org.prosolo.bigdata.rabbitmq" additivity="false">
+		<level value="DEBUG" />
+		<appender-ref ref="console" />
+		<appender-ref ref="default.file" />
+	</logger>
+	<logger name="org.prosolo.bigdata.spark" additivity="false">
+		<level value="DEBUG" />
+		<appender-ref ref="console" />
+		<appender-ref ref="analytics.file" />
+	</logger>
+	<logger name="org.prosolo.bigdata.api" additivity="false">
+		<level value="DEBUG" />
+		<appender-ref ref="console" />
+		<appender-ref ref="analytics.file" />
+	</logger>
+	<logger name="org.prosolo.bigdata.algorithms.fpgrowth"
+		additivity="false">
+		<level value="DEBUG" />
+		<appender-ref ref="console" />
+		<appender-ref ref="analytics.file" />
+	</logger>
+
+
+
+	<logger name="org.au.morph" additivity="false">
+		<level value="INFO" />
+		<appender-ref ref="console" />
+		<appender-ref ref="default.file" />
+	</logger>
+	<root>
+		<level value="INFO" />
+		<appender-ref ref="console" />
+		<appender-ref ref="default.file" />
+	</root>
+</log4j:configuration>

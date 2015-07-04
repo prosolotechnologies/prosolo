@@ -1,0 +1,61 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components">
+
+	<composite:interface>
+		<composite:attribute name="divToUpdate" required="true" />
+		<composite:attribute name="badgeList" required="true" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<div id="#{cc.attrs.value}FormDialog" class="badgesDialog" title="Choose Badges" style="display: none;">
+			<h:form id="badgesForm">
+				<p:growl id="#{cc.attrs.value}FormDialogGrowl" showDetail="true" />
+			
+				Choose badges:
+				<h:panelGroup layout="block">
+					<h:panelGrid columns="3">
+						<ui:repeat value="#{cc.attrs.badgeList}" var="badge">
+							<div class="badgeWrapper">
+								<p:commandLink 
+									styleClass="badge badge#{badge.capitalizedName} #{badge.selected ? 'selected' : ''}" 
+		    						action="#{newevaluation.toggleBadge(badge)}" />
+	   							<div class="clear"></div>
+								#{badge.title}
+							</div>
+			    		</ui:repeat>
+					</h:panelGrid>
+				</h:panelGroup>
+				
+				<div class="actions">
+				    <p:commandLink
+						value="Save"
+						styleClass="button green size30 right"
+						onclick="$('##{cc.attrs.value}FormDialog').dialog('close');"
+						update="#{cc.attrs.divToUpdate}" />
+			    </div>
+			</h:form>
+		</div>
+		
+		<script>
+			$(function() {
+				$('##{cc.attrs.value}FormDialog').dialog({
+					autoOpen : false,
+					show : 'slide',
+					width : 500,
+					modal : true,
+					resizable : false
+				});
+				$('##{cc.attrs.value}FormDialog').show();
+				
+				$('.badge').on('click', function(){
+					$(this).toggleClass('selected');
+				});
+			});
+		</script>
+	</composite:implementation>
+</ui:component>

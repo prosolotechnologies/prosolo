@@ -1,0 +1,66 @@
+<ui:composition 
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+	<utilcomp:messagesBundle var="msg" />
+
+	<div id="account" class="account">
+		<h2>Settings: Account</h2>
+		<div class="separator clear"></div>
+		
+		<h:form id="accountForm">
+			<p:growl id="accountFormGrowl" showDetail="true" />
+			
+			<h:panelGroup id="accountContainer" class="accountContainer" >
+			
+				<div class="infoBlock">
+					<h3>Email</h3>
+					<h:panelGroup layout="block" id="email" class="email">
+						<div class="row info">
+							<div class="first bold">Email:</div>
+							<div class="second">
+								<h:outputText value="#{accountSettings.accountData.defaultEmail.address}" />
+								<ui:repeat value="#{accountSettings.accountData.emails}" var="email" varStatus="iterator">
+									#{email.address}
+								</ui:repeat>
+							</div>
+						</div>
+					</h:panelGroup>
+				</div>
+					
+				<div class="infoBlock">
+					<h3>Password</h3>
+					<h:panelGroup layout="block" id="password" class="password">
+						<div class="row infoEdit">
+							<div class="first bold">New password:</div>
+							<div class="second">
+								<h:inputSecret id="newPassword" name="password"
+									class="editPassword"
+									value="#{accountSettings.accountData.password}" 
+								/>
+							</div>
+						</div>
+						<div class="row infoEdit">
+							<div class="first bold">Verify password:</div>
+							<div class="second">
+								<h:inputSecret id="newPasswordConfirm" name="passwordConfirm"
+									class="editPassword1"
+									value="#{accountSettings.accountData.passwordConfirm}" 
+								/>
+							</div>
+						</div>
+					</h:panelGroup>
+				</div>
+			</h:panelGroup>
+			
+			<h:panelGroup layout="block" class="actions">
+				<p:commandLink styleClass="button size25 green left" value="Save"
+					action="#{accountSettings.savePassChange}"
+					update=":accountForm" />
+			</h:panelGroup>
+		</h:form>
+	</div>
+</ui:composition>

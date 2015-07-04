@@ -1,0 +1,518 @@
+<ui:composition
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:dlgportfolio="http://java.sun.com/jsf/composite/components/dialogs/portfolio"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:pt="http://java.sun.com/jsf/passthrough">
+	
+	<utilcomp:messagesBundle var="msg" />
+	
+	<div class="portCred">
+		<ui:include src="/resources/components/dialogs/portfolio/newExternalCredit.xhtml" />
+		
+		<h2>
+			External credits / Continuing education
+			<utilcomp:infotooltip position="EXTERNAL_CREDITS" context="profile.credits" />
+		</h2>
+		<div class="clear"></div>
+		
+		<p>
+			<h:form>
+				<p:commandLink value="Add New" 
+					styleClass="button green size20 right" 
+					onclick="$('#newExternalCredit').dialog('open');sendServiceUse('MOUSE_CLICK', {context: 'profile.credits', link: 'add'});"
+					update=":newExternalCreditForm"
+				/>
+			</h:form>
+		</p>
+		<div class="clear"></div>
+
+		<script>
+			$(function() {
+				$('.portCred .creditsContainer').html('<img class="loader" src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif"/>');
+				exCreditPageData.initExCredits();
+			});
+			var exCreditPageData = {};
+			
+			exCreditPageData.initExCredits = function(){
+				$('.portCred .refresh').trigger('click');
+			};
+			
+			exCreditPageData.beforeLazyLoadCreditsContainer = function() {
+				$('.portCred .creditsContainer').show();
+			};
+			
+			exCreditPageData.switchToEditMode = function(editedExCreditDiv) {
+				exCreditPageData.hiddenExCredit = editedExCreditDiv;
+				var editExCredit = $('.exCreditEdit');
+				editExCredit.detach();
+
+				$(editedExCreditDiv).hide().after(editExCredit);
+				editExCredit.fadeIn();
+			}
+			
+			exCreditPageData.switchToReadMode = function() {
+				var editExCredit = $('.exCreditEdit');
+				editExCredit.remove();
+				$(exCreditPageData.hiddenExCredit).fadeIn();
+			}
+		</script>
+		
+		<h:form id="exCreditForm">
+			<script>
+			var externalCreditCompSearch;
+			$(function() {
+				$('.creditsContainer').prosolosearch({
+					resultContainer: '.creditsContainer .competenceSearchContainer',
+					loaderContainer: '.creditsContainer .competenceSearchContainer .competenceSearchResult',
+					searchInput: '.creditsContainer .compSearch .searchInput',
+					watermark: 'Search competences'
+				});
+				externalCreditCompSearch = $('.creditsContainer').data('prosolo.search');
+			});
+			</script>
+			
+			<p:commandLink styleClass="refresh" 
+				onclick="exCreditPageData.beforeLazyLoadCreditsContainer()"
+				actionListener="#{portfolio.initExternalCredits()}"
+				update=":exCreditForm"
+				oncomplete="registerLazyLoadCompleted();" />
+			
+			<ui:remove>
+			<p:remoteCommand name="lazyLoadExternalCredits" 
+				onstart="exCreditPageData.beforeLazyLoadCreditsContainer();"
+				actionListener="#{portfolio.initExternalCredits()}" 
+				update=":exCreditForm"
+				oncomplete="registerLazyLoadCompleted('credits');"
+				async="true" />
+			</ui:remove>
+			
+			<div class="creditsContainer" style="display:none">
+				<h:panelGroup rendered="#{empty portfolio.externalCredits}" styleClass="noContentMessage">
+					There are no external credits added yet.
+				</h:panelGroup>
+				
+				<ui:repeat id="exCreditLoop" value="#{portfolio.externalCredits}" var="exCreditIterator" varStatus="iterator">
+					<div class="exCreditProfileItem profileItem noMargin profileItemPurple externalCredit" id="exCredit#{iterator.index}">
+						<div class="header topContent">
+							<h4>#{exCreditIterator.title}</h4>
+							
+							<h:panelGroup rendered="#{exCreditIterator.description != ''}">
+								<a href="javascript:void(0);" class="descriptionLink collapsed" data-id="#{exCreditIterator.id}">
+									<span class="downArrow"></span>
+									More
+								</a>
+							</h:panelGroup>
+							
+							<utilcomp:visibility 
+								visibility="#{exCreditIterator.visibility}"
+								containerDiv=".exCreditProfileItem"
+								contentType="node"
+								changeNodeVisibility="#{portfolioutil.changeNodeVisibility(exCreditIterator)}" />
+							
+							<p class="description">
+								#{exCreditIterator.description}
+							</p>
+						</div>
+						
+						<div class="topContent col1">
+							<p>
+								<h:panelGroup rendered="#{exCreditIterator.start != null}" >
+									Start: 
+									<h:outputText class="date" value="#{exCreditIterator.start}" >
+										<f:convertDateTime pattern="dd.MM.yyyy" />
+									</h:outputText>
+								</h:panelGroup>
+								<h:panelGroup rendered="#{exCreditIterator.start != null and exCreditIterator.end != null}" >
+								-
+								</h:panelGroup> 
+								<h:panelGroup rendered="#{exCreditIterator.end != null}" >
+									End:
+									<h:outputText class="date" value="#{exCreditIterator.end}">
+										<f:convertDateTime pattern="dd.MM.yyyy" />
+									</h:outputText>
+								</h:panelGroup>
+							</p>
+							
+							<p:commandLink
+								rendered="#{exCreditIterator.badgeCount > 0}"
+								styleClass="profLinkBadges link"
+								onclick="$('#badgeListDialog').dialog('open');"
+								action="#{badgelist.initializeForCompletedResourceById(exCreditIterator.externalCredit.id, 'profile.credits')}"
+								update=":badgeListForm"
+								>
+								<span class="icon active"></span>
+								<span class="count">#{exCreditIterator.badgeCount}</span> badges								
+							</p:commandLink>
+							<h:panelGroup layout="block"
+								rendered="#{exCreditIterator.badgeCount == 0}"
+								styleClass="link profLinkBadges inactive"
+								>
+								<span class="icon"></span>
+								<span class="count">0</span> badges								
+							</h:panelGroup>
+							
+							<p:commandLink
+								styleClass="link profLinkEvals"
+								rendered="#{exCreditIterator.evaluationCount > 0}"
+								onclick="$('#evaluationListDialog').dialog('open');"
+								action="#{evaluationlist.initialize(exCreditIterator.externalCredit, 'profile.credits')}"
+								update=":#{p:component('evaluationListForm')}"
+								>
+								<span class="icon active"></span>
+								<span class="count">#{exCreditIterator.evaluationCount}</span> #{msg['portfolio.evaluatedItem.evaluationsNumber']}								
+							</p:commandLink>
+							<h:panelGroup layout="block"
+								rendered="#{exCreditIterator.evaluationCount == 0}"
+								styleClass="link profLinkEvals inactive"
+								>
+								<span class="icon"></span>
+								<span class="count">0</span> #{msg['portfolio.evaluatedItem.evaluationsNumber']}								
+							</h:panelGroup>
+							
+							<ui:remove>
+								<span class="link profLinkStats" ><span class="icon"></span>Statistics</span>
+							</ui:remove>
+							<div class="clear"></div>
+							
+							<p:commandLink value="Activities"
+								styleClass="button gray size25 marginRight10"
+								onclick="$('#exCreditActivityListFormModalDialog').dialog('open');"
+								actionListener="#{activityListDialog.init(false, exCreditIterator.activities, exCreditIterator.id, 'profile.credits.'.concat(exCreditIterator.id))}"
+								action="#{portfolio.setEditedExternalCredit(exCreditIterator)}"
+								update=":exCredit:activityListForm"
+							/>
+							
+							<h:outputLink value="#{exCreditIterator.certificateLink}"
+								rendered="#{exCreditIterator.certificateLink != null}"
+								onclick="sendLogPageNavigation('#{exCreditIterator.certificateLink}', 'profile.credits.#{exCreditIterator.id}.certificateLink');"
+								class="button gray size25" 
+								target="_blank">
+								<h:outputText value="Certificate" />
+							</h:outputLink>
+							
+							<div class="clear"></div>
+						</div>
+							
+						<div class="topContent col2">
+							<div class="assComp">
+								<strong>Claimed Competences:</strong>
+								<ul>
+									<ui:repeat id="compSearchLoop" value="#{exCreditIterator.competences}" var="comp" rendered="#{not empty exCreditIterator.competences}">
+										<li>
+											<icon:competence size="16" />
+											<link:competence
+												resource="#{comp}"
+												title="#{comp.title}"
+												type="Competence"
+												styleClass="compTitle"
+												context="profile.credits.#{exCreditIterator.id}" />
+										</li>
+									</ui:repeat>
+								</ul>
+								<h:panelGroup rendered="#{empty exCreditIterator.competences}" styleClass="noContentMessage">
+									There are no claimed competences
+								</h:panelGroup>
+							</div>
+						</div>
+						<div class="bottomEdit">
+							<p:commandLink value="Edit"
+								action="#{portfolio.setEditedExternalCredit(exCreditIterator)}"
+								onclick="sendServiceUse('MOUSE_CLICK', {context: 'profile.credits.#{exCreditIterator.id}', link: 'edit', 'exCreditId' : '#{exCreditIterator.id}'});"
+								update=":exCreditForm:exCreditEditContainer :goalCreditEditUploadCertificate"
+								oncomplete="exCreditPageData.switchToEditMode('#exCredit#{iterator.index}')"
+							/>
+							<p:commandLink value="#{msg['portfolio.evaluatedItem.button.askForEvaluation.title']}" 
+								onclick="$('#askForEvaluationDialog').dialog('open');"
+								actionListener="#{askForEvaluation.setResource(exCreditIterator.externalCredit, 'profile.credits')}"
+								update=":askForEvaluationDialogForm"
+							/>
+							<p:commandLink value="Delete"
+								oncomplete="$('#deleteExCreditFormModalDialog').dialog('open');"
+								action="#{portfolio.setExCreditDataToDelete(exCreditIterator)}"
+							/>
+						</div>
+					</div>
+				</ui:repeat>
+				<script>
+					$('.creditsContainer .profileItem.externalCredit .topContent .descriptionLink').propagateHover();
+					
+					$('.creditsContainer .profileItem.externalCredit .topContent .descriptionLink').click(function(e){
+						e.stopPropagation();
+						
+						var id = $(this).attr('data-id');
+						
+						if ($(this).hasClass('collapsed')) {
+							sendServiceUse('MOUSE_CLICK', {context: 'learn.credits.'+id, link: 'more', 'exCreditId' : id});
+						} else {
+							sendServiceUse('MOUSE_CLICK', {context: 'learn.credits.'+id, link: 'less', 'exCreditId' : id});
+						}
+						
+						$(this).toggleClass('collapsed').toggleClass('expanded');
+						$(this).parent().find('.description').slideToggle();
+					});
+				</script>
+				
+				<script>
+					$('.portCred .creditsContainer').fadeIn();
+				</script>
+			</div>
+			
+			<!-- editable external credit -->
+			<h:panelGroup layout="block" id="exCreditEditContainer" class="exCreditEditContainer" style="display: none;">
+				
+				<h:panelGroup layout="block" rendered="#{portfolio.editedExternalCredit != null}"
+					class="profileItem noMargin profileItemPurple externalCredit exCreditEdit" id="exCreditEdit">
+					
+					<div class="header topContent">
+						<h:inputText class="titleInput" 
+							value="#{portfolio.editedExternalCredit.title}"
+							placeholder="#{msg['textfield.title']}" />
+						
+						<a href="javascript:void(0);" class="descriptionLink collapsed">
+							<span class="downArrow"></span>
+							More
+						</a>
+						<script>
+							$('.exCreditEditContainer .profileItem.exCreditEdit .topContent .descriptionLink').propagateHover();
+							
+							$('.exCreditEditContainer .profileItem.exCreditEdit .topContent .descriptionLink').click(function(e){
+								e.stopPropagation();
+
+								$(this).toggleClass('collapsed').toggleClass('expanded');
+								$(this).parent().find('.description').slideToggle();
+							});
+						</script>
+						
+						<p class="description">
+							<h:inputTextarea class="descriptionInput" 
+								value="#{portfolio.editedExternalCredit.description}"
+								placeholder="#{msg['textarea.description']}"/>
+						</p>
+					</div>
+					
+					<div class="topContent col1">
+						<p>
+							<label for="startDate">Start:</label>
+							<h:inputText id="startDate" class="dateInput" value="#{portfolio.editedExternalCredit.start}">
+								<f:convertDateTime pattern="dd.MM.yyyy" />
+							</h:inputText>
+							
+							<label class="endDate" for="endDate">End:</label>
+							<h:inputText id="endDate" class="dateInput" value="#{portfolio.editedExternalCredit.end}">
+								<f:convertDateTime pattern="dd.MM.yyyy" />
+							</h:inputText>
+						</p>
+						
+						<div class="marginTop10 marginBottom10">
+							<h:panelGroup id="certificateContainer">
+								<h:panelGroup id="certificateUploadButton"
+									class="certificate button blue size20"
+									onclick="$('.portCred .editCertUploadContainer .ui-fileupload input').trigger('click')"
+									rendered="#{portfolio.noCertificate}">
+									Upload certificate
+								</h:panelGroup>
+								<h:panelGroup rendered="#{!portfolio.noCertificate}">
+									<span class="bold">Certificate:</span> 
+									&#160;
+									<h:outputText id="certificateName"
+										class="certificateName" 
+										value="#{portfolio.newCertificateToUpload != null ? util:decodeURL(portfolio.newCertificateToUpload.fileName) : util:decodeURL(portfolio.editedExternalCredit.certificateName)}" />
+									<p:commandLink styleClass="iconRemove"
+										value="x"
+										action="#{portfolio.setNoCertificate(true)}"
+										update=":exCreditForm:exCreditEdit" /> 
+									<script>
+									$(function() {
+										$('.portCred .exCreditEdit .certificateName').shortenedText({showChar: 30, mode: 'static'});;
+									});
+									</script>
+								</h:panelGroup>
+							</h:panelGroup>
+						</div>
+						
+						<p:commandLink value="Edit activities"
+							styleClass="button gray size25"
+							onclick="$('#exCreditActivityListFormModalDialog').dialog('open');"
+							actionListener="#{activityListDialog.init(true, portfolio.editedExternalCredit.activities, exCreditIterator.id, 'profile.credits.edit')}"
+							update=":exCredit:activityListForm"
+						/>
+							
+						<div class="clear"></div>
+						
+						<h:panelGroup id="visContainer">
+							<utilcomp:visibility 
+								visibility="#{portfolio.editedExternalCredit.visibility}"
+								containerDiv=".exCreditEdit"
+								contentType="node"
+								changeNodeVisibility="#{portfolioutil.changeNodeVisibility(portfolio.editedExternalCredit)}" />
+						
+							<script>
+								enableDropdown('.portCred .drop');
+							</script>
+						</h:panelGroup>
+					</div>
+						
+					<div class="topContent col2">
+						<div class="assComp">
+							<strong>Claimed Competences:</strong>
+							
+							<comp:searchCompetences value="editExtCreditCompetences"
+								container=".assComp"
+								regionToRenderOnAction=":exCreditForm:exCreditEdit"
+								actionLinkName="Claim"
+								actionBean="#{portfolio}" />
+									
+							<ul>
+								<ui:repeat id="claimedCompetencesLoop" value="#{portfolio.editedExternalCredit.competences}" var="compIterator">
+									<li>
+										<icon:competence size="16" />
+										<link:competence
+											resource="#{compIterator}"
+											title="#{compIterator.title}"
+											type="Competence"
+											styleClass="compTitle"
+											context="externalCredit.edit" />
+										
+										<p:commandLink value="remove" 
+											styleClass="iconRemove"
+											action="#{portfolio.editedExternalCredit.removeCompetence(compIterator)}"
+											update=":exCreditForm:exCreditEdit"
+										/>
+									</li>
+								</ui:repeat>
+							</ul>
+						</div>
+					</div>
+					<div class="bottomEdit">
+						<p:commandLink value="Save"
+							actionListener="#{portfolio.saveExternalCreditEdits()}"
+							update=":exCreditForm"/>
+						<a href="javascript:void(0);" onclick="exCreditPageData.switchToReadMode();">Cancel</a>
+					</div>
+					
+					<script>
+						$('#exCreditForm .exCreditEdit .topContent .certificateName').shortenedText({showChar: 30, mode: 'static'});
+					
+						$('#exCreditForm .exCreditEdit .topContent .dateInput').on('click', function(){
+							$(this).blur();
+						});
+						
+						$('#exCreditForm .exCreditEdit .topContent .dateInput').datepicker({
+							showOn: 'button',
+							buttonImage: 'resources/css/prosolo-theme/images/calendar18x15.png',
+							buttonImageOnly: true,
+							dateFormat: "dd.mm.yy"
+						});
+					</script>
+				</h:panelGroup>
+				
+				<script>
+					$(function() {
+						$('.profileItem.externalCredit .descriptionInput').autosize();
+					});
+				</script>
+			</h:panelGroup>
+			
+			<p:growl id="externalCreditsGrowl" showDetail="true"/>
+			<script>
+				$(function() {
+					enableDropdown('.portCred .drop');
+					$('.profileItem.externalCredit .descriptionInput').autosize();
+				});
+			</script>
+			
+			<utilcomp:tooltip target=".hasTooltip[title]" />
+		</h:form>
+		
+		<div id="deleteExCreditFormModalDialog" class="deleteCompFormModalDialog" style="display: none;">
+	    	<h:form id="deleteResourceForm" prependId="false">
+				<p:growl id="deleteExCreditGrowl" showDetail="true" />
+				
+				<h4 class="warningMessage">Are you sure you want to delete this external credit?</h4>
+				<br/><br/>
+				
+				<input type="text" class="id" style="display: none;" value="#{exCreditDataToDelete.exCreditDataToDelete.id}" />
+		
+				<p:commandLink value="Delete"
+					styleClass="button green size30 right"
+					onclick="$('#deleteExCreditFormModalDialog').dialog('option', 'submit', true);$('#deleteExCreditFormModalDialog').dialog('close');"
+				 	action="#{portfolio.deleteExternalCredit()}"
+				 	update=":exCreditForm" />
+		
+				&#160;
+				<a class="button gray size30 right"
+					onclick='$("#deleteExCreditFormModalDialog").dialog("close");'>Cancel</a>
+	    	</h:form>
+		</div>
+		<script>
+		$(function() {
+			$('#deleteExCreditFormModalDialog').dialog({
+				title: 'Delete External Credit',
+				dialogClass: 'warning',
+				autoOpen: false,
+				show : 'slide',
+				width: 400,
+				modal: true,
+				resizable: false,
+				open: function() {
+					if ($(this).parent().find('.ui-dialog-titlebar .warningIcon').length == 0) {
+						$(this).parent()
+					        .children('.ui-dialog-titlebar')
+					        .prepend('<span class="warningIcon"></span>');
+					}
+				},
+				close: function() {
+					var submitted = $(this).dialog('option', 'submit');
+					
+					if (!submitted) {
+						var id = $('#deleteExCreditFormModalDialog .id').val();
+						sendServiceUse('MOUSE_CLICK', {context: 'profile.credits.deleteCreditDialog.'+id, link: 'cancel', 'exCreditId' : id});
+					}
+					
+					$(this).dialog('option', 'submit', false);
+				}
+			});
+			$('#deleteExCreditFormModalDialog').show();
+		});
+		</script>
+		
+		<h:form id="goalCreditEditUploadCertificate" prependId="false" enctype="multipart/form-data">
+			<div class="editCertUploadContainer hidden">
+				<p:fileUpload rendered="#{portfolio.editedExternalCredit != null}"
+					fileUploadListener="#{portfolio.uploadNewCertificate}"  
+		            mode="advanced"  
+		            auto="true"
+		            update=":exCreditForm:certificateContainer"
+	            />
+			</div>
+		</h:form>
+		
+		
+		<dlgportfolio:activityList id="exCredit"
+			value="exCredit"
+			newActivityData="#{portfolio.newActivityForExCreditData}"
+			createActivityAction="#{portfolio.createNewPost()}"
+			handleFileUpload="#{portfolio.handleFileUpload}"
+			removeActivityAction="#{portfolio.removeActivity()}"
+			activityToRemoveHolder="#{portfolio.activityToDelete}"
+		/>
+		
+		<script>
+			$('.portCred .creditsContainer').hide();
+			$(function() {
+				$('.profileItem.externalCredit .topContent .descriptionLink').on('click', function(){
+					$(this).toggleClass('collapsed').toggleClass('expanded');
+					$(this).parent().find('.description').slideToggle();
+				});
+			});
+		</script>
+	</div>
+</ui:composition>

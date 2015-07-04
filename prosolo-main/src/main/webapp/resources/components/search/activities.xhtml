@@ -1,0 +1,86 @@
+<ui:composition
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:action="http://java.sun.com/jsf/composite/components/actions"
+	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons">
+	
+	<script>
+		document.title = 'Search: Activities';
+	</script>
+	
+	<div id="searchActivities">
+		<h2>Search: Activities</h2>
+		
+		<h:form id="actSearchForm" class="filteredSearch">
+			<div>
+				<p:commandLink styleClass="button blue size25 right search" value="Search"
+					onclick="addLoaderToSearchContainer(); updateUrlQuery();"
+					action="#{searchActivitiesBean.searchAllActivities()}"
+					update=":actSearchForm:resultContainer"/>
+				
+				<div class="inputContainer">
+					<div class="mGlass"></div>
+  						<h:inputText size="20" class="searchInput"
+				  		onclick="$(this).select();" 
+				  		onkeydown="searchListener();" />
+				  	<h:inputHidden class="searchInputHidden"
+				  		value="#{searchActivitiesBean.query}" 
+				  	/>
+				</div>
+			</div>
+
+			<div class="separator clear"></div>
+			
+			<h:panelGroup layout="block" class="resultContainer" id="resultContainer" style="display: none;">
+				<ui:repeat value="#{searchActivitiesBean.activities}" var="actData" id="actList" varStatus="iterator">
+		                
+					<div class="box">
+						<div class="avatar">
+							<icon:activity />
+						</div>
+						
+						<div class="textWrapper actBlock">
+							<p class="title">#{actData.title}</p>
+							
+							<h:panelGroup layout="block" rendered="#{actData.hasRichContent}" class="richContent">
+								<div class="imgInfoContainer imgInfoContainer100">
+									<div class="atcImages">
+										<a href="#{actData.link}" target="_blank">
+											<img src="#{actData.imageUrl}" alt="" class="imgInfoContainer100" />
+										</a>
+									</div>
+								</div>
+								<div id="atcInfo" class="actInfo #{actData.imageUrl != null ? 'actInfoSmallImgBig' : 'actInfoBig'}">
+									<a href="#{actData.link}" target="_blank" class="atcTitle">#{actData.previewTitle}</a>
+									<div class="atcUrl">#{actData.link}</div> 
+									
+									<div class="atcDesc">#{actData.previewDescription}</div>
+								</div>
+							</h:panelGroup>
+							<h:panelGroup layout="block" rendered="#{!actData.hasRichContent}" style="display: inline-block;"></h:panelGroup>
+						</div>
+						
+						<action:addToCompetence
+							styleClass="marginRight10 left"
+							activity="#{actData.activity}" />
+		            </div>
+					
+					<div class="separator clear"></div>
+				</ui:repeat>
+				
+				<p:commandLink id="loadMore" rendered="#{searchActivitiesBean.moreToLoad}" styleClass="loadMore"
+					actionListener="#{searchActivitiesBean.loadMoreActivities}"
+					update=":actSearchForm:resultContainer">
+					<h:outputText value="SHOW MORE" />
+				</p:commandLink>
+				
+				<script>
+					$('.search .resultContainer').fadeIn();
+					$('.search .resultContainer .box .actBlock .title').readmore({maxHeight: 50})
+				</script>
+			</h:panelGroup>
+		</h:form>
+	</div>
+</ui:composition>

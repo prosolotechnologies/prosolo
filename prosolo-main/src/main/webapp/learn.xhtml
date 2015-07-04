@@ -1,0 +1,156 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:goalscomps="http://java.sun.com/jsf/composite/components/goals"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:dlgcourse="http://java.sun.com/jsf/composite/components/dialogs/course"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	template="templates/masterLayout.xhtml">
+
+	<ui:define name="windowTitle">
+		Learn | ProSolo
+	</ui:define>
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewParam name="id" value="#{learn.goalIdString}" default="0" />
+			<f:viewParam name="comp" value="#{learn.targetCompIdString}" default="0" />
+			<f:viewAction action="#{learn.init()}" />
+		</f:metadata>
+	</ui:define>
+
+	<ui:define name="content">
+		<h:outputScript library="javascript" name="goals.js" target="head" />
+
+		<ui:include src="/resources/components/dialogs/newLearningGoal.xhtml" />
+		<ui:include src="/resources/components/dialogs/deleteCompetence.xhtml" />
+
+		<script>
+			var learnMenuControl = {
+				selected: null,
+				menuItemChange: function(selectedItem){
+					learnMenuControl.selected = selectedItem;
+
+					$('.learnMenuContent').addClass('hidden');
+					$('.learnNavItem').removeClass('selected');
+					
+					if (selectedItem == 'navItemGoalWall') {
+						$('.learnMenuContent.goalWall').removeClass('hidden');
+						$('.learnNavItem.navItemGoalWall').addClass('selected');
+					} else if (selectedItem == 'navItemCompetences') {
+						$('.learnMenuContent.competenceList').removeClass('hidden');
+						$('.learnNavItem.navItemCompetences').addClass('selected');
+					} else if (selectedItem == 'navItemCompActivities') {
+						$('.learnMenuContent.activities').removeClass('hidden');
+						$('.learnNavItem.navItemCompetences').addClass('selected');
+					}
+				}
+			}
+		</script>
+		
+		<h:panelGroup layout="block" class="container goalsPage" id="goalsPageContainer" style="display: none;">
+			<div class="leftSidebar">
+				<ui:include src="/resources/components/goals/goalList.xhtml" />
+			</div><!-- .leftSidebar -->
+		
+			<script>
+			var competenceEvaluationControl = {
+				opened: false,
+			};
+			</script>
+		
+			<h:panelGroup layout="block" id="goalContent" class="content marginBottom30">
+				<ui:include src="/resources/components/goals/goalDetails.xhtml" />
+			</h:panelGroup>
+		
+			<h:panelGroup layout="block" class="content wide learnContainer" id="changableActivitiesRegion">
+				<ui:include src="/resources/components/goals/navigation.xhtml" />
+			
+				<ui:include src="/resources/components/goals/goalWall.xhtml" />
+
+				<ui:include src="/resources/components/goals/competences/competences.xhtml" />
+
+				<ui:include src="/resources/components/goals/competences/activities.xhtml" />
+			</h:panelGroup>
+		
+			<div class="clear"></div>
+		</h:panelGroup><!-- .container end -->
+		
+		<ui:include src="/resources/components/dialogs/inviteGoalCollaboratorDialog.xhtml" />
+		<ui:include src="/resources/components/dialogs/askForEvaluation.xhtml" />
+		<ui:include src="/resources/components/goals/intro.xhtml" />
+	
+		<script>
+			$(function() {
+				if (#{learninggoals.selectedGoalData.data == null}) {
+					$('#goalsIntro').show();
+				} else {
+					$('.container.goalsPage').show();
+				}
+			});
+		</script>
+		
+		<h:form id="goalsControl">
+			<script>
+				if (#{learninggoals.selectedGoalData.data == null}) {
+					$('.container.goalsPage').fadeOut();
+					$('#goalsIntro').fadeIn();
+				} else {
+					if (#{loggeduser.toPlayTutorial('index')}) {
+						$('#introTutorialDialog').dialog('open');
+					}
+					$('.container.goalsPage').show();
+				}
+			</script>
+			
+			<p:growl id="goalsGrowl" showDetail="true" />
+		</h:form>
+		
+		<span class="learnTripStep1" position="screen-center"></span>
+		<dlg:introTutorial page="learn" steps="12" toRender="#{learninggoals.selectedGoalData.data != null}"/>
+		<script>
+			tutorialControl.getSettings().onTripStart = function(i, tripObject) {
+				if (i == 4) {
+					$('#goalDetailsContents .boxMore').click();
+				}
+				if (i == 5) {
+					$('#goalDetailsContents .boxLess').click();
+				}
+				if (i == 9) {
+					$('.navItemCompetences').click();
+				}
+			};
+			tutorialControl.getSettings().onTripEnd = function(i, tripObject) {
+				if (i == 9) {
+					//$('.aboutGoalRight .btnGoalComplete').click();
+				}
+			};
+		</script>
+		
+		<ui:include src="/resources/components/dialogs/courseDetails.xhtml" />
+		<dlg:evaluationList />
+		
+		<ui:include src="/resources/components/dialogs/badgeList.xhtml" />
+		
+		<c:if test="#{adminSettings.settings.userCanCreateCompetence}">
+			<dlg:newCompetence id="newGoalComp" 
+				compData="#{competencesBean.formData}"
+				updateCompetenceAction="#{competencesBean.saveCompetence()}" 
+				regionToUpdate=":competenceList :goalDetails"
+				context="learn"
+			/>
+		</c:if>
+		
+		<dlgcourse:deleteCourse id="removeCourse"
+			updateOncomplete=":goalListForm :goalDetails :navigation :goalWallTitle :goalWallForm:goalWallUpdateForm 
+								:goalWall:goalWallForm:goalWall :selectedGoalEvaluations:evaluationCount :selectedGoalBadges:badgeContainer 
+								:competenceList :newCompetenceButtonForm :compSearchForm :compRecommendationsForm :activities"
+		/>
+	</ui:define>
+
+</ui:composition>

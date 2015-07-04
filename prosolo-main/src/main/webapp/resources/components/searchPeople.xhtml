@@ -1,0 +1,142 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:action="http://java.sun.com/jsf/composite/components/actions"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+	<composite:interface>
+		<composite:attribute name="container" required="true" />
+		<composite:attribute name="context" />
+		<composite:attribute name="oncompleteFollow" />
+		<composite:attribute name="oncompleteUnfollow" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<utilcomp:messagesBundle var="msg" />
+	
+		<div class="peopleSearch">
+			<h:panelGroup id="peoplesearchform">
+				<p:remoteCommand 
+					name="#{cc.clientId.replace(':','i')}SearchPeopleAjaxical" 
+					update="colleguesSearchResultPanel" 
+					action="#{searchPeopleBean.executeSearch}"/>
+					
+				<script>
+					var #{cc.attrs.value}Search;
+					$(function() {
+						$('#{cc.attrs.container} .peopleSearch').prosolosearch({
+							resultContainer: '#{cc.attrs.container} .peopleSearch .#{cc.attrs.value}SearchContainer',
+							loaderContainer: '#{cc.attrs.container} .peopleSearch .#{cc.attrs.value}SearchContainer .#{cc.attrs.value}SearchPanel',
+							searchInput: '#{cc.attrs.container} .peopleSearch .searchInput',
+							watermark: "#{msg['composite.searchPeople.watermark']}",
+							searchAction: #{cc.clientId.replace(':', 'i')}SearchPeopleAjaxical
+						});
+						#{cc.attrs.value}Search = $('#{cc.attrs.container} .peopleSearch').data('prosolo.search');
+						$('#{cc.attrs.container} .peopleSearch .context').val('#{cc.attrs.context}');
+					});
+				
+					$('#{cc.attrs.container} .peopleSearch .searchInput').keypress(function(e) {
+					    if (e.which == 13) {
+					        $('#{cc.attrs.container} .peopleSearch .seeAllLink').click();
+					    }
+					});
+				</script>
+	 			
+	 			<h:inputText id="colleguesInputString" size="20"
+					styleClass="searchInput"
+					value="#{searchPeopleBean.query}" />
+					
+				<h:inputText value="#{searchPeopleBean.context}" style="display: none;"
+					styleClass="context"
+				/>
+				
+				<div class="clear" />
+				
+				<div id="suggestions#{cc.attrs.value}" class="genericSearchContainer #{cc.attrs.value}SearchContainer">
+					<h:panelGroup layout="block" id="colleguesSearchResultPanel" class="colleguesSearchResultPanel #{cc.attrs.value}SearchPanel">
+						
+						<script>
+						$(function() {
+							$('#{cc.attrs.container} .peopleSearch .seeAllLink').attr('href', $('#{cc.attrs.container} .peopleSearch .seeAllLink').attr('href')+$('#{cc.attrs.container} .peopleSearch .searchInput').val());
+						});
+					
+						</script>
+						
+						<h:panelGroup layout="block" id="peopleSearchResultPanelContent" rendered="#{!empty searchPeopleBean.users}">
+							<div class="category">
+								Collegues (#{searchPeopleBean.userSize})
+								<span class="right">
+									<h:outputLink class="seeAllLink" id="seeAllLinkId" 
+										onclick="sendLogPageNavigation( 'search.xhtml?tab=people', '#{cc.attrs.context}');"
+										value="search.xhtml">
+										<h:outputText value="See all" />
+										<f:param name="tab" value="people" />
+										<f:param name="query" value="" />
+									</h:outputLink>
+								</span>
+							</div>
+	
+							<ui:repeat value="#{searchPeopleBean.users}" var="userData" varStatus="iterator" id="foundUsersList">
+								<div class="searchRecord">
+									<div class="image">
+										<h:graphicImage styleClass="imageRound image30"
+											value="#{userData.avatarUrl}" width="30"
+											height="30" alt="" />
+									</div>
+									
+									<div class="info">
+										<link:user
+											userData="#{userData}"
+											divClass="title link" 
+											mode="name"
+											idPrefix="#{cc.attrs.value}username#{iterator.index}"
+											context="#{cc.attrs.context}.name" />
+									
+										<div class="position">#{userData.position}</div>
+										
+										<div class="actions">
+											<action:directMessage
+												receiverData="#{userData}"
+												context="#{cc.attrs.context}" />
+										
+											<p:commandLink id="followButton"
+												rendered="#{!peopleActionBean.isLoggedUserFollowingCollegueById(userData.id)}"
+												onclick="#{cc.attrs.value}Search.resetSearch();"
+												action="#{peopleActionBean.followCollegueById(userData.id, cc.attrs.context)}"
+												update=":listFollowingPeopleForm:followingUsersPanel :#{cc.clientId}:searchPeopleGrowl"
+												oncomplete="#{cc.attrs.oncompleteFollow}" >
+												<span class="bullet"></span>
+												Follow
+											</p:commandLink>
+											
+											<p:commandLink id="unfollowButton"
+												rendered="#{peopleActionBean.isLoggedUserFollowingCollegueById(userData.id)}"
+												onclick="#{cc.attrs.value}Search.resetSearch();"
+												action="#{peopleActionBean.unfollowCollegueById(userData.id, cc.attrs.context)}"
+												update=":listFollowingPeopleForm:followingUsersPanel :#{cc.clientId}:searchPeopleGrowl"
+												oncomplete="#{cc.attrs.oncompleteUnfollow}" >
+												<span class="bullet"></span>
+												Unfollow
+											</p:commandLink>
+										</div>
+									</div>
+								</div>
+							</ui:repeat>
+						</h:panelGroup>
+	
+						<h:panelGroup class="noResultsPanel" rendered="#{(empty searchPeopleBean.users)}">
+							<strong>No results found</strong>
+						</h:panelGroup>
+	
+					</h:panelGroup>
+				</div>
+			</h:panelGroup>
+			
+			<p:growl id="searchPeopleGrowl" showDetail="true" />
+		</div>
+	</composite:implementation>
+</ui:component>

@@ -1,0 +1,191 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	template="templates/masterLayout.xhtml"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/admin/dialogs">
+
+<ui:define name="windowTitle">
+	Administration: Users
+</ui:define>
+
+<ui:define name="content">
+
+	<div class="container admin">
+		<div id="usersFormContainer" class="content wide">
+
+			<dlg:newUser id="newUser" />
+			<dlg:editUser id="editUser" />
+			<dlg:importUsers id="importUsers" />
+			<dlg:userRoles id="userRoles" />
+			
+			<h:form id="usersForm" class="usersForm" prependId="false" enctype="multipart/form-data">
+				<p:growl id="usersFormGrowl" showDetail="true" />
+	
+				<p:commandLink id="newUserBtn" value="Add User"
+					actionListener="#{adminUsers.prepareAdd}"
+					styleClass="button green size30 left marginBottom10"
+					onclick='$("#newUserDetailsDialog").dialog("open");'
+					update=":newUser:userDetailsForm" />
+					
+				<p:commandLink value="Import Users"
+					styleClass="button uploadUsers green size30 left marginLeft10 marginBottom10"
+					onclick='$("#usersImportModalDialog").dialog("open");' />
+					
+				<p:commandLink value="Reindex ElasticSearch"
+					actionListener="#{bulkDataAdministration.deleteAndReindexElasticSearch}"
+					styleClass="button uploadUsers red size30 left marginLeft10 marginBottom10" />
+					
+					<p:commandLink value="Reindex Users"
+					actionListener="#{bulkDataAdministration.deleteAndReindexUsers}"
+					styleClass="button uploadUsers red size30 left marginLeft10 marginBottom10" />
+					<p:commandLink value="Reindex Documents"
+					actionListener="#{bulkDataAdministration.deleteAndReindexDocuments}"
+					styleClass="button uploadUsers red size30 left marginLeft10 marginBottom10" />
+					
+				<p:commandLink value="Delete Twitter posts"
+					action="#{bulkDataAdministration.deleteOldTwitterPosts}"
+					styleClass="button uploadUsers red size30 left marginLeft10 marginBottom10" 
+					update="usersFormGrowl" />
+			
+				<div class="clear"></div>
+			
+				<p:dataTable id="usersDataTable" 
+					var="user"
+					rowIndexVar="rowIndex"
+					value="#{adminUsers.users}" 
+					widgetVar="usersTable"
+					emptyMessage="No users match given filter criteria"
+					filteredValue="#{adminUsers.filteredUsers}">
+					
+					<f:facet name="header">
+						<p:outputPanel>
+							<h:outputText value="Filter using all fields: " />
+							
+							<p:inputText id="globalFilter"
+								value="#{adminUsers.keyword}"
+								onkeyup="PF('usersTable').filter()"
+								placeholder="Enter keyword"
+								style="width:150px" />
+						</p:outputPanel>
+					</f:facet>
+	
+					<p:column headerText="#" styleClass="center middleAlign">
+				        #{rowIndex+1}.
+				    </p:column>
+				    
+					<p:column id="nameColumn" styleClass="middleAlign" headerText="Name" filterBy="name"
+						filterMatchMode="contains" sortBy="name">
+						<h:outputText value="#{user.name}" />
+					</p:column>
+	
+					<p:column id="lastNameColumn" styleClass="middleAlign" headerText="Last Name" 
+						filterBy="lastName"	filterMatchMode="contains" sortBy="lastName">
+						
+						<h:outputText value="#{user.lastName}" />
+					</p:column>
+	
+					<p:column id="emailColumn" headerText="Email" styleClass="middleAlign"
+						filterBy="email" filterMatchMode="contains">
+						
+						<h:outputText value="#{user.email}" />
+					</p:column>
+	
+					<p:column styleClass="center middleAlign" headerText="Edit">
+						<p:commandLink value="Edit" styleClass="blue button size25"
+							onclick="$('#editUserDetailsDialog').dialog('open');"
+							action="#{adminUsers.prepareEdit(user)}"
+							update=":editUser:userDetailsForm" />
+					</p:column>
+	
+					<p:column styleClass="center middleAlign" headerText="Roles">
+						<p:commandLink value="Roles" styleClass="blue button size25"
+							action="#{units.prepareEditRoles(user)}"
+							onclick='$("#userRolesModalDialog").dialog("open");'
+							update=":userRoles:userRolesForm">
+						</p:commandLink>
+					</p:column>
+	
+					<p:column styleClass="center middleAlign" headerText="Delete">
+						<p:commandButton value="Delete" styleClass="red button size25"
+							onclick="$('#deleteUserDialog').dialog('open');"
+							action="#{adminUsers.setUserToDelete(user)}" 
+							update=":deleteUserDialogForm" />
+					</p:column>
+					
+					<p:column styleClass="center middleAlign" headerText="Photo">
+						<div class="usersUploadContainer">
+							<h:graphicImage id="userImageId" styleClass="imageRound image30"
+								value="#{user.avatarUrl}" width="30"
+								height="30" alt="" />
+	
+							<ui:remove>
+								<p:fileUpload fileUploadListener="#{user.handleFileUpload}"
+									mode="advanced" update="messages userImageId" auto="true"
+									immediate="true" sizeLimit="100000" styleClass="browseFile"
+									allowTypes="/(\.|\/)(gif|jpe?g|png)$/">
+								</p:fileUpload>
+							</ui:remove>
+						</div>
+					</p:column>
+				</p:dataTable>
+			</h:form>
+			
+			<script>
+		 	$('#usersForm .button.uploadUsers').on('click', function(e){
+				$('.usersUploadContainer .browseFile').trigger('click');
+			});
+			</script>
+		</div>
+	</div>
+	
+	<div id="deleteUserDialog" class="deleteUserDialog" style="display: none;">
+		<h:form id="deleteUserDialogForm">
+			<h4 class="warningMessage">
+				Are you sure you want to delete user #{adminUsers.userToDelete.name} #{adminUsers.userToDelete.lastName}?
+			</h4>
+			
+			<p:commandLink value="Yes"
+				styleClass="button green size30 right"
+				onclick="$('#deleteUserDialog').dialog('close');"
+			 	action="#{adminUsers.delete()}"
+			 	update=":usersForm"
+				/>
+			&#160;
+			<p:commandLink value="Cancel"
+				styleClass="button gray size30 right"
+				onclick="$('#deleteUserDialog').dialog('close');"
+		 	/>
+	 	</h:form>
+	</div>
+	
+	<script>
+	$(function() {
+		$('#deleteUserDialog').dialog({
+			title: 'Delete User',
+			dialogClass: 'warning',
+			show : 'slide',
+			autoOpen: false,
+			width: 400,
+			modal: true,
+			resizable: false,
+			open: function() {
+				$(this).children(':first')
+					.css('text-align', 'center')
+					.css('padding-top', '50px')
+					.html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
+				
+				if ($(this).parent().find('.ui-dialog-titlebar .warningIcon').length == 0) {
+					$(this).parent()
+				        .children('.ui-dialog-titlebar')
+				        .prepend('<span class="warningIcon"></span>');
+				}
+			}
+		});
+		$('#deleteUserDialog').show();
+	});
+	</script>
+</ui:define>
+
+</ui:composition>

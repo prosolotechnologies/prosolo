@@ -1,0 +1,47 @@
+<ui:composition
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" 
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	
+	<utilcomp:messagesBundle var="msg" />
+	
+	<h:panelGroup layout="block" id="goalsIntro" class="intro" 
+		style="display: none;">
+		
+		<p class="title">Welcome to the Learn Page</p>
+		
+		<p class="text">
+			#{msg['goals.intro.text']}
+		</p>
+		
+		<div class="workflowContainer">
+			<div class="compMessage handwritten">#{msg['goals.intro.competences']}
+				<div class="messageArrow arrow arrow2"></div>
+			</div>
+			
+			<div class="workflow"></div>
+			
+			<div class="goalMessage handwritten">#{msg['goals.intro.goals']}
+				<div class="messageArrow arrow arrow6"></div>
+			</div>
+			
+			<div class="activityMessage handwritten">#{msg['goals.intro.activities']}
+				<div class="messageArrow arrow arrow6"></div>
+			</div>
+		</div>
+		
+		<div class="actions">
+			<a id="newGoalBtn1"	class="button green size40 newGoalBtn"
+				onclick="$('#newGoalFormModalDialog').dialog('open');">#{msg['goals.intro.actions.newGoalBtn.title']}</a>
+			
+			<span class="separatorLabel">OR</span>
+			
+			<h:link value="#{msg['goals.intro.actions.browseCoursesBtn.title']}" 
+				outcome="/courseBrowse"
+				class="button green size40 browseCoursesBtn" />
+		</div>
+	</h:panelGroup>
+</ui:composition>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<facelet-taglib xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facelettaglibrary_2_0.xsd"
+	version="2.0">
+
+	<namespace>http://www.prosolo.com/util</namespace>
+
+	<function>
+		<function-name>mapToList</function-name>
+		<function-class>org.prosolo.util.CollectionsUtil</function-class>
+		<function-signature>java.util.List mapToList(java.util.Map)</function-signature>
+	</function>
+	
+	<function>
+		<function-name>getDomainFromUrl</function-name>
+		<function-class>org.prosolo.web.util.URLUtil</function-class>
+		<function-signature>java.lang.String getDomainName(java.lang.String)</function-signature>
+	</function>
+	
+	<function>
+		<function-name>prettyDate</function-name>
+		<function-class>org.prosolo.util.date.DateUtil</function-class>
+		<function-signature>java.lang.String getPrettyDate(java.util.Date)</function-signature>
+	</function>
+	
+	<function>
+		<function-name>prettyTimeDate</function-name>
+		<function-class>org.prosolo.util.date.DateUtil</function-class>
+		<function-signature>java.lang.String getPrettyTimeDate(java.util.Date)</function-signature>
+	</function>
+	
+	<function>
+		<function-name>timeDifferenceAgoFromNow</function-name>
+		<function-class>org.prosolo.util.date.DateUtil</function-class>
+		<function-signature>java.lang.String getTimeAgoFromNow(java.util.Date)</function-signature>
+	</function>
+	
+	<function>
+		<function-name>timeDuration</function-name>
+		<function-class>org.prosolo.util.date.DateUtil</function-class>
+		<function-signature>java.lang.String getTimeDuration(java.lang.Long)</function-signature>
+	</function>
+	
+	<function>
+		<function-name>decodeURL</function-name>
+		<function-class>org.prosolo.web.util.URLUtil</function-class>
+		<function-signature>java.lang.String decode(java.lang.String)</function-signature>
+	</function>
+	
+	<function>
+		<function-name>toIdArray</function-name>
+		<function-class>org.prosolo.web.util.ResourceUtilBean</function-class>
+		<function-signature>java.lang.String convertToIdArrayString(java.util.Collection)</function-signature>
+	</function>
+		
+	<function>
+		<function-name>getPagePath</function-name>
+		<function-class>org.prosolo.web.util.URLUtil</function-class>
+		<function-signature>java.lang.String getPagePath(java.lang.String)</function-signature>
+	</function>
+		
+	<function>
+		<function-name>longToString</function-name>
+		<function-class>org.prosolo.util.StringUtils</function-class>
+		<function-signature>java.lang.String longToString(java.lang.Long)</function-signature>
+	</function>
+	
+	<!-- Components -->
+	
+	<tag>
+        <tag-name>listpeople</tag-name>
+        <source>../resources/components/listpeople.xhtml</source>
+    </tag>
+	
+</facelet-taglib>

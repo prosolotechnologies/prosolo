@@ -1,0 +1,204 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:func="http://org.prosolo/functions"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+   	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+   	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+   	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+   	xmlns:pt="http://java.sun.com/jsf/passthrough">
+
+	<composite:interface>
+		<composite:attribute name="dialogId" />
+	</composite:interface>
+	
+	<composite:implementation>
+	   	<utilcomp:messagesBundle var="msg" />
+	   	
+		<script>
+			$(function() {
+				roundImages();
+			    $('.goalDetailsData .expandableText').readmore({
+					maxHeight: 40,
+					afterToggle: function(trigger, elem, expanded) {
+						console.log($(this).prev().length);
+						sendServiceUse('MOUSE_CLICK', {context: $(elem).attr('context'), link: expanded ? 'more' : 'less'});
+					}
+				});
+			});
+		</script>
+		<table class="goalDetailsData">
+			<tr>
+				<td class="col1" style="width:100px; align:left">
+					<h:outputLabel for="goalTitle">Goal title:</h:outputLabel>
+				</td>
+				<td class="col3">
+					<h:outputText id="goalTitle"
+						value="#{goalDialog.goal.title}"></h:outputText>
+				</td>
+			</tr>
+			<tr>
+				<td  class="col1"><h:outputLabel for="goalDescription">Description:</h:outputLabel></td>
+				<td  class="col3">
+					<h:outputText id="goalDescription"
+						class="expandableText"
+						pt:context="goalDetailsDialog.goal.#{goalDialog.goal.id}.description" 
+						value="#{goalDialog.goal.description}" />
+				</td>
+			</tr>
+			<tr>
+				<td class="col1">
+					<label>Created by:</label>
+				</td>
+				<td  class="col3">
+					<link:user value="userDetails"
+						user="#{goalDialog.goal.maker}"
+						mode="imageName"
+						imageSize="22" idPrefix="goalDetails" 
+						context="goalDetailsDialog.creator.imageName.goal.#{goalDialog.goal.id}"/>
+				</td>
+			</tr>
+			<tr>
+				<td class="col1">
+					<label>Participants:</label>
+				</td>
+				<td  class="col3">
+					<p:commandLink
+						value="#{goalDialog.noUsersEnrolled} people"
+						action="#{peopleListDialog.initializePeopleWhoParticipateInGoal(goalDialog.goal.id, 'goalDialog.'.concat(goalDialog.goal.id).concat('.participantNumber'))}"
+						onclick="$('#peopleListDialog').dialog('open');"
+						update=":peopleListForm"
+					/>
+				</td>
+			</tr>
+			<tr>
+				<td class="col1">
+					<h:outputLabel for="goalRecommendedBy"
+						rendered="#{(goalDialog.mode == 'RECOMMENDED') and (goalDialog.recommender != null)}">
+							Recommended by:&#160;</h:outputLabel>
+				</td>
+				<td  class="col3">
+					<link:user value="userDetails"
+						userData="#{goalDialog.recommender}"
+						mode="imageName"
+						imageSize="22" idPrefix="goalDetailsRecommender" 
+						context="goalDetailsDialog.recommender.imageName.goal.#{goalDialog.goal.id}"
+						toRender="#{(goalDialog.mode == 'RECOMMENDED') and (goalDialog.recommender != null)}" />
+				</td>
+			</tr>
+			<tr class="goalCompetencesPanel">
+				<td class="col1">
+					<h:outputText rendered="#{(goalDialog.targetGoal != null) and (goalDialog.targetGoal.targetCompetences.size() != 0)}">
+						Competences:
+					</h:outputText>
+				</td>
+				<td class="col3">
+					<h:panelGroup rendered="#{(goalDialog.targetGoal != null) and (goalDialog.targetGoal.targetCompetences.size() != 0)}">
+						<ul id="competencesList">
+							<ui:repeat value="#{goalDialog.targetGoal.targetCompetences}" var="tComp">
+								<li>
+									<link:competence
+										resource="#{tComp}"
+										type="TargetCompetence"
+										context="goalDetailsDialog.competences.goal.#{goalDialog.goal.id}"/>
+								</li>
+							</ui:repeat>
+						</ul>
+					</h:panelGroup>
+				</td>
+			</tr>
+		</table>
+	
+		<h:panelGroup layout="block" styleClass="usedPlansBlock">
+			<h3>Activity plan used :</h3>
+			
+			<comp:planused 
+				value="planused"
+				mode="MANAGER"
+				parentid="competenceDetailsFormModalDialog"
+				activities="#{goalDialog.usedCompetences}"
+				cantdisplaymessage="There are no available plans because no competences has been associated with this goal." 
+				context="goalDetailsDialog.planUsed.goal.#{goalDialog.goal.id}"
+			/>
+		</h:panelGroup>
+	
+		<c:if test="#{loggeduser != null and loggeduser.loggedIn}">
+			<h:panelGroup styleClass="goalJoinRequestPanel hidden">
+				<h3>Send request to join goal</h3>
+				
+				<div class="goalOwner">
+					Send to:
+					
+					<link:user value="userDetails" 
+		   				user="#{goalDialog.goal.maker}"
+		   				mode="imageName"
+		   				imageSize="22"
+		   				idPrefix="goalJoinRequest"
+		   				context="goalDetailsDialog.creator.imageName.sendRequest.goal.#{goalDialog.goal.id}"/>
+				</div>
+		   		
+		   		<div class="requestMessage">
+					<h:outputLabel for="requestToJoinMessage">
+						Message:
+						<h:inputTextarea styleClass="messageTextarea" id="requestToJoinMessage"
+							value="#{requestToJoinGoalBean.messageContent}"
+							placeholder="#{msg['textarea.message']}"/>
+					</h:outputLabel>
+					
+					<script>
+						$(function() {
+							$('##{cc.attrs.dialogId} .messageTextarea').autosize(); 
+						});
+					</script>
+		   		</div>
+					
+				<p:commandLink value="Send"
+					styleClass="button green size30 sendRequest right"
+					onclick='$("##{cc.attrs.dialogId}").dialog("close");'
+					action="#{requestToJoinGoalBean.sendRequestToJoinGoal(goalDialog.goal.id, goalDialog.goal.title, goalDialog.goal.maker.id, 'goalDetailsDialog.sendRequest.goal.'.concat(goalDialog.goal.id))}"
+					update="goalDetailsDialogGrowl" />
+					
+			</h:panelGroup>
+			
+			<p:commandLink id="requestToJoinButton" value="Request to Join" 
+				rendered="#{goalDialog.resourceAvailability == 'CAN_BE_REQUESTED_TO_JOIN'}"
+				styleClass="button green size30 right requestToJoinButton" />
+			
+			<p:commandLink id="freeToJoinButton" value="Join" 
+				rendered="#{goalDialog.resourceAvailability == 'IS_FREE_TO_JOIN'}"
+				styleClass="button green size30 right"
+				onclick='$("##{cc.attrs.dialogId}").dialog("close");'
+				action="#{goalDialog.joinLearningGoal()}"
+				update="@form" />
+				
+			<p:commandLink rendered="#{goalDialog.resourceAvailability == 'USER_HAS_THIS_GOAL'}"
+				styleClass="button gray size30 right hasTooltip"
+				title="#{msg['tooltip.actionDisabled.goalDialog.userHasGoal']}"
+				value="Join" />
+				
+			<p:commandLink rendered="#{goalDialog.resourceAvailability == 'REQUEST_ALREADY_SENT'}"
+				styleClass="button gray size30 right hasTooltip"
+				title="#{msg['tooltip.actionDisabled.goalDialog.requestAlradySent']}"
+				value="Request to Join" />
+				
+			<utilcomp:tooltip target=".hasTooltip[title]" />
+		</c:if>
+	
+		<p:growl id="goalDetailsDialogGrowl" for="goalDetailsDialogGrowl" showDetail="true" />
+			
+		<script>
+		$(function(){
+			$('##{cc.attrs.dialogId} .requestToJoinButton').on('click', function() {
+				$('##{cc.attrs.dialogId} .goalJoinRequestPanel').show();
+				$('##{cc.attrs.dialogId} .goalJoinRequestPanel .messageTextarea').focus();
+				$('##{cc.attrs.dialogId} .requestToJoinButton').hide();
+			});
+		});
+		</script>
+	</composite:implementation>
+</ui:component>

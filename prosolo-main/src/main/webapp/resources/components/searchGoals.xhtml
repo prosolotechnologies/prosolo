@@ -1,0 +1,136 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"  
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks">
+
+	<composite:interface>
+		<composite:attribute name="container" required="true" />
+		<composite:attribute name="value" required="true" />
+		<composite:attribute name="context" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<div class="goalsSearch">
+		
+			<h:panelGroup id="goalssearchform">
+				<p:remoteCommand name="#{cc.clientId.replace(':','i')}SearchGoalsAjaxical" 
+					update="goalsSearchResultPanel" 
+					action="#{searchGoalsBean.executeSearch}"/>
+		
+				<script>
+				var #{cc.attrs.value}Search;
+				$(function() {
+					$('#{cc.attrs.container} .goalsSearch').prosolosearch({
+						resultContainer: '#{cc.attrs.container} .goalsSearch .#{cc.attrs.value}SearchContainer',
+						loaderContainer: '#{cc.attrs.container} .goalsSearch .#{cc.attrs.value}SearchContainer .#{cc.attrs.value}SearchPanel',
+						searchInput: '#{cc.attrs.container} .goalsSearch .searchInput',
+						watermark: 'Search goals',
+						searchAction: #{cc.clientId.replace(':', 'i')}SearchGoalsAjaxical
+					});
+					#{cc.attrs.value}Search = $('#{cc.attrs.container} .goalsSearch').data('prosolo.search');
+					$('#{cc.attrs.container} .goalsSearch .context').val('#{cc.attrs.context}');
+				});
+				</script>
+			
+			  	<h:inputText id="goalsInputString" size="20"
+					styleClass="searchInput"
+			  		value="#{searchGoalsBean.query}"  
+				/>
+				
+				<h:inputText value="#{searchGoalsBean.context}" style="display: none;"
+					styleClass="context"
+				/>
+	
+				<div class="clear" />
+				
+				<div id="suggestions#{cc.attrs.value}" class="genericSearchContainer #{cc.attrs.value}SearchContainer">
+	 				<h:panelGroup layout="block" id="goalsSearchResultPanel" class="colleguesSearchResultPanel #{cc.attrs.value}SearchPanel">
+						
+						<script>
+						$(function() {
+							$('#{cc.attrs.container} .goalsSearch .category .seeAllLink').attr('href', $('#{cc.attrs.container} .goalsSearch .category .seeAllLink').attr('href')+$('#{cc.attrs.container} .goalsSearch .searchInput').val());
+						});
+						</script>
+	 					<h:panelGroup layout="block" id="goalsSearchResultPanelContent" rendered="#{not empty searchGoalsBean.goals}">
+		 				 	<div class="category">
+		 				 		Goals(#{searchGoalsBean.goalsSize})
+		 				 		<span class="right">
+									<h:outputLink class="seeAllLink" 
+										onclick="sendLogPageNavigation( 'search.xhtml?tab=goals', '#{cc.attrs.context}');"
+										value="search.xhtml">
+										<h:outputText value="See all" />
+										<f:param name="tab" value="goals" />
+										<f:param name="query" value="" />
+									</h:outputLink>
+								</span>
+							</div>
+		 				 	
+							<ui:repeat value="#{searchGoalsBean.goals}" var="goalData" varStatus="iterator" 
+								id="foundLearningGoalsList" >
+								<div class="searchRecord">
+									<div class="image">
+										<span class="goalIcon30"></span>
+									</div>
+									
+									<div class="info">
+										<div>
+											<link:goal 
+												goalId="#{goalData.id}" 
+												context="#{cc.attrs.context}"
+												title="#{goalData.title}"
+												styleClass="bold"
+												onclick="#{cc.attrs.value}Search.hideResults();" />
+										</div>
+										
+										<div class="membersnumber">
+											<p:commandLink
+								    			rendered="#{not empty goalData.memberIds}"
+												value="#{goalData.memberIds.size()} members"
+												action="#{peopleListDialog.initializePeopleWithIds(goalData.memberIds)}"
+												onclick="$('#peopleListDialog').dialog('open');"
+												update=":peopleListForm"
+											/>
+											<h:outputText rendered="#{empty goalData.memberIds}"
+												value="0 members" />
+										</div>
+	
+										<div>Created by: 
+											<link:user
+												userData="#{goalData.maker}"
+												mode="name"
+												idPrefix="goalSearch#{iterator.index}"
+												context="#{cc.attrs.context}.name" />
+										</div>
+	
+										<div class="actions">
+											<p:commandLink rendered="#{goalData.canBeRequestedToJoin}"
+												onclick="globalSearch.resetSearch();$('#requestToJoinGoalModalDialog').dialog('open');"
+												update=":requestToJoinGoalForm"
+												action="#{requestToJoinGoalBean.requestToJoinLearningGoal(goalData, cc.attrs.context)}" >
+												Request to join
+											</p:commandLink>
+										</div>
+									</div>
+								</div>
+								
+								<div class="break"></div>
+							</ui:repeat>
+							<script>
+							$(function() {
+								$('.learningGoal .atcUrl').shortenedText({showChar: 39, mode: 'static'});
+							});
+							</script>
+	 					</h:panelGroup>
+	 					
+						<h:panelGroup class="noResultsPanel" rendered="#{empty searchGoalsBean.goals}">
+							<strong>No results found</strong>
+						</h:panelGroup>
+					</h:panelGroup>
+		 		</div>
+			</h:panelGroup>
+		</div>
+	</composite:implementation>
+</ui:component>

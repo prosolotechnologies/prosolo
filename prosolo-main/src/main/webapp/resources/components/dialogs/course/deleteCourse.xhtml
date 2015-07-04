@@ -1,0 +1,113 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	
+	<composite:interface>
+		<composite:attribute name="updateOncomplete" type="java.lang.String" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<div id="removeCourseFormModalDialog" class="deleteCompFormModalDialog" style="display: none;">
+			<h:form id="removeCourseForm">
+				<h4 class="warningMessage">#{msg['courses.dialog.delete.message']} #{deleteGoalCourseDialog.courseToDelete.title}?</h4>
+				
+				<p:selectOneRadio id="deleteRadio" value="#{deleteGoalCourseDialog.deleteLearningHistory}" 
+					layout="custom" plain="true">
+					<f:selectItem itemValue="#{false}" itemLabel="Remove Course" />
+					<f:selectItem itemValue="#{true}" itemLabel="Remove Course and Learning Activities" />
+				</p:selectOneRadio>
+		 
+		        <table>
+		        	<tr>
+		        		<td class="col1">
+				            <p:radioButton id="opt1" for="deleteRadio" itemIndex="0" />
+			            </td>
+		        		<td>
+				            <h:outputLabel for="opt1">
+				            	<span class="bold">
+					            	#{msg['courses.dialog.delete.option1.removeCourse.title']}
+				            	</span>
+				            	#{msg['courses.dialog.delete.option1.removeCourse.explanation']}
+				            </h:outputLabel>
+			            </td>
+		        	</tr>
+		        </table>
+		 
+		        <table>
+		        	<tr>
+		        		<td class="col1">
+				            <p:radioButton id="opt2" for="deleteRadio" itemIndex="1" />
+						</td>
+		        		<td>
+		        			<h:outputLabel for="opt2">
+				            	<span class="bold">
+					            	#{msg['courses.dialog.delete.option2.removeCourseAndLearningActivities.title']}
+				            	</span>
+				            	#{msg['courses.dialog.delete.option2.removeCourseAndLearningActivities.explanation']}
+				            </h:outputLabel>
+						</td>
+		        	</tr>
+		        </table>
+		        
+		        <input type="text" class="id" style="display: none;" value="#{deleteGoalCourseDialog.courseToDelete.id}" />
+		        <input type="text" class="context" style="display: none;" value="#{deleteGoalCourseDialog.context}" />
+		        
+				<p:commandButton value="Withdraw"
+					id="deleteBtn"
+					styleClass="button green size30 right"
+					onclick="$('#removeCourseFormModalDialog').dialog('option', 'submit', true);$('#removeCourseFormModalDialog').dialog('close');"
+				 	action="#{deleteGoalCourseDialog.deleteCourse()}"
+					update="#{cc.attrs.updateOncomplete}" />
+		
+				<a class="button gray size30 right"
+					onclick='$("#removeCourseFormModalDialog").dialog("close");'>Cancel</a>
+					
+				<p:defaultCommand target=":#{cc.clientId}:removeCourseForm:deleteBtn" />
+			</h:form>
+		</div>
+		<script>
+		$(function() {
+			$('#removeCourseFormModalDialog').dialog({
+				title: "#{msg['courses.dialog.delete.title']}",
+				dialogClass: 'warning',
+				autoOpen: false,
+				show : 'slide',
+				width: 600,
+				modal: true,
+				resizable: false,
+				open: function() {
+					if ($(this).parent().find('.ui-dialog-titlebar .warningIcon').length == 0) {
+						$(this).parent()
+					        .children('.ui-dialog-titlebar')
+					        .prepend('<span class="warningIcon"></span>');
+					}
+					
+					$(this).children(':first')
+						.css('text-align', 'center')
+						.css('padding-top', '50px')
+						.html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
+				},
+				close: function() {
+					var submitted = $(this).dialog('option', 'submit');
+					
+					if (!submitted) {
+						var id = $('#removeCourseFormModalDialog .id').val();
+						var context = $('#removeCourseFormModalDialog .context').val();
+						sendServiceUse('MOUSE_CLICK', {context: context+'.removeCourseDialog', link: 'cancel', 'course' : id});
+					}
+					
+					$(this).dialog('option', 'submit', false);
+				}
+			});
+			$('#removeCourseFormModalDialog').show();
+		});
+		</script>
+	</composite:implementation>
+</ui:component>

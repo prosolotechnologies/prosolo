@@ -1,0 +1,132 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	template="templates/masterLayout.xhtml"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/admin/dialogs"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+<ui:define name="windowTitle">
+	Administration: Roles
+</ui:define>
+
+<ui:define name="content">
+	<div class="container">
+		<div id="roleFormContainer" class="content wide">
+
+			<dlg:newRole id="newRole" />
+			<dlg:editRole id="editRole" />
+	
+			<h:form id="rolesForm" prependId="false">
+	
+				<p:commandLink id="newRoleBtn" value="Add Role"
+					styleClass="button green size30 marginBottom10"
+					action="#{roles.prepareAddRole()}"
+					onclick='$("#newRoleModalDialog").dialog("open");'
+					update=":newRole:newRoleForm" />
+	
+				<p:dataTable id="rolessDataTable" var="role" value="#{roles.roles}">
+				
+					<f:facet name="header">Roles</f:facet>
+					
+					<p:column id="nameColumn" filterBy="#{role.name}" filterMatchMode="contains" 
+						sortBy="#{role.name}">
+						
+						<f:facet name="header">
+							<h:outputText value="Name" />
+						</f:facet>
+						<h:outputText value="#{role.name}" />
+					</p:column>
+	
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="Description" />
+						</f:facet>
+						<h:outputText value="#{role.description}" />
+					</p:column>
+					
+					<p:column styleClass="center">
+						<f:facet name="header">
+							<h:outputText value="Edit" />
+						</f:facet>
+						
+						<p:commandLink value="Edit" 
+							styleClass="blue button size25"
+							onclick="$('#editRoleModalDialog').dialog('open');"
+							action="#{roles.prepareEdit(role)}" 
+							update=":editRole:editRoleForm :rolesForm" />
+					</p:column>
+					
+					<p:column styleClass="center">
+						<f:facet name="header">
+							<h:outputText value="Delete" />
+						</f:facet>
+						
+						<p:commandLink value="Delete"
+							styleClass="button red size25"
+							rendered="#{!roles.isRoleUsed(role)}"
+							onclick="$('#deleteRoleDialog').dialog('open');"
+							action="#{roles.setRoleToDelete(role)}"
+							update=":deleteRoleDialogForm" />
+							
+						<p:commandLink value="Delete"
+							styleClass="button disabled gray size25 hasTooltip"
+							rendered="#{roles.isRoleUsed(role)}"
+							title="#{msg['admin.roles.delete.disabled.tooltip']}" />
+					</p:column>
+				</p:dataTable>
+				
+				<utilcomp:tooltip target=".hasTooltip[title]" />
+			</h:form>
+		</div>
+	</div>
+	
+	<div id="deleteRoleDialog" class="deleteRoleDialog" style="display: none;">
+		<h:form id="deleteRoleDialogForm">
+			<h4 class="warningMessage">
+				Are you sure you want to delete role #{roles.roleToDelete.name}?
+			</h4>
+			
+			<div class="actions">
+				<p:commandLink value="Yes"
+					styleClass="button green size30 right"
+					onclick="$('#deleteRoleDialog').dialog('close');"
+				 	action="#{roles.delete()}"
+				 	update=":rolesForm"
+					/>
+				&#160;
+				<a href="#" class="button gray size30 right"
+					onclick="$('#deleteRoleDialog').dialog('close');">Cancel</a>
+			</div>
+	 	</h:form>
+	</div>
+	
+	<script>
+	$(function() {
+		$('#deleteRoleDialog').dialog({
+			title: 'Delete Role',
+			dialogClass: 'warning',
+			show : 'slide',
+			autoOpen: false,
+			width: 400,
+			modal: true,
+			resizable: false,
+			open: function() {
+				$(this).children(':first')
+					.css('text-align', 'center')
+					.css('padding-top', '50px')
+					.html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
+				
+				if ($(this).parent().find('.ui-dialog-titlebar .warningIcon').length == 0) {
+					$(this).parent()
+				        .children('.ui-dialog-titlebar')
+				        .prepend('<span class="warningIcon"></span>');
+				}
+			}
+		});
+		$('#deleteRoleDialog').show();
+	});
+	</script>
+</ui:define>
+</ui:composition>

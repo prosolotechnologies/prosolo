@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+           http://www.springframework.org/schema/security
+           http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+
+	<!-- http auto-config='true' access-denied-page='/accessDenied.jsf'>
+		<intercept-url pattern="/login.jsf" access="IS_AUTHENTICATED_ANONYMOUSLY" requires-channel="https"/>
+		<intercept-url pattern="/passwordReset.jsf" access="IS_AUTHENTICATED_ANONYMOUSLY" requires-channel="https"/>
+		<intercept-url pattern="/resources/css/style.css" access="IS_AUTHENTICATED_ANONYMOUSLY" requires-channel="https"/>
+		<intercept-url pattern="/resources/javascript/jquery-1.8.2.min.js" access="IS_AUTHENTICATED_ANONYMOUSLY" requires-channel="https"/>
+		<intercept-url pattern="/resources/images/favicon.png" access="IS_AUTHENTICATED_ANONYMOUSLY" requires-channel="https"/>
+		<intercept-url pattern="/resources/images/style/ajax-loader-black.gif" access="IS_AUTHENTICATED_ANONYMOUSLY" requires-channel="https"/>
+		<intercept-url pattern="h/javax.faces.resource/theme.css.jsf?ln=primefaces-aristo" access="IS_AUTHENTICATED_ANONYMOUSLY" requires-channel="https"/>
+		<intercept-url pattern="/admin/**" access="ROLE_ADMIN" requires-channel="https"/>
+		<intercept-url pattern="/**" access="ROLE_USER,ROLE_ADMIN" requires-channel="https"/>
+		<form-login 
+			login-page='/login.jsf'/>
+		<remember-me key="...verylonganduniquekey..." />
+		<port-mappings>
+            <port-mapping http="8090" https="8443"/>
+            <port-mapping http="8080" https="8443"/>
+        </port-mappings>
+	</http-->
+ 	<http pattern="/favicon.ico" security="none"/>
+ 	<http pattern="/resources/css/**" security="none"/>
+ 	<http pattern="/resources/images/**" security="none"/>
+ 	<http pattern="/resources/javascript/**" security="none"/>
+ 	<http pattern="/javax.faces.resource/**" security="none"/>
+ 	<http pattern="/javax.faces.resource/schedule/**" security="none"/>
+ 	<http pattern="/javax.faces.**" security="none"/>
+ 	<!-- http pattern="/api/**" security="none"/-->
+ 	<http pattern="/api/lti/**" security="none"/>
+	<http pattern="/prosolo/api/lti/**" security="none"/>
+ 	<http pattern="/about.xhtml" security="none"/>
+ 	<http pattern="/elb_ping.xhtml" security="none"/>
+ 	<http pattern="/terms.xhtml" security="none"/>
+ 	<http pattern="/publicprofile.xhtml" security="none"/>
+ 	<http pattern="/maintenance.xhtml" security="none"/>
+ 	<http  pattern="/digest.xhtml"  security="none"/>
+	<http  pattern="/resources/components/digest/personalFeeds.xhtml"   security="none"/>
+	<http  pattern="/resources/public/systemFeeds.xhtml"   security="none"/>
+ 
+ 	
+ 	<!-- http pattern="/login.xhtml" security="none"/-->
+ 
+ 	<http auto-config='false' access-denied-page='/accessDenied.xhtml'  disable-url-rewriting="true">
+		<!-- intercept-url pattern="/resources/**"/-->
+		<!-- intercept-url pattern="/javax.faces.resource/**"/-->
+		<intercept-url pattern="/login.xhtml" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/loginAdmin.xhtml" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/openid.xhtml" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<intercept-url pattern="/register.xhtml" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<intercept-url pattern="/verify.xhtml" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<intercept-url pattern="/passwordReset.xhtml" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<!-- intercept-url pattern="/javax.faces.resource/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/-->
+		<intercept-url pattern="/recovery.xhtml" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<intercept-url  pattern="/digest.xhtml"  access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+ 		<!-- intercept-url  pattern="/resources/components/digest/personalFeeds.xhtml"  access="IS_AUTHENTICATED_ANONYMOUSLY"/-->
+		<!-- intercept-url pattern="/about.xhtml" access="IS_AUTHENTICATED_ANONYMOUSLY"/-->
+		<!-- intercept-url pattern="/terms.xhtml" access="IS_AUTHENTICATED_ANONYMOUSLY"/-->
+		<intercept-url pattern="/publicprofile.xhtml" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<!-- intercept-url pattern="/api/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/-->
+		<!-- intercept-url pattern="/api/lti/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<intercept-url pattern="/prosolo/api/lti/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/-->
+		<!-- intercept-url pattern="/files/images/users/**"/-->
+		<intercept-url pattern="/admin/**" access="ROLE_ADMIN"/>
+		<intercept-url pattern="/manage/**" access="ROLE_MANAGER"/>
+		<intercept-url pattern="/**" access="ROLE_USER, ROLE_MANAGER, ROLE_ADMIN"/>
+		<form-login 
+			login-page='/login.xhtml'/>
+		<remember-me key="...verylonganduniquekey..." />
+		<logout logout-url="/j_spring_security_logout" invalidate-session="true"  delete-cookies="JSESSIONID" />
+		<!-- session-management>
+        <concurrency-control max-sessions="1" />
+   		 </session-management-->
+		
+	</http>
+	
+	<!-- business logic (method) security -->
+	<global-method-security secured-annotations="enabled" jsr250-annotations="enabled" />
+	
+	<beans:bean id="daoAuthenticationProvider" class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+		<beans:property name="userDetailsService" ref="userDetailsService" />
+		<beans:property name="passwordEncoder" ref="org.prosolo.services.authentication.PasswordEncrypter" />
+	</beans:bean>
+
+	<beans:bean id="authenticationManager"
+		class="org.prosolo.core.spring.security.SerializableProviderManager">
+		<beans:property name="providers">
+			<beans:list>
+				<beans:ref local="daoAuthenticationProvider" />
+			</beans:list>
+		</beans:property>
+	</beans:bean>
+
+	<authentication-manager >
+		<authentication-provider user-service-ref="userDetailsService" />
+	</authentication-manager>
+	
+</beans:beans>

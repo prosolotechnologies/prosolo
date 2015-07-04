@@ -1,0 +1,54 @@
+<ui:composition
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs">
+	
+	<utilcomp:messagesBundle var="msg" />
+	
+	<div class="sideRecommendedAct">
+		
+			
+			
+		<c:if test="#{recommendedactivitiesbean.inCourse}">
+		<h:panelGroup layout="block" id="availablePlansBlock" 
+			class="sidePlans #{empty competencesBean.competences ? 'hidden' : ''}">
+		<h3 style="margin-bottom: 20px; margin-top: 0;">Recommended activities <utilcomp:infotooltip position="SUGGESTED_ACTIVITIES" context="learn.targetGoal.#{learninggoals.selectedGoalData.data.targetGoalId}.targetComp.#{learninggoals.selectedGoalData.data.targetGoalId}" /></h3>
+		 <h:panelGroup id="courseCompetenceRecommendedPlans">
+				<comp:courserecommendedactivities id="courseCompPlans"/>
+					<utilcomp:tooltip target=".hasTooltip[title]" />
+			</h:panelGroup>
+		</h:panelGroup>
+		</c:if>		
+		 <ui:remove>
+		 	<h:panelGroup id="goalCompetenceRecommendedPlans">
+				<comp:planrecommend id="goalCompPlans"
+					value="planrecommend"
+					parentid="availablePlansBlock"
+					parentjsfid="goalCompetenceRecommendedPlans:goalCompPlans"
+					containerClass="sidePlans"
+					refreshCommand="form.compWallForm a.refreshAllHanler" 
+					regionToUpdateAfterConnect="#{learninggoals.selectedGoalData.data.progressActivityDependent ? ':goalDetails' : ''}" 
+					appendedActivitiesRegionId="actRecommendationAppendedAct"
+					recommendedplans="#{recommendedplans.recommendedPlans}"
+					cantdisplaymessage="There are no suggested plans." 
+					connectWithoutDialog="true"
+					activityNameLength="60"
+					initializeRecommendedPlans="#{learninggoals.initializeRecommendedPlans()}" 
+					targetCompIdToPreselectWhenAdding="#{learninggoals.selectedGoalData.selectedCompetence.data.id}"
+					disabledConnect="#{learninggoals.completed}"
+					disabledConnectTooltip="#{msg['learn.disabledAsGoalIsCompleted.tooltip']}"
+					context="learn.targetGoal.#{learninggoals.selectedGoalData.data.targetGoalId}.targetComp.#{learninggoals.selectedGoalData.data.targetGoalId}" />
+					
+				<utilcomp:tooltip target=".hasTooltip[title]" />
+			</h:panelGroup>
+			</ui:remove>
+
+	</div>
+</ui:composition>

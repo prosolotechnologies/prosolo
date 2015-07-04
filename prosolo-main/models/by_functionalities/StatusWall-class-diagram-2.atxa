@@ -1,0 +1,980 @@
+@prefix atxa-rse-eclipse: <http://www.architexa.com/rdf/rse-eclipse#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix atxa-jdt-wkspc: <http://www.architexa.com/rdf/jdt-wkspc#> .
+@prefix atxa-core: <http://www.architexa.com/rdf/core#> .
+@prefix atxa: <http://www.architexa.com/rdf/> .
+
+<http://www.architexa.com/rdf/rse-eclipse#models_slby_unfunctionalities_slStatusWall-class-diagram-2.atxa> a atxa-core:reloFile .
+
+atxa:DetailNode atxa-core:detailLevel "1" .
+
+atxa-core:docRoot atxa-core:browseModel "com.architexa.diagrams.relo.jdt/com.architexa.diagrams.relo.jdt.browse.ClassStrucBrowseModel" ;
+	atxa-core:contains _:node19chgh7rkx1 .
+
+_:node19chgh7rkx1 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall> ;
+	atxa-core:posX "131" ;
+	atxa-core:posY "135" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$WallActionsBean> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean> .
+
+_:node19chgh7rkx1 atxa-core:contains _:node19chgh7rkx2 .
+
+_:node19chgh7rkx2 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$WallActionsBean> ;
+	atxa-core:posX "621" ;
+	atxa-core:posY "165" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$WallActionsBean> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$WallActionsBean.deleteActivity(SocialActivityWallData,String,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$WallActionsBean.disableComments(SocialActivityWallData,String,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$WallActionsBean.enableComments(SocialActivityWallData,String,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$WallActionsBean.hideActivity(SocialActivityWallData,String,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$WallActionsBean.unfollowHashtags(SocialActivityWallData,String,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$WallActionsBean.unfollowUser(SocialActivityWallData,String,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$WallActionsBean.WallActionsBean()> .
+
+_:node19chgh7rkx2 atxa-core:contains _:node19chgh7rkx3 .
+
+_:node19chgh7rkx3 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$WallActionsBean.deleteActivity(SocialActivityWallData,String,)> ;
+	atxa-core:posX "622" ;
+	atxa-core:posY "183" .
+
+_:node19chgh7rkx2 atxa-core:contains _:node19chgh7rkx4 .
+
+_:node19chgh7rkx4 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$WallActionsBean.disableComments(SocialActivityWallData,String,)> ;
+	atxa-core:posX "622" ;
+	atxa-core:posY "199" .
+
+_:node19chgh7rkx2 atxa-core:contains _:node19chgh7rkx5 .
+
+_:node19chgh7rkx5 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$WallActionsBean.enableComments(SocialActivityWallData,String,)> ;
+	atxa-core:posX "622" ;
+	atxa-core:posY "215" .
+
+_:node19chgh7rkx2 atxa-core:contains _:node19chgh7rkx6 .
+
+_:node19chgh7rkx6 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$WallActionsBean.hideActivity(SocialActivityWallData,String,)> ;
+	atxa-core:posX "622" ;
+	atxa-core:posY "231" .
+
+_:node19chgh7rkx2 atxa-core:contains _:node19chgh7rkx7 .
+
+_:node19chgh7rkx7 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$WallActionsBean.unfollowHashtags(SocialActivityWallData,String,)> ;
+	atxa-core:posX "622" ;
+	atxa-core:posY "247" .
+
+_:node19chgh7rkx2 atxa-core:contains _:node19chgh7rkx8 .
+
+_:node19chgh7rkx8 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$WallActionsBean.unfollowUser(SocialActivityWallData,String,)> ;
+	atxa-core:posX "622" ;
+	atxa-core:posY "263" .
+
+_:node19chgh7rkx2 atxa-core:contains _:node19chgh7rkx9 .
+
+_:node19chgh7rkx9 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$WallActionsBean.WallActionsBean()> ;
+	atxa-core:posX "622" ;
+	atxa-core:posY "279" .
+
+_:node19chgh7rkx1 atxa-core:contains _:node19chgh7rkx10 .
+
+_:node19chgh7rkx10 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean> ;
+	atxa-core:posX "137" ;
+	atxa-core:posY "160" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.ActivityWallBean()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.addCommentToSocialActivity(long,Comment,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.addLikeToComment(SocialActivity,Comment,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.addSocialActivity(Locale,SocialActivity,boolean,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.addSocialActivityNotification(Locale,SocialActivityNotification,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.addWallActivities(List,List,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.addWallActivity(SocialActivityWallData,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.changeFilter()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.disableSharing(SocialActivity,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.fetchWallActivities(int,int,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.getFilterPrettyName(FilterType,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.getIndexOfSocialActivity(List,long,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.getRefreshRate()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.getScrollPosition()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.initializeActivities()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.isMoreToLoad()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.loadActivities()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.loadMoreActivities()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.loadMoreStartingFromActivity(List,int,long,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.markSocialActivityWallDataAsUnfollowed(List,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.refresh()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.removeSocialActivity(long,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.setAllActivities(List,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.setScrollPosition(String,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.updateCommentDataOfSocialActivity(long,long,int,int,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.updateSocialActivity(SocialActivity,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.getAllActivities()> .
+
+_:node19chgh7rkx10 atxa-core:contains _:node19chgh7rkx11 .
+
+_:node19chgh7rkx11 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.ActivityWallBean()> ;
+	atxa-core:posX "138" ;
+	atxa-core:posY "178" .
+
+_:node19chgh7rkx10 atxa-core:contains _:node19chgh7rkx12 .
+
+_:node19chgh7rkx12 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.addCommentToSocialActivity(long,Comment,)> ;
+	atxa-core:posX "138" ;
+	atxa-core:posY "194" .
+
+_:node19chgh7rkx10 atxa-core:contains _:node19chgh7rkx13 .
+
+_:node19chgh7rkx13 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.addLikeToComment(SocialActivity,Comment,)> ;
+	atxa-core:posX "138" ;
+	atxa-core:posY "210" .
+
+_:node19chgh7rkx10 atxa-core:contains _:node19chgh7rkx14 .
+
+_:node19chgh7rkx14 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.addSocialActivity(Locale,SocialActivity,boolean,)> ;
+	atxa-core:posX "138" ;
+	atxa-core:posY "226" .
+
+_:node19chgh7rkx10 atxa-core:contains _:node19chgh7rkx15 .
+
+_:node19chgh7rkx15 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.addSocialActivityNotification(Locale,SocialActivityNotification,)> ;
+	atxa-core:posX "138" ;
+	atxa-core:posY "242" .
+
+_:node19chgh7rkx10 atxa-core:contains _:node19chgh7rkx16 .
+
+_:node19chgh7rkx16 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.addWallActivities(List,List,)> ;
+	atxa-core:posX "138" ;
+	atxa-core:posY "258" .
+
+_:node19chgh7rkx10 atxa-core:contains _:node19chgh7rkx17 .
+
+_:node19chgh7rkx17 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.addWallActivity(SocialActivityWallData,)> ;
+	atxa-core:posX "138" ;
+	atxa-core:posY "274" .
+
+_:node19chgh7rkx10 atxa-core:contains _:node19chgh7rkx18 .
+
+_:node19chgh7rkx18 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.changeFilter()> ;
+	atxa-core:posX "138" ;
+	atxa-core:posY "290" .
+
+_:node19chgh7rkx10 atxa-core:contains _:node19chgh7rkx19 .
+
+_:node19chgh7rkx19 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.disableSharing(SocialActivity,)> ;
+	atxa-core:posX "138" ;
+	atxa-core:posY "306" .
+
+_:node19chgh7rkx10 atxa-core:contains _:node19chgh7rkx20 .
+
+_:node19chgh7rkx20 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.fetchWallActivities(int,int,)> ;
+	atxa-core:posX "138" ;
+	atxa-core:posY "322" .
+
+_:node19chgh7rkx10 atxa-core:contains _:node19chgh7rkx21 .
+
+_:node19chgh7rkx21 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.getFilterPrettyName(FilterType,)> ;
+	atxa-core:posX "138" ;
+	atxa-core:posY "338" .
+
+_:node19chgh7rkx10 atxa-core:contains _:node19chgh7rkx22 .
+
+_:node19chgh7rkx22 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.getIndexOfSocialActivity(List,long,)> ;
+	atxa-core:posX "138" ;
+	atxa-core:posY "354" .
+
+_:node19chgh7rkx10 atxa-core:contains _:node19chgh7rkx23 .
+
+_:node19chgh7rkx23 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.getRefreshRate()> ;
+	atxa-core:posX "138" ;
+	atxa-core:posY "370" .
+
+_:node19chgh7rkx10 atxa-core:contains _:node19chgh7rkx24 .
+
+_:node19chgh7rkx24 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.getScrollPosition()> ;
+	atxa-core:posX "138" ;
+	atxa-core:posY "386" .
+
+_:node19chgh7rkx10 atxa-core:contains _:node19chgh7rkx25 .
+
+_:node19chgh7rkx25 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.initializeActivities()> ;
+	atxa-core:posX "138" ;
+	atxa-core:posY "402" .
+
+_:node19chgh7rkx10 atxa-core:contains _:node19chgh7rkx26 .
+
+_:node19chgh7rkx26 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.isMoreToLoad()> ;
+	atxa-core:posX "138" ;
+	atxa-core:posY "418" .
+
+_:node19chgh7rkx10 atxa-core:contains _:node19chgh7rkx27 .
+
+_:node19chgh7rkx27 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.loadActivities()> ;
+	atxa-core:posX "138" ;
+	atxa-core:posY "434" .
+
+_:node19chgh7rkx10 atxa-core:contains _:node19chgh7rkx28 .
+
+_:node19chgh7rkx28 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.loadMoreActivities()> ;
+	atxa-core:posX "138" ;
+	atxa-core:posY "450" .
+
+_:node19chgh7rkx10 atxa-core:contains _:node19chgh7rkx29 .
+
+_:node19chgh7rkx29 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.loadMoreStartingFromActivity(List,int,long,)> ;
+	atxa-core:posX "138" ;
+	atxa-core:posY "466" .
+
+_:node19chgh7rkx10 atxa-core:contains _:node19chgh7rkx30 .
+
+_:node19chgh7rkx30 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.markSocialActivityWallDataAsUnfollowed(List,)> ;
+	atxa-core:posX "138" ;
+	atxa-core:posY "482" .
+
+_:node19chgh7rkx10 atxa-core:contains _:node19chgh7rkx31 .
+
+_:node19chgh7rkx31 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.refresh()> ;
+	atxa-core:posX "138" ;
+	atxa-core:posY "498" .
+
+_:node19chgh7rkx10 atxa-core:contains _:node19chgh7rkx32 .
+
+_:node19chgh7rkx32 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.removeSocialActivity(long,)> ;
+	atxa-core:posX "138" ;
+	atxa-core:posY "514" .
+
+_:node19chgh7rkx10 atxa-core:contains _:node19chgh7rkx33 .
+
+_:node19chgh7rkx33 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.setAllActivities(List,)> ;
+	atxa-core:posX "138" ;
+	atxa-core:posY "530" .
+
+_:node19chgh7rkx10 atxa-core:contains _:node19chgh7rkx34 .
+
+_:node19chgh7rkx34 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.setScrollPosition(String,)> ;
+	atxa-core:posX "138" ;
+	atxa-core:posY "546" .
+
+_:node19chgh7rkx10 atxa-core:contains _:node19chgh7rkx35 .
+
+_:node19chgh7rkx35 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.updateCommentDataOfSocialActivity(long,long,int,int,)> ;
+	atxa-core:posX "138" ;
+	atxa-core:posY "562" .
+
+_:node19chgh7rkx10 atxa-core:contains _:node19chgh7rkx36 .
+
+_:node19chgh7rkx36 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.updateSocialActivity(SocialActivity,)> ;
+	atxa-core:posX "138" ;
+	atxa-core:posY "578" .
+
+_:node19chgh7rkx10 atxa-core:contains _:node19chgh7rkx37 .
+
+_:node19chgh7rkx37 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.activitywall$ActivityWallBean.getAllActivities()> ;
+	atxa-core:posX "138" ;
+	atxa-core:posY "594" .
+
+atxa-core:docRoot atxa-core:contains _:node19chgh7rkx38 .
+
+_:node19chgh7rkx38 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions> ;
+	atxa-core:posX "715" ;
+	atxa-core:posY "643" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean> .
+
+_:node19chgh7rkx38 atxa-core:contains _:node19chgh7rkx39 .
+
+_:node19chgh7rkx39 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean> ;
+	atxa-core:posX "721" ;
+	atxa-core:posY "668" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean.createNewPost()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean.createNewPostWithData(NewPostData,String,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean.fetchLinkContents(NewPostData,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean.getNewPostData()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean.getNextImage()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean.getPrevImage()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean.handleFileUpload(FileUploadEvent,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean.init()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean.PostActionBean()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean.resetData(HTMLPageContents,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean.resharePost(NewPostData,SocialActivity,String,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean.resharePost(SocialActivityWallData,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean.setNewPostData(NewPostData,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean.shareResource(Node,String,String,)> .
+
+_:node19chgh7rkx39 atxa-core:contains _:node19chgh7rkx40 .
+
+_:node19chgh7rkx40 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean.createNewPost()> ;
+	atxa-core:posX "722" ;
+	atxa-core:posY "686" .
+
+_:node19chgh7rkx39 atxa-core:contains _:node19chgh7rkx41 .
+
+_:node19chgh7rkx41 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean.createNewPostWithData(NewPostData,String,)> ;
+	atxa-core:posX "722" ;
+	atxa-core:posY "702" .
+
+_:node19chgh7rkx39 atxa-core:contains _:node19chgh7rkx42 .
+
+_:node19chgh7rkx42 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean.fetchLinkContents(NewPostData,)> ;
+	atxa-core:posX "722" ;
+	atxa-core:posY "718" .
+
+_:node19chgh7rkx39 atxa-core:contains _:node19chgh7rkx43 .
+
+_:node19chgh7rkx43 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean.getNewPostData()> ;
+	atxa-core:posX "722" ;
+	atxa-core:posY "734" .
+
+_:node19chgh7rkx39 atxa-core:contains _:node19chgh7rkx44 .
+
+_:node19chgh7rkx44 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean.getNextImage()> ;
+	atxa-core:posX "722" ;
+	atxa-core:posY "750" .
+
+_:node19chgh7rkx39 atxa-core:contains _:node19chgh7rkx45 .
+
+_:node19chgh7rkx45 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean.getPrevImage()> ;
+	atxa-core:posX "722" ;
+	atxa-core:posY "766" .
+
+_:node19chgh7rkx39 atxa-core:contains _:node19chgh7rkx46 .
+
+_:node19chgh7rkx46 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean.handleFileUpload(FileUploadEvent,)> ;
+	atxa-core:posX "722" ;
+	atxa-core:posY "782" .
+
+_:node19chgh7rkx39 atxa-core:contains _:node19chgh7rkx47 .
+
+_:node19chgh7rkx47 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean.init()> ;
+	atxa-core:posX "722" ;
+	atxa-core:posY "798" .
+
+_:node19chgh7rkx39 atxa-core:contains _:node19chgh7rkx48 .
+
+_:node19chgh7rkx48 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean.PostActionBean()> ;
+	atxa-core:posX "722" ;
+	atxa-core:posY "814" .
+
+_:node19chgh7rkx39 atxa-core:contains _:node19chgh7rkx49 .
+
+_:node19chgh7rkx49 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean.resetData(HTMLPageContents,)> ;
+	atxa-core:posX "722" ;
+	atxa-core:posY "830" .
+
+_:node19chgh7rkx39 atxa-core:contains _:node19chgh7rkx50 .
+
+_:node19chgh7rkx50 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean.resharePost(NewPostData,SocialActivity,String,)> ;
+	atxa-core:posX "722" ;
+	atxa-core:posY "846" .
+
+_:node19chgh7rkx39 atxa-core:contains _:node19chgh7rkx51 .
+
+_:node19chgh7rkx51 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean.resharePost(SocialActivityWallData,)> ;
+	atxa-core:posX "722" ;
+	atxa-core:posY "862" .
+
+_:node19chgh7rkx39 atxa-core:contains _:node19chgh7rkx52 .
+
+_:node19chgh7rkx52 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean.setNewPostData(NewPostData,)> ;
+	atxa-core:posX "722" ;
+	atxa-core:posY "878" .
+
+_:node19chgh7rkx39 atxa-core:contains _:node19chgh7rkx53 .
+
+_:node19chgh7rkx53 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.useractions$PostActionBean.shareResource(Node,String,String,)> ;
+	atxa-core:posX "722" ;
+	atxa-core:posY "894" .
+
+atxa-core:docRoot atxa-core:contains _:node19chgh7rkx54 .
+
+_:node19chgh7rkx54 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals> ;
+	atxa-core:posX "134" ;
+	atxa-core:posY "630" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$LearningGoalsBean> .
+
+_:node19chgh7rkx54 atxa-core:contains _:node19chgh7rkx55 .
+
+_:node19chgh7rkx55 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean> ;
+	atxa-core:posX "140" ;
+	atxa-core:posY "712" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.addSocialActivityNotification(GoalDataCache,Locale,SocialActivityNotification,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.createNewPost()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.createNewPost(GoalDataCache,NewPostData,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.getAllActivities()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.getNewPostData()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.getRefreshRate()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.getUserFilterData()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.GoalWallBean()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.handleFileUpload(FileUploadEvent,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.init()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.initializeActivities()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.isConnectNewPostWithStatus()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.isMoreToLoad()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.loadMoreActivities()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.refresh()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.removeUserFilter()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.setConnectNewPostWithStatus(boolean,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.setNewPostData(NewPostData,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.setUserFilter(UserData,)> .
+
+_:node19chgh7rkx55 atxa-core:contains _:node19chgh7rkx56 .
+
+_:node19chgh7rkx56 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.addSocialActivityNotification(GoalDataCache,Locale,SocialActivityNotification,)> ;
+	atxa-core:posX "141" ;
+	atxa-core:posY "730" .
+
+_:node19chgh7rkx55 atxa-core:contains _:node19chgh7rkx57 .
+
+_:node19chgh7rkx57 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.createNewPost()> ;
+	atxa-core:posX "141" ;
+	atxa-core:posY "746" .
+
+_:node19chgh7rkx55 atxa-core:contains _:node19chgh7rkx58 .
+
+_:node19chgh7rkx58 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.createNewPost(GoalDataCache,NewPostData,)> ;
+	atxa-core:posX "141" ;
+	atxa-core:posY "762" .
+
+_:node19chgh7rkx55 atxa-core:contains _:node19chgh7rkx59 .
+
+_:node19chgh7rkx59 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.getAllActivities()> ;
+	atxa-core:posX "141" ;
+	atxa-core:posY "778" .
+
+_:node19chgh7rkx55 atxa-core:contains _:node19chgh7rkx60 .
+
+_:node19chgh7rkx60 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.getNewPostData()> ;
+	atxa-core:posX "141" ;
+	atxa-core:posY "794" .
+
+_:node19chgh7rkx55 atxa-core:contains _:node19chgh7rkx61 .
+
+_:node19chgh7rkx61 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.getRefreshRate()> ;
+	atxa-core:posX "141" ;
+	atxa-core:posY "810" .
+
+_:node19chgh7rkx55 atxa-core:contains _:node19chgh7rkx62 .
+
+_:node19chgh7rkx62 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.getUserFilterData()> ;
+	atxa-core:posX "141" ;
+	atxa-core:posY "826" .
+
+_:node19chgh7rkx55 atxa-core:contains _:node19chgh7rkx63 .
+
+_:node19chgh7rkx63 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.GoalWallBean()> ;
+	atxa-core:posX "141" ;
+	atxa-core:posY "842" .
+
+_:node19chgh7rkx55 atxa-core:contains _:node19chgh7rkx64 .
+
+_:node19chgh7rkx64 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.handleFileUpload(FileUploadEvent,)> ;
+	atxa-core:posX "141" ;
+	atxa-core:posY "858" .
+
+_:node19chgh7rkx55 atxa-core:contains _:node19chgh7rkx65 .
+
+_:node19chgh7rkx65 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.init()> ;
+	atxa-core:posX "141" ;
+	atxa-core:posY "874" .
+
+_:node19chgh7rkx55 atxa-core:contains _:node19chgh7rkx66 .
+
+_:node19chgh7rkx66 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.initializeActivities()> ;
+	atxa-core:posX "141" ;
+	atxa-core:posY "890" .
+
+_:node19chgh7rkx55 atxa-core:contains _:node19chgh7rkx67 .
+
+_:node19chgh7rkx67 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.isConnectNewPostWithStatus()> ;
+	atxa-core:posX "141" ;
+	atxa-core:posY "906" .
+
+_:node19chgh7rkx55 atxa-core:contains _:node19chgh7rkx68 .
+
+_:node19chgh7rkx68 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.isMoreToLoad()> ;
+	atxa-core:posX "141" ;
+	atxa-core:posY "922" .
+
+_:node19chgh7rkx55 atxa-core:contains _:node19chgh7rkx69 .
+
+_:node19chgh7rkx69 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.loadMoreActivities()> ;
+	atxa-core:posX "141" ;
+	atxa-core:posY "938" .
+
+_:node19chgh7rkx55 atxa-core:contains _:node19chgh7rkx70 .
+
+_:node19chgh7rkx70 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.refresh()> ;
+	atxa-core:posX "141" ;
+	atxa-core:posY "954" .
+
+_:node19chgh7rkx55 atxa-core:contains _:node19chgh7rkx71 .
+
+_:node19chgh7rkx71 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.removeUserFilter()> ;
+	atxa-core:posX "141" ;
+	atxa-core:posY "970" .
+
+_:node19chgh7rkx55 atxa-core:contains _:node19chgh7rkx72 .
+
+_:node19chgh7rkx72 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.setConnectNewPostWithStatus(boolean,)> ;
+	atxa-core:posX "141" ;
+	atxa-core:posY "986" .
+
+_:node19chgh7rkx55 atxa-core:contains _:node19chgh7rkx73 .
+
+_:node19chgh7rkx73 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.setNewPostData(NewPostData,)> ;
+	atxa-core:posX "141" ;
+	atxa-core:posY "1002" .
+
+_:node19chgh7rkx55 atxa-core:contains _:node19chgh7rkx74 .
+
+_:node19chgh7rkx74 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$GoalWallBean.setUserFilter(UserData,)> ;
+	atxa-core:posX "141" ;
+	atxa-core:posY "1018" .
+
+_:node19chgh7rkx54 atxa-core:contains _:node19chgh7rkx75 .
+
+_:node19chgh7rkx75 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$LearningGoalsBean> ;
+	atxa-core:posX "145" ;
+	atxa-core:posY "655" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$LearningGoalsBean> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$LearningGoalsBean.saveGoalEdit()> .
+
+_:node19chgh7rkx75 atxa-core:contains _:node19chgh7rkx76 .
+
+_:node19chgh7rkx76 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals$LearningGoalsBean.saveGoalEdit()> ;
+	atxa-core:posX "146" ;
+	atxa-core:posY "673" .
+
+atxa-core:docRoot atxa-core:contains _:node19chgh7rkx77 .
+
+_:node19chgh7rkx77 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals.competences> ;
+	atxa-core:posX "51" ;
+	atxa-core:posY "1054" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals.competences> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals.competences$CompetencesBean> .
+
+_:node19chgh7rkx77 atxa-core:contains _:node19chgh7rkx78 .
+
+_:node19chgh7rkx78 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals.competences$CompetencesBean> ;
+	atxa-core:posX "57" ;
+	atxa-core:posY "1079" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals.competences$CompetencesBean> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals.competences$CompetencesBean.addTargetCompetence(TargetCompetence,GoalDataCache,Event,)> .
+
+_:node19chgh7rkx78 atxa-core:contains _:node19chgh7rkx79 .
+
+_:node19chgh7rkx79 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.web.goals.competences$CompetencesBean.addTargetCompetence(TargetCompetence,GoalDataCache,Event,)> ;
+	atxa-core:posX "58" ;
+	atxa-core:posY "1097" .
+
+atxa-core:docRoot atxa-core:contains _:node19chgh7rkx80 .
+
+_:node19chgh7rkx80 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl> ;
+	atxa-core:posX "1120" ;
+	atxa-core:posY "146" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallFactoryImpl> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$GoalActivityWallManagerImpl> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityFactoryImpl> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityResolverImpl> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallActionsManagerImpl> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityHandlerImpl> .
+
+_:node19chgh7rkx80 atxa-core:contains _:node19chgh7rkx81 .
+
+_:node19chgh7rkx81 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallFactoryImpl> ;
+	atxa-core:posX "1126" ;
+	atxa-core:posY "171" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallFactoryImpl> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallFactoryImpl.ActivityWallFactoryImpl()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallFactoryImpl.createGoalWallSubView(User,SocialActivity,HashtagInterest,Session,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallFactoryImpl.createGoalWallSubViews(User,SocialActivity,List,Session,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallFactoryImpl.createStatusWallSubView(Collection,Session,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallFactoryImpl.createSubView(SocialStreamSubViewType,Set,Collection,Session,)> .
+
+_:node19chgh7rkx81 atxa-core:contains _:node19chgh7rkx82 .
+
+_:node19chgh7rkx82 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallFactoryImpl.ActivityWallFactoryImpl()> ;
+	atxa-core:posX "1127" ;
+	atxa-core:posY "189" .
+
+_:node19chgh7rkx81 atxa-core:contains _:node19chgh7rkx83 .
+
+_:node19chgh7rkx83 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallFactoryImpl.createGoalWallSubView(User,SocialActivity,HashtagInterest,Session,)> ;
+	atxa-core:posX "1127" ;
+	atxa-core:posY "205" .
+
+_:node19chgh7rkx81 atxa-core:contains _:node19chgh7rkx84 .
+
+_:node19chgh7rkx84 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallFactoryImpl.createGoalWallSubViews(User,SocialActivity,List,Session,)> ;
+	atxa-core:posX "1127" ;
+	atxa-core:posY "221" .
+
+_:node19chgh7rkx81 atxa-core:contains _:node19chgh7rkx85 .
+
+_:node19chgh7rkx85 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallFactoryImpl.createStatusWallSubView(Collection,Session,)> ;
+	atxa-core:posX "1127" ;
+	atxa-core:posY "237" .
+
+_:node19chgh7rkx81 atxa-core:contains _:node19chgh7rkx86 .
+
+_:node19chgh7rkx86 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallFactoryImpl.createSubView(SocialStreamSubViewType,Set,Collection,Session,)> ;
+	atxa-core:posX "1127" ;
+	atxa-core:posY "253" .
+
+_:node19chgh7rkx80 atxa-core:contains _:node19chgh7rkx87 .
+
+_:node19chgh7rkx87 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$GoalActivityWallManagerImpl> ;
+	atxa-core:posX "1130" ;
+	atxa-core:posY "674" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$GoalActivityWallManagerImpl> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$GoalActivityWallManagerImpl.getGoalSocialEvents(long,long,int,int,Date,long,boolean,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$GoalActivityWallManagerImpl.getGoalSocialEvents(long,long,int,int,long,boolean,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$GoalActivityWallManagerImpl.GoalActivityWallManagerImpl()> .
+
+_:node19chgh7rkx87 atxa-core:contains _:node19chgh7rkx88 .
+
+_:node19chgh7rkx88 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$GoalActivityWallManagerImpl.getGoalSocialEvents(long,long,int,int,Date,long,boolean,)> ;
+	atxa-core:posX "1131" ;
+	atxa-core:posY "692" .
+
+_:node19chgh7rkx87 atxa-core:contains _:node19chgh7rkx89 .
+
+_:node19chgh7rkx89 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$GoalActivityWallManagerImpl.getGoalSocialEvents(long,long,int,int,long,boolean,)> ;
+	atxa-core:posX "1131" ;
+	atxa-core:posY "708" .
+
+_:node19chgh7rkx87 atxa-core:contains _:node19chgh7rkx90 .
+
+_:node19chgh7rkx90 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$GoalActivityWallManagerImpl.GoalActivityWallManagerImpl()> ;
+	atxa-core:posX "1131" ;
+	atxa-core:posY "724" .
+
+_:node19chgh7rkx80 atxa-core:contains _:node19chgh7rkx91 .
+
+_:node19chgh7rkx91 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityFactoryImpl> ;
+	atxa-core:posX "1131" ;
+	atxa-core:posY "747" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityFactoryImpl> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityFactoryImpl.createSocialActivity(Event,Session,Map,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityFactoryImpl.createSocialActivityNotification(User,SocialActivity,List,boolean,Session,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityFactoryImpl.getResourceVisibility(BaseEntity,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityFactoryImpl.SocialActivityFactoryImpl()> .
+
+_:node19chgh7rkx91 atxa-core:contains _:node19chgh7rkx92 .
+
+_:node19chgh7rkx92 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityFactoryImpl.createSocialActivity(Event,Session,Map,)> ;
+	atxa-core:posX "1132" ;
+	atxa-core:posY "765" .
+
+_:node19chgh7rkx91 atxa-core:contains _:node19chgh7rkx93 .
+
+_:node19chgh7rkx93 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityFactoryImpl.createSocialActivityNotification(User,SocialActivity,List,boolean,Session,)> ;
+	atxa-core:posX "1132" ;
+	atxa-core:posY "781" .
+
+_:node19chgh7rkx91 atxa-core:contains _:node19chgh7rkx94 .
+
+_:node19chgh7rkx94 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityFactoryImpl.getResourceVisibility(BaseEntity,)> ;
+	atxa-core:posX "1132" ;
+	atxa-core:posY "797" .
+
+_:node19chgh7rkx91 atxa-core:contains _:node19chgh7rkx95 .
+
+_:node19chgh7rkx95 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityFactoryImpl.SocialActivityFactoryImpl()> ;
+	atxa-core:posX "1132" ;
+	atxa-core:posY "813" .
+
+_:node19chgh7rkx80 atxa-core:contains _:node19chgh7rkx105 .
+
+_:node19chgh7rkx105 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityResolverImpl> ;
+	atxa-core:posX "1132" ;
+	atxa-core:posY "991" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityResolverImpl> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityResolverImpl.getGoalWallTargetGroup(SocialActivity,Session,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityResolverImpl.getStatusWallTargetGroup(SocialActivity,Session,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityResolverImpl.getUsersInterestedInResource(BaseEntity,Session,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityResolverImpl.SocialActivityResolverImpl()> .
+
+_:node19chgh7rkx105 atxa-core:contains _:node19chgh7rkx106 .
+
+_:node19chgh7rkx106 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityResolverImpl.getGoalWallTargetGroup(SocialActivity,Session,)> ;
+	atxa-core:posX "1133" ;
+	atxa-core:posY "1009" .
+
+_:node19chgh7rkx105 atxa-core:contains _:node19chgh7rkx107 .
+
+_:node19chgh7rkx107 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityResolverImpl.getStatusWallTargetGroup(SocialActivity,Session,)> ;
+	atxa-core:posX "1133" ;
+	atxa-core:posY "1025" .
+
+_:node19chgh7rkx105 atxa-core:contains _:node19chgh7rkx108 .
+
+_:node19chgh7rkx108 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityResolverImpl.getUsersInterestedInResource(BaseEntity,Session,)> ;
+	atxa-core:posX "1133" ;
+	atxa-core:posY "1041" .
+
+_:node19chgh7rkx105 atxa-core:contains _:node19chgh7rkx109 .
+
+_:node19chgh7rkx109 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityResolverImpl.SocialActivityResolverImpl()> ;
+	atxa-core:posX "1133" ;
+	atxa-core:posY "1057" .
+
+_:node19chgh7rkx80 atxa-core:contains _:node19chgh7rkx110 .
+
+_:node19chgh7rkx110 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallActionsManagerImpl> ;
+	atxa-core:posX "1126" ;
+	atxa-core:posY "282" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallActionsManagerImpl> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallActionsManagerImpl.ActivityWallActionsManagerImpl()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallActionsManagerImpl.decrementNumberOfReshares(long,Session,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallActionsManagerImpl.deleteSocialActivity(User,long,String,Session,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallActionsManagerImpl.disableComments(User,long,String,Session,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallActionsManagerImpl.enableComments(User,long,String,Session,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallActionsManagerImpl.hideNotification(User,long,String,Session,)> .
+
+_:node19chgh7rkx110 atxa-core:contains _:node19chgh7rkx111 .
+
+_:node19chgh7rkx111 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallActionsManagerImpl.ActivityWallActionsManagerImpl()> ;
+	atxa-core:posX "1127" ;
+	atxa-core:posY "300" .
+
+_:node19chgh7rkx110 atxa-core:contains _:node19chgh7rkx112 .
+
+_:node19chgh7rkx112 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallActionsManagerImpl.decrementNumberOfReshares(long,Session,)> ;
+	atxa-core:posX "1127" ;
+	atxa-core:posY "316" .
+
+_:node19chgh7rkx110 atxa-core:contains _:node19chgh7rkx113 .
+
+_:node19chgh7rkx113 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallActionsManagerImpl.deleteSocialActivity(User,long,String,Session,)> ;
+	atxa-core:posX "1127" ;
+	atxa-core:posY "332" .
+
+_:node19chgh7rkx110 atxa-core:contains _:node19chgh7rkx114 .
+
+_:node19chgh7rkx114 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallActionsManagerImpl.disableComments(User,long,String,Session,)> ;
+	atxa-core:posX "1127" ;
+	atxa-core:posY "348" .
+
+_:node19chgh7rkx110 atxa-core:contains _:node19chgh7rkx115 .
+
+_:node19chgh7rkx115 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallActionsManagerImpl.enableComments(User,long,String,Session,)> ;
+	atxa-core:posX "1127" ;
+	atxa-core:posY "364" .
+
+_:node19chgh7rkx110 atxa-core:contains _:node19chgh7rkx116 .
+
+_:node19chgh7rkx116 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallActionsManagerImpl.hideNotification(User,long,String,Session,)> ;
+	atxa-core:posX "1127" ;
+	atxa-core:posY "380" .
+
+_:node19chgh7rkx80 atxa-core:contains _:node19chgh7rkx117 .
+
+_:node19chgh7rkx117 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl> ;
+	atxa-core:posX "1131" ;
+	atxa-core:posY "408" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.ActivityWallManagerImpl()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.getCompletedCompetencesNumber(User,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.getLastActionForTargetCompetence(TargetCompetence,User,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.getLastActivityForGoal(User,TargetLearningGoal,Session,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.getLatestUsedTargetCompetences(User,int,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.getPublicSocialActivities(int,int,FilterType,boolean,Annotation,boolean,boolean,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.getSocialActivityNotification(SocialActivity,User,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.getSocialActivityOfPost(Post,Session,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.getSocialActivityOfPost(Post,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.getUserSocialEvents(User,FilterType,int,int,boolean,VisibilityType,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.getUserSocialEvents(User,FilterType,int,int,Date,boolean,VisibilityType,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.getUsersSubscribedToSocialActivity(long,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.getUsersSubscribedToSocialActivity(SocialActivity,Session,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.getUsersSubscribedToSocialActivity(SocialActivity,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.searchPublicSocialActivitiesWithHashtag(String,int,int,boolean,boolean,boolean,)> .
+
+_:node19chgh7rkx117 atxa-core:contains _:node19chgh7rkx118 .
+
+_:node19chgh7rkx118 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.ActivityWallManagerImpl()> ;
+	atxa-core:posX "1132" ;
+	atxa-core:posY "426" .
+
+_:node19chgh7rkx117 atxa-core:contains _:node19chgh7rkx119 .
+
+_:node19chgh7rkx119 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.getCompletedCompetencesNumber(User,)> ;
+	atxa-core:posX "1132" ;
+	atxa-core:posY "442" .
+
+_:node19chgh7rkx117 atxa-core:contains _:node19chgh7rkx120 .
+
+_:node19chgh7rkx120 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.getLastActionForTargetCompetence(TargetCompetence,User,)> ;
+	atxa-core:posX "1132" ;
+	atxa-core:posY "458" .
+
+_:node19chgh7rkx117 atxa-core:contains _:node19chgh7rkx121 .
+
+_:node19chgh7rkx121 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.getLastActivityForGoal(User,TargetLearningGoal,Session,)> ;
+	atxa-core:posX "1132" ;
+	atxa-core:posY "474" .
+
+_:node19chgh7rkx117 atxa-core:contains _:node19chgh7rkx122 .
+
+_:node19chgh7rkx122 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.getLatestUsedTargetCompetences(User,int,)> ;
+	atxa-core:posX "1132" ;
+	atxa-core:posY "490" .
+
+_:node19chgh7rkx117 atxa-core:contains _:node19chgh7rkx123 .
+
+_:node19chgh7rkx123 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.getPublicSocialActivities(int,int,FilterType,boolean,Annotation,boolean,boolean,)> ;
+	atxa-core:posX "1132" ;
+	atxa-core:posY "506" .
+
+_:node19chgh7rkx117 atxa-core:contains _:node19chgh7rkx124 .
+
+_:node19chgh7rkx124 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.getSocialActivityNotification(SocialActivity,User,)> ;
+	atxa-core:posX "1132" ;
+	atxa-core:posY "522" .
+
+_:node19chgh7rkx117 atxa-core:contains _:node19chgh7rkx125 .
+
+_:node19chgh7rkx125 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.getSocialActivityOfPost(Post,Session,)> ;
+	atxa-core:posX "1132" ;
+	atxa-core:posY "538" .
+
+_:node19chgh7rkx117 atxa-core:contains _:node19chgh7rkx126 .
+
+_:node19chgh7rkx126 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.getSocialActivityOfPost(Post,)> ;
+	atxa-core:posX "1132" ;
+	atxa-core:posY "554" .
+
+_:node19chgh7rkx117 atxa-core:contains _:node19chgh7rkx127 .
+
+_:node19chgh7rkx127 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.getUserSocialEvents(User,FilterType,int,int,boolean,VisibilityType,)> ;
+	atxa-core:posX "1132" ;
+	atxa-core:posY "570" .
+
+_:node19chgh7rkx117 atxa-core:contains _:node19chgh7rkx128 .
+
+_:node19chgh7rkx128 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.getUserSocialEvents(User,FilterType,int,int,Date,boolean,VisibilityType,)> ;
+	atxa-core:posX "1132" ;
+	atxa-core:posY "586" .
+
+_:node19chgh7rkx117 atxa-core:contains _:node19chgh7rkx129 .
+
+_:node19chgh7rkx129 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.getUsersSubscribedToSocialActivity(long,)> ;
+	atxa-core:posX "1132" ;
+	atxa-core:posY "602" .
+
+_:node19chgh7rkx117 atxa-core:contains _:node19chgh7rkx130 .
+
+_:node19chgh7rkx130 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.getUsersSubscribedToSocialActivity(SocialActivity,Session,)> ;
+	atxa-core:posX "1132" ;
+	atxa-core:posY "618" .
+
+_:node19chgh7rkx117 atxa-core:contains _:node19chgh7rkx131 .
+
+_:node19chgh7rkx131 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.getUsersSubscribedToSocialActivity(SocialActivity,)> ;
+	atxa-core:posX "1132" ;
+	atxa-core:posY "634" .
+
+_:node19chgh7rkx117 atxa-core:contains _:node19chgh7rkx132 .
+
+_:node19chgh7rkx132 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$ActivityWallManagerImpl.searchPublicSocialActivitiesWithHashtag(String,int,int,boolean,boolean,boolean,)> ;
+	atxa-core:posX "1132" ;
+	atxa-core:posY "650" .
+
+_:node19chgh7rkx80 atxa-core:contains _:node19chgh7rkx96 .
+
+_:node19chgh7rkx96 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityHandlerImpl> ;
+	atxa-core:posX "1130" ;
+	atxa-core:posY "839" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityHandlerImpl> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityHandlerImpl.addSociaActivitySyncAndPropagate(Event,GoalDataCache,User,boolean,boolean,Locale,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityHandlerImpl.disableSharing(SocialActivity,HttpSession,Session,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityHandlerImpl.propagateSocialActivity(Event,User,Locale,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityHandlerImpl.removeSocialActivity(SocialActivity,HttpSession,Session,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityHandlerImpl.SocialActivityHandlerImpl()> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityHandlerImpl.updateSocialActivity(SocialActivity,HttpSession,Session,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityHandlerImpl.updateUserSocialActivityInboxCache(long,HttpSession,SocialActivityNotification,SocialActivity,List,boolean,boolean,boolean,Session,)> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityHandlerImpl.updateUserSocialActivityInboxes(SocialActivity,boolean,Session,)> .
+
+_:node19chgh7rkx96 atxa-core:contains _:node19chgh7rkx97 .
+
+_:node19chgh7rkx97 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityHandlerImpl.addSociaActivitySyncAndPropagate(Event,GoalDataCache,User,boolean,boolean,Locale,)> ;
+	atxa-core:posX "1131" ;
+	atxa-core:posY "857" .
+
+_:node19chgh7rkx96 atxa-core:contains _:node19chgh7rkx98 .
+
+_:node19chgh7rkx98 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityHandlerImpl.disableSharing(SocialActivity,HttpSession,Session,)> ;
+	atxa-core:posX "1131" ;
+	atxa-core:posY "873" .
+
+_:node19chgh7rkx96 atxa-core:contains _:node19chgh7rkx99 .
+
+_:node19chgh7rkx99 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityHandlerImpl.propagateSocialActivity(Event,User,Locale,)> ;
+	atxa-core:posX "1131" ;
+	atxa-core:posY "889" .
+
+_:node19chgh7rkx96 atxa-core:contains _:node19chgh7rkx100 .
+
+_:node19chgh7rkx100 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityHandlerImpl.removeSocialActivity(SocialActivity,HttpSession,Session,)> ;
+	atxa-core:posX "1131" ;
+	atxa-core:posY "905" .
+
+_:node19chgh7rkx96 atxa-core:contains _:node19chgh7rkx101 .
+
+_:node19chgh7rkx101 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityHandlerImpl.SocialActivityHandlerImpl()> ;
+	atxa-core:posX "1131" ;
+	atxa-core:posY "921" .
+
+_:node19chgh7rkx96 atxa-core:contains _:node19chgh7rkx102 .
+
+_:node19chgh7rkx102 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityHandlerImpl.updateSocialActivity(SocialActivity,HttpSession,Session,)> ;
+	atxa-core:posX "1131" ;
+	atxa-core:posY "937" .
+
+_:node19chgh7rkx96 atxa-core:contains _:node19chgh7rkx103 .
+
+_:node19chgh7rkx103 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityHandlerImpl.updateUserSocialActivityInboxCache(long,HttpSession,SocialActivityNotification,SocialActivity,List,boolean,boolean,boolean,Session,)> ;
+	atxa-core:posX "1131" ;
+	atxa-core:posY "953" .
+
+_:node19chgh7rkx96 atxa-core:contains _:node19chgh7rkx104 .
+
+_:node19chgh7rkx104 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.services.activitystream.impl$SocialActivityHandlerImpl.updateUserSocialActivityInboxes(SocialActivity,boolean,Session,)> ;
+	atxa-core:posX "1131" ;
+	atxa-core:posY "969" .
+
+@prefix atxa-rse-eclipse: <http://www.architexa.com/rdf/rse-eclipse#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix atxa-jdt-wkspc: <http://www.architexa.com/rdf/jdt-wkspc#> .
+@prefix atxa-core: <http://www.architexa.com/rdf/core#> .
+@prefix atxa: <http://www.architexa.com/rdf/> .
+
+<http://www.architexa.com/rdf/rse-eclipse#models_slby_unfunctionalities_slStatusWall-class-diagram-2.atxa> a atxa-core:reloFile ;
+	atxa-core:contains _:node19chgh7rkx3 , _:node19chgh7rkx4 , _:node19chgh7rkx5 , _:node19chgh7rkx6 , _:node19chgh7rkx7 , _:node19chgh7rkx8 , _:node19chgh7rkx9 , _:node19chgh7rkx2 , _:node19chgh7rkx11 , _:node19chgh7rkx12 , _:node19chgh7rkx13 , _:node19chgh7rkx14 , _:node19chgh7rkx15 , _:node19chgh7rkx16 , _:node19chgh7rkx17 , _:node19chgh7rkx18 , _:node19chgh7rkx19 , _:node19chgh7rkx20 , _:node19chgh7rkx21 , _:node19chgh7rkx22 , _:node19chgh7rkx23 , _:node19chgh7rkx24 , _:node19chgh7rkx25 , _:node19chgh7rkx26 , _:node19chgh7rkx27 , _:node19chgh7rkx28 , _:node19chgh7rkx29 , _:node19chgh7rkx30 , _:node19chgh7rkx31 , _:node19chgh7rkx32 , _:node19chgh7rkx33 , _:node19chgh7rkx34 , _:node19chgh7rkx35 , _:node19chgh7rkx36 , _:node19chgh7rkx37 , _:node19chgh7rkx10 , _:node19chgh7rkx1 , _:node19chgh7rkx40 , _:node19chgh7rkx41 , _:node19chgh7rkx42 , _:node19chgh7rkx43 , _:node19chgh7rkx44 , _:node19chgh7rkx45 , _:node19chgh7rkx46 , _:node19chgh7rkx47 , _:node19chgh7rkx48 , _:node19chgh7rkx49 , _:node19chgh7rkx50 , _:node19chgh7rkx51 , _:node19chgh7rkx52 , _:node19chgh7rkx53 , _:node19chgh7rkx39 , _:node19chgh7rkx38 , _:node19chgh7rkx56 , _:node19chgh7rkx57 , _:node19chgh7rkx58 , _:node19chgh7rkx59 , _:node19chgh7rkx60 , _:node19chgh7rkx61 , _:node19chgh7rkx62 , _:node19chgh7rkx63 , _:node19chgh7rkx64 , _:node19chgh7rkx65 , _:node19chgh7rkx66 , _:node19chgh7rkx67 , _:node19chgh7rkx68 , _:node19chgh7rkx69 , _:node19chgh7rkx70 , _:node19chgh7rkx71 , _:node19chgh7rkx72 , _:node19chgh7rkx73 , _:node19chgh7rkx74 , _:node19chgh7rkx55 , _:node19chgh7rkx76 , _:node19chgh7rkx75 , _:node19chgh7rkx54 , _:node19chgh7rkx79 , _:node19chgh7rkx78 , _:node19chgh7rkx77 , _:node19chgh7rkx82 , _:node19chgh7rkx83 , _:node19chgh7rkx84 , _:node19chgh7rkx85 , _:node19chgh7rkx86 , _:node19chgh7rkx81 , _:node19chgh7rkx88 , _:node19chgh7rkx89 , _:node19chgh7rkx90 , _:node19chgh7rkx87 , _:node19chgh7rkx92 , _:node19chgh7rkx93 , _:node19chgh7rkx94 , _:node19chgh7rkx95 , _:node19chgh7rkx91 , _:node19chgh7rkx106 , _:node19chgh7rkx107 , _:node19chgh7rkx108 , _:node19chgh7rkx109 , _:node19chgh7rkx105 , _:node19chgh7rkx111 , _:node19chgh7rkx112 , _:node19chgh7rkx113 , _:node19chgh7rkx114 , _:node19chgh7rkx115 , _:node19chgh7rkx116 , _:node19chgh7rkx110 , _:node19chgh7rkx118 , _:node19chgh7rkx119 , _:node19chgh7rkx120 , _:node19chgh7rkx121 , _:node19chgh7rkx122 , _:node19chgh7rkx123 , _:node19chgh7rkx124 , _:node19chgh7rkx125 , _:node19chgh7rkx126 , _:node19chgh7rkx127 , _:node19chgh7rkx128 , _:node19chgh7rkx129 , _:node19chgh7rkx130 , _:node19chgh7rkx131 , _:node19chgh7rkx132 , _:node19chgh7rkx117 , _:node19chgh7rkx97 , _:node19chgh7rkx98 , _:node19chgh7rkx99 , _:node19chgh7rkx100 , _:node19chgh7rkx101 , _:node19chgh7rkx102 , _:node19chgh7rkx103 , _:node19chgh7rkx104 , _:node19chgh7rkx96 , _:node19chgh7rkx80 , atxa-core:docRoot , _:node19chgh7rkx3 , _:node19chgh7rkx4 , _:node19chgh7rkx5 , _:node19chgh7rkx6 , _:node19chgh7rkx7 , _:node19chgh7rkx8 , _:node19chgh7rkx9 , _:node19chgh7rkx2 , _:node19chgh7rkx11 , _:node19chgh7rkx12 , _:node19chgh7rkx13 , _:node19chgh7rkx14 , _:node19chgh7rkx15 , _:node19chgh7rkx16 , _:node19chgh7rkx17 , _:node19chgh7rkx18 , _:node19chgh7rkx19 , _:node19chgh7rkx20 , _:node19chgh7rkx21 , _:node19chgh7rkx22 , _:node19chgh7rkx23 , _:node19chgh7rkx24 , _:node19chgh7rkx25 , _:node19chgh7rkx26 , _:node19chgh7rkx27 , _:node19chgh7rkx28 , _:node19chgh7rkx29 , _:node19chgh7rkx30 , _:node19chgh7rkx31 , _:node19chgh7rkx32 , _:node19chgh7rkx33 , _:node19chgh7rkx34 , _:node19chgh7rkx35 , _:node19chgh7rkx36 , _:node19chgh7rkx37 , _:node19chgh7rkx10 , _:node19chgh7rkx1 , _:node19chgh7rkx40 , _:node19chgh7rkx41 , _:node19chgh7rkx42 , _:node19chgh7rkx43 , _:node19chgh7rkx44 , _:node19chgh7rkx45 , _:node19chgh7rkx46 , _:node19chgh7rkx47 , _:node19chgh7rkx48 , _:node19chgh7rkx49 , _:node19chgh7rkx50 , _:node19chgh7rkx51 , _:node19chgh7rkx52 , _:node19chgh7rkx53 , _:node19chgh7rkx39 , _:node19chgh7rkx38 , _:node19chgh7rkx56 , _:node19chgh7rkx57 , _:node19chgh7rkx58 , _:node19chgh7rkx59 , _:node19chgh7rkx60 , _:node19chgh7rkx61 , _:node19chgh7rkx62 , _:node19chgh7rkx63 , _:node19chgh7rkx64 , _:node19chgh7rkx65 , _:node19chgh7rkx66 , _:node19chgh7rkx67 , _:node19chgh7rkx68 , _:node19chgh7rkx69 , _:node19chgh7rkx70 , _:node19chgh7rkx71 , _:node19chgh7rkx72 , _:node19chgh7rkx73 , _:node19chgh7rkx74 , _:node19chgh7rkx55 , _:node19chgh7rkx76 , _:node19chgh7rkx75 , _:node19chgh7rkx54 , _:node19chgh7rkx79 , _:node19chgh7rkx78 , _:node19chgh7rkx77 , _:node19chgh7rkx82 , _:node19chgh7rkx83 , _:node19chgh7rkx84 , _:node19chgh7rkx85 , _:node19chgh7rkx86 , _:node19chgh7rkx81 , _:node19chgh7rkx88 , _:node19chgh7rkx89 , _:node19chgh7rkx90 , _:node19chgh7rkx87 , _:node19chgh7rkx92 , _:node19chgh7rkx93 , _:node19chgh7rkx94 , _:node19chgh7rkx95 , _:node19chgh7rkx91 , _:node19chgh7rkx106 , _:node19chgh7rkx107 , _:node19chgh7rkx108 , _:node19chgh7rkx109 , _:node19chgh7rkx105 , _:node19chgh7rkx111 , _:node19chgh7rkx112 , _:node19chgh7rkx113 , _:node19chgh7rkx114 , _:node19chgh7rkx115 , _:node19chgh7rkx116 , _:node19chgh7rkx110 , _:node19chgh7rkx118 , _:node19chgh7rkx119 , _:node19chgh7rkx120 , _:node19chgh7rkx121 , _:node19chgh7rkx122 , _:node19chgh7rkx123 , _:node19chgh7rkx124 , _:node19chgh7rkx125 , _:node19chgh7rkx126 , _:node19chgh7rkx127 , _:node19chgh7rkx128 , _:node19chgh7rkx129 , _:node19chgh7rkx130 , _:node19chgh7rkx131 , _:node19chgh7rkx132 , _:node19chgh7rkx117 , _:node19chgh7rkx97 , _:node19chgh7rkx98 , _:node19chgh7rkx99 , _:node19chgh7rkx100 , _:node19chgh7rkx101 , _:node19chgh7rkx102 , _:node19chgh7rkx103 , _:node19chgh7rkx104 , _:node19chgh7rkx96 , _:node19chgh7rkx80 , atxa-core:docRoot .
+

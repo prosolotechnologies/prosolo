@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+	<!-- Enabling Spring AOP -->
+	<aop:aspectj-autoproxy />
+
+	<!-- Aspect -->
+
+	<!-- Enabling scanning for Spring service annotations -->
+	<context:component-scan base-package="org.prosolo.core" />
+	<context:component-scan base-package="org.prosolo.services" />
+	<context:component-scan base-package="org.prosolo.similarity" />
+	<context:component-scan base-package="org.prosolo.similarity.impl" />
+	<context:component-scan base-package="org.prosolo.services.aspects" />
+	<context:component-scan base-package="org.prosolo.recommendation" />
+	<context:component-scan base-package="org.prosolo.reminders" />
+	<context:component-scan base-package="org.prosolo.news" />
+	<context:component-scan base-package="org.prosolo.recommendation.dal.impl" />
+	<context:component-scan base-package="org.prosolo.recommendation.util" />
+	<context:component-scan base-package="org.prosolo.app.bc" />
+	<context:component-scan base-package="org.prosolo.web" />
+	<context:component-scan base-package="org.prosolo.search" />
+	<context:component-scan base-package="org.prosolo.web.home" />
+	<context:component-scan base-package="org.prosolo.services.annotation" />
+	<context:component-scan base-package="org.prosolo.services.annotation.impl" />
+
+	<bean id="contextApplicationContextProvider" class="org.prosolo.core.spring.ServiceLocator"></bean>
+	
+	<bean class="org.springframework.beans.factory.config.CustomScopeConfigurer">
+		<property name="scopes">
+			<map>
+				<entry key="view">
+					<bean class="org.prosolo.core.spring.ViewScope" />
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+	<!-- Quartz integration -->
+ 
+	
+		<bean id="checkFeedsJobBean" class="org.prosolo.services.feeds.GenerateFeedsJobBean" autowire="byName">
+			<!-- Ref to other beans. Add more if needed -->
+		</bean>
+			<bean id="activityExportJobBean" class="org.prosolo.services.activityreport.ActivityExportJobBean" autowire="byName">
+			<!-- Ref to other beans. Add more if needed -->
+		</bean>
+		
+		
+		<!-- Define the bean that delegates the work to the real job bean -->
+		<bean name="checkFeedsDailyJob" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		
+			<property name="jobClass" value="org.prosolo.services.feeds.FeedsDigestJobBean"/>
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="job.bean.name" value="checkFeedsJobBean"/>
+						<entry key="update.period" value="DAILY"/>
+					 </map>
+				</property>
+			</bean>
+		
+			<!-- OLD SETTINGS WHEN THERE WERE JOBS FOR ALL THREE TYPES OF FEED DIGESTS 
+			<property name="jobClass" value="org.prosolo.services.feeds.DelegatingJobBean"/>
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="job.bean.name" value="checkFeedsJobBean"/>
+						<entry key="update.period" value="DAILY"/>
+					 </map>
+				</property>
+			</bean>
+			
+			<bean name="checkFeedsWeeklyJob" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+			<property name="jobClass" value="org.prosolo.services.feeds.DelegatingJobBean"/>
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="job.bean.name" value="checkFeedsJobBean"/>
+						<entry key="update.period" value="WEEKLY"/>
+					 </map>
+				</property>
+			</bean>
+			
+			<bean name="checkFeedsMonthlyJob" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+			<property name="jobClass" value="org.prosolo.services.feeds.DelegatingJobBean"/>
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="job.bean.name" value="checkFeedsJobBean"/>
+						<entry key="update.period" value="MONTHLY"/>
+					 </map>
+				</property>
+			</bean>
+			-->
+			
+			<bean name="activityExportJob" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+			<property name="jobClass" value="org.prosolo.services.feeds.FeedsDigestJobBean"/>
+			<property name="jobDataAsMap">
+				<map>
+					<entry key="job.bean.name" value="activityExportJobBean"/>
+				 </map>
+			</property>
+		</bean>
+		
+		<bean id="checkFeedsTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+			<property name="jobDetail" ref="checkFeedsDailyJob"/>
+			
+			<!--property name="cronExpression" value="0 */3 * * * ?" /-->
+			<property name="cronExpression" value="0 0 3 * * ?"/>
+		</bean>
+		
+		<!-- OLD SETTINGS WHEN THERE WERE JOBS FOR ALL THREE TYPES OF FEED DIGESTS 
+		<bean id="checkFeedsDailyTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+			<property name="jobDetail" ref="checkFeedsDailyJob"/-->
+			
+			<!--property name="cronExpression" value="0 0 3 * * ?"/-->
+		<!--/bean>
+		<bean id="checkFeedsWeeklyTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+			<property name="jobDetail" ref="checkFeedsWeeklyJob"/>
+			<property name="cronExpression" value="0 30 2 ? * SUN" />
+		-->
+			<!--property name="cronExpression" value="0 0 0/5 * * ?"/-->
+		<!--/bean>
+		<bean id="checkFeedsMonthlyTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+			<property name="jobDetail" ref="checkFeedsMonthlyJob"/-->
+			<!-- cron Expression to fire the trigger at 2:30 AM on the last Saturday of every month.  -->
+			<!-- property name="cronExpression" value="0 30 2 ? * 7L" /-->
+		<!--/bean>
+		-->
+	    <bean id="activityExportTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+			<property name="jobDetail" ref="activityExportJob"/>
+			
+			<!-- cron Expression to fire the trigger every Tuesday at 3:00 AM.  -->
+			<property name="cronExpression" value="0 0 3 ? * TUE"/>
+		</bean>
+		
+		<!-- Define the scheduler with the list of triggers -->
+		<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+			<property name="triggers">
+				<list>
+					<ref bean="checkFeedsTrigger" />
+					<!--ref bean="checkFeedsDailyTrigger"/-->
+					<!-- ref bean="checkFeedsWeeklyTrigger"/-->
+					<!-- ref bean="checkFeedsMonthlyTrigger"/-->
+					<ref bean="activityExportTrigger" />
+				</list>
+			</property>
+			<!-- Scheduler context key we use this in delegating job bean -->
+			<property name="applicationContextSchedulerContextKey">
+				<value>applicationContext</value>
+			</property>
+		</bean>
+
+
+		<!-- TRANSACTION CONFIGURATION -->
+
+		<!-- Allowing annotation-driven transactions -->
+		<tx:annotation-driven transaction-manager="transactionManager" />
+
+		<bean id="transactionManager"
+			class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+			<property name="sessionFactory" ref="sessionFactory" />
+			<property name="dataSource" ref="dataSource" />
+		</bean>
+
+		<bean id="transactionTemplate"
+			class="org.springframework.transaction.support.TransactionTemplate">
+			<property name="transactionManager" ref="transactionManager" />
+		</bean>
+
+		<bean id="taskExecutor"
+			class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+			<property name="corePoolSize" value="5" />
+			<property name="maxPoolSize" value="10" />
+			<property name="WaitForTasksToCompleteOnShutdown" value="true" />
+		</bean>
+
+		<!-- Error retry advice -->
+		<aop:config>
+			<aop:pointcut id="transactional"
+				expression="execution(* org.prosolo.services.general.impl.AbstractManagerImpl.saveEntity(..))" />
+			<aop:advisor pointcut-ref="transactional" advice-ref="retryAdvice"
+				order="-1" />
+		</aop:config>
+
+		<bean id="retryAdvice"
+			class="org.springframework.retry.interceptor.RetryOperationsInterceptor" />
+
+	</beans>

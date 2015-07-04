@@ -1,0 +1,91 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:func="http://org.prosolo/functions"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+	<composite:interface>
+	</composite:interface>
+	
+	<composite:implementation>
+		<utilcomp:messagesBundle var="msg" />
+	
+		<div id="invitationToJoinGoalModalDialog" title="Invitation to join goal" style="display: none;">
+	
+			<h:form id="invitationToJoinGoalFormId" prependId="false" class="invitationToJoinGoalForm">
+				<h4 class="goaltitle">#{invitationToJoinGoalDialog.learningGoal.title}</h4>
+				
+				<table>
+					<tr>
+						<td class="col1">To:</td>
+						<td>
+							<link:user value="userDetails" 
+			    				userData="#{invitationToJoinGoalDialog.receiver}"
+			    				mode="imageName"
+			    				imageSize="22"
+			    				idPrefix="goalJoinInvitation"
+			    				context="invitationToJoinGoal"/>
+						</td>
+					</tr>
+					<tr>
+						<td class="label col1">
+							<h:outputLabel for="messageContent">Message:</h:outputLabel>
+						</td>
+						<td>
+							<h:inputTextarea styleClass="messageTextarea" id="messageContent"
+								value="#{invitationToJoinGoalDialog.messageContent}"
+								placeholder="#{msg['textarea.message']}" />
+								
+							<script>
+								$(function() {
+									$('#invitationToJoinGoalModalDialog .messageTextarea').autosize(); 
+								});
+							</script>
+						</td>
+					</tr>
+				</table>
+	
+				<p:commandLink value="Send"
+					styleClass="button green size30 right"
+					onclick='$("#invitationToJoinGoalModalDialog").dialog("close");'
+					actionListener="#{invitationToJoinGoalDialog.sendInvitationToJoinGoal}"
+					update="newInvitationToJoinFormGrowl" />
+	
+				<p:commandLink value="Cancel"
+					styleClass="button gray size30 right"
+					onclick='$("#invitationToJoinGoalModalDialog").dialog("close");' />
+	
+				<p:growl id="newInvitationToJoinFormGrowl" for="newInvitationToJoinFormGrowl" showDetail="true" />
+				<script>
+				$(function() {
+					roundImages();
+				});
+				</script>
+			</h:form>
+		</div>
+		<script>
+		$(function() {
+			$( '#invitationToJoinGoalModalDialog' ).dialog({
+				autoOpen: false,
+				width: 465,
+				show : 'slide',
+				resizable: false,
+				modal: true,
+				open: function(event, ui) { 
+					$(this).children(':first')
+						.css('text-align', 'center')
+						.css('padding-top', '50px')
+						.html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
+				},
+			});
+			$('#invitationToJoinGoalModalDialog').show();
+		});
+		</script>
+	</composite:implementation>
+</ui:component>

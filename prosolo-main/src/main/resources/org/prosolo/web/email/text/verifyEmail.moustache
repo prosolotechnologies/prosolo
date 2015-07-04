@@ -1,0 +1,14 @@
+Hi {{name}},
+
+Welcome  to ProSolo. Your account was successfully created.
+To verify your  email, just click the link below:
+
+{{link}}
+ 
+		
+If the above URL does not work try copying and pasting it into your browser.
+If you continue to have problem please reply to this email.
+
+
+Thanks,
+The ProSolo Team

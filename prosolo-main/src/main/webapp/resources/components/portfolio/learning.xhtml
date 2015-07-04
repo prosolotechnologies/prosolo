@@ -1,0 +1,164 @@
+<ui:composition
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:dlgAnalytics="http://java.sun.com/jsf/composite/components/dialogs/analytics"
+	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:portfolio="http://java.sun.com/jsf/composite/components/portfolio">
+	
+	<script>
+		$(function() {
+			lazyLoadCompletedGoals();
+		});
+	
+		function beforeLazyLoadCompletedGoals() {
+			$('#completedGoalsForm .goalsContainer').show();
+			$('#completedGoalsForm .goalsContainer').html('<img class="loader" src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif"/>');
+		}
+	</script>
+
+	<h:form id="completedGoalsForm">
+		<p:growl id="completedGoalsFormGrowl" showDetail="true" />
+		
+		<p:remoteCommand name="lazyLoadCompletedGoals" 
+			onstart="beforeLazyLoadCompletedGoals()"
+			actionListener="#{portfolio.initCompletedGoals()}" 
+			update=":#{p:component('completedGoalsForm')}"
+			oncomplete="registerLazyLoadCompleted();"
+			async="true" />
+
+		<div class="profileGoals">
+			<h2><icon:goal styleClass="icon" />Learning</h2>
+		
+			<div class="clear"></div>
+			
+			<div class="goalsContainer">
+				<p class="pRight"><strong>Completed:</strong> #{portfolio.goalStats.completedNo}/#{portfolio.goalStats.totalNo}&#160;&#160;&#160;&#160;&#160;&#160;&#160;<strong>Average time:</strong> #{portfolio.goalStats.averageTime}</p>
+				<h3>Ongoing Learning</h3>
+			
+				<h:panelGroup rendered="#{empty learninggoals.ongoingGoals}" styleClass="noContentMessage">
+					There are no ongoing goals.
+				</h:panelGroup>
+				
+				<h:panelGroup layout="block" id="ongoingGoalList" class="ongoingGoals">
+					<ui:repeat value="#{learninggoals.ongoingGoals}" var="ongoingGoalIterator" id="ongoingGoalsRepeat" varStatus="iterator">
+						<portfolio:goalItem
+							goalData="#{ongoingGoalIterator}"
+							idSufix="ongoing#{iterator.index}"
+							styleClass="#{iterator.index % 2 == 1 ? 'noMargin' : '' }"
+							updateAfterVisibilityUpdate=":completedGoalsForm:ongoingGoalList"
+							editable="true"
+							canBeSentBackToLearning="false"
+							context="profile.learning.ongoing" />
+					</ui:repeat>
+					<script>
+						enableDropdown(escapeColons('.profileGoals .ongoingGoals .drop'));
+					</script>
+				</h:panelGroup>
+				
+				<div class="clear marginBottom10"></div>
+				
+				<h3>Completed Learning</h3>
+			
+				<h:panelGroup rendered="#{empty portfolio.completedGoals}" styleClass="noContentMessage">
+					There are no completed goals yet.
+				</h:panelGroup>
+				
+				<h:panelGroup layout="block" id="completedGoalList" class="completedGoals">
+					<ui:repeat value="#{portfolio.completedGoals}" var="goalIterator" id="completedGoalsRepeat" varStatus="iterator">
+						<portfolio:goalItem
+							goalData="#{goalIterator}"
+							styleClass="#{iterator.index % 2 == 1 ? 'noMargin' : '' }"
+							updateAfterVisibilityUpdate=":completedGoalsForm:completedGoalList"
+							editable="true"
+							context="profile.learning.completed" />
+					</ui:repeat>
+					<script>
+						enableDropdown(escapeColons('.profileGoals .completedGoals .drop'));
+					</script>
+				</h:panelGroup>
+			</div>
+			
+			<script>
+				$(function() {
+					$('.profileGoals .goalsMore').moreLessBox({
+						lessClass : '',
+						lessText : 'See less',
+						moreClass : '',
+						moreText : 'See all',
+					});
+					
+					$('.profileGoals .profileItem h4 .firstLine').shortenedText({showChar: 60, mode: 'static'});
+				});
+
+				$(window).bind("load", function() {
+					if ($('.profileGoals .evaluations .evaluation.open').length > 0) {
+						$('.profileGoals .evaluations .evaluation.open').parent('.profileGoals .evaluations').slideToggle(function() {
+							$('.profileGoals .evaluations .evaluation.open').effect("highlight", {}, 3000);
+						});
+					}
+				});
+				$('#completedGoalsForm .goalsContainer').fadeIn();
+			</script>
+		</div>
+	 	
+	 	<utilcomp:tooltip target=".hasTooltip[title]" />
+	</h:form>
+	
+	<div id="sendToGoalsModalDialog" class="sendToGoalsModalDialog" style="display: none;">
+		<h4 class="warningMessage">Are you sure you want to learn this goal again?</h4>
+
+		<h:form id="sendToGoalsForm">
+			<input type="text" class="id" style="display: none;" value="#{portfolio.goalDataToBeSentToGoals.targetGoalId}" />
+			<input type="text" class="context" style="display: none;" value="#{portfolio.contextSendToGoals}" />
+		
+			<p:commandLink value="Yes"
+				styleClass="button green size30 right"
+				onclick="$('#sendToGoalsModalDialog').dialog('option', 'submit', true);$('#sendToGoalsModalDialog').dialog('close');"
+			 	action="#{portfolio.sendToGoals}"
+			 	update=":completedGoalsForm"
+				/>
+			&#160;
+			<p:commandLink value="Cancel"
+				styleClass="button gray size30 right"
+				onclick="$('#sendToGoalsModalDialog').dialog('close');"
+		 	/>
+	 	</h:form>
+	</div>
+	<script>
+	$(function() {
+		$('#sendToGoalsModalDialog').dialog({
+			title: 'Send to Learn',
+			dialogClass: 'warning',
+			show : 'slide',
+			autoOpen: false,
+			width: 300,
+			modal: true,
+			resizable: false,
+			open: function() {
+				$(this).parent()
+			        .children('.ui-dialog-titlebar')
+			        .prepend('<span class="warningIcon"></span>');
+			},
+			close: function() {
+				var submitted = $(this).dialog('option', 'submit');
+				
+				if (!submitted) {
+					var id = $('#sendToGoalsModalDialog .id').val();
+					var context = $('#sendToGoalsModalDialog .context').val();
+					sendServiceUse('MOUSE_CLICK', {context: context, link: 'cancel', 'targetGoalId' : id});
+				}
+				
+				$(this).dialog('option', 'submit', false);
+			}
+		});
+		$('#sendToGoalsModalDialog').show();
+	});
+	$('#completedGoalsForm .goalsContainer').hide();
+	</script>
+	
+	<dlgAnalytics:goal id="goalAnalytics" />
+</ui:composition>

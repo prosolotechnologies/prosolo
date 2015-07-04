@@ -1,0 +1,65 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:util="http://www.prosolo.com/util">
+
+	<composite:interface>
+		<composite:attribute name="activity"/>
+	</composite:interface>
+	
+	<composite:implementation>
+		<div id="activityStatisticsDialog" title="Activity Statistics" class="activityStatisticsDialog" style="display: none;">
+			<h:form id="activityStatisticsDialogForm" prependId="false">
+				
+				<table>
+					<tr>
+						<td>Likes:</td>
+						<td>#{activityAnalyticsBean.data.likes}</td>
+					</tr>
+					<tr>
+						<td>Dislikes:</td>
+						<td>#{activityAnalyticsBean.data.dislikes}</td>
+					</tr>
+					<tr>
+						<td>Used in ongoing goals:</td>
+						<td>#{activityAnalyticsBean.data.ongoingGoals}</td>
+					</tr>
+					<tr>
+						<td>Used in completed goals:</td>
+						<td>#{activityAnalyticsBean.data.completedGoals}</td>
+					</tr>
+				</table>
+				
+				<div class="clear marginBottom10"></div>
+				<a class="button gray size30 right"
+					onclick="$('#activityStatisticsDialog').dialog('close');"
+					>Close</a>										
+	
+			</h:form>
+		</div>
+		<script>
+			$(function() {
+				$('#activityStatisticsDialog').dialog({
+					autoOpen : false,
+					show : 'slide',
+					modal : true,
+					width : 200,
+					resizable : false,
+					open: function(event, ui) { 
+						$(this).children(':first')
+							.css('text-align', 'center')
+							.css('padding-top', '50px')
+							.html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
+					},
+				});
+				$('#activityStatisticsDialog').show();
+			});
+		</script>
+	</composite:implementation>
+</ui:component>

@@ -1,0 +1,56 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+
+	<composite:interface>
+		<composite:attribute name="target" required="true" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<script>
+		$(function() {
+			$('#{cc.attrs.target}').qtip({
+				position: {
+					my: 'bottom center',
+					at: 'top center'
+				},
+				style: {
+					classes: 'ui-tooltip-dark'
+				},
+				hide: {
+					when: {
+						event:'mouseout'
+					}, 
+					fixed: true, 
+					delay: 500
+				},
+				events: {
+					show: function(event, api) {
+						$(event.target).find(".ui-tooltip-close").hide();
+						
+						var position = $(api.elements.target).attr('position');
+						
+						if (position) {
+							if (position == 'left') {
+								api.set('position.my', 'right center');
+								api.set('position.at', 'left center');
+							}
+						}
+						
+						var contextString = $(api.elements.target).attr('context');
+						
+						if (contextString) {
+							if (contextString.length > 0) {
+								sendServiceUse('TOOLTIP', {context: contextString});
+							}
+						}
+					}
+				}
+			})
+		});
+		</script>
+	</composite:implementation>
+</ui:component>

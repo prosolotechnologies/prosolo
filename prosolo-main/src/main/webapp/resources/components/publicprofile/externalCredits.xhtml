@@ -1,0 +1,215 @@
+<ui:composition
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:dlgportfolio="http://java.sun.com/jsf/composite/components/dialogs/portfolio"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks">
+	
+	<ui:param name="userId" value="#{publicportfolio.profileOwnerData.id}" />
+	
+	<utilcomp:messagesBundle var="msg" />
+	
+	<div class="portCred">
+		<h2>
+			External credits / Continuing education
+			<utilcomp:infotooltip position="EXTERNAL_CREDITS" context="publicprofile.#{userId}.credits" />
+		</h2>
+		<div class="clear"></div>
+		
+		<script>
+			$(function() {
+				$('.portCred .creditsContainer').html('<img class="loader" src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif"/>');
+				exCreditPageData.initExCredits();
+			});
+			var exCreditPageData = {};
+			
+			exCreditPageData.initExCredits = function(){
+				$('.portCred .refresh').trigger('click');
+			};
+			
+			exCreditPageData.beforeLazyLoadCreditsContainer = function() {
+				$('.portCred .creditsContainer').show();
+			};
+		</script>
+		
+		<h:form id="exCreditForm">
+			<p:commandLink styleClass="refresh" 
+				onclick="exCreditPageData.beforeLazyLoadCreditsContainer()"
+				actionListener="#{publicportfolio.initExternalCredits()}" 
+				update=":exCreditForm" />
+			
+			<ui:remove>
+			<p:remoteCommand name="lazyLoadExternalCredits" 
+				onstart="exCreditPageData.beforeLazyLoadCreditsContainer();"
+				actionListener="#{publicportfolio.initExternalCredits()}" 
+				update=":exCreditForm"
+				async="true" />
+			</ui:remove>
+			
+			<div class="creditsContainer" style="display:none">
+				<h:panelGroup rendered="#{empty publicportfolio.externalCredits}" styleClass="noContentMessage">
+					There are no external credits added yet.
+				</h:panelGroup>
+				
+				<ui:repeat id="exCreditLoop" value="#{publicportfolio.externalCredits}" var="exCreditIterator" varStatus="iterator">
+					<div class="profileItem noMargin profileItemPurple externalCredit" id="exCredit#{iterator.index}">
+						<div class="header topContent">
+							<h4>#{exCreditIterator.title}</h4>
+							
+							<h:panelGroup rendered="#{exCreditIterator.description != ''}">
+								<a href="javascript:void(0);" class="descriptionLink collapsed"><span class="downArrow"></span>More</a>
+							</h:panelGroup>
+							
+							<p class="description">
+								#{exCreditIterator.description}
+							</p>
+						</div>
+						
+						<div class="topContent col1">
+							<p>
+								<h:panelGroup rendered="#{exCreditIterator.start != null}" >
+									Start: 
+									<h:outputText class="date" value="#{exCreditIterator.start}" >
+										<f:convertDateTime pattern="dd.MM.yyyy" />
+									</h:outputText>
+								</h:panelGroup>
+								<h:panelGroup rendered="#{exCreditIterator.start != null and exCreditIterator.end != null}" >
+								-
+								</h:panelGroup> 
+								<h:panelGroup rendered="#{exCreditIterator.end != null}" >
+									End:
+									<h:outputText class="date" value="#{exCreditIterator.end}">
+										<f:convertDateTime pattern="dd.MM.yyyy" />
+									</h:outputText>
+								</h:panelGroup>
+							</p>
+							
+							<p:commandLink
+								rendered="#{exCreditIterator.badgeCount > 0}"
+								styleClass="profLinkBadges link"
+								onclick="$('#badgeListDialog').dialog('open');"
+								action="#{badgelist.initializeForCompletedResourceById(exCreditIterator.externalCredit.id, 'publicProfile.'.concat(userId).concat('credits'))}"
+								update=":badgeListForm"
+								>
+								<span class="icon active"></span>
+								<span class="count">#{exCreditIterator.badgeCount}</span> badges								
+							</p:commandLink>
+							<h:panelGroup layout="block"
+								rendered="#{exCreditIterator.badgeCount == 0}"
+								styleClass="link profLinkBadges inactive"
+								>
+								<span class="icon"></span>
+								<span class="count">0</span> badges								
+							</h:panelGroup>
+							
+							<p:commandLink
+								styleClass="link profLinkEvals"
+								rendered="#{exCreditIterator.evaluationCount > 0}"
+								onclick="$('#evaluationListDialog').dialog('open');"
+								action="#{evaluationlist.initialize(exCreditIterator.externalCredit, 'publicProfile.'.concat(userId).concat('credits'))}"
+								update=":#{p:component('evaluationListForm')}"
+								>
+								<span class="icon active"></span>
+								<span class="count">#{exCreditIterator.evaluationCount}</span> #{msg['portfolio.evaluatedItem.evaluationsNumber']}								
+							</p:commandLink>
+							<h:panelGroup layout="block"
+								rendered="#{exCreditIterator.evaluationCount == 0}"
+								styleClass="link profLinkEvals inactive"
+								>
+								<span class="icon"></span>
+								<span class="count">0</span> #{msg['portfolio.evaluatedItem.evaluationsNumber']}								
+							</h:panelGroup>
+							
+							<ui:remove>
+								<span class="link profLinkStats" ><span class="icon"></span>Statistics</span>
+							</ui:remove>
+							<div class="clear"></div>
+							
+							<p:commandLink value="Activities"
+								styleClass="button gray size25 marginRight10"
+								onclick="$('#exCreditActivityListFormModalDialog').dialog('open');"
+								action="#{activityListDialog.init(false, exCreditIterator.activities, exCreditIterator.id, 'publicProfile.'.concat(userId).concat('credits'))}"
+								update=":exCredit:activityListForm"
+							/>
+							
+							<h:outputLink value="#{exCreditIterator.certificateLink}"
+								rendered="#{exCreditIterator.certificateLink != null}"
+								onclick="sendLogPageNavigation('#{exCreditIterator.certificateLink}', 'publicProfile.#{userId}.certificateLink');"
+								class="button gray size25" 
+								target="_blank">
+								<h:outputText value="Certificate" />
+							</h:outputLink>
+							
+							<div class="clear"></div>
+						</div>
+							
+						<div class="topContent col2">
+							<div class="assComp">
+								<strong>Claimed Competences:</strong>
+								<ul>
+									<ui:repeat id="compSearchLoop" value="#{exCreditIterator.competences}" var="comp" rendered="#{not empty exCreditIterator.competences}">
+										<li>
+											<icon:competence size="16" />
+											<link:competence
+												resource="#{comp}"
+												title="#{comp.title}"
+												type="Competence"
+												styleClass="compTitle"
+												context="publicProfile.#{userId}.credits.#{exCreditIterator.id}" />
+										</li>
+									</ui:repeat>
+								</ul>
+								<h:panelGroup rendered="#{empty exCreditIterator.competences}" styleClass="noContentMessage">
+									There are no claimed competences
+								</h:panelGroup>
+							</div>
+						</div>
+					</div>
+				</ui:repeat>
+				<script>
+					$('.creditsContainer .profileItem.externalCredit .topContent .descriptionLink').propagateHover();
+					
+					$('.creditsContainer .profileItem.externalCredit .topContent .descriptionLink').click(function(e){
+						e.stopPropagation();
+						$(this).toggleClass('collapsed').toggleClass('expanded');
+						$(this).parent().find('.description').slideToggle();
+					});
+				</script>
+				
+				<script>
+					$('.portCred .creditsContainer').fadeIn();
+				</script>
+			</div>
+			
+			<p:growl id="externalCreditsGrowl" showDetail="true"/>
+			<script>
+				$(function() {
+					enableDropdown('.portCred .drop');
+				});
+			</script>
+			
+			<utilcomp:tooltip target=".hasTooltip[title]" />
+		</h:form>
+		
+		
+		<dlgportfolio:activityList id="exCredit"
+			value="exCredit"
+		/>
+		
+		<script>
+			$('.portCred .creditsContainer').hide();
+			$(function() {
+				$('.profileItem.externalCredit .topContent .descriptionLink').on('click', function(){
+					$(this).toggleClass('collapsed').toggleClass('expanded');
+					$(this).parent().find('.description').slideToggle();
+				});
+			});
+		</script>
+	</div>
+</ui:composition>

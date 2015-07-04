@@ -1,0 +1,42 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:p="http://primefaces.org/ui">
+
+	<composite:interface>
+		<composite:attribute name="userData" />
+		<composite:attribute name="styleClass" type="java.lang.String" default="" />
+		<composite:attribute name="toRender" default="true"/>
+		<composite:attribute name="context" type="java.lang.String" />
+		<composite:attribute name="toUpdate" />
+	</composite:interface>
+	
+	<composite:implementation>
+		
+		<p:commandLink id="unfollowButton"
+			styleClass="#{cc.attrs.styleClass}"
+			rendered="#{cc.attrs.toRender}"
+			action="#{peopleActionBean.unfollowCollegueById(cc.attrs.userData.id, cc.attrs.context)}"
+			update="#{cc.attrs.toUpdate}"
+			style="width: 85px">
+			<span class="check"></span>
+			<span class="text">Following</span>
+		</p:commandLink>
+		<script>
+			$(escapeColons('##{cc.clientId}:unfollowButton')).hover(
+				function(){
+					var width = $(this).css('width');
+					$(this).css('width', width);
+					$(this).find('.check').hide();
+					$(this).find('.text').html('Unfollow');
+				},
+				function(){
+					$(this).find('.check').show();
+					$(this).find('.text').html('Following');
+				});
+		</script>
+		
+	</composite:implementation>
+</ui:component>

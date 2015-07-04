@@ -1,0 +1,119 @@
+<ui:composition
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	
+	<utilcomp:messagesBundle var="msg" />
+
+	<div id="newGoalFormModalDialog" title="Create new learning goal" style="display: none;">
+						
+		<h:form id="newGoalForm" class="newGoalForm">
+			<p:growl id="newGoalFormGrowl" showDetail="true" />
+			
+			<table>
+				<tr>
+					<td class="col1">
+						<label for="goalName">Name:</label>
+					</td>
+					<td>
+						<h:inputText id="goalName" 
+							value="#{learninggoals.newLearningGoalFormData.name}"
+							placeholder="#{msg['textfield.title']}" />
+					</td>
+				</tr>
+				<tr class="description">
+					<td class="label">
+						<label for="goalDescription">Description:</label>
+					</td>
+					<td>
+						<h:inputTextarea id="goalDescription" 
+							rows="4" cols="55"
+							value="#{learninggoals.newLearningGoalFormData.description}"
+							placeholder="#{msg['textarea.description']}" />
+					</td>
+				</tr>
+				<tr class="deadline">
+					<td>
+						<label for="goalDeadlineInput">Deadline:</label>
+					</td>
+					<td>
+						<h:inputText id="goalDeadlineInput" class="deadlineField"
+							value="#{learninggoals.newLearningGoalFormData.deadline}" onfocus="blur();">
+						    <f:convertDateTime pattern="dd.MM.yyyy" />
+						</h:inputText>
+					</td>
+				</tr>
+				<tr class="tags keywords">
+					<td>
+						<label for="goalKeywords">Keywords:</label>
+					</td>
+					<td>
+						<h:inputText id="goalKeywords" value="#{learninggoals.newLearningGoalFormData.keywords}" />
+						<span class="noContentMessage block">HINT: keywords must be separated with a comma (,)</span>
+					</td>
+				</tr>
+				<tr class="tags hashtags">
+					<td>
+						<label for="goalHashtags">Hashtags:</label>
+					</td>
+					<td>
+						<h:inputText id="goalHashtags" value="#{learninggoals.newLearningGoalFormData.hashtags}" />
+						<span class="noContentMessage block">HINT: write hashtags without hash sign (#) and separated with comma (,). ProSolo will import the Tweets with these hashtags to your Goal Wall.</span>
+					</td>
+				</tr>
+			</table>
+			
+			<div class="actionButtons">
+				<p:commandLink id="saveButton" value="Save" 
+					styleClass="button green size30 right createGoal"
+					onclick='$("#newGoalFormModalDialog").dialog("close");'
+				 	action="#{learninggoals.createNewLearningGoal()}"
+				 	update=":goalListForm :goalDetails :navigation :goalWallTitle :goalWallForm:goalWallUpdateForm 
+								:goalWall:goalWallForm:goalWall :selectedGoalEvaluations:evaluationCount :selectedGoalBadges:badgeContainer 
+								:competenceList :newCompetenceButtonForm :compSearchForm :compRecommendationsForm
+								:activities :newGoalForm :goalsControl :goalsIntro"
+				/>
+				&#160;
+				<p:commandLink id="cancelButton" value="Cancel"
+					styleClass="button gray size30 right"
+					onclick='$("#newGoalFormModalDialog").dialog("close");'
+					action="#{learninggoals.resetNewGoalFormData()}"
+					update=":newGoalForm"
+				/>
+			</div>
+			
+			<p:defaultCommand target="saveButton" />
+			
+			<script>
+			$(function() {
+				$( '#newGoalForm tr.keywords input[type="text"]').tags();
+				$( '#newGoalForm tr.hashtags input[type="text"]').tags({prefix: '#'});
+				
+				$( '#newGoalForm .deadlineField' ).datepicker({
+					showOn: 'button',
+					buttonImage: 'resources/css/prosolo-theme/images/calendar18x15.png',
+					buttonImageOnly: true,
+					dateFormat: "dd.mm.yy"
+				});
+				
+				$( '#newGoalFormModalDialog' ).dialog({
+					autoOpen: false,
+					width: 630,
+					modal: true,
+					show : 'slide',
+					resizable: false,
+				});
+				
+				$('.newGoalForm .createGoal').on('click', function(e) {
+					e.stopPropagation();
+				});
+				
+				$( '#newGoalFormModalDialog' ).show();
+				$('.newGoalForm td textarea').autosize(); 
+			});
+			</script>
+		</h:form>
+	</div>
+</ui:composition>

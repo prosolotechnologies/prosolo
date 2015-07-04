@@ -1,0 +1,164 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+	<!-- users: This should be a list of UserData objects; List<UserData> -->
+	<!-- actionBean: should have methods: 
+										addUser(UserData)
+										removeUser(UserData)
+										executeTextSearch(String) -->
+
+	<composite:interface>
+		<composite:attribute name="users" type="java.util.List" required="true" />
+		<composite:attribute name="searchResult" type="java.util.List" required="true" />
+		<composite:attribute name="actionBean" required="true" /> 
+		<composite:attribute name="keywordHolder" required="true" /> 
+		<composite:attribute name="regionToUpdateOnRemove" /> 
+		<composite:attribute name="regionToUpdateOnAdd" />
+		<composite:attribute name="toExcludeIds" type="java.lang.String" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<utilcomp:messagesBundle var="msg" />
+		<ui:param name="componentId" value="#{cc.clientId.replaceAll(':','')}" />
+	
+		<div class="search userSearchInput">
+	    	<h:panelGroup layout="block" styleClass="searchInputDiv" id="searchInputDiv">
+	    	
+	    		<p:remoteCommand name="#{componentId}SearchUsersAjaxical" 
+					update=":#{cc.clientId}:userSearchResultPanel"
+					process="userSearchInput"
+					action="#{cc.attrs.actionBean.executeTextSearch(cc.attrs.toExcludeIds)}"/>
+				
+				<script>
+				var #{componentId}Search;
+				$(function() {
+					$(escapeColons('##{cc.clientId}:searchInputDiv')).prosolosearch({
+						resultContainer: escapeColons('##{cc.clientId}:searchInputDiv') + ' .resultsContainer .search',
+						loaderContainer: escapeColons('##{cc.clientId}:searchInputDiv') + ' .resultsContainer',
+						searchInput: escapeColons('##{cc.clientId}:searchInputDiv') + ' .hiddenSearchInput',
+						watermark: '',
+						loaderImage: '#{cc.attrs.loaderImage}',
+						searchAction: #{componentId}SearchUsersAjaxical
+					});
+					#{componentId}Search = $(escapeColons('##{cc.clientId}:searchInputDiv')).data('prosolo.search');
+				});
+				</script>
+	    	
+		    	<div class="mGlass"></div>
+	    		
+	    		<ui:repeat value="#{cc.attrs.users}" var="user">
+	    			<div class="selectedUser">
+		    			<span class="name">#{user.name}</span>
+		    			
+		    			<p:commandLink styleClass="remove"
+		    				action="#{cc.attrs.actionBean.removeUser(user)}"
+		    				process="@this"
+		    				update=":#{cc.clientId}:searchInputDiv #{cc.attrs.regionToUpdateOnRemove}"
+	    				/>
+	    			</div>
+	    		</ui:repeat>
+	    		
+	    		<h:inputText id="userSearchInput" size="20" 
+			  		class="hiddenSearchInput"
+			  		value="#{cc.attrs.keywordHolder}" />
+	    	
+				
+				<script>
+					$(function() {
+						$(escapeColons('##{cc.clientId}:searchInputDiv')).on('click', function() {
+							$(this).find('input').focus();
+						});
+						
+						$(escapeColons('##{cc.clientId}:userSearchInput'))
+							.autoGrowInput({comfortZone: 10}).focus().val('');
+						
+						$(escapeColons('##{cc.clientId}:userSearchInput')).keydown(function(event) {
+							if (event.keyCode == 13) {
+								event.preventDefault();
+								return false;
+							}
+						});
+					});
+				</script>
+	    	</h:panelGroup>
+	    	<br />
+			<span class="noContentMessage">#{msg['composite.userInputField.hint']}</span>
+		
+			<h:panelGroup layout="block" id="userSearchResultPanel" class="resultsContainer">
+				<h:panelGroup layout="block" styleClass="results noResult"
+					rendered="#{empty cc.attrs.searchResult and not empty cc.attrs.keywordHolder}">
+					No result
+				</h:panelGroup>
+			
+				<h:panelGroup layout="block" styleClass="results"
+					rendered="#{cc.attrs.searchResult.size() > 0}" >
+			
+					<ui:repeat value="#{cc.attrs.searchResult}" var="user" id="foundUserList">
+						<h:panelGroup layout="block" styleClass="result inactive" rendered="#{user.disabled}">
+							<h:graphicImage styleClass="imageRound image30 avatar"
+								value="#{user.avatar}" width="22" height="22" alt="" />
+							
+							<div class="infoContainer" style="float: left">
+								<div class="title">#{user.name}</div>
+								<div class="position">#{user.position}</div>
+							</div>
+						</h:panelGroup>
+					
+						<p:commandLink
+							styleClass="resultContainer"
+							rendered="#{not user.disabled}"
+			    			action="#{cc.attrs.actionBean.addUser(user)}"
+			    			process="@this"
+			    			update=":#{cc.clientId}:searchInputDiv :#{cc.clientId}:userSearchResultPanel #{cc.attrs.regionToUpdateOnAdd}">
+			    			
+							<div class="result">
+								<h:graphicImage styleClass="imageRound image30 avatar"
+									value="#{user.avatarUrl}"
+									width="22" height="22" alt="" />
+								
+								<div class="infoContainer" style="float: left">
+									<div class="title">#{user.name}</div>
+									<div class="position">#{user.position}</div>
+								</div>
+							</div>
+						</p:commandLink>
+						<div class="clear"></div>
+					</ui:repeat>
+				</h:panelGroup>
+				
+				<script>
+					var #{componentId}Elems = {};
+					#{componentId}Elems.inputDivInnerWidth = $(escapeColons('##{cc.clientId}:searchInputDiv')).innerWidth();
+					#{componentId}Elems.inputDivHeight = $(escapeColons('##{cc.clientId}:searchInputDiv')).outerHeight();
+					
+					#{componentId}Elems.offset = $(escapeColons('##{cc.clientId}:userSearchInput')).position().left;
+					
+					#{componentId}Elems.resultsPanel = $(escapeColons('##{cc.clientId}:userSearchResultPanel')).children().first();
+					#{componentId}Elems.resultsWidth = #{componentId}Elems.resultsPanel.width();
+					#{componentId}Elems.resultsBorders = #{componentId}Elems.resultsPanel.outerHeight() - #{componentId}Elems.resultsPanel.innerHeight();
+					
+					if (#{componentId}Elems.inputDivInnerWidth - #{componentId}Elems.resultsWidth > #{componentId}Elems.offset) {
+						#{componentId}Elems.resultsPanel.css('left', #{componentId}Elems.offset + 'px');
+					} else {
+						#{componentId}Elems.resultsPanel.css('left', (#{componentId}Elems.inputDivInnerWidth - #{componentId}Elems.resultsWidth) + 'px');
+					}
+					#{componentId}Elems.resultsPanel.css('top', (#{componentId}Elems.inputDivHeight + #{componentId}Elems.resultsBorders) + 'px');
+	
+				
+					$(function() {
+						roundImages();
+						$(document).on('click', function(){
+							#{componentId}Elems.resultsPanel.fadeOut();
+						});
+					});
+				</script>
+			</h:panelGroup>
+		</div>
+	</composite:implementation>
+</ui:component>

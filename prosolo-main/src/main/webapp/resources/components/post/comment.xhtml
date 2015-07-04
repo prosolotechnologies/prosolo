@@ -1,0 +1,91 @@
+<ui:component
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks">
+
+	<composite:interface>
+		<composite:attribute name="commentData" required="true" />
+		<composite:attribute name="idPrefix" />
+		<composite:attribute name="oncomplete" />
+		<composite:attribute name="onclick" />
+		<composite:attribute name="update" />
+		<composite:attribute name="styleClass" />
+		<composite:attribute name="context" />
+	</composite:interface>
+	
+	<composite:implementation>
+	
+		<div class="comment #{cc.attrs.styleClass}">
+			<link:user value="activityComment" 
+				divClass="avatar"
+  				userData="#{cc.attrs.commentData.maker}"
+  				mode="image"
+  				imageSize="30"
+  				idPrefix="#{cc.attrs.idPrefix}CommentAvatar"
+  				context="#{cc.attrs.context}.comment.#{cc.attrs.commentData.id}.actor.image" 
+  			/>
+	  			
+			<div class="commentContent">
+				<link:user value="userDetailsComment" 
+	   				userData="#{cc.attrs.commentData.maker}"
+	   				divClass="name"
+	   				mode="name"
+	   				idPrefix="#{cc.attrs.idPrefix}CommentName"
+	   				context="#{cc.attrs.context}.comment.#{cc.attrs.commentData.id}.actor.name" />
+	   				
+				<div class="clear"></div>
+				
+				<div class="commentText" context="#{cc.attrs.context}.comment.#{cc.attrs.commentData.id}">
+					<h:outputText value="#{cc.attrs.commentData.text}" escape="false"/>
+				</div>
+				<div class="clear"></div>
+				
+				<h:panelGroup id="time" class="time">
+				
+					<c:if test="#{loggeduser != null and loggeduser.loggedIn}">
+						<p:commandLink
+							rendered="#{!cc.attrs.commentData.liked}"
+							value="Like"
+							onclick="#{cc.attrs.onclick}"
+							action="#{likeaction.likeComment(cc.attrs.commentData, ''.concat(cc.attrs.context).concat('.comment.').concat(cc.attrs.commentData.id))}"
+							process="@this"
+							oncomplete="#{cc.attrs.oncomplete}"
+							update="time"
+						/>
+						
+						<p:commandLink
+							rendered="#{cc.attrs.commentData.liked}"
+							value="Unlike"
+							onclick="#{cc.attrs.onclick}"
+							action="#{likeaction.removeLikeFromComment(cc.attrs.commentData, ''.concat(cc.attrs.context).concat('.comment.').concat(cc.attrs.commentData.id))}"
+							process="@this"
+							oncomplete="#{cc.attrs.oncomplete}"
+							update="time"
+						/>
+						<span class="bullet"></span>
+					</c:if>
+					
+					<h:panelGroup rendered="#{cc.attrs.commentData.likeCount > 0}">
+						Liked by
+						
+						<p:commandLink
+							value="#{cc.attrs.commentData.likeCount} people"
+							action="#{peopleListDialog.initializePeopleWhoLikedCommentById(cc.attrs.commentData.id, ''.concat(cc.attrs.context).concat('.comment.').concat(cc.attrs.commentData.id))}"
+							onclick="$('#peopleListDialog').dialog('open');"
+							update=":peopleListForm"
+						/>
+						<span class="bullet"></span>
+					</h:panelGroup>
+	
+					<h:outputText value="#{cc.attrs.commentData.when}" />
+				</h:panelGroup>
+			</div>
+			<div class="clear"></div>
+		</div>
+	
+	</composite:implementation>
+</ui:component>

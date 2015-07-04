@@ -1,0 +1,113 @@
+<ui:composition
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:action="http://java.sun.com/jsf/composite/components/actions">
+
+	<h:form id="feedForm" class="feed">
+		<h:link class="button gray size20 marginBottom10" value="Back to Archive">
+			<f:param name="tab" value="#{digestBean.selectedMenu}" />
+		</h:link>
+		<div class="clear"></div>
+		
+		<c:if test="#{digestBean.selectedMenu == 'coursefeeds'}">
+			<h2 class="left	marginTop10">Digest for #{personalFeedsBean.feedData.date} based on course RSS feeds and personal blogs</h2>
+			
+			<c:if test="#{loggeduser.manager}">
+				<h:link class="button gray size20 marginBottom10" value="Public link to course digest">
+					<f:param name="tab" value="#{digestBean.selectedMenu}" />
+					<f:param name="id" value="#{personalFeedsBean.feedData.systemId}"/>
+				</h:link>
+			</c:if>
+		</c:if>
+		
+		<c:if test="#{digestBean.selectedMenu == 'myfeeds'}">
+			<h2 class="left	marginTop10">Digest for #{personalFeedsBean.feedData.date} based on your personal RSS feeds</h2>
+		</c:if>
+		
+		<div class="clear"></div>
+		
+		<h:panelGroup rendered="#{digestBean.selectedMenu == 'coursefeeds' and (empty personalFeedsBean.retrieveSelectedMenuFeeds())}">
+			There was no new course feeds.
+		</h:panelGroup>
+		
+		<h:panelGroup rendered="#{digestBean.selectedMenu == 'myfeeds' and (empty personalFeedsBean.retrieveSelectedMenuFeeds())}">
+			There was no new RSS feeds.
+		</h:panelGroup>
+			
+			
+		<ui:repeat id="personalFeedsList" value="#{personalFeedsBean.retrieveSelectedMenuFeeds()}" var="feedData" varStatus="iterator">
+			<div class="feedContent box">
+				<div class="imgInfoContainer100">
+					<div class="atcImages">
+						<h:outputLink target="_blank" value="#{feedData.image}" rendered="#{feedData.image != null and feedData.image.length() > 0}">
+							<h:graphicImage value="#{feedData.image}" styleClass="imgInfoContainer100" alt="#{feedData.title}"/>
+						</h:outputLink>
+					</div>
+				</div>
+				
+				<div class="textWrapper">
+					<h:outputLink styleClass="atcTitle" target="_blank" value="#{feedData.link}">
+						<h:outputText value="#{feedData.title}" />
+					</h:outputLink>
+					
+					<h:outputLink styleClass="atcUrl" target="_blank" value="#{feedData.link}">
+						<h:outputText value="#{feedData.link}" />
+					</h:outputLink>
+					
+					<p class="atcDesc">
+						<h:outputText value="#{feedData.description}" />
+					</p>
+				</div>
+
+				<span class="date">
+					#{feedData.date}
+				</span>
+				<div class="clear"></div>
+				
+			<c:if test="#{loggeduser != null and loggeduser.loggedIn}">
+				<div class="actions marginTop10">
+					<action:post 
+						styleClass="marginRight10 left"
+						text="#{feedData.feedMessage.title}"
+						link="#{feedData.feedMessage.link}"
+						context="personalFeed.#{feedData.id}"/>
+						
+					<action:addToGoal 
+						styleClass="marginRight10 left"
+						linkTitle="#{feedData.feedMessage.title}"
+						link="#{feedData.feedMessage.link}"
+						context="personalFeed.#{feedData.id}" />
+						
+					<action:addToCompetence
+						styleClass="marginRight10 left"
+						linkTitle="#{feedData.feedMessage.title}"
+						link="#{feedData.feedMessage.link}"
+						context="personalFeed.#{feedData.id}" />
+				</div>
+				</c:if>
+			</div>
+			
+			<div class="separator"></div>
+		</ui:repeat>
+	
+		<p:commandLink id="loadMore" rendered="#{personalFeedsBean.moreToLoad}" styleClass="loadMore"
+			onclick="addLoader(this);"
+			actionListener="#{personalFeedsBean.loadMoreFeedMessages}"
+			update=":feedForm">
+			<h:outputText value="SHOW MORE" />
+		</p:commandLink>
+		
+		<script>
+		function addLoader(elem){
+			$(elem).html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" id="loginloader" style="margin-top: 9px;"/>');
+		}
+		$('.feed .textWrapper .atcDesc').shortenedText({showChar: 300});
+		</script>
+	</h:form>
+	
+</ui:composition>

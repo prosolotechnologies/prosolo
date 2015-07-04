@@ -1,0 +1,405 @@
+<ui:composition
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	
+	<h:outputScript library="javascript" name="jquery.knob.js" />
+	<h:outputScript library="javascript" name="prosolo.slider.js" />
+
+	<h:panelGroup layout="block" id="learningProgress" class="content short learningProgress marginBottom30">
+		<h2 class="indexTripStep18">Learning Progress</h2>
+		
+		<h:panelGroup layout="block" id="learningProgressContainer" class="learningProgressContainer">
+			<h4 class="title">
+				Ongoing Learning
+				<h:panelGroup rendered="#{not empty learninggoals.ongoingGoals}" class="date">Last Action</h:panelGroup>
+				<h:panelGroup rendered="#{not empty learninggoals.ongoingGoals}" class="progressBar">Progress</h:panelGroup>
+			</h4>
+			
+			<div class="resourceProgress goalsProgress last">
+				<div class="donut">
+					<input class="knob" data-fgColor="#fbb543" data-thickness=".4" data-width="70" data-height="70" readonly="true" value="#{portfolio.goalStats.progressPercentage}" />
+				
+					<script>
+						$('.goalsProgress .knob').knob({
+				        	format: function(v) {
+				        		return '#{portfolio.goalStats.completedNo} / #{portfolio.goalStats.totalNo}';
+				        	}
+				        });
+					</script>
+				</div>
+				
+				<div class="uncompletedItems">
+					<h:panelGroup layout="block" class="noContentMessage" rendered="#{empty learninggoals.ongoingGoals}">
+						There are no unfinished learning goals.
+					</h:panelGroup>
+				
+					<ul>
+						<ui:repeat id="uncompletedGoalRepeat" 
+							value="#{learningProgress.ongoingGoalsShown}"
+							var="uncompletedGoalIterator" varStatus="iterator">
+							
+							<li id="goalProgress#{iterator.index}">
+								
+								<icon:goal size="16" styleClass="icon"/>
+								
+								<link:goal styleClass="resourceLink" 
+									targetGoalId="#{uncompletedGoalIterator.targetGoalId}" 
+									title="#{uncompletedGoalIterator.title}"
+									context="learningProgress"
+									directLink="true"
+								/>
+								
+								<span class="date">
+									<h:outputText value="#{uncompletedGoalIterator.lastActivity != null ? util:timeDifferenceAgoFromNow(uncompletedGoalIterator.lastActivity) : '&#160;'}" />
+								</span>
+								
+								<div class="progressBar">
+									<div class="barCont goalProgressBar"></div>&#160;
+		
+									<span class="progressValue">
+										<h:outputText class="goalProgress" value="#{uncompletedGoalIterator.progress}" /> %
+									</span>
+									
+									<script>
+										prosolo.slider.enable('.goalsProgress #goalProgress#{iterator.index} .goalProgress', '.goalsProgress #goalProgress#{iterator.index} .goalProgressBar', true);
+									</script>
+								</div>
+							</li>
+						</ui:repeat>
+					</ul>
+					
+					<c:if test="#{not empty learningProgress.ongoingGoalsHidden}">
+						<ul id="moreGoals" class="hidden">
+						
+							<ui:repeat id="uncompletedGoalRepeatHidden" 
+								value="#{learningProgress.ongoingGoalsHidden}" 
+								var="uncompletedGoalIterator" varStatus="iterator">
+								
+								<li id="goalProgress#{iterator.index}">
+									
+									<icon:goal size="16" styleClass="icon"/>
+									
+									<link:goal styleClass="resourceLink" 
+										targetGoalId="#{uncompletedGoalIterator.targetGoalId}" 
+										title="#{uncompletedGoalIterator.title}"
+										context="learningProgress"
+										directLink="true"
+									/>
+									
+									<span class="date">
+										<h:outputText value="#{uncompletedGoalIterator.lastActivity != null ? util:timeDifferenceAgoFromNow(uncompletedGoalIterator.lastActivity) : '&#160;'}" />
+									</span>
+									
+									<div class="progressBar">
+										<div class="barCont goalProgressBar"></div>&#160;
+			
+										<span class="progressValue">
+											<h:outputText class="goalProgress" value="#{uncompletedGoalIterator.progress}" /> %
+										</span>
+										
+										<script>
+											prosolo.slider.enable('.goalsProgress #goalProgress#{iterator.index} .goalProgress', '.goalsProgress #goalProgress#{iterator.index} .goalProgressBar', true);
+										</script>
+									</div>
+								</li>
+							</ui:repeat>
+						</ul>
+
+						<a href="#moreGoals" class="moreLink">See all</a>
+						
+						<script>
+							$('.learningProgress .goalsProgress .moreLink').moreLessBox({
+								lessClass: "lessLink",
+								lessText: 'See less', 
+								moreClass: "moreLink",
+								moreText: 'See more',
+								moreCallback: function(){
+									sendServiceUse('MOUSE_CLICK', {context: 'learningProgress.ongoingLearning', link: 'more'});
+								},
+								lessCallback: function(){
+									sendServiceUse('MOUSE_CLICK', {context: 'learningProgress.ongoingLearning', link: 'less'});
+								},
+							});
+						</script>
+					</c:if>
+					<script>
+						$('.learningProgress .goalsProgress .resourceLink').shortenedText({
+							mode: 'max-width',
+							maxWidth: '220'
+						});
+					</script>
+				</div>
+			</div>
+			<div class="clear"></div>
+			
+			
+			<div id="progressHidden" class="hidden">
+				<h4 class="title">Competences</h4>
+				<div class="resourceProgress competenceProgress last">
+					<div class="donut relative">
+						<input class="knob" data-fgColor="#fbb543" data-thickness=".4" data-width="70" data-height="70" readonly="true" value="#{learningProgress.competenceProgress}" />
+					
+						<script>
+							$('.competenceProgress .knob').knob({
+					        	format: function(v) {
+					        		return '#{learningProgress.completedComNo} / #{learningProgress.totalCompNo}';
+					        	}
+					        });
+						</script>
+					</div>
+					
+					<div class="uncompletedItems">
+						<h:panelGroup layout="block" class="noContentMessage" rendered="#{empty learningProgress.ongoingCompetences}">
+							There are no unfinished competences.
+						</h:panelGroup>
+					
+						<ul>
+							<ui:repeat value="#{learningProgress.ongoingCompetences}" var="uncompletedCompetence" id="uncompletedCompetencesRepeat" varStatus="iterator">
+								<li id="compProgress1">
+									<icon:competence size="16" styleClass="icon"/>
+									
+									<link:competence styleClass="resourceLink" 
+										resourceId="#{uncompletedCompetence.data.id}"
+										type="TargetCompetence"
+										title="#{uncompletedCompetence.data.title}"
+										context="learningProgress"
+										targetGoalId="#{uncompletedCompetence.data.targetGoalId}"
+										directLink="true"
+									/>
+									
+									<span class="date">
+										<h:outputText value="#{uncompletedCompetence.data.lastActivity != null ? util:timeDifferenceAgoFromNow(uncompletedCompetence.data.lastActivity) : '&#160;'}" />
+									</span>
+								</li>
+							</ui:repeat>
+						</ul>
+					</div>
+				</div>
+				<div class="clear"></div>
+			</div>
+			
+			<a href="#progressHidden" class="boxMore clear separator">expand</a>
+			<script>
+				$('.boxMore').moreLessBox({
+					moreCallback: function(){
+						sendServiceUse('MOUSE_CLICK', {context: 'learningProgress', link: 'expand'});
+					},
+					lessCallback: function(){
+						sendServiceUse('MOUSE_CLICK', {context: 'learningProgress', link: 'collapse'});
+					},
+				});
+			</script>
+		</h:panelGroup>
+		
+		<utilcomp:lazyLoad 
+			parentClass="learningProgress"
+			updateOnComplete=":learningProgressContainer"
+			loaderContainer=".learningProgressContainer"
+			initializeAction="#{learningProgress.initialize()}"
+			async="true"
+		/>
+		
+		
+		
+		
+		<ui:remove>
+		<div class="resourceProgress1 goalsProgress selected">
+			<div class="donut">
+				<input class="knob" data-fgColor="#fbb543" data-thickness=".4" data-width="100" data-height="100" readonly="true" value="67" />
+			</div>
+			<div class="clear"></div>
+			
+			<span class="title">Goals Completed</span>
+		</div>
+		
+		<div class="resourceProgress1 competenceProgress">
+			<div class="donut">
+				<input class="knob" data-fgColor="#fbb543" data-bgColor="#FFFFFF" data-thickness=".4" data-width="100" data-height="100" readonly="true" value="50" />
+			</div>
+			<div class="clear"></div>
+			
+			<span class="title">Competences Completed</span>
+		</div>
+		
+		<div class="resourceProgress1 last">
+			<div class="donut">
+				<input class="knob" data-fgColor="#fbb543" data-bgColor="#FFFFFF" data-thickness=".4" data-width="100" data-height="100" readonly="true" value="30" />
+			</div>
+			<div class="clear"></div>
+			
+			<span class="title">Activities Completed</span>
+		</div>
+		<div class="relative">
+			<div class="clearGray"></div>
+		</div>
+		
+		<div class="clear"></div>
+		
+		<div class="uncompletedItems">
+			<h4>Goals to complete</h4>
+			<ul>
+				<li id="compProgress1">
+					<icon:competence size="16" styleClass="icon"/>  
+					<a href="#" class="resourceLink">Preparing Statistical Data for Analysis</a>
+					
+					<div class="progressBar">
+						<div class="barCont goalProgressBar"></div>&#160;
+
+						<span class="progressValue">
+							<h:outputText class="goalProgress" value="90" /> %
+						</span>
+						
+						<script>
+							prosolo.slider.enable('#compProgress1 .goalProgress', '#compProgress1 .goalProgressBar', true);
+						</script>
+					</div>
+				</li>
+				<li id="compProgress2">
+					<icon:competence size="16" styleClass="icon"/>  
+					<a href="#" class="resourceLink">Learning about Partial Correlations</a>
+					
+					<div class="progressBar">
+						<div class="barCont goalProgressBar"></div>&#160;
+						
+						<span class="progressValue">
+							<h:outputText class="goalProgress" value="65" /> %
+						</span>
+						
+						<script>
+							prosolo.slider.enable('#compProgress2 .goalProgress', '#compProgress2 .goalProgressBar', true);
+						</script>
+					</div>
+				</li>
+			</ul>
+			<a href="#">See all</a>
+		</div>
+		</ui:remove>
+		
+		
+		<ui:remove>
+		<div class="resourceProgress2 goalsProgress">
+			<div class="donutProgressBar">
+				<div class="donut">
+					<input class="knob" data-fgColor="#fbb543" data-thickness=".4" data-width="100" data-height="100" readonly="true" value="67" />
+					
+					<script>
+						$('.goalsProgress .knob').knob({
+				        	format: function(v) {
+				        		return '2 / 3';
+				        	}
+				        });
+					</script>
+				</div>
+				<div class="clear"></div>
+				
+				<span class="title">Goals Completed</span>
+			</div>
+			<div class="clear"></div>
+						  
+			
+			<div class="uncompletedItems">
+				<h4><icon:goal size="20" styleClass="icon"/> Goals:</h4>
+				<ul>
+					<li id="compProgress1">
+						<a href="#" class="resourceLink">Preparing Statistical Data for Analysis</a>
+					</li>
+						
+					<li id="compProgress2">
+						<a href="#" class="resourceLink">Learning about Partial Correlations</a>
+					</li>
+						
+					<li id="compProgress2">
+						<a href="#" class="resourceLink">Learning Regression Analyses</a>
+					</li>
+				</ul>
+				<a href="#">See all</a>
+			</div>
+		</div>
+		
+		<div class="resourceProgress2 competenceProgress">
+			<div class="donutProgressBar">
+				<div class="donut">
+					<input class="knob" data-fgColor="#fbb543" data-thickness=".4" data-width="100" data-height="100" readonly="true" value="50" />
+					
+					<script>
+						$('.competenceProgress .knob').knob({
+				        	format: function(v) {
+				        		return '5 / 10';
+				        	}
+				        });
+					</script>
+				</div>
+				<div class="clear"></div>
+				
+				<span class="title">Competences Completed</span>
+			</div>
+			<div class="clear"></div>
+			
+			
+			<div class="uncompletedItems">
+				<h4><icon:competence size="20" styleClass="icon"/> Competences:</h4>
+				<ul>
+					<li id="compProgress1">
+						<a href="#" class="resourceLink">Preparing Statistical Data for Analysis</a>
+					</li>
+						
+					<li id="compProgress2">
+						<a href="#" class="resourceLink">Learning about Partial Correlations</a>
+					</li>
+						
+					<li id="compProgress2">
+						<a href="#" class="resourceLink">Learning Regression Analyses</a>
+					</li>
+				</ul>
+				<a href="#">See all</a>
+			</div>
+		</div>
+		
+		<div class="resourceProgress2 activityProgress last">
+			<div class="donutProgressBar">
+				<div class="donut">
+					<input class="knob" data-fgColor="#fbb543" data-thickness=".4" data-width="100" data-height="100" readonly="true" value="30" />
+				
+					<script>
+						$('.activityProgress .knob').knob({
+				        	format: function(v) {
+				        		return '6 / 20';
+				        	}
+				        });
+					</script>
+				</div>
+				<div class="clear"></div>
+				
+				<span class="title">Activities Completed</span>
+			</div>
+			<div class="clear"></div>
+			
+			
+			<div class="uncompletedItems">
+				<h4><icon:activity size="20" styleClass="icon"/> Activities:</h4>
+				<ul>
+					<li>
+						<a href="#" class="resourceLink">Preparing Statistical Data for Analysis</a>
+					</li>
+						
+					<li id="compProgress2">
+						<a href="#" class="resourceLink">Learning about Partial Correlations</a>
+					</li>
+						
+					<li id="compProgress2">
+						<a href="#" class="resourceLink">Learning Regression Analyses</a>
+					</li>
+				</ul>
+				<a href="#">See all</a>
+			</div>
+		</div>
+		</ui:remove>
+	</h:panelGroup>
+</ui:composition>

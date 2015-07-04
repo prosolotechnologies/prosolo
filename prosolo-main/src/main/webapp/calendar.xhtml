@@ -1,0 +1,80 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:port="http://java.sun.com/jsf/composite/components/portfolio"
+	template="templates/masterLayout.xhtml"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:dlgcalendar="http://java.sun.com/jsf/composite/components/dialogs/calendar"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks">
+
+<ui:define name="windowTitle">
+	Calendar | ProSolo
+</ui:define>
+
+<ui:define name="content">
+	<style>
+	.public-event,.public-event .fc-event-skin,.public-event a {
+		background-color: green;
+		color: black;
+		border-color: greenyellow;
+	}
+	</style>
+
+	<div id="calendar" class="container">
+		<div class="content wide">
+			<h2>Calendar</h2>
+
+			<h:form id="calendarForm">
+				<p:growl id="messages" showDetail="true" />
+				
+				<ui:remove>
+				<h:panelGroup id="hiddenControl">
+					<script>
+						function openDialog() {
+							if (#{calendar.event.getClass().simpleName == 'ProsoloPersonalScheduleEvent'}) {
+								$('#personalEventDialog').dialog('show');
+							} else if (#{calendar.event.getClass().simpleName == 'ProsoloLearningEvent'}) {
+								$('#calendar .goalDialogLink.hidden').trigger('click');
+							}
+						}
+					</script>
+					<link:goal goal="#{calendar.goal}" 
+						styleClass="goalDialogLink hidden"
+						title="" 
+						context="resourceLink"/>
+						
+					<p:commandLink onclick="$('#personalEventDialog').dialog('show');" />
+				</h:panelGroup>
+				</ui:remove>
+
+				<p:schedule value="#{calendar.eventModel}" widgetVar="myschedule" draggable="false" resizable="false">
+					<p:ajax event="dateSelect" 
+						listener="#{calendar.onDateSelect}"
+						oncomplete="$('#calendarEventDialog').dialog('open')"
+						update=":calendarEvent:calendarEventDialogForm:calendarEventDialogContainer"
+					/>
+						
+					<p:ajax event="eventSelect"
+						listener="#{calendar.onProsoloEventSelect}"
+						oncomplete="$('#calendarEventDialog').dialog('open')"
+						update=":calendarEvent:calendarEventDialogForm:calendarEventDialogContainer"
+					 />
+						
+					<!-- p:ajax event="eventSelect" 
+						listener="#{calendar.onProsoloEventSelect}" 
+	            		update="eventDetails" 
+	            		oncomplete="eventDialog.show()" /-->
+	            
+					<p:ajax event="eventMove" listener="#{calendar.onEventMove}" update="messages" />
+					<p:ajax event="eventResize" listener="#{calendar.onEventResize}" update="messages" />
+				</p:schedule>
+			</h:form>
+			
+			<dlgcalendar:calendarEventDialog id="calendarEvent"/>
+			
+		</div>
+	</div>
+</ui:define>
+</ui:composition>

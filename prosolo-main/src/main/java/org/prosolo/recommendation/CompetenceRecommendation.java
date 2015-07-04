@@ -1,0 +1,12 @@
+package org.prosolo.recommendation;
+
+import java.util.List;
+
+import org.prosolo.domainmodel.competences.Competence;
+import org.prosolo.domainmodel.user.TargetLearningGoal;
+import org.prosolo.domainmodel.user.User;
+
+public interface CompetenceRecommendation {
+
+	List<Competence> recommendCompetences(User user, TargetLearningGoal tGoal, int limit);
+}

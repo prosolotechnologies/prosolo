@@ -1,0 +1,65 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	template="templates/masterLayout.xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+	<ui:define name="windowTitle">
+		Communications | ProSolo
+	</ui:define>
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewParam name="tab" value="#{communications.selectedMenu}" />
+			<f:viewParam name="id" value="#{communications.id}" />
+		</f:metadata>
+	</ui:define>
+	
+	<ui:define name="content">
+		<utilcomp:messagesBundle var="msg" />
+		
+		<div class="container goalsPage tabbedLayout">
+		
+			<div class="leftSidebar">
+				<h:form>
+				<div class="leftNav">
+					<ul id="goalsList">
+						<li class="#{communications.selectedMenu == 'evaluations' ? 'selected' : ''}">
+							<h:link value="#{msg['communications.navigation.evaluations']}" outcome="/communications" 
+								onclick="logTabNavigation('evaluations', 'communications.navigation');">
+								<f:param  name="tab" value="evaluations" />
+							</h:link>
+						</li>
+					
+						<li class="#{communications.selectedMenu == 'notifications' ? 'selected' : ''}">
+							<h:link value="#{msg['communications.navigation.notifications']}" outcome="/communications"
+								onclick="logTabNavigation('notifications', 'communications.navigation');">
+								<f:param  name="tab" value="notifications" />
+							</h:link>
+						</li>
+					</ul>
+				</div>	
+				</h:form>
+			</div><!-- .leftSidebar -->
+		
+			<h:panelGroup layout="block" class="content">
+				<c:if test="#{communications.selectedMenu == 'evaluations'}">
+					<ui:include src="/resources/components/communications/evaluations.xhtml" />
+				</c:if>
+				
+				<c:if test="#{communications.selectedMenu == 'notifications'}">
+					<ui:include src="/resources/components/communications/notifications.xhtml" />
+				</c:if>
+			</h:panelGroup><!-- .content -->
+		
+			<div class="clear"></div>
+			
+		</div><!-- .container end -->
+	</ui:define>
+
+</ui:composition>

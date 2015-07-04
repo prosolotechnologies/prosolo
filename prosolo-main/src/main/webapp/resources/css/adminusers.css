@@ -1,0 +1,83 @@
+@charset "utf-8";
+
+
+ .uploadContainer {
+	display: block; 
+	float: left;
+	width: 90px;
+	position: relative;
+}
+  .ui-fileupload     {
+	display: inline-block;
+	width: 45px;
+}
+ 
+/*.uploadContainer .ui-fileupload .ui-widget .browseFile   {
+	display: inline-block;
+	width: 225px;
+}
+.uploadContainer .browseFile .ui-fileupload .fileupload-buttonbar {
+	padding: 0;
+}
+*/
+/* Overrides for jQuery File Upload plugin (p:fileupload) */
+ .uploadContainer .browseFile .fileupload-buttonbar,
+ .uploadContainer .browseFile {
+	background: none;
+	border: 0;
+	padding: 0;
+}
+
+.uploadContainer .browseFile .fileupload-buttonbar .fileinput-button {
+	height: 25px;
+	margin: 0;
+	color: #136DB2;
+	background: #D7EEFF;
+	border: none;
+	-moz-border-radius: 0;
+	-webkit-border-radius: 0;
+	border-radius: 0;
+	-moz-box-shadow: none;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+}
+
+.uploadContainer .browseFile .fileupload-buttonbar .fileinput-button:hover {
+	-webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    color: #fff;
+	background: #136db2;
+}
+.uploadContainer .browseFile .fileupload-buttonbar .ui-button-text {
+	padding: 0 16px 0 33px;
+	font-weight: normal;
+}
+.uploadContainer .browseFile fileinput-button .ui-state-hover .ui-button-text {
+	font-weight: normal;
+}
+
+ .uploadContainer .browseFile .ui-widget-content {
+	border-color: #fff;
+}
+
+ .uploadContainer .browseFile .ui-progressbar-value {
+	border-color: #fff;
+}
+
+.uploadContainer .browseFile .fileupload-content {
+	display: none;	
+}
+
+ .uploadContainer .browseFile .fileupload-content .files .preview, 
+ .uploadContainer .browseFile .fileupload-content .files .name, 
+ .uploadContainer .browseFile .fileupload-content .files .size, 
+ .uploadContainer .browseFile .fileupload-content .files .start, 
+ .uploadContainer .browseFile .fileupload-content .files .cancel {
+	display: none;
+}
+
+ .uploadContainer .browseFile .fileupload-content .files .progress .ui-progressbar {
+	height: 10px;
+}
+ 

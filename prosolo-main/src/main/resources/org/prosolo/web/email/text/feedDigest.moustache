@@ -1,0 +1,24 @@
+Hi {{name}},
+
+These are your updates for the {{date}}
+
+{{#feedsDigests}}
+
+{{categoryName}}
+
+{{#entries}}
+
+{{title}}
+
+{{link}}
+
+{{description}}
+
+{{/entries}}
+
+{{^entries}}
+	There are no updates.
+{{/entries}}
+
+__________________________________________________________
+{{/feedsDigests}}

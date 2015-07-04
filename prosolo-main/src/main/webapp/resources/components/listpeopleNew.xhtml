@@ -1,0 +1,362 @@
+<ui:component
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:actions="http://java.sun.com/jsf/composite/components/actions"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks">
+
+
+<composite:interface>
+	<composite:attribute name="followingUsers" type="java.util.List" />
+	<composite:attribute name="followersUsers" type="java.util.List" />
+	<composite:attribute name="goals" type="java.util.List" />
+	<composite:attribute name="displayGoals" type="java.lang.Boolean" default="true" />
+	<composite:attribute name="updateAfterUnfollow" />
+</composite:interface>
+
+<composite:implementation>
+	<utilcomp:messagesBundle var="msg" />
+
+	<script type="text/javascript">
+		$(function() {
+			$('#listPeopleTab').tabs();
+		});
+	</script>
+
+	<div id="listPeopleTab"
+		class="sideBoxFrame sideColleagues indexTripStep16">
+		<ul class="sideTabs">
+			<li>
+				<a class="tabLink" 
+					onclick="logTabNavigation('following', 'listpeople');" 
+					for-tab="tabFollowing">Following</a>
+			</li>
+			<li>
+				<a class="tabLink" 
+					onclick="logTabNavigation('followers', 'listpeople');" 
+					for-tab="tabFollowers">Followers</a>
+			</li>
+			<li>
+				<a class="tabLink" 
+					onclick="logTabNavigation('goals', 'listpeople');" 
+					for-tab="tabGoals">Goals</a>
+			</li>
+		</ul>
+
+
+		<div id="tabFollowing" tab-id="tabFollowing"
+			class="sideContent tabContent inlineBlock">
+			<div class="sideSearch peopleSideSearch searchContainer">
+				<h:form>
+					<div class="mGlass"></div>
+					<comp:searchPeople value="following" 
+						container="#tabFollowing"
+						oncompleteFollow="refreshFollowingPeople();"
+						context="listpeople.following.search" />
+				</h:form>
+			</div>
+
+			<h:form id="listFollowingPeopleForm">
+				<p:growl id="followingUsersPanelGrowl" showDetail="true" />
+
+				<p:remoteCommand name="refreshFollowingPeople"
+					update=":#{cc.clientId}:listFollowingPeopleForm:followingUsersPanel" />
+
+				<h:panelGroup layout="block" id="followingUsersPanel"
+					class="followingUsersPanel peopleSideSearchResult"
+					style="display: none;">
+
+					<h:panelGroup class="noContentMessage"
+						rendered="#{empty colleguesBean.followingUsers}">
+						#{msg['home.listPeople.following.noFolowing']}
+					</h:panelGroup>
+					
+					<h:panelGroup layout="block" rendered="#{not empty colleguesBean.followingUsersToRender}">
+						<ui:repeat value="#{colleguesBean.followingUsersToRender}"
+							var="followingUser" id="followingUsersList" varStatus="iterator">
+	
+							<div class="user198">
+								<div class="image">
+									<link:user value="userDetailsImage" 
+										userData="#{followingUser}"
+										mode="image" 
+										imageSize="30"
+										idPrefix="followingUsersImage#{iterator.index}"
+										context="listpeople.following.image" />
+								</div>
+	
+								<div class="info">
+									<link:user value="userDetails" 
+										userData="#{followingUser}"
+										mode="name"
+										divClass="name" 
+										idPrefix="followingUsers#{iterator.index}"
+										context="listpeople.following.name" />
+	
+									<div class="font11">#{followingUser.position}</div>
+									
+									<h:panelGroup rendered="#{followingUser.locationName != null}" class="font11">
+										<a href="#" onclick="$('#locationDialog').dialog('option', 'data', ['#{followingUser.locationName}', #{followingUser.latitude}, #{followingUser.longitude}]).dialog('open');sendServiceUse('USER_LOCATION_DIALOG', {user: #{followingUser.id}, context: 'listpeople.following'});return false;">#{followingUser.locationName}</a>
+									</h:panelGroup>
+									<div class="clear"></div>
+	
+									<div class="actions">
+										<actions:directMessage 
+											receiverData="#{followingUser}"
+											context="listpeople.following" />
+	
+										<p:commandLink id="unfollowButton"
+											action="#{peopleActionBean.unfollowCollegueData(followingUser, 'listpeople.following')}"
+											update=":#{cc.clientId}:listFollowingPeopleForm:followingUsersPanel
+													:#{cc.clientId}:listfollowersform:followersPanel
+													#{cc.attrs.updateAfterUnfollow}"
+											oncomplete="refreshFollowingPeople();">
+											<span class="bullet"></span>
+											Unfollow
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+							<div class="clear"></div>
+						</ui:repeat>
+					</h:panelGroup>
+
+					<div class="prevlink">
+						<p:commandLink value="Prev" styleClass="button gray size16 left"
+							rendered="#{colleguesBean.hasPrevFollowingUsers}"
+							onclick="logTabNavigation('prev', 'listpeople.following');"
+							action="#{colleguesBean.prevFollowingUsersAction}"
+							update=":listFollowingPeopleForm:followingUsersPanel" />
+					</div>
+					<div class="nextlink">
+						<p:commandLink value="Next" styleClass="button gray size16 right"
+							rendered="#{colleguesBean.hasMoreFollowingUsers}"
+							onclick="logTabNavigation('next', 'listpeople.following');"
+							action="#{colleguesBean.nextFollowingUsersAction}"
+							update=":listFollowingPeopleForm:followingUsersPanel" />
+					</div>
+					
+					<script>
+					$(function() {
+						roundImages();
+						$('.followingUsersPanel').show();
+					});
+					</script>
+				</h:panelGroup>
+
+				<utilcomp:lazyLoad parentClass="sideColleagues"
+					specificClassIdentifier="following"
+					updateOnComplete=":listFollowingPeopleForm:followingUsersPanel"
+					loaderContainer=".followingUsersPanel"
+					initializeAction="#{colleguesBean.initFollowingUsers()}"
+					async="true" />
+			</h:form>
+		</div>
+
+		<div id="tabFollowers" tab-id="tabFollowers"
+			class="sideContent tabContent hidden">
+			<div class="sideSearch peopleSideSearch searchContainer">
+				<h:form>
+					<div class="mGlass"></div>
+					<comp:searchPeople 
+						value="followers" 
+						container="#tabFollowers"
+						context="listpeople.followers.search"/>
+				</h:form>
+			</div>
+
+			<h:form id="listfollowersform">
+				<h:panelGroup id="followersPanel"
+					class="followersPanel peopleSideSearchResult inlineBlock">
+
+					<h:panelGroup class="noContentMessage"
+						rendered="#{empty colleguesBean.followers}">
+						Nobody is following you yet
+					</h:panelGroup>
+
+					<h:panelGroup layout="block" rendered="#{not empty colleguesBean.followersToRender}">
+						<ui:repeat value="#{colleguesBean.followersToRender}" 
+							var="follower" varStatus="iterator"
+							id="followersList" >
+	
+							<div class="user198">
+								<div class="image">
+									<link:user value="userDetailsImage" 
+										userData="#{follower}"
+										mode="image" 
+										imageSize="30"
+										idPrefix="followerUsersImage#{iterator.index}"
+										context="listpeople.followers.image" />
+								</div>
+	
+								<div class="info">
+									<link:user 
+										value="userDetailsFollowers" 
+										userData="#{follower}"
+										divClass="name" 
+										mode="name"
+										idPrefix="following" 
+										context="listpeople.following.name" />
+										
+									<div class="font11">#{follower.position}</div>
+									
+									<h:panelGroup rendered="#{follower.locationName != null}" class="font11">
+										<a href="#" onclick="$('#locationDialog').dialog('option', 'data', ['#{follower.locationName}', #{follower.latitude}, #{follower.longitude}]).dialog('open');sendServiceUse('USER_LOCATION_DIALOG', {user: #{follower.id}, context: 'listpeople.followers'});return false;">#{follower.locationName}</a>
+									</h:panelGroup>
+									<div class="clear"></div>
+	
+									<div class="actions">
+										<actions:directMessage 
+											receiverData="#{follower}"
+											context="listpeople.followers"/>
+	
+										<p:commandLink id="followButton"
+											rendered="#{!peopleActionBean.isLoggedUserFollowingCollegueById(follower.id)}"
+											action="#{peopleActionBean.followCollegueById(follower.id,'listpeople.followers')}"
+											update=":listFollowingPeopleForm:followingUsersPanel
+													:listfollowersform:followersPanel
+													:locationRecommendForm:locationRecommendPanel
+													:activityRecommendForm:activityRecommendPanel
+													:similarityRecommendForm:similarityRecommendPanel
+													:listFollowingPeopleForm:followingUsersPanelGrowl"
+											oncomplete="roundImages()">
+											<span class="bullet"></span>
+											Follow
+										</p:commandLink>
+	
+										<p:commandLink
+											rendered="#{peopleActionBean.isLoggedUserFollowingCollegueById(follower.id)}"
+											action="#{peopleActionBean.unfollowCollegueById(follower.id,'listpeople.followers')}"
+											update=":listFollowingPeopleForm:followingUsersPanel
+													:listfollowersform:followersPanel
+													:locationRecommendForm:locationRecommendPanel
+													:activityRecommendForm:activityRecommendPanel
+													:similarityRecommendForm:similarityRecommendPanel
+													:listFollowingPeopleForm:followingUsersPanelGrowl"
+											oncomplete="roundImages()">
+											<span class="bullet"></span>
+											Unfollow
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+						</ui:repeat>
+					</h:panelGroup>
+					
+					<div class="prevlink">
+						<p:commandLink value="Prev" styleClass="button gray size16 left"
+							rendered="#{colleguesBean.hasPrevFollower}"
+							onclick="logTabNavigation('prev', 'listpeople.followers');"
+							action="#{colleguesBean.prevFollowersAction}"
+							update=":listfollowersform:followersPanel" />
+					</div>
+					<div class="nextlink">
+						<p:commandLink value="Next" styleClass="button gray size16 right"
+							rendered="#{colleguesBean.hasMoreFollowers}"
+							onclick="logTabNavigation('next', 'listpeople.followers');"
+							action="#{colleguesBean.nextFollowersAction}"
+							update=":listfollowersform:followersPanel" />
+					</div>
+
+					<script>
+					$(function() {
+						roundImages();
+						$('.followersPanel').show();
+					});
+					</script>
+				</h:panelGroup>
+
+				<utilcomp:lazyLoad parentClass="sideColleagues"
+					specificClassIdentifier="followers"
+					updateOnComplete=":listfollowersform:followersPanel"
+					loaderContainer=".followersPanel"
+					initializeAction="#{colleguesBean.initFollowers()}" async="true" />
+			</h:form>
+		</div>
+
+		<div id="tabGoals" tab-id="tabGoals"
+			class="sideContent tabContent hidden">
+			
+			<ui:remove>
+			<div class="sideSearch searchContainer">
+				<h:form>
+					<div class="mGlass"></div>
+					<comp:searchGoals 
+						value="tabGoals" 
+						container="#tabGoals"
+						context="listpeople.goals.search" />
+				</h:form>
+			</div>
+			</ui:remove>
+
+			<h:form id="learninggoalsformid">
+				<h:panelGroup id="goalsPanel" class="goalsPanel goalsSideSearchResult">
+				
+					<h:panelGroup layout="block" rendered="#{not empty colleguesBean.learningGoals}">
+						<ui:repeat value="#{colleguesBean.learningGoals}"
+							var="userGoalData" id="learningGoalsList"
+							varStatus="goalIterator">
+	
+							<div class="sideGroup">
+								<link:goal goalId="#{userGoalData.data.goalId}"
+									title="#{userGoalData.data.title}" styleClass="title" />
+	
+								<p class="description">#{userGoalData.data.description}</p>
+								<div class="members">
+									Members:
+									<ui:repeat value="#{userGoalData.collaborators}" var="member"
+										id="lGoalMembersList" varStatus="iterator" offset="0">
+	
+										<link:user value="goalMembersImage" 
+											userData="#{member}"
+											mode="image" 
+											imageSize="22"
+											idPrefix="goalMembersImage#{goalIterator.index}i#{iterator.index}"
+											context="listpeople.goals.image" />
+									</ui:repeat>
+	
+									<h:panelGroup class="noContentMessage"
+										rendered="#{empty userGoalData.collaborators}">
+										No members yet.
+									</h:panelGroup>
+								</div>
+							</div>
+						</ui:repeat>
+					</h:panelGroup>
+					
+					<div class="prevlink">
+						<p:commandLink value="Prev" styleClass="button gray size16 left"
+							rendered="#{colleguesBean.hasPrevLearningGoals}"
+							onclick="logTabNavigation('prev', 'listpeople.goals');"
+							action="#{colleguesBean.prevLearningGoalsAction()}"
+							update=":learninggoalsformid:goalsPanel" />
+					</div>
+					<div class="nextlink">
+						<p:commandLink value="Next" styleClass="button gray size16 right"
+							rendered="#{colleguesBean.hasMoreLearningGoals()}"
+							onclick="logTabNavigation('next', 'listpeople.goals');"
+							action="#{colleguesBean.nextLearningGoalsAction()}"
+							update=":learninggoalsformid:goalsPanel" />
+					</div>
+
+					<script>
+						roundImages();
+						$('#tabGoals .sideGroup .description').shortenedText({showChar: 150});
+					</script>
+				</h:panelGroup>
+
+				<utilcomp:lazyLoad parentClass="sideColleagues"
+					specificClassIdentifier="goals"
+					updateOnComplete=":learninggoalsformid:goalsPanel"
+					loaderContainer=".goalsPanel"
+					initializeAction="#{colleguesBean.initGoals()}" async="true" />
+			</h:form>
+		</div>
+	</div>
+</composite:implementation>
+</ui:component>

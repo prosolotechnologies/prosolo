@@ -1,0 +1,295 @@
+<ui:composition
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:action="http://java.sun.com/jsf/composite/components/actions"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:pt="http://java.sun.com/jsf/passthrough">
+	
+	<utilcomp:messagesBundle var="msg" />
+	
+	<div class="mGlass blue"></div>
+	
+	<h:form id="globalsearchform" class="globalsearchform indexTripStep12" pt:position="s">
+		<p:growl id="globalSearchFormGrowl" showDetail="true" />
+		
+		<p:remoteCommand name="globalSearchAction"
+			update="globalSearchResultPanel" 
+			action="#{globalSearchBean.executeSearch}" />
+		
+		<script>
+			var globalSearch;
+		
+			$(function() {
+				$('#headerSearch').prosolosearch({
+					resultContainer : '#headerSearch .globalSearchContainer',
+					loaderContainer : '#headerSearch .globalSearchContainer .globalSearchResult',
+					searchInput : '#headerSearch .mainInput',
+					watermark: 'Search',
+					searchAction: globalSearchAction
+				});
+				globalSearch = $('#headerSearch').data('prosolo.search');
+				
+				$('#headerSearch .mainInput').on('input', function() {
+					updateGlobalSearchQuery();
+				});
+			});
+			
+			function updateGlobalSearchQuery(){
+				//setQueryParam('query', $('#headerSearch .mainInput').val());
+			}
+		</script>
+ 		
+ 		<h:inputText size="20" 
+ 			id="globalInputString"
+ 			value="#{globalSearchBean.query}" 
+			styleClass="mainInput"
+		/>
+		
+		<div id="globalsearchresults" class="globalSearchContainer">
+			<h:panelGroup layout="block" id="globalSearchResultPanel" class="globalSearchResult" >
+
+				<h:panelGroup layout="block" class="coursesSearchResult" rendered="#{not empty searchCoursesBean.courses}">
+					<script>
+					$(function() {
+						var seeAll1 = $('.globalsearchform .coursesSearchResult .category .seeAllLink');
+						seeAll1.attr('href', setQueryParamOfUri(seeAll1.attr('href'), 'query', $('.globalsearchform .mainInput').val()));
+					});
+					</script>
+					
+					<span class="category">
+						#{msg['search.global.courses.title']} (#{searchCoursesBean.size})
+						<span class="right">
+						<h:link class="seeAllLink" value="See all" outcome="/courseBrowse">
+							<f:param name="query" value="" />
+						</h:link>
+						</span>
+					</span> 
+					
+					<ui:repeat value="#{searchCoursesBean.courses}"
+						var="foundCourse" varStatus="iterator" id="foundCoursesList">
+						
+						<div class="searchRecord">
+							<div class="image">
+								<span class="courseIcon30"></span>
+							</div>
+							
+							<div class="info">
+								<div class="title">#{foundCourse.title}</div> 
+								<div class="membersnumber">
+									Created by:
+									<link:user
+										mode="name"
+										userData="#{foundCourse.maker}"
+										idPrefix="globalSearchCourse#{iterator.index}" />
+									- 
+									<p:commandLink
+						    			rendered="#{not empty foundCourse.memberIds}"
+										value="#{foundCourse.memberIds.size()} members"
+										action="#{peopleListDialog.initializePeopleWithIds(foundCourse.memberIds)}"
+										onclick="globalSearch.hideResults();$('#peopleListDialog').dialog('open');"
+										update=":peopleListForm"
+									/>
+									<h:outputText rendered="#{empty foundCourse.memberIds}"
+										value="0 members" />
+								</div>
+								
+								<div class="actions">
+								  	<h:link value="Details" outcome="/course">
+										<f:param name="id" value="#{foundCourse.id}" />
+									</h:link>
+								</div>
+							</div>
+						</div>
+					</ui:repeat>
+				</h:panelGroup>
+				
+				<h:panelGroup layout="block" class="competencesSearchResult" rendered="#{not empty searchCompetencesBean.competences}">
+					<script>
+					$(function() {
+						var seeAll2 = $('.globalsearchform .competencesSearchResult .category .seeAllLink');
+						seeAll2.attr('href', setQueryParamOfUri(seeAll2.attr('href'), 'query', $('.globalsearchform .mainInput').val()));
+					});
+					</script>
+					
+					<span class="category">
+						Competences (#{searchCompetencesBean.compsSize})
+						<span class="right">
+							<h:link class="seeAllLink" outcome="/search" value="See all">
+								<f:param name="tab" value="competences" />
+								<f:param name="query" value="" />
+							</h:link>
+						</span>
+					</span> 
+					
+					<ui:repeat value="#{searchCompetencesBean.competences}"
+						var="foundCompetence" varStatus="iterator" id="foundCompetencesList">
+						<div class="searchRecord">
+							<div class="image">
+								<span class="competenceIcon30"></span>
+							</div>
+							
+							<div class="info">
+								<div class="title">#{foundCompetence.title}</div> 
+								<div class="membersnumber">
+									Created by: 
+									<link:user
+										mode="name"
+										userData="#{foundCompetence.maker}"
+										idPrefix="globalSearchComp#{iterator.index}" />
+								</div>
+								
+								<div class="actions">
+									<link:competence resourceId="#{foundCompetence.id}"
+										type="Competence"
+										title="Details"
+										context="globalsearch" />
+								</div>
+							</div>
+						</div>
+					</ui:repeat>
+				</h:panelGroup>
+				
+				<ui:remove>
+				<h:panelGroup layout="block" class="goalSearchResult" rendered="#{not empty searchGoalsBean.goals}">
+					<script>
+					$(function() {
+						var seeAll3 = $('.globalsearchform .goalSearchResult .category .seeAllLink');
+						seeAll3.attr('href', setQueryParamOfUri(seeAll3.attr('href'), 'query', $('.globalsearchform .mainInput').val()));
+					});
+					</script>
+
+					<span class="category">
+						Goals (#{searchGoalsBean.goalsSize})
+						<span class="right">
+							<h:link class="seeAllLink" outcome="/search" value="See all">
+								<f:param name="tab" value="goals" />
+								<f:param name="query" value="" />
+							</h:link>
+						</span>
+					</span> 
+					
+					<ui:repeat value="#{searchGoalsBean.goals}"
+						var="goalData" varStats="iterator" id="foundLearningGoalsList">
+						
+						<div class="searchRecord">
+							<div class="image">
+								<span class="goalIcon30"></span>
+							</div>
+							
+							<div class="info">
+								<div class="title">#{goalData.title}</div> 
+								<div class="membersnumber">
+									Created by:
+									
+									<link:user
+										mode="name"
+										userData="#{goalData.maker}"
+										idPrefix="globalSearchGoal#{iterator.index}" />
+									-	
+									<p:commandLink
+						    			rendered="#{not empty goalData.memberIds}"
+										value="#{goalData.memberIds.size()} members"
+										action="#{peopleListDialog.initializePeopleWithIds(goalData.memberIds)}"
+										onclick="globalSearch.hideResults();$('#peopleListDialog').dialog('open');"
+										update=":peopleListForm"
+									/>
+									<h:outputText rendered="#{empty goalData.memberIds}"
+										value="0 members" />
+								</div>
+								
+								<div class="actions">
+									<link:goal 
+										goalId="#{goalData.id}"
+										title="Details"
+										context="globalsearch" />
+									
+									<p:commandLink rendered="#{goalData.canBeRequestedToJoin}"
+										onclick="globalSearch.hideResults();$('#requestToJoinGoalModalDialog').dialog('open');"
+										update=":requestToJoinGoalForm"
+										action="#{requestToJoinGoalBean.requestToJoinLearningGoal(goalData, 'globalsearch')}" >
+										<span class="bullet"></span>
+										Request to join
+									</p:commandLink>
+									
+								</div>
+							</div>
+						</div>
+					</ui:repeat>
+				</h:panelGroup>
+				</ui:remove>
+				
+				<h:panelGroup layout="block" id="peopleSearchResultPanelContent" class="peopleSearchResult" rendered="#{not empty searchPeopleBean.users}">
+					<script>
+					$(function() {
+						var seeAll4 = $('.globalsearchform .peopleSearchResult .category .seeAllLink');
+						seeAll4.attr('href', setQueryParamOfUri(seeAll4.attr('href'), 'query', $('.globalsearchform .mainInput').val()));
+					});
+					</script>
+					
+					<span class="category">
+						People (#{searchPeopleBean.userSize})
+						<span class="right">
+							<h:link class="seeAllLink" outcome="/search" value="See all">
+								<f:param name="tab" value="people" />
+								<f:param name="query" value="" />
+							</h:link>
+						</span>
+					</span>
+					
+				  	<ui:repeat id="foundUsersList" value="#{searchPeopleBean.users}" var="userData" varStatus="iterator">
+						<div class="searchRecord">
+							<div class="image">
+								<h:graphicImage styleClass="imageRound image30"
+									value="#{userData.avatarUrl}" width="30"
+									height="30" alt="#{userData.name}" />
+							</div>
+							<div class="info">
+								<link:user
+									userData="#{userData}"
+									divClass="title link" 
+									mode="name"
+									idPrefix="globalSearchName#{iterator.index}"
+									context="globalsearch.name" />
+								
+								<div class="actions">
+									<action:directMessage
+										receiverData="#{userData}" />
+									
+									<h:panelGroup rendered="#{!peopleActionBean.isLoggedUserFollowingCollegueById(userData.id)}">
+										<span class="bullet"></span>
+										<p:commandLink id="followButton" value="Follow"
+											action="#{peopleActionBean.followCollegueData(userData, 'globalsearch')}"
+											update=":globalsearchform:globalSearchFormGrowl #{(view.viewId == '/index.xhtml') ? ':listFollowingPeopleForm:followingUsersPanel' : ''}"
+											oncomplete="globalSearch.hideResults();roundImages()"
+											/>
+									</h:panelGroup>
+									
+									<h:panelGroup rendered="#{peopleActionBean.isLoggedUserFollowingCollegueById(userData.id)}">
+										<span class="bullet"></span>
+										<p:commandLink id="unfollowButton" value="Unfollow"
+											action="#{peopleActionBean.unfollowCollegueData(userData, 'globalsearch')}"
+											update=":globalsearchform:globalSearchFormGrowl #{(view.viewId=='/index.xhtml') ? ':listFollowingPeopleForm:followingUsersPanel' : ''}"
+											oncomplete="globalSearch.hideResults();roundImages()" />
+									</h:panelGroup>
+								</div>
+							</div>
+						</div>
+					</ui:repeat>
+				</h:panelGroup>
+				
+				<h:panelGroup layout="block" id="noResultsPanel" class="noResultsPanel" rendered="#{!globalSearchBean.hasGlobalResults}">
+					No results found
+				</h:panelGroup>
+				
+				<h:panelGroup id="seeAllLink" rendered="#{globalSearchBean.hasMoreGlobalResults}">
+					<span class="seperator">
+						<!-- a href="#">See all results</a-->
+					</span> 
+				</h:panelGroup>
+			</h:panelGroup>
+		</div>
+	</h:form>
+</ui:composition>

@@ -1,0 +1,48 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+
+	<composite:interface>
+		<composite:attribute name="parentClass" required="true" />
+		<composite:attribute name="disabled" default="false" />
+		<composite:attribute name="specificClassIdentifier" default=""/>
+		<composite:attribute name="updateOnComplete" />
+		<composite:attribute name="loaderClass" default="loader center" />
+		<composite:attribute name="loaderContainer"/>
+		<composite:attribute name="text" default=""/>
+		<composite:attribute name="withLoader" default="true"/>
+		<composite:attribute name="removeContentBeforeLoader" default="true"/>
+		<composite:attribute name="fadeIn" default="true"/>
+		<composite:attribute name="async" default="false"/>
+		<composite:attribute name="oncomplete" />
+		<composite:attribute name="initializeAction"
+			method-signature="void initialize()"
+			required="true"/>
+	</composite:interface>
+	
+	<composite:implementation>
+		<h:panelGroup rendered="#{!cc.attrs.disabled}">
+			<script>
+				addLoaderWithClass('.#{cc.attrs.parentClass} #{cc.attrs.loaderContainer}', '#{cc.attrs.text}', #{cc.attrs.withLoader}, #{cc.attrs.removeContentBeforeLoader}, '#{cc.attrs.loaderClass}')
+			</script>
+					
+			<p:commandLink styleClass="#{cc.attrs.parentClass}#{cc.attrs.specificClassIdentifier}Refresh"
+				action="#{cc.attrs.initializeAction}" 
+				update="#{cc.attrs.updateOnComplete}"
+				oncomplete="if(#{cc.attrs.fadeIn}){$('.#{cc.attrs.parentClass} #{cc.attrs.loaderContainer}').fadeIn();} else {$('.#{cc.attrs.parentClass} #{cc.attrs.loaderContainer}').show();};#{cc.attrs.oncomplete}"
+				async="#{cc.attrs.async}"
+				partialSubmit="true"
+				process=""
+			/>
+				
+			<script>
+			$(function(){
+				$('.#{cc.attrs.parentClass}#{cc.attrs.specificClassIdentifier}Refresh').trigger('click');
+			});
+			</script>
+		</h:panelGroup>
+	</composite:implementation>
+</ui:component>

@@ -1,0 +1,197 @@
+<ui:composition
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks">
+	
+	<utilcomp:messagesBundle var="msg" />
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#suggestedLearningTabs').tabs();
+		});
+	</script>
+
+	<div class="learningRecommendations indexTripStep24">
+		<h3>
+			Suggested Learning
+			<utilcomp:infotooltip position="SUGGESTED_LEARNING" context="index.suggestedLearning" />
+		</h3>
+
+		<div id="suggestedLearningTabs"	class="sideBoxFrame sideColleagues sideSuggestedLearning">
+		
+			<ul class="sideTabs">
+				<li><a class="tabLink" 
+					onclick="logTabNavigation('colleagues', 'index.suggestedLearning');" 
+					for-tab="tabByColleague">#{msg['home.suggestedLearning.tabs.title.colleagues']}</a></li>
+				
+				<li><a class="tabLink" 
+					onclick="logTabNavigation('system', 'index.suggestedLearning');" 
+					for-tab="tabBySystem">#{msg['home.suggestedLearning.tabs.title.system']}</a></li>
+				
+				<li><a class="tabLink" 
+					onclick="logTabNavigation('course', 'index.suggestedLearning');" 
+					for-tab="tabByCourse">#{msg['home.suggestedLearning.tabs.title.course']}</a></li>
+			</ul>
+
+			<div id="tabByColleague" tab-id="tabByColleague" class="sideContent tabContent">
+				<h:form id="sugLearnByColleagueForm">
+					<h:panelGroup layout="block" id="tabByColleaguePanel" 
+						class="tabByColleagueContainer" style="display: none;">
+						
+						<ul>
+							<ui:repeat value="#{suggestedLearningBean.suggestedByColleagues}"
+								var="recommendedData" id="suggestedResourcesByColleguesList">
+								
+								<li>
+									<h:panelGroup rendered="#{recommendedData.resourceType == 'LEARNINGGOAL'}">
+										<icon:goal size="16" styleClass="icon" />
+										<p:commandLink
+											onclick="$('#goalDetailsModalDialog').dialog('open');"
+											actionListener="#{loggingBean.logServiceUse('GOAL_DIALOG', 'context', 'index.suggestedLearning.colleagues', 'action', 'openLearningGoalDialog', 'goalId', recommendedData.resourceId)}"
+											action="#{goalDialog.initializeRecommendedGoalDialog(recommendedData.resourceId, recommendedData.makerId)}"
+											update=":goalDetailsDialogForm"
+											value="#{recommendedData.resourceTitle}" styleClass="title" />
+									</h:panelGroup>
+	
+									<h:panelGroup rendered="#{recommendedData.resourceType == 'COMPETENCE'}">
+										<icon:competence size="16" styleClass="icon" /> 
+										<link:competence
+											resourceId="#{recommendedData.resourceId}"
+											title="#{recommendedData.resourceTitle}"
+											type="Competence"
+											styleClass="title" 
+											context="index.suggestedLearning.colleagues" />
+									</h:panelGroup>
+								</li>
+							</ui:repeat>
+						</ul>
+						
+						<h:panelGroup layout="block" class="noContentMessage" 
+							rendered="#{empty suggestedLearningBean.suggestedByColleagues}">
+							No recommendations
+						</h:panelGroup>
+						
+				 		<h:link value="See all" outcome="/search"
+							onclick="sendLogPageNavigationWithParameters('search.xhtml', {context: 'index.suggestedLearning.colleagues', action: 'seeAll'});">
+							<f:param name="tab" value="suggestedLearning" />
+						</h:link>
+							
+						<utilcomp:tooltip target=".hasTooltip[title]" />
+					</h:panelGroup>
+
+					<utilcomp:lazyLoad parentClass="sideSuggestedLearning"
+						specificClassIdentifier="byColleagues"
+						updateOnComplete=":sugLearnByColleagueForm:tabByColleaguePanel"
+						loaderContainer=".tabByColleagueContainer"
+						initializeAction="#{suggestedLearningBean.initializeSuggestedByColleagues()}"
+						async="true" />
+				</h:form>
+			</div>
+
+			<div id="tabBySystem" tab-id="tabBySystem"	class="sideContent tabContent hidden">
+			
+				<h:form id="sugLearnBySystemForm">
+				
+					<h:panelGroup layout="block" id="tabBySystemPanel" class="tabBySystemContainer">
+						<ul>
+							<ui:repeat value="#{suggestedLearningBean.suggestedBySystem}"
+								var="recommendedData" id="suggestedResourcesBySystemList">
+								
+								<li>
+									<h:panelGroup rendered="#{recommendedData.resourceType == 'LEARNINGGOAL'}">
+										<icon:goal size="16" styleClass="icon"/>
+										<p:commandLink
+											onclick="$('#goalDetailsModalDialog').dialog('open');"
+											action="#{goalDialog.initializeRecommendedGoalDialog(recommendedData.resourceId)}"
+											actionListener="#{loggingBean.logServiceUse('GOAL_DIALOG', 'context', 'index.suggestedLearning.system', 'action', 'openLearningGoalDialog', 'goalId', recommendedData.resourceId)}"
+											value="#{recommendedData.resourceTitle}"
+											update=":goalDetailsDialogForm" styleClass="title">
+										</p:commandLink>
+									</h:panelGroup>
+
+									<h:panelGroup rendered="#{recommendedData.resourceType == 'COMPETENCE'}">
+										<icon:competence size="16" styleClass="icon" />  
+										<link:competence
+											resourceId="#{recommendedData.resourceId}"
+											title="#{recommendedData.resourceTitle}"
+											type="Competence"
+											styleClass="title" 
+											context="index.suggestedLearning.system" />
+									</h:panelGroup>
+								</li>
+							</ui:repeat>
+						</ul>
+						
+						<h:panelGroup layout="block" class="noContentMessage" 
+							rendered="#{empty suggestedLearningBean.suggestedBySystem}">
+							No recommendations
+						</h:panelGroup>
+
+						<h:link value="See all" outcome="/search"
+							onclick="sendLogPageNavigationWithParameters('search.xhtml', {context: 'index.suggestedLearning.system', action: 'seeAll'});">
+							<f:param name="tab" value="suggestedLearning" />
+						</h:link>
+
+						<utilcomp:tooltip target=".hasTooltip[title]" />
+					</h:panelGroup>
+
+					<utilcomp:lazyLoad parentClass="sideSuggestedLearning"
+						specificClassIdentifier="bySystem"
+						updateOnComplete=":sugLearnBySystemForm:tabBySystemPanel"
+						loaderContainer=".tabBySystemContainer"
+						initializeAction="#{suggestedLearningBean.initializeSuggestedBySystem()}"
+						async="true" />
+				</h:form>
+			</div>
+			
+			<div id="tabByCourse" tab-id="tabByCourse" class="sideContent tabContent hidden">
+			
+				<h:form id="sugLearnByCourseForm">
+					<h:panelGroup layout="block" id="tabByCoursePanel" class="tabByCourseContainer">
+						<ul>
+							<ui:repeat value="#{suggestedLearningBean.suggestedByCourse}"
+								var="recommendedData" id="suggestedResourcesByCourseList">
+								
+								<h:panelGroup rendered="#{recommendedData.resourceType == 'COMPETENCE'}">
+									<li>
+										<icon:competence size="16" styleClass="icon" />
+										<link:competence
+											resourceId="#{recommendedData.resourceId}"
+											title="#{recommendedData.resourceTitle}"
+											type="Competence"
+											styleClass="title" 
+											context="index.suggestedLearning.course" />
+									</li>
+								</h:panelGroup>
+							</ui:repeat>
+						</ul>
+						
+						<h:panelGroup layout="block" class="noContentMessage" 
+							rendered="#{empty suggestedLearningBean.suggestedByCourse}">
+							No recommendations
+						</h:panelGroup>
+ 						
+ 						<h:link value="See all" outcome="/search"
+							onclick="sendLogPageNavigationWithParameters('search.xhtml', {context: 'index.suggestedLearning.course', action: 'seeAll'});">
+							<f:param name="tab" value="suggestedLearning" />
+						</h:link>
+							
+						<utilcomp:tooltip target=".hasTooltip[title]" />
+					 </h:panelGroup>
+				 	
+				 	<utilcomp:lazyLoad parentClass="sideSuggestedLearning"
+						specificClassIdentifier="byCourse"
+						updateOnComplete=":sugLearnByCourseForm:tabByCoursePanel"
+						loaderContainer=".tabByCourseContainer"
+						initializeAction="#{suggestedLearningBean.initializeSuggestedByCourse()}"
+						async="true" />
+				</h:form>
+			</div>
+		</div>
+		<div class="clear"></div>
+	</div>
+</ui:composition>

@@ -1,0 +1,100 @@
+<ui:composition
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks">
+
+	<utilcomp:messagesBundle var="msg" />
+
+	<div class="sideBox sideNews indexTripStep23">
+		<utilcomp:tooltip target=".hasTooltip[title]" />
+
+		<h:form id="featuredNewsForm">
+			<p:poll interval="#{featuredNewsBean.refreshRate}"
+				update=":featuredNewsForm"
+				widgetVar="featuredNewsPoll" autoStart="true" />
+
+			<h3>
+				#{msg['featurednews.title']}
+				<utilcomp:infotooltip position="FEATURED_NEWS" context="index.featuredNews" />
+			</h3>
+
+			<h:panelGroup layout="block" id="featuredNewsContainer" class="featuredNewsContainer" style="display: none;">
+				<h:panelGroup layout="block" id="personalFeedLink" class="user220 marginBottom10"
+					rendered="#{featuredNewsBean.feedFeaturedNewsData.containsPersonalFeed}">
+					<div class="image">
+						<img src="resources/images/RSS30x30.jpeg" border="0" />
+					</div>
+					
+					<div class="info">
+ 						<h:link value="#{featuredNewsBean.feedFeaturedNewsData.actionLabel}"
+ 							onclick="sendLogPageNavigationWithParameters('digest.xhtml', {context : 'index.featuredNews', tab : 'myfeeds', feedId: #{featuredNewsBean.feedFeaturedNewsData.personalFeed.id}});"
+							outcome="/digest">
+							<f:param name="tab" value="myfeeds" />
+							<f:param name="pid" value="#{featuredNewsBean.feedFeaturedNewsData.personalFeed.id}" />
+						</h:link>
+					</div>
+				</h:panelGroup>
+				
+				<h:panelGroup rendered="#{featuredNewsBean.featuredNewsList != null}">
+					<ui:repeat value="#{featuredNewsBean.featuredNewsList}"
+						var="newsData" id="featuredNewsListId"
+						size="#{featuredNewsBean.featuredNewsSize}" varStatus="iterator">
+	
+						<div class="user220 #{iterator.index + 1 &lt; featuredNewsBean.featuredNewsSize ? 'marginBottom10' : '' }">
+							<div class="image">
+								<link:user value="newsDataCreator" user="#{newsData.actor}"
+									mode="image" imageSize="30"
+									idPrefix="newsDataCreator#{iterator.index}" 
+									context="index.featuredNews.image" />
+							</div>
+	
+							<div class="info">
+								<link:user value="featuredNewsUser" user="#{newsData.actor}"
+									mode="name"
+									divClass="name" idPrefix="featuredNews#{iterator.index}" 
+									context="index.featuredNews.name" />
+									
+								#{newsData.actionLabel}
+								
+								<link:goal
+									goal="#{newsData.resource}" 
+									title="#{newsData.resourceName}" 
+									context="index.featuredNews" />
+							</div>
+						</div>
+					</ui:repeat>
+				</h:panelGroup>
+				
+				<h:panelGroup rendered="#{empty featuredNewsBean.featuredNewsList and !featuredNewsBean.feedFeaturedNewsData.containsPersonalFeed}" 
+					class="noContentMessage">
+						No featured news.
+				</h:panelGroup>
+
+				<div class="clear"></div>
+
+				<h:panelGroup id="seeAllLinkFeaturedNews" rendered="#{featuredNewsBean.hasMoreFeaturedNews()}">
+					<h:link value="See all" outcome="/search"
+						onclick="sendLogPageNavigationWithParameters('search.xhtml', {context: 'index.featuredNews', action: 'seeAll'});">
+						<f:param name="tab" value="featuredNews" />
+					</h:link>
+				</h:panelGroup>
+
+				<script>
+					roundImages();
+				</script>
+			</h:panelGroup>
+
+			<utilcomp:lazyLoad parentClass="sideNews"
+				updateOnComplete=":featuredNewsForm:featuredNewsContainer"
+				loaderContainer=".featuredNewsContainer"
+				initializeAction="#{featuredNewsBean.init()}"
+				async="true" 
+			/>
+		</h:form>
+	</div>
+</ui:composition>

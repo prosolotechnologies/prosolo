@@ -1,0 +1,17 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+
+	<composite:interface>
+		<composite:attribute name="position" required="true" />
+		<composite:attribute name="context" />
+		<composite:attribute name="styleClass" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<span class="infoTooltipIcon hasTooltip #{cc.attrs.styleClass}" title="#{tooltips.getTooltip(cc.attrs.position)}" context="#{cc.attrs.context}"></span>
+	</composite:implementation>
+</ui:component>

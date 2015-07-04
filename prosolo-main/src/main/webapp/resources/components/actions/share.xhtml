@@ -1,0 +1,66 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+	<composite:interface>
+		<composite:attribute name="resource" type="org.prosolo.domainmodel.general.BaseEntity"/>
+		<composite:attribute name="idPrefix"/>
+		<composite:attribute name="toRender" default="true"/>
+		<composite:attribute name="context"/>
+	</composite:interface>
+	
+	<composite:implementation>
+		<h:panelGroup layout="block" class="share">
+			<p:commandLink value="Share" styleClass="shareDrop button green size24" />
+			
+			<div class="dropdown hidden">
+				<ul>
+					<li>
+						<p:commandLink
+							onclick="$('#newPostDialog').dialog('open');if (statusUpdateDialogNewPost)statusUpdateDialogNewPost.expandPostInput().showLinkLoader().showInputTextLoader();"
+							action="#{postDialogBean.preparePostDialog(cc.attrs.resource, cc.attrs.context)}"
+							oncomplete="if(statusUpdateDialogNewPost)statusUpdateDialogNewPost.expandPostInput().showLinkPreview();"
+							update=":newPostDialogForm"
+							>
+							Post
+						</p:commandLink>
+					</li>
+					<li class="">
+						<p:commandLink styleClass="shareDrop">
+							Add to Learning
+						</p:commandLink>
+						<ul class="dropdown goals hidden">
+							<ui:repeat value="#{learninggoals.goals}" var="goalData">
+								<li>
+									<p:commandLink styleClass="shareDrop">
+										#{goalData.data.title}
+									</p:commandLink>
+									<ul class="dropdown comps hidden">
+										<ui:repeat value="#{goalData.competences}" var="compData" varStatus="compIterator">
+											<li>
+												<p:commandLink styleClass="comp">
+													#{compData.targetCompetence.title}
+												</p:commandLink>
+											</li>
+										</ui:repeat>
+									</ul>
+								</li>
+							</ui:repeat>
+						</ul>
+					</li>
+					<li>
+						<p:commandLink styleClass="shareDrop">
+							Add to Competence 3
+						</p:commandLink>
+					</li>
+				</ul>
+			</div>
+		</h:panelGroup>
+		
+	</composite:implementation>
+</ui:component>

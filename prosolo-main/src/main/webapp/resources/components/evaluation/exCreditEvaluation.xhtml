@@ -1,0 +1,390 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:func="http://org.prosolo/functions"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+ 
+	<composite:interface>
+		<composite:attribute name="toRender" default="true" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<utilcomp:messagesBundle var="msg" />
+		
+		<h:outputScript library="javascript" name="jquery.switchButton.js" />
+		<h:outputStylesheet library="css" name="jquery.switchButton.css"  />
+	
+		<div id="submitEvaluation" class="container submitEvaluation">
+		
+			<div class="content wide">
+			
+			    <h:form id="submitEvaluationForm">
+			    	<p:growl id="submitEvaluationDialogGrowl" showDetail="true" />
+			    	
+			    	<div class="info">
+						<div class="title">
+							<h2>
+								#{msg['evaluation.exCredit.title']} 
+								<h:panelGroup rendered="#{newevaluation.formData.draft}"> - Draft</h:panelGroup>
+							</h2>
+							
+							<h:panelGroup layout="block" rendered="#{!newevaluation.formData.draft}" class="normal">
+								<strong>Submitted:&#160;</strong>#{newevaluation.formData.dateSubmitted}
+							</h:panelGroup>
+						</div>
+						
+						<table>
+							<tr>
+								<td>Name: </td>
+								<td colspan="3">
+									<link:externalCredit
+										title="#{newevaluation.formData.primeEvaluatedResource.title}"
+										styleClass="bold"
+										context="exCreditEvaluation" />
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<span>Started:</span> 
+								</td>
+								<td>
+									#{newevaluation.formData.primeEvaluatedResource.dateStared}
+								</td>
+								<td>
+									<span class="bold">Completed:</span>
+								</td>
+								<td>
+									#{newevaluation.formData.primeEvaluatedResource.dateCompleted != null ? newevaluation.formData.primeEvaluatedResource.dateCompleted : 'not completed'}
+								</td>
+							</tr>
+							<tr>
+								<td>Requested:</td>
+								<td colspan="3">
+									#{newevaluation.formData.dateRequested}
+								</td>
+							</tr>
+						</table>
+						
+						<p>
+							#{msg['evaluation.exCredit.info.evaluationRequest.part1.user']}
+			    			<span class="title"><link:user value="userDetails" user="#{newevaluation.formData.requester}" mode="name" context="goalEvaluation.name"/></span>
+				    		
+				    		#{msg['evaluation.exCredit.info.evaluationRequest.part2.requestingEvaluation']}
+				    		
+			    			<link:goal 
+								targetGoalId="#{newevaluation.formData.primeEvaluatedResource.id}"
+								title="#{newevaluation.formData.primeEvaluatedResource.title}" 
+								styleClass="title"
+								context="goalEvaluation"/>.<br/>
+								
+							#{msg['evaluation.exCredit.info.detailedExplanation']}<br/> 
+						</p>
+		    		</div>
+		    		
+		    		<div class="separator clear"></div>
+		    		
+		    		<div class="message">
+				    	<h3>#{msg['evaluation.exCredit.message.sectionTitle']}
+				    		
+				    		<span class="right normal">
+					    		<h:selectBooleanCheckbox value="#{newevaluation.formData.primeEvaluatedResource.accepted}"
+					    			class="approveBtn" />
+					    			
+								<script>
+									$('#submitEvaluation .message .approveBtn').switchButton({
+					    				width: 40,
+					    				height: 15,
+					    				button_width: 20,
+			    						checked: false, 
+			    						on_label: 'Approved', 
+			    						off_label: 'Rejected',
+			    					});
+									$('#submitEvaluation .message textarea.evaluationMessage').autosize(); 
+								</script>
+				    		</span>
+				    	</h3>
+				    	
+						<h:panelGroup layout="block" rendered="#{newevaluation.formData.draft}">
+							<h:inputTextarea class="evaluationMessage left" 
+								value="#{newevaluation.formData.primeEvaluatedResource.comment}"
+								placeholder="#{msg['textarea.message']}" />
+								
+							<script>
+								$(function() {
+									$('#submitEvaluation .message textarea.evaluationMessage').autosize(); 
+								});
+							</script>
+						</h:panelGroup>
+						
+						<h:panelGroup layout="block"
+							rendered="#{!newevaluation.formData.draft}"
+							class="text left">
+							#{newevaluation.formData.primeEvaluatedResource.comment}
+						</h:panelGroup>
+						
+						<div class="rightBox">
+							<h:panelGroup layout="block" id="badgesContainer" class="badgesDialog right">
+								Badges:
+								<h:panelGrid columns="3">
+									<ui:repeat value="#{newevaluation.formData.primeEvaluatedResource.badges}" var="badge">
+										<div class="badgeWrapper">
+											<p:commandLink 
+												styleClass="badge badge#{badge.capitalizedName}50 #{badge.selected ? 'selected' : ''}" 
+					    						action="#{newevaluation.toggleBadge(newevaluation.formData.primeEvaluatedResource, badge)}"
+					    						update=":#{cc.clientId}:submitEvaluationForm:badgesContainer" />
+				   							<div class="clear"></div>
+										</div>
+						    		</ui:repeat>
+								</h:panelGrid>
+							</h:panelGroup>
+			    		</div>
+					</div>
+			    	
+			    	<div class="clear separator"></div>
+			    	
+			    	<div class="competences">
+				   		<h3>External credit's competences</h3>
+				   		
+				   		<h:panelGroup rendered="#{empty newevaluation.formData.getEvaluatedCompetences()}" class="noContentMessage">
+							There are no competences connected to this external credit.
+						</h:panelGroup>
+						
+						<div class="evaluatedCompetences">
+							<script>
+								function updateCommentField($this) {
+									$this = $($this);
+			    					var textFieldId = $this.parent().parent().attr('id').replace('ChatIcon-tooltip', '');
+			    					$('textarea.'+textFieldId).val($this.val());
+								}
+							</script>
+						
+						    <ui:repeat value="#{newevaluation.formData.getEvaluatedCompetences()}" var="evCompData" varStatus="iterator">
+					    		<div class="competenceContainer #{iterator.index % 2 != 1 ? 'first' : 'second'}">
+							    
+									<link:competence
+										resourceId="#{evCompData.id}"
+										type="TargetCompetence"
+										title="#{evCompData.title}" 
+										context="goalEvaluation"
+										styleClass="competenceTitle" />
+					    		
+						    		<span class="right">
+							    		<h:selectBooleanCheckbox value="#{evCompData.accepted}"
+							    			class="approveBtn"
+							    			rendered="#{newevaluation.formData.draft}"/>
+						    		</span>
+						    		
+									<div class="clear marginBottom10"></div>
+							    
+						    		<h:inputTextarea
+						    			class="comment left"
+				    					value="#{evCompData.comment}"
+				    					rendered="#{newevaluation.formData.draft}"
+				    					placeholder="#{msg['evaluation.comment']}"
+				    				/>
+				    				
+				    				<h:panelGroup layout="block" id="badgesContainer" class="badgesDialog">
+					    				Badges:
+										<h:panelGrid columns="3">
+											<ui:repeat value="#{evCompData.badges}" var="badge">
+												<div class="badgeWrapper">
+													<p:commandLink 
+														styleClass="badge badge#{badge.capitalizedName}30 badge30 #{badge.selected ? 'selected' : ''}" 
+							    						action="#{newevaluation.toggleBadge(evCompData, badge)}"
+							    						update="@this" />
+						   							<div class="clear"></div>
+												</div>
+								    		</ui:repeat>
+										</h:panelGrid>
+									</h:panelGroup>
+
+						    		<script>
+						    			$('#submitEvaluation .evaluatedCompetences .approveBtn').switchButton({
+						    				width: 40,
+						    				height: 15,
+						    				button_width: 20,
+				    						checked: false, 
+				    						on_label: 'Approved', 
+				    						off_label: 'Rejected',
+				    					});
+						    			$('#submitEvaluation .evaluatedCompetences textarea.comment').autosize();
+						    		</script>
+					    		</div>
+						    </ui:repeat>
+						</div>
+					</div>
+					
+				    <div class="clear separator"></div>
+				    
+				    <div class="addedCompetencesContainer">
+						<h3>Added competences</h3>
+						
+						<comp:searchCompetences value="addedCompetences"
+							container=".addedCompetencesContainer"
+							regionToRenderOnAction=":#{cc.clientId}:submitEvaluationForm:submitEvaluationFormGrowl :#{cc.clientId}:submitEvaluationForm:addedCompetences"
+							actionBean="#{newevaluation}"
+							toRender="#{newevaluation.formData.draft}" 
+							actionLinkName="Add" 
+							toExcludeIds="#{newevaluation.allCompetenceIds}" />
+							
+						<h:panelGroup layout="block" id="addedCompetences" class="addedCompetences">
+							<h:panelGroup layout="block" class="noContentMessage marginTop10" rendered="#{empty newevaluation.formData.getAddedCompetences()}">
+								There are no addded competences
+							</h:panelGroup>
+						
+						    <ui:repeat value="#{newevaluation.formData.getAddedCompetences()}" var="evCompData" varStatus="iterator">
+								<div class="competenceContainer #{iterator.index % 2 == 0 ? 'first' : 'second'}">
+
+									<link:competence
+										resourceId="#{evCompData.resource.competence.id}"
+										type="Competence"
+										title="#{evCompData.resource.competence.title}" 
+										context="goalEvaluation"
+										styleClass="competenceTitle" />
+					    		
+						    		<span class="right">
+							    		<p:commandLink styleClass="iconRemove"
+							    			actionListener="#{newevaluation.removeEvaluatedResource(evCompData)}"
+							    			update=":#{cc.clientId}:submitEvaluationForm:addedCompetences" />
+						    		</span>
+										
+									<div class="clear marginBottom10"></div>
+	
+						    		<h:inputTextarea
+						    			class="comment left"
+				    					value="#{evCompData.comment}"
+				    					rendered="#{newevaluation.formData.draft}"
+				    					placeholder="#{msg['evaluation.comment']}"
+				    				/>
+									
+									<h:panelGroup layout="block" id="badgesContainer" class="badgesDialog">
+					    				Badges:
+										<h:panelGrid columns="3">
+											<ui:repeat value="#{evCompData.badges}" var="badge">
+												<div class="badgeWrapper">
+													<p:commandLink 
+														styleClass="badge badge#{badge.capitalizedName}30 badge30 #{badge.selected ? 'selected' : ''}" 
+							    						action="#{newevaluation.toggleBadge(evCompData, badge)}"
+							    						update="@this" />
+						   							<div class="clear"></div>
+												</div>
+								    		</ui:repeat>
+										</h:panelGrid>
+									</h:panelGroup>
+	
+						    		<script>
+						    			$('#submitEvaluation .addedCompetences textarea.comment').autosize();
+						    		</script>
+					    		</div>
+						    </ui:repeat>
+						</h:panelGroup>
+					</div>
+					
+					<div class="clear separator"></div>
+
+					<div class="activitiesUsed">
+						<h3>Activity Wall</h3>
+						
+						<h:panelGroup rendered="#{not empty newevaluation.formData.usedActivities}"
+				   			class="options right marginBottom10">
+				   			Options: 
+							<label class="marginLeft10">
+								<h:selectBooleanCheckbox class="details" value="#{newevaluation.showActivityDetails}" />
+								Show details
+							</label>
+						</h:panelGroup>
+						
+						<comp:planused id="evaluationExCredit" 
+				    		value="planused"
+							parentid="activitiesUsed"
+							activities="#{newevaluation.formData.usedActivities}"
+							cantdisplaymessage="No activities have been associated with this external credit" />
+							
+						<script>
+						$('#submitEvaluation .actBlock .title').on('click', function() {
+							var details = $(this).next('.box');
+							
+							if (details.css('display') == 'none') {
+								details.slideDown();
+							} else {
+								details.slideUp();
+							}
+						});
+						
+						$('#submitEvaluation .rightSideWide .details').on('click', function() {
+						    if ($(this).is(':checked')) {
+						    	$('#submitEvaluation .actBlock .box').slideDown();
+						    } else {
+						    	$('#submitEvaluation .actBlock .box').slideUp();
+						    }
+						});
+						</script>
+					</div>
+
+					<div class="clear separator"></div>
+							
+					<h:panelGroup layout="block" styleClass="actions">
+						<p:commandLink
+							value="Save draft"
+					    	rendered="#{newevaluation.formData.draft}"
+							styleClass="button blue right size30"
+							action="#{newevaluation.saveDraft}"
+							update="submitEvaluationFormGrowl"
+						/>
+													
+						<p:commandLink
+							value="Submit"
+					    	rendered="#{newevaluation.formData.draft}"
+							styleClass="button green size30 marginRight10"
+							onclick="$('#submitEvaluationDialog').dialog('open');"
+						/>
+												
+						<h:link value="#{newevaluation.formData.draft ? 'Cancel' : 'Back'}" 
+							styleClass="button gray size30" 
+							outcome="/communications" />
+				    </h:panelGroup>
+						
+					<script>
+						$(function() {
+							roundImages();
+							
+							//hide all comment icons
+							var compRows = $('#submitEvaluation .evaluatedCompetences tr');
+							
+							$.each(compRows, function(index, row) {
+								if (! $(this).find('input[type=checkbox]').first().is(':checked') ) {
+									$(this).find('.iconComment:not(.active)').hide();										
+								}
+							});
+							
+							// add click handlers to checkboxex in order to show/hide comments
+							$('#submitEvaluation .evaluatedCompetences tr input[type=checkbox]').on('click', function(){
+								var thisCheck = $(this);
+								
+								// find chat icon
+								var chatIcon = thisCheck.parent().parent().find('.iconComment');
+								
+								if (thisCheck.is(':checked')) {
+									chatIcon.show();
+								} else {
+									chatIcon.hide();
+								}
+							});
+						});
+					</script>
+					
+					<p:growl id="submitEvaluationFormGrowl" showDetail="true" />
+				</h:form>
+				<div class="clear"></div>
+			</div><!-- .content -->
+		
+			<div class="clear"></div>
+		</div><!-- .container end -->
+	</composite:implementation>
+</ui:component>

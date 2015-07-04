@@ -1,0 +1,88 @@
+<ui:composition
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons">
+	
+	<utilcomp:messagesBundle var="msg" />
+	
+	<h:form id="goalListForm">
+		<p:growl id="goalListFormGrowl" showDetail="true" autoUpdate="true" />
+	
+		<p:commandLink id="newGoalBtn" value="Create Goal"
+			styleClass="button green size40 newButton learnTripStep2"
+			onclick='$("#newGoalFormModalDialog").dialog("open");sendServiceUse("NEW_GOAL_DIALOG", {context: "learn"});' />
+		
+		<h:link 
+			styleClass="button green size40 newButton learnTripStep2 right"
+			onclick="sendLogPageNavigation( 'courseBrowse.xhtml','learn');" 
+			value="Enroll Credential" 
+			outcome="/courseBrowse"/>
+			
+		<div class="clear"></div>
+		
+		<div class="leftNav learnTripStep3">
+			<ul id="goalsList">
+				<ui:repeat value="#{learninggoals.goals}" var="goalIterator">
+					<li class="goal #{goalIterator.data.targetGoalId == learninggoals.selectedGoalData.data.targetGoalId ? 'selected' : ''}" data-id="#{goalIterator.data.targetGoalId}">
+						
+						<p:commandLink id="goal"
+							value="#{goalIterator.data.title}"
+							styleClass="expandableGoal #{goalIterator.data.progress == 100 ? 'completed' : ''}"
+							oncomplete="learnMenuControl.menuItemChange('navItemCompetences');"
+							update=":goalListForm :goalDetails :navigation :selectedGoalEvaluations :selectedGoalBadges:badgeContainer 
+								:competenceList :newCompetenceButtonForm :compSearchForm :compRecommendationsForm :activities"
+							action="#{learninggoals.selectGoal(goalIterator)}"
+							process="@this"
+							style="margin-right:20px;" />
+						
+						<h:panelGroup rendered="#{goalIterator.data.retaken}">
+							<span class="icon-retaken hasTooltip" title="Goal retaken"></span>
+						</h:panelGroup>
+						
+						<h:panelGroup rendered="#{goalIterator.data.connectedWithCourse}">
+							<icon:course tooltipTitle="#{msg['goals.details.connectedWithCourse']}" size="16" />
+						</h:panelGroup>
+						
+						<utilcomp:visibility 
+							visibility="#{goalIterator.data.visibility}"
+							updateAfterChange="@this"
+							contentType="node"
+							displayLimitedInsteadOfPrivate="true"
+							limitedTooltipText="#{msg['learn.goal.composite.visibility.limited']}"
+							changeNodeVisibility="#{learninggoals.changeNodeVisibility(goalIterator.data)}"
+							context="learn.targetGoal.#{goalIterator.data.targetGoalId}" />
+					</li>
+				</ui:repeat>
+			</ul>
+			
+			<script>
+				$('.expandableGoal').shortenedText({showChar: 21, mode: 'static'});
+				hideLearningGoals('goalsList', #{learninggoals.goals.indexOf(learninggoals.selectedGoalData) >= 4 ? learninggoals.goals.indexOf(learninggoals.selectedGoalData)+1 : 4});
+				
+				$(function() {
+					// enabling show/hide of learning goals
+					$('#moreGoals').on('click', function() {
+						$('#hiddenGoals').slideToggle();
+						$('#moreGoals').toggleClass('navDown').toggleClass('navUp');
+					});
+					
+					$('#goalListForm #goalsList li').on('click', function(){
+						setQueryParam('id', $(this).attr('data-id'));
+						history.replaceState({}, null, removeQueryParameter('comp'));
+					});
+				});
+			</script>
+		</div>
+		
+		<utilcomp:tooltip target=".hasTooltip[title]" />
+
+		<script>
+			$(function() {
+				enableDropdown('.leftNav #goalsList .drop');
+			});
+		</script>
+	</h:form>
+</ui:composition>

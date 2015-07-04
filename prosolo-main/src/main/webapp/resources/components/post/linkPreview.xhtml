@@ -1,0 +1,128 @@
+<ui:component
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+	<composite:interface>
+		<composite:attribute name="attachmentPreview" required="true"/>
+		<composite:attribute name="path" />
+		<composite:attribute name="onclickHideLink" />
+		<composite:attribute name="showHideLink" default="true" />
+		<composite:attribute name="styleClass" default="" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<utilcomp:messagesBundle var="msg" />
+	
+		<h:panelGroup layout="block" class="linkPreview #{cc.attrs.styleClass}" id="linkPreview">
+			<h:panelGroup layout="block" class="errorMsg" rendered="#{cc.attrs.attachmentPreview.invalidLink}">
+				Could not load website!
+				<div class="noteSeparator clear"></div>
+			</h:panelGroup>
+			
+			<h:panelGroup layout="block" class="attachContent" rendered="#{cc.attrs.attachmentPreview.initialized and not cc.attrs.attachmentPreview.invalidLink}">
+				<div id="imgInfoContainer">
+					<h:panelGroup layout="block" id="imageContainer" rendered="#{not empty cc.attrs.attachmentPreview.images}">
+						<div id="atcImages"> 
+							<ui:repeat value="#{cc.attrs.attachmentPreview.images}" id="images" var="imageIterator">
+								<h:graphicImage value="#{imageIterator}" styleClass="#{imageIterator == cc.attrs.attachmentPreview.image ? 'shown' : 'hidden'}" width="100" />
+							</ui:repeat>
+						</div>
+						
+						<div id="atcTotalImageNav" >
+							<p:commandLink id="prev"
+								styleClass="prev marginRight10"
+								action="#{postaction.getPrevImage()}" 
+								update="atcTotalImagesInfo"
+								oncomplete="showImage('prev')"
+							/>
+							<p:commandLink id="next"
+								styleClass="next"
+								action="#{postaction.getNextImage()}" 
+								update="atcTotalImagesInfo"
+								oncomplete="showImage('next')"
+							/>
+						</div>
+						
+						<h:panelGroup layout="block" id="atcTotalImagesInfo" class="atcTotalImagesInfo">
+							<h:panelGroup id="cur_image_num"><h:outputText value="#{cc.attrs.attachmentPreview.selectedImageIndex + 1}" /></h:panelGroup> of 
+							<span id="atc_total_images"><h:outputText value="#{cc.attrs.attachmentPreview.images.size()}" /></span> images
+						</h:panelGroup>
+						<script>
+							$('#atcImages .shown').fadeIn('slow');
+						</script>
+					</h:panelGroup>
+					
+					<script>
+						$(function() {
+							$('#atcUrl').shortenedText({showChar: 35, mode: 'static'});
+							$('.atcDesc').shortenedText({showChar: 250, mode: 'link'});
+						});
+						
+						function showImage(direction){
+							var lookingFor = $('.shown');
+							var indexOfSelected = $(' #atcImages img').index(lookingFor);
+							var totalSize = $(' #atcImages img').length;
+							
+							if (direction == "next") {
+								if (indexOfSelected >= totalSize-1) {
+									indexOfSelected = 0;
+								} else {
+									indexOfSelected++;
+								}
+							} else if (direction == "prev") {
+								if (indexOfSelected == 0) {
+									indexOfSelected = totalSize-1;
+								} else {
+									indexOfSelected--;
+								}
+							}
+							$ (' #atcImages img').removeClass('shown').addClass('hidden');
+							$ (' #atcImages img:eq('+indexOfSelected+')').removeClass('hidden').addClass('shown');
+						}
+						
+						function checkIfNotSupported(){
+							var fileUploadContent = $('.fileupload-content table.files tr.ui-state-error');
+							
+							if (fileUploadContent.length > 0) {
+								alert('File not supported');
+							}
+						}
+					</script>
+				</div>
+				
+				<h:panelGroup layout="block" class="actInfo #{not empty cc.attrs.attachmentPreview.images ? 'actInfoSmallImgBig' : 'actInfoBig'}">
+					<p class="actUrlFull"><h:inputHidden id="hiddenActUrlFull" value="#{cc.attrs.attachmentPreview.link}" /></p>
+					<p class="atcTitleInput">
+						<h:inputText value="#{cc.attrs.attachmentPreview.title}"
+							class="#{empty cc.attrs.attachmentPreview.images ? 'long' : 'short'}"
+							placeholder="#{msg['textfield.title']}" />
+					</p> 
+					<p class="atcUrl">
+						<h:outputText value="#{util:getDomainFromUrl(cc.attrs.attachmentPreview.link)}" />
+					</p>
+					<p class="atcDescInput marginTop10">
+						<h:inputTextarea value="#{cc.attrs.attachmentPreview.description}"
+							class="#{empty cc.attrs.attachmentPreview.images ? 'long' : 'short'}"
+							placeholder="#{msg['textarea.description']}" />
+					</p> 
+				</h:panelGroup>
+				
+				<p:commandLink styleClass="hideLinkPreview"
+					rendered="#{cc.attrs.showHideLink}"
+					value="x"
+					action="#{cc.attrs.attachmentPreview.reset()}"
+					onclick="#{cc.attrs.onclickHideLink}"
+					update="linkPreview"
+				/>
+				<div class="noteSeparator clear"></div>
+			</h:panelGroup>
+		</h:panelGroup>
+	
+	</composite:implementation>
+</ui:component>

@@ -1,0 +1,74 @@
+<ui:composition
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:func="http://org.prosolo/functions"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	
+	<utilcomp:messagesBundle var="msg" />
+	
+	<div id="resubmitEvaluationRequestModalDialog" title="Resubmit evaluation request" style="display: none">
+		<h:form id="resubmitEvaluationRequestForm" prependId="false" class="resubmitEvaluationRequestForm">
+			<p>
+				Are you sure you want to send a new evaluation request?
+			</p>
+							
+			<input type="text" class="id" style="display: none;" value="#{newevaluation.evaluationSubmission.id}" />
+			<input type="text" class="context" style="display: none;" value="evaluationSubmission.#{newevaluation.evaluationSubmission.id}" />
+			
+			<div class="actions marginTop20">
+				<p:commandLink value="Send"
+					styleClass="button green size30 right"
+					onclick="$('#resubmitEvaluationRequestModalDialog').dialog('option', 'submit', true);$('#resubmitEvaluationRequestModalDialog').dialog('close');"
+					action="#{newevaluation.resubmitEvaluationRequest()}"
+					update="resubmitEvaluationRequestFormGrowl :evaluation:submitEvaluationForm:actions" />
+				&#160;
+				<p:commandLink value="Cancel"
+					styleClass="button gray size30 right"
+					onclick='$("#resubmitEvaluationRequestModalDialog").dialog("close");' />
+			</div>
+
+			<p:growl id="resubmitEvaluationRequestFormGrowl" showDetail="true" />
+			
+			<script>
+				$(function() {
+					roundImages();
+				});
+			</script>
+		</h:form>
+	</div>
+	<script>
+		$(function() {
+			$('#resubmitEvaluationRequestModalDialog').dialog({
+				modal : true,
+				width: 400,
+				show : 'slide',
+				autoOpen : false,
+				resizable : false,
+				open : function(event, ui) {
+					$(this).children(':first')
+						.css('text-align', 'center')
+						.css('padding-top', '50px')
+						.html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
+				},
+				close: function() {
+					var submitted = $(this).dialog('option', 'submit');
+					
+					if (!submitted) {
+						var id = $('#resubmitEvaluationRequestModalDialog .goalId').val();
+						var context = $('#resubmitEvaluationRequestModalDialog .context').val();
+						sendServiceUse('MOUSE_CLICK', {context: context+'.resubmitEvaluationRequestDialog', 'link': 'cancel', 'evaluationSubmission': id});
+					}
+					
+					$(this).dialog('option', 'submit', false);
+				}
+			});
+			$('#resubmitEvaluationRequestModalDialog').show();
+		});
+	</script>
+</ui:composition>

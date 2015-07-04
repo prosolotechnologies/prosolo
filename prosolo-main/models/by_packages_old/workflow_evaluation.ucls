@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class-diagram version="1.1.5" icons="true" automaticImage="PNG" always-add-relationships="false" generalizations="true" 
+  realizations="true" associations="true" dependencies="true" nesting-relationships="true">  
+  <class id="1" language="java" name="org.prosolo.domainmodel.workflow.evaluation.EvaluationSubmission" 
+    project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/workflow/evaluation/EvaluationSubmission.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="167" width="199" x="1100" y="568"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="2" language="java" name="org.prosolo.domainmodel.workflow.evaluation.TargetLearningGoalEvaluation" 
+    project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/workflow/evaluation/TargetLearningGoalEvaluation.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="95" width="220" x="838" y="226"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="3" language="java" name="org.prosolo.domainmodel.workflow.evaluation.AchievedCompetenceEvaluation" 
+    project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/workflow/evaluation/AchievedCompetenceEvaluation.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="95" width="239" x="320" y="226"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="4" language="java" name="org.prosolo.domainmodel.workflow.evaluation.Badge" project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/workflow/evaluation/Badge.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="77" width="199" x="45" y="568"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="5" language="java" name="org.prosolo.domainmodel.workflow.evaluation.Evaluation" 
+    project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/workflow/evaluation/Evaluation.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="149" width="199" x="1079" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="6" language="java" name="org.prosolo.domainmodel.workflow.evaluation.TargetCompetenceEvaluation" 
+    project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/workflow/evaluation/TargetCompetenceEvaluation.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="95" width="214" x="66" y="226"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <enumeration id="7" language="java" name="org.prosolo.domainmodel.workflow.evaluation.BadgeType" 
+    project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/workflow/evaluation/BadgeType.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="77" width="199" x="45" y="775"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </enumeration>  
+  <enumeration id="8" language="java" name="org.prosolo.domainmodel.workflow.evaluation.Status" 
+    project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/workflow/evaluation/Status.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="131" width="199" x="443" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </enumeration>  
+  <class id="9" language="java" name="org.prosolo.domainmodel.workflow.evaluation.ExternalCreditEvaluation" 
+    project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/workflow/evaluation/ExternalCreditEvaluation.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="95" width="199" x="599" y="226"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="10" language="java" name="org.prosolo.domainmodel.general.BaseEntity" project="pro-development" 
+    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/general/BaseEntity.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="167" width="147" x="641" y="361"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <generalization id="11">    
+    <bendpoint x="1088" y="226"/>    
+    <end type="SOURCE" refId="5"/>    
+    <end type="TARGET" refId="10"/>  
+  </generalization>  
+  <association id="12">    
+    <bendpoint x="1109" y="226"/>    
+    <bendpoint x="1109" y="361"/>    
+    <end type="SOURCE" refId="5" navigable="false">      
+      <attribute id="13" name="evaluationSubmission"/>      
+      <multiplicity id="14" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="1" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="15">    
+    <end type="SOURCE" refId="6"/>    
+    <end type="TARGET" refId="5"/>  
+  </generalization>  
+  <generalization id="16">    
+    <end type="SOURCE" refId="9"/>    
+    <end type="TARGET" refId="5"/>  
+  </generalization>  
+  <association id="17">    
+    <bendpoint x="1130" y="361"/>    
+    <bendpoint x="1130" y="226"/>    
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="18" name="evaluations"/>      
+      <multiplicity id="19" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="5" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="20">    
+    <end type="SOURCE" refId="4" navigable="false">      
+      <attribute id="21" name="type"/>      
+      <multiplicity id="22" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="7" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="23">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="10"/>  
+  </generalization>  
+  <association id="24">    
+    <bendpoint x="35" y="226"/>    
+    <bendpoint x="35" y="361"/>    
+    <end type="SOURCE" refId="5" navigable="false">      
+      <attribute id="25" name="badges"/>      
+      <multiplicity id="26" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="4" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="27">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="5"/>  
+  </generalization>  
+  <dependency id="28">    
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="10"/>  
+  </dependency>  
+  <dependency id="29">    
+    <end type="SOURCE" refId="9"/>    
+    <end type="TARGET" refId="10"/>  
+  </dependency>  
+  <dependency id="30">    
+    <end type="SOURCE" refId="6"/>    
+    <end type="TARGET" refId="10"/>  
+  </dependency>  
+  <generalization id="31">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="10"/>  
+  </generalization>  
+  <association id="32">    
+    <bendpoint x="1151" y="361"/>    
+    <bendpoint x="1151" y="226"/>    
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="33" name="primaryEvaluation"/>      
+      <multiplicity id="34" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="5" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="35">    
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="5"/>  
+  </generalization>  
+  <dependency id="36">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="10"/>  
+  </dependency>  
+  <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+    accessors="true" visibility="true">    
+    <attributes public="true" package="true" protected="true" private="true" static="true"/>    
+    <operations public="false" package="false" protected="false" private="false" static="false"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>

@@ -1,0 +1,234 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:computil="http://java.sun.com/jsf/composite/components/util"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:action="http://java.sun.com/jsf/composite/components/actions"
+	xmlns:socialWall="http://java.sun.com/jsf/composite/components/socialWall"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post"
+	xmlns:pt="http://java.sun.com/jsf/passthrough">
+
+	<composite:interface>
+		<composite:attribute name="readonly" default="false" />
+		<composite:attribute name="loadingMsg" required="false" default="Loading activities..." />
+		<composite:attribute name="addCommentMsg" required="false" default="Add a comment..." />
+		<composite:attribute name="showMoreMsg" required="false" default="Show more" />
+		<composite:attribute name="refreshRate" required="true" default="60" />
+		<composite:attribute name="moreToLoadIndicator" required="true" />
+		<composite:attribute name="updateAfterUnfollow" default="" />
+		<composite:attribute name="scrollPositionHolder" />
+		<composite:attribute name="allActivities" required="true" />
+		<composite:attribute name="noOptions" default="false" />
+		<composite:attribute name="oncomplete" />
+		<composite:attribute name="context" />
+		<composite:attribute name="disabledPooling" default="false" />
+		<composite:attribute name="initializeOnLoad" default="true" />
+		<composite:attribute name="postStyleClass" />
+		<composite:attribute name="initializeHandler" 
+			method-signature="void initializeActivities()" />
+		<composite:attribute name="loadMoreHandler" 
+			method-signature="void loadMoreActivities()"
+			required="true" />
+		<composite:attribute name="refreshHandler" 
+			method-signature="void refresh()"
+			required="true" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<utilcomp:messagesBundle var="msg" />
+	
+		<script>
+			var updatePrepend = true, lastRefresh = null, activityPollStop = false;
+			var blockingQueue = [];
+
+			var t = 0;
+			function refresh() {
+				$('form.#{cc.attrs.value}Form a.refreshAllHanler').trigger('click');
+				
+				t = setTimeout(refresh, #{cc.attrs.refreshRate}*1000);
+			}
+			function initialize() {
+				$('form.#{cc.attrs.value}Form a.initializeActivitiesHanler').trigger('click');
+				
+				t = setTimeout(refresh, #{cc.attrs.refreshRate}*1000);
+			}
+			
+			function pause(blocker) {
+				var index = blockingQueue.indexOf(blocker);
+				if (index == -1) {
+					blockingQueue.push(blocker);
+				}
+			    clearTimeout(t);
+			}
+			
+			function resume(blocker) {
+				var index = blockingQueue.indexOf(blocker);
+				if (index > -1) {
+					blockingQueue.splice(index, 1);
+				}
+				
+				if (blockingQueue.length == 0)
+					refresh();
+			}
+			
+			$(function() {
+				enableDropdown('.postOptArrow');
+				
+				if (#{cc.attrs.initializeOnLoad})
+					initialize();
+				
+				$(window).on('focus', function(e) {
+					if (!activityPollStop) {
+						if (#{!cc.attrs.disabledPooling}) {
+							resume('focus');
+						}
+						    
+					    //if more than 30 seconds have passed since the last refresh 
+					    if (!new Date().getTime() - lastRefresh.getTime() > 30000)
+					 	   $('form.#{cc.attrs.value}Form a.refreshAllHanler').trigger('click');
+					    
+					    return false;
+					}
+				 });
+	
+				$(window).on('blur', function() {
+					if (#{!cc.attrs.disabledPooling}) {
+						pause('focus');
+					}
+					return false;
+				});
+	
+				$('.post').hide();
+			});
+			
+			function refreshActivityWall() {
+				$('form.#{cc.attrs.value}Form a.refreshAllHanler').trigger('click');
+			}
+		</script>
+		
+		<h:form id="#{cc.attrs.value}Form" class="#{cc.attrs.value}Form" style="display: none;">
+			<p:growl id="activityWallGrowl" showDetail="true" />
+	
+			<p:commandLink
+				id="refreshAllHanler"
+				styleClass="refreshAllHanler"
+				onclick="$('.#{cc.attrs.value}Form .scrollPosition').val($(window).scrollTop());"
+				action="#{cc.attrs.refreshHandler}"
+				partialSubmit="true"
+				process="scrollPosition"
+				update="#{cc.attrs.value}" 
+				style="display:none;" />
+				
+			<h:inputText id="scrollPosition" class="scrollPosition" value="#{cc.attrs.scrollPositionHolder}" style="display: none;" />
+				
+			<p:commandLink
+				id="loadMoreActivitiesHanler"
+				styleClass="loadMoreActivitiesHanler" 
+				action="#{cc.attrs.loadMoreHandler}"
+				partialSubmit="true"
+				process="scrollPosition"
+				update="#{cc.attrs.value}" 
+				style="display:none;" />
+				
+			<p:commandLink
+				id="initializeActivitiesHanler"
+				styleClass="initializeActivitiesHanler" 
+				action="#{cc.attrs.initializeHandler}"
+				onclick="console.log('onclick')"
+				oncomplete="console.log('oncomplete')"
+				partialSubmit="true"
+				process="scrollPosition"
+				update="#{cc.attrs.value}" 
+				style="display:none;" />
+			
+			<h:panelGroup layout="block" id="#{cc.attrs.value}" class="#{cc.attrs.value}">
+				<c:if test="#{cc.attrs.allActivities == null or (empty cc.attrs.allActivities)}">
+					<span class="noContentMessage">
+						There are no activities.
+					</span>
+				</c:if>
+			
+				<h:panelGroup rendered="#{cc.attrs.allActivities != null}">
+					<ui:repeat id="activitiesRepeat" value="#{cc.attrs.allActivities}" var="actData" varStatus="iterator">
+						<comp:activityWallItem
+							value="#{cc.attrs.value}"
+							actData="#{actData}"
+							iterator="#{iterator}"
+							context="#{cc.attrs.context}"
+							noOptions="#{cc.attrs.noOptions}"
+							disabledPooling="#{cc.attrs.disabledPooling}"
+							onActionComplete="refreshActivityWall();"
+							postStyleClass="#{cc.attrs.postStyleClass}" />
+					</ui:repeat>
+				</h:panelGroup>
+				
+				<h:panelGroup id="loadMore"
+					rendered="#{cc.attrs.moreToLoadIndicator}" 
+					styleClass="loadMore">
+					<h:outputText value="#{cc.attrs.showMoreMsg}" />
+				</h:panelGroup>
+				
+				<script>
+				$(function() {
+					lastRefresh = new Date();
+
+					var urlLength = #{actData.attachmentPreview != null ? 40 : 50};
+					$('.postBlock .richContent .atcUrl').shortenedText({showChar: urlLength, mode: 'static'});
+					$('.postBlock .richContent .atcTitle').shortenedText({showChar: 100, mode: 'static'});
+					$('.postBlock .richContent .atcDesc').readmore({
+						maxHeight: 60,
+						afterToggle: function(trigger, elem, expanded) {
+							sendServiceUse('MOUSE_CLICK', {context: $(elem).attr('context'), link: expanded ? 'more' : 'less'});
+						}
+					});
+					
+					// activate user inline links
+					$('.userLinkInline').each(function() {
+						$(this).attr('href', 'publicprofile.xhtml?user='+$(this).attr('data-id'));
+					});
+					
+					$('.#{cc.attrs.value} .addCommentBox .inputTextFieldHidden').autosize();
+					
+					roundImages();
+					enableDropdown('.postOptArrow');
+					
+					$('form.#{cc.attrs.value}Form .loadMore').on('click', function() {
+						updatePrepend = false;
+						var loadHandler = $('form.#{cc.attrs.value}Form .loadMoreActivitiesHanler');
+						$(this).html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" id="loginloader" style="margin-top: 9px;"/>');
+						loadHandler.trigger('click');
+						return false;
+					});
+					
+					prosolo.overlay.reset();
+					$('.#{cc.attrs.value}Form').fadeIn('slow');
+				});
+				</script>
+				
+				<utilcomp:tooltip target=".hasTooltip[title]" />
+			</h:panelGroup>
+			
+			<ui:remove>
+			<utilcomp:lazyLoad id="lazyLoadActivityWall"
+				parentClass="#{cc.attrs.value}Form"
+				updateOnComplete=":#{cc.clientId}:#{cc.attrs.value}Form:#{cc.attrs.value}"
+				loaderContainer=".#{cc.attrs.value}"
+				initializeAction="#{cc.attrs.initializeHandler}"
+				text="#{cc.attrs.loadingMsg}"
+				oncomplete="#{cc.attrs.oncomplete}"
+				async="false"
+				disabled="#{!cc.attrs.initializeOnLoad}"
+			/>
+			</ui:remove>
+		</h:form>
+		
+	</composite:implementation>
+</ui:component>

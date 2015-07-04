@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+<h:head>
+</h:head>
+
+<composite:interface>
+</composite:interface>
+
+<composite:implementation>
+	<utilcomp:messagesBundle var="msg" />
+
+	<div id="userRolesModalDialog" title="#{msg['admin.user.dialog.userRoles.title']}">
+		<h:form id="userRolesForm" prependId="false">
+			<p:growl id="userRolesFormGrowl" showDetail="true" />
+
+			<p>
+				Roles for the user #{units.userToEdit.name} #{units.userToEdit.lastName}.
+			</p>
+			
+			<h:selectManyCheckbox rendered="#{units.selectedRoles != null}" 
+				value="#{units.selectedRoles}" layout="pageDirection">
+				<f:selectItems value="#{units.allRoles}" var="role"
+					itemValue="role" selected="true" />
+			</h:selectManyCheckbox>
+
+			<div class="actions">
+				<p:commandLink value="Save"
+					styleClass="button green size30 right"
+					action="#{units.updateUserRoles}"
+					onclick='$("#userRolesModalDialog").dialog("close");'
+					update="userRolesFormGrowl"/>
+
+				<p:commandLink value="Cancel"
+					styleClass="button gray size30 right"
+					onclick='$("#userRolesModalDialog").dialog("close");' />
+			</div>
+		</h:form>
+	</div>
+
+	<script>
+		$(function() {
+			$('#userRolesModalDialog').dialog({
+				autoOpen : false,
+				show : 'slide',
+				width : 400,
+				modal : true,
+				resizable : false,
+				open : function(event, ui) {
+					$(this).children(':first')
+						.css('text-align', 'center')
+						.css('padding-top', '100px')
+						.html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
+				}
+			});
+			$('#userRolesModalDialog').show();
+		});
+	</script>
+</composite:implementation>
+</html>

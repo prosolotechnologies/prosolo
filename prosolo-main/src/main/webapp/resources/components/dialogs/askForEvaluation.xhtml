@@ -1,0 +1,166 @@
+<ui:composition
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	
+	<utilcomp:messagesBundle var="msg" />
+	
+    <div id="askForEvaluationDialog" title="#{msg['dialog.askForEvaluation.title']}" style="display: none;">
+    	
+	    <h:form id="askForEvaluationDialogForm">
+	    	<p:growl id="askForEvaluationDialogGrowl" showDetail="true" />
+	    	
+	    	<h:panelGroup rendered="#{askForEvaluation.evaluationRequestAlreadySent}">
+	    		<p class="inlineBlock">
+		    		#{msg['dialog.askForEvaluation.growl.requestAlreadySent']}
+	    		</p>
+	    		
+	    		<h:panelGroup layout="block" class="actions marginTop10">
+	    			<a href="#" class="button gray size30 right"
+						onclick="$( '#askForEvaluationDialog' ).dialog('close');">Close</a>
+	    		</h:panelGroup>
+	    	</h:panelGroup>
+	    	
+	    	<h:panelGroup rendered="#{!askForEvaluation.evaluationRequestAlreadySent}">
+		    	<h:panelGroup rendered="#{!adminSettings.settings.selectedUsersCanDoEvaluation}">
+			    	<p class="text">
+				    	#{msg['dialog.askForEvaluation.info']}
+			    	</p>
+			    	
+			    	<utilcomp:userInputField id="askForCollaboratorsSearch"
+			    		users="#{askForEvaluation.evaluatorList}"
+			    		toExcludeIds="#{askForEvaluation.toExcludeIds}"
+			    		keywordHolder="#{askForEvaluation.keyword}"
+			    		actionBean="#{askForEvaluation}"
+			    		searchResult="#{askForEvaluation.userSearchResults}"
+			    		regionToUpdateOnRemove=":askForEvaluationDialogForm:actions"
+			    		regionToUpdateOnAdd=":askForEvaluationDialogForm:actions" />
+					
+					<div class="clear"></div>
+					
+					<table class="evaluatorsContainer">
+						<tr>
+							<td class="evaluators">
+								#{msg['dialog.askForEvaluation.currentEvaluatorsMessage']}
+						
+								<ul class="users">
+									<ui:repeat value="#{askForEvaluation.existingEvaluators}" var="user" varStatus="iterator">
+										<li>
+								    		<link:user value="evaluatorImage" 
+							    				userData="#{user}"
+							    				mode="imageName"
+							    				imageSize="22"
+							    				idPrefix="evaluatorImage#{iterator.index}"
+							    				context="#{askForEvaluation.context}.askForEvaluation.evaluators.imageName"/>
+										</li>
+									</ui:repeat>
+								</ul>
+							</td>
+							<td class="yetToBeEval">
+								Still waiting for a response from:
+						
+								<ul class="users">
+									<ui:repeat value="#{askForEvaluation.ignoredEvaluators}" var="user" varStatus="iterator">
+										<li>
+											<link:user value="evaluatorImage" 
+							    				userData="#{user}"
+							    				mode="imageName"
+							    				imageSize="22"
+						    					idPrefix="yetToBeEvalImage#{iterator.index}"
+						    					context="#{askForEvaluation.context}.askForEvaluation.yetToEvaluate.imageName"/>
+					    				</li>
+									</ui:repeat>
+								</ul>
+							</td>
+						</tr>
+					</table>
+	
+					<div class="clear"></div>
+				</h:panelGroup>
+			
+				<h:panelGroup rendered="#{adminSettings.settings.selectedUsersCanDoEvaluation}">
+					#{msg['dialog.askForEvaluation.selectedUsersCanDoEvaluationMessage']}
+				</h:panelGroup>
+				
+			    <div class="message">
+			    	Message:
+			    	<br/>
+			    	<h:inputTextarea value="#{askForEvaluation.message}"
+			    		placeholder="#{msg['textarea.message']}" />
+			    </div>
+			    
+			    <input type="text" class="context" style="display: none;" value="#{askForEvaluation.context}" />
+			    <input type="text" class="id" style="display: none;" value="#{askForEvaluation.resourceId}" />
+			    <input type="text" class="type" style="display: none;" value="#{askForEvaluation.resourceClassName}" />
+		    
+			    <h:panelGroup layout="block" id="actions" class="actions">
+				    <p:commandLink
+						value="Submit"
+						rendered="#{not empty askForEvaluation.evaluatorList}"
+						styleClass="button green size30 right"
+						onclick="$('#askForEvaluationDialog').dialog('option', 'fireCloseHandler', false ).dialog('close');"
+						action="#{askForEvaluation.sendEvaluationRequests()}"
+						update="askForEvaluationDialogGrowl askForEvaluationDialogForm" />
+						
+				    <p:commandLink value="Submit"
+						rendered="#{empty askForEvaluation.evaluatorList}"
+						styleClass="button gray size30 right disabled hasTooltip"
+						title="#{msg['dialog.askForEvaluation.submit.disabled.tooltip']}" />
+						
+				    <a href="#" class="button gray size30 right"
+						onclick="$( '#askForEvaluationDialog' ).dialog('close');">Cancel</a>
+						
+					<utilcomp:tooltip target=".hasTooltip[title]" />
+			    </h:panelGroup>
+			</h:panelGroup>
+			    
+		    <p:commandLink styleClass="resetForm" action="#{askForEvaluation.initEvaluatorsList()}" update="askForEvaluationDialogForm" style="display: none;" />
+			<script>
+			$(function() {
+				$('.searchInputDiv').on('click', function(e) {
+					$(this).find('input').focus();
+				});
+			});
+			</script>
+		</h:form>
+		
+		<script>
+		$(function() {
+			$( '#askForEvaluationDialog' ).dialog({
+				fireCloseHandler: true, // custom added
+				autoOpen: false,
+				show: 'slide',
+				width: 500,
+				modal: true,
+				resizable: false,
+				open: function(event, ui) { 
+					$(this).children(':first')
+						.css('text-align', 'center')
+						.css('padding-top', '50px')
+						.html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
+				},
+				close: function(){
+					var $thisDialog = $(this).dialog;
+					
+					if ($(this).dialog('option', 'fireCloseHandler') != false) {
+						$('#askForEvaluationDialogForm .resetForm').trigger('click');
+
+						var context = $('#askForEvaluationDialog .context').val() +'.askForEvaluation';
+						var id = $('#askForEvaluationDialog .id').val();
+						var type = $('#askForEvaluationDialog .type').val();
+						sendServiceUse('MOUSE_CLICK', {'context': context, 'link': 'cancel', 'id' : id, 'type' : type});
+					}
+					$(this).dialog('option', 'fireCloseHandler', true);
+				}
+			});
+			$('#askForEvaluationDialog').show();
+			$('#askForEvaluationDialog .message textarea').autosize(); 
+			$('#askForEvaluationDialog .search .searchInputDiv input').autoGrowInput({comfortZone: 10});
+		});
+		</script>
+	</div>
+</ui:composition>

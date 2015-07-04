@@ -1,0 +1,141 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	template="templates/masterLayout.xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs">
+
+	<ui:define name="windowTitle">
+		Digest | ProSolo
+	</ui:define>
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewParam name="tab" value="#{digestBean.selectedMenu}" />
+			<f:viewParam name="id" value="#{digestBean.id}" default="0" />
+			<f:viewParam name="pid" value="#{digestBean.pid}" default="0" />
+		</f:metadata>
+	</ui:define>
+	
+	<ui:define name="content">
+		<div class="container tabbedLayout digest">
+			<div class="leftSidebar">
+				<h:form>
+					<div class="leftNav">
+						<ul id="goalsList">
+							<c:if test="#{loggeduser == null or !loggeduser.loggedIn}">
+								<li	class="#{digestBean.selectedMenu == 'coursefeeds' ? 'selected' : ''}">
+									<h:link value="Course Feeds" outcome="/digest"
+										onclick="logTabNavigationWithParameters('coursefeeds', {context: 'digest.navigation', id : #{digestBean.id}, pid : #{digestBean.pid}});">
+										<f:param name="tab" value="coursefeeds" />
+										<f:param name="id" value="#{digestBean.id}"/>
+										<f:param name="pid" value="#{digestBean.pid}"/>
+									</h:link>
+								</li>
+								<li	class="#{digestBean.selectedMenu == 'coursetwitter' ? 'selected' : ''}">
+									<h:link value="Course tweets" outcome="/digest"
+										onclick="logTabNavigationWithParameters('coursetwitter', {context: 'digest.navigation', id : #{digestBean.id}, pid : #{digestBean.pid}});">
+										<f:param name="tab" value="coursetwitter" />
+										<f:param name="id" value="#{digestBean.id}"/>
+										<f:param name="pid" value="#{digestBean.pid}"/>
+									</h:link>
+								</li>
+							</c:if>
+							<c:if test="#{loggeduser != null and loggeduser.loggedIn}">
+								<li	class="#{digestBean.selectedMenu == 'coursefeeds' ? 'selected' : ''}">
+									<h:link value="Course Feeds" outcome="/digest"
+										onclick="logTabNavigationWithParameters('coursefeeds', {context: 'digest.navigation', id : #{digestBean.id}, pid : #{digestBean.pid}});">
+										<f:param name="tab" value="coursefeeds" />
+										<f:param name="id" value="#{digestBean.id}"/>
+										<f:param name="pid" value="#{digestBean.pid}"/>
+									</h:link>
+								</li>
+								
+								<li
+									class="#{digestBean.selectedMenu == 'myfeeds' ? 'selected' : ''}">
+									<h:link value="My Feeds" outcome="/digest"
+										onclick="logTabNavigationWithParameters('myfeeds', {context: 'digest.navigation', id : #{digestBean.id}, pid : #{digestBean.pid}});">
+										<f:param name="tab" value="myfeeds" />
+										<f:param name="id" value="#{digestBean.id}"/>
+										<f:param name="pid" value="#{digestBean.pid}"/>
+									</h:link>
+								</li>
+								
+								<li	class="#{digestBean.selectedMenu == 'friendsfeeds' ? 'selected' : ''}">
+									<h:link value="My Friends Feeds" outcome="/digest" 
+										onclick="logTabNavigationWithParameters('friendsfeeds', {context: 'digest.navigation', id : #{digestBean.id}, pid : #{digestBean.pid}});">
+										<f:param name="tab" value="friendsfeeds" />
+										<f:param name="id" value="#{digestBean.id}"/>
+										<f:param name="pid" value="#{digestBean.pid}"/>
+									</h:link>
+								</li>
+								 
+								<li	class="#{digestBean.selectedMenu == 'coursetwitter' ? 'selected' : ''}">
+									<h:link value="Course tweets" outcome="/digest"
+										onclick="logTabNavigationWithParameters('coursetwitter', {context: 'digest.navigation', id : #{digestBean.id}, pid : #{digestBean.pid}});">
+										<f:param name="tab" value="coursetwitter" />
+										<f:param name="id" value="#{digestBean.id}"/>
+										<f:param name="pid" value="#{digestBean.pid}"/>
+									</h:link>
+								</li>
+
+								<li	class="#{digestBean.selectedMenu == 'twitter' ? 'selected' : ''}">
+									<h:link value="My tweets" outcome="/digest"
+										onclick="logTabNavigationWithParameters('twitter', {context: 'digest.navigation', id : #{digestBean.id}, pid : #{digestBean.pid}});">
+										<f:param name="tab" value="twitter" />
+										<f:param name="id" value="#{digestBean.id}"/>
+										<f:param name="pid" value="#{digestBean.pid}"/>
+									</h:link>
+								</li>
+							</c:if>
+						</ul>
+					</div>
+				</h:form>
+			</div>
+			<!-- .leftSidebar -->
+
+
+			<h:panelGroup layout="block" class="content">
+				<!-- c:if test="#{loggeduser != null and loggeduser.loggedIn and digestBean.id == 0 and digestBean.pid == 0}">
+					<ui:include src="/resources/components/digest/personalFeeds.xhtml" />
+				</c:if-->
+	
+				<c:if test="#{loggeduser.loggedIn and digestBean.id == 0 and digestBean.pid == 0}">
+					<ui:include src="/resources/components/digest/personalFeeds.xhtml" />
+				</c:if>
+						
+				<c:if test="#{!loggeduser.loggedIn and digestBean.selectedMenu == 'coursefeeds' and digestBean.id !=0}">
+					<ui:include src="/resources/components/digest/feed.xhtml" />
+				</c:if>
+		
+				<c:if test="#{loggeduser != null and loggeduser.loggedIn and digestBean.selectedMenu == 'coursefeeds' and (digestBean.id != 0 or digestBean.pid != 0)}">
+					<ui:include src="/resources/components/digest/feed.xhtml" />
+				</c:if>
+	
+				<c:if test="#{loggeduser != null and loggeduser.loggedIn and digestBean.selectedMenu == 'myfeeds' and (digestBean.id != 0 or digestBean.pid != 0)}">
+					<ui:include src="/resources/components/digest/feed.xhtml" />
+				</c:if>
+				<c:if test="#{loggeduser != null and loggeduser.loggedIn and digestBean.selectedMenu == 'friendsfeeds'  and (digestBean.id != 0 or digestBean.pid !=0)}">
+					<ui:include src="/resources/components/digest/friendsFeeds.xhtml" />
+				</c:if>
+				
+				
+				<c:if test="#{!loggeduser.loggedIn and digestBean.selectedMenu == 'coursetwitter'  and digestBean.id != 0}">
+					<ui:include src="/resources/components/digest/twitterUpdates.xhtml" />
+				</c:if>
+				<c:if test="#{loggeduser != null and loggeduser.loggedIn and digestBean.selectedMenu == 'coursetwitter'  and (digestBean.id != 0 or digestBean.pid !=0)}">
+					<ui:include src="/resources/components/digest/twitterUpdates.xhtml" />
+				</c:if>
+				
+				<c:if test="#{loggeduser != null and loggeduser.loggedIn and digestBean.selectedMenu == 'twitter'  and (digestBean.id != 0 or digestBean.pid !=0)}">
+					<ui:include src="/resources/components/digest/twitterUpdates.xhtml" />
+				</c:if>
+			</h:panelGroup><!-- .content -->
+
+		</div><!-- .container end -->
+	</ui:define>
+
+</ui:composition>

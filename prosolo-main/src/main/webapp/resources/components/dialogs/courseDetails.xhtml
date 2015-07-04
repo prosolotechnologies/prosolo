@@ -1,0 +1,82 @@
+<ui:composition
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:action="http://java.sun.com/jsf/composite/components/actions"
+	xmlns:compcourses="http://java.sun.com/jsf/composite/components/courses"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	
+	<utilcomp:messagesBundle var="msg" />
+	
+	<div id="courseDetailsModalDialog" class="courseDetailsDialog" 
+		title="#{msg['courses.dialog.details.title']}" style="display: none">
+		
+		<h:form id="courseDetailsForm" prependId="false">
+			<h:panelGroup rendered="#{courseDialog.courseData != null}">
+				<p:growl id="courseDetailsGrowl" showDetail="true" />
+				
+				<table class="details">
+					<tr>
+						<td>Title: </td>
+						<td>#{courseDialog.courseData.title}</td>
+					</tr>
+					<tr>
+						<td>Description: </td>
+						<td>#{courseDialog.courseData.description}</td>
+					</tr>
+				</table>
+				
+				<h3>Competences</h3>
+				
+				<div class="ganttView">
+					<p:commandLink id="prepareData"
+						value="prepare"
+						styleClass="prepareData hidden" 
+						action="#{courseDialog.serializeCompetencesToJson()}"
+						update="courseDetailsGantt:ganttContainer"
+					/>
+						
+					<compcourses:gantt id="courseDetailsGantt"
+						prepareAction=".courseDetailsDialog .prepareData"
+						data="#{courseDialog.competencesJson}"
+						changeHolder="#{courseDialog.changeHolder}"
+						parentSelector=".courseDetailsDialog .ganttView"
+						slideWidth="540"
+						readOnly="true" />
+				</div>
+				
+				<h:link rendered="#{courseDialog.courseData != null}" 
+					class="button blue size30 left marginTop10" 
+					value="#{msg['courses.dialog.details.button.goToCoursePage']}"
+					outcome="/course" >
+					<f:param name="id" value="#{courseDialog.courseData.id}" />
+				</h:link>
+				
+				<script>
+					initializeGantt();
+				</script>
+			</h:panelGroup>
+		</h:form>
+	</div>
+	<script>
+	$(function() {
+		$('#courseDetailsModalDialog').dialog({
+			autoOpen: false,
+			show : 'slide',
+			width: 800,
+			modal: true,
+			resizable: false,
+			open: function(event, ui) { 
+				$(this).children(':first')
+					.css('text-align', 'center')
+					.css('padding-top', '50px')
+					.html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
+			},
+		});
+		$('#courseDetailsModalDialog').show();
+	});
+	</script>
+</ui:composition>

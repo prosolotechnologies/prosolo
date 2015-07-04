@@ -1,0 +1,52 @@
+<ui:composition
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	
+	<div class="goalBadges">
+		<h3>Badges</h3>
+		
+		<h:form id="selectedGoalBadges">
+			<h:panelGroup id="badges" class="badges">
+				<h:panelGroup class="noContentMessage" rendered="#{learninggoals.selectedGoalData.data.badgeCount == 0}">
+					There are no badges
+				</h:panelGroup>
+			
+				<h:panelGroup id="badgeContainer">
+					<h:panelGroup 
+						rendered="#{learninggoals.selectedGoalData.data.badgeCount > 0}"
+						class="badge badgeStar size20 middleAlign" />
+					<h:panelGroup 
+						rendered="#{learninggoals.selectedGoalData.data.badgeCount > 1}"
+						class="badge badgeStar size20 middleAlign marginLeft10" />
+				</h:panelGroup>
+				
+				<h:panelGroup rendered="#{learninggoals.selectedGoalData.data.badgeCount > 0}">
+					<p:commandLink
+						styleClass="middleAlign marginLeft10"
+						onclick="$('#badgeListDialog').dialog('open');"
+						action="#{badgelist.initializeById(learninggoals.selectedGoalData.data.targetGoalId, 'learn.targetGoal.'.concat(learninggoals.selectedGoalData.data.targetGoalId))}"
+						process="@this"
+						update=":badgeListForm"
+						value="See all badges"
+					/>
+				</h:panelGroup>
+			</h:panelGroup>
+			
+			<utilcomp:lazyLoad 
+				parentClass="goalBadges"
+				updateOnComplete=":selectedGoalBadges:badges"
+				loaderContainer=".badges"
+				initializeAction="#{learninggoals.selectedGoalData.initializeBadges()}"
+				loaderClass="left"
+				async="true"
+				disabled="#{learninggoals.selectedGoalData == null}"
+			/>
+		</h:form>
+		
+		<div class="clear marginBottom10"></div>
+	</div>
+</ui:composition>

@@ -1,0 +1,75 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:p="http://primefaces.org/ui">
+
+	<!-- Either set competence, link and linkTitle or socialActivity -->
+
+	<composite:interface>
+		<composite:attribute name="socialActivity" type="org.prosolo.domainmodel.activitywall.SocialActivity" /> 
+		<composite:attribute name="socialActivityId" type="java.lang.Long" /> 
+		<composite:attribute name="competence" type="org.prosolo.domainmodel.competences.Competence"/> 
+		<composite:attribute name="competenceId" type="java.lang.Long" default="0" /> 
+		<composite:attribute name="link" type="java.lang.String" />
+		<composite:attribute name="linkTitle" type="java.lang.String" />
+		<composite:attribute name="styleClass"/>
+		<composite:attribute name="title" type="java.lang.String" default="Add to Learning"/>
+		<composite:attribute name="resetStyle" default="false"/>
+		<composite:attribute name="dialogId" type="java.lang.String" default="addToGoalDialog" />
+		<composite:attribute name="update" type="java.lang.String" default=":addToGoal:addToGoalForm" />
+		<composite:attribute name="context" />
+	</composite:interface>
+	
+	<composite:implementation
+		xmlns:comp="http://java.sun.com/jsf/composite/components"
+		xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+		
+		<ui:param name="resetStyle" value="#{cc.attrs.styleClass}" />
+		<ui:param name="notResetStyle" value="button green size20 #{cc.attrs.styleClass}" />
+		
+		<h:panelGroup layout="block" class="addToGoalButton">
+			<p:commandLink rendered="#{cc.attrs.competence != null}"
+				value="#{cc.attrs.title}"
+				styleClass="#{cc.attrs.resetStyle ? resetStyle : notResetStyle }"
+				onclick="$('##{cc.attrs.dialogId}').dialog('open');"
+				action="#{addToGoalDialog.initialize(cc.attrs.competence, cc.attrs.context)}"
+				update="#{cc.attrs.update}"
+			/>
+			<p:commandLink rendered="#{cc.attrs.linkTitle != null and cc.attrs.link != null}"
+				value="#{cc.attrs.title}"
+				styleClass="#{cc.attrs.resetStyle ? resetStyle : notResetStyle }"
+				onclick="$('##{cc.attrs.dialogId}').dialog('open');"
+				action="#{addToGoalDialog.prepareAddToGoalForPost(cc.attrs.link, cc.attrs.linkTitle, cc.attrs.context)}"
+				oncomplete="addToGoalDialogPostNewPost.expandPostInput().showLinkPreview().detectLinks();"
+				update="#{cc.attrs.update}"
+			/>
+			<p:commandLink rendered="#{cc.attrs.socialActivity != null}"
+				value="#{cc.attrs.title}"
+				styleClass="#{cc.attrs.resetStyle ? resetStyle : notResetStyle }"
+				onclick="$('##{cc.attrs.dialogId}').dialog('open');"
+				action="#{addToGoalDialog.prepareAddToGoalForSocialActivity(cc.attrs.socialActivity, cc.attrs.context)}"
+				oncomplete="addToGoalDialogPostNewPost.expandPostInput().showLinkPreview().detectLinks();"
+				update="#{cc.attrs.update}"
+			/>
+			<p:commandLink rendered="#{cc.attrs.socialActivityId != null and cc.attrs.socialActivityId > 0}"
+				value="#{cc.attrs.title}"
+				styleClass="#{cc.attrs.resetStyle ? resetStyle : notResetStyle }"
+				onclick="$('##{cc.attrs.dialogId}').dialog('open');"
+				action="#{addToGoalDialog.prepareAddToGoalForSocialActivityById(cc.attrs.socialActivityId, cc.attrs.context)}"
+				oncomplete="addToGoalDialogPostNewPost.expandPostInput().showLinkPreview().detectLinks();"
+				update="#{cc.attrs.update}"
+			/>
+			<p:commandLink rendered="#{cc.attrs.competenceId > 0}"
+				value="#{cc.attrs.title}"
+				styleClass="#{cc.attrs.resetStyle ? resetStyle : notResetStyle }"
+				onclick="$('##{cc.attrs.dialogId}').dialog('open');"
+				action="#{addToGoalDialog.initializeGoalsByCompetenceId(cc.attrs.competenceId, cc.attrs.context)}"
+				oncomplete="addToGoalDialogPostNewPost.expandPostInput().showLinkPreview().detectLinks();"
+				update="#{cc.attrs.update}"
+			/>
+		</h:panelGroup>
+		
+	</composite:implementation>
+</ui:component>

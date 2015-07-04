@@ -1,0 +1,41 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons">
+
+	<!-- size: 16, 20 or 30 sizes are supported --> 
+
+	<composite:interface>
+		<composite:attribute name="type" required="true" />
+		<composite:attribute name="clazz" required="false" type="java.lang.String" />
+		<composite:attribute name="size" default="30" /> 
+		<composite:attribute name="styleClass" />
+	</composite:interface>
+	
+	<composite:implementation>
+		
+		<h:panelGroup rendered="#{cc.attrs.type == 'LearningGoal' or cc.attrs.clazz.endsWith('LearningGoal')}">
+			<icon:goal size="#{cc.attrs.size}"
+				styleClass="#{cc.attrs.styleClass}"/>
+		</h:panelGroup>
+	
+		<h:panelGroup layout="block" rendered="#{cc.attrs.type == 'Competence' or cc.attrs.type == 'TargetCompetence'
+			 or cc.attrs.clazz.endsWith('Competence') or cc.attrs.clazz.endsWith('TargetCompetence')}">
+			<icon:competence size="#{cc.attrs.size}"
+				styleClass="#{cc.attrs.styleClass}"/>
+		</h:panelGroup>
+		
+		<h:panelGroup rendered="#{cc.attrs.type == 'Course'}">
+			<icon:course size="#{cc.attrs.size}"
+				styleClass="#{cc.attrs.styleClass}"/>
+		</h:panelGroup>
+	
+		<h:panelGroup layout="block" rendered="#{cc.attrs.clazz.endsWith('UploadAssignmentActivity') or cc.attrs.clazz.endsWith('ResourceActivity')}">
+			<icon:activity size="#{cc.attrs.size}"
+				styleClass="#{cc.attrs.styleClass}"/>
+		</h:panelGroup>
+	</composite:implementation>
+</ui:component>

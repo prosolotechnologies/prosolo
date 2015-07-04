@@ -1,0 +1,60 @@
+<ui:composition	
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	
+	<div id="statusWall" class="statusWall">
+		<h2>Settings: Status Wall</h2>
+		<div class="separator clear"></div>
+		
+		<h:form id="twitterAccountSettingsForm" class="twitterAccountSettingsForm">
+			<h:panelGroup id="twitterAccountContainer" class="twitterAccountContainer">
+				<p:growl id="twitterFormGrowl" showDetail="true" />
+				
+				<h3>Follow Twitter hashtags</h3>
+				
+				<p>You can subscribe to Twitter hashtags, and tweets containing them will show up 
+					in your Status Wall. This will allow you to monitor a conversation on a given 
+					topic (hashtag) along with other news in ProSolo. You do not have to have 
+					a Twitter account nor need to connect your existing Twitter account with ProSolo in 
+					order to enable this functionality.</p>
+				 
+				 <p><i>NOTE: too generic hashtags will pull in lots of tweets to your Status Wall.</i></p>
+					
+				<span class="bold marginRight10 left">Hashtags:</span>
+				
+				<div class="hashtagBox">
+					<h:inputText class="hashtags marginRight10" value="#{twitterBean.hashTags}"/>
+					<span class="noContentMessage block">HINT: write hashtags without the hash sign (#) and separated with a comma (,). ProSolo will import the tweets with these hashtags to your Status Wall.</span>
+				</div>
+
+				<div class="clear"></div>
+
+				<div class="actions">
+					<p:commandLink value="Save"
+						styleClass="button green size20"
+						action="#{twitterBean.updateHashTagsAction}"
+						update=":twitterAccountSettingsForm:twitterFormGrowl" />
+				</div>
+						
+				<script>
+					$(function() {
+						$('#twitterAccountSettingsForm input.hashtags').tags({prefix: '#'});
+					});
+				</script>
+				
+			</h:panelGroup>
+			
+		</h:form>
+		<script>
+ 
+			function clickParentsNextSibling(elem, event) {
+				if (event.keyCode == 13) {
+					$(elem).parent().next('a').trigger('click');
+				}
+			}
+		</script>
+	</div>
+</ui:composition>

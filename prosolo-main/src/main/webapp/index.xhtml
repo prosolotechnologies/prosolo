@@ -1,0 +1,141 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post"
+	xmlns:comphome="http://java.sun.com/jsf/composite/components/home"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	template="templates/masterLayout.xhtml">
+
+	<ui:define name="windowTitle">
+		ProSolo
+	</ui:define>
+
+	<ui:define name="content">
+	
+		<utilcomp:messagesBundle var="msg" />
+	
+		<div class="container">
+			<div class="leftSidebar">
+				<div class="userDetails">
+					<div class="avatarContainer">
+						<h:graphicImage styleClass="imageRound image60"
+							value="#{loggeduser.bigAvatar}" width="60"
+							height="60" alt="" />
+					</div>
+					
+					<div class="infoContainer">
+						<h2 class="name">
+							<h:link value="#{loggeduser.name} #{loggeduser.user.lastname}" outcome="/publicprofile" >
+								<f:param name="user" value="#{loggeduser.user.id}" />
+							</h:link>
+						</h2>
+						<div class="position">#{loggeduser.user.position}</div>
+					</div>
+				</div>
+				
+				<ui:include src="/resources/components/listpeople.xhtml" />
+				
+				<ui:remove>
+				<comp:listpeople 
+					updateAfterUnfollow=
+						":locationRecommendForm:locationRecommendPanel
+						:activityRecommendForm:activityRecommendPanel
+						:similarityRecommendForm:similarityRecommendPanel
+						:listFollowingPeopleForm:followingUsersPanelGrowl"
+				/>
+				</ui:remove>
+				
+				<ui:include src="/resources/components/home/recommendpeople.xhtml" />
+				
+				<dlg:appendedActivities id="appActivities"/>
+				
+				<ui:remove>
+					<div class="sideBoxFrame analytics">
+						<h3 class="title" style="margin: 10px 15px;">Analytics</h3>
+						<img src="resources/images/style/bar_chart.png" /> 
+					</div>
+				</ui:remove>
+			</div><!-- .leftSidebar -->
+			
+			<div>
+				<ui:include src="/resources/components/home/learningProgress.xhtml" />
+			</div>
+			
+			<div class="content">
+				<div class="main">
+					<div class="indexTripStep19">
+						<post:newpost value="statusUpdate" id="statusUpdate" 
+							content="#{postaction.newPostData}" 
+							createPostAction="#{postaction.createNewPost()}"
+							handleFileUpload="#{postaction.handleFileUpload}"
+							containerDiv=".main"
+							refreshCommand="form.mainActivityWallForm a.refreshAllHanler"
+							watermark="What are you doing?"
+						/>
+					</div>
+					
+					<ui:include src="/resources/components/activitywallfilter.xhtml" />
+						
+					<div class="statusWallContainer indexTripStep20">
+					
+						<comp:activitywall id="mainActivityWall"
+							value="mainActivityWall"
+							refreshRate="#{activitywall.refreshRate}"
+							moreToLoadIndicator="#{activitywall.moreToLoad}"
+							allActivities="#{activitywall.allActivities}"
+							initializeHandler="#{activitywall.initializeActivities()}"
+							loadMoreHandler="#{activitywall.loadMoreActivities()}"
+							refreshHandler="#{activitywall.refresh()}"
+							scrollPositionHolder="#{activitywall.scrollPosition}"
+							updateAfterUnfollow=":listFollowingPeopleForm:followingUsersPanel :listfollowersform:followersPanel"
+							context="statusWall"/>
+					</div>
+				</div><!-- .main end -->
+				
+				<div class="rightSidebar">
+					<ui:include src="/resources/components/home/activeCourseStatus.xhtml" />
+				
+					<ui:include src="/resources/components/reminders.xhtml" />
+					<div class="clear separator"></div>
+					
+					<ui:include src="/resources/components/featurednews.xhtml" />
+					<div class="clear separator"></div>
+					
+					<ui:remove>
+					<!-- If removing/hiding suggested learning, then messages.properties file should be updated
+						and tooltip.tutorial.index.step24 should be commented out. Then other steps's indexes should be updated
+						and also regions on which they apply to. 
+						Nikola  
+					-->
+					</ui:remove>
+					<ui:include src="/resources/components/suggestedlearning.xhtml" />
+				</div><!-- .rightSidebar -->
+				
+				<div class="clear"></div>
+			</div><!-- .content -->
+		
+			<div class="clear"></div>
+		</div><!-- .container end -->
+		
+		<span class="indexTripStep1 indexTripStep15 indexTripStep25 indexTripStep28" position="screen-center"></span>
+		<dlg:introTutorial page="index" steps="28"/>
+		<ui:include src="/resources/components/dialogs/courseDetails.xhtml" />
+		
+		<script>
+			tutorialControl.getSettings().onTripEnd = function(i, tripObject) {
+				if (i == 7) {
+					$('#headerRight #name .arrow').click();
+				}
+				if (i == 12) {
+					$(document).click();
+				}
+			};
+		</script>
+	</ui:define>
+
+</ui:composition>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+<h:head>
+</h:head>
+
+<composite:interface>
+</composite:interface>
+
+<composite:implementation xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	<utilcomp:messagesBundle var="msg" />
+
+   <div id="editRoleModalDialog" class="admin roleDetails editRole" title="#{msg['admin.roles.dialog.edit.title']}">
+						
+		<h:form id="editRoleForm" prependId="false">
+			<p:growl id="editRoleFormGrowl" showDetail="true" /> 
+			
+			<table>
+				<tr>
+					<td class="col1">
+						<h:outputLabel for="editName">Name:</h:outputLabel>
+					</td>
+					<td>
+						<h:inputText id="editName" 
+							value="#{roles.formData.name}" 
+							required="true"
+							validator="#{roles.validateName}"
+							requiredMessage="Name is required" />
+					</td>
+				</tr>
+				<tr>
+					<td class="col1 colDescription">
+						<h:outputLabel for="editDescription">Description:</h:outputLabel>
+					</td>
+					<td>
+						<h:inputTextarea id="editDescription"
+							value="#{roles.formData.description}"
+							placeholder="#{msg['textarea.description']}" />
+					
+						<script>
+						$(function() {
+							$('.admin.roleDetails.editRole textarea').autosize();
+						});
+						</script>
+					</td>
+				</tr>
+			</table>
+			
+			<div class="actions">
+				<p:commandLink id="saveedit" value="Save"
+					styleClass="button green size30 right"
+					onclick='$("#editRoleModalDialog").dialog("close");'
+				 	actionListener="#{roles.updateRole}" 
+				 	update="@form :rolesForm" />
+				
+				<a href="#"	class="button gray size30 right"
+					onclick='$("#editRoleModalDialog").dialog("close");'>Cancel</a>
+			</div>
+		</h:form>
+	</div>
+	
+	<script>
+	$(function() {
+		$('#editRoleModalDialog').dialog({
+			autoOpen : false,
+			show : 'slide',
+			width : 550,
+			modal : true,
+			resizable : false,
+			open : function(event, ui) {
+				$(this).children(':first')
+					.css('text-align', 'center')
+					.css('padding-top', '100px')
+					.html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
+			}
+		});
+		$('#newRoleModalDialog').show();
+	});
+	</script>
+</composite:implementation>
+</html>

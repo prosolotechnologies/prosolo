@@ -1,0 +1,36 @@
+<ui:composition
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+	
+	<h:form>
+		<div id="stickerMenu" class="sticker-wrapper">
+			<h:panelGroup layout="block" id="sticker" styleClass="#{goalhintsbean.goalHintsOff ? '' : 'selected'} hidden">
+				<p:growl id="stickerGrowl" showDetail="true" />
+				<span>HINTS</span>
+				<br/>
+				<h:outputText class="state" value="#{goalhintsbean.goalHintsOff ? 'OFF' : 'ON'}" />
+				<script>
+				$(window).load(function(){
+			    	$("#sticker").sticky({ topSpacing: 50, className: 'sticky', wrapperClassName: 'sticker-wrapper' });
+			    	$("#sticker").fadeIn();
+			    	
+			    	$("#sticker").on('click', function() {
+			    		$(this).toggleClass('selected');
+			    		if ($(this).hasClass('selected')) {
+			    			$('#stickerMenu .state').html('ON');
+			    		} else {
+			    			$('#stickerMenu .state').html('OFF');
+			    		}
+			    		$('.toggler').trigger('click');
+			    	})
+				});
+			    </script>
+			</h:panelGroup>
+			<p:commandLink styleClass="toggler hidden"
+				actionListener="#{goalhintsbean.toggleGoalHints}"
+				update="" value="link"/>
+		</div>
+	</h:form>
+</ui:composition>

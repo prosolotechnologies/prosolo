@@ -1,0 +1,126 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	template="templates/masterLayout.xhtml"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">>
+
+<ui:define name="windowTitle">
+	ProSolo Administration: Roles
+</ui:define>
+
+<ui:define name="content">
+	<utilcompmessagesBundle var="msg" />
+
+	<div id="settings" class="container admin">
+		<div class="content wide settings">
+			<h2 class="marginBottom10">General Settings</h2>
+			
+			<div class="clear separator"></div>
+			
+			<h:form id="generalSettingsForm">
+				<p:growl id="generalSettingsFormGrowl" showDetail="true" />
+			
+				<div class="resource">
+					<h3 class="marginBottom10">Resource Settings</h3>
+					
+					<table>
+						<tr>
+							<td>
+								<h:selectBooleanCheckbox id="userCanCreateCompetence" value="#{adminSettings.settings.userCanCreateCompetence}" />
+							</td>
+							<td><label for="generalSettingsForm:userCanCreateCompetence">#{msg['admin.generalSettings.userCanCreateCompetence']}</label></td>
+						</tr>
+					</table>
+				</div>
+				
+				<div class="clear marginTop10 marginBottom10 separator"></div>
+				
+				<div class="evaluation">
+					<h3 class="marginBottom10">#{msg['admin.generalSettings.sectionTitle.evaluationSettings']}</h3>
+					
+					<table>
+						<tr>
+							<td>
+								<h:selectBooleanCheckbox id="goalAcceptanceDependendOnCompetence" value="#{adminSettings.settings.goalAcceptanceDependendOnCompetence}" />
+							</td>
+							<td><label for="generalSettingsForm:goalAcceptanceDependendOnCompetence">#{msg['admin.generalSettings.goalAcceptanceDependendOnCompetence']}</label></td>
+						</tr>
+						<tr>
+							<td>
+								<h:selectBooleanCheckbox id="individualCompetencesCanNotBeEvaluated" value="#{adminSettings.settings.individualCompetencesCanNotBeEvaluated}" />
+							</td>
+							<td><label for="generalSettingsForm:individualCompetencesCanNotBeEvaluated">#{msg['admin.generalSettings.individualCompetencesCanNotBeEvaluated']}</label></td>
+						</tr>
+						<tr>
+							<td>
+								<h:selectBooleanCheckbox id="selectedUsersCanDoEvaluation" class="selectedUsersCanDoEvaluation" value="#{adminSettings.settings.selectedUsersCanDoEvaluation}" />
+								<script>
+									$(function(){
+										$('#settings .selectedUsersCanDoEvaluation').change(function() {
+											if ($(this).is(":checked")) {
+												$('#usersToDoEvaluation').show();
+											} else {
+												$('#usersToDoEvaluation').hide();
+											}
+									    });
+									});
+								</script>
+							</td>
+							<td><label for="generalSettingsForm:selectedUsersCanDoEvaluation">#{msg['admin.generalSettings.selectedUsersCanDoEvaluation']}</label></td>
+						</tr>
+					</table>
+
+					<div id="usersToDoEvaluation" class="relative #{adminSettings.settings.selectedUsersCanDoEvaluation ? '' : 'hidden'}">
+						<utilcomp:userInputField id="selectedEvaluatorSearch"
+				    		users="#{evaluationSettings.selectedEvaluators}"
+				    		toExcludeIds="#{evaluationSettings.toExcludeIds}"
+				    		keywordHolder="#{evaluationSettings.keyword}"
+				    		actionBean="#{evaluationSettings}"
+				    		searchResult="#{evaluationSettings.userSearchResults}"
+				    		regionToUpdateOnAdd=":generalSettingsForm:hiddenUserNo"
+				    		regionToUpdateOnRemove=":generalSettingsForm:hiddenUserNo"
+				    	/>
+				    	
+				    	<h:inputText id="hiddenUserNo" class="hiddenUserNo" style="display: none;"
+					  		value="#{evaluationSettings.userNo}" />
+					  		
+					  	<div id="noEvaluatorMessage" aria-live="polite" 
+					  		class="ui-message ui-message-error ui-widget ui-corner-all hidden">
+					  		<span class="ui-message-error-icon"></span>
+					  		<span class="ui-message-error-detail">#{msg['admin.generalSettings.selectedUsersCanDoEvaluation.errorMessage']}</span>
+					  	</div>
+					</div>
+				</div>
+
+				<div class="clear marginTop10 marginBottom10 separator"></div>
+				
+				<div class="actions">
+					<p:commandLink
+						value="Save"
+						styleClass="submit button green size30 marginRight10"
+						onclick="if ($('#settings .evaluation .hiddenUserNo').val() == '' &amp;&amp; $('#settings .selectedUsersCanDoEvaluation').is(':checked')) {$('#noEvaluatorMessage').show();return false;}"
+				    	action="#{adminSettings.updateSettings()}"
+				    	update="@form generalSettingsFormGrowl"
+					/>
+				</div>
+				
+				<c:if test="#{loggeduser.user.system}">
+					<div class="separator"></div>
+					<h3 style="margin-bottom: 0px; color: red">Only system user available action. Use this only if you know what you are doing.</h3>
+					
+					<p:commandLink
+						value="FIX COURSES"
+						styleClass="submit button green size30 "
+				    	action="#{adminSettings.fixCourses()}"
+				    	update=":generalSettingsForm"
+					/>
+				</c:if>
+			</h:form>
+		</div>
+	</div>
+</ui:define>
+
+</ui:composition>

@@ -1,0 +1,54 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:p="http://primefaces.org/ui">
+
+	<composite:interface>
+		<composite:attribute name="course" type="org.prosolo.domainmodel.course.Course" /> 
+		<composite:attribute name="courseData" type="org.prosolo.web.courses.data.CourseData" /> 
+		<composite:attribute name="courseId" type="java.lang.Long" /> 
+		<composite:attribute name="toRender" default="true" />
+		<composite:attribute name="styleClass" />
+		<composite:attribute name="title" type="java.lang.String" />
+		<composite:attribute name="onclick" type="java.lang.String" />
+		<composite:attribute name="regionToUpdate" default=":courseDetailsForm" />
+		<composite:attribute name="directLink" default="false" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<p:commandLink
+			rendered="#{cc.attrs.toRender and !cc.attrs.directLink and cc.attrs.course != null}"
+			styleClass="#{cc.attrs.styleClass}"
+			update="#{cc.attrs.regionToUpdate}"
+			action="#{courseDialog.openCourseDialog(cc.attrs.course)}"
+			onclick='#{cc.attrs.onclick};$("#courseDetailsModalDialog").dialog("open");'>
+			<h:outputText value="#{cc.attrs.title != null ? cc.attrs.title : (cc.attrs.course != null ? cc.attrs.course.title : cc.attrs.courseData.title)}"/>
+		</p:commandLink>
+		
+		<p:commandLink
+			rendered="#{cc.attrs.toRender and !cc.attrs.directLink and cc.attrs.courseData != null}"
+			styleClass="#{cc.attrs.styleClass}"
+			onclick='#{cc.attrs.onclick};$("#courseDetailsModalDialog").dialog("open");'
+			action="#{courseDialog.openCourseDialogById(cc.attrs.courseData.id)}"
+			update="#{cc.attrs.regionToUpdate}">
+			<h:outputText value="#{cc.attrs.title != null ? cc.attrs.title : cc.attrs.courseData.title}"/>
+		</p:commandLink>
+		
+		<p:commandLink
+			rendered="#{cc.attrs.toRender and !cc.attrs.directLink and cc.attrs.courseId > 0}"
+			styleClass="#{cc.attrs.styleClass}"
+			onclick='#{cc.attrs.onclick};$("#courseDetailsModalDialog").dialog("open");'
+			action="#{courseDialog.openCourseDialogById(cc.attrs.courseId)}"
+			update="#{cc.attrs.regionToUpdate}">
+			<h:outputText value="#{cc.attrs.title != null ? cc.attrs.title : cc.attrs.courseData.title}"/>
+		</p:commandLink>
+		
+		<h:link rendered="#{cc.attrs.toRender and cc.attrs.directLink and cc.attrs.courseId > 0}"
+			value="#{cc.attrs.title}" outcome="/course">
+			<f:param name="id" value="#{cc.attrs.courseId}" />
+		</h:link>
+		
+	</composite:implementation>
+</ui:component>

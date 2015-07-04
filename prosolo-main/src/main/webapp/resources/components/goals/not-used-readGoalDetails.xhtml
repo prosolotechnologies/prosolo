@@ -1,0 +1,53 @@
+<ui:composition
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+	
+	<h:panelGroup layout="block" id="readGoalDetails">
+		<h:form id="goalDetailsForm" prependId="false">
+			<div class="main">
+				<div class="aboutGoal">
+
+					<h2>
+						<span class=goalIcon20></span>
+						<h:outputText id="goalTitle"
+							value="#{learninggoals.selectedGoalData.title}" />
+					</h2>
+
+				</div>
+				<div id="aboutGoalHidden" class="aboutGoal">
+					<table>
+						<tr>
+							<td class="col01">Description:</td>
+							<td class="col02"><h:outputText id="goalDescription"
+									value="#{learninggoals.selectedGoalData.description}" /></td>
+						</tr>
+						<tr>
+							<td class="col01 keywords">Keywords:</td>
+							<td class="col02"><h:inputText class="tagsReadMode"
+									value="#{learninggoals.selectedGoalData.tagsString}" /></td>
+						</tr>
+					</table>
+				</div>
+			</div>
+
+			<div id="aboutGoalRightHidden" class="rightSidebar aboutGoalRight">
+				<div class="members">
+					<strong>Created by:</strong> <a href="#"><h:graphicImage
+							styleClass="imageRound image22"
+							value="#{colleguesBean.avatarUrl(loggeduser.user,22)}"
+							width="22" height="22" alt="" /></a> <a href="#"><h:outputText
+							value="#{learninggoals.selectedGoalData.creatorName}" /></a>
+				</div>
+				<p>
+					<strong>Membership:</strong>&#160;
+					<h:outputText
+						value="#{learninggoals.selectedGoalData.freeToJoin =='true' ? 'Free to Join' : 'Ask to Join'}" />
+				</p>
+			</div>
+			<a href="#aboutGoalRightHidden;#aboutGoalHidden"
+				class="boxMore clear separator">expand</a>
+		</h:form>
+	</h:panelGroup>
+</ui:composition>

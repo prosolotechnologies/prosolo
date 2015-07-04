@@ -1,0 +1,106 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	
+	<composite:interface>
+		<composite:attribute name="updateOncomplete" type="java.lang.String" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<div id="activateCourseFormModalDialog" class="deleteCompFormModalDialog" style="display: none;">
+			<h:form id="activateCourseForm">
+				<h4 class="warningMessage">#{msg['courses.dialog.activate.message']}</h4>
+				
+				<p:selectOneRadio id="activateRadio" value="#{activateCourseDialog.restorePreviousLearning}" 
+					layout="custom" plain="true">
+					<f:selectItem itemValue="#{true}" itemLabel="Restore previous learning" />
+					<f:selectItem itemValue="#{false}" itemDisabled="#{activateCourseDialog.hasLearningHistory}" itemLabel="Do not restore previous learning" />
+				</p:selectOneRadio>
+		 
+		        <table>
+		        	<tr>
+		        		<td class="col1">
+				            <p:radioButton id="opt2" for="activateRadio" itemIndex="0" />
+						</td>
+		        		<td>
+		        			<h:outputLabel for="opt2">
+				            	<span class="bold">
+					            	#{msg['courses.dialog.activate.option1.activateCourseAndLearningActivities.title']}
+				            	</span>
+				            	#{msg['courses.dialog.activate.option1.activateCourseAndLearningActivities.explanation']}
+				            </h:outputLabel>
+						</td>
+		        	</tr>
+		        </table>
+		 
+		        <table>
+		        	<tr>
+		        		<td class="col1">
+				            <p:radioButton id="opt1" for="activateRadio" itemIndex="1" />
+			            </td>
+		        		<td>
+				            <h:outputLabel for="opt1">
+				            	<span class="bold">
+					            	#{msg['courses.dialog.activate.option2.activateCourse.title']}
+				            	</span>
+				            	#{msg['courses.dialog.activate.option2.activateCourse.explanation']}
+				            </h:outputLabel>
+			            </td>
+		        	</tr>
+		        </table>
+		        
+		        <input type="text" class="id" style="display: none;" value="#{activateCourseDialog.courseToActivate.id}" />
+		        <input type="text" class="context" style="display: none;" value="#{activateCourseDialog.context}" />
+		        
+				<p:commandButton value="Activate"
+					id="activateBtn"
+					styleClass="button green size30 right"
+					onclick="$('#activateCourseFormModalDialog').dialog('option', 'submit', true);$('#activateCourseFormModalDialog').dialog('close');"
+				 	action="#{activateCourseDialog.activateCourse()}"
+					update="#{cc.attrs.updateOncomplete}" />
+		
+				<a class="button gray size30 right"
+					onclick='$("#activateCourseFormModalDialog").dialog("close");'>Cancel</a>
+					
+				<p:defaultCommand target=":#{cc.clientId}:activateCourseForm:activateBtn" />
+			</h:form>
+		</div>
+		<script>
+		$(function() {
+			$('#activateCourseFormModalDialog').dialog({
+				title: "#{msg['courses.dialog.activate.title']}",
+				autoOpen: false,
+				show : 'slide',
+				width: 600,
+				modal: true,
+				resizable: false,
+				open: function() {
+					$(this).children(':first')
+						.css('text-align', 'center')
+						.css('padding-top', '50px')
+						.html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
+				},
+				close: function() {
+					var submitted = $(this).dialog('option', 'submit');
+					
+					if (!submitted) {
+						var id = $('#activateCourseFormModalDialog .id').val();
+						var context = $('#activateCourseFormModalDialog .context').val();
+						sendServiceUse('MOUSE_CLICK', {context: context+'.activateCourseDialog', link: 'cancel', 'course' : id});
+					}
+					
+					$(this).dialog('option', 'submit', false);
+				}
+			});
+			$('#activateCourseFormModalDialog').show();
+		});
+		</script>
+	</composite:implementation>
+</ui:component>

@@ -1,0 +1,168 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:compcourses="http://java.sun.com/jsf/composite/components/courses"
+	template="templates/masterLayout.xhtml"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:dlgportfolio="http://java.sun.com/jsf/composite/components/dialogs/portfolio"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks">
+
+<ui:define name="windowTitle">
+	<utilcomp:messagesBundle var="msg" />
+
+	#{msg['manager.courseFeeds.pageTitle']}
+</ui:define>
+
+<ui:define name="metadata">
+	<f:metadata>
+		<f:viewParam name="id" value="#{manageCourseFeedsBean.id}" default="0" />
+		<f:viewAction action="#{manageCourseFeedsBean.init()}"/>
+	</f:metadata>
+</ui:define>
+
+<ui:define name="content">
+	<utilcomp:messagesBundle var="msg" />
+	
+	<h:outputScript library="javascript" name="prosolo.autosaveForm.js" />
+	
+	<div id="courses" class="container courses courseFeeds">
+		<div class="content wide">
+			<h1>Course Feeds</h1>
+			<div class="clear"></div>
+			
+			<h:form id="courseFeedsForm" class="courseFeedsForm" style="display: inline:block;">
+				<p:remoteCommand name="autosave"
+					action="#{manageCourseFeedsBean.autosaveCourse()}" 
+					update=":courseFeedsForm:courseFeedsGrowl"
+					oncomplete="$(window).autosaveForm('removeAutosaveLoader');"
+					async="true" />
+					
+				<p:remoteCommand name="autosaveFeeds"
+					action="#{manageCourseFeedsBean.autosaveFeeds()}" 
+					update=":courseFeedsForm:courseFeedsGrowl"
+					oncomplete="$('.content').autosaveForm('removeAutosaveLoader');"
+					async="true" />
+			
+				<script>
+					$(function(){
+						$(window).autosaveForm({
+							elemSelector: '.autosaveEnabled',
+							autosaveFunction: autosave,
+							loaderPath: '#{request.contextPath}/resources/images/style/ajax-loader-black.gif',
+	   					});
+						$('.content').autosaveForm({
+							elemSelector: '.autosaveFeedsEnabled',
+							autosaveFunction: autosaveFeeds,
+							loaderPath: '#{request.contextPath}/resources/images/style/ajax-loader-black.gif',
+	   					});
+					})
+				</script>
+			
+				<p:growl id="courseFeedsGrowl" showDetail="true" />
+			
+				<p>
+					Here are defined all feed sources that will be used when generating feed digest for the credential. 
+					The list consists of personal blogs of all course participants. Also, you can add arbitrary sources 
+					to be included in feed digest.
+				</p>
+			
+				<div class="feedSourcesContainer">
+					<h2>Arbitrary Sources</h2>
+					
+					<h:panelGroup id="blogs">
+						<h:inputText id="newBlogLink" class="newRssFeed" value="#{manageCourseFeedsBean.blogToAdd}" />
+						
+						<p:commandLink styleClass="button size20 green marginLeft10 addBlogBtn"
+							onclick="$(window).autosaveForm('addLoaderNextAndAutosave', this);"
+							action="#{manageCourseFeedsBean.addBlogLink()}"
+							process="newBlogLink"
+							update=":courseFeedsForm:blogs :courseFeedsForm:courseFeedsGrowl"
+							value="Add link" />
+						<div class="clear"></div>
+
+						<h:panelGroup layout="block" rendered="#{empty manageCourseFeedsBean.course.blogs}" class="noContentMessage">
+							#{msg['composite.course.blogs.empty']}
+						</h:panelGroup>
+
+						<h:panelGroup layout="block" rendered="#{not empty manageCourseFeedsBean.course.blogs}" 
+							class="blogsContainer marginTop10">
+							
+							<div class="row heading">
+								<div class="col2 wide">Feed Source</div>
+								<div class="col3">Included</div>
+							</div>
+						
+							<ui:repeat id="blogsLoop" value="#{manageCourseFeedsBean.course.blogs}" var="blogItem" varStatus="iterator">
+								<div class="infoBlock">
+									<div class="row">
+										<div class="col2 wide">
+											<h:outputLink value="#{blogItem}">#{blogItem}</h:outputLink>
+										</div>
+										<div class="col3">
+											<label class="removeContainer">
+												<p:commandLink value="Remove" styleClass="iconRemove"
+													onclick="$(window).autosaveForm('addLoaderNextAndAutosave', this);"
+													action="#{manageCourseFeedsBean.removeBlogLink(blogItem)}"
+													update=":courseFeedsForm:blogs :courseFeedsForm:courseFeedsGrowl" />
+											</label>
+										</div>
+									</div>
+								</div>
+							</ui:repeat>
+						</h:panelGroup>
+					</h:panelGroup>
+				</div>
+			
+			
+				<div class="feedSourcesContainer">
+					<h2>Participants' Blogs</h2>
+				
+					<div class="row heading">
+						<div class="col1">Participant</div>
+						<div class="col2">Feed Source</div>
+						<div class="col3">Included</div>
+					</div>
+					
+					<ui:repeat id="notificationSettings" value="#{manageCourseFeedsBean.userFeedSources}" 
+							var="userFeedSource" varStatus="iterator">
+							
+						<div class="infoBlock">
+							<div class="row">
+								<div class="col1">
+									<link:user value="feedCreator" 
+						   				user="#{userFeedSource.user}"
+						   				mode="imageName"
+						   				idPrefix="feedMaker#{iterator.index}"
+						   				context="manager.courses.#{manageCourseFeedsBean.id}.feeds" />
+								</div>
+								<div class="col2">
+									<h:outputLink value="#{userFeedSource.feedSource.link}">#{userFeedSource.feedSource.link}</h:outputLink>
+								</div>
+								<div class="col3">
+									<label>
+										<h:selectBooleanCheckbox class="autosaveFeedsEnabled"
+											value="#{userFeedSource.included}" />
+									</label>
+								</div>
+							</div>
+						</div>
+					</ui:repeat>
+				</div>
+				
+				<div class="actions">
+					<h:link outcome="/manage/course" 
+						class="button size25 gray left"
+						value="Back">
+						<f:param  name="id" value="#{manageCourseFeedsBean.id}" />
+					</h:link>
+				</div>
+			</h:form>
+		</div><!-- .content -->
+	</div><!-- .container end -->
+
+</ui:define>
+</ui:composition>

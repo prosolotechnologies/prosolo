@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+<h:head>
+</h:head>
+
+<composite:interface>
+</composite:interface>
+
+<composite:implementation>
+	<utilcomp:messagesBundle var="msg" />
+
+	<div id="unitUsersModalDialog" title="#{msg['admin.user.dialog.unitUser.title']}">
+
+		<h:form id="unitUsersForm" prependId="false">
+			<p:growl id="unitUsersFormGrowl" showDetail="true" />
+
+			<h:panelGrid columns="2">
+				<h:panelGroup>
+					<h:outputText id="availableUsers" value="#{msg['admin.user.dialog.unitUser.availableUsers']}" />
+
+					<p:dataTable id="availableUersTable" var="user"	value="#{units.availableUsers}">
+
+						<p:column id="nameColumn2" filterBy="#{user.name}"
+							filterMatchMode="contains" sortBy="#{user.name}">
+							<f:facet name="header">
+								<h:outputText value="Name" />
+							</f:facet>
+							<h:outputText value="#{user.name}" />
+						</p:column>
+
+						<p:column id="lastNameColumn2" filterBy="#{user.lastName}"
+							filterMatchMode="contains" sortBy="#{user.lastName}">
+							<f:facet name="header">
+								<h:outputText value="Last name" />
+							</f:facet>
+							<h:outputText value="#{user.lastName}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								<h:outputText value="#{msg['admin.user.dialog.unitUser.availableUsers.column.add']}" />
+							</f:facet>
+
+							<p:commandButton type="push" title="Add" icon="ui-icon-document"
+								actionListener="#{units.addUnitUser}" update=":unitUsers:unitUsersForm">
+								<f:param name="id" value="#{user.id}" />
+								<f:ajax />
+							</p:commandButton>
+						</p:column>
+					</p:dataTable>
+				</h:panelGroup>
+
+				<h:panelGroup>
+					<h:outputText id="unitName"
+						value="#{units.formData.name}" />
+
+					<p:dataTable id="unitUersDataTable" var="user"
+						value="#{units.formData.unitUsers}">
+
+						<p:column id="nameColumn" filterBy="#{user.name}"
+							filterMatchMode="contains" sortBy="#{user.name}">
+							<f:facet name="header">
+								<h:outputText value="Name" />
+							</f:facet>
+							<h:outputText value="#{user.name}" />
+						</p:column>
+
+						<p:column id="lastNameColumn" filterBy="#{user.lastName}"
+							filterMatchMode="contains" sortBy="#{user.lastName}">
+							<f:facet name="header">
+								<h:outputText value="Last Name" />
+							</f:facet>
+							<h:outputText value="#{user.lastName}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								<h:outputText value="Status" />
+							</f:facet>
+							<h:outputText value="#{user.status}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								<h:outputText value="Roles" />
+							</f:facet>
+
+							<p:commandButton type="push" title="Edit"
+								icon="ui-icon-document"
+								actionListener="#{units.prepareEditUserRoles(user)}"
+								onclick='$("#unitUserRolesModalDialog").dialog("open");'
+								update=":unitUserRoles:unitUserRolesForm" />
+						</p:column>
+					</p:dataTable>
+				</h:panelGroup>
+
+				<p:commandButton id="cancel2" value="Close"
+					onclick='$("#unitUsersModalDialog").dialog("close");'
+					update=":unitsForm" />
+
+			</h:panelGrid>
+		</h:form>
+	</div>
+
+	<script>
+		$(function() {
+			$("#unitUsersModalDialog").dialog({
+				autoOpen : false,
+				height : 600,
+				width : 800,
+				modal : true,
+			});
+		});
+	</script>
+</composite:implementation>
+</html>

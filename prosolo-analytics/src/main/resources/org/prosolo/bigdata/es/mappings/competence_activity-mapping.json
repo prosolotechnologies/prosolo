@@ -1,0 +1,38 @@
+{
+  "competence_activity":{
+		"properties":{
+			"id":{
+				"store": false,
+				"type":"integer"
+				},
+			"support":{
+				"store": false,
+				"type":"double"
+			},	
+			"confidence":{
+				"store": false,
+				"type":"double"
+			},
+			"itemset1_size":{
+				"store": false,
+				"type":"integer"
+			},
+				"itemset1":{
+					"properties":{
+						"item":{
+							"store": false,
+							"type":"integer"
+						} 
+					}
+				},
+				"itemset2":{
+					"properties":{
+						"item":{
+							"store": false,
+							"type":"integer"
+						} 
+					}
+				}
+		}
+	}
+}

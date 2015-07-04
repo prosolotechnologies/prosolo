@@ -1,0 +1,36 @@
+package org.prosolo.common.domainmodel.annotation;
+
+import javax.persistence.Entity;
+
+import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.annotation.Tag;
+
+@Entity
+public class Tag extends BaseEntity implements Comparable<Tag>{
+
+	private static final long serialVersionUID = 232153988226105332L;
+
+	@Override
+	public String toString() {
+		return "Tag [title=" + getTitle() + "]";
+	}
+//	@Override
+//	public boolean equals(Object obj) {
+//		if (this == obj)
+//			return true;
+//		if (obj == null)
+//			return false;
+//		if (this.getClass() != obj.getClass())
+//			return false;
+//		Tag otherTag=(Tag) obj;
+//		if(this.getTitle().equals(otherTag.getTitle())){
+//			return true;
+//		}else return false;
+//	}
+
+	@Override
+	public int compareTo(Tag o) {
+		return this.getTitle().compareTo(o.getTitle());
+	}
+	
+}

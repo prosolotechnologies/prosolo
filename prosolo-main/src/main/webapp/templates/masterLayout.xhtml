@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:dlgAnalytics="http://java.sun.com/jsf/composite/components/dialogs/analytics"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+<ui:insert name="metadata" />
+
+<h:head>
+	<f:facet name="first">
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<link rel="icon" href="#{request.contextPath}/favicon.ico" type="image/x-icon" />
+		<title><ui:insert name="windowTitle" /></title>
+	</f:facet>
+	
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/adminStyle.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/prosolo-theme/jquery-ui-1.8.21.custom.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/bubbleArrows.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/jquery.qtip.min.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/trip.min.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/jquery.bxslider.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/jquery.timepicker.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/style.css?#{loggeduser.loginTime}" />
+	
+	<!-- 
+	<script src="#{request.contextPath}/resources/javascript/jquery-1.8.23.min.js"></script>
+	<script src="#{request.contextPath}/resources/javascript/jquery-ui-1.8.21.custom.min.js"></script>
+	 -->
+	<script src="https://www.youtube.com/iframe_api"/>
+	<script src="#{request.contextPath}/resources/javascript/jquery-ui-1.11.2.min.js"></script>
+	<script src="#{request.contextPath}/resources/javascript/jquery.ui.dialog.closeOnClickOutside.min.js"></script>
+	<!-- included for carusel -->
+	<script src="#{request.contextPath}/resources/javascript/jquery.bxslider.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/jquery.sticky.js"></script>
+	<script src="#{request.contextPath}/resources/javascript/jquery.jtags.js"></script>
+	<script src="#{request.contextPath}/resources/javascript/custom.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/jquery.balloon.min.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/jquery.tabs.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/jquery.shortenedText.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/readmore.custom.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/jquery.propagateHover.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/jquery.newcomment.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/jquery.moreLessBox.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/jquery.autosize.min.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/jquery.transit.min.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/jquery.autoGrowInput.min.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/jquery.qtip.min.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/jquery.qtip.prosolo.js"></script>
+	
+	<script	src="#{request.contextPath}/resources/javascript/jquery.timepicker.js"></script>
+	<!-- 
+	<script	src="#{request.contextPath}/resources/javascript/ballonMessage.js"></script>
+	 -->
+	<script	src="#{request.contextPath}/resources/javascript/prosolo.search.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/prosolo.bigTooltipControl.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/prosolo.logging.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/trip-2.0.2.custom.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/prosolo.tutorialTrip.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/prosolo.overlay.js"></script>
+	
+	<script	src="#{request.contextPath}/resources/javascript/youtubevideo.js?1"></script>
+	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.exp&amp;sensor=false&amp;libraries=places&amp;key=AIzaSyCsXx1RPF5Fia-ZGczRCXwEQgn9HwYH50M"></script>
+</h:head>
+
+<h:body>
+	<utilcomp:messagesBundle var="msg" />
+
+	<div>
+		<div id="headerWrapper">
+			<div class="header">
+				<c:if test="#{loggeduser == null or !loggeduser.loggedIn}">
+					<ul class="navigation">
+						<li class="logoLi first noBorder">
+						 	<h:link outcome="/login">
+								<span class="logo"></span>
+							</h:link>
+						</li>
+					</ul>
+					
+					<ui:remove>
+					<div id="headerRight">
+						
+						<div id="topLogin">
+							<a class="loginLink" href="javascript:void(0);">
+								Log in
+								<span></span>
+							</a>
+							
+							<div class="dropdown dropdown-form hidden">
+								<c:if test="#{applicationbean.config.application.registration.google or 
+											applicationbean.config.application.registration.edx}">
+									<h:form prependId="false" id="openFormId">
+										<div class="openIdProviders">
+											<c:if test="#{applicationbean.config.application.registration.google}">
+											    <h:commandLink
+									            	id="openidGmail" 
+									            	class="google"
+									            	action="#{openid.signinOpenidGoogle}" 
+									            />
+											</c:if>
+											
+											<c:if test="#{applicationbean.config.application.registration.edx}">
+									            <h:commandLink
+									            	id="openidEdx" 
+									            	class="edx"
+									            	action="#{openid.signinOpenidEdx}" 
+									            />
+								            </c:if>
+										 </div>
+									</h:form>
+								</c:if>
+								
+								<c:if test="#{(applicationbean.config.application.registration.google or 
+												applicationbean.config.application.registration.edx) and 
+											applicationbean.config.application.registration.selfRegistration}">
+									<div class="signInSeparator">
+										<span>Or sign in with your email</span>
+									</div>
+								</c:if>
+							
+								<c:if test="#{applicationbean.config.application.registration.selfRegistration}">
+									<h:form action="/j_spring_security_check" prependId="false">
+										<p:messages id="loginMessage" showDetail="false" autoUpdate="true" closable="true" />
+					
+										<label class="row">
+											<div>Email:</div>
+											<h:inputText type="email" id="j_username" name="j_username" value="#{loggeduser.email}" required="true" requiredMessage="Email is required." />
+										</label>
+										
+										<label class="row">
+											<div>Password:</div>
+											<h:inputSecret id="j_password" name="j_password" value="#{loggeduser.password}" required="true" requiredMessage="Password is required." />
+										</label>
+										
+										<div class="actions">
+											<label class="right"><input type="checkbox"/> Remember me</label>
+											<h:commandButton id="loginButton" action="#{loggeduser.login}" type="submit" class="button blue size30 left" value="Login" onclick="showLoader();"/>
+											<img class="loader left marginLeft10" src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" id="loginloader" />
+										</div>
+									
+										<div class="clear"></div>
+										
+										<div class="marginTop10">
+											<h:link value="Forgot password?" outcome="/passwordReset" />
+										</div>
+									</h:form>
+								</c:if>
+							</div>
+						</div>
+					</div>
+					</ui:remove>
+		 		</c:if>
+				
+				<c:if test="#{loggeduser != null and loggeduser.loggedIn}">
+					<div id="headerLeft">
+						<h:form>
+							<ul class="navigation indexTripStep2" position="s"> 
+								<li class="first logoLi indexTripStep3" position="s">
+									<h:link onclick="sendLogPageNavigation('index.xhtml','mainmenu');" 
+										outcome="/index">
+										<span class="logo"></span>
+									</h:link>
+								</li>
+								<li class="#{(util:getPagePath(view.viewId)  == 'plan' or 
+										util:getPagePath(view.viewId)  == 'courseBrowse' or 
+										util:getPagePath(view.viewId)  == 'course') ? 'selected' : ''}
+										indexTripStep4 indexTripStep27" position="s">
+									<h:link 
+										onclick="sendLogPageNavigation('plan.xhtml','mainmenu');" 
+										value="#{msg['mainmenu.plan']}" 
+										outcome="/plan"/>
+								</li>
+								<li class="#{util:getPagePath(view.viewId)  == 'learn' ? 'selected' : ''}
+									indexTripStep5" position="s">
+									<h:link onclick="sendLogPageNavigation('learn.xhtml','mainmenu');" 
+										value="Learn" outcome="/learn"/>
+								</li>
+								<li	class="#{util:getPagePath(view.viewId)  == 'profile' ? 'selected' : ''}
+									indexTripStep6" position="s">
+									<h:link 
+										onclick="sendLogPageNavigation( 'profile.xhtml','mainmenu');" 
+										value="Profile" 
+										outcome="/profile"/>
+								</li>
+								<li class="navItem">
+									<h:panelGroup rendered="#{loggeduser.hasRole('manager') or loggeduser.hasRole('admin')}">
+										<a class="left navMore" href="javascript:void(0);"> 
+											more 
+											<span class="moreArrow"></span>
+										</a>
+										<h:panelGroup layout="block" id="dropNavMenu" class="dropdown hidden">
+											<ul>
+												<li>
+													<h:link rendered="#{loggeduser.hasRole('manager')}"
+														onclick="sendLogPageNavigation( '/manage/competences.xhtml', 'mainmenu');" 
+														value="Manage" 
+														outcome="/manage/competences" />
+												</li>
+												<li>
+													<h:link rendered="#{loggeduser.hasRole('admin')}"
+														onclick="sendLogPageNavigation( '/admin/users.xhtml', 'mainmenu');"
+														value="Admin" 
+														outcome="/admin/users" />
+												</li>
+											</ul>
+										</h:panelGroup>
+										
+										<script>
+											enableDropdown('.navMore');
+										</script>
+									</h:panelGroup>
+								</li>
+							</ul>
+						</h:form>
+						
+						<div id="headerSearch">
+							<ui:include src="/resources/components/globalsearch.xhtml" />
+						</div>
+					</div>
+					
+					<div id="headerRight">
+						<div id="name" class="indexTripStep14 indexTripStep26" position="s">
+							<a class="arrow" href="javascript:void(0);"/>
+								
+							<h:link outcome="/settings" 
+								id="userDetailsMenu"
+								class="avatarNameContainer"
+								onclick="sendLogPageNavigationWithParameters('settings.xhtml',{ context:'mainmenu.name', tab:'profile'});" >
+								<f:param  name="tab" value="profile" />
+								
+								<h:panelGroup id="avatarContainer">
+									<h:graphicImage styleClass="imageRound image30"
+										value="#{profileSettings.accountData.avatarPath}"
+										width="30" height="30" alt="" />
+								</h:panelGroup>
+							
+								<h:panelGroup id="userNameContainer">
+									<h:outputText id="userName" value="#{loggeduser.name} #{loggeduser.lastName}" />
+									<script>
+										$('#userName').shortenedText({
+											mode : 'show-first-word',
+											showChar : 12
+										})
+									</script>
+								</h:panelGroup>
+							</h:link>
+							
+							<div class="dropdown hidden">
+								<ul>
+									<h:form id="userLogoutFormId">
+										<li class="indexTripStep9" position="w">
+											<h:link 
+												onclick="sendLogPageNavigation('diggest.xhtml','mainmenu');" 
+												value="Digest" 
+												outcome="/digest" />
+										</li>
+										<li class="indexTripStep10" position="w">
+											<h:link 
+												onclick="sendLogPageNavigation('communications.xhtml','mainmenu');" 
+												value="Communications" 
+												outcome="/communications" />
+										</li>
+										<li class="indexTripStep11" position="w">
+											<h:link 
+												onclick="sendLogPageNavigation('search.xhtml','mainmenu');" 
+												value="Search" 
+												outcome="/search" />
+										</li>
+										<li class="indexTripStep13" position="w">
+											<h:link 
+												onclick="sendLogPageNavigation('settings.xhtml','mainmenu');" 
+												value="Settings" 
+												outcome="/settings" />
+										</li>
+										<li>
+											<h:commandLink id="userLogout" 
+												value="Logout" 
+												action="#{loggeduser.logout}">
+												<f:ajax listener="#{loggingBean.logPageNavigation(loggeduser.user,'logout')}" />
+											</h:commandLink>
+										</li>
+									</h:form>
+								</ul>
+							</div>
+						</div>
+						
+						<div class="mainMenuButtons">
+							<ui:include	src="/resources/components/topmenunotifications.xhtml" />
+							<ui:include	src="/resources/components/topmenuinbox.xhtml" />
+						</div>
+					</div>
+				</c:if>
+			</div>
+		</div>
+		<!-- #headerWrapper end -->
+
+
+		<ui:insert name="content" />
+		<!-- .container end -->
+		
+		<comp:footer />
+		
+		<div class="bottomToolbar">
+			<a class="playTutorialLink hasTooltip"
+				onclick="if(tutorialControl){tutorialControl.start();}sendServiceUse('TUTORIAL_PLAYED', {context: tutorialControl.page});"
+				title="Play Tutorial" 
+				position="left"></a>
+				
+			<script>
+				$(function(){
+					if (typeof tutorialControl == 'undefined') {
+						$('.bottomToolbar .playTutorialLink').hide();
+					}
+				});
+			</script>
+				
+			<a class="helpLink hasTooltip"
+				onclick="sendLogPageNavigationWithParameters('https://bitbucket.org/prosolo/prosolo/issues', {context: 'floatingSupportIcon'});"
+				title="Support" 
+				position="left" 
+				href="https://bitbucket.org/prosolo/prosolo/issues"></a>
+		</div>
+	</div>
+
+	<ui:include	src="/resources/components/dialogs/goalDetailsDialog.xhtml" />
+	<ui:include src="/resources/components/dialogs/compDetailsDialog.xhtml" />
+	
+	<ui:include	src="/resources/components/dialogs/newDirectMessage.xhtml" />
+	<ui:include	src="/resources/components/dialogs/requestToJoinGoal.xhtml" />
+	<ui:include	src="/resources/components/dialogs/freeJoinGoal.xhtml" />
+
+	<ui:remove>
+		Comment: activityDetails, dlgAnalytics:activity, addToCompetence and addToGoal must be defined in template as 
+		they are used from the goals and competence dialogs
+	</ui:remove>
+	<ui:include src="/resources/components/dialogs/activityDetails.xhtml" />
+	<dlgAnalytics:activity id="actAnalytics" />
+	<ui:include src="/resources/components/dialogs/addToCompetence.xhtml" />
+	<dlg:addToGoal id="addToGoal" />
+	
+	<ui:include	src="/resources/components/dialogs/newPostDialog.xhtml" />
+	<ui:include	src="/resources/components/dialogs/userDetailsData.xhtml" />
+	
+	<ui:include	src="/resources/components/dialogs/peopleListDialog.xhtml" />
+	
+
+	<!-- Adding tooltip all over -->
+	<utilcomp:tooltip target=".hasTooltip[title]" />
+	
+	
+	<ui:include src="/resources/components/dialogs/locationDialog.xhtml" />
+	
+	<div id="loaderOverlay">
+		<span class="text">
+			<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif"/>
+			Please wait, this action is taking some time.
+		</span>
+	</div>
+	
+	<ui:include	src="/resources/components/loggingForm.xhtml" />
+
+	<c:if test="#{loggeduser != null and loggeduser.loggedIn}">
+		<h:form>
+			<!-- If idle 300 seconds, run 'idleDialog' -->
+			<p:idleMonitor timeout="3600000"
+				onidle="sendLogPageNavigation('login.xhtml','SESSIONTIMEOUT');">
+				<p:ajax event="idle" listener="#{loggeduser.logout}"></p:ajax>
+			</p:idleMonitor>
+		</h:form>
+	</c:if>
+	
+	
+</h:body>
+
+</html>

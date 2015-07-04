@@ -1,0 +1,43 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:compcourses="http://java.sun.com/jsf/composite/components/courses"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	template="templates/masterLayout.xhtml"
+	>
+
+	<ui:define name="windowTitle">
+		<utilcomp:messagesBundle var="msg" />
+
+		#{msg['courses.course.pageTitle']} | ProSolo
+	</ui:define>
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewParam name="id" value="#{courseBean.id}" />
+			<f:viewAction action="#{courseBean.init()}" />
+		</f:metadata>
+	</ui:define>
+	
+	<ui:define name="content">
+		<utilcomp:messagesBundle var="msg" />
+	
+		<div id="courses" class="container courses newCourse">
+			<div class="content wide">
+				<compcourses:course id="courseDetails"
+					pageTitle="#{msg['courses.course.pageTitle']}"
+					competences="#{courseBean.course.addedCompetences}"
+					predefinedCompetences="#{courseBean.course.originalCompetences}"
+					courseBean="#{courseBean}"
+					cancelLinkPath="/plan"
+					role="USER"
+					context="plan.course.#{courseBean.course.id}" />
+			</div><!-- .content -->
+		</div><!-- .container end -->
+
+	</ui:define>
+</ui:composition>

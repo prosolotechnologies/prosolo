@@ -1,0 +1,49 @@
+<ui:composition 
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	
+	<utilcomp:messagesBundle var="msg" />
+
+	<div class="notificationsSettings">
+		<h2>Settings: Notifications</h2>
+		<div class="separator clear"></div>
+		
+		<h:form id="notificationsSettingsForm">
+			<p:growl id="notificationsSettingsFormGrowl" showDetail="true" />
+			
+			<div class="infoBlock">
+				<div class="notRow heading">
+					<div class="description">Notification description</div>
+					<div class="ui">ProSolo</div>
+					<div class="email">Email</div>
+				</div>
+				<ui:repeat id="notificationSettings" value="#{notificationsSettingsBean.notificationsSettings.settings}" var="notificationSettings">
+					<div class="notRow">
+						<div class="description">
+							#{msg['settings.notifications.'.concat(notificationSettings.type.name())]}
+						</div>
+						<div class="ui">
+							<label>
+								<h:selectBooleanCheckbox value="#{notificationSettings.subscribedUI}" />
+							</label>
+						</div>
+						<div class="email">
+							<label>
+								<h:selectBooleanCheckbox value="#{notificationSettings.subscribedEmail}" />
+							</label>
+						</div>
+					</div>
+				</ui:repeat>
+			</div>
+			
+			<div class="actions">
+				<p:commandLink styleClass="button size25 green left" value="Save"
+					action="#{notificationsSettingsBean.saveChanges}"
+					update=":notificationsSettingsForm" />
+			</div>
+		</h:form>
+	</div>
+</ui:composition>

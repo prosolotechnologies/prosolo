@@ -1,0 +1,97 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:p="http://primefaces.org/ui">
+
+	<!-- type: Either use Competence or TargetCompetence -->
+
+	<composite:interface>
+		<composite:attribute name="resource" />
+		<composite:attribute name="resourceId" type="java.lang.Long"/>
+		<composite:attribute name="type" /> 
+		<composite:attribute name="toRender" default="true" />
+		<composite:attribute name="styleClass" />
+		<composite:attribute name="title" type="java.lang.String" />
+		<composite:attribute name="onclick" type="java.lang.String" />
+		<composite:attribute name="regionToUpdate" default=":competenceDetailsForm" />
+		<composite:attribute name="context"/>
+		<composite:attribute name="unused" type="java.lang.Boolean" default="false"/>
+		<composite:attribute name="directLink" default="false" />
+		<composite:attribute name="targetGoalId" type="java.lang.Long"/>
+	</composite:interface>
+	
+	<composite:implementation>
+
+		<p:commandLink
+			rendered="#{!cc.attrs.directLink and cc.attrs.toRender and !cc.attrs.unused and cc.attrs.resource != null and cc.attrs.type == 'Competence'}"
+			styleClass="#{cc.attrs.styleClass}"
+			update="#{cc.attrs.regionToUpdate}"
+			action="#{competenceDialog.setCompetence(cc.attrs.resource)}"
+			actionListener="#{loggingBean.logServiceUse('COMPETENCE_DIALOG', 'context', cc.attrs.context, 'action', 'openCompetenceDialog', 'compId', cc.attrs.resource.id)}"
+			onclick='#{cc.attrs.onclick};$("#competenceDetailsFormModalDialog").dialog("open");'>
+			<h:outputText value="#{cc.attrs.title != null ? cc.attrs.title : cc.attrs.resource.title}"/>
+		</p:commandLink>
+		
+		<p:commandLink 
+			rendered="#{!cc.attrs.directLink and cc.attrs.toRender and !cc.attrs.unused and cc.attrs.resource != null and cc.attrs.type == 'TargetCompetence'}"
+			styleClass="#{cc.attrs.styleClass}"
+			update="#{cc.attrs.regionToUpdate}"
+			action="#{competenceDialog.setTargetCompetence(cc.attrs.resource)}"
+			actionListener="#{loggingBean.logServiceUse('COMPETENCE_DIALOG', 'context', cc.attrs.context, 'action', 'openCompetenceDialog', 'targetCompId', cc.attrs.resource.id)}"
+			onclick='#{cc.attrs.onclick};$("#competenceDetailsFormModalDialog").dialog("open");'>
+			<h:outputText value="#{cc.attrs.title != null ? cc.attrs.title : cc.attrs.resource.title}"/>
+		</p:commandLink>
+		
+		<p:commandLink
+			rendered="#{!cc.attrs.directLink and cc.attrs.toRender and !cc.attrs.unused and cc.attrs.resourceId > 0 and cc.attrs.type == 'Competence'}"
+			styleClass="#{cc.attrs.styleClass}"
+			update="#{cc.attrs.regionToUpdate}"
+			action="#{competenceDialog.setCompetenceId(cc.attrs.resourceId)}"
+			actionListener="#{loggingBean.logServiceUse('COMPETENCE_DIALOG', 'context', cc.attrs.context, 'action', 'openCompetenceDialog', 'compId', cc.attrs.resourceId)}"
+			onclick='#{cc.attrs.onclick};$("#competenceDetailsFormModalDialog").dialog("open");'>
+			<h:outputText value="#{cc.attrs.title != null ? cc.attrs.title : cc.attrs.competence.title}"/>
+		</p:commandLink>
+	
+		<p:commandLink 
+			rendered="#{!cc.attrs.directLink and cc.attrs.toRender and !cc.attrs.unused and cc.attrs.resourceId > 0 and cc.attrs.type == 'TargetCompetence'}"
+			styleClass="#{cc.attrs.styleClass}"
+			update="#{cc.attrs.regionToUpdate}"
+			action="#{competenceDialog.setTargetCompetenceId(cc.attrs.resourceId)}"
+			actionListener="#{loggingBean.logServiceUse('COMPETENCE_DIALOG', 'context', cc.attrs.context, 'action', 'openCompetenceDialog', 'targetCompId', cc.attrs.resourceId)}"
+			onclick='#{cc.attrs.onclick};$("#competenceDetailsFormModalDialog").dialog("open");'>
+			<h:outputText value="#{cc.attrs.title != null ? cc.attrs.title : cc.attrs.competence.title}"/>
+		</p:commandLink>
+	
+		<p:commandLink
+			rendered="#{!cc.attrs.directLink and cc.attrs.toRender and cc.attrs.unused and cc.attrs.resource != null and cc.attrs.type == 'Competence'}"
+			styleClass="#{cc.attrs.styleClass}"
+			update="#{cc.attrs.regionToUpdate}"
+			action="#{competenceDialog.setOriginalCompetence(cc.attrs.resource)}"
+			actionListener="#{loggingBean.logServiceUse('COMPETENCE_DIALOG', 'context', cc.attrs.context, 'action', 'openCompetenceDialog', 'compId', cc.attrs.resource.id)}"
+			onclick='#{cc.attrs.onclick};$("#competenceDetailsFormModalDialog").dialog("open");'>
+			<h:outputText value="#{cc.attrs.title != null ? cc.attrs.title : cc.attrs.resource.title}"/>
+		</p:commandLink>
+		
+		<p:commandLink
+			rendered="#{!cc.attrs.directLink and cc.attrs.toRender and cc.attrs.unused and cc.attrs.resourceId > 0 and cc.attrs.type == 'Competence'}"
+			styleClass="#{cc.attrs.styleClass}"
+			update="#{cc.attrs.regionToUpdate}"
+			action="#{competenceDialog.setOriginalCompetenceId(cc.attrs.resourceId)}"
+			actionListener="#{loggingBean.logServiceUse('COMPETENCE_DIALOG', 'context', cc.attrs.context, 'action', 'openCompetenceDialog', 'compId', cc.attrs.resourceId)}"
+			onclick='#{cc.attrs.onclick};$("#competenceDetailsFormModalDialog").dialog("open");'>
+			<h:outputText value="#{cc.attrs.title != null ? cc.attrs.title : cc.attrs.competence.title}"/>
+		</p:commandLink>
+		
+		<h:link 
+			rendered="#{cc.attrs.directLink and cc.attrs.resourceId > 0}"
+			class="#{cc.attrs.styleClass}" 
+			onclick="sendLogPageNavigation('learn.xhtml?comp=#{cc.attrs.resourceId}','#{cc.attrs.context}');" 
+			value="#{cc.attrs.title}" outcome="/learn">
+			<f:param name="id" value="#{cc.attrs.targetGoalId}" />
+			<f:param name="comp" value="#{cc.attrs.resourceId}" />
+		</h:link>
+	
+	</composite:implementation>
+</ui:component>

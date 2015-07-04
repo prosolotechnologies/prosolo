@@ -1,0 +1,37 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:compcompetences="http://java.sun.com/jsf/composite/components/competences"
+	template="templates/masterLayout.xhtml"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:dlgportfolio="http://java.sun.com/jsf/composite/components/dialogs/portfolio">
+
+	<ui:define name="windowTitle">
+		Create Competence
+	</ui:define>
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewParam name="id" value="#{manageCompetenceBean.id}" default="0" />
+			<f:viewParam name="origin" value="#{manageCompetenceBean.origin}" />
+			<f:viewAction action="#{manageCompetenceBean.init}" />
+		</f:metadata>
+	</ui:define>
+
+	<ui:define name="content">
+		<div class="container competence">
+			<div class="content wide">
+				<compcompetences:editCompetence id="managerCreateCompetence"
+					pageTitle="Create/Edit competence" role="MANAGER"
+					courseBean="#{manageCompetenceBean}" />
+
+			</div>
+			<!-- .content -->
+		</div>
+		<!-- .container end -->
+	</ui:define>
+	
+</ui:composition>
