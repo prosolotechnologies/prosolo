@@ -6,10 +6,10 @@ package org.prosolo.web.util.nodes;
 import java.util.Arrays;
 import java.util.List;
 
-import org.prosolo.domainmodel.activities.Activity;
-import org.prosolo.domainmodel.activities.ResourceActivity;
-import org.prosolo.domainmodel.content.ContentType;
-import org.prosolo.domainmodel.content.RichContent;
+import org.prosolo.common.domainmodel.activities.Activity;
+import org.prosolo.common.domainmodel.activities.ResourceActivity;
+import org.prosolo.common.domainmodel.content.ContentType;
+import org.prosolo.common.domainmodel.content.RichContent;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 
 /**

@@ -5,9 +5,9 @@ package org.prosolo.services.twitter;
 
 import java.util.List;
 
-import org.prosolo.domainmodel.user.OauthAccessToken;
-import org.prosolo.domainmodel.user.ServiceType;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.OauthAccessToken;
+import org.prosolo.common.domainmodel.user.ServiceType;
+import org.prosolo.common.domainmodel.user.User;
 
 /**
  * @author "Nikola Milikic"

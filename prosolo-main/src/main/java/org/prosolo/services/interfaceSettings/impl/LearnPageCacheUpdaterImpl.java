@@ -9,8 +9,8 @@ import java.util.Iterator;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.user.LearningGoal;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.LearningGoal;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.interfaceSettings.LearnPageCacheUpdater;
 import org.prosolo.web.activitywall.data.UserData;
 import org.prosolo.web.goals.LearningGoalsBean;

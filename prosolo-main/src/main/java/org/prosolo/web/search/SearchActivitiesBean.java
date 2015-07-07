@@ -8,7 +8,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.component.UIInput;
 import javax.faces.event.ValueChangeEvent;
 
-import org.prosolo.domainmodel.activities.Activity;
+import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.logging.ComponentName;

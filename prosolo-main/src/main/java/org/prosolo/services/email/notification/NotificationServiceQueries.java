@@ -3,7 +3,7 @@ package org.prosolo.services.email.notification;
 import java.util.Collection;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.User;
 
 public class NotificationServiceQueries {
 

@@ -39,7 +39,7 @@ import org.prosolo.services.indexing.ESIndexNames;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.indexing.TikaExtractor;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
-import org.prosolo.domainmodel.organization.VisibilityType;
+import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.springframework.stereotype.Service;
 
 /**

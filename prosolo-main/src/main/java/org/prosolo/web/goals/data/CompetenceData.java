@@ -5,7 +5,7 @@ package org.prosolo.web.goals.data;
 
 import java.io.Serializable;
 
-import org.prosolo.domainmodel.competences.Competence;
+import org.prosolo.common.domainmodel.competences.Competence;
 
 /**
  * @author "Nikola Milikic"

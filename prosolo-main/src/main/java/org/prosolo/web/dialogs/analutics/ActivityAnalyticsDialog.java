@@ -5,7 +5,7 @@ import java.io.Serializable;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.activities.Activity;
+import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.stats.ActivityStatistics;
 import org.prosolo.web.LoggedUserBean;

@@ -1,6 +1,6 @@
 package org.prosolo.services.nodes;
 
-import org.prosolo.domainmodel.workflow.Scale;
+import org.prosolo.common.domainmodel.workflow.Scale;
 import org.prosolo.services.general.AbstractManager;
 
 public interface ScaleManager extends AbstractManager {

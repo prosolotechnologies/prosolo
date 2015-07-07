@@ -10,7 +10,7 @@ import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.organization.Role;
+import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.authentication.exceptions.AuthenticationException;
 import org.prosolo.services.nodes.RoleManager;

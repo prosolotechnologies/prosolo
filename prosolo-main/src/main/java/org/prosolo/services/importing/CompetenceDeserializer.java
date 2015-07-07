@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.activities.CompetenceActivity;
-import org.prosolo.domainmodel.annotation.Tag;
-import org.prosolo.domainmodel.competences.Competence;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.activities.CompetenceActivity;
+import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.competences.Competence;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CompetenceManager;

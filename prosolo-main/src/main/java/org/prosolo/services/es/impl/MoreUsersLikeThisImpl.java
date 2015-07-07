@@ -24,7 +24,7 @@ import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.es.MoreUsersLikeThis;
 import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;

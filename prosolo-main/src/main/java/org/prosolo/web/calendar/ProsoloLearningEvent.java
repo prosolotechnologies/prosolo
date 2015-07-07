@@ -2,7 +2,7 @@ package org.prosolo.web.calendar;
 
 import java.util.Date;
 
-import org.prosolo.domainmodel.general.Node;
+import org.prosolo.common.domainmodel.general.Node;
 
 public class ProsoloLearningEvent extends ProsoloDefaultScheduleEvent {
 	

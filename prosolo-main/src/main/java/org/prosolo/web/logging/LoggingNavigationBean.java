@@ -7,8 +7,8 @@ import java.util.Map;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.activities.events.EventType;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.logging.AccessResolver;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;

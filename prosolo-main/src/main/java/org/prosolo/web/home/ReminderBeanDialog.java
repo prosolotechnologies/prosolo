@@ -6,9 +6,9 @@ import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.general.Node;
-import org.prosolo.domainmodel.user.reminders.Reminder;
-import org.prosolo.domainmodel.user.reminders.ReminderStatus;
+import org.prosolo.common.domainmodel.general.Node;
+import org.prosolo.common.domainmodel.user.reminders.Reminder;
+import org.prosolo.common.domainmodel.user.reminders.ReminderStatus;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.web.LoggedUserBean;

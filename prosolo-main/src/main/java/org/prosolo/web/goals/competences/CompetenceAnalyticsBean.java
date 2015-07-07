@@ -8,8 +8,8 @@ import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.competences.Competence;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.competences.Competence;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.annotation.DislikeManager;
 import org.prosolo.services.annotation.LikeManager;
 import org.prosolo.services.stats.CompetenceAnalytics;

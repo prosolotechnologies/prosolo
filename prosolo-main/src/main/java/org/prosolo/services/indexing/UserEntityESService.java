@@ -1,7 +1,7 @@
 package org.prosolo.services.indexing;
 
 import org.hibernate.Session;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.User;
 
 /**
  * @author Zoran Jeremic 2013-06-29

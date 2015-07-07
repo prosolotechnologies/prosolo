@@ -3,8 +3,8 @@
  */
 package org.prosolo.services.stats;
 
-import org.prosolo.domainmodel.user.LearningGoal;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.LearningGoal;
+import org.prosolo.common.domainmodel.user.User;
 
 /**
  * @author Nikola Milikic

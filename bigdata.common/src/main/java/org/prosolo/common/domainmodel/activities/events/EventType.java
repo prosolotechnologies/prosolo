@@ -86,7 +86,7 @@ public enum EventType {
 	SEND_TO_LEARN, 
 	ACTIVATE_COURSE, 
 	ACTIVITY_REPORT_AVAILABLE, 
-	MENTIONED, UPDATE_HASHTAGS,
+	MENTIONED, UPDATE_HASHTAGS, PostUpdate,
 	;
 	
 	private String customText;

@@ -5,8 +5,8 @@ package org.prosolo.web.courses.data;
 
 import java.io.Serializable;
 
-import org.prosolo.domainmodel.competences.Competence;
-import org.prosolo.domainmodel.course.CourseCompetence;
+import org.prosolo.common.domainmodel.competences.Competence;
+import org.prosolo.common.domainmodel.course.CourseCompetence;
 
 /**
  * @author "Nikola Milikic"

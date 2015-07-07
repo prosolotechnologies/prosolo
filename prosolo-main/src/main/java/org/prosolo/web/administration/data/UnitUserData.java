@@ -3,7 +3,7 @@ package org.prosolo.web.administration.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.prosolo.domainmodel.organization.Unit_User;
+import org.prosolo.common.domainmodel.organization.Unit_User;
 
 public class UnitUserData extends UserData {
 

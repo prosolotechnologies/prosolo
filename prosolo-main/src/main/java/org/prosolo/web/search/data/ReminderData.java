@@ -6,12 +6,12 @@ package org.prosolo.web.search.data;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.prosolo.domainmodel.activities.requests.Request;
-import org.prosolo.domainmodel.user.reminders.EventReminder;
-import org.prosolo.domainmodel.user.reminders.Reminder;
-import org.prosolo.domainmodel.user.reminders.ReminderStatus;
-import org.prosolo.domainmodel.user.reminders.ReminderType;
-import org.prosolo.domainmodel.user.reminders.RequestReminder;
+import org.prosolo.common.domainmodel.activities.requests.Request;
+import org.prosolo.common.domainmodel.user.reminders.EventReminder;
+import org.prosolo.common.domainmodel.user.reminders.Reminder;
+import org.prosolo.common.domainmodel.user.reminders.ReminderStatus;
+import org.prosolo.common.domainmodel.user.reminders.ReminderType;
+import org.prosolo.common.domainmodel.user.reminders.RequestReminder;
 import org.prosolo.web.util.ResourceUtilBean;
 
 /**

@@ -8,11 +8,11 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.domainmodel.activities.events.EventType;
-import org.prosolo.domainmodel.featuredNews.LearningGoalFeaturedNews;
-import org.prosolo.domainmodel.general.BaseEntity;
-import org.prosolo.domainmodel.organization.VisibilityType;
-import org.prosolo.domainmodel.user.LearningGoal;
+import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.featuredNews.LearningGoalFeaturedNews;
+import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.organization.VisibilityType;
+import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.event.ChangeVisibilityEvent;
 import org.prosolo.services.event.Event;

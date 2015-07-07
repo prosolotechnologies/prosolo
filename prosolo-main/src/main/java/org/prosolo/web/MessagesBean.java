@@ -9,8 +9,8 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.user.MessagesThread;
-import org.prosolo.domainmodel.user.SimpleOfflineMessage;
+import org.prosolo.common.domainmodel.user.MessagesThread;
+import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.interaction.MessagingManager;

@@ -7,8 +7,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.prosolo.domainmodel.interfacesettings.NotificationSettings;
-import org.prosolo.domainmodel.interfacesettings.UserNotificationsSettings;
+import org.prosolo.common.domainmodel.interfacesettings.NotificationSettings;
+import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
 
 /**
  * @author "Nikola Milikic"

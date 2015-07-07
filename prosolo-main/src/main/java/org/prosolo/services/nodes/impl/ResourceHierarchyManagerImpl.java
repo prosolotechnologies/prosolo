@@ -3,10 +3,10 @@ package org.prosolo.services.nodes.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.prosolo.domainmodel.activities.Activity;
-import org.prosolo.domainmodel.activities.TargetActivity;
-import org.prosolo.domainmodel.competences.TargetCompetence;
-import org.prosolo.domainmodel.general.Node;
+import org.prosolo.common.domainmodel.activities.Activity;
+import org.prosolo.common.domainmodel.activities.TargetActivity;
+import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.ResourceHierarchyManager;
 import org.springframework.stereotype.Service;

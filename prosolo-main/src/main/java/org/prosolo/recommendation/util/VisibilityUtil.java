@@ -3,8 +3,8 @@
  */
 package org.prosolo.recommendation.util;
 
-import org.prosolo.domainmodel.general.Node;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.general.Node;
+import org.prosolo.common.domainmodel.user.User;
 
 /**
  * @author Nikola Milikic

@@ -6,8 +6,8 @@ import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.course.Course;
-import org.prosolo.domainmodel.course.CourseCompetence;
+import org.prosolo.common.domainmodel.course.Course;
+import org.prosolo.common.domainmodel.course.CourseCompetence;
 import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.rest.courses.CourseParser;

@@ -6,8 +6,8 @@ import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 
-import org.prosolo.domainmodel.activitywall.SocialActivity;
-import org.prosolo.domainmodel.activitywall.SocialStreamSubViewType;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.SocialStreamSubViewType;
 import org.prosolo.search.TextSearch;
 import org.prosolo.services.activityWall.ActivityWallManager;
 import org.prosolo.services.activityWall.impl.ActivityWallManagerImpl.ArrayCount;

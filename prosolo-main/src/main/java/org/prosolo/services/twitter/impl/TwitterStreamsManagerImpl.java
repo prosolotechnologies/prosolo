@@ -12,8 +12,8 @@ import javax.annotation.PostConstruct;
 
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
-import org.prosolo.domainmodel.activities.events.EventType;
-import org.prosolo.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.messaging.SystemMessageDistributer;
 import org.prosolo.services.messaging.data.ServiceType;

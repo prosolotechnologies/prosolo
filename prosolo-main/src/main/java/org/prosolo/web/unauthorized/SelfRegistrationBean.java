@@ -7,11 +7,11 @@ import java.io.IOException;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.app.RegistrationKey;
-import org.prosolo.domainmodel.app.RegistrationType;
-import org.prosolo.domainmodel.organization.Organization;
-import org.prosolo.domainmodel.user.Email;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.app.RegistrationKey;
+import org.prosolo.common.domainmodel.app.RegistrationType;
+import org.prosolo.common.domainmodel.organization.Organization;
+import org.prosolo.common.domainmodel.user.Email;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.authentication.RegistrationManager;
 import org.prosolo.services.email.EmailSenderManager;
 import org.prosolo.services.event.EventException;

@@ -8,11 +8,11 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 
 import org.hibernate.Hibernate;
-import org.prosolo.domainmodel.general.BaseEntity;
-import org.prosolo.domainmodel.general.Node;
-import org.prosolo.domainmodel.user.reminders.EventReminder;
-import org.prosolo.domainmodel.user.reminders.Reminder;
-import org.prosolo.domainmodel.user.reminders.RequestReminder;
+import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.general.Node;
+import org.prosolo.common.domainmodel.user.reminders.EventReminder;
+import org.prosolo.common.domainmodel.user.reminders.Reminder;
+import org.prosolo.common.domainmodel.user.reminders.RequestReminder;
 import org.prosolo.web.util.exceptions.KeyNotFoundInBundleException;
 import org.springframework.stereotype.Component;
 

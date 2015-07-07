@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.domainmodel.annotation.Tag;
-import org.prosolo.domainmodel.organization.VisibilityType;
+import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.recommendation.dal.SearchQueries;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.springframework.stereotype.Service;

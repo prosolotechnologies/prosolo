@@ -2,9 +2,9 @@ package org.prosolo.web.home.data;
 
 import java.io.Serializable;
 
-import org.prosolo.domainmodel.featuredNews.FeaturedNews;
-import org.prosolo.domainmodel.general.Node;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.featuredNews.FeaturedNews;
+import org.prosolo.common.domainmodel.general.Node;
+import org.prosolo.common.domainmodel.user.User;
 
 /*
  * @author Zoran Jeremic 2013-05-23

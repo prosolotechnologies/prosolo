@@ -2,7 +2,7 @@ package org.prosolo.services.importing;
 
 import java.lang.reflect.Type;
 
-import org.prosolo.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.annotation.Tag;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

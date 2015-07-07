@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.prosolo.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.general.BaseEntity;
 
 /**
  * @author Zoran Jeremic 2013-06-30

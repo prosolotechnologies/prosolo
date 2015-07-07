@@ -1,9 +1,9 @@
 package org.prosolo.services.activityWall;
 
 import org.hibernate.Session;
-import org.prosolo.domainmodel.activitywall.SocialActivity;
-import org.prosolo.domainmodel.activitywall.SocialActivityConfig;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.SocialActivityConfig;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
 

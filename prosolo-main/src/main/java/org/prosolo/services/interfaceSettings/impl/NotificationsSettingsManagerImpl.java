@@ -9,10 +9,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.activities.events.EventType;
-import org.prosolo.domainmodel.interfacesettings.NotificationSettings;
-import org.prosolo.domainmodel.interfacesettings.UserNotificationsSettings;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.interfacesettings.NotificationSettings;
+import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;

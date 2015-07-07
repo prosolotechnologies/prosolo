@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-import org.prosolo.domainmodel.user.LearningGoal;
+import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.util.date.DateUtil;
 import org.prosolo.util.nodes.AnnotationUtil;
 import org.prosolo.web.activitywall.data.UserData;

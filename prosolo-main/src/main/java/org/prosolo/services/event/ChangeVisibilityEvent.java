@@ -3,8 +3,8 @@ package org.prosolo.services.event;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 
-import org.prosolo.domainmodel.activities.events.EventType;
-import org.prosolo.domainmodel.organization.VisibilityType;
+import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.organization.VisibilityType;
 
 //@Entity
 public class ChangeVisibilityEvent extends Event {

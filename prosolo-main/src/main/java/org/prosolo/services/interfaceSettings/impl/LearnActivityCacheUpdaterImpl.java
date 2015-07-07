@@ -9,7 +9,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.domainmodel.outcomes.Outcome;
+import org.prosolo.common.domainmodel.outcomes.Outcome;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interfaceSettings.LearnActivityCacheUpdater;
 import org.prosolo.services.nodes.DefaultManager;

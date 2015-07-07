@@ -2,9 +2,9 @@ package org.prosolo.services.indexing;
 
 import java.io.InputStream;
 
-import org.prosolo.domainmodel.activities.TargetActivity;
-import org.prosolo.domainmodel.content.RichContent;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.activities.TargetActivity;
+import org.prosolo.common.domainmodel.content.RichContent;
+import org.prosolo.common.domainmodel.user.User;
 
 /**
  * @author Zoran Jeremic 2013-06-29

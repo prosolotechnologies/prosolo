@@ -3,8 +3,8 @@
  */
 package org.prosolo.web.portfolio.data;
 
-import org.prosolo.domainmodel.portfolio.CompletedGoal;
-import org.prosolo.domainmodel.user.TargetLearningGoal;
+import org.prosolo.common.domainmodel.portfolio.CompletedGoal;
+import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.web.data.GoalData;
 
 /**

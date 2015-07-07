@@ -2,10 +2,10 @@ package org.prosolo.services.importing;
 
 import java.lang.reflect.Type;
 
-import org.prosolo.domainmodel.activities.Activity;
-import org.prosolo.domainmodel.activities.CompetenceActivity;
-import org.prosolo.domainmodel.activities.ResourceActivity;
-import org.prosolo.domainmodel.activities.UploadAssignmentActivity;
+import org.prosolo.common.domainmodel.activities.Activity;
+import org.prosolo.common.domainmodel.activities.CompetenceActivity;
+import org.prosolo.common.domainmodel.activities.ResourceActivity;
+import org.prosolo.common.domainmodel.activities.UploadAssignmentActivity;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.nodes.DefaultManager;
 

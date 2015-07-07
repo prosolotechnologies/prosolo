@@ -5,12 +5,12 @@ import java.util.List;
 import java.util.Set;
 
 import org.hibernate.Session;
-import org.prosolo.domainmodel.activitywall.SocialActivity;
-import org.prosolo.domainmodel.activitywall.SocialStreamSubView;
-import org.prosolo.domainmodel.activitywall.SocialStreamSubViewType;
-import org.prosolo.domainmodel.annotation.Tag;
-import org.prosolo.domainmodel.general.Node;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.SocialStreamSubView;
+import org.prosolo.common.domainmodel.activitywall.SocialStreamSubViewType;
+import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.general.Node;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.activityWall.impl.data.HashtagInterest;
 
 public interface ActivityWallFactory {

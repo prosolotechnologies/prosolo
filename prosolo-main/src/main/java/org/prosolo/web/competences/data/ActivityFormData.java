@@ -2,9 +2,9 @@ package org.prosolo.web.competences.data;
 
 import java.io.Serializable;
 
-import org.prosolo.domainmodel.activities.ExternalToolActivity;
-import org.prosolo.domainmodel.activities.ResourceActivity;
-import org.prosolo.domainmodel.activities.UploadAssignmentActivity;
+import org.prosolo.common.domainmodel.activities.ExternalToolActivity;
+import org.prosolo.common.domainmodel.activities.ResourceActivity;
+import org.prosolo.common.domainmodel.activities.UploadAssignmentActivity;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.activitywall.data.AttachmentPreview;
 

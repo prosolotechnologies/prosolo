@@ -5,9 +5,9 @@ package org.prosolo.web.search.data;
 
 import java.io.Serializable;
 
-import org.prosolo.domainmodel.activities.Activity;
-import org.prosolo.domainmodel.activities.ResourceActivity;
-import org.prosolo.domainmodel.content.RichContent;
+import org.prosolo.common.domainmodel.activities.Activity;
+import org.prosolo.common.domainmodel.activities.ResourceActivity;
+import org.prosolo.common.domainmodel.content.RichContent;
 import org.prosolo.web.activitywall.data.UserData;
 
 /**

@@ -5,8 +5,8 @@ import java.io.Serializable;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.activitywall.SocialActivity;
-import org.prosolo.domainmodel.activitywall.SocialStreamSubViewType;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.SocialStreamSubViewType;
 import org.prosolo.services.activityWall.ActivityWallManager;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
 import org.prosolo.services.annotation.DislikeManager;

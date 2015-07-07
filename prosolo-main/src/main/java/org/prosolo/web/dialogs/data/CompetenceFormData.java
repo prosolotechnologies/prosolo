@@ -7,10 +7,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.prosolo.domainmodel.annotation.Tag;
-import org.prosolo.domainmodel.competences.Competence;
-import org.prosolo.domainmodel.competences.TargetCompetence;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.competences.Competence;
+import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.util.nodes.AnnotationUtil;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.goals.data.CompetenceAnalyticsData;

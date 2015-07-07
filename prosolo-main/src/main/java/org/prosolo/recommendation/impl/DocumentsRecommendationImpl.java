@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.user.TargetLearningGoal;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.TargetLearningGoal;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.recommendation.DocumentsRecommendation;
 import org.prosolo.services.es.MoreDocumentsLikeThis;
 import org.prosolo.similarity.ResourceTokenizer;

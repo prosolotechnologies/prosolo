@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <class-diagram version="1.1.5" icons="true" automaticImage="PNG" always-add-relationships="false" generalizations="true" 
   realizations="true" associations="true" dependencies="true" nesting-relationships="true">  
-  <class id="1" language="java" name="org.prosolo.domainmodel.workflow.evaluation.EvaluationSubmission" 
+  <class id="1" language="java" name="org.prosolo.common.domainmodel.workflow.evaluation.EvaluationSubmission" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/workflow/evaluation/EvaluationSubmission.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -12,7 +12,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="2" language="java" name="org.prosolo.domainmodel.workflow.evaluation.TargetLearningGoalEvaluation" 
+  <class id="2" language="java" name="org.prosolo.common.domainmodel.workflow.evaluation.TargetLearningGoalEvaluation" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/workflow/evaluation/TargetLearningGoalEvaluation.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -23,7 +23,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="3" language="java" name="org.prosolo.domainmodel.workflow.evaluation.AchievedCompetenceEvaluation" 
+  <class id="3" language="java" name="org.prosolo.common.domainmodel.workflow.evaluation.AchievedCompetenceEvaluation" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/workflow/evaluation/AchievedCompetenceEvaluation.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -34,7 +34,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="4" language="java" name="org.prosolo.domainmodel.workflow.evaluation.Badge" project="pro-development" 
+  <class id="4" language="java" name="org.prosolo.common.domainmodel.workflow.evaluation.Badge" project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/workflow/evaluation/Badge.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="77" width="199" x="45" y="568"/>    
@@ -44,7 +44,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="5" language="java" name="org.prosolo.domainmodel.workflow.evaluation.Evaluation" 
+  <class id="5" language="java" name="org.prosolo.common.domainmodel.workflow.evaluation.Evaluation" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/workflow/evaluation/Evaluation.java" binary="false" 
     corner="BOTTOM_RIGHT">    
@@ -55,7 +55,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="6" language="java" name="org.prosolo.domainmodel.workflow.evaluation.TargetCompetenceEvaluation" 
+  <class id="6" language="java" name="org.prosolo.common.domainmodel.workflow.evaluation.TargetCompetenceEvaluation" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/workflow/evaluation/TargetCompetenceEvaluation.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -66,7 +66,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <enumeration id="7" language="java" name="org.prosolo.domainmodel.workflow.evaluation.BadgeType" 
+  <enumeration id="7" language="java" name="org.prosolo.common.domainmodel.workflow.evaluation.BadgeType" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/workflow/evaluation/BadgeType.java" binary="false" 
     corner="BOTTOM_RIGHT">    
@@ -77,7 +77,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </enumeration>  
-  <enumeration id="8" language="java" name="org.prosolo.domainmodel.workflow.evaluation.Status" 
+  <enumeration id="8" language="java" name="org.prosolo.common.domainmodel.workflow.evaluation.Status" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/workflow/evaluation/Status.java" binary="false" 
     corner="BOTTOM_RIGHT">    
@@ -88,7 +88,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </enumeration>  
-  <class id="9" language="java" name="org.prosolo.domainmodel.workflow.evaluation.ExternalCreditEvaluation" 
+  <class id="9" language="java" name="org.prosolo.common.domainmodel.workflow.evaluation.ExternalCreditEvaluation" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/workflow/evaluation/ExternalCreditEvaluation.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -99,7 +99,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="10" language="java" name="org.prosolo.domainmodel.general.BaseEntity" project="pro-development" 
+  <class id="10" language="java" name="org.prosolo.common.domainmodel.general.BaseEntity" project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/general/BaseEntity.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="167" width="147" x="641" y="361"/>    

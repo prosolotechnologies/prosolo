@@ -3,10 +3,10 @@ package org.prosolo.services.nodes;
 import java.util.Collection;
 import java.util.List;
 
-import org.prosolo.domainmodel.organization.Organization;
-import org.prosolo.domainmodel.organization.OrganizationalUnit;
-import org.prosolo.domainmodel.organization.Role;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.organization.Organization;
+import org.prosolo.common.domainmodel.organization.OrganizationalUnit;
+import org.prosolo.common.domainmodel.organization.Role;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.general.AbstractManager;
 
 public interface OrganizationManager extends AbstractManager {

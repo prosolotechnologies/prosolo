@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import org.prosolo.domainmodel.competences.Competence;
-import org.prosolo.domainmodel.portfolio.AchievedCompetence;
-import org.prosolo.domainmodel.portfolio.ExternalCredit;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.competences.Competence;
+import org.prosolo.common.domainmodel.portfolio.AchievedCompetence;
+import org.prosolo.common.domainmodel.portfolio.ExternalCredit;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.nodes.BadgeManager;
 import org.prosolo.services.nodes.EvaluationManager;
 import org.prosolo.web.dialogs.data.ExternalCreditData;

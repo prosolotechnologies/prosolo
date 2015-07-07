@@ -2,8 +2,8 @@ package org.prosolo.services.nodes;
 
 import java.util.List;
 
-import org.prosolo.domainmodel.organization.Role;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.organization.Role;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.AbstractManager;
 

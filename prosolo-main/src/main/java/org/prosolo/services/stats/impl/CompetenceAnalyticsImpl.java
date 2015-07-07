@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.stats.CompetenceAnalytics;
 import org.springframework.stereotype.Service;

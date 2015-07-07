@@ -5,11 +5,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import org.prosolo.domainmodel.competences.Competence;
-import org.prosolo.domainmodel.competences.TargetCompetence;
-import org.prosolo.domainmodel.portfolio.AchievedCompetence;
-import org.prosolo.domainmodel.user.TargetLearningGoal;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.competences.Competence;
+import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.portfolio.AchievedCompetence;
+import org.prosolo.common.domainmodel.user.TargetLearningGoal;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.recommendation.CompetenceRecommendation;
 import org.prosolo.services.es.MoreNodesLikeThis;
 import org.prosolo.services.nodes.PortfolioManager;

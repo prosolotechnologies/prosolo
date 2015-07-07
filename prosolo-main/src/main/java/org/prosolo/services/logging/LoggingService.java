@@ -5,8 +5,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.prosolo.domainmodel.activities.events.EventType;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.activityreport.LoggedEvent;
 import org.prosolo.services.logging.exception.LoggingException;
 

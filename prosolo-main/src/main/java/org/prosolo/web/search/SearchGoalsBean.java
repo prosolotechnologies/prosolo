@@ -10,8 +10,8 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.event.ValueChangeEvent;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.user.LearningGoal;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.LearningGoal;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;

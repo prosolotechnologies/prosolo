@@ -11,7 +11,7 @@ import javax.faces.event.ValueChangeEvent;
 
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
-import org.prosolo.domainmodel.competences.Competence;
+import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.nodes.CompetenceManager;

@@ -6,8 +6,8 @@ package org.prosolo.services.email;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.prosolo.domainmodel.user.Email;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.Email;
+import org.prosolo.common.domainmodel.user.User;
 
 /**
  * @author "Nikola Milikic"

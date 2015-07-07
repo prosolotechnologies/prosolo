@@ -3,11 +3,11 @@ package org.prosolo.services.feeds;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.prosolo.domainmodel.feeds.CourseRSSFeedsDigest;
-import org.prosolo.domainmodel.feeds.CourseTwitterHashtagsFeedsDigest;
-import org.prosolo.domainmodel.feeds.FriendsRSSFeedsDigest;
-import org.prosolo.domainmodel.feeds.SubscribedRSSFeedsDigest;
-import org.prosolo.domainmodel.feeds.SubscribedTwitterHashtagsFeedsDigest;
+import org.prosolo.common.domainmodel.feeds.CourseRSSFeedsDigest;
+import org.prosolo.common.domainmodel.feeds.CourseTwitterHashtagsFeedsDigest;
+import org.prosolo.common.domainmodel.feeds.FriendsRSSFeedsDigest;
+import org.prosolo.common.domainmodel.feeds.SubscribedRSSFeedsDigest;
+import org.prosolo.common.domainmodel.feeds.SubscribedTwitterHashtagsFeedsDigest;
 import org.prosolo.web.digest.FilterOption;
 
 /**

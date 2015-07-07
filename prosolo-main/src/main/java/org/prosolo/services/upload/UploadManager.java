@@ -6,7 +6,7 @@ package org.prosolo.services.upload;
 import java.io.IOException;
 
 import org.primefaces.model.UploadedFile;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.web.activitywall.data.AttachmentPreview;
 
 /**

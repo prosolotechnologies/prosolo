@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.prosolo.domainmodel.user.User;
-import org.prosolo.domainmodel.workflow.LearningPlan;
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.workflow.LearningPlan;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 
 public class AppendedLearningPlanData implements Serializable {

@@ -5,12 +5,12 @@ import java.io.Serializable;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.competences.TargetCompetence;
-import org.prosolo.domainmodel.organization.VisibilityType;
-import org.prosolo.domainmodel.organization.Visible;
-import org.prosolo.domainmodel.portfolio.AchievedCompetence;
-import org.prosolo.domainmodel.portfolio.ExternalCredit;
-import org.prosolo.domainmodel.user.TargetLearningGoal;
+import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.organization.VisibilityType;
+import org.prosolo.common.domainmodel.organization.Visible;
+import org.prosolo.common.domainmodel.portfolio.AchievedCompetence;
+import org.prosolo.common.domainmodel.portfolio.ExternalCredit;
+import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.nodes.DefaultManager;

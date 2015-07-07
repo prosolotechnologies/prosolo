@@ -3,12 +3,12 @@ package org.prosolo.web.activitywall.util;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.activities.TargetActivity;
-import org.prosolo.domainmodel.competences.TargetCompetence;
-import org.prosolo.domainmodel.general.BaseEntity;
-import org.prosolo.domainmodel.general.Node;
-import org.prosolo.domainmodel.organization.VisibilityType;
-import org.prosolo.domainmodel.user.TargetLearningGoal;
+import org.prosolo.common.domainmodel.activities.TargetActivity;
+import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.general.Node;
+import org.prosolo.common.domainmodel.organization.VisibilityType;
+import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
  
 

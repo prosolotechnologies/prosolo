@@ -5,12 +5,12 @@ import java.util.List;
 import java.util.Set;
 
 import org.hibernate.Session;
-import org.prosolo.domainmodel.activitywall.SocialActivity;
-import org.prosolo.domainmodel.annotation.Tag;
-import org.prosolo.domainmodel.content.Post;
-import org.prosolo.domainmodel.interfacesettings.FilterType;
-import org.prosolo.domainmodel.user.TargetLearningGoal;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity;
+import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.content.Post;
+import org.prosolo.common.domainmodel.interfacesettings.FilterType;
+import org.prosolo.common.domainmodel.user.TargetLearningGoal;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.activityWall.filters.Filter;
 import org.prosolo.services.activityWall.impl.ActivityWallManagerImpl.ArrayCount;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;

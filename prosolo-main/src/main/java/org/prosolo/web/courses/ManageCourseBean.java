@@ -15,12 +15,12 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.activities.events.EventType;
-import org.prosolo.domainmodel.annotation.Tag;
-import org.prosolo.domainmodel.competences.Competence;
-import org.prosolo.domainmodel.course.Course;
-import org.prosolo.domainmodel.course.CourseCompetence;
-import org.prosolo.domainmodel.course.CreatorType;
+import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.competences.Competence;
+import org.prosolo.common.domainmodel.course.Course;
+import org.prosolo.common.domainmodel.course.CourseCompetence;
+import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.search.TextSearch;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.event.EventException;

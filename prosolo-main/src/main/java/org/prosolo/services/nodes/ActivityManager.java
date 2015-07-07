@@ -4,12 +4,12 @@ import java.util.Collection;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.prosolo.domainmodel.activities.Activity;
-import org.prosolo.domainmodel.activities.TargetActivity;
-import org.prosolo.domainmodel.annotation.Tag;
-import org.prosolo.domainmodel.organization.VisibilityType;
-import org.prosolo.domainmodel.outcomes.Outcome;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.activities.Activity;
+import org.prosolo.common.domainmodel.activities.TargetActivity;
+import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.organization.VisibilityType;
+import org.prosolo.common.domainmodel.outcomes.Outcome;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.AbstractManager;

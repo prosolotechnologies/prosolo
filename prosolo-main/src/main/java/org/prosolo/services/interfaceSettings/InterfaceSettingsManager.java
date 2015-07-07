@@ -4,9 +4,9 @@
 package org.prosolo.services.interfaceSettings;
 
 import org.hibernate.Session;
-import org.prosolo.domainmodel.interfacesettings.FilterType;
-import org.prosolo.domainmodel.interfacesettings.UserSettings;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.interfacesettings.FilterType;
+import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.general.AbstractManager;
 
 /**

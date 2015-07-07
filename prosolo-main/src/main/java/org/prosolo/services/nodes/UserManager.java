@@ -4,11 +4,11 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 
-import org.prosolo.domainmodel.annotation.Tag;
-import org.prosolo.domainmodel.organization.Organization;
-import org.prosolo.domainmodel.user.Email;
-import org.prosolo.domainmodel.user.User;
-import org.prosolo.domainmodel.user.preferences.UserPreference;
+import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.organization.Organization;
+import org.prosolo.common.domainmodel.user.Email;
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.preferences.UserPreference;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.AbstractManager;

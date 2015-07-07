@@ -5,8 +5,8 @@ package org.prosolo.web.digest.data;
 
 import java.io.Serializable;
 
-import org.prosolo.domainmodel.activitywall.TwitterPostSocialActivity;
-import org.prosolo.domainmodel.feeds.FeedEntry;
+import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
+import org.prosolo.common.domainmodel.feeds.FeedEntry;
 import org.prosolo.util.date.DateUtil;
 import org.prosolo.web.activitywall.data.UserData;
 

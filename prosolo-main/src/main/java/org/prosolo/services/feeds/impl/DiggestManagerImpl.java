@@ -7,8 +7,8 @@ import java.util.Collection;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.course.Course;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.course.Course;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.feeds.DiggestManager;
 import org.prosolo.services.feeds.FeedsAgregator;
 import org.prosolo.services.feeds.FeedsManager;

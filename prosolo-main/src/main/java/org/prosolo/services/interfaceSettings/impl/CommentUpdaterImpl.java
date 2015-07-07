@@ -8,10 +8,10 @@ import java.io.Serializable;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.activities.Activity;
-import org.prosolo.domainmodel.activitywall.SocialActivity;
-import org.prosolo.domainmodel.activitywall.comments.Comment;
-import org.prosolo.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.activities.Activity;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.comments.Comment;
+import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interfaceSettings.CommentUpdater;

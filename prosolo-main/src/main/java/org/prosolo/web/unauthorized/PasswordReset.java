@@ -7,7 +7,7 @@ import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.authentication.PasswordResetManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.util.PageUtil;

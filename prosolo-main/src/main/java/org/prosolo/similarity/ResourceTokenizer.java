@@ -1,9 +1,9 @@
 package org.prosolo.similarity;
 
-import org.prosolo.domainmodel.competences.TargetCompetence;
-import org.prosolo.domainmodel.course.Course;
-import org.prosolo.domainmodel.user.TargetLearningGoal;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.course.Course;
+import org.prosolo.common.domainmodel.user.TargetLearningGoal;
+import org.prosolo.common.domainmodel.user.User;
 
 public interface ResourceTokenizer {
 	

@@ -6,8 +6,8 @@ package org.prosolo.web.goals.data;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.prosolo.domainmodel.competences.TargetCompetence;
-import org.prosolo.domainmodel.organization.VisibilityType;
+import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.web.goals.cache.ActionDisabledReason;
 
 /**

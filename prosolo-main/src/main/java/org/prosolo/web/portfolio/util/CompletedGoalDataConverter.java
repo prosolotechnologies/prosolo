@@ -6,8 +6,8 @@ package org.prosolo.web.portfolio.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.prosolo.domainmodel.portfolio.CompletedGoal;
-import org.prosolo.domainmodel.user.TargetLearningGoal;
+import org.prosolo.common.domainmodel.portfolio.CompletedGoal;
+import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.services.nodes.BadgeManager;
 import org.prosolo.services.nodes.EvaluationManager;
 import org.prosolo.util.date.DateUtil;

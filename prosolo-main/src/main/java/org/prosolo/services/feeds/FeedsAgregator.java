@@ -2,8 +2,8 @@ package org.prosolo.services.feeds;
 
 import java.util.Date;
 
-import org.prosolo.domainmodel.course.Course;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.course.Course;
+import org.prosolo.common.domainmodel.user.User;
 
 /**
  * @author Zoran Jeremic 2013-08-17

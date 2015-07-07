@@ -7,8 +7,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.prosolo.domainmodel.activities.events.EventType;
-import org.prosolo.domainmodel.general.Node;
+import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.util.date.TimeFrame;
 
 /**

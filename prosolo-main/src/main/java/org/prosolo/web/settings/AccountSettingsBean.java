@@ -11,8 +11,8 @@ import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.user.Email;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.Email;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.settings.data.AccountData;

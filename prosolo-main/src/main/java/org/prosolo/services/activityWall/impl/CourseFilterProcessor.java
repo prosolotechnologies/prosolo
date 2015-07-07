@@ -1,15 +1,15 @@
 package org.prosolo.services.activityWall.impl;
 
-import org.prosolo.domainmodel.activities.TargetActivity;
-import org.prosolo.domainmodel.activitywall.SocialActivity;
-import org.prosolo.domainmodel.annotation.Tag;
-import org.prosolo.domainmodel.competences.TargetCompetence;
-import org.prosolo.domainmodel.general.BaseEntity;
-import org.prosolo.domainmodel.interfacesettings.FilterType;
-import org.prosolo.domainmodel.organization.VisibilityType;
-import org.prosolo.domainmodel.user.LearningGoal;
-import org.prosolo.domainmodel.user.TargetLearningGoal;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.activities.TargetActivity;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity;
+import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.interfacesettings.FilterType;
+import org.prosolo.common.domainmodel.organization.VisibilityType;
+import org.prosolo.common.domainmodel.user.LearningGoal;
+import org.prosolo.common.domainmodel.user.TargetLearningGoal;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.activityWall.SocialActivityFilterProcessor;
 import org.prosolo.services.activityWall.filters.CourseFilter;

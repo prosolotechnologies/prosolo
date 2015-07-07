@@ -8,8 +8,8 @@ import java.sql.Timestamp;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.user.LearningGoal;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.LearningGoal;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.stats.LearningGoalStatistics;
 import org.springframework.stereotype.Service;

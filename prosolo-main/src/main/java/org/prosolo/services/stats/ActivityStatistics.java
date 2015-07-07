@@ -3,7 +3,7 @@
  */
 package org.prosolo.services.stats;
 
-import org.prosolo.domainmodel.activities.Activity;
+import org.prosolo.common.domainmodel.activities.Activity;
 
 /**
  * @author Nikola Milikic

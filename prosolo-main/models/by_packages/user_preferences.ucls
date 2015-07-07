@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <class-diagram version="1.1.5" icons="true" automaticImage="PNG" always-add-relationships="false" generalizations="true" 
   realizations="true" associations="true" dependencies="true" nesting-relationships="true">  
-  <class id="1" language="java" name="org.prosolo.domainmodel.user.preferences.RecommendationPreferences" 
+  <class id="1" language="java" name="org.prosolo.common.domainmodel.user.preferences.RecommendationPreferences" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/preferences/RecommendationPreferences.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -12,7 +12,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="2" language="java" name="org.prosolo.domainmodel.user.preferences.FeedsPreferences" 
+  <class id="2" language="java" name="org.prosolo.common.domainmodel.user.preferences.FeedsPreferences" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/preferences/FeedsPreferences.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -23,7 +23,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="3" language="java" name="org.prosolo.domainmodel.user.preferences.EmailPreferences" 
+  <class id="3" language="java" name="org.prosolo.common.domainmodel.user.preferences.EmailPreferences" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/preferences/EmailPreferences.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -34,7 +34,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="4" language="java" name="org.prosolo.domainmodel.user.preferences.UserPreferences" 
+  <class id="4" language="java" name="org.prosolo.common.domainmodel.user.preferences.UserPreferences" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/preferences/UserPreferences.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -45,7 +45,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="5" language="java" name="org.prosolo.domainmodel.user.preferences.TopicPreference" 
+  <class id="5" language="java" name="org.prosolo.common.domainmodel.user.preferences.TopicPreference" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/preferences/TopicPreference.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -56,7 +56,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="6" language="java" name="org.prosolo.domainmodel.general.BaseEntity" project="pro-development" 
+  <class id="6" language="java" name="org.prosolo.common.domainmodel.general.BaseEntity" project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/general/BaseEntity.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="167" width="147" x="426" y="37"/>    

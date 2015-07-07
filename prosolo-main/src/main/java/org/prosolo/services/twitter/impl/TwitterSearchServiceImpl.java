@@ -1,9 +1,9 @@
 package org.prosolo.services.twitter.impl;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.user.OauthAccessToken;
-import org.prosolo.domainmodel.user.ServiceType;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.OauthAccessToken;
+import org.prosolo.common.domainmodel.user.ServiceType;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.twitter.TwitterApiManager;

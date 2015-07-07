@@ -7,7 +7,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.dal.pojo.ActivityAccessCount;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
-import org.prosolo.domainmodel.activities.Activity;
+import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.recommendation.ActivityRecommender;
 import org.prosolo.services.es.ESAssociationRulesSearch;
 import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;

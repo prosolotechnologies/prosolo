@@ -3,7 +3,7 @@
  */
 package org.prosolo.services.exceptions;
 
-import org.prosolo.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.general.BaseEntity;
 
 /**
  * @author Nikola Milikic

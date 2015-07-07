@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.prosolo.domainmodel.competences.TargetCompetence;
-import org.prosolo.domainmodel.portfolio.AchievedCompetence;
+import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.portfolio.AchievedCompetence;
 import org.prosolo.services.nodes.BadgeManager;
 import org.prosolo.services.nodes.EvaluationManager;
 import org.prosolo.util.date.DateUtil;

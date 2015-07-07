@@ -6,11 +6,11 @@ package org.prosolo.services.nodes.impl;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.activities.Recommendation;
-import org.prosolo.domainmodel.activities.RecommendationType;
-import org.prosolo.domainmodel.activities.events.EventType;
-import org.prosolo.domainmodel.general.Node;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.activities.Recommendation;
+import org.prosolo.common.domainmodel.activities.RecommendationType;
+import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.general.Node;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;

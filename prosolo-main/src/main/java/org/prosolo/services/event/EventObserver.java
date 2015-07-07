@@ -3,8 +3,8 @@
  */
 package org.prosolo.services.event;
 
-import org.prosolo.domainmodel.activities.events.EventType;
-import org.prosolo.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.general.BaseEntity;
 
 /**
  * This interface should be implemented by class which would like to be able to

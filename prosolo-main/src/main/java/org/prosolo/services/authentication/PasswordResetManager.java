@@ -3,7 +3,7 @@
  */
 package org.prosolo.services.authentication;
 
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.authentication.exceptions.ResetKeyDoesNotExistException;
 import org.prosolo.services.authentication.exceptions.ResetKeyExpiredException;
 import org.prosolo.services.authentication.exceptions.ResetKeyInvalidatedException;

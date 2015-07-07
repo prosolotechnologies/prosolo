@@ -3,8 +3,8 @@ package org.prosolo.services.importing;
 import java.lang.reflect.Type;
 import java.util.Date;
 
-import org.prosolo.domainmodel.course.Course;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.course.Course;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.core.hibernate.HibernateUtil;
 
 import com.google.gson.JsonElement;

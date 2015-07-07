@@ -2,10 +2,10 @@ package org.prosolo.recommendation;
 
 import java.util.List;
 
-import org.prosolo.domainmodel.competences.Competence;
-import org.prosolo.domainmodel.competences.TargetCompetence;
-import org.prosolo.domainmodel.user.User;
-import org.prosolo.domainmodel.workflow.LearningPlan;
+import org.prosolo.common.domainmodel.competences.Competence;
+import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.workflow.LearningPlan;
 
 public interface LearningPlanRecommendation {
 

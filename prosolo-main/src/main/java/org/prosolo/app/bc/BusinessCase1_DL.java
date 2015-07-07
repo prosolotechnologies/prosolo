@@ -8,22 +8,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.prosolo.domainmodel.activities.ResourceActivity;
-import org.prosolo.domainmodel.annotation.Tag;
-import org.prosolo.domainmodel.annotation.UserRating;
-import org.prosolo.domainmodel.organization.Organization;
-import org.prosolo.domainmodel.organization.OrganizationalPosition;
-import org.prosolo.domainmodel.organization.OrganizationalUnit;
-import org.prosolo.domainmodel.organization.Role;
-import org.prosolo.domainmodel.organization.VisibilityType;
-import org.prosolo.domainmodel.user.FollowedEntity;
-import org.prosolo.domainmodel.user.FollowedUserEntity;
-import org.prosolo.domainmodel.user.LearningGoal;
-import org.prosolo.domainmodel.user.TimeFrame;
-import org.prosolo.domainmodel.user.User;
-import org.prosolo.domainmodel.user.preferences.EmailPreferences;
-import org.prosolo.domainmodel.user.preferences.TopicPreference;
-import org.prosolo.domainmodel.workflow.Scale;
+import org.prosolo.common.domainmodel.activities.ResourceActivity;
+import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.annotation.UserRating;
+import org.prosolo.common.domainmodel.organization.Organization;
+import org.prosolo.common.domainmodel.organization.OrganizationalPosition;
+import org.prosolo.common.domainmodel.organization.OrganizationalUnit;
+import org.prosolo.common.domainmodel.organization.Role;
+import org.prosolo.common.domainmodel.organization.VisibilityType;
+import org.prosolo.common.domainmodel.user.FollowedEntity;
+import org.prosolo.common.domainmodel.user.FollowedUserEntity;
+import org.prosolo.common.domainmodel.user.LearningGoal;
+import org.prosolo.common.domainmodel.user.TimeFrame;
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.preferences.EmailPreferences;
+import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
+import org.prosolo.common.domainmodel.workflow.Scale;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.nodes.DefaultManager;
@@ -809,7 +809,7 @@ public class BusinessCase1_DL extends BusinessCase {
 //			softwConstrCompTCDD.setMaker(sonjaRadenkovic);
 //			softwConstrCompTCDD = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(softwConstrCompTCDD);
 //			
-//			org.prosolo.domainmodel.user.TargetCompetence dlTC3=mapTargetCompetence(softwConstrCompTCDD);
+//			org.prosolo.common.domainmodel.user.TargetCompetence dlTC3=mapTargetCompetence(softwConstrCompTCDD);
  
 //			LearningPlan scrltVDx=nodeCloneManager.cloneToReusedLearningTask(softwEngLP, draganDjuric);
 //			scrltVDx.addTag(getTag("Software quality"));
@@ -834,7 +834,7 @@ public class BusinessCase1_DL extends BusinessCase {
 //			softwConstrCompTCVD.setMaker(draganDjuric);
 //			softwConstrCompTCVD = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(softwConstrCompTCVD);
 //			
-//			org.prosolo.domainmodel.user.TargetCompetence dlTC4=mapTargetCompetence(softwConstrCompTCVD);
+//			org.prosolo.common.domainmodel.user.TargetCompetence dlTC4=mapTargetCompetence(softwConstrCompTCVD);
 			
 			ResourceActivity softwConstrBasics2 = new ResourceActivity();
 			softwConstrBasics2.setTitle("Software design strategies - introduction");
@@ -899,7 +899,7 @@ public class BusinessCase1_DL extends BusinessCase {
 //			softwConstrCompTCDD2.setMaker(jelenaJovanovic);
 //			softwConstrCompTCDD2 = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(softwConstrCompTCDD2);
 //			
-//			org.prosolo.domainmodel.user.TargetCompetence dlTC5=mapTargetCompetence(softwConstrCompTCDD2);
+//			org.prosolo.common.domainmodel.user.TargetCompetence dlTC5=mapTargetCompetence(softwConstrCompTCDD2);
  
 //			LearningPlan scrltDD3 = nodeCloneManager.cloneToReusedLearningTask(softwConstrLP, zoranJeremic);
 //			scrltDD3.addTag(getTag("Software quality"));
@@ -928,7 +928,7 @@ public class BusinessCase1_DL extends BusinessCase {
 //			softwConstrCompTCDD3 = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(softwConstrCompTCDD3);
 			//C1.1: Ability to develop complex software systems - ENDS
 			
-//			org.prosolo.domainmodel.user.TargetCompetence dlTC6=mapTargetCompetence(softwConstrCompTCDD3);
+//			org.prosolo.common.domainmodel.user.TargetCompetence dlTC6=mapTargetCompetence(softwConstrCompTCDD3);
 			
 			//C2: Ability to formalize domain model using OWL ontology language - BEGINS
 //			Competence owlModelingComp = new Competence();

@@ -3,8 +3,8 @@ package org.prosolo.services.logging;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.activities.events.EventType;
-import org.prosolo.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;

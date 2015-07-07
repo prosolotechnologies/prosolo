@@ -3,10 +3,10 @@
  */
 package org.prosolo.services.nodes;
 
-import org.prosolo.domainmodel.activities.Recommendation;
-import org.prosolo.domainmodel.activities.RecommendationType;
-import org.prosolo.domainmodel.general.Node;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.activities.Recommendation;
+import org.prosolo.common.domainmodel.activities.RecommendationType;
+import org.prosolo.common.domainmodel.general.Node;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.web.home.data.RecommendationData;
 

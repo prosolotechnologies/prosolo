@@ -14,12 +14,12 @@ import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.domainmodel.activities.events.EventType;
-import org.prosolo.domainmodel.course.Course;
-import org.prosolo.domainmodel.course.CourseEnrollment;
-import org.prosolo.domainmodel.course.CoursePortfolio;
-import org.prosolo.domainmodel.course.Status;
-import org.prosolo.domainmodel.user.TargetLearningGoal;
+import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.course.Course;
+import org.prosolo.common.domainmodel.course.CourseEnrollment;
+import org.prosolo.common.domainmodel.course.CoursePortfolio;
+import org.prosolo.common.domainmodel.course.Status;
+import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.search.TextSearch;

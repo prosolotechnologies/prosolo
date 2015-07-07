@@ -3,10 +3,10 @@ package org.prosolo.web.home.data;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.prosolo.domainmodel.activities.Recommendation;
-import org.prosolo.domainmodel.activities.RecommendationType;
-import org.prosolo.domainmodel.general.BaseEntity;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.activities.Recommendation;
+import org.prosolo.common.domainmodel.activities.RecommendationType;
+import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.user.User;
 
 /*
  * @author Zoran Jeremic 2013-05-25

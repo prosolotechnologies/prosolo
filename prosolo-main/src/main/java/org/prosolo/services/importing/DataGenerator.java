@@ -3,9 +3,9 @@ package org.prosolo.services.importing;
 import java.util.Collection;
 
 import org.hibernate.Session;
-import org.prosolo.domainmodel.user.Email;
-import org.prosolo.domainmodel.user.User;
-import org.prosolo.domainmodel.user.preferences.UserPreference;
+import org.prosolo.common.domainmodel.user.Email;
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.preferences.UserPreference;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.util.AvatarUtils;

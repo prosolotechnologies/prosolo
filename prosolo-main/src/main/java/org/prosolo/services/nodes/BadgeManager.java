@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
-import org.prosolo.domainmodel.general.BaseEntity;
-import org.prosolo.domainmodel.user.User;
-import org.prosolo.domainmodel.workflow.evaluation.Badge;
-import org.prosolo.domainmodel.workflow.evaluation.BadgeType;
+import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.workflow.evaluation.Badge;
+import org.prosolo.common.domainmodel.workflow.evaluation.BadgeType;
 import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.AbstractManager;
 

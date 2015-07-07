@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.organization.Role;
+import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.services.nodes.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -29,7 +29,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@Transactional(readOnly = true)
 	public UserDetails loadUserByUsername(String defaultEmail) throws UsernameNotFoundException {
 		logger.debug("Loading user details for the user: " + defaultEmail);
-		org.prosolo.domainmodel.user.User user = userManager.getUser(defaultEmail);
+		org.prosolo.common.domainmodel.user.User user = userManager.getUser(defaultEmail);
 
 		if (user == null)
 			throw new UsernameNotFoundException("There is no user registered with this email.");

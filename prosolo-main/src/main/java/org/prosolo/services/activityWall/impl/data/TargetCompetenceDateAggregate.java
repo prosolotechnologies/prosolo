@@ -5,7 +5,7 @@ package org.prosolo.services.activityWall.impl.data;
 
 import java.util.Date;
 
-import org.prosolo.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.competences.TargetCompetence;
 
 /**
  * @author "Nikola Milikic"

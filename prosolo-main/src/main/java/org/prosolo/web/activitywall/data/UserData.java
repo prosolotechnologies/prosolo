@@ -7,8 +7,8 @@ import java.io.Serializable;
 import java.util.Date;
 
 import org.prosolo.app.Settings;
-import org.prosolo.domainmodel.user.User;
-import org.prosolo.domainmodel.user.UserType;
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserType;
 import org.prosolo.util.ImageFormat;
 import org.prosolo.web.util.AvatarUtils;
 

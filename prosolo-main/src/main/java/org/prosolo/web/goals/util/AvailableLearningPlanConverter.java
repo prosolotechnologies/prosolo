@@ -6,9 +6,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.prosolo.domainmodel.activities.Activity;
-import org.prosolo.domainmodel.user.User;
-import org.prosolo.domainmodel.workflow.LearningPlan;
+import org.prosolo.common.domainmodel.activities.Activity;
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.workflow.LearningPlan;
 import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.web.goals.data.AvailableLearningPlan;
 import org.prosolo.web.goals.data.RecommendedActivityData;

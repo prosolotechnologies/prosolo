@@ -8,7 +8,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
-import org.prosolo.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.services.logging.exception.LoggingException;
 import org.prosolo.web.activitywall.data.UserData;
 import org.prosolo.web.reports.LogParameter;

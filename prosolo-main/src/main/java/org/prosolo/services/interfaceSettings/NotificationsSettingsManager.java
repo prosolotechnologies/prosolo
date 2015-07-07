@@ -3,8 +3,8 @@
  */
 package org.prosolo.services.interfaceSettings;
 
-import org.prosolo.domainmodel.interfacesettings.UserNotificationsSettings;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.web.settings.data.UserNotificationSettingsData;
 

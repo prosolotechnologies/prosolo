@@ -3,10 +3,10 @@ package org.prosolo.app.bc;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.prosolo.domainmodel.annotation.Tag;
-import org.prosolo.domainmodel.annotation.UserRating;
-import org.prosolo.domainmodel.user.User;
-import org.prosolo.domainmodel.workflow.Scale;
+import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.annotation.UserRating;
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.workflow.Scale;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.nodes.DefaultManager;
 

@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.prosolo.domainmodel.course.Course;
-import org.prosolo.domainmodel.course.CourseCompetence;
-import org.prosolo.domainmodel.course.CourseEnrollment;
+import org.prosolo.common.domainmodel.course.Course;
+import org.prosolo.common.domainmodel.course.CourseCompetence;
+import org.prosolo.common.domainmodel.course.CourseEnrollment;
 import org.prosolo.web.courses.data.CourseCompetenceData;
 import org.prosolo.web.courses.data.CourseData;
 

@@ -1,7 +1,7 @@
 package org.prosolo.services.indexing;
 
 import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.prosolo.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.general.BaseEntity;
 
 /**
  * @author Zoran Jeremic 2013-06-29

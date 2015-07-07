@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <class-diagram version="1.1.5" icons="true" automaticImage="PNG" always-add-relationships="false" generalizations="true" 
   realizations="true" associations="true" dependencies="false" nesting-relationships="true">  
-  <class id="1" language="java" name="org.prosolo.domainmodel.activities.Activity" project="pro-development" 
+  <class id="1" language="java" name="org.prosolo.common.domainmodel.activities.Activity" project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activities/Activity.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="95" width="154" x="290" y="650"/>    
@@ -11,7 +11,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="2" language="java" name="org.prosolo.domainmodel.activities.ResourceActivity" project="pro-development" 
+  <class id="2" language="java" name="org.prosolo.common.domainmodel.activities.ResourceActivity" project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activities/ResourceActivity.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="95" width="154" x="355" y="785"/>    
@@ -21,7 +21,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="3" language="java" name="org.prosolo.domainmodel.activities.CompetenceActivity" 
+  <class id="3" language="java" name="org.prosolo.common.domainmodel.activities.CompetenceActivity" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activities/CompetenceActivity.java" binary="false" 
     corner="BOTTOM_RIGHT">    
@@ -32,7 +32,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="4" language="java" name="org.prosolo.domainmodel.activities.Recommendation" project="pro-development" 
+  <class id="4" language="java" name="org.prosolo.common.domainmodel.activities.Recommendation" project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activities/Recommendation.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="149" width="154" x="212" y="37"/>    
@@ -42,7 +42,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="5" language="java" name="org.prosolo.domainmodel.activities.UploadAssignmentActivity" 
+  <class id="5" language="java" name="org.prosolo.common.domainmodel.activities.UploadAssignmentActivity" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activities/UploadAssignmentActivity.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -53,7 +53,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="6" language="java" name="org.prosolo.domainmodel.activities.TargetActivity" project="pro-development" 
+  <class id="6" language="java" name="org.prosolo.common.domainmodel.activities.TargetActivity" project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activities/TargetActivity.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="185" width="217" x="235" y="415"/>    
@@ -63,7 +63,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <enumeration id="7" language="java" name="org.prosolo.domainmodel.activities.RecommendationType" 
+  <enumeration id="7" language="java" name="org.prosolo.common.domainmodel.activities.RecommendationType" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activities/RecommendationType.java" binary="false" 
     corner="BOTTOM_RIGHT">    
@@ -74,7 +74,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </enumeration>  
-  <class id="8" language="java" name="org.prosolo.domainmodel.general.Node" project="pro-development" 
+  <class id="8" language="java" name="org.prosolo.common.domainmodel.general.Node" project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/general/Node.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="131" width="166" x="343" y="226"/>    

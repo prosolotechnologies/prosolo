@@ -5,10 +5,10 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.prosolo.domainmodel.activities.UploadAssignmentActivity;
-import org.prosolo.domainmodel.annotation.Tag;
-import org.prosolo.domainmodel.organization.VisibilityType;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.activities.UploadAssignmentActivity;
+import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.organization.VisibilityType;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.nodes.DefaultManager;
 

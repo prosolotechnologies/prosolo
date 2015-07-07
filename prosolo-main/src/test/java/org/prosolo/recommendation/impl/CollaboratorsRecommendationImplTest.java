@@ -6,7 +6,7 @@ import java.util.Random;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.core.stress.TestContext;
 import org.prosolo.recommendation.CollaboratorsRecommendation;
 import org.prosolo.services.logging.LoggingService;

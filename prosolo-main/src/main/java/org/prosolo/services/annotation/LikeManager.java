@@ -3,9 +3,9 @@ package org.prosolo.services.annotation;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.prosolo.domainmodel.annotation.Annotation;
-import org.prosolo.domainmodel.general.BaseEntity;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.annotation.Annotation;
+import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
 

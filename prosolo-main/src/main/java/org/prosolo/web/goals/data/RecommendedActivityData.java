@@ -5,8 +5,8 @@ package org.prosolo.web.goals.data;
 
 import java.io.Serializable;
 
-import org.prosolo.domainmodel.activities.Activity;
-import org.prosolo.domainmodel.activities.TargetActivity;
+import org.prosolo.common.domainmodel.activities.Activity;
+import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.web.util.nodes.ActivityUtil;
 
 /**

@@ -2,7 +2,7 @@ package org.prosolo.util.nodes;
 
 import java.util.Comparator;
 
-import org.prosolo.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.general.BaseEntity;
 
  
 

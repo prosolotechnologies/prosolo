@@ -10,8 +10,8 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.course.Course;
-import org.prosolo.domainmodel.feeds.FeedSource;
+import org.prosolo.common.domainmodel.course.Course;
+import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.feeds.FeedsManager;

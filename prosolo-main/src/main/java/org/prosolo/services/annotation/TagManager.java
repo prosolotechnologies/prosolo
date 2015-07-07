@@ -6,9 +6,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Session;
-import org.prosolo.domainmodel.annotation.Tag;
-import org.prosolo.domainmodel.general.BaseEntity;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.twitter.impl.StreamListData;
 

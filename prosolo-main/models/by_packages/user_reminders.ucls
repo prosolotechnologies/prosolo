@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <class-diagram version="1.1.5" icons="true" automaticImage="PNG" always-add-relationships="false" generalizations="true" 
   realizations="true" associations="true" dependencies="true" nesting-relationships="true">  
-  <enumeration id="1" language="java" name="org.prosolo.domainmodel.user.reminders.ReminderType" 
+  <enumeration id="1" language="java" name="org.prosolo.common.domainmodel.user.reminders.ReminderType" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/reminders/ReminderType.java" binary="false" 
     corner="BOTTOM_RIGHT">    
@@ -12,7 +12,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </enumeration>  
-  <class id="2" language="java" name="org.prosolo.domainmodel.user.reminders.RequestReminder" 
+  <class id="2" language="java" name="org.prosolo.common.domainmodel.user.reminders.RequestReminder" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/reminders/RequestReminder.java" binary="false" 
     corner="BOTTOM_RIGHT">    
@@ -23,7 +23,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="3" language="java" name="org.prosolo.domainmodel.user.reminders.PersonalCalendar" 
+  <class id="3" language="java" name="org.prosolo.common.domainmodel.user.reminders.PersonalCalendar" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/reminders/PersonalCalendar.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -34,7 +34,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <enumeration id="4" language="java" name="org.prosolo.domainmodel.user.reminders.ReminderStatus" 
+  <enumeration id="4" language="java" name="org.prosolo.common.domainmodel.user.reminders.ReminderStatus" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/reminders/ReminderStatus.java" binary="false" 
     corner="BOTTOM_RIGHT">    
@@ -45,7 +45,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </enumeration>  
-  <class id="5" language="java" name="org.prosolo.domainmodel.user.reminders.Reminder" project="pro-development" 
+  <class id="5" language="java" name="org.prosolo.common.domainmodel.user.reminders.Reminder" project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/reminders/Reminder.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="113" width="179" x="415" y="244"/>    
@@ -55,7 +55,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="6" language="java" name="org.prosolo.domainmodel.user.reminders.EventReminder" 
+  <class id="6" language="java" name="org.prosolo.common.domainmodel.user.reminders.EventReminder" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/reminders/EventReminder.java" binary="false" 
     corner="BOTTOM_RIGHT">    
@@ -66,7 +66,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="7" language="java" name="org.prosolo.domainmodel.general.BaseEntity" project="pro-development" 
+  <class id="7" language="java" name="org.prosolo.common.domainmodel.general.BaseEntity" project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/general/BaseEntity.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="167" width="147" x="322" y="37"/>    

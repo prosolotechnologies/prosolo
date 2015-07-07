@@ -8,7 +8,7 @@ import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.organization.Role;
+import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.search.TextSearch;
 import org.prosolo.services.admin.ResourceSettingsManager;
 import org.prosolo.services.nodes.CourseManager;

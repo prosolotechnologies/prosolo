@@ -1,11 +1,11 @@
 package org.prosolo.reminders;
 
-import org.prosolo.domainmodel.activities.events.EventType;
-import org.prosolo.domainmodel.activities.requests.Request;
-import org.prosolo.domainmodel.general.BaseEntity;
-import org.prosolo.domainmodel.user.LearningGoal;
-import org.prosolo.domainmodel.user.TargetLearningGoal;
-import org.prosolo.domainmodel.user.reminders.EventReminder;
+import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.activities.requests.Request;
+import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.user.LearningGoal;
+import org.prosolo.common.domainmodel.user.TargetLearningGoal;
+import org.prosolo.common.domainmodel.user.reminders.EventReminder;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
 import org.springframework.beans.factory.annotation.Autowired;

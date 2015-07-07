@@ -6,7 +6,7 @@ package org.prosolo.services.admin.impl;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.admin.ResourceSettings;
+import org.prosolo.common.domainmodel.admin.ResourceSettings;
 import org.prosolo.services.admin.ResourceSettingsManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.springframework.stereotype.Service;

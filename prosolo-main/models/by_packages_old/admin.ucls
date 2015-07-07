@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <class-diagram version="1.1.5" icons="true" automaticImage="PNG" always-add-relationships="false" generalizations="true" 
   realizations="true" associations="true" dependencies="true" nesting-relationships="true">  
-  <class id="1" language="java" name="org.prosolo.domainmodel.admin.ResourceSettings" project="pro-development" 
+  <class id="1" language="java" name="org.prosolo.common.domainmodel.admin.ResourceSettings" project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/admin/ResourceSettings.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="392" y="272"/>    

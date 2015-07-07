@@ -11,10 +11,10 @@ import java.util.Set;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.activities.events.EventType;
-import org.prosolo.domainmodel.annotation.Tag;
-import org.prosolo.domainmodel.user.User;
-import org.prosolo.domainmodel.user.preferences.TopicPreference;
+import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.util.nodes.AnnotationUtil;

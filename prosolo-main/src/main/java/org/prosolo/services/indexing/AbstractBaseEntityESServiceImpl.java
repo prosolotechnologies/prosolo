@@ -14,16 +14,16 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
-import org.prosolo.domainmodel.activities.Activity;
-import org.prosolo.domainmodel.activities.TargetActivity;
-import org.prosolo.domainmodel.annotation.Tag;
-import org.prosolo.domainmodel.competences.Competence;
-import org.prosolo.domainmodel.competences.TargetCompetence;
-import org.prosolo.domainmodel.course.Course;
-import org.prosolo.domainmodel.general.BaseEntity;
-import org.prosolo.domainmodel.general.Node;
-import org.prosolo.domainmodel.user.LearningGoal;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.activities.Activity;
+import org.prosolo.common.domainmodel.activities.TargetActivity;
+import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.competences.Competence;
+import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.course.Course;
+import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.general.Node;
+import org.prosolo.common.domainmodel.user.LearningGoal;
+import org.prosolo.common.domainmodel.user.User;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

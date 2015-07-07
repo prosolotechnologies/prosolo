@@ -7,10 +7,10 @@ import java.util.Collection;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.prosolo.domainmodel.general.BaseEntity;
-import org.prosolo.domainmodel.general.Node;
-import org.prosolo.domainmodel.user.FollowedEntity;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.general.Node;
+import org.prosolo.common.domainmodel.user.FollowedEntity;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 

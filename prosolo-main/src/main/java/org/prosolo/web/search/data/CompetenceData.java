@@ -7,9 +7,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.prosolo.domainmodel.annotation.Tag;
-import org.prosolo.domainmodel.competences.Competence;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.competences.Competence;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.web.activitywall.data.UserData;
 
 /**

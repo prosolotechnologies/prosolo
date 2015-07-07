@@ -9,10 +9,10 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import org.prosolo.domainmodel.competences.Competence;
-import org.prosolo.domainmodel.organization.VisibilityType;
-import org.prosolo.domainmodel.organization.Visible;
-import org.prosolo.domainmodel.portfolio.ExternalCredit;
+import org.prosolo.common.domainmodel.competences.Competence;
+import org.prosolo.common.domainmodel.organization.VisibilityType;
+import org.prosolo.common.domainmodel.organization.Visible;
+import org.prosolo.common.domainmodel.portfolio.ExternalCredit;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 
 /**

@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.prosolo.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.news.FeaturedNewsObserver;
 import org.prosolo.recommendation.impl.RecommendationObserver;
 import org.prosolo.reminders.RemindersObserver;

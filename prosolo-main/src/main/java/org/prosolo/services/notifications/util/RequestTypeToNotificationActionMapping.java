@@ -6,8 +6,8 @@ package org.prosolo.services.notifications.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.prosolo.domainmodel.activities.events.EventType;
-import org.prosolo.domainmodel.user.notifications.NotificationAction;
+import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.user.notifications.NotificationAction;
 
 /**
  * @author "Nikola Milikic"

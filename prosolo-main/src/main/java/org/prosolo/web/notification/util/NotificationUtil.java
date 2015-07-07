@@ -6,7 +6,7 @@ package org.prosolo.web.notification.util;
 import java.util.Locale;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.user.notifications.NotificationAction;
+import org.prosolo.common.domainmodel.user.notifications.NotificationAction;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.exceptions.KeyNotFoundInBundleException;
 

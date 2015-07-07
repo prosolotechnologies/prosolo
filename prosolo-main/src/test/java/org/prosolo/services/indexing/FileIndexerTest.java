@@ -45,7 +45,7 @@ import org.prosolo.services.es.impl.MoreDocumentsLikeThisImpl;
 import org.prosolo.services.indexing.impl.ExtractedTikaDocument;
 import org.prosolo.services.indexing.impl.TikaExtractorImpl;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
-import org.prosolo.domainmodel.organization.VisibilityType;
+import org.prosolo.common.domainmodel.organization.VisibilityType;
 
 
 

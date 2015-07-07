@@ -2,7 +2,7 @@ package org.prosolo.util.nodes;
 
 import java.util.Collection;
 
-import org.prosolo.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.general.BaseEntity;
 
 public class NodeUtil {
 

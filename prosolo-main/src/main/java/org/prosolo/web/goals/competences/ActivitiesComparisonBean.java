@@ -8,9 +8,9 @@ import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
 
-import org.prosolo.domainmodel.activities.TargetActivity;
-import org.prosolo.domainmodel.activities.events.EventType;
-import org.prosolo.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.activities.TargetActivity;
+import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.ActivityWallData;

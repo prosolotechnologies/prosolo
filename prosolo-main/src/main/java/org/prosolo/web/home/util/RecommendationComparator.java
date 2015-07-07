@@ -5,7 +5,7 @@ package org.prosolo.web.home.util;
 
 import java.util.Comparator;
 
-import org.prosolo.domainmodel.activities.Recommendation;
+import org.prosolo.common.domainmodel.activities.Recommendation;
 
 /**
  * @author "Nikola Milikic"

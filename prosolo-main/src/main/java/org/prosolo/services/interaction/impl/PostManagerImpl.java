@@ -29,23 +29,23 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.prosolo.app.Settings;
-import org.prosolo.domainmodel.activities.ResourceActivity;
-import org.prosolo.domainmodel.activities.TargetActivity;
-import org.prosolo.domainmodel.activities.events.EventType;
-import org.prosolo.domainmodel.activitywall.PostSocialActivity;
-import org.prosolo.domainmodel.activitywall.SocialActivity;
-import org.prosolo.domainmodel.activitywall.TwitterPostSocialActivity;
-import org.prosolo.domainmodel.annotation.Tag;
-import org.prosolo.domainmodel.content.ContentType;
-import org.prosolo.domainmodel.content.GoalNote;
-import org.prosolo.domainmodel.content.Post;
-import org.prosolo.domainmodel.content.RichContent;
-import org.prosolo.domainmodel.content.TwitterPost;
-import org.prosolo.domainmodel.general.BaseEntity;
-import org.prosolo.domainmodel.general.Node;
-import org.prosolo.domainmodel.organization.VisibilityType;
-import org.prosolo.domainmodel.user.LearningGoal;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.activities.ResourceActivity;
+import org.prosolo.common.domainmodel.activities.TargetActivity;
+import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.activitywall.PostSocialActivity;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
+import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.content.ContentType;
+import org.prosolo.common.domainmodel.content.GoalNote;
+import org.prosolo.common.domainmodel.content.Post;
+import org.prosolo.common.domainmodel.content.RichContent;
+import org.prosolo.common.domainmodel.content.TwitterPost;
+import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.general.Node;
+import org.prosolo.common.domainmodel.organization.VisibilityType;
+import org.prosolo.common.domainmodel.user.LearningGoal;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.activityWall.SocialStreamObserver;
 import org.prosolo.services.annotation.TagManager;
@@ -894,12 +894,12 @@ public class PostManagerImpl extends AbstractManagerImpl implements PostManager 
 
 			socialActivity.setText(updatedText);
 			socialActivity.setLastAction(now);
-			socialActivity.setUpdated(true);
+			//socialActivity.setUpdated(true);
 			
 			if (socialActivity instanceof PostSocialActivity) {
 				Post post = ((PostSocialActivity) socialActivity).getPostObject();
 				post.setContent(updatedText);
-				post.setUpdated(now);
+				//post.setUpdated(now);
 				
 				saveEntity(post);
 			}

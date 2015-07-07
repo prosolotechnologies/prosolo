@@ -13,7 +13,7 @@ atxa-core:docRoot atxa-core:browseModel "com.architexa.diagrams.relo.jdt/com.arc
 	atxa-core:contains _:node19bfte6vgx1 .
 
 _:node19bfte6vgx1 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":0,false,false,true:1,false,false,true:1,true,true,true" ;
 	atxa-strata:layerIndex "1" ;
@@ -22,18 +22,18 @@ _:node19bfte6vgx1 a atxa-core:node ;
 atxa-core:docRoot atxa-core:contains _:node19bfte6vgx2 .
 
 _:node19bfte6vgx2 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.course> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.course> ;
 	atxa-core:containerState "true" , "true" , "true" ;
 	atxa-strata:nestedLayerIndexes ":0,false,false,true:2,false,false,true:1,true,true,true" ;
 	atxa-strata:layerIndex "1" ;
 	atxa-strata:indexWithinLayer "-1" .
 
-<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.course> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.course$Course> .
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.course> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.course$Course> .
 
 _:node19bfte6vgx2 atxa-core:contains _:node19bfte6vgx3 .
 
 _:node19bfte6vgx3 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.course$Course> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.course$Course> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":0,false,false,true:0,false,false,true" ;
 	atxa-strata:layerIndex "0" ;
@@ -42,18 +42,18 @@ _:node19bfte6vgx3 a atxa-core:node ;
 atxa-core:docRoot atxa-core:contains _:node19bfte6vgx4 .
 
 _:node19bfte6vgx4 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activities.events.*> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activities.events.*> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":0,false,false,true:3,false,false,true:1,true,true,true" ;
 	atxa-strata:layerIndex "1" ;
 	atxa-strata:indexWithinLayer "-1" .
 
-<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activities.events.*> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activities.events> .
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activities.events.*> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activities.events> .
 
 _:node19bfte6vgx4 atxa-core:contains _:node19bfte6vgx5 .
 
 _:node19bfte6vgx5 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activities.events> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activities.events> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":0,false,false,true:0,false,false,true" ;
 	atxa-strata:layerIndex "0" ;
@@ -62,7 +62,7 @@ _:node19bfte6vgx5 a atxa-core:node ;
 atxa-core:docRoot atxa-core:contains _:node19bfte6vgx6 .
 
 _:node19bfte6vgx6 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.content> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.content> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":0,false,false,true:0,false,false,true:1,true,true,true" ;
 	atxa-strata:layerIndex "1" ;
@@ -71,7 +71,7 @@ _:node19bfte6vgx6 a atxa-core:node ;
 atxa-core:docRoot atxa-core:contains _:node19bfte6vgx7 .
 
 _:node19bfte6vgx7 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.app> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.app> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":1,false,false,true:1,false,false,true:1,true,true,true" ;
 	atxa-strata:layerIndex "1" ;
@@ -80,18 +80,18 @@ _:node19bfte6vgx7 a atxa-core:node ;
 atxa-core:docRoot atxa-core:contains _:node19bfte6vgx8 .
 
 _:node19bfte6vgx8 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activities> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activities> ;
 	atxa-core:containerState "true" , "true" , "true" ;
 	atxa-strata:nestedLayerIndexes ":1,false,false,true:2,false,false,true:1,true,true,true" ;
 	atxa-strata:layerIndex "1" ;
 	atxa-strata:indexWithinLayer "-1" .
 
-<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activities> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activities$RecommendationType> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activities$Recommendation> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activities$TargetActivity> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activities$ResourceActivity> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activities$UploadAssignmentActivity> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activities$CompetenceActivity> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activities$ExternalToolActivity> .
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activities> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activities$RecommendationType> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activities$Recommendation> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activities$TargetActivity> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activities$ResourceActivity> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activities$UploadAssignmentActivity> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activities$CompetenceActivity> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activities$ExternalToolActivity> .
 
 _:node19bfte6vgx8 atxa-core:contains _:node19bfte6vgx9 .
 
 _:node19bfte6vgx9 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activities$RecommendationType> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activities$RecommendationType> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":1,false,false,true:0,false,false,true" ;
 	atxa-strata:layerIndex "0" ;
@@ -100,7 +100,7 @@ _:node19bfte6vgx9 a atxa-core:node ;
 _:node19bfte6vgx8 atxa-core:contains _:node19bfte6vgx10 .
 
 _:node19bfte6vgx10 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activities$Recommendation> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activities$Recommendation> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":3,false,false,true:0,false,false,true" ;
 	atxa-strata:layerIndex "0" ;
@@ -109,7 +109,7 @@ _:node19bfte6vgx10 a atxa-core:node ;
 _:node19bfte6vgx8 atxa-core:contains _:node19bfte6vgx11 .
 
 _:node19bfte6vgx11 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activities$TargetActivity> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activities$TargetActivity> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":5,false,false,true:0,false,false,true" ;
 	atxa-strata:layerIndex "0" ;
@@ -118,7 +118,7 @@ _:node19bfte6vgx11 a atxa-core:node ;
 _:node19bfte6vgx8 atxa-core:contains _:node19bfte6vgx12 .
 
 _:node19bfte6vgx12 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activities$ResourceActivity> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activities$ResourceActivity> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":6,false,false,true:0,false,false,true" ;
 	atxa-strata:layerIndex "0" ;
@@ -127,7 +127,7 @@ _:node19bfte6vgx12 a atxa-core:node ;
 _:node19bfte6vgx8 atxa-core:contains _:node19bfte6vgx13 .
 
 _:node19bfte6vgx13 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activities$UploadAssignmentActivity> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activities$UploadAssignmentActivity> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":4,false,false,true:0,false,false,true" ;
 	atxa-strata:layerIndex "0" ;
@@ -136,7 +136,7 @@ _:node19bfte6vgx13 a atxa-core:node ;
 _:node19bfte6vgx8 atxa-core:contains _:node19bfte6vgx14 .
 
 _:node19bfte6vgx14 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activities$CompetenceActivity> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activities$CompetenceActivity> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":2,false,false,true:0,false,false,true" ;
 	atxa-strata:layerIndex "0" ;
@@ -145,7 +145,7 @@ _:node19bfte6vgx14 a atxa-core:node ;
 _:node19bfte6vgx8 atxa-core:contains _:node19bfte6vgx15 .
 
 _:node19bfte6vgx15 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activities$ExternalToolActivity> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activities$ExternalToolActivity> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":0,false,false,true:0,false,false,true" ;
 	atxa-strata:layerIndex "0" ;
@@ -154,7 +154,7 @@ _:node19bfte6vgx15 a atxa-core:node ;
 atxa-core:docRoot atxa-core:contains _:node19bfte6vgx16 .
 
 _:node19bfte6vgx16 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.general> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.general> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":1,false,false,true:3,false,false,true:1,true,true,true" ;
 	atxa-strata:layerIndex "1" ;
@@ -163,7 +163,7 @@ _:node19bfte6vgx16 a atxa-core:node ;
 atxa-core:docRoot atxa-core:contains _:node19bfte6vgx17 .
 
 _:node19bfte6vgx17 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.annotation> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.annotation> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":1,false,false,true:0,false,false,true:1,true,true,true" ;
 	atxa-strata:layerIndex "1" ;
@@ -172,7 +172,7 @@ _:node19bfte6vgx17 a atxa-core:node ;
 atxa-core:docRoot atxa-core:contains _:node19bfte6vgx18 .
 
 _:node19bfte6vgx18 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.admin> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.admin> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":2,false,false,true:1,false,false,true:1,true,true,true" ;
 	atxa-strata:layerIndex "1" ;
@@ -181,29 +181,29 @@ _:node19bfte6vgx18 a atxa-core:node ;
 atxa-core:docRoot atxa-core:contains _:node19bfte6vgx19 .
 
 _:node19bfte6vgx19 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.user.*> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.user.*> ;
 	atxa-core:containerState "true" , "true" , "true" ;
 	atxa-strata:nestedLayerIndexes ":2,false,false,true:2,false,false,true:1,true,true,true" ;
 	atxa-strata:layerIndex "1" ;
 	atxa-strata:indexWithinLayer "-1" .
 
-<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.user.*> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.user.reminders.*> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.user> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.user.notifications.*> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.user.preferences.*> .
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.user.*> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.user.reminders.*> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.user> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.user.notifications.*> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.user.preferences.*> .
 
 _:node19bfte6vgx19 atxa-core:contains _:node19bfte6vgx20 .
 
 _:node19bfte6vgx20 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.user.reminders.*> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.user.reminders.*> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":1,false,false,true:0,false,false,true" ;
 	atxa-strata:layerIndex "0" ;
 	atxa-strata:indexWithinLayer "1" .
 
-<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.user.reminders.*> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.user.reminders> .
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.user.reminders.*> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.user.reminders> .
 
 _:node19bfte6vgx20 atxa-core:contains _:node19bfte6vgx21 .
 
 _:node19bfte6vgx21 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.user.reminders> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.user.reminders> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":0,false,false,true:0,false,false,true" ;
 	atxa-strata:layerIndex "0" ;
@@ -212,7 +212,7 @@ _:node19bfte6vgx21 a atxa-core:node ;
 _:node19bfte6vgx19 atxa-core:contains _:node19bfte6vgx22 .
 
 _:node19bfte6vgx22 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.user> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.user> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":3,false,false,true:0,false,false,true" ;
 	atxa-strata:layerIndex "0" ;
@@ -221,18 +221,18 @@ _:node19bfte6vgx22 a atxa-core:node ;
 _:node19bfte6vgx19 atxa-core:contains _:node19bfte6vgx23 .
 
 _:node19bfte6vgx23 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.user.notifications.*> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.user.notifications.*> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":2,false,false,true:0,false,false,true" ;
 	atxa-strata:layerIndex "0" ;
 	atxa-strata:indexWithinLayer "2" .
 
-<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.user.notifications.*> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.user.notifications> .
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.user.notifications.*> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.user.notifications> .
 
 _:node19bfte6vgx23 atxa-core:contains _:node19bfte6vgx24 .
 
 _:node19bfte6vgx24 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.user.notifications> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.user.notifications> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":0,false,false,true:0,false,false,true" ;
 	atxa-strata:layerIndex "0" ;
@@ -241,18 +241,18 @@ _:node19bfte6vgx24 a atxa-core:node ;
 _:node19bfte6vgx19 atxa-core:contains _:node19bfte6vgx25 .
 
 _:node19bfte6vgx25 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.user.preferences.*> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.user.preferences.*> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":0,false,false,true:0,false,false,true" ;
 	atxa-strata:layerIndex "0" ;
 	atxa-strata:indexWithinLayer "0" .
 
-<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.user.preferences.*> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.user.preferences> .
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.user.preferences.*> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.user.preferences> .
 
 _:node19bfte6vgx25 atxa-core:contains _:node19bfte6vgx26 .
 
 _:node19bfte6vgx26 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.user.preferences> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.user.preferences> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":0,false,false,true:0,false,false,true" ;
 	atxa-strata:layerIndex "0" ;
@@ -261,7 +261,7 @@ _:node19bfte6vgx26 a atxa-core:node ;
 atxa-core:docRoot atxa-core:contains _:node19bfte6vgx27 .
 
 _:node19bfte6vgx27 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.featuredNews> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.featuredNews> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":2,false,false,true:3,false,false,true:1,true,true,true" ;
 	atxa-strata:layerIndex "1" ;
@@ -270,18 +270,18 @@ _:node19bfte6vgx27 a atxa-core:node ;
 atxa-core:docRoot atxa-core:contains _:node19bfte6vgx28 .
 
 _:node19bfte6vgx28 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.organization> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.organization> ;
 	atxa-core:containerState "true" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":2,false,false,true:0,false,false,true:1,true,true,true" ;
 	atxa-strata:layerIndex "1" ;
 	atxa-strata:indexWithinLayer "-1" .
 
-<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.organization> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.organization$Organization> .
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.organization> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.organization$Organization> .
 
 _:node19bfte6vgx28 atxa-core:contains _:node19bfsjnm6x6505 .
 
 _:node19bfsjnm6x6505 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.organization$Organization> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.organization$Organization> ;
 	atxa-core:containerState "false" , "true" , "false" ;
 	atxa-strata:nestedLayerIndexes ":0,false,false,true:0,false,false,true" ;
 	atxa-strata:layerIndex "0" ;
@@ -290,7 +290,7 @@ _:node19bfsjnm6x6505 a atxa-core:node ;
 atxa-core:docRoot atxa-core:contains _:node19bfte6vgx29 .
 
 _:node19bfte6vgx29 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.interfacesettings> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.interfacesettings> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":0,false,false,true:0,false,false,true" ;
 	atxa-strata:layerIndex "0" ;
@@ -299,7 +299,7 @@ _:node19bfte6vgx29 a atxa-core:node ;
 atxa-core:docRoot atxa-core:contains _:node19bfte6vgx30 .
 
 _:node19bfte6vgx30 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.portfolio> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.portfolio> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":3,false,false,true:1,false,false,true:1,true,true,true" ;
 	atxa-strata:layerIndex "1" ;
@@ -308,7 +308,7 @@ _:node19bfte6vgx30 a atxa-core:node ;
 atxa-core:docRoot atxa-core:contains _:node19bfte6vgx31 .
 
 _:node19bfte6vgx31 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.outcomes> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.outcomes> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":3,false,false,true:2,false,false,true:1,true,true,true" ;
 	atxa-strata:layerIndex "1" ;
@@ -317,18 +317,18 @@ _:node19bfte6vgx31 a atxa-core:node ;
 atxa-core:docRoot atxa-core:contains _:node19bfte6vgx32 .
 
 _:node19bfte6vgx32 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.workflow.*> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.workflow.*> ;
 	atxa-core:containerState "true" , "true" , "true" ;
 	atxa-strata:nestedLayerIndexes ":1,false,false,true:0,false,false,true" ;
 	atxa-strata:layerIndex "0" ;
 	atxa-strata:indexWithinLayer "1" .
 
-<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.workflow.*> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.workflow> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.workflow.evaluation.*> .
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.workflow.*> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.workflow> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.workflow.evaluation.*> .
 
 _:node19bfte6vgx32 atxa-core:contains _:node19bfte6vgx33 .
 
 _:node19bfte6vgx33 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.workflow> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.workflow> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":1,false,false,true:0,false,false,true" ;
 	atxa-strata:layerIndex "0" ;
@@ -337,18 +337,18 @@ _:node19bfte6vgx33 a atxa-core:node ;
 _:node19bfte6vgx32 atxa-core:contains _:node19bfte6vgx34 .
 
 _:node19bfte6vgx34 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.workflow.evaluation.*> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.workflow.evaluation.*> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":0,false,false,true:0,false,false,true" ;
 	atxa-strata:layerIndex "0" ;
 	atxa-strata:indexWithinLayer "0" .
 
-<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.workflow.evaluation.*> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.workflow.evaluation> .
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.workflow.evaluation.*> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.workflow.evaluation> .
 
 _:node19bfte6vgx34 atxa-core:contains _:node19bfte6vgx35 .
 
 _:node19bfte6vgx35 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.workflow.evaluation> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.workflow.evaluation> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":0,false,false,true:0,false,false,true" ;
 	atxa-strata:layerIndex "0" ;
@@ -357,18 +357,18 @@ _:node19bfte6vgx35 a atxa-core:node ;
 atxa-core:docRoot atxa-core:contains _:node19bfte6vgx36 .
 
 _:node19bfte6vgx36 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activities.requests.*> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activities.requests.*> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":3,false,false,true:3,false,false,true:1,true,true,true" ;
 	atxa-strata:layerIndex "1" ;
 	atxa-strata:indexWithinLayer "-1" .
 
-<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activities.requests.*> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activities.requests> .
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activities.requests.*> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activities.requests> .
 
 _:node19bfte6vgx36 atxa-core:contains _:node19bfte6vgx37 .
 
 _:node19bfte6vgx37 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activities.requests> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activities.requests> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":0,false,false,true:0,false,false,true" ;
 	atxa-strata:layerIndex "0" ;
@@ -377,7 +377,7 @@ _:node19bfte6vgx37 a atxa-core:node ;
 atxa-core:docRoot atxa-core:contains _:node19bfte6vgx38 .
 
 _:node19bfte6vgx38 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.feeds> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.feeds> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":3,false,false,true:0,false,false,true:1,true,true,true" ;
 	atxa-strata:layerIndex "1" ;
@@ -386,18 +386,18 @@ _:node19bfte6vgx38 a atxa-core:node ;
 atxa-core:docRoot atxa-core:contains _:node19bfte6vgx39 .
 
 _:node19bfte6vgx39 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall.comments.*> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall.comments.*> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":4,false,false,true:1,false,false,true:1,true,true,true" ;
 	atxa-strata:layerIndex "1" ;
 	atxa-strata:indexWithinLayer "-1" .
 
-<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall.comments.*> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall.comments> .
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall.comments.*> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall.comments> .
 
 _:node19bfte6vgx39 atxa-core:contains _:node19bfte6vgx40 .
 
 _:node19bfte6vgx40 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall.comments> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall.comments> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":0,false,false,true:0,false,false,true" ;
 	atxa-strata:layerIndex "0" ;
@@ -406,7 +406,7 @@ _:node19bfte6vgx40 a atxa-core:node ;
 atxa-core:docRoot atxa-core:contains _:node19bfte6vgx41 .
 
 _:node19bfte6vgx41 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.competences> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.competences> ;
 	atxa-core:containerState "false" , "false" , "false" ;
 	atxa-strata:nestedLayerIndexes ":4,false,false,true:2,false,false,true:1,true,true,true" ;
 	atxa-strata:layerIndex "1" ;

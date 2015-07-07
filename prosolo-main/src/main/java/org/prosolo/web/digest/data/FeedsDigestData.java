@@ -7,9 +7,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.prosolo.domainmodel.activitywall.TwitterPostSocialActivity;
-import org.prosolo.domainmodel.feeds.FeedEntry;
-import org.prosolo.domainmodel.feeds.FeedsDigest;
+import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
+import org.prosolo.common.domainmodel.feeds.FeedEntry;
+import org.prosolo.common.domainmodel.feeds.FeedsDigest;
 import org.prosolo.web.digest.FilterOption;
 
 /**

@@ -15,8 +15,8 @@ import javax.faces.context.FacesContext;
 
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
-import org.prosolo.domainmodel.activities.events.EventType;
-import org.prosolo.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.web.util.exceptions.KeyNotFoundInBundleException;
 
 /**

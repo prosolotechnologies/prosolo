@@ -1,6 +1,6 @@
 package org.prosolo.services.activityWall;
 
-import org.prosolo.domainmodel.activitywall.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 
 /**
 @author Zoran Jeremic Jan 25, 2015

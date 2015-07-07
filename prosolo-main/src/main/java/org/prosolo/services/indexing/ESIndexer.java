@@ -3,7 +3,7 @@ package org.prosolo.services.indexing;
 import java.io.Serializable;
 
 import org.elasticsearch.client.Client;
-import org.prosolo.domainmodel.activities.TargetActivity;
+import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.services.event.Event;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 

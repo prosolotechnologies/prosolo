@@ -4,7 +4,7 @@
 package org.prosolo.services.stats.impl;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.activities.Activity;
+import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.services.annotation.DislikeManager;
 import org.prosolo.services.annotation.LikeManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;

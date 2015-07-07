@@ -1,9 +1,9 @@
 package org.prosolo.services.nodes;
 
-import org.prosolo.domainmodel.user.SocialNetworkAccount;
-import org.prosolo.domainmodel.user.SocialNetworkName;
-import org.prosolo.domainmodel.user.User;
-import org.prosolo.domainmodel.user.UserSocialNetworks;
+import org.prosolo.common.domainmodel.user.SocialNetworkAccount;
+import org.prosolo.common.domainmodel.user.SocialNetworkName;
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserSocialNetworks;
 import org.prosolo.services.general.AbstractManager;
 
 public interface SocialNetworksManager extends AbstractManager {

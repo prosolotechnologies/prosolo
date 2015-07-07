@@ -5,8 +5,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
-import org.prosolo.domainmodel.activitywall.SocialActivity;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.activityWall.SocialActivityFilterProcessor;
 import org.prosolo.services.activityWall.SocialActivityFiltering;
 import org.prosolo.services.activityWall.filters.Filter;

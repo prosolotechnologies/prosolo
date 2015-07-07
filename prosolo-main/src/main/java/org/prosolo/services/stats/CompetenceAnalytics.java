@@ -5,7 +5,7 @@ package org.prosolo.services.stats;
 
 import java.util.Collection;
 
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.User;
 
 /**
  * @author zoran

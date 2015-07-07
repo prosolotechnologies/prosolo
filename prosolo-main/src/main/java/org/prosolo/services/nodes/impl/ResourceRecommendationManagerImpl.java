@@ -7,8 +7,8 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.activities.Recommendation;
-import org.prosolo.domainmodel.general.Node;
+import org.prosolo.common.domainmodel.activities.Recommendation;
+import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.ResourceRecommendationManager;
 import org.springframework.stereotype.Service;

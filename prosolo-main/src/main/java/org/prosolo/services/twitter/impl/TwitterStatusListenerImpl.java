@@ -1,7 +1,7 @@
 package org.prosolo.services.twitter.impl;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.twitter.TwitterPostsFactory;
 import org.prosolo.services.twitter.TwitterStatusListener;

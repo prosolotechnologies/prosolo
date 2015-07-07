@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <class-diagram version="1.1.5" icons="true" automaticImage="PNG" always-add-relationships="false" generalizations="true" 
   realizations="true" associations="true" dependencies="true" nesting-relationships="true">  
-  <class id="1" language="java" name="org.prosolo.domainmodel.activitywall.SocialActivityNotification" 
+  <class id="1" language="java" name="org.prosolo.common.domainmodel.activitywall.SocialActivityNotification" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activitywall/SocialActivityNotification.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -12,7 +12,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="2" language="java" name="org.prosolo.domainmodel.activitywall.SocialActivity" project="pro-development" 
+  <class id="2" language="java" name="org.prosolo.common.domainmodel.activitywall.SocialActivity" project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activitywall/SocialActivity.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="329" width="163" x="858" y="37"/>    
@@ -22,7 +22,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="3" language="java" name="org.prosolo.domainmodel.activitywall.PostSocialActivity" 
+  <class id="3" language="java" name="org.prosolo.common.domainmodel.activitywall.PostSocialActivity" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activitywall/PostSocialActivity.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -33,7 +33,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="4" language="java" name="org.prosolo.domainmodel.activitywall.GoalNoteSocialActivity" 
+  <class id="4" language="java" name="org.prosolo.common.domainmodel.activitywall.GoalNoteSocialActivity" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activitywall/GoalNoteSocialActivity.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -44,7 +44,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="5" language="java" name="org.prosolo.domainmodel.activitywall.NodeUserSocialActivity" 
+  <class id="5" language="java" name="org.prosolo.common.domainmodel.activitywall.NodeUserSocialActivity" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activitywall/NodeUserSocialActivity.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -55,7 +55,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <enumeration id="6" language="java" name="org.prosolo.domainmodel.activitywall.SocialStreamSubViewType" 
+  <enumeration id="6" language="java" name="org.prosolo.common.domainmodel.activitywall.SocialStreamSubViewType" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activitywall/SocialStreamSubViewType.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -66,7 +66,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </enumeration>  
-  <class id="7" language="java" name="org.prosolo.domainmodel.activitywall.SocialStreamSubView" 
+  <class id="7" language="java" name="org.prosolo.common.domainmodel.activitywall.SocialStreamSubView" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activitywall/SocialStreamSubView.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -77,7 +77,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="8" language="java" name="org.prosolo.domainmodel.activitywall.SocialStreamInbox" 
+  <class id="8" language="java" name="org.prosolo.common.domainmodel.activitywall.SocialStreamInbox" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activitywall/SocialStreamInbox.java" binary="false" 
     corner="BOTTOM_RIGHT">    
@@ -88,7 +88,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="9" language="java" name="org.prosolo.domainmodel.activitywall.NodeSocialActivity" 
+  <class id="9" language="java" name="org.prosolo.common.domainmodel.activitywall.NodeSocialActivity" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activitywall/NodeSocialActivity.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -99,7 +99,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="10" language="java" name="org.prosolo.domainmodel.activitywall.DefaultSocialActivity" 
+  <class id="10" language="java" name="org.prosolo.common.domainmodel.activitywall.DefaultSocialActivity" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activitywall/DefaultSocialActivity.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -110,7 +110,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="11" language="java" name="org.prosolo.domainmodel.activitywall.TwitterPostSocialActivity" 
+  <class id="11" language="java" name="org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activitywall/TwitterPostSocialActivity.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -121,7 +121,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="12" language="java" name="org.prosolo.domainmodel.general.BaseEntity" project="pro-development" 
+  <class id="12" language="java" name="org.prosolo.common.domainmodel.general.BaseEntity" project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/general/BaseEntity.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="167" width="147" x="858" y="659"/>    

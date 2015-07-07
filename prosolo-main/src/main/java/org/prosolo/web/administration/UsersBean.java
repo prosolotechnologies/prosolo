@@ -19,7 +19,7 @@ import javax.faces.validator.ValidatorException;
 import org.apache.log4j.Logger;
 import org.omnifaces.util.Ajax;
 import org.primefaces.event.FileUploadEvent;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.email.EmailSenderManager;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;

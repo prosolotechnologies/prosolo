@@ -9,9 +9,9 @@ import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
 
-import org.prosolo.domainmodel.annotation.Tag;
-import org.prosolo.domainmodel.course.Course;
-import org.prosolo.domainmodel.course.CreatorType;
+import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.course.Course;
+import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.logging.ComponentName;

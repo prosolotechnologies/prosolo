@@ -8,9 +8,9 @@ import java.util.Locale;
 import javax.faces.context.FacesContext;
 
 import org.hibernate.Hibernate;
-import org.prosolo.domainmodel.featuredNews.FeaturedNews;
-import org.prosolo.domainmodel.featuredNews.LearningGoalFeaturedNews;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.featuredNews.FeaturedNews;
+import org.prosolo.common.domainmodel.featuredNews.LearningGoalFeaturedNews;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.util.ImageFormat;
 import org.prosolo.util.date.DateUtil;
 import org.prosolo.web.home.data.FeaturedNewsData;

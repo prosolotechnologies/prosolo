@@ -8,11 +8,11 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.activities.events.EventType;
-import org.prosolo.domainmodel.activitywall.SocialActivity;
-import org.prosolo.domainmodel.activitywall.SocialStreamSubViewType;
-import org.prosolo.domainmodel.activitywall.comments.Comment;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.SocialStreamSubViewType;
+import org.prosolo.common.domainmodel.activitywall.comments.Comment;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.activityWall.ActivityWallManager;
 import org.prosolo.services.activityWall.filters.Filter;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
@@ -215,7 +215,7 @@ public abstract class DefaultWallSocialActivitiesDisplayer {
 				
 				if (socialActivityWallData.getSocialActivity().getId() == socialActivity.getId()) {
 					socialActivityWallData.setLastAction(socialActivity.getLastAction());
-					socialActivityWallData.setUpdated(socialActivity.isUpdated());
+				//	socialActivityWallData.setUpdated(socialActivity.isUpdated());
 					socialActivityWallData.setText(socialActivity.getText());
 					socialActivityWallData.setCommentsDisabled(socialActivity.isCommentsDisabled());
 					socialActivityWallData.setLikeCount(socialActivity.getLikeCount());

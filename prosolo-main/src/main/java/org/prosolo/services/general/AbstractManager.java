@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.hibernate.Session;
 import org.prosolo.core.persistance.PersistenceManager;
-import org.prosolo.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
 
 public interface AbstractManager extends Serializable {

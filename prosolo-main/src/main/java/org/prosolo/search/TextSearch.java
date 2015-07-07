@@ -3,12 +3,12 @@ package org.prosolo.search;
 import java.util.Collection;
 import java.util.List;
 
-import org.prosolo.domainmodel.annotation.Tag;
-import org.prosolo.domainmodel.course.Course;
-import org.prosolo.domainmodel.course.CreatorType;
-import org.prosolo.domainmodel.user.LearningGoal;
-import org.prosolo.domainmodel.user.reminders.Reminder;
-import org.prosolo.domainmodel.user.reminders.ReminderStatus;
+import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.course.Course;
+import org.prosolo.common.domainmodel.course.CreatorType;
+import org.prosolo.common.domainmodel.user.LearningGoal;
+import org.prosolo.common.domainmodel.user.reminders.Reminder;
+import org.prosolo.common.domainmodel.user.reminders.ReminderStatus;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.web.search.data.SortingOption;

@@ -4,10 +4,10 @@ import java.util.Collection;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.prosolo.domainmodel.annotation.Annotation;
-import org.prosolo.domainmodel.annotation.AnnotationType;
-import org.prosolo.domainmodel.general.BaseEntity;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.annotation.Annotation;
+import org.prosolo.common.domainmodel.annotation.AnnotationType;
+import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.user.User;
 
 public interface AnnotationManager {
 	

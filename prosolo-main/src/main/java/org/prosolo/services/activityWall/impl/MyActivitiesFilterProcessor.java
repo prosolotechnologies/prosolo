@@ -1,9 +1,9 @@
 package org.prosolo.services.activityWall.impl;
 
-import org.prosolo.domainmodel.activitywall.SocialActivity;
-import org.prosolo.domainmodel.activitywall.TwitterPostSocialActivity;
-import org.prosolo.domainmodel.interfacesettings.FilterType;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
+import org.prosolo.common.domainmodel.interfacesettings.FilterType;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.activityWall.SocialActivityFilterProcessor;
 import org.prosolo.services.activityWall.filters.Filter;
 import org.prosolo.services.activityWall.strategy.Strategy;

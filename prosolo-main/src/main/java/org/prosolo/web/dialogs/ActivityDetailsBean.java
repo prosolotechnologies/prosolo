@@ -8,10 +8,10 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.activities.Activity;
-import org.prosolo.domainmodel.activities.ResourceActivity;
-import org.prosolo.domainmodel.activities.TargetActivity;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.activities.Activity;
+import org.prosolo.common.domainmodel.activities.ResourceActivity;
+import org.prosolo.common.domainmodel.activities.TargetActivity;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.web.LoggedUserBean;

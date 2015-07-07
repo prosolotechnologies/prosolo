@@ -2,8 +2,8 @@ package org.prosolo.web.settings.data;
 
 import java.io.Serializable;
 
-import org.prosolo.domainmodel.activities.events.EventType;
-import org.prosolo.domainmodel.interfacesettings.NotificationSettings;
+import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.interfacesettings.NotificationSettings;
 
 /**
  * @author Nikola Milikic

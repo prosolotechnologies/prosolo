@@ -7,7 +7,7 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.featuredNews.LearningGoalFeaturedNews;
+import org.prosolo.common.domainmodel.featuredNews.LearningGoalFeaturedNews;
 import org.prosolo.services.interaction.FeaturedNewsManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.home.data.FeaturedNewsData;

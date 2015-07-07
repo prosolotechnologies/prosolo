@@ -3,8 +3,8 @@ package org.prosolo.services.interaction.impl;
 import java.io.Serializable;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.general.Node;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.general.Node;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.interaction.FollowResourceAsyncManager;

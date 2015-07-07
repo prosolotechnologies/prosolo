@@ -2,7 +2,7 @@ package org.prosolo.services.nodes.impl;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.domainmodel.workflow.Scale;
+import org.prosolo.common.domainmodel.workflow.Scale;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.ScaleManager;
 import org.springframework.stereotype.Service;

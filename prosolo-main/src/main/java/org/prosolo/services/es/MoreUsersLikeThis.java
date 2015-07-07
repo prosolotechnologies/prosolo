@@ -3,7 +3,7 @@ package org.prosolo.services.es;
 import java.util.Collection;
 import java.util.List;
 
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 
 /**

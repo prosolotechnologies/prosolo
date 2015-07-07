@@ -1,7 +1,7 @@
 package org.prosolo.services.activityWall;
 
-import org.prosolo.domainmodel.activitywall.SocialActivity;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.activityWall.filters.Filter;
 
 /**

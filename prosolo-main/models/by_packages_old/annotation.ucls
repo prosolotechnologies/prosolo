@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <class-diagram version="1.1.5" icons="true" automaticImage="PNG" always-add-relationships="false" generalizations="true" 
   realizations="true" associations="true" dependencies="true" nesting-relationships="true">  
-  <class id="1" language="java" name="org.prosolo.domainmodel.annotation.CommentAnnotation" 
+  <class id="1" language="java" name="org.prosolo.common.domainmodel.annotation.CommentAnnotation" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/annotation/CommentAnnotation.java" binary="false" 
     corner="BOTTOM_RIGHT">    
@@ -12,7 +12,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="2" language="java" name="org.prosolo.domainmodel.annotation.Annotation" project="pro-development" 
+  <class id="2" language="java" name="org.prosolo.common.domainmodel.annotation.Annotation" project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/annotation/Annotation.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="113" width="160" x="462" y="37"/>    
@@ -22,7 +22,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="3" language="java" name="org.prosolo.domainmodel.annotation.SimpleAnnotation" project="pro-development" 
+  <class id="3" language="java" name="org.prosolo.common.domainmodel.annotation.SimpleAnnotation" project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/annotation/SimpleAnnotation.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="77" width="160" x="667" y="190"/>    
@@ -32,7 +32,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="4" language="java" name="org.prosolo.domainmodel.annotation.UserRating" project="pro-development" 
+  <class id="4" language="java" name="org.prosolo.common.domainmodel.annotation.UserRating" project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/annotation/UserRating.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="113" width="160" x="667" y="325"/>    
@@ -42,7 +42,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="5" language="java" name="org.prosolo.domainmodel.annotation.NodeAnnotation" project="pro-development" 
+  <class id="5" language="java" name="org.prosolo.common.domainmodel.annotation.NodeAnnotation" project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/annotation/NodeAnnotation.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="95" width="160" x="41" y="190"/>    
@@ -52,7 +52,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="6" language="java" name="org.prosolo.domainmodel.annotation.SocialActivityAnnotation" 
+  <class id="6" language="java" name="org.prosolo.common.domainmodel.annotation.SocialActivityAnnotation" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/annotation/SocialActivityAnnotation.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -63,7 +63,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <enumeration id="7" language="java" name="org.prosolo.domainmodel.annotation.AnnotationType" 
+  <enumeration id="7" language="java" name="org.prosolo.common.domainmodel.annotation.AnnotationType" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/annotation/AnnotationType.java" binary="false" 
     corner="BOTTOM_RIGHT">    
@@ -74,7 +74,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </enumeration>  
-  <class id="8" language="java" name="org.prosolo.domainmodel.annotation.Bookmark" project="pro-development" 
+  <class id="8" language="java" name="org.prosolo.common.domainmodel.annotation.Bookmark" project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/annotation/Bookmark.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="95" width="160" x="467" y="325"/>    
@@ -84,7 +84,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="9" language="java" name="org.prosolo.domainmodel.general.BaseEntity" project="pro-development" 
+  <class id="9" language="java" name="org.prosolo.common.domainmodel.general.BaseEntity" project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/general/BaseEntity.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="167" width="147" x="259" y="325"/>    

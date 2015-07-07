@@ -65,7 +65,7 @@ public class HibernateConfig {
 //		localSessionFactoryBean.setDataSource(dataSource());
 //		localSessionFactoryBean.setHibernateProperties(createHibernateProperties());
 //		localSessionFactoryBean.setPackagesToScan(
-//				"org.prosolo.domainmodel",
+//				"org.prosolo.common.domainmodel",
 //				"org.prosolo.services.logging.domain"
 //				);
 //		localSessionFactoryBean.setNamingStrategy(new ImprovedNamingStrategy());

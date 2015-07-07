@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <class-diagram version="1.1.5" icons="true" automaticImage="PNG" always-add-relationships="false" generalizations="true" 
   realizations="true" associations="true" dependencies="true" nesting-relationships="true">  
-  <class id="1" language="java" name="org.prosolo.domainmodel.course.CourseEnrollment" project="pro-development" 
+  <class id="1" language="java" name="org.prosolo.common.domainmodel.course.CourseEnrollment" project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/course/CourseEnrollment.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="167" width="178" x="102" y="379"/>    
@@ -11,7 +11,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="2" language="java" name="org.prosolo.domainmodel.course.CourseCompetence" project="pro-development" 
+  <class id="2" language="java" name="org.prosolo.common.domainmodel.course.CourseCompetence" project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/course/CourseCompetence.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="149" width="151" x="228" y="785"/>    
@@ -21,7 +21,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <enumeration id="3" language="java" name="org.prosolo.domainmodel.course.Status" project="pro-development" 
+  <enumeration id="3" language="java" name="org.prosolo.common.domainmodel.course.Status" project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/course/Status.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="131" width="145" x="62" y="586"/>    
@@ -31,7 +31,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </enumeration>  
-  <class id="4" language="java" name="org.prosolo.domainmodel.course.Course" project="pro-development" 
+  <class id="4" language="java" name="org.prosolo.common.domainmodel.course.Course" project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/course/Course.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="149" width="237" x="268" y="586"/>    
@@ -41,7 +41,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="5" language="java" name="org.prosolo.domainmodel.course.CoursePortfolio" project="pro-development" 
+  <class id="5" language="java" name="org.prosolo.common.domainmodel.course.CoursePortfolio" project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/course/CoursePortfolio.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="95" width="145" x="62" y="244"/>    
@@ -51,7 +51,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="6" language="java" name="org.prosolo.domainmodel.general.BaseEntity" project="pro-development" 
+  <class id="6" language="java" name="org.prosolo.common.domainmodel.general.BaseEntity" project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/general/BaseEntity.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="167" width="147" x="228" y="37"/>    

@@ -14,10 +14,10 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.activities.Activity;
-import org.prosolo.domainmodel.annotation.Tag;
-import org.prosolo.domainmodel.competences.Competence;
-import org.prosolo.domainmodel.organization.VisibilityType;
+import org.prosolo.common.domainmodel.activities.Activity;
+import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.competences.Competence;
+import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.event.EventException;

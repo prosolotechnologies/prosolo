@@ -14,7 +14,8 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<hibernate.version>5.0.0.CR1</hibernate.version>
+		<!-- hibernate.version>5.0.0.CR1</hibernate.version-->
+		<hibernate.version>4.3.10.Final</hibernate.version>
 	</properties>
 
 	<dependencies>

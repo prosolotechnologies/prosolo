@@ -3,7 +3,7 @@ package org.prosolo.services.twitter;
 import java.util.Collection;
 import java.util.List;
 
-import org.prosolo.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.annotation.Tag;
 
 import twitter4j.TwitterStream;
 

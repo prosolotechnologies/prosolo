@@ -5,9 +5,9 @@ import java.util.List;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-import org.prosolo.domainmodel.activitywall.SocialActivity;
-import org.prosolo.domainmodel.activitywall.SocialActivityNotification;
-import org.prosolo.domainmodel.activitywall.SocialStreamSubView;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.SocialActivityNotification;
+import org.prosolo.common.domainmodel.activitywall.SocialStreamSubView;
 
 public interface SocialActivityInboxInterfaceCacheUpdater {
 

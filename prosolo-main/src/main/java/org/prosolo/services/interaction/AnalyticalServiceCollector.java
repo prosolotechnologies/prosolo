@@ -2,7 +2,7 @@ package org.prosolo.services.interaction;
 
 import java.util.List;
 
-import org.prosolo.domainmodel.activities.TargetActivity;
+import org.prosolo.common.domainmodel.activities.TargetActivity;
 
 /**
 @author Zoran Jeremic Apr 12, 2015

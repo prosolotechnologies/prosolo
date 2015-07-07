@@ -1,7 +1,7 @@
 package org.prosolo.services.feeds.data;
 
-import org.prosolo.domainmodel.feeds.FeedSource;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.feeds.FeedSource;
+import org.prosolo.common.domainmodel.user.User;
 
 /**
  * @author Nikola Milikic

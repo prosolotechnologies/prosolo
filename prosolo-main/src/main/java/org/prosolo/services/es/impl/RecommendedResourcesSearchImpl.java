@@ -18,7 +18,7 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.prosolo.bigdata.common.dal.pojo.Score;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.es.RecommendedResourcesSearch;
 import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.indexing.ESIndexNames;
@@ -72,6 +72,9 @@ public class RecommendedResourcesSearchImpl implements RecommendedResourcesSearc
 						 }else{
 							 score=userScore.getScore();
 						 }
+						 if(score==null){
+							 score=0.0;
+						 }
 						 usersScores.put(userScore.getId(), score);
 					 }
 				}
@@ -81,6 +84,8 @@ public class RecommendedResourcesSearchImpl implements RecommendedResourcesSearc
 				Collections.sort(topTenUsers, new Comparator<Map.Entry<Long,Double>>() {
 				  public int compare(
 				      Map.Entry<Long,Double> entry1, Map.Entry<Long,Double> entry2) {
+					  System.out.println("ENTRY 1:"+entry1.getKey()+" entry1:"+entry1.getValue());
+					  System.out.println("ENTRY 2:"+entry1.getKey()+" entry2:"+entry1.getValue());
 				    return entry2.getValue().compareTo(entry1.getValue());
 				  }
 				});

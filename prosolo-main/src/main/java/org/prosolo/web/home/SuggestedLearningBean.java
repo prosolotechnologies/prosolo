@@ -10,9 +10,9 @@ import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
-import org.prosolo.domainmodel.activities.Recommendation;
-import org.prosolo.domainmodel.activities.RecommendationType;
-import org.prosolo.domainmodel.general.Node;
+import org.prosolo.common.domainmodel.activities.Recommendation;
+import org.prosolo.common.domainmodel.activities.RecommendationType;
+import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.recommendation.SuggestedLearningService;
 import org.prosolo.services.nodes.NodeRecommendationManager;
 import org.prosolo.web.ApplicationBean;

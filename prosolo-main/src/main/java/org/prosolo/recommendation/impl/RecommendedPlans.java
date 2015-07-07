@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.prosolo.domainmodel.workflow.LearningPlan;
+import org.prosolo.common.domainmodel.workflow.LearningPlan;
 
 /**
  * zoran

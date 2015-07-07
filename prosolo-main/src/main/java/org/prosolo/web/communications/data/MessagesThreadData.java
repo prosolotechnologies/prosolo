@@ -6,8 +6,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import org.prosolo.domainmodel.user.MessagesThread;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.MessagesThread;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.web.activitywall.data.UserData;
 
 /*

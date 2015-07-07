@@ -5,7 +5,8 @@
 	<persistence-unit name="entityManager"	transaction-type="RESOURCE_LOCAL">
 		<provider>org.hibernate.ejb.HibernatePersistence</provider>
 		<properties>
-			<property name="hibernate.archive.autodetection" value="class" />
+			<property name="hibernate.ejb.naming_strategy" value="org.hibernate.cfg.ImprovedNamingStrategy" />
+			<property name="hibernate.archive.autodetection" value="class" />			
 		</properties>
 	</persistence-unit>
 </persistence>

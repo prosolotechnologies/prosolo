@@ -3,7 +3,7 @@ package org.prosolo.services.importing;
 import java.lang.reflect.Type;
 import java.util.Date;
 
-import org.prosolo.domainmodel.course.CourseCompetence;
+import org.prosolo.common.domainmodel.course.CourseCompetence;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

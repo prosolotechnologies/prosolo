@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <class-diagram version="1.1.8" icons="true" automaticImage="PNG" always-add-relationships="false" generalizations="true" 
   realizations="true" associations="true" dependencies="false" nesting-relationships="true">  
-  <class id="1" language="java" name="org.prosolo.domainmodel.activities.events.ChangeVisibilityEvent" 
+  <class id="1" language="java" name="org.prosolo.common.domainmodel.activities.events.ChangeVisibilityEvent" 
     project="pro-development" 
     file="/pro-development/src/main/java/org/prosolo/domainmodel/activities/events/ChangeVisibilityEvent.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -12,7 +12,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="2" language="java" name="org.prosolo.domainmodel.activities.events.AnnotationEvent" 
+  <class id="2" language="java" name="org.prosolo.common.domainmodel.activities.events.AnnotationEvent" 
     project="pro-development" 
     file="/pro-development/src/main/java/org/prosolo/domainmodel/activities/events/AnnotationEvent.java" binary="false" 
     corner="BOTTOM_RIGHT">    
@@ -23,7 +23,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <enumeration id="3" language="java" name="org.prosolo.domainmodel.activities.events.EventType" 
+  <enumeration id="3" language="java" name="org.prosolo.common.domainmodel.activities.events.EventType" 
     project="pro-development" 
     file="/pro-development/src/main/java/org/prosolo/domainmodel/activities/events/EventType.java" binary="false" 
     corner="BOTTOM_RIGHT">    
@@ -34,7 +34,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </enumeration>  
-  <class id="4" language="java" name="org.prosolo.domainmodel.activities.events.Event" project="pro-development" 
+  <class id="4" language="java" name="org.prosolo.common.domainmodel.activities.events.Event" project="pro-development" 
     file="/pro-development/src/main/java/org/prosolo/domainmodel/activities/events/Event.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="1028" y="111"/>    
@@ -44,7 +44,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="5" language="java" name="org.prosolo.domainmodel.activities.events.StatusUpdateEvent" 
+  <class id="5" language="java" name="org.prosolo.common.domainmodel.activities.events.StatusUpdateEvent" 
     project="pro-development" 
     file="/pro-development/src/main/java/org/prosolo/domainmodel/activities/events/StatusUpdateEvent.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -55,7 +55,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="6" language="java" name="org.prosolo.domainmodel.activities.events.ChangeProgressEvent" 
+  <class id="6" language="java" name="org.prosolo.common.domainmodel.activities.events.ChangeProgressEvent" 
     project="pro-development" 
     file="/pro-development/src/main/java/org/prosolo/domainmodel/activities/events/ChangeProgressEvent.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -66,7 +66,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="7" language="java" name="org.prosolo.domainmodel.general.BaseEntity" project="pro-development" 
+  <class id="7" language="java" name="org.prosolo.common.domainmodel.general.BaseEntity" project="pro-development" 
     file="/pro-development/src/main/java/org/prosolo/domainmodel/general/BaseEntity.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="172" y="102"/>    

@@ -3,8 +3,8 @@
  */
 package org.prosolo.web.communications.evaluation.data;
 
-import org.prosolo.domainmodel.workflow.evaluation.Badge;
-import org.prosolo.domainmodel.workflow.evaluation.BadgeType;
+import org.prosolo.common.domainmodel.workflow.evaluation.Badge;
+import org.prosolo.common.domainmodel.workflow.evaluation.BadgeType;
 
 /**
  * @author "Nikola Milikic"

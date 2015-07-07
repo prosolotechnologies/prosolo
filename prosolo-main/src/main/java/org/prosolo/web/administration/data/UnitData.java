@@ -7,8 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.prosolo.domainmodel.organization.OrganizationalUnit;
-import org.prosolo.domainmodel.organization.Unit_User;
+import org.prosolo.common.domainmodel.organization.OrganizationalUnit;
+import org.prosolo.common.domainmodel.organization.Unit_User;
 
 public class UnitData implements Serializable {
 

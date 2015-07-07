@@ -8,10 +8,10 @@ import java.util.Map;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.general.Node;
-import org.prosolo.domainmodel.portfolio.CompletedResource;
-import org.prosolo.domainmodel.user.User;
-import org.prosolo.domainmodel.workflow.evaluation.Badge;
+import org.prosolo.common.domainmodel.general.Node;
+import org.prosolo.common.domainmodel.portfolio.CompletedResource;
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.workflow.evaluation.Badge;
 import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.BadgeManager;

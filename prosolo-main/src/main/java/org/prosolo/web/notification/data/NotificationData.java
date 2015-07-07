@@ -7,8 +7,8 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-import org.prosolo.domainmodel.activities.events.EventType;
-import org.prosolo.domainmodel.user.notifications.NotificationAction;
+import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.user.notifications.NotificationAction;
 import org.prosolo.util.date.DateUtil;
 import org.prosolo.web.activitywall.data.NodeData;
 import org.prosolo.web.activitywall.data.UserData;

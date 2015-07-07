@@ -5,7 +5,7 @@ package org.prosolo.web.portfolio.util;
 
 import java.util.Comparator;
 
-import org.prosolo.domainmodel.portfolio.AchievedCompetence;
+import org.prosolo.common.domainmodel.portfolio.AchievedCompetence;
 
 /**
  * @author "Nikola Milikic"

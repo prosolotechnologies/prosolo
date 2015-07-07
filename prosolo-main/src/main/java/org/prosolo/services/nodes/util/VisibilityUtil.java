@@ -1,6 +1,6 @@
 package org.prosolo.services.nodes.util;
 
-import org.prosolo.domainmodel.organization.VisibilityType;
+import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.services.nodes.exceptions.VisibilityCoercionError;
 
 public class VisibilityUtil {

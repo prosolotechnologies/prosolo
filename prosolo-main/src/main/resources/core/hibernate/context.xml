@@ -57,7 +57,7 @@
 		<property name="hibernateProperties" ref="hibernateProperties" />
 		<property name="packagesToScan">
 			<list>
-				<value>org.prosolo.domainmodel</value>
+				<value>org.prosolo.common.domainmodel</value>
 				<value>org.prosolo.services.logging.domain</value>
 				<value>org.prosolo.services.tree.settings.model</value>
 			</list>

@@ -11,7 +11,7 @@ import javax.faces.bean.ManagedBean;
 import javax.servlet.http.HttpSession;
 
 import org.prosolo.app.Settings;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.config.Config;
 import org.prosolo.services.logging.AccessResolver;
 import org.prosolo.web.activitywall.data.UserData;

@@ -3,9 +3,9 @@ package org.prosolo.services.interaction;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.prosolo.domainmodel.featuredNews.FeaturedNewsInbox;
-import org.prosolo.domainmodel.featuredNews.LearningGoalFeaturedNews;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.featuredNews.FeaturedNewsInbox;
+import org.prosolo.common.domainmodel.featuredNews.LearningGoalFeaturedNews;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.Event;
 
 public interface FeaturedNewsManager {

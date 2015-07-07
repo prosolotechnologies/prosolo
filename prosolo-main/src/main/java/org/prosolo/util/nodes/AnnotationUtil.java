@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.prosolo.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.util.nodes.CreatedAscComparator;
 
 public class AnnotationUtil {

@@ -6,7 +6,7 @@ package org.prosolo.services.activityWall;
 import java.util.Set;
 
 import org.hibernate.Session;
-import org.prosolo.domainmodel.activitywall.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 import org.prosolo.services.activityWall.impl.data.UserInterests;
 
 /**

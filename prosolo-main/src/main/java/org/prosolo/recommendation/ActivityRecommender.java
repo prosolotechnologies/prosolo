@@ -2,8 +2,8 @@ package org.prosolo.recommendation;
 
 import java.util.List;
 
-import org.prosolo.domainmodel.activities.Activity;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.activities.Activity;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 
 public interface ActivityRecommender {

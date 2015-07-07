@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <class-diagram version="1.1.5" icons="true" automaticImage="PNG" always-add-relationships="false" generalizations="true" 
   realizations="true" associations="true" dependencies="true" nesting-relationships="true">  
-  <class id="1" language="java" name="org.prosolo.domainmodel.activitywall.comments.Comment" 
+  <class id="1" language="java" name="org.prosolo.common.domainmodel.activitywall.comments.Comment" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activitywall/comments/Comment.java" binary="false" 
     corner="BOTTOM_RIGHT">    
@@ -12,7 +12,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="2" language="java" name="org.prosolo.domainmodel.activitywall.comments.NodeComment" 
+  <class id="2" language="java" name="org.prosolo.common.domainmodel.activitywall.comments.NodeComment" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activitywall/comments/NodeComment.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -23,7 +23,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="3" language="java" name="org.prosolo.domainmodel.activitywall.comments.SocialActivityComment" 
+  <class id="3" language="java" name="org.prosolo.common.domainmodel.activitywall.comments.SocialActivityComment" 
     project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activitywall/comments/SocialActivityComment.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -34,7 +34,7 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="4" language="java" name="org.prosolo.domainmodel.activitywall.SocialActivity" project="pro-development" 
+  <class id="4" language="java" name="org.prosolo.common.domainmodel.activitywall.SocialActivity" project="pro-development" 
     file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activitywall/SocialActivity.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="329" width="163" x="728" y="-9"/>    

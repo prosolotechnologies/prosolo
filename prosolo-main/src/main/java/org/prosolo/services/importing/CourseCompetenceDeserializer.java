@@ -3,8 +3,8 @@ package org.prosolo.services.importing;
 import java.lang.reflect.Type;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.competences.Competence;
-import org.prosolo.domainmodel.course.CourseCompetence;
+import org.prosolo.common.domainmodel.competences.Competence;
+import org.prosolo.common.domainmodel.course.CourseCompetence;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.nodes.CompetenceManager;
 

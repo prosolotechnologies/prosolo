@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.prosolo.domainmodel.competences.Competence;
+import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.services.indexing.NodeEntityESService;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.springframework.beans.factory.annotation.Autowired;

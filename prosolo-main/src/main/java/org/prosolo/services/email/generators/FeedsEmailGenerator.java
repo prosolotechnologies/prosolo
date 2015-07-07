@@ -2,7 +2,7 @@ package org.prosolo.services.email.generators;
 
 import java.util.List;
 
-import org.prosolo.domainmodel.user.TimeFrame;
+import org.prosolo.common.domainmodel.user.TimeFrame;
 import org.prosolo.web.digest.data.FeedsDigestData;
 
 public class FeedsEmailGenerator extends EmailContentGenerator {

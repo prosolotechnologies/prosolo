@@ -9,8 +9,8 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.component.UIInput;
 import javax.faces.event.ValueChangeEvent;
 
-import org.prosolo.domainmodel.annotation.Tag;
-import org.prosolo.domainmodel.competences.Competence;
+import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.logging.ComponentName;

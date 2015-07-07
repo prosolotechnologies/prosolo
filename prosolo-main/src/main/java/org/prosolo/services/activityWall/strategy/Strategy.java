@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import java.lang.annotation.*;
 
-import org.prosolo.domainmodel.interfacesettings.FilterType;
+import org.prosolo.common.domainmodel.interfacesettings.FilterType;
 
 
 /**

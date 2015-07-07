@@ -1,8 +1,8 @@
 package org.prosolo.services.email.notification;
 
 import org.prosolo.app.Settings;
-import org.prosolo.domainmodel.activities.events.EventType;
-import org.prosolo.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
 import org.springframework.stereotype.Service;

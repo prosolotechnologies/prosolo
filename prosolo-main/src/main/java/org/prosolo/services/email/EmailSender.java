@@ -17,7 +17,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import org.prosolo.app.Settings;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.config.SMTPConfig;
 import org.prosolo.services.email.generators.EmailContentGenerator;
 import org.prosolo.services.email.generators.EmailVerificationEmailContentGenerator;

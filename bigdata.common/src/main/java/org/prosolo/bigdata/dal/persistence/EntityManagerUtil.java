@@ -2,8 +2,12 @@ package org.prosolo.bigdata.dal.persistence;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+
+import org.hibernate.cfg.ImprovedNamingStrategy;
 import org.prosolo.bigdata.common.config.Config;
 import org.prosolo.bigdata.common.config.CommonSettings;
 
@@ -23,6 +27,7 @@ public class EntityManagerUtil {
 		if (emf == null) {
 			Config config=CommonSettings.getInstance().config;
 			Map<String, Object> configOverrides = new HashMap<String, Object>();
+			configOverrides.put("hibernate.ejb.naming_strategy","org.hibernate.cfg.ImprovedNamingStrategy");
 			configOverrides.put("hibernate.dialect",config.hibernateConfig.dialect);
 			configOverrides.put("hibernate.show_sql", config.hibernateConfig.showSql);
 			configOverrides.put("hibernate.max_fetch_depth", config.hibernateConfig.maxFetchDepth);
@@ -38,9 +43,9 @@ public class EntityManagerUtil {
 			configOverrides.put("hibernate.cache.use_query_cache", config.hibernateConfig.useQueryCache);
 			configOverrides.put("hibernate.cache.use_structured_entries", config.hibernateConfig.useStructuredEntries);
 			configOverrides.put("hibernate.cache.region.factory_class",config.hibernateConfig.factoryClass);
-			
+		
 			 configOverrides.put("packagesToScan", "org.prosolo.common.domainmodel");
-
+ 
  
 			String host = config.mysqlConfig.host;
 			int port = config.mysqlConfig.port;
@@ -55,6 +60,11 @@ public class EntityManagerUtil {
 			try{
 			emf = Persistence.createEntityManagerFactory("entityManager",
 					configOverrides);
+			 
+			Set<String> keys=emf.getProperties().keySet();
+			for(String k:keys){
+				System.out.println("K:"+k+" val:"+emf.getProperties().get(k).toString());
+			}
 			}catch(Exception ex){
 				ex.printStackTrace();
 			}

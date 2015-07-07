@@ -6,8 +6,8 @@ package org.prosolo.web.activitywall.data;
 import java.io.Serializable;
 
 import org.prosolo.core.hibernate.HibernateUtil;
-import org.prosolo.domainmodel.activities.ExternalToolActivity;
-import org.prosolo.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.activities.ExternalToolActivity;
+import org.prosolo.common.domainmodel.general.BaseEntity;
 
 /**
  * @author "Nikola Milikic"

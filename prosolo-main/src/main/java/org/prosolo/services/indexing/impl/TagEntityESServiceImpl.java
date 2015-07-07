@@ -6,7 +6,7 @@ import org.apache.log4j.Logger;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
-import org.prosolo.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.ESIndexNames;
 import org.prosolo.services.indexing.TagEntityESService;
@@ -21,7 +21,7 @@ public class TagEntityESServiceImpl extends AbstractBaseEntityESServiceImpl impl
 	private static Logger logger = Logger.getLogger(TagEntityESServiceImpl.class.getName());
 	 
 	/* (non-Javadoc)
-	 * @see org.prosolo.services.indexing.impl.AnnotationsEntityESService#saveAnnotationToES(org.prosolo.domainmodel.annotation.Annotation)
+	 * @see org.prosolo.services.indexing.impl.AnnotationsEntityESService#saveAnnotationToES(org.prosolo.common.domainmodel.annotation.Annotation)
 	 */
 	@Override
 	public void saveTagToES(Tag tag) {

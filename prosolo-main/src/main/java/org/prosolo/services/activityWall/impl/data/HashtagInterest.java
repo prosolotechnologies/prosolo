@@ -7,8 +7,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.prosolo.domainmodel.annotation.Tag;
-import org.prosolo.domainmodel.user.LearningGoal;
+import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.user.LearningGoal;
 
 /**
  * @author "Nikola Milikic"

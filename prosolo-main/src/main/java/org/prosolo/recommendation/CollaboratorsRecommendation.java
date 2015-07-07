@@ -2,7 +2,7 @@ package org.prosolo.recommendation;
 
 import java.util.List;
 
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.User;
 
 public interface CollaboratorsRecommendation {
 

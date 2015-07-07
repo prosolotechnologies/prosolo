@@ -5,12 +5,12 @@ package org.prosolo.web.activitywall.data;
 
 import java.util.List;
 
-import org.prosolo.domainmodel.activities.ExternalToolActivity;
-import org.prosolo.domainmodel.activities.ResourceActivity;
-import org.prosolo.domainmodel.activities.TargetActivity;
-import org.prosolo.domainmodel.activities.UploadAssignmentActivity;
-import org.prosolo.domainmodel.outcomes.Outcome;
-import org.prosolo.domainmodel.outcomes.SimpleOutcome;
+import org.prosolo.common.domainmodel.activities.ExternalToolActivity;
+import org.prosolo.common.domainmodel.activities.ResourceActivity;
+import org.prosolo.common.domainmodel.activities.TargetActivity;
+import org.prosolo.common.domainmodel.activities.UploadAssignmentActivity;
+import org.prosolo.common.domainmodel.outcomes.Outcome;
+import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
 import org.prosolo.util.date.DateUtil;
 import org.prosolo.web.competences.data.ActivityType;

@@ -1,9 +1,9 @@
 package org.prosolo.services.authentication.impl;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.app.RegistrationKey;
-import org.prosolo.domainmodel.user.Email;
-import org.prosolo.domainmodel.user.OpenIDAccount;
+import org.prosolo.common.domainmodel.app.RegistrationKey;
+import org.prosolo.common.domainmodel.user.Email;
+import org.prosolo.common.domainmodel.user.OpenIDAccount;
 import org.prosolo.services.authentication.RegistrationManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.springframework.stereotype.Service;

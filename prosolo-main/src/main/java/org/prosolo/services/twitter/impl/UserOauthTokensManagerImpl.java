@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.domainmodel.user.OauthAccessToken;
-import org.prosolo.domainmodel.user.ServiceType;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.OauthAccessToken;
+import org.prosolo.common.domainmodel.user.ServiceType;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.twitter.UserOauthTokensManager;
 import org.springframework.stereotype.Service;

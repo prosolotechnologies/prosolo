@@ -12,7 +12,7 @@ import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.recommendation.CollaboratorsRecommendation;
 import org.prosolo.services.es.MoreUsersLikeThis;
 import org.prosolo.services.logging.LoggingDBManager;

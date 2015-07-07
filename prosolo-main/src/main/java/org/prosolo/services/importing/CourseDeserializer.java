@@ -6,11 +6,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.prosolo.domainmodel.annotation.Tag;
-import org.prosolo.domainmodel.course.Course;
-import org.prosolo.domainmodel.course.CourseCompetence;
-import org.prosolo.domainmodel.course.CreatorType;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.course.Course;
+import org.prosolo.common.domainmodel.course.CourseCompetence;
+import org.prosolo.common.domainmodel.course.CreatorType;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CourseManager;

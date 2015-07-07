@@ -11,8 +11,8 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.user.reminders.Reminder;
-import org.prosolo.domainmodel.user.reminders.ReminderStatus;
+import org.prosolo.common.domainmodel.user.reminders.Reminder;
+import org.prosolo.common.domainmodel.user.reminders.ReminderStatus;
 import org.prosolo.reminders.dal.PersonalCalendarManager;
 import org.prosolo.search.TextSearch;
 import org.prosolo.services.logging.ComponentName;

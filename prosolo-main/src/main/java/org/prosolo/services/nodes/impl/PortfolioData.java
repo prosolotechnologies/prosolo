@@ -6,9 +6,9 @@ package org.prosolo.services.nodes.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.prosolo.domainmodel.portfolio.AchievedCompetence;
-import org.prosolo.domainmodel.portfolio.CompletedGoal;
-import org.prosolo.domainmodel.portfolio.ExternalCredit;
+import org.prosolo.common.domainmodel.portfolio.AchievedCompetence;
+import org.prosolo.common.domainmodel.portfolio.CompletedGoal;
+import org.prosolo.common.domainmodel.portfolio.ExternalCredit;
 
 /**
  * @author nikolamilikic

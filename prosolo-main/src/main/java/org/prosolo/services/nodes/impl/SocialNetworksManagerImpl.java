@@ -1,9 +1,9 @@
 package org.prosolo.services.nodes.impl;
 
-import org.prosolo.domainmodel.user.SocialNetworkAccount;
-import org.prosolo.domainmodel.user.SocialNetworkName;
-import org.prosolo.domainmodel.user.User;
-import org.prosolo.domainmodel.user.UserSocialNetworks;
+import org.prosolo.common.domainmodel.user.SocialNetworkAccount;
+import org.prosolo.common.domainmodel.user.SocialNetworkName;
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserSocialNetworks;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.SocialNetworksManager;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,7 @@
 package org.prosolo.services.interaction;
 
-import org.prosolo.domainmodel.general.Node;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.general.Node;
+import org.prosolo.common.domainmodel.user.User;
 
 public interface FollowResourceAsyncManager {
 

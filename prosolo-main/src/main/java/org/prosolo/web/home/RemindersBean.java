@@ -11,11 +11,11 @@ import java.util.ListIterator;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.activities.requests.Request;
-import org.prosolo.domainmodel.general.Node;
-import org.prosolo.domainmodel.user.reminders.Reminder;
-import org.prosolo.domainmodel.user.reminders.ReminderStatus;
-import org.prosolo.domainmodel.user.reminders.RequestReminder;
+import org.prosolo.common.domainmodel.activities.requests.Request;
+import org.prosolo.common.domainmodel.general.Node;
+import org.prosolo.common.domainmodel.user.reminders.Reminder;
+import org.prosolo.common.domainmodel.user.reminders.ReminderStatus;
+import org.prosolo.common.domainmodel.user.reminders.RequestReminder;
 import org.prosolo.reminders.dal.PersonalCalendarManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.util.date.DateUtil;

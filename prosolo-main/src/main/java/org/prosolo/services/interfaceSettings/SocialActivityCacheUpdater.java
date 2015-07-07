@@ -6,7 +6,7 @@ package org.prosolo.services.interfaceSettings;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-import org.prosolo.domainmodel.activitywall.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 import org.prosolo.services.general.AbstractManager;
 
 /**

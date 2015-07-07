@@ -7,8 +7,8 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.prosolo.domainmodel.organization.OrganizationalUnit;
-import org.prosolo.domainmodel.user.Email;
+import org.prosolo.common.domainmodel.organization.OrganizationalUnit;
+import org.prosolo.common.domainmodel.user.Email;
 
 /**
  * @author "Nikola Milikic"

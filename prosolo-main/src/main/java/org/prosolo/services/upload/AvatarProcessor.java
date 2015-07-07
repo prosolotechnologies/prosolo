@@ -3,7 +3,7 @@ package org.prosolo.services.upload;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.User;
 
 /**
 zoran

@@ -7,10 +7,10 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.activities.Activity;
-import org.prosolo.domainmodel.competences.Competence;
-import org.prosolo.domainmodel.competences.TargetCompetence;
-import org.prosolo.domainmodel.user.TargetLearningGoal;
+import org.prosolo.common.domainmodel.activities.Activity;
+import org.prosolo.common.domainmodel.competences.Competence;
+import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.services.es.MoreNodesLikeThis;
 import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.nodes.ActivityManager;

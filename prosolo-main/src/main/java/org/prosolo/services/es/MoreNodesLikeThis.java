@@ -3,9 +3,9 @@ package org.prosolo.services.es;
 import java.util.Collection;
 import java.util.List;
 
-import org.prosolo.domainmodel.activities.Activity;
-import org.prosolo.domainmodel.competences.Competence;
-import org.prosolo.domainmodel.general.Node;
+import org.prosolo.common.domainmodel.activities.Activity;
+import org.prosolo.common.domainmodel.competences.Competence;
+import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.services.general.AbstractManager;
 
 public interface MoreNodesLikeThis extends AbstractManager {

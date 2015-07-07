@@ -6,7 +6,7 @@ package org.prosolo.services.interfaceSettings;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-import org.prosolo.domainmodel.outcomes.Outcome;
+import org.prosolo.common.domainmodel.outcomes.Outcome;
 import org.prosolo.services.general.AbstractManager;
 
 /**

@@ -1,6 +1,6 @@
 package org.prosolo.services.feeds.impl;
 
-import org.prosolo.domainmodel.feeds.FeedSource;
+import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.springframework.stereotype.Service;

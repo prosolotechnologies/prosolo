@@ -3,7 +3,7 @@ package org.prosolo.services.activityWall.filters;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.prosolo.domainmodel.interfacesettings.FilterType;
+import org.prosolo.common.domainmodel.interfacesettings.FilterType;
 
 /**
  * @author Zoran Jeremic Jan 22, 2015

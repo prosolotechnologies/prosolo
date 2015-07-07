@@ -1,6 +1,6 @@
 package org.prosolo.services.indexing;
 
-import org.prosolo.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.annotation.Tag;
 
 /**
  * @author Zoran Jeremic 2013-08-21

@@ -5,9 +5,9 @@ package org.prosolo.web.portfolio.data;
 
 import java.io.Serializable;
 
-import org.prosolo.domainmodel.organization.VisibilityType;
-import org.prosolo.domainmodel.organization.Visible;
-import org.prosolo.domainmodel.portfolio.AchievedCompetence;
+import org.prosolo.common.domainmodel.organization.VisibilityType;
+import org.prosolo.common.domainmodel.organization.Visible;
+import org.prosolo.common.domainmodel.portfolio.AchievedCompetence;
 
 /**
  * @author "Nikola Milikic"

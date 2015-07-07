@@ -1,6 +1,6 @@
 package org.prosolo.services.feeds;
 
-import org.prosolo.domainmodel.feeds.FeedSource;
+import org.prosolo.common.domainmodel.feeds.FeedSource;
 
 /**
  * @author Nikola Milikic

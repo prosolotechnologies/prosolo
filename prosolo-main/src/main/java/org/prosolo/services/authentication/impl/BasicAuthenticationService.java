@@ -3,7 +3,7 @@ package org.prosolo.services.authentication.impl;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.authentication.PasswordEncrypter;
 import org.prosolo.services.authentication.exceptions.AuthenticationException;

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.prosolo.domainmodel.user.reminders.Reminder;
+import org.prosolo.common.domainmodel.user.reminders.Reminder;
 import org.prosolo.web.search.data.ReminderData;
 
 /*

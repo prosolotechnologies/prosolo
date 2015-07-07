@@ -236,16 +236,16 @@ _:node19bgqq7ltx27 a atxa-core:link ;
 atxa-core:docRoot atxa-core:contains _:node19bgqq7ltx28 .
 
 _:node19bgqq7ltx28 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall> ;
 	atxa-core:posX "-273" ;
 	atxa-core:posY "1119" .
 
-<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$NodeUserSocialActivity> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$GoalNoteSocialActivity> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$UserSocialActivity> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$SocialStreamSubViewType> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$PostSocialActivity> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$NodeSocialActivity> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$SocialStreamSubView> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$SocialStreamInbox> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$SocialActivityNotification> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$SocialActivity> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$TwitterPostSocialActivity> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$CourseSocialActivity> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$DefaultSocialActivity> .
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$NodeUserSocialActivity> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$GoalNoteSocialActivity> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$UserSocialActivity> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$SocialStreamSubViewType> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$PostSocialActivity> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$NodeSocialActivity> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$SocialStreamSubView> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$SocialStreamInbox> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$SocialActivityNotification> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$SocialActivity> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$TwitterPostSocialActivity> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$CourseSocialActivity> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$DefaultSocialActivity> .
 
 _:node19bgqq7ltx28 atxa-core:contains _:node19bgqq7ltx29 .
 
 _:node19bgqq7ltx29 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$NodeUserSocialActivity> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$NodeUserSocialActivity> ;
 	atxa-core:posX "25" ;
 	atxa-core:posY "1262" .
 
@@ -266,7 +266,7 @@ _:node19bgo4iftx263830 atxa-core:bpLocation "775,1205" ;
 _:node19bgqq7ltx28 atxa-core:contains _:node19bgqq7ltx34 .
 
 _:node19bgqq7ltx34 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$GoalNoteSocialActivity> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$GoalNoteSocialActivity> ;
 	atxa-core:posX "-82" ;
 	atxa-core:posY "1323" .
 
@@ -287,7 +287,7 @@ _:node19bgo4iftx263832 atxa-core:bpLocation "775,1205" ;
 _:node19bgqq7ltx28 atxa-core:contains _:node19bgqq7ltx38 .
 
 _:node19bgqq7ltx38 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$UserSocialActivity> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$UserSocialActivity> ;
 	atxa-core:posX "-267" ;
 	atxa-core:posY "1253" .
 
@@ -308,30 +308,30 @@ _:node19bgo4iftx263834 atxa-core:bpLocation "775,1205" ;
 _:node19bgqq7ltx28 atxa-core:contains _:node19bgqq7ltx42 .
 
 _:node19bgqq7ltx42 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$SocialStreamSubViewType> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$SocialStreamSubViewType> ;
 	atxa-core:posX "252" ;
 	atxa-core:posY "1229" .
 
-<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$SocialStreamSubViewType> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$SocialStreamSubViewType.GOAL_WALL> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$SocialStreamSubViewType.STATUS_WALL> .
+<http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$SocialStreamSubViewType> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$SocialStreamSubViewType.GOAL_WALL> , <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$SocialStreamSubViewType.STATUS_WALL> .
 
 _:node19bgqq7ltx42 atxa-core:contains _:node19bgqq7ltx43 .
 
 _:node19bgqq7ltx43 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$SocialStreamSubViewType.GOAL_WALL> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$SocialStreamSubViewType.GOAL_WALL> ;
 	atxa-core:posX "253" ;
 	atxa-core:posY "1247" .
 
 _:node19bgqq7ltx42 atxa-core:contains _:node19bgqq7ltx44 .
 
 _:node19bgqq7ltx44 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$SocialStreamSubViewType.STATUS_WALL> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$SocialStreamSubViewType.STATUS_WALL> ;
 	atxa-core:posX "253" ;
 	atxa-core:posY "1263" .
 
 _:node19bgqq7ltx28 atxa-core:contains _:node19bgqq7ltx45 .
 
 _:node19bgqq7ltx45 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$PostSocialActivity> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$PostSocialActivity> ;
 	atxa-core:posX "159" ;
 	atxa-core:posY "1326" .
 
@@ -352,7 +352,7 @@ _:node19bgo4iftx263836 atxa-core:bpLocation "775,1205" ;
 _:node19bgqq7ltx28 atxa-core:contains _:node19bgqq7ltx49 .
 
 _:node19bgqq7ltx49 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$NodeSocialActivity> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$NodeSocialActivity> ;
 	atxa-core:posX "692" ;
 	atxa-core:posY "1233" .
 
@@ -368,35 +368,35 @@ _:node19bgo4iftx263837 atxa-core:bpLocation "775,1205" ;
 _:node19bgqq7ltx28 atxa-core:contains _:node19bgqq7ltx65 .
 
 _:node19bgqq7ltx65 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$SocialStreamSubView> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$SocialStreamSubView> ;
 	atxa-core:posX "220" ;
 	atxa-core:posY "1145" .
 
 _:node19bgqq7ltx28 atxa-core:contains _:node19bgqq7ltx66 .
 
 _:node19bgqq7ltx66 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$SocialStreamInbox> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$SocialStreamInbox> ;
 	atxa-core:posX "492" ;
 	atxa-core:posY "1144" .
 
 _:node19bgqq7ltx28 atxa-core:contains _:node19bgqq7ltx67 .
 
 _:node19bgqq7ltx67 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$SocialActivityNotification> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$SocialActivityNotification> ;
 	atxa-core:posX "-80" ;
 	atxa-core:posY "1146" .
 
 _:node19bgqq7ltx28 atxa-core:contains _:node19bgqq7ltx31 .
 
 _:node19bgqq7ltx31 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$SocialActivity> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$SocialActivity> ;
 	atxa-core:posX "709" ;
 	atxa-core:posY "1151" .
 
 _:node19bgqq7ltx28 atxa-core:contains _:node19bgqq7ltx53 .
 
 _:node19bgqq7ltx53 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$TwitterPostSocialActivity> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$TwitterPostSocialActivity> ;
 	atxa-core:posX "752" ;
 	atxa-core:posY "1304" .
 
@@ -417,7 +417,7 @@ _:node19bgo4iftx263839 atxa-core:bpLocation "775,1205" ;
 _:node19bgqq7ltx28 atxa-core:contains _:node19bgqq7ltx57 .
 
 _:node19bgqq7ltx57 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$CourseSocialActivity> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$CourseSocialActivity> ;
 	atxa-core:posX "943" ;
 	atxa-core:posY "1229" .
 
@@ -438,7 +438,7 @@ _:node19bgo4iftx263841 atxa-core:bpLocation "775,1205" ;
 _:node19bgqq7ltx28 atxa-core:contains _:node19bgqq7ltx61 .
 
 _:node19bgqq7ltx61 a atxa-core:node ;
-	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.domainmodel.activitywall$DefaultSocialActivity> ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#org.prosolo.common.domainmodel.activitywall$DefaultSocialActivity> ;
 	atxa-core:posX "1066" ;
 	atxa-core:posY "1293" .
 

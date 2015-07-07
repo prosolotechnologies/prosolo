@@ -3,7 +3,7 @@ package org.prosolo.services.activityWall;
 import java.util.Map;
 
 import org.hibernate.Session;
-import org.prosolo.domainmodel.activitywall.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 import org.prosolo.services.event.Event;
 
 /**

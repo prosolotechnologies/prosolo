@@ -4,7 +4,7 @@ package org.prosolo.services.activityWall.strategy;
  *
  */
 
-import org.prosolo.domainmodel.interfacesettings.FilterType;
+import org.prosolo.common.domainmodel.interfacesettings.FilterType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotationUtils;

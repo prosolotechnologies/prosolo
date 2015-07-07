@@ -2,7 +2,7 @@ package org.prosolo.services.importing;
 
 import java.lang.reflect.Type;
 
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.User;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;

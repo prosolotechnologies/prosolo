@@ -5,7 +5,7 @@ package org.prosolo.web.administration.data;
 
 import java.io.Serializable;
 
-import org.prosolo.domainmodel.admin.ResourceSettings;
+import org.prosolo.common.domainmodel.admin.ResourceSettings;
 
 /**
  * @author "Nikola Milikic"

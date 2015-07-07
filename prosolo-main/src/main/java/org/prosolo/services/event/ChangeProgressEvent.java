@@ -4,8 +4,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 
-import org.prosolo.domainmodel.activities.events.EventType;
-import org.prosolo.domainmodel.workflow.Scale;
+import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.workflow.Scale;
 
 //@Entity
 public class ChangeProgressEvent extends Event {

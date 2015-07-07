@@ -9,8 +9,8 @@ import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.feeds.FeedSource;
-import org.prosolo.domainmodel.user.preferences.FeedsPreferences;
+import org.prosolo.common.domainmodel.feeds.FeedSource;
+import org.prosolo.common.domainmodel.user.preferences.FeedsPreferences;
 import org.prosolo.services.feeds.DiggestManager;
 import org.prosolo.services.feeds.FeedFinder;
 import org.prosolo.services.feeds.FeedsAgregator;

@@ -2,8 +2,8 @@ package org.prosolo.recommendation;
 
 import java.util.List;
 
-import org.prosolo.domainmodel.user.TargetLearningGoal;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.TargetLearningGoal;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.recommendation.impl.RecommendedDocument;
  
 

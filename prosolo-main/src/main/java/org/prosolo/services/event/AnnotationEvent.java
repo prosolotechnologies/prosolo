@@ -2,7 +2,7 @@ package org.prosolo.services.event;
 
 import javax.persistence.Entity;
 
-import org.prosolo.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.activities.events.EventType;
 
 //@Entity
 public class AnnotationEvent extends Event {

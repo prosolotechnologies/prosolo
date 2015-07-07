@@ -7,11 +7,11 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.activities.Activity;
-import org.prosolo.domainmodel.activities.TargetActivity;
-import org.prosolo.domainmodel.competences.Competence;
-import org.prosolo.domainmodel.competences.TargetCompetence;
-import org.prosolo.domainmodel.workflow.LearningPlan;
+import org.prosolo.common.domainmodel.activities.Activity;
+import org.prosolo.common.domainmodel.activities.TargetActivity;
+import org.prosolo.common.domainmodel.competences.Competence;
+import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.workflow.LearningPlan;
 import org.prosolo.recommendation.LearningPlanRecommendation;
 import org.prosolo.recommendation.dal.SuggestedLearningQueries;
 import org.prosolo.services.nodes.DefaultManager;

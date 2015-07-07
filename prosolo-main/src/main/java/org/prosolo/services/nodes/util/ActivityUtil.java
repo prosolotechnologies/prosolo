@@ -3,7 +3,7 @@
  */
 package org.prosolo.services.nodes.util;
 
-import org.prosolo.domainmodel.activities.TargetActivity;
+import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.nodes.DefaultManager;
 import org.springframework.beans.factory.annotation.Autowired;

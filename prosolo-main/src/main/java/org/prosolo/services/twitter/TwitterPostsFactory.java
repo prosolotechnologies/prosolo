@@ -2,7 +2,7 @@ package org.prosolo.services.twitter;
 
 import java.util.List;
 
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.User;
 
 import twitter4j.Status;
 

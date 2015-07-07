@@ -2,7 +2,7 @@ package org.prosolo.web.settings.data;
 
 import java.io.Serializable;
 
-import org.prosolo.domainmodel.feeds.FeedSource;
+import org.prosolo.common.domainmodel.feeds.FeedSource;
 
 /**
  * @author Nikola Milikic

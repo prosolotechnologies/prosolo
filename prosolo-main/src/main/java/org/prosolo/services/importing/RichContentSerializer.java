@@ -6,8 +6,8 @@ import java.lang.reflect.Type;
 
 import org.apache.commons.io.FileUtils;
 import org.prosolo.app.Settings;
-import org.prosolo.domainmodel.content.ContentType;
-import org.prosolo.domainmodel.content.RichContent;
+import org.prosolo.common.domainmodel.content.ContentType;
+import org.prosolo.common.domainmodel.content.RichContent;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

@@ -14,9 +14,9 @@ import javax.mail.internet.AddressException;
 
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
-import org.prosolo.domainmodel.app.ResetKey;
-import org.prosolo.domainmodel.user.Email;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.app.ResetKey;
+import org.prosolo.common.domainmodel.user.Email;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.email.EmailSender;
 import org.prosolo.services.email.EmailSenderManager;
 import org.prosolo.services.email.generators.AccountCreatedEmailGenerator;

@@ -11,12 +11,12 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.domainmodel.competences.TargetCompetence;
-import org.prosolo.domainmodel.general.BaseEntity;
-import org.prosolo.domainmodel.portfolio.AchievedCompetence;
-import org.prosolo.domainmodel.user.User;
-import org.prosolo.domainmodel.workflow.evaluation.Badge;
-import org.prosolo.domainmodel.workflow.evaluation.BadgeType;
+import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.portfolio.AchievedCompetence;
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.workflow.evaluation.Badge;
+import org.prosolo.common.domainmodel.workflow.evaluation.BadgeType;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;

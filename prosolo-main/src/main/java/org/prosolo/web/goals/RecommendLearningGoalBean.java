@@ -3,8 +3,8 @@ package org.prosolo.web.goals;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-import org.prosolo.domainmodel.activities.RecommendationType;
-import org.prosolo.domainmodel.user.LearningGoal;
+import org.prosolo.common.domainmodel.activities.RecommendationType;
+import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.nodes.NodeRecommendationManager;
 import org.prosolo.services.nodes.UserManager;

@@ -8,7 +8,7 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.event.ValueChangeEvent;
 
-import org.prosolo.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.annotation.TagManager;

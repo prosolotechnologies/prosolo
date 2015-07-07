@@ -3,7 +3,7 @@ package org.prosolo.util.urigenerator;
 import java.net.URI;
 import java.util.UUID;
 
-import org.prosolo.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.general.BaseEntity;
 
 /**
  * This generator is based on a immutable universally unique identifier (UUID).

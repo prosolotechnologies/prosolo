@@ -6,7 +6,7 @@ import java.lang.reflect.Type;
 
 import org.apache.commons.io.FileUtils;
 import org.prosolo.app.Settings;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.User;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

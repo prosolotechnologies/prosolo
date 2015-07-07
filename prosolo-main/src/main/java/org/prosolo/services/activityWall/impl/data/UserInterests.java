@@ -6,7 +6,7 @@ package org.prosolo.services.activityWall.impl.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.User;
 
 /**
  * @author "Nikola Milikic"

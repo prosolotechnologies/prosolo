@@ -8,7 +8,7 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.event.ValueChangeEvent;
 
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.interaction.FollowResourceManager;

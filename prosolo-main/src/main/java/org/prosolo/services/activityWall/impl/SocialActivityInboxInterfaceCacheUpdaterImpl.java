@@ -8,15 +8,15 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.domainmodel.activities.events.EventType;
-import org.prosolo.domainmodel.activitywall.SocialActivity;
-import org.prosolo.domainmodel.activitywall.SocialActivityNotification;
-import org.prosolo.domainmodel.activitywall.SocialStreamSubView;
-import org.prosolo.domainmodel.activitywall.TwitterPostSocialActivity;
-import org.prosolo.domainmodel.general.Node;
-import org.prosolo.domainmodel.organization.VisibilityType;
-import org.prosolo.domainmodel.user.TargetLearningGoal;
-import org.prosolo.domainmodel.user.User;
+import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.SocialActivityNotification;
+import org.prosolo.common.domainmodel.activitywall.SocialStreamSubView;
+import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
+import org.prosolo.common.domainmodel.general.Node;
+import org.prosolo.common.domainmodel.organization.VisibilityType;
+import org.prosolo.common.domainmodel.user.TargetLearningGoal;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.activitystream.FilterType;*/
 import org.prosolo.services.activityWall.SocialActivityInboxInterfaceCacheUpdater;
 
