@@ -1,8 +1,9 @@
 package org.prosolo.bigdata.rabbitmq;
 
 import org.apache.log4j.Logger;
-import org.prosolo.bigdata.config.RabbitMQConfig;
-import org.prosolo.bigdata.config.Settings;
+import org.prosolo.bigdata.common.config.CommonSettings;
+import org.prosolo.bigdata.common.config.RabbitMQConfig;
+ 
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ import com.rabbitmq.client.ConnectionFactory;
 public class ReliableClient {
 	private final static Logger logger = Logger
 			.getLogger(ReliableClient.class);
-	RabbitMQConfig rabbitmqConfig = Settings.getInstance().config.rabbitMQConfig;
+	RabbitMQConfig rabbitmqConfig = CommonSettings.getInstance().config.rabbitMQConfig;
 	protected Connection connection;
 	protected Channel channel;
 	protected String queue;
@@ -102,7 +103,7 @@ public class ReliableClient {
 	}
 
 	public void setQueue(String queue) {
-		this.queue = Settings.getInstance().config.rabbitMQConfig.queuePrefix+queue;
+		this.queue = CommonSettings.getInstance().config.rabbitMQConfig.queuePrefix+queue;
 	}
 
 }

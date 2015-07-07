@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.prosolo.bigdata.common.config.CommonSettings;
 import org.prosolo.bigdata.common.rabbitmq.DataItem;
 import org.prosolo.bigdata.common.rabbitmq.DataQueue;
 import org.prosolo.bigdata.config.Settings;
@@ -30,7 +31,7 @@ public class ReliableProducer  extends ReliableClient{
 	}
 
 	public void init() {
-		if (Settings.getInstance().config.rabbitMQConfig.distributed) {
+		if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 			this.startAsynchronousPublisher();
 		}
 	}

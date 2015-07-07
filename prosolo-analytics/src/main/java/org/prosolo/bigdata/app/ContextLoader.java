@@ -13,6 +13,8 @@ import org.prosolo.bigdata.es.ESAdministrationImpl;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.bigdata.streaming.StreamingManagerImpl;
 import org.prosolo.bigdata.twitter.TwitterHashtagsStreamsManagerImpl;
+//import org.prosolo.bigdata.scala.twitter.TwitterHashtagsStreamsManager;
+import org.prosolo.bigdata.scala.twitter.TwitterHashtagsStreamsManager$;
 
 /**
 @author Zoran Jeremic Apr 2, 2015
@@ -50,8 +52,11 @@ public class ContextLoader  implements ServletContextListener {
 			}
 			
 		 }
-		 TwitterHashtagsStreamsManagerImpl manager=new TwitterHashtagsStreamsManagerImpl();
-			manager.initialize();
+		// TwitterHashtagsStreamsManagerImpl manager=new TwitterHashtagsStreamsManagerImpl();
+			//manager.initialize();
+			TwitterHashtagsStreamsManager$ twitterManager=TwitterHashtagsStreamsManager$.MODULE$;
+			System.out.println("ENABLE THIS");
+			 twitterManager.initialize();
 		// After context is initialized. Should not be changed.
 		// Initialization of Streaming manager that is responsible for
 		// collecting information from Prosolo through the Rabbitmq 

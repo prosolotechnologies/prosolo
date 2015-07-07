@@ -1,4 +1,4 @@
-package org.prosolo.bigdata.config;
+package org.prosolo.bigdata.common.config;
 
 import org.simpleframework.xml.Element;
 

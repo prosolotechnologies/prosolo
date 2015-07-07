@@ -10,7 +10,8 @@ import javax.persistence.EntityManager;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.dal.persistence.TwitterStreamingDAO;
 import org.prosolo.bigdata.twitter.StreamListData;
-import org.prosolo.common.domainmodel.user.LearningGoal;
+import org.prosolo.common.domainmodel.user.User;
+ 
 
 
 /**
@@ -21,17 +22,31 @@ import org.prosolo.common.domainmodel.user.LearningGoal;
 public class TwitterStreamingDAOImpl implements TwitterStreamingDAO{
 
 	private static Logger logger = Logger.getLogger(TwitterStreamingDAOImpl.class);
-	@Override
-	public Map<String, StreamListData> readAllHashtagsAndLearningGoalsIds() {
+	
+	public void test(){
 		EntityManager em = org.prosolo.bigdata.dal.persistence.EntityManagerUtil.getEntityManagerFactory()
 				.createEntityManager();
-		LearningGoal lg;
+		String query="SELECT DISTINCT user FROM User user WHERE user.id >0";
+		List<User> users=em.createQuery(query).getResultList();
+		System.out.println("FOUND USERS:"+users.size());
+		for(User u:users){
+			System.out.println("FOUND USER:"+u.getLastname());
+		}
+		em.close();
+	}
+	@Override
+	public Map<String, StreamListData> readAllHashtagsAndLearningGoalsIds() {
+		System.out.println("read all hashtags and learning goals ids...");
+		test();
+		EntityManager em = org.prosolo.bigdata.dal.persistence.EntityManagerUtil.getEntityManagerFactory()
+				.createEntityManager();
 		String query = 
 			"SELECT DISTINCT hashtag.title, lGoal.id " +
 			"FROM LearningGoal lGoal " +
 			"LEFT JOIN lGoal.hashtags hashtag WHERE hashtag.id > 0";
 		
-		logger.debug("hb query:" + query);
+		logger.info("hb query:" + query);
+		@SuppressWarnings("unchecked")
 		List<Object> result =  em.createQuery(query).getResultList();
 		
 		Map<String, StreamListData> hashtagsLearningGoalIds = new HashMap<String, StreamListData>();
@@ -40,6 +55,7 @@ public class TwitterStreamingDAOImpl implements TwitterStreamingDAO{
 			Iterator<Object> resultIt = result.iterator();
 			
 			while (resultIt.hasNext()) {
+				System.out.println("result");
 				Object[] object = (Object[]) resultIt.next();
 				String title = (String) object[0];
 				Long lgId = (Long) object[1];
@@ -54,6 +70,7 @@ public class TwitterStreamingDAOImpl implements TwitterStreamingDAO{
 			}
 		}
 		System.out.println("FOUND DATA:"+hashtagsLearningGoalIds.size());
+		em.close();
 		return hashtagsLearningGoalIds;
 	}
 }

@@ -77,12 +77,14 @@ public class RecommendedResourcesSearchImpl implements RecommendedResourcesSearc
 				}
 			}
 				List<Map.Entry<Long,Double>> topTenUsers = new ArrayList<Map.Entry<Long,Double>>(usersScores.entrySet());
+				if(topTenUsers!=null){
 				Collections.sort(topTenUsers, new Comparator<Map.Entry<Long,Double>>() {
 				  public int compare(
 				      Map.Entry<Long,Double> entry1, Map.Entry<Long,Double> entry2) {
 				    return entry2.getValue().compareTo(entry1.getValue());
 				  }
 				});
+				}
 				//int limitTo=limit;
 				if(topTenUsers.size()<limit){
 					limit=topTenUsers.size();

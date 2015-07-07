@@ -60,7 +60,6 @@ public class PropertiesFacade {
 			 try {
 				TwitterSiteProperties twitterSiteProperties=pFacade.getTwitterSiteProperties(accountId);
 				properties.add(twitterSiteProperties);
-				System.out.println("found:"+twitterSiteProperties.getAccessToken()+" for account:"+accountId);
 				accountId++;
 			} catch (IllegalArgumentException | IOException e) {
 				e.printStackTrace();

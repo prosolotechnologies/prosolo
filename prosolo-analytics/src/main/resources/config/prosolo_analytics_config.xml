@@ -11,51 +11,11 @@
 			<db-replication-factor>1</db-replication-factor>
 		</db-server>
 	</db-config>
-	<rabbitmq-config>
-		<listen>true</listen>
-		<distributed>true</distributed>
-		<master-node>false</master-node>
-		<host>127.0.0.1</host>
-		<port>5672</port>
-		<virtualHost>/prosolo</virtualHost>
-		<username>prosolo</username>
-		<password>prosolo@2014</password>
-		<exchange>prosolo_exchange</exchange>
-		<durableQueue>false</durableQueue>
-		<exclusiveQueue>false</exclusiveQueue>
-		<autodeleteQueue>false</autodeleteQueue>
-		<routingKey>prosolo stats</routingKey>
-		<messageExpiration>60000</messageExpiration>
-		<queuePrefix>v5_</queuePrefix>
-	</rabbitmq-config>
+	 
 	<app-config>
 		<app-name>prosolo-analytics</app-name>
 	</app-config>
-	<elastic-search-config>
-		<type>server</type>
-		<aws>
-			<access-key>AKIAICPJOYWQUM7HTXWQ</access-key>
-			<secret-key>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</secret-key>
-			<region>us-east-1</region>
-			<groups>ES2</groups>
-		</aws>
-		<es-hosts>
-			<es-host>
-				<host>192.168.2.219</host>
-				<port>9300</port>
-			</es-host>
-		</es-hosts>
-		<home-path>/home/zoran/elasticsearch</home-path>
-		<cluster-name>elasticsearch</cluster-name>
-		<replicas-number>0</replicas-number>
-		<shards-number>5</shards-number>
-		<documents-index>documents2</documents-index>
-		<nodes-index>nodes2</nodes-index>
-		<users-index>users2</users-index>
-		<associationrules-index>associationrules</associationrules-index>
-		<recommendationdata-index>recommendationdata
-		</recommendationdata-index>
-	</elastic-search-config>
+	 
 	<scheduler-config>
 		<auto-start>false</auto-start>
 		<instance-name>ProsoloAnalyticsScheduler</instance-name>
@@ -75,31 +35,4 @@
 			</job>
 		</quartz-jobs>
 	</scheduler-config>
-	<mysql-config>
-		<host>localhost</host>
-		<port>3306</port>
-		<database>prosolo</database>
-		<user>root</user>
-		<password>root</password>
-		<jdbc_driver>com.mysql.jdbc.Driver</jdbc_driver>
-	</mysql-config>
-	<hibernate-config>
-		<dialect>org.hibernate.dialect.MySQL5InnoDBDialect</dialect>
-		<show_sql>false</show_sql>
-		<max_fetch_depth>0</max_fetch_depth>
-		<hbm2ddl_auto>update</hbm2ddl_auto>
-		<batch_size>50</batch_size>
-		<pool_size>500</pool_size>
-		<char_set>UTF-8</char_set>
-		<character_encoding>UTF-8</character_encoding>
-		<use_unicode>true</use_unicode>
-		<autocommit>true</autocommit>
-		<release_mode>after_statement</release_mode>
-		<use_second_level_cache>true</use_second_level_cache>
-		<use_query_cache>true</use_query_cache>
-		<use_structured_entries>true</use_structured_entries>
-		<factory_class>org.hibernate.cache.EhCacheRegionFactory</factory_class>
-	</hibernate-config>
-
-
 </config>

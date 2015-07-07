@@ -15,24 +15,21 @@ public class Config {
 	
 	@Element(name = "db-config", required = true)
 	public DBConfig dbConfig;
-
-
-	@Element(name = "rabbitmq-config", required = true)
-	public RabbitMQConfig rabbitMQConfig;
+ 
 
 	@Element(name = "app-config", required = true)
 	public AppConfig appConfig;
 	
-	@Element(name="elastic-search-config")
-	public ElasticSearchConfig elasticSearch;
+	//@Element(name="elastic-search-config")
+	//public ElasticSearchConfig elasticSearch;
 
 	@Element(name="scheduler-config")
 	public SchedulerConfig schedulerConfig; 
 	
-	@Element(name="mysql-config")
-	public MySQLConfig mysqlConfig;
+	//@Element(name="mysql-config")
+	//public MySQLConfig mysqlConfig;
 	
-	@Element(name="hibernate-config")
-	public HibernateConfig hibernateConfig;
+	//@Element(name="hibernate-config")
+	//public HibernateConfig hibernateConfig;
 }
 

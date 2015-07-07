@@ -6,7 +6,8 @@ import java.util.Map;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import org.prosolo.bigdata.config.Config;
+import org.prosolo.bigdata.common.config.CommonSettings;
+import org.prosolo.bigdata.common.config.Config;
 import org.prosolo.bigdata.config.Settings;
 
  
@@ -21,7 +22,7 @@ public class EntityManager2Util {
 	private static EntityManagerFactory emf;
 	public static EntityManagerFactory getEntityManagerFactory() {
 		if (emf == null) {
-			Config config=Settings.getInstance().config;
+			Config config=CommonSettings.getInstance().config;
 			Map<String, Object> configOverrides = new HashMap<String, Object>();
 			configOverrides.put("hibernate.dialect",config.hibernateConfig.dialect);
 			configOverrides.put("hibernate.show_sql", config.hibernateConfig.showSql);

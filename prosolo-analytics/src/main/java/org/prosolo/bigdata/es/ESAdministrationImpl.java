@@ -14,6 +14,7 @@ import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.common.settings.ImmutableSettings;
+import org.prosolo.bigdata.common.config.CommonSettings;
 import org.prosolo.bigdata.common.config.ElasticSearchConfig;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.bigdata.config.Settings;
@@ -46,7 +47,7 @@ public class ESAdministrationImpl extends AbstractESIndexer implements ESAdminis
 		boolean exists = client.admin().indices().prepareExists(indexName)
 				.execute().actionGet().isExists();
 		if (!exists) {
-			ElasticSearchConfig elasticSearchConfig = Settings.getInstance().config.elasticSearch;
+			ElasticSearchConfig elasticSearchConfig = CommonSettings.getInstance().config.elasticSearch;
 			ImmutableSettings.Builder elasticsearchSettings = ImmutableSettings.settingsBuilder()
 	                  .put("http.enabled", "false")
 	                  .put("cluster.name", elasticSearchConfig.clusterName)

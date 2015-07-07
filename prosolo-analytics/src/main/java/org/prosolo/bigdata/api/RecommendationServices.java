@@ -27,7 +27,7 @@ import com.google.gson.Gson;
 public class RecommendationServices {
 	private final static Logger logger = Logger
 			.getLogger(RecommendationServices.class);
-	private ActivityRecommendation activityRecommendation=new ActivityRecommendationImpl();
+	//private ActivityRecommendation activityRecommendation=new ActivityRecommendationImpl();
 	
 	@POST
 	@Path("/recommendedactivities")
@@ -35,9 +35,9 @@ public class RecommendationServices {
 	public Response getRecommendedOrFrequentActivitiesForCompetence(RequestParametersObject parameters) {
 		Gson g=new Gson();
 		logger.debug("parameters:" + g.toJson(parameters));
-		List<ActivityAccessCount> recommendedActivities=activityRecommendation.getRecommendedActivitiesForCompetence(parameters.getObjectId(), parameters.getIgnoredIds(), parameters.getLimit());
+		//List<ActivityAccessCount> recommendedActivities=activityRecommendation.getRecommendedActivitiesForCompetence(parameters.getObjectId(), parameters.getIgnoredIds(), parameters.getLimit());
 		
-		return Response.status(Status.OK).entity(g.toJson(recommendedActivities)).build();
+		return Response.status(Status.OK).entity(g.toJson("")).build();
 	}
 	
 	@POST
@@ -46,9 +46,9 @@ public class RecommendationServices {
 	public Response getRelatedActivitiesForActivity(RequestListParametersObject parameters) {
 		Gson g=new Gson();
 		logger.debug("parameters:" + g.toJson(parameters));
-		List<ActivityAccessCount> recommendedActivities=activityRecommendation.getRelatedActivitiesForActivity(parameters.getParameter("competenceid"), parameters.getParameter("activityid"), parameters.getIgnoredIds(),parameters.getLimit());
+		//List<ActivityAccessCount> recommendedActivities=activityRecommendation.getRelatedActivitiesForActivity(parameters.getParameter("competenceid"), parameters.getParameter("activityid"), parameters.getIgnoredIds(),parameters.getLimit());
 		
-		return Response.status(Status.OK).entity(g.toJson(recommendedActivities)).build();
+		return Response.status(Status.OK).entity(g.toJson("")).build();
 	}
 }
 

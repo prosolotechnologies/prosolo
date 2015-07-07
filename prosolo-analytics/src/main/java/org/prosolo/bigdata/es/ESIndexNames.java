@@ -4,7 +4,8 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.prosolo.bigdata.config.Settings;
+import org.prosolo.bigdata.common.config.CommonSettings;
+
  
 
 /**
@@ -14,8 +15,8 @@ import org.prosolo.bigdata.config.Settings;
 
 public class ESIndexNames {
 	
-	public static final String INDEX_RECOMMENDATIONDATA = Settings.getInstance().config.elasticSearch.recommendationdataIndex;
-	public static String INDEX_ASSOCRULES=Settings.getInstance().config.elasticSearch.associationrulesIndex;//"association rules index";
+	public static final String INDEX_RECOMMENDATIONDATA = CommonSettings.getInstance().config.elasticSearch.recommendationdataIndex;
+	public static String INDEX_ASSOCRULES=CommonSettings.getInstance().config.elasticSearch.associationrulesIndex;//"association rules index";
 
 	public static List<String> getAllIndexes(){
 		List<String> indexes=new ArrayList<String>();
