@@ -6,14 +6,15 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
-import org.prosolo.bigdata.common.config.ElasticSearchConfig;
+import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.config.ElasticSearchConfig;
 
 public class ESIndexNames {
  
-	public static final String INDEX_ASSOCRULES = Settings.getInstance().config.elasticSearch.associationrulesIndex;
-	public static String INDEX_DOCUMENTS=Settings.getInstance().config.elasticSearch.documentsIndex;//"documents";
-	public static String INDEX_NODES=Settings.getInstance().config.elasticSearch.nodesIndex;//"nodes";
-	public static String INDEX_USERS=Settings.getInstance().config.elasticSearch.usersIndex;//"users";
+	public static final String INDEX_ASSOCRULES = CommonSettings.getInstance().config.elasticSearch.associationrulesIndex;
+	public static String INDEX_DOCUMENTS=CommonSettings.getInstance().config.elasticSearch.documentsIndex;//"documents";
+	public static String INDEX_NODES=CommonSettings.getInstance().config.elasticSearch.nodesIndex;//"nodes";
+	public static String INDEX_USERS=CommonSettings.getInstance().config.elasticSearch.usersIndex;//"users";
 	public static String INDEX_RECOMMENDATION_DATA=ElasticSearchConfig.recommendationdataIndex;
  
 	

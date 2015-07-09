@@ -49,23 +49,35 @@
 		<password>root</password>
 		<jdbc_driver>com.mysql.jdbc.Driver</jdbc_driver>
 	</mysql-config>
-	<hibernate-config>
-		<dialect>org.hibernate.dialect.MySQL5InnoDBDialect</dialect>
-		<show_sql>false</show_sql>
-		<max_fetch_depth>0</max_fetch_depth>
-		<hbm2ddl_auto>update</hbm2ddl_auto>
-		<batch_size>50</batch_size>
-		<pool_size>500</pool_size>
-		<char_set>UTF-8</char_set>
-		<character_encoding>UTF-8</character_encoding>
-		<use_unicode>true</use_unicode>
-		<autocommit>true</autocommit>
-		<release_mode>after_statement</release_mode>
-		<use_second_level_cache>true</use_second_level_cache>
-		<use_query_cache>true</use_query_cache>
-		<use_structured_entries>true</use_structured_entries>
-		<factory_class>org.hibernate.cache.EhCacheRegionFactory</factory_class>
-	</hibernate-config>
+	 <hibernate>
+      <dialect>org.hibernate.dialect.MySQL5InnoDBDialect</dialect>
+      <show-sql>false</show-sql>
+      <hbm2ddl-auto>update</hbm2ddl-auto>
+      <max-fetch-depth>0</max-fetch-depth>
+      <jdbc-batch-size>50</jdbc-batch-size>
+      <connection>
+         <pool-size>200</pool-size>
+         <charSet>UTF-8</charSet>
+         <character-encoding>UTF-8</character-encoding>
+         <use-unicode>true</use-unicode>
+         <autocommit>false</autocommit>
+      </connection>
+      <cache>
+         <use-second-level-cache>true</use-second-level-cache>
+         <use-query-cache>true</use-query-cache>
+         <use-structured-entries>true</use-structured-entries>
+         <region-factory-class>org.hibernate.cache.EhCacheRegionFactory</region-factory-class>
+      </cache>
+      <c3p0>
+         <acquireIncrement>10</acquireIncrement>
+         <initialPoolSize>5</initialPoolSize>
+         <minPoolSize>5</minPoolSize>
+         <maxPoolSize>50</maxPoolSize>
+         <maxStatements>50</maxStatements>
+         <maxIdleTime>3000</maxIdleTime>
+         <automaticTestTable>testTable</automaticTestTable>
+      </c3p0>
+   </hibernate>
 
 
 </config>

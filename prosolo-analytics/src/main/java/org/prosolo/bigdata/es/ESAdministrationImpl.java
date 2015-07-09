@@ -14,11 +14,11 @@ import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.common.settings.ImmutableSettings;
-import org.prosolo.bigdata.common.config.CommonSettings;
-import org.prosolo.bigdata.common.config.ElasticSearchConfig;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.bigdata.config.Settings;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
+import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.config.ElasticSearchConfig;
 
  
 

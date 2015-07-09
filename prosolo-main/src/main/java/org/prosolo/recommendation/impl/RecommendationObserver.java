@@ -5,6 +5,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activities.Recommendation;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
@@ -58,7 +59,7 @@ public class RecommendationObserver implements EventObserver {
 				Recommendation recommendation = (Recommendation) event.getObject();
 				User receiver = recommendation.getRecommendedTo();
 				
-			if(Settings.getInstance().config.rabbitmq.distributed){
+			if(CommonSettings.getInstance().config.rabbitMQConfig.distributed){
 					messageDistributer.distributeMessage(ServiceType.ADDSUGGESTEDBYCOLLEAGUES, receiver.getId(), recommendation.getId(), null, null);
 			}else{
 				HttpSession httpSession = applicationBean.getUserSession(receiver.getId());

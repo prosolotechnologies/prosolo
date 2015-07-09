@@ -4,8 +4,8 @@ import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 import org.prosolo.app.Settings;
-import org.prosolo.bigdata.common.config.ElasticSearchConfig;
-//import org.prosolo.config.ElasticSearchConfig;
+import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.config.ElasticSearchConfig;
 
  
 
@@ -21,7 +21,7 @@ public class ElasticSearchNodeManager {
 	public  Node getLocalNode(){
 		//TODO Should be replaced with distributed version of the ElasticSearch
 		ImmutableSettings.Builder settings = ImmutableSettings.settingsBuilder();
-		ElasticSearchConfig elasticSearchConfig=Settings.getInstance().config.elasticSearch;
+		ElasticSearchConfig elasticSearchConfig=CommonSettings.getInstance().config.elasticSearch;
 		String homePath=elasticSearchConfig.homePath;
 		 settings.put("cluster.name", elasticSearchConfig.clusterName);
          settings.put("path.conf", homePath);

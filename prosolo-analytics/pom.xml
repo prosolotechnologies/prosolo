@@ -16,7 +16,7 @@
 		<scala.version>2.11.6</scala.version>
 		<quartz.version>2.2.1</quartz.version>
 		<twitter4j.version>3.0.3</twitter4j.version>
-		<hibernate.version>5.0.0.CR1</hibernate.version>
+		<hibernate.version>4.3.10.Final</hibernate.version>
 		<!-- hibernate.version>4.3.10.Final</hibernate.version-->
 	</properties>
 	<repositories>

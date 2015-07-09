@@ -1,4 +1,4 @@
-package org.prosolo.bigdata.common.config;
+package org.prosolo.common.config;
 
 import java.util.ArrayList;
 

@@ -16,7 +16,7 @@ public class Settings {
 
 	private static Logger logger = Logger.getLogger(Settings.class);
 
-	private static final String configFileName = "config.xml";
+	private static final String configFileName = "prosolo_main_config.xml";
 	private static final String defaultConfigFilePath = "config/";
  
 	private static final String absoluteConfigPath = System.getProperty("user.home") + File.separator + ".prosolo" + File.separator;

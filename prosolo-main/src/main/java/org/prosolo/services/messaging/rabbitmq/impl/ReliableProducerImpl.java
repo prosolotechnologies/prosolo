@@ -9,8 +9,10 @@ import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings; 
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.services.messaging.rabbitmq.ReliableProducer;
  
+
 
 import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.ConfirmListener;
@@ -32,7 +34,7 @@ public class ReliableProducerImpl extends ReliableClientImpl implements Reliable
 	}
 
 	public void init() {
-		if (Settings.getInstance().config.rabbitmq.distributed) {
+		if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 			this.startAsynchronousPublisher();
 		}
 	}

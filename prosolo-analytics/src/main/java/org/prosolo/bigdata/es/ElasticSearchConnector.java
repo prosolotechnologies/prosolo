@@ -20,13 +20,13 @@ import org.elasticsearch.node.Node;
 import static org.elasticsearch.client.Requests.clusterHealthRequest;
 import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
-import org.prosolo.bigdata.common.config.CommonSettings;
 /**/
-import org.prosolo.bigdata.common.config.ElasticSearchConfig;
-import org.prosolo.bigdata.common.config.ElasticSearchHost;
 import org.prosolo.bigdata.config.Settings;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 //import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
+import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.config.ElasticSearchConfig;
+import org.prosolo.common.config.ElasticSearchHost;
  
 //import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 

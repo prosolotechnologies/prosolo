@@ -10,6 +10,7 @@ import org.prosolo.app.bc.BusinessCase1_DL;
 import org.prosolo.app.bc.BusinessCase2_AU;
 import org.prosolo.app.bc.BusinessCase3_Statistics;
 import org.prosolo.app.bc.BusinessCase4_EDX;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.OrganizationalUnit;
 import org.prosolo.common.domainmodel.organization.Role;
@@ -86,9 +87,9 @@ public class AfterContextLoader implements ServletContextListener {
 				} catch (IndexingServiceNotAvailable e) {
 					logger.error(e);
 				}
-				System.out.println("Finished ElasticSearch initialization:" + settings.config.rabbitmq.distributed + " .."
-						+ settings.config.rabbitmq.masterNode);
-				if (!settings.config.rabbitmq.distributed || settings.config.rabbitmq.masterNode) {
+				System.out.println("Finished ElasticSearch initialization:" + CommonSettings.getInstance().config.rabbitMQConfig.distributed + " .."
+						+ CommonSettings.getInstance().config.rabbitMQConfig.masterNode);
+				if (!CommonSettings.getInstance().config.rabbitMQConfig.distributed || CommonSettings.getInstance().config.rabbitMQConfig.masterNode) {
 					System.out.println("Initializing Twitter Streams Manager here");
 					ServiceLocator.getInstance().getService(TwitterStreamsManager.class).start();
 				}
@@ -104,7 +105,7 @@ public class AfterContextLoader implements ServletContextListener {
 		System.out.println("Init application services...");
 		ServiceLocator.getInstance().getService(CollaboratorsRecommendation.class).initializeMostActiveRecommendedUsers();
 		Settings settings = Settings.getInstance(); 
-		if(settings.config.rabbitmq.distributed){
+		if(CommonSettings.getInstance().config.rabbitMQConfig.distributed){
 			
 		
 		ReliableConsumer systemConsumer=new ReliableConsumerImpl();
@@ -121,7 +122,7 @@ public class AfterContextLoader implements ServletContextListener {
 		//ServiceLocator.getInstance().getService(ReliableConsumer.class).init(QueueNames.SESSION);
 		
 		//ServiceLocator.getInstance().getService(ReliableProducer.class).init();
-		if(settings.config.rabbitmq.masterNode){
+		if(CommonSettings.getInstance().config.rabbitMQConfig.masterNode){
 			System.out.println("Init MasterNodeReliableConsumer...");
 			
 			//ServiceLocator.getInstance().getService(MasterNodeReliableConsumer.class).init();

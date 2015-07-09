@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.app.Settings;
 import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.MessagesThread;
@@ -63,7 +64,7 @@ public class MessagesObserver implements EventObserver {
 				
 				User receiver = message.getReceiver();
 				
-				if (Settings.getInstance().config.rabbitmq.distributed) {
+				if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 					messageDistributer.distributeMessage(ServiceType.DIRECTMESSAGE, receiver.getId(), message.getId(), null, null);
 				} else {
 					HttpSession httpSession = applicationBean.getUserSession(receiver.getId());
@@ -101,7 +102,7 @@ public class MessagesObserver implements EventObserver {
 							if (topInboxBean != null) {
 								topInboxBean.addNewMessageThread(messagesThread);
 							}
-						} else if (Settings.getInstance().config.rabbitmq.distributed) {
+						} else if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 							messageDistributer.distributeMessage(
 									ServiceType.ADDNEWMESSAGETHREAD, 
 									participant.getId(), 

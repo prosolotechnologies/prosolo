@@ -2,6 +2,7 @@ package org.prosolo.services.feeds;
 
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.SchedulerContext;
@@ -23,8 +24,8 @@ public class FeedsDigestJobBean extends QuartzJobBean {
 
 	@Override
 	protected final void executeInternal(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-		boolean distributed = Settings.getInstance().config.rabbitmq.distributed;
-		boolean master = Settings.getInstance().config.rabbitmq.masterNode;
+		boolean distributed = CommonSettings.getInstance().config.rabbitMQConfig.distributed;
+		boolean master = CommonSettings.getInstance().config.rabbitMQConfig.masterNode;
 	
 		if ((master && distributed) || !distributed) {
 			SchedulerContext schedulerContext = null;

@@ -7,10 +7,10 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.prosolo.bigdata.common.config.CommonSettings;
 import org.prosolo.bigdata.common.rabbitmq.DataItem;
 import org.prosolo.bigdata.common.rabbitmq.DataQueue;
 import org.prosolo.bigdata.config.Settings;
+import org.prosolo.common.config.CommonSettings;
 
 import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.ConfirmListener;

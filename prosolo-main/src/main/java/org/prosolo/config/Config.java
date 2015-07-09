@@ -1,10 +1,10 @@
 package org.prosolo.config;
 
-import org.prosolo.bigdata.common.config.ElasticSearchConfig;
+import org.prosolo.common.config.ElasticSearchConfig;
+import org.prosolo.common.config.hibernate.HibernateConfig;
 import org.prosolo.config.admin.AdminConfig;
 import org.prosolo.config.app.AppConfig;
 import org.prosolo.config.fileManagement.FileManagementConfig;
-import org.prosolo.config.hibernate.HibernateConfig;
 import org.prosolo.config.init.InitConfig;
 import org.prosolo.config.services.ServicesConfig;
 import org.prosolo.util.StringUtils;
@@ -20,8 +20,8 @@ public class Config {
 	@Element(name = "logging-config")
 	public String log4j;
 
-	@Element(name = "db-config")
-	public DBConfig database;
+	//@Element(name = "db-config")
+	//public DBConfig database;
 	
 	@Element(name = "mongo-db-config")
 	public MongoDBConfig mongoDatabase;
@@ -38,20 +38,20 @@ public class Config {
 	@Element(name = "services")
 	public ServicesConfig services;
 	
-	@Element(name="elastic-search-config")
-	public ElasticSearchConfig elasticSearch; 
+	//@Element(name="elastic-search-config")
+	//public ElasticSearchConfig elasticSearch; 
 	
 	@Element(name="twitter-stream-config")
 	public TwitterStreamConfig twitterStreamConfig; 
 	
-	@Element(name="hibernate")
-	public HibernateConfig hibernate; 
+	//@Element(name="hibernate")
+	//public HibernateConfig hibernate; 
 	
 	@Element(name="admin")
 	public AdminConfig admin; 
 	
-	@Element(name="rabitmq")
-	public RabbitMQConfig rabbitmq;
+	//@Element(name="rabitmq")
+	//public RabbitMQConfig rabbitmq;
 	
 	@Element(name="analytical-server")
 	public AnalyticalServerConfig analyticalServerConfig;

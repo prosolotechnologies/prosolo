@@ -8,9 +8,12 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 
 import org.apache.log4j.Logger;
+import org.hibernate.SessionFactory;
 import org.prosolo.bigdata.dal.persistence.TwitterStreamingDAO;
 import org.prosolo.bigdata.twitter.StreamListData;
 import org.prosolo.common.domainmodel.user.User;
+
+import com.datastax.driver.core.Session;
  
 
 
@@ -26,18 +29,29 @@ public class TwitterStreamingDAOImpl implements TwitterStreamingDAO{
 	public void test(){
 		EntityManager em = org.prosolo.bigdata.dal.persistence.EntityManagerUtil.getEntityManagerFactory()
 				.createEntityManager();
+		
 		String query="SELECT DISTINCT user FROM User user WHERE user.id >0";
-		List<User> users=em.createQuery(query).getResultList();
+	 	List<User> users=em.createQuery(query).getResultList();
 		System.out.println("FOUND USERS:"+users.size());
 		for(User u:users){
 			System.out.println("FOUND USER:"+u.getLastname());
 		}
 		em.close();
 	}
+	public void test2(){
+		SessionFactory sessionFactory = org.prosolo.bigdata.dal.persistence.HibernateUtil.getSessionFactory();
+		org.hibernate.Session session=sessionFactory.openSession();
+		String query="SELECT DISTINCT user FROM User user WHERE user.id >0";
+	 	List<User> users=session.createQuery(query).list();
+		System.out.println("FOUND USERS:"+users.size());
+		for(User u:users){
+			System.out.println("FOUND USER:"+u.getLastname());
+		}
+		session.close();
+	}
 	@Override
 	public Map<String, StreamListData> readAllHashtagsAndLearningGoalsIds() {
 		System.out.println("read all hashtags and learning goals ids...");
-		test();
 		EntityManager em = org.prosolo.bigdata.dal.persistence.EntityManagerUtil.getEntityManagerFactory()
 				.createEntityManager();
 		String query = 

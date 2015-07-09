@@ -24,6 +24,7 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activities.ExternalToolActivity;
 import org.prosolo.common.domainmodel.outcomes.Outcome;
 import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
@@ -175,7 +176,7 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 	private void updateTargetActivityOutcomeInformation(long targetActivityId, long activityId, long outcomeId, long userId, Session session){
 		HttpSession userSession = applicationBean.getUserSession(userId);
 			
-		if (Settings.getInstance().config.rabbitmq.distributed) {
+		if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("targetActivityId", String.valueOf(targetActivityId));
 			parameters.put("activityId", String.valueOf(activityId));

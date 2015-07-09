@@ -6,7 +6,8 @@
 		<provider>org.hibernate.ejb.HibernatePersistence</provider>
 		<properties>
 			<property name="hibernate.ejb.naming_strategy" value="org.hibernate.cfg.ImprovedNamingStrategy" />
-			<property name="hibernate.archive.autodetection" value="class" />			
+			<property name="hibernate.archive.autodetection" value="class" />	
+			<property name="hibernate.hbm2ddl.auto" value="update" />		
 		</properties>
 	</persistence-unit>
 </persistence>

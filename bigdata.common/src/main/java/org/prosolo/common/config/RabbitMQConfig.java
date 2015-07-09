@@ -1,4 +1,4 @@
-package org.prosolo.bigdata.common.config;
+package org.prosolo.common.config;
 
 import org.simpleframework.xml.Element;
 
@@ -33,6 +33,9 @@ public class RabbitMQConfig {
 
 	@Element(name = "exchange")
 	public String exchange;
+	
+	@Element(name = "queue")
+	public String queue;
 
 	@Element(name = "durableQueue")
 	public boolean durableQueue;
@@ -51,6 +54,8 @@ public class RabbitMQConfig {
 	
 	@Element(name = "queuePrefix")
 	public String queuePrefix;
+	
+ 
 	
  }
 

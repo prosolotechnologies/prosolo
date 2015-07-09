@@ -1,11 +1,9 @@
 /**
  * 
  */
-package org.prosolo.config.hibernate;
+package org.prosolo.common.config.hibernate;
 
-import org.prosolo.common.config.hibernate.C3P0Config;
-import org.prosolo.common.config.hibernate.CacheConfig;
-import org.prosolo.common.config.hibernate.ConnectionConfig;
+ 
 import org.simpleframework.xml.Element;
 
 /**

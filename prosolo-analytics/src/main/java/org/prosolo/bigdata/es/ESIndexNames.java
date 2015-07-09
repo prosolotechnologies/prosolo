@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.prosolo.bigdata.common.config.CommonSettings;
+import org.prosolo.common.config.CommonSettings;
 
  
 

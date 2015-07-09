@@ -12,6 +12,7 @@ import javax.annotation.PostConstruct;
 
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.services.annotation.TagManager;
@@ -188,7 +189,6 @@ public class TwitterStreamsManagerImpl implements TwitterStreamsManager {
 		}
 		if (this.currentHashTagsStream == null
 				|| currentHashTagsList.size() == 0) {
-			System.out.println("KT-1");
 			initializeNewCurrentHashTagsListAndStream();
 		}
 		for (String tag : this.hashTagsAndReferences.keySet()) {
@@ -196,7 +196,6 @@ public class TwitterStreamsManagerImpl implements TwitterStreamsManager {
 				currentHashTagsList.add(tag);
 
 				if (currentHashTagsList.size() > STREAMLIMIT) {
-					System.out.println("KT-2");
 					initializeNewCurrentHashTagsListAndStream();
 					currentHashTagsList = new ArrayList<String>();
 				}
@@ -254,8 +253,8 @@ public class TwitterStreamsManagerImpl implements TwitterStreamsManager {
 			Collection<Tag> newHashTags, long lGoalId) {
 
 
-		if (Settings.getInstance().config.rabbitmq.distributed
-				&& !Settings.getInstance().config.rabbitmq.masterNode) {
+		if (CommonSettings.getInstance().config.rabbitMQConfig.distributed
+				&& !CommonSettings.getInstance().config.rabbitMQConfig.masterNode) {
 			this.updateHashTagsAndRestartStreamOnMasterNode(
 					new ArrayList<Tag>(), newHashTags, lGoalId, 0);
 		} else {
@@ -385,8 +384,8 @@ public class TwitterStreamsManagerImpl implements TwitterStreamsManager {
 	@Override
 	public void unfollowHashTagsForResource(List<String> hashTags,
 			long lGoalId, long userId) {
-		if (Settings.getInstance().config.rabbitmq.distributed
-				&& !Settings.getInstance().config.rabbitmq.masterNode) {
+		if (CommonSettings.getInstance().config.rabbitMQConfig.distributed
+				&& !CommonSettings.getInstance().config.rabbitMQConfig.masterNode) {
 			this.unfollowHashTagsForResourceAndRestartStreamOnMasterNode(hashTags,
 					lGoalId, userId);
 		} else {
@@ -490,8 +489,8 @@ public class TwitterStreamsManagerImpl implements TwitterStreamsManager {
 			Collection<Tag> newHashtags, long lGoalId, long userId) {
 		logger.debug("updateHashTagsAndRestartStream:" + newHashtags.size()
 				+ " lGoalId:" + lGoalId + " userId:" + userId);
-		if (Settings.getInstance().config.rabbitmq.distributed
-				&& !Settings.getInstance().config.rabbitmq.masterNode) {
+		if (CommonSettings.getInstance().config.rabbitMQConfig.distributed
+				&& !CommonSettings.getInstance().config.rabbitMQConfig.masterNode) {
 			this.updateHashTagsAndRestartStreamOnMasterNode(oldHashtags,
 					newHashtags, lGoalId, userId);
 		} else {
@@ -684,8 +683,8 @@ public class TwitterStreamsManagerImpl implements TwitterStreamsManager {
 
 	@Override
 	public void addNewTwitterUserAndRestartStream(long twitterId) {
-		if (Settings.getInstance().config.rabbitmq.distributed
-				&& !Settings.getInstance().config.rabbitmq.masterNode) {
+		if (CommonSettings.getInstance().config.rabbitMQConfig.distributed
+				&& !CommonSettings.getInstance().config.rabbitMQConfig.masterNode) {
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("twitterId", String.valueOf(twitterId));
 

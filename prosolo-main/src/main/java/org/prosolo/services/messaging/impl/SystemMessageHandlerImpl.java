@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.config.Config;
 import org.prosolo.services.messaging.MessageHandler;
 import org.prosolo.services.messaging.data.SystemMessage;
@@ -29,7 +30,7 @@ public class SystemMessageHandlerImpl implements MessageHandler<SystemMessage> {
 		logger.info("Handling system message:" + message.getServiceType());
 		Map<String, String> parameters = message.getParameters();
 		Config config = Settings.getInstance().config;
-		if (!config.rabbitmq.distributed || config.rabbitmq.masterNode) {
+		if (!CommonSettings.getInstance().config.rabbitMQConfig.distributed || CommonSettings.getInstance().config.rabbitMQConfig.masterNode) {
 			switch (message.getServiceType()) {
 			case UPDATEHASHTAGSANDRESTARTSTREAM:				
 				String addedString = parameters.get("added");

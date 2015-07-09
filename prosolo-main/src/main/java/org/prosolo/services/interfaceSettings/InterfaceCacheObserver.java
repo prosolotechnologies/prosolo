@@ -11,6 +11,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity;
@@ -182,7 +183,7 @@ public class InterfaceCacheObserver implements EventObserver {
 		usersSubscribedToEvent.remove(actor);
 		
 		for (User u : usersSubscribedToEvent) {
-			if (Settings.getInstance().config.rabbitmq.distributed) {
+			if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 				messageDistributer.distributeMessage(
 						ServiceType.UPDATE_SOCIAL_ACTIVITY,
 						u.getId(), 
@@ -207,7 +208,7 @@ public class InterfaceCacheObserver implements EventObserver {
     		notifiedUserIds.add(u.getId());
 		}
     	
-    	if (Settings.getInstance().config.rabbitmq.distributed) {
+    	if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 	    	Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("notifiedUsers", StringUtils.toCSV(notifiedUserIds)); 
 			
@@ -231,7 +232,7 @@ public class InterfaceCacheObserver implements EventObserver {
 		
 		
 		for (User u : usersSubscribedToEvent) {
-			if (Settings.getInstance().config.rabbitmq.distributed) {
+			if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 				messageDistributer.distributeMessage(
 						ServiceType.DELETE_SOCIAL_ACTIVITY,
 						u.getId(), 
@@ -256,7 +257,7 @@ public class InterfaceCacheObserver implements EventObserver {
     		notifiedUserIds.add(u.getId());
 		}
     	
-    	if (Settings.getInstance().config.rabbitmq.distributed) {
+    	if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 	    	Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("notifiedUsers", StringUtils.toCSV(notifiedUserIds)); 
 			
@@ -274,7 +275,7 @@ public class InterfaceCacheObserver implements EventObserver {
 		usersSubscribedToEvent.remove(user);
 		
 		for (User u : usersSubscribedToEvent) {
-			if (Settings.getInstance().config.rabbitmq.distributed) {
+			if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
     			Map<String, String> parameters = new HashMap<String, String>();
 				parameters.put("socialActivityId", String.valueOf(socialActivity.getId()));
 				
@@ -299,7 +300,7 @@ public class InterfaceCacheObserver implements EventObserver {
 		}
 		
 		// update caches of all users who have ALL or ALL_PROSOLO filter set on their Status Wall
-		if (Settings.getInstance().config.rabbitmq.distributed) {
+		if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 			List<Long> notifiedUserIds = new ArrayList<Long>();
 			
 			notifiedUserIds.add(user.getId());
@@ -355,7 +356,7 @@ public class InterfaceCacheObserver implements EventObserver {
 		usersSubscribedToEvent.remove(user);
 		
 		for (User u : usersSubscribedToEvent) {
-			if (Settings.getInstance().config.rabbitmq.distributed) {
+			if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 				
     			Map<String, String> parameters = new HashMap<String, String>();
 				parameters.put("commentedResourceId", String.valueOf(commentedRes.getId()));
@@ -383,7 +384,7 @@ public class InterfaceCacheObserver implements EventObserver {
 		}
 		
 		// update caches of all users who have ALL or ALL_PROSOLO filter set on their Status Wall
-		if (Settings.getInstance().config.rabbitmq.distributed) {
+		if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 			List<Long> notifiedUserIds = new ArrayList<Long>();
 			
 			notifiedUserIds.add(user.getId());
@@ -434,7 +435,7 @@ public class InterfaceCacheObserver implements EventObserver {
 		}
     	
     	for (User user : collaborators) {
-			if (Settings.getInstance().config.rabbitmq.distributed) {
+			if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 				
     			Map<String, String> parameters = new HashMap<String, String>();
 				parameters.put("learningGoal", String.valueOf(goal.getId()));
@@ -465,7 +466,7 @@ public class InterfaceCacheObserver implements EventObserver {
 			    	for (User user : collaborators) {
 				    	HttpSession userSession = applicationBean.getUserSession(user.getId());
 			    		
-						if (Settings.getInstance().config.rabbitmq.distributed) {
+						if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 							messageDistributer.distributeMessage(
 									ServiceType.ACCEPTJOINGOALNOTIFICATION,
 									user.getId(), 

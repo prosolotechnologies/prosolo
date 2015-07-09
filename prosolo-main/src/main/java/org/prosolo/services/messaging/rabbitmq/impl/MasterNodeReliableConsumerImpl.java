@@ -7,7 +7,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
-import org.prosolo.app.Settings;
 import org.prosolo.services.messaging.rabbitmq.MasterNodeReliableConsumer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,7 +31,7 @@ public class MasterNodeReliableConsumerImpl  extends ReliableClientImpl implemen
 	  @Override
 	  public void init(){
 		  System.out.println("Initializing master node worker");
-		  if(Settings.getInstance().config.rabbitmq.distributed){
+		  if(rabbitmqConfig.distributed){
 			  this.StartAsynchronousConsumer();
 		  }
 	  }

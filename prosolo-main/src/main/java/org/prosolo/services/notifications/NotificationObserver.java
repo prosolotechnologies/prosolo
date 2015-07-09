@@ -9,6 +9,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activities.Recommendation;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
@@ -155,7 +156,7 @@ public class NotificationObserver implements EventObserver {
 				// if evaluatee is online, update number of evaluations for this resource
 				long receiverId = receiver.getId();
 				
-				if (Settings.getInstance().config.rabbitmq.distributed) {
+				if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 					messageDistributer.distributeMessage(
 						ServiceType.UPDATE_EVALUAIION_DATA,
 						receiverId, 
@@ -340,7 +341,7 @@ public class NotificationObserver implements EventObserver {
 			if (!notifications.isEmpty()) {
 				
 				for (Notification notification : notifications) {
-					if (Settings.getInstance().config.rabbitmq.distributed) {
+					if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 						messageDistributer.distributeMessage(
 								ServiceType.ADDNOTIFICATION, 
 								notification.getReceiver().getId(),
@@ -381,7 +382,7 @@ public class NotificationObserver implements EventObserver {
 	}
 
 	public void checkRecommendedationsForAcceptedLearningGoal(TargetLearningGoal targetGoal, User receiver, Session session) {
-		if (Settings.getInstance().config.rabbitmq.distributed) {
+		if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 			messageDistributer.distributeMessage(
 					ServiceType.CHECKRECOMMENDATIONSFORACCEPTEDLEARNINGGOAL,
 					receiver.getId(), 

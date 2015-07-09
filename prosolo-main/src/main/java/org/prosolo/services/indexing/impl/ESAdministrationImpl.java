@@ -28,7 +28,6 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.prosolo.app.Settings;
-import org.prosolo.bigdata.common.config.ElasticSearchConfig;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 //import org.prosolo.config.ElasticSearchConfig;
 import org.prosolo.recommendation.impl.DocumentType;
@@ -39,6 +38,8 @@ import org.prosolo.services.indexing.ESIndexNames;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.indexing.TikaExtractor;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
+import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.config.ElasticSearchConfig;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.springframework.stereotype.Service;
 
@@ -68,7 +69,7 @@ public class ESAdministrationImpl implements ESAdministration {
 		boolean exists = client.admin().indices().prepareExists(indexName)
 				.execute().actionGet().isExists();
 		if (!exists) {
-			ElasticSearchConfig elasticSearchConfig = Settings.getInstance().config.elasticSearch;
+			ElasticSearchConfig elasticSearchConfig = CommonSettings.getInstance().config.elasticSearch;
 			ImmutableSettings.Builder elasticsearchSettings = ImmutableSettings.settingsBuilder()
 	                  .put("http.enabled", "false")
 	                  .put("cluster.name", elasticSearchConfig.clusterName)

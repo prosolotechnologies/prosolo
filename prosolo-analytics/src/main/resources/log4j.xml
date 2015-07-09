@@ -36,11 +36,11 @@
 		<appender-ref ref="console" />
 	</logger>
 		<logger name="javax.persistence">
-		<level value="DEBUG" />
+		<level value="WARN" />
 		<appender-ref ref="console" />
 	</logger>
 	<logger name="org.hibernate.jpa">
-		<level value="DEBUG" />
+		<level value="WARN" />
 		<appender-ref ref="console" />
 	</logger>
 	<!-- <logger name="o.a.s.s"> -->

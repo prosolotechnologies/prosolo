@@ -1,6 +1,6 @@
 package org.prosolo.bigdata.config;
 
-import org.prosolo.bigdata.common.config.ElasticSearchConfig;
+import org.prosolo.common.config.ElasticSearchConfig;
 import org.simpleframework.xml.Element;
 
 /**

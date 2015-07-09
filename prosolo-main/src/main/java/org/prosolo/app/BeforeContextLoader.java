@@ -17,6 +17,8 @@ import org.prosolo.services.indexing.ESAdministration;
 import org.prosolo.services.indexing.impl.ESAdministrationImpl;
 import org.prosolo.services.logging.LoggingServiceAdmin;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
+import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.config.MySQLConfig;
 import org.prosolo.util.FileUtil;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
@@ -114,11 +116,16 @@ public class BeforeContextLoader implements ServletContextListener	{
 			Class.forName("com.mysql.jdbc.Driver");
 
 			// We use an Oracle express database for this example
-			String url = Settings.getInstance().config.database.url;
+			MySQLConfig mySQLConfig=CommonSettings.getInstance().config.mysqlConfig;
+			String username = mySQLConfig.user;
+			String password = mySQLConfig.password;
+			String host = mySQLConfig.host;
+			int port = mySQLConfig.port;
+			String database = mySQLConfig.database;
+			String url="jdbc:mysql://"+ host + ":" + port + "/" + database;
 
 			// Define the username and password for connection to our database.
-			String username = Settings.getInstance().config.database.user;
-			String password = Settings.getInstance().config.database.password;
+ 
 			// Connect to database
 			connection = DriverManager.getConnection(url, username, password);
 	 

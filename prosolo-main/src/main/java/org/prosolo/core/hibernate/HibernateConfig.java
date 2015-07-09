@@ -10,6 +10,8 @@ import javax.sql.DataSource;
 import org.apache.log4j.Logger;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.config.MySQLConfig;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -41,20 +43,20 @@ public class HibernateConfig {
 
 	private Properties createHibernateProperties() {
 		Properties properties = new Properties();
-		properties.setProperty("hibernate.dialect", Settings.getInstance().config.hibernate.dialect);
-		properties.setProperty("hibernate.show_sql", Settings.getInstance().config.hibernate.showSql);
-		properties.setProperty("hibernate.max_fetch_depth", Settings.getInstance().config.hibernate.maxFetchDepth);
-		properties.setProperty("hibernate.hbm2ddl.auto", Settings.getInstance().config.init.formatDB ? "update" : Settings.getInstance().config.hibernate.hbm2ddlAuto);
-		properties.setProperty("hibernate.jdbc.batch_size", Settings.getInstance().config.hibernate.jdbcBatchSize);
-		properties.setProperty("hibernate.connection.pool_size", Settings.getInstance().config.hibernate.connection.poolSize);
-		properties.setProperty("hibernate.connection.charSet", Settings.getInstance().config.hibernate.connection.charSet);
-		properties.setProperty("hibernate.connection.characterEncoding", Settings.getInstance().config.hibernate.connection.characterEncoding);
-		properties.setProperty("hibernate.connection.useUnicode", Settings.getInstance().config.hibernate.connection.useUnicode);
-		properties.setProperty("hibernate.connection.autocommit", Settings.getInstance().config.hibernate.connection.autocommit);
-		properties.setProperty("hibernate.cache.use_second_level_cache", Settings.getInstance().config.hibernate.cache.useSecondLevelCache);
-		properties.setProperty("hibernate.cache.use_query_cache", Settings.getInstance().config.hibernate.cache.useQueryCache);
-		properties.setProperty("hibernate.cache.use_structured_entries", Settings.getInstance().config.hibernate.cache.useStructuredEntries);
-		properties.setProperty("hibernate.cache.region.factory_class", Settings.getInstance().config.hibernate.cache.regionFactoryClass);
+		properties.setProperty("hibernate.dialect", CommonSettings.getInstance().config.hibernateConfig.dialect);
+		properties.setProperty("hibernate.show_sql", CommonSettings.getInstance().config.hibernateConfig.showSql);
+		properties.setProperty("hibernate.max_fetch_depth", CommonSettings.getInstance().config.hibernateConfig.maxFetchDepth);
+		properties.setProperty("hibernate.hbm2ddl.auto", Settings.getInstance().config.init.formatDB ? "update" : CommonSettings.getInstance().config.hibernateConfig.hbm2ddlAuto);
+		properties.setProperty("hibernate.jdbc.batch_size", CommonSettings.getInstance().config.hibernateConfig.jdbcBatchSize);
+		properties.setProperty("hibernate.connection.pool_size", CommonSettings.getInstance().config.hibernateConfig.connection.poolSize);
+		properties.setProperty("hibernate.connection.charSet", CommonSettings.getInstance().config.hibernateConfig.connection.charSet);
+		properties.setProperty("hibernate.connection.characterEncoding", CommonSettings.getInstance().config.hibernateConfig.connection.characterEncoding);
+		properties.setProperty("hibernate.connection.useUnicode", CommonSettings.getInstance().config.hibernateConfig.connection.useUnicode);
+		properties.setProperty("hibernate.connection.autocommit", CommonSettings.getInstance().config.hibernateConfig.connection.autocommit);
+		properties.setProperty("hibernate.cache.use_second_level_cache", CommonSettings.getInstance().config.hibernateConfig.cache.useSecondLevelCache);
+		properties.setProperty("hibernate.cache.use_query_cache", CommonSettings.getInstance().config.hibernateConfig.cache.useQueryCache);
+		properties.setProperty("hibernate.cache.use_structured_entries", CommonSettings.getInstance().config.hibernateConfig.cache.useStructuredEntries);
+		properties.setProperty("hibernate.cache.region.factory_class", CommonSettings.getInstance().config.hibernateConfig.cache.regionFactoryClass);
 		return properties;
 	}
 
@@ -82,13 +84,13 @@ public class HibernateConfig {
 //			dataSource.setUser(Settings.getInstance().config.database.user);
 //			dataSource.setPassword(Settings.getInstance().config.database.password);
 //			
-//			dataSource.setAcquireIncrement(Settings.getInstance().config.hibernate.c3p0.acquireIncrement);
-//			dataSource.setInitialPoolSize(Settings.getInstance().config.hibernate.c3p0.initialPoolSize);
-//			dataSource.setMinPoolSize(Settings.getInstance().config.hibernate.c3p0.minPoolSize);
-//			dataSource.setMaxPoolSize(Settings.getInstance().config.hibernate.c3p0.maxPoolSize);
-//			dataSource.setMaxStatements(Settings.getInstance().config.hibernate.c3p0.maxStatements);
-//			dataSource.setMaxIdleTime(Settings.getInstance().config.hibernate.c3p0.maxIdleTime);
-//			dataSource.setAutomaticTestTable(Settings.getInstance().config.hibernate.c3p0.automaticTestTable);
+//			dataSource.setAcquireIncrement(CommonSettings.getInstance().config.hibernateConfig.c3p0.acquireIncrement);
+//			dataSource.setInitialPoolSize(CommonSettings.getInstance().config.hibernateConfig.c3p0.initialPoolSize);
+//			dataSource.setMinPoolSize(CommonSettings.getInstance().config.hibernateConfig.c3p0.minPoolSize);
+//			dataSource.setMaxPoolSize(CommonSettings.getInstance().config.hibernateConfig.c3p0.maxPoolSize);
+//			dataSource.setMaxStatements(CommonSettings.getInstance().config.hibernateConfig.c3p0.maxStatements);
+//			dataSource.setMaxIdleTime(CommonSettings.getInstance().config.hibernateConfig.c3p0.maxIdleTime);
+//			dataSource.setAutomaticTestTable(CommonSettings.getInstance().config.hibernateConfig.c3p0.automaticTestTable);
 //			
 //		} catch (PropertyVetoException e) {
 //			logger.error(e);
@@ -99,12 +101,19 @@ public class HibernateConfig {
 	
 	@Bean (destroyMethod = "close")
 	public DataSource dataSource() {
+		MySQLConfig mySQLConfig=CommonSettings.getInstance().config.mysqlConfig;
+		String username = mySQLConfig.user;
+		String password = mySQLConfig.password;
+		String host = mySQLConfig.host;
+		int port = mySQLConfig.port;
+		String database = mySQLConfig.database;
+		String url="jdbc:mysql://"+ host + ":" + port + "/" + database;
 		
 		PoolProperties p = new PoolProperties();
-		p.setUrl(Settings.getInstance().config.database.url+"?useUnicode=true&characterEncoding=UTF-8");
-		p.setDriverClassName(Settings.getInstance().config.database.driver);
-		p.setUsername(Settings.getInstance().config.database.user);
-		p.setPassword(Settings.getInstance().config.database.password);
+		p.setUrl(url+"?useUnicode=true&characterEncoding=UTF-8");
+		p.setDriverClassName(CommonSettings.getInstance().config.mysqlConfig.jdbcDriver);
+		p.setUsername(username);
+		p.setPassword(password);
 		p.setJmxEnabled(false);
 		p.setTestWhileIdle(false);
 		p.setTestOnBorrow(true);
@@ -119,7 +128,7 @@ public class HibernateConfig {
 		p.setMinEvictableIdleTimeMillis(30000);
 		p.setMinIdle(10);
 		p.setLogAbandoned(true);
-		if(Settings.getInstance().config.rabbitmq.distributed){
+		if(CommonSettings.getInstance().config.rabbitMQConfig.distributed){
 			p.setRemoveAbandoned(false);
 		}else{
 			p.setRemoveAbandoned(true);

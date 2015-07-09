@@ -29,7 +29,7 @@ import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 public class AssociationRulesIndexerImpl extends AbstractESIndexer implements AssociationRulesIndexer, Serializable {
 	private static Logger logger = Logger.getLogger(AssociationRulesIndexerImpl.class.getName());
 	
-	//public static String INDEX_TYPE=Settings.getInstance().config.elasticSearch.associationrulesIndex;
+	//public static String INDEX_TYPE=CommonSettings.getInstance().config.elasticSearch.associationrulesIndex;
 	@Override
 	public void saveAssociationRulesForCompetence(long competenceid, AssocRule assocRule) {
 		 try {

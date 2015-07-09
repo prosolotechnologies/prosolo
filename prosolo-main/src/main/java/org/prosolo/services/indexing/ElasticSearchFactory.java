@@ -17,9 +17,10 @@ import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.node.Node;
 import org.prosolo.app.Settings;
-import org.prosolo.bigdata.common.config.ElasticSearchConfig;
-import org.prosolo.bigdata.common.config.ElasticSearchHost;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
+import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.config.ElasticSearchConfig;
+import org.prosolo.common.config.ElasticSearchHost;
 //import org.prosolo.config.ElasticSearchConfig;
 //import org.prosolo.config.ElasticSearchHost;
 //import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
@@ -35,11 +36,11 @@ public class ElasticSearchFactory {
 
 	public static Client getClient() throws IndexingServiceNotAvailable {
 		if (client == null) {
-			if (Settings.getInstance().config.elasticSearch.type.equals("local")) {
+			if (CommonSettings.getInstance().config.elasticSearch.type.equals("local")) {
 				client = getLocalClient();
-			} else if (Settings.getInstance().config.elasticSearch.type.equals("server")){
+			} else if (CommonSettings.getInstance().config.elasticSearch.type.equals("server")){
 				client = getESClient();
-			}else if (Settings.getInstance().config.elasticSearch.type.equals("cloud-aws")){
+			}else if (CommonSettings.getInstance().config.elasticSearch.type.equals("cloud-aws")){
 				client = getAWSClient();
 			}
 		}
@@ -47,7 +48,7 @@ public class ElasticSearchFactory {
 	}
 
 	private static Client getESClient() throws IndexingServiceNotAvailable {
-		ElasticSearchConfig elasticSearchConfig = Settings.getInstance().config.elasticSearch;
+		ElasticSearchConfig elasticSearchConfig = CommonSettings.getInstance().config.elasticSearch;
 		try {
 			org.elasticsearch.common.settings.Settings settings = ImmutableSettings.settingsBuilder()
 					.put("cluster.name", elasticSearchConfig.clusterName).build();
@@ -70,7 +71,7 @@ public class ElasticSearchFactory {
 	}
 
 	private static Client getLocalClient() {
-		ElasticSearchConfig elasticSearchConfig = Settings.getInstance().config.elasticSearch;
+		ElasticSearchConfig elasticSearchConfig = CommonSettings.getInstance().config.elasticSearch;
 		String dataDirectory = elasticSearchConfig.homePath;
 		ImmutableSettings.Builder elasticsearchSettings = ImmutableSettings.settingsBuilder().put("http.enabled", "false")
 				.put("cluster.name", elasticSearchConfig.clusterName).put("path.data", dataDirectory);
@@ -81,7 +82,7 @@ public class ElasticSearchFactory {
 	}
 	
 	private static Client getAWSClient(){
-		ElasticSearchConfig elasticSearchConfig = Settings.getInstance().config.elasticSearch;
+		ElasticSearchConfig elasticSearchConfig = CommonSettings.getInstance().config.elasticSearch;
 		try{
 			ImmutableSettings.Builder settings = ImmutableSettings.settingsBuilder();
 			settings.put("cluster.name", elasticSearchConfig.clusterName);

@@ -1,8 +1,9 @@
-package org.prosolo.bigdata.common.config;
+package org.prosolo.common.config;
 
  
  
 import org.simpleframework.xml.Element;
+import org.prosolo.common.config.hibernate.HibernateConfig;
 
 public class Config {
 	
@@ -15,6 +16,6 @@ public class Config {
 	@Element(name="mysql-config")
 	public MySQLConfig mysqlConfig;
 	
-	@Element(name="hibernate-config")
+	@Element(name="hibernate")
 	public HibernateConfig hibernateConfig;
 }

@@ -117,7 +117,7 @@ public class SocialActivityInboxUpdaterImpl implements SocialActivityInboxUpdate
 				// update user's cache if he is online
 				HttpSession userSession = applicationBean.getUserSession(userId);
 				
-				if (Settings.getInstance().config.rabbitmq.distributed) {
+				if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 						
 					Map<String, String> parameters = new HashMap<String, String>();
 					parameters.put("updateStatusWall", String.valueOf(updateStatusWall));
@@ -162,7 +162,7 @@ public class SocialActivityInboxUpdaterImpl implements SocialActivityInboxUpdate
 			return;
 		}
 		
-		if (Settings.getInstance().config.rabbitmq.distributed) {
+		if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 			
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("updateStatusWall", String.valueOf(true));

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN" 
+"http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+ 
+<hibernate-configuration>
+    <session-factory>
+        
+        <!--<property name="show_sql">false</property>
+        <property name="format_sql">true</property>
+        <property name="dialect">model.dialect.hibernate.SQLiteDialect</property>
+        <property name="connection.driver_class">org.sqlite.JDBC</property>
+        <property name="connection.url">jdbc:sqlite:wsa.db</property>
+        <property name="connection.username"></property>
+        <property name="connection.password"></property>         
+        <property name="hibernate.hbm2ddl.auto">update</property>-->
+        
+        <!-- property name="connection.url">
+            jdbc:mysql://localhost/test?useUnicode=true&amp;characterEncoding=UTF-8&amp;autoReconnect=true
+        </property-->
+        <property name="hibernate.connection.characterEncoding">UTF-8</property>
+        <property name="hibernate.connection.useUnicode">true</property>
+        <property name="c3p0.min_size">1</property>
+        <property name="c3p0.timeout">10000</property>
+        <property name="c3p0.max_size">3</property>
+        <property name="c3p0.idle_test_period">5000</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</property>
+        <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+        <!-- property name="connection.username">root</property>
+        <property name="connection.password">dragon3s12</property-->
+        <property name="hibernate.show_sql">false</property>
+        <property name="hibernate.use_sqld_comments">false</property>
+        <property name="hibernate.transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
+        <property name="hibernate.current_session_context_class">thread</property>
+        <property name="hibernate.hbm2ddl.auto">update</property>
+        <property name="hibernate.ejb.naming_strategy">org.hibernate.cfg.ImprovedNamingStrategy</property>
+                          
+        <!-- mapping class="model.beans.TestBean"/-->
+        <mapping package="org.prosolo.common.domainmodel" />
+        <mapping package="org.prosolo.common.domainmodel.user" />
+        <mapping class="org.prosolo.common.domainmodel.user.User" />
+    </session-factory>
+</hibernate-configuration>

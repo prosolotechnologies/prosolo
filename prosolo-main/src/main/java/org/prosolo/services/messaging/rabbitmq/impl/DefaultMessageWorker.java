@@ -3,6 +3,7 @@ package org.prosolo.services.messaging.rabbitmq.impl;
 
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.services.messaging.MessageWrapperAdapter;
 import org.prosolo.services.messaging.data.MessageWrapper;
 import org.prosolo.services.messaging.data.SessionMessage;
@@ -36,7 +37,7 @@ public class DefaultMessageWorker implements MessageWorker{
 //			System.out.println("RECEIVED MESSAGE FROM:"+messageWrapper.getSender()+" MESSAGE:"+simpleGson.toJson(sessionMessage));
 	   		sessionMessageHandler.handle(sessionMessage);
 		}else if(messageWrapper.getMessage() instanceof SystemMessage){
-			if(Settings.getInstance().config.rabbitmq.masterNode){
+			if(CommonSettings.getInstance().config.rabbitMQConfig.masterNode){
 				systemMessageHandler.handle((SystemMessage) messageWrapper.getMessage());
 			}
 	 		

@@ -1,9 +1,10 @@
 package org.prosolo.bigdata.rabbitmq;
 
 import org.apache.log4j.Logger;
-import org.prosolo.bigdata.common.config.CommonSettings;
-import org.prosolo.bigdata.common.config.RabbitMQConfig;
  
+
+import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.config.RabbitMQConfig;
 
 import java.io.IOException;
 import java.util.ArrayList;
