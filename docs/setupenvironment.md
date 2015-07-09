@@ -3,7 +3,7 @@
 # Instructions for setting up the development environment
 
 ## Install Eclipse IDE for Java EE Developers
-  https://eclipse.org/downloads/
+ [Download links](https://eclipse.org/downloads/)
  
 ## Import project from Git Repository  branch master
  Replace yourusername in [git url](https://yourusername@bitbucket.org/prosolo/prosolo-multimodule.git) and checkout master branch of Prosolo project.
@@ -17,7 +17,7 @@
  As a result, you should have in Project Explorer prosolo-multimodule and it's three submodules: bigdata.common, prosolo and prosolo-analytics.
 
 ## Install MySQL database and create database and user that will be used by Prosolo.
-http://www.tutorialspoint.com/mysql/mysql-installation.htm
+[Official instructions](http://www.tutorialspoint.com/mysql/mysql-installation.htm)
 
 ## Install MongoDB database.
 
