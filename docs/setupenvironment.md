@@ -1,4 +1,4 @@
-[Back to previous](../developers.md)
+[Back to previous screen](../docs/developers.md)
 
 # Instructions for setting up the development environment
 
@@ -6,7 +6,7 @@
   https://eclipse.org/downloads/
  
 ## Import project from Git Repository  branch master
- Replace yourusername in url https://yourusername@bitbucket.org/prosolo/prosolo-multimodule.git and checkout master branch of Prosolo project.
+ Replace yourusername in [git url](https://yourusername@bitbucket.org/prosolo/prosolo-multimodule.git) and checkout master branch of Prosolo project.
  Maven module containing three submodules will be downloaded.
 
 ## Import project into Eclipse workspace as Maven project.
@@ -21,33 +21,34 @@ http://www.tutorialspoint.com/mysql/mysql-installation.htm
 
 ## Install MongoDB database.
 
-http://docs.mongodb.org/manual/installation/
-
+[Official instructions](http://docs.mongodb.org/manual/installation/)
+ 
 ## Install Cassandra database.
 
-http://www.planetcassandra.org/cassandra/?gclid=CjwKEAjwlPOsBRCWq5_e973PzTgSJACMiEp2RCMM4afybKHIeOq5u5lU_LjL1vC4pcuN28KnWPBYTRoCpjHw_wcB
+[Official instructions](http://www.planetcassandra.org/cassandra/?gclid=CjwKEAjwlPOsBRCWq5_e973PzTgSJACMiEp2RCMM4afybKHIeOq5u5lU_LjL1vC4pcuN28KnWPBYTRoCpjHw_wcB)
 
 
 ## Install Elasticsearch server version 1.4.4 (optional).
 
 At the moment Prosolo supports Elasticsearch version 1.4.4. It could be upgraded to version 1.6
 
-Download version 1.4.4. from past releases https://www.elastic.co/downloads/past-releases?page=2
-Follow instructions to install it https://www.elastic.co/guide/en/elasticsearch/reference/1.6/setup.html
+Download version 1.4.4. from [past releases](https://www.elastic.co/downloads/past-releases?page=2)
+
+[Official instructions](https://www.elastic.co/guide/en/elasticsearch/reference/1.6/setup.html)
 
 
 ## Install Elasticsearch plugin mapper-attachments version 2.4.3 (required in case step 6 has been performed).
 
 Install plugin mapper-attachments version 2.4.3 which is compatible with Elasticsearch 1.4.4. Elasticsearch 1.6 will require plugin version 2.6.0
-https://github.com/elastic/elasticsearch-mapper-attachments
+[Official instructions](https://github.com/elastic/elasticsearch-mapper-attachments)
 
 ## Install, configure and run RabbitMQ distributed messaging system.
 
 There are 2 possible approaches to run RabbitMQ server
-1) Download RabbitMQ docker image from git repository https://zjeremic@bitbucket.org/prosolo/prosolo-dockers.git
+1) Download RabbitMQ docker image from [git repository](https://zjeremic@bitbucket.org/prosolo/prosolo-dockers.git)
 Build and run docker image in container, and server with required settings will be up and running.
 
-2) Download and install RabbitMQ on your local PC using official instructions at https://www.rabbitmq.com/download.html
+2) Download and install RabbitMQ on your local PC using [Official instructions](https://www.rabbitmq.com/download.html)
 After RabbitMQ is up and running you should:
 - add vhost /prosolo
 - add user prosolo with password e.g. prosolo@2014
@@ -56,10 +57,12 @@ After RabbitMQ is up and running you should:
 
 
 ## Compile Prosolo multimodule application.
+
 - cd to the prosolo-multimodule
 - mvn clean compile install -DskipTests=true
 
 ## Run Prosolo main application.
+
 - from **prosolo-multimodule** cd to **prosolo-main**
 - mvn jetty:run
 - You will have exceptions at this point since databases and elasticsearch are not configured yet, but that is ok.
@@ -67,12 +70,14 @@ After RabbitMQ is up and running you should:
 
 
 ## Run Prosolo analytics application.
+
 - from prosolo-multimodule cd to prosolo-analytics
 - mvn jetty:run
 - You will have exceptions at this point since databases and elasticsearch are not configured yet, but that is ok.
-- stop the application
+- stop the application 
 
 ## Configure generated configuration files for both applications.
+
 - in your home directory new directory will be created ".prosolo" containing three xml files used for configuration
 - **prosolo_common_config.xml** - shared configuration file for both applications
 	- contains configuration for rabbitmq server (update host, virtualHost, username and password) 
@@ -80,4 +85,17 @@ After RabbitMQ is up and running you should:
 	- configuration for mysql server (update host, database, user and password)
 	- configuration for hibernate (nothing to configure here)
 - **prosolo_main_config.xml** - configuration file for prosolo-main application
+	- formatDB - **true** deletes mysql, mongodb and elasticsearch and initialize new data. Use this first time and then set it to **false**
+	- default-user - user with admin privileges in Prosolo
+	- mongo-db-config - configuration for mongodb database. 
+	- app-config (developer-email should be changed. Other settings could stay as default)
+	- email-notifier/activated should be false to prevent application from sending emails
+	- analytical-server (if analytical server runs per default settings, it can stay as default)
+- **prosolo_analytical_config.xml**	- configuration file for prosolo-analytical application
+	- init/formatDB **true** will format cassandra database
+	- init/formatES **true** will format elasticsearch indexes
+	- dbconfig - configuration of cassandra database
+	- scheduler-config/quartz-jobs/job/activated **true** to activate specific job to run based on its schedule
+	- scheduler-config/quartz-jobs/job/on-startup **true** to activate specific job at application startup. Used only for testing purposes.
+
 - **prosolo_analytics_config.xml** - configuration file for prosolo-analytics application

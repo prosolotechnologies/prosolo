@@ -5,7 +5,7 @@
 ## Setting up development environment
 
 1. Install Eclipse IDE for Java EE Developers
-2. Import project from Git Repository https://yourusername@bitbucket.org/prosolo/prosolo-multimodule.git branch develop
+2. Import project from [Git Repository](https://yourusername@bitbucket.org/prosolo/prosolo-multimodule.git) branch develop
 3. Import project into Eclipse workspace as Maven project.
 4. Install MySQL database and create database and user that will be used by Prosolo.
 5. Install MongoDB database.
@@ -18,6 +18,7 @@
 12. Run Prosolo analytics application.
 12. Configure generated configuration files for both applications.
 
+[More details](setupenvironment.md)
 
 ## Running/debuging application in Eclipse 
 
@@ -54,49 +55,4 @@ When you have the jetty server running and the debugger connected you can switch
 the debug view, right click on the Java HotSpot(TM) Client VM[localhost:8081] and  chose terminate. This will stop 
 the debugger and the jetty server.
 
-## Configuration file
 
-Project use typesafe for configuration files. This means there is a pseudo-json file "development.conf" that contains configurations for each database.
-This file could be provided at deployment time as an environment-specific config file, which will override default one. 
-
-## Services
-- REST API services. All classes implementing these services are in package com.warrantylife.api. 
-  These services are responsible for providing the following functionalities:
-
-	- receiving user interactions 
-	- interactions with front-end dashboard application 
-	- recommendations for customer applications
-	
-## REST API
-
-	GET http://localhost:8080/api/recommendation/features/{productid}/{warrantyid}/{locationid}/{sessionid}
-	
-	- not implemented yet
-	
-	
-	GET http://localhost:8080/api/recommendation/features/{warrantyid}/{locationid}/{sessionid}
-	
-	- not implemented yet
-	
-	GET http://localhost:8080/api/recommendation/warranty/{product}/{locationid}/{sessionid}
-	
-	...response example here...
-	
-	
-	POST http://localhost:8080/api/interaction/logs
-	
-	Json input:
-	...example here...
-	
-	GET http://localhost:8080/generator/categories/list
-	
-	GET http://localhost:8080/generator/category/product/list/{categoryid}
-	
-	GET http://localhost:8080/generator/category/warrantyprofiles/list/{categoryid}
-	
-	GET http://localhost:8080/generator/category/product/generatelogs
-	
-	Json input:
-	...example here...
-	
-	
