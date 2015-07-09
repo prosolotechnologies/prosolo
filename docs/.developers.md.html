@@ -644,7 +644,7 @@ function setDocumentScrollTop(ypos)
 <h2> <a id="user-content-setting-up-development-environment" class="anchor" href="#setting-up-development-environment" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setting up development environment</h2> 
 <ol> 
  <li>Install Eclipse IDE for Java EE Developers</li> 
- <li>Import project from Git Repository https://yourusername@bitbucket.org/prosolo/prosolo-multimodule.git branch develop</li> 
+ <li>Import project from <a href="https://yourusername@bitbucket.org/prosolo/prosolo-multimodule.git">Git Repository</a> branch develop</li> 
  <li>Import project into Eclipse workspace as Maven project.</li> 
  <li>Install MySQL database and create database and user that will be used by Prosolo.</li> 
  <li>Install MongoDB database.</li> 
@@ -657,6 +657,7 @@ function setDocumentScrollTop(ypos)
  <li>Run Prosolo analytics application.</li> 
  <li>Configure generated configuration files for both applications.</li> 
 </ol> 
+<p><a href=".setupenvironment.md.html">More details</a></p> 
 <h2> <a id="user-content-runningdebuging-application-in-eclipse" class="anchor" href="#runningdebuging-application-in-eclipse" aria-hidden="true"><span class="octicon octicon-link"></span></a>Running/debuging application in Eclipse</h2> 
 <p>Go to the Run/External Tools/External Tools ...&quot; menu item on the &quot;Run&quot; menu bar. Select &quot;Program&quot; and click the &quot;New&quot; button. On the &quot;Main&quot; tab, fill in the &quot;Location:&quot; as the full path to your &quot;mvn&quot; executable (e.g. /usr/bin/mvn). For the &quot;Working Directory:&quot; select the workspace that matches your webapp. For &quot;Arguments:&quot; add </p> 
 <pre><code>jetty:run
@@ -672,48 +673,6 @@ function setDocumentScrollTop(ypos)
 <p>Then, pull up the &quot;Run/Debug Configurations...&quot; menu item and select &quot;Remote Java Application&quot; and click the &quot;New&quot; button. Fill in the dialog by selecting your webapp project for the &quot;Project:&quot; field, and ensure you are using the same port number as you specified in the address= property above (port 8081).</p> 
 <p>Now all you need to do is to Run/External Tools and select the name of the maven tool setup you created in step 1 to start the plugin and then Run/Debug and select the name of the debug setup you setup in step2.</p> 
 <p>--Stopping Jetty--</p> 
-<p>In order to stop the jetty server the &quot;Allow termination of remote VM&quot; should be checked in debug dialog in Step 2. When you have the jetty server running and the debugger connected you can switch to the debug perspective. In the debug view, right click on the Java HotSpot(TM) Client VM[localhost:8081] and chose terminate. This will stop the debugger and the jetty server.</p> 
-<h2> <a id="user-content-configuration-file" class="anchor" href="#configuration-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>Configuration file</h2> 
-<p>Project use typesafe for configuration files. This means there is a pseudo-json file &quot;development.conf&quot; that contains configurations for each database. This file could be provided at deployment time as an environment-specific config file, which will override default one. </p> 
-<h2> <a id="user-content-services" class="anchor" href="#services" aria-hidden="true"><span class="octicon octicon-link"></span></a>Services</h2> 
-<ul> 
- <li> <p>REST API services. All classes implementing these services are in package com.warrantylife.api. These services are responsible for providing the following functionalities:</p> 
-  <ul> 
-   <li>receiving user interactions </li> 
-   <li>interactions with front-end dashboard application </li> 
-   <li>recommendations for customer applications</li> 
-  </ul> </li> 
-</ul> 
-<h2> <a id="user-content-rest-api" class="anchor" href="#rest-api" aria-hidden="true"><span class="octicon octicon-link"></span></a>REST API</h2> 
-<pre><code>GET http://localhost:8080/api/recommendation/features/{productid}/{warrantyid}/{locationid}/{sessionid}
-
-- not implemented yet
-
-
-GET http://localhost:8080/api/recommendation/features/{warrantyid}/{locationid}/{sessionid}
-
-- not implemented yet
-
-GET http://localhost:8080/api/recommendation/warranty/{product}/{locationid}/{sessionid}
-
-...response example here...
-
-
-POST http://localhost:8080/api/interaction/logs
-
-Json input:
-...example here...
-
-GET http://localhost:8080/generator/categories/list
-
-GET http://localhost:8080/generator/category/product/list/{categoryid}
-
-GET http://localhost:8080/generator/category/warrantyprofiles/list/{categoryid}
-
-GET http://localhost:8080/generator/category/product/generatelogs
-
-Json input:
-...example here...
-</code></pre>
+<p>In order to stop the jetty server the &quot;Allow termination of remote VM&quot; should be checked in debug dialog in Step 2. When you have the jetty server running and the debugger connected you can switch to the debug perspective. In the debug view, right click on the Java HotSpot(TM) Client VM[localhost:8081] and chose terminate. This will stop the debugger and the jetty server.</p>
 </body>
 </html>
