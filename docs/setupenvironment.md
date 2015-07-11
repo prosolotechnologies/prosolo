@@ -28,18 +28,17 @@
 [Official instructions](http://www.planetcassandra.org/cassandra/?gclid=CjwKEAjwlPOsBRCWq5_e973PzTgSJACMiEp2RCMM4afybKHIeOq5u5lU_LjL1vC4pcuN28KnWPBYTRoCpjHw_wcB)
 
 
-## Install Elasticsearch server version 1.4.4 (optional).
+## Install Elasticsearch server version 1.6.0 (optional).
 
-At the moment Prosolo supports Elasticsearch version 1.4.4. It could be upgraded to version 1.6
+At the moment Prosolo supports Elasticsearch version 1.6.0. 
 
-Download version 1.4.4. from [past releases](https://www.elastic.co/downloads/past-releases?page=2)
 
 [Official instructions](https://www.elastic.co/guide/en/elasticsearch/reference/1.6/setup.html)
 
 
-## Install Elasticsearch plugin mapper-attachments version 2.4.3 (required in case step 6 has been performed).
+## Install Elasticsearch plugin mapper-attachments version 2.6.0 (required in case step 6 has been performed).
 
-Install plugin mapper-attachments version 2.4.3 which is compatible with Elasticsearch 1.4.4. Elasticsearch 1.6 will require plugin version 2.6.0
+Install plugin mapper-attachments version 2.6.0 which is compatible with Elasticsearch 1.6.0. 
 [Official instructions](https://github.com/elastic/elasticsearch-mapper-attachments)
 
 ## Install, configure and run RabbitMQ distributed messaging system.

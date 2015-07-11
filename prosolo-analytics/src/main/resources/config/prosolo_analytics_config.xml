@@ -6,7 +6,7 @@
 	<db-config>
 		<db-server>
 			<db-host>localhost</db-host>
-			<db-port>27017</db-port>
+			<db-port>9042</db-port>
 			<db-name>prosolo_logs</db-name>
 			<db-replication-factor>1</db-replication-factor>
 		</db-server>

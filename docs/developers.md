@@ -10,7 +10,7 @@
 4. Install MySQL database and create database and user that will be used by Prosolo.
 5. Install MongoDB database.
 6. Install Cassandra database.
-7. Install Elasticsearch server version 1.4.4 (optional).
+7. Install Elasticsearch server version 1.6.0 (optional).
 8. Install Elasticsearch plugin mapper-attachments version 2.4.3 (required in case step 6 has been performed).
 9. Install, configure and run RabbitMQ distributed messaging system.
 10. Compile Prosolo multimodule application.

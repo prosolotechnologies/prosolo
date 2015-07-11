@@ -123,7 +123,6 @@ public class BeforeContextLoader implements ServletContextListener	{
 			int port = mySQLConfig.port;
 			String database = mySQLConfig.database;
 			String url="jdbc:mysql://"+ host + ":" + port + "/" + database;
-
 			// Define the username and password for connection to our database.
  
 			// Connect to database
@@ -144,7 +143,6 @@ public class BeforeContextLoader implements ServletContextListener	{
 				// To delete a table from database we use the DROP TABLE IF EXISTS
 				// command and specify the table name to be dropped
 				String query = "drop table if exists " + rs.getString(3) + " cascade;  \n";
-
 				// Create a statement
 				// Execute the statement to delete the table
 				statement.executeUpdate(query);
