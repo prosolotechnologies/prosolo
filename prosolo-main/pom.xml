@@ -20,13 +20,13 @@
 		<primefaces.version>4.0</primefaces.version>
 		<org.richfaces.bom.version>4.0.0.Final</org.richfaces.bom.version>
 		<jetty.version>8.1.16.v20140903</jetty.version>
-		<slf4j.version>1.7.5</slf4j.version>
+		
 		<jersey.version>1.17.1</jersey.version>
 		<resteasy.version>3.0.9.Final</resteasy.version>
 		<spring.version>4.1.4.RELEASE</spring.version>
 		<spring.security.version>3.2.5.RELEASE</spring.security.version>
 		<aspectj.version>1.7.2</aspectj.version>
-		<hibernate.version>4.3.10.Final</hibernate.version>
+		 
 		<hibernate-search.version>4.2.0.Final</hibernate-search.version>
 		<jsoup.version>1.6.3</jsoup.version>
 		<junit.version>4.10</junit.version>
@@ -206,115 +206,10 @@
 		<!-- dependency> <groupId>dom4j</groupId> <artifactId>dom4j</artifactId> 
 			<version>1.6.1</version> </dependency -->
 
-		<!-- Logging dependencies -->
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.16</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>${slf4j.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>${slf4j.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>jul-to-slf4j</artifactId>
-			<version>${slf4j.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>jcl-over-slf4j</artifactId>
-			<version>${slf4j.version}</version>
-			<scope>runtime</scope>
-		</dependency>
+	
 
 
-		<!-- Hibernate dependencies -->
 
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-entitymanager</artifactId>
-			<version>${hibernate.version}</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>jboss-logging-spi</artifactId>
-					<groupId>org.jboss.logging</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jboss-logging</artifactId>
-					<groupId>org.jboss.logging</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jboss-logging-annotations</artifactId>
-					<groupId>org.jboss.logging</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-core</artifactId>
-			<version>${hibernate.version}</version>
-			<!-- excluded because of the problems in JUnit tests -->
-			<exclusions>
-				<exclusion>
-					<artifactId>jboss-logging-spi</artifactId>
-					<groupId>org.jboss.logging</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jboss-logging</artifactId>
-					<groupId>org.jboss.logging</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jboss-logging-annotations</artifactId>
-					<groupId>org.jboss.logging</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-c3p0</artifactId>
-			<version>${hibernate.version}</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>jboss-logging-spi</artifactId>
-					<groupId>org.jboss.logging</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jboss-logging</artifactId>
-					<groupId>org.jboss.logging</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jboss-logging-annotations</artifactId>
-					<groupId>org.jboss.logging</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-ehcache</artifactId>
-			<version>${hibernate.version}</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>jboss-logging-spi</artifactId>
-					<groupId>org.jboss.logging</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jboss-logging</artifactId>
-					<groupId>org.jboss.logging</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jboss-logging-annotations</artifactId>
-					<groupId>org.jboss.logging</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
 
 		<dependency>
 			<groupId>javax.persistence</groupId>
@@ -572,13 +467,8 @@
 			<version>${jsoup.version}</version>
 		</dependency>
 
-		<!-- Testing dependencies -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>${junit.version}</version>
-		</dependency>
-
+	
+	
 		<!-- Guava dependencies -->
 		<dependency>
 			<groupId>com.google.guava</groupId>

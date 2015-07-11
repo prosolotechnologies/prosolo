@@ -8,6 +8,8 @@ import java.util.List;
 
 import javax.persistence.ColumnResult;
 import javax.persistence.ConstructorResult;
+import javax.persistence.EntityResult;
+import javax.persistence.FieldResult;
 import javax.persistence.SqlResultSetMapping;
 
 import org.prosolo.common.domainmodel.activities.events.EventType;
@@ -43,11 +45,11 @@ import org.prosolo.web.util.AvatarUtils;
  */
 @SqlResultSetMapping(
         name="SocialActivityData",
-        classes={
-                @ConstructorResult(
-                        targetClass=SocialActivityData.class,
-                        columns={
-                                @ColumnResult(name="sa_id", type = BigInteger.class),
+        entities={
+        		@EntityResult(
+                        entityClass=SocialActivityData.class,
+                        fields={
+                        	@FieldResult(name="sa_id", column = "sa_id"),
                         }
                 )
         }
