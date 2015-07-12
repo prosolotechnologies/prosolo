@@ -13,6 +13,7 @@
 		<username>prosolo</username>
 		<password>prosolo@2014</password>
 		<exchange>prosolo_exchange</exchange>
+		<queue>prosolo.stat_queue</queue>
 		<durableQueue>false</durableQueue>
 		<exclusiveQueue>false</exclusiveQueue>
 		<autodeleteQueue>false</autodeleteQueue>
