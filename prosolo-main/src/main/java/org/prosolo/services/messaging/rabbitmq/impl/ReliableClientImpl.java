@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
 import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.config.RabbitMQConfig;
 import org.prosolo.services.messaging.rabbitmq.ReliableClient;
 
 import com.rabbitmq.client.Address;
@@ -18,7 +19,7 @@ import com.rabbitmq.client.ConnectionFactory;
 
 public class ReliableClientImpl implements ReliableClient {
 	private static Logger logger = Logger.getLogger(ReliableClient.class);
-	org.prosolo.common.config.RabbitMQConfig rabbitmqConfig = CommonSettings.getInstance().config.rabbitMQConfig;
+	RabbitMQConfig rabbitmqConfig = CommonSettings.getInstance().config.rabbitMQConfig;
 	protected Connection connection;
 	protected Channel channel;
 	protected String queue;
@@ -99,7 +100,7 @@ public class ReliableClientImpl implements ReliableClient {
 	}
 	@Override
 	public void setQueue(String queue) {
-		this.queue = CommonSettings.getInstance().config.rabbitMQConfig.queuePrefix+queue;
+		this.queue = CommonSettings.getInstance().config.rabbitMQConfig.queuePrefix+queue+CommonSettings.getInstance().config.getNamespaceSufix();
 	}
 
 }

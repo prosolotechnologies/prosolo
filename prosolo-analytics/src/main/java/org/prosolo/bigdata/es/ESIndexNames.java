@@ -15,8 +15,8 @@ import org.prosolo.common.config.CommonSettings;
 
 public class ESIndexNames {
 	
-	public static final String INDEX_RECOMMENDATIONDATA = CommonSettings.getInstance().config.elasticSearch.recommendationdataIndex;
-	public static String INDEX_ASSOCRULES=CommonSettings.getInstance().config.elasticSearch.associationrulesIndex;//"association rules index";
+	public static final String INDEX_RECOMMENDATIONDATA = CommonSettings.getInstance().config.elasticSearch.recommendationdataIndex+CommonSettings.getInstance().config.getNamespaceSufix();
+	public static String INDEX_ASSOCRULES=CommonSettings.getInstance().config.elasticSearch.associationrulesIndex+CommonSettings.getInstance().config.getNamespaceSufix();//"association rules index";
 
 	public static List<String> getAllIndexes(){
 		List<String> indexes=new ArrayList<String>();

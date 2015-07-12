@@ -11,11 +11,11 @@ import org.prosolo.common.config.ElasticSearchConfig;
 
 public class ESIndexNames {
  
-	public static final String INDEX_ASSOCRULES = CommonSettings.getInstance().config.elasticSearch.associationrulesIndex;
-	public static String INDEX_DOCUMENTS=CommonSettings.getInstance().config.elasticSearch.documentsIndex;//"documents";
-	public static String INDEX_NODES=CommonSettings.getInstance().config.elasticSearch.nodesIndex;//"nodes";
-	public static String INDEX_USERS=CommonSettings.getInstance().config.elasticSearch.usersIndex;//"users";
-	public static String INDEX_RECOMMENDATION_DATA=ElasticSearchConfig.recommendationdataIndex;
+	public static final String INDEX_ASSOCRULES = CommonSettings.getInstance().config.elasticSearch.associationrulesIndex+CommonSettings.getInstance().config.getNamespaceSufix();
+	public static String INDEX_DOCUMENTS=CommonSettings.getInstance().config.elasticSearch.documentsIndex+CommonSettings.getInstance().config.getNamespaceSufix();//"documents";
+	public static String INDEX_NODES=CommonSettings.getInstance().config.elasticSearch.nodesIndex+CommonSettings.getInstance().config.getNamespaceSufix();//"nodes";
+	public static String INDEX_USERS=CommonSettings.getInstance().config.elasticSearch.usersIndex+CommonSettings.getInstance().config.getNamespaceSufix();//"users";
+	public static String INDEX_RECOMMENDATION_DATA=CommonSettings.getInstance().config.elasticSearch.recommendationdataIndex+CommonSettings.getInstance().config.getNamespaceSufix();
  
 	
 	private static Logger logger = Logger.getLogger(ESIndexNames.class);

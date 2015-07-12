@@ -1,4 +1,8 @@
-<config>	 
+<config>
+	<!-- This setting could be local if local settings are used. In case shared resources are used, e.g. ES, cassandra, 
+	each developer should use different namespace e.g. Nikola N, Zoran Z, Sanja S.... It will affect collection names, 
+	database names, rabbitmq queue name, exchange...	 -->
+	<namespace>local</namespace>	 
 	<rabbitmq-config>
 		<listen>true</listen>
 		<distributed>true</distributed>
@@ -34,9 +38,9 @@
 		<cluster-name>elasticsearch</cluster-name>
 		<replicas-number>0</replicas-number>
 		<shards-number>5</shards-number>
-		<documents-index>documents2</documents-index>
-		<nodes-index>nodes2</nodes-index>
-		<users-index>users2</users-index>
+		<documents-index>documents</documents-index>
+		<nodes-index>nodes</nodes-index>
+		<users-index>users</users-index>
 		<associationrules-index>associationrules</associationrules-index>
 		<recommendationdata-index>recommendationdata
 		</recommendationdata-index>

@@ -15,6 +15,7 @@ import org.prosolo.bigdata.streaming.StreamingManagerImpl;
 import org.prosolo.bigdata.twitter.TwitterHashtagsStreamsManagerImpl;
 //import org.prosolo.bigdata.scala.twitter.TwitterHashtagsStreamsManager;
 import org.prosolo.bigdata.scala.twitter.TwitterHashtagsStreamsManager$;
+import org.prosolo.common.config.CommonSettings;
 
 /**
 @author Zoran Jeremic Apr 2, 2015
@@ -35,10 +36,10 @@ public class ContextLoader  implements ServletContextListener {
 		System.out.println("CONTEXT INITIALIZATION");
 		 CassandraDDLManagerImpl dbManager = new CassandraDDLManagerImpl();
 		 if(Settings.getInstance().config.initConfig.formatDB){
-			
-			 dbManager.dropSchemaIfExists( Settings.getInstance().config.dbConfig.dbServerConfig.dbName);
-			  dbManager.checkIfTablesExistsAndCreate(Settings.getInstance().config.dbConfig.dbServerConfig.dbName);
-			 System.out.println("CASSANDRA DB FORMATED:"+Settings.getInstance().config.dbConfig.dbServerConfig.dbName);
+			String dbName=Settings.getInstance().config.dbConfig.dbServerConfig.dbName+CommonSettings.getInstance().config.getNamespaceSufix();
+			 dbManager.dropSchemaIfExists( dbName);
+			  dbManager.checkIfTablesExistsAndCreate(dbName);
+			 System.out.println("CASSANDRA DB FORMATED:"+dbName);
 			 
 		 }
 		 if(Settings.getInstance().config.initConfig.formatES){

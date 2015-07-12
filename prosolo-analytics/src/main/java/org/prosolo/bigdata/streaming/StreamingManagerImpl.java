@@ -5,6 +5,7 @@ import org.prosolo.bigdata.config.Settings;
 import org.prosolo.bigdata.dal.cassandra.impl.CassandraDDLManagerImpl;
 import org.prosolo.bigdata.events.observers.AnalyticalEventsObserver;
 import org.prosolo.bigdata.events.observers.LogEventsPersisterObserver;
+import org.prosolo.common.config.CommonSettings;
 /**
 @author Zoran Jeremic Apr 3, 2015
  *
@@ -17,7 +18,8 @@ public class StreamingManagerImpl {
 		logger.info("Initialize streaming");
 		//boolean format = true;
 		CassandraDDLManagerImpl client = new CassandraDDLManagerImpl();
-		client.checkIfTablesExistsAndCreate(Settings.getInstance().config.dbConfig.dbServerConfig.dbName);
+		String dbName=Settings.getInstance().config.dbConfig.dbServerConfig.dbName+CommonSettings.getInstance().config.getNamespaceSufix();
+		client.checkIfTablesExistsAndCreate(dbName);
 
 		StreamConsumerManager.getInstance().getEventDispatcher().registerObserver(new LogEventsPersisterObserver());
 		StreamConsumerManager.getInstance().getEventDispatcher().registerObserver(new AnalyticalEventsObserver());

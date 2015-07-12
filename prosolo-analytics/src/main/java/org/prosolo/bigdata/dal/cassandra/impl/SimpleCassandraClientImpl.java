@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.config.DBServerConfig;
 import org.prosolo.bigdata.config.Settings;
 import org.prosolo.bigdata.dal.cassandra.SimpleCassandraClient;
+import org.prosolo.common.config.CommonSettings;
 
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Session;
@@ -16,14 +17,16 @@ import com.datastax.driver.core.exceptions.InvalidQueryException;
 public class SimpleCassandraClientImpl implements SimpleCassandraClient{
 	private Cluster cluster;
 	private Session session;
+	String dbName=null;
 	protected final static Logger logger = Logger.getLogger(SimpleCassandraClientImpl.class
 			.getName());
 
 	public SimpleCassandraClientImpl() {
 		
 		DBServerConfig dbConfig = Settings.getInstance().config.dbConfig.dbServerConfig;
+		dbName=Settings.getInstance().config.dbConfig.dbServerConfig.dbName+CommonSettings.getInstance().config.getNamespaceSufix();
 		try{
-		this.connect(dbConfig.dbHost, dbConfig.dbName,
+		this.connect(dbConfig.dbHost, dbName,
 				dbConfig.replicationFactor);
 		}catch(Exception ex){
 			ex.printStackTrace();
@@ -34,7 +37,7 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient{
 		this.session=null;
 		this.cluster=null;
 		DBServerConfig dbConfig = Settings.getInstance().config.dbConfig.dbServerConfig;
-		this.connect(dbConfig.dbHost, dbConfig.dbName,
+		this.connect(dbConfig.dbHost, dbName,
 				dbConfig.replicationFactor);
 	}
 

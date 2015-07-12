@@ -129,12 +129,11 @@ public class UserActivityObserver  implements EventObserver {
 						Activity activity = targetActivity.getActivity();
 						TargetCompetence targetCompetence = targetActivity.getParentCompetence();
 						Competence competence = targetCompetence.getCompetence();						
-						System.out.println("TargetActivity:" + object.getId() + "Activity:" + activity.getId() + " tc:" + targetCompetence.getId()
-								+ " comp:" + competence.getId());						
+				
 						analyticalServiceCollector.createActivityInteractionData(competence.getId(), activity.getId());
 						
 						List<TargetActivity> tActivities=targetCompetence.getTargetActivities();
-						System.out.println("Target Competence has:"+targetCompetence.getId());
+		
 //						List<Long> activities=new ArrayList<Long>();
 //						for(TargetActivity tActivity:tActivities){
 //							activities.add(tActivity.getActivity().getId());
@@ -144,21 +143,19 @@ public class UserActivityObserver  implements EventObserver {
 					TargetLearningGoal targetLearningGoal=null;
 					if(target instanceof TargetLearningGoal){						
 						targetLearningGoal=(TargetLearningGoal) target;
-						System.out.println("Target is TargetLearningGoal:"+targetLearningGoal.getId()+" LG:"+targetLearningGoal.getLearningGoal().getId());
 					}else if(target instanceof TargetCompetence){
 						TargetCompetence targetCompetence =(TargetCompetence) target;
 						targetLearningGoal=targetCompetence.getParentGoal();
-						System.out.println("Target is TargetCompetence:"+targetLearningGoal.getId()+" LG:"+targetLearningGoal.getLearningGoal().getId());
+
 					}else if(target instanceof TargetActivity){
 						TargetActivity targetActivity =(TargetActivity) target;
 						TargetCompetence targetCompetence = targetActivity.getParentCompetence();
 						targetLearningGoal=targetCompetence.getParentGoal();
-						System.out.println("Target is TargetActivity:"+targetLearningGoal.getId()+" LG:"+targetLearningGoal.getLearningGoal().getId());
+
 					}else if(object instanceof TargetActivity){
 						TargetActivity targetActivity =(TargetActivity) object;
 						TargetCompetence targetCompetence = targetActivity.getParentCompetence();
 						targetLearningGoal=targetCompetence.getParentGoal();
-						System.out.println("Object is TargetActivity:"+targetLearningGoal.getId()+" LG:"+targetLearningGoal.getLearningGoal().getId());
 					}
 					if(targetLearningGoal!=null){
 						analyticalServiceCollector.increaseUserActivityForLearningGoalLog(userid, targetLearningGoal.getLearningGoal().getId(),DateUtil.getDaysSinceEpoch());

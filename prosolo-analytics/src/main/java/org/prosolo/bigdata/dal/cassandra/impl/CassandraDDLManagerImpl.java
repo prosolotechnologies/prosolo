@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.config.DBServerConfig;
 import org.prosolo.bigdata.config.Settings;
 import org.prosolo.bigdata.dal.cassandra.CassandraDDLManager;
+import org.prosolo.common.config.CommonSettings;
 
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Metadata;
@@ -22,11 +23,11 @@ public class CassandraDDLManagerImpl  extends SimpleCassandraClientImpl implemen
 	
 	private List<String> ddls = new ArrayList<String>();
 	DBServerConfig dbConfig = Settings.getInstance().config.dbConfig.dbServerConfig;
-	
+	String dbName=Settings.getInstance().config.dbConfig.dbServerConfig.dbName+CommonSettings.getInstance().config.getNamespaceSufix();
 	public CassandraDDLManagerImpl(){
 		this.createDDLs();
 		this.connectCluster();
-		this.checkIfTablesExistsAndCreate(this.dbConfig.dbName);
+		this.checkIfTablesExistsAndCreate(this.dbName);
 	}
 	
 	private void createDDLs() {
@@ -106,7 +107,6 @@ public class CassandraDDLManagerImpl  extends SimpleCassandraClientImpl implemen
 	}
 
 	private void connectCluster() {
-
 		Cluster cluster = Cluster.builder()
 				.addContactPoint(this.dbConfig.dbHost).build();
 		cluster.connect();
@@ -115,7 +115,7 @@ public class CassandraDDLManagerImpl  extends SimpleCassandraClientImpl implemen
 	public void checkIfTablesExistsAndCreate(String keyspacename) {
 
 		// checkIfTablesExistsAndCreate(dbConfig.dbName);
-		this.createSchemaIfNotExists(this.getSession(), this.dbConfig.dbName,
+		this.createSchemaIfNotExists(this.getSession(), this.dbName,
 				this.dbConfig.replicationFactor);
 		Metadata metadata = this.getCluster().getMetadata();
 		metadata.getKeyspace(keyspacename).getTables();

@@ -104,7 +104,7 @@ public class ReliableClient {
 	}
 
 	public void setQueue(String queue) {
-		this.queue = CommonSettings.getInstance().config.rabbitMQConfig.queuePrefix+queue;
+		this.queue = CommonSettings.getInstance().config.rabbitMQConfig.queuePrefix+queue+CommonSettings.getInstance().config.getNamespaceSufix();
 	}
 
 }

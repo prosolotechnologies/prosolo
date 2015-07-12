@@ -7,6 +7,9 @@ import org.prosolo.common.config.hibernate.HibernateConfig;
 
 public class Config {
 	
+	@Element(name = "namespace", required = true)
+	public String namespace;
+	
 	@Element(name = "rabbitmq-config", required = true)
 	public RabbitMQConfig rabbitMQConfig;
 	
@@ -18,4 +21,15 @@ public class Config {
 	
 	@Element(name="hibernate")
 	public HibernateConfig hibernateConfig;
+	
+	public String getNamespacePrefix(){
+		if(this.namespace.equals("local")){
+			return "";
+		}else return this.namespace+"_";
+	}
+	public String getNamespaceSufix(){
+		if(this.namespace.equals("local")){
+			return "";
+		}else return "_"+this.namespace;
+	}
 }

@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.services.messaging.rabbitmq.MasterNodeReliableConsumer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,7 +47,7 @@ public class MasterNodeReliableConsumerImpl  extends ReliableClientImpl implemen
 	  protected void waitForConnection() throws InterruptedException {
 	    super.waitForConnection();
 	    try {
-	      channel.basicConsume(rabbitmqConfig.queue, false, new Consumer() {
+	      channel.basicConsume(rabbitmqConfig.queuePrefix+rabbitmqConfig.queue+CommonSettings.getInstance().config.getNamespaceSufix(), false, new Consumer() {
 
 	        @Override
 	        public void handleCancel(String consumerTag) throws IOException {

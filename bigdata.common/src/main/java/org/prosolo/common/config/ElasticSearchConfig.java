@@ -42,10 +42,10 @@ public class ElasticSearchConfig {
 	public String usersIndex;
 	
 	@Element(name = "associationrules-index")
-	public static String associationrulesIndex;
+	public  String associationrulesIndex;
 
 	@Element(name = "recommendationdata-index")
-	public static String recommendationdataIndex;
+	public   String recommendationdataIndex;
 	
 	
 }

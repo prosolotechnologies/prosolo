@@ -79,8 +79,9 @@ After RabbitMQ is up and running you should:
 
 - in your home directory new directory will be created ".prosolo" containing three xml files used for configuration
 - **prosolo_common_config.xml** - shared configuration file for both applications
-	- contains configuration for rabbitmq server (update host, virtualHost, username and password) 
-	- configuration for elasticsearch (update type to "server", host. Other settings are not important on local machine) 
+	- namespace if any resource is used on shared server (e.g. rabbitmq, cassandra or elasticsearch), each developer has to have his own unique namespace (e.g. Nikola -> N, Sanja -> S, Zoran -> Z). This value if other than local will change cassandra database name, elasticsearch indexes, rabbitmq queue and exchange, so it prevents conflicts.
+	- contains configuration for rabbitmq server (update host, virtualHost, username and password). For shared server use host: **52.2.214.133** 
+	- configuration for elasticsearch (update type to "server", host. Other settings are not important on local machine). For shared server use host: **52.2.214.133**
 	- configuration for mysql server (update host, database, user and password)
 	- configuration for hibernate (nothing to configure here)
 - **prosolo_main_config.xml** - configuration file for prosolo-main application
@@ -93,7 +94,7 @@ After RabbitMQ is up and running you should:
 - **prosolo_analytical_config.xml**	- configuration file for prosolo-analytical application
 	- init/formatDB **true** will format cassandra database
 	- init/formatES **true** will format elasticsearch indexes
-	- dbconfig - configuration of cassandra database
+	- dbconfig - configuration of cassandra database.  For shared server use db-host: **52.2.214.133**
 	- scheduler-config/quartz-jobs/job/activated **true** to activate specific job to run based on its schedule
 	- scheduler-config/quartz-jobs/job/on-startup **true** to activate specific job at application startup. Used only for testing purposes.
 

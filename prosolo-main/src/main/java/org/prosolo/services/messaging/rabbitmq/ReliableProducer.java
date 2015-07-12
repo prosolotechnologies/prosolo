@@ -1,6 +1,6 @@
 package org.prosolo.services.messaging.rabbitmq;
 
-import org.prosolo.services.messaging.rabbitmq.impl.QueueNames;
+
 
 /**
  @author Zoran Jeremic Sep 7, 2014
