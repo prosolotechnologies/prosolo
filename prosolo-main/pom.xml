@@ -733,41 +733,25 @@
 					<version>2.17</version>
 				</plugin>
 				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
+				<groupId>org.eclipse.m2e</groupId>
+				<artifactId>lifecycle-mapping</artifactId>
 					<version>1.0.0</version>
 					<configuration>
 						<lifecycleMappingMetadata>
 							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>org.codehaus.mojo</groupId>
-										<artifactId>keytool-maven-plugin</artifactId>
-										<!-- version>1.5</version-->
-										<goals>
-											<goal>compile</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<execute />
-									</action>
-								</pluginExecution>
-								
-								<!-- Enable when Wro4J is set up  
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>ro.isdc.wro4j</groupId>
-										<artifactId>wro4j-maven-plugin</artifactId>
-										<versionRange>[1.0,)</versionRange>
-										<goals>
-											<goal>run</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<execute />
-									</action>
-								</pluginExecution>
-								-->
+							<pluginExecution>
+							<pluginExecutionFilter>
+							<groupId>org.codehaus.mojo</groupId>
+							<artifactId>keytool-maven-plugin</artifactId>
+							<!-- version>1.5</version-->
+							<goals>
+							<goal>compile</goal>
+							</goals>
+							</pluginExecutionFilter>
+							<action>
+							<execute/>
+							</action>
+							</pluginExecution>
 							</pluginExecutions>
 						</lifecycleMappingMetadata>
 					</configuration>

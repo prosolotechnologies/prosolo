@@ -1,5 +1,6 @@
 package org.prosolo.bigdata.dal.persistence.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -86,6 +87,41 @@ public class TwitterStreamingDAOImpl implements TwitterStreamingDAO{
 		System.out.println("FOUND DATA:"+hashtagsLearningGoalIds.size());
 		em.close();
 		return hashtagsLearningGoalIds;
+	}
+	@Override
+	public Map<String, List<Long>> readAllUserPreferedHashtagsAndUserIds() {
+		EntityManager em = org.prosolo.bigdata.dal.persistence.EntityManagerUtil.getEntityManagerFactory()
+				.createEntityManager();
+		String query = 
+			"SELECT DISTINCT hashtag.title, user.id " +
+			"FROM TopicPreference topicPreference " +
+			"LEFT JOIN topicPreference.user user " +
+			"LEFT JOIN topicPreference.preferredHashtags hashtag  WHERE hashtag.id > 0";
+			 
+		@SuppressWarnings("unchecked")
+		List<Object> result = em.createQuery(query).getResultList();
+		
+		Map<String, List<Long>> hashtagsUserIds = new HashMap<String, List<Long>>();
+		
+		if (result != null) {
+			Iterator<Object> resultIt = result.iterator();
+			
+			while (resultIt.hasNext()) {
+				Object[] object = (Object[]) resultIt.next();
+				String title = (String) object[0];
+				Long lgId = (Long) object[1];
+				if (hashtagsUserIds.containsKey(title)) {
+					List<Long> ids = hashtagsUserIds.get(title);
+					ids.add(lgId);
+				} else {
+					List<Long> ids = new ArrayList<Long>();
+					ids.add(lgId);
+					hashtagsUserIds.put(title, ids);
+				}
+			}
+		}
+		em.close();
+		return hashtagsUserIds;
 	}
 }
 

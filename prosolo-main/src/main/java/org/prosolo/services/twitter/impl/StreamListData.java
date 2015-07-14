@@ -60,6 +60,13 @@ public class StreamListData implements Serializable{
 			usersIds.add(userId);
 		}
 	}
+	public void addUsersIds(List<Long> newUsersIds){
+		for(Long userId:newUsersIds){
+			if(!usersIds.contains(userId)){
+				usersIds.add(userId);
+			}
+		}		
+	}
 	public boolean isFreeToRemove(){
 		if(usersIds.isEmpty() && goalsIds.isEmpty()){
 			return true;

@@ -1,5 +1,6 @@
 package org.prosolo.bigdata.dal.persistence;
 
+import java.util.List;
 import java.util.Map;
 
 import org.prosolo.bigdata.twitter.StreamListData;
@@ -12,6 +13,8 @@ import org.prosolo.bigdata.twitter.StreamListData;
 public interface TwitterStreamingDAO {
 
 	Map<String, StreamListData> readAllHashtagsAndLearningGoalsIds();
+
+	Map<String, List<Long>> readAllUserPreferedHashtagsAndUserIds();
 
 }
 
