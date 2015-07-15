@@ -26,6 +26,11 @@ public class StreamListData  implements Serializable{
 
 		
 	}
+	public StreamListData(String hashtag, Long userId, Long goalId){
+		this(hashtag);
+		if(userId>0)addUserId(userId);
+		if(goalId>0)addGoalId(goalId);
+	}
 	public Integer getStreamId() {
 		return streamId;
 	}

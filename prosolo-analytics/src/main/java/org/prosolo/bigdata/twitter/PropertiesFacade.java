@@ -3,6 +3,7 @@ package org.prosolo.bigdata.twitter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Properties;
 import java.util.Queue;
 

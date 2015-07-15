@@ -5,6 +5,6 @@ package org.prosolo.bigdata.common.events.pojo;
  */
 
 public enum DataType {
-	COUNTER, RECORD
+	COUNTER, RECORD, PROCESS
 }
 

@@ -2,6 +2,7 @@ package org.prosolo.services.interaction.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.hibernate.Session;
@@ -80,6 +81,20 @@ public class AnalyticalServiceCollectorImpl implements AnalyticalServiceCollecto
 		data.add("activities",actArray );
 		AnalyticalServiceMessage message=factory.createAnalyticalServiceMessage(DataName.TARGETCOMPETENCEACTIVITIES, DataType.RECORD,data);
 		messageDistributer.distributeMessage(message);		
+	}
+	@Override
+	public void sendUpdateHashtagsMessage(Map<String,String> parameters, long goalId, long userId){
+		JsonObject data=new JsonObject();
+		data.add("userid",new JsonPrimitive(userId));
+		data.add("goalid", new JsonPrimitive(goalId));
+		if(parameters.containsKey("newhashtags")){
+			data.add("newhashtags", new JsonPrimitive(parameters.get("newhashtags")));
+		}
+		if(parameters.containsKey("oldhashtags")){
+			data.add("oldhashtags", new JsonPrimitive(parameters.get("newhashtags")));
+		}
+		AnalyticalServiceMessage message=factory.createAnalyticalServiceMessage(DataName.UPDATEHASHTAGS, DataType.PROCESS,data);
+		messageDistributer.distributeMessage(message);
 	}
 	
 	

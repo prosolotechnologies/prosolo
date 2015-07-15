@@ -21,7 +21,7 @@ import scala.collection.JavaConverters._
 object TwitterHashtagsStreamsManager {
   val propFacade = new PropertiesFacade()
   /** Credentials used to connect with Twitter user streams.*/
-  val twitterProperties = propFacade.getAllTwitterSiteProperties
+  var twitterProperties:java.util.Queue[TwitterSiteProperties] = propFacade.getAllTwitterSiteProperties
   val logger = LoggerFactory.getLogger(getClass)
   /** Keeps information about each hashtag and which users or learning goals are interested in it. Once nobody is interested in hashtag it can be removed   */
   var hashtagsAndReferences:collection.mutable.Map[String,StreamListData]=new collection.mutable.HashMap[String,StreamListData]
@@ -29,10 +29,13 @@ object TwitterHashtagsStreamsManager {
   var streamsAndHashtags:collection.mutable.Map[Int,Array[String]]=new collection.mutable.HashMap[Int,Array[String]]
   /** Keeps reference to twitter stream based on stream id, so we can restart stream  */
   var twitterStreams:collection.mutable.Map[Int,ReceiverInputDStream[Status]]=new collection.mutable.HashMap[Int,ReceiverInputDStream[Status]]
+  /** Keeps track of twitter streams properties in use for later reuse*/
+   var twitterStreamsPropertiesInUse:collection.mutable.Map[Int,TwitterSiteProperties]=new collection.mutable.HashMap[Int,TwitterSiteProperties]
   /** Twitter Stream can listen for maximum of 400 hashtags */
    val STREAMLIMIT=398
   var currentHashTagsList:Array[String]=new Array[String](STREAMLIMIT)
   var streamsCounter:Int=0
+  var currentHashTagsStream:ReceiverInputDStream[Status]=null
  
   
   /**
@@ -59,7 +62,7 @@ object TwitterHashtagsStreamsManager {
    */
   def startStreamsForHashTags(){
     for((tag,streamListData) <-hashtagsAndReferences){
-      currentHashTagsList.+(tag)
+      currentHashTagsList.+("#"+tag)
       
       currentHashTagsList.size match {
         case x if x > STREAMLIMIT =>initializeNewCurrentHashTagsListAndStream
@@ -75,6 +78,7 @@ object TwitterHashtagsStreamsManager {
     streamsAndHashtags.put(streamId,currentHashTagsList)
     twitterStreams.put(streamId,stream)
     startStreamListening(stream,ssc)
+    currentHashTagsStream=stream
   }
  
  /**
@@ -119,5 +123,28 @@ object TwitterHashtagsStreamsManager {
       })
     })
     ssc.start()
+  }
+  def addNewHashTagsAndRestartStream(hashtags:Array[String], userId:java.lang.Long, goalId:java.lang.Long){
+    var changed=false; 
+    for(hashtag <- hashtags){
+      hashtagsAndReferences.contains(hashtag) match{
+        case true => 
+        case _ => currentHashTagsList.++:("#"+hashtag);changed=true
+      }
+       val listData:StreamListData= hashtagsAndReferences.getOrElseUpdate(hashtag, new StreamListData(hashtag, userId, goalId))
+     }
+    restartHashTagsStream(currentHashTagsStream,streamsCounter-1)
+  }
+  def restartHashTagsStream(stream:ReceiverInputDStream[Status], streamId:Int){
+    println("Restarting stream id:"+streamId)
+   stream.stop()
+   //Returns site properties to queue for later reuse
+   val siteproperties:Option[TwitterSiteProperties]=twitterStreamsPropertiesInUse.get(streamId)
+   if(siteproperties.nonEmpty){
+     twitterProperties.add(siteproperties.get)
+   }   
+   val newStream=initializeNewStream(currentHashTagsList)
+   twitterStreams.put(streamId, newStream._1)
+   
   }
 }

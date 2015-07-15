@@ -7,7 +7,6 @@ import org.prosolo.bigdata.events.pojo.AnalyticsEvent;
 import org.prosolo.bigdata.events.pojo.DefaultEvent;
 import org.prosolo.bigdata.streaming.Topic;
 
-import com.google.gson.Gson;
 
 /**
 @author Zoran Jeremic Apr 13, 2015
@@ -37,6 +36,8 @@ public class AnalyticalEventsObserver  implements EventObserver{
 				 dbManager.updateAnalyticsEventCounter( analyticsEvent);
 			 }else if(analyticsEvent.getDataType().equals(DataType.RECORD)){
 				 dbManager.insertAnalyticsEventRecord(analyticsEvent);
+			 }else if(analyticsEvent.getDataType().equals(DataType.PROCESS)){
+				 System.out.println("SHOULD PROCESS THIS EVENT:"+analyticsEvent.getEventType()+" "+analyticsEvent.getDataName()+" "+analyticsEvent.getDataType());
 			 }
 		}
 		

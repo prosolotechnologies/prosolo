@@ -2,6 +2,7 @@ package org.prosolo.services.logging;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
@@ -70,7 +71,8 @@ public class UserActivityObserver  implements EventObserver {
 				EventType.START_MESSAGE_THREAD,
 				EventType.ENROLL_COURSE,
 				EventType.COURSE_COMPLETED,
-				EventType.RemoveLike
+				EventType.RemoveLike,
+				EventType.UPDATE_HASHTAGS
 			};
 	}
 
@@ -133,11 +135,6 @@ public class UserActivityObserver  implements EventObserver {
 						analyticalServiceCollector.createActivityInteractionData(competence.getId(), activity.getId());
 						
 						List<TargetActivity> tActivities=targetCompetence.getTargetActivities();
-		
-//						List<Long> activities=new ArrayList<Long>();
-//						for(TargetActivity tActivity:tActivities){
-//							activities.add(tActivity.getActivity().getId());
-//						}
 						analyticalServiceCollector.createTargetCompetenceActivitiesData(competence.getId(), targetCompetence.getId(),tActivities);
 					}
 					TargetLearningGoal targetLearningGoal=null;
@@ -159,6 +156,17 @@ public class UserActivityObserver  implements EventObserver {
 					}
 					if(targetLearningGoal!=null){
 						analyticalServiceCollector.increaseUserActivityForLearningGoalLog(userid, targetLearningGoal.getLearningGoal().getId(),DateUtil.getDaysSinceEpoch());
+					}
+					if(event.getAction().equals(EventType.UPDATE_HASHTAGS)){
+						System.out.println("SHOULD UPDATE HASHTAGS ON SERVER HERE...");
+						long goalId=0, userId=0;
+						if(object instanceof LearningGoal){
+							goalId=object.getId();
+						}else if(object instanceof User){
+							userId=object.getId();
+						}
+						Map<String, String> parameters=event.getParameters();
+						analyticalServiceCollector.sendUpdateHashtagsMessage(parameters, goalId, userId);
 					}
 		
 				}

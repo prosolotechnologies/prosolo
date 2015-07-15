@@ -1,6 +1,7 @@
 package org.prosolo.services.interaction;
 
 import java.util.List;
+import java.util.Map;
 
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 
@@ -24,6 +25,9 @@ public interface AnalyticalServiceCollector {
 
 	void increaseUserActivityForLearningGoalLog(long userid, long learningGoal,
 			long daysSinceEpoch);
+
+	void sendUpdateHashtagsMessage(Map<String, String> parameters, long goalId,
+			long userId);
 
 	//void testCreateTargetCompetenceActivitiesAnalyticalData();
 

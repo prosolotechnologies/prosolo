@@ -90,8 +90,8 @@ public class AfterContextLoader implements ServletContextListener {
 				System.out.println("Finished ElasticSearch initialization:" + CommonSettings.getInstance().config.rabbitMQConfig.distributed + " .."
 						+ CommonSettings.getInstance().config.rabbitMQConfig.masterNode);
 				if (!CommonSettings.getInstance().config.rabbitMQConfig.distributed || CommonSettings.getInstance().config.rabbitMQConfig.masterNode) {
-					System.out.println("Initializing Twitter Streams Manager here");
-					ServiceLocator.getInstance().getService(TwitterStreamsManager.class).start();
+					System.out.println("Initializing Twitter Streams Manager here. REMOVED");
+				//	ServiceLocator.getInstance().getService(TwitterStreamsManager.class).start();
 				}
 			
 			}
