@@ -9,8 +9,8 @@ import org.apache.spark.storage.StorageLevel;
 import org.apache.spark.streaming.Time;
 import org.apache.spark.streaming.api.java.JavaDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
-import org.apache.spark.streaming.twitter.TwitterReceiver;
-import org.apache.spark.streaming.twitter.TwitterUtils;
+//import org.apache.spark.streaming.twitter.TwitterReceiver;
+//import org.apache.spark.streaming.twitter.TwitterUtils;
 import org.prosolo.bigdata.dal.persistence.impl.TwitterStreamingDAOImpl;
 import org.prosolo.bigdata.spark.SparkLauncher;
 
@@ -55,7 +55,7 @@ public class TwitterHashtagsStreamsManagerImpl {
 	 
 		 
 		
-		 JavaDStream<Status> inputDStream = TwitterUtils.createStream(ctx, new OAuthAuthorization(builder.build()), filters);
+		 JavaDStream<Status> inputDStream = null;//TwitterUtils.createStream(ctx, new OAuthAuthorization(builder.build()), filters);
  
 		  inputDStream.foreach(new Function2<JavaRDD<Status>,Time,Void>(){
 	     		@Override

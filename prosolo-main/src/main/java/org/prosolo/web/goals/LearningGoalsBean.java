@@ -288,10 +288,10 @@ public class LearningGoalsBean implements Serializable {
 			    	Collection<Tag> newHashtags=selectedGoalData.getData().getHashtags();
 			    	// update twitterStreamsManager if hashtags are updated
 			    	eventFactory.generateUpdateHashtagsEvent(loggedUser.getUser(),oldHashtags,newHashtags,updatedGoal,null);
-			    	twitterStreamsManager.updateHashTagsForResourceAndRestartStream(
+			    	/*twitterStreamsManager.updateHashTagsForResourceAndRestartStream(
 			    			oldHashtags, 
 			    			newHashtags, 
-			    			updatedGoal.getId());
+			    			updatedGoal.getId());*/
 			    	
 
 			    }

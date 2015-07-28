@@ -158,7 +158,7 @@ public class UserActivityObserver  implements EventObserver {
 						analyticalServiceCollector.increaseUserActivityForLearningGoalLog(userid, targetLearningGoal.getLearningGoal().getId(),DateUtil.getDaysSinceEpoch());
 					}
 					if(event.getAction().equals(EventType.UPDATE_HASHTAGS)){
-						System.out.println("SHOULD UPDATE HASHTAGS ON SERVER HERE...");
+						
 						long goalId=0, userId=0;
 						if(object instanceof LearningGoal){
 							goalId=object.getId();
@@ -166,6 +166,7 @@ public class UserActivityObserver  implements EventObserver {
 							userId=object.getId();
 						}
 						Map<String, String> parameters=event.getParameters();
+						System.out.println("SHOULD UPDATE HASHTAGS ON SERVER HERE..."+parameters.toString());
 						analyticalServiceCollector.sendUpdateHashtagsMessage(parameters, goalId, userId);
 					}
 		

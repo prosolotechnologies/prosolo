@@ -70,21 +70,18 @@ public class TwitterStreamingDAOImpl implements TwitterStreamingDAO{
 			Iterator<Object> resultIt = result.iterator();
 			
 			while (resultIt.hasNext()) {
-				System.out.println("result");
 				Object[] object = (Object[]) resultIt.next();
 				String title = (String) object[0];
 				Long lgId = (Long) object[1];
-				
 				if (hashtagsLearningGoalIds.containsKey(title)) {
 					hashtagsLearningGoalIds.get(title).addGoalId(lgId);
 				} else {
 					StreamListData listData = new StreamListData(title);
 					listData.addGoalId(lgId);
-					hashtagsLearningGoalIds.put(title, listData);
+					hashtagsLearningGoalIds.put("#"+title, listData);
 				}
 			}
 		}
-		System.out.println("FOUND DATA:"+hashtagsLearningGoalIds.size());
 		em.close();
 		return hashtagsLearningGoalIds;
 	}
@@ -116,7 +113,7 @@ public class TwitterStreamingDAOImpl implements TwitterStreamingDAO{
 				} else {
 					List<Long> ids = new ArrayList<Long>();
 					ids.add(lgId);
-					hashtagsUserIds.put(title, ids);
+					hashtagsUserIds.put("#"+title, ids);
 				}
 			}
 		}

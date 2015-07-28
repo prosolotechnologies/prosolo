@@ -16,7 +16,7 @@ public class SparkLauncher {
 			.getName());
 	private static JavaSparkContext javaSparkContext = null;
 	//private static JavaStreamingContext javaSparkStreamingContext=null;
-	private static StreamingContext scalaStreamingContext=null;
+	 private static StreamingContext scalaStreamingContext=null;
 	public static synchronized JavaSparkContext getSparkContext() {
 		if (javaSparkContext == null) {
 			try {
@@ -42,9 +42,10 @@ public class SparkLauncher {
 		if(scalaStreamingContext==null){
 			System.out.println("GET SPARK SCALA CONTEXT");
 			SparkConf conf=getSparkConf();
-			scalaStreamingContext=new StreamingContext(conf, Durations.seconds(10));
+			scalaStreamingContext=new StreamingContext(conf, Durations.seconds(1));
 		}
 		return scalaStreamingContext;
+		//return new StreamingContext(conf, Durations.seconds(10));
 	}
  
 	

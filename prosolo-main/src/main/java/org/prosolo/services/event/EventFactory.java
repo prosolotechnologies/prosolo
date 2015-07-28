@@ -77,6 +77,7 @@ public class EventFactory {
 
 	public Event generateUpdateHashtagsEvent(User creator, Collection<Tag> oldHashtags, Collection<Tag> newHashtags, Node resource, User user){
 		Map<String, String> parameters = new HashMap<String, String>();
+		System.out.println("Generate update hashtags event:"+oldHashtags+" new:"+newHashtags);
 		parameters.put("oldhashtags", AnnotationUtil.getCSVString(oldHashtags,","));
 		parameters.put("newhashtags", AnnotationUtil.getCSVString(newHashtags,","));
 		Event genericEvent = new Event(EventType.UPDATE_HASHTAGS);

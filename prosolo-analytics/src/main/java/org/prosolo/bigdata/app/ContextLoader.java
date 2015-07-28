@@ -2,9 +2,6 @@ package org.prosolo.bigdata.app;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.config.Settings;
 import org.prosolo.bigdata.dal.cassandra.impl.CassandraDDLManagerImpl;
@@ -12,9 +9,8 @@ import org.prosolo.bigdata.es.ESAdministration;
 import org.prosolo.bigdata.es.ESAdministrationImpl;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.bigdata.streaming.StreamingManagerImpl;
-import org.prosolo.bigdata.twitter.TwitterHashtagsStreamsManagerImpl;
-//import org.prosolo.bigdata.scala.twitter.TwitterHashtagsStreamsManager;
 import org.prosolo.bigdata.scala.twitter.TwitterHashtagsStreamsManager$;
+//import org.prosolo.bigdata.scala.twitter.TwitterStreamManager$;
 import org.prosolo.common.config.CommonSettings;
 
 /**
@@ -54,8 +50,8 @@ public class ContextLoader  implements ServletContextListener {
 			
 		 }
 		// TwitterHashtagsStreamsManagerImpl manager=new TwitterHashtagsStreamsManagerImpl();
-			//manager.initialize();
-			TwitterHashtagsStreamsManager$ twitterManager=TwitterHashtagsStreamsManager$.MODULE$;
+			// manager.initialize();
+			 TwitterHashtagsStreamsManager$ twitterManager=TwitterHashtagsStreamsManager$.MODULE$;
 			System.out.println("ENABLE THIS");
 			 twitterManager.initialize();
 		// After context is initialized. Should not be changed.

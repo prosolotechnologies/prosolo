@@ -22,9 +22,6 @@ import org.hibernate.cfg.ImprovedNamingStrategy;
 public class EntityManagerUtil {
 	private static EntityManagerFactory emf;
 	public static EntityManagerFactory getEntityManagerFactory() {
-		System.out.println("TRYING TO INITIALIZE ENTITY MANAGER FACTORY");
-		
-		
 		if (emf == null) {
 			Config config=CommonSettings.getInstance().config;
 			Map<String, Object> configOverrides = new HashMap<String, Object>();

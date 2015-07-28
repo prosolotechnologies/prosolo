@@ -91,7 +91,7 @@ public class AnalyticalServiceCollectorImpl implements AnalyticalServiceCollecto
 			data.add("newhashtags", new JsonPrimitive(parameters.get("newhashtags")));
 		}
 		if(parameters.containsKey("oldhashtags")){
-			data.add("oldhashtags", new JsonPrimitive(parameters.get("newhashtags")));
+			data.add("oldhashtags", new JsonPrimitive(parameters.get("oldhashtags")));
 		}
 		AnalyticalServiceMessage message=factory.createAnalyticalServiceMessage(DataName.UPDATEHASHTAGS, DataType.PROCESS,data);
 		messageDistributer.distributeMessage(message);

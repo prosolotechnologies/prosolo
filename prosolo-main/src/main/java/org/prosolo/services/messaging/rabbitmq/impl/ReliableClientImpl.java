@@ -37,15 +37,17 @@ public class ReliableClientImpl implements ReliableClient {
 			// usage
 			// Collections.shuffle(addresses);
 			Address[] addrArr = new Address[1];
-			addresses.toArray(addrArr);
+			addrArr[0]=addresses.get(0);
+			//addresses.toArray(addrArr);
 
 			try {
 				// factory.setHost("127.0.0.1");
+				factory.setHost(this.rabbitmqConfig.host);
 				factory.setVirtualHost(this.rabbitmqConfig.virtualHost);
 				factory.setPort(this.rabbitmqConfig.port);
 				factory.setUsername(this.rabbitmqConfig.username);
 				factory.setPassword(this.rabbitmqConfig.password);
-				this.connection = factory.newConnection(addrArr);
+				this.connection = factory.newConnection();
 
 				this.channel = this.connection.createChannel();
 				String exchange=this.queue;
