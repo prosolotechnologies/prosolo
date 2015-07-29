@@ -13,7 +13,7 @@ import org.prosolo.bigdata.scala.twitter.util.HashtagsUtils._
 object HashtagsUpdatesBuffer {
   val buffer: ListBuffer[AnalyticsEvent]=ListBuffer()
   /** heartbeat scheduler timer. */
-  private[this] val timer = new Timer("Firestorm JMX Monitor", true)
+  private[this] val timer = new Timer("Hashtags Updates Monitor", true)
   timer.scheduleAtFixedRate(new TimerTask {
     def run() {
      processBufferEvents

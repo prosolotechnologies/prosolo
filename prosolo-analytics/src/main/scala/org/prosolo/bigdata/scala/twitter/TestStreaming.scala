@@ -28,6 +28,7 @@ import org.apache.spark.SparkContext._
 /**
  * @author zoran Jul 21, 2015
  */
+  @deprecated
 object TestStreaming extends App{
   val propFacade = new PropertiesFacade()
   /** Credentials used to connect with Twitter user streams.*/

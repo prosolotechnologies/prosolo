@@ -15,6 +15,7 @@ import twitter4j.{HashtagEntity, Status}
 /**
  * @author zoran Jul 24, 2015
  */
+@deprecated
 object TwitterStreamManager {
   val propFacade = new PropertiesFacade()
   /** Credentials used to connect with Twitter user streams.*/

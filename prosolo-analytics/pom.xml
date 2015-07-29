@@ -239,9 +239,11 @@
 		<sourceDirectory>src/main/java</sourceDirectory>
 		<testSourceDirectory>src/test/java</testSourceDirectory>
 		<resources>
-			<resource>
-				<directory>${project.basedir}/src/main/resources</directory>
+		<resource>
+				<filtering>false</filtering>
+				<directory>src/main/resources</directory>
 			</resource>
+
 		</resources>
 		<testResources>
 			<testResource>

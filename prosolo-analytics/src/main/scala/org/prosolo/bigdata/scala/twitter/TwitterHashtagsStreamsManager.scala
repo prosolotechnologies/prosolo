@@ -28,14 +28,8 @@ object TwitterHashtagsStreamsManager {
   val logger = LoggerFactory.getLogger(getClass)
   /** Keeps information about each hashtag and which users or learning goals are interested in it. Once nobody is interested in hashtag it can be removed   */
   var hashtagsAndReferences:collection.mutable.Map[String,StreamListData]=new collection.mutable.HashMap[String,StreamListData]
-  /** Keeps reference between twitter stream by id and hashtags that we are listening within that stream   */
- // val streamsAndHashtags:collection.mutable.Map[Int,ListBuffer[String]]=new collection.mutable.HashMap[Int,ListBuffer[String]]
-  /** Keeps reference to twitter stream based on stream id, so we can restart stream  */
-  // val twitterStreams:collection.mutable.Map[Int,TwitterStream]=new collection.mutable.HashMap[Int,TwitterStream]
   /** Keeps reference to twitter stream based on stream id, and list of hashtags in filter  */
    val twitterStreamsAndHashtags:collection.mutable.Map[Int,(TwitterStream,ListBuffer[String])]=new collection.mutable.HashMap[Int,(TwitterStream,ListBuffer[String])]
-  /** Keeps track of twitter streams properties in use for later reuse*/
-   val twitterStreamsPropertiesInUse:collection.mutable.Map[Int,TwitterSiteProperties]=new collection.mutable.HashMap[Int,TwitterSiteProperties]
   /** Twitter Stream can listen for maximum of 400 hashtags */
    val STREAMLIMIT=398
   val currentHashTagsList:ListBuffer[String]=new ListBuffer[String]
@@ -77,7 +71,6 @@ object TwitterHashtagsStreamsManager {
   def initializeNewCurrentHashTagsListAndStream(){
     if(currentHashTagsList.size>0){
       val (stream, streamId) =initializeNewStream(currentHashTagsList)
-     // streamsAndHashtags.put(streamId,currentHashTagsList)
       twitterStreamsAndHashtags.put(streamId,(stream,currentHashTagsList))
       currentHashTagsStream=stream
     }
@@ -103,8 +96,6 @@ object TwitterHashtagsStreamsManager {
     val twitterStream = new TwitterStreamFactory(config).getInstance
     twitterStream.addListener(StatusListener.listener)
      val track:String=filters.mkString(",")
- // val arraytrack:Array[String]=new Array[String](filters.size)
- //filters.foreach { x => arraytrack.+(x) }
     twitterStream.filter(new FilterQuery().track(track))
     streamsCounter +=1
     (twitterStream,streamsCounter-1)
@@ -173,23 +164,15 @@ object TwitterHashtagsStreamsManager {
     if(changedIds.contains(streamsCounter-1)){
       changedIds-=streamsCounter-1
     }
-    println("changed ids 2:"+changedIds)
    restartHashTagsStream(currentHashTagsStream, currentHashTagsList)
-    println("changed ids 3:"+changedIds)
-  
  }
-    println("changed ids 4:"+changedIds)
  if(!changedIds.isEmpty){
-   println("SHOULD RESTART STREAMS HERE:"+changedIds+" current:"+streamsCounter)
    for(streamid <- changedIds){
      println("Restarting stream :"+streamid)
      val streamTagsTuple=twitterStreamsAndHashtags.get(streamid).get
       restartHashTagsStream(streamTagsTuple._1,streamTagsTuple._2)
-      
-   }
-  
+    }
  }
-     println("changed ids 5:"+changedIds)   
   }
     
   def restartHashTagsStream(twitterStream:TwitterStream, filters: ListBuffer[String]){//twitterStream:TwitterStream, streamId:Int){

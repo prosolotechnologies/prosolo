@@ -15,7 +15,6 @@ public class SparkLauncher {
 	private final static Logger logger = Logger.getLogger(SparkLauncher.class
 			.getName());
 	private static JavaSparkContext javaSparkContext = null;
-	//private static JavaStreamingContext javaSparkStreamingContext=null;
 	 private static StreamingContext scalaStreamingContext=null;
 	public static synchronized JavaSparkContext getSparkContext() {
 		if (javaSparkContext == null) {
