@@ -10,8 +10,6 @@ import org.junit.Test;
 import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.events.pojo.DataName;
 import org.prosolo.bigdata.common.events.pojo.DataType;
-import org.prosolo.config.MongoDBServerConfig;
-import org.prosolo.config.MongoDBServersConfig;
 import org.prosolo.common.messaging.MessageWrapperAdapter;
 import org.prosolo.common.messaging.data.AnalyticalServiceMessage;
 import org.prosolo.common.messaging.data.LogMessage;
@@ -20,6 +18,8 @@ import org.prosolo.common.messaging.rabbitmq.QueueNames;
 import org.prosolo.common.messaging.rabbitmq.ReliableConsumer;
 import org.prosolo.common.messaging.rabbitmq.impl.ReliableConsumerImpl;
 import org.prosolo.common.messaging.rabbitmq.impl.ReliableProducerImpl;
+import org.prosolo.config.MongoDBServerConfig;
+import org.prosolo.config.MongoDBServersConfig;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -65,14 +65,22 @@ public class ReliableProducerImplTest{
 		 query.put("actorId",2);
 		int count= eventsCollection.find().count();
 		System.out.println("COLLECTION HAS EVENTS:"+count);
-		DBCursor res2=eventsCollection.find();
-		int counter=0;
-		while(res2.hasNext()){
-			if(counter>10000)break;
-			DBObject logObject=res2.next();
-			wrapMessageAndSend(reliableProducer, logObject);
-			}			 
+		int counter = 0;
+		int batchSize = 100;
+		while(counter < count) {
+			DBCursor cursor = eventsCollection.find();
+			cursor.skip(counter);
+			cursor.limit(batchSize);
+			for(int i = 0; i<batchSize; i++) {
+				counter++;
+				if (!cursor.hasNext()) {
+					break;
+				}
+				wrapMessageAndSend(reliableProducer, cursor.next());
+			}
+		}
 	}
+	
 	@Test
 	public void generateActivityInteractionsLogsFromMongoTest(){
 		ReliableProducerImpl reliableProducer=new ReliableProducerImpl();
@@ -101,19 +109,26 @@ public class ReliableProducerImplTest{
 		System.out.println("COLLECTION HAS EVENTS:"+count);
 		 
 		DBCursor res2=eventsCollection.find();
-		int counter=0;
-		while(res2.hasNext()){
-			if(counter>10000)break;
-			DBObject logObject=res2.next();
-			
-			String objectType=((String) logObject.get("objectType"));
-			if((objectType!=null) && (objectType.equals("Activity") || objectType.equals("TargetActivity"))){
-				System.out.println("LOG OBJECT:"+logObject.toString());
+		int counter = 0;
+		int batchSize = 100;
+		while(counter < count) {
+			DBCursor cursor = eventsCollection.find();
+			cursor.skip(counter);
+			cursor.limit(batchSize);
+			for(int i = 0; i<batchSize; i++) {
+				counter++;
+				if (!cursor.hasNext()) {
+					break;
+				}
+				DBObject logObject = cursor.next();
+				String objectType = ((String) logObject.get("objectType"));
+				if (objectType != null && (objectType.equals("Activity") || objectType.equals("TargetActivity"))) {
+					System.out.println("LOG OBJECT:" + logObject.toString());
+				}
 			}
-			
-			//createActivityInteractionData(reliableProducer, logObject);
-			}			 
+		}	 
 	}
+	
 	public void createActivityInteractionData(ReliableProducerImpl reliableProducer,long competenceId, long activityId) {
 		GsonBuilder gson = new GsonBuilder();
 		 gson.registerTypeAdapter(MessageWrapper.class, new MessageWrapperAdapter());
