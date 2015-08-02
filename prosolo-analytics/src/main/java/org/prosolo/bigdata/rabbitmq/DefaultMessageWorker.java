@@ -5,13 +5,15 @@ import org.prosolo.bigdata.events.EventDispatcher;
 import org.prosolo.bigdata.events.EventFactory;
 import org.prosolo.bigdata.events.pojo.DefaultEvent;
 import org.prosolo.bigdata.streaming.Topic;
+import org.prosolo.common.messaging.rabbitmq.MessageWorker;
+import org.prosolo.common.messaging.rabbitmq.WorkerException;
 
 /**
 @author Zoran Jeremic Apr 3, 2015
  *
  */
 
-public class DefaultMessageWorker {
+public class DefaultMessageWorker implements MessageWorker{
 	private final static Logger logger = Logger
 			.getLogger(DefaultMessageWorker.class);
 	// private static JsonParser parser = new JsonParser();
@@ -24,7 +26,7 @@ public class DefaultMessageWorker {
 		this.workerTopic = topic;
 	 	this.eventDispatcher = eventDispatcher;
 	}
- 
+ @Override
 	public void handle(String message) throws WorkerException {
 		logger.debug("WORKER FOR TOPIC:"+this.workerTopic.name()+" HANDLING MESSAGE:" + message);
 		DefaultEvent event=null;

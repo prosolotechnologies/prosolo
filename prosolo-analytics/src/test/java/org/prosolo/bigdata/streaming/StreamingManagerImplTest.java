@@ -3,7 +3,7 @@ package org.prosolo.bigdata.streaming;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.prosolo.bigdata.rabbitmq.ReliableProducer;
+import org.prosolo.common.messaging.rabbitmq.impl.ReliableProducerImpl;
 
 /**
 @author Zoran Jeremic Apr 3, 2015
@@ -17,7 +17,7 @@ public class StreamingManagerImplTest {
 		 produce();
 	}
 	public void produce(){
-		ReliableProducer rabbitMQProducer = new ReliableProducer();
+		ReliableProducerImpl rabbitMQProducer = new ReliableProducerImpl();
 		 rabbitMQProducer.setQueue(Topic.LOGS.name().toLowerCase());
 		 rabbitMQProducer.startAsynchronousPublisher();
 		 for( int i=0;i<1000;i++){

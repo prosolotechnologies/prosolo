@@ -1,4 +1,5 @@
-package org.prosolo.services.messaging.rabbitmq.impl;
+package org.prosolo.common.messaging.rabbitmq.impl;
+
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -7,31 +8,34 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
-import org.prosolo.core.spring.ServiceLocator;
-import org.prosolo.recommendation.CollaboratorsRecommendation;
-import org.prosolo.services.messaging.rabbitmq.ReliableConsumer;
+import org.prosolo.common.messaging.rabbitmq.MessageWorker;
+import org.prosolo.common.messaging.rabbitmq.ReliableConsumer;
+import org.prosolo.common.messaging.rabbitmq.WorkerException;
 
 import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.Envelope;
 import com.rabbitmq.client.ShutdownSignalException;
 /**
-@author Zoran Jeremic Sep 7, 2014
+@author Zoran Jeremic Apr 3, 2015
+ *
  */
-//@Service("org.prosolo.services.messaging.rabbitmq.ReliableConsumer")
-public class ReliableConsumerImpl extends ReliableClientImpl implements ReliableConsumer {
+
+public class ReliableConsumerImpl extends ReliableClientImpl implements ReliableConsumer{
 	private final static Logger logger = Logger
-			.getLogger(ReliableConsumer.class);
+			.getLogger(ReliableConsumerImpl.class);
 	long lastItem;
+	long latestMessageTime=0;
+	int counter=0;
 	Set<Long> moreReceivedItems;
 	// MessageWorker worker;
-	//private DefaultMessageWorker worker;
+	private MessageWorker worker;
 	private ExecutorService exService;
-/*
-	public void setWorker(DefaultMessageWorker worker) {
+	@Override
+	public void setWorker(MessageWorker worker) {
 		this.worker = worker;
 	}
-*/
+
 	/*
 	 * public void init(){
 	 * if(Settings.getInstance().config.rabbitMQConfig.distributed){
@@ -69,41 +73,48 @@ public class ReliableConsumerImpl extends ReliableClientImpl implements Reliable
 				public void handleDelivery(String consumerTag,
 						Envelope envelope, BasicProperties properties,
 						byte[] body) throws IOException {
-					System.out.println("HANDLE DELIVERY:"+getQueue()+"..."+new String(body));
 					long messageId = 0;
 					if (properties.getMessageId() != null) {
 						messageId = Long.parseLong(properties.getMessageId());
-					//	if (ReliableConsumerImpl.this.worker != null) {
+						if (ReliableConsumerImpl.this.worker != null) {
 							// if the message is not a re-delivery, sure it is
 							// not a
 							// retransmission
+									
 							if (!envelope.isRedeliver()
 									|| ReliableConsumerImpl.this
 											.toBeWorked(messageId)) {
-							 	try {
-								 	ServiceLocator.getInstance().getService(DefaultMessageWorker.class).handle(new String(body));
-									//ReliableConsumerImpl.this.worker
-										//	.handle(new String(body));
+								try {
+									counter++;
+									latestMessageTime=System.currentTimeMillis();
+									ReliableConsumerImpl.this.worker
+											.handle(new String(body));
+									
 									// the message is ack'ed just after it has
 									// been
 									// secured (handled, stored in database...)
 									ReliableConsumerImpl.this
 											.setAsWorked(messageId);
-											//ReliableConsumerImpl.this.channel.basicAck(
-											//envelope.getDeliveryTag(), false);
-							 	} catch (WorkerException e) {
+									//ReliableConsumer.this.channel.basicAck(
+										//	envelope.getDeliveryTag(), false);
+								} catch (WorkerException e) {
 									// the message worker has reported an
 									// exception,
 									// so the message
 									// can not be considered to be handled
 									// properly,
 									// so requeue it
-							 	ReliableConsumerImpl.this.channel.basicReject(
-									 		envelope.getDeliveryTag(), true);
+										e.printStackTrace();
+								ReliableConsumerImpl.this.channel.basicReject(
+											envelope.getDeliveryTag(), true);
+								}catch(Exception ex){
+												logger.error("EXCEPTION WITH MESSAGE:"+envelope.getDeliveryTag(),ex);
+									ReliableConsumerImpl.this.channel.basicReject(
+											envelope.getDeliveryTag(), true);
 								}
 							}
-					 	}
-				//	}
+						}
+					}
 				}
 
 				@Override
@@ -114,7 +125,7 @@ public class ReliableConsumerImpl extends ReliableClientImpl implements Reliable
 				@Override
 				public void handleShutdownSignal(String consumerTag,
 						ShutdownSignalException cause) {
-					//logger.debug("got shutdown signal");
+					 logger.trace("got shutdown signal");
 
 				}
 
@@ -152,7 +163,7 @@ public class ReliableConsumerImpl extends ReliableClientImpl implements Reliable
 	 * @see org.prosolo.services.messaging.rabbitmq.impl.ReliableConsumer#
 	 * StartAsynchronousConsumer()
 	 */
-
+@Override
 	public void StartAsynchronousConsumer() {
 		this.exService = Executors.newSingleThreadExecutor();
 		this.exService.execute(new Runnable() {
@@ -173,12 +184,17 @@ public class ReliableConsumerImpl extends ReliableClientImpl implements Reliable
 							// after say 5
 							// minutes.
 							this.wait(5000);
+							long passedTime=System.currentTimeMillis()-latestMessageTime;
+							if(passedTime>2000){
+								ReliableConsumerImpl.this.disconnect();
+							}
+							
 						}
-						ReliableConsumerImpl.this.disconnect();
+					
 					}
 				} catch (InterruptedException ex) {
 					// disconnect and exit
-					ReliableConsumerImpl.this.disconnect();
+						ReliableConsumerImpl.this.disconnect();
 				}
 			}
 		});
@@ -194,8 +210,5 @@ public class ReliableConsumerImpl extends ReliableClientImpl implements Reliable
 	public void StopAsynchronousConsumer() {
 		this.exService.shutdownNow();
 	}
-	public void setQueue(String queue){
-		this.queue=queue;
-		
-	}
 }
+

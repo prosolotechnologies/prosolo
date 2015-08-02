@@ -2,25 +2,29 @@ package org.prosolo.bigdata.dal.persistence;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.config.Config;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.cfg.ImprovedNamingStrategy;
+ 
  
  
 
 /**
 @author Zoran Jeremic Jun 21, 2015
- *
+ * Thread-safe Entity Manager Helper
  */
 
 public class EntityManagerUtil {
 	private static EntityManagerFactory emf;
+	private static final ThreadLocal<EntityManager> threadLocal;
+	static{
+		emf=getEntityManagerFactory();
+		threadLocal=new ThreadLocal<EntityManager>();
+	
+	}
 	public static EntityManagerFactory getEntityManagerFactory() {
 		if (emf == null) {
 			Config config=CommonSettings.getInstance().config;
@@ -64,8 +68,42 @@ public class EntityManagerUtil {
 				ex.printStackTrace();
 			}
 		}
- 
+
 		return emf;
 	}
+	public static EntityManager getEntityManager() {
+        EntityManager em = threadLocal.get();
+
+        if (em == null) {
+            em = emf.createEntityManager();
+            // set your flush mode here
+            threadLocal.set(em);
+        }
+        return em;
+    }
+
+    public static void closeEntityManager() {
+        EntityManager em = threadLocal.get();
+        if (em != null) {
+            em.close();
+            threadLocal.set(null);
+        }
+    }
+
+    public static void closeEntityManagerFactory() {
+        emf.close();
+    }
+
+    public static void beginTransaction() {
+        getEntityManager().getTransaction().begin();
+    }
+
+    public static void rollback() {
+        getEntityManager().getTransaction().rollback();
+    }
+
+    public static void commit() {
+        getEntityManager().getTransaction().commit();
+    }
 }
 

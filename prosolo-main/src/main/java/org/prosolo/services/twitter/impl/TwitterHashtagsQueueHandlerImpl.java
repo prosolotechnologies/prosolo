@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
+import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.config.TwitterStreamConfig;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.twitter.TwitterHashtagsQueueHandler;
@@ -235,6 +236,7 @@ public class TwitterHashtagsQueueHandlerImpl implements TwitterHashtagsQueueHand
 			return false;
 		}
 	}
+	
 	
 	@Override
 	public List<String> getHashtagsBlackList(){

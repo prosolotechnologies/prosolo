@@ -5,6 +5,7 @@ package org.prosolo.services.messaging.rabbitmq.impl;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.junit.Test;
 import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.events.pojo.DataName;
@@ -12,12 +13,12 @@ import org.prosolo.bigdata.common.events.pojo.DataType;
 import org.prosolo.bigdata.common.rabbitmq.AnalyticalServiceMessage;
 import org.prosolo.config.MongoDBServerConfig;
 import org.prosolo.config.MongoDBServersConfig;
-
 import org.prosolo.services.messaging.MessageWrapperAdapter;
 import org.prosolo.services.messaging.data.LogMessage;
 import org.prosolo.services.messaging.data.MessageWrapper;
-import org.prosolo.services.messaging.rabbitmq.ReliableConsumer;
-
+import org.prosolo.common.messaging.rabbitmq.ReliableConsumer;
+import org.prosolo.common.messaging.rabbitmq.impl.ReliableConsumerImpl;
+import org.prosolo.common.messaging.rabbitmq.impl.ReliableProducerImpl;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -168,14 +169,17 @@ public class ReliableProducerImplTest{
 	@Test
 	public void testSend() {
 		ReliableConsumer reliableConsumer=new ReliableConsumerImpl();
+		reliableConsumer.setWorker(new DefaultMessageWorker());
 	 	reliableConsumer.setQueue(QueueNames.SESSION.name().toLowerCase());
 	 	reliableConsumer.StartAsynchronousConsumer();
 	 	
 	 	ReliableConsumer reliableConsumer2=new ReliableConsumerImpl();
+	 	reliableConsumer2.setWorker(new DefaultMessageWorker());
 	 	reliableConsumer2.setQueue(QueueNames.SYSTEM.name().toLowerCase());
 	 	reliableConsumer2.StartAsynchronousConsumer();
 	 	
 	 	ReliableConsumer reliableConsumer3=new ReliableConsumerImpl();
+	 	reliableConsumer3.setWorker(new DefaultMessageWorker());
 	 	reliableConsumer3.setQueue(QueueNames.LOGS.name().toLowerCase());
 	 	reliableConsumer3.StartAsynchronousConsumer();
 	 	while(true){

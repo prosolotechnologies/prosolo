@@ -1,4 +1,4 @@
-package org.prosolo.services.messaging.rabbitmq.impl;
+package org.prosolo.common.messaging.rabbitmq;
 
 /**
 @author Zoran Jeremic Sep 7, 2014

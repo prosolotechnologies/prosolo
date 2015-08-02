@@ -16,6 +16,8 @@ import org.prosolo.common.domainmodel.organization.OrganizationalUnit;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.workflow.evaluation.BadgeType;
+import org.prosolo.common.messaging.rabbitmq.ReliableConsumer;
+import org.prosolo.common.messaging.rabbitmq.impl.ReliableConsumerImpl;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.recommendation.CollaboratorsRecommendation;
 import org.prosolo.services.admin.ResourceSettingsManager;
@@ -24,16 +26,13 @@ import org.prosolo.services.importing.DataGenerator;
 import org.prosolo.services.indexing.ESAdministration;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.indexing.impl.ESAdministrationImpl;
-import org.prosolo.services.interaction.AnalyticalServiceCollector;
-import org.prosolo.services.messaging.rabbitmq.ReliableConsumer;
+import org.prosolo.services.messaging.rabbitmq.impl.DefaultMessageWorker;
 import org.prosolo.services.messaging.rabbitmq.impl.QueueNames;
-import org.prosolo.services.messaging.rabbitmq.impl.ReliableConsumerImpl;
 import org.prosolo.services.nodes.BadgeManager;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.twitter.TwitterStreamsManager;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 
 public class AfterContextLoader implements ServletContextListener {
@@ -104,18 +103,19 @@ public class AfterContextLoader implements ServletContextListener {
 	private void initApplicationServices(){
 		System.out.println("Init application services...");
 		ServiceLocator.getInstance().getService(CollaboratorsRecommendation.class).initializeMostActiveRecommendedUsers();
-		Settings settings = Settings.getInstance(); 
+	//	Settings settings = Settings.getInstance(); 
 		if(CommonSettings.getInstance().config.rabbitMQConfig.distributed){
 			
 		
 		ReliableConsumer systemConsumer=new ReliableConsumerImpl();
+		systemConsumer.setWorker(new DefaultMessageWorker());
 	//	systemConsumer=new ReliableConsumerImpl();
 		systemConsumer.setQueue(QueueNames.SYSTEM.name().toLowerCase());
 		systemConsumer.StartAsynchronousConsumer();
 	//	systemConsumer.init(QueueNames.SYSTEM);
 		//ServiceLocator.getInstance().getService(ReliableConsumer.class).init(QueueNames.SYSTEM);
 		ReliableConsumer sessionConsumer=new ReliableConsumerImpl();
- 
+		sessionConsumer.setWorker(new DefaultMessageWorker());
 		sessionConsumer.setQueue(QueueNames.SESSION.name().toLowerCase());
 		sessionConsumer.StartAsynchronousConsumer();
 	//	sessionConsumer.init(QueueNames.SESSION);

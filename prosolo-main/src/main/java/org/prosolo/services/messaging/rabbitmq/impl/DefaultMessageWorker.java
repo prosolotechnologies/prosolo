@@ -2,29 +2,27 @@ package org.prosolo.services.messaging.rabbitmq.impl;
 
 
 import org.apache.log4j.Logger;
-import org.prosolo.app.Settings;
-import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.messaging.rabbitmq.MessageWorker;
+import org.prosolo.common.messaging.rabbitmq.WorkerException;
+import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.messaging.MessageWrapperAdapter;
 import org.prosolo.services.messaging.data.MessageWrapper;
 import org.prosolo.services.messaging.data.SessionMessage;
-import org.prosolo.services.messaging.data.SystemMessage;
 import org.prosolo.services.messaging.impl.SessionMessageHandlerImpl;
-import org.prosolo.services.messaging.impl.SystemMessageHandlerImpl;
-import org.prosolo.services.messaging.rabbitmq.MessageWorker;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-@Service("org.prosolo.services.messaging.rabbitmq.DefaultMessageWorker")
+//@Service("org.prosolo.services.messaging.rabbitmq.DefaultMessageWorker")
 public class DefaultMessageWorker implements MessageWorker{
 	private static Logger logger = Logger.getLogger(DefaultMessageWorker.class);
-	@Autowired private SessionMessageHandlerImpl sessionMessageHandler;
-	@Autowired private SystemMessageHandlerImpl systemMessageHandler;
+	//@Autowired private SessionMessageHandlerImpl sessionMessageHandler;
+	//@Autowired private SystemMessageHandlerImpl systemMessageHandler;
 	GsonBuilder gson = new GsonBuilder();
 	Gson simpleGson=new Gson();
-	DefaultMessageWorker(){
+	public DefaultMessageWorker(){
 		gson.registerTypeAdapter(MessageWrapper.class, new MessageWrapperAdapter());
 	}
 	@Override
@@ -35,13 +33,15 @@ public class DefaultMessageWorker implements MessageWorker{
 			SessionMessage sessionMessage=(SessionMessage) messageWrapper.getMessage();
 			logger.debug(message);
 //			System.out.println("RECEIVED MESSAGE FROM:"+messageWrapper.getSender()+" MESSAGE:"+simpleGson.toJson(sessionMessage));
-	   		sessionMessageHandler.handle(sessionMessage);
-		}else if(messageWrapper.getMessage() instanceof SystemMessage){
+	   		//sessionMessageHandler.handle(sessionMessage);
+	   		ServiceLocator.getInstance().getService(SessionMessageHandlerImpl.class).handle(sessionMessage);
+		}
+		/*else if(messageWrapper.getMessage() instanceof SystemMessage){
 			if(CommonSettings.getInstance().config.rabbitMQConfig.masterNode){
 				systemMessageHandler.handle((SystemMessage) messageWrapper.getMessage());
 			}
 	 		
-		}
+		}*/
 	}
 
 }

@@ -1,27 +1,24 @@
-package org.prosolo.bigdata.rabbitmq;
-
-import org.apache.log4j.Logger;
- 
-
-import org.prosolo.common.config.CommonSettings;
-import org.prosolo.common.config.RabbitMQConfig;
+package org.prosolo.common.messaging.rabbitmq.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+
+import org.apache.log4j.Logger;
+//import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.config.RabbitMQConfig;
+import org.prosolo.common.messaging.rabbitmq.ReliableClient;
 
 import com.rabbitmq.client.Address;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-
 /**
-@author Zoran Jeremic Apr 3, 2015
- *
+@author Zoran Jeremic Sep 7, 2014
  */
 
-public class ReliableClient {
-	private final static Logger logger = Logger
-			.getLogger(ReliableClient.class);
+public class ReliableClientImpl implements ReliableClient {
+	private static Logger logger = Logger.getLogger(ReliableClient.class);
 	RabbitMQConfig rabbitmqConfig = CommonSettings.getInstance().config.rabbitMQConfig;
 	protected Connection connection;
 	protected Channel channel;
@@ -40,15 +37,17 @@ public class ReliableClient {
 			// usage
 			// Collections.shuffle(addresses);
 			Address[] addrArr = new Address[1];
-			addresses.toArray(addrArr);
+			addrArr[0]=addresses.get(0);
+			//addresses.toArray(addrArr);
 
 			try {
 				// factory.setHost("127.0.0.1");
+				factory.setHost(this.rabbitmqConfig.host);
 				factory.setVirtualHost(this.rabbitmqConfig.virtualHost);
 				factory.setPort(this.rabbitmqConfig.port);
 				factory.setUsername(this.rabbitmqConfig.username);
 				factory.setPassword(this.rabbitmqConfig.password);
-				this.connection = factory.newConnection(addrArr);
+				this.connection = factory.newConnection();
 
 				this.channel = this.connection.createChannel();
 				String exchange=this.queue;
@@ -61,12 +60,12 @@ public class ReliableClient {
 						this.rabbitmqConfig.durableQueue,
 						this.rabbitmqConfig.exclusiveQueue,
 						this.rabbitmqConfig.autodeleteQueue, null);
-				logger.trace("DECLARE CHANNEL: exchange:"+exchange+" queue:"+this.queue+" routing key:"+this.rabbitmqConfig.routingKey+" durable:"+this.rabbitmqConfig.durableQueue
-						 +" exclusive:"+this.rabbitmqConfig.exclusiveQueue+" autodelete:"+this.rabbitmqConfig.autodeleteQueue);
 				this.channel.queueBind(this.queue,
 						exchange,
 						this.rabbitmqConfig.routingKey);
 						//this.rabbitmqConfig.routingKey+" "+this.queue);
+			 	logger.trace("DECLARE CHANNEL: exchange:"+exchange+" queue:"+this.queue+" routing key:"+this.rabbitmqConfig.routingKey+" durable:"+this.rabbitmqConfig.durableQueue
+			 			 +" exclusive:"+this.rabbitmqConfig.exclusiveQueue+" autodelete:"+this.rabbitmqConfig.autodeleteQueue);
 				return;
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -75,7 +74,6 @@ public class ReliableClient {
 				// some hint on what to do in case it is not possible to
 				// connect after some timeouts, properly notifying persistent
 				// errors
-		
 				this.disconnect();
 				Thread.sleep(1000);
 			}
@@ -98,14 +96,13 @@ public class ReliableClient {
 			e.printStackTrace();
 		}
 	}
-
+	@Override
 	public String getQueue() {
 		return this.queue;
 	}
-
+	@Override
 	public void setQueue(String queue) {
 		this.queue = CommonSettings.getInstance().config.rabbitMQConfig.queuePrefix+queue+CommonSettings.getInstance().config.getNamespaceSufix();
 	}
 
 }
-

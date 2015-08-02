@@ -41,6 +41,12 @@
 			<artifactId>simple-xml</artifactId>
 			<version>2.3.6</version>
 		</dependency>
+				<!-- RabbitMQ dependencies -->
+		<dependency>
+			<groupId>com.rabbitmq</groupId>
+			<artifactId>amqp-client</artifactId>
+			<version>3.5.1</version>
+		</dependency>
 <!-- 		<dependency> -->
 <!-- 			<groupId>log4j</groupId> -->
 <!-- 			<artifactId>log4j</artifactId> -->

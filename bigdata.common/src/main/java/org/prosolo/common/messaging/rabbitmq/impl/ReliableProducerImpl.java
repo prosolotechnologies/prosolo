@@ -1,4 +1,4 @@
-package org.prosolo.services.messaging.rabbitmq.impl;
+package org.prosolo.common.messaging.rabbitmq.impl;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -7,22 +7,20 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.apache.log4j.Logger;
-import org.prosolo.app.Settings; 
-import org.prosolo.common.config.CommonSettings;
-import org.prosolo.services.messaging.rabbitmq.ReliableProducer;
+import org.prosolo.bigdata.common.rabbitmq.DataItem;
+import org.prosolo.bigdata.common.rabbitmq.DataQueue;
  
-
+import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.messaging.rabbitmq.ReliableProducer;
 
 import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.ConfirmListener;
-
 /**
-@author Zoran Jeremic Sep 7, 2014
+@author Zoran Jeremic Apr 3, 2015
+ *
  */
-//@Service("org.prosolo.services.messaging.rabbitmq.ReliableProducer")
-public class ReliableProducerImpl extends ReliableClientImpl implements ReliableProducer{
-	
+
+public class ReliableProducerImpl  extends ReliableClientImpl implements ReliableProducer{
 	private DataQueue dataQueue;
 	private Map<Long, DataItem> pendingItems;
 	private ExecutorService exService;
@@ -121,7 +119,7 @@ public class ReliableProducerImpl extends ReliableClientImpl implements Reliable
 	 * org.prosolo.services.messaging.rabbitmq.impl.ReliableProducer#send(java
 	 * .lang.String)
 	 */
-
+	@Override
 	public void send(String data) {
 		synchronized (this.dataQueue) {
 
@@ -136,7 +134,7 @@ public class ReliableProducerImpl extends ReliableClientImpl implements Reliable
 	 * @see org.prosolo.services.messaging.rabbitmq.impl.ReliableProducer#
 	 * startAsynchronousPublisher()
 	 */
-
+	@Override
 	public void startAsynchronousPublisher() {
 		this.exService = Executors.newSingleThreadExecutor();
 		this.exService.execute(new Runnable() {
@@ -191,6 +189,7 @@ public class ReliableProducerImpl extends ReliableClientImpl implements Reliable
 						.expiration(this.rabbitmqConfig.messageExpiration)
 						.build();
 				long deliveryTag = this.channel.getNextPublishSeqNo();
+				System.out.println("PUBLISH:"+item.getData()+" "+this.queue);
 				this.channel.basicPublish("", this.queue, messageProperties,
 						item.getData().getBytes());
 				// only after successfully publishing, move the item to the
@@ -210,3 +209,4 @@ public class ReliableProducerImpl extends ReliableClientImpl implements Reliable
 		}
 	}
 }
+

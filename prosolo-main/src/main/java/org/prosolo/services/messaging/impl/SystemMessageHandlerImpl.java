@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
  * @author Zoran Jeremic Oct 17, 2014
  *
  */
+@Deprecated
 @Service("org.prosolo.services.messaging.SystemMessageHandler")
 public class SystemMessageHandlerImpl implements MessageHandler<SystemMessage> {
 	@Autowired

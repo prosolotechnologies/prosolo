@@ -10,7 +10,6 @@ trait ProfanityCensor {
    def readBadWordsFromFile(): Array[String]= {
      val stream : InputStream =getClass.getClassLoader.getResourceAsStream(badWordFile)
      val lines: Array[String] = scala.io.Source.fromInputStream( stream ).getLines.toArray
-     lines.foreach(x=>println(x))
      lines
    }
    val badWords=readBadWordsFromFile

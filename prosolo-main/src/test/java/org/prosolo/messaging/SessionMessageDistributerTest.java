@@ -7,11 +7,12 @@ import org.junit.Test;
 import org.prosolo.core.stress.TestContext;
 import org.prosolo.services.messaging.SessionMessageDistributer;
 import org.prosolo.services.messaging.data.ServiceType;
-import org.prosolo.services.messaging.rabbitmq.ReliableConsumer;
-import org.prosolo.services.messaging.rabbitmq.ReliableProducer;
+import org.prosolo.common.messaging.rabbitmq.ReliableConsumer;
+import org.prosolo.common.messaging.rabbitmq.ReliableProducer;
+import org.prosolo.services.messaging.rabbitmq.impl.DefaultMessageWorker;
 import org.prosolo.services.messaging.rabbitmq.impl.QueueNames;
-import org.prosolo.services.messaging.rabbitmq.impl.ReliableConsumerImpl;
-import org.prosolo.services.messaging.rabbitmq.impl.ReliableProducerImpl;
+import org.prosolo.common.messaging.rabbitmq.impl.ReliableConsumerImpl;
+import org.prosolo.common.messaging.rabbitmq.impl.ReliableProducerImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class SessionMessageDistributerTest extends TestContext{
@@ -23,6 +24,7 @@ public class SessionMessageDistributerTest extends TestContext{
 	@Test
 	public void testDistributeMessageTest() {
 		reliableConsumer=new ReliableConsumerImpl();
+		reliableConsumer.setWorker(new DefaultMessageWorker());
 		//reliableConsumer.init(QueueNames.SESSION);
 		reliableConsumer.StartAsynchronousConsumer();
 		

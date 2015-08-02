@@ -1,6 +1,6 @@
-package org.prosolo.services.messaging.rabbitmq;
+package org.prosolo.common.messaging.rabbitmq;
 
-import org.prosolo.services.messaging.rabbitmq.impl.WorkerException;
+import org.prosolo.common.messaging.rabbitmq.MessageWorker;
 
 /**
 @author Zoran Jeremic Sep 7, 2014

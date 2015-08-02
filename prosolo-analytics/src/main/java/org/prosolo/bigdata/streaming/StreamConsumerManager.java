@@ -2,7 +2,7 @@ package org.prosolo.bigdata.streaming;
 
 import org.prosolo.bigdata.events.EventDispatcher;
 import org.prosolo.bigdata.rabbitmq.DefaultMessageWorker;
-import org.prosolo.bigdata.rabbitmq.ReliableConsumer;
+import org.prosolo.common.messaging.rabbitmq.impl.ReliableConsumerImpl;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +39,8 @@ public class StreamConsumerManager {
 		this.logger.info("START LISTENING FOR TOPIC:" + topic.name());
  
 
-			ReliableConsumer reliableConsumer = new ReliableConsumer();
+			ReliableConsumerImpl reliableConsumer = new ReliableConsumerImpl();
+			
 			reliableConsumer.setQueue(topic.name().toLowerCase());
 			reliableConsumer.setWorker(new DefaultMessageWorker(topic, this.eventDispatcher));
 			reliableConsumer.StartAsynchronousConsumer();
