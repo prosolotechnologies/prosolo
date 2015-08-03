@@ -2,7 +2,7 @@ package org.prosolo.services.interaction.impl;
 
 import org.prosolo.bigdata.common.events.pojo.DataName;
 import org.prosolo.bigdata.common.events.pojo.DataType;
-import org.prosolo.bigdata.common.rabbitmq.AnalyticalServiceMessage;
+import org.prosolo.common.messaging.data.AnalyticalServiceMessage;
 import org.prosolo.services.interaction.AnalyticalServiceDataFactory;
 import org.springframework.stereotype.Service;
 

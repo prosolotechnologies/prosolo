@@ -1,20 +1,19 @@
-package org.prosolo.services.messaging.data;
+package org.prosolo.common.messaging.data;
 
 import java.util.Map;
 
-import org.prosolo.common.messaging.data.ServiceType;
-import org.prosolo.common.messaging.data.SimpleMessage;
+ 
 
 /**
- * @author Zoran Jeremic Oct 17, 2014
- *
+ * @author zoran Aug 2, 2015
  */
 
-public class SystemMessage extends SimpleMessage {
+ 
+public class BroadcastMessage  extends SimpleMessage{
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 8316618008585692473L;
+	private static final long serialVersionUID = 541709813329585537L;
 	private ServiceType serviceType;
 	private Map<String, String> parameters;
 

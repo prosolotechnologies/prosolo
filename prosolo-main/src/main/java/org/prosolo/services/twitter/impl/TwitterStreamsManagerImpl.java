@@ -7,13 +7,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.annotation.PostConstruct;
+
 import org.apache.log4j.Logger;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.messaging.data.ServiceType;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.messaging.SystemMessageDistributer;
-import org.prosolo.services.messaging.data.ServiceType;
 import org.prosolo.services.twitter.PropertiesFacade;
 import org.prosolo.services.twitter.TwitterApiManager;
 import org.prosolo.services.twitter.TwitterHashtagsQueueHandler;
@@ -25,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
+
 import twitter4j.FilterQuery;
 import twitter4j.TwitterStream;
 import twitter4j.TwitterStreamFactory;

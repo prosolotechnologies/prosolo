@@ -1,11 +1,13 @@
-package org.prosolo.services.messaging;
+package org.prosolo.common.messaging;
 
 import java.lang.reflect.Type;
 
-import org.prosolo.bigdata.common.rabbitmq.SimpleMessage;
-import org.prosolo.services.messaging.data.MessageWrapper;
+import org.prosolo.common.messaging.data.MessageWrapper;
  
 
+
+
+import org.prosolo.common.messaging.data.SimpleMessage;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;

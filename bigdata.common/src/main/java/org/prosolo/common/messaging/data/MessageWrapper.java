@@ -1,8 +1,6 @@
-package org.prosolo.services.messaging.data;
+package org.prosolo.common.messaging.data;
 
 import java.io.Serializable;
-
-import org.prosolo.bigdata.common.rabbitmq.SimpleMessage;
 
 public  class MessageWrapper implements Serializable{
 

@@ -3,14 +3,14 @@ package org.prosolo.services.messaging.impl;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.messaging.MessageWrapperAdapter;
+import org.prosolo.common.messaging.data.MessageWrapper;
+import org.prosolo.common.messaging.data.ServiceType;
+import org.prosolo.common.messaging.rabbitmq.QueueNames;
 import org.prosolo.common.messaging.rabbitmq.ReliableProducer;
 import org.prosolo.common.messaging.rabbitmq.impl.ReliableProducerImpl;
-import org.prosolo.services.messaging.MessageWrapperAdapter;
 import org.prosolo.services.messaging.SystemMessageDistributer;
-import org.prosolo.services.messaging.data.MessageWrapper;
-import org.prosolo.services.messaging.data.ServiceType;
 import org.prosolo.services.messaging.data.SystemMessage;
-import org.prosolo.services.messaging.rabbitmq.impl.QueueNames;
 import org.prosolo.web.ApplicationBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

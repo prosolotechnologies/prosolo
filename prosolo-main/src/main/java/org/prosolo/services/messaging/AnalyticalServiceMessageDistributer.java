@@ -1,6 +1,6 @@
 package org.prosolo.services.messaging;
 
-import org.prosolo.bigdata.common.rabbitmq.AnalyticalServiceMessage;
+import org.prosolo.common.messaging.data.AnalyticalServiceMessage;
 
  
 

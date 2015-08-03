@@ -32,15 +32,11 @@ public class StreamConsumerManager {
 	 * Constructor is set to private as this class is used as Singleton only
 	 */
 	private StreamConsumerManager() {
-		//this.topics = new HashMap<Topic, Integer>();
 		this.setEventDispatcher(new EventDispatcher());
 	}
 	public void startTopicStreaming(Topic topic, Integer threadCount) {
 		this.logger.info("START LISTENING FOR TOPIC:" + topic.name());
- 
-
 			ReliableConsumerImpl reliableConsumer = new ReliableConsumerImpl();
-			
 			reliableConsumer.setQueue(topic.name().toLowerCase());
 			reliableConsumer.setWorker(new DefaultMessageWorker(topic, this.eventDispatcher));
 			reliableConsumer.StartAsynchronousConsumer();

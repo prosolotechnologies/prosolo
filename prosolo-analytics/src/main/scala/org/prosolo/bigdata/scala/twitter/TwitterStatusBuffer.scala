@@ -3,6 +3,8 @@ package org.prosolo.bigdata.scala.twitter
 import java.util.{TimerTask, Timer}
 import scala.collection.mutable.ListBuffer
 import org.prosolo.bigdata.scala.spark.SparkContextLoader
+import org.prosolo.bigdata.scala.messaging.BroadcastDistributer
+import org.prosolo.common.messaging.data.{ServiceType=>MServiceType}
 import org.prosolo.common.domainmodel.user.{User,AnonUser,ServiceType,UserType}
 import org.prosolo.common.domainmodel.organization.VisibilityType
 import twitter4j.Status
@@ -66,6 +68,10 @@ object TwitterStatusBuffer {
       
     val post:TwitterPost = twitterStreamingDao.createNewTwitterPost(poster, created, postLink, twitterId, creatorName, screenName, profileUrl, profileImage, text,VisibilityType.PUBLIC, twitterHashtags,true);
      val twitterPostSocialActivity=twitterStreamingDao.createTwitterPostSocialActivity(post)
+    val parameters:java.util.Map[String,String]=new java.util.HashMap[String,String]()
+     parameters.put("socialActivityId", twitterPostSocialActivity.getId.toString())
+     BroadcastDistributer.distributeMessage(MServiceType.BROADCAST_SOCIAL_ACTIVITY, parameters)
+     
   }
   def initAnonUser(creatorName:String,profileUrl:String,screenName:String, profileImage:String):AnonUser={
    val anonUser:AnonUser=new AnonUser

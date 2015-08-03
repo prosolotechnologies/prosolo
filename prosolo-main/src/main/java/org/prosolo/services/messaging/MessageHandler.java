@@ -1,6 +1,6 @@
 package org.prosolo.services.messaging;
 
-import org.prosolo.bigdata.common.rabbitmq.SimpleMessage;
+import org.prosolo.common.messaging.data.SimpleMessage;
 
  
 

@@ -2,7 +2,7 @@ package org.prosolo.services.messaging;
 
 import java.util.Map;
 
-import org.prosolo.services.messaging.data.ServiceType;
+import org.prosolo.common.messaging.data.ServiceType;
 import org.prosolo.services.messaging.data.SessionMessage;
 
 

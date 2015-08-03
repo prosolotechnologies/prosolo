@@ -1,4 +1,4 @@
-package org.prosolo.services.messaging.data;
+package org.prosolo.common.messaging.data;
 
 public enum 
 ServiceType {
@@ -26,4 +26,7 @@ ServiceType {
 	UPDATE_SOCIAL_ACTIVITY, 
 	DELETE_SOCIAL_ACTIVITY, 
 	REMOVE_GOAL_COLLABORATOR, 
+	
+	//Broadcast messages
+	BROADCAST_SOCIAL_ACTIVITY
 }

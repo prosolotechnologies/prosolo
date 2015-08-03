@@ -2,15 +2,14 @@ package org.prosolo.services.messaging.rabbitmq.impl;
 
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.messaging.MessageWrapperAdapter;
+import org.prosolo.common.messaging.data.MessageWrapper;
 import org.prosolo.common.messaging.rabbitmq.MessageWorker;
 import org.prosolo.common.messaging.rabbitmq.WorkerException;
 import org.prosolo.core.spring.ServiceLocator;
-import org.prosolo.services.messaging.MessageWrapperAdapter;
-import org.prosolo.services.messaging.data.MessageWrapper;
 import org.prosolo.services.messaging.data.SessionMessage;
 import org.prosolo.services.messaging.impl.SessionMessageHandlerImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -32,7 +31,7 @@ public class DefaultMessageWorker implements MessageWorker{
 		if(messageWrapper.getMessage() instanceof SessionMessage){
 			SessionMessage sessionMessage=(SessionMessage) messageWrapper.getMessage();
 			logger.debug(message);
-//			System.out.println("RECEIVED MESSAGE FROM:"+messageWrapper.getSender()+" MESSAGE:"+simpleGson.toJson(sessionMessage));
+			//System.out.println("RECEIVED MESSAGE FROM:"+messageWrapper.getSender()+" MESSAGE:"+simpleGson.toJson(sessionMessage));
 	   		//sessionMessageHandler.handle(sessionMessage);
 	   		ServiceLocator.getInstance().getService(SessionMessageHandlerImpl.class).handle(sessionMessage);
 		}

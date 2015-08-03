@@ -16,13 +16,10 @@ import org.prosolo.common.messaging.rabbitmq.WorkerException;
 public class DefaultMessageWorker implements MessageWorker{
 	private final static Logger logger = Logger
 			.getLogger(DefaultMessageWorker.class);
-	// private static JsonParser parser = new JsonParser();
 	private Topic workerTopic=Topic.LOGS;
  	private EventDispatcher eventDispatcher;
 
 	 public DefaultMessageWorker(Topic topic,EventDispatcher eventDispatcher) {
-		// gson.registerTypeAdapter(MessageWrapper.class, new
-		// MessageWrapperAdapter());
 		this.workerTopic = topic;
 	 	this.eventDispatcher = eventDispatcher;
 	}

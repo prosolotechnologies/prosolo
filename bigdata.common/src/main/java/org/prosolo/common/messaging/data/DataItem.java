@@ -1,4 +1,4 @@
-package org.prosolo.bigdata.common.rabbitmq;
+package org.prosolo.common.messaging.data;
 /**
 @author Zoran Jeremic Apr 3, 2015
  *

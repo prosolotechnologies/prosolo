@@ -1,4 +1,4 @@
-package org.prosolo.bigdata.common.rabbitmq;
+package org.prosolo.common.messaging.data;
 
 import org.prosolo.bigdata.common.events.pojo.DataName;
 import org.prosolo.bigdata.common.events.pojo.DataType;
