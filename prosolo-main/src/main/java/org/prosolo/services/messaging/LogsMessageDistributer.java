@@ -1,6 +1,6 @@
 package org.prosolo.services.messaging;
 
-import org.prosolo.services.messaging.data.LogMessage;
+import org.prosolo.common.messaging.data.LogMessage;
 
 import com.mongodb.DBObject;
 

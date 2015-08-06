@@ -63,7 +63,7 @@ public class TwitterBean implements Serializable {
 	@Autowired private UserManager userManager;
 	@Autowired private UserOauthTokensManager userOauthTokensManager;
 	@Autowired private LoggedUserBean loggedUser;
-	@Autowired private TwitterStreamsManager twitterStreamsManager;
+	//@Autowired private TwitterStreamsManager twitterStreamsManager;
 	@Autowired private TagManager tagManager;
 	@Autowired private EventFactory eventFactory;
 
@@ -181,8 +181,8 @@ public class TwitterBean implements Serializable {
 		topicPreference.setPreferredHashtags(new HashSet<Tag>(hashTagList));
 		tagManager.saveEntity(topicPreference);
 		System.out.println("UPDATING HASHTAGS FOR USER 1");
-		twitterStreamsManager
-				.updateHashTagsForUserAndRestartStream(oldHashTags, topicPreference.getPreferredHashtags(), loggedUser.getUser().getId());
+		//twitterStreamsManager
+				//.updateHashTagsForUserAndRestartStream(oldHashTags, topicPreference.getPreferredHashtags(), loggedUser.getUser().getId());
 		eventFactory.generateUpdateHashtagsEvent(loggedUser.getUser(),oldHashTags, topicPreference.getPreferredHashtags(),null,loggedUser.getUser());
 		PageUtil.fireSuccessfulInfoMessage("Updated twitter hashtags!");
 	}

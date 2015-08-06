@@ -30,7 +30,7 @@ import twitter4j.Status;
  * @author Zoran Jeremic, Sep 1, 2014
  *
  */
-@Service("org.prosolo.services.twitter.TwitterPostsFactory")
+//@Service("org.prosolo.services.twitter.TwitterPostsFactory")
 public class TwitterPostsFactoryImpl implements TwitterPostsFactory {
 	
 	private static Logger logger = Logger.getLogger(TwitterPostsFactory.class);

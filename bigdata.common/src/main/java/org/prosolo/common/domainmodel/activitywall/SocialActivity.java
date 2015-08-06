@@ -1,27 +1,23 @@
 package org.prosolo.common.domainmodel.activitywall;
 
-import java.math.BigInteger;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.persistence.Column;
-import javax.persistence.ColumnResult;
-import javax.persistence.ConstructorResult;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.SqlResultSetMapping;
 import javax.persistence.Transient;
-
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
@@ -141,6 +137,7 @@ public abstract class SocialActivity extends BaseEntity {
 	}
 	
 	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(name = "social_activity_hashtags")
 	public Set<Tag> getHashtags() {
 		return hashtags;
 	}

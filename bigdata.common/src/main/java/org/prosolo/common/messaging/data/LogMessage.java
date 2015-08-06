@@ -1,6 +1,4 @@
-package org.prosolo.services.messaging.data;
-
-import org.prosolo.common.messaging.data.SimpleMessage;
+package org.prosolo.common.messaging.data;
 
 import com.mongodb.DBObject;
 

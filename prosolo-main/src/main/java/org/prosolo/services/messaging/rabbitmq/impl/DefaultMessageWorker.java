@@ -3,11 +3,13 @@ package org.prosolo.services.messaging.rabbitmq.impl;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.messaging.MessageWrapperAdapter;
+import org.prosolo.common.messaging.data.BroadcastMessage;
 import org.prosolo.common.messaging.data.MessageWrapper;
+import org.prosolo.common.messaging.data.SessionMessage;
 import org.prosolo.common.messaging.rabbitmq.MessageWorker;
 import org.prosolo.common.messaging.rabbitmq.WorkerException;
 import org.prosolo.core.spring.ServiceLocator;
-import org.prosolo.services.messaging.data.SessionMessage;
+import org.prosolo.services.messaging.impl.BroadcastMessageHandlerImpl;
 import org.prosolo.services.messaging.impl.SessionMessageHandlerImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -34,6 +36,11 @@ public class DefaultMessageWorker implements MessageWorker{
 			//System.out.println("RECEIVED MESSAGE FROM:"+messageWrapper.getSender()+" MESSAGE:"+simpleGson.toJson(sessionMessage));
 	   		//sessionMessageHandler.handle(sessionMessage);
 	   		ServiceLocator.getInstance().getService(SessionMessageHandlerImpl.class).handle(sessionMessage);
+		}else if(messageWrapper.getMessage() instanceof BroadcastMessage){
+			BroadcastMessage broadcastMessage=(BroadcastMessage) messageWrapper.getMessage();
+			logger.debug(message);
+			ServiceLocator.getInstance().getService(BroadcastMessageHandlerImpl.class).handle(broadcastMessage);
+			
 		}
 		/*else if(messageWrapper.getMessage() instanceof SystemMessage){
 			if(CommonSettings.getInstance().config.rabbitMQConfig.masterNode){

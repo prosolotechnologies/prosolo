@@ -19,6 +19,7 @@ object BroadcastDistributer {
   
   def distributeMessage(serviceType:ServiceType, parameters:java.util.Map[String,String]){
     val message:BroadcastMessage=new BroadcastMessage
+    message.setServiceType(ServiceType.BROADCAST_SOCIAL_ACTIVITY)
     message.setParameters(parameters)
     val wrapper:MessageWrapper=new MessageWrapper
     val localhost = InetAddress.getLocalHost

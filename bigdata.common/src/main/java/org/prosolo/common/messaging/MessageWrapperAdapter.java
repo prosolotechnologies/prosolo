@@ -39,7 +39,7 @@ public class MessageWrapperAdapter implements JsonSerializer<MessageWrapper>, Js
 			JsonElement messageElement = jsonObject.get("message");
 
 			try {
-				String thepackage = "org.prosolo.services.messaging.";
+				String thepackage = "org.prosolo.common.messaging.data.";
 				SimpleMessage message = context.deserialize(messageElement, Class.forName(thepackage + type));
 				messageWrapper.setMessage(message);
 				return messageWrapper;

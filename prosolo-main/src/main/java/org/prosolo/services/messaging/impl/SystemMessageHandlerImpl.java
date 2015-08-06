@@ -6,9 +6,9 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
 import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.messaging.data.SystemMessage;
 import org.prosolo.config.Config;
 import org.prosolo.services.messaging.MessageHandler;
-import org.prosolo.services.messaging.data.SystemMessage;
 import org.prosolo.services.twitter.TwitterStreamsManager;
 import org.prosolo.util.string.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +21,8 @@ import org.springframework.stereotype.Service;
 @Deprecated
 @Service("org.prosolo.services.messaging.SystemMessageHandler")
 public class SystemMessageHandlerImpl implements MessageHandler<SystemMessage> {
-	@Autowired
-	private TwitterStreamsManager twitterStreamsManager;
+	//@Autowired
+	//private TwitterStreamsManager twitterStreamsManager;
 	private static Logger logger = Logger
 			.getLogger(SystemMessageHandlerImpl.class.getName());
 
@@ -42,12 +42,12 @@ public class SystemMessageHandlerImpl implements MessageHandler<SystemMessage> {
 						.convertCSVToList(removedString);
 				long userId = Long.valueOf(parameters.get("userId"));
 				long lGoalId = Long.valueOf(parameters.get("goalId"));
-				twitterStreamsManager.updateHashTagsStringsAndRestartStream(
-						removedTags, addedTags, lGoalId, userId);
+				//twitterStreamsManager.updateHashTagsStringsAndRestartStream(
+					//	removedTags, addedTags, lGoalId, userId);
 				break;
 			case ADDNEWTWITTERUSERANDRESTARTSTREAM:			 
 				long twitterId = Long.valueOf(parameters.get("twitterId"));
-				twitterStreamsManager.addNewTwitterUserAndRestartStream(twitterId);
+				//twitterStreamsManager.addNewTwitterUserAndRestartStream(twitterId);
 				break;
 			default:
 				break;

@@ -3,7 +3,7 @@ package org.prosolo.services.messaging;
 import java.util.Map;
 
 import org.prosolo.common.messaging.data.ServiceType;
-import org.prosolo.services.messaging.data.SystemMessage;
+import org.prosolo.common.messaging.data.SystemMessage;
 
 /**
  * @author Zoran Jeremic Oct 17, 2014

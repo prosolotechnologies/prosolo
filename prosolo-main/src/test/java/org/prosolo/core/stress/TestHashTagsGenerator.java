@@ -36,7 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class TestHashTagsGenerator extends TestContext {
 	@Autowired private TagManager tagManager;
-	@Autowired private TwitterStreamsManager twitterStreamsManager;
+	//@Autowired private TwitterStreamsManager twitterStreamsManager;
 	@Autowired private UserManager userManager;
 
 	@Test
@@ -246,9 +246,9 @@ public class TestHashTagsGenerator extends TestContext {
 				hashTagList));
 		tagManager.saveEntity(topicPreference);
 		System.out.println("UPDATING USER:" + user.getEmail().getAddress());
-		twitterStreamsManager.updateHashTagsForUserAndRestartStream(
-				oldHashTags, topicPreference.getPreferredHashtags(),
-				user.getId());
+		//twitterStreamsManager.updateHashTagsForUserAndRestartStream(
+			//	oldHashTags, topicPreference.getPreferredHashtags(),
+			//	user.getId());
 
 	}
 

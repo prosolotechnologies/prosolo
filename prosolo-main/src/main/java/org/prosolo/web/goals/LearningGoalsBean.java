@@ -82,7 +82,7 @@ public class LearningGoalsBean implements Serializable {
   
 	@Autowired private ApplicationBean applicationBean;
 	@Autowired private CompetenceStatusCache competenceStatusCache;
-	@Autowired private TwitterStreamsManager twitterStreamsManager;
+	//@Autowired private TwitterStreamsManager twitterStreamsManager;
 	@Autowired private RemindersBean remindersBean;
 	@Autowired private AchievedCompetenceDataConverter achievedCompetenceDataConverter;
 	

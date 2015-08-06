@@ -65,7 +65,7 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 	@Autowired private CompetenceManager compManager;
 	@Autowired private PortfolioManager portfolioManager;
 	@Autowired private PostManager postManager;
-	@Autowired private TwitterStreamsManager twitterStreamsManager;
+	//@Autowired private TwitterStreamsManager twitterStreamsManager;
 	
 	@Override
 	@Transactional
@@ -139,7 +139,7 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 		TargetLearningGoal newTargetGoal = createNewTargetLearningGoal(user, newGoal);
 		
 		// TODO: goal - check whether this should be called for Goal or TargetGoal
-		twitterStreamsManager.addNewHashTagsForLearningGoalAndRestartStream(hashtags, newGoal.getId());
+		//twitterStreamsManager.addNewHashTagsForLearningGoalAndRestartStream(hashtags, newGoal.getId());
 		
 		return newTargetGoal;
 	}

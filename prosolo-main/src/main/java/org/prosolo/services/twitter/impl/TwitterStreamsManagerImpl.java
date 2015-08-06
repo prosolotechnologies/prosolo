@@ -37,14 +37,14 @@ import twitter4j.auth.AccessToken;
  * @author Zoran Jeremic 2013-08-11
  * 
  */
-@Service("org.prosolo.services.twitter.TwitterStreamsManager")
+//@Service("org.prosolo.services.twitter.TwitterStreamsManager")
 public class TwitterStreamsManagerImpl implements TwitterStreamsManager {
 
 	private static Logger logger = Logger
 			.getLogger(TwitterStreamsManagerImpl.class);
 
-	@Autowired
-	private TwitterApiManager twitterApiManager;
+	//@Autowired
+	//private TwitterApiManager twitterApiManager;
 	@Autowired
 	private UserOauthTokensManager userOauthTokensManager;
 	@Autowired

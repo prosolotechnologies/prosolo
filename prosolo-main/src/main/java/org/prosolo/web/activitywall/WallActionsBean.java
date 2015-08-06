@@ -59,7 +59,7 @@ public class WallActionsBean {
 	@Autowired private ActivityWallBean activityWallBean;
 	@Autowired private SocialActivityHandler socialActivityHandler;
 	@Autowired private TwitterBean twitterBean;
-	@Autowired private TwitterStreamsManager twitterStreamsManager;
+	//@Autowired private TwitterStreamsManager twitterStreamsManager;
 	@Autowired private LoggingNavigationBean actionLogger;
 	@Autowired private ApplicationBean applicationBean;
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
@@ -243,11 +243,11 @@ public class WallActionsBean {
 		
 		final Collection<Tag> removedHashtags = twitterBean.unfollowHashtags(hashtags);
 		
-		if (wallActivityData.getSubViewType().equals(SocialStreamSubViewType.STATUS_WALL)) {
-			twitterStreamsManager.unfollowHashTagsForResource(hashtags, 0, loggedUser.getUser().getId());
-		} else if (wallActivityData.getSubViewType().equals(SocialStreamSubViewType.GOAL_WALL)) {
-			twitterStreamsManager.unfollowHashTagsForResource(hashtags, wallActivityData.getObject().getId(), 0);
-		}
+//		if (wallActivityData.getSubViewType().equals(SocialStreamSubViewType.STATUS_WALL)) {
+//			twitterStreamsManager.unfollowHashTagsForResource(hashtags, 0, loggedUser.getUser().getId());
+//		} else if (wallActivityData.getSubViewType().equals(SocialStreamSubViewType.GOAL_WALL)) {
+//			twitterStreamsManager.unfollowHashTagsForResource(hashtags, wallActivityData.getObject().getId(), 0);
+//		}
 		
 		activityWallBean.getActivityWallDisplayer().markSocialActivityWallDataAsUnfollowed(hashtags);
 		

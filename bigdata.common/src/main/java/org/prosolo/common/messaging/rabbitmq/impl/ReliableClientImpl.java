@@ -39,7 +39,6 @@ public class ReliableClientImpl implements ReliableClient {
 			Address[] addrArr = new Address[1];
 			addrArr[0]=addresses.get(0);
 			//addresses.toArray(addrArr);
-
 			try {
 				// factory.setHost("127.0.0.1");
 				factory.setHost(this.rabbitmqConfig.host);
@@ -48,7 +47,6 @@ public class ReliableClientImpl implements ReliableClient {
 				factory.setUsername(this.rabbitmqConfig.username);
 				factory.setPassword(this.rabbitmqConfig.password);
 				this.connection = factory.newConnection();
-
 				this.channel = this.connection.createChannel();
 				String exchange=this.queue;
 				//String exchange=this.rabbitmqConfig.exchange;
@@ -103,6 +101,7 @@ public class ReliableClientImpl implements ReliableClient {
 	@Override
 	public void setQueue(String queue) {
 		this.queue = CommonSettings.getInstance().config.rabbitMQConfig.queuePrefix+queue+CommonSettings.getInstance().config.getNamespaceSufix();
+		System.out.println("SET QUEUE:"+this.queue);
 	}
 
 }

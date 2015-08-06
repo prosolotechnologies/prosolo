@@ -6,7 +6,7 @@ import org.prosolo.common.domainmodel.user.ServiceType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.nodes.DefaultManager;
-import org.prosolo.services.twitter.TwitterApiManager;
+//import org.prosolo.services.twitter.TwitterApiManager;
 import org.prosolo.services.twitter.TwitterConfigurationManager;
 import org.prosolo.services.twitter.TwitterSearchService;
 import org.prosolo.services.twitter.UserOauthTokensManager;
@@ -22,7 +22,7 @@ public class TwitterSearchServiceImpl implements TwitterSearchService {
 	private static Logger logger = Logger.getLogger(TwitterSearchServiceImpl.class);
 
 	@Autowired private DefaultManager defaultManager;
-	@Autowired private TwitterApiManager twitterApiManager;
+	//@Autowired private TwitterApiManager twitterApiManager;
 	@Autowired private UserOauthTokensManager userOauthTokensManager;
 	@Autowired private TagManager tagManager;
 	@Autowired TwitterConfigurationManager twitterConfigurationManager;

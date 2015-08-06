@@ -125,7 +125,9 @@ public class TwitterStreamingDAOImpl extends DAOImpl implements TwitterStreaming
 //		twitterPost.setTitle(text);
 		twitterPost.setDateCreated(created);
 		twitterPost.setLink(postLink);
-		twitterPost.setMaker(maker);
+		if(!(maker instanceof AnonUser)){
+			twitterPost.setMaker(maker);
+		}		
 		twitterPost.setContent(text);
 		twitterPost.setHashtags(getOrCreateTags(hashtags));
 		twitterPost.setVisibility(visibility);
@@ -166,10 +168,15 @@ public class TwitterStreamingDAOImpl extends DAOImpl implements TwitterStreaming
 		twitterPostSA.setServiceType(ServiceType.TWITTER);
 		twitterPostSA.setDateCreated(tweet.getDateCreated());
 		twitterPostSA.setLastAction(tweet.getDateCreated());
-		twitterPostSA.setHashtags(tweet.getHashtags());
+		Set<Tag> hashtags=tweet.getHashtags();
+		Set<Tag> newCollection=new HashSet<Tag>();
+		for(Tag t:hashtags){
+			newCollection.add(t);
+		}
+		twitterPostSA.setHashtags(newCollection);
 		twitterPostSA.setVisibility(VisibilityType.PUBLIC);
 		
-		persist(twitterPostSA);
+		twitterPostSA=(TwitterPostSocialActivity) persist(twitterPostSA);
 		return twitterPostSA;
 	}
 	

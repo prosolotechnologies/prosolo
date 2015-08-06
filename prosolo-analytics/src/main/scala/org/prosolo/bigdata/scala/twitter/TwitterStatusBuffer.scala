@@ -52,7 +52,6 @@ object TwitterStatusBuffer {
     isPolite
   }
   def processStatus(status:Status){
-     println("SENDING STATUS:"+status.getText)
      val twitterUser=status.getUser
      val twitterHashtags:java.util.List[String]=new java.util.ArrayList[String]()
      status.getHashtagEntities.map { htent => twitterHashtags.add(htent.getText.toLowerCase) }

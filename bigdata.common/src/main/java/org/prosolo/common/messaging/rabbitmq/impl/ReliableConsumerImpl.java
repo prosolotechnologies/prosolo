@@ -132,6 +132,8 @@ public class ReliableConsumerImpl extends ReliableClientImpl implements Reliable
 			});
 		} catch (IOException e) {
 			e.printStackTrace();
+		}finally{
+			this.disconnect();
 		}
 
 	}

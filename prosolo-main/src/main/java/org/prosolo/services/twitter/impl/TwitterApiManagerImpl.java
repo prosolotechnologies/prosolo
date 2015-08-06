@@ -31,7 +31,7 @@ public class TwitterApiManagerImpl implements TwitterApiManager {
 	private static Logger logger = Logger.getLogger(TwitterApiManagerImpl.class);
 	
 	@Autowired UserOauthTokensManager oauthAccessTokenManager;
-	@Autowired TwitterStreamsManager twitterStreamsManager;
+	//@Autowired TwitterStreamsManager twitterStreamsManager;
 	@Autowired TwitterConfigurationManager twitterConfigurationManager;
 
 	private static Map<Long, RequestToken> requestTokens = null;
@@ -77,7 +77,8 @@ public class TwitterApiManagerImpl implements TwitterApiManager {
 			
 			if (oauthAccessToken!=null) {
 				logger.debug("created access token:" +oauthAccessToken.getProfileLink());
-				twitterStreamsManager.addNewTwitterUserAndRestartStream(userId);
+				System.out.println("ADD NEW TWITTER USER REMOVED HERE:"+userId);
+				//twitterStreamsManager.addNewTwitterUserAndRestartStream(userId);
 			}
 			this.getTwitter().setOAuthAccessToken(null);
 		}catch (java.lang.IllegalStateException e) {

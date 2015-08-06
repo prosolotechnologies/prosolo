@@ -30,6 +30,7 @@ private EntityManager em;
 			em.persist(o);
 			em.getTransaction().commit();
 		}catch(RuntimeException re){
+			re.printStackTrace();
 			if(em.getTransaction().isActive()){
 				em.getTransaction().rollback();
 			}

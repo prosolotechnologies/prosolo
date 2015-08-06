@@ -1,10 +1,7 @@
-package org.prosolo.services.messaging.data;
+package org.prosolo.common.messaging.data;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import org.prosolo.common.messaging.data.ServiceType;
-import org.prosolo.common.messaging.data.SimpleMessage;
 
 public class SessionMessage extends SimpleMessage {
 

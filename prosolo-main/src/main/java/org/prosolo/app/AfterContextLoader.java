@@ -109,7 +109,6 @@ public class AfterContextLoader implements ServletContextListener {
 		
 		ReliableConsumer systemConsumer=new ReliableConsumerImpl();
 		systemConsumer.setWorker(new DefaultMessageWorker());
-	//	systemConsumer=new ReliableConsumerImpl();
 		systemConsumer.setQueue(QueueNames.SYSTEM.name().toLowerCase());
 		systemConsumer.StartAsynchronousConsumer();
 	//	systemConsumer.init(QueueNames.SYSTEM);
@@ -120,6 +119,12 @@ public class AfterContextLoader implements ServletContextListener {
 		sessionConsumer.StartAsynchronousConsumer();
 	//	sessionConsumer.init(QueueNames.SESSION);
 		//ServiceLocator.getInstance().getService(ReliableConsumer.class).init(QueueNames.SESSION);
+		
+		ReliableConsumer broadcastConsumer=new ReliableConsumerImpl();
+		broadcastConsumer.setWorker(new DefaultMessageWorker());
+		broadcastConsumer.setQueue(QueueNames.BROADCAST.name().toLowerCase());
+		broadcastConsumer.StartAsynchronousConsumer();
+		
 		
 		//ServiceLocator.getInstance().getService(ReliableProducer.class).init();
 		if(CommonSettings.getInstance().config.rabbitMQConfig.masterNode){
