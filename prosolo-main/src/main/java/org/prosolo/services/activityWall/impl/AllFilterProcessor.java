@@ -19,7 +19,6 @@ public class AllFilterProcessor implements SocialActivityFilterProcessor {
 	@Override
 	public boolean checkSocialActivity(SocialActivity socialActivity, User user, Filter filter) {
 		// TODO Auto-generated method stub
-		System.out.println("ALL FILTER PROCESSOR");
 		// Ignore private posts
 		// Ignore private posts
 		VisibilityType visibility = socialActivity.getVisibility();

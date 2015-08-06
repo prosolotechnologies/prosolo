@@ -12,7 +12,9 @@ import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
+import org.hibernate.transform.Transformers;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 import org.prosolo.common.domainmodel.activitywall.SocialStreamSubViewType;
@@ -423,9 +425,10 @@ public class ActivityWallManagerImpl extends AbstractManagerImpl implements Acti
 				"ORDER BY sa.last_action DESC \n" +
 				"LIMIT :limit \n" +
 				"OFFSET :offset";
-		
+		SQLQuery sqlquery=persistence.currentManager().createSQLQuery(query);
+		//sqlquery.setResultTransformer( Transformers.aliasToBean( SocialActivityData.class) );
 		@SuppressWarnings("unchecked")
-		List<SocialActivityData> result = persistence.currentManager().createSQLQuery(query)
+		List<SocialActivityData> result = sqlquery
 				.setLong("userId", user)
 				.setInteger("limit", limit + 1) // +1 because it always loads one extra in order to inform whether there are more to load
 				.setInteger("offset", offset)
@@ -587,7 +590,8 @@ public class ActivityWallManagerImpl extends AbstractManagerImpl implements Acti
 				"sa.dtype AS sa_dtype, " +
 				"sa.created AS sa_created, " +
 				"sa.last_action AS sa_lastAction, " +
-				"sa.updated AS sa_updated, " +
+				//TODO: @Nikola check this. There was sa.updated which field doesn't exist and produced exception when user login
+				"sa.comments_disabled AS sa_updated, " +
 				"sa.maker AS sa_makerId, " +
 				"sa_maker.name AS sa_maker_name, " +
 				"sa_maker.lastname AS sa_maker_lastname, " +

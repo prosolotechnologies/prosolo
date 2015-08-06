@@ -67,9 +67,14 @@ object TwitterStatusBuffer {
       
     val post:TwitterPost = twitterStreamingDao.createNewTwitterPost(poster, created, postLink, twitterId, creatorName, screenName, profileUrl, profileImage, text,VisibilityType.PUBLIC, twitterHashtags,true);
      val twitterPostSocialActivity=twitterStreamingDao.createTwitterPostSocialActivity(post)
-    val parameters:java.util.Map[String,String]=new java.util.HashMap[String,String]()
-     parameters.put("socialActivityId", twitterPostSocialActivity.getId.toString())
-     BroadcastDistributer.distributeMessage(MServiceType.BROADCAST_SOCIAL_ACTIVITY, parameters)
+     if(twitterPostSocialActivity !=null){
+       val parameters:java.util.Map[String,String]=new java.util.HashMap[String,String]()
+       parameters.put("socialActivityId", twitterPostSocialActivity.getId.toString())
+       BroadcastDistributer.distributeMessage(MServiceType.BROADCAST_SOCIAL_ACTIVITY, parameters)
+     }else{
+       println("ERROR: TwitterPostSocialActivity was not initialized")
+     }
+    
      
   }
   def initAnonUser(creatorName:String,profileUrl:String,screenName:String, profileImage:String):AnonUser={

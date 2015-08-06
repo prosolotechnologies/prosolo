@@ -28,7 +28,6 @@ public class DefaultMessageWorker implements MessageWorker{
 	}
 	@Override
 	public void handle(String message) throws WorkerException {
-	 	System.out.println("HANDLING MESSAGE:"+message);
 		MessageWrapper messageWrapper=gson.create().fromJson(message, MessageWrapper.class);
 		if(messageWrapper.getMessage() instanceof SessionMessage){
 			SessionMessage sessionMessage=(SessionMessage) messageWrapper.getMessage();
@@ -38,7 +37,7 @@ public class DefaultMessageWorker implements MessageWorker{
 	   		ServiceLocator.getInstance().getService(SessionMessageHandlerImpl.class).handle(sessionMessage);
 		}else if(messageWrapper.getMessage() instanceof BroadcastMessage){
 			BroadcastMessage broadcastMessage=(BroadcastMessage) messageWrapper.getMessage();
-			logger.debug(message);
+			logger.info(message);
 			ServiceLocator.getInstance().getService(BroadcastMessageHandlerImpl.class).handle(broadcastMessage);
 			
 		}

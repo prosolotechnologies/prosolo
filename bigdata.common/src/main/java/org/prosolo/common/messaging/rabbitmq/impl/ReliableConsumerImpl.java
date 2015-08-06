@@ -66,7 +66,6 @@ public class ReliableConsumerImpl extends ReliableClientImpl implements Reliable
 
 				@Override
 				public void handleConsumeOk(String consumerTag) {
-
 				}
 
 				@Override
@@ -132,9 +131,10 @@ public class ReliableConsumerImpl extends ReliableClientImpl implements Reliable
 			});
 		} catch (IOException e) {
 			e.printStackTrace();
-		}finally{
-			this.disconnect();
 		}
+		//finally{
+			//this.disconnect();
+		//}
 
 	}
 

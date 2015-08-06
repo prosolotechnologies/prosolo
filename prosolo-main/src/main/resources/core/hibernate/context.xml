@@ -58,8 +58,9 @@
 		<property name="packagesToScan">
 			<list>
 				<value>org.prosolo.common.domainmodel</value>
-				<value>org.prosolo.services.logging.domain</value>
-				<value>org.prosolo.services.tree.settings.model</value>
+				<!-- value>org.prosolo.services.logging.domain</value-->
+				<!-- value>org.prosolo.services.tree.settings.model</value-->
+				<value>org.prosolo.services.activityWall.impl.data</value>
 			</list>
 		</property>
 		<property name="namingStrategy">

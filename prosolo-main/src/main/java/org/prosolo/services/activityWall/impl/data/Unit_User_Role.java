@@ -1,10 +1,13 @@
-package org.prosolo.common.domainmodel.organization;
+package org.prosolo.services.activityWall.impl.data;
 
 import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityResult;
+import javax.persistence.FieldResult;
 import javax.persistence.OneToOne;
+import javax.persistence.SqlResultSetMapping;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -13,6 +16,22 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.Unit_User;
 
+/*
+ *This entity is moved here only for the purpose to hold SqlResultSetMapping since it has to be in Entity class 
+ * @author zoran
+ *
+ */
+@SqlResultSetMapping(
+        name="SocialActivityData",
+        entities={
+        		@EntityResult(
+                        entityClass=SocialActivityData.class,
+                        fields={
+                        	@FieldResult(name="sa_id", column = "sa_id"),
+                        }
+                )
+        }
+)
 @Entity
 //@Table(name="org_Unit_User_Role")
 public class Unit_User_Role extends BaseEntity {

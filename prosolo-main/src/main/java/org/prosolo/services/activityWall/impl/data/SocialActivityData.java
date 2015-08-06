@@ -5,9 +5,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import javax.persistence.ColumnResult;
-import javax.persistence.ConstructorResult;
 import javax.persistence.EntityResult;
 import javax.persistence.FieldResult;
 import javax.persistence.SqlResultSetMapping;
@@ -43,17 +40,7 @@ import org.prosolo.web.util.AvatarUtils;
  * @version 0.5
  *
  */
-@SqlResultSetMapping(
-        name="SocialActivityData",
-        entities={
-        		@EntityResult(
-                        entityClass=SocialActivityData.class,
-                        fields={
-                        	@FieldResult(name="sa_id", column = "sa_id"),
-                        }
-                )
-        }
-)
+
 public class SocialActivityData implements Serializable {
 	
 	private static final long serialVersionUID = 5385110450493430564L;
@@ -683,7 +670,12 @@ public class SocialActivityData implements Serializable {
 	}
 	
 	public String getWhen() {
-		return DateUtil.getTimeAgoFromNow(lastAction);
+		if(lastAction!=null){
+			return DateUtil.getTimeAgoFromNow(lastAction);
+		}else
+			return "";
+		
+		
 	}
 
 	@Override
