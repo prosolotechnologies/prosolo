@@ -64,8 +64,8 @@ object TwitterStatusBuffer {
      }
      
      val(text,created,postLink)=(status.getText,status.getCreatedAt,"https://twitter.com/" + twitterUser.getScreenName + "/status/" + status.getId)
-      
-    val post:TwitterPost = twitterStreamingDao.createNewTwitterPost(poster, created, postLink, twitterId, creatorName, screenName, profileUrl, profileImage, text,VisibilityType.PUBLIC, twitterHashtags,true);
+      val statusText=text.replaceAll("[^\\x00-\\x7f-\\x80-\\xad]", "")
+    val post:TwitterPost = twitterStreamingDao.createNewTwitterPost(poster, created, postLink, twitterId, creatorName, screenName, profileUrl, profileImage, statusText,VisibilityType.PUBLIC, twitterHashtags,true);
      val twitterPostSocialActivity=twitterStreamingDao.createTwitterPostSocialActivity(post)
      if(twitterPostSocialActivity !=null){
        val parameters:java.util.Map[String,String]=new java.util.HashMap[String,String]()

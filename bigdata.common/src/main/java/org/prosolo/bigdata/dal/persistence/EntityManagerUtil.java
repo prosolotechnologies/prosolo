@@ -54,7 +54,7 @@ public class EntityManagerUtil {
 			String database = config.mysqlConfig.database;
 			String user = config.mysqlConfig.user;
 			String password = config.mysqlConfig.password;
-			String url="jdbc:mysql://"+ host + ":" + port + "/" + database;
+			String url="jdbc:mysql://"+ host + ":" + port + "/" + database+"?useUnicode=true&characterEncoding=UTF-8";
 			configOverrides.put("javax.persistence.jdbc.driver",config.mysqlConfig.jdbcDriver);
 			configOverrides.put("javax.persistence.jdbc.url", url);
 			configOverrides.put("javax.persistence.jdbc.user", user);
