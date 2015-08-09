@@ -27,7 +27,7 @@ public interface UserOauthTokensManager {
 			String token, String tokenSecret, String screenName,
 			String profileLink, long userId);
 
-	void deleteUserOauthAccessToken(User user, ServiceType service);
+	long deleteUserOauthAccessToken(User user, ServiceType service);
 
 	List<OauthAccessToken> getAllTwitterUsersTokens();
 

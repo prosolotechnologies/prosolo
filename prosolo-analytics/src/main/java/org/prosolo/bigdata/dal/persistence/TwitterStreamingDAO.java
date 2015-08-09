@@ -32,5 +32,7 @@ public interface TwitterStreamingDAO extends DAO{
 
 	SocialActivity createTwitterPostSocialActivity(TwitterPost tweet);
 
+	List<Long> getAllTwitterUsersTokensUserIds();
+
 }
 

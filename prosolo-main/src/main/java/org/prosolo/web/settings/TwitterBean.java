@@ -26,6 +26,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.interaction.AnalyticalServiceCollector;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.twitter.TwitterApiManager;
 import org.prosolo.services.twitter.TwitterStreamsManager;
@@ -66,6 +67,7 @@ public class TwitterBean implements Serializable {
 	//@Autowired private TwitterStreamsManager twitterStreamsManager;
 	@Autowired private TagManager tagManager;
 	@Autowired private EventFactory eventFactory;
+	@Autowired AnalyticalServiceCollector analyticalServiceCollector;
 
 	private boolean allOk;
 	private boolean disconnected;
@@ -165,7 +167,8 @@ public class TwitterBean implements Serializable {
 			}
 		}
 		
-		userOauthTokensManager.deleteUserOauthAccessToken(loggedUser.getUser(), ServiceType.TWITTER);
+		long deletedUserId=userOauthTokensManager.deleteUserOauthAccessToken(loggedUser.getUser(), ServiceType.TWITTER);
+		 analyticalServiceCollector.updateTwitterUser(deletedUserId,false);
 		this.disconnected = true;
 		this.setScreenName(null);
  		PageUtil.fireSuccessfulInfoMessage("socialNetworksSettingsForm:socialNetworksFormGrowl", "Your ProSolo account is now disconnect from your Twitter account.");

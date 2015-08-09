@@ -6,7 +6,7 @@ import org.prosolo.bigdata.events.pojo.AnalyticsEvent
 /**
  * @author zoran Jul 18, 2015
  */
-object HashtagsUtils {
+object TwitterUtils {
   def extractHashTagsFromEvents(events: ListBuffer[AnalyticsEvent]):ListBuffer[Tuple4[ListBuffer[String],ListBuffer[String],Int,Int]]={
     var eventsTuples=new ListBuffer[Tuple4[ListBuffer[String],ListBuffer[String],Int,Int]]()
     for(event <- events){
@@ -30,4 +30,5 @@ object HashtagsUtils {
     }
     eventsTuples
   }
+
 }

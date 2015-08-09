@@ -17,11 +17,8 @@ import org.prosolo.bigdata.common.dal.pojo.ActivityAccessCount;
 import org.prosolo.bigdata.common.dal.pojo.MostActiveUsersForLearningGoal;
 import org.prosolo.bigdata.common.dal.pojo.TargetCompetenceActivities;
 import org.prosolo.bigdata.common.dal.pojo.UserLearningGoalActivitiesCount;
-import org.prosolo.bigdata.common.events.pojo.DataName;
-import org.prosolo.bigdata.common.events.pojo.DataType;
 import org.prosolo.bigdata.dal.cassandra.AnalyticalEventDBManager;
 import org.prosolo.bigdata.events.pojo.AnalyticsEvent;
-
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;

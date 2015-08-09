@@ -17,7 +17,6 @@ import org.prosolo.common.messaging.data.ServiceType;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.messaging.SystemMessageDistributer;
 import org.prosolo.services.twitter.PropertiesFacade;
-import org.prosolo.services.twitter.TwitterApiManager;
 import org.prosolo.services.twitter.TwitterHashtagsQueueHandler;
 import org.prosolo.services.twitter.TwitterSiteProperties;
 import org.prosolo.services.twitter.TwitterStreamsManager;
@@ -26,8 +25,6 @@ import org.prosolo.util.string.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.stereotype.Service;
-
 import twitter4j.FilterQuery;
 import twitter4j.TwitterStream;
 import twitter4j.TwitterStreamFactory;

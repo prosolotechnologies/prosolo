@@ -2,7 +2,7 @@ package org.prosolo.bigdata.twitter;
 
 
 import org.junit.Test;
-import org.prosolo.bigdata.scala.twitter.TwitterStreamManager$;
+//import org.prosolo.bigdata.scala.twitter.TwitterStreamManager$;
 
 /**
 @author Zoran Jeremic Jun 21, 2015
@@ -15,9 +15,9 @@ public class TwitterHashtagsStreamsManagerImplTest {
 	public void testInitialize() {
 		//TwitterHashtagsStreamsManagerImpl manager=new TwitterHashtagsStreamsManagerImpl();
 		//manager.initialize();
-		 TwitterStreamManager$ twitterManager=TwitterStreamManager$.MODULE$;
+		// TwitterStreamManager$ twitterManager=TwitterStreamManager$.MODULE$;
 		System.out.println("ENABLE THIS");
-		  twitterManager.initialize();
+		//  twitterManager.initialize();
 		// twitterManager.startStreamsForHashTags();
 		 try {
 			Thread.sleep(100000);

@@ -10,8 +10,8 @@ import org.apache.spark.streaming.dstream.ReceiverInputDStream
 //import org.apache.spark.streaming.twitter.TwitterUtils
 import org.apache.spark.streaming.StreamingContext
 
-import twitter4j.conf.ConfigurationBuilder
 import twitter4j.{HashtagEntity, Status,TwitterStream,TwitterStreamFactory,FilterQuery}
+
 
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
@@ -21,27 +21,25 @@ import scala.collection.mutable.ListBuffer
 /**
  * @author zoran
  */
-object TwitterHashtagsStreamsManager {
-  val propFacade = new PropertiesFacade()
-  /** Credentials used to connect with Twitter user streams.*/
-  val twitterProperties:java.util.Queue[TwitterSiteProperties] = propFacade.getAllTwitterSiteProperties
+object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
+ // val propFacade = new PropertiesFacade()
+ 
   val logger = LoggerFactory.getLogger(getClass)
   /** Keeps information about each hashtag and which users or learning goals are interested in it. Once nobody is interested in hashtag it can be removed   */
   var hashtagsAndReferences:collection.mutable.Map[String,StreamListData]=new collection.mutable.HashMap[String,StreamListData]
   /** Keeps reference to twitter stream based on stream id, and list of hashtags in filter  */
    val twitterStreamsAndHashtags:collection.mutable.Map[Int,(TwitterStream,ListBuffer[String])]=new collection.mutable.HashMap[Int,(TwitterStream,ListBuffer[String])]
-  /** Twitter Stream can listen for maximum of 400 hashtags */
-   val STREAMLIMIT=398
+ 
+  
   val currentHashTagsList:ListBuffer[String]=new ListBuffer[String]
-  var streamsCounter:Int=0
-  var currentHashTagsStream:TwitterStream=null
+  
  
   
   /**
    * At the applicaiton startup reads all hashtags from database and initialize required number of spark twitter streams to listen for it on Twitter
    */
-  def initialize() {
-    val filters = new Array[String](1)
+ def initialize() {
+  //  val filters = new Array[String](1)
     logger.info("INITIALIZE TWITTER STREAMING")
     val twitterDAO = new TwitterStreamingDAOImpl()
     hashtagsAndReferences=twitterDAO.readAllHashtagsAndLearningGoalsIds().asScala
@@ -76,23 +74,12 @@ object TwitterHashtagsStreamsManager {
     }
   }
  
- /**
-  * Returns next available Twitter configuration that can be used for new stream. 
-  */
-  def getTwitterConfigurationBuilder(): ConfigurationBuilder = {
-    val builder = new ConfigurationBuilder
-    val siteProperties = twitterProperties.poll
-    builder.setOAuthAccessToken(siteProperties.getAccessToken)
-    builder.setOAuthAccessTokenSecret(siteProperties.getAccessTokenSecret)
-    builder.setOAuthConsumerKey(siteProperties.getConsumerKey)
-    builder.setOAuthConsumerSecret(siteProperties.getConsumerSecret)
-    builder
-  }
+
   /**
    * Initialize new stream for an array of hashtags
    */
   def initializeNewStream(filters: ListBuffer[String])={
-    val config = getTwitterConfigurationBuilder.build()
+    val config = TwitterPropertiesHolder.getTwitterConfigurationBuilder.build()
     val twitterStream = new TwitterStreamFactory(config).getInstance
     twitterStream.addListener(StatusListener.listener)
      val track:String=filters.mkString(",")

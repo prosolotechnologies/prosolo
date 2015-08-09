@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.OauthAccessToken;
 import org.prosolo.common.domainmodel.user.ServiceType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.services.interaction.AnalyticalServiceCollector;
 import org.prosolo.services.twitter.TwitterApiManager;
 import org.prosolo.services.twitter.TwitterConfigurationManager;
 import org.prosolo.services.twitter.TwitterStreamsManager;
@@ -31,6 +32,7 @@ public class TwitterApiManagerImpl implements TwitterApiManager {
 	private static Logger logger = Logger.getLogger(TwitterApiManagerImpl.class);
 	
 	@Autowired UserOauthTokensManager oauthAccessTokenManager;
+	@Autowired AnalyticalServiceCollector analyticalServiceCollector;
 	//@Autowired TwitterStreamsManager twitterStreamsManager;
 	@Autowired TwitterConfigurationManager twitterConfigurationManager;
 
@@ -77,8 +79,9 @@ public class TwitterApiManagerImpl implements TwitterApiManager {
 			
 			if (oauthAccessToken!=null) {
 				logger.debug("created access token:" +oauthAccessToken.getProfileLink());
-				System.out.println("ADD NEW TWITTER USER REMOVED HERE:"+userId);
+				System.out.println("ADD NEW TWITTER USER :"+userId);
 				//twitterStreamsManager.addNewTwitterUserAndRestartStream(userId);
+				 analyticalServiceCollector.updateTwitterUser(userId,true);
 			}
 			this.getTwitter().setOAuthAccessToken(null);
 		}catch (java.lang.IllegalStateException e) {

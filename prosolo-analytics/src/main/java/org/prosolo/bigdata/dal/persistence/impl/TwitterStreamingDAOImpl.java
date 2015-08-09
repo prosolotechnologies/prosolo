@@ -242,6 +242,22 @@ public class TwitterStreamingDAOImpl extends DAOImpl implements TwitterStreaming
 			return null;
 		}
 	}
+	@Override
+	public List<Long> getAllTwitterUsersTokensUserIds() {
+		String query = 
+				"SELECT userToken.userId " + 
+				"FROM OauthAccessToken userToken ";
+		
+		logger.debug("hb query:" + query);
+		
+		@SuppressWarnings("unchecked")
+		List<Long> result =getEntityManager().createQuery(query).getResultList();
+		
+		if (result != null) {
+			return result;
+		}
+		return new ArrayList<Long>();
+	}
 
 }
 
