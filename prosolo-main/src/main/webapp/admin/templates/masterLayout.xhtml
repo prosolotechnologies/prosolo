@@ -29,6 +29,7 @@
 	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/jquery.bxslider.css" />
 	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/jquery.timepicker.css" />
 	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/style.css?#{loggeduser.loginTime}" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/tauCharts.min.css" />
 	
 	<!-- 
 	<script src="#{request.contextPath}/resources/javascript/jquery-1.8.23.min.js"></script>
@@ -67,6 +68,11 @@
 	<script	src="#{request.contextPath}/resources/javascript/prosolo.overlay.js"></script>
 	
 	<script	src="#{request.contextPath}/resources/javascript/youtubevideo.js"></script>
+	
+	<script	src="#{request.contextPath}/resources/javascript/d3.min.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/underscore-min.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/tauCharts.min.js"></script>
+	
 </h:head>
 
 <h:body>
@@ -102,6 +108,12 @@
 								onclick="sendLogPageNavigation( '/admin/roles.xhtml','mainmenu');"
 								value="Roles"
 								outcome="/admin/roles" />
+						</li>
+						<li class="#{view.viewId  == '/admin/dashboard.xhtml' ? 'selected' : ''}">
+							<h:link
+								onclick="sendLogPageNavigation( '/admin/dashboard.xhtml','mainmenu');"
+								value="Dashboard"
+								outcome="/admin/dashboard" />
 						</li>
 						<li class="#{view.viewId  == '/admin/generalSettings.xhtml' ? 'selected' : ''}">
 							<h:link

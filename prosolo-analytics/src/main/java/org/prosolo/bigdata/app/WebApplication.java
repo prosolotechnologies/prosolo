@@ -8,6 +8,7 @@ import javax.ws.rs.core.Application;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.api.PingResource;
 import org.prosolo.bigdata.api.RecommendationServices;
+import org.prosolo.bigdata.api.UsersActivityStatisticsService;
 
 /**
  * @author Zoran Jeremic Apr 2, 2015
@@ -33,5 +34,6 @@ public class WebApplication extends Application {
 		logger.info("INIT WEB APPLICATION: REST API exposed at:http://{host}:8080/api/{servicepath}");
 		singletons.add(new PingResource());
 		singletons.add(new RecommendationServices());
+		singletons.add(new UsersActivityStatisticsService());
 	}
 }

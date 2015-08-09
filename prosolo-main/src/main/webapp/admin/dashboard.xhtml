@@ -1,0 +1,49 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	template="templates/masterLayout.xhtml"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+	<ui:define name="windowTitle">
+		Administration: Dashboard
+	</ui:define>
+
+	<ui:define name="content">
+		
+		<style type="text/css">
+			#dashboard h1 {
+				float: none;
+			}
+		</style>
+		
+		<script type="text/javascript">
+		$(function () {
+			$.ajax({
+				// TODO @AT Use API host from configuration.
+				url : "http://#{request.serverName}:8082/api/users/activity/statistics/registered",
+				type : "get",
+				crossDomain: true,
+				dataType: 'json'
+			}).done(function(data) {
+				new tauCharts.Chart({
+				    data: data,
+				    type: 'line',
+				    x: 'date',
+				    y: 'count',
+				    color: 'type'
+				}).renderTo('#chart');
+			});
+		});
+		</script>
+		
+		<div id="dashboard" class="container admin">
+			<div class="content wide">
+				<h1>New users</h1>
+				<div id="chart"></div>
+			</div>
+		</div>
+	</ui:define>
+</ui:composition>
