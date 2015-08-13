@@ -3,17 +3,12 @@ package org.prosolo.services.interaction.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
-import org.hibernate.Session;
 import org.prosolo.bigdata.common.events.pojo.DataName;
 import org.prosolo.bigdata.common.events.pojo.DataType;
-import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
-import org.prosolo.common.domainmodel.competences.Competence;
-import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.messaging.data.AnalyticalServiceMessage;
-import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.interaction.AnalyticalServiceCollector;
 import org.prosolo.services.interaction.AnalyticalServiceDataFactory;
 import org.prosolo.services.messaging.AnalyticalServiceMessageDistributer;
@@ -96,13 +91,22 @@ public class AnalyticalServiceCollectorImpl implements AnalyticalServiceCollecto
 		AnalyticalServiceMessage message=factory.createAnalyticalServiceMessage(DataName.UPDATEHASHTAGS, DataType.PROCESS,data);
 		messageDistributer.distributeMessage(message);
 	}
-	@Override
+
+        @Override
 	public void updateTwitterUser(long userId, boolean addUser){
 		JsonObject data=new JsonObject();
 		data.add("twitterId",new JsonPrimitive(userId));
 		data.add("add",new JsonPrimitive(addUser));
 		AnalyticalServiceMessage message=factory.createAnalyticalServiceMessage(DataName.UPDATETWITTERUSER, DataType.PROCESS,data);
-		messageDistributer.distributeMessage(message);
+        messageDistributer.distributeMessage(message);
+    }
+
+	@Override
+	public void increaseRegisteredUserCount(EventType event, long daysSinceEpoch) {
+		JsonObject data=new JsonObject();
+		data.add("event", new JsonPrimitive(event.name()));
+		data.add("date", new JsonPrimitive(daysSinceEpoch));
+		messageDistributer.distributeMessage(factory.createAnalyticalServiceMessage(DataName.REGISTEREDUSERSPERDAY, DataType.COUNTER, data));
 	}
 	
 	

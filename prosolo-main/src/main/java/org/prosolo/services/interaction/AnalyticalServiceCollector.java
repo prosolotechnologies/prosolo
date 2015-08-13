@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.prosolo.common.domainmodel.activities.TargetActivity;
+import org.prosolo.common.domainmodel.activities.events.EventType;
 
 /**
 @author Zoran Jeremic Apr 12, 2015
@@ -28,6 +29,8 @@ public interface AnalyticalServiceCollector {
 
 	void sendUpdateHashtagsMessage(Map<String, String> parameters, long goalId,
 			long userId);
+	
+	void increaseRegisteredUserCount(EventType event, long daysSinceEpoch);
 
 	void updateTwitterUser(long userId, boolean addUser);
 

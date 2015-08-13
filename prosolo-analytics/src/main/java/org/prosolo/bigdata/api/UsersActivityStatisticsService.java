@@ -11,28 +11,30 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.prosolo.bigdata.common.dal.pojo.RegisteredUsersCount;
+import org.prosolo.bigdata.dal.cassandra.impl.AnalyzedResultsDBManager;
+import org.prosolo.bigdata.dal.cassandra.impl.AnalyzedResultsDBmanagerImpl;
+import org.prosolo.bigdata.dal.cassandra.impl.UsersActivityStatisticsDBManager;
+import org.prosolo.bigdata.dal.cassandra.impl.UsersActivityStatisticsDBManagerImpl;
+import org.prosolo.bigdata.utils.DateUtil;
 
 import com.google.gson.Gson;
 
 @Path("/users/activity")
 public class UsersActivityStatisticsService {
 
+	UsersActivityStatisticsDBManager dbManager = new UsersActivityStatisticsDBManagerImpl();
+
 	@GET
 	@Path("/statistics/registered")
-	@Produces({MediaType.APPLICATION_JSON})
+	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getRegistered() {
-		List<RegisteredUsersCount> result = new ArrayList<>();
-		for (long i = 0; i < 100; i++) {
-			int count = (int) Math.round(Math.random() * 10);
-			result.add(new RegisteredUsersCount("RegisteredUsersCount", count, i));
-		}
+		List<RegisteredUsersCount> result = dbManager.getRegisteredUsersCount(0, DateUtil.getDaysSinceEpoch());
 		return Response
 				.status(Status.OK)
 				.entity(new Gson().toJson(result))
 				.header("Access-Control-Allow-Origin", "*")
-				.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT")
-				.allow("OPTIONS")
-				.build();
+				.header("Access-Control-Allow-Methods",
+						"GET, POST, DELETE, PUT").allow("OPTIONS").build();
 	}
 
 }

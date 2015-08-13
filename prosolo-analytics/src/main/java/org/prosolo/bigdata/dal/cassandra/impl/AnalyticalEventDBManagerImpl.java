@@ -87,6 +87,8 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 		String find_allcompetences = "SELECT distinct competenceid FROM targetcompetenceactivities;";
 		this.queries.put("find_allcompetences", find_allcompetences);
 
+		this.queries.put("update_registeredusersperday", "UPDATE registeredusersperday SET count=count+1 WHERE event=? AND date=?;");
+
 		Set<String> stQueries = this.queries.keySet();
 		for (String query : stQueries) {
 			this.preparedStatements.put(query,
