@@ -8,7 +8,7 @@ import twitter4j._
 object StatusListener {
   def listener=new StatusListener(){
     def onStatus(status: Status) {
-       // println("ON STATUS:"+status.getText)
+       println("ON STATUS:"+status.getText)
         TwitterStatusBuffer.addStatus(status)
       }
     def onDeletionNotice(statusDeletionNotice: StatusDeletionNotice) {}

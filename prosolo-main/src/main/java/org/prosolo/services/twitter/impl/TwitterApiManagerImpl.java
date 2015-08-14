@@ -11,7 +11,6 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.interaction.AnalyticalServiceCollector;
 import org.prosolo.services.twitter.TwitterApiManager;
 import org.prosolo.services.twitter.TwitterConfigurationManager;
-import org.prosolo.services.twitter.TwitterStreamsManager;
 import org.prosolo.services.twitter.UserOauthTokensManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
