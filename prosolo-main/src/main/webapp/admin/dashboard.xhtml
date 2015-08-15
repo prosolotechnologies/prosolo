@@ -17,31 +17,126 @@
 			#dashboard h1 {
 				float: none;
 			}
+			
+			#dashboard .dateField {
+				width: 62px;
+				height: 23px;
+				cursor: default;
+			}
+			
+			#dashboard #chart {
+				padding-top: 24px;
+				clear: both;
+			}
+			
+			#dashboard .dateField {
+				margin-right: 9px;
+			}
+			
+			#dashboard #timeRange {
+				float: left;
+			}
+			
+			#dashboard #period {
+				float: right;
+			}
+			
+			#dashboard #period input[type=radio] {
+			    display: none; 
+			    margin: 10px;
+			}
+			 
+			#dashboard #period input[type=radio] + label {
+			    display: inline-block;
+			    margin: -2px;
+			    padding: 8px 18px;
+			    background-color: #e7e7e7;
+			    border-color: #ddd;
+			    border: 2px #ddd solid;
+			    cursor: pointer;
+			}
+			
+			#dashboard #period input[type=radio]:checked + label { 
+			   	background-image: none;
+			    background-color: #d0d0d0;
+			}
 		</style>
 		
 		<script type="text/javascript">
-		$(function () {
+		$(function(){
+			$.extend($.datepicker,{_checkOffset:function(inst,offset,isFixed){return offset}});
+			$( ".dateField" ).datepicker({
+				showOn: "both",
+				buttonImage: "../resources/css/prosolo-theme/images/calendar18x15.png",
+				buttonImageOnly: true,
+				dateFormat: "dd.mm.yy.",
+				changeMonth: true,
+				changeYear: true,
+				showOtherMonths: true,
+				selectOtherMonths: true,
+				onSelect: function(dateText, inst) {
+					loadChart($("#dateFrom").val(), $("#dateTo").val(), $("[name='periods']:checked").val());
+			    }
+			});
+			$( ".dateField" ).datepicker('setDate', new Date());
+			
+			$("[name='periods']").change(function() {
+				if ($(this).is(":checked")) {
+					loadChart($("#dateFrom").val(), $("#dateTo").val(), $("[name='periods']:checked").val());
+				}
+			});
+			
+			loadChart($("#dateFrom").val(), $("#dateTo").val(), $("[name='periods']:checked").val());
+		});
+	
+		function loadChart(dateFrom, dateTo, period){
+			$("#chart").html("");
 			$.ajax({
-				// TODO @AT Use API host from configuration.
-				url : "http://#{request.serverName}:8082/api/users/activity/statistics/registered",
-				type : "get",
+				url : "http://#{dashboardBean.apiHost}/api/users/activity/statistics/registered",
+				type : "GET",
+				data : {dateFrom:dateFrom, dateTo:dateTo, period:period},
 				crossDomain: true,
 				dataType: 'json'
 			}).done(function(data) {
-				new tauCharts.Chart({
-				    data: data,
-				    type: 'line',
-				    x: 'date',
-				    y: 'count',
-				    color: 'type'
-				}).renderTo('#chart');
+				if (data.length==0) {
+					$("#chart").html("<span>#{dashboardBean.noResultsFoundMessage}</span>");
+				} else {
+					new tauCharts.Chart({
+					    data: data,
+					    type: 'line',
+					    x: 'date',
+					    y: 'count',
+					    color: 'type'
+					}).renderTo('#chart');
+				}
 			});
-		});
+		}
+		
 		</script>
 		
 		<div id="dashboard" class="container admin">
 			<div class="content wide">
 				<h1>New users</h1>
+				<p>Choose date range:</p>
+    			
+    			<div id="timeRange">
+	   				<strong>From:</strong>
+					<h:inputText class="dateField" id="dateFrom" required="false" onfocus="blur();">
+					    <f:convertDateTime pattern="dd.MM.yyyy" />
+					</h:inputText>	
+	   				<strong>To:</strong>
+					<h:inputText class="dateField" id="dateTo" required="false" onfocus="blur();">
+					    <f:convertDateTime pattern="dd.MM.yyyy" />
+					</h:inputText>
+				</div>
+				<div id="period">
+					<input type="radio" id="day" name="periods" value="DAY" checked="checked" />
+   					<label for="day">Day</label>
+					<input type="radio" id="week" name="periods" value="WEEK" />
+				   	<label for="week">Week</label>
+					<input type="radio" id="month" name="periods" value="MONTH" />
+				   	<label for="month">Month</label> 
+				</div>
 				<div id="chart"></div>
 			</div>
 		</div>
