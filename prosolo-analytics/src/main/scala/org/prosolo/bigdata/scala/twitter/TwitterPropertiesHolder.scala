@@ -19,6 +19,8 @@ object TwitterPropertiesHolder {
     builder.setOAuthAccessTokenSecret(siteProperties.getAccessTokenSecret)
     builder.setOAuthConsumerKey(siteProperties.getConsumerKey)
     builder.setOAuthConsumerSecret(siteProperties.getConsumerSecret)
+    println("INITIALIZE WITH:"+siteProperties.getConsumerKey+" S:"+siteProperties.getConsumerSecret+" AT:"+siteProperties.getAccessToken+" ATS:"+siteProperties.getAccessTokenSecret)
+    
     builder
   }
 }

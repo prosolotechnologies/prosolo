@@ -6,11 +6,14 @@ import java.util.LinkedList;
 import java.util.Properties;
 import java.util.Queue;
 
+
 //import org.prosolo.bigdata.twitter.NotFoundException;
 //import org.prosolo.bigdata.twitter.TwitterSiteProperties;
 import org.prosolo.common.config.CommonSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
 
 /**
  * @author Zoran Jeremic 2013-08-04
@@ -46,6 +49,7 @@ public class PropertiesFacade {
 		String consumerSecret = properties.getProperty(TWITTER_COnSUMER_SECRET);
 		String accessToken = properties.getProperty(TWITTER_ACCESS_TOKEN_KEY+accountId);
 		String accessTokenSecret = properties.getProperty(TWITTER_ACCESS_TOKEN_SECRET+accountId);
+		System.out.println("accountID:"+accountId+" CK:"+consumerKey+" CS:"+consumerSecret+" AT:"+accessToken+" ATS:"+accessTokenSecret);
 		if(accessToken==null){
 			throw new NotFoundException();
 		}
@@ -60,11 +64,16 @@ public class PropertiesFacade {
 		 boolean hasmore=true;
 		 int accountId=0;
 		 Queue<TwitterSiteProperties> properties=new LinkedList<TwitterSiteProperties>();
+		 Gson gson=new Gson();
 		 while(hasmore){
 			 try {
 				TwitterSiteProperties twitterSiteProperties=pFacade.getTwitterSiteProperties(accountId);
-				properties.add(twitterSiteProperties);
-				accountId++;
+				System.out.println("ADDING TwitterSiteProperties:"+gson.toJson(twitterSiteProperties));
+				if(twitterSiteProperties.getAccessToken()!=null && twitterSiteProperties.getAccessToken().length()>10){
+					System.out.println("ADDED:"+accountId+" accessToken:"+twitterSiteProperties.getAccessToken());
+					properties.add(twitterSiteProperties);
+					accountId++;
+				}				
 			} catch (IllegalArgumentException | IOException e) {
 				e.printStackTrace();
 			} catch (NotFoundException e) {
