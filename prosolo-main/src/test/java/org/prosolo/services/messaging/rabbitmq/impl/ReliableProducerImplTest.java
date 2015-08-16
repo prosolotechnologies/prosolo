@@ -3,13 +3,18 @@ package org.prosolo.services.messaging.rabbitmq.impl;
  
 
 import java.net.UnknownHostException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.events.pojo.DataName;
 import org.prosolo.bigdata.common.events.pojo.DataType;
+import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.messaging.MessageWrapperAdapter;
 import org.prosolo.common.messaging.data.AnalyticalServiceMessage;
 import org.prosolo.common.messaging.data.LogMessage;
@@ -263,5 +268,64 @@ public class ReliableProducerImplTest{
 		*/ 
 		
 	}
+	
+	private int random(int limit, double bias) {
+		return (int) (1 + Math.round((Math.random() * bias) * limit));
+	}
+
+	private List<Long> generateEvents(long from, long to) {
+		List<Long> result = new ArrayList<Long>();
+		for(long i = from; i<to; i++) {
+			double bias = 1;
+			if (i % 30 == 0) {
+				bias = Math.random();
+			}
+			for(int j = 0; j<random(20, bias); j++) {
+				result.add(i);
+			}
+		}
+		return result;
+	}
+	
+	private long daysSinceEpoch(String date) throws ParseException {
+		Date result = new SimpleDateFormat("yyyy-MM-dd").parse(date);
+		return result.getTime() / 86400000;
+	}
+	
+	/**
+	 * Populates registered users event logs with random data.
+	 */
+//	@Ignore
+	@Test
+	public void generateRandomRegisteredUsersLogsTest() throws ParseException {
+
+		ReliableProducerImpl reliableProducer = new ReliableProducerImpl();
+		reliableProducer.setQueue(QueueNames.ANALYTICS.name().toLowerCase());
+		reliableProducer.startAsynchronousPublisher();
+		
+		long from = daysSinceEpoch("2015-01-01");
+		long to = daysSinceEpoch("2015-31-12");
+		
+		for(Long event : generateEvents(from, to)) {
+			JsonObject data=new JsonObject();
+			data.add("event", new JsonPrimitive(EventType.Registered.name()));
+			data.add("date", new JsonPrimitive(event));
+			
+			AnalyticalServiceMessage message = new AnalyticalServiceMessage();
+			message.setDataName(DataName.REGISTEREDUSERSPERDAY);
+			message.setDataType(DataType.COUNTER);
+			message.setData(data);
+
+			MessageWrapper wrapper = new MessageWrapper();
+			wrapper.setSender("127.0.0.1");
+			wrapper.setMessage(message);
+			wrapper.setTimecreated(System.currentTimeMillis());
+			
+			GsonBuilder gson = new GsonBuilder();
+			gson.registerTypeAdapter(MessageWrapper.class, new MessageWrapperAdapter());
+			reliableProducer.send(gson.create().toJson(wrapper));
+		}
+	}
+
 
 }
