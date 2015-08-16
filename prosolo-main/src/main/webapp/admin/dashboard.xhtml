@@ -60,6 +60,13 @@
 			   	background-image: none;
 			    background-color: #d0d0d0;
 			}
+			
+			#dashboard .loader {
+				background-image: url('/resources/images/style/ajax-loader-black.gif');
+			    background-repeat: no-repeat;
+    			background-position: center; 
+				height: 180px;
+			}
 		</style>
 		
 		<script type="text/javascript">
@@ -90,7 +97,7 @@
 		});
 	
 		function loadChart(dateFrom, dateTo, period){
-			$("#chart").html("");
+			$("#chart").html('<div class="loader"></div>');
 			$.ajax({
 				url : "http://#{dashboardBean.apiHost}/api/users/activity/statistics/registered",
 				type : "GET",
@@ -101,6 +108,7 @@
 				if (data.length==0) {
 					$("#chart").html("<span>#{dashboardBean.noResultsFoundMessage}</span>");
 				} else {
+					$("#chart").html("");
 					new tauCharts.Chart({
 					    data: data.map((e) => { e.date = new Date(e.date * 86400000); return e; }),
 					    type: 'line',
