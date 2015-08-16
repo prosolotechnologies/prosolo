@@ -295,7 +295,7 @@ public class ReliableProducerImplTest{
 	/**
 	 * Populates registered users event logs with random data.
 	 */
-//	@Ignore
+	@Ignore
 	@Test
 	public void generateRandomRegisteredUsersLogsTest() throws ParseException {
 
