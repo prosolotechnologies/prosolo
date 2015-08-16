@@ -6,11 +6,11 @@ import org.prosolo.bigdata.streaming.Topic;
 import org.apache.log4j.Logger;
 
 /**
-@author Zoran Jeremic Apr 5, 2015
+ * @author Zoran Jeremic Apr 5, 2015
  *
  */
 
-public class EventProcessorThread  extends Thread {
+public class EventProcessorThread extends Thread {
 	private EventObserver observer;
 	private DefaultEvent event;
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
@@ -34,7 +34,7 @@ public class EventProcessorThread  extends Thread {
 				this.event.getEventType())) {
 			return;
 		}
-	
+
 		this.observer.handleEvent(this.event);
 	}
 
@@ -63,7 +63,4 @@ public class EventProcessorThread  extends Thread {
 		return false;
 	}
 
- 
- 
 }
-

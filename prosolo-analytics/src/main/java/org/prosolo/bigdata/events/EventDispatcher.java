@@ -7,8 +7,9 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.events.observers.EventObserver;
 import org.prosolo.bigdata.events.pojo.DefaultEvent;
 import org.prosolo.bigdata.streaming.Topic;
+
 /**
-@author Zoran Jeremic Apr 5, 2015
+ * @author Zoran Jeremic Apr 5, 2015
  *
  */
 
@@ -40,7 +41,4 @@ public class EventDispatcher {
 		}
 	}
 
-
-
 }
-

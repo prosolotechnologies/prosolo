@@ -12,34 +12,39 @@ import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+
 /**
-@author Zoran Jeremic Apr 6, 2015
+ * @author Zoran Jeremic Apr 6, 2015
  *
  */
 
-public class LogEventDBManagerImpl  extends SimpleCassandraClientImpl implements LogEventDBManager{
+public class LogEventDBManagerImpl extends SimpleCassandraClientImpl implements
+		LogEventDBManager {
 	HashMap<String, PreparedStatement> preparedStatements = new HashMap<String, PreparedStatement>();
-	public LogEventDBManagerImpl(){
+
+	public LogEventDBManagerImpl() {
 		super();
 		this.prepareStatements();
 	}
+
 	private void prepareStatements() {
 		String insertLogEvent = "INSERT INTO logevents (id,"
 				+ "topic,"
 				+ "eventtype,timestamp, actorid, actorfullname, "
 				+ "objecttype, objectid, objecttitle,  "
 				+ "targettype, targetid, reasontype, reasonid, link, parameters "
-			
+
 				+ ") VALUES (now(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? );";
 		this.preparedStatements.put("insertDefaultEvent", this.getSession()
 				.prepare(insertLogEvent));
-		
+
 	}
+
 	@Override
 	public void insertLogEvent(LogEvent event) {
 		BoundStatement boundStatement = new BoundStatement(
 				this.preparedStatements.get("insertDefaultEvent"));
-		
+
 		try {
 			boundStatement.setString(0, event.getTopic().name());
 			boundStatement.setString(1, event.getEventType());
@@ -61,4 +66,3 @@ public class LogEventDBManagerImpl  extends SimpleCassandraClientImpl implements
 		}
 	}
 }
-

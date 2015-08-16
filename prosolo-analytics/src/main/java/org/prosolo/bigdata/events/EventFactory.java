@@ -11,7 +11,7 @@ import com.google.gson.GsonBuilder;
 import org.apache.log4j.Logger;
 
 /**
-@author Zoran Jeremic Apr 5, 2015
+ * @author Zoran Jeremic Apr 5, 2015
  *
  */
 
@@ -19,7 +19,7 @@ public class EventFactory {
 
 	private final static Logger logger = Logger.getLogger(EventFactory.class
 			.getName());
-	
+
 	public static DefaultEvent createLogEvent(Topic eventTopic, String message) {
 		GsonBuilder gsonBuilder = new GsonBuilder();
 		gsonBuilder.registerTypeAdapter(LogEvent.class,
@@ -36,10 +36,9 @@ public class EventFactory {
 		gsonBuilder.registerTypeAdapter(AnalyticsEvent.class,
 				new AnalyticsEventDeserializer());
 		Gson gson = gsonBuilder.create();
-		AnalyticsEvent event=gson.fromJson(message, AnalyticsEvent.class);
+		AnalyticsEvent event = gson.fromJson(message, AnalyticsEvent.class);
 		event.setTopic(eventTopic);
 		return event;
 	}
- 
-}
 
+}

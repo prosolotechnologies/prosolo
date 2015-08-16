@@ -11,7 +11,7 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 /**
-@author Zoran Jeremic Apr 3, 2015
+ * @author Zoran Jeremic Apr 3, 2015
  *
  */
 
@@ -19,8 +19,8 @@ public class StreamConsumerManager {
 
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
-	 private EventDispatcher eventDispatcher;
-	
+	private EventDispatcher eventDispatcher;
+
 	public static class StreamingManagerHolder {
 		public static final StreamConsumerManager INSTANCE = new StreamConsumerManager();
 	}
@@ -28,20 +28,24 @@ public class StreamConsumerManager {
 	public static StreamConsumerManager getInstance() {
 		return StreamingManagerHolder.INSTANCE;
 	}
+
 	/**
 	 * Constructor is set to private as this class is used as Singleton only
 	 */
 	private StreamConsumerManager() {
 		this.setEventDispatcher(new EventDispatcher());
 	}
+
 	public void startTopicStreaming(Topic topic, Integer threadCount) {
 		this.logger.info("START LISTENING FOR TOPIC:" + topic.name());
-			ReliableConsumerImpl reliableConsumer = new ReliableConsumerImpl();
-			reliableConsumer.setQueue(topic.name().toLowerCase());
-			reliableConsumer.setWorker(new DefaultMessageWorker(topic, this.eventDispatcher));
-			reliableConsumer.StartAsynchronousConsumer();
-		 
+		ReliableConsumerImpl reliableConsumer = new ReliableConsumerImpl();
+		reliableConsumer.setQueue(topic.name().toLowerCase());
+		reliableConsumer.setWorker(new DefaultMessageWorker(topic,
+				this.eventDispatcher));
+		reliableConsumer.StartAsynchronousConsumer();
+
 	}
+
 	public EventDispatcher getEventDispatcher() {
 		return this.eventDispatcher;
 	}
@@ -50,4 +54,3 @@ public class StreamConsumerManager {
 		this.eventDispatcher = eventDispatcher;
 	}
 }
-

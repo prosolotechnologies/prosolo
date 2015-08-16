@@ -4,7 +4,7 @@ import org.prosolo.bigdata.events.pojo.DefaultEvent;
 import org.prosolo.bigdata.streaming.Topic;
 
 /**
-@author Zoran Jeremic Apr 5, 2015
+ * @author Zoran Jeremic Apr 5, 2015
  *
  */
 
@@ -19,10 +19,6 @@ public interface EventObserver {
 	 */
 	public String[] getSupportedTypes();
 
- 
-
 	public void handleEvent(DefaultEvent event);
 
-
 }
-

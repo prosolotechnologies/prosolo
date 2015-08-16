@@ -10,14 +10,14 @@ import org.prosolo.bigdata.api.PingResource;
 import org.prosolo.bigdata.api.RecommendationServices;
 
 /**
-@author Zoran Jeremic Apr 2, 2015
+ * @author Zoran Jeremic Apr 2, 2015
  *
  */
 
 public class WebApplication extends Application {
 	private final static Logger logger = Logger.getLogger(WebApplication.class);
 	HashSet<Object> singletons = new HashSet<Object>();
-	
+
 	@Override
 	public Set<Class<?>> getClasses() {
 		HashSet<Class<?>> set = new HashSet<Class<?>>();
@@ -35,4 +35,3 @@ public class WebApplication extends Application {
 		singletons.add(new RecommendationServices());
 	}
 }
-

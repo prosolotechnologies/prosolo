@@ -5,7 +5,7 @@ import java.util.List;
 import org.prosolo.bigdata.algorithms.fpgrowth.association_rules.AssocRule;
 
 /**
-@author Zoran Jeremic May 9, 2015
+ * @author Zoran Jeremic May 9, 2015
  *
  */
 
@@ -20,4 +20,3 @@ public interface AssociationRulesIndexer {
 			List<Long> activities);
 
 }
-

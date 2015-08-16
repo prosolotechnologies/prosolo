@@ -27,81 +27,80 @@ import org.prosolo.common.domainmodel.user.AnonUser;
 import org.prosolo.common.domainmodel.user.ServiceType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserType;
- 
- 
-
- 
-
 
 /**
-@author Zoran Jeremic Jun 21, 2015
+ * @author Zoran Jeremic Jun 21, 2015
  *
  */
 
-public class TwitterStreamingDAOImpl extends DAOImpl implements TwitterStreamingDAO{
+public class TwitterStreamingDAOImpl extends DAOImpl implements
+		TwitterStreamingDAO {
 
-	private static Logger logger = Logger.getLogger(TwitterStreamingDAOImpl.class);
-	
-	public TwitterStreamingDAOImpl(){
+	private static Logger logger = Logger
+			.getLogger(TwitterStreamingDAOImpl.class);
+
+	public TwitterStreamingDAOImpl() {
 		super();
 	}
-	
 
 	@Override
 	public Map<String, StreamListData> readAllHashtagsAndLearningGoalsIds() {
 		System.out.println("read all hashtags and learning goals ids...");
-		//EntityManager em = org.prosolo.bigdata.dal.persistence.EntityManagerUtil.getEntityManagerFactory()
-				//.createEntityManager();
-		String query = 
-			"SELECT DISTINCT hashtag.title, lGoal.id " +
-			"FROM LearningGoal lGoal " +
-			"LEFT JOIN lGoal.hashtags hashtag WHERE hashtag.id > 0";
-		
+		// EntityManager em =
+		// org.prosolo.bigdata.dal.persistence.EntityManagerUtil.getEntityManagerFactory()
+		// .createEntityManager();
+		String query = "SELECT DISTINCT hashtag.title, lGoal.id "
+				+ "FROM LearningGoal lGoal "
+				+ "LEFT JOIN lGoal.hashtags hashtag WHERE hashtag.id > 0";
+
 		logger.info("hb query:" + query);
 		@SuppressWarnings("unchecked")
-		List<Object> result =  getEntityManager().createQuery(query).getResultList();
-		
+		List<Object> result = getEntityManager().createQuery(query)
+				.getResultList();
+
 		Map<String, StreamListData> hashtagsLearningGoalIds = new HashMap<String, StreamListData>();
-			 
+
 		if (result != null) {
 			Iterator<Object> resultIt = result.iterator();
-			
+
 			while (resultIt.hasNext()) {
 				Object[] object = (Object[]) resultIt.next();
 				String title = (String) object[0];
 				Long lgId = (Long) object[1];
-				if(title.length()>3){
+				if (title.length() > 3) {
 					if (hashtagsLearningGoalIds.containsKey(title)) {
 						hashtagsLearningGoalIds.get(title).addGoalId(lgId);
 					} else {
 						StreamListData listData = new StreamListData(title);
 						listData.addGoalId(lgId);
-						hashtagsLearningGoalIds.put("#"+title, listData);
+						hashtagsLearningGoalIds.put("#" + title, listData);
 					}
 				}
-				
+
 			}
 		}
 		return hashtagsLearningGoalIds;
 	}
+
 	@Override
 	public Map<String, List<Long>> readAllUserPreferedHashtagsAndUserIds() {
-		//EntityManager em = org.prosolo.bigdata.dal.persistence.EntityManagerUtil.getEntityManagerFactory()
-			//	.createEntityManager();
-		String query = 
-			"SELECT DISTINCT hashtag.title, user.id " +
-			"FROM TopicPreference topicPreference " +
-			"LEFT JOIN topicPreference.user user " +
-			"LEFT JOIN topicPreference.preferredHashtags hashtag  WHERE hashtag.id > 0";
-			 
+		// EntityManager em =
+		// org.prosolo.bigdata.dal.persistence.EntityManagerUtil.getEntityManagerFactory()
+		// .createEntityManager();
+		String query = "SELECT DISTINCT hashtag.title, user.id "
+				+ "FROM TopicPreference topicPreference "
+				+ "LEFT JOIN topicPreference.user user "
+				+ "LEFT JOIN topicPreference.preferredHashtags hashtag  WHERE hashtag.id > 0";
+
 		@SuppressWarnings("unchecked")
-		List<Object> result = getEntityManager().createQuery(query).getResultList();
-		
+		List<Object> result = getEntityManager().createQuery(query)
+				.getResultList();
+
 		Map<String, List<Long>> hashtagsUserIds = new HashMap<String, List<Long>>();
-		
+
 		if (result != null) {
 			Iterator<Object> resultIt = result.iterator();
-			
+
 			while (resultIt.hasNext()) {
 				Object[] object = (Object[]) resultIt.next();
 				String title = (String) object[0];
@@ -112,25 +111,28 @@ public class TwitterStreamingDAOImpl extends DAOImpl implements TwitterStreaming
 				} else {
 					List<Long> ids = new ArrayList<Long>();
 					ids.add(lgId);
-					hashtagsUserIds.put("#"+title, ids);
+					hashtagsUserIds.put("#" + title, ids);
 				}
 			}
 		}
-		//em.close();
+		// em.close();
 		return hashtagsUserIds;
 	}
+
 	@Override
-	public TwitterPost createNewTwitterPost(User maker, Date created, String postLink, long tweetId, String creatorName,
-			String screenName, String userUrl, String profileImage, String text, VisibilityType visibility, 
-			Collection<String> hashtags, boolean toSave)  {
+	public TwitterPost createNewTwitterPost(User maker, Date created,
+			String postLink, long tweetId, String creatorName,
+			String screenName, String userUrl, String profileImage,
+			String text, VisibilityType visibility,
+			Collection<String> hashtags, boolean toSave) {
 
 		TwitterPost twitterPost = new TwitterPost();
-//		twitterPost.setTitle(text);
+		// twitterPost.setTitle(text);
 		twitterPost.setDateCreated(created);
 		twitterPost.setLink(postLink);
-		if(!(maker instanceof AnonUser)){
+		if (!(maker instanceof AnonUser)) {
 			twitterPost.setMaker(maker);
-		}		
+		}
 		twitterPost.setContent(text);
 		twitterPost.setHashtags(getOrCreateTags(hashtags));
 		twitterPost.setVisibility(visibility);
@@ -138,23 +140,23 @@ public class TwitterStreamingDAOImpl extends DAOImpl implements TwitterStreaming
 		twitterPost.setCreatorName(creatorName);
 		twitterPost.setScreenName(screenName);
 		twitterPost.setUserUrl(userUrl);
-		twitterPost.setProfileImage(profileImage);		
+		twitterPost.setProfileImage(profileImage);
 		if (toSave) {
 			twitterPost = (TwitterPost) persist(twitterPost);
-		}		
+		}
 		return twitterPost;
 	}
+
 	@Override
 	public SocialActivity createTwitterPostSocialActivity(TwitterPost tweet) {
 		User actor = tweet.getMaker();
 		EventType action = EventType.TwitterPost;
-		 
-		
+
 		TwitterPostSocialActivity twitterPostSA = new TwitterPostSocialActivity();
-		
+
 		if (actor instanceof AnonUser) {
 			AnonUser poster = (AnonUser) actor;
-			
+
 			twitterPostSA.setName(poster.getName());
 			twitterPostSA.setNickname(poster.getNickname());
 			twitterPostSA.setProfileUrl(poster.getProfileUrl());
@@ -164,38 +166,39 @@ public class TwitterStreamingDAOImpl extends DAOImpl implements TwitterStreaming
 			twitterPostSA.setMaker(actor);
 			twitterPostSA.setUserType(UserType.REGULAR_USER);
 		}
-		
+
 		twitterPostSA.setPostUrl(tweet.getLink());
 		twitterPostSA.setAction(action);
 		twitterPostSA.setText(tweet.getContent());
 		twitterPostSA.setServiceType(ServiceType.TWITTER);
 		twitterPostSA.setDateCreated(tweet.getDateCreated());
 		twitterPostSA.setLastAction(tweet.getDateCreated());
-		Set<Tag> hashtags=tweet.getHashtags();
-		Set<Tag> newCollection=new HashSet<Tag>();
-		for(Tag t:hashtags){
+		Set<Tag> hashtags = tweet.getHashtags();
+		Set<Tag> newCollection = new HashSet<Tag>();
+		for (Tag t : hashtags) {
 			newCollection.add(t);
 		}
 		twitterPostSA.setHashtags(newCollection);
 		twitterPostSA.setVisibility(VisibilityType.PUBLIC);
-		
-		twitterPostSA=(TwitterPostSocialActivity) persist(twitterPostSA);
+
+		twitterPostSA = (TwitterPostSocialActivity) persist(twitterPostSA);
 		return twitterPostSA;
 	}
-	
+
 	public Set<Tag> getOrCreateTags(Collection<String> titles) {
 		Set<Tag> tags = new HashSet<Tag>();
-		
+
 		if (titles != null) {
 			for (String t : titles) {
 				tags.add(getOrCreateTag(t));
 			}
 		}
-		
+
 		return tags;
 	}
+
 	public Tag getOrCreateTag(String title) {
-		
+
 		Tag tag = getTag(title);
 
 		if (tag != null) {
@@ -204,6 +207,7 @@ public class TwitterStreamingDAOImpl extends DAOImpl implements TwitterStreaming
 			return createTag(title);
 		}
 	}
+
 	public Tag createTag(String title) {
 
 		Tag newTag = new Tag();
@@ -211,51 +215,51 @@ public class TwitterStreamingDAOImpl extends DAOImpl implements TwitterStreaming
 		newTag = (Tag) persist(newTag);
 		return newTag;
 	}
+
 	@SuppressWarnings("unchecked")
 	public Tag getTag(String title) {
 		title = title.toLowerCase();
-		
-		String query = 
-			"SELECT DISTINCT tag " +
-			"FROM Tag tag " +
-			"WHERE tag.title = :title";
-		List<Tag> tags =null;
- 
-		//try{
-			tags =  getEntityManager().createQuery(query).
-					setParameter("title", title).getResultList();
-		//}catch(NoResultException nre){
-			
-			if (tags != null && !tags.isEmpty()) {
-				return tags.iterator().next();
-			}
-			return null;
+
+		String query = "SELECT DISTINCT tag " + "FROM Tag tag "
+				+ "WHERE tag.title = :title";
+		List<Tag> tags = null;
+
+		// try{
+		tags = getEntityManager().createQuery(query)
+				.setParameter("title", title).getResultList();
+		// }catch(NoResultException nre){
+
+		if (tags != null && !tags.isEmpty()) {
+			return tags.iterator().next();
+		}
+		return null;
 	}
+
 	@Override
 	public User getUserByTwitterUserId(long userId) {
-		String query = 
-				"SELECT user " + 
-				"FROM OauthAccessToken userToken " + 
-				"WHERE userToken.userId=:userId";
-		
+		String query = "SELECT user " + "FROM OauthAccessToken userToken "
+				+ "WHERE userToken.userId=:userId";
+
 		logger.debug("hb query:" + query);
-		try{
-		return (User) getEntityManager().createQuery(query).setParameter("userId", userId).getSingleResult();
-		}catch(NoResultException nre){
+		try {
+			return (User) getEntityManager().createQuery(query)
+					.setParameter("userId", userId).getSingleResult();
+		} catch (NoResultException nre) {
 			return null;
 		}
 	}
+
 	@Override
 	public List<Long> getAllTwitterUsersTokensUserIds() {
-		String query = 
-				"SELECT userToken.userId " + 
-				"FROM OauthAccessToken userToken ";
-		
+		String query = "SELECT userToken.userId "
+				+ "FROM OauthAccessToken userToken ";
+
 		logger.debug("hb query:" + query);
-		
+
 		@SuppressWarnings("unchecked")
-		List<Long> result =getEntityManager().createQuery(query).getResultList();
-		
+		List<Long> result = getEntityManager().createQuery(query)
+				.getResultList();
+
 		if (result != null) {
 			return result;
 		}
@@ -263,4 +267,3 @@ public class TwitterStreamingDAOImpl extends DAOImpl implements TwitterStreaming
 	}
 
 }
-

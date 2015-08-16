@@ -7,12 +7,12 @@ import org.prosolo.bigdata.events.pojo.LogEvent;
 import org.prosolo.bigdata.streaming.Topic;
 
 /**
-@author Zoran Jeremic Apr 6, 2015
+ * @author Zoran Jeremic Apr 6, 2015
  *
  */
 
 public class LogEventsPersisterObserver implements EventObserver {
-	private LogEventDBManager dbManager=new LogEventDBManagerImpl();
+	private LogEventDBManager dbManager = new LogEventDBManagerImpl();
 
 	@Override
 	public Topic[] getSupportedTopics() {
@@ -27,12 +27,11 @@ public class LogEventsPersisterObserver implements EventObserver {
 
 	@Override
 	public void handleEvent(DefaultEvent event) {
-		if(event instanceof LogEvent){
-			LogEvent logEvent=(LogEvent) event;
+		if (event instanceof LogEvent) {
+			LogEvent logEvent = (LogEvent) event;
 			dbManager.insertLogEvent(logEvent);
 		}
-		
+
 	}
 
 }
-

@@ -4,7 +4,7 @@ import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Session;
 
 /**
-@author Zoran Jeremic Apr 3, 2015
+ * @author Zoran Jeremic Apr 3, 2015
  *
  */
 
@@ -22,4 +22,3 @@ public interface SimpleCassandraClient {
 	Cluster getCluster();
 
 }
-

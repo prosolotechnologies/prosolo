@@ -14,25 +14,25 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 
 /**
-@author Zoran Jeremic Apr 6, 2015
+ * @author Zoran Jeremic Apr 6, 2015
  *
  */
 
-public class LogEventDeserializer implements JsonDeserializer<LogEvent>{
+public class LogEventDeserializer implements JsonDeserializer<LogEvent> {
 	private static JsonParser parser = new JsonParser();
+
 	@Override
 	public LogEvent deserialize(JsonElement json, Type typeOfT,
 			JsonDeserializationContext context) throws JsonParseException {
 		JsonObject wrappedMessage = json.getAsJsonObject();
-		JsonObject message=(JsonObject) wrappedMessage.get("message");
+		JsonObject message = (JsonObject) wrappedMessage.get("message");
 		GsonBuilder gsonBuilder = new GsonBuilder();
 		Gson gson = gsonBuilder.create();
-		LogEvent event=gson.fromJson(message.toString(), LogEvent.class);
-		String messageParameters=message.get("parameters").toString();
-		JsonObject parameters=(JsonObject) parser.parse(messageParameters);
+		LogEvent event = gson.fromJson(message.toString(), LogEvent.class);
+		String messageParameters = message.get("parameters").toString();
+		JsonObject parameters = (JsonObject) parser.parse(messageParameters);
 		event.setParameters(parameters);
 		return event;
 	}
 
 }
-

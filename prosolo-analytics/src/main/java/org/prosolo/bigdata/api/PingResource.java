@@ -6,7 +6,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 /**
-@author Zoran Jeremic Apr 2, 2015
+ * @author Zoran Jeremic Apr 2, 2015
  *
  */
 @Path("/ping")
@@ -17,4 +17,3 @@ public class PingResource {
 		return "Pong!";
 	}
 }
-

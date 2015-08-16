@@ -13,16 +13,16 @@ import org.prosolo.bigdata.streaming.Topic;
 
 import com.google.gson.Gson;
 
-
 /**
-@author Zoran Jeremic Apr 13, 2015
+ * @author Zoran Jeremic Apr 13, 2015
  *
  */
 
-public class AnalyticalEventsObserver  implements EventObserver{
-	private AnalyticalEventDBManager dbManager=new AnalyticalEventDBManagerImpl();
-	HashtagsUpdatesBuffer$ hashtagsUpdatesBuffer=HashtagsUpdatesBuffer$.MODULE$;
-	TwitterUsersStreamsManager$ twitterUsersStreamManager=TwitterUsersStreamsManager$.MODULE$;
+public class AnalyticalEventsObserver implements EventObserver {
+	private AnalyticalEventDBManager dbManager = new AnalyticalEventDBManagerImpl();
+	HashtagsUpdatesBuffer$ hashtagsUpdatesBuffer = HashtagsUpdatesBuffer$.MODULE$;
+	TwitterUsersStreamsManager$ twitterUsersStreamManager = TwitterUsersStreamsManager$.MODULE$;
+
 	@Override
 	public Topic[] getSupportedTopics() {
 		// TODO Auto-generated method stub
@@ -37,26 +37,28 @@ public class AnalyticalEventsObserver  implements EventObserver{
 
 	@Override
 	public void handleEvent(DefaultEvent event) {
-		if(event instanceof AnalyticsEvent){
-			AnalyticsEvent analyticsEvent=(AnalyticsEvent) event;
-		 	Gson g=new Gson();
-			if(analyticsEvent.getDataType().equals(DataType.COUNTER)){
-				 dbManager.updateAnalyticsEventCounter( analyticsEvent);
-			 }else if(analyticsEvent.getDataType().equals(DataType.RECORD)){
-				 dbManager.insertAnalyticsEventRecord(analyticsEvent);
-			 }else if(analyticsEvent.getDataType().equals(DataType.PROCESS)){
-				 System.out.println("EVENT:"+g.toJson(analyticsEvent));
-				 if(analyticsEvent.getDataName().equals(DataName.UPDATEHASHTAGS)){
-					 hashtagsUpdatesBuffer.addEvent(analyticsEvent);
-				 }else if(analyticsEvent.getDataName().equals(DataName.UPDATETWITTERUSER)){
-					 System.out.println("SHOULD UPDATE TWITTER USER HERE");
-					 twitterUsersStreamManager.updateTwitterUserFromAnalyticsEvent(analyticsEvent);
-					 
-				 }
-			 }
+		if (event instanceof AnalyticsEvent) {
+			AnalyticsEvent analyticsEvent = (AnalyticsEvent) event;
+			Gson g = new Gson();
+			if (analyticsEvent.getDataType().equals(DataType.COUNTER)) {
+				dbManager.updateAnalyticsEventCounter(analyticsEvent);
+			} else if (analyticsEvent.getDataType().equals(DataType.RECORD)) {
+				dbManager.insertAnalyticsEventRecord(analyticsEvent);
+			} else if (analyticsEvent.getDataType().equals(DataType.PROCESS)) {
+				System.out.println("EVENT:" + g.toJson(analyticsEvent));
+				if (analyticsEvent.getDataName()
+						.equals(DataName.UPDATEHASHTAGS)) {
+					hashtagsUpdatesBuffer.addEvent(analyticsEvent);
+				} else if (analyticsEvent.getDataName().equals(
+						DataName.UPDATETWITTERUSER)) {
+					System.out.println("SHOULD UPDATE TWITTER USER HERE");
+					twitterUsersStreamManager
+							.updateTwitterUserFromAnalyticsEvent(analyticsEvent);
+
+				}
+			}
 		}
-		
+
 	}
 
 }
-

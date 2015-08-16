@@ -9,21 +9,26 @@ import org.prosolo.bigdata.common.dal.pojo.UserLearningGoalActivitiesCount;
 import org.prosolo.bigdata.events.pojo.AnalyticsEvent;
 
 /**
-@author Zoran Jeremic Apr 14, 2015
+ * @author Zoran Jeremic Apr 14, 2015
  *
  */
 
 public interface AnalyticalEventDBManager {
 	void updateAnalyticsEventCounter(AnalyticsEvent event);
+
 	List<ActivityAccessCount> findAllActivitiesForCompetence(long competenceId,
 			List<Long> ignoredActivities);
+
 	void insertAnalyticsEventRecord(AnalyticsEvent event);
+
 	List<TargetCompetenceActivities> findAllActivitiesByTargetCompetenceForCompetence(
 			long competenceId);
+
 	List<Long> findAllCompetences();
+
 	List<UserLearningGoalActivitiesCount> findUserLearningGoalActivitiesByDate(
 			long date);
+
 	List<MostActiveUsersForLearningGoal> findMostActiveUsersForGoalsByDate(
 			long date);
 }
-

@@ -4,16 +4,15 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.JobListener;
 
-
-
 /**
-@author Zoran Jeremic May 18, 2015
+ * @author Zoran Jeremic May 18, 2015
  *
  */
 
 public class JobsListener implements JobListener {
 	public static final String LISTENER_NAME = JobsListener.class
 			.getCanonicalName();
+
 	@Override
 	public String getName() {
 		// TODO Auto-generated method stub
@@ -40,4 +39,3 @@ public class JobsListener implements JobListener {
 	}
 
 }
-

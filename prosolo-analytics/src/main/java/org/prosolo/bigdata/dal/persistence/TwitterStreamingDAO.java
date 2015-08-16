@@ -12,11 +12,11 @@ import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.User;
 
 /**
-@author Zoran Jeremic Jun 21, 2015
+ * @author Zoran Jeremic Jun 21, 2015
  *
  */
 
-public interface TwitterStreamingDAO extends DAO{
+public interface TwitterStreamingDAO extends DAO {
 
 	Map<String, StreamListData> readAllHashtagsAndLearningGoalsIds();
 
@@ -35,4 +35,3 @@ public interface TwitterStreamingDAO extends DAO{
 	List<Long> getAllTwitterUsersTokensUserIds();
 
 }
-

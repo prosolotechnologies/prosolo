@@ -9,36 +9,36 @@ import org.prosolo.common.config.CommonSettings;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.exceptions.InvalidQueryException;
+
 /**
-@author Zoran Jeremic Apr 3, 2015
+ * @author Zoran Jeremic Apr 3, 2015
  *
  */
 
-public class SimpleCassandraClientImpl implements SimpleCassandraClient{
+public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 	private Cluster cluster;
 	private Session session;
-	String dbName=null;
-	protected final static Logger logger = Logger.getLogger(SimpleCassandraClientImpl.class
-			.getName());
+	String dbName = null;
+	protected final static Logger logger = Logger
+			.getLogger(SimpleCassandraClientImpl.class.getName());
 
 	public SimpleCassandraClientImpl() {
-		
+
 		DBServerConfig dbConfig = Settings.getInstance().config.dbConfig.dbServerConfig;
-		dbName=Settings.getInstance().config.dbConfig.dbServerConfig.dbName+CommonSettings.getInstance().config.getNamespaceSufix();
-		try{
-		this.connect(dbConfig.dbHost, dbName,
-				dbConfig.replicationFactor);
-		}catch(Exception ex){
+		dbName = Settings.getInstance().config.dbConfig.dbServerConfig.dbName
+				+ CommonSettings.getInstance().config.getNamespaceSufix();
+		try {
+			this.connect(dbConfig.dbHost, dbName, dbConfig.replicationFactor);
+		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 	}
 
-	public void reconnect(){
-		this.session=null;
-		this.cluster=null;
+	public void reconnect() {
+		this.session = null;
+		this.cluster = null;
 		DBServerConfig dbConfig = Settings.getInstance().config.dbConfig.dbServerConfig;
-		this.connect(dbConfig.dbHost, dbName,
-				dbConfig.replicationFactor);
+		this.connect(dbConfig.dbHost, dbName, dbConfig.replicationFactor);
 	}
 
 	@Override
@@ -63,7 +63,6 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient{
 		}
 	}
 
-
 	@Override
 	public void createSchemaIfNotExists(Session session, String schemaName,
 			int replicationFactor) {
@@ -73,18 +72,15 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient{
 				+ replicationFactor + "};");
 	}
 
-
 	@Override
 	public void close() {
 		this.cluster.close();
 	}
 
-
 	@Override
 	public Session getSession() {
 		return this.session;
 	}
-
 
 	@Override
 	public Cluster getCluster() {
@@ -92,4 +88,3 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient{
 	}
 
 }
-

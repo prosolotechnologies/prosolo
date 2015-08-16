@@ -4,8 +4,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import org.apache.log4j.Logger;
+
 /**
-@author Zoran Jeremic Apr 5, 2015
+ * @author Zoran Jeremic Apr 5, 2015
  *
  */
 
@@ -38,4 +39,3 @@ public class EventsDispatcherThreadPoolExecutor {
 		this.executorService.submit(runnable);
 	}
 }
-

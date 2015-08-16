@@ -5,7 +5,7 @@ import java.util.List;
 import org.prosolo.bigdata.common.dal.pojo.ActivityAccessCount;
 
 /**
-@author Zoran Jeremic May 9, 2015
+ * @author Zoran Jeremic May 9, 2015
  *
  */
 
@@ -17,4 +17,3 @@ public interface AnalyzedResultsDBManager {
 	List<ActivityAccessCount> findFrequentCompetenceActivities(long competenceId);
 
 }
-

@@ -1,11 +1,11 @@
 package org.prosolo.bigdata.twitter;
+
 /**
-@author Zoran Jeremic Jun 20, 2015
+ @author Zoran Jeremic Jun 20, 2015
  *
  */
 import twitter4j.HashtagEntity;
 import twitter4j.Status;
-
 
 public class TwitterUtil {
 	public static Object parse(TwitterParameter parameter, Status status) {
@@ -40,4 +40,3 @@ public class TwitterUtil {
 		return null;
 	}
 }
-

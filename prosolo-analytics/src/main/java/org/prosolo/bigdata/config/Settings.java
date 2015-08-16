@@ -14,7 +14,7 @@ import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
 /**
-@author Zoran Jeremic Apr 2, 2015
+ * @author Zoran Jeremic Apr 2, 2015
  *
  */
 
@@ -41,7 +41,7 @@ public class Settings {
 
 	public Settings() {
 		try {
-			//this.initializeLogger();
+			// this.initializeLogger();
 			this.loadConfig(configFileName);
 
 		} catch (Exception e) {
@@ -170,4 +170,3 @@ public class Settings {
 		// }
 	}
 }
-

@@ -29,85 +29,97 @@ import org.prosolo.bigdata.es.ElasticSearchConnector;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 
 import static org.elasticsearch.index.query.FilterBuilders.*;//boolFilter;
- 
 
 /**
-@author Zoran Jeremic May 9, 2015
+ * @author Zoran Jeremic May 9, 2015
  *
  */
 
 public class TestESSearchQueryForAssociationRules {
 	@Test
-	public void findAssociatedRulesForCompetence(){
-		List<Long> alreadyAddedActivities=new ArrayList<Long>();
-		long competenceId=25;
-		int limit=10;
-		if(alreadyAddedActivities.isEmpty()){
+	public void findAssociatedRulesForCompetence() {
+		List<Long> alreadyAddedActivities = new ArrayList<Long>();
+		long competenceId = 25;
+		int limit = 10;
+		if (alreadyAddedActivities.isEmpty()) {
 			System.out.println("SEARCH FREQUENT ACTIVITIES");
-			AnalyzedResultsDBManager dbManager=new AnalyzedResultsDBmanagerImpl();
-			List<ActivityAccessCount> frequentActivities=dbManager.findFrequentCompetenceActivities(competenceId);
-			System.out.println("FrequentActivities:"+frequentActivities.toString());
- 
-		}else{
-			this.getSuggestedActivitiesForCompetence(alreadyAddedActivities, competenceId, limit);
-		}		
+			AnalyzedResultsDBManager dbManager = new AnalyzedResultsDBmanagerImpl();
+			List<ActivityAccessCount> frequentActivities = dbManager
+					.findFrequentCompetenceActivities(competenceId);
+			System.out.println("FrequentActivities:"
+					+ frequentActivities.toString());
+
+		} else {
+			this.getSuggestedActivitiesForCompetence(alreadyAddedActivities,
+					competenceId, limit);
+		}
 	}
+
 	@Test
-	public void findRelatedActivity(){
-		List<Long> alreadyAddedActivities=new ArrayList<Long>();
-		long competenceId=24;
-		long activityId=2;
-		int limit=10;
-		Client client=null;
+	public void findRelatedActivity() {
+		List<Long> alreadyAddedActivities = new ArrayList<Long>();
+		long competenceId = 24;
+		long activityId = 2;
+		int limit = 10;
+		Client client = null;
 		try {
 			client = ElasticSearchConnector.getClient();
 		} catch (IndexingServiceNotAvailable e) {
 			e.printStackTrace();
 		}
 		BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-		bQueryBuilder.must(termQuery("id",competenceId));
-		bQueryBuilder.must(termQuery("itemset1.id",activityId));
-		bQueryBuilder.must(termQuery("itemset1_size",1));
-		//FilteredQueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder, andFilterBuilder);
-		SearchRequestBuilder finalBuilder=client.prepareSearch(ESIndexNames.INDEX_ASSOCRULES).setTypes(ESIndexTypes.COMPETENCE_ACTIVITIES).setQuery(bQueryBuilder)
-				.setFrom(0).setSize(limit);
-		System.out.println("QUERY:"+finalBuilder.toString());
+		bQueryBuilder.must(termQuery("id", competenceId));
+		bQueryBuilder.must(termQuery("itemset1.id", activityId));
+		bQueryBuilder.must(termQuery("itemset1_size", 1));
+		// FilteredQueryBuilder filteredQueryBuilder =
+		// QueryBuilders.filteredQuery(bQueryBuilder, andFilterBuilder);
+		SearchRequestBuilder finalBuilder = client
+				.prepareSearch(ESIndexNames.INDEX_ASSOCRULES)
+				.setTypes(ESIndexTypes.COMPETENCE_ACTIVITIES)
+				.setQuery(bQueryBuilder).setFrom(0).setSize(limit);
+		System.out.println("QUERY:" + finalBuilder.toString());
 		SearchResponse sResponse = finalBuilder.execute().actionGet();
 		if (sResponse != null) {
 			for (SearchHit hit : sResponse.getHits()) {
 				int id = (int) hit.getSource().get("id");
-				System.out.println("ID:"+id+" :"+hit.getSource()+" SCORE:"+hit.getScore()+" sc:"+hit.score());
+				System.out.println("ID:" + id + " :" + hit.getSource()
+						+ " SCORE:" + hit.getScore() + " sc:" + hit.score());
 			}
 		}
-		
+
 	}
-	public void getSuggestedActivitiesForCompetence(Collection<Long> alreadyAddedActivities, long competenceId, int limit){
-			Client client=null;
-			try {
-				client = ElasticSearchConnector.getClient();
-			} catch (IndexingServiceNotAvailable e) {
-				e.printStackTrace();
+
+	public void getSuggestedActivitiesForCompetence(
+			Collection<Long> alreadyAddedActivities, long competenceId,
+			int limit) {
+		Client client = null;
+		try {
+			client = ElasticSearchConnector.getClient();
+		} catch (IndexingServiceNotAvailable e) {
+			e.printStackTrace();
+		}
+		BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+		bQueryBuilder.must(termQuery("id", competenceId));
+
+		if (alreadyAddedActivities != null) {
+			for (Long activityId : alreadyAddedActivities) {
+				bQueryBuilder.should(termQuery("itemset1.id", activityId));
 			}
-			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-			bQueryBuilder.must(termQuery("id",competenceId));
-			
-			if(alreadyAddedActivities!=null){
-				for (Long activityId : alreadyAddedActivities) {
-					bQueryBuilder.should(termQuery("itemset1.id",activityId));
-				}
+		}
+		SearchRequestBuilder finalBuilder = client
+				.prepareSearch(ESIndexNames.INDEX_ASSOCRULES)
+				.setTypes(ESIndexTypes.COMPETENCE_ACTIVITIES)
+				.setQuery(bQueryBuilder).setFrom(0).setSize(limit);
+		System.out.println("QUERY:" + finalBuilder.toString());
+		SearchResponse sResponse = finalBuilder.execute().actionGet();
+
+		if (sResponse != null) {
+			for (SearchHit hit : sResponse.getHits()) {
+				int id = (int) hit.getSource().get("id");
+				System.out.println("ID:" + id + " :" + hit.getSource()
+						+ " SCORE:" + hit.getScore() + " sc:" + hit.score());
 			}
-			SearchRequestBuilder finalBuilder=client.prepareSearch(ESIndexNames.INDEX_ASSOCRULES).setTypes(ESIndexTypes.COMPETENCE_ACTIVITIES).setQuery(bQueryBuilder)
-					.setFrom(0).setSize(limit);
-			System.out.println("QUERY:"+finalBuilder.toString());
-			SearchResponse sResponse = finalBuilder.execute().actionGet();
-			
-			if (sResponse != null) {
-				for (SearchHit hit : sResponse.getHits()) {
-					int id = (int) hit.getSource().get("id");
-					System.out.println("ID:"+id+" :"+hit.getSource()+" SCORE:"+hit.getScore()+" sc:"+hit.score());
-				}
-			}
+		}
 
 	}
 }
-

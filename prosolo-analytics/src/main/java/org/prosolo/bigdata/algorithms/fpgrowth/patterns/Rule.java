@@ -1,20 +1,20 @@
 package org.prosolo.bigdata.algorithms.fpgrowth.patterns;
 
 /**
-@author Zoran Jeremic May 1, 2015
+ * @author Zoran Jeremic May 1, 2015
  *
  */
 public class Rule {
 	/** antecedent */
-	private long[] itemset1; 
+	private long[] itemset1;
 	/** consequent */
 	private long[] itemset2;
-	/** coverage (support of the antecedent)*/
+	/** coverage (support of the antecedent) */
 	private int coverage;
 	/** relative support */
-	private int transactionCount; 
+	private int transactionCount;
 	/** confidence of the rule */
-	private double confidence; 
+	private double confidence;
 
 	/**
 	 * Constructor
@@ -23,9 +23,11 @@ public class Rule {
 	 *            the antecedent of the rule (an itemset)
 	 * @param itemset2
 	 *            the consequent of the rule (an itemset)
-	 * @param coverage the support of the antecedent as a number of transactions
+	 * @param coverage
+	 *            the support of the antecedent as a number of transactions
 	 * @param transactionCount
-	 *            the absolute support of the rule (integer - a number of transactions)
+	 *            the absolute support of the rule (integer - a number of
+	 *            transactions)
 	 * @param confidence
 	 *            the confidence of the rule
 	 */
@@ -67,15 +69,16 @@ public class Rule {
 	public double getConfidence() {
 		return confidence;
 	}
-	
+
 	/**
-	 * Get the coverage of the rule (the support of the rule antecedent) as a number of transactions
+	 * Get the coverage of the rule (the support of the rule antecedent) as a
+	 * number of transactions
+	 * 
 	 * @return the coverage (int)
 	 */
 	public int getCoverage() {
 		return coverage;
 	}
-	
 
 	/**
 	 * Print this rule to System.out.

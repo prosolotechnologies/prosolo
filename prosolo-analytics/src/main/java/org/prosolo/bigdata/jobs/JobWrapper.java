@@ -10,24 +10,24 @@ import java.util.Map.Entry;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.Trigger;
- 
 
 /**
-@author Zoran Jeremic May 18, 2015
+ * @author Zoran Jeremic May 18, 2015
  *
  */
 
-public class JobWrapper  implements Serializable {
+public class JobWrapper implements Serializable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 8776194470854150898L;
-	
+
 	private Set<String> dependencies;
 	public String jobId;
 	public JobDetail jobDetail;
 
 	public Trigger trigger;
+
 	public String getJobId() {
 		return jobId;
 	}
@@ -57,7 +57,6 @@ public class JobWrapper  implements Serializable {
 	}
 
 	public String waitInterval;
-	
 
 	public static JobWrapper createJob(JobDetail jobDetail, String id) {
 		return new JobWrapper(jobDetail, null, id);
@@ -67,8 +66,6 @@ public class JobWrapper  implements Serializable {
 			String id) {
 		return new JobWrapper(jobDetail, trigger, id);
 	}
-
-
 
 	private JobWrapper(JobDetail jobDetail, Trigger trigger, String id) {
 		super();
@@ -137,4 +134,3 @@ public class JobWrapper  implements Serializable {
 		this.waitInterval = waitInterval;
 	}
 }
-

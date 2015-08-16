@@ -1,6 +1,5 @@
 package org.prosolo.bigdata.api;
 
-
 import java.util.List;
 
 import javax.ws.rs.POST;
@@ -18,37 +17,44 @@ import org.prosolo.bigdata.services.impl.ActivityRecommendationImpl;
 
 import com.google.gson.Gson;
 
-
 /**
-@author Zoran Jeremic Apr 20, 2015
+ * @author Zoran Jeremic Apr 20, 2015
  *
  */
 @Path("/recommendation")
 public class RecommendationServices {
 	private final static Logger logger = Logger
 			.getLogger(RecommendationServices.class);
-	//private ActivityRecommendation activityRecommendation=new ActivityRecommendationImpl();
-	
+
+	// private ActivityRecommendation activityRecommendation=new
+	// ActivityRecommendationImpl();
+
 	@POST
 	@Path("/recommendedactivities")
 	@Produces("application/json")
-	public Response getRecommendedOrFrequentActivitiesForCompetence(RequestParametersObject parameters) {
-		Gson g=new Gson();
+	public Response getRecommendedOrFrequentActivitiesForCompetence(
+			RequestParametersObject parameters) {
+		Gson g = new Gson();
 		logger.debug("parameters:" + g.toJson(parameters));
-		//List<ActivityAccessCount> recommendedActivities=activityRecommendation.getRecommendedActivitiesForCompetence(parameters.getObjectId(), parameters.getIgnoredIds(), parameters.getLimit());
-		
+		// List<ActivityAccessCount>
+		// recommendedActivities=activityRecommendation.getRecommendedActivitiesForCompetence(parameters.getObjectId(),
+		// parameters.getIgnoredIds(), parameters.getLimit());
+
 		return Response.status(Status.OK).entity(g.toJson("")).build();
 	}
-	
+
 	@POST
 	@Path("/relatedactivities")
 	@Produces("application/json")
-	public Response getRelatedActivitiesForActivity(RequestListParametersObject parameters) {
-		Gson g=new Gson();
+	public Response getRelatedActivitiesForActivity(
+			RequestListParametersObject parameters) {
+		Gson g = new Gson();
 		logger.debug("parameters:" + g.toJson(parameters));
-		//List<ActivityAccessCount> recommendedActivities=activityRecommendation.getRelatedActivitiesForActivity(parameters.getParameter("competenceid"), parameters.getParameter("activityid"), parameters.getIgnoredIds(),parameters.getLimit());
-		
+		// List<ActivityAccessCount>
+		// recommendedActivities=activityRecommendation.getRelatedActivitiesForActivity(parameters.getParameter("competenceid"),
+		// parameters.getParameter("activityid"),
+		// parameters.getIgnoredIds(),parameters.getLimit());
+
 		return Response.status(Status.OK).entity(g.toJson("")).build();
 	}
 }
-

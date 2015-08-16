@@ -8,23 +8,22 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 /**
-@author Zoran Jeremic Jun 6, 2015
+ * @author Zoran Jeremic Jun 6, 2015
  *
  */
 
-public class LearningGoalsMostActiveUsersAnalyzerJob  implements Job  {
-	private static Logger logger = Logger.getLogger(LearningGoalsMostActiveUsersAnalyzerJob.class
-			.getName());
+public class LearningGoalsMostActiveUsersAnalyzerJob implements Job {
+	private static Logger logger = Logger
+			.getLogger(LearningGoalsMostActiveUsersAnalyzerJob.class.getName());
 
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		logger.info("executed job for learning goals most active users");
-		LearningGoalsMostActiveUsersAnalyzer analyzer=new LearningGoalsMostActiveUsersAnalyzer();
+		LearningGoalsMostActiveUsersAnalyzer analyzer = new LearningGoalsMostActiveUsersAnalyzer();
 		final long daysSinceEpoch = DateUtil.getDaysSinceEpoch();
 		analyzer.analyzeLearningGoalsMostActiveUsersForDay(daysSinceEpoch);
 		analyzer.analyzeLearningGoalsMostActiveUsersForWeek();
-		
+
 	}
 
 }
-

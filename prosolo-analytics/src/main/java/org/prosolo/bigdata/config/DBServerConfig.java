@@ -3,7 +3,7 @@ package org.prosolo.bigdata.config;
 import org.simpleframework.xml.Element;
 
 /**
-@author Zoran Jeremic Apr 2, 2015
+ * @author Zoran Jeremic Apr 2, 2015
  *
  */
 
@@ -20,4 +20,3 @@ public class DBServerConfig {
 	@Element(name = "db-replication-factor", required = true)
 	public int replicationFactor;
 }
-

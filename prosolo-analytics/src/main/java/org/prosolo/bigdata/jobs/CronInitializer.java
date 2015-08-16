@@ -16,10 +16,8 @@ import org.prosolo.bigdata.config.QuartzJobConfig;
 import org.prosolo.bigdata.config.Settings;
 import org.quartz.SchedulerException;
 
- 
-
 /**
-@author Zoran Jeremic May 18, 2015
+ * @author Zoran Jeremic May 18, 2015
  *
  */
 
@@ -32,14 +30,14 @@ public class CronInitializer extends HttpServlet {
 
 	@Override
 	public void init() throws ServletException {
-		//@SuppressWarnings("unused")
+		// @SuppressWarnings("unused")
 		System.out.println("CRON INITIALIZER INIT");
 		CronScheduler cronScheduler = CronSchedulerImpl.getInstance();
-		List<QuartzJobConfig> jobsConfigs=Settings.getInstance().config.schedulerConfig.jobs.jobsConfig;
-		 //Set<String> jobsKeys=jobsMap.keySet();
-		 for(QuartzJobConfig jobConfig:jobsConfigs){
+		List<QuartzJobConfig> jobsConfigs = Settings.getInstance().config.schedulerConfig.jobs.jobsConfig;
+		// Set<String> jobsKeys=jobsMap.keySet();
+		for (QuartzJobConfig jobConfig : jobsConfigs) {
 			// QuartzJobConfig jobConfig= jobsMap.get(jobKey);
-			 try {
+			try {
 				cronScheduler.checkAndActivateJob(jobConfig);
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
@@ -48,8 +46,8 @@ public class CronInitializer extends HttpServlet {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		 }
-		
+		}
+
 	}
 
 	@Override
@@ -58,4 +56,3 @@ public class CronInitializer extends HttpServlet {
 
 	}
 }
-

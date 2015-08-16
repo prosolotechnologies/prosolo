@@ -26,7 +26,7 @@ public class PropertiesFacade {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	final private String TWITTER_CONSUMER_KEY = "twitter.consumer.key";
-	final private String TWITTER_COnSUMER_SECRET = "twitter.consumer.secret";
+	final private String TWITTER_CONSUMER_SECRET = "twitter.consumer.secret";
 	final private String TWITTER_ACCESS_TOKEN_KEY = "twitter.access.token";
 	final private String TWITTER_ACCESS_TOKEN_SECRET = "twitter.access.token.secret";
 	
@@ -46,7 +46,7 @@ public class PropertiesFacade {
 	public TwitterSiteProperties getTwitterSiteProperties(int accountId) throws IllegalArgumentException, IOException, NotFoundException {
 		Properties properties = getProperties();
 		String consumerKey = properties.getProperty(TWITTER_CONSUMER_KEY);
-		String consumerSecret = properties.getProperty(TWITTER_COnSUMER_SECRET);
+		String consumerSecret = properties.getProperty(TWITTER_CONSUMER_SECRET);
 		String accessToken = properties.getProperty(TWITTER_ACCESS_TOKEN_KEY+accountId);
 		String accessTokenSecret = properties.getProperty(TWITTER_ACCESS_TOKEN_SECRET+accountId);
 		System.out.println("accountID:"+accountId+" CK:"+consumerKey+" CS:"+consumerSecret+" AT:"+accessToken+" ATS:"+accessTokenSecret);
