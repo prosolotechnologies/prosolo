@@ -102,7 +102,7 @@
 					$("#chart").html("<span>#{dashboardBean.noResultsFoundMessage}</span>");
 				} else {
 					new tauCharts.Chart({
-					    data: data,
+					    data: data.map((e) => { e.date = new Date(e.date * 86400000); return e; }),
 					    type: 'line',
 					    x: 'date',
 					    y: 'count',
