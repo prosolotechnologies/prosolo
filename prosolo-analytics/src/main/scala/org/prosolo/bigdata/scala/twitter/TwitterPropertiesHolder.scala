@@ -1,6 +1,7 @@
 package org.prosolo.bigdata.scala.twitter
 import twitter4j.conf.ConfigurationBuilder
-import org.prosolo.bigdata.twitter.{ PropertiesFacade, TwitterSiteProperties, StreamListData }
+import org.prosolo.bigdata.twitter.StreamListData
+import org.prosolo.common.twitter.{PropertiesFacade, TwitterSiteProperties}
 /**
  * @author zoran Aug 8, 2015
  */

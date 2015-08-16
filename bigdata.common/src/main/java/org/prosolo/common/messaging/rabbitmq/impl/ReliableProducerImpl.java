@@ -188,7 +188,7 @@ public class ReliableProducerImpl  extends ReliableClientImpl implements Reliabl
 						.expiration(this.rabbitmqConfig.messageExpiration)
 						.build();
 				long deliveryTag = this.channel.getNextPublishSeqNo();
-				System.out.println("PUBLISH:"+item.getData()+" "+this.queue);
+				//System.out.println("PUBLISH:"+item.getData()+" "+this.queue);
 				this.channel.basicPublish("", this.queue, messageProperties,
 						item.getData().getBytes());
 				// only after successfully publishing, move the item to the

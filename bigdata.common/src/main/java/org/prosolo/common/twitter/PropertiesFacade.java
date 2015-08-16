@@ -1,12 +1,14 @@
-package org.prosolo.bigdata.twitter;
+package org.prosolo.common.twitter;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Properties;
 import java.util.Queue;
 
+//import org.prosolo.bigdata.twitter.NotFoundException;
+//import org.prosolo.bigdata.twitter.TwitterSiteProperties;
+import org.prosolo.common.config.CommonSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +30,8 @@ public class PropertiesFacade {
 	
 	private Properties getProperties() throws IllegalArgumentException,	IOException {
 		// String propertiesFile = PROPERTIES.get(propertyKey);
-		String pathOfTwitterProperties = "config/twitter4j.properties";
+		String pathOfTwitterProperties = "config/twitter4j"+CommonSettings.getInstance().config.getNamespaceSufix()+".properties";
+		System.out.println("PATH OF TWITTER PROPERTIES:"+pathOfTwitterProperties);
 		Properties properties = new Properties();
 		InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(pathOfTwitterProperties);
 		properties.load(is);

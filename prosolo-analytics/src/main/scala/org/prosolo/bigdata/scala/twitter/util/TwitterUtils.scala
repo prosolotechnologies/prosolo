@@ -14,9 +14,9 @@ object TwitterUtils {
        val userid:Int=data.get("userid").getAsInt
        val goalid:Int=data.get("goalid").getAsInt
        val newhtags= data.get("newhashtags").getAsString
-      val newhashtags:Array[String] =newhtags.toString().split(",").map { "#"+_.toString() }
+      val newhashtags:Array[String] =newhtags.toString().split(",").filter { x => x.length>0 }.map { "#"+_.toString() }
        val oldhtags= data.get("oldhashtags").getAsString
-        val oldhashtags:Array[String] =oldhtags.toString().split(",").map { "#"+_.toString() }
+        val oldhashtags:Array[String] =oldhtags.toString().split(",").filter { x => x.length>0 }.map { "#"+_.toString() }
        var addedHashtags:ListBuffer[String]=new ListBuffer[String]()
        var removedHashtags:ListBuffer[String]=new ListBuffer[String]()
        for(nTag <- newhashtags){

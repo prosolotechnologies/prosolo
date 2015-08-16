@@ -1,4 +1,4 @@
-package org.prosolo.bigdata.twitter;
+package org.prosolo.common.twitter;
 
 /**
  * @author Zoran Jeremic 2013-08-11

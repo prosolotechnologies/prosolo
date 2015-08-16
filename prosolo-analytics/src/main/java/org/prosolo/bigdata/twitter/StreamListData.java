@@ -35,6 +35,7 @@ public class StreamListData  implements Serializable{
 		return streamId;
 	}
 	public void setStreamId(Integer streamId) {
+		System.out.println("SET STREAM ID:"+streamId);
 		this.streamId = streamId;
 	}
 	public String getHashtag() {

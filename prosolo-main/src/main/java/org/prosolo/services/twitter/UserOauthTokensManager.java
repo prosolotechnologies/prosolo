@@ -1,6 +1,4 @@
-/**
- * 
- */
+
 package org.prosolo.services.twitter;
 
 import java.util.List;

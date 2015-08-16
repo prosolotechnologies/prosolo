@@ -4,6 +4,9 @@ package org.prosolo.bigdata.twitter;
 import java.io.IOException;
 
 import org.junit.Test;
+import org.prosolo.common.twitter.NotFoundException;
+import org.prosolo.common.twitter.PropertiesFacade;
+import org.prosolo.common.twitter.TwitterSiteProperties;
 
 /**
 @author Zoran Jeremic Jun 20, 2015

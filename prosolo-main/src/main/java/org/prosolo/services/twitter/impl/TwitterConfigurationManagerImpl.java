@@ -3,9 +3,11 @@ package org.prosolo.services.twitter.impl;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
-import org.prosolo.services.twitter.PropertiesFacade;
+import org.prosolo.common.twitter.NotFoundException;
+import org.prosolo.common.twitter.PropertiesFacade;
+//import org.prosolo.services.twitter.PropertiesFacade;
 import org.prosolo.services.twitter.TwitterConfigurationManager;
-import org.prosolo.services.twitter.TwitterSiteProperties;
+import org.prosolo.common.twitter.TwitterSiteProperties;
 import org.springframework.stereotype.Service;
 
 import twitter4j.Twitter;
@@ -32,6 +34,9 @@ public class TwitterConfigurationManagerImpl implements TwitterConfigurationMana
 		} catch (IllegalArgumentException e) {
 			logger.error(e);
 		} catch (IOException e) {
+			logger.error(e);
+		} catch (NotFoundException e) {
+			// TODO Auto-generated catch block
 			logger.error(e);
 		}
 		

@@ -70,13 +70,16 @@ public class TwitterStreamingDAOImpl extends DAOImpl implements TwitterStreaming
 				Object[] object = (Object[]) resultIt.next();
 				String title = (String) object[0];
 				Long lgId = (Long) object[1];
-				if (hashtagsLearningGoalIds.containsKey(title)) {
-					hashtagsLearningGoalIds.get(title).addGoalId(lgId);
-				} else {
-					StreamListData listData = new StreamListData(title);
-					listData.addGoalId(lgId);
-					hashtagsLearningGoalIds.put("#"+title, listData);
+				if(title.length()>3){
+					if (hashtagsLearningGoalIds.containsKey(title)) {
+						hashtagsLearningGoalIds.get(title).addGoalId(lgId);
+					} else {
+						StreamListData listData = new StreamListData(title);
+						listData.addGoalId(lgId);
+						hashtagsLearningGoalIds.put("#"+title, listData);
+					}
 				}
+				
 			}
 		}
 		return hashtagsLearningGoalIds;

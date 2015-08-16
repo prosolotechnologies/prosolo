@@ -1,7 +1,6 @@
 package org.prosolo.config;
 
-import org.prosolo.common.config.ElasticSearchConfig;
-import org.prosolo.common.config.hibernate.HibernateConfig;
+
 import org.prosolo.config.admin.AdminConfig;
 import org.prosolo.config.app.AppConfig;
 import org.prosolo.config.fileManagement.FileManagementConfig;

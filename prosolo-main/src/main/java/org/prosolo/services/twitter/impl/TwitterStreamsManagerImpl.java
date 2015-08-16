@@ -16,15 +16,17 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.messaging.data.ServiceType;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.messaging.SystemMessageDistributer;
-import org.prosolo.services.twitter.PropertiesFacade;
+import org.prosolo.common.twitter.NotFoundException;
+import org.prosolo.common.twitter.PropertiesFacade;
 import org.prosolo.services.twitter.TwitterHashtagsQueueHandler;
-import org.prosolo.services.twitter.TwitterSiteProperties;
+import org.prosolo.common.twitter.TwitterSiteProperties;
 import org.prosolo.services.twitter.TwitterStreamsManager;
 import org.prosolo.services.twitter.UserOauthTokensManager;
 import org.prosolo.util.string.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+
 import twitter4j.FilterQuery;
 import twitter4j.TwitterStream;
 import twitter4j.TwitterStreamFactory;
@@ -34,6 +36,7 @@ import twitter4j.auth.AccessToken;
  * @author Zoran Jeremic 2013-08-11
  * 
  */
+@Deprecated
 //@Service("org.prosolo.services.twitter.TwitterStreamsManager")
 public class TwitterStreamsManagerImpl implements TwitterStreamsManager {
 
@@ -115,6 +118,9 @@ public class TwitterStreamsManagerImpl implements TwitterStreamsManager {
 		} catch (IllegalArgumentException e) {
 			logger.error(e);
 		} catch (IOException e) {
+			logger.error(e);
+		} catch (NotFoundException e) {
+			// TODO Auto-generated catch block
 			logger.error(e);
 		}
 

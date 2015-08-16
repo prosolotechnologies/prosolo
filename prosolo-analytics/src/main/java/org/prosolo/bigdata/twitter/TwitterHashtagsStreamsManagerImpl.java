@@ -13,6 +13,8 @@ import org.apache.spark.streaming.api.java.JavaStreamingContext;
 //import org.apache.spark.streaming.twitter.TwitterUtils;
 import org.prosolo.bigdata.dal.persistence.impl.TwitterStreamingDAOImpl;
 import org.prosolo.bigdata.spark.SparkLauncher;
+import org.prosolo.common.twitter.PropertiesFacade;
+import org.prosolo.common.twitter.TwitterSiteProperties;
 
 import com.twitter.chill.Base64.InputStream;
 
