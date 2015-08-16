@@ -114,6 +114,7 @@ public class LoggingEventsObserver implements EventObserver {
 			EventType.Delete,
 			EventType.Follow,
 			EventType.Unfollow,
+			EventType.Registered,
 			EventType.MarkAsFavourite,
 			EventType.FollowEvent,
 			EventType.Create_recommendation,
