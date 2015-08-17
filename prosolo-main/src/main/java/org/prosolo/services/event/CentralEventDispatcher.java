@@ -134,14 +134,14 @@ public class CentralEventDispatcher {
 		private void processEvent() {
 			
 			EventType[] eventClasses = observer.getSupportedEvents();
-			if (isInEventTypeArray(eventClasses, event.getAction())) {
+			if (eventClasses == null || isInEventTypeArray(eventClasses, event.getAction())) {
 				Class<?>[] resourceClasses = observer.getResourceClasses();
 				if (resourceClasses == null || event.getObject() == null ||
 						(resourceClasses != null && event.getObject() != null && 
 							isInClassArray(resourceClasses, event.getObject().getClass())) ||
 						(resourceClasses != null && event.getTarget() != null && 
 							isInClassArray(resourceClasses, event.getTarget().getClass()))) {
-									observer.handleEvent(event);
+								observer.handleEvent(event);
 				}
 			}
 		}
