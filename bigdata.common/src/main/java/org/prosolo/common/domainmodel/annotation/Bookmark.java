@@ -8,12 +8,15 @@ import org.prosolo.common.domainmodel.annotation.SimpleAnnotation;
 
 @Entity
 public class Bookmark extends SimpleAnnotation {
+	
+	private static final long serialVersionUID = 9183456963247569128L;
+	
+	public Bookmark() { }
 
 	public Bookmark(AnnotationType annType) {
 		super(annType);
 	}
 
-	private static final long serialVersionUID = 9183456963247569128L;
 
 	/**
 	 * the URL of the bookmarked resource (e.g., a web page)
