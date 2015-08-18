@@ -34,7 +34,6 @@ public class PropertiesFacade {
 	private Properties getProperties() throws IllegalArgumentException,	IOException {
 		// String propertiesFile = PROPERTIES.get(propertyKey);
 		String pathOfTwitterProperties = "config/twitter4j"+CommonSettings.getInstance().config.getNamespaceSufix()+".properties";
-		System.out.println("PATH OF TWITTER PROPERTIES:"+pathOfTwitterProperties);
 		Properties properties = new Properties();
 		InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(pathOfTwitterProperties);
 		properties.load(is);
@@ -49,7 +48,6 @@ public class PropertiesFacade {
 		String consumerSecret = properties.getProperty(TWITTER_CONSUMER_SECRET);
 		String accessToken = properties.getProperty(TWITTER_ACCESS_TOKEN_KEY+accountId);
 		String accessTokenSecret = properties.getProperty(TWITTER_ACCESS_TOKEN_SECRET+accountId);
-		System.out.println("accountID:"+accountId+" CK:"+consumerKey+" CS:"+consumerSecret+" AT:"+accessToken+" ATS:"+accessTokenSecret);
 		if(accessToken==null){
 			throw new NotFoundException();
 		}
@@ -68,9 +66,7 @@ public class PropertiesFacade {
 		 while(hasmore){
 			 try {
 				TwitterSiteProperties twitterSiteProperties=pFacade.getTwitterSiteProperties(accountId);
-				System.out.println("ADDING TwitterSiteProperties:"+gson.toJson(twitterSiteProperties));
 				if(twitterSiteProperties.getAccessToken()!=null && twitterSiteProperties.getAccessToken().length()>10){
-					System.out.println("ADDED:"+accountId+" accessToken:"+twitterSiteProperties.getAccessToken());
 					properties.add(twitterSiteProperties);
 					accountId++;
 				}				

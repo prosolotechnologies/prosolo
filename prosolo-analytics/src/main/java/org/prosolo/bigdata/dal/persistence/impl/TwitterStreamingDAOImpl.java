@@ -45,7 +45,6 @@ public class TwitterStreamingDAOImpl extends DAOImpl implements
 
 	@Override
 	public Map<String, StreamListData> readAllHashtagsAndLearningGoalsIds() {
-		System.out.println("read all hashtags and learning goals ids...");
 		// EntityManager em =
 		// org.prosolo.bigdata.dal.persistence.EntityManagerUtil.getEntityManagerFactory()
 		// .createEntityManager();
@@ -79,6 +78,7 @@ public class TwitterStreamingDAOImpl extends DAOImpl implements
 
 			}
 		}
+	
 		return hashtagsLearningGoalIds;
 	}
 
@@ -91,7 +91,7 @@ public class TwitterStreamingDAOImpl extends DAOImpl implements
 				+ "FROM TopicPreference topicPreference "
 				+ "LEFT JOIN topicPreference.user user "
 				+ "LEFT JOIN topicPreference.preferredHashtags hashtag  WHERE hashtag.id > 0";
-
+		System.out.println("HASHTAGS QUERY:"+query);
 		@SuppressWarnings("unchecked")
 		List<Object> result = getEntityManager().createQuery(query)
 				.getResultList();
@@ -116,6 +116,7 @@ public class TwitterStreamingDAOImpl extends DAOImpl implements
 			}
 		}
 		// em.close();
+
 		return hashtagsUserIds;
 	}
 

@@ -53,51 +53,41 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
        listData.addUsersIds(userIds)
        hashtagsAndReferences.put(hashtag,listData)
     }
-  // val currentFilterList:ListBuffer[String]= 0
-     val currentFilterList:ListBuffer[String]=new ListBuffer[String]()
-     currentFilterList++=hashtagsAndReferences.keys
-    startStreamsForInitialSetOfData(currentFilterList)
+    
+    startStreamsForInitialSetOfData
   }
   /**
    * Start streams for all hashtags pulled from database
    */
-  def startStreamsForInitialSetOfData(currentFilterList:ListBuffer[String]){
-     //initializeNewCurrentListAndStream
-   // val currentFilterList:ListBuffer[String]=getLatestStreamAndList._2
+  def startStreamsForInitialSetOfData(){
+     val currentFilterList:ListBuffer[String]=new ListBuffer[String]()
     for((tag,streamListData) <-hashtagsAndReferences){
       currentFilterList+=(tag)
       currentFilterList.size match {
         case x if x > STREAMLIMIT =>initializeNewCurrentListAndStream(currentFilterList)
         case _ => 
       }
-      println("start streams for initial set of data setting stream id to:"+streamsCounter)
       streamListData.setStreamId(streamsCounter)      
     }
    initializeNewCurrentListAndStream(currentFilterList)
   }
   def getLatestStreamAndList():Tuple2[TwitterStream,ListBuffer[String]]={
-    println("latest counter:"+streamsCounter)
-  
-   twitterStreamsAndHashtags.get(streamsCounter-1) match{
+     twitterStreamsAndHashtags.get(streamsCounter-1) match{
       case None =>  null   
       case x:Option[(TwitterStream,ListBuffer[String])] => x.get
         
     }
   }
     def getLatestStreamList():ListBuffer[String]={
-       println(" get latest list latest counter:"+streamsCounter)
-       twitterStreamsAndHashtags.get(streamsCounter-1) match{
+      twitterStreamsAndHashtags.get(streamsCounter-1) match{
       case None =>  new ListBuffer[String]
       case x:Option[(TwitterStream,ListBuffer[String])] => x.get._2
       
     }
   }
   def initializeNewCurrentListAndStream(newCurrentFilterList:ListBuffer[String]){
-     //val newCurrentFilterList:ListBuffer[String]=getLatestStreamAndList._2
-    println("initializeNewCurrentListAndStream here for:"+newCurrentFilterList)
      if(newCurrentFilterList.size>0){
        val (stream, streamId):Tuple2[TwitterStream,Int] =initializeNewStream(newCurrentFilterList)
-       println("initialize new current list and stream with id:"+streamId)
        twitterStreamsAndHashtags.put(streamId,(stream,newCurrentFilterList))
      }
      
@@ -111,21 +101,17 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
      
     for(hashtag <- hashtags){
        if(currentFilterList.size>STREAMLIMIT ){
-        println("SHOULD RESTART OLD IN THIS CASE:"+streamsCounter)
-
-        restartStream(getLatestStreamAndList._1, getLatestStreamAndList._2)
+         restartStream(getLatestStreamAndList._1, getLatestStreamAndList._2)
          initializeNewCurrentListAndStream(currentFilterList)
         changed=false
-        // currentFilterList.remove(0,currentFilterList.size);
       }
-      // first=false;
       hashtagsAndReferences.contains(hashtag) match{        
         case true => 
-        case _ => currentFilterList+=(hashtag); changed=true; 
-      }
-     
+        case _ => if(!currentFilterList.contains(hashtag)) {
+             currentFilterList+=(hashtag); changed=true; 
+        }
+      }     
        val listData:StreamListData= hashtagsAndReferences.getOrElseUpdate(hashtag, new StreamListData(hashtag, userId, goalId))
-       println("add new hashtag setting stream id from counter:"+streamsCounter)
        val streamid=if(streamsCounter==0) 0 else streamsCounter-1
        listData.setStreamId(streamid)
      }
@@ -147,15 +133,12 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
           changedIds+=changedId
         }
         hashtagsAndReferences.remove(hashtag)   
-        println("trying to access changedId:"+changedId)
         val streamHashtagsTuple:(TwitterStream,ListBuffer[String])=twitterStreamsAndHashtags.get(changedId).get
        val newhashtags:ListBuffer[String]= streamHashtagsTuple._2.filterNot(p => p==hashtag)
-        println("SHOULD BE REMOVED HERE:"+hashtags+" hashtag:"+hashtag+" newhashtags:"+newhashtags)
        twitterStreamsAndHashtags.put(changedId, (streamHashtagsTuple._1,newhashtags))
        
       }
     }
-    println("CHANGED IDS:"+changedIds.toList)
     changedIds
   }
   /**
@@ -182,7 +165,6 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
       }
       
    }
-   println("CURRENT STREAM CHANGED:"+currentStreamChanged+" CHANGED IDS:"+changedIds)
  if(currentStreamChanged && streamsCounter>0){
    println("changed ids:"+changedIds)
     if(changedIds.contains(streamsCounter-1)){
@@ -193,13 +175,10 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
  } 
  if(!changedIds.isEmpty){
    for(streamid <- changedIds){
-     println("Restarting stream :"+streamid)
      val streamTagsTuple=twitterStreamsAndHashtags.get(streamid).get
      if(streamTagsTuple._2.size>0){
        restartStream(streamTagsTuple._1,streamTagsTuple._2)
      }else{
-       println("nothing in this stream. should terminate")
-       
        terminateStream(streamTagsTuple._1)
        twitterStreamsAndHashtags.remove(streamid)
      }
@@ -217,15 +196,10 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
   def restartStream(twitterStream:TwitterStream, filters: ListBuffer[String]){//twitterStream:TwitterStream, streamId:Int){
 
        twitterStream.cleanUp()
-   println("RESTART WITH:"+filters)
      val filterQuery:FilterQuery=new FilterQuery().track(filters:_*)
-      // val track:String=filters.mkString(",")
     twitterStream.filter(filterQuery)
-
    }
   def terminateStream(twitterStream:TwitterStream){
-
-     println("Empty stream. Terminate connection")
      twitterStream.shutdown()
 
   }
