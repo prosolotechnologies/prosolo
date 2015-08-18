@@ -52,8 +52,6 @@ object TwitterUsersStreamsManager extends TwitterStreamsManager {
   }
    
   def initializeNewCurrentListAndStream(newCurrentFilterList:ListBuffer[Long]){
-    println("INITIALIZE NEW CURRENT LIST AND STREAM")
-     //val newCurrentFilterList:ListBuffer[Long]=new ListBuffer[Long]
      if(newCurrentFilterList.size>0){
       val (stream, streamId):Tuple2[TwitterStream,Int] =initializeNewStream(newCurrentFilterList)
       twitterStreamsAndUsers.put(streamId,(stream,newCurrentFilterList))
@@ -71,29 +69,22 @@ object TwitterUsersStreamsManager extends TwitterStreamsManager {
     if(shouldAdd)addNewTwitterUser(userid) else removeTwitterUser(userid)
   }
   private def addNewTwitterUser(userid:Long){
-    println("Adding new twitter user to follow:"+userid)
     if(!usersAndStreamsIds.contains(userid)){
-      println("User is not followed. Start following now")
         val currentFilterList:ListBuffer[Long]= getLatestStreamAndList._2
         currentFilterList+=userid
        if(currentFilterList.size>STREAMLIMIT){
-        println("SHOULD RESTART OLD IN THIS CASE")
         restartStream(getLatestStreamAndList._1,getLatestStreamAndList._2)
          initializeNewCurrentListAndStream(currentFilterList)
-        // currentFilterList.remove(0,currentFilterList.size);
       }else{
         restartStream(getLatestStreamAndList._1,getLatestStreamAndList._2)
       }
     }
   }
   private def removeTwitterUser(userid:Long){
-     println("Removing twitter user to follow:"+userid)
       if(usersAndStreamsIds.contains(userid)){
-          println("User found should be removed now:"+userid)
           val streamId=usersAndStreamsIds.get(userid);
           val streamUsersTuple:(TwitterStream,ListBuffer[Long])= twitterStreamsAndUsers.get(streamId.get).get
           val newusers:ListBuffer[Long]= streamUsersTuple._2.filterNot(p => p==userid)
-          println("SHOULD BE REMOVED HERE USERS:"+userid+" new users:" +newusers)
           twitterStreamsAndUsers.put(streamId.get,(streamUsersTuple._1,newusers))
           usersAndStreamsIds.remove(userid)
           restartStream(streamUsersTuple._1, newusers)
@@ -110,7 +101,6 @@ object TwitterUsersStreamsManager extends TwitterStreamsManager {
   }
   def restartStream(twitterStream:TwitterStream, filters: ListBuffer[Long]){//twitterStream:TwitterStream, streamId:Int){
   twitterStream.cleanUp()
-   println("RESTART WITH:"+filters)
    val filterQuery:FilterQuery=new FilterQuery().follow(filters:_*)
     twitterStream.filter(filterQuery)
   }

@@ -37,7 +37,6 @@ object TwitterStatusBuffer {
   }
   
   def processBufferStatuses(){
-    println("PRoces buffer statuses")
     val statuses=pullStatuses
     val sc=SparkContextLoader.getSC
     val statusesRDD=sc.parallelize(statuses)
