@@ -1,5 +1,7 @@
 package org.prosolo.services.reporting;
 
+import java.util.Arrays;
+
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
@@ -22,7 +24,7 @@ public class UserActivityStatisticsObserver implements EventObserver {
 
 	@Override
 	public EventType[] getSupportedEvents() {
-		return new EventType[] { EventType.Registered };
+		return new EventType[] { EventType.Registered, EventType.LOGIN };
 	}
 
 	@SuppressWarnings("unchecked")
@@ -33,15 +35,12 @@ public class UserActivityStatisticsObserver implements EventObserver {
 
 	@Override
 	public void handleEvent(Event event) {
-		if (!event.getAction().equals(EventType.Registered)) {
-			return;
-		}
-		System.out.println("UserActivityObserver handling event");
+		System.out.println("UserActivityStatisticsObserver handling event");
 		logger.info("comming in event with action: " + event.getAction());
 		logger.info("comming in event with actor: " + event.getActor());
 		logger.info("comming in event with object: " + event.getObject());
 		logger.info("comming in event with target: " + event.getTarget());
-		collector.increaseRegisteredUserCount(event.getAction(), DateUtil.getDaysSinceEpoch());
+		collector.increaseUserEventCount(event.getAction(), DateUtil.getDaysSinceEpoch());
 	}
 
 }

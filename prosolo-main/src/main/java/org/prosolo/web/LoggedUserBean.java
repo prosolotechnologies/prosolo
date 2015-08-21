@@ -19,7 +19,6 @@ import javax.servlet.http.HttpSessionBindingListener;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.course.Course;
@@ -28,6 +27,7 @@ import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSetting
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.activityWall.ActivityWallManager;
 import org.prosolo.services.activityWall.filters.AllFilter;
 import org.prosolo.services.activityWall.filters.AllProsoloFilter;
@@ -39,6 +39,7 @@ import org.prosolo.services.activityWall.filters.MyNetworkFilter;
 import org.prosolo.services.activityWall.filters.TwitterFilter;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.authentication.AuthenticationService;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.logging.AccessResolver;
@@ -83,7 +84,8 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	@Autowired private LearningGoalManager learningGoalManager;
 	@Autowired private CourseManager courseManager;
 	@Autowired private CompetenceManager competenceManager;
-	
+	@Autowired private EventFactory eventFactory;
+
 	private User user;
 	private String email;
 	private String password;
@@ -279,7 +281,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 				logger.debug("User \"" + email + "\" initialized");
 				ipAddress = accessResolver.findRemoteIPAddress();
 				logger.debug("User \"" + email + "\" IP address:" + ipAddress);
-				loggingService.logEvent(EventType.LOGIN, this.user, this.getIpAddress());
+				eventFactory.generateEvent(EventType.LOGIN, user);
 				logger.debug("User \"" + email + "\" redirecting user to index page");
 				FacesContext.getCurrentInstance().getExternalContext().redirect("index.xhtml");
 				return;

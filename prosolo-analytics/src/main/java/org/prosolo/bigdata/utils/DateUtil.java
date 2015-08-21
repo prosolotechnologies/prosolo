@@ -2,6 +2,7 @@ package org.prosolo.bigdata.utils;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * @author Zoran Jeremic May 23, 2015
@@ -35,7 +36,7 @@ public class DateUtil {
 	public static long getFirstDayOfMonth(long day) {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(milliseconds(day));
-		calendar.set(Calendar.DAY_OF_MONTH, 0);
+		calendar.set(Calendar.DAY_OF_MONTH, 1);
 		return days(calendar.getTimeInMillis());
 	}
 

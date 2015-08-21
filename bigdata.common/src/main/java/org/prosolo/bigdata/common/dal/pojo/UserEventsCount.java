@@ -1,6 +1,6 @@
 package org.prosolo.bigdata.common.dal.pojo;
 
-public class RegisteredUsersCount {
+public class UserEventsCount {
 	
 	private String type;
 	
@@ -32,10 +32,10 @@ public class RegisteredUsersCount {
 		this.date = date;
 	}
 
-	public RegisteredUsersCount(String type, int count, long date) {
+	public UserEventsCount(String type, long date, int count) {
 		this.type = type;
-		this.count = count;
 		this.date = date;
+		this.count = count;
 	}	
 
 }

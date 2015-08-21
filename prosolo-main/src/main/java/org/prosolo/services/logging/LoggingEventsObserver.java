@@ -90,71 +90,7 @@ public class LoggingEventsObserver implements EventObserver {
 
 	@Override
 	public EventType[] getSupportedEvents() {
-		return new EventType[] { 
-			EventType.ChangeVisibility,
-			EventType.AcceptRecommendation, 
-			EventType.Assessment,
-			EventType.ChangeVisibility, 
-			EventType.Like,
-			EventType.RemoveLike, 
-			EventType.RemoveDislike,
-			EventType.Dislike, 
-			EventType.Post,
-			EventType.PostUpdate,
-			EventType.TwitterPost,
-			EventType.AddNote,
-			EventType.PostShare,
-			EventType.Comment,
-			EventType.Tag,
-			EventType.Attach,
-			EventType.AttachAll,
-			EventType.Detach,
-			EventType.Edit,
-			EventType.Create,
-			EventType.Delete,
-			EventType.Follow,
-			EventType.Unfollow,
-			EventType.Registered,
-			EventType.MarkAsFavourite,
-			EventType.FollowEvent,
-			EventType.Create_recommendation,
-			EventType.DISMISS_RECOMMENDATION,
-			EventType.Completion,
-			EventType.NotCompleted,
-			EventType.GiveRecognition,
-			EventType.ChangeProgress,
-			EventType.RequestSent,
-			EventType.Event,
-			EventType.CommentsEnabled,
-			EventType.CommentsDisabled,
-			EventType.HIDE_SOCIAL_ACTIVITY,
-
-			// content types
-			EventType.FileUploaded,
-			EventType.LinkAdded,
-
-			// requests
-			EventType.JOIN_GOAL_REQUEST,
-			EventType.JOIN_GOAL_REQUEST_APPROVED,
-			EventType.JOIN_GOAL_REQUEST_DENIED,
-			EventType.JOIN_GOAL_INVITATION,
-			EventType.JOIN_GOAL_INVITATION_ACCEPTED,
-			EventType.EVALUATION_REQUEST,
-
-			// evaluations
-			EventType.EVALUATION_ACCEPTED, 
-			EventType.EVALUATION_GIVEN,
-//			EventType.EVALUATION_EDITED,
-
-			EventType.SEND_MESSAGE, 
-			EventType.START_MESSAGE_THREAD,
-
-			EventType.ENROLL_COURSE, 
-			EventType.COURSE_COMPLETED, 
-			EventType.SEND_TO_LEARN,
-			EventType.ACTIVATE_COURSE,
-			EventType.COURSE_WITHDRAWN,
-		};
+		return EventType.values();
 	}
 
 }
