@@ -1,0 +1,64 @@
+@CHARSET "UTF-8";
+
+#dashboard h1 {
+	float: none;
+	margin-bottom: 1em;
+}
+
+#dashboard .dateField {
+	width: 62px;
+	height: 23px;
+	cursor: default;
+}
+
+#dashboard #timeRange .ui-datepicker-trigger {
+	margin-right: 1em;
+}
+
+#dashboard #timeRange strong {
+	margin-right: 0.3em;
+}
+
+#dashboard #chart {
+	padding-top: 24px;
+	clear: both;
+}
+
+#dashboard .dateField {
+	margin-right: 9px;
+}
+
+#dashboard #timeRange {
+	float: left;
+}
+
+#dashboard #period {
+	float: right;
+}
+
+#dashboard #period input[type=radio] {
+	display: none;
+	margin: 10px;
+}
+
+#dashboard #period input[type=radio]+label {
+	display: inline-block;
+	margin: -2px;
+	padding: 8px 18px;
+	background-color: #e7e7e7;
+	border-color: #ddd;
+	border: 2px #ddd solid;
+	cursor: pointer;
+}
+
+#dashboard #period input[type=radio]:checked+label {
+	background-image: none;
+	background-color: #d0d0d0;
+}
+
+#dashboard .loader {
+	background-image: url('/resources/images/style/ajax-loader-black.gif');
+	background-repeat: no-repeat;
+	background-position: center;
+	height: 180px;
+}

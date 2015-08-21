@@ -11,161 +11,16 @@
 		Administration: Dashboard
 	</ui:define>
 
-	<ui:define name="content">
-		
-		<style type="text/css">
-			#dashboard h1 {
-				float: none;
-				margin-bottom: 1em;
-			}
-			
-			#dashboard .dateField {
-				width: 62px;
-				height: 23px;
-				cursor: default;
-			}
-			
-			#dashboard #timeRange .ui-datepicker-trigger {
-				margin-right: 1em;
-			}
-			
-			#dashboard #timeRange strong {
-				margin-right: 0.3em;
-			}
-			
-			#dashboard #chart {
-				padding-top: 24px;
-				clear: both;
-			}
-			
-			#dashboard .dateField {
-				margin-right: 9px;
-			}
-			
-			#dashboard #timeRange {
-				float: left;
-			}
-			
-			#dashboard #period {
-				float: right;
-			}
-			
-			#dashboard #period input[type=radio] {
-			    display: none; 
-			    margin: 10px;
-			}
-			 
-			#dashboard #period input[type=radio] + label {
-			    display: inline-block;
-			    margin: -2px;
-			    padding: 8px 18px;
-			    background-color: #e7e7e7;
-			    border-color: #ddd;
-			    border: 2px #ddd solid;
-			    cursor: pointer;
-			}
-			
-			#dashboard #period input[type=radio]:checked + label { 
-			   	background-image: none;
-			    background-color: #d0d0d0;
-			}
-			
-			#dashboard .loader {
-				background-image: url('/resources/images/style/ajax-loader-black.gif');
-			    background-repeat: no-repeat;
-    			background-position: center; 
-				height: 180px;
-			}
-		</style>
-		
-		<script type="text/javascript">
-		$(function(){
-			$.extend($.datepicker,{_checkOffset:function(inst,offset,isFixed){return offset}});
-			$( ".dateField" ).datepicker({
-				showOn: "both",
-				buttonImage: "../resources/css/prosolo-theme/images/calendar18x15.png",
-				buttonImageOnly: true,
-				dateFormat: "dd.mm.yy.",
-				changeMonth: true,
-				changeYear: true,
-				showOtherMonths: true,
-				selectOtherMonths: true,
-				onSelect: function(dateText, inst) {
-					if ($("[name='stats']:checked").size() == 0) {
-						return;
-					}
-					loadChart($("#dateFrom").val(), $("#dateTo").val(), $("[name='periods']:checked").val(), checkedStats());
-			    }
-			});
-			$( ".dateField" ).datepicker('setDate', new Date());
-			
-			$("[name='stats']").change(function() {
-				if ($("[name='stats']:checked").size() == 0) {
-					return;
-				}
-				loadChart($("#dateFrom").val(), $("#dateTo").val(), $("[name='periods']:checked").val(), checkedStats());
-			});
-			
-			$("[name='periods']").change(function() {
-				if ($("[name='stats']:checked").size() == 0) {
-					return;
-				}
-				if ($(this).is(":checked")) {
-					loadChart($("#dateFrom").val(), $("#dateTo").val(), $("[name='periods']:checked").val(), checkedStats());
-				}
-			});
-			
-			if ($("[name='stats']:checked").size() == 0) {
-				return;
-			}
-			loadChart($("#dateFrom").val(), $("#dateTo").val(), $("[name='periods']:checked").val(), checkedStats());
-		});
-		
-		function checkedStats() {
-			var result = [];
-			if ($("#newusers").is(":checked")) { result.push("newusers")};
-			if ($("#logins").is(":checked")) { result.push("logins")};
-			return result;
-		}
-		
-		function utc(date) { 
-	    	return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds()); 
-	    }
-	
-		function loadChart(dateFrom, dateTo, period, stats){
-			$("#chart").html('<div class="loader"></div>');
-			$.ajax({
-				url : "http://#{dashboardBean.apiHost}/api/users/activity/statistics",
-				type : "GET",
-				data : {dateFrom:dateFrom + " UTC", dateTo:dateTo + " UTC", period:period, stats:stats},
-				crossDomain: true,
-				dataType: 'json'
-			}).done(function(data) {
-				if (data.length==0) {
-					$("#chart").html("<span>#{dashboardBean.noResultsFoundMessage}</span>");
-				} else {
-					$("#chart").html("");
-					new tauCharts.Chart({
-					    data: data.map((e) => { e.date = utc(new Date(e.date * 86400000)); return e; }),
-					    type: 'line',
-					    x: 'date',
-					    y: 'count',
-					    color: 'type'
-					}).renderTo('#chart');
-				}
-			});
-		}
-		
-		</script>
-		
+	<ui:define name="content">		
 		<div id="dashboard" class="container admin">
 			<div class="content wide">
 				<label for="newusers">New users</label>
 				<input type="checkbox" name="stats" id="newusers" />
 				<label for="logind">Logins</label>
 				<input type="checkbox" name="stats" id="logins" />
+				<label for="homepageviews">Home page views</label>
+				<input type="checkbox" name="stats" id="homepageviews" />
 				<p>Choose date range:</p>
-    			
     			<div id="timeRange">
 	   				<strong>From:</strong>
 					<h:inputText class="dateField" id="dateFrom" required="false" onfocus="blur();">
