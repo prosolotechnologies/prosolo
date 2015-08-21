@@ -24,13 +24,13 @@ import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.interaction.AnalyticalServiceCollector;
 import org.prosolo.services.interaction.AnalyticalServiceDataFactory;
 import org.prosolo.services.nodes.DefaultManager;
-import org.prosolo.util.date.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

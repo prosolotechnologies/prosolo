@@ -11,11 +11,11 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.Node;
+import org.prosolo.common.util.date.DateUtil;
+import org.prosolo.common.util.date.TimeFrame;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.stats.GenericNodeStatisticsService;
-import org.prosolo.util.date.DateUtil;
-import org.prosolo.util.date.TimeFrame;
 import org.springframework.stereotype.Service;
 
 /**

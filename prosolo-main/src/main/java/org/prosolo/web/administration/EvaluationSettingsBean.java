@@ -12,11 +12,11 @@ import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.admin.ResourceSettingsManager;
 import org.prosolo.services.nodes.RoleManager;
-import org.prosolo.util.string.StringUtil;
 import org.prosolo.web.activitywall.data.UserData;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.ResourceDataUtil;

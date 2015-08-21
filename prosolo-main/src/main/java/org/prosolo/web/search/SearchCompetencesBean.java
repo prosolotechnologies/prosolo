@@ -11,10 +11,10 @@ import javax.faces.event.ValueChangeEvent;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
+import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.logging.ComponentName;
-import org.prosolo.util.string.StringUtil;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.search.data.CompetenceData;

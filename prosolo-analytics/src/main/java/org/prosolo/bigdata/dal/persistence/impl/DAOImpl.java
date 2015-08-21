@@ -17,15 +17,16 @@ public class DAOImpl implements DAO {
 		em = EntityManagerUtil.getEntityManager();
 	}
 
+	@Override
 	public void setEntityManager(EntityManager em) {
 		this.em = em;
 	}
-
+	@Override
 	public EntityManager getEntityManager() {
 		return em;
 	}
-
-	public BaseEntity persist(BaseEntity o) {
+	@Override
+	public <T> T persist(T o) {
 		try {
 			em.getTransaction().begin();
 			em.persist(o);
@@ -39,8 +40,8 @@ public class DAOImpl implements DAO {
 
 		return o;
 	}
-
-	public BaseEntity merge(BaseEntity o) {
+	@Override
+	public <T> T merge(T o) {
 		try {
 			em.getTransaction().begin();
 			em.merge(o);

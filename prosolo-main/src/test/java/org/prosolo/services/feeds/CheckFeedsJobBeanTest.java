@@ -13,8 +13,8 @@ public class CheckFeedsJobBeanTest extends TestContext {
 	
 	@Autowired
 	FeedsManager feedsManager;
-	@Autowired
-	FeedsAgregator feedsAgregator;
+	//@Autowired
+	//FeedsAgregator feedsAgregator;
 	
 	@Test
 	public void testExecute() {

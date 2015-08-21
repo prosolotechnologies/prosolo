@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.prosolo.common.domainmodel.user.LearningGoal;
-import org.prosolo.util.date.DateUtil;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.util.nodes.AnnotationUtil;
 import org.prosolo.web.activitywall.data.UserData;
 

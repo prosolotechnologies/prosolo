@@ -14,7 +14,7 @@ import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.organization.Visible;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
-import org.prosolo.util.date.DateUtil;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.util.nodes.AnnotationUtil;
 import org.prosolo.web.activitywall.data.NodeData;
 import org.prosolo.web.activitywall.data.UserData;

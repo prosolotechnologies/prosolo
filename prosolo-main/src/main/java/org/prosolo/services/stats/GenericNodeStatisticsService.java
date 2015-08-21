@@ -9,7 +9,7 @@ import java.util.Map;
 
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.Node;
-import org.prosolo.util.date.TimeFrame;
+import org.prosolo.common.util.date.TimeFrame;
 
 /**
  * @author Nikola Milikic

@@ -18,6 +18,7 @@ import org.hibernate.Session;
 import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.app.ResetKey;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.authentication.PasswordResetManager;
 import org.prosolo.services.authentication.exceptions.ResetKeyDoesNotExistException;
 import org.prosolo.services.authentication.exceptions.ResetKeyExpiredException;
@@ -25,7 +26,6 @@ import org.prosolo.services.authentication.exceptions.ResetKeyInvalidatedExcepti
 import org.prosolo.services.email.generators.PasswordRecoveryEmailContentGenerator;
 import org.prosolo.services.email.EmailSender;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.util.date.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

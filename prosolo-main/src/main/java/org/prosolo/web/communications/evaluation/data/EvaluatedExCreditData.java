@@ -4,7 +4,7 @@
 package org.prosolo.web.communications.evaluation.data;
 
 import org.prosolo.common.domainmodel.portfolio.ExternalCredit;
-import org.prosolo.util.date.DateUtil;
+import org.prosolo.common.util.date.DateUtil;
 
 
 /**

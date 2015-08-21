@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
-import org.prosolo.util.date.DateUtil;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.web.activitywall.data.UserData;
 
 public class MessageData implements Serializable, Comparable<MessageData> {

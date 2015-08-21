@@ -8,8 +8,8 @@ import java.util.Date;
 
 import org.prosolo.common.domainmodel.activitywall.comments.Comment;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
-import org.prosolo.util.date.DateUtil;
 
 /**
  * @author "Nikola Milikic"

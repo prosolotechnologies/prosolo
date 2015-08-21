@@ -20,7 +20,7 @@ import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.user.User;
 //import org.prosolo.util.nodes.CreatedAscComparator;
-import org.prosolo.util.date.DateUtil;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.util.nodes.AnnotationUtil;
 import org.prosolo.util.nodes.CreatedAscComparator;
 import org.prosolo.web.activitywall.data.UserData;

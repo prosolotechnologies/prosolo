@@ -16,7 +16,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.workflow.evaluation.Badge;
 import org.prosolo.common.domainmodel.workflow.evaluation.Evaluation;
 import org.prosolo.common.domainmodel.workflow.evaluation.EvaluationSubmission;
-import org.prosolo.util.date.DateUtil;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.util.nodes.NodeCreatedDescComparator;
 import org.prosolo.web.activitywall.data.NodeData;
 import org.prosolo.web.activitywall.data.UserData;

@@ -22,9 +22,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.prosolo.common.domainmodel.content.ContentType;
+import org.prosolo.common.util.net.HTTPSConnectionValidator;
 import org.prosolo.services.htmlparser.HTMLParser;
 import org.prosolo.services.htmlparser.Image;
-import org.prosolo.util.net.HTTPSConnectionValidator;
 import org.prosolo.web.activitywall.data.AttachmentPreview;
 import org.springframework.stereotype.Service;
 

@@ -26,7 +26,7 @@ import com.sun.syndication.io.XmlReader;
  * @author Zoran Jeremic Sep 30, 2014
  *
  */
-@Service("org.prosolo.services.feeds.FeedFinder")
+@Service("org.prosolo.bigdata.feeds.FeedFinder")
 public class FeedFinderImpl implements FeedFinder {
 	
 	private static Logger logger = Logger.getLogger(FeedFinderImpl.class);

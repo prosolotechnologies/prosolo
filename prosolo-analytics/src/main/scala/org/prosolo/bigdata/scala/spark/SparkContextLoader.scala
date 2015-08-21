@@ -27,8 +27,6 @@ object SparkContextLoader {
       sparkConf.set("spark.executor.memory", "512M")
       sparkConf.set("spark.driver.memory", "1G")
       sc = new SparkContext(sparkConf)
-     
-
     }
     sc
   }

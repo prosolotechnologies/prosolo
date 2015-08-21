@@ -19,6 +19,7 @@ import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.user.TimeFrame;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.FeedsPreferences;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.email.EmailSender;
 import org.prosolo.services.email.generators.FeedsEmailGenerator;
 import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
@@ -29,7 +30,6 @@ import org.prosolo.services.feeds.data.UserFeedSourceAggregate;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.util.date.DateUtil;
 import org.prosolo.web.digest.DigestBean;
 import org.prosolo.web.digest.FilterOption;
 import org.prosolo.web.digest.data.FeedsDigestData;
@@ -44,7 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Zoran Jeremic 2013-08-16
  * 
  */
-@Service("org.prosolo.services.feeds.FeedsManager")
+@Service("org.prosolo.bigdata.feeds.FeedsManager")
 public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManager {
 
 	private static final long serialVersionUID = 4703893591461610872L;

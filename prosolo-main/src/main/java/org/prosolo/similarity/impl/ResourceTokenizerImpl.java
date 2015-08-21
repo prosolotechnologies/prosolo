@@ -1,6 +1,5 @@
 package org.prosolo.similarity.impl;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -150,31 +149,4 @@ public class ResourceTokenizerImpl implements ResourceTokenizer {
 	private void getTokenizedStringForTargetActivity(TargetActivity tActivity, StringBuffer userTokensBuffer) {
 		userTokensBuffer.append(tActivity.getTitle() + " ");
 	}
-
-	@SuppressWarnings("unused")
-	@Deprecated
-	private String getTokenizedStringForLearningGoalAttachedDocuments(TargetLearningGoal tGoal,StringBuffer userTokensBuffer) throws IOException
-	//, ParseException 
-	{
-		String keywordsFound = "";
-		/*
-		List<RichContent> richContents = suggestedLearningQueries.findRichContentForLearningGoal(lGoal);
-		SearcherManager sm = luceneIndexerManager.getSearcherManagerForIndexWriter();
-		IndexSearcher is = sm.acquire();
-		
-		for (RichContent rContent : richContents) {
-			if (rContent != null) {
-				Query query = new TermQuery(new Term("id", String.valueOf(rContent.getId())));
-				TopDocs topDocs = is.search(query, 1);
-				
-				for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
-					Document doc = is.doc(scoreDoc.doc);
-					keywordsFound = keywordsFound + doc.getFieldable("keywords").stringValue();
-				}
-			}
-		}
-		*/
-		return keywordsFound;
-	}
-
 }

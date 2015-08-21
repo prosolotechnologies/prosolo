@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
 import javax.persistence.EntityResult;
 import javax.persistence.FieldResult;
 import javax.persistence.SqlResultSetMapping;
@@ -25,9 +26,9 @@ import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.ServiceType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserType;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.activityWall.impl.util.SocialActivityConverterUtil;
 import org.prosolo.util.ImageFormat;
-import org.prosolo.util.date.DateUtil;
 import org.prosolo.web.activitywall.data.AttachmentPreview;
 import org.prosolo.web.activitywall.data.NodeData;
 import org.prosolo.web.activitywall.data.PublishingServiceData;

@@ -7,11 +7,11 @@ import javax.servlet.http.HttpSession;
 
 import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.util.net.HttpSessionUtil;
 import org.prosolo.services.activityWall.SocialActivityFilterProcessor;
 import org.prosolo.services.activityWall.SocialActivityFiltering;
 import org.prosolo.services.activityWall.filters.Filter;
 import org.prosolo.services.activityWall.strategy.StrategyFactory;
-import org.prosolo.util.net.HttpSessionUtil;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.ActivityWallBean;

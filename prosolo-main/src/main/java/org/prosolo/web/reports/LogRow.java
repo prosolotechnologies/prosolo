@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.prosolo.util.date.DateUtil;
+import org.prosolo.common.util.date.DateUtil;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

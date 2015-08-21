@@ -1,6 +1,7 @@
 package org.prosolo.util.string;
 
 import org.junit.Test;
+import org.prosolo.common.util.string.StringUtil;
 
  
 

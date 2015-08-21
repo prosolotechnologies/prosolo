@@ -9,11 +9,11 @@ import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
+//import org.prosolo.services.feeds.DiggestManager;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.user.preferences.FeedsPreferences;
-import org.prosolo.services.feeds.DiggestManager;
 import org.prosolo.services.feeds.FeedFinder;
-import org.prosolo.services.feeds.FeedsAgregator;
+//import org.prosolo.services.feeds.FeedsAgregator;
 import org.prosolo.services.feeds.FeedsManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.LoggedUserBean;
@@ -40,10 +40,10 @@ public class FeedsBean {
 
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private FeedsManager feedsManager;
-	@Autowired private FeedsAgregator feedsAgregator;
+	//@Autowired private FeedsAgregator feedsAgregator;
 	@Autowired private UserManager userManager;
 	@Autowired private FeedFinder feedFinder;
-	@Autowired private DiggestManager digestManager;
+	//@Autowired private DiggestManager digestManager;
 	
 	public String updatePeriod = "daily";
 	

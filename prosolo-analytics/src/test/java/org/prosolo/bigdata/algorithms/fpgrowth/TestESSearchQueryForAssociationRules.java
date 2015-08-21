@@ -9,15 +9,11 @@ import java.util.List;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.AndFilterBuilder;
+ 
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.FilteredQueryBuilder;
-import org.elasticsearch.index.query.OrFilterBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
+ 
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.TermFilterBuilder;
+ 
 import org.elasticsearch.search.SearchHit;
 import org.junit.Test;
 import org.prosolo.bigdata.common.dal.pojo.ActivityAccessCount;
@@ -28,7 +24,7 @@ import org.prosolo.bigdata.es.ESIndexNames;
 import org.prosolo.bigdata.es.ElasticSearchConnector;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 
-import static org.elasticsearch.index.query.FilterBuilders.*;//boolFilter;
+ 
 
 /**
  * @author Zoran Jeremic May 9, 2015

@@ -9,9 +9,9 @@ import java.util.List;
 
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.portfolio.AchievedCompetence;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.nodes.BadgeManager;
 import org.prosolo.services.nodes.EvaluationManager;
-import org.prosolo.util.date.DateUtil;
 import org.prosolo.web.goals.cache.CompetenceDataCache;
 import org.prosolo.web.portfolio.data.AchievedCompetenceData;
 import org.springframework.beans.factory.annotation.Autowired;

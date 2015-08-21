@@ -9,10 +9,10 @@ import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.logging.LoggingDBManager;
-import org.prosolo.util.string.StringUtil;
 import org.prosolo.web.activitywall.data.UserData;
 import org.prosolo.web.util.ResourceDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;

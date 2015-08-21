@@ -49,7 +49,7 @@
 	<!-- Quartz integration -->
  
 	
-		<bean id="checkFeedsJobBean" class="org.prosolo.services.feeds.GenerateFeedsJobBean" autowire="byName">
+		<bean id="checkFeedsJobBean" class="org.prosolo.bigdata.feeds.GenerateFeedsJobBean" autowire="byName">
 			<!-- Ref to other beans. Add more if needed -->
 		</bean>
 			<bean id="activityExportJobBean" class="org.prosolo.services.activityreport.ActivityExportJobBean" autowire="byName">
@@ -60,7 +60,7 @@
 		<!-- Define the bean that delegates the work to the real job bean -->
 		<bean name="checkFeedsDailyJob" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		
-			<property name="jobClass" value="org.prosolo.services.feeds.FeedsDigestJobBean"/>
+			<property name="jobClass" value="org.prosolo.bigdata.feeds.FeedsDigestJobBean"/>
 				<property name="jobDataAsMap">
 					<map>
 						<entry key="job.bean.name" value="checkFeedsJobBean"/>
@@ -70,7 +70,7 @@
 			</bean>
 		
 			<!-- OLD SETTINGS WHEN THERE WERE JOBS FOR ALL THREE TYPES OF FEED DIGESTS 
-			<property name="jobClass" value="org.prosolo.services.feeds.DelegatingJobBean"/>
+			<property name="jobClass" value="org.prosolo.bigdata.feeds.DelegatingJobBean"/>
 				<property name="jobDataAsMap">
 					<map>
 						<entry key="job.bean.name" value="checkFeedsJobBean"/>
@@ -80,7 +80,7 @@
 			</bean>
 			
 			<bean name="checkFeedsWeeklyJob" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-			<property name="jobClass" value="org.prosolo.services.feeds.DelegatingJobBean"/>
+			<property name="jobClass" value="org.prosolo.bigdata.feeds.DelegatingJobBean"/>
 				<property name="jobDataAsMap">
 					<map>
 						<entry key="job.bean.name" value="checkFeedsJobBean"/>
@@ -90,7 +90,7 @@
 			</bean>
 			
 			<bean name="checkFeedsMonthlyJob" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-			<property name="jobClass" value="org.prosolo.services.feeds.DelegatingJobBean"/>
+			<property name="jobClass" value="org.prosolo.bigdata.feeds.DelegatingJobBean"/>
 				<property name="jobDataAsMap">
 					<map>
 						<entry key="job.bean.name" value="checkFeedsJobBean"/>
@@ -101,7 +101,7 @@
 			-->
 			
 			<bean name="activityExportJob" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-			<property name="jobClass" value="org.prosolo.services.feeds.FeedsDigestJobBean"/>
+			<property name="jobClass" value="org.prosolo.bigdata.feeds.FeedsDigestJobBean"/>
 			<property name="jobDataAsMap">
 				<map>
 					<entry key="job.bean.name" value="activityExportJobBean"/>

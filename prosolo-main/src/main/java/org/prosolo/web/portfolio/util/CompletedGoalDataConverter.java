@@ -8,9 +8,9 @@ import java.util.List;
 
 import org.prosolo.common.domainmodel.portfolio.CompletedGoal;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.nodes.BadgeManager;
 import org.prosolo.services.nodes.EvaluationManager;
-import org.prosolo.util.date.DateUtil;
 import org.prosolo.web.data.GoalData;
 import org.prosolo.web.portfolio.data.CompletedGoalData;
 import org.springframework.beans.factory.annotation.Autowired;

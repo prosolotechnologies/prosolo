@@ -18,6 +18,7 @@ import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.recommendation.CollaboratorsRecommendation;
 import org.prosolo.services.es.MoreUsersLikeThis;
 import org.prosolo.services.es.RecommendedResourcesSearch;
@@ -28,7 +29,6 @@ import org.prosolo.services.logging.exception.LoggingException;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.similarity.ResourceTokenizer;
-import org.prosolo.util.date.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

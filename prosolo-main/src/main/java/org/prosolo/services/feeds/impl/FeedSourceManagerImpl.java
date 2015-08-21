@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @version 0.5
  *
  */
-@Service("org.prosolo.services.feeds.FeedSourceManager")
+@Service("org.prosolo.bigdata.feeds.FeedSourceManager")
 public class FeedSourceManagerImpl extends AbstractManagerImpl implements FeedSourceManager {
 	
 	private static final long serialVersionUID = -8374488016509958122L;
