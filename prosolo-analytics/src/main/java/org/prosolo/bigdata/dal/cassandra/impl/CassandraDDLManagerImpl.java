@@ -77,7 +77,7 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		String frequentCompetenceActivitiesDDL = "CREATE TABLE IF NOT EXISTS frequentcompetenceactivities(competenceid bigint, activities list<bigint>, PRIMARY KEY (competenceid))";
 		this.ddls.add(frequentCompetenceActivitiesDDL);
 		
-		this.ddls.add("CREATE TABLE IF NOT EXISTS registeredusersperday(event text, count counter, date bigint, PRIMARY KEY(event, date));");
+		this.ddls.add("CREATE TABLE IF NOT EXISTS useractivityperday(event text, count counter, date bigint, PRIMARY KEY(event, date));");
 	}
 
 	@Override

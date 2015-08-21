@@ -30,11 +30,9 @@ public interface AnalyticalServiceCollector {
 	void sendUpdateHashtagsMessage(Map<String, String> parameters, long goalId,
 			long userId);
 	
-	void increaseRegisteredUserCount(EventType event, long daysSinceEpoch);
-
 	void updateTwitterUser(long userId, boolean addUser);
 
-	//void testCreateTargetCompetenceActivitiesAnalyticalData();
+	void increaseUserEventCount(EventType event, long daysSinceEpoch);
 
 }
 

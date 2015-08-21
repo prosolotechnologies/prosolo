@@ -292,9 +292,26 @@ public class ReliableProducerImplTest{
 		return result.getTime() / 86400000;
 	}
 	
-	/**
-	 * Populates registered users event logs with random data.
-	 */
+	private String createEvent(EventType eventType, Long daysSinceEpoch) {
+		JsonObject data=new JsonObject();
+		data.add("event", new JsonPrimitive(eventType.name()));
+		data.add("date", new JsonPrimitive(daysSinceEpoch));
+		
+		AnalyticalServiceMessage message = new AnalyticalServiceMessage();
+		message.setDataName(DataName.USERACTIVITYPERDAY);
+		message.setDataType(DataType.COUNTER);
+		message.setData(data);
+		
+		MessageWrapper wrapper = new MessageWrapper();
+		wrapper.setSender("127.0.0.1");
+		wrapper.setMessage(message);
+		wrapper.setTimecreated(System.currentTimeMillis());
+		
+		GsonBuilder gson = new GsonBuilder();
+		gson.registerTypeAdapter(MessageWrapper.class, new MessageWrapperAdapter());
+		return gson.create().toJson(wrapper);
+	}
+	
 	@Ignore
 	@Test
 	public void generateRandomRegisteredUsersLogsTest() throws ParseException {
@@ -306,26 +323,25 @@ public class ReliableProducerImplTest{
 		long from = daysSinceEpoch("2015-01-01");
 		long to = daysSinceEpoch("2015-31-12");
 		
-		for(Long event : generateEvents(from, to)) {
-			JsonObject data=new JsonObject();
-			data.add("event", new JsonPrimitive(EventType.Registered.name()));
-			data.add("date", new JsonPrimitive(event));
-			
-			AnalyticalServiceMessage message = new AnalyticalServiceMessage();
-			message.setDataName(DataName.REGISTEREDUSERSPERDAY);
-			message.setDataType(DataType.COUNTER);
-			message.setData(data);
-
-			MessageWrapper wrapper = new MessageWrapper();
-			wrapper.setSender("127.0.0.1");
-			wrapper.setMessage(message);
-			wrapper.setTimecreated(System.currentTimeMillis());
-			
-			GsonBuilder gson = new GsonBuilder();
-			gson.registerTypeAdapter(MessageWrapper.class, new MessageWrapperAdapter());
-			reliableProducer.send(gson.create().toJson(wrapper));
+		for(Long day : generateEvents(from, to)) {
+			reliableProducer.send(createEvent(EventType.Registered, day));
 		}
 	}
+	
+	@Ignore
+	@Test
+	public void generateRandomUserLoginLogsTest() throws ParseException {
 
+		ReliableProducerImpl reliableProducer = new ReliableProducerImpl();
+		reliableProducer.setQueue(QueueNames.ANALYTICS.name().toLowerCase());
+		reliableProducer.startAsynchronousPublisher();
+		
+		long from = daysSinceEpoch("2015-01-01");
+		long to = daysSinceEpoch("2015-31-12");
+		
+		for(Long day : generateEvents(from, to)) {
+			reliableProducer.send(createEvent(EventType.LOGIN, day));
+		}
+	}
 
 }
