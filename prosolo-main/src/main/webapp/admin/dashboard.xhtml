@@ -12,7 +12,7 @@
 	</ui:define>
 
 	<ui:define name="content">		
-		<div id="dashboard" class="container admin">
+		<div id="dashboard" class="container admin" data-api="#{dashboardBean.apiHost}" data-no-results-found-message="#{dashboardBean.noResultsFoundMessage}">
 			<div class="content wide">
 				<label for="newusers">New users</label>
 				<input type="checkbox" name="stats" id="newusers" />
@@ -39,7 +39,13 @@
 					<input type="radio" id="month" name="periods" value="MONTH" />
 				   	<label for="month">Month</label> 
 				</div>
-				<div id="chart"></div>
+				<div id="chartBlock">
+					<div id="chartMessages">
+						<span id="noResultsMessage">#{dashboardBean.noResultsFoundMessage}</span>
+					</div>
+					<div id="loader" class="loader" style="display:none"></div>
+					<div id="chart"></div>
+				</div>
 			</div>
 		</div>
 	</ui:define>

@@ -1,5 +1,5 @@
 function checkedStats() {
-	return $("[name='stats']:checked").map(function() { return $(this).attr("id"); });
+	return $("[name='stats']:checked").map(function() { return $(this).attr("id"); }).get();
 }
 
 function utc(date) { 
@@ -7,18 +7,20 @@ function utc(date) {
 }
 
 function loadChart(dateFrom, dateTo, period, stats){
-	$("#chart").html('<div class="loader"></div>');
+	var host = $("#dashboard").data("api");
+	show("loader");
+	$('#chart').html("");
 	$.ajax({
-		url : "http://#{dashboardBean.apiHost}/api/users/activity/statistics",
+		url : "http://" + host + "/api/users/activity/statistics",
 		type : "GET",
 		data : {dateFrom:dateFrom + " UTC", dateTo:dateTo + " UTC", period:period, stats:stats},
 		crossDomain: true,
 		dataType: 'json'
 	}).done(function(data) {
 		if (data.length==0) {
-			$("#chart").html("<span>#{dashboardBean.noResultsFoundMessage}</span>");
+			show("chartMessages");
 		} else {
-			$("#chart").html("");
+			show("chart");
 			new tauCharts.Chart({
 			    data: data.map(function(e) { e.date = utc(new Date(e.date * 86400000)); return e; }),
 			    type: 'line',
@@ -29,6 +31,27 @@ function loadChart(dateFrom, dateTo, period, stats){
 		}
 	});
 }
+
+function show(id) {
+	$("#" + id).show().siblings().hide();
+}
+//
+//function showLoader(){
+//	$(".loader").show();
+//	$("#noResultsMessage").hide();
+//	$("#chart").hide();
+//}
+//function showMessage(){
+//	$(".loader").hide();
+//	$("#noResultsMessage").show();
+//	$("#chart").hide();
+//}
+//
+//function showChart(){
+//	$(".loader").hide();
+//	$("#noResultsMessage").hide();
+//	$("#chart").show();
+//}
 
 
 $(function(){
