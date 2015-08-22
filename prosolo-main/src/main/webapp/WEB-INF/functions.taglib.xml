@@ -20,25 +20,25 @@
 	
 	<function>
 		<function-name>prettyDate</function-name>
-		<function-class>org.prosolo.util.date.DateUtil</function-class>
+		<function-class>org.prosolo.common.util.date.DateUtil</function-class>
 		<function-signature>java.lang.String getPrettyDate(java.util.Date)</function-signature>
 	</function>
 	
 	<function>
 		<function-name>prettyTimeDate</function-name>
-		<function-class>org.prosolo.util.date.DateUtil</function-class>
+		<function-class>org.prosolo.common.util.date.DateUtil</function-class>
 		<function-signature>java.lang.String getPrettyTimeDate(java.util.Date)</function-signature>
 	</function>
 	
 	<function>
 		<function-name>timeDifferenceAgoFromNow</function-name>
-		<function-class>org.prosolo.util.date.DateUtil</function-class>
+		<function-class>org.prosolo.common.util.date.DateUtil</function-class>
 		<function-signature>java.lang.String getTimeAgoFromNow(java.util.Date)</function-signature>
 	</function>
 	
 	<function>
 		<function-name>timeDuration</function-name>
-		<function-class>org.prosolo.util.date.DateUtil</function-class>
+		<function-class>org.prosolo.common.util.date.DateUtil</function-class>
 		<function-signature>java.lang.String getTimeDuration(java.lang.Long)</function-signature>
 	</function>
 	
