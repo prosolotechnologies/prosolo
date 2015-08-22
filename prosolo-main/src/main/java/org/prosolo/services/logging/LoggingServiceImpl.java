@@ -25,6 +25,8 @@ import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.activityreport.LoggedEvent;
+import org.prosolo.services.event.EventException;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.logging.exception.LoggingException;
 import org.prosolo.services.messaging.LogsMessageDistributer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +57,8 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	private static Logger logger = Logger.getLogger(LoggingService.class.getName());
 	
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
+	
+	@Autowired private EventFactory eventFactory;
 
 	private static String pageNavigationCollection = "log_page_navigation";
 	private static String serviceUseCollection = "log_service_use";
@@ -120,10 +124,15 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		
 		if (context != null && context.length() > 0) {
 			parameters.put("context", context);
+			parameters.put("objectType", "page");
+			parameters.put("link", link);
 		}
-
-		logEventObserved(EventType.NAVIGATE, user, "page", 0, null, null, 0,
-				null, 0, parameters, link, ipAddress);
+		
+		try {
+			eventFactory.generateEvent(EventType.NAVIGATE, user, null, parameters);
+		} catch (EventException e) {
+			logger.error("Generate event failed.", e);
+		}
 	}
 
 	@Override

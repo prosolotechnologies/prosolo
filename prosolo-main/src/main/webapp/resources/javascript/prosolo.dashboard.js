@@ -1,5 +1,5 @@
 function checkedStats() {
-	return $("[name='stats']:checked").map(function() { return $(this).attr("id"); }).get();
+	return $("[name='stats']:checked").map(function() { return $(this).val(); }).get();
 }
 
 function utc(date) { 
@@ -35,24 +35,6 @@ function loadChart(dateFrom, dateTo, period, stats){
 function show(id) {
 	$("#" + id).show().siblings().hide();
 }
-//
-//function showLoader(){
-//	$(".loader").show();
-//	$("#noResultsMessage").hide();
-//	$("#chart").hide();
-//}
-//function showMessage(){
-//	$(".loader").hide();
-//	$("#noResultsMessage").show();
-//	$("#chart").hide();
-//}
-//
-//function showChart(){
-//	$(".loader").hide();
-//	$("#noResultsMessage").hide();
-//	$("#chart").show();
-//}
-
 
 $(function(){
 	$.extend($.datepicker,{_checkOffset:function(inst,offset,isFixed){return offset}});

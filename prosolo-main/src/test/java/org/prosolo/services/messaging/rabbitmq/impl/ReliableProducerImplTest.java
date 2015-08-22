@@ -14,7 +14,6 @@ import org.junit.Test;
 import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.events.pojo.DataName;
 import org.prosolo.bigdata.common.events.pojo.DataType;
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.messaging.MessageWrapperAdapter;
 import org.prosolo.common.messaging.data.AnalyticalServiceMessage;
 import org.prosolo.common.messaging.data.LogMessage;
@@ -288,13 +287,13 @@ public class ReliableProducerImplTest{
 	}
 	
 	private long daysSinceEpoch(String date) throws ParseException {
-		Date result = new SimpleDateFormat("yyyy-MM-dd").parse(date);
+		Date result = new SimpleDateFormat("yyyy-MM-dd Z").parse(date);
 		return result.getTime() / 86400000;
 	}
 	
-	private String createEvent(EventType eventType, Long daysSinceEpoch) {
+	private String createEvent(String event, Long daysSinceEpoch) {
 		JsonObject data=new JsonObject();
-		data.add("event", new JsonPrimitive(eventType.name()));
+		data.add("event", new JsonPrimitive(event));
 		data.add("date", new JsonPrimitive(daysSinceEpoch));
 		
 		AnalyticalServiceMessage message = new AnalyticalServiceMessage();
@@ -314,34 +313,21 @@ public class ReliableProducerImplTest{
 	
 	@Ignore
 	@Test
-	public void generateRandomRegisteredUsersLogsTest() throws ParseException {
-
+	public void generateRandomUserEventLogsTest() throws Exception {
 		ReliableProducerImpl reliableProducer = new ReliableProducerImpl();
 		reliableProducer.setQueue(QueueNames.ANALYTICS.name().toLowerCase());
 		reliableProducer.startAsynchronousPublisher();
 		
-		long from = daysSinceEpoch("2015-01-01");
-		long to = daysSinceEpoch("2015-31-12");
+		long from = daysSinceEpoch("2015-01-01 UTC");
 		
-		for(Long day : generateEvents(from, to)) {
-			reliableProducer.send(createEvent(EventType.Registered, day));
+		long to = daysSinceEpoch("2015-31-12 UTC");
+		
+		for (String event : new String[] { "login", "registered", "homepagevisited"}) {
+			for (Long day : generateEvents(from, to)) {
+				reliableProducer.send(createEvent(event, day));
+			}
 		}
-	}
-	
-	@Ignore
-	@Test
-	public void generateRandomUserLoginLogsTest() throws ParseException {
-
-		ReliableProducerImpl reliableProducer = new ReliableProducerImpl();
-		reliableProducer.setQueue(QueueNames.ANALYTICS.name().toLowerCase());
-		reliableProducer.startAsynchronousPublisher();
-		
-		long from = daysSinceEpoch("2015-01-01");
-		long to = daysSinceEpoch("2015-31-12");
-		
-		for(Long day : generateEvents(from, to)) {
-			reliableProducer.send(createEvent(EventType.LOGIN, day));
-		}
+		Thread.sleep(5 * 60 * 1000);
 	}
 
 }

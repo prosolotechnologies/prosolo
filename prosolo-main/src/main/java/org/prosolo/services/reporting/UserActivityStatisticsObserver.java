@@ -1,7 +1,5 @@
 package org.prosolo.services.reporting;
 
-import java.util.Arrays;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
@@ -24,7 +22,7 @@ public class UserActivityStatisticsObserver implements EventObserver {
 
 	@Override
 	public EventType[] getSupportedEvents() {
-		return new EventType[] { EventType.Registered, EventType.LOGIN };
+		return new EventType[] { EventType.Registered, EventType.LOGIN, EventType.NAVIGATE };
 	}
 
 	@SuppressWarnings("unchecked")
@@ -40,7 +38,8 @@ public class UserActivityStatisticsObserver implements EventObserver {
 		logger.info("comming in event with actor: " + event.getActor());
 		logger.info("comming in event with object: " + event.getObject());
 		logger.info("comming in event with target: " + event.getTarget());
-		collector.increaseUserEventCount(event.getAction(), DateUtil.getDaysSinceEpoch());
+		collector.increaseUserEventCount(event.getAction(),
+				event.getParameters(), DateUtil.getDaysSinceEpoch());
 	}
 
 }

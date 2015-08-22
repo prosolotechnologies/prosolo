@@ -100,11 +100,22 @@ public class AnalyticalServiceCollectorImpl implements AnalyticalServiceCollecto
 		AnalyticalServiceMessage message=factory.createAnalyticalServiceMessage(DataName.UPDATETWITTERUSER, DataType.PROCESS,data);
         messageDistributer.distributeMessage(message);
     }
+        
+    public String eventName(EventType event, Map<String, String> params) {
+    	switch (event) {
+    	case NAVIGATE :
+    		if ("page".equals(params.get("objectType")) && "index.xhtml".equals(params.get("link"))) {
+    			return "homepagevisited";
+    		}
+    	default :
+    		return event.name().toLowerCase();
+    	}
+    }
 
 	@Override
-	public void increaseUserEventCount(EventType event, long daysSinceEpoch) {
+	public void increaseUserEventCount(EventType event, Map<String, String> params, long daysSinceEpoch) {
 		JsonObject data=new JsonObject();
-		data.add("event", new JsonPrimitive(event.name()));
+		data.add("event", new JsonPrimitive(eventName(event, params)));
 		data.add("date", new JsonPrimitive(daysSinceEpoch));
 		messageDistributer.distributeMessage(factory.createAnalyticalServiceMessage(DataName.USERACTIVITYPERDAY, DataType.COUNTER, data));
 	}

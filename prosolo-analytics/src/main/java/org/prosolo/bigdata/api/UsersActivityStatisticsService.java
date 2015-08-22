@@ -48,8 +48,8 @@ public class UsersActivityStatisticsService {
 	@GET
 	@Path("/statistics")
 	@Produces({ MediaType.APPLICATION_JSON })
-	public Response getRegistered(@QueryParam("dateFrom") String dateFrom, @QueryParam("dateTo") String dateTo, @QueryParam("period") String period, @QueryParam("stats[]") String[] stats) throws ParseException {
-		logger.debug("Service 'getRegistered' called with parameters dateFrom: {}, dateTo: {}, period: {} and stats: {}.", dateFrom, dateTo, period, StringUtils.join(stats, ", "));
+	public Response getStatistics(@QueryParam("dateFrom") String dateFrom, @QueryParam("dateTo") String dateTo, @QueryParam("period") String period, @QueryParam("stats[]") String[] stats) throws ParseException {
+		logger.debug("Service 'getStatistics' called with parameters dateFrom: {}, dateTo: {}, period: {} and stats: {}.", dateFrom, dateTo, period, StringUtils.join(stats, ", "));
 		
 		long daysFrom = getDaysSinceEpoch(parse(dateFrom));
 		long daysTo = getDaysSinceEpoch(parse(dateTo));
@@ -59,23 +59,15 @@ public class UsersActivityStatisticsService {
 		List<String> statistics = Arrays.asList(stats);
 		List<UserEventsCount> counts = new ArrayList<UserEventsCount>();
 		
-		if(statistics.contains("newusers")) {
-			List<UserEventsCount> registered = dbManager.getRegisteredUsersCount(daysFrom, daysTo);
+		for (String statistic : statistics) {
+			List<UserEventsCount> count = dbManager.getUserEventsCount(statistic, daysFrom, daysTo);
 			if(Period.DAY.equals(Period.valueOf(period))) {
-				counts.addAll(registered);			
+				counts.addAll(count);			
 			} else {
-				counts.addAll(aggregate(split(registered, Period.valueOf(period)), EventType.Registered));
+				counts.addAll(aggregate(split(count, Period.valueOf(period)), statistic));
 			}
 		}
-		if(statistics.contains("logins")) {
-			List<UserEventsCount> logins = dbManager.getUsersLoginCount(daysFrom, daysTo);
-			if(Period.DAY.equals(Period.valueOf(period))) {
-				counts.addAll(logins);			
-			} else {
-				counts.addAll(aggregate(split(logins, Period.valueOf(period)), EventType.LOGIN));
-			}
-		}
-		
+				
 		return corsOk(counts);			
 	}
 	
@@ -101,10 +93,10 @@ public class UsersActivityStatisticsService {
 		return result;
 	}
 	
-	private List<UserEventsCount> aggregate(Map<Long, List<UserEventsCount>> buckets, EventType type) {
+	private List<UserEventsCount> aggregate(Map<Long, List<UserEventsCount>> buckets, String event) {
 		List<UserEventsCount> result = new ArrayList<UserEventsCount>();
 		for(Long day : buckets.keySet()) {
-			result.add(new UserEventsCount(type.name(), day.longValue(), sumCounts(buckets.get(day))));
+			result.add(new UserEventsCount(event, day.longValue(), sumCounts(buckets.get(day))));
 		}
 		return result;
 	}	

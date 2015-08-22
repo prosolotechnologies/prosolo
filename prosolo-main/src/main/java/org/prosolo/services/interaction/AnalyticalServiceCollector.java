@@ -32,7 +32,8 @@ public interface AnalyticalServiceCollector {
 	
 	void updateTwitterUser(long userId, boolean addUser);
 
-	void increaseUserEventCount(EventType event, long daysSinceEpoch);
+	void increaseUserEventCount(EventType event, Map<String, String> params,
+			long daysSinceEpoch);
 
 }
 
