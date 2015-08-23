@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +25,6 @@ import org.prosolo.bigdata.common.dal.pojo.UserEventsCount;
 import org.prosolo.bigdata.dal.cassandra.impl.UserActivityStatisticsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.UserActivityStatisticsDBManagerImpl;
 import org.prosolo.bigdata.utils.DateUtil;
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +45,25 @@ public class UsersActivityStatisticsService {
 		return new SimpleDateFormat("dd.MM.yyyy. Z").parse(date);
 	}
 	
+	@GET
+	@Path("/statistics/sum")
+	@Produces({ MediaType.APPLICATION_JSON })
+	public Response getSum(@QueryParam("event") String event) throws ParseException {
+		logger.debug("Service 'getSum' called with parameters and event: {}.", event);
+		long today = getDaysSinceEpoch(Calendar.getInstance().getTime());
+		long sevenDaysAgo = today - 7;
+		
+		List<UserEventsCount> counts = dbManager.getUserEventsCount(event);
+		List<UserEventsCount> trend = dbManager.getUserEventsCount(event, sevenDaysAgo, today);
+		int sumCounts = sumCounts(counts);
+		int sumTrend = sumCounts(trend);
+		double percent = Math.round(sumTrend * 1000.0 / sumCounts) / 10.0;
+		Map<String, String> result = new HashMap<String, String>();
+		result.put("totalUsers", String.valueOf(sumCounts));
+		result.put("totalUsersPercent", percent + "%");
+		return corsOk(result);
+	}
+
 	@GET
 	@Path("/statistics")
 	@Produces({ MediaType.APPLICATION_JSON })
@@ -71,7 +90,7 @@ public class UsersActivityStatisticsService {
 		return corsOk(counts);			
 	}
 	
-	private Response corsOk(List<UserEventsCount> counts) {
+	private Response corsOk(Object counts) {
 		return Response
 				.status(Status.OK)
 				.entity(new Gson().toJson(counts))

@@ -20,6 +20,7 @@ function loadChart(dateFrom, dateTo, period, stats){
 		if (data.length==0) {
 			show("chartMessages");
 		} else {
+			$('#chart').html("");
 			show("chart");
 			new tauCharts.Chart({
 			    data: data.map(function(e) { e.date = utc(new Date(e.date * 86400000)); return e; }),
@@ -37,6 +38,18 @@ function show(id) {
 }
 
 $(function(){
+	var host = $("#dashboard").data("api");
+	$.ajax({
+		url : "http://" + host + "/api/users/activity/statistics/sum",
+		type : "GET",
+		data : {event: "registered"},
+		crossDomain: true,
+		dataType: 'json'
+	}).done(function(data) {
+		$("#total-users-count").html(data.totalUsers);
+		$("#total-users-count-percent").html(data.totalUsersPercent);
+	});
+	
 	$.extend($.datepicker,{_checkOffset:function(inst,offset,isFixed){return offset}});
 	$( ".dateField" ).datepicker({
 		showOn: "both",
