@@ -103,9 +103,14 @@ public class AnalyticalServiceCollectorImpl implements AnalyticalServiceCollecto
         
     public String eventName(EventType event, Map<String, String> params) {
     	switch (event) {
+    	case SELECT_GOAL :
+    		return "goalviews";
     	case NAVIGATE :
     		if ("page".equals(params.get("objectType")) && "index.xhtml".equals(params.get("link"))) {
     			return "homepagevisited";
+    		}
+    		if ("page".equals(params.get("objectType")) && "learn.xhtml".equals(params.get("link"))) {
+    			return "goalsviews";
     		}
     	default :
     		return event.name().toLowerCase();

@@ -22,7 +22,7 @@ public class UserActivityStatisticsObserver implements EventObserver {
 
 	@Override
 	public EventType[] getSupportedEvents() {
-		return new EventType[] { EventType.Registered, EventType.LOGIN, EventType.NAVIGATE };
+		return new EventType[] { EventType.Registered, EventType.LOGIN, EventType.NAVIGATE, EventType.SELECT_GOAL };
 	}
 
 	@SuppressWarnings("unchecked")

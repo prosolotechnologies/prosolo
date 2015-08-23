@@ -317,12 +317,12 @@ public class ReliableProducerImplTest{
 		ReliableProducerImpl reliableProducer = new ReliableProducerImpl();
 		reliableProducer.setQueue(QueueNames.ANALYTICS.name().toLowerCase());
 		reliableProducer.startAsynchronousPublisher();
-		
+			
 		long from = daysSinceEpoch("2015-01-01 UTC");
 		
 		long to = daysSinceEpoch("2015-31-12 UTC");
 		
-		for (String event : new String[] { "login", "registered", "homepagevisited"}) {
+		for (String event : new String[] { "login", "registered", "homepagevisited", "goalsviews" }) {
 			for (Long day : generateEvents(from, to)) {
 				reliableProducer.send(createEvent(event, day));
 			}

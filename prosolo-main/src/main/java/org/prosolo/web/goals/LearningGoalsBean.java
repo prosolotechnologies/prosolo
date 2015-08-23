@@ -12,7 +12,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
-import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
@@ -21,6 +20,7 @@ import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.string.StringUtil;
+import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.activityWall.SocialActivityHandler;
 import org.prosolo.services.activityWall.SocialStreamObserver;
 import org.prosolo.services.annotation.TagManager;
@@ -31,7 +31,6 @@ import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.PortfolioManager;
 import org.prosolo.services.nodes.impl.PortfolioData;
-import org.prosolo.services.twitter.TwitterStreamsManager;
 import org.prosolo.util.nodes.AnnotationUtil;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
@@ -128,30 +127,32 @@ public class LearningGoalsBean implements Serializable {
 //	public void setTargetLearningGoalsIds(List<Long> targetLearningGoalsIds) {
 //		this.targetLearningGoalsIds = targetLearningGoalsIds;
 //	}
-
+	
 	public void selectGoal(GoalDataCache newSelectedGoalCache) {
-		logger.info("select goal:"+newSelectedGoalCache.getData().getTargetGoalId());
+		GoalData goalData = newSelectedGoalCache.getData();
+		logger.info("select goal:" + goalData.getTargetGoalId());
 		selectedGoalData = newSelectedGoalCache;
-		loggedUser.loadGoalWallFilter(newSelectedGoalCache.getData().getTargetGoalId());
-		
+		loggedUser.loadGoalWallFilter(goalData.getTargetGoalId());
+
 		if (selectedGoalData != null) {
 			selectedGoalData.setSelectedCompetence(null);
-			
+
 			// reseting Goal Wall filter
 			GoalWallBean goalWall = PageUtil.getViewScopedBean("goalwall", GoalWallBean.class);
-			
+
 			if (goalWall != null) {
 				goalWall.removeUserFilter();
 			}
-			
-			Map<String, String> parameters = new HashMap<String, String>();
-			parameters.put("context", "learn");
-			
-			loggingNavigationBean.logEvent(
-					EventType.SELECT_GOAL, 
-					TargetLearningGoal.class.getSimpleName(), 
-					selectedGoalData.getData().getTargetGoalId(),
-					parameters);
+
+			try {
+				User user = loggedUser.getUser();
+				TargetLearningGoal goal = goalManager.getTargetGoal(goalData.getGoalId(), user.getId());
+				Map<String, String> parameters = new HashMap<String, String>();
+				parameters.put("context", "learn");
+				eventFactory.generateEvent(EventType.SELECT_GOAL, user, goal, parameters);
+			} catch (EventException e) {
+				logger.error("Generate event failed.", e);
+			}
 		}
 	}
 
