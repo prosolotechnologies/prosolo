@@ -14,6 +14,26 @@ import org.springframework.stereotype.Component;
 public class DashboardBean implements Serializable {
 
 	private static final long serialVersionUID = -117805452735249654L;
+	
+	public int getTotalUsers() {
+		return 0;
+	}
+	
+	public String getTotalUsersPercent() {
+		return "0%";
+	}
+	
+	public int getActiveUsers() {
+		return 0;
+	}
+	
+	public String getActiveUsersPercent() {
+		return "0%";
+	}
+	
+	public int getCurrentlyLoggedIn() {
+		return 0;
+	}
 
 	public String getApiHost() {
 		return Settings.getInstance().config.analyticalServerConfig.apiHost

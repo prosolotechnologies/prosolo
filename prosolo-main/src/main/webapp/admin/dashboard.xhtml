@@ -14,6 +14,23 @@
 	<ui:define name="content">		
 		<div id="dashboard" class="container admin" data-api="#{dashboardBean.apiHost}" data-no-results-found-message="#{dashboardBean.noResultsFoundMessage}">
 			<div class="content wide">
+				<div class="counts" id="total-users">
+					<h2>Total users</h2>
+					<span class="arrow trend-up" id="total-users-trend"></span>
+					<span class="percent trend-up" id="total-users-count-percent">#{dashboardBean.totalUsersPercent}</span>
+					<span class="count" id="total-users-count">#{dashboardBean.totalUsers}</span>
+				</div>
+				<div class="counts"  id="active-users">
+					<h2>Active users</h2>
+					<span class="arrow trend-down" id="active-users-trend"></span>
+					<span class="percent trend-down" id="active-users-percent">#{dashboardBean.activeUsersPercent}</span>
+					<span class="count" id="active-users-count">#{dashboardBean.activeUsers}</span>
+				</div>
+				<div class="counts"  id="currently-logged-in">
+					<h2>Currently logged in</h2>
+					<span class="count" id="currently-logged-in-count">#{dashboardBean.currentlyLoggedIn}</span>
+				</div>
+				<h1>Activity graph</h1>
 				<label for="newusers">New users</label>
 				<input type="checkbox" name="stats" id="newusers" value="registered" />
 				<label for="logind">Logins</label>

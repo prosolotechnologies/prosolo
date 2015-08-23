@@ -62,3 +62,63 @@
 	background-position: center;
 	height: 180px;
 }
+
+#dashboard h1 {
+	clear: left;
+}
+
+#dashboard .counts {
+	float: left;
+	margin-right: 2em;
+	padding: 1em;
+	width: 14em;
+	height: 5em;
+	border: 1px solid black;
+	margin-bottom: 2em;
+}
+
+#dashboard .counts .count {
+	float: right;
+	font-size: 2em;
+	font-weight: bold;
+}
+
+#dashboard .counts .percent {
+	margin-left: 2.4em;
+	color: #22dd22;
+	font-size: 1.2em;
+}
+
+#dashboard .counts .trend-up {
+	color: #22dd22;
+}
+
+#dashboard .counts .trend-down {
+	color: #dd2222;
+}
+
+#dashboard .arrow.trend-up:after {
+	border-bottom-color: #22dd22;	
+	bottom: 0em;
+}
+
+#dashboard .arrow.trend-down:after {
+	border-top-color: #dd2222;	
+	top: 0em;
+}
+
+#dashboard .arrow {
+	position: relative;
+	background: #53d51c;
+}
+
+#dashboard .arrow:after {
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+	border-color: rgba(0, 0, 0, 0);
+	border-width: 1.2em;
+}
