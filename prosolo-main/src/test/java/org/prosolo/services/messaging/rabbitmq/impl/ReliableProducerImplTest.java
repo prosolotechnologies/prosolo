@@ -321,7 +321,9 @@ public class ReliableProducerImplTest{
 		long from = daysSinceEpoch("2015-01-01 UTC");
 		long to = daysSinceEpoch("2015-31-12 UTC");
 
-		for (String event : new String[] { "login", "registered", "homepagevisited", "goalsviews", "competencesviews" }) {
+		String[] events = new String[] { "login", "registered", "homepagevisited", "goalsviews", "competencesviews",
+				"profileviews" };
+		for (String event : events) {
 			for (Long day : generateEvents(from, to)) {
 				reliableProducer.send(createEvent(event, day));
 			}

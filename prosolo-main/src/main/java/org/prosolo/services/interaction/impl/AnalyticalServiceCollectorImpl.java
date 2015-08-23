@@ -114,6 +114,9 @@ public class AnalyticalServiceCollectorImpl implements AnalyticalServiceCollecto
     		if ("page".equals(params.get("objectType")) && "learn.xhtml".equals(params.get("link"))) {
     			return "goalsviews";
     		}
+    		if ("page".equals(params.get("objectType")) && params.get("link") != null && params.get("link").startsWith("publicprofile.xhtml")) {
+    			return "profileviews";
+    		}
     	default :
     		return event.name().toLowerCase();
     	}
