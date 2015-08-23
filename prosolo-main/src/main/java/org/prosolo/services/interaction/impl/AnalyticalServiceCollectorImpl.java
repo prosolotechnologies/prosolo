@@ -105,6 +105,8 @@ public class AnalyticalServiceCollectorImpl implements AnalyticalServiceCollecto
     	switch (event) {
     	case SELECT_GOAL :
     		return "goalviews";
+    	case SELECT_COMPETENCE :
+    		return "competencesviews";
     	case NAVIGATE :
     		if ("page".equals(params.get("objectType")) && "index.xhtml".equals(params.get("link"))) {
     			return "homepagevisited";

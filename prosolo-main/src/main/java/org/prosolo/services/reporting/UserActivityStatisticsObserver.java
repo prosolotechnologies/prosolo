@@ -2,7 +2,9 @@ package org.prosolo.services.reporting;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.event.Event;
@@ -22,13 +24,14 @@ public class UserActivityStatisticsObserver implements EventObserver {
 
 	@Override
 	public EventType[] getSupportedEvents() {
-		return new EventType[] { EventType.Registered, EventType.LOGIN, EventType.NAVIGATE, EventType.SELECT_GOAL };
+		return new EventType[] { EventType.Registered, EventType.LOGIN, EventType.NAVIGATE, EventType.SELECT_GOAL,
+				EventType.SELECT_COMPETENCE };
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public Class<? extends BaseEntity>[] getResourceClasses() {
-		return new Class[] { User.class };
+		return new Class[] { User.class, TargetCompetence.class, TargetLearningGoal.class };
 	}
 
 	@Override

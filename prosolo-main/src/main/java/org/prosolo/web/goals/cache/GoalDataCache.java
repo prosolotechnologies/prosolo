@@ -16,8 +16,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
-import org.prosolo.core.hibernate.HibernateUtil;
-import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
@@ -28,13 +26,18 @@ import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.workflow.evaluation.Badge;
 import org.prosolo.common.domainmodel.workflow.evaluation.Evaluation;
+import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.recommendation.CollaboratorsRecommendation;
 import org.prosolo.recommendation.CompetenceRecommendation;
 import org.prosolo.recommendation.DocumentsRecommendation;
 import org.prosolo.recommendation.impl.RecommendedDocument;
 import org.prosolo.services.annotation.TagManager;
+import org.prosolo.services.event.EventException;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.nodes.BadgeManager;
+import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.EvaluationManager;
 import org.prosolo.services.nodes.LearningGoalManager;
@@ -42,12 +45,9 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.UserData;
 import org.prosolo.web.courses.data.CourseData;
 import org.prosolo.web.data.GoalData;
-import org.prosolo.web.goals.RecommendedLearningPlansBean;
-import org.prosolo.web.goals.competences.ActivitiesRecommendationBean;
 import org.prosolo.web.goals.data.CompetenceData;
-import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.search.SearchPeopleBean;
-import org.prosolo.web.util.PageUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -77,6 +77,10 @@ public class GoalDataCache implements Serializable {
 	private CompetenceDataCache selectedCompetence;
 	private Collection<CompetenceData> recommendedCompetences;
 
+	@Autowired private CompetenceManager competenceManager;
+	
+	@Autowired private EventFactory eventFactory;
+	
 	// goal wall
 //	private List<SocialActivityData1> goalWallActivities;
 //	private List<SocialActivityData1> newActivities = new LinkedList<SocialActivityData1>();
@@ -510,29 +514,17 @@ public class GoalDataCache implements Serializable {
 		this.selectedCompetence = selectedCompetence;
 		
 		if (this.selectedCompetence != null) {
-//			this.selectedCompetence.setActivities(null);
-			//this.selectedCompetence.initializeRecommendedLearningPlans();
-			 
-			
-			//RecommendedLearningPlansBean recommendedLearningPlansBean = PageUtil.getSessionScopedBean("recommendedplans", RecommendedLearningPlansBean.class);
-			
-			//recommendedLearningPlansBean.init(selectedCompetence.getData().getId());
-			
-	//		RecommendedActivitiesBean recommendedActivitiesBean = PageUtil.getSessionScopedBean("recommendedactivitiesbean", RecommendedActivitiesBean.class);
-		//	recommendedActivitiesBean.init(data.getTargetGoalId(),selectedCompetence.getData().getId());
-//			ActivitiesRecommendationBean activitiesRecommendationBean=PageUtil.getSessionScopedBean("activitiesRecommendation", ActivitiesRecommendationBean.class);
-//			activitiesRecommendationBean.setCompData(this.selectedCompetence);
-//			activitiesRecommendationBean.initializeActivities();
-	    	LoggingNavigationBean loggingNavigationBean = ServiceLocator.getInstance().getService(LoggingNavigationBean.class);
-	    	
 	    	Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("context", "learn.targetGoal." + data.getTargetGoalId());
+			User user = loggedUser.getUser();
+			long competenceId = selectedCompetence.getData().getCompetenceId();
+			TargetCompetence competence = competenceManager.getTargetCompetence(user.getId(), competenceId, data.getGoalId());
 			
-			loggingNavigationBean.logEvent(
-					EventType.SELECT_COMPETENCE, 
-					TargetCompetence.class.getSimpleName(), 
-					selectedCompetence.getData().getId(),
-					parameters);
+			try {
+				eventFactory.generateEvent(EventType.SELECT_COMPETENCE, user, competence, parameters);
+			} catch (EventException e) {
+				logger.error("Generate event failed.", e);
+			}
 		}
 	}
 
