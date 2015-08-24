@@ -2,9 +2,6 @@ package org.prosolo.bigdata.dal.cassandra.impl;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
-
-import com.google.gson.reflect.TypeToken;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,6 +16,7 @@ import org.prosolo.bigdata.common.dal.pojo.TargetCompetenceActivities;
 import org.prosolo.bigdata.common.dal.pojo.UserLearningGoalActivitiesCount;
 import org.prosolo.bigdata.dal.cassandra.AnalyticalEventDBManager;
 import org.prosolo.bigdata.events.pojo.AnalyticsEvent;
+
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
@@ -28,6 +26,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.google.gson.reflect.TypeToken;
 
 /**
  * @author Zoran Jeremic Apr 14, 2015
@@ -88,6 +87,7 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 		this.queries.put("find_allcompetences", find_allcompetences);
 
 		this.queries.put("update_useractivityperday", "UPDATE useractivityperday SET count=count+1 WHERE event=? AND date=?;");
+		this.queries.put("update_activityperday", "UPDATE activityperday SET count=count+1 WHERE user=? AND event=? AND date=?;");
 
 		Set<String> stQueries = this.queries.keySet();
 		for (String query : stQueries) {

@@ -50,6 +50,17 @@ $(function(){
 		$("#total-users-count-percent").html(data.totalUsersPercent);
 	});
 	
+	$.ajax({
+		url : "http://" + host + "/api/users/activity/statistics/active",
+		type : "GET",
+		data : {event: "login"},
+		crossDomain: true,
+		dataType: 'json'
+	}).done(function(data) {
+		$("#active-users-count").html(data.activeUsers);
+		$("#active-users-count-percent").html(data.activeUsersPercent);
+	});
+	
 	$.extend($.datepicker,{_checkOffset:function(inst,offset,isFixed){return offset}});
 	$( ".dateField" ).datepicker({
 		showOn: "both",

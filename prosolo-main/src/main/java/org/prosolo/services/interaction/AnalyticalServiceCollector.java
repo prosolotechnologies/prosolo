@@ -35,5 +35,7 @@ public interface AnalyticalServiceCollector {
 	void increaseUserEventCount(EventType event, Map<String, String> params,
 			long daysSinceEpoch);
 
+	void increaseEventCount(long userId, EventType event, Map<String, String> params, long daysSinceEpoch);
+
 }
 

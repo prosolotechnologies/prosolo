@@ -130,6 +130,15 @@ public class AnalyticalServiceCollectorImpl implements AnalyticalServiceCollecto
 		messageDistributer.distributeMessage(factory.createAnalyticalServiceMessage(DataName.USERACTIVITYPERDAY, DataType.COUNTER, data));
 	}
 	
+	@Override
+	public void increaseEventCount(long userId, EventType event, Map<String, String> params, long daysSinceEpoch) {
+		JsonObject data=new JsonObject();
+		data.add("user", new JsonPrimitive(userId));
+		data.add("event", new JsonPrimitive(eventName(event, params)));
+		data.add("date", new JsonPrimitive(daysSinceEpoch));
+		messageDistributer.distributeMessage(factory.createAnalyticalServiceMessage(DataName.ACTIVITYPERDAY, DataType.COUNTER, data));
+	}
+	
 	
 /*	//temporary
 	@Override

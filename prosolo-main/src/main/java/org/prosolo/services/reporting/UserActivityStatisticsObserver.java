@@ -1,5 +1,7 @@
 package org.prosolo.services.reporting;
 
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
@@ -41,8 +43,14 @@ public class UserActivityStatisticsObserver implements EventObserver {
 		logger.info("comming in event with actor: " + event.getActor());
 		logger.info("comming in event with object: " + event.getObject());
 		logger.info("comming in event with target: " + event.getTarget());
-		collector.increaseUserEventCount(event.getAction(),
-				event.getParameters(), DateUtil.getDaysSinceEpoch());
+		
+		EventType eventType = event.getAction();
+		Map<String, String> parameters = event.getParameters();
+		long daysSinceEpoch = DateUtil.getDaysSinceEpoch();
+		long userId = event.getActor().getId();
+		
+		collector.increaseUserEventCount(eventType, parameters, daysSinceEpoch);
+		collector.increaseEventCount(userId, eventType, parameters, daysSinceEpoch);
 	}
 
 }

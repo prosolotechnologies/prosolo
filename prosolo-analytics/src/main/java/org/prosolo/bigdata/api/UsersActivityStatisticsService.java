@@ -9,8 +9,10 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -21,6 +23,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.StringUtils;
+import org.prosolo.bigdata.common.dal.pojo.EventsCount;
 import org.prosolo.bigdata.common.dal.pojo.UserEventsCount;
 import org.prosolo.bigdata.dal.cassandra.impl.UserActivityStatisticsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.UserActivityStatisticsDBManagerImpl;
@@ -62,6 +65,34 @@ public class UsersActivityStatisticsService {
 		result.put("totalUsers", String.valueOf(sumCounts));
 		result.put("totalUsersPercent", percent + "%");
 		return corsOk(result);
+	}
+	
+	@GET
+	@Path("/statistics/active")
+	@Produces({ MediaType.APPLICATION_JSON })
+	public Response getSumActive(@QueryParam("event") String event) throws ParseException {
+		logger.debug("Service 'getSumActive' called with parameters and event: {}.", event);
+		long today = getDaysSinceEpoch(Calendar.getInstance().getTime());
+		long oneWeekAgo = today - 7;
+		long twoWeeksAgo = oneWeekAgo - 7;
+		
+		List<EventsCount> currentWeekCounts = dbManager.getEventsCount(event, oneWeekAgo, today);
+		List<EventsCount> previousWeekCounts = dbManager.getEventsCount(event, twoWeeksAgo, oneWeekAgo);
+		int sumCurrent = distinctCount(currentWeekCounts);
+		int sumPrevious = distinctCount(previousWeekCounts);
+		double percent = Math.round(sumPrevious * 1000.0 / sumCurrent) / 10.0;
+		Map<String, String> result = new HashMap<String, String>();
+		result.put("activeUsers", String.valueOf(sumCurrent));
+		result.put("activeUsersPercent", percent + "%");
+		return corsOk(result);
+	}
+	
+	private int distinctCount(List<EventsCount> counts) {
+		Set<Long> result = new HashSet<Long>();
+		for(EventsCount count : counts) {
+			result.add(Long.valueOf(count.getUser()));
+		}
+		return result.size();
 	}
 
 	@GET
