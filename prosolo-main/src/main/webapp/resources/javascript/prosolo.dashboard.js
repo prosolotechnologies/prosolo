@@ -37,6 +37,22 @@ function show(id) {
 	$("#" + id).show().siblings().hide();
 }
 
+function addTrendClassForPercent(selectors, percentage) {
+	if (isNegativePercentage(percentage)) {
+		for (var i=0; i<selectors.length; i++) {
+			$(selectors[i]).removeClass("trend-up").addClass("trend-down");
+		}
+	}else{
+		for (var i=0; i<selectors.length; i++) {
+			$(id).removeClass("trend-down").addClass("trend-up");
+		}
+	}
+}
+
+function isNegativePercentage(percentage){
+	return percentage.charAt(0) === '-';
+}
+
 $(function(){
 	var host = $("#dashboard").data("api");
 	$.ajax({
@@ -48,6 +64,7 @@ $(function(){
 	}).done(function(data) {
 		$("#total-users-count").html(data.totalUsers);
 		$("#total-users-count-percent").html(data.totalUsersPercent);
+		addTrendClassForPercent(["#total-users-trend","#total-users-count-percent"], data.totalUsersPercent );
 	});
 	
 	$.ajax({
@@ -59,6 +76,7 @@ $(function(){
 	}).done(function(data) {
 		$("#active-users-count").html(data.activeUsers);
 		$("#active-users-count-percent").html(data.activeUsersPercent);
+		addTrendClassForPercent(["#active-users-trend","#active-users-count-percent"], data.activeUsersPercent );
 	});
 	
 	$.extend($.datepicker,{_checkOffset:function(inst,offset,isFixed){return offset}});
