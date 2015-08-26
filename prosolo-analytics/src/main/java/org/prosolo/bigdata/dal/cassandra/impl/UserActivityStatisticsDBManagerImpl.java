@@ -19,6 +19,10 @@ public class UserActivityStatisticsDBManagerImpl extends SimpleCassandraClientIm
 
 	private static final String FIND_USER_EVENTS_COUNT = "SELECT * FROM useractivityperday WHERE event=? ALLOW FILTERING;";
 	
+	private static final String FIND_LOGIN_EVENTS =  "SELECT actorid FROM logevents WHERE eventtype = 'LOGIN' and objectid=0 and timestamp > ?";
+	
+	private static final String FIND_LOGOUT_EVENTS =  "SELECT actorid FROM logevents WHERE eventtype = 'LOGOUT' and objectid=0 and timestamp > ?";
+	
 	@Override
 	public List<EventsCount> getEventsCount(String event, long dateFrom, long dateTo) {
 		PreparedStatement prepared = getSession().prepare(FIND_EVENTS_COUNT_FOR_PERIOD);
@@ -89,6 +93,12 @@ public class UserActivityStatisticsDBManagerImpl extends SimpleCassandraClientIm
 		statement.setString(0, event);
 		return statement;
 	}
+	
+	private BoundStatement statement(PreparedStatement prepared, long timeFrom) {
+		BoundStatement statement = new BoundStatement(prepared);
+		statement.setLong(0, timeFrom);
+		return statement;
+	}
 
 	private BoundStatement statement(PreparedStatement prepared, String event, long dateFrom, long dateTo) {
 		BoundStatement statement = new BoundStatement(prepared);
@@ -97,5 +107,36 @@ public class UserActivityStatisticsDBManagerImpl extends SimpleCassandraClientIm
 		statement.setString(2, event);
 		return statement;
 	}
+
+	@Override
+	public List<Long> getLoggedInUsers(long timeFrom) {
+		PreparedStatement prepared = getSession().prepare(FIND_LOGIN_EVENTS);
+		BoundStatement statement = statement(prepared, timeFrom);
+		List<Row> rows = getSession().execute(statement).all();
+		if (rows.size() == 0)
+			return new ArrayList<Long>();
+
+		List<Long> result = new ArrayList<>();
+		for (Row row : rows) {
+			long user = row.getLong("actorid");
+			result.add(Long.valueOf(user));
+		}
+		return result;
+	}
+
+	@Override
+	public List<Long> getLoggedOutUsers(long timeFrom) {
+		PreparedStatement prepared = getSession().prepare(FIND_LOGOUT_EVENTS);
+		BoundStatement statement = statement(prepared, timeFrom);
+		List<Row> rows = getSession().execute(statement).all();
+		if (rows.size() == 0)
+			return new ArrayList<Long>();
+
+		List<Long> result = new ArrayList<>();
+		for (Row row : rows) {
+			long user = row.getLong("actorid");
+			result.add(Long.valueOf(user));
+		}
+		return result;	}
 
 }

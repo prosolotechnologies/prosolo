@@ -44,7 +44,7 @@ function addTrendClassForPercent(selectors, percentage) {
 		}
 	}else{
 		for (var i=0; i<selectors.length; i++) {
-			$(id).removeClass("trend-down").addClass("trend-up");
+			$(selectors[i]).removeClass("trend-down").addClass("trend-up");
 		}
 	}
 }
@@ -77,6 +77,15 @@ $(function(){
 		$("#active-users-count").html(data.activeUsers);
 		$("#active-users-count-percent").html(data.activeUsersPercent);
 		addTrendClassForPercent(["#active-users-trend","#active-users-count-percent"], data.activeUsersPercent );
+	});
+	
+	$.ajax({
+		url : "http://" + host + "/api/users/activity/statistics/session",
+		type : "GET",
+		crossDomain: true,
+		dataType: 'json'
+	}).done(function(data) {
+		$("#currently-logged-in-count").html(data.loggedIn);
 	});
 	
 	$.extend($.datepicker,{_checkOffset:function(inst,offset,isFixed){return offset}});

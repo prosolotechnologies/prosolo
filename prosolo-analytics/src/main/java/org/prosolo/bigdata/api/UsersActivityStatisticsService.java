@@ -87,6 +87,22 @@ public class UsersActivityStatisticsService {
 		return corsOk(result);
 	}
 	
+	@GET
+	@Path("/statistics/session")
+	@Produces({ MediaType.APPLICATION_JSON })
+	public Response getSessionData() throws ParseException {
+		logger.debug("Service 'getSessionData' called.");
+		Calendar lastHour = Calendar.getInstance();
+		lastHour.add(Calendar.HOUR, -1);
+		List<Long> login = dbManager.getLoggedInUsers(lastHour.getTimeInMillis());
+		List<Long> logout = dbManager.getLoggedOutUsers(lastHour.getTimeInMillis());
+		login.removeAll(logout);
+		Map<String, String> result = new HashMap<String, String>();
+		result.put("loggedIn", String.valueOf((long) login.size()));
+		return corsOk(result);
+	}
+
+	
 	private int distinctCount(List<EventsCount> counts) {
 		Set<Long> result = new HashSet<Long>();
 		for(EventsCount count : counts) {
