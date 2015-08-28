@@ -3,7 +3,7 @@
   realizations="true" associations="true" dependencies="true" nesting-relationships="true">  
   <class id="1" language="java" name="org.prosolo.common.domainmodel.competences.TargetCompetence" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/competences/TargetCompetence.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/competences/TargetCompetence.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="185" width="192" x="41" y="208"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -14,7 +14,7 @@
   </class>  
   <enumeration id="2" language="java" name="org.prosolo.common.domainmodel.competences.CompetenceType" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/competences/CompetenceType.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/competences/CompetenceType.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="113" width="201" x="208" y="644"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -24,7 +24,7 @@
     </display>  
   </enumeration>  
   <class id="3" language="java" name="org.prosolo.common.domainmodel.competences.Competence" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/competences/Competence.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/competences/Competence.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="131" width="192" x="208" y="443"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -34,7 +34,7 @@
     </display>  
   </class>  
   <class id="4" language="java" name="org.prosolo.common.domainmodel.general.Node" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/general/Node.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/general/Node.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="131" width="166" x="264" y="37"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 

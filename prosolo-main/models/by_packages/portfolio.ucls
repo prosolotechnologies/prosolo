@@ -2,7 +2,7 @@
 <class-diagram version="1.1.5" icons="true" automaticImage="PNG" always-add-relationships="false" generalizations="true" 
   realizations="true" associations="true" dependencies="true" nesting-relationships="true">  
   <class id="1" language="java" name="org.prosolo.common.domainmodel.portfolio.ExternalCredit" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/portfolio/ExternalCredit.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/portfolio/ExternalCredit.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="149" width="192" x="280" y="208"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -12,7 +12,7 @@
     </display>  
   </class>  
   <class id="2" language="java" name="org.prosolo.common.domainmodel.portfolio.Portfolio" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/portfolio/Portfolio.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/portfolio/Portfolio.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="95" width="150" x="240" y="37"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -22,7 +22,7 @@
     </display>  
   </class>  
   <class id="3" language="java" name="org.prosolo.common.domainmodel.portfolio.CompletedGoal" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/portfolio/CompletedGoal.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/portfolio/CompletedGoal.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="113" width="178" x="41" y="208"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -32,7 +32,7 @@
     </display>  
   </class>  
   <class id="4" language="java" name="org.prosolo.common.domainmodel.portfolio.CompletedResource" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/portfolio/CompletedResource.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/portfolio/CompletedResource.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="131" width="150" x="493" y="37"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -43,7 +43,7 @@
   </class>  
   <class id="5" language="java" name="org.prosolo.common.domainmodel.portfolio.AchievedCompetence" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/portfolio/AchievedCompetence.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/portfolio/AchievedCompetence.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="113" width="214" x="240" y="397"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -53,7 +53,7 @@
     </display>  
   </class>  
   <interface id="6" language="java" name="org.prosolo.common.domainmodel.organization.Visible" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/organization/Visible.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/organization/Visible.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="59" width="167" x="533" y="208"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -63,7 +63,7 @@
     </display>  
   </interface>  
   <class id="7" language="java" name="org.prosolo.common.domainmodel.general.BaseEntity" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/general/BaseEntity.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/general/BaseEntity.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="167" width="147" x="475" y="550"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 

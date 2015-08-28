@@ -1,20 +1,18 @@
 package org.prosolo.bigdata.dal.persistence.impl;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.dal.persistence.DiggestGeneratorDAO;
-import org.prosolo.bigdata.spark.LearningGoalsMostActiveUsersAnalyzer;
 import org.prosolo.common.domainmodel.feeds.FeedEntry;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.FeedsPreferences;
 
 
-public class DiggestGeneratorDAOImpl extends DAOImpl implements
+public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 	DiggestGeneratorDAO{
 	
 	private static Logger logger = Logger
@@ -23,6 +21,7 @@ public class DiggestGeneratorDAOImpl extends DAOImpl implements
 	@SuppressWarnings({ "unused", "unchecked" })
 	@Override
 	public  List<Long> getAllUsersIds() {
+		//Session session=openSession();
 		String query = 
 			"SELECT user.id " +
 			"FROM User user " +
@@ -31,13 +30,14 @@ public class DiggestGeneratorDAOImpl extends DAOImpl implements
 		//@SuppressWarnings("unchecked")
 		List<Long> result =null;
 		try{
-			 result = getEntityManager().createQuery(query)
-					 .setParameter("deleted", false)
-						.getResultList();
+			 result = session.createQuery(query)
+					 .setParameter("deleted", false).list();
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}
-		
+		//finally{
+			//session.close();
+		//}
 		System.out.println("RESULTS:"+result.size());
 
 		if (result != null) {
@@ -47,7 +47,7 @@ public class DiggestGeneratorDAOImpl extends DAOImpl implements
 	}
 	@Override
 	public FeedsPreferences getFeedsPreferences(User user) {
-		String query = 
+		/*String query = 
 			"SELECT DISTINCT feedPreferences " + 
 			"FROM FeedsPreferences feedPreferences " + 
 			"LEFT JOIN feedPreferences.user user " + 
@@ -59,17 +59,39 @@ public class DiggestGeneratorDAOImpl extends DAOImpl implements
 		
 		FeedsPreferences feedsPreferences = (FeedsPreferences) getEntityManager().createQuery(query)
 				 .setParameter("userid", user.getId()).getSingleResult();
+		*/
+		return null;
+	}
+	@Override
+	public FeedsPreferences getFeedsPreferences(long userId) {
+		String query = 
+			"SELECT DISTINCT feedPreferences " + 
+			"FROM FeedsPreferences feedPreferences " + 
+			"LEFT JOIN feedPreferences.user user " + 
+			"WHERE user.id = :userid  " +
+			"AND feedPreferences.class in ('FeedsPreferences')"	;
+		System.out.println("FEED PREFERENCES QUERY:"+query+" userid:"+userId);
+	
+		try{
+			FeedsPreferences feedsPreferences = (FeedsPreferences) (FeedsPreferences) session.createQuery(query)
+					.setParameter("userid", userId).uniqueResult();
+			System.out.println("RETURNING FEED PREFERENCES...");
+			System.out.println("RETURNING FEED PREFERENCES..."+feedsPreferences.getId());
+			return feedsPreferences;
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+		return null;
 		
-		return feedsPreferences;
 	}
 	@Override
 	public List<FeedEntry> getFeedEntriesFromSources(
 			List<FeedSource> feedSources, User user, Date dateFrom) {
+		//Session session=openSession();
 		if (feedSources == null || feedSources.isEmpty()) {
 			return new ArrayList<FeedEntry>();
 		}
-		
-		String query = 
+	 		String query = 
 			"SELECT DISTINCT feedEntry " + 
 			"FROM FeedEntry feedEntry " +
 			"WHERE feedEntry.feedSource IN (:feedSources) " +
@@ -77,13 +99,20 @@ public class DiggestGeneratorDAOImpl extends DAOImpl implements
 				"AND feedEntry.subscribedUser = :user " +  
 			"ORDER BY feedEntry.relevance ASC, feedEntry.dateCreated DESC";
 		
-		@SuppressWarnings("unchecked")
-		List<FeedEntry> feedEntries = getEntityManager().createQuery(query)
-			.setParameter("feedSources", feedSources)
-			.setParameter("dateFrom", dateFrom)
-			.setParameter("user", user)
-			.getResultList();
+		//@SuppressWarnings("unchecked")
+		try{
+			@SuppressWarnings("unchecked")
+			List<FeedEntry> feedEntries = session.createQuery(query)
+					.setParameterList("feedSources", feedSources)
+					.setDate("dateFrom", dateFrom)
+					.setEntity("user", user)
+					.list();
+			return feedEntries;
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+	return new ArrayList<FeedEntry>();
 		
-		return feedEntries;
+		
 	}
 }

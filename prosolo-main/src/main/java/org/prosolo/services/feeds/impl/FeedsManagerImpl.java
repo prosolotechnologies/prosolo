@@ -87,9 +87,16 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 			"WHERE user.id = :userid  " +
 			"AND feedPreferences.class in ('FeedsPreferences')"	;
 		
-		FeedsPreferences feedsPreferences = (FeedsPreferences) persistence.currentManager().createQuery(query)
-				.setLong("userid", userId)
-				.uniqueResult();
+
+		FeedsPreferences feedsPreferences =null;
+		try{
+			 feedsPreferences = (FeedsPreferences) persistence.currentManager().createQuery(query)
+					.setLong("userid", userId)
+					.uniqueResult();	
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+		
 		return feedsPreferences;
 	}
 

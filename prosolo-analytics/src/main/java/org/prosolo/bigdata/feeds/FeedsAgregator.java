@@ -2,6 +2,7 @@ package org.prosolo.bigdata.feeds;
 
 import java.util.Date;
 
+import org.hibernate.Session;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.user.User;
 

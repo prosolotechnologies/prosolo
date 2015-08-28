@@ -16,7 +16,7 @@ import org.prosolo.common.domainmodel.user.User;
  *
  */
 
-public interface TwitterStreamingDAO extends DAO {
+public interface TwitterStreamingDAO extends GenericDAO {
 
 	Map<String, StreamListData> readAllHashtagsAndLearningGoalsIds();
 

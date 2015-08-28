@@ -12,7 +12,7 @@ public class GenerateFeedsJob  implements Job {
 	@Override
 	public void execute(JobExecutionContext context)
 			throws JobExecutionException {
-logger.info("STARTING GENERATION OF FEED DIGESTS");
+logger.info("STARTING GENERATION OF FEED DIGESTS EXECUTED JOB");
 		
 		//digestManager.createFeedDiggestsAndSendEmails();
 		DigestManager$ digestManager = DigestManager$.MODULE$;

@@ -2,7 +2,7 @@
 <class-diagram version="1.1.5" icons="true" automaticImage="PNG" always-add-relationships="false" generalizations="true" 
   realizations="true" associations="true" dependencies="true" nesting-relationships="true">  
   <class id="1" language="java" name="org.prosolo.common.domainmodel.app.ResetKey" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/app/ResetKey.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/app/ResetKey.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="131" width="132" x="42" y="244"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -12,7 +12,7 @@
     </display>  
   </class>  
   <enumeration id="2" language="java" name="org.prosolo.common.domainmodel.app.RegistrationType" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/app/RegistrationType.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/app/RegistrationType.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="95" width="242" x="104" y="415"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -22,7 +22,7 @@
     </display>  
   </enumeration>  
   <class id="3" language="java" name="org.prosolo.common.domainmodel.app.RegistrationKey" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/app/RegistrationKey.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/app/RegistrationKey.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="95" width="132" x="214" y="244"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -32,7 +32,7 @@
     </display>  
   </class>  
   <class id="4" language="java" name="org.prosolo.common.domainmodel.general.BaseEntity" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/general/BaseEntity.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/general/BaseEntity.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="167" width="147" x="128" y="37"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 

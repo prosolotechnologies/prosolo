@@ -3,7 +3,7 @@
   realizations="true" associations="true" dependencies="true" nesting-relationships="true">  
   <class id="1" language="java" name="org.prosolo.common.domainmodel.activitywall.SocialActivityNotification" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activitywall/SocialActivityNotification.java" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/activitywall/SocialActivityNotification.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="203" width="168" x="858" y="1001"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -13,7 +13,7 @@
     </display>  
   </class>  
   <class id="2" language="java" name="org.prosolo.common.domainmodel.activitywall.SocialActivity" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activitywall/SocialActivity.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/activitywall/SocialActivity.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="329" width="163" x="858" y="37"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -24,7 +24,7 @@
   </class>  
   <class id="3" language="java" name="org.prosolo.common.domainmodel.activitywall.PostSocialActivity" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activitywall/PostSocialActivity.java" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/activitywall/PostSocialActivity.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="113" width="163" x="1061" y="416"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -35,7 +35,7 @@
   </class>  
   <class id="4" language="java" name="org.prosolo.common.domainmodel.activitywall.GoalNoteSocialActivity" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activitywall/GoalNoteSocialActivity.java" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/activitywall/GoalNoteSocialActivity.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="113" width="163" x="858" y="416"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -46,7 +46,7 @@
   </class>  
   <class id="5" language="java" name="org.prosolo.common.domainmodel.activitywall.NodeUserSocialActivity" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activitywall/NodeUserSocialActivity.java" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/activitywall/NodeUserSocialActivity.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="113" width="163" x="655" y="416"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -57,7 +57,7 @@
   </class>  
   <enumeration id="6" language="java" name="org.prosolo.common.domainmodel.activitywall.SocialStreamSubViewType" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activitywall/SocialStreamSubViewType.java" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/activitywall/SocialStreamSubViewType.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="95" width="239" x="1027" y="1397"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -68,7 +68,7 @@
   </enumeration>  
   <class id="7" language="java" name="org.prosolo.common.domainmodel.activitywall.SocialStreamSubView" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activitywall/SocialStreamSubView.java" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/activitywall/SocialStreamSubView.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="113" width="170" x="1027" y="1244"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -79,7 +79,7 @@
   </class>  
   <class id="8" language="java" name="org.prosolo.common.domainmodel.activitywall.SocialStreamInbox" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activitywall/SocialStreamInbox.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/activitywall/SocialStreamInbox.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="95" width="163" x="674" y="866"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -90,7 +90,7 @@
   </class>  
   <class id="9" language="java" name="org.prosolo.common.domainmodel.activitywall.NodeSocialActivity" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activitywall/NodeSocialActivity.java" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/activitywall/NodeSocialActivity.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="113" width="163" x="452" y="416"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -101,7 +101,7 @@
   </class>  
   <class id="10" language="java" name="org.prosolo.common.domainmodel.activitywall.DefaultSocialActivity" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activitywall/DefaultSocialActivity.java" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/activitywall/DefaultSocialActivity.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="77" width="163" x="41" y="416"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -112,7 +112,7 @@
   </class>  
   <class id="11" language="java" name="org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/activitywall/TwitterPostSocialActivity.java" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/activitywall/TwitterPostSocialActivity.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="203" width="168" x="244" y="416"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -122,7 +122,7 @@
     </display>  
   </class>  
   <class id="12" language="java" name="org.prosolo.common.domainmodel.general.BaseEntity" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/general/BaseEntity.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/general/BaseEntity.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="167" width="147" x="858" y="659"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 

@@ -9,12 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
-
 import org.apache.log4j.Logger;
-import org.hibernate.Session;
 import org.prosolo.bigdata.dal.persistence.TwitterStreamingDAO;
 import org.prosolo.bigdata.twitter.StreamListData;
 import org.prosolo.common.domainmodel.activities.events.EventType;
@@ -33,7 +29,7 @@ import org.prosolo.common.domainmodel.user.UserType;
  *
  */
 
-public class TwitterStreamingDAOImpl extends DAOImpl implements
+public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 		TwitterStreamingDAO {
 
 	private static Logger logger = Logger
@@ -54,8 +50,7 @@ public class TwitterStreamingDAOImpl extends DAOImpl implements
 
 		logger.info("hb query:" + query);
 		@SuppressWarnings("unchecked")
-		List<Object> result = getEntityManager().createQuery(query)
-				.getResultList();
+		List<Object> result = session.createQuery(query).list();
 
 		Map<String, StreamListData> hashtagsLearningGoalIds = new HashMap<String, StreamListData>();
 
@@ -93,9 +88,8 @@ public class TwitterStreamingDAOImpl extends DAOImpl implements
 				+ "LEFT JOIN topicPreference.preferredHashtags hashtag  WHERE hashtag.id > 0";
 		System.out.println("HASHTAGS QUERY:"+query);
 		@SuppressWarnings("unchecked")
-		List<Object> result = getEntityManager().createQuery(query)
-				.getResultList();
-
+		List<Object> result = session.createQuery(query).list();
+				
 		Map<String, List<Long>> hashtagsUserIds = new HashMap<String, List<Long>>();
 
 		if (result != null) {
@@ -143,7 +137,7 @@ public class TwitterStreamingDAOImpl extends DAOImpl implements
 		twitterPost.setUserUrl(userUrl);
 		twitterPost.setProfileImage(profileImage);
 		if (toSave) {
-			twitterPost = (TwitterPost) persist(twitterPost);
+			twitterPost = (TwitterPost) save(twitterPost);
 		}
 		return twitterPost;
 	}
@@ -182,7 +176,7 @@ public class TwitterStreamingDAOImpl extends DAOImpl implements
 		twitterPostSA.setHashtags(newCollection);
 		twitterPostSA.setVisibility(VisibilityType.PUBLIC);
 
-		twitterPostSA = (TwitterPostSocialActivity) persist(twitterPostSA);
+		twitterPostSA = (TwitterPostSocialActivity) save(twitterPostSA);
 		return twitterPostSA;
 	}
 
@@ -213,7 +207,7 @@ public class TwitterStreamingDAOImpl extends DAOImpl implements
 
 		Tag newTag = new Tag();
 		newTag.setTitle(title);
-		newTag = (Tag) persist(newTag);
+		newTag = (Tag) save(newTag);
 		return newTag;
 	}
 
@@ -226,8 +220,8 @@ public class TwitterStreamingDAOImpl extends DAOImpl implements
 		List<Tag> tags = null;
 
 		// try{
-		tags = getEntityManager().createQuery(query)
-				.setParameter("title", title).getResultList();
+		tags = session.createQuery(query)
+				.setParameter("title", title).list();
 		// }catch(NoResultException nre){
 
 		if (tags != null && !tags.isEmpty()) {
@@ -243,8 +237,8 @@ public class TwitterStreamingDAOImpl extends DAOImpl implements
 
 		logger.debug("hb query:" + query);
 		try {
-			return (User) getEntityManager().createQuery(query)
-					.setParameter("userId", userId).getSingleResult();
+			return (User) session.createQuery(query)
+					.setParameter("userId", userId).uniqueResult();
 		} catch (NoResultException nre) {
 			return null;
 		}
@@ -258,8 +252,8 @@ public class TwitterStreamingDAOImpl extends DAOImpl implements
 		logger.debug("hb query:" + query);
 
 		@SuppressWarnings("unchecked")
-		List<Long> result = getEntityManager().createQuery(query)
-				.getResultList();
+		List<Long> result = session.createQuery(query)
+				.list();
 
 		if (result != null) {
 			return result;

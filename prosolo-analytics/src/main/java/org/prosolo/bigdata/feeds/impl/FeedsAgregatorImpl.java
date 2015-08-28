@@ -5,7 +5,10 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import javax.transaction.Transactional;
+
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.course.Course;
@@ -20,6 +23,7 @@ import org.prosolo.common.domainmodel.user.TimeFrame;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.FeedsPreferences;
 import org.prosolo.bigdata.dal.persistence.DiggestGeneratorDAO;
+import org.prosolo.bigdata.dal.persistence.HibernateUtil;
 import org.prosolo.bigdata.dal.persistence.impl.DiggestGeneratorDAOImpl;
 import org.prosolo.bigdata.feeds.DiggestManager;
 //import org.prosolo.services.annotation.TagManager;
@@ -28,6 +32,8 @@ import org.prosolo.bigdata.feeds.FeedsAgregator;
 import org.prosolo.bigdata.feeds.data.FeedData;
 import org.prosolo.bigdata.feeds.data.FeedMessageData;
 import org.prosolo.bigdata.feeds.ResourceTokenizer;
+import org.prosolo.bigdata.similarity.WebPageRelevance;
+import org.prosolo.bigdata.similarity.impl.WebPageRelevanceImpl;
 /*import org.prosolo.services.feeds.FeedsManager;
 import org.prosolo.services.htmlparser.WebPageContentExtractor;
 import org.prosolo.services.interaction.FollowResourceManager;
@@ -50,8 +56,7 @@ import org.springframework.transaction.annotation.Transactional;*/
  * @author Zoran Jeremic 2013-08-15
  * 
  */
-//@Transactional
-//@Service("org.prosolo.bigdata.feeds.FeedsAggregator")
+
 public class FeedsAgregatorImpl implements FeedsAgregator {
 
 
@@ -60,7 +65,7 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 	private ResourceTokenizer resourceTokenizer=new ResourceTokenizerImpl();
 
 	/*@Autowired private DefaultManager defaultManager;
-	@Autowired private WebPageRelevance webPageRelevance;
+	private WebPageRelevance webPageRelevance;
 	@Autowired private ResourceTokenizer resourceTokenizer;
 	@Autowired private WebPageContentExtractor webPageContentExtractor;
 	@Autowired private FeedsManager feedsManager;
@@ -75,8 +80,8 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 	@Autowired private ApplicationBean applicationBean;
 */
 	private final int FLUSH_LIMIT = 5;
-
-
+	private FeedParser feedParser=new JavaxXmlStreamFeedParser();
+	private WebPageRelevance webPageRelevance=new WebPageRelevanceImpl();
 	
 	@Override
 	//@Transactional (readOnly = false)
@@ -95,7 +100,9 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 	}
 
 	private void parseRSSFeed(User blogOwner, User subscribedUser, FeedSource feedSource, String userTokenizedString) {
-		/*String link = feedSource.getLink();
+		
+		String link = feedSource.getLink();
+		System.out.println("Parsing RSS feed:"+link);
 		
 		FeedData feedData = feedParser.readFeed(link, feedSource.getLastCheck());
 		
@@ -125,19 +132,20 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 					feedEntry.setRelevance(relevance);
 				}
 				
-				feedEntry = feedsManager.saveEntity(feedEntry);
-				
+				//feedEntry = feedsManager.saveEntity(feedEntry);
+				feedEntry = (FeedEntry) diggestGeneratorDAO.save(feedEntry);
 				if (saveCounter > FLUSH_LIMIT) {
-					feedsManager.getPersistence().flush();
-					feedsManager.getPersistence().clear();
+					 System.out.println("FLUSH AND CLEAR HERE");
+					//feedsManager.getPersistence().flush();
+					//feedsManager.getPersistence().clear();
 					saveCounter = 0;
 				}
 			}
 			
 			feedSource.setLastCheck(new Date());
-			feedsManager.saveEntity(feedSource);
+			diggestGeneratorDAO.save(feedSource);
 			logger.info("Collected blog entries from RSS feed source " + feedSource + ", total entries:" + totalCounter);
-		}*/
+		}
 	}
 
 	@Override
@@ -194,23 +202,23 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 		} */
 	}
 	@Override
+	//@Transactional
 	public void generateDailySubscribedRSSFeedsDigestForUser(Long userid, Date dateFrom) {
 		System.out.println("GENERATE RSS FOR USER:"+userid);
-		User user=diggestGeneratorDAO.getEntityManager().find(User.class, userid);
-		System.out.println("FOUND USER:"+user.getLastname()+" "+user.getName());
-	 	//user = feedsManager.merge(user);
-		
+		 Session session=HibernateUtil.getSessionFactory().openSession();
+		diggestGeneratorDAO.setSession(session);
+		User user=(User) session.load(User.class, userid);
 		String userTokenizedString = resourceTokenizer.getTokenizedStringForUser(user);
-		
-		List<FeedSource> subscribedRssSources = diggestGeneratorDAO.getFeedsPreferences(user).getSubscribedRssSources();
-		
+		System.out.println("TOKENIZED STRING:"+userTokenizedString);
+		List<FeedSource> subscribedRssSources = diggestGeneratorDAO.getFeedsPreferences(userid).getSubscribedRssSources();
+		System.out.println("HAVE SOURCES:"+subscribedRssSources.size());
 			
 		for (FeedSource feedSource : subscribedRssSources) {
-			parseRSSFeed(null, user, feedSource, userTokenizedString);
+		 	parseRSSFeed(null, user, feedSource, userTokenizedString);
 		}
-		
+		//User user=null;
 		List<FeedEntry> subscribedRSSFeedEntries = diggestGeneratorDAO.getFeedEntriesFromSources(subscribedRssSources, user, dateFrom);
-		
+		System.out.println("KT-2:"+subscribedRSSFeedEntries.size());
 		if (subscribedRSSFeedEntries != null && !subscribedRSSFeedEntries.isEmpty()) {
 			SubscribedRSSFeedsDigest subscribedRSSFeedDigest = new SubscribedRSSFeedsDigest();
 			subscribedRSSFeedDigest.setEntries(subscribedRSSFeedEntries);
@@ -218,10 +226,10 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 			subscribedRSSFeedDigest.setTimeFrame(TimeFrame.DAILY);
 			subscribedRSSFeedDigest.setFeedsSubscriber(user);
 			
-			diggestGeneratorDAO.persist(subscribedRSSFeedDigest);
+			diggestGeneratorDAO.save(subscribedRSSFeedDigest);
 			//feedsManager.saveEntity(subscribedRSSFeedDigest);
 			
-			logger.info("Created feed digest of subscribed feeds for user " + user + "; total entries:" + subscribedRSSFeedEntries.size());
+			//logger.info("Created feed digest of subscribed feeds for user " + user + "; total entries:" + subscribedRSSFeedEntries.size());
 		} /*/
 	}
 	
@@ -273,6 +281,9 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 				logger.info("Created course digest for course"  + course + "; total entries :" + courseFeedEntries.size());
 			}
 		}*/
+		//diggestGeneratorDAO.getEntityManager().getTransaction().commit();
+		session.flush();
+		session.close();
 	}
 	
 	@Override

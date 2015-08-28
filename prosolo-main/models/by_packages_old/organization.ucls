@@ -3,7 +3,7 @@
   realizations="true" associations="true" dependencies="true" nesting-relationships="true">  
   <enumeration id="1" language="java" name="org.prosolo.common.domainmodel.organization.VisibilityType" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/organization/VisibilityType.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/organization/VisibilityType.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="113" width="167" x="41" y="244"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -13,7 +13,7 @@
     </display>  
   </enumeration>  
   <class id="2" language="java" name="org.prosolo.common.domainmodel.organization.Unit_User_Role" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/organization/Unit_User_Role.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/organization/Unit_User_Role.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="131" width="167" x="683" y="244"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -23,7 +23,7 @@
     </display>  
   </class>  
   <interface id="3" language="java" name="org.prosolo.common.domainmodel.organization.Visible" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/organization/Visible.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/organization/Visible.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="59" width="167" x="41" y="37"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -33,7 +33,7 @@
     </display>  
   </interface>  
   <class id="4" language="java" name="org.prosolo.common.domainmodel.organization.Organization" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/organization/Organization.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/organization/Organization.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="113" width="167" x="476" y="415"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -43,7 +43,7 @@
     </display>  
   </class>  
   <class id="5" language="java" name="org.prosolo.common.domainmodel.organization.Unit_User" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/organization/Unit_User.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/organization/Unit_User.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="167" width="167" x="683" y="415"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -54,7 +54,7 @@
   </class>  
   <class id="6" language="java" name="org.prosolo.common.domainmodel.organization.OrganizationalUnit" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/organization/OrganizationalUnit.java" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/organization/OrganizationalUnit.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="95" width="167" x="476" y="622"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -65,7 +65,7 @@
   </class>  
   <class id="7" language="java" name="org.prosolo.common.domainmodel.organization.OrganizationalPosition" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/organization/OrganizationalPosition.java" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/organization/OrganizationalPosition.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="77" width="167" x="248" y="244"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -75,7 +75,7 @@
     </display>  
   </class>  
   <class id="8" language="java" name="org.prosolo.common.domainmodel.organization.Role" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/organization/Role.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/organization/Role.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="95" width="167" x="890" y="415"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -85,7 +85,7 @@
     </display>  
   </class>  
   <class id="9" language="java" name="org.prosolo.common.domainmodel.general.BaseEntity" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/general/BaseEntity.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/general/BaseEntity.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="167" width="147" x="587" y="37"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 

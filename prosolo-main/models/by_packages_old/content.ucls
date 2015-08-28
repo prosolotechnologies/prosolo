@@ -2,7 +2,7 @@
 <class-diagram version="1.1.5" icons="true" automaticImage="PNG" always-add-relationships="false" generalizations="true" 
   realizations="true" associations="true" dependencies="true" nesting-relationships="true">  
   <class id="1" language="java" name="org.prosolo.common.domainmodel.content.RichContent" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/content/RichContent.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/content/RichContent.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="167" width="148" x="643" y="443"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -12,7 +12,7 @@
     </display>  
   </class>  
   <enumeration id="2" language="java" name="org.prosolo.common.domainmodel.content.ContentType" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/content/ContentType.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/content/ContentType.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="149" width="215" x="576" y="650"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -22,7 +22,7 @@
     </display>  
   </enumeration>  
   <class id="3" language="java" name="org.prosolo.common.domainmodel.content.TwitterPost" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/content/TwitterPost.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/content/TwitterPost.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="113" width="154" x="449" y="443"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -32,7 +32,7 @@
     </display>  
   </class>  
   <class id="4" language="java" name="org.prosolo.common.domainmodel.content.Post" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/content/Post.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/content/Post.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="149" width="148" x="449" y="244"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -42,7 +42,7 @@
     </display>  
   </class>  
   <class id="5" language="java" name="org.prosolo.common.domainmodel.content.GoalNote" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/content/GoalNote.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/content/GoalNote.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="113" width="158" x="44" y="443"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -52,7 +52,7 @@
     </display>  
   </class>  
   <class id="6" language="java" name="org.prosolo.common.domainmodel.general.BaseEntity" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/general/BaseEntity.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/general/BaseEntity.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="167" width="147" x="643" y="37"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -62,7 +62,7 @@
     </display>  
   </class>  
   <interface id="7" language="java" name="org.prosolo.common.domainmodel.organization.Visible" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/organization/Visible.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/organization/Visible.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="59" width="167" x="242" y="443"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 

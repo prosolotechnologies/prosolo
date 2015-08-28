@@ -3,7 +3,7 @@
   realizations="true" associations="true" dependencies="true" nesting-relationships="true">  
   <class id="1" language="java" name="org.prosolo.common.domainmodel.featuredNews.UserFeaturedNews" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/featuredNews/UserFeaturedNews.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/featuredNews/UserFeaturedNews.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="95" width="175" x="123" y="379"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -14,7 +14,7 @@
   </class>  
   <enumeration id="2" language="java" name="org.prosolo.common.domainmodel.featuredNews.FeaturedNewsType" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/featuredNews/FeaturedNewsType.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/featuredNews/FeaturedNewsType.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="95" width="175" x="411" y="667"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -24,7 +24,7 @@
     </display>  
   </enumeration>  
   <class id="3" language="java" name="org.prosolo.common.domainmodel.featuredNews.FeaturedNews" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/featuredNews/FeaturedNews.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/featuredNews/FeaturedNews.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="113" width="175" x="319" y="514"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -35,7 +35,7 @@
   </class>  
   <class id="4" language="java" name="org.prosolo.common.domainmodel.featuredNews.FeedFeaturedNews" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/featuredNews/FeedFeaturedNews.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/featuredNews/FeedFeaturedNews.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="95" width="175" x="196" y="667"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -46,7 +46,7 @@
   </class>  
   <class id="5" language="java" name="org.prosolo.common.domainmodel.featuredNews.LearningGoalFeaturedNews" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/featuredNews/LearningGoalFeaturedNews.java" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/featuredNews/LearningGoalFeaturedNews.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="113" width="183" x="626" y="667"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -57,7 +57,7 @@
   </class>  
   <class id="6" language="java" name="org.prosolo.common.domainmodel.featuredNews.FeaturedNewsInbox" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/featuredNews/FeaturedNewsInbox.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/featuredNews/FeaturedNewsInbox.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="95" width="175" x="102" y="244"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -76,7 +76,7 @@
     </display>  
   </interface>  
   <class id="8" language="java" name="org.prosolo.common.domainmodel.general.BaseEntity" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/general/BaseEntity.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/general/BaseEntity.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="167" width="147" x="298" y="37"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 

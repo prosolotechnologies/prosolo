@@ -15,7 +15,6 @@ import org.prosolo.bigdata.feeds.FeedParser;
 import org.prosolo.bigdata.feeds.data.FeedData;
 import org.prosolo.bigdata.feeds.data.FeedMessageData;
 import org.prosolo.bigdata.htmlparsers.JSOUPParser;
-//import org.springframework.beans.factory.annotation.Autowired;
 
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;

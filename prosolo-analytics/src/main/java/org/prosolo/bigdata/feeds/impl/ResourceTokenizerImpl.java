@@ -1,16 +1,17 @@
 package org.prosolo.bigdata.feeds.impl;
 
 import java.util.Collection;
- 
 import java.util.Set;
 
+import javax.transaction.Transactional;
+
+import org.hibernate.Session;
+import org.prosolo.bigdata.dal.persistence.DiggestGeneratorDAO;
+import org.prosolo.bigdata.dal.persistence.impl.DiggestGeneratorDAOImpl;
 import org.prosolo.bigdata.feeds.ResourceTokenizer;
- 
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.annotation.Tag;
- 
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
- 
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
@@ -18,7 +19,7 @@ import org.prosolo.common.domainmodel.user.User;
 //import org.springframework.transaction.annotation.Transactional;
 
 public class ResourceTokenizerImpl implements ResourceTokenizer{
-
+	//DiggestGeneratorDAO diggestGeneratorDAO=new DiggestGeneratorDAOImpl();
 	public String getTokenizedStringForUserLearningGoal(User user, TargetLearningGoal tGoal) {
 		StringBuffer userStringBuffer = new StringBuffer();
 		getTokenizedStringForUserLearningGoal(user, tGoal, userStringBuffer);
@@ -26,10 +27,19 @@ public class ResourceTokenizerImpl implements ResourceTokenizer{
 	}
 	
 	@Override
+	//@Transactional
 	public String getTokenizedStringForUser(User user) {
-		StringBuffer userStringBuffer = new StringBuffer();
-		Set<TargetLearningGoal> tLearningGoals = user.getLearningGoals();
 		
+		StringBuffer userStringBuffer = new StringBuffer();
+	
+		//User user=diggestGeneratorDAO.getEntityManager().find(User.class, userid);
+		System.out.println("FOUND USER:"+user.getLastname());
+		Set<TargetLearningGoal> tLearningGoals = user.getLearningGoals();
+		if(tLearningGoals==null){
+			System.out.println("NULL TLEARNING GOALS:"+user.getName()+" "+user.getLastname());
+		}else{
+			System.out.println("HAS:"+tLearningGoals.size());
+		}
 		for (TargetLearningGoal tlg : tLearningGoals) {
 			getTokenizedStringForUserLearningGoal(user, tlg, userStringBuffer);
 		}

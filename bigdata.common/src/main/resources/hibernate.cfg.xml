@@ -37,6 +37,6 @@
         <!-- mapping class="model.beans.TestBean"/-->
         <mapping package="org.prosolo.common.domainmodel" />
         <mapping package="org.prosolo.common.domainmodel.user" />
-        <mapping class="org.prosolo.common.domainmodel.user.User" />
+        <!-- mapping class="org.prosolo.common.domainmodel.user.User" /-->
     </session-factory>
 </hibernate-configuration>

@@ -28,6 +28,7 @@ public class DAOImpl implements DAO {
 	@Override
 	public <T> T persist(T o) {
 		try {
+			
 			em.getTransaction().begin();
 			em.persist(o);
 			em.getTransaction().commit();

@@ -306,6 +306,7 @@ public class CronSchedulerImpl implements CronScheduler {
 			jobBuilder.withIdentity(jobKey);
 
 			if (jobConfig.onStartup) {
+				System.out.println("RUNNING ON startup JOB:"+jobClassName);
 				jobBuilder.storeDurably();
 				JobDetail jobDetails = jobBuilder.build();
 				sched.addJob(jobDetails, true);

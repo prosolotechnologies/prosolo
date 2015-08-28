@@ -3,7 +3,7 @@
   realizations="true" associations="true" dependencies="true" nesting-relationships="true">  
   <class id="1" language="java" name="org.prosolo.common.domainmodel.interfacesettings.UserSettings" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/interfacesettings/UserSettings.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/interfacesettings/UserSettings.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="113" width="186" x="267" y="37"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -14,7 +14,7 @@
   </class>  
   <class id="2" language="java" name="org.prosolo.common.domainmodel.interfacesettings.StickyMenuSettings" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/interfacesettings/StickyMenuSettings.java" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/interfacesettings/StickyMenuSettings.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="113" width="186" x="41" y="244"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -25,7 +25,7 @@
   </class>  
   <class id="3" language="java" name="org.prosolo.common.domainmodel.interfacesettings.TermsOfUse" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/interfacesettings/TermsOfUse.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/interfacesettings/TermsOfUse.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="113" width="186" x="493" y="244"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -36,7 +36,7 @@
   </class>  
   <class id="4" language="java" name="org.prosolo.common.domainmodel.interfacesettings.LocaleSettings" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/interfacesettings/LocaleSettings.java" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/interfacesettings/LocaleSettings.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="113" width="186" x="267" y="244"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -47,7 +47,7 @@
   </class>  
   <class id="5" language="java" name="org.prosolo.common.domainmodel.interfacesettings.ActivityWallSettings" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/interfacesettings/ActivityWallSettings.java" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/interfacesettings/ActivityWallSettings.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="95" width="186" x="719" y="244"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -57,7 +57,7 @@
     </display>  
   </class>  
   <class id="6" language="java" name="org.prosolo.common.domainmodel.general.BaseEntity" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/general/BaseEntity.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/general/BaseEntity.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="167" width="147" x="493" y="37"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 

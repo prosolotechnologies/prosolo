@@ -3,7 +3,7 @@
   realizations="true" associations="true" dependencies="true" nesting-relationships="true">  
   <enumeration id="1" language="java" name="org.prosolo.common.domainmodel.user.notifications.NotificationAction" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/notifications/NotificationAction.java" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/user/notifications/NotificationAction.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="131" width="188" x="546" y="451"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -14,7 +14,7 @@
   </enumeration>  
   <class id="2" language="java" name="org.prosolo.common.domainmodel.user.notifications.RequestNotification" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/notifications/RequestNotification.java" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/user/notifications/RequestNotification.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="95" width="188" x="318" y="451"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -25,7 +25,7 @@
   </class>  
   <class id="3" language="java" name="org.prosolo.common.domainmodel.user.notifications.EvaluationNotification" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/notifications/EvaluationNotification.java" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/user/notifications/EvaluationNotification.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="95" width="188" x="774" y="451"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -36,7 +36,7 @@
   </class>  
   <class id="4" language="java" name="org.prosolo.common.domainmodel.user.notifications.Notification" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/notifications/Notification.java" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/user/notifications/Notification.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="167" width="188" x="546" y="244"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -47,7 +47,7 @@
   </class>  
   <class id="5" language="java" name="org.prosolo.common.domainmodel.user.notifications.EvaluationSubmissionNotification" 
     project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/user/notifications/EvaluationSubmissionNotification.java" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/user/notifications/EvaluationSubmissionNotification.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="95" width="237" x="41" y="451"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -57,7 +57,7 @@
     </display>  
   </class>  
   <class id="6" language="java" name="org.prosolo.common.domainmodel.general.BaseEntity" project="pro-development" 
-    file="/prosolo-development/src/main/java/org/prosolo/domainmodel/general/BaseEntity.java" binary="false" 
+    file="/bigdata.common/src/main/java/org/prosolo/domainmodel/general/BaseEntity.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="167" width="147" x="546" y="37"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
