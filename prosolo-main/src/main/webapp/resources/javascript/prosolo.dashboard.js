@@ -1,3 +1,10 @@
+var charts = [];
+
+function destroyCharts() {
+	charts.map(function(chart) { chart.destroy(); });
+	charts = [];
+}
+
 function checkedStats() {
 	return $("[name='stats']:checked").map(function() { return $(this).val(); }).get();
 }
@@ -9,7 +16,6 @@ function utc(date) {
 function loadChart(dateFrom, dateTo, period, stats){
 	var host = $("#dashboard").data("api");
 	show("loader");
-	$('#chart').html("");
 	$.ajax({
 		url : "http://" + host + "/api/users/activity/statistics",
 		type : "GET",
@@ -21,14 +27,17 @@ function loadChart(dateFrom, dateTo, period, stats){
 			show("chartMessages");
 		} else {
 			$('#chart').html("");
+			destroyCharts();
 			show("chart");
-			new tauCharts.Chart({
+			var chart = new tauCharts.Chart({
 			    data: data.map(function(e) { e.date = utc(new Date(e.date * 86400000)); return e; }),
 			    type: 'line',
 			    x: 'date',
 			    y: 'count',
 			    color: 'type'
-			}).renderTo('#chart');
+			});
+			chart.renderTo('#chart');
+			charts.push(chart);
 		}
 	});
 }
