@@ -12,7 +12,7 @@ import org.prosolo.bigdata.algorithms.fpgrowth.association_rules.AssocRule;
 import org.prosolo.bigdata.algorithms.fpgrowth.association_rules.AssocRules;
 import org.prosolo.bigdata.algorithms.fpgrowth.patterns.Itemset;
 import org.prosolo.bigdata.algorithms.fpgrowth.patterns.Itemsets;
-import org.prosolo.bigdata.dal.cassandra.impl.AnalyzedResultsDBManager;
+import org.prosolo.bigdata.dal.cassandra.AnalyzedResultsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.AnalyzedResultsDBmanagerImpl;
 import org.prosolo.bigdata.es.AssociationRulesIndexer;
 import org.prosolo.bigdata.es.AssociationRulesIndexerImpl;

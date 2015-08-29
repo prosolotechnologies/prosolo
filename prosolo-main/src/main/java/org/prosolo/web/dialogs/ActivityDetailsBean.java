@@ -12,7 +12,7 @@ import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.ResourceActivity;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.ActivityWallData;

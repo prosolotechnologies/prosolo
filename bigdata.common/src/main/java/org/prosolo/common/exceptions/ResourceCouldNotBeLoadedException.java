@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.prosolo.services.exceptions;
+package org.prosolo.common.exceptions;
 
 import org.prosolo.common.domainmodel.general.BaseEntity;
 

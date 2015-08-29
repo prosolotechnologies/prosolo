@@ -7,7 +7,7 @@ import javax.faces.bean.ManagedBean;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
-import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.stats.LearningGoalStatistics;

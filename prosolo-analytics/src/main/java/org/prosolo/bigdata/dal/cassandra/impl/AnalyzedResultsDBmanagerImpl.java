@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.prosolo.bigdata.common.dal.pojo.ActivityAccessCount;
+import org.prosolo.bigdata.dal.cassandra.AnalyzedResultsDBManager;
 
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.PreparedStatement;
@@ -21,6 +22,10 @@ import com.datastax.driver.core.Row;
 
 public class AnalyzedResultsDBmanagerImpl extends SimpleCassandraClientImpl
 		implements AnalyzedResultsDBManager, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6636929895043235843L;
 	static HashMap<String, PreparedStatement> preparedStatements = new HashMap<String, PreparedStatement>();
 	HashMap<String, String> queries = new HashMap<String, String>();
 
@@ -30,7 +35,7 @@ public class AnalyzedResultsDBmanagerImpl extends SimpleCassandraClientImpl
 	}
 
 	public HashMap<String, PreparedStatement> getPreparedStatements() {
-		return this.preparedStatements;
+		return preparedStatements;
 	}
 
 	private void prepareStatements() {
@@ -44,7 +49,7 @@ public class AnalyzedResultsDBmanagerImpl extends SimpleCassandraClientImpl
 
 		Set<String> stQueries = this.queries.keySet();
 		for (String query : stQueries) {
-			this.preparedStatements.put(query,
+			preparedStatements.put(query,
 					this.getSession().prepare(queries.get(query)));
 		}
 	}
@@ -54,7 +59,7 @@ public class AnalyzedResultsDBmanagerImpl extends SimpleCassandraClientImpl
 	public void insertFrequentCompetenceActivities(long competenceid,
 			List<Long> activities) {
 		BoundStatement boundStatement = new BoundStatement(
-				this.preparedStatements
+				preparedStatements
 						.get("insert_frequentcompetenceactivities"));
 		boundStatement.setLong(0, competenceid);
 		boundStatement.setList(1, activities);

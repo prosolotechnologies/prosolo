@@ -8,8 +8,8 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
 
 public interface RequestManager {
 	

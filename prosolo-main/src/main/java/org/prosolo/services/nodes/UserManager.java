@@ -9,8 +9,8 @@ import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.Email;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 

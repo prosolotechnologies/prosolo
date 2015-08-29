@@ -3,8 +3,13 @@ package org.prosolo.bigdata.feeds.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
@@ -15,6 +20,9 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.events.pojo.DataName;
+import org.prosolo.bigdata.dal.cassandra.AnalyticalEventDBManager;
+import org.prosolo.bigdata.dal.cassandra.impl.AnalyticalEventDBManagerImpl;
 import org.prosolo.bigdata.feeds.FeedParser;
 import org.prosolo.bigdata.feeds.data.FeedData;
 import org.prosolo.bigdata.feeds.data.FeedMessageData;
@@ -37,6 +45,8 @@ public class JavaxXmlStreamFeedParser implements FeedParser, Serializable {
 	private Logger logger = Logger.getLogger(JavaxXmlStreamFeedParser.class);
 	
 	private static final int TOTAL_ATTEMPTS = 5;
+	private static final int CONNECTION_TIMEOUT=5000;
+	private static final int READ_TIMEOUT=5000;
 	
 	private static final String TITLE = "title";
 	private static final String DESCRIPTION = "description";
@@ -50,6 +60,7 @@ public class JavaxXmlStreamFeedParser implements FeedParser, Serializable {
 	
 	// Sun, 07 Jun 2015 15:36:59 +0000
 	private String dateFormat = "EEE, dd MMM yyyy HH:mm:ss z";
+	private AnalyticalEventDBManager eventDBManager=new AnalyticalEventDBManagerImpl();
 	
 	public FeedData readFeed(String feedUrl, Date fromDate) {
 		logger.info("Parsing RSS feed entries from the feed: " + feedUrl);
@@ -60,28 +71,56 @@ public class JavaxXmlStreamFeedParser implements FeedParser, Serializable {
 		while (attempts < TOTAL_ATTEMPTS) {
 			attempts++;
 			logger.info("Attempt no " + attempts);
-			
+			boolean isFeedHeader = true;
+			// Set header values intial to the empty string
+			String description = "";
+			String title = "";
+			String link = "";
+			String language = "";
+			String copyright = "";
+			String author = "";
+			Date pubdate = null;
+			String thumbnail = "";
 			try {
-				URL url = new URL(feedUrl);
+			//	URL url = new URL(feedUrl);
 				
-				boolean isFeedHeader = true;
-				// Set header values intial to the empty string
-				String description = "";
-				String title = "";
-				String link = "";
-				String language = "";
-				String copyright = "";
-				String author = "";
-				Date pubdate = null;
-				String thumbnail = "";
+		
 				
 				// First create a new XMLInputFactory
 				XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 				
 				// Setup a new eventReader
-				InputStream in = url.openStream();
-				
-				XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
+				//InputStream in = url.openStream();
+				URL url = null;
+				try {
+					url = new URL(feedUrl);
+				} catch (MalformedURLException e) {
+					this.reportFailedFeed(feedUrl);
+					logger.error(e);
+					throw e;
+				}
+				InputStream in =null;
+				try {
+					URLConnection con = url.openConnection();
+					con.setConnectTimeout(CONNECTION_TIMEOUT);
+					con.setReadTimeout(READ_TIMEOUT);
+					in = con.getInputStream();
+				} catch (UnknownHostException ex) {
+					this.reportFailedFeed(feedUrl);
+					logger.error(ex);
+					throw ex;
+				}
+			//	XmlReader xmlReader = null;
+				XMLEventReader eventReader =null;
+				try {
+					//xmlReader = new XmlReader(url);
+					eventReader = inputFactory.createXMLEventReader(in);
+				} catch (Exception e) {
+					this.reportFailedFeed(feedUrl);
+					logger.error(e);
+					throw e;
+				}
+				//XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
 				
 				// read the XML document
 				while (eventReader.hasNext()) {
@@ -172,9 +211,11 @@ public class JavaxXmlStreamFeedParser implements FeedParser, Serializable {
 					}
 				}
 			} catch (XMLStreamException e) {
+				this.reportFailedFeed(feedUrl);
 				logger.error("Error parsing feed source: " + feedUrl, e);
 				continue;
 			} catch (IOException e) {
+				this.reportFailedFeed(feedUrl);
 				logger.error("Error parsing feed source: " + feedUrl, e);
 				continue;
 			}
@@ -183,6 +224,12 @@ public class JavaxXmlStreamFeedParser implements FeedParser, Serializable {
 		}
 
 		return feed;
+	}
+	private void reportFailedFeed(String url){
+		Map<String,Object> properties=new HashMap<String,Object>();
+		properties.put("url", url);
+		properties.put("date", DateUtil.getDaysSinceEpoch());
+		eventDBManager.updateGenericCounter(DataName.FAILEDFEEDS, properties);
 	}
 	
 	private String getCharacterData(XMLEvent event, XMLEventReader eventReader) throws XMLStreamException {

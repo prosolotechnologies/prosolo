@@ -14,6 +14,7 @@ import org.prosolo.bigdata.common.dal.pojo.ActivityAccessCount;
 import org.prosolo.bigdata.common.dal.pojo.MostActiveUsersForLearningGoal;
 import org.prosolo.bigdata.common.dal.pojo.TargetCompetenceActivities;
 import org.prosolo.bigdata.common.dal.pojo.UserLearningGoalActivitiesCount;
+import org.prosolo.bigdata.common.events.pojo.DataName;
 import org.prosolo.bigdata.dal.cassandra.AnalyticalEventDBManager;
 import org.prosolo.bigdata.events.pojo.AnalyticsEvent;
 
@@ -44,7 +45,7 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 	}
 
 	public HashMap<String, PreparedStatement> getPreparedStatements() {
-		return this.preparedStatements;
+		return preparedStatements;
 	}
 
 	private void prepareStatements() {
@@ -88,10 +89,14 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 
 		this.queries.put("update_useractivityperday", "UPDATE useractivityperday SET count=count+1 WHERE event=? AND date=?;");
 		this.queries.put("update_activityperday", "UPDATE activityperday SET count=count+1 WHERE user=? AND event=? AND date=?;");
+		
+		String update_failedfeeds = "UPDATE failedfeeds  SET count=count+1 WHERE url=? AND date=?;";
+		this.queries.put("update_failedfeeds",
+				update_failedfeeds);
 
 		Set<String> stQueries = this.queries.keySet();
 		for (String query : stQueries) {
-			this.preparedStatements.put(query,
+			preparedStatements.put(query,
 					this.getSession().prepare(queries.get(query)));
 		}
 	}
@@ -101,7 +106,7 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 		String statementName = "update_"
 				+ event.getDataName().name().toLowerCase();
 		BoundStatement boundStatement = new BoundStatement(
-				this.preparedStatements.get(statementName));
+				preparedStatements.get(statementName));
 		JsonObject data = event.getData();
 		String str = this.queries.get(statementName);
 		String whereclause = str.substring(str.lastIndexOf("WHERE") + 6,
@@ -125,13 +130,41 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 			ex.printStackTrace();
 		}
 	}
+	
+	@Override
+	public void updateGenericCounter(DataName dataName,Map<String,Object> properties) {
+		String statementName = "update_"+dataName.name().toLowerCase();
+		BoundStatement boundStatement = new BoundStatement(
+				preparedStatements.get(statementName));
+		//JsonObject data = event.getData();
+		String str = this.queries.get(statementName);
+		String whereclause = str.substring(str.lastIndexOf("WHERE") + 6,
+				str.lastIndexOf(";"));
+		whereclause = whereclause.replaceAll("AND ", "");
+		whereclause = whereclause.replaceAll("=\\?", "");
+		String[] words = whereclause.split("\\s+");
+		for (int i = 0; i < words.length; i++) {
+			String param = words[i];
+			Object propValue=properties.get(param);
+			if(propValue instanceof String){
+				boundStatement.setString(i,(String) propValue);
+			}else if(propValue instanceof Long){
+				boundStatement.setLong(i, (Long) propValue);
+			}		 
+		}
+		try {
+			this.getSession().execute(boundStatement);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
 
 	@Override
 	public void insertAnalyticsEventRecord(AnalyticsEvent event) {
 		String statementName = "insert_"
 				+ event.getDataName().name().toLowerCase();
 		BoundStatement boundStatement = new BoundStatement(
-				this.preparedStatements.get(statementName));
+				preparedStatements.get(statementName));
 
 		JsonObject data = event.getData();
 		String str = this.queries.get(statementName);
@@ -181,7 +214,7 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 	public List<ActivityAccessCount> findAllActivitiesForCompetence(
 			long competenceId, List<Long> ignoredActivities) {
 		BoundStatement boundStatement = new BoundStatement(
-				this.preparedStatements.get("find_activitiesforcompetence"));
+				preparedStatements.get("find_activitiesforcompetence"));
 		boundStatement.setLong(0, competenceId);
 		ResultSet rs = this.getSession().execute(boundStatement);
 		List<Row> rows = rs.all();
@@ -202,7 +235,7 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 	public List<TargetCompetenceActivities> findAllActivitiesByTargetCompetenceForCompetence(
 			long competenceId) {
 		BoundStatement boundStatement = new BoundStatement(
-				this.preparedStatements.get("find_targetcompetenceactivities"));
+				preparedStatements.get("find_targetcompetenceactivities"));
 		boundStatement.setLong(0, competenceId);
 		ResultSet rs = this.getSession().execute(boundStatement);
 		List<Row> rows = rs.all();
@@ -222,7 +255,7 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 	@Override
 	public List<Long> findAllCompetences() {
 		BoundStatement boundStatement = new BoundStatement(
-				this.preparedStatements.get("find_allcompetences"));
+				preparedStatements.get("find_allcompetences"));
 		// boundStatement.setLong(0, competenceId);
 		ResultSet rs = this.getSession().execute(boundStatement);
 		List<Row> rows = rs.all();
@@ -244,7 +277,7 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 	public List<UserLearningGoalActivitiesCount> findUserLearningGoalActivitiesByDate(
 			long date) {
 		BoundStatement boundStatement = new BoundStatement(
-				this.preparedStatements.get("find_userlearninggoalactivity"));
+				preparedStatements.get("find_userlearninggoalactivity"));
 		boundStatement.setLong(0, date);
 		ResultSet rs = this.getSession().execute(boundStatement);
 		List<Row> rows = rs.all();
@@ -268,7 +301,7 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 	public List<MostActiveUsersForLearningGoal> findMostActiveUsersForGoalsByDate(
 			long date) {
 		BoundStatement boundStatement = new BoundStatement(
-				this.preparedStatements
+				preparedStatements
 						.get("find_mostactiveusersforlearninggoalbydate"));
 		boundStatement.setLong(0, date);
 		ResultSet rs = this.getSession().execute(boundStatement);

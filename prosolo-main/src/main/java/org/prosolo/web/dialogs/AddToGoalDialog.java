@@ -16,7 +16,7 @@ import org.primefaces.model.UploadedFile;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
-import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.upload.UploadManager;

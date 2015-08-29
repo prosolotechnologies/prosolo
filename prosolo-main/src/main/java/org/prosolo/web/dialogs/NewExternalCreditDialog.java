@@ -16,7 +16,7 @@ import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.portfolio.ExternalCredit;
-import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.interaction.PostManager;
 import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.services.nodes.PortfolioManager;

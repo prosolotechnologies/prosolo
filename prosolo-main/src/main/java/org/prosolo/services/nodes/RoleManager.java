@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.AbstractManager;
 
 public interface RoleManager extends AbstractManager {

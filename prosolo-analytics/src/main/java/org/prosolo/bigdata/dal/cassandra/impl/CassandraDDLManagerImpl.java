@@ -79,6 +79,9 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		
 		this.ddls.add("CREATE TABLE IF NOT EXISTS useractivityperday(event text, count counter, date bigint, PRIMARY KEY(event, date));");
 		this.ddls.add("CREATE TABLE IF NOT EXISTS activityperday(user bigint, event text, count counter, date bigint, PRIMARY KEY(user, event, date));");
+		String failedFeedsDDL = "CREATE TABLE IF NOT EXISTS failedfeeds(url text, date bigint, count counter,"
+				+ " PRIMARY KEY (url, date))";
+		this.ddls.add(failedFeedsDDL);
 	}
 
 	@Override

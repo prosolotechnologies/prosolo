@@ -7,7 +7,7 @@ import javax.servlet.http.HttpSession;
 
 import org.prosolo.common.domainmodel.activitywall.comments.Comment;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.AbstractManager;
 
 /**

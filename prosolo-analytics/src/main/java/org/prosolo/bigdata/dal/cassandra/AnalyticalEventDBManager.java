@@ -1,11 +1,13 @@
 package org.prosolo.bigdata.dal.cassandra;
 
 import java.util.List;
+import java.util.Map;
 
 import org.prosolo.bigdata.common.dal.pojo.ActivityAccessCount;
 import org.prosolo.bigdata.common.dal.pojo.MostActiveUsersForLearningGoal;
 import org.prosolo.bigdata.common.dal.pojo.TargetCompetenceActivities;
 import org.prosolo.bigdata.common.dal.pojo.UserLearningGoalActivitiesCount;
+import org.prosolo.bigdata.common.events.pojo.DataName;
 import org.prosolo.bigdata.events.pojo.AnalyticsEvent;
 
 /**
@@ -31,4 +33,6 @@ public interface AnalyticalEventDBManager {
 
 	List<MostActiveUsersForLearningGoal> findMostActiveUsersForGoalsByDate(
 			long date);
+
+	void updateGenericCounter(DataName dataName, Map<String, Object> properties);
 }

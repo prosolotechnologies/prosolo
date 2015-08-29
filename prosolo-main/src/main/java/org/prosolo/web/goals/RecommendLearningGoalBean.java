@@ -5,7 +5,7 @@ import javax.faces.bean.ManagedBean;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.RecommendationType;
 import org.prosolo.common.domainmodel.user.LearningGoal;
-import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.nodes.NodeRecommendationManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.LoggedUserBean;

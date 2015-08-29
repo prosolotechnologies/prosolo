@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.dal.persistence.DiggestGeneratorDAO;
+import org.prosolo.bigdata.dal.persistence.HibernateUtil;
 import org.prosolo.common.domainmodel.feeds.FeedEntry;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.user.User;
@@ -15,8 +16,14 @@ import org.prosolo.common.domainmodel.user.preferences.FeedsPreferences;
 public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 	DiggestGeneratorDAO{
 	
+	
+	
 	private static Logger logger = Logger
 			.getLogger(DiggestGeneratorDAO.class);
+	
+	public DiggestGeneratorDAOImpl(){
+		setSession(HibernateUtil.getSessionFactory().openSession());
+	}
 	
 	@SuppressWarnings({ "unused", "unchecked" })
 	@Override

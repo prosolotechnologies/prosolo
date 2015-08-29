@@ -9,16 +9,13 @@ import java.util.List;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
- 
 import org.elasticsearch.index.query.BoolQueryBuilder;
- 
 import org.elasticsearch.index.query.QueryBuilders;
- 
 import org.elasticsearch.search.SearchHit;
 import org.junit.Test;
 import org.prosolo.bigdata.common.dal.pojo.ActivityAccessCount;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
-import org.prosolo.bigdata.dal.cassandra.impl.AnalyzedResultsDBManager;
+import org.prosolo.bigdata.dal.cassandra.AnalyzedResultsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.AnalyzedResultsDBmanagerImpl;
 import org.prosolo.bigdata.es.ESIndexNames;
 import org.prosolo.bigdata.es.ElasticSearchConnector;

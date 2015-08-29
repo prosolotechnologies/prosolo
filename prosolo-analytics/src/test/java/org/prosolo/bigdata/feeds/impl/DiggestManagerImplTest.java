@@ -6,7 +6,6 @@ import javax.transaction.Transactional;
 
 import org.apache.log4j.Logger;
 import org.junit.Test;
-import org.prosolo.bigdata.jobs.GenerateFeedsJob;
 import org.prosolo.bigdata.scala.feeds.DigestManager$;
 
 @Transactional

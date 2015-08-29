@@ -28,7 +28,7 @@ public class TestHibernateQuery {
 		 Long userid=(long) 27;
 		 DiggestGeneratorDAO diggestGeneratorDAO=new DiggestGeneratorDAOImpl();
 		 ResourceTokenizer resourceTokenizer=new ResourceTokenizerImpl();
-			diggestGeneratorDAO.setSession(session);
+			//diggestGeneratorDAO.setSession(session);
 			User user=(User) session.load(User.class, userid);
 			String userTokenizedString = resourceTokenizer.getTokenizedStringForUser(user);
 			System.out.println("TOKENIZED STRING:"+userTokenizedString);

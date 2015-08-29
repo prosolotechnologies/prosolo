@@ -13,10 +13,10 @@ import org.prosolo.common.domainmodel.activitywall.comments.SocialActivityCommen
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.activityWall.SocialActivityFactory;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.CommentingManager;
 import org.prosolo.services.nodes.DefaultManager;

@@ -22,6 +22,7 @@ import org.prosolo.common.domainmodel.feeds.SubscribedTwitterHashtagsFeedsDigest
 import org.prosolo.common.domainmodel.user.TimeFrame;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.FeedsPreferences;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.bigdata.dal.persistence.DiggestGeneratorDAO;
 import org.prosolo.bigdata.dal.persistence.HibernateUtil;
 import org.prosolo.bigdata.dal.persistence.impl.DiggestGeneratorDAOImpl;
@@ -205,9 +206,16 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 	//@Transactional
 	public void generateDailySubscribedRSSFeedsDigestForUser(Long userid, Date dateFrom) {
 		System.out.println("GENERATE RSS FOR USER:"+userid);
-		 Session session=HibernateUtil.getSessionFactory().openSession();
-		diggestGeneratorDAO.setSession(session);
-		User user=(User) session.load(User.class, userid);
+		// Session session=HibernateUtil.getSessionFactory().openSession();
+		//diggestGeneratorDAO.getSession(session);
+		User user=null;
+		try{
+			user=(User) diggestGeneratorDAO.load(User.class, userid);
+		}catch(ResourceCouldNotBeLoadedException ex){
+			ex.printStackTrace();
+			return;
+		}
+		
 		String userTokenizedString = resourceTokenizer.getTokenizedStringForUser(user);
 		System.out.println("TOKENIZED STRING:"+userTokenizedString);
 		List<FeedSource> subscribedRssSources = diggestGeneratorDAO.getFeedsPreferences(userid).getSubscribedRssSources();
@@ -282,8 +290,8 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 			}
 		}*/
 		//diggestGeneratorDAO.getEntityManager().getTransaction().commit();
-		session.flush();
-		session.close();
+		//session.flush();
+		//session.close();
 	}
 	
 	@Override

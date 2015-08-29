@@ -12,7 +12,7 @@ import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.core.persistance.PersistenceManager;
 import org.prosolo.core.spring.deadlock.DeadlockRetry;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.AbstractManager;
 import org.springframework.transaction.annotation.Transactional;
 

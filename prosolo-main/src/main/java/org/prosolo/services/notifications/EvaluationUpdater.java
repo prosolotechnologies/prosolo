@@ -6,7 +6,7 @@ package org.prosolo.services.notifications;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.AbstractManager;
 
 /**

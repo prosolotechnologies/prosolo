@@ -9,7 +9,7 @@ import javax.faces.event.AjaxBehaviorEvent;
 import org.apache.log4j.Logger;
 import org.omnifaces.util.Ajax;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.interaction.FollowResourceAsyncManager;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.web.LoggedUserBean;

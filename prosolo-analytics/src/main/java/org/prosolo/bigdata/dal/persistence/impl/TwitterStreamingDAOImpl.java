@@ -9,8 +9,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.persistence.NoResultException;
+
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.dal.persistence.HibernateUtil;
 import org.prosolo.bigdata.dal.persistence.TwitterStreamingDAO;
 import org.prosolo.bigdata.twitter.StreamListData;
 import org.prosolo.common.domainmodel.activities.events.EventType;
@@ -37,6 +40,7 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 
 	public TwitterStreamingDAOImpl() {
 		super();
+		setSession(HibernateUtil.getSessionFactory().openSession());
 	}
 
 	@Override

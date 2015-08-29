@@ -6,7 +6,7 @@ import org.hibernate.Session;
 import org.prosolo.common.domainmodel.user.MessagesThread;
 import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.web.activitywall.data.UserData;
 import org.prosolo.web.communications.data.MessagesThreadData;

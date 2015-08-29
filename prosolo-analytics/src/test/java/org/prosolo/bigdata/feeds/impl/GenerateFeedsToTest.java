@@ -50,7 +50,7 @@ public class GenerateFeedsToTest {
 			logger.error(e2);
 		}
 		DiggestGeneratorDAO diggestGeneratorDAO=new DiggestGeneratorDAOImpl();
-		diggestGeneratorDAO.setSession(HibernateUtil.getSessionFactory().openSession());
+		//diggestGeneratorDAO.setSession(HibernateUtil.getSessionFactory().openSession());
 		//Session session=diggestGeneratorDAO.openSession();
 		List<Long> usersIds=diggestGeneratorDAO.getAllUsersIds();
 		int sourcecounter=0;

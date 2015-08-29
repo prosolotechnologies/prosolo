@@ -10,7 +10,7 @@ import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.util.ImageFormat;
 import org.prosolo.web.LoggedUserBean;

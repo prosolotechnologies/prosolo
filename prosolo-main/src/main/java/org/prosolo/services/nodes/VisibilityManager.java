@@ -3,8 +3,8 @@ package org.prosolo.services.nodes;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.organization.Visible;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.nodes.exceptions.VisibilityCoercionError;
 
 public interface VisibilityManager {

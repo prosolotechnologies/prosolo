@@ -9,8 +9,8 @@ import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.NodeData;

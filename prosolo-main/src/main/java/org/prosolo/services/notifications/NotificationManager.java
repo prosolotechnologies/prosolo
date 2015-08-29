@@ -9,7 +9,7 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.notifications.Notification;
-import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.AbstractManager;
 
 public interface NotificationManager extends AbstractManager {

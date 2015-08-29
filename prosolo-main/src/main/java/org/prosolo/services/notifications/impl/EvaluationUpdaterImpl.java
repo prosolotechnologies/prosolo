@@ -18,7 +18,7 @@ import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.workflow.evaluation.Badge;
 import org.prosolo.common.domainmodel.workflow.evaluation.Evaluation;
 import org.prosolo.common.domainmodel.workflow.evaluation.EvaluationSubmission;
-import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.notifications.EvaluationUpdater;

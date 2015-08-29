@@ -14,7 +14,7 @@ import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 import org.prosolo.common.domainmodel.content.Post;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.general.Node;
-import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.upload.UploadManager;

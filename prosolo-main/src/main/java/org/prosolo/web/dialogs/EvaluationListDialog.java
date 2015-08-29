@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
-import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.EvaluationManager;
 import org.prosolo.web.communications.evaluation.data.EvaluationItemData;

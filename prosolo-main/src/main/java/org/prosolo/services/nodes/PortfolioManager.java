@@ -15,7 +15,7 @@ import org.prosolo.common.domainmodel.portfolio.ExternalCredit;
 import org.prosolo.common.domainmodel.portfolio.Portfolio;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.impl.PortfolioData;
 

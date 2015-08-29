@@ -19,7 +19,7 @@ import org.prosolo.common.domainmodel.organization.OrganizationalUnit;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.Unit_User;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
