@@ -54,13 +54,20 @@ public class UsersActivityStatisticsService {
 	public Response getSum(@QueryParam("event") String event) throws ParseException {
 		logger.debug("Service 'getSum' called with parameters and event: {}.", event);
 		long today = getDaysSinceEpoch(Calendar.getInstance().getTime());
-		long sevenDaysAgo = today - 7;
+		long oneWeekAgo = today - 6;
+		long twoWeeksAgo = today - 13;
 		
 		List<EventDailyCount> counts = dbManager.getUserEventsCount(event);
-		List<EventDailyCount> trend = dbManager.getUserEventsCount(event, sevenDaysAgo, today);
+		List<EventDailyCount> currentWeekCounts = dbManager.getUserEventsCount(event, oneWeekAgo, today);
+		List<EventDailyCount> previousWeekCounts = dbManager.getUserEventsCount(event, twoWeeksAgo, oneWeekAgo - 1);
+		
 		int sumCounts = sumCounts(counts);
-		int sumTrend = sumCounts(trend);
-		double percent = Math.round(sumTrend * 1000.0 / sumCounts) / 10.0;
+		
+		int sumCurrentWeek = sumCounts(currentWeekCounts);
+		int sumPreviousWeek = sumCounts(previousWeekCounts);
+		
+		double percent = Math.round(1000.0 * ((double) sumCurrentWeek / sumPreviousWeek - 1)) / 10.0;
+		
 		Map<String, String> result = new HashMap<String, String>();
 		result.put("totalUsers", String.valueOf(sumCounts));
 		result.put("totalUsersPercent", percent + "%");
@@ -73,14 +80,16 @@ public class UsersActivityStatisticsService {
 	public Response getSumActive(@QueryParam("event") String event) throws ParseException {
 		logger.debug("Service 'getSumActive' called with parameters and event: {}.", event);
 		long today = getDaysSinceEpoch(Calendar.getInstance().getTime());
-		long oneWeekAgo = today - 7;
-		long twoWeeksAgo = oneWeekAgo - 7;
+		long oneWeekAgo = today - 6;
+		long twoWeeksAgo = oneWeekAgo - 13;
 		
 		List<UserEventDailyCount> currentWeekCounts = dbManager.getEventsCount(event, oneWeekAgo, today);
-		List<UserEventDailyCount> previousWeekCounts = dbManager.getEventsCount(event, twoWeeksAgo, oneWeekAgo);
+		List<UserEventDailyCount> previousWeekCounts = dbManager.getEventsCount(event, twoWeeksAgo, oneWeekAgo - 1);
 		int sumCurrent = distinctCount(currentWeekCounts);
 		int sumPrevious = distinctCount(previousWeekCounts);
-		double percent = Math.round(sumPrevious * 1000.0 / sumCurrent) / 10.0;
+		
+		double percent = Math.round(1000.0 * ((double) sumCurrent / sumPrevious - 1)) / 10.0;
+
 		Map<String, String> result = new HashMap<String, String>();
 		result.put("activeUsers", String.valueOf(sumCurrent));
 		result.put("activeUsersPercent", percent + "%");
