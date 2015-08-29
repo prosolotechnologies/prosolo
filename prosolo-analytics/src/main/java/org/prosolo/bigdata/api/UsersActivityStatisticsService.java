@@ -23,8 +23,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.StringUtils;
-import org.prosolo.bigdata.common.dal.pojo.EventsCount;
-import org.prosolo.bigdata.common.dal.pojo.UserEventsCount;
+import org.prosolo.bigdata.common.dal.pojo.UserEventDailyCount;
+import org.prosolo.bigdata.common.dal.pojo.EventDailyCount;
 import org.prosolo.bigdata.dal.cassandra.impl.UserActivityStatisticsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.UserActivityStatisticsDBManagerImpl;
 import org.prosolo.bigdata.utils.DateUtil;
@@ -56,8 +56,8 @@ public class UsersActivityStatisticsService {
 		long today = getDaysSinceEpoch(Calendar.getInstance().getTime());
 		long sevenDaysAgo = today - 7;
 		
-		List<UserEventsCount> counts = dbManager.getUserEventsCount(event);
-		List<UserEventsCount> trend = dbManager.getUserEventsCount(event, sevenDaysAgo, today);
+		List<EventDailyCount> counts = dbManager.getUserEventsCount(event);
+		List<EventDailyCount> trend = dbManager.getUserEventsCount(event, sevenDaysAgo, today);
 		int sumCounts = sumCounts(counts);
 		int sumTrend = sumCounts(trend);
 		double percent = Math.round(sumTrend * 1000.0 / sumCounts) / 10.0;
@@ -76,8 +76,8 @@ public class UsersActivityStatisticsService {
 		long oneWeekAgo = today - 7;
 		long twoWeeksAgo = oneWeekAgo - 7;
 		
-		List<EventsCount> currentWeekCounts = dbManager.getEventsCount(event, oneWeekAgo, today);
-		List<EventsCount> previousWeekCounts = dbManager.getEventsCount(event, twoWeeksAgo, oneWeekAgo);
+		List<UserEventDailyCount> currentWeekCounts = dbManager.getEventsCount(event, oneWeekAgo, today);
+		List<UserEventDailyCount> previousWeekCounts = dbManager.getEventsCount(event, twoWeeksAgo, oneWeekAgo);
 		int sumCurrent = distinctCount(currentWeekCounts);
 		int sumPrevious = distinctCount(previousWeekCounts);
 		double percent = Math.round(sumPrevious * 1000.0 / sumCurrent) / 10.0;
@@ -103,9 +103,9 @@ public class UsersActivityStatisticsService {
 	}
 
 	
-	private int distinctCount(List<EventsCount> counts) {
+	private int distinctCount(List<UserEventDailyCount> counts) {
 		Set<Long> result = new HashSet<Long>();
-		for(EventsCount count : counts) {
+		for(UserEventDailyCount count : counts) {
 			result.add(Long.valueOf(count.getUser()));
 		}
 		return result.size();
@@ -123,10 +123,10 @@ public class UsersActivityStatisticsService {
 		logger.debug("Parsed days since epoch time: from: {}, to: {}.", daysFrom, daysTo);
 		
 		List<String> statistics = Arrays.asList(stats);
-		List<UserEventsCount> counts = new ArrayList<UserEventsCount>();
+		List<EventDailyCount> counts = new ArrayList<EventDailyCount>();
 		
 		for (String statistic : statistics) {
-			List<UserEventsCount> count = dbManager.getUserEventsCount(statistic, daysFrom, daysTo);
+			List<EventDailyCount> count = dbManager.getUserEventsCount(statistic, daysFrom, daysTo);
 			if(Period.DAY.equals(Period.valueOf(period))) {
 				counts.addAll(count);			
 			} else {
@@ -147,35 +147,35 @@ public class UsersActivityStatisticsService {
 	}
 	
 	
-	private Map<Long, List<UserEventsCount>> split(List<UserEventsCount> counts, Period period) {
-		Map<Long, List<UserEventsCount>> result = new HashMap<>();
-		for(UserEventsCount count : counts) {
+	private Map<Long, List<EventDailyCount>> split(List<EventDailyCount> counts, Period period) {
+		Map<Long, List<EventDailyCount>> result = new HashMap<>();
+		for(EventDailyCount count : counts) {
 			Long day = getFirstDay(period, count);
 			if (!result.containsKey(day)) {
-				result.put(day, new ArrayList<UserEventsCount>());
+				result.put(day, new ArrayList<EventDailyCount>());
 			}
 			result.get(day).add(count);
 		}
 		return result;
 	}
 	
-	private List<UserEventsCount> aggregate(Map<Long, List<UserEventsCount>> buckets, String event) {
-		List<UserEventsCount> result = new ArrayList<UserEventsCount>();
-		for(Long day : buckets.keySet()) {
-			result.add(new UserEventsCount(event, day.longValue(), sumCounts(buckets.get(day))));
+	private List<EventDailyCount> aggregate(Map<Long, List<EventDailyCount>> groups, String event) {
+		List<EventDailyCount> result = new ArrayList<EventDailyCount>();
+		for(Long day : groups.keySet()) {
+			result.add(new EventDailyCount(event, day.longValue(), sumCounts(groups.get(day))));
 		}
 		return result;
 	}	
 	
-	private int sumCounts(List<UserEventsCount> counts) {
+	private int sumCounts(List<EventDailyCount> counts) {
 		int sum = 0;
-		for(UserEventsCount count : counts) {
+		for(EventDailyCount count : counts) {
 			sum += count.getCount();
 		}
 		return sum;
 	}
 
-	private Long getFirstDay(Period period, UserEventsCount count) {
+	private Long getFirstDay(Period period, EventDailyCount count) {
 		switch(period) {
 		case WEEK:
 			return DateUtil.getFirstDayOfWeek(count.getDate());

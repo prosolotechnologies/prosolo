@@ -297,7 +297,7 @@ public class ReliableProducerImplTest{
 		data.add("date", new JsonPrimitive(daysSinceEpoch));
 		
 		AnalyticalServiceMessage message = new AnalyticalServiceMessage();
-		message.setDataName(DataName.USERACTIVITYPERDAY);
+		message.setDataName(DataName.EVENTDAILYCOUNT);
 		message.setDataType(DataType.COUNTER);
 		message.setData(data);
 		

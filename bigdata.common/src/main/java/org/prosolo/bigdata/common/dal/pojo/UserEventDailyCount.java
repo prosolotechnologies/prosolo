@@ -1,17 +1,27 @@
 package org.prosolo.bigdata.common.dal.pojo;
 
-public class UserEventsCount {
-	
+public class UserEventDailyCount {
+
+	private long user;
+
 	private String type;
-	
+
 	private int count;
-	
+
 	private long date;
-	
+
+	public long getUser() {
+		return user;
+	}
+
+	public void setUser(long user) {
+		this.user = user;
+	}
+
 	public String getType() {
 		return type;
 	}
-	
+
 	public void setType(String type) {
 		this.type = type;
 	}
@@ -32,10 +42,11 @@ public class UserEventsCount {
 		this.date = date;
 	}
 
-	public UserEventsCount(String type, long date, int count) {
+	public UserEventDailyCount(long user, String type, long date, int count) {
+		this.user = user;
 		this.type = type;
 		this.date = date;
 		this.count = count;
-	}	
+	}
 
 }
