@@ -3,8 +3,9 @@ package org.prosolo.bigdata.dal.cassandra.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.prosolo.bigdata.common.dal.pojo.UserEventDailyCount;
 import org.prosolo.bigdata.common.dal.pojo.EventDailyCount;
+import org.prosolo.bigdata.common.dal.pojo.InstanceLoggedUsersCount;
+import org.prosolo.bigdata.common.dal.pojo.UserEventDailyCount;
 
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.PreparedStatement;
@@ -19,24 +20,38 @@ public class UserActivityStatisticsDBManagerImpl extends SimpleCassandraClientIm
 
 	private static final String FIND_EVENT_COUNT = "SELECT * FROM eventdailycount WHERE event=? ALLOW FILTERING;";
 
-	private static final String FIND_LOGIN_EVENTS = "SELECT actorid FROM logevents WHERE eventtype = 'LOGIN' and objectid=0 and timestamp > ?";
+	private static final String UPDATE_INSTANCE_LOGGED_USERS_COUNT = "UPDATE instanceloggeduserscount set count = ? where instance = ? and timestamp = ?;";
 
-	private static final String FIND_LOGOUT_EVENTS = "SELECT actorid FROM logevents WHERE eventtype = 'LOGOUT' and objectid=0 and timestamp > ?";
+	private static final String FIND_INSTANCE_LOGGED_USERS_COUNT = "SELECT * FROM instanceloggeduserscount WHERE timestamp > ? ALLOW FILTERING;";
 
-	@Override
-	public List<UserEventDailyCount> getEventsCount(String event, long dateFrom, long dateTo) {
-		PreparedStatement prepared = getSession().prepare(FIND_USER_EVENT_COUNT_FOR_PERIOD);
-		BoundStatement statement = statement(prepared, event, dateFrom, dateTo);
-		return eventQueryExecute(statement, event);
+	private static final String DELETE_FROM_INSTANCE_LOGGED_USERS_COUNT = "DELETE FROM instanceloggeduserscount WHERE instance = ?;";
+
+	private BoundStatement statement(PreparedStatement prepared, Object... parameters) {
+		BoundStatement statement = new BoundStatement(prepared);
+		int index = 0;
+		for (Object parameter : parameters) {
+			if (parameter instanceof Long) {
+				statement.setLong(index++, ((Long) parameter).longValue());
+			} else if (parameter instanceof String) {
+				statement.setString(index++, (String) parameter);
+			} else {
+				throw new IllegalStateException("Parameter type not supported.");
+			}
+		}
+		return statement;
 	}
 
-	private List<UserEventDailyCount> eventQueryExecute(BoundStatement statement, String event) {
-		List<Row> rows = getSession().execute(statement).all();
+	private List<Row> query(BoundStatement statement) {
+		return getSession().execute(statement).all();
+	}
+
+	private List<UserEventDailyCount> toUserEventDailyCounts(List<Row> rows) {
 		if (rows.size() == 0)
 			return new ArrayList<UserEventDailyCount>();
 
 		List<UserEventDailyCount> result = new ArrayList<>();
 		for (Row row : rows) {
+			String event = row.getString("event");
 			long user = row.getLong("user");
 			long count = row.getLong("count");
 			long date = row.getLong("date");
@@ -45,27 +60,13 @@ public class UserActivityStatisticsDBManagerImpl extends SimpleCassandraClientIm
 		return result;
 	}
 
-	@Override
-	public List<EventDailyCount> getUserEventsCount(String event) {
-		PreparedStatement prepared = getSession().prepare(FIND_EVENT_COUNT);
-		BoundStatement statement = statement(prepared, event);
-		return execute(statement, event);
-	}
-
-	@Override
-	public List<EventDailyCount> getUserEventsCount(String event, long dateFrom, long dateTo) {
-		PreparedStatement prepared = getSession().prepare(FIND_EVENTS_COUNT_FOR_PERIOD);
-		BoundStatement statement = statement(prepared, event, dateFrom, dateTo);
-		return execute(statement, event);
-	}
-
-	private List<EventDailyCount> execute(BoundStatement statement, String event) {
-		List<Row> rows = getSession().execute(statement).all();
+	private List<EventDailyCount> toEventDailyCounts(List<Row> rows) {
 		if (rows.size() == 0)
 			return new ArrayList<EventDailyCount>();
 
 		List<EventDailyCount> result = new ArrayList<>();
 		for (Row row : rows) {
+			String event = row.getString("event");
 			long count = row.getLong("count");
 			long date = row.getLong("date");
 			result.add(new EventDailyCount(event, date, (int) count));
@@ -73,49 +74,68 @@ public class UserActivityStatisticsDBManagerImpl extends SimpleCassandraClientIm
 		return result;
 	}
 
-	private BoundStatement statement(PreparedStatement prepared, String event) {
-		BoundStatement statement = new BoundStatement(prepared);
-		statement.setString(0, event);
-		return statement;
-	}
-
-	private BoundStatement statement(PreparedStatement prepared, long timeFrom) {
-		BoundStatement statement = new BoundStatement(prepared);
-		statement.setLong(0, timeFrom);
-		return statement;
-	}
-
-	private BoundStatement statement(PreparedStatement prepared, String event, long dateFrom, long dateTo) {
-		BoundStatement statement = new BoundStatement(prepared);
-		statement.setLong(0, dateFrom);
-		statement.setLong(1, dateTo);
-		statement.setString(2, event);
-		return statement;
-	}
-
-	@Override
-	public List<Long> getLoggedInUsers(long timeFrom) {
-		PreparedStatement prepared = getSession().prepare(FIND_LOGIN_EVENTS);
-		return execute(statement(prepared, timeFrom));
-	}
-
-	@Override
-	public List<Long> getLoggedOutUsers(long timeFrom) {
-		PreparedStatement prepared = getSession().prepare(FIND_LOGOUT_EVENTS);
-		return execute(statement(prepared, timeFrom));
-	}
-
-	private List<Long> execute(BoundStatement statement) {
-		List<Row> rows = getSession().execute(statement).all();
+	private List<InstanceLoggedUsersCount> toInstanceLoggedUsersCounts(List<Row> rows) {
 		if (rows.size() == 0)
-			return new ArrayList<Long>();
+			return new ArrayList<InstanceLoggedUsersCount>();
 
-		List<Long> result = new ArrayList<>();
+		List<InstanceLoggedUsersCount> result = new ArrayList<>();
 		for (Row row : rows) {
-			long user = row.getLong("actorid");
-			result.add(Long.valueOf(user));
+			String instance = row.getString("instance");
+			long timestamp = row.getLong("timestamp");
+			long count = row.getLong("count");
+			result.add(new InstanceLoggedUsersCount(instance, timestamp, count));
 		}
 		return result;
+	}
+
+	@Override
+	public List<UserEventDailyCount> getUserEventDailyCounts(String event, Long dateFrom, Long dateTo) {
+		PreparedStatement prepared = getSession().prepare(FIND_USER_EVENT_COUNT_FOR_PERIOD);
+		BoundStatement statement = statement(prepared, dateFrom, dateTo, event);
+		return toUserEventDailyCounts(query(statement));
+	}
+
+	@Override
+	public List<EventDailyCount> getEventDailyCounts(String event) {
+		PreparedStatement prepared = getSession().prepare(FIND_EVENT_COUNT);
+		BoundStatement statement = statement(prepared, event);
+		return toEventDailyCounts(query(statement));
+	}
+
+	@Override
+	public List<EventDailyCount> getEventDailyCounts(String event, Long dateFrom, Long dateTo) {
+		PreparedStatement prepared = getSession().prepare(FIND_EVENTS_COUNT_FOR_PERIOD);
+		BoundStatement statement = statement(prepared, dateFrom, dateTo, event);
+		return toEventDailyCounts(query(statement));
+	}
+
+	@Override
+	public List<InstanceLoggedUsersCount> getInstanceLoggedUsersCounts(Long timeFrom) {
+		PreparedStatement prepared = getSession().prepare(FIND_INSTANCE_LOGGED_USERS_COUNT);
+		BoundStatement statement = statement(prepared, timeFrom);
+		return toInstanceLoggedUsersCounts(query(statement));
+	}
+
+	@Override
+	public void updateInstanceLoggedUsersCount(InstanceLoggedUsersCount count) {
+		PreparedStatement deletePrepared = getSession().prepare(DELETE_FROM_INSTANCE_LOGGED_USERS_COUNT);
+		BoundStatement deleteStatement = statement(deletePrepared, count.getInstance());
+		try {
+			getSession().execute(deleteStatement);
+		} catch (Exception e) {
+			logger.error("Error executing delete statement.", e);
+			// TODO Throw exception.
+		}
+
+		PreparedStatement updatePrepared = getSession().prepare(UPDATE_INSTANCE_LOGGED_USERS_COUNT);
+		BoundStatement updateStatement = statement(updatePrepared, count.getCount(), count.getInstance(),
+				count.getTimestamp());
+		try {
+			getSession().execute(updateStatement);
+		} catch (Exception e) {
+			logger.error("Error executing update statement.", e);
+			// TODO Throw exception.
+		}
 	}
 
 }

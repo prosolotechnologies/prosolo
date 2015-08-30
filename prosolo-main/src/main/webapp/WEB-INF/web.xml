@@ -117,6 +117,9 @@
   <listener>
     <listener-class>org.apache.myfaces.webapp.StartupServletContextListener</listener-class>
   </listener>
+  <listener>
+    <listener-class>org.prosolo.web.SessionCountListener</listener-class>
+  </listener>
   <error-page>
     <exception-type>javax.faces.application.ViewExpiredException</exception-type>
     <location>/login.xhtml</location>

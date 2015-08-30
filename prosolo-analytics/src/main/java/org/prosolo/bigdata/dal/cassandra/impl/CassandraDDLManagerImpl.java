@@ -3,7 +3,6 @@ package org.prosolo.bigdata.dal.cassandra.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.prosolo.bigdata.config.DBServerConfig;
 import org.prosolo.bigdata.config.Settings;
 import org.prosolo.bigdata.dal.cassandra.CassandraDDLManager;
@@ -79,6 +78,7 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		
 		this.ddls.add("CREATE TABLE IF NOT EXISTS eventdailycount(event text, count counter, date bigint, PRIMARY KEY(event, date));");
 		this.ddls.add("CREATE TABLE IF NOT EXISTS usereventdailycount(user bigint, event text, count counter, date bigint, PRIMARY KEY(user, event, date));");
+		this.ddls.add("CREATE TABLE IF NOT EXISTS instanceloggeduserscount(instance text, timestamp bigint, count bigint, PRIMARY KEY(instance, timestamp));");
 	}
 
 	@Override

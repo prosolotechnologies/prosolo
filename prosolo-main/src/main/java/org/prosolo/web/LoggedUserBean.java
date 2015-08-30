@@ -85,6 +85,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	@Autowired private CourseManager courseManager;
 	@Autowired private CompetenceManager competenceManager;
 	@Autowired private EventFactory eventFactory;
+	@Autowired private SessionCountBean sessionCounter;
 
 	private User user;
 	private String email;
@@ -143,6 +144,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	private void registerNewUserSession(){
 	 	HttpSession session=(HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
 	 	applicationBean.registerNewUserSession(this.user, session);
+		sessionCounter.addSession(session.getId());
 	}
 	
 	public boolean isLoggedIn(){

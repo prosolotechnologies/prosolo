@@ -138,6 +138,15 @@ public class AnalyticalServiceCollectorImpl implements AnalyticalServiceCollecto
 		data.add("date", new JsonPrimitive(daysSinceEpoch));
 		messageDistributer.distributeMessage(factory.createAnalyticalServiceMessage(DataName.USEREVENTDAILYCOUNT, DataType.COUNTER, data));
 	}
+
+	@Override
+	public void updateInstanceLoggedUserCount(String instance, long timestamp, long count) {
+		JsonObject data=new JsonObject();
+		data.add("instance", new JsonPrimitive(instance));
+		data.add("timestamp", new JsonPrimitive(timestamp));
+		data.add("count", new JsonPrimitive(count));
+		messageDistributer.distributeMessage(factory.createAnalyticalServiceMessage(DataName.INSTANCELOGGEDUSERSCOUNT, DataType.RECORD, data));
+	}
 	
 	
 /*	//temporary

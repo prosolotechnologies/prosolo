@@ -23,6 +23,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.StringUtils;
+import org.prosolo.bigdata.common.dal.pojo.InstanceLoggedUsersCount;
 import org.prosolo.bigdata.common.dal.pojo.UserEventDailyCount;
 import org.prosolo.bigdata.common.dal.pojo.EventDailyCount;
 import org.prosolo.bigdata.dal.cassandra.impl.UserActivityStatisticsDBManager;
@@ -57,20 +58,18 @@ public class UsersActivityStatisticsService {
 		long oneWeekAgo = today - 6;
 		long twoWeeksAgo = today - 13;
 		
-		List<EventDailyCount> counts = dbManager.getUserEventsCount(event);
-		List<EventDailyCount> currentWeekCounts = dbManager.getUserEventsCount(event, oneWeekAgo, today);
-		List<EventDailyCount> previousWeekCounts = dbManager.getUserEventsCount(event, twoWeeksAgo, oneWeekAgo - 1);
+		List<EventDailyCount> counts = dbManager.getEventDailyCounts(event);
+		List<EventDailyCount> currentWeekCounts = dbManager.getEventDailyCounts(event, oneWeekAgo, today);
+		List<EventDailyCount> previousWeekCounts = dbManager.getEventDailyCounts(event, twoWeeksAgo, oneWeekAgo - 1);
 		
 		int sumCounts = sumCounts(counts);
 		
 		int sumCurrentWeek = sumCounts(currentWeekCounts);
 		int sumPreviousWeek = sumCounts(previousWeekCounts);
 		
-		double percent = Math.round(1000.0 * ((double) sumCurrentWeek / sumPreviousWeek - 1)) / 10.0;
-		
 		Map<String, String> result = new HashMap<String, String>();
 		result.put("totalUsers", String.valueOf(sumCounts));
-		result.put("totalUsersPercent", percent + "%");
+		result.put("totalUsersPercent", percent(sumCurrentWeek, sumPreviousWeek));
 		return corsOk(result);
 	}
 	
@@ -83,17 +82,29 @@ public class UsersActivityStatisticsService {
 		long oneWeekAgo = today - 6;
 		long twoWeeksAgo = oneWeekAgo - 13;
 		
-		List<UserEventDailyCount> currentWeekCounts = dbManager.getEventsCount(event, oneWeekAgo, today);
-		List<UserEventDailyCount> previousWeekCounts = dbManager.getEventsCount(event, twoWeeksAgo, oneWeekAgo - 1);
+		List<UserEventDailyCount> currentWeekCounts = dbManager.getUserEventDailyCounts(event, oneWeekAgo, today);
+		List<UserEventDailyCount> previousWeekCounts = dbManager.getUserEventDailyCounts(event, twoWeeksAgo, oneWeekAgo - 1);
 		int sumCurrent = distinctCount(currentWeekCounts);
 		int sumPrevious = distinctCount(previousWeekCounts);
 		
-		double percent = Math.round(1000.0 * ((double) sumCurrent / sumPrevious - 1)) / 10.0;
-
 		Map<String, String> result = new HashMap<String, String>();
 		result.put("activeUsers", String.valueOf(sumCurrent));
-		result.put("activeUsersPercent", percent + "%");
+		result.put("activeUsersPercent", percent(sumCurrent, sumPrevious));
 		return corsOk(result);
+	}
+
+	private String percent(int current, int previous) {
+		if (current == 0 && previous == 0) {
+			return "";
+		}
+		if (current == 0) {
+			return "-";
+		}
+		if (previous == 0) {
+			return "+";
+		}
+		double percent = Math.round(1000.0 * ((double) current / previous - 1)) / 10.0;
+		return percent + "%";
 	}
 	
 	@GET
@@ -103,14 +114,11 @@ public class UsersActivityStatisticsService {
 		logger.debug("Service 'getSessionData' called.");
 		Calendar lastHour = Calendar.getInstance();
 		lastHour.add(Calendar.HOUR, -1);
-		List<Long> login = dbManager.getLoggedInUsers(lastHour.getTimeInMillis());
-		List<Long> logout = dbManager.getLoggedOutUsers(lastHour.getTimeInMillis());
-		login.removeAll(logout);
+		List<InstanceLoggedUsersCount> counts = dbManager.getInstanceLoggedUsersCounts(lastHour.getTimeInMillis());
 		Map<String, String> result = new HashMap<String, String>();
-		result.put("loggedIn", String.valueOf((long) login.size()));
+		result.put("loggedIn", String.valueOf(sumInstanceLoggedUsersCount(counts)));
 		return corsOk(result);
 	}
-
 	
 	private int distinctCount(List<UserEventDailyCount> counts) {
 		Set<Long> result = new HashSet<Long>();
@@ -135,7 +143,7 @@ public class UsersActivityStatisticsService {
 		List<EventDailyCount> counts = new ArrayList<EventDailyCount>();
 		
 		for (String statistic : statistics) {
-			List<EventDailyCount> count = dbManager.getUserEventsCount(statistic, daysFrom, daysTo);
+			List<EventDailyCount> count = dbManager.getEventDailyCounts(statistic, daysFrom, daysTo);
 			if(Period.DAY.equals(Period.valueOf(period))) {
 				counts.addAll(count);			
 			} else {
@@ -179,6 +187,14 @@ public class UsersActivityStatisticsService {
 	private int sumCounts(List<EventDailyCount> counts) {
 		int sum = 0;
 		for(EventDailyCount count : counts) {
+			sum += count.getCount();
+		}
+		return sum;
+	}
+	
+	private int sumInstanceLoggedUsersCount(List<InstanceLoggedUsersCount> counts) {
+		int sum = 0;
+		for(InstanceLoggedUsersCount count : counts) {
 			sum += count.getCount();
 		}
 		return sum;
