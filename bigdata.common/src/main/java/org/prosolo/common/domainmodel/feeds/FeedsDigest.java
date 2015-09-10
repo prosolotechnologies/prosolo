@@ -40,7 +40,7 @@ public class FeedsDigest implements Serializable {
 	private Date dateCreated;
 	
 	public FeedsDigest() {
-		this.entries = new ArrayList<FeedEntry>();
+	 	this.entries = new ArrayList<FeedEntry>();
 	}
 	
 	@Id
@@ -55,14 +55,14 @@ public class FeedsDigest implements Serializable {
 		this.id = id;
 	}
 
-	@ManyToMany
-	public List<FeedEntry> getEntries() {
-		return entries;
-	}
-
-	public void setEntries(List<FeedEntry> entries) {
-		this.entries = entries;
-	}
+ 	@ManyToMany
+ 	public List<FeedEntry> getEntries() {
+ 		return entries;
+ 	}
+ 
+ 	public void setEntries(List<FeedEntry> entries) {
+ 		this.entries = entries;
+ 	}
 
 	@Enumerated (EnumType.STRING)
 	public TimeFrame getTimeFrame() {

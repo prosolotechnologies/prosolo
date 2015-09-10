@@ -189,15 +189,13 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
     /**
    * Initialize new stream for an array of hashtags
    */
-  def initializeNewStream(filters: Buffer[String])={
-    val filterQuery:FilterQuery=new FilterQuery().track(filters:_*)
-    super.initializeNewStream(filterQuery,filters)
+  def initializeNewStream(filters: Buffer[String]):Tuple2[TwitterStream,Int]={
+   // val filterQuery:FilterQuery=new FilterQuery().track(filters:_*)
+    super.initializeNewStream(new FilterQuery().track(filters:_*))
   }
+ 
   def restartStream(twitterStream:TwitterStream, filters: ListBuffer[String]){//twitterStream:TwitterStream, streamId:Int){
-
-       twitterStream.cleanUp()
-     val filterQuery:FilterQuery=new FilterQuery().track(filters:_*)
-    twitterStream.filter(filterQuery)
+      super.restartStream(twitterStream, new FilterQuery().track(filters:_*))
    }
   def terminateStream(twitterStream:TwitterStream){
      twitterStream.shutdown()

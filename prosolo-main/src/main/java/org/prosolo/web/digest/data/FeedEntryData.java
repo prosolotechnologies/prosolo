@@ -34,8 +34,8 @@ public class FeedEntryData implements Serializable {
 		this.link = feedEntry.getLink();
 		this.date = DateUtil.getPrettyDate(feedEntry.getDateCreated());
 		
-		if (feedEntry.getMaker() != null)
-			this.maker = new UserData(feedEntry.getMaker());
+	//	if (feedEntry.getMaker() != null)
+	//		this.maker = new UserData(feedEntry.getMaker());
 	}
 	
 	public FeedEntryData(TwitterPostSocialActivity tweetEntry) {

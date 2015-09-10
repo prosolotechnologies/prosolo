@@ -16,14 +16,18 @@ public interface FeedsAgregator {
 
 	void generateDailySubscribedRSSFeedsDigest(User user, Date date);
 
-	void generateDailyFriendsRSSFeedDigest(User user, Date date);
+//	void generateDailyFriendsRSSFeedDigest(User user, Date date);
 
-	void generateDailyCourseRSSFeedsDigest(Course course, Date date);
+	//void generateDailyCourseRSSFeedsDigest(Course course, Date date);
 
 	void generateDailySubscribedTwitterHashtagsDigest(User user, Date date);
 	
 	void generateDailyCourseTwitterHashtagsDigest(Course course, Date date);
 
 	void generateDailySubscribedRSSFeedsDigestForUser(Long userid, Date dateFrom);
+
+	void generateDailyFriendsRSSFeedDigest(Long userid, Date date);
+
+	void generateDailyCourseRSSFeedsDigest(Long courseid, Date date);
 
 }

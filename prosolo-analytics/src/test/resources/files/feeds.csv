@@ -1,3 +1,15 @@
+BBC News – Home,http://feeds.bbci.co.uk/news/rss.xml?edition=uk
+CNN, http://rss.cnn.com/rss/cnn_topstories.rss
+Business, http://feeds.bbci.co.uk/news/business/rss.xml?edition=uk
+1,http://rss.cnn.com/rss/cnn_living.rss
+2,http://rss.ireport.com/feeds/oncnn.rss
+3,http://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml?edition=uk
+4,http://feeds.bbci.co.uk/news/technology/rss.xml?edition=uk
+5,http://www.dailymail.co.uk/articles.rss
+6,http://www.dailymail.co.uk/tvshowbiz/index.rss
+
+
+
 Learning and Knowledge Analytics,http://www.learninganalytics.net/?feed=rss2
 Learning and Knowledge Analytics,http://www.learninganalytics.net/?feed=rss2
 elearnspace,http://www.elearnspace.org/blog/feed/
@@ -27,7 +39,6 @@ Data Analytics,http://peppersville.org/feed
 Comments for Data Analytics,http://peppersville.org/comments/feed
 Comments for nauczanKi,http://nauczanki.wordpress.com/comments/feed/
 nauczanKi,http://nauczanki.wordpress.com/feed/
-SERIOUS,http://blog.serious.kiwi/rss
 Fresh and Crispy,http://blog.cpjobling.me/feed/
 Comments for Fresh and Crispy,http://blog.cpjobling.me/comments/feed/
 Creative Meanderings,http://dvos.withknown.com/?_t=rss

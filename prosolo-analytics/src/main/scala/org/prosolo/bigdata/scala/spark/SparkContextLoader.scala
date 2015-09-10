@@ -22,7 +22,7 @@ object SparkContextLoader {
       sparkConf = new SparkConf()
       sparkConf.set("spark.scheduler.mode", "FAIR")
       sparkConf.set("spark.speculation", "true")
-      sparkConf.setMaster("local[*]")
+      sparkConf.setMaster("local[1]")
       sparkConf.setAppName("ProsoloBigDataScala")
       sparkConf.set("spark.executor.memory", "512M")
       sparkConf.set("spark.driver.memory", "1G")

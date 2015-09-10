@@ -1,6 +1,7 @@
 package org.prosolo.bigdata.feeds.impl;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import javax.transaction.Transactional;
@@ -9,9 +10,14 @@ import org.hibernate.Session;
 import org.prosolo.bigdata.dal.persistence.DiggestGeneratorDAO;
 import org.prosolo.bigdata.dal.persistence.impl.DiggestGeneratorDAOImpl;
 import org.prosolo.bigdata.feeds.ResourceTokenizer;
+import org.prosolo.common.domainmodel.activities.Activity;
+import org.prosolo.common.domainmodel.activities.CompetenceActivity;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.course.Course;
+import org.prosolo.common.domainmodel.course.CourseCompetence;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
@@ -88,5 +94,51 @@ public class ResourceTokenizerImpl implements ResourceTokenizer{
 	
 	private void getTokenizedStringForTargetActivity(TargetActivity tActivity, StringBuffer userTokensBuffer) {
 		userTokensBuffer.append(tActivity.getTitle() + " ");
+	}
+	
+	@Override
+	public String getTokenizedStringForCourse(Course course) {
+			
+		StringBuffer stringBuffer = new StringBuffer();
+		
+		stringBuffer.append(course.getTitle() + " ");
+		stringBuffer.append(course.getDescription() + " ");
+		
+		Collection<CourseCompetence> competences = course.getCompetences();
+		
+		if (competences != null && !competences.isEmpty()) {
+			for (CourseCompetence courseComp : competences) {
+				Competence competence = courseComp.getCompetence();
+				
+				stringBuffer.append(competence.getTitle() + " ");
+				stringBuffer.append(competence.getDescription() + " ");
+				
+				for (Tag ann : competence.getTags()) {
+					getTokenizedStringForAnnotation(ann, stringBuffer);
+				}
+				for (Tag ann : competence.getHashtags()) {
+					getTokenizedStringForAnnotation(ann, stringBuffer);
+				}
+				
+				List<CompetenceActivity> activities = competence.getActivities();
+				
+				if (activities != null && !activities.isEmpty()) {
+					for (CompetenceActivity competenceActivity : activities) {
+						Activity act = competenceActivity.getActivity();
+						
+						stringBuffer.append(act.getTitle() + " ");
+					}
+				}
+			}
+		}
+		
+		for (Tag ann : course.getTags()) {
+			getTokenizedStringForAnnotation(ann, stringBuffer);
+		}
+		for (Tag ann : course.getHashtags()) {
+			getTokenizedStringForAnnotation(ann, stringBuffer);
+		}
+		
+		return stringBuffer.toString();
 	}
 }

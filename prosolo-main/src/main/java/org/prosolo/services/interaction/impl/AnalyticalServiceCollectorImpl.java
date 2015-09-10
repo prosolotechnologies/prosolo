@@ -104,7 +104,7 @@ public class AnalyticalServiceCollectorImpl implements AnalyticalServiceCollecto
     public String eventName(EventType event, Map<String, String> params) {
     	switch (event) {
     	case SELECT_GOAL :
-    		return "goalviews";
+    		return "goalsviews";
     	case SELECT_COMPETENCE :
     		return "competencesviews";
     	case NAVIGATE :
@@ -127,7 +127,7 @@ public class AnalyticalServiceCollectorImpl implements AnalyticalServiceCollecto
 		JsonObject data=new JsonObject();
 		data.add("event", new JsonPrimitive(eventName(event, params)));
 		data.add("date", new JsonPrimitive(daysSinceEpoch));
-		messageDistributer.distributeMessage(factory.createAnalyticalServiceMessage(DataName.USERACTIVITYPERDAY, DataType.COUNTER, data));
+		messageDistributer.distributeMessage(factory.createAnalyticalServiceMessage(DataName.EVENTDAILYCOUNT, DataType.COUNTER, data));
 	}
 	
 	@Override
@@ -136,7 +136,16 @@ public class AnalyticalServiceCollectorImpl implements AnalyticalServiceCollecto
 		data.add("user", new JsonPrimitive(userId));
 		data.add("event", new JsonPrimitive(eventName(event, params)));
 		data.add("date", new JsonPrimitive(daysSinceEpoch));
-		messageDistributer.distributeMessage(factory.createAnalyticalServiceMessage(DataName.ACTIVITYPERDAY, DataType.COUNTER, data));
+		messageDistributer.distributeMessage(factory.createAnalyticalServiceMessage(DataName.USEREVENTDAILYCOUNT, DataType.COUNTER, data));
+	}
+
+	@Override
+	public void updateInstanceLoggedUserCount(String instance, long timestamp, long count) {
+		JsonObject data=new JsonObject();
+		data.add("instance", new JsonPrimitive(instance));
+		data.add("timestamp", new JsonPrimitive(timestamp));
+		data.add("count", new JsonPrimitive(count));
+		messageDistributer.distributeMessage(factory.createAnalyticalServiceMessage(DataName.INSTANCELOGGEDUSERSCOUNT, DataType.RECORD, data));
 	}
 	
 	

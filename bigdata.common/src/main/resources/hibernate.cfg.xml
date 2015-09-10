@@ -27,7 +27,7 @@
         <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
         <!-- property name="connection.username">root</property>
         <property name="connection.password">dragon3s12</property-->
-        <property name="hibernate.show_sql">false</property>
+        <property name="hibernate.show_sql">true</property>
         <property name="hibernate.use_sqld_comments">false</property>
         <property name="hibernate.transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
         <property name="hibernate.current_session_context_class">thread</property>

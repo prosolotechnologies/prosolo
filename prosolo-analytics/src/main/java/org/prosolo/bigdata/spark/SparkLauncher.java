@@ -59,7 +59,7 @@ public class SparkLauncher {
 		Runtime runtime = Runtime.getRuntime();
 		runtime.gc();
 		int numOfCores = runtime.availableProcessors();
-		numOfCores = 3;
+		numOfCores = 0;
 		SparkConf conf = new SparkConf();
 		conf.setMaster("local[" + numOfCores + "]");
 		conf.set("spark.executor.memory", "4g");

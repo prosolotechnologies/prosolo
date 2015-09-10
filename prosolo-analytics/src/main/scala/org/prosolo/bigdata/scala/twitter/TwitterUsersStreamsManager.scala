@@ -95,14 +95,12 @@ object TwitterUsersStreamsManager extends TwitterStreamsManager {
    * Initialize new stream for an array of users ids
    */
   def initializeNewStream(filters: Buffer[Long]):Tuple2[TwitterStream,Int]={
-   val filterQuery:FilterQuery=new FilterQuery().follow(filters:_*)
-   super.initializeNewStream(filterQuery,filters)
+  // val filterQuery:FilterQuery=new FilterQuery().follow(filters:_*)
+   super.initializeNewStream(new FilterQuery().follow(filters:_*))
 
   }
   def restartStream(twitterStream:TwitterStream, filters: ListBuffer[Long]){//twitterStream:TwitterStream, streamId:Int){
-  twitterStream.cleanUp()
-   val filterQuery:FilterQuery=new FilterQuery().follow(filters:_*)
-    twitterStream.filter(filterQuery)
+   super.restartStream(twitterStream, new FilterQuery().follow(filters:_*))
   }
     def terminateStream(twitterStream:TwitterStream){
      twitterStream.shutdown()

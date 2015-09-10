@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component("dashboardBean")
 @Scope("view")
 public class DashboardBean implements Serializable {
-
+	
 	private static final long serialVersionUID = -117805452735249654L;
 	
 	public int getTotalUsers() {
@@ -31,7 +31,7 @@ public class DashboardBean implements Serializable {
 		return "0%";
 	}
 	
-	public int getCurrentlyLoggedIn() {
+	public long getCurrentlyLoggedIn() {
 		return 0;
 	}
 

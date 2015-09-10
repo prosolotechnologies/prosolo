@@ -34,7 +34,7 @@ import org.prosolo.bigdata.similarity.WebPageRelevance;
 		@Override
 		public float calculateWebPageRelevanceForUser(String link, String tokenizedString) {
 			logger.debug("Calculating relevance of the link " + link + " for a tokenized string: " + tokenizedString);
-			
+			/* 
 			WebPageContent webPage = null;
 			try {
 				webPage = webPageExtractor.scrapPageContent(new URL(link));
@@ -48,6 +48,8 @@ import org.prosolo.bigdata.similarity.WebPageRelevance;
 			} else {
 				return (float) 0.0;
 			}
+			 */
+			return (float)0.0;
 		}
 
 

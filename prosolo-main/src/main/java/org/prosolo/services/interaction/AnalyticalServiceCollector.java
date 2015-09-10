@@ -19,8 +19,6 @@ public interface AnalyticalServiceCollector {
 
 	//void testCreateActivityInteractionData();
 
- 
-
 	void createTargetCompetenceActivitiesData(long competenceId,
 			long targetCompetenceId, List<TargetActivity> tActivities);
 
@@ -36,6 +34,7 @@ public interface AnalyticalServiceCollector {
 			long daysSinceEpoch);
 
 	void increaseEventCount(long userId, EventType event, Map<String, String> params, long daysSinceEpoch);
+	
+	void updateInstanceLoggedUserCount(String ip, long timestamp, long count);
 
 }
-

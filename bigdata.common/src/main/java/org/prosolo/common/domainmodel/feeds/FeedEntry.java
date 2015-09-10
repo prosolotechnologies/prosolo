@@ -25,19 +25,19 @@ public class FeedEntry extends BaseEntity implements Comparable<FeedEntry> {
 	private String link;
 	private String image;
 	private double relevance;
-	private FeedSource feedSource;
+	  private FeedSource feedSource;
 	
 	// only feeds related to Twitter hashtags have this field set
-	private List<String> hashtags;
+	  private List<String> hashtags;
 	
 	// when ProSolo user is the creator, we have this field set
-	private User maker;
+	 private User maker;
 
 	// user this entry is for. It is personalized as relevance is calculated for each user separatelly
-	private User subscribedUser;
+	  private User subscribedUser;
 	
 	public FeedEntry() {
-		this.hashtags = new ArrayList<String>();
+		 this.hashtags = new ArrayList<String>();
 	}
 	
 	public String getLink() {
@@ -64,42 +64,42 @@ public class FeedEntry extends BaseEntity implements Comparable<FeedEntry> {
 		this.relevance = relevance;
 	}
 
-	@ElementCollection
-	public List<String> getHashtags() {
-		return hashtags;
-	}
+	 @ElementCollection
+	 public List<String> getHashtags() {
+	 	return hashtags;
+	 }
 
-	public void setHashtags(List<String> hashtags) {
-		this.hashtags = hashtags;
-	}
+	 public void setHashtags(List<String> hashtags) {
+	 	this.hashtags = hashtags;
+	 }
 
-	@OneToOne
-	public User getMaker() {
-		return maker;
-	}
+	 @OneToOne
+ 	public User getMaker() {
+	 	return maker;
+	 }
 
-	public void setMaker(User maker) {
-		this.maker = maker;
-	}
+	 public void setMaker(User maker) {
+	 	this.maker = maker;
+	 }
 
-	@OneToOne
-	public FeedSource getFeedSource() {
-		return feedSource;
-	}
-
-	public void setFeedSource(FeedSource feedSource) {
-		this.feedSource = feedSource;
+ 	@OneToOne
+ 	public FeedSource getFeedSource() {
+ 		return feedSource;
+ 	}
+ 
+ 	public void setFeedSource(FeedSource feedSource) {
+ 		this.feedSource = feedSource;
 	}
 	
-	@OneToOne
-	public User getSubscribedUser() {
-		return subscribedUser;
-	}
+	  @OneToOne
+	 public User getSubscribedUser() {
+	 	return subscribedUser;
+	 }
 
-	public void setSubscribedUser(User subscribedUser) {
-		this.subscribedUser = subscribedUser;
-	}
-
+	 public void setSubscribedUser(User subscribedUser) {
+	 	this.subscribedUser = subscribedUser;
+	 }
+ 
 	@Override
 	public int compareTo(FeedEntry o) {
 		if (relevance < o.getRelevance()) {

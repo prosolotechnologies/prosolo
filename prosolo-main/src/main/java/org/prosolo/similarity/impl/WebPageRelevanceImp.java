@@ -31,7 +31,7 @@ public class WebPageRelevanceImp implements WebPageRelevance, Serializable {
 	@Override
 	public float calculateWebPageRelevanceForUser(String link, String tokenizedString) {
 		logger.debug("Calculating relevance of the link " + link + " for a tokenized string: " + tokenizedString);
-		
+		 
 		WebPageContent webPage = null;
 		try {
 			webPage = webPageExtractor.scrapPageContent(new URL(link));
@@ -45,5 +45,7 @@ public class WebPageRelevanceImp implements WebPageRelevance, Serializable {
 		} else {
 			return (float) 0.0;
 		}
+		 
+		 
 	}
 }

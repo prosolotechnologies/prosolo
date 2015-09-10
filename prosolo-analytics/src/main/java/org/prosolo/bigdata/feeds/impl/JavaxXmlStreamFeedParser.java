@@ -59,7 +59,7 @@ public class JavaxXmlStreamFeedParser implements FeedParser, Serializable {
 	private static final String PUB_DATE = "pubDate";
 	
 	// Sun, 07 Jun 2015 15:36:59 +0000
-	private String dateFormat = "EEE, dd MMM yyyy HH:mm:ss z";
+	private String dateFormat = "EEE, dd MMM yyyy HH:mm:ss X";
 	private AnalyticalEventDBManager eventDBManager=new AnalyticalEventDBManagerImpl();
 	
 	public FeedData readFeed(String feedUrl, Date fromDate) {
@@ -124,7 +124,8 @@ public class JavaxXmlStreamFeedParser implements FeedParser, Serializable {
 				
 				// read the XML document
 				while (eventReader.hasNext()) {
-					XMLEvent event = eventReader.nextEvent();
+					XMLEvent event  = eventReader.nextEvent();
+								
 					
 					if (event.isStartElement()) {
 						String localPart = event.asStartElement().getName().getLocalPart();
@@ -170,7 +171,7 @@ public class JavaxXmlStreamFeedParser implements FeedParser, Serializable {
 								break;
 							case PUB_DATE:
 								String pubdateString = getCharacterData(event, eventReader);
-								
+								System.out.println("PUBDATE:"+pubdateString+" data format:"+dateFormat);
 								pubdate = DateUtil.parseDate(pubdateString, dateFormat);
 								
 								break;
