@@ -5,6 +5,7 @@ package org.prosolo.common.domainmodel.course;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -127,6 +128,20 @@ public class CourseEnrollment extends BaseEntity {
 		if (courseCompetence != null) {
 			if (!addedCompetences.contains(courseCompetence)) {
 				return addedCompetences.add(courseCompetence);
+			}
+		}
+		return false;
+	}
+	
+	public boolean removeCompetence(CourseCompetence courseCompetenceToRemove) {
+		Iterator<CourseCompetence> iterator = addedCompetences.iterator();
+		
+		while (iterator.hasNext()) {
+			CourseCompetence courseComp = (CourseCompetence) iterator.next();
+			
+			if (courseComp.getId() == courseCompetenceToRemove.getId()) {
+				iterator.remove();
+				return true;
 			}
 		}
 		return false;

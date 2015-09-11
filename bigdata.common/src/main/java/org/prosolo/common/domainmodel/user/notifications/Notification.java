@@ -1,6 +1,7 @@
 package org.prosolo.common.domainmodel.user.notifications;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CollectionTable;
@@ -13,13 +14,14 @@ import javax.persistence.FetchType;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.OneToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.notifications.NotificationAction;
 
 //@ManagedBean(name = "notification")
 @Entity
@@ -36,6 +38,7 @@ public class Notification extends BaseEntity {
 	private List<NotificationAction> actions;
 	private NotificationAction chosenAction;
 	private User receiver;
+	private Date updated;
 	
 	/**
 	 * User who has created the event.
@@ -129,6 +132,15 @@ public class Notification extends BaseEntity {
 
 	public void setReceiver(User receiver) {
 		this.receiver = receiver;
+	}
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	public Date getUpdated() {
+		return updated;
+	}
+
+	public void setUpdated(Date updated) {
+		this.updated = updated;
 	}
 
 	@Transient

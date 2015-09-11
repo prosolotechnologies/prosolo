@@ -25,7 +25,11 @@ public class FeedSource extends BaseEntity {
 	public FeedSource() {}
 	
 	public FeedSource (String title, String link) {
-		setTitle(title);
+		if (title == null || title.isEmpty()) {
+			setTitle(link);
+		} else {
+			setTitle(title);
+		}
 		this.link = link;
 	}
 	
