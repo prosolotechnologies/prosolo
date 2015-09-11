@@ -48,16 +48,14 @@ object DigestManager {
     //
     
    
-    
-    println("CFD-7")
-   // session.close
+
     
    // createDailyUserSubscribedRSSFeedDigests(yesterday, usersRDD)
    // createDailyFriendsRSSFeedDigests(yesterday, usersRDD)
    
-     createDailyCoursesFeedsDigests(yesterday, coursesRDD)
+   //  createDailyCoursesFeedsDigests(yesterday, coursesRDD)
      
-    createDailySubscribedHashtagsDigests(yesterday)
+    createDailySubscribedHashtagsDigests(yesterday, usersRDD)
     createDailyCourseHashtagsDigests(yesterday)
     sendEmailsWithFeedDigests()
     
@@ -115,8 +113,22 @@ object DigestManager {
     
      
   }
-  private def createDailySubscribedHashtagsDigests(date:Date){
+  private def createDailySubscribedHashtagsDigests(date:Date, usersRDD:RDD[Long]){
      println("createDailySubscribedHashtagsDigests")
+ 
+     usersRDD.foreachPartition {       
+       users =>  {
+          val feedsAgregator:FeedsAgregator =new FeedsAgregatorImpl
+         users.foreach { 
+            userid =>
+              {
+                println("STARTING FRIENDS OF USER:"+userid);
+                feedsAgregator.generateDailySubscribedTwitterHashtagsDigestForUser(userid, date)
+              }
+            }  
+         
+       } 
+     }
   }
   private def createDailyCourseHashtagsDigests(date:Date){
      println("createDailyCourseHashtagsDigests")

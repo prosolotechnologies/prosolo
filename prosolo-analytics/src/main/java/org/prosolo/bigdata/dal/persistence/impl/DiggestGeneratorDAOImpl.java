@@ -1,6 +1,7 @@
 package org.prosolo.bigdata.dal.persistence.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -8,6 +9,8 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.prosolo.bigdata.dal.persistence.DiggestGeneratorDAO;
 import org.prosolo.bigdata.dal.persistence.HibernateUtil;
+import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
+import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.feeds.FeedEntry;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
@@ -249,5 +252,57 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 				.list();
 		
 		return feedMessages;
+	}
+	@Override
+	public List<Tag> getSubscribedHashtags(User user) {
+		String query = 
+			"SELECT DISTINCT hashtag " + 
+			"FROM TopicPreference topicPreference " +
+			"LEFT JOIN topicPreference.user user " +
+			"LEFT JOIN topicPreference.preferredHashtags hashtag "+
+			"WHERE hashtag.id > 0";
+		
+		if (user != null) {
+			query += " AND user = :user";
+		}
+		
+		Query q = session.createQuery(query);
+		
+		if (user != null) {
+			q.setEntity("user", user);
+		}
+		
+		@SuppressWarnings("unchecked")
+		List<Tag> result = q.list();
+		
+		if (result != null) {
+			return result;
+		} else {
+			return new ArrayList<Tag>();
+		}
+	}
+	@Override
+	public List<TwitterPostSocialActivity> getTwitterPosts(Collection<Tag> hashtags, Date date) {
+		if (hashtags == null || hashtags.isEmpty()) {
+			return new ArrayList<TwitterPostSocialActivity>();
+		}
+		
+		String query = 
+			"SELECT DISTINCT post " +
+			"FROM TwitterPostSocialActivity post " +
+			"LEFT JOIN post.hashtags hashtag " + 
+			"WHERE hashtag IN (:hashtags) " +
+				"AND year(post.dateCreated) = year(:date) " + 
+				"AND month(post.dateCreated) = month(:date) " + 
+				"AND day(post.dateCreated) = day(:date) " +
+			"ORDER BY post.dateCreated DESC ";
+		
+		@SuppressWarnings("unchecked")
+		List<TwitterPostSocialActivity> result = session.createQuery(query)
+				.setParameterList("hashtags", hashtags)
+				.setDate("date", date)
+				.list();
+
+		return result;
 	}
 }

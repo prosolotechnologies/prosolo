@@ -17,6 +17,7 @@ import org.prosolo.bigdata.dal.persistence.TwitterStreamingDAO
 object TwitterStatusBuffer {
     val buffer: ListBuffer[Status]=ListBuffer()
     val profanityFilter:BadWordsCensor=new BadWordsCensor
+    val twitterStreamingDao:TwitterStreamingDAO=new TwitterStreamingDAOImpl
     //val twitterStreamingDao:TwitterStreamingDAO=new TwitterStreamingDAOImpl
     
   /** heartbeat scheduler timer. */
@@ -37,6 +38,7 @@ object TwitterStatusBuffer {
   }
   
   def processBufferStatuses(){
+    println("PROCESS BUFFER STATUSES")
     val statuses=pullStatuses
     val sc=SparkContextLoader.getSC
     val statusesRDD=sc.parallelize(statuses)
@@ -48,15 +50,17 @@ object TwitterStatusBuffer {
   }
   def isAllowed(status:Status):Boolean={
     val isPolite:Boolean=profanityFilter.isPolite(status.getText)
+    println("isPolite:"+isPolite)
     isPolite
   }
   def processStatus(status:Status){
+    println("processing status:"+status.getText)
      val twitterUser=status.getUser
      val twitterHashtags:java.util.List[String]=new java.util.ArrayList[String]()
      status.getHashtagEntities.map { htent => twitterHashtags.add(htent.getText.toLowerCase) }
      val(twitterId,creatorName,screenName,profileImage)=(twitterUser.getId,twitterUser.getName,twitterUser.getScreenName,twitterUser.getProfileImageURL)
      val profileUrl="https://twitter.com/"+screenName
-    val twitterStreamingDao:TwitterStreamingDAO=new TwitterStreamingDAOImpl
+    
     var poster:User=null
      if({poster=twitterStreamingDao.getUserByTwitterUserId(twitterId);poster==null}){
        poster=initAnonUser(creatorName,profileUrl,screenName,profileImage)

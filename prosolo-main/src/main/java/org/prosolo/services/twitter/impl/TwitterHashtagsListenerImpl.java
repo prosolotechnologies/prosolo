@@ -15,7 +15,8 @@ import twitter4j.StatusListener;
  * @author Zoran Jeremic 2013-09-25
  * 
  */
-@Service("org.prosolo.services.twitter.TwitterHashtagListener")
+@Deprecated
+//@Service("org.prosolo.services.twitter.TwitterHashtagListener")
 public class TwitterHashtagsListenerImpl implements StatusListener, TwitterHashtagsListener {
 	
 	@SuppressWarnings("unused")

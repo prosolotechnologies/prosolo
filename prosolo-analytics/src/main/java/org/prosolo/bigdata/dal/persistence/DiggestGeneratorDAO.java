@@ -2,10 +2,12 @@ package org.prosolo.bigdata.dal.persistence;
 
  
 //import java.util.Collection;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-
+import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
+import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.course.Course;
 //import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.feeds.FeedEntry;
@@ -33,6 +35,11 @@ public interface DiggestGeneratorDAO extends GenericDAO{
 	List<Long> getAllActiveCoursesIds();
 
 	List<FeedEntry> getFeedEntriesForCourseParticipants(Course course, Date date);
+
+	List<Tag> getSubscribedHashtags(User user);
+
+	List<TwitterPostSocialActivity> getTwitterPosts(Collection<Tag> hashtags,
+			Date date);
 
 	//FeedsPreferences getFeedsPreferences(long userId, Session session);
 

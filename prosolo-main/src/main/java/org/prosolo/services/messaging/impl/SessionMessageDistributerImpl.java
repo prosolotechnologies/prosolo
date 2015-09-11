@@ -41,7 +41,8 @@ public class SessionMessageDistributerImpl implements SessionMessageDistributer{
 		if(reliableProducer==null){
 			 reliableProducer=new ReliableProducerImpl();
 			 reliableProducer.setQueue(QueueNames.SESSION.name().toLowerCase());
-			 reliableProducer.startAsynchronousPublisher();
+			 //reliableProducer.startAsynchronousPublisher();
+			 reliableProducer.init();
 			//reliableProducer.init(QueueNames.SESSION);
 			// reliableProducer=ServiceLocator.getInstance().getService(ReliableProducer.class).init(QueueNames.SESSION);
 		}

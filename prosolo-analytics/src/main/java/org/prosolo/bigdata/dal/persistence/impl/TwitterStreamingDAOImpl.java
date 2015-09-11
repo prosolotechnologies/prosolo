@@ -124,7 +124,7 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 			String screenName, String userUrl, String profileImage,
 			String text, VisibilityType visibility,
 			Collection<String> hashtags, boolean toSave) {
-
+		System.out.println("CREATE NEW TWITTER POST:"+toSave);
 		TwitterPost twitterPost = new TwitterPost();
 		// twitterPost.setTitle(text);
 		twitterPost.setDateCreated(created);
@@ -141,7 +141,9 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 		twitterPost.setUserUrl(userUrl);
 		twitterPost.setProfileImage(profileImage);
 		if (toSave) {
+			System.out.println("SAVING TWITTER POST");
 			twitterPost = (TwitterPost) save(twitterPost);
+			System.out.println("SAVED TWITTER POST");
 		}
 		return twitterPost;
 	}
@@ -150,7 +152,7 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 	public SocialActivity createTwitterPostSocialActivity(TwitterPost tweet) {
 		User actor = tweet.getMaker();
 		EventType action = EventType.TwitterPost;
-
+		System.out.println("CREATE TWITTER POST SOCIAL ACTIVITY");
 		TwitterPostSocialActivity twitterPostSA = new TwitterPostSocialActivity();
 
 		if (actor instanceof AnonUser) {
@@ -208,7 +210,7 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 	}
 
 	public Tag createTag(String title) {
-
+		System.out.println("CREATE NEW TAG:"+title);
 		Tag newTag = new Tag();
 		newTag.setTitle(title);
 		newTag = (Tag) save(newTag);

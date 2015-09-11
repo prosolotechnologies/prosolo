@@ -41,7 +41,8 @@ public class SystemMessageDistributerImpl implements SystemMessageDistributer{
 		if(reliableProducer==null){
 			 reliableProducer=new ReliableProducerImpl();
 			 reliableProducer.setQueue(QueueNames.SYSTEM.name().toLowerCase());
-			 reliableProducer.startAsynchronousPublisher();
+			 reliableProducer.init();
+			 //reliableProducer.startAsynchronousPublisher();
 		//	reliableProducer.init(QueueNames.SYSTEM);
 			// reliableProducer=ServiceLocator.getInstance().getService(ReliableProducer.class).init(QueueNames.SYSTEM);
 		}

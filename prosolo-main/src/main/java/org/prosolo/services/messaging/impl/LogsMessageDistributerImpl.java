@@ -39,7 +39,8 @@ public class LogsMessageDistributerImpl implements LogsMessageDistributer{
 		if(reliableProducer==null){
 			 reliableProducer=new ReliableProducerImpl();
 			 reliableProducer.setQueue(QueueNames.LOGS.name().toLowerCase());
-			 reliableProducer.startAsynchronousPublisher();
+			 reliableProducer.init();
+			// reliableProducer.startAsynchronousPublisher();
 		}
 		LogMessage message = new LogMessage();
 		logger.debug("\n timestamp: " + "));"+logObject.get("timestamp")+ 

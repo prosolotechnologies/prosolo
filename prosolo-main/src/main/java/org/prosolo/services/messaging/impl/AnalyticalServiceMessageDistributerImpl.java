@@ -37,7 +37,8 @@ public class AnalyticalServiceMessageDistributerImpl implements AnalyticalServic
 		if(reliableProducer==null){
 			 reliableProducer=new ReliableProducerImpl();
 			 reliableProducer.setQueue(QueueNames.ANALYTICS.name().toLowerCase());
-			 reliableProducer.startAsynchronousPublisher();
+			 reliableProducer.init();
+			// reliableProducer.startAsynchronousPublisher();
 		}		
 		wrapMessageAndSend(message);
 		

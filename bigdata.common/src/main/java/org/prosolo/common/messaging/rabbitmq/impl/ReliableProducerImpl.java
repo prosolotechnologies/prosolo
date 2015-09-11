@@ -29,7 +29,7 @@ public class ReliableProducerImpl  extends ReliableClientImpl implements Reliabl
 		this.dataQueue = new DataQueue();
 		this.pendingItems = new HashMap<Long, DataItem>();
 	}
-
+	@Override
 	public void init() {
 		if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 			this.startAsynchronousPublisher();

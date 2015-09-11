@@ -10,4 +10,6 @@ public interface ReliableProducer extends ReliableClient {
 
 	void send(String data);
 
+	void init();
+
 }

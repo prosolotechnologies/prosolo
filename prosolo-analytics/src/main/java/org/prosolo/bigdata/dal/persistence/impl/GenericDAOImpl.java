@@ -29,13 +29,20 @@ public abstract class GenericDAOImpl implements GenericDAO {
 	@Override
 	public Object save(Object entity) {
 		System.out.println("SAVING OR UPDATING2: class:"+entity.getClass().getName());
-		Transaction tx=null;
+ 
 		try{
-			tx=session.beginTransaction();
+			boolean isActive = session.getTransaction().isActive();  
+            if ( !isActive) {  
+                session.beginTransaction();  
+            }  
 			session.save(entity);
-			tx.commit();
+			session.getTransaction().commit();
 		}catch(Exception ex){
-			if(tx!=null) tx.rollback();
+			 		 
+			if(session.getTransaction()!=null){
+				session.getTransaction().rollback();
+			
+			}
 			ex.printStackTrace();
 		}
 		
