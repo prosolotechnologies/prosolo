@@ -36,7 +36,6 @@ public class PageUtil {
 		} catch (KeyNotFoundInBundleException e) {
 			logger.error(e);
 		}
-		
 	}
 	
 	public static void fireSuccessfulInfoMessage(String clientId, String description) {
