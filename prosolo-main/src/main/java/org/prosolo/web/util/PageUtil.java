@@ -82,6 +82,5 @@ public class PageUtil {
 	public static void sendToAccessDeniedPage() throws IOException {
 		FacesContext context = FacesContext.getCurrentInstance();
 		context.getExternalContext().dispatch("accessDenied.xhtml");
-//		context.getApplication().getNavigationHandler().handleNavigation(context, null, "accessDenied.xhtml");
 	}
 }
