@@ -18,7 +18,6 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.htmlparser.HTMLParser;
 import org.prosolo.services.nodes.ActivityManager;
-import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.web.LoggedUserBean;
@@ -46,7 +45,6 @@ public class ActivityDialogBean implements Serializable {
 	@Autowired private UploadManager uploadManager;
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private HTMLParser htmlParser;
-	@Autowired private CompetenceManager competenceManager;
 	@Autowired private ActivityManager activityManager;
 	@Autowired private ResourceFactory resourceFactory;
 	@Autowired private EventFactory eventFactory;

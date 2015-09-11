@@ -14,6 +14,7 @@ public class AddFeedSourceFormData implements Serializable {
 	private static final long serialVersionUID = -7660608212229228052L;
 	
 	private String linkToAdd;
+	private boolean someFeedsCanNotBeAdded;
 	private List<FeedSourceData> feedSources;
 	
 	public AddFeedSourceFormData() {
@@ -27,6 +28,14 @@ public class AddFeedSourceFormData implements Serializable {
 	public void setLinkToAdd(String linkToAdd) {
 		this.linkToAdd = linkToAdd;
 	}
+	
+	public boolean isSomeFeedsCanNotBeAdded() {
+		return someFeedsCanNotBeAdded;
+	}
+
+	public void setSomeFeedsCanNotBeAdded(boolean someFeedsCanNotBeAdded) {
+		this.someFeedsCanNotBeAdded = someFeedsCanNotBeAdded;
+	}
 
 	public List<FeedSourceData> getFeedSources() {
 		return feedSources;
@@ -36,7 +45,7 @@ public class AddFeedSourceFormData implements Serializable {
 		this.feedSources = feedSources;
 	}
 
-	public FeedSourceData getSelectedFeedSource() {
+	public FeedSourceData getFirstSelectedFeedSource() {
 		for (FeedSourceData feedSourceData : feedSources) {
 			if (feedSourceData.isToAdd()) {
 				return feedSourceData;
@@ -44,5 +53,5 @@ public class AddFeedSourceFormData implements Serializable {
 		}
 		return null;
 	}
-	
+
 }

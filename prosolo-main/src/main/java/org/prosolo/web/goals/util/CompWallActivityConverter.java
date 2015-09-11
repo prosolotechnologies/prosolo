@@ -11,7 +11,6 @@ import javax.faces.context.FacesContext;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
-import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.CompetenceActivity;
 import org.prosolo.common.domainmodel.activities.ExternalToolActivity;
@@ -25,10 +24,10 @@ import org.prosolo.common.domainmodel.outcomes.Outcome;
 import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
 import org.prosolo.common.domainmodel.portfolio.ExternalCredit;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.annotation.DislikeManager;
 import org.prosolo.services.annotation.LikeManager;
-import org.prosolo.services.interaction.CommentingManager;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.activitywall.data.AttachmentPreview;
@@ -54,7 +53,6 @@ public class CompWallActivityConverter {
 	
 	@Autowired private DislikeManager dislikeManager;
 	@Autowired private LikeManager likeManager;
-	@Autowired private CommentingManager commentingManager;
 	@Autowired private WallActivityConverter wallActivityConverter;
 	@Autowired private CompetenceManager competenceManager;
 	

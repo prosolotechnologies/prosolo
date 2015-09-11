@@ -29,10 +29,8 @@ import org.prosolo.services.activityWall.impl.util.SocialActivityConverterUtil;
 import org.prosolo.services.annotation.DislikeManager;
 import org.prosolo.services.annotation.LikeManager;
 import org.prosolo.services.interaction.CommentingManager;
-import org.prosolo.services.interaction.PostManager;
 import org.prosolo.services.media.util.SlideShareUtils;
 import org.prosolo.services.media.util.VideoUtils;
-import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.web.activitywall.data.AttachmentPreview;
 import org.prosolo.web.activitywall.data.FileType;
 import org.prosolo.web.activitywall.data.MediaType;
@@ -57,8 +55,6 @@ public class WallActivityConverter {
 	@Autowired private LikeManager likeManager;
 	@Autowired private DislikeManager dislikeManager;
 	@Autowired private CommentingManager commentingManager;
-	@Autowired private PostManager postManager;
-	@Autowired private DefaultManager defaultManager;
 
 //	public List<SocialActivityWallData> convertSocialActivityNotifications(List<SocialActivityNotification> saNotifications, 
 //			User loggedUser, SocialStreamSubViewType subViewType, Locale locale) {

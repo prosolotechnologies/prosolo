@@ -14,7 +14,6 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 import org.prosolo.common.domainmodel.activitywall.SocialActivityConfig;
-import org.prosolo.common.domainmodel.activitywall.SocialStreamSubViewType;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.content.Post;
 import org.prosolo.common.domainmodel.user.User;
@@ -26,7 +25,6 @@ import org.prosolo.services.activityWall.SocialActivityHandler;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.DefaultManager;
-import org.prosolo.services.twitter.TwitterStreamsManager;
 import org.prosolo.util.nodes.NodeUtil;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
@@ -59,7 +57,6 @@ public class WallActionsBean {
 	@Autowired private ActivityWallBean activityWallBean;
 	@Autowired private SocialActivityHandler socialActivityHandler;
 	@Autowired private TwitterBean twitterBean;
-	//@Autowired private TwitterStreamsManager twitterStreamsManager;
 	@Autowired private LoggingNavigationBean actionLogger;
 	@Autowired private ApplicationBean applicationBean;
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
@@ -264,7 +261,6 @@ public class WallActionsBean {
 				Map<String, String> parameters = new HashMap<String, String>();
 				parameters.put("context", context);
 				parameters.put("hashtags", NodeUtil.getCSVStringOfIds(removedHashtags));
-				System.out.println("UNFOLLOWING HASHTAGS");
 				actionLogger.logEvent(EventType.UNFOLLOW_HASHTAGS, parameters);
 			}
 		});

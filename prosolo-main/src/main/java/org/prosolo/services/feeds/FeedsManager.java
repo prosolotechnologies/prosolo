@@ -26,8 +26,10 @@ public interface FeedsManager extends AbstractManager {
 	
 	FeedsPreferences getFeedsPreferences(long userId);
 
-	FeedsPreferences addPersonalBlogSource(FeedsPreferences feedsPreferences, FeedSourceData feedSourceData);
+	FeedsPreferences addPersonalBlogRssSource(FeedsPreferences feedsPreferences, String link);
 
+	FeedsPreferences addSubscribedRssSource(FeedsPreferences feedsPreferences, String link);
+	
 	FeedsPreferences addSubscribedRssSources(FeedsPreferences feedsPreferences, List<FeedSourceData> feedSources);
 
 	FeedsPreferences removeSubscribedRssSource(FeedsPreferences feedsPreferences, String link);

@@ -21,7 +21,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
-import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.config.TwitterStreamConfig;
 import org.prosolo.core.spring.ServiceLocator;
@@ -31,7 +30,6 @@ import org.springframework.stereotype.Service;
 
 import twitter4j.HashtagEntity;
 import twitter4j.Status;
-//import java.io.FileOutputStream;
 
 /**
  * @author Zoran Jeremic 2013-10-14

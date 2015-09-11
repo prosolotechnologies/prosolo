@@ -6,11 +6,6 @@ import static org.elasticsearch.client.Requests.refreshRequest;
 import static org.elasticsearch.common.io.Streams.copyToStringFromClasspath;
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
-
-
-
-
-
 //import java.io.File;
 //import java.io.FileInputStream;
 import java.io.IOException;
@@ -31,6 +26,8 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
+//import org.prosolo.services.indexing.WebPageESIndexer;
+import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.content.RichContent;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
@@ -40,12 +37,9 @@ import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.recommendation.impl.DocumentType;
 import org.prosolo.services.es.MoreDocumentsLikeThis;
 import org.prosolo.services.indexing.ESIndexNames;
-import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.indexing.FileESIndexer;
 import org.prosolo.services.indexing.TikaExtractor;
-//import org.prosolo.services.indexing.WebPageESIndexer;
-import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -57,7 +51,6 @@ public class FileESIndexerImpl implements FileESIndexer{
 	
 	private static Logger logger = Logger.getLogger(FileESIndexerImpl.class);
 	
-	@Autowired private ESIndexer esIndexer;
 	@Autowired private MoreDocumentsLikeThis mdlt;
 	@Autowired private TikaExtractor tikaExtractor;
 	

@@ -9,6 +9,7 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.notifications.Notification;
+import org.prosolo.common.domainmodel.user.notifications.NotificationAction;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.AbstractManager;
 
@@ -29,5 +30,7 @@ public interface NotificationManager extends AbstractManager {
 	Integer getNumberOfUnreadNotifications(User user);
 
 	void markAsReadAllUnreadNotifications(User user, Session session);
+
+	Notification markNotificationStatus(long notificationId, NotificationAction status) throws ResourceCouldNotBeLoadedException;
 
 }

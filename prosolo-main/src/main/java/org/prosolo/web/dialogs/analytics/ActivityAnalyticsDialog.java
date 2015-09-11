@@ -1,4 +1,4 @@
-package org.prosolo.web.dialogs.analutics;
+package org.prosolo.web.dialogs.analytics;
 
 import java.io.Serializable;
 
@@ -8,8 +8,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.stats.ActivityStatistics;
-import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.dialogs.analutics.data.ActivityAnalyticsData;
+import org.prosolo.web.dialogs.analytics.data.ActivityAnalyticsData;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -25,8 +24,6 @@ public class ActivityAnalyticsDialog implements Serializable {
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(ActivityAnalyticsDialog.class);
 	
-	@Autowired private LoggedUserBean loggedUser;
-
 	@Autowired private ActivityStatistics activityStatistics;
 	@Autowired private LoggingNavigationBean actionLogger;
 	

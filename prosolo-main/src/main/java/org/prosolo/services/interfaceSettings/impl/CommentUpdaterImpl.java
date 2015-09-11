@@ -15,10 +15,8 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interfaceSettings.CommentUpdater;
-import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.web.activitywall.ActivityWallBean;
 import org.prosolo.web.goals.LearningGoalsBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -32,8 +30,6 @@ public class CommentUpdaterImpl extends AbstractManagerImpl implements CommentUp
 
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(CommentUpdaterImpl.class);
-	
-	@Autowired private DefaultManager defaultManager;
 	
 	@Override
 	public void updateCommentData(BaseEntity commentedRes, Comment comment, int commentLikeCount, int commentDislikeCount, HttpSession userSession)

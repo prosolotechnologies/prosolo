@@ -32,6 +32,34 @@ public class FeedFinderImpl implements FeedFinder {
 	private static Logger logger = Logger.getLogger(FeedFinderImpl.class);
 	
 	@Override
+	public boolean checkIfValidRssFeedLink(String url) {
+		if (url == null || url.isEmpty()) {
+			return false;
+		}
+		
+		if (!(url.startsWith("http://")) && !(url.startsWith("https://"))) {
+			url = "http://" + url;
+		}
+		
+		Document doc = null;
+		
+		try {
+			doc = Jsoup.parse(new URL(url), 5000);
+		
+			Elements linkElements = doc.select("rss");
+
+			return !linkElements.isEmpty();
+		} catch (MalformedURLException e) {
+			logger.error("MalformedURLException:" + url, e);
+		} catch (IOException e) {
+			logger.error("IOException:" + url, e);
+		} catch (IllegalArgumentException e) {
+			logger.error("IllegalArgumentException:" + url, e);
+		}
+		return false;
+	}
+	
+	@Override
 	public Map<String, String> extractFeedsFromBlog(String blogUrl) {
 		Map<String, String> feeds = new HashMap<String, String>();
 
@@ -54,7 +82,15 @@ public class FeedFinderImpl implements FeedFinder {
 										+ "[href~=.+]");
 
 			for (Element linkElem : linkElements) {
-				feeds.put(linkElem.attr("title"), linkElem.attr("href"));
+				String link = linkElem.attr("href");
+				
+				int indexOfSlash = link.lastIndexOf("/");
+				
+				if (indexOfSlash >= 0 && indexOfSlash == link.length()-1) {
+					link = link.substring(0, indexOfSlash);
+				}
+				
+				feeds.put(linkElem.attr("title"), link);
 			}
 		} catch (MalformedURLException e) {
 			logger.error("MalformedURLException:" + blogUrl, e);

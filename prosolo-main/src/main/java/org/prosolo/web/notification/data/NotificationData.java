@@ -26,7 +26,7 @@ public class NotificationData implements Serializable {
 	private boolean read;
 	private String chosenAction;
 	private Date created;
-//	private String resourceTitle;
+	private Date updated;
 	private String type;
 	private boolean actionable;
 	private EventType notificationType;
@@ -66,14 +66,6 @@ public class NotificationData implements Serializable {
 	public void setChosenAction(String chosenAction) {
 		this.chosenAction = chosenAction;
 	}
-
-//	public String getResourceTitle() {
-//		return resourceTitle;
-//	}
-//
-//	public void setResourceTitle(String resourceTitle) {
-//		this.resourceTitle = resourceTitle;
-//	}
 
 	public String getType() {
 		return type;
@@ -123,6 +115,14 @@ public class NotificationData implements Serializable {
 		this.created = created;
 	}
 	
+	public Date getUpdated() {
+		return updated;
+	}
+
+	public void setUpdated(Date updated) {
+		this.updated = updated;
+	}
+
 	public GoalStatus getGoalStatus() {
 		return goalStatus;
 	}
@@ -132,7 +132,7 @@ public class NotificationData implements Serializable {
 	}
 
 	public String getWhen() {
-		return DateUtil.getTimeAgoFromNow(created);
+		return DateUtil.getTimeAgoFromNow(updated);
 	}
 	
 	public UserData getActor() {

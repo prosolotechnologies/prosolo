@@ -27,8 +27,11 @@ import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
+import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
+import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.config.ElasticSearchConfig;
+import org.prosolo.common.domainmodel.organization.VisibilityType;
 //import org.prosolo.config.ElasticSearchConfig;
 import org.prosolo.recommendation.impl.DocumentType;
 import org.prosolo.services.es.MoreDocumentsLikeThis;
@@ -37,10 +40,6 @@ import org.prosolo.services.indexing.ESAdministration;
 import org.prosolo.services.indexing.ESIndexNames;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.indexing.TikaExtractor;
-import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
-import org.prosolo.common.config.CommonSettings;
-import org.prosolo.common.config.ElasticSearchConfig;
-import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.springframework.stereotype.Service;
 
 /**

@@ -14,13 +14,9 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.services.activityWall.SocialActivityFactory;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.CommentingManager;
-import org.prosolo.services.nodes.DefaultManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,10 +26,6 @@ public class CommentingManagerImpl extends AbstractManagerImpl implements Commen
 	private static final long serialVersionUID = 3622530637041186392L;
 
 	private static Logger logger = Logger.getLogger(CommentingManagerImpl.class);
-	
-	@Autowired private DefaultManager defaultManager;
-	@Autowired private EventFactory eventFactory;
-	@Autowired private SocialActivityFactory socialActivityFactory;
 	
 	@Override
 	@Transactional

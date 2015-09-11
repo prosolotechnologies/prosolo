@@ -11,9 +11,7 @@ import javax.faces.event.ValueChangeEvent;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
-import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.logging.ComponentName;
-import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -26,9 +24,7 @@ public class SearchTagsBean implements Serializable {
 
 	private static final long serialVersionUID = -2666493762916257045L;
 
-	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private TextSearch textSearch;
-	@Autowired private TagManager tagManager;
 	@Autowired private LoggingNavigationBean loggingNavigationBean;
 	
 	private String query;

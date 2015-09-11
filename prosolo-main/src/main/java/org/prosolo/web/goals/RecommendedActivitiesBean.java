@@ -4,8 +4,6 @@ package org.prosolo.web.goals;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.competences.Competence;
@@ -16,11 +14,7 @@ import org.prosolo.services.es.MoreNodesLikeThis;
 import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.similarity.ResourceTokenizer;
-import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.goals.util.AvailableLearningPlanConverter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 /**
 @author Zoran Jeremic Mar 28, 2015
@@ -39,8 +33,6 @@ public class RecommendedActivitiesBean implements Serializable {
 	@Autowired private MoreNodesLikeThis mnlt;
 	@Autowired private CompetenceManager competenceManager;
 	@Autowired private ResourceTokenizer resourceTokenizer;
-	@Autowired private AvailableLearningPlanConverter availableLearningPlanConverter;
-	@Autowired private LoggedUserBean loggedUser;
 	
 	private TargetCompetence selectedComp;
 	private boolean inCourse=false;

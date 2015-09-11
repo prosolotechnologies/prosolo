@@ -9,7 +9,6 @@ import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.organization.Role;
-import org.prosolo.search.TextSearch;
 import org.prosolo.services.admin.ResourceSettingsManager;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.RoleManager;
@@ -36,7 +35,6 @@ public class ResourceSettingsBean implements Serializable {
 
 	private static Logger logger = Logger.getLogger(ResourceSettingsBean.class.getName());
 	
-	@Autowired private TextSearch textSearch;
 	@Autowired private RoleManager roleManager;
 	@Autowired private ResourceSettingsManager resourceSettingsManager;
 	

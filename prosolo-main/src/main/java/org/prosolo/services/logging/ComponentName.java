@@ -50,6 +50,8 @@ public enum ComponentName {
 	DELETE_EXTERNAL_CREDIT_DIALOG, 
 	DIRECT_MESSAGE_DIALOG,
 	TUTORIAL_PLAYED,
+	ADD_TO_COMPETENCE_DIALOG,
+	ADD_TO_GOAL_DIALOG,
 	
 	
 	// to delete. I will not remove it now as there might be used in the database

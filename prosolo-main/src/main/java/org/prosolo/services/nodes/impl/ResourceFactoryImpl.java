@@ -46,7 +46,6 @@ import org.prosolo.core.spring.TransactionDebugUtil;
 import org.prosolo.services.authentication.PasswordEncrypter;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
@@ -72,7 +71,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 	
 	private static final long serialVersionUID = 2968104792929090003L;
 
-	@Autowired private EventFactory eventFactory;
 	@Autowired private PostManager postManager;
 	@Autowired private PasswordEncrypter passwordEncrypter;
 	@Autowired private RoleManager roleManager;

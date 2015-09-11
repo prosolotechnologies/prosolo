@@ -11,7 +11,6 @@ import org.prosolo.common.messaging.rabbitmq.WorkerException;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.messaging.impl.BroadcastMessageHandlerImpl;
 import org.prosolo.services.messaging.impl.SessionMessageHandlerImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

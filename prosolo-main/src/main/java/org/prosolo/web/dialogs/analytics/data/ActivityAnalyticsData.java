@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.prosolo.web.dialogs.analutics.data;
+package org.prosolo.web.dialogs.analytics.data;
 
 import java.io.Serializable;
 

@@ -35,7 +35,6 @@ import org.prosolo.common.domainmodel.workflow.evaluation.TargetLearningGoalEval
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.EvaluationManager;
 import org.prosolo.services.nodes.PortfolioManager;
@@ -57,7 +56,6 @@ public class EvaluationManagerImpl extends AbstractManagerImpl implements Evalua
 	
 	@Autowired private RequestManager requestManager;
 	@Autowired private PortfolioManager portfolioManager;
-	@Autowired private EventFactory eventFactory;
 
 	@Override
 	@Transactional (readOnly = false)

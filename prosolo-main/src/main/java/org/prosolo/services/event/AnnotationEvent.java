@@ -1,7 +1,5 @@
 package org.prosolo.services.event;
 
-import javax.persistence.Entity;
-
 import org.prosolo.common.domainmodel.activities.events.EventType;
 
 //@Entity

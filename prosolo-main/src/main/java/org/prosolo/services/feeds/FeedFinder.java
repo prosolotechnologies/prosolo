@@ -9,6 +9,8 @@ import java.util.Map;
  */
 
 public interface FeedFinder {
+	
+	boolean checkIfValidRssFeedLink(String url);
 
 	Map<String, String> extractFeedsFromBlog(String url);
 

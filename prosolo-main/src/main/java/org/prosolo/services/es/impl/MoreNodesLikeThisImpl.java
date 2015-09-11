@@ -97,7 +97,7 @@ public class MoreNodesLikeThisImpl extends AbstractManagerImpl implements MoreNo
 				}
 			}
 		} catch (IndexingServiceNotAvailable e1) {
-			logger.error(e1);
+			logger.warn(e1);
 		}
 		// client.close();
 		return foundNodes;

@@ -15,7 +15,6 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
-import org.prosolo.services.admin.ResourceSettingsManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.web.activitywall.data.UserData;
 import org.prosolo.web.util.ResourceBundleUtil;
@@ -40,12 +39,10 @@ public class EvaluationSettingsBean implements Serializable {
 	
 	private static final long serialVersionUID = -4740884840002696780L;
 
-	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(EvaluationSettingsBean.class.getName());
 	
 	@Autowired private RoleManager roleManager;
 	@Autowired private TextSearch textSearch;
-	@Autowired private ResourceSettingsManager resourceSettingsManager;
 	
 	private boolean usersChanged = false;
 	

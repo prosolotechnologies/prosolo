@@ -14,10 +14,7 @@ import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
-import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.PortfolioManager;
-import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.goals.LearningGoalsBean;
 import org.prosolo.web.search.data.SortingOption;
 import org.prosolo.web.util.ResourceUtilBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,11 +30,8 @@ public class CompetencesSearchBean implements Serializable {
 
 	protected static Logger logger = Logger.getLogger(CompetencesSearchBean.class);
 	
-	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private TextSearch textSearch;
-	@Autowired private CompetenceManager compManager;
 	@Autowired private PortfolioManager portfolioManager;
-	@Autowired private LearningGoalsBean goalBean;
 
 	private Collection<Competence> foundCompetences;
 	private int foundCompetencesSize;

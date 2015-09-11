@@ -1,7 +1,6 @@
 package org.prosolo.web.digest;
 
 import java.io.Serializable;
-//import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
@@ -15,20 +14,14 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.feeds.FeedEntry;
-//import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.TimeFrame;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.feeds.FeedsManager;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.web.LoggedUserBean;
-//import org.prosolo.web.courses.data.CourseData;
-//import org.prosolo.web.data.GoalData;
-//import org.prosolo.web.dialogs.data.AddToGoalData;
 import org.prosolo.web.digest.data.DigestCriteria;
 import org.prosolo.web.digest.data.FeedEntryData;
 import org.prosolo.web.digest.data.FeedsDigestData;
-//import org.prosolo.web.goals.cache.GoalDataCache;
-import org.prosolo.web.logging.LoggingNavigationBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -47,7 +40,6 @@ public class DigestBean implements Serializable{
 	protected static Logger logger = Logger.getLogger(DigestBean.class);
 
 	@Autowired private LoggedUserBean loggedUser;
-	@Autowired private LoggingNavigationBean loggingNavigationBean;
 
 	@Autowired private FeedsManager feedsManager;
 	@Autowired private CourseManager courseManager;

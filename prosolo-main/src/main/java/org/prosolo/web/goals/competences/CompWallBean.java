@@ -21,10 +21,8 @@ import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.util.string.StringUtil;
-import org.prosolo.services.activityWall.SocialActivityFactory;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.interaction.PostManager;
 import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.LearningGoalManager;
@@ -64,9 +62,7 @@ public class CompWallBean implements Serializable {
 	@Autowired private ActivityManager activityManager;
 	@Autowired private CompWallActivityConverter compWallActivityConverter;
 	@Autowired private UploadManager uploadManager;
-	@Autowired private PostManager postManager;
 	@Autowired private EventFactory eventFactory;
-	@Autowired private SocialActivityFactory socialActivityFactory;
 	
 	@Autowired private RecommendedLearningPlansBean recommendedLearningPlans;
 	@Autowired private LearningGoalsBean goalsBean;
@@ -178,6 +174,7 @@ public class CompWallBean implements Serializable {
 					activity,
 					context);
 		
+			// update cache
 			addActivity(compData, newActivity);
 			
 			refreshCompetenceData(compData);
@@ -210,7 +207,7 @@ public class CompWallBean implements Serializable {
 		}
 	}
 	
-	public void deleteActivity(ActivityWallData activityData) {
+	public void deleteActivity(ActivityWallData activityData, String context) {
 		boolean successful = false;
 		try {
 			TargetActivity activityToRemove = activityManager.loadResource(TargetActivity.class, activityData.getObject().getId());
@@ -219,13 +216,10 @@ public class CompWallBean implements Serializable {
 					loggedUser.getUser() );
 			
 			try {
-				long targetGoalId = goalsBean.getSelectedGoalData().getData().getTargetGoalId();
-				long targetCompId = goalsBean.getSelectedGoalData().getSelectedCompetence().getData().getId();
-				
 				successful = goalManager.detachActivityFromTargetCompetence(
 						loggedUser.getUser(),
 						activityToRemove,
-						"learn.targetGoal."+targetGoalId+".targetComp."+targetCompId+".activityWall.activity."+activityData.getId());
+						context);
 			} catch (EventException e) {
 				logger.error(e.getMessage());
 			}
@@ -271,9 +265,8 @@ public class CompWallBean implements Serializable {
 		}
 	}
 	
-	public void completeActivity(ActivityWallData activityData) {
+	public void completeActivity(ActivityWallData activityData, String context) {
 		try {
-			System.out.println("Complete activity");
 			TargetActivity tActivity = activityManager.loadResource(TargetActivity.class, activityData.getObject().getId());
 			Date now = new Date();
 
@@ -289,7 +282,7 @@ public class CompWallBean implements Serializable {
 			refreshCompetenceData(goalsBean.getSelectedGoalData().getSelectedCompetence());
 			goalsBean.recalculateSelectedGoalProgress();
 			
-			toggleActivityCompletedAsync(activityData, tActivity);
+			toggleActivityCompletedAsync(activityData, tActivity, context);
 			
 			// update recommended activity plans
 			if (recommendedLearningPlans != null) {
@@ -300,7 +293,7 @@ public class CompWallBean implements Serializable {
 		}
 	}
 	
-	public void uncompleteActivity(ActivityWallData activityData) {
+	public void uncompleteActivity(ActivityWallData activityData, String context) {
 		try {
 			TargetActivity tActivity = activityManager.loadResource(TargetActivity.class, activityData.getObject().getId());
 			tActivity.setCompleted(false);
@@ -313,7 +306,7 @@ public class CompWallBean implements Serializable {
 			refreshCompetenceData(goalsBean.getSelectedGoalData().getSelectedCompetence());
 			goalsBean.recalculateSelectedGoalProgress();
 			
-			toggleActivityCompletedAsync(activityData, tActivity);
+			toggleActivityCompletedAsync(activityData, tActivity, context);
 			
 			// update recommended activity plans
 			if (recommendedLearningPlans != null) {
@@ -324,7 +317,7 @@ public class CompWallBean implements Serializable {
 		}
 	}
 	
-	private void toggleActivityCompletedAsync(final ActivityWallData activityData, final TargetActivity activity) {
+	private void toggleActivityCompletedAsync(final ActivityWallData activityData, final TargetActivity activity, String context) {
 		final TargetActivity activity1 = activityManager.saveEntity(activity);
 		
 		taskExecutor.execute(new Runnable() {
@@ -333,12 +326,9 @@ public class CompWallBean implements Serializable {
 				logger.debug("Toggled value of completed field of aActivity \""+activity+"\" by the user "+ loggedUser.getUser());
 					
 				try {
-					long targetGoalId = goalsBean.getSelectedGoalData().getData().getTargetGoalId();
-					long targetCompId = goalsBean.getSelectedGoalData().getSelectedCompetence().getData().getId();
-
 					Map<String, String> paramaters = new HashMap<String, String>();
-					paramaters.put("context", "learn.targetGoal."+targetGoalId+".targetComp."+targetCompId+".compWall");
-					paramaters.put("tagetComp", String.valueOf(targetCompId));
+					paramaters.put("context", context);
+					paramaters.put("targetActivity", String.valueOf(activityData.getId()));
 					
 					EventType eventType = activity.isCompleted() ? EventType.Completion : EventType.NotCompleted;
 					
@@ -363,7 +353,7 @@ public class CompWallBean implements Serializable {
 		createNewActivity(
 				this.newActFormData, 
 				competenceDataCache, 
-				"learn.targetGoal."+targetGoalId+".targetComp."+targetCompId+".activityRecommend");
+				"learn.targetGoal."+targetGoalId+".targetComp."+targetCompId);
 	}
 	
 	public void createNewActivity(NewPostData newActFormData, CompetenceDataCache competenceDataCache, 
@@ -520,13 +510,11 @@ public class CompWallBean implements Serializable {
 		compData.calculateCanNotBeMarkedAsCompleted();
 	}
 	
-	private ActivityWallData activityToUploadAssignemnt;
-	
-	public void setActivityToUploadAssignment(ActivityWallData activityData) {
-		activityToUploadAssignemnt = activityData;
-	}
-	
 	public void handleAssignmentUpload(FileUploadEvent event) {
+		String context = (String) event.getComponent().getAttributes().get("context");
+		long targetActivityId = (Long) event.getComponent().getAttributes().get("targetActivityId");
+		ActivityWallData activityToUploadAssignemnt = goalsBean.getSelectedGoalData().getSelectedCompetence().getActivity(targetActivityId);
+		
 		NodeData activity = activityToUploadAssignemnt.getActivity();
 		
 		logger.debug("User "+loggedUser.getUser()+" is uploading an assignemnt for activity '" + 
@@ -542,7 +530,7 @@ public class CompWallBean implements Serializable {
 			if (activityToUploadAssignemnt != null) {
 				activityToUploadAssignemnt.getAttachmentPreview().setUploadedAssignmentLink(link);
 				activityToUploadAssignemnt.getAttachmentPreview().setUploadedAssignmentTitle(fileName);
-				completeActivity(activityToUploadAssignemnt);
+				completeActivity(activityToUploadAssignemnt, context);
 				
 				taskExecutor.execute(new Runnable() {
 		            @Override
@@ -556,7 +544,10 @@ public class CompWallBean implements Serializable {
 									fileName,
 									session);
 							try {
-								eventFactory.generateEvent(EventType.FileUploaded, loggedUser.getUser(), targetActivity);
+								Map<String, String> parameters = new HashMap<String, String>();
+								parameters.put("context", context);
+								parameters.put("targetActivityId", String.valueOf(targetActivity.getId()));
+								eventFactory.generateEvent(EventType.FileUploaded, loggedUser.getUser(), targetActivity, parameters);
 							} catch (EventException e) {
 								logger.error(e);
 							}
@@ -570,8 +561,6 @@ public class CompWallBean implements Serializable {
 		        });
 				
 				goalsBean.recalculateSelectedGoalProgress();
-			} else {
-				logger.error("activityToUploadAssignemntTo should have been set before the file is uplaoded");
 			}
 		} catch (IOException ioe) {
 			logger.error(ioe.getMessage());
@@ -581,9 +570,11 @@ public class CompWallBean implements Serializable {
     }
 	
 	public void removeAssignmentFromActivity(final ActivityWallData activityData) {
+		String context = PageUtil.getPostParameter("context");
+		
 		activityData.getAttachmentPreview().setUploadedAssignmentLink(null);
 		activityData.getAttachmentPreview().setUploadedAssignmentTitle(null);
-		uncompleteActivity(activityData);
+		uncompleteActivity(activityData, context);
 		
 		goalsBean.recalculateSelectedGoalProgress();
 		refreshCompetenceData(activityData.getCompData());
@@ -600,7 +591,11 @@ public class CompWallBean implements Serializable {
 							null,
 							session);
 					try {
-						eventFactory.generateEvent(EventType.AssignmentRemoved, loggedUser.getUser(), targetActivity);
+						Map<String, String> parameters = new HashMap<String, String>();
+						parameters.put("context", context);
+						parameters.put("targetActivityId", String.valueOf(targetActivity.getId()));
+						
+						eventFactory.generateEvent(EventType.AssignmentRemoved, loggedUser.getUser(), targetActivity, parameters);
 					} catch (EventException e) {
 						logger.error(e);
 					}

@@ -24,13 +24,10 @@ import org.prosolo.common.domainmodel.course.CourseEnrollment;
 import org.prosolo.common.domainmodel.course.Status;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.string.StringUtil;
-import org.prosolo.search.TextSearch;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.CourseManager;
-import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.rest.courses.CourseParser;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.data.CourseCompetenceData;
@@ -41,7 +38,6 @@ import org.prosolo.web.goals.LearningGoalsBean;
 import org.prosolo.web.goals.cache.CompetenceDataCache;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.goals.competences.CompetencesBean;
-import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.search.SearchCompetencesBean;
 import org.prosolo.web.search.data.CompetenceData;
 import org.prosolo.web.util.PageUtil;
@@ -69,15 +65,11 @@ public class CourseBean implements Serializable {
 	private static Logger logger = Logger.getLogger(CourseBean.class);
 	
 	@Autowired private LoggedUserBean loggedUser;
-	@Autowired private TextSearch textSearch;
 	@Autowired private CourseManager courseManager;
 	@Autowired private CoursePortfolioBean coursePortfolioBean;
 	@Autowired private TagManager tagManager;
 	@Autowired private CompetenceManager competenceManager;
-	@Autowired private LearningGoalManager goalManager;
-	@Autowired private EventFactory eventFactory;
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
-	@Autowired private LoggingNavigationBean loggingNavigationBean;
 	@Autowired private LearningGoalsBean learningGoalsBean;
 	@Autowired private CompetencesBean competencesBean;
 
@@ -174,14 +166,6 @@ public class CourseBean implements Serializable {
 		coursePortfolioBean.activateCourse(courseData, true, context);
 	}
 	
-//	public void suspendCourse() {
-//		coursePortfolioBean.deleteCourse(courseData);
-//
-//		this.courseData.setEnrolled(false);
-//		this.courseData.setActive(false);
-//		this.courseData.setInFutureCourses(true);
-//	}
-	
 	public void addToFutureCourses() {
 		if (coursePortfolioBean != null) {
 			
@@ -192,29 +176,6 @@ public class CourseBean implements Serializable {
 			courseData.setInFutureCourses(true);
 		}
 	}
-	
-//	public void withdrawFromCourse(CourseData courseData) {
-//		if (coursePortfolioBean != null) {
-//			coursePortfolioBean.deleteCourse(courseData);
-//		}
-//	}
-	
-//	public void removeFromFutureCourses() {
-//		if (coursePortfolioBean != null) {
-//			coursePortfolioBean.deleteCourse(courseData);
-//			courseData.setInFutureCourses(false);
-//			
-//			try {
-//				PageUtil.fireSuccessfulInfoMessage("coursesFormGrowl", 
-//						ResourceBundleUtil.getMessage(
-//								"courses.course.removed.growl", 
-//								loggedUser.getLocale(), 
-//								courseData.getTitle()));
-//			} catch (KeyNotFoundInBundleException e) {
-//				logger.error(e);
-//			}
-//		}
-//	}
 	
 	public void saveCourse() {
 		List<CourseCompetenceData> allCompetenceData = new ArrayList<CourseCompetenceData>(courseData.getAddedCompetences());
@@ -245,7 +206,7 @@ public class CourseBean implements Serializable {
 					
 					// creating target competence and adding it to the course-based goal
 					
-					competencesBean.connectCompetence(courseComp.getCompetence(), goalDataCache, "");
+					competencesBean.connectCompetence(courseComp.getCompetence(), goalDataCache, "plan.course." + courseData.getId());
 				}
 
 				if (courseComp != null) {

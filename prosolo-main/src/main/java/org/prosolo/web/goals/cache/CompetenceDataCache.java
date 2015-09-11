@@ -21,20 +21,15 @@ import org.prosolo.common.domainmodel.workflow.evaluation.Evaluation;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.recommendation.ActivityRecommender;
 import org.prosolo.recommendation.LearningPlanRecommendation;
-import org.prosolo.recommendation.dal.SuggestedLearningQueries;
-import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.services.nodes.BadgeManager;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.EvaluationManager;
-import org.prosolo.services.nodes.util.ActivityUtil;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.ActivityWallData;
-import org.prosolo.web.goals.AppendedActivitiesBean;
 import org.prosolo.web.goals.LearningGoalsBean;
 import org.prosolo.web.goals.data.AvailableLearningPlan;
 import org.prosolo.web.goals.data.LastActivityAware;
 import org.prosolo.web.goals.data.TargetCompetenceData;
-import org.prosolo.web.goals.util.AvailableLearningPlanConverter;
 import org.prosolo.web.goals.util.CompWallActivityConverter;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,13 +53,8 @@ public class CompetenceDataCache implements Serializable, LastActivityAware, Com
 	@Autowired private CompWallActivityConverter compWallActivityConverter;
 	
 	@Autowired private LearningPlanRecommendation lpRecommender;
-	@Autowired private SuggestedLearningQueries suggLearningQueries;
-	@Autowired private AppendedActivitiesBean appendedActivitiesBean;
-	@Autowired private ActivityManager activityManager;
 	@Autowired private EvaluationManager evaluationManager;
 	@Autowired private BadgeManager badgeManager;
-	@Autowired private AvailableLearningPlanConverter availableLearningPlanConverter;
-	@Autowired private ActivityUtil activityUtil;
 	@Autowired private ActivityRecommender activityRecommender;
 
 	private TargetCompetenceData data;
@@ -150,7 +140,16 @@ public class CompetenceDataCache implements Serializable, LastActivityAware, Com
 		}
 		return false;
 	}
- 
+	
+	public ActivityWallData getActivity(long targetActivityId) {
+		for (ActivityWallData activityWallData : activities) {
+			if (activityWallData.getId() == targetActivityId) {
+				return activityWallData;
+			}
+		}
+		return null;
+	}
+	
 	// RECOMMENDED LEARNING PLANS
 	@Deprecated
 	public void initializeRecommendedLearningPlans() {
@@ -246,10 +245,6 @@ public class CompetenceDataCache implements Serializable, LastActivityAware, Com
 	
 	public List<ActivityWallData> retrieveRelatedActivities(ActivityWallData selectedActivitiy) {
 		if (selectedActivitiy.getRelatedActivities() == null) {
-//			List<Activity> relatedActivities = activityRecommender.getRelatedActivities(
-//					loggedUser.getUser(), 
-//					selectedActivitiy.getActivity().getId(), 
-//					2);
 			List<Activity> relatedActivities = activityRecommender.getRelatedActivities(
 					data.getCompetenceId(), 
 					selectedActivitiy.getActivity().getId(), 

@@ -15,7 +15,6 @@ import org.prosolo.services.activityWall.strategy.StrategyFactory;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.ActivityWallBean;
-import org.prosolo.web.activitywall.util.WallActivityConverter;
 import org.prosolo.web.goals.GoalWallBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,16 +27,13 @@ import org.springframework.stereotype.Service;
 public class SocialActivityFilteringImpl implements SocialActivityFiltering {
 	
 	@Autowired private ApplicationBean applicationBean;
-	@Autowired private AllFilterProcessor allFilterProcessor;
 	@Autowired private StrategyFactory strategyFactory;
-	@Autowired private WallActivityConverter wallActivityConverter;
 	
 	@Override
 	public void checkSocialActivity(SocialActivity socialActivity) {
  
 		Map<Long, HttpSession> httpsessions = applicationBean.getAllHttpSessions();
 		Collection<HttpSession> sessions = httpsessions.values();
-//		System.out.println("Sessions:"+sessions.size());
 		
 		for (HttpSession httpSession : sessions) {
 			if (httpSession != null) {				
@@ -62,7 +58,6 @@ public class SocialActivityFilteringImpl implements SocialActivityFiltering {
 					boolean shouldBeDisplayedOnGoalWall = goalWallProcessor.checkSocialActivity(socialActivity, user, selectedGoalWallFilter);
 					
 					if (shouldBeDisplayedOnGoalWall) {
-						System.out.println("SHOULD BE DISPLAYED ON GOAL WALL:" + user.getLastname() + " " + user.getName());
 						// Nikola changed this as Goal Wall activities are not stored now in session scoped LearningGoalsBean,
 						// but in view scoped GoalWallBean
 						

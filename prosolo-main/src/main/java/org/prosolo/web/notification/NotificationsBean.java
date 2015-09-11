@@ -12,7 +12,6 @@ import org.hibernate.Session;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.home.ColleguesBean;
 import org.prosolo.web.notification.data.NotificationData;
 import org.prosolo.web.notification.exceptions.NotificationNotSupported;
 import org.prosolo.web.notification.util.NotificationDataConverter;
@@ -30,7 +29,6 @@ public class NotificationsBean implements Serializable {
 	
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private NotificationManager notificationsManager;
-	@Autowired private ColleguesBean colleaguesBean;
 	@Autowired private DefaultManager defaultManager;
 	private boolean moreToLoad;
 	

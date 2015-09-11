@@ -21,7 +21,6 @@ import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.PortfolioManager;
-import org.prosolo.similarity.ResourceTokenizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +29,6 @@ public class SuggestedLearningServiceImpl implements SuggestedLearningService{
 	
 	@Autowired private SuggestedLearningQueries suggestedLearningQueries;
 	@Autowired private MoreNodesLikeThis mnlt;
-	@Autowired private ResourceTokenizer resTokenizer;
 	@Autowired private DefaultManager defaultManager;
 	@Autowired private LearningGoalManager learningGoalManager;
 	@Autowired private CourseManager courseManager;

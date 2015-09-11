@@ -13,7 +13,6 @@ import org.prosolo.services.interaction.FeaturedNewsManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.home.data.FeaturedNewsData;
 import org.prosolo.web.home.util.FeaturedNewsConverter;
-import org.prosolo.web.logging.LoggingNavigationBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -29,8 +28,6 @@ public class FeaturedNewsBean implements Serializable {
 
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private FeaturedNewsManager featuredNewsManager;
-	@Autowired private ColleguesBean colleaguesBean;
-	@Autowired private LoggingNavigationBean loggingNavigationBean;
 
 	private LinkedList<FeaturedNewsData> featuredNewsList;
 	private final int elementsPerPage = 2;

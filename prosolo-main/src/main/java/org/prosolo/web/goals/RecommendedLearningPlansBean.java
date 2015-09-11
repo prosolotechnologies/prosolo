@@ -13,7 +13,6 @@ import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.workflow.LearningPlan;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.recommendation.LearningPlanRecommendation;
-import org.prosolo.recommendation.dal.SuggestedLearningQueries;
 import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.goals.data.AvailableLearningPlan;
@@ -32,7 +31,6 @@ public class RecommendedLearningPlansBean {
 
 	@Autowired private LearningPlanRecommendation lpRecommender;
 	@Autowired private LoggedUserBean loggedUser;
-	@Autowired private SuggestedLearningQueries suggLearningQueries;
 	@Autowired private AppendedActivitiesBean appendedActivitiesBean;
 	@Autowired private ActivityManager activityManager;
 	@Autowired private AvailableLearningPlanConverter availableLearningPlanConverter;
@@ -166,7 +164,7 @@ public class RecommendedLearningPlansBean {
 	}
 	
 	public void enableAddingActivity(TargetActivity targetActivity) {
-		if (targetActivity != null) {
+		if (targetActivity != null && recommendedPlans != null) {
 			for (AvailableLearningPlan lPlan : recommendedPlans) {
 				for (RecommendedActivityData act : lPlan.getActivities()) {
 					if (act.getActivity().getId() == targetActivity.getActivity().getId()) {

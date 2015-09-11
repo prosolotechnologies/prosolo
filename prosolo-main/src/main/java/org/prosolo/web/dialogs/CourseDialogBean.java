@@ -11,7 +11,6 @@ import org.prosolo.common.domainmodel.course.CourseCompetence;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.rest.courses.CourseParser;
-import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.data.CourseData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -26,7 +25,6 @@ public class CourseDialogBean implements Serializable {
 
 	protected static Logger logger = Logger.getLogger(CourseDialogBean.class);
 
-	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private CourseManager courseManager;
 	
 	private CourseData courseData;

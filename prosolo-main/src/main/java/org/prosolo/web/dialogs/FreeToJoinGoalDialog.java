@@ -13,7 +13,6 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.LearningGoalManager;
-import org.prosolo.services.notifications.RequestManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.UserData;
 import org.prosolo.web.data.GoalData;
@@ -33,7 +32,6 @@ public class FreeToJoinGoalDialog extends MessagesBean{
 
 	private static final Logger logger = Logger.getLogger(FreeToJoinGoalDialog.class.getName());
 	
-	@Autowired private RequestManager requestManager;
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private LearningGoalManager goalManager;
 	@Autowired private LoggingNavigationBean loggingNavigationBean;

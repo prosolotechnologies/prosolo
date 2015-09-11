@@ -249,6 +249,8 @@
 										activityData="#{actData}"
 										containerClass=".activitiesRegion"
 										toRender="#{actData.attachmentPreview.contentType == 'UPLOAD_ASSIGNMENT'}"
+										uniqueParentSelector=".newCompForm .activities .actBlock#{iterator.index}"
+										context="newCompetence"
 										mode="MANAGER"
 										width="405"
 									 />

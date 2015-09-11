@@ -55,8 +55,6 @@ public class ActivityWallData extends SocialActivityData implements Comparable<A
 			this.canNotBeMarkedAsCompleted = ActionDisabledReason.COMPLETION_DISABLED_FOR_UPLOAD_ACTIVITY;
 			this.activityType = ActivityType.ASSIGNMENTUPLOAD;
 		} else if (targetActivity.getActivity() instanceof ExternalToolActivity) {
-			System.out.println("EXTERNAL TOOL:"+((ExternalToolActivity) targetActivity.getActivity()).isAcceptGrades());
-
 			this.activityType = ActivityType.EXTERNALTOOL;
 			if (((ExternalToolActivity) targetActivity.getActivity()).isAcceptGrades()) {
 				this.acceptGrades = true;

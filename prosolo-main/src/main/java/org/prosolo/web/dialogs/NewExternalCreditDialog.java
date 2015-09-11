@@ -17,7 +17,6 @@ import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.portfolio.ExternalCredit;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.services.interaction.PostManager;
 import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.services.nodes.PortfolioManager;
 import org.prosolo.services.upload.UploadManager;
@@ -44,7 +43,6 @@ public class NewExternalCreditDialog implements Serializable {
 	
 	@Autowired private UploadManager uploadManager;
 	@Autowired private ActivityManager activityManager;
-	@Autowired private PostManager postManager;
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private PortfolioManager portfolioManager;
 	@Autowired private PortfolioBean portfolioBean;

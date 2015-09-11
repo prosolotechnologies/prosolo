@@ -1,0 +1,170 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+	<composite:interface>
+		<composite:attribute name="onClose" />
+	</composite:interface>
+	
+	<composite:implementation>
+
+		<utilcomp:messagesBundle var="msg" />
+		
+		<div id="newBlogModalDialog" class="newBlogModalDialog" style="display: none;">
+			<h:form id="rssLinkForm">
+			
+				<p:growl id="newBlogModalDialogGrowl" showDetail="true" />
+	
+				<p class="message">Insert personal blog link:</p>
+				<p>
+					<h:inputText id="linkToAdd" 
+						class="linkToAdd" 
+						placeholder="#{msg['settings.feeds.dialog.enterLink']}"
+						value="#{feedsBean.addBlogSourceData.linkToAdd}" />
+				</p>
+				
+				<p class="message actions">
+					<p:commandLink value="Analyze"
+						id="analyzeBtn"
+						styleClass="button green size30 analyzeBtn right"
+						onclick="$('#newBlogModalDialog .actions .loader').show()"
+					 	action="#{feedsBean.processPersonalBlogLink()}"
+					 	update="newFeedSources newBlogModalDialogGrowl"
+					 	oncomplete="afterBlogLinkProcess(xhr, status, args)"
+					/>
+					
+					<script>
+					function afterBlogLinkProcess(xhr, status, args) {
+						$('#newBlogModalDialog .result').show();
+						
+						if (args.invalidLink) {
+							$('#newBlogModalDialog .invalidLink').show();
+						} else if (args.validLink) {
+							$('#newBlogModalDialog .validLink').show();
+						}
+					}
+					
+					$("#newBlogModalDialog .linkToAdd").focus();
+					</script>
+					
+					<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif"
+						class="loader hidden right"
+						style="vertical-align:middle;" />
+				</p>
+				<div class="clear marginBottom10"></div>
+				
+				<div class="result hidden">
+					<div class="invalidLink noContentMessage hidden">
+						This is not a valid link. Please insert a proper link.
+					</div>
+					
+					<div class="validLink hidden">
+						<h:panelGroup layout="block" id="newFeedSources" class="message">
+							<h:panelGroup rendered="#{empty feedsBean.addBlogSourceData.feedSources}">
+								We could not find RSS feed link for your blog. If you want, you can add it manually. If not, leave this field empty.
+							
+								<p>
+									<h:inputText
+										class="linkToAdd" 
+										placeholder="#{msg['settings.feeds.dialog.enterLink']}"
+										value="#{feedsBean.personalBlogRssFeedSource}" />
+								</p>
+							</h:panelGroup>
+							
+							<h:panelGroup rendered="#{not empty feedsBean.addBlogSourceData.feedSources and feedsBean.addBlogSourceData.feedSources.size() == 1}">
+								<p class="message">We have found a RSS link for your updates.</p>
+							
+								<table>
+									<ui:repeat value="#{feedsBean.addBlogSourceData.feedSources}" var="feedSource">
+										<tr>
+											<td>
+												<h:selectBooleanCheckbox class="toAddCheck"
+													rendered="#{!feedSource.canNotBeAdded}"
+													value="#{feedSource.toAdd}" />
+											</td>	
+											<td>
+												<a href="#{feedSource.link}" target="_blank">#{feedSource.title}</a>
+											</td>					
+										</tr>
+									</ui:repeat>
+								</table>
+							</h:panelGroup>
+						
+							<h:panelGroup rendered="#{not empty feedsBean.addBlogSourceData.feedSources and feedsBean.addBlogSourceData.feedSources.size() > 1}">
+								<p class="message">We have found several potential RSS links for your blog. Please select the one that is the correct RSS feed link for your blog updates.</p>
+							
+								<table>
+									<ui:repeat value="#{feedsBean.addBlogSourceData.feedSources}" var="feedSource">
+										<tr>
+											<td>
+												<h:selectBooleanCheckbox class="toAddCheck"
+													rendered="#{!feedSource.canNotBeAdded}"
+													value="#{feedSource.toAdd}" />
+											</td>	
+											<td>
+												<a href="#{feedSource.link}" target="_blank">#{feedSource.title}</a>
+											</td>					
+										</tr>
+									</ui:repeat>
+								</table>
+								
+								<script>
+									$('input.toAddCheck').on('change', function() {
+									    $('input.toAddCheck').not(this).prop('checked', false);  
+									});
+								</script>
+							</h:panelGroup>
+							
+							<div class="actions marginTop20">
+								<p:commandLink value="Save"
+									styleClass="button green size30 right"
+									onclick="$('#newBlogModalDialog').dialog('close');"
+								 	action="#{feedsBean.addPersonalBlog()}"
+								 	update=":feedsForm"
+								/>
+								
+								<a class="button gray size30 right" href="#" 
+									onclick="$('#newBlogModalDialog').dialog('close');return false;">Close</a>
+							</div>
+							
+							<script>
+								$('#newBlogModalDialog .actions .loader').hide();
+							</script>
+						</h:panelGroup>
+					</div>
+				</div>
+				
+				<utilcomp:tooltip target=".hasTooltip[title]" />
+				<p:defaultCommand target="analyzeBtn" />
+		 	</h:form>
+		</div>
+		
+		<script>
+		$(function() {
+			$('#newBlogModalDialog').dialog({
+				title: 'Add personal blog',
+				show : 'slide',
+				autoOpen: false,
+				width: 500,
+				modal: true,
+				resizable: false,
+				open: function(event, ui) {
+					$(this).children(':first')
+						.css('text-align', 'center')
+						.css('padding-top', '50px')
+						.html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
+				},
+				close: function(event, ui) {
+					${cc.attrs.onClose}
+				},
+			});
+			$('#newBlogModalDialog').show();
+		});
+		</script>
+		
+	</composite:implementation>
+</ui:component>

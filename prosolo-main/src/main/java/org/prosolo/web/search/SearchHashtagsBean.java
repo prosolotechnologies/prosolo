@@ -8,13 +8,11 @@ import javax.faces.bean.ManagedBean;
 
 import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 import org.prosolo.common.domainmodel.activitywall.SocialStreamSubViewType;
-import org.prosolo.search.TextSearch;
 import org.prosolo.services.activityWall.ActivityWallManager;
 import org.prosolo.services.activityWall.impl.ActivityWallManagerImpl.ArrayCount;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.ActivityWallBean;
 import org.prosolo.web.activitywall.util.WallActivityConverter;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +27,8 @@ public class SearchHashtagsBean implements Serializable {
 	private static final long serialVersionUID = 7425398428736202443L;
 	
 	@Autowired private LoggedUserBean loggedUser;
-	@Autowired private TextSearch textSearch;
 	@Autowired private WallActivityConverter wallActivityConverter;
 	@Autowired private LoggingNavigationBean loggingNavigationBean;
-	@Autowired private ActivityWallBean activityWall;
 	@Autowired private ActivityWallManager activityWallManager;
 	
 	private String query;

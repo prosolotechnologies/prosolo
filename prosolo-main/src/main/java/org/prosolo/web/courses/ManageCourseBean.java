@@ -23,11 +23,9 @@ import org.prosolo.common.domainmodel.course.CourseCompetence;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.string.StringUtil;
-import org.prosolo.search.TextSearch;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.importing.CourseBackupManager;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.rest.courses.CourseParser;
@@ -36,7 +34,6 @@ import org.prosolo.web.courses.data.CourseCompetenceData;
 import org.prosolo.web.courses.data.CourseData;
 import org.prosolo.web.courses.util.CourseDataConverter;
 import org.prosolo.web.dialogs.data.CompetenceFormData;
-import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.search.SearchCompetencesBean;
 import org.prosolo.web.search.data.CompetenceData;
 import org.prosolo.web.util.PageUtil;
@@ -64,15 +61,11 @@ public class ManageCourseBean implements Serializable {
 	private static Logger logger = Logger.getLogger(ManageCourseBean.class);
 	
 	@Autowired private LoggedUserBean loggedUser;
-	@Autowired private TextSearch textSearch;
 	@Autowired private CourseManager courseManager;
-	@Autowired private CoursePortfolioBean coursePortfolioBean;
 	@Autowired private TagManager tagManager;
 	@Autowired private EventFactory eventFactory;
 	@Autowired private CompetenceManager competenceManager;
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
-	@Autowired private LoggingNavigationBean loggingNavigationBean;
-	@Autowired private CourseBackupManager courseBackupManager;
 
 	private CourseData courseData = new CourseData();
 	private CourseData basedOnCourseData = new CourseData();

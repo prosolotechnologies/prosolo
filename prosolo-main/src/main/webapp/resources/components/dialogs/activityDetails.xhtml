@@ -40,7 +40,8 @@
 					activity="#{activityDetailsBean.activity}"
 					onclick="$('#activityDetailsModalDialog').dialog('close');"
 					targetCompIdToPreselect="#{activityDetailsBean.targetCompIdToPreselectWhenAdding}"
-					toUpdateAfterAdding="#{activityDetailsBean.toUpdateAfterAddingToCompetence}" />
+					toUpdateAfterAdding="#{activityDetailsBean.toUpdateAfterAddingToCompetence}"
+					context="activityDetailsDialog.#{activityDetailsBean.activity.id}" />
 			</c:if>
 
 

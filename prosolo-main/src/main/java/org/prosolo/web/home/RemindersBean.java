@@ -18,7 +18,6 @@ import org.prosolo.common.domainmodel.user.reminders.ReminderStatus;
 import org.prosolo.common.domainmodel.user.reminders.RequestReminder;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.reminders.dal.PersonalCalendarManager;
-import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.home.util.ReminderConverter;
 import org.prosolo.web.search.data.ReminderData;
@@ -37,7 +36,6 @@ public class RemindersBean  implements Serializable{
 	
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private PersonalCalendarManager personalCalendarQueries;
-	@Autowired private DefaultManager defaultManager;
 	 
 	private List<ReminderData> reminders; 
 	private final int elementsPerPage = 3;

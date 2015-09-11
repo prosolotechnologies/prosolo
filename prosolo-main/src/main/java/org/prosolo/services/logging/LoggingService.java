@@ -19,10 +19,6 @@ import com.mongodb.DBObject;
 
 public interface LoggingService {
 
-	//void logEventHappened(long userId,
-		//	LoggedEventType eventType, long resourceId,
-		//	Map<String, String> parameters);
-
 	void logEventObserved(EventType eventType, User actor, String objectType,
 			long objectId, String objectTitle, String targetType,
 			long targetId, String reasonType, long reasonId,

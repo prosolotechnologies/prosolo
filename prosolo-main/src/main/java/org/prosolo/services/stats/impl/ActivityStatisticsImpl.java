@@ -8,7 +8,6 @@ import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.services.annotation.DislikeManager;
 import org.prosolo.services.annotation.LikeManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.services.stats.ActivityStatistics;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,7 +27,6 @@ public class ActivityStatisticsImpl extends AbstractManagerImpl implements Activ
 	
 	@Autowired private LikeManager likeManager;
 	@Autowired private DislikeManager dislikeManager;
-	@Autowired private ActivityManager activityManager;
 	
 	@Override
 	@Transactional (readOnly = true)

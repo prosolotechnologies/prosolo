@@ -10,6 +10,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activities.requests.Request;
+import org.prosolo.common.domainmodel.activities.requests.RequestStatus;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 import org.prosolo.common.domainmodel.activitywall.comments.Comment;
 import org.prosolo.common.domainmodel.content.Post;
@@ -19,6 +20,7 @@ import org.prosolo.common.domainmodel.user.notifications.CommentNotification;
 import org.prosolo.common.domainmodel.user.notifications.EvaluationNotification;
 import org.prosolo.common.domainmodel.user.notifications.EvaluationSubmissionNotification;
 import org.prosolo.common.domainmodel.user.notifications.Notification;
+import org.prosolo.common.domainmodel.user.notifications.NotificationAction;
 import org.prosolo.common.domainmodel.user.notifications.PostNotification;
 import org.prosolo.common.domainmodel.user.notifications.RequestNotification;
 import org.prosolo.common.domainmodel.user.notifications.SActivityNotification;
@@ -28,8 +30,6 @@ import org.prosolo.common.domainmodel.workflow.evaluation.EvaluationSubmission;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.reminders.dal.PersonalCalendarManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.nodes.DefaultManager;
-import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.util.RequestTypeToNotificationActionMapping;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,8 +45,6 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(NotificationManager.class);
 	
-	private @Autowired UserManager userManager;
-	private @Autowired DefaultManager defaultManager;
 	private @Autowired PersonalCalendarManager calendarManager;
  	
 	@Override
@@ -105,7 +103,6 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 			"FROM PersonalCalendar calendar " +
 			"LEFT JOIN calendar.user user " +
 			"LEFT JOIN calendar.notifications notification "+
-		//	"LEFT JOIN FETCH notification.object "+
 			"LEFT JOIN FETCH notification.actor "+
 			"WHERE user = :user " +
 			"ORDER BY notification.dateCreated DESC";
@@ -172,7 +169,6 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 			
 			if (notificationId > 0) {
 				Notification notification = (Notification) session.get(Notification.class, notificationId);
-				//Notification notification = loadResource(Notification.class, notificationIds[i]);
 				notification = (Notification) session.merge(notification);
 				
 				Notification not = markAsRead(notification, session);
@@ -217,6 +213,7 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 
 		Notification notification = createNotificationForResource(resource);
 		notification.setDateCreated(date);
+		notification.setUpdated(date);
 		notification.setMessage(message);
 		notification.setActor(creator);
 		notification.setReceiver(receiver);
@@ -235,6 +232,35 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 
 		session.flush();
 		return notification;
+	}
+	
+	@Override
+	public Notification markNotificationStatus(long notificationId, NotificationAction status) throws ResourceCouldNotBeLoadedException {
+		Notification notification = loadResource(Notification.class, notificationId);
+		
+		if (notification.getObject() instanceof Request) {
+			Request request = (Request) notification.getObject();
+			
+			switch (status) {
+				case ACCEPT:
+					request.setStatus(RequestStatus.ACCEPTED);
+					break;
+				case IGNORE:
+					request.setStatus(RequestStatus.IGNORED);
+					break;
+				case DENY:
+					request.setStatus(RequestStatus.DENIED);
+					break;
+				default:
+					break;
+			}
+			
+			saveEntity(request);
+		}
+		
+		notification.setUpdated(new Date());
+		notification.setChosenAction(status);
+		return saveEntity(notification);
 	}
 	
 }

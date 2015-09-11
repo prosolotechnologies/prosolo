@@ -11,7 +11,6 @@ import org.prosolo.common.domainmodel.user.reminders.Reminder;
 import org.prosolo.common.domainmodel.user.reminders.ReminderStatus;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.DefaultManager;
-import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.search.SearchRemindersBean;
 import org.prosolo.web.search.data.ReminderData;
@@ -33,7 +32,6 @@ public class ReminderBeanDialog implements Serializable{
 	private @Autowired DefaultManager defaultManager;
 	private @Autowired SearchRemindersBean searchRemindersBean;
 	private @Autowired LoggingNavigationBean loggingNavigationBean;
-	private @Autowired LoggedUserBean loggedUser;
 	
 	private ReminderData reminder;
 	

@@ -1,7 +1,6 @@
 package org.prosolo.services.event;
 
 import javax.persistence.Column;
-import javax.persistence.Entity;
 
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.organization.VisibilityType;

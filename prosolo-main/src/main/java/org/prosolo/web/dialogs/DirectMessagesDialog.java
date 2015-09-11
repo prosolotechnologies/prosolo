@@ -2,14 +2,20 @@ package org.prosolo.web.dialogs;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.user.MessagesThread;
 import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.services.event.EventException;
+//milikicn@bitbucket.org/zjeremic/prosolo-multimodule.git
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.logging.ComponentName;
@@ -20,7 +26,9 @@ import org.prosolo.web.home.MessagesBean;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 /**
@@ -40,6 +48,7 @@ public class DirectMessagesDialog implements Serializable {
 	@Autowired private MessagingManager messagingManager;
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private EventFactory eventFactory;
+	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 	
 	private UserData receiver;
 	public String messageContent;
@@ -66,7 +75,6 @@ public class DirectMessagesDialog implements Serializable {
 	}
 	
 	public void sendMessage() {
-		SimpleOfflineMessage message = null;
 		MessagesThread messagesThread = null;
 		
 		try {
@@ -83,7 +91,7 @@ public class DirectMessagesDialog implements Serializable {
 					this.messageContent);
 			}
 			
-			message = messagingManager.sendSimpleOfflineMessage(
+			SimpleOfflineMessage message = messagingManager.sendSimpleOfflineMessage(
 					loggedUser.getUser(), 
 					receiver.getId(), 
 					this.messageContent, 
@@ -92,7 +100,9 @@ public class DirectMessagesDialog implements Serializable {
 
 			messagesThread = messagingManager.merge(messagesThread);
 			messagesThread.addMessage(message);
+			messagesThread.setLastUpdated(new Date());
 			messagingManager.saveEntity(messagesThread);
+			
 			message.setMessageThread(messagesThread);
 			messagingManager.saveEntity(message);
 			
@@ -100,6 +110,23 @@ public class DirectMessagesDialog implements Serializable {
 			
 			List<UserData> participants = new ArrayList<UserData>();
 			participants.add(new UserData(loggedUser.getUser()));
+			
+			final SimpleOfflineMessage message1 = message;
+			
+			taskExecutor.execute(new Runnable() {
+	            @Override
+	            public void run() {
+	            	try {
+	            		Map<String, String> parameters = new HashMap<String, String>();
+	            		parameters.put("context", context);
+	            		parameters.put("user", String.valueOf(receiver.getId()));
+	            		parameters.put("message", String.valueOf(message1.getId()));
+	            		eventFactory.generateEvent(EventType.SEND_MESSAGE, loggedUser.getUser(), message1, parameters);
+	            	} catch (EventException e) {
+	            		logger.error(e);
+	            	}
+	            }
+			});
 			
 			PageUtil.fireSuccessfulInfoMessage("dmcomp:newDirectMessageFormGrowl", 
 					"You have sent a message to " + MessagesBean.getReceiversListed(participants));

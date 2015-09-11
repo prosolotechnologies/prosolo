@@ -15,11 +15,7 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.nodes.DefaultManager;
-import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.util.nodes.AnnotationUtil;
-import org.prosolo.util.nodes.NodeUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,10 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service("org.prosolo.services.event.EventFactory")
 public class EventFactory {
 	
-	@Autowired private ResourceFactory resourceFactory;
-	@Autowired private CentralEventDispatcher centralEventDispatcher;
-	@Autowired private DefaultManager defaultManager;
-
 	private static Logger logger = Logger.getLogger(EventFactory.class.getName());
 
 	/**

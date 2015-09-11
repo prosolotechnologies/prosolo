@@ -41,9 +41,11 @@
 					</ui:repeat>
 				</ul>
 
+				<ui:remove>
 				<h:panelGroup layout="block" id="seeAlldocumentsLinksPanelId" rendered="#{goalRecommendedDocuments.hasMoreGoalRecommendedDocuments}">
 					<a href="#" class="font11 center">See all</a>
 				</h:panelGroup>
+				</ui:remove>
 			</h:panelGroup>
 			
 			<utilcomp:tooltip target=".hasTooltip[title]" />

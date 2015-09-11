@@ -23,20 +23,16 @@ import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.core.spring.ServiceLocator;
-import org.prosolo.search.TextSearch;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interfaceSettings.InterfaceCacheObserver;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.LearningGoalManager;
-import org.prosolo.services.nodes.PortfolioManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.data.CourseData;
 import org.prosolo.web.courses.util.CourseDataConverter;
 import org.prosolo.web.goals.LearningGoalsBean;
 import org.prosolo.web.goals.cache.GoalDataCache;
-import org.prosolo.web.goals.competences.CompetenceStatusCache;
-import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.portfolio.PortfolioBean;
 import org.prosolo.web.util.PageUtil;
 import org.prosolo.web.util.ResourceBundleUtil;
@@ -61,16 +57,12 @@ public class CoursePortfolioBean implements Serializable {
 	private static Logger logger = Logger.getLogger(CoursePortfolioBean.class);
 	
 	@Autowired private LoggedUserBean loggedUser;
-	@Autowired private TextSearch textSearch;
 	@Autowired private CourseManager courseManager;
-	@Autowired private PortfolioManager portfolioManager;
 	@Autowired private LearningGoalManager goalManager;
 	@Autowired private PortfolioBean portfolioBean;
 	@Autowired private EventFactory eventFactory;
 	
-	@Autowired private CompetenceStatusCache competenceStatusCache;
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
-	@Autowired private LoggingNavigationBean loggingNavigationBean;
 	@Autowired private LearningGoalsBean learningGoalsBean;
 
 	// course portfolio

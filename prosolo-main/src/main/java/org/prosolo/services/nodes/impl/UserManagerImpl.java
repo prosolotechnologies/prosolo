@@ -21,13 +21,10 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.ResourceFactory;
-import org.prosolo.services.nodes.RoleManager;
-import org.prosolo.services.nodes.ScaleManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.services.upload.AvatarProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,12 +35,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	
 	private static Logger logger = Logger.getLogger(UserManager.class);
 	
-	@Autowired private ApplicationContext applicationContext;
-	
-	@Autowired private ScaleManager scaleManager;
 	@Autowired private PasswordEncrypter passwordEncrypter;
 	@Autowired private AvatarProcessor avatarProcessor; 
-	@Autowired private RoleManager roleManager; 
 	@Autowired private EventFactory eventFactory;
 	@Autowired private ResourceFactory resourceFactory;
 	 

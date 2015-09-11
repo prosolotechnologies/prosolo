@@ -16,7 +16,6 @@ import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.node.Node;
-import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.config.ElasticSearchConfig;
@@ -31,6 +30,7 @@ import org.springframework.stereotype.Service;
  */
 @Service("org.prosolo.services.indexing.ElasticSearchFactory")
 public class ElasticSearchFactory {
+	
 	 private static Client client;
 	 private static Logger logger = Logger.getLogger(ElasticSearchFactory.class);
 
@@ -100,8 +100,6 @@ public class ElasticSearchFactory {
 			settings.put("discovery.zen.ping.unicast.hosts", StringUtils.join(hosts, ","));
 			 
 	 
-		//new InetSocketTransportAddress("host1", 9300);
-		
 			client = new TransportClient(settings);
 			for (ElasticSearchHost host : esHosts) {
 				((TransportClient) client).addTransportAddress(new InetSocketTransportAddress(host.host, host.port));

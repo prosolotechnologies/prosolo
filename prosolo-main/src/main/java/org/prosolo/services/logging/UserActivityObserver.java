@@ -1,6 +1,5 @@
 package org.prosolo.services.logging;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +28,6 @@ import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.interaction.AnalyticalServiceCollector;
-import org.prosolo.services.interaction.AnalyticalServiceDataFactory;
 import org.prosolo.services.nodes.DefaultManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,9 +39,10 @@ import org.springframework.stereotype.Service;
  */
 @Service("org.prosolo.services.logging.UserActivityObserver")
 public class UserActivityObserver  implements EventObserver {
+	
 	protected static Logger logger = Logger.getLogger(UserActivityObserver.class);
+	
 	@Autowired private LoggingService loggingService;
-	@Autowired private AnalyticalServiceDataFactory analyticalServiceFactory;
 	@Autowired private AnalyticalServiceCollector analyticalServiceCollector;
 	@Autowired private DefaultManager defaultManager;
 	

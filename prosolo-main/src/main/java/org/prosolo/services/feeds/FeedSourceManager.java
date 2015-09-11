@@ -10,4 +10,9 @@ import org.prosolo.common.domainmodel.feeds.FeedSource;
 public interface FeedSourceManager {
 	
 	FeedSource getOrCreateFeedSource(String title, String link);
+
+	FeedSource createFeedSource(String title, String link);
+
+	FeedSource getFeedSource(String link);
+	
 }

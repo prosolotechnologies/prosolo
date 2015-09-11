@@ -12,7 +12,6 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.recommendation.ActivityRecommender;
 import org.prosolo.services.es.ESAssociationRulesSearch;
 import org.prosolo.services.nodes.ActivityManager;
-import org.prosolo.services.rest.clients.RecommendationServicesRest;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,14 +24,11 @@ public class ActivityRecommenderImpl implements ActivityRecommender, Serializabl
 	
 	private Logger logger = Logger.getLogger(ActivityRecommenderImpl.class);
 	
-	@Autowired private RecommendationServicesRest recommendationServices;
 	@Autowired private ActivityManager activityManager;
 	@Autowired private ESAssociationRulesSearch esAssociationRulesSearch;
 	
 	@Override
 	public List<Activity> getRecommendedActivitiesForCompetence(long competenceId, List<ActivityWallData> ignoreActivities, int limit) {
-		System.out.println("getRecommendedActivitiesForCompetence:"+competenceId);
-		
 		List<Activity> activities = new ArrayList<Activity>();
 	 
 		try {
@@ -60,7 +56,7 @@ public class ActivityRecommenderImpl implements ActivityRecommender, Serializabl
 				}
 			}
 		} catch (IndexingServiceNotAvailable e) {
-			logger.error(e);
+			logger.warn(e);
 		}
 		return activities;
 	}

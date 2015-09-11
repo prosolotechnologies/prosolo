@@ -9,7 +9,6 @@ import org.primefaces.event.SelectEvent;
 import org.primefaces.model.LazyDataModel;
 import org.prosolo.services.activityreport.ActivityExportManager;
 import org.prosolo.services.logging.LoggingDBManager;
-import org.prosolo.services.upload.AmazonS3UploadManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -30,7 +29,6 @@ public class LogsBean   implements Serializable {
 	@Autowired private LazyLogsDataModelImpl<LogRow> lazyModel; 
 	@Autowired private LogsFilterBean logsFilterBean;
 	@Autowired private LoggingDBManager loggingDBManager;
-	@Autowired private AmazonS3UploadManager s3Manager;
 	@Autowired private ActivityExportManager activityExport;
 	
 	private LogRow selectedLog;

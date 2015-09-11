@@ -13,12 +13,10 @@ import org.prosolo.common.domainmodel.user.MessagesThread;
 import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.string.StringUtil;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.web.activitywall.data.UserData;
 import org.prosolo.web.communications.data.MessageData;
 import org.prosolo.web.communications.data.MessagesThreadData;
-import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.useractions.data.NewPostData;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +36,8 @@ public class MessagesBean implements Serializable {
 
 	private static Logger logger = Logger.getLogger(MessagesBean.class);
 	
-	@Autowired private LoggingNavigationBean actionLogger;
 	@Autowired private MessagingManager messagingManager;
 	@Autowired private LoggedUserBean loggedUser;
-	@Autowired private EventFactory eventFactory;
 	
 	protected List<UserData> receivers;
 	
@@ -172,7 +168,6 @@ public class MessagesBean implements Serializable {
 		}
 				
 		reset();
-		
 	}
 
 	public void reset() {

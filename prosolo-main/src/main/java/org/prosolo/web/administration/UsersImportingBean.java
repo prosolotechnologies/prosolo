@@ -14,7 +14,6 @@ import org.primefaces.model.UploadedFile;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.core.spring.ServiceLocator;
-import org.prosolo.services.email.EmailSender;
 import org.prosolo.services.email.EmailSenderManager;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.OrganizationManager;
@@ -42,8 +41,6 @@ public class UsersImportingBean implements Serializable {
 	private static Logger logger = Logger.getLogger(UsersImportingBean.class.getName());
 	
 	@Autowired private LoggedUserBean loggedUser;
-	@Autowired private UserManager userManager;
-	@Autowired private EmailSender emailSender;
 	@Autowired private EmailSenderManager emailSenderManager;
 	
 	private UploadedFile file;

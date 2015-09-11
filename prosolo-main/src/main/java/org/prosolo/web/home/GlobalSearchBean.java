@@ -11,11 +11,7 @@ import javax.faces.event.ValueChangeEvent;
 
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
-import org.prosolo.search.TextSearch;
 import org.prosolo.services.logging.ComponentName;
-import org.prosolo.services.nodes.CourseManager;
-import org.prosolo.services.nodes.DefaultManager;
-import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.UserData;
 import org.prosolo.web.courses.data.CourseData;
@@ -44,11 +40,7 @@ public class GlobalSearchBean implements Serializable {
 	private static Logger logger = Logger.getLogger(GlobalSearchBean.class);
 	
 	@Autowired private LoggedUserBean loggedUser;
-	@Autowired private TextSearch textSearch;
-	@Autowired private DefaultManager defaultManager;
-	@Autowired private CourseManager courseManager;
 	@Autowired private LoggingNavigationBean loggingNavigationBean;
-	@Autowired private LearningGoalManager learningGoalManager;
 	@Autowired private SearchCoursesBean searchCoursesBean;
 	@Autowired private SearchGoalsBean searchGoalsBean;
 	@Autowired private SearchCompetencesBean searchCompetencesBean;

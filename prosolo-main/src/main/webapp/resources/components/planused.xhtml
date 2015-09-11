@@ -66,6 +66,7 @@
 						activityData="#{actData}"
 						mode="#{cc.attrs.mode}"
 						toRender="#{actData.attachmentPreview.contentType == 'UPLOAD_ASSIGNMENT'}"
+						uniqueParentSelector="##{cc.attrs.parentid} .compPlans .act#{iterator.index}"
 						context="#{cc.attrs.context}.activity.#{actData.id}"
 					/>
 					

@@ -106,8 +106,9 @@ public class StrategyFactory {
 		return (strategyAnnotation.filters().length == 0);
 	}
 
+	@SuppressWarnings("unchecked")
 	public <T> T getFilterProcessor(Class<T> strategyType, FilterType currentFilter) {
-		Set<Class<?>> keys = annotatedTypes.keySet();
+		//Set<Class<?>> keys = annotatedTypes.keySet();
 		List<Object> strategyBeans = annotatedTypes.get(strategyType);
 		Assert.notEmpty(strategyBeans, "No strategies found of type '" + strategyType.getName() + "', are the strategies marked with @Strategy?");
 		

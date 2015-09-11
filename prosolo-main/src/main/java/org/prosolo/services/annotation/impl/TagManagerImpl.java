@@ -34,8 +34,6 @@ public class TagManagerImpl extends AbstractManagerImpl implements TagManager {
 
 	private static Logger logger = Logger.getLogger(TagManagerImpl.class);
 
-	@Autowired private TagEntityESService esService;
-
 	@Override
 	@Transactional (readOnly = false)
 	public Tag getOrCreateTag(String title) {

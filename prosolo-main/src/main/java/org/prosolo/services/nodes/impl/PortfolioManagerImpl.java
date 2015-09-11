@@ -29,7 +29,6 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.PortfolioManager;
-import org.prosolo.services.nodes.ResourceFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,9 +40,7 @@ public class PortfolioManagerImpl extends AbstractManagerImpl implements Portfol
 
 	private static Logger logger = Logger.getLogger(PortfolioManagerImpl.class);
 	
-	@Autowired private ResourceFactory resourceFactory;
 	@Autowired private EventFactory eventFactory;
-	//@Autowired private LoggingNavigationBean loggingNavigationBean;
 	
 	@Override
 	@Transactional (readOnly = false)

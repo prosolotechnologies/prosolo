@@ -7,7 +7,6 @@ import java.net.URL;
 import org.apache.log4j.Logger;
 import org.prosolo.services.htmlparser.WebPageContent;
 import org.prosolo.services.htmlparser.WebPageContentExtractor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
@@ -26,9 +25,6 @@ public class WebPageContentExtractorImpl implements WebPageContentExtractor {
 
 	private static Logger logger = Logger
 			.getLogger(WebPageContentExtractorImpl.class);
-
-	@Autowired
-	private JSOUPParser jsoupParser;
 
 	@Override
 	public WebPageContent scrapPageContent(URL url) {

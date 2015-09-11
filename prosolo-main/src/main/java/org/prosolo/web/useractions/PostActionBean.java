@@ -18,14 +18,9 @@ import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.string.StringUtil;
-import org.prosolo.services.activityWall.ActivityWallFactory;
-import org.prosolo.services.activityWall.ActivityWallManager;
-import org.prosolo.services.activityWall.SocialActivityFactory;
 import org.prosolo.services.activityWall.SocialActivityHandler;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
-//import org.prosolo.services.activitystream.SocialActivityInboxUpdater;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.htmlparser.HTMLParser;
 import org.prosolo.services.interaction.PostManager;
 import org.prosolo.services.interaction.impl.PostManagerImpl.PostEvent;
@@ -33,9 +28,7 @@ import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.ActivityWallBean;
 import org.prosolo.web.activitywall.data.AttachmentPreview;
-import org.prosolo.web.activitywall.util.WallActivityConverter;
 import org.prosolo.web.useractions.data.NewPostData;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,17 +49,8 @@ public class PostActionBean implements Serializable {
 	@Autowired private PostManager postManager;
 	@Autowired private HTMLParser htmlParser;
 	@Autowired private UploadManager uploadManager;
-	@Autowired private EventFactory eventFactory;
-	//@Autowired private SocialActivityInboxUpdater updateFollowersInboxes;
 
-	@Autowired private SocialActivityFactory socialActivityFactory;
-	@Autowired private ActivityWallFactory activityWallFactory;
-	@Autowired private ActivityWallManager activityWallManager;
-	@Autowired private WallActivityConverter wallActivityConverter;
-
-	@Autowired private ActivityWallBean activityWallBean;
 	@Autowired private ApplicationBean applicationBean;
-	//@Autowired private ActivityWallUtilBean activityWallUtilBean;
 	@Autowired private SocialActivityHandler socialActivityHandler;
 	
 	private NewPostData newPostData;

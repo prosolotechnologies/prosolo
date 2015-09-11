@@ -134,6 +134,7 @@ public class NotificationDataConverter {
 		// date
 		notificationData.setDate(DateUtil.getPrettyDate(notification.getDateCreated()));
 		
+		notificationData.setUpdated(notification.getUpdated());
 		notificationData.setCreated(notification.getDateCreated());
 		
 		// actionable

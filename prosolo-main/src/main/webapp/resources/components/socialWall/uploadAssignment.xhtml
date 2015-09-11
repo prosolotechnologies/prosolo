@@ -21,13 +21,14 @@
 		<composite:attribute name="linkLength" default="60" />
 		<composite:attribute name="mode" default="USER" /> 
 		<composite:attribute name="disabled" type="java.lang.Boolean" default="false" />
+		<composite:attribute name="uniqueParentSelector" type="java.lang.String"/> 
 		<composite:attribute name="context" type="java.lang.String"/> 
 	</composite:interface>
 	
 	<composite:implementation>
 		
 		<div class="box">
-			<h:panelGroup layout="block" rendered="#{cc.attrs.toRender}" class="uploadAssignment activity#{cc.attrs.activityData.id} richContent #{cc.attrs.styleClass}">
+			<h:panelGroup layout="block" rendered="#{cc.attrs.toRender}" class="uploadAssignment richContent #{cc.attrs.styleClass}">
 				<strong>Assignment</strong>
 				<div class="clear"></div>
 				
@@ -42,16 +43,13 @@
 				
 				<h:panelGroup layout="block">
 					<div class="clear separator"></div>
-					<p:commandLink styleClass="solutionUpload button blue size20"
-						rendered="#{(cc.attrs.activityData.attachmentPreview.uploadedAssignmentLink == null or 
-							empty cc.attrs.activityData.attachmentPreview.uploadedAssignmentLink) and
-							cc.attrs.mode == 'USER'}"
-						value="Upload solution"
-						disabled="#{cc.attrs.disabled}"
-						action="#{compwall.setActivityToUploadAssignment(cc.attrs.activityData)}"
-						process="@this"
-						onclick="$('.activity#{cc.attrs.activityData.id} .assignementUploadControl .ui-fileupload input.upload').trigger('click');"
-					/>
+					
+					<span class="solutionUpload button blue size20 #{cc.attrs.disabled ? '' : 'hidden'}">Upload solution</span> 
+					
+					<a href="#" class="solutionUpload button blue size20 
+						#{((cc.attrs.activityData.attachmentPreview.uploadedAssignmentLink == null or empty cc.attrs.activityData.attachmentPreview.uploadedAssignmentLink) and
+							cc.attrs.mode == 'USER') ? (cc.attrs.disabled ? 'hidden' : '') : 'hidden'}"
+						onclick="$('#{cc.attrs.uniqueParentSelector} .assignementUploadControl input.upload').trigger('click');return false;">Upload solution</a>
 					
 					<h:panelGroup class="assignementUploadControl"
 						rendered="#{(cc.attrs.activityData.attachmentPreview.uploadedAssignmentLink == null or 
@@ -62,7 +60,10 @@
 							fileUploadListener="#{compwall.handleAssignmentUpload}"  
 				            mode="advanced"  
 				            auto="true"
-				            update="#{cc.attrs.updateAfterAssignmentChange}" />
+				            update="#{cc.attrs.updateAfterAssignmentChange}">
+				            <f:attribute name="targetActivityId" value="#{cc.attrs.activityData.id}" />
+				            <f:attribute name="context" value="#{cc.attrs.context}" />
+			            </p:fileUpload>
 					</h:panelGroup>
 	
 					<h:panelGroup rendered="#{(cc.attrs.activityData.attachmentPreview.uploadedAssignmentLink == null or 
@@ -86,8 +87,9 @@
 							rendered="#{cc.attrs.mode == 'USER'}"
 							action="#{compwall.removeAssignmentFromActivity(cc.attrs.activityData)}"
 							update="#{cc.attrs.updateAfterAssignmentChange}"
-							process="@this"
-						/>
+							process="@this">
+							<f:param name="context" value="#{cc.attrs.context}" />
+						</p:commandLink>
 						
 						<script>
 							$('#{cc.attrs.containerClass} .assignmentUrl').shortenedText({showChar: #{cc.attrs.linkLength}, mode: 'static'});

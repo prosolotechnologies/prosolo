@@ -10,18 +10,13 @@ import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 import org.prosolo.common.domainmodel.activitywall.SocialStreamSubViewType;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.activityWall.ActivityWallFactory;
-import org.prosolo.services.activityWall.ActivityWallManager;
 import org.prosolo.services.activityWall.SocialActivityFactory;
 import org.prosolo.services.activityWall.SocialActivityFiltering;
 import org.prosolo.services.activityWall.SocialActivityHandler;
-import org.prosolo.services.activityWall.SocialActivityResolver;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.messaging.SessionMessageDistributer;
 import org.prosolo.services.nodes.DefaultManager;
-import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.activitywall.ActivityWallBean;
 import org.prosolo.web.activitywall.util.WallActivityConverter;
 import org.prosolo.web.goals.GoalWallBean;
@@ -43,21 +38,14 @@ public class SocialActivityHandlerImpl implements SocialActivityHandler{
 	private static Logger logger = Logger.getLogger(SocialActivityHandler.class);
 	
 	@Autowired private SocialActivityFactory socialActivityFactory;
-	@Autowired private ActivityWallManager activityWallManager;
 	@Autowired private WallActivityConverter wallActivityConverter;
-	@Autowired private SessionMessageDistributer messageDistributer;
-	@Autowired private ApplicationBean applicationBean;
-	@Autowired private SocialActivityResolver sActivityResolver;
-	@Autowired private ActivityWallFactory activityWallFactory;
 	@Autowired private DefaultManager defaultManager;
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 	
 	@Autowired private SocialActivityFiltering socialActivityFiltering;
 	
-	
 	@Override
 	public SocialActivity addSociaActivitySyncAndPropagateToStatusAndGoalWall(Event event) throws EventException {
-		System.out.println("ADD SOCIAL ACTIVITY SYNC AND PROPAGATE TO STATUS AND GOAL WALL");
 		Session session = (Session) defaultManager.getPersistence().currentManager();
 		final SocialActivity socialActivity = socialActivityFactory.createSocialActivity(event, session, null);
 		socialActivityFiltering.checkSocialActivity(socialActivity);
@@ -66,7 +54,6 @@ public class SocialActivityHandlerImpl implements SocialActivityHandler{
 	
 	@Override
 	public void addSociaActivitySyncAndPropagateToGoalWall(Event event, GoalWallBean goalWallBean, User user, Locale locale) throws EventException {
-		System.out.println("ADD SOCIAL ACTIVITY SYNC AND PROPAGATE TO GOAL WALL");
 		Session session = (Session) defaultManager.getPersistence().currentManager();
 		SocialActivity socialActivity = socialActivityFactory.createSocialActivity(event, session, null);
 		
@@ -133,8 +120,7 @@ public class SocialActivityHandlerImpl implements SocialActivityHandler{
 	//}
 	@Override
 	public void propagateSocialActivity(Event event) throws EventException {
-			System.out.println("propagateSocialActivity");
-		  addSociaActivitySyncAndPropagateToStatusAndGoalWall(event);
+		addSociaActivitySyncAndPropagateToStatusAndGoalWall(event);
 	}
 	
 	@Override

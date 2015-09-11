@@ -10,8 +10,6 @@ import org.prosolo.common.messaging.data.SystemMessage;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.config.Config;
 import org.prosolo.services.messaging.MessageHandler;
-import org.prosolo.services.twitter.TwitterStreamsManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**

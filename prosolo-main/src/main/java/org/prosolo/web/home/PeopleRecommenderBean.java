@@ -14,7 +14,6 @@ import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.recommendation.CollaboratorsRecommendation;
-import org.prosolo.services.es.MoreUsersLikeThis;
 import org.prosolo.services.logging.LoggingDBManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.UserData;
@@ -39,7 +38,6 @@ public class PeopleRecommenderBean implements Serializable {
 	private static Logger logger = Logger.getLogger(PeopleRecommenderBean.class);
 	
 	@Autowired private LoggedUserBean loggedUser;
-	@Autowired private MoreUsersLikeThis mult;
 	@Autowired private CollaboratorsRecommendation cRecommendation;
 	@Autowired private LoggingDBManager loggingDBManager;
 	

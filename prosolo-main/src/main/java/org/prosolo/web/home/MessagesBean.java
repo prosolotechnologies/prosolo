@@ -10,7 +10,6 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
 import org.apache.log4j.Logger;
-import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.UserData;
 import org.prosolo.web.util.PageUtil;
@@ -22,7 +21,6 @@ public class MessagesBean implements Serializable {
 	
 	private static Logger logger = Logger.getLogger(MessagesBean.class);
 	
-	@Autowired private UserManager userManager;
 	@Autowired protected LoggedUserBean loggedUserBean;
 
 	protected List<UserData> receivers;

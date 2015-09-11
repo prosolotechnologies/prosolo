@@ -15,10 +15,8 @@ import org.prosolo.common.domainmodel.user.reminders.Reminder;
 import org.prosolo.common.domainmodel.user.reminders.ReminderStatus;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.reminders.dal.PersonalCalendarManager;
-import org.prosolo.search.TextSearch;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.home.RemindersBean;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.search.data.ReminderData;
 import org.prosolo.web.util.ResourceBundleUtil;
@@ -41,9 +39,7 @@ public class SearchRemindersBean implements Serializable {
 	private static Logger logger = Logger.getLogger(SearchRemindersBean.class);
 
 	@Autowired private LoggedUserBean loggedUser;
-	@Autowired private RemindersBean remindersBean;
 	@Autowired private PersonalCalendarManager personalCalendarQueries;
-	@Autowired private TextSearch textSearch;
 	@Autowired private LoggingNavigationBean loggingNavigationBean;
 
 	private List<ReminderData> reminders = new ArrayList<ReminderData>();

@@ -7,7 +7,6 @@ import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
 import org.prosolo.services.logging.ComponentName;
-import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +23,6 @@ public class ActivityListDialog implements Serializable {
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(ActivityListDialog.class);
 	
-	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private LoggingNavigationBean actionLogger;
 	
 	private boolean editable;

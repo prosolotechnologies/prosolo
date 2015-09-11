@@ -1,6 +1,5 @@
 package org.prosolo.web.unauthorized;
 
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -15,7 +14,6 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.authentication.RegistrationManager;
 import org.prosolo.services.email.EmailSenderManager;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
@@ -38,7 +36,6 @@ public class SelfRegistrationBean {
 	@Autowired private UserManager userManager;
 	@Autowired private EmailSenderManager emailSenderManager;
 	@Autowired private RegistrationManager registrationManager;
-	@Autowired private EventFactory eventFactory;
 	
 	private String key;
 	private boolean keyValid;

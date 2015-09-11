@@ -12,6 +12,5 @@ public class WallActivityConverterTest {
 	  String googleYoutubeApiLink="https://youtube.googleapis.com/v/";
 		int index=youtubeLink.lastIndexOf("v=");
 		String videoID=youtubeLink.substring(index+2);
-		System.out.println("OUTPUT:"+(googleYoutubeApiLink+videoID));
   }
 }

@@ -352,10 +352,10 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 		}
 		return tActivitiesIds;
 	}
+	
 	@Override
 	@Transactional (readOnly = true)
 	public List<Long> getActivitiesIds(long targetCompId) {
-		Set<Long> activitiesIds=new TreeSet<Long>();
 		String query =
 			"SELECT DISTINCT activity.id " +
 			"FROM TargetCompetence tComp " +
@@ -368,7 +368,6 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 			.setLong("targetCompId", targetCompId)
 			.list();
 		
-		 
 		return result;
 	}
 	

@@ -26,7 +26,7 @@
 	<div id="messageThreads" class="container tabbedLayout">
 	
 		<div class="leftSidebar">
-			<div class="leftNav">
+			<h:panelGroup layout="block" id="messageItemsContainer" class="leftNav">
 				<ul class="itemsContainer">
 					<ui:repeat value="#{topInboxBean.messagesThreads}" var="messageThreadData" varStatus="iterator">
 
@@ -79,7 +79,11 @@
 						</li>
 					</ui:repeat>
 				</ul>
-			</div>	
+				
+				<script>
+					roundImages();
+				</script>
+			</h:panelGroup>	
 			
 		</div><!-- .leftSidebar -->
 		
@@ -138,7 +142,7 @@
 					containerDiv="#messageThreads"
 					linkEnabled="false"
 					watermark="Reply..."
-					regionToRefresh=":messagesForm:messagesContainer"
+					regionToRefresh=":messagesForm:messagesContainer :messageItemsContainer"
 					actionButtonName="Reply"
 				/>
 				

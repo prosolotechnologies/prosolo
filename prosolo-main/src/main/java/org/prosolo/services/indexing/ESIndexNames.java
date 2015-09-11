@@ -5,9 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.prosolo.app.Settings;
 import org.prosolo.common.config.CommonSettings;
-import org.prosolo.common.config.ElasticSearchConfig;
 
 public class ESIndexNames {
  

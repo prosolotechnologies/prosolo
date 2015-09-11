@@ -34,7 +34,6 @@ import org.prosolo.services.nodes.impl.PortfolioData;
 import org.prosolo.util.nodes.AnnotationUtil;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.ActivityWallBean;
 import org.prosolo.web.activitywall.data.UserData;
 import org.prosolo.web.courses.CoursePortfolioBean;
 import org.prosolo.web.courses.data.CourseData;
@@ -49,7 +48,6 @@ import org.prosolo.web.goals.data.CompetenceData;
 import org.prosolo.web.goals.data.NewLearningGoalFormData;
 import org.prosolo.web.home.LearningProgressBean;
 import org.prosolo.web.home.RemindersBean;
-import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.portfolio.PortfolioBean;
 import org.prosolo.web.portfolio.data.AchievedCompetenceData;
 import org.prosolo.web.portfolio.util.AchievedCompetenceDataConverter;
@@ -86,9 +84,7 @@ public class LearningGoalsBean implements Serializable {
 	@Autowired private AchievedCompetenceDataConverter achievedCompetenceDataConverter;
 	
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
-	@Autowired private LoggingNavigationBean loggingNavigationBean;
 	@Autowired private SocialActivityHandler socialActivityHandler;
-	@Autowired private ActivityWallBean activityWallBean;
 	@Autowired private ActivitiesRecommendationBean activitiesRecommendationBean;
 	
 	private LearningGoalPageDataCache data;

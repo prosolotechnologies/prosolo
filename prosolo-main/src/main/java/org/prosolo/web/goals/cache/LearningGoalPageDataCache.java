@@ -11,13 +11,13 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 import org.prosolo.common.domainmodel.activitywall.comments.Comment;
 import org.prosolo.common.domainmodel.outcomes.Outcome;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.activityWall.ActivityWallManager;
 import org.prosolo.services.nodes.BadgeManager;
 import org.prosolo.services.nodes.EvaluationManager;
@@ -25,7 +25,6 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.activitywall.data.SocialActivityCommentData;
 import org.prosolo.web.data.GoalData;
-import org.prosolo.web.home.SuggestedLearningBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -44,7 +43,6 @@ public class LearningGoalPageDataCache implements Serializable {
 	
 	private LoggedUserBean loggedUser;
 	
-	@Autowired private SuggestedLearningBean suggestedLearningBean;
 	@Autowired private EvaluationManager evaluationManager;
 	@Autowired private BadgeManager badgeManager;
 	

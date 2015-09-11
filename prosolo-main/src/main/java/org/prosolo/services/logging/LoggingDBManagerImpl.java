@@ -205,10 +205,10 @@ public class LoggingDBManagerImpl extends AbstractDB implements LoggingDBManager
 			DBCursor dbCursor = activitiesCollection.find(query).sort(sortQuery).limit(1);
 			while (dbCursor.hasNext()) {
 				DBObject userDateLog = dbCursor.next();
-				ObjectId id = (ObjectId) userDateLog.get("_id");
-				int objTime = id._time();
+				//ObjectId id = (ObjectId) userDateLog.get("_id");
+				//int objTime = id._time();
 				Long daysSinceEpoch = Long.valueOf(userDateLog.get("date").toString());
-				Date date = new Date(86400000 * daysSinceEpoch);
+				//Date date = new Date(86400000 * daysSinceEpoch);
 				timestamp = 86400000 * daysSinceEpoch;
 				
 				try {

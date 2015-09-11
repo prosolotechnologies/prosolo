@@ -22,7 +22,6 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.web.LoggedUserBean;
@@ -52,7 +51,6 @@ public class ManageCompetenceBean implements Serializable {
 	@Autowired private CompWallActivityConverter compWallActivityConverter;
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private ResourceFactory resourceFactory;
-	@Autowired private EventFactory eventFactory;
 
 	private CompetenceFormData compData = new CompetenceFormData();
 	private Competence competence;

@@ -38,18 +38,6 @@
 	<composite:implementation>
 		<h:outputScript library="javascript" target="head" name="jquery.newpost.js" />
 	
-		<script>
-		var #{cc.attrs.value}NewPost;
-		$(function() {
-			$('#{cc.attrs.containerDiv} .addNoteBox').newpost({
-				watermark:'<h:outputText value="#{cc.attrs.watermark}" />',
-				hideActions: #{cc.attrs.hideActions},
-				userSearchAction: #{cc.clientId.replace(':','i')}SearchColleaguesAjaxical,
-				userSearchInput: '.userSuggestSearchInput',
-			});
-			#{cc.attrs.value}NewPost = $('#{cc.attrs.containerDiv} .addNoteBox').data('newpost');
-		});
-		</script>
 		<div class="addNoteBox">
 			<div class="clear"></div>
 		
@@ -202,5 +190,18 @@
 			</div>
 			<p:growl id="newPostGrowl" showDetail="true" />
 		</div>
+		
+		<script>
+		var #{cc.attrs.value}NewPost;
+		$(function() {
+			$('#{cc.attrs.containerDiv} .addNoteBox').newpost({
+				watermark:'<h:outputText value="#{cc.attrs.watermark}" />',
+				hideActions: #{cc.attrs.hideActions},
+				userSearchAction: #{cc.clientId.replace(':','i')}SearchColleaguesAjaxical,
+				userSearchInput: '.userSuggestSearchInput',
+			});
+			#{cc.attrs.value}NewPost = $('#{cc.attrs.containerDiv} .addNoteBox').data('newpost');
+		});
+		</script>
 	</composite:implementation>
 </ui:component>

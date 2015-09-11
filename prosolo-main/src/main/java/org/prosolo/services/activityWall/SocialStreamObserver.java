@@ -31,10 +31,8 @@ public class SocialStreamObserver implements EventObserver {
 
 	private static Logger logger = Logger.getLogger(SocialStreamObserver.class.getName());
 
-	//@Autowired private SocialActivityInboxUpdater updateFollowersInboxes;
 	@Autowired private SocialActivityFactory socialActivityFactory;
 	@Autowired private DefaultManager defaultManager;
-	@Autowired private SocialActivityHandler socialActivityHandler;
 	
 	@Autowired private SocialActivityFiltering socialActivityFiltering;
 	

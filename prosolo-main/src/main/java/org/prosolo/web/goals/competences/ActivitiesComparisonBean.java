@@ -15,7 +15,6 @@ import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.activitywall.data.UserData;
-import org.prosolo.web.goals.LearningGoalsBean;
 import org.prosolo.web.goals.cache.CompetenceDataCache;
 import org.prosolo.web.goals.util.CompWallActivityConverter;
 import org.prosolo.web.logging.LoggingNavigationBean;
@@ -35,7 +34,6 @@ public class ActivitiesComparisonBean implements Serializable {
 	@Autowired private CompetenceManager compManager;
 
 	@Autowired private LoggedUserBean loggedUser;
-	@Autowired private LearningGoalsBean goalBean;
 	@Autowired private CompWallActivityConverter compWallActivityConverter;
 	@Autowired private LoggingNavigationBean actionLogger;
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;

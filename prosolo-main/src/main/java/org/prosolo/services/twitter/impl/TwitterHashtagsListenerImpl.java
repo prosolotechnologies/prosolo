@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.twitter.TwitterHashtagsListener;
 import org.prosolo.services.twitter.TwitterHashtagsQueueHandler;
-import org.springframework.stereotype.Service;
 
 import twitter4j.StallWarning;
 import twitter4j.Status;

@@ -18,8 +18,6 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.app.Settings;
-import org.prosolo.core.hibernate.HibernateUtil;
-import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activities.requests.NodeRequest;
 import org.prosolo.common.domainmodel.activities.requests.Request;
@@ -45,6 +43,8 @@ import org.prosolo.common.domainmodel.workflow.evaluation.Evaluation;
 import org.prosolo.common.domainmodel.workflow.evaluation.EvaluationSubmission;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.messaging.data.ServiceType;
+import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.activityWall.ActivityWallManager;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
@@ -59,11 +59,8 @@ import org.prosolo.services.nodes.exceptions.InvalidParameterException;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.courses.CoursePortfolioBean;
 import org.prosolo.web.goals.LearningGoalsBean;
 import org.prosolo.web.goals.cache.GoalDataCache;
-import org.prosolo.web.home.ColleguesBean;
-import org.prosolo.web.home.SuggestedLearningBean;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.notification.data.GoalStatus;
 import org.prosolo.web.notification.data.NotificationData;
@@ -92,14 +89,11 @@ public class TopNotificationsBean {
 	@Autowired private CourseManager courseManager;
 	
 	@Autowired private LoggedUserBean loggedUser;
-	@Autowired private ColleguesBean colleaguesBean;
 	@Autowired private LearningGoalsBean goalsBean;
 	@Autowired private ApplicationBean applicationBean;
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 	@Autowired private LoggingNavigationBean loggingNavigationBean;
-	@Autowired private SuggestedLearningBean suggestedLearningBean;
 	@Autowired private SessionMessageDistributer messageDistributer;
-	@Autowired private CoursePortfolioBean coursePortfolioBean;
 	@Autowired private EvaluationManager evaluationManager;
 	@Autowired private ActivityWallManager activityWallManager;
 	
@@ -228,7 +222,7 @@ public class TopNotificationsBean {
 					viewNotification(notification);
 					break;
 				case DENY:
-					denyNotification(notification);
+					denyNotification(notificationData);
 					break;
 				default:
 					break;
@@ -252,17 +246,12 @@ public class TopNotificationsBean {
 	 * @throws ResourceCouldNotBeLoadedException
 	 */
 	public void acceptNotification(NotificationData notificationData) throws IOException, EventException, ResourceCouldNotBeLoadedException {
-		Notification notification = goalManager.loadResource(Notification.class, notificationData.getId());
+		Notification notification = notificationsManager.markNotificationStatus(notificationData.getId(), NotificationAction.ACCEPT);
 		
-		notification.setChosenAction(NotificationAction.ACCEPT);
-		notification = goalManager.saveEntity(notification);
-		
-		notificationData.setChosenAction(NotificationUtil.getNotificationChosenActionName(notification.getChosenAction(), loggedUser.getLocale()));
+		notificationData.setChosenAction(NotificationUtil.getNotificationChosenActionName(NotificationAction.ACCEPT, loggedUser.getLocale()));
+		notificationData.setUpdated(notification.getUpdated());
 		
 		Request request = (Request) notification.getObject();
-		request.setStatus(RequestStatus.ACCEPTED);
-		request = goalManager.saveEntity(request);
-		
 		EventType requestType = request.getRequestType();
 		
 		switch (requestType) {
@@ -521,17 +510,16 @@ public class TopNotificationsBean {
 	}
 
 	public void ignoreNotification(NotificationData notificationData) throws ResourceCouldNotBeLoadedException {
-		Notification notification = goalManager.loadResource(Notification.class, notificationData.getId());
+		Notification notification = notificationsManager.markNotificationStatus(notificationData.getId(), NotificationAction.IGNORE);
 		
-		if (notification.getObject() instanceof Request) {
-			Request request = (Request) notification.getObject();
-			request.setStatus(RequestStatus.IGNORED);
-			goalManager.saveEntity(request);
+		notificationData.setChosenAction(NotificationUtil.getNotificationChosenActionName(NotificationAction.IGNORE, loggedUser.getLocale()));
+		notificationData.setUpdated(notification.getUpdated());
+		
+		try {
+			eventFactory.generateEvent(EventType.JOIN_GOAL_REQUEST_IGNORED, loggedUser.getUser(), (Request) notification.getObject());
+		} catch (EventException e) {
+			logger.error(e);
 		}
-		
-		notification.setChosenAction(NotificationAction.IGNORE);
-		goalManager.saveEntity(notification);
-		notificationData.setChosenAction(NotificationUtil.getNotificationChosenActionName(notification.getChosenAction(), loggedUser.getLocale()));
 		
 		PageUtil.fireSuccessfulInfoMessage("notificationsGrowl", "You have ignored this notification.");
 	}
@@ -664,19 +652,18 @@ public class TopNotificationsBean {
 		}
 	}
 	
-	private void denyNotification(Notification notification) throws EventException {
-		notification.setChosenAction(NotificationAction.DENY);
-		goalManager.saveEntity(notification);
+	private void denyNotification(NotificationData notificationData) throws EventException, ResourceCouldNotBeLoadedException {
+		Notification notification = notificationsManager.markNotificationStatus(notificationData.getId(), NotificationAction.DENY);
+		
+		notificationData.setChosenAction(NotificationUtil.getNotificationChosenActionName(NotificationAction.DENY, loggedUser.getLocale()));
+		notificationData.setUpdated(notification.getUpdated());
 		
 		if (notification.getType().equals(EventType.JOIN_GOAL_REQUEST)) {
 			Request request = (Request) notification.getObject();
-			request.setStatus(RequestStatus.DENIED);
-			goalManager.saveEntity(request);
-
-			PageUtil.fireSuccessfulInfoMessage("notificationsGrowl", "You have denied this request.");
 
 			eventFactory.generateEvent(EventType.JOIN_GOAL_REQUEST_DENIED, loggedUser.getUser(), request);
 		}
+		PageUtil.fireSuccessfulInfoMessage("notificationsGrowl", "You have denied this request.");
 	}
 
 	public String getNotificationActionName(NotificationAction action) {

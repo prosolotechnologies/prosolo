@@ -8,9 +8,6 @@ import java.io.Serializable;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.logging.LoggingNavigationBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -27,9 +24,6 @@ public class SettingsBean implements Serializable {
 
 	protected static Logger logger = Logger.getLogger(SettingsBean.class);
 
-	@Autowired private LoggedUserBean loggedUser;
-	@Autowired private LoggingNavigationBean loggingNavigationBean;
-	
 	private SettingsMenuOptions selectedMenu = SettingsMenuOptions.profile;
 	private String origin;
 	

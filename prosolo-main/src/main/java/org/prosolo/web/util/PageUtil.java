@@ -16,7 +16,7 @@ public class PageUtil {
 	protected static Logger logger = Logger.getLogger(PageUtil.class);
 
 	public static String getPostParameter(String parameterName) {
-		Map<String, String> contextParameters = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();;
+		Map<String, String> contextParameters = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
 		return contextParameters.get(parameterName);
 	}
 	

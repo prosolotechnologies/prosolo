@@ -9,23 +9,20 @@ import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 import org.prosolo.common.domainmodel.activitywall.comments.Comment;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.services.activityWall.ActivityWallManager;
+import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.activityWall.SocialActivityFactory;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
-import org.prosolo.services.annotation.LikeManager;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interaction.CommentingManager;
 import org.prosolo.services.nodes.DefaultManager;
-import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.activitywall.data.SocialActivityCommentData;
@@ -52,10 +49,7 @@ public class ComentActionBean implements Serializable {
 	
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private CommentingManager commentManager;
-	@Autowired private ApplicationBean applicationBean;
-	@Autowired private LikeManager likeManager;
 	@Autowired private DefaultManager defaultManager;
-	@Autowired private ActivityWallManager activityWallManager;
 	@Autowired private EventFactory eventFactory;
 	@Autowired private SocialActivityFactory socialActivityFactory;
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;

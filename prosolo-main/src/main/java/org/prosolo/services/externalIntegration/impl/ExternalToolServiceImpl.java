@@ -11,19 +11,11 @@ import javax.servlet.http.HttpSession;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
-import net.oauth.OAuth.Parameter;
-import net.oauth.OAuthAccessor;
-import net.oauth.OAuthConsumer;
-import net.oauth.OAuthException;
-import net.oauth.OAuthMessage;
-import net.oauth.OAuthServiceProvider;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
-import org.prosolo.app.Settings;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activities.ExternalToolActivity;
 import org.prosolo.common.domainmodel.outcomes.Outcome;
@@ -43,6 +35,13 @@ import org.prosolo.web.ApplicationBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import net.oauth.OAuth.Parameter;
+import net.oauth.OAuthAccessor;
+import net.oauth.OAuthConsumer;
+import net.oauth.OAuthException;
+import net.oauth.OAuthMessage;
+import net.oauth.OAuthServiceProvider;
+
 /**
  * @author Zoran Jeremic Dec 26, 2014
  *
@@ -60,12 +59,12 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 	
 	@Override
 	public boolean checkAuthorization(String authorization, String url, String method, String consumerSecret) throws IOException, OAuthException, URISyntaxException{
-		List<Parameter> parameters=new ArrayList<Parameter>();
-		for(Parameter param : OAuthMessage.decodeAuthorization(authorization)){
-			if(!"realm".equalsIgnoreCase(param.getKey())){
+		List<Parameter> parameters = new ArrayList<Parameter>();
+		for (Parameter param : OAuthMessage.decodeAuthorization(authorization)) {
+			if (!"realm".equalsIgnoreCase(param.getKey())) {
 				parameters.add(param);
 			}
-			} 
+		}
 		
 		OAuthMessage oauthMessage=new OAuthMessage(method,url,parameters);
 		//oauthMessage.addParameter("oauth_consumer_secret", "secret");

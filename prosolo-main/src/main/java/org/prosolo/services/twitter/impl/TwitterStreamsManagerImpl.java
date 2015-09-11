@@ -43,30 +43,18 @@ public class TwitterStreamsManagerImpl implements TwitterStreamsManager {
 	private static Logger logger = Logger
 			.getLogger(TwitterStreamsManagerImpl.class);
 
-	//@Autowired
-	//private TwitterApiManager twitterApiManager;
-	@Autowired
-	private UserOauthTokensManager userOauthTokensManager;
-	@Autowired
-	private UserOauthTokensManager UserOauthTokensManager;
-	@Autowired
-	private TagManager tagManager;
-	@Autowired
-	private TwitterHashtagsQueueHandler twitterHashtagsQueueHandler;
-	@Autowired
-	private SystemMessageDistributer systemMessageDistributer;
-	@Autowired
-	@Qualifier("taskExecutor")
-	private ThreadPoolTaskExecutor taskExecutor;
+	@Autowired private UserOauthTokensManager userOauthTokensManager;
+	@Autowired private TagManager tagManager;
+	@Autowired private TwitterHashtagsQueueHandler twitterHashtagsQueueHandler;
+	@Autowired private SystemMessageDistributer systemMessageDistributer;
+	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 
 	@SuppressWarnings("unused")
 	private boolean started = false;
 	private static int STREAMLIMIT = 398;
 	private int streamsCounter = 0;
 
-	private Map<Integer, TwitterStream> twitterStreams =new  HashMap<Integer, TwitterStream>(); // collection
-																					// of
-																					// streams
+	private Map<Integer, TwitterStream> twitterStreams =new  HashMap<Integer, TwitterStream>(); // collection of streams
 
 	// For hashtags
 	private Map<String, StreamListData> hashTagsAndReferences = new HashMap<String, StreamListData>();
@@ -74,11 +62,7 @@ public class TwitterStreamsManagerImpl implements TwitterStreamsManager {
 	private List<String> currentHashTagsList = new ArrayList<String>();
 	private Integer currentHashTagsStreamId = null;
 	private Map<Integer, List<String>> streamsAndHashtags = new HashMap<Integer, List<String>>(); // associates
-	// stream
-	// with list
-	// of
-	// hashtags
-	// followed
+	// stream with list of hashtags followed
 	private List<Integer> numberOfChangesInStream = new ArrayList<Integer>();
 
 	// For users

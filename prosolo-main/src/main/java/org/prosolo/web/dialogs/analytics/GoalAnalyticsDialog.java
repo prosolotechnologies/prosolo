@@ -1,4 +1,4 @@
-package org.prosolo.web.dialogs.analutics;
+package org.prosolo.web.dialogs.analytics;
 
 import java.io.Serializable;
 
@@ -11,8 +11,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.stats.LearningGoalStatistics;
-import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.dialogs.analutics.data.GoalAnalyticsData;
+import org.prosolo.web.dialogs.analytics.data.GoalAnalyticsData;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -27,8 +26,6 @@ public class GoalAnalyticsDialog implements Serializable {
 
 	private static Logger logger = Logger.getLogger(GoalAnalyticsDialog.class);
 	
-	@Autowired private LoggedUserBean loggedUser;
-
 	@Autowired private LearningGoalStatistics goalStatistics;
 	@Autowired private LoggingNavigationBean actionLogger;
 	@Autowired private DefaultManager defaultManager;

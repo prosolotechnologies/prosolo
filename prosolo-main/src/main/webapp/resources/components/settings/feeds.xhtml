@@ -3,40 +3,36 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:c="http://java.sun.com/jsp/jstl/core"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:settingscomp="http://java.sun.com/jsf/composite/components/settings">
 
 	<utilcomp:messagesBundle var="msg" />
 	
-	<script>
-		var feedsPage = {};
-		feedsPage.fetchingFeedsForBlogMode = false;
-	</script>
-
 	<div id="feeds" class="feeds">
 		<h2>Settings: Personal Blog and RSS Feeds</h2>
 		<div class="separator clear"></div>
 	 
-			<h:panelGroup id="feedsSettingsContainer" class="feedsContainer">
-				<h:form id="feedsSettingsForm">
+		<h:panelGroup id="feedsSettingsContainer" class="feedsContainer">
+			<h:form id="feedsSettingsForm">
 
-					<h3>Digest intervals</h3>
+				<h3>Digest intervals</h3>
 
-					<div class="row info">
-						<div class="first bold">
-							<h:selectOneMenu value="#{feedsBean.updatePeriod}">
-								<f:selectItem itemValue="DAILY" itemLabel="Daily" />
-								<f:selectItem itemValue="WEEKLY" itemLabel="Weekly" />
-								<f:selectItem itemValue="MONTHLY" itemLabel="Monthly" />
-								<f:ajax listener="#{feedsBean.updateSettings}" />
-							</h:selectOneMenu>
-						</div>
-
-						<div class="second">How often your RSS feeds should be updated</div>
+				<div class="row info">
+					<div class="first bold">
+						<h:selectOneMenu value="#{feedsBean.updatePeriod}">
+							<f:selectItem itemValue="DAILY" itemLabel="Daily" />
+							<f:selectItem itemValue="WEEKLY" itemLabel="Weekly" />
+							<f:selectItem itemValue="MONTHLY" itemLabel="Monthly" />
+							<f:ajax listener="#{feedsBean.updateSettings}" />
+						</h:selectOneMenu>
 					</div>
 
-					<div class="separator"></div>
-				</h:form>
-			</h:panelGroup>
+					<div class="second">How often your RSS feeds should be updated</div>
+				</div>
+
+				<div class="separator"></div>
+			</h:form>
+		</h:panelGroup>
 	 
 
 		<h:panelGroup id="feedsContainer" class="feedsContainer">
@@ -46,12 +42,11 @@
 				<h3>
 					Your personal blog page
 					
-					<p:commandLink value="Add blog" 
+					<p:commandLink value="Add blog"
 						rendered="#{feedsBean.personalBlogSource == null}"
 						styleClass="button size20 green right"
-						onclick="feedsPage.fetchingFeedsForBlogMode = true;$('#addLinkSourceModalDialog').dialog('open');"
-						action="#{feedsBean.resetAddFeedSourceForm}"
-						update=":addLinkSourceForm" />
+						onclick="$('#newBlogModalDialog').dialog('open');"
+						update=":addBlogUrlDialog:rssLinkForm" />
 					
 					<h:outputText value="Add blog" 
 						class="button size20 gray right hasTooltip"
@@ -59,7 +54,7 @@
 						title="#{msg['settings.feeds.personalBlogs.addBlogBtn.disabled.tooltip']}" />
 				</h3>
 
-				<div>This is the URL to you personal blog's RSS feed where other users can follow you.</div>
+				<div>This is the URL to you personal blog and its RSS feed where other users can follow you.</div>
 
 				<h:panelGroup layout="block" id="personalBLogSources" class="marginTop10">
 				
@@ -73,7 +68,16 @@
 						class="row info">
 						
 						<div class="first bold">
-							<h:outputLink value="#{feedsBean.personalBlogSource.link}">#{feedsBean.personalBlogSource.title}</h:outputLink>
+							Blog: <h:outputLink value="#{portfolio.socialNetworksData.blogLink}">#{portfolio.socialNetworksData.blogLink}</h:outputLink>
+							<div class="clear"></div>
+							
+							RSS feed: 
+								<h:outputLink value="#{feedsBean.personalBlogRssFeedSource}">
+									#{feedsBean.personalBlogRssFeedSource}
+								</h:outputLink>
+								<h:outputText rendered="#{feedsBean.personalBlogRssFeedSource.length() == 0}"
+									class="noContentMessage"
+									value="No blog RSS feed defined" />
 						</div>
 
 						<div class="second">
@@ -84,7 +88,7 @@
 						</div>
 					</h:panelGroup>
 				</h:panelGroup>
-
+				
 				<div class="separator"></div>
 
 				<h3>
@@ -92,14 +96,14 @@
 					
 					<p:commandLink value="Add feed" 
 						styleClass="button size20 green right"
-						onclick="feedsPage.fetchingFeedsForBlogMode = false;$('#addLinkSourceModalDialog').dialog('open');"
-						action="#{feedsBean.resetAddFeedSourceForm}"
-						update=":addLinkSourceForm" />
+						onclick="$('#newRssModalDialog').dialog('open');"
+						update=":addUrlDialog:rssLinkForm" />
 				</h3>
 
-				<div>Here are lister RSS feeds that you would like to follow in your digest.</div>
+				<div>Here are listed RSS feeds that you would like to follow in your digest.</div>
 				
 				<h:panelGroup layout="block" id="subscribedRssSources" class="marginTop10">
+					<p:growl id="subscribedRssSourcesGrowl" showDetail="true" />
 				
 					<h:panelGroup rendered="#{empty feedsBean.subscribedRssSources}"
 						class="noContentMessage">
@@ -109,7 +113,7 @@
 					<ui:repeat value="#{feedsBean.subscribedRssSources}" var="linkData" id="rssFeeds">
 						<div class="row info">
 							<div class="first bold">
-								<h:outputLink value="#{linkData.link}">#{linkData.title}</h:outputLink>
+								<h:outputLink value="#{linkData.link}">#{linkData.link}</h:outputLink>
 							</div>
 	
 							<div class="second">
@@ -183,132 +187,15 @@
 						</script>
 					</h:panelGroup>
 				</c:if>
+				
+				<p:remoteCommand name="refreshFeedsForm" update=":feedsForm" />
 			</h:form>
 		</h:panelGroup>
 	</div>
 	
+	<settingscomp:addUrlDialog id="addUrlDialog"
+		onClose="refreshFeedsForm()"/>
 	
-	<!-- Add link source -->
-	<div id="addLinkSourceModalDialog" class="addLinkSourceModalDialog" style="display: none;">
-		<h:form id="addLinkSourceForm">
-			<div class="firstPage">
-				<p>
-					<h:inputText id="linkToAdd" 
-						class="linkToAdd" 
-						placeholder="#{msg['settings.feeds.dialog.addRssSource.linkToAdd']}"
-						value="#{feedsBean.addFeedSourceData.linkToAdd}" />
-					
-					<h:selectBooleanCheckbox id="fetchingFeedsForBlog" class="fetchingFeedsForBlog hidden" 
-						value="#{feedsBean.fetchingFeedsForBlog}" />
-					
-					<script>
-						$('#addLinkSourceModalDialog .firstPage .linkToAdd').val('').focus();
-						$('#addLinkSourceModalDialog .firstPage .fetchingFeedsForBlog').attr('checked', feedsPage.fetchingFeedsForBlogMode);
-					</script>
-				</p>
-				
-				<div class="actions">
-					<p:commandLink value="Analyze link"
-						styleClass="button green size30 right"
-						onclick="$('#addLinkSourceModalDialog .actions .loader').show()"
-					 	action="#{feedsBean.processFeedSource()}"
-					 	process=":addLinkSourceForm:linkToAdd :addLinkSourceForm:fetchingFeedsForBlog"
-					 	update=":addLinkSourceForm:newFeedSources"
-					 	oncomplete="showSecondPage();"
-					/>
-				
-					<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif"
-						class="loader hidden right"
-						style="vertical-align:middle;" />
-				</div>
-			</div>
-			
-			<h:panelGroup layout="block" id="newFeedSources" class="secondPage hidden">
-				<h:panelGroup rendered="#{empty feedsBean.addFeedSourceData.feedSources}"
-					class="noContentMessage">
-					There are no RSS feeds found on this page.
-				</h:panelGroup>
-			
-				<h:panelGroup rendered="#{not empty feedsBean.addFeedSourceData.feedSources}">
-					<p class="message">For this link we have found the following RSS feeds. Please select the ones you want to add.</p>
-				
-					<table>
-						<ui:repeat value="#{feedsBean.addFeedSourceData.feedSources}" var="feedSource">
-							<tr>
-								<td>
-									<h:selectBooleanCheckbox class="toAddCheck"
-										value="#{feedSource.toAdd}" />
-								</td>	
-								<td>
-									<a href="#{feedSource.link}" target="_blank">#{feedSource.title}</a>
-								</td>					
-							</tr>
-						</ui:repeat>
-					</table>
-					<script>
-						if (feedsPage.fetchingFeedsForBlogMode) {
-							$('#addLinkSourceModalDialog .secondPage .message').append('<b>You can only choose one source to be your personal blog.</b>');
-							
-							$('#addLinkSourceModalDialog .toAddCheck').on('change', function() {
-							    $('#addLinkSourceModalDialog .toAddCheck').not(this).prop('checked', false);  
-							});
-						}
-					</script>
-				</h:panelGroup>
-				
-				<div class="actions marginTop20">
-					<a class="button gray size30 left" onclick="showFirstPage()">Back</a>
-					
-					<p:commandLink value="Save"
-						rendered="#{not empty feedsBean.addFeedSourceData.feedSources}"
-						styleClass="button green size30 right"
-						onclick="$('#addLinkSourceModalDialog').dialog('close');"
-					 	action="#{feedsBean.addNewFeedSources()}"
-					 	update=":feedsForm"
-					/>
-					
-					<p:commandLink value="Close"
-						rendered="#{empty feedsBean.addFeedSourceData.feedSources}"
-						styleClass="button green size30 right"
-						onclick="$('#addLinkSourceModalDialog').dialog('close');"
-					/>
-				</div>
-			</h:panelGroup>
-			
-			<script>
-				function showFirstPage(){
-					$('#addLinkSourceModalDialog .firstPage .linkToAdd').val('');
-					$('#addLinkSourceModalDialog .firstPage').show();
-					$('#addLinkSourceModalDialog .secondPage').hide();
-				}
-				function showSecondPage(){
-					$('#addLinkSourceModalDialog .firstPage').hide();
-					$('#addLinkSourceModalDialog .secondPage').show();
-					$('#addLinkSourceModalDialog .actions .loader').hide();
-				}
-			</script>
-			
-			<utilcomp:tooltip target=".hasTooltip[title]" />
-	 	</h:form>
-	</div>
-	
-	<script>
-	$(function() {
-		$('#addLinkSourceModalDialog').dialog({
-			title: 'Add new feed source',
-			show : 'slide',
-			autoOpen: false,
-			width: 400,
-			modal: true,
-			resizable: false,
-			open: function(event, ui) {
-				$(this).children(':first')
-					.css('text-align', 'center')
-					.css('padding-top', '50px')
-					.html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
-			},
-		});
-		$('#addLinkSourceModalDialog').show();
-	});
-	</script>
+	<settingscomp:addBlogUrlDialog id="addBlogUrlDialog"
+		onClose="refreshFeedsForm()"/>
 </ui:composition>

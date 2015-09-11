@@ -10,21 +10,18 @@ import javax.faces.context.FacesContext;
 
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
-import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.services.activityWall.ActivityWallManager;
+import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interaction.PostManager;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
-import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.displayers.StatusWallSocialActivitiesDisplayer;
-import org.prosolo.web.activitywall.util.WallActivityConverter;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.util.PageUtil;
 import org.prosolo.web.util.ResourceBundleUtil;
@@ -48,10 +45,7 @@ public class ActivityWallBean {
 	private static Logger logger = Logger.getLogger(ActivityWallBean.class);
 	
 	@Autowired private LoggedUserBean loggedUser;
-	@Autowired private ActivityWallManager activityWallManager;
-	@Autowired private WallActivityConverter wallActivityConverter;
 	@Autowired private InterfaceSettingsManager interfaceSettingsManager;
-	@Autowired private LearningGoalManager goalManager;
 	@Autowired private PostManager postManager;
 	@Autowired private EventFactory eventFactory;
 	@Autowired private LoggingNavigationBean actionLogger;

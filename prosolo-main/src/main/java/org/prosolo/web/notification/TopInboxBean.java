@@ -1,20 +1,16 @@
 package org.prosolo.web.notification;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Session;
 import org.prosolo.app.Settings;
-import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.common.domainmodel.user.MessagesThread;
-import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.logging.ComponentName;
@@ -42,16 +38,11 @@ public class TopInboxBean implements Serializable {
 	@Autowired private LoggingNavigationBean loggingNavigationBean;
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 	
-	//@Autowired private MessagesThreadBean messagesThreadBean;
-
 	private List<MessageData> messages;
 	private List<MessagesThreadData> messagesThreads;
 	private int unreadThreadsNo;
-	@SuppressWarnings("unused")
-	private Date lastViewed;
 	private int messagesLimit = Settings.getInstance().config.application.notifications.topNotificationsToShow;
 	private int refreshRate = Settings.getInstance().config.application.messagesInboxRefreshRate;
-	private List<Long> unreadedThreads = new ArrayList<Long>();
 
 	@PostConstruct
 	public void initUnreadMessageNo() { 
@@ -76,9 +67,7 @@ public class TopInboxBean implements Serializable {
 				
 				for (MessagesThreadData mtData : this.messagesThreads) {
 					if (!mtData.isReaded()) {
-						this.unreadedThreads.add(mtData.getId());
 						this.unreadThreadsNo++;
-						System.out.println("Logged user:"+loggedUser.getLastName()+" unreaded:"+this.unreadThreadsNo+" from:"+mtData.getParticipantsList());
 					}
 				}
 			}
@@ -86,75 +75,31 @@ public class TopInboxBean implements Serializable {
 	}
 	
 	public void readMessages() {
-		lastViewed = new Date();
+		List<Long> unreadThreadIds = new LinkedList<Long>();
 		
-		for (long msgThreadId : unreadedThreads) {
-			this.setMessageThreadAsReaded(msgThreadId);
-			
-			for (MessagesThreadData mtData : this.messagesThreads) {
-				if (mtData.getId() == msgThreadId) {
-					if (!mtData.isReaded()) {
-						mtData.setReaded(true);
-						this.unreadThreadsNo--;
-					}
-				}
+		for (MessagesThreadData mtData : this.messagesThreads) {
+			if (!mtData.isReaded()) {
+				mtData.setReaded(true);
+				unreadThreadIds.add(mtData.getId());
 			}
-		}
-		unreadedThreads = new ArrayList<Long>();
-	}
-	
-	public void addNewUnreadMessage(SimpleOfflineMessage message) {
-		if (this.messagesThreads == null) {
-			this.initMessages();
 		}
 		
-		MessagesThread msgThread = message.getMessageThread();
-		Session session = (Session) messagingManager.getPersistence().openSession();
+		this.unreadThreadsNo = 0;
 		
-		try {
-			msgThread = (MessagesThread) session.merge(msgThread);
-			
-			long messageThreadId = msgThread.getId();
-			
-			if (!msgThread.getMessages().contains(message)) {
-				msgThread.addMessage(message);
-			}
-			
-			for (MessagesThreadData mThreadData : this.messagesThreads) {
-				if (mThreadData.getId() == messageThreadId) {
-					MessageData messageData = new MessageData(message);
-					mThreadData.addMessage(messageData);
-					
-					if (!messageData.isReaded()) {
-						if (!this.unreadedThreads.contains(mThreadData.getId())) {
-							this.unreadedThreads.add(mThreadData.getId());
-						}
-						mThreadData.setReaded(false);
-					}
-					return;
-				}
-			}
-			
-			MessagesThreadData mThreadData = messagingManager.convertMessagesThreadToMessagesThreadData(msgThread, loggedUser.getUser());
-			
-			this.messagesThreads.add(mThreadData);
-			
-			if (!this.unreadedThreads.contains(mThreadData.getId())) {
-				this.unreadedThreads.add(mThreadData.getId());
-				
-				if (!mThreadData.isReaded()) {
-					this.unreadThreadsNo++;
-				}
-			}
-			session.flush();
-		}
-		finally {
-			HibernateUtil.close(session);
-		}
+		final List<Long> unreadThreadIds1 = unreadThreadIds;
+
+		taskExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+            	for (Long threadId : unreadThreadIds1) {
+            		messagingManager.markThreadAsRead(threadId);
+            	}
+            }
+		});
 	}
 	
 	public void addNewMessageThread(MessagesThread thread) {
-		messagesThreads.add(new MessagesThreadData(thread, loggedUser.getUser()));
+		messagesThreads.add(0, new MessagesThreadData(thread, loggedUser.getUser()));
 		
 		if (messagesThreads.size() > messagesLimit) {
 			messagesThreads = messagesThreads.subList(0, messagesLimit);
@@ -176,7 +121,12 @@ public class TopInboxBean implements Serializable {
 			}
 		}
 		
-		messagesThreads.add(updatedMessageThread);
+		messagesThreads.add(0, updatedMessageThread);
+		
+		// if logged in user didn't create a message, update the counter of unread messages
+		if (thread.getMessages().get(0).getSender().getId() == loggedUser.getUser().getId()) {
+			unreadThreadsNo++;
+		}
 	}
 
 	/*
@@ -186,33 +136,14 @@ public class TopInboxBean implements Serializable {
 		return this.unreadThreadsNo;
 	}
 	
-	public void setUnreadThreadsNo(int unreadThreadsNo) {
-		this.unreadThreadsNo = unreadThreadsNo;
-	}
-	
-	public void setMessageThreadAsReaded(long msgThreadId){
-		messagingManager.markThreadAsRead(msgThreadId,loggedUser.getUser().getId());
-	}
-	
 	public List<MessageData> getMessages() {
 		return messages;
-	}
-	
-	public void setRefreshRate(int refreshRate) {
-		this.refreshRate = refreshRate;
 	}
 	
 	public int getRefreshRate() {
 		return refreshRate;
 	}
 	
-	public int getUnreadMessagesNo() {
-		if (this.unreadedThreads != null) {
-			return this.unreadedThreads.size();
-		} else
-			return 0;
-	}
-
 	public void logInboxServiceUse(){
 		loggingNavigationBean.logServiceUse(
 				ComponentName.INBOX,
@@ -223,10 +154,5 @@ public class TopInboxBean implements Serializable {
 	public List<MessagesThreadData> getMessagesThreads() {
 		return messagesThreads;
 	}
-
-	public void setMessagesThreads(List<MessagesThreadData> messagesThreads) {
-		this.messagesThreads = messagesThreads;
-	}
-
 
 }

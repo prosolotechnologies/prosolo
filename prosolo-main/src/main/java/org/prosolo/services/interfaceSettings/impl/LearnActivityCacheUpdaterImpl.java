@@ -12,9 +12,7 @@ import org.hibernate.Session;
 import org.prosolo.common.domainmodel.outcomes.Outcome;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interfaceSettings.LearnActivityCacheUpdater;
-import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.web.goals.LearningGoalsBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -29,8 +27,6 @@ public class LearnActivityCacheUpdaterImpl extends AbstractManagerImpl implement
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(LearnActivityCacheUpdaterImpl.class);
 	
-	@Autowired private DefaultManager defaultManager;
-
 	@Override
 	public boolean updateActivityOutcome(long targetActivityId, Outcome outcome, HttpSession userSession, Session session) {
 		if (userSession != null) {

@@ -90,7 +90,7 @@ public class LoggingEventsObserver implements EventObserver {
 
 	@Override
 	public EventType[] getSupportedEvents() {
-		return EventType.values();
+		return null;
 	}
 
 }

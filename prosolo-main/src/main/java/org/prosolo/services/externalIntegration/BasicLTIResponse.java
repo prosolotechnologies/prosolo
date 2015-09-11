@@ -7,7 +7,10 @@ import java.io.Serializable;
  *
  */
 
-public class BasicLTIResponse implements Serializable{
+public class BasicLTIResponse implements Serializable {
+	
+	private static final long serialVersionUID = 5510724339517804595L;
+	
 	private boolean ok = false;
 	private String action = null;
 	private String codeMajor = null;
@@ -15,66 +18,65 @@ public class BasicLTIResponse implements Serializable{
 	private String consumerRef = null;
 	private String providerRef = null;
 	private String data = null;
-
-	public BasicLTIResponse() {
-	}
-
+	
+	public BasicLTIResponse() {}
+	
 	public String getAction() {
 		return action;
 	}
-
+	
 	public void setAction(String action) {
 		this.action = action;
 	}
-
+	
 	public String getCodeMajor() {
 		return codeMajor;
 	}
-
+	
 	public void setCodeMajor(String codeMajor) {
 		this.codeMajor = codeMajor;
 	}
-
+	
 	public String getConsumerRef() {
 		return consumerRef;
 	}
-
+	
 	public void setConsumerRef(String consumerRef) {
 		this.consumerRef = consumerRef;
 	}
-
+	
 	public String getData() {
 		return data;
 	}
-
+	
 	public void setData(String data) {
 		this.data = data;
 	}
-
+	
 	public String getDescription() {
 		return description;
 	}
-
+	
 	public void setDescription(String description) {
 		this.description = description;
 	}
-
+	
 	public String getProviderRef() {
 		return providerRef;
 	}
-
+	
 	public void setProviderRef(String providerRef) {
 		this.providerRef = providerRef;
 	}
-
+	
 	public boolean isOk() {
 		return ok;
 	}
-
+	
 	public void setOk(boolean ok) {
 		this.ok = ok;
 	}
-
+	
 	public String toXML() {
 		if (ok) {
 			this.codeMajor = "success";
@@ -86,19 +88,14 @@ public class BasicLTIResponse implements Serializable{
 		xml.append(" <imsx_POXHeader>\n");
 		xml.append(" <imsx_POXResponseHeaderInfo>\n");
 		xml.append(" <imsx_version>V1.0</imsx_version>\n");
-		xml.append(" <imsx_messageIdentifier>").append(this.consumerRef)
-				.append("</imsx_messageIdentifier>\n");
+		xml.append(" <imsx_messageIdentifier>").append(this.consumerRef).append("</imsx_messageIdentifier>\n");
 		xml.append(" <imsx_statusInfo>\n");
-		xml.append(" <imsx_codeMajor>").append(this.codeMajor)
-				.append("</imsx_codeMajor>\n");
+		xml.append(" <imsx_codeMajor>").append(this.codeMajor).append("</imsx_codeMajor>\n");
 		xml.append(" <imsx_severity>status</imsx_severity>\n");
-		xml.append(" <imsx_description>").append(this.description)
-				.append("</imsx_description>\n");
-		xml.append(" <imsx_messageRefIdentifier>").append(this.providerRef)
-				.append("</imsx_messageRefIdentifier>\n");
+		xml.append(" <imsx_description>").append(this.description).append("</imsx_description>\n");
+		xml.append(" <imsx_messageRefIdentifier>").append(this.providerRef).append("</imsx_messageRefIdentifier>\n");
 		if (this.action.length() > 0) {
-			xml.append(" <imsx_operationRefIdentifier>").append(this.action)
-					.append("</imsx_operationRefIdentifier>\n");
+			xml.append(" <imsx_operationRefIdentifier>").append(this.action).append("</imsx_operationRefIdentifier>\n");
 		}
 		xml.append(" </imsx_statusInfo>\n");
 		xml.append(" </imsx_POXResponseHeaderInfo>\n");

@@ -19,24 +19,37 @@ public class FeedSourceManagerImpl extends AbstractManagerImpl implements FeedSo
 	@Override
 	@Transactional
 	public FeedSource getOrCreateFeedSource(String title, String link) {
+		FeedSource feedSource = getFeedSource(link);
+		
+		if (feedSource != null) {
+			return feedSource;
+		} else {
+			return createFeedSource(title, link);
+		}
+	}
+
+	@Override
+	@Transactional (readOnly = false)
+	public FeedSource createFeedSource(String title, String link) {
 		int indexOfSlash = link.lastIndexOf("/");
 		
 		if (indexOfSlash >= 0 && indexOfSlash == link.length()-1) {
 			link = link.substring(0, indexOfSlash);
 		}
 		
-		FeedSource feedSource = getFeedSource(link);
-		
-		if (feedSource != null) {
-			return feedSource;
-		} else {
-			feedSource = new FeedSource(title, link);
-			return saveEntity(feedSource);
-		}
+		FeedSource feedSource = new FeedSource(title, link);
+		return saveEntity(feedSource);
 	}
 	
-	@Transactional
-	private FeedSource getFeedSource(String link) {
+	@Override
+	@Transactional (readOnly = true)
+	public FeedSource getFeedSource(String link) {
+		int indexOfSlash = link.lastIndexOf("/");
+		
+		if (indexOfSlash >= 0 && indexOfSlash == link.length()-1) {
+			link = link.substring(0, indexOfSlash);
+		}
+		
 		String query = 
 			"SELECT feedSource " +
 			"FROM FeedSource feedSource " +

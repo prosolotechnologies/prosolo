@@ -14,7 +14,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
-import org.hibernate.transform.Transformers;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 import org.prosolo.common.domainmodel.activitywall.SocialStreamSubViewType;
@@ -25,7 +24,6 @@ import org.prosolo.common.domainmodel.interfacesettings.FilterType;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.activityWall.ActivityWallFactory;
 import org.prosolo.services.activityWall.ActivityWallManager;
 import org.prosolo.services.activityWall.filters.CourseFilter;
 import org.prosolo.services.activityWall.filters.Filter;
@@ -49,88 +47,7 @@ public class ActivityWallManagerImpl extends AbstractManagerImpl implements Acti
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(ActivityWallManager.class);
 
-	@Autowired private ActivityWallFactory activityWallFactory;
 	@Autowired private TagManager tagManager;
-	
-//	@Override
-//	@Transactional (readOnly = true)
-//	@Deprecated
-//	public List<SocialActivityNotification> getUserSocialEvents(User user, FilterType filter, int offset, int limit, boolean loadOneMore, VisibilityType visibility) {
-//		StringBuffer query = new StringBuffer();
-//		query.append(
-//			"SELECT DISTINCT activityNotification " +
-//			"FROM SocialActivityNotification activityNotification " +
-//			"LEFT JOIN activityNotification.user user " +
-//			"LEFT JOIN activityNotification.subViews subView " +
-//			"LEFT JOIN activityNotification.socialActivity socialActivity " +
-//			"WHERE user = :user " +
-//				"AND activityNotification.hidden = :hidden " +
-//				"AND socialActivity.deleted = :deleted " +
-//				"AND socialActivity.action NOT IN ('Comment') " +
-//				"AND subView.type = :subViewType "
-//		);
-//		
-//		if (visibility != null) {
-//			query.append(
-//				"AND socialActivity.visibility = :visibility "
-//			);
-//		}
-//		
-//		switch (filter) {
-//			case ALL:
-//				query.append("AND socialActivity.class != TwitterPostSocialActivity ");
-//				break;
-//			case MY_ACTIVITIES:
-//				query.append(
-//					"AND socialActivity.maker = :user " +
-//					"AND socialActivity.class != TwitterPostSocialActivity ");
-//				break;
-//			case MY_NETWORK:
-//				query.append(
-//					"AND socialActivity.maker != :user " +
-//					"AND NOT EXISTS (FROM TwitterPost post " +
-//								"WHERE socialActivity.postObject = post) " +
-//					"AND socialActivity.class != TwitterPostSocialActivity "
-//				);
-//				break;
-//			case TWITTER:
-//				query.append("AND socialActivity.class = TwitterPostSocialActivity ");
-//				break;
-//			case GOALS:
-//				query.append("AND exists (FROM LearningGoal lg " +
-//						"					WHERE socialActivity.nodeObject = lg) " +
-//						"	AND socialActivity.maker = :user ");
-//				break;
-//			default:
-//				break;
-//		}
-//		
-//		query.append(
-//			"ORDER BY socialActivity.lastAction desc"
-//		);
-//		Query q =  persistence.currentManager().createQuery(query.toString())
-//			.setEntity("user", user)
-//			.setBoolean("hidden", false)
-//			.setBoolean("deleted", false)
-//			.setString("subViewType", SocialStreamSubViewType.STATUS_WALL.name())
-//			.setParameterList("excludedEvents", new EventType[]{EventType.Comment});
-//		
-//		if (visibility != null) {
-//			q.setString("visibility", visibility.name());
-//		}
-//		
-//		if (offset >= 0) {
-//			q.setFirstResult(offset);
-//		}
-//		if (limit > 0) {
-//			q.setMaxResults(loadOneMore ? limit+1 : limit);
-//		}
-//		
-//		@SuppressWarnings("unchecked")
-//		List<SocialActivityNotification> activityNotifications =  q.list();
-//		return activityNotifications;
-//	}
-	
 	
 	/**
 	 * Retrieves {@link SocialActivity} instances for a given user and their filter. Method will return limit+1 number of instances if available; that is 
@@ -209,10 +126,6 @@ public class ActivityWallManagerImpl extends AbstractManagerImpl implements Acti
 				.setString("disliked_annotation_type", AnnotationType.Dislike.name())
 				.setResultTransformer(SocialActivityDataResultTransformer.getConstructor())
 				.list();
-		
-		for (SocialActivityData object : result) {
-			System.out.println(object);
-		}
 		
 		return result;
 	}
@@ -726,30 +639,6 @@ public class ActivityWallManagerImpl extends AbstractManagerImpl implements Acti
 		
 		return relatedResources;
 	}
-	
-//	@Override
-//	@Transactional (readOnly = true)
-//	public SocialActivityNotification getSocialActivityNotification(SocialActivity socialActivity, User user) {
-//		String query = 
-//			"SELECT activityNotification " +
-//			"FROM SocialActivityNotification activityNotification " +
-//			"LEFT JOIN activityNotification.socialActivity socialActivity " +
-//			"LEFT JOIN activityNotification.user user " +
-//			"WHERE socialActivity = :socialActivity " +
-//				"AND user = :user";
-//		
-//		@SuppressWarnings("unchecked")
-//		List<SocialActivityNotification> result = getPersistence().currentManager().createQuery(query)
-//				.setEntity("socialActivity", socialActivity)
-//				.setEntity("user", user)
-//				.list();
-//		
-//		
-//		if (result != null && !result.isEmpty()) {
-//			return result.iterator().next();
-//		}
-//		return null;
-//	}
 	
 	@Override
 	@Transactional (readOnly = true)

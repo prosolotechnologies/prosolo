@@ -9,7 +9,10 @@ import java.util.List;
  * @author Zoran Jeremic, Aug 30, 2014
  *
  */
-public class StreamListData implements Serializable{
+public class StreamListData implements Serializable {
+	
+	private static final long serialVersionUID = 8760789036572238345L;
+	
 	private Integer streamId;
 	private String hashtag;
 	private List<Long> goalsIds;

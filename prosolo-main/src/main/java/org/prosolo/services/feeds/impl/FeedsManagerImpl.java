@@ -143,10 +143,10 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 	
 	@Override
 	@Transactional (readOnly = false)
-	public FeedsPreferences addPersonalBlogSource(FeedsPreferences feedsPreferences, FeedSourceData feedSourceData) {
+	public FeedsPreferences addPersonalBlogRssSource(FeedsPreferences feedsPreferences, String link) {
 		feedsPreferences = merge(feedsPreferences);
 		
-		FeedSource feedSource = feedSourceManager.getOrCreateFeedSource(feedSourceData.getTitle(), feedSourceData.getLink());
+		FeedSource feedSource = feedSourceManager.getOrCreateFeedSource(null, link);
 		
 		feedsPreferences.setPersonalBlogSource(feedSource);
 		
@@ -155,6 +155,16 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 	
 	@Override
 	@Transactional (readOnly = false)
+	public FeedsPreferences addSubscribedRssSource(FeedsPreferences feedsPreferences, String link) {
+		feedsPreferences = merge(feedsPreferences);
+		
+		FeedSource feedSource = feedSourceManager.getOrCreateFeedSource("", link);
+		
+		feedsPreferences.getSubscribedRssSources().add(feedSource);
+		
+		return saveEntity(feedsPreferences);
+	}
+	
 	public FeedsPreferences addSubscribedRssSources(FeedsPreferences feedsPreferences, List<FeedSourceData> feedSources) {
 		feedsPreferences = merge(feedsPreferences);
 		
@@ -278,7 +288,7 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 		Date dateFrom = DateUtil.getDayBeginningDateTime(date);
 		Date dateTo = DateUtil.getNextDay(date);
 		
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "unused" })
 		List<FeedEntry> feedMessages1 = persistence.currentManager().createQuery(query1)
 				.setEntity("course", course)
 				.setDate("dateFrom", dateFrom)
@@ -293,7 +303,7 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 			"WHERE course1 = :course " +
 				"AND excluded IS NOT NULL";
 		
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "unused" })
 		List<FeedSource> feedSources = persistence.currentManager().createQuery(query2)
 				.setEntity("course", course)
 				.list();

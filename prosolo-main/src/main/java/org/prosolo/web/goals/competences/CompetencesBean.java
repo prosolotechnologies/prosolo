@@ -13,12 +13,12 @@ import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.activityWall.SocialActivityHandler;
@@ -34,12 +34,10 @@ import org.prosolo.services.nodes.impl.LearningGoalManagerImpl.GoalTargetCompete
 import org.prosolo.services.nodes.impl.LearningGoalManagerImpl.NodeEvent;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.ActivityWallBean;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.data.GoalData;
 import org.prosolo.web.dialogs.data.CompetenceFormData;
 import org.prosolo.web.goals.LearningGoalsBean;
-import org.prosolo.web.goals.RecommendedLearningPlansBean;
 import org.prosolo.web.goals.cache.CompetenceDataCache;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.logging.LoggingNavigationBean;
@@ -69,14 +67,12 @@ public class CompetencesBean implements Serializable {
 	@Autowired private CourseManager courseManager;
 	
 	@Autowired private LoggedUserBean loggedUser;
-	@Autowired private RecommendedLearningPlansBean chooseCompetencePlanBean;
 	@Autowired private LearningGoalsBean goalBean;
 	@Autowired private CompetenceStatusCache competenceStatusCache;
 	//@Autowired private ActivityWallUtilBean activityWallUtilBean;
 	@Autowired private LoggingNavigationBean loggingNavigationBean;
 	@Autowired private ApplicationBean applicationBean;
 	@Autowired private SocialActivityHandler socialActivityHandler;
-	@Autowired private ActivityWallBean activityWallBean;
 	
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 	

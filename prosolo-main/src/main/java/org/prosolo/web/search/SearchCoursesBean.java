@@ -16,7 +16,6 @@ import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.CourseManager;
-import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.data.CourseData;
 import org.prosolo.web.courses.util.CourseDataConverter;
 import org.prosolo.web.logging.LoggingNavigationBean;
@@ -33,7 +32,6 @@ public class SearchCoursesBean implements Serializable {
 
 	private static final long serialVersionUID = -795112624657629753L;
 
-	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private TextSearch textSearch;
 	@Autowired private CourseManager courseManager;
 	@Autowired private LoggingNavigationBean loggingNavigationBean;

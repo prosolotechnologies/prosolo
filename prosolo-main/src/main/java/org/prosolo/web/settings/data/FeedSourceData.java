@@ -16,6 +16,7 @@ public class FeedSourceData implements Serializable {
 	private String title;
 	private String link;
 	private boolean toAdd;
+	private boolean canNotBeAdded;
 	
 	public FeedSourceData() { }
 	
@@ -47,5 +48,18 @@ public class FeedSourceData implements Serializable {
 	public void setToAdd(boolean toAdd) {
 		this.toAdd = toAdd;
 	}
+
+	public boolean isCanNotBeAdded() {
+		return canNotBeAdded;
+	}
+
+	public void setCanNotBeAdded(boolean canNotBeAdded) {
+		this.canNotBeAdded = canNotBeAdded;
+	}
 	
+//	@Override
+//	public String toString() {
+//		return this.link;
+//	}
+
 }

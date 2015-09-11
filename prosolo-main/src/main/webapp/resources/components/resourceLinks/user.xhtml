@@ -38,7 +38,7 @@
 						value="#{cc.attrs.user != null ? cc.attrs.user.profileUrl : cc.attrs.userData.profileUrl}" 
 						disabled="#{cc.attrs.disableLink}"
 						class="relative #{cc.attrs.mode == 'image' ? 'userDetailsLink' : ''}"
-						onclick="sendLogPageNavigation('#{cc.attrs.user != null ? cc.attrs.user.profileUrl : cc.attrs.userData.profileUrl}','#{cc.attrs.context}');"
+						onclick="if (!#{cc.attrs.disableLink})sendLogPageNavigation('#{cc.attrs.user != null ? cc.attrs.user.profileUrl : cc.attrs.userData.profileUrl}','#{cc.attrs.context}');"
 						style="display: inline-block;"
 						target="_blank"
 						pt:context="#{cc.attrs.context}">
@@ -62,7 +62,7 @@
 					<h:link class="relative #{cc.attrs.mode == 'image' ? 'userDetailsLink' : ''}"
 						outcome="/publicprofile"
 						disabled="#{cc.attrs.disableLink}"
-						onclick="sendLogPageNavigation('publicprofile.xhtml?user=#{cc.attrs.user != null ? cc.attrs.user.id : cc.attrs.userData.id}','#{cc.attrs.context}');"
+						onclick="if (!#{cc.attrs.disableLink})sendLogPageNavigation('publicprofile.xhtml?user=#{cc.attrs.user != null ? cc.attrs.user.id : cc.attrs.userData.id}','#{cc.attrs.context}');"
 						pt:context="#{cc.attrs.context}"
 						rendered="#{(cc.attrs.user != null and cc.attrs.user.profileUrl == null) 
 								or (cc.attrs.userData != null and cc.attrs.userData.profileUrl == null)}">
@@ -94,7 +94,7 @@
 					<h:outputLink rendered="#{(cc.attrs.user != null and cc.attrs.user.profileUrl != null) or
 							(cc.attrs.userData != null and cc.attrs.userData.profileUrl != null)}"
 						class="userDetailsLink #{cc.attrs.nameStyleClass}"
-						onclick="sendLogPageNavigation( '#{cc.attrs.user != null ? cc.attrs.user.profileUrl : cc.attrs.userData.profileUrl}','#{cc.attrs.context}');"
+						onclick="if (!#{cc.attrs.disableLink})sendLogPageNavigation( '#{cc.attrs.user != null ? cc.attrs.user.profileUrl : cc.attrs.userData.profileUrl}','#{cc.attrs.context}');"
 						value="#{cc.attrs.user != null ? cc.attrs.user.profileUrl : cc.attrs.userData.profileUrl}" 
 						target="_blank"
 						pt:context="#{cc.attrs.context}">
@@ -104,7 +104,7 @@
 					<h:link rendered="#{(cc.attrs.user != null and cc.attrs.user.profileUrl == null) 
 								or (cc.attrs.userData != null and cc.attrs.userData.profileUrl == null)}"
 						class="userDetailsLink #{cc.attrs.nameStyleClass}"
-						onclick="sendLogPageNavigation('publicprofile.xhtml?user=#{cc.attrs.user != null ? cc.attrs.user.id : cc.attrs.userData.id}','#{cc.attrs.context}');"
+						onclick="if (!#{cc.attrs.disableLink})sendLogPageNavigation('publicprofile.xhtml?user=#{cc.attrs.user != null ? cc.attrs.user.id : cc.attrs.userData.id}','#{cc.attrs.context}');"
 						value="#{cc.attrs.user != null ? cc.attrs.user.name.concat(' ').concat(cc.attrs.user.lastname) : cc.attrs.userData.name}" 
 						outcome="/publicprofile"
 						pt:context="#{cc.attrs.context}">

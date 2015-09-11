@@ -15,7 +15,6 @@ import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.logging.ComponentName;
-import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.search.data.CompetenceData;
 import org.prosolo.web.search.data.SortingOption;
@@ -30,7 +29,6 @@ public class SearchCompetencesBean implements Serializable {
 
 	private static final long serialVersionUID = 7425398428736202443L;
 	
-	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private TextSearch textSearch;
 	@Autowired private LoggingNavigationBean loggingNavigationBean;
 	

@@ -4,9 +4,9 @@ import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.logging.ComponentName;
@@ -17,7 +17,6 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.UserData;
 import org.prosolo.web.courses.data.CourseData;
 import org.prosolo.web.data.GoalData;
-import org.prosolo.web.home.GlobalSearchBean;
 import org.prosolo.web.home.MessagesBean;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.notification.data.GoalStatus;
@@ -40,7 +39,6 @@ public class RequestToJoinGoalDialog extends MessagesBean{
 	@Autowired private RequestManager requestManager;
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private LearningGoalManager learningGoalManager;
-	@Autowired private GlobalSearchBean globalSearchBean;
 	@Autowired private LoggingNavigationBean loggingNavigationBean;
 
 	private GoalData learningGoal;

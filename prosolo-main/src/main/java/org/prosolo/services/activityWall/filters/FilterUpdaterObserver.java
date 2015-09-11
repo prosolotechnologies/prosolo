@@ -163,7 +163,7 @@ public class FilterUpdaterObserver implements EventObserver {
 			return visibilityManager.retrieveTargetCompetenceVisibility(object
 					.getId());
 		}else{
-			System.out.println("Return null visibility. Check this");
+			logger.warn("Return null visibility. Check this");
 		}
 			return null;
 	}

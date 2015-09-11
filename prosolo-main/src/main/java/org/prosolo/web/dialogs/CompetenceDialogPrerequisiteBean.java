@@ -10,10 +10,7 @@ import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.competences.Competence;
-import org.prosolo.web.ApplicationBean;
-import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.PageUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -30,9 +27,6 @@ public class CompetenceDialogPrerequisiteBean implements Serializable {
 	
 	protected static Logger logger = Logger.getLogger(CompetenceDialogPrerequisiteBean.class);
 
-	@Autowired private LoggedUserBean loggedUser;
-	@Autowired private ApplicationBean applicationBean;
-	
 	@PostConstruct
 	public void init() {
 		logger.debug("Initializing managed bean " + this.getClass().getSimpleName());

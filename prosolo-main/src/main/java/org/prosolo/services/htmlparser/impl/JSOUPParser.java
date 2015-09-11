@@ -42,6 +42,16 @@ public class JSOUPParser implements HTMLParser {
 	public JSOUPParser(){
 		
 	}
+	
+	@Override
+	public boolean checkIfValidLink(String link) {
+		try {
+		    Jsoup.connect(link).get();
+		    return true;
+		} catch (IOException e) {
+		   return false;
+		}
+	}
 
 	@Override
 	public AttachmentPreview parseUrl(String pageUrl) {

@@ -14,7 +14,10 @@ import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.common.domainmodel.activities.Activity;
+import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.util.string.StringUtil;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.upload.UploadManager;
@@ -24,7 +27,6 @@ import org.prosolo.web.goals.LearningGoalsBean;
 import org.prosolo.web.goals.cache.CompetenceDataCache;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.goals.competences.CompWallBean;
-import org.prosolo.web.goals.competences.CompetenceStatusCache;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.search.data.ActivityData;
 import org.prosolo.web.useractions.PostActionBean;
@@ -48,7 +50,6 @@ public class AddToCompetenceDialog implements Serializable {
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private LearningGoalManager goalManager;
 	@Autowired private LearningGoalsBean goalsBean;
-	@Autowired private CompetenceStatusCache competenceStatusCache;
 	@Autowired private PostActionBean postAction;
 	@Autowired private UploadManager uploadManager;
 	@Autowired private LoggingNavigationBean actionLogger;
@@ -146,7 +147,7 @@ public class AddToCompetenceDialog implements Serializable {
 	            @Override
 	            public void run() {
 	            	actionLogger.logServiceUse(
-            			ComponentName.EVALUATION_LIST_DIALOG, 
+            			ComponentName.ADD_TO_COMPETENCE_DIALOG, 
             			"context", context,
             			"link", link,
             			"title", title);
@@ -169,7 +170,7 @@ public class AddToCompetenceDialog implements Serializable {
 	            @Override
 	            public void run() {
 	            	actionLogger.logServiceUse(
-            			ComponentName.EVALUATION_LIST_DIALOG, 
+            			ComponentName.ADD_TO_COMPETENCE_DIALOG, 
             			"context", context,
             			"activityId", String.valueOf(activity.getId()));
 	            }
@@ -189,10 +190,52 @@ public class AddToCompetenceDialog implements Serializable {
 		if (compData != null) {
 			CompWallBean compWallBean = PageUtil.getViewScopedBean("compwall", CompWallBean.class);
 			
-			if (newPostData != null) {
+			if (compWallBean == null) {
+				long targetCompId = compData.getData().getId();
+				String title = newPostData.getTitle();
+				
+				// clean html tags
+				String description = StringUtil.cleanHtml(newPostData.getText());
+				
+				try {
+					@SuppressWarnings("unused")
+					TargetActivity newActivity = goalManager.createActivityAndAddToTargetCompetence(
+							loggedUser.getUser(),
+							title, 
+							description,
+							newPostData.getAttachmentPreview(),
+							newPostData.getVisibility(),
+							targetCompId,
+							false,
+							context);
+					
+					PageUtil.fireSuccessfulInfoMessage("Created new activity "+title+".");
+				} catch (EventException e) {
+					logger.error(e);
+				} catch (ResourceCouldNotBeLoadedException e) {
+					logger.error(e);
+				}
+			} else if (newPostData != null) {
 				compWallBean.createNewActivity(newPostData, compData, context);
 			} else if (activity != null) {
-				compWallBean.connectActivity(activity.getActivity(), compData, context);
+				try {
+					TargetActivity newActivity = goalManager.addActivityToTargetCompetence(							loggedUser.getUser(),
+							compData.getData().getId(), 
+							activity.getId(),
+							context);
+					
+					PageUtil.fireErrorMessage("addToCompetenceDialogGrowl", "You must choose one competence.");
+					
+					logger.debug("Activity \""+activity.getTitle()+"\" ("+newActivity.getId()+
+							") connected to the target competence \""+
+							compData.getData().getId()+"\" of the user "+ loggedUser.getUser() );
+					
+					PageUtil.fireSuccessfulInfoMessage("Activity "+activity.getTitle()+ " is added!");
+				} catch (EventException e) {
+					logger.error(e);
+				} catch (ResourceCouldNotBeLoadedException e) {
+					logger.error(e);
+				}
 			}
 		}
 	}

@@ -19,7 +19,6 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.notifications.RequestManager;
-import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.activitywall.data.UserData;
@@ -27,7 +26,6 @@ import org.prosolo.web.data.GoalData;
 import org.prosolo.web.goals.LearningGoalsBean;
 import org.prosolo.web.goals.util.CompWallActivityConverter;
 import org.prosolo.web.home.data.ResourceAvailability;
-import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.portfolio.PortfolioBean;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,9 +45,7 @@ public class LearningGoalDialogBean implements Serializable {
 	@Autowired private RequestManager requestManager;
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private CompWallActivityConverter compWallActivityConverter;
-	@Autowired private LoggingNavigationBean loggingNavigationBean;
 	@Autowired private LearningGoalsBean learningGoals;
-	@Autowired private ApplicationBean applicationBean;
 	
 	private UserData recommender;
 	private LearningGoal goal;

@@ -8,12 +8,11 @@ import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
 
-import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
+import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.nodes.CompetenceManager;
-import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.UserData;
 import org.prosolo.web.goals.LearningGoalsBean;
 import org.prosolo.web.goals.cache.CompetenceDataCache;
@@ -34,7 +33,6 @@ public class CompetenceComparisonBean implements Serializable {
 
 	@Autowired private CompetenceManager compManager;
 
-	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private LearningGoalsBean goalBean;
 	@Autowired private LoggingNavigationBean actionLogger;
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;

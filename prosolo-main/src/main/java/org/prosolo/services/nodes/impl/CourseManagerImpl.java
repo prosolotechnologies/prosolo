@@ -486,6 +486,30 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional (readOnly = false)
+	public CourseEnrollment addCompetenceToEnrollment(long enrollmentId, CourseCompetence courseComp) throws ResourceCouldNotBeLoadedException {
+		CourseEnrollment enrollment = loadResource(CourseEnrollment.class, enrollmentId);
+		boolean added = enrollment.addCompetence(courseComp);
+		
+		if (added) {
+			enrollment = saveEntity(enrollment);
+		}
+		return enrollment;
+	}
+	
+	@Override
+	@Transactional (readOnly = false)
+	public CourseEnrollment removeCompetenceFromEnrollment(long enrollmentId, CourseCompetence courseComp) throws ResourceCouldNotBeLoadedException {
+		CourseEnrollment enrollment = loadResource(CourseEnrollment.class, enrollmentId);
+		boolean added = enrollment.removeCompetence(courseComp);
+		
+		if (added) {
+			enrollment = saveEntity(enrollment);
+		}
+		return enrollment;
+	}
+	
+	@Override
+	@Transactional (readOnly = false)
 	public void removeCompetenceFromEnrollment(long enrollmentId,
 			long competenceId) throws ResourceCouldNotBeLoadedException {
 		CourseEnrollment enrollment = loadResource(CourseEnrollment.class, enrollmentId);

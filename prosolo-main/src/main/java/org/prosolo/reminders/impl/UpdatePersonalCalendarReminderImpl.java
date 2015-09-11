@@ -23,12 +23,10 @@ import org.prosolo.common.domainmodel.user.reminders.ReminderStatus;
 import org.prosolo.common.domainmodel.user.reminders.ReminderType;
 import org.prosolo.common.domainmodel.user.reminders.RequestReminder;
 import org.prosolo.core.hibernate.HibernateUtil;
-import org.prosolo.recommendation.util.CommandService;
 import org.prosolo.reminders.UpdatePersonalCalendarReminder;
 import org.prosolo.reminders.dal.PersonalCalendarManager;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.nodes.DefaultManager;
-import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.home.RemindersBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,8 +40,6 @@ public class UpdatePersonalCalendarReminderImpl implements UpdatePersonalCalenda
 	private Logger logger = Logger.getLogger(UpdatePersonalCalendarReminderImpl.class);
 	
 	@Autowired private DefaultManager defaultManager;
-	@Autowired private UserManager userManager;
-	@Autowired private CommandService defCommandService;
 	@Autowired private PersonalCalendarManager personalCalendarQueries;
 	@Autowired private ApplicationBean applicationBean;
 	@Autowired private PersonalCalendarManager calendarManager;

@@ -22,9 +22,10 @@
 				
 				<div class="inputContainer">
 					<div class="mGlass"></div>
-  						<h:inputText size="20" class="searchInput"
+ 					<h:inputText size="20" class="searchInput"
 				  		onclick="$(this).select();" 
 				  		onkeydown="searchListener();" />
+				  		
 				  	<h:inputHidden class="searchInputHidden"
 				  		value="#{searchActivitiesBean.query}" 
 				  	/>
@@ -64,7 +65,8 @@
 						
 						<action:addToCompetence
 							styleClass="marginRight10 left"
-							activity="#{actData.activity}" />
+							activity="#{actData.activity}"
+							context="search.allActivities" />
 		            </div>
 					
 					<div class="separator clear"></div>

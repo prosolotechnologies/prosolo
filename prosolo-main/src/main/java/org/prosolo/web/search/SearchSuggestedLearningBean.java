@@ -44,10 +44,7 @@ public class SearchSuggestedLearningBean implements Serializable {
 	
 	@Autowired private SuggestedLearningBean suggestedLearningBean;
 	@Autowired private NodeRecommendationManager recommendationManager;
-	//@Autowired private SuggestedLearningActionBean suggestedLearningActionBean;
 
-	// private List<Recommendation> suggestedByColleagues;
-	// private List<Node> suggestedBySystem;
 	private List<RecommendationData> suggestedResources = new LinkedList<RecommendationData>();
 	private List<RecommendationData> filteredResources = new LinkedList<RecommendationData>();
 	

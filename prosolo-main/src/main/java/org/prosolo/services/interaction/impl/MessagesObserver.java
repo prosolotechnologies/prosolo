@@ -6,8 +6,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.app.Settings;
-import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
@@ -15,13 +13,13 @@ import org.prosolo.common.domainmodel.user.MessagesThread;
 import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.messaging.data.ServiceType;
+import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
+import org.prosolo.services.interaction.MessageInboxUpdater;
 import org.prosolo.services.messaging.SessionMessageDistributer;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.web.ApplicationBean;
-import org.prosolo.web.MessagesBean;
-import org.prosolo.web.notification.TopInboxBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,9 +29,12 @@ import org.springframework.stereotype.Service;
 @Service("org.prosolo.services.interaction.MessagesObserver")
 public class MessagesObserver implements EventObserver {
 	private static Logger logger = Logger.getLogger(MessagesObserver.class);
+	
 	@Autowired private ApplicationBean applicationBean;
 	@Autowired private DefaultManager defaultManager;
 	@Autowired private SessionMessageDistributer messageDistributer;
+	@Autowired private MessageInboxUpdater messageInboxUpdater;
+	
 	@Override
 	public EventType[] getSupportedEvents() {
 		return new EventType[] { 
@@ -57,35 +58,16 @@ public class MessagesObserver implements EventObserver {
 				MessagesThread messagesThread = message.getMessageThread();
 				messagesThread = (MessagesThread) session.merge(messagesThread);
 				
-				if (!messagesThread.getMessages().contains(message)) {
-					messagesThread.addMessage(message);
-					session.save(messagesThread);
-				}
+				List<User> participants = messagesThread.getParticipants();
 				
-				User receiver = message.getReceiver();
-				
-				if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
-					messageDistributer.distributeMessage(ServiceType.DIRECTMESSAGE, receiver.getId(), message.getId(), null, null);
-				} else {
-					HttpSession httpSession = applicationBean.getUserSession(receiver.getId());
-					
-					if (httpSession != null) {
-						TopInboxBean inboxBean = (TopInboxBean) httpSession.getAttribute("topInboxBean");
+				for (User participant : participants) {
+					if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
+						messageDistributer.distributeMessage(ServiceType.DIRECTMESSAGE, participant.getId(), message.getId(), null, null);
+					} else {
+						HttpSession httpSession = applicationBean.getUserSession(participant.getId());
 						
-						if (inboxBean != null) {
-							inboxBean.updateMessageThread(messagesThread);
-						}
-						
-						MessagesBean messagesBean = (MessagesBean) httpSession.getAttribute("messagesBean");
-						
-						if (messagesBean != null) {
-							
-							if (messagesBean.getThreadData().getId() == messagesThread.getId()) {
-								messagesBean.addMessage(message);
-							}
-						}
+						messageInboxUpdater.updateOnNewMessage(message, messagesThread, httpSession);
 					}
-					
 				}
 			} else if (event.getAction().equals(EventType.START_MESSAGE_THREAD)) {
 				MessagesThread messagesThread = (MessagesThread) event.getObject();
@@ -97,11 +79,7 @@ public class MessagesObserver implements EventObserver {
 						HttpSession httpSession = applicationBean.getUserSession(participant.getId());
 						
 						if (httpSession != null) {
-							TopInboxBean topInboxBean = (TopInboxBean) httpSession.getAttribute("topInboxBean");
-							
-							if (topInboxBean != null) {
-								topInboxBean.addNewMessageThread(messagesThread);
-							}
+							messageInboxUpdater.addNewMessageThread(messagesThread, httpSession);
 						} else if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 							messageDistributer.distributeMessage(
 									ServiceType.ADDNEWMESSAGETHREAD, 

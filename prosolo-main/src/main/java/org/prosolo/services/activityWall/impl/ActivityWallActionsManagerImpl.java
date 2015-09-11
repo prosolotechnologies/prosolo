@@ -15,7 +15,6 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.activityWall.ActivityWallActionsManager;
-import org.prosolo.services.activityWall.ActivityWallManager;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
@@ -36,7 +35,6 @@ public class ActivityWallActionsManagerImpl extends AbstractManagerImpl implemen
 	private static Logger logger = Logger.getLogger(ActivityWallActionsManagerImpl.class);
 	
 	@Autowired private EventFactory eventFactory;
-	@Autowired private ActivityWallManager activityWallManager;
 
 	@Override
 	@Transactional (readOnly = false)

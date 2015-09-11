@@ -10,7 +10,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.app.Settings;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
@@ -35,7 +34,6 @@ import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.util.StringUtils;
 import org.prosolo.web.ApplicationBean;
-import org.prosolo.web.activitywall.util.WallActivityConverter;
 import org.prosolo.web.goals.LearningGoalsBean;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.portfolio.PortfolioBean;
@@ -51,7 +49,6 @@ public class InterfaceCacheObserver implements EventObserver {
 	
 	@Autowired private ApplicationBean applicationBean;
 	@Autowired private ActivityWallManager activityWallManager;
-	@Autowired private WallActivityConverter wallActivityConverter;
 	@Autowired private ActivityManager activityManager;
 	@Autowired private CommentUpdater commentUpdater;
 	@Autowired private SocialActivityHandler socialActivityHandler;

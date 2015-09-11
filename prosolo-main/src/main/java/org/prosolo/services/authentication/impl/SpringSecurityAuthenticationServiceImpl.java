@@ -31,12 +31,9 @@ public class SpringSecurityAuthenticationServiceImpl implements AuthenticationSe
 
 	private static Logger logger = Logger.getLogger(SpringSecurityAuthenticationServiceImpl.class);
 
-	@Autowired
-	private AuthenticationManager authenticationManager; // specific for Spring Security
-	@Autowired
-	private UserManager userManager;
-	@Autowired
-	private RoleManager roleManager;
+	@Autowired private AuthenticationManager authenticationManager; // specific for Spring Security
+	@Autowired private UserManager userManager;
+	@Autowired private RoleManager roleManager;
 
 	@Override
 	public boolean login(String email, String password) throws AuthenticationException {

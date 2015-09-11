@@ -8,7 +8,6 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 import org.prosolo.common.domainmodel.activitywall.SocialStreamSubViewType;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.services.activityWall.ActivityWallManager;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
 import org.prosolo.services.annotation.DislikeManager;
 import org.prosolo.services.annotation.LikeManager;
@@ -35,7 +34,6 @@ public class SinglePostBean implements Serializable {
 	
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private DefaultManager defaultManager;
-	@Autowired private ActivityWallManager activityWallManager;
 	@Autowired private LikeManager likeManager;
 	@Autowired private DislikeManager dislikeManager;
 	@Autowired private WallActivityConverter wallActivityConverter;

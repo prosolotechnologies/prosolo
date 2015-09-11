@@ -18,6 +18,7 @@ import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
+import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
@@ -35,8 +36,6 @@ import org.prosolo.services.indexing.ESIndexNames;
 import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.nodes.DefaultManager;
-import org.prosolo.similarity.ResourceTokenizer;
-import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.web.search.data.SortingOption;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -53,7 +52,6 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	private static final long serialVersionUID = -8919953696206394473L;
 	private static Logger logger = Logger.getLogger(TextSearchImpl.class);
 	
-	@Autowired private ResourceTokenizer resourceTokenizer;
 	@Autowired private DefaultManager defaultManager;
 	@Autowired private ESIndexer esIndexer;
 

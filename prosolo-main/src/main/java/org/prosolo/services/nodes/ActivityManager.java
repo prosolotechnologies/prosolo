@@ -74,6 +74,6 @@ public interface ActivityManager extends AbstractManager {
 
 	List<TargetActivity> getAllTargetActivities();
 
- 
+	List<Activity> getMockActivities(int limit);
 
 }

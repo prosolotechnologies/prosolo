@@ -9,8 +9,6 @@ import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
-import org.prosolo.services.activityWall.ActivityWallManager;
-import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.data.GoalData;
 import org.prosolo.web.goals.LearningGoalsBean;
 import org.prosolo.web.goals.cache.CompetenceDataCache;
@@ -31,15 +29,9 @@ public class LearningProgressBean implements Serializable{
 	private static Logger logger = Logger.getLogger(LearningProgressBean.class);
 	
 	@Autowired private LearningGoalsBean learningGoalsBean;
-	@Autowired private ActivityWallManager activityWallManager;
-	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private PortfolioBean portfolioBean;
 	
 	private boolean initialized;
-//	private List<GoalData> uncompletedGoals;
-//	private List<TargetCompetenceData> uncompletedCompetences;
-//	private int completedComNo;
-//	private int totalCompNo;
 	
 	private int numberOfGoalsToDisplay = Settings.getInstance().config.application.home.learningProgress.numberOfGoals;
 	private int numberOfCompToDisplay = Settings.getInstance().config.application.home.learningProgress.numberOfCompetences;

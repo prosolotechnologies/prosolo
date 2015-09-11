@@ -24,19 +24,14 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.workflow.evaluation.Badge;
 import org.prosolo.common.domainmodel.workflow.evaluation.EvaluationSubmission;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.search.TextSearch;
-import org.prosolo.services.activityWall.GoalActivityWallManager;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.BadgeManager;
-import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.EvaluationManager;
 import org.prosolo.services.nodes.exceptions.EvaluationNotSupportedException;
 import org.prosolo.services.nodes.exceptions.InvalidParameterException;
-import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.util.WallActivityConverter;
 import org.prosolo.web.administration.ResourceSettingsBean;
 import org.prosolo.web.communications.evaluation.data.EvaluatedResourceData;
 import org.prosolo.web.communications.evaluation.data.EvaluatedResourceType;
@@ -59,14 +54,9 @@ public class NewEvaluationBean implements Serializable {
 	protected static Logger logger = Logger.getLogger(NewEvaluationBean.class);
 
 	@Autowired private EvaluationDataFactory evaluationDataFactory;
-	@Autowired private NotificationManager notificationsManager;
 	@Autowired private EvaluationManager evaluationManager;
 	@Autowired private LoggedUserBean loggedUser;
-	@Autowired private CompetenceManager compManager;
-	@Autowired private TextSearch textSearch;
 	@Autowired private BadgeManager badgeManager;
-	@Autowired private WallActivityConverter wallActivityConverter;
-	@Autowired private GoalActivityWallManager goalActivityWallManager;
 	@Autowired private EventFactory eventFactory;
 	@Autowired private ResourceSettingsBean adminSettings;
 

@@ -17,7 +17,6 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.annotation.DislikeManager;
 import org.prosolo.services.annotation.LikeManager;
-import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.interaction.PostManager;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.DefaultManager;
@@ -46,7 +45,6 @@ public class PeopleListDialog implements Serializable {
 	@Autowired private DefaultManager defaultManager;
 	@Autowired private LikeManager likeManager;
 	@Autowired private DislikeManager dislikeManager;
-	@Autowired private FollowResourceManager followResourceManager;
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private ColleguesBean colleguesBean;
 	@Autowired private LearningGoalManager goalManager;

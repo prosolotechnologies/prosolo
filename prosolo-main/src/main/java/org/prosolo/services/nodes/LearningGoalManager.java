@@ -81,6 +81,9 @@ public interface LearningGoalManager extends AbstractManager {
 
 	TargetActivity addActivityToTargetCompetence(User user, long targetCompetenceId, Activity activity,
 			String context) throws EventException, ResourceCouldNotBeLoadedException;
+	
+	TargetActivity addActivityToTargetCompetence(User user, long targetCompetenceId, long activityId, String context)
+			throws EventException, ResourceCouldNotBeLoadedException;
 
 	TargetCompetence addActivityToTargetCompetence(User user, TargetCompetence targetCompetence, 
 			Activity activity, boolean sync) throws EventException;
@@ -172,6 +175,5 @@ public interface LearningGoalManager extends AbstractManager {
 	Set<Long> getTargetActivitiesForTargetLearningGoal(Long targetLearningGoalId);
 
 	List<Long> getUserGoalsIds(User user);
-
 
 }

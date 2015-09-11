@@ -41,7 +41,6 @@ public class CollaboratorsRecommendationImpl implements CollaboratorsRecommendat
 	
 	private static Logger logger = Logger.getLogger(CollaboratorsRecommendationImpl.class);
 	
-	//@Autowired private MoreNodesLikeThis mnlt;
 	@Autowired private MoreUsersLikeThis mult;
 	@Autowired private ResourceTokenizer resTokenizer;
 	@Autowired private LearningGoalManager learningGoalManager; 
@@ -50,9 +49,8 @@ public class CollaboratorsRecommendationImpl implements CollaboratorsRecommendat
 	@Autowired private FollowResourceManager followResourceManager;
 	@Autowired private RecommendedResourcesSearch recommendedResourcesSearch;
 	
-	//private long dayActivityRecommendationGenerated=0;
-	//private int hourActivityRecommendationGenerated=0;
-	private List<User> mostActiveRecommendedUsers=new ArrayList<User>();
+	private List<User> mostActiveRecommendedUsers = new ArrayList<User>();
+	
 	@Override
 	public List<User> getRecommendedCollaboratorsForLearningGoal(User loggedUser, long targetGoalId, int limit) {
 		try {
@@ -113,7 +111,7 @@ public class CollaboratorsRecommendationImpl implements CollaboratorsRecommendat
 		try {
 			return mult.getRecommendedCollaboratorsBasedOnSimilarity(inputText, ignoredUsers, limit);
 		} catch (IndexingServiceNotAvailable e) {
-			logger.error(e);
+			logger.warn(e);
 			return new ArrayList<User>();
 		}
 	}

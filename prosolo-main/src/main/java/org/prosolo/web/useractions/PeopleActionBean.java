@@ -15,8 +15,6 @@ import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.UserData;
 import org.prosolo.web.home.ColleguesBean;
-import org.prosolo.web.logging.LoggingNavigationBean;
-import org.prosolo.web.search.SearchPeopleBean;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -39,8 +37,6 @@ public class PeopleActionBean implements Serializable{
 	@Autowired private ColleguesBean colleguesBean;
 	@Autowired private FollowResourceManager followResourceManager;
 	@Autowired private FollowResourceAsyncManager followResourceAsyncManager;
-	@Autowired private LoggingNavigationBean loggingNavigationBean;
-	@Autowired private SearchPeopleBean searchPeopleBean;
 	
 	public void startToFollowCollegue(AjaxBehaviorEvent event){ }
 	

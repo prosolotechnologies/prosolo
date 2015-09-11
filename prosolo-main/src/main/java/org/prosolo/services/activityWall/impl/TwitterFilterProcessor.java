@@ -14,14 +14,13 @@ import org.prosolo.services.activityWall.strategy.Strategy;
 
 /**
  * @author Zoran Jeremic Jan 27, 2015
- *
+ *		
  */
 @Strategy(type = SocialActivityFilterProcessor.class, filters = { FilterType.TWITTER })
 public class TwitterFilterProcessor implements SocialActivityFilterProcessor {
 	
 	@Override
 	public boolean checkSocialActivity(SocialActivity socialActivity, User user, Filter filter) {
-		System.out.println("CHECKING TWITTER");
 		if (!(socialActivity instanceof TwitterPostSocialActivity)) {
 			return false;
 		}
@@ -29,8 +28,7 @@ public class TwitterFilterProcessor implements SocialActivityFilterProcessor {
 		TwitterPostSocialActivity twitterPostSA = (TwitterPostSocialActivity) socialActivity;
 		Set<Tag> hashtags = twitterPostSA.getHashtags();
 		Set<Tag> filterHashtags = (Set<Tag>) ((TwitterFilter) filter).getHashtags();
-		System.out.println("Hashtags:"+hashtags.toString());
-		System.out.println("FILTER HASHTAGS:"+filterHashtags.toString());
+		
 		for (Tag tag : hashtags) {
 			if (filterHashtags.contains(tag)) {
 				return true;

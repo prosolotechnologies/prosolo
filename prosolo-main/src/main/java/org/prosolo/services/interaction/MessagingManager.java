@@ -48,7 +48,7 @@ public interface MessagingManager extends AbstractManager {
 
 	List<MessagesThread> getLatestUserMessagesThreads(User user, int page, int limit);
 
-	boolean markThreadAsRead(long threadId, long receiverId);
+	boolean markThreadAsRead(long threadId);
 
 	List<SimpleOfflineMessage> getMessagesForThread(MessagesThread thread,
 			int page, int limit, Session session);

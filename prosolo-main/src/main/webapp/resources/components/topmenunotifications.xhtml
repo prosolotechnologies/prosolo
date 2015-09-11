@@ -9,9 +9,11 @@
 	<h:form id="notificationForm">
 		<p:growl id="notificationsGrowl" showDetail="true" />
 		
+		<ui:remove>
 		<p:poll interval="#{topNotificationsBean.refreshRate}"
 			update=":notificationForm:topMenuNotificationPanel"
 			widgetVar="notificationsPoll" autoStart="true" />
+		</ui:remove>
 			
 		<h:panelGroup id="topMenuNotificationPanel">
 			<div class="notificationContainer">
@@ -22,7 +24,7 @@
 					actionListener="#{topNotificationsBean.logNotificationServiceUse()}"
 					oncomplete="$('.notificationContainer .circle').hide();"
 					async="true"
-					update=":notificationForm:notificationsresults">
+					update=":notificationForm:notificationsContainer">
 					
 					<h:panelGroup layout="block" class="circle" rendered="#{topNotificationsBean.unreadNotificationsNo > 0}">
 						#{topNotificationsBean.unreadNotificationsNo}
@@ -33,51 +35,45 @@
 			<div id="notifications" >
 				<div class="beeperNub"></div>
 				
-				<h:panelGroup layout="block" id="notificationsresults" class="notificationsresults">
-					<div class="notificationsResultPanel">
-						<h:panelGroup layout="block" id="notificationsResultPanelContent" rendered="#{!empty topNotificationsBean.notifications}">
-							<span class="category">
-								Notifications
-							</span>
-								
-							<span></span>
+				<h:panelGroup layout="block" id="notificationsContainer" class="notificationsContainer">
+					<div class="category">
+						Notifications
+					</div>
+				
+					<h:panelGroup layout="block" class="itemsContainer" id="notificationsResultPanelContent" rendered="#{!empty topNotificationsBean.notifications}">
+						
+						<ui:repeat value="#{topNotificationsBean.notifications}" var="notificationData" varStatus="iterator">
 							
-							<ui:repeat value="#{topNotificationsBean.notifications}" var="notificationData" varStatus="iterator">
-								
-								<div class="notificationsitem #{notificationData.read == 'false' ? 'unread' : ''}">
-									<link:user value="notifications" 
-					    				userData="#{notificationData.actor}"
-					    				mode="image"
-					    				imageSize="30"
-					    				divClass="left"
-					    				idPrefix="notActor#{iterator.index}"
-					    				context="notifications.image" />
-					    				
-					    			<h:panelGroup rendered="#{notificationData.actor == null}" class="logoSign image-wrap" />
-					    				
-									<div class="contentContainer">
-										<span class="notificationheading">
-											<h:link	class="user" value="#{notificationData.actor.name}" 
-												outcome="/publicprofile" >
-												<f:param  name="user" value="#{notificationData.actor.id}" />  
-											</h:link>
-											#{notificationData.type}&#160;#{notificationData.resource.shortType} 
-											<link:resourceLink
-												resourceId="#{notificationData.resource.id}" 
-												type="#{notificationData.resource.clazz.simpleName}" 
-												title="#{notificationData.resource.title}" />
-
-										</span>
+							<div class="item #{notificationData.read == 'false' ? 'selected' : ''}">
+								<link:user value="notifications" 
+				    				userData="#{notificationData.actor}"
+				    				mode="image"
+				    				imageSize="30"
+				    				divClass="left"
+				    				idPrefix="notActor#{iterator.index}"
+				    				context="notifications.image" />
+				    				
+				    			<h:panelGroup rendered="#{notificationData.actor == null}" class="logoSign image-wrap" />
+				    				
+								<div class="contentContainer">
+									<span>
+										<h:link	class="user" value="#{notificationData.actor.name}" 
+											outcome="/publicprofile" >
+											<f:param  name="user" value="#{notificationData.actor.id}" />  
+										</h:link>
+										#{notificationData.type} #{notificationData.resource.shortType}
+										<link:resourceLink
+											styleClass="bold"
+											resourceId="#{notificationData.resource.id}" 
+											type="#{notificationData.resource.clazz.simpleName}"
+											title="#{notificationData.resource.title}" />
+									</span>
+									
+									<h:panelGroup class="notificationMessage" rendered="#{notificationData.message != null and !notificationData.message.isEmpty()}">
 										<div class="clear"></div>
-										
-										<h:panelGroup class="notificationMessage" rendered="#{notificationData.message != null}">
-											"#{notificationData.message}"
-										</h:panelGroup>
-										
-										<div class="clear"></div>
-										#{notificationData.when}
-									</div>
-									<div class="clear"></div>
+										"#{notificationData.message}"
+									</h:panelGroup>
+									<div class="clear marginBottom5"></div>
 									
 									<div class="links">
 										<h:panelGroup rendered="#{notificationData.chosenAction == null}">
@@ -104,30 +100,34 @@
 											</ui:repeat>
 										</h:panelGroup>
 										
-										<h:panelGroup rendered="#{notificationData.chosenAction != null}">
+										<h:panelGroup class="inactive" rendered="#{notificationData.chosenAction != null}">
 											#{notificationData.chosenAction}
 										</h:panelGroup>
 									</div>
+									
+									<span class="time">
+										#{notificationData.when}
+									</span>
 								</div>
-							</ui:repeat>
-						</h:panelGroup>
-						
-						<h:panelGroup layout="block" id="noResultsPanel" styleClass="noResults"
-							rendered="#{empty topNotificationsBean.notifications}">
-							<h:outputText value="There are no new notifications" />
-						</h:panelGroup>
-						
-						<h:link styleClass="seeAll" value="See all notifications" outcome="/communications" >
-							<f:param  name="tab" value="notifications" />
-						</h:link>
+							</div>
+						</ui:repeat>
+					</h:panelGroup>
+					
+					<h:panelGroup layout="block" id="noResultsPanel" styleClass="noResults"
+						rendered="#{empty topNotificationsBean.notifications}">
+						<h:outputText value="There are no new notifications" />
+					</h:panelGroup>
+					
+					<h:link styleClass="seeAll" value="See all notifications" outcome="/communications" >
+						<f:param  name="tab" value="notifications" />
+					</h:link>
 
-						<script type="text/javascript">
-							$(function() {
-								roundImages();
-								$('.notificationMessage').shortenedText({showChar: 150, mode: 'static'});
-							});
-						</script>
-					</div>
+					<script type="text/javascript">
+						$(function() {
+							roundImages();
+							$('.notificationMessage').shortenedText({showChar: 150, mode: 'static'});
+						});
+					</script>
 				</h:panelGroup>
 			</div>
 			

@@ -9,11 +9,8 @@ import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
-import org.prosolo.services.logging.AccessResolver;
 import org.prosolo.services.logging.LoggingService;
-import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.logging.LoggingNavigationBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -34,20 +31,9 @@ public class ActivityReportArchiveBean implements Serializable {
 	protected static Logger logger = Logger
 			.getLogger(ActivityReportArchiveBean.class);
 
-	@Autowired
-	private UserManager userManager;
+	@Autowired private LoggedUserBean loggedUser;
 
-	@Autowired
-	private LoggedUserBean loggedUser;
-
-	@Autowired
-	private AccessResolver accessResolver;
-
-	@Autowired
-	private LoggingNavigationBean loggingNavigationBean;
-
-	@Autowired
-	private LoggingService loggingService;
+	@Autowired private LoggingService loggingService;
 
 	private List<ActivityReport> reports;
 	

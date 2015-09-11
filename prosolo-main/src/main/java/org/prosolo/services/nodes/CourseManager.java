@@ -72,6 +72,10 @@ public interface CourseManager extends AbstractManager {
 	CourseEnrollment enrollInCourse(User user, Course course, TargetLearningGoal targetGoal, String context);
 
 	CourseEnrollment updateEnrollment(long enrollmentId, List<CourseCompetence> competences) throws ResourceCouldNotBeLoadedException;
+	
+	CourseEnrollment addCompetenceToEnrollment(long enrollmentId, CourseCompetence courseComp) throws ResourceCouldNotBeLoadedException;
+	
+	CourseEnrollment removeCompetenceFromEnrollment(long enrollmentId, CourseCompetence courseComp) throws ResourceCouldNotBeLoadedException;
 
 	void removeCompetenceFromEnrollment(long enrollmentId, long competenceId) throws ResourceCouldNotBeLoadedException;
 

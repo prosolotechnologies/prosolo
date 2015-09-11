@@ -66,15 +66,6 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 		message.setMessageThread(thread);
 		message = saveEntity(message);
 		
-		try {
-			Map<String, String> parameters = new HashMap<String, String>();
-			parameters.put("context", context);
-			parameters.put("user", String.valueOf(receiver.getId()));
-			parameters.put("message", String.valueOf(message.getId()));
-			eventFactory.generateEvent(EventType.SEND_MESSAGE, sender, message, parameters);
-		} catch (EventException e) {
-			logger.error(e);
-		}
 		return message;
 	}
 	
@@ -130,6 +121,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 		}
 		
 		thread.getMessages().addAll(sentMessages);
+		thread.setLastUpdated(new Date());
 		saveEntity(thread);
 		
 		return sentMessages;
@@ -139,6 +131,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	@Transactional (readOnly = false)
 	public MessagesThread createNewMessagesThread(User creator, List<Long> participantIds, String subject) {
 		List<User> participants = userManager.loadUsers(participantIds);
+		
 		MessagesThread messagesThread = new MessagesThread();
 		messagesThread.setCreator(creator);
 		messagesThread.setParticipants(participants);
@@ -448,7 +441,6 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 //			}
 			mtData.setMessages(messagesData);
 			
-			
 			List<UserData> participants = new ArrayList<UserData>();
 			List<UserData> participantsWithoutLoggedUser = new ArrayList<UserData>();
 			
@@ -551,7 +543,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	}
 	
 	@Override
-	public boolean markThreadAsRead(long threadId, long receiverId) {
+	public boolean markThreadAsRead(long threadId) {
 		Session session = this.getPersistence().openSession();
 		MessagesThread mThread = null;
 		
@@ -562,7 +554,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 				List<SimpleOfflineMessage> messages = mThread.getMessages();
 				
 				for (SimpleOfflineMessage offMessage : messages) {
-					if (!offMessage.isRead() && offMessage.getReceiver().getId() == receiverId) {
+					if (!offMessage.isRead()) {
 						offMessage.setRead(true);
 						session.save(offMessage);
 					}

@@ -13,7 +13,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.common.domainmodel.activities.Recommendation;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 import org.prosolo.common.domainmodel.activitywall.comments.Comment;
@@ -21,15 +20,19 @@ import org.prosolo.common.domainmodel.course.CourseEnrollment;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.outcomes.Outcome;
 import org.prosolo.common.domainmodel.user.LearningGoal;
+import org.prosolo.common.domainmodel.user.MessagesThread;
 import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.notifications.Notification;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.messaging.data.SessionMessage;
+import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.recommendation.dal.SuggestedLearningQueries;
 import org.prosolo.services.activityWall.SocialActivityFiltering;
 import org.prosolo.services.activityWall.SocialActivityHandler;
+import org.prosolo.services.interaction.MessageInboxUpdater;
+//milikicn@bitbucket.org/zjeremic/prosolo-multimodule.git
 import org.prosolo.services.interfaceSettings.CommentUpdater;
 import org.prosolo.services.interfaceSettings.LearnActivityCacheUpdater;
 import org.prosolo.services.interfaceSettings.LearnPageCacheUpdater;
@@ -46,7 +49,6 @@ import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.home.SuggestedLearningBean;
 import org.prosolo.web.home.data.RecommendationData;
 import org.prosolo.web.home.util.RecommendationConverter;
-import org.prosolo.web.notification.TopInboxBean;
 import org.prosolo.web.notification.TopNotificationsBean;
 import org.prosolo.web.notification.data.NotificationData;
 import org.prosolo.web.notification.exceptions.NotificationNotSupported;
@@ -66,15 +68,12 @@ public class SessionMessageHandlerImpl implements MessageHandler<SessionMessage>
 	@Autowired private RecommendationConverter recommendationConverter;
 	@Autowired private EvaluationUpdater evaluationUpdater;
 	@Autowired private CommentUpdater commentUpdater;
-	//@Autowired private SocialActivityCacheUpdater socialActivityCacheUpdater;
 	@Autowired private SocialActivityHandler socialActivityHandler;
 	@Autowired private LearnActivityCacheUpdater learnActivityCacheUpdaterImpl;
-	//@Autowired private SocialActivityInboxInterfaceCacheUpdater socialActivityInboxInterfaceCacheUpdater;
 	@Autowired private LearnPageCacheUpdater learnPageCacheUpdater;
+	@Autowired private MessageInboxUpdater messageInboxUpdater;
 	@Autowired private SocialActivityFiltering socialActivityFiltering;
 	
-	//@Autowired private SocialActivityResolver sActivityResolver;
-
 	@Override
 	public void handle(SessionMessage message) {
 		Session session = (Session) defaultManager.getPersistence().openSession();
@@ -87,42 +86,23 @@ public class SessionMessageHandlerImpl implements MessageHandler<SessionMessage>
 			switch (message.getServiceType()) {
 				case DIRECTMESSAGE:
 					if (httpSession != null) {
-						TopInboxBean inboxBean = (TopInboxBean) httpSession.getAttribute("topInboxBean");
-						
-						SimpleOfflineMessage directmessage = (SimpleOfflineMessage) session.load(
+						SimpleOfflineMessage directMessage = (SimpleOfflineMessage) session.load(
 								SimpleOfflineMessage.class,
 								resourceId);
 						
-						inboxBean.addNewUnreadMessage(directmessage);
+						MessagesThread messagesThread = directMessage.getMessageThread();
+						messagesThread = (MessagesThread) session.merge(messagesThread);
+						
+						messageInboxUpdater.updateOnNewMessage(directMessage, messagesThread, httpSession);
 					}
 					break;
 				case ADDNEWMESSAGETHREAD :
 					if (httpSession != null) {
-						// TODO: Nikola
-//						MessagesThreadsBean messagesThreadBean = (MessagesThreadsBean) httpSession.getAttribute("messagesThreadsBean");
-//						
-//						MessagesThread messagesThread = (MessagesThread) session.load(
-//								MessagesThread.class, 
-//								resourceId);
-//						
-//						messagesThreadBean.addNewMessageThread(messagesThread);
-					}
-					break;
-				case UPDATEMESSAGETHREAD:
-					if (httpSession != null) {
-						// TODO: Nikola
-//						MessagesThreadsBean messagesThreadsBean1 = (MessagesThreadsBean) httpSession.getAttribute("messagesThreadsBean");
-//						
-//						MessagesThread messagesThread1 = (MessagesThread) session.load(
-//								MessagesThread.class, 
-//								resourceId);
-//						
-//						messagesThreadsBean1.addNewMessageThread(messagesThread1);
-//						MessagesThreadBean messagesThreadBean1=(MessagesThreadBean) httpSession.getAttribute("messagesThreadBean");
-//						
-//						if (messagesThreadBean1 != null) {
-//								messagesThreadBean1.refreshMessageThreadIfActive(messagesThread1.getId(), session);
-//						}
+						MessagesThread messagesThread = (MessagesThread) session.load(
+								MessagesThread.class,
+								resourceId);
+						
+						messageInboxUpdater.addNewMessageThread(messagesThread, httpSession);
 					}
 					break;
 				case ADDNOTIFICATION:

@@ -32,6 +32,7 @@ public class ResourceTokenizerImpl implements ResourceTokenizer {
 	@Autowired private DefaultManager defaultManager;
 	
 	@Override
+	@Transactional(readOnly = true)
 	public String getTokenizedStringForUserLearningGoal(User user, TargetLearningGoal tGoal) {
 		StringBuffer userStringBuffer = new StringBuffer();
 		getTokenizedStringForUserLearningGoal(user, tGoal, userStringBuffer);
@@ -39,6 +40,7 @@ public class ResourceTokenizerImpl implements ResourceTokenizer {
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public String getTokenizedStringForUser(User user) {
 		StringBuffer userStringBuffer = new StringBuffer();
 		user = defaultManager.merge(user);
@@ -52,6 +54,7 @@ public class ResourceTokenizerImpl implements ResourceTokenizer {
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public void getTokenizedStringForUserLearningGoal(User user, TargetLearningGoal tGoal, StringBuffer userTokensBuffer) {
 		LearningGoal goal = tGoal.getLearningGoal();
 		
@@ -125,6 +128,7 @@ public class ResourceTokenizerImpl implements ResourceTokenizer {
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public String getTokenizedStringForTargetCompetence(TargetCompetence tCompetence) {
 		StringBuffer targetCompetenceStringBuffer = new StringBuffer();
 		getTokenizedStringForTargetCompetence(tCompetence, targetCompetenceStringBuffer);

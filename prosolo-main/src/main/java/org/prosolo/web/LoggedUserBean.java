@@ -44,11 +44,8 @@ import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.logging.AccessResolver;
 import org.prosolo.services.logging.LoggingService;
-import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.LearningGoalManager;
-import org.prosolo.services.nodes.OrganizationManager;
-import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.util.ImageFormat;
 import org.prosolo.web.util.AvatarUtils;
@@ -73,8 +70,6 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	@Autowired private InterfaceSettingsManager interfaceSettingsManager;
 	@Autowired private NotificationsSettingsManager notificationsSettingsManager;
 	@Autowired private ApplicationBean applicationBean;
-	@Autowired private RoleManager roleManager;
-	@Autowired private OrganizationManager orgManager;
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 	@Autowired private LoggingService loggingService;
 	@Autowired private AccessResolver accessResolver;
@@ -83,7 +78,6 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	@Autowired private TagManager tagManager;
 	@Autowired private LearningGoalManager learningGoalManager;
 	@Autowired private CourseManager courseManager;
-	@Autowired private CompetenceManager competenceManager;
 	@Autowired private EventFactory eventFactory;
 	@Autowired private SessionCountBean sessionCounter;
 
@@ -92,7 +86,6 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	private String password;
 	private long loginTime;
 	private String bigAvatar;
-//	private boolean notAcceptedTermsOfUse;
 	private boolean doNotShowTutorial;
 	private Set<String> pagesTutorialPlayed = new HashSet<String>();
 	private List<Role> roles;
@@ -101,7 +94,6 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	private Filter selectedStatusWallFilter;
 	private LearningGoalFilter selectedLearningGoalFilter;
 	
-
 	private UserSettings userSettings;
 	private UserNotificationsSettings notificationsSettings;
 	
@@ -118,10 +110,6 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		FilterType chosenFilterType = this.userSettings.getActivityWallSettings().getChosenFilter();
 		
 		loadStatusWallFilter(chosenFilterType, userSettings.getActivityWallSettings().getCourseId());
-//		TermsOfUse termsOfUse = userSettings.getTermsOfUse();
-//		if (termsOfUse != null) {
-//			this.notAcceptedTermsOfUse = !termsOfUse.isAccepted();
-//		}
 		
 		this.pagesTutorialPlayed = userSettings.getPagesTutorialPlayed();
 		logger.info("init finished");
@@ -158,8 +146,6 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	}
 	
 	public void loadStatusWallFilter(FilterType chosenFilterType, long courseId) {
-		System.out.println("LOADING STATUS WALL FILTER FOR FILTER:" + chosenFilterType.name());
-		
 		if (chosenFilterType.equals(FilterType.MY_NETWORK)) {
 			this.selectedStatusWallFilter = new MyNetworkFilter();
 			Set<Long> myNetworkUsers = activityWallManager.getUsersInMyNetwork(user.getId());
@@ -207,7 +193,6 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 				e.printStackTrace();
 			}
 			this.selectedStatusWallFilter = courseFilter;
-			System.out.println("COURSE FILTER SET...");
 		}
 	}
 	
@@ -235,7 +220,6 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	
 	public void loginOpenId(String email){
 		boolean loggedIn;
-		System.out.println("Login open id called:" + email);
 		try {
 			loggedIn = authenticationService.loginOpenId(email);
 			

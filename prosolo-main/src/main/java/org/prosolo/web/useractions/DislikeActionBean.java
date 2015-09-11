@@ -7,14 +7,13 @@ import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.common.domainmodel.annotation.Annotation;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
 import org.prosolo.services.annotation.DislikeManager;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.ActivityWallData;
@@ -39,7 +38,6 @@ public class DislikeActionBean {
 
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private LikeActionBean likeActionBean;
-	@Autowired private ActivityManager activityManager;
 	@Autowired private DislikeManager dislikeManager;
 	@Autowired private DefaultManager defaultManager;
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;

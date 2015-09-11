@@ -199,7 +199,7 @@
 						<c:if test="#{publicportfolio.socialNetworksData.facebookLink != null and 
 									publicportfolio.socialNetworksData.facebookLink.length() > 0}">
 							<a href="#{publicportfolio.socialNetworksData.facebookLink}"
-								onclick="sendLogPageNavigation('#{publicportfolio.socialNetworksData.twitterLink}', 'publicprofile.${userId}.info.socialNetworks.twitter');"
+								onclick="sendLogPageNavigation('#{publicportfolio.socialNetworksData.facebookLink}', 'publicprofile.${userId}.info.socialNetworks.facebook');"
 								target="_blank" class="icon facebook active"></a>
 						</c:if>
 						<c:if test="#{publicportfolio.socialNetworksData.facebookLink == null or 
@@ -210,7 +210,7 @@
 						<c:if test="#{publicportfolio.socialNetworksData.gplusLink != null and 
 									publicportfolio.socialNetworksData.gplusLink.length() > 0}">
 							<a href="#{publicportfolio.socialNetworksData.gplusLink}"
-								onclick="sendLogPageNavigation('#{publicportfolio.socialNetworksData.twitterLink}', 'publicprofile.${userId}.info.socialNetworks.twitter');"
+								onclick="sendLogPageNavigation('#{publicportfolio.socialNetworksData.gplusLink}', 'publicprofile.${userId}.info.socialNetworks.gplus');"
 								target="_blank" class="icon gplus active"></a>
 						</c:if>
 						<c:if test="#{publicportfolio.socialNetworksData.gplusLink == null or 
@@ -221,7 +221,7 @@
 						<c:if test="#{publicportfolio.socialNetworksData.blogLink != null and 
 									publicportfolio.socialNetworksData.blogLink.length() > 0}">
 							<a href="#{publicportfolio.socialNetworksData.blogLink}"
-								onclick="sendLogPageNavigation('#{publicportfolio.socialNetworksData.twitterLink}', 'publicprofile.${userId}.info.socialNetworks.twitter');"
+								onclick="sendLogPageNavigation('#{publicportfolio.socialNetworksData.blogLink}', 'publicprofile.${userId}.info.socialNetworks.blog');"
 								target="_blank" class="icon blog active"></a>
 						</c:if>
 						<c:if test="#{publicportfolio.socialNetworksData.blogLink == null or 

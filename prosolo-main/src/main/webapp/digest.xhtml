@@ -139,18 +139,22 @@
 										There were no RSS feeds.
 									</h:panelGroup>
 									
-									<ui:repeat id="personalFeedsList" value="#{digestBean1.feedDigestData.entries}" var="feedItem" varStatus="iterator">
+									<ui:repeat id="digestEntriesList" value="#{digestBean1.feedDigestData.entries}" var="feedItem" varStatus="iterator">
 										<div class="feedContent box">
 											<div class="imgInfoContainer100">
 												<div class="atcImages">
-													<h:outputLink target="_blank" value="#{feedItem.image}" rendered="#{feedItem.image != null and feedItem.image.length() > 0}">
+													<h:outputLink target="_blank" value="#{feedItem.link}"
+														onclick="sendLogPageNavigationWithParameters('#{feedItem.link}', {context: 'digest', id: #{feedItem.id}, filter: '#{digestBean1.criteria.filter}', date: '#{digestBean1.criteria.date}', interval: '#{digestBean1.criteria.interval}'});"
+														rendered="#{feedItem.image != null and feedItem.image.length() > 0}">
 														<h:graphicImage value="#{feedItem.image}" styleClass="imgInfoContainer100" alt="#{feedItem.title}"/>
 													</h:outputLink>
 												</div>
 											</div>
 											
 											<div class="feedInfo #{(feedItem.image != null and feedItem.image.length() > 0) ? 'short' : ''}">
-												<h:outputLink styleClass="title" target="_blank" value="#{feedItem.link}">
+												<h:outputLink styleClass="title" target="_blank" 
+													onclick="sendLogPageNavigationWithParameters('#{feedItem.link}', {context: 'digest', id: #{feedItem.id}, filter: '#{digestBean1.criteria.filter}', date: '#{digestBean1.criteria.date}', interval: '#{digestBean1.criteria.interval}'});"
+													value="#{feedItem.link}">
 													<h:outputText value="#{feedItem.title}" />
 												</h:outputLink>
 												
@@ -159,7 +163,9 @@
 												</span>
 												<div class="clear"></div>
 												
-												<h:outputLink styleClass="url" target="_blank" value="#{feedItem.link}">
+												<h:outputLink styleClass="url" target="_blank" 
+													onclick="sendLogPageNavigationWithParameters('#{feedItem.link}', {context: 'digest', id: #{feedItem.id}, filter: '#{digestBean1.criteria.filter}', date: '#{digestBean1.criteria.date}', interval: '#{digestBean1.criteria.interval}'});"
+													value="#{feedItem.link}">
 													#{feedItem.link}
 												</h:outputLink>
 											</div>
@@ -187,19 +193,19 @@
 														styleClass="marginRight10 left"
 														text="#{feedItem.title}"
 														link="#{feedItem.link}"
-														context="personalFeed.#{feedItem.id}"/>
+														context="digest.#{feedItem.id}"/>
 														
 													<action:addToGoal 
 														styleClass="marginRight10 left"
 														linkTitle="#{feedItem.title}"
 														link="#{feedItem.link}"
-														context="personalFeed.#{feedItem.id}" />
+														context="digest.#{feedItem.id}" />
 														
 													<action:addToCompetence
 														styleClass="marginRight10 left"
 														linkTitle="#{feedItem.title}"
 														link="#{feedItem.link}"
-														context="personalFeed.#{feedItem.id}" />
+														context="digest.#{feedItem.id}" />
 												</div>
 											</c:if>
 										</div>

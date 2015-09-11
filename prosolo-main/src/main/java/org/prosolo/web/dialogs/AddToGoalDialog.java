@@ -27,7 +27,6 @@ import org.prosolo.web.dialogs.data.AddToGoalData;
 import org.prosolo.web.goals.GoalWallBean;
 import org.prosolo.web.goals.LearningGoalsBean;
 import org.prosolo.web.goals.cache.GoalDataCache;
-import org.prosolo.web.goals.competences.CompetenceStatusCache;
 import org.prosolo.web.goals.competences.CompetencesBean;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.useractions.PostActionBean;
@@ -52,7 +51,6 @@ public class AddToGoalDialog implements Serializable {
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private LearningGoalManager goalManager;
 	@Autowired private LearningGoalsBean goalsBean;
-	@Autowired private CompetenceStatusCache competenceStatusCache;
 	@Autowired private PostActionBean postAction;
 	@Autowired private UploadManager uploadManager;
 	@Autowired private CompetencesBean competencesBean;
@@ -88,7 +86,7 @@ public class AddToGoalDialog implements Serializable {
             @Override
             public void run() {
             	actionLogger.logServiceUse(
-        			ComponentName.EVALUATION_LIST_DIALOG, 
+        			ComponentName.ADD_TO_GOAL_DIALOG, 
         			"context", context,
         			"compId", String.valueOf(comp.getId()));
             }
@@ -104,7 +102,7 @@ public class AddToGoalDialog implements Serializable {
 	            @Override
 	            public void run() {
 	            	actionLogger.logServiceUse(
-	        			ComponentName.EVALUATION_LIST_DIALOG, 
+	        			ComponentName.ADD_TO_GOAL_DIALOG, 
 	        			"context", context,
 	        			"compId", String.valueOf(competenceId));
 	            }
@@ -202,7 +200,7 @@ public class AddToGoalDialog implements Serializable {
 	            public void run() {
 	            	postAction.fetchLinkContents(newPostData);
 	            	actionLogger.logServiceUse(
-	            			ComponentName.EVALUATION_LIST_DIALOG, 
+	            			ComponentName.ADD_TO_GOAL_DIALOG, 
 	            			"context", context,
 	            			"link", link,
 	            			"title", title);
@@ -224,7 +222,7 @@ public class AddToGoalDialog implements Serializable {
 	            public void run() {
 	            	postAction.fetchLinkContents(newPostData);
 	            	actionLogger.logServiceUse(
-	            			ComponentName.EVALUATION_LIST_DIALOG, 
+	            			ComponentName.ADD_TO_GOAL_DIALOG, 
 	            			"socialActivityId", String.valueOf(socialActivityId),
 	            			"context", context);
 	            }

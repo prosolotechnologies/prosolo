@@ -9,13 +9,12 @@ import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-//import org.prosolo.services.feeds.DiggestManager;
+import org.primefaces.context.RequestContext;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.user.preferences.FeedsPreferences;
 import org.prosolo.services.feeds.FeedFinder;
-//import org.prosolo.services.feeds.FeedsAgregator;
 import org.prosolo.services.feeds.FeedsManager;
-import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.htmlparser.HTMLParser;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.portfolio.PortfolioBean;
 import org.prosolo.web.settings.data.AddFeedSourceFormData;
@@ -40,15 +39,14 @@ public class FeedsBean {
 
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private FeedsManager feedsManager;
-	//@Autowired private FeedsAgregator feedsAgregator;
-	@Autowired private UserManager userManager;
 	@Autowired private FeedFinder feedFinder;
-	//@Autowired private DiggestManager digestManager;
-	
+	@Autowired private HTMLParser htmlParser;
+
 	public String updatePeriod = "daily";
 	
 	public List<FeedSourceData> subscribedRssSources = new ArrayList<FeedSourceData>();
-	public FeedSourceData personalBlogSource;
+	public String personalBlogSource;
+	public String personalBlogRssFeedSource;
 
 	private FeedsPreferences feedsPreferences;
 	private boolean initialisedAggregation = false;
@@ -57,7 +55,8 @@ public class FeedsBean {
 	// used to determine whether to add parsed feeds to personal blogs or to subscribed RSS feeds
 	private boolean fetchingFeedsForBlog = true;
 	
-	public AddFeedSourceFormData addFeedSourceData = new AddFeedSourceFormData();
+	public AddFeedSourceFormData addRssFeedSourceData = new AddFeedSourceFormData();
+	public AddFeedSourceFormData addBlogSourceData = new AddFeedSourceFormData();
 
 	@PostConstruct
 	public void init() {
@@ -67,8 +66,12 @@ public class FeedsBean {
 	}
 
 	private void initAllSources() {
-		if (feedsPreferences.getPersonalBlogSource() != null)
-			this.personalBlogSource = new FeedSourceData(feedsPreferences.getPersonalBlogSource());
+		if (feedsPreferences.getPersonalBlogSource() != null) {
+			this.personalBlogRssFeedSource = feedsPreferences.getPersonalBlogSource().getLink();
+		}
+		
+		PortfolioBean portfolio = PageUtil.getSessionScopedBean("portfolio", PortfolioBean.class);
+		this.personalBlogSource = portfolio.getSocialNetworksData().getBlogLink();
 
 		this.subscribedRssSources = new ArrayList<FeedSourceData>();
 		
@@ -77,49 +80,134 @@ public class FeedsBean {
 		}
 	}
 	
-	public void processFeedSource() {
-		Map<String, String> feedsUrls = feedFinder.extractFeedsFromBlog(addFeedSourceData.getLinkToAdd());
+	public void processRssFeedLink() {
+		RequestContext context = RequestContext.getCurrentInstance();  
+
+		boolean validRssLink = feedFinder.checkIfValidRssFeedLink(addRssFeedSourceData.getLinkToAdd());
 		
-		this.addFeedSourceData.setFeedSources(new ArrayList<FeedSourceData>());
-		
-		for (Entry<String, String> feedUrl : feedsUrls.entrySet()) {
-			FeedSourceData feedData = new FeedSourceData();
+		if (validRssLink) {
+			feedsPreferences = feedsManager.addSubscribedRssSource(feedsPreferences, addRssFeedSourceData.getLinkToAdd());
 			
-			String title = feedUrl.getKey();
+			initAllSources();
+
+		    context.addCallbackParam("close", true);
+			PageUtil.fireSuccessfulInfoMessage("New RSS feed is added.");
 			
-			if (title != null && title.length() > 0) {
-				feedData.setTitle(title);
-			} else {
-				feedData.setTitle(feedUrl.getValue());
+			addRssFeedSourceData = new AddFeedSourceFormData();
+		} else {
+			Map<String, String> feedsUrls = feedFinder.extractFeedsFromBlog(addRssFeedSourceData.getLinkToAdd());
+			
+			this.addRssFeedSourceData.setFeedSources(new ArrayList<FeedSourceData>());
+			
+			boolean foundSources = false;
+			
+			for (Entry<String, String> feedUrl : feedsUrls.entrySet()) {
+				FeedSourceData feedData = new FeedSourceData();
+				
+				String link = feedUrl.getValue();
+				
+				// check if there is already this link
+				for (FeedSourceData existingRss : this.subscribedRssSources) {
+					if (existingRss.getLink().equals(link)) {
+						feedData.setCanNotBeAdded(true);
+						addRssFeedSourceData.setSomeFeedsCanNotBeAdded(true);
+						break;
+					}
+				}
+				
+				String title = feedUrl.getKey();
+				
+				if (title != null && title.length() > 0) {
+					feedData.setTitle(title);
+				} else {
+					feedData.setTitle(link);
+				}
+				feedData.setLink(link);
+				
+				this.addRssFeedSourceData.getFeedSources().add(feedData);
+				
+				foundSources = true;
 			}
-			feedData.setLink(feedUrl.getValue());
 			
-			this.addFeedSourceData.getFeedSources().add(feedData);
+			if (foundSources) {
+				 context.addCallbackParam("foundSources", true);
+			} else {
+				context.addCallbackParam("noSources", true);
+			}
 		}
 	}
 	
-	public void addNewFeedSources() {
-		if (fetchingFeedsForBlog) {
-			feedsPreferences = feedsManager.addPersonalBlogSource(feedsPreferences, addFeedSourceData.getSelectedFeedSource());
+	public void addNewRSSFeedSources() {
+		feedsPreferences = feedsManager.addSubscribedRssSources(feedsPreferences, addRssFeedSourceData.getFeedSources());
+		
+		initAllSources();
 
-			initAllSources();
+		PageUtil.fireSuccessfulInfoMessage("feedsForm:feedsFormGrowl", "New RSS sources for subscribed feeds are added.");
+		addRssFeedSourceData = new AddFeedSourceFormData();
+	}
+	
+	public void processPersonalBlogLink() {
+		String newPersonalBlogLink = addBlogSourceData.getLinkToAdd();
+		
+		boolean validLink = htmlParser.checkIfValidLink(newPersonalBlogLink);
+		
+		RequestContext context = RequestContext.getCurrentInstance();  
+
+		if (validLink) {
+			this.personalBlogSource = newPersonalBlogLink;
+			context.addCallbackParam("validLink", true);
 			
-			PageUtil.fireSuccessfulInfoMessage("feedsForm:feedsFormGrowl", "New RSS sources for personal blog is added.");
+			Map<String, String> feedsUrls = feedFinder.extractFeedsFromBlog(newPersonalBlogLink);
 			
-			PortfolioBean portfolio = PageUtil.getSessionScopedBean("portfolio", PortfolioBean.class);
-			 
-			if (portfolio != null) {
-				portfolio.getSocialNetworksData().setBlogLinkEdit(this.personalBlogSource.getLink());
-				portfolio.saveSocialNetworks();
+			this.addBlogSourceData.setFeedSources(new ArrayList<FeedSourceData>());
+			
+			for (Entry<String, String> feedUrl : feedsUrls.entrySet()) {
+				FeedSourceData feedData = new FeedSourceData();
+				
+				String link = feedUrl.getValue();
+				String title = feedUrl.getKey();
+				
+				if (title != null && title.length() > 0) {
+					feedData.setTitle(title);
+				} else {
+					feedData.setTitle(link);
+				}
+				feedData.setLink(link);
+				
+				this.addBlogSourceData.getFeedSources().add(feedData);
 			}
 		} else {
-			feedsPreferences = feedsManager.addSubscribedRssSources(feedsPreferences, addFeedSourceData.getFeedSources());
-			
-			initAllSources();
-
-			PageUtil.fireSuccessfulInfoMessage("feedsForm:feedsFormGrowl", "New RSS sources for subscribed feeds are added.");
+			context.addCallbackParam("invalidLink", true);
+		}
+	}
+	
+	public void addPersonalBlog() {
+		// update personal blog rss feed
+		String newBlogRssLink = null;
+		
+		if (addBlogSourceData.getFirstSelectedFeedSource() != null) {
+			newBlogRssLink = addBlogSourceData.getFirstSelectedFeedSource().getLink();
+		} else if (personalBlogRssFeedSource != null) {
+			newBlogRssLink = personalBlogRssFeedSource;
 		}
 		
+		if (newBlogRssLink != null) {
+			feedsPreferences = feedsManager.addPersonalBlogRssSource(feedsPreferences, newBlogRssLink);
+		}
+		
+		// update personal blog link
+		PortfolioBean portfolio = PageUtil.getSessionScopedBean("portfolio", PortfolioBean.class);
+		
+		if (portfolio != null) {
+			portfolio.getSocialNetworksData().setBlogLinkEdit(this.personalBlogSource);
+			portfolio.saveSocialNetworks();
+		}
+
+		// reset the cache data
+		initAllSources();
+		addBlogSourceData = new AddFeedSourceFormData();
+		
+		PageUtil.fireSuccessfulInfoMessage("feedsForm:feedsFormGrowl", "New RSS sources for personal blog is added.");
 	}
 	
 	public void removeSubscribedRssSource(FeedSourceData feedSource) {
@@ -133,13 +221,13 @@ public class FeedsBean {
 	public void removePersonalBlogSource() {
 		feedsPreferences = feedsManager.removePersonalBlogSource(feedsPreferences);
 		
-		this.personalBlogSource = null;
+		this.personalBlogRssFeedSource = null;
 		
 		PageUtil.fireSuccessfulInfoMessage("feedsForm:feedsFormGrowl", "Feed source removed.");
 	}
 	
 	public void resetAddFeedSourceForm() {
-		this.addFeedSourceData = new AddFeedSourceFormData();
+		this.addRssFeedSourceData = new AddFeedSourceFormData();
 	}
 	
 	/*
@@ -239,18 +327,18 @@ public class FeedsBean {
 		return subscribedRssSources;
 	}
 
-	public void setSubscribedRssSources(List<FeedSourceData> subscribedRssSources) {
-		this.subscribedRssSources = subscribedRssSources;
-	}
-
-	public FeedSourceData getPersonalBlogSource() {
-		return personalBlogSource;
-	}
-
-	public void setPersonalBlogSource(FeedSourceData personalBlogSource) {
-		this.personalBlogSource = personalBlogSource;
+	public String getPersonalBlogSource() {
+		return personalBlogRssFeedSource;
 	}
 	
+	public void setPersonalBlogRssFeedSource(String personalBlogRssFeedSource) {
+		this.personalBlogRssFeedSource = personalBlogRssFeedSource;
+	}
+
+	public String getPersonalBlogRssFeedSource() {
+		return personalBlogRssFeedSource;
+	}
+
 	public String getUpdatePeriod() {
 		return updatePeriod;
 	}
@@ -275,8 +363,12 @@ public class FeedsBean {
 		this.initialisedAggregation = initialisedAggregation;
 	}
 	
-	public AddFeedSourceFormData getAddFeedSourceData() {
-		return addFeedSourceData;
+	public AddFeedSourceFormData getAddRssFeedSourceData() {
+		return addRssFeedSourceData;
+	}
+	
+	public AddFeedSourceFormData getAddBlogSourceData() {
+		return addBlogSourceData;
 	}
 
 	public boolean isFetchingFeedsForBlog() {

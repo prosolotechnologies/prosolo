@@ -374,6 +374,10 @@ input[type="radio"], input[type="checkbox"]{
   margin-bottom: 10px;
 }
 
+.marginBottom5 {
+  margin-bottom: 5px;
+}
+
 .marginBottom20 {
   margin-bottom: 20px;
 }
@@ -1457,14 +1461,6 @@ h1 a:hover{
 #messagesForm {
   font-size: 18px;
 }
-
-#notificationForm div input,
-#messagesForm div input {
-  font-size: 18px;
-  padding: 5px;
-  width: 320px;
-}
-
 #notifications,
 #messages {
   position: absolute;
@@ -1474,7 +1470,6 @@ h1 a:hover{
   display: none;
   text-align: left;
   float: left;
-  /*background-color: #519dd8;*/
   border: #919191 1px solid;
   border-top: none;
   -webkit-border-radius: 2px;
@@ -1489,10 +1484,10 @@ h1 a:hover{
 }
 
 /* SEARCHRESULTS */
-#notifications .notificationsresults,
+#notifications .notificationsContainer,
 #messages .messagesContainer {
   width: 320px;
-  /*background-color: #519dd8;*/
+  background-color: #fff;
   font-size: 10px;
   line-height: 14px;
   -webkit-border-radius: 2px;
@@ -1500,7 +1495,7 @@ h1 a:hover{
   border-radius: 2px;
 }
 
-#notifications .notificationsresults .category,
+#notifications .category,
 #messages .category {
   font-size: 11px;
   padding: 5px;
@@ -1509,60 +1504,72 @@ h1 a:hover{
   background-color: #519DD8;
 }
 
-#notifications .notificationsresults .itemsContainer,
+#notifications .itemsContainer,
 #messages .itemsContainer,
 #messageThreads .itemsContainer {
 	width: 100%;
 	display: inline-block;
+    float: left;
 }
 
-#notifications .notificationsresults .noResults,
-#notifications .notificationsresults .seeAll,
+#notifications .noResults,
+#notifications .seeAll,
 #messages .noResults,
 #messages .seeAll {
   display: block;
   text-align: left;
   padding: 5px 0;
-  color: #ffffff;
   font-size: 11px;
 }
 
-#notifications .notificationsresults .noResults,
+#notifications .noResults,
 #messages .noResults {
+  color: #A1A1A1;
   padding-left: 10px;
   border-bottom: #919191 1px solid;
   font-weight: bold;
   cursor: default;
 }
 
-#notifications .notificationsresults .seeAll,
+#notifications .seeAll,
 #messages .seeAll {
   text-align: center;
   padding: 5px 0;
   background-color: #519DD8;
+  color: #ffffff;
 }
 
-#notifications .notificationsresults .seeAll:hover,
+#notifications .seeAll:hover,
 #messages .seeAll:hover {
   text-decoration: underline;
 }
 
+/*
 #notifications .notificationsresults .seperator a {
   background-color: transparent;
   display: block;
   height: auto;
   color: #ffffff;
 }
+*/
 
-#notifications .notificationsresults .notificationsitem,
+#notifications .itemsContainer .item,
 #messages .itemsContainer .item,
 #messageThreads .itemsContainer .item {
+  float: left;
   cursor: pointer;
   width: 100%;
   display: inline-block;
   padding: 3px 0;
   border-bottom: #E5E5E5 1px solid;
   color: #a1a1a1;
+  background: #f5f5f5;
+}
+
+#notifications .itemsContainer .item.selected,
+#messages .itemsContainer .item.selected,
+#messageThreads .itemsContainer .item.selected {
+  background-color: #ffffff;
 }
 
 #messageThreads .itemsContainer .item {
@@ -1572,23 +1579,18 @@ h1 a:hover{
 	font-weight: normal;
 }
 
-#notifications .notificationsresults .notificationsitem,
-#messages .itemsContainer .item {
-  background-color: #ffffff;
-}
-
-#notifications .notificationsresults .notificationsitem.unread,
-#messages .itemsContainer .item .unread {
+#notifications .itemsContainer .item.unread,
+#messages .itemsContainer .item.unread {
   background-color: #EDF0F5;
   color: #555;
 }
 
-#notifications .notificationsresults .notificationsitem:hover,
-#messages .itemsContainer .item :hover {
+#notifications .itemsContainer .item:hover,
+#messages .itemsContainer .item:hover {
   background-color: #D7EEFF;
 }
 
-#notifications .notificationsresults .notificationsitem .contentContainer,
+#notifications .itemsContainer .item .contentContainer,
 #messages .itemsContainer .item .contentContainer,
 #messageThreads .itemsContainer .item .contentContainer {
   float: left;
@@ -1601,28 +1603,29 @@ h1 a:hover{
 	width: 190px;
 }
 
-#notifications .notificationsresults .notificationsitem .contentContainer .user,
+#notifications .itemsContainer .item .contentContainer .user,
 #messages .itemsContainer .item .user,
 #messageThreads .item .user {
   font-weight: bold;
   color: #136DB2;
   text-decoration: none;
-  width: 180px;
   display: inline-block;
 }
 
-#messageThreads .item .user {
-  width: 120px;
-}
-
-#notifications .notificationsresults .links,
+#notifications .itemsContainer .item .links,
 #messages .itemsContainer .item .links {
 	color: #136DB2;
 	text-decoration: none;
 	font-size: 12px;
+	width: 135px;
+	float: left;
 }
 
-#notifications .notificationsresults .notificationsitem .image-wrap,
+#notifications .itemsContainer .item .links .inactive {
+	color: #A1A1A1;
+}
+
+#notifications .itemsContainer .item .image-wrap,
 #messages .itemsContainer .item .image-wrap,
 #messageThreads .itemsContainer .item .image-wrap {
   float: left;
@@ -1639,23 +1642,23 @@ h1 a:hover{
 	display: inherit;
 }
 
-#notifications .notificationsresults .notificationsitem .name,
+#notifications .itemsContainer .item .name,
 #messages .itemsContainer .item .name,
 #messageThreads .itemsContainer .item .name {
   font-weight: bold;
 }
 
-#notifications .notificationsresults .notificationsitem p {
+#notifications .itemsContainer .item p {
   line-height: 15px;
   margin-bottom: 10px;
 }
 
-#notifications .notificationsresults .notificationsitem .button {
+#notifications .itemsContainer .item .button {
   float: right;
   margin-top: 5px;
 }
 
-#notifications .notificationsresults .notificationsitem .time,
+#notifications .itemsContainer .item .time,
 #messages .itemsContainer .item .time,
 #messageThreads .itemsContainer .item .time {
   float: right;
@@ -2082,8 +2085,7 @@ h1 a:hover{
 }
 
 .genericSearchContainer .category,
-.newExternalCredit .competenceSearchContainer .count,
-#notifications .notificationsresults span.category {
+.newExternalCredit .competenceSearchContainer .count {
   font-size: 11px;
   padding: 5px;
   display: block;
@@ -2092,7 +2094,6 @@ h1 a:hover{
 
 .genericSearchContainer .category a,
 .newExternalCredit .competenceSearchContainer .count a,
-#notifications .notificationsresults span.category a,
 .sideRecommendedComp .competenceSearchContainer .count a, 
 .externalCredit .competenceSearchContainer .count a {
   color: #ffffff;
@@ -7786,15 +7787,24 @@ a.iconUnCheck:hover {
 }
 
 /* Used on Settings: Feeds page */
-#addLinkSourceModalDialog .linkToAdd {
-	width: 362px;
+#newRssModalDialog .linkToAdd,
+#newBlogModalDialog .linkToAdd {
+	width: 365px;
+    float: left;
 }
 
-#addLinkSourceModalDialog table {
+#newRssModalDialog .actions,
+#newBlogModalDialog .actions {
+	float: right;
+}
+
+#newRssModalDialog table,
+#newBlogModalDialog table {
 	margin: 10px 0;
 }
 
-#addLinkSourceModalDialog table td {
+#newRssModalDialog table td,
+#newBlogModalDialog table td {
 	padding: 5px;
 }
 

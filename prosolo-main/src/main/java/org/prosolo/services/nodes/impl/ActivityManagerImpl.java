@@ -323,6 +323,19 @@ public class ActivityManagerImpl extends AbstractManagerImpl implements	Activity
 		return saveEntity(activity);
 	}
 	
-
+	@Override
+	@Transactional (readOnly = true)
+	public List<Activity> getMockActivities(int limit) {
+		String query = 
+			"SELECT DISTINCT activity " +
+			"FROM Activity activity ";
+		
+		@SuppressWarnings("unchecked")
+		List<Activity> result = persistence.currentManager().createQuery(query)
+			.setMaxResults(limit)
+			.list();
+		
+		return result;
+	}
 
 }

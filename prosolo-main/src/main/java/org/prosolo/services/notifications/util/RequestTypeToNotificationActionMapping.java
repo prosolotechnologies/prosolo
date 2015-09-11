@@ -26,9 +26,6 @@ public class RequestTypeToNotificationActionMapping {
 			case EVALUATION_GIVEN:
 				actions.add(NotificationAction.VIEW);
 				break;
-//			case EVALUATION_EDITED:
-//				actions.add(NotificationAction.VIEW);
-//				break;
 			case JOIN_GOAL_REQUEST:
 				actions.add(NotificationAction.ACCEPT);
 				actions.add(NotificationAction.DENY);

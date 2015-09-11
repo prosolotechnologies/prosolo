@@ -13,8 +13,6 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.ESIndexNames;
 import org.prosolo.services.indexing.UserEntityESService;
-import org.prosolo.services.nodes.DefaultManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,8 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl implements UserEntityESService{
 	
 	private static Logger logger = Logger.getLogger(UserEntityESService.class);
-	
-	@Autowired private DefaultManager defaltManager;
 	
 	@Override
 	@Transactional

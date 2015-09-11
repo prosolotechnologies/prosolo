@@ -11,6 +11,8 @@ import org.prosolo.web.activitywall.data.AttachmentPreview;
  */
 public interface HTMLParser {
 
+	boolean checkIfValidLink(String link);
+
 	AttachmentPreview parseUrl(String pageUrl);
 
 	AttachmentPreview parseUrl(String pageUrl, boolean withImages);

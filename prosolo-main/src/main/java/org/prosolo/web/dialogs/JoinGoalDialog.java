@@ -12,7 +12,6 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.LearningGoalManager;
-import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.NodeData;
 import org.prosolo.web.activitywall.data.UserData;
 import org.prosolo.web.notification.TopNotificationsBean;
@@ -32,7 +31,6 @@ public class JoinGoalDialog implements Serializable {
 
 	private static Logger logger = Logger.getLogger(JoinGoalDialog.class);
 	
-	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private LearningGoalManager goalManager;
 	
 	private NotificationData notificationData;

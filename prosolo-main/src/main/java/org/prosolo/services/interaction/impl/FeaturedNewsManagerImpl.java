@@ -15,8 +15,6 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.FeaturedNewsManager;
-import org.prosolo.services.nodes.DefaultManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,8 +27,6 @@ public class FeaturedNewsManagerImpl extends AbstractManagerImpl implements	Feat
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(FeaturedNewsManager.class);
 	
-	@Autowired private DefaultManager defaultManager;
-
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public LearningGoalFeaturedNews createPublicFeaturedNewsForEvent(Event event, Session session) {

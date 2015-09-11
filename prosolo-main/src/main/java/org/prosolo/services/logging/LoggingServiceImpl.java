@@ -234,19 +234,19 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 				logObject.put("parameters", parametersObject);
 			}
 
-			logger.trace("\n timestamp: " + logObject.get("timestamp") + 
-		 			"\n eventType: " + logObject.get("eventType") + 
-		 			"\n actorId: " + logObject.get("actorId") + 
-		 			"\n actorFullname: " + logObject.get("actorFullname") + 
-		 			"\n objectType: " + logObject.get("objectType") + 
-		 			(((Long) logObject.get("objectId")) > 0 ? "\n objectId: " + logObject.get("objectId") : "") + 
-		 			(logObject.get("objectTitle") != null ? "\n objectTitle: " + logObject.get("objectTitle") : "") + 
-		 			(logObject.get("targetType") != null ? "\n targetType: " + logObject.get("targetType") : "") + 
-					(((Long) logObject.get("targetId")) > 0 ? "\n targetId: " + logObject.get("targetId") : "") + 
-					(logObject.get("reasonType") != null ? "\n reasonType: " + logObject.get("reasonType") : "") + 
-					(((Long) logObject.get("reasonId")) > 0 ? "\n reasonId: " + logObject.get("reasonId") : "") + 
-					(logObject.get("link") != null ? "\n link: " + logObject.get("link") : "") +
-				 	"\n parameters: " + logObject.get("parameters"));
+			logger.debug("\ntimestamp: " + logObject.get("timestamp") + 
+		 			"\neventType: " + logObject.get("eventType") + 
+		 			"\nactorId: " + logObject.get("actorId") + 
+		 			"\nactorFullname: " + logObject.get("actorFullname") + 
+		 			"\nobjectType: " + logObject.get("objectType") + 
+		 			(((Long) logObject.get("objectId")) > 0 ? "\nobjectId: " + logObject.get("objectId") : "") + 
+		 			(logObject.get("objectTitle") != null ? "\nobjectTitle: " + logObject.get("objectTitle") : "") + 
+		 			(logObject.get("targetType") != null ? "\ntargetType: " + logObject.get("targetType") : "") + 
+					(((Long) logObject.get("targetId")) > 0 ? "\ntargetId: " + logObject.get("targetId") : "") + 
+					(logObject.get("reasonType") != null ? "\nreasonType: " + logObject.get("reasonType") : "") + 
+					(((Long) logObject.get("reasonId")) > 0 ? "\nreasonId: " + logObject.get("reasonId") : "") + 
+					(logObject.get("link") != null ? "\nlink: " + logObject.get("link") : "") +
+				 	"\nparameters: " + logObject.get("parameters"));
 			logsMessageDistributer.distributeMessage(logObject);
 				
 			try {

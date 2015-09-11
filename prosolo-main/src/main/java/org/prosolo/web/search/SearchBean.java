@@ -8,8 +8,6 @@ import java.io.Serializable;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-import org.prosolo.web.LoggedUserBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -26,8 +24,6 @@ public class SearchBean implements Serializable {
 
 	protected static Logger logger = Logger.getLogger(SearchBean.class);
 
-	@Autowired private LoggedUserBean loggedUser;
-	
 	private SearchMenuOptions selectedMenu = SearchMenuOptions.competences;
 	
 	/*

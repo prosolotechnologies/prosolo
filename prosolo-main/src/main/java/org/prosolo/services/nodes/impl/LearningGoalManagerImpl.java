@@ -1,6 +1,5 @@
 package org.prosolo.services.nodes.impl;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -37,13 +36,11 @@ import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.interaction.PostManager;
 import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.PortfolioManager;
 import org.prosolo.services.nodes.ResourceFactory;
-import org.prosolo.services.twitter.TwitterStreamsManager;
 import org.prosolo.util.nodes.AnnotationUtil;
 import org.prosolo.util.nodes.NodeUtil;
 import org.prosolo.web.activitywall.data.AttachmentPreview;
@@ -64,8 +61,6 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 	@Autowired private ActivityManager activityManager;
 	@Autowired private CompetenceManager compManager;
 	@Autowired private PortfolioManager portfolioManager;
-	@Autowired private PostManager postManager;
-	//@Autowired private TwitterStreamsManager twitterStreamsManager;
 	
 	@Override
 	@Transactional
@@ -524,6 +519,15 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 			return newTargetActivity;
 		}
 		return null;
+	}
+	
+	@Override
+	@Transactional (readOnly = false)
+	public TargetActivity addActivityToTargetCompetence(User user, long targetCompetenceId, long activityId, String context) 
+			throws EventException, ResourceCouldNotBeLoadedException {
+		
+		Activity activity = loadResource(Activity.class, activityId);
+		return addActivityToTargetCompetence(user, targetCompetenceId, activity, context);
 	}
 	
 	@Override

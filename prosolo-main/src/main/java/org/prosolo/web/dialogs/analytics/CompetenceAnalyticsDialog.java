@@ -1,4 +1,4 @@
-package org.prosolo.web.dialogs.analutics;
+package org.prosolo.web.dialogs.analytics;
 
 import java.io.Serializable;
 
@@ -6,7 +6,6 @@ import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
 import org.prosolo.services.logging.ComponentName;
-import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.goals.competences.CompetenceAnalyticsBean;
 import org.prosolo.web.goals.data.CompetenceAnalyticsData;
 import org.prosolo.web.logging.LoggingNavigationBean;
@@ -24,8 +23,6 @@ public class CompetenceAnalyticsDialog implements Serializable {
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(CompetenceAnalyticsDialog.class);
 	
-	@Autowired private LoggedUserBean loggedUser;
-
 	@Autowired private CompetenceAnalyticsBean competenceAnalyticsBean;
 	@Autowired private LoggingNavigationBean actionLogger;
 	

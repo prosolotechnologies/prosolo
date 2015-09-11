@@ -29,7 +29,6 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interaction.AnalyticalServiceCollector;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.twitter.TwitterApiManager;
-import org.prosolo.services.twitter.TwitterStreamsManager;
 import org.prosolo.services.twitter.UserOauthTokensManager;
 import org.prosolo.util.nodes.AnnotationUtil;
 import org.prosolo.web.LoggedUserBean;

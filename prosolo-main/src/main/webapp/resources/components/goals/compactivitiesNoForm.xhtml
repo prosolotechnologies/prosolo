@@ -10,7 +10,8 @@
 	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
 	xmlns:socialWall="http://java.sun.com/jsf/composite/components/socialWall"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-	xmlns:post="http://java.sun.com/jsf/composite/components/post">
+	xmlns:post="http://java.sun.com/jsf/composite/components/post"
+	xmlns:pt="http://java.sun.com/jsf/passthrough">
 
 	<!-- 
 		actionBean: must have method for adding an activity to a competence with the following signature:
@@ -50,24 +51,25 @@
 				There are no activities for this competence.
 			</h:panelGroup>
 			<ui:repeat id="activitiesRepeat" value="#{cc.attrs.allActivities}" var="actIterator" varStatus="actIteratorStatus">
-				<h:panelGroup layout="block" id="act" class="act act#{actIteratorStatus.index} #{cc.attrs.activityStyleClass}">
+				
+				<ui:param name="contextRoot" value="#{cc.attrs.context}.targetActivity.#{actIterator.id}" />
+			
+				<h:panelGroup layout="block" id="act" class="act act#{actIteratorStatus.index} #{cc.attrs.activityStyleClass}" pt:context="#{contextRoot}">
 						
 					<div class="actStatus">
 						
 						<h:panelGroup id="completedAction" rendered="#{!cc.attrs.readOnly}">
 							<p:commandLink rendered="#{!actIterator.completed}"
 								styleClass="iconUnCheck"
-								action="#{compwall.completeActivity(actIterator)}"
+								action="#{compwall.completeActivity(actIterator, contextRoot)}"
 								process="@this"
-								update="completedAction :goalDetails :activities:competenceDetails"
-								/>
+								update="completedAction :goalDetails :activities:competenceDetails" />
 								
 							<p:commandLink rendered="#{actIterator.completed}"
 								styleClass="iconCheck"
-								action="#{compwall.uncompleteActivity(actIterator)}"
+								action="#{compwall.uncompleteActivity(actIterator, contextRoot)}"
 								process="@this"
-								update="completedAction :goalDetails :activities:competenceDetails"
-							/>
+								update="completedAction :goalDetails :activities:competenceDetails" />
 						</h:panelGroup>
 						
 						<h:panelGroup rendered="#{cc.attrs.readOnly}">
@@ -89,7 +91,7 @@
 							<ul class="actOpt">
 								<li>
 									<a href="javascript:void(0);" 
-										onclick="sendServiceUse('MOUSE_CLICK', {context: '#{''.concat(cc.attrs.context).concat('.activity.').concat(actIterator.id)}', link: 'optionsOpen'})"
+										onclick="sendServiceUse('MOUSE_CLICK', {context: '#{contextRoot}', link: 'optionsOpen'})"
 										class="actOptArrow">postopt</a>
 									
 									<div class="dropdown hidden">
@@ -107,7 +109,7 @@
 											<li>
 												<p:commandLink
 													onclick="prosolo.overlay.activate();"
-													action="#{compwall.deleteActivity(actIterator)}"
+													action="#{compwall.deleteActivity(actIterator, contextRoot)}"
 													process="@this"
 													update=":#{cc.clientId}:activityWallGrowl #{cc.attrs.updateAfterDelete} 
 														:activities:competenceDetails :goalDetails"
@@ -142,7 +144,7 @@
 							width="380"
 							toRender="#{actIterator.attachmentPreview.contentType != 'UPLOAD_ASSIGNMENT'}"
 							uniqueParentSelector=".#{cc.attrs.value} .act#{actIteratorStatus.index}"
-							context="#{cc.attrs.context}.activity.#{actIterator.id}" />
+							context="#{contextRoot}" />
 							
 						<socialWall:uploadAssignment
 							activityData="#{actIterator}"
@@ -150,25 +152,26 @@
 							handleFileUploadSelector="#assignementUploadControl .ui-fileupload input"
 							toRender="#{actIterator.attachmentPreview.contentType == 'UPLOAD_ASSIGNMENT'}"
 							updateAfterAssignmentChange=":#{cc.clientId}:#{cc.attrs.value} :goalDetails :activities:competenceDetails"
-							context="#{cc.attrs.context}.activity.#{actIterator.id}" />
+							uniqueParentSelector=".#{cc.attrs.value} .act#{actIteratorStatus.index}"
+							context="#{contextRoot}" />
 						
 						<socialWall:externalTool
 							activityData="#{actIterator}"
 							containerClass=".#{cc.attrs.value} .actBlock"
 							toRender="#{actIterator.isType('EXTERNALTOOL')}"
-							context="#{cc.attrs.context}.activity.#{actIterator.id}" />
+							context="#{contextRoot}" />
 						
 						<h:panelGroup layout="block" id="actions" class="links">
 							<p:commandLink
 								rendered="#{!actIterator.liked}"
-								action="#{likeaction.likeActivity(actIterator, ''.concat(cc.attrs.context).concat('.activity.').concat(actIterator.id))}"
+								action="#{likeaction.likeActivity(actIterator, contextRoot)}"
 								process="@this"
 								update="actions actionCount">
 								Like
 							</p:commandLink>
 							<p:commandLink
 								rendered="#{actIterator.liked}"
-								action="#{likeaction.removeLikeActivity(actIterator, ''.concat(cc.attrs.context).concat('.activity.').concat(actIterator.id))}"
+								action="#{likeaction.removeLikeActivity(actIterator, contextRoot)}"
 								process="@this"
 								update="actions actionCount">
 								Unike
@@ -176,14 +179,14 @@
 							<span></span>
 							<p:commandLink
 								rendered="#{!actIterator.disliked}"
-								action="#{dislikeAction.dislikeActivity(actIterator, ''.concat(cc.attrs.context).concat('.activity.').concat(actIterator.id))}"
+								action="#{dislikeAction.dislikeActivity(actIterator, contextRoot)}"
 								process="@this"
 								update="actions actionCount">
 								Dislike
 							</p:commandLink>
 							<p:commandLink
 								rendered="#{actIterator.disliked}"
-								action="#{dislikeAction.removeDislikeActivity(actIterator, ''.concat(cc.attrs.context).concat('.activity.').concat(actIterator.id))}"
+								action="#{dislikeAction.removeDislikeActivity(actIterator, contextRoot)}"
 								process="@this"
 								update="actions actionCount">
 								Remove dislike
@@ -193,7 +196,7 @@
 							<action:post 
 								activityId="#{actIterator.activity.id}"
 								resetStyle="true"
-								context="#{cc.attrs.context}.activity.#{actIterator.id}"/>
+								context="#{contextRoot}"/>
 							
 							<ui:remove>
 								<span></span>
@@ -204,6 +207,7 @@
 								rendered="#{!cc.attrs.readOnly}"
 								process="@this"
 								styleClass="right relatedActButton"
+								onclick="sendServiceUse('MOUSE_CLICK', {context: '#{contextRoot}.relatedActivities', link: 'open'});"
 								update="actions">
 								Related Actiities
 							</p:commandLink>
@@ -295,7 +299,7 @@
 										<post:comment 
 											commentData="#{commentIterator}" 
 											idPrefix="#{iterator.index}I#{commentIteratorStatus.index}"
-											context="#{cc.attrs.context}.activity.#{actIterator.id}"
+											context="#{contextRoot}"
 											styleClass="#{actIterator.comments.size() - commentIteratorStatus.index > 2 ? 'collapsible' : ''}" />
 									</ui:repeat>
 									
@@ -330,7 +334,7 @@
 												</p:commandLink>
 												
 												<a class="cancelButton button gray size25"
-													onclick="sendServiceUse('MOUSE_CLICK', {context: '#{cc.attrs.context}.activity.#{actIterator.id}.newComment', link: 'cancel'})">Cancel</a>
+													onclick="sendServiceUse('MOUSE_CLICK', {context: '#{contextRoot}.newComment', link: 'cancel'})">Cancel</a>
 											</div>
 											<div class="clear"></div>
 										</div>
@@ -346,15 +350,13 @@
 						<h:panelGroup layout="block" id="relatedActsFormContainer"
 							class="relatedActs" style="display: none;">
 							
-							<ui:param name="contextRoot" value="learn.targetGoal.#{learninggoals.selectedGoalData.data.targetGoalId}.targetComp.#{learninggoals.selectedGoalData.selectedCompetence.data.id}.relatedActivities" />
-							
 							<a class="closeIcon"
-								onclick="$('.goalsPage .relatedActs').fadeOut();"></a>
+								onclick="$('.goalsPage .relatedActs').fadeOut();sendServiceUse('MOUSE_CLICK', {context: '#{contextRoot}.relatedActivities', link: 'close'});"></a>
 							<h3>
 								Related Activities
 								<utilcomp:infotooltip 
 									position="RELATED_ACTIVITIES" 
-									context="#{contextRoot}" />
+									context="#{contextRoot}.relatedActivities" />
 							</h3>
 							<div class="clear"></div>
 						
@@ -388,11 +390,11 @@
 													activityId="#{relatedAct.activity.id}"
 													styleClass="button green size20 left"
 													title="Details"  
-													context="#{contextRoot}.details" />
+													context="#{contextRoot}.relatedActivities.#{relatedAct.activity.id}.details" />
 												
 												<p:commandLink styleClass="button green size20 left" 
 													value="Add Activity"
-													action="#{compwall.connectActivityById(relatedAct.activity.id, contextRoot.concat('.addButton'))}"
+													action="#{compwall.connectActivityById(relatedAct.activity.id, cc.attrs.context.concat('.activity.').concat(actIterator.id).concat('.relatedActivities.').concat(relatedAct.activity.id).concat('.addButton'))}"
 													process="@this"
 													oncomplete="refreshCompetenceActivityWall();" />
 											</div>
@@ -427,7 +429,27 @@
 				
 				$('.expandable').shortenedText({showChar: 150});
 				$('.actBlock .richContent .atcUrl').shortenedText({showChar: 35, mode: 'static'});
-				$('.actBlock .richContent .atcDesc, .actBlock .description').shortenedText({showChar: 250, mode: 'link'});
+				$('.actBlock .description').shortenedText({
+					showChar: 250, 
+					mode: 'link',
+					moreCallback: function(){
+						sendServiceUse('MOUSE_CLICK', {context: 'learningProgress.ongoingLearning', link: 'more'});
+					},
+					lessCallback: function(){
+						sendServiceUse('MOUSE_CLICK', {context: 'learningProgress.ongoingLearning', link: 'less'});
+					}
+				});
+				$('.actBlock .richContent .atcDesc').shortenedText({
+					showChar: 250, 
+					mode: 'link',
+					moreCallback: function(){
+						
+						sendServiceUse('MOUSE_CLICK', {context: 'learningProgress.ongoingLearning', link: 'more'});
+					},
+					lessCallback: function(){
+						sendServiceUse('MOUSE_CLICK', {context: 'learningProgress.ongoingLearning', link: 'less'});
+					}
+				});
 				
 				$('.act div.addCommentBox').newcomment({
 					watermark:'Add a comment',

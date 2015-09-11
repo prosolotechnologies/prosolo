@@ -19,7 +19,6 @@ import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.home.data.RecommendationData;
 import org.prosolo.web.home.util.RecommendationConverter;
-import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.search.SearchSuggestedLearningBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -36,9 +35,6 @@ public class SuggestedLearningBean implements Serializable {
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private SuggestedLearningService suggestedLearningService;
 	@Autowired private RecommendationConverter recommendationConverter;
-	@Autowired private LoggingNavigationBean loggingNavigationBean;
-	//@Autowired private SuggestedLearningActionBean suggestedLearningActionBean;
-	//@Autowired private SearchSuggestedLearningBean searchSuggestedLearningBean;
 	@Autowired private NodeRecommendationManager recommendationManager;
 	@Autowired private ApplicationBean applicationBean;
 

@@ -9,7 +9,9 @@
 	<h:panelGroup layout="block" id="userDetailsTooltip" class="userDetailsTooltip">
 		<div class="userDetails tooltip user#{userDetailsBean.userData.id}" >
 			<div class="avatarContainer">
-				<h:link class="userDetailsLink"	rendered="#{userDetailsBean.userData.profileUrl == null or userDetailsBean.userData.profileUrl.length() == 0}"
+				<h:link class="userDetailsLink"
+					onclick="sendLogPageNavigation('/publicprofile.xhtml?user=#{userDetailsBean.userData.id}','userDetails');"
+					rendered="#{userDetailsBean.userData.profileUrl == null or userDetailsBean.userData.profileUrl.length() == 0}"
 					outcome="/publicprofile" >
 					<f:param name="user" value="#{userDetailsBean.userData.id}" />
 					
@@ -22,6 +24,7 @@
 
 				<h:outputLink
 					rendered="#{userDetailsBean.userData.profileUrl.length() > 0}"
+					onclick="sendLogPageNavigation('#{userDetailsBean.userData.profileUrl}','userDetails');"
 					class="userDetailsLink"
 					value="#{userDetailsBean.userData.profileUrl}" 
 					target="_blank">
@@ -37,12 +40,15 @@
 			<div class="infoContainer">
 				<h2 class="name">
 					<h:link rendered="#{userDetailsBean.userData.profileUrl == null or userDetailsBean.userData.profileUrl.length() == 0}"
-						value="#{userDetailsBean.userData.name}" outcome="/publicprofile" >
+						value="#{userDetailsBean.userData.name}" 
+						onclick="sendLogPageNavigation('/publicprofile.xhtml?user=#{userDetailsBean.userData.id}','userDetails');"
+						outcome="/publicprofile" >
 		                <f:param  name="user" value="#{userDetailsBean.userData.id}" />  
 		            </h:link>
 
 		            <h:outputLink rendered="#{userDetailsBean.userData.profileUrl != null}"
-						value="#{userDetailsBean.userData.profileUrl}" 
+						value="#{userDetailsBean.userData.profileUrl}"
+						onclick="sendLogPageNavigation('#{userDetailsBean.userData.profileUrl}','userDetails');"
 						target="_blank">
 						
 						#{userDetailsBean.userData.name}
