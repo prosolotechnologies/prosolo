@@ -53,9 +53,10 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 		//finally{
 			//session.close();
 		//}
-		System.out.println("RESULTS:"+result.size());
+		
 
 		if (result != null) {
+			System.out.println("RESULTS:"+result.size());
 			return result;
 		}
 		return new ArrayList<Long>();

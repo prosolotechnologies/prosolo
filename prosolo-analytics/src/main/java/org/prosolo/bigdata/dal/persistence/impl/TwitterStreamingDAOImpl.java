@@ -13,6 +13,7 @@ import java.util.Set;
 import javax.persistence.NoResultException;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
 import org.prosolo.bigdata.dal.persistence.HibernateUtil;
 import org.prosolo.bigdata.dal.persistence.TwitterStreamingDAO;
 import org.prosolo.bigdata.twitter.StreamListData;
@@ -40,11 +41,10 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 
 	public TwitterStreamingDAOImpl() {
 		super();
-		setSession(HibernateUtil.getSessionFactory().openSession());
 	}
 
 	@Override
-	public Map<String, StreamListData> readAllHashtagsAndLearningGoalsIds() {
+	public Map<String, StreamListData> readAllHashtagsAndLearningGoalsIds(Session session) {
 		// EntityManager em =
 		// org.prosolo.bigdata.dal.persistence.EntityManagerUtil.getEntityManagerFactory()
 		// .createEntityManager();
@@ -82,7 +82,7 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 	}
 
 	@Override
-	public Map<String, List<Long>> readAllUserPreferedHashtagsAndUserIds() {
+	public Map<String, List<Long>> readAllUserPreferedHashtagsAndUserIds(Session session) {
 		// EntityManager em =
 		// org.prosolo.bigdata.dal.persistence.EntityManagerUtil.getEntityManagerFactory()
 		// .createEntityManager();
@@ -123,8 +123,7 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 			String postLink, long tweetId, String creatorName,
 			String screenName, String userUrl, String profileImage,
 			String text, VisibilityType visibility,
-			Collection<String> hashtags, boolean toSave) {
-		System.out.println("CREATE NEW TWITTER POST:"+toSave);
+			Collection<String> hashtags, boolean toSave, Session session) {
 		TwitterPost twitterPost = new TwitterPost();
 		// twitterPost.setTitle(text);
 		twitterPost.setDateCreated(created);
@@ -133,7 +132,7 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 			twitterPost.setMaker(maker);
 		}
 		twitterPost.setContent(text);
-		twitterPost.setHashtags(getOrCreateTags(hashtags));
+		twitterPost.setHashtags(getOrCreateTags(hashtags,session));
 		twitterPost.setVisibility(visibility);
 		twitterPost.setTweetId(tweetId);
 		twitterPost.setCreatorName(creatorName);
@@ -141,18 +140,16 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 		twitterPost.setUserUrl(userUrl);
 		twitterPost.setProfileImage(profileImage);
 		if (toSave) {
-			System.out.println("SAVING TWITTER POST");
-			twitterPost = (TwitterPost) save(twitterPost);
-			System.out.println("SAVED TWITTER POST");
+			 save(twitterPost,session);
 		}
+		
 		return twitterPost;
 	}
 
 	@Override
-	public SocialActivity createTwitterPostSocialActivity(TwitterPost tweet) {
+	public SocialActivity createTwitterPostSocialActivity(TwitterPost tweet, Session session) {
 		User actor = tweet.getMaker();
 		EventType action = EventType.TwitterPost;
-		System.out.println("CREATE TWITTER POST SOCIAL ACTIVITY");
 		TwitterPostSocialActivity twitterPostSA = new TwitterPostSocialActivity();
 
 		if (actor instanceof AnonUser) {
@@ -182,43 +179,42 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 		twitterPostSA.setHashtags(newCollection);
 		twitterPostSA.setVisibility(VisibilityType.PUBLIC);
 
-		twitterPostSA = (TwitterPostSocialActivity) save(twitterPostSA);
+		save(twitterPostSA,session);
 		return twitterPostSA;
 	}
 
-	public Set<Tag> getOrCreateTags(Collection<String> titles) {
+	public Set<Tag> getOrCreateTags(Collection<String> titles, Session session) {
 		Set<Tag> tags = new HashSet<Tag>();
 
 		if (titles != null) {
 			for (String t : titles) {
-				tags.add(getOrCreateTag(t));
+				tags.add(getOrCreateTag(t, session));
 			}
 		}
 
 		return tags;
 	}
 
-	public Tag getOrCreateTag(String title) {
+	public Tag getOrCreateTag(String title, Session session) {
 
-		Tag tag = getTag(title);
+		Tag tag = getTag(title, session);
 
 		if (tag != null) {
-			return (Tag) merge(tag);
+			return (Tag) session.merge(tag);
 		} else {
-			return createTag(title);
+			return createTag(title, session);
 		}
 	}
 
-	public Tag createTag(String title) {
-		System.out.println("CREATE NEW TAG:"+title);
+	public Tag createTag(String title, Session session) {
 		Tag newTag = new Tag();
 		newTag.setTitle(title);
-		newTag = (Tag) save(newTag);
+		  save(newTag,session);
 		return newTag;
 	}
 
 	@SuppressWarnings("unchecked")
-	public Tag getTag(String title) {
+	public Tag getTag(String title, Session session) {
 		title = title.toLowerCase();
 
 		String query = "SELECT DISTINCT tag " + "FROM Tag tag "
@@ -237,7 +233,7 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 	}
 
 	@Override
-	public User getUserByTwitterUserId(long userId) {
+	public User getUserByTwitterUserId(long userId, Session session) {
 		String query = "SELECT user " + "FROM OauthAccessToken userToken "
 				+ "WHERE userToken.userId=:userId";
 
@@ -251,7 +247,7 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 	}
 
 	@Override
-	public List<Long> getAllTwitterUsersTokensUserIds() {
+	public List<Long> getAllTwitterUsersTokensUserIds(Session session) {
 		String query = "SELECT userToken.userId "
 				+ "FROM OauthAccessToken userToken ";
 

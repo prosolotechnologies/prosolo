@@ -25,5 +25,6 @@ public interface GenericDAO {
 	//void saveInBatch(List<Object> entities);
 	<T extends BaseEntity> void saveInBatch(List<T> entities);
 	void execute(HibernateWork hibernateWork);
+	Object save(Object entity, Session session);
 
 }

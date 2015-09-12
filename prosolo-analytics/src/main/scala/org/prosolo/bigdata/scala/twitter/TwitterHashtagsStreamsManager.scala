@@ -19,6 +19,8 @@ import org.slf4j.LoggerFactory
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.Buffer
+import org.prosolo.bigdata.dal.persistence.HibernateUtil
+import org.hibernate.Session
 
 /**
  * @author zoran
@@ -35,7 +37,7 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
   
  // val currentFilterList:ListBuffer[String]=new ListBuffer[String]
   
- 
+  
   
   /**
    * At the applicaiton startup reads all hashtags from database and initialize required number of spark twitter streams to listen for it on Twitter
@@ -44,10 +46,11 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
   //  val filters = new Array[String](1)
     logger.info("INITIALIZE TWITTER STREAMING")
     val twitterDAO = new TwitterStreamingDAOImpl()
-    val hashtagsAndRefs:collection.mutable.Map[String,StreamListData]=twitterDAO.readAllHashtagsAndLearningGoalsIds().asScala
+    val session:Session= HibernateUtil.getSessionFactory().openSession()
+    val hashtagsAndRefs:collection.mutable.Map[String,StreamListData]=twitterDAO.readAllHashtagsAndLearningGoalsIds(session).asScala
     hashtagsAndReferences++=hashtagsAndRefs;
-    val hashTagsUserIds:collection.mutable.Map[String,java.util.List[java.lang.Long]]=twitterDAO.readAllUserPreferedHashtagsAndUserIds().asScala
- 
+    val hashTagsUserIds:collection.mutable.Map[String,java.util.List[java.lang.Long]]=twitterDAO.readAllUserPreferedHashtagsAndUserIds(session).asScala
+   session.close();
     for((hashtag,userIds) <- hashTagsUserIds){
        val listData:StreamListData= hashtagsAndReferences.getOrElse(hashtag, new StreamListData(hashtag))
        listData.addUsersIds(userIds)

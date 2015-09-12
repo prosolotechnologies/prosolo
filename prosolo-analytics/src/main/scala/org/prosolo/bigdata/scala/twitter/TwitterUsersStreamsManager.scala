@@ -5,6 +5,8 @@ import scala.collection.mutable.ListBuffer
 import twitter4j.{HashtagEntity, Status,TwitterStream,TwitterStreamFactory,FilterQuery}
 import org.prosolo.bigdata.dal.persistence.impl.TwitterStreamingDAOImpl
 import scala.collection.mutable.Buffer
+import org.prosolo.bigdata.dal.persistence.HibernateUtil
+import org.hibernate.Session
 /**
  * @author zoran Aug 6, 2015
  */
@@ -19,7 +21,9 @@ object TwitterUsersStreamsManager extends TwitterStreamsManager {
    */
   def initialize() {
      val twitterDAO = new TwitterStreamingDAOImpl()
-     val twitterIds:java.util.List[java.lang.Long]=twitterDAO.getAllTwitterUsersTokensUserIds
+      val session:Session= HibernateUtil.getSessionFactory().openSession()
+     val twitterIds:java.util.List[java.lang.Long]=twitterDAO.getAllTwitterUsersTokensUserIds(session)
+     session.close();
      val scalaTwitterIds:Buffer[java.lang.Long]= scala.collection.JavaConversions.asScalaBuffer(twitterIds)
      startStreamsForInitialSetOfData(scalaTwitterIds.map { Long2long})
   }
