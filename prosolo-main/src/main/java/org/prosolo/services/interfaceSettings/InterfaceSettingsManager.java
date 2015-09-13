@@ -19,12 +19,6 @@ public interface InterfaceSettingsManager extends AbstractManager {
 	
 	boolean changeActivityWallFilter(UserSettings userSettings, FilterType filter, long courseId);
 	
-	boolean changeGoalHints(UserSettings userSettings, boolean setGoalHints);
-
-	boolean hideBubbleMessage(UserSettings userSettings, String messageBubble);
-	
-	boolean showAllBubbleMessages(UserSettings userSettings);
-
 	UserSettings acceptTermsOfUse(UserSettings userSettings);
 
 	UserSettings revokeTermsOfUse(UserSettings interfaceSettings);

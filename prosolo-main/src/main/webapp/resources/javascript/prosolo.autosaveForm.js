@@ -61,8 +61,6 @@
 						$(this).click(function() {
 						    var $this = $(this);
 						    
-						    console.log('checkbox click');
-	
 						    self.addLoaderNextAndAutosave(this);
 						});
 					}

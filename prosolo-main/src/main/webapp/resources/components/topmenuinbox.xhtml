@@ -13,16 +13,18 @@
 			oncomplete="roundImages" update=":inboxForm:messagesInboxPanel"
 			widgetVar="messagesPoll" autoStart="true" />
 			
-		<h:panelGroup id="messagesInboxPanel">
-			<div class="messagesContainer">
+		<h:panelGroup id="messagesInboxPanel" class="relPos">
+			<div class="container">
 				<p:commandLink
 					pt:position="s"
-					styleClass="btnMessagesClass indexTripStep7 inlineBlock right"
+					styleClass="btnMessages indexTripStep7 inlineBlock right"
 					action="#{topInboxBean.readMessages()}" 
 					actionListener="#{topInboxBean.logInboxServiceUse()}"
 					oncomplete="$('.messagesContainer .inboxCircle').hide();"
 					async="true"
 					update=":inboxForm:messagesContainer">
+					
+					<i class="fa fa-envelope-o fa-lg"></i>
 					
 					<h:panelGroup layout="block" class="inboxCircle" rendered="#{topInboxBean.unreadThreadsNo > 0}">
 						#{topInboxBean.unreadThreadsNo}
@@ -30,7 +32,7 @@
 				</p:commandLink>
 			</div>
 			
-			<div id="messages" >
+			<div id="messages">
 				<div class="beeperNub"></div>
 				
 				<h:panelGroup layout="block" id="messagesContainer" class="messagesContainer">
@@ -91,13 +93,13 @@
 			
 			<script type="text/javascript">
 			$(function() {
-				$('.btnMessagesClass').on('click', function(e){
+				$('.btnMessages').on('click', function(e){
 					e.stopPropagation();
 					if ($('#messages').hasClass('shown')) {
 						$('#messages').fadeOut();
 						$('#messages').removeClass('shown');
 					} else {
-						$('#messages .messagesResultPanel').html('<div class="center marginTop10 marginBottom10"><img src="#{request.contextPath}/resources/images/style/ajax-loader-white.gif" style="vertical-align:middle;"/></div>');
+						//$('#messages .messagesResultPanel').html('<div class="center marginTop10 marginBottom10"><img src="#{request.contextPath}/resources/images/style/ajax-loader-white.gif" style="vertical-align:middle;"/></div>');
 						$('#messages').fadeIn();
 						$('#messages').addClass('shown');
 					}

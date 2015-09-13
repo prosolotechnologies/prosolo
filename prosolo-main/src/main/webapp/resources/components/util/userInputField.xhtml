@@ -24,6 +24,8 @@
 	</composite:interface>
 	
 	<composite:implementation>
+		<h:outputScript library="javascript" name="jquery.autoGrowInput.min.js" target="head" />
+	
 		<utilcomp:messagesBundle var="msg" />
 		<ui:param name="componentId" value="#{cc.clientId.replaceAll(':','')}" />
 	

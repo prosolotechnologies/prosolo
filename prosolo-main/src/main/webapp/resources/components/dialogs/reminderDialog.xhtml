@@ -54,7 +54,6 @@
 						$('#remainderDetailsFormModalDialog .description').readmore({
 							maxHeight: 60,
 							afterToggle: function(trigger, elem, expanded) {
-								console.log($(this).prev().length);
 								sendServiceUse('MOUSE_CLICK', {context: 'reminderDialog.#{reminderBeanDialog.reminder.reminder.id}.description', link: expanded ? 'more' : 'less'});
 							}
 						});

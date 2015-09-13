@@ -18,6 +18,11 @@
 	</composite:interface>
 	
 	<composite:implementation>
+		<h:outputStylesheet library="css" name="trip.min.css"  />
+		
+		<h:outputScript library="javascript" name="trip-2.0.2.custom.min.js" target="head"/>
+		<h:outputScript library="javascript" name="prosolo.tutorialTrip.js" target="head" />
+	
 		<div id="introTutorialDialog" class="introTutorialDialog" title="Tutorial" style="display: none">
 			<h:form id="introTutorialDialogForm">
 				<p>

@@ -13,6 +13,7 @@
 	<script>
 		document.title = 'Search: Suggested Learning';
 	</script>
+	
 	<div id="searchSuggestedLearning">
 		<h2>Search: Suggested Learning</h2>
 
@@ -257,7 +258,6 @@
 		<script type="text/javascript">
 			$(function(){
 				var filter = "#{param['filter']}";
-				console.log('filter: ' + filter);
 				if (filter.length > 0) {
 					$(escapeColons('#searchSuggestedLearningForm:hiddenFilter')).val("#{param['filter']}");
 					setFilter("#{param['filter']}");

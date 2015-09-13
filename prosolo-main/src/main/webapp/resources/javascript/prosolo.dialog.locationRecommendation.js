@@ -28,7 +28,6 @@ function initializeDialogMap(data, userIdToOpen) {
          })(marker, i));
          
          if (data[i][0] == userIdToOpen) {
-        	 console.log('data: '+data[i][0]+' userIdToOpen:'+userIdToOpen);
         	 google.maps.event.trigger(marker,'click');
          }
      }

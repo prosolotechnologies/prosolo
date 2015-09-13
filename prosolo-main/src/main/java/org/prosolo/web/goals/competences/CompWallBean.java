@@ -317,7 +317,7 @@ public class CompWallBean implements Serializable {
 		}
 	}
 	
-	private void toggleActivityCompletedAsync(final ActivityWallData activityData, final TargetActivity activity, String context) {
+	private void toggleActivityCompletedAsync(final ActivityWallData activityData, final TargetActivity activity, final String context) {
 		final TargetActivity activity1 = activityManager.saveEntity(activity);
 		
 		taskExecutor.execute(new Runnable() {
@@ -511,7 +511,7 @@ public class CompWallBean implements Serializable {
 	}
 	
 	public void handleAssignmentUpload(FileUploadEvent event) {
-		String context = (String) event.getComponent().getAttributes().get("context");
+		final String context = (String) event.getComponent().getAttributes().get("context");
 		long targetActivityId = (Long) event.getComponent().getAttributes().get("targetActivityId");
 		ActivityWallData activityToUploadAssignemnt = goalsBean.getSelectedGoalData().getSelectedCompetence().getActivity(targetActivityId);
 		
@@ -532,6 +532,8 @@ public class CompWallBean implements Serializable {
 				activityToUploadAssignemnt.getAttachmentPreview().setUploadedAssignmentTitle(fileName);
 				completeActivity(activityToUploadAssignemnt, context);
 				
+				final ActivityWallData activityToUploadAssignemnt1 = activityToUploadAssignemnt;
+				
 				taskExecutor.execute(new Runnable() {
 		            @Override
 		            public void run() {
@@ -539,7 +541,7 @@ public class CompWallBean implements Serializable {
 		            		Session session = (Session) activityManager.getPersistence().openSession();
 		            		
 							TargetActivity targetActivity = activityManager.updateTargetActivityWithAssignement(
-									activityToUploadAssignemnt.getObject().getId(), 
+									activityToUploadAssignemnt1.getObject().getId(), 
 									link,
 									fileName,
 									session);
@@ -570,7 +572,7 @@ public class CompWallBean implements Serializable {
     }
 	
 	public void removeAssignmentFromActivity(final ActivityWallData activityData) {
-		String context = PageUtil.getPostParameter("context");
+		final String context = PageUtil.getPostParameter("context");
 		
 		activityData.getAttachmentPreview().setUploadedAssignmentLink(null);
 		activityData.getAttachmentPreview().setUploadedAssignmentTitle(null);

@@ -28,8 +28,9 @@
 	</composite:interface>
 
 	<composite:implementation>
+		<h:outputScript library="javascript" name="prosolo.newcomment.js" target="head" />
 		<h:outputScript library="javascript" name="prosolo.hashtagHighlight.js" target="head" />
-		<h:outputScript library="javascript" name="autolink-min.js" target="head" />
+		<h:outputScript library="javascript" name="autolink.min.js" target="head" />
 
 		<div class="post post#{cc.attrs.actData.socialActivity.id} #{cc.attrs.postStyleClass}">
 
@@ -263,7 +264,6 @@
 						$('.post.post#{cc.attrs.actData.socialActivity.id} .text .expandable').readmore({
 							maxHeight: 60,
 							afterToggle: function(trigger, elem, expanded) {
-								console.log($(this).prev().length);
 								sendServiceUse('MOUSE_CLICK', {context: $(elem).attr('context'), link: expanded ? 'more' : 'less'});
 							}
 						});

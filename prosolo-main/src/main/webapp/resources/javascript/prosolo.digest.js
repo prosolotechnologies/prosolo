@@ -159,8 +159,6 @@ prosolo.digest = {
 		$(elem + " td.ui-datepicker-week-col").click(function(e){
 			var el = this;
 			
-			console.log('week click');
-			
 			// Simulate a click on the first day of the week
 			$(this).next().click();
 			

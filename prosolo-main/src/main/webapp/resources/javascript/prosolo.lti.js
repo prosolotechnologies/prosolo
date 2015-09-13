@@ -16,13 +16,11 @@ function sign(oForm,consSecret) {
     oForm.oauth_signature.value = OAuth.getParameter(message.parameters,"oauth_signature");
 }
 function doOnLoad(consSecret, launchUrl, oForm) {
-	 console.log("doOnLoad called:"+launchUrl);
 	freshNonce(oForm);
 	freshTimestamp(oForm);
     sign(oForm,consSecret);
     /*
     var formData=new FormData(oForm);
-    console.log("doOnLoad called 2");
     $.ajax({
     	type: "POST",
     	url: launchUrl,
