@@ -9,6 +9,7 @@ import org.apache.spark.storage.StorageLevel;
 import org.apache.spark.streaming.Time;
 import org.apache.spark.streaming.api.java.JavaDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
+import org.prosolo.bigdata.dal.persistence.HibernateUtil;
 //import org.apache.spark.streaming.twitter.TwitterReceiver;
 //import org.apache.spark.streaming.twitter.TwitterUtils;
 import org.prosolo.bigdata.dal.persistence.impl.TwitterStreamingDAOImpl;
@@ -28,7 +29,7 @@ import twitter4j.conf.ConfigurationBuilder;
  * @author Zoran Jeremic Jun 20, 2015
  *
  */
-
+@Deprecated
 public class TwitterHashtagsStreamsManagerImpl {
 
 	private Queue<TwitterSiteProperties> twitterProperties;
@@ -38,7 +39,8 @@ public class TwitterHashtagsStreamsManagerImpl {
 		twitterProperties = propFacade.getAllTwitterSiteProperties();
 		String[] filters = { "#prosolotest1" };
 		TwitterStreamingDAOImpl twitterDAO = new TwitterStreamingDAOImpl();
-		twitterDAO.readAllHashtagsAndLearningGoalsIds();
+ 
+		twitterDAO.readAllHashtagsAndLearningGoalsIds(HibernateUtil.getSessionFactory().openSession());
 		initializeNewStream(filters);
 	}
 

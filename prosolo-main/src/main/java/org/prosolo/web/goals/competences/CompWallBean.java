@@ -513,7 +513,7 @@ public class CompWallBean implements Serializable {
 	public void handleAssignmentUpload(FileUploadEvent event) {
 		final String context = (String) event.getComponent().getAttributes().get("context");
 		long targetActivityId = (Long) event.getComponent().getAttributes().get("targetActivityId");
-		ActivityWallData activityToUploadAssignemnt = goalsBean.getSelectedGoalData().getSelectedCompetence().getActivity(targetActivityId);
+		final ActivityWallData activityToUploadAssignemnt = goalsBean.getSelectedGoalData().getSelectedCompetence().getActivity(targetActivityId);
 		
 		NodeData activity = activityToUploadAssignemnt.getActivity();
 		
