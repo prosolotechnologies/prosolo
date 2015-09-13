@@ -959,6 +959,7 @@ h1 a:hover{
 
 
 .secManage {
+  display: inline-block;
   background-image: url("../images/logo-manage.svg");
   background-size: 98px 36px;
   height: 36px;
@@ -967,6 +968,7 @@ h1 a:hover{
 
 
 .secAdmin {
+  display: inline-block;
   background-image: url("../images/logo-admin.svg");
   background-size: 98px 36px;
   height: 36px;
