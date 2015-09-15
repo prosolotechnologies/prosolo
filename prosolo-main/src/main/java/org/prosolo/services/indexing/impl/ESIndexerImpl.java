@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.prosolo.app.Settings;
+import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.content.Post;
@@ -29,7 +30,6 @@ import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.ESIndexer;
-import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.util.urigenerator.AmazonS3Utility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,7 +48,6 @@ public class ESIndexerImpl implements ESIndexer {
 	private static Logger logger = Logger.getLogger(ESIndexerImpl.class.getName());
 	
 	@Autowired private FileESIndexerImpl fileESIndexerImpl;
-	//@Autowired private WebPageESIndexerImpl webPageESIndexerImpl;
 	
 	/**
 	 * Referenced from Event observer and process post of documents or links
@@ -77,7 +76,7 @@ public class ESIndexerImpl implements ESIndexer {
  	}
 	
 	@Override
-	public void addMapping(Client client, String indexName,String indexType) throws IndexingServiceNotAvailable{
+	public void addMapping(Client client, String indexName,String indexType) {
 		String mappingPath="/org/prosolo/services/indexing/"+indexType+"-mapping.json";
 		String mapping = null;
 		
@@ -90,7 +89,7 @@ public class ESIndexerImpl implements ESIndexer {
 		try {
 			client.admin().indices().putMapping(putMappingRequest(indexName).type(indexType).source(mapping)).actionGet();
 		} catch (NoNodeAvailableException e) {
-			throw new IndexingServiceNotAvailable("ElasticSearch node is not available. " + e);
+			logger.error(e);
 		}
 	}
 	

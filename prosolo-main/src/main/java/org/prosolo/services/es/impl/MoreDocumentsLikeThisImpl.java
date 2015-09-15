@@ -1,14 +1,13 @@
 package org.prosolo.services.es.impl;
-
  
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
-//import org.elasticsearch.common.Base64;
 import org.elasticsearch.index.query.AndFilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.FilteredQueryBuilder;
@@ -18,7 +17,6 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermFilterBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
-import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.recommendation.impl.RecommendedDocument;
 import org.prosolo.services.es.MoreDocumentsLikeThis;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
@@ -26,21 +24,19 @@ import org.prosolo.services.indexing.ESIndexNames;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.springframework.stereotype.Service;
 
-
-/**
- * zoran
- */
 @Service("org.prosolo.services.es.MoreDocumentsLikeThis")
 public class MoreDocumentsLikeThisImpl extends AbstractManagerImpl implements
 		MoreDocumentsLikeThis {
+	
+	private Logger logger = Logger.getLogger(MoreDocumentsLikeThisImpl.class);
 
 	private static final long serialVersionUID = -7161733128379263294L;
 
-	String moreDocumentsLikeThisFields = "file";
-
+	@SuppressWarnings("unused")
+	private String moreDocumentsLikeThisFields = "file";
 
 	@Override
-	public List<String> findDocumentDuplicates(String likeText) throws IndexingServiceNotAvailable{
+	public List<String> findDocumentDuplicates(String likeText) {
 		List<String> duplicates = new ArrayList<String>();
 
 		try {
@@ -84,7 +80,7 @@ public class MoreDocumentsLikeThisImpl extends AbstractManagerImpl implements
 
 	@Override
 	public List<RecommendedDocument> getSuggestedDocumentsForLearningGoal(
-			String likeText, long userId, int limit) throws IndexingServiceNotAvailable {
+			String likeText, long userId, int limit) {
 		
 		List<RecommendedDocument> foundDocs = new ArrayList<RecommendedDocument>();
 		
@@ -134,7 +130,7 @@ public class MoreDocumentsLikeThisImpl extends AbstractManagerImpl implements
 				}
 			}
 		} catch (NoNodeAvailableException e) {
-			throw new IndexingServiceNotAvailable("ElasticSearch node is not available. " + e);
+			logger.error(e);
 		}
 		return foundDocs;
 	}
