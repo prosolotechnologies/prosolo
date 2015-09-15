@@ -42,7 +42,10 @@
  	<http pattern="/maintenance.xhtml" security="none"/>
  	<http  pattern="/digest.xhtml"  security="none"/>
 	<http  pattern="/resources/components/digest/personalFeeds.xhtml"   security="none"/>
-	<http  pattern="/resources/public/systemFeeds.xhtml"   security="none"/>
+	<http  pattern="/resources/public/systemFeeds.xhtml" security="none"/>
+	<http  pattern="/ltitoolproxyregistration.xhtml" security="none"/>
+	<http  pattern="/ltiproviderlaunch.xhtml" security="none"/>
+	<http  pattern="/ltitool.xhtml" security="none"/>
  
  	
  	<!-- http pattern="/login.xhtml" security="none"/-->
