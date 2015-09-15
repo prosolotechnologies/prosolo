@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
@@ -20,7 +22,6 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.junit.BeforeClass;
 import org.prosolo.recommendation.impl.RecommendedDocument;
-import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 
 /**
  *
@@ -28,6 +29,8 @@ import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
  *
  */
 public class FindSuggestedResourcesTest {
+	
+	private Logger logger = Logger.getLogger(FindSuggestedResourcesTest.class);
 
 	private static Client client;
 	
@@ -71,8 +74,8 @@ public class FindSuggestedResourcesTest {
 					
 				}
 			}
-		} catch (IndexingServiceNotAvailable e) {
-			System.out.println(e);
+		} catch (NoNodeAvailableException e) {
+			logger.error(e);
 		}
 		return foundDocs;
 	}

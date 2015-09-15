@@ -11,6 +11,7 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
@@ -46,10 +47,9 @@ public abstract class AbstractBaseEntityESServiceImpl implements AbstractBaseEnt
 			if (!deleteResponse.isFound()){
 				logger.error("Entity " + id + " was not existing");
 			}
-		} catch (ElasticsearchException e) {
+		} catch (NoNodeAvailableException e) {
 			logger.error(e);
-		} catch (IndexingServiceNotAvailable e) {
-			// TODO Auto-generated catch block
+		} catch (ElasticsearchException e) {
 			logger.error(e);
 		}
 		
@@ -77,9 +77,9 @@ public abstract class AbstractBaseEntityESServiceImpl implements AbstractBaseEnt
 			}
 		} catch (IOException e) {
 			throw new RuntimeException("Can not read entity " + id);
-		} catch (ElasticsearchException e) {
+		} catch (NoNodeAvailableException e) {
 			logger.error(e);
-		} catch (IndexingServiceNotAvailable e) {
+		} catch (ElasticsearchException e) {
 			logger.error(e);
 		}
 

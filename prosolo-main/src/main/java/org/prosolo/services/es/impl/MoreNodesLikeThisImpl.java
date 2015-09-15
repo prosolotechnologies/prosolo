@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.FilteredQueryBuilder;
@@ -18,17 +19,16 @@ import org.elasticsearch.index.query.TermFilterBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.hibernate.NonUniqueResultException;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
+import org.prosolo.common.domainmodel.activities.Activity;
+import org.prosolo.common.domainmodel.competences.Competence;
+import org.prosolo.common.domainmodel.general.Node;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.es.MoreNodesLikeThis;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexNames;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
-import org.prosolo.common.domainmodel.activities.Activity;
-import org.prosolo.common.domainmodel.competences.Competence;
-import org.prosolo.common.domainmodel.general.Node;
-import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -96,7 +96,7 @@ public class MoreNodesLikeThisImpl extends AbstractManagerImpl implements MoreNo
 					}
 				}
 			}
-		} catch (IndexingServiceNotAvailable e1) {
+		} catch (NoNodeAvailableException e1) {
 			logger.warn(e1);
 		}
 		// client.close();
@@ -140,7 +140,7 @@ public class MoreNodesLikeThisImpl extends AbstractManagerImpl implements MoreNo
 					}
 				}
 			}
-		} catch (IndexingServiceNotAvailable e1) {
+		} catch (NoNodeAvailableException e1) {
 			logger.error(e1);
 		}
 		return foundNodes;
@@ -190,7 +190,7 @@ public class MoreNodesLikeThisImpl extends AbstractManagerImpl implements MoreNo
 					}
 				}
 			}
-		} catch (IndexingServiceNotAvailable e1) {
+		} catch (NoNodeAvailableException e1) {
 			logger.error(e1);
 		}
 		return foundNodes;

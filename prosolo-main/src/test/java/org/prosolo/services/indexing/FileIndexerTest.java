@@ -28,6 +28,7 @@ import org.elasticsearch.action.mlt.MoreLikeThisRequest;
 import org.elasticsearch.action.mlt.MoreLikeThisRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
@@ -39,13 +40,13 @@ import org.elasticsearch.search.SearchHits;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
+import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
+import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.recommendation.impl.DocumentType;
 import org.prosolo.services.es.MoreDocumentsLikeThis;
 import org.prosolo.services.es.impl.MoreDocumentsLikeThisImpl;
 import org.prosolo.services.indexing.impl.ExtractedTikaDocument;
 import org.prosolo.services.indexing.impl.TikaExtractorImpl;
-import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
-import org.prosolo.common.domainmodel.organization.VisibilityType;
 
 
 
@@ -334,11 +335,9 @@ public class FileIndexerTest {
 			}
 			
 			br.close();
-		} catch (IndexingServiceNotAvailable e) {
+		} catch (NoNodeAvailableException e) {
 			System.out.println(e);
 		}
-
-		
 	}
 	
 	private void indexWebPageFromLink(String link, Client client, String indexName, String indexType, TikaExtractor tika, MoreDocumentsLikeThis mdlt)

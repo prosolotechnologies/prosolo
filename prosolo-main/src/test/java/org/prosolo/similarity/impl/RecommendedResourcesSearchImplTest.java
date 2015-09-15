@@ -1,33 +1,23 @@
 package org.prosolo.similarity.impl;
 
-import static org.junit.Assert.*;
-
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.TermFilterBuilder;
-import org.elasticsearch.index.query.TermsFilterBuilder;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHitField;
 import org.elasticsearch.search.SearchHits;
 import org.junit.Test;
-import org.prosolo.bigdata.common.dal.pojo.ActivityAccessCount;
 import org.prosolo.bigdata.common.dal.pojo.Score;
-import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
-import org.prosolo.recommendation.impl.RecommendedDocument;
 import org.prosolo.services.indexing.ESIndexNames;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
 /**
@@ -42,7 +32,7 @@ public class RecommendedResourcesSearchImplTest {
 		Client client=null;
 		try {
 			client = ElasticSearchFactory.getClient();
-		} catch (IndexingServiceNotAvailable e) {
+		} catch (NoNodeAvailableException e) {
 			e.printStackTrace();
 		}
 		long[] learninggoalsids={100,20};

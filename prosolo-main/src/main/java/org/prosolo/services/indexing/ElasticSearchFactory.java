@@ -16,7 +16,6 @@ import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.node.Node;
-import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.config.ElasticSearchConfig;
 import org.prosolo.common.config.ElasticSearchHost;
@@ -34,7 +33,7 @@ public class ElasticSearchFactory {
 	 private static Client client;
 	 private static Logger logger = Logger.getLogger(ElasticSearchFactory.class);
 
-	public static Client getClient() throws IndexingServiceNotAvailable {
+	public static Client getClient() {
 		if (client == null) {
 			if (CommonSettings.getInstance().config.elasticSearch.type.equals("local")) {
 				client = getLocalClient();
@@ -44,12 +43,13 @@ public class ElasticSearchFactory {
 				client = getAWSClient();
 			}
 		}
+		
 		return client;
 	}
 
-	private static Client getESClient() throws IndexingServiceNotAvailable {
+	private static Client getESClient() {
 		ElasticSearchConfig elasticSearchConfig = CommonSettings.getInstance().config.elasticSearch;
-		try {
+//		try {
 			org.elasticsearch.common.settings.Settings settings = ImmutableSettings.settingsBuilder()
 					.put("cluster.name", elasticSearchConfig.clusterName).build();
 
@@ -61,12 +61,12 @@ public class ElasticSearchFactory {
 				
 			}
 			ClusterHealthResponse clusterHealth = client.admin().cluster().health(clusterHealthRequest().waitForGreenStatus()).actionGet();
-		} catch (NoNodeAvailableException ex) {
-			throw new IndexingServiceNotAvailable("ElasticSearch node is not available. " + ex);
-		} catch (Exception ex) {
-			logger.error("Exception for cluster:" + elasticSearchConfig.clusterName, ex);
-			return null;
-		}
+//		} catch (NoNodeAvailableException ex) {
+//			throw new IndexingServiceNotAvailable("ElasticSearch node is not available. " + ex);
+//		} catch (Exception ex) {
+//			logger.error("Exception for cluster:" + elasticSearchConfig.clusterName, ex);
+//			return null;
+//		}
 		return client;
 	}
 

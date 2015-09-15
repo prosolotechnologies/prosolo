@@ -491,6 +491,12 @@ a .image-wrap {
 	border: 0;
 }
 
+#portfolio .socialNetworksInterestsContainer {
+  display: inline-block;
+  float: right;
+  width: 330px;
+}
+
 .avatarNameContainer {
   display: inline-block;
   height: 60px;

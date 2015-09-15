@@ -43,30 +43,6 @@
 	
 		<div class="leftSidebar floating">
 		
-			<ui:remove>
-			<div class="userDetails marginBottom10">
-				<div class="avatarContainer">
-					<h:graphicImage styleClass="imageRound image60"
-						value="#{loggeduser.bigAvatar}" width="60"
-						height="60" alt="" />
-				</div>
-				<div class="infoContainer">
-					<h2 class="name">
-						<h:link value="#{loggeduser.name} #{loggeduser.user.lastname}" outcome="/publicprofile" >
-							<f:param name="user" value="#{loggeduser.user.id}" />
-						</h:link>
-					</h2>
-					
-					<div class="position">#{loggeduser.user.position}</div>
-					
-					<h:panelGroup rendered="#{loggeduser.user.locationName != null}" class="position">
-						<ui:include src="/resources/components/dialogs/locationDialog.xhtml" />
-						<a href="#" onclick="$('#locationDialog').dialog('option', 'data', ['#{loggeduser.user.locationName}', #{loggeduser.user.latitude}, #{loggeduser.user.longitude}]).dialog('open');return false;">#{loggeduser.user.locationName}</a>
-					</h:panelGroup>
-				</div>
-			</div>
-			</ui:remove>
-			
 			<h:panelGroup layout="block" id="userActions" class="actions sideBoxFrame">
 				<div class="sideContent">
 					<h:link class="button gray size30 left publicProfile"
@@ -229,71 +205,73 @@
 					</div>
 				</div>
 				
-				<div class="socialNetworks">
-					<h3>
-						Social Networks
+				<div class="socialNetworksInterestsContainer">
+					<div class="socialNetworks">
+						<h3>
+							Social Networks
+							
+							<h:link outcome="/settings"
+								class="button gray size20 right fontWeightNornal"
+								onclick="sendLogPageNavigation('settings.xhtml?tab=socialNetworks', 'profile.info.socialNetworks.edit');"
+								value="Edit">
+								<f:param  name="tab" value="socialNetworks" />
+								<f:param  name="origin" value="#{request.requestURI}" />
+							</h:link>
+						</h3>
 						
-						<h:link outcome="/settings"
-							class="button gray size20 right fontWeightNornal"
-							onclick="sendLogPageNavigation('settings.xhtml?tab=socialNetworks', 'profile.info.socialNetworks.edit');"
-							value="Edit">
-							<f:param  name="tab" value="socialNetworks" />
-							<f:param  name="origin" value="#{request.requestURI}" />
-						</h:link>
-					</h3>
+						
+						<c:if test="#{portfolio.socialNetworksData.twitterLink != null and 
+									portfolio.socialNetworksData.twitterLink.length() > 0}">
+							<a href="#{portfolio.socialNetworksData.twitterLink}"
+								onclick="sendLogPageNavigation('#{portfolio.socialNetworksData.twitterLink}', 'profile.info.socialNetworks.twitter');"
+								target="_blank" class="icon twitter active"></a>
+						</c:if>
+						<c:if test="#{portfolio.socialNetworksData.twitterLink == null or 
+									portfolio.socialNetworksData.twitterLink.length() == 0}">
+							<span class="icon twitter inactive"></span>
+						</c:if>
+						
+						<c:if test="#{portfolio.socialNetworksData.facebookLink != null and 
+									portfolio.socialNetworksData.facebookLink.length() > 0}">
+							<a href="#{portfolio.socialNetworksData.facebookLink}"
+								onclick="sendLogPageNavigation('#{portfolio.socialNetworksData.facebookLink}', 'profile.info.socialNetworks.facebook');"
+								target="_blank" class="icon facebook active"></a>
+						</c:if>
+						<c:if test="#{portfolio.socialNetworksData.facebookLink == null or 
+									portfolio.socialNetworksData.facebookLink.length() == 0}">
+							<span class="icon facebook inactive"></span>
+						</c:if>
+						
+						<c:if test="#{portfolio.socialNetworksData.gplusLink != null and 
+									portfolio.socialNetworksData.gplusLink.length() > 0}">
+							<a href="#{portfolio.socialNetworksData.gplusLink}"
+								onclick="sendLogPageNavigation('#{portfolio.socialNetworksData.gplusLink}', 'profile.info.socialNetworks.gplus');"
+								target="_blank" class="icon gplus active"></a>
+						</c:if>
+						<c:if test="#{portfolio.socialNetworksData.gplusLink == null or 
+									portfolio.socialNetworksData.gplusLink.length() == 0}">
+							<span class="icon gplus inactive"></span>
+						</c:if>
+						
+						<c:if test="#{portfolio.socialNetworksData.blogLink != null and 
+									portfolio.socialNetworksData.blogLink.length() > 0}">
+							<a href="#{portfolio.socialNetworksData.blogLink}"
+								onclick="sendLogPageNavigation('#{portfolio.socialNetworksData.blogLink}', 'profile.info.socialNetworks.blog');"
+								target="_blank" class="icon blog active"></a>
+						</c:if>
+						<c:if test="#{portfolio.socialNetworksData.blogLink == null or 
+									portfolio.socialNetworksData.blogLink.length() == 0}">
+							<span class="icon blog inactive"></span>
+						</c:if>
+					</div>
 					
-					
-					<c:if test="#{portfolio.socialNetworksData.twitterLink != null and 
-								portfolio.socialNetworksData.twitterLink.length() > 0}">
-						<a href="#{portfolio.socialNetworksData.twitterLink}"
-							onclick="sendLogPageNavigation('#{portfolio.socialNetworksData.twitterLink}', 'profile.info.socialNetworks.twitter');"
-							target="_blank" class="icon twitter active"></a>
-					</c:if>
-					<c:if test="#{portfolio.socialNetworksData.twitterLink == null or 
-								portfolio.socialNetworksData.twitterLink.length() == 0}">
-						<span class="icon twitter inactive"></span>
-					</c:if>
-					
-					<c:if test="#{portfolio.socialNetworksData.facebookLink != null and 
-								portfolio.socialNetworksData.facebookLink.length() > 0}">
-						<a href="#{portfolio.socialNetworksData.facebookLink}"
-							onclick="sendLogPageNavigation('#{portfolio.socialNetworksData.facebookLink}', 'profile.info.socialNetworks.facebook');"
-							target="_blank" class="icon facebook active"></a>
-					</c:if>
-					<c:if test="#{portfolio.socialNetworksData.facebookLink == null or 
-								portfolio.socialNetworksData.facebookLink.length() == 0}">
-						<span class="icon facebook inactive"></span>
-					</c:if>
-					
-					<c:if test="#{portfolio.socialNetworksData.gplusLink != null and 
-								portfolio.socialNetworksData.gplusLink.length() > 0}">
-						<a href="#{portfolio.socialNetworksData.gplusLink}"
-							onclick="sendLogPageNavigation('#{portfolio.socialNetworksData.gplusLink}', 'profile.info.socialNetworks.gplus');"
-							target="_blank" class="icon gplus active"></a>
-					</c:if>
-					<c:if test="#{portfolio.socialNetworksData.gplusLink == null or 
-								portfolio.socialNetworksData.gplusLink.length() == 0}">
-						<span class="icon gplus inactive"></span>
-					</c:if>
-					
-					<c:if test="#{portfolio.socialNetworksData.blogLink != null and 
-								portfolio.socialNetworksData.blogLink.length() > 0}">
-						<a href="#{portfolio.socialNetworksData.blogLink}"
-							onclick="sendLogPageNavigation('#{portfolio.socialNetworksData.blogLink}', 'profile.info.socialNetworks.blog');"
-							target="_blank" class="icon blog active"></a>
-					</c:if>
-					<c:if test="#{portfolio.socialNetworksData.blogLink == null or 
-								portfolio.socialNetworksData.blogLink.length() == 0}">
-						<span class="icon blog inactive"></span>
-					</c:if>
-				</div>
-				
-				<div class="userInterests">
-					<port:userinterests 
-						id="userInterests" 
-						user="#{loggeduser.user}"
-						context="profile.info"
-					/>
+					<div class="userInterests">
+						<port:userinterests 
+							id="userInterests" 
+							user="#{loggeduser.user}"
+							context="profile.info"
+						/>
+					</div>
 				</div>
 				
 				<div class="clear separator"></div>

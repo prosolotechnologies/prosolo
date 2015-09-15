@@ -63,6 +63,8 @@ public class MoreUsersLikeThisImpl extends AbstractManagerImpl implements MoreUs
 		
 		try {
 			Client client = ElasticSearchFactory.getClient();
+			
+			
 			QueryBuilder qb = null;
 			
 	        qb = QueryBuilders.moreLikeThisQuery(moreUsersLikeThisFields)//moreLikeThisFieldQuery(moreNodesLikeThisFields)
@@ -101,10 +103,9 @@ public class MoreUsersLikeThisImpl extends AbstractManagerImpl implements MoreUs
 					}
 				}
 			}
-		} catch (IndexingServiceNotAvailable e1) {
-			logger.error(e1);
+		} catch (NoNodeAvailableException e) {
+			logger.error(e);
 		}
-     // client.close();
 		return foundUsers;
 	}
 	@Override
@@ -138,7 +139,7 @@ public class MoreUsersLikeThisImpl extends AbstractManagerImpl implements MoreUs
 					.actionGet();
 			
 			foundUsers = this.convertSearchResponseToUsersList(sResponse);
-		} catch (IndexingServiceNotAvailable e1) {
+		} catch (NoNodeAvailableException e1) {
 			logger.error(e1);
 		}
 		return foundUsers;
@@ -183,7 +184,7 @@ public class MoreUsersLikeThisImpl extends AbstractManagerImpl implements MoreUs
 			        .execute()
 			        .actionGet();
 			foundUsers = this.convertSearchResponseToUsersList(sResponse);
-		} catch (IndexingServiceNotAvailable e1) {
+		} catch (NoNodeAvailableException e1) {
 			logger.error(e1);
 		}
 		return foundUsers;
@@ -211,44 +212,40 @@ public class MoreUsersLikeThisImpl extends AbstractManagerImpl implements MoreUs
 	public List<User> getRecommendedCollaboratorsBasedOnSimilarity(
 			String likeText, Collection<User> ignoredUsers, int limit) throws IndexingServiceNotAvailable {
 		
-		//List<User> foundUsers = new ArrayList<User>();
-		Client client = ElasticSearchFactory.getClient();
+		List<User> foundUsers = new ArrayList<User>();
 		
-		if (client == null) {
-			return new ArrayList<User>();
-		}
-		
-		QueryBuilder qb = null;
-		
-        qb = QueryBuilders.moreLikeThisQuery(moreUsersLikeThisFields)//moreLikeThisFieldQuery(moreNodesLikeThisFields)
-                .likeText(likeText)
-                .minTermFreq(1)
-                .minDocFreq(1)
-                .maxQueryTerms(1);
-        
-        BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-		bQueryBuilder.should(qb);
-		
-		for (User ignUser : ignoredUsers) {
-			if (ignUser != null) {
-				bQueryBuilder.mustNot(termQuery("id", ignUser.getId()));
-			}
-		}
-        
 		try {
+			Client client = ElasticSearchFactory.getClient();
+			
+			QueryBuilder qb = null;
+			
+	        qb = QueryBuilders.moreLikeThisQuery(moreUsersLikeThisFields)//moreLikeThisFieldQuery(moreNodesLikeThisFields)
+	                .likeText(likeText)
+	                .minTermFreq(1)
+	                .minDocFreq(1)
+	                .maxQueryTerms(1);
+	        
+	        BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			bQueryBuilder.should(qb);
+			
+			for (User ignUser : ignoredUsers) {
+				if (ignUser != null) {
+					bQueryBuilder.mustNot(termQuery("id", ignUser.getId()));
+				}
+			}
+	        
 			SearchResponse sResponse = client.prepareSearch(ESIndexNames.INDEX_USERS)
-    		  	.setTypes(ESIndexTypes.USER)
+			  	.setTypes(ESIndexTypes.USER)
 	  			.setQuery(bQueryBuilder)
 	  			.setFrom(0)
 	  			.setSize(limit)
 		        .execute()
 		        .actionGet();
 			
-			List<User> foundUsers = this.convertSearchResponseToUsersList(sResponse);
-			
-			return foundUsers;
+			this.convertSearchResponseToUsersList(sResponse);
 		} catch (NoNodeAvailableException e) {
-			throw new IndexingServiceNotAvailable("ElasticSearch node is not available. " + e);
+			logger.error(e);
 		}
+		return foundUsers;
 	}
 }
