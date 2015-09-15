@@ -8,9 +8,11 @@ import org.junit.Assert._
  */
 class SampleTest {
   @Test def listAdd(){
-    val list=new ArrayList[String]
-    list.add("one")
-    list.add("two")
-    assertEquals(2,list.size())
+//    val list=new ArrayList[String]
+//    list.add("one")
+//    list.add("two")
+//    assertEquals(2,list.size())
+    
+    println("FINISHED...")
   }
 }

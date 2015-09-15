@@ -89,7 +89,7 @@ public class GenerateFeedsToTest {
 			pbfs.setTitle(url);
 			 
 			diggestGeneratorDAO.save(pbfs);
-			diggestGeneratorDAO.getSession().flush();
+			//diggestGeneratorDAO.getSession().flush();
 			fp.setPersonalBlogSource(pbfs);
 			fp.setSubscribedRssSources(new ArrayList<FeedSource>());
 			for(int i=0;i<5;i++){
@@ -109,7 +109,7 @@ public class GenerateFeedsToTest {
 				try{
 					System.out.println("ADDING FEED:"+fs.getLink()+" counter:"+sourcecounter+" size:"+sources.size());
 					diggestGeneratorDAO.save(fs);
-					diggestGeneratorDAO.getSession().flush();
+					//diggestGeneratorDAO.getSession().flush();
 					fp.addSubscribedRssSource(fs);
 				}catch(Exception ex){
 					ex.printStackTrace();
@@ -128,7 +128,7 @@ public class GenerateFeedsToTest {
 			e.printStackTrace();
 		}
 	
-		diggestGeneratorDAO.getSession().flush();
+		//diggestGeneratorDAO.getSession().flush();
 		//session.close();
 		System.out.println("GENERATE FEEDS FINISHED");
 		

@@ -13,6 +13,9 @@ import org.prosolo.bigdata.dal.persistence.impl.TwitterStreamingDAOImpl
 import org.prosolo.bigdata.dal.persistence.TwitterStreamingDAO
 import org.prosolo.bigdata.dal.persistence.HibernateUtil
 import org.hibernate.Session
+import org.prosolo.common.domainmodel.annotation.Tag
+import scala.collection.JavaConversions._
+import org.prosolo.bigdata.twitter.TestJava8Paralelizm
 /**
  * @author zoran Jul 28, 2015
  */
@@ -38,38 +41,51 @@ object TwitterStatusBuffer {
     buffer.clear()
     statuses
   }
-  
+  def processBufferStatusesTestJava(){
+    println("process buffer in java from here...")
+ val statuses=pullStatuses
+    val javastatuses:java.util.List[Status]=statuses
+    TestJava8Paralelizm.getInstance.runInParalel(javastatuses)
+    
+  }
   def processBufferStatuses(){
-    println("PROCESS BUFFER STATUSES")
+
     val statuses=pullStatuses
     val sc=SparkContextLoader.getSC
     val statusesRDD=sc.parallelize(statuses)
     val filteredStatusesRDD=statusesRDD.filter{isAllowed }   
-    filteredStatusesRDD.foreachPartition { statuses => {
-      println("NEW PARTITION")
-     //val twitterStreamingDao:TwitterStreamingDAO=new TwitterStreamingDAOImpl 
+     filteredStatusesRDD.foreachPartition { statuses => {
        statuses.foreach { status:Status => {  
-         println("status:"+status.getText)
-      processStatus(status)
+         println("status:"+status.getText)             
+         processStatus(status)
+           
+    } 
+        }
     }
-    } }
-     }
+    
+   
+      }
   }
   def isAllowed(status:Status):Boolean={
     val isPolite:Boolean=profanityFilter.isPolite(status.getText)
-    println("isPolite:"+isPolite)
     isPolite
   }
-  def processStatus(status:Status){
-     val twitterStreamingDao:TwitterStreamingDAO=new TwitterStreamingDAOImpl
-   // println("processing status:"+status.getText+" session:"+twitterStreamingDao.getSession.hashCode())
-   val session:Session= HibernateUtil.getSessionFactory().openSession()
+
+  def processStatus(status:Status){//}status:Status, twitterStreamingDao:TwitterStreamingDAO,session:Session ){
+    
+   
      val twitterUser=status.getUser
      val twitterHashtags:java.util.List[String]=new java.util.ArrayList[String]()
      status.getHashtagEntities.map { htent => twitterHashtags.add(htent.getText.toLowerCase) }
      val(twitterId,creatorName,screenName,profileImage)=(twitterUser.getId,twitterUser.getName,twitterUser.getScreenName,twitterUser.getProfileImageURL)
      val profileUrl="https://twitter.com/"+screenName
-    
+   
+   val twitterStreamingDao:TwitterStreamingDAO=new TwitterStreamingDAOImpl
+   val session:Session= HibernateUtil.getSessionFactory().openSession()
+   val isActive: Boolean = session.getTransaction().isActive()
+                    if (!isActive) {
+                  session.beginTransaction()
+    }
     var poster:User=null
      if({poster=twitterStreamingDao.getUserByTwitterUserId(twitterId, session); poster==null}){
        poster=initAnonUser(creatorName,profileUrl,screenName,profileImage)
@@ -77,8 +93,11 @@ object TwitterStatusBuffer {
      
      val(text,created,postLink)=(status.getText,status.getCreatedAt,"https://twitter.com/" + twitterUser.getScreenName + "/status/" + status.getId)
       val statusText=text.replaceAll("[^\\x00-\\x7f-\\x80-\\xad]", "")
-    val post:TwitterPost = twitterStreamingDao.createNewTwitterPost(poster, created, postLink, twitterId, creatorName, screenName, profileUrl, profileImage, statusText,VisibilityType.PUBLIC, twitterHashtags,true, session);
-     val twitterPostSocialActivity=twitterStreamingDao.createTwitterPostSocialActivity(post,session)
+     val post:TwitterPost = twitterStreamingDao.createNewTwitterPost(poster, created, postLink, twitterId, creatorName, screenName, profileUrl, profileImage, statusText,VisibilityType.PUBLIC, twitterHashtags,true, session);
+
+       val twitterPostSocialActivity=twitterStreamingDao.createTwitterPostSocialActivity(post,session)
+     session.getTransaction().commit()
+    session.close();  
      if(twitterPostSocialActivity !=null){
        val parameters:java.util.Map[String,String]=new java.util.HashMap[String,String]()
        parameters.put("socialActivityId", twitterPostSocialActivity.getId.toString())
@@ -86,7 +105,7 @@ object TwitterStatusBuffer {
      }else{
        println("ERROR: TwitterPostSocialActivity was not initialized")
      }
-    session.close();
+    
      
   }
   def initAnonUser(creatorName:String,profileUrl:String,screenName:String, profileImage:String):AnonUser={

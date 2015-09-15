@@ -42,6 +42,27 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 	public TwitterStreamingDAOImpl() {
 		super();
 	}
+	@Override
+	public Object save(Object entity, Session session) {
+		System.out.println("SAVING ENTITY TS DAO:"+entity.getClass().getSimpleName());
+		try{
+//			boolean isActive = session.getTransaction().isActive();  
+//            if ( !isActive) {  
+//                session.beginTransaction();  
+//            }  
+			session.save(entity);
+			// session.getTransaction().commit();
+		}catch(Exception ex){
+			 		 
+			if(session.getTransaction()!=null){
+				session.getTransaction().rollback();
+			
+			}
+			ex.printStackTrace();
+		}
+		System.out.println("SAVED ENTITY");
+		return entity;
+	}
 
 	@Override
 	public Map<String, StreamListData> readAllHashtagsAndLearningGoalsIds(Session session) {
@@ -132,7 +153,7 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 			twitterPost.setMaker(maker);
 		}
 		twitterPost.setContent(text);
-		twitterPost.setHashtags(getOrCreateTags(hashtags,session));
+		//twitterPost.setHashtags(getOrCreateTags(hashtags,session));//temporary dissabled
 		twitterPost.setVisibility(visibility);
 		twitterPost.setTweetId(tweetId);
 		twitterPost.setCreatorName(creatorName);
@@ -262,5 +283,7 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 		}
 		return new ArrayList<Long>();
 	}
+
+ 
 
 }
