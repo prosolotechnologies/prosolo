@@ -22,6 +22,8 @@
 	</composite:interface>
 	
 	<composite:implementation>
+	
+		<h:outputScript library="javascript" name="prosolo.tags.js" target="head"/>
 		
 		<div id="#{cc.attrs.value}FormModalDialog" style="display: none;">
 			<h:form id="newActivityForm" class="newActivityForm">

@@ -11,7 +11,6 @@ import org.hibernate.Session;
 import org.prosolo.common.domainmodel.interfacesettings.ActivityWallSettings;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;
 import org.prosolo.common.domainmodel.interfacesettings.LocaleSettings;
-import org.prosolo.common.domainmodel.interfacesettings.StickyMenuSettings;
 import org.prosolo.common.domainmodel.interfacesettings.TermsOfUse;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.domainmodel.user.User;
@@ -74,36 +73,6 @@ public class InterfaceSettingsManagerImpl extends AbstractManagerImpl implements
 		awSettings.setChosenFilter(filter);
 		awSettings.setCourseId(courseId);
 		saveEntity(awSettings);
-		return true;
-	}
-	
-	@Override
-	@Transactional
-	@Deprecated
-	public boolean changeGoalHints(UserSettings userSettings, boolean setGoalHints) {
-		StickyMenuSettings stickyMenySettings = userSettings.getStickyMenuSettings();
-		stickyMenySettings.setGoalHelpOff(setGoalHints);
-		saveEntity(stickyMenySettings);
-		return true;
-	}
-	
-	@Override
-	@Transactional
-	@Deprecated
-	public boolean hideBubbleMessage(UserSettings userSettings, String messageBubble) {
-		StickyMenuSettings stickyMenySettings = userSettings.getStickyMenuSettings();
-		stickyMenySettings.addHiddenBubble(messageBubble);
-		saveEntity(stickyMenySettings);
-		return true;
-	}
-	
-	@Override
-	@Transactional
-	@Deprecated
-	public boolean showAllBubbleMessages(UserSettings userSettings) {
-		StickyMenuSettings stickyMenySettings = userSettings.getStickyMenuSettings();
-		stickyMenySettings.getHiddenBubbles().clear();
-		saveEntity(stickyMenySettings);
 		return true;
 	}
 	

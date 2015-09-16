@@ -23,7 +23,8 @@
 	
 	<composite:implementation>
 		
-		<h:outputScript library="javascript" name="prosolo.autosaveForm.js" />
+		<h:outputScript library="javascript" name="prosolo.autosaveForm.js" target="head"/>
+		<h:outputScript library="javascript" name="prosolo.tags.js" target="head"/>
 	
 		<utilcomp:messagesBundle var="msg" />
 		

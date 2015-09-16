@@ -11,6 +11,8 @@
 	xmlns:action="http://java.sun.com/jsf/composite/components/actions"
 	xmlns:pt="http://java.sun.com/jsf/passthrough">
 	
+	<h:outputScript library="javascript" name="prosolo.tags.js" target="head"/>
+	
 	<utilcomp:messagesBundle var="msg" />
 
 	<div id="competenceDetailsFormModalDialog" title="Competence details" style="display: none;">
@@ -101,7 +103,6 @@
 						    $('#competenceDetailsFormModalDialog .description').readmore({
 								maxHeight: 60,
 								afterToggle: function(trigger, elem, expanded) {
-									console.log($(this).prev().length);
 									sendServiceUse('MOUSE_CLICK', {context: $(elem).attr('context'), link: expanded ? 'more' : 'less'});
 								}
 							});
@@ -240,8 +241,6 @@
 
 				<c:if test="#{loggeduser != null and loggeduser.loggedIn}">
 					<h:panelGroup layout="block" id="actionButtons"	class="actionButtons">
-						<h:outputScript library="javascript" name="compDetailsDialog.js" />
-	
 						<p:commandLink value="LIKE"
 							rendered="#{!competenceDialog.formData.likedByUser}"
 							styleClass="button gray size30 left"
@@ -323,6 +322,11 @@
 					$('.compDetails .detailsEdit .description textarea').autosize();
 					
 					positionDialogCenter('#competenceDetailsFormModalDialog');
+
+					$(function(){
+						roundImages();
+						$('#competenceDetailsFormModalDialog .expandableText').shortenedText({showChar: 150});
+					});
 				</script>
 			</div>
 		</h:form>

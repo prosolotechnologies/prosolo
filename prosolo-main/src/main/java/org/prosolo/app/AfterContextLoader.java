@@ -5,6 +5,7 @@ import javax.servlet.ServletContextListener;
 
 import org.apache.log4j.Logger;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.prosolo.app.bc.BusinessCase;
 import org.prosolo.app.bc.BusinessCase1_DL;
 import org.prosolo.app.bc.BusinessCase2_AU;
@@ -33,7 +34,6 @@ import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 
 public class AfterContextLoader implements ServletContextListener {
 
@@ -83,7 +83,7 @@ public class AfterContextLoader implements ServletContextListener {
 			public void run() {
 				try {
 					Client client = ElasticSearchFactory.getClient();
-				} catch (IndexingServiceNotAvailable e) {
+				} catch (NoNodeAvailableException e) {
 					logger.error(e);
 				}
 				System.out.println("Finished ElasticSearch initialization:" + CommonSettings.getInstance().config.rabbitMQConfig.distributed + " .."

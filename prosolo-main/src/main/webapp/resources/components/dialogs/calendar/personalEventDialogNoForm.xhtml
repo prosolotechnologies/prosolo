@@ -14,6 +14,10 @@
 	</composite:interface>
 	
 	<composite:implementation>
+		<h:outputStylesheet library="css" name="jquery.timepicker.css"  />
+		
+		<h:outputScript library="javascript" name="jquery.timepicker.min.js" target="head" />
+	
 		<p:growl id="personalEventDetailsGrowl" showDetail="true" />
 		
 		<h:panelGroup layout="block" class="personalEventDialog">

@@ -30,11 +30,10 @@
 			<div id="link"></div>
 			
 			<script>
-			console.log(document.referrer);
-				if (document.referrer.length > 0) {
-					$('#link').append('<a href="'+document.referrer+'" class="button grey size30 left">Back</a>');
-				}
-				</script>
+			if (document.referrer.length > 0) {
+				$('#link').append('<a href="'+document.referrer+'" class="button grey size30 left">Back</a>');
+			}
+			</script>
 		</div><!-- .main end -->
 		
 		<div class="clear"></div>

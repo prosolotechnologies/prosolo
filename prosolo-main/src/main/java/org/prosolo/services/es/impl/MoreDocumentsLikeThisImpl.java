@@ -1,14 +1,13 @@
 package org.prosolo.services.es.impl;
-
  
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
-//import org.elasticsearch.common.Base64;
 import org.elasticsearch.index.query.AndFilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.FilteredQueryBuilder;
@@ -23,62 +22,65 @@ import org.prosolo.services.es.MoreDocumentsLikeThis;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexNames;
 import org.prosolo.services.indexing.ElasticSearchFactory;
-import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.springframework.stereotype.Service;
 
-
-/**
- * zoran
- */
 @Service("org.prosolo.services.es.MoreDocumentsLikeThis")
 public class MoreDocumentsLikeThisImpl extends AbstractManagerImpl implements
 		MoreDocumentsLikeThis {
+	
+	private Logger logger = Logger.getLogger(MoreDocumentsLikeThisImpl.class);
 
 	private static final long serialVersionUID = -7161733128379263294L;
 
-	String moreDocumentsLikeThisFields = "file";
-
+	@SuppressWarnings("unused")
+	private String moreDocumentsLikeThisFields = "file";
 
 	@Override
-	public List<String> findDocumentDuplicates(String likeText) throws IndexingServiceNotAvailable{
-		Client client = ElasticSearchFactory.getClient();
+	public List<String> findDocumentDuplicates(String likeText) {
 		List<String> duplicates = new ArrayList<String>();
-		QueryBuilder qb = null;
-		qb = QueryBuilders.moreLikeThisQuery("file", "url", "title").likeText(likeText).minTermFreq(0).minDocFreq(1).maxQueryTerms(1000000);
-		SearchResponse sr = null;
-		
+
 		try {
-			sr = client.prepareSearch(ESIndexNames.INDEX_DOCUMENTS)
-					.setQuery(qb)
-					.addFields("url", "title", "contentType", "uniqueness")
-					.setFrom(0)
-					.setSize(5)
-					.execute()
-					.actionGet();
-		} catch (Exception ex) {
-			logger.error("Error:" + ex.getLocalizedMessage());
-			return duplicates;
-		}
+			Client client = ElasticSearchFactory.getClient();
 		
-		if (sr != null) {
-			SearchHits searchHits = sr.getHits();
-			Iterator<SearchHit> hitsIter = searchHits.iterator();
+			QueryBuilder qb = null;
+			qb = QueryBuilders.moreLikeThisQuery("file", "url", "title").likeText(likeText).minTermFreq(0).minDocFreq(1).maxQueryTerms(1000000);
+			SearchResponse sr = null;
 			
-			while (hitsIter.hasNext()) {
-				SearchHit searchHit = hitsIter.next();
-				if (searchHit.getScore() > 0.7) {
-					if (searchHit.getFields().containsKey("uniqueness")) {
-						duplicates.add(searchHit.getFields().get("uniqueness").getValue().toString());
+			try {
+				sr = client.prepareSearch(ESIndexNames.INDEX_DOCUMENTS)
+						.setQuery(qb)
+						.addFields("url", "title", "contentType", "uniqueness")
+						.setFrom(0)
+						.setSize(5)
+						.execute()
+						.actionGet();
+			} catch (Exception ex) {
+				logger.error("Error:" + ex.getLocalizedMessage());
+				return duplicates;
+			}
+			
+			if (sr != null) {
+				SearchHits searchHits = sr.getHits();
+				Iterator<SearchHit> hitsIter = searchHits.iterator();
+				
+				while (hitsIter.hasNext()) {
+					SearchHit searchHit = hitsIter.next();
+					if (searchHit.getScore() > 0.7) {
+						if (searchHit.getFields().containsKey("uniqueness")) {
+							duplicates.add(searchHit.getFields().get("uniqueness").getValue().toString());
+						}
 					}
 				}
 			}
+		} catch (NoNodeAvailableException e) {
+			logger.error(e);
 		}
 		return duplicates;
 	}
 
 	@Override
 	public List<RecommendedDocument> getSuggestedDocumentsForLearningGoal(
-			String likeText, long userId, int limit) throws IndexingServiceNotAvailable {
+			String likeText, long userId, int limit) {
 		
 		List<RecommendedDocument> foundDocs = new ArrayList<RecommendedDocument>();
 		
@@ -128,7 +130,7 @@ public class MoreDocumentsLikeThisImpl extends AbstractManagerImpl implements
 				}
 			}
 		} catch (NoNodeAvailableException e) {
-			throw new IndexingServiceNotAvailable("ElasticSearch node is not available. " + e);
+			logger.error(e);
 		}
 		return foundDocs;
 	}

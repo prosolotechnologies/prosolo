@@ -8,10 +8,15 @@ function enableDropdown(elem, mode) {
 
 	$(elem).on(m, function(e){
 		e.stopPropagation();
+
+		$('.dropdown:not(.searchSystem .dropdown)').addClass('hidden');	
 		
-		if ($(this).nextAll('.dropdown').hasClass('hidden')) {
+		if ($(this).hasClass('pressed')) {
+			$(this).nextAll('.dropdown').addClass('hidden');
+			$(this).removeClass('pressed');
+		} else {
 			$(this).nextAll('.dropdown').removeClass('hidden');
-			$(this).toggleClass('pressed');
+			$(this).addClass('pressed');
 		}
 	});
 }
@@ -196,16 +201,16 @@ $(document).ready(function() {
 	//dropdown
 	enableDropdown('.arrow, .postOptArrow, .filterDrop, .shareDrop, .loginLink');
 	
-	$(document).on('click', function(){						// when clicking anywhere on the site
-		$('.dropdown').addClass('hidden');					// add class 'hidden' to all dropdowns
-		$('.arrow').removeClass('pressed');
-		$('.postOptArrow').removeClass('pressed');
-		$('.drop').removeClass('pressed');
-		$('.compsArrow').removeClass('pressed');
-		$('.filterDrop').removeClass('pressed');
-		$('.compDrop').removeClass('pressed');
-		$('.navMore').removeClass('pressed');
-		$('#globalsearchresults').fadeOut();
+	$(document).on('click', function(){											// when clicking anywhere on the site
+		$('.dropdown:not(.searchSystem .dropdown)').addClass('hidden');			// add class 'hidden' to all dropdowns
+		//$('.arrow').removeClass('pressed');
+		//$('.postOptArrow').removeClass('pressed');
+		//$('.drop').removeClass('pressed');
+		//$('.compsArrow').removeClass('pressed');
+		//$('.filterDrop').removeClass('pressed');
+		//$('.compDrop').removeClass('pressed');
+		//$('.navMore').removeClass('pressed');
+		$('.pressed').removeClass('pressed');
 	});
 	
 });

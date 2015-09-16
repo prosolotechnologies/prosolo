@@ -7,15 +7,18 @@
 		var init = function() {
 			$(opts.searchInput).attr('placeholder', opts.watermark);
 			
-			//add a listener to search result container to prevent bubling click event to the document
-			$(document).on('click', function(e){
-				$(opts.resultContainer).fadeOut();
-			});
+			if (opts.hideSearchResultsOnOutsideClick) {
+				//add a listener to document to hide search results
+				$(document).on('click', function(e){
+					$(opts.resultContainer).fadeOut();
+				});
+			}	
 			
-			//add a listener to document to hide search results
+			//add a listener to search result container to prevent bubling click event to the document
 			$(opts.resultContainer).on('click', function(e){
 				e.stopPropagation();
 			});
+			
 			$(opts.searchInput).on('click', function(){
 				$(this).select();
 			}).on('keyup', function(){
@@ -91,6 +94,7 @@
 		watermark: 'Search',
 		loaderImage: 'resources/images/style/ajax-loader-white.gif',
 		searchAction: null,
-		timeout: 200
+		timeout: 200,
+		hideSearchResultsOnOutsideClick: true,
 	};
 })(jQuery);

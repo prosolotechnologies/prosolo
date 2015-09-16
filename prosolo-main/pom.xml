@@ -580,6 +580,18 @@
 			<artifactId>compiler</artifactId>
 			<version>0.8.17</version>
 		</dependency>
+		<!-- Used for LTI Oauth validation -->
+		<dependency>
+			<groupId>net.oauth.core</groupId>
+			<artifactId>oauth-provider</artifactId>
+			<version>20100527</version>
+		</dependency>
+		<!-- Used for LTI oAuth body signing -->
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.10</version>
+		</dependency>
 	</dependencies>
 
 	<repositories>
@@ -733,25 +745,25 @@
 					<version>2.17</version>
 				</plugin>
 				<plugin>
-				<groupId>org.eclipse.m2e</groupId>
-				<artifactId>lifecycle-mapping</artifactId>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
 					<version>1.0.0</version>
 					<configuration>
 						<lifecycleMappingMetadata>
 							<pluginExecutions>
-							<pluginExecution>
-							<pluginExecutionFilter>
-							<groupId>org.codehaus.mojo</groupId>
-							<artifactId>keytool-maven-plugin</artifactId>
-							<version>1.5</version>
-							<goals>
-							<goal>compile</goal>
-							</goals>
-							</pluginExecutionFilter>
-							<action>
-							<execute/>
-							</action>
-							</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.codehaus.mojo</groupId>
+										<artifactId>keytool-maven-plugin</artifactId>
+										<version>1.5</version>
+										<goals>
+											<goal>compile</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<execute />
+									</action>
+								</pluginExecution>
 							</pluginExecutions>
 						</lifecycleMappingMetadata>
 					</configuration>

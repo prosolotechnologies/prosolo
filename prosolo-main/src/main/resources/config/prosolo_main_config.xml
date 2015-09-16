@@ -48,7 +48,7 @@
 		<!-- How many items should be shown in search box by default -->
 		<default-search-items-number>3</default-search-items-number>
 		<!-- How many items should be shown in global search box by default -->
-		<global-search-items-number>2</global-search-items-number>
+		<global-search-items-number>5</global-search-items-number>
 		<!-- How many items should be shown in side box by default -->
 		<default-sidebox-elements-number>3</default-sidebox-elements-number>
 		<!-- How many top results will be returned from the More???LikeThis services -->

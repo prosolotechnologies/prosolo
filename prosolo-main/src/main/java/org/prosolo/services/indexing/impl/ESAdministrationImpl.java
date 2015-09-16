@@ -25,6 +25,7 @@ import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
@@ -64,46 +65,52 @@ public class ESAdministrationImpl implements ESAdministration {
 	
 	@Override
 	public void createIndex(String indexName) throws IndexingServiceNotAvailable {
-		Client client = ElasticSearchFactory.getClient();
-		boolean exists = client.admin().indices().prepareExists(indexName)
-				.execute().actionGet().isExists();
-		if (!exists) {
-			ElasticSearchConfig elasticSearchConfig = CommonSettings.getInstance().config.elasticSearch;
-			ImmutableSettings.Builder elasticsearchSettings = ImmutableSettings.settingsBuilder()
-	                  .put("http.enabled", "false")
-	                  .put("cluster.name", elasticSearchConfig.clusterName)
-	                  .put("index.number_of_replicas", elasticSearchConfig.replicasNumber) 
-	                  .put("index.number_of_shards", elasticSearchConfig.shardsNumber);
-			client.admin()
-					.indices()
-					.create(createIndexRequest(indexName).settings(elasticsearchSettings)
-							//)
-							).actionGet();
-			logger.debug("Running Cluster Health");
-			ClusterHealthResponse clusterHealth = client.admin().cluster()
-					.health(clusterHealthRequest().waitForGreenStatus())
-					.actionGet();
-			logger.debug("Done Cluster Health, status "
-					+ clusterHealth.getStatus());
+		try {
+			Client client = ElasticSearchFactory.getClient();
+		
+			boolean exists = client.admin().indices().prepareExists(indexName)
+					.execute().actionGet().isExists();
 			
-			//String indexType="";
-			//String mappingPath=null;
-			if (indexName.equals(ESIndexNames.INDEX_DOCUMENTS)) {
-				//indexType=ESIndexTypes.DOCUMENT;
-				//mappingPath="/org/prosolo/services/indexing/"+indexName+"-mapping.json";
-				this.addMapping(client,  indexName, ESIndexTypes.DOCUMENT);
-			} else if (indexName.equals(ESIndexNames.INDEX_NODES)) {
-				//mappingPath="/org/prosolo/services/indexing/"+indexName+"-mapping.json";
-				this.addMapping(client, indexName, ESIndexTypes.ACTIVITY);
-				this.addMapping(client, indexName, ESIndexTypes.COMPETENCE);
-				this.addMapping(client, indexName, ESIndexTypes.COURSE);
-				this.addMapping(client, indexName, ESIndexTypes.LEARNINGGOAL);
-				//mappingPath="/org/prosolo/services/indexing/tags-mapping.json";
-				this.addMapping(client, indexName, ESIndexTypes.TAGS);
-			} else if (indexName.equals(ESIndexNames.INDEX_USERS)) {
-				//mappingPath="/org/prosolo/services/indexing/users-mapping.json";
-				this.addMapping(client,  indexName, ESIndexTypes.USER);
+			if (!exists) {
+				ElasticSearchConfig elasticSearchConfig = CommonSettings.getInstance().config.elasticSearch;
+				ImmutableSettings.Builder elasticsearchSettings = ImmutableSettings.settingsBuilder()
+		                  .put("http.enabled", "false")
+		                  .put("cluster.name", elasticSearchConfig.clusterName)
+		                  .put("index.number_of_replicas", elasticSearchConfig.replicasNumber) 
+		                  .put("index.number_of_shards", elasticSearchConfig.shardsNumber);
+				client.admin()
+						.indices()
+						.create(createIndexRequest(indexName).settings(elasticsearchSettings)
+								//)
+								).actionGet();
+				logger.debug("Running Cluster Health");
+				ClusterHealthResponse clusterHealth = client.admin().cluster()
+						.health(clusterHealthRequest().waitForGreenStatus())
+						.actionGet();
+				logger.debug("Done Cluster Health, status "
+						+ clusterHealth.getStatus());
+				
+				//String indexType="";
+				//String mappingPath=null;
+				if (indexName.equals(ESIndexNames.INDEX_DOCUMENTS)) {
+					//indexType=ESIndexTypes.DOCUMENT;
+					//mappingPath="/org/prosolo/services/indexing/"+indexName+"-mapping.json";
+					this.addMapping(client,  indexName, ESIndexTypes.DOCUMENT);
+				} else if (indexName.equals(ESIndexNames.INDEX_NODES)) {
+					//mappingPath="/org/prosolo/services/indexing/"+indexName+"-mapping.json";
+					this.addMapping(client, indexName, ESIndexTypes.ACTIVITY);
+					this.addMapping(client, indexName, ESIndexTypes.COMPETENCE);
+					this.addMapping(client, indexName, ESIndexTypes.COURSE);
+					this.addMapping(client, indexName, ESIndexTypes.LEARNINGGOAL);
+					//mappingPath="/org/prosolo/services/indexing/tags-mapping.json";
+					this.addMapping(client, indexName, ESIndexTypes.TAGS);
+				} else if (indexName.equals(ESIndexNames.INDEX_USERS)) {
+					//mappingPath="/org/prosolo/services/indexing/users-mapping.json";
+					this.addMapping(client,  indexName, ESIndexTypes.USER);
+				}
 			}
+		} catch (NoNodeAvailableException e) {
+			logger.error(e);
 		}
 	}
 	
@@ -134,12 +141,18 @@ public class ESAdministrationImpl implements ESAdministration {
 	public void deleteIndex(String indexName) throws IndexingServiceNotAvailable {
 		logger.debug("deleting index [" + indexName + "]");
 
-		Client client = ElasticSearchFactory.getClient();
-		boolean exists = client.admin().indices().prepareExists(indexName).execute().actionGet().isExists();
-		if (exists) {
-			client.admin().indices().delete(deleteIndexRequest(indexName)).actionGet();
+		try {
+			Client client = ElasticSearchFactory.getClient();
+			
+			boolean exists = client.admin().indices().prepareExists(indexName).execute().actionGet().isExists();
+			
+			if (exists) {
+				client.admin().indices().delete(deleteIndexRequest(indexName)).actionGet();
+			}
+		} catch (NoNodeAvailableException e) {
+			logger.error(e);
+			return;
 		}
-		//client.close();
 	}
 	
 	@Override

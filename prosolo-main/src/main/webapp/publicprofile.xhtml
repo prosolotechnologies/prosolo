@@ -181,65 +181,67 @@
 					</div>
 				</div>
 				
-				<div class="socialNetworks">
-					<h3>Social Networks</h3>
+				<div class="socialNetworksInterestsContainer">
+					<div class="socialNetworks">
+						<h3>Social Networks</h3>
+						
+						<h:panelGroup id="socialNetworksContainer" class="socialNetworksContainer left">
+							<c:if test="#{publicportfolio.socialNetworksData.twitterLink != null and 
+										publicportfolio.socialNetworksData.twitterLink.length() > 0}">
+								<a href="#{publicportfolio.socialNetworksData.twitterLink}"
+									onclick="sendLogPageNavigation('#{publicportfolio.socialNetworksData.twitterLink}', 'publicprofile.${userId}.info.socialNetworks.twitter');"
+									target="_blank" class="icon twitter active"></a>
+							</c:if>
+							<c:if test="#{publicportfolio.socialNetworksData.twitterLink == null or 
+										publicportfolio.socialNetworksData.twitterLink.length() == 0}">
+								<span class="icon twitter inactive"></span>
+							</c:if>
+							
+							<c:if test="#{publicportfolio.socialNetworksData.facebookLink != null and 
+										publicportfolio.socialNetworksData.facebookLink.length() > 0}">
+								<a href="#{publicportfolio.socialNetworksData.facebookLink}"
+									onclick="sendLogPageNavigation('#{publicportfolio.socialNetworksData.facebookLink}', 'publicprofile.${userId}.info.socialNetworks.facebook');"
+									target="_blank" class="icon facebook active"></a>
+							</c:if>
+							<c:if test="#{publicportfolio.socialNetworksData.facebookLink == null or 
+										publicportfolio.socialNetworksData.facebookLink.length() == 0}">
+								<span class="icon facebook inactive"></span>
+							</c:if>
+							
+							<c:if test="#{publicportfolio.socialNetworksData.gplusLink != null and 
+										publicportfolio.socialNetworksData.gplusLink.length() > 0}">
+								<a href="#{publicportfolio.socialNetworksData.gplusLink}"
+									onclick="sendLogPageNavigation('#{publicportfolio.socialNetworksData.gplusLink}', 'publicprofile.${userId}.info.socialNetworks.gplus');"
+									target="_blank" class="icon gplus active"></a>
+							</c:if>
+							<c:if test="#{publicportfolio.socialNetworksData.gplusLink == null or 
+										publicportfolio.socialNetworksData.gplusLink.length() == 0}">
+								<span class="icon gplus inactive"></span>
+							</c:if>
+							
+							<c:if test="#{publicportfolio.socialNetworksData.blogLink != null and 
+										publicportfolio.socialNetworksData.blogLink.length() > 0}">
+								<a href="#{publicportfolio.socialNetworksData.blogLink}"
+									onclick="sendLogPageNavigation('#{publicportfolio.socialNetworksData.blogLink}', 'publicprofile.${userId}.info.socialNetworks.blog');"
+									target="_blank" class="icon blog active"></a>
+							</c:if>
+							<c:if test="#{publicportfolio.socialNetworksData.blogLink == null or 
+										publicportfolio.socialNetworksData.blogLink.length() == 0}">
+								<span class="icon blog inactive"></span>
+							</c:if>
+						</h:panelGroup>
+						
+						<utilcomp:lazyLoad 
+							parentClass="socialNetworks"
+							updateOnComplete=":socialNetworksContainer"
+							loaderContainer=".socialNetworksContainer"
+							initializeAction="#{publicportfolio.initSocialNetworks()}"
+						/>
+					</div>
 					
-					<h:panelGroup id="socialNetworksContainer" class="socialNetworksContainer left">
-						<c:if test="#{publicportfolio.socialNetworksData.twitterLink != null and 
-									publicportfolio.socialNetworksData.twitterLink.length() > 0}">
-							<a href="#{publicportfolio.socialNetworksData.twitterLink}"
-								onclick="sendLogPageNavigation('#{publicportfolio.socialNetworksData.twitterLink}', 'publicprofile.${userId}.info.socialNetworks.twitter');"
-								target="_blank" class="icon twitter active"></a>
-						</c:if>
-						<c:if test="#{publicportfolio.socialNetworksData.twitterLink == null or 
-									publicportfolio.socialNetworksData.twitterLink.length() == 0}">
-							<span class="icon twitter inactive"></span>
-						</c:if>
-						
-						<c:if test="#{publicportfolio.socialNetworksData.facebookLink != null and 
-									publicportfolio.socialNetworksData.facebookLink.length() > 0}">
-							<a href="#{publicportfolio.socialNetworksData.facebookLink}"
-								onclick="sendLogPageNavigation('#{publicportfolio.socialNetworksData.facebookLink}', 'publicprofile.${userId}.info.socialNetworks.facebook');"
-								target="_blank" class="icon facebook active"></a>
-						</c:if>
-						<c:if test="#{publicportfolio.socialNetworksData.facebookLink == null or 
-									publicportfolio.socialNetworksData.facebookLink.length() == 0}">
-							<span class="icon facebook inactive"></span>
-						</c:if>
-						
-						<c:if test="#{publicportfolio.socialNetworksData.gplusLink != null and 
-									publicportfolio.socialNetworksData.gplusLink.length() > 0}">
-							<a href="#{publicportfolio.socialNetworksData.gplusLink}"
-								onclick="sendLogPageNavigation('#{publicportfolio.socialNetworksData.gplusLink}', 'publicprofile.${userId}.info.socialNetworks.gplus');"
-								target="_blank" class="icon gplus active"></a>
-						</c:if>
-						<c:if test="#{publicportfolio.socialNetworksData.gplusLink == null or 
-									publicportfolio.socialNetworksData.gplusLink.length() == 0}">
-							<span class="icon gplus inactive"></span>
-						</c:if>
-						
-						<c:if test="#{publicportfolio.socialNetworksData.blogLink != null and 
-									publicportfolio.socialNetworksData.blogLink.length() > 0}">
-							<a href="#{publicportfolio.socialNetworksData.blogLink}"
-								onclick="sendLogPageNavigation('#{publicportfolio.socialNetworksData.blogLink}', 'publicprofile.${userId}.info.socialNetworks.blog');"
-								target="_blank" class="icon blog active"></a>
-						</c:if>
-						<c:if test="#{publicportfolio.socialNetworksData.blogLink == null or 
-									publicportfolio.socialNetworksData.blogLink.length() == 0}">
-							<span class="icon blog inactive"></span>
-						</c:if>
-					</h:panelGroup>
-					
-					<utilcomp:lazyLoad 
-						parentClass="socialNetworks"
-						updateOnComplete=":socialNetworksContainer"
-						loaderContainer=".socialNetworksContainer"
-						initializeAction="#{publicportfolio.initSocialNetworks()}"
-					/>
-				</div>
-				
-				<div class="userInterests">
-					<port:userinterests id="userInterests" edit="false" user="#{publicportfolio.profileOwner}"/>
+					<div class="userInterests">
+						<port:userinterests id="userInterests" edit="false" user="#{publicportfolio.profileOwner}"/>
+					</div>
 				</div>
 				
 				<div class="clear separator"></div>

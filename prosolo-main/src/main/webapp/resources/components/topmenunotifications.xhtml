@@ -9,30 +9,30 @@
 	<h:form id="notificationForm">
 		<p:growl id="notificationsGrowl" showDetail="true" />
 		
-		<ui:remove>
 		<p:poll interval="#{topNotificationsBean.refreshRate}"
-			update=":notificationForm:topMenuNotificationPanel"
+			oncomplete="roundImages" update=":notificationForm:notificationsInboxPanel"
 			widgetVar="notificationsPoll" autoStart="true" />
-		</ui:remove>
 			
-		<h:panelGroup id="topMenuNotificationPanel">
-			<div class="notificationContainer">
+		<h:panelGroup class="relPos" id="notificationsInboxPanel">
+			<div class="container">
 				<p:commandLink
 					pt:position="s"
-					styleClass="btnNotificationsClass indexTripStep8 inlineBlock right"
+					styleClass="btnNotifications indexTripStep8 inlineBlock right"
 					action="#{topNotificationsBean.initNotifications()}" 
 					actionListener="#{topNotificationsBean.logNotificationServiceUse()}"
 					oncomplete="$('.notificationContainer .circle').hide();"
 					async="true"
-					update=":notificationForm:notificationsContainer">
+					update=":notificationForm:notificationsResultPanelContent">
 					
-					<h:panelGroup layout="block" class="circle" rendered="#{topNotificationsBean.unreadNotificationsNo > 0}">
+					<i class="fa fa-bell-o fa-lg"></i>
+					
+					<h:panelGroup layout="block" class="inboxCircle" rendered="#{topNotificationsBean.unreadNotificationsNo > 0}">
 						#{topNotificationsBean.unreadNotificationsNo}
 					</h:panelGroup>
 				</p:commandLink>
 			</div>
 
-			<div id="notifications" >
+			<div id="notifications">
 				<div class="beeperNub"></div>
 				
 				<h:panelGroup layout="block" id="notificationsContainer" class="notificationsContainer">
@@ -133,13 +133,13 @@
 			
 			<script type="text/javascript">
 			$(function() {
-				$('.btnNotificationsClass').on('click', function(e){
+				$('.btnNotifications').on('click', function(e){
 					e.stopPropagation();
 					if ($('#notifications').hasClass('shown')) {
 						$('#notifications').fadeOut();
 						$('#notifications').removeClass('shown');
 					} else {
-						$('#notifications .notificationsResultPanel').html('<div class="center marginTop10 marginBottom10"><img src="#{request.contextPath}/resources/images/style/ajax-loader-white.gif" style="vertical-align:middle;"/></div>');
+						//$('#notifications .notificationsResultPanel').html('<div class="center marginTop10 marginBottom10"><img src="#{request.contextPath}/resources/images/style/ajax-loader-white.gif" style="vertical-align:middle;"/></div>');
 						$('#notifications').fadeIn();
 						$('#notifications').addClass('shown');
 					}
@@ -150,7 +150,6 @@
 				});
 				
 				$(document).on('click', function(e){
-					e.stopPropagation();
 					$('#notifications').fadeOut();
 					$('#notifications').removeClass('shown');
 				});

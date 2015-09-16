@@ -532,6 +532,8 @@ public class CompWallBean implements Serializable {
 				activityToUploadAssignemnt.getAttachmentPreview().setUploadedAssignmentTitle(fileName);
 				completeActivity(activityToUploadAssignemnt, context);
 				
+				final ActivityWallData activityToUploadAssignemnt1 = activityToUploadAssignemnt;
+				
 				taskExecutor.execute(new Runnable() {
 		            @Override
 		            public void run() {
@@ -539,7 +541,7 @@ public class CompWallBean implements Serializable {
 		            		Session session = (Session) activityManager.getPersistence().openSession();
 		            		
 							TargetActivity targetActivity = activityManager.updateTargetActivityWithAssignement(
-									activityToUploadAssignemnt.getObject().getId(), 
+									activityToUploadAssignemnt1.getObject().getId(), 
 									link,
 									fileName,
 									session);

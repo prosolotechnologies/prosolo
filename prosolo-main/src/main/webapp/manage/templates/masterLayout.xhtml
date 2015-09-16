@@ -21,52 +21,29 @@
 		<title><ui:insert name="windowTitle" /></title>
 	</f:facet>
 	
-	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/adminStyle.css" />
 	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/prosolo-theme/jquery-ui-1.8.21.custom.css" />
-	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/bubbleArrows.css" />
 	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/jquery.qtip.min.css" />
-	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/trip.min.css" />
-	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/jquery.bxslider.css" />
-	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/jquery.timepicker.css" />
 	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/style.css?#{loggeduser.loginTime}" />
 	
-	<!-- 
-	<script src="#{request.contextPath}/resources/javascript/jquery-1.8.23.min.js"></script>
-	<script src="#{request.contextPath}/resources/javascript/jquery-ui-1.8.21.custom.min.js"></script>
-	 -->
-	<script src="https://www.youtube.com/iframe_api"/>
+	<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet" />
+ 	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,400italic,600italic,800' rel='stylesheet' type='text/css' />
+	
 	<script src="#{request.contextPath}/resources/javascript/jquery-ui-1.11.2.min.js"></script>
 	<script src="#{request.contextPath}/resources/javascript/jquery.ui.dialog.closeOnClickOutside.min.js"></script>
-	<!-- included for carusel -->
-	<script src="#{request.contextPath}/resources/javascript/jquery.bxslider.js"></script>
-	<script	src="#{request.contextPath}/resources/javascript/jquery.sticky.js"></script>
-	<script src="#{request.contextPath}/resources/javascript/jquery.jtags.js"></script>
 	<script src="#{request.contextPath}/resources/javascript/custom.js"></script>
-	<script	src="#{request.contextPath}/resources/javascript/jquery.balloon.min.js"></script>
-	<script	src="#{request.contextPath}/resources/javascript/jquery.tabs.js"></script>
 	<script	src="#{request.contextPath}/resources/javascript/jquery.shortenedText.js"></script>
 	<script	src="#{request.contextPath}/resources/javascript/readmore.custom.js"></script>
-	<script	src="#{request.contextPath}/resources/javascript/jquery.propagateHover.js"></script>
-	<script src="#{request.contextPath}/resources/javascript/jquery.newpost.js"></script>
-	<script	src="#{request.contextPath}/resources/javascript/jquery.newcomment.js"></script>
 	<script	src="#{request.contextPath}/resources/javascript/jquery.moreLessBox.js"></script>
 	<script	src="#{request.contextPath}/resources/javascript/jquery.autosize.min.js"></script>
-	<script	src="#{request.contextPath}/resources/javascript/jquery.transit.min.js"></script>
-	<script	src="#{request.contextPath}/resources/javascript/jquery.autoGrowInput.min.js"></script>
 	<script	src="#{request.contextPath}/resources/javascript/jquery.qtip.min.js"></script>
 	<script	src="#{request.contextPath}/resources/javascript/jquery.qtip.prosolo.js"></script>
 	
-	<script	src="#{request.contextPath}/resources/javascript/jquery.timepicker.js"></script>
-	<!-- 
-	<script	src="#{request.contextPath}/resources/javascript/ballonMessage.js"></script>
-	 -->
 	<script	src="#{request.contextPath}/resources/javascript/prosolo.search.js"></script>
 	<script	src="#{request.contextPath}/resources/javascript/prosolo.bigTooltipControl.js"></script>
 	<script	src="#{request.contextPath}/resources/javascript/prosolo.logging.js"></script>
-	<script	src="#{request.contextPath}/resources/javascript/trip-2.0.2.custom.min.js"></script>
-	<script	src="#{request.contextPath}/resources/javascript/prosolo.tutorialTrip.js"></script>
 	<script	src="#{request.contextPath}/resources/javascript/prosolo.overlay.js"></script>
 	
+	<script src="https://www.youtube.com/iframe_api"/>
 	<script	src="#{request.contextPath}/resources/javascript/youtubevideo.js"></script>
 </h:head>
 
@@ -77,14 +54,40 @@
 		<div id="headerWrapper">
 			<div class="header">
 				<div id="headerLeft">
-					<ul class="navigation">
-						<li class="first logoLi">
-							<h:link
-								onclick="sendLogPageNavigation('/manage/competences.xhtml','mainmenu');"
-								outcome="/manage/competences">
-								<span class="logoManage"></span>
-							</h:link>
-						</li>
+					<div class="mainLogos">
+						<h:link
+							onclick="sendLogPageNavigation( '/manage/competences.xhtml', 'mainmenu');" 
+							outcome="/manage/competences">
+							<span class="secManage"></span>
+						</h:link>
+						
+						<h:panelGroup layout="block" rendered="#{loggeduser.hasRole('manager') or loggeduser.hasRole('admin')}">
+							<a class="arrow" href="javascript:void(0);">
+								<i class="fa fa-angle-down"></i>
+							</a>
+							
+							<div class="dropdown hidden">
+								<ul>
+									<li>
+										<h:link 
+											onclick="sendLogPageNavigation('index.xhtml','mainmenu');" 
+											outcome="/index">
+											<span class="logo"></span>
+										</h:link>
+									</li>
+									<li>
+										<h:link rendered="#{loggeduser.hasRole('admin')}"
+											onclick="sendLogPageNavigation( '/admin/users.xhtml', 'mainmenu');"
+											outcome="/admin/users">
+											<span class="secAdmin"></span>
+										</h:link>
+									</li>
+								</ul>
+							</div>
+						</h:panelGroup>
+					</div>
+					
+					<ul class="navigation"> 
 						<li class="#{(util:getPagePath(view.viewId)  == 'competences' or 
 									util:getPagePath(view.viewId)  == 'competence') ? 'selected' : ''}">
 							<h:link
@@ -106,48 +109,20 @@
 								value="Reports"
 								outcome="/manage/reports" />
 						</li>
-						<li class="navItem">
-							<a class="left navMore" href="javascript:void(0);">
-								more <span class="moreArrow"></span>
-							</a>
-							<h:panelGroup layout="block" id="dropNavMenu" class="dropdown hidden">
-								<ul>
-									<li>
-										<h:link
-											onclick="sendLogPageNavigation('/index.xhtml','mainmenu');"
-											value="Prosolo User"
-											outcome="/index" />
-									</li>
-									<li>
-										<h:link rendered="#{loggeduser.hasRole('admin')}"
-											onclick="sendLogPageNavigation('/admin/users.xhtml','mainmenu');"
-											value="Admin"
-											outcome="/admin/users" />
-									</li>
-								</ul>
-							</h:panelGroup>
-							<script>
-								enableDropdown('.navMore');
-							</script>
-						</li>
 					</ul>
 				</div>
 				
 				<div id="headerRight">
 					<div id="name">
-						<a class="arrow" href="javascript:void(0);"/>
-							
-						<h:link outcome="/settings" 
-							class="avatarNameContainer"
-							onclick="sendLogPageNavigationWithParameters('settings.xhtml',{ context:'manager.mainmenu.name', tab:'profile'});" >
-							<f:param  name="tab" value="profile" />
-							
+						<a class="arrow" href="javascript:void(0);">
 							<h:panelGroup id="avatarContainer">
-								<h:graphicImage styleClass="imageRound image30"
-									value="#{profileSettings.accountData.avatarPath}"
-									width="30" height="30" alt="" />
+								<span class="headerAvatar">
+									<h:graphicImage styleClass="imageRound image30"
+										value="#{profileSettings.accountData.avatarPath}"
+										width="30" height="30" alt="" />
+								</span>
 							</h:panelGroup>
-						
+							
 							<h:panelGroup id="userNameContainer">
 								<h:outputText id="userName" value="#{loggeduser.name} #{loggeduser.lastName}" />
 								<script>
@@ -157,8 +132,9 @@
 									})
 								</script>
 							</h:panelGroup>
-						</h:link>
-						
+							<i class="fa fa-angle-down"></i>
+						</a>
+							
 						<div class="dropdown hidden">
 							<ul>
 								<h:form id="userLogoutFormId">
@@ -187,7 +163,9 @@
 											outcome="/settings" />
 									</li>
 									<li>
-										<h:commandLink id="userLogout" value="Logout" action="#{loggeduser.logout}">
+										<h:commandLink id="userLogout" 
+											value="Logout" 
+											action="#{loggeduser.logout}">
 											<f:ajax listener="#{loggingBean.logPageNavigation(loggeduser.user,'logout')}" />
 										</h:commandLink>
 									</li>
@@ -196,12 +174,13 @@
 						</div>
 					</div>
 					
-					<h:panelGroup layout="block" class="mainMenuButtons">
+					<div class="mainMenuButtons indexTripStep7 indexTripStep8" position="s">
 						<ui:include	src="/resources/components/topmenunotifications.xhtml" />
 						<ui:include	src="/resources/components/topmenuinbox.xhtml" />
-					</h:panelGroup>
+						<ui:include src="/resources/components/topmenusearch.xhtml" />
+					</div>
 				</div>
-			</div>
+		</div>
 		</div>
 		<!-- #headerWrapper end -->
 		

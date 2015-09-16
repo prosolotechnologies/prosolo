@@ -26,7 +26,6 @@
 			    $('.goalDetailsData .expandableText').readmore({
 					maxHeight: 40,
 					afterToggle: function(trigger, elem, expanded) {
-						console.log($(this).prev().length);
 						sendServiceUse('MOUSE_CLICK', {context: $(elem).attr('context'), link: expanded ? 'more' : 'less'});
 					}
 				});
