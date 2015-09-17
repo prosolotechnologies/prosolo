@@ -14,35 +14,36 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-@ManagedBean(name="sessioncountbean")
+@ManagedBean(name = "sessioncountbean")
 @Component("sessioncountbean")
 @Scope("singleton")
 public class SessionCountBean implements Serializable {
 
 	private static final long serialVersionUID = 4746791809809052163L;
-	
+
 	@Autowired
 	private AnalyticalServiceCollector collector;
-	
+
 	@Autowired
 	private AccessResolver resolver;
-	
+
 	private Set<String> authenticatedSessions = Collections.synchronizedSet(new HashSet<String>());
-	
+
 	public long sessionsCount() {
 		return authenticatedSessions.size();
 	}
-	
+
 	public void addSession(String id) {
 		authenticatedSessions.add(id);
-		collector.updateInstanceLoggedUserCount(resolver.findServerIPAddress(), Calendar.getInstance()
-				.getTimeInMillis(), authenticatedSessions.size());
 	}
 
 	public void removeSession(String id) {
 		authenticatedSessions.remove(id);
+	}
+
+	public void storeCount() {
 		collector.updateInstanceLoggedUserCount(resolver.findServerIPAddress(), Calendar.getInstance()
-				.getTimeInMillis(), authenticatedSessions.size());
+				.getTimeInMillis(), sessionsCount());
 	}
 
 }
