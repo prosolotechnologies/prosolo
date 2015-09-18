@@ -378,7 +378,7 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 				"AND feedsDigest.feedsSubscriber = :userId " +
 				"AND entry IS NOT NULL " +
 			"ORDER BY entry.relevance ASC, entry.dateCreated DESC";
-		
+		System.out.println("getMyFeedsDigest query:"+query);
 		@SuppressWarnings("unchecked")
 		List<FeedEntry> feedEntries = persistence.currentManager().createQuery(query)
 				.setString("digestClassName", FeedsUtil.convertToDigestClassName(FilterOption.myfeeds))
@@ -389,7 +389,7 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 				.setMaxResults(limit + 1)
 				.setFirstResult((page - 1) * limit)
 				.list();
-		
+		System.out.println("FOUND my feeds:"+feedEntries.size()+" for user:"+userId+" from:"+dateFrom.toString()+" to:"+dateTo.toString());
 		return feedEntries;
 	}
 	
@@ -410,6 +410,7 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 				"AND feedsDigest.feedsSubscriber = :userId " +
 				"AND entry IS NOT NULL " +
 			"ORDER BY entry.relevance ASC, entry.dateCreated DESC";
+		System.out.println("MY FRIENDS FEEDS QUERY:"+query);
 		
 		@SuppressWarnings("unchecked")
 		List<FeedEntry> feedEntries = persistence.currentManager().createQuery(query)
@@ -421,7 +422,7 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 				.setMaxResults(limit + 1)
 				.setFirstResult((page - 1) * limit)
 				.list();
-		
+		System.out.println("FOUND my friends feeds:"+feedEntries.size()+" for user:"+userId+" from:"+dateFrom.toString()+" to:"+dateTo.toString()+" diggestClass:"+FeedsUtil.convertToDigestClassName(FilterOption.friendsfeeds)+" limit:"+limit+" page:"+page);
 		return feedEntries;
 	}
 	
@@ -453,7 +454,7 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 			.setMaxResults(limit + 1)
 			.setFirstResult((page - 1) * limit)
 			.list();
-		
+		System.out.println("FOUND my tweets feeds:"+feedEntries.size()+" for user:"+userId+" from:"+dateFrom.toString()+" to:"+dateTo.toString());
 		return feedEntries;
 	}
 	
@@ -485,7 +486,7 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 			.setMaxResults(limit + 1)
 			.setFirstResult((page - 1) * limit)
 			.list();
-		
+		System.out.println("FOUND course feeds:"+feedEntries.size()+" for course:"+courseId+" from:"+dateFrom.toString()+" to:"+dateTo.toString());
 		return feedEntries;
 	}
 
@@ -516,7 +517,7 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 			.setMaxResults(limit + 1)
 			.setFirstResult((page - 1) * limit)
 			.list();
-		
+		System.out.println("FOUND course tweets:"+feedEntries.size()+" for course:"+courseId+" from:"+dateFrom.toString()+" to:"+dateTo.toString());
 		return feedEntries;
 	}
 	

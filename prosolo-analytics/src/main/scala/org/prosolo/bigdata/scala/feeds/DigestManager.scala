@@ -25,7 +25,9 @@ object DigestManager {
     println("Create feed diggest and send emails called")
     val cal:Calendar=Calendar.getInstance
     cal.add(Calendar.DATE,-1)
-    val yesterday:Date=cal.getTime
+     val yesterday:Date=cal.getTime
+    println("THIS IS TODAY. CHANGE TO YESTERDAY...")
+    //val yesterday:Date=new Date()
     val diggestGeneratorDAO=new DiggestGeneratorDAOImpl
   // val session=HibernateUtil.getSessionFactory().openSession()
    // diggestGeneratorDAO.setSession(session)
@@ -51,13 +53,13 @@ object DigestManager {
 
     
    // createDailyUserSubscribedRSSFeedDigests(yesterday, usersRDD)
-   // createDailyFriendsRSSFeedDigests(yesterday, usersRDD)
+    createDailyFriendsRSSFeedDigests(yesterday, usersRDD)
    
-   //  createDailyCoursesFeedsDigests(yesterday, coursesRDD)
+   // createDailyCoursesFeedsDigests(yesterday, coursesRDD)
      
-    createDailySubscribedHashtagsDigests(yesterday, usersRDD)
-    createDailyCourseHashtagsDigests(yesterday)
-    sendEmailsWithFeedDigests()
+   // createDailySubscribedHashtagsDigests(yesterday, usersRDD)
+   // createDailyCourseHashtagsDigests(yesterday)
+   // sendEmailsWithFeedDigests()
     
   }
  
@@ -67,7 +69,7 @@ object DigestManager {
          val feedsAgregator:FeedsAgregator =new FeedsAgregatorImpl
          users.foreach { 
            userid => {
-             println("STARTING USER:"+userid);
+             println("CREATE DAILY USER SUBSRIBED RSS FEED DIGGESTS USER:"+userid);
              feedsAgregator.generateDailySubscribedRSSFeedsDigestForUser(userid, date)}
            }
          
@@ -76,13 +78,26 @@ object DigestManager {
   }
    private def createDailyFriendsRSSFeedDigests(date:Date, usersRDD:RDD[Long]){
     println("createDailyFriendsRSSFeedDigests")
+    usersRDD.foreachPartition {       
+       users =>  {
+          val feedsAgregator:FeedsAgregator =new FeedsAgregatorImpl
+         users.foreach { 
+            userid =>
+              {
+                println("AGGREGATE PERSONAL BLOG OF USER:"+userid);
+                feedsAgregator.aggregatePersonalBlogOfUser(userid)
+              }
+            }  
+         
+       } 
+     }
      usersRDD.foreachPartition {       
        users =>  {
           val feedsAgregator:FeedsAgregator =new FeedsAgregatorImpl
          users.foreach { 
             userid =>
               {
-                println("STARTING FRIENDS OF USER:"+userid);
+                println("CREATE DAILY FRIENDS RSS FEED DIGGEST OF USER:"+userid);
                 feedsAgregator.generateDailyFriendsRSSFeedDigest(userid, date)
               }
             }  
@@ -102,7 +117,7 @@ object DigestManager {
           val feedsAgregator:FeedsAgregator =new FeedsAgregatorImpl
           courses.foreach { courseid => 
             {
-              println("STARTING COURSE FEED PROCESSING...");
+              println("CREATE DAILY COURSE FEEDS FOR COURSE:"+courseid);
                feedsAgregator.generateDailyCourseRSSFeedsDigest(courseid, date)
           } }
        }
@@ -122,7 +137,7 @@ object DigestManager {
          users.foreach { 
             userid =>
               {
-                println("STARTING FRIENDS OF USER:"+userid);
+                println("CREATE DAILY SUBSCRIBED HASHTAGS DIGGEST OF USER:"+userid);
                 feedsAgregator.generateDailySubscribedTwitterHashtagsDigestForUser(userid, date)
               }
             }  

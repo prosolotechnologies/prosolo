@@ -23,34 +23,19 @@
 			<param name="ConversionPattern" value="%d{ISO8601} %-5p [%c{1}] - %m%n" />
 		</layout>
 	</appender>
-	<!-- <category name="c.d.driver"> -->
-	<!-- <level value="ERROR" /> -->
-	<!-- <appender-ref ref="console" /> -->
-	<!-- </category> -->
-	<!-- <logger name="com.datastax.driver"> -->
-	<!-- <level value="fatal" /> -->
-	<!-- <appender-ref ref="console" /> -->
-	<!-- </logger> -->
-		<!-- logger name="org.hibernate">
-		<level value="DEBUG" />
-		<appender-ref ref="console" />
-	</logger-->
+
 	<logger name="org.apache.spark">
 		<level value="ERROR" />
 		<appender-ref ref="console" />
 	</logger>
 		<logger name="javax.persistence">
-		<level value="WARN" />
+		<level value="ERROR" />
 		<appender-ref ref="console" />
 	</logger>
 	<logger name="org.hibernate.jpa">
-		<level value="WARN" />
+		<level value="ERROR" />
 		<appender-ref ref="console" />
 	</logger>
-	<!-- <logger name="o.a.s.s"> -->
-	<!-- <priority value="off" /> -->
-	<!-- <appender-ref ref="console" /> -->
-	<!-- </logger> -->
 	<logger name="org.prosolo.bigdata.streaming" additivity="false">
 		<level value="DEBUG" />
 		<appender-ref ref="console" />

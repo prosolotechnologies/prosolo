@@ -20,7 +20,6 @@ public abstract class GenericDAOImpl implements GenericDAO {
 	@Override
 	public void setSession(Session s) {  
         this.session = s;  
-        System.out.println("SETTING SESSTION TO:"+s.hashCode());
     } 
 	//@Override
 	/*public Session getSession(){
@@ -28,7 +27,6 @@ public abstract class GenericDAOImpl implements GenericDAO {
 	}*/
 	@Override
 	public Object save(Object entity, Session session) {
-		System.out.println("SAVING ENTITY:"+entity.getClass().getSimpleName());
 		try{
 			boolean isActive = session.getTransaction().isActive();  
             if ( !isActive) {  
@@ -44,18 +42,18 @@ public abstract class GenericDAOImpl implements GenericDAO {
 			}
 			ex.printStackTrace();
 		}
-		System.out.println("SAVED ENTITY");
 		return entity;
 	}
 	@Override
 	public Object save(Object entity) {
 		try{
+ 
 			boolean isActive = session.getTransaction().isActive();  
             if ( !isActive) {  
                 session.beginTransaction();  
             }  
 			session.save(entity);
-			//session.getTransaction().commit();
+			 session.getTransaction().commit();
 		}catch(Exception ex){
 			 		 
 			if(session.getTransaction()!=null){

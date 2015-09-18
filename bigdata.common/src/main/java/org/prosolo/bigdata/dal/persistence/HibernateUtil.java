@@ -58,8 +58,8 @@ public class HibernateUtil {
 					+ host + ":" + port + "/" + database+"?useUnicode=true&characterEncoding=UTF-8");
             configuration.setProperty("hibernate.connection.username", user);
             configuration.setProperty("hibernate.connection.password", password);
-            configuration.setProperty("hibernate.show_sql", "true");
-            configuration.setProperty("hibernate.hbm2ddl.auto", "validate");
+          //  configuration.setProperty("hibernate.show_sql", "true");
+           // configuration.setProperty("hibernate.hbm2ddl.auto", "validate");
              
 
             final Reflections reflections = new Reflections("org.prosolo.common.domainmodel");

@@ -34,5 +34,9 @@
 				<on-startup>true</on-startup>
 			</job>
 		</quartz-jobs>
+		<streaming-jobs>
+			<twitterStreaming>true</twitterStreaming>
+			<rabbitMQStreaming>true</rabbitMQStreaming>
+		</streaming-jobs>
 	</scheduler-config>
 </config>

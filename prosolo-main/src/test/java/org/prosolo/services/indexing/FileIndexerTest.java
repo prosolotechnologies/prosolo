@@ -95,11 +95,13 @@ public class FileIndexerTest {
 		 // List<String> documents=new LinkedList<String>();
 		
 		  for(Document doc:documents){
-		  MoreLikeThisRequestBuilder mltRequestBuilder = client
+		  @SuppressWarnings("deprecation")
+		MoreLikeThisRequestBuilder mltRequestBuilder = client
 					.prepareMoreLikeThis(ESIndexNames.INDEX_DOCUMENTS,
 							ESIndexTypes.DOCUMENT, doc.id);
 		 // mltRequestBuilder.setField("file");
-		  MoreLikeThisRequest request = mltRequestBuilder.request().fields("file");
+		  @SuppressWarnings("deprecation")
+		MoreLikeThisRequest request = mltRequestBuilder.request().fields("file");
 			request.minDocFreq(0).minTermFreq(0).maxQueryTerms(0);
 			 
 

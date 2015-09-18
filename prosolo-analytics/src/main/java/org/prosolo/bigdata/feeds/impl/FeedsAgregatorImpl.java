@@ -16,6 +16,7 @@ import org.prosolo.common.domainmodel.feeds.SubscribedRSSFeedsDigest;
 import org.prosolo.common.domainmodel.feeds.SubscribedTwitterHashtagsFeedsDigest;
 import org.prosolo.common.domainmodel.user.TimeFrame;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.preferences.FeedsPreferences;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.bigdata.dal.persistence.DiggestGeneratorDAO;
 import org.prosolo.bigdata.dal.persistence.impl.DiggestGeneratorDAOImpl;
@@ -83,20 +84,59 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 	
 	@Override
 	//@Transactional (readOnly = false)
-	public void aggregatePersonalBlogOfUser(User user) {
-		/*user = feedsManager.merge(user);
+	public void aggregatePersonalBlogOfUser(Long userid) {
+		System.out.println("AGGREGATE PERSONAL BLOG FOR USER:"+userid);
+		User user=null;
+		try {
+			user = diggestGeneratorDAO.load(User.class, userid);
+		} catch (ResourceCouldNotBeLoadedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
-		FeedsPreferences feedsPreferences = feedsManager.getFeedsPreferences(user);
+		FeedsPreferences feedsPreferences = diggestGeneratorDAO.getFeedsPreferences(userid);
 		FeedSource personalBlogSource = feedsPreferences.getPersonalBlogSource();
 
 		if (personalBlogSource != null) {
-			
+			System.out.println("PARSING PERSONAL BLOG:"+personalBlogSource.getLink());
 			String userTokenizedString = resourceTokenizer.getTokenizedStringForUser(user);
 			
-			parseRSSFeed(user, user, personalBlogSource, userTokenizedString);
-		}*/
+			List<FeedEntry> entries=parseRSSFeed(user, user, personalBlogSource, userTokenizedString);
+			if(entries.size()>0){		 		 
+		 		diggestGeneratorDAO.saveInBatch(entries);
+			}
+		} 
 	}
-
+	@Override
+	public void generateDailyFriendsRSSFeedDigest(Long userid, Date date) {
+		System.out.println("GENERATE DAILY FRIENDS RSS FEED DIGGEST FOR USER:"+userid);
+	 	List<User> followees = diggestGeneratorDAO.getFollowingUsers(userid);
+		User user=null;
+		try {
+			user = diggestGeneratorDAO.load(User.class, userid);
+		} catch (ResourceCouldNotBeLoadedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//Date latestFeedDigestDate = feedsManager.getLatestFriendsRSSFeedDigestDate(user);
+		//date=new Date();
+		if (followees != null && !followees.isEmpty()) {
+			System.out.println("CHECKING USER:"+userid);
+			List<FeedEntry> friendsFeedEntries = diggestGeneratorDAO.getFeedEntriesForUsers(followees, date);
+			System.out.println("USER:"+user.getId()+" Has followees:"+followees.size()+" Friends feeds Entries:"+friendsFeedEntries.size());
+			if (friendsFeedEntries != null && !friendsFeedEntries.isEmpty()) {
+				FriendsRSSFeedsDigest friendsFeedDigest = new FriendsRSSFeedsDigest();
+				friendsFeedDigest.setEntries(friendsFeedEntries);
+				friendsFeedDigest.setDateCreated(new Date());
+				friendsFeedDigest.setTimeFrame(TimeFrame.DAILY);
+				friendsFeedDigest.setFeedsSubscriber(user);
+				
+				diggestGeneratorDAO.save(friendsFeedDigest);
+				
+				logger.info("Created friends feed digest for user " + user + "; total entries :" + friendsFeedEntries.size());
+			}
+		} 
+	}
 	private List<FeedEntry> parseRSSFeed(User blogOwner, User subscribedUser, FeedSource feedSource, String userTokenizedString) {
 		
 		String link = feedSource.getLink();
@@ -139,36 +179,7 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 		return feedEntries;
 	}
 
-	@Override
-	//@Transactional (readOnly = false)
-	public void generateDailyFriendsRSSFeedDigest(Long userid, Date date) {
-	 	List<User> followees = diggestGeneratorDAO.getFollowingUsers(userid);
-		User user=null;
-		try {
-			user = diggestGeneratorDAO.load(User.class, userid);
-		} catch (ResourceCouldNotBeLoadedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		//Date latestFeedDigestDate = feedsManager.getLatestFriendsRSSFeedDigestDate(user);
-		
-		if (followees != null && !followees.isEmpty()) {
-			
-			List<FeedEntry> friendsFeedEntries = diggestGeneratorDAO.getFeedEntriesForUsers(followees, date);
-			System.out.println("USER:"+user.getId()+" Has followees:"+followees.size()+" Friends feeds Entries:"+friendsFeedEntries.size());
-			if (friendsFeedEntries != null && !friendsFeedEntries.isEmpty()) {
-				FriendsRSSFeedsDigest friendsFeedDigest = new FriendsRSSFeedsDigest();
-				friendsFeedDigest.setEntries(friendsFeedEntries);
-				friendsFeedDigest.setDateCreated(new Date());
-				friendsFeedDigest.setTimeFrame(TimeFrame.DAILY);
-				friendsFeedDigest.setFeedsSubscriber(user);
-				
-				diggestGeneratorDAO.save(friendsFeedDigest);
-				
-				logger.info("Created friends feed digest for user " + user + "; total entries :" + friendsFeedEntries.size());
-			}
-		} 
-	}
+
 	
 	@Override
 	//@Transactional (readOnly = false)
@@ -215,7 +226,7 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 		System.out.println("TOKENIZED STRING:"+userTokenizedString);
 		List<FeedSource> subscribedRssSources = diggestGeneratorDAO.getFeedsPreferences(userid).getSubscribedRssSources();
 		System.out.println("HAVE SOURCES:"+subscribedRssSources.size());
-			
+		List<FeedEntry> subscribedRSSFeedEntries =new ArrayList<FeedEntry>();	
 		for (FeedSource feedSource : subscribedRssSources) {
 			System.out.println("PARSING FEED:"+feedSource.getLink());
 		 	List<FeedEntry> entries=parseRSSFeed(null, user, feedSource, userTokenizedString);
@@ -223,12 +234,13 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 		 	System.out.println("FINISHED PARSING FEED:"+feedSource.getLink());
 		 	if(entries.size()>0){		 		 
 		 		diggestGeneratorDAO.saveInBatch(entries);
+		 		subscribedRSSFeedEntries.addAll(entries);
 		 	}
 		 
 		 
 		}
 		//User user=null;
-		List<FeedEntry> subscribedRSSFeedEntries = diggestGeneratorDAO.getFeedEntriesFromSources(subscribedRssSources, user, dateFrom);
+		//List<FeedEntry> subscribedRSSFeedEntries = diggestGeneratorDAO.getFeedEntriesFromSources(subscribedRssSources, user, dateFrom);
 		System.out.println("KT-2:"+subscribedRSSFeedEntries.size());
 		if (subscribedRSSFeedEntries != null && !subscribedRSSFeedEntries.isEmpty()) {
 			SubscribedRSSFeedsDigest subscribedRSSFeedDigest = new SubscribedRSSFeedsDigest();
@@ -240,7 +252,7 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 			diggestGeneratorDAO.save(subscribedRSSFeedDigest);
 			//feedsManager.saveEntity(subscribedRSSFeedDigest);
 			
-			//logger.info("Created feed digest of subscribed feeds for user " + user + "; total entries:" + subscribedRSSFeedEntries.size());
+			logger.info("Created feed digest of subscribed feeds for user " + user + "; total entries:" + subscribedRSSFeedEntries.size());
 	 	} //
 	}
 	
@@ -342,13 +354,12 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 				ex.printStackTrace();
 				return;
 			}
-			
 			List<Tag> personalHashtags = diggestGeneratorDAO.getSubscribedHashtags(user);
  			if (personalHashtags != null && !personalHashtags.isEmpty()) {
 				List<TwitterPostSocialActivity> tweetsWithHashtags = diggestGeneratorDAO.getTwitterPosts(personalHashtags, dateFrom);
 				System.out.println("NUMBER OF TAGS:"+personalHashtags.size()+" FOUND TWEETS:"+tweetsWithHashtags.size());
 				if (tweetsWithHashtags != null && !tweetsWithHashtags.isEmpty()) {
-				
+				System.out.println("TweetsWithHashtags...");
 					SubscribedTwitterHashtagsFeedsDigest courseRSSFeedDigest = new SubscribedTwitterHashtagsFeedsDigest();
 					courseRSSFeedDigest.setTweets(tweetsWithHashtags);
 					courseRSSFeedDigest.setDateCreated(new Date());
@@ -356,7 +367,7 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 					courseRSSFeedDigest.setFeedsSubscriber(user);
 					System.out.println("TRYING TO SAVE DIGGEST");
 					diggestGeneratorDAO.save(courseRSSFeedDigest);
-					
+					System.out.println("SAVED DIGGEST");
 					logger.info("Created subscribed Twitter hashtag digest for user "  + user + "; total entries :" + tweetsWithHashtags.size());
 				}
 			}

@@ -33,7 +33,7 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 		setSession(HibernateUtil.getSessionFactory().openSession());
 	}
 	
-	@SuppressWarnings({ "unused", "unchecked" })
+	@SuppressWarnings({ "unchecked" })
 	@Override
 	public  List<Long> getAllUsersIds() {
 		//Session session=openSession();
@@ -158,11 +158,13 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 		if (fromDate != null) {
 			q.setDate("fromDate", fromDate);
 		}
-		System.out.println("FEED entries for users:"+users.size());
-	 
 		
+	 
+		System.out.println("QUERY:"+q.toString());
+		System.out.println("FROM DATE:"+fromDate.toString());
 		@SuppressWarnings("unchecked")
 		List<FeedEntry> feedMessages = q.list();
+		System.out.println("FEED entries for users:"+users.size()+" FOUND:"+feedMessages.size());
 		
 		return feedMessages;
 	}
@@ -293,17 +295,21 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 			"FROM TwitterPostSocialActivity post " +
 			"LEFT JOIN post.hashtags hashtag " + 
 			"WHERE hashtag IN (:hashtags) " +
-				"AND year(post.dateCreated) = year(:date) " + 
-				"AND month(post.dateCreated) = month(:date) " + 
-				"AND day(post.dateCreated) = day(:date) " +
+				 "AND year(post.dateCreated) = year(:date) " + 
+				 "AND month(post.dateCreated) = month(:date) " + 
+				//"AND day(post.dateCreated) = day(:date) " +
 			"ORDER BY post.dateCreated DESC ";
-		
+		System.out.println("QUERY:"+query);
+		for(Tag tag:hashtags){
+			System.out.println("TAG:"+tag.getTitle());
+		}
+		System.out.println("DATE:"+date.toString());
 		@SuppressWarnings("unchecked")
 		List<TwitterPostSocialActivity> result = session.createQuery(query)
 				.setParameterList("hashtags", hashtags)
-				.setDate("date", date)
+				 .setDate("date", date)
 				.list();
-
+		System.out.println("RESULTS:"+result.size());
 		return result;
 	}
 }

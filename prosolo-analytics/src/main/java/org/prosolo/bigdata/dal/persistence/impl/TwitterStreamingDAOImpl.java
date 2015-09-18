@@ -153,7 +153,7 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 			twitterPost.setMaker(maker);
 		}
 		twitterPost.setContent(text);
-		//twitterPost.setHashtags(getOrCreateTags(hashtags,session));//temporary dissabled
+		 twitterPost.setHashtags(getOrCreateTags(hashtags,session));//temporary dissabled
 		twitterPost.setVisibility(visibility);
 		twitterPost.setTweetId(tweetId);
 		twitterPost.setCreatorName(creatorName);

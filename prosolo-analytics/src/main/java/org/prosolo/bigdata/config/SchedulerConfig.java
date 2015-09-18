@@ -25,4 +25,7 @@ public class SchedulerConfig {
 
 	@Element(name = "quartz-jobs", required = true)
 	public JobsMap jobs;
+	
+	@Element(name = "streaming-jobs", required = true)
+	public StreamingJobs streamingJobs;
 }

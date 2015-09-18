@@ -51,14 +51,13 @@ public class RecommendedResourcesSearchImplTest {
 				System.out.println("Suggested document:" + searchHit.getId() + " title: score:" + searchHit.getScore());
 			//	Map<String, SearchHitField> hitSource = searchHit.getFields();
 				//System.out.println("hits:"+hitSource.toString()+" fields.:"+hitSource.size());
+				@SuppressWarnings({ "unchecked", "rawtypes" })
 				List<Object> mostactiveusersObjects=(ArrayList) searchHit.getSource().get("mostactiveusers");
 				 System.out.println("MOST ACTIVE NUMBER:"+mostactiveusersObjects.size()+" "+mostactiveusersObjects.toString());
-					Gson gson = new Gson();
-					Type listType = new TypeToken<List<Score>>() {}.getType();
-					List<Score> recommendedUsers = gson.fromJson(mostactiveusersObjects.toString(), listType);
-				for(Score user:recommendedUsers){
-					 
-				}
+				//	Gson gson = new Gson();
+				//	Type listType = new TypeToken<List<Score>>() {}.getType();
+				//	List<Score> recommendedUsers = gson.fromJson(mostactiveusersObjects.toString(), listType);
+			
 				
 				//RecommendedDocument recDoc = new RecommendedDocument(searchHit);
 				//foundDocs.add(recDoc);

@@ -12,7 +12,7 @@ import org.prosolo.common.domainmodel.user.User;
  */
 public interface FeedsAgregator {
 
-	void aggregatePersonalBlogOfUser(User user);
+	//void aggregatePersonalBlogOfUser(User user);
 
 	void generateDailySubscribedRSSFeedsDigest(User user, Date date);
 
@@ -31,5 +31,7 @@ public interface FeedsAgregator {
 	void generateDailyCourseRSSFeedsDigest(Long courseid, Date date);
 
 	void generateDailySubscribedTwitterHashtagsDigestForUser(Long userid, Date dateFrom);
+
+	void aggregatePersonalBlogOfUser(Long userid);
 
 }
