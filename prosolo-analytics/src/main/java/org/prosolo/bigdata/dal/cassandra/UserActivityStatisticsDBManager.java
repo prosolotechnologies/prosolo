@@ -1,4 +1,4 @@
-package org.prosolo.bigdata.dal.cassandra.impl;
+package org.prosolo.bigdata.dal.cassandra;
 
 import java.util.List;
 

@@ -6,6 +6,7 @@ import java.util.List;
 import org.prosolo.bigdata.common.dal.pojo.EventDailyCount;
 import org.prosolo.bigdata.common.dal.pojo.InstanceLoggedUsersCount;
 import org.prosolo.bigdata.common.dal.pojo.UserEventDailyCount;
+import org.prosolo.bigdata.dal.cassandra.UserActivityStatisticsDBManager;
 
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.PreparedStatement;

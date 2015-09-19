@@ -26,7 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.prosolo.bigdata.common.dal.pojo.InstanceLoggedUsersCount;
 import org.prosolo.bigdata.common.dal.pojo.UserEventDailyCount;
 import org.prosolo.bigdata.common.dal.pojo.EventDailyCount;
-import org.prosolo.bigdata.dal.cassandra.impl.UserActivityStatisticsDBManager;
+import org.prosolo.bigdata.dal.cassandra.UserActivityStatisticsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.UserActivityStatisticsDBManagerImpl;
 import org.prosolo.bigdata.utils.DateUtil;
 import org.slf4j.Logger;
