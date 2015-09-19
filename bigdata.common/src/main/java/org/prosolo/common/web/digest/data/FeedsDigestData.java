@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.prosolo.web.digest.data;
+package org.prosolo.common.web.digest.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -10,7 +10,8 @@ import java.util.List;
 import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
 import org.prosolo.common.domainmodel.feeds.FeedEntry;
 import org.prosolo.common.domainmodel.feeds.FeedsDigest;
-import org.prosolo.web.digest.FilterOption;
+import org.prosolo.common.web.digest.FilterOption;
+ 
 
 /**
  * @author "Nikola Milikic"
@@ -31,21 +32,7 @@ public class FeedsDigestData implements Serializable {
 		this.page = 1;
 	}
 	
-	public FeedsDigestData(FeedsDigest digest) {
-		this();
-		
-		if (digest.getEntries() != null && !digest.getEntries().isEmpty()) {
-			for (FeedEntry feedEntry : digest.getEntries()) {
-				entries.add(new FeedEntryData(feedEntry));
-			}
-		}
-		
-		if (digest.getTweets() != null && !digest.getTweets().isEmpty()) {
-			for (TwitterPostSocialActivity tweetEntry : digest.getTweets()) {
-				entries.add(new FeedEntryData(tweetEntry));
-			}
-		}
-	}
+
 	
 	public List<FeedEntryData> getEntries() {
 		return entries;

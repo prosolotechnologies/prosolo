@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.prosolo.common.domainmodel.organization.Unit_User;
+//import org.prosolo.common.domainmodel.user.UserType;
+//import org.prosolo.web.activitywall.data.UserData;
+//import org.prosolo.web.activitywall.data.UserDataFactory;
+//import org.prosolo.web.util.AvatarUtils;
 
 public class UnitUserData extends UserData {
 

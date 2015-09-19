@@ -18,12 +18,13 @@ import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.web.activitywall.data.UserData;
+import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.communications.data.MessageData;
 import org.prosolo.web.communications.data.MessagesThreadData;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -445,7 +446,8 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 			List<UserData> participantsWithoutLoggedUser = new ArrayList<UserData>();
 			
 			for (User u : mThread.getParticipants()) {
-				UserData userData = new UserData(u);
+				//UserData userData = new UserData(u);
+				UserData userData=UserDataFactory.createUserData(u);
 				
 				participants.add(userData);
 				

@@ -14,7 +14,7 @@ public interface FeedsAgregator {
 
 	//void aggregatePersonalBlogOfUser(User user);
 
-	void generateDailySubscribedRSSFeedsDigest(User user, Date date);
+//	void generateDailySubscribedRSSFeedsDigest(User user, Date date);
 
 //	void generateDailyFriendsRSSFeedDigest(User user, Date date);
 
@@ -35,5 +35,7 @@ public interface FeedsAgregator {
 	void aggregatePersonalBlogOfUser(Long userid);
 
 	void generateDailyCourseTwitterHashtagsDigest(Long courseid, Date date);
+
+	void sendEmailWithFeeds(Long userid, Date date);
 
 }

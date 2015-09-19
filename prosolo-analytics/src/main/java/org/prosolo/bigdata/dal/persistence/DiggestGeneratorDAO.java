@@ -12,6 +12,7 @@ import org.prosolo.common.domainmodel.course.Course;
 //import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.feeds.FeedEntry;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
+import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.FeedsPreferences;
 
@@ -40,6 +41,8 @@ public interface DiggestGeneratorDAO extends GenericDAO{
 
 	List<TwitterPostSocialActivity> getTwitterPosts(Collection<Tag> hashtags,
 			Date date);
+
+	UserSettings getUserSettings(long userId);
 
 	//FeedsPreferences getFeedsPreferences(long userId, Session session);
 

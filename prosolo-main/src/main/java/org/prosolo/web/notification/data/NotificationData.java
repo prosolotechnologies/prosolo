@@ -10,8 +10,8 @@ import java.util.List;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.user.notifications.NotificationAction;
 import org.prosolo.common.util.date.DateUtil;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.web.activitywall.data.NodeData;
-import org.prosolo.web.activitywall.data.UserData;
 
 /**
  * @author "Nikola Milikic"

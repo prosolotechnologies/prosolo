@@ -27,6 +27,8 @@ import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSetting
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.util.ImageFormat;
+import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.activityWall.ActivityWallManager;
 import org.prosolo.services.activityWall.filters.AllFilter;
@@ -47,8 +49,6 @@ import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.util.ImageFormat;
-import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

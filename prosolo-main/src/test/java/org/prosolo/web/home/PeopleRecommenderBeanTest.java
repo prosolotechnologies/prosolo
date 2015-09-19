@@ -10,11 +10,12 @@ import org.apache.log4j.Logger;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.core.stress.TestContext;
 import org.prosolo.recommendation.CollaboratorsRecommendation;
 import org.prosolo.services.logging.LoggingDBManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.web.activitywall.data.UserData;
+import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -48,7 +49,7 @@ public class PeopleRecommenderBeanTest  extends TestContext{
 				System.out.println("FOUND USERS:"+users.size());
 				if (users != null && !users.isEmpty()) {
 					for (User user : users) {
-						UserData userData = new UserData(user);
+						UserData userData =  UserDataFactory.createUserData(user);
 						
 						// TODO: Zoran - put here last activity date
 						long timestamp=loggingDBManager.getMostActiveUsersLastActivityTimestamp(user.getId());

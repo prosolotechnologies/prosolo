@@ -17,9 +17,10 @@ import org.prosolo.common.domainmodel.workflow.evaluation.Badge;
 import org.prosolo.common.domainmodel.workflow.evaluation.Evaluation;
 import org.prosolo.common.domainmodel.workflow.evaluation.EvaluationSubmission;
 import org.prosolo.common.util.date.DateUtil;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.util.nodes.NodeCreatedDescComparator;
 import org.prosolo.web.activitywall.data.NodeData;
-import org.prosolo.web.activitywall.data.UserData;
+import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.communications.evaluation.data.EvaluationItemData;
 import org.prosolo.web.communications.evaluation.data.SelectedBadge;
 import org.prosolo.web.util.ResourceBundleUtil;
@@ -54,7 +55,7 @@ public class EvaluationItemDataConverter {
 		User evaluatedResourceMaker = evaluationSubmission.getRequest().getMaker();
 		
 		// user data
-		eData.setUser(new UserData(evaluatedResourceMaker));
+		eData.setUser(UserDataFactory.createUserData(evaluatedResourceMaker));
 		
 		// name
 		eData.setName(evaluatedResourceMaker.getName() +" "+evaluatedResourceMaker.getLastname());
@@ -122,7 +123,7 @@ public class EvaluationItemDataConverter {
 		eData.setCreator(e.getMaker());
 		
 		// user data
-		eData.setUser(new UserData(evaluatedResourceMaker));
+		eData.setUser(UserDataFactory.createUserData(evaluatedResourceMaker));
 		
 		// name
 		eData.setName(evaluatedResourceMaker.getName() +" "+evaluatedResourceMaker.getLastname());

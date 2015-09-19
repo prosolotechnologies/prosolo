@@ -11,7 +11,7 @@ import org.prosolo.config.fileManagement.FileManagementConfig;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.nodes.DefaultManager;
-import org.prosolo.util.ImageFormat;
+import org.prosolo.common.util.ImageFormat;
 import org.prosolo.util.StringUtils;
 
 /**

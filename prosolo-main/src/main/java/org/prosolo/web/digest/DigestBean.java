@@ -16,12 +16,14 @@ import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.feeds.FeedEntry;
 import org.prosolo.common.domainmodel.user.TimeFrame;
 import org.prosolo.common.util.date.DateUtil;
+import org.prosolo.common.web.digest.FilterOption;
+import org.prosolo.common.web.digest.data.FeedEntryData;
+import org.prosolo.common.web.digest.data.FeedsDigestData;
 import org.prosolo.services.feeds.FeedsManager;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.digest.data.DigestCriteria;
-import org.prosolo.web.digest.data.FeedEntryData;
-import org.prosolo.web.digest.data.FeedsDigestData;
+import org.prosolo.web.digest.data.FeedEntryDataFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -208,7 +210,7 @@ public class DigestBean implements Serializable{
 		}
 		
 		for (TwitterPostSocialActivity tweet : entries) {
-			feedsDigestData.addEntry(new FeedEntryData(tweet));
+			feedsDigestData.addEntry(FeedEntryDataFactory.createFeedEntryData(tweet));
 		}
 	}
 	

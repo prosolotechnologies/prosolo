@@ -24,6 +24,7 @@ import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.LoggedUserBean;
+ 
 import org.prosolo.web.administration.data.RoleData;
 import org.prosolo.web.administration.data.UnitData;
 import org.prosolo.web.administration.data.UnitUserData;

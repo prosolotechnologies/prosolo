@@ -14,13 +14,14 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.user.MessagesThread;
 import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.event.EventException;
 //milikicn@bitbucket.org/zjeremic/prosolo-multimodule.git
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserData;
+import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.communications.data.MessageData;
 import org.prosolo.web.home.MessagesBean;
 import org.prosolo.web.logging.LoggingNavigationBean;
@@ -109,7 +110,7 @@ public class DirectMessagesDialog implements Serializable {
 			logger.debug("User "+loggedUser.getUser()+" sent a message to "+receiver+" with content: '"+this.messageContent+"'");
 			
 			List<UserData> participants = new ArrayList<UserData>();
-			participants.add(new UserData(loggedUser.getUser()));
+			participants.add(UserDataFactory.createUserData(loggedUser.getUser()));
 			
 			final SimpleOfflineMessage message1 = message;
 			

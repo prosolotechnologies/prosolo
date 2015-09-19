@@ -9,10 +9,11 @@ import org.apache.log4j.Logger;
 import org.hibernate.ObjectNotFoundException;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserData;
+import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -74,7 +75,7 @@ public class UserDetailsDialog implements Serializable {
 	}
 
 	public void initializeData(User user) {
-		userData = new UserData(user);
+		userData = UserDataFactory.createUserData(user);
 		
 		if (user.equals(loggedUser.getUser())) {
 			userData.setLoggedUser(true);

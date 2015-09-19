@@ -1,14 +1,13 @@
 /**
  * 
  */
-package org.prosolo.web.digest.data;
+package org.prosolo.common.web.digest.data;
 
 import java.io.Serializable;
-
-import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
 import org.prosolo.common.domainmodel.feeds.FeedEntry;
 import org.prosolo.common.util.date.DateUtil;
-import org.prosolo.web.activitywall.data.UserData;
+import org.prosolo.common.web.activitywall.data.UserData;
+
 
 /**
  * @author "Nikola Milikic"
@@ -37,16 +36,11 @@ public class FeedEntryData implements Serializable {
 	//	if (feedEntry.getMaker() != null)
 	//		this.maker = new UserData(feedEntry.getMaker());
 	}
-	
-	public FeedEntryData(TwitterPostSocialActivity tweetEntry) {
-		this.id = tweetEntry.getId();
-		this.title = tweetEntry.getText();
-		this.link = tweetEntry.getPostUrl();
-		this.date = DateUtil.getPrettyDate(tweetEntry.getDateCreated());
+	public FeedEntryData(){
 		
-		if (tweetEntry.getMaker() != null)
-			this.maker = new UserData(tweetEntry.getMaker());
 	}
+	
+	
 
 	public long getId() {
 		return id;

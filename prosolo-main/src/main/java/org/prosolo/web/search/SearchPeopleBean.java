@@ -9,12 +9,13 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.event.ValueChangeEvent;
 
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserData;
+import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -154,7 +155,7 @@ public class SearchPeopleBean implements Serializable{
 		
 		if (users != null && !users.isEmpty()) {
 			for (User user : users) {
-				UserData userData = new UserData(user);
+				UserData userData = UserDataFactory.createUserData(user);
 				userData.setFollowed(followResourceManager.isUserFollowingUser(loggedUser.getUser(), user));
 				usersData.add(userData);
 			}

@@ -23,6 +23,7 @@ import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.string.StringUtil;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.event.EventException;
@@ -32,7 +33,7 @@ import org.prosolo.services.nodes.EvaluationManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserData;
+import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.administration.ResourceSettingsBean;
 import org.prosolo.web.communications.util.UserDataConverter;
 import org.prosolo.web.logging.LoggingNavigationBean;
@@ -114,7 +115,7 @@ public class AskForEvaluationBean implements Serializable {
 				List<User> evaluators = roleManager.getUsersWithRole(evaluatorRoleName);
 				
 				for (User user : evaluators) {
-					UserData userData = new UserData(user);
+					UserData userData = UserDataFactory.createUserData(user);
 					evaluatorList.add(userData);
 				}
 				recalculateUserNo();
@@ -191,7 +192,7 @@ public class AskForEvaluationBean implements Serializable {
 		@SuppressWarnings("unchecked")
 		List<User> result = (List<User>) usersResponse.getFoundNodes();
 		for (User user : result) {
-			UserData userData = new UserData(user);
+			UserData userData = UserDataFactory.createUserData(user);
 			
 			// disable all users that have previously created an evaluation for this resource and this user
 			if (existingEvaluators.contains(user)) {

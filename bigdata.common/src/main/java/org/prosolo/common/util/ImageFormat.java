@@ -1,5 +1,5 @@
 
-package org.prosolo.util;
+package org.prosolo.common.util;
 /**
  * @author Zoran Jeremic
  * @date Jul 6, 2012

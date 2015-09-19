@@ -8,9 +8,9 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 
 import org.prosolo.app.Settings;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserData;
 import org.prosolo.web.courses.data.CourseData;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.search.data.CompetenceData;

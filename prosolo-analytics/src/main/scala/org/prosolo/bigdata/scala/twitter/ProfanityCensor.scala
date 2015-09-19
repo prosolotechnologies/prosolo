@@ -23,11 +23,11 @@ trait ProfanityCensor {
        var polite=true
        val wordsList:List[String]=text.split(" ").toList
        wordsList.map { word =>{
-        var checkword=word
-         if(checkword.startsWith("#")){
-           checkword=word.replace("#", "")
+        var anyword=word
+         if(anyword.startsWith("#")){
+           anyword=word.replace("#", "")
          }
-          if(badWords.contains(checkword)){
+          if(badWords.contains(anyword)){
             polite=false
            // println("FORBIDDEN:"+text+" BECAUSE WORD:"+checkword)
           } else if(forbiddenHashtags.contains(word)){

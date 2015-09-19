@@ -19,6 +19,7 @@ import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.string.StringUtil;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.event.EventException;
@@ -27,7 +28,7 @@ import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.notifications.RequestManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserData;
+import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.goals.LearningGoalsBean;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.logging.LoggingNavigationBean;
@@ -83,7 +84,7 @@ public class InviteGoalCollaboratorDialogBean implements Serializable {
 		
 		if (invited != null && !invited.isEmpty()) {
 			for (User user : invited) {
-				invitedUsers.add(new UserData(user));
+				invitedUsers.add(UserDataFactory.createUserData(user));
 			}
 		}
 		
@@ -201,7 +202,7 @@ public class InviteGoalCollaboratorDialogBean implements Serializable {
 			List<User> result = (List<User>) usersResponse.getFoundNodes();
 			
 			for (User user : result) {
-				UserData userData = new UserData(user);
+				UserData userData = UserDataFactory.createUserData(user);
 				
 				userSearchResults.add(userData);
 			}

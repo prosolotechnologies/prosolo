@@ -15,13 +15,14 @@ import org.prosolo.common.domainmodel.content.Post;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.AttachmentPreview;
 import org.prosolo.web.activitywall.data.NodeData;
-import org.prosolo.web.activitywall.data.UserData;
+import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.activitywall.util.WallActivityConverter;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.useractions.PostActionBean;
@@ -161,7 +162,7 @@ public class PostDialog implements Serializable {
 		
 		if (socialActivity != null) {
 			this.socialActivityToReshare = socialActivity;
-			this.sharedFrom = new UserData(socialActivity.getMaker());
+			this.sharedFrom = UserDataFactory.createUserData(socialActivity.getMaker());
 			
 			BaseEntity object = socialActivity.getObject();
 			

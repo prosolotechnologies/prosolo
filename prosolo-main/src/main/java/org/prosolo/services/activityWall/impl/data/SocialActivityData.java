@@ -22,15 +22,16 @@ import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.ServiceType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserType;
+import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.date.DateUtil;
+import org.prosolo.common.web.activitywall.data.PublishingServiceData;
+import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.services.activityWall.impl.util.SocialActivityConverterUtil;
-import org.prosolo.util.ImageFormat;
 import org.prosolo.web.activitywall.data.AttachmentPreview;
 import org.prosolo.web.activitywall.data.NodeData;
-import org.prosolo.web.activitywall.data.PublishingServiceData;
 import org.prosolo.web.activitywall.data.SocialActivityCommentData;
-import org.prosolo.web.activitywall.data.UserData;
-import org.prosolo.web.util.AvatarUtils;
+import org.prosolo.web.activitywall.data.UserDataFactory;
 
 /**
  * @author Nikola Milikic
@@ -300,7 +301,8 @@ public class SocialActivityData implements Serializable {
 		
 		this.dateCreated = socialActivity.getDateCreated();
 		
-		this.actor = new UserData(socialActivity.getMaker());
+		//this.actor = new UserData(socialActivity.getMaker());
+		this.actor=UserDataFactory.createUserData(socialActivity.getMaker());
 		
 		if (socialActivity instanceof TwitterPostSocialActivity) {
 			
@@ -342,7 +344,8 @@ public class SocialActivityData implements Serializable {
 					this.target = new NodeData(socialActivity.getTarget());
 				}
 			} else if (socialActivity.getTarget() instanceof User) {
-				this.targetActor = new UserData((User) socialActivity.getTarget());
+				//this.targetActor = new UserData((User) socialActivity.getTarget());
+				this.targetActor = UserDataFactory.createUserData((User) socialActivity.getTarget());
 			}
 		}
 		

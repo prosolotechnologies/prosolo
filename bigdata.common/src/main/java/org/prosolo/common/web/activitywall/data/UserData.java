@@ -1,16 +1,14 @@
 /**
  * 
  */
-package org.prosolo.web.activitywall.data;
+package org.prosolo.common.web.activitywall.data;
 
 import java.io.Serializable;
 import java.util.Date;
 
-import org.prosolo.app.Settings;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.UserType;
-import org.prosolo.util.ImageFormat;
-import org.prosolo.web.util.AvatarUtils;
+
+ 
+
 
 /**
  * @author "Nikola Milikic"
@@ -23,7 +21,9 @@ public class UserData implements Serializable, Comparable<UserData> {
 	private long id;
 	private String name = "";
 	private String profileUrl = "";
-	private String avatarUrl = "/" + Settings.getInstance().config.services.userService.defaultAvatarPath + "size60x60.png";;
+	//private String avatarUrl = "/" + Settings.getInstance().config.services.userService.defaultAvatarPath + "size60x60.png";
+	private String avatarUrl ="size60x60.png";
+	//TODO: This avatarURL should be solved
 	private String position = "";
 	private boolean disabled;
 	private boolean followed;
@@ -41,33 +41,7 @@ public class UserData implements Serializable, Comparable<UserData> {
 	
 	public UserData() {}
 
-	public UserData(User user) {
-		if (user != null){
-			this.id = user.getId();
-			this.name = user.getName() + ((user.getLastname() != null) ? " " + user.getLastname() : "");
-			this.profileUrl = user.getProfileUrl();
-			this.avatarUrl = AvatarUtils.getAvatarUrlInFormat(user, ImageFormat.size120x120);
-			
-			if (user.getUserType().equals(UserType.TWITTER_USER)) {
-				this.position = "Twitter User";
-				this.externalUser = true;
-			} else {
-				this.position = user.getPosition();
-			}
-			
-			// location
-			this.locationName = user.getLocationName();
-			if(user.getLatitude()!=null)
-			this.latitude = String.valueOf(user.getLatitude());
-			if(user.getLongitude()!=null)
-			this.longitude = String.valueOf(user.getLongitude());
-		}
-	}
 
-	public UserData(User user, ImageFormat imageFormat) {
-		this(user);
-		this.avatarUrl = AvatarUtils.getAvatarUrlInFormat(user, imageFormat);
-	}
 
 	public long getId() {
 		return id;

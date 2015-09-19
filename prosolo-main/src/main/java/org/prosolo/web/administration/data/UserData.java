@@ -5,8 +5,8 @@ import java.io.Serializable;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.util.ImageFormat;
 import org.prosolo.web.util.AvatarUtils;
+ import org.prosolo.common.util.ImageFormat;
 
 public class UserData implements Serializable {
 

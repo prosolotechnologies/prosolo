@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.prosolo.bigdata.dal.persistence.DiggestGeneratorDAO;
 import org.prosolo.bigdata.dal.persistence.HibernateUtil;
 import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
@@ -14,6 +15,7 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.feeds.FeedEntry;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
+import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.FeedsPreferences;
 import org.prosolo.common.util.date.DateUtil;
@@ -310,6 +312,19 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 				 .setDate("date", date)
 				.list();
 		System.out.println("RESULTS:"+result.size());
+		return result;
+	}
+	@Override
+	public UserSettings getUserSettings(long userId) {
+		String query = 
+			"SELECT settings " +
+			"FROM UserSettings settings " +
+			"LEFT JOIN settings.user user " +
+			"WHERE user.id = :userId";
+		
+		UserSettings result = (UserSettings) session.createQuery(query).
+			setLong("userId", userId).
+			uniqueResult();
 		return result;
 	}
 }

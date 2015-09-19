@@ -9,10 +9,10 @@ import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.organization.Role;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.admin.ResourceSettingsManager;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.RoleManager;
-import org.prosolo.web.activitywall.data.UserData;
 import org.prosolo.web.administration.data.ResourceSettingsData;
 import org.prosolo.web.util.PageUtil;
 import org.prosolo.web.util.ResourceBundleUtil;

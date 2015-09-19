@@ -27,6 +27,7 @@ import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.administration.data.UserData;
 import org.prosolo.web.util.PageUtil;
 import org.prosolo.web.util.ResourceBundleUtil;

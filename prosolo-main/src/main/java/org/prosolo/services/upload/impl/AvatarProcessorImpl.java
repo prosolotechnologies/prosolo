@@ -17,12 +17,12 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.util.ImageFormat;
+import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.services.upload.AmazonS3UploadManager;
 import org.prosolo.services.upload.AvatarProcessor;
 import org.prosolo.services.upload.ImageUtil;
 import org.prosolo.util.FileUtil;
-import org.prosolo.util.ImageFormat;
-import org.prosolo.web.util.AvatarUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

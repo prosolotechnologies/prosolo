@@ -47,7 +47,7 @@ object DigestManager {
      //val scalaCoursesIds:Buffer[java.lang.Long]= scala.collection.JavaConversions.asScalaBuffer(coursesIdsScala)
      val coursesRDD:RDD[Long]=sc.parallelize(coursesIdsScala.map { Long2long})
   
- 
+ /*
   val createDailyUserSubscribedRSSFeedDigests=(feedsAgregator:FeedsAgregator,userid:Long, date:Date)=>{
      feedsAgregator.generateDailySubscribedRSSFeedsDigestForUser(userid, date)
   }
@@ -77,12 +77,13 @@ object DigestManager {
    feedsAgregator.generateDailyCourseTwitterHashtagsDigest(courseid,date)
  }
    createDailyCourseDigest(yesterday,coursesRDD,generateDailySubscribedTwitterHashtagsDigestForUser)
-     
+     */
+ val sendEmailWithFeedsForUser=(feedsAgregator:FeedsAgregator, userid:Long, date:Date)=>{
+   feedsAgregator.sendEmailWithFeeds(userid,date)
  
-   
-   // sendEmailsWithFeedDigests()
   }
- 
+  createDailyUserDigest(yesterday, usersRDD, sendEmailWithFeedsForUser)
+  }
    /**
    * Higher order function processing courses
    */
@@ -93,11 +94,13 @@ object DigestManager {
           courses.foreach { courseid => 
             { 
               println("CREATE DAILY COURSE DIGGEST COURSE:"+courseid);
-              f(feedsAgregator,courseid,date) } }
+              f(feedsAgregator,courseid,date) 
+            }
+          }
        }
-      
-     }     
-  }
+    }
+    }
+ 
   /**
    * Higher order function processing users
    */
@@ -106,19 +109,18 @@ object DigestManager {
        users =>  {
          val feedsAgregator:FeedsAgregator =new FeedsAgregatorImpl
          users.foreach { 
-           userid => {
+           userid => 
+             {
              println("CREATE DAILY USER DIGGEST USER:"+userid);
               f(feedsAgregator,userid,date)
               println("CREATED DAILY USER DIGGEST USER:"+userid);
            }
          
        }      
-       }
-   }     
- }
+     }
+   }
+  }
   
  
-  private def sendEmailsWithFeedDigests(){
-     println("sendEmailsWithFeedDigests")
-  }
+ 
 }

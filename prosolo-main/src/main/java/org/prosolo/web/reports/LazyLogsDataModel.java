@@ -2,7 +2,7 @@ package org.prosolo.web.reports;
 
 import java.util.List;
 
-import org.prosolo.web.activitywall.data.UserData;
+import org.prosolo.common.web.activitywall.data.UserData;
 
 /**
  * @author Zoran Jeremic Feb 23, 2014

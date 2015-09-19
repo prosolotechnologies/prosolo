@@ -11,10 +11,11 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.date.DateUtil;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.annotation.DislikeManager;
 import org.prosolo.services.annotation.LikeManager;
 import org.prosolo.services.stats.CompetenceAnalytics;
-import org.prosolo.web.activitywall.data.UserData;
+import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.goals.data.CompetenceAnalyticsData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -52,7 +53,7 @@ public class CompetenceAnalyticsBean implements Serializable {
 			
 			if (!usersUsingCompetence.isEmpty()) {
 				for (User user : usersUsingCompetence) {
-					compAnalyticsData.addUsedBy(new UserData(user));
+					compAnalyticsData.addUsedBy(UserDataFactory.createUserData(user));
 				}
 			}
 			compAnalyticsData.setNumOfUsersAchieving(compAnalyticService.getNumberOfUsersAchievingCompetence(competenceId));

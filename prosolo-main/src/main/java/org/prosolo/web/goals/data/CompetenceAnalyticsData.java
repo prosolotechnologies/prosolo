@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.prosolo.web.activitywall.data.UserData;
+import org.prosolo.common.web.activitywall.data.UserData;
 
 public class CompetenceAnalyticsData implements Serializable {
 	

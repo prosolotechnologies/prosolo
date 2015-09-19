@@ -24,6 +24,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserSocialNetworks;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
 import org.prosolo.services.nodes.BadgeManager;
@@ -32,7 +33,7 @@ import org.prosolo.services.nodes.PortfolioManager;
 import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserData;
+import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.activitywall.displayers.PortfolioSocialActivitiesDisplayer;
 import org.prosolo.web.data.GoalData;
 import org.prosolo.web.dialogs.data.ExternalCreditData;
@@ -96,14 +97,14 @@ public class PublicPortfolioBean implements Serializable {
 		if (userId > 0) {
 			try {
 				profileOwner = userManager.loadResource(User.class, userId, true);
-				profileOwnerData = new UserData(profileOwner);
+				profileOwnerData = UserDataFactory.createUserData(profileOwner);
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error(e);
 				PageUtil.redirectToLoginPage();
 			}
 		} else if (loggedUser != null && loggedUser.isLoggedIn()) {
 			profileOwner = loggedUser.refreshUser();
-			profileOwnerData = new UserData(profileOwner);
+			profileOwnerData = UserDataFactory.createUserData(profileOwner);
 		} else {
 			// user is not authenticated and is accessing a page of a user that does not exist
 			PageUtil.redirectToLoginPage();

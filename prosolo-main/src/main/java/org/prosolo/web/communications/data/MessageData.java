@@ -5,7 +5,8 @@ import java.util.Date;
 
 import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
 import org.prosolo.common.util.date.DateUtil;
-import org.prosolo.web.activitywall.data.UserData;
+import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.web.activitywall.data.UserDataFactory;
 
 public class MessageData implements Serializable, Comparable<MessageData> {
 	
@@ -22,7 +23,7 @@ public class MessageData implements Serializable, Comparable<MessageData> {
 	public MessageData(SimpleOfflineMessage message) {
 		this.id = message.getId();
 		this.threadId = message.getMessageThread().getId();
-		this.actor = new UserData(message.getSender());
+		this.actor = UserDataFactory.createUserData(message.getSender());
 		this.message = message.getContent();
 		this.readed = message.isRead();
 		this.created = message.getDateCreated();

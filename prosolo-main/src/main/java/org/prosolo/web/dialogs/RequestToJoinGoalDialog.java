@@ -8,13 +8,14 @@ import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.notifications.RequestManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserData;
+import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.courses.data.CourseData;
 import org.prosolo.web.data.GoalData;
 import org.prosolo.web.home.MessagesBean;
@@ -68,7 +69,7 @@ public class RequestToJoinGoalDialog extends MessagesBean{
 		User user = HibernateUtil.initializeAndUnproxy(goal.getMaker());
 		
 		this.context = context;
-		this.receiver = new UserData(user);
+		this.receiver = UserDataFactory.createUserData(user);
 		this.messageContent = "I would like to join your goal";
 		
 		logDialogUse(goal.getId(), context);

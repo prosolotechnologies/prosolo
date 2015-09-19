@@ -27,6 +27,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.workflow.evaluation.Badge;
 import org.prosolo.common.domainmodel.workflow.evaluation.Evaluation;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.recommendation.CollaboratorsRecommendation;
@@ -42,7 +43,7 @@ import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.EvaluationManager;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserData;
+import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.courses.data.CourseData;
 import org.prosolo.web.data.GoalData;
 import org.prosolo.web.goals.data.CompetenceData;
@@ -312,7 +313,7 @@ public class GoalDataCache implements Serializable {
 			List<UserData> collabData = new ArrayList<UserData>();
 			
 			for (User user : collab) {
-				collabData.add(new UserData(user));
+				collabData.add(UserDataFactory.createUserData(user));
 			}
 			collaborators = collabData;
 		}

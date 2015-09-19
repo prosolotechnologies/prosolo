@@ -19,7 +19,7 @@ import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.ServiceType;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
-import org.prosolo.web.activitywall.data.PublishingServiceData;
+import org.prosolo.common.web.activitywall.data.PublishingServiceData;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.exceptions.KeyNotFoundInBundleException;
 

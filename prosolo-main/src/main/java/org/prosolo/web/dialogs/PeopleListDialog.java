@@ -15,6 +15,7 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.annotation.DislikeManager;
 import org.prosolo.services.annotation.LikeManager;
 import org.prosolo.services.interaction.PostManager;
@@ -23,7 +24,7 @@ import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserData;
+import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.home.ColleguesBean;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.useractions.PeopleActionBean;
@@ -124,7 +125,7 @@ public class PeopleListDialog implements Serializable {
 			for (User user : users) {
 				boolean followed =  colleguesBean.isInFollowingUsers(user.getId());
 				boolean logged = user.getId() == loggedUser.getUser().getId();
-				UserData userData = new UserData(user);
+				UserData userData = UserDataFactory.createUserData(user);
 				userData.setFollowed(followed);
 				userData.setLoggedUser(logged);
 				people.add(userData);

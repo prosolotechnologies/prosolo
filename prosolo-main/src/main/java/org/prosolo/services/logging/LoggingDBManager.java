@@ -3,7 +3,7 @@ package org.prosolo.services.logging;
 import java.util.Date;
 import java.util.List;
 
-import org.prosolo.web.activitywall.data.UserData;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.web.reports.LogRow;
 
 import com.mongodb.DBCursor;

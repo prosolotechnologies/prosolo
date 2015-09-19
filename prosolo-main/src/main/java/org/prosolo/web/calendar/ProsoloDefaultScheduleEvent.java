@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.primefaces.model.DefaultScheduleEvent;
-import org.prosolo.web.activitywall.data.UserData;
+import org.prosolo.common.web.activitywall.data.UserData;
 
 /**
  * @author "Nikola Milikic"

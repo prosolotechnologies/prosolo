@@ -12,9 +12,9 @@ import javax.servlet.http.HttpSession;
 
 import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.config.Config;
 import org.prosolo.services.logging.AccessResolver;
-import org.prosolo.web.activitywall.data.UserData;
 import org.prosolo.web.home.ColleguesBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;

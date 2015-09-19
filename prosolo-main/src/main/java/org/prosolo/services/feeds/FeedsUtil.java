@@ -8,7 +8,7 @@ import org.prosolo.common.domainmodel.feeds.CourseTwitterHashtagsFeedsDigest;
 import org.prosolo.common.domainmodel.feeds.FriendsRSSFeedsDigest;
 import org.prosolo.common.domainmodel.feeds.SubscribedRSSFeedsDigest;
 import org.prosolo.common.domainmodel.feeds.SubscribedTwitterHashtagsFeedsDigest;
-import org.prosolo.web.digest.FilterOption;
+import org.prosolo.common.web.digest.FilterOption;
 
 /**
  * @author Nikola Milikic

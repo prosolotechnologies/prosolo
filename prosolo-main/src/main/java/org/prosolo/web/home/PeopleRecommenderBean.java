@@ -13,10 +13,11 @@ import javax.faces.bean.ManagedBean;
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.recommendation.CollaboratorsRecommendation;
 import org.prosolo.services.logging.LoggingDBManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserData;
+import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -55,7 +56,7 @@ public class PeopleRecommenderBean implements Serializable {
 			 
 			if (users != null && !users.isEmpty()) {
 				for (User user : users) {
-					UserData userData = new UserData(user);
+					UserData userData = UserDataFactory.createUserData(user);
 					locationRecommendedUsers.add(userData);
 				}
 				logger.debug("Location based user recommendations initialized '"+loggedUser.getUser()+"'");
@@ -110,7 +111,7 @@ public class PeopleRecommenderBean implements Serializable {
 			List<User> users=cRecommendation.getMostActiveRecommendedUsers(loggedUser.getUser(), 3);
 			if (users != null && !users.isEmpty()) {
 				for (User user : users) {
-					UserData userData = new UserData(user);
+					UserData userData = UserDataFactory.createUserData(user);
 					
 					// TODO: Zoran - put here last activity date
 					long timestamp=loggingDBManager.getMostActiveUsersLastActivityTimestamp(user.getId());
@@ -130,7 +131,7 @@ public class PeopleRecommenderBean implements Serializable {
 			List<User> users=cRecommendation.getRecommendedCollaboratorsBasedOnSimilarity(loggedUser.getUser(), 3);
 			if (users != null && !users.isEmpty()) {
 				for (User user : users) {
-					UserData userData = new UserData(user);
+					UserData userData = UserDataFactory.createUserData(user);
 					similarityRecommendedUsers.add(userData);
 				}
 				logger.debug("Similarity based user recommendations initialized '"+loggedUser.getUser()+"'");

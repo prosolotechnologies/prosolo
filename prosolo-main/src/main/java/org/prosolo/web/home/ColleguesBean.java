@@ -11,13 +11,14 @@ import javax.faces.bean.ManagedBean;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.util.ImageFormat;
+import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.services.interaction.FollowResourceManager;
-import org.prosolo.util.ImageFormat;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserData;
+import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.goals.LearningGoalsBean;
 import org.prosolo.web.goals.cache.GoalDataCache;
-import org.prosolo.web.util.AvatarUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -86,7 +87,7 @@ public class ColleguesBean implements Serializable {
 			
 			if (fUsers != null && !fUsers.isEmpty()) {
 				for (User user : fUsers) {
-					UserData userData = new UserData(user);
+					UserData userData = UserDataFactory.createUserData(user);
 					followingUsers.add(userData);
 				}
 				logger.debug("Following users initialized '"+loggedUser.getUser()+"'");
@@ -207,7 +208,7 @@ public class ColleguesBean implements Serializable {
 			
 			if (followersUsers != null && !followersUsers.isEmpty()) {
 				for (User user : followersUsers) {
-					UserData userData = new UserData(user);
+					UserData userData = UserDataFactory.createUserData(user);
 					followers.add(userData);
 				}
 			}

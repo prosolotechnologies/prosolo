@@ -26,13 +26,14 @@ import org.prosolo.common.domainmodel.user.reminders.ReminderStatus;
 import org.prosolo.common.domainmodel.user.reminders.ReminderType;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.util.string.StringUtil;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.reminders.dal.PersonalCalendarManager;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserData;
+import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.dialogs.LearningGoalDialogBean;
 import org.prosolo.web.home.RemindersBean;
 import org.prosolo.web.search.data.ReminderData;
@@ -177,7 +178,7 @@ public class CalendarBean implements Serializable {
 		List<User> result = (List<User>) usersResponse.getFoundNodes();
 		
 		for (User user : result) {
-			UserData userData = new UserData(user);
+			UserData userData = UserDataFactory.createUserData(user);
 			userSearchResults.add(userData);
 		}
 	}

@@ -1,4 +1,4 @@
-package org.prosolo.web.activitywall.data;
+package org.prosolo.common.web.activitywall.data;
 
 import java.io.Serializable;
 

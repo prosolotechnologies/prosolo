@@ -37,9 +37,10 @@ import org.prosolo.common.domainmodel.workflow.evaluation.Evaluation;
 import org.prosolo.common.domainmodel.workflow.evaluation.EvaluationSubmission;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.web.activitywall.data.NodeData;
-import org.prosolo.web.activitywall.data.UserData;
+import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.notification.data.GoalStatus;
 import org.prosolo.web.notification.data.NotificationData;
 import org.prosolo.web.notification.exceptions.NotificationNotSupported;
@@ -108,7 +109,7 @@ public class NotificationDataConverter {
 		User maker = notification.getActor();
 		
 		if (maker != null)
-			notificationData.setActor(new UserData(maker));
+			notificationData.setActor(UserDataFactory.createUserData(maker));
 		
 		// type
 		try {

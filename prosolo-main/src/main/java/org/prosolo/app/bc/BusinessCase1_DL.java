@@ -24,13 +24,13 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.EmailPreferences;
 import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
 import org.prosolo.common.domainmodel.workflow.Scale;
+import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.web.util.AvatarUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
