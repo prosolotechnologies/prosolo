@@ -7,19 +7,35 @@ import java.io.InputStream
  */
 trait ProfanityCensor {
    val badWordFile = "files/badwords.sav"
-   def readBadWordsFromFile(): Array[String]= {
-     val stream : InputStream =getClass.getClassLoader.getResourceAsStream(badWordFile)
+   val forbiddenHashtagsFile="files/instagrambannedtags.sav"
+   def readBadWordsFromFile(file:String): Array[String]= {
+     val stream : InputStream =getClass.getClassLoader.getResourceAsStream(file)
      val lines: Array[String] = scala.io.Source.fromInputStream( stream ).getLines.toArray
+     
+     
      lines
    }
-   val badWords=readBadWordsFromFile
+   val badWords=readBadWordsFromFile(badWordFile)
+   val forbiddenHashtags=readBadWordsFromFile(forbiddenHashtagsFile)
 }
    class BadWordsCensor extends ProfanityCensor{
      def isPolite(text:String):Boolean={
        var polite=true
        val wordsList:List[String]=text.split(" ").toList
-       wordsList.map { word =>  
-         if(badWords.contains(word)) polite=false  
+       wordsList.map { word =>{
+        var checkword=word
+         if(checkword.startsWith("#")){
+           checkword=word.replace("#", "")
+         }
+          if(badWords.contains(checkword)){
+            polite=false
+           // println("FORBIDDEN:"+text+" BECAUSE WORD:"+checkword)
+          } else if(forbiddenHashtags.contains(word)){
+            polite=false
+           // println("FORBIDDEN:"+text+" BECAUSE HASHTAG:"+checkword)
+          }
+       }  
+          
        }
        polite
      }

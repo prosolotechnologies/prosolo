@@ -41,13 +41,7 @@ object TwitterStatusBuffer {
     buffer.clear()
     statuses
   }
-  def processBufferStatusesTestJava(){
-    println("process buffer in java from here...")
- val statuses=pullStatuses
-    val javastatuses:java.util.List[Status]=statuses
-    TestJava8Paralelizm.getInstance.runInParalel(javastatuses)
-    
-  }
+
   def processBufferStatuses(){
 
     val statuses=pullStatuses

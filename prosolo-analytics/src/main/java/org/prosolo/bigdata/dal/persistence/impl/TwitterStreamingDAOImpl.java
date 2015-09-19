@@ -44,7 +44,6 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 	}
 	@Override
 	public Object save(Object entity, Session session) {
-		System.out.println("SAVING ENTITY TS DAO:"+entity.getClass().getSimpleName());
 		try{
 //			boolean isActive = session.getTransaction().isActive();  
 //            if ( !isActive) {  
@@ -60,7 +59,6 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 			}
 			ex.printStackTrace();
 		}
-		System.out.println("SAVED ENTITY");
 		return entity;
 	}
 

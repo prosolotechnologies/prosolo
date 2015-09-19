@@ -35,11 +35,11 @@ object DigestManager {
     
     val usersIds:java.util.List[java.lang.Long] = diggestGeneratorDAO.getAllUsersIds
     val usersIdsScala:Seq[java.lang.Long]=usersIds.asScala.toSeq
-   //  val scalaUsersIds:Buffer[java.lang.Long]= scala.collection.JavaConversions.asScalaBuffer(usersIds) //disabled for testing
-  // val usersRDD:RDD[Long]=sc.parallelize(scalaUsersIds.map{Long2long})//temporary dispabled for testing
+     val scalaUsersIds:Buffer[java.lang.Long]= scala.collection.JavaConversions.asScalaBuffer(usersIds) //disabled for testing
+   val usersRDD:RDD[Long]=sc.parallelize(scalaUsersIds.map{Long2long})//temporary dispabled for testing
      
-    val scalaUsersIds=Seq[Long](2,8,15,14,6)//Just for testing purposes    //testing
-    val usersRDD:RDD[Long]=sc.parallelize(scalaUsersIds)
+   // val scalaUsersIds=Seq[Long](2,8,15,14,6)//Just for testing purposes    //testing
+    //val usersRDD:RDD[Long]=sc.parallelize(scalaUsersIds)
      
      
      val coursesIds:java.util.List[java.lang.Long] = diggestGeneratorDAO.getAllActiveCoursesIds()
@@ -47,7 +47,7 @@ object DigestManager {
      //val scalaCoursesIds:Buffer[java.lang.Long]= scala.collection.JavaConversions.asScalaBuffer(coursesIdsScala)
      val coursesRDD:RDD[Long]=sc.parallelize(coursesIdsScala.map { Long2long})
   
- /*
+ 
   val createDailyUserSubscribedRSSFeedDigests=(feedsAgregator:FeedsAgregator,userid:Long, date:Date)=>{
      feedsAgregator.generateDailySubscribedRSSFeedsDigestForUser(userid, date)
   }
@@ -72,7 +72,7 @@ object DigestManager {
    feedsAgregator.generateDailyCourseRSSFeedsDigest(courseid,date);
  } 
    createDailyCourseDigest(yesterday,coursesRDD,generateDailyCourseRSSFeedsDigest)
- */
+ 
    val generateDailySubscribedTwitterHashtagsDigestForUser=(feedsAgregator:FeedsAgregator, courseid:Long, date:Date)=>{
    feedsAgregator.generateDailyCourseTwitterHashtagsDigest(courseid,date)
  }

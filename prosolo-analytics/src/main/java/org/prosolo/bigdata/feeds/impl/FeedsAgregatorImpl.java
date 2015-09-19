@@ -293,6 +293,7 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 				if (courseTokenizedString != null && !courseTokenizedString.equals("")) {
 					double relevance = webPageRelevance.calculateWebPageRelevanceForUser(feedEntry.getLink(), courseTokenizedString);
 					cloneFeedEntry.setRelevance(relevance);
+					System.out.println("FEED:"+feedEntry.getDateCreated()+" relevance:"+relevance);
 				}
 				
 				diggestGeneratorDAO.save(cloneFeedEntry);
