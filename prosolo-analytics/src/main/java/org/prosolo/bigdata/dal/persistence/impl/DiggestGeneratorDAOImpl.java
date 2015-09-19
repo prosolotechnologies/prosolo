@@ -219,7 +219,7 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 		
 		@SuppressWarnings("unchecked")
 		List<FeedEntry> feedMessages = q.list();
-		
+		/*
 		String query1 = 
 			"SELECT DISTINCT entry " + 
 			"FROM FeedEntry entry " +
@@ -253,7 +253,7 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 		List<FeedSource> feedSources = session.createQuery(query2)
 				.setEntity("course", course)
 				.list();
-		
+		*/
 		return feedMessages;
 	}
 	@Override

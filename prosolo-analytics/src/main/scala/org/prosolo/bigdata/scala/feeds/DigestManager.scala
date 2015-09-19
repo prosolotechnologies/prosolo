@@ -46,108 +46,78 @@ object DigestManager {
     val coursesIdsScala:Seq[java.lang.Long]=coursesIds.asScala.toSeq
      //val scalaCoursesIds:Buffer[java.lang.Long]= scala.collection.JavaConversions.asScalaBuffer(coursesIdsScala)
      val coursesRDD:RDD[Long]=sc.parallelize(coursesIdsScala.map { Long2long})
-     
-    //
+  
+ /*
+  val createDailyUserSubscribedRSSFeedDigests=(feedsAgregator:FeedsAgregator,userid:Long, date:Date)=>{
+     feedsAgregator.generateDailySubscribedRSSFeedsDigestForUser(userid, date)
+  }
+  createDailyUserDigest(yesterday, usersRDD, createDailyUserSubscribedRSSFeedDigests)
     
-   
-
-    
-   // createDailyUserSubscribedRSSFeedDigests(yesterday, usersRDD)
-    createDailyFriendsRSSFeedDigests(yesterday, usersRDD)
-   
-   // createDailyCoursesFeedsDigests(yesterday, coursesRDD)
+  val createPersonalBlogs=(feedsAgregator:FeedsAgregator,userid:Long, date:Date)=>{
+    feedsAgregator.aggregatePersonalBlogOfUser(userid)
+  }
+  createDailyUserDigest(yesterday, usersRDD, createPersonalBlogs)
+  
+  val createDailyFriendsRSSFeedDigests=(feedsAgregator:FeedsAgregator,userid:Long, date:Date)=>{
+     feedsAgregator.generateDailyFriendsRSSFeedDigest(userid, date)
+  }
+  createDailyUserDigest(yesterday, usersRDD, createDailyFriendsRSSFeedDigests)
+  
+  val createDailySubscribedHashtagsDigests=(feedsAgregator:FeedsAgregator,userid:Long, date:Date)=>{
+     feedsAgregator.generateDailySubscribedTwitterHashtagsDigestForUser(userid, date)
+  }
+  createDailyUserDigest(yesterday, usersRDD, createDailySubscribedHashtagsDigests)
+  
+   val generateDailyCourseRSSFeedsDigest=(feedsAgregator:FeedsAgregator, courseid:Long, date:Date)=>{
+   feedsAgregator.generateDailyCourseRSSFeedsDigest(courseid,date);
+ } 
+   createDailyCourseDigest(yesterday,coursesRDD,generateDailyCourseRSSFeedsDigest)
+ */
+   val generateDailySubscribedTwitterHashtagsDigestForUser=(feedsAgregator:FeedsAgregator, courseid:Long, date:Date)=>{
+   feedsAgregator.generateDailyCourseTwitterHashtagsDigest(courseid,date)
+ }
+   createDailyCourseDigest(yesterday,coursesRDD,generateDailySubscribedTwitterHashtagsDigestForUser)
      
-   // createDailySubscribedHashtagsDigests(yesterday, usersRDD)
-   // createDailyCourseHashtagsDigests(yesterday)
+ 
+   
    // sendEmailsWithFeedDigests()
-    
   }
  
-  private def createDailyUserSubscribedRSSFeedDigests(date:Date, usersRDD:RDD[Long]){
-     usersRDD.foreachPartition {       
+   /**
+   * Higher order function processing courses
+   */
+    private def createDailyCourseDigest(date:Date, coursesRDD:RDD[Long], f:(FeedsAgregator,Long, Date)=>Any){
+    coursesRDD.foreachPartition { 
+       courses => {
+          val feedsAgregator:FeedsAgregator =new FeedsAgregatorImpl
+          courses.foreach { courseid => 
+            { 
+              println("CREATE DAILY COURSE DIGGEST COURSE:"+courseid);
+              f(feedsAgregator,courseid,date) } }
+       }
+      
+     }     
+  }
+  /**
+   * Higher order function processing users
+   */
+ private def createDailyUserDigest(date:Date, usersRDD:RDD[Long], f:(FeedsAgregator,Long, Date)=>Any){
+   usersRDD.foreachPartition {       
        users =>  {
          val feedsAgregator:FeedsAgregator =new FeedsAgregatorImpl
          users.foreach { 
            userid => {
-             println("CREATE DAILY USER SUBSRIBED RSS FEED DIGGESTS USER:"+userid);
-             feedsAgregator.generateDailySubscribedRSSFeedsDigestForUser(userid, date)}
+             println("CREATE DAILY USER DIGGEST USER:"+userid);
+              f(feedsAgregator,userid,date)
+              println("CREATED DAILY USER DIGGEST USER:"+userid);
            }
          
        }      
-     }
-  }
-   private def createDailyFriendsRSSFeedDigests(date:Date, usersRDD:RDD[Long]){
-    println("createDailyFriendsRSSFeedDigests")
-    usersRDD.foreachPartition {       
-       users =>  {
-          val feedsAgregator:FeedsAgregator =new FeedsAgregatorImpl
-         users.foreach { 
-            userid =>
-              {
-                println("AGGREGATE PERSONAL BLOG OF USER:"+userid);
-                feedsAgregator.aggregatePersonalBlogOfUser(userid)
-              }
-            }  
-         
-       } 
-     }
-     usersRDD.foreachPartition {       
-       users =>  {
-          val feedsAgregator:FeedsAgregator =new FeedsAgregatorImpl
-         users.foreach { 
-            userid =>
-              {
-                println("CREATE DAILY FRIENDS RSS FEED DIGGEST OF USER:"+userid);
-                feedsAgregator.generateDailyFriendsRSSFeedDigest(userid, date)
-              }
-            }  
-         
-       } 
-     }
-  }
-/*  private def generateDailySubscribedRSSFeedsDigestForUsersInPartition(users:Iterator[Long],date:Date){
-    val feedsAgregator:FeedsAgregator =new FeedsAgregatorImpl
-     users.foreach { userid => println("STARTING USER:"+userid);feedsAgregator.generateDailySubscribedRSSFeedsDigestForUser(userid, date)}
-  }*/
-
-  private def createDailyCoursesFeedsDigests(date:Date, coursesRDD:RDD[Long]){
-     println("createDailyCourseFeedsDigests")
-     coursesRDD.foreachPartition { 
-       courses => {
-          val feedsAgregator:FeedsAgregator =new FeedsAgregatorImpl
-          courses.foreach { courseid => 
-            {
-              println("CREATE DAILY COURSE FEEDS FOR COURSE:"+courseid);
-               feedsAgregator.generateDailyCourseRSSFeedsDigest(courseid, date)
-          } }
        }
-      
-     }
-     
-    
-    
-     
-  }
-  private def createDailySubscribedHashtagsDigests(date:Date, usersRDD:RDD[Long]){
-     println("createDailySubscribedHashtagsDigests")
+   }     
+ }
+  
  
-     usersRDD.foreachPartition {       
-       users =>  {
-          val feedsAgregator:FeedsAgregator =new FeedsAgregatorImpl
-         users.foreach { 
-            userid =>
-              {
-                println("CREATE DAILY SUBSCRIBED HASHTAGS DIGGEST OF USER:"+userid);
-                feedsAgregator.generateDailySubscribedTwitterHashtagsDigestForUser(userid, date)
-              }
-            }  
-         
-       } 
-     }
-  }
-  private def createDailyCourseHashtagsDigests(date:Date){
-     println("createDailyCourseHashtagsDigests")
-  }
   private def sendEmailsWithFeedDigests(){
      println("sendEmailsWithFeedDigests")
   }

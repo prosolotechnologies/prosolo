@@ -22,7 +22,7 @@ public interface FeedsAgregator {
 
 	//void generateDailySubscribedTwitterHashtagsDigest(User user, Date date);
 	
-	void generateDailyCourseTwitterHashtagsDigest(Course course, Date date);
+	//void generateDailyCourseTwitterHashtagsDigest(Course course, Date date);
 
 	void generateDailySubscribedRSSFeedsDigestForUser(Long userid, Date dateFrom);
 
@@ -33,5 +33,7 @@ public interface FeedsAgregator {
 	void generateDailySubscribedTwitterHashtagsDigestForUser(Long userid, Date dateFrom);
 
 	void aggregatePersonalBlogOfUser(Long userid);
+
+	void generateDailyCourseTwitterHashtagsDigest(Long courseid, Date date);
 
 }

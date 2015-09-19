@@ -1,6 +1,7 @@
 package org.prosolo.bigdata.feeds.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -9,6 +10,7 @@ import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.feeds.CourseRSSFeedsDigest;
+import org.prosolo.common.domainmodel.feeds.CourseTwitterHashtagsFeedsDigest;
 import org.prosolo.common.domainmodel.feeds.FeedEntry;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.feeds.FriendsRSSFeedsDigest;
@@ -85,7 +87,7 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 	@Override
 	//@Transactional (readOnly = false)
 	public void aggregatePersonalBlogOfUser(Long userid) {
-		System.out.println("AGGREGATE PERSONAL BLOG FOR USER:"+userid);
+		System.out.println("***************AGGREGATE PERSONAL BLOG FOR USER:"+userid);
 		User user=null;
 		try {
 			user = diggestGeneratorDAO.load(User.class, userid);
@@ -109,7 +111,7 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 	}
 	@Override
 	public void generateDailyFriendsRSSFeedDigest(Long userid, Date date) {
-		System.out.println("GENERATE DAILY FRIENDS RSS FEED DIGGEST FOR USER:"+userid);
+		System.out.println("********************GENERATE DAILY FRIENDS RSS FEED DIGGEST FOR USER:"+userid);
 	 	List<User> followees = diggestGeneratorDAO.getFollowingUsers(userid);
 		User user=null;
 		try {
@@ -213,7 +215,7 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 	@Override
 	//@Transactional
 	public void generateDailySubscribedRSSFeedsDigestForUser(Long userid, Date dateFrom) {
-		System.out.println("GENERATE RSS FOR USER:"+userid);
+		System.out.println("*******************GENERATE RSS FOR USER:"+userid);
 		User user=null;
 		try{
 			user=(User) diggestGeneratorDAO.load(User.class, userid);
@@ -258,7 +260,7 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 	
 	@Override
 	public void generateDailyCourseRSSFeedsDigest(Long courseid, Date date) {
-		System.out.println("GENERATE DAILY COURSE RSS FEEDS DIGEST FOR COURSE:"+courseid);
+		System.out.println("************************GENERATE DAILY COURSE RSS FEEDS DIGEST FOR COURSE:"+courseid);
 		Course course=null;
 		try{
 			course=(Course) diggestGeneratorDAO.load(Course.class, courseid);
@@ -267,7 +269,7 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 			return;
 		}
 		List<FeedEntry> participantsFeedEntries = diggestGeneratorDAO.getFeedEntriesForCourseParticipants(course, date);
-		System.out.println("PARTICIPANS NUMBER:"+participantsFeedEntries.size());
+		System.out.println("PARTICIPANS FEED ENTRIES NUMBER:"+participantsFeedEntries.size());
 		List<FeedEntry> courseFeedEntries = new ArrayList<FeedEntry>();
 
 		if (participantsFeedEntries != null && !participantsFeedEntries.isEmpty()) {
@@ -346,7 +348,7 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 	@Override
 	public void generateDailySubscribedTwitterHashtagsDigestForUser(Long userid, Date dateFrom) {
 			logger.debug("Aggregating subsscribed hashtags tweets for user " + userid);
-			System.out.println("GENERATE TWITTER HASHTAGS FOR USER:"+userid);
+			System.out.println("************************GENERATE TWITTER HASHTAGS FOR USER:"+userid);
 			User user=null;
 			try{
 				user=(User) diggestGeneratorDAO.load(User.class, userid);
@@ -373,6 +375,39 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 			}
 		 }
 	@Override
+	//@Transactional (readOnly = false)
+	public void generateDailyCourseTwitterHashtagsDigest(Long courseid, Date date) {
+		Course course=null;
+		try{
+			course=(Course) diggestGeneratorDAO.load(Course.class, courseid);
+		}catch(ResourceCouldNotBeLoadedException ex){
+			ex.printStackTrace();
+			return;
+		}
+	 	logger.debug("Aggregating course hashtags tweets for the course " + course);
+
+		//course = defaultManager.merge(course);
+		
+		Collection<Tag> courseHashtags = course.getHashtags();
+		
+		if (courseHashtags != null && !courseHashtags.isEmpty()) {
+			List<TwitterPostSocialActivity> tweetsWithHashtags =  diggestGeneratorDAO.getTwitterPosts(courseHashtags, date);
+				
+			if (tweetsWithHashtags != null && !tweetsWithHashtags.isEmpty()) {
+			
+				CourseTwitterHashtagsFeedsDigest courseRSSFeedDigest = new CourseTwitterHashtagsFeedsDigest();
+				courseRSSFeedDigest.setTweets(tweetsWithHashtags);
+				courseRSSFeedDigest.setDateCreated(new Date());
+				courseRSSFeedDigest.setTimeFrame(TimeFrame.DAILY);
+				courseRSSFeedDigest.setCourse(course);
+				
+				diggestGeneratorDAO.save(courseRSSFeedDigest);
+				
+				logger.info("Created subscribed Twitter hashtag digest for course "  + course + "; total entries :" + tweetsWithHashtags.size());
+			}
+		} 
+	}
+	@Deprecated
 	//@Transactional (readOnly = false)
 	public void generateDailyCourseTwitterHashtagsDigest(Course course, Date date) {
 	/*	logger.debug("Aggregating course hashtags tweets for the course " + course);
