@@ -1,5 +1,7 @@
 package org.prosolo.bigdata.feeds.impl;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,8 +10,10 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Hibernate;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
 import org.prosolo.common.domainmodel.annotation.Tag;
@@ -25,17 +29,19 @@ import org.prosolo.common.domainmodel.interfacesettings.LocaleSettings;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.domainmodel.user.TimeFrame;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserType;
 import org.prosolo.common.domainmodel.user.preferences.FeedsPreferences;
 import org.prosolo.common.email.generators.FeedsEmailGenerator;
 import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.date.DateUtil;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.common.web.digest.FilterOption;
+import org.prosolo.common.web.digest.data.FeedEntryData;
 import org.prosolo.common.web.digest.data.FeedsDigestData;
- 
 import org.prosolo.bigdata.dal.persistence.DiggestGeneratorDAO;
 import org.prosolo.bigdata.dal.persistence.impl.DiggestGeneratorDAOImpl;
-
 import org.prosolo.bigdata.email.EmailSender;
 //import org.prosolo.services.annotation.TagManager;
 import org.prosolo.bigdata.feeds.FeedParser;
@@ -386,35 +392,35 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 					String categoryName = ResourceBundleUtil.getMessage("digest.filterName.title."+filterOption, locale);
 					feedsDigestData.setCategoryName(categoryName);
 					feedsDigestData.setFilter(filterOption);
-					/*
+					
 					switch (filterOption) {
 						case myfeeds:
-							List<FeedEntry> entries = getMyFeedsDigest(userId, dateFrom, dateTo, interval, limit, feedsDigestData.getPage());
+							List<FeedEntry> entries = diggestGeneratorDAO.getMyFeedsDigest(userId, dateFrom, dateTo, interval, limit, feedsDigestData.getPage());
 							
-							DigestBean.addFeedEntries(feedsDigestData, entries, limit);
+							addFeedEntries(feedsDigestData, entries, limit);
 							break;
 						case friendsfeeds:
-							List<FeedEntry> entries1 = getMyFriendsFeedsDigest(userId, dateFrom, dateTo, interval, limit, feedsDigestData.getPage());
+							List<FeedEntry> entries1 = diggestGeneratorDAO.getMyFriendsFeedsDigest(userId, dateFrom, dateTo, interval, limit, feedsDigestData.getPage());
 							
-							DigestBean.addFeedEntries(feedsDigestData, entries1, limit);
+							addFeedEntries(feedsDigestData, entries1, limit);
 							break;
 						case mytweets:
-							List<TwitterPostSocialActivity> entries2 = getMyTweetsFeedsDigest(userId, dateFrom, dateTo, interval, limit, feedsDigestData.getPage());
+							List<TwitterPostSocialActivity> entries2 = diggestGeneratorDAO.getMyTweetsFeedsDigest(userId, dateFrom, dateTo, interval, limit, feedsDigestData.getPage());
 							
-							DigestBean.addTweetEntries(feedsDigestData, entries2, limit);
+							addTweetEntries(feedsDigestData, entries2, limit);
 							break;
 						case coursefeeds:
-							List<FeedEntry> entries3 = getCourseFeedsDigest(courseId, dateFrom, dateTo, interval, limit, feedsDigestData.getPage());
+							List<FeedEntry> entries3 = diggestGeneratorDAO.getCourseFeedsDigest(courseId, dateFrom, dateTo, interval, limit, feedsDigestData.getPage());
 							
-							DigestBean.addFeedEntries(feedsDigestData, entries3, limit);
+							addFeedEntries(feedsDigestData, entries3, limit);
 							break;
 						case coursetweets:
-							List<TwitterPostSocialActivity> entries4 = getCourseTweetsDigest(courseId, dateFrom, dateTo, interval, limit, feedsDigestData.getPage());
+							List<TwitterPostSocialActivity> entries4 = diggestGeneratorDAO.getCourseTweetsDigest(courseId, dateFrom, dateTo, interval, limit, feedsDigestData.getPage());
 							
-							DigestBean.addTweetEntries(feedsDigestData, entries4, limit);
+							addTweetEntries(feedsDigestData, entries4, limit);
 							break;
 					}
-					*/
+					
 					if (!feedsDigestData.getEntries().isEmpty())
 						feedsDigests.add(feedsDigestData);
 				} catch (KeyNotFoundInBundleException e) {
@@ -422,22 +428,122 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 				}
 			}
 			
-			try {
-				String email = user.getEmail().getAddress();
-				
-				// If development mode, send only to developer email
-				if (!feedsDigests.isEmpty() && 
-						(!CommonSettings.getInstance().config.appConfig.developmentMode || 
-						email.equals(CommonSettings.getInstance().config.appConfig.developmentEmail))) {
-					emailSender.sendEmail(new FeedsEmailGenerator(user.getName(), feedsDigests, dashedDate, interval), email, "ProSolo Feed Digest");
+			String email = user.getEmail().getAddress();
+			System.out.println("FEEDS DIGEST TO SEND:"+feedsDigests.size()+" for user:"+user.getId()+" email:"+email);
+			// If development mode, send only to developer email
+			if(!feedsDigests.isEmpty()){
+				if(CommonSettings.getInstance().config.appConfig.developmentMode){
+					email=CommonSettings.getInstance().config.appConfig.developmentEmail;
 				}
-			} catch (MessagingException | IOException e) {
-				logger.error(e);
+				System.out.println("SENDING EMAIL TO:"+email+" FOR USER:"+user.getName());
+				 try {
+					emailSender.sendEmail(new FeedsEmailGenerator(user.getName(), feedsDigests, dashedDate, interval), email, "ProSolo Feed Digest");
+					System.out.println("EMAIL  SENT TO:"+email+" FOR USER:"+user.getName());
+				} catch (AddressException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (MessagingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
+//			if (!feedsDigests.isEmpty() && 
+//					(!CommonSettings.getInstance().config.appConfig.developmentMode || 
+//					email.equals(CommonSettings.getInstance().config.appConfig.developmentEmail))) {
+//				System.out.println("SENDING EMAIL TO:"+email+" FOR USER:"+user.getName());
+//				//emailSender.sendEmail(new FeedsEmailGenerator(user.getName(), feedsDigests, dashedDate, interval), email, "ProSolo Feed Digest");
+//			}
 		}
 		 
 	}
+	private void addFeedEntries(FeedsDigestData feedsDigestData, List<FeedEntry> entries, int limit) {
+		// if there is more than limit, set moreToLoad to true
+		if (entries.size() == limit + 1) {
+			entries = entries.subList(0, entries.size() - 1);
+			feedsDigestData.setMoreToLoad(true);
+		} else {
+			feedsDigestData.setMoreToLoad(false);
+		}
+		
+		for (FeedEntry feedEntry : entries) {
+			feedsDigestData.addEntry(new FeedEntryData(feedEntry));
+		}
+	}
+	public  void addTweetEntries(FeedsDigestData feedsDigestData, List<TwitterPostSocialActivity> entries, int limit) {
+		// if there is more than limit, set moreToLoad to true
+		if (entries.size() == limit + 1) {
+			entries = entries.subList(0, entries.size() - 1);
+			feedsDigestData.setMoreToLoad(true);
+		} else {
+			feedsDigestData.setMoreToLoad(false);
+		}
+		
+		for (TwitterPostSocialActivity tweet : entries) {
+			feedsDigestData.addEntry(createFeedEntryData(tweet));
+		}
+	}
+	private FeedEntryData createFeedEntryData(TwitterPostSocialActivity tweetEntry) {
+		FeedEntryData feedEntryData=new FeedEntryData();
+		
+		feedEntryData.setId(tweetEntry.getId());
+		feedEntryData.setTitle(tweetEntry.getText());
+		feedEntryData.setLink(tweetEntry.getPostUrl());
+		feedEntryData.setDate(DateUtil.getPrettyDate(tweetEntry.getDateCreated()));
+		
+		if (tweetEntry.getMaker() != null)
+			feedEntryData.setMaker(createUserData(tweetEntry.getMaker()));
+		return feedEntryData;
+	}
+	private UserData createUserData(User user) {
+		if (user != null){
+			UserData userData=new UserData();
+			userData.setId(user.getId());
+			userData.setName(user.getName() + ((user.getLastname() != null) ? " " + user.getLastname() : ""));
+			userData.setProfileUrl(user.getProfileUrl());
+			userData.setAvatarUrl(getAvatarUrlInFormat(user, ImageFormat.size120x120));
+			
+			if (user.getUserType().equals(UserType.TWITTER_USER)) {
+				userData.setPosition("Twitter User");
+				userData.setExternalUser(true);
+			} else {
+				userData.setPosition(user.getPosition());
+			}
+			userData.setLocationName(user.getLocationName());
+			if(user.getLatitude()!=null)
+				userData.setLatitude(String.valueOf(user.getLatitude()));
+			if(user.getLongitude()!=null)
+				userData.setLongitude(String.valueOf(user.getLongitude()));
+			return userData;
+		}
+		return null;
+		
+	}
+private String getAvatarUrlInFormat(User user, ImageFormat format) {
+		
+		String avatarUrl = null;
 
+		if (user != null) {
+			// check if avatar is already full URL
+			if (user.getAvatarUrl() != null && user.getAvatarUrl().startsWith("http")) {
+				return user.getAvatarUrl();
+			}
+
+		 
+			avatarUrl = user.getAvatarUrl();
+		}
+		//else {
+			//avatarUrl = getDefaultAvatarUrl();
+		//}
+		//return getAvatarUrlInFormat(avatarUrl, format);
+		return avatarUrl;
+	}
+ 
 
  
 

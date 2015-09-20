@@ -1,6 +1,5 @@
-package org.prosolo.services.email.generators;
+package org.prosolo.common.email.generators;
 
-import org.prosolo.common.email.generators.EmailContentGenerator;
 
 
 /**

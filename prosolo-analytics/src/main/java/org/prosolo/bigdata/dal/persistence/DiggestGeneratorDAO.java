@@ -13,6 +13,7 @@ import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.feeds.FeedEntry;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
+import org.prosolo.common.domainmodel.user.TimeFrame;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.FeedsPreferences;
 
@@ -43,6 +44,21 @@ public interface DiggestGeneratorDAO extends GenericDAO{
 			Date date);
 
 	UserSettings getUserSettings(long userId);
+
+	List<FeedEntry> getMyFeedsDigest(long userId, Date dateFrom, Date dateTo,
+			TimeFrame timeFrame, int limit, int page);
+
+	List<FeedEntry> getCourseFeedsDigest(long courseId, Date dateFrom,
+			Date dateTo, TimeFrame timeFrame, int limit, int page);
+
+	List<TwitterPostSocialActivity> getMyTweetsFeedsDigest(long userId,
+			Date dateFrom, Date dateTo, TimeFrame timeFrame, int limit, int page);
+
+	List<FeedEntry> getMyFriendsFeedsDigest(long userId, Date dateFrom,
+			Date dateTo, TimeFrame timeFrame, int limit, int page);
+
+	List<TwitterPostSocialActivity> getCourseTweetsDigest(long courseId,
+			Date dateFrom, Date dateTo, TimeFrame timeFrame, int limit, int page);
 
 	//FeedsPreferences getFeedsPreferences(long userId, Session session);
 

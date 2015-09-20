@@ -16,9 +16,12 @@ import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.feeds.FeedEntry;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
+import org.prosolo.common.domainmodel.user.TimeFrame;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.FeedsPreferences;
 import org.prosolo.common.util.date.DateUtil;
+import org.prosolo.common.web.digest.FilterOption;
+import org.prosolo.common.web.digest.FeedsUtil;
 
  
 
@@ -44,7 +47,6 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 			"FROM User user " +
 			"WHERE user.deleted = :deleted ";
 		System.out.println("Query:"+query);
-		//@SuppressWarnings("unchecked")
 		List<Long> result =null;
 		try{
 			 result = session.createQuery(query)
@@ -52,11 +54,6 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}
-		//finally{
-			//session.close();
-		//}
-		
-
 		if (result != null) {
 			System.out.println("RESULTS:"+result.size());
 			return result;
@@ -72,41 +69,30 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 			"LEFT JOIN feedPreferences.user user " + 
 			"WHERE user.id = :userid  " +
 			"AND feedPreferences.class in ('FeedsPreferences')"	;
-		System.out.println("FEED PREFERENCES QUERY:"+query+" userid:"+userId);
-	
 		try{
 			FeedsPreferences feedsPreferences = (FeedsPreferences) (FeedsPreferences) session.createQuery(query)
 					.setParameter("userid", userId).uniqueResult();
-			//System.out.println("RETURNING FEED PREFERENCES...");
-			System.out.println("RETURNING FEED PREFERENCES..."+feedsPreferences.getId());
 			return feedsPreferences;
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}
-		System.out.println("RETURNING NULL AS PREFERENCE");
 		return null;
 		
 	}
 	@Override
 	public List<FeedEntry> getFeedEntriesFromSources(
 			List<FeedSource> feedSources, User user, Date dateFrom) {
-		//Session session=openSession();
 		if (feedSources == null || feedSources.isEmpty()) {
 			return new ArrayList<FeedEntry>();
 		}
-		System.out.println("Feed sources:"+feedSources.size());
-		for(FeedSource fs:feedSources){
-			System.out.println("FS:"+fs.getId()+" fs:"+fs.getLink());
-		}
-	 		String query = 
+ 		String query = 
 			"SELECT DISTINCT feedEntry " + 
 			"FROM FeedEntry feedEntry " +
 			"WHERE feedEntry.feedSource IN (:feedSources) " +
 				"AND feedEntry.dateCreated > :dateFrom " + 
 				"AND feedEntry.subscribedUser = :user " +  
 			"ORDER BY feedEntry.relevance ASC, feedEntry.dateCreated DESC";
-		
-		//@SuppressWarnings("unchecked")
+
 		try{
 			@SuppressWarnings("unchecked")
 			List<FeedEntry> feedEntries = session.createQuery(query)
@@ -160,14 +146,8 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 		if (fromDate != null) {
 			q.setDate("fromDate", fromDate);
 		}
-		
-	 
-		System.out.println("QUERY:"+q.toString());
-		System.out.println("FROM DATE:"+fromDate.toString());
 		@SuppressWarnings("unchecked")
 		List<FeedEntry> feedMessages = q.list();
-		System.out.println("FEED entries for users:"+users.size()+" FOUND:"+feedMessages.size());
-		
 		return feedMessages;
 	}
 	@Override
@@ -221,41 +201,6 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 		
 		@SuppressWarnings("unchecked")
 		List<FeedEntry> feedMessages = q.list();
-		/*
-		String query1 = 
-			"SELECT DISTINCT entry " + 
-			"FROM FeedEntry entry " +
-			"WHERE entry.maker IN ( " +
-									"SELECT DISTINCT enrollment.user " +
-									"FROM CourseEnrollment enrollment " +
-									"LEFT JOIN enrollment.course course " +
-									"WHERE course = :course) " +
-			"AND entry.dateCreated BETWEEN :dateFrom AND :dateTo " +
-			"ORDER BY entry.dateCreated DESC";
-		
-		Date dateFrom = DateUtil.getDayBeginningDateTime(date);
-		Date dateTo = DateUtil.getNextDay(date);
-		
-		@SuppressWarnings("unchecked")
-		List<FeedEntry> feedMessages1 = session.createQuery(query1)
-				.setEntity("course", course)
-				.setDate("dateFrom", dateFrom)
-				.setDate("dateTo", dateTo)
-				.list();
-		
-		
-		String query2 = 
-			"SELECT excluded " +
-			"FROM Course course1 " +
-			"LEFT JOIN course1.excludedFeedSources excluded " +
-			"WHERE course1 = :course " +
-				"AND excluded IS NOT NULL";
-		
-		@SuppressWarnings("unchecked")
-		List<FeedSource> feedSources = session.createQuery(query2)
-				.setEntity("course", course)
-				.list();
-		*/
 		return feedMessages;
 	}
 	@Override
@@ -299,19 +244,12 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 			"WHERE hashtag IN (:hashtags) " +
 				 "AND year(post.dateCreated) = year(:date) " + 
 				 "AND month(post.dateCreated) = month(:date) " + 
-				//"AND day(post.dateCreated) = day(:date) " +
 			"ORDER BY post.dateCreated DESC ";
-		System.out.println("QUERY:"+query);
-		for(Tag tag:hashtags){
-			System.out.println("TAG:"+tag.getTitle());
-		}
-		System.out.println("DATE:"+date.toString());
 		@SuppressWarnings("unchecked")
 		List<TwitterPostSocialActivity> result = session.createQuery(query)
 				.setParameterList("hashtags", hashtags)
 				 .setDate("date", date)
 				.list();
-		System.out.println("RESULTS:"+result.size());
 		return result;
 	}
 	@Override
@@ -326,5 +264,149 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 			setLong("userId", userId).
 			uniqueResult();
 		return result;
+	}
+	@Override
+	public List<FeedEntry> getMyFeedsDigest(long userId, Date dateFrom, Date dateTo, TimeFrame timeFrame, int limit, int page) {
+		logger.info("Loading my feeds for user: " + userId + ", from date: " + dateFrom  + ", to date: " + dateTo  + ", for timeFrame: " + timeFrame);
+		
+		String query = 
+			"SELECT DISTINCT entry " + 
+			"FROM FeedsDigest feedsDigest " +
+			"LEFT JOIN feedsDigest.entries entry " +
+			"WHERE " +
+				"feedsDigest.class = :digestClassName " +
+				"AND feedsDigest.dateCreated > :dateFrom " + 
+				"AND feedsDigest.dateCreated < :dateTo " + 
+//				"AND feedsDigest.timeFrame = :timeFrame " +
+				"AND feedsDigest.feedsSubscriber = :userId " +
+				"AND entry IS NOT NULL " +
+			"ORDER BY entry.relevance ASC, entry.dateCreated DESC";
+		System.out.println("getMyFeedsDigest query:"+query);
+		@SuppressWarnings("unchecked")
+		List<FeedEntry> feedEntries = session.createQuery(query)
+				.setString("digestClassName", FeedsUtil.convertToDigestClassName(FilterOption.myfeeds))
+//				.setString("timeFrame", timeFrame.name())
+				.setDate("dateFrom", dateFrom)
+				.setDate("dateTo", dateTo)
+				.setLong("userId", userId)
+				.setMaxResults(limit + 1)
+				.setFirstResult((page - 1) * limit)
+				.list();
+		System.out.println("FOUND my feeds:"+feedEntries.size()+" for user:"+userId+" from:"+dateFrom.toString()+" to:"+dateTo.toString());
+		return feedEntries;
+	}
+	@Override
+	public List<FeedEntry> getMyFriendsFeedsDigest(long userId, Date dateFrom, Date dateTo, TimeFrame timeFrame, int limit, int page) {
+		logger.info("Loading friends feeds for user: " + userId + ", from date: " + dateFrom  + ", to date: " + dateTo  + ", for timeFrame: " + timeFrame);
+		
+		String query = 
+			"SELECT DISTINCT entry " + 
+			"FROM FeedsDigest feedsDigest " +
+			"LEFT JOIN feedsDigest.entries entry " +
+			"WHERE " +
+				"feedsDigest.class = :digestClassName " +
+				"AND feedsDigest.dateCreated > :dateFrom " + 
+				"AND feedsDigest.dateCreated < :dateTo " +  
+				"AND feedsDigest.feedsSubscriber = :userId " +
+				"AND entry IS NOT NULL " +
+			"ORDER BY entry.relevance ASC, entry.dateCreated DESC";
+		System.out.println("MY FRIENDS FEEDS QUERY:"+query);
+		
+		@SuppressWarnings("unchecked")
+		List<FeedEntry> feedEntries = session.createQuery(query)
+				.setString("digestClassName", FeedsUtil.convertToDigestClassName(FilterOption.friendsfeeds))
+				.setDate("dateFrom", dateFrom)
+				.setDate("dateTo", dateTo)
+				.setLong("userId", userId)
+				.setMaxResults(limit + 1)
+				.setFirstResult((page - 1) * limit)
+				.list();
+		System.out.println("FOUND my friends feeds:"+feedEntries.size()+" for user:"+userId+" from:"+dateFrom.toString()+" to:"+dateTo.toString()+" diggestClass:"+FeedsUtil.convertToDigestClassName(FilterOption.friendsfeeds)+" limit:"+limit+" page:"+page);
+		return feedEntries;
+	}
+	@Override
+	public List<TwitterPostSocialActivity> getMyTweetsFeedsDigest(long userId, Date dateFrom, Date dateTo, TimeFrame timeFrame, int limit, int page) {
+		logger.info("Loading my tweets for user: " + userId + ", from date: " + dateFrom  + ", to date: " + dateTo  + ", for timeFrame: " + timeFrame);
+		
+		String query = 
+			"SELECT DISTINCT entry " + 
+			"FROM FeedsDigest feedsDigest " +
+			"LEFT JOIN feedsDigest.tweets entry " +
+			"WHERE " +
+				"feedsDigest.class = :digestClassName " +
+				"AND feedsDigest.dateCreated > :dateFrom " + 
+				"AND feedsDigest.dateCreated < :dateTo " + 
+				"AND feedsDigest.feedsSubscriber = :userId " +
+				"AND entry IS NOT NULL " +
+			"ORDER BY entry.dateCreated DESC";
+		
+		@SuppressWarnings("unchecked")
+		List<TwitterPostSocialActivity> feedEntries = session.createQuery(query)
+			.setString("digestClassName", FeedsUtil.convertToDigestClassName(FilterOption.mytweets))
+			.setDate("dateFrom", dateFrom)
+			.setDate("dateTo", dateTo)
+			.setLong("userId", userId)
+			.setMaxResults(limit + 1)
+			.setFirstResult((page - 1) * limit)
+			.list();
+		System.out.println("FOUND my tweets feeds:"+feedEntries.size()+" for user:"+userId+" from:"+dateFrom.toString()+" to:"+dateTo.toString());
+		return feedEntries;
+	}
+	@Override
+	public List<FeedEntry> getCourseFeedsDigest(long courseId, Date dateFrom, Date dateTo, TimeFrame timeFrame, int limit, int page) {
+		logger.info("Loading course feeds for course: " + courseId + ", from date: " + dateFrom  + ", to date: " + dateTo  + ", for timeFrame: " + timeFrame);
+		
+		String query = 
+			"SELECT DISTINCT entry " + 
+			"FROM FeedsDigest feedsDigest " +
+			"LEFT JOIN feedsDigest.entries entry " +
+			"WHERE " +
+				"feedsDigest.class = :digestClassName " +
+				"AND feedsDigest.dateCreated > :dateFrom " + 
+				"AND feedsDigest.dateCreated < :dateTo " +  
+				"AND feedsDigest.course.id = :courseId " +
+				"AND entry IS NOT NULL " +
+			"ORDER BY entry.relevance ASC, entry.dateCreated DESC";
+		
+		@SuppressWarnings("unchecked")
+		List<FeedEntry> feedEntries = session.createQuery(query)
+			.setString("digestClassName", FeedsUtil.convertToDigestClassName(FilterOption.coursefeeds))
+			.setDate("dateFrom", dateFrom)
+			.setDate("dateTo", dateTo)
+			.setLong("courseId", courseId)
+			.setMaxResults(limit + 1)
+			.setFirstResult((page - 1) * limit)
+			.list();
+		System.out.println("FOUND course feeds:"+feedEntries.size()+" for course:"+courseId+" from:"+dateFrom.toString()+" to:"+dateTo.toString());
+		return feedEntries;
+	}
+	@Override
+	public List<TwitterPostSocialActivity> getCourseTweetsDigest(long courseId, Date dateFrom, Date dateTo, TimeFrame timeFrame, int limit, int page) {
+		logger.debug("Loading course tweets for course: " + courseId + ", from date: " + dateFrom  + ", to date: " + dateTo  + ", for timeFrame: " + timeFrame);
+		
+		String query = 
+			"SELECT DISTINCT entry " + 
+			"FROM FeedsDigest feedsDigest " +
+			"LEFT JOIN feedsDigest.tweets entry " +
+			"WHERE " +
+				"feedsDigest.class = :digestClassName " +
+				"AND feedsDigest.dateCreated BETWEEN :dateFrom AND :dateTo " + 
+//				"AND feedsDigest.timeFrame = :timeFrame " +
+				"AND feedsDigest.course.id = :courseId " +
+				"AND entry IS NOT NULL " +
+			"ORDER BY entry.dateCreated DESC";
+		
+		@SuppressWarnings("unchecked")
+		List<TwitterPostSocialActivity> feedEntries = session.createQuery(query)
+			.setString("digestClassName", FeedsUtil.convertToDigestClassName(FilterOption.coursetweets))
+//			.setString("timeFrame", timeFrame.name())
+			.setDate("dateFrom", dateFrom)
+			.setDate("dateTo", dateTo)
+			.setLong("courseId", courseId)
+			.setMaxResults(limit + 1)
+			.setFirstResult((page - 1) * limit)
+			.list();
+		System.out.println("FOUND course tweets:"+feedEntries.size()+" for course:"+courseId+" from:"+dateFrom.toString()+" to:"+dateTo.toString());
+		return feedEntries;
 	}
 }

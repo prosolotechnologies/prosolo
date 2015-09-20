@@ -2,7 +2,7 @@ package org.prosolo.bigdata.email;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
- 
+import java.io.UnsupportedEncodingException;
 import java.util.Properties;
 
 import javax.mail.Message;
@@ -20,6 +20,10 @@ import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.config.SMTPConfig;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.email.generators.EmailContentGenerator;
+import org.prosolo.common.email.generators.EmailVerificationEmailContentGenerator;
+
+ 
+ 
  
 
 /**
@@ -32,7 +36,7 @@ public class EmailSender {
 	}
 	
 	public void sendEmail(EmailContentGenerator contentGenerator, String email, String subject) throws AddressException, MessagingException, FileNotFoundException, IOException {
-		SMTPConfig smtpConfig = CommonSettings.getInstance().config.emailNotifier.smtpConfig;
+SMTPConfig smtpConfig = CommonSettings.getInstance().config.emailNotifier.smtpConfig;
 		
 		String host = smtpConfig.host;
 		String user = smtpConfig.user;
@@ -76,11 +80,25 @@ public class EmailSender {
 		
 		// Set Multipart as the message's content
 		message.setContent(mp);
-		
+		System.out.println("SENDING 2");
 		Transport transport = session.getTransport("smtp");
 		transport.connect(host, user, pass);
+		System.out.println("CONNECTED...");
 		transport.sendMessage(message, message.getAllRecipients());
+		System.out.println("SENT...");
 		transport.close();
+	}
+	public static void main(String[] args) throws FileNotFoundException, IOException {
+		try {
+			EmailVerificationEmailContentGenerator contentGenerator = new EmailVerificationEmailContentGenerator("Nik", "http://example.com");
+			new EmailSender().sendEmail(contentGenerator,  "zoran.jeremic@gmail.com" , "Verify email 2");
+		} catch (AddressException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		}
 	}
  
  

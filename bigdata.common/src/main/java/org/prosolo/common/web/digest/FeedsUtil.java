@@ -1,4 +1,4 @@
-package org.prosolo.services.feeds;
+package org.prosolo.common.web.digest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,6 @@ import org.prosolo.common.domainmodel.feeds.CourseTwitterHashtagsFeedsDigest;
 import org.prosolo.common.domainmodel.feeds.FriendsRSSFeedsDigest;
 import org.prosolo.common.domainmodel.feeds.SubscribedRSSFeedsDigest;
 import org.prosolo.common.domainmodel.feeds.SubscribedTwitterHashtagsFeedsDigest;
-import org.prosolo.common.web.digest.FilterOption;
 
 /**
  * @author Nikola Milikic

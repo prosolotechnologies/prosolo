@@ -17,8 +17,8 @@ import org.prosolo.common.config.CommonSettings;
  */
 public abstract class EmailContentGenerator {
 	
-	static final String templateHTMLRoot = "src/main/resources/org/prosolo/web/email/html/";
-	static final String templateTextRoot = "src/main/resources/org/prosolo/web/email/text/";
+	static final String templateHTMLRoot = "org/prosolo/web/email/html/";
+	static final String templateTextRoot = "org/prosolo/web/email/text/";
 	
 	public abstract String getTemplateName();
 

@@ -93,7 +93,6 @@ object DigestManager {
           val feedsAgregator:FeedsAgregator =new FeedsAgregatorImpl
           courses.foreach { courseid => 
             { 
-              println("CREATE DAILY COURSE DIGGEST COURSE:"+courseid);
               f(feedsAgregator,courseid,date) 
             }
           }
@@ -111,7 +110,6 @@ object DigestManager {
          users.foreach { 
            userid => 
              {
-             println("CREATE DAILY USER DIGGEST USER:"+userid+" for date:"+date.toString());
               f(feedsAgregator,userid,date)
              }
          

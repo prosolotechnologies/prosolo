@@ -1,4 +1,4 @@
-{{> src/main/resources/org/prosolo/web/email/html/header.html}}
+{{> org/prosolo/web/email/html/header.html}}
 
 <table style="border-collapse: collapse" width="100%">
 	<tr style="padding: 0; border-bottom: 1px solid #ddd;">
@@ -18,14 +18,10 @@
 				Welcome  to ProSolo. Your account was successfully created.
 			</p>
 		 
-			<p style="margin-bottom: 10px">
+			<p style="margin-bottom: 0;">
 				<strong style="color: #333;">
-					To create your password, just click this <a href="{{link}}" style="color: #4090ba;">link</a>.
+					To verify your email, just click this <a href="{{link}}" style="color: #4090ba;">link</a>.
 				</strong>
-			</p>
-			
-			<p style="margin-bottom: 10px">
-				Please note that this link is valid only for <strong>24 hours</strong>.
 			</p>
 		</td>
 	</tr>
@@ -55,5 +51,5 @@
 	</tr>
 </table>
 
-{{> src/main/resources/org/prosolo/web/email/html/signature.html}}
-{{> src/main/resources/org/prosolo/web/email/html/footer.html}}
+{{> org/prosolo/web/email/html/signature.html}}
+{{> org/prosolo/web/email/html/footer.html}}

@@ -21,7 +21,7 @@ import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.config.SMTPConfig;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.email.generators.EmailContentGenerator;
-import org.prosolo.services.email.generators.EmailVerificationEmailContentGenerator;
+import org.prosolo.common.email.generators.EmailVerificationEmailContentGenerator;
 import org.springframework.stereotype.Service;
 
 @Service("org.prosolo.services.email.EmailSender")
@@ -41,7 +41,7 @@ public class EmailSender {
 		    
 	    // Port we will connect to on the Amazon SES SMTP endpoint. We are choosing port 25 because we will use
 	    // STARTTLS to encrypt the connection.
-	    final int PORT = 587;
+	    final int PORT = 25;
 		    
 		    
 	    // Create a Properties object to contain connection configuration information.
@@ -86,7 +86,7 @@ public class EmailSender {
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		try {
 			EmailVerificationEmailContentGenerator contentGenerator = new EmailVerificationEmailContentGenerator("Nik", "http://example.com");
-			new EmailSender().sendEmail(contentGenerator,  "nikola.milikic@gmail.com" , "Verify email1");
+			new EmailSender().sendEmail(contentGenerator,  "zoran.jeremic@gmail.com" , "Verify email1");
 		} catch (AddressException e) {
 			e.printStackTrace();
 		} catch (UnsupportedEncodingException e) {

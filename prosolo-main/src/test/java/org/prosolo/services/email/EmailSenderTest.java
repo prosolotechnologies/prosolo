@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.prosolo.app.Settings;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.config.SMTPConfig;
-import org.prosolo.services.email.generators.EmailVerificationEmailContentGenerator;
+import org.prosolo.common.email.generators.EmailVerificationEmailContentGenerator;
 
 /**
 @author Zoran Jeremic May 22, 2015
