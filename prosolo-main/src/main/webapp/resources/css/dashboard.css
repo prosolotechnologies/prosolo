@@ -11,15 +11,15 @@
 	cursor: default;
 }
 
-#dashboard #timeRange .ui-datepicker-trigger {
+#dashboard .timeRange .ui-datepicker-trigger {
 	margin-right: 1em;
 }
 
-#dashboard #timeRange strong {
+#dashboard .timeRange strong {
 	margin-right: 0.3em;
 }
 
-#dashboard #chartBlock {
+#dashboard .chartBlock {
 	padding-top: 24px;
 	clear: both;
 }
@@ -28,20 +28,20 @@
 	margin-right: 9px;
 }
 
-#dashboard #timeRange {
+#dashboard .timeRange {
 	float: left;
 }
 
-#dashboard #period {
+#dashboard .period {
 	float: right;
 }
 
-#dashboard #period input[type=radio] {
+#dashboard .period input[type=radio] {
 	display: none;
 	margin: 10px;
 }
 
-#dashboard #period input[type=radio]+label {
+#dashboard .period input[type=radio]+label {
 	display: inline-block;
 	margin: -2px;
 	padding: 8px 18px;
@@ -51,7 +51,7 @@
 	cursor: pointer;
 }
 
-#dashboard #period input[type=radio]:checked+label {
+#dashboard .period input[type=radio]:checked+label {
 	background-image: none;
 	background-color: #d0d0d0;
 }

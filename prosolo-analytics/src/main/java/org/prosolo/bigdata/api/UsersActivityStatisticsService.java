@@ -39,7 +39,7 @@ public class UsersActivityStatisticsService {
 	
 	private final Logger logger = LoggerFactory.getLogger(UsersActivityStatisticsService.class);
 
-	UserActivityStatisticsDBManager dbManager = new UserActivityStatisticsDBManagerImpl();
+	private UserActivityStatisticsDBManager dbManager = new UserActivityStatisticsDBManagerImpl();
 	
 	private enum Period {
 		DAY, WEEK, MONTH;

@@ -1,49 +1,60 @@
-var charts = [];
-
-function destroyCharts() {
-	charts.map(function(chart) { chart.destroy(); });
-	charts = [];
-}
-
-function checkedStats() {
-	return $("[name='stats']:checked").map(function() { return $(this).val(); }).get();
-}
-
 function utc(date) { 
 	return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds()); 
 }
 
-function loadChart(dateFrom, dateTo, period, stats){
-	var host = $("#dashboard").data("api");
-	show("loader");
-	$.ajax({
-		url : "http://" + host + "/api/users/activity/statistics",
-		type : "GET",
-		data : {dateFrom:dateFrom + " UTC", dateTo:dateTo + " UTC", period:period, stats:stats},
-		crossDomain: true,
-		dataType: 'json'
-	}).done(function(data) {
-		if (data.length==0) {
-			show("chartMessages");
-		} else {
-			$('#chart').html("");
-			destroyCharts();
-			show("chart");
-			var chart = new tauCharts.Chart({
-			    data: data.map(function(e) { e.date = utc(new Date(e.date * 86400000)); return e; }),
-			    type: 'line',
-			    x: 'date',
-			    y: 'count',
-			    color: 'type'
-			});
-			chart.renderTo('#chart');
-			charts.push(chart);
-		}
-	});
+function host() {
+	return $("#dashboard").data("api");
 }
 
-function show(id) {
-	$("#" + id).show().siblings().hide();
+function chart(id, container, service, data, datamap) {
+	var charts = [];
+
+	function destroyCharts() {
+		charts.map(function(chart) {
+			chart.destroy();
+		});
+		charts = [];
+	}
+	
+	function show(element) {
+		$("#" + id + " " + element).show().siblings().hide();
+	}
+	
+	function load() {
+		show(".loader");
+		$.ajax({
+			url : "http://" + host() + service,
+			type : "GET",
+			data : data(),
+			crossDomain: true,
+			dataType: 'json'
+		}).done(function(data) {
+			if (data.length==0) {
+				show(".chartMessages");
+			} else {
+				$("#" + container).html("");
+				destroyCharts();
+				show(".chart");
+				var chart = new tauCharts.Chart({
+				    data: data.map(datamap),
+				    type: 'line',
+				    x: 'date',
+				    y: 'count',
+				    color: 'type'
+				});
+				chart.renderTo("#" + container);
+				charts.push(chart);
+			}
+		});
+	}
+	
+	return {
+		load : load
+	};
+}
+
+function checkedStats() {
+	return $("#activityGraph [name='stats']:checked").map(function() { return $(this).val(); }).get();
 }
 
 function addTrendClassForPercent(selectors, percentage) {
@@ -62,8 +73,12 @@ function isNegativePercentage(percentage){
 	return percentage.charAt(0) === '-';
 }
 
+$.extend($.datepicker,{_checkOffset:function(inst,offset,isFixed){return offset}});
+
 $(function(){
+
 	var host = $("#dashboard").data("api");
+	
 	$.ajax({
 		url : "http://" + host + "/api/users/activity/statistics/sum",
 		type : "GET",
@@ -97,43 +112,78 @@ $(function(){
 		$("#currently-logged-in-count").html(data.loggedIn);
 	});
 	
-	$.extend($.datepicker,{_checkOffset:function(inst,offset,isFixed){return offset}});
-	$( ".dateField" ).datepicker({
-		showOn: "both",
-		buttonImage: "../resources/css/prosolo-theme/images/calendar18x15.png",
-		buttonImageOnly: true,
-		dateFormat: "dd.mm.yy.",
-		changeMonth: true,
-		changeYear: true,
-		showOtherMonths: true,
-		selectOtherMonths: true,
-		onSelect: function(dateText, inst) {
-			if ($("[name='stats']:checked").size() == 0) {
-				return;
-			}
-			loadChart($("#dateFrom").val(), $("#dateTo").val(), $("[name='periods']:checked").val(), checkedStats());
-	    }
-	});
-	$( ".dateField" ).datepicker('setDate', new Date());
+	function datepicker(chartId, onSelect) {
+		$( "#" + chartId + " .dateField" ).datepicker({
+			showOn: "both",
+			buttonImage: "../resources/css/prosolo-theme/images/calendar18x15.png",
+			buttonImageOnly: true,
+			dateFormat: "dd.mm.yy.",
+			changeMonth: true,
+			changeYear: true,
+			showOtherMonths: true,
+			selectOtherMonths: true,
+			onSelect: onSelect
+		});
+		$( "#" + chartId + " .dateField" ).datepicker('setDate', new Date());
+	}
 	
-	$("[name='stats']").change(function() {
-		if ($("[name='stats']:checked").size() == 0) {
+	var activityGraphChart = chart("activityGraph", "activityGraphChart", "/api/users/activity/statistics", function() {
+		var dateFrom = $("#activityGraph .dateFrom").val();
+		var dateTo = $("#activityGraph .dateTo").val();
+		var period = $("#activityGraph [name='periods']:checked").val()
+		var stats = checkedStats();
+		return {dateFrom:dateFrom + " UTC", dateTo:dateTo + " UTC", period:period, stats:stats};
+	}, function(e) { 
+		e.date = utc(new Date(e.date * 86400000)); return e; 
+	});
+	
+	datepicker("activityGraph", function(dateText, inst) {
+		if ($("#activityGraph [name='stats']:checked").size() == 0) {
 			return;
 		}
-		loadChart($("#dateFrom").val(), $("#dateTo").val(), $("[name='periods']:checked").val(), checkedStats());
+		activityGraphChart.load();
+    });
+	
+	$("#activityGraph [name='stats']").change(function() {
+		if ($("#activityGraph [name='stats']:checked").size() == 0) {
+			return;
+		}
+		activityGraphChart.load();
 	});
 	
-	$("[name='periods']").change(function() {
-		if ($("[name='stats']:checked").size() == 0) {
+	$("#activityGraph .period [name='periods']").change(function() {
+		if ($("#activityGraph [name='stats']:checked").size() == 0) {
 			return;
 		}
 		if ($(this).is(":checked")) {
-			loadChart($("#dateFrom").val(), $("#dateTo").val(), $("[name='periods']:checked").val(), checkedStats());
+			activityGraphChart.load();
 		}
 	});
 	
-	if ($("[name='stats']:checked").size() == 0) {
-		return;
+	if ($("#activityGraph [name='stats']:checked").size() != 0) {
+		activityGraphChart.load();
 	}
-	loadChart($("#dateFrom").val(), $("#dateTo").val(), $("[name='periods']:checked").val(), checkedStats());
+	
+	var twitterHashtagsChart = chart("twitterHashtags", "twitterHashtagsChart", "/api/twitter/hashtag/statistics", function() {
+		var dateFrom = $("#twitterHashtags .dateFrom").val();
+		var dateTo = $("#twitterHashtags .dateTo").val();
+		var period = $("#twitterHashtags [name='thperiods']:checked").val()
+		var stats = checkedStats();
+		return {dateFrom:dateFrom + " UTC", dateTo:dateTo + " UTC", period:period};
+	}, function(e) { 
+		e.type = e.hashtag; e.date = utc(new Date(e.date * 86400000)); return e; 
+	});
+	
+	datepicker("twitterHashtags", function(dateText, inst) {
+		twitterHashtagsChart.load();
+    });
+	
+	$("#twitterHashtags .period [name='thperiods']").change(function() {
+		if ($(this).is(":checked")) {
+			twitterHashtagsChart.load();
+		}
+	});
+
+	twitterHashtagsChart.load();
+	
 });
