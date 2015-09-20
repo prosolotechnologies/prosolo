@@ -1,9 +1,12 @@
 package org.prosolo.bigdata.dal.cassandra.impl;
 
+import java.text.MessageFormat;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagDailyCount;
 import org.prosolo.bigdata.dal.cassandra.TwitterHashtagStatisticsDBManager;
 
@@ -14,7 +17,7 @@ import com.datastax.driver.core.Row;
 public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClientImpl implements
 		TwitterHashtagStatisticsDBManager {
 
-	private static final String FIND_TWITTER_HASHTAG_COUNT_FOR_PERIOD = "SELECT * FROM twitterhashtagdailycount WHERE date>=? AND date<=? ALLOW FILTERING;";
+	private static final String FIND_TWITTER_HASHTAG_COUNT_FOR_PERIOD = "SELECT * FROM twitterhashtagdailycount WHERE date>=? AND date<=? AND hashtag in ({0}) ALLOW FILTERING;";
 
 	private static final String UPDATE_TWITTER_HASHTAG_COUNT = "UPDATE twitterhashtagdailycount SET count = count + 1 WHERE hashtag = ? AND date = ?;";
 
@@ -26,6 +29,14 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 				statement.setLong(index++, ((Long) parameter).longValue());
 			} else if (parameter instanceof String) {
 				statement.setString(index++, (String) parameter);
+			} else if (parameter instanceof Set) {
+				for (Object element : ((Set<?>) parameter)) {
+					if (element instanceof String) {
+						statement.setString(index++, (String) element);
+					} else {
+						throw new IllegalStateException("Parameter type not supported.");
+					}
+				}
 			} else {
 				throw new IllegalStateException("Parameter type not supported.");
 			}
@@ -38,9 +49,10 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 	}
 
 	@Override
-	public List<TwitterHashtagDailyCount> getTwitterHashtagDailyCounts(Long dateFrom, Long dateTo) {
-		PreparedStatement prepared = getSession().prepare(FIND_TWITTER_HASHTAG_COUNT_FOR_PERIOD);
-		BoundStatement statement = statement(prepared, dateFrom, dateTo);
+	public List<TwitterHashtagDailyCount> getTwitterHashtagDailyCounts(Set<String> hashtags, Long dateFrom, Long dateTo) {
+		String marks = StringUtils.join(hashtags.stream().map((String s) -> "?").collect(Collectors.toList()), ", ");
+		PreparedStatement prepared = getSession().prepare(MessageFormat.format(FIND_TWITTER_HASHTAG_COUNT_FOR_PERIOD, marks));
+		BoundStatement statement = statement(prepared, dateFrom, dateTo, hashtags.stream().map((String hashtag) -> hashtag.substring(1)).collect(Collectors.toSet()));
 		return map(
 				query(statement),
 				(Row row) -> {

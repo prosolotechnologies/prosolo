@@ -66,12 +66,11 @@ public class TwitterHashtagStatisticsService {
 
 		logger.debug("Parsed days since epoch time: from: {}, to: {}.", daysFrom, daysTo);
 		
-		List<TwitterHashtagDailyCount> counts = new ArrayList<TwitterHashtagDailyCount>();
+		List<TwitterHashtagDailyCount> counts = new ArrayList<TwitterHashtagDailyCount>();		
 		
-		List<TwitterHashtagDailyCount> count = dbManager.getTwitterHashtagDailyCounts(daysFrom, daysTo);
+		List<TwitterHashtagDailyCount> count = dbManager.getTwitterHashtagDailyCounts(hashtags, daysFrom, daysTo);
 		Map<String, List<TwitterHashtagDailyCount>> groups = group(count);
 		for (String hashtag : groups.keySet()) {
-			if (!hashtags.contains("#" + hashtag)) continue; 
 			if(Period.DAY.equals(Period.valueOf(period))) {
 				counts.addAll(groups.get(hashtag));			
 			} else {
