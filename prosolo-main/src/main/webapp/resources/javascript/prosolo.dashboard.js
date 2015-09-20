@@ -1,61 +1,4 @@
-function utc(date) { 
-	return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds()); 
-}
-
-function host() {
-	return $("#dashboard").data("api");
-}
-
-function chart(id, container, service, data, datamap) {
-	var charts = [];
-
-	function destroyCharts() {
-		charts.map(function(chart) {
-			chart.destroy();
-		});
-		charts = [];
-	}
-	
-	function show(element) {
-		$("#" + id + " " + element).show().siblings().hide();
-	}
-	
-	function load() {
-		show(".loader");
-		$.ajax({
-			url : "http://" + host() + service,
-			type : "GET",
-			data : data(),
-			crossDomain: true,
-			dataType: 'json'
-		}).done(function(data) {
-			if (data.length==0) {
-				show(".chartMessages");
-			} else {
-				$("#" + container).html("");
-				destroyCharts();
-				show(".chart");
-				var chart = new tauCharts.Chart({
-				    data: data.map(datamap),
-				    type: 'line',
-				    x: 'date',
-				    y: 'count',
-				    color: 'type'
-				});
-				chart.renderTo("#" + container);
-				charts.push(chart);
-			}
-		});
-	}
-	
-	return {
-		load : load
-	};
-}
-
-function checkedStats() {
-	return $("#activityGraph [name='stats']:checked").map(function() { return $(this).val(); }).get();
-}
+$.extend($.datepicker,{_checkOffset:function(inst,offset,isFixed){return offset}});
 
 function addTrendClassForPercent(selectors, percentage) {
 	if (isNegativePercentage(percentage)) {
@@ -73,14 +16,64 @@ function isNegativePercentage(percentage){
 	return percentage.charAt(0) === '-';
 }
 
-$.extend($.datepicker,{_checkOffset:function(inst,offset,isFixed){return offset}});
+$(function () {
+	function utc(date) { 
+		return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds()); 
+	}
+	
+	function host() {
+		return $("#dashboard").data("api");
+	}
+	
+	function chart(configuration) {
+		var charts = [];
 
-$(function(){
+		function destroyCharts() {
+			charts.map(function(chart) {
+				chart.destroy();
+			});
+			charts = [];
+		}
+		
+		function show(data) {
+			$("#" + configuration.container).html("");
+			destroyCharts();
+			var chart = new tauCharts.Chart({
+			    data: data,
+			    type: 'line',
+			    x: configuration.x,
+			    y: configuration.y,
+			    color: configuration.color
+			});
+			chart.renderTo("#" + configuration.container);
+			charts.push(chart);
+		}
+		
+		return {
+			show : show
+		};
+	}
+	
 
-	var host = $("#dashboard").data("api");
+	function service(configuration) {
+		function get(callback) {
+			$.ajax({
+				url : configuration.url,
+				type : "GET",
+				data : configuration.parameters(),
+				crossDomain	: true,
+				dataType: 'json'
+			}).done(function(data) {
+				callback(data.map(configuration.data));
+			});
+		}
+		return {
+			get : get
+		}
+	}
 	
 	$.ajax({
-		url : "http://" + host + "/api/users/activity/statistics/sum",
+		url : "http://" + host() + "/api/users/activity/statistics/sum",
 		type : "GET",
 		data : {event: "registered"},
 		crossDomain: true,
@@ -92,7 +85,7 @@ $(function(){
 	});
 	
 	$.ajax({
-		url : "http://" + host + "/api/users/activity/statistics/active",
+		url : "http://" + host() + "/api/users/activity/statistics/active",
 		type : "GET",
 		data : {event: "login"},
 		crossDomain: true,
@@ -104,13 +97,80 @@ $(function(){
 	});
 	
 	$.ajax({
-		url : "http://" + host + "/api/users/activity/statistics/session",
+		url : "http://" + host() + "/api/users/activity/statistics/session",
 		type : "GET",
 		crossDomain: true,
 		dataType: 'json'
 	}).done(function(data) {
 		$("#currently-logged-in-count").html(data.loggedIn);
 	});
+	
+	var activityGraph = (function() {
+		var agc = chart({
+			container : "activityGraphChart",
+			x : "date",
+			y : "count",
+			color : "type"
+		});
+
+		return {
+			dateFrom : function() { return $("#activityGraph .dateFrom").val(); },
+			dateTo : function() { return $("#activityGraph .dateTo").val(); },
+			period : function() { return $("#activityGraph [name='periods']:checked").val(); },
+			stats : function() {
+				return $("#activityGraph [name='stats']:checked").map(function() { return $(this).val(); }).get();
+			},
+			showLoader : function() {
+				$("#activityGraph .loader").show().siblings().hide();
+			},
+			onload : function(data) {
+				if (data.length==0) {
+					$("#activityGraph .chartMessages").show().siblings().hide();
+				} else {
+					$("#activityGraph .chart").show().siblings().hide();
+					agc.show(data);
+				}
+			}
+		}
+	})();
+	
+	var activityGraphService = service({
+		url : "http://" + host() + "/api/users/activity/statistics",
+		parameters : function() {
+			return {
+				dateFrom : activityGraph.dateFrom() + " UTC",
+				dateTo : activityGraph.dateTo() + " UTC",
+				period : activityGraph.period(), 
+				stats : activityGraph.stats()
+			}
+		},
+		data : function(e) { 
+			e.date = utc(new Date(e.date * 86400000)); return e; 
+		}
+	});
+	
+	$("#activityGraph [name='stats']").change(function() {
+		if ($("#activityGraph [name='stats']:checked").size() == 0) {
+			return;
+		}
+		activityGraph.showLoader();
+		activityGraphService.get(activityGraph.onload);
+	});
+	
+	$("#activityGraph .period [name='periods']").change(function() {
+		if ($("#activityGraph [name='stats']:checked").size() == 0) {
+			return;
+		}
+		if ($(this).is(":checked")) {
+			activityGraph.showLoader();
+			activityGraphService.get(activityGraph.onload);
+		}
+	});
+	
+	if ($("#activityGraph [name='stats']:checked").size() != 0) {
+		activityGraph.showLoader();
+		activityGraphService.get(activityGraph.onload);
+	}
 	
 	function datepicker(chartId, onSelect) {
 		$( "#" + chartId + " .dateField" ).datepicker({
@@ -127,63 +187,67 @@ $(function(){
 		$( "#" + chartId + " .dateField" ).datepicker('setDate', new Date());
 	}
 	
-	var activityGraphChart = chart("activityGraph", "activityGraphChart", "/api/users/activity/statistics", function() {
-		var dateFrom = $("#activityGraph .dateFrom").val();
-		var dateTo = $("#activityGraph .dateTo").val();
-		var period = $("#activityGraph [name='periods']:checked").val()
-		var stats = checkedStats();
-		return {dateFrom:dateFrom + " UTC", dateTo:dateTo + " UTC", period:period, stats:stats};
-	}, function(e) { 
-		e.date = utc(new Date(e.date * 86400000)); return e; 
-	});
-	
 	datepicker("activityGraph", function(dateText, inst) {
 		if ($("#activityGraph [name='stats']:checked").size() == 0) {
 			return;
 		}
-		activityGraphChart.load();
+		activityGraph.showLoader();
+		activityGraphService.get(activityGraph.onload);
     });
 	
-	$("#activityGraph [name='stats']").change(function() {
-		if ($("#activityGraph [name='stats']:checked").size() == 0) {
-			return;
+	var twitterHashtags = (function() {
+		var thc = chart({
+			container : "twitterHashtagsChart",
+			x : "date",
+			y : "count",
+			color : "hashtag"
+		});
+
+		return {
+			dateFrom : function() { return $("#twitterHashtags .dateFrom").val(); },
+			dateTo : function() { return $("#twitterHashtags .dateTo").val(); },
+			period : function() { return $("#twitterHashtags [name='thperiods']:checked").val(); },
+			showLoader : function() {
+				$("#twitterHashtags .loader").show().siblings().hide();
+			},
+			onload : function(data) {
+				if (data.length==0) {
+					$("#twitterHashtags .chartMessages").show().siblings().hide();
+				} else {
+					$("#twitterHashtags .chart").show().siblings().hide();
+					thc.show(data);
+				}
+			}
 		}
-		activityGraphChart.load();
-	});
+	})();
 	
-	$("#activityGraph .period [name='periods']").change(function() {
-		if ($("#activityGraph [name='stats']:checked").size() == 0) {
-			return;
+	var twitterHashtagsService = service({
+		url : "http://" + host() + "/api/twitter/hashtag/statistics",
+		parameters : function() {
+			return {
+				dateFrom : twitterHashtags.dateFrom() + " UTC",
+				dateTo : twitterHashtags.dateTo() + " UTC",
+				period : twitterHashtags.period()
+			}
+		},
+		data : function(e) { 
+			e.date = utc(new Date(e.date * 86400000)); return e; 
 		}
-		if ($(this).is(":checked")) {
-			activityGraphChart.load();
-		}
 	});
-	
-	if ($("#activityGraph [name='stats']:checked").size() != 0) {
-		activityGraphChart.load();
-	}
-	
-	var twitterHashtagsChart = chart("twitterHashtags", "twitterHashtagsChart", "/api/twitter/hashtag/statistics", function() {
-		var dateFrom = $("#twitterHashtags .dateFrom").val();
-		var dateTo = $("#twitterHashtags .dateTo").val();
-		var period = $("#twitterHashtags [name='thperiods']:checked").val()
-		var stats = checkedStats();
-		return {dateFrom:dateFrom + " UTC", dateTo:dateTo + " UTC", period:period};
-	}, function(e) { 
-		e.type = e.hashtag; e.date = utc(new Date(e.date * 86400000)); return e; 
-	});
-	
+
 	datepicker("twitterHashtags", function(dateText, inst) {
-		twitterHashtagsChart.load();
+		twitterHashtags.showLoader();
+		twitterHashtagsService.get(twitterHashtags.onload);
     });
 	
 	$("#twitterHashtags .period [name='thperiods']").change(function() {
 		if ($(this).is(":checked")) {
-			twitterHashtagsChart.load();
+			twitterHashtags.showLoader();
+			twitterHashtagsService.get(twitterHashtags.onload);
 		}
 	});
 
-	twitterHashtagsChart.load();
-	
+	twitterHashtags.showLoader();
+	twitterHashtagsService.get(twitterHashtags.onload);
+
 });
