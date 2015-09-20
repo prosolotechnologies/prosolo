@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
-import org.hibernate.Session;
 import org.prosolo.bigdata.dal.persistence.DiggestGeneratorDAO;
 import org.prosolo.bigdata.dal.persistence.HibernateUtil;
 import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
@@ -46,7 +45,6 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 			"SELECT user.id " +
 			"FROM User user " +
 			"WHERE user.deleted = :deleted ";
-		System.out.println("Query:"+query);
 		List<Long> result =null;
 		try{
 			 result = session.createQuery(query)
@@ -55,7 +53,6 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 			ex.printStackTrace();
 		}
 		if (result != null) {
-			System.out.println("RESULTS:"+result.size());
 			return result;
 		}
 		return new ArrayList<Long>();
@@ -267,7 +264,7 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 	}
 	@Override
 	public List<FeedEntry> getMyFeedsDigest(long userId, Date dateFrom, Date dateTo, TimeFrame timeFrame, int limit, int page) {
-		logger.info("Loading my feeds for user: " + userId + ", from date: " + dateFrom  + ", to date: " + dateTo  + ", for timeFrame: " + timeFrame);
+		logger.debug("Loading my feeds for user: " + userId + ", from date: " + dateFrom  + ", to date: " + dateTo  + ", for timeFrame: " + timeFrame);
 		
 		String query = 
 			"SELECT DISTINCT entry " + 
@@ -281,7 +278,6 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 				"AND feedsDigest.feedsSubscriber = :userId " +
 				"AND entry IS NOT NULL " +
 			"ORDER BY entry.relevance ASC, entry.dateCreated DESC";
-		System.out.println("getMyFeedsDigest query:"+query);
 		@SuppressWarnings("unchecked")
 		List<FeedEntry> feedEntries = session.createQuery(query)
 				.setString("digestClassName", FeedsUtil.convertToDigestClassName(FilterOption.myfeeds))
@@ -292,12 +288,11 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 				.setMaxResults(limit + 1)
 				.setFirstResult((page - 1) * limit)
 				.list();
-		System.out.println("FOUND my feeds:"+feedEntries.size()+" for user:"+userId+" from:"+dateFrom.toString()+" to:"+dateTo.toString());
 		return feedEntries;
 	}
 	@Override
 	public List<FeedEntry> getMyFriendsFeedsDigest(long userId, Date dateFrom, Date dateTo, TimeFrame timeFrame, int limit, int page) {
-		logger.info("Loading friends feeds for user: " + userId + ", from date: " + dateFrom  + ", to date: " + dateTo  + ", for timeFrame: " + timeFrame);
+		logger.debug("Loading friends feeds for user: " + userId + ", from date: " + dateFrom  + ", to date: " + dateTo  + ", for timeFrame: " + timeFrame);
 		
 		String query = 
 			"SELECT DISTINCT entry " + 
@@ -310,8 +305,7 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 				"AND feedsDigest.feedsSubscriber = :userId " +
 				"AND entry IS NOT NULL " +
 			"ORDER BY entry.relevance ASC, entry.dateCreated DESC";
-		System.out.println("MY FRIENDS FEEDS QUERY:"+query);
-		
+			
 		@SuppressWarnings("unchecked")
 		List<FeedEntry> feedEntries = session.createQuery(query)
 				.setString("digestClassName", FeedsUtil.convertToDigestClassName(FilterOption.friendsfeeds))
@@ -321,12 +315,11 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 				.setMaxResults(limit + 1)
 				.setFirstResult((page - 1) * limit)
 				.list();
-		System.out.println("FOUND my friends feeds:"+feedEntries.size()+" for user:"+userId+" from:"+dateFrom.toString()+" to:"+dateTo.toString()+" diggestClass:"+FeedsUtil.convertToDigestClassName(FilterOption.friendsfeeds)+" limit:"+limit+" page:"+page);
-		return feedEntries;
+			return feedEntries;
 	}
 	@Override
 	public List<TwitterPostSocialActivity> getMyTweetsFeedsDigest(long userId, Date dateFrom, Date dateTo, TimeFrame timeFrame, int limit, int page) {
-		logger.info("Loading my tweets for user: " + userId + ", from date: " + dateFrom  + ", to date: " + dateTo  + ", for timeFrame: " + timeFrame);
+		logger.debug("Loading my tweets for user: " + userId + ", from date: " + dateFrom  + ", to date: " + dateTo  + ", for timeFrame: " + timeFrame);
 		
 		String query = 
 			"SELECT DISTINCT entry " + 
@@ -349,12 +342,11 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 			.setMaxResults(limit + 1)
 			.setFirstResult((page - 1) * limit)
 			.list();
-		System.out.println("FOUND my tweets feeds:"+feedEntries.size()+" for user:"+userId+" from:"+dateFrom.toString()+" to:"+dateTo.toString());
 		return feedEntries;
 	}
 	@Override
 	public List<FeedEntry> getCourseFeedsDigest(long courseId, Date dateFrom, Date dateTo, TimeFrame timeFrame, int limit, int page) {
-		logger.info("Loading course feeds for course: " + courseId + ", from date: " + dateFrom  + ", to date: " + dateTo  + ", for timeFrame: " + timeFrame);
+		logger.debug("Loading course feeds for course: " + courseId + ", from date: " + dateFrom  + ", to date: " + dateTo  + ", for timeFrame: " + timeFrame);
 		
 		String query = 
 			"SELECT DISTINCT entry " + 
@@ -377,7 +369,6 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 			.setMaxResults(limit + 1)
 			.setFirstResult((page - 1) * limit)
 			.list();
-		System.out.println("FOUND course feeds:"+feedEntries.size()+" for course:"+courseId+" from:"+dateFrom.toString()+" to:"+dateTo.toString());
 		return feedEntries;
 	}
 	@Override
@@ -406,7 +397,6 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 			.setMaxResults(limit + 1)
 			.setFirstResult((page - 1) * limit)
 			.list();
-		System.out.println("FOUND course tweets:"+feedEntries.size()+" for course:"+courseId+" from:"+dateFrom.toString()+" to:"+dateTo.toString());
 		return feedEntries;
 	}
 }

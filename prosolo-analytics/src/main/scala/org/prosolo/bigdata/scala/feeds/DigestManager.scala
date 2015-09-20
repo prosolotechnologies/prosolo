@@ -47,7 +47,7 @@ object DigestManager {
      //val scalaCoursesIds:Buffer[java.lang.Long]= scala.collection.JavaConversions.asScalaBuffer(coursesIdsScala)
      val coursesRDD:RDD[Long]=sc.parallelize(coursesIdsScala.map { Long2long})
   
- /*
+  
   val createDailyUserSubscribedRSSFeedDigests=(feedsAgregator:FeedsAgregator,userid:Long, date:Date)=>{
      feedsAgregator.generateDailySubscribedRSSFeedsDigestForUser(userid, date)
   }
@@ -77,7 +77,7 @@ object DigestManager {
    feedsAgregator.generateDailyCourseTwitterHashtagsDigest(courseid,date)
  }
    createDailyCourseDigest(yesterday,coursesRDD,generateDailySubscribedTwitterHashtagsDigestForUser)
-  */
+ 
  val sendEmailWithFeedsForUser=(feedsAgregator:FeedsAgregator, userid:Long, date:Date)=>{
    feedsAgregator.sendEmailWithFeeds(userid,date)
  

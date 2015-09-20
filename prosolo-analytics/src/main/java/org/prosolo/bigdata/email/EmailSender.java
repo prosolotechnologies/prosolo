@@ -80,12 +80,9 @@ SMTPConfig smtpConfig = CommonSettings.getInstance().config.emailNotifier.smtpCo
 		
 		// Set Multipart as the message's content
 		message.setContent(mp);
-		System.out.println("SENDING 2");
 		Transport transport = session.getTransport("smtp");
 		transport.connect(host, user, pass);
-		System.out.println("CONNECTED...");
 		transport.sendMessage(message, message.getAllRecipients());
-		System.out.println("SENT...");
 		transport.close();
 	}
 	public static void main(String[] args) throws FileNotFoundException, IOException {
