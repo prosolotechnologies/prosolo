@@ -9,6 +9,7 @@ import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.organization.Role;
+import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.admin.ResourceSettingsManager;
 import org.prosolo.services.nodes.CourseManager;
@@ -16,7 +17,6 @@ import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.web.administration.data.ResourceSettingsData;
 import org.prosolo.web.util.PageUtil;
 import org.prosolo.web.util.ResourceBundleUtil;
-import org.prosolo.web.util.exceptions.KeyNotFoundInBundleException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

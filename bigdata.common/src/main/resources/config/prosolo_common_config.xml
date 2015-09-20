@@ -83,6 +83,28 @@
          <automaticTestTable>testTable</automaticTestTable>
       </c3p0>
    </hibernate>
-
+    <email-notifier>
+      <!--debug>true</debug-->
+      <activated>false</activated>
+      <daily>false</daily>
+      <weekly>false</weekly>
+      <monthly>false</monthly>
+      <smtp-config>
+         <host>email-smtp.us-east-1.amazonaws.com</host>
+         <user>AKIAINKX6ZZIXRMUOLQQ</user>
+         <full-email>prosolo.webmaster@gmail.com</full-email>
+         <pass>Aj7I5cNTT/dMel7rlfXxHc6Zc0ipxQsQrUihj2lY9uPj</pass>
+         <port>587</port>
+         <starttls-enable>true</starttls-enable>
+         <auth>true</auth>
+      </smtp-config>
+   </email-notifier>
+	<app-config>
+		<app-name>prosolo</app-name>
+		<development-mode>true</development-mode>
+      	<developer-email>name.lastname@gmail.com</developer-email>
+       	<maintenance>false</maintenance>
+      	<domain>http://localhost:8080/prosolo/</domain>
+	</app-config>
 
 </config>

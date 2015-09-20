@@ -11,12 +11,12 @@ import org.hibernate.Hibernate;
 import org.prosolo.common.domainmodel.featuredNews.FeaturedNews;
 import org.prosolo.common.domainmodel.featuredNews.LearningGoalFeaturedNews;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.web.home.data.FeaturedNewsData;
 import org.prosolo.web.util.ResourceBundleUtil;
-import org.prosolo.web.util.exceptions.KeyNotFoundInBundleException;
 
 /*
  * @author Zoran Jeremic 2013-05-23

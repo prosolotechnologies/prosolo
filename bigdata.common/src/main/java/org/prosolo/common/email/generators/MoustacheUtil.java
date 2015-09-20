@@ -1,4 +1,4 @@
-package org.prosolo.services.email.generators;
+package org.prosolo.common.email.generators;
 
 import java.io.FileReader;
 import java.io.IOException;

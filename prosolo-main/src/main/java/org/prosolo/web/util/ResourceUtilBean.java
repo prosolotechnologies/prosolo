@@ -13,7 +13,7 @@ import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.user.reminders.EventReminder;
 import org.prosolo.common.domainmodel.user.reminders.Reminder;
 import org.prosolo.common.domainmodel.user.reminders.RequestReminder;
-import org.prosolo.web.util.exceptions.KeyNotFoundInBundleException;
+import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.springframework.stereotype.Component;
 
 @ManagedBean(name = "resourceUtilBean")

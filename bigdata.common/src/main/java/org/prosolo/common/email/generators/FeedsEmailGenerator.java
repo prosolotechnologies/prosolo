@@ -1,14 +1,15 @@
-package org.prosolo.services.email.generators;
+package org.prosolo.common.email.generators;
 
 import java.util.List;
 
 import org.prosolo.common.domainmodel.user.TimeFrame;
 import org.prosolo.common.web.digest.data.FeedsDigestData;
 
+
 public class FeedsEmailGenerator extends EmailContentGenerator {
 	
 	@Override
-	String getTemplateName() {
+	public String getTemplateName() {
 		return "feedDigest";
 	}
 	

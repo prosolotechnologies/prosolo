@@ -28,8 +28,7 @@ public class Config {
 	@Element(name="app-config")
 	public AppConfig application;
 	
-	@Element(name = "email-notifier")
-	public EmailNotifierConfig emailNotifier;
+
 	
 	@Element(name = "file-management")
 	public FileManagementConfig fileManagement;

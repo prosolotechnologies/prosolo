@@ -1,6 +1,7 @@
 package org.prosolo.services.email.notification;
 
 import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.services.event.Event;
@@ -27,7 +28,7 @@ public class InstantUpdateEventObserver implements EventObserver {
 
 	@Override
 	public void handleEvent(Event event) {
-		if(Settings.getInstance().config.emailNotifier.activated){
+		if(CommonSettings.getInstance().config.emailNotifier.activated){
 			//new InstantUpdateThread(event).start(); 
 		}
 	}

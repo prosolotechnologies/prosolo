@@ -12,9 +12,7 @@
 		</db-server>
 	</db-config>
 	 
-	<app-config>
-		<app-name>prosolo-analytics</app-name>
-	</app-config>
+
 	 
 	<scheduler-config>
 		<auto-start>false</auto-start>

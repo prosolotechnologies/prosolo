@@ -9,7 +9,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
 import org.apache.log4j.Logger;
-import org.prosolo.web.util.exceptions.KeyNotFoundInBundleException;
+import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 
 public class PageUtil {
 	

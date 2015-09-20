@@ -13,6 +13,7 @@ import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;
+import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
@@ -25,7 +26,6 @@ import org.prosolo.web.activitywall.displayers.StatusWallSocialActivitiesDisplay
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.util.PageUtil;
 import org.prosolo.web.util.ResourceBundleUtil;
-import org.prosolo.web.util.exceptions.KeyNotFoundInBundleException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;

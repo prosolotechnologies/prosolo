@@ -1,9 +1,11 @@
 package org.prosolo.services.email.generators;
 
+import org.prosolo.common.email.generators.EmailContentGenerator;
+
 public class AccountCreatedEmailGenerator extends EmailContentGenerator {
 	
 	@Override
-	String getTemplateName() {
+	public String getTemplateName() {
 		return "accountCreated";
 	}
 	

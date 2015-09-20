@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.prosolo.web.util.exceptions;
+package org.prosolo.common.exceptions;
 
 /**
  * @author Nikola Milikic

@@ -10,6 +10,7 @@ import java.util.Locale;
 import javax.mail.MessagingException;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.course.Course;
@@ -25,13 +26,17 @@ import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.domainmodel.user.TimeFrame;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.FeedsPreferences;
+import org.prosolo.common.email.generators.FeedsEmailGenerator;
+import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.digest.FilterOption;
 import org.prosolo.common.web.digest.data.FeedsDigestData;
+ 
 import org.prosolo.bigdata.dal.persistence.DiggestGeneratorDAO;
 import org.prosolo.bigdata.dal.persistence.impl.DiggestGeneratorDAOImpl;
 
+import org.prosolo.bigdata.email.EmailSender;
 //import org.prosolo.services.annotation.TagManager;
 import org.prosolo.bigdata.feeds.FeedParser;
 import org.prosolo.bigdata.feeds.FeedsAgregator;
@@ -40,24 +45,10 @@ import org.prosolo.bigdata.feeds.data.FeedMessageData;
 import org.prosolo.bigdata.feeds.ResourceTokenizer;
 import org.prosolo.bigdata.similarity.WebPageRelevance;
 import org.prosolo.bigdata.similarity.impl.WebPageRelevanceImpl;
+import org.prosolo.bigdata.utils.ResourceBundleUtil;
 
 import com.google.gson.Gson;
-/*import org.prosolo.services.feeds.FeedsManager;
-import org.prosolo.services.htmlparser.WebPageContentExtractor;
-import org.prosolo.services.interaction.FollowResourceManager;
-import org.prosolo.services.interaction.PostManager;
-import org.prosolo.services.nodes.CourseManager;
-import org.prosolo.services.nodes.DefaultManager;
-import org.prosolo.services.nodes.LearningGoalManager;
-import org.prosolo.services.twitter.TwitterSearchService;
-import org.prosolo.similarity.ResourceTokenizer;
-import org.prosolo.similarity.WebPageRelevance;
-import org.prosolo.web.ApplicationBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;*/
+ 
  
 
 /**
@@ -317,7 +308,7 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 	@Override
 	public void sendEmailWithFeeds(Long userid, Date date) {
 		//user = merge(user);
-		/*
+		 
 		User user=null;
 		try{
 			user=(User) diggestGeneratorDAO.load(User.class, userid);
@@ -369,6 +360,7 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 		
 		if (toSendEmail) {
 			UserSettings userSettings=diggestGeneratorDAO.getUserSettings(userid);
+			EmailSender emailSender=new EmailSender();
 			Locale locale = null;
 			if(userSettings!=null){
 				locale=userSettings.getLocaleSettings().createLocale();
@@ -394,7 +386,7 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 					String categoryName = ResourceBundleUtil.getMessage("digest.filterName.title."+filterOption, locale);
 					feedsDigestData.setCategoryName(categoryName);
 					feedsDigestData.setFilter(filterOption);
-					
+					/*
 					switch (filterOption) {
 						case myfeeds:
 							List<FeedEntry> entries = getMyFeedsDigest(userId, dateFrom, dateTo, interval, limit, feedsDigestData.getPage());
@@ -422,7 +414,7 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 							DigestBean.addTweetEntries(feedsDigestData, entries4, limit);
 							break;
 					}
-					
+					*/
 					if (!feedsDigestData.getEntries().isEmpty())
 						feedsDigests.add(feedsDigestData);
 				} catch (KeyNotFoundInBundleException e) {
@@ -435,15 +427,15 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 				
 				// If development mode, send only to developer email
 				if (!feedsDigests.isEmpty() && 
-						(!Settings.getInstance().config.application.developmentMode || 
-						email.equals(Settings.getInstance().config.application.developmentEmail))) {
+						(!CommonSettings.getInstance().config.appConfig.developmentMode || 
+						email.equals(CommonSettings.getInstance().config.appConfig.developmentEmail))) {
 					emailSender.sendEmail(new FeedsEmailGenerator(user.getName(), feedsDigests, dashedDate, interval), email, "ProSolo Feed Digest");
 				}
 			} catch (MessagingException | IOException e) {
 				logger.error(e);
 			}
 		}
-		*/
+		 
 	}
 
 

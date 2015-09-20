@@ -1,5 +1,6 @@
 package org.prosolo.bigdata.config;
 
+import org.prosolo.common.config.AppConfig;
 import org.prosolo.common.config.ElasticSearchConfig;
 import org.simpleframework.xml.Element;
 
@@ -16,8 +17,8 @@ public class Config {
 	@Element(name = "db-config", required = true)
 	public DBConfig dbConfig;
 
-	@Element(name = "app-config", required = true)
-	public AppConfig appConfig;
+	//@Element(name = "app-config", required = true)
+	//public AppConfig appConfig;
 
 	// @Element(name="elastic-search-config")
 	// public ElasticSearchConfig elasticSearch;

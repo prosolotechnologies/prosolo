@@ -1,12 +1,14 @@
 /**
  * 
  */
-package org.prosolo.services.email.generators;
+package org.prosolo.common.email.generators;
 
 import java.io.IOException;
 import java.util.Calendar;
 
-import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
+
+
 
 
 /**
@@ -18,7 +20,7 @@ public abstract class EmailContentGenerator {
 	static final String templateHTMLRoot = "src/main/resources/org/prosolo/web/email/html/";
 	static final String templateTextRoot = "src/main/resources/org/prosolo/web/email/text/";
 	
-	abstract String getTemplateName();
+	public abstract String getTemplateName();
 
 	public String generateHTML() throws IOException {
 		return MoustacheUtil.compileTemplate(templateHTMLRoot + getTemplateName() + ".html", getTemplateName() + ".html", this);
@@ -32,11 +34,11 @@ public abstract class EmailContentGenerator {
 	 * Getter methods
 	 */
 	public String getSenderEmail() {
-		return Settings.getInstance().config.emailNotifier.smtpConfig.fullEmail;
+		return CommonSettings.getInstance().config.emailNotifier.smtpConfig.fullEmail;
 	}
 	
 	public String getDomain() {
-		return Settings.getInstance().config.application.domain;
+		return CommonSettings.getInstance().config.appConfig.domain;
 	}
 	
 	public String getYear() {

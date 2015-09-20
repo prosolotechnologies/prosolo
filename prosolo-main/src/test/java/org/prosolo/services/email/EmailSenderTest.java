@@ -19,7 +19,8 @@ import javax.mail.internet.MimeMultipart;
 
 import org.junit.Test;
 import org.prosolo.app.Settings;
-import org.prosolo.config.SMTPConfig;
+import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.config.SMTPConfig;
 import org.prosolo.services.email.generators.EmailVerificationEmailContentGenerator;
 
 /**
@@ -35,7 +36,7 @@ public class EmailSenderTest {
 		String email="zoran.jeremic@gmail.com"; 
 		String subject= "Verify email1";
 		//final String FROM = "zoran.jeremic@gmail.com"; 
-		  SMTPConfig smtpConfig = Settings.getInstance().config.emailNotifier.smtpConfig;
+		  SMTPConfig smtpConfig = CommonSettings.getInstance().config.emailNotifier.smtpConfig;
 			
 			String host = smtpConfig.host;
 			String user = smtpConfig.user;
@@ -119,7 +120,7 @@ public class EmailSenderTest {
 	    // Amazon SES SMTP host name. This example uses the us-west-2 region.
 	   // final String HOST = "email-smtp.us-east-1.amazonaws.com";   
 	    
-	    SMTPConfig smtpConfig = Settings.getInstance().config.emailNotifier.smtpConfig;
+	    SMTPConfig smtpConfig = CommonSettings.getInstance().config.emailNotifier.smtpConfig;
 		
 		String host = smtpConfig.host;
 		String user = smtpConfig.user;

@@ -1,5 +1,7 @@
 package org.prosolo.services.email.generators;
 
+import org.prosolo.common.email.generators.EmailContentGenerator;
+
 
 /**
  * @author Zoran Jeremic 2013-10-25
@@ -9,7 +11,7 @@ package org.prosolo.services.email.generators;
 public class EmailVerificationEmailContentGenerator extends EmailContentGenerator {
 	
 	@Override
-	String getTemplateName() {
+	public String getTemplateName() {
 		return "verifyEmail";
 	}
 	

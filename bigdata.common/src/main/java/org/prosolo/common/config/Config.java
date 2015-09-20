@@ -5,6 +5,7 @@ package org.prosolo.common.config;
 import org.simpleframework.xml.Element;
 import org.prosolo.common.config.hibernate.HibernateConfig;
 
+
 public class Config {
 	
 	@Element(name = "namespace", required = true)
@@ -21,6 +22,12 @@ public class Config {
 	
 	@Element(name="hibernate")
 	public HibernateConfig hibernateConfig;
+	
+	@Element(name = "email-notifier")
+	public EmailNotifierConfig emailNotifier;
+	
+	 @Element(name = "app-config", required = true)
+		 public AppConfig appConfig;
 	
 	public String getNamespacePrefix(){
 		if(this.namespace.equals("local")){

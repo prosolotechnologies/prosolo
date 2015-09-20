@@ -24,7 +24,7 @@ object DigestManager {
   def createFeedDiggestsAndSendEmails(){
     println("Create feed diggest and send emails called")
     val cal:Calendar=Calendar.getInstance
-    cal.add(Calendar.DATE,-1)
+    cal.add(Calendar.DATE,0)
      val yesterday:Date=cal.getTime
     println("THIS IS TODAY. CHANGE TO YESTERDAY...")
     //val yesterday:Date=new Date()
@@ -77,7 +77,7 @@ object DigestManager {
    feedsAgregator.generateDailyCourseTwitterHashtagsDigest(courseid,date)
  }
    createDailyCourseDigest(yesterday,coursesRDD,generateDailySubscribedTwitterHashtagsDigestForUser)
-     */
+  */
  val sendEmailWithFeedsForUser=(feedsAgregator:FeedsAgregator, userid:Long, date:Date)=>{
    feedsAgregator.sendEmailWithFeeds(userid,date)
  
@@ -111,10 +111,9 @@ object DigestManager {
          users.foreach { 
            userid => 
              {
-             println("CREATE DAILY USER DIGGEST USER:"+userid);
+             println("CREATE DAILY USER DIGGEST USER:"+userid+" for date:"+date.toString());
               f(feedsAgregator,userid,date)
-              println("CREATED DAILY USER DIGGEST USER:"+userid);
-           }
+             }
          
        }      
      }

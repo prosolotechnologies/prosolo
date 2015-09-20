@@ -1,4 +1,4 @@
-package org.prosolo.config;
+package org.prosolo.common.config;
 
 import org.simpleframework.xml.Element;
 

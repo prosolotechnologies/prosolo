@@ -17,7 +17,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.web.util.exceptions.KeyNotFoundInBundleException;
+import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 
 /**
  * class ResourceBundleUtil handles retrieving values from UIResources.properties file.

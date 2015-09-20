@@ -7,8 +7,8 @@ import java.util.Locale;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.notifications.NotificationAction;
+import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.web.util.ResourceBundleUtil;
-import org.prosolo.web.util.exceptions.KeyNotFoundInBundleException;
 
 /**
  * @author "Nikola Milikic"

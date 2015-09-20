@@ -14,8 +14,9 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.config.SMTPConfig;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.config.SMTPConfig;
 
 public class SendEmail {
 
@@ -27,7 +28,7 @@ public class SendEmail {
 
 	public void sendEmail(String html, String email, String subject) throws AddressException, MessagingException {
  
-		SMTPConfig smtpConfig = Settings.getInstance().config.emailNotifier.smtpConfig;
+		SMTPConfig smtpConfig = CommonSettings.getInstance().config.emailNotifier.smtpConfig;
 		String host = smtpConfig.host;
 		String user = smtpConfig.user;
 		String pass = smtpConfig.pass;

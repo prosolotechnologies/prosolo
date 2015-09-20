@@ -3,6 +3,8 @@
  */
 package org.prosolo.services.email.generators;
 
+import org.prosolo.common.email.generators.EmailContentGenerator;
+
 /**
  * @author "Nikola Milikic"
  *
@@ -10,7 +12,7 @@ package org.prosolo.services.email.generators;
 public class PasswordRecoveryEmailContentGenerator extends EmailContentGenerator {
 	
 	@Override
-	String getTemplateName() {
+	public String getTemplateName() {
 		return "passwordReset";
 	}
 	

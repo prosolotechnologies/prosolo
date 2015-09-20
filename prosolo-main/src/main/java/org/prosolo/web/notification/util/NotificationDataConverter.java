@@ -35,6 +35,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.notifications.Notification;
 import org.prosolo.common.domainmodel.workflow.evaluation.Evaluation;
 import org.prosolo.common.domainmodel.workflow.evaluation.EvaluationSubmission;
+import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
@@ -45,7 +46,6 @@ import org.prosolo.web.notification.data.GoalStatus;
 import org.prosolo.web.notification.data.NotificationData;
 import org.prosolo.web.notification.exceptions.NotificationNotSupported;
 import org.prosolo.web.util.ResourceBundleUtil;
-import org.prosolo.web.util.exceptions.KeyNotFoundInBundleException;
 
 /**
  * @author "Nikola Milikic"

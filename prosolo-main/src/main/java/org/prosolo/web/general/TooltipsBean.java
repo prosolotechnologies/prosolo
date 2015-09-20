@@ -10,9 +10,9 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.web.goals.cache.ActionDisabledReason;
 import org.prosolo.web.util.ResourceBundleUtil;
-import org.prosolo.web.util.exceptions.KeyNotFoundInBundleException;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
