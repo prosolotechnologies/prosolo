@@ -74,36 +74,59 @@
 
 				<div id="twitterHashtags">
 					<h1>Twitter hashtags</h1>
-					<p>Choose date range:</p>
-		   			<div class="timeRange">
-		   				<strong>From:</strong>
-						<h:inputText class="dateField dateFrom" required="false" onfocus="blur();">
-						    <f:convertDateTime pattern="dd.MM.yyyy" />
-						</h:inputText>	
-		   				<strong>To:</strong>
-						<h:inputText class="dateField dateTo" required="false" onfocus="blur();">
-						    <f:convertDateTime pattern="dd.MM.yyyy" />
-						</h:inputText>
-					</div>
-					
-					<div class="period">
-						<input id="thday" type="radio" name="thperiods" value="DAY" checked="checked" />
-	   					<label for="thday">Day</label>
-	   					<input id="thweek" type="radio" name="thperiods" value="WEEK" />
-					   	<label for="thweek">Week</label>
-					   	<input id="thmonth" type="radio" name="thperiods" value="MONTH" />
-					   	<label for="thmonth">Month</label>
-					</div>
-					
-					<div class="chartBlock">
-						<div class="chartMessages">
-							<span class="noResultsMessage">#{dashboardBean.noResultsFoundMessage}</span>
+					<div id="mostActiveHashtags">
+						<h2>Most active hashtags</h2>
+						<table id="mostActiveHashtagsTable">
+							<thead>
+								<tr>
+									<th>No</th>
+									<th>Hashtag</th>
+									<th>Daily avg. (last week)</th>
+									<th>Users using it</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+						<div class="navigation">
+							<a href="#" class="previous">Previous</a>
+							<span class="page">0/0</span>
+							<a href="#" class="next">Next</a>
 						</div>
-						<div class="loader" style="display:none"></div>
-						<div class="chart" id="twitterHashtagsChart"></div>
 					</div>
-				</div>
 				
+					<div id="twitterHashtagsGraph">
+						<h2>Hashtags graph</h2>
+						<p>Choose date range:</p>
+			   			<div class="timeRange">
+			   				<strong>From:</strong>
+							<h:inputText class="dateField dateFrom" required="false" onfocus="blur();">
+							    <f:convertDateTime pattern="dd.MM.yyyy" />
+							</h:inputText>	
+			   				<strong>To:</strong>
+							<h:inputText class="dateField dateTo" required="false" onfocus="blur();">
+							    <f:convertDateTime pattern="dd.MM.yyyy" />
+							</h:inputText>
+						</div>
+						
+						<div class="period">
+							<input id="thday" type="radio" name="thperiods" value="DAY" checked="checked" />
+		   					<label for="thday">Day</label>
+		   					<input id="thweek" type="radio" name="thperiods" value="WEEK" />
+						   	<label for="thweek">Week</label>
+						   	<input id="thmonth" type="radio" name="thperiods" value="MONTH" />
+						   	<label for="thmonth">Month</label>
+						</div>
+						
+						<div class="chartBlock">
+							<div class="chartMessages">
+								<span class="noResultsMessage">#{dashboardBean.noResultsFoundMessage}</span>
+							</div>
+							<div class="loader" style="display:none"></div>
+							<div class="chart" id="twitterHashtagsChart"></div>
+						</div>
+					</div>
+				</div>	
 			</div>
 		</div>
 	</ui:define>

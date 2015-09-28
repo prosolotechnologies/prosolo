@@ -122,3 +122,63 @@
 	border-color: rgba(0, 0, 0, 0);
 	border-width: 1.2em;
 }
+
+#dashboard #mostActiveHashtagsTable {
+	width: 100%;
+}
+
+#dashboard #mostActiveHashtagsTable thead {
+	background-color: #0187D0;
+}
+
+#dashboard #mostActiveHashtagsTable thead tr th {
+	text-align: left;
+	font-size: 1em;
+	font-weight: normal;
+	color: white;
+}
+
+#dashboard #mostActiveHashtagsTable thead tr {
+	border:	1px solid #0187D0;
+}
+
+#dashboard #mostActiveHashtagsTable td  {
+	border: 1px solid #ddd;
+}
+
+#dashboard #mostActiveHashtagsTable tr > *:nth-child(1) {
+	width: 12%;
+}
+
+#dashboard #mostActiveHashtagsTable tr > *:nth-child(2) {
+	width: 33%;
+}
+
+#dashboard #mostActiveHashtagsTable tr > *:nth-child(3) {
+	width: 20%;
+}
+
+#dashboard #mostActiveHashtagsTable tr > *:nth-child(4) {
+	width: 12%;
+}
+
+#dashboard #mostActiveHashtagsTable tr > *:nth-child(5) {
+	width: 20%;
+}
+
+
+#dashboard #mostActiveHashtagsTable tr > * {
+	padding: 0.6em 1.2em;
+}
+
+#dashboard #mostActiveHashtagsTable tbody tr:nth-child(even) {
+	background-color: #eee;
+}
+
+#dashboard #mostActiveHashtagsTable tbody tr:nth-child(odd) {
+	background-color: #fff;
+}
+
+#dashboard #twitterHashtagsGraph {
+	clear: both;
+}

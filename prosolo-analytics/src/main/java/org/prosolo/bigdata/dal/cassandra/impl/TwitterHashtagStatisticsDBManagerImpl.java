@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagDailyCount;
+import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagWeeklyAverage;
 import org.prosolo.bigdata.dal.cassandra.TwitterHashtagStatisticsDBManager;
 
 import com.datastax.driver.core.BoundStatement;
@@ -17,10 +18,20 @@ import com.datastax.driver.core.Row;
 public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClientImpl implements
 		TwitterHashtagStatisticsDBManager {
 
-	private static final String FIND_TWITTER_HASHTAG_COUNT_FOR_PERIOD = "SELECT * FROM twitterhashtagdailycount WHERE date>=? AND date<=? AND hashtag in ({0}) ALLOW FILTERING;";
+	private static final String FIND_SPECIFIC_TWITTER_HASHTAG_COUNT_FOR_PERIOD = "SELECT * FROM twitterhashtagdailycount WHERE date>=? AND date<=? AND hashtag in ({0}) ALLOW FILTERING;";
+
+	private static final String FIND_TWITTER_HASHTAG_COUNT_FOR_PERIOD = "SELECT * FROM twitterhashtagdailycount WHERE date>=? AND date<=? ALLOW FILTERING;";
 
 	private static final String UPDATE_TWITTER_HASHTAG_COUNT = "UPDATE twitterhashtagdailycount SET count = count + 1 WHERE hashtag = ? AND date = ?;";
 
+	private static final String INCREMENT_TWITTER_HASHTAG_USERS_COUNT = "UPDATE twitterhashtaguserscount SET count = count + 1 WHERE hashtag = ?;";
+
+	private static final String DECREMENT_TWITTER_HASHTAG_USERS_COUNT = "UPDATE twitterhashtaguserscount SET count = count - 1 WHERE hashtag = ?;";
+	
+	private static final String UPDATE_TWITTER_HASHTAG_WEEKLY_AVERAGE = "UPDATE twitterhashtagweeklyaverage SET average = ? WHERE hashtag = ? AND week = ?;";
+	
+	private static final String FIND_TWITTER_HASHTAG_WEEKLY_AVERAGE = "SELECT * FROM twitterhashtagweeklyaverage WHERE week>=? ALLOW FILTERING;";
+	
 	private BoundStatement statement(PreparedStatement prepared, Object... parameters) {
 		BoundStatement statement = new BoundStatement(prepared);
 		int index = 0;
@@ -29,6 +40,8 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 				statement.setLong(index++, ((Long) parameter).longValue());
 			} else if (parameter instanceof String) {
 				statement.setString(index++, (String) parameter);
+			} else if (parameter instanceof Double) {
+				statement.setDouble(index++, (Double) parameter);
 			} else if (parameter instanceof Set) {
 				for (Object element : ((Set<?>) parameter)) {
 					if (element instanceof String) {
@@ -51,22 +64,32 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 	@Override
 	public List<TwitterHashtagDailyCount> getTwitterHashtagDailyCounts(Set<String> hashtags, Long dateFrom, Long dateTo) {
 		String marks = StringUtils.join(hashtags.stream().map((String s) -> "?").collect(Collectors.toList()), ", ");
-		PreparedStatement prepared = getSession().prepare(MessageFormat.format(FIND_TWITTER_HASHTAG_COUNT_FOR_PERIOD, marks));
-		BoundStatement statement = statement(prepared, dateFrom, dateTo, hashtags.stream().map((String hashtag) -> hashtag.substring(1)).collect(Collectors.toSet()));
-		return map(
-				query(statement),
-				(Row row) -> {
-					return new TwitterHashtagDailyCount(row.getString("hashtag"), row.getLong("date"), (int) row
-							.getLong("count"));
-				});
+		PreparedStatement prepared = getSession().prepare(
+				MessageFormat.format(FIND_SPECIFIC_TWITTER_HASHTAG_COUNT_FOR_PERIOD, marks));
+		BoundStatement statement = statement(prepared, dateFrom, dateTo,
+				hashtags.stream().map((String hashtag) -> hashtag.substring(1)).collect(Collectors.toSet()));
+		return map(query(statement), (Row row) -> {
+			return new TwitterHashtagDailyCount(row.getString("hashtag"), row.getLong("date"), row.getLong("count"));
+		});
 	}
+	
+
+	@Override
+	public List<TwitterHashtagDailyCount> getTwitterHashtagDailyCounts(Long dateFrom, Long dateTo) {
+		PreparedStatement prepared = getSession().prepare(FIND_TWITTER_HASHTAG_COUNT_FOR_PERIOD);
+		BoundStatement statement = statement(prepared, dateFrom, dateTo);
+		return map(query(statement), (Row row) -> {
+			return new TwitterHashtagDailyCount(row.getString("hashtag"), row.getLong("date"), row.getLong("count"));
+		});
+	}
+
 
 	private <T> List<T> map(List<Row> rows, Function<Row, T> function) {
 		return rows.stream().map(function).collect(Collectors.toList());
 	}
 
 	@Override
-	public void updateTwitterHashtagDailyCount(String hashtag, long date) {
+	public void updateTwitterHashtagDailyCount(String hashtag, Long date) {
 		PreparedStatement prepared = getSession().prepare(UPDATE_TWITTER_HASHTAG_COUNT);
 		BoundStatement statement = statement(prepared, hashtag, date);
 		try {
@@ -75,6 +98,54 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 			logger.error("Error executing update statement.", e);
 			// TODO Throw exception.
 		}
+	}
+
+	@Override
+	public void incrementTwitterHashtagUsersCount(String hashtag) {
+		PreparedStatement prepared = getSession().prepare(INCREMENT_TWITTER_HASHTAG_USERS_COUNT);
+		BoundStatement statement = statement(prepared, hashtag);
+		try {
+			getSession().execute(statement);
+		} catch (Exception e) {
+			logger.error("Error executing update statement.", e);
+			// TODO Throw exception.
+		}
+	}
+
+	@Override
+	public void decrementTwitterHashtagUsersCount(String hashtag) {
+		PreparedStatement prepared = getSession().prepare(DECREMENT_TWITTER_HASHTAG_USERS_COUNT);
+		BoundStatement statement = statement(prepared, hashtag);
+		try {
+			getSession().execute(statement);
+		} catch (Exception e) {
+			logger.error("Error executing update statement.", e);
+			// TODO Throw exception.
+		}		
+	}
+
+	@Override
+	public void updateTwitterHashtagWeeklyAverage(String hashtag, Long week, Double average) {
+		PreparedStatement prepared = getSession().prepare(UPDATE_TWITTER_HASHTAG_WEEKLY_AVERAGE);
+		BoundStatement statement = statement(prepared, average, hashtag, week);
+		try {
+			getSession().execute(statement);
+		} catch (Exception e) {
+			logger.error("Error executing update statement.", e);
+			// TODO Throw exception.
+		}
+	}
+
+	@Override
+	public List<TwitterHashtagWeeklyAverage> getTwitterHashtagWeeklyAverage(Long week) {
+		PreparedStatement prepared = getSession().prepare(FIND_TWITTER_HASHTAG_WEEKLY_AVERAGE);
+		BoundStatement statement = statement(prepared, week);
+		return map(
+				query(statement),
+				(Row row) -> {
+					return new TwitterHashtagWeeklyAverage(row.getString("hashtag"), row.getLong("week"), row
+							.getDouble("average"));
+				});
 	}
 
 }

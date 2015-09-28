@@ -54,7 +54,7 @@ public class UserActivityStatisticsDBManagerImpl extends SimpleCassandraClientIm
 		return map(query(statement),
 				(Row row) -> {
 					return new UserEventDailyCount(row.getLong("user"), row.getString("event"), row.getLong("date"),
-							(int) row.getLong("count"));
+							row.getLong("count"));
 				});
 	}
 
@@ -63,7 +63,7 @@ public class UserActivityStatisticsDBManagerImpl extends SimpleCassandraClientIm
 		PreparedStatement prepared = getSession().prepare(FIND_EVENT_COUNT);
 		BoundStatement statement = statement(prepared, event);
 		return map(query(statement), (Row row) -> {
-			return new EventDailyCount(row.getString("event"), row.getLong("date"), (int) row.getLong("count"));
+			return new EventDailyCount(row.getString("event"), row.getLong("date"), row.getLong("count"));
 		});
 	}
 
@@ -72,7 +72,7 @@ public class UserActivityStatisticsDBManagerImpl extends SimpleCassandraClientIm
 		PreparedStatement prepared = getSession().prepare(FIND_EVENTS_COUNT_FOR_PERIOD);
 		BoundStatement statement = statement(prepared, dateFrom, dateTo, event);
 		return map(query(statement), (Row row) -> {
-			return new EventDailyCount(row.getString("event"), row.getLong("date"), (int) row.getLong("count"));
+			return new EventDailyCount(row.getString("event"), row.getLong("date"), row.getLong("count"));
 		});
 	}
 

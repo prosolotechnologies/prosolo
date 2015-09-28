@@ -204,17 +204,17 @@ $(function () {
 		});
 
 		return {
-			dateFrom : function() { return $("#twitterHashtags .dateFrom").val(); },
-			dateTo : function() { return $("#twitterHashtags .dateTo").val(); },
-			period : function() { return $("#twitterHashtags [name='thperiods']:checked").val(); },
+			dateFrom : function() { return $("#twitterHashtagsGraph .dateFrom").val(); },
+			dateTo : function() { return $("#twitterHashtagsGraph .dateTo").val(); },
+			period : function() { return $("#twitterHashtagsGraph [name='thperiods']:checked").val(); },
 			showLoader : function() {
-				$("#twitterHashtags .loader").show().siblings().hide();
+				$("#twitterHashtagsGraph .loader").show().siblings().hide();
 			},
 			onload : function(data) {
 				if (data.length==0) {
-					$("#twitterHashtags .chartMessages").show().siblings().hide();
+					$("#twitterHashtagsGraph .chartMessages").show().siblings().hide();
 				} else {
-					$("#twitterHashtags .chart").show().siblings().hide();
+					$("#twitterHashtagsGraph .chart").show().siblings().hide();
 					thc.show(data);
 				}
 			}
@@ -235,12 +235,12 @@ $(function () {
 		}
 	});
 
-	datepicker("twitterHashtags", function(dateText, inst) {
+	datepicker("twitterHashtagsGraph", function(dateText, inst) {
 		twitterHashtags.showLoader();
 		twitterHashtagsService.get(twitterHashtags.onload);
     });
 	
-	$("#twitterHashtags .period [name='thperiods']").change(function() {
+	$("#twitterHashtagsGraph .period [name='thperiods']").change(function() {
 		if ($(this).is(":checked")) {
 			twitterHashtags.showLoader();
 			twitterHashtagsService.get(twitterHashtags.onload);
@@ -249,5 +249,69 @@ $(function () {
 
 	twitterHashtags.showLoader();
 	twitterHashtagsService.get(twitterHashtags.onload);
+	
+	
+	(function () {
+		var currentPage = 1;
+		var pages = 0;
+		
+		function load() {
+			$.ajax({
+				url : "http://" + host() + "/api/twitter/hashtag/average",
+				type : "GET",
+				data : {page: currentPage},
+				crossDomain: true,
+				dataType: 'json'
+			}).done(function(data) {
+				var tbody = document.querySelector("#mostActiveHashtags tbody");
+				tbody.innerHTML = "";
+				function td(value) {
+					var td = document.createElement("td");
+					td.innerHTML = value;
+					return td;			
+				}
+				
+				data.results.map(function(hashtag) {
+					var tr = document.createElement("tr");
+					tr.classList.add("hashtag");
+					tr.appendChild(td(hashtag.number));
+					tr.appendChild(td(hashtag.hashtag));
+					tr.appendChild(td(hashtag.average));
+					tr.appendChild(td(0));
+					tr.appendChild(td(0));
+					tbody.appendChild(tr);
+				});
+				
+				var page = document.querySelector("#mostActiveHashtags .navigation .page");
+				if (data.pages == 0) {
+					currentPage = 1;
+				}
+				pages = data.pages;
+				page.innerHTML = (pages == 0) ? 0 : currentPage + "/" + pages;
+			});
+		}
+		
+		var previous = document.querySelector("#mostActiveHashtags .navigation .previous");
+		previous.addEventListener("click", function() {
+			if (currentPage == 1) {
+				return false;
+			}
+			currentPage--;
+			load();
+			return false;
+		});
+		
+		var next = document.querySelector("#mostActiveHashtags .navigation .next");
+		next.addEventListener("click", function() {
+			if (pages == currentPage) {
+				return false;
+			}
+			currentPage++;
+			load();
+			return false;
+		});
+		
+		load();
+	})();
 
 });

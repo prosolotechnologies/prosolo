@@ -6,7 +6,7 @@ public class UserEventDailyCount {
 
 	private String type;
 
-	private int count;
+	private long count;
 
 	private long date;
 
@@ -26,11 +26,11 @@ public class UserEventDailyCount {
 		this.type = type;
 	}
 
-	public int getCount() {
+	public long getCount() {
 		return count;
 	}
 
-	public void setCount(int count) {
+	public void setCount(long count) {
 		this.count = count;
 	}
 
@@ -42,7 +42,7 @@ public class UserEventDailyCount {
 		this.date = date;
 	}
 
-	public UserEventDailyCount(long user, String type, long date, int count) {
+	public UserEventDailyCount(long user, String type, long date, long count) {
 		this.user = user;
 		this.type = type;
 		this.date = date;

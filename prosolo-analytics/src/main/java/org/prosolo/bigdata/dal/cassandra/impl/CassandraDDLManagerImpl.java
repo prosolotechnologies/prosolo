@@ -76,11 +76,12 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		String frequentCompetenceActivitiesDDL = "CREATE TABLE IF NOT EXISTS frequentcompetenceactivities(competenceid bigint, activities list<bigint>, PRIMARY KEY (competenceid))";
 		this.ddls.add(frequentCompetenceActivitiesDDL);
 		
- 
-		this.ddls.add("CREATE TABLE IF NOT EXISTS eventdailycount(event text, count counter, date bigint, PRIMARY KEY(event, date));");
+ 		this.ddls.add("CREATE TABLE IF NOT EXISTS eventdailycount(event text, count counter, date bigint, PRIMARY KEY(event, date));");
 		this.ddls.add("CREATE TABLE IF NOT EXISTS usereventdailycount(user bigint, event text, count counter, date bigint, PRIMARY KEY(user, event, date));");
 		this.ddls.add("CREATE TABLE IF NOT EXISTS instanceloggeduserscount(instance text, timestamp bigint, count bigint, PRIMARY KEY(instance, timestamp));");
 		this.ddls.add("CREATE TABLE IF NOT EXISTS twitterhashtagdailycount(hashtag text, date bigint, count counter, PRIMARY KEY(hashtag, date));");
+		this.ddls.add("CREATE TABLE IF NOT EXISTS twitterhashtagweeklyaverage(hashtag text, week bigint, average double, PRIMARY KEY(hashtag, week));");
+		this.ddls.add("CREATE TABLE IF NOT EXISTS twitterhashtaguserscount(hashtag text, users counter, PRIMARY KEY(hashtag));");
 		
 		String failedFeedsDDL = "CREATE TABLE IF NOT EXISTS failedfeeds(url text, date bigint, count counter,"
 				+ " PRIMARY KEY (url, date))";

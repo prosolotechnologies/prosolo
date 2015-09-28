@@ -1,13 +1,17 @@
 package org.prosolo.bigdata.api;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -15,17 +19,15 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagDailyCount;
+import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagWeeklyAverage;
 import org.prosolo.bigdata.dal.cassandra.TwitterHashtagStatisticsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl;
 import org.prosolo.bigdata.scala.twitter.TwitterHashtagsStreamsManager$;
 import org.prosolo.bigdata.utils.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.gson.Gson;
 
 @Path("/twitter/hashtag")
 public class TwitterHashtagStatisticsService {
@@ -35,23 +37,6 @@ public class TwitterHashtagStatisticsService {
 	private TwitterHashtagStatisticsDBManager dbManager = new TwitterHashtagStatisticsDBManagerImpl();
 	
 	private TwitterHashtagsStreamsManager$ twitterManager = TwitterHashtagsStreamsManager$.MODULE$;
-
-	private enum Period {
-		DAY, WEEK, MONTH;
-	}
-
-	private Date parse(String date) throws ParseException {
-		return new SimpleDateFormat("dd.MM.yyyy. Z").parse(date);
-	}
-	
-	private Response corsOk(Object counts) {
-		return Response
-				.status(Status.OK)
-				.entity(new Gson().toJson(counts))
-				.header("Access-Control-Allow-Origin", "*")
-				.header("Access-Control-Allow-Methods",
-						"GET, POST, DELETE, PUT").allow("OPTIONS").build();
-	}
 	
 	@GET
 	@Path("/statistics")
@@ -77,7 +62,11 @@ public class TwitterHashtagStatisticsService {
 				counts.addAll(aggregate(split(groups.get(hashtag), Period.valueOf(period)), hashtag));
 			}
 		}
-		return corsOk(counts);			
+		return ResponseUtils.corsOk(counts);			
+	}
+	
+	private Date parse(String date) throws ParseException {
+		return new SimpleDateFormat("dd.MM.yyyy. Z").parse(date);
 	}
 	
 	private Map<String, List<TwitterHashtagDailyCount>> group(List<TwitterHashtagDailyCount> counts) {
@@ -94,7 +83,7 @@ public class TwitterHashtagStatisticsService {
 	private Map<Long, List<TwitterHashtagDailyCount>> split(List<TwitterHashtagDailyCount> counts, Period period) {
 		Map<Long, List<TwitterHashtagDailyCount>> result = new HashMap<>();
 		for(TwitterHashtagDailyCount count : counts) {
-			Long day = getFirstDay(period, count);
+			Long day = period.firstDayFor(count.getDate());
 			if (!result.containsKey(day)) {
 				result.put(day, new ArrayList<TwitterHashtagDailyCount>());
 			}
@@ -111,23 +100,59 @@ public class TwitterHashtagStatisticsService {
 		return result;
 	}	
 
-	private int sumCounts(List<TwitterHashtagDailyCount> counts) {
-		int sum = 0;
-		for(TwitterHashtagDailyCount count : counts) {
-			sum += count.getCount();
-		}
-		return sum;
+	private long sumCounts(List<TwitterHashtagDailyCount> counts) {
+		return counts.stream().mapToLong(TwitterHashtagDailyCount::getCount).sum();
 	}
 	
-	private Long getFirstDay(Period period, TwitterHashtagDailyCount count) {
-		switch(period) {
-		case WEEK:
-			return DateUtil.getFirstDayOfWeek(count.getDate());
-		case MONTH:
-			return DateUtil.getFirstDayOfMonth(count.getDate());
-		default:
-			throw new IllegalStateException("Period '" + period.name() + "' is not supported");
+	private static final long PAGING = 5;
+	
+	private class Averages {
+		
+		private long pages = 0;
+		
+		private List<Map<String, String>> results;
+
+		public Averages(long pages, List<Map<String, String>> results) {
+			this.pages = pages;
+			this.results = results;
 		}
+		
+	}	
+	public static String round(double value, int places) {
+	    BigDecimal bd = new BigDecimal(value);
+	    bd = bd.setScale(places, RoundingMode.HALF_UP);
+	    return bd.toPlainString();
+	}
+	
+	private List<Map<String, String>> list(List<TwitterHashtagWeeklyAverage> averages, long page) {
+		List<Map<String, String>> result = new ArrayList<>();
+		long index = (page - 1) * PAGING + 1;
+		for(TwitterHashtagWeeklyAverage average : averages) {
+			result.add(fromAverage(average, index++));
+		}
+		return result;
+	}
+	
+	Map<String, String> fromAverage(TwitterHashtagWeeklyAverage average, Long number) {
+		Map<String, String> result = new HashMap<>();
+		result.put("number", number.toString());
+		result.put("hashtag", average.getHashtag());
+		result.put("average", round(average.getAverage(), 3));
+		return result;
+	}
+	
+	@GET
+	@Path("/average")
+	@Produces({ MediaType.APPLICATION_JSON })
+	public Response getAverage(@QueryParam("page") long page) throws ParseException {
+		logger.debug("Service 'getAverage' called with parameters: page: {}.", page);
+		List<TwitterHashtagWeeklyAverage> averages = dbManager.getTwitterHashtagWeeklyAverage(DateUtil.getWeeksSinceEpoch() - 1);
+		List<TwitterHashtagWeeklyAverage> result = averages.stream().sorted(Comparator.reverseOrder()).skip((page - 1) * PAGING).limit(5).collect(Collectors.toList());
+		return ResponseUtils.corsOk(new Averages(pages((long) averages.size(), PAGING), list(result, page)));
 	}
 
+	private long pages(long size, long paging) {
+		return size / paging + (size % paging > 0 ? 1 : 0);
+	}
+		
 }

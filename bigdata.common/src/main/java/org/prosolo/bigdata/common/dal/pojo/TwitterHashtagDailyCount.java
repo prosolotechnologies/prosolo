@@ -6,7 +6,7 @@ public class TwitterHashtagDailyCount {
 
 	private long date;
 
-	private int count;
+	private long count;
 
 	public String getHashtag() {
 		return hashtag;
@@ -24,15 +24,15 @@ public class TwitterHashtagDailyCount {
 		this.date = date;
 	}
 
-	public int getCount() {
+	public long getCount() {
 		return count;
 	}
 
-	public void setCount(int count) {
+	public void setCount(long count) {
 		this.count = count;
 	}
 
-	public TwitterHashtagDailyCount(String hashtag, long date, int count) {
+	public TwitterHashtagDailyCount(String hashtag, long date, long count) {
 		this.hashtag = hashtag;
 		this.date = date;
 		this.count = count;

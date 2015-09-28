@@ -31,6 +31,11 @@
 				<activated>true</activated>
 				<on-startup>true</on-startup>
 			</job>
+			<job>
+	   			<class-name>org.prosolo.bigdata.jobs.TwitterHashtagStatisticsJob</class-name>
+            	<activated>true</activated>
+            	<on-startup>true</on-startup>	   
+	 		</job>
 		</quartz-jobs>
 		<streaming-jobs>
 			<twitterStreaming>true</twitterStreaming>
