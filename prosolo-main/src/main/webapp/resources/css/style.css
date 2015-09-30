@@ -10833,7 +10833,60 @@ table tr td .iconConnect,
 /* END ADD NEW RSS SOURCE DIALOG */
 
 /*---------------------------------------------------------------------*/
-/*--- 07. ADMIN ---*/
+/*--- 07. MANAGER ---*/
+/*---------------------------------------------------------------------*/
+
+#externalTools .filter {
+	display: inline-block;
+}
+
+#externalTools .filter .aHolder {
+	position: relative;
+	top: 0;
+	right: 0;
+}
+
+#externalTools .filter .aHolder .filterDrop {
+	min-width: 200px;
+}
+
+#externalTools .filter .aHolder .dropdown {
+    width: 250px;
+    overflow: overlay;
+    max-height: 400px;
+}
+
+#externalTools .filter .aHolder .dropdown li {
+	width: auto;
+}
+
+#externalTools .filter .aHolder .dropdown li a {
+	width: 250px;
+}
+
+#externalTools .filter .aHolder .dropdown .subList {
+	width: 230px;
+    padding-left: 20px;
+}
+
+#externalTools .filter .aHolder .dropdown .subList li a {
+	width: 230px;
+}
+
+#externalTools .resultContainer {
+	margin-top: 20px;
+}
+
+#externalTools table {
+	width: 100%;
+}
+
+#externalTools table td.col1 {
+	text-align: center;
+}
+
+/*---------------------------------------------------------------------*/
+/*--- 08. ADMIN ---*/
 /*---------------------------------------------------------------------*/
 
 .admin .search h2,
@@ -11034,7 +11087,7 @@ table tr td .iconConnect,
 /* END Delete Role Dialog */
 
 /*---------------------------------------------------------------------*/
-/*--- 08. OVERRIDES ---*/
+/*--- 09. OVERRIDES ---*/
 /*---------------------------------------------------------------------*/
 
 /**** JQUERY UI ******/

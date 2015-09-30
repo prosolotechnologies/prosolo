@@ -18,6 +18,7 @@ function enableDropdown(elem, mode) {
 			$(this).nextAll('.dropdown').removeClass('hidden');
 			$(this).addClass('pressed');
 		}
+		return false;
 	});
 }
 
@@ -199,7 +200,7 @@ $(document).ready(function() {
 	roundImages();
 	
 	//dropdown
-	enableDropdown('.arrow, .postOptArrow, .filterDrop, .shareDrop, .loginLink');
+	enableDropdown('.arrow, .postOptArrow, .shareDrop, .loginLink');
 	
 	$(document).on('click', function(){											// when clicking anywhere on the site
 		$('.dropdown:not(.searchSystem .dropdown)').addClass('hidden');			// add class 'hidden' to all dropdowns

@@ -221,6 +221,14 @@
 					<h:selectBooleanCheckbox 
 						value="#{cc.attrs.courseBean.course.published}"
 		    			class="publishBtn" />
+		    			
+		    			<p class="marginTop20">
+			    			<h:link outcome="/manage/tools" 
+								class="button size25 blue left"
+								value="Manage external tools">
+								<f:param  name="res" value="#{cc.attrs.courseBean.id}" />
+							</h:link>
+						</p>
 				</div>
 			</c:if>
 			

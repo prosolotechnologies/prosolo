@@ -11,6 +11,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -18,7 +19,6 @@ import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
-import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
@@ -113,7 +113,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					}
 				}
 			}
-		} catch (IndexingServiceNotAvailable e1) {
+		} catch (NoNodeAvailableException e1) {
 			logger.error(e1);
 		}
 		return response;
@@ -176,7 +176,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					}
 				}
 			}
-		} catch (IndexingServiceNotAvailable e1) {
+		} catch (NoNodeAvailableException e1) {
 			logger.error(e1);
 		}
 		return response;
@@ -266,7 +266,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					}
 				}
 			}
-		} catch (IndexingServiceNotAvailable e1) {
+		} catch (NoNodeAvailableException e1) {
 			logger.error(e1);
 		}
 		return response;
@@ -325,7 +325,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					}
 				}
 			}
-		} catch (IndexingServiceNotAvailable e1) {
+		} catch (NoNodeAvailableException e1) {
 			logger.error(e1);
 		}
 		return response;
@@ -442,7 +442,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					}
 				}
 			}
-		} catch (IndexingServiceNotAvailable e1) {
+		} catch (NoNodeAvailableException e1) {
 			logger.error(e1);
 		}
 		return response;
@@ -518,7 +518,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					}
 				}
 			}
-		} catch (IndexingServiceNotAvailable e1) {
+		} catch (NoNodeAvailableException e1) {
 			logger.error(e1);
 		}
 		return response;

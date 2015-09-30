@@ -171,7 +171,7 @@ public class SearchCoursesBean implements Serializable {
 	}
 	
 	/*
-	 * Soritng
+	 * Sorting
 	 */
 	public void changeDateSorting(boolean ascending) {
 		resetSorting();
