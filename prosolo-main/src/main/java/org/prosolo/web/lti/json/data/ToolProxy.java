@@ -1,5 +1,6 @@
 package org.prosolo.web.lti.json.data;
 
+import java.util.List;
 import java.util.Map;
 
 import com.google.gson.annotations.SerializedName;
@@ -23,6 +24,8 @@ public class ToolProxy {
 	private Map<String, String> custom;
 	@SerializedName("security_contract")
 	private SecurityContract securityContract;
+	@SerializedName("wanted_services")
+	private List<Service> wantedServices;
 	
 	public String getContext() {
 		return context;
@@ -71,6 +74,12 @@ public class ToolProxy {
 	}
 	public void setSecurityContract(SecurityContract securityContract) {
 		this.securityContract = securityContract;
+	}
+	public List<Service> getWantedServices() {
+		return wantedServices;
+	}
+	public void setWantedServices(List<Service> wantedServices) {
+		this.wantedServices = wantedServices;
 	}
 	
 	

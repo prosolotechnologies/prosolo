@@ -10,7 +10,7 @@ public class ToolProfile {
 	@SerializedName("product_instance")
 	private ProductInstance productInstance;
 	@SerializedName("service_offered")
-	private List<ServiceOffered> serviceOffered;
+	private List<Service> serviceOffered;
 	@SerializedName("base_url_choice")
 	private List<BaseURL> baseURLChoice;
 	private List<MessageHandler> message;
@@ -29,10 +29,10 @@ public class ToolProfile {
 	public void setProductInstance(ProductInstance productInstance) {
 		this.productInstance = productInstance;
 	}
-	public List<ServiceOffered> getServiceOffered() {
+	public List<Service> getServiceOffered() {
 		return serviceOffered;
 	}
-	public void setServiceOffered(List<ServiceOffered> serviceOffered) {
+	public void setServiceOffered(List<Service> serviceOffered) {
 		this.serviceOffered = serviceOffered;
 	}
 	public List<BaseURL> getBaseURLChoice() {

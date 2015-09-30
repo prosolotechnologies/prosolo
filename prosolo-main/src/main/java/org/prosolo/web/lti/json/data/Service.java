@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.google.gson.annotations.SerializedName;
 
-public class ServiceOffered {
+public class Service {
 	@SerializedName("@type") 
 	private String type;
 	@SerializedName("@id") 
