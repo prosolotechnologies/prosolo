@@ -122,12 +122,6 @@
 					    </p:column>
 					</p:dataTable>
 					
-					<p:commandLink id="loadMore" rendered="#{manageExtenalToolsBean.moreToLoad}" styleClass="loadMore"
-						actionListener="#{manageExtenalToolsBean.loadMore}"
-						update=":toolsSearchForm">
-						<h:outputText value="SHOW MORE" />
-					</p:commandLink>
-					
 					<script type="text/javascript">
 					$('form.filteredSearch .box .message').readmore({maxHeight: 40});
 					
