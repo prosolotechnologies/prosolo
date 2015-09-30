@@ -8440,13 +8440,14 @@ a.iconUnCheck:hover {
   margin-bottom: 10px;
 }
 
-.newCompForm.wideForm .leftContainer {
+.wideForm .leftContainer {
 	float: left;
 	width: 460px;
 }
 
-.newCompForm.wideForm .leftContainer .col1 {
+.wideForm .leftContainer .col1 {
 	width: 100px;
+	font-weight: bold;
 }
 
 .newCompForm.wideForm .activitySearch {
@@ -8467,9 +8468,9 @@ a.iconUnCheck:hover {
   padding: 0;
 }
 
-.newCompForm.wideForm input[type="text"],
-.newCompForm.wideForm tr.description textarea,
-.newCompForm.wideForm .jq_tags_editor.edit {
+.wideForm input[type="text"],
+.wideForm tr.description textarea,
+.wideForm .jq_tags_editor.edit {
   width: 350px;
 }
 
@@ -8497,45 +8498,46 @@ a.iconUnCheck:hover {
   width: 170px;
 }
 
-.newCompForm.wideForm .compActivityPlan {
+.wideForm .rightContainer {
   width: 430px;
+  float: right;
 }
 
-.newCompForm.wideForm .compActivityPlan .searchText {
+.newCompForm.wideForm .rightContainer .searchText {
   margin-top: 3px;
   float: left;
   margin-right: 10px;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities {
+.newCompForm.wideForm .rightContainer .activities {
   margin-top: 15px;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .options {
+.newCompForm.wideForm .rightContainer .activities .options {
   display: inline-block;
   float: right;
   margin-bottom: 10px;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .options label {
+.newCompForm.wideForm .rightContainer .activities .options label {
   margin-left: 10px;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .title {
+.newCompForm.wideForm .rightContainer .activities .title {
   font-weight: bold;
   cursor: pointer;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .description {
+.newCompForm.wideForm .rightContainer .activities .description {
   margin: 10px 0 15px 0;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .title .titleText {
+.newCompForm.wideForm .rightContainer .activities .title .titleText {
   width: 360px;
   display: inline-block;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .title .position {
+.newCompForm.wideForm .rightContainer .activities .title .position {
   cursor: move;
   font-size: 14px;
   width: 25px;
@@ -8543,50 +8545,50 @@ a.iconUnCheck:hover {
   float: left;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .actBlock {
+.newCompForm.wideForm .rightContainer .activities .actBlock {
   width: 430px;
   min-height: 40px;
   position: relative;
   float: right;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .actBlock .closeIcon {
+.newCompForm.wideForm .rightContainer .activities .actBlock .closeIcon {
   position: absolute;
   top: 5px;
   right: 0;
   margin: 0;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .actBlock .moveIcon {
+.newCompForm.wideForm .rightContainer .activities .actBlock .moveIcon {
   position: absolute;
   top: 5px;
   right: 50px;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .actBlock .editIcon {
+.newCompForm.wideForm .rightContainer .activities .actBlock .editIcon {
   position: absolute;
   top: 5px;
   right: 25px;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .actBlock .richContent {
+.newCompForm.wideForm .rightContainer .activities .actBlock .richContent {
   width: 410px;
   margin: 0 0 30px 0;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .actBlock .richContent .actInfo {
+.newCompForm.wideForm .rightContainer .activities .actBlock .richContent .actInfo {
   width: 409px;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .actBlock .richContent .actInfoSmallImgBig {
+.newCompForm.wideForm .rightContainer .activities .actBlock .richContent .actInfoSmallImgBig {
   width: 289px;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .actBlock .richContent .actInfoSmallImgSmall {
+.newCompForm.wideForm .rightContainer .activities .actBlock .richContent .actInfoSmallImgSmall {
   width: 359px;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .actBlock .richContent .assignementUploadControl {
+.newCompForm.wideForm .rightContainer .activities .actBlock .richContent .assignementUploadControl {
   display: none;
 }
 
@@ -10883,6 +10885,43 @@ table tr td .iconConnect,
 
 #externalTools table td.col1 {
 	text-align: center;
+	font-weight: bold;
+}
+
+#externalToolDetails table {
+    border-spacing: 20px;
+    border-collapse: collapse;
+}
+
+#externalToolDetails table td {
+	padding: 5px 0;
+    position: relative;
+}
+
+#externalToolDetails table td.label.top {
+	vertical-align: top;
+}
+
+#externalToolDetails table td textarea {
+    height: 120px;
+    overflow: hidden;
+    word-wrap: break-word;
+    resize: none;
+}
+
+#externalToolDetails .actions {
+	margin-top: 30px;
+    display: inline-block;
+}
+
+#externalToolDetails .rightContainer table {
+	border-spacing: 20px;
+    border-collapse: collapse;
+}
+
+#externalToolDetails .rightContainer table td.col1 {
+	width: 100px;
+	font-weight: bold;
 }
 
 /*---------------------------------------------------------------------*/

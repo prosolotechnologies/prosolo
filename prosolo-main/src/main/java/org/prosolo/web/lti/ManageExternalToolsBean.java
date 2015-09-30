@@ -16,17 +16,13 @@ import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CourseCompetence;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.search.TextSearch;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.web.activitywall.data.NodeData;
 import org.prosolo.web.courses.data.CourseData;
-import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.lti.data.ExternalToolData;
 import org.prosolo.web.lti.data.ExternalToolFilterData;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 /**
@@ -43,9 +39,6 @@ public class ManageExternalToolsBean implements Serializable {
 	private static Logger logger = Logger.getLogger(ManageExternalToolsBean.class);
 	
 	@Autowired private DefaultManager defaultManager;
-	@Autowired private TextSearch textSearch;
-	@Autowired private LoggingNavigationBean loggingNavigationBean;
-	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 
 	private long id;
 	private CourseData courseData;

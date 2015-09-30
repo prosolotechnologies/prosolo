@@ -4,10 +4,6 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui"
-	xmlns:comp="http://java.sun.com/jsf/composite/components"
-	xmlns:compcourses="http://java.sun.com/jsf/composite/components/courses"
-	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
-	xmlns:dlgportfolio="http://java.sun.com/jsf/composite/components/dialogs/portfolio"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 <ui:define name="windowTitle">
@@ -25,10 +21,85 @@
 
 <ui:define name="content">
 	<utilcomp:messagesBundle var="msg" />
-	<div id="toolDetails" class="container">
+	
+	<div id="externalToolDetails" class="container">
 		<div class="content wide">
-			External tool detail
+			
+			<h2 class="left heading">
+				Edit external tool
+			</h2>
+			<div class="clear"></div>
+			
+			<h:form id="toolForm" class="wideForm">
+				<div class="leftContainer">
+					<table>
+						<tr>
+							<td class="col1"><label for="name">Title:</label></td>
+							<td>
+								<h:inputText id="name" class="title" value="#{extenalToolDetailsBean.toolData.title}"
+									placeholder="#{msg['textfield.title']}"/>
+							</td>
+						</tr>
+						<tr class="description">
+							<td class="label top col1">
+								<label for="description">Description:</label>
+							</td>
+							<td>
+								<h:inputTextarea id="description"
+									value="#{extenalToolDetailsBean.toolData.description}"
+									placeholder="#{msg['textarea.description']}" />
+							</td>
+						</tr>
+					</table>
+					<div class="clear"></div>
+					
+					<div class="actions">
+						<p:commandLink value="Save"
+							styleClass="button green size30 left"
+						 	action="#{extenalToolDetailsBean.save}">
+						</p:commandLink>
+						
+						&#160;
+						<h:link value="Cancel" styleClass="button gray size30 left"
+							outcome="#{empty param['origin'] ? '/manage/courses' : param['origin']}" />
+					</div>
+				</div>
 				
+				<div class="rightContainer">
+					<h3>Configuration details</h3>
+					
+					<h4>LTI 1</h4>
+						<table>
+							<tr>
+								<td class="col1">Launch URL:</td>
+								<td>http://prosolo.ca/uta/ltilaunch.xhtml?id=525352</td>
+							</tr>
+							<tr>
+								<td class="col1">Consumer key:</td>
+								<td>87udfg97yfdh274ybkdshfjsdhf998</td>
+							</tr>
+							<tr>
+								<td class="col1">Shared secret:</td>
+								<td>hir79824uj4l808dslkjklj23k4lj9</td>
+							</tr>
+						</table>
+					
+					<h4>LTI 2</h4>
+						<table>
+							<tr>
+								<td class="col1">Registration URL:</td>
+								<td>http://prosolo.ca/uta/ltiregistration.xhtml?id=525352</td>
+							</tr>
+						</table>
+				</div>
+				
+				<script>
+				$(function() {
+					$('#externalToolDetails tr.description textarea').autosize();
+					$('#externalToolDetails .title').focus();
+				});
+				</script>
+			</h:form>
 		</div><!-- .content -->
 	</div><!-- .container end -->
 

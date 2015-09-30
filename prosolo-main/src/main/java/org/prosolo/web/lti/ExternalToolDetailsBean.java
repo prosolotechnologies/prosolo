@@ -8,6 +8,7 @@ import java.io.Serializable;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
+import org.prosolo.web.lti.data.ExternalToolFormData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -30,6 +31,7 @@ public class ExternalToolDetailsBean implements Serializable {
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 
 	private long id;
+	private ExternalToolFormData toolData = new ExternalToolFormData();
 	
 	public void init() {
 		if (id > 0) {
@@ -40,6 +42,9 @@ public class ExternalToolDetailsBean implements Serializable {
 		}
 	}
 	
+	public void save() {
+		logger.debug("Saving external tool");
+	}
 	
 	/*
 	 * PARAMETERS
@@ -51,10 +56,13 @@ public class ExternalToolDetailsBean implements Serializable {
 	public long getId() {
 		return id;
 	}
-	
+
 	/*
 	 * GETTERS / SETTERS
 	 */
+	public ExternalToolFormData getToolData() {
+		return toolData;
+	}
 
 	
 }
