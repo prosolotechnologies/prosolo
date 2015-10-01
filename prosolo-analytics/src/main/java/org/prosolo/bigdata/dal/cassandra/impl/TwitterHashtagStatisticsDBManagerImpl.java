@@ -66,8 +66,7 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 		String marks = StringUtils.join(hashtags.stream().map((String s) -> "?").collect(Collectors.toList()), ", ");
 		PreparedStatement prepared = getSession().prepare(
 				MessageFormat.format(FIND_SPECIFIC_TWITTER_HASHTAG_COUNT_FOR_PERIOD, marks));
-		BoundStatement statement = statement(prepared, dateFrom, dateTo,
-				hashtags.stream().map((String hashtag) -> hashtag.substring(1)).collect(Collectors.toSet()));
+		BoundStatement statement = statement(prepared, dateFrom, dateTo, hashtags);
 		return map(query(statement), (Row row) -> {
 			return new TwitterHashtagDailyCount(row.getString("hashtag"), row.getLong("date"), row.getLong("count"));
 		});

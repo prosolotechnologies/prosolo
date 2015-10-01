@@ -195,31 +195,6 @@ $(function () {
 		activityGraphService.get(activityGraph.onload);
     });
 	
-	var twitterHashtags = (function() {
-		var thc = chart({
-			container : "twitterHashtagsChart",
-			x : "date",
-			y : "count",
-			color : "hashtag"
-		});
-
-		return {
-			dateFrom : function() { return $("#twitterHashtagsGraph .dateFrom").val(); },
-			dateTo : function() { return $("#twitterHashtagsGraph .dateTo").val(); },
-			period : function() { return $("#twitterHashtagsGraph [name='thperiods']:checked").val(); },
-			showLoader : function() {
-				$("#twitterHashtagsGraph .loader").show().siblings().hide();
-			},
-			onload : function(data) {
-				if (data.length==0) {
-					$("#twitterHashtagsGraph .chartMessages").show().siblings().hide();
-				} else {
-					$("#twitterHashtagsGraph .chart").show().siblings().hide();
-					thc.show(data);
-				}
-			}
-		}
-	})();
 	
 	var twitterHashtagsService = service({
 		url : "http://" + host() + "/api/twitter/hashtag/statistics",
@@ -227,14 +202,14 @@ $(function () {
 			return {
 				dateFrom : twitterHashtags.dateFrom() + " UTC",
 				dateTo : twitterHashtags.dateTo() + " UTC",
-				period : twitterHashtags.period()
+				period : twitterHashtags.period(),
+				hashtags : twitterHashtags.hashtags()
 			}
 		},
 		data : function(e) { 
 			e.date = utc(new Date(e.date * 86400000)); return e; 
 		}
 	});
-
 	datepicker("twitterHashtagsGraph", function(dateText, inst) {
 		twitterHashtags.showLoader();
 		twitterHashtagsService.get(twitterHashtags.onload);
@@ -246,10 +221,8 @@ $(function () {
 			twitterHashtagsService.get(twitterHashtags.onload);
 		}
 	});
-
-	twitterHashtags.showLoader();
-	twitterHashtagsService.get(twitterHashtags.onload);
 	
+	var hashtagsInTable = [];
 	
 	(function () {
 		var currentPage = 1;
@@ -270,8 +243,9 @@ $(function () {
 					td.innerHTML = value;
 					return td;			
 				}
-				
+				hashtagsInTable = [];
 				data.results.map(function(hashtag) {
+					hashtagsInTable.push(hashtag.hashtag)
 					var tr = document.createElement("tr");
 					tr.classList.add("hashtag");
 					tr.appendChild(td(hashtag.number));
@@ -282,6 +256,9 @@ $(function () {
 					tbody.appendChild(tr);
 				});
 				
+				twitterHashtags.showLoader();
+				twitterHashtagsService.get(twitterHashtags.onload);
+
 				var page = document.querySelector("#mostActiveHashtags .navigation .page");
 				if (data.pages == 0) {
 					currentPage = 1;
@@ -312,6 +289,34 @@ $(function () {
 		});
 		
 		load();
+	})();
+	
+	
+	var twitterHashtags = (function() {
+		var thc = chart({
+			container : "twitterHashtagsChart",
+			x : "date",
+			y : "count",
+			color : "hashtag"
+		});
+
+		return {
+			dateFrom : function() { return $("#twitterHashtagsGraph .dateFrom").val(); },
+			dateTo : function() { return $("#twitterHashtagsGraph .dateTo").val(); },
+			period : function() { return $("#twitterHashtagsGraph [name='thperiods']:checked").val(); },
+			hashtags : function() { return hashtagsInTable; },
+			showLoader : function() {
+				$("#twitterHashtagsGraph .loader").show().siblings().hide();
+			},
+			onload : function(data) {
+				if (data.length==0) {
+					$("#twitterHashtagsGraph .chartMessages").show().siblings().hide();
+				} else {
+					$("#twitterHashtagsGraph .chart").show().siblings().hide();
+					thc.show(data);
+				}
+			}
+		}
 	})();
 
 });

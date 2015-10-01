@@ -5,12 +5,13 @@ import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.GET;
@@ -41,19 +42,18 @@ public class TwitterHashtagStatisticsService {
 	@GET
 	@Path("/statistics")
 	@Produces({ MediaType.APPLICATION_JSON })
-	public Response getStatistics(@QueryParam("dateFrom") String dateFrom, @QueryParam("dateTo") String dateTo, @QueryParam("period") String period) throws ParseException {
-		logger.debug("Service 'getStatistics' called with parameters dateFrom: {}, dateTo: {}, period: {}.", dateFrom, dateTo, period);
+	public Response getStatistics(@QueryParam("dateFrom") String dateFrom, @QueryParam("dateTo") String dateTo, @QueryParam("hashtags[]") String[] hashtags, @QueryParam("period") String period) throws ParseException {
 		
-		Set<String> hashtags = twitterManager.getHashTags();
+		//Set<String> hashtags = twitterManager.getHashTags();
 		
 		long daysFrom = DateUtil.getDaysSinceEpoch(parse(dateFrom));
 		long daysTo = DateUtil.getDaysSinceEpoch(parse(dateTo));
 
 		logger.debug("Parsed days since epoch time: from: {}, to: {}.", daysFrom, daysTo);
 		
-		List<TwitterHashtagDailyCount> counts = new ArrayList<TwitterHashtagDailyCount>();		
+		List<TwitterHashtagDailyCount> counts = new ArrayList<TwitterHashtagDailyCount>();	
 		
-		List<TwitterHashtagDailyCount> count = dbManager.getTwitterHashtagDailyCounts(hashtags, daysFrom, daysTo);
+		List<TwitterHashtagDailyCount> count = dbManager.getTwitterHashtagDailyCounts(new HashSet<String>(Arrays.asList(hashtags)), daysFrom, daysTo);
 		Map<String, List<TwitterHashtagDailyCount>> groups = group(count);
 		for (String hashtag : groups.keySet()) {
 			if(Period.DAY.equals(Period.valueOf(period))) {
@@ -146,7 +146,7 @@ public class TwitterHashtagStatisticsService {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getAverage(@QueryParam("page") long page) throws ParseException {
 		logger.debug("Service 'getAverage' called with parameters: page: {}.", page);
-		List<TwitterHashtagWeeklyAverage> averages = dbManager.getTwitterHashtagWeeklyAverage(DateUtil.getWeeksSinceEpoch() - 1);
+		List<TwitterHashtagWeeklyAverage> averages = dbManager.getTwitterHashtagWeeklyAverage(DateUtil.getWeeksSinceEpoch());
 		List<TwitterHashtagWeeklyAverage> result = averages.stream().sorted(Comparator.reverseOrder()).skip((page - 1) * PAGING).limit(5).collect(Collectors.toList());
 		return ResponseUtils.corsOk(new Averages(pages((long) averages.size(), PAGING), list(result, page)));
 	}
