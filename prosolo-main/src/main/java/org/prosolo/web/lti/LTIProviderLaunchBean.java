@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.ExternalContext;
@@ -11,6 +12,12 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
 import org.prosolo.services.oauth.OauthService;
@@ -38,6 +45,7 @@ public class LTIProviderLaunchBean implements Serializable {
 	public void processPOSTRequest() {
 		ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
 		try {
+			getTCProfile(null);
 			validateRequest();
 			externalContext.redirect(LTIConstants.TOOL_URL);
 		} catch (Exception e) {
@@ -56,6 +64,10 @@ public class LTIProviderLaunchBean implements Serializable {
 	//validate Tool Launch request
 	private void validateRequest() throws Exception {
 		HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+		Map<String, String []> map = request.getParameterMap();
+		for(Entry<String, String[]> entry:map.entrySet()){
+			System.out.println(entry.getKey()+":"+entry.getValue()[0]);
+		}
 		if (!LTIConstants.POST_REQUEST.equalsIgnoreCase(
 				((HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest())
 						.getMethod())) {
@@ -75,7 +87,7 @@ public class LTIProviderLaunchBean implements Serializable {
 	}
 	//get shared secret for consumer key (from db)
 	private String getSharedSecret(String consumerKey) {
-		return "6f735b26-677e-43df-b239-66a64fe655d6";
+		return "d4c8d525-d6c7-49d7-b7a7-78069a32f296";
 	}
 	//create return url with query params
 	private String formReturnURL(String url, String message) {
@@ -156,5 +168,32 @@ public class LTIProviderLaunchBean implements Serializable {
 			return false;
 		}
 	}
+	
+	public void getTCProfile(String url) throws Exception{
+		CloseableHttpClient httpClient = HttpClients.createDefault();
+		HttpGet getRequest = new HttpGet("http://localhost/moodle/mod/lti/services.php/toolproxy/ij7Rfy75ZvZmmji/custom");
+		// getRequest.addHeader(HttpHeaders.ACCEPT,
+		// "application/vnd.ims.lti.v2.toolconsumerprofile+json");
+		CloseableHttpResponse response = null;
+		try {
+			response = httpClient.execute(getRequest);
+			HttpEntity entity = response.getEntity();
+			String jsonString = EntityUtils.toString(entity);
+			logger.info("TC PROFILE RESPONSE: " + jsonString);
+			
+			
+		} catch (Exception e) {
+			logger.error(e);
+			throw new Exception("Error while getting Tool Consumer Profile");
+		} finally {
+			try {
+				response.close();
+			} catch (IOException e) {
+				logger.error(e);
+			}
+		}
+
+	}
+	
 
 }

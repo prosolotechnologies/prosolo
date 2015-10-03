@@ -9,6 +9,8 @@ public class ProductInfo {
 	@SerializedName("product_version")
 	private String productVersion;
 	private Description description;
+	@SerializedName("technical_description")
+	private Description technicalDescription;
 	@SerializedName("product_family")
 	private ProductFamily productFamily;
 	
@@ -29,6 +31,13 @@ public class ProductInfo {
 	}
 	public void setDescription(Description description) {
 		this.description = description;
+	}
+	
+	public Description getTechnicalDescription() {
+		return technicalDescription;
+	}
+	public void setTechnicalDescription(Description technicalDescription) {
+		this.technicalDescription = technicalDescription;
 	}
 	public ProductFamily getProductFamily() {
 		return productFamily;
