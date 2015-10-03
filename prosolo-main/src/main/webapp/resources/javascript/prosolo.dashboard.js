@@ -225,14 +225,15 @@ $(function () {
 	var hashtagsInTable = [];
 	
 	(function () {
-		var currentPage = 1;
-		var pages = 0;
+		var navigation = document.querySelector("#mostActiveHashtags .navigation");
 		
 		function load() {
+			var paging = document.querySelector("#mostActiveHashtags .navigation .paging");
+			
 			$.ajax({
 				url : "http://" + host() + "/api/twitter/hashtag/average",
 				type : "GET",
-				data : {page: currentPage},
+				data : {page: navigation.dataset.current, paging: paging.value},
 				crossDomain: true,
 				dataType: 'json'
 			}).done(function(data) {
@@ -259,31 +260,54 @@ $(function () {
 				twitterHashtags.showLoader();
 				twitterHashtagsService.get(twitterHashtags.onload);
 
-				var page = document.querySelector("#mostActiveHashtags .navigation .page");
 				if (data.pages == 0) {
-					currentPage = 1;
+					navigation.dataset.current = 1;
 				}
-				pages = data.pages;
-				page.innerHTML = (pages == 0) ? 0 : currentPage + "/" + pages;
+				navigation.dataset.current = data.current;
+				navigation.dataset.pages = data.pages;
+				navigation.dataset.paging = data.paging;
+				
+				var page = document.querySelector("#mostActiveHashtags .navigation .page");
+				page.innerHTML = (data.pages == 0) ? 0 : data.current + "/" + data.pages;
 			});
 		}
 		
 		var previous = document.querySelector("#mostActiveHashtags .navigation .previous");
 		previous.addEventListener("click", function() {
-			if (currentPage == 1) {
+			if (navigation.dataset.current == 1) {
 				return false;
 			}
-			currentPage--;
+			navigation.dataset.current--;
 			load();
 			return false;
 		});
 		
 		var next = document.querySelector("#mostActiveHashtags .navigation .next");
 		next.addEventListener("click", function() {
-			if (pages == currentPage) {
+			if (navigation.dataset.pages == navigation.dataset.current) {
 				return false;
 			}
-			currentPage++;
+			navigation.dataset.current++;
+			load();
+			return false;
+		});
+		
+		var first = document.querySelector("#mostActiveHashtags .navigation .first");
+		first.addEventListener("click", function() {
+			navigation.dataset.current=1;
+			load();
+			return false;
+		});
+		
+		var last = document.querySelector("#mostActiveHashtags .navigation .last");
+		last.addEventListener("click", function() {
+			navigation.dataset.current=navigation.dataset.pages;
+			load();
+			return false;
+		});
+		
+		var paging = document.querySelector("#mostActiveHashtags .navigation .paging");
+		paging.addEventListener("change", function() { 
 			load();
 			return false;
 		});

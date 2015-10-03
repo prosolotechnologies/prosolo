@@ -105,17 +105,21 @@ public class TwitterHashtagStatisticsService {
 		return counts.stream().mapToLong(TwitterHashtagDailyCount::getCount).sum();
 	}
 	
-	private static final long PAGING = 5;
-	
 	private class Averages {
 		
 		private long pages = 0;
 		
+		private long paging;
+		
+		private long current = 0;
+		
 		private List<Map<String, String>> results;
 
-		public Averages(long pages, List<Map<String, String>> results) {
+		public Averages(long current, long pages, long paging, List<Map<String, String>> results) {
 			this.pages = pages;
 			this.results = results;
+			this.current = current;
+			this.paging = paging;
 		}
 		
 	}
@@ -142,17 +146,17 @@ public class TwitterHashtagStatisticsService {
 	@GET
 	@Path("/average")
 	@Produces({ MediaType.APPLICATION_JSON })
-	public Response getAverage(@QueryParam("page") long page) throws ParseException {
+	public Response getAverage(@QueryParam("page") long page, @QueryParam("paging") long paging) throws ParseException {
 		logger.debug("Service 'getAverage' called with parameters: page: {}.", page);
 		List<TwitterHashtagWeeklyAverage> averages = dbManager.getTwitterHashtagWeeklyAverage(DateUtil.getWeeksSinceEpoch() - 2);
-		List<TwitterHashtagWeeklyAverage> results = averages.stream().sorted(Comparator.reverseOrder()).skip((page - 1) * PAGING).limit(5).collect(Collectors.toList());
+		List<TwitterHashtagWeeklyAverage> results = averages.stream().sorted(Comparator.reverseOrder()).skip((page - 1) * paging).limit(paging).collect(Collectors.toList());
 		List<Map<String, String>> result = new ArrayList<>();
-		int number = (int) ((page - 1) * PAGING + 1);
+		int number = (int) ((page - 1) * paging + 1);
 		for(TwitterHashtagWeeklyAverage average : results) {
 			TwitterHashtagUsersCount count = dbManager.getTwitterHashtagUsersCount(average.getHashtag());
 			result.add(merge(average, count, number++));
 		}
-		return ResponseUtils.corsOk(new Averages(pages((long) averages.size(), PAGING), result));
+		return ResponseUtils.corsOk(new Averages(page, pages((long) averages.size(), paging), paging, result));
 	}
 
 	private long pages(long size, long paging) {

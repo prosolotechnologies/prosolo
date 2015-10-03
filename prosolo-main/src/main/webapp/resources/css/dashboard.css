@@ -182,3 +182,17 @@
 #dashboard #twitterHashtagsGraph {
 	clear: both;
 }
+
+#dashboard .navigation {
+	margin-top: 1em;
+}
+
+#dashboard .navigation > *:not(:last-child) {
+	margin-right: 0.6em;
+}
+
+#dashboard .navigation > *:not(:last-child):after {
+	content: "|";
+	margin: 0em 0.6em;
+	color: #ccc;
+}
