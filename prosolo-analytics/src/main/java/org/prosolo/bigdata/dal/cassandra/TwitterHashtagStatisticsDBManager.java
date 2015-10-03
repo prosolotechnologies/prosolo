@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagDailyCount;
+import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagUsersCount;
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagWeeklyAverage;
 
 public interface TwitterHashtagStatisticsDBManager {
@@ -21,5 +22,7 @@ public interface TwitterHashtagStatisticsDBManager {
 	void updateTwitterHashtagWeeklyAverage(String hashtag, Long week, Double average);
 
 	List<TwitterHashtagWeeklyAverage> getTwitterHashtagWeeklyAverage(Long week);
+	
+	TwitterHashtagUsersCount getTwitterHashtagUsersCount(String hashtag);
 
 }

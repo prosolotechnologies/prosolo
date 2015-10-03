@@ -66,7 +66,7 @@ public class ContextLoader implements ServletContextListener {
 		// After context is initialized. Should not be changed.
 		// Initialization of Streaming manager that is responsible for
 		// collecting information from Prosolo through the Rabbitmq
-		if(Settings.getInstance().config.schedulerConfig.streamingJobs.twitterStreaming){
+		if(Settings.getInstance().config.schedulerConfig.streamingJobs.rabbitMQStreaming){
 			System.out.println("INITIALIZED RABBITMQ STREAMING");
 			StreamingManagerImpl streamingManager = new StreamingManagerImpl();
 			streamingManager.initializeStreaming();

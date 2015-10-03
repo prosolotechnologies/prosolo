@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagDailyCount;
+import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagUsersCount;
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagWeeklyAverage;
 import org.prosolo.bigdata.dal.cassandra.TwitterHashtagStatisticsDBManager;
 
@@ -24,14 +25,16 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 
 	private static final String UPDATE_TWITTER_HASHTAG_COUNT = "UPDATE twitterhashtagdailycount SET count = count + 1 WHERE hashtag = ? AND date = ?;";
 
-	private static final String INCREMENT_TWITTER_HASHTAG_USERS_COUNT = "UPDATE twitterhashtaguserscount SET count = count + 1 WHERE hashtag = ?;";
+	private static final String INCREMENT_TWITTER_HASHTAG_USERS_COUNT = "UPDATE twitterhashtaguserscount SET users = users + 1 WHERE hashtag = ?;";
 
-	private static final String DECREMENT_TWITTER_HASHTAG_USERS_COUNT = "UPDATE twitterhashtaguserscount SET count = count - 1 WHERE hashtag = ?;";
+	private static final String DECREMENT_TWITTER_HASHTAG_USERS_COUNT = "UPDATE twitterhashtaguserscount SET users = users - 1 WHERE hashtag = ?;";
 	
 	private static final String UPDATE_TWITTER_HASHTAG_WEEKLY_AVERAGE = "UPDATE twitterhashtagweeklyaverage SET average = ? WHERE hashtag = ? AND week = ?;";
 	
 	private static final String FIND_TWITTER_HASHTAG_WEEKLY_AVERAGE = "SELECT * FROM twitterhashtagweeklyaverage WHERE week>=? ALLOW FILTERING;";
-	
+
+	private static final String FIND_TWITTER_HASHTAG_USERS_COUNT = "SELECT * FROM twitterhashtaguserscount WHERE hashtag=?;";
+
 	private BoundStatement statement(PreparedStatement prepared, Object... parameters) {
 		BoundStatement statement = new BoundStatement(prepared);
 		int index = 0;
@@ -145,6 +148,18 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 					return new TwitterHashtagWeeklyAverage(row.getString("hashtag"), row.getLong("week"), row
 							.getDouble("average"));
 				});
+	}
+
+	@Override
+	public TwitterHashtagUsersCount getTwitterHashtagUsersCount(String hashtag) {
+		PreparedStatement prepared = getSession().prepare(FIND_TWITTER_HASHTAG_USERS_COUNT);
+		BoundStatement statement = statement(prepared, hashtag);
+		List<Row> result = query(statement);
+		if (result.size() == 1) {
+			Row row = result.get(0);
+			return new TwitterHashtagUsersCount(row.getString("hashtag"), row.getLong("users"));
+		}
+		return null;
 	}
 
 }

@@ -22,6 +22,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagDailyCount;
+import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagUsersCount;
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagWeeklyAverage;
 import org.prosolo.bigdata.dal.cassandra.TwitterHashtagStatisticsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl;
@@ -117,38 +118,41 @@ public class TwitterHashtagStatisticsService {
 			this.results = results;
 		}
 		
-	}	
+	}
+	
 	public static String round(double value, int places) {
 	    BigDecimal bd = new BigDecimal(value);
 	    bd = bd.setScale(places, RoundingMode.HALF_UP);
 	    return bd.toPlainString();
 	}
 	
-	private List<Map<String, String>> list(List<TwitterHashtagWeeklyAverage> averages, long page) {
-		List<Map<String, String>> result = new ArrayList<>();
-		long index = (page - 1) * PAGING + 1;
-		for(TwitterHashtagWeeklyAverage average : averages) {
-			result.add(fromAverage(average, index++));
-		}
-		return result;
-	}
-	
-	Map<String, String> fromAverage(TwitterHashtagWeeklyAverage average, Long number) {
+	private Map<String, String> merge(TwitterHashtagWeeklyAverage average, TwitterHashtagUsersCount count, long index) {
 		Map<String, String> result = new HashMap<>();
-		result.put("number", number.toString());
 		result.put("hashtag", average.getHashtag());
 		result.put("average", round(average.getAverage(), 3));
+		if (count != null) {
+			result.put("users", Long.toString(count.getUsers()));
+		} else {
+			result.put("users", "0");
+		}
+		result.put("number", Long.toString(index));
 		return result;
 	}
-	
+		
 	@GET
 	@Path("/average")
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getAverage(@QueryParam("page") long page) throws ParseException {
 		logger.debug("Service 'getAverage' called with parameters: page: {}.", page);
-		List<TwitterHashtagWeeklyAverage> averages = dbManager.getTwitterHashtagWeeklyAverage(DateUtil.getWeeksSinceEpoch());
-		List<TwitterHashtagWeeklyAverage> result = averages.stream().sorted(Comparator.reverseOrder()).skip((page - 1) * PAGING).limit(5).collect(Collectors.toList());
-		return ResponseUtils.corsOk(new Averages(pages((long) averages.size(), PAGING), list(result, page)));
+		List<TwitterHashtagWeeklyAverage> averages = dbManager.getTwitterHashtagWeeklyAverage(DateUtil.getWeeksSinceEpoch() - 2);
+		List<TwitterHashtagWeeklyAverage> results = averages.stream().sorted(Comparator.reverseOrder()).skip((page - 1) * PAGING).limit(5).collect(Collectors.toList());
+		List<Map<String, String>> result = new ArrayList<>();
+		int number = (int) ((page - 1) * PAGING + 1);
+		for(TwitterHashtagWeeklyAverage average : results) {
+			TwitterHashtagUsersCount count = dbManager.getTwitterHashtagUsersCount(average.getHashtag());
+			result.add(merge(average, count, number++));
+		}
+		return ResponseUtils.corsOk(new Averages(pages((long) averages.size(), PAGING), result));
 	}
 
 	private long pages(long size, long paging) {

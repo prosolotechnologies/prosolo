@@ -251,7 +251,7 @@ $(function () {
 					tr.appendChild(td(hashtag.number));
 					tr.appendChild(td(hashtag.hashtag));
 					tr.appendChild(td(hashtag.average));
-					tr.appendChild(td(0));
+					tr.appendChild(td(hashtag.users));
 					tr.appendChild(td(0));
 					tbody.appendChild(tr);
 				});

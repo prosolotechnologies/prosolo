@@ -1,11 +1,17 @@
 package org.prosolo.bigdata.events.observers;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.prosolo.bigdata.common.dal.pojo.InstanceLoggedUsersCount;
 import org.prosolo.bigdata.common.events.pojo.DataName;
 import org.prosolo.bigdata.common.events.pojo.DataType;
 import org.prosolo.bigdata.dal.cassandra.AnalyticalEventDBManager;
+import org.prosolo.bigdata.dal.cassandra.TwitterHashtagStatisticsDBManager;
 import org.prosolo.bigdata.dal.cassandra.UserActivityStatisticsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.AnalyticalEventDBManagerImpl;
+import org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl;
 import org.prosolo.bigdata.dal.cassandra.impl.UserActivityStatisticsDBManagerImpl;
 import org.prosolo.bigdata.events.pojo.AnalyticsEvent;
 import org.prosolo.bigdata.events.pojo.DefaultEvent;
@@ -25,6 +31,7 @@ import com.google.gson.JsonObject;
 public class AnalyticalEventsObserver implements EventObserver {
 	private AnalyticalEventDBManager dbManager = new AnalyticalEventDBManagerImpl();
 	private UserActivityStatisticsDBManager uasDBManager = new UserActivityStatisticsDBManagerImpl();
+	private TwitterHashtagStatisticsDBManager twitterDbManager = new TwitterHashtagStatisticsDBManagerImpl();
 	
 	HashtagsUpdatesBuffer$ hashtagsUpdatesBuffer = HashtagsUpdatesBuffer$.MODULE$;
 	TwitterUsersStreamsManager$ twitterUsersStreamManager = TwitterUsersStreamsManager$.MODULE$;
@@ -63,6 +70,18 @@ public class AnalyticalEventsObserver implements EventObserver {
 				if (analyticsEvent.getDataName()
 						.equals(DataName.UPDATEHASHTAGS)) {
 					hashtagsUpdatesBuffer.addEvent(analyticsEvent);
+					
+				String[] oldhashtags = analyticsEvent.getData().get("oldhashtags").getAsString().split(",");
+				String[] newhashtags = analyticsEvent.getData().get("newhashtags").getAsString().split(",");
+				
+				for (String removedTag : subtract(oldhashtags, newhashtags)) {
+					twitterDbManager.decrementTwitterHashtagUsersCount(removedTag);
+				}
+				
+				for (String addedTag : subtract(newhashtags, oldhashtags)) {
+					twitterDbManager.incrementTwitterHashtagUsersCount(addedTag);
+				}
+				
 				} else if (analyticsEvent.getDataName().equals(
 						DataName.UPDATETWITTERUSER)) {
 					System.out.println("SHOULD UPDATE TWITTER USER HERE");
@@ -73,6 +92,12 @@ public class AnalyticalEventsObserver implements EventObserver {
 			}
 		}
 
+	}
+
+	private Set<String> subtract(String[] a, String[] b) {
+		Set<String> result =  new HashSet<String>(Arrays.asList(a));				
+		result.removeAll(Arrays.asList(b));
+		return result;
 	}
 
 }
