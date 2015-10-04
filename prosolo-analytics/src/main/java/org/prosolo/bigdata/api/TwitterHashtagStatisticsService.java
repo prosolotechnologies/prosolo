@@ -5,12 +5,10 @@ import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -50,13 +48,12 @@ public class TwitterHashtagStatisticsService {
 		
 		List<TwitterHashtagDailyCount> counts = new ArrayList<TwitterHashtagDailyCount>();	
 		
-		List<TwitterHashtagDailyCount> count = dbManager.getTwitterHashtagDailyCounts(new HashSet<String>(Arrays.asList(hashtags)), daysFrom, daysTo);
-		Map<String, List<TwitterHashtagDailyCount>> groups = group(count);
-		for (String hashtag : groups.keySet()) {
+		for (String hashtag : hashtags) {
+			List<TwitterHashtagDailyCount> hashtagCounts = dbManager.getTwitterHashtagDailyCounts(hashtag, daysFrom, daysTo);
 			if(Period.DAY.equals(Period.valueOf(period))) {
-				counts.addAll(groups.get(hashtag));			
+				counts.addAll(hashtagCounts);			
 			} else {
-				counts.addAll(aggregate(split(groups.get(hashtag), Period.valueOf(period)), hashtag));
+				counts.addAll(aggregate(split(hashtagCounts, Period.valueOf(period)), hashtag));
 			}
 		}
 		return ResponseUtils.corsOk(counts);			
@@ -64,17 +61,6 @@ public class TwitterHashtagStatisticsService {
 	
 	private Date parse(String date) throws ParseException {
 		return new SimpleDateFormat("dd.MM.yyyy. Z").parse(date);
-	}
-	
-	private Map<String, List<TwitterHashtagDailyCount>> group(List<TwitterHashtagDailyCount> counts) {
-		Map<String, List<TwitterHashtagDailyCount>> result = new HashMap<>();
-		for(TwitterHashtagDailyCount count : counts) {
-			if (!result.containsKey(count.getHashtag())) {
-				result.put(count.getHashtag(), new ArrayList<TwitterHashtagDailyCount>());
-			}
-			result.get(count.getHashtag()).add(count);
-		}
-		return result;		
 	}
 	
 	private Map<Long, List<TwitterHashtagDailyCount>> split(List<TwitterHashtagDailyCount> counts, Period period) {
