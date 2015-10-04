@@ -19,10 +19,16 @@ public interface TwitterHashtagStatisticsDBManager {
 	
 	void decrementTwitterHashtagUsersCount(String hashtag);
 	
-	void updateTwitterHashtagWeeklyAverage(String hashtag, Long week, Double average);
+	void updateTwitterHashtagWeeklyAverage(String hashtag, Long timestamp, Double average, Boolean b);
 
-	List<TwitterHashtagWeeklyAverage> getTwitterHashtagWeeklyAverage(Long week);
+	List<TwitterHashtagWeeklyAverage> getTwitterHashtagWeeklyAverage(Long timestamp);
+	
+	List<String> getDisabledTwitterHashtags();
 	
 	TwitterHashtagUsersCount getTwitterHashtagUsersCount(String hashtag);
+
+	void disableTwitterHashtag(String hashtag);
+
+	void enableTwitterHashtag(String hashtag);
 
 }

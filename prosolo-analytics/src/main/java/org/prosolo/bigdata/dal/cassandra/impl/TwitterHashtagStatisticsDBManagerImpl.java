@@ -29,9 +29,13 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 
 	private static final String DECREMENT_TWITTER_HASHTAG_USERS_COUNT = "UPDATE twitterhashtaguserscount SET users = users - 1 WHERE hashtag = ?;";
 	
-	private static final String UPDATE_TWITTER_HASHTAG_WEEKLY_AVERAGE = "UPDATE twitterhashtagweeklyaverage SET average = ? WHERE hashtag = ? AND week = ?;";
+	private static final String UPDATE_TWITTER_HASHTAG_WEEKLY_AVERAGE = "UPDATE twitterhashtagweeklyaverage SET average = ?, timestamp = ?, disabled = ? WHERE hashtag = ?;";
 	
-	private static final String FIND_TWITTER_HASHTAG_WEEKLY_AVERAGE = "SELECT * FROM twitterhashtagweeklyaverage WHERE week>=? ALLOW FILTERING;";
+	private static final String DISABLE_TWITTER_HASHTAG = "UPDATE twitterhashtagweeklyaverage SET disabled = ? WHERE hashtag = ?;";
+	
+	private static final String FIND_ENABLED_TWITTER_HASHTAG_WEEKLY_AVERAGE = "SELECT * FROM twitterhashtagweeklyaverage WHERE timestamp>=? AND disabled=false ALLOW FILTERING;";
+	
+	private static final String FIND_DISABLED_TWITTER_HASHTAGS = "SELECT hashtag FROM twitterhashtagweeklyaverage WHERE disabled=true ALLOW FILTERING;";
 
 	private static final String FIND_TWITTER_HASHTAG_USERS_COUNT = "SELECT * FROM twitterhashtaguserscount WHERE hashtag=?;";
 
@@ -43,6 +47,8 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 				statement.setLong(index++, ((Long) parameter).longValue());
 			} else if (parameter instanceof String) {
 				statement.setString(index++, (String) parameter);
+			} else if (parameter instanceof Boolean) {
+				statement.setBool(index++, (Boolean) parameter);
 			} else if (parameter instanceof Double) {
 				statement.setDouble(index++, (Double) parameter);
 			} else if (parameter instanceof Set) {
@@ -127,9 +133,33 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 	}
 
 	@Override
-	public void updateTwitterHashtagWeeklyAverage(String hashtag, Long week, Double average) {
+	public void updateTwitterHashtagWeeklyAverage(String hashtag, Long timestamp, Double average, Boolean disabled) {
 		PreparedStatement prepared = getSession().prepare(UPDATE_TWITTER_HASHTAG_WEEKLY_AVERAGE);
-		BoundStatement statement = statement(prepared, average, hashtag, week);
+		BoundStatement statement = statement(prepared, average, timestamp, disabled, hashtag);
+		try {
+			getSession().execute(statement);
+		} catch (Exception e) {
+			logger.error("Error executing update statement.", e);
+			// TODO Throw exception.
+		}
+	}
+	
+	@Override
+	public void disableTwitterHashtag(String hashtag) {
+		PreparedStatement prepared = getSession().prepare(DISABLE_TWITTER_HASHTAG);
+		BoundStatement statement = statement(prepared, hashtag, Boolean.TRUE);
+		try {
+			getSession().execute(statement);
+		} catch (Exception e) {
+			logger.error("Error executing update statement.", e);
+			// TODO Throw exception.
+		}
+	}
+	
+	@Override
+	public void enableTwitterHashtag(String hashtag) {
+		PreparedStatement prepared = getSession().prepare(DISABLE_TWITTER_HASHTAG);
+		BoundStatement statement = statement(prepared, hashtag, Boolean.FALSE);
 		try {
 			getSession().execute(statement);
 		} catch (Exception e) {
@@ -139,14 +169,14 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 	}
 
 	@Override
-	public List<TwitterHashtagWeeklyAverage> getTwitterHashtagWeeklyAverage(Long week) {
-		PreparedStatement prepared = getSession().prepare(FIND_TWITTER_HASHTAG_WEEKLY_AVERAGE);
-		BoundStatement statement = statement(prepared, week);
+	public List<TwitterHashtagWeeklyAverage> getTwitterHashtagWeeklyAverage(Long timestampFrom) {
+		PreparedStatement prepared = getSession().prepare(FIND_ENABLED_TWITTER_HASHTAG_WEEKLY_AVERAGE);
+		BoundStatement statement = statement(prepared, timestampFrom);
 		return map(
 				query(statement),
 				(Row row) -> {
-					return new TwitterHashtagWeeklyAverage(row.getString("hashtag"), row.getLong("week"), row
-							.getDouble("average"));
+					return new TwitterHashtagWeeklyAverage(row.getString("hashtag"), row.getLong("timestamp"), row
+							.getDouble("average"), row.getBool("disabled"));
 				});
 	}
 
@@ -160,6 +190,15 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 			return new TwitterHashtagUsersCount(row.getString("hashtag"), row.getLong("users"));
 		}
 		return null;
+	}
+
+	@Override
+	public List<String> getDisabledTwitterHashtags() {
+		PreparedStatement prepared = getSession().prepare(FIND_DISABLED_TWITTER_HASHTAGS);
+		BoundStatement statement = statement(prepared);
+		return map(query(statement), (Row row) -> {
+			return row.getString("hashtag");
+		});
 	}
 
 }

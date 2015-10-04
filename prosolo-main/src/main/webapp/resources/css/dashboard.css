@@ -2,13 +2,43 @@
 
 #dashboard h1 {
 	float: none;
-	margin-bottom: 1em;
+	padding: 0.6em 0em;
+	border-top: 1px solid #ccc;
+	margin: 0em;
+	color: #0288D1;
+}
+
+#dashboard h2 {
+	padding: 0.3em 0em;
+	margin: 0em;
+	font-weight: normal;
+	color: #000;
+}
+
+#dashboard h3 {
+	padding: 0.3em 0em;
+	margin: 0em;
+	font-weight: normal;
+	color: #666;
 }
 
 #dashboard .dateField {
 	width: 62px;
 	height: 23px;
 	cursor: default;
+}
+
+#dashboard .stats {
+	padding: 0em 0em 0.6em 0em;
+}
+
+#dashboard .stats + p {
+	margin: 0.8em 0em 0.4em 0em;
+}
+
+#dashboard .stats input {
+    vertical-align: middle;
+    margin: 0em 1em 0em 0.3em;
 }
 
 #dashboard .timeRange .ui-datepicker-trigger {
@@ -195,4 +225,8 @@
 	content: "|";
 	margin: 0em 0.6em;
 	color: #ccc;
+}
+
+#dashboard #disabled-hashtags-dialog {
+	display: none;
 }

@@ -4,9 +4,11 @@ public class TwitterHashtagWeeklyAverage implements Comparable<TwitterHashtagWee
 
 	private String hashtag;
 
-	private long week;
+	private long timestamp;
 
 	private double average;
+	
+	private boolean disabled;
 
 	public String getHashtag() {
 		return hashtag;
@@ -16,12 +18,12 @@ public class TwitterHashtagWeeklyAverage implements Comparable<TwitterHashtagWee
 		this.hashtag = hashtag;
 	}
 
-	public long getWeek() {
-		return week;
+	public long getTimestamp() {
+		return timestamp;
 	}
 
-	public void setWeek(long week) {
-		this.week = week;
+	public void setTimestamp(long timestamp) {
+		this.timestamp = timestamp;
 	}
 
 	public double getAverage() {
@@ -32,22 +34,27 @@ public class TwitterHashtagWeeklyAverage implements Comparable<TwitterHashtagWee
 		this.average = average;
 	}
 
-	public TwitterHashtagWeeklyAverage(String hashtag, long week, double average) {
+	public boolean isDisabled() {
+		return disabled;
+	}
+
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
+	}
+
+	public TwitterHashtagWeeklyAverage(String hashtag, long timestamp, double average, boolean disabled) {
 		this.hashtag = hashtag;
-		this.week = week;
+		this.timestamp = timestamp;
 		this.average = average;
+		this.disabled = disabled;
 	}
 
 	@Override
 	public int compareTo(TwitterHashtagWeeklyAverage that) {
-		if (this.week == that.week) {
-			if (this.average == that.average) {
-				return  -hashtag.compareTo(that.hashtag);
-			} else {
-				return average < that.average ? -1 : 1;
-			}
+		if (this.average == that.average) {
+			return -hashtag.compareTo(that.hashtag);
 		} else {
-			return this.week < that.week ? -1 : 1;
+			return average < that.average ? -1 : 1;
 		}
 	}
 	

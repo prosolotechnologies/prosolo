@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -26,7 +27,6 @@ import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagUsersCount;
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagWeeklyAverage;
 import org.prosolo.bigdata.dal.cassandra.TwitterHashtagStatisticsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl;
-import org.prosolo.bigdata.scala.twitter.TwitterHashtagsStreamsManager$;
 import org.prosolo.bigdata.utils.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,14 +38,10 @@ public class TwitterHashtagStatisticsService {
 	
 	private TwitterHashtagStatisticsDBManager dbManager = new TwitterHashtagStatisticsDBManagerImpl();
 	
-	private TwitterHashtagsStreamsManager$ twitterManager = TwitterHashtagsStreamsManager$.MODULE$;
-	
 	@GET
 	@Path("/statistics")
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getStatistics(@QueryParam("dateFrom") String dateFrom, @QueryParam("dateTo") String dateTo, @QueryParam("hashtags[]") String[] hashtags, @QueryParam("period") String period) throws ParseException {
-		
-		//Set<String> hashtags = twitterManager.getHashTags();
 		
 		long daysFrom = DateUtil.getDaysSinceEpoch(parse(dateFrom));
 		long daysTo = DateUtil.getDaysSinceEpoch(parse(dateTo));
@@ -142,13 +138,19 @@ public class TwitterHashtagStatisticsService {
 		result.put("number", Long.toString(index));
 		return result;
 	}
+	
+	private Long yesterday() {
+		Calendar today = Calendar.getInstance();
+		today.add(Calendar.DATE, -1);
+		return today.getTimeInMillis();
+	}
 		
 	@GET
 	@Path("/average")
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getAverage(@QueryParam("page") long page, @QueryParam("paging") long paging) throws ParseException {
 		logger.debug("Service 'getAverage' called with parameters: page: {}.", page);
-		List<TwitterHashtagWeeklyAverage> averages = dbManager.getTwitterHashtagWeeklyAverage(DateUtil.getWeeksSinceEpoch() - 2);
+		List<TwitterHashtagWeeklyAverage> averages = dbManager.getTwitterHashtagWeeklyAverage(yesterday());
 		List<TwitterHashtagWeeklyAverage> results = averages.stream().sorted(Comparator.reverseOrder()).skip((page - 1) * paging).limit(paging).collect(Collectors.toList());
 		List<Map<String, String>> result = new ArrayList<>();
 		int number = (int) ((page - 1) * paging + 1);

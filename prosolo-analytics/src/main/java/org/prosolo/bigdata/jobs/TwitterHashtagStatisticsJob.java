@@ -21,17 +21,17 @@ public class TwitterHashtagStatisticsJob implements Job {
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		Date date = Calendar.getInstance().getTime();
-		long week = DateUtil.getWeeksSinceEpoch(date);
 		long dateTo = DateUtil.getDaysSinceEpoch(date);
-		long dateFrom = DateUtil.getFirstDayOfWeek(dateTo);
+		long dateFrom = dateTo - 7;
 		List<TwitterHashtagDailyCount> counts = dbManager.getTwitterHashtagDailyCounts(dateFrom, dateTo);
 		Map<String, Long> result = new HashMap<String, Long>();
 		for(TwitterHashtagDailyCount count : counts) {
 			Long current = result.get(count.getHashtag());
 			result.put(count.getHashtag(), current == null ? count.getCount() : count.getCount() + current);
 		}
+		List<String> disabled = dbManager.getDisabledTwitterHashtags();
 		for(String hashtag : result.keySet()) {
-			dbManager.updateTwitterHashtagWeeklyAverage(hashtag, week, result.get(hashtag).doubleValue() / 7);
+			dbManager.updateTwitterHashtagWeeklyAverage(hashtag, date.getTime(), result.get(hashtag).doubleValue() / 7, disabled.contains(hashtag));
 		}
 	}
 

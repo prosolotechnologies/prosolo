@@ -342,5 +342,17 @@ $(function () {
 			}
 		}
 	})();
+	
+	(function () {
+	    $("#disabled-hashtags-dialog").dialog({
+	      resizable: false,
+	      height:140,
+	      modal: true,
+	      autoOpen: false
+	    });
+	    $("#view-disabled-hashtags").click(function() {
+	    	$("#disabled-hashtags-dialog").dialog("open");
+	    });
+	})();
 
 });
