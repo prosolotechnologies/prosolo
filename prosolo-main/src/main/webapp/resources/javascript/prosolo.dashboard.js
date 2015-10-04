@@ -43,7 +43,10 @@ $(function () {
 			    type: 'line',
 			    x: configuration.x,
 			    y: configuration.y,
-			    color: configuration.color
+			    color: configuration.color,
+			    plugins: [
+		              	tauCharts.api.plugins.get('tooltip')({fields:configuration.tooltip.fields})
+			    ]
 			});
 			chart.renderTo("#" + configuration.container);
 			charts.push(chart);
@@ -110,7 +113,10 @@ $(function () {
 			container : "activityGraphChart",
 			x : "date",
 			y : "count",
-			color : "type"
+			color : "type",
+			tooltip : {
+				fields: ["date", "count", "type"]
+			}
 		});
 
 		return {
@@ -321,7 +327,10 @@ $(function () {
 			container : "twitterHashtagsChart",
 			x : "date",
 			y : "count",
-			color : "hashtag"
+			color : "hashtag",
+			tooltip : {
+				fields: ["date", "count", "hashtag"]
+			}
 		});
 
 		return {
