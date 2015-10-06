@@ -58,7 +58,7 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 		statements.put(DELETE_TWITTER_HASHTAG_WEEKLY_AVERAGE, "DELETE FROM twitterhashtagweeklyaverage WHERE hashtag = ?;");
 		statements.put(UPDATE_TWITTER_HASHTAG_WEEKLY_AVERAGE, "UPDATE twitterhashtagweeklyaverage SET average = ? WHERE hashtag = ? AND timestamp = ?;");
 		statements.put(DISABLE_TWITTER_HASHTAG, "INSERT INTO disabledtwitterhashtags (hashtag) values (?);");
-		statements.put(ENABLE_TWITTER_HASHTAG, "DELETE hashtag FROM disabledtwitterhashtags WHERE KEY = ?;");
+		statements.put(ENABLE_TWITTER_HASHTAG, "DELETE FROM disabledtwitterhashtags WHERE hashtag = ?;");
 		statements.put(FIND_TWITTER_HASHTAG_WEEKLY_AVERAGE, "SELECT * FROM twitterhashtagweeklyaverage WHERE timestamp>=? ALLOW FILTERING;");
 		statements.put(FIND_DISABLED_TWITTER_HASHTAGS, "SELECT hashtag FROM disabledtwitterhashtags;");
 		statements.put(FIND_TWITTER_HASHTAG_USERS_COUNT, "SELECT * FROM twitterhashtaguserscount WHERE hashtag=?;");
@@ -245,5 +245,13 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 			return row.getString("hashtag");
 		});
 	}
+	
+	@Override
+	public Long getDisabledTwitterHashtagsCount() {
+		PreparedStatement prepared = getStatement(getSession(), FIND_DISABLED_TWITTER_HASHTAGS);
+		BoundStatement statement = statement(prepared);
+		return Long.valueOf(query(statement).size());
+	}
+
 
 }

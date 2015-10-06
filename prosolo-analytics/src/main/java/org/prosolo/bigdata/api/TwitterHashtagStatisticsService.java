@@ -153,5 +153,23 @@ public class TwitterHashtagStatisticsService {
 	private long pages(long size, long paging) {
 		return size / paging + (size % paging > 0 ? 1 : 0);
 	}
+	
+	@GET
+	@Path("/disabled")
+	@Produces({ MediaType.APPLICATION_JSON })
+	public Response getDisabled() {
+		logger.debug("Service 'getDisabled' called.");
+		return ResponseUtils.corsOk(dbManager.getDisabledTwitterHashtags());
+	}
+	
+	@GET
+	@Path("/disabled-count")
+	@Produces({ MediaType.APPLICATION_JSON })
+	public Response getDisabledCount() {
+		logger.debug("Service 'getDisabledCount' called.");
+		Map<String, String> result = new HashMap<String, String>();
+		result.put("count", dbManager.getDisabledTwitterHashtagsCount().toString());
+		return ResponseUtils.corsOk(result);
+	}
 		
 }

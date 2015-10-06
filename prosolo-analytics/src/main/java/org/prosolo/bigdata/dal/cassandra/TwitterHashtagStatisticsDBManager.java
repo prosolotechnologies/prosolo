@@ -32,4 +32,6 @@ public interface TwitterHashtagStatisticsDBManager {
 
 	void enableTwitterHashtag(String hashtag);
 
+	Long getDisabledTwitterHashtagsCount();
+
 }

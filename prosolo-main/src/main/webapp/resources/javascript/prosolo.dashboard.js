@@ -366,14 +366,65 @@ $(function () {
 	})();
 	
 	(function () {
+    	$.ajax({
+    		url : "http://" + host() + "/api/twitter/hashtag/disabled-count",
+    		type : "GET",
+    		crossDomain : true,
+    		dataType : 'json'
+    	}).done(function(data) {
+    		$("#disabled-hashtags-count").html(data.count);
+    	});
+	})();
+
+	
+	(function () {
 	    $("#disabled-hashtags-dialog").dialog({
-	      resizable: false,
-	      height:140,
-	      modal: true,
-	      autoOpen: false
+	    	resizable: false,
+	    	  title: "Disabled hashtags",
+	          width: 'auto',
+	          height: 'auto',
+		      modal: true,
+		      autoOpen: false,
+		      close: function() { $("#disabled-hashtags-table tbody").html(""); }
 	    });
 	    $("#view-disabled-hashtags").click(function() {
-	    	$("#disabled-hashtags-dialog").dialog("open");
+	    	$.ajax({
+	    		url : "http://" + host() + "/api/twitter/hashtag/disabled",
+	    		type : "GET",
+	    		crossDomain : true,
+	    		dataType : 'json'
+	    	}).done(function(data) {
+	    		var tbody = document.querySelector("#disabled-hashtags-table tbody");
+	    		tbody.innerHTML = "";
+	    		function td(value) {
+	    			var td = document.createElement("td");
+	    			td.innerHTML = value;
+	    			return td;			
+	    		}
+	    		function button(hashtag) {
+	    			return $("<button>Enable</button>").click(function() {
+	    				$(this).attr('disabled', 'disabled');
+	    				document.querySelector("#enable-form\\:hashtag-to-enable").value = hashtag;
+	    				document.querySelector("#enable-form\\:enable-form-submit").click();
+	    				return false;
+	    			})[0];
+	    		}
+	    		function tdEnable(button) {
+	    			var td = $("<td></td>")[0];
+	    			td.appendChild(button);
+	    			return td;
+	    		}
+	    		hashtagsInTable = [];
+	    		data.map(function(hashtag) {
+	    			var tr = document.createElement("tr");
+	    			tr.classList.add("hashtag");
+	    			tr.appendChild(td(hashtag));
+	    			tr.appendChild(tdEnable(button(hashtag)));
+	    			tbody.appendChild(tr);
+	    		});
+	    		$("#disabled-hashtags-count").html(data.length);
+	    		$("#disabled-hashtags-dialog").dialog("open");
+	    	});
 	    });
 	})();
 

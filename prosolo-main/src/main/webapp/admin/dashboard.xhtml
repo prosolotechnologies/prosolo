@@ -76,7 +76,7 @@
 					<h1>Twitter hashtags</h1>
 					<div id="mostActiveHashtags">
 						<h2>Most active hashtags</h2>
-						<table id="mostActiveHashtagsTable">
+						<table class="dashboard-table" id="mostActiveHashtagsTable">
 							<thead>
 								<tr>
 									<th>No</th>
@@ -142,8 +142,14 @@
 						There are total <span id="disabled-hashtags-count">0</span> disabled Twitter hashtags.
 						<button id="view-disabled-hashtags">View disabled hashtags</button>
 						<div id="disabled-hashtags-dialog">
-							<h3>Disabled hashtags</h3>
-							<table id="most-active-hashtags-table">
+							<table class="dashboard-table" id="disabled-hashtags-table">
+								<thead>
+									<tr>
+										<th>Hashtag</th>
+										<th>Action</th>
+									</tr>
+								</thead>
+								<tbody></tbody>
 							</table>
 						</div>
 						<div id="search-hashtags-to-disable">
