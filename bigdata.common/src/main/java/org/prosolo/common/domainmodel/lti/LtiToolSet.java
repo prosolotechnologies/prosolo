@@ -9,6 +9,7 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.Cascade;
 
@@ -70,6 +71,9 @@ public class LtiToolSet extends BaseLtiEntity {
 		this.registrationUrl = registrationUrl;
 	}
 
-	
+	@Transient
+	public String getFullRegistrationURL(){
+		return registrationUrl+"?id="+getId();
+	}
 
 }

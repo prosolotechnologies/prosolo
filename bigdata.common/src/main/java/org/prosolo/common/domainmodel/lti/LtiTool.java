@@ -7,6 +7,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 import org.prosolo.common.domainmodel.user.User;
 
@@ -26,7 +27,7 @@ public class LtiTool extends BaseLtiEntity {
 	private long learningGoalId = -1;
 	private long competenceId = -1;
 	private long activityId = -1;
-	private LtiToolType toolType;
+	private ResourceType toolType;
 	private String resourceName;
 	private User createdBy;
 	private LtiToolSet toolSet;
@@ -37,8 +38,6 @@ public class LtiTool extends BaseLtiEntity {
 
 	}
 	
-	
-
 	public LtiTool(long id, boolean enabled, boolean delted,  String customCss, long activityId, 
 			long competenceId, long learningGoalId, long toolSetId, long consumerId,
 			String keyLtiOne, String secretLtiOne, String keyLtiTwo, String secretLtiTwo) {
@@ -54,8 +53,6 @@ public class LtiTool extends BaseLtiEntity {
 		this.toolSet = ts;
 		
 	}
-
-
 
 	public String getCode() {
 		return code;
@@ -123,11 +120,11 @@ public class LtiTool extends BaseLtiEntity {
 	}
 
 	@Enumerated(EnumType.STRING)
-	public LtiToolType getToolType() {
+	public ResourceType getToolType() {
 		return toolType;
 	}
 
-	public void setToolType(LtiToolType toolType) {
+	public void setToolType(ResourceType toolType) {
 		this.toolType = toolType;
 	}
 
@@ -176,5 +173,9 @@ public class LtiTool extends BaseLtiEntity {
 		this.enabled = enabled;
 	}
 
+	@Transient
+	public String getFullLaunchURL(){
+		return launchUrl+"?id="+getId();
+	}
 
 }
