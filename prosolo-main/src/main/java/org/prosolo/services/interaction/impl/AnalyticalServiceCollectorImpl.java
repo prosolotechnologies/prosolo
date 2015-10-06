@@ -148,6 +148,22 @@ public class AnalyticalServiceCollectorImpl implements AnalyticalServiceCollecto
 		messageDistributer.distributeMessage(factory.createAnalyticalServiceMessage(DataName.INSTANCELOGGEDUSERSCOUNT, DataType.RECORD, data));
 	}
 	
+	@Override
+	public void enableHashtag(String hashtag) {
+		JsonObject data=new JsonObject();
+		data.add("hashtag", new JsonPrimitive(hashtag));
+		data.add("action", new JsonPrimitive("enable"));
+		messageDistributer.distributeMessage(factory.createAnalyticalServiceMessage(DataName.DISABLEDHASHTAGS, DataType.RECORD, data));
+	}
+	
+	@Override
+	public void disableHashtag(String hashtag) {
+		JsonObject data=new JsonObject();
+		data.add("hashtag", new JsonPrimitive(hashtag));
+		data.add("action", new JsonPrimitive("disable"));
+		messageDistributer.distributeMessage(factory.createAnalyticalServiceMessage(DataName.DISABLEDHASHTAGS, DataType.RECORD, data));
+	}
+	
 	
 /*	//temporary
 	@Override

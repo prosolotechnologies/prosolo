@@ -140,17 +140,29 @@
 					<div id="disabled-twitter-hashtags">
 						<h2>Disabled hashtags</h2>
 						There are total <span id="disabled-hashtags-count">0</span> disabled Twitter hashtags.
-						<button id="view-disabled-hashtags">View disabled hashtag</button>
+						<button id="view-disabled-hashtags">View disabled hashtags</button>
 						<div id="disabled-hashtags-dialog">
 							<h3>Disabled hashtags</h3>
 							<table id="most-active-hashtags-table">
 							</table>
 						</div>
-						<div id="search-disabled-hashtags">
-							<h3>Search disabled hashtags</h3>
-							<input name="disabled-hashtag"></input>
+						<div id="search-hashtags-to-disable">
+							<h3>Search hashtags to disable</h3>
+							<input name="hashtags-to-disable"></input>
 						</div>
 					</div>
+					<h:form id="disable-form" style="display: none;">
+						<h:inputHidden id="hashtag-to-disable" />
+						<h:commandButton id="disable-form-submit">
+							<f:ajax execute="@form" listener="#{dashboardBean.disableHashtag()}" />
+						</h:commandButton>
+					</h:form>
+					<h:form id="enable-form" style="display: none;">
+						<h:inputHidden id="hashtag-to-enable" />
+						<h:commandButton id="enable-form-submit">
+							<f:ajax execute="@form" listener="#{dashboardBean.enableHashtag()}" />
+						</h:commandButton>
+					</h:form>
 				</div>	
 			</div>
 		</div>

@@ -62,6 +62,15 @@ public class AnalyticalEventsObserver implements EventObserver {
 					Long timestamp = data.get("timestamp").getAsLong();
 					Long count = data.get("count").getAsLong();
 					uasDBManager.updateInstanceLoggedUsersCount(new InstanceLoggedUsersCount(instance, timestamp, count));
+				} else if (analyticsEvent.getDataName().equals(DataName.DISABLEDHASHTAGS)) {
+					JsonObject data = analyticsEvent.getData();
+					String hashtag = data.get("hashtag").getAsString();
+					String action = data.get("action").getAsString();
+					if ("disable".equals(action)) {
+						twitterDbManager.disableTwitterHashtag(hashtag);
+					} else {
+						twitterDbManager.enableTwitterHashtag(hashtag);
+					}
 				} else {
 					dbManager.insertAnalyticsEventRecord(analyticsEvent);
 				}

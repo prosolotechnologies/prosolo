@@ -29,9 +29,9 @@ public class TwitterHashtagStatisticsJob implements Job {
 			Long current = result.get(count.getHashtag());
 			result.put(count.getHashtag(), current == null ? count.getCount() : count.getCount() + current);
 		}
-		List<String> disabled = dbManager.getDisabledTwitterHashtags();
 		for(String hashtag : result.keySet()) {
-			dbManager.updateTwitterHashtagWeeklyAverage(hashtag, date.getTime(), result.get(hashtag).doubleValue() / 7, disabled.contains(hashtag));
+			dbManager.deleteTwitterHashtagWeeklyAverage(hashtag);
+			dbManager.updateTwitterHashtagWeeklyAverage(hashtag, date.getTime(), result.get(hashtag).doubleValue() / 7);
 		}
 	}
 

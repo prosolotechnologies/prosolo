@@ -137,7 +137,10 @@ public class TwitterHashtagStatisticsService {
 	public Response getAverage(@QueryParam("page") long page, @QueryParam("paging") long paging) throws ParseException {
 		logger.debug("Service 'getAverage' called with parameters: page: {}.", page);
 		List<TwitterHashtagWeeklyAverage> averages = dbManager.getTwitterHashtagWeeklyAverage(yesterday());
-		List<TwitterHashtagWeeklyAverage> results = averages.stream().sorted(Comparator.reverseOrder()).skip((page - 1) * paging).limit(paging).collect(Collectors.toList());
+		List<String> disabled = dbManager.getDisabledTwitterHashtags();
+		List<TwitterHashtagWeeklyAverage> results = averages.stream().filter((e) -> {
+			return !disabled.contains(e.getHashtag());
+		}).sorted(Comparator.reverseOrder()).skip((page - 1) * paging).limit(paging).collect(Collectors.toList());
 		List<Map<String, String>> result = new ArrayList<>();
 		int number = (int) ((page - 1) * paging + 1);
 		for(TwitterHashtagWeeklyAverage average : results) {

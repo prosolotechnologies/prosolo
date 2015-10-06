@@ -18,7 +18,9 @@ public interface TwitterHashtagStatisticsDBManager {
 	
 	void decrementTwitterHashtagUsersCount(String hashtag);
 	
-	void updateTwitterHashtagWeeklyAverage(String hashtag, Long timestamp, Double average, Boolean b);
+	void deleteTwitterHashtagWeeklyAverage(String hashtag);
+	
+	void updateTwitterHashtagWeeklyAverage(String hashtag, Long timestamp, Double average);
 
 	List<TwitterHashtagWeeklyAverage> getTwitterHashtagWeeklyAverage(Long timestamp);
 	

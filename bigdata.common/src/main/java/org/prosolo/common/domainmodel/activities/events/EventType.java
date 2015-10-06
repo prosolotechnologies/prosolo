@@ -88,7 +88,7 @@ public enum EventType {
 	ACTIVATE_COURSE, 
 	ACTIVITY_REPORT_AVAILABLE, 
 	MENTIONED, UPDATE_HASHTAGS, PostUpdate,
-	;
+	HASHTAG_ENABLED, HASHTAG_DISABLED;
 	
 	private String customText;
 	

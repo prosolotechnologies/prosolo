@@ -8,8 +8,6 @@ public class TwitterHashtagWeeklyAverage implements Comparable<TwitterHashtagWee
 
 	private double average;
 	
-	private boolean disabled;
-
 	public String getHashtag() {
 		return hashtag;
 	}
@@ -34,19 +32,10 @@ public class TwitterHashtagWeeklyAverage implements Comparable<TwitterHashtagWee
 		this.average = average;
 	}
 
-	public boolean isDisabled() {
-		return disabled;
-	}
-
-	public void setDisabled(boolean disabled) {
-		this.disabled = disabled;
-	}
-
-	public TwitterHashtagWeeklyAverage(String hashtag, long timestamp, double average, boolean disabled) {
+	public TwitterHashtagWeeklyAverage(String hashtag, long timestamp, double average) {
 		this.hashtag = hashtag;
 		this.timestamp = timestamp;
 		this.average = average;
-		this.disabled = disabled;
 	}
 
 	@Override

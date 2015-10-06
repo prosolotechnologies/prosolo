@@ -250,6 +250,19 @@ $(function () {
 					td.innerHTML = value;
 					return td;			
 				}
+				function button(hashtag) {
+					return $("<button>Disable</button>").click(function() {
+						$(this).attr('disabled', 'disabled');
+						document.querySelector("#disable-form\\:hashtag-to-disable").value = hashtag.hashtag;
+						document.querySelector("#disable-form\\:disable-form-submit").click();
+						return false;
+					})[0];
+				}
+				function tdDisable(button) {
+					var td = $("<td></td>")[0];
+					td.appendChild(button);
+					return td;
+				}
 				hashtagsInTable = [];
 				data.results.map(function(hashtag) {
 					hashtagsInTable.push(hashtag.hashtag)
@@ -259,7 +272,7 @@ $(function () {
 					tr.appendChild(td(hashtag.hashtag));
 					tr.appendChild(td(hashtag.average));
 					tr.appendChild(td(hashtag.users));
-					tr.appendChild(td(0));
+					tr.appendChild(tdDisable(button(hashtag)));
 					tbody.appendChild(tr);
 				});
 				
@@ -318,7 +331,7 @@ $(function () {
 			return false;
 		});
 		
-		load();
+		load();		
 	})();
 	
 	
