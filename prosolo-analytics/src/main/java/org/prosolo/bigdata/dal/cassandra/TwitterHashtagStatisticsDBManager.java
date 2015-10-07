@@ -24,6 +24,8 @@ public interface TwitterHashtagStatisticsDBManager {
 
 	List<TwitterHashtagWeeklyAverage> getTwitterHashtagWeeklyAverage(Long timestamp);
 	
+	List<String> getEnabledTwitterHashtags(Long timestamp);
+	
 	List<String> getDisabledTwitterHashtags();
 	
 	TwitterHashtagUsersCount getTwitterHashtagUsersCount(String hashtag);

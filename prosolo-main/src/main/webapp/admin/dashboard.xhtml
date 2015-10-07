@@ -155,6 +155,7 @@
 						<div id="search-hashtags-to-disable">
 							<h3>Search hashtags to disable</h3>
 							<input name="hashtags-to-disable"></input>
+							<button id="disable-hashtag">Disable</button>
 						</div>
 					</div>
 					<h:form id="disable-form" style="display: none;">
@@ -169,6 +170,11 @@
 							<f:ajax execute="@form" listener="#{dashboardBean.enableHashtag()}" />
 						</h:commandButton>
 					</h:form>
+					<div id="disable-request-notification">
+						<p>
+							Disable request sent.
+						</p>
+					</div>
 				</div>	
 			</div>
 		</div>

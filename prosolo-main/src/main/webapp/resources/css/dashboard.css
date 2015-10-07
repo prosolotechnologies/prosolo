@@ -230,10 +230,10 @@
 	color: #ccc;
 }
 
-#dashboard #disabled-hashtags-dialog {
+#disabled-hashtags-dialog {
 	display: none;
 }
 
-#dashboard #disabled-hashtag-dialog {
-	
+#disable-request-notification {
+	display: none;
 }

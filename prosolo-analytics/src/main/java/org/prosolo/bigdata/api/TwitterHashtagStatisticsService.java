@@ -87,6 +87,7 @@ public class TwitterHashtagStatisticsService {
 		return counts.stream().mapToLong(TwitterHashtagDailyCount::getCount).sum();
 	}
 	
+	@SuppressWarnings("unused")
 	private class Averages {
 		
 		private long pages = 0;
@@ -152,6 +153,17 @@ public class TwitterHashtagStatisticsService {
 
 	private long pages(long size, long paging) {
 		return size / paging + (size % paging > 0 ? 1 : 0);
+	}
+	
+	@GET
+	@Path("/enabled")
+	@Produces({ MediaType.APPLICATION_JSON })
+	public Response getEnabled(@QueryParam("term") String term) {
+		logger.debug("Service 'getDisabled' called.");
+		List<String> disabled = dbManager.getDisabledTwitterHashtags();
+		return ResponseUtils.corsOk(dbManager.getEnabledTwitterHashtags(yesterday()).stream().filter((hashtag) -> {
+			return term != null && !disabled.contains(hashtag) && hashtag.toLowerCase().startsWith(term.toLowerCase());
+		}).collect(Collectors.toList()));
 	}
 	
 	@GET

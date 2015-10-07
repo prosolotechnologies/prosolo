@@ -45,6 +45,8 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 	
 	private static final String FIND_TWITTER_HASHTAG_WEEKLY_AVERAGE = "FIND_TWITTER_HASHTAG_WEEKLY_AVERAGE";
 	
+	private static final String FIND_ENABLED_TWITTER_HASHTAGS = "FIND_ENABLED_TWITTER_HASHTAGS";
+	
 	private static final String FIND_DISABLED_TWITTER_HASHTAGS = "FIND_DISABLED_TWITTER_HASHTAGS";
 	
 	private static final String FIND_TWITTER_HASHTAG_USERS_COUNT = "FIND_TWITTER_HASHTAG_USERS_COUNT";
@@ -60,6 +62,7 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 		statements.put(DISABLE_TWITTER_HASHTAG, "INSERT INTO disabledtwitterhashtags (hashtag) values (?);");
 		statements.put(ENABLE_TWITTER_HASHTAG, "DELETE FROM disabledtwitterhashtags WHERE hashtag = ?;");
 		statements.put(FIND_TWITTER_HASHTAG_WEEKLY_AVERAGE, "SELECT * FROM twitterhashtagweeklyaverage WHERE timestamp>=? ALLOW FILTERING;");
+		statements.put(FIND_ENABLED_TWITTER_HASHTAGS, "SELECT hashtag FROM twitterhashtagweeklyaverage WHERE timestamp>=? ALLOW FILTERING;");		
 		statements.put(FIND_DISABLED_TWITTER_HASHTAGS, "SELECT hashtag FROM disabledtwitterhashtags;");
 		statements.put(FIND_TWITTER_HASHTAG_USERS_COUNT, "SELECT * FROM twitterhashtaguserscount WHERE hashtag=?;");
 	}
@@ -236,6 +239,15 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 		}
 		return null;
 	}
+	
+	@Override
+	public List<String> getEnabledTwitterHashtags(Long timestampFrom) {
+		PreparedStatement prepared = getStatement(getSession(), FIND_ENABLED_TWITTER_HASHTAGS);
+		BoundStatement statement = statement(prepared, timestampFrom);
+		return map(query(statement), (Row row) -> {
+			return row.getString("hashtag");
+		});
+	}
 
 	@Override
 	public List<String> getDisabledTwitterHashtags() {
@@ -252,6 +264,5 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 		BoundStatement statement = statement(prepared);
 		return Long.valueOf(query(statement).size());
 	}
-
 
 }

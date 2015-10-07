@@ -380,12 +380,12 @@ $(function () {
 	(function () {
 	    $("#disabled-hashtags-dialog").dialog({
 	    	resizable: false,
-	    	  title: "Disabled hashtags",
-	          width: 'auto',
-	          height: 'auto',
-		      modal: true,
-		      autoOpen: false,
-		      close: function() { $("#disabled-hashtags-table tbody").html(""); }
+	    	title: "Disabled hashtags",
+	        width: 'auto',
+	        height: 'auto',
+		    modal: true,
+		    autoOpen: false,
+		    close: function() { $("#disabled-hashtags-table tbody").html(""); }
 	    });
 	    $("#view-disabled-hashtags").click(function() {
 	    	$.ajax({
@@ -427,5 +427,45 @@ $(function () {
 	    	});
 	    });
 	})();
+	
+    $("[name='hashtags-to-disable']").autocomplete({
+        source: function(request, response) {
+        	"http://" + host() + "/api/twitter/hashtag/enabled";
+        	$.ajax({
+	    		url : "http://" + host() + "/api/twitter/hashtag/enabled",
+	    		type : "GET",
+	    		crossDomain : true,
+	    		dataType : 'json',
+	    		data : { 
+	    			term : request.term
+	    		}
+	    	}).done(function(data) {
+	    		response(data);
+	    	});
+        },
+        minLength: 2
+    });
+    
+    $("#disable-hashtag").click(function() {
+    	var hashtag = $("[name='hashtags-to-disable']").val();
+    	if (!hashtag) {
+    		return;
+    	}
+		document.querySelector("#disable-form\\:hashtag-to-disable").value = hashtag;
+		document.querySelector("#disable-form\\:disable-form-submit").click();
+		$("[name='hashtags-to-disable']").val("");
+		$("#disable-request-notification").dialog({
+	    	resizable: false,
+	    	title: "Disable request notification.",
+	        width: 'auto',
+	        height: 'auto',
+		    modal: true,
+		    autoOpen: true,
+		    buttons: {
+		    	"Ok": function() { $(this).dialog("close"); }
+		    }
+	    });
+    	return false;
+    });
 
 });
