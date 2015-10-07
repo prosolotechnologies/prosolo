@@ -46,7 +46,7 @@
 			<h:panelGroup layout="block" id="userActions" class="actions sideBoxFrame">
 				<div class="sideContent">
 					<h:link class="button gray size30 left publicProfile"
-						onclick="sendLogPageNavigation('publicprofile.xhtml', 'profile.actions');"
+						onclick="sendLogPageNavigation('profile', 'profile.actions');"
 						value="Public Profile" outcome="/publicprofile">
 						<f:param name="user" value="#{loggeduser.user.id}" />
 					</h:link>
@@ -187,7 +187,7 @@
 					<div class="infoContainer">
 						<h2 class="name">
 							<h:link value="#{loggeduser.name} #{loggeduser.user.lastname}"
-								onclick="sendLogPageNavigation('publicprofile.xhtml', 'profile.info');" 
+								onclick="sendLogPageNavigation('profile', 'profile.info');" 
 								outcome="/publicprofile">
 								<f:param name="user" value="#{loggeduser.user.id}" />
 							</h:link>
@@ -212,7 +212,7 @@
 							
 							<h:link outcome="/settings"
 								class="button gray size20 right fontWeightNornal"
-								onclick="sendLogPageNavigation('settings.xhtml?tab=socialNetworks', 'profile.info.socialNetworks.edit');"
+								onclick="sendLogPageNavigation('settings/socialNetworks', 'profile.info.socialNetworks.edit');"
 								value="Edit">
 								<f:param  name="tab" value="socialNetworks" />
 								<f:param  name="origin" value="#{request.requestURI}" />

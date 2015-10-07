@@ -237,7 +237,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 				loggingService.logEvent(EventType.LOGIN, this.user, this.getIpAddress());
 				// return "index?faces-redirect=true";
 				logger.info("REDIRECTING TO INDEX");
-				FacesContext.getCurrentInstance().getExternalContext().redirect("index.xhtml");
+				FacesContext.getCurrentInstance().getExternalContext().redirect("");
 				return;
 			}
 		} catch (org.prosolo.services.authentication.exceptions.AuthenticationException e) {
@@ -248,7 +248,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		
 		PageUtil.fireErrorMessage("loginMessage", "Email or password incorrect.", null);
 		try {
-			FacesContext.getCurrentInstance().getExternalContext().redirect("/login.xhtml?faces-redirect=true");
+			FacesContext.getCurrentInstance().getExternalContext().redirect("/login?faces-redirect=true");
 			return;
 		} catch (IOException e) {
 			logger.error(e.getMessage());
@@ -269,12 +269,12 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 				logger.debug("User \"" + email + "\" IP address:" + ipAddress);
 				eventFactory.generateEvent(EventType.LOGIN, user);
 				logger.debug("User \"" + email + "\" redirecting user to index page");
-				FacesContext.getCurrentInstance().getExternalContext().redirect("index.xhtml");
+				FacesContext.getCurrentInstance().getExternalContext().redirect("");
 				return;
 			}
 		
 			PageUtil.fireErrorMessage("loginMessage", "Email or password incorrect.", null);
-			FacesContext.getCurrentInstance().getExternalContext().redirect("login.xhtml");
+			FacesContext.getCurrentInstance().getExternalContext().redirect("login");
 		} catch (org.prosolo.services.authentication.exceptions.AuthenticationException e) {
 			logger.debug("Authentication exception", e);
 			
@@ -288,7 +288,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	public void checkIfLoggedIn() {
 		if (isLoggedIn()) {
 			try {
-				FacesContext.getCurrentInstance().getExternalContext().redirect("index.xhtml");
+				FacesContext.getCurrentInstance().getExternalContext().redirect("");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -311,7 +311,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		user = null;
 		
 		try {
-			FacesContext.getCurrentInstance().getExternalContext().redirect("login.xhtml?faces-redirect=true");
+			FacesContext.getCurrentInstance().getExternalContext().redirect("login?faces-redirect=true");
 		} catch (IOException e) {
 			logger.error(e);
 		}

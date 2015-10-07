@@ -1,1 +1,1 @@
-<% response.sendRedirect("competences.xhtml"); %>
+<% response.sendRedirect("competences"); %>

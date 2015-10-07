@@ -161,7 +161,7 @@ public class ManageCourseBean implements Serializable {
 			
 			ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
 			context.getFlash().setKeepMessages(true);
-			context.redirect(context.getRequestContextPath() + "/manage/courses.xhtml");
+			context.redirect(context.getRequestContextPath() + "/manage/credentials");
 		} catch (EventException e) {
 			logger.error(e);
 		} catch (IOException e) {

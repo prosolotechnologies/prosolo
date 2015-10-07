@@ -78,13 +78,13 @@
 		 				 	<div class="category">
 		 				 		Activities(#{searchActivitiesBean.activitiesSize})
 		 				 		<span class="right">
-									<h:outputLink class="seeAllLink" 
-										onclick="sendLogPageNavigation('search.xhtml?tab=activities','#{cc.attrs.context}');" 
-										value="search.xhtml">
-										<h:outputText value="See all" />
+									<h:link class="seeAllLink" 
+										onclick="sendLogPageNavigation('search/activities', '#{cc.attrs.context}');" 
+										outcome="/search"
+										value="See all">
 										<f:param name="tab" value="activities" />
 										<f:param name="query" value="" />
-									</h:outputLink>
+									</h:link>
 								</span>
 							</div>
 		 				 	

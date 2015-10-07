@@ -97,14 +97,6 @@
 					</ul>
 				</div>
 				
-				<h:panelGroup rendered="#{!cc.attrs.readOnly}">
-				<script>
-					$(function(){
-						enableDropdown('#'+escapeColons('#{cc.clientId}:vis')+' .drop');
-					});
-				</script>
-				</h:panelGroup>
-				
 				<utilcomp:tooltip target=".hasTooltip[title]" />
 			</h:panelGroup>
 		</c:if>

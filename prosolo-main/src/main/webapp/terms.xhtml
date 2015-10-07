@@ -35,7 +35,7 @@
 						<h:link
 							id="loginButton"
 							class="button blue size30 right"
-							onclick="sendLogPageNavigation( 'login.xhtml', 'publicPage.mainmenu');" 
+							onclick="sendLogPageNavigation( 'login', 'publicPage.mainmenu');" 
 							value="Login" 
 							outcome="/login"/>
 						
@@ -55,7 +55,7 @@
 				if (getParameterByName('backAction') == 'true') {
 					$('#link').append('<a onclick="window.close()" class="button gray size30 left">Back</a>');
 				} else if (document.referrer.length > 0) {
-					if (!document.referrer.contains('register.xhtml')) {
+					if (!document.referrer.contains('register')) {
 						$('#link').append('<a href="'+document.referrer+'" class="button gray size30 left">Back</a>');
 					}
 				}

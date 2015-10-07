@@ -64,7 +64,7 @@
 					<div class="mainLogos">
 						
 						<h:link
-							onclick="sendLogPageNavigation('/admin/users.xhtml','mainmenu');" 
+							onclick="sendLogPageNavigation('/admin/users','mainmenu');" 
 							outcome="/admin/users">
 							<span class="secAdmin"></span>
 						</h:link>
@@ -77,14 +77,14 @@
 							<div class="dropdown hidden">
 								<ul>
 									<li>
-										<h:link onclick="sendLogPageNavigation('index.xhtml','mainmenu');" 
+										<h:link onclick="sendLogPageNavigation('index','mainmenu');" 
 											outcome="/index">
 											<span class="logo"></span>
 										</h:link>
 									</li>
 									<li>
 										<h:link rendered="#{loggeduser.hasRole('manager')}"
-											onclick="sendLogPageNavigation( '/manage/competences.xhtml', 'mainmenu');" 
+											onclick="sendLogPageNavigation( '/manage/competences', 'mainmenu');" 
 											outcome="/manage/competences">
 											<span class="secManage"></span>
 										</h:link>
@@ -96,29 +96,29 @@
 				
 					<h:form>
 						<ul class="navigation"> 
-							<li class="#{util:getPagePath(view.viewId)  == '/admin/users.xhtml' ? 'selected' : ''}">
+							<li class="#{util:getPagePath(view.viewId)  == 'users' ? 'selected' : ''}">
 								<h:link 
-									onclick="sendLogPageNavigation( '/admin/users.xhtml','mainmenu');"
+									onclick="sendLogPageNavigation( '/admin/users','mainmenu');"
 									value="Users" 
 									outcome="/admin/users" />
 							</li>
-							<li class="#{util:getPagePath(view.viewId)  == '/admin/roles.xhtml' ? 'selected' : ''}">
+							<li class="#{util:getPagePath(view.viewId)  == 'roles' ? 'selected' : ''}">
 								<h:link
-									onclick="sendLogPageNavigation( '/admin/roles.xhtml','mainmenu');"
+									onclick="sendLogPageNavigation( '/admin/roles','mainmenu');"
 									value="Roles"
 									outcome="/admin/roles" />
 							</li>
-							<li class="#{util:getPagePath(view.viewId)  == '/admin/dashboard.xhtml' ? 'selected' : ''}">
+							<li class="#{util:getPagePath(view.viewId)  == 'dashboard' ? 'selected' : ''}">
 								<h:link
-									onclick="sendLogPageNavigation( '/admin/dashboard.xhtml','mainmenu');"
+									onclick="sendLogPageNavigation( '/admin/dashboard','mainmenu');"
 									value="Dashboard"
 									outcome="/admin/dashboard" />
 							</li>
-							<li class="#{util:getPagePath(view.viewId)  == '/admin/generalSettings.xhtml' ? 'selected' : ''}">
+							<li class="#{util:getPagePath(view.viewId)  == 'settings' ? 'selected' : ''}">
 								<h:link
-									onclick="sendLogPageNavigation( '/admin/generalSettings.xhtml', 'mainmenu');"
+									onclick="sendLogPageNavigation( '/admin/settings', 'mainmenu');"
 									value="Settings"
-									outcome="/admin/generalSettings" />
+									outcome="/admin/settings" />
 							</li>
 						</ul>
 					</h:form>
@@ -152,25 +152,25 @@
 								<h:form id="userLogoutFormId">
 									<li>
 										<h:link 
-											onclick="sendLogPageNavigation('diggest.xhtml','mainmenu');" 
+											onclick="sendLogPageNavigation('diggest','mainmenu');" 
 											value="Digest" 
 											outcome="/digest" />
 									</li>
 									<li>
 										<h:link 
-											onclick="sendLogPageNavigation('communications.xhtml','mainmenu');" 
+											onclick="sendLogPageNavigation('communications','mainmenu');" 
 											value="Communications" 
 											outcome="/communications" />
 									</li>
 									<li>
 										<h:link 
-											onclick="sendLogPageNavigation('search.xhtml','mainmenu');" 
+											onclick="sendLogPageNavigation('search','mainmenu');" 
 											value="Search" 
 											outcome="/search" />
 									</li>
 									<li>
 										<h:link 
-											onclick="sendLogPageNavigation('settings.xhtml','mainmenu');" 
+											onclick="sendLogPageNavigation('settings','mainmenu');" 
 											value="Settings" 
 											outcome="/settings" />
 									</li>

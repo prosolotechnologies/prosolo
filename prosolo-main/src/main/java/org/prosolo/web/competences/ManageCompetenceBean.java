@@ -148,7 +148,7 @@ public class ManageCompetenceBean implements Serializable {
 				if (origin != null && !origin.isEmpty()) {
 					destination = origin;
 				} else {
-					destination = "/manage/competences.xhtml";
+					destination = "/manage/competences";
 				}
 				
 				context.redirect(context.getRequestContextPath() + destination);

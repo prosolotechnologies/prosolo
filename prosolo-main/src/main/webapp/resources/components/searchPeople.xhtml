@@ -70,13 +70,13 @@
 							<div class="category">
 								Collegues (#{searchPeopleBean.userSize})
 								<span class="right">
-									<h:outputLink class="seeAllLink" id="seeAllLinkId" 
-										onclick="sendLogPageNavigation( 'search.xhtml?tab=people', '#{cc.attrs.context}');"
-										value="search.xhtml">
-										<h:outputText value="See all" />
+									<h:link class="seeAllLink" id="seeAllLinkId" 
+										onclick="sendLogPageNavigation( 'search/people', '#{cc.attrs.context}');"
+										outcome="/search"
+										value="See all">
 										<f:param name="tab" value="people" />
 										<f:param name="query" value="" />
-									</h:outputLink>
+									</h:link>
 								</span>
 							</div>
 	

@@ -117,7 +117,7 @@
 								<span class="nobreak">
 									<h:outputText rendered="#{hashTagIterator.index > 0}" value="," />
 									<h:link value="##{hashtag}" outcome="/search"
-										onclick="sendLogPageNavigation('search.xhtml?tab=hashtags','#{cc.attrs.context}.post.#{cc.attrs.actData.socialActivity.id}');">
+										onclick="sendLogPageNavigation('search/hashtags','#{cc.attrs.context}.post.#{cc.attrs.actData.socialActivity.id}');">
 										<f:param  name="tab" value="hashtags" />
 										<f:param  name="query" value="#{hashtag}" />
 									</h:link>
@@ -254,7 +254,7 @@
 							className: 'hashtag',
 							tagType: 'a',
 							onClickCallback: function(elem, hashtag) {
-								$(elem).attr('href', 'search.xhtml?tab=hashtags&amp;query='+hashtag);
+								$(elem).attr('href', 'search/hashtags&amp;query='+hashtag);
 							}
 						});
 

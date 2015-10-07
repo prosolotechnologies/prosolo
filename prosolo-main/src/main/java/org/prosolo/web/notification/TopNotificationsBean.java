@@ -314,7 +314,7 @@ public class TopNotificationsBean {
 			
 			PageUtil.fireSuccessfulInfoMessage("notificationsGrowl", "You accepted request to join learning goal '"+ request.getResource().getTitle()+"'.");
 			
-			String redirectUrl = String.format("learn.xhtml?id=%s", newTargetGoal.getId());
+			String redirectUrl = String.format("learn/%s", newTargetGoal.getId());
 			
 			FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
 			FacesContext.getCurrentInstance().getExternalContext().redirect(redirectUrl);
@@ -550,9 +550,9 @@ public class TopNotificationsBean {
 				
 				
 				FacesContext.getCurrentInstance().getExternalContext().redirect(
-						"learn.xhtml?" +
-						"id=" + targetGoal.getId() +
-						"&comp=" + tComp.getId() +
+						"learn" +
+						"/" + targetGoal.getId() +
+						"/" + tComp.getId() +
 						"&faces-redirect=true"+
 						"#ev=" + evaluation.getId()
 						);
@@ -601,7 +601,7 @@ public class TopNotificationsBean {
 			}
 			
 			if (evaluation != null) {
-				FacesContext.getCurrentInstance().getExternalContext().redirect("profile.xhtml?ev="+evaluation.getId());
+				FacesContext.getCurrentInstance().getExternalContext().redirect("profile?ev="+evaluation.getId());
 				return;
 			}
 //		} else if (type.equals(EventType.EVALUATION_EDITED)) {
@@ -611,13 +611,13 @@ public class TopNotificationsBean {
 		} else if (type.equals(EventType.JOIN_GOAL_INVITATION_ACCEPTED)) {
 			Request request = (Request) resource;
 			
-			FacesContext.getCurrentInstance().getExternalContext().redirect("learn.xhtml?id="+request.getResource().getId());
+			FacesContext.getCurrentInstance().getExternalContext().redirect("learn/"+request.getResource().getId());
 		} else if (type.equals(EventType.JOIN_GOAL_REQUEST_APPROVED)) {
 			NodeRequest request = (NodeRequest) resource;
 			
-			FacesContext.getCurrentInstance().getExternalContext().redirect("learn.xhtml?id="+request.getResolutionResource().getId());
+			FacesContext.getCurrentInstance().getExternalContext().redirect("learn/"+request.getResolutionResource().getId());
 		} else if (type.equals(EventType.ACTIVITY_REPORT_AVAILABLE)){
-			FacesContext.getCurrentInstance().getExternalContext().redirect("settings.xhtml?tab=reports");
+			FacesContext.getCurrentInstance().getExternalContext().redirect("settings/reports");
 		} else if (type.equals(EventType.Comment)) {
 			notification = HibernateUtil.initializeAndUnproxy(notification);
 			
@@ -625,9 +625,9 @@ public class TopNotificationsBean {
 			
 			if (commentedResource instanceof SocialActivity) {
 				FacesContext.getCurrentInstance().getExternalContext().redirect(
-						"post.xhtml" +
-						"?id="+commentedResource.getId() + 
-						"&comment="+resource.getId());
+						"post" +
+						"/" + commentedResource.getId() + 
+						"/" + resource.getId());
 			}
 		} else if (type.equals(EventType.Like) || type.equals(EventType.Dislike)) {
 			notification = HibernateUtil.initializeAndUnproxy(notification);
@@ -636,8 +636,8 @@ public class TopNotificationsBean {
 			
 			if (res instanceof SocialActivity) {
 				FacesContext.getCurrentInstance().getExternalContext().redirect(
-						"post.xhtml" +
-						"?id="+res.getId());
+						"post" +
+						"/"+res.getId());
 			}
 		} else if (type.equals(EventType.MENTIONED)) {
 			notification = HibernateUtil.initializeAndUnproxy(notification);
@@ -647,8 +647,8 @@ public class TopNotificationsBean {
 			SocialActivity socialActivity = activityWallManager.getSocialActivityOfPost(post);
 			
 			FacesContext.getCurrentInstance().getExternalContext().redirect(
-					"post.xhtml" +
-							"?id="+socialActivity.getId());
+					"post" +
+					"/" + socialActivity.getId());
 		}
 	}
 	

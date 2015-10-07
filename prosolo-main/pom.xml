@@ -117,8 +117,8 @@
 
 		<dependency>
 			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<version>3.0-alpha-1</version>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.1.0</version>
 		</dependency>
 
 		<dependency>
@@ -143,10 +143,18 @@
 			<version>1.4.5</version>
 		</dependency>
 
-		<!-- for JSF 2.x <dependency> <groupId>org.ocpsoft.rewrite</groupId> <artifactId>rewrite-servlet</artifactId> 
-			<version>2.0.12.Final</version> </dependency> <dependency> <groupId>org.ocpsoft.rewrite</groupId> 
-			<artifactId>rewrite-config-prettyfaces</artifactId> <version>2.0.12.Final</version> 
-			</dependency> -->
+		<!-- for JSF 2.x -->
+		<dependency>
+		    <groupId>org.ocpsoft.rewrite</groupId>
+		    <artifactId>rewrite-servlet</artifactId>
+		    <version>2.0.12.Final</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.ocpsoft.rewrite</groupId>
+		    <artifactId>rewrite-integration-faces</artifactId>
+		    <version>2.0.12.Final</version>
+		</dependency>
 
 		<!-- MySQL Database dependencies -->
 		<dependency>
@@ -632,6 +640,11 @@
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
+		</repository>
+		<!-- To use snapshots, you must also use the Sonatype Snapshots respository -->
+		<repository>
+		   <id>sonatype-snapshots</id>
+		   <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
 		</repository>
 		<repository>
 			<id>jboss-public-repository-group</id>

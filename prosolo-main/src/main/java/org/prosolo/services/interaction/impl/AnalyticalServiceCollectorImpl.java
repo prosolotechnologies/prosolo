@@ -108,13 +108,13 @@ public class AnalyticalServiceCollectorImpl implements AnalyticalServiceCollecto
     	case SELECT_COMPETENCE :
     		return "competencesviews";
     	case NAVIGATE :
-    		if ("page".equals(params.get("objectType")) && "index.xhtml".equals(params.get("link"))) {
+    		if ("page".equals(params.get("objectType")) && "index".equals(params.get("link"))) {
     			return "homepagevisited";
     		}
-    		if ("page".equals(params.get("objectType")) && "learn.xhtml".equals(params.get("link"))) {
+    		if ("page".equals(params.get("objectType")) && "learn".equals(params.get("link"))) {
     			return "goalsviews";
     		}
-    		if ("page".equals(params.get("objectType")) && params.get("link") != null && params.get("link").startsWith("publicprofile.xhtml")) {
+    		if ("page".equals(params.get("objectType")) && params.get("link") != null && params.get("link").startsWith("profile")) {
     			return "profileviews";
     		}
     	default :

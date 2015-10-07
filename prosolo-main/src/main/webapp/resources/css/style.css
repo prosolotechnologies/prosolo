@@ -561,8 +561,7 @@ a .image-wrap {
   width: 100%;
   height: 60px;
   margin-bottom: 30px;
-/*  background: #0288d1; */
-background: #0288d1;
+  background: #0288d1;
   position: fixed;
   top: 0;
   z-index: 700;
@@ -1920,7 +1919,7 @@ h1 a:hover{
 #notifications .container,
 #messages .container {
   width: 320px;
-  /*background-color: #519dd8;*/
+  /*background-color: #0288d1;*/
   font-size: 10px;
   line-height: 14px;
   -webkit-border-radius: 2px;
@@ -2505,7 +2504,7 @@ h1 a:hover{
   position: absolute;
   width: 320px;
   top: 25px;
-  background-color: #519dd8;
+  background-color: #0288d1;
   border-top: none;
   -webkit-border-radius: 2px;
   -moz-border-radius: 2px;
@@ -2662,7 +2661,7 @@ h1 a:hover{
   position: relative;
   width: 320px;
   top: 10px;
-  background-color: #519dd8;
+  background-color: #0288d1;
   border-top: none;
   -webkit-border-radius: 2px;
   -moz-border-radius: 2px;
@@ -10123,7 +10122,7 @@ table tr td .iconConnect,
   width: 320px;
   position : absolute;
   left : 0;
-  background-color: #519dd8;
+  background-color: #0288d1;
   -webkit-border-radius: 2px;
   -moz-border-radius: 2px;
   border-radius: 2px;

@@ -23,14 +23,19 @@
 			
 				<div class="detailsRead">
 					<c:if test="#{loggeduser != null and loggeduser.loggedIn}">
-						<h:link value="Edit"
-							class="button blue size30 right marginTop5"
-							rendered="#{loggeduser.manager}"
-							outcome="/manage/competence">
-							<f:param name="id" value="#{competenceDialog.formData.id}" />
-						</h:link>					
+						<ui:remove>
+							<h:link value="Edit"
+								class="button blue size30 right marginTop5"
+								rendered="#{loggeduser.manager}"
+								outcome="/manage/competence">
+								<f:param name="id" value="#{competenceDialog.formData.id}" />
+							</h:link>
+							<!-- 
+							<p:commandLink rendered="#{!loggeduser.manager and competenceDialog.owner}"
+							 -->
+						</ui:remove>
 
-						<p:commandLink rendered="#{!loggeduser.manager and competenceDialog.owner}"
+						<p:commandLink rendered="#{competenceDialog.owner}"
 							value="Edit"
 							onclick="toggleEditMode('.detailsRead', '.detailsEdit')" 
 							styleClass="button blue size30 right marginTop5"
@@ -110,7 +115,7 @@
 					</script>
 				</div>
 				
-				<c:if test="#{loggeduser != null and loggeduser.loggedIn and !loggeduser.manager and competenceDialog.owner}">
+				<c:if test="#{loggeduser != null and loggeduser.loggedIn and competenceDialog.owner}">
 					<div class="detailsEdit hidden">
 						<p:commandLink
 							styleClass="button blue size30 right marginTop5"
@@ -303,7 +308,7 @@
 							
 						<p:commandLink value="CONNECT" 
 							styleClass="button green size30 left" 
-							rendered="#{view.viewId == '/learn.xhtml' and !competenceDialog.formData.ownedByUser
+							rendered="#{view.viewId == '/learn' and !competenceDialog.formData.ownedByUser
 									and competenceDialog.canBeConnected}"
 							onclick="$('#competenceDetailsFormModalDialog').dialog('close');"
 							action="#{competencesBean.connectCompetence(competenceDialog.competence)}"

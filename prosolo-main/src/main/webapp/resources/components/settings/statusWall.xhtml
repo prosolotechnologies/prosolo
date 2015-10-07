@@ -38,7 +38,9 @@
 					<p:commandLink value="Save"
 						styleClass="button green size20"
 						action="#{twitterBean.updateHashTagsAction}"
-						update=":twitterAccountSettingsForm:twitterFormGrowl" />
+						update=":twitterAccountSettingsForm:twitterFormGrowl">
+						<f:param name="context" value="settings.statusWall" />
+					</p:commandLink>
 				</div>
 						
 				<script>

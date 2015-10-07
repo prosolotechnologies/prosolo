@@ -71,7 +71,7 @@ public class PeopleRecommenderBean implements Serializable {
 			
 			JsonArray loggedUserData = new JsonArray();
 			loggedUserData.add(new JsonPrimitive(loggedUser.getUser().getId()));
-			loggedUserData.add(new JsonPrimitive(Settings.getInstance().config.application.domain + "publicprofile.xhtml?id="+loggedUser.getUser().getId()));
+			loggedUserData.add(new JsonPrimitive(Settings.getInstance().config.application.domain + "profile/"+loggedUser.getUser().getId()));
 			loggedUserData.add(new JsonPrimitive(loggedUser.getName() + " " + loggedUser.getLastName()));
 			if((loggedUser.getUser().getLocationName()!=null && !loggedUser.getUser().getLocationName().equals(""))){
 				loggedUserData.add(new JsonPrimitive(loggedUser.getUser().getLocationName()));
@@ -86,7 +86,7 @@ public class PeopleRecommenderBean implements Serializable {
 				for (UserData locationUserData : locationRecommendedUsers) {
 					JsonArray jsonData = new JsonArray();
 					jsonData.add(new JsonPrimitive(locationUserData.getId()));
-					jsonData.add(new JsonPrimitive(Settings.getInstance().config.application.domain + "publicprofile.xhtml?id="+locationUserData.getId()));
+					jsonData.add(new JsonPrimitive(Settings.getInstance().config.application.domain + "profile/"+locationUserData.getId()));
 					jsonData.add(new JsonPrimitive(locationUserData.getName()));
 					String locName=(locationUserData.getLocationName()!=null ? locationUserData.getLocationName() : "");
 						jsonData.add(new JsonPrimitive(locName));

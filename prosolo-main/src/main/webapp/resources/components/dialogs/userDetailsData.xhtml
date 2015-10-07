@@ -10,7 +10,7 @@
 		<div class="userDetails tooltip user#{userDetailsBean.userData.id}" >
 			<div class="avatarContainer">
 				<h:link class="userDetailsLink"
-					onclick="sendLogPageNavigation('/publicprofile.xhtml?user=#{userDetailsBean.userData.id}','userDetails');"
+					onclick="sendLogPageNavigationWithParameters('/profile', {context: 'userDetails', userId: #{userDetailsBean.userData.id}});"
 					rendered="#{userDetailsBean.userData.profileUrl == null or userDetailsBean.userData.profileUrl.length() == 0}"
 					outcome="/publicprofile" >
 					<f:param name="user" value="#{userDetailsBean.userData.id}" />
@@ -41,7 +41,7 @@
 				<h2 class="name">
 					<h:link rendered="#{userDetailsBean.userData.profileUrl == null or userDetailsBean.userData.profileUrl.length() == 0}"
 						value="#{userDetailsBean.userData.name}" 
-						onclick="sendLogPageNavigation('/publicprofile.xhtml?user=#{userDetailsBean.userData.id}','userDetails');"
+						onclick="sendLogPageNavigation('/publicprofile?user=#{userDetailsBean.userData.id}','userDetails');"
 						outcome="/publicprofile" >
 		                <f:param  name="user" value="#{userDetailsBean.userData.id}" />  
 		            </h:link>

@@ -52,7 +52,7 @@
 		
 		<h:link class="#{cc.attrs.styleClass}" 
 			rendered="#{cc.attrs.directLink and cc.attrs.targetGoalId > 0}"
-			onclick="sendLogPageNavigation('learn.xhtml?id=#{cc.attrs.targetGoalId}','#{cc.attrs.context}');" 
+			onclick="sendLogPageNavigationWithParameters('learn', { context: '#{cc.attrs.context}', targetGoalId: #{cc.attrs.targetGoalId}});" 
 			value="#{cc.attrs.title}" outcome="/learn">
 			<f:param name="id" value="#{cc.attrs.targetGoalId}" />
 		</h:link>

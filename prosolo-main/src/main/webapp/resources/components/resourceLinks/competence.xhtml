@@ -87,7 +87,7 @@
 		<h:link 
 			rendered="#{cc.attrs.directLink and cc.attrs.resourceId > 0}"
 			class="#{cc.attrs.styleClass}" 
-			onclick="sendLogPageNavigation('learn.xhtml?comp=#{cc.attrs.resourceId}','#{cc.attrs.context}');" 
+			onclick="sendLogPageNavigationWithParameters('learn', { context: '#{cc.attrs.context}', targetGoalId: #{cc.attrs.targetGoalId}, targetCompId: #{cc.attrs.resourceId}});" 
 			value="#{cc.attrs.title}" outcome="/learn">
 			<f:param name="id" value="#{cc.attrs.targetGoalId}" />
 			<f:param name="comp" value="#{cc.attrs.resourceId}" />

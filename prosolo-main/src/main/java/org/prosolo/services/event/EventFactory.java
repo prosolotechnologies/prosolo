@@ -67,17 +67,39 @@ public class EventFactory {
 					"Error occured while creating new SetVisibilityEvent. Parameters given can not be null.");
 	}
 
-	public Event generateUpdateHashtagsEvent(User creator, Collection<Tag> oldHashtags, Collection<Tag> newHashtags, Node resource, User user){
+	public Event generateUpdateHashtagsEvent(User creator, Collection<Tag> oldHashtags, Collection<Tag> newHashtags, Node resource, User user, String context){
 		Map<String, String> parameters = new HashMap<String, String>();
-		System.out.println("Generate update hashtags event:"+oldHashtags+" new:"+newHashtags);
-		parameters.put("oldhashtags", AnnotationUtil.getCSVString(oldHashtags,","));
-		parameters.put("newhashtags", AnnotationUtil.getCSVString(newHashtags,","));
+		parameters.put("oldhashtags", AnnotationUtil.getCSVString(oldHashtags, ","));
+		parameters.put("newhashtags", AnnotationUtil.getCSVString(newHashtags, ","));
+		parameters.put("context", context);
+		
 		Event genericEvent = new Event(EventType.UPDATE_HASHTAGS);
 		genericEvent.setActor(creator);
 		genericEvent.setDateCreated(new Date());
-		if(resource!=null){
+		
+		if (resource != null) {
 			genericEvent.setObject(resource);
-		}else if (user!=null){
+		} else if (user != null) {
+			genericEvent.setObject(user);
+		}
+		genericEvent.setParameters(parameters);
+		
+		return genericEvent;
+	}
+	
+	public Event generateUpdateTagsEvent(User creator, Collection<Tag> oldTags, Collection<Tag> newTags, Node resource, User user, String context){
+		Map<String, String> parameters = new HashMap<String, String>();
+		parameters.put("oldTags", AnnotationUtil.getCSVString(oldTags, ","));
+		parameters.put("newTags", AnnotationUtil.getCSVString(newTags, ","));
+		parameters.put("context", context);
+		
+		Event genericEvent = new Event(EventType.UPDATE_TAGS);
+		genericEvent.setActor(creator);
+		genericEvent.setDateCreated(new Date());
+		
+		if (resource != null) {
+			genericEvent.setObject(resource);
+		} else if (user != null) {
 			genericEvent.setObject(user);
 		}
 		genericEvent.setParameters(parameters);
@@ -90,19 +112,29 @@ public class EventFactory {
 			Node resource, double newProgress)
 			throws EventException {
 
+		return generateChangeProgressEvent(creator, resource, newProgress, null);
+	}
+	
+	@Transactional(readOnly = false)
+	public ChangeProgressEvent generateChangeProgressEvent(User creator,
+			Node resource, double newProgress, Map<String, String> parameters)
+					throws EventException {
+		
 		if (creator != null && resource != null ) {
 			logger.debug("Generating ChangeProgressEvent because progress of "
 					+ newProgress + " (on the scale "
 					+ ") has been made on the resource " + resource.getId()
 					+ ", created by the user " + creator.getId());
-
+			
 			ChangeProgressEvent changeProgressEvent = new ChangeProgressEvent();
 			changeProgressEvent.setActor(creator);
 			changeProgressEvent.setDateCreated(new Date());
 			changeProgressEvent.setObject(resource);
 			changeProgressEvent.setNewProgressValue(newProgress);
 			
-			Map<String, String> parameters = new HashMap<String, String>();
+			if (parameters == null) {
+				parameters = new HashMap<String, String>();
+			}
 			parameters.put("progress", String.valueOf(newProgress));
 			
 			changeProgressEvent.setParameters(parameters);

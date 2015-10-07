@@ -1,1 +1,1 @@
-<% response.sendRedirect("users.xhtml"); %>
+<% response.sendRedirect("users"); %>

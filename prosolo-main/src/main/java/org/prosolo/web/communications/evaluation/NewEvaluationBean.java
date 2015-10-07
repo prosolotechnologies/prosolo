@@ -153,7 +153,7 @@ public class NewEvaluationBean implements Serializable {
 			}
 			
 			FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
-			FacesContext.getCurrentInstance().getExternalContext().redirect("communications.xhtml?tab=evaluations");
+			FacesContext.getCurrentInstance().getExternalContext().redirect("communications/evaluations");
 		} catch (InvalidParameterException e) {
 			logger.error(e);
 		} catch (EventException e) {
@@ -183,7 +183,7 @@ public class NewEvaluationBean implements Serializable {
 			}
 			
 			FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
-			FacesContext.getCurrentInstance().getExternalContext().redirect("communications.xhtml?tab=evaluations");
+			FacesContext.getCurrentInstance().getExternalContext().redirect("communications/evaluations");
 		} catch (EventException e) {
 			logger.error(e);
 		} catch (InvalidParameterException e) {

@@ -62,25 +62,25 @@
 
 			
 				<h:panelGroup layout="block" class="reminderActionButtons" id="reminderActionButtonsIndex"
-					 rendered="#{view.viewId=='/index.xhtml'}">
+					 rendered="#{view.viewId=='index'}">
 					 
 					<p:commandLink id="dismissReminderButtonIndex" value="DISMISS"
 						styleClass="button green size30 right"
 					 	onclick="$('#remainderDetailsFormModalDialog').dialog('close');"
 						action="#{reminderBeanDialog.dismissReminder()}"
 						process="@this"
-						update=":remindersForm:remindersPanel :reminderDetailsFormDialog:reminderDetailsFormDialogGrowl" />
+						update=":reminderDetailsFormDialog:reminderDetailsFormDialogGrowl" />
 				</h:panelGroup>
 				
 				<h:panelGroup layout="block" class="reminderActionButtons" id="reminderActionButtonsFilter"
-				 	rendered="#{view.viewId!='/index.xhtml'}">
+				 	rendered="#{view.viewId!='index'}">
 				 
 					<p:commandLink id="dismissReminderButtonFilter" value="DISMISS"
 						styleClass="button green size30 right"
 						onclick="$('#remainderDetailsFormModalDialog').dialog('close');"
 						action="#{reminderBeanDialog.dismissReminder()}"
 						process="@this"
-						update=":remindersForm:resultContainer :reminderDetailsFormDialog:reminderDetailsFormDialogGrowl" />
+						update=":reminderDetailsFormDialog:reminderDetailsFormDialogGrowl" />
 						
 				</h:panelGroup>
 			</h:panelGroup>

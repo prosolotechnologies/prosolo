@@ -234,7 +234,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 				logObject.put("parameters", parametersObject);
 			}
 
-			logger.debug("\ntimestamp: " + logObject.get("timestamp") + 
+			logger.info("\ntimestamp: " + logObject.get("timestamp") + 
 		 			"\neventType: " + logObject.get("eventType") + 
 		 			"\nactorId: " + logObject.get("actorId") + 
 		 			"\nactorFullname: " + logObject.get("actorFullname") + 

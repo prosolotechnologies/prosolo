@@ -94,7 +94,7 @@ public class PasswordRecoveryBean {
 			}
 		} else {
 			try {
-				FacesContext.getCurrentInstance().getExternalContext().redirect("login.xhtml");
+				FacesContext.getCurrentInstance().getExternalContext().redirect("login");
 			} catch (IOException e) {
 				logger.error(e.getMessage());
 			}

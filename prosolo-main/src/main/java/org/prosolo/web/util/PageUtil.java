@@ -72,7 +72,7 @@ public class PageUtil {
 
 	public static void redirectToLoginPage() {
 		try {
-			FacesContext.getCurrentInstance().getExternalContext().redirect("login.xhtml?faces-redirect=true");
+			FacesContext.getCurrentInstance().getExternalContext().redirect("login?faces-redirect=true");
 		} catch (IOException e) {
 			logger.error(e);
 		}
@@ -80,6 +80,6 @@ public class PageUtil {
 
 	public static void sendToAccessDeniedPage() throws IOException {
 		FacesContext context = FacesContext.getCurrentInstance();
-		context.getExternalContext().dispatch("accessDenied.xhtml");
+		context.getExternalContext().dispatch("accessDenied");
 	}
 }

@@ -259,7 +259,7 @@ public class CourseBean implements Serializable {
 		try {
 			ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
 			context.getFlash().setKeepMessages(true);
-			context.redirect(context.getRequestContextPath() + "/plan.xhtml");
+			context.redirect(context.getRequestContextPath() + "/plan");
 		} catch (IOException e) {
 			logger.error(e);
 		}

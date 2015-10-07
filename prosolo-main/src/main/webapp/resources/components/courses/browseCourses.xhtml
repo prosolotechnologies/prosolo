@@ -212,7 +212,7 @@
 							<div class="textWrapper">
 								<span class="title">
 									<h:link value="#{courseData.title}" 
-										onclick="sendLogPageNavigationWithParameters('course.xhtml', {context: 'plan.browse.#{courseData.id}.title', courseId: #{courseData.id}});"
+										onclick="sendLogPageNavigationWithParameters('credentials', {context: 'plan.browse.#{courseData.id}.title', courseId: #{courseData.id}});"
 										outcome="#{cc.attrs.courseDetailsPagePath}">
 										<f:param name="id" value="#{courseData.id}" />
 									</h:link>
@@ -317,7 +317,7 @@
 										
 									<h:link class="button green size20 left"
 										rendered="#{cc.attrs.role == 'USER'}"
-										onclick="sendLogPageNavigationWithParameters('course.xhtml', { context: 'plan.browse.#{courseData.id}.details', 'courseId' : '#{courseData.id}'});" 
+										onclick="sendLogPageNavigationWithParameters('course', { context: 'plan.browse.#{courseData.id}.details', 'courseId' : '#{courseData.id}'});" 
 										value="Details" outcome="#{cc.attrs.courseDetailsPagePath}">
 										<f:param name="id" value="#{courseData.id}" />
 									</h:link>

@@ -17,7 +17,7 @@
 				<span class="right calendarLink">
 					<span class="iconCalendar left"></span>
 					<h:link value="Calendar" outcome="/calendar"
-						onclick="sendLogPageNavigation('calendar.xhtml','index.reminders');"
+						onclick="sendLogPageNavigation('calendar', 'index.reminders');"
 						class="font11"
 					/>
 				</span>
@@ -62,7 +62,7 @@
 				<h:panelGroup id="seeAllReminders">
 					<h:panelGroup rendered="#{remindersBean.hasMoreReminders()}">
 						<h:link value="See all" outcome="/search"
-							onclick="sendLogPageNavigation('search.xhtml?tab=reminders','index.reminders');">
+							onclick="sendLogPageNavigation('search/reminders', 'index.reminders');">
 							<f:param  name="tab" value="reminders" />
 						</h:link>
 					</h:panelGroup>

@@ -143,7 +143,7 @@
 					<div id="headerLeft">
 						
 						<div class="mainLogos">
-							<h:link class="indexTripStep3" position="s" onclick="sendLogPageNavigation('index.xhtml','mainmenu');" 
+							<h:link class="indexTripStep3" position="s" onclick="sendLogPageNavigation('index','mainmenu');" 
 								outcome="/index">
 								<span class="logo"></span>
 							</h:link>
@@ -157,14 +157,14 @@
 									<ul>
 										<li>
 											<h:link rendered="#{loggeduser.hasRole('manager')}"
-												onclick="sendLogPageNavigation( '/manage/competences.xhtml', 'mainmenu');" 
+												onclick="sendLogPageNavigation( '/manage/competences', 'mainmenu');" 
 												outcome="/manage/competences">
 												<span class="secManage"></span>
 											</h:link>
 										</li>
 										<li>
 											<h:link rendered="#{loggeduser.hasRole('admin')}"
-												onclick="sendLogPageNavigation( '/admin/users.xhtml', 'mainmenu');"
+												onclick="sendLogPageNavigation( '/admin/users', 'mainmenu');"
 												outcome="/admin/users">
 												<span class="secAdmin"></span>
 											</h:link>
@@ -181,19 +181,19 @@
 										util:getPagePath(view.viewId)  == 'course') ? 'selected' : ''}
 										indexTripStep4 indexTripStep27" position="s">
 									<h:link 
-										onclick="sendLogPageNavigation('plan.xhtml','mainmenu');" 
+										onclick="sendLogPageNavigation('plan','mainmenu');" 
 										value="#{msg['mainmenu.plan']}" 
 										outcome="/plan"/>
 								</li>
 								<li class="#{util:getPagePath(view.viewId)  == 'learn' ? 'selected' : ''}
 									indexTripStep5" position="s">
-									<h:link onclick="sendLogPageNavigation('learn.xhtml','mainmenu');" 
+									<h:link onclick="sendLogPageNavigation('learn','mainmenu');" 
 										value="Learn" outcome="/learn"/>
 								</li>
 								<li	class="#{util:getPagePath(view.viewId)  == 'profile' ? 'selected' : ''}
 									indexTripStep6" position="s">
 									<h:link 
-										onclick="sendLogPageNavigation( 'profile.xhtml','mainmenu');" 
+										onclick="sendLogPageNavigation( 'profile','mainmenu');" 
 										value="Profile" 
 										outcome="/profile"/>
 								</li>
@@ -229,25 +229,25 @@
 									<h:form id="userLogoutFormId">
 										<li class="indexTripStep9" position="w">
 											<h:link 
-												onclick="sendLogPageNavigation('diggest.xhtml','mainmenu');" 
+												onclick="sendLogPageNavigation('diggest','mainmenu');" 
 												value="Digest" 
 												outcome="/digest" />
 										</li>
 										<li class="indexTripStep10" position="w">
 											<h:link 
-												onclick="sendLogPageNavigation('communications.xhtml','mainmenu');" 
+												onclick="sendLogPageNavigation('communications','mainmenu');" 
 												value="Communications" 
 												outcome="/communications" />
 										</li>
 										<li class="indexTripStep11" position="w">
 											<h:link 
-												onclick="sendLogPageNavigation('search.xhtml','mainmenu');" 
+												onclick="sendLogPageNavigation('search','mainmenu');" 
 												value="Search" 
 												outcome="/search" />
 										</li>
 										<li class="indexTripStep13" position="w">
 											<h:link 
-												onclick="sendLogPageNavigation('settings.xhtml','mainmenu');" 
+												onclick="sendLogPageNavigation('settings','mainmenu');" 
 												value="Settings" 
 												outcome="/settings" />
 										</li>
@@ -342,7 +342,7 @@
 		<h:form>
 			<!-- If idle 300 seconds, run 'idleDialog' -->
 			<p:idleMonitor timeout="3600000"
-				onidle="sendLogPageNavigation('login.xhtml','SESSIONTIMEOUT');">
+				onidle="sendLogPageNavigation('login','SESSIONTIMEOUT');">
 				<p:ajax event="idle" listener="#{loggeduser.logout}"></p:ajax>
 			</p:idleMonitor>
 		</h:form>

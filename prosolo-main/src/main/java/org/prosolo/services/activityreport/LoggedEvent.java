@@ -756,7 +756,7 @@ public class LoggedEvent {
 	}
 
 	private String getTargetUser(Map<Long, String> allUsers) {
-		if (link != null && link.startsWith("publicprofile.xhtml?user"))
+		if (link != null && link.startsWith("profile/"))
 			return allUsers.get(Long.parseLong(link
 					.substring(USER_ID_START_POS)));
 
@@ -840,8 +840,8 @@ public class LoggedEvent {
 
 	public String getLink() {
 		if (isValid(link)) {
-			if (link.startsWith("publicprofile.xhtml?user"))
-				return "publicprofile.xhtml";
+			if (link.startsWith("profile/"))
+				return "profile";
 
 			return link;
 		}

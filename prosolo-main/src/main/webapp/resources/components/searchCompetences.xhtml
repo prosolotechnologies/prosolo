@@ -74,13 +74,13 @@
 		 				 	<div class="category">
 		 				 		Competences(#{searchCompetencesBean.compsSize})
 		 				 		<span class="right">
-									<h:outputLink class="seeAllLink"
-										onclick="sendLogPageNavigation('search.xhtml?tab=competences','#{cc.attrs.context}');" 
-										value="search.xhtml">
-										<h:outputText value="See all" />
+									<h:link class="seeAllLink"
+										onclick="sendLogPageNavigation('search/competences','#{cc.attrs.context}');" 
+										outcome="/search"
+										value="See all">
 										<f:param name="tab" value="competences" />
 										<f:param name="query" value="" />
-									</h:outputLink>
+									</h:link>
 								</span>
 							</div>
 		 				 	

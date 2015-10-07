@@ -46,7 +46,7 @@
 							
 							<h:link outcome="/messages" 
 								class="item #{messageThreadData.readed == 'false' ? 'selected' : ''}"
-								onclick="sendLogPageNavigationWithParameters('messages.xhtml', { context:'mainmenu', thread: #{messageThreadData.id}});" >
+								onclick="sendLogPageNavigationWithParameters('messages', { context:'mainmenu', thread: #{messageThreadData.id}});" >
 								<f:param  name="id" value="#{messageThreadData.id}" />
 
 				    			<img class="imageRound image30 left" 

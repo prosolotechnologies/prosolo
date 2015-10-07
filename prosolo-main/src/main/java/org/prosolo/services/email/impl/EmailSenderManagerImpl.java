@@ -48,7 +48,7 @@ public class EmailSenderManagerImpl extends AbstractManagerImpl implements Email
 		resetKey.setUid(UUID.randomUUID().toString().replace("-", ""));
 		saveEntity(resetKey);
 		
-		String serverAddress = Settings.getInstance().config.application.domain + "recovery.xhtml";
+		String serverAddress = Settings.getInstance().config.application.domain + "recovery";
 		String resetAddress = serverAddress+"?key="+resetKey.getUid();
 		
 		AccountCreatedEmailGenerator contentGenerator = new AccountCreatedEmailGenerator(user.getName(), resetAddress);
@@ -69,7 +69,7 @@ public class EmailSenderManagerImpl extends AbstractManagerImpl implements Email
 	
 	@Override
 	public boolean sendEmailVerificationEmailForNewUser(User user, Email email) throws FileNotFoundException, IOException{
-		String serverAddress = Settings.getInstance().config.application.domain + "verify.xhtml";
+		String serverAddress = Settings.getInstance().config.application.domain + "verify";
 		String verificationAddress = serverAddress+"?key="+email.getVerificationKey();
 		///String fakeEmail="prosolo.2013@gmail.com"; 
 		EmailVerificationEmailContentGenerator contentGenerator = new EmailVerificationEmailContentGenerator(user.getName(), verificationAddress);
