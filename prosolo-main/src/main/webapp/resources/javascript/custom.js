@@ -22,6 +22,21 @@ function enableDropdown(elem, mode) {
 	});
 }
 
+function dropdown(elem, event){
+	event.stopPropagation();
+
+	$('.dropdown:not(.searchSystem .dropdown)').addClass('hidden');	
+	
+	if ($(elem).hasClass('pressed')) {
+		$(elem).nextAll('.dropdown').addClass('hidden');
+		$(elem).removeClass('pressed');
+	} else {
+		$(elem).nextAll('.dropdown').removeClass('hidden');
+		$(elem).addClass('pressed');
+	}
+	return false;
+}
+
 function roundImages(){ //needed as a separate function because of a partial page reload
 	$('img.imageRound').each(function() {
 		var imgClass = $(this).attr('class');
