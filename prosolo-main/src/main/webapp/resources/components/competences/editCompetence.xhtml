@@ -13,7 +13,8 @@
 	xmlns:dlgmanager="http://java.sun.com/jsf/composite/components/dialogs/manager"
 	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
 	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons"
-	xmlns:socialWall="http://java.sun.com/jsf/composite/components/socialWall">
+	xmlns:socialWall="http://java.sun.com/jsf/composite/components/socialWall"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
 
 	<composite:interface>
 		<composite:attribute name="competenceBean" required="false" />
@@ -178,6 +179,19 @@
 					<p:defaultCommand target=":#{cc.clientId}:newCompForm:save" />
 				</div>
 			</div>
+			
+			<c:if test="#{cc.attrs.role == 'MANAGER'}">
+				<div class="rightSidebar">
+		    			<p class="marginTop20">
+			    			<h:link outcome="/manage/tools" 
+								class="button size25 blue left"
+								value="Manage external tools">
+								<f:param  name="cred" value="#{param['cred']}" />
+								<f:param  name="comp" value="#{manageCompetenceBean.id}" />
+							</h:link>
+						</p>
+				 </div>
+			</c:if>
 			
 			<div class="rightContainer sideRecommendedAct">
 				<h3>Activity plan</h3>

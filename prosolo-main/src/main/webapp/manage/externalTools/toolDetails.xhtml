@@ -14,6 +14,9 @@
 
 <ui:define name="metadata">
 	<f:metadata>
+		<f:viewParam name="cred" value="#{extenalToolDetailsBean.cred}" default="0"/>
+		<f:viewParam name="comp" value="#{extenalToolDetailsBean.comp}" default="0"/>
+		<f:viewParam name="act" value="#{extenalToolDetailsBean.act}" default="0"/>
 		<f:viewParam name="id" value="#{extenalToolDetailsBean.id}" default="0" />
 		<f:viewAction action="#{extenalToolDetailsBean.init()}"/>
 	</f:metadata>
@@ -31,6 +34,7 @@
 			<div class="clear"></div>
 			
 			<h:form id="toolForm" class="wideForm">
+				<p:growl id="toolFormGrowl" showDetail="true" />
 				<div class="leftContainer">
 					<table>
 						<tr>
@@ -56,7 +60,8 @@
 					<div class="actions">
 						<p:commandLink value="Save"
 							styleClass="button green size30 left"
-						 	action="#{extenalToolDetailsBean.save}">
+						 	action="#{extenalToolDetailsBean.save}"
+						 	update=":toolForm:toolFormGrowl :toolForm:consumerConfig">
 						</p:commandLink>
 						
 						&#160;
@@ -65,6 +70,7 @@
 					</div>
 				</div>
 				
+				<h:panelGroup id="consumerConfig">
 				<div class="rightContainer">
 					<h3>Configuration details</h3>
 					
@@ -72,15 +78,15 @@
 						<table>
 							<tr>
 								<td class="col1">Launch URL:</td>
-								<td>http://prosolo.ca/uta/ltilaunch.xhtml?id=525352</td>
+								<td>#{extenalToolDetailsBean.toolData.launchUrl}</td>
 							</tr>
 							<tr>
 								<td class="col1">Consumer key:</td>
-								<td>87udfg97yfdh274ybkdshfjsdhf998</td>
+								<td>#{extenalToolDetailsBean.toolData.consumerKey}</td>
 							</tr>
 							<tr>
 								<td class="col1">Shared secret:</td>
-								<td>hir79824uj4l808dslkjklj23k4lj9</td>
+								<td>#{extenalToolDetailsBean.toolData.consumerSecret}</td>
 							</tr>
 						</table>
 					
@@ -88,10 +94,11 @@
 						<table>
 							<tr>
 								<td class="col1">Registration URL:</td>
-								<td>http://prosolo.ca/uta/ltiregistration.xhtml?id=525352</td>
+								<td>#{extenalToolDetailsBean.toolData.regUrl}</td>
 							</tr>
 						</table>
 				</div>
+				</h:panelGroup>
 				
 				<script>
 				$(function() {

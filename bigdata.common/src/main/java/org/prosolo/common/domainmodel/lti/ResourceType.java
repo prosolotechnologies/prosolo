@@ -1,5 +1,5 @@
 package org.prosolo.common.domainmodel.lti;
 
 public enum ResourceType {
-	Activity, Competence, LearningGoal;
+	Activity, Competence, Credential;
 }
