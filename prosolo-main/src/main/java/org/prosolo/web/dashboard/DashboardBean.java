@@ -66,6 +66,14 @@ public class DashboardBean implements Serializable {
 	public String getNoResultsFoundMessage() {
 		return "No results found for given parameters.";
 	}
+	
+	public String getDisableHashtagRequestSentMessage() {
+		return "Disable hashtag request sent.";
+	}
+	
+	public String getSystemNotAvailableMessage() {
+		return "System not available.";
+	}
 
 	private String getIpAddress() {
 		return loggedUser.getUser() == null ? accessResolver.findRemoteIPAddress() : loggedUser.getIpAddress();

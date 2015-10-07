@@ -237,3 +237,7 @@
 #disable-request-notification {
 	display: none;
 }
+
+#system-not-available-notification {
+	display: none;
+}

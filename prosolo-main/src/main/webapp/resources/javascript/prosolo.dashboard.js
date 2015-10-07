@@ -467,5 +467,19 @@ $(function () {
 	    });
     	return false;
     });
+   
+    $(document).ajaxError(function() {
+		$("#system-not-available-notification").dialog({
+	    	resizable: false,
+	    	title: "Error.",
+	        width: 'auto',
+	        height: 'auto',
+		    modal: true,
+		    autoOpen: true,
+		    buttons: {
+		    	"Ok": function() { $(this).dialog("close"); }
+		    }
+	    });    	
+    });
 
 });
