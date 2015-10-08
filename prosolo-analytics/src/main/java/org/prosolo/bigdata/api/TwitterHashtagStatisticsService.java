@@ -30,41 +30,43 @@ import org.slf4j.LoggerFactory;
 
 @Path("/twitter/hashtag")
 public class TwitterHashtagStatisticsService {
-	
+
 	private final Logger logger = LoggerFactory.getLogger(UsersActivityStatisticsService.class);
-	
+
 	private TwitterHashtagStatisticsDBManager dbManager = new TwitterHashtagStatisticsDBManagerImpl();
-	
+
 	@GET
 	@Path("/statistics")
 	@Produces({ MediaType.APPLICATION_JSON })
-	public Response getStatistics(@QueryParam("dateFrom") String dateFrom, @QueryParam("dateTo") String dateTo, @QueryParam("hashtags[]") String[] hashtags, @QueryParam("period") String period) throws ParseException {
-		
+	public Response getStatistics(@QueryParam("dateFrom") String dateFrom, @QueryParam("dateTo") String dateTo,
+			@QueryParam("hashtags[]") String[] hashtags, @QueryParam("period") String period) throws ParseException {
+
 		long daysFrom = DateUtil.getDaysSinceEpoch(parse(dateFrom));
 		long daysTo = DateUtil.getDaysSinceEpoch(parse(dateTo));
 
 		logger.debug("Parsed days since epoch time: from: {}, to: {}.", daysFrom, daysTo);
-		
-		List<TwitterHashtagDailyCount> counts = new ArrayList<TwitterHashtagDailyCount>();	
-		
+
+		List<TwitterHashtagDailyCount> counts = new ArrayList<TwitterHashtagDailyCount>();
+
 		for (String hashtag : hashtags) {
-			List<TwitterHashtagDailyCount> hashtagCounts = dbManager.getTwitterHashtagDailyCounts(hashtag, daysFrom, daysTo);
-			if(Period.DAY.equals(Period.valueOf(period))) {
-				counts.addAll(hashtagCounts);			
+			List<TwitterHashtagDailyCount> hashtagCounts = dbManager.getTwitterHashtagDailyCounts(hashtag, daysFrom,
+					daysTo);
+			if (Period.DAY.equals(Period.valueOf(period))) {
+				counts.addAll(hashtagCounts);
 			} else {
 				counts.addAll(aggregate(split(hashtagCounts, Period.valueOf(period)), hashtag));
 			}
 		}
-		return ResponseUtils.corsOk(counts);			
+		return ResponseUtils.corsOk(counts);
 	}
-	
+
 	private Date parse(String date) throws ParseException {
 		return new SimpleDateFormat("dd.MM.yyyy. Z").parse(date);
 	}
-	
+
 	private Map<Long, List<TwitterHashtagDailyCount>> split(List<TwitterHashtagDailyCount> counts, Period period) {
 		Map<Long, List<TwitterHashtagDailyCount>> result = new HashMap<>();
-		for(TwitterHashtagDailyCount count : counts) {
+		for (TwitterHashtagDailyCount count : counts) {
 			Long day = period.firstDayFor(count.getDate());
 			if (!result.containsKey(day)) {
 				result.put(day, new ArrayList<TwitterHashtagDailyCount>());
@@ -73,28 +75,28 @@ public class TwitterHashtagStatisticsService {
 		}
 		return result;
 	}
-	
+
 	private List<TwitterHashtagDailyCount> aggregate(Map<Long, List<TwitterHashtagDailyCount>> groups, String hashtag) {
 		List<TwitterHashtagDailyCount> result = new ArrayList<TwitterHashtagDailyCount>();
-		for(Long day : groups.keySet()) {
+		for (Long day : groups.keySet()) {
 			result.add(new TwitterHashtagDailyCount(hashtag, day.longValue(), sumCounts(groups.get(day))));
 		}
 		return result;
-	}	
+	}
 
 	private long sumCounts(List<TwitterHashtagDailyCount> counts) {
 		return counts.stream().mapToLong(TwitterHashtagDailyCount::getCount).sum();
 	}
-	
+
 	@SuppressWarnings("unused")
 	private class Averages {
-		
+
 		private long pages = 0;
-		
+
 		private long paging;
-		
+
 		private long current = 0;
-		
+
 		private List<Map<String, String>> results;
 
 		public Averages(long current, long pages, long paging, List<Map<String, String>> results) {
@@ -103,15 +105,15 @@ public class TwitterHashtagStatisticsService {
 			this.current = current;
 			this.paging = paging;
 		}
-		
+
 	}
-	
+
 	public static String round(double value, int places) {
-	    BigDecimal bd = new BigDecimal(value);
-	    bd = bd.setScale(places, RoundingMode.HALF_UP);
-	    return bd.toPlainString();
+		BigDecimal bd = new BigDecimal(value);
+		bd = bd.setScale(places, RoundingMode.HALF_UP);
+		return bd.toPlainString();
 	}
-	
+
 	private Map<String, String> merge(TwitterHashtagWeeklyAverage average, TwitterHashtagUsersCount count, long index) {
 		Map<String, String> result = new HashMap<>();
 		result.put("hashtag", average.getHashtag());
@@ -124,47 +126,45 @@ public class TwitterHashtagStatisticsService {
 		result.put("number", Long.toString(index));
 		return result;
 	}
-	
+
 	private Long yesterday() {
 		return DateUtil.getDaysSinceEpoch() - 1;
 	}
-		
+
 	@GET
 	@Path("/average")
 	@Produces({ MediaType.APPLICATION_JSON })
-	public Response getAverage(@QueryParam("page") long page, @QueryParam("paging") long paging) throws ParseException {
-		logger.debug("Service 'getAverage' called with parameters: page={}, paging={}.", page, paging);
-		
+	public Response getAverage(@QueryParam("page") long page, @QueryParam("paging") long paging,
+			@QueryParam("term") String term) throws ParseException {
+		logger.debug("Service 'getAverage' called with parameters: page={}, paging={}, term={}.", page, paging, term);
+
 		List<String> disabled = dbManager.getDisabledTwitterHashtags();
 		List<TwitterHashtagWeeklyAverage> averages = dbManager.getTwitterHashtagWeeklyAverage(yesterday());
-		long count = averages.stream().filter((a) -> !disabled.contains(a.getHashtag())).count();
-		List<TwitterHashtagWeeklyAverage> results = averages.stream().filter((a) -> !disabled.contains(a.getHashtag()))
+		long count = averages.stream().filter((a) -> !disabled.contains(a.getHashtag()) && matches(a, term)).count();
+		List<TwitterHashtagWeeklyAverage> results = averages.stream()
+				.filter((a) -> !disabled.contains(a.getHashtag()) && matches(a, term))
 				.sorted(Comparator.reverseOrder()).skip((page - 1) * paging).limit(paging).collect(Collectors.toList());
-	
+
 		List<Map<String, String>> result = new ArrayList<>();
 		int number = (int) ((page - 1) * paging + 1);
-		for(TwitterHashtagWeeklyAverage average : results) {
+		for (TwitterHashtagWeeklyAverage average : results) {
 			TwitterHashtagUsersCount usersCount = dbManager.getTwitterHashtagUsersCount(average.getHashtag());
 			result.add(merge(average, usersCount, number++));
 		}
 		return ResponseUtils.corsOk(new Averages(page, pages(count, paging), paging, result));
 	}
 
+	private boolean matches(TwitterHashtagWeeklyAverage a, String term) {
+		if (term == null || term.equals("")) {
+			return true;
+		}
+		return a.getHashtag().toLowerCase().startsWith(term.toLowerCase());
+	}
+
 	private long pages(long size, long paging) {
 		return size / paging + (size % paging > 0 ? 1 : 0);
 	}
-	
-	@GET
-	@Path("/enabled")
-	@Produces({ MediaType.APPLICATION_JSON })
-	public Response getEnabled(@QueryParam("term") String term) {
-		logger.debug("Service 'getDisabled' called.");
-		List<String> disabled = dbManager.getDisabledTwitterHashtags();
-		return ResponseUtils.corsOk(dbManager.getEnabledTwitterHashtags(yesterday()).stream().filter((hashtag) -> {
-			return term != null && !disabled.contains(hashtag) && hashtag.toLowerCase().startsWith(term.toLowerCase());
-		}).collect(Collectors.toList()));
-	}
-	
+
 	@GET
 	@Path("/disabled")
 	@Produces({ MediaType.APPLICATION_JSON })
@@ -172,7 +172,7 @@ public class TwitterHashtagStatisticsService {
 		logger.debug("Service 'getDisabled' called.");
 		return ResponseUtils.corsOk(dbManager.getDisabledTwitterHashtags());
 	}
-	
+
 	@GET
 	@Path("/disabled-count")
 	@Produces({ MediaType.APPLICATION_JSON })
@@ -182,5 +182,5 @@ public class TwitterHashtagStatisticsService {
 		result.put("count", dbManager.getDisabledTwitterHashtagsCount().toString());
 		return ResponseUtils.corsOk(result);
 	}
-		
+
 }

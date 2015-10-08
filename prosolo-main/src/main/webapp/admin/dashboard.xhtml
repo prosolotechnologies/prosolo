@@ -76,6 +76,8 @@
 					<h1>Twitter hashtags</h1>
 					<div id="mostActiveHashtags">
 						<h2>Most active hashtags</h2>
+						<button id="filter-most-active-hashtags">Filter</button>
+						<input name="hashtags-term" data-term=""></input>
 						<table class="dashboard-table" id="mostActiveHashtagsTable">
 							<thead>
 								<tr>
@@ -152,11 +154,6 @@
 								<tbody></tbody>
 							</table>
 						</div>
-						<div id="search-hashtags-to-disable">
-							<h3>Search hashtags to disable</h3>
-							<input name="hashtags-to-disable"></input>
-							<button id="disable-hashtag">Disable</button>
-						</div>
 					</div>
 					<h:form id="disable-form" style="display: none;">
 						<h:inputHidden id="hashtag-to-disable" />
@@ -170,11 +167,6 @@
 							<f:ajax execute="@form" listener="#{dashboardBean.enableHashtag()}" />
 						</h:commandButton>
 					</h:form>
-					<div id="disable-request-notification">
-						<p>
-							#{dashboardBean.disableHashtagRequestSentMessage}
-						</p>
-					</div>
 					<div id="system-not-available-notification">
 						<p>
 							#{dashboardBean.systemNotAvailableMessage}

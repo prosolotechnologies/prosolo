@@ -67,10 +67,6 @@ public class DashboardBean implements Serializable {
 		return "No results found for given parameters.";
 	}
 	
-	public String getDisableHashtagRequestSentMessage() {
-		return "Disable hashtag request sent.";
-	}
-	
 	public String getSystemNotAvailableMessage() {
 		return "System not available.";
 	}

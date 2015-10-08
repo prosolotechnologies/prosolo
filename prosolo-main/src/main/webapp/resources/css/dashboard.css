@@ -230,11 +230,12 @@
 	color: #ccc;
 }
 
-#disabled-hashtags-dialog {
-	display: none;
+#dashboard #filter-most-active-hashtags, #dashboard [name='hashtags-term'] {
+	float: right;
+	margin: 0.6em 0em 0.6em 0.6em;
 }
 
-#disable-request-notification {
+#disabled-hashtags-dialog {
 	display: none;
 }
 
