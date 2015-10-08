@@ -3,6 +3,8 @@ package org.prosolo.web.lti;
 public class LTIConstants {
 	
 	//required parameters
+	public static final String TOOL_SET_ID = "id";
+	public static final String TOOL_ID = "id";
 	public static final String MESSAGE_TYPE = "lti_message_type";
 	public static final String LTI_VERSION = "lti_version";
 	public static final String RESOURCE_LINK_ID = "resource_link_id";

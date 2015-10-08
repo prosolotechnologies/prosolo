@@ -102,13 +102,13 @@ public class LtiToolManagerTest {
 		assertEquals("Error while searching tools", 0, tools.size());
 	}
 
-	@Test
+	/*@Test
 	public void testGetLtiToolForLaunch() {
 		LtiTool tool = toolManager.getLtiToolForLaunch(425984);
 		System.out.println("TOOL FOUND "+tool.getId());
 		System.out.println("Consumer key "+tool.getToolSet().getConsumer().getKeyLtiOne());
 		assertNotNull("Error while searching tool", tool);
-	}
+	}*/
 	
 	
 }

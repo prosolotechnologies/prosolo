@@ -29,7 +29,7 @@ public class ToolSetManagerImpl extends AbstractManagerImpl implements ToolSetMa
 			LtiToolSet ts = new LtiToolSet();
 			Set<LtiTool> tools = new HashSet<>();
 			tool.setToolSet(ts);
-			String launchUrl = domain+"launch";
+			String launchUrl = domain+"ltiproviderlaunch.xhtml";
 			tool.setLaunchUrl(launchUrl);
 			tools.add(tool);
 			ts.setTools(tools);
@@ -37,7 +37,7 @@ public class ToolSetManagerImpl extends AbstractManagerImpl implements ToolSetMa
 			consumer.setKeyLtiOne(UUID.randomUUID().toString());
 			consumer.setSecretLtiOne(UUID.randomUUID().toString());
 			ts.setConsumer(consumer);
-			String regUrl = Settings.getInstance().config.application.domain+"ltiregistration";
+			String regUrl = Settings.getInstance().config.application.domain+"ltitoolproxyregistration.xhtml";
 			ts.setRegistrationUrl(regUrl);
 			return saveEntity(ts);
 	}

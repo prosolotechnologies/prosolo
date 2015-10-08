@@ -113,19 +113,18 @@ public class LtiToolManagerImpl  extends AbstractManagerImpl implements LtiToolM
 	
 	@Override
 	@Transactional
-	public LtiTool getLtiToolForLaunch(HttpServletRequest request, String url, String key, LtiVersion ltiVersion, long toolId) throws RuntimeException {
+	public LtiTool getLtiToolForLaunch(HttpServletRequest request, String key, LtiVersion ltiVersion, long toolId) throws RuntimeException {
 		LtiTool tool =  getLtiToolForLaunch (toolId);
-		validateLaunch(tool, key, ltiVersion, request, url);
+		validateLaunch(tool, key, ltiVersion, request);
 		
 		return tool;
 	}
-	@Override
-	@Transactional
-	public LtiTool getLtiToolForLaunch(long toolId){
+	
+	private LtiTool getLtiToolForLaunch(long toolId){
 		String queryString = 
-				"SELECT new LtiTool (t.id, t.enabled, t.deleted, t.customCss, t.activityId, " +
+				"SELECT new LtiTool (t.id, t.enabled, t.deleted, t.customCss, t.toolType, t.activityId, " +
 				"t.competenceId, t.learningGoalId, ts.id, " +
-				"c.id, c.keyLtiOne, c.secretLtiOne, c.keyLtiTwo, c.secretLtiTwo) " +
+				"c.id, c.keyLtiOne, c.secretLtiOne, c.keyLtiTwo, c.secretLtiTwo, t.launchUrl) " +
 				"FROM LtiTool t " +
 				"INNER JOIN t.toolSet ts " +
 				"INNER JOIN ts.consumer c " +
@@ -138,7 +137,7 @@ public class LtiToolManagerImpl  extends AbstractManagerImpl implements LtiToolM
 		
 	}
 	
-	private void validateLaunch(LtiTool tool, String consumerKey, LtiVersion version, HttpServletRequest request, String url){
+	private void validateLaunch(LtiTool tool, String consumerKey, LtiVersion version, HttpServletRequest request){
 		if (tool == null){
 			throw new RuntimeException("You don't have access to this tool");
 		}
@@ -162,10 +161,26 @@ public class LtiToolManagerImpl  extends AbstractManagerImpl implements LtiToolM
 			throw new RuntimeException("You are not allowed to access this tool");
 		}
 		try{
-			oauthService.validatePostRequest(request, url, key, secret);
+			oauthService.validatePostRequest(request, tool.getLaunchUrl(), key, secret);
 		}catch(Exception e){
 			throw new RuntimeException("You are not allowed to access this tool");
 		}
+	}
+	
+	@Override
+	@Transactional
+	public List<LtiTool> getToolsForToolProxy(long toolSetId){
+		String queryString = 
+				"SELECT new LtiTool (t.id,  t.name, t.description, t.launchUrl) " +
+				"FROM LtiTool t " +
+				"INNER JOIN t.toolSet ts " +
+				"WHERE ts.id = :id AND "+
+				"t.deleted = false";
+
+		Query query = persistence.currentManager().createQuery(queryString);
+		query.setLong("id", toolSetId);
+		
+		return query.list();	
 	}
 	
 }

@@ -19,6 +19,6 @@ public interface LtiToolManager {
 	public LtiTool deleteLtiTool(long toolId) throws ResourceCouldNotBeLoadedException;
 	public LtiTool getToolDetails(long toolId);
 	public List<LtiTool> searchTools(long userId, String name, Map<String,Object> parameters, Filter filter);
-	public LtiTool getLtiToolForLaunch(HttpServletRequest request, String url, String key, LtiVersion ltiVersion, long toolId) throws RuntimeException;
-	public LtiTool getLtiToolForLaunch(long toolId);
+	public LtiTool getLtiToolForLaunch(HttpServletRequest request, String key, LtiVersion ltiVersion, long toolId) throws RuntimeException;
+	public List<LtiTool> getToolsForToolProxy(long toolSetId);
 }

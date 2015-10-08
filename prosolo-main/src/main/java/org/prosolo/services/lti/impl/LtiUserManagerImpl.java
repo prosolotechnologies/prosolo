@@ -50,7 +50,7 @@ public class LtiUserManagerImpl extends AbstractManagerImpl implements LtiUserMa
 			String password = UUID.randomUUID().toString();
 			
 			try{
-				user = userManager.createNewUser(name, lastName, email, true, password, null, null, null, null);
+				user = userManager.createNewUser(name, lastName, email, true, password, null, null);
 			}catch(UserAlreadyRegisteredException e){
 				user = userManager.getUser(email);
 			}catch(EventException e){
@@ -59,13 +59,6 @@ public class LtiUserManagerImpl extends AbstractManagerImpl implements LtiUserMa
 			ltiUser.setUser(user);
 			saveEntity(ltiUser);
 	
-			//ovo ide u managed bean
-			// @Autowired private LoggedUserBean loggedUserBean;
-			// loggedUserBean.init(user);
-			//getUser(email) nad usermanagerimpl da bismo dobili usera sa tim mailom ako postoji ako je null radimo create
-			//usermanagerimpl koristimo za unos novog korisnika ako nam treba
-			//createNewUser("Zoran", "Jeremic", "zoran.jeremic@gmail.com",
-					//true, "prosolo@2014", org, fictitiousUser, getAvatarInputStream("male1.png"), "male1.png")
 		}
 		return user;
 	}

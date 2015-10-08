@@ -38,11 +38,12 @@ public class LtiTool extends BaseLtiEntity {
 
 	}
 	
-	public LtiTool(long id, boolean enabled, boolean delted,  String customCss, long activityId, 
+	public LtiTool(long id, boolean enabled, boolean delted,  String customCss, ResourceType toolType, long activityId, 
 			long competenceId, long learningGoalId, long toolSetId, long consumerId,
-			String keyLtiOne, String secretLtiOne, String keyLtiTwo, String secretLtiTwo) {
+			String keyLtiOne, String secretLtiOne, String keyLtiTwo, String secretLtiTwo, String launchUrl) {
 		
-		this.setId(id);
+		setId(id);
+		this.toolType = toolType;
 		this.learningGoalId = learningGoalId;
 		this.competenceId = competenceId;
 		this.activityId = activityId;
@@ -51,7 +52,15 @@ public class LtiTool extends BaseLtiEntity {
 		LtiConsumer cons = new LtiConsumer(consumerId, keyLtiOne, secretLtiOne, keyLtiTwo, secretLtiTwo);
 		LtiToolSet ts = new LtiToolSet(toolSetId, cons);
 		this.toolSet = ts;
+		this.launchUrl = launchUrl;
 		
+	}
+	
+	public LtiTool(long id, String name, String description, String launchUrl){
+		setId(id);
+		this.name = name;
+		this.description = description;
+		this.launchUrl = launchUrl;
 	}
 
 	public String getCode() {
