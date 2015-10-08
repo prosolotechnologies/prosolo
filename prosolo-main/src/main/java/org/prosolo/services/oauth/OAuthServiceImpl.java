@@ -7,6 +7,7 @@ import java.security.MessageDigest;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.codec.binary.Base64;
+import org.prosolo.services.oauth.exceptions.OauthException;
 import org.springframework.stereotype.Service;
 
 import net.oauth.OAuth;
@@ -26,11 +27,9 @@ public class OAuthServiceImpl implements OauthService, Serializable {
 	 */
 	private static final long serialVersionUID = -4171452705673100750L;
 
-	/* (non-Javadoc)
-	 * @see org.prosolo.services.oauth.OauthService#bodySignMessage(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-	 */
+	
 	@Override
-	public String bodySignMessage(String msg, String key, String secret, String url) throws Exception{
+	public String bodySignMessage(String msg, String key, String secret, String url) throws OauthException{
 		try {
 			MessageDigest md = MessageDigest.getInstance("SHA-1");
 			byte[] msgBytes = msg.getBytes("utf-8");
@@ -45,22 +44,20 @@ public class OAuthServiceImpl implements OauthService, Serializable {
 			message.addRequiredParameters(oauthAccessor);
 			return message.getAuthorizationHeader(null);
 		} catch (Exception e) {
-			throw new Exception("Error while signing the message");
+			throw new OauthException("Error while signing the message");
 		}
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.prosolo.services.oauth.OauthService#validatePostRequest(javax.servlet.http.HttpServletRequest, java.lang.String, java.lang.String, java.lang.String)
-	 */
+	
 	@Override
-	public void validatePostRequest(HttpServletRequest request, String url, String key, String secret) throws Exception{
+	public void validatePostRequest(HttpServletRequest request, String url, String key, String secret) throws OauthException{
 		try{
 			OAuthMessage msg = OAuthServlet.getMessage(request, url);
 			OAuthValidator validator = new SimpleOAuthValidator();
 			OAuthConsumer consumer = new OAuthConsumer("about:blank", key, secret, null);
 			validator.validateMessage(msg, new OAuthAccessor(consumer));
 		}catch(Exception e){
-			throw new Exception("Post request not valid");
+			throw new OauthException("Post request not valid");
 		}
 	}
 	

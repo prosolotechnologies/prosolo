@@ -37,4 +37,8 @@ public interface AnalyticalServiceCollector {
 	
 	void updateInstanceLoggedUserCount(String ip, long timestamp, long count);
 
+	void enableHashtag(String hashtag);
+
+	void disableHashtag(String hashtag);
+
 }

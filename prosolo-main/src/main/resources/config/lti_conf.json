@@ -1,0 +1,101 @@
+  {
+    "id": "http://lms.example.com/ToolProxy/",
+    "tool_profile": {
+      "product_instance": {
+        "product_info": {
+          "product_name" : {
+			"default_value" : "ProSolo"
+		  },
+          "description" : {
+			"default_value" : "ProSolo is a..."
+		  },
+          "product_version": "1.3",
+          "technical_description" : {
+			"default_value" : "Support provided for all LTI 1 extensions as well as LTI 2"
+		  },
+          "product_family": {
+            "vendor": {
+              "code": "prosolo.ca",
+              "vendor_name" : {
+				"default_value" : "ProSolo"
+              },
+              "description" : {
+				"default_value" : "ProSolo is a..."
+			  },
+              "website": "http://prosolo.ca",
+              "contact" : {
+				"email" : "prosolo@prosolo.com"
+			  }
+            }
+          }
+        },
+        "support" : {
+			"email" : "helpdesk@prosolo.ca"
+		}
+	  },
+      "service_offered": [
+	    {
+			"id": "http://alpha.university.edu/resource/ToolConsumerProfile/12434 #Result.item",
+			"endpoint": "http...",
+			"format": ["application/vnd.ims.lis.v2.result+json"],
+			"action": [
+			  "GET",
+			  "PUT"
+			]
+		}
+      ],
+      "resource_handler" : [
+		{
+			"message" : [
+			  {
+				"enabled_capability" : [
+					"Result.autocreate"
+				],
+				"parameter" : [
+					{ "name" : "result_url",
+						"variable" : "Result.url"
+					},
+					{ "name" : "result_sourcedId",
+						"variable" : "Result.sourcedId"
+					},
+					{ "name" : "user_first_name",
+						"variable" : "Person.name.given"
+					},
+					{ "name" : "user_last_name",
+						"variable" : "Person.name.family"
+					},
+					{ "name" : "user_email",
+						"variable" : "Person.email.primary"
+					},
+					{ "name" : "user_id",
+						"variable" : "User.id"
+					},
+					{ "name" : "fixed_param",
+						"fixed" : "prosolo"
+					}
+				]
+			  }
+			]
+		}
+	  ]
+    },
+    "custom" : {
+		"customerId" : "394892759526"
+	},
+    "wanted_services": [
+      {
+        "format": ["application/vnd.ims.lis.v2.result+json"],
+        "action": [
+            "GET",
+            "PUT"
+        ]
+      },
+      {
+        "format": ["application/vnd.ims.lis.v2.result+json"],
+        "action": [
+			"GET", 
+			"PUT"
+		]
+      }
+    ]
+  }

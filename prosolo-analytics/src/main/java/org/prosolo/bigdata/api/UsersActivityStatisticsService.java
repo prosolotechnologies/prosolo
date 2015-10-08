@@ -20,31 +20,23 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.StringUtils;
+import org.prosolo.bigdata.common.dal.pojo.EventDailyCount;
 import org.prosolo.bigdata.common.dal.pojo.InstanceLoggedUsersCount;
 import org.prosolo.bigdata.common.dal.pojo.UserEventDailyCount;
-import org.prosolo.bigdata.common.dal.pojo.EventDailyCount;
 import org.prosolo.bigdata.dal.cassandra.UserActivityStatisticsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.UserActivityStatisticsDBManagerImpl;
-import org.prosolo.bigdata.utils.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.gson.Gson;
 
 @Path("/users/activity")
 public class UsersActivityStatisticsService {
 	
 	private final Logger logger = LoggerFactory.getLogger(UsersActivityStatisticsService.class);
 
-	UserActivityStatisticsDBManager dbManager = new UserActivityStatisticsDBManagerImpl();
+	private UserActivityStatisticsDBManager dbManager = new UserActivityStatisticsDBManagerImpl();
 	
-	private enum Period {
-		DAY, WEEK, MONTH;
-	}
-
 	private Date parse(String date) throws ParseException {
 		return new SimpleDateFormat("dd.MM.yyyy. Z").parse(date);
 	}
@@ -62,15 +54,15 @@ public class UsersActivityStatisticsService {
 		List<EventDailyCount> currentWeekCounts = dbManager.getEventDailyCounts(event, oneWeekAgo, today);
 		List<EventDailyCount> previousWeekCounts = dbManager.getEventDailyCounts(event, twoWeeksAgo, oneWeekAgo - 1);
 		
-		int sumCounts = sumCounts(counts);
+		long sumCounts = sumCounts(counts);
 		
-		int sumCurrentWeek = sumCounts(currentWeekCounts);
-		int sumPreviousWeek = sumCounts(previousWeekCounts);
+		long sumCurrentWeek = sumCounts(currentWeekCounts);
+		long sumPreviousWeek = sumCounts(previousWeekCounts);
 		
 		Map<String, String> result = new HashMap<String, String>();
 		result.put("totalUsers", String.valueOf(sumCounts));
 		result.put("totalUsersPercent", percent(sumCurrentWeek, sumPreviousWeek));
-		return corsOk(result);
+		return ResponseUtils.corsOk(result);
 	}
 	
 	@GET
@@ -90,10 +82,10 @@ public class UsersActivityStatisticsService {
 		Map<String, String> result = new HashMap<String, String>();
 		result.put("activeUsers", String.valueOf(sumCurrent));
 		result.put("activeUsersPercent", percent(sumCurrent, sumPrevious));
-		return corsOk(result);
+		return ResponseUtils.corsOk(result);
 	}
 
-	private String percent(int current, int previous) {
+	private String percent(long current, long previous) {
 		if (current == 0 && previous == 0) {
 			return "";
 		}
@@ -117,7 +109,7 @@ public class UsersActivityStatisticsService {
 		List<InstanceLoggedUsersCount> counts = dbManager.getInstanceLoggedUsersCounts(lastHour.getTimeInMillis());
 		Map<String, String> result = new HashMap<String, String>();
 		result.put("loggedIn", String.valueOf(sumInstanceLoggedUsersCount(counts)));
-		return corsOk(result);
+		return ResponseUtils.corsOk(result);
 	}
 	
 	private int distinctCount(List<UserEventDailyCount> counts) {
@@ -151,23 +143,13 @@ public class UsersActivityStatisticsService {
 			}
 		}
 				
-		return corsOk(counts);			
+		return ResponseUtils.corsOk(counts);			
 	}
-	
-	private Response corsOk(Object counts) {
-		return Response
-				.status(Status.OK)
-				.entity(new Gson().toJson(counts))
-				.header("Access-Control-Allow-Origin", "*")
-				.header("Access-Control-Allow-Methods",
-						"GET, POST, DELETE, PUT").allow("OPTIONS").build();
-	}
-	
 	
 	private Map<Long, List<EventDailyCount>> split(List<EventDailyCount> counts, Period period) {
 		Map<Long, List<EventDailyCount>> result = new HashMap<>();
 		for(EventDailyCount count : counts) {
-			Long day = getFirstDay(period, count);
+			Long day = period.firstDayFor(count.getDate());
 			if (!result.containsKey(day)) {
 				result.put(day, new ArrayList<EventDailyCount>());
 			}
@@ -184,31 +166,12 @@ public class UsersActivityStatisticsService {
 		return result;
 	}	
 	
-	private int sumCounts(List<EventDailyCount> counts) {
-		int sum = 0;
-		for(EventDailyCount count : counts) {
-			sum += count.getCount();
-		}
-		return sum;
+	private long sumCounts(List<EventDailyCount> counts) {
+		return counts.stream().mapToLong(EventDailyCount::getCount).sum();
 	}
 	
-	private int sumInstanceLoggedUsersCount(List<InstanceLoggedUsersCount> counts) {
-		int sum = 0;
-		for(InstanceLoggedUsersCount count : counts) {
-			sum += count.getCount();
-		}
-		return sum;
-	}
-
-	private Long getFirstDay(Period period, EventDailyCount count) {
-		switch(period) {
-		case WEEK:
-			return DateUtil.getFirstDayOfWeek(count.getDate());
-		case MONTH:
-			return DateUtil.getFirstDayOfMonth(count.getDate());
-		default:
-			throw new IllegalStateException("Period '" + period.name() + "' is not supported");
-		}
+	private long sumInstanceLoggedUsersCount(List<InstanceLoggedUsersCount> counts) {
+		return counts.stream().mapToLong(InstanceLoggedUsersCount::getCount).sum();
 	}
 
 }

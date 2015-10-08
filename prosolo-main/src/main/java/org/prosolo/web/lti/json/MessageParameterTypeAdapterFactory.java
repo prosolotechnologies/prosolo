@@ -1,8 +1,14 @@
 package org.prosolo.web.lti.json;
 
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
 import org.prosolo.web.lti.json.data.MessageParameter;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 public class MessageParameterTypeAdapterFactory extends CustomizedTypeAdapterFactory<MessageParameter>{
@@ -34,6 +40,18 @@ public class MessageParameterTypeAdapterFactory extends CustomizedTypeAdapterFac
 	@Override protected void afterRead(JsonElement deserialized, MessageParameter m) {
 		  //JsonObject custom = deserialized.getAsJsonObject();
 		  //custom.remove("size");
+		JsonObject custom = deserialized.getAsJsonObject();
+		Set<Entry<String, JsonElement>> set = custom.entrySet();
+		Iterator<Entry<String, JsonElement>> it = set.iterator();
+		while(it.hasNext()){
+			Entry<String, JsonElement> ent = it.next();
+			if(!"name".equals(ent.getKey())){
+				m.setParameterType(ent.getKey());
+				m.setParameterValue(ent.getValue().getAsString());
+				break;
+			}
+		}
+		
 	}
 		
 }

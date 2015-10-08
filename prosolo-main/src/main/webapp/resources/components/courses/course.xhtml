@@ -226,7 +226,7 @@
 			    			<h:link outcome="/manage/tools" 
 								class="button size25 blue left"
 								value="Manage external tools">
-								<f:param  name="res" value="#{cc.attrs.courseBean.id}" />
+								<f:param  name="cred" value="#{cc.attrs.courseBean.id}" />
 							</h:link>
 						</p>
 				</div>
@@ -515,7 +515,12 @@
 													value="Edit" 
 													outcome="/manage/competence">
 													<f:param name="id" value="#{compData.competenceId}" />
+<<<<<<< HEAD
 													<f:param name="origin" value="/manage/course?id=#{cc.attrs.courseBean.course.id}" />
+=======
+													<f:param name="cred" value="#{param['id']}" />
+													<f:param name="origin" value="/manage/course.xhtml?id=#{cc.attrs.courseBean.course.id}" />
+>>>>>>> 9cab44f8865e82400f587fcee9a55d02c2c1927d
 												</h:link>
 											</h:panelGroup>
 										</div>

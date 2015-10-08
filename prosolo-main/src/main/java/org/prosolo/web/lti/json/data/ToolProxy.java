@@ -24,6 +24,7 @@ public class ToolProxy {
 	private Map<String, String> custom;
 	@SerializedName("security_contract")
 	private SecurityContract securityContract;
+	private transient String toolProxyGuid;
 	@SerializedName("wanted_services")
 	private List<Service> wantedServices;
 	
@@ -74,6 +75,12 @@ public class ToolProxy {
 	}
 	public void setSecurityContract(SecurityContract securityContract) {
 		this.securityContract = securityContract;
+	}
+	public String getToolProxyGuid() {
+		return toolProxyGuid;
+	}
+	public void setToolProxyGuid(String toolProxyGuid) {
+		this.toolProxyGuid = toolProxyGuid;
 	}
 	public List<Service> getWantedServices() {
 		return wantedServices;
