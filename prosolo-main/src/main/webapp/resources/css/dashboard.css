@@ -2,7 +2,24 @@
 
 #dashboard h1 {
 	float: none;
-	margin-bottom: 1em;
+	padding: 0.6em 0em;
+	border-top: 1px solid #ccc;
+	margin: 0em;
+	color: #0288D1;
+}
+
+#dashboard h2 {
+	padding: 0.3em 0em;
+	margin: 0em;
+	font-weight: normal;
+	color: #000;
+}
+
+#dashboard h3 {
+	padding: 0.3em 0em;
+	margin: 0em;
+	font-weight: normal;
+	color: #666;
 }
 
 #dashboard .dateField {
@@ -11,15 +28,28 @@
 	cursor: default;
 }
 
-#dashboard #timeRange .ui-datepicker-trigger {
+#dashboard .stats {
+	padding: 0em 0em 0.6em 0em;
+}
+
+#dashboard .stats + p {
+	margin: 0.8em 0em 0.4em 0em;
+}
+
+#dashboard .stats input {
+    vertical-align: middle;
+    margin: 0em 1em 0em 0.3em;
+}
+
+#dashboard .timeRange .ui-datepicker-trigger {
 	margin-right: 1em;
 }
 
-#dashboard #timeRange strong {
+#dashboard .timeRange strong {
 	margin-right: 0.3em;
 }
 
-#dashboard #chartBlock {
+#dashboard .chartBlock {
 	padding-top: 24px;
 	clear: both;
 }
@@ -28,20 +58,20 @@
 	margin-right: 9px;
 }
 
-#dashboard #timeRange {
+#dashboard .timeRange {
 	float: left;
 }
 
-#dashboard #period {
+#dashboard .period {
 	float: right;
 }
 
-#dashboard #period input[type=radio] {
+#dashboard .period input[type=radio] {
 	display: none;
 	margin: 10px;
 }
 
-#dashboard #period input[type=radio]+label {
+#dashboard .period input[type=radio]+label {
 	display: inline-block;
 	margin: -2px;
 	padding: 8px 18px;
@@ -51,7 +81,7 @@
 	cursor: pointer;
 }
 
-#dashboard #period input[type=radio]:checked+label {
+#dashboard .period input[type=radio]:checked+label {
 	background-image: none;
 	background-color: #d0d0d0;
 }
@@ -121,4 +151,93 @@
 	pointer-events: none;
 	border-color: rgba(0, 0, 0, 0);
 	border-width: 1.2em;
+}
+
+.dashboard-table {
+	width: 100%;
+}
+
+.dashboard-table thead {
+	background-color: #0187D0;
+}
+
+.dashboard-table thead tr th {
+	text-align: left;
+	font-size: 1em;
+	font-weight: normal;
+	color: white;
+}
+
+.dashboard-table thead tr {
+	border:	1px solid #0187D0;
+}
+
+.dashboard-table td  {
+	border: 1px solid #ddd;
+}
+
+#dashboard #mostActiveHashtagsTable tr > *:nth-child(1) {
+	width: 12%;
+}
+
+#dashboard #mostActiveHashtagsTable tr > *:nth-child(2) {
+	width: 33%;
+}
+
+#dashboard #mostActiveHashtagsTable tr > *:nth-child(3) {
+	width: 20%;
+}
+
+#dashboard #mostActiveHashtagsTable tr > *:nth-child(4) {
+	width: 12%;
+}
+
+#dashboard #mostActiveHashtagsTable tr > *:nth-child(5) {
+	width: 20%;
+}
+
+.dashboard-table tr > * {
+	padding: 0.6em 1.2em;
+}
+
+.dashboard-table tbody tr:nth-child(even) {
+	background-color: #eee;
+}
+
+.dashboard-table tbody tr:nth-child(odd) {
+	background-color: #fff;
+}
+
+#dashboard #mostActiveHashtagsTable tr.hashtag button {
+	width: auto;
+}
+
+#dashboard #twitterHashtagsGraph {
+	clear: both;
+}
+
+#dashboard .navigation {
+	margin-top: 1em;
+}
+
+#dashboard .navigation > *:not(:last-child) {
+	margin-right: 0.6em;
+}
+
+#dashboard .navigation > *:not(:last-child):after {
+	content: "|";
+	margin: 0em 0.6em;
+	color: #ccc;
+}
+
+#disabled-hashtags-dialog {
+	display: none;
+}
+
+#disable-request-notification {
+	display: none;
+}
+
+#system-not-available-notification {
+	display: none;
 }

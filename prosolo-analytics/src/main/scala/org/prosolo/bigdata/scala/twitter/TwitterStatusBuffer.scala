@@ -16,6 +16,10 @@ import org.hibernate.Session
 import org.prosolo.common.domainmodel.annotation.Tag
 import scala.collection.JavaConversions._
 import org.prosolo.bigdata.twitter.TestJava8Paralelizm
+import org.prosolo.bigdata.dal.cassandra.TwitterHashtagStatisticsDBManager
+import org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl
+import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagDailyCount
+import org.prosolo.bigdata.utils.DateUtil
 /**
  * @author zoran Jul 28, 2015
  */
@@ -91,7 +95,10 @@ object TwitterStatusBuffer {
 
        val twitterPostSocialActivity=twitterStreamingDao.createTwitterPostSocialActivity(post,session)
      session.getTransaction().commit()
-    session.close();  
+    session.close();
+    val day = DateUtil.getDaysSinceEpoch;
+    val twitterHashtagStatisticsDBManager:TwitterHashtagStatisticsDBManager=new TwitterHashtagStatisticsDBManagerImpl
+  	twitterHashtags.map { hashtag => twitterHashtagStatisticsDBManager.updateTwitterHashtagDailyCount(hashtag, day) };
      if(twitterPostSocialActivity !=null){
        val parameters:java.util.Map[String,String]=new java.util.HashMap[String,String]()
        parameters.put("socialActivityId", twitterPostSocialActivity.getId.toString())

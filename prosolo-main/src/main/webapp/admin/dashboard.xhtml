@@ -30,45 +30,157 @@
 					<h2>Logged in users</h2>
 					<span class="count" id="currently-logged-in-count">#{dashboardBean.currentlyLoggedIn}</span>
 				</div>
-				<h1>Activity graph</h1>
-				<label for="newusers">New users</label>
-				<input type="checkbox" name="stats" id="newusers" value="registered" />
-				<label for="logins">Logins</label>
-				<input type="checkbox" name="stats" id="logins" value="login" />
-				<label for="homepageviews">Home page views</label>
-				<input type="checkbox" name="stats" id="homepageviews" value="homepagevisited" />
-				<label for="goalsviews">Goals views</label>
-				<input type="checkbox" name="stats" id="goalsviews" value="goalsviews" />
-				<label for="competencesviews">Competences views</label>
-				<input type="checkbox" name="stats" id="competencesviews" value="competencesviews" />
-				<label for="profileviews">Profile views</label>
-				<input type="checkbox" name="stats" id="profileviews" value="profileviews" />
-				<p>Choose date range:</p>
-    			<div id="timeRange">
-	   				<strong>From:</strong>
-					<h:inputText class="dateField" id="dateFrom" required="false" onfocus="blur();">
-					    <f:convertDateTime pattern="dd.MM.yyyy" />
-					</h:inputText>	
-	   				<strong>To:</strong>
-					<h:inputText class="dateField" id="dateTo" required="false" onfocus="blur();">
-					    <f:convertDateTime pattern="dd.MM.yyyy" />
-					</h:inputText>
-				</div>
-				<div id="period">
-					<input type="radio" id="day" name="periods" value="DAY" checked="checked" />
-   					<label for="day">Day</label>
-					<input type="radio" id="week" name="periods" value="WEEK" />
-				   	<label for="week">Week</label>
-					<input type="radio" id="month" name="periods" value="MONTH" />
-				   	<label for="month">Month</label> 
-				</div>
-				<div id="chartBlock">
-					<div id="chartMessages">
-						<span id="noResultsMessage">#{dashboardBean.noResultsFoundMessage}</span>
+				
+				<div id="activityGraph">
+					<h1>Activity graph</h1>
+					<div class="stats">
+						<label>New users<input type="checkbox" name="stats" value="registered" /></label>
+						<label>Logins<input type="checkbox" name="stats" value="login" /></label>
+						<label>Home page views<input type="checkbox" name="stats" value="homepagevisited" /></label>
+						<label>Goals views<input type="checkbox" name="stats" value="goalsviews" /></label>
+						<label>Competences views<input type="checkbox" name="stats" value="competencesviews" /></label>
+						<label>Profile views<input type="checkbox" name="stats" value="profileviews" /></label>
 					</div>
-					<div id="loader" class="loader" style="display:none"></div>
-					<div id="chart"></div>
+					
+					<p>Choose date range:</p>
+		   			<div class="timeRange">
+		   				<strong>From:</strong>
+						<h:inputText class="dateField dateFrom" required="false" onfocus="blur();">
+						    <f:convertDateTime pattern="dd.MM.yyyy" />
+						</h:inputText>	
+		   				<strong>To:</strong>
+						<h:inputText class="dateField dateTo" required="false" onfocus="blur();">
+						    <f:convertDateTime pattern="dd.MM.yyyy" />
+						</h:inputText>
+					</div>
+					
+					<div class="period">
+						<input id="day" type="radio" name="periods" value="DAY" checked="checked" />
+	   					<label for="day">Day</label>
+	   					<input id="week" type="radio" name="periods" value="WEEK" />
+					   	<label for="week">Week</label>
+					   	<input id="month" type="radio" name="periods" value="MONTH" />
+					   	<label for="month">Month</label>
+					</div>
+					
+					<div class="chartBlock">
+						<div class="chartMessages">
+							<span class="noResultsMessage">#{dashboardBean.noResultsFoundMessage}</span>
+						</div>
+						<div class="loader" style="display:none"></div>
+						<div class="chart" id="activityGraphChart"></div>
+					</div>
 				</div>
+
+				<div id="twitterHashtags">
+					<h1>Twitter hashtags</h1>
+					<div id="mostActiveHashtags">
+						<h2>Most active hashtags</h2>
+						<table class="dashboard-table" id="mostActiveHashtagsTable">
+							<thead>
+								<tr>
+									<th>No</th>
+									<th>Hashtag</th>
+									<th>Daily avg. (last week)</th>
+									<th>Users using it</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+						<div class="navigation" data-current="1" data-pages="0" data-paging="5">
+							<label>Paging:
+								<select class="paging">
+									<option value="5" selected="true">5</option>
+									<option value="10">10</option>
+									<option value="15">15</option>
+									<option value="20">20</option>
+									<option value="50">50</option>
+								</select>
+							</label>
+							<a href="#mostActiveHashtags" class="first">First</a>
+							<a href="#mostActiveHashtags" class="previous">Previous</a>
+							<span class="page">0/0</span>
+							<a href="#mostActiveHashtags" class="next">Next</a>
+							<a href="#mostActiveHashtags" class="last">Last</a>
+						</div>
+					</div>
+				
+					<div id="twitterHashtagsGraph">
+						<h2>Hashtags graph</h2>
+						<p>Choose date range:</p>
+			   			<div class="timeRange">
+			   				<strong>From:</strong>
+							<h:inputText class="dateField dateFrom" required="false" onfocus="blur();">
+							    <f:convertDateTime pattern="dd.MM.yyyy" />
+							</h:inputText>	
+			   				<strong>To:</strong>
+							<h:inputText class="dateField dateTo" required="false" onfocus="blur();">
+							    <f:convertDateTime pattern="dd.MM.yyyy" />
+							</h:inputText>
+						</div>
+						
+						<div class="period">
+							<input id="thday" type="radio" name="thperiods" value="DAY" checked="checked" />
+		   					<label for="thday">Day</label>
+		   					<input id="thweek" type="radio" name="thperiods" value="WEEK" />
+						   	<label for="thweek">Week</label>
+						   	<input id="thmonth" type="radio" name="thperiods" value="MONTH" />
+						   	<label for="thmonth">Month</label>
+						</div>
+						
+						<div class="chartBlock">
+							<div class="chartMessages">
+								<span class="noResultsMessage">#{dashboardBean.noResultsFoundMessage}</span>
+							</div>
+							<div class="loader" style="display:none"></div>
+							<div class="chart" id="twitterHashtagsChart"></div>
+						</div>
+					</div>
+					<div id="disabled-twitter-hashtags">
+						<h2>Disabled hashtags</h2>
+						There are total <span id="disabled-hashtags-count">0</span> disabled Twitter hashtags.
+						<button id="view-disabled-hashtags">View disabled hashtags</button>
+						<div id="disabled-hashtags-dialog">
+							<table class="dashboard-table" id="disabled-hashtags-table">
+								<thead>
+									<tr>
+										<th>Hashtag</th>
+										<th>Action</th>
+									</tr>
+								</thead>
+								<tbody></tbody>
+							</table>
+						</div>
+						<div id="search-hashtags-to-disable">
+							<h3>Search hashtags to disable</h3>
+							<input name="hashtags-to-disable"></input>
+							<button id="disable-hashtag">Disable</button>
+						</div>
+					</div>
+					<h:form id="disable-form" style="display: none;">
+						<h:inputHidden id="hashtag-to-disable" />
+						<h:commandButton id="disable-form-submit">
+							<f:ajax execute="@form" listener="#{dashboardBean.disableHashtag()}" />
+						</h:commandButton>
+					</h:form>
+					<h:form id="enable-form" style="display: none;">
+						<h:inputHidden id="hashtag-to-enable" />
+						<h:commandButton id="enable-form-submit">
+							<f:ajax execute="@form" listener="#{dashboardBean.enableHashtag()}" />
+						</h:commandButton>
+					</h:form>
+					<div id="disable-request-notification">
+						<p>
+							#{dashboardBean.disableHashtagRequestSentMessage}
+						</p>
+					</div>
+					<div id="system-not-available-notification">
+						<p>
+							#{dashboardBean.systemNotAvailableMessage}
+						</p>
+					</div>					
+				</div>	
 			</div>
 		</div>
 	</ui:define>
