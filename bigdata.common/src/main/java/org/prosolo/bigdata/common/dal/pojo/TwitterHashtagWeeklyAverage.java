@@ -2,28 +2,28 @@ package org.prosolo.bigdata.common.dal.pojo;
 
 public class TwitterHashtagWeeklyAverage implements Comparable<TwitterHashtagWeeklyAverage> {
 
-	private String hashtag;
+	private long day;
 
-	private long timestamp;
+	private String hashtag;
 
 	private double average;
 	
+	public long getDay() {
+		return day;
+	}
+
+	public void setDay(long day) {
+		this.day = day;
+	}
+
 	public String getHashtag() {
 		return hashtag;
 	}
-
+	
 	public void setHashtag(String hashtag) {
 		this.hashtag = hashtag;
 	}
-
-	public long getTimestamp() {
-		return timestamp;
-	}
-
-	public void setTimestamp(long timestamp) {
-		this.timestamp = timestamp;
-	}
-
+	
 	public double getAverage() {
 		return average;
 	}
@@ -32,9 +32,9 @@ public class TwitterHashtagWeeklyAverage implements Comparable<TwitterHashtagWee
 		this.average = average;
 	}
 
-	public TwitterHashtagWeeklyAverage(String hashtag, long timestamp, double average) {
+	public TwitterHashtagWeeklyAverage(long day, String hashtag, double average) {
 		this.hashtag = hashtag;
-		this.timestamp = timestamp;
+		this.day = day;
 		this.average = average;
 	}
 

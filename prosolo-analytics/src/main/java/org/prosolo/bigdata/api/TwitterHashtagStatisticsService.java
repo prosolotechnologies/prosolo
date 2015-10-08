@@ -5,7 +5,6 @@ import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -127,9 +126,7 @@ public class TwitterHashtagStatisticsService {
 	}
 	
 	private Long yesterday() {
-		Calendar today = Calendar.getInstance();
-		today.add(Calendar.DATE, -1);
-		return today.getTimeInMillis();
+		return DateUtil.getDaysSinceEpoch() - 1;
 	}
 		
 	@GET

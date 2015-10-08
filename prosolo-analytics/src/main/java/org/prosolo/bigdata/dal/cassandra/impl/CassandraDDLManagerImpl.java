@@ -80,8 +80,7 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		this.ddls.add("CREATE TABLE IF NOT EXISTS usereventdailycount(user bigint, event text, count counter, date bigint, PRIMARY KEY(user, event, date));");
 		this.ddls.add("CREATE TABLE IF NOT EXISTS instanceloggeduserscount(instance text, timestamp bigint, count bigint, PRIMARY KEY(instance, timestamp));");
 		this.ddls.add("CREATE TABLE IF NOT EXISTS twitterhashtagdailycount(hashtag text, date bigint, count counter, PRIMARY KEY(hashtag, date));");
-		this.ddls.add("CREATE TABLE IF NOT EXISTS twitterhashtagweeklyaverage(hashtag text, timestamp bigint, average double, PRIMARY KEY(hashtag, timestamp)) WITH CLUSTERING ORDER BY (timestamp DESC);");
-		this.ddls.add("CREATE INDEX IF NOT EXISTS timestamp_idx ON twitterhashtagweeklyaverage (timestamp);");
+		this.ddls.add("CREATE TABLE IF NOT EXISTS twitterhashtagweeklyaverage(day bigint, hashtag text, average double, PRIMARY KEY(day, hashtag));");
 		this.ddls.add("CREATE TABLE IF NOT EXISTS twitterhashtaguserscount(hashtag text, users counter, PRIMARY KEY(hashtag));");
 		this.ddls.add("CREATE TABLE IF NOT EXISTS disabledtwitterhashtags(hashtag text, PRIMARY KEY(hashtag));");
 		

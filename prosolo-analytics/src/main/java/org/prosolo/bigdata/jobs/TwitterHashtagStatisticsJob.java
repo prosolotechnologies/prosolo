@@ -1,7 +1,5 @@
 package org.prosolo.bigdata.jobs;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,23 +13,21 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 public class TwitterHashtagStatisticsJob implements Job {
-	
+
 	TwitterHashtagStatisticsDBManager dbManager = new TwitterHashtagStatisticsDBManagerImpl();
-	
+
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
-		Date date = Calendar.getInstance().getTime();
-		long dateTo = DateUtil.getDaysSinceEpoch(date);
-		long dateFrom = dateTo - 7;
-		List<TwitterHashtagDailyCount> counts = dbManager.getTwitterHashtagDailyCounts(dateFrom, dateTo);
+		long to = DateUtil.getDaysSinceEpoch();
+		long from = to - 7;
+		List<TwitterHashtagDailyCount> counts = dbManager.getTwitterHashtagDailyCounts(from, to);
 		Map<String, Long> result = new HashMap<String, Long>();
-		for(TwitterHashtagDailyCount count : counts) {
+		for (TwitterHashtagDailyCount count : counts) {
 			Long current = result.get(count.getHashtag());
-			result.put(count.getHashtag(), current == null ? count.getCount() : count.getCount() + current);
+			result.put(count.getHashtag(), count.getCount() + (current == null ? 0 : current));
 		}
-		for(String hashtag : result.keySet()) {
-			dbManager.deleteTwitterHashtagWeeklyAverage(hashtag);
-			dbManager.updateTwitterHashtagWeeklyAverage(hashtag, date.getTime(), result.get(hashtag).doubleValue() / 7);
+		for (String hashtag : result.keySet()) {
+			dbManager.updateTwitterHashtagWeeklyAverage(to, hashtag, result.get(hashtag).doubleValue() / 7);
 		}
 	}
 
