@@ -30,8 +30,8 @@
 						
 						<p:commandLink id="goal"
 							value="#{goalIterator.data.title}"
-							styleClass="expandableGoal #{goalIterator.data.progress == 100 ? 'completed' : ''}"
-							oncomplete="learnMenuControl.menuItemChange('navItemCompetences');"
+							styleClass="expandableGoal #{goalIterator.data.progress == 100 ? 'completed' : ''} goalLink"
+							onclick="learnControl.selectGoal(#{goalIterator.data.targetGoalId});"
 							update=":goalListForm :goalDetails :navigation :selectedGoalEvaluations :selectedGoalBadges:badgeContainer 
 								:competenceList :newCompetenceButtonForm :compSearchForm :compRecommendationsForm :activities"
 							action="#{learninggoals.selectGoal(goalIterator)}"
@@ -62,17 +62,9 @@
 				$('.expandableGoal').shortenedText({showChar: 21, mode: 'static'});
 				hideLearningGoals('goalsList', #{learninggoals.goals.indexOf(learninggoals.selectedGoalData) >= 4 ? learninggoals.goals.indexOf(learninggoals.selectedGoalData)+1 : 4});
 				
-				$(function() {
-					// enabling show/hide of learning goals
-					$('#moreGoals').on('click', function() {
-						$('#hiddenGoals').slideToggle();
-						$('#moreGoals').toggleClass('navDown').toggleClass('navUp');
-					});
-					
-					$('#goalListForm #goalsList li').on('click', function(){
-						setQueryParam('id', $(this).attr('data-id'));
-						history.replaceState({}, null, removeQueryParameter('comp'));
-					});
+				//update goal links' href
+				$('#goalsList .goalLink').each(function() {
+					$(this).attr('href', learnControl.currentPath);
 				});
 			</script>
 		</div>

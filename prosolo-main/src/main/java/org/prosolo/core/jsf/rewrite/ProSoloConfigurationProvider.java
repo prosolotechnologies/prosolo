@@ -48,14 +48,15 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/communications/{tab}").to("/communications.xhtml"))
 				.addRule(Join.path("/search/{tab}").to("/search.xhtml"))
 				.addRule(Join.path("/settings/{tab}").to("/settings.xhtml"))
+				.addRule(Join.path("/settings").to("/settings.xhtml"))
 				.addRule(Join.path("/evaluation/{id}").to("/evaluation.xhtml"))
 				.addRule(Join.path("/posts/{id}/{comment}").to("/post.xhtml"))
 				.addRule(Join.path("/posts/{id}").to("/post.xhtml"))
 				
-				.addRule(Join.path("/manage/competences").to("/manage/competences.xhtml"))
 				.addRule(Join.path("/manage/competences/{id}").to("/manage/competence.xhtml"))
-				.addRule(Join.path("/manage/credentials").to("/manage/courses.xhtml"))
+				.addRule(Join.path("/manage/competences").to("/manage/competences.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}").to("/manage/course.xhtml"))
+				.addRule(Join.path("/manage/credentials").to("/manage/courses.xhtml"))
 				.addRule(Join.path("/manage/reports").to("/manage/reports.xhtml"))
 
 				.addRule(Join.path("/admin/users").to("/admin/users.xhtml"))

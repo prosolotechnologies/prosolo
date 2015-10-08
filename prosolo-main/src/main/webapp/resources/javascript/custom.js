@@ -1,3 +1,11 @@
+var context = '';
+
+var custom = {
+	setContext: function(ctx) {
+		context = ctx;
+	}
+}
+
 // mode can be 'click' (default) or 'hover'
 function enableDropdown(elem) {
 	enableDropdown(elem, null);
@@ -47,12 +55,12 @@ function roundImages(){ //needed as a separate function because of a partial pag
 
 function addLoader(div, message){
 	$(div).html('');
-	$(div).append('<div style="text-align: center;">'+message+'&nbsp;&nbsp;<img src="resources/images/style/ajax-loader-black.gif" style="margin-top: 9px;"/></div>');
+	$(div).append('<div style="text-align: center;">'+message+'&nbsp;&nbsp;<img src="'+context+'/resources/images/style/ajax-loader-black.gif" style="margin-top: 9px;"/></div>');
 }
 
 function addLoaderWithClass(div, message, withLoader, onlyRemoveContent, loaderClass){
 	if (withLoader) {
-		$(div).html('<div class="'+loaderClass+'">'+message+'&nbsp;&nbsp;<img src="resources/images/style/ajax-loader-black.gif"/></div>').show();
+		$(div).html('<div class="'+loaderClass+'">'+message+'&nbsp;&nbsp;<img src="'+context+'/resources/images/style/ajax-loader-black.gif"/></div>').show();
 	} else if (onlyRemoveContent) {
 		$(div).html('').show();
 	}
@@ -60,7 +68,7 @@ function addLoaderWithClass(div, message, withLoader, onlyRemoveContent, loaderC
 
 function addWhiteLoaderWithClass(div, message, withLoader, onlyRemoveContent, loaderClass){
 	if (withLoader) {
-		$(div).html('<div class="'+loaderClass+'">'+message+'&nbsp;&nbsp;<img src="resources/images/style/ajax-loader-white.gif"/></div>').show();
+		$(div).html('<div class="'+loaderClass+'">'+message+'&nbsp;&nbsp;<img src="'+context+'/resources/images/style/ajax-loader-white.gif"/></div>').show();
 	} else if (onlyRemoveContent) {
 		$(div).html('').show();
 	}

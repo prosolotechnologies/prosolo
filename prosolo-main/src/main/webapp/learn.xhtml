@@ -10,6 +10,7 @@
 	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
 	xmlns:dlgcourse="http://java.sun.com/jsf/composite/components/dialogs/course"
 	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:util="http://www.prosolo.com/util"
 	template="templates/masterLayout.xhtml">
 
 	<ui:define name="windowTitle">
@@ -31,28 +32,73 @@
 		<ui:include src="/resources/components/dialogs/deleteCompetence.xhtml" />
 
 		<script>
-			var learnMenuControl = {
-				selected: null,
+			var learnControl = {
+				selectedMenuItem: null,
 				menuItemChange: function(selectedItem){
-					learnMenuControl.selected = selectedItem;
+					learnControl.selectedMenuItem = selectedItem;
 
-					$('.learnMenuContent').addClass('hidden');
+					$('.learnMenuContent').hide();
 					$('.learnNavItem').removeClass('selected');
 					
 					if (selectedItem == 'navItemGoalWall') {
-						$('.learnMenuContent.goalWall').removeClass('hidden');
+						$('.learnMenuContent.goalWall').show();
 						$('.learnNavItem.navItemGoalWall').addClass('selected');
 					} else if (selectedItem == 'navItemCompetences') {
-						$('.learnMenuContent.competenceList').removeClass('hidden');
+						$('.learnMenuContent.competenceList').show();;
 						$('.learnNavItem.navItemCompetences').addClass('selected');
 					} else if (selectedItem == 'navItemCompActivities') {
-						$('.learnMenuContent.activities').removeClass('hidden');
+						$('.learnMenuContent.activities').show();
 						$('.learnNavItem.navItemCompetences').addClass('selected');
 					}
+				},
+				goal: #{learn.goalIdString},
+				comp: #{learn.targetCompIdString},
+				currentPath: null,
+				selectGoal: function(newGoal) {
+					learnControl.goal = newGoal;
+					learnControl.comp = 0;
+					
+					learnControl.menuItemChange('navItemCompetences');
+
+					learnControl.updateUrl();
+					return false;
+				},
+				selectCompetence: function(newComp) {
+					addLoader('#activities', 'Loading...');
+					$('#activities #activitiesContent').hide();
+					
+					learnControl.menuItemChange('navItemCompActivities');
+					
+					learnControl.comp = newComp;
+					
+					learnControl.updateUrl();
+					return false;
+				},
+				selectGoalWall: function() {
+					learnControl.comp = 0;
+					
+					addLoader('.goalWallForm .goalWall', 'Loading Goal Wall...');
+					
+					learnControl.menuItemChange('navItemGoalWall');
+					
+					learnControl.updateUrl();
+					return false;
+				},
+				updateCurrentPath: function() {
+					learnControl.currentPath = '#{request.contextPath}/learn' + (learnControl.goal > 0 ? '/'+learnControl.goal : '') +  (learnControl.comp > 0 ? '/'+learnControl.comp : '');
+				},
+				updateUrl: function() {
+					learnControl.updateCurrentPath();
+					
+					window.history.pushState(
+							{goal: learnControl.goal, comp: learnControl.comp}, 
+							'Learn | ProSolo', 
+							learnControl.currentPath)
 				}
 			}
+			learnControl.updateCurrentPath();
 		</script>
-		
+
 		<h:panelGroup layout="block" class="container goalsPage" id="goalsPageContainer" style="display: none;">
 			<div class="leftSidebar">
 				<ui:include src="/resources/components/goals/goalList.xhtml" />

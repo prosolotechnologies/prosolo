@@ -6,6 +6,9 @@ package org.prosolo.web.util;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
+import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * @author nikolamilikic
  *
@@ -62,6 +65,14 @@ public class URLUtil {
 			}
 		}
 		return pageUrl;
+	}
+	
+	public static String getContextUrl() {
+		FacesContext facesContext = FacesContext.getCurrentInstance();
+		String viewId = facesContext.getViewRoot().getViewId();
+		String url = ((HttpServletRequest) facesContext.getExternalContext().getRequest()).getRequestURL().toString();
+		
+		return url.substring(0, url.length() - viewId.length() + 1); // added -1 to include leading slash (/)
 	}
 	
 }

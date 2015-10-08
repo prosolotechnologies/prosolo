@@ -10,8 +10,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.core.hibernate.HibernateUtil;
-import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activities.requests.AchievedCompetenceRequest;
 import org.prosolo.common.domainmodel.activities.requests.ExternalCreditRequest;
@@ -38,7 +36,8 @@ import org.prosolo.common.domainmodel.workflow.evaluation.EvaluationSubmission;
 import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
-import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.web.activitywall.data.NodeData;
 import org.prosolo.web.activitywall.data.UserDataFactory;
