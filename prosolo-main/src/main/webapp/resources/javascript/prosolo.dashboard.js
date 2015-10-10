@@ -21,8 +21,16 @@ $(function () {
 		return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds()); 
 	}
 	
+	function dashboard() {
+		return document.querySelector("#dashboard");
+	}
+	
 	function host() {
-		return $("#dashboard").data("api");
+		return dashboard().dataset["api"];
+	}
+	
+	function noResultsMessage() {
+		return dashboard().dataset["noResultsFoundMessage"];
 	}
 	
 	function chart(configuration) {
@@ -131,7 +139,7 @@ $(function () {
 			},
 			onload : function(data) {
 				if (data.length==0) {
-					$("#activityGraph .chartMessages").show().siblings().hide();
+					$("#activityGraph .messages").text(noResultsMessage()).show().siblings().hide();
 				} else {
 					$("#activityGraph .chart").show().siblings().hide();
 					agc.show(data);
@@ -236,6 +244,8 @@ $(function () {
 		function load() {
 			var paging = document.querySelector("#mostActiveHashtags .navigation .paging");
 			var term = document.querySelector("#mostActiveHashtags [name='hashtags-term']");
+			var messages = document.querySelector("#mostActiveHashtags .messages");
+			var table = document.querySelector("#mostActiveHashtags table");
 			
 			$.ajax({
 				url : "http://" + host() + "/api/twitter/hashtag/average",
@@ -244,6 +254,17 @@ $(function () {
 				crossDomain: true,
 				dataType: 'json'
 			}).done(function(data) {
+				if (data.results.length == 0) {
+					$(messages).html(noResultsMessage());
+					$(messages).show();
+					$(table).hide();
+					$(navigation).hide();
+				} else {
+					$(messages).hide();
+					$(table).show();
+					$(navigation).show();
+				}
+				
 				var tbody = document.querySelector("#mostActiveHashtags tbody");
 				tbody.innerHTML = "";
 				function td(value) {
@@ -333,11 +354,18 @@ $(function () {
 		});
 		
 		var filter = document.querySelector("#mostActiveHashtags #filter-most-active-hashtags");
+		var term = document.querySelector("#mostActiveHashtags [name='hashtags-term']");
 		filter.addEventListener("click", function() {
-			var term = document.querySelector("#mostActiveHashtags [name='hashtags-term']")
 			term.dataset.term = term.value;
 			load();
 			return false;
+		});
+		term.addEventListener("keypress", function(event ) {
+			if (event.key == 'Enter' || event.keyIdentifier == 'Enter'){
+				this.dataset.term = this.value;
+				load();
+				return false;
+			}
 		});
 		
 		
@@ -366,7 +394,7 @@ $(function () {
 			},
 			onload : function(data) {
 				if (data.length==0) {
-					$("#twitterHashtagsGraph .chartMessages").show().siblings().hide();
+					$("#twitterHashtagsGraph .messages").text(noResultsMessage()).show().siblings().hide();
 				} else {
 					$("#twitterHashtagsGraph .chart").show().siblings().hide();
 					thc.show(data);

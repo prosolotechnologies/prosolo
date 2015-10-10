@@ -49,7 +49,7 @@
 	margin-right: 0.3em;
 }
 
-#dashboard .chartBlock {
+#dashboard .chart-block {
 	padding-top: 24px;
 	clear: both;
 }
@@ -87,10 +87,15 @@
 }
 
 #dashboard .loader {
+	display: none;
 	background-image: url('/resources/images/style/ajax-loader-black.gif');
 	background-repeat: no-repeat;
 	background-position: center;
 	height: 180px;
+}
+
+#dashboard .messages {
+	display: none;
 }
 
 #dashboard h1 {

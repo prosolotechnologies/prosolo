@@ -63,11 +63,9 @@
 					   	<label for="month">Month</label>
 					</div>
 					
-					<div class="chartBlock">
-						<div class="chartMessages">
-							<span class="noResultsMessage">#{dashboardBean.noResultsFoundMessage}</span>
-						</div>
-						<div class="loader" style="display:none"></div>
+					<div class="chart-block">
+						<div class="messages"></div>
+						<div class="loader"></div>
 						<div class="chart" id="activityGraphChart"></div>
 					</div>
 				</div>
@@ -78,6 +76,7 @@
 						<h2>Most active hashtags</h2>
 						<button id="filter-most-active-hashtags">Filter</button>
 						<input name="hashtags-term" data-term=""></input>
+						<div class="messages"></div>
 						<table class="dashboard-table" id="mostActiveHashtagsTable">
 							<thead>
 								<tr>
@@ -131,11 +130,9 @@
 						   	<label for="thmonth">Month</label>
 						</div>
 						
-						<div class="chartBlock">
-							<div class="chartMessages">
-								<span class="noResultsMessage">#{dashboardBean.noResultsFoundMessage}</span>
-							</div>
-							<div class="loader" style="display:none"></div>
+						<div class="chart-block">
+							<div class="messages"></div>
+							<div class="loader"></div>
 							<div class="chart" id="twitterHashtagsChart"></div>
 						</div>
 					</div>
