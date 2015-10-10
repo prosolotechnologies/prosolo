@@ -74,8 +74,10 @@
 					<h1>Twitter hashtags</h1>
 					<div id="mostActiveHashtags">
 						<h2>Most active hashtags</h2>
+						<label for="include-hashtags-without-followers">Without followers</label>
+						<input type="checkbox" name="include-hashtags-without-followers" />
 						<button id="filter-most-active-hashtags">Filter</button>
-						<input name="hashtags-term" data-term=""></input>
+						<input name="hashtags-term" data-term="" type="text" />
 						<div class="messages"></div>
 						<table class="dashboard-table" id="mostActiveHashtagsTable">
 							<thead>

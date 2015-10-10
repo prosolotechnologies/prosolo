@@ -10,6 +10,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.GET;
@@ -20,10 +22,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagDailyCount;
-import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagUsersCount;
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagWeeklyAverage;
 import org.prosolo.bigdata.dal.cassandra.TwitterHashtagStatisticsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl;
+import org.prosolo.bigdata.scala.twitter.TwitterHashtagsStreamsManager$;
 import org.prosolo.bigdata.utils.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +36,8 @@ public class TwitterHashtagStatisticsService {
 	private final Logger logger = LoggerFactory.getLogger(UsersActivityStatisticsService.class);
 
 	private TwitterHashtagStatisticsDBManager dbManager = new TwitterHashtagStatisticsDBManagerImpl();
+	
+	private TwitterHashtagsStreamsManager$ twitterManager = TwitterHashtagsStreamsManager$.MODULE$;
 
 	@GET
 	@Path("/statistics")
@@ -114,12 +118,12 @@ public class TwitterHashtagStatisticsService {
 		return bd.toPlainString();
 	}
 
-	private Map<String, String> merge(TwitterHashtagWeeklyAverage average, TwitterHashtagUsersCount count, long index) {
+	private Map<String, String> merge(TwitterHashtagWeeklyAverage average, Long count, long index) {
 		Map<String, String> result = new HashMap<>();
 		result.put("hashtag", average.getHashtag());
 		result.put("average", round(average.getAverage(), 3));
 		if (count != null) {
-			result.put("users", Long.toString(count.getUsers()));
+			result.put("users", Long.toString(count));
 		} else {
 			result.put("users", "0");
 		}
@@ -135,20 +139,37 @@ public class TwitterHashtagStatisticsService {
 	@Path("/average")
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getAverage(@QueryParam("page") long page, @QueryParam("paging") long paging,
-			@QueryParam("term") String term) throws ParseException {
-		logger.debug("Service 'getAverage' called with parameters: page={}, paging={}, term={}.", page, paging, term);
+			@QueryParam("term") String term, @QueryParam("includeWithoutFollowers") boolean includeWithoutFollowers) throws ParseException {
+		logger.debug(
+				"Service 'getAverage' called with parameters: page={}, paging={}, term={}, includeWithoutFollowers={}.",
+				page, paging, term, includeWithoutFollowers);
 
-		List<String> disabled = dbManager.getDisabledTwitterHashtags();
 		List<TwitterHashtagWeeklyAverage> averages = dbManager.getTwitterHashtagWeeklyAverage(yesterday());
-		long count = averages.stream().filter((a) -> !disabled.contains(a.getHashtag()) && matches(a, term)).count();
-		List<TwitterHashtagWeeklyAverage> results = averages.stream()
-				.filter((a) -> !disabled.contains(a.getHashtag()) && matches(a, term))
-				.sorted(Comparator.reverseOrder()).skip((page - 1) * paging).limit(paging).collect(Collectors.toList());
+		Set<String> following = twitterManager.getHashTags();
+		List<String> disabled = dbManager.getDisabledTwitterHashtags();
+		
+		Predicate<TwitterHashtagWeeklyAverage> enabled = (average) -> !disabled.contains(average.getHashtag());
+		Predicate<TwitterHashtagWeeklyAverage> matchesTerm = (average) -> matches(average, term);
+		Predicate<TwitterHashtagWeeklyAverage> hasFollowers = (average) -> includeWithoutFollowers || following.contains("#" + average.getHashtag());
+		
+		List<TwitterHashtagWeeklyAverage> filtered = averages.stream()
+				.filter(enabled)
+				.filter(matchesTerm)
+				.filter(hasFollowers)
+				.sorted(Comparator.reverseOrder())
+				.collect(Collectors.toList());
+		
+		List<TwitterHashtagWeeklyAverage> paged = filtered.stream()
+				.skip((page - 1) * paging)
+				.limit(paging)
+				.collect(Collectors.toList());
+		
+		long count = filtered.size();
 
 		List<Map<String, String>> result = new ArrayList<>();
 		int number = (int) ((page - 1) * paging + 1);
-		for (TwitterHashtagWeeklyAverage average : results) {
-			TwitterHashtagUsersCount usersCount = dbManager.getTwitterHashtagUsersCount(average.getHashtag());
+		for (TwitterHashtagWeeklyAverage average : paged) {
+			Long usersCount = dbManager.getTwitterHashtagUsersCount(average.getHashtag());
 			result.add(merge(average, usersCount, number++));
 		}
 		return ResponseUtils.corsOk(new Averages(page, pages(count, paging), paging, result));

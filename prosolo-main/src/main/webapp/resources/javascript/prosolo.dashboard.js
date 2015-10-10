@@ -168,17 +168,18 @@ $(function () {
 	
 	(function () {
 		var navigation = document.querySelector("#mostActiveHashtags .navigation");
+		var paging = document.querySelector("#mostActiveHashtags .navigation .paging");
+		var term = document.querySelector("#mostActiveHashtags [name='hashtags-term']");
+		var messages = document.querySelector("#mostActiveHashtags .messages");
+		var table = document.querySelector("#mostActiveHashtags table");
+		var followers = document.querySelector("#mostActiveHashtags [name='include-hashtags-without-followers']");
 		
 		function load() {
-			var paging = document.querySelector("#mostActiveHashtags .navigation .paging");
-			var term = document.querySelector("#mostActiveHashtags [name='hashtags-term']");
-			var messages = document.querySelector("#mostActiveHashtags .messages");
-			var table = document.querySelector("#mostActiveHashtags table");
 			
 			$.ajax({
 				url : "http://" + host() + "/api/twitter/hashtag/average",
 				type : "GET",
-				data : {page: navigation.dataset.current, paging: paging.value, term: term.dataset.term},
+				data : {page: navigation.dataset.current, paging: paging.value, term: term.dataset.term, includeWithoutFollowers: followers.checked},
 				crossDomain: true,
 				dataType: 'json'
 			}).done(function(data) {
@@ -294,6 +295,11 @@ $(function () {
 				load();
 				return false;
 			}
+		});
+		
+		followers.addEventListener("change", function(event ) {
+			load();
+			return false;
 		});
 		
 		load();		

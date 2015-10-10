@@ -3,7 +3,6 @@ package org.prosolo.bigdata.dal.cassandra;
 import java.util.List;
 
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagDailyCount;
-import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagUsersCount;
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagWeeklyAverage;
 
 public interface TwitterHashtagStatisticsDBManager {
@@ -26,7 +25,7 @@ public interface TwitterHashtagStatisticsDBManager {
 	
 	List<String> getDisabledTwitterHashtags();
 	
-	TwitterHashtagUsersCount getTwitterHashtagUsersCount(String hashtag);
+	Long getTwitterHashtagUsersCount(String hashtag);
 
 	void disableTwitterHashtag(String hashtag);
 

@@ -9,7 +9,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagDailyCount;
-import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagUsersCount;
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagWeeklyAverage;
 import org.prosolo.bigdata.dal.cassandra.TwitterHashtagStatisticsDBManager;
 
@@ -226,15 +225,11 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 	}
 	
 	@Override
-	public TwitterHashtagUsersCount getTwitterHashtagUsersCount(String hashtag) {
+	public Long getTwitterHashtagUsersCount(String hashtag) {
 		PreparedStatement prepared = getStatement(getSession(), FIND_TWITTER_HASHTAG_USERS_COUNT);
 		BoundStatement statement = statement(prepared, hashtag);
 		List<Row> result = query(statement);
-		if (result.size() == 1) {
-			Row row = result.get(0);
-			return new TwitterHashtagUsersCount(hashtag(row), users(row));
-		}
-		return null;
+		return result.size() == 1 ? users(result.get(0)) : 0L;
 	}
 	
 	@Override
