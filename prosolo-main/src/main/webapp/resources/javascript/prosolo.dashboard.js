@@ -171,11 +171,52 @@ $(function () {
 		var paging = document.querySelector("#mostActiveHashtags .navigation .paging");
 		var term = document.querySelector("#mostActiveHashtags [name='hashtags-term']");
 		var messages = document.querySelector("#mostActiveHashtags .messages");
-		var table = document.querySelector("#mostActiveHashtags table");
 		var followers = document.querySelector("#mostActiveHashtags [name='include-hashtags-without-followers']");
 		
+		var configuration = {
+			"container" : "#mostActiveHashtags",
+			"rows" : {
+				"class" : "hashtag"
+			},
+			"columns" : [
+					{
+						"name" : "number",
+						"title" : "Number",
+						"type" : "text"
+					},
+					{
+						"name" : "hashtag",
+						"title" : "Hashtag",
+						"type" : "text",
+						"key" : "true"
+					},
+					{
+						"name" : "average",
+						"title" : "Daily avg. (last week)",
+						"type" : "text"
+					},
+					{
+						"name" : "users",
+						"title" : "Users using it",
+						"type" : "text"
+					},
+					{
+						"name" : "action",
+						"title" : "Action",
+						"type" : "button",
+						"value" : "Disable",
+						"click" : function() {
+							this.setAttribute('disabled', 'disabled');
+							document.querySelector("#disable-form\\:hashtag-to-disable").value = this.parentElement.parentElement.dataset["hashtag"];
+							document.querySelector("#disable-form\\:disable-form-submit").click();
+							return false;
+						}
+					} ]
+		}
+		
+		var mahTable = table.create(configuration);
+	
 		function load() {
-			
 			$.ajax({
 				url : "http://" + host() + "/api/twitter/hashtag/average",
 				type : "GET",
@@ -186,46 +227,17 @@ $(function () {
 				if (data.results.length == 0) {
 					$(messages).html(noResultsMessage());
 					$(messages).show();
-					$(table).hide();
+					$(document.querySelector("#mostActiveHashtags table")).hide();
 					$(navigation).hide();
 				} else {
 					$(messages).hide();
-					$(table).show();
+					$(document.querySelector("#mostActiveHashtags table")).show();
 					$(navigation).show();
+					mahTable.init(data.results);
+					hashtagsInTable = data.results.map(function(hashtag) {
+						return hashtag.hashtag;
+					});
 				}
-				
-				var tbody = document.querySelector("#mostActiveHashtags tbody");
-				tbody.innerHTML = "";
-				function td(value) {
-					var td = document.createElement("td");
-					td.innerHTML = value;
-					return td;			
-				}
-				function button(hashtag) {
-					return $("<button>Disable</button>").click(function() {
-						$(this).attr('disabled', 'disabled');
-						document.querySelector("#disable-form\\:hashtag-to-disable").value = hashtag.hashtag;
-						document.querySelector("#disable-form\\:disable-form-submit").click();
-						return false;
-					})[0];
-				}
-				function tdDisable(button) {
-					var td = $("<td></td>")[0];
-					td.appendChild(button);
-					return td;
-				}
-				hashtagsInTable = [];
-				data.results.map(function(hashtag) {
-					hashtagsInTable.push(hashtag.hashtag)
-					var tr = document.createElement("tr");
-					tr.classList.add("hashtag");
-					tr.appendChild(td(hashtag.number));
-					tr.appendChild(td(hashtag.hashtag));
-					tr.appendChild(td(hashtag.average));
-					tr.appendChild(td(hashtag.users));
-					tr.appendChild(tdDisable(button(hashtag)));
-					tbody.appendChild(tr);
-				});
 				
 				twitterHashtags.showLoader();
 				twitterHashtagsService.get(twitterHashtags.onload);
@@ -347,55 +359,44 @@ $(function () {
     	});
 	})();
 	
-	(function () {
-	    $("#disabled-hashtags-dialog").dialog({
-	    	resizable: false,
-	    	title: "Disabled hashtags",
-	        width: 'auto',
-	        height: 'auto',
-		    modal: true,
-		    autoOpen: false,
-		    close: function() { $("#disabled-hashtags-table tbody").html(""); }
-	    });
-	    $("#view-disabled-hashtags").click(function() {
-	    	$.ajax({
-	    		url : "http://" + host() + "/api/twitter/hashtag/disabled",
-	    		type : "GET",
-	    		crossDomain : true,
-	    		dataType : 'json'
-	    	}).done(function(data) {
-	    		var tbody = document.querySelector("#disabled-hashtags-table tbody");
-	    		tbody.innerHTML = "";
-	    		function td(value) {
-	    			var td = document.createElement("td");
-	    			td.innerHTML = value;
-	    			return td;			
-	    		}
-	    		function button(hashtag) {
-	    			return $("<button>Enable</button>").click(function() {
-	    				$(this).attr('disabled', 'disabled');
-	    				document.querySelector("#enable-form\\:hashtag-to-enable").value = hashtag;
-	    				document.querySelector("#enable-form\\:enable-form-submit").click();
-	    				return false;
-	    			})[0];
-	    		}
-	    		function tdEnable(button) {
-	    			var td = $("<td></td>")[0];
-	    			td.appendChild(button);
-	    			return td;
-	    		}
-	    		hashtagsInTable = [];
-	    		data.map(function(hashtag) {
-	    			var tr = document.createElement("tr");
-	    			tr.classList.add("hashtag");
-	    			tr.appendChild(td(hashtag));
-	    			tr.appendChild(tdEnable(button(hashtag)));
-	    			tbody.appendChild(tr);
-	    		});
-	    		$("#disabled-hashtags-count").html(data.length);
-	    		$("#disabled-hashtags-dialog").dialog("open");
-	    	});
-	    });
+	(function () { 
+    	var configuration = {
+    		"container" : "#disabled-twitter-hashtags",
+    		"rows" : {
+    			"class" : "hashtag"
+    		},
+    		"columns" : [
+    				{
+    					"name" : "hashtag",
+    					"title" : "Hashtag",
+    					"type" : "text",
+    					"key" : "true"
+    				}, {
+    					"name" : "action",
+    					"title" : "Action",
+    					"type" : "button",
+    					"value" : "Enable",
+    					"click" : function() {
+    						this.setAttribute('disabled', 'disabled');
+    	    				document.querySelector("#enable-form\\:hashtag-to-enable").value = this.parentElement.parentElement.dataset["hashtag"];
+    	    				document.querySelector("#enable-form\\:enable-form-submit").click();
+    	    				return false;		
+    					} 
+    				} ]
+    	}
+    	
+    	var dhTable = table.create(configuration);
+    	
+    	$.ajax({
+    		url : "http://" + host() + "/api/twitter/hashtag/disabled",
+    		type : "GET",
+    		crossDomain : true,
+    		dataType : 'json'
+    	}).done(function(data) {
+    		dhTable.init(data.map(function(hashtag) { return {"hashtag" : hashtag }}));
+    		$("#disabled-hashtags-count").html(data.length);
+    		$("#disabled-hashtags-dialog").dialog("open");
+    	});
 	})();
 	
     $(document).ajaxError(function() {

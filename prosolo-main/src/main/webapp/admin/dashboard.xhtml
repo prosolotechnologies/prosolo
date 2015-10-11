@@ -79,18 +79,7 @@
 						<button id="filter-most-active-hashtags">Filter</button>
 						<input name="hashtags-term" data-term="" type="text" />
 						<div class="messages"></div>
-						<table class="dashboard-table" id="mostActiveHashtagsTable">
-							<thead>
-								<tr>
-									<th>No</th>
-									<th>Hashtag</th>
-									<th>Daily avg. (last week)</th>
-									<th>Users using it</th>
-									<th>Action</th>
-								</tr>
-							</thead>
-							<tbody></tbody>
-						</table>
+						<table class="dashboard-table" id="mostActiveHashtagsTable"></table>
 						<div class="navigation" data-current="1" data-pages="0" data-paging="5">
 							<label>Paging:
 								<select class="paging">
@@ -141,18 +130,15 @@
 					<div id="disabled-twitter-hashtags">
 						<h2>Disabled hashtags</h2>
 						There are total <span id="disabled-hashtags-count">0</span> disabled Twitter hashtags.
-						<button id="view-disabled-hashtags">View disabled hashtags</button>
-						<div id="disabled-hashtags-dialog">
-							<table class="dashboard-table" id="disabled-hashtags-table">
-								<thead>
-									<tr>
-										<th>Hashtag</th>
-										<th>Action</th>
-									</tr>
-								</thead>
-								<tbody></tbody>
-							</table>
-						</div>
+						<table class="dashboard-table" id="disabled-hashtags-table">
+							<thead>
+								<tr>
+									<th>Hashtag</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
 					</div>
 					<h:form id="disable-form" style="display: none;">
 						<h:inputHidden id="hashtag-to-disable" />

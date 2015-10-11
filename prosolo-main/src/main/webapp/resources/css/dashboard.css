@@ -9,7 +9,7 @@
 }
 
 #dashboard h2 {
-	padding: 0.3em 0em;
+	padding: 1em 0em;
 	margin: 0em;
 	font-weight: normal;
 	color: #000;
@@ -96,21 +96,27 @@
 
 #dashboard .messages {
 	display: none;
+	clear: both;
 }
 
 #dashboard h1 {
 	clear: left;
+	margin: 1em 0em
 }
 
 #dashboard .counts {
 	float: left;
-	margin-right: 2em;
+	margin: 0em 2em 2em 0em;
 	padding: 1em;
 	width: 14em;
 	height: 5em;
-	border: 1px solid black;
-	margin-bottom: 2em;
+	border: 1px solid lightgray;
 }
+
+#dashboard .counts h2 {
+	padding: 0.3em 0em;
+}
+
 
 #dashboard .counts .count {
 	float: right;
@@ -223,6 +229,7 @@
 
 #dashboard .navigation {
 	margin-top: 1em;
+	height: 3em;
 }
 
 #dashboard .navigation > *:not(:last-child) {
@@ -235,6 +242,10 @@
 	color: #ccc;
 }
 
+#dashboard #mostActiveHashtags h2:first-child {
+	padding-top: 0em;
+}
+
 #dashboard #filter-most-active-hashtags, #dashboard [name='hashtags-term'] {
 	float: right;
 	margin: 0.6em 0em 0.6em 0.6em;
@@ -244,7 +255,6 @@
 	float: left;
 	margin: 1.2em 0.6em 0.6em 0em;
 }
-
 
 #dashboard [name='hashtags-term'] {
 	width: 18em;
