@@ -165,6 +165,7 @@ $(function () {
 	});
 	
 	var hashtagsInTable = [];
+	var disabledHashtags = [];
 	
 	(function () {
 		var navigation = document.querySelector("#mostActiveHashtags .navigation");
@@ -206,9 +207,12 @@ $(function () {
 						"type" : "button",
 						"value" : "Disable",
 						"click" : function() {
+							var hashtag = this.parentElement.parentElement.dataset["hashtag"];
 							this.setAttribute('disabled', 'disabled');
-							document.querySelector("#disable-form\\:hashtag-to-disable").value = this.parentElement.parentElement.dataset["hashtag"];
+							document.querySelector("#disable-form\\:hashtag-to-disable").value = hashtag;
 							document.querySelector("#disable-form\\:disable-form-submit").click();
+							disabledHashtags.push(hashtag);
+							loadDh(disabledHashtags);
 							return false;
 						}
 					} ]
@@ -319,7 +323,7 @@ $(function () {
 	
 	
 	var twitterHashtags = (function() {
-		var thc = chart.create({
+		var twitterHashtagsChart = chart.create({
 			container : "#twitterHashtagsChart",
 			x : "date",
 			y : "count",
@@ -342,91 +346,79 @@ $(function () {
 					$("#twitterHashtagsGraph .messages").text(noResultsMessage()).show().siblings().hide();
 				} else {
 					$("#twitterHashtagsGraph .chart").show().siblings().hide();
-					thc.show(data);
+					twitterHashtagsChart.show(data);
 				}
 			}
 		}
 	})();
 	
-	(function () {
-    	$.ajax({
-    		url : "http://" + host() + "/api/twitter/hashtag/disabled-count",
-    		type : "GET",
-    		crossDomain : true,
-    		dataType : 'json'
-    	}).done(function(data) {
-    		$("#disabled-hashtags-count").html(data.count);
-    	});
-	})();
+	var disabledHashtagsTable = table.create({
+		"container" : "#disabled-twitter-hashtags",
+		"rows" : {
+			"class" : "hashtag"
+		},
+		"columns" : [
+				{
+					"name" : "hashtag",
+					"title" : "Hashtag",
+					"type" : "text",
+					"key" : "true"
+				}, {
+					"name" : "action",
+					"title" : "Action",
+					"type" : "button",
+					"value" : "Enable",
+					"click" : function() {
+						var hashtag = this.parentElement.parentElement.dataset["hashtag"]
+						this.setAttribute('disabled', 'disabled');
+	    				document.querySelector("#enable-form\\:hashtag-to-enable").value = hashtag;
+	    				document.querySelector("#enable-form\\:enable-form-submit").click();
+	    				var index = disabledHashtags.indexOf(hashtag);
+	    				if (index > -1) {
+	    					disabledHashtags.splice(index, 1);
+	    				}
+	    				loadDh(disabledHashtags);
+	    				return false;		
+					} 
+				} ]
+	});
 	
-	(function () { 
-    	var configuration = {
-    		"container" : "#disabled-twitter-hashtags",
-    		"rows" : {
-    			"class" : "hashtag"
-    		},
-    		"columns" : [
-    				{
-    					"name" : "hashtag",
-    					"title" : "Hashtag",
-    					"type" : "text",
-    					"key" : "true"
-    				}, {
-    					"name" : "action",
-    					"title" : "Action",
-    					"type" : "button",
-    					"value" : "Enable",
-    					"click" : function() {
-    						this.setAttribute('disabled', 'disabled');
-    	    				document.querySelector("#enable-form\\:hashtag-to-enable").value = this.parentElement.parentElement.dataset["hashtag"];
-    	    				document.querySelector("#enable-form\\:enable-form-submit").click();
-    	    				return false;		
-    					} 
-    				} ]
-    	}
+	var disabledHashtagsPages = paging.create([], 5);
+	
+	$.ajax({
+		url : "http://" + host() + "/api/twitter/hashtag/disabled",
+		type : "GET",
+		crossDomain : true,
+		dataType : 'json'
+	}).done(function(data) {
+		disabledHashtags = data;
+		loadDh(data);
+	});
     	
-    	var dhTable = table.create(configuration);
-    	
-    	$.ajax({
-    		url : "http://" + host() + "/api/twitter/hashtag/disabled",
-    		type : "GET",
-    		crossDomain : true,
-    		dataType : 'json'
-    	}).done(function(data) {
-    		var dhPaging = paging.create(data);
-    		dhTable.init(dhPaging.current().result.map(function(hashtag) { return {"hashtag" : hashtag }}));
-    		$("#disabled-hashtags-count").html(data.length);
-    		
-    		var page = document.querySelector("#disabled-twitter-hashtags .navigation .page");
-    		
-    		page.innerHTML = dhPaging.current().page + "/" + dhPaging.current().pages;
-    		
-    		var previous = document.querySelector("#disabled-twitter-hashtags .navigation .previous");
-    		previous.addEventListener("click", function() {
-    			if (dhPaging.current().page == 1) {
-    				return false;
-    			}
-    			var data = dhPaging.previous();
-    			if (data == []) return false;
-    			dhTable.init(data.result.map(function(hashtag) { return {"hashtag" : hashtag }}));
-    			page.innerHTML = data.page + "/" + data.pages;
-    			return false;
-    		});
-    		
-    		var next = document.querySelector("#disabled-twitter-hashtags .navigation .next");
-    		next.addEventListener("click", function() {
-    			if (dhPaging.current().page == dhPaging.current().pages) {
-    				return false;
-    			}
-    			var data = dhPaging.next();
-    			if (data == []) return false;
-    			dhTable.init(data.result.map(function(hashtag) { return {"hashtag" : hashtag }}));
-    			page.innerHTML = data.page + "/" + data.pages;
-    			return false;
-    		});
-
-    	});
-	})();
+	function init(data) {
+		var page = document.querySelector("#disabled-twitter-hashtags .navigation .page");
+		disabledHashtagsTable.init(data.result.map(function(hashtag) { return {"hashtag" : hashtag }}));
+		$("#disabled-hashtags-count").html(data.size);
+		page.innerHTML = data.page + "/" + data.pages;
+	}
+	
+	function loadDh(data) {
+		var page = disabledHashtagsPages.current().page;
+		disabledHashtagsPages = paging.create(data, 5);
+		init(disabledHashtagsPages.page(page));
+	}
+	
+	var previous = document.querySelector("#disabled-twitter-hashtags .navigation .previous");
+	previous.addEventListener("click", function() {
+		init(disabledHashtagsPages.previous());
+		return false;
+	});
+	
+	var next = document.querySelector("#disabled-twitter-hashtags .navigation .next");
+	next.addEventListener("click", function() {
+		init(disabledHashtagsPages.next());
+		return false;
+	});
 	
     $(document).ajaxError(function() {
 		$("#system-not-available-notification").dialog({
