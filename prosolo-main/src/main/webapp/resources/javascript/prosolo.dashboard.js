@@ -393,9 +393,38 @@ $(function () {
     		crossDomain : true,
     		dataType : 'json'
     	}).done(function(data) {
-    		dhTable.init(data.map(function(hashtag) { return {"hashtag" : hashtag }}));
+    		var dhPaging = paging.create(data);
+    		dhTable.init(dhPaging.current().result.map(function(hashtag) { return {"hashtag" : hashtag }}));
     		$("#disabled-hashtags-count").html(data.length);
-    		$("#disabled-hashtags-dialog").dialog("open");
+    		
+    		var page = document.querySelector("#disabled-twitter-hashtags .navigation .page");
+    		
+    		page.innerHTML = dhPaging.current().page + "/" + dhPaging.current().pages;
+    		
+    		var previous = document.querySelector("#disabled-twitter-hashtags .navigation .previous");
+    		previous.addEventListener("click", function() {
+    			if (dhPaging.current().page == 1) {
+    				return false;
+    			}
+    			var data = dhPaging.previous();
+    			if (data == []) return false;
+    			dhTable.init(data.result.map(function(hashtag) { return {"hashtag" : hashtag }}));
+    			page.innerHTML = data.page + "/" + data.pages;
+    			return false;
+    		});
+    		
+    		var next = document.querySelector("#disabled-twitter-hashtags .navigation .next");
+    		next.addEventListener("click", function() {
+    			if (dhPaging.current().page == dhPaging.current().pages) {
+    				return false;
+    			}
+    			var data = dhPaging.next();
+    			if (data == []) return false;
+    			dhTable.init(data.result.map(function(hashtag) { return {"hashtag" : hashtag }}));
+    			page.innerHTML = data.page + "/" + data.pages;
+    			return false;
+    		});
+
     	});
 	})();
 	
