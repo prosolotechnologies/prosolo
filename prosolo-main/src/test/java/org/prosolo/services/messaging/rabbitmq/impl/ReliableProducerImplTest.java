@@ -86,6 +86,65 @@ public class ReliableProducerImplTest{
 	}
 	
 	@Test
+	public void extractUserActivitiesFromMongoLogsTest(){
+		ReliableProducerImpl reliableProducer=new ReliableProducerImpl();
+		 reliableProducer.setQueue(QueueNames.LOGS.name().toLowerCase());
+		 reliableProducer.startAsynchronousPublisher();
+		 
+		 MongoDBServersConfig dbServersConfig=Settings.getInstance().config.mongoDatabase.dbServersConfig;
+		  List<ServerAddress> serverAddresses=new ArrayList<ServerAddress>();
+		  for(MongoDBServerConfig dbsConfig:dbServersConfig.dbServerConfig){
+			ServerAddress serverAddress;
+			try {
+				serverAddress = new ServerAddress(dbsConfig.dbHost,dbsConfig.dbPort);
+				serverAddresses.add(serverAddress);
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		  }
+		  MongoClient mongoClient=new MongoClient(serverAddresses);
+		  DB db=mongoClient.getDB(Settings.getInstance().config.mongoDatabase.dbName);
+		 DBCollection eventsCollection= db.getCollection("log_events_observed");
+		 DBObject query=new BasicDBObject();
+		 query.put("actorId",2);
+		int count= eventsCollection.find().count();
+		System.out.println("COLLECTION HAS EVENTS:"+count);
+		int counter = 0;
+		int batchSize = 100;
+		while(counter < count) {
+			DBCursor cursor = eventsCollection.find();
+			cursor.skip(counter);
+			cursor.limit(batchSize);
+			for(int i = 0; i<batchSize; i++) {
+				counter++;
+				if (!cursor.hasNext()) {
+					break;
+				}
+				DBObject dbObject=cursor.next();
+				String eventType=dbObject.get("eventType").toString();
+				
+				boolean ignore=false;
+				if(eventType.equals("TwitterPost")|| eventType.equals("LOGOUT") || eventType.equals("SESSIONENDED")	){
+					ignore=true;					
+				}
+				if(dbObject.containsKey("objectType") && dbObject.get("objectType")!=null){
+					String objectType=dbObject.get("objectType").toString();
+					if(objectType.equals("MOUSE_CLICK")){
+						ignore=true;
+					}
+				}
+				
+				if(!ignore){
+					wrapMessageAndSend(reliableProducer, dbObject);
+				}
+				
+			}
+		}
+	}
+	
+	@Test
 	public void generateActivityInteractionsLogsFromMongoTest(){
 		ReliableProducerImpl reliableProducer=new ReliableProducerImpl();
 		 reliableProducer.setQueue(QueueNames.LOGS.name().toLowerCase());
@@ -176,6 +235,7 @@ public class ReliableProducerImplTest{
 			message.setLink((String) logObject.get("link"));
 			message.setParameters(parameters);
 			//wrapMessageAndSend(reliableProducer, message, ip);
+		System.out.println("G:"+g.toJson(message));
 		GsonBuilder gson = new GsonBuilder();
 		 gson.registerTypeAdapter(MessageWrapper.class, new MessageWrapperAdapter());
 		MessageWrapper wrapper = new MessageWrapper();

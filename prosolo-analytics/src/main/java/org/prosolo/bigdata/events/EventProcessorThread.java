@@ -3,6 +3,7 @@ package org.prosolo.bigdata.events;
 import org.prosolo.bigdata.events.observers.EventObserver;
 import org.prosolo.bigdata.events.pojo.DefaultEvent;
 import org.prosolo.bigdata.streaming.Topic;
+import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.apache.log4j.Logger;
 
 /**
@@ -51,7 +52,7 @@ public class EventProcessorThread extends Thread {
 		return false;
 	}
 
-	private boolean isInTypesArray(String[] supportedTypes, String eventType) {
+/*	private boolean isInTypesArray(String[] supportedTypes, String eventType) {
 		if (supportedTypes == null || supportedTypes.length == 0) {
 			return true;
 		}
@@ -59,6 +60,13 @@ public class EventProcessorThread extends Thread {
 			if (supportedTypes[i].equals(eventType)) {
 				return true;
 			}
+		}
+		return false;
+	}*/
+	private boolean isInTypesArray(EventType[] supportedTypes, EventType eventType) {
+		for (int i = 0; i < supportedTypes.length; i++) {
+			if (supportedTypes[i].equals(event))
+				return true;
 		}
 		return false;
 	}

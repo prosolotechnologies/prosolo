@@ -3,6 +3,7 @@ package org.prosolo.bigdata.events.pojo;
 import java.io.Serializable;
 
 import org.prosolo.bigdata.streaming.Topic;
+import org.prosolo.common.domainmodel.activities.events.EventType;
 
 /**
  * @author Zoran Jeremic Apr 5, 2015
@@ -15,7 +16,8 @@ public class DefaultEvent implements Serializable, Comparable<Object> {
 	 */
 	private static final long serialVersionUID = -6560789959659890575L;
 	private Topic topic;
-	private String eventType;
+	//private String eventType;
+	private EventType eventType;
 	private Long timestamp;
 
 	public Topic getTopic() {
@@ -34,11 +36,11 @@ public class DefaultEvent implements Serializable, Comparable<Object> {
 		this.timestamp = timestamp;
 	}
 
-	public String getEventType() {
+	public EventType getEventType() {
 		return eventType;
 	}
 
-	public void setEventType(String eventType) {
+	public void setEventType(EventType eventType) {
 		this.eventType = eventType;
 	}
 

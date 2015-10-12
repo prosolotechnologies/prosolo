@@ -8,3 +8,6 @@ DBARCHIVE=$BASENAME/MONGODB_$DATE.tar.gz
 mongodump --db prosolo -o $DUMPDIR
 tar  -czvf $DBARCHIVE $DUMPDIR 
 rm -r $DUMPDIR
+
+#to restore
+#mongorestore --db prosolo log_user_latest_activity_time.bson

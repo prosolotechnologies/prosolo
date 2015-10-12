@@ -5,6 +5,7 @@ import org.prosolo.bigdata.dal.cassandra.impl.LogEventDBManagerImpl;
 import org.prosolo.bigdata.events.pojo.DefaultEvent;
 import org.prosolo.bigdata.events.pojo.LogEvent;
 import org.prosolo.bigdata.streaming.Topic;
+import org.prosolo.common.domainmodel.activities.events.EventType;
 
 /**
  * @author Zoran Jeremic Apr 6, 2015
@@ -21,7 +22,7 @@ public class LogEventsPersisterObserver implements EventObserver {
 	}
 
 	@Override
-	public String[] getSupportedTypes() {
+	public EventType[] getSupportedTypes() {
 		return null;
 	}
 
