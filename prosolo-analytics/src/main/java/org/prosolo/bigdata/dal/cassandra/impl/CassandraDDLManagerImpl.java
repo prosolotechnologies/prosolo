@@ -83,7 +83,10 @@ this.ddls.add("CREATE TABLE IF NOT EXISTS instanceloggeduserscount(instance text
 		String failedFeedsDDL = "CREATE TABLE IF NOT EXISTS failedfeeds(url text, date bigint, count counter,"
 				+ " PRIMARY KEY (url, date))";
 		this.ddls.add(failedFeedsDDL);
- 
+		
+		String clusteringusersobservationsbydateDDL = "CREATE TABLE IF NOT EXISTS clusteringusersobservationsbydate(date bigint, userid bigint, login counter, lmsuse counter, resourceview counter, discussionview counter, "
+				+ " PRIMARY KEY (date, userid))";
+		this.ddls.add(clusteringusersobservationsbydateDDL);
 	}
 
 	@Override

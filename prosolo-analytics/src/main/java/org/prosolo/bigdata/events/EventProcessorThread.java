@@ -35,11 +35,11 @@ public class EventProcessorThread extends Thread {
 				this.event.getEventType())) {
 			return;
 		}
-
 		this.observer.handleEvent(this.event);
 	}
 
 	private boolean isInTopicsArray(Topic[] supportedTopics, Topic eventTopic) {
+		
 		if (supportedTopics == null || supportedTopics.length == 0) {
 			return true;
 		}
@@ -52,21 +52,16 @@ public class EventProcessorThread extends Thread {
 		return false;
 	}
 
-/*	private boolean isInTypesArray(String[] supportedTypes, String eventType) {
+private boolean isInTypesArray(EventType[] supportedTypes, EventType eventType) {
+
 		if (supportedTypes == null || supportedTypes.length == 0) {
 			return true;
-		}
+		} 
 		for (int i = 0; i < supportedTypes.length; i++) {
-			if (supportedTypes[i].equals(eventType)) {
+			if (supportedTypes[i].equals(eventType)){
 				return true;
 			}
-		}
-		return false;
-	}*/
-	private boolean isInTypesArray(EventType[] supportedTypes, EventType eventType) {
-		for (int i = 0; i < supportedTypes.length; i++) {
-			if (supportedTypes[i].equals(event))
-				return true;
+				
 		}
 		return false;
 	}

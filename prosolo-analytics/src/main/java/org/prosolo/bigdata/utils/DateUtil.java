@@ -25,6 +25,9 @@ public class DateUtil {
 	public static long getDaysSinceEpoch(Date date) {
 		return days(date.getTime());
 	}
+	public static long getDaysSinceEpoch(long timestamp){
+		return days(timestamp);
+	}
 	
 	public static long getFirstDayOfWeek(long day) {
 		Calendar calendar = Calendar.getInstance();

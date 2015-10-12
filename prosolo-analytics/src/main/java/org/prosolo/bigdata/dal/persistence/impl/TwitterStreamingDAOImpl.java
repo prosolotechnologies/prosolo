@@ -45,12 +45,7 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 	@Override
 	public Object save(Object entity, Session session) {
 		try{
-//			boolean isActive = session.getTransaction().isActive();  
-//            if ( !isActive) {  
-//                session.beginTransaction();  
-//            }  
 			session.save(entity);
-			// session.getTransaction().commit();
 		}catch(Exception ex){
 			 		 
 			if(session.getTransaction()!=null){
@@ -64,9 +59,6 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 
 	@Override
 	public Map<String, StreamListData> readAllHashtagsAndLearningGoalsIds(Session session) {
-		// EntityManager em =
-		// org.prosolo.bigdata.dal.persistence.EntityManagerUtil.getEntityManagerFactory()
-		// .createEntityManager();
 		String query = "SELECT DISTINCT hashtag.title, lGoal.id "
 				+ "FROM LearningGoal lGoal "
 				+ "LEFT JOIN lGoal.hashtags hashtag WHERE hashtag.id > 0";
@@ -102,9 +94,6 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 
 	@Override
 	public Map<String, List<Long>> readAllUserPreferedHashtagsAndUserIds(Session session) {
-		// EntityManager em =
-		// org.prosolo.bigdata.dal.persistence.EntityManagerUtil.getEntityManagerFactory()
-		// .createEntityManager();
 		String query = "SELECT DISTINCT hashtag.title, user.id "
 				+ "FROM TopicPreference topicPreference "
 				+ "LEFT JOIN topicPreference.user user "
@@ -132,8 +121,6 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 				}
 			}
 		}
-		// em.close();
-
 		return hashtagsUserIds;
 	}
 
@@ -144,7 +131,6 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 			String text, VisibilityType visibility,
 			Collection<String> hashtags, boolean toSave, Session session) {
 		TwitterPost twitterPost = new TwitterPost();
-		// twitterPost.setTitle(text);
 		twitterPost.setDateCreated(created);
 		twitterPost.setLink(postLink);
 		if (!(maker instanceof AnonUser)) {
@@ -239,11 +225,8 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 		String query = "SELECT DISTINCT tag " + "FROM Tag tag "
 				+ "WHERE tag.title = :title";
 		List<Tag> tags = null;
-
-		// try{
 		tags = session.createQuery(query)
 				.setParameter("title", title).list();
-		// }catch(NoResultException nre){
 
 		if (tags != null && !tags.isEmpty()) {
 			return tags.iterator().next();

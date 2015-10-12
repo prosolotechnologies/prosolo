@@ -235,7 +235,6 @@ public class ReliableProducerImplTest{
 			message.setLink((String) logObject.get("link"));
 			message.setParameters(parameters);
 			//wrapMessageAndSend(reliableProducer, message, ip);
-		System.out.println("G:"+g.toJson(message));
 		GsonBuilder gson = new GsonBuilder();
 		 gson.registerTypeAdapter(MessageWrapper.class, new MessageWrapperAdapter());
 		MessageWrapper wrapper = new MessageWrapper();
