@@ -90,13 +90,13 @@
 							#{msg['composite.course.action.enrollInCourse.info1']}
 							<h:link value="Learn tab" 
 								class="bold"
-								onclick="sendLogPageNavigationWithParameters('learn.xhtml', { context: '#{cc.attrs.context}', 'courseStatus': 'notActive'});" 
+								onclick="sendLogPageNavigationWithParameters('learn', { context: '#{cc.attrs.context}', 'courseStatus': 'notActive'});" 
 								outcome="/learn">
 							</h:link>
 							#{msg['composite.course.action.enrollInCourse.info2']}
 							<h:link value="Learn space" 
 								class="bold"
-								onclick="sendLogPageNavigationWithParameters('learn.xhtml', { context: '#{cc.attrs.context}', 'courseStatus': 'notActive'});" 
+								onclick="sendLogPageNavigationWithParameters('learn', { context: '#{cc.attrs.context}', 'courseStatus': 'notActive'});" 
 								outcome="/learn">
 							</h:link>.
 						</p>
@@ -159,14 +159,14 @@
 							#{msg['composite.course.action.enrollInCourse.completed.info1']}
 							<h:link value="Profile tab" 
 								class="bold"
-								onclick="sendLogPageNavigationWithParameters('profile.xhtml', { context: '#{cc.attrs.context}', 'courseStatus': 'completed'});" 
+								onclick="sendLogPageNavigationWithParameters('profile', { context: '#{cc.attrs.context}', 'courseStatus': 'completed'});" 
 								outcome="/profile">
 							</h:link>
 							#{msg['composite.course.action.enrollInCourse.completed.info2']}
 						</p>
 						<h:link value="#{msg['composite.course.action.enrollInCourse.completed.button']}" 
 							class="button green size40 left marginBottom10"
-							onclick="sendLogPageNavigationWithParameters('profile.xhtml', { context: '#{cc.attrs.context}', 'courseStatus': 'completed'});" 
+							onclick="sendLogPageNavigationWithParameters('profile', { context: '#{cc.attrs.context}', 'courseStatus': 'completed'});" 
 							outcome="/profile" />
 					</h:panelGroup>
 					
@@ -181,14 +181,14 @@
 							#{msg['composite.course.action.enrollInCourse.active.info1']}
 							<h:link value="Learn tab" 
 								class="bold"
-								onclick="sendLogPageNavigationWithParameters('learn.xhtml', { context: '#{cc.attrs.context}', 'courseStatus': 'active', 'targetGoalId' : '#{cc.attrs.courseBean.course.targetGoalId}'});" 
+								onclick="sendLogPageNavigationWithParameters('learn', { context: '#{cc.attrs.context}', 'courseStatus': 'active', 'targetGoalId' : '#{cc.attrs.courseBean.course.targetGoalId}'});" 
 								outcome="/learn">
 								<f:param name="id" value="#{cc.attrs.courseBean.course.targetGoalId}" />
 							</h:link>
 							#{msg['composite.course.action.enrollInCourse.active.info2']}
 							<h:link value="Learn tab" 
 								class="bold"
-								onclick="sendLogPageNavigationWithParameters('learn.xhtml', { context: '#{cc.attrs.context}', 'courseStatus': 'active', 'targetGoalId' : '#{cc.attrs.courseBean.course.targetGoalId}'});" 
+								onclick="sendLogPageNavigationWithParameters('learn', { context: '#{cc.attrs.context}', 'courseStatus': 'active', 'targetGoalId' : '#{cc.attrs.courseBean.course.targetGoalId}'});" 
 								outcome="/learn">
 								<f:param name="id" value="#{cc.attrs.courseBean.course.targetGoalId}" />
 							</h:link>
@@ -197,7 +197,7 @@
 						
 						<h:link value="#{msg['composite.course.action.enrollInCourse.active.button']}" 
 							class="button green size40 left marginBottom10"
-							onclick="sendLogPageNavigationWithParameters('learn.xhtml', { context: '#{cc.attrs.context}', 'courseStatus': 'active', 'targetGoalId' : '#{cc.attrs.courseBean.course.targetGoalId}'});" 
+							onclick="sendLogPageNavigationWithParameters('learn', { context: '#{cc.attrs.context}', 'courseStatus': 'active', 'targetGoalId' : '#{cc.attrs.courseBean.course.targetGoalId}'});" 
 							outcome="/learn">
 							<f:param name="id" value="#{cc.attrs.courseBean.course.targetGoalId}" />
 						</h:link>
@@ -221,6 +221,14 @@
 					<h:selectBooleanCheckbox 
 						value="#{cc.attrs.courseBean.course.published}"
 		    			class="publishBtn" />
+		    			
+		    			<p class="marginTop20">
+			    			<h:link outcome="/manage/tools" 
+								class="button size25 blue left"
+								value="Manage external tools">
+								<f:param  name="cred" value="#{cc.attrs.courseBean.id}" />
+							</h:link>
+						</p>
 				</div>
 			</c:if>
 			
@@ -507,7 +515,12 @@
 													value="Edit" 
 													outcome="/manage/competence">
 													<f:param name="id" value="#{compData.competenceId}" />
+<<<<<<< HEAD
+													<f:param name="origin" value="/manage/course?id=#{cc.attrs.courseBean.course.id}" />
+=======
+													<f:param name="cred" value="#{param['id']}" />
 													<f:param name="origin" value="/manage/course.xhtml?id=#{cc.attrs.courseBean.course.id}" />
+>>>>>>> 9cab44f8865e82400f587fcee9a55d02c2c1927d
 												</h:link>
 											</h:panelGroup>
 										</div>

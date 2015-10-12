@@ -47,7 +47,7 @@
 								cc.attrs.displayLimitedInsteadOfPrivate ? 'limited' : 'private'
 							)}"
 					title="#{cc.attrs.visibility == 'PUBLIC' ? cc.attrs.publicTooltipText : privateTooltipTextChanged}"
-					onclick="sendServiceUse('MOUSE_CLICK', {context: '#{cc.attrs.context}.visibility'});"></div>
+					onclick="dropdown(this, event);sendServiceUse('MOUSE_CLICK', {context: '#{cc.attrs.context}.visibility'});"></div>
 								
 				<div class="dropdown hidden">
 					<ul>
@@ -96,14 +96,6 @@
 						</li>
 					</ul>
 				</div>
-				
-				<h:panelGroup rendered="#{!cc.attrs.readOnly}">
-				<script>
-					$(function(){
-						enableDropdown('#'+escapeColons('#{cc.clientId}:vis')+' .drop');
-					});
-				</script>
-				</h:panelGroup>
 				
 				<utilcomp:tooltip target=".hasTooltip[title]" />
 			</h:panelGroup>

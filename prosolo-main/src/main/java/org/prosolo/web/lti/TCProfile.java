@@ -3,13 +3,13 @@ package org.prosolo.web.lti;
 import java.util.List;
 
 import org.prosolo.web.lti.json.data.InlineContext;
-import org.prosolo.web.lti.json.data.ServiceOffered;
+import org.prosolo.web.lti.json.data.Service;
 
 public class TCProfile {
 	
 	private String id;
 	private List<InlineContext> contexts;
-	private List<ServiceOffered> services;
+	private List<Service> services;
 	private List<String> capabilities;
 	
 	
@@ -25,10 +25,10 @@ public class TCProfile {
 	public void setContexts(List<InlineContext> contexts) {
 		this.contexts = contexts;
 	}
-	public List<ServiceOffered> getServices() {
+	public List<Service> getServices() {
 		return services;
 	}
-	public void setServices(List<ServiceOffered> services) {
+	public void setServices(List<Service> services) {
 		this.services = services;
 	}
 	public List<String> getCapabilities() {

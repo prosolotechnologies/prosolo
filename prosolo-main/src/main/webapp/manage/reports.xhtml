@@ -28,7 +28,7 @@
 						<ul id="goalsList">
 							<li class="#{reportsBean.selectedMenu == 'logs' ? 'selected' : ''}">
 								<h:link value="Logs" outcome="reports"
-									onclick="sendLogPageNavigationWithParameters('reports.xhtml',{ context:'manager.reports.navigation', tab:'logs'});" >
+									onclick="sendLogPageNavigationWithParameters('reports', { context:'manager.reports.navigation', tab:'logs'});" >
 									<f:param  name="tab" value="logs" />
 								</h:link>
 							</li>

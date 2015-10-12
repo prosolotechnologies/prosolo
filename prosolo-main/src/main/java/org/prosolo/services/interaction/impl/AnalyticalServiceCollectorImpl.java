@@ -108,13 +108,13 @@ public class AnalyticalServiceCollectorImpl implements AnalyticalServiceCollecto
     	case SELECT_COMPETENCE :
     		return "competencesviews";
     	case NAVIGATE :
-    		if ("page".equals(params.get("objectType")) && "index.xhtml".equals(params.get("link"))) {
+    		if ("page".equals(params.get("objectType")) && "index".equals(params.get("link"))) {
     			return "homepagevisited";
     		}
-    		if ("page".equals(params.get("objectType")) && "learn.xhtml".equals(params.get("link"))) {
+    		if ("page".equals(params.get("objectType")) && "learn".equals(params.get("link"))) {
     			return "goalsviews";
     		}
-    		if ("page".equals(params.get("objectType")) && params.get("link") != null && params.get("link").startsWith("publicprofile.xhtml")) {
+    		if ("page".equals(params.get("objectType")) && params.get("link") != null && params.get("link").startsWith("profile")) {
     			return "profileviews";
     		}
     	default :
@@ -146,6 +146,22 @@ public class AnalyticalServiceCollectorImpl implements AnalyticalServiceCollecto
 		data.add("timestamp", new JsonPrimitive(timestamp));
 		data.add("count", new JsonPrimitive(count));
 		messageDistributer.distributeMessage(factory.createAnalyticalServiceMessage(DataName.INSTANCELOGGEDUSERSCOUNT, DataType.RECORD, data));
+	}
+	
+	@Override
+	public void enableHashtag(String hashtag) {
+		JsonObject data=new JsonObject();
+		data.add("hashtag", new JsonPrimitive(hashtag));
+		data.add("action", new JsonPrimitive("enable"));
+		messageDistributer.distributeMessage(factory.createAnalyticalServiceMessage(DataName.DISABLEDHASHTAGS, DataType.RECORD, data));
+	}
+	
+	@Override
+	public void disableHashtag(String hashtag) {
+		JsonObject data=new JsonObject();
+		data.add("hashtag", new JsonPrimitive(hashtag));
+		data.add("action", new JsonPrimitive("disable"));
+		messageDistributer.distributeMessage(factory.createAnalyticalServiceMessage(DataName.DISABLEDHASHTAGS, DataType.RECORD, data));
 	}
 	
 	

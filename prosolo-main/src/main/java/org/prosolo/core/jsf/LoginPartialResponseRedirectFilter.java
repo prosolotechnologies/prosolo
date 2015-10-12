@@ -28,13 +28,12 @@ public class LoginPartialResponseRedirectFilter implements Filter {
 	        + "<partial-response><redirect url=\"%s\"></redirect></partial-response>";
 
 	private static String[] allowedAccessPages = new String[]{
-		"passwordReset.xhtml",
-		"recovery.xhtml",
-		"terms.xhtml",
-		"publicprofile.xhtml",
-		"digest.xhtml",
-		"systemFeeds.xhtml",
-		"personalFeeds.xhtml"
+		"passwordReset",
+		"recovery",
+		"terms",
+		"profile",
+		"digest",
+		"digest"
 	};
 	
     @Override
@@ -46,7 +45,7 @@ public class LoginPartialResponseRedirectFilter implements Filter {
 		HttpServletResponse response = (HttpServletResponse) res;
 		HttpSession session = request.getSession(false);
 		String contextPath = request.getContextPath();
-		String loginURL = contextPath + "/" + "login.xhtml";
+		String loginURL = contextPath + "/" + "login";
 
 		LoggedUserBean loggedUserBean = (session == null) ? null : (LoggedUserBean) session.getAttribute("loggeduser");
 		boolean loggedIn =  loggedUserBean == null ? false : loggedUserBean.getUser() != null;

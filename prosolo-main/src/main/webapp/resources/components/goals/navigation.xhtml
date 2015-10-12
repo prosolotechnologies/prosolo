@@ -20,24 +20,14 @@
 					
 					<p:commandLink value="Competences"
 						styleClass="learnNavItem navItemCompetences learnTripStep10"
-						onclick="learnMenuControl.menuItemChange('navItemCompetences');sendServiceUse('MOUSE_CLICK', {context: 'learn.targetGoal.#{learninggoals.selectedGoalData.data.targetGoalId}.navigation', link: 'competences', 'targetGoalId' : '#{learninggoals.selectedGoalData.data.targetGoalId}'});" />
+						onclick="learnControl.selectGoal(learnControl.goal);sendServiceUse('MOUSE_CLICK', {context: 'learn.targetGoal.#{learninggoals.selectedGoalData.data.targetGoalId}.navigation', link: 'competences', 'targetGoalId' : '#{learninggoals.selectedGoalData.data.targetGoalId}'});" />
 					
 					<span class="show marginLeft10">or</span>
 						
 					<p:commandLink value="Goal Wall"
 						styleClass="learnNavItem navItemGoalWall selected learnTripStep8"
-						onclick="addLoader('.goalWallForm .goalWall', 'Loading Goal Wall...');learnMenuControl.menuItemChange('navItemGoalWall');sendServiceUse('MOUSE_CLICK', {context: 'learn.targetGoal.#{learninggoals.selectedGoalData.data.targetGoalId}.navigation', link: 'goalWall', 'targetGoalId' : '#{learninggoals.selectedGoalData.data.targetGoalId}'});"
+						onclick="learnControl.selectGoalWall();sendServiceUse('MOUSE_CLICK', {context: 'learn.targetGoal.#{learninggoals.selectedGoalData.data.targetGoalId}.navigation', link: 'goalWall', 'targetGoalId' : '#{learninggoals.selectedGoalData.data.targetGoalId}'});"
 						oncomplete="$('form.goalWallForm a.initializeActivitiesHanler').trigger('click');" />
-					
-					<script>
-						$('.goalsPage .pageNavigation .navItemGoalWall').on('click', function(){
-							history.replaceState({}, null, removeQueryParameter('comp'));
-							setQueryParam('id', $('.leftNav li.goal.selected').attr('data-id'));
-						});
-						$('.goalsPage .pageNavigation .navItemCompetences').on('click', function(){
-							history.replaceState({}, null, removeQueryParameter('comp'));
-						});
-					</script>
 				</div>
 				
 				<div class="rightRegion">
@@ -117,11 +107,11 @@
 								$('.goalsPage .pageNavigation .shade').on('click', function(e){
 									e.stopPropagation();
 									
-									if (learnMenuControl.selected == "navItemGoalWall") {
+									if (learnControl.selectedMenuItem == "navItemGoalWall") {
 										$($(this).parent().nextAll('.filterGoalWall').get(0)).trigger('click');
-									} else if (learnMenuControl.selected == "navItemCompetences") {
+									} else if (learnControl.selectedMenuItem == "navItemCompetences") {
 										$($(this).parent().nextAll('.compareCompetencesAction').get(0)).trigger('click');
-									} else if (learnMenuControl.selected == "navItemCompActivities") {
+									} else if (learnControl.selectedMenuItem == "navItemCompActivities") {
 										$($(this).parent().nextAll('.compareActivitiesAction').get(0)).trigger('click');
 									} 
 								});
@@ -169,11 +159,11 @@
 					enableDropdown('.pageNavigation .goalFilterDrop');
 					roundImages();
 				
-					learnMenuControl.selected = "#{learn.targetCompId > 0 ? 'navItemCompActivities' : 'navItemCompetences'}";
-					learnMenuControl.menuItemChange(learnMenuControl.selected);
+					learnControl.selectedMenuItem = "#{learn.targetCompId > 0 ? 'navItemCompActivities' : 'navItemCompetences'}";
+					learnControl.menuItemChange(learnControl.selectedMenuItem);
 				});
-				learnMenuControl.selected = "#{learn.targetCompId > 0 ? 'navItemCompActivities' : 'navItemCompetences'}";
-				learnMenuControl.menuItemChange(learnMenuControl.selected);
+				learnControl.selectedMenuItem = "#{learn.targetCompId > 0 ? 'navItemCompActivities' : 'navItemCompetences'}";
+				learnControl.menuItemChange(learnControl.selectedMenuItem);
 			</script>
 		</h:form>
 	</div>

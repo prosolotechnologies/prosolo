@@ -13,7 +13,8 @@
 	xmlns:dlgmanager="http://java.sun.com/jsf/composite/components/dialogs/manager"
 	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
 	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons"
-	xmlns:socialWall="http://java.sun.com/jsf/composite/components/socialWall">
+	xmlns:socialWall="http://java.sun.com/jsf/composite/components/socialWall"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
 
 	<composite:interface>
 		<composite:attribute name="competenceBean" required="false" />
@@ -72,8 +73,8 @@
 								placeholder="#{msg['textarea.description']}" />
 						</td>
 					</tr>
-					<tr class="validity col1">
-						<td><label for="validityPeriod">Validity:</label></td>
+					<tr class="validity">
+						<td class=" col1"><label for="validityPeriod">Validity:</label></td>
 						<td>
 							<h:inputText id="validityPeriod"
 								class="autosaveEnabled"
@@ -179,8 +180,21 @@
 				</div>
 			</div>
 			
-			<div class="compActivityPlan sideRecommendedAct right">
-				<h2>Activity plan</h2>
+			<c:if test="#{cc.attrs.role == 'MANAGER'}">
+				<div class="rightSidebar">
+		    			<p class="marginTop20">
+			    			<h:link outcome="/manage/tools" 
+								class="button size25 blue left"
+								value="Manage external tools">
+								<f:param  name="cred" value="#{param['cred']}" />
+								<f:param  name="comp" value="#{manageCompetenceBean.id}" />
+							</h:link>
+						</p>
+				 </div>
+			</c:if>
+			
+			<div class="rightContainer sideRecommendedAct">
+				<h3>Activity plan</h3>
 				
 				<p:commandLink styleClass="button blue size25 left createActivity"
 					value="Create Activity"
@@ -195,7 +209,7 @@
 				<div class="sideSearch">
 					<div class="activitySearchForm">
 						<comp:searchActivities value="compActivities"
-							container=".compActivityPlan"
+							container=".rightContainer"
 							actionLinkName="Add"
 							actionBean="#{manageCompetenceBean}"
 							toExcludeIds="#{manageCompetenceBean.getActivitiesIds()}"
@@ -270,13 +284,13 @@
 						        var start_pos = ui.item.data('start_pos');
 						        var end_pos = ui.item.index();
 						        if (start_pos != end_pos) {
-						        	$('.newCompForm .compActivityPlan input.updateControl').val(start_pos+','+end_pos);
-									$('.newCompForm .compActivityPlan .updatePositionListener').trigger('click');
+						        	$('.newCompForm .rightContainer input.updateControl').val(start_pos+','+end_pos);
+									$('.newCompForm .rightContainer .updatePositionListener').trigger('click');
 						        }
 						    }
 						});
 						
-						$('.newCompForm .compActivityPlan .activities .title .closeIcon').on('click', function(e) {
+						$('.newCompForm .rightContainer .activities .title .closeIcon').on('click', function(e) {
 							e.stopPropagation();
 						}).hover(
 							function(e){
@@ -287,7 +301,7 @@
 							}
 						);
 						
-						$('.newCompForm .compActivityPlan .activities .titleText').on('click', function() {
+						$('.newCompForm .rightContainer .activities .titleText').on('click', function() {
 							var details = $(this).parent().next('.collapsible');
 							
 							if (details.css('display') == 'none') {
@@ -304,15 +318,15 @@
 							}
 						);
 						
-						$('.newCompForm .compActivityPlan .activities .details').on('click', function() {
+						$('.newCompForm .rightContainer .activities .details').on('click', function() {
 						    if ($(this).is(':checked')) {
-						    	$('.newCompForm .compActivityPlan .activities .collapsible').slideDown();
+						    	$('.newCompForm .rightContainer .activities .collapsible').slideDown();
 						    } else {
-						    	$('.newCompForm .compActivityPlan .activities .collapsible').slideUp();
+						    	$('.newCompForm .rightContainer .activities .collapsible').slideUp();
 						    }
 						});
 						
-						$('.newCompForm .compActivityPlan .activities .actBlock .richContent .atcUrl').shortenedText({showChar: 50, mode: 'static'});
+						$('.newCompForm .rightContainer .activities .actBlock .richContent .atcUrl').shortenedText({showChar: 50, mode: 'static'});
 					</script>
 					
 					<span class="hidden">

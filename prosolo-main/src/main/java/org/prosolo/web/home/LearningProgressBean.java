@@ -126,7 +126,10 @@ public class LearningProgressBean implements Serializable{
 	}
 
 	public int getCompletedComNo() {
-		return portfolioBean.getCompletedComps().size();
+		if (portfolioBean != null) {
+			return portfolioBean.getCompletedComps().size();
+		} 
+		return 0;
 	}
 
 	public int getTotalCompNo() {

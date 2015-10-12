@@ -12,8 +12,7 @@
 			<ul class="aHolder">
 				<li>
 					<h:form id="mainActivityWallFilter">
-						<a href="javascript:void(0);" 
-							onclick="sendServiceUse('MOUSE_CLICK', {context: 'statusWall', link: 'filterOpen'})"
+						<a onclick="sendServiceUse('MOUSE_CLICK', {context: 'statusWall', link: 'filterOpen'})"
 							class="filterDrop button gray size16">#{msg['activitywall.filter.'.concat(loggeduser.interfaceSettings.activityWallSettings.chosenFilter).toLowerCase()]}<span></span></a>
 						
 						<div class="dropdown hidden">
@@ -102,7 +101,7 @@
 						</div>
 
 						<script>
-							enableDropdown('.filterDrop');
+							enableDropdown('.filterContainer .filterDrop');
 							$('.filterContainer .hasSubFilter').hover(function(){
 								$(this).find('ul.subFilter').show();
 							});

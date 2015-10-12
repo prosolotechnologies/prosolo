@@ -14,7 +14,7 @@
 	
 	<utilcomp:messagesBundle var="msg" />
 	
-	<div class="learnMenuContent competenceList">
+	<div class="learnMenuContent competenceList" style="display: none;">
 		
 		<div class="middleColumn bottomSeparator50">
 			<ui:remove>
@@ -66,7 +66,7 @@
 								
 								<p:commandLink value="#{competenceData.data.title}" 
 									styleClass="titleText navItemCompActivities compDetailsBtn" 
-									onclick="addLoader('#activities', 'Loading...');$('#activities #activitiesContent').hide();learnMenuControl.menuItemChange('navItemCompActivities')"
+									onclick="learnControl.selectCompetence(#{competenceData.data.id});"
 								 	actionListener="#{activitiesRecommendation.setCompData(competenceData)}"
 								 	action="#{learninggoals.selectCompetence(competenceData)}"
 								 	update=":activities" 
@@ -121,7 +121,7 @@
 								
 								<p:commandLink value="#{competenceData.data.title}" 
 									styleClass="titleText navItemCompActivities compDetailsBtn" 
-									onclick="addLoader('#activities', 'Loading...');$('#activities #activitiesContent').hide();learnMenuControl.menuItemChange('navItemCompActivities')"
+									onclick="learnControl.selectCompetence(#{competenceData.data.id});"
 								 	actionListener="#{activitiesRecommendation.setCompData(competenceData)}"
 								 	action="#{learninggoals.selectCompetence(competenceData)}"
 								 	update=":activities" 
@@ -152,10 +152,12 @@
 				<utilcomp:tooltip target=".hasTooltip[title]" />
 				
 				<script>
-				$('.goalsPage .competenceList .compDetailsBtn').on('click', function(){
-					setQueryParam('comp', $(this).parent().parent().attr('data-id'));
-					setQueryParam('id', $('.leftNav li.goal.selected').attr('data-id'));
-				});
+					$(function(){
+						//update competence links' href
+						$('.competenceList li.item a.titleText').each(function() {
+							$(this).attr('href', learnControl.currentPath + '/' + $(this).parents('.item').attr('data-id'));
+						});
+					});
 				</script>
 			</h:form>
 		</div><!-- middleColumn end -->
@@ -250,7 +252,19 @@
 		<div class="clear"></div>
 		
 		<script>
+			
+		
+			function selectCompetence() {
+				window.history.pushState("object or string", "Title", "new-url");
+			} 
 			var view = "competences";
+			
+			$('.goalsPage .competenceList .compDetailsBtn').on('click', function(){
+				//setQueryParam('comp', $(this).parent().parent().attr('data-id'));
+				//setQueryParam('id', $('.leftNav li.goal.selected').attr('data-id'));
+				
+				
+			});
 		</script>
 	</div>
 </ui:composition>

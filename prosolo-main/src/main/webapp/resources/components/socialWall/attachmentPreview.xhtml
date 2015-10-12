@@ -58,14 +58,14 @@
 					<div class="clear marginBottom10"></div>
 	
 					<h:link
-						onclick="sendLogPageNavigationWithParameters('settings.xhtml', {context: '#{cc.attrs.context}.welcomeActivity'});"
+						onclick="sendLogPageNavigationWithParameters('settings/profile', {context: '#{cc.attrs.context}.welcomeActivity'});"
 						class="button blue size30" value="Account Settings"
 						outcome="/settings">
 						<f:param name="tab" value="profile" />
 					</h:link>
 	
 					<h:link
-						onclick="sendLogPageNavigationWithParameters('learn.xhtml', {context: '#{cc.attrs.context}.welcomeActivity'});"
+						onclick="sendLogPageNavigationWithParameters('learn', {context: '#{cc.attrs.context}.welcomeActivity'});"
 						class="button blue size30 secondButton" value="Learn Page"
 						outcome="learn" />
 	

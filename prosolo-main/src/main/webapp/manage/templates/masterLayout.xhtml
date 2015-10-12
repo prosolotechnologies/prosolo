@@ -56,7 +56,7 @@
 				<div id="headerLeft">
 					<div class="mainLogos">
 						<h:link
-							onclick="sendLogPageNavigation( '/manage/competences.xhtml', 'mainmenu');" 
+							onclick="sendLogPageNavigation( '/manage/competences', 'mainmenu');" 
 							outcome="/manage/competences">
 							<span class="secManage"></span>
 						</h:link>
@@ -70,14 +70,14 @@
 								<ul>
 									<li>
 										<h:link 
-											onclick="sendLogPageNavigation('index.xhtml','mainmenu');" 
+											onclick="sendLogPageNavigation('index','mainmenu');" 
 											outcome="/index">
 											<span class="logo"></span>
 										</h:link>
 									</li>
 									<li>
 										<h:link rendered="#{loggeduser.hasRole('admin')}"
-											onclick="sendLogPageNavigation( '/admin/users.xhtml', 'mainmenu');"
+											onclick="sendLogPageNavigation( '/admin/users', 'mainmenu');"
 											outcome="/admin/users">
 											<span class="secAdmin"></span>
 										</h:link>
@@ -91,21 +91,21 @@
 						<li class="#{(util:getPagePath(view.viewId)  == 'competences' or 
 									util:getPagePath(view.viewId)  == 'competence') ? 'selected' : ''}">
 							<h:link
-								onclick="sendLogPageNavigation('/manage/competences.xhtml','mainmenu');"
+								onclick="sendLogPageNavigation('/manage/competences','mainmenu');"
 								value="Competences"
 								outcome="/manage/competences" />
 						</li>
 						<li class="#{(util:getPagePath(view.viewId)  == 'courses' or 
 									util:getPagePath(view.viewId)  == 'course')? 'selected' : ''}">
 							<h:link
-								onclick="sendLogPageNavigation('/manage/courses.xhtml','mainmenu');"
+								onclick="sendLogPageNavigation('/manage/courses','mainmenu');"
 								value="#{msg['manager.mainmenu.courses']}"
 								outcome="/manage/courses" />
 						</li>
 						<li class="#{(util:getPagePath(view.viewId)  == 'reports' or 
 									util:getPagePath(view.viewId)  == 'reports')? 'selected' : ''}">
 							<h:link
-								onclick="sendLogPageNavigation('/manage/reports.xhtml','mainmenu');"
+								onclick="sendLogPageNavigation('/manage/reports','mainmenu');"
 								value="Reports"
 								outcome="/manage/reports" />
 						</li>
@@ -140,25 +140,25 @@
 								<h:form id="userLogoutFormId">
 									<li>
 										<h:link 
-											onclick="sendLogPageNavigation('diggest.xhtml','mainmenu');" 
+											onclick="sendLogPageNavigation('diggest','mainmenu');" 
 											value="Digest" 
 											outcome="/digest" />
 									</li>
 									<li>
 										<h:link 
-											onclick="sendLogPageNavigation('communications.xhtml','mainmenu');" 
+											onclick="sendLogPageNavigation('communications','mainmenu');" 
 											value="Communications" 
 											outcome="/communications" />
 									</li>
 									<li>
 										<h:link 
-											onclick="sendLogPageNavigation('search.xhtml','mainmenu');" 
+											onclick="sendLogPageNavigation('search','mainmenu');" 
 											value="Search" 
 											outcome="/search" />
 									</li>
 									<li>
 										<h:link 
-											onclick="sendLogPageNavigation('settings.xhtml','mainmenu');" 
+											onclick="sendLogPageNavigation('settings','mainmenu');" 
 											value="Settings" 
 											outcome="/settings" />
 									</li>

@@ -1,0 +1,159 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	template="templates/masterLayout.xhtml"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+<ui:define name="windowTitle">
+	External Tools
+</ui:define>
+
+<ui:define name="metadata">
+	<f:metadata>
+		<f:viewParam name="cred" value="#{manageExternalToolsBean.cred}" default="0"/>
+		<f:viewParam name="comp" value="#{manageExternalToolsBean.comp}" default="0"/>
+		<f:viewParam name="act" value="#{manageExternalToolsBean.act}" default="0"/>
+		<f:viewAction action="#{manageExternalToolsBean.init()}" />
+	</f:metadata>
+</ui:define>
+
+<ui:define name="content">
+	<div id="externalTools" class="container">
+		<div class="content wide">
+			<h2>External Tools</h2>
+		
+			<h:form id="toolsSearchForm" class="filteredSearch">
+				<p:growl id="toolsSearchFormGrowl" showDetail="true" />
+			
+				<div class="clear"></div>
+				
+				<div class="right">
+					<span class="marginRight10 middleAlign">Filter by resource:</span>
+					
+				    <h:panelGroup id="resourceFilter" layout="block" class="clear filter">
+						<ul class="aHolder">
+							<li>
+								<a onclick="sendServiceUse('MOUSE_CLICK', {context: 'externalTools', link: 'filterOpen', courseId: '#{manageExternalToolsBean.cred}'})"
+									class="filterDrop button gray size16">#{manageExternalToolsBean.selectedFilter.title}<span></span></a>
+								
+								<div class="dropdown hidden">
+									<ul>
+										<ui:repeat id="externalToolsFilterRepeat" value="#{manageExternalToolsBean.resourceFilter}" var="res" varStatus="iterator">
+											<li>
+												<p:commandLink value="#{res.title}"
+													action="#{manageExternalToolsBean.selectFilter(res)}"
+													process="@this"
+													update=":toolsSearchForm:resourceFilter :toolsSearchForm:toolTable :toolsSearchForm:linkNewTool" />
+												
+												<h:panelGroup rendered="#{not empty res.children}">
+													<ul class="subList">
+														<ui:repeat value="#{res.children}" var="child" varStatus="subIterator">
+															<li>
+																<p:commandLink value="#{child.title}"
+																	action="#{manageExternalToolsBean.selectFilter(child)}"
+																	process="@this"
+																	update=":toolsSearchForm:resourceFilter :toolsSearchForm:toolTable :toolsSearchForm:linkNewTool" />
+															</li>
+														</ui:repeat>
+													</ul>
+												</h:panelGroup>
+											</li>
+										</ui:repeat>
+									</ul>
+								</div>
+		
+								<script>
+									enableDropdown('#externalTools .filterDrop');
+								</script>
+							</li>
+						</ul>
+					</h:panelGroup>
+				</div>
+				
+				<h:link id= "linkNewTool" styleClass="left button green size30 marginBottom10"
+					value="New External Tool" outcome="/manage/externalTools/toolDetails">
+					<f:param name="cred" value="#{manageExternalToolsBean.cred}" />
+					<f:param name="comp" value="#{manageExternalToolsBean.currentCompetence}" />
+					<f:param name="act" value="#{manageExternalToolsBean.currentActivity}" />
+				</h:link>
+				
+					
+				<div class="separator clear"></div>
+				
+				
+				<h:panelGroup layout="block" class="resultContainer" id="resultContainer">
+					<h:panelGroup class="noContentMessage" rendered="#{empty manageExternalToolsBean.externalTools}">
+						#{msg['manager.externalToolsBrowse.noToolsMessage']}
+					</h:panelGroup>
+					
+					<p:dataTable id="toolTable" value="#{manageExternalToolsBean.externalTools}" var="tool" rowIndexVar="rowIndex">
+					    <p:column headerText="#">
+					        #{rowIndex+1}
+					    </p:column>
+					
+					    <p:column headerText="Title">
+					        <h:link outcome="/manage/externalTools/toolDetails" 
+								value="#{tool.title}">
+								<f:param  name="id" value="#{tool.id}" action="" />
+							</h:link>
+					    </p:column>
+					
+					    <p:column headerText="Info">
+					        <span class="infoTooltipIcon hasTooltip" data-hasqtip="true" oldtitle="Some info goes here" title="" aria-describedby="ui-tooltip-308"></span>
+					    </p:column>
+					    
+					    <p:column headerText="Resource type">
+					        #{tool.resType}
+					    </p:column>
+					
+					    <p:column headerText="Edit">
+							<h:link outcome="/manage/externalTools/toolDetails" 
+								class="button size24 blue"
+								value="Edit">
+								<f:param  name="id" value="#{tool.id}" />
+							</h:link>
+					    </p:column>
+					
+					    <p:column headerText="Disable">
+							<p:commandLink styleClass="button gray size24" action="#{manageExternalToolsBean.changeEnabled(tool)}"
+								value="#{manageExternalToolsBean.setEnabledButton(tool)}" update=":toolsSearchForm:toolTable :toolsSearchForm:toolsSearchFormGrowl"
+							/>
+					    </p:column>
+					
+					    <p:column headerText="Delete">
+							<p:commandLink styleClass="button red size24" action="#{manageExternalToolsBean.deleteTool(tool)}"
+								value="Delete" update=":toolsSearchForm:toolTable :toolsSearchForm:toolsSearchFormGrowl"
+							/>
+					    </p:column>
+					</p:dataTable>
+					
+					<script type="text/javascript">
+					$('form.filteredSearch .box .message').readmore({maxHeight: 40});
+					
+					$(function() {
+						$('form.filteredSearch .loadMore').on('click', function() {
+							return false;
+						});
+						
+						var input = $('form.filteredSearch .inputContainer .searchInput');
+						input[0].selectionStart = input[0].selectionEnd = input.val().length;
+						
+						$('form.filteredSearch .resultContainer').fadeIn();
+					});
+					</script>
+					
+					<utilcomp:tooltip target=".hasTooltip[title]" />
+				</h:panelGroup>
+			</h:form>
+		</div>
+	</div>
+	
+
+</ui:define>
+
+</ui:composition>

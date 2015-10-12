@@ -34,10 +34,23 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
   /** Keeps reference to twitter stream based on stream id, and list of hashtags in filter  */
    val twitterStreamsAndHashtags:collection.mutable.Map[Int,(TwitterStream,ListBuffer[String])]=new collection.mutable.HashMap[Int,(TwitterStream,ListBuffer[String])]
  
+  def getHashTags():java.util.Set[String]= {
+    val result:java.util.Set[String]=new java.util.HashSet[String]
+    val session:Session= HibernateUtil.getSessionFactory().openSession()
+    val twitterDAO = new TwitterStreamingDAOImpl()
+    val hashtagsAndRefs:collection.mutable.Map[String,StreamListData]=twitterDAO.readAllHashtagsAndLearningGoalsIds(session).asScala
+    val hashTagsUserIds:collection.mutable.Map[String,java.util.List[java.lang.Long]]=twitterDAO.readAllUserPreferedHashtagsAndUserIds(session).asScala
+    session.close()
+    for((hashtag, _) <- hashTagsUserIds){
+       result.add(hashtag);
+    }
+    for((hashtag, _) <- hashtagsAndRefs){
+       result.add(hashtag);
+    }
+    result
+  }
   
  // val currentFilterList:ListBuffer[String]=new ListBuffer[String]
-  
-  
   
   /**
    * At the applicaiton startup reads all hashtags from database and initialize required number of spark twitter streams to listen for it on Twitter

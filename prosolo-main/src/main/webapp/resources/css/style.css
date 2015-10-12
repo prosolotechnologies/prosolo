@@ -561,8 +561,7 @@ a .image-wrap {
   width: 100%;
   height: 60px;
   margin-bottom: 30px;
-/*  background: #0288d1; */
-background: #0288d1;
+  background: #0288d1;
   position: fixed;
   top: 0;
   z-index: 700;
@@ -1920,7 +1919,7 @@ h1 a:hover{
 #notifications .container,
 #messages .container {
   width: 320px;
-  /*background-color: #519dd8;*/
+  /*background-color: #0288d1;*/
   font-size: 10px;
   line-height: 14px;
   -webkit-border-radius: 2px;
@@ -2505,7 +2504,7 @@ h1 a:hover{
   position: absolute;
   width: 320px;
   top: 25px;
-  background-color: #519dd8;
+  background-color: #0288d1;
   border-top: none;
   -webkit-border-radius: 2px;
   -moz-border-radius: 2px;
@@ -2662,7 +2661,7 @@ h1 a:hover{
   position: relative;
   width: 320px;
   top: 10px;
-  background-color: #519dd8;
+  background-color: #0288d1;
   border-top: none;
   -webkit-border-radius: 2px;
   -moz-border-radius: 2px;
@@ -8440,13 +8439,14 @@ a.iconUnCheck:hover {
   margin-bottom: 10px;
 }
 
-.newCompForm.wideForm .leftContainer {
+.wideForm .leftContainer {
 	float: left;
 	width: 460px;
 }
 
-.newCompForm.wideForm .leftContainer .col1 {
+.wideForm .leftContainer .col1 {
 	width: 100px;
+	font-weight: bold;
 }
 
 .newCompForm.wideForm .activitySearch {
@@ -8467,9 +8467,9 @@ a.iconUnCheck:hover {
   padding: 0;
 }
 
-.newCompForm.wideForm input[type="text"],
-.newCompForm.wideForm tr.description textarea,
-.newCompForm.wideForm .jq_tags_editor.edit {
+.wideForm input[type="text"],
+.wideForm tr.description textarea,
+.wideForm .jq_tags_editor.edit {
   width: 350px;
 }
 
@@ -8497,45 +8497,46 @@ a.iconUnCheck:hover {
   width: 170px;
 }
 
-.newCompForm.wideForm .compActivityPlan {
+.wideForm .rightContainer {
   width: 430px;
+  float: right;
 }
 
-.newCompForm.wideForm .compActivityPlan .searchText {
+.newCompForm.wideForm .rightContainer .searchText {
   margin-top: 3px;
   float: left;
   margin-right: 10px;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities {
+.newCompForm.wideForm .rightContainer .activities {
   margin-top: 15px;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .options {
+.newCompForm.wideForm .rightContainer .activities .options {
   display: inline-block;
   float: right;
   margin-bottom: 10px;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .options label {
+.newCompForm.wideForm .rightContainer .activities .options label {
   margin-left: 10px;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .title {
+.newCompForm.wideForm .rightContainer .activities .title {
   font-weight: bold;
   cursor: pointer;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .description {
+.newCompForm.wideForm .rightContainer .activities .description {
   margin: 10px 0 15px 0;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .title .titleText {
+.newCompForm.wideForm .rightContainer .activities .title .titleText {
   width: 360px;
   display: inline-block;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .title .position {
+.newCompForm.wideForm .rightContainer .activities .title .position {
   cursor: move;
   font-size: 14px;
   width: 25px;
@@ -8543,50 +8544,50 @@ a.iconUnCheck:hover {
   float: left;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .actBlock {
+.newCompForm.wideForm .rightContainer .activities .actBlock {
   width: 430px;
   min-height: 40px;
   position: relative;
   float: right;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .actBlock .closeIcon {
+.newCompForm.wideForm .rightContainer .activities .actBlock .closeIcon {
   position: absolute;
   top: 5px;
   right: 0;
   margin: 0;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .actBlock .moveIcon {
+.newCompForm.wideForm .rightContainer .activities .actBlock .moveIcon {
   position: absolute;
   top: 5px;
   right: 50px;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .actBlock .editIcon {
+.newCompForm.wideForm .rightContainer .activities .actBlock .editIcon {
   position: absolute;
   top: 5px;
   right: 25px;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .actBlock .richContent {
+.newCompForm.wideForm .rightContainer .activities .actBlock .richContent {
   width: 410px;
   margin: 0 0 30px 0;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .actBlock .richContent .actInfo {
+.newCompForm.wideForm .rightContainer .activities .actBlock .richContent .actInfo {
   width: 409px;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .actBlock .richContent .actInfoSmallImgBig {
+.newCompForm.wideForm .rightContainer .activities .actBlock .richContent .actInfoSmallImgBig {
   width: 289px;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .actBlock .richContent .actInfoSmallImgSmall {
+.newCompForm.wideForm .rightContainer .activities .actBlock .richContent .actInfoSmallImgSmall {
   width: 359px;
 }
 
-.newCompForm.wideForm .compActivityPlan .activities .actBlock .richContent .assignementUploadControl {
+.newCompForm.wideForm .rightContainer .activities .actBlock .richContent .assignementUploadControl {
   display: none;
 }
 
@@ -10121,7 +10122,7 @@ table tr td .iconConnect,
   width: 320px;
   position : absolute;
   left : 0;
-  background-color: #519dd8;
+  background-color: #0288d1;
   -webkit-border-radius: 2px;
   -moz-border-radius: 2px;
   border-radius: 2px;
@@ -10833,7 +10834,97 @@ table tr td .iconConnect,
 /* END ADD NEW RSS SOURCE DIALOG */
 
 /*---------------------------------------------------------------------*/
-/*--- 07. ADMIN ---*/
+/*--- 07. MANAGER ---*/
+/*---------------------------------------------------------------------*/
+
+#externalTools .filter {
+	display: inline-block;
+}
+
+#externalTools .filter .aHolder {
+	position: relative;
+	top: 0;
+	right: 0;
+}
+
+#externalTools .filter .aHolder .filterDrop {
+	min-width: 200px;
+}
+
+#externalTools .filter .aHolder .dropdown {
+    width: 250px;
+    overflow: overlay;
+    max-height: 400px;
+}
+
+#externalTools .filter .aHolder .dropdown li {
+	width: auto;
+}
+
+#externalTools .filter .aHolder .dropdown li a {
+	width: 250px;
+}
+
+#externalTools .filter .aHolder .dropdown .subList {
+	width: 230px;
+    padding-left: 20px;
+}
+
+#externalTools .filter .aHolder .dropdown .subList li a {
+	width: 230px;
+}
+
+#externalTools .resultContainer {
+	margin-top: 20px;
+}
+
+#externalTools table {
+	width: 100%;
+}
+
+#externalTools table td.col1 {
+	text-align: center;
+	font-weight: bold;
+}
+
+#externalToolDetails table {
+    border-spacing: 20px;
+    border-collapse: collapse;
+}
+
+#externalToolDetails table td {
+	padding: 5px 0;
+    position: relative;
+}
+
+#externalToolDetails table td.label.top {
+	vertical-align: top;
+}
+
+#externalToolDetails table td textarea {
+    height: 120px;
+    overflow: hidden;
+    word-wrap: break-word;
+    resize: none;
+}
+
+#externalToolDetails .actions {
+	margin-top: 30px;
+    display: inline-block;
+}
+
+#externalToolDetails .rightContainer table {
+	border-spacing: 20px;
+    border-collapse: collapse;
+}
+
+#externalToolDetails .rightContainer table td.col1 {
+	width: 100px;
+	font-weight: bold;
+}
+
+/*---------------------------------------------------------------------*/
+/*--- 08. ADMIN ---*/
 /*---------------------------------------------------------------------*/
 
 .admin .search h2,
@@ -11034,7 +11125,7 @@ table tr td .iconConnect,
 /* END Delete Role Dialog */
 
 /*---------------------------------------------------------------------*/
-/*--- 08. OVERRIDES ---*/
+/*--- 09. OVERRIDES ---*/
 /*---------------------------------------------------------------------*/
 
 /**** JQUERY UI ******/

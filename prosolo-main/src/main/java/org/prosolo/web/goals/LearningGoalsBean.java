@@ -4,13 +4,16 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
 import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
@@ -22,6 +25,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.activityWall.SocialActivityHandler;
 import org.prosolo.services.activityWall.SocialStreamObserver;
@@ -208,8 +212,12 @@ public class LearningGoalsBean implements Serializable {
 		try {
 		
 			TargetLearningGoal targetGoal = goalManager.loadResource(TargetLearningGoal.class, targetGoalId);
-			final Collection<Tag> oldHashtags=targetGoal.getLearningGoal().getHashtags();
-			 final LearningGoal updatedGoal = goalManager.updateLearningGoal(
+			final int oldProgress = targetGoal.getProgress();
+			
+			final Collection<Tag> oldHashtags = targetGoal.getLearningGoal().getHashtags();
+			final Collection<Tag> oldTags = targetGoal.getLearningGoal().getTags();
+			
+			final LearningGoal updatedGoal = goalManager.updateLearningGoal(
 					targetGoal.getLearningGoal(),
 					selectedGoalData.getData().getTitle(),
 					selectedGoalData.getData().getDescription(),
@@ -251,27 +259,8 @@ public class LearningGoalsBean implements Serializable {
 						new Class[]{SocialStreamObserver.class},
 						parameters);
 				
-			/*	ActivityWallUtilBean activityWallUtilBean = PageUtil.getSessionScopedBean("activitywallutil", ActivityWallUtilBean.class);
-				
-				if (activityWallUtilBean != null) {
-					activityWallUtilBean.addSociaActivitySyncAndPropagate(
-							event, 
-							selectedGoalData, 
-							loggedUser.getUser(), 
-							true, 
-							true);
-				}*/
-				//SocialActivityWallData wallData=
 				socialActivityHandler.addSociaActivitySyncAndPropagateToStatusAndGoalWall(
 						event);
-				
-					/*	socialActivityHandler.addSociaActivitySyncAndPropagateToGoalWall(
-						event, 
-						selectedGoalData, 
-						loggedUser.getUser(), 
-						loggedUser.getLocale());*/
-				// add to status wall
-			//	activityWallBean.addWallActivity(wallData);
 			} catch (EventException e) {
 				logger.error(e);
 			}
@@ -279,18 +268,49 @@ public class LearningGoalsBean implements Serializable {
 			// update collaborators' caches
 			asyncRefreshCollaboratosData(updatedTargetGoal);
 			
+			final int newProgress = selectedGoalData.getData().getProgress();
+			
 			taskExecutor.execute(new Runnable() {
 			    @Override
 			    public void run() {
-			    	Collection<Tag> newHashtags=selectedGoalData.getData().getHashtags();
-			    	// update twitterStreamsManager if hashtags are updated
-			    	eventFactory.generateUpdateHashtagsEvent(loggedUser.getUser(),oldHashtags,newHashtags,updatedGoal,null);
-			    	/*twitterStreamsManager.updateHashTagsForResourceAndRestartStream(
-			    			oldHashtags, 
-			    			newHashtags, 
-			    			updatedGoal.getId());*/
-			    	
+			    	String context = "learn";
 
+			    	// check if hashtags has been changed
+					Collection<Tag> newHashtags = selectedGoalData.getData().getHashtags();
+					
+					Set<Tag> newHashtagsSet = new HashSet<Tag>();
+					newHashtagsSet.addAll(newHashtags);
+					Set<Tag> oldHashtagsSet = new HashSet<Tag>();
+					oldHashtagsSet.addAll(oldHashtags);
+					
+					if (!newHashtagsSet.equals(oldHashtags)) {
+				    	// update twitterStreamsManager if hashtags are updated
+				    	eventFactory.generateUpdateHashtagsEvent(loggedUser.getUser(), oldHashtags, newHashtags, updatedGoal, null, context);
+					}
+					
+					// check if tags has been changed
+					Collection<Tag> newTags = selectedGoalData.getData().getTags();
+					
+					Set<Tag> newTagsSet = new HashSet<Tag>();
+					newTagsSet.addAll(newTags);
+					Set<Tag> oldTagsSet = new HashSet<Tag>();
+					oldTagsSet.addAll(oldTags);
+					
+					if (!newTagsSet.equals(oldTagsSet)) {
+						eventFactory.generateUpdateTagsEvent(loggedUser.getUser(), oldTags, newTags, updatedGoal, null, context);
+					}
+					
+					// check if progress has changed
+					try {
+						if (oldProgress != newProgress) {
+							Map<String, String> parameters = new HashMap<String, String>();
+							parameters.put("context", context);
+							
+							eventFactory.generateChangeProgressEvent(loggedUser.getUser(), updatedTargetGoal, newProgress, parameters);
+						}
+					} catch (EventException e) {
+						logger.error(e);
+					}
 			    }
 			});
 		} catch (ResourceCouldNotBeLoadedException e) {
@@ -508,6 +528,7 @@ public class LearningGoalsBean implements Serializable {
 			
 				// if connected with a course, update Course Portfolio 
 	    		CourseData courseData = goalData.getCourse();
+	    		
 				if (courseData != null) {
 					HttpSession session = applicationBean.getUserSession(loggedUser.getUser().getId());
 					
@@ -551,6 +572,18 @@ public class LearningGoalsBean implements Serializable {
 		            		portfolioBean.populateWithActiveCompletedGoals();
 		            		portfolioBean.initGoalStatistics();
 		            	}
+		            	
+		            	Session session = (Session) portfolioManager.getPersistence().openSession();
+		            	
+		            	// fire event
+		            	try {
+			            	TargetLearningGoal targetGoal = portfolioManager.loadResource(TargetLearningGoal.class, goalData.getTargetGoalId(), session);
+			            	eventFactory.generateEvent(EventType.ARCHIVE_GOAL, loggedUser.getUser(), targetGoal);
+		            	} catch (ResourceCouldNotBeLoadedException | EventException e) {
+							logger.error(e);
+						} finally {
+							HibernateUtil.close(session);
+						}
 		            }
 		        });
 			}

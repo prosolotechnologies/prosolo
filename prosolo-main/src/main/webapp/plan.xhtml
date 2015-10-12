@@ -41,7 +41,7 @@
 						</h2>
 						
 						<h:link class="button size30 green right"
-							onclick="sendLogPageNavigation('courseBrowse.xhtml','plan.enroll');" 
+							onclick="sendLogPageNavigation('credentials','plan.enroll');" 
 							value="#{msg['courses.coursePortfolio.button.enrollInCourse']}" outcome="/courseBrowse" />
 						
 						<div class="clear"></div>
@@ -60,7 +60,7 @@
 											<h4>
 												<h:link value="#{courseData.title}" outcome="/course"
 													class="title"
-													onclick="sendLogPageNavigationWithParameters('course.xhtml', {context: 'plan.activeCourses.#{courseData.id}.title', course: '#{courseData.id}'});">
+													onclick="sendLogPageNavigationWithParameters('credentials', {context: 'plan.activeCourses.#{courseData.id}.title', course: '#{courseData.id}'});">
 													<f:param name="id" value="#{courseData.id}" />
 												</h:link>
 									 		</h4>
@@ -78,7 +78,7 @@
 											</p>
 											
 							 				<h:link value="Details" class="link profLinkDetails" outcome="/course"
-							 					onclick="sendLogPageNavigationWithParameters('course.xhtml', {context: 'plan.activeCourses.#{courseData.id}.details', course: '#{courseData.id}'});">
+							 					onclick="sendLogPageNavigationWithParameters('credentials', {context: 'plan.activeCourses.#{courseData.id}.details', course: '#{courseData.id}'});">
 												<f:param name="id" value="#{courseData.id}"/>
 												<span class="icon active"></span>
 											</h:link>
@@ -136,13 +136,13 @@
 											<h4>							 
 												<h:link value="#{courseData.title}" outcome="/course"
 													class="title"
-													onclick="sendLogPageNavigationWithParameters('course.xhtml', {context: 'plan.future.#{courseData.id}.title', course: '#{courseData.id}'});">
+													onclick="sendLogPageNavigationWithParameters('credentials', {context: 'plan.future.#{courseData.id}.title', course: '#{courseData.id}'});">
 													<f:param name="id" value="#{courseData.id}" />
 												</h:link>
 											</h4>
 											
 							 				<h:link value="Details" class="link profLinkDetails"  outcome="/course"
-							 					onclick="sendLogPageNavigationWithParameters('course.xhtml', {context: 'plan.future.#{courseData.id}.details', course: '#{courseData.id}'});">
+							 					onclick="sendLogPageNavigationWithParameters('credentials', {context: 'plan.future.#{courseData.id}.details', course: '#{courseData.id}'});">
 												<f:param name="id" value="#{courseData.id}"/>
 												<span class="icon active"></span>
 											</h:link>
@@ -198,7 +198,7 @@
 											<h4>	
 												<h:link value="#{courseData.title}" outcome="/course"
 													class="title"
-													onclick="sendLogPageNavigationWithParameters('course.xhtml', {context: 'plan.completed.#{courseData.id}.title', course: '#{courseData.id}'});">
+													onclick="sendLogPageNavigationWithParameters('credentials', {context: 'plan.completed.#{courseData.id}.title', course: '#{courseData.id}'});">
 													<f:param name="id" value="#{courseData.id}" />
 												</h:link>
 											</h4>
@@ -209,7 +209,7 @@
 											</p>
 											
 											<h:link value="Details"  class="link profLinkDetails" outcome="/course"
-												onclick="sendLogPageNavigationWithParameters('course.xhtml', {context: 'plan.completed.#{courseData.id}.details', course: '#{courseData.id}'});">
+												onclick="sendLogPageNavigationWithParameters('credentials', {context: 'plan.completed.#{courseData.id}.details', course: '#{courseData.id}'});">
 												<f:param name="id" value="#{courseData.id}" />
 												<span class="icon active"></span>
 											</h:link>
@@ -253,7 +253,7 @@
 											<h4>	
 												<h:link value="#{courseData.title}" outcome="/course"
 													class="title"
-													onclick="sendLogPageNavigationWithParameters('course.xhtml', {context: 'plan.withdrawn.#{courseData.id}.title', course: '#{courseData.id}'});">
+													onclick="sendLogPageNavigationWithParameters('credentials', {context: 'plan.withdrawn.#{courseData.id}.title', course: '#{courseData.id}'});">
 													<f:param name="id" value="#{courseData.id}" />
 												</h:link>
 											</h4>
@@ -264,7 +264,7 @@
 											</p>
 											
 											<h:link value="Details"  class="link profLinkDetails" outcome="/course"
-												onclick="sendLogPageNavigationWithParameters('course.xhtml', {context: 'plan.withdrawn.#{courseData.id}.details', course: '#{courseData.id}'});">
+												onclick="sendLogPageNavigationWithParameters('credentials', {context: 'plan.withdrawn.#{courseData.id}.details', course: '#{courseData.id}'});">
 												<f:param name="id" value="#{courseData.id}" />
 												<span class="icon active"></span>
 											</h:link>

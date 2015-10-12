@@ -65,6 +65,12 @@
 		<function-class>org.prosolo.util.StringUtils</function-class>
 		<function-signature>java.lang.String longToString(java.lang.Long)</function-signature>
 	</function>
+		
+	<function>
+		<function-name>contextUrl</function-name>
+		<function-class>org.prosolo.web.util.URLUtil</function-class>
+		<function-signature>java.lang.String getContextUrl()</function-signature>
+	</function>
 	
 	<!-- Components -->
 	

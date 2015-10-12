@@ -175,6 +175,8 @@ public class TwitterBean implements Serializable {
 	}
 	
 	public void updateHashTagsAction() {
+		String context = PageUtil.getPostParameter("context");
+		
 		loggedUser.refreshUser();
 		Set<Tag> hashTagList = tagManager.getOrCreateTags(AnnotationUtil.getTrimmedSplitStrings(hashTags));
 		TopicPreference topicPreference = (TopicPreference) userManager.getUserPreferences(loggedUser.getUser(), TopicPreference.class);
@@ -185,7 +187,7 @@ public class TwitterBean implements Serializable {
 		System.out.println("UPDATING HASHTAGS FOR USER 1");
 		//twitterStreamsManager
 				//.updateHashTagsForUserAndRestartStream(oldHashTags, topicPreference.getPreferredHashtags(), loggedUser.getUser().getId());
-		eventFactory.generateUpdateHashtagsEvent(loggedUser.getUser(),oldHashTags, topicPreference.getPreferredHashtags(),null,loggedUser.getUser());
+		eventFactory.generateUpdateHashtagsEvent(loggedUser.getUser(), oldHashTags, topicPreference.getPreferredHashtags(), null, loggedUser.getUser(), context);
 		PageUtil.fireSuccessfulInfoMessage("Updated twitter hashtags!");
 	}
 

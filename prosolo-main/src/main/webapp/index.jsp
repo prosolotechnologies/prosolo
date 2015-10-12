@@ -1,1 +1,1 @@
-<% response.sendRedirect("index.xhtml"); %>
+<% response.sendRedirect("index"); %>

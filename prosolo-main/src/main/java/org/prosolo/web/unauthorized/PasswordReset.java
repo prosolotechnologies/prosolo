@@ -35,7 +35,7 @@ public class PasswordReset implements Serializable {
 		User user = userManager.getUser(email);
 	
 		if (user != null) {
-			boolean resetLinkSent = passwordResetManager.resetPassword(user, email, Settings.getInstance().config.application.domain + "recovery.xhtml");
+			boolean resetLinkSent = passwordResetManager.resetPassword(user, email, Settings.getInstance().config.application.domain + "recovery");
 			
 			if (resetLinkSent) {
 				PageUtil.fireSuccessfulInfoMessage("resetMessage", "Reset instructions have ben sent to "+email);  

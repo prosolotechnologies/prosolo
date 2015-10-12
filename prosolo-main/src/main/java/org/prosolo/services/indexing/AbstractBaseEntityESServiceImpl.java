@@ -14,7 +14,6 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
-import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.annotation.Tag;
@@ -88,18 +87,13 @@ public abstract class AbstractBaseEntityESServiceImpl implements AbstractBaseEnt
 	
 	@Override
 	public void indexNode(XContentBuilder builder, String indexId, String indexName, String indexType) {
-		try {
-			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client,indexName, indexType);
-			IndexRequestBuilder requestBuilder = client.prepareIndex(indexName,	indexType, indexId);
-			requestBuilder.setSource(builder);
-			
-			@SuppressWarnings("unused")
-			IndexResponse response = requestBuilder.execute().actionGet();
-			// client.close();
-		} catch (IndexingServiceNotAvailable e) {
-			logger.error(e);
-		}
+		Client client = ElasticSearchFactory.getClient();
+		esIndexer.addMapping(client,indexName, indexType);
+		IndexRequestBuilder requestBuilder = client.prepareIndex(indexName,	indexType, indexId);
+		requestBuilder.setSource(builder);
+		
+		@SuppressWarnings("unused")
+		IndexResponse response = requestBuilder.execute().actionGet();
 	}
 	
 	@Override

@@ -28,6 +28,12 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
+import org.prosolo.app.Settings;
+import org.prosolo.common.domainmodel.lti.LtiTool;
+import org.prosolo.services.lti.LtiConsumerManager;
+import org.prosolo.services.lti.LtiToolManager;
+import org.prosolo.services.lti.ToolSetManager;
+import org.prosolo.services.lti.exceptions.ConsumerAlreadyRegisteredException;
 import org.prosolo.services.oauth.OauthService;
 import org.prosolo.web.lti.json.MessageParameterTypeAdapterFactory;
 import org.prosolo.web.lti.json.data.BaseURL;
@@ -42,12 +48,16 @@ import org.prosolo.web.lti.json.data.ProductInstance;
 import org.prosolo.web.lti.json.data.ResourceHandler;
 import org.prosolo.web.lti.json.data.ResourceType;
 import org.prosolo.web.lti.json.data.SecurityContract;
-import org.prosolo.web.lti.json.data.ServiceOffered;
+import org.prosolo.web.lti.json.data.Service;
 import org.prosolo.web.lti.json.data.ToolProfile;
 import org.prosolo.web.lti.json.data.ToolProxy;
 import org.prosolo.web.lti.json.data.ToolService;
 import org.prosolo.web.lti.json.data.Vendor;
 import org.prosolo.web.lti.message.ToolProxyRegistrationMessage;
+import org.prosolo.web.lti.validator.EmptyValidator;
+import org.prosolo.web.lti.validator.LongValidator;
+import org.prosolo.web.lti.validator.NullValidator;
+import org.prosolo.web.lti.validator.Validator;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -72,29 +82,54 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 
 	@Inject
 	private OauthService oAuthService;
+	@Inject
+	private ToolSetManager tsManager;
+	@Inject
+	private LtiToolManager toolManager;
+	@Inject
+	private LtiConsumerManager consumerManager;
+	
+	private long toolSetId;
+	private String secret;
 
 	public LTIToolProxyRegistrationBean() {
 		logger.info("LTIProviderLaunchBean initialized");
 	}
-	//called when Tool Consumer submits request
+
+	// called when Tool Consumer submits request
 	public void processPOSTRequest() {
 		try {
+			//ToolProxy toolP = LTIConfigLoader.getInstance().loadToolProxy();
+			String returnMsg = null;
 			ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
 			ToolProxyRegistrationMessage msg = validateRequest();
 			TCProfile tcProfile = getTCProfile(msg.getTcProfileURL());
-			String tpGuid = registerToolProxy(tcProfile, msg);
-			String returnURL = formReturnURL(tpGuid, msg.getLaunchPresentationReturnURL());
+			ToolProxy tp = registerToolProxy(tcProfile, msg);
+			try{
+				consumerManager.registerLTIConsumer(toolSetId, tp.getToolProxyGuid(), tp.getSecurityContract().getSharedSecret(), 
+						tcProfile.getCapabilities(), tcProfile.getServices());
+			}catch(ConsumerAlreadyRegisteredException care){
+				returnMsg = "Someone already registered through this link";
+			}catch(Exception e){
+				returnMsg = "Error";
+			}
+		    String returnURL = formReturnURL(tp.getToolProxyGuid(), msg.getLaunchPresentationReturnURL());
 			try {
 				externalContext.redirect(returnURL);
 			} catch (Exception e) {
 				logger.error(e);
 			}
 		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			System.out.println("ERROR "+e.getMessage());
 			// show error page with error message - Request validation error
 		}
 
 	}
-	//request validation (parameter validation, oauth validation) and wrapping parameters in ToolProxyRegistrationMessage object
+
+	// request validation (parameter validation, oauth validation) and wrapping
+	// parameters in ToolProxyRegistrationMessage object
 	private ToolProxyRegistrationMessage validateRequest() throws Exception {
 		if (!LTIConstants.POST_REQUEST.equalsIgnoreCase(
 				((HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest())
@@ -105,13 +140,32 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 		validateParameters(msg);
 		return msg;
 	}
-	//parameter validtion
+
+	// parameter validation
 	private void validateParameters(ToolProxyRegistrationMessage msg) throws Exception {
-		// TODO Auto-generated method stub
+		Validator validator = new NullValidator(new EmptyValidator(new LongValidator(null)));
+		String toolSetId = PageUtil.getPostParameter(LTIConstants.TOOL_SET_ID);
+		validator.performValidation(toolSetId, "Required parameter \"id\" missing or not in the right format");
+		this.toolSetId = Long.parseLong(toolSetId);
+		boolean exists = tsManager.checkIfToolSetExists(this.toolSetId);
+		if (!exists) {
+			throw new Exception("This tool does not exists");
+		}
+		validateLtiParameters(msg);
 
 	}
-	//get Tool Consumer Profile from Tool Consumer
-	public TCProfile getTCProfile(String url) throws Exception{
+
+	private void validateLtiParameters(ToolProxyRegistrationMessage msg) throws Exception {
+		try {
+
+		} catch (Exception e) {
+			throw new Exception("Invalid registration request");
+		}
+
+	}
+
+	// get Tool Consumer Profile from Tool Consumer
+	public TCProfile getTCProfile(String url) throws Exception {
 		String param = "?" + LTIConstants.LTI_VERSION + "=" + LTIConstants.LTI_VERSION_TWO;
 		String finalUrl = url;
 		if (url.indexOf(param) == -1) {
@@ -141,7 +195,8 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 		}
 
 	}
-	//parse needed data from JSON
+
+	// parse needed data from JSON
 	private TCProfile parseJsonTCProfile(String jsonString) throws Exception {
 		try {
 			JsonParser parser = new JsonParser();
@@ -167,9 +222,9 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 
 			Gson gson = new Gson();
 			List capabilities = gson.fromJson(capabilitiesJson, ArrayList.class);
-			Type listType = new TypeToken<List<ServiceOffered>>() {
+			Type listType = new TypeToken<List<Service>>() {
 			}.getType();
-			List<ServiceOffered> servicesOffered = gson.fromJson(servicesOfferedJson, listType);
+			List<Service> servicesOffered = gson.fromJson(servicesOfferedJson, listType);
 
 			TCProfile toolConsumerProfile = new TCProfile();
 			toolConsumerProfile.setId(id.getAsString());
@@ -184,20 +239,25 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 		}
 
 	}
+
 	// register Tool Proxy object
-	private String registerToolProxy(TCProfile tcProfile, ToolProxyRegistrationMessage msg) throws Exception {
+	private ToolProxy registerToolProxy(TCProfile tcProfile, ToolProxyRegistrationMessage msg) throws Exception {
 		String postURL = findToolProxyRegistrationEndpoint(tcProfile);
 		if (postURL == null) {
 			throw new Exception("Tool Proxy Registration Service Not Found!");
 		}
 		ToolProxy tp = createToolProxy(tcProfile);
 		String json = transformToolProxyToJson(tp);
-		logger.info("TOOL PROXY "+json);
-		return registerToolProxyWithToolConsumer(json, msg.getRegKey(), msg.getRegPassword(), postURL);
+		logger.info("TOOL PROXY " + json);
+		String tpGuid = registerToolProxyWithToolConsumer(json, msg.getRegKey(), msg.getRegPassword(), postURL);
+		tp.setToolProxyGuid(tpGuid);
+		return tp;
 	}
-	//find endpoint of Tool Proxy Registration REST Service if Tool Consumer offered it
+
+	// find endpoint of Tool Proxy Registration REST Service if Tool Consumer
+	// offered it
 	private String findToolProxyRegistrationEndpoint(TCProfile tcProfile) {
-		for (ServiceOffered s : tcProfile.getServices()) {
+		for (Service s : tcProfile.getServices()) {
 			if (LTIConstants.FORMAT_TOOL_PROXY.equals(s.getFormats().get(0))) {
 				boolean supported = checkIfSupported(LTIConstants.POST_REQUEST, s.getActions());
 				if (supported) {
@@ -207,101 +267,207 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 		}
 		return null;
 	}
-	//create ToolProxy object to be sent to Tool Consumer
-	public ToolProxy createToolProxy(TCProfile tcp) {
+
+	// create ToolProxy object to be sent to Tool Consumer
+	public ToolProxy createToolProxy(TCProfile tcp) throws Exception{
 		ToolProxy tp = createToolProxyPredefined(tcp.getId());
 		tp.getToolProfile()
-				.setResourceHandler(createResourceHandlers(
-						tp.getToolProfile().getProductInstance().getProductInfo().getProductFamily().getCode(),
-						tcp.getCapabilities()));
-		tp.setSecurityContract(createSecurityContract(
-				tp.getToolProfile().getProductInstance().getProductInfo().getProductFamily().getCode(),
-				tcp.getServices(), tcp.getContexts()));
+				.setResourceHandler(createResourceHandlers(tp.getToolProfile().getResourceHandler(),tcp.getCapabilities()));
+		tp.setSecurityContract(createSecurityContract(tp.getWantedServices(), tcp.getServices(), tcp.getContexts()));
+		tp.setWantedServices(null);
 		return tp;
 	}
-	//populate ToolProxy with data that do not depend on Tool Consumer
-	private ToolProxy createToolProxyPredefined(String tcProfileId) {
-		ToolProxy tp = new ToolProxy();
+
+	// populate ToolProxy with data that do not depend on Tool Consumer
+	private ToolProxy createToolProxyPredefined(String tcProfileId) throws Exception {
+		//ToolProxy tp = new ToolProxy();
+		ToolProxy tp = LTIConfigLoader.getInstance().loadToolProxy();
 		tp.setContext(LTIConstants.TOOL_PROXY_CONTEXT);
-		tp.setId("http://lms.example.com/ToolProxy/869e5ce5-214c-4e85-86c6-b99e8458a592");
+		//tp.setId("http://lms.example.com/ToolProxy/869e5ce5-214c-4e85-86c6-b99e8458a592");
+		tp.setId(Settings.getInstance().config.application.domain+"ToolProxy/"+UUID.randomUUID().toString());
 		tp.setType(LTIConstants.TOOL_PROXY_TYPE);
 		tp.setLtiVersion(LTIConstants.LTI_VERSION_TWO);
 		tp.setToolConsumerProfile(tcProfileId);
 
 		// toolprofile
-		ToolProfile toolProfile = new ToolProfile();
+		//ToolProfile toolProfile = new ToolProfile();
+		ToolProfile toolProfile = tp.getToolProfile();
 		toolProfile.setLtiVersion(LTIConstants.LTI_VERSION_TWO);
 
 		// productinstance
-		ProductInstance productInstance = new ProductInstance();
+		//ProductInstance productInstance = new ProductInstance();
+		ProductInstance productInstance = toolProfile.getProductInstance();
 		productInstance.setGuid(UUID.randomUUID().toString());
 
 		// productinfo
-		ProductInfo productInfo = new ProductInfo();
+		//ProductInfo productInfo = new ProductInfo();
+		ProductInfo productInfo = productInstance.getProductInfo();
 
-		Description productName = new Description();
-		productName.setDefaultValue("ProSolo");
+		//Description productName = new Description();
+	    Description productName = productInfo.getProductName();
+		//productName.setDefaultValue("ProSolo");
+		productName.setKey("tool.name");
 
-		Description productDescription = new Description();
-		productDescription.setDefaultValue("ProSolo is a Learning Management System");
+		//Description productDescription = new Description();
+		Description productDescription = productInfo.getDescription();
+		//productDescription.setDefaultValue("ProSolo is a Learning Management System");
+		productDescription.setKey("tool.description");
 
-		productInfo.setProductName(productName);
-		productInfo.setDescription(productDescription);
-		productInfo.setProductVersion("1.1");
+		//Description technicalDescription = new Description();
+		//technicalDescription.setDefaultValue(
+				//"Implemented Tool Provider supports LTI 2.0 as well as LTI 1.1 version of specification");
+		Description technicalDescription = productInfo.getTechnicalDescription();
+		technicalDescription.setKey("tool.technical");
+
+		//productInfo.setProductName(productName);
+		//productInfo.setDescription(productDescription);
+		//productInfo.setProductVersion("1.1");
+		//productInfo.setTechnicalDescription(technicalDescription);
 
 		// productfamily
-		ProductFamily productFamily = new ProductFamily();
-		productFamily.setId(UUID.randomUUID().toString());
-		productFamily.setCode("prosolo");
+		//ProductFamily productFamily = new ProductFamily();
+		//productFamily.setId(UUID.randomUUID().toString());
+		ProductFamily productFamily = productInfo.getProductFamily();
+		productFamily.setCode(UUID.randomUUID().toString());
+		productFamily.setId(Settings.getInstance().config.application.domain+productFamily.getCode());
+		
 
 		// vendor
-		Vendor vendor = new Vendor();
-		vendor.setCode("prosolo.ca");
+		//Vendor vendor = new Vendor();
+		//vendor.setCode("prosolo.ca");
+		Vendor vendor = productFamily.getVendor();
 		vendor.setTimestamp(getCurrentTimestamp("yyyy-MM-dd'T'HH:mm:ss"));
 
-		Description vendorName = new Description();
-		vendorName.setDefaultValue("ProSolo Inc");
+		//Description vendorName = new Description();
+		Description vendorName = vendor.getVendorName();
+		//vendorName.setDefaultValue("ProSolo Inc");
+		vendorName.setKey("tool.vendor.name");
 
-		vendor.setVendorName(vendorName);
-		vendor.setWebsite("http://www.prosolo.ca");
+		//Description vendorDescription = new Description();
+		Description vendorDescription = vendor.getDescription();
+		//vendorDescription.setDefaultValue("ProSolo is a ...");
+		vendorDescription.setKey("tool.vendor.description");
 
-		Contact vendorContact = new Contact();
-		vendorContact.setEmail("prosolo@prosolo.ca");
+		//vendor.setVendorName(vendorName);
+		//vendor.setDescription(vendorDescription);
+		//vendor.setWebsite("http://www.prosolo.ca");
 
-		vendor.setContact(vendorContact);
+		//Contact vendorContact = new Contact();
+		//vendorContact.setEmail("prosolo@prosolo.ca");
 
-		productFamily.setVendor(vendor);
+		//vendor.setContact(vendorContact);
 
-		productInfo.setProductFamily(productFamily);
+		//productFamily.setVendor(vendor);
 
-		productInstance.setProductInfo(productInfo);
+		//productInfo.setProductFamily(productFamily);
 
-		toolProfile.setProductInstance(productInstance);
+		//productInstance.setProductInfo(productInfo);
+
+		//toolProfile.setProductInstance(productInstance);
 
 		List<BaseURL> baseURLs = new ArrayList();
 		BaseURL baseURL = new BaseURL();
 		baseURL.setSelector("DefaultSelector");
-		baseURL.setDefaultBaseURL("http://localhost:8080/prosolo/");
-		baseURL.setSecureBaseURL("http://localhost:8080/prosolo/");
+		baseURL.setDefaultBaseURL(Settings.getInstance().config.application.domain);
+		baseURL.setSecureBaseURL(Settings.getInstance().config.application.domain);
 		baseURLs.add(baseURL);
 
 		toolProfile.setBaseURLChoice(baseURLs);
 
-		tp.setToolProfile(toolProfile);
+		//tp.setToolProfile(toolProfile);
+
+		//Map<String, String> customParameters = new HashMap<>();
+		//customParameters.put("testproxysettingscustom", "12345");
+		//tp.setCustom(customParameters);
 
 		return tp;
 	}
-	//create Resource Handlers based on capabilities offered in Tool Consumer Profile
-	private List<ResourceHandler> createResourceHandlers(String toolID, List<String> capabilities) {
+	
+	private List<ResourceHandler> createResourceHandlers(List<ResourceHandler> resourceHandlers, List<String> capabilities) {
+		List<ResourceHandler> resHandlers = new ArrayList<>();
+		ResourceHandler res = resourceHandlers.get(0);
+		
+		List<LtiTool> tools = toolManager.getToolsForToolProxy(toolSetId);
+		
+		System.out.println("Number of tools for the Tool Set "+tools.size());
+		List<MessageParameter> parameters = new ArrayList<>();
+		List<String> enabledCapabilities = new ArrayList<>();
+		
+		ExtendedMessageHandler emh = res.getMessage().get(0);
+		for (MessageParameter mp : emh.getParameter()) {
+			boolean isSupported = true;
+			if (LTIConstants.RES_HANDLER_MESSAGE_TYPE_VARIABLE.equals(mp.getParameterType())) {
+				isSupported = checkIfSupported(mp.getParameterValue(), capabilities);
+				System.out.println("PARAMETER VALUE "+mp.getParameterValue());
+			}
+			if (isSupported) {
+				//MessageParameter mp1 = new MessageParameter();
+				//mp1.setName(mp.getName());
+				//mp1.setParameterType(mp.getParameterType());
+				//mp1.setParameterValue(mp.getParameterValue());
+				parameters.add(mp);
+			}
+		}
+		for (String c : emh.getEnabledCapability()) {
+			boolean isOffered = checkIfSupported(c, capabilities);
+			if (isOffered) {
+				enabledCapabilities.add(c);
+			}
+		}
+		
+		for(LtiTool tool:tools){
+			ResourceHandler resH = new ResourceHandler();
+			
+			Description name = new Description();
+			name.setDefaultValue(tool.getName());
+			name.setKey(UUID.randomUUID().toString());
+			resH.setName(name);
+			
+			Description description = new Description();
+			description.setDefaultValue(tool.getDescription());
+			description.setKey(UUID.randomUUID().toString());
+			resH.setDescription(description);
+
+			ResourceType rt = new ResourceType();
+			rt.setCode(UUID.randomUUID().toString());
+			resH.setResourceType(rt);
+			
+			List<ExtendedMessageHandler> mHandlers = new ArrayList<>();
+			ExtendedMessageHandler mh = new ExtendedMessageHandler();
+			String path = tool.getFullLaunchURL().substring(Settings.getInstance().config.application.domain.length());
+			mh.setPath(path);
+			
+			mh.setMessageType(LTIConstants.MESSAGE_TYPE_LTILAUNCH);
+			mh.setEnabledCapability(enabledCapabilities);
+			mh.setParameter(parameters);
+			mHandlers.add(mh);
+			resH.setMessage(mHandlers);
+			resHandlers.add(resH);
+			System.out.println("PATH "+resH.getMessage().get(0).getPath());
+			System.out.println("PATH "+resH.getMessage().get(0).getMessageType());
+			System.out.println("PATH "+resH.getMessage().get(0).getEnabledCapability());
+			System.out.println("PATH "+resH.getMessage().get(0).getParameter());
+		}
+		
+		return resHandlers;
+	}
+
+		
+		
+
+	// create Resource Handlers based on capabilities offered in Tool Consumer
+	// Profile
+	/*private List<ResourceHandler> createResourceHandlers(String toolID, List<String> capabilities) {
 		List<ResourceHandler> resHandlers = getResourcesHandlersForTheTool(toolID);
 		List<ResourceHandler> resHandlersFinal = new ArrayList<>();
 		for (ResourceHandler rh : resHandlers) {
 			ResourceHandler rHandler = new ResourceHandler();
 			Description name = new Description();
 			name.setDefaultValue(rh.getName().getDefaultValue());
+			name.setKey(rh.getName().getKey());
 			Description description = new Description();
 			description.setDefaultValue(rh.getDescription().getDefaultValue());
-
+			description.setKey(rh.getDescription().getKey());
 			rHandler.setName(name);
 			rHandler.setDescription(description);
 			rHandler.setResourceType(rh.getResourceType());
@@ -340,9 +506,9 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 			resHandlersFinal.add(rHandler);
 		}
 		return resHandlersFinal;
-	}
+	}*/
 
-	//create return url with query parameters
+	// create return url with query parameters
 	private String formReturnURL(String tpGuid, String url) {
 		Map<String, String> tpResponse = new HashMap<>();
 		if (tpGuid != null) {
@@ -354,7 +520,8 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 
 		return Util.formURLWithParams(url, tpResponse);
 	}
-	//wrap POST parameters in ToolProxyRegistrationMessage
+
+	// wrap POST parameters in ToolProxyRegistrationMessage
 	private ToolProxyRegistrationMessage createToolProxyRegistrationMessage() {
 		ToolProxyRegistrationMessage msg = new ToolProxyRegistrationMessage();
 		msg.setMessageType(PageUtil.getPostParameter(LTIConstants.MESSAGE_TYPE));
@@ -378,7 +545,7 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 		return msg;
 	}
 
-	//sign message and register Tool Proxy with Tool Consumer
+	// sign message and register Tool Proxy with Tool Consumer
 	public String registerToolProxyWithToolConsumer(String msg, String key, String password, String url)
 			throws Exception {
 		try {
@@ -388,7 +555,8 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 			throw new Exception("Tool Proxy Registration Failed!");
 		}
 	}
-	//register Tool Proxy by POST request sent to REST Service
+
+	// register Tool Proxy by POST request sent to REST Service
 	public String sendToolProxyRegistrationRequest(String url, String msg, String authorizationHeader)
 			throws Exception {
 		CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -434,17 +602,18 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 		}
 
 	}
-	//create Security Contract based on offered services in Tool Consumer Profile
-	private SecurityContract createSecurityContract(String toolID, List<ServiceOffered> services,
+
+	// create Security Contract based on offered services in Tool Consumer
+	// Profile
+	private SecurityContract createSecurityContract(List<Service> wantedServices, List<Service> offeredServices,
 			List<InlineContext> contexts) {
 		SecurityContract sc = new SecurityContract();
 		String sharedSecret = UUID.randomUUID().toString();
 		sc.setSharedSecret(sharedSecret);
 
-		List<ServiceOffered> supportedServices = getWantedServicesForTheTool(toolID);
 		List<ToolService> toolServices = new ArrayList<>();
-		for (ServiceOffered so : services) {
-			ServiceOffered wantedService = findWantedService(so, supportedServices);
+		for (Service so : offeredServices) {
+			Service wantedService = findWantedService(so, wantedServices);
 			if (wantedService != null) {
 				ToolService toolService = createToolService(so, wantedService, contexts);
 				if (toolService != null) {
@@ -455,19 +624,21 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 		sc.setToolService(toolServices);
 		return sc;
 	}
-	//match Service from Tool Consumer Profile with Service we want to use
-	private ServiceOffered findWantedService(ServiceOffered serviceOffered, List<ServiceOffered> wantedServices) {
+
+	// match Service from Tool Consumer Profile with Service we want to use
+	private Service findWantedService(Service serviceOffered, List<Service> wantedServices) {
 		for (String f : serviceOffered.getFormats()) {
-			ServiceOffered serviceWanted = findServiceWithFormat(f, wantedServices);
+			Service serviceWanted = findServiceWithFormat(f, wantedServices);
 			if (serviceWanted != null) {
 				return serviceWanted;
 			}
 		}
 		return null;
 	}
-	//find service with desired format
-	private ServiceOffered findServiceWithFormat(String format, List<ServiceOffered> services) {
-		for (ServiceOffered so : services) {
+
+	// find service with desired format
+	private Service findServiceWithFormat(String format, List<Service> services) {
+		for (Service so : services) {
 			boolean exists = checkIfSupported(format, so.getFormats());
 			if (exists) {
 				return so;
@@ -475,17 +646,19 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 		}
 		return null;
 	}
-	//create ToolService based on Service from Tool Consumer Profile and service functionalities we want to use
-	private ToolService createToolService(ServiceOffered serviceOffered, ServiceOffered serviceWanted,
-			List<InlineContext> contexts) {
+
+	// create ToolService based on Service from Tool Consumer Profile and
+	// service functionalities we want to use
+	private ToolService createToolService(Service serviceOffered, Service serviceWanted, List<InlineContext> contexts) {
 		ToolService ts = new ToolService();
 		ts.setType(LTIConstants.REST_SERVICE_PROFILE);
 		ts.setAction(getWantedActions(serviceOffered, serviceWanted));
 		ts.setService(getFullServiceId(serviceOffered, contexts));
 		return ts;
 	}
-	//get full service id if prefixes used
-	private String getFullServiceId(ServiceOffered serviceOffered, List<InlineContext> contexts) {
+
+	// get full service id if prefixes used
+	private String getFullServiceId(Service serviceOffered, List<InlineContext> contexts) {
 		String id = serviceOffered.getId();
 		String prefix = null;
 		String suffix = null;
@@ -500,7 +673,7 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 		}
 		return id;
 	}
-	
+
 	private String getFullURIForPrefix(String prefix, List<InlineContext> contexts) {
 		for (InlineContext ic : contexts) {
 			if (prefix.equals(ic.getPrefix())) {
@@ -510,7 +683,7 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 		return null;
 	}
 
-	private List<String> getWantedActions(ServiceOffered serviceOffered, ServiceOffered serviceWanted) {
+	private List<String> getWantedActions(Service serviceOffered, Service serviceWanted) {
 		List<String> actions = new ArrayList<>();
 		for (String s : serviceOffered.getActions()) {
 			boolean wanted = checkIfSupported(s, serviceWanted.getActions());
@@ -520,11 +693,12 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 		}
 		return actions;
 	}
-	//get services we want to use for specific tool (probably from conf file)
-	private List<ServiceOffered> getWantedServicesForTheTool(String code) {
-		List<ServiceOffered> services = new ArrayList<>();
 
-		ServiceOffered soResultService = new ServiceOffered();
+	// get services we want to use for specific tool (probably from conf file)
+	/*private List<Service> getWantedServicesForTheTool(String code) {
+		List<Service> services = new ArrayList<>();
+
+		Service soResultService = new Service();
 		List<String> actionsResultService = new ArrayList<>();
 		actionsResultService.add(LTIConstants.GET_REQUEST);
 		actionsResultService.add(LTIConstants.PUT_REQUEST);
@@ -533,7 +707,7 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 		formatsResultService.add(LTIConstants.FORMAT_RESULT);
 		soResultService.setFormats(formatsResultService);
 
-		ServiceOffered soToolProxyService = new ServiceOffered();
+		Service soToolProxyService = new Service();
 		List<String> actionsToolProxyService = new ArrayList<>();
 		actionsToolProxyService.add(LTIConstants.GET_REQUEST);
 		actionsToolProxyService.add(LTIConstants.PUT_REQUEST);
@@ -543,7 +717,7 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 		formatsToolProxyService.add(LTIConstants.FORMAT_TOOL_PROXY);
 		soToolProxyService.setFormats(formatsToolProxyService);
 
-		ServiceOffered soToolSettingsService = new ServiceOffered();
+		Service soToolSettingsService = new Service();
 		List<String> actionsToolSettingsService = new ArrayList<>();
 		actionsToolSettingsService.add(LTIConstants.GET_REQUEST);
 		actionsToolSettingsService.add(LTIConstants.PUT_REQUEST);
@@ -558,20 +732,24 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 		services.add(soToolSettingsService);
 
 		return services;
-	}
-	
+	}*/
+
 	private boolean checkIfSupported(String value, List<String> list) {
 		return list.contains(value);
 	}
-	//get resource handlers for specific tool (probably from conf file)
-	private List<ResourceHandler> getResourcesHandlersForTheTool(String code) {
+
+	// get resource handlers for specific tool (probably from conf file)
+	/*private List<ResourceHandler> getResourcesHandlersForTheTool(String code) {
 		List<ResourceHandler> resHandlers = new ArrayList();
 		ResourceHandler res = new ResourceHandler();
 
 		Description name = new Description();
 		name.setDefaultValue("Learning goal");
+		name.setKey("learninggoal.resource.name");
+
 		Description description = new Description();
 		description.setDefaultValue("Learning goal description");
+		description.setKey("learninggoal.resource.description");
 
 		res.setName(name);
 		res.setDescription(description);
@@ -610,12 +788,27 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 		mp6.setName("user_id");
 		mp6.setParameterType(LTIConstants.RES_HANDLER_MESSAGE_TYPE_VARIABLE);
 		mp6.setParameterValue("User.id");
+		MessageParameter mp7 = new MessageParameter();
+		mp7.setName("settings_toolProxy");
+		mp7.setParameterType(LTIConstants.RES_HANDLER_MESSAGE_TYPE_VARIABLE);
+		mp7.setParameterValue("ToolProxy.custom.url");
+		MessageParameter mp8 = new MessageParameter();
+		mp8.setName("settings_context");
+		mp8.setParameterType(LTIConstants.RES_HANDLER_MESSAGE_TYPE_VARIABLE);
+		mp8.setParameterValue("ToolProxyBinding.custom.url");
+		MessageParameter mp9 = new MessageParameter();
+		mp9.setName("settings_link");
+		mp9.setParameterType(LTIConstants.RES_HANDLER_MESSAGE_TYPE_VARIABLE);
+		mp9.setParameterValue("LtiLink.custom.url");
 		parameters.add(mp1);
 		parameters.add(mp2);
 		parameters.add(mp3);
 		parameters.add(mp4);
 		parameters.add(mp5);
 		parameters.add(mp6);
+		parameters.add(mp7);
+		parameters.add(mp8);
+		parameters.add(mp9);
 		mh.setParameter(parameters);
 		List<String> capabilities = new ArrayList<>();
 		capabilities.add("Result.autocreate");
@@ -625,7 +818,7 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 		resHandlers.add(res);
 		return resHandlers;
 
-	}
+	}*/
 
 	private String getCurrentTimestamp(String format) {
 		SimpleDateFormat sdf = new SimpleDateFormat(format);

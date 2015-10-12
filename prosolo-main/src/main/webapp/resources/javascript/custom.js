@@ -1,3 +1,11 @@
+var context = '';
+
+var custom = {
+	setContext: function(ctx) {
+		context = ctx;
+	}
+}
+
 // mode can be 'click' (default) or 'hover'
 function enableDropdown(elem) {
 	enableDropdown(elem, null);
@@ -18,7 +26,23 @@ function enableDropdown(elem, mode) {
 			$(this).nextAll('.dropdown').removeClass('hidden');
 			$(this).addClass('pressed');
 		}
+		return false;
 	});
+}
+
+function dropdown(elem, event){
+	event.stopPropagation();
+
+	$('.dropdown:not(.searchSystem .dropdown)').addClass('hidden');	
+	
+	if ($(elem).hasClass('pressed')) {
+		$(elem).nextAll('.dropdown').addClass('hidden');
+		$(elem).removeClass('pressed');
+	} else {
+		$(elem).nextAll('.dropdown').removeClass('hidden');
+		$(elem).addClass('pressed');
+	}
+	return false;
 }
 
 function roundImages(){ //needed as a separate function because of a partial page reload
@@ -31,12 +55,12 @@ function roundImages(){ //needed as a separate function because of a partial pag
 
 function addLoader(div, message){
 	$(div).html('');
-	$(div).append('<div style="text-align: center;">'+message+'&nbsp;&nbsp;<img src="resources/images/style/ajax-loader-black.gif" style="margin-top: 9px;"/></div>');
+	$(div).append('<div style="text-align: center;">'+message+'&nbsp;&nbsp;<img src="'+context+'/resources/images/style/ajax-loader-black.gif" style="margin-top: 9px;"/></div>');
 }
 
 function addLoaderWithClass(div, message, withLoader, onlyRemoveContent, loaderClass){
 	if (withLoader) {
-		$(div).html('<div class="'+loaderClass+'">'+message+'&nbsp;&nbsp;<img src="resources/images/style/ajax-loader-black.gif"/></div>').show();
+		$(div).html('<div class="'+loaderClass+'">'+message+'&nbsp;&nbsp;<img src="'+context+'/resources/images/style/ajax-loader-black.gif"/></div>').show();
 	} else if (onlyRemoveContent) {
 		$(div).html('').show();
 	}
@@ -44,7 +68,7 @@ function addLoaderWithClass(div, message, withLoader, onlyRemoveContent, loaderC
 
 function addWhiteLoaderWithClass(div, message, withLoader, onlyRemoveContent, loaderClass){
 	if (withLoader) {
-		$(div).html('<div class="'+loaderClass+'">'+message+'&nbsp;&nbsp;<img src="resources/images/style/ajax-loader-white.gif"/></div>').show();
+		$(div).html('<div class="'+loaderClass+'">'+message+'&nbsp;&nbsp;<img src="'+context+'/resources/images/style/ajax-loader-white.gif"/></div>').show();
 	} else if (onlyRemoveContent) {
 		$(div).html('').show();
 	}
@@ -199,7 +223,7 @@ $(document).ready(function() {
 	roundImages();
 	
 	//dropdown
-	enableDropdown('.arrow, .postOptArrow, .filterDrop, .shareDrop, .loginLink');
+	enableDropdown('.arrow, .postOptArrow, .shareDrop, .loginLink');
 	
 	$(document).on('click', function(){											// when clicking anywhere on the site
 		$('.dropdown:not(.searchSystem .dropdown)').addClass('hidden');			// add class 'hidden' to all dropdowns

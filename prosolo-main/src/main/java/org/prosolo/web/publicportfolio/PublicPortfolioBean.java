@@ -90,13 +90,13 @@ public class PublicPortfolioBean implements Serializable {
 
 		initializeUser();
 		portfolioActivitiesDisplayer = ServiceLocator.getInstance().getService(PortfolioSocialActivitiesDisplayer.class);
-		portfolioActivitiesDisplayer.init(loggedUser.getUser(), loggedUser.getLocale(), null, userId);
+		portfolioActivitiesDisplayer.init(loggedUser.getUser(), loggedUser.getLocale(), null, id);
 	}
 	
 	private void initializeUser() {
-		if (userId > 0) {
+		if (id > 0) {
 			try {
-				profileOwner = userManager.loadResource(User.class, userId, true);
+				profileOwner = userManager.loadResource(User.class, id, true);
 				profileOwnerData = UserDataFactory.createUserData(profileOwner);
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error(e);
@@ -285,7 +285,7 @@ public class PublicPortfolioBean implements Serializable {
 	
 	public void loadMoreActivities() {
 		Map<String, String> parameters = new HashMap<String, String>();
-		parameters.put("context", "publicprofile."+userId);
+		parameters.put("context", "publicprofile."+id);
 		parameters.put("link", "loadMore");
 		
 		portfolioActivitiesDisplayer.loadMoreActivities(parameters);
@@ -302,14 +302,14 @@ public class PublicPortfolioBean implements Serializable {
 	/*
 	 * PARAMETERS
 	 */
-	private long userId = -1;
+	private long id = -1;
 	
-	public void setUserId(long userId) {
-		this.userId = userId;
+	public void setId(long id) {
+		this.id = id;
 	}
 	
-	public long getUserId() {
-		return userId;
+	public long getId() {
+		return id;
 	}
 	
 	/*

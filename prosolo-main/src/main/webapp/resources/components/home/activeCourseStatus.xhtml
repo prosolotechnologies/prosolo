@@ -18,7 +18,7 @@
 		
 			<h:panelGroup layout="block" id="courseStatusContainer" class="courseStatusContainer" style="display: none;">
 				<h:link value="Set now..." outcome="/plan"
-					onclick="sendLogPageNavigation('plan.xhtml','index.activeCourses');"
+					onclick="sendLogPageNavigation('plan','index.activeCourses');"
 					rendered="#{empty coursePortfolioBean.activeCourses}"
 					class="button green size25"
 				/>
@@ -27,7 +27,7 @@
 					<ui:repeat value="#{coursePortfolioBean.activeCourses}" var="courseData" varStatus="iterator">
 						<div class="course">
 							<h:link class="title" outcome="/course" 
-								onclick="sendLogPageNavigation('course.xhtml?id=#{courseData.course.id}','index.activeCourses');">
+								onclick="sendLogPageNavigationWithParameters('credentials', { context: 'index.activeCourses', courseId: #{courseData.course.id}});">
 								<f:param name="id" value="#{courseData.course.id}" />
 								#{courseData.title} <span class="bold nobreak">(#{courseData.progress} %)</span>
 							</h:link>

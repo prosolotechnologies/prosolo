@@ -80,8 +80,6 @@
 			}
 			
 			$(function() {
-				enableDropdown('.postOptArrow');
-				
 				if (#{cc.attrs.initializeOnLoad})
 					initialize();
 				
@@ -190,7 +188,7 @@
 					
 					// activate user inline links
 					$('.userLinkInline').each(function() {
-						$(this).attr('href', 'publicprofile.xhtml?user='+$(this).attr('data-id'));
+						$(this).attr('href', 'profile/'+$(this).attr('data-id'));
 					});
 					
 					$('.#{cc.attrs.value} .addCommentBox .inputTextFieldHidden').autosize();

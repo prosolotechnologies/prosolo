@@ -5,7 +5,6 @@ import java.io.Serializable;
 import org.elasticsearch.client.Client;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.services.event.Event;
-import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 
 
 /**
@@ -15,7 +14,7 @@ public interface ESIndexer extends Serializable{
 
 	void indexPost(Event event);
 
-	void addMapping(Client client, String indexName,String indexType) throws IndexingServiceNotAvailable;
+	void addMapping(Client client, String indexName,String indexType);
 
 
 	void indexFileUploadedByTargetActivity(TargetActivity targetActivity,

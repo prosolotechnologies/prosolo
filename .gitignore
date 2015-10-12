@@ -1,3 +1,5 @@
 /.settings/
 /.settings
 /.project
+.cache-main
+.cache-tests

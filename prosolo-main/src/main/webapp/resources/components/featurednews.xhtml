@@ -32,7 +32,7 @@
 					
 					<div class="info">
  						<h:link value="#{featuredNewsBean.feedFeaturedNewsData.actionLabel}"
- 							onclick="sendLogPageNavigationWithParameters('digest.xhtml', {context : 'index.featuredNews', tab : 'myfeeds', feedId: #{featuredNewsBean.feedFeaturedNewsData.personalFeed.id}});"
+ 							onclick="sendLogPageNavigationWithParameters('digest', {context : 'index.featuredNews', tab : 'myfeeds', feedId: #{featuredNewsBean.feedFeaturedNewsData.personalFeed.id}});"
 							outcome="/digest">
 							<f:param name="tab" value="myfeeds" />
 							<f:param name="pid" value="#{featuredNewsBean.feedFeaturedNewsData.personalFeed.id}" />
@@ -79,7 +79,7 @@
 
 				<h:panelGroup id="seeAllLinkFeaturedNews" rendered="#{featuredNewsBean.hasMoreFeaturedNews()}">
 					<h:link value="See all" outcome="/search"
-						onclick="sendLogPageNavigationWithParameters('search.xhtml', {context: 'index.featuredNews', action: 'seeAll'});">
+						onclick="sendLogPageNavigationWithParameters('search/featuredNews', {context: 'index.featuredNews', action: 'seeAll'});">
 						<f:param name="tab" value="featuredNews" />
 					</h:link>
 				</h:panelGroup>

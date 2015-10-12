@@ -2,7 +2,6 @@ package org.prosolo.bigdata.utils;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 
 /**
  * @author Zoran Jeremic May 23, 2015
@@ -27,6 +26,14 @@ public class DateUtil {
 	}
 	public static long getDaysSinceEpoch(long timestamp){
 		return days(timestamp);
+	}
+	
+	public static long getWeeksSinceEpoch() {
+		return getDaysSinceEpoch() / 7;
+	}
+	
+	public static long getWeeksSinceEpoch(Date date) {
+		return getDaysSinceEpoch(date) / 7;
 	}
 	
 	public static long getFirstDayOfWeek(long day) {
