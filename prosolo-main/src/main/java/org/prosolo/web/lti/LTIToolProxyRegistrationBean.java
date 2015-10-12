@@ -37,7 +37,6 @@ import org.prosolo.services.lti.exceptions.ConsumerAlreadyRegisteredException;
 import org.prosolo.services.oauth.OauthService;
 import org.prosolo.web.lti.json.MessageParameterTypeAdapterFactory;
 import org.prosolo.web.lti.json.data.BaseURL;
-import org.prosolo.web.lti.json.data.Contact;
 import org.prosolo.web.lti.json.data.Description;
 import org.prosolo.web.lti.json.data.ExtendedMessageHandler;
 import org.prosolo.web.lti.json.data.InlineContext;
@@ -54,10 +53,8 @@ import org.prosolo.web.lti.json.data.ToolProxy;
 import org.prosolo.web.lti.json.data.ToolService;
 import org.prosolo.web.lti.json.data.Vendor;
 import org.prosolo.web.lti.message.ToolProxyRegistrationMessage;
-import org.prosolo.web.lti.validator.EmptyValidator;
-import org.prosolo.web.lti.validator.LongValidator;
-import org.prosolo.web.lti.validator.NullValidator;
-import org.prosolo.web.lti.validator.Validator;
+import org.prosolo.web.lti.message.extract.LtiMessageExtractor;
+import org.prosolo.web.lti.message.extract.LtiMessageExtractorFactory;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -73,7 +70,7 @@ import com.google.gson.reflect.TypeToken;
 
 @ManagedBean(name = "ltitoolproxyregistrationbean")
 @Component("ltitoolproxyregistrationbean")
-@Scope("request")
+@Scope("view")
 public class LTIToolProxyRegistrationBean implements Serializable {
 
 	private static final long serialVersionUID = 9095250834224496207L;
@@ -89,8 +86,7 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 	@Inject
 	private LtiConsumerManager consumerManager;
 	
-	private long toolSetId;
-	private String secret;
+	private String returnUrl;
 
 	public LTIToolProxyRegistrationBean() {
 		logger.info("LTIProviderLaunchBean initialized");
@@ -98,34 +94,42 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 
 	// called when Tool Consumer submits request
 	public void processPOSTRequest() {
+		//ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
 		try {
-			//ToolProxy toolP = LTIConfigLoader.getInstance().loadToolProxy();
-			String returnMsg = null;
-			ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
 			ToolProxyRegistrationMessage msg = validateRequest();
 			TCProfile tcProfile = getTCProfile(msg.getTcProfileURL());
 			ToolProxy tp = registerToolProxy(tcProfile, msg);
-			try{
-				consumerManager.registerLTIConsumer(toolSetId, tp.getToolProxyGuid(), tp.getSecurityContract().getSharedSecret(), 
-						tcProfile.getCapabilities(), tcProfile.getServices());
-			}catch(ConsumerAlreadyRegisteredException care){
-				returnMsg = "Someone already registered through this link";
-			}catch(Exception e){
-				returnMsg = "Error";
-			}
-		    String returnURL = formReturnURL(tp.getToolProxyGuid(), msg.getLaunchPresentationReturnURL());
-			try {
-				externalContext.redirect(returnURL);
-			} catch (Exception e) {
-				logger.error(e);
-			}
+			registerToolConsumer(msg.getId(), tp.getToolProxyGuid(), tp.getSecurityContract().getSharedSecret(),
+					tcProfile.getCapabilities(), tcProfile.getServices());
+			redirectUser(tp.getToolProxyGuid());
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			System.out.println("ERROR "+e.getMessage());
+			//returnParam = null;
 			// show error page with error message - Request validation error
+			PageUtil.fireErrorMessage(e.getMessage());
 		}
-
+		//redirectUser(returnParam);
+	}
+	
+	public void redirectUser(String param) {
+		System.out.println("REDIRECT USER");
+		ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+		System.out.println("RETURN URL "+returnUrl);
+		//String url = PageUtil.getPostParameter(LTIConstants.LAUNCH_PRESENTATION_RETURN_URL);
+		if (returnUrl != null) {
+			String url = formReturnURL(param, returnUrl);
+			try {
+				externalContext.redirect(url);
+			} catch (IOException ex) {
+				logger.error(ex);
+			}
+		}
+	}
+	
+	private void registerToolConsumer(long toolSetId, String key, String secret, List<String> capabilities, List<Service> services){
+		consumerManager.registerLTIConsumer(toolSetId, key, secret, capabilities, services);
 	}
 
 	// request validation (parameter validation, oauth validation) and wrapping
@@ -136,32 +140,18 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 						.getMethod())) {
 			throw new Exception("Not POST Request!");
 		}
+		returnUrl = PageUtil.getPostParameter(LTIConstants.LAUNCH_PRESENTATION_RETURN_URL);
 		ToolProxyRegistrationMessage msg = createToolProxyRegistrationMessage();
-		validateParameters(msg);
+		checkIfToolExists(msg);
 		return msg;
 	}
 
 	// parameter validation
-	private void validateParameters(ToolProxyRegistrationMessage msg) throws Exception {
-		Validator validator = new NullValidator(new EmptyValidator(new LongValidator(null)));
-		String toolSetId = PageUtil.getPostParameter(LTIConstants.TOOL_SET_ID);
-		validator.performValidation(toolSetId, "Required parameter \"id\" missing or not in the right format");
-		this.toolSetId = Long.parseLong(toolSetId);
-		boolean exists = tsManager.checkIfToolSetExists(this.toolSetId);
+	private void checkIfToolExists(ToolProxyRegistrationMessage msg) throws Exception {
+		boolean exists = tsManager.checkIfToolSetExists(msg.getId());
 		if (!exists) {
 			throw new Exception("This tool does not exists");
 		}
-		validateLtiParameters(msg);
-
-	}
-
-	private void validateLtiParameters(ToolProxyRegistrationMessage msg) throws Exception {
-		try {
-
-		} catch (Exception e) {
-			throw new Exception("Invalid registration request");
-		}
-
 	}
 
 	// get Tool Consumer Profile from Tool Consumer
@@ -185,7 +175,7 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 			return tcProfile;
 		} catch (Exception e) {
 			logger.error(e);
-			throw new Exception("Error while getting Tool Consumer Profile");
+			throw new Exception("Error while retrieving Tool Consumer Profile");
 		} finally {
 			try {
 				response.close();
@@ -246,7 +236,7 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 		if (postURL == null) {
 			throw new Exception("Tool Proxy Registration Service Not Found!");
 		}
-		ToolProxy tp = createToolProxy(tcProfile);
+		ToolProxy tp = createToolProxy(tcProfile, msg.getId());
 		String json = transformToolProxyToJson(tp);
 		logger.info("TOOL PROXY " + json);
 		String tpGuid = registerToolProxyWithToolConsumer(json, msg.getRegKey(), msg.getRegPassword(), postURL);
@@ -269,125 +259,105 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 	}
 
 	// create ToolProxy object to be sent to Tool Consumer
-	public ToolProxy createToolProxy(TCProfile tcp) throws Exception{
-		ToolProxy tp = createToolProxyPredefined(tcp.getId());
-		tp.getToolProfile()
-				.setResourceHandler(createResourceHandlers(tp.getToolProfile().getResourceHandler(),tcp.getCapabilities()));
-		tp.setSecurityContract(createSecurityContract(tp.getWantedServices(), tcp.getServices(), tcp.getContexts()));
-		tp.setWantedServices(null);
-		return tp;
+	public ToolProxy createToolProxy(TCProfile tcp, long id) throws Exception{
+		try{
+			ToolProxy tp = createToolProxyPredefined(tcp.getId());
+			tp.getToolProfile()
+					.setResourceHandler(createResourceHandlers(tp.getToolProfile().getResourceHandler(),tcp.getCapabilities(), id));
+			tp.setSecurityContract(createSecurityContract(tp.getWantedServices(), tcp.getServices(), tcp.getContexts()));
+			tp.setWantedServices(null);
+			return tp;
+		}catch(Exception e){
+			throw new Exception("Error while constructing ToolProxy");
+		}
 	}
 
 	// populate ToolProxy with data that do not depend on Tool Consumer
 	private ToolProxy createToolProxyPredefined(String tcProfileId) throws Exception {
-		//ToolProxy tp = new ToolProxy();
 		ToolProxy tp = LTIConfigLoader.getInstance().loadToolProxy();
 		tp.setContext(LTIConstants.TOOL_PROXY_CONTEXT);
-		//tp.setId("http://lms.example.com/ToolProxy/869e5ce5-214c-4e85-86c6-b99e8458a592");
 		tp.setId(Settings.getInstance().config.application.domain+"ToolProxy/"+UUID.randomUUID().toString());
 		tp.setType(LTIConstants.TOOL_PROXY_TYPE);
 		tp.setLtiVersion(LTIConstants.LTI_VERSION_TWO);
 		tp.setToolConsumerProfile(tcProfileId);
-
-		// toolprofile
-		//ToolProfile toolProfile = new ToolProfile();
 		ToolProfile toolProfile = tp.getToolProfile();
 		toolProfile.setLtiVersion(LTIConstants.LTI_VERSION_TWO);
-
-		// productinstance
-		//ProductInstance productInstance = new ProductInstance();
 		ProductInstance productInstance = toolProfile.getProductInstance();
 		productInstance.setGuid(UUID.randomUUID().toString());
-
-		// productinfo
-		//ProductInfo productInfo = new ProductInfo();
 		ProductInfo productInfo = productInstance.getProductInfo();
-
-		//Description productName = new Description();
-	    Description productName = productInfo.getProductName();
-		//productName.setDefaultValue("ProSolo");
+		Description productName = productInfo.getProductName();
 		productName.setKey("tool.name");
-
-		//Description productDescription = new Description();
 		Description productDescription = productInfo.getDescription();
-		//productDescription.setDefaultValue("ProSolo is a Learning Management System");
 		productDescription.setKey("tool.description");
-
-		//Description technicalDescription = new Description();
-		//technicalDescription.setDefaultValue(
-				//"Implemented Tool Provider supports LTI 2.0 as well as LTI 1.1 version of specification");
 		Description technicalDescription = productInfo.getTechnicalDescription();
 		technicalDescription.setKey("tool.technical");
-
-		//productInfo.setProductName(productName);
-		//productInfo.setDescription(productDescription);
-		//productInfo.setProductVersion("1.1");
-		//productInfo.setTechnicalDescription(technicalDescription);
-
-		// productfamily
-		//ProductFamily productFamily = new ProductFamily();
-		//productFamily.setId(UUID.randomUUID().toString());
 		ProductFamily productFamily = productInfo.getProductFamily();
 		productFamily.setCode(UUID.randomUUID().toString());
 		productFamily.setId(Settings.getInstance().config.application.domain+productFamily.getCode());
-		
-
-		// vendor
-		//Vendor vendor = new Vendor();
-		//vendor.setCode("prosolo.ca");
 		Vendor vendor = productFamily.getVendor();
 		vendor.setTimestamp(getCurrentTimestamp("yyyy-MM-dd'T'HH:mm:ss"));
-
-		//Description vendorName = new Description();
 		Description vendorName = vendor.getVendorName();
-		//vendorName.setDefaultValue("ProSolo Inc");
 		vendorName.setKey("tool.vendor.name");
-
-		//Description vendorDescription = new Description();
 		Description vendorDescription = vendor.getDescription();
-		//vendorDescription.setDefaultValue("ProSolo is a ...");
 		vendorDescription.setKey("tool.vendor.description");
-
-		//vendor.setVendorName(vendorName);
-		//vendor.setDescription(vendorDescription);
-		//vendor.setWebsite("http://www.prosolo.ca");
-
-		//Contact vendorContact = new Contact();
-		//vendorContact.setEmail("prosolo@prosolo.ca");
-
-		//vendor.setContact(vendorContact);
-
-		//productFamily.setVendor(vendor);
-
-		//productInfo.setProductFamily(productFamily);
-
-		//productInstance.setProductInfo(productInfo);
-
-		//toolProfile.setProductInstance(productInstance);
-
 		List<BaseURL> baseURLs = new ArrayList();
 		BaseURL baseURL = new BaseURL();
 		baseURL.setSelector("DefaultSelector");
 		baseURL.setDefaultBaseURL(Settings.getInstance().config.application.domain);
 		baseURL.setSecureBaseURL(Settings.getInstance().config.application.domain);
 		baseURLs.add(baseURL);
-
 		toolProfile.setBaseURLChoice(baseURLs);
-
+		return tp;
+		//ToolProxy tp = new ToolProxy();		
+		//tp.setId("http://lms.example.com/ToolProxy/869e5ce5-214c-4e85-86c6-b99e8458a592");
+		// toolprofile
+		//ToolProfile toolProfile = new ToolProfile();
+		// productinstance
+		//ProductInstance productInstance = new ProductInstance();
+		// productinfo
+		//ProductInfo productInfo = new ProductInfo();
+		//Description productName = new Description();
+		//productName.setDefaultValue("ProSolo");
+		//Description productDescription = new Description();
+		//productDescription.setDefaultValue("ProSolo is a Learning Management System");
+		//Description technicalDescription = new Description();
+		//technicalDescription.setDefaultValue(
+				//"Implemented Tool Provider supports LTI 2.0 as well as LTI 1.1 version of specification");
+		//productInfo.setProductName(productName);
+		//productInfo.setDescription(productDescription);
+		//productInfo.setProductVersion("1.1");
+		//productInfo.setTechnicalDescription(technicalDescription);
+		// productfamily
+		//ProductFamily productFamily = new ProductFamily();
+		//productFamily.setId(UUID.randomUUID().toString());
+		// vendor
+		//Vendor vendor = new Vendor();
+		//vendor.setCode("prosolo.ca");	
+		//Description vendorName = new Description();
+		//vendorName.setDefaultValue("ProSolo Inc");
+		//Description vendorDescription = new Description();
+		//vendorDescription.setDefaultValue("ProSolo is a ...");
+		//vendor.setVendorName(vendorName);
+		//vendor.setDescription(vendorDescription);
+		//vendor.setWebsite("http://www.prosolo.ca");
+		//Contact vendorContact = new Contact();
+		//vendorContact.setEmail("prosolo@prosolo.ca");
+		//vendor.setContact(vendorContact);
+		//productFamily.setVendor(vendor);
+		//productInfo.setProductFamily(productFamily);
+		//productInstance.setProductInfo(productInfo);
+		//toolProfile.setProductInstance(productInstance);
 		//tp.setToolProfile(toolProfile);
-
 		//Map<String, String> customParameters = new HashMap<>();
 		//customParameters.put("testproxysettingscustom", "12345");
 		//tp.setCustom(customParameters);
-
-		return tp;
 	}
 	
-	private List<ResourceHandler> createResourceHandlers(List<ResourceHandler> resourceHandlers, List<String> capabilities) {
+	private List<ResourceHandler> createResourceHandlers(List<ResourceHandler> resourceHandlers, List<String> capabilities, long id) {
 		List<ResourceHandler> resHandlers = new ArrayList<>();
 		ResourceHandler res = resourceHandlers.get(0);
 		
-		List<LtiTool> tools = toolManager.getToolsForToolProxy(toolSetId);
+		List<LtiTool> tools = toolManager.getToolsForToolProxy(id);
 		
 		System.out.println("Number of tools for the Tool Set "+tools.size());
 		List<MessageParameter> parameters = new ArrayList<>();
@@ -443,10 +413,6 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 			mHandlers.add(mh);
 			resH.setMessage(mHandlers);
 			resHandlers.add(resH);
-			System.out.println("PATH "+resH.getMessage().get(0).getPath());
-			System.out.println("PATH "+resH.getMessage().get(0).getMessageType());
-			System.out.println("PATH "+resH.getMessage().get(0).getEnabledCapability());
-			System.out.println("PATH "+resH.getMessage().get(0).getParameter());
 		}
 		
 		return resHandlers;
@@ -511,7 +477,8 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 	// create return url with query parameters
 	private String formReturnURL(String tpGuid, String url) {
 		Map<String, String> tpResponse = new HashMap<>();
-		if (tpGuid != null) {
+		System.out.println("PARAM "+tpGuid);
+		if (tpGuid != null && !tpGuid.isEmpty()) {
 			tpResponse.put(LTIConstants.PARAM_STATUS, LTIConstants.TOOL_PROXY_REGISTRATION_RESPONSE_STATUS_SUCCESS);
 			tpResponse.put(LTIConstants.PARAM_TOOL_GUID, tpGuid);
 		} else {
@@ -522,8 +489,21 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 	}
 
 	// wrap POST parameters in ToolProxyRegistrationMessage
-	private ToolProxyRegistrationMessage createToolProxyRegistrationMessage() {
-		ToolProxyRegistrationMessage msg = new ToolProxyRegistrationMessage();
+	private ToolProxyRegistrationMessage createToolProxyRegistrationMessage() throws Exception {
+		try{
+			LtiMessageExtractor msgE = LtiMessageExtractorFactory.createMessageExtractor();
+			ToolProxyRegistrationMessage msg = (ToolProxyRegistrationMessage) msgE.getLtiMessage();
+			logger.info("Message type: " + msg.getMessageType());
+			logger.info("LTI version: " + msg.getLtiVersion());
+			logger.info("Launch presentation Return URL: " + msg.getLaunchPresentationReturnURL());
+			logger.info("Reg key: " + msg.getRegKey());
+			logger.info("Reg password: " + msg.getRegPassword());
+			logger.info("Tool consumer profile URL: " + msg.getTcProfileURL());
+			return msg;
+		}catch(Exception e){
+			throw new Exception("Required parameters missing or not valid");
+		}
+		/*ToolProxyRegistrationMessage msg = new ToolProxyRegistrationMessage();
 		msg.setMessageType(PageUtil.getPostParameter(LTIConstants.MESSAGE_TYPE));
 		msg.setLtiVersion(PageUtil.getPostParameter(LTIConstants.LTI_VERSION));
 		msg.setUserID(PageUtil.getPostParameter(LTIConstants.USER_ID));
@@ -542,7 +522,7 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 		logger.info("Reg password: " + msg.getRegPassword());
 		logger.info("Tool consumer profile URL: " + msg.getTcProfileURL());
 
-		return msg;
+		return msg;*/
 	}
 
 	// sign message and register Tool Proxy with Tool Consumer

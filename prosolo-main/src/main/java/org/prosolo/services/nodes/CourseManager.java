@@ -15,6 +15,7 @@ import org.prosolo.common.domainmodel.course.CoursePortfolio;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.general.Node;
+import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -117,5 +118,9 @@ public interface CourseManager extends AbstractManager {
 	Collection<Course> getAllActiveCourses();
 
 	void updateExcludedFeedSources(Course course, List<FeedSource> disabledFeedSources);
+	
+	public Object[] getTargetGoalAndCompetenceIds(User user, Course course, Competence competence);
+	
+	public void enrollUserIfNotEnrolled(User user, long courseId) throws RuntimeException;
 
 }

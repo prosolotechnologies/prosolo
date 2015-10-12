@@ -37,6 +37,7 @@
 	
  	<http pattern="/about" security="none"/>
  	<http pattern="/elb_ping.xhtml" security="none"/>
+
  	<http pattern="/terms" security="none"/>
  	<http pattern="/profile/**" security="none"/>
  	<http pattern="/maintenanc" security="none"/>
@@ -46,8 +47,8 @@
 	<http pattern="/resources/public/systemFeeds.xhtml" security="none"/>
  	 -->
 	<http pattern="/ltitoolproxyregistration.xhtml" security="none"/>
-	<http pattern="/ltiproviderlaunch.xhtml" security="none"/>
 	<http pattern="/ltitool.xhtml" security="none"/>
+
  
  	
  	<!-- http pattern="/login.xhtml" security="none"/-->
@@ -57,6 +58,8 @@
 		<!-- intercept-url pattern="/javax.faces.resource/**"/-->
 		<intercept-url pattern="/login" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/loginAdmin" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url  pattern="/ltiproviderlaunch.xhtml" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+
 		<intercept-url pattern="/openid.xhtml" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		<intercept-url pattern="/register" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		<intercept-url pattern="/verify" access="IS_AUTHENTICATED_ANONYMOUSLY"/>

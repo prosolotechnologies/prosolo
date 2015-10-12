@@ -43,7 +43,7 @@ public class ToolSetManagerImpl extends AbstractManagerImpl implements ToolSetMa
 	}
 
 	@Override
-	@Transactional
+	@Transactional(readOnly = true)
 	public boolean checkIfToolSetExists(long toolSetId) throws RuntimeException {
 		String queryString = "SELECT ts.id, c.keyLtiTwo " + "FROM LtiToolSet ts " + "INNER JOIN ts.consumer c "
 				+ "WHERE ts.id = :id";

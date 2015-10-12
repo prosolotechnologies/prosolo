@@ -59,6 +59,15 @@ public class LTIConstants {
 	public static final String CUSTOM_TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL = "custom_tool_consumer_instance_contact_email";
 	public static final String ROLE_SCOPE_MENTOR = "role_scope_mentor";
 	public static final String CUSTOM = "custom_";
+	//lti 2 custom params
+	public static final String LTI2_PERSON_FIST_NAME = "Person.name.given";
+	public static final String LTI2_PERSON_LAST_NAME = "Person.name.family";
+	public static final String LTI2_PERSON_EMAIL = "Person.email.primary";
+	public static final String LTI2_PERSON_USER_ID = "User.id";
+	public static final String LTI2_RESULT_SOURCED_ID = "Result.sourcedId";
+	public static final String LTI2_RESULT_URL = "Result.url";
+
+	
 	
 	//security
 	public static final String OAUTH_CONSUMER_KEY = "oauth_consumer_key";

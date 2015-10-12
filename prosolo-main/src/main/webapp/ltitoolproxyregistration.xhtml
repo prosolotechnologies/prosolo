@@ -16,6 +16,12 @@
     <f:viewAction action="#{ltitoolproxyregistrationbean.processPOSTRequest}"/>
 </f:metadata>
 
+<h:form id="toolsSearchForm" class="filteredSearch">
+ <p:messages id="message" showDetail="true" closable="true" />
+ <p:commandLink styleClass="button red size24" action="#{ltitoolproxyregistrationbean.redirectUser(null)}"
+								value="Go back"/>
+ </h:form>
+
 </html>
 
 	

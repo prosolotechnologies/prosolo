@@ -1,5 +1,6 @@
 package org.prosolo.services.lti.impl;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,16 +9,18 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
-import org.bouncycastle.crypto.RuntimeCryptoException;
 import org.hibernate.Query;
-import org.prosolo.common.domainmodel.lti.LtiConsumer;
+import org.joda.time.LocalDate;
+import org.prosolo.common.domainmodel.competences.Competence;
+import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.common.domainmodel.lti.LtiVersion;
-import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.lti.LtiToolLaunchValidator;
 import org.prosolo.services.lti.LtiToolManager;
 import org.prosolo.services.lti.filter.Filter;
-import org.prosolo.services.oauth.OauthService;
+import org.prosolo.services.nodes.CourseManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,11 +29,11 @@ public class LtiToolManagerImpl  extends AbstractManagerImpl implements LtiToolM
 
 	private static final long serialVersionUID = 2511928881676704338L;
 	
-	@Inject private OauthService oauthService;
+	@Inject private LtiToolLaunchValidator validator;
+	@Inject private CourseManager courseManager;
 	
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(LtiToolManagerImpl.class);
-	
 	
 	@Override
 	@Transactional
@@ -78,14 +81,14 @@ public class LtiToolManagerImpl  extends AbstractManagerImpl implements LtiToolM
 	}
 
 	@Override
-	@Transactional
+	@Transactional(readOnly=true)
 	public LtiTool getToolDetails(long toolId){
 		return (LtiTool) persistence.currentManager().get(LtiTool.class, toolId);
 	}
 	
 
 	@Override
-	@Transactional
+	@Transactional(readOnly=true)
 	public List<LtiTool> searchTools(long userId, String name, Map<String,Object> parameters, Filter filter){
 		
 		String queryString = 
@@ -112,11 +115,15 @@ public class LtiToolManagerImpl  extends AbstractManagerImpl implements LtiToolM
 	}
 	
 	@Override
-	@Transactional
+	@Transactional(readOnly=true)
 	public LtiTool getLtiToolForLaunch(HttpServletRequest request, String key, LtiVersion ltiVersion, long toolId) throws RuntimeException {
-		LtiTool tool =  getLtiToolForLaunch (toolId);
-		validateLaunch(tool, key, ltiVersion, request);
-		
+		LtiTool tool = null;
+		try{
+			tool =  getLtiToolForLaunch (toolId);
+		}catch(Exception e){
+			throw new RuntimeException("Error while loading the tool");
+		}
+		validator.validateLaunch(tool, key, ltiVersion, request);
 		return tool;
 	}
 	
@@ -137,38 +144,8 @@ public class LtiToolManagerImpl  extends AbstractManagerImpl implements LtiToolM
 		
 	}
 	
-	private void validateLaunch(LtiTool tool, String consumerKey, LtiVersion version, HttpServletRequest request){
-		if (tool == null){
-			throw new RuntimeException("You don't have access to this tool");
-		}
-		if(!tool.isEnabled()){
-			throw new RuntimeException("Tool is disabled");
-		}
-		if(tool.isDeleted()){
-			throw new RuntimeException("Tool is deleted");
-		}
-		LtiConsumer consumer = tool.getToolSet().getConsumer();
-		String key = null;
-		String secret = null;
-		if(LtiVersion.V1.equals(version)){
-			key = consumer.getKeyLtiOne();
-			secret = consumer.getSecretLtiOne();
-		}else{
-			key = consumer.getKeyLtiTwo();
-			secret = consumer.getSecretLtiTwo();
-		}
-		if(consumer == null || !key.equals(consumerKey) ){
-			throw new RuntimeException("You are not allowed to access this tool");
-		}
-		try{
-			oauthService.validatePostRequest(request, tool.getLaunchUrl(), key, secret);
-		}catch(Exception e){
-			throw new RuntimeException("You are not allowed to access this tool");
-		}
-	}
-	
 	@Override
-	@Transactional
+	@Transactional(readOnly = true)
 	public List<LtiTool> getToolsForToolProxy(long toolSetId){
 		String queryString = 
 				"SELECT new LtiTool (t.id,  t.name, t.description, t.launchUrl) " +
@@ -181,6 +158,33 @@ public class LtiToolManagerImpl  extends AbstractManagerImpl implements LtiToolM
 		query.setLong("id", toolSetId);
 		
 		return query.list();	
+	}
+	
+	@Override
+	@Transactional (readOnly = true)
+	public String getUrlParametersForLaunch(LtiTool tool, User user) {
+		String url = null;
+		switch(tool.getToolType()){
+			case Credential:
+				Course course = new Course();
+				course.setId(tool.getLearningGoalId());
+				Long targetGoalId = courseManager.getTargetLearningGoalIdForCourse(user, course);
+				url = "?id="+targetGoalId;
+				break;
+			case Competence:
+				Course c = new Course();
+				c.setId(tool.getLearningGoalId());
+				Competence competence = new Competence();
+				competence.setId(tool.getCompetenceId());
+				Object[] ids = courseManager.getTargetGoalAndCompetenceIds(user, c, competence);
+				url = "?id="+ids[0]+"&comp="+ids[1];
+				break;
+			case Activity:
+				url = null;
+				break;
+		}
+		return url;
+		
 	}
 	
 }

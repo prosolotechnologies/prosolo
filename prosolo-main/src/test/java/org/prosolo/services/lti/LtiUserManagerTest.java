@@ -27,12 +27,12 @@ public class LtiUserManagerTest {
 	public void tearDown() throws Exception {
 	}
 
-	@Test
+	/*@Test
 	public void testGetUserForLaunch() {
 		User user = userManager.getUserForLaunch(196608, "3", "Stefan", "Vuckovic", 
 				"stefan.vuckovic10@gmail.com");
 		System.out.println("USER NAME "+user.getName());
 		assertNotNull("Error while returning user for launch", user);
-	}
+	}*/
 
 }

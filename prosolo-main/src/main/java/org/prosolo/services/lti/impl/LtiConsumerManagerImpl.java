@@ -4,17 +4,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.inject.Inject;
-
 import org.hibernate.Query;
 import org.prosolo.common.domainmodel.lti.LtiConsumer;
 import org.prosolo.common.domainmodel.lti.LtiService;
-import org.prosolo.common.domainmodel.lti.LtiTool;
-import org.prosolo.common.domainmodel.lti.LtiToolSet;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.lti.LtiConsumerManager;
 import org.prosolo.services.lti.exceptions.ConsumerAlreadyRegisteredException;
-import org.prosolo.services.oauth.OauthService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,9 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class LtiConsumerManagerImpl extends AbstractManagerImpl implements LtiConsumerManager{
 
 	private static final long serialVersionUID = -1653332490780874404L;
-
-	@Inject OauthService oauthService;
-	
 	
 	/*private List<LtiConsumer> getConsumersForValidation(String key, long toolSetId, LtiVersion ltiVersion){
 		String queryString = 
@@ -61,34 +53,40 @@ public class LtiConsumerManagerImpl extends AbstractManagerImpl implements LtiCo
 	}*/
 	@Override
 	@Transactional
-	public LtiConsumer registerLTIConsumer(long toolSetId, String key, String secret, List<String> capabilities, List<org.prosolo.web.lti.json.data.Service> services) {
+	public LtiConsumer registerLTIConsumer(long toolSetId, String key, String secret, List<String> capabilities, List<org.prosolo.web.lti.json.data.Service> services) throws RuntimeException{
 		//LtiToolSet toolSet = (LtiToolSet) persistence.currentManager().load(LtiToolSet.class, toolSetId);
 		//LtiConsumer cons = toolSet.getConsumer();
-		LtiConsumer cons = getConsumerForToolSet(toolSetId);
-		if(cons.getKeyLtiTwo() != null){
-			throw new ConsumerAlreadyRegisteredException("Consumer already registered through this link");
+		try{
+			LtiConsumer cons = getConsumerForToolSet(toolSetId);
+			if(cons.getKeyLtiTwo() != null){
+				throw new ConsumerAlreadyRegisteredException("Consumer already registered through this link");
+			}
+			cons.setKeyLtiTwo(key);
+			cons.setSecretLtiTwo(secret);
+			cons.setCapabilitieList(capabilities);
+			
+			Set<LtiService> serviceSet = new HashSet<LtiService>();
+			for(org.prosolo.web.lti.json.data.Service s:services){
+				LtiService ls = new LtiService();
+				ls.setConsumer(cons);
+				ls.setActionList(s.getActions());
+				ls.setFormatList(s.getFormats());
+				ls.setEndpoint(s.getEndpoint());
+				serviceSet.add(ls);
+			}
+			cons.setServices(serviceSet);
+			/*LtiToolSet toolSet = new LtiToolSet();
+			toolSet.setId(toolSetId);
+			//da li moze ovako ili mora da se radi load iz baze Tool Seta
+			consumer.setToolSet(toolSet);*/
+			//da li je consumer perzistentan objekat (posto nije dovucen direktno nego preko ToolSeta_
+			
+			return saveEntity(cons);
+		}catch(ConsumerAlreadyRegisteredException care){
+			throw care;
+		}catch(Exception e){
+			throw new RuntimeException("Error while registering consumer");
 		}
-		cons.setKeyLtiTwo(key);
-		cons.setSecretLtiTwo(secret);
-		cons.setCapabilitieList(capabilities);
-		
-		Set<LtiService> serviceSet = new HashSet<LtiService>();
-		for(org.prosolo.web.lti.json.data.Service s:services){
-			LtiService ls = new LtiService();
-			ls.setConsumer(cons);
-			ls.setActionList(s.getActions());
-			ls.setFormatList(s.getFormats());
-			ls.setEndpoint(s.getEndpoint());
-			serviceSet.add(ls);
-		}
-		cons.setServices(serviceSet);
-		/*LtiToolSet toolSet = new LtiToolSet();
-		toolSet.setId(toolSetId);
-		//da li moze ovako ili mora da se radi load iz baze Tool Seta
-		consumer.setToolSet(toolSet);*/
-		//da li je consumer perzistentan objekat (posto nije dovucen direktno nego preko ToolSeta_
-		
-		return saveEntity(cons);
 		
 	}
 	

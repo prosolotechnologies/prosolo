@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.inject.Inject;
+
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.events.EventType;
@@ -25,6 +27,7 @@ import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.course.Status;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.general.Node;
+import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -33,6 +36,7 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.CourseManager;
+import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.rest.courses.data.CompetenceJsonData;
 import org.prosolo.services.rest.courses.data.SerieJsonData;
@@ -51,6 +55,8 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Autowired private EventFactory eventFactory;
 	@Autowired private ResourceFactory resourceFactory;
+	@Inject
+	private LearningGoalManager goalManager;
 
 	@Override
 	@Transactional (readOnly = false)
@@ -929,5 +935,40 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 		}
 		
 		saveEntity(course);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Object[] getTargetGoalAndCompetenceIds(User user, Course course, Competence competence){
+		String query = 
+				"SELECT DISTINCT targetGoal.id, tc.id " +
+				"FROM CoursePortfolio coursePortfolio " +
+				"INNER JOIN coursePortfolio.enrollments enrollment "+
+				"INNER JOIN enrollment.targetGoal targetGoal "+
+				"INNER JOIN targetGoal.targetCompetences tc "+
+				"WHERE coursePortfolio.user = :user " +
+					"AND enrollment.course = :course "+
+				    "AND tc.competence = :competence";
+		
+				return (Object[]) persistence.currentManager().createQuery(query).
+						setEntity("user", user).
+						setEntity("course", course).
+						setEntity("competence", competence).
+						uniqueResult();
+	}
+	
+	public void enrollUserIfNotEnrolled(User user, long courseId) throws RuntimeException{
+		try{
+			Course course = (Course) persistence.currentManager().load(Course.class, courseId);
+			boolean enrolled = isUserEnrolledInCourse(user, course);
+			if(!enrolled){
+				TargetLearningGoal targetLGoal = goalManager.createNewCourseBasedLearningGoal(user, course, null, "");
+				enrollInCourse(user, course, targetLGoal, null);
+				// targetLGoal.setCourseEnrollment(enrollment);
+				// targetLGoal = courseManager.saveEntity(targetLGoal);
+			}
+		}catch(Exception e){
+			throw new RuntimeException("Error while enrolling user");
+		}
 	}
 }

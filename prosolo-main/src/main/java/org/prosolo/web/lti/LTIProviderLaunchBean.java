@@ -12,28 +12,19 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
-import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.common.domainmodel.lti.LtiVersion;
-import org.prosolo.common.domainmodel.lti.ResourceType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.authentication.AuthenticationService;
+import org.prosolo.services.authentication.exceptions.AuthenticationException;
 import org.prosolo.services.lti.LtiToolManager;
 import org.prosolo.services.lti.LtiUserManager;
-import org.prosolo.services.oauth.OauthService;
+import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.lti.message.LTILaunchMessage;
-import org.prosolo.web.lti.validator.EmptyValidator;
-import org.prosolo.web.lti.validator.LongValidator;
-import org.prosolo.web.lti.validator.NullValidator;
-import org.prosolo.web.lti.validator.Validator;
+import org.prosolo.web.lti.message.extract.LtiMessageExtractor;
+import org.prosolo.web.lti.message.extract.LtiMessageExtractorFactory;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -48,8 +39,6 @@ public class LTIProviderLaunchBean implements Serializable {
 	private static Logger logger = Logger.getLogger(LTIProviderLaunchBean.class);
 
 	@Inject
-	private OauthService oAuthService;
-	@Inject
 	private LtiToolManager toolManager;
 	@Inject 
 	private LtiUserManager userManager;
@@ -57,8 +46,8 @@ public class LTIProviderLaunchBean implements Serializable {
 	private LoggedUserBean loggedUserBean;
 	@Inject
 	private AuthenticationService authenticationService;
-
-	private long toolId;
+	@Inject
+	private CourseManager courseManager;
 
 	public LTIProviderLaunchBean() {
 		logger.info("LTIProviderLaunchBean initialized");
@@ -67,56 +56,77 @@ public class LTIProviderLaunchBean implements Serializable {
 	// called when Tool Consumer submits request
 	public void processPOSTRequest() {
 		ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
-		HttpServletRequest request = (HttpServletRequest) externalContext.getRequest();
 		try {
 			LTILaunchMessage msg = validateRequest();
-			
-			
-			LtiTool tool = toolManager.getLtiToolForLaunch(request, msg.getConsumerKey(), 
-					getVersion(msg.getLtiVersion()), toolId);
-			User user = userManager.getUserForLaunch(tool.getToolSet().getConsumer().getId(), msg.getUserID(), 
-					msg.getUserFirstName(), msg.getUserLastName(), msg.getUserEmail());
-			System.out.println("Name "+user.getName());
-			System.out.println("Email "+user.getEmail().getAddress());
-			
-			boolean loggedIn = authenticationService.loginOpenId(user.getEmail().getAddress());
-			if(loggedIn){
-				System.out.println("LOGGED IN");
-				loggedUserBean.init(user);
-				redirectToTheTool(externalContext, tool);
-				//externalContext.redirect(LTIConstants.TOOL_URL);
-				//externalContext.redirect("learn.xhtml");
-				externalContext.redirect("index.xhtml");
-			}
-			
+			launch(msg);
 		} catch (Exception e) {
-			String url = PageUtil.getPostParameter(LTIConstants.LAUNCH_PRESENTATION_RETURN_URL);
-			if (url != null) {
-				String returnURL = formReturnURL(url, e.getMessage());
-				try {
-					externalContext.redirect(returnURL);
-				} catch (IOException ex) {
-					logger.error(e);
-				}
-			}
+			redirectUser(externalContext, e.getMessage());
 			logger.error(e);
 			e.printStackTrace();
 		}
 	}
 	
-	private void redirectToTheTool(ExternalContext externalContext, LtiTool tool) throws Exception {
-		String url = "learn.xhtml?id=" + tool.getLearningGoalId();
-		ResourceType type = tool.getToolType();
-		switch(type){
-			case Activity:
-				break;
-			case Competence:
-				url+= "&comp="+tool.getCompetenceId();
-				break;
-		}
-		System.out.println("URL FOR REDIRECT "+url);
-		externalContext.redirect(url);
+	private void launch(LTILaunchMessage msg) throws Exception{
+		ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+		HttpServletRequest request = (HttpServletRequest) externalContext.getRequest();
+		LtiTool tool = getToolForLaunch(request, msg);
+		User user = getUserForLaunch(tool, msg);
+		boolean loggedIn = login(user);
 		
+		if(loggedIn){
+			System.out.println("LOGGED IN");
+			enrollUserIfNotEnrolled(user, tool.getLearningGoalId());
+			String url = getUrlForRedirect(tool, user);
+			System.out.println("URL "+url);
+			//externalContext.redirect("index.xhtml");
+			externalContext.redirect(url);
+		}else{
+			throw new Exception("User loggin unsuccessful");
+		}
+	}
+	
+	private void enrollUserIfNotEnrolled(User user, long courseId) throws RuntimeException{
+		courseManager.enrollUserIfNotEnrolled(user, courseId);
+	}
+
+	private String getUrlForRedirect(LtiTool tool, User user) {
+		return "learn.xhtml"+toolManager.getUrlParametersForLaunch(tool, user);
+	}
+
+	private void redirectUser(ExternalContext externalContext, String message) {
+		String url = PageUtil.getPostParameter(LTIConstants.LAUNCH_PRESENTATION_RETURN_URL);
+		if (url != null) {
+			String returnURL = formReturnURL(url, message);
+			try {
+				externalContext.redirect(returnURL);
+			} catch (IOException ex) {
+				logger.error(ex);
+			}
+		}
+	}
+
+	private boolean login(User user) throws AuthenticationException {
+		boolean loggedIn = authenticationService.loginOpenId(user.getEmail().getAddress());
+		if(loggedIn){
+			System.out.println("LOGGED IN");
+			loggedUserBean.init(user);
+			return true;
+		}
+		return false;
+	}
+	
+	private LtiTool getToolForLaunch(HttpServletRequest request, LTILaunchMessage msg) throws Exception{
+		return toolManager.getLtiToolForLaunch(request, msg.getConsumerKey(), 
+				getVersion(msg.getLtiVersion()), msg.getId());
+	}
+    
+	private User getUserForLaunch(LtiTool tool, LTILaunchMessage msg) throws Exception{
+		try{
+			return userManager.getUserForLaunch(tool.getToolSet().getConsumer().getId(), msg.getUserID(), 
+				msg.getUserFirstName(), msg.getUserLastName(), msg.getUserEmail(), tool.getLearningGoalId());
+		}catch(Exception e){
+			throw new Exception("User can not be found");
+		}
 	}
 
 	private LtiVersion getVersion(String version){
@@ -144,7 +154,7 @@ public class LTIProviderLaunchBean implements Serializable {
 			throw new Exception("Not POST Request!");
 		}
 		LTILaunchMessage message = createLTILaunchMessage();
-		validatePostRequest(message, request);
+		//validatePostRequest(message, request);
 		return message;
 	}
 
@@ -167,10 +177,6 @@ public class LTIProviderLaunchBean implements Serializable {
 	 * validatePostRequest(message, secret, request, url); logger.info("VALID: "
 	 * + valid); if(!valid){ throw new Exception("Launch not valid!"); } }
 	 */
-	// get shared secret for consumer key (from db)
-	private String getSharedSecret(String consumerKey) {
-		return "d4c8d525-d6c7-49d7-b7a7-78069a32f296";
-	}
 
 	// create return url with query params
 	private String formReturnURL(String url, String message) {
@@ -181,19 +187,42 @@ public class LTIProviderLaunchBean implements Serializable {
 	}
 
 	// wrap POST parameters in LTILaunchMessage object
-	private LTILaunchMessage createLTILaunchMessage() {
+	private LTILaunchMessage createLTILaunchMessage() throws Exception {
+		try{
+			LtiMessageExtractor msgE = LtiMessageExtractorFactory.createMessageExtractor();
+			LTILaunchMessage msg = (LTILaunchMessage) msgE.getLtiMessage();
+			
+			logger.info("Message type: " + msg.getMessageType());
+			logger.info("LTI version: " + msg.getLtiVersion());
+			
+			logger.info("User ID: " + msg.getUserID());
+			
+			logger.info("Launch presentation Return URL: " + msg.getLaunchPresentationReturnURL());
+			
+			logger.info("User first name: " + msg.getUserFirstName());
+			logger.info("User last name: " + msg.getUserLastName());
+			logger.info("User email: " + msg.getUserEmail());
+			logger.info("Oauth Consumer key: " + msg.getConsumerKey());
+			return msg;
+		}catch(Exception e){
+			throw new Exception("Required parameter missing from launch");
+		}
 		/*
 		 * logger.info("SVI PARAMETRI"); Map<String, String[]> map =
 		 * request.getParameterMap(); for (Entry<String, String[]> entry :
 		 * map.entrySet()) { logger.info(entry.getKey() + ":" +
 		 * entry.getValue()[0]); } logger.info("KRAJ PARAMETARA");
 		 */
-		LTILaunchMessage msg = new LTILaunchMessage();
+		
+		/*LTILaunchMessage msg = new LTILaunchMessage();
 		msg.setMessageType(PageUtil.getPostParameter(LTIConstants.MESSAGE_TYPE));
 		msg.setLtiVersion(PageUtil.getPostParameter(LTIConstants.LTI_VERSION));
-		//msg.setUserID(PageUtil.getPostParameter(LTIConstants.USER_ID));
 		msg.setLaunchPresentationReturnURL(PageUtil.getPostParameter(LTIConstants.LAUNCH_PRESENTATION_RETURN_URL));
-		String roles = PageUtil.getPostParameter(LTIConstants.ROLES);
+		msg.setConsumerKey(PageUtil.getPostParameter(LTIConstants.OAUTH_CONSUMER_KEY));
+		setVersionSpecificParameters(msg);*/
+		//msg.setUserID(PageUtil.getPostParameter(LTIConstants.USER_ID));
+		
+		/*String roles = PageUtil.getPostParameter(LTIConstants.ROLES);
 		if (roles != null) {
 			if (roles.indexOf(",") != -1) {
 				String[] parserdRoles = roles.split(",");
@@ -203,25 +232,25 @@ public class LTIProviderLaunchBean implements Serializable {
 			} else {
 				msg.getRoles().add(roles);
 			}
-		}
+		}*/
 
-		msg.setConsumerKey(PageUtil.getPostParameter(LTIConstants.OAUTH_CONSUMER_KEY));
-		msg.setContextID(PageUtil.getPostParameter(LTIConstants.CONTEXT_ID));
-		msg.setContextType(PageUtil.getPostParameter(LTIConstants.CONTEXT_TYPE));
-		msg.setResourceLinkID(PageUtil.getPostParameter(LTIConstants.RESOURCE_LINK_ID));
-		msg.setToolConsumerInstanceGUID(PageUtil.getPostParameter(LTIConstants.TOOL_CONSUMER_INSTANCE_GUID));
-		msg.setContextTitle(PageUtil.getPostParameter(LTIConstants.CUSTOM_CONTEXT_TITLE));
-		msg.setResourceLinkTitle(PageUtil.getPostParameter(LTIConstants.CUSTOM_RESOURCE_LINK_TITLE));
+		
+		//msg.setContextID(PageUtil.getPostParameter(LTIConstants.CONTEXT_ID));
+		//msg.setContextType(PageUtil.getPostParameter(LTIConstants.CONTEXT_TYPE));
+		//msg.setResourceLinkID(PageUtil.getPostParameter(LTIConstants.RESOURCE_LINK_ID));
+		//msg.setToolConsumerInstanceGUID(PageUtil.getPostParameter(LTIConstants.TOOL_CONSUMER_INSTANCE_GUID));
+		//msg.setContextTitle(PageUtil.getPostParameter(LTIConstants.CUSTOM_CONTEXT_TITLE));
+		//msg.setResourceLinkTitle(PageUtil.getPostParameter(LTIConstants.CUSTOM_RESOURCE_LINK_TITLE));
 		//msg.setUserFirstName(PageUtil.getPostParameter(LTIConstants.CUSTOM_LIS_PERSON_NAME_GIVEN));
-		msg.setUserFirstName(PageUtil.getPostParameter("custom_user_first_name"));
+		//msg.setUserFirstName(PageUtil.getPostParameter("custom_user_first_name"));
 		//msg.setUserLastName(PageUtil.getPostParameter(LTIConstants.LIS_PERSON_NAME_FAMILY));
-		msg.setUserLastName(PageUtil.getPostParameter("user_last_name"));
+		//msg.setUserLastName(PageUtil.getPostParameter("user_last_name"));
 		//msg.setUserEmail(PageUtil.getPostParameter(LTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY));
-		msg.setUserID(PageUtil.getPostParameter("custom_user_id"));
-		msg.setUserEmail(PageUtil.getPostParameter("custom_user_email"));
-		msg.setToolConsumerInstanceName(PageUtil.getPostParameter(LTIConstants.CUSTOM_TOOL_CONSUMER_INSTANCE_NAME));
+		//msg.setUserID(PageUtil.getPostParameter("custom_user_id"));
+		//msg.setUserEmail(PageUtil.getPostParameter("custom_user_email"));
+		//msg.setToolConsumerInstanceName(PageUtil.getPostParameter(LTIConstants.CUSTOM_TOOL_CONSUMER_INSTANCE_NAME));
 
-		logger.info("Message type: " + msg.getMessageType());
+		/*logger.info("Message type: " + msg.getMessageType());
 		logger.info("LTI version: " + msg.getLtiVersion());
 		logger.info("Resource link id: " + msg.getResourceLinkID());
 		logger.info("Resource link title: " + msg.getResourceLinkTitle());
@@ -234,12 +263,11 @@ public class LTIProviderLaunchBean implements Serializable {
 		logger.info("User first name: " + msg.getUserFirstName());
 		logger.info("User last name: " + msg.getUserLastName());
 		logger.info("User email: " + msg.getUserEmail());
-		logger.info("Oauth Consumer key: " + msg.getConsumerKey());
+		logger.info("Oauth Consumer key: " + msg.getConsumerKey());*/
 
-		return msg;
 	}
 
-	public void validatePostRequest(LTILaunchMessage message, HttpServletRequest request) throws Exception {
+	/*public void validatePostRequest(LTILaunchMessage message, HttpServletRequest request) throws Exception {
 		if (!LTIConstants.MESSAGE_TYPE_LTILAUNCH.equals(message.getMessageType())
 				|| (!LTIConstants.LTI_VERSION_ONE.equals(message.getLtiVersion())
 						&& !LTIConstants.LTI_VERSION_TWO.equals(message.getLtiVersion()))) {
@@ -251,7 +279,7 @@ public class LTIProviderLaunchBean implements Serializable {
 		validator.performValidation(id, "Required parameter \"id\" missing or not properly formatted");
 		toolId = Long.parseLong(id);
 
-	}
+	}*/
 
 	/*
 	 * public boolean validatePostRequest(LTILaunchMessage message, String

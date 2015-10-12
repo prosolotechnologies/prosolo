@@ -3,70 +3,38 @@ package org.prosolo.web.lti.message;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.prosolo.web.lti.LTIConstants;
+import org.prosolo.web.lti.validator.EmptyValidator;
+import org.prosolo.web.lti.validator.EqualValuesValidator;
+import org.prosolo.web.lti.validator.LongValidator;
+import org.prosolo.web.lti.validator.NullValidator;
+
 public class LTIMessage {
 
-	private String messageType;
-	private String ltiVersion;
-	private String userID;
-	private List<String> roles;
-	private String launchPresentationReturnURL;
+	private LtiMessageParameter ltiVersion;
+	private LtiMessageParameter id;
+	//private List<String> roles;
 	
 	
 	public LTIMessage(){
-		roles = new ArrayList<>();
+		ltiVersion = new LtiMessageParameter(new NullValidator (new EmptyValidator(null)));
+		id = new LtiMessageParameter(new NullValidator(new EmptyValidator(new LongValidator(null))));
 	}
-
-	public String getMessageType() {
-		return messageType;
-	}
-
-
-	public void setMessageType(String messageType) {
-		this.messageType = messageType;
-	}
-
 
 	public String getLtiVersion() {
-		return ltiVersion;
+		return ltiVersion.getParameter();
 	}
 
-
-	public void setLtiVersion(String ltiVersion) {
-		this.ltiVersion = ltiVersion;
+	public void setLtiVersion(String ltiVersion) throws Exception {
+		this.ltiVersion.setParameter(ltiVersion);
 	}
 
-
-	public String getUserID() {
-		return userID;
+	public long getId() {
+		return Long.parseLong(id.getParameter());
 	}
 
-
-	public void setUserID(String userID) {
-		this.userID = userID;
+	public void setId(String id) throws Exception {
+		this.id.setParameter(id);
 	}
 
-
-	public List<String> getRoles() {
-		return roles;
-	}
-
-
-	public void setRoles(List<String> roles) {
-		this.roles = roles;
-	}
-
-
-	public String getLaunchPresentationReturnURL() {
-		return launchPresentationReturnURL;
-	}
-
-
-	public void setLaunchPresentationReturnURL(String launchPresentationReturnURL) {
-		this.launchPresentationReturnURL = launchPresentationReturnURL;
-	}
-
-	
-
-	
-	
 }

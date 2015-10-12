@@ -3,128 +3,106 @@ package org.prosolo.web.lti.message;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.prosolo.web.lti.LTIConstants;
+import org.prosolo.web.lti.validator.EmptyValidator;
+import org.prosolo.web.lti.validator.EqualValuesValidator;
+import org.prosolo.web.lti.validator.NullValidator;
+
 public class LTILaunchMessage extends LTIMessage{
 
-	private String consumerKey;
-	private String contextID;
-	private String contextType;
-	private String resourceLinkID;
-	private List<String> roleScopeMentorList;
-	private String toolConsumerInstanceGUID;
-	private String contextTitle;
-	private String contextLabel;
-	private String resourceLinkTitle;
-	private String resourceLinkDescription;
-	private String userFirstName;
-	private String userLastName;
-	private String userFullName;
-	private String userEmail;
-	private String userImage;
-	private String toolConsumerInstanceName;
+	private LtiMessageParameter messageType;
+	private LtiMessageParameter consumerKey;
+	private LtiMessageParameter userFirstName;
+	private LtiMessageParameter userLastName;
+	private LtiMessageParameter userEmail;
+	private LtiMessageParameter resultUrl;
+	private LtiMessageParameter resultSourcedId;
+	private LtiMessageParameter userID;
+	private LtiMessageParameter launchPresentationReturnURL;
+	//private String contextID;
+	//private String contextType;
+	//private String resourceLinkID;
+	//private List<String> roleScopeMentorList;
+	//private String toolConsumerInstanceGUID;
+	//private String contextTitle;
+	//private String contextLabel;
+	//private String resourceLinkTitle;
+	//private String resourceLinkDescription;
+	//private String userFullName;
+	//private String userImage;
+	//private String toolConsumerInstanceName;
 	
 	public LTILaunchMessage(){
-		roleScopeMentorList = new ArrayList<>();
+		messageType = new LtiMessageParameter(new NullValidator(new EmptyValidator(
+				new EqualValuesValidator(null, LTIConstants.MESSAGE_TYPE_LTILAUNCH))));
+		consumerKey = new LtiMessageParameter(new NullValidator(new EmptyValidator(null)));
+		userFirstName = new LtiMessageParameter(null);
+		userLastName = new LtiMessageParameter(null);
+		userEmail = new LtiMessageParameter(new NullValidator(new EmptyValidator(null)));
+		userID = new LtiMessageParameter(new NullValidator(new EmptyValidator(null)));
+		resultUrl = new LtiMessageParameter(null);
+		resultSourcedId = new LtiMessageParameter(null);
+		launchPresentationReturnURL = new LtiMessageParameter(null);
 	}
 	
+	public String getMessageType() {
+		return messageType.getParameter();
+	}
+	public void setMessageType(String messageType) throws Exception {
+		this.messageType.setParameter(messageType);
+	}
 	public String getConsumerKey() {
-		return consumerKey;
+		return consumerKey.getParameter();
 	}
-
-	public void setConsumerKey(String consumerKey) {
-		this.consumerKey = consumerKey;
-	}
-
-	public String getContextID() {
-		return contextID;
-	}
-	public void setContextID(String contextID) {
-		this.contextID = contextID;
-	}
-	public String getContextType() {
-		return contextType;
-	}
-	public void setContextType(String contextType) {
-		this.contextType = contextType;
-	}
-	public String getResourceLinkID() {
-		return resourceLinkID;
-	}
-	public void setResourceLinkID(String resourceLinkID) {
-		this.resourceLinkID = resourceLinkID;
-	}
-	public List<String> getRoleScopeMentorList() {
-		return roleScopeMentorList;
-	}
-	public void setRoleScopeMentorList(List<String> roleScopeMentorList) {
-		this.roleScopeMentorList = roleScopeMentorList;
-	}
-	public String getToolConsumerInstanceGUID() {
-		return toolConsumerInstanceGUID;
-	}
-	public void setToolConsumerInstanceGUID(String toolConsumerInstanceGUID) {
-		this.toolConsumerInstanceGUID = toolConsumerInstanceGUID;
-	}
-	public String getContextTitle() {
-		return contextTitle;
-	}
-	public void setContextTitle(String contextTitle) {
-		this.contextTitle = contextTitle;
-	}
-	public String getContextLabel() {
-		return contextLabel;
-	}
-	public void setContextLabel(String contextLabel) {
-		this.contextLabel = contextLabel;
-	}
-	public String getResourceLinkTitle() {
-		return resourceLinkTitle;
-	}
-	public void setResourceLinkTitle(String resourceLinkTitle) {
-		this.resourceLinkTitle = resourceLinkTitle;
-	}
-	public String getResourceLinkDescription() {
-		return resourceLinkDescription;
-	}
-	public void setResourceLinkDescription(String resourceLinkDescription) {
-		this.resourceLinkDescription = resourceLinkDescription;
+	public void setConsumerKey(String consumerKey) throws Exception {
+		this.consumerKey.setParameter(consumerKey);
 	}
 	public String getUserFirstName() {
-		return userFirstName;
+		return userFirstName.getParameter();
 	}
-	public void setUserFirstName(String userFirstName) {
-		this.userFirstName = userFirstName;
+	public void setUserFirstName(String userFirstName) throws Exception {
+		this.userFirstName.setParameter(userFirstName);
 	}
 	public String getUserLastName() {
-		return userLastName;
+		return userLastName.getParameter();
 	}
-	public void setUserLastName(String userLastName) {
-		this.userLastName = userLastName;
-	}
-	public String getUserFullName() {
-		return userFullName;
-	}
-	public void setUserFullName(String userFullName) {
-		this.userFullName = userFullName;
+	public void setUserLastName(String userLastName) throws Exception {
+		this.userLastName.setParameter(userLastName);
 	}
 	public String getUserEmail() {
-		return userEmail;
+		return userEmail.getParameter();
 	}
-	public void setUserEmail(String userEmail) {
-		this.userEmail = userEmail;
+	public void setUserEmail(String userEmail) throws Exception {
+		this.userEmail.setParameter(userEmail);
 	}
-	public String getUserImage() {
-		return userImage;
+	public String getResultUrl() {
+		return resultUrl.getParameter();
 	}
-	public void setUserImage(String userImage) {
-		this.userImage = userImage;
+	public void setResultUrl(String resultUrl) throws Exception {
+		this.resultUrl.setParameter(resultUrl);
 	}
-	public String getToolConsumerInstanceName() {
-		return toolConsumerInstanceName;
+	public String getResultSourcedId() {
+		return resultSourcedId.getParameter();
 	}
-	public void setToolConsumerInstanceName(String toolConsumerInstanceName) {
-		this.toolConsumerInstanceName = toolConsumerInstanceName;
+	public void setResultSourcedId(String resultSourcedId) throws Exception {
+		this.resultSourcedId.setParameter(resultSourcedId);
 	}
-	
+
+	public String getUserID() {
+		return userID.getParameter();
+	}
+
+	public void setUserID(String userID) throws Exception {
+		this.userID.setParameter(userID);
+	}
+
+	public String getLaunchPresentationReturnURL() {
+		return launchPresentationReturnURL.getParameter();
+	}
+
+	public void setLaunchPresentationReturnURL(String launchPresentationReturnURL) throws Exception {
+		this.launchPresentationReturnURL.setParameter(launchPresentationReturnURL);
+	}
 	
 	
 }
