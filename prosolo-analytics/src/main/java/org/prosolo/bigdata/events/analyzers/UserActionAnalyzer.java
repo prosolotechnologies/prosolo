@@ -47,7 +47,7 @@ public class UserActionAnalyzer implements EventAnalyzer {
 		case LOGIN:
 			login = 1;
 			break;
-		case LMSUSE:
+		case LMSUSE: 
 			lmsuse = 1;
 			break;
 		case RESOURCEACTION:
