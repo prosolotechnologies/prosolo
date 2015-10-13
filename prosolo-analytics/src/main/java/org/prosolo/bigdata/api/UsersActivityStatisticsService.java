@@ -9,10 +9,9 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -113,11 +112,7 @@ public class UsersActivityStatisticsService {
 	}
 	
 	private int distinctCount(List<UserEventDailyCount> counts) {
-		Set<Long> result = new HashSet<Long>();
-		for(UserEventDailyCount count : counts) {
-			result.add(Long.valueOf(count.getUser()));
-		}
-		return result.size();
+		return (int) counts.stream().map((count) -> Long.valueOf(count.getUser())).distinct().count();
 	}
 
 	@GET
@@ -157,13 +152,11 @@ public class UsersActivityStatisticsService {
 		}
 		return result;
 	}
-	
+
 	private List<EventDailyCount> aggregate(Map<Long, List<EventDailyCount>> groups, String event) {
-		List<EventDailyCount> result = new ArrayList<EventDailyCount>();
-		for(Long day : groups.keySet()) {
-			result.add(new EventDailyCount(event, day.longValue(), sumCounts(groups.get(day))));
-		}
-		return result;
+		return groups.keySet().stream()
+				.map((day) -> new EventDailyCount(event, day.longValue(), sumCounts(groups.get(day))))
+				.collect(Collectors.toList());
 	}	
 	
 	private long sumCounts(List<EventDailyCount> counts) {

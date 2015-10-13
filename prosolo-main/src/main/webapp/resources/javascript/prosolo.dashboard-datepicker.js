@@ -22,5 +22,24 @@ var datepicker = {
 		}
 		$(selector).datepicker(options);
 		$(selector).datepicker('setDate', new Date());
+	},
+	align : function (from, to, period) {
+		
+		function addDays(current, days) {
+		    var result = new Date(current.valueOf());
+		    result.setDate(result.getDate() + days);
+		    return result;
+		}
+		
+		var days = 0;
+		if (period == "DAY") {
+			days = -2;
+		} else if (period == "WEEK") {
+			days = -14;
+		} else if (period == "MONTH") {
+			days = -60;
+		}
+		var date = $(to).datepicker("getDate");
+		$(from).datepicker('option', 'maxDate', addDays(date, days));
 	}
 }

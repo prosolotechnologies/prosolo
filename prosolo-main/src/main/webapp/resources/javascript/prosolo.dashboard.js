@@ -115,6 +115,8 @@ $(function () {
 	});
 	
 	$("#activityGraph .period [name='periods']").change(function() {
+		datepicker.align("#activityGraph .dateFrom", "#activityGraph .dateTo", activityGraph.period());
+
 		if ($("#activityGraph [name='stats']:checked").size() == 0) {
 			return;
 		}
@@ -130,12 +132,15 @@ $(function () {
 	}
 	
 	datepicker.init("activityGraph", function(dateText, inst) {
+		datepicker.align("#activityGraph .dateFrom", "#activityGraph .dateTo", activityGraph.period());
 		if ($("#activityGraph [name='stats']:checked").size() == 0) {
 			return;
 		}
 		activityGraph.showLoader();
 		activityGraphService.get(activityGraph.onload);
     });
+	
+	datepicker.align("#activityGraph .dateFrom", "#activityGraph .dateTo", activityGraph.period());
 	
 	var twitterHashtagsService = service.create({
 		url : "http://" + host() + "/api/twitter/hashtag/statistics",
@@ -153,11 +158,15 @@ $(function () {
 	});
 	
 	datepicker.init("twitterHashtagsGraph", function(dateText, inst) {
+		datepicker.align("#twitterHashtagsGraph .dateFrom", "#twitterHashtagsGraph .dateTo", twitterHashtags.period());
+
 		twitterHashtags.showLoader();
 		twitterHashtagsService.get(twitterHashtags.onload);
     });
-	
+
 	$("#twitterHashtagsGraph .period [name='thperiods']").change(function() {
+		datepicker.align("#twitterHashtagsGraph .dateFrom", "#twitterHashtagsGraph .dateTo", twitterHashtags.period());
+
 		if ($(this).is(":checked")) {
 			twitterHashtags.showLoader();
 			twitterHashtagsService.get(twitterHashtags.onload);
@@ -351,6 +360,8 @@ $(function () {
 			}
 		}
 	})();
+	
+	datepicker.align("#twitterHashtagsGraph .dateFrom", "#twitterHashtagsGraph .dateTo", twitterHashtags.period());
 	
 	var disabledHashtagsTable = table.create({
 		"container" : "#disabled-twitter-hashtags",

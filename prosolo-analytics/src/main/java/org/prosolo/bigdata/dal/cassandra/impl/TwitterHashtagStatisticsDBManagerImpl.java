@@ -49,7 +49,7 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 	private static final String FIND_TWITTER_HASHTAG_USERS_COUNT = "FIND_TWITTER_HASHTAG_USERS_COUNT";
 	
 	static {
-		statements.put(FIND_SPECIFIC_TWITTER_HASHTAG_COUNT_FOR_PERIOD, "SELECT * FROM twitterhashtagdailycount WHERE date>=? AND date<=? AND hashtag=?");
+		statements.put(FIND_SPECIFIC_TWITTER_HASHTAG_COUNT_FOR_PERIOD, "SELECT * FROM twitterhashtagdailycount WHERE date>=? AND date<=? AND hashtag=?;");
 		statements.put(FIND_TWITTER_HASHTAG_COUNT_FOR_PERIOD, "SELECT * FROM twitterhashtagdailycount WHERE date>=? AND date<=? ALLOW FILTERING;");
 		statements.put(UPDATE_TWITTER_HASHTAG_COUNT, "UPDATE twitterhashtagdailycount SET count = count + 1 WHERE hashtag = ? AND date = ?;");
 		statements.put(INCREMENT_TWITTER_HASHTAG_USERS_COUNT, "UPDATE twitterhashtaguserscount SET users = users + 1 WHERE hashtag = ?;");
