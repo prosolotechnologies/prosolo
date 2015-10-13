@@ -4,7 +4,7 @@ import org.prosolo.web.lti.LTIConstants;
 import org.prosolo.web.lti.message.LTILaunchMessage;
 import org.prosolo.web.util.PageUtil;
 
-public class Lti1LaunchMessageExtractor extends LtiLaunchMessageExtractor{
+public class Lti1LaunchMessageBuilder extends LtiLaunchMessageBuilder{
 
 	@Override
 	protected LTILaunchMessage getLtiLaunchMessageSpecific() throws Exception {

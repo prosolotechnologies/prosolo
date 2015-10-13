@@ -107,7 +107,7 @@ public interface CourseManager extends AbstractManager {
 	// USED ONLY BY AN ADMIN USER
 	void fixCourseReferences();
 
-	Long getTargetLearningGoalIdForCourse(User user, Course course);
+	Long getTargetLearningGoalIdForCourse(long userId, long courseId);
 
 	Map<String, Set<Long>> getTargetLearningGoalIdsForCourse(Course course);
 
@@ -119,7 +119,7 @@ public interface CourseManager extends AbstractManager {
 
 	void updateExcludedFeedSources(Course course, List<FeedSource> disabledFeedSources);
 	
-	public Object[] getTargetGoalAndCompetenceIds(User user, Course course, Competence competence);
+	public Object[] getTargetGoalAndCompetenceIds(long userId, long courseId, long competenceId);
 	
 	public void enrollUserIfNotEnrolled(User user, long courseId) throws RuntimeException;
 

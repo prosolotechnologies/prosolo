@@ -10,11 +10,11 @@ import org.prosolo.web.lti.json.data.ToolProxy;
 import org.prosolo.web.lti.message.LTILaunchMessage;
 import org.prosolo.web.util.PageUtil;
 
-public class Lti2LaunchMessageExtractor extends LtiLaunchMessageExtractor {
+public class Lti2LaunchMessageBuilder extends LtiLaunchMessageBuilder {
 
 	@Override
 	protected LTILaunchMessage getLtiLaunchMessageSpecific() throws Exception {
-		ToolProxy tp = LTIConfigLoader.getInstance().loadToolProxy();
+		ToolProxy tp = LTIConfigLoader.getInstance().getToolProxy();
 		ResourceHandler rh = tp.getToolProfile().getResourceHandler().get(0);
 		LTILaunchMessage msg = new LTILaunchMessage();
 		List<MessageParameter> parameters = rh.getMessage().get(0).getParameter();

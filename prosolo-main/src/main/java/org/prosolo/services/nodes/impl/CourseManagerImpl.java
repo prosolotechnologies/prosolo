@@ -807,18 +807,18 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional (readOnly = true)
-	public Long getTargetLearningGoalIdForCourse(User user, Course course) {
+	public Long getTargetLearningGoalIdForCourse(long userId, long courseId) {
 		String query = 
 				"SELECT DISTINCT targetGoal.id " +
 				"FROM CoursePortfolio coursePortfolio " +
 				"LEFT JOIN coursePortfolio.enrollments enrollment "+
 				"LEFT JOIN enrollment.targetGoal targetGoal "+
-				"WHERE coursePortfolio.user = :user " +
-					"AND enrollment.course = :course";
+				"WHERE coursePortfolio.user.id = :user " +
+					"AND enrollment.course.id = :course";
 		
 		Long targetGoalId = (Long) persistence.currentManager().createQuery(query).
-				setEntity("user", user).
-				setEntity("course", course).
+				setLong("user", userId).
+				setLong("course", courseId).
 				uniqueResult();
 		return targetGoalId;
 	}
@@ -939,7 +939,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Object[] getTargetGoalAndCompetenceIds(User user, Course course, Competence competence){
+	public Object[] getTargetGoalAndCompetenceIds(long userId, long courseId, long competenceId){
 		String query = 
 				"SELECT DISTINCT targetGoal.id, tc.id " +
 				"FROM CoursePortfolio coursePortfolio " +
@@ -951,21 +951,24 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 				    "AND tc.competence = :competence";
 		
 				return (Object[]) persistence.currentManager().createQuery(query).
-						setEntity("user", user).
-						setEntity("course", course).
-						setEntity("competence", competence).
+						setLong("user", userId).
+						setLong("course", courseId).
+						setLong("competence", competenceId).
 						uniqueResult();
 	}
 	
+	@Override
+	@Transactional
 	public void enrollUserIfNotEnrolled(User user, long courseId) throws RuntimeException{
 		try{
 			Course course = (Course) persistence.currentManager().load(Course.class, courseId);
 			boolean enrolled = isUserEnrolledInCourse(user, course);
 			if(!enrolled){
 				TargetLearningGoal targetLGoal = goalManager.createNewCourseBasedLearningGoal(user, course, null, "");
-				enrollInCourse(user, course, targetLGoal, null);
-				// targetLGoal.setCourseEnrollment(enrollment);
-				// targetLGoal = courseManager.saveEntity(targetLGoal);
+				CourseEnrollment enrollment = enrollInCourse(user, course, targetLGoal, null);
+				targetLGoal.setCourseEnrollment(enrollment);
+				targetLGoal = saveEntity(targetLGoal);
+				logger.info("User with email "+user.getEmail().getAddress() + " enrolled in course with id "+course.getId());
 			}
 		}catch(Exception e){
 			throw new RuntimeException("Error while enrolling user");

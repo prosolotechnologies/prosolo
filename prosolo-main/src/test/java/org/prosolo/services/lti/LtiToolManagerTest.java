@@ -74,33 +74,33 @@ public class LtiToolManagerTest {
 		fail("Not yet implemented");
 	}
 
-	@Test
-	public void testSearchToolsGeneral() {
-		Map<String, Object> parameters= new HashMap<>();
-		parameters.put(EntityConstants.CREDENTIAL_ID, 1);
-		parameters.put(EntityConstants.COMPETENCE_ID, 1);
-		parameters.put(EntityConstants.ACTIVITY_ID, 1);
-		List<LtiTool> tools = toolManager.searchTools(2, "t", parameters, new ToolSearchGeneralFilter());
-		for(LtiTool t:tools){
-			System.out.println("TOOL "+t.getId());
-		}
-		System.out.println("BROJ REZULTATA "+ tools.size());
-		assertEquals("Error while searching tools", 4, tools.size());
-	}
-	
-	@Test
-	public void testSearchToolsCompetence() {
-		Map<String, Object> parameters= new HashMap<>();
-		parameters.put(EntityConstants.CREDENTIAL_ID, 1);
-		parameters.put(EntityConstants.COMPETENCE_ID, 1);
-		parameters.put(EntityConstants.ACTIVITY_ID, 1);
-		List<LtiTool> tools = toolManager.searchTools(2, "t", parameters, new ToolSearchCompetenceFilter());
-		for(LtiTool t:tools){
-			System.out.println("TOOL "+t.getId());
-		}
-		System.out.println("BROJ REZULTATA "+ tools.size());
-		assertEquals("Error while searching tools", 0, tools.size());
-	}
+//	@Test
+//	public void testSearchToolsGeneral() {
+//		Map<String, Object> parameters= new HashMap<>();
+//		parameters.put(EntityConstants.CREDENTIAL_ID, 1);
+//		parameters.put(EntityConstants.COMPETENCE_ID, 1);
+//		parameters.put(EntityConstants.ACTIVITY_ID, 1);
+//		List<LtiTool> tools = toolManager.searchTools(2, "t", parameters, new ToolSearchGeneralFilter());
+//		for(LtiTool t:tools){
+//			System.out.println("TOOL "+t.getId());
+//		}
+//		System.out.println("BROJ REZULTATA "+ tools.size());
+//		assertEquals("Error while searching tools", 4, tools.size());
+//	}
+//	
+//	@Test
+//	public void testSearchToolsCompetence() {
+//		Map<String, Object> parameters= new HashMap<>();
+//		parameters.put(EntityConstants.CREDENTIAL_ID, 1);
+//		parameters.put(EntityConstants.COMPETENCE_ID, 1);
+//		parameters.put(EntityConstants.ACTIVITY_ID, 1);
+//		List<LtiTool> tools = toolManager.searchTools(2, "t", parameters, new ToolSearchCompetenceFilter());
+//		for(LtiTool t:tools){
+//			System.out.println("TOOL "+t.getId());
+//		}
+//		System.out.println("BROJ REZULTATA "+ tools.size());
+//		assertEquals("Error while searching tools", 0, tools.size());
+//	}
 
 	/*@Test
 	public void testGetLtiToolForLaunch() {

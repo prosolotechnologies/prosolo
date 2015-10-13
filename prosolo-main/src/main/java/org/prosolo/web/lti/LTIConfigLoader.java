@@ -1,9 +1,6 @@
 package org.prosolo.web.lti;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
@@ -23,19 +20,25 @@ public class LTIConfigLoader {
 	private static final String FILE_PATH = "config/";
 
 	private static LTIConfigLoader instance;
+	
+	private ToolProxy toolProxy;
 
-	private LTIConfigLoader() {
-
+	private LTIConfigLoader() throws Exception {
+		try{
+			toolProxy = loadToolProxy();
+		}catch(Exception e) {
+			throw new Exception ("Error while loading Tool Proxy");
+		}
 	}
 
-	public static LTIConfigLoader getInstance() {
+	public static LTIConfigLoader getInstance() throws Exception {
 		if (instance == null) {
 			instance = new LTIConfigLoader();
 		}
 		return instance;
 	}
 
-	public ToolProxy loadToolProxy() throws Exception {
+	private ToolProxy loadToolProxy() throws Exception {
 		Gson gson = new GsonBuilder().registerTypeAdapterFactory(new MessageParameterTypeAdapterFactory())
 				.setPrettyPrinting().create();
 		BufferedReader br = null;
@@ -45,7 +48,6 @@ public class LTIConfigLoader {
 				String path = url.getFile();
 				path = path.replaceAll("%20", " ");
 				br = new BufferedReader(new FileReader(path));
-				System.out.println("TP LOADED");
 				return gson.fromJson(br, ToolProxy.class);
 			}else{
 				throw new Exception();
@@ -64,4 +66,10 @@ public class LTIConfigLoader {
 			}
 		}
 	}
+
+	public ToolProxy getToolProxy() {
+		return toolProxy;
+	}
+
+	
 }

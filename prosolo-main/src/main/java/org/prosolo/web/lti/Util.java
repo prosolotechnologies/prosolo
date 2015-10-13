@@ -5,7 +5,7 @@ import java.util.Map.Entry;
 
 public class Util {
 
-	public static String formURLWithParams(String baseURL, Map<String,String> params){
+	public static String buildURLWithParams(String baseURL, Map<String,String> params){
 		String urlParameters = null;
 		if(baseURL.indexOf("?") == -1){
 			urlParameters = "?";

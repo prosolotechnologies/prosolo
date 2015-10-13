@@ -517,7 +517,7 @@ public class LearningGoalsBean implements Serializable {
 		archiveGoal(goalData, removeFromGoals);
 	}
 	
-	public void archiveGoal(GoalData goalData, boolean removeFromGoals) {
+	public void archiveGoal(final GoalData goalData, boolean removeFromGoals) {
 		try {
 			final PortfolioData updatedPortfolioData = portfolioManager.sendGoalToPortfolio(goalData.getTargetGoalId(), loggedUser.refreshUser());
 			

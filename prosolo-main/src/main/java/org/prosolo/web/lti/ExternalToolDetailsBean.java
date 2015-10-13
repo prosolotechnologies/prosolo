@@ -5,7 +5,6 @@ package org.prosolo.web.lti;
 
 import java.io.Serializable;
 import java.util.Iterator;
-import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
@@ -53,6 +52,7 @@ public class ExternalToolDetailsBean implements Serializable {
 	private ExternalToolFormData toolData;
 	
 	public void init() {
+		logger.info("User with email "+user.getUser().getEmail().getAddress()+" redirected to the page manage/externalTools/toolDetails.xhtml");
 		if (id > 0) {
 			LtiTool tool = toolManager.getToolDetails(id);
 			toolData = new ExternalToolFormData(tool);
@@ -64,7 +64,6 @@ public class ExternalToolDetailsBean implements Serializable {
 	}
 	
 	public void save() {
-		System.out.println("SAVE CALLED");
 		LtiTool tool = new LtiTool();
 		tool.setToolType(getResourceType());
 		tool.setName(toolData.getTitle());
@@ -73,6 +72,7 @@ public class ExternalToolDetailsBean implements Serializable {
 			tool.setId(id);
 			try{
 				toolManager.updateLtiTool(tool);
+				logger.info("LTI tool updated");
 				PageUtil.fireSuccessfulInfoMessage("External tool updated");
 			}catch(Exception e){
 				PageUtil.fireErrorMessage(e.getMessage());
@@ -80,13 +80,12 @@ public class ExternalToolDetailsBean implements Serializable {
 		}else{
 			if(cred > 0){
 				tool.setLearningGoalId(cred);
-				System.out.println("TEST COMP "+comp);
-				System.out.println("TEST ACT "+act);
 				tool.setCompetenceId(comp);
 				tool.setActivityId(act);
 				tool.setCreatedBy(user.getUser());
 				try{
 					LtiToolSet ts = tsManager.saveToolSet(tool);
+					logger.info("LTI tool saved");
 					toolData.setConsumerKey(ts.getConsumer().getKeyLtiOne());
 					toolData.setConsumerSecret(ts.getConsumer().getSecretLtiOne());
 					Iterator<LtiTool> it = ts.getTools().iterator();

@@ -4,7 +4,7 @@ import org.prosolo.web.lti.LTIConstants;
 import org.prosolo.web.lti.message.LTIMessage;
 import org.prosolo.web.util.PageUtil;
 
-public abstract class LtiMessageExtractor {
+public abstract class LtiMessageBuilder {
 	public LTIMessage getLtiMessage() throws Exception{
 		LTIMessage msg = getLtiMessageSpecific();
 		msg.setLtiVersion(PageUtil.getPostParameter(LTIConstants.LTI_VERSION));

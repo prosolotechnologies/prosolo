@@ -7,6 +7,9 @@ import org.prosolo.common.domainmodel.lti.LtiConsumer;
 import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.common.domainmodel.lti.LtiVersion;
 import org.prosolo.services.lti.LtiToolLaunchValidator;
+import org.prosolo.services.lti.exceptions.LtiToolAccessDeniedException;
+import org.prosolo.services.lti.exceptions.LtiToolDeletedException;
+import org.prosolo.services.lti.exceptions.LtiToolDisabledException;
 import org.prosolo.services.oauth.OauthService;
 import org.springframework.stereotype.Service;
 
@@ -18,13 +21,13 @@ public class LtiToolLaunchValidatorImpl implements LtiToolLaunchValidator {
 	@Override
 	public void validateLaunch(LtiTool tool, String consumerKey, LtiVersion version, HttpServletRequest request) throws RuntimeException{
 		if (tool == null){
-			throw new RuntimeException("You don't have access to this tool");
+			throw new LtiToolAccessDeniedException();
 		}
 		if(!tool.isEnabled()){
-			throw new RuntimeException("Tool is disabled");
+			throw new LtiToolDisabledException();
 		}
 		if(tool.isDeleted()){
-			throw new RuntimeException("Tool is deleted");
+			throw new LtiToolDeletedException();
 		}
 		LtiConsumer consumer = tool.getToolSet().getConsumer();
 		String key = null;
@@ -37,12 +40,12 @@ public class LtiToolLaunchValidatorImpl implements LtiToolLaunchValidator {
 			secret = consumer.getSecretLtiTwo();
 		}
 		if(consumer == null || !key.equals(consumerKey) ){
-			throw new RuntimeException("You are not allowed to access this tool");
+			throw new LtiToolAccessDeniedException();
 		}
 		try{
 			oauthService.validatePostRequest(request, tool.getLaunchUrl(), key, secret);
 		}catch(Exception e){
-			throw new RuntimeException("You are not allowed to access this tool");
+			throw new LtiToolAccessDeniedException();
 		}
 	}
 }

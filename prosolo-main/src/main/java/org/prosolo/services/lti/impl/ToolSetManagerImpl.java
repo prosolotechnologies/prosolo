@@ -12,6 +12,7 @@ import org.prosolo.common.domainmodel.lti.LtiToolSet;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.lti.ToolSetManager;
 import org.prosolo.services.lti.exceptions.ConsumerAlreadyRegisteredException;
+import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.web.lti.LTIConfigLoader;
 import org.prosolo.web.lti.json.data.ToolProxy;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,8 @@ public class ToolSetManagerImpl extends AbstractManagerImpl implements ToolSetMa
 
 	@Override
 	@Transactional
-	public LtiToolSet saveToolSet(LtiTool tool) {
+	public LtiToolSet saveToolSet(LtiTool tool) throws DbConnectionException{
+		try{
 		    String domain = Settings.getInstance().config.application.domain;
 			LtiToolSet ts = new LtiToolSet();
 			Set<LtiTool> tools = new HashSet<>();
@@ -40,27 +42,35 @@ public class ToolSetManagerImpl extends AbstractManagerImpl implements ToolSetMa
 			String regUrl = Settings.getInstance().config.application.domain+"ltitoolproxyregistration.xhtml";
 			ts.setRegistrationUrl(regUrl);
 			return saveEntity(ts);
+		}catch(Exception e){
+			throw new DbConnectionException("Error while saving the tool");
+		}
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public boolean checkIfToolSetExists(long toolSetId) throws RuntimeException {
-		String queryString = "SELECT ts.id, c.keyLtiTwo " + "FROM LtiToolSet ts " + "INNER JOIN ts.consumer c "
+		try{
+			String queryString = "SELECT ts.id, c.keyLtiTwo " + "FROM LtiToolSet ts " + "INNER JOIN ts.consumer c "
 				+ "WHERE ts.id = :id";
-		Query query = persistence.currentManager().createQuery(queryString);
-		query.setLong("id", toolSetId);
-
-		Object[] res = (Object[]) query.uniqueResult();
-		if (res == null) {
-			return false;
+			Query query = persistence.currentManager().createQuery(queryString);
+			query.setLong("id", toolSetId);
+	
+			Object[] res = (Object[]) query.uniqueResult();
+			if (res == null) {
+				return false;
+			}
+			String key = (String) res[1];
+	
+			if (key != null) {
+				throw new ConsumerAlreadyRegisteredException();
+			}
+			return true;
+		}catch(ConsumerAlreadyRegisteredException care){
+			throw care;
+		}catch(Exception e){
+			throw new DbConnectionException();
 		}
-		String key = (String) res[1];
-		System.out.println("KEY " + key);
-
-		if (key != null) {
-			throw new ConsumerAlreadyRegisteredException();
-		}
-		return true;
 
 	}
 }

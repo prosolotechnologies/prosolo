@@ -28,7 +28,6 @@ import org.prosolo.services.lti.filter.ToolSearchCredentialFilter;
 import org.prosolo.services.lti.util.EntityConstants;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.NodeData;
 import org.prosolo.web.courses.data.CourseData;
 import org.prosolo.web.lti.data.ExternalToolData;
 import org.prosolo.web.lti.data.ExternalToolFilterData;
@@ -52,7 +51,7 @@ public class ManageExternalToolsBean implements Serializable {
 	
 	@Autowired private DefaultManager defaultManager;
 	@Inject private LtiToolManager toolManager;
-	@Inject private LoggedUserBean user;
+	@Inject private LoggedUserBean userBean;
 
 	private long cred;
 	private long comp;
@@ -70,6 +69,7 @@ public class ManageExternalToolsBean implements Serializable {
 	private List<ExternalToolData> externalTools;
 	
 	public void init() {
+		logger.info("User with email "+userBean.getUser().getEmail().getAddress()+" redirected the page manage/tools.xhtml");
 		if (cred > 0) {
 			if (act > 0){
 				origin = act;
@@ -132,7 +132,6 @@ public class ManageExternalToolsBean implements Serializable {
 	private void setOriginFilter(ExternalToolFilterData filter){
 		if(filter.getId() == origin){
 			setSelectedFilter(filter);
-			System.out.println("SELECTED FILTER "+filter.getId());
 		}
 	}
 	
@@ -153,22 +152,13 @@ public class ManageExternalToolsBean implements Serializable {
 	}
 	
 	
-	/*
-	 * Search
-	 */
-	
 	public void loadData() {
 		Map <String, Object> params = prepareSearchParameters();
-		List<LtiTool> tools = toolManager.searchTools(user.getUser().getId(), null, params, selectedFilter.getFilter());
+		List<LtiTool> tools = toolManager.searchTools(userBean.getUser().getId(), params, selectedFilter.getFilter());
 		externalTools = new LinkedList<>();
 		for(LtiTool t : tools){
 			externalTools.add(new ExternalToolData(t));
 		}
-		System.out.println("Tool number "+externalTools.size());
-		/*
-		externalTools.add(new ExternalToolData(724, "UTA Moodle Course displays activity 'Gephi'", true, new NodeData(4, null, Activity.class, "Gephi")));
-		externalTools.add(new ExternalToolData(633, "UTA Moodle Course displays competence 'Define social network analysis'", false, new NodeData(4, null, Competence.class, "Define social network analysis")));
-		externalTools.add(new ExternalToolData(724, "UTA Sakai - activity 'Upload your own visualization'", true, new NodeData(4, null, Activity.class, "Upload your own visualization")));*/
 	}
 	
 	public String setEnabledButton(ExternalToolData tool){
@@ -201,8 +191,8 @@ public class ManageExternalToolsBean implements Serializable {
 			boolean enabled = !tool.isEnabled();
 			toolManager.changeEnabled(tool.getId(), enabled);
 			tool.setEnabled(enabled);
+			logger.info("LTI tool enabled status changed");
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
 			PageUtil.fireErrorMessage(e.getMessage());
 		}
 	}
@@ -211,6 +201,7 @@ public class ManageExternalToolsBean implements Serializable {
 		try {
 			toolManager.deleteLtiTool(tool.getId());
 			externalTools.remove(tool);
+			logger.info("LTI tool deleted");
 			//loadData();
 		} catch (Exception e) {
 			PageUtil.fireErrorMessage(e.getMessage());
