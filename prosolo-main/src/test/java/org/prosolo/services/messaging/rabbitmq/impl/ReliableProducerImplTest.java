@@ -87,7 +87,7 @@ public class ReliableProducerImplTest{
 					ignore=true;					
 				}
 				if(!ignore){
-					wrapMessageAndSend(reliableProducer, cursor.next());
+					wrapMessageAndSend(reliableProducer, dbObject);
 				}
 			}
 		}
