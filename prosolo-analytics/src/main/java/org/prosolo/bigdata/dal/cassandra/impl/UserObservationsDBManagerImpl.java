@@ -2,11 +2,13 @@ package org.prosolo.bigdata.dal.cassandra.impl;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Set;
 
 import org.prosolo.bigdata.dal.cassandra.UserObservationsDBManager;
 
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.PreparedStatement;
+import com.datastax.driver.core.ResultSet;
 
 /**
  * @author Zoran Jeremic, Oct 11, 2015
@@ -29,22 +31,26 @@ implements Serializable, UserObservationsDBManager{
 	private void prepareStatements() {
 		String updateClusteringusersobservationsbydate = "UPDATE clusteringusersobservationsbydate  SET login=login+?,lmsuse=lmsuse+?, resourceview=resourceview+?, discussionview=discussionview+? WHERE date=? AND userid=?;";
 		this.queries.put("updateClusteringusersobservationsbydate", updateClusteringusersobservationsbydate);
+		Set<String> stQueries = this.queries.keySet();
+		for (String query : stQueries) {
+			preparedStatements.put(query,
+					this.getSession().prepare(queries.get(query)));
+		}
 	}
 	@Override
 	public boolean updateUserObservationsCounter(Long date, Long userid,
 			long login, long lmsuse, long resourceview, long discussionview) {
-		BoundStatement updateStatement = new BoundStatement(
-				this.preparedStatements.get("updateClusteringusersobservationsbydate"));
+		BoundStatement updateStatement = new BoundStatement(this.preparedStatements.get("updateClusteringusersobservationsbydate"));
 		updateStatement.setLong(0, login);
 		updateStatement.setLong(1, lmsuse);
 		updateStatement.setLong(2, resourceview);
 		updateStatement.setLong(3, discussionview);
 		updateStatement.setLong(4, date);
 		updateStatement.setLong(5, userid);
-
 		try {
-			this.getSession().execute(updateStatement);
+			ResultSet rs=this.getSession().execute(updateStatement);
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			return false;
 		}
 		return true;

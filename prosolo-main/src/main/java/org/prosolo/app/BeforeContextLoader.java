@@ -29,39 +29,44 @@ public class BeforeContextLoader implements ServletContextListener	{
 	/* Application Startup Event */
 	public void	contextInitialized(ServletContextEvent ce) {
 		// read settings from config.xml
+		logger.debug("before context initialization");
 		Settings settings = Settings.getInstance();
 		if (settings.config == null) {
 			return;
 		}
-
+		logger.debug("configuring logger");
 		// configure logging
 		PropertyConfigurator.configure(this.getClass().getClassLoader().getResource(settings.config.log4j));
 		SLF4JBridgeHandler.install();
-		 
+		 logger.debug("logging configured");
 		if (settings.config.init.formatDB) {
+			logger.debug("deleting logging database collections");
 		  	deleteLoggingDatabaseCollections();
 
 		  	try {
+		  		logger.debug("initialize elasticsearch indexes");
 				initElasticSearchIndexes();
 			} catch (IndexingServiceNotAvailable e1) {
 				logger.error(e1);
 			}
 			
 		  	try {
+		  		logger.debug("droping tables");
 				dropTables();
+				logger.debug("tables dropped");
 			} catch (SQLException e) {
 				logger.error(e.getMessage());
 			} catch (ClassNotFoundException e) {
 				logger.error(e.getMessage());
 			}
-			
+			logger.debug("create or empty upload folder");
 			createOrEmptyUploadFolder();
 		}
 //		if(settings.config.init.indexTrainingSet){
 //			ESAdministration esAdmin=new ESAdministrationImpl();
 //			esAdmin.indexTrainingSet();
 //		}
-	 
+		logger.debug("before context initialization finished");
 	}
 	private void deleteLoggingDatabaseCollections(){
 		LoggingServiceAdmin loggingServiceAdmin=new LoggingServiceAdmin();
@@ -83,18 +88,18 @@ public class BeforeContextLoader implements ServletContextListener	{
 		File uploadFolder = new File(uploadFolderPath);
 		
 		if (uploadFolder.exists()) {
-			logger.info("Initiated emptying of upload folder.");
+			logger.debug("Initiated emptying of upload folder.");
 			
 			FileUtil.deleteFolderContents(uploadFolder);
 			
-			logger.info("Completed emptying of upload folder.");
+			logger.debug("Completed emptying of upload folder.");
 		} else {
-			logger.info("Initiated creation of upload folder.");
+			logger.debug("Initiated creation of upload folder.");
 			
 			boolean fodlerCreated = uploadFolder.mkdirs();
 			
 			if (fodlerCreated) {
-				logger.info("Completed deletion of upload folder.");
+				logger.debug("Completed deletion of upload folder.");
 			} else {
 				logger.error("Error creating folder at location '"+uploadFolderPath+"'. " +
 						"Check if the you have proper permissions..");

@@ -80,7 +80,15 @@ public class ReliableProducerImplTest{
 				if (!cursor.hasNext()) {
 					break;
 				}
-				wrapMessageAndSend(reliableProducer, cursor.next());
+				DBObject dbObject=cursor.next();
+				String eventType=dbObject.get("eventType").toString();
+				boolean ignore=false;
+				if(eventType.equals("TwitterPost")|| eventType.equals("LOGOUT") || eventType.equals("SESSIONENDED")	){
+					ignore=true;					
+				}
+				if(!ignore){
+					wrapMessageAndSend(reliableProducer, cursor.next());
+				}
 			}
 		}
 	}

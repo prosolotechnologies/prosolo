@@ -44,7 +44,7 @@ public class AfterContextLoader implements ServletContextListener {
 
 		// read settings from config.xml
 		final Settings settings = Settings.getInstance();
-
+			logger.debug("Initialized settings");
 		if (settings.config.init.formatDB) {
 			logger.debug("Initializing static data!");
 			initStaticData();
@@ -63,7 +63,7 @@ public class AfterContextLoader implements ServletContextListener {
 					Settings.getInstance().config.admin.individualCompetencesCanNotBeEvaluated);
 			settings.config.init.formatDB=false;
 		}
-
+	
 		if (Settings.getInstance().config.init.importData) {
 			logger.info("Importing external data");
 			// ServiceLocator.getInstance().getService(ResourcesImporter.class).batchImportExternalCompetences();
@@ -76,7 +76,7 @@ public class AfterContextLoader implements ServletContextListener {
 			ESAdministration esAdmin=new ESAdministrationImpl();
 			esAdmin.indexTrainingSet();
 		}
-
+		logger.debug("Initialize thread to start elastic search");
 		new Thread(new Runnable() {
 			@SuppressWarnings("unused")
 			@Override
@@ -95,7 +95,9 @@ public class AfterContextLoader implements ServletContextListener {
 			
 			}
 		}).start();
+		logger.debug("initialize Application services");
 		initApplicationServices();
+		logger.debug("Services initialized");
 		//ServiceLocator.getInstance().getService(AnalyticalServiceCollector.class).testCreateTargetCompetenceActivitiesAnalyticalData();
 		
 	}
