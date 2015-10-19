@@ -21,7 +21,9 @@ public class UserActionsAnalyzerObserver implements EventObserver{
 	@Override
 	public EventType[] getSupportedTypes() {
 		return new EventType[] { EventType.LOGIN, EventType.NAVIGATE, EventType.SERVICEUSE, EventType.ENROLL_COURSE,
-				EventType.Create, EventType.FILTER_CHANGE};
+				EventType.Create, EventType.FILTER_CHANGE, EventType.Comment, EventType.AddNote, 
+				EventType.Completion, EventType.Like, EventType.Post, EventType.PostShare, EventType.Follow, EventType.JOIN_GOAL_REQUEST, EventType.JOIN_GOAL_INVITATION,
+				EventType.SEND_MESSAGE, EventType.SELECT_COMPETENCE, EventType.SELECT_GOAL};
 	}
 
 	@Override

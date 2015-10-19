@@ -17,7 +17,6 @@ public class UserActionAnalyzer implements EventAnalyzer {
 
 	@Override
 	public void analyzeLogEvent(LogEvent event) {
-		// System.out.println("ANALYZE EVENT");
 		long date = DateUtil.getDaysSinceEpoch(event.getTimestamp());
  
 		UserActionGroup userAction = null;
@@ -31,6 +30,11 @@ public class UserActionAnalyzer implements EventAnalyzer {
 		} else if (eventType.equals(EventType.SERVICEUSE)) {
 
 			userAction=UserActionGroup.LMSUSE;
+		}else if(eventType.equals(EventType.Comment) || eventType.equals(EventType.AddNote)||eventType.equals(EventType.Follow)||eventType.equals(EventType.JOIN_GOAL_REQUEST)
+				||eventType.equals(EventType.JOIN_GOAL_INVITATION)||eventType.equals(EventType.SEND_MESSAGE)){
+			userAction=UserActionGroup.DISCUSSIONACTION;
+		}else if(eventType.equals(EventType.SELECT_COMPETENCE)||eventType.equals(EventType.SELECT_GOAL)){
+			userAction=UserActionGroup.RESOURCEACTION;
 		}
 		if(userAction!=null){
 			increaseUserAction(event.getActorId(), date, userAction);
