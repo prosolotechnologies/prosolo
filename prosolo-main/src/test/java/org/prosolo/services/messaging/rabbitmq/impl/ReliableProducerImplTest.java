@@ -2,18 +2,24 @@ package org.prosolo.services.messaging.rabbitmq.impl;
 
  
 
+import static org.junit.Assert.fail;
+
 import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Ignore;
 import org.junit.Test;
 import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.events.pojo.DataName;
 import org.prosolo.bigdata.common.events.pojo.DataType;
+import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.messaging.MessageWrapperAdapter;
 import org.prosolo.common.messaging.data.AnalyticalServiceMessage;
 import org.prosolo.common.messaging.data.LogMessage;
@@ -24,6 +30,7 @@ import org.prosolo.common.messaging.rabbitmq.impl.ReliableConsumerImpl;
 import org.prosolo.common.messaging.rabbitmq.impl.ReliableProducerImpl;
 import org.prosolo.config.MongoDBServerConfig;
 import org.prosolo.config.MongoDBServersConfig;
+import org.prosolo.services.interaction.impl.AnalyticalServiceDataFactoryImpl;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -42,6 +49,130 @@ import com.mongodb.ServerAddress;
  */
 
 public class ReliableProducerImplTest{
+	
+	@Ignore
+	@Test
+	public void generateAnalyticsFromMongoTest() {
+		ReliableProducerImpl reliableProducer = new ReliableProducerImpl();
+		reliableProducer.setQueue(QueueNames.ANALYTICS.name().toLowerCase());
+		reliableProducer.startAsynchronousPublisher();
+
+		MongoDBServersConfig dbServersConfig = Settings.getInstance().config.mongoDatabase.dbServersConfig;
+		List<ServerAddress> serverAddresses = new ArrayList<ServerAddress>();
+		for (MongoDBServerConfig dbsConfig : dbServersConfig.dbServerConfig) {
+			ServerAddress serverAddress;
+			try {
+				serverAddress = new ServerAddress(dbsConfig.dbHost, dbsConfig.dbPort);
+				serverAddresses.add(serverAddress);
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			}
+		}
+		MongoClient mongoClient = new MongoClient(serverAddresses);
+		DB db = mongoClient.getDB(Settings.getInstance().config.mongoDatabase.dbName);
+		DBCollection eventsCollection = db.getCollection("log_events_observed");
+		DBObject query = new BasicDBObject();
+		query.put("actorId", 2);
+		int count = eventsCollection.find().count();
+		System.out.println("COLLECTION HAS EVENTS:" + count);
+		int counter = 0;
+		int batchSize = 100;
+		List<EventType> supported = Arrays.asList(new EventType[] { EventType.Registered, EventType.LOGIN,
+				EventType.NAVIGATE, EventType.SELECT_GOAL, EventType.SELECT_COMPETENCE });
+		while (counter < count) {
+			DBCursor cursor = eventsCollection.find();
+			cursor.skip(counter);
+			cursor.limit(batchSize);
+			for (int i = 0; i < batchSize; i++) {
+				counter++;
+				if (!cursor.hasNext()) {
+					break;
+				}
+				DBObject log = cursor.next();
+				long timestamp = (long) log.get("timestamp");
+				long userId = (long) log.get("actorId");
+				String event = (String) log.get("eventType");
+				long daysSinceEpoch = timestamp / 86400000;
+
+				DBObject parameters = (DBObject) log.get("parameters");
+				String ip = "";
+				if (parameters.containsField("ip")) {
+					ip = (String) parameters.get("ip");
+				}
+
+				EventType eventType;
+				try {
+					eventType = EventType.valueOf(event);
+					if (!supported.contains(eventType))
+						continue;
+				} catch (Exception e) {
+					continue;
+				}
+				Map<String, String> params = new HashMap<String, String>();
+				params.put("objectType", (String) log.get("objectType"));
+				params.put("link", (String) log.get("link"));
+				AnalyticalServiceMessage iec = eventCount(userId, eventType, params, daysSinceEpoch);
+				AnalyticalServiceMessage iuec = userEventCount(eventType, params, daysSinceEpoch);
+
+				Gson gson = new GsonBuilder().create();
+				reliableProducer.send(gson.toJson(wrap(ip, iec)));
+				reliableProducer.send(gson.toJson(wrap(ip, iuec)));
+			}
+		}
+		// Wait for background threads to finish.
+		try {
+			Thread.sleep(5 * 60 * 1000);
+		} catch (InterruptedException e) {
+			fail("Thread interrupted.");
+		}
+	}
+
+	private MessageWrapper wrap(String ip, AnalyticalServiceMessage message) {
+		MessageWrapper result = new MessageWrapper();
+		result.setSender(ip);
+		result.setMessage(message);
+		result.setTimecreated(System.currentTimeMillis());
+		return result;
+	}
+
+	private AnalyticalServiceMessage userEventCount(EventType event, Map<String, String> params, long days) {
+		AnalyticalServiceDataFactoryImpl factory = new AnalyticalServiceDataFactoryImpl();
+		JsonObject data = new JsonObject();
+		data.add("event", new JsonPrimitive(eventName(event, params)));
+		data.add("date", new JsonPrimitive(days));
+		return factory.createAnalyticalServiceMessage(DataName.EVENTDAILYCOUNT, DataType.COUNTER, data);
+	}
+
+	private AnalyticalServiceMessage eventCount(long userId, EventType event, Map<String, String> params, long days) {
+		AnalyticalServiceDataFactoryImpl factory = new AnalyticalServiceDataFactoryImpl();
+		JsonObject data = new JsonObject();
+		data.add("user", new JsonPrimitive(userId));
+		data.add("event", new JsonPrimitive(eventName(event, params)));
+		data.add("date", new JsonPrimitive(days));
+		return factory.createAnalyticalServiceMessage(DataName.USEREVENTDAILYCOUNT, DataType.COUNTER, data);
+	}
+
+	private String eventName(EventType event, Map<String, String> params) {
+		switch (event) {
+		case SELECT_GOAL:
+			return "goalsviews";
+		case SELECT_COMPETENCE:
+			return "competencesviews";
+		case NAVIGATE:
+			String link = params.get("link");
+			if ("page".equals(params.get("objectType")) && link != null && link.startsWith("index")) {
+				return "homepagevisited";
+			}
+			if ("page".equals(params.get("objectType")) && link != null && link.startsWith("learn")) {
+				return "goalsviews";
+			}
+			if ("page".equals(params.get("objectType")) && link != null && link.startsWith("profile")) {
+				return "profileviews";
+			}
+		default:
+			return event.name().toLowerCase();
+		}
+	}
 
 	@Test
 	public void generateLogsFromMongoTest(){
@@ -378,7 +509,7 @@ public class ReliableProducerImplTest{
 		reliableProducer.startAsynchronousPublisher();
 
 		long from = daysSinceEpoch("2015-01-01 UTC");
-		long to = daysSinceEpoch("2015-31-12 UTC");
+		long to = daysSinceEpoch("2015-12-31 UTC");
 
 		String[] events = new String[] { "login", "registered", "homepagevisited", "goalsviews", "competencesviews",
 				"profileviews" };
