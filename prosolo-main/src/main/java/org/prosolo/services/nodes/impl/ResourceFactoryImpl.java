@@ -25,6 +25,7 @@ import org.prosolo.common.domainmodel.course.CourseCompetence;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.general.Node;
+import org.prosolo.common.domainmodel.organization.Capability;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.OrganizationalUnit;
 import org.prosolo.common.domainmodel.organization.Role;
@@ -79,13 +80,18 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 	
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public Role createNewRole(String name, String description, boolean systemDefined){
+	public Role createNewRole(String name, boolean systemDefined, List<Long> capabilities){
 		Role role = new Role();
 		role.setTitle(name);
 		role.setDateCreated(new Date());
-		role.setDescription(description);
 		role.setSystem(systemDefined);
-		return saveEntity(role);
+		role = saveEntity(role);
+		for(long capId:capabilities){
+			Capability cap = (Capability) persistence.currentManager().load(Capability.class, capId);
+			cap.getRoles().add(role);
+			saveEntity(cap);
+		}
+		return role;
 	}
 
 	@Override

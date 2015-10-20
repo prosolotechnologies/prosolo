@@ -52,6 +52,13 @@
 					</td>
 				</tr>
 			</table>
+			<h:panelGroup>
+			<h:outputLabel class = "bold">Capabilities:</h:outputLabel>
+			<p:selectManyCheckbox
+				value="#{roles.selectedCapabilities}" layout="grid" columns="2">
+				<f:selectItems value="#{roles.allCapabilities}" />
+			</p:selectManyCheckbox>
+			</h:panelGroup>
 			
 			<div class="actions">
 				<p:commandLink id="save" value="Save" 

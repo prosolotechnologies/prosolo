@@ -12,12 +12,14 @@
 </ui:define>
 
 <ui:define name="content">
+<script type="text/javascript">
+</script>
 	<div class="container">
 		<div id="roleFormContainer" class="content wide">
 
 			<dlg:newRole id="newRole" />
 			<dlg:editRole id="editRole" />
-	
+			
 			<h:form id="rolesForm" prependId="false">
 	
 				<p:commandLink id="newRoleBtn" value="Add Role"
@@ -38,6 +40,26 @@
 						</f:facet>
 						<h:outputText value="#{role.name}" />
 					</p:column>
+					
+					<p:column id="usersColumn" filterBy="#{role.name}" filterMatchMode="contains" 
+						sortBy="#{role.name}">
+						
+						<f:facet name="header">
+							<h:outputText value="Users" />
+						</f:facet>							
+						<p:commandLink
+						    rendered="#{not empty role.userIds}"
+							value="#{role.userIds.size()} users"
+							action="#{peopleListDialog.initializePeopleWithIds(role.userIds)}"
+							onclick="$('#peopleListDialog').dialog('open');"
+							update=":peopleListForm"
+						/>
+						
+						<h:outputText rendered="#{empty role.userIds}"
+										value="0 users" />
+						
+					</p:column>
+					
 	
 					<p:column>
 						<f:facet name="header">
