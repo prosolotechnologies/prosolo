@@ -1,9 +1,12 @@
 package org.prosolo.bigdata.events.observers;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.prosolo.bigdata.common.dal.pojo.InstanceLoggedUsersCount;
 import org.prosolo.bigdata.common.events.pojo.DataName;
 import org.prosolo.bigdata.common.events.pojo.DataType;
@@ -81,8 +84,10 @@ public class AnalyticalEventsObserver implements EventObserver {
 						.equals(DataName.UPDATEHASHTAGS)) {
 					hashtagsUpdatesBuffer.addEvent(analyticsEvent);
 					
-				String[] oldhashtags = analyticsEvent.getData().get("oldhashtags").getAsString().split(",");
-				String[] newhashtags = analyticsEvent.getData().get("newhashtags").getAsString().split(",");
+				String oldhashtagsData = analyticsEvent.getData().get("oldhashtags").getAsString();
+				String newhashtagsData = analyticsEvent.getData().get("newhashtags").getAsString();
+				String[] oldhashtags = isBlank(oldhashtagsData) ? new String[] {} : oldhashtagsData.split(",");
+				String[] newhashtags = isBlank(newhashtagsData) ? new String[] {} : newhashtagsData.split(",");
 				
 				for (String removedTag : subtract(oldhashtags, newhashtags)) {
 					twitterDbManager.decrementTwitterHashtagUsersCount(removedTag);
