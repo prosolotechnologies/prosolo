@@ -22,8 +22,6 @@ public class LtiToolManagerImpl  extends AbstractManagerImpl implements LtiToolM
 
 	private static final long serialVersionUID = 2511928881676704338L;
 	
-	@Inject private CourseManager courseManager;
-	
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(LtiToolManagerImpl.class);
 	

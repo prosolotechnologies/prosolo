@@ -94,7 +94,7 @@ public interface CourseManager extends AbstractManager {
 
 	Map<Long, List<Long>> getCoursesParticipants(List<Course> courses);
 	
-	List<User> getCourseParticipants(Course course);
+	List<User> getCourseParticipants(long courseId);
 
 	CourseEnrollment completeCourseEnrollment(long coursePortfolioId, CourseEnrollment enrollment, Session session);
 

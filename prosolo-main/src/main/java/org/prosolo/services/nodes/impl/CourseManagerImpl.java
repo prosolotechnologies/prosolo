@@ -696,16 +696,16 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional (readOnly = true)
-	public List<User> getCourseParticipants(Course course) {
+	public List<User> getCourseParticipants(long courseId) {
 		String query = 
 			"SELECT DISTINCT enrollment.user " +
 			"FROM CourseEnrollment enrollment " +
 			"LEFT JOIN enrollment.course course " +
-			"WHERE course = :course";
+			"WHERE course.id = :course";
 		
 		@SuppressWarnings("unchecked")
 		List<User> result = persistence.currentManager().createQuery(query).
-				setEntity("course", course).
+				setLong("course", courseId).
 				list();
 		
 		return result;
