@@ -246,16 +246,16 @@
 								<h:panelGroup layout="block" class="user">
 									<span class="bold">Members: </span>
 									
-						    		<p:commandLink
-						    			rendered="#{not empty courseData.memberIds}"
-										value="#{courseData.memberIds.size()} people"
-										action="#{peopleListDialog.initializePeopleWithIds(courseData.memberIds)}"
-										onclick="$('#peopleListDialog').dialog('open');"
-										update=":peopleListForm"
-									/>
+									 <h:link id= "linkMembers" 
+									 	rendered="#{not empty courseData.memberIds}"
+										value="#{courseData.memberIds.size()} people" 
+										outcome="/manage/courseMembers" target="_blank">
+										<f:param name="id" value="#{courseData.id}" />
+									</h:link>
 									
 									<h:outputText rendered="#{empty courseData.memberIds}"
 										value="0 people" />
+								   
 								</h:panelGroup>
 								<div class="clear"></div>
 								

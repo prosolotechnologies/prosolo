@@ -1,14 +1,22 @@
 package org.prosolo.services.nodes.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.domainmodel.organization.Capability;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.nodes.CapabilityManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +31,7 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 	private static Logger logger = Logger.getLogger(RoleManagerImpl.class);
 	
 	@Autowired private ResourceFactory resourceFactory;
+	@Inject private CapabilityManager capabilityManager;
 	
 	@Override
 	public List<Long> getRoleIdsForName(String name){
@@ -55,11 +64,10 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 	}
 
 	@Override
-	public Role createNewRole(String name, String description, boolean systemDefined) {
+	public Role createNewRole(String name, boolean systemDefined, List<Long> capabilities) {
 		return resourceFactory.createNewRole(
 				name,
-				description,
-				systemDefined);
+				systemDefined, capabilities);
 	}
 	
 	@Override
@@ -144,7 +152,7 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 		Role role = getRoleByName(name);
 		
 		if (role == null) {
-			role = createNewRole(name, description, systemDefined);
+			role = createNewRole(name, systemDefined, null);
 		}
 		return role;
 	}
@@ -215,12 +223,26 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 	
 	@Override
 	@Transactional (readOnly = false)
-	public Role updateRole(long id, String title, String description) throws ResourceCouldNotBeLoadedException {
+	public Role updateRole(long id, String title, String description, List<Long> capabilities, List<Long> capabilitiesBeforeUpdate) throws ResourceCouldNotBeLoadedException {
 		Role role = loadResource(Role.class, id);
 		role.setTitle(title);
 		role.setDescription(description);
+		role = saveEntity(role);
 		
-		return saveEntity(role);
+		for(long capId:capabilities){
+			Capability cap = capabilityManager.getCapabilityWithRoles(capId);
+			if(!cap.getRoles().contains(role)){
+				cap.getRoles().add(role);
+			}
+			saveEntity(cap);
+		}
+		for(long capId:capabilitiesBeforeUpdate){
+			if(!capabilities.contains(capId)){
+				Capability cap = capabilityManager.getCapabilityWithRoles(capId);
+				cap.getRoles().remove(role);
+			}
+		}
+		return role;
 	}
 	
 	@Override
@@ -228,6 +250,10 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 	public void deleteRole(long id) throws ResourceCouldNotBeLoadedException {
 		Role role = loadResource(Role.class, id);
 		
+		List<Capability> capabilities = getRoleCapabilities(id);
+		for(Capability cap:capabilities){
+			cap.getRoles().remove(role);
+		}
 		delete(role);
 	}
 	
@@ -245,5 +271,75 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 			.uniqueResult();
 		
 		return result > 0;
+	}
+	
+	@Override
+	@Transactional
+	public Role saveRole(String name, boolean systemDefined) throws DbConnectionException{
+		try{
+			Role role = new Role();
+			role.setTitle(name);
+			role.setDateCreated(new Date());
+			role.setSystem(systemDefined);
+			return saveEntity(role);
+		}catch(Exception e){
+			throw new DbConnectionException("Error while saving role");
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	@Transactional(readOnly = true)
+	public List<Capability> getRoleCapabilities(long roleId) throws DbConnectionException{
+		try{
+			String query = 
+					"SELECT caps " +
+					"FROM Role role " +
+					"INNER JOIN role.capabilities caps " +
+					"WHERE role.id = :roleId";
+				
+				return persistence.currentManager().createQuery(query)
+					.setLong("roleId", roleId)
+					.list();
+		}catch(Exception e){
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading capabilities");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Map<Long, List<Long>> getUsersWithRoles(List<Role> roles) throws DbConnectionException{
+		try{
+			String query = 
+					"SELECT role.id, user.id " +
+					"FROM User user " +
+					"INNER JOIN user.roles role " +
+					"WHERE role IN (:roles)";
+				
+			List<Object[]> result = persistence.currentManager().createQuery(query).
+					setParameterList("roles", roles).
+					list();
+			Map<Long, List<Long>> resultMap = new HashMap<Long, List<Long>>();
+			if (result != null && !result.isEmpty()) {
+				for (Object[] res : result) {
+					Long roleId = (Long) res[0];
+					Long userId = (Long) res[1];
+					
+					List<Long> users = resultMap.get(roleId);
+					
+					if (users == null) {
+						users = new ArrayList<Long>();
+					}
+					users.add(userId);
+					
+					resultMap.put(roleId, users);
+				}
+			}
+			return resultMap;
+		}catch(Exception e){
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading capabilities");
+		}
 	}
 }

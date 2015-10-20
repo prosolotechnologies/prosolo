@@ -1,6 +1,7 @@
 package org.prosolo.web.administration.data;
 
 import java.io.Serializable;
+import java.util.List;
 
 import org.prosolo.common.domainmodel.organization.Role;
 
@@ -12,6 +13,7 @@ public class RoleData implements Serializable {
 	private String description;
 	private long id;
 	private boolean active;
+	private List<Long> userIds;
 
 	public RoleData() { }
 
@@ -56,4 +58,14 @@ public class RoleData implements Serializable {
 	public String toString() {
 		return this.getName();
 	}
+
+	public List<Long> getUserIds() {
+		return userIds;
+	}
+
+	public void setUserIds(List<Long> userIds) {
+		this.userIds = userIds;
+	}
+	
+	
 }

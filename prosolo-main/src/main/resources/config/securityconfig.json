@@ -1,0 +1,105 @@
+{
+    "roles": [
+        "User",
+        "Instructor",
+        "Manager",
+        "Admin"
+    ],
+    "capabilities": [
+        {
+            "name": "basic.access",
+            "description": "Basic user access",
+            "roles": [
+			    "User",
+				"Instructor",
+                "Manager",
+				"Admin"
+            ]
+        },
+		{
+            "name": "competences.view",
+            "description": "Access the page for listing competences (manage/competences)",
+            "roles": [
+                "Manager"
+            ]
+        },
+        {
+            "name": "reports.view",
+            "description": "Access the Reports page",
+            "roles": [
+                "Manager"
+            ]
+        },
+        {
+            "name": "users.view",
+            "description": "Access the page for managing users",
+            "roles": [
+                "Admin"
+            ]
+        },
+        {
+            "name": "roles.view",
+            "description": "Access the page for managing roles/capabilities",
+            "roles": [
+                "Admin"
+            ]
+        },
+        {
+            "name": "adminDashboard.view",
+            "description": "Access the admin dashboard panel",
+            "roles": [
+                "Admin"
+            ]
+        },
+        {
+            "name": "course.create",
+            "description": "Create a course",
+            "roles": [
+                "Manager"
+            ]
+        },
+        {
+            "name": "course.delete",
+            "description": "Delete a course",
+            "roles": [
+                "Manager"
+            ]
+        },
+        {
+            "name": "course.view",
+            "description": "View all courses",
+            "roles": [
+                "Manager"
+            ]
+        },
+        {
+            "name": "course.view.personalized",
+            "description": "View courses assigned to him/her",
+            "roles": [
+                "Instructor"
+            ]
+        },
+        {
+            "name": "course.assignInstructor",
+            "description": "Assign an instructor to course",
+            "roles": [
+                "Manager"
+            ]
+        },
+        {
+            "name": "student.assign.instructor",
+            "description": "Assign a student to an instructor",
+            "roles": [
+                "Manager",
+                "Instructor"
+            ]
+        },
+        {
+            "name": "student.observatin.create",
+            "description": "Create an observation for a student",
+            "roles": [
+                "Instructor"
+            ]
+        }
+    ]
+}

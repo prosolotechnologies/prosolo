@@ -20,6 +20,7 @@ import org.prosolo.common.domainmodel.workflow.evaluation.BadgeType;
 import org.prosolo.common.messaging.rabbitmq.QueueNames;
 import org.prosolo.common.messaging.rabbitmq.ReliableConsumer;
 import org.prosolo.common.messaging.rabbitmq.impl.ReliableConsumerImpl;
+import org.prosolo.config.security.SecurityService;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.recommendation.CollaboratorsRecommendation;
 import org.prosolo.services.admin.ResourceSettingsManager;
@@ -177,7 +178,13 @@ public class AfterContextLoader implements ServletContextListener {
 			organization.addOrgUnit(systemOrgUnit);
 			ServiceLocator.getInstance().getService(OrganizationManager.class).saveEntity(organization);
 	
-			String roleUserTitle = "User";
+			ServiceLocator.getInstance().getService(SecurityService.class).initializeRolesAndCapabilities();
+		
+			String roleAdminTitle = "Admin";
+			
+			Role adminRole = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(roleAdminTitle);
+			
+			/*String roleUserTitle = "User";
 			String roleManagerTitle = "Manager";
 			String roleAdminTitle = "Admin";
 	
@@ -194,7 +201,7 @@ public class AfterContextLoader implements ServletContextListener {
 			Role adminRole = ServiceLocator.getInstance().getService(RoleManager.class)
 					.createNewRole(roleAdminTitle,
 							"Administrator has maximumum priviledges", 
-							true);
+							true);*/
 	
 	//		ServiceLocator
 	//		.getInstance()
