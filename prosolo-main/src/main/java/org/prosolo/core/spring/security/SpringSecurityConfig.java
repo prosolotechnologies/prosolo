@@ -25,6 +25,10 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.AccessDeniedHandlerImpl;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
 /**
  * @author "Nikola Milikic"
@@ -33,16 +37,17 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 @Configuration
 // @ComponentScan
 @EnableWebSecurity
-@ImportResource({"classpath:core/security/context.xml"})
+//@ImportResource({"classpath:core/security/context.xml"})
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
-/*	@Inject
+	@Inject
 	private UserDetailsService userDetailsService;
 	@Inject
 	private PasswordEncrypter passwordEncrypter;
 	
 	@Override
     protected void configure(HttpSecurity http) throws Exception {
+
 		http.authorizeRequests()
 		   .antMatchers("/favicon.ico").permitAll()
 		   .antMatchers("/resources/css/**").permitAll()
@@ -70,26 +75,23 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	       .antMatchers("/passwordReset").permitAll()
 		   .antMatchers("/recovery").permitAll()
 		   .antMatchers("/javax.faces.resource/**").permitAll()
-		   .antMatchers("/admin/**").hasRole("ADMIN")
-		   .antMatchers("/manage/**").hasRole("MANAGER")
-		   .antMatchers("/**").hasRole("USER,MANAGER,ADMIN")
-		   .antMatchers("/**").hasRole("USER,MANAGER,ADMIN").and()
+		   .antMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
+		   .antMatchers("/manage/**").hasAuthority("ROLE_MANAGER")
+		   .antMatchers("/**").hasAnyAuthority("ROLE_USER,ROLE_MANAGER,ROLE_ADMIN")
+		   .and()
         .csrf().disable()
-        .formLogin()
-            .loginPage("/login").usernameParameter("j_username").passwordParameter("j_password")
-            .failureUrl("/accessDenied.xhtml").permitAll()
-            .and()
+        
         .logout()
             .logoutUrl("/j_spring_security_logout").invalidateHttpSession(true).deleteCookies("JSESSIONID")
             .logoutSuccessUrl("/login").permitAll()
-            .and().rememberMe().key("...verylonganduniquekey...");;
+            .and().rememberMe().key("...verylonganduniquekey...")
+            .and().exceptionHandling().authenticationEntryPoint(authenticationEntryPoint())
+            .and().exceptionHandling().accessDeniedHandler(accessDeniedHandler());
     }
 	@Inject
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 		//super.configure(auth);
-		auth.authenticationProvider(daoAuthenticationProvider())
-		        .userDetailsService(userDetailsService)
-		        .passwordEncoder(passwordEncrypter);
+		auth.authenticationProvider(daoAuthenticationProvider());
 	}
 	
 
@@ -109,9 +111,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		SerializableProviderManager serializableProviderManager = new SerializableProviderManager();
 		serializableProviderManager.setProviders(providers);
 		return serializableProviderManager;
-	}*/
+	}
 	
-/*	@Override
+	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncrypter);
 	}
@@ -121,6 +123,19 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	public AuthenticationManager authenticationManagerBean() throws Exception {
 		//return super.authenticationManagerBean();
 		return authenticationManager();
-	}*/
+	}
 	
+	
+	@Bean
+	public AuthenticationEntryPoint authenticationEntryPoint(){
+		LoginUrlAuthenticationEntryPoint auth = new LoginUrlAuthenticationEntryPoint("/login");
+		return auth;
+	}
+	
+	@Bean
+	public AccessDeniedHandler accessDeniedHandler(){
+		AccessDeniedHandlerImpl adh = new AccessDeniedHandlerImpl();
+		adh.setErrorPage("/accessDenied");
+		return adh;
+	}
 }

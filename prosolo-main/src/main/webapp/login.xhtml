@@ -89,7 +89,7 @@
 			</c:if>
 		
 			<c:if test="#{applicationbean.config.application.registration.selfRegistration}">
-				<h:form action="/j_spring_security_check" prependId="false">
+				<h:form  prependId="false">
 					<p:messages id="loginMessage" showDetail="false" autoUpdate="true" closable="true" />
 
 					<table>
@@ -98,7 +98,7 @@
 								<label>Email:</label>
 							</td>
 							<td>
-								<h:inputText type="email" id="j_username" name="j_username" value="#{loggeduser.email}" required="true" requiredMessage="Email is required." />
+								<h:inputText type="email"  value="#{loggeduser.email}" required="true" requiredMessage="Email is required." />
 							</td>
 						</tr>
 						<tr>
@@ -106,7 +106,7 @@
 								<label>Password:</label>
 							</td>
 							<td>
-								<h:inputSecret id="j_password" name="j_password" value="#{loggeduser.password}" required="true" requiredMessage="Password is required." />
+								<h:inputSecret  value="#{loggeduser.password}" required="true" requiredMessage="Password is required." />
 							</td>
 						</tr>
 						<tr>
