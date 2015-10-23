@@ -247,10 +247,10 @@ $(function () {
 					$(document.querySelector("#mostActiveHashtags table")).show();
 					$(navigation).show();
 					mahTable.init(data.results);
-					hashtagsInTable = data.results.map(function(hashtag) {
-						return hashtag.hashtag;
-					});
 				}
+				hashtagsInTable = data.results.map(function(hashtag) {
+					return hashtag.hashtag;
+				});
 				
 				twitterHashtags.showLoader();
 				twitterHashtagsService.get(twitterHashtags.onload);
@@ -353,6 +353,7 @@ $(function () {
 			onload : function(data) {
 				if (data.length==0) {
 					$("#twitterHashtagsGraph .messages").text(noResultsMessage()).show().siblings().hide();
+					twitterHashtagsChart.show(data);
 				} else {
 					$("#twitterHashtagsGraph .chart").show().siblings().hide();
 					twitterHashtagsChart.show(data);
