@@ -1,0 +1,23 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	template="templates/masterLayout.xhtml"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+	<ui:define name="windowTitle">
+		Manage: Social interaction
+	</ui:define>
+
+	<ui:define name="content">
+		<link rel="stylesheet" type="text/css" media="all" href="/resources/css/social-interaction.css" />
+		<script data-main="/resources/javascript/social-interaction/main.js" src="/resources/javascript/require.min.js"></script>
+		<div id="social-interaction" class="container manage">
+			<div class="content wide">
+				<div id="graph"></div>
+			</div>
+		</div>
+	</ui:define>
+</ui:composition>	

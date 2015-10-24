@@ -1,0 +1,57 @@
+@CHARSET "UTF-8";
+
+path.link {
+  fill: none;
+  stroke: black;
+  stroke-width: 3px;
+}
+
+path.link.twofive {
+    opacity: 0.25;
+    stroke-width: 1px;
+}
+
+path.link.fivezero {
+    opacity: 0.50;
+    stroke-width: 2px;
+}
+
+path.link.sevenfive {
+    opacity: 0.75;
+    stroke-width: 3px;
+}
+
+path.link.onezerozero {
+    opacity: 1.0;
+    stroke-width: 4px;
+}
+
+circle {
+  fill: #ccc;
+  stroke: black;
+  stroke-width: 1px;
+}
+
+circle.A {
+    fill: red;
+}
+
+circle.B {
+    fill: green;    
+}
+
+circle.C {
+    fill: blue;
+}
+
+circle.focus {
+    stroke: violet;
+    stroke-width: 6px;
+}
+
+
+text {
+  fill: #000;
+  font: 10px sans-serif;
+  pointer-events: none;
+}
