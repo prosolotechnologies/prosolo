@@ -9,6 +9,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagDailyCount;
+import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagUsersCount;
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagWeeklyAverage;
 import org.prosolo.bigdata.dal.cassandra.TwitterHashtagStatisticsDBManager;
 
@@ -47,6 +48,10 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 	private static final String FIND_DISABLED_TWITTER_HASHTAGS = "FIND_DISABLED_TWITTER_HASHTAGS";
 	
 	private static final String FIND_TWITTER_HASHTAG_USERS_COUNT = "FIND_TWITTER_HASHTAG_USERS_COUNT";
+
+	private static final String FIND_TWITTER_HASHTAG_USERS_COUNTS = "FIND_TWITTER_HASHTAG_USERS_COUNTS";
+	
+	private static final String DELETE_TWITTER_HASHTAG_USERS_COUNTS = "DELETE_TWITTER_HASHTAG_USERS_COUNTS";
 	
 	static {
 		statements.put(FIND_SPECIFIC_TWITTER_HASHTAG_COUNT_FOR_PERIOD, "SELECT * FROM twitterhashtagdailycount WHERE date>=? AND date<=? AND hashtag=?;");
@@ -61,6 +66,8 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 		statements.put(FIND_ENABLED_TWITTER_HASHTAGS, "SELECT hashtag FROM twitterhashtagweeklyaverage WHERE day=?;");		
 		statements.put(FIND_DISABLED_TWITTER_HASHTAGS, "SELECT hashtag FROM disabledtwitterhashtags;");
 		statements.put(FIND_TWITTER_HASHTAG_USERS_COUNT, "SELECT * FROM twitterhashtaguserscount WHERE hashtag=?;");
+		statements.put(FIND_TWITTER_HASHTAG_USERS_COUNTS, "SELECT * FROM twitterhashtaguserscount;");
+		statements.put(DELETE_TWITTER_HASHTAG_USERS_COUNTS, "DELETE FROM twitterhashtaguserscount WHERE hashtag=?;");
 	}
 	
 	private BoundStatement statement(PreparedStatement prepared, Object... parameters) {
@@ -251,6 +258,25 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 		PreparedStatement prepared = getStatement(getSession(), FIND_DISABLED_TWITTER_HASHTAGS);
 		BoundStatement statement = statement(prepared);
 		return Long.valueOf(query(statement).size());
+	}
+
+	@Override
+	public List<TwitterHashtagUsersCount> getTwitterHashtagUsersCount() {
+		PreparedStatement prepared = getStatement(getSession(), FIND_TWITTER_HASHTAG_USERS_COUNTS);
+		BoundStatement statement = statement(prepared);
+		return map(query(statement), (row) -> new TwitterHashtagUsersCount(hashtag(row), users(row)));
+	}
+
+	@Override
+	public void deleteTwitterHashtagUsersCount(String hashtag) {
+		PreparedStatement prepared = getStatement(getSession(), DELETE_TWITTER_HASHTAG_USERS_COUNTS);
+		BoundStatement statement = statement(prepared, hashtag);
+		try {
+			getSession().execute(statement);
+		} catch (Exception e) {
+			logger.error("Error executing delete statement.", e);
+			// TODO Throw exception.
+		}
 	}
 
 }

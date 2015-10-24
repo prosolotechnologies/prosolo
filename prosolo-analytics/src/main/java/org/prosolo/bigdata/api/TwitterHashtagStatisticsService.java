@@ -10,7 +10,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -25,7 +24,6 @@ import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagDailyCount;
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagWeeklyAverage;
 import org.prosolo.bigdata.dal.cassandra.TwitterHashtagStatisticsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl;
-import org.prosolo.bigdata.scala.twitter.TwitterHashtagsStreamsManager$;
 import org.prosolo.bigdata.utils.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,8 +35,6 @@ public class TwitterHashtagStatisticsService {
 
 	private TwitterHashtagStatisticsDBManager dbManager = new TwitterHashtagStatisticsDBManagerImpl();
 	
-	private TwitterHashtagsStreamsManager$ twitterManager = TwitterHashtagsStreamsManager$.MODULE$;
-
 	@GET
 	@Path("/statistics")
 	@Produces({ MediaType.APPLICATION_JSON })
@@ -145,12 +141,13 @@ public class TwitterHashtagStatisticsService {
 				page, paging, term, includeWithoutFollowers);
 
 		List<TwitterHashtagWeeklyAverage> averages = dbManager.getTwitterHashtagWeeklyAverage(yesterday());
-		Set<String> following = twitterManager.getHashTags();
+		List<String> following = dbManager.getTwitterHashtagUsersCount().stream().filter((c) -> c.getUsers() > 0)
+				.map((c) -> c.getHashtag()).collect(Collectors.toList());
 		List<String> disabled = dbManager.getDisabledTwitterHashtags();
 		
 		Predicate<TwitterHashtagWeeklyAverage> enabled = (average) -> !disabled.contains(average.getHashtag());
 		Predicate<TwitterHashtagWeeklyAverage> matchesTerm = (average) -> matches(average, term);
-		Predicate<TwitterHashtagWeeklyAverage> hasFollowers = (average) -> includeWithoutFollowers || following.contains("#" + average.getHashtag());
+		Predicate<TwitterHashtagWeeklyAverage> hasFollowers = (average) -> includeWithoutFollowers || following.contains(average.getHashtag());
 		
 		List<TwitterHashtagWeeklyAverage> filtered = averages.stream()
 				.filter(enabled)

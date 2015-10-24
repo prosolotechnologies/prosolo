@@ -3,6 +3,7 @@ package org.prosolo.bigdata.jobs;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagDailyCount;
 import org.prosolo.bigdata.dal.cassandra.TwitterHashtagStatisticsDBManager;
@@ -28,6 +29,11 @@ public class TwitterHashtagStatisticsJob implements Job {
 		}
 		for (String hashtag : result.keySet()) {
 			dbManager.updateTwitterHashtagWeeklyAverage(to, hashtag, result.get(hashtag).doubleValue() / 7);
+		}
+		List<String> invalidCounts = dbManager.getTwitterHashtagUsersCount().stream().filter((c) -> c.getUsers() <= 0)
+				.map((c) -> c.getHashtag()).collect(Collectors.toList());
+		for (String hashtag : invalidCounts) {
+			dbManager.deleteTwitterHashtagUsersCount(hashtag);
 		}
 	}
 
