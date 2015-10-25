@@ -4,6 +4,7 @@
 package org.prosolo.core.spring.security;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -12,23 +13,26 @@ import org.prosolo.services.authentication.PasswordEncrypter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
+import org.springframework.security.web.header.writers.frameoptions.WhiteListedAllowFromStrategy;
+import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
+import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter.XFrameOptionsMode;
+
+import com.amazonaws.services.s3.Headers;
 
 /**
  * @author "Nikola Milikic"
@@ -47,7 +51,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Override
     protected void configure(HttpSecurity http) throws Exception {
-
+		
 		http.authorizeRequests()
 		   .antMatchers("/favicon.ico").permitAll()
 		   .antMatchers("/resources/css/**").permitAll()
@@ -75,18 +79,21 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	       .antMatchers("/passwordReset").permitAll()
 		   .antMatchers("/recovery").permitAll()
 		   .antMatchers("/javax.faces.resource/**").permitAll()
-		   .antMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
-		   .antMatchers("/manage/**").hasAuthority("ROLE_MANAGER")
-		   .antMatchers("/**").hasAnyAuthority("ROLE_USER,ROLE_MANAGER,ROLE_ADMIN")
+		   .antMatchers("/manage/competences").hasAuthority("COMPETENCES.VIEW")
+		   .antMatchers("/manage/reports").hasAuthority("REPORTS.VIEW")
+		   .antMatchers("/admin/users").hasAuthority("USERS.VIEW")
+		   .antMatchers("/admin/roles").hasAuthority("ROLES.VIEW")
+		   .antMatchers("/admin/dashboard").hasAuthority("ADMINDASHBOARD.VIEW")
+		   
+		   .antMatchers("/**").hasAnyAuthority("BASIC.ACCESS")
 		   .and()
-        .csrf().disable()
-        
-        .logout()
-            .logoutUrl("/j_spring_security_logout").invalidateHttpSession(true).deleteCookies("JSESSIONID")
-            .logoutSuccessUrl("/login").permitAll()
-            .and().rememberMe().key("...verylonganduniquekey...")
-            .and().exceptionHandling().authenticationEntryPoint(authenticationEntryPoint())
-            .and().exceptionHandling().accessDeniedHandler(accessDeniedHandler());
+           .csrf().disable()
+           .rememberMe().rememberMeServices(rememberMeService())
+           .and().exceptionHandling().authenticationEntryPoint(authenticationEntryPoint())
+           .and().exceptionHandling().accessDeniedHandler(accessDeniedHandler())
+           .and().headers()
+   		   .frameOptions().disable();
+		
     }
 	@Inject
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
@@ -107,13 +114,13 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	public ProviderManager authenticationManager() {
 		List<AuthenticationProvider> providers = new ArrayList<AuthenticationProvider>();
 		providers.add(daoAuthenticationProvider());
-
-		SerializableProviderManager serializableProviderManager = new SerializableProviderManager();
-		serializableProviderManager.setProviders(providers);
-		return serializableProviderManager;
+		
+		return new ProviderManager(providers);
+		
 	}
 	
-	@Override
+	
+	/*@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncrypter);
 	}
@@ -123,7 +130,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	public AuthenticationManager authenticationManagerBean() throws Exception {
 		//return super.authenticationManagerBean();
 		return authenticationManager();
-	}
+	}*/
 	
 	
 	@Bean
@@ -138,4 +145,17 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		adh.setErrorPage("/accessDenied");
 		return adh;
 	}
+	
+	@Bean
+	public TokenBasedRememberMeServices rememberMeService(){
+		TokenBasedRememberMeServices service = new TokenBasedRememberMeServices("verylongkey", userDetailsService);
+		
+		service.setCookieName("ProSolo");
+		service.setParameter("_spring_security_remember_me");
+		//service.setAlwaysRemember(true);
+		
+		return service;
+	}
+	
+	
 }
