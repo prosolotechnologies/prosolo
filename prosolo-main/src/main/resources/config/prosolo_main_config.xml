@@ -6,6 +6,7 @@
 		<bc-name>dd</bc-name>
 		<formatDB>false</formatDB>
 		<importData>false</importData>
+		<importCapabilities>false</importCapabilities>
 		<indexTrainingSet>false</indexTrainingSet>
 		<default-user>
 			<name>Admin</name>

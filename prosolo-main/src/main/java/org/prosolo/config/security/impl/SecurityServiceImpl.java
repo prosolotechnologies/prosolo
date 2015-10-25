@@ -1,4 +1,4 @@
-package org.prosolo.config.security;
+package org.prosolo.config.security.impl;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -10,7 +10,13 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.organization.Capability;
 import org.prosolo.common.domainmodel.organization.Role;
+import org.prosolo.config.security.CapabilityConfig;
+import org.prosolo.config.security.RoleConfig;
+import org.prosolo.config.security.SecurityConfigLoader;
+import org.prosolo.config.security.SecurityContainer;
+import org.prosolo.config.security.SecurityService;
 import org.prosolo.config.security.exceptions.NonexistentRoleException;
+import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CapabilityManager;
 import org.prosolo.services.nodes.RoleManager;
@@ -18,38 +24,77 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service("org.prosolo.config.security.SecurityService")
-public class SecurityService {
+public class SecurityServiceImpl extends AbstractManagerImpl implements SecurityService{
+
+	private static final long serialVersionUID = 3396186868274027142L;
 
 	@SuppressWarnings("unused")
-	private static Logger logger = Logger.getLogger(SecurityService.class);
+	private static Logger logger = Logger.getLogger(SecurityServiceImpl.class);
 	
 	@Inject
 	private RoleManager roleManager;
 	@Inject
 	private CapabilityManager capabilityManager;
 	
+	/* (non-Javadoc)
+	 * @see org.prosolo.config.security.impl.SecurityService#initializeRolesAndCapabilities()
+	 */
+	@Override
 	@Transactional
 	public void initializeRolesAndCapabilities(){
 		try{
 			SecurityContainer sc = SecurityConfigLoader.loadRolesAndCapabilities();
 			List<Role> roles = new ArrayList<>();
-			for(String role:sc.getRoles()){
-				boolean isSystem = false;
-				if("Admin".equals(role)){
-					isSystem = true;
+			for(RoleConfig role:sc.getRoles()){
+				Role r = roleManager.getRoleByName(role.getName());
+				if(r!=null){
+					r.setDescription(role.getDescription());
+					roles.add(r);
+					logger.info("Role "+ r.getTitle() + " updated from file");
+				}else{
+					boolean isSystem = false;
+					if("Admin".equals(role.getName())){
+						isSystem = true;
+					}
+					roles.add(roleManager.saveRole(role.getName(), role.getDescription(), isSystem));
+					logger.info("Role "+ role.getName() + " inserted from file");
 				}
-				roles.add(roleManager.saveRole(role, isSystem));
+			}
+			
+				
+			List<Capability> caps = capabilityManager.getAllCapabilities();
+			for(Capability c:caps){
+				CapabilityConfig cc = getCapabilityConfigIfExists(c, sc.getCapabilities());
+				if(cc != null){
+					Capability cap = getCapability(cc, roles);
+					c.setDescription(cap.getDescription());
+					c.setRoles(cap.getRoles());
+					sc.getCapabilities().remove(cc);
+					logger.info("Capability "+ cap.getName() + " updated from file");
+				}else{
+					persistence.delete(c);
+					logger.info("Capability "+ c.getName() + " deleted");
+				}
 			}
 			for(CapabilityConfig cc:sc.getCapabilities()){
 				Capability cap = getCapability(cc, roles);
 				capabilityManager.saveCapability(cap);
+				logger.info("Capability "+ cap.getName() + " inserted from file");
 			}
-		}catch(NonexistentRoleException nre){
-			throw nre;
 		}catch(Exception e){
+			e.printStackTrace();
 			throw new DbConnectionException("Error while initializing roles and capabilities");
 		}
 		
+	}
+
+	private CapabilityConfig getCapabilityConfigIfExists(Capability c, List<CapabilityConfig> capabilities) {
+		for(CapabilityConfig cc:capabilities){
+			if(cc.getName().equals(c.getName())){
+				return cc;
+			}
+		}
+		return null;
 	}
 
 	private Capability getCapability(CapabilityConfig capability, List<Role> roles) throws NonexistentRoleException {
@@ -63,11 +108,15 @@ public class SecurityService {
 	private Set<Role> getRolesForCapability(CapabilityConfig capConfig, List<Role> roles) throws NonexistentRoleException {
 		Set<Role> capabilityRoles = new HashSet<>();
 		for(String roleName:capConfig.getRoles()){
-			Role role = findRoleByName(roles, roleName);
-			if(role == null){
-				throw new NonexistentRoleException("Nonexistent role defined for capability");
+			try{
+				Role role = findRoleByName(roles, roleName);
+				if(role == null){
+					throw new NonexistentRoleException("Nonexistent role defined for capability");
+				}
+				capabilityRoles.add(role);
+			}catch(NonexistentRoleException e){
+				logger.error(e);
 			}
-			capabilityRoles.add(role);
 		}
 		return capabilityRoles;
 	}

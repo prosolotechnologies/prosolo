@@ -10,7 +10,7 @@ import com.google.gson.GsonBuilder;
 
 public class SecurityConfigLoader {
 
-	private static final String FILE_NAME = "capabilities.json";
+	private static final String FILE_NAME = "security_config.json";
 	private static final String FILE_PATH = "config/";
 
 	public static SecurityContainer loadRolesAndCapabilities() throws Exception {

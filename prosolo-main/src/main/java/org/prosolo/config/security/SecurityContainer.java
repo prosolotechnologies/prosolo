@@ -4,13 +4,13 @@ import java.util.List;
 
 public class SecurityContainer {
 
-	private List<String> roles;
+	private List<RoleConfig> roles;
 	private List<CapabilityConfig> capabilities;
 	
-	public List<String> getRoles() {
+	public List<RoleConfig> getRoles() {
 		return roles;
 	}
-	public void setRoles(List<String> roles) {
+	public void setRoles(List<RoleConfig> roles) {
 		this.roles = roles;
 	}
 	public List<CapabilityConfig> getCapabilities() {

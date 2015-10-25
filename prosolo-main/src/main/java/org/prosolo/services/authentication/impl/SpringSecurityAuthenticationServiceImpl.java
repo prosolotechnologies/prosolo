@@ -7,7 +7,9 @@ import java.util.List;
 
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.organization.Role;
@@ -20,8 +22,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.stereotype.Service;
 
 @Service("org.prosolo.services.authentication.AuthenticationService")
@@ -34,6 +38,8 @@ public class SpringSecurityAuthenticationServiceImpl implements AuthenticationSe
 	@Autowired private AuthenticationManager authenticationManager; // specific for Spring Security
 	@Autowired private UserManager userManager;
 	@Autowired private RoleManager roleManager;
+	
+	@Inject private TokenBasedRememberMeServices rememberMeService;
 
 	@Override
 	public boolean login(String email, String password) throws AuthenticationException {
@@ -46,6 +52,9 @@ public class SpringSecurityAuthenticationServiceImpl implements AuthenticationSe
 			logger.debug("User with email "+email+" is authenticated: " + authenticate.isAuthenticated());
 			if (authenticate.isAuthenticated()) {
 				SecurityContextHolder.getContext().setAuthentication(authenticate);		
+				HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+				HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
+				rememberMeService.loginSuccess(request, response, authenticate);
 				
 				logger.debug("Returning true");
 				return true;
@@ -60,12 +69,13 @@ public class SpringSecurityAuthenticationServiceImpl implements AuthenticationSe
 		logger.debug("Returning false");
 		return false;
 	}
-	@Override
+	
+	/*@Override
 	public boolean loginOpenId(String email) throws AuthenticationException {
 		email = email.toLowerCase();
 		System.out.println("login open id for:"+email);
 		try {
-			 Authentication authenticate =null;
+			Authentication authenticate =null;
 			boolean existingUser=userManager.checkIfUserExists(email);
 			//Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
 			Collection grantedAuthorities=new LinkedList<GrantedAuthority>();
@@ -93,6 +103,59 @@ public class SpringSecurityAuthenticationServiceImpl implements AuthenticationSe
 //					grantedAuthorities.add(new GrantedAuthorityImpl("ROLE_USER"));
 //					//authenticate = new UsernamePasswordAuthenticationToken(email, null,AuthorityUtils.createAuthorityList("ROLE_USER"));
 //				}
+			}
+			
+			authenticate = new UsernamePasswordAuthenticationToken(email, null,grantedAuthorities);
+			logger.debug("Authentication token created for:"+email);
+			//Authentication authenticate = new UsernamePasswordAuthenticationToken(email, null);
+			SecurityContextHolder.getContext().setAuthentication(authenticate);
+			 if (authenticate.isAuthenticated()) {
+				 logger.info("Authentication was successful");
+ 				// SecurityContextHolder.getContext().setAuthentication(authenticate);
+				 return true;
+			 }else{
+				 logger.info("Authentication was not successful");
+				 return false;
+			 }
+				
+			//	SecurityContextHolder.getContext().setAuthentication(authenticate);		
+				
+			//}
+		} catch (org.springframework.security.core.AuthenticationException e) {
+			logger.error(e.getMessage());
+			throw new AuthenticationException(e.getMessage());
+		}
+	}*/
+	
+	@Override
+	public boolean loginOpenId(String email) throws AuthenticationException {
+		email = email.toLowerCase();
+		System.out.println("login open id for:"+email);
+		try {
+			Authentication authenticate =null;
+			boolean existingUser=userManager.checkIfUserExists(email);
+			//Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+			Collection grantedAuthorities=new LinkedList<GrantedAuthority>();
+			//grantedAuthorities.add(new GrantedAuthorityImpl("ROLE_USER"));
+			//logger.debug("Granted authority ROLE USER");
+			if(!existingUser){
+				System.out.println("NOT EXISTING USER> CREATE NEW ONE");
+				
+			// authenticate = new UsernamePasswordAuthenticationToken(email, null,AuthorityUtils.createAuthorityList("ROLE_USER"));
+			}else{
+				System.out.println("Existing user");
+				List<Role> roles=roleManager.getUserRoles(email);
+				//String[] roleNames=new String[3];
+				for (Role role : roles) {
+					List<String> capabilities = roleManager.getNamesOfRoleCapabilities(role.getId());
+					//userAuthorities.add(new SimpleGrantedAuthority(addRolePrefix(role.getTitle())));
+					if(capabilities != null){
+						for(String cap:capabilities){
+							grantedAuthorities.add(new SimpleGrantedAuthority(cap.toUpperCase()));
+						}
+					}
+				}
+
 			}
 			
 			authenticate = new UsernamePasswordAuthenticationToken(email, null,grantedAuthorities);

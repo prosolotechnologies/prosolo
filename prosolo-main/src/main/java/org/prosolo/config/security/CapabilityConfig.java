@@ -2,6 +2,8 @@ package org.prosolo.config.security;
 
 import java.util.List;
 
+import org.prosolo.common.domainmodel.organization.Capability;
+
 public class CapabilityConfig {
 
 	private String name;
@@ -25,6 +27,22 @@ public class CapabilityConfig {
 	}
 	public void setRoles(List<String> roles) {
 		this.roles = roles;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (this.getClass() != obj.getClass())
+			return false;
+		
+		CapabilityConfig other = (CapabilityConfig) obj;
+		if(this.name == null || other.name == null){
+			return false;
+		}
+		return (this.name.equals(other.name));
 	}
 	
 	

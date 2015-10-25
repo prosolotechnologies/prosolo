@@ -21,6 +21,7 @@ import org.prosolo.common.messaging.rabbitmq.QueueNames;
 import org.prosolo.common.messaging.rabbitmq.ReliableConsumer;
 import org.prosolo.common.messaging.rabbitmq.impl.ReliableConsumerImpl;
 import org.prosolo.config.security.SecurityService;
+import org.prosolo.config.security.impl.SecurityServiceImpl;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.recommendation.CollaboratorsRecommendation;
 import org.prosolo.services.admin.ResourceSettingsManager;
@@ -46,6 +47,16 @@ public class AfterContextLoader implements ServletContextListener {
 		// read settings from config.xml
 		final Settings settings = Settings.getInstance();
 			logger.debug("Initialized settings");
+			
+		if(settings.config.init.importCapabilities){
+			try{
+				ServiceLocator.getInstance().getService(SecurityService.class).initializeRolesAndCapabilities();
+			}catch(Exception e){
+			    logger.error(e);
+			    e.printStackTrace();
+			}
+		}
+		
 		if (settings.config.init.formatDB) {
 			logger.debug("Initializing static data!");
 			initStaticData();
@@ -177,8 +188,6 @@ public class AfterContextLoader implements ServletContextListener {
 			organization.addOrgUnit(headOfficeOrgUnit);
 			organization.addOrgUnit(systemOrgUnit);
 			ServiceLocator.getInstance().getService(OrganizationManager.class).saveEntity(organization);
-	
-			ServiceLocator.getInstance().getService(SecurityService.class).initializeRolesAndCapabilities();
 		
 			String roleAdminTitle = "Admin";
 			

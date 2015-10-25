@@ -2,9 +2,14 @@ package org.prosolo.services.authentication.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.domainmodel.organization.Capability;
 import org.prosolo.common.domainmodel.organization.Role;
+import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -24,6 +29,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	private static Logger logger = Logger.getLogger(UserDetailsServiceImpl.class);
 
 	@Autowired private UserManager userManager;
+	@Inject private RoleManager roleManager;
 
 	@Override
 	@Transactional(readOnly = true)
@@ -37,19 +43,28 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		Collection<SimpleGrantedAuthority> userAuthorities = new ArrayList<SimpleGrantedAuthority>();
 
 		for (Role role : user.getRoles()) {
-			userAuthorities.add(new SimpleGrantedAuthority(addRolePrefix(role.getTitle())));
+			List<String> capabilities = roleManager.getNamesOfRoleCapabilities(role.getId());
+			//userAuthorities.add(new SimpleGrantedAuthority(addRolePrefix(role.getTitle())));
+			if(capabilities != null){
+				for(String cap:capabilities){
+					userAuthorities.add(new SimpleGrantedAuthority(cap.toUpperCase()));
+				}
+			}
 		}
+		/*for (Role role : user.getRoles()) {
+			userAuthorities.add(new SimpleGrantedAuthority(addRolePrefix(role.getTitle())));
+		}*/
 		
-//		Collection<Unit_User> userUnit = user.getUnitUser();
-//
-//		for (Unit_User unit_User : userUnit) {
-//			Collection<Unit_User_Role> unitUserRole = unit_User.getUnitUserRole();
-//
-//			for (Unit_User_Role unit_User_Role : unitUserRole) {
-//				Role userRole = unit_User_Role.getRole();
-//				userAuthorities.add(new SimpleGrantedAuthority(addRolePrefix(userRole.getTitle())));
-//			}
-//		}
+		/*Collection<Unit_User> userUnit = user.getUnitUser();
+
+		for (Unit_User unit_User : userUnit) {
+			Collection<Unit_User_Role> unitUserRole = unit_User.getUnitUserRole();
+
+			for (Unit_User_Role unit_User_Role : unitUserRole) {
+				Role userRole = unit_User_Role.getRole();
+				userAuthorities.add(new SimpleGrantedAuthority(addRolePrefix(userRole.getTitle())));
+			}
+		}*/
 
 		boolean enabled = true;
 		boolean accountNonExpired = true;

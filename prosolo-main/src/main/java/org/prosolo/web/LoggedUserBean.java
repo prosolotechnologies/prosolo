@@ -54,6 +54,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @ManagedBean(name="loggeduser")
@@ -475,6 +479,29 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 
 	public void setNotificationsSettings(UserNotificationsSettings notificationsSettings) {
 		this.notificationsSettings = notificationsSettings;
+	}
+	
+	public boolean hasCapability(String authority) {
+		SecurityContext context = SecurityContextHolder.getContext();
+        if (context == null)
+            return false;
+
+        Authentication authentication = context.getAuthentication();
+        if (authentication == null)
+            return false;
+
+        List<GrantedAuthority> authorities = (List<GrantedAuthority>) authentication.getAuthorities();
+        
+        if(authorities == null){
+        	return false;
+        }
+        
+        for (GrantedAuthority auth : authorities) {
+            if (authority.toUpperCase().equals(auth.getAuthority()))
+                return true;
+        }
+
+        return false;
 	}
 	
 }
