@@ -11,6 +11,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.lti.LtiTool;
@@ -22,6 +23,7 @@ import org.prosolo.services.lti.LtiToolLaunchValidator;
 import org.prosolo.services.lti.LtiToolManager;
 import org.prosolo.services.lti.LtiUserManager;
 import org.prosolo.services.nodes.CourseManager;
+import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.lti.message.LTILaunchMessage;
 import org.prosolo.web.lti.message.extract.LtiMessageBuilder;
@@ -52,6 +54,8 @@ public class LTIProviderLaunchBean implements Serializable {
 	private CourseManager courseManager;
 	@Inject
 	private LtiToolLaunchValidator toolLaunchValidator;
+	@Inject
+	private ApplicationBean applicationBean;
 
 	public LTIProviderLaunchBean() {
 		logger.info("LTIProviderLaunchBean initialized");
@@ -74,6 +78,11 @@ public class LTIProviderLaunchBean implements Serializable {
 	
 	private void launch(LTILaunchMessage msg) throws Exception{
 		ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+		HttpSession session=(HttpSession) externalContext.getSession(false);
+		//if there is a different user logged in in same browser, we must invalidate his session first or exception will be thrown
+		applicationBean.unregisterSession(session);
+		
+		
 		HttpServletRequest request = (HttpServletRequest) externalContext.getRequest();
 		LtiTool tool = toolManager.getLtiToolForLaunch(msg.getId());
 		toolLaunchValidator.validateLaunch(tool, msg.getConsumerKey(), getVersion(msg.getLtiVersion()), request);
