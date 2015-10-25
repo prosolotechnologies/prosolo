@@ -54,7 +54,7 @@ object TwitterStatusBuffer {
     val filteredStatusesRDD=statusesRDD.filter{isAllowed }   
      filteredStatusesRDD.foreachPartition { statuses => {
        statuses.foreach { status:Status => {  
-         println("status:"+status.getText)             
+         //println("status:"+status.getText)             
          processStatus(status)
            
     } 

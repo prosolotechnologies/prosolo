@@ -23,7 +23,7 @@ public class TwitterHashtagsListenerImpl implements StatusListener, TwitterHasht
 	 
 	@Override
 	public void onStatus(Status status) {
-		System.out.println("TwitterHashTagsListener on status:"+status.getText());
+		//System.out.println("TwitterHashTagsListener on status:"+status.getText());
 		ServiceLocator.getInstance().getService(TwitterHashtagsQueueHandler.class).enqueue(status);
 	}
 

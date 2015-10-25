@@ -32,6 +32,11 @@
 				<on-startup>true</on-startup>
 			</job>
 			<job>
+		    	<class-name>org.prosolo.bigdata.jobs.GenerateFeedsJob</class-name>
+		    	<activated>false</activated>
+		    	<on-startup>false</on-startup>
+		    </job>
+			<job>
 	   			<class-name>org.prosolo.bigdata.jobs.TwitterHashtagStatisticsJob</class-name>
             	<activated>true</activated>
             	<on-startup>true</on-startup>	   
