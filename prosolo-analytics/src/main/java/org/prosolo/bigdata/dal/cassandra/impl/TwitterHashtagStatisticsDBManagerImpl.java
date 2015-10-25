@@ -1,9 +1,24 @@
 package org.prosolo.bigdata.dal.cassandra.impl;
 
+import static org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl.Statements.DECREMENT_TWITTER_HASHTAG_USERS_COUNT;
+import static org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl.Statements.DELETE_TWITTER_HASHTAG_USERS_COUNTS;
+import static org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl.Statements.DISABLE_TWITTER_HASHTAG;
+import static org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl.Statements.ENABLE_TWITTER_HASHTAG;
+import static org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl.Statements.FIND_DISABLED_TWITTER_HASHTAGS;
+import static org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl.Statements.FIND_ENABLED_TWITTER_HASHTAGS;
+import static org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl.Statements.FIND_SPECIFIC_TWITTER_HASHTAG_COUNT_FOR_PERIOD;
+import static org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl.Statements.FIND_TWITTER_HASHTAG_COUNT_FOR_PERIOD;
+import static org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl.Statements.FIND_TWITTER_HASHTAG_USERS_COUNT;
+import static org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl.Statements.FIND_TWITTER_HASHTAG_USERS_COUNTS;
+import static org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl.Statements.FIND_TWITTER_HASHTAG_WEEKLY_AVERAGE;
+import static org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl.Statements.INCREMENT_TWITTER_HASHTAG_USERS_COUNT;
+import static org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl.Statements.UPDATE_TWITTER_HASHTAG_COUNT;
+import static org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl.Statements.UPDATE_TWITTER_HASHTAG_WEEKLY_AVERAGE;
+import static org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl.Statements.TWITTER_HASHTAG_WEEKLY_AVERAGE_DAYS;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -21,39 +36,28 @@ import com.datastax.driver.core.Session;
 public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClientImpl implements
 		TwitterHashtagStatisticsDBManager {
 	
-	private static final Map<String, PreparedStatement> prepared = new ConcurrentHashMap<String, PreparedStatement>();
+	public enum Statements {
+		FIND_SPECIFIC_TWITTER_HASHTAG_COUNT_FOR_PERIOD,
+		FIND_TWITTER_HASHTAG_COUNT_FOR_PERIOD,
+		UPDATE_TWITTER_HASHTAG_COUNT,
+		INCREMENT_TWITTER_HASHTAG_USERS_COUNT,
+		DECREMENT_TWITTER_HASHTAG_USERS_COUNT,
+		UPDATE_TWITTER_HASHTAG_WEEKLY_AVERAGE,		
+		DISABLE_TWITTER_HASHTAG,
+		ENABLE_TWITTER_HASHTAG,
+		FIND_TWITTER_HASHTAG_WEEKLY_AVERAGE,
+		FIND_ENABLED_TWITTER_HASHTAGS,
+		FIND_DISABLED_TWITTER_HASHTAGS,
+		FIND_TWITTER_HASHTAG_USERS_COUNT,
+		FIND_TWITTER_HASHTAG_USERS_COUNTS,
+		DELETE_TWITTER_HASHTAG_USERS_COUNTS,		
+		TWITTER_HASHTAG_WEEKLY_AVERAGE_DAYS 
+	}
 	
-	private static final Map<String, String> statements = new HashMap<String, String>();
+	private static final Map<Statements, PreparedStatement> prepared = new ConcurrentHashMap<Statements, PreparedStatement>();
 	
-	private static final String FIND_SPECIFIC_TWITTER_HASHTAG_COUNT_FOR_PERIOD = "FIND_SPECIFIC_TWITTER_HASHTAG_COUNT_FOR_PERIOD";
+	private static final Map<Statements, String> statements = new HashMap<Statements, String>();
 	
-	private static final String FIND_TWITTER_HASHTAG_COUNT_FOR_PERIOD = "FIND_TWITTER_HASHTAG_COUNT_FOR_PERIOD";
-	
-	private static final String UPDATE_TWITTER_HASHTAG_COUNT = "UPDATE_TWITTER_HASHTAG_COUNT";
-	
-	private static final String INCREMENT_TWITTER_HASHTAG_USERS_COUNT = "INCREMENT_TWITTER_HASHTAG_USERS_COUNT";
-	
-	private static final String DECREMENT_TWITTER_HASHTAG_USERS_COUNT = "DECREMENT_TWITTER_HASHTAG_USERS_COUNT";
-	
-	private static final String UPDATE_TWITTER_HASHTAG_WEEKLY_AVERAGE = "UPDATE_TWITTER_HASHTAG_WEEKLY_AVERAGE";
-	
-	private static final String DISABLE_TWITTER_HASHTAG = "DISABLE_TWITTER_HASHTAG";
-	
-	private static final String ENABLE_TWITTER_HASHTAG = "ENABLE_TWITTER_HASHTAG";
-	
-	private static final String FIND_TWITTER_HASHTAG_WEEKLY_AVERAGE = "FIND_TWITTER_HASHTAG_WEEKLY_AVERAGE";
-	
-	private static final String FIND_ENABLED_TWITTER_HASHTAGS = "FIND_ENABLED_TWITTER_HASHTAGS";
-	
-	private static final String FIND_DISABLED_TWITTER_HASHTAGS = "FIND_DISABLED_TWITTER_HASHTAGS";
-	
-	private static final String FIND_TWITTER_HASHTAG_USERS_COUNT = "FIND_TWITTER_HASHTAG_USERS_COUNT";
-
-	private static final String FIND_TWITTER_HASHTAG_USERS_COUNTS = "FIND_TWITTER_HASHTAG_USERS_COUNTS";
-	
-	private static final String DELETE_TWITTER_HASHTAG_USERS_COUNTS = "DELETE_TWITTER_HASHTAG_USERS_COUNTS";
-	
-	private static final String TWITTER_HASHTAG_WEEKLY_AVERAGE_DAYS = "TWITTER_HASHTAG_WEEKLY_AVERAGE_DAYS"; 
 	
 	static {
 		statements.put(FIND_SPECIFIC_TWITTER_HASHTAG_COUNT_FOR_PERIOD, "SELECT * FROM twitterhashtagdailycount WHERE date>=? AND date<=? AND hashtag=?;");
@@ -73,38 +77,11 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 		statements.put(TWITTER_HASHTAG_WEEKLY_AVERAGE_DAYS, "SELECT DISTINCT day FROM twitterhashtagweeklyaverage;");
 	}
 	
-	private BoundStatement statement(PreparedStatement prepared, Object... parameters) {
-		BoundStatement statement = new BoundStatement(prepared);
-		int index = 0;
-		for (Object parameter : parameters) {
-			if (parameter instanceof Long) {
-				statement.setLong(index++, ((Long) parameter).longValue());
-			} else if (parameter instanceof String) {
-				statement.setString(index++, (String) parameter);
-			} else if (parameter instanceof Boolean) {
-				statement.setBool(index++, (Boolean) parameter);
-			} else if (parameter instanceof Double) {
-				statement.setDouble(index++, (Double) parameter);
-			} else if (parameter instanceof Set) {
-				for (Object element : ((Set<?>) parameter)) {
-					if (element instanceof String) {
-						statement.setString(index++, (String) element);
-					} else {
-						throw new IllegalStateException("Parameter type not supported.");
-					}
-				}
-			} else {
-				throw new IllegalStateException("Parameter type not supported.");
-			}
-		}
-		return statement;
-	}
-
 	private List<Row> query(BoundStatement statement) {
 		return getSession().execute(statement).all();
 	}
 	
-	private PreparedStatement getStatement(Session session, String statement) {
+	private PreparedStatement getStatement(Session session, Statements statement) {
 		// If two threads access prepared map concurrently, prepared can be repeated twice.
 		// This should be better than synchronizing access.
 		if (prepared.get(statement) == null) {
@@ -116,14 +93,14 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 	@Override
 	public List<TwitterHashtagDailyCount> getTwitterHashtagDailyCounts(String hashtag, Long dateFrom, Long dateTo) {
 		PreparedStatement prepared = getStatement(getSession(), FIND_SPECIFIC_TWITTER_HASHTAG_COUNT_FOR_PERIOD);
-		BoundStatement statement = statement(prepared, dateFrom, dateTo, hashtag);
+		BoundStatement statement = StatementUtil.statement(prepared, dateFrom, dateTo, hashtag);
 		return map(query(statement), (row) -> new TwitterHashtagDailyCount(hashtag(row), date(row), count(row)));
 	}
 
 	@Override
 	public List<TwitterHashtagDailyCount> getTwitterHashtagDailyCounts(Long dateFrom, Long dateTo) {
 		PreparedStatement prepared = getStatement(getSession(), FIND_TWITTER_HASHTAG_COUNT_FOR_PERIOD);
-		BoundStatement statement = statement(prepared, dateFrom, dateTo);
+		BoundStatement statement = StatementUtil.statement(prepared, dateFrom, dateTo);
 		return map(query(statement), (row) -> new TwitterHashtagDailyCount(hashtag(row), date(row), count(row)));
 	}
 
@@ -134,7 +111,7 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 	@Override
 	public void updateTwitterHashtagDailyCount(String hashtag, Long date) {
 		PreparedStatement prepared = getStatement(getSession(), UPDATE_TWITTER_HASHTAG_COUNT);
-		BoundStatement statement = statement(prepared, hashtag, date);
+		BoundStatement statement = StatementUtil.statement(prepared, hashtag, date);
 		try {
 			getSession().execute(statement);
 		} catch (Exception e) {
@@ -146,7 +123,7 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 	@Override
 	public void incrementTwitterHashtagUsersCount(String hashtag) {
 		PreparedStatement prepared = getStatement(getSession(), INCREMENT_TWITTER_HASHTAG_USERS_COUNT);
-		BoundStatement statement = statement(prepared, hashtag);
+		BoundStatement statement = StatementUtil.statement(prepared, hashtag);
 		try {
 			getSession().execute(statement);
 		} catch (Exception e) {
@@ -158,7 +135,7 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 	@Override
 	public void decrementTwitterHashtagUsersCount(String hashtag) {
 		PreparedStatement prepared = getStatement(getSession(), DECREMENT_TWITTER_HASHTAG_USERS_COUNT);
-		BoundStatement statement = statement(prepared, hashtag);
+		BoundStatement statement = StatementUtil.statement(prepared, hashtag);
 		try {
 			getSession().execute(statement);
 		} catch (Exception e) {
@@ -170,7 +147,7 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 	@Override
 	public void updateTwitterHashtagWeeklyAverage(Long day, String hashtag, Double average) {
 		PreparedStatement prepared = getStatement(getSession(), UPDATE_TWITTER_HASHTAG_WEEKLY_AVERAGE);
-		BoundStatement statement = statement(prepared, average, day, hashtag);
+		BoundStatement statement = StatementUtil.statement(prepared, average, day, hashtag);
 		try {
 			getSession().execute(statement);
 		} catch (Exception e) {
@@ -182,7 +159,7 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 	@Override
 	public void disableTwitterHashtag(String hashtag) {
 		PreparedStatement prepared = getStatement(getSession(), DISABLE_TWITTER_HASHTAG);
-		BoundStatement statement = statement(prepared, hashtag);
+		BoundStatement statement = StatementUtil.statement(prepared, hashtag);
 		try {
 			getSession().execute(statement);
 		} catch (Exception e) {
@@ -194,7 +171,7 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 	@Override
 	public void enableTwitterHashtag(String hashtag) {
 		PreparedStatement prepared = getStatement(getSession(), ENABLE_TWITTER_HASHTAG);
-		BoundStatement statement = statement(prepared, hashtag);
+		BoundStatement statement = StatementUtil.statement(prepared, hashtag);
 		try {
 			getSession().execute(statement);
 		} catch (Exception e) {
@@ -206,7 +183,7 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 	@Override
 	public List<TwitterHashtagWeeklyAverage> getTwitterHashtagWeeklyAverage(Long day) {
 		PreparedStatement prepared = getStatement(getSession(), FIND_TWITTER_HASHTAG_WEEKLY_AVERAGE);
-		BoundStatement statement = statement(prepared, day);
+		BoundStatement statement = StatementUtil.statement(prepared, day);
 		return map(query(statement), (row) -> new TwitterHashtagWeeklyAverage(day(row), hashtag(row), average(row)));
 	}
 
@@ -237,7 +214,7 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 	@Override
 	public Long getTwitterHashtagUsersCount(String hashtag) {
 		PreparedStatement prepared = getStatement(getSession(), FIND_TWITTER_HASHTAG_USERS_COUNT);
-		BoundStatement statement = statement(prepared, hashtag);
+		BoundStatement statement = StatementUtil.statement(prepared, hashtag);
 		List<Row> result = query(statement);
 		return result.size() == 1 ? users(result.get(0)) : 0L;
 	}
@@ -245,35 +222,35 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 	@Override
 	public List<String> getEnabledTwitterHashtags(Long day) {
 		PreparedStatement prepared = getStatement(getSession(), FIND_ENABLED_TWITTER_HASHTAGS);
-		BoundStatement statement = statement(prepared, day);
+		BoundStatement statement = StatementUtil.statement(prepared, day);
 		return map(query(statement), (row) -> hashtag(row));
 	}
 
 	@Override
 	public List<String> getDisabledTwitterHashtags() {
 		PreparedStatement prepared = getStatement(getSession(), FIND_DISABLED_TWITTER_HASHTAGS);
-		BoundStatement statement = statement(prepared);
+		BoundStatement statement = StatementUtil.statement(prepared);
 		return map(query(statement), (row) -> hashtag(row));
 	}
 	
 	@Override
 	public Long getDisabledTwitterHashtagsCount() {
 		PreparedStatement prepared = getStatement(getSession(), FIND_DISABLED_TWITTER_HASHTAGS);
-		BoundStatement statement = statement(prepared);
+		BoundStatement statement = StatementUtil.statement(prepared);
 		return Long.valueOf(query(statement).size());
 	}
 
 	@Override
 	public List<TwitterHashtagUsersCount> getTwitterHashtagUsersCount() {
 		PreparedStatement prepared = getStatement(getSession(), FIND_TWITTER_HASHTAG_USERS_COUNTS);
-		BoundStatement statement = statement(prepared);
+		BoundStatement statement = StatementUtil.statement(prepared);
 		return map(query(statement), (row) -> new TwitterHashtagUsersCount(hashtag(row), users(row)));
 	}
 
 	@Override
 	public void deleteTwitterHashtagUsersCount(String hashtag) {
 		PreparedStatement prepared = getStatement(getSession(), DELETE_TWITTER_HASHTAG_USERS_COUNTS);
-		BoundStatement statement = statement(prepared, hashtag);
+		BoundStatement statement = StatementUtil.statement(prepared, hashtag);
 		try {
 			getSession().execute(statement);
 		} catch (Exception e) {
@@ -285,7 +262,7 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 	@Override
 	public List<Long> getTwitterHashtagWeeklyAverageDays() {
 		PreparedStatement prepared = getStatement(getSession(), TWITTER_HASHTAG_WEEKLY_AVERAGE_DAYS);
-		BoundStatement statement = statement(prepared);
+		BoundStatement statement = StatementUtil.statement(prepared);
 		return map(query(statement), (row) -> day(row));
 	}
 

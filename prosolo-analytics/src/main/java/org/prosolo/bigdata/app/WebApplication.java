@@ -8,6 +8,7 @@ import javax.ws.rs.core.Application;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.api.PingResource;
 import org.prosolo.bigdata.api.RecommendationServices;
+import org.prosolo.bigdata.api.SocialInteractionStatisticsService;
 import org.prosolo.bigdata.api.TwitterHashtagStatisticsService;
 import org.prosolo.bigdata.api.UsersActivityStatisticsService;
 
@@ -37,5 +38,6 @@ public class WebApplication extends Application {
 		singletons.add(new RecommendationServices());
 		singletons.add(new UsersActivityStatisticsService());
 		singletons.add(new TwitterHashtagStatisticsService());
+		singletons.add(new SocialInteractionStatisticsService());
 	}
 }
