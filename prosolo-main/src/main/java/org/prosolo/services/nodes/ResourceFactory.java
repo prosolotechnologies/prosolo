@@ -36,7 +36,7 @@ public interface ResourceFactory extends AbstractManager {
 
 	Organization createNewOrganization(User currentUser, String name, String abbreviatedName, String description);
 
-	public Role createNewRole(String name, boolean systemDefined, List<Long> capabilities);
+	public Role createNewRole(String name, String description, boolean systemDefined, List<Long> capabilities);
 
 	LearningGoal createNewLearningGoal(User currentUser, String name, String description, Date deadline, 
 			Collection<Tag> keywords, Collection<Tag> hashtags) throws EventException;

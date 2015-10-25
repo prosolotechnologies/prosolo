@@ -5,150 +5,186 @@
 	xmlns:p="http://primefaces.org/ui"
 	template="templates/masterLayout.xhtml"
 	xmlns:dlg="http://java.sun.com/jsf/composite/components/admin/dialogs"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
 
-<ui:define name="windowTitle">
+	<ui:define name="windowTitle">
 	Administration: Roles
 </ui:define>
 
-<ui:define name="content">
-<script type="text/javascript">
-</script>
-	<div class="container">
-		<div id="roleFormContainer" class="content wide">
+	<ui:define name="content">
+		<script type="text/javascript">
+			
+		</script>
+		<div class="container">
+			<div id="roleFormContainer" class="content wide">
 
-			<dlg:newRole id="newRole" />
-			<dlg:editRole id="editRole" />
-			
-			<h:form id="rolesForm" prependId="false">
-	
-				<p:commandLink id="newRoleBtn" value="Add Role"
-					styleClass="button green size30 marginBottom10"
-					action="#{roles.prepareAddRole()}"
-					onclick='$("#newRoleModalDialog").dialog("open");'
-					update=":newRole:newRoleForm" />
-	
-				<p:dataTable id="rolessDataTable" var="role" value="#{roles.roles}">
-				
-					<f:facet name="header">Roles</f:facet>
+
+				<dlg:newRole id="newRole" />
+				<dlg:editRole id="editRole" />
+
+				<h:form id="rolesForm" prependId="false">
 					
-					<p:column id="nameColumn" filterBy="#{role.name}" filterMatchMode="contains" 
-						sortBy="#{role.name}">
+					<p:commandLink immediate="true" id="newRoleBtn" value="Add Role"
+						styleClass="button green size30 marginBottom10"
+						action="#{roles.prepareAddRole()}"
+						onclick='$("#newRoleModalDialog").dialog("open");'
+						update=":newRole:newRoleForm" />
+
+					<p:dataTable id="rolessDataTable" var="role" value="#{roles.roles}">
+
+						<f:facet name="header">Roles</f:facet>
+
+						<p:column id="nameColumn" filterBy="#{role.name}"
+							filterMatchMode="contains" sortBy="#{role.name}">
+
+							<f:facet name="header">
+								<h:outputText value="Name" />
+							</f:facet>
+							<h:outputText value="#{role.name}" />
+						</p:column>
+
+						<p:column id="usersColumn" filterBy="#{role.name}"
+							filterMatchMode="contains" sortBy="#{role.name}">
+
+							<f:facet name="header">
+								<h:outputText value="Users" />
+							</f:facet>
+							<p:commandLink rendered="#{not empty role.userIds}"
+								value="#{role.userIds.size()} users"
+								action="#{peopleListDialog.initializePeopleWithIds(role.userIds)}"
+								onclick="$('#peopleListDialog').dialog('open');"
+								update=":peopleListForm" />
+
+							<h:outputText rendered="#{empty role.userIds}" value="0 users" />
+
+						</p:column>
+
+
+						<p:column>
+							<f:facet name="header">
+								<h:outputText value="Description" />
+							</f:facet>
+							<h:outputText value="#{role.description}" />
+						</p:column>
+
+						<p:column styleClass="center">
+							<f:facet name="header">
+								<h:outputText value="Edit" />
+							</f:facet>
+
+							<p:commandLink immediate="true" value="Edit" styleClass="blue button size25"
+								onclick="$('#editRoleModalDialog').dialog('open');"
+								action="#{roles.prepareEdit(role)}"
+								update=":editRole:editRoleForm" />
+						</p:column>
+
+						<p:column styleClass="center">
+							<f:facet name="header">
+								<h:outputText value="Delete" />
+							</f:facet>
+
+							<p:commandLink value="Delete" styleClass="button red size25"
+								rendered="#{!roles.isRoleUsed(role)}"
+								onclick="$('#deleteRoleDialog').dialog('open');"
+								action="#{roles.setRoleToDelete(role)}"
+								update=":deleteRoleDialogForm" />
+
+							<p:commandLink value="Delete"
+								styleClass="button disabled gray size25 hasTooltip"
+								rendered="#{roles.isRoleUsed(role)}"
+								title="#{msg['admin.roles.delete.disabled.tooltip']}" />
+						</p:column>
+					</p:dataTable>
+
+					<utilcomp:tooltip target=".hasTooltip[title]" />
+
+					<br></br>
+					<br></br>
+					<br></br>
+
+					<p:dataTable id="capabilitiesTable" var="cap"
+						value="#{roles.capabilities}">
+
+						<f:facet name="header">Capabilities</f:facet>
+
+						<p:column id="nameColumn" filterBy="#{cap.description}"
+							filterMatchMode="contains" sortBy="#{cap.description}">
+
+							<f:facet name="header">
+								<h:outputText value="Name" />
+							</f:facet>
+							<h:outputText value="#{cap.description}" />
+						</p:column>
 						
-						<f:facet name="header">
-							<h:outputText value="Name" />
-						</f:facet>
-						<h:outputText value="#{role.name}" />
-					</p:column>
-					
-					<p:column id="usersColumn" filterBy="#{role.name}" filterMatchMode="contains" 
-						sortBy="#{role.name}">
-						
-						<f:facet name="header">
-							<h:outputText value="Users" />
-						</f:facet>							
-						<p:commandLink
-						    rendered="#{not empty role.userIds}"
-							value="#{role.userIds.size()} users"
-							action="#{peopleListDialog.initializePeopleWithIds(role.userIds)}"
-							onclick="$('#peopleListDialog').dialog('open');"
-							update=":peopleListForm"
-						/>
-						
-						<h:outputText rendered="#{empty role.userIds}"
-										value="0 users" />
-						
-					</p:column>
-					
-	
-					<p:column>
-						<f:facet name="header">
-							<h:outputText value="Description" />
-						</f:facet>
-						<h:outputText value="#{role.description}" />
-					</p:column>
-					
-					<p:column styleClass="center">
-						<f:facet name="header">
-							<h:outputText value="Edit" />
-						</f:facet>
-						
-						<p:commandLink value="Edit" 
-							styleClass="blue button size25"
-							onclick="$('#editRoleModalDialog').dialog('open');"
-							action="#{roles.prepareEdit(role)}" 
-							update=":editRole:editRoleForm :rolesForm" />
-					</p:column>
-					
-					<p:column styleClass="center">
-						<f:facet name="header">
-							<h:outputText value="Delete" />
-						</f:facet>
-						
-						<p:commandLink value="Delete"
-							styleClass="button red size25"
-							rendered="#{!roles.isRoleUsed(role)}"
-							onclick="$('#deleteRoleDialog').dialog('open');"
-							action="#{roles.setRoleToDelete(role)}"
-							update=":deleteRoleDialogForm" />
-							
-						<p:commandLink value="Delete"
-							styleClass="button disabled gray size25 hasTooltip"
-							rendered="#{roles.isRoleUsed(role)}"
-							title="#{msg['admin.roles.delete.disabled.tooltip']}" />
-					</p:column>
-				</p:dataTable>
-				
-				<utilcomp:tooltip target=".hasTooltip[title]" />
-			</h:form>
-		</div>
-	</div>
-	
-	<div id="deleteRoleDialog" class="deleteRoleDialog" style="display: none;">
-		<h:form id="deleteRoleDialogForm">
-			<h4 class="warningMessage">
-				Are you sure you want to delete role #{roles.roleToDelete.name}?
-			</h4>
-			
-			<div class="actions">
-				<p:commandLink value="Yes"
-					styleClass="button green size30 right"
-					onclick="$('#deleteRoleDialog').dialog('close');"
-				 	action="#{roles.delete()}"
-				 	update=":rolesForm"
-					/>
-				&#160;
-				<a href="#" class="button gray size30 right"
-					onclick="$('#deleteRoleDialog').dialog('close');">Cancel</a>
+						<c:forEach items="#{roles.roles}" var="role">
+    						<p:column headerText="#{role.name}">
+        						<h:selectBooleanCheckbox checked="#{roles.isSelected(cap,role)}">
+								<p:ajax event="click" process="@this"
+									listener="#{roles.capabilityChanged(cap, role)}" update=":growlMsg @this" />
+							</h:selectBooleanCheckbox>
+    						</p:column> 
+						</c:forEach>
+
+
+
+					</p:dataTable>
+				</h:form>
 			</div>
-	 	</h:form>
-	</div>
-	
-	<script>
-	$(function() {
-		$('#deleteRoleDialog').dialog({
-			title: 'Delete Role',
-			dialogClass: 'warning',
-			show : 'slide',
-			autoOpen: false,
-			width: 400,
-			modal: true,
-			resizable: false,
-			open: function() {
-				$(this).children(':first')
-					.css('text-align', 'center')
-					.css('padding-top', '50px')
-					.html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
-				
-				if ($(this).parent().find('.ui-dialog-titlebar .warningIcon').length == 0) {
-					$(this).parent()
-				        .children('.ui-dialog-titlebar')
-				        .prepend('<span class="warningIcon"></span>');
-				}
-			}
-		});
-		$('#deleteRoleDialog').show();
-	});
-	</script>
-</ui:define>
+		</div>
+
+		<div id="deleteRoleDialog" class="deleteRoleDialog"
+			style="display: none;">
+			<h:form id="deleteRoleDialogForm">
+				<h4 class="warningMessage">Are you sure you want to delete role
+					#{roles.roleToDelete.name}?</h4>
+
+				<div class="actions">
+					<p:commandLink value="Yes" styleClass="button green size30 right"
+						onclick="$('#deleteRoleDialog').dialog('close');"
+						action="#{roles.delete()}" update=":rolesForm" />
+					&#160; <a href="#" class="button gray size30 right"
+						onclick="$('#deleteRoleDialog').dialog('close');">Cancel</a>
+				</div>
+			</h:form>
+			<p:growl id="growlMsg" showDetail="true"/>
+		</div>
+
+		<script>
+			$(function() {
+				$('#deleteRoleDialog')
+						.dialog(
+								{
+									title : 'Delete Role',
+									dialogClass : 'warning',
+									show : 'slide',
+									autoOpen : false,
+									width : 400,
+									modal : true,
+									resizable : false,
+									open : function() {
+										$(this)
+												.children(':first')
+												.css('text-align', 'center')
+												.css('padding-top', '50px')
+												.html(
+														'<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
+
+										if ($(this)
+												.parent()
+												.find(
+														'.ui-dialog-titlebar .warningIcon').length == 0) {
+											$(this)
+													.parent()
+													.children(
+															'.ui-dialog-titlebar')
+													.prepend(
+															'<span class="warningIcon"></span>');
+										}
+									}
+								});
+				$('#deleteRoleDialog').show();
+			});
+		</script>
+	</ui:define>
 </ui:composition>

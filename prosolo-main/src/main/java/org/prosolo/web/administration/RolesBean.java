@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
+import javax.faces.application.FacesMessage.Severity;
 import javax.faces.bean.ManagedBean;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
@@ -23,6 +24,7 @@ import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CapabilityManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.administration.data.CapabilityData;
 import org.prosolo.web.administration.data.RoleData;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,13 +53,67 @@ public class RolesBean implements Serializable {
 	private List<Long> selectedCapabilities;
 	private List<Long> initialCapabilities;
 	private SelectItem[] allCapabilities;
+	
+	private List<CapabilityData> capabilities;
+
 
 	@PostConstruct
 	public void init() {
 		resetFormData();
 		loadRoles();
+		loadCapabilities();
 	}
 	
+	private void loadCapabilities() {
+		try{
+			capabilities = new ArrayList<>();
+			Map<Capability, List<Long>> caps = capabilityManager.getAllCapabilitiesWithRoleIds2();
+			if(caps != null){
+				for (Map.Entry<Capability, List<Long>> entry : caps.entrySet()){
+					capabilities.add(new CapabilityData(entry.getKey(), entry.getValue()));
+				}
+			}
+			for(CapabilityData cd:capabilities){
+				for(long id:cd.getRoleIds()){
+					System.out.println("Capability "+cd.getDescription()+ " role id "+id);
+				}
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public void capabilityChanged(CapabilityData cd, RoleData rd){
+		System.out.println(cd.getDescription());
+		System.out.println(rd.getName());
+		List<Long> list = new ArrayList<>(cd.getRoleIds());
+		if(cd.getRoleIds().contains(rd.getId())){
+			System.out.println("EVENT UNCHECK");
+			list.remove(new Long(rd.getId()));	
+		}else{
+			System.out.println("EVENT ADD");
+			list.add(new Long(rd.getId()));
+		}
+		try{
+			capabilityManager.updateCapabilityRoles(cd.getId(), list);
+			cd.setRoleIds(list);
+			PageUtil.fireSuccessfulInfoMessage("Error while updating capability");
+		}catch(Exception e){
+			PageUtil.fireErrorMessage("Error while updating capability");
+		}
+	}
+	
+	public boolean isSelected(CapabilityData cd, RoleData rd){
+		
+		if(cd.getRoleIds().contains(rd.getId())){
+			System.out.println("Capability "+cd.getDescription() + " ROLE ID "+rd.getName());
+			return true;
+		}
+		return false;
+	}
+	
+
 	public void loadRoles() {
 		roles = new ArrayList<RoleData>();
 
@@ -154,13 +210,14 @@ public class RolesBean implements Serializable {
 
 		loggedUser.refreshUser();
 		
-		Role role = roleManager.createNewRole(formData.getName(), false, selectedCapabilities);
+		Role role = roleManager.createNewRole(formData.getName(), formData.getDescription(), false, selectedCapabilities);
 
 		logger.debug("New Role ("+role.getTitle()+") for the user "+ loggedUser.getUser() );
 		PageUtil.fireSuccessfulInfoMessage("Role \""+role.getTitle()+"\" created!");
 		
 		resetFormData();
 		loadRoles();
+		loadCapabilities();
 	}
 	
 	public void prepareEdit(RoleData roleData){
@@ -182,6 +239,7 @@ public class RolesBean implements Serializable {
 		
 		resetFormData();
 		loadRoles();
+		loadCapabilities();
 	}
 	
 	public boolean isRoleUsed(RoleData roleData) {
@@ -194,6 +252,7 @@ public class RolesBean implements Serializable {
 				roleManager.deleteRole(roleToDelete.getId());
 				resetFormData();
 				loadRoles();
+				loadCapabilities();
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error(e);
 			}
@@ -243,6 +302,14 @@ public class RolesBean implements Serializable {
 
 	public void setAllCapabilities(SelectItem[] allCapabilities) {
 		this.allCapabilities = allCapabilities;
+	}
+
+	public List<CapabilityData> getCapabilities() {
+		return capabilities;
+	}
+
+	public void setCapabilities(List<CapabilityData> capabilities) {
+		this.capabilities = capabilities;
 	}
 	
 	

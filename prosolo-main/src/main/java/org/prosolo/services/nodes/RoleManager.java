@@ -16,7 +16,7 @@ public interface RoleManager extends AbstractManager {
 
 	List<Long> getRoleIdsForName(String name);
 	
-	public Role createNewRole(String name, boolean systemDefined, List<Long> capabilities);
+	public Role createNewRole(String name, String description, boolean systemDefined, List<Long> capabilities);
 	
 	User assignRoleToUser(Role role, User user);
 
@@ -45,9 +45,11 @@ public interface RoleManager extends AbstractManager {
 
 	List<Role> getUserRoles(String email);
 	
-	public Role saveRole(String name, boolean systemDefined) throws DbConnectionException;
+	public Role saveRole(String name, String description, boolean systemDefined) throws DbConnectionException;
 	
 	public List<Capability> getRoleCapabilities(long roleId) throws DbConnectionException;
 	
 	public Map<Long, List<Long>> getUsersWithRoles(List<Role> roles) throws DbConnectionException;
+	
+	public List<String> getNamesOfRoleCapabilities(long roleId) throws DbConnectionException;
 }

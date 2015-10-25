@@ -80,9 +80,10 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 	
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public Role createNewRole(String name, boolean systemDefined, List<Long> capabilities){
+	public Role createNewRole(String name, String description, boolean systemDefined, List<Long> capabilities){
 		Role role = new Role();
 		role.setTitle(name);
+		role.setDescription(description);
 		role.setDateCreated(new Date());
 		role.setSystem(systemDefined);
 		role = saveEntity(role);

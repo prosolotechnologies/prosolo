@@ -64,9 +64,9 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 	}
 
 	@Override
-	public Role createNewRole(String name, boolean systemDefined, List<Long> capabilities) {
+	public Role createNewRole(String name, String description, boolean systemDefined, List<Long> capabilities) {
 		return resourceFactory.createNewRole(
-				name,
+				name, description,
 				systemDefined, capabilities);
 	}
 	
@@ -152,7 +152,7 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 		Role role = getRoleByName(name);
 		
 		if (role == null) {
-			role = createNewRole(name, systemDefined, null);
+			role = createNewRole(name, description, systemDefined, null);
 		}
 		return role;
 	}
@@ -231,7 +231,8 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 		
 		for(long capId:capabilities){
 			Capability cap = capabilityManager.getCapabilityWithRoles(capId);
-			if(!cap.getRoles().contains(role)){
+			
+			if(cap.getRoles() == null || !cap.getRoles().contains(role)){
 				cap.getRoles().add(role);
 			}
 			saveEntity(cap);
@@ -275,10 +276,11 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 	
 	@Override
 	@Transactional
-	public Role saveRole(String name, boolean systemDefined) throws DbConnectionException{
+	public Role saveRole(String name, String description, boolean systemDefined) throws DbConnectionException{
 		try{
 			Role role = new Role();
 			role.setTitle(name);
+			role.setDescription(description);
 			role.setDateCreated(new Date());
 			role.setSystem(systemDefined);
 			return saveEntity(role);
@@ -337,6 +339,27 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 				}
 			}
 			return resultMap;
+		}catch(Exception e){
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading capabilities");
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	@Transactional(readOnly = true)
+	public List<String> getNamesOfRoleCapabilities(long roleId) throws DbConnectionException{
+		try{
+			String query = 
+					"SELECT cap.name " +
+					"FROM Capability cap " +
+					"INNER JOIN cap.roles role " +
+					"WHERE role.id = :roleId";
+				
+				return persistence.currentManager().createQuery(query)
+					.setLong("roleId", roleId)
+					.list();
+				
 		}catch(Exception e){
 			e.printStackTrace();
 			throw new DbConnectionException("Error while loading capabilities");
