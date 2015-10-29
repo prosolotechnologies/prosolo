@@ -187,6 +187,12 @@
 	border: 1px solid #ddd;
 }
 
+#dashboard #mostActiveHashtags #statisticsPeriod {
+	font-size: small;
+	color: #0288D1;
+	margin-left: 0.4em;
+}
+
 #dashboard #mostActiveHashtagsTable tr > *:nth-child(1) {
 	width: 12%;
 }

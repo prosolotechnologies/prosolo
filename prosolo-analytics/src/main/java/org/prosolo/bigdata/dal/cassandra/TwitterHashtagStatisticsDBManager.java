@@ -36,6 +36,8 @@ public interface TwitterHashtagStatisticsDBManager {
 
 	List<TwitterHashtagUsersCount> getTwitterHashtagUsersCount();
 	
-	void deleteTwitterHashtagUsersCount(String hashtag); 
+	void deleteTwitterHashtagUsersCount(String hashtag);
+	
+	List<Long> getTwitterHashtagWeeklyAverageDays();
 
 }

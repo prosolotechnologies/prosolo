@@ -182,6 +182,7 @@ $(function () {
 		var term = document.querySelector("#mostActiveHashtags [name='hashtags-term']");
 		var messages = document.querySelector("#mostActiveHashtags .messages");
 		var followers = document.querySelector("#mostActiveHashtags [name='include-hashtags-without-followers']");
+		var statisticsPeriod = document.querySelector("#mostActiveHashtags #statisticsPeriod");
 		
 		var configuration = {
 			"container" : "#mostActiveHashtags",
@@ -228,6 +229,14 @@ $(function () {
 		}
 		
 		var mahTable = table.create(configuration);
+		
+		function format(date) {
+			var day = date.getDate();
+			var month = date.getMonth() + 1;
+			var year = date.getFullYear();
+			
+			return day + "." + month + "." + year;
+		}
 	
 		function load() {
 			$.ajax({
@@ -237,6 +246,7 @@ $(function () {
 				crossDomain: true,
 				dataType: 'json'
 			}).done(function(data) {
+				statisticsPeriod.innerHTML = "";
 				if (data.results.length == 0) {
 					$(messages).html(noResultsMessage());
 					$(messages).show();
@@ -247,6 +257,13 @@ $(function () {
 					$(document.querySelector("#mostActiveHashtags table")).show();
 					$(navigation).show();
 					mahTable.init(data.results);
+					if (data.day > 0) {
+						var from = new Date(0);
+						from.setUTCSeconds((data.day - 7) * 24 * 60 * 60)
+						var to = new Date(0);
+						to.setUTCSeconds(data.day * 24 * 60 * 60);
+						statisticsPeriod.innerHTML = "(for period " + format(from) + " - " + format(to) + ")";
+					}
 				}
 				hashtagsInTable = data.results.map(function(hashtag) {
 					return hashtag.hashtag;

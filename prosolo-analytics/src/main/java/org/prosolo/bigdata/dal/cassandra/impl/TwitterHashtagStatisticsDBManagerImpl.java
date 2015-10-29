@@ -53,6 +53,8 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 	
 	private static final String DELETE_TWITTER_HASHTAG_USERS_COUNTS = "DELETE_TWITTER_HASHTAG_USERS_COUNTS";
 	
+	private static final String TWITTER_HASHTAG_WEEKLY_AVERAGE_DAYS = "TWITTER_HASHTAG_WEEKLY_AVERAGE_DAYS"; 
+	
 	static {
 		statements.put(FIND_SPECIFIC_TWITTER_HASHTAG_COUNT_FOR_PERIOD, "SELECT * FROM twitterhashtagdailycount WHERE date>=? AND date<=? AND hashtag=?;");
 		statements.put(FIND_TWITTER_HASHTAG_COUNT_FOR_PERIOD, "SELECT * FROM twitterhashtagdailycount WHERE date>=? AND date<=? ALLOW FILTERING;");
@@ -68,6 +70,7 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 		statements.put(FIND_TWITTER_HASHTAG_USERS_COUNT, "SELECT * FROM twitterhashtaguserscount WHERE hashtag=?;");
 		statements.put(FIND_TWITTER_HASHTAG_USERS_COUNTS, "SELECT * FROM twitterhashtaguserscount;");
 		statements.put(DELETE_TWITTER_HASHTAG_USERS_COUNTS, "DELETE FROM twitterhashtaguserscount WHERE hashtag=?;");
+		statements.put(TWITTER_HASHTAG_WEEKLY_AVERAGE_DAYS, "SELECT DISTINCT day FROM twitterhashtagweeklyaverage;");
 	}
 	
 	private BoundStatement statement(PreparedStatement prepared, Object... parameters) {
@@ -277,6 +280,13 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 			logger.error("Error executing delete statement.", e);
 			// TODO Throw exception.
 		}
+	}
+
+	@Override
+	public List<Long> getTwitterHashtagWeeklyAverageDays() {
+		PreparedStatement prepared = getStatement(getSession(), TWITTER_HASHTAG_WEEKLY_AVERAGE_DAYS);
+		BoundStatement statement = statement(prepared);
+		return map(query(statement), (row) -> day(row));
 	}
 
 }

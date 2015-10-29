@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -90,6 +91,8 @@ public class TwitterHashtagStatisticsService {
 
 	@SuppressWarnings("unused")
 	private class Averages {
+		
+		private long day = 0;
 
 		private long pages = 0;
 
@@ -99,7 +102,8 @@ public class TwitterHashtagStatisticsService {
 
 		private List<Map<String, String>> results;
 
-		public Averages(long current, long pages, long paging, List<Map<String, String>> results) {
+		public Averages(long day, long current, long pages, long paging, List<Map<String, String>> results) {
+			this.day = day;
 			this.pages = pages;
 			this.results = results;
 			this.current = current;
@@ -127,10 +131,6 @@ public class TwitterHashtagStatisticsService {
 		return result;
 	}
 
-	private Long yesterday() {
-		return DateUtil.getDaysSinceEpoch() - 1;
-	}
-
 	@GET
 	@Path("/average")
 	@Produces({ MediaType.APPLICATION_JSON })
@@ -140,7 +140,11 @@ public class TwitterHashtagStatisticsService {
 				"Service 'getAverage' called with parameters: page={}, paging={}, term={}, includeWithoutFollowers={}.",
 				page, paging, term, includeWithoutFollowers);
 
-		List<TwitterHashtagWeeklyAverage> averages = dbManager.getTwitterHashtagWeeklyAverage(yesterday());
+		Optional<Long> day = dbManager.getTwitterHashtagWeeklyAverageDays().stream().max(Long::compareTo);
+		if (!day.isPresent()) {
+			return ResponseUtils.corsOk(new Averages(0, 0, 0, paging, new ArrayList<Map<String,String>>()));
+		}
+		List<TwitterHashtagWeeklyAverage> averages = dbManager.getTwitterHashtagWeeklyAverage(day.get());
 		List<String> following = dbManager.getTwitterHashtagUsersCount().stream().filter((c) -> c.getUsers() > 0)
 				.map((c) -> c.getHashtag()).collect(Collectors.toList());
 		List<String> disabled = dbManager.getDisabledTwitterHashtags();
@@ -169,7 +173,7 @@ public class TwitterHashtagStatisticsService {
 			Long usersCount = dbManager.getTwitterHashtagUsersCount(average.getHashtag());
 			result.add(merge(average, usersCount, number++));
 		}
-		return ResponseUtils.corsOk(new Averages(page, pages(count, paging), paging, result));
+		return ResponseUtils.corsOk(new Averages(day.get(), page, pages(count, paging), paging, result));
 	}
 
 	private boolean matches(TwitterHashtagWeeklyAverage a, String term) {
