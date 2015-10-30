@@ -224,6 +224,7 @@
 		    			
 		    			<p class="marginTop20">
 			    			<h:link outcome="/manage/tools" 
+			    			rendered="#{param['id'] != null}"
 								class="button size25 blue left"
 								value="Manage external tools">
 								<f:param  name="cred" value="#{cc.attrs.courseBean.id}" />
