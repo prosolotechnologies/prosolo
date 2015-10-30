@@ -1,5 +1,6 @@
 package org.prosolo.web.publicportfolio;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,6 +12,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.context.FacesContext;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
@@ -100,7 +102,11 @@ public class PublicPortfolioBean implements Serializable {
 				profileOwnerData = UserDataFactory.createUserData(profileOwner);
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error(e);
-				PageUtil.redirectToLoginPage();
+				try {
+					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+				} catch (IOException ioe) {
+					ioe.printStackTrace();
+				}
 			}
 		} else if (loggedUser != null && loggedUser.isLoggedIn()) {
 			profileOwner = loggedUser.refreshUser();

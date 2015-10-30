@@ -16,6 +16,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
 import org.apache.log4j.Logger;
+import org.hibernate.ObjectNotFoundException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.course.Course;
@@ -48,6 +49,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
+
 
 /**
  * @author "Nikola Milikic"
@@ -150,6 +153,12 @@ public class CourseBean implements Serializable {
 					}
 					
 					this.addedCompetencesBeforeSave = new LinkedList<CourseCompetenceData>(courseData.getAddedCompetences());
+				}
+			} catch(ObjectNotFoundException onf) {
+				try {
+					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+				} catch (IOException e) {
+					logger.error(e);
 				}
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error(e);

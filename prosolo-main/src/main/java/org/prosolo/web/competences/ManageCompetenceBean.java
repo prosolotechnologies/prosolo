@@ -14,6 +14,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
 import org.apache.log4j.Logger;
+import org.hibernate.ObjectNotFoundException;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
@@ -81,6 +82,13 @@ public class ManageCompetenceBean implements Serializable {
 						false);
 				System.out.println("INIT COMPETENCE activities:"+actData.size());
 				compData.setActivities(actData);
+			} catch(ObjectNotFoundException onf) {
+				try {
+					logger.error(onf);
+					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+				} catch (IOException e) {
+					logger.error(e);
+				}
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error(e);
 			}

@@ -13,8 +13,12 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
+import org.hibernate.ObjectNotFoundException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
@@ -95,6 +99,13 @@ public class ManageCourseBean implements Serializable {
 			try {
 				Course course = courseManager.loadResource(Course.class, id);
 				courseData = new CourseData(course);
+			} catch(ObjectNotFoundException onf) {
+				try {
+					logger.error(onf);
+					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound");
+				} catch (IOException e) {
+					logger.error(e);
+				}
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error(e);
 			}
