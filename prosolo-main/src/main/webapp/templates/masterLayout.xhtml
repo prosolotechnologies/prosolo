@@ -151,7 +151,8 @@
 								<span class="logo"></span>
 							</h:link>
 							
-							<h:panelGroup layout="block" rendered="#{loggeduser.hasRole('manager') or loggeduser.hasRole('admin')}">
+							<h:panelGroup layout="block" rendered="#{loggeduser.hasCapability('basic.manager.access') 
+									or loggeduser.hasCapability('basic.admin.access')}">
 								<a class="arrow" href="javascript:void(0);">
 									<i class="fa fa-angle-down"></i>
 								</a>
@@ -159,14 +160,14 @@
 								<div class="dropdown hidden">
 									<ul>
 										<li>
-											<h:link rendered="#{loggeduser.hasRole('manager')}"
-												onclick="sendLogPageNavigation( '/manage/competences', 'mainmenu');" 
-												outcome="/manage/competences">
+											<h:link rendered="#{loggeduser.hasCapability('basic.manager.access')}"
+												onclick="sendLogPageNavigation( '/manage/courses', 'mainmenu');" 
+												outcome="/manage/courses">
 												<span class="secManage"></span>
 											</h:link>
 										</li>
 										<li>
-											<h:link rendered="#{loggeduser.hasRole('admin')}"
+											<h:link rendered="#{loggeduser.hasCapability('basic.admin.access')}"
 												onclick="sendLogPageNavigation( '/admin/users', 'mainmenu');"
 												outcome="/admin/users">
 												<span class="secAdmin"></span>
@@ -254,11 +255,16 @@
 												value="Settings" 
 												outcome="/settings" />
 										</li>
+										<ui:remove>
+											<li>
+												<h:commandLink id="userLogout" 
+													value="Logout" 
+													action="#{loggeduser.logout}">
+												</h:commandLink>
+											</li>
+										</ui:remove>
 										<li>
-											<h:commandLink id="userLogout" 
-												value="Logout" 
-												action="#{loggeduser.logout}">
-											</h:commandLink>
+											<a href="#{request.contextPath}/logout">Logout</a>
 										</li>
 									</h:form>
 								</ul>

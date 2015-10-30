@@ -121,7 +121,7 @@
     						<p:column headerText="#{role.name}">
         						<h:selectBooleanCheckbox checked="#{roles.isSelected(cap,role)}">
 								<p:ajax event="click" process="@this"
-									listener="#{roles.capabilityChanged(cap, role)}" update=":growlMsg @this" />
+									listener="#{roles.capabilityChanged(cap, role)}" update=":rolesForm:growlMsg @this" />
 							</h:selectBooleanCheckbox>
     						</p:column> 
 						</c:forEach>
@@ -129,6 +129,7 @@
 
 
 					</p:dataTable>
+					<p:growl id="growlMsg" showDetail="true"/>
 				</h:form>
 			</div>
 		</div>
@@ -147,7 +148,7 @@
 						onclick="$('#deleteRoleDialog').dialog('close');">Cancel</a>
 				</div>
 			</h:form>
-			<p:growl id="growlMsg" showDetail="true"/>
+			
 		</div>
 
 		<script>

@@ -39,7 +39,7 @@ public class SpringSecurityAuthenticationServiceImpl implements AuthenticationSe
 	@Autowired private UserManager userManager;
 	@Autowired private RoleManager roleManager;
 	
-	@Inject private TokenBasedRememberMeServices rememberMeService;
+	//@Inject private TokenBasedRememberMeServices rememberMeService;
 
 	@Override
 	public boolean login(String email, String password) throws AuthenticationException {
@@ -52,9 +52,9 @@ public class SpringSecurityAuthenticationServiceImpl implements AuthenticationSe
 			logger.debug("User with email "+email+" is authenticated: " + authenticate.isAuthenticated());
 			if (authenticate.isAuthenticated()) {
 				SecurityContextHolder.getContext().setAuthentication(authenticate);		
-				HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-				HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-				rememberMeService.loginSuccess(request, response, authenticate);
+				//HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+				//HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
+				//rememberMeService.loginSuccess(request, response, authenticate);
 				
 				logger.debug("Returning true");
 				return true;

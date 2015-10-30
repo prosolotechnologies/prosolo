@@ -5,17 +5,16 @@
 	xmlns:c="http://java.sun.com/jsp/jstl/core"
 	xmlns:comp="http://java.sun.com/jsf/composite/components"
 	xmlns:p="http://primefaces.org/ui">
-
-<f:view transient="true" contentType="text/html">
+	
 <h:head>
 	<meta http-equiv="content-type" content="text/html" charset="UTF-8"/>
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/style.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/style.css?#{loggeduser.loginTime}" />
 	<link rel="icon" href="#{request.contextPath}/favicon.ico" type="image/x-icon" />
 	<title>Login | ProSolo</title>
 </h:head>
 
-
+<f:view contentType="text/html">
 	<script>
 		$(function() {
 		    $('form:first input[type!=hidden]:first').focus();
@@ -27,7 +26,7 @@
 	</script>
 	
 	<f:metadata>
-    	<f:event type="preRenderView" listener="#{loginbean.checkIfLoggedIn}" />
+    	<f:event type="preRenderView" listener="#{loggeduser.checkIfLoggedIn}" />
 	</f:metadata>
 
 	<div class="signContainer">
@@ -66,7 +65,7 @@
 						    <h:commandLink
 				            	id="openidGmail" 
 				            	class="google"
-				            	action="#{loginbean.signinOpenidGoogle}" 
+				            	action="#{openid.signinOpenidGoogle}" 
 				            />
 						</c:if>
 						
@@ -74,7 +73,7 @@
 				            <h:commandLink
 				            	id="openidEdx" 
 				            	class="edx"
-				            	action="#{loginbean.signinOpenidEDX}" 
+				            	action="#{openid.signinOpenidEdx}" 
 				            />
 			            </c:if>
 					 </div>
@@ -90,19 +89,7 @@
 			</c:if>
 		
 			<c:if test="#{applicationbean.config.application.registration.selfRegistration}">
-				<form method="POST" 
-						action='loginspring'>
-					<c:if test="${not empty SPRING_SECURITY_LAST_EXCEPTION}">
-      					<font color="red">
-        			
-        					<h:outputText value="Email or password incorrect" />
-      					</font>
-					</c:if>
-					<c:if test="${not empty param.error}">
-						<font color="red">
-							<h:outputText value="#{param['error']}" />
-						</font>
-					</c:if>
+				<h:form  prependId="false">
 					<p:messages id="loginMessage" showDetail="false" autoUpdate="true" closable="true" />
 
 					<table>
@@ -111,7 +98,7 @@
 								<label>Email:</label>
 							</td>
 							<td>
-								<h:inputText type="email" id="username" name="username" required="true" requiredMessage="Email is required." />
+								<h:inputText type="email"  value="#{loggeduser.email}" required="true" requiredMessage="Email is required." />
 							</td>
 						</tr>
 						<tr>
@@ -119,15 +106,15 @@
 								<label>Password:</label>
 							</td>
 							<td>
-								<h:inputSecret  id="password" name="password" required="true" requiredMessage="Password is required." />
+								<h:inputSecret  value="#{loggeduser.password}" required="true" requiredMessage="Password is required." />
 							</td>
 						</tr>
 						<tr>
 							<td class="col1">
 							</td>
 							<td>
-								<label class="right"><input type="checkbox" name="remember-me"/> Remember me</label>
-								<input id="loginButton" type="submit" class="button blue size30 left" value="Login" onclick="showLoader();"/>
+								<label class="right"><input type="checkbox" name="_spring_security_remember_me"/> Remember me</label>
+								<h:commandButton id="loginButton" action="#{loggeduser.login}" type="submit" class="button blue size30 left" value="Login" onclick="showLoader();"/>
 								<img class="loader left marginLeft10" src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" id="loginloader" />
 							</td>
 						</tr>
@@ -140,7 +127,7 @@
 					<div class="center clear">
 						<h:link value="Forgot password?" outcome="/passwordReset" />
 					</div>
-				</form>
+				</h:form>
 			</c:if>
 		</div><!-- .main end -->
 		

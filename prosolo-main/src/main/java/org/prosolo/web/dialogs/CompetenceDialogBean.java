@@ -136,7 +136,7 @@ public class CompetenceDialogBean implements Serializable {
 			formData.setDislikedByUser(dislikeManager.isDislikedByUser(competence, user));
 			formData.setOwnedByUser(competenceManager.hasUserCompletedCompetence(competence, user));
 		}
-		formData.setCanEdit(user != null && (loggedUser.hasRole("MANAGER") || user.getId() == competence.getMaker().getId()));
+		formData.setCanEdit(user != null && (loggedUser.hasCapability("basic.manager.access") || user.getId() == competence.getMaker().getId()));
 		
 		this.owner = loggedUser.isLoggedIn() && loggedUser.getUser().getId() == competence.getMaker().getId();
 	}

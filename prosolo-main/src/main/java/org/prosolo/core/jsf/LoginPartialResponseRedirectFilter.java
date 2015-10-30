@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.web.LoggedUserBean;
 
 /**
@@ -47,7 +48,9 @@ public class LoginPartialResponseRedirectFilter implements Filter {
 		String contextPath = request.getContextPath();
 		String loginURL = contextPath + "/" + "login";
 
-		LoggedUserBean loggedUserBean = (session == null) ? null : (LoggedUserBean) session.getAttribute("loggeduser");
+		LoggedUserBean loggedUserBean = (session == null) ? null : 
+				(LoggedUserBean) session.getAttribute("scopedTarget.loggeduser");
+			//ServiceLocator.getInstance().getService(LoggedUserBean.class);
 		boolean loggedIn =  loggedUserBean == null ? false : loggedUserBean.getUser() != null;
 		String requestURI = request.getRequestURI();
 		boolean loginRequest = requestURI.equals(loginURL);

@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.logging.exception.LoggingException;
@@ -72,7 +73,8 @@ public class LoggingEventsObserver implements EventObserver {
 
 			if (httpSession != null) {
 				LoggedUserBean loggedUserBean = (LoggedUserBean) httpSession
-						.getAttribute("loggeduser");
+						.getAttribute("scopedTarget.loggeduser");
+				//LoggedUserBean loggedUserBean = ServiceLocator.getInstance().getService(LoggedUserBean.class);
 				ipAddress = loggedUserBean.getIpAddress();
 			}
 		} else {
