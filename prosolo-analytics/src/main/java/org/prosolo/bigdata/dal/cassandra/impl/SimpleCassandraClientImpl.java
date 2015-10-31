@@ -7,6 +7,8 @@ import org.prosolo.bigdata.dal.cassandra.SimpleCassandraClient;
 import org.prosolo.common.config.CommonSettings;
 
 import com.datastax.driver.core.Cluster;
+import com.datastax.driver.core.HostDistance;
+import com.datastax.driver.core.PoolingOptions;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.exceptions.InvalidQueryException;
 
@@ -40,6 +42,15 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 		DBServerConfig dbConfig = Settings.getInstance().config.dbConfig.dbServerConfig;
 		this.connect(dbConfig.dbHost, dbName, dbConfig.replicationFactor);
 	}
+	
+	private PoolingOptions getPoolingOptions(){
+		PoolingOptions poolingOpts=new PoolingOptions();
+		poolingOpts.setCoreConnectionsPerHost(HostDistance.REMOTE, 2);
+        poolingOpts.setMaxConnectionsPerHost(HostDistance.REMOTE, 200);
+        poolingOpts.setMaxSimultaneousRequestsPerConnectionThreshold(HostDistance.REMOTE, 128);
+        poolingOpts.setMinSimultaneousRequestsPerConnectionThreshold(HostDistance.REMOTE, 2);
+        return poolingOpts;
+	}
 
 	@Override
 	public void connect(String node, String keyspace, int replicationFactor) {
@@ -49,7 +60,8 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 		if (this.cluster != null) {
 			return;
 		}
-		this.cluster = Cluster.builder().addContactPoint(node).build();
+	
+		this.cluster = Cluster.builder().withPoolingOptions( getPoolingOptions()).addContactPoint(node).build();
 		if (keyspace != null) {
 			try {
 				this.session = this.cluster.connect(keyspace);
