@@ -515,7 +515,7 @@
 													rendered="#{cc.attrs.role == 'MANAGER'}"
 													value="Edit" 
 													outcome="/manage/competence">
-													<f:param name="id" value="#{compData.competenceId}" />
+													<f:param name="id" value="#{cc.attrs.courseBean.encodeId(compData.competenceId)}" />
 													<f:param name="cred" value="#{param['id']}" />
 													<f:param name="origin" value="/manage/course.xhtml?id=#{cc.attrs.courseBean.course.id}" />
 												</h:link>

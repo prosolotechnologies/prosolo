@@ -16,6 +16,7 @@ import java.util.TreeSet;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -57,6 +58,7 @@ import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -108,6 +110,8 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	private EventFactory eventFactory;
 	@Autowired
 	private SessionCountBean sessionCounter;
+	@Inject
+	private UrlIdEncoder idEncoder;
 
 	private User user;
 	private String email;
@@ -132,7 +136,6 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		logger.info("init");
 		this.user = user;
 		this.loginTime = new Date().getTime();
-		// initializeRoles(user);
 		initializeAvatar();
 		registerNewUserSession();
 		refreshUserSettings();
@@ -150,7 +153,6 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		logger.info("init");
 		this.user = user;
 		this.loginTime = new Date().getTime();
-		// initializeRoles(user);
 		initializeAvatar();
 		registerNewUserSession(session);
 		refreshUserSettings();
@@ -167,13 +169,6 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	public String getIpAddress() {
 		return ipAddress;
 	}
-
-	/*
-	 * public void initializeRoles(User user) { if(user!=null) this.roles = new
-	 * LinkedList<Role>(user.getRoles());
-	 * 
-	 * }
-	 */
 
 	public void initializeAvatar() {
 		this.bigAvatar = AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120);
@@ -483,6 +478,22 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		}
 
 		return false;
+	}
+	
+	public void userLogout(){
+		try {
+			HttpServletRequest req = (HttpServletRequest) FacesContext.getCurrentInstance()
+					.getExternalContext().getRequest();
+			String contextP = req.getContextPath() == "/" ? "" : req.getContextPath();
+			FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + "/logout");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public String encodeId(long id){
+		return idEncoder.encodeId(id);
 	}
 
 	/*

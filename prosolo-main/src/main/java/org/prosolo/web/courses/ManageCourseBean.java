@@ -13,6 +13,7 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,6 +35,7 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.rest.courses.CourseParser;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.data.CourseCompetenceData;
 import org.prosolo.web.courses.data.CourseData;
@@ -69,6 +71,7 @@ public class ManageCourseBean implements Serializable {
 	@Autowired private TagManager tagManager;
 	@Autowired private EventFactory eventFactory;
 	@Autowired private CompetenceManager competenceManager;
+	@Inject private UrlIdEncoder idEncoder;
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 
 	private CourseData courseData = new CourseData();
@@ -92,12 +95,17 @@ public class ManageCourseBean implements Serializable {
 	private CourseData courseToDelete;
 	
 	
-	private long id;
+	private String id;
 	
 	public void init() {
-		if (id > 0) {
+		long decodedId = 0;
+		if(id != null){
+			decodedId = idEncoder.decodeId(id);
+		}
+		
+		if (decodedId > 0) {
 			try {
-				Course course = courseManager.loadResource(Course.class, id);
+				Course course = courseManager.loadResource(Course.class, decodedId);
 				courseData = new CourseData(course);
 			} catch(ObjectNotFoundException onf) {
 				try {
@@ -111,9 +119,16 @@ public class ManageCourseBean implements Serializable {
 			}
 			this.creatingNew = false;
 		} else {
-			this.creatingNew = true;
+			/*this.creatingNew = true;
 			this.courseData.setCreatorType(CreatorType.MANAGER);
-			this.courseData.setCreator(loggedUser.getUser());
+			this.courseData.setCreator(loggedUser.getUser());*/
+			
+			try {
+				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+			} catch (IOException e) {
+				logger.error(e);
+			}
+			
 		}
 	}
 	
@@ -465,15 +480,19 @@ public class ManageCourseBean implements Serializable {
 		return CourseDataConverter.getIdsOfCourseCompetences(competences);
 	}
 	
+	public String encodeId(long id){
+		return idEncoder.encodeId(id);
+	}
+	
 	
 	/*
 	 * PARAMETERS
 	 */
-	public void setId(long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 	
-	public long getId() {
+	public String getId() {
 		return id;
 	}
 	

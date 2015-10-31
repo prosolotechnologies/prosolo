@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
@@ -15,6 +16,7 @@ import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.services.interaction.FollowResourceManager;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.goals.LearningGoalsBean;
@@ -40,6 +42,7 @@ public class ColleguesBean implements Serializable {
 	@Autowired private FollowResourceManager followResourceManager;
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private LearningGoalsBean goalsBean;
+	@Inject private UrlIdEncoder idEncoder;
 	
 	private List<UserData> followingUsers;
 	private List<UserData> followingUsersToRender;
@@ -325,7 +328,9 @@ public class ColleguesBean implements Serializable {
 		}
 	}
 	
-	
+	public String encodeId(long id){
+		return idEncoder.encodeId(id);
+	}
 
 	/*
 	 * GETTERS / SETTERS

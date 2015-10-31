@@ -14,6 +14,7 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.hibernate.ObjectNotFoundException;
@@ -31,6 +32,7 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.rest.courses.CourseParser;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.data.CourseCompetenceData;
 import org.prosolo.web.courses.data.CourseData;
@@ -75,6 +77,7 @@ public class CourseBean implements Serializable {
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 	@Autowired private LearningGoalsBean learningGoalsBean;
 	@Autowired private CompetencesBean competencesBean;
+	@Inject private UrlIdEncoder idEncoder;
 
 	private CourseData courseData = new CourseData();
 	private CourseData basedOnCourseData = new CourseData();
@@ -103,12 +106,16 @@ public class CourseBean implements Serializable {
 	
 	
 	// PARAMETERS
-	private long id;
+	private String id;
 	
 	public void init() {
-		if (id > 0) {
+		long decodedId = 0;
+		if(id != null){
+			decodedId = idEncoder.decodeId(id);
+		}
+		if (decodedId > 0) {
 			try {
-				Course course = courseManager.loadResource(Course.class, id);
+				Course course = courseManager.loadResource(Course.class, decodedId);
 				CourseEnrollment enrollment = courseManager.getCourseEnrollment(loggedUser.getUser(), course);
 
 				courseData = new CourseData(course);
@@ -161,6 +168,12 @@ public class CourseBean implements Serializable {
 					logger.error(e);
 				}
 			} catch (ResourceCouldNotBeLoadedException e) {
+				logger.error(e);
+			}
+		}else {
+			try {
+				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+			} catch (IOException e) {
 				logger.error(e);
 			}
 		}
@@ -498,6 +511,10 @@ public class CourseBean implements Serializable {
 				courseData.isEnrolled()).toString();
 	}
 	
+	public String encodeId(long id){
+		return idEncoder.encodeId(id);
+	}
+	
 	/**
 	 * Used in Show all competences dialog
 	 */
@@ -506,7 +523,7 @@ public class CourseBean implements Serializable {
 	/*
 	 * PARAMETERS
 	 */
-	public void setId(long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 	
@@ -514,7 +531,7 @@ public class CourseBean implements Serializable {
 
 	}
 	
-	public long getId() {
+	public String getId() {
 		return id;
 	}
 	

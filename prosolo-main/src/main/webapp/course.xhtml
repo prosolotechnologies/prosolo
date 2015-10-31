@@ -18,7 +18,7 @@
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewParam name="id" value="#{courseBean.id}" />
+			<f:viewParam name="id" value="#{courseBean.id}" default="null"/>
 			<f:viewAction action="#{courseBean.init()}" />
 		</f:metadata>
 	</ui:define>

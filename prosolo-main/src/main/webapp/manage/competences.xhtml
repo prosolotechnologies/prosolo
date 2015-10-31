@@ -190,7 +190,7 @@
 								<span class="title">
 									<h:link value="#{compData.title}" 
 										outcome="/manage/competence">
-										<f:param name="id" value="#{compData.id}" />
+										<f:param name="id" value="#{searchCompetencesBean.encodeId(compData.id)}" />
 									</h:link>
 								</span>
 								<div class="clear"></div>
@@ -237,7 +237,7 @@
 									<h:link value="Edit" 
 										styleClass="button green size20 left" 
 										outcome="/manage/competence">
-										<f:param name="id" value="#{compData.id}" />
+										<f:param name="id" value="#{searchCompetencesBean.encodeId(compData.id)}" />
 									</h:link>
 								</div>
 							</div>

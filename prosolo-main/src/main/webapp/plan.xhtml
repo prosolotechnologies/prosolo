@@ -61,7 +61,7 @@
 												<h:link value="#{courseData.title}" outcome="/course"
 													class="title"
 													onclick="sendLogPageNavigationWithParameters('credentials', {context: 'plan.activeCourses.#{courseData.id}.title', course: '#{courseData.id}'});">
-													<f:param name="id" value="#{courseData.id}" />
+													<f:param name="id" value="#{coursePortfolioBean.encodeId(courseData.id)}" />
 												</h:link>
 									 		</h4>
 									 		

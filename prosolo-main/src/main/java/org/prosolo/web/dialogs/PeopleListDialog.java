@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity;
@@ -23,6 +24,7 @@ import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.home.ColleguesBean;
@@ -54,6 +56,7 @@ public class PeopleListDialog implements Serializable {
 	@Autowired private PeopleActionBean peopleActionBean;
 	@Autowired private LoggingNavigationBean actionLogger;
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
+	@Inject private UrlIdEncoder idEncoder;
 
 	private List<UserData> people = new ArrayList<UserData>();
 	
@@ -191,6 +194,10 @@ public class PeopleListDialog implements Serializable {
 	public void unfollowCollegue(UserData userToUnfollowData) {
 		peopleActionBean.unfollowCollegueById(userToUnfollowData.getId(), "peoplelistdialog");
 		userToUnfollowData.setFollowed(false);
+	}
+	
+	public String encodeId(long id){
+		return idEncoder.encodeId(id);
 	}
 
 	/*

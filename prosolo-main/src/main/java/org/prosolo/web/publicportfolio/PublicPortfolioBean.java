@@ -13,6 +13,7 @@ import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
@@ -34,6 +35,7 @@ import org.prosolo.services.nodes.EvaluationManager;
 import org.prosolo.services.nodes.PortfolioManager;
 import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.activitywall.displayers.PortfolioSocialActivitiesDisplayer;
@@ -68,6 +70,7 @@ public class PublicPortfolioBean implements Serializable {
 	@Autowired private SocialNetworksManager socialNetworksManager;
 	@Autowired private EvaluationManager evaluationManager;
 	@Autowired private BadgeManager badgeManager;
+	@Inject private UrlIdEncoder idEncoder;
 	
 	private List<GoalData> ongoingGoals;
 
@@ -90,15 +93,16 @@ public class PublicPortfolioBean implements Serializable {
 		logger.debug("initializing");
 //		String accessedFromIpAddress = accessResolver.findRemoteIPAddress();
 
+		decodedId = decodeId(id);
 		initializeUser();
 		portfolioActivitiesDisplayer = ServiceLocator.getInstance().getService(PortfolioSocialActivitiesDisplayer.class);
-		portfolioActivitiesDisplayer.init(loggedUser.getUser(), loggedUser.getLocale(), null, id);
+		portfolioActivitiesDisplayer.init(loggedUser.getUser(), loggedUser.getLocale(), null, decodedId);
 	}
 	
 	private void initializeUser() {
-		if (id > 0) {
+		if (decodedId > 0) {
 			try {
-				profileOwner = userManager.loadResource(User.class, id, true);
+				profileOwner = userManager.loadResource(User.class, decodedId, true);
 				profileOwnerData = UserDataFactory.createUserData(profileOwner);
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error(e);
@@ -109,8 +113,15 @@ public class PublicPortfolioBean implements Serializable {
 				}
 			}
 		} else if (loggedUser != null && loggedUser.isLoggedIn()) {
-			profileOwner = loggedUser.refreshUser();
-			profileOwnerData = UserDataFactory.createUserData(profileOwner);
+			//profileOwner = loggedUser.refreshUser();
+			//profileOwnerData = UserDataFactory.createUserData(profileOwner);
+			
+			try {
+				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+			} catch (IOException e) {
+				logger.error(e);
+			}
+			
 		} else {
 			// user is not authenticated and is accessing a page of a user that does not exist
 			PageUtil.redirectToLoginPage();
@@ -291,7 +302,7 @@ public class PublicPortfolioBean implements Serializable {
 	
 	public void loadMoreActivities() {
 		Map<String, String> parameters = new HashMap<String, String>();
-		parameters.put("context", "publicprofile."+id);
+		parameters.put("context", "publicprofile."+decodedId);
 		parameters.put("link", "loadMore");
 		
 		portfolioActivitiesDisplayer.loadMoreActivities(parameters);
@@ -305,16 +316,25 @@ public class PublicPortfolioBean implements Serializable {
 		return portfolioActivitiesDisplayer.isMoreToLoad();
 	}
 	
+	public long decodeId(String encodedId){
+		long decodedId = 0;
+		if(encodedId != null){
+			decodedId = idEncoder.decodeId(encodedId);
+		}
+		return decodedId;
+	}
+	
 	/*
 	 * PARAMETERS
 	 */
-	private long id = -1;
+	private String id;
+	private long decodedId;
 	
-	public void setId(long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 	
-	public long getId() {
+	public String getId() {
 		return id;
 	}
 	

@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.nodes.CourseManager;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.administration.data.UserData;
 import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.web.util.PageUtil;
@@ -35,6 +36,8 @@ public class CourseMembersBean implements Serializable {
 	
 	@Inject
 	private CourseManager courseManager;
+	@Inject
+	private UrlIdEncoder idEncoder;
 	
 	// PARAMETERS
 	private long id;
@@ -62,6 +65,10 @@ public class CourseMembersBean implements Serializable {
 			ud.setAvatarUrl(AvatarUtils.getAvatarUrlInFormat(user, ImageFormat.size60x60));
 			members.add(ud);
 		}
+	}
+	
+	public String encodeId(long id){
+		return idEncoder.encodeId(id);
 	}
 
 

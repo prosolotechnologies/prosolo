@@ -8,6 +8,7 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.component.UIInput;
 import javax.faces.event.ValueChangeEvent;
+import javax.inject.Inject;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
@@ -15,6 +16,7 @@ import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.logging.ComponentName;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.search.data.CompetenceData;
 import org.prosolo.web.search.data.SortingOption;
@@ -31,6 +33,7 @@ public class SearchCompetencesBean implements Serializable {
 	
 	@Autowired private TextSearch textSearch;
 	@Autowired private LoggingNavigationBean loggingNavigationBean;
+	@Inject private UrlIdEncoder idEncoder;
 	
 	private String query;
 	private List<CompetenceData> competences;
@@ -230,6 +233,10 @@ public class SearchCompetencesBean implements Serializable {
 			CompetenceData compData = competences.get(i);
 			pageCompetences.add(compData);
 		}
+	}
+	
+	public String encodeId(long id){
+		return idEncoder.encodeId(id);
 	}
 	
 	/*

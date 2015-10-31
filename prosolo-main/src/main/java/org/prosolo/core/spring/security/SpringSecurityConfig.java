@@ -94,14 +94,15 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/manage/tools/*/*/*/create").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/tools/*").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/credentials/{id}/students").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
+		   .antMatchers("/manage/courseFeeds.xhtml*").hasAuthority("BASIC.MANAGER.ACCESS")
 		   
 		   .antMatchers("/manage/reports").hasAuthority("REPORTS.VIEW")
 		   .antMatchers("/admin/users").hasAuthority("USERS.VIEW")
 		   .antMatchers("/admin/roles").hasAuthority("ROLES.VIEW")
 		   .antMatchers("/admin/dashboard").hasAuthority("ADMINDASHBOARD.VIEW")
-		   
-		   .antMatchers("/manage/**").denyAll()
 		   .antMatchers("/admin/settings").hasAuthority("BASIC.ADMIN.ACCESS")
+		  
+		   .antMatchers("/manage/**").denyAll()
 		   .antMatchers("/admin/**").denyAll()
 		   .antMatchers("/**").hasAuthority("BASIC.USER.ACCESS")
 		   .and()
@@ -117,7 +118,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
            		.authenticationSuccessHandler(authenticationSuccessHandler)
            //.key("key").userDetailsService(userDetailsService).authenticationSuccessHandler(authenticationSuccessHandler)
            .and()
-           .logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+           .logout().invalidateHttpSession(true).logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
            		.deleteCookies("JSESSIONID")
            .and()
            .exceptionHandling().accessDeniedHandler(accessDeniedHandler())

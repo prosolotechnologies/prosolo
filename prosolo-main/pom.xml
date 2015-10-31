@@ -600,6 +600,12 @@
 			<artifactId>commons-codec</artifactId>
 			<version>1.10</version>
 		</dependency>
+		<!-- Used for hashing database ids in urls -->
+		<dependency>
+  			<groupId>org.hashids</groupId>
+  			<artifactId>hashids</artifactId>
+  			<version>1.0.1</version>
+		</dependency>
 	</dependencies>
 
 	<repositories>
