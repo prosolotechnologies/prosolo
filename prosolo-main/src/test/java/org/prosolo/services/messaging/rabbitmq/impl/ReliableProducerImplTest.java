@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.prosolo.app.Settings;
@@ -31,6 +32,7 @@ import org.prosolo.common.messaging.rabbitmq.impl.ReliableProducerImpl;
 import org.prosolo.config.MongoDBServerConfig;
 import org.prosolo.config.MongoDBServersConfig;
 import org.prosolo.services.interaction.impl.AnalyticalServiceDataFactoryImpl;
+ 
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -49,7 +51,7 @@ import com.mongodb.ServerAddress;
  */
 
 public class ReliableProducerImplTest{
-	
+	private static Logger logger = Logger.getLogger(ReliableProducerImplTest.class);
 	@Ignore
 	@Test
 	public void generateAnalyticsFromMongoTest() {
@@ -249,10 +251,15 @@ public class ReliableProducerImplTest{
 		 DBObject query=new BasicDBObject();
 		 query.put("actorId",2);
 		int count= eventsCollection.find().count();
-		System.out.println("COLLECTION HAS EVENTS:"+count);
+		logger.info("COLLECTION HAS EVENTS:"+count);
 		int counter = 0;
-		int batchSize = 100;
+		int batchSize = 1000;
+		int batchesCounter=0;
 		while(counter < count) {
+			batchesCounter++;
+			if((batchesCounter % 10)==0){
+				logger.info(batchesCounter*1000+"/"+count);
+			}
 			DBCursor cursor = eventsCollection.find();
 			cursor.skip(counter);
 			cursor.limit(batchSize);
@@ -279,6 +286,11 @@ public class ReliableProducerImplTest{
 					wrapMessageAndSend(reliableProducer, dbObject);
 				}
 				
+			}
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
 		}
 	}

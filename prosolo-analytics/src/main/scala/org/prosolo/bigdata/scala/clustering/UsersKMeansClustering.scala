@@ -15,8 +15,10 @@ import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{ Path, FileSystem }
 import org.apache.hadoop.io.SequenceFile
 
+import java.io.{File,PrintWriter}
 
-import scala.collection.mutable.{ Buffer, ListBuffer }
+
+import scala.collection.mutable.{ Buffer, ListBuffer, ArrayBuffer, Map, HashMap }
 import scala.collection.JavaConverters._
 
 /**
@@ -32,20 +34,43 @@ object UsersKMeansClustering extends App {
     val fs = FileSystem.get(conf)
     val datapath = new Path(vectorsDir + "/part-00000")
      val numClusters=4
+     val numFeatures=4
+     
+     val maxFeaturesValues:Map[Int, Double]=new HashMap[Int,Double]();
 
   def initData() = {
+//    for(i<-1 to numFeatures){
+//      maxFeaturesValues.put(i, 0)
+//    }
     val vectors = new ListBuffer[NamedVector]
     val rows: java.util.List[Row] = dbManager.findAllUsersObservationsForDate(16366)
 
     rows.asScala.foreach { row =>
       //creating dense vector for each user observation
-      val dv = new DenseVector(Array[Double](
-        row.getLong(2).toDouble,
-        row.getLong(3).toDouble,
-        row.getLong(4).toDouble,
-        row.getLong(5).toDouble))
+      val userid=row.getLong(1)
+     // val discussionview=row.getLong(2).toDouble
+      //val lmsuse=row.getLong(3).toDouble
+      //val login=row.getLong(4).toDouble
+      //val resourceView=row.getLong(5).toDouble
+      val featuresArray:Array[Double]=new Array[Double](numFeatures)
+      
+      for(i<-0 to numFeatures-1){
+        val featureValue=row.getLong(i).toDouble
+        featuresArray(i)=featureValue
+        if(maxFeaturesValues.getOrElse(i,0.toDouble)<featureValue){
+          maxFeaturesValues.put(i, featureValue)
+        }
+        //featuresArray:+row.getLong(i+2).toDouble
+      }
+      println("FEATURES:"+featuresArray.length)
+      val dv = new DenseVector(featuresArray)
+   /*   val dv = new DenseVector(Array[Double](
+        discussionview,
+        lmsuse,
+        login,
+        resourceView))*/
       //creating named vector by user id
-      vectors += (new NamedVector(dv, row.getLong(1).toString()))
+      vectors += (new NamedVector(dv, userid.toString()))
     }
     //storing input vectors to hdfs
     
@@ -79,10 +104,8 @@ object UsersKMeansClustering extends App {
     KMeansDriver.run(conf, datapath, clustersIn, output, convergenceDelta, maxIterations, true, 0.0, true)
 
     val clusters = ClusterHelper.readClusters(conf, output)
-
-    clusters.get(clusters.size - 1).asScala.foreach { cluster =>
-      println(s"Cluster id:${cluster.getId} center:${cluster.getCenter.asFormatString()}")
-    }
+    evaluateClustersCentroids(clusters)
+    
     val reader = new SequenceFile.Reader(fs,  new Path(outputDir+"/"+ Cluster.CLUSTERED_POINTS_DIR + "/part-m-0"), conf)
     val key = new org.apache.hadoop.io.IntWritable()
     val value = new WeightedPropertyVectorWritable()
@@ -94,11 +117,29 @@ object UsersKMeansClustering extends App {
       println(s"$value belongs to cluster $key")
       if(!finalClusters.contains(key.toString))
       finalClusters+=key.toString()
-    }
-    
+    }    
     reader.close()
     println("CLUSTERS:"+finalClusters) 
     
+  }
+  def evaluateClustersCentroids(clusters:java.util.List[java.util.List[Cluster]])={
+    val prepareTrainingSetData=true
+    
+    println("MAX VALUES:"+maxFeaturesValues)
+      if(prepareTrainingSetData){
+        clusters.get(clusters.size - 1).asScala.foreach { cluster =>
+             println(s"Cluster id:${cluster.getId} center:${cluster.getCenter.asFormatString()}")
+             for(i<-0 to numFeatures-1){
+               println("feature:"+i+" has value:"+  cluster.getCenter.get(i))
+             }
+             
+        }
+     }
+  }
+  def writeToCSV()={
+    val csvfilewriter=new PrintWriter(new File("test_file.csv"));
+   // writetofile.write(s"$cols(0)},$cols(1)},$cols(2)},$cols(3)},$cols(4)}")
+    csvfilewriter.close
   }
 
   initData();
