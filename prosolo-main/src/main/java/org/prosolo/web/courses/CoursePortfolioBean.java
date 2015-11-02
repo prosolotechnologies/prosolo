@@ -11,7 +11,6 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
-import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
@@ -30,11 +29,10 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interfaceSettings.InterfaceCacheObserver;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.LearningGoalManager;
-import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.data.CourseData;
 import org.prosolo.web.courses.util.CourseDataConverter;
-import org.prosolo.web.goals.LearningGoalsBean;
+import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.portfolio.PortfolioBean;
 import org.prosolo.web.util.PageUtil;
@@ -65,8 +63,7 @@ public class CoursePortfolioBean implements Serializable {
 	@Autowired private EventFactory eventFactory;
 	
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
-	@Autowired private LearningGoalsBean learningGoalsBean;
-	@Inject private UrlIdEncoder idEncoder;
+	@Autowired private LearnBean learningGoalsBean;
 
 	// course portfolio
 	private long coursePortfolioId;
@@ -463,10 +460,6 @@ public class CoursePortfolioBean implements Serializable {
 			}
 		}
 		return null;
-	}
-	
-	public String encodeId(long id){
-		return idEncoder.encodeId(id);
 	}
 
 	/*

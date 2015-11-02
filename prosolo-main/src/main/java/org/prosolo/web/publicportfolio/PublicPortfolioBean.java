@@ -93,7 +93,7 @@ public class PublicPortfolioBean implements Serializable {
 		logger.debug("initializing");
 //		String accessedFromIpAddress = accessResolver.findRemoteIPAddress();
 
-		decodedId = decodeId(id);
+		decodedId = idEncoder.decodeId(id);
 		initializeUser();
 		portfolioActivitiesDisplayer = ServiceLocator.getInstance().getService(PortfolioSocialActivitiesDisplayer.class);
 		portfolioActivitiesDisplayer.init(loggedUser.getUser(), loggedUser.getLocale(), null, decodedId);
@@ -314,14 +314,6 @@ public class PublicPortfolioBean implements Serializable {
 	
 	public boolean isMoreToLoad() {
 		return portfolioActivitiesDisplayer.isMoreToLoad();
-	}
-	
-	public long decodeId(String encodedId){
-		long decodedId = 0;
-		if(encodedId != null){
-			decodedId = idEncoder.decodeId(encodedId);
-		}
-		return decodedId;
 	}
 	
 	/*

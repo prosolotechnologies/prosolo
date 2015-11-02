@@ -31,7 +31,7 @@
 					<div class="infoContainer">
 						<h2 class="name">
 							<h:link value="#{loggeduser.name} #{loggeduser.user.lastname}" outcome="/publicprofile" >
-								<f:param name="id" value="#{loggeduser.encodeId(loggeduser.user.id)}" />
+								<f:param name="id" value="#{util:encodeId(loggeduser.user.id)}" />
 							</h:link>
 						</h2>
 						<div class="position">#{loggeduser.user.position}</div>

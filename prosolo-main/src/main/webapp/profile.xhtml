@@ -7,7 +7,8 @@
 	xmlns:port="http://java.sun.com/jsf/composite/components/portfolio"
 	template="templates/masterLayout.xhtml"
 	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
-	xmlns:comp="http://java.sun.com/jsf/composite/components">
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:util="http://www.prosolo.com/util">
 
 <ui:define name="windowTitle">
 	Profile | ProSolo
@@ -48,7 +49,7 @@
 					<h:link class="button gray size30 left publicProfile"
 						onclick="sendLogPageNavigation('profile', 'profile.actions');"
 						value="Public Profile" outcome="/publicprofile">
-						<f:param name="user" value="#{loggeduser.user.id}" />
+						<f:param name="id" value="#{util:encodeId(loggeduser.user.id)}" />
 					</h:link>
 					<span class="iconCopy left hasTooltip" title="Copy to clipboard"></span>
 
@@ -189,7 +190,7 @@
 							<h:link value="#{loggeduser.name} #{loggeduser.user.lastname}"
 								onclick="sendLogPageNavigation('profile', 'profile.info');" 
 								outcome="/publicprofile">
-								<f:param name="user" value="#{loggeduser.user.id}" />
+								<f:param name="user" value="#{util:encodeId(loggeduser.user.id)}" />
 							</h:link>
 						</h2>
 						<div class="position">#{loggeduser.user.position}</div>

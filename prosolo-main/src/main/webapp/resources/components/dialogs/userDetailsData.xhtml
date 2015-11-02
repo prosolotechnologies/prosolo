@@ -4,7 +4,8 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:actions="http://java.sun.com/jsf/composite/components/actions"
-	xmlns:c="http://java.sun.com/jsp/jstl/core">
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:util="http://www.prosolo.com/util">
 
 	<h:panelGroup layout="block" id="userDetailsTooltip" class="userDetailsTooltip">
 		<div class="userDetails tooltip user#{userDetailsBean.userData.id}" >
@@ -13,7 +14,7 @@
 					onclick="sendLogPageNavigationWithParameters('/profile', {context: 'userDetails', userId: #{userDetailsBean.userData.id}});"
 					rendered="#{userDetailsBean.userData.profileUrl == null or userDetailsBean.userData.profileUrl.length() == 0}"
 					outcome="/publicprofile" >
-					<f:param name="user" value="#{userDetailsBean.userData.id}" />
+					<f:param name="user" value="#{util:encodeId(userDetailsBean.userData.id)}" />
 					
 					<h:panelGroup class="overlay twitter" rendered="#{userDetailsBean.userData.externalUser}" />
 
@@ -43,7 +44,7 @@
 						value="#{userDetailsBean.userData.name}" 
 						onclick="sendLogPageNavigation('/publicprofile?user=#{userDetailsBean.userData.id}','userDetails');"
 						outcome="/publicprofile" >
-		                <f:param  name="user" value="#{userDetailsBean.userData.id}" />  
+		                <f:param  name="user" value="#{util:encodeId(userDetailsBean.userData.id)}" />  
 		            </h:link>
 
 		            <h:outputLink rendered="#{userDetailsBean.userData.profileUrl != null}"

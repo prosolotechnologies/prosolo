@@ -76,9 +76,9 @@ public class ManageExternalToolsBean implements Serializable {
 	
 	public void init() {
 		logger.info("User with email "+userBean.getUser().getEmail().getAddress()+" redirected the page manage/tools.xhtml");
-		decodedCred = decodeId(cred);
-		decodedComp = decodeId(comp);
-		decodedAct = decodeId(act);
+		decodedCred = idEncoder.decodeId(cred);
+		decodedComp = idEncoder.decodeId(comp);
+		decodedAct = idEncoder.decodeId(act);
 		
 		if (decodedCred > 0) {
 			if (decodedAct > 0){
@@ -216,18 +216,6 @@ public class ManageExternalToolsBean implements Serializable {
 		} catch (Exception e) {
 			PageUtil.fireErrorMessage(e.getMessage());
 		}
-	}
-	
-	public long decodeId(String encodedId){
-		long decodedId = 0;
-		if(encodedId != null){
-			decodedId = idEncoder.decodeId(encodedId);
-		}
-		return decodedId;
-	}
-	
-	public String encodeId(long id){
-		return idEncoder.encodeId(id);
 	}
 	
 	/*

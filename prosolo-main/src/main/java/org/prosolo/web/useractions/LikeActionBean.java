@@ -22,7 +22,7 @@ import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.activitywall.data.SocialActivityCommentData;
-import org.prosolo.web.goals.LearningGoalsBean;
+import org.prosolo.web.goals.LearnBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -139,7 +139,7 @@ public class LikeActionBean {
 	    		Collection<HttpSession> userSessions = applicationBean.getAllHttpSessions().values();
 	    		
 	    		for (HttpSession userSession : userSessions) {
-	    			LearningGoalsBean userLearningGoalBean = (LearningGoalsBean) userSession.getAttribute("learninggoals");
+	    			LearnBean userLearningGoalBean = (LearnBean) userSession.getAttribute("learninggoals");
 					
 					if (userLearningGoalBean != null) {
 						userLearningGoalBean.getData().updateAllActivityData(actData);

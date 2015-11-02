@@ -27,7 +27,7 @@
 						<div class="info">
 							<div class="name">
 								<h:link value="#{peopleIterator.name}" outcome="/publicprofile">
-									<f:param name="id" value="#{peopleListDialog.encodeId(peopleIterator.id)}" />
+									<f:param name="id" value="#{util:encodeId(peopleIterator.id)}" />
 								</h:link>
 							</div>
 							<div class="position">#{peopleIterator.position}</div>

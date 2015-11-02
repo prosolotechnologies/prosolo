@@ -56,7 +56,6 @@ public class PeopleListDialog implements Serializable {
 	@Autowired private PeopleActionBean peopleActionBean;
 	@Autowired private LoggingNavigationBean actionLogger;
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
-	@Inject private UrlIdEncoder idEncoder;
 
 	private List<UserData> people = new ArrayList<UserData>();
 	
@@ -194,10 +193,6 @@ public class PeopleListDialog implements Serializable {
 	public void unfollowCollegue(UserData userToUnfollowData) {
 		peopleActionBean.unfollowCollegueById(userToUnfollowData.getId(), "peoplelistdialog");
 		userToUnfollowData.setFollowed(false);
-	}
-	
-	public String encodeId(long id){
-		return idEncoder.encodeId(id);
 	}
 
 	/*

@@ -60,7 +60,7 @@ import org.prosolo.services.nodes.exceptions.InvalidParameterException;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.goals.LearningGoalsBean;
+import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.notification.data.GoalStatus;
@@ -89,7 +89,7 @@ public class TopNotificationsBean {
 	@Autowired private CourseManager courseManager;
 	
 	@Autowired private LoggedUserBean loggedUser;
-	@Autowired private LearningGoalsBean goalsBean;
+	@Autowired private LearnBean goalsBean;
 	@Autowired private ApplicationBean applicationBean;
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 	@Autowired private LoggingNavigationBean loggingNavigationBean;
@@ -295,7 +295,7 @@ public class TopNotificationsBean {
 			
 			// add new goal to user's cache
 			HttpSession userSession = applicationBean.getUserSession(loggedUser.getUser().getId());
-			LearningGoalsBean learningGoalsBean = (LearningGoalsBean) userSession.getAttribute("learninggoals");
+			LearnBean learningGoalsBean = (LearnBean) userSession.getAttribute("learninggoals");
 			
 			if (learningGoalsBean != null) {
 				learningGoalsBean.getData().addGoal(

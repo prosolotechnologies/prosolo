@@ -98,10 +98,7 @@ public class ManageCourseBean implements Serializable {
 	private String id;
 	
 	public void init() {
-		long decodedId = 0;
-		if(id != null){
-			decodedId = idEncoder.decodeId(id);
-		}
+		long decodedId = idEncoder.decodeId(id);
 		
 		if (decodedId > 0) {
 			try {
@@ -478,10 +475,6 @@ public class ManageCourseBean implements Serializable {
 		competences.addAll(courseData.getAddedCompetences());
 		
 		return CourseDataConverter.getIdsOfCourseCompetences(competences);
-	}
-	
-	public String encodeId(long id){
-		return idEncoder.encodeId(id);
 	}
 	
 	

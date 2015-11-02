@@ -24,7 +24,7 @@ import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.notifications.EvaluationUpdater;
 import org.prosolo.web.data.GoalData;
 import org.prosolo.web.dialogs.data.ExternalCreditData;
-import org.prosolo.web.goals.LearningGoalsBean;
+import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.CompetenceDataCache;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.portfolio.PortfolioBean;
@@ -52,7 +52,7 @@ public class EvaluationUpdaterImpl extends AbstractManagerImpl implements Evalua
 
 		BaseEntity resource = evSubmission.getRequest().getResource();
 
-		LearningGoalsBean goalsBean = (LearningGoalsBean) userSession.getAttribute("learninggoals");
+		LearnBean goalsBean = (LearnBean) userSession.getAttribute("learninggoals");
 		
 		
 		if (goalsBean != null) {

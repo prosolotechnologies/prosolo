@@ -72,10 +72,7 @@ public class ManageCompetenceBean implements Serializable {
 	
 	public void init() {
 		System.out.println("INIT COMPETENCE");
-		long decodedId = 0;
-		if(id != null){
-			decodedId = idEncoder.decodeId(id);
-		}
+		long decodedId = idEncoder.decodeId(id);
 		if (decodedId > 0) {
 			System.out.println("INIT COMPETENCE ID:"+id);
 			try {

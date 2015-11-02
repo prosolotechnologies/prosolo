@@ -38,7 +38,7 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.data.GoalData;
 import org.prosolo.web.dialogs.data.CompetenceFormData;
-import org.prosolo.web.goals.LearningGoalsBean;
+import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.CompetenceDataCache;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.logging.LoggingNavigationBean;
@@ -67,7 +67,7 @@ public class CompetencesBean implements Serializable {
 	@Autowired private CourseManager courseManager;
 	
 	@Autowired private LoggedUserBean loggedUser;
-	@Autowired private LearningGoalsBean goalBean;
+	@Autowired private LearnBean goalBean;
 	@Autowired private CompetenceStatusCache competenceStatusCache;
 	//@Autowired private ActivityWallUtilBean activityWallUtilBean;
 	@Autowired private LoggingNavigationBean loggingNavigationBean;

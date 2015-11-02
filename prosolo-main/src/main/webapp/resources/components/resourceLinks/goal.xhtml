@@ -54,7 +54,7 @@
 			rendered="#{cc.attrs.directLink and cc.attrs.targetGoalId > 0}"
 			onclick="sendLogPageNavigationWithParameters('learn', { context: '#{cc.attrs.context}', targetGoalId: #{cc.attrs.targetGoalId}});" 
 			value="#{cc.attrs.title}" outcome="/learn">
-			<f:param name="id" value="#{cc.attrs.targetGoalId}" />
+			<f:param name="id" value="#{util:encodeId(cc.attrs.targetGoalId)}" />
 		</h:link>
 
 	</composite:implementation>

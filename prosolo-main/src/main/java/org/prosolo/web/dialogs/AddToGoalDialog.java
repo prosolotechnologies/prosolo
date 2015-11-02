@@ -25,7 +25,7 @@ import org.prosolo.web.activitywall.data.AttachmentPreview;
 import org.prosolo.web.data.GoalData;
 import org.prosolo.web.dialogs.data.AddToGoalData;
 import org.prosolo.web.goals.GoalWallBean;
-import org.prosolo.web.goals.LearningGoalsBean;
+import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.goals.competences.CompetencesBean;
 import org.prosolo.web.logging.LoggingNavigationBean;
@@ -50,7 +50,7 @@ public class AddToGoalDialog implements Serializable {
 	
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private LearningGoalManager goalManager;
-	@Autowired private LearningGoalsBean goalsBean;
+	@Autowired private LearnBean goalsBean;
 	@Autowired private PostActionBean postAction;
 	@Autowired private UploadManager uploadManager;
 	@Autowired private CompetencesBean competencesBean;

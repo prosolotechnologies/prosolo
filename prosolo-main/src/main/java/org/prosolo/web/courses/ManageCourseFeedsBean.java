@@ -54,10 +54,8 @@ public class ManageCourseFeedsBean implements Serializable {
 	private String blogToAdd;
 	
 	public void init() {
-		long decodedId = 0;
-		if(id != null){
-			decodedId = idEncoder.decodeId(id);
-		}
+		long decodedId = idEncoder.decodeId(id);
+		
 		if (decodedId > 0) {
 			try {
 				userFeedSources = feedsManager.getFeedSourcesForCourse(decodedId);

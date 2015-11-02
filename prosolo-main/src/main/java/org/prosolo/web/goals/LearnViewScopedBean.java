@@ -3,10 +3,13 @@ package org.prosolo.web.goals;
 import java.io.Serializable;
 
 import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.goals.competences.ActivitiesRecommendationBean;
+import org.prosolo.web.util.UrlDbIdEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -20,18 +23,24 @@ public class LearnViewScopedBean implements Serializable {
 
 	private static Logger logger = Logger.getLogger(LearnViewScopedBean.class);
 
-	@Autowired private LearningGoalsBean learningGoalsBean;
+	@Autowired private LearnBean learningGoalsBean;
 	@Autowired private ActivitiesRecommendationBean activitiesRecommendationBean;
+	@Inject private UrlIdEncoder idEncoder;
 	
 	// PARAMETERS
-	private long id;
-	private long targetCompId;
+	private String id;
+	private String targetCompId;
+	
 	
 	public void init() {
 		logger.info("Initializing managed bean " + this.getClass().getSimpleName());
 		learningGoalsBean.resetNewGoalFormData();
-		if (id > 0) {			
-			GoalDataCache dataForGoal = learningGoalsBean.getData().getDataForTargetGoal(id);
+		
+		long decodedId =idEncoder.decodeId(id);
+		long decodedTargetCompId = idEncoder.decodeId(targetCompId);
+		
+		if (decodedId > 0) {			
+			GoalDataCache dataForGoal = learningGoalsBean.getData().getDataForTargetGoal(decodedId);
 			if (dataForGoal != null) {
 				learningGoalsBean.setSelectedGoalData(dataForGoal);
 			}
@@ -40,30 +49,34 @@ public class LearnViewScopedBean implements Serializable {
 				learningGoalsBean.selectGoal(learningGoalsBean.getGoals().get(0));
 			}
 		}
-		if (targetCompId > 0) {
+		if (decodedTargetCompId > 0) {
 			if (learningGoalsBean.getSelectedGoalData() != null) {
-				learningGoalsBean.getSelectedGoalData().selectCompetence(targetCompId);
+				learningGoalsBean.getSelectedGoalData().selectCompetence(decodedTargetCompId);
 				activitiesRecommendationBean.setCompData(learningGoalsBean.getSelectedGoalData().getSelectedCompetence());
 				activitiesRecommendationBean.initializeActivities();
 			}
 		}
 	}
 	
-	public long getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(String id) {
 		logger.debug("setId " +  id);
 		this.id = id;
 	}
 	
-	public long getTargetCompId() {
+	public String getTargetCompId() {
 
 		return targetCompId;
 	}
 	
-	public void setGoalIdString(String goalIdString) {
+	public void setTargetCompId(String targetCompId){
+		this.targetCompId = targetCompId;
+	}
+	
+	/*public void setGoalIdString(String goalIdString) {
 		logger.debug("setGoalIdString " +  goalIdString);
 		if (goalIdString != null && !goalIdString.isEmpty()) {
 			try {
@@ -72,13 +85,13 @@ public class LearnViewScopedBean implements Serializable {
 				logger.debug("Id passed for goal id is not long. Value is: "+goalIdString);
 			}
 		}
-	}
+	}*/
 
-	public String getGoalIdString() {
+	/*public String getGoalIdString() {
 		return String.valueOf(id);
-	}
+	}*/
 	
-	public void setTargetCompIdString(String targetCompId) {
+	/*public void setTargetCompIdString(String targetCompId) {
 		if (targetCompId != null && !targetCompId.isEmpty()) {
 			try {
 				setTargetCompId(Long.parseLong(targetCompId));
@@ -86,14 +99,10 @@ public class LearnViewScopedBean implements Serializable {
 				logger.debug("Id passed for goal id is not long. Value is: "+targetCompId);
 			}
 		}
-	}
+	}*/
 	
-	public String getTargetCompIdString() {
+	/*public String getTargetCompIdString() {
 		return String.valueOf(targetCompId);
-	}
-	
-	public void setTargetCompId(long targetCompId) {
-		this.targetCompId = targetCompId;
-	}
+	}*/
 
 }

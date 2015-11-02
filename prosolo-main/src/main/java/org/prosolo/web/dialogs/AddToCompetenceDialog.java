@@ -23,7 +23,7 @@ import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.AttachmentPreview;
-import org.prosolo.web.goals.LearningGoalsBean;
+import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.CompetenceDataCache;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.goals.competences.CompWallBean;
@@ -49,7 +49,7 @@ public class AddToCompetenceDialog implements Serializable {
 	
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private LearningGoalManager goalManager;
-	@Autowired private LearningGoalsBean goalsBean;
+	@Autowired private LearnBean goalsBean;
 	@Autowired private PostActionBean postAction;
 	@Autowired private UploadManager uploadManager;
 	@Autowired private LoggingNavigationBean actionLogger;

@@ -34,7 +34,7 @@ import org.prosolo.services.nodes.PortfolioManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.dialogs.data.CompetenceFormData;
-import org.prosolo.web.goals.LearningGoalsBean;
+import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.CompetenceDataCache;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.goals.competences.CompetenceAnalyticsBean;
@@ -63,7 +63,7 @@ public class CompetenceDialogBean implements Serializable {
 
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private CompetenceAnalyticsBean compAnalyticsBean;
-	@Autowired private LearningGoalsBean goalBeans;
+	@Autowired private LearnBean goalBeans;
 	@Autowired private CompetenceManager competenceManager;
 	@Autowired private PortfolioManager portfolioManager;
 	@Autowired private LikeManager likeManager;
@@ -74,7 +74,7 @@ public class CompetenceDialogBean implements Serializable {
 	@Autowired private AvailableLearningPlanConverter availableLearningPlanConverter;
 	@Autowired private CompWallActivityConverter compWallActivityConverter;
 	@Autowired private TagManager tagManager;
-	@Autowired private LearningGoalsBean goalsBean;
+	@Autowired private LearnBean goalsBean;
 	@Autowired private FollowResourceAsyncManager followResourceAsyncManager;
 	@Autowired private EventFactory eventFactory;
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
@@ -225,7 +225,7 @@ public class CompetenceDialogBean implements Serializable {
 	 * @param learningGoalsBean TODO
 	 * @param competence2
 	 */
-	private void updateCompNameInCache(Competence competence, LearningGoalsBean learningGoalsBean) {
+	private void updateCompNameInCache(Competence competence, LearnBean learningGoalsBean) {
 		if (learningGoalsBean != null && learningGoalsBean.getData().getGoals() != null) {
 			String newTitle = competence.getTitle();
 			long compeId = competence.getId();

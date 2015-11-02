@@ -16,7 +16,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interfaceSettings.CommentUpdater;
 import org.prosolo.web.activitywall.ActivityWallBean;
-import org.prosolo.web.goals.LearningGoalsBean;
+import org.prosolo.web.goals.LearnBean;
 import org.springframework.stereotype.Service;
 
 /**
@@ -37,7 +37,7 @@ public class CommentUpdaterImpl extends AbstractManagerImpl implements CommentUp
 		
 		if (userSession != null) {
 			if (commentedRes instanceof SocialActivity) {
-				LearningGoalsBean learningGoalsBean = (LearningGoalsBean) userSession.getAttribute("learninggoals");
+				LearnBean learningGoalsBean = (LearnBean) userSession.getAttribute("learninggoals");
 				if (learningGoalsBean != null) {
 					learningGoalsBean.getData().updateCommentDataOfSocialActivity(commentedRes.getId(), comment, commentLikeCount, commentDislikeCount);
 				}
@@ -47,7 +47,7 @@ public class CommentUpdaterImpl extends AbstractManagerImpl implements CommentUp
 					activityWallBean.getActivityWallDisplayer().updateCommentDataOfSocialActivity(commentedRes.getId(), comment.getId(), commentLikeCount, commentDislikeCount);
 				}
 			} else if (commentedRes instanceof Activity) {
-				LearningGoalsBean learningGoalsBean = (LearningGoalsBean) userSession.getAttribute("learninggoals");
+				LearnBean learningGoalsBean = (LearnBean) userSession.getAttribute("learninggoals");
 				if (learningGoalsBean != null) {
 					learningGoalsBean.getData().updateCommentDataOfActivity(commentedRes.getId(), comment, commentLikeCount, commentDislikeCount);
 				}
@@ -66,7 +66,7 @@ public class CommentUpdaterImpl extends AbstractManagerImpl implements CommentUp
 				activityWallBean.getActivityWallDisplayer().addCommentToSocialActivity(socialActivityId, comment);
 			}
 			
-			LearningGoalsBean learningGoalsBean = (LearningGoalsBean) userSession.getAttribute("learninggoals");
+			LearnBean learningGoalsBean = (LearnBean) userSession.getAttribute("learninggoals");
 			
 			if (learningGoalsBean != null) {
 				learningGoalsBean.getData().addCommentToSocialActivity(socialActivityId, comment);

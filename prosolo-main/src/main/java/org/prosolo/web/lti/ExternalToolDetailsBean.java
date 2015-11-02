@@ -60,10 +60,10 @@ public class ExternalToolDetailsBean implements Serializable {
 	
 	public void init() {
 		logger.info("User with email "+user.getUser().getEmail().getAddress()+" redirected to the page manage/externalTools/toolDetails.xhtml");
-		decodedCred = decodeId(cred);
-		decodedComp = decodeId(comp);
-		decodedAct = decodeId(act);
-		decodedId = decodeId(id);
+		decodedCred = idEncoder.decodeId(cred);
+		decodedComp = idEncoder.decodeId(comp);
+		decodedAct = idEncoder.decodeId(act);
+		decodedId = idEncoder.decodeId(id);
 		
 		if (decodedId > 0) {
 			LtiTool tool = toolManager.getToolDetails(decodedId);
@@ -125,14 +125,6 @@ public class ExternalToolDetailsBean implements Serializable {
 			}
 		}
 		return type;
-	}
-	
-	public long decodeId(String encodedId){
-		long decodedId = 0;
-		if(encodedId != null){
-			decodedId = idEncoder.decodeId(encodedId);
-		}
-		return decodedId;
 	}
 
 	/*

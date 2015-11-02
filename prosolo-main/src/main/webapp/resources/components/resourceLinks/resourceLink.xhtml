@@ -4,7 +4,8 @@
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:composite="http://java.sun.com/jsf/composite"
-	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks">
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:util="http://www.prosolo.com/util">
 
 	<composite:interface>
 		<composite:attribute name="type" />
@@ -87,7 +88,7 @@
 		
 		<h:panelGroup rendered="#{cc.attrs.toRender and cc.attrs.type == 'Course'}">
 			<h:link value="#{cc.attrs.title}" outcome="/course">
-				<f:param name="id" value="#{cc.attrs.resourceId}" />
+				<f:param name="id" value="#{util:encodeId(cc.attrs.resourceId)}" />
 			</h:link>
 		</h:panelGroup>
 		

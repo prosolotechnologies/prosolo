@@ -8,7 +8,8 @@
 	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
 	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-	template="templates/masterLayout.xhtml">
+	template="templates/masterLayout.xhtml"
+	xmlns:util="http://www.prosolo.com/util">
 
 	<composite:interface>
 		<composite:attribute name="role" type="java.lang.String" default="USER"/>
@@ -214,7 +215,7 @@
 									<h:link value="#{courseData.title}" 
 										onclick="sendLogPageNavigationWithParameters('credentials', {context: 'plan.browse.#{courseData.id}.title', courseId: #{courseData.id}});"
 										outcome="#{cc.attrs.courseDetailsPagePath}">
-										<f:param name="id" value="#{searchCoursesBean.encodeId(courseData.id)}" />
+										<f:param name="id" value="#{util:encodeId(courseData.id)}" />
 									</h:link>
 								</span>
 								<div class="clear"></div>
@@ -250,7 +251,7 @@
 									 	rendered="#{not empty courseData.memberIds}"
 										value="#{courseData.memberIds.size()} people" 
 										outcome="/manage/courseMembers" target="_blank">
-										<f:param name="id" value="#{courseData.id}" />
+										<f:param name="id" value="#{util:encodeId(courseData.id)}" />
 									</h:link>
 									
 									<h:outputText rendered="#{empty courseData.memberIds}"
@@ -293,7 +294,7 @@
 									<h:link class="button green size20 left"
 										rendered="#{cc.attrs.role == 'MANAGER'}"
 										value="Edit" outcome="/manage/course">
-										<f:param name="id" value="#{searchCoursesBean.encodeId(courseData.id)}" />
+										<f:param name="id" value="#{util:encodeId(courseData.id)}" />
 									</h:link>
 									
 									<p:commandLink styleClass="button green size20 left"
@@ -319,7 +320,7 @@
 										rendered="#{cc.attrs.role == 'USER'}"
 										onclick="sendLogPageNavigationWithParameters('course', { context: 'plan.browse.#{courseData.id}.details', 'courseId' : '#{courseData.id}'});" 
 										value="Details" outcome="#{cc.attrs.courseDetailsPagePath}">
-										<f:param name="id" value="#{searchCoursesBean.encodeId(courseData.id)}" />
+										<f:param name="id" value="#{util:encodeId(courseData.id)}" />
 									</h:link>
 								</div>
 							</div>

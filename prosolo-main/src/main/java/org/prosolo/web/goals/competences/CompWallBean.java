@@ -32,7 +32,7 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.activitywall.data.AttachmentPreview;
 import org.prosolo.web.activitywall.data.NodeData;
-import org.prosolo.web.goals.LearningGoalsBean;
+import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.RecommendedLearningPlansBean;
 import org.prosolo.web.goals.cache.CompetenceDataCache;
 import org.prosolo.web.goals.data.AvailableLearningPlan;
@@ -65,7 +65,7 @@ public class CompWallBean implements Serializable {
 	@Autowired private EventFactory eventFactory;
 	
 	@Autowired private RecommendedLearningPlansBean recommendedLearningPlans;
-	@Autowired private LearningGoalsBean goalsBean;
+	@Autowired private LearnBean goalsBean;
 	@Autowired private ApplicationBean applicationBean;
 	
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;

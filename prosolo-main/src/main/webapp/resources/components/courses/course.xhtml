@@ -13,7 +13,8 @@
 	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
 	xmlns:dlgAnalytics="http://java.sun.com/jsf/composite/components/dialogs/analytics"
 	xmlns:dlgcourse="http://java.sun.com/jsf/composite/components/dialogs/course"
-	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons">
+	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons"
+	xmlns:util="http://www.prosolo.com/util">
 
 	<composite:interface>
 		<composite:attribute name="courseBean" required="true"/>
@@ -183,14 +184,14 @@
 								class="bold"
 								onclick="sendLogPageNavigationWithParameters('learn', { context: '#{cc.attrs.context}', 'courseStatus': 'active', 'targetGoalId' : '#{cc.attrs.courseBean.course.targetGoalId}'});" 
 								outcome="/learn">
-								<f:param name="id" value="#{cc.attrs.courseBean.course.targetGoalId}" />
+								<f:param name="id" value="#{util:encodeId(cc.attrs.courseBean.course.targetGoalId)}" />
 							</h:link>
 							#{msg['composite.course.action.enrollInCourse.active.info2']}
 							<h:link value="Learn tab" 
 								class="bold"
 								onclick="sendLogPageNavigationWithParameters('learn', { context: '#{cc.attrs.context}', 'courseStatus': 'active', 'targetGoalId' : '#{cc.attrs.courseBean.course.targetGoalId}'});" 
 								outcome="/learn">
-								<f:param name="id" value="#{cc.attrs.courseBean.course.targetGoalId}" />
+								<f:param name="id" value="#{util:encodeId(cc.attrs.courseBean.course.targetGoalId)}" />
 							</h:link>
 							#{msg['composite.course.action.enrollInCourse.active.info3']}
 						</p>
@@ -199,7 +200,7 @@
 							class="button green size40 left marginBottom10"
 							onclick="sendLogPageNavigationWithParameters('learn', { context: '#{cc.attrs.context}', 'courseStatus': 'active', 'targetGoalId' : '#{cc.attrs.courseBean.course.targetGoalId}'});" 
 							outcome="/learn">
-							<f:param name="id" value="#{cc.attrs.courseBean.course.targetGoalId}" />
+							<f:param name="id" value="#{util:encodeId(cc.attrs.courseBean.course.targetGoalId)}" />
 						</h:link>
 						
 						You can 
@@ -515,7 +516,7 @@
 													rendered="#{cc.attrs.role == 'MANAGER'}"
 													value="Edit" 
 													outcome="/manage/competence">
-													<f:param name="id" value="#{cc.attrs.courseBean.encodeId(compData.competenceId)}" />
+													<f:param name="id" value="#{util:encodeId(compData.competenceId)}" />
 													<f:param name="cred" value="#{param['id']}" />
 													<f:param name="origin" value="/manage/course.xhtml?id=#{cc.attrs.courseBean.course.id}" />
 												</h:link>

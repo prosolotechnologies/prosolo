@@ -9,7 +9,8 @@
 	template="templates/masterLayout.xhtml"
 	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
 	xmlns:dlgcourse="http://java.sun.com/jsf/composite/components/dialogs/course"
-	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons">
+	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons"
+	xmlns:util="http://www.prosolo.com/util">
 
 	<ui:define name="windowTitle">
 		Plan | ProSolo
@@ -61,7 +62,7 @@
 												<h:link value="#{courseData.title}" outcome="/course"
 													class="title"
 													onclick="sendLogPageNavigationWithParameters('credentials', {context: 'plan.activeCourses.#{courseData.id}.title', course: '#{courseData.id}'});">
-													<f:param name="id" value="#{coursePortfolioBean.encodeId(courseData.id)}" />
+													<f:param name="id" value="#{util:encodeId(courseData.id)}" />
 												</h:link>
 									 		</h4>
 									 		
@@ -79,7 +80,7 @@
 											
 							 				<h:link value="Details" class="link profLinkDetails" outcome="/course"
 							 					onclick="sendLogPageNavigationWithParameters('credentials', {context: 'plan.activeCourses.#{courseData.id}.details', course: '#{courseData.id}'});">
-												<f:param name="id" value="#{courseData.id}"/>
+												<f:param name="id" value="#{util:encodeId(courseData.id)}"/>
 												<span class="icon active"></span>
 											</h:link>
 											
@@ -137,13 +138,13 @@
 												<h:link value="#{courseData.title}" outcome="/course"
 													class="title"
 													onclick="sendLogPageNavigationWithParameters('credentials', {context: 'plan.future.#{courseData.id}.title', course: '#{courseData.id}'});">
-													<f:param name="id" value="#{courseData.id}" />
+													<f:param name="id" value="#{util:encodeId(courseData.id)}" />
 												</h:link>
 											</h4>
 											
 							 				<h:link value="Details" class="link profLinkDetails"  outcome="/course"
 							 					onclick="sendLogPageNavigationWithParameters('credentials', {context: 'plan.future.#{courseData.id}.details', course: '#{courseData.id}'});">
-												<f:param name="id" value="#{courseData.id}"/>
+												<f:param name="id" value="#{util:encodeId(courseData.id)}"/>
 												<span class="icon active"></span>
 											</h:link>
 											
@@ -199,7 +200,7 @@
 												<h:link value="#{courseData.title}" outcome="/course"
 													class="title"
 													onclick="sendLogPageNavigationWithParameters('credentials', {context: 'plan.completed.#{courseData.id}.title', course: '#{courseData.id}'});">
-													<f:param name="id" value="#{courseData.id}" />
+													<f:param name="id" value="#{util:encodeId(courseData.id)}" />
 												</h:link>
 											</h4>
 											
@@ -210,7 +211,7 @@
 											
 											<h:link value="Details"  class="link profLinkDetails" outcome="/course"
 												onclick="sendLogPageNavigationWithParameters('credentials', {context: 'plan.completed.#{courseData.id}.details', course: '#{courseData.id}'});">
-												<f:param name="id" value="#{courseData.id}" />
+												<f:param name="id" value="#{util:encodeId(courseData.id)}" />
 												<span class="icon active"></span>
 											</h:link>
 											
@@ -254,7 +255,7 @@
 												<h:link value="#{courseData.title}" outcome="/course"
 													class="title"
 													onclick="sendLogPageNavigationWithParameters('credentials', {context: 'plan.withdrawn.#{courseData.id}.title', course: '#{courseData.id}'});">
-													<f:param name="id" value="#{courseData.id}" />
+													<f:param name="id" value="#{util:encodeId(courseData.id)}" />
 												</h:link>
 											</h4>
 											
@@ -265,7 +266,7 @@
 											
 											<h:link value="Details"  class="link profLinkDetails" outcome="/course"
 												onclick="sendLogPageNavigationWithParameters('credentials', {context: 'plan.withdrawn.#{courseData.id}.details', course: '#{courseData.id}'});">
-												<f:param name="id" value="#{courseData.id}" />
+												<f:param name="id" value="#{util:encodeId(courseData.id)}" />
 												<span class="icon active"></span>
 											</h:link>
 											

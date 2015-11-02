@@ -7,7 +7,8 @@
 	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
 	xmlns:action="http://java.sun.com/jsf/composite/components/actions"
 	xmlns:compcourses="http://java.sun.com/jsf/composite/components/courses"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:util="http://www.prosolo.com/util">
 	
 	<utilcomp:messagesBundle var="msg" />
 	
@@ -52,7 +53,7 @@
 					class="button blue size30 left marginTop10" 
 					value="#{msg['courses.dialog.details.button.goToCoursePage']}"
 					outcome="/course" >
-					<f:param name="id" value="#{courseDialog.courseData.id}" />
+					<f:param name="id" value="#{util:encodeId(courseDialog.courseData.id)}" />
 				</h:link>
 				
 				<script>

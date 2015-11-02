@@ -28,7 +28,7 @@ public class RecommendLearningGoalBean extends MessagesBean {
 	@Autowired private UserManager userManager;
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private NodeRecommendationManager nodeRecommendation;
-	@Autowired private LearningGoalsBean learningGoalsBean;
+	@Autowired private LearnBean learningGoalsBean;
 	
 	private long id;
 	private String title;

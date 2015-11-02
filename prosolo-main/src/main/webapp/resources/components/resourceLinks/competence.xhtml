@@ -3,7 +3,8 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:composite="http://java.sun.com/jsf/composite"
-	xmlns:p="http://primefaces.org/ui">
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:util="http://www.prosolo.com/util">
 
 	<!-- type: Either use Competence or TargetCompetence -->
 
@@ -89,8 +90,8 @@
 			class="#{cc.attrs.styleClass}" 
 			onclick="sendLogPageNavigationWithParameters('learn', { context: '#{cc.attrs.context}', targetGoalId: #{cc.attrs.targetGoalId}, targetCompId: #{cc.attrs.resourceId}});" 
 			value="#{cc.attrs.title}" outcome="/learn">
-			<f:param name="id" value="#{cc.attrs.targetGoalId}" />
-			<f:param name="comp" value="#{cc.attrs.resourceId}" />
+			<f:param name="id" value="#{util:encodeId(cc.attrs.targetGoalId)}" />
+			<f:param name="comp" value="#{util:encodeId(cc.attrs.resourceId)}" />
 		</h:link>
 	
 	</composite:implementation>

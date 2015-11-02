@@ -1,6 +1,8 @@
 package org.prosolo.services.urlencoding.impl;
 
 import org.hashids.Hashids;
+import org.prosolo.app.Settings;
+import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +14,8 @@ public class UrlIdEncoderImpl implements UrlIdEncoder {
 	 */
 	@Override
 	public String encodeId(long id){
-		Hashids hashids = new Hashids("prosolo");
+		String salt = Settings.getInstance().config.application.urlEncoding.salt;
+		Hashids hashids = new Hashids(salt);
 		return hashids.encode(id);
 	}
 	
@@ -21,12 +24,17 @@ public class UrlIdEncoderImpl implements UrlIdEncoder {
 	 */
 	@Override
 	public long decodeId(String encodedId){
-		Hashids hashids = new Hashids("prosolo");
-		long[] ids = hashids.decode(encodedId);
-		if(ids.length == 1){
-			return ids[0];
-		}else{
-			return 0;
+		String salt = Settings.getInstance().config.application.urlEncoding.salt;
+		Hashids hashids = new Hashids(salt);
+		long decodedId = 0;
+		long [] ids = null;
+		if(encodedId != null){
+			ids = hashids.decode(encodedId);
 		}
+		if(ids != null && ids.length == 1){
+			decodedId = ids[0];
+		}
+		
+		return decodedId;
 	}
 }

@@ -36,17 +36,18 @@ public class CourseMembersBean implements Serializable {
 	
 	@Inject
 	private CourseManager courseManager;
-	@Inject
+	@Inject 
 	private UrlIdEncoder idEncoder;
 	
 	// PARAMETERS
-	private long id;
+	private String id;
 	
 	
 	public void init() {
-		if (id > 0) {
+		long decodedId = idEncoder.decodeId(id);
+		if (decodedId > 0) {
 			try{
-				List<User> users = courseManager.getCourseParticipants(id);
+				List<User> users = courseManager.getCourseParticipants(decodedId);
 				populateCourseMembersData(users);
 			}catch(Exception e){
 				PageUtil.fireErrorMessage("Error while loading course members");
@@ -66,20 +67,15 @@ public class CourseMembersBean implements Serializable {
 			members.add(ud);
 		}
 	}
-	
-	public String encodeId(long id){
-		return idEncoder.encodeId(id);
-	}
-
 
 	/*
 	 * PARAMETERS
 	 */
-	public void setId(long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 	
-	public long getId() {
+	public String getId() {
 		return id;
 	}
 	

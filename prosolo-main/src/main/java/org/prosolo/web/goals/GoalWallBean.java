@@ -55,7 +55,7 @@ public class GoalWallBean implements Serializable {
 	@Autowired private UploadManager uploadManager;
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 	 
-	@Autowired private LearningGoalsBean goalsBean;
+	@Autowired private LearnBean goalsBean;
 	@Autowired private LoggingNavigationBean actionLogger;
 	@Autowired private SocialActivityHandler socialActivityHandler;
 

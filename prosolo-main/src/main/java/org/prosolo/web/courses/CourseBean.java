@@ -38,7 +38,7 @@ import org.prosolo.web.courses.data.CourseCompetenceData;
 import org.prosolo.web.courses.data.CourseData;
 import org.prosolo.web.courses.util.CourseDataConverter;
 import org.prosolo.web.dialogs.data.CompetenceFormData;
-import org.prosolo.web.goals.LearningGoalsBean;
+import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.CompetenceDataCache;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.goals.competences.CompetencesBean;
@@ -75,7 +75,7 @@ public class CourseBean implements Serializable {
 	@Autowired private TagManager tagManager;
 	@Autowired private CompetenceManager competenceManager;
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
-	@Autowired private LearningGoalsBean learningGoalsBean;
+	@Autowired private LearnBean learningGoalsBean;
 	@Autowired private CompetencesBean competencesBean;
 	@Inject private UrlIdEncoder idEncoder;
 
@@ -109,10 +109,7 @@ public class CourseBean implements Serializable {
 	private String id;
 	
 	public void init() {
-		long decodedId = 0;
-		if(id != null){
-			decodedId = idEncoder.decodeId(id);
-		}
+		long decodedId = idEncoder.decodeId(id);
 		if (decodedId > 0) {
 			try {
 				Course course = courseManager.loadResource(Course.class, decodedId);
@@ -509,10 +506,6 @@ public class CourseBean implements Serializable {
 				courseData.isEnrolled() ? courseData.getAddedCompetences() : null, 
 				courseData.getOriginalCompetences(),
 				courseData.isEnrolled()).toString();
-	}
-	
-	public String encodeId(long id){
-		return idEncoder.encodeId(id);
 	}
 	
 	/**
