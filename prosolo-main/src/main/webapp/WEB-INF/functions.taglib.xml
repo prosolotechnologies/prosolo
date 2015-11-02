@@ -78,12 +78,6 @@
 		<function-signature>java.lang.String encodeId(long)</function-signature>
 	</function>
 	
-	<function>
-		<function-name>decodeId</function-name>
-		<function-class>org.prosolo.web.util.UrlDbIdEncoder</function-class>
-		<function-signature>long decodeId(java.lang.String)</function-signature>
-	</function>
-	
 	<!-- Components -->
 	
 	<tag>
