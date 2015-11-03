@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:dlgAnalytics="http://java.sun.com/jsf/composite/components/dialogs/analytics"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+<ui:insert name="metadata" />
+
+<h:head>
+	<f:facet name="first">
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+		<link rel="icon" href="#{request.contextPath}/favicon.ico" type="image/x-icon" />
+		<title>ProSolo Administration: Dashboard</title>
+	</f:facet>
+	
+	<!-- CSS -->
+	<link rel="stylesheet" src="//normalize-css.googlecode.com/svn/trunk/normalize.css" />
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="css/bootstrap-checkbox.css" />
+	<link rel="stylesheet" href="css/style.css" />
+	<!-- FONTS -->
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,400italic,600italic,800' rel='stylesheet' type='text/css' />
+	<!-- JS -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+	<script src="js/jRespond.min.js"></script>
+	<script src="js/jpanelmenu.js"></script>
+	<script src="js/jSvgConnect.js"></script>
+	<script src="js/custom.js"></script>
+</h:head>
+
+<h:body>
+	<header>
+		<nav class="navbar navbar-default navbar-fixed-top">
+			<!-- container fluid --> 
+		   <div class="container-fluid">
+		      <div class="navbar-header">
+		      	<!-- mobile menu button start -->
+		         <button type="button" class="navbar-toggle collapsed pull-left" id="menu-trigger" aria-expanded="false">
+		            <span class="sr-only">Toggle navigation</span>
+		            <span class="icon-bar"></span>
+		            <span class="icon-bar"></span>
+		            <span class="icon-bar"></span>
+		         </button><!-- mobile menu button end -->  
+		         
+		         
+		         <!-- selection switch start-->
+		         <ul class="nav navbar-nav mainLogos">
+		            <li><a href="/" class="logo" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="secAdmin"></span></a></li>
+		            <li class="dropdown">
+		               <a href="#" class="dropdown-toggle sectionSwitch" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-angle-down"></i></a>
+		               <ul class="dropdown-menu pull-right sectionPanel">
+		                  <li><a class="logo" href="#"><span class="secManage"></span></a></li>
+		                  <li><a class="logo" href="#"><span class="secUser"></span></a></li>
+		               </ul>
+		            </li>
+		         </ul><!-- selection switch end-->      
+		               
+		      </div>
+		
+		      <!-- main menu (left mobile menu) start -->
+		      <div class="collapse navbar-collapse pull-left" id="mainMenu">
+		         <ul class="nav navbar-nav mainMenu">
+		            <li><a href="#">Competences<span class="sr-only">(current)</span></a></li>
+		            <li class="active"><a href="#">Credentials</a></li>
+		            <li><a href="#">Reports</a></li>
+		         </ul>
+		      </div> <!-- main menu (left mobile menu) end -->
+		    
+		      <!-- user menu and options start --> 
+		      <ul class="nav navbar-nav userActions pull-right">
+		         <!-- search start --> 
+		         <li class="dropdown search">
+		         	<a href="#" class="dropdown-toggle faded" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-search fa-lg"></i></a>
+		            <!-- search panel start --> 
+		            <div class="dropdown-menu searchPanel">
+		            	<div class="col-md-2">
+		              		<div class="sFor">Search for: </div>
+		               </div>
+		               <div class="col-md-9">
+		                  <form class="navbar-form navbar-left" role="search">
+		                     <div class="form-group">
+		                        <input type="text" class="form-control" placeholder="Search..." />
+		                     </div>
+		                  </form>
+		               </div>
+		            	<div class="col-md-1">
+		              		<a href="javascript:;" class="closeSearch"><i class="fa fa-close fa-lg"></i></a>
+		               </div>               
+			            <div class="searchResults">
+		               	<div class="container">
+		                  	<div class="row">
+		                     	<div class="col-md-4">
+		                        	<div class="resBox">
+		                              <h2>Credentials (10)<a class="pull-right" href="#">See all</a></h2>
+		                              <ul>
+		                                 <li>
+		                                    <div class="col-md-2"><span class="ico-sm ico-credential"></span></div>
+		                                    <div class="col-md-10 resRight">
+		                                       <h3><a href="">Basics of Social Network Analysis</a></h3>
+		                                       <span> Created by: <a href="#">Dragan Gasevic</a> - <a href="#">90 members</a></span><br />
+		                                       <a href="#">Details</a> 
+		                                    </div>
+		                              	</li>
+													<li>
+		                                    <div class="col-md-2"><span class="ico-sm ico-credential"></span></div>
+		                                    <div class="col-md-10 resRight">
+		                                       <h3><a href="">Sensemaking of Social Network Analysis for Learning</a></h3>
+		                                       <span> Created by: <a href="#">Dragan Gasevic</a> - <a href="#">43 members</a></span><br />
+		                                       <a href="#">Details</a> 
+		                                    </div>
+		                              	</li>
+		                                 <li>
+		                                    <div class="col-md-2"><span class="ico-sm ico-credential"></span></div>
+		                                    <div class="col-md-10 resRight">
+		                                       <h3><a href="">Basics of Social Network Analysis</a></h3>
+		                                       <span> Created by: <a href="#">Dragan Gasevic</a> - <a href="#">90 members</a></span><br />
+		                                       <a href="#">Details</a> 
+		                                    </div>
+		                              	</li>
+													<li>
+		                                    <div class="col-md-2"><span class="ico-sm ico-credential"></span></div>
+		                                    <div class="col-md-10 resRight">
+		                                       <h3><a href="">Sensemaking of Social Network Analysis for Learning</a></h3>
+		                                       <span> Created by: <a href="#">Dragan Gasevic</a> - <a href="#">43 members</a></span><br />
+		                                       <a href="#">Details</a> 
+		                                    </div>
+		                              	</li>                                                                    
+		                              </ul>
+		                           </div>
+		                        </div>
+										<div class="col-md-4">
+		                        	<div class="resBox">
+		                              <h2>Competences (33)<a class="pull-right" href="#">See all</a></h2>
+		                              <ul>
+		                                <li>
+		                                    <div class="col-md-2"><span class="ico-sm ico-competence"></span></div>
+		                                    <div class="col-md-10 resRight">
+		                                       <h3><a href="">0.1 Describe and navigate the distributed structure of DALMOOC.</a></h3>
+		                                       <span> Created by: <a href="#">Isaac Yauri</a> </span><br />
+		                                       <a href="#">Details</a> 
+		                                    </div>
+		                              	</li>
+													<li>
+		                                    <div class="col-md-2"><span class="ico-sm ico-competence"></span></div>
+		                                    <div class="col-md-10 resRight">
+		                                       <h3><a href="">Identify and describe professional and research organizations that are prominent in developing learning analytics as a domain</a></h3>
+		                                       <span> Created by: <a href="#">Dragan Gasevic</a></span><br />
+		                                       <a href="#">Details</a> 
+		                                    </div>
+		                              	</li>
+		                                 <li>
+		                                    <div class="col-md-2"><span class="ico-sm ico-competence"></span></div>
+		                                    <div class="col-md-10 resRight">
+		                                       <h3><a href="">Describe a research question that you would like to answer using learning analytics</a></h3>
+		                                       <span> Created by: <a href="#">Moira Sarsfield</a></span><br />
+		                                       <a href="#">Details</a> 
+		                                    </div>
+		                              	</li>
+													<li>
+		                                    <div class="col-md-2"><span class="ico-sm ico-competence"></span></div>
+		                                    <div class="col-md-10 resRight">
+		                                       <h3><a href="">Prepare data for use in LightSIDE and use LightSIDE to extract a wide range of feature types	</a></h3>
+		                                       <span> Created by: <a href="#">Isaac Yauri</a></span><br />
+		                                       <a href="#">Details</a> 
+		                                    </div>
+		                              	</li>                                                                    
+		                              </ul>
+		                           </div>
+		                        </div>
+										<div class="col-md-4">
+		                        	<div class="resBox">
+		                              <h2>People (44)<a class="pull-right" href="#">See all</a></h2>
+		                              <ul>
+		                                 <li>
+		                                    <div class="col-md-2">
+		                                    	<span class="userProfileImage">
+		                                    		<img src="images/Wyatt.jpg" alt="A. T. Wyatt" title="A. T. Wyatt" />
+		                                    	</span>
+		                                    </div>
+		                                    <div class="col-md-10 resRight">
+		                                       <h3><a href="">A. T. Wyatt</a></h3>
+		                                       <a href="#">Message</a> | <a href="#">Details</a> 
+		                                    </div>
+		                              	</li>
+		                                 <li>
+		                                    <div class="col-md-2">
+		                                    	<span class="userProfileImage">
+		                                    		<img src="images/Aybuke.jpg" alt="Aybuke Turker" title="Aybuke Turker" />
+		                                    	</span>
+		                                    </div>
+		                                    <div class="col-md-10 resRight">
+		                                       <h3><a href="">Aybuke Turker</a></h3>
+		                                       <a href="#">Message</a> | <a href="#">Details</a> 
+		                                    </div>
+		                              	</li>
+		                                 <li>
+		                                    <div class="col-md-2"><span class="userProfileImage"><img src="images/Dibungi.jpg" alt="Dibungi T. Kalenda" title="Dibungi T. Kalenda" /></span></div>
+		                                    <div class="col-md-10 resRight">
+		                                       <h3><a href="">Dibungi T. Kalenda</a></h3>
+		                                       <a href="#">Message</a> | <a href="#">Details</a> 
+		                                    </div>
+		                              	</li>
+		                                 <li>
+		                                    <div class="col-md-2"><span class="userProfileImage"><img src="images/Gautami.jpg" alt="Gautami Tripathi" title="Gautami Tripathi" /></span></div>
+		                                    <div class="col-md-10 resRight">
+		                                       <h3><a href="">Gautami Tripathi</a></h3>
+		                                       <a href="#">Message</a> | <a href="#">Details</a> 
+		                                    </div>
+		                              	</li>                                                                  
+		                              </ul>
+		                           </div>
+		                        </div>
+		               		</div>
+		               	</div>
+		               </div>  
+		            </div><!-- search panel end --> 
+		         </li><!-- search end --> 
+		         <li><a href="#" class="faded"><i class="fa fa-envelope-o fa-lg"></i></a></li>
+		         <li><a href="#" class="faded"><i class="fa fa-bell-o fa-lg"></i></a></li>
+		         <li class="dropdown user">
+		            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+		               <span class="userProfileImage"><img title="Nick Powell" alt="Nick Powell" src="images/user120x120.png" /></span>
+		               <span class="hideMobile">Nick Powell</span> <i class="fa fa-angle-down"></i>
+		            </a>
+		            <ul class="dropdown-menu pull-right">
+		               <li><a href="#">Digest</a></li>
+		               <li><a href="#">Communications</a></li>
+		               <li><a href="#">Search</a></li>
+		               <li><a href="#">Settings</a></li>
+		               <li role="separator" class="divider"></li>
+		               <li><a href="#">Logout</a></li>
+		            </ul>
+		         </li>
+		      </ul><!-- user menu and options end -->    
+		    
+		  </div><!-- container fluid end--> 
+		</nav>
+	</header>
+	<!-- header end -->
+	
+	<ui:insert name="content" />
+	
+</h:body>
+
+</html>
