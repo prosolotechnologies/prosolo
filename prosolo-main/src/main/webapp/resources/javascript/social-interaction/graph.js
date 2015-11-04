@@ -90,12 +90,43 @@ define(function(require) {
 	        .concat(targets)
 	        .distinct()
 	        .reduce(function(res, name) {res[name] = { name: name}; return res}, {});
+	    
+	    function relations(links) {
+		    // asign a type per value to encode opacity
+		    // type prema broju poruka?
+		    // koje i koliko grupa (type-ove) treba formirati?
+		    // dodati i property da li je main ili nije
+		    function type(value) {
+		    	if (value <= 33) {
+		            return "twofive";
+		        } 
+		    	if (value <= 66 && value > 33) {
+		            return "fivezero";
+		        } 
+		    	if (value <= 85 && value > 66) {
+		            return "sevenfive";
+		        } 
+		    	if (value <= 100 && value > 85) {
+		            return "onezerozero";
+		        }
+		    	return "";
+		    }
 
-	    links.forEach(function(link) {
-	        link.source = nodes[link.source];
-	        link.target = nodes[link.target];
-	    });
-
+	    	var v = d3.scale.linear().range([0, 100]);
+	    	v.domain([0, d3.max(links, function(d) {
+	    		return d.value;
+	    	})]);
+	    	
+	    	return links.map(function(link) {
+	    		return {
+	    			source: nodes[link.source],
+	    			target: nodes[link.target],
+	    			value: link.value,
+	    			type: type(v(link.value))
+	    		}
+	    	});
+	    }
+	    
 	    var width = config.width,
 	        height = config.height;
 
@@ -106,39 +137,18 @@ define(function(require) {
 	    });
 	    var force = d3.layout.force()
 	        .nodes(d3nodes)
-	        .links(links)
+	        .links(relations(links))
 	        .size([width, height])
 	        .linkDistance(config.distance)
 	        .charge(config.charge)
 	        .on("tick", tick)
 	        .start();
-
-	    var v = d3.scale.linear().range([0, 100]);
-	    v.domain([0, d3.max(links, function(d) {
-	        return d.value;
-	    })]);
-
-	    // asign a type per value to encode opacity
-	    // type prema broju poruka?
-	    // koje i koliko grupa (type-ove) treba formirati?
-	    // dodati i property da li je main ili nije
-	    links.forEach(function(link) {
-	        if (v(link.value) <= 33) {
-	            link.type = "twofive";
-	        } else if (v(link.value) <= 66 && v(link.value) > 33) {
-	            link.type = "fivezero";
-	        } else if (v(link.value) <= 85 && v(link.value) > 66) {
-	            link.type = "sevenfive";
-	        } else if (v(link.value) <= 100 && v(link.value) > 85) {
-	            link.type = "onezerozero";
-	        }
-	    });
-
-
+	    
 	    var svg = d3.select(config.selector).append("svg")
 	        .attr("width", width)
-	        .attr("height", height);
-
+	        .attr("height", height)
+	        .call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom));
+	    
 	    // build the arrow.
 	    svg.append("svg:defs").selectAll("marker")
 	        .data(["end"]) // Different link/path types can be defined here
@@ -153,6 +163,7 @@ define(function(require) {
 	        .attr("markerUnits", "userSpaceOnUse")
 	        .append("svg:path")
 	        .attr("d", "M0,-5L10,0L0,5");
+	    
 
 	    // add the links and the arrows
 	    var path = svg.append("svg:g").selectAll("path")
@@ -169,8 +180,27 @@ define(function(require) {
 	        .attr("class", "node");
 
 	    node.append("circle").attr("r", 10).attr("class", function(d) {
-	        return dofocus(d.name);
+	    	return dofocus(d.name);
 	    })
+	    
+	    node.append("image")
+		    .attr("xlink:href", "http://code-bude.net/wp-content/uploads/2013/10/1372714624_github_circle_black.png")
+		    .attr("x", -8)
+		    .attr("y", -8)
+		    .attr("width", 16)
+		    .attr("height", 16);
+		d3.selectAll(".node image").attr("style", "display: none");
+
+	    function zoom() {
+	    	if (d3.event.scale >= 4) {
+	    		d3.selectAll(".node circle").attr("style", "display: none");
+	    		d3.selectAll(".node image").attr("style", "display: block");
+	    	} else {
+	    		d3.selectAll(".node image").attr("style", "display: none");
+	    		d3.selectAll(".node circle").attr("style", "display: block");
+	    	};
+	    	svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+	    }
 	    
     	function tick() {
 			path.attr("d", function(d) {
@@ -184,9 +214,7 @@ define(function(require) {
 				return "translate(" + d.x + "," + d.y + ")";
 			});
 		}
-
-	    for (var i = 0; i < 200; ++i) force.tick();
-	    force.stop();
+	    
 	}
 	
 	return {
