@@ -1,5 +1,5 @@
 require(['/resources/javascript/prosolo.require-config.js'], function (config) {	
-	require(['social-interaction/graph'], function(graph) {
+	require(['social-interaction/social-interaction-graph'], function(graph) {
 				graph.load({
 					width : 800,
 					height : 600,
