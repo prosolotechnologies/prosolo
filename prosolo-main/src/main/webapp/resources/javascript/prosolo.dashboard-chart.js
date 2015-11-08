@@ -1,4 +1,4 @@
-// Requires tauCharts
+1// Requires tauCharts
 
 var chart = {
 	create : function(configuration) {
@@ -17,9 +17,16 @@ var chart = {
 		}
 
 		return {
-			show : function(data) {
+			show : function(data, from, to) {
 				destroy();
 				var chart = new tauCharts.Chart({
+					guide : {
+						x : { 
+							autoScale: false,
+							min: from,
+							max: to
+						}
+					},
 					data : data,
 					type : 'line',
 					x : configuration.x,
@@ -34,4 +41,4 @@ var chart = {
 			}
 		};
 	}
-}
+};

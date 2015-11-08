@@ -69,7 +69,7 @@ $(function () {
 				fields: ["date", "count", "type"]
 			}
 		});
-
+		
 		return {
 			dateFrom : function() { return $("#activityGraph .dateFrom").val(); },
 			dateTo : function() { return $("#activityGraph .dateTo").val(); },
@@ -85,7 +85,9 @@ $(function () {
 					$("#activityGraph .messages").text(noResultsMessage()).show().siblings().hide();
 				} else {
 					$("#activityGraph .chart").show().siblings().hide();
-					agc.show(data);
+					var from = $("#activityGraph .dateFrom").datepicker("getDate");
+					var to = $("#activityGraph .dateTo").datepicker("getDate");
+					agc.show(data, from, to);
 				}
 			}
 		}
@@ -368,12 +370,14 @@ $(function () {
 				$("#twitterHashtagsGraph .loader").show().siblings().hide();
 			},
 			onload : function(data) {
+				var from = $("#twitterHashtagsGraph .dateFrom").datepicker("getDate");
+				var to = $("#twitterHashtagsGraph .dateTo").datepicker("getDate");
 				if (data.length==0) {
 					$("#twitterHashtagsGraph .messages").text(noResultsMessage()).show().siblings().hide();
-					twitterHashtagsChart.show(data);
+					twitterHashtagsChart.show(data, from, to);
 				} else {
 					$("#twitterHashtagsGraph .chart").show().siblings().hide();
-					twitterHashtagsChart.show(data);
+					twitterHashtagsChart.show(data, from, to);
 				}
 			}
 		}
