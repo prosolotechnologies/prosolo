@@ -1,5 +1,7 @@
 package org.prosolo.bigdata.api;
 
+import static org.prosolo.bigdata.utils.DateUtil.getTimeSinceEpoch;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.ParseException;
@@ -57,6 +59,9 @@ public class TwitterHashtagStatisticsService {
 			} else {
 				counts.addAll(aggregate(split(hashtagCounts, Period.valueOf(period)), hashtag));
 			}
+		}
+		for (TwitterHashtagDailyCount count : counts) {
+			count.setDate(getTimeSinceEpoch((int) count.getDate()));
 		}
 		return ResponseUtils.corsOk(counts);
 	}

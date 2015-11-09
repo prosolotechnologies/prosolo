@@ -1,8 +1,4 @@
 $(function () {
-
-	function utc(date) { 
-		return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds()); 
-	}
 	
 	function dashboard() {
 		return document.querySelector("#dashboard");
@@ -104,7 +100,7 @@ $(function () {
 			}
 		},
 		data : function(e) { 
-			e.date = utc(new Date(e.date * 86400000)); return e; 
+			e.date = new Date(e.date); return e; 
 		}
 	});
 	
@@ -155,7 +151,7 @@ $(function () {
 			}
 		},
 		data : function(e) { 
-			e.date = utc(new Date(e.date * 86400000)); return e; 
+			e.date = new Date(e.date); return e; 
 		}
 	});
 	

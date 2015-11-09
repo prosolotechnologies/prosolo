@@ -8,7 +8,7 @@ enum Period {
 	public Long firstDayFor(long day) {
 		switch(this) {
 		case WEEK:
-			return DateUtil.getFirstDayOfWeek(day);
+			return DateUtil.getFirstDayOfWeek((int) day);
 		case DAY:
 			return day;
 		default:

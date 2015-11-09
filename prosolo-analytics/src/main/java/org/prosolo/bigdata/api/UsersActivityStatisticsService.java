@@ -1,6 +1,7 @@
 package org.prosolo.bigdata.api;
 
 import static org.prosolo.bigdata.utils.DateUtil.getDaysSinceEpoch;
+import static org.prosolo.bigdata.utils.DateUtil.getTimeSinceEpoch;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -11,6 +12,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.GET;
@@ -45,7 +47,7 @@ public class UsersActivityStatisticsService {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getSum(@QueryParam("event") String event) throws ParseException {
 		logger.debug("Service 'getSum' called with parameters and event: {}.", event);
-		long today = getDaysSinceEpoch(Calendar.getInstance().getTime());
+		long today = getDaysSinceEpoch();
 		long oneWeekAgo = today - 6;
 		long twoWeeksAgo = today - 13;
 		
@@ -69,7 +71,7 @@ public class UsersActivityStatisticsService {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getSumActive(@QueryParam("event") String event) throws ParseException {
 		logger.debug("Service 'getSumActive' called with parameters and event: {}.", event);
-		long today = getDaysSinceEpoch(Calendar.getInstance().getTime());
+		long today = getDaysSinceEpoch();
 		long oneWeekAgo = today - 6;
 		long twoWeeksAgo = oneWeekAgo - 13;
 		
@@ -103,7 +105,7 @@ public class UsersActivityStatisticsService {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getSessionData() throws ParseException {
 		logger.debug("Service 'getSessionData' called.");
-		Calendar lastHour = Calendar.getInstance();
+		Calendar lastHour = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 		lastHour.add(Calendar.HOUR, -1);
 		List<InstanceLoggedUsersCount> counts = dbManager.getInstanceLoggedUsersCounts(lastHour.getTimeInMillis());
 		Map<String, String> result = new HashMap<String, String>();
@@ -137,7 +139,9 @@ public class UsersActivityStatisticsService {
 				counts.addAll(aggregate(split(count, Period.valueOf(period)), statistic));
 			}
 		}
-				
+		for (EventDailyCount count : counts) {
+			count.setDate(getTimeSinceEpoch((int) count.getDate()));
+		}
 		return ResponseUtils.corsOk(counts);			
 	}
 	
