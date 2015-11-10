@@ -25,16 +25,20 @@ var chart = {
 							autoScale: false,
 							min: from,
 							max: to
-						}
+						},
+						color:{
+			                brewer: configuration.brewer
+			            }
 					},
 					data : data,
 					type : 'line',
 					x : configuration.x,
 					y : configuration.y,
 					color : configuration.color,
-					plugins : [ tauCharts.api.plugins.get('tooltip')({
-						fields : configuration.tooltip.fields
-					}) ]
+					plugins : [ 
+			            tauCharts.api.plugins.get('tooltip')({
+			            	fields : configuration.tooltip.fields
+			            })		            ]
 				});
 				chart.renderTo(configuration.container);
 				charts.push(chart);

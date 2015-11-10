@@ -63,6 +63,14 @@ $(function () {
 			color : "type",
 			tooltip : {
 				fields: ["date", "count", "type"]
+			},
+			brewer: {
+				registered: "pattern-one",
+				login: "pattern-two",
+				homepagevisited: "pattern-three",
+				goalsviews: "pattern-four",
+				competencesviews: "pattern-five",
+				profileviews: "pattern-six"
 			}
 		});
 		
@@ -354,7 +362,8 @@ $(function () {
 			color : "hashtag",
 			tooltip : {
 				fields: ["date", "count", "hashtag"]
-			}
+			},
+			brewer: [ "pattern-one", "pattern-two", "pattern-three", "pattern-four", "pattern-five", "pattern-six" ]
 		});
 
 		return {
