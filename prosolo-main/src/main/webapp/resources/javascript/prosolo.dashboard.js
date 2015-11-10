@@ -56,6 +56,17 @@ $(function () {
 	});
 	
 	var activityGraph = (function() {
+		var loaded = false;
+		
+		var patterns = {
+			registered: "pattern-one",
+			login: "pattern-two",
+			homepagevisited: "pattern-three",
+			goalsviews: "pattern-four",
+			competencesviews: "pattern-five",
+			profileviews: "pattern-six"
+		};
+		
 		var agc = chart.create({
 			container : "#activityGraphChart",
 			x : "date",
@@ -64,36 +75,45 @@ $(function () {
 			tooltip : {
 				fields: ["date", "count", "type"]
 			},
-			brewer: {
-				registered: "pattern-one",
-				login: "pattern-two",
-				homepagevisited: "pattern-three",
-				goalsviews: "pattern-four",
-				competencesviews: "pattern-five",
-				profileviews: "pattern-six"
-			}
+			brewer: patterns
 		});
+		
+		function displayLines() {
+			$("#activityGraph [name='stats']:checked").each(function() {
+				$("g." + patterns[$(this).val()]).show();
+			});
+			$("#activityGraph [name='stats']:not(:checked)").each(function() {
+				$("g." + patterns[$(this).val()]).hide();
+			});
+		}
 		
 		return {
 			dateFrom : function() { return $("#activityGraph .dateFrom").val(); },
 			dateTo : function() { return $("#activityGraph .dateTo").val(); },
 			period : function() { return $("#activityGraph [name='periods']:checked").val(); },
 			stats : function() {
-				return $("#activityGraph [name='stats']:checked").map(function() { return $(this).val(); }).get();
+				return $("#activityGraph [name='stats']").map(function() { return $(this).val(); }).get();
 			},
 			showLoader : function() {
 				$("#activityGraph .loader").show().siblings().hide();
 			},
 			onload : function(data) {
 				if (data.length==0) {
+					loaded = false;
 					$("#activityGraph .messages").text(noResultsMessage()).show().siblings().hide();
-				} else {
+				} else {	
+					loaded = true;
 					$("#activityGraph .chart").show().siblings().hide();
 					var from = $("#activityGraph .dateFrom").datepicker("getDate");
 					var to = $("#activityGraph .dateTo").datepicker("getDate");
 					agc.show(data, from, to);
+					displayLines();
 				}
-			}
+			},
+			isLoaded : function() {
+				return loaded;
+			},
+			displayLines : displayLines
 		}
 	})();
 	
@@ -113,40 +133,35 @@ $(function () {
 	});
 	
 	$("#activityGraph [name='stats']").change(function() {
-		if ($("#activityGraph [name='stats']:checked").size() == 0) {
-			return;
-		}
-		activityGraph.showLoader();
-		activityGraphService.get(activityGraph.onload);
+		if (!activityGraph.isLoaded()) {
+			activityGraph.showLoader();
+			activityGraphService.get(activityGraph.onload);
+		} else {
+			activityGraph.displayLines();
+		};
 	});
 	
 	$("#activityGraph .period [name='periods']").change(function() {
 		datepicker.align("#activityGraph .dateFrom", "#activityGraph .dateTo", activityGraph.period());
-
-		if ($("#activityGraph [name='stats']:checked").size() == 0) {
-			return;
-		}
-		if ($(this).is(":checked")) {
-			activityGraph.showLoader();
-			activityGraphService.get(activityGraph.onload);
-		}
-	});
-	
-	if ($("#activityGraph [name='stats']:checked").size() != 0) {
 		activityGraph.showLoader();
 		activityGraphService.get(activityGraph.onload);
-	}
+	});
 	
 	datepicker.init("activityGraph", function(dateText, inst) {
 		datepicker.align("#activityGraph .dateFrom", "#activityGraph .dateTo", activityGraph.period());
-		if ($("#activityGraph [name='stats']:checked").size() == 0) {
-			return;
-		}
 		activityGraph.showLoader();
 		activityGraphService.get(activityGraph.onload);
     });
 	
 	datepicker.align("#activityGraph .dateFrom", "#activityGraph .dateTo", activityGraph.period());
+	
+	if ($("#activityGraph [name='stats']:checked").size() != 0) {
+		if (activityGraph.isLoaded()) {
+			return;
+		}
+		activityGraph.showLoader();
+		activityGraphService.get(activityGraph.onload);
+	}
 	
 	var twitterHashtagsService = service.create({
 		url : "http://" + host() + "/api/twitter/hashtag/statistics",

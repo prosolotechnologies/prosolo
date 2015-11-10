@@ -274,6 +274,10 @@
 	display: none;
 }
 
+#activityGraph .chart-block {
+	height: 200px;'
+}
+
 g.pattern-one {
 	stroke-dasharray: 3,3;
 	stroke: #006699;
