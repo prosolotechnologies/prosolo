@@ -6,569 +6,783 @@
 	xmlns:comp="http://java.sun.com/jsf/composite/components"
 	template="templates/masterLayout1.xhtml"
 	xmlns:c="http://java.sun.com/jsp/jstl/core"
-	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs">
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:actions="http://java.sun.com/jsf/composite/components/actions"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough">
+
+	<ui:define name="windowTitle">
+		Student profile
+	</ui:define>
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewParam name="id" value="#{studentProfileBean.id}"
+				default="null" />
+			<f:viewAction action="#{studentProfileBean.initStudent()}" />
+		</f:metadata>
+	</ui:define>
 
 	<ui:define name="content">
 
+		<p:growl id="msg" showDetail="true"></p:growl>
+
 		<section class="heading">
-			<div class="col-md-1 back"><a class="btn btn-default" href="#"><i class="fa fa-reply"></i></a></div>
+			<div class="col-md-1 back">
+				<a class="btn btn-default" href="#"><i class="fa fa-reply"></i></a>
+			</div>
 			<div class="col-md-2 studentInfo">
-		   	<span class="userProfileImageLarge"><img src="images/user2120x120.png" alt="Anna Hallowell" title="Anna Hallowell" /></span>
-		      <div class="name">
-		      	<h1>Anna Hallowell</h1>
-		         <h2>University of Texas, Arlington</h2>
-		         <a href="#">Send message</a>
-		      </div>
+				<span class="userProfileImageLarge"> <h:graphicImage
+						value="#{studentProfileBean.student.avatar}" alt="" />
+				</span>
+				<div class="name">
+					<h1>#{studentProfileBean.student.name}</h1>
+					<h2>#{studentProfileBean.student.position}</h2>
+
+					<actions:directMessage
+						receiverData="#{studentProfileBean.getMessageReceiverData()}"
+						context="'studentProfile.'.concat(studentProfileBean.decodedId))"
+						message="Send message" />
+
+				</div>
 				<div class="dropdown expand">
-		      <a data-target="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">More details <i class="fa fa-external-link fa-rotate-90"></i></a>
-		         <div class="dropdown-menu" aria-labelledby="dLabel">
-		            
-		         
-		            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-		            	<span aria-hidden="true">&#215;</span>
-		            </button>
-		            <h3 class="title">Interests</h3>
-		            <ul>
-		               <li class="label label-interest">Data analysis</li> 
-		               <li class="label label-interest">Descriptive Data</li>
-		               <li class="label label-interest">Some other interest</li>
-		               <li class="label label-interest">Data analysis</li> 
-		               <li class="label label-interest">Descriptive Data</li>
-		               <li class="label label-interest">Some other interest</li> 
-		               <li class="label label-interest">Data analysis</li> 
-		               <li class="label label-interest">Descriptive Data</li>
-		               <li class="label label-interest">Some other interest</li>   
-		            </ul>
-		            <h3 class="title">Social</h3>
-		            <ul class="socIcons">
-		               <li><a href="#" title="Twitter"><i class="fa fa-twitter-square twitter"></i></a></li>
-		               <li><i class="fa fa-facebook-square facebook inactive"></i></li>
-		               <li><a href="#" title="Google Plus"><i class="fa fa-google-plus-square gplus"></i></a></li>
-		               <li><a href="#" title="Anna's blog"><i class="fa fa-pencil-square blog"></i></a></li>
-		            </ul>           
-		         </div>      
-		      </div>      
-		   </div>
+					<a data-target="#" data-toggle="dropdown" role="button"
+						aria-haspopup="true" aria-expanded="false">More details <i
+						class="fa fa-external-link fa-rotate-90"></i></a>
+					<div class="dropdown-menu" aria-labelledby="dLabel">
+
+
+						<button type="button" class="close" data-dismiss="alert"
+							aria-label="Close">
+							<span aria-hidden="true">&#215;</span>
+						</button>
+						<h3 class="title">Interests</h3>
+						<ul>
+							<ui:repeat var="interest"
+								value="#{studentProfileBean.student.interests}">
+								<li class="label label-interest">#{interest}</li>
+							</ui:repeat>
+						</ul>
+						<div class="socialNetworks">
+							<h3 class="title">Social</h3>
+							<h:panelGroup id="socNetworks" class="socNetworks">
+								<ul class="socIcons">
+									<li><c:if
+											test="#{studentProfileBean.socialNetworksData.twitterLink != null and 
+													studentProfileBean.socialNetworksData.twitterLink.length() > 0}">
+											<a
+												href="#{studentProfileBean.socialNetworksData.twitterLink}"
+												onclick="sendLogPageNavigation('#{studentProfileBean.socialNetworksData.twitterLink}', 'publicprofile.${userId}.info.socialNetworks.twitter');"
+												target="_blank"><i class="fa fa-twitter-square twitter"></i></a>
+										</c:if> <c:if
+											test="#{studentProfileBean.socialNetworksData.twitterLink == null or 
+													studentProfileBean.socialNetworksData.twitterLink.length() == 0}">
+											<i class="fa fa-twitter-square twitter inactive"></i>
+										</c:if></li>
+									<li><c:if
+											test="#{studentProfileBean.socialNetworksData.facebookLink != null and 
+													studentProfileBean.socialNetworksData.facebookLink.length() > 0}">
+											<a
+												href="#{studentProfileBean.socialNetworksData.facebookLink}"
+												onclick="sendLogPageNavigation('#{studentProfileBean.socialNetworksData.facebookLink}', 'publicprofile.${userId}.info.socialNetworks.facebook');"
+												target="_blank"><i
+												class="fa fa-facebook-square facebook"></i></a>
+										</c:if> <c:if
+											test="#{studentProfileBean.socialNetworksData.facebookLink == null or 
+													studentProfileBean.socialNetworksData.facebookLink.length() == 0}">
+											<i class="fa fa-facebook-square facebook inactive"></i>
+										</c:if></li>
+									<li><c:if
+											test="#{studentProfileBean.socialNetworksData.gplusLink != null and 
+													studentProfileBean.socialNetworksData.gplusLink.length() > 0}">
+											<a href="#{studentProfileBean.socialNetworksData.gplusLink}"
+												onclick="sendLogPageNavigation('#{studentProfileBean.socialNetworksData.gplusLink}', 'publicprofile.${userId}.info.socialNetworks.gplus');"
+												target="_blank"><i
+												class="fa fa-google-plus-square gplus"></i></a>
+										</c:if> <c:if
+											test="#{studentProfileBean.socialNetworksData.gplusLink == null or 
+													studentProfileBean.socialNetworksData.gplusLink.length() == 0}">
+											<i class="fa fa-google-plus-square gplus inactive"></i>
+										</c:if></li>
+									<li><c:if
+											test="#{studentProfileBean.socialNetworksData.blogLink != null and 
+													studentProfileBean.socialNetworksData.blogLink.length() > 0}">
+											<a href="#{studentProfileBean.socialNetworksData.blogLink}"
+												onclick="sendLogPageNavigation('#{studentProfileBean.socialNetworksData.blogLink}', 'publicprofile.${userId}.info.socialNetworks.blog');"
+												target="_blank"><i class="fa fa-pencil-square blog"></i></a>
+										</c:if> <c:if
+											test="#{studentProfileBean.socialNetworksData.blogLink == null or 
+													studentProfileBean.socialNetworksData.blogLink.length() == 0}">
+											<i class="fa fa-pencil-square blog inactive"></i>
+										</c:if></li>
+								</ul>
+
+							</h:panelGroup>
+							<ui:remove>
+								<utilcomp:lazyLoad parentClass="socialNetworks"
+									updateOnComplete=":socNetworks" loaderContainer=".socNetworks"
+									initializeAction="#{studentProfileBean.initSocialNetworks()}" />
+							</ui:remove>
+						</div>
+					</div>
+				</div>
+			</div>
 			<div class="col-md-2 profileType">
-		   	<h3 class="title">Profile type</h3>
-		      <div class="profileTypeLabel">Profile type 1</div>
-		   </div>
+				<h3 class="title">Profile type</h3>
+				<div class="profileTypeLabel">Profile type 1</div>
+			</div>
 			<div class="col-md-5 observation">
-		   	<div class="obs-block-left">
-		         <h3 class="title">Observations</h3>
-		         <div class="creationDateTop">Created 01.08.2015 by <a href="#">Phill Amstrong</a></div>
-		        <ul class="observations">
-		         	<li class="symptoms">
-		            	<h4>Symptoms</h4>
-		               <div class="labels">
-		               	<span class="label label-symptoms">Lacks social interaction</span>
-		               </div>
-		               <div class="more dropdown">
-		               	<a data-target="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">3 MORE</a>
-		                  <ul class="dropdown-menu pull-right" aria-labelledby="dLabel">
-			                  <li><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&#215;</span></button></li>
-		                     <li class="label label-symptoms">Lacks social interaction</li> 
-		                     <li class="label label-symptoms">No assessments</li>
-		                     <li class="label label-symptoms">Lacks interaction</li> 
-		                     <li class="label label-symptoms">No accepted assessments</li>
-		                  </ul>
-		               </div>
-		            </li>
-		         	<li class="suggestions">
-		            	<h4>Suggestions</h4>
-		               <div class="labels">
-		               	<span class="label label-suggestions">Work with others</span>
-		               </div>
-		               <div class="more dropdown">
-		               	<a data-target="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">5 MORE</a>
-								<ul class="dropdown-menu pull-right" aria-labelledby="dLabel">
-			                  <li><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&#215;</span></button></li>
-		                     <li class="label label-suggestions">Work with others</li> 
-		                     <li class="label label-suggestions">More work</li>
-		                     <li class="label label-suggestions">Work more</li> 
-		                     <li class="label label-suggestions">Work work</li>
-		                     <li class="label label-suggestions">Use assessments feature</li>
-		                     <li class="label label-suggestions">Work</li>
-		                  </ul>
-		               </div>
-		            </li>
-		         	<li class="message">
-		            	<h4>Message</h4>
-		               <div class="link">
-		               	<a href="#">SHOW MESSAGE</a>
-		               </div>
-		            </li>
-		         	<li class="note">
-		            	<h4>Note</h4>
-		               <div class="link">
-		               	No note added
-		               </div>
-		            </li>
-		         </ul>
-		         <a href="#" class="more2">Edit</a>
-		      </div>
-		   </div>	
-		<div class="obs-block-right">
-		      
-		      <div id="observationBar">
-		     		<a data-target="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" class="btn btn-primary"><i class="fa fa-plus"></i> Create new</a>
-		        	<div class="dropdown-menu pull-right" aria-labelledby="dLabel">
-						<a class="toggleToolbar" role="button" data-toggle="collapse" href="#dropdownToolbar" aria-expanded="false" aria-controls="dropdownToolbar"></a>
-		      		<div class="dropdown-header">Edit observation</div>
-		            	<div class="creationDate posAbs">Created 01.08.2015. by Peter Smith</div>
-		               <div class="dropdownToolbar collapse in" id="dropdownToolbar">
-		                  
-								<!--accordion start-->
-		                  <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-		                    <div class="panel panel-default">
-		                      <div class="panel-heading" role="tab" id="headingOne">
-		                        <h4 class="panel-title">
-		                          <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-		                            SYMPTOMS
-		                          </a>
-		                        </h4>
-		                      </div>
-		                      <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
-		                        <div class="panel-body obsBlock">
-		                           <div class="checkbox checkbox-success">
-		                           <input id="checkbox1" type="checkbox" />
-		                           <label for="checkbox1">Lacks social interaction</label>
-		                           </div>
-		                           <div class="checkbox checkbox-success">
-		                           <input id="checkbox2" type="checkbox" />
-		                           <label for="checkbox2">No accepted assessments</label>
-		                           </div> 
-		                           <div class="checkbox checkbox-success">
-		                           <input id="checkbox3" type="checkbox" />
-		                           <label for="checkbox3">Lacks social interaction</label>
-		                           </div>
-		                           <div class="checkbox checkbox-success">
-		                           <input id="checkbox4" type="checkbox" />
-		                           <label for="checkbox4">No accepted assessments</label>
-		                           </div> 
-		                           <div class="checkbox checkbox-success">
-		                           <input id="checkbox5" type="checkbox" />
-		                           <label for="checkbox5">Lacks social interaction</label>
-		                           </div>
-		                           <div class="checkbox checkbox-success">
-		                           <input id="checkbox6" type="checkbox" />
-		                           <label for="checkbox6">No accepted assessments</label>
-		                           </div> 
-		                           <div class="checkbox checkbox-success">
-		                           <input id="checkbox7" type="checkbox" />
-		                           <label for="checkbox7">Lacks social interaction</label>
-		                           </div>
-		                           <div class="checkbox checkbox-success">
-		                           <input id="checkbox8" type="checkbox" />
-		                           <label for="checkbox8">No accepted assessments</label>
-		                           </div> 
-		                           <div class="checkbox checkbox-success">
-		                           <input id="checkbox9" type="checkbox" />
-		                           <label for="checkbox9">Lacks social interaction</label>
-		                           </div>
-		                           <div class="checkbox checkbox-success">
-		                           <input id="checkbox10" type="checkbox" />
-		                           <label for="checkbox10">No accepted assessments</label>
-		                           </div>
-		                        </div>
-		                      </div>
-		                    </div>
-		                    <div class="panel panel-default">
-		                      <div class="panel-heading" role="tab" id="headingTwo">
-		                        <h4 class="panel-title">
-		                          <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-		                            Suggestions
-		                          </a>
-		                        </h4>
-		                      </div>
-		                      <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
-		                        <div class="panel-body obsBlock">
-		      							<div class="checkbox checkbox-success">
-		                              <input id="checkbox11" type="checkbox" />
-		                              <label for="checkbox11">Work with others</label>
-		                              </div>
-		                              <div class="checkbox checkbox-success">
-		                              <input id="checkbox12" type="checkbox" />
-		                              <label for="checkbox12">Use assessments feature</label>
-		                              </div> 
-		                              <div class="checkbox checkbox-success">
-		                              <input id="checkbox13" type="checkbox" />
-		                              <label for="checkbox13">Work with others</label>
-		                              </div>
-		                              <div class="checkbox checkbox-success">
-		                              <input id="checkbox14" type="checkbox" />
-		                              <label for="checkbox14">Use assessments feature</label>
-		                              </div> 
-		                              <div class="checkbox checkbox-success">
-		                              <input id="checkbox15" type="checkbox" />
-		                              <label for="checkbox15">Work with others</label>
-		                              </div>
-		                              <div class="checkbox checkbox-success">
-		                              <input id="checkbox16" type="checkbox" />
-		                              <label for="checkbox16">Use assessments feature</label>
-		                              </div> 
-		                              <div class="checkbox checkbox-success">
-		                              <input id="checkbox17" type="checkbox" />
-		                              <label for="checkbox17">Work with others</label>
-		                              </div>
-		                              <div class="checkbox checkbox-success">
-		                              <input id="checkbox18" type="checkbox" />
-		                              <label for="checkbox18">Use assessments feature</label>
-		                              </div> 
-		                              <div class="checkbox checkbox-success">
-		                              <input id="checkbox19" type="checkbox" />
-		                              <label for="checkbox19">Work with others</label>
-		                              </div>
-		                              <div class="checkbox checkbox-success">
-		                              <input id="checkbox20" type="checkbox" />
-		                              <label for="checkbox20">Use assessments feature</label>
-		                        	</div> 
-		                      	</div>
-		                      </div>
-		                    </div>
-		                    <div class="panel panel-default">
-		                      <div class="panel-heading" role="tab" id="headingThree">
-		                        <h4 class="panel-title">
-		                          <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-		                            Message
-		                          </a>
-		                        </h4>
-		                      </div>
-		                      <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
-		                        <div class="panel-body obsBlock">
-											<textarea class="form-control" rows="3" placeholder="Message that will be sent to student if filled. Not mandatory."></textarea>
-		                        </div>
-		                      </div>
-		                    </div>
-		                    
-								  <div class="panel panel-default">
-		                      <div class="panel-heading" role="tab" id="headingFour">
-		                        <h4 class="panel-title">
-		                          <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-		                            Note 
-		                          </a>
-		                        </h4>
-		                      </div>
-		                      <div id="collapseFour" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFour">
-		                        <div class="panel-body obsBlock">
-		                        	<textarea class="form-control" rows="3" placeholder="Internal note. Not visible by student."></textarea>
-		                        </div>
-		                      </div>
-		                    </div>                    
-		                  </div>
-								<!-- accordion end -->
-		
-		                  
-		                  
-		                  <div class="obsBlock row">
-		                     <div class="col-md-6"><button type="button" class="btn btn-block btn-default">Cancel</button></div>
-		                     <div class="col-md-6"><button type="button" class="btn btn-block btn-primary">Save</button></div>
-		                  </div> 
-		               </div>
-		      	</div>
-		          
-		      </div>
-		      
-		      <a href="#" class="more2">Show history</a>
-		
-		      
-		      </div>   
+				<div class="obs-block-left">
+					<h3 class="title">Observations</h3>
+
+					<h:panelGroup id="lastObservationPanel" layout="block">
+						<h:panelGroup
+							rendered="#{studentProfileBean.observationBean.lastObservation == null}">
+							<ul class="observations">
+								<li class="symptoms">
+									<div class="link">There is no observation history for
+										this student</div>
+								</li>
+							</ul>
+						</h:panelGroup>
+						<h:panelGroup
+							rendered="#{studentProfileBean.observationBean.lastObservation != null}">
+							<div class="creationDateTop">
+								Created
+								#{studentProfileBean.observationBean.lastObservation.formattedDate}
+								by <a href="#">#{studentProfileBean.observationBean.lastObservation.createdBy.name}</a>
+							</div>
+							<ul class="observations">
+								<li class="symptoms">
+									<h4>Symptoms</h4>
+									<div class="labels">
+										<span class="label label-symptoms">#{studentProfileBean.observationBean.lastObservation.symptoms.get(0).description}</span>
+									</div>
+									<div class="more dropdown">
+										<a data-target="#" data-toggle="dropdown" role="button"
+											aria-haspopup="true" aria-expanded="false">3 MORE</a>
+										<ul class="dropdown-menu pull-right" aria-labelledby="dLabel">
+											<li><button type="button" class="close"
+													data-dismiss="alert" aria-label="Close">
+													<span aria-hidden="true">&#215;</span>
+												</button></li>
+											<ui:repeat var="symptom"
+												value="#{studentProfileBean.observationBean.lastObservation.symptoms}">
+												<li class="label label-symptoms">#{symptom.description}</li>
+											</ui:repeat>
+										</ul>
+									</div>
+								</li>
+								<li class="suggestions">
+									<h4>Suggestions</h4>
+									<div class="labels">
+										<span class="label label-suggestions">#{studentProfileBean.observationBean.lastObservation.suggestions.get(0).description}</span>
+									</div>
+									<div class="more dropdown">
+										<a data-target="#" data-toggle="dropdown" role="button"
+											aria-haspopup="true" aria-expanded="false">5 MORE</a>
+										<ul class="dropdown-menu pull-right" aria-labelledby="dLabel">
+											<li><button type="button" class="close"
+													data-dismiss="alert" aria-label="Close">
+													<span aria-hidden="true">&#215;</span>
+												</button></li>
+											<ui:repeat var="suggestion"
+												value="#{studentProfileBean.observationBean.lastObservation.suggestions}">
+												<li class="label label-suggestions">#{suggestion.description}</li>
+											</ui:repeat>
+										</ul>
+									</div>
+								</li>
+								<li class="message">
+									<h4>Message</h4>
+									<div class="link">
+										<a href="#">SHOW MESSAGE</a>
+									</div>
+								</li>
+
+								<li class="note">
+									<h4>Note</h4> <h:panelGroup layout="block"
+										rendered="#{studentProfileBean.observationBean.lastObservation.note != null}"
+										styleClass="link">#{studentProfileBean.observationBean.lastObservation.note}</h:panelGroup>
+									<h:panelGroup layout="block"
+										rendered="#{studentProfileBean.observationBean.lastObservation.note == null}"
+										styleClass="link">No note added</h:panelGroup>
+								</li>
+							</ul>
+							<p:commandLink styleClass="more2"
+								actionListener="#{studentProfileBean.observationBean.prepareEditObservation
+								(studentProfileBean.observationBean.lastObservation)}"
+								oncomplete="$('#obs-toggle').dropdown('toggle'); return false;"
+								update=":newObservationForm:newObservationPanel">
+							Edit
+		      			</p:commandLink>
+						</h:panelGroup>
+					</h:panelGroup>
+				</div>
+			</div>
+			<div class="obs-block-right">
+
+				<div id="observationBar">
+					<p:commandLink styleClass="btn btn-primary"
+						actionListener="#{studentProfileBean.observationBean.prepareNewObservation()}"
+						oncomplete="$('#obs-toggle').dropdown('toggle'); return false;"
+						update=":newObservationForm:newObservationPanel">
+						<i class="fa fa-plus"></i> Create new
+		      		</p:commandLink>
+
+					<h:form id="newObservationForm">
+						<p:growl id="msgObs" showDetail="true"></p:growl>
+						<a class="dropdown-toggle" data-target="#" data-toggle="dropdown"
+						role="button" id="obs-toggle"></a>
+						<h:panelGroup layout="block" id="newObservationPanel"
+							styleClass="dropdown-menu pull-right" aria-labelledby="dLabel"
+							role="menu">
+							
+							<h:panelGroup layout="block"
+								rendered="#{studentProfileBean.observationBean.editObservation != null}">
+								<a class="toggleToolbar" role="button" data-toggle="collapse"
+									href="#dropdownToolbar" aria-expanded="false"
+									aria-controls="dropdownToolbar"></a>
+								<h:panelGroup id="editObservationTitle"
+									rendered="#{!studentProfileBean.observationBean.isNew()}">
+									<div class="dropdown-header">Edit observation</div>
+									<div class="creationDate posAbs">Created
+										#{studentProfileBean.observationBean.lastObservation.formattedDate}
+										by
+										#{studentProfileBean.observationBean.lastObservation.createdBy.name}</div>
+								</h:panelGroup>
+								<h:panelGroup id="newObservationTitle"
+									rendered="#{studentProfileBean.observationBean.isNew()}">
+									<div class="dropdown-header">New observation</div>
+								</h:panelGroup>
+								<div class="dropdownToolbar collapse in" id="dropdownToolbar">
+
+									<!--accordion start-->
+									<div class="panel-group" id="accordion" role="tablist"
+										aria-multiselectable="true">
+										<div class="panel panel-default">
+											<div class="panel-heading" role="tab" id="headingOne">
+												<h4 class="panel-title">
+													<a role="button" data-toggle="collapse"
+														data-parent="#accordion" href="#collapseOne"
+														aria-expanded="true" aria-controls="collapseOne">
+														SYMPTOMS </a>
+												</h4>
+											</div>
+											<div id="collapseOne" class="panel-collapse collapse in"
+												role="tabpanel" aria-labelledby="headingOne">
+												<div class="panel-body obsBlock">
+													<h:selectManyCheckbox layout="pageDirection"
+														id="selectSymptoms"
+														value="#{studentProfileBean.observationBean.editObservation.selectedSymptoms}"
+														styleClass="checkbox checkbox-success" required="true"
+														requiredMessage="At least one symptom should be selected">
+														<f:selectItems
+															value="#{studentProfileBean.observationBean.allSymptoms}">
+														</f:selectItems>
+													</h:selectManyCheckbox>
+													<h:message for="selectSymptoms" style="color: red" />
+												</div>
+											</div>
+										</div>
+										<div class="panel panel-default">
+											<div class="panel-heading" role="tab" id="headingTwo">
+												<h4 class="panel-title">
+													<a class="collapsed" role="button" data-toggle="collapse"
+														data-parent="#accordion" href="#collapseTwo"
+														aria-expanded="false" aria-controls="collapseTwo">
+														Suggestions </a>
+												</h4>
+											</div>
+											<div id="collapseTwo" class="panel-collapse collapse"
+												role="tabpanel" aria-labelledby="headingTwo">
+												<div class="panel-body obsBlock">
+													<h:selectManyCheckbox layout="pageDirection"
+														id="selectSuggestions"
+														value="#{studentProfileBean.observationBean.editObservation.selectedSuggestions}"
+														styleClass="checkbox checkbox-success" required="true"
+														requiredMessage="At least one suggestion should be selected">
+														<f:selectItems
+															value="#{studentProfileBean.observationBean.allSuggestions}" />
+													</h:selectManyCheckbox>
+													<h:message for="selectSuggestions" style="color: red" />
+												</div>
+											</div>
+										</div>
+										<div class="panel panel-default">
+											<div class="panel-heading" role="tab" id="headingThree">
+												<h4 class="panel-title">
+													<a class="collapsed" role="button" data-toggle="collapse"
+														data-parent="#accordion" href="#collapseThree"
+														aria-expanded="false" aria-controls="collapseThree">
+														Message </a>
+												</h4>
+											</div>
+											<div id="collapseThree" class="panel-collapse collapse"
+												role="tabpanel" aria-labelledby="headingThree">
+												<div class="panel-body obsBlock">
+													<h:inputTextarea styleClass="form-control" rows="3"
+														disabled="#{!studentProfileBean.observationBean.isNew()}"
+														a:placeholder="Message that will be sent to student if filled. Not mandatory."
+														value="#{studentProfileBean.observationBean.editObservation.editObservation.message}"></h:inputTextarea>
+												</div>
+											</div>
+										</div>
+
+										<div class="panel panel-default">
+											<div class="panel-heading" role="tab" id="headingFour">
+												<h4 class="panel-title">
+													<a class="collapsed" role="button" data-toggle="collapse"
+														data-parent="#accordion" href="#collapseFour"
+														aria-expanded="false" aria-controls="collapseFour">
+														Note </a>
+												</h4>
+											</div>
+											<div id="collapseFour" class="panel-collapse collapse"
+												role="tabpanel" aria-labelledby="headingFour">
+												<div class="panel-body obsBlock">
+													<h:inputTextarea styleClass="form-control" rows="3"
+														a:placeholder="Internal note. Not visible by student."
+														value="#{studentProfileBean.observationBean.editObservation.editObservation.note}">
+													</h:inputTextarea>
+												</div>
+											</div>
+										</div>
+									</div>
+									<!-- accordion end -->
+
+
+
+									<div class="obsBlock row">
+										<div class="col-md-6">
+											<button type="button" class="btn btn-block btn-default">
+												Cancel</button>
+										</div>
+										<div class="col-md-6">
+											<p:commandLink value="Save"
+												styleClass="btn btn-block btn-primary"
+												actionListener="#{studentProfileBean.observationBean.saveObservation()}"
+												update=":lastObservationPanel :newObservationForm:newObservationPanel :newObservationForm:msgObs" />
+										</div>
+									</div>
+								</div>
+							</h:panelGroup>
+
+						</h:panelGroup>
+					</h:form>
+				</div>
+
+				<a href="#" class="more2">Show history</a>
+
+
+			</div>
 		</section>
 		<section class="container-fluid mainArea">
-		<div class="row">
-		
-		  <!-- Nav tabs -->
-		  <ul class="nav nav-tabs" role="tablist">
-		    <li role="progression" class="active">
-		    	<a href="#progression" aria-controls="progression" role="tab" data-toggle="tab">Progression <i class="fa fa-line-chart"></i></a>
-		    </li>
-		    <li role="timeline">
-		    	<a href="#timeline" aria-controls="timeline" role="tab" data-toggle="tab">Timeline <i class="fa fa-clock-o"></i></a>
-		    </li>
-		    <li role="social">
-		    	<a href="#social" aria-controls="social" role="tab" data-toggle="tab">Social <i class="fa fa-users"></i></a>
-		    </li>
-		  </ul>
-		
-		  <!-- Tab panes -->
-		  <div class="tab-content">
-		    <div role="tabpanel" class="tab-pane fade in active" id="progression">
-		    	<div id="svgContainer"></div>
-		    	<h2><img src="images/ico-credentials.svg" alt="Credentials" title="Credentials" class="ico40" /> Credentials</h2>
-		      <div class="blockRow" id="credentials">
-		      	<div class="progressBlock selected">
-		            <div class="progress">
-		               <div class="progression bgGreen" style="height: 50%;"></div>
-		               <div class="progressMask"></div>
-		               <div class="percentage">50%</div>
-		            </div>         
-		         	<h3>Basics of Social Network Analysis</h3>
-		         </div>
-					<div class="progressBlock">
-		            <div class="progress">
-		               <div class="progression bgGreen" style="height: 80%;"></div>
-		               <div class="progressMask"></div>
-		               <div class="percentage">80%</div>
-		            </div>         
-		         	<h3>Introduction to Learning Analytics</h3>
-		         </div>
-					<div class="clearfix"></div>
-		      </div>
-		      
-				<h2><img src="images/ico-competences.svg" alt="Competences" title="Competences" class="ico40" /> Competences</h2>
-		      <div class="blockRow" id="competences">
-		      	<div class="progressBlock competence">
-		            <div class="trophy achieved"><i class="fa fa-trophy" data-toggle="tooltip" data-placement="top" title="Trophy won"></i></div>
-		            <div class="progress">
-		               <div class="progression bgBlue" style="height: 80%;"></div>
-		               <div class="progressMask"></div>
-		               <div class="percentage">80%</div>
-		            </div>         
-		            <h3>Define Social Network analysis and it's main analysis methods</h3>
-		            <div class="blockBar">
-		            	<div class="assessments">
-		            		Assessments <div class="count"><span class="good">2</span><span class="bad">1</span></div>
-		            	</div>
-		               <div class="assessmentExpand dropup">
-		               	 <a data-target="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-external-link"></i></a>
-		                   <div class="dropdown-menu" aria-labelledby="dLabel">
-		                   	<div class="ddPanelHeader">
-		                     	<h4>Assessments</h4>
-					            	<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"><i class="fa fa-times"></i></span></button>
-		                     </div>
-		                     <div class="ddPanelBody">
-		                     	<div class="assessment">
-		                        	<div class="userInfo">
-		                        		<span class="userProfileImage"><img title="Nick Powell" alt="Nick Powell" src="images/user3120x120.png" /></span>
-		                              <span class="date">15.07.2015</span> by
-		                              <a href="#">Phill Amstrong</a>
-		                              <div class="icons">
-		                              	<i class="fa fa-check-circle good" data-toggle="tooltip" data-placement="top" title="Passed"></i>
-		                                 <span class="trophy achieved"><i class="fa fa-trophy" data-toggle="tooltip" data-placement="top" title="Trophy won"></i></span>
-		                              </div>                                                            
-		                           </div>
-		                           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet.</p>
-		                     	</div>
-		                        <div class="assessment">
-		                        	<div class="userInfo">
-		                        		<span class="userProfileImage"><img title="Nick Powell" alt="Nick Powell" src="images/user3120x120.png" /></span>
-		                              <span class="date">15.07.2015</span> by
-		                              <a href="#">Phill Amstrong</a>
-		                              <div class="icons">
-		                              	<i class="fa fa-check-circle bad" data-toggle="tooltip" data-placement="top" title="Failed"></i>
-		                                 <span class="trophy achieved"><i class="fa fa-trophy" data-toggle="tooltip" data-placement="top" title="Trophy won"></i></span>
-		                              </div>                                                            
-		                           </div>
-		                           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet.</p>
-		                     	</div>
-		                        
-		                     </div>
-		         		 	 </div>
-		               </div>
-		            </div>
-		         </div>
-		         
-		         
-					<div class="progressBlock competence selected">
-		         	<div class="trophy"><i class="fa fa-trophy" data-toggle="tooltip" data-placement="top" title="Trophy"></i></div>
-		            <div class="progress">
-		               <div class="progression bgBlue" style="height: 50%;"></div>
-		               <div class="progressMask"></div>
-		               <div class="percentage">50%</div>
-		            </div>         
-		            <h3>Perform social network analysis and visualize analysis results in Gebhi</h3>
-		            <div class="blockBar">
-		            	<div class="assessments">
-		            		Assessments <div class="count"><span class="good">0</span><span class="bad">2</span></div>
-		            	</div>
-		               <div class="assessmentExpand dropup">
-		               	 <a data-target="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-external-link"></i></a>
-		                   <div class="dropdown-menu" aria-labelledby="dLabel">
-		                   	<div class="ddPanelHeader">
-		                     	<h4>Assessments</h4>
-					            	<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"><i class="fa fa-times"></i></span></button>
-		                     </div>
-		                     <div class="ddPanelBody">
-		                     	<div class="assessment">
-		                        	<div class="userInfo">
-		                        		<span class="userProfileImage"><img title="Nick Powell" alt="Nick Powell" src="images/user3120x120.png" /></span>
-		                              <span class="date">15.07.2015</span> by
-		                              <a href="#">Phill Amstrong</a>
-		                              <div class="icons">
-		                              	<i class="fa fa-check-circle good" data-toggle="tooltip" data-placement="top" title="Passed"></i>
-		                                 <span class="trophy achieved"><i class="fa fa-trophy" data-toggle="tooltip" data-placement="top" title="Trophy won"></i></span>
-		                              </div>                                                            
-		                           </div>
-		                           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet.</p>
-		                     	</div>
-		                        <div class="assessment">
-		                        	<div class="userInfo">
-		                        		<span class="userProfileImage"><img title="Nick Powell" alt="Nick Powell" src="images/user3120x120.png" /></span>
-		                              <span class="date">15.07.2015</span> by
-		                              <a href="#">Phill Amstrong</a>
-		                              <div class="icons">
-		                              	<i class="fa fa-check-circle bad" data-toggle="tooltip" data-placement="top" title="Failed"></i>
-		                                 <span class="trophy achieved"><i class="fa fa-trophy" data-toggle="tooltip" data-placement="top" title="Trophy won"></i></span>
-		                              </div>                                                            
-		                           </div>
-		                           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet.</p>
-		                     	</div>
-		                        
-		                     </div>
-		         		 	 </div>
-		               </div>
-		            </div>
-		         </div>
-		         
-		         <div class="progressBlock competence">
-		         	<div class="trophy"><i class="fa fa-trophy" data-toggle="tooltip" data-placement="top" title="Trophy"></i></div>
-		            <div class="progress">
-		               <div class="progression bgBlue" style="height: 30%;"></div>
-		               <div class="progressMask"></div>
-		               <div class="percentage">30%</div>
-		            </div>         
-		            <h3>Define Social Network analysis and it's main analysis methods</h3>
-		            <div class="blockBar">
-		            	<div class="assessments">
-		            		Assessments <div class="count"><span class="good">1</span><span class="bad">0</span></div>
-		            	</div>
-		               <div class="assessmentExpand dropup">
-		               	 <a data-target="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-external-link"></i></a>
-		                   <div class="dropdown-menu" aria-labelledby="dLabel">
-		                   	<div class="ddPanelHeader">
-		                     	<h4>Assessments</h4>
-					            	<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"><i class="fa fa-times"></i></span></button>
-		                     </div>
-		                     <div class="ddPanelBody">
-		                     	<div class="assessment">
-		                        	<div class="userInfo">
-		                        		<span class="userProfileImage"><img title="Nick Powell" alt="Nick Powell" src="images/user3120x120.png" /></span>
-		                              <span class="date">15.07.2015</span> by
-		                              <a href="#">Phill Amstrong</a>
-		                              <div class="icons">
-		                              	<i class="fa fa-check-circle good" data-toggle="tooltip" data-placement="top" title="Passed"></i>
-		                                 <span class="trophy achieved"><i class="fa fa-trophy" data-toggle="tooltip" data-placement="top" title="Trophy won"></i></span>
-		                              </div>                                                            
-		                           </div>
-		                           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet.</p>
-		                     	</div>
-		                        <div class="assessment">
-		                        	<div class="userInfo">
-		                        		<span class="userProfileImage"><img title="Nick Powell" alt="Nick Powell" src="images/user3120x120.png" /></span>
-		                              <span class="date">15.07.2015</span> by
-		                              <a href="#">Phill Amstrong</a>
-		                              <div class="icons">
-		                              	<i class="fa fa-check-circle bad" data-toggle="tooltip" data-placement="top" title="Failed"></i>
-		                                 <span class="trophy achieved"><i class="fa fa-trophy" data-toggle="tooltip" data-placement="top" title="Trophy won"></i></span>
-		                              </div>                                                            
-		                           </div>
-		                           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet.</p>
-		                     	</div>
-		                        
-		                     </div>
-		         		 	 </div>
-		               </div>
-		            </div>
-		         </div>
-		         
-					<div class="clearfix"></div>
-		      </div>
-		      <h2><img src="images/ico-activities.svg" alt="Activities" title="Activities" class="ico40" /> Activities</h2>
-		      <div class="activities" id="activitiesBlock">
-		      	<div class="col-md-6">
-		         
-		         
-		         
-		            <div class="panel-group" id="activities" role="tablist" aria-multiselectable="true">
-		              <div class="panel panel-default">
-		                <div class="panel-heading" role="tab" id="headingOne">
-		                  <h4 class="panel-title">
-		                    <a class="done collapsed" role="button" data-toggle="collapse" data-parent="#activities" href="#act1" aria-expanded="true" aria-controls="act1">
-		                      <span class="hexagon done"></span> Watch video: Introduction to Social Network Analysis
-		                    </a>
-		                  </h4>
-		                </div>
-		                <div id="act1" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
-		                  <div class="panel-body">
-		                    <p>Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid.</p>
-		                     <div class="fileContainer">
-		                        <div class="col-md-10">
-		                           <div class="fileIcon youtube">
-		                           	<i class="fa fa-youtube-square"></i>
-		                           </div>                        
-		                           <h5><a href="">Introduction to Social Network Analysis</a></h5>
-		                        	<div class="fileUrl">https://www.youtube.com/ea0ef897e8f18d...</div>
-		                        </div>                         
-		                        <div class="col-md-2 fileSizeTime">12:08</div>
-		                        <div class="clearfix"></div>
-		                     </div>
-		                  </div>
-		                </div>
-		              </div>
-		              <div class="panel panel-default">
-		                <div class="panel-heading" role="tab" id="headingTwo">
-		                  <h4 class="panel-title">
-		                    <a class="done collapsed" role="button" data-toggle="collapse" data-parent="#activities" href="#act2" aria-expanded="false" aria-controls="act2">
-		                      <span class="hexagon done"></span> Watch video: Network structure and Data sources
-		                    </a>
-		                  </h4>
-		                </div>
-		                <div id="act2" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
-		                  <div class="panel-body">
-		                    <p>Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid.</p>
-		                     <div class="fileContainer">
-		                        <div class="col-md-10">
-		                           <div class="fileIcon youtube">
-		                           	<i class="fa fa-youtube-square"></i>
-		                           </div>                        
-		                           <h5><a href="">Network structure and Data sources</a></h5>
-		                        	<div class="fileUrl">https://www.youtube.com/ea0ef897e8f18d...</div>
-		                        </div>                         
-		                        <div class="col-md-2 fileSizeTime">27:32</div>
-		                        <div class="clearfix"></div>
-		                     </div>
-		                  </div>
-		                </div>
-		              </div>
-		              <div class="panel panel-default">
-		                <div class="panel-heading" role="tab" id="headingThree">
-		                  <h4 class="panel-title">
-		                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#activities" href="#act3" aria-expanded="false" aria-controls="act3">
-		                     <span class="hexagon"></span> Download the CCK11 dataset and familiarize with the data
-		                    </a>
-		                  </h4>
-		                </div>
-		                <div id="act3" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
-		                  <div class="panel-body">
-		                    <p>Download the CCK11 dataset and familiarize with the data</p>
-		                     <div class="fileContainer">
-		                        <div class="col-md-10">
-		                           <div class="fileIcon pdf">
-		                           	<i class="fa fa-file-pdf-o"></i>
-		                           </div>                        
-		                           <h5><a href="">CCK11 dataset for social network analysis</a></h5>
-		                        	<div class="fileUrl">https://bitbucket.org/dalmooc/dalmooc/src/ea0ef897e8f18d...</div>
-		                        </div>                         
-		                        <div class="col-md-2 fileSizeTime">24.3Mb</div>
-		                        <div class="clearfix"></div>
-		                     </div>
-		                  </div>
-		                </div>
-		              </div>
-		            </div>         
-		         
-		         
-		         </div>
-		      	<div class="col-md-6 graph">Graph</div>         
-		      	<div class="clearfix"></div>
-		      </div>   
-		    </div>
-		    <div role="tabpanel" class="tab-pane fade" id="timeline">222</div>
-		    <div role="tabpanel" class="tab-pane fade" id="social">333</div>
-		  </div>
-		
-		</div>
-		
+			<div class="row">
+
+				<!-- Nav tabs -->
+				<ul class="nav nav-tabs" role="tablist">
+					<li role="progression" class="active"><a href="#progression"
+						aria-controls="progression" role="tab" data-toggle="tab">Progression
+							<i class="fa fa-line-chart"></i>
+					</a></li>
+					<li role="timeline"><a href="#timeline"
+						aria-controls="timeline" role="tab" data-toggle="tab">Timeline
+							<i class="fa fa-clock-o"></i>
+					</a></li>
+					<li role="social"><a href="#social" aria-controls="social"
+						role="tab" data-toggle="tab">Social <i class="fa fa-users"></i></a>
+					</li>
+				</ul>
+
+				<!-- Tab panes -->
+				<div class="tab-content">
+					<div role="tabpanel" class="tab-pane fade in active"
+						id="progression">
+						<div id="svgContainer"></div>
+						<h2>
+							<img
+								src="#{request.contextPath}/manage/images/ico-credentials.svg"
+								alt="Credentials" title="Credentials" class="ico40" />
+							Credentials
+						</h2>
+						<div class="blockRow" id="credentials">
+							<div class="progressBlock selected">
+								<div class="progress">
+									<div class="progression bgGreen" style="height: 50%;"></div>
+									<div class="progressMask"></div>
+									<div class="percentage">50%</div>
+								</div>
+								<h3>Basics of Social Network Analysis</h3>
+							</div>
+							<div class="progressBlock">
+								<div class="progress">
+									<div class="progression bgGreen" style="height: 80%;"></div>
+									<div class="progressMask"></div>
+									<div class="percentage">80%</div>
+								</div>
+								<h3>Introduction to Learning Analytics</h3>
+							</div>
+							<div class="clearfix"></div>
+						</div>
+
+						<h2>
+							<img
+								src="#{request.contextPath}/manage/images/ico-competences.svg"
+								alt="Competences" title="Competences" class="ico40" />
+							Competences
+						</h2>
+						<div class="blockRow" id="competences">
+							<div class="progressBlock competence">
+								<div class="trophy achieved">
+									<i class="fa fa-trophy" data-toggle="tooltip"
+										data-placement="top" title="Trophy won"></i>
+								</div>
+								<div class="progress">
+									<div class="progression bgBlue" style="height: 80%;"></div>
+									<div class="progressMask"></div>
+									<div class="percentage">80%</div>
+								</div>
+								<h3>Define Social Network analysis and it's main analysis
+									methods</h3>
+								<div class="blockBar">
+									<div class="assessments">
+										Assessments
+										<div class="count">
+											<span class="good">2</span><span class="bad">1</span>
+										</div>
+									</div>
+									<div class="assessmentExpand dropup">
+										<a data-target="#" data-toggle="dropdown" role="button"
+											aria-haspopup="true" aria-expanded="false"><i
+											class="fa fa-external-link"></i></a>
+										<div class="dropdown-menu" aria-labelledby="dLabel">
+											<div class="ddPanelHeader">
+												<h4>Assessments</h4>
+												<button type="button" class="close" data-dismiss="alert"
+													aria-label="Close">
+													<span aria-hidden="true"><i class="fa fa-times"></i></span>
+												</button>
+											</div>
+											<div class="ddPanelBody">
+												<div class="assessment">
+													<div class="userInfo">
+														<span class="userProfileImage"><img
+															title="Nick Powell" alt="Nick Powell"
+															src="#{request.contextPath}/manage/images/user3120x120.png" /></span>
+														<span class="date">15.07.2015</span> by <a href="#">Phill
+															Amstrong</a>
+														<div class="icons">
+															<i class="fa fa-check-circle good" data-toggle="tooltip"
+																data-placement="top" title="Passed"></i> <span
+																class="trophy achieved"><i class="fa fa-trophy"
+																data-toggle="tooltip" data-placement="top"
+																title="Trophy won"></i></span>
+														</div>
+													</div>
+													<p>Lorem ipsum dolor sit amet, consectetur adipiscing
+														elit. Aenean euismod bibendum laoreet.</p>
+												</div>
+												<div class="assessment">
+													<div class="userInfo">
+														<span class="userProfileImage"><img
+															title="Nick Powell" alt="Nick Powell"
+															src="#{request.contextPath}/manage/images/user3120x120.png" /></span>
+														<span class="date">15.07.2015</span> by <a href="#">Phill
+															Amstrong</a>
+														<div class="icons">
+															<i class="fa fa-check-circle bad" data-toggle="tooltip"
+																data-placement="top" title="Failed"></i> <span
+																class="trophy achieved"><i class="fa fa-trophy"
+																data-toggle="tooltip" data-placement="top"
+																title="Trophy won"></i></span>
+														</div>
+													</div>
+													<p>Lorem ipsum dolor sit amet, consectetur adipiscing
+														elit. Aenean euismod bibendum laoreet.</p>
+												</div>
+
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+
+							<div class="progressBlock competence selected">
+								<div class="trophy">
+									<i class="fa fa-trophy" data-toggle="tooltip"
+										data-placement="top" title="Trophy"></i>
+								</div>
+								<div class="progress">
+									<div class="progression bgBlue" style="height: 50%;"></div>
+									<div class="progressMask"></div>
+									<div class="percentage">50%</div>
+								</div>
+								<h3>Perform social network analysis and visualize analysis
+									results in Gebhi</h3>
+								<div class="blockBar">
+									<div class="assessments">
+										Assessments
+										<div class="count">
+											<span class="good">0</span><span class="bad">2</span>
+										</div>
+									</div>
+									<div class="assessmentExpand dropup">
+										<a data-target="#" data-toggle="dropdown" role="button"
+											aria-haspopup="true" aria-expanded="false"><i
+											class="fa fa-external-link"></i></a>
+										<div class="dropdown-menu" aria-labelledby="dLabel">
+											<div class="ddPanelHeader">
+												<h4>Assessments</h4>
+												<button type="button" class="close" data-dismiss="alert"
+													aria-label="Close">
+													<span aria-hidden="true"><i class="fa fa-times"></i></span>
+												</button>
+											</div>
+											<div class="ddPanelBody">
+												<div class="assessment">
+													<div class="userInfo">
+														<span class="userProfileImage"><img
+															title="Nick Powell" alt="Nick Powell"
+															src="#{request.contextPath}/manage/images/user3120x120.png" /></span>
+														<span class="date">15.07.2015</span> by <a href="#">Phill
+															Amstrong</a>
+														<div class="icons">
+															<i class="fa fa-check-circle good" data-toggle="tooltip"
+																data-placement="top" title="Passed"></i> <span
+																class="trophy achieved"><i class="fa fa-trophy"
+																data-toggle="tooltip" data-placement="top"
+																title="Trophy won"></i></span>
+														</div>
+													</div>
+													<p>Lorem ipsum dolor sit amet, consectetur adipiscing
+														elit. Aenean euismod bibendum laoreet.</p>
+												</div>
+												<div class="assessment">
+													<div class="userInfo">
+														<span class="userProfileImage"><img
+															title="Nick Powell" alt="Nick Powell"
+															src="#{request.contextPath}/manage/images/user3120x120.png" /></span>
+														<span class="date">15.07.2015</span> by <a href="#">Phill
+															Amstrong</a>
+														<div class="icons">
+															<i class="fa fa-check-circle bad" data-toggle="tooltip"
+																data-placement="top" title="Failed"></i> <span
+																class="trophy achieved"><i class="fa fa-trophy"
+																data-toggle="tooltip" data-placement="top"
+																title="Trophy won"></i></span>
+														</div>
+													</div>
+													<p>Lorem ipsum dolor sit amet, consectetur adipiscing
+														elit. Aenean euismod bibendum laoreet.</p>
+												</div>
+
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="progressBlock competence">
+								<div class="trophy">
+									<i class="fa fa-trophy" data-toggle="tooltip"
+										data-placement="top" title="Trophy"></i>
+								</div>
+								<div class="progress">
+									<div class="progression bgBlue" style="height: 30%;"></div>
+									<div class="progressMask"></div>
+									<div class="percentage">30%</div>
+								</div>
+								<h3>Define Social Network analysis and it's main analysis
+									methods</h3>
+								<div class="blockBar">
+									<div class="assessments">
+										Assessments
+										<div class="count">
+											<span class="good">1</span><span class="bad">0</span>
+										</div>
+									</div>
+									<div class="assessmentExpand dropup">
+										<a data-target="#" data-toggle="dropdown" role="button"
+											aria-haspopup="true" aria-expanded="false"><i
+											class="fa fa-external-link"></i></a>
+										<div class="dropdown-menu" aria-labelledby="dLabel">
+											<div class="ddPanelHeader">
+												<h4>Assessments</h4>
+												<button type="button" class="close" data-dismiss="alert"
+													aria-label="Close">
+													<span aria-hidden="true"><i class="fa fa-times"></i></span>
+												</button>
+											</div>
+											<div class="ddPanelBody">
+												<div class="assessment">
+													<div class="userInfo">
+														<span class="userProfileImage"><img
+															title="Nick Powell" alt="Nick Powell"
+															src="#{request.contextPath}/manage/images/user3120x120.png" /></span>
+														<span class="date">15.07.2015</span> by <a href="#">Phill
+															Amstrong</a>
+														<div class="icons">
+															<i class="fa fa-check-circle good" data-toggle="tooltip"
+																data-placement="top" title="Passed"></i> <span
+																class="trophy achieved"><i class="fa fa-trophy"
+																data-toggle="tooltip" data-placement="top"
+																title="Trophy won"></i></span>
+														</div>
+													</div>
+													<p>Lorem ipsum dolor sit amet, consectetur adipiscing
+														elit. Aenean euismod bibendum laoreet.</p>
+												</div>
+												<div class="assessment">
+													<div class="userInfo">
+														<span class="userProfileImage"><img
+															title="Nick Powell" alt="Nick Powell"
+															src="#{request.contextPath}/manage/images/user3120x120.png" /></span>
+														<span class="date">15.07.2015</span> by <a href="#">Phill
+															Amstrong</a>
+														<div class="icons">
+															<i class="fa fa-check-circle bad" data-toggle="tooltip"
+																data-placement="top" title="Failed"></i> <span
+																class="trophy achieved"><i class="fa fa-trophy"
+																data-toggle="tooltip" data-placement="top"
+																title="Trophy won"></i></span>
+														</div>
+													</div>
+													<p>Lorem ipsum dolor sit amet, consectetur adipiscing
+														elit. Aenean euismod bibendum laoreet.</p>
+												</div>
+
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="clearfix"></div>
+						</div>
+						<h2>
+							<img
+								src="#{request.contextPath}/manage/images/ico-activities.svg"
+								alt="Activities" title="Activities" class="ico40" /> Activities
+						</h2>
+						<div class="activities" id="activitiesBlock">
+							<div class="col-md-6">
+
+
+
+								<div class="panel-group" id="activities" role="tablist"
+									aria-multiselectable="true">
+									<div class="panel panel-default">
+										<div class="panel-heading" role="tab" id="headingOne">
+											<h4 class="panel-title">
+												<a class="done collapsed" role="button"
+													data-toggle="collapse" data-parent="#activities"
+													href="#act1" aria-expanded="true" aria-controls="act1">
+													<span class="hexagon done"></span> Watch video:
+													Introduction to Social Network Analysis
+												</a>
+											</h4>
+										</div>
+										<div id="act1" class="panel-collapse collapse" role="tabpanel"
+											aria-labelledby="headingOne">
+											<div class="panel-body">
+												<p>Anim pariatur cliche reprehenderit, enim eiusmod high
+													life accusamus terry richardson ad squid.</p>
+												<div class="fileContainer">
+													<div class="col-md-10">
+														<div class="fileIcon youtube">
+															<i class="fa fa-youtube-square"></i>
+														</div>
+														<h5>
+															<a href="">Introduction to Social Network Analysis</a>
+														</h5>
+														<div class="fileUrl">https://www.youtube.com/ea0ef897e8f18d...</div>
+													</div>
+													<div class="col-md-2 fileSizeTime">12:08</div>
+													<div class="clearfix"></div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="panel panel-default">
+										<div class="panel-heading" role="tab" id="headingTwo">
+											<h4 class="panel-title">
+												<a class="done collapsed" role="button"
+													data-toggle="collapse" data-parent="#activities"
+													href="#act2" aria-expanded="false" aria-controls="act2">
+													<span class="hexagon done"></span> Watch video: Network
+													structure and Data sources
+												</a>
+											</h4>
+										</div>
+										<div id="act2" class="panel-collapse collapse" role="tabpanel"
+											aria-labelledby="headingTwo">
+											<div class="panel-body">
+												<p>Anim pariatur cliche reprehenderit, enim eiusmod high
+													life accusamus terry richardson ad squid.</p>
+												<div class="fileContainer">
+													<div class="col-md-10">
+														<div class="fileIcon youtube">
+															<i class="fa fa-youtube-square"></i>
+														</div>
+														<h5>
+															<a href="">Network structure and Data sources</a>
+														</h5>
+														<div class="fileUrl">https://www.youtube.com/ea0ef897e8f18d...</div>
+													</div>
+													<div class="col-md-2 fileSizeTime">27:32</div>
+													<div class="clearfix"></div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="panel panel-default">
+										<div class="panel-heading" role="tab" id="headingThree">
+											<h4 class="panel-title">
+												<a class="collapsed" role="button" data-toggle="collapse"
+													data-parent="#activities" href="#act3"
+													aria-expanded="false" aria-controls="act3"> <span
+													class="hexagon"></span> Download the CCK11 dataset and
+													familiarize with the data
+												</a>
+											</h4>
+										</div>
+										<div id="act3" class="panel-collapse collapse" role="tabpanel"
+											aria-labelledby="headingThree">
+											<div class="panel-body">
+												<p>Download the CCK11 dataset and familiarize with the
+													data</p>
+												<div class="fileContainer">
+													<div class="col-md-10">
+														<div class="fileIcon pdf">
+															<i class="fa fa-file-pdf-o"></i>
+														</div>
+														<h5>
+															<a href="">CCK11 dataset for social network analysis</a>
+														</h5>
+														<div class="fileUrl">https://bitbucket.org/dalmooc/dalmooc/src/ea0ef897e8f18d...</div>
+													</div>
+													<div class="col-md-2 fileSizeTime">24.3Mb</div>
+													<div class="clearfix"></div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+
+							</div>
+							<div class="col-md-6 graph">Graph</div>
+							<div class="clearfix"></div>
+						</div>
+					</div>
+					<div role="tabpanel" class="tab-pane fade" id="timeline">222</div>
+					<div role="tabpanel" class="tab-pane fade" id="social">333</div>
+				</div>
+
+			</div>
+
 		</section>
 	</ui:define>
 </ui:composition>

@@ -162,5 +162,21 @@ $("#svgContainer").HTMLSVGconnect({
 });
 
 
-
 });
+
+//added from custom.js
+var context = '';
+
+var custom = {
+	setContext: function(ctx) {
+		context = ctx;
+	}
+}
+
+function addLoaderWithClass(div, message, withLoader, onlyRemoveContent, loaderClass){
+	if (withLoader) {
+		$(div).html('<div class="'+loaderClass+'">'+message+'&nbsp;&nbsp;<img src="'+context+'/resources/images/style/ajax-loader-black.gif"/></div>').show();
+	} else if (onlyRemoveContent) {
+		$(div).html('').show();
+	}
+}

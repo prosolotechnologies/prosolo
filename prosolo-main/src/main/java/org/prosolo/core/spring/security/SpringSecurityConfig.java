@@ -85,6 +85,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/javax.faces.resource/**").permitAll()
 		   .antMatchers("/notfound").permitAll()
 		   
+		   .antMatchers("/manage/css/**").hasAnyAuthority("BASIC.MANAGER.ACCESS")
+		   .antMatchers("/manage/js/**").hasAuthority("BASIC.MANAGER.ACCESS")
+		   .antMatchers("/manage/images/**").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/competences/**").hasAuthority("COMPETENCES.VIEW")
 		   .antMatchers("/manage/credentials/**").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
 		   .antMatchers("/manage/credentials/create/").hasAnyAuthority("COURSE.CREATE")
@@ -96,7 +99,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/manage/credentials/{id}/students").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
 		   .antMatchers("/manage/courseFeeds.xhtml*").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/social-interaction*").hasAuthority("BASIC.MANAGER.ACCESS")
-		   
+		   .antMatchers("/manage/students/*").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/reports").hasAuthority("REPORTS.VIEW")
 		   .antMatchers("/admin/users").hasAuthority("USERS.VIEW")
 		   .antMatchers("/admin/roles").hasAuthority("ROLES.VIEW")

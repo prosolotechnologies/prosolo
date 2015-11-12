@@ -12,6 +12,10 @@ public class CapabilityData {
 	private String description;
 	private List<Long> roleIds;
 	
+	public CapabilityData(){
+		
+	}
+	
 	public CapabilityData(Capability c) {
 		roleIds = new ArrayList<>();
 		this.id = c.getId();

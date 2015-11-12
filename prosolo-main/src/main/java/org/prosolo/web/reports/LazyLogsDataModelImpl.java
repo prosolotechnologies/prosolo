@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.primefaces.model.LazyDataModel;
+import org.primefaces.model.SortMeta;
 import org.primefaces.model.SortOrder;
 import org.prosolo.services.logging.LoggingDBManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,10 +41,10 @@ public class LazyLogsDataModelImpl<T> extends LazyDataModel<LogRow> {
 	public String getRowKey(LogRow log) {
 		return log.getId();
 	}
-
+	//Primefaces 5 requires Object instead of String as a value in a map
 	@Override
 	public List<LogRow> load(int first, int pageSize, String sortField,
-			SortOrder sortOrder, Map<String, String> filters) {
+			SortOrder sortOrder, Map<String, Object> filters) {
 		
 		int logsCount = loggingDBManager.getLogsCount(filterQuery);
 		this.setRowCount(logsCount);
