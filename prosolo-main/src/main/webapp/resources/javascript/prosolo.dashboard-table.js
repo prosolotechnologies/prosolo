@@ -8,10 +8,11 @@
 			{
 				"name" : "column-data-name",
 				"title" : "column-title",
-				"type" : "text", 		// text or button
-				"key" : "true", 		// data value is in row's data set 
-				"value" : "Disable",	// applies to button type
-				"click" : function() {} // button's click event
+				"type" : "text", 		 // text, button, checkbox
+				"key" : "true", 		 // data value is in row's data set 
+				"value" : "Disable",	 // applies to button type
+				"click" : function() {}  // button's click event
+				"change" : function() {} // checkbox's change event
 			} ] // ,...
 }
 */
@@ -68,6 +69,11 @@ var table = {
 							button.addEventListener("click", column.click);
 							button.innerHTML = column.value;
 							td.appendChild(button);
+						} else if (column.type == "checkbox") {
+							var checkbox = document.createElement("input");
+							checkbox.setAttribute("type", "checkbox");
+							checkbox.addEventListener("change", column.change);
+							td.appendChild(checkbox);
 						}
 						tr.appendChild(td);
 					});

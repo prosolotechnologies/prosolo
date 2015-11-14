@@ -204,7 +204,6 @@ $(function () {
 		}
 	});
 	
-	var hashtagsInTable = [];
 	var disabledHashtags = [];
 	
 	(function () {
@@ -256,7 +255,13 @@ $(function () {
 							loadDh(disabledHashtags);
 							return false;
 						}
-					} ]
+					},
+					{
+						"name" : "show-in-table",
+						"title" : "Show",
+						"type" : "checkbox",
+						"change" : function() { }
+					}]
 		}
 		
 		var mahTable = table.create(configuration);
@@ -296,9 +301,6 @@ $(function () {
 						statisticsPeriod.innerHTML = "(for period " + format(from) + " - " + format(to) + ")";
 					}
 				}
-				hashtagsInTable = data.results.map(function(hashtag) {
-					return hashtag.hashtag;
-				});
 				
 				twitterHashtags.showLoader();
 				twitterHashtagsService.get(twitterHashtags.onload);
@@ -382,6 +384,10 @@ $(function () {
 	var twitterHashtags = (function() {
 		var patterns = [ "pattern-one", "pattern-two", "pattern-three", "pattern-four", "pattern-five", "pattern-six" ];
 		
+		function hashtags() {
+			return $("#mostActiveHashtagsTable")
+		}
+		
 		function cycle() {
 			var index = 0;
 			return function() {
@@ -402,7 +408,7 @@ $(function () {
 			brewer: patterns,
 			legend : {
 				selector: "#twitterHashtagsGraph .legend",
-				data: function() { var next = cycle(); return hashtagsInTable.map(function(hashtag) { return {"name" : "#" + hashtag, "class" : next()}  }) }
+				data: function() { var next = cycle(); return hashtags().map(function(hashtag) { return {"name" : "#" + hashtag, "class" : next()}  }) }
 			}
 		});
 
@@ -410,7 +416,7 @@ $(function () {
 			dateFrom : function() { return $("#twitterHashtagsGraph .dateFrom").val(); },
 			dateTo : function() { return $("#twitterHashtagsGraph .dateTo").val(); },
 			period : function() { return $("#twitterHashtagsGraph [name='thperiods']:checked").val(); },
-			hashtags : function() { return hashtagsInTable; },
+			hashtags : hashtags,
 			showLoader : function() {
 				$("#twitterHashtagsGraph .loader").show().siblings().hide();
 			},
