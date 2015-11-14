@@ -1,6 +1,9 @@
 package org.prosolo.bigdata.scala.clustering
 
 import org.prosolo.bigdata.dal.cassandra.impl.UserObservationsDBManagerImpl
+import org.prosolo.bigdata.scala.statistics.FeatureQuartiles
+import org.prosolo.bigdata.utils.DateUtil
+
 import com.datastax.driver.core.Row
 
 import org.apache.mahout.math.{ DenseVector, NamedVector, VectorWritable }
@@ -8,15 +11,16 @@ import org.apache.hadoop.io.{ SequenceFile, Text }
 import org.apache.mahout.common.HadoopUtil
 import org.apache.mahout.common.distance.CosineDistanceMeasure
 import org.apache.mahout.clustering.classify.WeightedPropertyVectorWritable
-import org.apache.mahout.clustering.kmeans.{KMeansDriver, RandomSeedGenerator, Kluster}
+import org.apache.mahout.clustering.kmeans.{ KMeansDriver, RandomSeedGenerator, Kluster }
 import org.apache.mahout.clustering.Cluster
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{ Path, FileSystem }
 import org.apache.hadoop.io.SequenceFile
 
-import java.io.{File,PrintWriter}
-
+import java.io.{ File, PrintWriter, FileWriter, BufferedWriter }
+import java.util.{ Date, Calendar }
+import java.text.SimpleDateFormat
 
 import scala.collection.mutable.{ Buffer, ListBuffer, ArrayBuffer, Map, HashMap }
 import scala.collection.JavaConverters._
@@ -26,55 +30,46 @@ import scala.collection.JavaConverters._
  */
 object UsersKMeansClustering extends App {
   val dbManager = new UserObservationsDBManagerImpl()
-   val clustersDir="clustersdir"
-  val vectorsDir = clustersDir+"/users";
-  val outputDir:String=clustersDir+"/output";
- 
-     val conf = new Configuration()
-    val fs = FileSystem.get(conf)
-    val datapath = new Path(vectorsDir + "/part-00000")
-     val numClusters=4
-     val numFeatures=4
-     
-     val maxFeaturesValues:Map[Int, Double]=new HashMap[Int,Double]();
+  val clustersDir = "clustersdir"
+  val vectorsDir = clustersDir + "/users"
+  val outputDir: String = clustersDir + "/output"
 
-  def initData() = {
-//    for(i<-1 to numFeatures){
-//      maxFeaturesValues.put(i, 0)
-//    }
+  val conf = new Configuration()
+  val fs = FileSystem.get(conf)
+  val datapath = new Path(vectorsDir + "/part-00000")
+  val numClusters = 4
+  val numFeatures = 3
+  val prepareTrainingSetData = true
+
+  val maxFeaturesValues: Map[Int, Double] = new HashMap[Int, Double]()
+  //map feature id to FeatureQuartile
+  val featuresQuartiles: Map[Int, FeatureQuartiles] = new HashMap[Int, FeatureQuartiles]
+
+  def initData(date: Long) = {
+    for (i <- 1 to numFeatures) {
+      maxFeaturesValues.put(i, 0)
+    }
     val vectors = new ListBuffer[NamedVector]
-    val rows: java.util.List[Row] = dbManager.findAllUsersObservationsForDate(16366)
+
+    val rows: java.util.List[Row] = dbManager.findAllUsersObservationsForDate(date)
 
     rows.asScala.foreach { row =>
       //creating dense vector for each user observation
-      val userid=row.getLong(1)
-     // val discussionview=row.getLong(2).toDouble
-      //val lmsuse=row.getLong(3).toDouble
-      //val login=row.getLong(4).toDouble
-      //val resourceView=row.getLong(5).toDouble
-      val featuresArray:Array[Double]=new Array[Double](numFeatures)
-      
-      for(i<-0 to numFeatures-1){
-        val featureValue=row.getLong(i).toDouble
-        featuresArray(i)=featureValue
-        if(maxFeaturesValues.getOrElse(i,0.toDouble)<featureValue){
-          maxFeaturesValues.put(i, featureValue)
-        }
-        //featuresArray:+row.getLong(i+2).toDouble
+      val userid = row.getLong(1)
+      val featuresArray: Array[Double] = new Array[Double](numFeatures)
+
+      for (i <- 0 to numFeatures - 1) {
+        val featureValue = row.getLong(i + 2).toDouble
+        featuresArray(i) = featureValue
+        featuresQuartiles.getOrElseUpdate(i, new FeatureQuartiles()).addValueToSet(featureValue)
       }
-      println("FEATURES:"+featuresArray.length)
+
       val dv = new DenseVector(featuresArray)
-   /*   val dv = new DenseVector(Array[Double](
-        discussionview,
-        lmsuse,
-        login,
-        resourceView))*/
       //creating named vector by user id
       vectors += (new NamedVector(dv, userid.toString()))
     }
     //storing input vectors to hdfs
-    
-    
+
     val writer = new SequenceFile.Writer(fs, conf, datapath, classOf[Text], classOf[VectorWritable])
     val vec = new VectorWritable()
     vectors.foreach { vector =>
@@ -88,60 +83,216 @@ object UsersKMeansClustering extends App {
     val key = new Text()
     val value = new VectorWritable()
     while (reader.next(key, value)) {
-      println("INPUT:" + s"$key--- ${value.get().asFormatString()}")
+      //  println("INPUT:" + s"$key--- ${value.get().asFormatString()}")
     }
     reader.close()
-    println("Finished data initialization");
+    println("Finished data initialization")
   }
-  def runClustering()={
-    val output=new Path(outputDir)
+  def runClustering(date: Long) = {
+    val output = new Path(outputDir)
     HadoopUtil.delete(conf, output)
-     val measure = new CosineDistanceMeasure()
-     val clustersIn = new Path(output, "random-seeds")
+    val measure = new CosineDistanceMeasure()
+    val clustersIn = new Path(output, "random-seeds")
     RandomSeedGenerator.buildRandom(conf, datapath, clustersIn, numClusters, measure)
-    val convergenceDelta=0.01
-    val maxIterations=10
+    val convergenceDelta = 0.01
+    val maxIterations = 50
     KMeansDriver.run(conf, datapath, clustersIn, output, convergenceDelta, maxIterations, true, 0.0, true)
 
     val clusters = ClusterHelper.readClusters(conf, output)
-    evaluateClustersCentroids(clusters)
-    
-    val reader = new SequenceFile.Reader(fs,  new Path(outputDir+"/"+ Cluster.CLUSTERED_POINTS_DIR + "/part-m-0"), conf)
+    evaluateFeaturesQuartiles()
+    val clusterResults: Buffer[ClusterResults] = evaluateClustersFeaturesQuartiles(clusters, date)
+    evaluateClustersResultsForProfiles(clusterResults)
+    findClustersAffiliation(clusterResults)
+    val reader = new SequenceFile.Reader(fs, new Path(outputDir + "/" + Cluster.CLUSTERED_POINTS_DIR + "/part-m-0"), conf)
     val key = new org.apache.hadoop.io.IntWritable()
     val value = new WeightedPropertyVectorWritable()
-    
+
     //if(reader==null){println("reader is null")}
-      val finalClusters = new ListBuffer[String]
-    while (reader.next(key,value)) {
-     // println("KEY:"+value)
-      println(s"$value belongs to cluster $key")
-      if(!finalClusters.contains(key.toString))
-      finalClusters+=key.toString()
-    }    
+    val finalClusters = new ListBuffer[String]
+    while (reader.next(key, value)) {
+      // println("KEY:"+value)
+      // println(s"$value belongs to cluster $key")
+      if (!finalClusters.contains(key.toString))
+        finalClusters += key.toString()
+    }
     reader.close()
-    println("CLUSTERS:"+finalClusters) 
-    
+    println("CLUSTERS:" + finalClusters)
+
   }
-  def evaluateClustersCentroids(clusters:java.util.List[java.util.List[Cluster]])={
-    val prepareTrainingSetData=true
+  /**
+   * For each feature finds quartiles based on the maximum identified value
+   */
+  def evaluateFeaturesQuartiles() {
+    for (i <- 0 to numFeatures - 1) {
+      featuresQuartiles.getOrElseUpdate(i, new FeatureQuartiles()).findQuartiles()
+    }
+  }
+  def extractClusterResultFeatureQuartileForCluster(cluster: Cluster, date: Long): ClusterResults = {
+    println(s"Cluster id:${cluster.getId} center:${cluster.getCenter.asFormatString()}")
+    val cid = cluster.getId
+    val clusterResult = new ClusterResults(cid, date)
+    for (i <- 0 to numFeatures - 1) {
+      val featureVal = cluster.getCenter.get(i)
+      val (featureQuartileMean: Array[Double], featureQuartile) = featuresQuartiles.getOrElseUpdate(i, new FeatureQuartiles()).checkQuartileForFeatureValue(featureVal)
+      println("Result for cluster:" + cid + " feature:" + i + " has value:" + featureVal + " Q:" + featureQuartile)
+      clusterResult.addFeatureValue(i, (featureVal, featureQuartile))
+    }
+    clusterResult
+  }
+  def findClusterResultsMatching(clusterResult: ClusterResults): ClusterResults = {
+    println("Trying to find cluster results matching")
+    clusterResult.getFeatureValues().foreach {
+      value: (Int, (Double, Int)) =>
+        println("feature:" + value._1, "Quadrile:" + value._2._2)
+    }
+    clusterResult
+  }
+  def evaluateClustersFeaturesQuartiles(clusters: java.util.List[java.util.List[Cluster]], date: Long): Buffer[ClusterResults] = {
+    println("EVALUATING DAY::::::" + date);
+    val clusterResults: Buffer[ClusterResults] = clusters.get(clusters.size - 1).asScala
+      .map { cluster =>
+        extractClusterResultFeatureQuartileForCluster(cluster, date)
+      }
+      .map { clusterResults =>
+        findClusterResultsMatching(clusterResults)
+      }
+
+    println("EVALUATED DAY::::::" + date)
+    clusterResults
+  }
+  def evaluateClustersResultsForProfiles(clusterResults: Buffer[ClusterResults]) {
+    clusterResults.foreach { clusterResult =>
+      FeaturesToProfileMatcher.checkClustersMatching(clusterResult)
+      FeaturesToProfileMatcher.sortClustersMatchingByValues(clusterResult)
+    }
+  }
+  def findClustersAffiliation(clusterResults: Buffer[ClusterResults]) {
+    println("FIND CLUSTERS AFFILIATION")
+    val matchedElements: Map[ClusterName.Value, ClusterResults] = new HashMap[ClusterName.Value, ClusterResults]()
+    val matchedIds:ArrayBuffer[Int]=new ArrayBuffer[Int]()
+    for (index <- 0 to numClusters-1) {
+      val elementsToCheck: Map[ClusterName.Value, ArrayBuffer[(ClusterResults,Double)]] = new HashMap[ClusterName.Value, ArrayBuffer[(ClusterResults,Double)]]()
+      clusterResults.foreach { clusterResult =>
+        val matchElem = clusterResult.sortedMatchingList(index)
+        println(index+".MATCH ELEM FOR :"+clusterResult.id+":"+matchElem)
+        //checking if cluster was not already resolved
+         if(!matchedElements.contains(matchElem._1)){
+              val tempList = elementsToCheck.getOrElse(matchElem._1,new ArrayBuffer[(ClusterResults,Double)]())
+      //  val elem=(clusterResult,matchElem._2)
+         tempList +=new Tuple2(clusterResult,matchElem._2)
+        elementsToCheck.put(matchElem._1, tempList)
+         }
     
-    println("MAX VALUES:"+maxFeaturesValues)
-      if(prepareTrainingSetData){
-        clusters.get(clusters.size - 1).asScala.foreach { cluster =>
-             println(s"Cluster id:${cluster.getId} center:${cluster.getCenter.asFormatString()}")
-             for(i<-0 to numFeatures-1){
-               println("feature:"+i+" has value:"+  cluster.getCenter.get(i))
-             }
-             
+      }
+      println("ELEMENTS TO CHECK:"+elementsToCheck.map(el=>(el._1,el._2.map(cr=>(cr._1.id,cr._2)))))
+      elementsToCheck.foreach{
+       
+        case (clusterName:ClusterName.Value, matchingResults:ArrayBuffer[(ClusterResults,Double)])=> 
+          println("************MATCHING CLUSTER:"+clusterName)
+           println("MATCHED IDS:"+matchedIds.toString()+" mathing results:"+matchingResults.map(p=>p._1.id))
+        if(!matchedElements.contains(clusterName)){
+          if(matchingResults.size==1 && !matchedIds.contains(matchingResults(0)._1.id)){
+          println("FOUND SINGLE RESULT FOR:"+clusterName+" id:"+matchingResults(0)._1.id)          
+             matchedElements.put(clusterName, matchingResults(0)._1)
+             matchedIds+=matchingResults(0)._1.id
+       
+        }else{
+          println("CONFLICT:"+clusterName+" has:"+matchingResults.size+" Searching for best match")
+         val sorted:ArrayBuffer[(ClusterResults,Double)]= matchingResults.sortBy(_._2).reverse 
+         
+         println("SORTED MATCHES:"+sorted.map(v=>(v._2,v._1.id)))
+          val notAssignedSorted=sorted.filterNot{p:(ClusterResults,Double) => matchedIds.contains(p._1.id)}
+           println("NOT ASSIGNED AND SORTED MATCHES:"+notAssignedSorted.map(v=>v._2))
+          val highest=notAssignedSorted.head._2
+          val filtered=notAssignedSorted.filter{_._2==highest}
+          if(filtered.size==1){
+            println("ONLY ONE MATCH:"+filtered(0)._1.id)
+             matchedElements.put(clusterName, filtered(0)._1)
+             matchedIds+=filtered(0)._1.id
+          }else{
+            println("SELECTING FIRST MATCH:"+filtered(0)._1.id)
+            matchedElements.put(clusterName, filtered(0)._1)
+             matchedIds+=filtered(0)._1.id
+          }
         }
-     }
+        }
+      
+      }
+    }
+    val printoutput=matchedElements.map{
+      case (el:ClusterName.Value,el2:ClusterResults)=>
+        (el,el2.id,el2.featureValues)
+        outputResults(el,el2.id, el2.date) 
+        outputResults("features:",el2.featureValues)
+         outputResults("clusters matching:",el2.clustersMatching)
+        
+    }
+    outputResults("")
+    //outputResults(printoutput)
+    //println("******MATCHED ELEMENTS:"+matchedElements.map{case (el:ClusterName.Value,el2:ClusterResults)=>(el,el2.featureValues)})
   }
-  def writeToCSV()={
-    val csvfilewriter=new PrintWriter(new File("test_file.csv"));
-   // writetofile.write(s"$cols(0)},$cols(1)},$cols(2)},$cols(3)},$cols(4)}")
-    csvfilewriter.close
+    def outputResults(line:Any){
+      println(line)
+      val csvfilewriter = new PrintWriter(new BufferedWriter(new FileWriter("my_test_outputfile.txt", true)))
+   
+      csvfilewriter.append(s"$line")
+       csvfilewriter.append("\r\n")
+ 
+         csvfilewriter.close()
+    }
+  /**
+   *
+   */
+  @deprecated
+  def evaluateAndExportClustersCentroids(clusters: java.util.List[java.util.List[Cluster]], date: Long) = {
+
+    val csvfilewriter = new PrintWriter(new BufferedWriter(new FileWriter("my_test_file3.csv", true)))
+    clusters.get(clusters.size - 1).asScala.foreach { cluster =>
+      println(s"Cluster id:${cluster.getId} center:${cluster.getCenter.asFormatString()}")
+      val cid = cluster.getId
+      csvfilewriter.append(s"$cid,")
+      csvfilewriter.append(s"$date,")
+      for (i <- 0 to numFeatures - 1) {
+
+        val featureVal = cluster.getCenter.get(i)
+        val (featureQuartileMean: Array[Double], featureQuartile) = featuresQuartiles.getOrElseUpdate(i, new FeatureQuartiles()).checkQuartileForFeatureValue(featureVal)
+
+        for (i <- 0 to featureQuartileMean.length - 1) {
+          val median = featureQuartileMean(i)
+          csvfilewriter.append(s"$median,")
+        }
+        csvfilewriter.append(s"$featureVal,")
+        csvfilewriter.append(s"$featureQuartile,")
+        println("cluster:" + cid + " feature:" + i + " has value:" + featureVal + " Q:" + featureQuartile)
+
+      }
+      csvfilewriter.append("\r\n")
+
+    }
+    csvfilewriter.close()
   }
 
-  initData();
-  runClustering();
+
+  def calculateUsersClasteringForPeriod(startDate: Date, endDate: Date) = {
+
+    val startDateSinceEpoch = DateUtil.getDaysSinceEpoch(startDate)
+    println("DAYS SINCE EPOCH FOR:" + startDate + " is:" + startDateSinceEpoch)
+    val endDateSinceEpoch = DateUtil.getDaysSinceEpoch(endDate)
+    for (date <- startDateSinceEpoch to endDateSinceEpoch) {
+      calculateUsersClasteringForDate(date)
+    }
+
+  }
+  def calculateUsersClasteringForDate(date: Long) = {
+    println("CLUSTERING FOR:" + date)
+    initData(date)
+    runClustering(date)
+  }
+  val dateFormat: SimpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+
+  val startDate: Date = dateFormat.parse("10/20/2014")
+  val endDate: Date = dateFormat.parse("10/22/2014")
+  val endDate2: Date = dateFormat.parse("12/20/2014")
+  // calculateUsersClasteringForDate(16370)
+  calculateUsersClasteringForPeriod(startDate, endDate2)
 }

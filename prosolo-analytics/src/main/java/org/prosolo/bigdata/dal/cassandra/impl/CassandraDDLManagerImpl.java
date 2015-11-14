@@ -91,6 +91,12 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		String clusteringusersobservationsbydateDDL = "CREATE TABLE IF NOT EXISTS clusteringusersobservationsbydate(date bigint, userid bigint, login counter, lmsuse counter, resourceview counter, discussionview counter, "
 				+ " PRIMARY KEY (date, userid))";
 		this.ddls.add(clusteringusersobservationsbydateDDL);
+		
+		String userprofileactionsobservationsbydateDDL = "CREATE TABLE IF NOT EXISTS userprofileactionsobservationsbydate(date bigint, userid bigint, attach counter,  "
+				+ "progress counter,  comment counter,  creating counter,  evaluation counter,join counter,like counter,login  counter,"
+				+ "posting counter,content_access counter,message counter,search counter, "
+				+ " PRIMARY KEY (date, userid))";
+		this.ddls.add(userprofileactionsobservationsbydateDDL);
 	}
 
 	@Override

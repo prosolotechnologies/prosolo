@@ -42,7 +42,7 @@
 		<appender-ref ref="default.file" />
 	</logger>
 	<logger name="org.prosolo.bigdata.rabbitmq" additivity="false">
-		<level value="DEBUG" />
+		<level value="INFO" />
 		<appender-ref ref="console" />
 		<appender-ref ref="default.file" />
 	</logger>

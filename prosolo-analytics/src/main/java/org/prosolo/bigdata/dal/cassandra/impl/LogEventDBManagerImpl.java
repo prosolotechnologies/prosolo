@@ -47,7 +47,12 @@ public class LogEventDBManagerImpl extends SimpleCassandraClientImpl implements
 
 		try {
 			boundStatement.setString(0, event.getTopic().name());
-			boundStatement.setString(1, event.getEventType().toString());
+			if(event.getEventType()!=null){
+				boundStatement.setString(1, event.getEventType().toString());
+			}else{
+				boundStatement.setString(1, "");
+			}
+
 			boundStatement.setLong(2, event.getTimestamp());
 			boundStatement.setLong(3, event.getActorId());
 			boundStatement.setString(4, event.getActorFullname());
@@ -59,7 +64,12 @@ public class LogEventDBManagerImpl extends SimpleCassandraClientImpl implements
 			boundStatement.setString(10, event.getReasonType());
 			boundStatement.setLong(11, event.getReasonId());
 			boundStatement.setString(12, event.getLink());
-			boundStatement.setString(13, event.getParameters().toString());
+			if(event.getParameters()!=null){
+				boundStatement.setString(13, event.getParameters().toString());
+			}else{
+				boundStatement.setString(13, "");
+			}
+
 			this.getSession().execute(boundStatement);
 		} catch (Exception ex) {
 			ex.printStackTrace();

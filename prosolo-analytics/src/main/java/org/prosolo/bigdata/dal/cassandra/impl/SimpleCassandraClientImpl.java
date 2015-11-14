@@ -11,6 +11,8 @@ import com.datastax.driver.core.HostDistance;
 import com.datastax.driver.core.PoolingOptions;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.exceptions.InvalidQueryException;
+import com.datastax.driver.core.policies.ConstantReconnectionPolicy;
+import com.datastax.driver.core.policies.DowngradingConsistencyRetryPolicy;
 
 /**
  * @author Zoran Jeremic Apr 3, 2015
@@ -61,7 +63,11 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 			return;
 		}
 	
-		this.cluster = Cluster.builder().withPoolingOptions( getPoolingOptions()).addContactPoint(node).build();
+		this.cluster = Cluster.builder()
+				.withPoolingOptions( getPoolingOptions())
+				.withRetryPolicy(DowngradingConsistencyRetryPolicy.INSTANCE)
+				.withReconnectionPolicy(new ConstantReconnectionPolicy(100L))
+				.addContactPoint(node).build();
 		if (keyspace != null) {
 			try {
 				this.session = this.cluster.connect(keyspace);

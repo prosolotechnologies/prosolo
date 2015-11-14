@@ -1,6 +1,6 @@
 package org.prosolo.bigdata.events.analyzers;
 
-import java.util.Date;
+
 
 import org.prosolo.bigdata.dal.cassandra.UserObservationsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.UserObservationsDBManagerImpl;

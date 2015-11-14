@@ -256,6 +256,7 @@ public class ReliableProducerImplTest{
 		int batchSize = 1000;
 		int batchesCounter=0;
 		while(counter < count) {
+			
 			batchesCounter++;
 			if((batchesCounter % 10)==0){
 				logger.info(batchesCounter*1000+"/"+count);
@@ -287,7 +288,11 @@ public class ReliableProducerImplTest{
 				}
 				
 			}
-			
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	

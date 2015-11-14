@@ -36,7 +36,7 @@ public class DefaultMessageWorker implements MessageWorker{
 	   		ServiceLocator.getInstance().getService(SessionMessageHandlerImpl.class).handle(sessionMessage);
 		}else if(messageWrapper.getMessage() instanceof BroadcastMessage){
 			BroadcastMessage broadcastMessage=(BroadcastMessage) messageWrapper.getMessage();
-			logger.info(message);
+			logger.debug(message);
 			ServiceLocator.getInstance().getService(BroadcastMessageHandlerImpl.class).handle(broadcastMessage);
 			
 		}
