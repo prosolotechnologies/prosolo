@@ -75,7 +75,16 @@ $(function () {
 			tooltip : {
 				fields: ["date", "count", "type"]
 			},
-			brewer: patterns
+			brewer: patterns,
+			legend : {
+				selector: "#activityGraph .legend",
+				data: function() { return [{"name" : "Registered", "class" : "pattern-one"},
+				       {"name" : "Logins", "class" : "pattern-two"},
+			       	   {"name" : "Home page visited", "class" : "pattern-three"},
+			       	   {"name" : "Goals views", "class" : "pattern-four"},
+			       	   {"name" : "Competences views", "class" : "pattern-five"},
+			       	   {"name" : "Profile views", "class" : "pattern-six"}] }
+			}
 		});
 		
 		function displayLines() {
@@ -104,6 +113,7 @@ $(function () {
 				} else {	
 					loaded = true;
 					$("#activityGraph .chart").show().siblings().hide();
+					$("#activityGraph .legend").show();
 					var from = $("#activityGraph .dateFrom").datepicker("getDate");
 					var to = $("#activityGraph .dateTo").datepicker("getDate");
 					agc.show(data, from, to);
@@ -370,6 +380,17 @@ $(function () {
 	
 	
 	var twitterHashtags = (function() {
+		var patterns = [ "pattern-one", "pattern-two", "pattern-three", "pattern-four", "pattern-five", "pattern-six" ];
+		
+		function cycle() {
+			var index = 0;
+			return function() {
+				var result = patterns[index];
+				index = (index + 1) % patterns.length;
+				return result;
+			};
+		};
+	
 		var twitterHashtagsChart = chart.create({
 			container : "#twitterHashtagsChart",
 			x : "date",
@@ -378,7 +399,11 @@ $(function () {
 			tooltip : {
 				fields: ["date", "count", "hashtag"]
 			},
-			brewer: [ "pattern-one", "pattern-two", "pattern-three", "pattern-four", "pattern-five", "pattern-six" ]
+			brewer: patterns,
+			legend : {
+				selector: "#twitterHashtagsGraph .legend",
+				data: function() { var next = cycle(); return hashtagsInTable.map(function(hashtag) { return {"name" : "#" + hashtag, "class" : next()}  }) }
+			}
 		});
 
 		return {
@@ -397,6 +422,7 @@ $(function () {
 					twitterHashtagsChart.show(data, from, to);
 				} else {
 					$("#twitterHashtagsGraph .chart").show().siblings().hide();
+					$("#twitterHashtagsGraph .legend").show();
 					twitterHashtagsChart.show(data, from, to);
 				}
 			}
