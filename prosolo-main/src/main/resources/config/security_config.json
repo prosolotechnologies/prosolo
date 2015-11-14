@@ -19,12 +19,27 @@
     ],
     "capabilities": [
         {
-            "name": "basic.access",
+            "name": "basic.user.access",
             "description": "Basic user access",
             "roles": [
                 "User",
                 "Instructor",
                 "Manager",
+                "Admin"
+            ]
+        },
+		{
+            "name": "basic.manager.access",
+            "description": "Basic manager access",
+            "roles": [
+                "Instructor",
+                "Manager"
+            ]
+        },
+		{
+            "name": "basic.admin.access",
+            "description": "Basic admin access",
+            "roles": [
                 "Admin"
             ]
         },

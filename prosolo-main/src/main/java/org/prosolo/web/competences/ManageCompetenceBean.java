@@ -12,8 +12,10 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.hibernate.ObjectNotFoundException;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
@@ -25,6 +27,7 @@ import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.ResourceFactory;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.competences.data.ActivityFormData;
@@ -51,12 +54,13 @@ public class ManageCompetenceBean implements Serializable {
 	@Autowired private CompWallActivityConverter compWallActivityConverter;
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private ResourceFactory resourceFactory;
-
+	@Inject private UrlIdEncoder idEncoder;
+	
 	private CompetenceFormData compData = new CompetenceFormData();
 	private Competence competence;
 	private boolean showActivityDetails = true;
 
-	private long id;
+	private String id;
 	private String origin;
 	
 	// used for detecting position change
@@ -68,10 +72,11 @@ public class ManageCompetenceBean implements Serializable {
 	
 	public void init() {
 		System.out.println("INIT COMPETENCE");
-		if (id > 0) {
+		long decodedId = idEncoder.decodeId(id);
+		if (decodedId > 0) {
 			System.out.println("INIT COMPETENCE ID:"+id);
 			try {
-				competence = competenceManager.loadResource(Competence.class, id);
+				competence = competenceManager.loadResource(Competence.class, decodedId);
 				compData = new CompetenceFormData(competence);
 				
 				List<ActivityWallData> actData = compWallActivityConverter.convertCompetenceActivities(
@@ -81,7 +86,20 @@ public class ManageCompetenceBean implements Serializable {
 						false);
 				System.out.println("INIT COMPETENCE activities:"+actData.size());
 				compData.setActivities(actData);
+			} catch(ObjectNotFoundException onf) {
+				try {
+					logger.error(onf);
+					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+				} catch (IOException e) {
+					logger.error(e);
+				}
 			} catch (ResourceCouldNotBeLoadedException e) {
+				logger.error(e);
+			}
+		}else {
+			try {
+				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+			} catch (IOException e) {
 				logger.error(e);
 			}
 		}
@@ -305,11 +323,11 @@ public class ManageCompetenceBean implements Serializable {
 	/*
 	 * GETTERS / SETTERS
 	 */
-	public long getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 	

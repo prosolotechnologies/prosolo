@@ -4,7 +4,8 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui"
 	template="templates/masterLayout.xhtml"
-	xmlns:dlg="http://java.sun.com/jsf/composite/components/admin/dialogs">
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/admin/dialogs"
+	xmlns:util="http://www.prosolo.com/util">
 
 <ui:define name="windowTitle">
 	Course members
@@ -12,7 +13,7 @@
 
 <ui:define name="metadata">
 	<f:metadata>
-		<f:viewParam name="id" value="#{courseMembersBean.id}" default="0"/>
+		<f:viewParam name="id" value="#{courseMembersBean.id}" default="null"/>
 		<f:viewAction action="#{courseMembersBean.init()}" />
 	</f:metadata>
 </ui:define>
@@ -48,24 +49,24 @@
 				    
 					<p:column id="nameColumn" styleClass="middleAlign" headerText="Name" filterBy="name"
 						filterMatchMode="contains" sortBy="name">
-						<h:link value="#{user.name}" outcome="/publicprofile">
-							<f:param name="id" value="#{user.id}" />
+						<h:link value="#{user.name}" outcome="/manage/studentProfile">
+							<f:param name="id" value="#{util:encodeId(user.id)}" />
 						</h:link>
 					</p:column>
 	
 					<p:column id="lastNameColumn" styleClass="middleAlign" headerText="Last Name" 
 						filterBy="lastName"	filterMatchMode="contains" sortBy="lastName">
-						<h:link value="#{user.lastName}" outcome="/publicprofile">
-							<f:param name="id" value="#{user.id}" />
+						<h:link value="#{user.lastName}" outcome="/manage/studentProfile">
+							<f:param name="id" value="#{util:encodeId(user.id)}" />
 						</h:link>
 					</p:column>
 	
 					<p:column styleClass="center middleAlign" headerText="Photo">
-						<h:link outcome="/publicprofile" >
+						<h:link outcome="/manage/studentProfile" >
 							<h:graphicImage id="userImageId" styleClass="imageRound image30"
 								value="#{user.avatarUrl}" width="30"
 								height="30" alt="" />
-						    <f:param name="id" value="#{user.id}" />
+						    <f:param name="id" value="#{util:encodeId(user.id)}" />
 						</h:link>
 					</p:column>
 				</p:dataTable>

@@ -24,6 +24,7 @@ import org.prosolo.services.learningProgress.LearningProgressObserver;
 import org.prosolo.services.logging.LoggingEventsObserver;
 import org.prosolo.services.logging.UserActivityObserver;
 import org.prosolo.services.notifications.NotificationObserver;
+import org.prosolo.services.reporting.SocialInteractionStatisticsObserver;
 import org.prosolo.services.reporting.TwitterHashtagStatisticsObserver;
 import org.prosolo.services.reporting.UserActivityStatisticsObserver;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,7 @@ public class CentralEventDispatcher {
 	@Autowired private FilterUpdaterObserver filterUpdatedObserver;
 	@Autowired private UserActivityStatisticsObserver userActivityStatisticsObserver;
 	@Autowired private TwitterHashtagStatisticsObserver twitterHashtagStatisticsObserver;
+	@Autowired private SocialInteractionStatisticsObserver socialInteractionStatisticsObserver;
 
 	private Collection<EventObserver> getObservers() {
 		if (observers == null) {
@@ -78,6 +80,7 @@ public class CentralEventDispatcher {
 			observers.add(filterUpdatedObserver);
 			observers.add(userActivityStatisticsObserver);
 			observers.add(twitterHashtagStatisticsObserver);
+			observers.add(socialInteractionStatisticsObserver);
 		}
 		return observers;
 	}

@@ -12,8 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+
 
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.user.User;
@@ -22,13 +21,13 @@ import org.prosolo.common.domainmodel.user.User;
 public class Observation {
 
 	private long id;
-	private Date dateCreated;
 	private String message;
 	private String note;
 	private Set<Symptom> symptoms;
 	private Set<Suggestion> suggestions;
 	private User createdBy;
 	private User createdFor;
+	private Date creationDate;
 	
 	@Id
 	@Column(name = "id", unique = true, nullable = false, insertable = false, updatable = false)
@@ -40,17 +39,6 @@ public class Observation {
 	
 	public void setId(long id) {
 		this.id = id;
-	}
-	
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(length = 19)
-	@Type(type="date")
-	public Date getDateCreated() {
-		return dateCreated;
-	}
-	
-	public void setDateCreated(Date dateCreated) {
-		this.dateCreated = dateCreated;
 	}
 	
 	@Column(length = 90000)
@@ -108,5 +96,14 @@ public class Observation {
 	public void setCreatedFor(User createdFor) {
 		this.createdFor = createdFor;
 	}
+
+	public Date getCreationDate() {
+		return creationDate;
+	}
+
+	public void setCreationDate(Date creationDate) {
+		this.creationDate = creationDate;
+	}
+	
 	
 }

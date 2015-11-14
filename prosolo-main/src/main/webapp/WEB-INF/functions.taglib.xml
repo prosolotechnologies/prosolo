@@ -72,6 +72,12 @@
 		<function-signature>java.lang.String getContextUrl()</function-signature>
 	</function>
 	
+	<function>
+		<function-name>encodeId</function-name>
+		<function-class>org.prosolo.web.util.UrlDbIdEncoder</function-class>
+		<function-signature>java.lang.String encodeId(long)</function-signature>
+	</function>
+	
 	<!-- Components -->
 	
 	<tag>

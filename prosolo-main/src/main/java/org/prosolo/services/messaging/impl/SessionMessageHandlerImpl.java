@@ -44,7 +44,7 @@ import org.prosolo.util.StringUtils;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.CoursePortfolioBean;
-import org.prosolo.web.goals.LearningGoalsBean;
+import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.home.SuggestedLearningBean;
 import org.prosolo.web.home.data.RecommendationData;
@@ -179,7 +179,7 @@ public class SessionMessageHandlerImpl implements MessageHandler<SessionMessage>
 				case ACCEPTJOINGOALNOTIFICATION:
 					if (httpSession != null) {
 						LearningGoal goal1 = (LearningGoal) session.load(LearningGoal.class, resourceId);
-						LearningGoalsBean userLearningGoalBean = (LearningGoalsBean) httpSession.getAttribute("learninggoals");
+						LearnBean userLearningGoalBean = (LearnBean) httpSession.getAttribute("learninggoals");
 		
 						if (userLearningGoalBean != null) {
 							GoalDataCache goalData = userLearningGoalBean.getData().getDataForGoal(goal1);
@@ -357,7 +357,7 @@ public class SessionMessageHandlerImpl implements MessageHandler<SessionMessage>
 					break;
 				case REMOVE_TARGET_GOAL :
 					if (httpSession != null) {
-						LearningGoalsBean learningGoalsBean = (LearningGoalsBean) httpSession.getAttribute("learninggoals");
+						LearnBean learningGoalsBean = (LearnBean) httpSession.getAttribute("learninggoals");
 						
 						if (learningGoalsBean != null) {
 							learningGoalsBean.getData().removeGoalByTargetId(resourceId);
@@ -382,7 +382,7 @@ public class SessionMessageHandlerImpl implements MessageHandler<SessionMessage>
 					break;
 				case ADD_GOAL :
 					if (httpSession != null) {
-						LearningGoalsBean learningGoalsBean = (LearningGoalsBean) httpSession.getAttribute("learninggoals");
+						LearnBean learningGoalsBean = (LearnBean) httpSession.getAttribute("learninggoals");
 						LoggedUserBean loggedUser = (LoggedUserBean) httpSession.getAttribute("loggeduser");
 						
 						if (learningGoalsBean != null) {

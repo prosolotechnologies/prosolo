@@ -13,7 +13,7 @@ import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.interfaceSettings.LearnPageCacheUpdater;
-import org.prosolo.web.goals.LearningGoalsBean;
+import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +32,7 @@ public class LearnPageCacheUpdaterImpl implements LearnPageCacheUpdater, Seriali
 	@Override
 	public void removeCollaboratorFormGoal(User collaboratorToRemove, LearningGoal goal, HttpSession userSession) {
 		if (userSession != null) {
-			LearningGoalsBean userLearningGoalBean = (LearningGoalsBean) userSession.getAttribute("learninggoals");
+			LearnBean userLearningGoalBean = (LearnBean) userSession.getAttribute("learninggoals");
 			
 			if (userLearningGoalBean != null) {
 				GoalDataCache goalData = userLearningGoalBean.getData().getDataForGoal(goal);

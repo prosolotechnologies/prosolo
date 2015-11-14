@@ -10,7 +10,7 @@ import javax.faces.bean.ManagedBean;
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
 import org.prosolo.web.data.GoalData;
-import org.prosolo.web.goals.LearningGoalsBean;
+import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.CompetenceDataCache;
 import org.prosolo.web.home.util.LastActivityComparatorDesc;
 import org.prosolo.web.portfolio.PortfolioBean;
@@ -28,7 +28,7 @@ public class LearningProgressBean implements Serializable{
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(LearningProgressBean.class);
 	
-	@Autowired private LearningGoalsBean learningGoalsBean;
+	@Autowired private LearnBean learningGoalsBean;
 	@Autowired private PortfolioBean portfolioBean;
 	
 	private boolean initialized;

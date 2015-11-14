@@ -20,7 +20,7 @@ import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.web.activitywall.ActivityWallBean;
 import org.prosolo.web.activitywall.util.WallActivityConverter;
 import org.prosolo.web.goals.GoalWallBean;
-import org.prosolo.web.goals.LearningGoalsBean;
+import org.prosolo.web.goals.LearnBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -126,7 +126,7 @@ public class SocialActivityHandlerImpl implements SocialActivityHandler{
 	@Override
 	public void updateSocialActivity(SocialActivity socialActivity, HttpSession userSession, Session session) {
 		if (userSession != null) {
-			LearningGoalsBean learningGoalsBean = (LearningGoalsBean) userSession.getAttribute("learninggoals");
+			LearnBean learningGoalsBean = (LearnBean) userSession.getAttribute("learninggoals");
 			
 			if (learningGoalsBean != null) {
 				learningGoalsBean.getData().updateSocialActivity(socialActivity);
@@ -143,7 +143,7 @@ public class SocialActivityHandlerImpl implements SocialActivityHandler{
 	@Override
 	public void disableSharing(SocialActivity socialActivity, HttpSession userSession, Session currentManager) {
 		if (userSession != null) {
-			LearningGoalsBean learningGoalsBean = (LearningGoalsBean) userSession.getAttribute("learninggoals");
+			LearnBean learningGoalsBean = (LearnBean) userSession.getAttribute("learninggoals");
 			
 			if (learningGoalsBean != null) {
 				learningGoalsBean.getData().disableSharing(socialActivity);
@@ -160,7 +160,7 @@ public class SocialActivityHandlerImpl implements SocialActivityHandler{
 	@Override
 	public void removeSocialActivity(SocialActivity socialActivity, HttpSession userSession, Session session) {
 		if (userSession != null) {
-			LearningGoalsBean learningGoalsBean = (LearningGoalsBean) userSession.getAttribute("learninggoals");
+			LearnBean learningGoalsBean = (LearnBean) userSession.getAttribute("learninggoals");
 			
 			if (learningGoalsBean != null) {
 				learningGoalsBean.getData().removeWallActivityData(socialActivity.getId());

@@ -31,6 +31,7 @@ import org.springframework.security.web.authentication.rememberme.TokenBasedReme
 import org.springframework.security.web.header.writers.frameoptions.WhiteListedAllowFromStrategy;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter.XFrameOptionsMode;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.amazonaws.services.s3.Headers;
 
@@ -48,10 +49,13 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	private UserDetailsService userDetailsService;
 	@Inject
 	private PasswordEncrypter passwordEncrypter;
+    @Inject
+    private CustomAuthenticationSuccessHandler authenticationSuccessHandler;
 	
 	@Override
     protected void configure(HttpSecurity http) throws Exception {
 		
+		String rememberMeKey = "prosoloremembermekey";
 		http.authorizeRequests()
 		   .antMatchers("/favicon.ico").permitAll()
 		   .antMatchers("/resources/css/**").permitAll()
@@ -68,9 +72,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/profile/**").permitAll()
 		   .antMatchers("/maintenance").permitAll()
 		   .antMatchers("/digest").permitAll()
+		   .antMatchers("/login").permitAll()
 		   .antMatchers("/ltitoolproxyregistration.xhtml").permitAll()
 		   .antMatchers("/ltitool.xhtml").permitAll()
-		   .antMatchers("/login").permitAll()
 		   .antMatchers("/loginAdmin").permitAll()
 		   .antMatchers("/ltiproviderlaunch.xhtml").permitAll()
 		   .antMatchers("/openid.xhtml").permitAll()
@@ -79,22 +83,54 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	       .antMatchers("/passwordReset").permitAll()
 		   .antMatchers("/recovery").permitAll()
 		   .antMatchers("/javax.faces.resource/**").permitAll()
-		   .antMatchers("/manage/competences").hasAuthority("COMPETENCES.VIEW")
+		   .antMatchers("/notfound").permitAll()
+		   
+		   .antMatchers("/manage/css/**").hasAnyAuthority("BASIC.MANAGER.ACCESS")
+		   .antMatchers("/manage/js/**").hasAuthority("BASIC.MANAGER.ACCESS")
+		   .antMatchers("/manage/images/**").hasAuthority("BASIC.MANAGER.ACCESS")
+		   .antMatchers("/manage/competences/**").hasAuthority("COMPETENCES.VIEW")
+		   .antMatchers("/manage/credentials/**").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
+		   .antMatchers("/manage/credentials/create/").hasAnyAuthority("COURSE.CREATE")
+		   //capability for external tool?
+		   .antMatchers("/manage/credentials/*/tools").hasAuthority("BASIC.MANAGER.ACCESS")
+		   .antMatchers("/manage/competences/*/tools").hasAuthority("BASIC.MANAGER.ACCESS")
+		   .antMatchers("/manage/tools/*/*/*/create").hasAuthority("BASIC.MANAGER.ACCESS")
+		   .antMatchers("/manage/tools/*").hasAuthority("BASIC.MANAGER.ACCESS")
+		   .antMatchers("/manage/credentials/{id}/students").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
+		   .antMatchers("/manage/courseFeeds.xhtml*").hasAuthority("BASIC.MANAGER.ACCESS")
+		   .antMatchers("/manage/social-interaction*").hasAuthority("BASIC.MANAGER.ACCESS")
+		   .antMatchers("/manage/students/*").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/reports").hasAuthority("REPORTS.VIEW")
 		   .antMatchers("/admin/users").hasAuthority("USERS.VIEW")
 		   .antMatchers("/admin/roles").hasAuthority("ROLES.VIEW")
 		   .antMatchers("/admin/dashboard").hasAuthority("ADMINDASHBOARD.VIEW")
-		   
-		   .antMatchers("/**").hasAnyAuthority("BASIC.ACCESS")
+		   .antMatchers("/admin/settings").hasAuthority("BASIC.ADMIN.ACCESS")
+		  
+		   .antMatchers("/manage/**").denyAll()
+		   .antMatchers("/admin/**").denyAll()
+		   .antMatchers("/**").hasAuthority("BASIC.USER.ACCESS")
 		   .and()
-           .csrf().disable()
-           .rememberMe().rememberMeServices(rememberMeService())
-           .and().exceptionHandling().authenticationEntryPoint(authenticationEntryPoint())
-           .and().exceptionHandling().accessDeniedHandler(accessDeniedHandler())
+		   .formLogin().loginPage("/login").loginProcessingUrl("/loginspring")
+		   .usernameParameter("username")
+		   .passwordParameter("password")
+		   .permitAll()
+		   .successHandler(authenticationSuccessHandler)
+		   .failureUrl("/login")
+           .and().csrf().disable()
+           .rememberMe()
+           .rememberMeServices(rememberMeService(rememberMeKey)).key(rememberMeKey)
+           		.authenticationSuccessHandler(authenticationSuccessHandler)
+           //.key("key").userDetailsService(userDetailsService).authenticationSuccessHandler(authenticationSuccessHandler)
+           .and()
+           .logout().invalidateHttpSession(true).logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+           		.deleteCookies("JSESSIONID")
+           .and()
+           .exceptionHandling().accessDeniedHandler(accessDeniedHandler())
            .and().headers()
    		   .frameOptions().disable();
 		
     }
+	
 	@Inject
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 		//super.configure(auth);
@@ -133,11 +169,11 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	}*/
 	
 	
-	@Bean
+	/*@Bean
 	public AuthenticationEntryPoint authenticationEntryPoint(){
 		LoginUrlAuthenticationEntryPoint auth = new LoginUrlAuthenticationEntryPoint("/login");
 		return auth;
-	}
+	}*/
 	
 	@Bean
 	public AccessDeniedHandler accessDeniedHandler(){
@@ -147,15 +183,19 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 	
 	@Bean
-	public TokenBasedRememberMeServices rememberMeService(){
-		TokenBasedRememberMeServices service = new TokenBasedRememberMeServices("verylongkey", userDetailsService);
+	public TokenBasedRememberMeServices rememberMeService(String key){
+		TokenBasedRememberMeServices service = new TokenBasedRememberMeServices(key, userDetailsService);
 		
 		service.setCookieName("ProSolo");
-		service.setParameter("_spring_security_remember_me");
+		service.setParameter("remember-me");
 		//service.setAlwaysRemember(true);
 		
 		return service;
 	}
 	
+	/*@Bean
+	public CustomAuthenticationSuccessHandler successHandler(){
+		return new CustomAuthenticationSuccessHandler();
+	}*/
 	
 }

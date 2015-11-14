@@ -1,5 +1,12 @@
 package org.prosolo.bigdata.dal.cassandra.impl;
 
+import static org.prosolo.bigdata.dal.cassandra.impl.UserActivityStatisticsDBManagerImpl.Statements.DELETE_FROM_INSTANCE_LOGGED_USERS_COUNT;
+import static org.prosolo.bigdata.dal.cassandra.impl.UserActivityStatisticsDBManagerImpl.Statements.FIND_EVENTS_COUNT_FOR_PERIOD;
+import static org.prosolo.bigdata.dal.cassandra.impl.UserActivityStatisticsDBManagerImpl.Statements.FIND_EVENT_COUNT;
+import static org.prosolo.bigdata.dal.cassandra.impl.UserActivityStatisticsDBManagerImpl.Statements.FIND_INSTANCE_LOGGED_USERS_COUNT;
+import static org.prosolo.bigdata.dal.cassandra.impl.UserActivityStatisticsDBManagerImpl.Statements.FIND_USER_EVENT_COUNT_FOR_PERIOD;
+import static org.prosolo.bigdata.dal.cassandra.impl.UserActivityStatisticsDBManagerImpl.Statements.UPDATE_INSTANCE_LOGGED_USERS_COUNT;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,25 +23,21 @@ import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
-
 public class UserActivityStatisticsDBManagerImpl extends SimpleCassandraClientImpl implements
 		UserActivityStatisticsDBManager {
 	
-	private static final Map<String, PreparedStatement> prepared = new ConcurrentHashMap<String, PreparedStatement>();
+	private static final Map<Statements, PreparedStatement> prepared = new ConcurrentHashMap<Statements, PreparedStatement>();
 	
-	private static final Map<String, String> statements = new HashMap<String, String>();
-
-	private static final String FIND_USER_EVENT_COUNT_FOR_PERIOD = "FIND_USER_EVENT_COUNT_FOR_PERIOD";
-
-	private static final String FIND_EVENTS_COUNT_FOR_PERIOD = "FIND_EVENTS_COUNT_FOR_PERIOD";
-
-	private static final String FIND_EVENT_COUNT = "FIND_EVENT_COUNT";
-
-	private static final String UPDATE_INSTANCE_LOGGED_USERS_COUNT = "UPDATE_INSTANCE_LOGGED_USERS_COUNT";
-
-	private static final String FIND_INSTANCE_LOGGED_USERS_COUNT = "FIND_INSTANCE_LOGGED_USERS_COUNT";
-
-	private static final String DELETE_FROM_INSTANCE_LOGGED_USERS_COUNT = "DELETE_FROM_INSTANCE_LOGGED_USERS_COUNT";
+	private static final Map<Statements, String> statements = new HashMap<Statements, String>();
+	
+	public enum Statements {
+		FIND_USER_EVENT_COUNT_FOR_PERIOD,
+		FIND_EVENTS_COUNT_FOR_PERIOD,
+		FIND_EVENT_COUNT,
+		UPDATE_INSTANCE_LOGGED_USERS_COUNT,
+		FIND_INSTANCE_LOGGED_USERS_COUNT,
+		DELETE_FROM_INSTANCE_LOGGED_USERS_COUNT
+	}
 
 	static {
 		statements.put(FIND_USER_EVENT_COUNT_FOR_PERIOD, "SELECT * FROM usereventdailycount WHERE date>=? AND date<=? AND event=? ALLOW FILTERING;");
@@ -64,7 +67,7 @@ public class UserActivityStatisticsDBManagerImpl extends SimpleCassandraClientIm
 		return getSession().execute(statement).all();
 	}
 	
-	private PreparedStatement getStatement(Session session, String statement) {
+	private PreparedStatement getStatement(Session session, Statements statement) {
 		// If two threads access prepared map concurrently, prepared can be repeated twice.
 		// This should be better than synchronizing access.
 		if (prepared.get(statement) == null) {

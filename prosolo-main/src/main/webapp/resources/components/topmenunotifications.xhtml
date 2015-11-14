@@ -4,7 +4,8 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
-	xmlns:pt="http://java.sun.com/jsf/passthrough">
+	xmlns:pt="http://java.sun.com/jsf/passthrough"
+	xmlns:util="http://www.prosolo.com/util">
 
 	<h:form id="notificationForm">
 		<p:growl id="notificationsGrowl" showDetail="true" />
@@ -59,7 +60,7 @@
 									<span>
 										<h:link	class="user" value="#{notificationData.actor.name}" 
 											outcome="/publicprofile" >
-											<f:param  name="user" value="#{notificationData.actor.id}" />  
+											<f:param name="id" value="#{util:encodeId(notificationData.actor.id)}" />  
 										</h:link>
 										#{notificationData.type} #{notificationData.resource.shortType}
 										<link:resourceLink

@@ -20,7 +20,7 @@ import org.prosolo.services.nodes.util.VisibilityUtil;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.data.GoalData;
 import org.prosolo.web.dialogs.data.ExternalCreditData;
-import org.prosolo.web.goals.LearningGoalsBean;
+import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.CompetenceDataCache;
 import org.prosolo.web.portfolio.data.AchievedCompetenceData;
 import org.prosolo.web.util.PageUtil;
@@ -37,7 +37,7 @@ public class PortfolioUtilBean implements Serializable {
 
 	private static Logger logger = Logger.getLogger(PortfolioUtilBean.class);
 	
-	@Autowired private LearningGoalsBean learningGoalsBean;
+	@Autowired private LearnBean learningGoalsBean;
 	@Autowired private VisibilityManager visibilityManager;
 	@Autowired private DefaultManager defaultManager;
 	@Autowired private LoggedUserBean loggedUser;

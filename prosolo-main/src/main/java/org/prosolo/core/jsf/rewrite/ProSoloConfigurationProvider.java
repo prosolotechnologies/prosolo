@@ -35,6 +35,7 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/verify").to("/verify.xhtml"))
 				.addRule(Join.path("/terms").to("/terms.xhtml"))
 				.addRule(Join.path("/maintenance").to("/maintenance.xhtml"))
+				.addRule(Join.path("/notfound").to("/notfound.xhtml"))
 				
 				.addRule(Join.path("/").to("/index.xhtml"))
 				.addRule(Join.path("/learn/{id}/{comp}").to("/learn.xhtml"))
@@ -52,17 +53,24 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/evaluation/{id}").to("/evaluation.xhtml"))
 				.addRule(Join.path("/posts/{id}/{comment}").to("/post.xhtml"))
 				.addRule(Join.path("/posts/{id}").to("/post.xhtml"))
+				.addRule(Join.path("/messages").to("/messages.xhtml"))
 				
 				.addRule(Join.path("/manage/competences/{id}").to("/manage/competence.xhtml"))
 				.addRule(Join.path("/manage/competences").to("/manage/competences.xhtml"))
+				.addRule(Join.path("/manage/credentials/create/").to("/manage/newCourse.xhtml"))
+				.addRule(Join.path("/manage/competences/{comp}/tools").to("/manage/tools.xhtml"))
+				.addRule(Join.path("/manage/credentials/{cred}/tools").to("/manage/tools.xhtml"))
+				.addRule(Join.path("/manage/tools/{cred}/{comp}/{act}/create").to("/manage/externalTools/toolDetails.xhtml"))
+				.addRule(Join.path("/manage/tools/{id}").to("/manage/externalTools/toolDetails.xhtml"))
+				.addRule(Join.path("/manage/credentials/{id}/students").to("/manage/courseMembers.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}").to("/manage/course.xhtml"))
 				.addRule(Join.path("/manage/credentials").to("/manage/courses.xhtml"))
 				.addRule(Join.path("/manage/reports").to("/manage/reports.xhtml"))
-
+				.addRule(Join.path("/manage/social-interaction").to("/manage/social-interaction.xhtml"))
+				.addRule(Join.path("/manage/students/{id}").to("/manage/studentProfile.xhtml"))
 				.addRule(Join.path("/admin/users").to("/admin/users.xhtml"))
 				.addRule(Join.path("/admin/roles").to("/admin/roles.xhtml"))
 				.addRule(Join.path("/admin/dashboard").to("/admin/dashboard.xhtml"))
-				.addRule(Join.path("/admin/settings").to("/admin/settings.xhtml"))
-				;
+				.addRule(Join.path("/admin/settings").to("/admin/settings.xhtml"));
 	}
 }

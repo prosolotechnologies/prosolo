@@ -7,7 +7,8 @@
 	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
 	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
 	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:util="http://www.prosolo.com/util">
 
 <ui:define name="windowTitle">
 	Competences
@@ -190,7 +191,7 @@
 								<span class="title">
 									<h:link value="#{compData.title}" 
 										outcome="/manage/competence">
-										<f:param name="id" value="#{compData.id}" />
+										<f:param name="id" value="#{util:encodeId(compData.id)}" />
 									</h:link>
 								</span>
 								<div class="clear"></div>
@@ -237,7 +238,7 @@
 									<h:link value="Edit" 
 										styleClass="button green size20 left" 
 										outcome="/manage/competence">
-										<f:param name="id" value="#{compData.id}" />
+										<f:param name="id" value="#{util:encodeId(compData.id)}" />
 									</h:link>
 								</div>
 							</div>

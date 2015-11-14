@@ -27,6 +27,7 @@ import org.prosolo.services.lti.filter.ToolSearchCompetenceFilter;
 import org.prosolo.services.lti.filter.ToolSearchCredentialFilter;
 import org.prosolo.services.lti.util.EntityConstants;
 import org.prosolo.services.nodes.DefaultManager;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.data.CourseData;
 import org.prosolo.web.lti.data.ExternalToolData;
@@ -52,10 +53,15 @@ public class ManageExternalToolsBean implements Serializable {
 	@Autowired private DefaultManager defaultManager;
 	@Inject private LtiToolManager toolManager;
 	@Inject private LoggedUserBean userBean;
+	@Inject private UrlIdEncoder idEncoder;
 
-	private long cred;
-	private long comp;
-	private long act;
+	private String cred;
+	private String comp;
+	private String act;
+	
+	private long decodedCred;
+	private long decodedComp;
+	private long decodedAct;
 	
 	private long origin;
 	
@@ -70,24 +76,28 @@ public class ManageExternalToolsBean implements Serializable {
 	
 	public void init() {
 		logger.info("User with email "+userBean.getUser().getEmail().getAddress()+" redirected the page manage/tools.xhtml");
-		if (cred > 0) {
-			if (act > 0){
-				origin = act;
+		decodedCred = idEncoder.decodeId(cred);
+		decodedComp = idEncoder.decodeId(comp);
+		decodedAct = idEncoder.decodeId(act);
+		
+		if (decodedCred > 0) {
+			if (decodedAct > 0){
+				origin = decodedAct;
 			}else{
-				if(comp > 0){
-					origin = comp;
+				if(decodedComp > 0){
+					origin = decodedComp;
 				}else{
-					origin = cred;
+					origin = decodedCred;
 				}
 			}
 			try {
-				Course course = defaultManager.loadResource(Course.class, cred);
+				Course course = defaultManager.loadResource(Course.class, decodedCred);
 
 				courseData = new CourseData(course);
 				
 				resourceFilter = new LinkedList<ExternalToolFilterData>();
 				
-				ExternalToolFilterData noFilterItem = new ExternalToolFilterData(cred, "------------------", -1, ResourceType.Credential, new ToolSearchCredentialFilter());
+				ExternalToolFilterData noFilterItem = new ExternalToolFilterData(decodedCred, "------------------", -1, ResourceType.Credential, new ToolSearchCredentialFilter());
 				setOriginFilter(noFilterItem);
 				resourceFilter.add(noFilterItem);
 				
@@ -171,7 +181,7 @@ public class ManageExternalToolsBean implements Serializable {
 	
 	private Map<String, Object> prepareSearchParameters () {
 		Map<String, Object> parameters= new HashMap<>();
-		parameters.put(EntityConstants.CREDENTIAL_ID, cred);
+		parameters.put(EntityConstants.CREDENTIAL_ID, decodedCred);
 		switch(selectedFilter.getResType()){
 			case Credential:
 				break;
@@ -212,26 +222,26 @@ public class ManageExternalToolsBean implements Serializable {
 	 * PARAMETERS
 	 */
 	
-	public long getCred() {
+	public String getCred() {
 		return cred;
 	}
-	public void setCred(long id) {
+	public void setCred(String id) {
 		this.cred = id;
 	}
 	
-	public long getComp() {
+	public String getComp() {
 		return comp;
 	}
 
-	public void setComp(long comp) {
+	public void setComp(String comp) {
 		this.comp = comp;
 	}
 	
-	public long getAct() {
+	public String getAct() {
 		return act;
 	}
 
-	public void setAct(long act) {
+	public void setAct(String act) {
 		this.act = act;
 	}
 	

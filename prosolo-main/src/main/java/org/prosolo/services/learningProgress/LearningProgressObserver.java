@@ -12,7 +12,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
 import org.prosolo.web.ApplicationBean;
-import org.prosolo.web.goals.LearningGoalsBean;
+import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -66,7 +66,7 @@ public class LearningProgressObserver implements EventObserver {
 					targetGoal = (TargetLearningGoal) target;
 				}
 				
-				LearningGoalsBean goalsBean = (LearningGoalsBean) userSession.getAttribute("learninggoals");
+				LearnBean goalsBean = (LearnBean) userSession.getAttribute("learninggoals");
 				
 				if (goalsBean != null) {
 					GoalDataCache goalData = goalsBean.getData().getDataForTargetGoal(targetGoal.getId());

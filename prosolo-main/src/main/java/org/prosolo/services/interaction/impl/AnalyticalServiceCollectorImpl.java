@@ -163,6 +163,15 @@ public class AnalyticalServiceCollectorImpl implements AnalyticalServiceCollecto
 		data.add("action", new JsonPrimitive("disable"));
 		messageDistributer.distributeMessage(factory.createAnalyticalServiceMessage(DataName.DISABLEDHASHTAGS, DataType.RECORD, data));
 	}
+
+	@Override
+	public void increaseSocialInteractionCount(long source, long target) {
+		JsonObject data=new JsonObject();
+		data.add("source", new JsonPrimitive(source));
+		data.add("target", new JsonPrimitive(target));
+		AnalyticalServiceMessage message=factory.createAnalyticalServiceMessage(DataName.SOCIALINTERACTIONCOUNT, DataType.COUNTER, data);
+		messageDistributer.distributeMessage(message);
+	}
 	
 	
 /*	//temporary

@@ -265,7 +265,7 @@ public class UnitsBean implements Serializable {
 				
 				if (user.equals(loggedUser.getUser())) {
 					loggedUser.refreshUser();
-					loggedUser.initializeRoles(user);
+					//loggedUser.initializeRoles(user);
 				}
 
 				PageUtil.fireSuccessfulInfoMessage(

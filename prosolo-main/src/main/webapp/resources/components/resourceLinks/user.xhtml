@@ -5,7 +5,8 @@
 	xmlns:composite="http://java.sun.com/jsf/composite"
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:prosoloUtils="http://www.prosolo.com/util"
-	xmlns:pt="http://java.sun.com/jsf/passthrough">
+	xmlns:pt="http://java.sun.com/jsf/passthrough"
+	xmlns:util="http://www.prosolo.com/util">
 
 	<!-- mode: image , imageName, name -->
 
@@ -67,7 +68,7 @@
 						rendered="#{(cc.attrs.user != null and cc.attrs.user.profileUrl == null) 
 								or (cc.attrs.userData != null and cc.attrs.userData.profileUrl == null)}">
 								
-						<f:param name="id" value="#{cc.attrs.user != null ? cc.attrs.user.id : cc.attrs.userData.id}" />
+						<f:param name="id" value="#{cc.attrs.user != null ? util:encodeId(cc.attrs.user.id) : util:encodeId(cc.attrs.userData.id)}" />
 						
 						<h:panelGroup rendered="#{cc.attrs.overlayClass != null}" class="overlay #{cc.attrs.overlayClass}" />
 						
@@ -108,7 +109,7 @@
 						value="#{cc.attrs.user != null ? cc.attrs.user.name.concat(' ').concat(cc.attrs.user.lastname) : cc.attrs.userData.name}" 
 						outcome="/publicprofile"
 						pt:context="#{cc.attrs.context}">
-						<f:param name="id" value="#{cc.attrs.user != null ? cc.attrs.user.id : cc.attrs.userData.id}" /> 
+						<f:param name="id" value="#{cc.attrs.user != null ? util:encodeId(cc.attrs.user.id) : util:encodeId(cc.attrs.userData.id)}" /> 
 					</h:link>
 				</h:panelGroup>
 				

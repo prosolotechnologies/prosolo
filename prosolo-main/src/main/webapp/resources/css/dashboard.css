@@ -273,3 +273,51 @@
 #system-not-available-notification {
 	display: none;
 }
+
+#activityGraph .chart-block, #twitterHashtagsGraph .chart-block {
+	height: 200px;
+	position: relative;
+}
+
+#activityGraph .chart, #twitterHashtagsGraph .chart {
+	width: 80%;
+	float: left;
+}
+
+#activityGraph .legend, #twitterHashtagsGraph .legend {
+	width: 19%;
+	float: right;
+}
+
+#activityGraph .legend path, #twitterHashtagsGraph .legend path {
+	stroke-width: 2px;
+}
+
+.pattern-one {
+	stroke-dasharray: 3,3;
+	stroke: #006699;
+}
+
+.pattern-two {
+	stroke-dasharray: 6,6;
+	stroke: #700000;
+}
+
+.pattern-three {
+	stroke-dasharray: 12,12;
+	stroke: #009900;	
+}
+
+.pattern-four {
+	stroke-dasharray: 12,3,3,3;
+	stroke: #FF9900;	
+}
+
+.pattern-five {
+	stroke: #663399; 
+}
+
+.pattern-six {
+    stroke-dasharray: 3,3,3,3,12,3;
+	stroke: #CC0033; 
+}

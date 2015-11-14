@@ -1,53 +1,52 @@
 package org.prosolo.bigdata.utils;
 
-import java.util.Calendar;
 import java.util.Date;
+
+import org.joda.time.DateTimeZone;
+import org.joda.time.Days;
+import org.joda.time.MutableDateTime;
 
 /**
  * @author Zoran Jeremic May 23, 2015
  *
  */
 public class DateUtil {
-	
-	private static long milliseconds(long day) {
-		return day * 86400000;
+
+	private static MutableDateTime epoch() {
+		return new MutableDateTime(0, DateTimeZone.UTC);
 	}
-	
-	private static long days(long milliseconds) {
-		return milliseconds / 86400000;
+
+	private static MutableDateTime utc(int days) {
+		MutableDateTime result = epoch();
+		result.addDays(days);
+		return result;
 	}
-	
+
+	private static int days(MutableDateTime date) {
+		return Days.daysBetween(epoch(), date).getDays();
+	}
+
 	public static long getDaysSinceEpoch() {
-		return days(System.currentTimeMillis());
+		return days(new MutableDateTime(System.currentTimeMillis(), DateTimeZone.UTC));
 	}
 
 	public static long getDaysSinceEpoch(Date date) {
-		return days(date.getTime());
+		return days(new MutableDateTime(date, DateTimeZone.UTC));
 	}
-	public static long getDaysSinceEpoch(long timestamp){
-		return days(timestamp);
+
+	public static long getDaysSinceEpoch(long timestamp) {
+		return days(new MutableDateTime(timestamp, DateTimeZone.UTC));
 	}
-	
-	public static long getWeeksSinceEpoch() {
-		return getDaysSinceEpoch() / 7;
+
+	public static long getTimeSinceEpoch(int day) {
+		return utc(day).getMillis();
 	}
-	
-	public static long getWeeksSinceEpoch(Date date) {
-		return getDaysSinceEpoch(date) / 7;
-	}
-	
-	public static long getFirstDayOfWeek(long day) {
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeInMillis(milliseconds(day));
-		calendar.set(Calendar.DAY_OF_WEEK, 1);
-		return days(calendar.getTimeInMillis());
-	}
-	
-	public static long getFirstDayOfMonth(long day) {
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeInMillis(milliseconds(day));
-		calendar.set(Calendar.DAY_OF_MONTH, 1);
-		return days(calendar.getTimeInMillis());
+
+	public static long getFirstDayOfWeek(int day) {
+		// First day of week is Monday.
+		MutableDateTime firstDay = utc(day);
+		firstDay.setDayOfWeek(1);
+		return days(firstDay);
 	}
 
 }

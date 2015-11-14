@@ -184,7 +184,8 @@
 				<div class="rightSidebar">
 		    			<p class="marginTop20">
 			    			<h:link outcome="/manage/tools" 
-								class="button size25 blue left"
+			    				disabled="#{param['cred'] == null}"
+								class="button size25 #{param['cred'] == null ? 'gray' : 'blue'} left"
 								value="Manage external tools">
 								<f:param  name="cred" value="#{param['cred']}" />
 								<f:param  name="comp" value="#{manageCompetenceBean.id}" />

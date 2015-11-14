@@ -3,13 +3,17 @@
  */
 package org.prosolo.web.courses;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.hibernate.ObjectNotFoundException;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -17,6 +21,7 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.feeds.FeedsManager;
 import org.prosolo.services.feeds.data.UserFeedSourceAggregate;
 import org.prosolo.services.nodes.CourseManager;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.data.CourseData;
 import org.prosolo.web.util.PageUtil;
@@ -40,19 +45,35 @@ public class ManageCourseFeedsBean implements Serializable {
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private FeedsManager feedsManager;
 	@Autowired private CourseManager courseManager;
+	@Inject private UrlIdEncoder idEncoder;
 	
 	private List<UserFeedSourceAggregate> userFeedSources;
 	private CourseData course;
 
-	private long id;
+	private String id;
 	private String blogToAdd;
 	
 	public void init() {
-		if (id > 0) {
+		long decodedId = idEncoder.decodeId(id);
+		
+		if (decodedId > 0) {
 			try {
-				userFeedSources = feedsManager.getFeedSourcesForCourse(id);
-				course = new CourseData(courseManager.loadResource(Course.class, id));
+				userFeedSources = feedsManager.getFeedSourcesForCourse(decodedId);
+				course = new CourseData(courseManager.loadResource(Course.class, decodedId));
+			} catch(ObjectNotFoundException onf) {
+				try {
+					logger.error(onf);
+					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound");
+				} catch (IOException e) {
+					logger.error(e);
+				}
 			} catch (ResourceCouldNotBeLoadedException e) {
+				logger.error(e);
+			}
+		}else{
+			try {
+				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound");
+			} catch (IOException e) {
 				logger.error(e);
 			}
 		}
@@ -105,11 +126,11 @@ public class ManageCourseFeedsBean implements Serializable {
 	/*
 	 * PARAMETERS
 	 */
-	public void setId(long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 	
-	public long getId() {
+	public String getId() {
 		return id;
 	}
 

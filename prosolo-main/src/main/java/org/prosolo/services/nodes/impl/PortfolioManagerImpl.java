@@ -28,6 +28,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.PortfolioManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -812,4 +813,54 @@ public class PortfolioManagerImpl extends AbstractManagerImpl implements Portfol
 		}
 		return new ArrayList<TargetCompetence>();
 	}
+	
+	
+	/*@Override
+	@Transactional (readOnly = true)
+	public List<CompletedGoal> getArchivedGoals(long userId) {
+		String query = 
+			"SELECT DISTINCT completedGoal " +
+			"FROM Portfolio portfolio " +
+			"LEFT JOIN portfolio.user user " +
+			"LEFT JOIN portfolio.completedGoals completedGoal " +
+			"WHERE user = :user " +
+				"AND completedGoal.retaken = :retaken " +
+				"AND completedGoal.visibility != :visibility " +
+			"ORDER BY completedGoal.dateCreated";
+ 
+		@SuppressWarnings("unchecked")
+		List<CompletedGoal> result = persistence.currentManager().createQuery(query).setEntity("user",user)
+				.setBoolean("retaken", false)
+				.setParameter("visibility", VisibilityType.PRIVATE)
+				.list();
+		
+		return result;
+	}
+	
+	@Override
+	@Transactional (readOnly = true)
+	public List<TargetLearningGoal> getAllNonArchivedGoals(long userId) throws DbConnectionException{
+		try{
+			String query = 
+				"SELECT DISTINCT tGoal " +
+				"FROM User user " +
+				"LEFT JOIN user.learningGoals tGoal " +
+				"LEFT JOIN FETCH tGoal.learningGoal goal " +
+				"WHERE user.id = :user " +
+					"AND tGoal.deleted = :deleted " +
+				"ORDER BY tGoal.dateCreated ASC";
+			
+			@SuppressWarnings("unchecked")
+			List<TargetLearningGoal> result = persistence.currentManager().createQuery(query)
+				.setLong("user", userId)
+				.setBoolean("deleted", false)
+				.setFirstResult(offset - 1)
+				.setMaxResults(numberOfGoals)
+				.list();
+			
+			return result;
+		}catch(Exception e){
+			throw new DbConnectionException("Error while loading learning goals");
+		}
+	}*/
 }

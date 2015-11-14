@@ -9,6 +9,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.general.AbstractManager;
+import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.web.communications.data.MessagesThreadData;
 
 public interface MessagingManager extends AbstractManager {
@@ -54,5 +55,7 @@ public interface MessagingManager extends AbstractManager {
 			int page, int limit, Session session);
 
 	MessagesThread getLatestMessageThread(User user);
+	
+	public SimpleOfflineMessage sendMessage(long senderId, long receiverId, String msg) throws DbConnectionException;
 
 }

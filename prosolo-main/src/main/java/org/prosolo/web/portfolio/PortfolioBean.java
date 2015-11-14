@@ -50,7 +50,7 @@ import org.prosolo.web.activitywall.data.AttachmentPreview;
 import org.prosolo.web.activitywall.displayers.PortfolioSocialActivitiesDisplayer;
 import org.prosolo.web.data.GoalData;
 import org.prosolo.web.dialogs.data.ExternalCreditData;
-import org.prosolo.web.goals.LearningGoalsBean;
+import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.goals.util.CompWallActivityConverter;
 import org.prosolo.web.logging.LoggingNavigationBean;
@@ -89,7 +89,7 @@ public class PortfolioBean implements Serializable {
 	@Autowired private ResourceFactory resourceFactory;
 	@Autowired private CompWallActivityConverter compWallActivityConverter;
 	@Autowired private UploadManager uploadManager;
-	@Autowired private LearningGoalsBean learningGoalsBean;
+	@Autowired private LearnBean learningGoalsBean;
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 	@Autowired private EventFactory eventFactory;
 	@Autowired private AchievedCompetenceDataConverter achievedCompetenceDataConverter;

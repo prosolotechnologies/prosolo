@@ -23,8 +23,6 @@
 	
 	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/prosolo-theme/jquery-ui-1.8.21.custom.css" />
 	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/jquery.qtip.min.css" />
-	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/tauCharts.min.css" />
-	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/dashboard.css" />
 	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/style.css?#{loggeduser.loginTime}" />
 	
 	<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet" />
@@ -46,17 +44,7 @@
 	
 	<script src="https://www.youtube.com/iframe_api"/>
 	<script	src="#{request.contextPath}/resources/javascript/youtubevideo.js"></script>
-	
-	<script	src="#{request.contextPath}/resources/javascript/d3.min.js"></script>
-	<script	src="#{request.contextPath}/resources/javascript/underscore-min.js"></script>
-	<script	src="#{request.contextPath}/resources/javascript/tauCharts.min.js"></script>
-	<script	src="#{request.contextPath}/resources/javascript/prosolo.dashboard-paging.js"></script>
-	<script	src="#{request.contextPath}/resources/javascript/prosolo.dashboard-datepicker.js"></script>
-	<script	src="#{request.contextPath}/resources/javascript/prosolo.dashboard-service.js"></script>
-	<script	src="#{request.contextPath}/resources/javascript/prosolo.dashboard-chart.js"></script>
-	<script	src="#{request.contextPath}/resources/javascript/prosolo.dashboard-table.js"></script>
-	<script	src="#{request.contextPath}/resources/javascript/prosolo.dashboard.js"></script>
-	
+		
 </h:head>
 
 <h:body>
@@ -74,7 +62,8 @@
 							<span class="secAdmin"></span>
 						</h:link>
 						
-						<h:panelGroup layout="block" rendered="#{loggeduser.hasRole('manager') or loggeduser.hasRole('admin')}">
+						<h:panelGroup layout="block" rendered="#{loggeduser.hasCapability('basic.manager.access') 
+								or loggeduser.hasCapability('basic.admin.access')}">
 							<a class="arrow" href="javascript:void(0);">
 								<i class="fa fa-angle-down"></i>
 							</a>
@@ -82,15 +71,16 @@
 							<div class="dropdown hidden">
 								<ul>
 									<li>
-										<h:link onclick="sendLogPageNavigation('index','mainmenu');" 
+										<h:link 
+											onclick="sendLogPageNavigation('index','mainmenu');" 
 											outcome="/index">
 											<span class="logo"></span>
 										</h:link>
 									</li>
 									<li>
-										<h:link rendered="#{loggeduser.hasRole('manager')}"
-											onclick="sendLogPageNavigation( '/manage/competences', 'mainmenu');" 
-											outcome="/manage/competences">
+										<h:link rendered="#{loggeduser.hasCapability('basic.manager.access')}"
+											onclick="sendLogPageNavigation( '/manage/courses', 'mainmenu');" 
+											outcome="/manage/courses">
 											<span class="secManage"></span>
 										</h:link>
 									</li>
@@ -102,19 +92,19 @@
 					<h:form>
 						<ul class="navigation"> 
 							<li class="#{util:getPagePath(view.viewId)  == 'users' ? 'selected' : ''}">
-								<h:link 
+								<h:link rendered="#{loggeduser.hasCapability('users.view')}"
 									onclick="sendLogPageNavigation( '/admin/users','mainmenu');"
 									value="Users" 
 									outcome="/admin/users" />
 							</li>
 							<li class="#{util:getPagePath(view.viewId)  == 'roles' ? 'selected' : ''}">
-								<h:link
+								<h:link rendered="#{loggeduser.hasCapability('roles.view')}"
 									onclick="sendLogPageNavigation( '/admin/roles','mainmenu');"
 									value="Roles"
 									outcome="/admin/roles" />
 							</li>
 							<li class="#{util:getPagePath(view.viewId)  == 'dashboard' ? 'selected' : ''}">
-								<h:link
+								<h:link rendered="#{loggeduser.hasCapability('adminDashboard.view')}"
 									onclick="sendLogPageNavigation( '/admin/dashboard','mainmenu');"
 									value="Dashboard"
 									outcome="/admin/dashboard" />
@@ -179,11 +169,14 @@
 											value="Settings" 
 											outcome="/settings" />
 									</li>
-									<li>
+									<ui:remove> <li>
 										<h:commandLink id="userLogout" 
 											value="Logout" 
 											action="#{loggeduser.logout}">
 										</h:commandLink>
+									</li></ui:remove>
+									<li>
+										<a href="#{request.contextPath}/logout">Logout</a>
 									</li>
 								</h:form>
 							</ul>

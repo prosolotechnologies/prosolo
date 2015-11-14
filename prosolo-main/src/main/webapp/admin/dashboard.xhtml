@@ -12,6 +12,19 @@
 	</ui:define>
 
 	<ui:define name="content">		
+		<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/tauCharts.min.css" />
+		<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/dashboard.css" />
+	
+		<script	src="#{request.contextPath}/resources/javascript/d3.min.js"></script>
+		<script	src="#{request.contextPath}/resources/javascript/underscore-min.js"></script>
+		<script	src="#{request.contextPath}/resources/javascript/tauCharts.min.js"></script>
+		<script	src="#{request.contextPath}/resources/javascript/prosolo.dashboard-paging.js"></script>
+		<script	src="#{request.contextPath}/resources/javascript/prosolo.dashboard-datepicker.js"></script>
+		<script	src="#{request.contextPath}/resources/javascript/prosolo.dashboard-service.js"></script>
+		<script	src="#{request.contextPath}/resources/javascript/prosolo.dashboard-chart.js"></script>
+		<script	src="#{request.contextPath}/resources/javascript/prosolo.dashboard-table.js"></script>
+		<script	src="#{request.contextPath}/resources/javascript/prosolo.dashboard.js"></script>
+	
 		<div id="dashboard" class="container admin" data-api="#{dashboardBean.apiHost}" data-no-results-found-message="#{dashboardBean.noResultsFoundMessage}">
 			<div class="content wide">
 				<div class="counts" id="total-users">
@@ -34,12 +47,12 @@
 				<div id="activityGraph">
 					<h1>Activity graph</h1>
 					<div class="stats">
-						<label>New users<input type="checkbox" name="stats" value="registered" /></label>
-						<label>Logins<input type="checkbox" name="stats" value="login" /></label>
-						<label>Home page views<input type="checkbox" name="stats" value="homepagevisited" /></label>
-						<label>Goals views<input type="checkbox" name="stats" value="goalsviews" /></label>
-						<label>Competences views<input type="checkbox" name="stats" value="competencesviews" /></label>
-						<label>Profile views<input type="checkbox" name="stats" value="profileviews" /></label>
+						<label>New users<input type="checkbox" name="stats" value="registered" checked="checked"/></label>
+						<label>Logins<input type="checkbox" name="stats" value="login" checked="checked"/></label>
+						<label>Home page views<input type="checkbox" name="stats" value="homepagevisited" checked="checked"/></label>
+						<label>Goals views<input type="checkbox" name="stats" value="goalsviews" checked="checked"/></label>
+						<label>Competences views<input type="checkbox" name="stats" value="competencesviews" checked="checked"/></label>
+						<label>Profile views<input type="checkbox" name="stats" value="profileviews" checked="checked"/></label>
 					</div>
 					
 					<p>Choose date range:</p>
@@ -59,14 +72,13 @@
 	   					<label for="day">Day</label>
 	   					<input id="week" type="radio" name="periods" value="WEEK" />
 					   	<label for="week">Week</label>
-					   	<input id="month" type="radio" name="periods" value="MONTH" />
-					   	<label for="month">Month</label>
 					</div>
 					
 					<div class="chart-block">
 						<div class="messages"></div>
 						<div class="loader"></div>
 						<div class="chart" id="activityGraphChart"></div>
+						<div class="legend" id="activityGraphChartLegend"></div>
 					</div>
 				</div>
 
@@ -117,14 +129,13 @@
 		   					<label for="thday">Day</label>
 		   					<input id="thweek" type="radio" name="thperiods" value="WEEK" />
 						   	<label for="thweek">Week</label>
-						   	<input id="thmonth" type="radio" name="thperiods" value="MONTH" />
-						   	<label for="thmonth">Month</label>
 						</div>
 						
 						<div class="chart-block">
 							<div class="messages"></div>
 							<div class="loader"></div>
 							<div class="chart" id="twitterHashtagsChart"></div>
+							<div class="legend" id="twitterHashtagsChartLegend"></div>
 						</div>
 					</div>
 					<div id="disabled-twitter-hashtags">

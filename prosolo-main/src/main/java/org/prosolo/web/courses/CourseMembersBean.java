@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.nodes.CourseManager;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.administration.data.UserData;
 import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.web.util.PageUtil;
@@ -35,15 +36,18 @@ public class CourseMembersBean implements Serializable {
 	
 	@Inject
 	private CourseManager courseManager;
+	@Inject 
+	private UrlIdEncoder idEncoder;
 	
 	// PARAMETERS
-	private long id;
+	private String id;
 	
 	
 	public void init() {
-		if (id > 0) {
+		long decodedId = idEncoder.decodeId(id);
+		if (decodedId > 0) {
 			try{
-				List<User> users = courseManager.getCourseParticipants(id);
+				List<User> users = courseManager.getCourseParticipants(decodedId);
 				populateCourseMembersData(users);
 			}catch(Exception e){
 				PageUtil.fireErrorMessage("Error while loading course members");
@@ -64,15 +68,14 @@ public class CourseMembersBean implements Serializable {
 		}
 	}
 
-
 	/*
 	 * PARAMETERS
 	 */
-	public void setId(long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 	
-	public long getId() {
+	public String getId() {
 		return id;
 	}
 	

@@ -26,7 +26,7 @@ import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.EvaluationManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.ActivityWallData;
-import org.prosolo.web.goals.LearningGoalsBean;
+import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.data.AvailableLearningPlan;
 import org.prosolo.web.goals.data.LastActivityAware;
 import org.prosolo.web.goals.data.TargetCompetenceData;
@@ -46,7 +46,7 @@ public class CompetenceDataCache implements Serializable, LastActivityAware, Com
 
 	private static final long serialVersionUID = -7794554780666077552L;
 	
-	private static Logger logger = Logger.getLogger(LearningGoalsBean.class);
+	private static Logger logger = Logger.getLogger(LearnBean.class);
 	
 	@Autowired private CompetenceManager compManager;
 	@Autowired private LoggedUserBean loggedUser;

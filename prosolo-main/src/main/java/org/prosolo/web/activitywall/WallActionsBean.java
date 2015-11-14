@@ -29,7 +29,7 @@ import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.util.nodes.NodeUtil;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.goals.LearningGoalsBean;
+import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.settings.TwitterBean;
 import org.prosolo.web.useractions.PeopleActionBean;
@@ -52,7 +52,7 @@ public class WallActionsBean {
 	@Autowired private DefaultManager defaultManager;
 	@Autowired private ActivityWallManager activityWallManager;
 	@Autowired private ActivityWallActionsManager activityWallActionsManager;
-	@Autowired private LearningGoalsBean learningGoalsBean;
+	@Autowired private LearnBean learningGoalsBean;
 	@Autowired private PeopleActionBean peopleActionBean;
 	@Autowired private ActivityWallBean activityWallBean;
 	@Autowired private SocialActivityHandler socialActivityHandler;

@@ -67,11 +67,11 @@ import org.springframework.stereotype.Component;
 @ManagedBean(name = "learninggoals")
 @Component("learninggoals")
 @Scope("session")
-public class LearningGoalsBean implements Serializable {
+public class LearnBean implements Serializable {
 
 	private static final long serialVersionUID = 1782559979962114120L;
 
-	private static Logger logger = Logger.getLogger(LearningGoalsBean.class);
+	private static Logger logger = Logger.getLogger(LearnBean.class);
 
 	@Autowired private LearningGoalManager goalManager;
 	@Autowired private LoggedUserBean loggedUser;
@@ -329,7 +329,7 @@ public class LearningGoalsBean implements Serializable {
 			    		HttpSession userSession = applicationBean.getUserSession(userData.getId());
 			    		
 			    		if (userSession != null) {
-			    			LearningGoalsBean userLearningGoalBean = (LearningGoalsBean) userSession.getAttribute("learninggoals");						
+			    			LearnBean userLearningGoalBean = (LearnBean) userSession.getAttribute("learninggoals");						
 						
 			    			if (userLearningGoalBean != null) {
 								GoalDataCache goalData = userLearningGoalBean.getData().getDataForGoal(updatedTargetGoal.getLearningGoal());								

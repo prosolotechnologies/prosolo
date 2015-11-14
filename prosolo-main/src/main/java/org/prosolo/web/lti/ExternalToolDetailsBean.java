@@ -15,6 +15,7 @@ import org.prosolo.common.domainmodel.lti.LtiToolSet;
 import org.prosolo.common.domainmodel.lti.ResourceType;
 import org.prosolo.services.lti.LtiToolManager;
 import org.prosolo.services.lti.ToolSetManager;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.lti.data.ExternalToolFormData;
 import org.prosolo.web.util.PageUtil;
@@ -43,18 +44,29 @@ public class ExternalToolDetailsBean implements Serializable {
 	@Inject private LtiToolManager toolManager;
 	@Inject private ToolSetManager tsManager;
 	@Inject private LoggedUserBean user;
+	@Inject private UrlIdEncoder idEncoder;
 
-	private long cred;
-	private long comp;
-	private long act;
+	private String cred;
+	private String comp;
+	private String act;
+	private String id;
 	
-	private long id;
+	private long decodedCred;
+	private long decodedComp;
+	private long decodedAct;
+	private long decodedId;
+	
 	private ExternalToolFormData toolData;
 	
 	public void init() {
 		logger.info("User with email "+user.getUser().getEmail().getAddress()+" redirected to the page manage/externalTools/toolDetails.xhtml");
-		if (id > 0) {
-			LtiTool tool = toolManager.getToolDetails(id);
+		decodedCred = idEncoder.decodeId(cred);
+		decodedComp = idEncoder.decodeId(comp);
+		decodedAct = idEncoder.decodeId(act);
+		decodedId = idEncoder.decodeId(id);
+		
+		if (decodedId > 0) {
+			LtiTool tool = toolManager.getToolDetails(decodedId);
 			toolData = new ExternalToolFormData(tool);
 			logger.debug("Editing external tool with id " + id);
 		} else {
@@ -68,8 +80,8 @@ public class ExternalToolDetailsBean implements Serializable {
 		tool.setToolType(getResourceType());
 		tool.setName(toolData.getTitle());
 		tool.setDescription(toolData.getDescription());
-		if(id > 0){
-			tool.setId(id);
+		if(decodedId > 0){
+			tool.setId(decodedId);
 			try{
 				toolManager.updateLtiTool(tool);
 				logger.info("LTI tool updated");
@@ -78,10 +90,10 @@ public class ExternalToolDetailsBean implements Serializable {
 				PageUtil.fireErrorMessage(e.getMessage());
 			}
 		}else{
-			if(cred > 0){
-				tool.setLearningGoalId(cred);
-				tool.setCompetenceId(comp);
-				tool.setActivityId(act);
+			if(decodedCred > 0){
+				tool.setLearningGoalId(decodedCred);
+				tool.setCompetenceId(decodedComp);
+				tool.setActivityId(decodedAct);
 				tool.setCreatedBy(user.getUser());
 				try{
 					LtiToolSet ts = tsManager.saveToolSet(tool);
@@ -103,10 +115,10 @@ public class ExternalToolDetailsBean implements Serializable {
 	
 	private ResourceType getResourceType() {
 		ResourceType type = null;
-		if(act > 0){
+		if(decodedAct > 0){
 			type = ResourceType.Activity;
 		}else{
-			if(comp > 0){
+			if(decodedComp > 0){
 				type = ResourceType.Competence;
 			}else{
 				type = ResourceType.Credential;
@@ -118,35 +130,35 @@ public class ExternalToolDetailsBean implements Serializable {
 	/*
 	 * PARAMETERS
 	 */
-	public void setId(long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
-	public long getId() {
+	public String getId() {
 		return id;
 	}
 
-	public long getCred() {
+	public String getCred() {
 		return cred;
 	}
 
-	public void setCred(long res) {
+	public void setCred(String res) {
 		this.cred = res;
 	}
 
-	public long getComp() {
+	public String getComp() {
 		return comp;
 	}
 
-	public void setComp(long comp) {
+	public void setComp(String comp) {
 		this.comp = comp;
 	}
 
-	public long getAct() {
+	public String getAct() {
 		return act;
 	}
 
-	public void setAct(long act) {
+	public void setAct(String act) {
 		this.act = act;
 	}
 

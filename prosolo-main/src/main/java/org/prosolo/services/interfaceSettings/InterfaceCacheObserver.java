@@ -34,7 +34,7 @@ import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.util.StringUtils;
 import org.prosolo.web.ApplicationBean;
-import org.prosolo.web.goals.LearningGoalsBean;
+import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.portfolio.PortfolioBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -326,7 +326,7 @@ public class InterfaceCacheObserver implements EventObserver {
 		List<HttpSession> usersSessions = applicationBean.getHttpSessionsOfUsers(usersSubscribedToEvent);
 		
     	for (HttpSession httpSession : usersSessions) {
-			LearningGoalsBean learningGoalsBean = (LearningGoalsBean) httpSession.getAttribute("learninggoals");
+			LearnBean learningGoalsBean = (LearnBean) httpSession.getAttribute("learninggoals");
 			if (learningGoalsBean != null) {
 				learningGoalsBean.getData().addCommentToActivity(activity.getId(), comment);
 			}
@@ -471,7 +471,7 @@ public class InterfaceCacheObserver implements EventObserver {
 									null, 
 									null);
 						} else if (userSession != null) {
-			    			LearningGoalsBean userLearningGoalBean = (LearningGoalsBean) userSession.getAttribute("learninggoals");
+			    			LearnBean userLearningGoalBean = (LearnBean) userSession.getAttribute("learninggoals");
 							
 							if (userLearningGoalBean != null) {
 								GoalDataCache goalData = userLearningGoalBean.getData().getDataForGoal(goalId);

@@ -63,6 +63,10 @@ public class AppConfig {
 	
 	@Element(name="registration")
 	public RegistrationConfig registration;
+	
+	@Element(name="url-encoding")
+	public UrlEncoding urlEncoding;
+	
 	public boolean getDevelopmentMode(){
 		return developmentMode;
 	}

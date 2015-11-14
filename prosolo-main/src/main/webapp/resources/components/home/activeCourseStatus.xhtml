@@ -3,7 +3,8 @@
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:p="http://primefaces.org/ui"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:util="http://www.prosolo.com/util">
 	
 	<h:outputScript library="javascript" name="goals.js" target="head" />
 	<utilcomp:messagesBundle var="msg" />
@@ -28,7 +29,7 @@
 						<div class="course">
 							<h:link class="title" outcome="/course" 
 								onclick="sendLogPageNavigationWithParameters('credentials', { context: 'index.activeCourses', courseId: #{courseData.course.id}});">
-								<f:param name="id" value="#{courseData.course.id}" />
+								<f:param name="id" value="#{util:encodeId(courseData.course.id)}" />
 								#{courseData.title} <span class="bold nobreak">(#{courseData.progress} %)</span>
 							</h:link>
 	

@@ -25,7 +25,7 @@ public class GoalRecommendedDocuments implements Serializable {
 
 	private static Logger logger = Logger.getLogger(GoalRecommendedDocuments.class);
 	
-	@Autowired private  LearningGoalsBean goalBean;
+	@Autowired private  LearnBean goalBean;
 	
 //	public boolean getHasGoalRecommendedDocuments(){
 //		return goalBean.getSelectedGoalData().getDocuments().size() > 0;

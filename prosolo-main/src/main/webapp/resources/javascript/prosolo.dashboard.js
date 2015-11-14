@@ -1,8 +1,4 @@
 $(function () {
-
-	function utc(date) { 
-		return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds()); 
-	}
 	
 	function dashboard() {
 		return document.querySelector("#dashboard");
@@ -60,6 +56,17 @@ $(function () {
 	});
 	
 	var activityGraph = (function() {
+		var loaded = false;
+		
+		var patterns = {
+			registered: "pattern-one",
+			login: "pattern-two",
+			homepagevisited: "pattern-three",
+			goalsviews: "pattern-four",
+			competencesviews: "pattern-five",
+			profileviews: "pattern-six"
+		};
+		
 		var agc = chart.create({
 			container : "#activityGraphChart",
 			x : "date",
@@ -67,27 +74,56 @@ $(function () {
 			color : "type",
 			tooltip : {
 				fields: ["date", "count", "type"]
+			},
+			brewer: patterns,
+			legend : {
+				selector: "#activityGraph .legend",
+				data: function() { return [{"name" : "Registered", "class" : "pattern-one"},
+				       {"name" : "Logins", "class" : "pattern-two"},
+			       	   {"name" : "Home page visited", "class" : "pattern-three"},
+			       	   {"name" : "Goals views", "class" : "pattern-four"},
+			       	   {"name" : "Competences views", "class" : "pattern-five"},
+			       	   {"name" : "Profile views", "class" : "pattern-six"}] }
 			}
 		});
-
+		
+		function displayLines() {
+			$("#activityGraph [name='stats']:checked").each(function() {
+				$("g." + patterns[$(this).val()]).show();
+			});
+			$("#activityGraph [name='stats']:not(:checked)").each(function() {
+				$("g." + patterns[$(this).val()]).hide();
+			});
+		}
+		
 		return {
 			dateFrom : function() { return $("#activityGraph .dateFrom").val(); },
 			dateTo : function() { return $("#activityGraph .dateTo").val(); },
 			period : function() { return $("#activityGraph [name='periods']:checked").val(); },
 			stats : function() {
-				return $("#activityGraph [name='stats']:checked").map(function() { return $(this).val(); }).get();
+				return $("#activityGraph [name='stats']").map(function() { return $(this).val(); }).get();
 			},
 			showLoader : function() {
 				$("#activityGraph .loader").show().siblings().hide();
 			},
 			onload : function(data) {
 				if (data.length==0) {
+					loaded = false;
 					$("#activityGraph .messages").text(noResultsMessage()).show().siblings().hide();
-				} else {
+				} else {	
+					loaded = true;
 					$("#activityGraph .chart").show().siblings().hide();
-					agc.show(data);
+					$("#activityGraph .legend").show();
+					var from = $("#activityGraph .dateFrom").datepicker("getDate");
+					var to = $("#activityGraph .dateTo").datepicker("getDate");
+					agc.show(data, from, to);
+					displayLines();
 				}
-			}
+			},
+			isLoaded : function() {
+				return loaded;
+			},
+			displayLines : displayLines
 		}
 	})();
 	
@@ -102,45 +138,40 @@ $(function () {
 			}
 		},
 		data : function(e) { 
-			e.date = utc(new Date(e.date * 86400000)); return e; 
+			e.date = new Date(e.date); return e; 
 		}
 	});
 	
 	$("#activityGraph [name='stats']").change(function() {
-		if ($("#activityGraph [name='stats']:checked").size() == 0) {
-			return;
-		}
-		activityGraph.showLoader();
-		activityGraphService.get(activityGraph.onload);
+		if (!activityGraph.isLoaded()) {
+			activityGraph.showLoader();
+			activityGraphService.get(activityGraph.onload);
+		} else {
+			activityGraph.displayLines();
+		};
 	});
 	
 	$("#activityGraph .period [name='periods']").change(function() {
 		datepicker.align("#activityGraph .dateFrom", "#activityGraph .dateTo", activityGraph.period());
-
-		if ($("#activityGraph [name='stats']:checked").size() == 0) {
-			return;
-		}
-		if ($(this).is(":checked")) {
-			activityGraph.showLoader();
-			activityGraphService.get(activityGraph.onload);
-		}
-	});
-	
-	if ($("#activityGraph [name='stats']:checked").size() != 0) {
 		activityGraph.showLoader();
 		activityGraphService.get(activityGraph.onload);
-	}
+	});
 	
 	datepicker.init("activityGraph", function(dateText, inst) {
 		datepicker.align("#activityGraph .dateFrom", "#activityGraph .dateTo", activityGraph.period());
-		if ($("#activityGraph [name='stats']:checked").size() == 0) {
-			return;
-		}
 		activityGraph.showLoader();
 		activityGraphService.get(activityGraph.onload);
     });
 	
 	datepicker.align("#activityGraph .dateFrom", "#activityGraph .dateTo", activityGraph.period());
+	
+	if ($("#activityGraph [name='stats']:checked").size() != 0) {
+		if (activityGraph.isLoaded()) {
+			return;
+		}
+		activityGraph.showLoader();
+		activityGraphService.get(activityGraph.onload);
+	}
 	
 	var twitterHashtagsService = service.create({
 		url : "http://" + host() + "/api/twitter/hashtag/statistics",
@@ -153,7 +184,7 @@ $(function () {
 			}
 		},
 		data : function(e) { 
-			e.date = utc(new Date(e.date * 86400000)); return e; 
+			e.date = new Date(e.date); return e; 
 		}
 	});
 	
@@ -349,6 +380,17 @@ $(function () {
 	
 	
 	var twitterHashtags = (function() {
+		var patterns = [ "pattern-one", "pattern-two", "pattern-three", "pattern-four", "pattern-five", "pattern-six" ];
+		
+		function cycle() {
+			var index = 0;
+			return function() {
+				var result = patterns[index];
+				index = (index + 1) % patterns.length;
+				return result;
+			};
+		};
+	
 		var twitterHashtagsChart = chart.create({
 			container : "#twitterHashtagsChart",
 			x : "date",
@@ -356,6 +398,11 @@ $(function () {
 			color : "hashtag",
 			tooltip : {
 				fields: ["date", "count", "hashtag"]
+			},
+			brewer: patterns,
+			legend : {
+				selector: "#twitterHashtagsGraph .legend",
+				data: function() { var next = cycle(); return hashtagsInTable.map(function(hashtag) { return {"name" : "#" + hashtag, "class" : next()}  }) }
 			}
 		});
 
@@ -368,12 +415,15 @@ $(function () {
 				$("#twitterHashtagsGraph .loader").show().siblings().hide();
 			},
 			onload : function(data) {
+				var from = $("#twitterHashtagsGraph .dateFrom").datepicker("getDate");
+				var to = $("#twitterHashtagsGraph .dateTo").datepicker("getDate");
 				if (data.length==0) {
 					$("#twitterHashtagsGraph .messages").text(noResultsMessage()).show().siblings().hide();
-					twitterHashtagsChart.show(data);
+					twitterHashtagsChart.show(data, from, to);
 				} else {
 					$("#twitterHashtagsGraph .chart").show().siblings().hide();
-					twitterHashtagsChart.show(data);
+					$("#twitterHashtagsGraph .legend").show();
+					twitterHashtagsChart.show(data, from, to);
 				}
 			}
 		}

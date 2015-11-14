@@ -37,7 +37,7 @@ import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.activitywall.data.SocialActivityCommentData;
 import org.prosolo.web.communications.data.MessagesThreadData;
 import org.prosolo.web.goals.GoalWallBean;
-import org.prosolo.web.goals.LearningGoalsBean;
+import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.CompetenceDataCache;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.home.PeopleRecommenderBean;
@@ -220,7 +220,7 @@ public class ProfileSettingsBean implements Serializable {
 						}
 						
 						// updating goal maker data
-						LearningGoalsBean learningGoalsBean = (LearningGoalsBean) userSession.getAttribute("learninggoals");
+						LearnBean learningGoalsBean = (LearnBean) userSession.getAttribute("learninggoals");
 						
 						if (learningGoalsBean != null) {
 							for (GoalDataCache goalDataCache : learningGoalsBean.getGoals()) {

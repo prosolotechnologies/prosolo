@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
  *
  */
 @Service("org.prosolo.services.logging.AccessResolver")
-public class AccessResolverImpl implements AccessResolver, Serializable{
+public class AccessResolverImpl implements AccessResolver, Serializable {
 
 	/**
 	 * 
@@ -25,24 +25,29 @@ public class AccessResolverImpl implements AccessResolver, Serializable{
 	@Override
 	public String findRemoteIPAddress() {
 		FacesContext context = FacesContext.getCurrentInstance();
-        HttpServletRequest request = (HttpServletRequest) context.getExternalContext().getRequest();
-		String ipAddress = request.getHeader("X-FORWARDED-FOR"); 
-		
+		HttpServletRequest request = (HttpServletRequest) context.getExternalContext().getRequest();
+		return findRemoteIPAddress(request);
+	}
+
+	@Override
+	public String findServerIPAddress() {
+		InetAddress ip = null;
+		try {
+			ip = InetAddress.getLocalHost();
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+		return ip.toString();
+	}
+
+	@Override
+	public String findRemoteIPAddress(HttpServletRequest request) {
+		String ipAddress = request.getHeader("X-FORWARDED-FOR");
+
 		if (ipAddress == null) {
 			ipAddress = request.getRemoteAddr();
 		}
 		return ipAddress;
-	}
-	
-	@Override
-	public String findServerIPAddress(){
-		InetAddress ip = null;
-		  try {
-	 			ip = InetAddress.getLocalHost();
-		  		} catch (UnknownHostException e) {	 
-			e.printStackTrace();	 
-		  }
-		  return ip.toString();
 	}
 
 }

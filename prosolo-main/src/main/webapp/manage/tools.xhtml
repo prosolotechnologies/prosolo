@@ -7,7 +7,8 @@
 	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
 	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
 	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:util="http://www.prosolo.com/util">
 
 <ui:define name="windowTitle">
 	External Tools
@@ -15,9 +16,9 @@
 
 <ui:define name="metadata">
 	<f:metadata>
-		<f:viewParam name="cred" value="#{manageExternalToolsBean.cred}" default="0"/>
-		<f:viewParam name="comp" value="#{manageExternalToolsBean.comp}" default="0"/>
-		<f:viewParam name="act" value="#{manageExternalToolsBean.act}" default="0"/>
+		<f:viewParam name="cred" value="#{manageExternalToolsBean.cred}" default="null"/>
+		<f:viewParam name="comp" value="#{manageExternalToolsBean.comp}" default="null"/>
+		<f:viewParam name="act" value="#{manageExternalToolsBean.act}" default="null"/>
 		<f:viewAction action="#{manageExternalToolsBean.init()}" />
 	</f:metadata>
 </ui:define>
@@ -78,8 +79,8 @@
 				<h:link id= "linkNewTool" styleClass="left button green size30 marginBottom10"
 					value="New External Tool" outcome="/manage/externalTools/toolDetails">
 					<f:param name="cred" value="#{manageExternalToolsBean.cred}" />
-					<f:param name="comp" value="#{manageExternalToolsBean.currentCompetence}" />
-					<f:param name="act" value="#{manageExternalToolsBean.currentActivity}" />
+					<f:param name="comp" value="#{util:encodeId(manageExternalToolsBean.currentCompetence)}" />
+					<f:param name="act" value="#{util:encodeId(manageExternalToolsBean.currentActivity)}" />
 				</h:link>
 				
 					
@@ -99,7 +100,7 @@
 					    <p:column headerText="Title">
 					        <h:link outcome="/manage/externalTools/toolDetails" 
 								value="#{tool.title}">
-								<f:param  name="id" value="#{tool.id}" action="" />
+								<f:param  name="id" value="#{util:encodeId(tool.id)}" action="" />
 							</h:link>
 					    </p:column>
 					
@@ -115,7 +116,7 @@
 							<h:link outcome="/manage/externalTools/toolDetails" 
 								class="button size24 blue"
 								value="Edit">
-								<f:param  name="id" value="#{tool.id}" />
+								<f:param  name="id" value="#{util:encodeId(tool.id)}" />
 							</h:link>
 					    </p:column>
 					

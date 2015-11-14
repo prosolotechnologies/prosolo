@@ -32,7 +32,7 @@ import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.data.CourseData;
 import org.prosolo.web.courses.util.CourseDataConverter;
-import org.prosolo.web.goals.LearningGoalsBean;
+import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.portfolio.PortfolioBean;
 import org.prosolo.web.util.PageUtil;
@@ -63,7 +63,7 @@ public class CoursePortfolioBean implements Serializable {
 	@Autowired private EventFactory eventFactory;
 	
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
-	@Autowired private LearningGoalsBean learningGoalsBean;
+	@Autowired private LearnBean learningGoalsBean;
 
 	// course portfolio
 	private long coursePortfolioId;
@@ -505,5 +505,6 @@ public class CoursePortfolioBean implements Serializable {
 	public void setRestorePreviousLearning(boolean restorePreviousLearning) {
 		this.restorePreviousLearning = restorePreviousLearning;
 	}
+	
 	
 }

@@ -24,7 +24,7 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.data.GoalData;
-import org.prosolo.web.goals.LearningGoalsBean;
+import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.util.CompWallActivityConverter;
 import org.prosolo.web.home.data.ResourceAvailability;
 import org.prosolo.web.portfolio.PortfolioBean;
@@ -46,7 +46,7 @@ public class LearningGoalDialogBean implements Serializable {
 	@Autowired private RequestManager requestManager;
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private CompWallActivityConverter compWallActivityConverter;
-	@Autowired private LearningGoalsBean learningGoals;
+	@Autowired private LearnBean learningGoals;
 	
 	private UserData recommender;
 	private LearningGoal goal;

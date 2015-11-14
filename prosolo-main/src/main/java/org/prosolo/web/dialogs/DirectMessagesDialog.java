@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.user.MessagesThread;
 import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.event.EventException;
@@ -113,6 +114,7 @@ public class DirectMessagesDialog implements Serializable {
 			participants.add(UserDataFactory.createUserData(loggedUser.getUser()));
 			
 			final SimpleOfflineMessage message1 = message;
+			final User user = loggedUser.getUser();
 			
 			taskExecutor.execute(new Runnable() {
 	            @Override
@@ -122,7 +124,7 @@ public class DirectMessagesDialog implements Serializable {
 	            		parameters.put("context", context);
 	            		parameters.put("user", String.valueOf(receiver.getId()));
 	            		parameters.put("message", String.valueOf(message1.getId()));
-	            		eventFactory.generateEvent(EventType.SEND_MESSAGE, loggedUser.getUser(), message1, parameters);
+	            		eventFactory.generateEvent(EventType.SEND_MESSAGE, user, message1, parameters);
 	            	} catch (EventException e) {
 	            		logger.error(e);
 	            	}

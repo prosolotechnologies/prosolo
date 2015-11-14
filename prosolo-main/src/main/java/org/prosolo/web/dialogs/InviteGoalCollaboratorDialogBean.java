@@ -29,7 +29,7 @@ import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.notifications.RequestManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.UserDataFactory;
-import org.prosolo.web.goals.LearningGoalsBean;
+import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.util.PageUtil;
@@ -113,7 +113,7 @@ public class InviteGoalCollaboratorDialogBean implements Serializable {
 		
 		Collections.sort(recommendedCollaboratorsEdit);
 		
-		LearningGoalsBean goalsBean = PageUtil.getSessionScopedBean("learninggoals", LearningGoalsBean.class);
+		LearnBean goalsBean = PageUtil.getSessionScopedBean("learninggoals", LearnBean.class);
 		
 		if (goalsBean != null) {
 			long targetGoalId = goalsBean.getSelectedGoalData().getData().getTargetGoalId();

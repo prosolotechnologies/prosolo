@@ -73,11 +73,6 @@ public class RolesBean implements Serializable {
 					capabilities.add(new CapabilityData(entry.getKey(), entry.getValue()));
 				}
 			}
-			for(CapabilityData cd:capabilities){
-				for(long id:cd.getRoleIds()){
-					System.out.println("Capability "+cd.getDescription()+ " role id "+id);
-				}
-			}
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -85,20 +80,16 @@ public class RolesBean implements Serializable {
 	}
 	
 	public void capabilityChanged(CapabilityData cd, RoleData rd){
-		System.out.println(cd.getDescription());
-		System.out.println(rd.getName());
 		List<Long> list = new ArrayList<>(cd.getRoleIds());
 		if(cd.getRoleIds().contains(rd.getId())){
-			System.out.println("EVENT UNCHECK");
 			list.remove(new Long(rd.getId()));	
 		}else{
-			System.out.println("EVENT ADD");
 			list.add(new Long(rd.getId()));
 		}
 		try{
 			capabilityManager.updateCapabilityRoles(cd.getId(), list);
 			cd.setRoleIds(list);
-			PageUtil.fireSuccessfulInfoMessage("Error while updating capability");
+			PageUtil.fireSuccessfulInfoMessage("growlMsg","Capability updated");
 		}catch(Exception e){
 			PageUtil.fireErrorMessage("Error while updating capability");
 		}
@@ -107,7 +98,6 @@ public class RolesBean implements Serializable {
 	public boolean isSelected(CapabilityData cd, RoleData rd){
 		
 		if(cd.getRoleIds().contains(rd.getId())){
-			System.out.println("Capability "+cd.getDescription() + " ROLE ID "+rd.getName());
 			return true;
 		}
 		return false;
