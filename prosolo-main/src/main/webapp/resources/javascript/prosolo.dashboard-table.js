@@ -43,6 +43,15 @@ define([], function() {
 			table.appendChild(thead);
 	
 			return {
+				selectFirst : function(count) {
+					var select = document.querySelectorAll(container + " table tbody td.selector input[type='checkbox']");
+					for(var i = 0; i<count; i++) {
+						if (select.length <= i) {
+							return;
+						}
+						select[i].checked = true;
+					}
+				},
 				init : function(data) {
 					if (document.querySelector(container + " table tbody")) {
 						document.querySelector(container + " table tbody").remove();	
@@ -74,6 +83,7 @@ define([], function() {
 								var checkbox = document.createElement("input");
 								checkbox.setAttribute("type", "checkbox");
 								checkbox.addEventListener("change", column.change);
+								td.className = 'selector';
 								td.appendChild(checkbox);
 							}
 							tr.appendChild(td);

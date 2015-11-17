@@ -209,6 +209,58 @@ require(['/resources/javascript/prosolo.require-config.js'], function(config) {
 			
 			var disabledHashtags = [];
 			
+			var configuration = {
+				"container" : "#mostActiveHashtags",
+				"rows" : {
+					"class" : "hashtag"
+				},
+				"columns" : [
+						{
+							"name" : "number",
+							"title" : "Number",
+							"type" : "text"
+						},
+						{
+							"name" : "hashtag",
+							"title" : "Hashtag",
+							"type" : "text",
+							"key" : "true"
+						},
+						{
+							"name" : "average",
+							"title" : "Daily avg. (last week)",
+							"type" : "text"
+						},
+						{
+							"name" : "users",
+							"title" : "Users using it",
+							"type" : "text"
+						},
+						{
+							"name" : "action",
+							"title" : "Action",
+							"type" : "button",
+							"value" : "Disable",
+							"click" : function() {
+								var hashtag = this.parentElement.parentElement.dataset["hashtag"];
+								this.setAttribute('disabled', 'disabled');
+								document.querySelector("#disable-form\\:hashtag-to-disable").value = hashtag;
+								document.querySelector("#disable-form\\:disable-form-submit").click();
+								disabledHashtags.push(hashtag);
+								loadDh(disabledHashtags);
+								return false;
+							}
+						},
+						{
+							"name" : "show-in-table",
+							"title" : "Show",
+							"type" : "checkbox",
+							"change" : function() { }
+						}]
+			}
+			
+			var mahTable = table.create(configuration);
+			
 			(function () {
 				var navigation = document.querySelector("#mostActiveHashtags .navigation");
 				var paging = document.querySelector("#mostActiveHashtags .navigation .paging");
@@ -216,58 +268,6 @@ require(['/resources/javascript/prosolo.require-config.js'], function(config) {
 				var messages = document.querySelector("#mostActiveHashtags .messages");
 				var followers = document.querySelector("#mostActiveHashtags [name='include-hashtags-without-followers']");
 				var statisticsPeriod = document.querySelector("#mostActiveHashtags #statisticsPeriod");
-				
-				var configuration = {
-					"container" : "#mostActiveHashtags",
-					"rows" : {
-						"class" : "hashtag"
-					},
-					"columns" : [
-							{
-								"name" : "number",
-								"title" : "Number",
-								"type" : "text"
-							},
-							{
-								"name" : "hashtag",
-								"title" : "Hashtag",
-								"type" : "text",
-								"key" : "true"
-							},
-							{
-								"name" : "average",
-								"title" : "Daily avg. (last week)",
-								"type" : "text"
-							},
-							{
-								"name" : "users",
-								"title" : "Users using it",
-								"type" : "text"
-							},
-							{
-								"name" : "action",
-								"title" : "Action",
-								"type" : "button",
-								"value" : "Disable",
-								"click" : function() {
-									var hashtag = this.parentElement.parentElement.dataset["hashtag"];
-									this.setAttribute('disabled', 'disabled');
-									document.querySelector("#disable-form\\:hashtag-to-disable").value = hashtag;
-									document.querySelector("#disable-form\\:disable-form-submit").click();
-									disabledHashtags.push(hashtag);
-									loadDh(disabledHashtags);
-									return false;
-								}
-							},
-							{
-								"name" : "show-in-table",
-								"title" : "Show",
-								"type" : "checkbox",
-								"change" : function() { }
-							}]
-				}
-				
-				var mahTable = table.create(configuration);
 				
 				function format(date) {
 					var day = date.getDate();
@@ -430,6 +430,7 @@ require(['/resources/javascript/prosolo.require-config.js'], function(config) {
 							$("#twitterHashtagsGraph .messages").text(noResultsMessage()).show().siblings().hide();
 							twitterHashtagsChart.show(data, from, to);
 						} else {
+							mahTable.selectFirst(6);
 							$("#twitterHashtagsGraph .chart").show().siblings().hide();
 							$("#twitterHashtagsGraph .legend").show();
 							twitterHashtagsChart.show(data, from, to);
