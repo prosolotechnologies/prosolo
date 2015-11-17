@@ -194,7 +194,7 @@ public class StudentProfileBean implements Serializable {
 	public void loadSubmissions(CompetenceData cd) {
 		try{
 			if(cd.getSubmissions() == null){
-				cd.setSubmissions(new ArrayList<>());
+				cd.setSubmissions(new ArrayList<EvaluationSubmissionData>());
 				List<Evaluation> evals = evalManager.getEvaluationsForAResource(TargetCompetence.class, cd.getId());
 				for(Evaluation e:evals){
 					cd.getSubmissions().add(new EvaluationSubmissionData(e));
