@@ -51,8 +51,10 @@
 						$('.learnNavItem.navItemCompetences').addClass('selected');
 					}
 				},
-				goal: #{learn.id},
-				comp: #{learn.targetCompId},
+				/* goal: #{learn.id},
+				comp: #{learn.targetCompId}, */
+				goal: #{learn.decodedId},
+				comp: #{learn.decodedTargetCompId},
 				currentPath: null,
 				selectGoal: function(newGoal) {
 					learnControl.goal = newGoal;
