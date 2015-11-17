@@ -53,7 +53,6 @@ public class ObservationData {
 	public String getFormattedDate(){
 		SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
 		return sdf.format(dateCreated);
-		
 	}
 
 	public long getId() {

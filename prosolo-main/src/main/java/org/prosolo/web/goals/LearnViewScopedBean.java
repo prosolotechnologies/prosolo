@@ -31,13 +31,16 @@ public class LearnViewScopedBean implements Serializable {
 	private String id;
 	private String targetCompId;
 	
+	private long decodedId;
+	private long decodedTargetCompId;
+	
 	
 	public void init() {
 		logger.info("Initializing managed bean " + this.getClass().getSimpleName());
 		learningGoalsBean.resetNewGoalFormData();
 		
-		long decodedId =idEncoder.decodeId(id);
-		long decodedTargetCompId = idEncoder.decodeId(targetCompId);
+		decodedId =idEncoder.decodeId(id);
+		decodedTargetCompId = idEncoder.decodeId(targetCompId);
 		
 		if (decodedId > 0) {			
 			GoalDataCache dataForGoal = learningGoalsBean.getData().getDataForTargetGoal(decodedId);
@@ -75,6 +78,24 @@ public class LearnViewScopedBean implements Serializable {
 	public void setTargetCompId(String targetCompId){
 		this.targetCompId = targetCompId;
 	}
+
+	public long getDecodedId() {
+		return decodedId;
+	}
+
+	public void setDecodedId(long decodedId) {
+		this.decodedId = decodedId;
+	}
+
+	public long getDecodedTargetCompId() {
+		return decodedTargetCompId;
+	}
+
+	public void setDecodedTargetCompId(long decodedTargetCompId) {
+		this.decodedTargetCompId = decodedTargetCompId;
+	}
+	
+	
 	
 	/*public void setGoalIdString(String goalIdString) {
 		logger.debug("setGoalIdString " +  goalIdString);

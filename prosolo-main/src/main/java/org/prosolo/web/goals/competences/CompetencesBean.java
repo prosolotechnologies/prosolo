@@ -18,6 +18,7 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -257,12 +258,13 @@ public class CompetencesBean implements Serializable {
 		goalBean.recalculateSelectedGoalProgress();
 		
 		final CompetenceDataCache competenceDataCache1 = competenceDataCache;
+		final User user = loggedUser.getUser();
 		taskExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
 			 
 					// update Portfolio cache if exists
-			    	final PortfolioBean portfolioBean = (PortfolioBean) applicationBean.getUserSession(loggedUser.getUser().getId()).getAttribute("portfolio");
+			    	final PortfolioBean portfolioBean = (PortfolioBean) applicationBean.getUserSession(user.getId()).getAttribute("portfolio");
 			    	portfolioBean.populateWithActiveCompletedCompetences();
 
 			    	Session session = (Session) compManager.getPersistence().openSession();
@@ -274,6 +276,11 @@ public class CompetencesBean implements Serializable {
 				
 					tComp.setCompleted(completed);
 					tComp.setCompletedDay(new Date());
+					if(completed){
+						tComp.setProgress(100);
+					}else{
+						tComp.setProgress(0);
+					}
 					compManager.saveEntity(tComp, session);
 					
 					// updating competence status cache
@@ -286,7 +293,7 @@ public class CompetencesBean implements Serializable {
 						
 						EventType event = completed ? EventType.Completion : EventType.NotCompleted;
 						
-						eventFactory.generateEvent(event, loggedUser.getUser(), tComp, parameters);
+						eventFactory.generateEvent(event, user, tComp, parameters);
 					} catch (EventException e) {
 						logger.error(e);
 					}

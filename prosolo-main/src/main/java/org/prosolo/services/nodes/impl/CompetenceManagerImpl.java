@@ -23,6 +23,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.web.activitywall.data.ActivityWallData;
@@ -399,11 +400,12 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 	
 	@Override
 	@Transactional (readOnly = false)
-	public void updateTargetCompetenceProgress(long targetCompId, boolean completed) throws ResourceCouldNotBeLoadedException {
+	public void updateTargetCompetenceProgress(long targetCompId, boolean completed, int progress) throws ResourceCouldNotBeLoadedException {
 		TargetCompetence tComp = loadResource(TargetCompetence.class, targetCompId);
 		
 		tComp.setCompletedDay(new Date());
 		tComp.setCompleted(completed);
+		tComp.setProgress(progress);
 		tComp = saveEntity(tComp);
 	}
 
@@ -464,5 +466,40 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 		}
 		
 		return true;
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<TargetCompetence> getTargetCompetencesForTargetLearningGoal(long goalId) throws DbConnectionException{
+		try{
+			String query = 
+					"SELECT tComp " +
+							"FROM TargetLearningGoal tGoal " +
+							"LEFT JOIN tGoal.targetCompetences tComp "+
+							"WHERE tGoal.id = :goalId and tComp.id>0 ";
+			
+			List<TargetCompetence> result = persistence.currentManager().createQuery(query)
+					.setLong("goalId", goalId)
+					.list();
+				
+			if (result != null && !result.isEmpty()) {
+				return result;
+			}
+			return new ArrayList<TargetCompetence>();
+		}catch(Exception e){
+			throw new DbConnectionException("Error while loading competences");
+		}
+	}
+	
+	@Override
+	@Transactional
+	public void updateCompetenceProgress(long compId, int progress) throws DbConnectionException {
+		try{
+			TargetCompetence tc = loadResource(TargetCompetence.class, compId);
+			tc.setProgress(progress);
+		    saveEntity(tc);
+		}catch(Exception e){
+			throw new DbConnectionException("Error while saving progress");
+		}
 	}
 }

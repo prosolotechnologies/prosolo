@@ -12,7 +12,7 @@
     defaults = {
       stroke: "#000000",
       strokeWidth: 12,
-      orientation: "auto",
+      orientation: "horizontal",
       // Array of objects with properties "start" & "end" that
       // define the selectors of the elements to connect:
       // i.e., {start: "#purple", end: "#green"}.

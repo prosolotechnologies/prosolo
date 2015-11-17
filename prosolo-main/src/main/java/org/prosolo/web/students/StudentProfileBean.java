@@ -2,7 +2,11 @@ package org.prosolo.web.students;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
@@ -11,16 +15,22 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.user.SocialNetworkAccount;
 import org.prosolo.common.domainmodel.user.SocialNetworkName;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserSocialNetworks;
 import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
+import org.prosolo.common.domainmodel.workflow.evaluation.Evaluation;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.nodes.CompetenceManager;
+import org.prosolo.services.nodes.EvaluationManager;
+import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.PortfolioManager;
 import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.services.nodes.UserManager;
@@ -28,6 +38,10 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.portfolio.data.SocialNetworksData;
 import org.prosolo.web.students.data.StudentData;
+import org.prosolo.web.students.data.learning.ActivityData;
+import org.prosolo.web.students.data.learning.CompetenceData;
+import org.prosolo.web.students.data.learning.EvaluationSubmissionData;
+import org.prosolo.web.students.data.learning.LearningGoalData;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -35,12 +49,12 @@ import org.springframework.stereotype.Component;
 
 
 @ManagedBean(name = "studentProfileBean")
-@Component("studentProfileBean")
+@Component
 @Scope("view")
 public class StudentProfileBean implements Serializable {
 
-	private static final long serialVersionUID = -1878016181350581925L;
-	
+	private static final long serialVersionUID = -569778470324074695L;
+
 	private static Logger logger = Logger.getLogger(StudentProfileBean.class);
 	
 	@Inject 
@@ -55,12 +69,22 @@ public class StudentProfileBean implements Serializable {
 	private LoggedUserBean loggedUserBean;
 	@Inject
 	private PortfolioManager portfolioManager;
+	@Inject 
+	private CompetenceManager compManager;
+	@Inject
+	private EvaluationManager evalManager;
+
 	
 	private String id;
 	private long decodedId;
 	
 	private StudentData student;
 	private SocialNetworksData socialNetworksData;
+	
+	private List<LearningGoalData> lGoals;
+	private LearningGoalData selectedGoal;
+	
+	
 	
 	public void initStudent() {
 		decodedId = idEncoder.decodeId(id);
@@ -69,12 +93,7 @@ public class StudentProfileBean implements Serializable {
 				User user = userManager.loadResource(User.class, decodedId, true);
 				student = new StudentData(user);
 				
-				TopicPreference topicPreference = (TopicPreference) userManager.getUserPreferences(user, TopicPreference.class);
-				Set<Tag> preferredKeywords = topicPreference.getPreferredKeywords();
-				
-				student.addInterests(preferredKeywords);
-				
-				initSocialNetworks();
+				initLearningGoals();
 				
 				observationBean.setStudentId(decodedId);
 				observationBean.setStudentName(student.getName());
@@ -98,6 +117,112 @@ public class StudentProfileBean implements Serializable {
 				logger.error(ex);
 			}
 			
+		}
+		
+	}
+	
+	public void loadSocialNetworkData() {
+		try{
+			if(student.getInterests() == null){
+				User user = new User();
+				user.setId(decodedId);
+				
+				TopicPreference topicPreference = (TopicPreference) userManager.getUserPreferences(user, TopicPreference.class);
+				Set<Tag> preferredKeywords = topicPreference.getPreferredKeywords();
+				
+				student.addInterests(preferredKeywords);
+			}
+			if(socialNetworksData == null){
+				initSocialNetworks();
+			}
+			
+		}catch(Exception e){
+			e.printStackTrace();
+			PageUtil.fireErrorMessage("Error while loading social network data");
+		}
+	}
+
+	private void initLearningGoals() {
+		try{
+			lGoals = new ArrayList<>();
+			List<TargetLearningGoal> goals = portfolioManager.getAllGoals(decodedId);
+			boolean first = true;
+			for(TargetLearningGoal tg:goals){
+				LearningGoalData lgd = new LearningGoalData(tg);
+				lGoals.add(lgd);
+				if(first){
+					selectGoal(lgd);
+					first = false;
+				}
+			}
+		}catch(DbConnectionException e){
+			PageUtil.fireErrorMessage(e.getMessage());
+		}
+	}
+
+	public void selectGoal(LearningGoalData goal) throws DbConnectionException{
+		try{
+			if(selectedGoal != null){
+				selectedGoal.setCompetences(null);
+			}
+			selectedGoal = goal;
+		
+			List<TargetCompetence> competences = compManager.getTargetCompetencesForTargetLearningGoal(goal.getId());
+			List<CompetenceData> compData = new ArrayList<>();
+			boolean first = true;
+			for(TargetCompetence tg:competences){
+				CompetenceData cd = new CompetenceData(tg);
+				long acceptedSubmissions = evalManager.getApprovedEvaluationCountForResource(TargetCompetence.class, cd.getId());
+				cd.setApprovedSubmissionNumber(acceptedSubmissions);
+				long rejectedSubmissions = evalManager.getRejectedEvaluationCountForResource(TargetCompetence.class, cd.getId());
+				cd.setRejectedSubmissionNumber(rejectedSubmissions);
+				boolean trophy = evalManager.hasAnyBadge(TargetCompetence.class, cd.getId());
+				cd.setTrophyWon(trophy);
+				compData.add(cd);
+				if(first){
+					selectCompetence(cd);
+					first = false;
+				}
+			}
+			selectedGoal.setCompetences(compData);
+		}catch(DbConnectionException e){
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	
+	public void loadSubmissions(CompetenceData cd) {
+		try{
+			if(cd.getSubmissions() == null){
+				cd.setSubmissions(new ArrayList<>());
+				List<Evaluation> evals = evalManager.getEvaluationsForAResource(TargetCompetence.class, cd.getId());
+				for(Evaluation e:evals){
+					cd.getSubmissions().add(new EvaluationSubmissionData(e));
+				}
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+			logger.error(e);
+			PageUtil.fireErrorMessage(e.getMessage());
+		}
+	}
+
+	private void selectCompetence(CompetenceData cd) throws DbConnectionException{
+		try{
+			if(selectedGoal.getSelectedCompetence() != null){
+				selectedGoal.getSelectedCompetence().setActivities(null);
+			}
+			selectedGoal.setSelectedCompetence(cd);
+			List<TargetActivity> activities = compManager.getTargetActivities(cd.getId());
+			List<ActivityData> actData = new ArrayList<>();
+			for(TargetActivity ta:activities){
+				if(ta != null){
+					actData.add(new ActivityData(ta));
+				}
+			}
+			cd.setActivities(actData);
+		}catch(Exception e){
+			throw new DbConnectionException("Error while loading activities");
 		}
 		
 	}
@@ -188,6 +313,22 @@ public class StudentProfileBean implements Serializable {
 
 	public void setSocialNetworksData(SocialNetworksData socialNetworksData) {
 		this.socialNetworksData = socialNetworksData;
+	}
+
+	public List<LearningGoalData> getlGoals() {
+		return lGoals;
+	}
+
+	public void setlGoals(List<LearningGoalData> lGoals) {
+		this.lGoals = lGoals;
+	}
+
+	public LearningGoalData getSelectedGoal() {
+		return selectedGoal;
+	}
+
+	public void setSelectedGoal(LearningGoalData selectedGoal) {
+		this.selectedGoal = selectedGoal;
 	}
 
 	

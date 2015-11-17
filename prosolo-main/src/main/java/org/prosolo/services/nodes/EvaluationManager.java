@@ -15,6 +15,7 @@ import org.prosolo.common.domainmodel.workflow.evaluation.EvaluationSubmission;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
+import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.exceptions.EvaluationNotSupportedException;
 import org.prosolo.services.nodes.exceptions.InvalidParameterException;
 import org.prosolo.web.communications.evaluation.data.EvaluatedResourceData;
@@ -85,5 +86,9 @@ public interface EvaluationManager extends AbstractManager {
 	boolean isOtherSubmissionBasedOnThisSubmission(EvaluationSubmission evaluationSubmission);
 
 	boolean isWaitingForSubmissionRequestFromUser(BaseEntity resource, User sentTo);
+	
+	public boolean hasAnyBadge(Class<? extends BaseEntity> clazz, long resourceId) throws DbConnectionException;
+	
+	public List<Evaluation> getEvaluationsForAResource(Class<? extends BaseEntity> clazz, long resourceId) throws DbConnectionException;
 
 }

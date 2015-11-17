@@ -36,6 +36,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.EvaluationManager;
 import org.prosolo.services.nodes.PortfolioManager;
 import org.prosolo.services.nodes.exceptions.EvaluationNotSupportedException;
@@ -788,6 +789,62 @@ public class EvaluationManagerImpl extends AbstractManagerImpl implements Evalua
 		} else {
 			throw new EvaluationNotSupportedException("Evaluation for resource of a type " 
 					+ resource.getClass() + " is not supported");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly=true)
+	public boolean hasAnyBadge(Class<? extends BaseEntity> clazz, long resourceId) throws DbConnectionException {
+		try{
+			String property = clazz.getSimpleName();
+			property = property.substring(0, 1).toLowerCase() + property.substring(1, property.length());
+			
+			String query = 
+				"SELECT COUNT(DISTINCT badge) " +
+				"FROM EvaluationSubmission evSubmission " +
+				"LEFT JOIN evSubmission.evaluations ev " +
+				"LEFT JOIN ev."+property+" res " +
+				"LEFT JOIN ev.badges badge " +
+				"WHERE res.id = :resourceId " +
+					"AND evSubmission.finalized = true " +
+					"AND ev.accepted = :accepted ";
+			
+			Long count = (Long) persistence.currentManager().createQuery(query).
+				setLong("resourceId", resourceId).
+				setBoolean("accepted", true).
+				uniqueResult();
+			
+			if(count > 0) {
+				return true;
+			}
+			return false;
+		}catch(Exception e){
+			throw new DbConnectionException("Error while loading badges");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly=true)
+	public List<Evaluation> getEvaluationsForAResource(Class<? extends BaseEntity> clazz, long resourceId) throws DbConnectionException {
+		try{
+			String property = clazz.getSimpleName();
+			property = property.substring(0, 1).toLowerCase() + property.substring(1, property.length());
+			
+			String query = 
+				"SELECT ev " +
+				"FROM EvaluationSubmission evSubmission " +
+				"LEFT JOIN evSubmission.evaluations ev " +
+				"LEFT JOIN ev."+property+" res " +
+				"WHERE res.id = :resourceId " +
+					"AND evSubmission.finalized = true " +
+					"ORDER BY ev.dateCreated DESC";
+			
+			List<Evaluation> evaluations = persistence.currentManager().createQuery(query).
+				setLong("resourceId", resourceId).
+				list();
+			return evaluations;
+		}catch(Exception e){
+			throw new DbConnectionException("Error while loading badges");
 		}
 	}
 }

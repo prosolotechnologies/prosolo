@@ -20,10 +20,12 @@ public class StudentData {
 		this.name = user.getName() + (user.getLastname() != null ? " " + user.getLastname() : "");
 		this.avatar = AvatarUtils.getAvatarUrlInFormat(user, ImageFormat.size120x120);
 		this.position = user.getPosition();
-		interests = new ArrayList<>();
 	}
 	
 	public void addInterests(Set<Tag> preferredKeywords) {
+		if(interests == null){
+			interests = new ArrayList<>();
+		}
 		for(Tag t:preferredKeywords){
 			interests.add(t.getTitle());
 		}

@@ -128,13 +128,14 @@ public class TopNotificationsBean {
 			}
 		}
 		
+		final User user = loggedUser.getUser();
 		if (unreadNotificationsNo > 0) {
 			taskExecutor.execute(new Runnable() {
 	            @Override
 	            public void run() {
 	            	Session session = (Session) notificationsManager.getPersistence().openSession();
 					try {
-						notificationsManager.markAsReadAllUnreadNotifications(loggedUser.getUser(), session);
+						notificationsManager.markAsReadAllUnreadNotifications(user, session);
 					} finally {
 						HibernateUtil.close(session);
 					}

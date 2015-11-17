@@ -87,4 +87,9 @@ public interface PortfolioManager extends AbstractManager {
 	ExternalCredit updateExternalCredit(ExternalCredit externalCredit, User user, String title, String description, Date start, 
 			Date end, String certificateLink, List<Competence> competences, List<TargetActivity> activities);
 
+	public List<TargetLearningGoal> getAllArchivedGoals(long userId) throws DbConnectionException;
+	
+	public List<TargetLearningGoal> getAllNonArchivedGoals(long userId) throws DbConnectionException;
+	
+	public List<TargetLearningGoal> getAllGoals(long userId) throws DbConnectionException;
 }

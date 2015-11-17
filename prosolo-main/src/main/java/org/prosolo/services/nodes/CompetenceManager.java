@@ -16,6 +16,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
+import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.activitywall.data.AttachmentPreview;
 import org.prosolo.web.competences.data.ActivityType;
@@ -54,7 +55,7 @@ public interface CompetenceManager extends AbstractManager {
 			AttachmentPreview attachmentPreview, int maxNumberOfFiles,
 			boolean uploadsVisibility, int duration, Competence competence) throws EventException;
 
-	void updateTargetCompetenceProgress(long targetCompId, boolean completed) throws ResourceCouldNotBeLoadedException;
+	void updateTargetCompetenceProgress(long targetCompId, boolean completed, int progress) throws ResourceCouldNotBeLoadedException;
 
 	TargetCompetence getTargetCompetence(long userId, long compId, long goalId);
 
@@ -72,5 +73,9 @@ public interface CompetenceManager extends AbstractManager {
 	List<Long> getActivitiesIds(long targetCompId);
 
 	boolean disableActivityRecommendations(long targetCompId);
+	
+	public List<TargetCompetence> getTargetCompetencesForTargetLearningGoal(long goalId) throws DbConnectionException;
+	
+	public void updateCompetenceProgress(long compId, int progress) throws DbConnectionException;
 
 }

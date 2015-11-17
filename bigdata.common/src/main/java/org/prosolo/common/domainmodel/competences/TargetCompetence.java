@@ -39,6 +39,8 @@ public class TargetCompetence extends Node {
 	
 	private TargetCompetence basedOn;
 	
+	private int progress;
+	
 	public TargetCompetence() {
 		targetActivities = new ArrayList<TargetActivity>();
 	}
@@ -165,6 +167,14 @@ public class TargetCompetence extends Node {
 
 	public void setBasedOn(TargetCompetence basedOn) {
 		this.basedOn = basedOn;
+	}
+
+	public int getProgress() {
+		return progress;
+	}
+
+	public void setProgress(int progress) {
+		this.progress = progress;
 	}
 
 	@Override

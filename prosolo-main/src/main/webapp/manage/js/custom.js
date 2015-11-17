@@ -150,16 +150,7 @@ $('[data-toggle="tooltip"]').tooltip();
 
 
 /* connection lines between elements */
-$("#svgContainer").HTMLSVGconnect({
-  strokeWidth: 5,
-  stroke: "#dddddd",
-  paths: [
-    { start: "#credentials .selected", end: "#competences .selected"},
-	 { start: "#competences .selected", end: "#activitiesBlock .col-md-6"}
-	 
-	 
-  ]
-});
+connectElements();
 
 
 });
@@ -179,4 +170,25 @@ function addLoaderWithClass(div, message, withLoader, onlyRemoveContent, loaderC
 	} else if (onlyRemoveContent) {
 		$(div).html('').show();
 	}
+}
+
+function setQueryParamOfUri(uri, key, value) {
+	var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+	var separator = uri.indexOf('?') !== -1 ? "&" : "?";
+	if (uri.match(re)) {
+		return uri.replace(re, '$1' + key + "=" + value + '$2');
+	} else {
+		return uri + separator + key + "=" + value;
+	}
+}
+
+function connectElements() {
+	$("#svgContainer").HTMLSVGconnect({
+		  strokeWidth: 5,
+		  stroke: "#dddddd",
+		  paths: [
+		    { start: "#credentials .selected", end: "#competences .selected"},
+			 { start: "#competences .selected", end: "#activitiesBlock .col-md-6"}
+		  ]
+	});
 }

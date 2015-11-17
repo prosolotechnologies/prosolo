@@ -18,6 +18,7 @@ import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.util.string.StringUtil;
@@ -320,10 +321,11 @@ public class CompWallBean implements Serializable {
 	private void toggleActivityCompletedAsync(final ActivityWallData activityData, final TargetActivity activity, final String context) {
 		final TargetActivity activity1 = activityManager.saveEntity(activity);
 		
+		final User user = loggedUser.getUser();
 		taskExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				logger.debug("Toggled value of completed field of aActivity \""+activity+"\" by the user "+ loggedUser.getUser());
+				logger.debug("Toggled value of completed field of aActivity \""+activity+"\" by the user "+ user);
 					
 				try {
 					Map<String, String> paramaters = new HashMap<String, String>();
@@ -332,13 +334,13 @@ public class CompWallBean implements Serializable {
 					
 					EventType eventType = activity.isCompleted() ? EventType.Completion : EventType.NotCompleted;
 					
-					eventFactory.generateEvent(eventType, loggedUser.getUser(), activity1, paramaters);
+					eventFactory.generateEvent(eventType, user, activity1, paramaters);
 				} catch (EventException e) {
 					TargetCompetence parentTargetComp = (TargetCompetence) activity.getParentCompetence();
 					logger.error("Could not remove activity \""+activity+"\" from the learning plan \""+
 							parentTargetComp.getCompetence().getTitle()+"\" ("+
 							parentTargetComp.getId()+") by the user "+ 
-							loggedUser.getUser());
+							user);
 				}
 			}
 		});
@@ -471,7 +473,7 @@ public class CompWallBean implements Serializable {
 			
 			if (originalCompletionState != compData.isCompleted()) {
 				try {
-					compManager.updateTargetCompetenceProgress(compData.getData().getId(), compData.isCompleted());
+					compManager.updateTargetCompetenceProgress(compData.getData().getId(), compData.isCompleted(), (int) (progress * 100));
 				} catch (ResourceCouldNotBeLoadedException e) {
 					logger.error(e);
 				}
@@ -484,6 +486,8 @@ public class CompWallBean implements Serializable {
 				    	portfolioBean.populateWithActiveCompletedCompetences();
 		            }
 		        });
+			} else {
+				compManager.updateCompetenceProgress(compData.getData().getId(), (int) (progress * 100));
 			}
 		}
 	}
@@ -491,7 +495,7 @@ public class CompWallBean implements Serializable {
 	public static double calculateCompetenceProgress(CompetenceDataCache compData) {
 		double totalActivities = 0;
 		double completedActivities = 0;
-		
+
 		if (compData.getActivities() != null && compData.getActivities().size() > 0) {
 			totalActivities = compData.getActivities().size();
 			
@@ -499,12 +503,11 @@ public class CompWallBean implements Serializable {
 				if (actData.isCompleted())
 					completedActivities++;
 			}
-			
 			return completedActivities / totalActivities;
 		}
 		return 0;
 	}
-	
+
 	public void refreshCompetenceData(CompetenceDataCache compData) {
 		recalculateCompetenceProgress(compData);
 		compData.calculateCanNotBeMarkedAsCompleted();
