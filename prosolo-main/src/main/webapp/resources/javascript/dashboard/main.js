@@ -1,5 +1,5 @@
 require(['/resources/javascript/prosolo.require-config.js'], function(config) {
-	require(['jquery', 'prosolo.dashboard-paging', 'prosolo.dashboard-datepicker', 'prosolo.dashboard-service', 'prosolo.dashboard-chart', 'prosolo.dashboard-table'],
+	require(['jquery', 'dashboard/paging', 'dashboard/datepicker', 'dashboard/service', 'dashboard/chart', 'dashboard/table'],
 			function($, paging, datepicker, service, chart, table) {
 		$(function () {
 			
