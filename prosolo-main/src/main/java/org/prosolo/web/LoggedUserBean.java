@@ -54,7 +54,6 @@ import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -64,7 +63,7 @@ import org.springframework.stereotype.Component;
 
 @ManagedBean(name = "loggeduser")
 @Component("loggeduser")
-@Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
+@Scope(value = "session")
 public class LoggedUserBean implements Serializable, HttpSessionBindingListener {
 
 	private static final long serialVersionUID = 1404040093737456717L;
@@ -120,9 +119,49 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	public LoggedUserBean(){
 		System.out.println("SESSION BEAN INITIALIZED");
 	}
+	
+	private boolean initialized = false;
+	
+	private void initializeSessionData() {
+		HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
+		Map<String, Object> sessionData = (Map<String, Object>) session.getAttribute("user");
+		if(sessionData != null){
+			this.user = (User) sessionData.get("user");
+			this.loginTime = (long) sessionData.get("loginTime");
+			this.bigAvatar = (String) sessionData.get("avatar");
+			this.pagesTutorialPlayed = (Set<String>) sessionData.get("pagesTutorialPlayed");
+			this.ipAddress = (String) sessionData.get("ipAddress");
+			this.selectedStatusWallFilter = (Filter) sessionData.get("statusWallFilter");
+			this.userSettings = (UserSettings) sessionData.get("userSettings");
+			this.notificationsSettings = (UserNotificationsSettings) sessionData.get("notificationsSettings");
+			sessionData = null;
+			session.removeAttribute("user");
+			initialized = true;
+			
+			Map<String, Object> sessionData1 = (Map<String, Object>) session.getAttribute("user");
+			if(sessionData1 == null){
+				System.out.println("PRAZAN");
+			}else{
+				System.out.println("NIJE PRAZAN ");
+			}
+		}
+	}
+	public void init() {
+		FacesContext currentInstance = FacesContext.getCurrentInstance();
+		if(currentInstance != null){
+			HttpSession session = (HttpSession) currentInstance.getExternalContext().getSession(false);
+			if(session != null){
+				String email = (String) session.getAttribute("email");
+				if(email != null){
+					logger.info("login user with email "+email);
+				
+					init(userManager.getUser(email));
+				}
+			}
+		}
+	}
 
 	public void init(User user) {
-		logger.info("init");
 		this.user = user;
 		this.loginTime = new Date().getTime();
 		initializeAvatar();
@@ -138,22 +177,22 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		logger.info("init finished");
 	}
 
-	public void init(User user, HttpSession session) {
-		logger.info("init");
-		this.user = user;
-		this.loginTime = new Date().getTime();
-		initializeAvatar();
-		registerNewUserSession(session);
-		refreshUserSettings();
-		refreshNotificationsSettings();
-
-		FilterType chosenFilterType = this.userSettings.getActivityWallSettings().getChosenFilter();
-
-		loadStatusWallFilter(chosenFilterType, userSettings.getActivityWallSettings().getCourseId());
-
-		this.pagesTutorialPlayed = userSettings.getPagesTutorialPlayed();
-		logger.info("init finished");
-	}
+//	public void init(User user, HttpSession session) {
+//		logger.info("init");
+//		this.user = user;
+//		this.loginTime = new Date().getTime();
+//		initializeAvatar();
+//		registerNewUserSession(session);
+//		refreshUserSettings();
+//		refreshNotificationsSettings();
+//
+//		FilterType chosenFilterType = this.userSettings.getActivityWallSettings().getChosenFilter();
+//
+//		loadStatusWallFilter(chosenFilterType, userSettings.getActivityWallSettings().getCourseId());
+//
+//		this.pagesTutorialPlayed = userSettings.getPagesTutorialPlayed();
+//		logger.info("init finished");
+//	}
 
 	public String getIpAddress() {
 		return ipAddress;
@@ -169,17 +208,17 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		sessionCounter.addSession(session.getId());
 	}
 
-	private void registerNewUserSession(HttpSession session) {
+	/*private void registerNewUserSession(HttpSession session) {
 		applicationBean.registerNewUserSession(this.user, session);
 		sessionCounter.addSession(session.getId());
-	}
+	}*/
 
 	public boolean isLoggedIn() {
-		return user != null;
+		return getUser() != null;
 	}
 
 	public User refreshUser() {
-		user = userManager.merge(user);
+		user = userManager.merge(getUser());
 		refreshUserSettings();
 		return user;
 	}
@@ -333,28 +372,28 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		}
 	}
 
-	public boolean login(String email, String password, HttpServletRequest request, HttpSession session) {
-		try {
-			logger.debug("User \"" + email + "\" is authenticating");
-			logger.debug("User \"" + email + "\" authenticated successfully");
-			init(userManager.getUser(email), session);
-			logger.debug("User \"" + email + "\" initialized");
-			ipAddress = accessResolver.findRemoteIPAddress(request);
-			logger.debug("User \"" + email + "\" IP address:" + ipAddress);
-			eventFactory.generateEvent(EventType.LOGIN, user);
-			logger.debug("User \"" + email + "\" redirecting user to index page");
-			// FacesContext.getCurrentInstance().getExternalContext().redirect("");
-			return true;
-
-			// PageUtil.fireErrorMessage("loginMessage", "Email or password
-			// incorrect.", null);
-			// FacesContext.getCurrentInstance().getExternalContext().redirect("login");
-		} catch (Exception ex) {
-			logger.error("Logging exception", ex);
-			return false;
-		}
-
-	}
+//	public boolean login(String email, String password, HttpServletRequest request, HttpSession session) {
+//		try {
+//			logger.debug("User \"" + email + "\" is authenticating");
+//			logger.debug("User \"" + email + "\" authenticated successfully");
+//			init(userManager.getUser(email), session);
+//			logger.debug("User \"" + email + "\" initialized");
+//			ipAddress = accessResolver.findRemoteIPAddress(request);
+//			logger.debug("User \"" + email + "\" IP address:" + ipAddress);
+//			eventFactory.generateEvent(EventType.LOGIN, user);
+//			logger.debug("User \"" + email + "\" redirecting user to index page");
+//			// FacesContext.getCurrentInstance().getExternalContext().redirect("");
+//			return true;
+//
+//			// PageUtil.fireErrorMessage("loginMessage", "Email or password
+//			// incorrect.", null);
+//			// FacesContext.getCurrentInstance().getExternalContext().redirect("login");
+//		} catch (Exception ex) {
+//			logger.error("Logging exception", ex);
+//			return false;
+//		}
+//
+//	}
 
 	/*public void checkIfLoggedIn() {
 		if (isLoggedIn()) {
@@ -529,6 +568,9 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	}
 
 	public long getLoginTime() {
+		if(!initialized){
+			initializeSessionData();
+		}
 		return loginTime;
 	}
 

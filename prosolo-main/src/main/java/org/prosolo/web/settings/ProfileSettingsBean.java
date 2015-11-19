@@ -82,7 +82,7 @@ public class ProfileSettingsBean implements Serializable {
 	
 	@PostConstruct
 	public void initializeAccountData() {
-		loggedUser.refreshUser();
+//		loggedUser.refreshUser();
 		
 		accountData = new AccountData();
 		accountData.setId(loggedUser.getUser().getId());

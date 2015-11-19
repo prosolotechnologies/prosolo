@@ -2,6 +2,7 @@ package org.prosolo.core.spring.security;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -10,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.prosolo.core.spring.ServiceLocator;
+import org.prosolo.core.spring.security.exceptions.SessionInitializationException;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
@@ -29,8 +31,8 @@ import org.springframework.stereotype.Component;
 public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
 	@Inject
-	private LoggedUserBean loggedUserBean;
-
+	private UserSessionDataLoader sessionDataLoader;
+	
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException, ServletException {
@@ -38,7 +40,16 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 		User user = (User) authentication.getPrincipal();
 		HttpSession session = request.getSession(true);
 		
-		boolean success = loggedUserBean.login(user.getUsername(), user.getPassword(), request, session);
+		boolean success;
+		try{
+			Map<String, Object> sessionData = sessionDataLoader.init(user.getUsername(), request, session);
+			session.setAttribute("user", sessionData);
+			success = true;
+		}catch(SessionInitializationException e){
+			success = false;
+		}
+		//session.setAttribute("email", user.getUsername());
+		//boolean success = loggedUserBean.login(user.getUsername(), user.getPassword(), request, session);
 		if (success) {
 			if(authentication instanceof RememberMeAuthenticationToken){
 				String uri = request.getRequestURI();

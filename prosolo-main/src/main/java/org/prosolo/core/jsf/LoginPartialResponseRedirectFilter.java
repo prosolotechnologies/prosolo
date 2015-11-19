@@ -49,7 +49,7 @@ public class LoginPartialResponseRedirectFilter implements Filter {
 		String loginURL = contextPath + "/" + "login";
 
 		LoggedUserBean loggedUserBean = (session == null) ? null : 
-				(LoggedUserBean) session.getAttribute("scopedTarget.loggeduser");
+				(LoggedUserBean) session.getAttribute("loggeduser");
 			//ServiceLocator.getInstance().getService(LoggedUserBean.class);
 		boolean loggedIn =  loggedUserBean == null ? false : loggedUserBean.getUser() != null;
 		String requestURI = request.getRequestURI();
