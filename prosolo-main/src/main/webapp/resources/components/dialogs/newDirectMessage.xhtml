@@ -12,18 +12,20 @@
 	
 		<div id="newDirectMessageModalDialog" title="Direct message" class="messageDialog" style="display: none;">
 		
-			<h:form id="newDirectMessageForm" prependId="false">
+			<h:form id="newDirectMessageForm">
 				<table>
 					<tr>
 						<td class="col1">To:</td>
 						<td>
+							#{directMessagesDialog.receiver.name}
+							<ui:remove>
 							<link:user value="userDetails" 
 			    				userData="#{directMessagesDialog.receiver}"
 			    				mode="imageName"
 			    				imageSize="22"
 			    				idPrefix="directMessage"
 			    				context="directMessageDialog.imageName" />
-			    				
+			    			</ui:remove>
 				    		<script>
 							$(function() {
 								roundImages();

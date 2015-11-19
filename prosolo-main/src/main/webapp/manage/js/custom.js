@@ -26,50 +26,48 @@ $(function () {
 	var jPM = $.jPanelMenu({
 	    menu: '#mainMenu',
 	    trigger: '#menu-trigger',
-		 duration: 100,
-		 closeOnContentClick: true
+		duration: 100,
+		closeOnContentClick: true
 	});	
 	
 	
 	// register enter and exit functions for multiple breakpoints and functions
 	jRes.addFunc({
-			breakpoint: 'desktopLarge',
-			enter: function() {
+		breakpoint: 'desktopLarge',
+		enter: function() {
 
-			},
-			exit: function() {
+		},
+		exit: function() {
 
-			}
-		});		
-		jRes.addFunc({
-			breakpoint: 'desktopSmall',
-			enter: function() {
+		}
+	});		
+	jRes.addFunc({
+		breakpoint: 'desktopSmall',
+		enter: function() {
 
-			},
-			exit: function() {
+		},
+		exit: function() {
 
-			}
-		});	
-		jRes.addFunc({
-			breakpoint: 'tablet',
-			enter: function() {
+		}
+	});	
+	jRes.addFunc({
+		breakpoint: 'tablet',
+		enter: function() {
 
-			},
-			exit: function() {
+		},
+		exit: function() {
 
-			}
-		});
-		jRes.addFunc({
-			breakpoint: 'handheld',
-			enter: function() {
-				jPM.on();
-			},
-			exit: function() {
-				jPM.off();
-			}
-		});		
-
-
+		}
+	});
+	jRes.addFunc({
+		breakpoint: 'handheld',
+		enter: function() {
+			jPM.on();
+		},
+		exit: function() {
+			jPM.off();
+		}
+	});		
 
 	// ADD SLIDEDOWN ANIMATION TO DROPDOWN /
    $('.dropdown').on('show.bs.dropdown', function(e){
@@ -84,7 +82,6 @@ $(function () {
 	$('.search .dropdown-menu').click(function(e) {
 		 e.stopPropagation();
 	});
-	
 
 	// ADD SLIDEUP ANIMATION TO DROPDOWN //
 	$('.dropdown').on('hide.bs.dropdown', function(e){
@@ -99,8 +96,6 @@ $(function () {
 	});	
 
 
-
-
 	/* Return Search icon if clicked outside
 	$(document).click(function(event) { 
     if(!$(event.target).closest('.search a').length) {
@@ -110,11 +105,9 @@ $(function () {
 	})*/
 	
 	
-	
-	
 	/* show search results if something is typed in search field */
 	$('.searchPanel input.form-control').on('keyup', function(event) {
-				 $('.searchResults').first().stop(true, true).slideDown(10);
+		 $('.searchResults').first().stop(true, true).slideDown(10);
 	});
 
 	/* hide search results if search field is empty */
@@ -123,37 +116,11 @@ $(function () {
 			  $('.searchResults').first().stop(true, true).slideUp(10);
 		 }
 	});
-	
 
-
-/* Observation panel */
-$('#observationBar').on({
-    "shown.bs.dropdown": function() { this.closable = false; },
-    "click":             function() { this.closable = false; },
-    "hide.bs.dropdown":  function() { return this.closable; }
+	/* tooltip initialization */
+	$('[data-toggle="tooltip"]').tooltip();
 });
 
-
-/* stick observation panel to the top */
-$(window).bind('scroll', function() {
-	 if ($(window).scrollTop() > 100) {
-		 $('#observationBar .dropdown-menu').addClass('bar-fixed-top');
-	 }
-	 else {
-		 $('#observationBar .dropdown-menu').removeClass('bar-fixed-top');
-	 }
-});
-
-
-/* tooltip initialization */
-$('[data-toggle="tooltip"]').tooltip();
-
-
-/* connection lines between elements */
-connectElements();
-
-
-});
 
 //added from custom.js
 var context = '';
@@ -180,15 +147,4 @@ function setQueryParamOfUri(uri, key, value) {
 	} else {
 		return uri + separator + key + "=" + value;
 	}
-}
-
-function connectElements() {
-	$("#svgContainer").HTMLSVGconnect({
-		  strokeWidth: 5,
-		  stroke: "#dddddd",
-		  paths: [
-		    { start: "#credentials .selected", end: "#competences .selected"},
-			 { start: "#competences .selected", end: "#activitiesBlock .col-md-6"}
-		  ]
-	});
 }

@@ -226,7 +226,7 @@ $(document).ready(function() {
 	enableDropdown('.arrow, .postOptArrow, .shareDrop, .loginLink');
 	
 	$(document).on('click', function(){											// when clicking anywhere on the site
-		$('.dropdown:not(.searchSystem .dropdown)').addClass('hidden');			// add class 'hidden' to all dropdowns
+		//$('.dropdown:not(.searchSystem .dropdown)').addClass('hidden');			// add class 'hidden' to all dropdowns
 		//$('.arrow').removeClass('pressed');
 		//$('.postOptArrow').removeClass('pressed');
 		//$('.drop').removeClass('pressed');

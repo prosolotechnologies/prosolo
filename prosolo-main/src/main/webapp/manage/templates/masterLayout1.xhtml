@@ -27,36 +27,27 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
 	<link rel="stylesheet" href="#{request.contextPath}/manage/css/bootstrap-checkbox.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/prosolo-theme/jquery-ui-1.8.21.custom.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/manage/css/style.custom.css" />
 	<link rel="stylesheet" href="#{request.contextPath}/manage/css/style.css?#{loggeduser.loginTime}" />
 
 	<!-- FONTS -->
 	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,400italic,600italic,800' rel='stylesheet' type='text/css' />
-	<!-- JS -->
+	<!-- JS 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	-->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 	<script src="#{request.contextPath}/manage/js/jRespond.min.js"></script>
 	<script src="#{request.contextPath}/manage/js/jpanelmenu.js"></script>
-	<script src="#{request.contextPath}/manage/js/jSvgConnect.js"></script>
+	
 	<script src="#{request.contextPath}/manage/js/custom.js"></script>
+	
 	<script>
 		custom.setContext('#{request.contextPath}');
 	</script>
 
-	<ui:remove>
-	<script src="#{request.contextPath}/resources/javascript/jquery-ui-1.11.2.min.js"></script>
-	<script src="#{request.contextPath}/resources/javascript/jquery.ui.dialog.closeOnClickOutside.min.js"></script>
 	<script src="#{request.contextPath}/resources/javascript/custom.js"></script>
-	<script	src="#{request.contextPath}/resources/javascript/jquery.shortenedText.js"></script>
-	<script	src="#{request.contextPath}/resources/javascript/readmore.custom.js"></script>
-	<script	src="#{request.contextPath}/resources/javascript/jquery.moreLessBox.js"></script>
-	<script	src="#{request.contextPath}/resources/javascript/jquery.autosize.min.js"></script>
-	<script	src="#{request.contextPath}/resources/javascript/jquery.qtip.min.js"></script>
-	
-	
-	<script	src="#{request.contextPath}/resources/javascript/prosolo.bigTooltipControl.js"></script>
-	<script	src="#{request.contextPath}/resources/javascript/prosolo.logging.js"></script>
-	<script	src="#{request.contextPath}/resources/javascript/prosolo.overlay.js"></script></ui:remove>
-	
+
 	<!--  -->
 	<script src="#{request.contextPath}/resources/javascript/jquery-ui-1.11.2.min.js"></script>
 	<script src="#{request.contextPath}/resources/javascript/jquery.ui.dialog.closeOnClickOutside.min.js"></script>
@@ -229,15 +220,8 @@
 	<!--  dlg:addToCompetence id="addToCompetence"/-->
 	<ui:include	src="/resources/components/dialogs/addToCompetence.xhtml" />
 	<dlg:addToGoal id="addToGoal" />
-	<ui:include	src="/resources/components/dialogs/newPostDialog.xhtml" />
-	<ui:include	src="/resources/components/dialogs/peopleListDialog.xhtml" />
-	<ui:include	src="/resources/components/dialogs/userDetailsData.xhtml" />
 	<ui:include	src="/resources/components/dialogs/newDirectMessage.xhtml" />
-	<ui:include src="/resources/components/dialogs/activityDetails.xhtml" />
-	<ui:include src="/resources/components/dialogs/compDetailsDialog.xhtml" />
-	<ui:include	src="/resources/components/dialogs/goalDetailsDialog.xhtml" />
 	
-	<dlgAnalytics:activity id="actAnalytics" />
 </h:body>
 
 </html>

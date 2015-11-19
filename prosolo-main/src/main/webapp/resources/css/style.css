@@ -11139,6 +11139,11 @@ table tr td .iconConnect,
   border: none;
 }
 
+.ui-widget-header {
+	background: none;
+	background-color: #0288d1;
+}
+
 .ui-dialog .ui-dialog-titlebar {
   padding: 10px 20px;
 
@@ -11152,14 +11157,7 @@ table tr td .iconConnect,
   -khtml-border-bottom-left-radius: 0;
   border-bottom-left-radius: 0;
 
-  background: #2e7ab4; /* Old browsers */
-  background: -moz-linear-gradient(top,  #539fda 0%, #2e7ab4 100%); /* FF3.6+ */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#539fda), color-stop(100%,#2e7ab4)); /* Chrome,Safari4+ */
-  background: -webkit-linear-gradient(top,  #539fda 0%,#2e7ab4 100%); /* Chrome10+,Safari5.1+ */
-  background: -o-linear-gradient(top,  #539fda 0%,#2e7ab4 100%); /* Opera 11.10+ */
-  background: -ms-linear-gradient(top,  #539fda 0%,#2e7ab4 100%); /* IE10+ */
-  background: linear-gradient(top,  #539fda 0%,#2e7ab4 100%); /* W3C */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#539fda', endColorstr='#2e7ab4',GradientType=0 ); /* IE6-9 */
+  background-color: #0288d1;
 }
 
 .ui-dialog .ui-dialog-titlebar-close,

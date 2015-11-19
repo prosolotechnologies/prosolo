@@ -122,15 +122,6 @@
 					
 					<div class="uploadContainer">
 						<span class="hideUploadForm">x</span>
-						<p:fileUpload styleClass="browseFile"
-							fileUploadListener="#{cc.attrs.handleFileUpload}"  
-				            mode="advanced"  
-				            fileLimit="1"
-				            auto="true"
-				            onstart="#{cc.attrs.value}NewPost.showUploadLoader();"
-				            update="upload:uploadDetails uploadMessages link:hiddenActUrlFull"
-				            label="Choose a file"
-			            />
 					</div>
 					
 					<p:commandLink rendered="#{!cc.attrs.hideActions and !empty cc.getValueExpression('setNewPostData')}"

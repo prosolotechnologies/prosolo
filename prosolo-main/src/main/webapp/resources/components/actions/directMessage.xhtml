@@ -19,7 +19,7 @@
 			styleClass="#{cc.attrs.styleClass}"
 			onclick="openDirectMessageDialog();"
 			action="#{directMessagesDialog.addReceiverData(cc.attrs.receiverData, cc.attrs.context)}"
-			update=":#{p:component('newDirectMessageForm')}">
+			update=":newDirectMessageForm">
 			#{cc.attrs.message}
 		</p:commandLink>
 		

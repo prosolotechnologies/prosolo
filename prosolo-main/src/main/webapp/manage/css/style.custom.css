@@ -1,0 +1,520 @@
+@charset "utf-8";
+
+/*---------------------------------------------------------------------*/
+/*--- GENERAL ---*/
+/*---------------------------------------------------------------------*/
+.button {
+	display: inline-block;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	cursor: pointer;
+	margin: 0;
+	border: none;
+}
+
+.button.blue {
+	color: #136db2;
+	background: #d7eeff;
+}
+
+.button.blue:hover {
+	color: #fff;
+	background: #136db2;
+}
+
+.button.green {
+	color: #fff;
+	background: #5cb258;
+}
+
+.button.green:hover {
+	background: #70C26B;
+}
+
+.button.red {
+	color: #fff;
+	background: #dd5a5a;
+}
+
+.button.red:hover {
+	background: #d53030;
+}
+
+.button.gray {
+	color: #777;
+	background: #f5f5f5;
+}
+
+.button.gray:hover:not (.disabled ):not (.ui-state-disabled ){
+	color: #777;
+	background: #e1e1e1;
+}
+
+.button.gray.disabled:hover {
+	cursor: default;
+	background: #f5f5f5;
+}
+
+.button.white {
+	color: #555;
+	background: #fff;
+}
+
+.button.size40 {
+	font-size: 14px;
+	line-height: 38px;
+	padding: 0;
+	width: 218px;
+	text-align: center;
+	text-transform: uppercase;
+	font-weight: bold;
+}
+
+.button.size30 {
+	font-size: 12px;
+	height: 30px;
+	line-height: 30px;
+	padding: 0 10px;
+}
+
+.button.size25 {
+	font-size: 12px;
+	height: 25px;
+	line-height: 25px;
+	padding: 0 10px;
+	text-align: center;
+	text-transform: uppercase;
+	font-weight: bold;
+}
+
+.button.size24 {
+	font-size: 12px;
+	padding: 0 10px;
+	text-transform: uppercase;
+	font-weight: bold;
+}
+
+.button.size20 {
+	font-size: 11px;
+	height: 20px;
+	line-height: 20px;
+	padding: 0 10px;
+}
+
+.button.size16 {
+	font-size: 11px;
+	line-height: 16px;
+	padding: 0 10px;
+	text-transform: uppercase;
+}
+
+.button.left {
+	float: left;
+	margin-right: 10px;
+}
+
+.button.right {
+	float: right;
+	margin-left: 10px;
+}
+
+textarea, .ui-widget textarea {
+	height: 20px;
+	line-height: 20px;
+	padding: 4px 6px;
+	border: 1px solid #e5e5e5;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	text-decoration: none;
+	display: inline-block;
+	color: #555;
+	font: 12px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	text-align: justify;
+	font-size: 12px;
+}
+/*---------------------------------------------------------------------*/
+/*--- END GENERAL ---*/
+/*---------------------------------------------------------------------*/
+
+/*---------------------------------------------------------------------*/
+/*--- DIALOGS ---*/
+/*---------------------------------------------------------------------*/
+.ui-dialog table td.col1 {
+	font-weight: bold;
+}
+
+/* MESSAGE DIALOG */
+.messageDialog table {
+	border-spacing: 20px;
+	border-collapse: collapse;
+	width: 100%;
+}
+
+.messageDialog td {
+	padding: 5px;
+	position: relative;
+}
+
+.messageDialog td.col1 {
+	width: 60px;
+}
+
+.messageDialog textarea.messageContent {
+	width: 357px;
+	height: 120px;
+	overflow: hidden;
+	word-wrap: break-word;
+	resize: none;
+}
+
+/*---------------------------------------------------------------------*/
+/*--- END DIALOGS ---*/
+/*---------------------------------------------------------------------*/
+
+/*---------------------------------------------------------------------*/
+/*--- OVERRIDES ---*/
+/*---------------------------------------------------------------------*/
+
+/**** JQUERY UI ******/
+
+.ui-widget {
+	font-size: 12px;
+}
+
+/* Dialog title */
+.ui-dialog {
+	z-index: 1050;
+	overflow: initial;
+	padding: 0;
+	border: none;
+}
+
+.ui-widget-header {
+	background: none;
+	background-color: #0288d1;
+}
+
+.ui-dialog .ui-dialog-titlebar {
+	padding: 10px 20px;
+	-moz-border-radius-bottomright: 0;
+	-webkit-border-bottom-right-radius: 0;
+	-khtml-border-bottom-right-radius: 0;
+	border-bottom-right-radius: 0;
+	-moz-border-radius-bottomleft: 0;
+	-webkit-border-bottom-left-radius: 0;
+	-khtml-border-bottom-left-radius: 0;
+	border-bottom-left-radius: 0;
+}
+
+.ui-dialog .ui-dialog-titlebar-close, 
+.ui-dialog .ui-dialog-titlebar-minimize,
+.ui-dialog .ui-dialog-titlebar-maximize {
+	right: 10px;
+}
+
+.ui-corner-all {
+	-moz-border-radius-bottomright: 2px;
+	-webkit-border-bottom-right-radius: 2px;
+	-khtml-border-bottom-right-radius: 2px;
+	border-bottom-right-radius: 2px;
+	-moz-border-radius-bottomleft: 2px;
+	-webkit-border-bottom-left-radius: 2px;
+	-khtml-border-bottom-left-radius: 2px;
+	border-bottom-left-radius: 2px;
+	-moz-border-radius-topleft: 2px;
+	-webkit-border-top-left-radius: 2px;
+	-khtml-border-top-left-radius: 2px;
+	border-top-left-radius: 2px;
+	-moz-border-radius-topright: 2px;
+	-webkit-border-top-right-radius: 2px;
+	-khtml-border-top-right-radius: 2px;
+	border-top-right-radius: 2px;
+}
+
+.ui-widget-header {
+	text-shadow: none;
+	font-size: 16px;
+}
+
+/* Growl Text */
+.ui-growl-message {
+	text-shadow: none;
+}
+
+.ui-growl-title {
+	font-size: 16px;
+}
+
+.ui-growl-message p {
+	font-size: 14px;
+}
+
+/* button */
+.button.ui-button {
+	font-weight: normal;
+	text-shadow: none;
+	box-shadow: none;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+}
+
+.button.ui-button span {
+	padding: initial;
+	line-height: inherit;
+}
+
+.ui-dialog table {
+	margin-bottom: 10px;
+}
+
+.ui-dialog table td.col1 {
+	font-weight: bold;
+}
+
+.ui-dialog table td.label {
+	vertical-align: top;
+}
+
+.ui-dialog .ui-dialog-content {
+	padding: 0.7em 1em;
+}
+
+.ui-dialog .messageTextarea {
+	line-height: 20px;
+	padding: 4px 6px;
+	border: 1px solid #e5e5e5;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	text-decoration: none;
+	display: inline-block;
+	color: #a1a1a1;
+	resize: none;
+}
+
+.ui-dialog .messageTextarea:focus {
+	color: #555;
+}
+
+.ui-dialog .ui-button-icon-only .ui-icon {
+	left: -1px;
+	top: -1px;
+}
+
+.ui-widget-overlay {
+	background: #000;
+	opacity: 0.6;
+	filter: Alpha(Opacity = 60);
+	z-index: 800;
+	position: fixed;
+}
+
+.warning .ui-widget-header {
+	background: #eddb0c; /* Old browsers */
+	background: -moz-linear-gradient(top, #eddb0c 0%, #cfbe00 100%);
+	/* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #eddb0c),
+		color-stop(100%, #cfbe00)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #eddb0c 0%, #cfbe00 100%);
+	/* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #eddb0c 0%, #cfbe00 100%);
+	/* Opera 11.10+ */
+	background: -ms-linear-gradient(top, #eddb0c 0%, #cfbe00 100%);
+	/* IE10+ */
+	background: linear-gradient(to bottom, #eddb0c 0%, #cfbe00 100%);
+	/* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eddb0c',
+		endColorstr='#cfbe00', GradientType=0); /* IE6-9 */
+}
+
+.ui-message-error {
+	margin: 0;
+	margin-top: 5px;
+}
+
+.ui-datatable .ui-datatable-header {
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+}
+
+.ui-corner-bottom {
+	-moz-border-radius-bottomright: 2px;
+	-webkit-border-bottom-right-radius: 2px;
+	-khtml-border-bottom-right-radius: 2px;
+	-moz-border-radius-bottomleft: 2px;
+	-webkit-border-bottom-left-radius: 2px;
+	-khtml-border-bottom-left-radius: 2px;
+	border-bottom-left-radius: 2px;
+}
+
+.ui-widget-header .ui-state-default.ui-paginator-rpp-options,
+.ui-paginator .ui-paginator-current {
+	font-size: 14px;
+	font-weight: normal;
+}
+
+.ui-widget-header input.ui-state-default {
+	background: #fff;
+	font-weight: normal;
+	height: 20px;
+	line-height: 20px;
+	padding: 4px 6px;
+	border: 1px solid #e5e5e5;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	text-decoration: none;
+	display: inline-block;
+	color: #555;
+	font: 12px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	text-align: justify;
+	text-justify: inter-word;
+}
+
+.messageTextarea {
+	height: 40px;
+	width: 250px;
+	line-height: 20px;
+	padding: 4px 6px;
+	border: 1px solid #e5e5e5;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	text-decoration: none;
+	display: inline-block;
+	color: #a1a1a1;
+}
+
+/**** qTip ******/
+.qtip.ui-tooltip-width-unbounded {
+	max-width: none;
+}
+
+.qtip.ui-tooltip-rounded {
+	border: #eeeeee 1px solid;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	padding: 5px;
+}
+
+.qtip.ui-tooltip-shadow {
+	-webkit-box-shadow: #eee 0 0 5px;
+	-moz-box-shadow: #eee 0 0 5px;
+	box-shadow: #eee 0 0 5px;
+}
+
+.qtip.no-close-button .ui-icon-close {
+	display: none;
+}
+
+.qtip .ui-tooltip-content {
+	padding: 5px;
+}
+
+/****** Scheduler event types*******/
+.default-event, .default-event .fc-event-skin, .default-event a {
+	background-color: #7ABDFF;
+	color: black;
+	border-color: #7ABDFF;
+}
+
+.critical-event, .critical-event .fc-event-skin, .critical-event a {
+	background-color: #FF7A7A;
+	color: black;
+	border-color: #FF7A7A;
+}
+
+.completed-event, .completed-event .fc-event-skin, .completed-event a {
+	background-color: #99FF99;
+	color: black;
+	border-color: #99FF99;
+}
+
+.fc-event {
+	cursor: pointer;
+}
+
+/* slider */
+.ui-slider .ui-slider-range {
+	z-index: 0;
+}
+
+.ui-slider.ui-slider-disabled .ui-slider-handle {
+	display: none;
+}
+
+.ui-slider .ui-slider-range {
+	border: none;
+}
+
+.ui-selectcheckboxmenu-header:before {
+	content: "Select all";
+	margin-left: 10px;
+	display: inline;
+	margin-top: 15px;
+}
+
+.filterDatePicker input {
+	width: 100px;
+}
+
+.ui-selectcheckboxmenu-header {
+	font-weight: normal;
+	font-size: 100%;
+}
+
+.firstBackupColumn {
+	width: 250px;
+}
+
+.secondBackupColumn {
+	width: 100px;
+	text-align: center;
+}
+
+.thirdBackupColumn {
+	width: 100px;
+	text-align: center;
+}
+
+.fourthBackupColumn {
+	width: 100px;
+	text-align: center;
+}
+
+.backupSettingsFirstColumn {
+	width: 150px;
+}
+
+.backupSettingsSecondColumn {
+	width: 30px;
+}
+
+.ui-commandlink.loadMore {
+	font-size: 12px;
+}
+
+/* Trip Tutorial */
+.trip-block {
+	max-width: 400px;
+}
+
+.trip-block .trip-content {
+	font-size: 14px;
+}
+
+/* Readmore */
+.readmore-js-toggle {
+	font-size: 11px;
+}
+
+/* Tiny MCE */
+.mce-panel {
+	border-color: #e5e5e5;
+}
+/*---------------------------------------------------------------------*/
+/*--- END OVERRIDES ---*/
+/*---------------------------------------------------------------------*/

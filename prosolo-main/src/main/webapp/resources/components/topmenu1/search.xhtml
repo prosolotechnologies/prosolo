@@ -11,38 +11,42 @@
 	<utilcomp:messagesBundle var="msg" />
 
 	<!-- search start -->
-	<li class="dropdown search"><a href="#"
-		class="dropdown-toggle faded" data-toggle="dropdown" role="button"
-		aria-haspopup="true" aria-expanded="false"><i
-			class="fa fa-search fa-lg"></i></a> <!-- search panel start -->
+	<li class="dropdown search">
+		<a href="#" class="dropdown-toggle faded" data-toggle="dropdown" role="button" 
+			aria-haspopup="true" aria-expanded="false">
+			<i class="fa fa-search fa-lg"></i>
+		</a>
+		
+		<!-- search panel start -->
 		<div class="dropdown-menu searchPanel">
 			<div class="col-md-2">
 				<div class="sFor">Search for:</div>
 			</div>
+			
 			<div class="col-md-9">
 				<h:form id="globalsearchform" class="navbar-form navbar-left" role="search">
 				
-				<p:growl id="globalSearchFormGrowl" showDetail="true" />
+					<p:growl id="globalSearchFormGrowl" showDetail="true" />
 				
 					<p:remoteCommand name="globalSearchAction"
-							update=":topSearchResults"
-							action="#{globalSearchBean.executeSearch}" />
+						update=":topSearchResults"
+						action="#{globalSearchBean.executeSearch}" />
 						
-						<script>
-							var globalSearch;
-						
-							$(function() {
-								$('.userActions .search').prosolosearch({
-									resultContainer : '.userActions .search .searchResults',
-									loaderContainer : '.userActions .search .searchResults .container',
-									searchInput : '.userActions .search .form-control',
-									watermark: 'Search',
-									searchAction: globalSearchAction,
-									hideSearchResultsOnOutsideClick: false
-								});
-								globalSearch = $('.userActions .search').data('prosolo.search');
+					<script>
+						var globalSearch;
+					
+						$(function() {
+							$('.userActions .search').prosolosearch({
+								resultContainer : '.userActions .search .searchResults',
+								loaderContainer : '.userActions .search .searchResults .container',
+								searchInput : '.userActions .search .form-control',
+								watermark: 'Search',
+								searchAction: globalSearchAction,
+								hideSearchResultsOnOutsideClick: false
 							});
-						</script>
+							globalSearch = $('.userActions .search').data('prosolo.search');
+						});
+					</script>
 				
 					<div class="form-group">
 						<h:inputText size="20" 
@@ -60,10 +64,13 @@
 					</script>
 				</h:form>
 			</div>
+			
 			<div class="col-md-1">
-				<a href="javascript:;" class="closeSearch"><i
-					class="fa fa-close fa-lg"></i></a>
+				<a href="javascript:;" class="closeSearch">
+					<i class="fa fa-close fa-lg"></i>
+				</a>
 			</div>
+			
 			<div class="searchResults">
 				<h:panelGroup id="topSearchResults" class="container">
 					<div class="row">
@@ -71,16 +78,19 @@
 							<div class="resBox">
 								<h2>
 									#{msg['search.global.courses.title']} (#{searchCoursesBean.size})
+									
 									<h:link class="pull-right" value="See all" outcome="/courseBrowse">
 										<f:param name="query" value="" />
 									</h:link>
 								</h2>
+								
 								<ul>
 									<ui:repeat value="#{searchCoursesBean.courses}"	var="foundCourse" varStatus="iterator" id="foundCoursesList">
 										<li>
 											<div class="col-md-2">
 												<span class="ico-sm ico-credential"></span>
 											</div>
+											
 											<div class="col-md-10 resRight">
 												<h3>
 													<h:link value="#{foundCourse.title}" outcome="/course">
@@ -90,21 +100,22 @@
 												<span> 
 													Created by:
 													<link:user
-															mode="name"
-															userData="#{foundCourse.maker}"
-															idPrefix="globalSearchCourse#{iterator.index}" 
-															context="topsearch.credentials.#{foundCourse.id}.details"/>
-														 - 
-														<p:commandLink
-											    			rendered="#{not empty foundCourse.memberIds}"
-															value="#{foundCourse.memberIds.size()} members"
-															action="#{peopleListDialog.initializePeopleWithIds(foundCourse.memberIds)}"
-															onclick="$('#peopleListDialog').dialog('open');"
-															update=":peopleListForm"
-														/>
-														<h:outputText rendered="#{empty foundCourse.memberIds}"	value="0 members" />
+														mode="name"
+														userData="#{foundCourse.maker}"
+														idPrefix="globalSearchCourse#{iterator.index}" 
+														context="topsearch.credentials.#{foundCourse.id}.details"/>
+													 - 
+													<p:commandLink
+										    			rendered="#{not empty foundCourse.memberIds}"
+														value="#{foundCourse.memberIds.size()} members"
+														action="#{peopleListDialog.initializePeopleWithIds(foundCourse.memberIds)}"
+														onclick="$('#peopleListDialog').dialog('open');"
+														update=":peopleListForm"
+													/>
+													<h:outputText rendered="#{empty foundCourse.memberIds}"	value="0 members" />
 												</span>
-												<br /> 
+												<br />
+												
 												<h:link value="Details" outcome="/course">
 													<f:param name="id" value="#{util:encodeId(foundCourse.id)}" />
 												</h:link>
@@ -114,6 +125,7 @@
 								</ul>
 							</div>
 						</div>
+						
 						<div class="col-md-4">
 							<div class="resBox">
 								<h2>
@@ -123,6 +135,7 @@
 										<f:param name="query" value="" />
 									</h:link>
 								</h2>
+								
 								<ul>
 									<ui:repeat value="#{searchCompetencesBean.competences}"	var="foundCompetence" varStatus="iterator" id="foundCompetencesList">
 										<li>
@@ -132,9 +145,9 @@
 											<div class="col-md-10 resRight">
 												<h3>
 													<link:competence resourceId="#{foundCompetence.id}"
-															type="Competence"
-															title="#{foundCompetence.title}"
-															context="topsearch.competences.#{foundCompetence.id}.title" />
+														type="Competence"
+														title="#{foundCompetence.title}"
+														context="topsearch.competences.#{foundCompetence.id}.title" />
 												</h3>
 												<span> 
 													Created by: 
@@ -145,6 +158,7 @@
 														context="topsearch.competences.#{foundCompetence.id}.maker" />
 												</span>
 												<br /> 
+												
 												<link:competence resourceId="#{foundCompetence.id}"
 													type="Competence"
 													title="Details"
@@ -155,6 +169,7 @@
 								</ul>
 							</div>
 						</div>
+						
 						<div class="col-md-4">
 							<div class="resBox">
 								<h2>
@@ -164,15 +179,16 @@
 										<f:param name="query" value="" />
 									</h:link>
 								</h2>
+								
 								<ul>
 									<ui:repeat id="foundUsersList" value="#{searchPeopleBean.users}" var="userData" varStatus="iterator">
 										<li>
 											<div class="col-md-2">
 												<span class="userProfileImage"> 
-													<h:graphicImage styleClass="imageRound image30"
-														value="#{userData.avatarUrl}" />
+													<h:graphicImage styleClass="imageRound image30"	value="#{userData.avatarUrl}" />
 												</span>
 											</div>
+											
 											<div class="col-md-10 resRight">
 												<h3>
 													<link:user
@@ -188,8 +204,7 @@
 													<p:commandLink id="followButton" value="Follow"
 														action="#{peopleActionBean.followCollegueData(userData, 'globalsearch')}"
 														update=":globalsearchform:globalSearchFormGrowl #{(view.viewId == '/index') ? ':listFollowingPeopleForm:followingUsersPanel' : ''}"
-														oncomplete="roundImages()"
-														/>
+														oncomplete="roundImages()" />
 												</h:panelGroup>
 												
 												<h:panelGroup rendered="#{peopleActionBean.isLoggedUserFollowingCollegueById(userData.id)}">
@@ -209,7 +224,7 @@
 					<script>
 					$(function() {
 						var seeAll1 = $('.userActions .search .searchResults .resultCategory .seeAllLink');
-						seeAll1.attr('href', setQueryParamOfUri(seeAll1.attr('href'), 'query', $('.globalsearchform .form-control').val()));
+						//seeAll1.attr('href', setQueryParamOfUri(seeAll1.attr('href'), 'query', $('.globalsearchform .form-control').val()));
 					});
 					</script>
 				</h:panelGroup>

@@ -471,22 +471,24 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 	@Override
 	@Transactional(readOnly = true)
 	public List<TargetCompetence> getTargetCompetencesForTargetLearningGoal(long goalId) throws DbConnectionException{
-		try{
+		try {
 			String query = 
-					"SELECT tComp " +
-							"FROM TargetLearningGoal tGoal " +
-							"LEFT JOIN tGoal.targetCompetences tComp "+
-							"WHERE tGoal.id = :goalId and tComp.id>0 ";
+				"SELECT tComp " +
+				"FROM TargetLearningGoal tGoal " +
+				"LEFT JOIN tGoal.targetCompetences tComp "+
+				"WHERE tGoal.id = :goalId " + 
+					"AND tComp.id > 0 ";
 			
+			@SuppressWarnings("unchecked")
 			List<TargetCompetence> result = persistence.currentManager().createQuery(query)
-					.setLong("goalId", goalId)
-					.list();
+				.setLong("goalId", goalId)
+				.list();
 				
 			if (result != null && !result.isEmpty()) {
 				return result;
 			}
 			return new ArrayList<TargetCompetence>();
-		}catch(Exception e){
+		} catch (Exception e) {
 			throw new DbConnectionException("Error while loading competences");
 		}
 	}

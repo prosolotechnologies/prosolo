@@ -36,7 +36,7 @@ On some machines (Windows 7 machine) this configuration has worked instead of th
 
 	-Xmx1024m -Xms512m -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_shmem,address=8081,server=y,suspend=n
 
-If you supply suspend=y instead of suspend=n, run of the program will wait for the debugger to be invoked. This is usefull 
+If you supply suspend=y instead of suspend=n, run of the program will wait for the debugger to be invoked. This is useful 
 when debugging application startup process.
 
 --Step 2--

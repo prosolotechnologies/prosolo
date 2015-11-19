@@ -169,6 +169,7 @@ public class TargetCompetence extends Node {
 		this.basedOn = basedOn;
 	}
 
+	@Column(columnDefinition = "int(11) DEFAULT '0'")
 	public int getProgress() {
 		return progress;
 	}

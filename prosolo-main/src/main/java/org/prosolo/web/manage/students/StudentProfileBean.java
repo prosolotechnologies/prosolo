@@ -1,15 +1,11 @@
-package org.prosolo.web.students;
+package org.prosolo.web.manage.students;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
@@ -30,7 +26,6 @@ import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.EvaluationManager;
-import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.PortfolioManager;
 import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.services.nodes.UserManager;
@@ -43,10 +38,8 @@ import org.prosolo.web.students.data.learning.CompetenceData;
 import org.prosolo.web.students.data.learning.EvaluationSubmissionData;
 import org.prosolo.web.students.data.learning.LearningGoalData;
 import org.prosolo.web.util.PageUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
 
 @ManagedBean(name = "studentProfileBean")
 @Component
@@ -84,10 +77,9 @@ public class StudentProfileBean implements Serializable {
 	private List<LearningGoalData> lGoals;
 	private LearningGoalData selectedGoal;
 	
-	
-	
 	public void initStudent() {
 		decodedId = idEncoder.decodeId(id);
+		
 		if (decodedId > 0) {
 			try {
 				User user = userManager.loadResource(User.class, decodedId, true);
@@ -102,7 +94,6 @@ public class StudentProfileBean implements Serializable {
 				logger.info("User with id "+ 
 						loggedUserBean.getUser().getId() + 
 						" came to the studentProfile page for student with id " + decodedId);
-				
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error(e);
 				try {
@@ -116,14 +107,12 @@ public class StudentProfileBean implements Serializable {
 			} catch(Exception ex){
 				logger.error(ex);
 			}
-			
 		}
-		
 	}
 	
 	public void loadSocialNetworkData() {
-		try{
-			if(student.getInterests() == null){
+		try {
+			if (student.getInterests() == null) {
 				User user = new User();
 				user.setId(decodedId);
 				
@@ -132,45 +121,48 @@ public class StudentProfileBean implements Serializable {
 				
 				student.addInterests(preferredKeywords);
 			}
-			if(socialNetworksData == null){
+			if (socialNetworksData == null) {
 				initSocialNetworks();
 			}
-			
-		}catch(Exception e){
-			e.printStackTrace();
+		} catch (Exception e) {
+			logger.error(e);
 			PageUtil.fireErrorMessage("Error while loading social network data");
 		}
 	}
 
 	private void initLearningGoals() {
-		try{
+		try {
 			lGoals = new ArrayList<>();
 			List<TargetLearningGoal> goals = portfolioManager.getAllGoals(decodedId);
 			boolean first = true;
-			for(TargetLearningGoal tg:goals){
+			
+			for (TargetLearningGoal tg : goals) {
 				LearningGoalData lgd = new LearningGoalData(tg);
 				lGoals.add(lgd);
-				if(first){
+				
+				if (first) {
 					selectGoal(lgd);
 					first = false;
 				}
 			}
-		}catch(DbConnectionException e){
-			PageUtil.fireErrorMessage(e.getMessage());
+		} catch (DbConnectionException e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error loading learning goals.");
 		}
 	}
 
-	public void selectGoal(LearningGoalData goal) throws DbConnectionException{
-		try{
-			if(selectedGoal != null){
+	public void selectGoal(LearningGoalData goal) {
+		try {
+			if (selectedGoal != null) {
 				selectedGoal.setCompetences(null);
 			}
 			selectedGoal = goal;
-		
+			
 			List<TargetCompetence> competences = compManager.getTargetCompetencesForTargetLearningGoal(goal.getId());
 			List<CompetenceData> compData = new ArrayList<>();
 			boolean first = true;
-			for(TargetCompetence tg:competences){
+			
+			for (TargetCompetence tg : competences) {
 				CompetenceData cd = new CompetenceData(tg);
 				long acceptedSubmissions = evalManager.getApprovedEvaluationCountForResource(TargetCompetence.class, cd.getId());
 				cd.setApprovedSubmissionNumber(acceptedSubmissions);
@@ -179,56 +171,59 @@ public class StudentProfileBean implements Serializable {
 				boolean trophy = evalManager.hasAnyBadge(TargetCompetence.class, cd.getId());
 				cd.setTrophyWon(trophy);
 				compData.add(cd);
-				if(first){
+				
+				if (first) {
 					selectCompetence(cd);
 					first = false;
 				}
 			}
 			selectedGoal.setCompetences(compData);
-		}catch(DbConnectionException e){
-			e.printStackTrace();
-			throw e;
+		} catch (DbConnectionException e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error loading competences.");
 		}
 	}
 	
 	public void loadSubmissions(CompetenceData cd) {
-		try{
-			if(cd.getSubmissions() == null){
+		try {
+			if (cd.getSubmissions() == null) {
 				cd.setSubmissions(new ArrayList<EvaluationSubmissionData>());
 				List<Evaluation> evals = evalManager.getEvaluationsForAResource(TargetCompetence.class, cd.getId());
-				for(Evaluation e:evals){
+				for (Evaluation e : evals) {
 					cd.getSubmissions().add(new EvaluationSubmissionData(e));
 				}
 			}
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e);
 			PageUtil.fireErrorMessage(e.getMessage());
 		}
 	}
 
-	private void selectCompetence(CompetenceData cd) throws DbConnectionException{
-		try{
-			if(selectedGoal.getSelectedCompetence() != null){
+	public void selectCompetence(CompetenceData cd) {
+		try {
+			if (selectedGoal.getSelectedCompetence() != null) {
 				selectedGoal.getSelectedCompetence().setActivities(null);
 			}
+			
 			selectedGoal.setSelectedCompetence(cd);
 			List<TargetActivity> activities = compManager.getTargetActivities(cd.getId());
 			List<ActivityData> actData = new ArrayList<>();
-			for(TargetActivity ta:activities){
-				if(ta != null){
+			
+			for (TargetActivity ta : activities) {
+				if (ta != null) {
 					actData.add(new ActivityData(ta));
 				}
 			}
 			cd.setActivities(actData);
-		}catch(Exception e){
+		} catch (Exception e) {
 			throw new DbConnectionException("Error while loading activities");
 		}
-		
 	}
 
-	public UserData getMessageReceiverData(){
+	public UserData getMessageReceiverData() {
 		UserData ud = new UserData();
+		ud.setName(student.getName());
 		ud.setId(decodedId);
 		return ud;
 	}

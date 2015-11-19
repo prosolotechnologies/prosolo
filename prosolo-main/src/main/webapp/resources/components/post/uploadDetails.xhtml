@@ -22,13 +22,11 @@
 			
 			<h:panelGroup layout="block" class="attachContent" id="attachContent">
 				<h:panelGroup layout="block" class="actInfo actInfoBig">
-					<h:inputText id="actTitle" class="atcTitle" value="#{cc.attrs.attachmentPreview.uploadTitle}"/> 
-					<p:watermark for="actTitle" value="Document title" />
+					<h:inputText id="actTitle" class="atcTitle" value="#{cc.attrs.attachmentPreview.uploadTitle}" placeholder="Document title" /> 
 						
 					<div class="clear"></div> 
 					
-					<h:inputTextarea id="actDesc" class="atcDesc" value="#{cc.attrs.attachmentPreview.uploadDescription}" />
-					<p:watermark for="actDesc" value="Document description" />
+					<h:inputTextarea id="actDesc" class="atcDesc" value="#{cc.attrs.attachmentPreview.uploadDescription}" placeholder="Document description" />
 						
 					<script>
 						$(function() {
