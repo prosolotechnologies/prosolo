@@ -26,13 +26,18 @@
 	</ui:define>
 
 	<ui:define name="content">
-
 		<h:outputScript library="javascript" name="prosolo.tags.js"
 			target="head" />
 		<h:outputScript library="javascript" name="jquery.bxslider.js"
 			target="head" />
 		<h:outputStylesheet library="css" name="jquery.bxslider.css" />
-
+		
+		<script src="#{request.contextPath}/resources/javascript/d3.min.js"></script>
+		
+		<script src="#{request.contextPath}/manage/js/shape.js"></script>
+		<script src="#{request.contextPath}/manage/js/dimple.min.js"></script>
+     	<script src="#{request.contextPath}/manage/js/quadrantchart.js"></script>
+    
 		<p:growl id="msg" showDetail="true"></p:growl>
 
 		<section class="heading">
@@ -660,9 +665,10 @@
 									</div>
 								</div>
 
-
 							</div>
-							<div class="col-md-6 graph">Graph</div>
+							<div class="col-md-6 graph">Performance graph
+								<div id="quadrantchart"></div>
+							</div>
 							<div class="clearfix"></div>
 						</div>
 
