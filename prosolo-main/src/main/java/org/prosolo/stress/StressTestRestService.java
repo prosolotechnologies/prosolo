@@ -38,9 +38,10 @@ public class StressTestRestService {
 	  Gson gson=new Gson();
 	 TestInpuParameters inputParams= gson.fromJson(inputString, TestInpuParameters.class);
 		LoggedUserBean loggedUser=ServiceLocator.getInstance().getService(LoggedUserBean.class);
-		loggedUser.setEmail(inputParams.getUsername());
-		loggedUser.setPassword(inputParams.getPassword());
-		loggedUser.login();
+		//loggedUser.setEmail(inputParams.getUsername());
+		//loggedUser.setPassword(inputParams.getPassword());
+	    //change
+		//loggedUser.login();
 	 return Response.status(200).entity("output").build();
 		
 	}

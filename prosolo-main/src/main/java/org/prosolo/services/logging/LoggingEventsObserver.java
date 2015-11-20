@@ -74,6 +74,11 @@ public class LoggingEventsObserver implements EventObserver {
 			if (httpSession != null) {
 				LoggedUserBean loggedUserBean = (LoggedUserBean) httpSession
 						.getAttribute("loggeduser");
+				
+				if(!loggedUserBean.isInitialized()) {
+					loggedUserBean.initializeSessionData(httpSession);
+				}
+				
 				//LoggedUserBean loggedUserBean = ServiceLocator.getInstance().getService(LoggedUserBean.class);
 				ipAddress = loggedUserBean.getIpAddress();
 			}

@@ -50,8 +50,9 @@ public class LoginPartialResponseRedirectFilter implements Filter {
 
 		LoggedUserBean loggedUserBean = (session == null) ? null : 
 				(LoggedUserBean) session.getAttribute("loggeduser");
+
 			//ServiceLocator.getInstance().getService(LoggedUserBean.class);
-		boolean loggedIn =  loggedUserBean == null ? false : loggedUserBean.getUser() != null;
+		boolean loggedIn =  loggedUserBean == null ? false : loggedUserBean.isInitialized();
 		String requestURI = request.getRequestURI();
 		boolean loginRequest = requestURI.equals(loginURL);
 		boolean allowedToAccessPage = isAllowedToAccessPage(requestURI);

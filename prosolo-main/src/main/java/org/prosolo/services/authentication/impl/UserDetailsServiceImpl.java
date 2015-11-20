@@ -7,7 +7,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.organization.Capability;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;

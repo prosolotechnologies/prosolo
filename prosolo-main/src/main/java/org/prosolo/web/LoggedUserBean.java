@@ -3,7 +3,6 @@ package org.prosolo.web;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -11,7 +10,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -49,6 +47,7 @@ import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.UserManager;
+import org.prosolo.web.sessiondata.SessionData;
 import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +59,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 @ManagedBean(name = "loggeduser")
 @Component("loggeduser")
@@ -101,20 +102,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	@Autowired
 	private SessionCountBean sessionCounter;
 
-	private User user;
-	private String email;
-	private String password;
-	private long loginTime;
-	private String bigAvatar;
-	private boolean doNotShowTutorial;
-	private Set<String> pagesTutorialPlayed = new HashSet<String>();
-	private String ipAddress;
-
-	private Filter selectedStatusWallFilter;
-	private LearningGoalFilter selectedLearningGoalFilter;
-
-	private UserSettings userSettings;
-	private UserNotificationsSettings notificationsSettings;
+	private SessionData sessionData;
 	
 	public LoggedUserBean(){
 		System.out.println("SESSION BEAN INITIALIZED");
@@ -122,31 +110,33 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	
 	private boolean initialized = false;
 	
-	private void initializeSessionData() {
-		HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
-		Map<String, Object> sessionData = (Map<String, Object>) session.getAttribute("user");
-		if(sessionData != null){
-			this.user = (User) sessionData.get("user");
-			this.loginTime = (long) sessionData.get("loginTime");
-			this.bigAvatar = (String) sessionData.get("avatar");
-			this.pagesTutorialPlayed = (Set<String>) sessionData.get("pagesTutorialPlayed");
-			this.ipAddress = (String) sessionData.get("ipAddress");
-			this.selectedStatusWallFilter = (Filter) sessionData.get("statusWallFilter");
-			this.userSettings = (UserSettings) sessionData.get("userSettings");
-			this.notificationsSettings = (UserNotificationsSettings) sessionData.get("notificationsSettings");
-			sessionData = null;
+	public void initializeSessionData() {
+		FacesContext currentInstance = FacesContext.getCurrentInstance();
+		HttpSession session = null;
+		if(currentInstance != null){
+			session = (HttpSession) currentInstance.getExternalContext().getSession(false);
+			initializeSessionData(session);
+		}
+		
+	}
+	public void initializeSessionData(HttpSession session) {
+		sessionData = new SessionData();
+		Map<String, Object> sData = (Map<String, Object>) session.getAttribute("user");
+		if(sData != null){
+			sessionData.setUser((User) sData.get("user"));
+			sessionData.setLoginTime((long) sData.get("loginTime"));
+			sessionData.setBigAvatar((String) sData.get("avatar")); 
+			sessionData.setPagesTutorialPlayed((Set<String>) sData.get("pagesTutorialPlayed"));
+			sessionData.setIpAddress((String) sData.get("ipAddress"));
+			sessionData.setSelectedStatusWallFilter((Filter) sData.get("statusWallFilter"));
+			sessionData.setUserSettings((UserSettings) sData.get("userSettings"));
+			sessionData.setNotificationsSettings((UserNotificationsSettings) sData.get("notificationsSettings"));
+			sData = null;
 			session.removeAttribute("user");
 			initialized = true;
-			
-			Map<String, Object> sessionData1 = (Map<String, Object>) session.getAttribute("user");
-			if(sessionData1 == null){
-				System.out.println("PRAZAN");
-			}else{
-				System.out.println("NIJE PRAZAN ");
-			}
 		}
 	}
-	public void init() {
+	/*public void init() {
 		FacesContext currentInstance = FacesContext.getCurrentInstance();
 		if(currentInstance != null){
 			HttpSession session = (HttpSession) currentInstance.getExternalContext().getSession(false);
@@ -159,21 +149,21 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 				}
 			}
 		}
-	}
+	} */
 
 	public void init(User user) {
-		this.user = user;
-		this.loginTime = new Date().getTime();
+		setUser(user);
+		setLoginTime(new Date().getTime());
 		initializeAvatar();
 		registerNewUserSession();
 		refreshUserSettings();
 		refreshNotificationsSettings();
 
-		FilterType chosenFilterType = this.userSettings.getActivityWallSettings().getChosenFilter();
+		FilterType chosenFilterType = getUserSettings().getActivityWallSettings().getChosenFilter();
 
-		loadStatusWallFilter(chosenFilterType, userSettings.getActivityWallSettings().getCourseId());
+		loadStatusWallFilter(chosenFilterType, getUserSettings().getActivityWallSettings().getCourseId());
 
-		this.pagesTutorialPlayed = userSettings.getPagesTutorialPlayed();
+		getSessionData().setPagesTutorialPlayed(getUserSettings().getPagesTutorialPlayed());
 		logger.info("init finished");
 	}
 
@@ -194,17 +184,13 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 //		logger.info("init finished");
 //	}
 
-	public String getIpAddress() {
-		return ipAddress;
-	}
-
 	public void initializeAvatar() {
-		this.bigAvatar = AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120);
+		setBigAvatar(AvatarUtils.getAvatarUrlInFormat(getUser().getAvatarUrl(), ImageFormat.size120x120));
 	}
 
 	private void registerNewUserSession() {
 		HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
-		applicationBean.registerNewUserSession(this.user, session);
+		applicationBean.registerNewUserSession(getUser(), session);
 		sessionCounter.addSession(session.getId());
 	}
 
@@ -218,26 +204,27 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	}
 
 	public User refreshUser() {
-		user = userManager.merge(getUser());
+		setUser(userManager.merge(getUser()));
 		refreshUserSettings();
-		return user;
+		return getUser();
 	}
 
 	public void loadStatusWallFilter(FilterType chosenFilterType, long courseId) {
+		Filter filter = null;
 		if (chosenFilterType.equals(FilterType.MY_NETWORK)) {
-			this.selectedStatusWallFilter = new MyNetworkFilter();
-			Set<Long> myNetworkUsers = activityWallManager.getUsersInMyNetwork(user.getId());
-			((MyNetworkFilter) this.selectedStatusWallFilter).setUserIds(myNetworkUsers);
+			filter = new MyNetworkFilter();
+			Set<Long> myNetworkUsers = activityWallManager.getUsersInMyNetwork(getUser().getId());
+			((MyNetworkFilter) filter).setUserIds(myNetworkUsers);
 		} else if (chosenFilterType.equals(FilterType.MY_ACTIVITIES)) {
-			this.selectedStatusWallFilter = new MyActivitiesFilter();
+			filter = new MyActivitiesFilter();
 		} else if (chosenFilterType.equals(FilterType.ALL)) {
-			this.selectedStatusWallFilter = new AllFilter();
+			filter = new AllFilter();
 		} else if (chosenFilterType.equals(FilterType.TWITTER)) {
 			TwitterFilter twitterFilter = new TwitterFilter();
-			twitterFilter.setHashtags(new TreeSet<Tag>(tagManager.getSubscribedHashtags(user)));
-			this.selectedStatusWallFilter = twitterFilter;
+			twitterFilter.setHashtags(new TreeSet<Tag>(tagManager.getSubscribedHashtags(getUser())));
+			filter = twitterFilter;
 		} else if (chosenFilterType.equals(FilterType.ALL_PROSOLO)) {
-			this.selectedStatusWallFilter = new AllProsoloFilter();
+			filter = new AllProsoloFilter();
 		} else if (chosenFilterType.equals(FilterType.COURSE)) {
 			CourseFilter courseFilter = new CourseFilter();
 			try {
@@ -255,16 +242,15 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 				courseFilter.setTargetCompetences(tComps);
 				Set<Long> tActivities = courseManager.getTargetActivitiesForCourse(course);
 				courseFilter.setTargetActivities(tActivities);
-				/*
-				 * Set<Long>
-				 * tComps=competenceManager.getTargetCompetencesIds(user.getId()
-				 * , goalId); courseFilter.setTargetCompetences(tComps);
-				 * Set<Long> targetActivities=new TreeSet<Long>(); for(Long
-				 * tc:tComps){ Set<Long>
-				 * ta=competenceManager.getTargetActivities(tc);
-				 * targetActivities.addAll(ta); }
-				 * courseFilter.setTargetActivities(targetActivities);
-				 */
+				
+				/* Set<Long> tComps=competenceManager.getTargetCompetencesIds(user.getId()
+				  , goalId); courseFilter.setTargetCompetences(tComps);
+				  Set<Long> targetActivities=new TreeSet<Long>(); for(Long
+				  tc:tComps){ Set<Long>
+				  ta=competenceManager.getTargetActivities(tc);
+				  targetActivities.addAll(ta); }
+				  courseFilter.setTargetActivities(targetActivities); */
+				 
 
 				Set<Tag> hashtags = course.getHashtags();
 				for (Tag tag : hashtags) {
@@ -275,8 +261,10 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 				logger.error(e);
 				e.printStackTrace();
 			}
-			this.selectedStatusWallFilter = courseFilter;
+			filter = courseFilter;
 		}
+		
+		setSelectedStatusWallFilter(filter);
 	}
 
 	public void loadGoalWallFilter(long targetLearningGoal) {
@@ -290,15 +278,15 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		Set<Long> tActivities = learningGoalManager.getTargetActivitiesForTargetLearningGoal(targetLearningGoal);
 		filter.setTargetActivities(tActivities);
 
-		this.selectedLearningGoalFilter = filter;
+		setSelectedLearningGoalFilter(filter);
 	}
 
 	public void refreshUserSettings() {
-		this.userSettings = interfaceSettingsManager.getOrCreateUserSettings(user);
+		setUserSettings(interfaceSettingsManager.getOrCreateUserSettings(getUser()));
 	}
 
 	public void refreshNotificationsSettings() {
-		this.notificationsSettings = notificationsSettingsManager.getOrCreateNotificationsSettings(user);
+		setNotificationsSettings(notificationsSettingsManager.getOrCreateNotificationsSettings(getUser()));
 	}
 
 	public void loginOpenId(String email) {
@@ -308,16 +296,19 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 
 			if (loggedIn) {
 				logger.info("LOGGED IN:" + email);
-				this.email = email;
+				setEmail(email);
 				// ((HttpSession)
 				// FacesContext.getCurrentInstance().getExternalContext().getSession(false)).setAttribute("user",
 				// value)
-				init(userManager.getUser(email));
+				
+				//change --
+				//init(userManager.getUser(email));
 				logger.info("Initialized");
-				ipAddress = accessResolver.findRemoteIPAddress();
+				//change --
+				//ipAddress = accessResolver.findRemoteIPAddress();
 				logger.info("LOGING EVENT");
 				// this.checkIpAddress();
-				loggingService.logEvent(EventType.LOGIN, this.user, this.getIpAddress());
+				loggingService.logEvent(EventType.LOGIN, getUser(), getIpAddress());
 				// return "index?faces-redirect=true";
 				logger.info("REDIRECTING TO INDEX");
 				
@@ -342,7 +333,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		}
 	}
 
-	public void login() {
+	/*public void login() {
 		logger.debug("User \"" + email + "\" is authenticating");
 
 		try {
@@ -370,7 +361,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		} catch (Exception ex) {
 			logger.error("Logging exception", ex);
 		}
-	}
+	}*/
 
 //	public boolean login(String email, String password, HttpServletRequest request, HttpSession session) {
 //		try {
@@ -404,8 +395,10 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			}
 		}
 	}*/
+	
+	//think about logout and events --
 
-	public void logout() {
+	/*public void logout() {
 		final String ipAddress = this.getIpAddress();
 		loggingService.logEvent(EventType.LOGOUT, user, ipAddress);
 
@@ -429,15 +422,23 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		} catch (IOException e) {
 			logger.error(e);
 		}
-	}
+	}*/
 
 	@Override
 	public void valueUnbound(HttpSessionBindingEvent event) {
-		if (user != null) {
-			loggingService.logEvent(EventType.SESSIONENDED, user, this.getIpAddress());
+		User user = null;
+		if(initialized){
+			final String ipAddress = this.getIpAddress();
+			loggingService.logEvent(EventType.LOGOUT, user, ipAddress);
+
 			userManager.fullCacheClear();
-			logger.debug("UserSession unbound:" + event.getName() + " session:" + event.getSession().getId()
-					+ " for user:" + user.getId());
+			user = getUser();
+			if (user != null) {
+				loggingService.logEvent(EventType.SESSIONENDED, user, getIpAddress());
+				userManager.fullCacheClear();
+				logger.debug("UserSession unbound:" + event.getName() + " session:" + event.getSession().getId()
+						+ " for user:" + user.getId());
+			}
 		}
 		// else{
 		// logger.debug("UserSession unbound:" + event.getName() + " session:" +
@@ -454,14 +455,14 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 
 	public boolean toPlayTutorial(String page) {
 		if (page != null) {
-			return !pagesTutorialPlayed.contains(page);
+			return !getSessionData().getPagesTutorialPlayed().contains(page);
 		}
 		return false;
 	}
 
 	public void tutorialPlayed(boolean playButtonPressed, final String page) {
-		if (playButtonPressed || doNotShowTutorial) {
-			pagesTutorialPlayed.add(page);
+		if (playButtonPressed || isDoNotShowTutorial()) {
+			getSessionData().getPagesTutorialPlayed().add(page);
 
 			taskExecutor.execute(new Runnable() {
 				@Override
@@ -469,8 +470,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 					Session session = (Session) userManager.getPersistence().openSession();
 
 					try {
-						userSettings = interfaceSettingsManager.tutorialsPlayed(user.getId(), page, session);
-
+						setUserSettings(interfaceSettingsManager.tutorialsPlayed(getUser().getId(), page, session));
 						session.flush();
 					} catch (Exception e) {
 						logger.error("Exception in handling message", e);
@@ -480,7 +480,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 				}
 			});
 		}
-		this.doNotShowTutorial = false;
+		setDoNotShowTutorial(false);
 	}
 
 	public boolean hasCapability(String capability) {
@@ -520,70 +520,81 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		}
 	}
 
+	
+
 	/*
 	 * GETTERS / SETTERS
 	 */
+	
+	public SessionData getSessionData() {
+		if(!initialized){
+			initializeSessionData();
+		}
+		return sessionData;
+	}
+
+	public void setSessionData(SessionData sessionData) {
+		this.sessionData = sessionData;
+	}
+	
 	public String getEmail() {
-		return email;
+		return getSessionData() == null ? null : getSessionData().getEmail();
 	}
 
 	public void setEmail(String email) {
-		this.email = email;
+		getSessionData().setEmail(email);
 	}
 
 	public String getPassword() {
-		return password;
+		return getSessionData() == null ? null : getSessionData().getPassword();
 	}
 
 	public void setPassword(String password) {
-		this.password = password;
+		getSessionData().setPassword(password);
 	}
 
 	public User getUser() {
-		return user;
+		return getSessionData() == null ? null : getSessionData().getUser();
 	}
 
 	public void setUser(User user) {
-		this.user = user;
+		getSessionData().setUser(user);
 	}
 
 	public String getName() {
-		return getUser().getName();
+		return getSessionData() == null ? null : getUser().getName();
 	}
 
 	public String getLastName() {
-		return getUser().getLastname();
+		return getSessionData() == null ? null : getUser().getLastname();
 	}
 
 	public UserSettings getInterfaceSettings() {
-		return userSettings;
+		return getSessionData() == null ? null : getSessionData().getUserSettings();
 	}
 
 	public Locale getLocale() {
-		if (isLoggedIn() && userSettings != null && userSettings.getLocaleSettings() != null) {
-			return userSettings.getLocaleSettings().createLocale();
+		if (isLoggedIn() && getInterfaceSettings() != null && getInterfaceSettings().getLocaleSettings() != null) {
+			return getInterfaceSettings().getLocaleSettings().createLocale();
 		} else {
 			return new Locale("en", "US");
 		}
 	}
 
 	public long getLoginTime() {
-		if(!initialized){
-			initializeSessionData();
-		}
-		return loginTime;
+		return getSessionData() == null ? null : getSessionData().getLoginTime();
 	}
 
 	public void setLoginTime(long loginTime) {
-		this.loginTime = loginTime;
+		getSessionData().setLoginTime(loginTime);
 	}
 
 	public String getBigAvatar() {
-		return bigAvatar;
+		return getSessionData() == null ? null : getSessionData().getBigAvatar();
 	}
 
 	public void setBigAvatar(String bigAvatar) {
-		this.bigAvatar = bigAvatar;
+		getSessionData().setBigAvatar(bigAvatar);
 	}
 
 	/*
@@ -597,35 +608,53 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	 */
 
 	public boolean isDoNotShowTutorial() {
-		return doNotShowTutorial;
+		return getSessionData() == null ? null : getSessionData().isDoNotShowTutorial();
 	}
 
 	public void setDoNotShowTutorial(boolean doNotShowTutorial) {
-		this.doNotShowTutorial = doNotShowTutorial;
+		getSessionData().setDoNotShowTutorial(doNotShowTutorial);
 	}
 
 	public Filter getSelectedStatusWallFilter() {
-		return selectedStatusWallFilter;
+		return getSessionData() == null ? null : getSessionData().getSelectedStatusWallFilter();
 	}
 
 	public void setSelectedStatusWallFilter(Filter selectedStatusWallFilter) {
-		this.selectedStatusWallFilter = selectedStatusWallFilter;
+		getSessionData().setSelectedStatusWallFilter(selectedStatusWallFilter);
 	}
 
 	public LearningGoalFilter getSelectedLearningGoalFilter() {
-		return selectedLearningGoalFilter;
+		return getSessionData() == null ? null : getSessionData().getSelectedLearningGoalFilter();
 	}
 
 	public void setSelectedLearningGoalFilter(LearningGoalFilter selectedLearningGoalFilter) {
-		this.selectedLearningGoalFilter = selectedLearningGoalFilter;
+		getSessionData().setSelectedLearningGoalFilter(selectedLearningGoalFilter);
 	}
 
 	public UserNotificationsSettings getNotificationsSettings() {
-		return notificationsSettings;
+		return getSessionData() == null ? null : getSessionData().getNotificationsSettings();
 	}
 
 	public void setNotificationsSettings(UserNotificationsSettings notificationsSettings) {
-		this.notificationsSettings = notificationsSettings;
+		getSessionData().setNotificationsSettings(notificationsSettings);
+	}
+	public String getIpAddress() {
+		return getSessionData() == null ? null : getSessionData().getIpAddress();
 	}
 
+	public boolean isInitialized() {
+		return initialized;
+	}
+
+	public void setInitialized(boolean initialized) {
+		this.initialized = initialized;
+	}
+
+	public UserSettings getUserSettings() {
+		return getSessionData() == null ? null : getSessionData().getInterfaceSettings();
+	}
+	
+	public void setUserSettings(UserSettings userSettings) {
+		getSessionData().setUserSettings(userSettings);
+	}
 }
