@@ -1,6 +1,6 @@
 require(['/resources/javascript/prosolo.require-config.js'], function(config) {
-	require(['jquery', 'dashboard/paging', 'dashboard/datepicker', 'dashboard/service', 'dashboard/chart', 'dashboard/most-active-hashtags-table', 'dashboard/disabled-hashtags-table'],
-			function($, paging, datepicker, service, chart, mostActiveHashtagsTable, disabledHashtagsTable) {
+	require(['jquery', 'dashboard/paging', 'dashboard/datepicker', 'dashboard/service', 'dashboard/chart', 'dashboard/most-active-hashtags-table', 'dashboard/disabled-hashtags-table', 'dashboard/statistics'],
+			function($, paging, datepicker, service, chart, mostActiveHashtagsTable, disabledHashtagsTable, statistics) {
 		$(function () {
 			
 			function dashboard() {
@@ -14,48 +14,24 @@ require(['/resources/javascript/prosolo.require-config.js'], function(config) {
 			function noResultsMessage() {
 				return dashboard().dataset["noResultsFoundMessage"];
 			}
-				
-			function trendClasses(percentage) {
-				var negative = percentage.charAt(0) === "-";
-				return {
-					"remove" : negative ? "trend-up" : "trend-down",
-					"add" : negative ? "trend-down" : "trend-up"
-				}
-			}
 			
-			$.ajax({
-				url : "http://" + host() + "/api/users/activity/statistics/sum",
-				type : "GET",
-				data : {event: "registered"},
-				crossDomain: true,
-				dataType: 'json'
-			}).done(function(data) {
-				$("#total-users-count").html(data.totalUsers);
-				$("#total-users-count-percent").html(data.totalUsersPercent);
-				var classes = trendClasses(data.totalUsersPercent);
-				$("#total-users-trend, #total-users-count-percent").removeClass(classes.remove).addClass(classes.add);
+			statistics.totalUsers({
+				host: host(),
+				count: "#total-users-count",
+				percent: "#total-users-count-percent",
+				trend: "#total-users-trend"
 			});
 			
-			$.ajax({
-				url : "http://" + host() + "/api/users/activity/statistics/active",
-				type : "GET",
-				data : {event: "login"},
-				crossDomain: true,
-				dataType: 'json'
-			}).done(function(data) {
-				$("#active-users-count").html(data.activeUsers);
-				$("#active-users-count-percent").html(data.activeUsersPercent);
-				var classes = trendClasses(data.activeUsersPercent);
-				$("#active-users-trend, #active-users-count-percent").removeClass(classes.remove).addClass(classes.add);
+			statistics.activeUsers({
+				host: host(),
+				count: "#active-users-count",
+				percent: "#active-users-count-percent",
+				trend: "#active-users-trend"
 			});
 			
-			$.ajax({
-				url : "http://" + host() + "/api/users/activity/statistics/session",
-				type : "GET",
-				crossDomain: true,
-				dataType: 'json'
-			}).done(function(data) {
-				$("#currently-logged-in-count").html(data.loggedIn);
+			statistics.session({
+				host: host(),
+				count: "#currently-logged-in-count"
 			});
 			
 			var activityGraph = (function() {
