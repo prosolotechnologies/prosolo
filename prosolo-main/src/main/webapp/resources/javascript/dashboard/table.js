@@ -43,6 +43,9 @@ define([], function() {
 			table.appendChild(thead);
 	
 			return {
+				rows: function() {
+					return Array.prototype.slice.call(document.querySelectorAll(container + " tbody tr"));
+				},
 				selectFirst : function(count) {
 					var select = document.querySelectorAll(container + " table tbody td.selector input[type='checkbox']");
 					for(var i = 0; i<count; i++) {
