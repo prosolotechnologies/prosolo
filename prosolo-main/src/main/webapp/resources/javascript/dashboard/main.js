@@ -1,6 +1,6 @@
 require(['/resources/javascript/prosolo.require-config.js'], function(config) {
-	require(['jquery', 'dashboard/paging', 'dashboard/datepicker', 'dashboard/service', 'dashboard/chart', 'dashboard/table', 'dashboard/hashtags-table'],
-			function($, paging, datepicker, service, chart, table, hashtagsTable) {
+	require(['jquery', 'dashboard/paging', 'dashboard/datepicker', 'dashboard/service', 'dashboard/chart', 'dashboard/most-active-hashtags-table', 'dashboard/disabled-hashtags-table'],
+			function($, paging, datepicker, service, chart, mostActiveHashtagsTable, disabledHashtagsTable) {
 		$(function () {
 			
 			function dashboard() {
@@ -209,8 +209,8 @@ require(['/resources/javascript/prosolo.require-config.js'], function(config) {
 			
 			var disabledHashtags = [];
 						
-			hashtagsTable.create();
-			hashtagsTable.subscribe(function(hashtag) {
+			mostActiveHashtagsTable.create();
+			mostActiveHashtagsTable.subscribe(function(hashtag) {
 				document.querySelector("#disable-form\\:hashtag-to-disable").value = hashtag;
 				document.querySelector("#disable-form\\:disable-form-submit").click();
 				disabledHashtags.push(hashtag);
@@ -252,7 +252,7 @@ require(['/resources/javascript/prosolo.require-config.js'], function(config) {
 							$(messages).hide();
 							$(document.querySelector("#mostActiveHashtags table")).show();
 							$(navigation).show();
-							hashtagsTable.init(data.results);
+							mostActiveHashtagsTable.init(data.results);
 							if (data.day > 0) {
 								var from = new Date(0);
 								from.setUTCSeconds((data.day - 7) * 24 * 60 * 60)
@@ -364,7 +364,7 @@ require(['/resources/javascript/prosolo.require-config.js'], function(config) {
 					brewer: patterns,
 					legend : {
 						selector: "#twitterHashtagsGraph .legend",
-						data: function() { var next = cycle(); return hashtagsTable.hashtags().map(function(hashtag) { return {"name" : "#" + hashtag, "class" : next()}  }) }
+						data: function() { var next = cycle(); return mostActiveHashtagsTable.hashtags().map(function(hashtag) { return {"name" : "#" + hashtag, "class" : next()}  }) }
 					}
 				});
 		
@@ -372,7 +372,7 @@ require(['/resources/javascript/prosolo.require-config.js'], function(config) {
 					dateFrom : function() { return $("#twitterHashtagsGraph .dateFrom").val(); },
 					dateTo : function() { return $("#twitterHashtagsGraph .dateTo").val(); },
 					period : function() { return $("#twitterHashtagsGraph [name='thperiods']:checked").val(); },
-					hashtags : hashtagsTable.hashtags,
+					hashtags : mostActiveHashtagsTable.hashtags,
 					showLoader : function() {
 						$("#twitterHashtagsGraph .loader").show().siblings().hide();
 					},
@@ -383,7 +383,7 @@ require(['/resources/javascript/prosolo.require-config.js'], function(config) {
 							$("#twitterHashtagsGraph .messages").text(noResultsMessage()).show().siblings().hide();
 							twitterHashtagsChart.show(data, from, to);
 						} else {
-							hashtagsTable.selectFirst(6);
+							mostActiveHashtagsTable.selectFirst(6);
 							$("#twitterHashtagsGraph .chart").show().siblings().hide();
 							$("#twitterHashtagsGraph .legend").show();
 							twitterHashtagsChart.show(data, from, to);
@@ -394,35 +394,15 @@ require(['/resources/javascript/prosolo.require-config.js'], function(config) {
 			
 			datepicker.align("#twitterHashtagsGraph .dateFrom", "#twitterHashtagsGraph .dateTo", twitterHashtags.period());
 			
-			var disabledHashtagsTable = table.create({
-				"container" : "#disabled-twitter-hashtags",
-				"rows" : {
-					"class" : "hashtag"
-				},
-				"columns" : [
-						{
-							"name" : "hashtag",
-							"title" : "Hashtag",
-							"type" : "text",
-							"key" : "true"
-						}, {
-							"name" : "action",
-							"title" : "Action",
-							"type" : "button",
-							"value" : "Enable",
-							"click" : function() {
-								var hashtag = this.parentElement.parentElement.dataset["hashtag"]
-								this.setAttribute('disabled', 'disabled');
-			    				document.querySelector("#enable-form\\:hashtag-to-enable").value = hashtag;
-			    				document.querySelector("#enable-form\\:enable-form-submit").click();
-			    				var index = disabledHashtags.indexOf(hashtag);
-			    				if (index > -1) {
-			    					disabledHashtags.splice(index, 1);
-			    				}
-			    				loadDh(disabledHashtags);
-			    				return false;		
-							} 
-						} ]
+			disabledHashtagsTable.create();
+			disabledHashtagsTable.subscribe(function() {
+				document.querySelector("#enable-form\\:hashtag-to-enable").value = hashtag;
+				document.querySelector("#enable-form\\:enable-form-submit").click();
+				var index = disabledHashtags.indexOf(hashtag);
+				if (index > -1) {
+					disabledHashtags.splice(index, 1);
+				}
+				loadDh(disabledHashtags);
 			});
 			
 			var disabledHashtagsPages = paging.create([], 5);

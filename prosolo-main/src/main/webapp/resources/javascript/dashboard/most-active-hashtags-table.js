@@ -1,4 +1,6 @@
-define([ "dashboard/table" ], function(table) {
+define([ "dashboard/table", "dashboard/callbacks" ], function(table, Callbacks) {
+
+	var callbacks = new Callbacks();
 
 	var configuration = {
 		"container" : "#mostActiveHashtags",
@@ -29,7 +31,7 @@ define([ "dashboard/table" ], function(table) {
 			"value" : "Disable",
 			"click" : function() {
 				this.setAttribute('disabled', 'disabled');
-				notify(this.parentElement.parentElement.dataset["hashtag"]);
+				callbacks.notify(this.parentElement.parentElement.dataset["hashtag"]);
 				return false;
 			}
 		}, {
@@ -41,23 +43,9 @@ define([ "dashboard/table" ], function(table) {
 		} ]
 	}
 
-	// TODO separate module? inheritance?
-	var callbacks = [];
-
-	function notify(changes) {
-		callbacks.map(function(callback) {
-			callback(changes);
-		});
-	}
-
-	function subscribe(callback) {
-		callbacks.push(callback);
-	}
-	// TODO END
-
 	var hashtagsTable;
 	return {
-		subscribe : subscribe,
+		subscribe : callbacks.subscribe,
 		create : function() {
 			hashtagsTable = table.create(configuration);
 		},
