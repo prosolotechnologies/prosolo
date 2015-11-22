@@ -2,6 +2,15 @@ require(['/resources/javascript/prosolo.require-config.js'], function(config) {
 	require(['jquery', 'dashboard/paging', 'dashboard/datepicker', 'dashboard/service', 'dashboard/chart', 'dashboard/most-active-hashtags-table', 'dashboard/disabled-hashtags-table', 'dashboard/statistics'],
 			function($, paging, datepicker, service, chart, mostActiveHashtagsTable, disabledHashtagsTable, statistics) {
 		$(function () {
+			function distinct(array) {
+				return array.reduce(function(acc, current) {
+					if (acc.indexOf(current) == -1) {
+						acc.push(current);
+					}
+					return acc;
+				}, []);
+			}
+
 			
 			function dashboard() {
 				return document.querySelector("#dashboard");
@@ -54,7 +63,7 @@ require(['/resources/javascript/prosolo.require-config.js'], function(config) {
 					tooltip : {
 						fields: ["date", "count", "type"]
 					},
-					brewer: patterns,
+					brewer: function(data) { return patterns },
 					legend : {
 						selector: "#activityGraph .legend",
 						data: function() { return [{"name" : "Registered", "class" : "pattern-one"},
@@ -337,7 +346,14 @@ require(['/resources/javascript/prosolo.require-config.js'], function(config) {
 					tooltip : {
 						fields: ["date", "count", "hashtag"]
 					},
-					brewer: patterns,
+					brewer: function(data) { 
+						var next = cycle();
+						var result  = {};
+						distinct(data.map(function(e) { return e.hashtag; })).map(function(hashtag) { 
+							result[hashtag] = next() + " " + hashtag;
+						});
+						return result;
+					},
 					legend : {
 						selector: "#twitterHashtagsGraph .legend",
 						data: function() { var next = cycle(); return mostActiveHashtagsTable.hashtags().map(function(hashtag) { return {"name" : "#" + hashtag, "class" : next()}  }) }

@@ -34,12 +34,20 @@ define([ "dashboard/table", "dashboard/callbacks" ], function(table, Callbacks) 
 				callbacks.notify(this.parentElement.parentElement.dataset["hashtag"]);
 				return false;
 			}
-		}, {
-			"name" : "show-in-table",
-			"title" : "Show",
-			"type" : "checkbox",
-			"change" : function() {
-			}
+//		}, {
+//			"name" : "show-in-table",
+//			"title" : "Show",
+//			"type" : "checkbox",
+//			"change" : function() {
+//				var hashtag = $(this).parent().parent().data("hashtag");
+//				if($(this).is(":checked")) {
+//					$("#twitterHashtagsChart g." + hashtag).show();
+//					//$("g ." + hashtag).removeClass(Array.prototype.slice.call($("g ." + hashtag)[0].classList).filter(function(c) { return c.indexOf("pattern") > -1;}));
+//				} else {
+//					//$("g ." + hashtag).removeClass(Array.prototype.slice.call($("g ." + hashtag)[0].classList).filter(function(c) { return c.indexOf("pattern") > -1;}));
+//					$("#twitterHashtagsChart g." + hashtag).hide();
+//				}
+//			}
 		} ]
 	}
 

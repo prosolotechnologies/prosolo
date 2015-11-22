@@ -1,4 +1,4 @@
-define([], function() {
+define(["jquery"], function($) {
 	return {
 		create : function(configuration) {
 			var charts = [];
@@ -52,7 +52,7 @@ define([], function() {
 								label : { padding : 33 }
 							},
 							color:{
-				                brewer: configuration.brewer
+				                brewer: configuration.brewer(data)
 				            }
 						},
 						data : data,
