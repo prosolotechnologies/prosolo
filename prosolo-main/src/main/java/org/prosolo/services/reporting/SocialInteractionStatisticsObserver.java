@@ -1,8 +1,10 @@
 package org.prosolo.services.reporting;
 
 import static org.prosolo.common.domainmodel.activities.events.EventType.Comment;
-
-import java.util.Map;
+import static org.prosolo.common.domainmodel.activities.events.EventType.Dislike;
+import static org.prosolo.common.domainmodel.activities.events.EventType.Like;
+import static org.prosolo.common.domainmodel.activities.events.EventType.MENTIONED;
+import static org.prosolo.common.domainmodel.activities.events.EventType.SEND_MESSAGE;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
@@ -24,7 +26,7 @@ public class SocialInteractionStatisticsObserver implements EventObserver {
 
 	@Override
 	public EventType[] getSupportedEvents() {
-		return new EventType[] { Comment };
+		return new EventType[] { Comment, Like, Dislike, MENTIONED, SEND_MESSAGE };
 	}
 
 	@Override
@@ -42,7 +44,19 @@ public class SocialInteractionStatisticsObserver implements EventObserver {
 		
 		long source = event.getActor().getId();
 		
-		long target = ((SocialActivity) event.getTarget()).getTarget().getId();
+		long target;
+		if (event.getAction().equals(SEND_MESSAGE)){
+			target =Long.valueOf(event.getParameters().get("user"));
+		} else if (event.getAction().equals(Comment)) {
+			target = ((SocialActivity) event.getTarget()).getTarget().getId();
+		} else if (event.getAction().equals(Like) || event.getAction().equals(Dislike)){
+			if (event.getTarget() == null) {
+				return;
+			}
+			target = event.getTarget().getId();
+		} else {
+			throw new IllegalStateException("Event type " + event.getAction() + " not supported.");
+		}
 		
 		if (source == target) return;
 		
