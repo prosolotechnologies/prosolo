@@ -100,6 +100,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/manage/courseFeeds.xhtml*").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/social-interaction*").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/students/*").hasAuthority("BASIC.MANAGER.ACCESS")
+		   
+		   // ADDED
+		   .antMatchers("/manage/studentProfile.history.xhtml").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/reports").hasAuthority("REPORTS.VIEW")
 		   .antMatchers("/admin/users").hasAuthority("USERS.VIEW")
 		   .antMatchers("/admin/roles").hasAuthority("ROLES.VIEW")

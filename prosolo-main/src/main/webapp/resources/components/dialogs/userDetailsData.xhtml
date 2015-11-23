@@ -14,7 +14,7 @@
 					onclick="sendLogPageNavigationWithParameters('/profile', {context: 'userDetails', userId: #{userDetailsBean.userData.id}});"
 					rendered="#{userDetailsBean.userData.profileUrl == null or userDetailsBean.userData.profileUrl.length() == 0}"
 					outcome="/publicprofile" >
-					<f:param name="user" value="#{util:encodeId(userDetailsBean.userData.id)}" />
+					<f:param name="id" value="#{util:encodeId(userDetailsBean.userData.id)}" />
 					
 					<h:panelGroup class="overlay twitter" rendered="#{userDetailsBean.userData.externalUser}" />
 
@@ -42,9 +42,9 @@
 				<h2 class="name">
 					<h:link rendered="#{userDetailsBean.userData.profileUrl == null or userDetailsBean.userData.profileUrl.length() == 0}"
 						value="#{userDetailsBean.userData.name}" 
-						onclick="sendLogPageNavigation('/publicprofile?user=#{userDetailsBean.userData.id}','userDetails');"
+						onclick="sendLogPageNavigationWithParameters('/profile', {context: 'userDetails', userId: #{userDetailsBean.userData.id}});"
 						outcome="/publicprofile" >
-		                <f:param  name="user" value="#{util:encodeId(userDetailsBean.userData.id)}" />  
+		                <f:param  name="id" value="#{util:encodeId(userDetailsBean.userData.id)}" />  
 		            </h:link>
 
 		            <h:outputLink rendered="#{userDetailsBean.userData.profileUrl != null}"
