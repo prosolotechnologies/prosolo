@@ -68,8 +68,6 @@ public class UserSessionDataLoader implements Serializable{
 	private InterfaceSettingsManager interfaceSettingsManager;
 	@Autowired
 	private AccessResolver accessResolver;
-	@Autowired
-	private EventFactory eventFactory;
 	
 	
 	//private User user;
@@ -113,11 +111,6 @@ public class UserSessionDataLoader implements Serializable{
 			sessionData.put("userSettings", userSettings);
 			sessionData.put("notificationsSettings", notificationsSettings);
 			
-			try{
-				eventFactory.generateEvent(EventType.LOGIN, user);
-			}catch(Exception e){
-				logger.error(e);
-			}
 			logger.info("init finished");
 			return sessionData;
 		}catch(Exception e){
@@ -136,7 +129,7 @@ public class UserSessionDataLoader implements Serializable{
 		sessionCounter.addSession(session.getId());
 	}
 	
-	private Filter loadStatusWallFilter(User user, FilterType chosenFilterType, long courseId) {
+	public Filter loadStatusWallFilter(User user, FilterType chosenFilterType, long courseId) {
 		Filter selectedStatusWallFilter = null;
 		if (chosenFilterType.equals(FilterType.MY_NETWORK)) {
 			selectedStatusWallFilter = new MyNetworkFilter();

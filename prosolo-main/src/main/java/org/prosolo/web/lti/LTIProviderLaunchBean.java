@@ -122,7 +122,7 @@ public class LTIProviderLaunchBean implements Serializable {
 	private boolean login(User user) throws AuthenticationException {
 		boolean loggedIn = authenticationService.loginOpenId(user.getEmail().getAddress());
 		if(loggedIn){
-			loggedUserBean.init(user);
+			loggedUserBean.init(user.getEmail().getAddress());
 			return true;
 		}
 		return false;

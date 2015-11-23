@@ -10,7 +10,9 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionBindingEvent;
@@ -28,6 +30,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.core.spring.security.HomePageResolver;
+import org.prosolo.core.spring.security.UserSessionDataLoader;
 import org.prosolo.services.activityWall.ActivityWallManager;
 import org.prosolo.services.activityWall.filters.AllFilter;
 import org.prosolo.services.activityWall.filters.AllProsoloFilter;
@@ -59,8 +62,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 @ManagedBean(name = "loggeduser")
 @Component("loggeduser")
@@ -86,21 +87,11 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	private ThreadPoolTaskExecutor taskExecutor;
 	@Autowired
 	private LoggingService loggingService;
-	@Autowired
-	private AccessResolver accessResolver;
+	@Inject
+	private UserSessionDataLoader sessionDataLoader;
 
 	@Autowired
-	private ActivityWallManager activityWallManager;
-	@Autowired
-	private TagManager tagManager;
-	@Autowired
 	private LearningGoalManager learningGoalManager;
-	@Autowired
-	private CourseManager courseManager;
-	@Autowired
-	private EventFactory eventFactory;
-	@Autowired
-	private SessionCountBean sessionCounter;
 
 	private SessionData sessionData;
 	
@@ -122,82 +113,35 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	public void initializeSessionData(HttpSession session) {
 		sessionData = new SessionData();
 		Map<String, Object> sData = (Map<String, Object>) session.getAttribute("user");
-		if(sData != null){
-			sessionData.setUser((User) sData.get("user"));
-			sessionData.setLoginTime((long) sData.get("loginTime"));
-			sessionData.setBigAvatar((String) sData.get("avatar")); 
-			sessionData.setPagesTutorialPlayed((Set<String>) sData.get("pagesTutorialPlayed"));
-			sessionData.setIpAddress((String) sData.get("ipAddress"));
-			sessionData.setSelectedStatusWallFilter((Filter) sData.get("statusWallFilter"));
-			sessionData.setUserSettings((UserSettings) sData.get("userSettings"));
-			sessionData.setNotificationsSettings((UserNotificationsSettings) sData.get("notificationsSettings"));
-			sData = null;
-			session.removeAttribute("user");
+		initializeData(sData);
+		sData = null;
+		session.removeAttribute("user");
+	}
+	private void initializeData(Map<String, Object> userData) {
+		if(userData != null){
+			sessionData.setUser((User) userData.get("user"));
+			sessionData.setLoginTime((long) userData.get("loginTime"));
+			sessionData.setBigAvatar((String) userData.get("avatar")); 
+			sessionData.setPagesTutorialPlayed((Set<String>) userData.get("pagesTutorialPlayed"));
+			sessionData.setIpAddress((String) userData.get("ipAddress"));
+			sessionData.setSelectedStatusWallFilter((Filter) userData.get("statusWallFilter"));
+			sessionData.setUserSettings((UserSettings) userData.get("userSettings"));
+			sessionData.setNotificationsSettings((UserNotificationsSettings) userData.get("notificationsSettings"));
 			initialized = true;
 		}
 	}
-	/*public void init() {
-		FacesContext currentInstance = FacesContext.getCurrentInstance();
-		if(currentInstance != null){
-			HttpSession session = (HttpSession) currentInstance.getExternalContext().getSession(false);
-			if(session != null){
-				String email = (String) session.getAttribute("email");
-				if(email != null){
-					logger.info("login user with email "+email);
-				
-					init(userManager.getUser(email));
-				}
-			}
-		}
-	} */
-
-	public void init(User user) {
-		setUser(user);
-		setLoginTime(new Date().getTime());
-		initializeAvatar();
-		registerNewUserSession();
-		refreshUserSettings();
-		refreshNotificationsSettings();
-
-		FilterType chosenFilterType = getUserSettings().getActivityWallSettings().getChosenFilter();
-
-		loadStatusWallFilter(chosenFilterType, getUserSettings().getActivityWallSettings().getCourseId());
-
-		getSessionData().setPagesTutorialPlayed(getUserSettings().getPagesTutorialPlayed());
-		logger.info("init finished");
+	
+	public void init(String email) {
+		ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
+		HttpSession session = (HttpSession) ec.getSession(false);
+		HttpServletRequest request = (HttpServletRequest) ec.getRequest();
+		Map<String, Object> userData = sessionDataLoader.init(email, request, session);
+		initializeData(userData);
 	}
-
-//	public void init(User user, HttpSession session) {
-//		logger.info("init");
-//		this.user = user;
-//		this.loginTime = new Date().getTime();
-//		initializeAvatar();
-//		registerNewUserSession(session);
-//		refreshUserSettings();
-//		refreshNotificationsSettings();
-//
-//		FilterType chosenFilterType = this.userSettings.getActivityWallSettings().getChosenFilter();
-//
-//		loadStatusWallFilter(chosenFilterType, userSettings.getActivityWallSettings().getCourseId());
-//
-//		this.pagesTutorialPlayed = userSettings.getPagesTutorialPlayed();
-//		logger.info("init finished");
-//	}
-
+	
 	public void initializeAvatar() {
 		setBigAvatar(AvatarUtils.getAvatarUrlInFormat(getUser().getAvatarUrl(), ImageFormat.size120x120));
 	}
-
-	private void registerNewUserSession() {
-		HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
-		applicationBean.registerNewUserSession(getUser(), session);
-		sessionCounter.addSession(session.getId());
-	}
-
-	/*private void registerNewUserSession(HttpSession session) {
-		applicationBean.registerNewUserSession(this.user, session);
-		sessionCounter.addSession(session.getId());
-	}*/
 
 	public boolean isLoggedIn() {
 		return getUser() != null;
@@ -208,62 +152,9 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		refreshUserSettings();
 		return getUser();
 	}
-
+	
 	public void loadStatusWallFilter(FilterType chosenFilterType, long courseId) {
-		Filter filter = null;
-		if (chosenFilterType.equals(FilterType.MY_NETWORK)) {
-			filter = new MyNetworkFilter();
-			Set<Long> myNetworkUsers = activityWallManager.getUsersInMyNetwork(getUser().getId());
-			((MyNetworkFilter) filter).setUserIds(myNetworkUsers);
-		} else if (chosenFilterType.equals(FilterType.MY_ACTIVITIES)) {
-			filter = new MyActivitiesFilter();
-		} else if (chosenFilterType.equals(FilterType.ALL)) {
-			filter = new AllFilter();
-		} else if (chosenFilterType.equals(FilterType.TWITTER)) {
-			TwitterFilter twitterFilter = new TwitterFilter();
-			twitterFilter.setHashtags(new TreeSet<Tag>(tagManager.getSubscribedHashtags(getUser())));
-			filter = twitterFilter;
-		} else if (chosenFilterType.equals(FilterType.ALL_PROSOLO)) {
-			filter = new AllProsoloFilter();
-		} else if (chosenFilterType.equals(FilterType.COURSE)) {
-			CourseFilter courseFilter = new CourseFilter();
-			try {
-				Course course = userManager.loadResource(Course.class, courseId);
-				courseFilter.setCourseId(courseId);
-				Map<String, Set<Long>> goalTargetGoals = courseManager.getTargetLearningGoalIdsForCourse(course);
-				// Long
-				// targetLearningGoalId=courseManager.getTargetLearningGoalIdForCourse(user,
-				// course);
-				courseFilter.setTargetLearningGoals(goalTargetGoals.get("targetGoals"));
-				// Long
-				// goalId=learningGoalManager.getGoalIdForTargetGoal(targetLearningGoalId);
-				courseFilter.setLearningGoals(goalTargetGoals.get("goals"));
-				Set<Long> tComps = courseManager.getTargetCompetencesForCourse(course);
-				courseFilter.setTargetCompetences(tComps);
-				Set<Long> tActivities = courseManager.getTargetActivitiesForCourse(course);
-				courseFilter.setTargetActivities(tActivities);
-				
-				/* Set<Long> tComps=competenceManager.getTargetCompetencesIds(user.getId()
-				  , goalId); courseFilter.setTargetCompetences(tComps);
-				  Set<Long> targetActivities=new TreeSet<Long>(); for(Long
-				  tc:tComps){ Set<Long>
-				  ta=competenceManager.getTargetActivities(tc);
-				  targetActivities.addAll(ta); }
-				  courseFilter.setTargetActivities(targetActivities); */
-				 
-
-				Set<Tag> hashtags = course.getHashtags();
-				for (Tag tag : hashtags) {
-					courseFilter.addHashtag(tag.getTitle());
-				}
-				// courseFilter.setHashtags(course.getHashtags());
-			} catch (Exception e) {
-				logger.error(e);
-				e.printStackTrace();
-			}
-			filter = courseFilter;
-		}
-		
+		Filter filter = sessionDataLoader.loadStatusWallFilter(getUser(), chosenFilterType, courseId);
 		setSelectedStatusWallFilter(filter);
 	}
 
@@ -297,12 +188,10 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			if (loggedIn) {
 				logger.info("LOGGED IN:" + email);
 				setEmail(email);
-				// ((HttpSession)
-				// FacesContext.getCurrentInstance().getExternalContext().getSession(false)).setAttribute("user",
-				// value)
 				
-				//change --
-				//init(userManager.getUser(email));
+				
+				init(email);
+				
 				logger.info("Initialized");
 				//change --
 				//ipAddress = accessResolver.findRemoteIPAddress();
@@ -332,98 +221,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			logger.error(e.getMessage());
 		}
 	}
-
-	/*public void login() {
-		logger.debug("User \"" + email + "\" is authenticating");
-
-		try {
-			boolean loggedIn = authenticationService.login(email, password);
-
-			if (loggedIn) {
-				logger.debug("User \"" + email + "\" authenticated successfully");
-				init(userManager.getUser(email));
-				logger.debug("User \"" + email + "\" initialized");
-				ipAddress = accessResolver.findRemoteIPAddress();
-				logger.debug("User \"" + email + "\" IP address:" + ipAddress);
-				eventFactory.generateEvent(EventType.LOGIN, user);
-				logger.debug("User \"" + email + "\" redirecting user to index page");
-				FacesContext.getCurrentInstance().getExternalContext().redirect("");
-				return;
-			}
-
-			PageUtil.fireErrorMessage("loginMessage", "Email or password incorrect.", null);
-			FacesContext.getCurrentInstance().getExternalContext().redirect("login");
-		} catch (org.prosolo.services.authentication.exceptions.AuthenticationException e) {
-			logger.debug("Authentication exception", e);
-
-			PageUtil.fireErrorMessage("loginMessage", "Email or password incorrect.", null);
-			return;
-		} catch (Exception ex) {
-			logger.error("Logging exception", ex);
-		}
-	}*/
-
-//	public boolean login(String email, String password, HttpServletRequest request, HttpSession session) {
-//		try {
-//			logger.debug("User \"" + email + "\" is authenticating");
-//			logger.debug("User \"" + email + "\" authenticated successfully");
-//			init(userManager.getUser(email), session);
-//			logger.debug("User \"" + email + "\" initialized");
-//			ipAddress = accessResolver.findRemoteIPAddress(request);
-//			logger.debug("User \"" + email + "\" IP address:" + ipAddress);
-//			eventFactory.generateEvent(EventType.LOGIN, user);
-//			logger.debug("User \"" + email + "\" redirecting user to index page");
-//			// FacesContext.getCurrentInstance().getExternalContext().redirect("");
-//			return true;
-//
-//			// PageUtil.fireErrorMessage("loginMessage", "Email or password
-//			// incorrect.", null);
-//			// FacesContext.getCurrentInstance().getExternalContext().redirect("login");
-//		} catch (Exception ex) {
-//			logger.error("Logging exception", ex);
-//			return false;
-//		}
-//
-//	}
-
-	/*public void checkIfLoggedIn() {
-		if (isLoggedIn()) {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().redirect("");
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}*/
 	
-	//think about logout and events --
-
-	/*public void logout() {
-		final String ipAddress = this.getIpAddress();
-		loggingService.logEvent(EventType.LOGOUT, user, ipAddress);
-
-		userManager.fullCacheClear();
-
-		HttpSession untegisteredSession = applicationBean.unregisterUser(user);
-
-		if (untegisteredSession != null)
-			applicationBean.unregisterSession(untegisteredSession);
-
-		authenticationService.logout();
-		user = null;
-
-		try {
-			
-			ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
-			HttpServletRequest req = (HttpServletRequest) externalContext.getRequest();
-			
-			String contextP = req.getContextPath() == "/" ? "" : req.getContextPath();
-			externalContext.redirect(contextP + "/login");
-		} catch (IOException e) {
-			logger.error(e);
-		}
-	}*/
-
 	@Override
 	public void valueUnbound(HttpSessionBindingEvent event) {
 		User user = null;
@@ -520,8 +318,6 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		}
 	}
 
-	
-
 	/*
 	 * GETTERS / SETTERS
 	 */
@@ -596,16 +392,6 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	public void setBigAvatar(String bigAvatar) {
 		getSessionData().setBigAvatar(bigAvatar);
 	}
-
-	/*
-	 * public boolean isManager() { return hasRole("MANAGER"); }
-	 */
-
-	/*
-	 * public boolean hasRole(String roleName) { if (roles != null) { for (Role
-	 * role : roles) { if (roleName.equalsIgnoreCase(role.getTitle())) { return
-	 * true; } } } return false; }
-	 */
 
 	public boolean isDoNotShowTutorial() {
 		return getSessionData() == null ? null : getSessionData().isDoNotShowTutorial();

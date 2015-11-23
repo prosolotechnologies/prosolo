@@ -9,7 +9,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.core.spring.security.exceptions.SessionInitializationException;
+import org.prosolo.services.event.EventFactory;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -23,6 +25,8 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 
 	@Inject
 	private UserSessionDataLoader sessionDataLoader;
+	@Inject
+	private EventFactory eventFactory;
 	
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -35,6 +39,11 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 		try{
 			Map<String, Object> sessionData = sessionDataLoader.init(user.getUsername(), request, session);
 			session.setAttribute("user", sessionData);
+			try{
+				eventFactory.generateEvent(EventType.LOGIN, (org.prosolo.common.domainmodel.user.User) sessionData.get("user"));
+			}catch(Exception e){
+				logger.error(e);
+			}
 			success = true;
 		}catch(SessionInitializationException e){
 			success = false;

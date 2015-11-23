@@ -1,5 +1,7 @@
 package org.prosolo.services.logging;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
@@ -75,12 +77,19 @@ public class LoggingEventsObserver implements EventObserver {
 				LoggedUserBean loggedUserBean = (LoggedUserBean) httpSession
 						.getAttribute("loggeduser");
 				
-				if(!loggedUserBean.isInitialized()) {
-					loggedUserBean.initializeSessionData(httpSession);
-				}
+				if(loggedUserBean != null) {
+					if(!loggedUserBean.isInitialized()) {
+						loggedUserBean.initializeSessionData(httpSession);
+					}
 				
-				//LoggedUserBean loggedUserBean = ServiceLocator.getInstance().getService(LoggedUserBean.class);
-				ipAddress = loggedUserBean.getIpAddress();
+					//LoggedUserBean loggedUserBean = ServiceLocator.getInstance().getService(LoggedUserBean.class);
+					ipAddress = loggedUserBean.getIpAddress();
+				}else {
+					Map<String, Object> userData = (Map<String, Object>) httpSession.getAttribute("user");
+					if(userData != null){
+						ipAddress = (String) userData.get("ipAddress");
+					}
+				}
 			}
 		} else {
 			logger.debug("Event without actor:"+event.getAction().name()+" "+event.getObject().getClass().getName());

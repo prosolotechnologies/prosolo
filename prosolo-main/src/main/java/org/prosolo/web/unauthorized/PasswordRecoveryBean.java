@@ -48,7 +48,7 @@ public class PasswordRecoveryBean {
 			boolean loggedIn = authenticationService.login(user.getEmail().getAddress(), newPass);
 			
 			if (loggedIn) {
-				loggedUserBean.init(user);
+				loggedUserBean.init(user.getEmail().getAddress());
 				this.toRedirect = true;
 				PageUtil.fireInfoMessage("messages", "Password successfully changed. Redirecting...", "");
 			}
