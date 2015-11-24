@@ -96,7 +96,7 @@
 								rendered="#{exCreditIterator.badgeCount > 0}"
 								styleClass="profLinkBadges link"
 								onclick="$('#badgeListDialog').dialog('open');"
-								action="#{badgelist.initializeForCompletedResourceById(exCreditIterator.externalCredit.id, 'publicProfile.'.concat(userId).concat('credits'))}"
+								action="#{badgelist.initializeForCompletedResourceById(exCreditIterator.externalCredit.id, 'profile.'.concat(userId).concat('credits'))}"
 								update=":badgeListForm"
 								>
 								<span class="icon active"></span>
@@ -114,7 +114,7 @@
 								styleClass="link profLinkEvals"
 								rendered="#{exCreditIterator.evaluationCount > 0}"
 								onclick="$('#evaluationListDialog').dialog('open');"
-								action="#{evaluationlist.initialize(exCreditIterator.externalCredit, 'publicProfile.'.concat(userId).concat('credits'))}"
+								action="#{evaluationlist.initialize(exCreditIterator.externalCredit, 'profile.'.concat(userId).concat('credits'))}"
 								update=":#{p:component('evaluationListForm')}"
 								>
 								<span class="icon active"></span>
@@ -136,13 +136,13 @@
 							<p:commandLink value="Activities"
 								styleClass="button gray size25 marginRight10"
 								onclick="$('#exCreditActivityListFormModalDialog').dialog('open');"
-								action="#{activityListDialog.init(false, exCreditIterator.activities, exCreditIterator.id, 'publicProfile.'.concat(userId).concat('credits'))}"
+								action="#{activityListDialog.init(false, exCreditIterator.activities, exCreditIterator.id, 'profile.'.concat(userId).concat('credits'))}"
 								update=":exCredit:activityListForm"
 							/>
 							
 							<h:outputLink value="#{exCreditIterator.certificateLink}"
 								rendered="#{exCreditIterator.certificateLink != null}"
-								onclick="sendLogPageNavigation('#{exCreditIterator.certificateLink}', 'publicProfile.#{userId}.certificateLink');"
+								onclick="sendLogPageNavigation('#{exCreditIterator.certificateLink}', 'profile.#{userId}.certificateLink');"
 								class="button gray size25" 
 								target="_blank">
 								<h:outputText value="Certificate" />
@@ -163,7 +163,7 @@
 												title="#{comp.title}"
 												type="Competence"
 												styleClass="compTitle"
-												context="publicProfile.#{userId}.credits.#{exCreditIterator.id}" />
+												context="profile.#{userId}.credits.#{exCreditIterator.id}" />
 										</li>
 									</ui:repeat>
 								</ul>

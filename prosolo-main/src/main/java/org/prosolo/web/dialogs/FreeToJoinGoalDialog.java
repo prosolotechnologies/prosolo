@@ -77,8 +77,8 @@ public class FreeToJoinGoalDialog extends MessagesBean{
 	
 	public void logDialogUse(long goalId, String context){
 		loggingNavigationBean.logServiceUse(
-				ComponentName.REQUEST_TO_JOIN_GOAL_DIALOG,
-				"action",  "openRequestToJoinGoalDialog",
+				ComponentName.FREE_TO_JOIN_GOAL_DIALOG,
+				"action",  "openFreeToJoinGoalDialog",
 				"context", context,
 				"learningGoalId", String.valueOf(goalId));
 	}

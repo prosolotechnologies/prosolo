@@ -75,13 +75,13 @@
 				        #{rowIndex+1}.
 				    </p:column>
 				    
-					<p:column id="nameColumn" styleClass="middleAlign" headerText="Name" filterBy="name"
-						filterMatchMode="contains" sortBy="name">
+					<p:column id="nameColumn" styleClass="middleAlign" headerText="Name" filterBy="#{user.name}"
+						filterMatchMode="contains" sortBy="#{user.name}">
 						<h:outputText value="#{user.name}" />
 					</p:column>
 	
 					<p:column id="lastNameColumn" styleClass="middleAlign" headerText="Last Name" 
-						filterBy="lastName"	filterMatchMode="contains" sortBy="lastName">
+						filterBy="#{user.lastName}"	filterMatchMode="contains" sortBy="#{user.lastName}">
 						
 						<h:outputText value="#{user.lastName}" />
 					</p:column>

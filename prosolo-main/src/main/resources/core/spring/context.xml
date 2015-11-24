@@ -63,7 +63,7 @@
 	
 	<bean id="sessionCountTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail" ref="sessionCountJob" />
-		<property name="cronExpression" value="0 0/5 * 1/1 * ? *"/>
+		<property name="cronExpression" value="0 0/5 * * * ?"/>
 	</bean>
 		
 		<!-- bean id="checkFeedsJobBean" class="org.prosolo.bigdata.feeds.GenerateFeedsJobBean" autowire="byName"-->

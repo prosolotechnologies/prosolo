@@ -52,7 +52,7 @@
 						editable="false"
 						canBeAskedForRequestToJoin="#{loggeduser.loggedIn}"
 						userOwner="#{publicportfolio.profileOwnerData}"
-						context="publicProfile.#{publicportfolio.profileOwnerData.id}.learning.ongoing" />
+						context="profile.#{publicportfolio.profileOwnerData.id}.learning.ongoing" />
 				</ui:repeat>
 
 				<div class="clear marginBottom10"></div>
@@ -69,7 +69,7 @@
 						idSufix="completed#{iterator.index}"
 						styleClass="#{iterator.index % 2 == 1 ? 'noMargin' : '' }"
 						editable="false"
-						context="publicProfile.#{publicportfolio.profileOwnerData.id}.learning.completed" />
+						context="profile.#{publicportfolio.profileOwnerData.id}.learning.completed" />
 				</ui:repeat>
 			</div>
 			

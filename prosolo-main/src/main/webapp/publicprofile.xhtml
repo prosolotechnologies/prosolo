@@ -79,20 +79,20 @@
 						<actions:directMessage
 							receiverData="#{publicportfolio.profileOwnerData}"
 							styleClass="button gray size30 marginRight10"
-							context="publicprofile.#{userId}" />
+							context="profile.#{userId}" />
 					
 						<p:commandLink id="followButton"
 							styleClass="button gray size30"
 							rendered="#{!peopleActionBean.isLoggedUserFollowingCollegueById(userId)}"
 							value="Follow"
-							action="#{peopleActionBean.followCollegueById(userId, 'publicprofile.'.concat(userId))}"
+							action="#{peopleActionBean.followCollegueById(userId, 'profile.'.concat(userId))}"
 							update=":userActions :userInterests:userInterestsBlock:userInterestsGrowl" />
 						
 						<actions:unfollow
 							userData="#{publicportfolio.profileOwnerData}"
 							styleClass="button gray size30 unfollowButton"
 							toRender="#{peopleActionBean.isLoggedUserFollowingCollegueById(cc.attrs.userData.id)}"
-							context="publicprofile.#{userId}"
+							context="profile.#{userId}"
 							toUpdate=":userActions :userInterests:userInterestsBlock:userInterestsGrowl" />
 					</div>
 				</h:panelGroup>
@@ -102,35 +102,35 @@
 				<ul>
 					<li	class="selected" tab-id="info">
 						<a href="#" 
-							onclick="scrollTo('#info');logTabNavigation('info', 'publicprofile.#{userId}.navigation');">
+							onclick="scrollTo('#info');logTabNavigation('info', 'profile.#{userId}.navigation');">
 							Info
 						</a>
 					</li>
 					
 					<li tab-id="learning">
 						<a href="#" 
-							onclick="scrollTo('#learning');logTabNavigation('learning', 'publicprofile.#{userId}.navigation');">
+							onclick="scrollTo('#learning');logTabNavigation('learning', 'profile.#{userId}.navigation');">
 							Learning
 						</a>
 					</li>
 					
 					<li tab-id="competences">
 						<a href="#" 
-							onclick="scrollTo('#competences');logTabNavigation('competences', 'publicprofile.#{userId}.navigation');">
+							onclick="scrollTo('#competences');logTabNavigation('competences', 'profile.#{userId}.navigation');">
 							Competences
 						</a>
 					</li>
 
 					<li tab-id="credits">
 						<a href="#" 
-							onclick="scrollTo('#credits');logTabNavigation('credits', 'publicprofile.#{userId}.navigation');">
+							onclick="scrollTo('#credits');logTabNavigation('credits', 'profile.#{userId}.navigation');">
 							External Credits
 						</a>
 					</li>
 
 					<li tab-id="statuswall">
 						<a href="#" 
-							onclick="scrollTo('#statuswall');logTabNavigation('statuswall', 'publicprofile.#{userId}.navigation');">
+							onclick="scrollTo('#statuswall');logTabNavigation('statuswall', 'profile.#{userId}.navigation');">
 							Status Wall
 						</a>
 					</li>
@@ -172,7 +172,7 @@
 						
 						<h:panelGroup rendered="#{publicportfolio.profileOwner.locationName != null}" class="position marginTop10">
 							<ui:include src="/resources/components/dialogs/locationDialog.xhtml" />
-							<a href="#" class="location" onclick="$('#locationDialog').dialog('option', 'data', ['#{publicportfolio.profileOwner.locationName}', #{publicportfolio.profileOwner.latitude}, #{publicportfolio.profileOwner.longitude}]).dialog('open');sendServiceUse('USER_LOCATION_DIALOG', {context: 'publicprofile.#{userId}.info.location', userId: #{userId}});return false;">#{publicportfolio.profileOwner.locationName}</a>
+							<a href="#" class="location" onclick="$('#locationDialog').dialog('option', 'data', ['#{publicportfolio.profileOwner.locationName}', #{publicportfolio.profileOwner.latitude}, #{publicportfolio.profileOwner.longitude}]).dialog('open');sendServiceUse('USER_LOCATION_DIALOG', {context: 'profile.#{userId}.info.location', userId: #{userId}});return false;">#{publicportfolio.profileOwner.locationName}</a>
 						
 							<script>
 								$('#portfolio .avatarNameContainer .infoContainer .location').readmore({maxHeight: 40});
@@ -189,7 +189,7 @@
 							<c:if test="#{publicportfolio.socialNetworksData.twitterLink != null and 
 										publicportfolio.socialNetworksData.twitterLink.length() > 0}">
 								<a href="#{publicportfolio.socialNetworksData.twitterLink}"
-									onclick="sendLogPageNavigation('#{publicportfolio.socialNetworksData.twitterLink}', 'publicprofile.${userId}.info.socialNetworks.twitter');"
+									onclick="sendLogPageNavigation('#{publicportfolio.socialNetworksData.twitterLink}', 'profile.${userId}.info.socialNetworks.twitter');"
 									target="_blank" class="icon twitter active"></a>
 							</c:if>
 							<c:if test="#{publicportfolio.socialNetworksData.twitterLink == null or 
@@ -200,7 +200,7 @@
 							<c:if test="#{publicportfolio.socialNetworksData.facebookLink != null and 
 										publicportfolio.socialNetworksData.facebookLink.length() > 0}">
 								<a href="#{publicportfolio.socialNetworksData.facebookLink}"
-									onclick="sendLogPageNavigation('#{publicportfolio.socialNetworksData.facebookLink}', 'publicprofile.${userId}.info.socialNetworks.facebook');"
+									onclick="sendLogPageNavigation('#{publicportfolio.socialNetworksData.facebookLink}', 'profile.${userId}.info.socialNetworks.facebook');"
 									target="_blank" class="icon facebook active"></a>
 							</c:if>
 							<c:if test="#{publicportfolio.socialNetworksData.facebookLink == null or 
@@ -211,7 +211,7 @@
 							<c:if test="#{publicportfolio.socialNetworksData.gplusLink != null and 
 										publicportfolio.socialNetworksData.gplusLink.length() > 0}">
 								<a href="#{publicportfolio.socialNetworksData.gplusLink}"
-									onclick="sendLogPageNavigation('#{publicportfolio.socialNetworksData.gplusLink}', 'publicprofile.${userId}.info.socialNetworks.gplus');"
+									onclick="sendLogPageNavigation('#{publicportfolio.socialNetworksData.gplusLink}', 'profile.${userId}.info.socialNetworks.gplus');"
 									target="_blank" class="icon gplus active"></a>
 							</c:if>
 							<c:if test="#{publicportfolio.socialNetworksData.gplusLink == null or 
@@ -222,7 +222,7 @@
 							<c:if test="#{publicportfolio.socialNetworksData.blogLink != null and 
 										publicportfolio.socialNetworksData.blogLink.length() > 0}">
 								<a href="#{publicportfolio.socialNetworksData.blogLink}"
-									onclick="sendLogPageNavigation('#{publicportfolio.socialNetworksData.blogLink}', 'publicprofile.${userId}.info.socialNetworks.blog');"
+									onclick="sendLogPageNavigation('#{publicportfolio.socialNetworksData.blogLink}', 'profile.${userId}.info.socialNetworks.blog');"
 									target="_blank" class="icon blog active"></a>
 							</c:if>
 							<c:if test="#{publicportfolio.socialNetworksData.blogLink == null or 
@@ -282,7 +282,7 @@
 						refreshHandler="#{publicportfolio.refresh()}"
 						oncomplete="registerLazyLoadCompleted();"
 						noOptions="true"
-						context="publicprofile.#{userId}.activityWall"
+						context="profile.#{userId}.activityWall"
 					/>
 				</div>
 			</div>

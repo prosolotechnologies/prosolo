@@ -87,7 +87,7 @@ public class ActivitiesComparisonBean implements Serializable {
     	long targetComp = competenceDataCache.getData().getId();
 
     	Map<String, String> parameters = new HashMap<String, String>();
-		parameters.put("context", "learn.targetGoal."+competenceDataCache.getParentGoalDataCache().getData().getTargetGoalId()+".targetComp"+targetComp);
+		parameters.put("context", "learn.targetGoal."+competenceDataCache.getParentGoalDataCache().getData().getTargetGoalId()+".targetComp."+targetComp);
     	parameters.put("targetComp", String.valueOf(targetComp));
     	parameters.put("user", String.valueOf(user.getId()));
     	

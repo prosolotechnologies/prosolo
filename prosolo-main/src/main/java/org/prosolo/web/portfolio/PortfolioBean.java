@@ -623,7 +623,7 @@ public class PortfolioBean implements Serializable {
 	
 	public void loadMoreActivities() {
 		Map<String, String> parameters = new HashMap<String, String>();
-		parameters.put("context", "portfolio");
+		parameters.put("context", "profile");
 		parameters.put("link", "loadMore");
 		
 		portfolioActivitiesDisplayer.loadMoreActivities(parameters);

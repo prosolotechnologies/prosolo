@@ -140,7 +140,8 @@
 						
 						<p class="description">
 							<h:outputText value="#{actIterator.activity.description}" escape="false" />
-						</p>	
+						</p>
+						
 						<socialWall:attachmentPreview 
 							attachmentPreview="#{actIterator.attachmentPreview}"
 							width="380"
@@ -435,10 +436,10 @@
 					showChar: 250, 
 					mode: 'link',
 					moreCallback: function(){
-						sendServiceUse('MOUSE_CLICK', {context: 'learningProgress.ongoingLearning', link: 'more'});
+						sendServiceUse('MOUSE_CLICK', {context: '#{contextRoot}', link: 'more'});
 					},
 					lessCallback: function(){
-						sendServiceUse('MOUSE_CLICK', {context: 'learningProgress.ongoingLearning', link: 'less'});
+						sendServiceUse('MOUSE_CLICK', {context: '#{contextRoot}', link: 'less'});
 					}
 				});
 				$('.actBlock .richContent .atcDesc').shortenedText({
@@ -446,10 +447,10 @@
 					mode: 'link',
 					moreCallback: function(){
 						
-						sendServiceUse('MOUSE_CLICK', {context: 'learningProgress.ongoingLearning', link: 'more'});
+						sendServiceUse('MOUSE_CLICK', {context: '#{contextRoot}', link: 'more'});
 					},
 					lessCallback: function(){
-						sendServiceUse('MOUSE_CLICK', {context: 'learningProgress.ongoingLearning', link: 'less'});
+						sendServiceUse('MOUSE_CLICK', {context: '#{contextRoot}', link: 'less'});
 					}
 				});
 				
