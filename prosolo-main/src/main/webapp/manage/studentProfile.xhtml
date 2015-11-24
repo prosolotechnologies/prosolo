@@ -10,7 +10,8 @@
 	xmlns:actions="http://java.sun.com/jsf/composite/components/actions"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:util="http://www.prosolo.com/util">
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:comphistory="http://java.sun.com/jsf/composite/components/studentProfile">
 
 	<ui:define name="windowTitle">
 		Student profile
@@ -31,7 +32,7 @@
 		<script type="text/javascript" src="//cdn.jsdelivr.net/jquery.slick/1.5.7/slick.min.js"></script>
 		
 		<script src="#{request.contextPath}/resources/javascript/d3.min.js"></script>
-		<script src="#{request.contextPath}/manage/js/shape.js"></script>
+		
 		<script src="#{request.contextPath}/manage/js/dimple.min.js"></script>
      	<script src="#{request.contextPath}/manage/js/quadrantchart.js"></script>
 
@@ -444,12 +445,22 @@
 						</h:panelGroup>
 					</h:form>
 				</div>
-
-				<a href="#" class="more2">Show history</a>
+				
+				<p:commandLink 
+					actionListener="#{studentProfileBean.observationBean.loadObservationHistory}" 
+					update=":historyPanel"
+					oncomplete="showHistory();"
+					value="Show history" styleClass="more2">
+				</p:commandLink>
+				
 			</div>
 		</section>
 		
-		<section class="container-fluid mainArea">
+		<h:panelGroup id = "historyPanel">
+			<comphistory:observationHistory/>
+		</h:panelGroup>
+		
+		<section class="container-fluid mainArea" id="learnTabs">
 			<div class="row">
 
 				<!-- Nav tabs -->

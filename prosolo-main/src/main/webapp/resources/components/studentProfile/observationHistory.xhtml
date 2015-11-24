@@ -1,0 +1,95 @@
+<ui:component xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons"
+	xmlns:util="http://www.prosolo.com/util">
+
+	<composite:interface>
+
+	</composite:interface>
+
+	<composite:implementation>
+
+		<section class="container-fluid mainArea" id="obsHistory">
+
+			<div class="row">
+
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h3 class="panel-title">Observation History</h3>
+
+						<p:commandLink
+							actionListener="#{studentProfileBean.observationBean.removeObservationHistory}"
+							styleClass="close" oncomplete="hideHistory();">
+							<i class="fa fa-times"></i>
+						</p:commandLink>
+
+					</div>
+					<table class="table">
+						<thead>
+							<tr>
+								<th width="30%">Symptoms</th>
+								<th width="30%">Suggestions</th>
+								<th width="20%">Messages/Notes</th>
+								<th width="20%">Created</th>
+							</tr>
+						</thead>
+						<tbody>
+							<ui:repeat var="obs"
+								value="#{studentProfileBean.observationBean.observationHistory}">
+								<tr>
+									<td>
+										<ul>
+											<ui:repeat var="symptom" value="#{obs.symptoms}">
+												<li class="label label-symptoms">#{symptom.description}</li>
+											</ui:repeat>
+										</ul>
+									</td>
+									<td>
+										<ul>
+											<ui:repeat var="suggestion" value="#{obs.suggestions}">
+												<li class="label label-suggestions">#{suggestion.description}</li>
+											</ui:repeat>
+										</ul>
+									</td>
+									<td>
+										<div class="linksType1">
+											<span><a href="#"><i class="fa fa-comment-o"></i>
+													Show message</a></span> <span><i class="fa fa-sticky-note-o"></i>
+												No note</span>
+										</div>
+									</td>
+									<td>
+										<div class="userInfo">
+											<span class="userProfileImage">
+												<h:graphicImage	value="#{obs.createdBy.avatar}" title="#{submission.evaluator.name}" alt="#{submission.evaluator.name}"/>
+											</span>
+											<span class="date">#{obs.formattedDate}</span>
+											by<br /> <a href="#">#{obs.createdBy.name}</a>
+										</div>
+									</td>
+								</tr>
+							</ui:repeat>
+						</tbody>
+					</table>
+				</div>
+
+
+
+			</div>
+
+
+		</section>
+
+		<script>
+			$('#obsHistory').hide();
+		</script>
+
+	</composite:implementation>
+</ui:component>

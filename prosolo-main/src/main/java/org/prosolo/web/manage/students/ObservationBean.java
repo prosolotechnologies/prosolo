@@ -70,6 +70,8 @@ public class ObservationBean implements Serializable {
 
 	private SelectItem[] allSymptoms;
 	private SelectItem[] allSuggestions;
+	
+	private List<ObservationData> observationHistory;
 
 	public void initializeObservationData() {
 		try {
@@ -80,6 +82,18 @@ public class ObservationBean implements Serializable {
 		} catch (DbConnectionException e) {
 			throw e;
 		}
+	}
+	
+	public void loadObservationHistory() {
+		List<Observation> observations = observationManager.getObservations(studentId);
+		observationHistory = new ArrayList<>();
+		for(Observation ob:observations){
+			observationHistory.add(new ObservationData(ob));
+		}
+	}
+	
+	public void removeObservationHistory() {
+		observationHistory = null;
 	}
 
 	public void saveObservation() {
@@ -314,4 +328,12 @@ public class ObservationBean implements Serializable {
 		this.studentName = studentName;
 	}
 
+	public List<ObservationData> getObservationHistory() {
+		return observationHistory;
+	}
+
+	public void setObservationHistory(List<ObservationData> observationHistory) {
+		this.observationHistory = observationHistory;
+	}
+	
 }

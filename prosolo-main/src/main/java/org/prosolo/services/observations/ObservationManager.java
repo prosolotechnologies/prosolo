@@ -12,4 +12,6 @@ public interface ObservationManager {
 
 	public Map<String, Object> saveObservation(long id, String message, String note, List<Long> symptomIds,
 			List<Long> suggestionIds, long creatorId, long studentId) throws DbConnectionException;
+	
+	public List<Observation> getObservations(long userId) throws DbConnectionException;
 }

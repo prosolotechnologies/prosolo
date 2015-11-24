@@ -5,6 +5,18 @@ $('#observationBar').on({
     "hide.bs.dropdown":  function() { return this.closable; }
 });
 
+$('.slick-prev').click(function(){
+	drawTreePath();
+});
+
+$('.slick-next').click(function(){
+	drawTreePath();
+});
+
+$('#credentials').on('afterChange', function(event, slick, currentSlide){
+	  drawTreePath();
+});   
+
 /* stick observation panel to the top */
 $(window).bind('scroll', function() {
 	 if ($(window).scrollTop() > 100) {
@@ -24,6 +36,16 @@ function drawTreePath() {
 			{ start: "#competences .selected", end: "#activitiesBlock .col-md-6"}
 		  ]
 	});
+}
+
+function showHistory() {
+	$('#learnTabs').hide();
+	$('#obsHistory').show();
+}
+
+function hideHistory() {
+	$('#obsHistory').hide();
+	$('#learnTabs').show();
 }
 
 $(function() {

@@ -114,4 +114,27 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 			throw new DbConnectionException("Error while saving observation");
 		}
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Observation> getObservations(long userId) throws DbConnectionException{
+		try{
+			String queryString = 
+					"SELECT distinct o " +
+					"FROM Observation o " +
+					"INNER JOIN fetch o.createdFor student " +
+					"INNER JOIN fetch o.createdBy user "+
+					"LEFT JOIN fetch o.symptoms sy "+
+					"LEFT JOIN fetch o.suggestions su "+
+					"WHERE student.id = :id " +
+					"ORDER BY o.creationDate desc";
+	
+			Query query = persistence.currentManager().createQuery(queryString);
+			query.setLong("id", userId);
+			
+			return query.list();	
+		}catch(Exception e){
+			throw new DbConnectionException("Observations cannot be loaded at the moment");
+		}
+	}
 }

@@ -8,10 +8,12 @@ public class ObservationCreatorData {
 
 	private long id;
 	private String name;
+	private String avatar;
 	
 	public ObservationCreatorData(User user){
 		this.id = user.getId();
 		this.name = user.getName() + (user.getLastname() != null ? " " + user.getLastname() : "");
+		this.avatar = AvatarUtils.getAvatarUrlInFormat(user, ImageFormat.size120x120);
 	}
 	
 	public long getId() {
@@ -25,6 +27,14 @@ public class ObservationCreatorData {
 	}
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getAvatar() {
+		return avatar;
+	}
+
+	public void setAvatar(String avatar) {
+		this.avatar = avatar;
 	}
 	
 	
