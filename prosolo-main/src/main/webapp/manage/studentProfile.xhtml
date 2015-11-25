@@ -34,11 +34,11 @@
 		<script type="text/javascript" src="//cdn.jsdelivr.net/jquery.slick/1.5.7/slick.min.js"></script>
 		
 		<script src="#{request.contextPath}/resources/javascript/d3.min.js"></script>
-		
+
 		<script src="#{request.contextPath}/manage/js/dimple.min.js"></script>
      	<script src="#{request.contextPath}/manage/js/quadrantchart.js"></script>
 
-		<p:growl id="msg" showDetail="true"></p:growl>
+		<p:growl id="msg" showDetail="true" globalOnly="true"></p:growl>
 
 		<section class="heading">
 			<div class="col-md-1 back">
@@ -56,7 +56,7 @@
 
 					<actions:directMessage
 						receiverData="#{studentProfileBean.getMessageReceiverData()}"
-						context="'studentProfile.'.concat(studentProfileBean.decodedId))"
+						context="#{'studentProfile.'.concat(studentProfileBean.decodedId)}"
 						message="Send message" />
 				</div>
 
@@ -291,7 +291,7 @@
 		      		</p:commandLink>
 
 					<h:form id="newObservationForm">
-						<p:growl id="msgObs" showDetail="true"></p:growl>
+						<p:growl id="msgObs" showDetail="true" globalOnly="true"></p:growl>
 						
 						<a class="dropdown-toggle" data-target="#" data-toggle="dropdown"
 							role="button" id="obs-toggle"></a>

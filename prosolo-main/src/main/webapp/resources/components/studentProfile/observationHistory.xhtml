@@ -71,7 +71,10 @@
 												<h:graphicImage	value="#{obs.createdBy.avatar}" title="#{submission.evaluator.name}" alt="#{submission.evaluator.name}"/>
 											</span>
 											<span class="date">#{obs.formattedDate}</span>
-											by<br /> <a href="#">#{obs.createdBy.name}</a>
+											by<br /> 
+											<h:link value="#{obs.createdBy.name}" outcome="/publicprofile">
+												<f:param name="id" value="#{util:encodeId(obs.createdBy.id)}" />
+											</h:link>
 										</div>
 									</td>
 								</tr>

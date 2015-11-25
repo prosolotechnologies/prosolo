@@ -131,7 +131,7 @@ public class DirectMessagesDialog implements Serializable {
 			});
 			
 			PageUtil.fireSuccessfulInfoMessage("dmcomp:newDirectMessageFormGrowl", 
-					"You have sent a message to " + MessagesBean.getReceiversListed(participants));
+					"You have sent a message to " + receiver.getName());
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		}

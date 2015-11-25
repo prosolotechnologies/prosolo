@@ -107,7 +107,14 @@ public class StudentProfileBean implements Serializable {
 			} catch(Exception ex){
 				logger.error(ex);
 			}
+		}else{
+			try {
+				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+			}
 		}
+		
 	}
 	
 	public void loadSocialNetworkData() {
