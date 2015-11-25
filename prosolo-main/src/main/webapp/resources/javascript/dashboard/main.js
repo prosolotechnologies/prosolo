@@ -1,4 +1,4 @@
-require(['/resources/javascript/prosolo.require-config.js'], function(config) {
+require(['/prosolo/resources/javascript/prosolo.require-config.js'], function(config) {
 	require(['jquery', 'dashboard/paging', 'dashboard/datepicker', 'dashboard/service', 'dashboard/chart', 'dashboard/most-active-hashtags-table', 'dashboard/disabled-hashtags-table', 'dashboard/statistics'],
 			function($, paging, datepicker, service, chart, mostActiveHashtagsTable, disabledHashtagsTable, statistics) {
 		$(function () {
