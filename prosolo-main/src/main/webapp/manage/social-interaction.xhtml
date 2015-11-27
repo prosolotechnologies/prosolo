@@ -12,8 +12,10 @@
 	</ui:define>
 
 	<ui:define name="content">
-		<link rel="stylesheet" type="text/css" media="all" href="/resources/css/social-interaction.css" />
-		<script data-main="/resources/javascript/social-interaction/social-interaction-main.js" src="/resources/javascript/require.min.js"></script>
+		<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/social-interaction.css" />
+		<script data-base-url="#{request.contextPath}/resources/javascript" src="#{request.contextPath}/resources/javascript/prosolo.require-config.js"></script>
+		<script data-main="social-interaction/social-interaction-main" src="#{request.contextPath}/resources/javascript/require.min.js"></script>
+		
 		<div id="social-interaction" data-api="#{socialInteractionBean.apiHost}" class="container manage">
 			<div class="content wide">
 				<div id="graph"></div>
