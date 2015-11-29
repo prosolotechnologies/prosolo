@@ -115,6 +115,12 @@
 									value="Settings"
 									outcome="/admin/settings" />
 							</li>
+							<li class="#{util:getPagePath(view.viewId)  == 'analyticsSettings' ? 'selected' : ''}">
+								<h:link
+									onclick="sendLogPageNavigation( '/admin/analyticsSettings', 'mainmenu');"
+									value="Analytics Settings"
+									outcome="/admin/analyticsSettings" />
+							</li>
 						</ul>
 					</h:form>
 				</div>
