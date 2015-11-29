@@ -89,11 +89,21 @@ public class DislikeManagerImpl extends AnnotationsManagerImpl implements Dislik
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("context", context);
 			
-			eventFactory.generateEvent(EventType.Dislike, user, resource, parameters);
+			eventFactory.generateEvent(EventType.Dislike, user, resource, target(resource), parameters);
 			
 			return dislike;
 		}
 		return null;
+	}
+	
+	private BaseEntity target(BaseEntity resource) {
+		if (resource instanceof Node) {
+			return null;
+		} else if (resource instanceof SocialActivity) {
+			return ((SocialActivity) resource).getMaker();
+		} else {
+			return null;
+		}
 	}
 	
 	@Override
@@ -112,7 +122,7 @@ public class DislikeManagerImpl extends AnnotationsManagerImpl implements Dislik
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("context", context);
 				
-			eventFactory.generateEvent(EventType.Dislike, user, resource, parameters);
+			eventFactory.generateEvent(EventType.Dislike, user, resource, target(resource), parameters);
 			return dislike;
 		} 
 		return null;

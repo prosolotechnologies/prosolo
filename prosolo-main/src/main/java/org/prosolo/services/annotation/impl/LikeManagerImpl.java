@@ -15,6 +15,8 @@ import org.prosolo.common.domainmodel.annotation.Annotation;
 import org.prosolo.common.domainmodel.annotation.AnnotationType;
 import org.prosolo.common.domainmodel.annotation.CommentAnnotation;
 import org.prosolo.common.domainmodel.annotation.NodeAnnotation;
+import org.prosolo.common.domainmodel.annotation.SimpleAnnotation;
+import org.prosolo.common.domainmodel.annotation.SocialActivityAnnotation;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.user.User;
@@ -88,7 +90,7 @@ public class LikeManagerImpl extends AnnotationsManagerImpl implements LikeManag
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("context", context);
 			
-			eventFactory.generateEvent(EventType.Like, user, resource, parameters);
+			eventFactory.generateEvent(EventType.Like, user, resource, target(resource), parameters);
 			
 			return like;
 		}
@@ -111,10 +113,20 @@ public class LikeManagerImpl extends AnnotationsManagerImpl implements LikeManag
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("context", context);
 
-			eventFactory.generateEvent(EventType.Like, user, resource, parameters);
+			eventFactory.generateEvent(EventType.Like, user, resource, target(resource), parameters);
 			return like;
 		}
 		return null;
+	}
+	
+	private BaseEntity target(BaseEntity resource) {
+		if (resource instanceof Node) {
+			return null;
+		} else if (resource instanceof SocialActivity) {
+			return ((SocialActivity) resource).getMaker();
+		} else {
+			return null;
+		}
 	}
 	
 	@Override
