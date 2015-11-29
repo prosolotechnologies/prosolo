@@ -129,7 +129,7 @@
 							styleClass="#{actIterator.canBeAdded ? 'green' : 'gray'} button size24 right addBtn" 
 							value="#{actIterator.canBeAdded ? 'Add' : 'Added'}"
 							disabled="#{!actIterator.canBeAdded}"
-							action="#{cc.attrs.actionBean.connectActivityWallData(actIterator, cc.attrs.context)}"
+							action="#{cc.attrs.actionBean.connectActivityWallData(actIterator, contextRoot)}"
 							process="@this"
 							update="@this :#{cc.clientId}:activityWallGrowl"
 							oncomplete="#{cc.attrs.refreshCommandAfterConnect}" />
@@ -236,7 +236,7 @@
 										Liked by
 										<p:commandLink
 											value="#{actIterator.likeCount} people"
-											action="#{peopleListDialog.initializePeopleWhoLikedNodeById(actIterator.activity.id, cc.attrs.context.concat('.activity.').concat(actIterator.id))}"
+											action="#{peopleListDialog.initializePeopleWhoLikedNodeById(actIterator.activity.id, contextRoot)}"
 											process="@this"
 											onclick="$('#peopleListDialog').dialog('open');"
 											update=":peopleListForm"
@@ -250,7 +250,7 @@
 										<p:commandLink
 											value="#{actIterator.dislikeCount} people"
 											onclick="$('#peopleListDialog').dialog('open');"
-											action="#{peopleListDialog.initializePeopleWhoDislikedNodeById(actIterator.activity.id, cc.attrs.context.concat('.activity.').concat(actIterator.id))}"
+											action="#{peopleListDialog.initializePeopleWhoDislikedNodeById(actIterator.activity.id, contextRoot)}"
 											process="@this"
 											update=":peopleListForm"
 										/>
@@ -332,7 +332,7 @@
 											<div class="postButtonBox">
 												<p:commandLink styleClass="postButton button green size25" 
 													value="post"
-													action="#{commentaction.newComment(actIterator, cc.attrs.context.concat('.activity.').concat(actIterator.id).concat('.newComment'))}"
+													action="#{commentaction.newComment(actIterator, contextRoot.concat('.newComment'))}"
 													update="newCommentGrowl commentList">
 												</p:commandLink>
 												
@@ -397,7 +397,7 @@
 												
 												<p:commandLink styleClass="button green size20 left" 
 													value="Add Activity"
-													action="#{compwall.connectActivityById(relatedAct.activity.id, cc.attrs.context.concat('.activity.').concat(actIterator.id).concat('.relatedActivities.').concat(relatedAct.activity.id).concat('.addButton'))}"
+													action="#{compwall.connectActivityById(relatedAct.activity.id, contextRoot.concat('.relatedActivities.').concat(relatedAct.activity.id).concat('.addButton'))}"
 													process="@this"
 													oncomplete="refreshCompetenceActivityWall();" />
 											</div>

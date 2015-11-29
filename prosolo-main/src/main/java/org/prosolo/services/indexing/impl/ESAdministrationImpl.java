@@ -90,22 +90,15 @@ public class ESAdministrationImpl implements ESAdministration {
 				logger.debug("Done Cluster Health, status "
 						+ clusterHealth.getStatus());
 				
-				//String indexType="";
-				//String mappingPath=null;
 				if (indexName.equals(ESIndexNames.INDEX_DOCUMENTS)) {
-					//indexType=ESIndexTypes.DOCUMENT;
-					//mappingPath="/org/prosolo/services/indexing/"+indexName+"-mapping.json";
 					this.addMapping(client,  indexName, ESIndexTypes.DOCUMENT);
 				} else if (indexName.equals(ESIndexNames.INDEX_NODES)) {
-					//mappingPath="/org/prosolo/services/indexing/"+indexName+"-mapping.json";
 					this.addMapping(client, indexName, ESIndexTypes.ACTIVITY);
 					this.addMapping(client, indexName, ESIndexTypes.COMPETENCE);
 					this.addMapping(client, indexName, ESIndexTypes.COURSE);
 					this.addMapping(client, indexName, ESIndexTypes.LEARNINGGOAL);
-					//mappingPath="/org/prosolo/services/indexing/tags-mapping.json";
 					this.addMapping(client, indexName, ESIndexTypes.TAGS);
 				} else if (indexName.equals(ESIndexNames.INDEX_USERS)) {
-					//mappingPath="/org/prosolo/services/indexing/users-mapping.json";
 					this.addMapping(client,  indexName, ESIndexTypes.USER);
 				}
 			}

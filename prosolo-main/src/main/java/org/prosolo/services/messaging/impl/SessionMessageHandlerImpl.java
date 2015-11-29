@@ -32,11 +32,9 @@ import org.prosolo.recommendation.dal.SuggestedLearningQueries;
 import org.prosolo.services.activityWall.SocialActivityFiltering;
 import org.prosolo.services.activityWall.SocialActivityHandler;
 import org.prosolo.services.interaction.MessageInboxUpdater;
-//milikicn@bitbucket.org/zjeremic/prosolo-multimodule.git
 import org.prosolo.services.interfaceSettings.CommentUpdater;
 import org.prosolo.services.interfaceSettings.LearnActivityCacheUpdater;
 import org.prosolo.services.interfaceSettings.LearnPageCacheUpdater;
-//import org.prosolo.services.interfaceSettings.SocialActivityCacheUpdater;
 import org.prosolo.services.messaging.MessageHandler;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.notifications.EvaluationUpdater;
@@ -55,7 +53,6 @@ import org.prosolo.web.notification.exceptions.NotificationNotSupported;
 import org.prosolo.web.notification.util.NotificationDataConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-//import org.prosolo.services.activitystream.SocialActivityInboxInterfaceCacheUpdater;
 
 @Service("org.prosolo.services.messaging.SessionMessageHandler")
 public class SessionMessageHandlerImpl implements MessageHandler<SessionMessage> {

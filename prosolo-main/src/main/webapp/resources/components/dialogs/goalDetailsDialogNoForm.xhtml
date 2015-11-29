@@ -46,7 +46,7 @@
 				<td  class="col3">
 					<h:outputText id="goalDescription"
 						class="expandableText"
-						pt:context="goalDetailsDialog.goal.#{goalDialog.goal.id}.description" 
+						pt:context="goalDialog.goal.#{goalDialog.goal.id}.description" 
 						value="#{goalDialog.goal.description}" />
 				</td>
 			</tr>
@@ -59,7 +59,7 @@
 						user="#{goalDialog.goal.maker}"
 						mode="imageName"
 						imageSize="22" idPrefix="goalDetails" 
-						context="goalDetailsDialog.creator.imageName.goal.#{goalDialog.goal.id}"/>
+						context="goalDialog.creator.imageName.goal.#{goalDialog.goal.id}"/>
 				</td>
 			</tr>
 			<tr>
@@ -86,7 +86,7 @@
 						userData="#{goalDialog.recommender}"
 						mode="imageName"
 						imageSize="22" idPrefix="goalDetailsRecommender" 
-						context="goalDetailsDialog.recommender.imageName.goal.#{goalDialog.goal.id}"
+						context="goalDialog.recommender.imageName.goal.#{goalDialog.goal.id}"
 						toRender="#{(goalDialog.mode == 'RECOMMENDED') and (goalDialog.recommender != null)}" />
 				</td>
 			</tr>
@@ -104,7 +104,7 @@
 									<link:competence
 										resource="#{tComp}"
 										type="TargetCompetence"
-										context="goalDetailsDialog.competences.goal.#{goalDialog.goal.id}"/>
+										context="goalDialog.competences.goal.#{goalDialog.goal.id}"/>
 								</li>
 							</ui:repeat>
 						</ul>
@@ -122,7 +122,7 @@
 				parentid="competenceDetailsFormModalDialog"
 				activities="#{goalDialog.usedCompetences}"
 				cantdisplaymessage="There are no available plans because no competences has been associated with this goal." 
-				context="goalDetailsDialog.planUsed.goal.#{goalDialog.goal.id}"
+				context="goalDialog.planUsed.goal.#{goalDialog.goal.id}"
 			/>
 		</h:panelGroup>
 	
@@ -138,7 +138,7 @@
 		   				mode="imageName"
 		   				imageSize="22"
 		   				idPrefix="goalJoinRequest"
-		   				context="goalDetailsDialog.creator.imageName.sendRequest.goal.#{goalDialog.goal.id}"/>
+		   				context="goalDialog.creator.imageName.sendRequest.goal.#{goalDialog.goal.id}"/>
 				</div>
 		   		
 		   		<div class="requestMessage">
@@ -159,7 +159,7 @@
 				<p:commandLink value="Send"
 					styleClass="button green size30 sendRequest right"
 					onclick='$("##{cc.attrs.dialogId}").dialog("close");'
-					action="#{requestToJoinGoalBean.sendRequestToJoinGoal(goalDialog.goal.id, goalDialog.goal.title, goalDialog.goal.maker.id, 'goalDetailsDialog.sendRequest.goal.'.concat(goalDialog.goal.id))}"
+					action="#{requestToJoinGoalBean.sendRequestToJoinGoal(goalDialog.goal.id, goalDialog.goal.title, goalDialog.goal.maker.id, 'goalDialog.sendRequest.goal.'.concat(goalDialog.goal.id))}"
 					update="goalDetailsDialogGrowl" />
 					
 			</h:panelGroup>
