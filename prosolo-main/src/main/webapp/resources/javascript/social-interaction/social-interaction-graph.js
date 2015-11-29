@@ -41,7 +41,7 @@ define(function(require) {
 			return {
 				"source" : e[0],
 				"target" : e[1],
-				"value" : e[2]
+				"count" : e[2]
 			}
 		});
 	}
@@ -114,15 +114,15 @@ define(function(require) {
 
 	    	var v = d3.scale.linear().range([0, 100]);
 	    	v.domain([0, d3.max(links, function(d) {
-	    		return d.value;
+	    		return d.count;
 	    	})]);
 	    	
 	    	return links.map(function(link) {
 	    		return {
 	    			source: nodes[link.source],
 	    			target: nodes[link.target],
-	    			value: link.value,
-	    			type: type(v(link.value))
+	    			value: link.count,
+	    			type: type(v(link.count))
 	    		}
 	    	});
 	    }
