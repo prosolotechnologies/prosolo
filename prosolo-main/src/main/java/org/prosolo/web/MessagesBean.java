@@ -141,7 +141,7 @@ public class MessagesBean implements Serializable {
 		}
 		
 		for (SimpleOfflineMessage message : mess) {
-			this.messages.add(0, new MessageData(message));
+			this.messages.add(0, new MessageData(message, loggedUser.getUser()));
 		}
 		
 		Collections.sort(this.messages);
@@ -151,15 +151,15 @@ public class MessagesBean implements Serializable {
 		messageData.setText(StringUtil.cleanHtml(messageData.getText()));
 		
 		try {
-			List<SimpleOfflineMessage> messages = messagingManager.sendMessages(
+			SimpleOfflineMessage message = messagingManager.sendMessages(
 					loggedUser.getUser().getId(), 
 					receivers,
 					this.messageData.getText(), 
 					threadData.getId(), 
 					context);
 			
-			SimpleOfflineMessage message = messages.get(0);
-			this.messages.add(new MessageData(message));
+			//SimpleOfflineMessage message = messages.get(0);
+			this.messages.add(new MessageData(message, loggedUser.getUser()));
 
 			PageUtil.fireSuccessfulInfoMessage("Message sent");
 		} catch (ResourceCouldNotBeLoadedException e) {
@@ -192,7 +192,7 @@ public class MessagesBean implements Serializable {
 	}
 	
 	public void addMessage(SimpleOfflineMessage message) {
-		messages.add(new MessageData(message));
+		messages.add(new MessageData(message, loggedUser.getUser()));
 	}
 	
 	/*

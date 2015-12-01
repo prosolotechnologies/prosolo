@@ -77,7 +77,7 @@ public class MessagesThreadData implements Serializable {
 		List<MessageData> messagesData = new ArrayList<MessageData>();
 		
 		for (SimpleOfflineMessage m : thread.getMessages()) {
-			messagesData.add(new MessageData(m));
+			messagesData.add(new MessageData(m, loggedUser));
 		}
 		this.messages = messagesData;
 	}

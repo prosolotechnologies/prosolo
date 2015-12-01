@@ -4,15 +4,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.user.MessageParticipant;
 import org.prosolo.common.domainmodel.user.MessagesThread;
 import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
 import org.prosolo.common.domainmodel.user.User;
@@ -63,45 +66,85 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 		MessagesThread thread = loadResource(MessagesThread.class, threadId);
 
 		SimpleOfflineMessage message = new SimpleOfflineMessage();
-		message.setSender(sender);
-		message.setReceiver(receiver);
+		Set<MessageParticipant> participants = new HashSet<>();
+		MessageParticipant msgSender = new MessageParticipant();
+		msgSender.setRead(false);
+		msgSender.setSender(true);
+		msgSender.setParticipant(sender);
+		
+		participants.add(msgSender);
+		message.setSender(msgSender);
+		
+		MessageParticipant msgReceiver = new MessageParticipant();
+		msgReceiver.setRead(false);
+		msgReceiver.setSender(false);
+		msgReceiver.setParticipant(receiver);
+		
+		participants.add(msgReceiver);
+		
+		message.setParticipants(participants);
+		
 		message.setContent(content);
 		message.setDateCreated(new Date());
-		message.setRead(false);
 		message.setMessageThread(thread);
 		message = saveEntity(message);
 
 		return message;
 	}
 
+//	@Override
+//	@Transactional(readOnly = false)
+//	public List<SimpleOfflineMessage> sendMessages(long senderId, List<UserData> receivers, String text, long threadId,
+//			String context) throws ResourceCouldNotBeLoadedException {
+//		List<SimpleOfflineMessage> sentMessages = createMessages(senderId, receivers, text, threadId, context);
+//
+//		getPersistence().flush();
+//
+//		for (SimpleOfflineMessage message : sentMessages) {
+//			try {
+//				Map<String, String> parameters = new HashMap<String, String>();
+//				parameters.put("context", context);
+//				parameters.put("user", String.valueOf(message.getReceiver().getId()));
+//				parameters.put("message", String.valueOf(message.getId()));
+//				eventFactory.generateEvent(EventType.SEND_MESSAGE, message.getSender(), message, parameters);
+//			} catch (EventException e) {
+//				logger.error(e);
+//			}
+//		}
+//
+//		return sentMessages;
+//	}
+	
 	@Override
 	@Transactional(readOnly = false)
-	public List<SimpleOfflineMessage> sendMessages(long senderId, List<UserData> receivers, String text, long threadId,
+	public SimpleOfflineMessage sendMessages(long senderId, List<UserData> receivers, String text, long threadId,
 			String context) throws ResourceCouldNotBeLoadedException {
-		List<SimpleOfflineMessage> sentMessages = createMessages(senderId, receivers, text, threadId, context);
+		SimpleOfflineMessage message = createMessages(senderId, receivers, text, threadId, context);
 
 		getPersistence().flush();
 
-		for (SimpleOfflineMessage message : sentMessages) {
-			try {
-				Map<String, String> parameters = new HashMap<String, String>();
-				parameters.put("context", context);
-				parameters.put("user", String.valueOf(message.getReceiver().getId()));
-				parameters.put("message", String.valueOf(message.getId()));
-				eventFactory.generateEvent(EventType.SEND_MESSAGE, message.getSender(), message, parameters);
-			} catch (EventException e) {
-				logger.error(e);
+		for (MessageParticipant mp : message.getParticipants()) {
+			if(!mp.isSender()) {
+				try {
+					Map<String, String> parameters = new HashMap<String, String>();
+					parameters.put("context", context);
+					parameters.put("user", String.valueOf(mp.getParticipant().getId()));
+					parameters.put("message", String.valueOf(message.getId()));
+					eventFactory.generateEvent(EventType.SEND_MESSAGE, message.getSender().getParticipant(), message, parameters);
+				} catch (EventException e) {
+					logger.error(e);
+				}
 			}
 		}
 
-		return sentMessages;
+		return message;
 	}
 
 	/*
 	 * Executed in a separate session so events in MessageObserver can properly
 	 * load these messages.
 	 */
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	/*@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public List<SimpleOfflineMessage> createMessages(long senderId, List<UserData> receivers, String text,
 			long threadId, String context) throws ResourceCouldNotBeLoadedException {
 		User sender = loadResource(User.class, senderId);
@@ -133,6 +176,52 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 		saveEntity(thread);
 
 		return sentMessages;
+	}*/
+	
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public SimpleOfflineMessage createMessages(long senderId, List<UserData> receivers, String text,
+			long threadId, String context) throws ResourceCouldNotBeLoadedException {
+		User sender = loadResource(User.class, senderId);
+		MessagesThread thread = loadResource(MessagesThread.class, threadId);
+
+		SimpleOfflineMessage message = new SimpleOfflineMessage();
+
+		Set<MessageParticipant> participants = new HashSet<>();
+		MessageParticipant msgSender = new MessageParticipant();
+		msgSender.setRead(false);
+		msgSender.setSender(true);
+		msgSender.setParticipant(sender);
+		
+		participants.add(msgSender);
+		message.setSender(msgSender);
+		
+		for (UserData receiverData : receivers) {
+			if (receiverData.getId() == senderId) {
+				continue;
+			}
+			User receiver = loadResource(User.class, receiverData.getId());
+			MessageParticipant msgReceiver = new MessageParticipant();
+			msgReceiver.setRead(false);
+			msgReceiver.setSender(false);
+			msgReceiver.setParticipant(receiver);
+			
+			participants.add(msgReceiver);
+		}
+		
+		
+		message.setParticipants(participants);
+		
+		message.setContent(text);
+		message.setDateCreated(new Date());
+		message.setMessageThread(thread);
+
+		message = saveEntity(message);
+		
+		thread.getMessages().add(message);
+		thread.setLastUpdated(new Date());
+		saveEntity(thread);
+
+		return message;
 	}
 
 	@Override
@@ -378,10 +467,11 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 			List<MessageData> messagesData = new ArrayList<MessageData>();
 
 			for (SimpleOfflineMessage m : messages) {
-				messagesData.add(new MessageData(m));
+				messagesData.add(new MessageData(m, user));
 			}
-
-			mtData.setReaded(true);
+			
+			//why
+			//mtData.setReaded(true);
 
 			// for (MessageData mData : messagesData) {
 			// if (mData.getActor().getId() != user.getId()) {
@@ -463,9 +553,11 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 		List<SimpleOfflineMessage> messages = thread.getMessages();
 
 		for (SimpleOfflineMessage message : messages) {
-			if (message.getReceiver().equals(user)) {
-				if (message.isRead() == false) {
-					return true;
+			for(MessageParticipant mp : message.getParticipants()) {
+				if (mp.getParticipant().equals(user)) {
+					if (mp.isRead() == false) {
+						return true;
+					}
 				}
 			}
 		}
@@ -474,18 +566,24 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 
 	@Override
 	@Transactional(readOnly = false)
-	public SimpleOfflineMessage markAsRead(SimpleOfflineMessage message, Session session) {
-		if (message != null && !message.isRead()) {
-			message.setRead(true);
+	public SimpleOfflineMessage markAsRead(SimpleOfflineMessage message, User user, Session session) {
+		if (message != null) {
+			for(MessageParticipant mp : message.getParticipants()) {
+				if(mp.getParticipant().equals(user)) {
+					if (!mp.isRead()) {
+						mp.setRead(true);
+					}
+				}
+			}
 			session.saveOrUpdate(message);
 			return message;
 		}
 		return null;
 	}
 
-	@Override
+	/*@Override
 	@Transactional(readOnly = false)
-	public boolean markAsRead(long[] messageIds, Session session) throws ResourceCouldNotBeLoadedException {
+	public boolean markAsRead(long[] messageIds, User user, Session session) throws ResourceCouldNotBeLoadedException {
 		boolean successful = true;
 
 		for (int i = 0; i < messageIds.length; i++) {
@@ -493,15 +591,15 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 
 			if (msgId > 0) {
 				SimpleOfflineMessage message = (SimpleOfflineMessage) session.get(SimpleOfflineMessage.class, msgId);
-				SimpleOfflineMessage updatedMessage = markAsRead(message, session);
+				SimpleOfflineMessage updatedMessage = markAsRead(message, user, session);
 				successful = successful && updatedMessage != null;
 			}
 		}
 		return successful;
-	}
+	}*/
 
 	@Override
-	public boolean markThreadAsRead(long threadId) {
+	public boolean markThreadAsRead(long threadId, User user) {
 		Session session = this.getPersistence().openSession();
 		MessagesThread mThread = null;
 
@@ -512,10 +610,14 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 				List<SimpleOfflineMessage> messages = mThread.getMessages();
 
 				for (SimpleOfflineMessage offMessage : messages) {
-					if (!offMessage.isRead()) {
-						offMessage.setRead(true);
-						session.save(offMessage);
+					for(MessageParticipant mp : offMessage.getParticipants()) {
+						if(mp.getParticipant().equals(user)) {
+							if (!mp.isRead()) {
+								mp.setRead(true);
+							}
+						}
 					}
+					session.save(offMessage);
 				}
 			}
 
