@@ -2,7 +2,7 @@ package org.prosolo.bigdata.scala.clustering
 
 import scala.collection.mutable.{ Map, HashMap,ListBuffer }
 
-class ClusterResults(val id: Int,val date: Long) {
+class ClusterResults(val id: Int) {
   val featureValues:Map[Int,Tuple2[Double,Int]]=new HashMap[Int,Tuple2[Double,Int]]()
   val clustersMatching:Map[ClusterName.Value,Double]=new HashMap[ClusterName.Value,Double]()
   val sortedMatchingList:ListBuffer[(ClusterName.Value,Double)]=new ListBuffer[(ClusterName.Value,Double)]()

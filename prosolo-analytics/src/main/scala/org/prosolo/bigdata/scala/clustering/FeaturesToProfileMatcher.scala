@@ -1,75 +1,79 @@
 package org.prosolo.bigdata.scala.clustering
 
+import java.io.InputStream
+
+import org.prosolo.bigdata.scala.clustering.EventsChecker._
+
 import scala.collection.mutable.{ Buffer,  Map, HashMap }
  
 
 object FeaturesToProfileMatcher {
   
   val clusterProfiles:Map[ClusterName.Value,ClusterTemplate]={
-    println("init profiles")
-    
-    val profiles:Map[ClusterName.Value,ClusterTemplate]=new HashMap[ClusterName.Value,ClusterTemplate]()   
-    //cluster 1 template - Cluster A
-    val c1:ClusterTemplate=new ClusterTemplate
-    c1.addFeatureValue(0, Array(3))//discussion
-    c1.addFeatureValue(1, Array(1))//lmsuse
-    //  c1.addFeatureValue(2, Array(0))//login
-    c1.addFeatureValue(2, Array(1))//resourceview
-    profiles.put(ClusterName.A, c1)
-    
-    //cluster 2-3 template - Cluster B
-    val c2:ClusterTemplate=new ClusterTemplate
-    c2.addFeatureValue(0, Array(1))//discussion
-    c2.addFeatureValue(1, Array(1,2))//lmsuse
-    //  c2.addFeatureValue(2, Array(0))//login
-    c2.addFeatureValue(2, Array(1,2))//resourceview
-    profiles.put(ClusterName.B, c2)
-    
-    
-    //cluster 4 template - Cluster C
-    val c3:ClusterTemplate=new ClusterTemplate
-    c3.addFeatureValue(0, Array(3))//discussion
-    c3.addFeatureValue(1, Array(3))//lmsuse
-     // c3.addFeatureValue(2, Array(0))//login
-    c3.addFeatureValue(2, Array(3))//resourceview
-    profiles.put(ClusterName.C, c3)
-    
-    //cluster 5-6 template - Cluster D
-    val c4:ClusterTemplate=new ClusterTemplate
-    c4.addFeatureValue(0, Array(2))//discussion
-    c4.addFeatureValue(1, Array(2,3))//lmsuse
-     // c4.addFeatureValue(2, Array(0))//login
-    c4.addFeatureValue(2, Array(2))//resourceview
-    profiles.put(ClusterName.D, c4)    
-    
+     val profileFeaturesTemplatesFile = "files/profilesfeaturestemplates.csv"
+    val profiles:Map[ClusterName.Value,ClusterTemplate]=new HashMap[ClusterName.Value,ClusterTemplate]()
+    initializeProfileTemplates()
+
+    /**
+      * We initialize profile templates from CSV file and use it for resolving which student profile cluster belongs
+      */
+    def initializeProfileTemplates(): Unit ={
+      val profileLines=readLinesFromFile(profileFeaturesTemplatesFile)
+      val header=profileLines(0)
+      val hCols: Array[String] = header.split(",").map(_.trim)
+      val headerCols:Array[String]=new Array[String](hCols.length-1)
+      for( index<-headerCols.indices){
+        if(index>0){
+          headerCols(index-1)=hCols(index)
+        }
+      }
+      for(i<- 1 to profileLines.length-1){
+        val line=profileLines(i)
+        val cols: Array[String] = line.split(",").map(_.trim)
+        val featuresCols:Array[Double]=new Array[Double](cols.length-1)
+        for(i<-1 to cols.length-1){
+          featuresCols(i-1)=cols(i).toDouble
+        }
+        val cluster:ClusterTemplate=new ClusterTemplate(ClusterName.withName(cols(0)),headerCols, featuresCols)
+          profiles.put(cluster.clusterName,cluster)
+
+
+      }
+    }
+    def readLinesFromFile(file: String): Array[String] = {
+      val stream: InputStream = getClass.getClassLoader.getResourceAsStream(file)
+      val lines: Array[String] = scala.io.Source.fromInputStream(stream).getLines.toArray
+      lines
+    }
     profiles
   }
-  
+
+  /**
+    * We are comparing cluster results with each cluster template in order to identify
+    * how much it matches
+    * @param clusterResults
+    */
   def checkClustersMatching(clusterResults:ClusterResults){
-    println("*-*-*-*-*-*-*-*-*-*-*-checkClustersMatching for:"+clusterResults.id)
     val featureValues:Map[Int,Tuple2[Double,Int]]= clusterResults.getFeatureValues()
-  // val clustersMatching:Map[ClusterName.Value,Double]=
-    println("FEATURES:"+featureValues.toString())
      clusterProfiles.foreach{
       case (clusterName:ClusterName.Value,template:ClusterTemplate)=>
        val clusterMatching:Double= featureValues.foldLeft(0.0){
           case(acc:Double, (fvKey:Int, fvValue:Tuple2[Double,Int]))=>
-            val templValue:Array[Int]= template.getFeatureValue(fvKey)
+            val templValue:Double= template.getFeatureValue(fvKey)
             val featureMatching=findFeatureMatching(fvValue._2,templValue)
-           // println("FEATURE:"+fvKey+" has value:"+fvValue._2+" TEMPLATE:"+templValue.mkString(" ")+" MATCHING:"+featureMatching)
             acc+featureMatching
         }
-       println("***CLUSTER:"+clusterName.toString()+" matching:"+clusterMatching)
-       // (clusterName,clusterMatching)
         clusterResults.addClusterMatching(clusterName,clusterMatching)
     }
   }
+
+  /**
+    * We are converting list of cluster matches based on their scores
+    * @param clusterResult
+    */
  def sortClustersMatchingByValues(clusterResult:ClusterResults){
-    println("Sort cluster matching")
    val clustersMathingList:List[(ClusterName.Value,Double)]= clusterResult.clustersMatching.toList
-    println("UNSORTED LIST:"+clustersMathingList)
-   val sorted=clustersMathingList.sortBy(_._2).reverse 
-      println("SORTED LIST:"+sorted)
+   val sorted=clustersMathingList.sortBy(_._2).reverse
    sorted.foreach{elem=>
      clusterResult.addSortedListElement(elem)
      
@@ -77,21 +81,29 @@ object FeaturesToProfileMatcher {
  
     
   }
-  
-  def findFeatureMatching(fValue:Int,tValues:Array[Int]):Double={
-    val templAverage:Double=tValues.foldLeft(0)(_+_)/(tValues.size).toDouble
+
+  /**
+    * We are comparing template feature value with real cluster value to get the value of their matching
+    * @param fValue
+    * @param templAverage
+    * @return
+    */
+  def findFeatureMatching(fValue:Int,templAverage:Double):Double={
     if(templAverage>0) 2-Math.abs(fValue-templAverage) else 0.0
   }
  
    
 }
-class ClusterTemplate{
-  val featureValues:Map[Int,Array[Int]]=new HashMap[Int,Array[Int]]()
-  def addFeatureValue(featureId:Int,values:Array[Int]){
-    featureValues.put(featureId, values)
-  }
-  def getFeatureValue(featureId:Int):Array[Int]={
-    featureValues.getOrElse(featureId,Array(0))
+
+/**
+  * Cluster template that keeps prototype of user profile based on the values specified in CSV file
+  * @param clusterName
+  * @param featureNames
+  * @param featureValues
+  */
+class ClusterTemplate(val clusterName:ClusterName.Value, val featureNames: Array[String],val featureValues:Array[Double]){
+  def getFeatureValue(featureId:Int):Double={
+    featureValues(featureId)
   }
   
 }

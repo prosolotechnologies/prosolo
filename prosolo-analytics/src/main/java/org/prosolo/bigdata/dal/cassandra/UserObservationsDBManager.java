@@ -19,4 +19,5 @@ public interface UserObservationsDBManager {
 
 	boolean updateUserProfileActionsObservationCounter(Long date, Long userid, ObservationType observationType);
 
+	List<Row> findAllUsersProfileObservationsForDate(Long date);
 }

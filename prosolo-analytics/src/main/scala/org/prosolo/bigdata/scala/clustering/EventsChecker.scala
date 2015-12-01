@@ -9,7 +9,7 @@ import scala.collection.JavaConversions._
 
 object EventsChecker {
   val eventTypesFile = "files/events.csv"
-  /**Maps eventtype+targettype key with ObservationType, EventType and TargetType*/
+
   val eventsType: Map[String, Tuple3[ObservationType, EventType, String]] = new HashMap[String, Tuple3[ObservationType, EventType, String]]()
   val eventTypes: ListBuffer[EventType]=new ListBuffer[EventType]()
   def eventsTypeKey(eventType:EventType, objectType:String):String={
@@ -54,18 +54,3 @@ object EventsChecker {
 
  
 }
-/*object ObservationType extends Enumeration {
-  val ATTACH = Value("Attach")
-  val PROGRESS = Value("Progress")
-  val COMMENT = Value("Comment")
-  val CREATE = Value("Create")
-  val EVALUATION = Value("Evaluation")
-  val JOIN = Value("Join")
-  val LIKE = Value("Like")
-  val LOGIN = Value("Login")
-  val POSTING = Value("Posting")
-  val CONTENTACCESS = Value("Content_access")
-  val MESSAGE = Value("Message")
-  val SEARCH = Value("Search")
-
-}*/

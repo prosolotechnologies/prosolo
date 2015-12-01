@@ -28,7 +28,7 @@ import scala.collection.JavaConverters._
 /**
  * @author zoran October 24, 2015
  */
-object UsersKMeansClustering extends App {
+object UsersKMeansClustering {
   val dbManager = new UserObservationsDBManagerImpl()
   val clustersDir = "clustersdir"
   val vectorsDir = clustersDir + "/users"
@@ -110,8 +110,8 @@ object UsersKMeansClustering extends App {
     //if(reader==null){println("reader is null")}
     val finalClusters = new ListBuffer[String]
     while (reader.next(key, value)) {
-      // println("KEY:"+value)
-      // println(s"$value belongs to cluster $key")
+       println("KEY:"+value)
+       println(s"$value belongs to cluster $key")
       if (!finalClusters.contains(key.toString))
         finalClusters += key.toString()
     }
@@ -130,7 +130,7 @@ object UsersKMeansClustering extends App {
   def extractClusterResultFeatureQuartileForCluster(cluster: Cluster, date: Long): ClusterResults = {
     println(s"Cluster id:${cluster.getId} center:${cluster.getCenter.asFormatString()}")
     val cid = cluster.getId
-    val clusterResult = new ClusterResults(cid, date)
+    val clusterResult = new ClusterResults(cid)
     for (i <- 0 to numFeatures - 1) {
       val featureVal = cluster.getCenter.get(i)
       val (featureQuartileMean: Array[Double], featureQuartile) = featuresQuartiles.getOrElseUpdate(i, new FeatureQuartiles()).checkQuartileForFeatureValue(featureVal)
@@ -222,7 +222,7 @@ object UsersKMeansClustering extends App {
     val printoutput=matchedElements.map{
       case (el:ClusterName.Value,el2:ClusterResults)=>
         (el,el2.id,el2.featureValues)
-        outputResults(el,el2.id, el2.date) 
+        outputResults(el,el2.id)
         outputResults("features:",el2.featureValues)
          outputResults("clusters matching:",el2.clustersMatching)
         

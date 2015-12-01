@@ -118,4 +118,20 @@ implements Serializable, UserObservationsDBManager{
 		 }
 		return rows;
 	}
+
+
+	@Override
+	public List<Row> findAllUsersProfileObservationsForDate(Long date) {
+		BoundStatement boundStatement = new BoundStatement(
+				preparedStatements.get("findUserprofileactionsobservationsbydate"));
+		boundStatement.setLong(0, date);
+		List<Row> rows =null;
+		try{
+			ResultSet rs = this.getSession().execute(boundStatement);
+			rows = rs.all();
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+		return rows;
+	}
 }

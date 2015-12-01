@@ -10,7 +10,7 @@ import org.apache.mahout.clustering.Cluster
 import org.apache.mahout.clustering.iterator.ClusterWritable
 import org.apache.mahout.common.iterator.sequencefile.{PathFilters, PathType, SequenceFileDirValueIterable}
 import org.apache.mahout.math.{Vector, VectorWritable}
-import org.apache.mahout.clustering.classify.WeightedPropertyVectorWritable
+
 
 import scala.collection.JavaConverters._
 
