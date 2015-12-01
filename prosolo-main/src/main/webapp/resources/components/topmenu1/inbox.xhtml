@@ -22,7 +22,7 @@
 					pt:aria-haspopup="true" pt:role="button" pt:data-toggle="dropdown"
 					action="#{topInboxBean.readMessages()}"
 					actionListener="#{topInboxBean.logInboxServiceUse()}" async="true"
-					update=":inboxForm:messagesContainer">
+					update=":inboxForm:messagesContainer @this">
 
 					<i class="fa fa-envelope-o fa-lg"></i>
 

@@ -22,7 +22,7 @@
 					actionListener="#{topInboxBean.logInboxServiceUse()}"
 					oncomplete="$('.messagesContainer .inboxCircle').hide();"
 					async="true"
-					update=":inboxForm:messagesContainer">
+					update=":inboxForm:messagesContainer @this">
 					
 					<i class="fa fa-envelope-o fa-lg"></i>
 					
