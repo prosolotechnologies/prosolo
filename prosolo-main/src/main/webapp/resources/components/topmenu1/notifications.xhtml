@@ -1,0 +1,91 @@
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:pt="http://java.sun.com/jsf/passthrough"
+	xmlns:util="http://www.prosolo.com/util">
+
+	<li>
+	
+	<h:form id="notificationForm">
+			<p:growl id="notificationsGrowl" showDetail="true" />
+
+			<p:poll interval="#{topNotificationsBean.refreshRate}"
+				oncomplete="roundImages"
+				update=":notificationForm:notificationsInboxPanel"
+				widgetVar="notificationsPoll" autoStart="true" />
+
+			<h:panelGroup id="notificationsInboxPanel">
+
+				<p:commandLink styleClass="faded"
+					action="#{topNotificationsBean.initNotifications()}"
+					actionListener="#{topNotificationsBean.logNotificationServiceUse()}"
+					async="true" pt:aria-expanded="false" pt:aria-haspopup="true"
+					pt:role="button" pt:data-toggle="dropdown"
+					update=":notificationForm:notificationsResultPanelContent">
+
+					<i class="fa fa-bell-o fa-lg"></i>
+
+					<h:panelGroup class="bdg"
+						rendered="#{topNotificationsBean.unreadNotificationsNo > 0}">#{topNotificationsBean.unreadNotificationsNo}</h:panelGroup>
+
+				</p:commandLink>
+
+				<div class="dropdown-menu notificationsContainer pull-right"
+					aria-labelledby="dLabel">
+					<h3 class="title">Notifications</h3>
+
+					<h:panelGroup layout="block" styleClass="itemsContainer"
+						id="notificationsResultPanelContent"
+						rendered="#{!empty topNotificationsBean.notifications}">
+
+						<ui:repeat value="#{topNotificationsBean.notifications}"
+							var="notificationData" varStatus="iterator">
+							<div class="item" href="">
+								<div class="row">
+									<div class="col-md-2">
+										<span class="userProfileImage"> 
+											<link:user
+												value="notifications" userData="#{notificationData.actor}"
+												mode="image" imageSize="30" 
+												idPrefix="notActor#{iterator.index}"
+												context="notifications.image" />
+										</span>
+									</div>
+									<div class="col-md-10">
+										<div class="userName">
+											<h:link class="user" value="#{notificationData.actor.name}"
+												outcome="/publicprofile">
+												<f:param name="id"
+													value="#{util:encodeId(notificationData.actor.id)}" />
+											</h:link>
+											<span>#{notificationData.type}
+												#{notificationData.resource.shortType} 
+												<link:resourceLink
+													styleClass="bold"
+													resourceId="#{notificationData.resource.id}"
+													type="#{notificationData.resource.clazz.simpleName}"
+													title="#{notificationData.resource.title}" />
+											</span>
+										</div>
+										<div class="date">#{notificationData.when}</div>
+										<div class="more3">View</div>
+									</div>
+								</div>
+							</div>
+
+						</ui:repeat>
+					</h:panelGroup>
+
+					<h:link styleClass="seeAll" value="See all notifications"
+						outcome="/communications">
+						<f:param name="tab" value="notifications" />
+					</h:link>
+
+
+				</div>
+
+			</h:panelGroup>
+		</h:form></li>
+</ui:composition>

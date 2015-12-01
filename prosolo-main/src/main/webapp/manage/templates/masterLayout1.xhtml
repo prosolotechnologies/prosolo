@@ -27,6 +27,7 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
 	<link rel="stylesheet" href="#{request.contextPath}/manage/css/bootstrap-checkbox.css" />
+	<link rel="stylesheet" href="#{request.contextPath}/manage/css/bootstrap-select.css"/>
 	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/prosolo-theme/jquery-ui-1.8.21.custom.css" />
 	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/manage/css/style.custom.css" />
 	<link rel="stylesheet" href="#{request.contextPath}/manage/css/style.css?#{loggeduser.loginTime}" />
@@ -39,7 +40,7 @@
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 	<script src="#{request.contextPath}/manage/js/jRespond.min.js"></script>
 	<script src="#{request.contextPath}/manage/js/jpanelmenu.js"></script>
-	
+	<script src="#{request.contextPath}/manage/js/bootstrap-select.min.js"></script>
 	<script src="#{request.contextPath}/manage/js/custom.js"></script>
 	
 	<script>
@@ -162,8 +163,10 @@
 		    
 		    <ul class="nav navbar-nav userActions pull-right">
 		         <ui:include src="/resources/components/topmenu1/search.xhtml"></ui:include>
-		         <li><a href="#" class="faded"><i class="fa fa-envelope-o fa-lg"></i></a></li>
-		         <li><a href="#" class="faded"><i class="fa fa-bell-o fa-lg"></i></a></li>
+		         <ui:include src="/resources/components/topmenu1/inbox.xhtml"></ui:include>
+		         <ui:include src="/resources/components/topmenu1/notifications.xhtml"></ui:include>
+		         <!-- <li><a href="#" class="faded"><i class="fa fa-envelope-o fa-lg"></i></a></li> -->
+		         
 		    
 		    	<li class="dropdown user">
 		            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
@@ -220,6 +223,7 @@
 	<!--  dlg:addToCompetence id="addToCompetence"/-->
 	<ui:include	src="/resources/components/dialogs/addToCompetence.xhtml" />
 	<dlg:addToGoal id="addToGoal" />
+	<ui:include	src="/resources/components/dialogs/userDetailsData.xhtml" />
 	<ui:include	src="/resources/components/dialogs/newDirectMessage.xhtml" />
 	
 </h:body>

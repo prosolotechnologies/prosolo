@@ -271,6 +271,34 @@ public class ObservationBean implements Serializable {
 		}
 		return false;
 	}
+	
+	public List<String> getFirstTwoSymptoms() {
+		List<String> s = new ArrayList<>();
+		List<SymptomData> symptoms = lastObservation.getSymptoms();
+		for (int i  = 0; i < 2; i++) {
+			if(symptoms != null && symptoms.size() != i) {
+				s.add(symptoms.get(i).getDescription());
+			} else {
+				break;
+			}
+		}
+		
+		return s;
+	}
+	
+	public List<String> getFirstTwoSuggestions() {
+		List<String> s = new ArrayList<>();
+		List<SuggestionData> suggestions = lastObservation.getSuggestions();
+		for (int i  = 0; i < 2; i++) {
+			if(suggestions != null && suggestions.size() != i) {
+				s.add(suggestions.get(i).getDescription());
+			} else {
+				break;
+			}
+		}
+		
+		return s;
+	}
 
 	public ObservationData getLastObservation() {
 		return lastObservation;

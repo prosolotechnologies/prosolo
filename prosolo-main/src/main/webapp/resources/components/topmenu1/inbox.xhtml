@@ -1,0 +1,85 @@
+
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:action="http://java.sun.com/jsf/composite/components/actions"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:pt="http://java.sun.com/jsf/passthrough"
+	xmlns:util="http://www.prosolo.com/util">
+
+	<li class="dropdown">
+		
+		<h:form id="inboxForm">
+			<p:growl id="messagesGrowl" showDetail="true" />
+
+			<p:poll interval="#{topInboxBean.refreshRate}"
+				oncomplete="roundImages" update=":inboxForm:messagesInboxPanel"
+				widgetVar="messagesPoll" autoStart="true" />
+			<h:panelGroup id="messagesInboxPanel">
+				<p:commandLink styleClass="faded" pt:aria-expanded="false"
+					pt:aria-haspopup="true" pt:role="button" pt:data-toggle="dropdown"
+					action="#{topInboxBean.readMessages()}"
+					actionListener="#{topInboxBean.logInboxServiceUse()}" async="true"
+					update=":inboxForm:messagesContainer">
+
+					<i class="fa fa-envelope-o fa-lg"></i>
+
+					<h:panelGroup styleClass="bdg"
+						rendered="#{topInboxBean.unreadThreadsNo > 0}">
+						#{topInboxBean.unreadThreadsNo}
+					</h:panelGroup>
+				</p:commandLink>
+
+
+				<h:panelGroup layout="block" id="messagesContainer"
+					styleClass="dropdown-menu messagesContainer pull-right"
+					pt:aria-labelledby="dLabel">
+
+					<h3 class="title">Messages</h3>
+
+
+					<h:panelGroup layout="block" styleClass="itemsContainer"
+						rendered="#{!empty topInboxBean.messagesThreads}">
+
+						<ui:repeat value="#{topInboxBean.messagesThreads}"
+							var="messageThreadData" varStatus="iterator">
+							<h:link outcome="/messages" class="item"
+								onclick="sendLogPageNavigationWithParameters('messages', { context:'mainmenu', thread: #{messageThreadData.id}});">
+								<f:param name="id" value="#{messageThreadData.id}" />
+
+								<div class="row">
+									<div class="col-md-2">
+
+										<span class="userProfileImage"> <img
+											title="#{messageThreadData.participantsWithoutLoggedUser.get(0).name}"
+											src="#{messageThreadData.participantsWithoutLoggedUser.get(0).avatarUrl != null ? messageThreadData.participantsWithoutLoggedUser.get(0).avatarUrl : colleguesBean.avatarUrlByUserId(messageThreadData.participantsWithoutLoggedUser.get(0).id, 60)}"
+											alt="#{messageThreadData.participantsWithoutLoggedUser.get(0).name}" />
+										</span>
+									</div>
+									<div class="col-md-10">
+										<div class="userName">
+											#{messageThreadData.participantsWithoutLoggedUser.get(0).name}
+											<div class="date">#{messageThreadData.updateTime}</div>
+										</div>
+										<span>"#{messageThreadData.latest.shortContent}"</span>
+										<div class="more3">Read message</div>
+									</div>
+								</div>
+							</h:link>
+						</ui:repeat>
+
+					</h:panelGroup>
+
+					<h:link styleClass="seeAll" value="See all messages"
+						outcome="/messages" />
+
+				</h:panelGroup>
+
+			</h:panelGroup>
+		</h:form></li>
+
+
+
+</ui:composition>
