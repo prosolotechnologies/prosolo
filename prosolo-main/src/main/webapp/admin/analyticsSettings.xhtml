@@ -20,20 +20,15 @@
 
 	<ui:define name="content">
 
-		<dlg:editSymptomOrSuggestion id="symptomDlg" title="Edit Symptom"
-			inputDesc="#{analyticsSettingsBean.symptomForEdit.description}"
-			validationMethodName="validateExistingSymptomName"
-			validateName="#{analyticsSettingsBean.validateExistingSymptomName}"
-			context="Symptom" update=":symptomForm"
-			action="#{analyticsSettingsBean.updateSymptom}" />
+		<ui:remove>
+			<dlg:editSymptomOrSuggestion id="symptomDlg" title="Edit Symptom"
+				inputDesc="#{analyticsSettingsBean.symptomForEdit.description}"
+				validationMethodName="validateExistingSymptomName"
+				validateName="#{analyticsSettingsBean.validateExistingSymptomName}"
+				context="Symptom" update=":symptomForm"
+				action="#{analyticsSettingsBean.updateSymptom}" />
+		</ui:remove>
 
-		<dlg:editSymptomOrSuggestion id="suggestionDlg"
-			title="Edit Suggestion"
-			inputDesc="#{analyticsSettingsBean.suggestionForEdit.description}"
-			validationMethodName="validateExistingSuggestionName"
-			validateName="#{analyticsSettingsBean.validateExistingSuggestionName}"
-			context="Suggestion" update=":suggestionForm"
-			action="#{analyticsSettingsBean.updateSuggestion}" />
 
 		<dlg:deleteSymptomOrSuggestion id="delSymptomDlg"
 			name="#{analyticsSettingsBean.symptomForEdit.description}"
@@ -47,8 +42,6 @@
 
 		<div class="container">
 			<div id="roleFormContainer" class="content wide">
-
-
 
 				<h:form id="symptomForm">
 					<p:growl id="symptomGrowl" showDetail="true" globalOnly="true" />
@@ -64,7 +57,7 @@
 							<td><p:commandLink styleClass="blue button size25"
 									process="newSymptomDesc"
 									actionListener="#{analyticsSettingsBean.saveSymptom()}"
-									value="Save" update=":symptomForm">
+									value="Save" update="@all">
 								</p:commandLink></td>
 						</tr>
 
@@ -87,11 +80,15 @@
 						<f:facet name="header">Symptoms</f:facet>
 
 						<p:ajax event="rowEditInit" 
+						    onstart="hideRowEdit();"
 							listener="#{analyticsSettingsBean.prepareSymptomEdit}" />
 
 						<p:ajax event="rowEdit" 
+						    oncomplete="showRowEdit();"
 							listener="#{analyticsSettingsBean.onSymptomEdit}"
 							update=":symptomForm:symptomGrowl" />
+							
+					    <p:ajax event="rowEditCancel" onstart="showRowEdit();"/>
 			
 
 						<p:column id="nameColumn" filterBy="#{symptom.description}"
@@ -173,7 +170,7 @@
 							<td><p:commandLink styleClass="blue button size25"
 									process="newSuggestionDesc"
 									actionListener="#{analyticsSettingsBean.saveSuggestion}"
-									value="Save" update=":suggestionForm">
+									value="Save" update="@all">
 								</p:commandLink></td>
 						</tr>
 
@@ -193,15 +190,17 @@
 
 						<f:facet name="header">Suggestions</f:facet>
 
-
 						<p:ajax event="rowEditInit" 
+							onstart="hideRowEdit();"
 							listener="#{analyticsSettingsBean.prepareSuggestionEdit}" />
 
 						<p:ajax event="rowEdit" 
+						    oncomplete="showRowEdit();"
 							listener="#{analyticsSettingsBean.onSuggestionEdit}"
 							update=":suggestionForm:suggestionGrowl" />
 			
-
+						<p:ajax event="rowEditCancel" onstart="showRowEdit();"/>
+						
 						<p:column id="nameColumn" filterBy="#{suggestion.description}"
 							filterMatchMode="contains" sortBy="#{suggestion.description}">
 
@@ -267,5 +266,13 @@
 				</h:form>
 			</div>
 		</div>
+		<script>
+			function hideRowEdit () {
+				$('.ui-row-editor span.ui-icon-pencil').each(function(){$(this).css('visibility','hidden')});
+			};
+			function showRowEdit () {
+				$('.ui-row-editor span.ui-icon-pencil').each(function(){$(this).css('visibility','visible')});
+			};
+		</script>
 	</ui:define>
 </ui:composition>
