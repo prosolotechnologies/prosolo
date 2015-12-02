@@ -47,7 +47,7 @@
 							var="messageThreadData" varStatus="iterator">
 							<h:link outcome="/messages" class="item"
 								onclick="sendLogPageNavigationWithParameters('messages', { context:'mainmenu', thread: #{messageThreadData.id}});">
-								<f:param name="id" value="#{messageThreadData.id}" />
+								<f:param name="id" value="#{util:encodeId(messageThreadData.id)}" />
 
 								<div class="row">
 									<div class="col-md-2">

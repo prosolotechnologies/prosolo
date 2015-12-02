@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.MessagesThread;
@@ -15,6 +16,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.interaction.MessagingManager;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.communications.data.MessageData;
 import org.prosolo.web.communications.data.MessagesThreadData;
 import org.prosolo.web.useractions.data.NewPostData;
@@ -38,6 +40,7 @@ public class MessagesBean implements Serializable {
 	
 	@Autowired private MessagingManager messagingManager;
 	@Autowired private LoggedUserBean loggedUser;
+	@Inject private UrlIdEncoder idEncoder;
 	
 	protected List<UserData> receivers;
 	
@@ -46,13 +49,18 @@ public class MessagesBean implements Serializable {
 	private MessagesThreadData threadData;
 	private List<MessageData> messages;
 	
-	private long threadId;
+	private String threadId;
 	private String context;
 	private int limit = 5;
 	private boolean loadMore;
 	private boolean noMessageThreads;
 	
+	private long decodedThreadId;
+	
 	public void init() {
+		
+		decodedThreadId = idEncoder.decodeId(threadId);
+		
 		boolean hasAccess = tryToInitMessages();
 
 		if (!hasAccess) {
@@ -67,7 +75,7 @@ public class MessagesBean implements Serializable {
 	private boolean tryToInitMessages() {
 		MessagesThread thread = null;
 		
-		if (threadId == 0) {
+		if (decodedThreadId == 0) {
 			thread = messagingManager.getLatestMessageThread(loggedUser.getUser());
 			
 			if (thread != null) {
@@ -77,9 +85,9 @@ public class MessagesBean implements Serializable {
 		}
 		
 		if (loggedUser != null && loggedUser.isLoggedIn()) {
-			if (threadId > 0) {
+			if (decodedThreadId > 0) {
 				try {
-					thread = messagingManager.get(MessagesThread.class, threadId);
+					thread = messagingManager.get(MessagesThread.class, decodedThreadId);
 					
 					if (thread == null) {
 						logger.info("User "+loggedUser.getUser()+" tried to open messages page for nonexisting messages thread with id: " + threadId);
@@ -199,11 +207,11 @@ public class MessagesBean implements Serializable {
 	 * GETTERS / SETTERS
 	 */
 	
-	public long getThreadId() {
+	public String getThreadId() {
 		return threadId;
 	}
 
-	public void setThreadId(long threadId) {
+	public void setThreadId(String threadId) {
 		this.threadId = threadId;
 	}
 
