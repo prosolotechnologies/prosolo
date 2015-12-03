@@ -3,7 +3,12 @@ package org.prosolo.web.useractions;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.faces.bean.ManagedBean;
 
@@ -14,6 +19,7 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 import org.prosolo.common.domainmodel.activitywall.comments.Comment;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.activityWall.SocialActivityFactory;
@@ -125,24 +131,52 @@ public class ComentActionBean implements Serializable {
 		}
 	}
 	
+	public Set<User> interactions(List<Comment> comments, User maker, User actor) {
+		Set<User> result = new HashSet<User>();
+		if (maker != null && !maker.equals(actor)) {
+			result.add(maker);
+		}
+		if (comments == null || comments.size() == 0) {
+			return result;
+		}
+		for (SocialActivity comment : comments) {
+			if (comment.getMaker() != null && !comment.getMaker().equals(actor)) {
+				result.add(comment.getMaker());
+			}
+		}
+		return result;
+	}
+
+	
 	public void newCommentOnSocialActivity(final SocialActivityData wallData, final String context) {
 		if (wallData != null) {
 //			final String commentText = StringUtil.cleanHtml(wallData.getNewComment());
 			final String commentText = wallData.getNewComment();
+			try {
+				SocialActivity activity = defaultManager.get(SocialActivity.class, wallData.getSocialActivity().getId());
+				List<Comment> comments = commentManager.getComments(activity);
+				Set<User> interactions = interactions(comments, activity.getMaker(), loggedUser.getUser());
+				
+				final Date created = new Date();
+				final SocialActivityCommentData commentData = new SocialActivityCommentData(commentText, loggedUser.getUser(), created, wallData);
+				wallData.addComment(commentData);
+				wallData.setShowHiddenComments(true);
+				
+				propagateCommentAsync(wallData.getSocialActivity().getId(), SocialActivity.class, context, commentText, created, commentData, interactions);
+				PageUtil.fireSuccessfulInfoMessage("New comment posted!");
+				wallData.setNewComment("");
+				init();
+			} catch (ResourceCouldNotBeLoadedException e) {
+				logger.error(e);
+			}
 			
-			final Date created = new Date();
-			final SocialActivityCommentData commentData = new SocialActivityCommentData(commentText, loggedUser.getUser(), created, wallData);
-			wallData.addComment(commentData);
-			wallData.setShowHiddenComments(true);
 			
-			propagateCommentAsync(wallData.getSocialActivity().getId(), SocialActivity.class, context, commentText, created, commentData);
-			PageUtil.fireSuccessfulInfoMessage("New comment posted!");
-			wallData.setNewComment("");
-			init();
 		}
 	}
 
-	private void propagateCommentAsync(final long resourceId, final Class<? extends BaseEntity> resourceClazz, final String context, final String commentText, final Date created, final SocialActivityCommentData commentData) {
+	private void propagateCommentAsync(final long resourceId, final Class<? extends BaseEntity> resourceClazz,
+			final String context, final String commentText, final Date created,
+			final SocialActivityCommentData commentData, final Set<User> interactions) {
 		taskExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -161,14 +195,17 @@ public class ComentActionBean implements Serializable {
 					
 					session.flush();
 					
-					Map<String, String> parameters = new HashMap<String, String>();
-					parameters.put("context", context);
-					session.flush();
-					
-					Event event = eventFactory.generateEvent(EventType.Comment, loggedUser.getUser(), comment, resource, parameters);
-					
-					if (event != null) {
-						socialActivityFactory.createSocialActivity(event, session, null);
+					for(User interactedWith : interactions) {
+						Map<String, String> parameters = new HashMap<String, String>();
+						parameters.put("context", context);
+						parameters.put("targetUserId", Long.toString(interactedWith.getId()));
+						session.flush();
+						
+						Event event = eventFactory.generateEvent(EventType.Comment, loggedUser.getUser(), comment, resource, parameters);
+						
+						if (event != null) {
+							socialActivityFactory.createSocialActivity(event, session, null);
+						}
 					}
 					
 					logger.debug("User \"" + loggedUser.getUser() +

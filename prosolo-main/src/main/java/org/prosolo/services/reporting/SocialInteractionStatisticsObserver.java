@@ -48,7 +48,7 @@ public class SocialInteractionStatisticsObserver implements EventObserver {
 		if (event.getAction().equals(SEND_MESSAGE)){
 			target =Long.valueOf(event.getParameters().get("user"));
 		} else if (event.getAction().equals(Comment)) {
-			target = ((SocialActivity) event.getTarget()).getTarget().getId();
+			target = Long.valueOf(event.getParameters().get("targetUserId")); 
 		} else if (event.getAction().equals(Like) || event.getAction().equals(Dislike)){
 			if (event.getTarget() == null) {
 				return;
