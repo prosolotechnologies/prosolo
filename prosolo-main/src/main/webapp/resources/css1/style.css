@@ -96,7 +96,9 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 }
 
 
-
+#observationBar > .btn {
+	color: #FFF;
+}
 
 
 /* buttons */
@@ -525,37 +527,66 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 	border-bottom: 1px solid #ebebeb;	
 }
 
-.navbar-nav.userActions .dropdown-menu.notificationsContainer a.item, 
-.navbar-nav.userActions .dropdown-menu.messagesContainer a.item {
+
+
+.navbar-nav.userActions .dropdown-menu.notificationsContainer .item, 
+.navbar-nav.userActions .dropdown-menu.messagesContainer .item {
 	border-bottom: 1px solid #ebebeb;
    color: #a1a1a1;
 	display: block;
 	padding: 10px;
 }
-.navbar-nav.userActions .dropdown-menu.notificationsContainer a.item:hover,
-.navbar-nav.userActions .dropdown-menu.messagesContainer a.item:hover {
+
+.navbar-nav.userActions .dropdown-menu .item.unread,
+.navbar-nav.userActions .dropdown-menu.notificationsContainer .item:hover,
+.navbar-nav.userActions .dropdown-menu.messagesContainer .item:hover {
 	background-color: #f7fafd;
 	text-decoration: none;
 }
 
 
 
-.navbar-nav.userActions .dropdown-menu.messagesContainer a.item .userProfileImage {
+
+
+.navbar-nav.userActions .dropdown-menu.notificationsContainer .item:hover .close,
+.navbar-nav.userActions .dropdown-menu.messagesContainer .item:hover .close {
+	display: block;
+}
+
+.navbar-nav.userActions .dropdown-menu.messagesContainer .item .userProfileImage {
 	float: left;
 }
 
-.navbar-nav.userActions .dropdown-menu a.item .userName {
+.navbar-nav.userActions .dropdown-menu .item .userName {
 	 color: #555;
     font-weight: bold;
+	 padding-right: 10px;
 }
 
-.navbar-nav.userActions .dropdown-menu a.item .date {
+
+.navbar-nav.userActions .dropdown-menu .item .date {
     font-size: 11px;
 	 font-weight: normal;
 }
 
-.navbar-nav.userActions .dropdown-menu a.item .more3 {
-	color: #2196f3;	
+.navbar-nav.userActions .dropdown-menu .item .more3 {
+	color: #2196f3;
+	float: right;
+	margin-left: 10px;
+}
+
+
+.alert.item {
+	margin: 0;
+	position: relative;
+	border-radius: 0;
+}
+
+.alert.item .close {
+	position: absolute;
+	top: 0;
+	right: 5px;
+	display: none;
 }
 
 
@@ -567,8 +598,11 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 	text-align: center;
 }
 
-
-
+.noContent {
+	padding: 30px;
+	text-align: center;
+	font-style: italic;
+}
 
 
 .navbar-nav.userActions .dropdown-menu.notificationsContainer {
@@ -579,12 +613,12 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 	border-top: 0;	
 }
 
-.navbar-nav.userActions .dropdown-menu.notificationsContainer a.item .userName span {
+.navbar-nav.userActions .dropdown-menu.notificationsContainer .item .userName span {
 	 color: #a1a1a1;
     font-weight: normal;
 }
 
-.navbar-nav.userActions .dropdown-menu.notificationsContainer a.item .userName p{
+.navbar-nav.userActions .dropdown-menu.notificationsContainer .item .userName p{
 	 color: #a1a1a1;
     font-weight: normal;
 	 margin: 5px 0;
@@ -1835,6 +1869,39 @@ label {
 	}
 
 
+	.timeRange {
+	  margin-top: 25px;
+	}
+	.period {
+		float: right;
+	}
+
+
+	.period .btn-primary {
+		border: 1px solid #dddddd;
+		background-color: #d3d3d3;		
+	}
+	.period .btn-primary.active:hover,
+	.period .btn-primary.active, 
+	.period .btn-primary:active {
+	  background-color: #286090;
+	  border: 1px solid #204d74;
+	  color: #fff;
+	}
+
+	.period .btn-primary.hover, 
+	.period .btn-primary:hover {
+		color: #444;
+	}
+
+
+	.period .btn + .btn, 
+	.period .btn + .btn-group {
+	  margin-left: 0px;
+	}
+
+
+
 	/* table pagination */
 	
 .tablePagination label {
@@ -1868,6 +1935,18 @@ label {
 	padding-top: 7px;	
 	float: left;
 }
+
+
+/* graph */
+
+.graph {
+	margin-top: 25px;
+}
+
+.hashtagGraph {
+	margin-top: 40px;
+}
+
 
 /*********************************************/
 /*********************************************/
@@ -2920,3 +2999,4 @@ background-color: #286090;
 
 
 }
+

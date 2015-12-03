@@ -39,12 +39,18 @@
 
 					<h3 class="title">Messages</h3>
 
-
-					<h:panelGroup layout="block" styleClass="itemsContainer"
-						rendered="#{!empty topInboxBean.messagesThreads}">
+					<h:panelGroup layout="block" styleClass="itemsContainer">
+						
+						<h:panelGroup layout="block" 
+							styleClass="noContent"
+							rendered="#{empty topInboxBean.messagesThreads}">
+                  
+                           	No messages
+						</h:panelGroup>
 
 						<ui:repeat value="#{topInboxBean.messagesThreads}"
 							var="messageThreadData" varStatus="iterator">
+							
 							<h:link outcome="/messages" class="item"
 								onclick="sendLogPageNavigationWithParameters('messages', { context:'mainmenu', thread: #{messageThreadData.id}});">
 								<f:param name="id" value="#{util:encodeId(messageThreadData.id)}" />
@@ -52,34 +58,32 @@
 								<div class="row">
 									<div class="col-md-2">
 
-										<span class="userProfileImage"> <img
-											title="#{messageThreadData.participantsWithoutLoggedUser.get(0).name}"
-											src="#{messageThreadData.participantsWithoutLoggedUser.get(0).avatarUrl != null ? messageThreadData.participantsWithoutLoggedUser.get(0).avatarUrl : colleguesBean.avatarUrlByUserId(messageThreadData.participantsWithoutLoggedUser.get(0).id, 60)}"
-											alt="#{messageThreadData.participantsWithoutLoggedUser.get(0).name}" />
+										<span class="userProfileImage"> 
+											<img
+												title="#{messageThreadData.participantsWithoutLoggedUser.get(0).name}"
+												src="#{messageThreadData.participantsWithoutLoggedUser.get(0).avatarUrl != null ? messageThreadData.participantsWithoutLoggedUser.get(0).avatarUrl : colleguesBean.avatarUrlByUserId(messageThreadData.participantsWithoutLoggedUser.get(0).id, 60)}"
+												alt="#{messageThreadData.participantsWithoutLoggedUser.get(0).name}" />
 										</span>
 									</div>
+									
 									<div class="col-md-10">
 										<div class="userName">
 											#{messageThreadData.participantsWithoutLoggedUser.get(0).name}
 											<div class="date">#{messageThreadData.updateTime}</div>
 										</div>
+										
 										<span>"#{messageThreadData.latest.shortContent}"</span>
 										<div class="more3">Read message</div>
 									</div>
 								</div>
 							</h:link>
 						</ui:repeat>
-
 					</h:panelGroup>
 
-					<h:link styleClass="seeAll" value="See all messages"
-						outcome="/messages" />
+					<h:link styleClass="seeAll" value="See all messages" outcome="/messages" />
 
 				</h:panelGroup>
-
 			</h:panelGroup>
-		</h:form></li>
-
-
-
+		</h:form>
+	</li>
 </ui:composition>

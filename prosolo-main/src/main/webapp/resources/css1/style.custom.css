@@ -179,10 +179,6 @@ textarea, .ui-widget textarea {
 
 /**** JQUERY UI ******/
 
-.ui-widget {
-	font-size: 12px;
-}
-
 /* Dialog title */
 .ui-dialog {
 	z-index: 1050;

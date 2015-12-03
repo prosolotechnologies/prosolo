@@ -27,22 +27,26 @@
 
 					<i class="fa fa-bell-o fa-lg"></i>
 
-					<h:panelGroup class="bdg"
-						rendered="#{topNotificationsBean.unreadNotificationsNo > 0}">#{topNotificationsBean.unreadNotificationsNo}</h:panelGroup>
-
+					<h:panelGroup class="bdg" rendered="#{topNotificationsBean.unreadNotificationsNo > 0}">
+						#{topNotificationsBean.unreadNotificationsNo}
+					</h:panelGroup>
 				</p:commandLink>
 
-				<div class="dropdown-menu notificationsContainer pull-right"
-					aria-labelledby="dLabel">
+				<div class="dropdown-menu notificationsContainer pull-right" aria-labelledby="dLabel">
 					<h3 class="title">Notifications</h3>
 
 					<h:panelGroup layout="block" styleClass="itemsContainer"
-						id="notificationsResultPanelContent"
-						rendered="#{!empty topNotificationsBean.notifications}">
+						id="notificationsResultPanelContent">
+						
+						<h:panelGroup layout="block" 
+							styleClass="noContent"
+							rendered="#{empty topNotificationsBean.notifications}">
+                  
+                           	No notifications
+						</h:panelGroup>
 
-						<ui:repeat value="#{topNotificationsBean.notifications}"
-							var="notificationData" varStatus="iterator">
-							<div class="item" href="">
+						<ui:repeat value="#{topNotificationsBean.notifications}" var="notificationData" varStatus="iterator">
+							<div class="alert fade in item #{notificationData.read == 'false' ? 'unread' : ''}">
 								<div class="row">
 									<div class="col-md-2">
 										<span class="userProfileImage"> 
@@ -53,13 +57,14 @@
 												context="notifications.image" />
 										</span>
 									</div>
+									
 									<div class="col-md-10">
 										<div class="userName">
 											<h:link class="user" value="#{notificationData.actor.name}"
 												outcome="/publicprofile">
-												<f:param name="id"
-													value="#{util:encodeId(notificationData.actor.id)}" />
+												<f:param name="id" value="#{util:encodeId(notificationData.actor.id)}" />
 											</h:link>
+											
 											<span>#{notificationData.type}
 												#{notificationData.resource.shortType} 
 												<link:resourceLink
@@ -70,11 +75,38 @@
 											</span>
 										</div>
 										<div class="date">#{notificationData.when}</div>
-										<div class="more3">View</div>
+										
+										<h:panelGroup rendered="#{notificationData.chosenAction == null}">
+											<ui:repeat value="#{notificationData.actions}" var="notificationAction" varStatus="notificationActionStatus">
+												
+												<p:commandLink styleClass="more3"
+													rendered="#{notificationData.goalStatus != null and notificationAction == 'ACCEPT'}"
+													value="#{topNotificationsBean.getNotificationActionName(notificationAction)}"
+													onclick="$('#joinGoalFormModalDialog').dialog('open');"
+													action="#{joinGoalDialog.initializeJoinGoalDialog(notificationData, 'notifications')}" 
+													update=":joinGoalForm"
+													async="true" />
+											
+												<p:commandLink styleClass="more3"
+													rendered="#{!(notificationData.goalStatus != null and notificationAction == 'ACCEPT')}"
+													value="#{topNotificationsBean.getNotificationActionName(notificationAction)}"
+													onclick="prosolo.overlay.activate();"
+													action="#{topNotificationsBean.invokeAction(notificationAction, notificationData)}" 
+													update="@form"
+													oncomplete="prosolo.overlay.reset();"
+													async="true" />
+											</ui:repeat>
+										</h:panelGroup>
+										
+										<h:panelGroup class="inactive" rendered="#{notificationData.chosenAction != null}">
+											#{notificationData.chosenAction}
+										</h:panelGroup>
 									</div>
 								</div>
+								<button aria-label="Close" data-dismiss="alert" class="close" type="button">
+									<span aria-hidden="true">×</span>
+								</button>
 							</div>
-
 						</ui:repeat>
 					</h:panelGroup>
 
@@ -82,10 +114,8 @@
 						outcome="/communications">
 						<f:param name="tab" value="notifications" />
 					</h:link>
-
-
 				</div>
-
 			</h:panelGroup>
-		</h:form></li>
+		</h:form>
+	</li>
 </ui:composition>

@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -16,7 +15,7 @@ public class HomePageResolver {
 	public static final int MANAGE = 2;
 	public static final int USER = 3;
 
-	public String getHomeUrl(Collection authorities){
+	public String getHomeUrl(Collection<GrantedAuthority> authorities){
 	     switch (getHighestPriorityCapability(authorities)) {
 	     	case "basic.admin.access":
 	     		return "/admin/users";
@@ -43,7 +42,7 @@ public class HomePageResolver {
 	}
 	
 	
-	private String getHighestPriorityCapability(Collection authorities){
+	private String getHighestPriorityCapability(Collection<GrantedAuthority> authorities){
 		String current = null;
 		int priority = -1;
 		Iterator<GrantedAuthority> it = authorities.iterator();
@@ -78,6 +77,7 @@ public class HomePageResolver {
 		return false;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private List<GrantedAuthority> getGrantedAuthorities(){
 		SecurityContext context = SecurityContextHolder.getContext();
 		Authentication authentication = context.getAuthentication();

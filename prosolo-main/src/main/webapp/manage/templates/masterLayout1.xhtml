@@ -23,14 +23,14 @@
 	</f:facet>
 	
 	<!-- CSS -->
-	<link rel="stylesheet" src="//normalize-css.googlecode.com/svn/trunk/normalize.css" />
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
-	<link rel="stylesheet" href="#{request.contextPath}/manage/css/bootstrap-checkbox.css" />
-	<link rel="stylesheet" href="#{request.contextPath}/manage/css/bootstrap-select.css"/>
-	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/prosolo-theme/jquery-ui-1.8.21.custom.css" />
-	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/manage/css/style.custom.css" />
-	<link rel="stylesheet" href="#{request.contextPath}/manage/css/style.css?#{loggeduser.loginTime}" />
+	<link rel="stylesheet" type="text/css" media="all" src="//normalize-css.googlecode.com/svn/trunk/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css1/bootstrap-checkbox.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css1/bootstrap-select.css"/>
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css1/prosolo-theme/jquery-ui-1.8.21.custom.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css1/style.css?#{loggeduser.loginTime}" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css1/style.custom.css" />
 
 	<!-- FONTS -->
 	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,400italic,600italic,800' rel='stylesheet' type='text/css' />
@@ -65,7 +65,7 @@
 	<script src="https://www.youtube.com/iframe_api"/>
 	<script	src="#{request.contextPath}/resources/javascript/youtubevideo.js"></script>
 	<!--  -->
-	
+	<h:outputScript library="javascript" name="jquery.qtip.min.js"  />
 	<ui:remove><script	src="#{request.contextPath}/resources/javascript/jquery.qtip.prosolo.js"></script></ui:remove>
 	
 </h:head>
@@ -226,6 +226,11 @@
 	<ui:include	src="/resources/components/dialogs/userDetailsData.xhtml" />
 	<ui:include	src="/resources/components/dialogs/newDirectMessage.xhtml" />
 	
+	<ui:remove>
+		<!-- Needed for the notifications dropdown -->
+	</ui:remove>
+	<ui:include	src="/resources/components/dialogs/goalDetailsDialog.xhtml" />
+	<ui:include	src="/resources/components/dialogs/peopleListDialog.xhtml" />
 </h:body>
 
 </html>
