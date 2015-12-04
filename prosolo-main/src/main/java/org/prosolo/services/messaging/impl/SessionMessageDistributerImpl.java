@@ -63,7 +63,7 @@ public class SessionMessageDistributerImpl implements SessionMessageDistributer{
 		wrapper.setMessage(message);
 		wrapper.setTimecreated(System.currentTimeMillis());
 		String msg = gson.create().toJson(wrapper);
-		if(message.getServiceType().equals(ServiceType.UPDATEUSERSOCIALACTIVITYINBOX)){
+		if(message.getServiceType().equals(ServiceType.UPDATE_USER_SOCIAL_ACTIVITY_INBOX)){
 			logger.debug("Sending session message:"+msg);
 		}
 		

@@ -12,6 +12,7 @@ import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 
@@ -317,8 +318,9 @@ public class TopNotificationsBean {
 			
 			String redirectUrl = String.format("learn/%s", newTargetGoal.getId());
 			
-			FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
-			FacesContext.getCurrentInstance().getExternalContext().redirect(redirectUrl);
+			ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
+			ec.getFlash().setKeepMessages(true);
+			ec.redirect(ec.getRequestContextPath() + "/" + redirectUrl);
 		}  catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e.getMessage());
 		}
@@ -386,6 +388,8 @@ public class TopNotificationsBean {
 			
 			eventFactory.generateEvent(EventType.EVALUATION_ACCEPTED, loggedUser.getUser(), request);
 			
+			ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+			
 			try {
 				PageUtil.fireSuccessfulInfoMessage("notificationsGrowl", 
 						ResourceBundleUtil.getMessage(
@@ -394,12 +398,12 @@ public class TopNotificationsBean {
 								notificationData.getResource().getShortType(),
 								request.getResource().getTitle()));
 				
-				FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
+				externalContext.getFlash().setKeepMessages(true);
 			} catch (KeyNotFoundInBundleException e) {
 				logger.error(e);
 			}
 			
-			FacesContext.getCurrentInstance().getExternalContext().redirect("evaluation.xhtml?id="+evaluationSubmission.getId());
+			externalContext.redirect(externalContext.getRequestContextPath() + "/evaluation.xhtml?id="+evaluationSubmission.getId());
 		} catch (InvalidParameterException e1) {
 			logger.error(e1);
 		} catch (EvaluationNotSupportedException e1) {
@@ -529,6 +533,7 @@ public class TopNotificationsBean {
 		BaseEntity resource = notification.getObject();
 		
 		EventType type = notification.getType();
+		ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
 		
 		if (type.equals(EventType.EVALUATION_GIVEN)) {
 			EvaluationSubmission evaluationSubmition = (EvaluationSubmission) resource;
@@ -549,12 +554,11 @@ public class TopNotificationsBean {
 				TargetCompetence tComp = (TargetCompetence) evaluatedResource;
 				TargetLearningGoal targetGoal = tComp.getParentGoal();
 				
-				
-				FacesContext.getCurrentInstance().getExternalContext().redirect(
-						"learn" +
+				externalContext.redirect(
+						externalContext.getRequestContextPath() + 
+						"/learn" +
 						"/" + targetGoal.getId() +
 						"/" + tComp.getId() +
-						"&faces-redirect=true"+
 						"#ev=" + evaluation.getId()
 						);
 				return;
@@ -572,8 +576,9 @@ public class TopNotificationsBean {
 					if (goalData != null) {
 						goalData.fetchEvaluations();
 						
-						FacesContext.getCurrentInstance().getExternalContext().redirect(
-								"learn.xhtml?" +
+						externalContext.redirect(
+								externalContext.getRequestContextPath() + 
+								"/learn.xhtml?" +
 								"id=" + targetGoal.getId() +
 								"&showCompetences=false" +
 								"&faces-redirect=true"+
@@ -602,31 +607,28 @@ public class TopNotificationsBean {
 			}
 			
 			if (evaluation != null) {
-				FacesContext.getCurrentInstance().getExternalContext().redirect("profile?ev="+evaluation.getId());
+				externalContext.redirect(externalContext.getRequestContextPath() + "/profile?ev="+evaluation.getId());
 				return;
 			}
-//		} else if (type.equals(EventType.EVALUATION_EDITED)) {
-//			Evaluation evaluation = (Evaluation) resource;
-//			
-//			FacesContext.getCurrentInstance().getExternalContext().redirect("profile.xhtml?ev="+evaluation.getId());
 		} else if (type.equals(EventType.JOIN_GOAL_INVITATION_ACCEPTED)) {
 			Request request = (Request) resource;
 			
-			FacesContext.getCurrentInstance().getExternalContext().redirect("learn/"+request.getResource().getId());
+			externalContext.redirect(externalContext.getRequestContextPath() + "/learn/" + request.getResource().getId());
 		} else if (type.equals(EventType.JOIN_GOAL_REQUEST_APPROVED)) {
 			NodeRequest request = (NodeRequest) resource;
 			
-			FacesContext.getCurrentInstance().getExternalContext().redirect("learn/"+request.getResolutionResource().getId());
+			externalContext.redirect(externalContext.getRequestContextPath() + "/learn/" + request.getResolutionResource().getId());
 		} else if (type.equals(EventType.ACTIVITY_REPORT_AVAILABLE)){
-			FacesContext.getCurrentInstance().getExternalContext().redirect("settings/reports");
+			externalContext.redirect(externalContext.getRequestContextPath() + "/settings/reports");
 		} else if (type.equals(EventType.Comment)) {
 			notification = HibernateUtil.initializeAndUnproxy(notification);
 			
 			BaseEntity commentedResource = ((CommentNotification) notification).getComment().getObject();
 			
 			if (commentedResource instanceof SocialActivity) {
-				FacesContext.getCurrentInstance().getExternalContext().redirect(
-						"post" +
+				externalContext.redirect(
+						externalContext.getRequestContextPath() + 
+						"/posts" +
 						"/" + commentedResource.getId() + 
 						"/" + resource.getId());
 			}
@@ -636,8 +638,9 @@ public class TopNotificationsBean {
 			BaseEntity res = ((SActivityNotification) notification).getObject();
 			
 			if (res instanceof SocialActivity) {
-				FacesContext.getCurrentInstance().getExternalContext().redirect(
-						"post" +
+				externalContext.redirect(
+						externalContext.getRequestContextPath() + 
+						"/posts" +
 						"/"+res.getId());
 			}
 		} else if (type.equals(EventType.MENTIONED)) {
@@ -647,8 +650,9 @@ public class TopNotificationsBean {
 			
 			SocialActivity socialActivity = activityWallManager.getSocialActivityOfPost(post);
 			
-			FacesContext.getCurrentInstance().getExternalContext().redirect(
-					"post" +
+			externalContext.redirect(
+					externalContext.getRequestContextPath() + 
+					"/posts" +
 					"/" + socialActivity.getId());
 		}
 	}

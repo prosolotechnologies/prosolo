@@ -183,7 +183,7 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 			parameters.put("userId", String.valueOf(userId));
 			
 			messageDistributer.distributeMessage(
-					ServiceType.UPDATETARGETACTIVITYOUTCOME,
+					ServiceType.UPDATE_TARGET_ACTIVITY_OUTCOME,
 					userId,
 					outcomeId,
 					null,

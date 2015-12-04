@@ -2,61 +2,51 @@ package org.prosolo.services.notifications;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.config.CommonSettings;
-import org.prosolo.common.domainmodel.activities.Recommendation;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activities.requests.Request;
-import org.prosolo.common.domainmodel.activities.requests.RequestStatus;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 import org.prosolo.common.domainmodel.activitywall.comments.Comment;
-import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.content.Post;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.portfolio.CompletedResource;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.notifications.Notification;
-import org.prosolo.common.domainmodel.workflow.evaluation.Evaluation;
 import org.prosolo.common.domainmodel.workflow.evaluation.EvaluationSubmission;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.messaging.data.ServiceType;
 import org.prosolo.core.hibernate.HibernateUtil;
-import org.prosolo.recommendation.dal.SuggestedLearningQueries;
+import org.prosolo.recommendation.LearningGoalRecommendationCacheUpdater;
+import org.prosolo.services.event.CentralEventDispatcher;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.messaging.SessionMessageDistributer;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.web.ApplicationBean;
-import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.home.SuggestedLearningBean;
-import org.prosolo.web.home.data.RecommendationData;
-import org.prosolo.web.home.util.RecommendationConverter;
-import org.prosolo.web.notification.TopNotificationsBean;
-import org.prosolo.web.notification.data.NotificationData;
-import org.prosolo.web.notification.exceptions.NotificationNotSupported;
-import org.prosolo.web.notification.util.NotificationDataConverter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * This class is an observer to the {@link CentralEventDispatcher} that is invoked whenever an event that is related to a notification occurs.  
+ */
 @Service("org.prosolo.services.notifications.NotificationObserver")
 public class NotificationObserver implements EventObserver {
 
 	private static Logger logger = Logger.getLogger(NotificationObserver.class.getName());
 
-	@Autowired private NotificationManager notificationsManager;
-	@Autowired private ApplicationBean applicationBean;
-	@Autowired private DefaultManager defaultManager;
-	@Autowired private SuggestedLearningQueries suggestedLearningQueries;
-	@Autowired private EvaluationUpdater evaluationUpdater;
-	@Autowired private RecommendationConverter recommendationConverter;
-	@Autowired private SessionMessageDistributer messageDistributer;
+	@Inject private NotificationManager notificationsManager;
+	@Inject private ApplicationBean applicationBean;
+	@Inject private DefaultManager defaultManager;
+	@Inject private EvaluationUpdater evaluationUpdater;
+	@Inject private NotificationCacheUpdater notificationCacheUpdater;
+	@Inject private SessionMessageDistributer messageDistributer;
+	@Inject private LearningGoalRecommendationCacheUpdater learningGoalRecommendationCacheUpdater;
 
 	@Override
 	public EventType[] getSupportedEvents() {
@@ -86,61 +76,147 @@ public class NotificationObserver implements EventObserver {
 
 	public void handleEvent(Event event) {
 		Session session = (Session) defaultManager.getPersistence().openSession();
-
-		List<Notification> notifications = new ArrayList<Notification>();
-		EventType action = event.getAction();
 		
 		try {
+			List<Notification> notifications = new ArrayList<Notification>();
+			EventType action = event.getAction();
 			BaseEntity object = event.getObject();
-			
 			User actor = event.getActor();
-			if (object instanceof Request) {
-				long requestId = object.getId();
-				Request request = (Request) session.load(Request.class, requestId);
-				request = HibernateUtil.initializeAndUnproxy(request);
+			
+			
+			if (action.equals(EventType.JOIN_GOAL_REQUEST)) {
+				/*
+				 *  Invoked when someone has requested to join user's learning goal.
+				 *  Goal maker should be notified about this.
+				 */
+				Request request = (Request) session.merge(object);
 	
-				RequestStatus status = request.getStatus();
-				User receiver = null;
-	
-				// this is the response to a request
-				if (status.equals(RequestStatus.ACCEPTED) || status.equals(RequestStatus.DENIED)) {
-					receiver = request.getMaker();
-				} else {
-					receiver = request.getSentTo();
-				}
-				
-				if (event.getAction().equals(EventType.JOIN_GOAL_REQUEST_APPROVED)) {
-					checkRecommendedationsForAcceptedLearningGoal(
-							(TargetLearningGoal) request.getResource(), 
-							receiver, 
-							session);
-				}
-	
-				// message
-				String message = null;
-	
-				if (event.getAction().equals(EventType.JOIN_GOAL_INVITATION)
-						|| event.getAction().equals(EventType.JOIN_GOAL_REQUEST)
-						|| event.getAction().equals(EventType.EVALUATION_GIVEN)
-						|| event.getAction().equals(EventType.EVALUATION_REQUEST)
-//						|| event.getAction().equals(EventType.EVALUATION_EDITED)
-					) {
-					message = request.getComment();
-				}
 				Notification notification = notificationsManager.createNotification(
 						request,
 						actor, 
-						receiver, 
+						request.getSentTo(), 
 						event.getAction(), 
-						message,
+						request.getComment(),
 						event.getDateCreated(), 
 						session);
 				
 				notifications.add(notification);
-			} else if (object instanceof EvaluationSubmission) {
+			} else if (action.equals(EventType.JOIN_GOAL_REQUEST_APPROVED)) {
+				/*
+				 *  Invoked when join goal request has been approved.
+				 *  Requester should be notified about this
+				 */
+				Request request = (Request) session.merge(object);
+	
+				Notification notification = notificationsManager.createNotification(
+						request,
+						actor, 
+						request.getMaker(), 
+						event.getAction(), 
+						null,					// no message is provided
+						event.getDateCreated(), 
+						session);
+				
+				notifications.add(notification);
+				
+				checkRecommendedationsForAcceptedLearningGoal(
+						(TargetLearningGoal) request.getResource(), 
+						request.getMaker(), 
+						session);
+			} else if (action.equals(EventType.JOIN_GOAL_REQUEST_DENIED)) {
+				/*
+				 *  Invoked when join goal request has been denied.
+				 *  Requester should be notified about this
+				 */
+				Request request = (Request) session.merge(object);
+	
+				Notification notification = notificationsManager.createNotification(
+						request,
+						actor, 
+						request.getMaker(), 
+						event.getAction(), 
+						null,					// no message is provided
+						event.getDateCreated(), 
+						session);
+				
+				notifications.add(notification);
+			} else if (action.equals(EventType.JOIN_GOAL_INVITATION)) {
+				/*
+				 * Someone has invited other user to join his learning goal.
+				 * User being invited should be notified.
+				 */
+				Request request = (Request) session.merge(object);
+	
+				Notification notification = notificationsManager.createNotification(
+						request,
+						actor, 
+						request.getSentTo(), 
+						event.getAction(), 
+						request.getComment(),
+						event.getDateCreated(), 
+						session);
+				
+				notifications.add(notification);
+			} else if (action.equals(EventType.JOIN_GOAL_INVITATION_ACCEPTED)) {
+				/*
+				 * Someone has invited other user to join his learning goal and the
+				 * other user has accepted the invitation. User that invited the other 
+				 * user should be notified.
+				 */
+				Request request = (Request) session.merge(object);
+	
+				Notification notification = notificationsManager.createNotification(
+						request,
+						actor, 
+						request.getMaker(), 
+						event.getAction(), 
+						null,					// no message is provided
+						event.getDateCreated(), 
+						session);
+				
+				notifications.add(notification);
+			} else if (action.equals(EventType.EVALUATION_REQUEST)) {
+				/*
+				 * A user has requested from another user to give him/her an assessment (evaluation)
+				 * for a resource. The assessor shoul be notified about this request.
+				 */
+				Request request = (Request) session.merge(object);
+	
+				Notification notification = notificationsManager.createNotification(
+						request,
+						actor, 
+						request.getSentTo(), 
+						event.getAction(), 
+						request.getComment(),
+						event.getDateCreated(), 
+						session);
+				
+				notifications.add(notification);
+			} else if (action.equals(EventType.EVALUATION_ACCEPTED)) {
+				/*
+				 * Following receiving a request for an assessment, the assessor has accepted it.
+				 * The assessment requester should be notified about this.
+				 */
+				Request request = (Request) session.merge(object);
+	
+				Notification notification = notificationsManager.createNotification(
+						request,
+						actor, 
+						request.getMaker(), 
+						event.getAction(), 
+						null,					// no message is provided
+						event.getDateCreated(), 
+						session);
+				
+				notifications.add(notification);
+			} else if (action.equals(EventType.EVALUATION_GIVEN)) {
+				/*
+				 * A new assessment has been submitted. USer being assessed should be 
+				 * notified about this.
+				 */
 				EvaluationSubmission evSubmission = (EvaluationSubmission) object;	
 				User receiver = evSubmission.getRequest().getMaker();
-
+	
 				Notification notification = notificationsManager.createNotification(
 						evSubmission, 
 						evSubmission.getMaker(), 
@@ -152,7 +228,11 @@ public class NotificationObserver implements EventObserver {
 				
 				notifications.add(notification);
 	
-				// if evaluatee is online, update number of evaluations for this resource
+				/*
+				 * If user assessed is online, update the number of assessments for this resource.
+				 * This number of assessments is being updated in session scoped beans used for displaying
+				 * number of evaluations on Learn and Profile pages.
+				 */
 				long receiverId = receiver.getId();
 				
 				if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
@@ -165,49 +245,21 @@ public class NotificationObserver implements EventObserver {
 				} else {
 					HttpSession userSession = applicationBean.getUserSession(receiverId);
 					
-					if (userSession != null) {
+					try {
 						evaluationUpdater.updateEvaluationData(
 							evSubmission.getId(),
 							userSession,
 							session);
-					}
-				}
-			} else if (object instanceof Evaluation) {
-				Evaluation evaluation = (Evaluation) object;
-	
-				BaseEntity resource = evaluation.getResource();
-	
-				long makerId = 0;
-	
-				if (resource instanceof CompletedResource) {
-					makerId = ((CompletedResource) resource).getMaker().getId();
-	
-				} else if (resource instanceof TargetCompetence) {
-					makerId = ((TargetCompetence) resource).getMaker().getId();
-				}
-	
-				if (makerId > 0) {
-					try {
-						User receiver = defaultManager.loadResource(User.class, makerId, session);
-					
-						Notification notification = notificationsManager.createNotification(
-								evaluation, 
-								evaluation.getMaker(), 
-								receiver,
-								event.getAction(), 
-								evaluation.getText(),
-								event.getDateCreated(), 
-								session);
-						
-						notifications.add(notification);
 					} catch (ResourceCouldNotBeLoadedException e) {
 						logger.error(e);
 					}
-				} else
-					logger.error("Resoruce of type " + resource.getClass() + " is not supported for evaluations");
-			} else if (object instanceof User) {
-				if (action.equals(EventType.Follow)) {
-					
+				}
+			} else if (action.equals(EventType.Follow)) {
+				/*
+				 * Someone started following a user. User being followed should 
+				 * be notified about this.
+				 */
+				try {
 					User follower = defaultManager.loadResource(User.class, actor.getId(), session);
 					User userToFollow = defaultManager.loadResource(User.class, event.getObject().getId(), session);
 					
@@ -221,50 +273,15 @@ public class NotificationObserver implements EventObserver {
 							session);
 					
 					notifications.add(notification);
+				} catch (ResourceCouldNotBeLoadedException e) {
+					logger.error(e);
 				}
-			} else if (object instanceof Comment) {
-				Comment comment = (Comment) object;
-				
-				if (action.equals(EventType.Comment) ) {
-					BaseEntity commentedResource = comment.getObject();
-					
-					if (commentedResource instanceof SocialActivity) {
-						User receiver = ((SocialActivity) commentedResource).getMaker();
-						
-						if (actor.getId() != receiver.getId()) {
-
-							// generate notification about the comment
-							Notification notification = notificationsManager.createNotification(
-								comment,
-								actor, 
-								receiver, 
-								event.getAction(), 
-								comment.getText(),
-								event.getDateCreated(), 
-								session);
-							
-							notifications.add(notification);
-						}
-					} else if (commentedResource instanceof TargetActivity) {
-						User receiver = ((TargetActivity) commentedResource).getMaker();
-						
-						if (actor.getId() != receiver.getId()) {
-							
-							// generate notification about the comment
-							Notification notification = notificationsManager.createNotification(
-								comment,
-								actor, 
-								receiver, 
-								event.getAction(), 
-								comment.getText(),
-								event.getDateCreated(), 
-								session);
-							
-							notifications.add(notification);
-						}
-					}
-				}
-			} else if (event.checkAction(EventType.ACTIVITY_REPORT_AVAILABLE)) {
+			} else if (action.equals(EventType.ACTIVITY_REPORT_AVAILABLE)) {
+				/*
+				 * Weekly activity report has been generated and is available for download
+				 * from the Settings -> Reports page. User for whom the report has been
+				 * created shuold be notified about this.
+				 */
 				Notification notification = notificationsManager.createNotification(
 						null, 
 						null, 
@@ -275,32 +292,56 @@ public class NotificationObserver implements EventObserver {
 						session);
 				
 				notifications.add(notification);
-			} else if (event.checkAction(EventType.Like) || 
-					event.checkAction(EventType.Dislike)) {
+			} else if (action.equals(EventType.Comment)) {
+				/*
+				 * A new comment was posted. We need to determine whether it was generated
+				 * on the Status Wall (commented on a SocialActivity instance). Or the comment
+				 * was created on the Activity Wall (commented on a TargetActivity instance)
+				 */
+				Comment comment = (Comment) session.merge(object);
+				BaseEntity commentedResource = comment.getObject();
+				User receiver = null;
+				
+				if (commentedResource instanceof SocialActivity) {
+					receiver = ((SocialActivity) comment.getObject()).getMaker();
+					
+				} else if (commentedResource instanceof TargetActivity) {
+					receiver = ((TargetActivity) comment.getObject()).getMaker();
+				}
+				
+				if (receiver != null) {
+					if (actor.getId() != receiver.getId()) {
+						Notification notification = notificationsManager.createNotification(
+								comment,
+								actor, 
+								receiver, 
+								event.getAction(), 
+								comment.getText(),
+								event.getDateCreated(), 
+								session);
+						
+						notifications.add(notification);
+					}
+				} else {
+					logger.error("Commenting on the resource of a type: " + comment.getObject().getClass() + " is not captured.");
+				}
+			} else if (action.equals(EventType.Like) || action.equals(EventType.Dislike)) {
+				/*
+				 * Someone liked or disliked a resource. We need to determine whether it was generated
+				 * on the Status Wall (liked/disliked a SocialActivity instance). Or the comment
+				 * was created on the Activity Wall (liked/disliked a TargetActivity instance)
+				 */
+				User receiver = null;
 				
 				if (object instanceof SocialActivity) {
-					User receiver = ((SocialActivity) object).getMaker();
+					receiver = ((SocialActivity) object).getMaker();
 					
-					if (actor.getId() != receiver.getId()) {
-	
-						// generate notification about the comment
-						Notification notification = notificationsManager.createNotification(
-							object,
-							actor, 
-							receiver, 
-							event.getAction(), 
-							null,
-							event.getDateCreated(), 
-							session);
-						
-						notifications.add(notification);
-					}
 				} else if (object instanceof TargetActivity) {
-					User receiver = ((TargetActivity) object).getMaker();
-					
+					receiver = ((TargetActivity) object).getMaker();
+				}
+				
+				if (receiver != null) {
 					if (actor.getId() != receiver.getId()) {
-						
-						// generate notification about the comment
 						Notification notification = notificationsManager.createNotification(
 							object,
 							actor, 
@@ -312,15 +353,18 @@ public class NotificationObserver implements EventObserver {
 						
 						notifications.add(notification);
 					}
+				} else {
+					logger.error("Commenting on the resource of a type: " + object.getClass() + " is not captured.");
 				}
-	 
-			} else if (event.checkAction(EventType.Post)) {
+			} else if (action.equals(EventType.Post)) {
+				/*
+				 * A new post has been created. If some users are mentioned in it,
+				 * they should be notified.
+				 */
 				Post post = (Post) object;
 				
 				if (post.getMentionedUsers() != null) {
 					for (User user : post.getMentionedUsers()) {
-						
-						// generate notification about the comment
 						Notification notification = notificationsManager.createNotification(
 							post,
 							actor, 
@@ -333,48 +377,40 @@ public class NotificationObserver implements EventObserver {
 						notifications.add(notification);
 					}
 				}
-			}
+			} 
+			
+			
+			// make sure all data is persisted to the database
 			session.flush();
 			
 			
+			/*
+			 * After all notifications have been generated, them to their
+			 * receivers. If those users are logged in, their notification cache
+			 * will be updated with these new notifications.
+			 */
 			if (!notifications.isEmpty()) {
 				
 				for (Notification notification : notifications) {
 					if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 						messageDistributer.distributeMessage(
-								ServiceType.ADDNOTIFICATION, 
+								ServiceType.ADD_NOTIFICATION, 
 								notification.getReceiver().getId(),
 								notification.getId(), 
 								null, 
 								null);
 					} else {
 						HttpSession httpSession = applicationBean.getUserSession(notification.getReceiver().getId());
-					
-						if (httpSession != null) {
-							TopNotificationsBean topNotificationsBean = (TopNotificationsBean) httpSession.getAttribute("topNotificationsBean");
-							LoggedUserBean loggedUserBean = (LoggedUserBean) httpSession.getAttribute("loggeduser");
-			
-							if (topNotificationsBean != null) {
-								try {
-									notification = HibernateUtil.initializeAndUnproxy(notification);
-									
-									NotificationData notificationData = NotificationDataConverter.convertNotification(
-											loggedUserBean.getUser(), 
-											notification, 
-											session, 
-											loggedUserBean.getLocale());
-									topNotificationsBean.addNotification(notificationData, session);
-								} catch (NotificationNotSupported e) {
-									logger.error(e);
-								}
-							}
-						}
+						
+						notificationCacheUpdater.updateNotificationData(
+								notification.getId(), 
+								httpSession, 
+								session);
 					}
 				}
 			}
-			
-		} catch (Exception e) {
-			logger.error("Exception in handling message", e);
+		} catch (ResourceCouldNotBeLoadedException e) {
+			logger.error(e);
 		} finally {
 			HibernateUtil.close(session);
 		}
@@ -383,33 +419,19 @@ public class NotificationObserver implements EventObserver {
 	public void checkRecommendedationsForAcceptedLearningGoal(TargetLearningGoal targetGoal, User receiver, Session session) {
 		if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 			messageDistributer.distributeMessage(
-					ServiceType.CHECKRECOMMENDATIONSFORACCEPTEDLEARNINGGOAL,
+					ServiceType.JOINED_LEARNING_GOAL,
 					receiver.getId(), 
 					targetGoal.getLearningGoal().getId(), 
 					null, 
 					null);
 		} else {
-			List<Recommendation> recommendations = suggestedLearningQueries.findSuggestedLearningResourcesForResource(receiver, targetGoal);
-			ListIterator<Recommendation> recommendationIter = recommendations.listIterator();
 			HttpSession userSession = applicationBean.getUserSession(receiver.getId());
-			
-			if (userSession != null) {
-				
-				SuggestedLearningBean userSuggestedLearningBean = (SuggestedLearningBean) userSession.getAttribute("suggestedLearningBean");
-				
-				while (recommendationIter.hasNext()) {
-					Recommendation recommendation = recommendationIter.next();
-					recommendation.setDismissed(true);
-					session.saveOrUpdate(recommendation);
-					
-					if (userSuggestedLearningBean != null) {
-						RecommendationData rData = recommendationConverter.convertRecommendationToRecommendedData(
-								recommendation,
-								session);
-						userSuggestedLearningBean.removeSuggestedResource(rData);
-					}
-				}
-			} 
+
+			learningGoalRecommendationCacheUpdater.removeLearningGoalRecommendation(
+					receiver.getId(), 
+					targetGoal.getLearningGoal().getId(), 
+					userSession, 
+					session);
 		}
 	}
 

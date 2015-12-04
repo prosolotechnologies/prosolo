@@ -811,10 +811,10 @@
 
 					<!-- Configure the webapp -->
 					<!-- webApp>target/${project.artifactId}*.war</webApp -->
-					<webAppConfig>
-						<contextPath>/prosolo</contextPath>
+					<webApp>
+						<contextPath>/</contextPath>
 						<configurationDiscovered>false</configurationDiscovered>
-					</webAppConfig>
+					</webApp>
 					<!-- Enable for JRebel -->
 					<reload>manual</reload>
 					<connectors>

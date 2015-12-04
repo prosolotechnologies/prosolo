@@ -33,11 +33,18 @@ public interface SuggestedLearningQueries {
 
 	List<Node> findDismissedRecommendedResources(User user);
 
-	List<Recommendation> findSuggestedLearningResourcesForResource(User user,
-			Node resource);
+	/**
+	 * Retrieves a collection of recommendations for a given resource.
+	 * 
+	 * @param userId
+	 * @param resourceId - Id of a resource (subclass of {@see Node} class)
+	 * @return
+	 *
+	 * @version 0.5
+	 */
+	List<Recommendation> findSuggestedLearningResourcesForResource(long userId,
+			long resourceId);
 
 	List<Activity> findAllAppendedActivitiesForCompetence(Competence competence, List<Activity> ignoredActivities);
-
- 
 
 }

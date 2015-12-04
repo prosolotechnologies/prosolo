@@ -30,41 +30,46 @@ public class SuggestedLearningQueriesImpl extends AbstractManagerImpl implements
 	private static Logger logger = Logger.getLogger(SuggestedLearningQueries.class);
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	public List<Recommendation> findSuggestedLearningResourcesByCollegues(User user, RecommendationType recType, int page, int limit) {
 		String query=
 			"SELECT DISTINCT recommendation " +
 			"FROM Recommendation recommendation "+
 			"JOIN FETCH recommendation.recommendedTo recommendedTo "+
-				" WHERE recommendedTo.id = :user " +
-				" AND recommendation.recommendationType = :rType "+
-				" AND recommendation.dismissed != :dismissed";
-			List<Recommendation> recommendations= (List<Recommendation>) persistence.currentManager().createQuery(query)
+			"WHERE recommendedTo.id = :user " +
+				"AND recommendation.recommendationType = :rType "+
+				"AND recommendation.dismissed != :dismissed";
+		
+		@SuppressWarnings("unchecked")
+		List<Recommendation> recommendations= (List<Recommendation>) persistence.currentManager().createQuery(query)
 			.setLong("user", user.getId())
 			.setString("rType", recType.toString())
 			.setBoolean("dismissed", true)
 			.setFirstResult(page * limit)
 			.setMaxResults(limit)
 			.list();
-			return recommendations;
+		
+		return recommendations;
 	}
+	
 	@Override
-	public List<Recommendation> findSuggestedLearningResourcesForResource(User user, Node resource){
+	public List<Recommendation> findSuggestedLearningResourcesForResource(long userId, long resourceId){
 		String query=
-				"SELECT DISTINCT recommendation " +
-				"FROM Recommendation recommendation "+
-				//"JOIN FETCH recommendation.recommendedTo recommendedTo "+
-					" WHERE recommendation.recommendedTo = :user " +
-					" AND recommendation.recommendedResource = :resource "+
-					" AND recommendation.dismissed != :dismissed";
-				@SuppressWarnings("unchecked")
-				List<Recommendation> recommendations= (List<Recommendation>) persistence.currentManager().createQuery(query)
-				.setEntity("user", user)
-				.setEntity("resource", resource)
-				.setBoolean("dismissed", true)
-				.list();
-				return recommendations;
+			"SELECT DISTINCT recommendation " +
+			"FROM Recommendation recommendation "+
+			"WHERE recommendation.recommendedTo.id = :userId " +
+				"AND recommendation.recommendedResource.id = :resourceId "+
+				"AND recommendation.dismissed != :dismissed";
+				
+		@SuppressWarnings("unchecked")
+		List<Recommendation> recommendations = (List<Recommendation>) persistence.currentManager().createQuery(query)
+			.setLong("userId", userId)
+			.setLong("resourceId", resourceId)
+			.setBoolean("dismissed", true)
+			.list();
+				
+		return recommendations;
 	}
+	
 	@Override
 	public int findNumberOfSuggestedLearningResourcesByCollegues(User user, RecommendationType recType) {
 		String query=
@@ -74,11 +79,13 @@ public class SuggestedLearningQueriesImpl extends AbstractManagerImpl implements
 			"WHERE recommendedTo = :user " +
 				"AND recommendation.recommendationType = :rType "+
 				"AND recommendation.dismissed != :dismissed";
+		
 		int number= (Integer) persistence.currentManager().createQuery(query)
 				.setString("rType", recType.toString())
 				.setBoolean("dismissed", true)
 				.setEntity("user", user)
 				.uniqueResult();
+		
 		return number;
 	}
 	
@@ -111,18 +118,21 @@ public class SuggestedLearningQueriesImpl extends AbstractManagerImpl implements
 		List<TargetCompetence> tCompetences = persistence.currentManager().createQuery(query)
 			.setEntity("competence", competence)
 			.list();
-		List<LearningPlan> lPlans=new ArrayList<LearningPlan>();		
+		
+		List<LearningPlan> lPlans=new ArrayList<LearningPlan>();
+		
 		for (TargetCompetence tComp : tCompetences) {
 			List<TargetActivity> tActivities = tComp.getTargetActivities();
 			List<Activity> activities = new ArrayList<Activity>();
 			
 			for (TargetActivity ta : tActivities) {
 				activities.add(ta.getActivity());
-			}			
+			}
+			
 			LearningPlan lPlan = new LearningPlan();
 			lPlan.setActivities(activities);
 			lPlans.add(lPlan);
-		}		
+		}
 		return lPlans; 
 	}
 	
@@ -134,28 +144,26 @@ public class SuggestedLearningQueriesImpl extends AbstractManagerImpl implements
 			"LEFT JOIN tCompetence.competence competence " +	
 			"LEFT JOIN tCompetence.targetActivities tActivity "+
 			"LEFT JOIN tActivity.activity activity "+
-			"WHERE competence = :competence AND activity NOT IN (:ignoredActivities)";
+			"WHERE competence = :competence " + 
+				"AND activity NOT IN (:ignoredActivities)";
 		 
 		@SuppressWarnings("unchecked")
 		List<Activity> appendedActivities = persistence.currentManager().createQuery(query)
 			.setEntity("competence", competence)
 			.setParameterList("ignoredActivities",ignoredActivities)
 			.list();
-		 	
-		
 	 	
 		return appendedActivities;
 	}
-
 	
 	@Override
 	public List<TargetActivity> loadAllActivitiesForLearningPlanByMaker(User user, LearningPlan plan){
 		String query =
-				"SELECT DISTINCT activity " +
-				"FROM LearningPlan lPlan " +
-				"LEFT JOIN lPlan.targetActivities activity " +	
-				"WHERE lPlan = :plan " +
-					"AND activity.maker = :user";
+			"SELECT DISTINCT activity " +
+			"FROM LearningPlan lPlan " +
+			"LEFT JOIN lPlan.targetActivities activity " +	
+			"WHERE lPlan = :plan " +
+				"AND activity.maker = :user";
 		
 		@SuppressWarnings("unchecked")
 		List<TargetActivity> activities = persistence.currentManager().createQuery(query)
@@ -192,12 +200,13 @@ public class SuggestedLearningQueriesImpl extends AbstractManagerImpl implements
 				"AND activity.maker = :maker";
 		
 		Integer actNumber = (Integer) persistence.currentManager().createQuery(query)
-				.setEntity("plan", plan)
-				.setEntity("maker", user)
-				.uniqueResult();
+			.setEntity("plan", plan)
+			.setEntity("maker", user)
+			.uniqueResult();
 		
 		return actNumber > 0;
 	}
+	
 	@Override
 	public List<Node> findDismissedRecommendedResources(User user) {
 		String query=
@@ -205,8 +214,8 @@ public class SuggestedLearningQueriesImpl extends AbstractManagerImpl implements
 			"FROM Recommendation recommendation "+
 			"JOIN recommendation.recommendedTo recommendedTo "+
 			"JOIN recommendation.recommendedResource resource "+
-				" WHERE recommendedTo = :user " +
-				" AND recommendation.dismissed = :dismissed";
+			"WHERE recommendedTo = :user " +
+				"AND recommendation.dismissed = :dismissed";
 		
 		@SuppressWarnings("unchecked")
 		List<Node> resources = (List<Node>) persistence.currentManager().createQuery(query)

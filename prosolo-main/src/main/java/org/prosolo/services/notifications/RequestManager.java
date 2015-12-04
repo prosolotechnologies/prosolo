@@ -27,4 +27,6 @@ public interface RequestManager {
 	List<User> getUsersWithUnansweredInvitationForGoal(long targetGoalId);
 	
 	Request getLatestEvaluationRequestSentToUser(BaseEntity resource, long userId);
+	
+	User getRequestMaker(long requestId);
 }

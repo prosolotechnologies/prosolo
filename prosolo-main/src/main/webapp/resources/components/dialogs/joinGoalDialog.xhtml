@@ -135,35 +135,34 @@
 			
 			<input type="text" class="id" style="display: none;" value="#{joinGoalDialog.targetGoalToJoinData.id}" />
 	        <input type="text" class="context" style="display: none;" value="#{joinGoalDialog.context}" />
+	        
+			<script>
+				$('#joinGoalFormModalDialog').dialog({
+					autoOpen: false,
+					show : 'slide',
+					width: 630,
+					modal: true,
+					resizable: false,
+					open: function() {
+						$(this).children(':first')
+							.css('text-align', 'center')
+							.css('padding-top', '50px')
+							.html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
+					},
+					close: function() {
+						var submitted = $(this).dialog('option', 'submit');
+						
+						if (!submitted) {
+							var id = $('#joinGoalFormModalDialog .id').val();
+							var context = $('#joinGoalFormModalDialog .context').val();
+							sendServiceUse('MOUSE_CLICK', {context: context+'.joinGoalDialog', link: 'cancel', 'targetGoalId' : id});
+						}
+						
+						$(this).dialog('option', 'submit', false);
+					}
+				});
+				$('#joinGoalFormModalDialog').show();
+			</script>
 		</h:form>
 	</div>
-	<script>
-	$(function() {
-		$('#joinGoalFormModalDialog').dialog({
-			autoOpen: false,
-			show : 'slide',
-			width: 630,
-			modal: true,
-			resizable: false,
-			open: function() {
-				$(this).children(':first')
-					.css('text-align', 'center')
-					.css('padding-top', '50px')
-					.html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
-			},
-			close: function() {
-				var submitted = $(this).dialog('option', 'submit');
-				
-				if (!submitted) {
-					var id = $('#joinGoalFormModalDialog .id').val();
-					var context = $('#joinGoalFormModalDialog .context').val();
-					sendServiceUse('MOUSE_CLICK', {context: context+'.joinGoalDialog', link: 'cancel', 'targetGoalId' : id});
-				}
-				
-				$(this).dialog('option', 'submit', false);
-			}
-		});
-		$('#joinGoalFormModalDialog').show();
-	});
-	</script>
 </ui:composition>

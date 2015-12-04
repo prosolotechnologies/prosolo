@@ -465,7 +465,7 @@ public class InterfaceCacheObserver implements EventObserver {
 			    		
 						if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 							messageDistributer.distributeMessage(
-									ServiceType.ACCEPTJOINGOALNOTIFICATION,
+									ServiceType.ACCEPT_JOIN_GOAL_NOTIFICATION,
 									user.getId(), 
 									goalId, 
 									null, 
