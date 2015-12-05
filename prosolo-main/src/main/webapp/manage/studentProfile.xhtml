@@ -512,7 +512,7 @@
 
 									<div class="progress">
 										<div class="progression bgGreen"
-											style="height: #{goal.progress}"></div>
+											style="height: #{goal.progress}%"></div>
 										<div class="progressMask"></div>
 										<div class="percentage">#{goal.progress}%</div>
 									</div>
@@ -555,7 +555,7 @@
 
 									<div class="progress">
 										<div class="progression bgBlue"
-											style="height: #{comp.progress}"></div>
+											style="height: #{comp.progress}%"></div>
 										<div class="progressMask"></div>
 										<div class="percentage">#{comp.progress}%</div>
 									</div>
@@ -781,18 +781,91 @@
 
 					<div role="tabpanel" class="tab-pane fade" id="timeline">222</div>
 					<div role="tabpanel" class="tab-pane fade" id="social">
-						<script data-base-url="#{request.contextPath}/resources/javascript" src="#{request.contextPath}/resources/javascript/prosolo.require-config.js"></script>
-						<script data-main="social-interaction/social-interaction-main" src="#{request.contextPath}/resources/javascript/require.min.js"></script>
-						
-						<div id="social-interaction" data-api="#{socialInteractionBean.apiHost}" class="container manage">
-							<div class="content wide">
-								<div id="graph"></div>
+						<script
+							data-base-url="#{request.contextPath}/resources/javascript"
+							src="#{request.contextPath}/resources/javascript/prosolo.require-config.js"></script>
+						<script data-main="social-interaction/social-interaction-main"
+							src="#{request.contextPath}/resources/javascript/require.min.js"></script>
+
+						<h2>Social</h2>
+						<div class="row filter">
+							<div class="col-md-3">
+								<div class="panel panel-inner">
+									<div class="panel-body">
+										<div class="form-group">
+											<label>Type of user interaction</label> <select
+												class="form-control selectpicker">
+												<option>Communication</option>
+											</select>
+										</div>
+										<h4>Most interaction with</h4>
+										<div class="row mostInteraction">
+											<div class="col-md-6">
+												<h3 class="title">In last week</h3>
+												<!-- <div class="userInfo">
+													<span class="userProfileImage">
+														<img title="Phill Amstrong" alt="Phill Amstrong" src="images/user3120x120.png" />
+													</span>
+													<a href="#">Phill Amstrong</a>
+												</div> -->
+ 												<!-- ... -->
+											</div>
+											<div class="col-md-6">
+												<h3 class="title">Overall</h3>
+												<!-- <div class="userInfo">
+													<span class="userProfileImage">
+														<img title="Anthony Moore" alt="Anthony Moore" src="images/user5120x120.png" />
+													</span>
+													<a href="#">Anthony Moore</a>
+												</div> -->
+												<!-- ... -->
+											</div>
+										</div>
+										<h4>Highlight members of</h4>
+										<div class="row toggleButtons">
+											<div class="col-md-6">
+												<h3 class="title">Credential</h3>
+												<button type="button" class="btn btn-credential" 
+													data-toggle="button" aria-pressed="false"
+													autocomplete="off">Basics of Social Network
+													Analysis</button>
+												<button type="button" class="btn btn-credential"
+													data-toggle="button" aria-pressed="false"
+													autocomplete="off">Introduction to Learning
+													Analytics</button>
+											</div>
+											<div class="col-md-6">
+												<h3 class="title">Competence</h3>
+												<button type="button" class="btn btn-competence"
+													data-toggle="button" aria-pressed="false"
+													autocomplete="off">Define Social Network analysis
+													and it's main analysis methods</button>
+												<button type="button" class="btn btn-competence"
+													data-toggle="button" aria-pressed="false"
+													autocomplete="off">Perform social network analysis
+													and visualize analysis results in Gebhi</button>
+												<button type="button" class="btn btn-competence"
+													data-toggle="button" aria-pressed="false"
+													autocomplete="off">Define Social Network analysis
+													and it's main analysis methods</button>
+											</div>
+										</div>
+									</div>
+								</div>
 							</div>
-						</div>					
+							<div class="col-md-9">
+								<div id="social-interaction"
+									data-api="#{socialInteractionBean.apiHost}"
+									class="container manage">
+									<div class="content wide">
+										<div id="graph"></div>
+									</div>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
-
 		</section>
 
 		<h:outputScript library="javascript" name="prosolo.tags.js"
