@@ -1,4 +1,11 @@
 define(['jquery', 'd3'], function($, d3) {
+
+    var clusters = [
+        { name: "one", cond: function(id) { return id % 4 == 0; }},
+        { name: "two", cond: function(id) { return id % 3 == 0; }},
+        { name: "three", cond: function(id) { return id % 2 == 0; }},
+        { name: "four", cond: function(id) { return true; }}
+    ];
     
     function getSocialInteractions(config){
         $.ajax({
@@ -12,11 +19,11 @@ define(['jquery', 'd3'], function($, d3) {
     }
     
     function dofocus(user, config) {
-        var cluster = "A";
-        if (user == config.studentId) {
-            return "focus " + cluster; 
-        }
-        return cluster;
+        var found = clusters.filter(function(cluster) {
+            return cluster.cond(user);
+        });
+        var focus = user == config.studentId ? "focus " : "";
+        return focus + found[0].name;
     }
     
     function run(config, links) {
@@ -28,21 +35,21 @@ define(['jquery', 'd3'], function($, d3) {
         }, {});
 
         function relations(links) {
-	    var types = [
-		{ lower: 0, upper: 33, type: "twofive" },
-		{ lower: 33, upper: 66, type: "fivezero" },
-		{ lower: 66, upper: 85, type: "sevenfive" },
-		{ lower: 85, upper: 100, type: "onezerozero" }
-	    ];
-	    
+            var types = [
+                { lower: 0, upper: 33, type: "twofive" },
+                { lower: 33, upper: 66, type: "fivezero" },
+                { lower: 66, upper: 85, type: "sevenfive" },
+                { lower: 85, upper: 100, type: "onezerozero" }
+            ];
+            
             function type(value) {
-		var found = types.filter(function(type) {
-		    return value > type.lower && value <= type.upper;
-		});
-		if (found.length == 0) {
-		    return "";
-		}
-		return found[0].type;
+                var found = types.filter(function(type) {
+                    return value > type.lower && value <= type.upper;
+                });
+                if (found.length == 0) {
+                    return "";
+                }
+                return found[0].type;
             }
 
             var v = d3.scale.linear().range([0, 100]);
@@ -69,18 +76,18 @@ define(['jquery', 'd3'], function($, d3) {
             d.x = d.y = width / n * i;
         });
         var force = d3.layout.force()
-                .nodes(d3nodes)
-                .links(relations(links))
-                .size([width, height])
-                .linkDistance(config.distance)
-                .charge(config.charge)
-                .on("tick", tick)
-                .start();
+            .nodes(d3nodes)
+            .links(relations(links))
+            .size([width, height])
+            .linkDistance(config.distance)
+            .charge(config.charge)
+            .on("tick", tick)
+            .start();
         
         var svg = d3.select(config.selector).append("svg")
-                .attr("width", width)
-                .attr("height", height)
-                .call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom));
+            .attr("width", width)
+            .attr("height", height)
+            .call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom));
         
         // build the arrow.
         svg.append("svg:defs").selectAll("marker")
@@ -99,17 +106,17 @@ define(['jquery', 'd3'], function($, d3) {
         
         // add the links and the arrows
         var path = svg.append("svg:g").selectAll("path")
-                .data(force.links())
-                .enter().append("svg:path")
-                .attr("class", function(d) {
-                    return "link " + d.type;
-                }).attr("marker-end", "url(#end)");
+            .data(force.links())
+            .enter().append("svg:path")
+            .attr("class", function(d) {
+                return "link " + d.type;
+            }).attr("marker-end", "url(#end)");
 
         // define the nodes
         var node = svg.selectAll(".node")
-                .data(force.nodes())
-                .enter().append("g")
-                .attr("class", "node");
+            .data(force.nodes())
+            .enter().append("g")
+            .attr("class", "node");
 
         node.append("circle").attr("r", 10).attr("class", function(d) {
             return dofocus(d.name, config);
