@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	 <parent>
+	<parent>
 		<groupId>org.prosolo</groupId>
 		<artifactId>prosolo-multimodule</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
@@ -20,13 +20,13 @@
 		<primefaces.version>5.0</primefaces.version>
 		<org.richfaces.bom.version>4.0.0.Final</org.richfaces.bom.version>
 		<jetty.version>8.1.16.v20140903</jetty.version>
-		
+
 		<jersey.version>1.17.1</jersey.version>
 		<resteasy.version>3.0.9.Final</resteasy.version>
 		<spring.version>4.1.4.RELEASE</spring.version>
 		<spring.security.version>3.2.5.RELEASE</spring.security.version>
 		<aspectj.version>1.7.2</aspectj.version>
-		 
+
 		<hibernate-search.version>4.2.0.Final</hibernate-search.version>
 		<jsoup.version>1.7.2</jsoup.version>
 		<junit.version>4.10</junit.version>
@@ -36,8 +36,8 @@
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<maven.build.timestamp.format>yyyy-MM-dd-HH-mm</maven.build.timestamp.format>
 	</properties>
-	
-	
+
+
 	<dependencies>
 		<dependency>
 			<groupId>org.prosolo</groupId>
@@ -145,15 +145,15 @@
 
 		<!-- for JSF 2.x -->
 		<dependency>
-		    <groupId>org.ocpsoft.rewrite</groupId>
-		    <artifactId>rewrite-servlet</artifactId>
-		    <version>2.0.12.Final</version>
+			<groupId>org.ocpsoft.rewrite</groupId>
+			<artifactId>rewrite-servlet</artifactId>
+			<version>2.0.12.Final</version>
 		</dependency>
-		
+
 		<dependency>
-		    <groupId>org.ocpsoft.rewrite</groupId>
-		    <artifactId>rewrite-integration-faces</artifactId>
-		    <version>2.0.12.Final</version>
+			<groupId>org.ocpsoft.rewrite</groupId>
+			<artifactId>rewrite-integration-faces</artifactId>
+			<version>2.0.12.Final</version>
 		</dependency>
 
 		<!-- MySQL Database dependencies -->
@@ -214,16 +214,13 @@
 		<!-- dependency> <groupId>dom4j</groupId> <artifactId>dom4j</artifactId> 
 			<version>1.6.1</version> </dependency -->
 
-	
 
 
 
 
-<!-- 		<dependency>
-	<groupId>javax.persistence</groupId>
-	<artifactId>persistence-api</artifactId>
-	<version>1.0.2</version>
-</dependency> -->
+
+		<!-- <dependency> <groupId>javax.persistence</groupId> <artifactId>persistence-api</artifactId> 
+			<version>1.0.2</version> </dependency> -->
 		<!-- <dependency> <groupId>org.hibernate.javax.persistence</groupId> <artifactId>hibernate-jpa-2.1-api</artifactId> 
 			<version>1.0.0.Final</version> </dependency> -->
 
@@ -475,8 +472,8 @@
 			<version>${jsoup.version}</version>
 		</dependency>
 
-	
-	
+
+
 		<!-- Guava dependencies -->
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -602,9 +599,20 @@
 		</dependency>
 		<!-- Used for hashing database ids in urls -->
 		<dependency>
-  			<groupId>org.hashids</groupId>
-  			<artifactId>hashids</artifactId>
-  			<version>1.0.1</version>
+			<groupId>org.hashids</groupId>
+			<artifactId>hashids</artifactId>
+			<version>1.0.1</version>
+		</dependency>
+		<!-- Used for google signin -->
+	    <dependency>
+			<groupId>com.google.apis</groupId>
+			<artifactId>google-api-services-oauth2</artifactId>
+			<version>v2-rev98-1.20.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.api-client</groupId>
+			<artifactId>google-api-client</artifactId>
+			<version>1.20.0</version>
 		</dependency>
 	</dependencies>
 
@@ -649,8 +657,8 @@
 		</repository>
 		<!-- To use snapshots, you must also use the Sonatype Snapshots respository -->
 		<repository>
-		   <id>sonatype-snapshots</id>
-		   <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+			<id>sonatype-snapshots</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
 		</repository>
 		<repository>
 			<id>jboss-public-repository-group</id>
@@ -769,7 +777,7 @@
 					<version>1.0.0</version>
 					<configuration>
 						<lifecycleMappingMetadata>
-						<argLine>-Xms512m -Xmx4092m</argLine>
+							<argLine>-Xms512m -Xmx4092m</argLine>
 							<pluginExecutions>
 								<pluginExecution>
 									<pluginExecutionFilter>
@@ -886,47 +894,18 @@
 			</plugin>
 
 			<!-- JRebel support -->
-			<!-- plugin>
-				<groupId>org.zeroturnaround</groupId>
-				<artifactId>jrebel-maven-plugin</artifactId>
-				<version>1.1.5</version>
-				<executions>
-					<execution>
-						<id>generate-rebel-xml</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin-->
+			<!-- plugin> <groupId>org.zeroturnaround</groupId> <artifactId>jrebel-maven-plugin</artifactId> 
+				<version>1.1.5</version> <executions> <execution> <id>generate-rebel-xml</id> 
+				<phase>process-resources</phase> <goals> <goal>generate</goal> </goals> </execution> 
+				</executions> </plugin -->
 
-			<!-- Enable when Wro4J is set up  
-			<plugin>
-				<groupId>ro.isdc.wro4j</groupId>
-				<artifactId>wro4j-maven-plugin</artifactId>
-				<version>${wro4j.version}</version>
-				<executions>
-					<execution>
-						<phase>compile</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-					</execution>
-					<execution>
-						<goals>
-							<goal>csslint</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<targetGroups>all</targetGroups>
-					<destinationFolder>${basedir}/src/main/webapp/wro/</destinationFolder>
-					<contextFolder>${basedir}/src/main/webapp/</contextFolder>
-					<options>box-model</options>
-				</configuration>
-			</plugin>
-			-->
+			<!-- Enable when Wro4J is set up <plugin> <groupId>ro.isdc.wro4j</groupId> 
+				<artifactId>wro4j-maven-plugin</artifactId> <version>${wro4j.version}</version> 
+				<executions> <execution> <phase>compile</phase> <goals> <goal>run</goal> 
+				</goals> </execution> <execution> <goals> <goal>csslint</goal> </goals> </execution> 
+				</executions> <configuration> <targetGroups>all</targetGroups> <destinationFolder>${basedir}/src/main/webapp/wro/</destinationFolder> 
+				<contextFolder>${basedir}/src/main/webapp/</contextFolder> <options>box-model</options> 
+				</configuration> </plugin> -->
 		</plugins>
 		<extensions>
 			<extension>
