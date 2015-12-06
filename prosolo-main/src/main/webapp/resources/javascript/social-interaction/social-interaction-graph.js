@@ -61,8 +61,8 @@ define(function(require) {
 		return array.filter(function(e) { return e == value }).length > 0;
 	}
 	
-	function dofocus(user) {
-		if (user == "1") {
+	function dofocus(user, id) {
+		if (user == id) {
 			return "focus " + cluster(user); 
 		}
 		return cluster(user);
@@ -180,7 +180,7 @@ define(function(require) {
 	        .attr("class", "node");
 
 	    node.append("circle").attr("r", 10).attr("class", function(d) {
-	    	return dofocus(d.name);
+	    	return dofocus(d.name, config.studentId);
 	    })
 	    
 	    node.append("image")
