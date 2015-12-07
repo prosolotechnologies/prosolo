@@ -1,7 +1,19 @@
 package org.prosolo.bigdata.scala.statistics
 
-import scala.collection.mutable.{ Buffer, ListBuffer, ArrayBuffer, Map, HashMap }
+import org.prosolo.bigdata.clustering.QuartileName
 
+import scala.collection.mutable.{ Buffer, ListBuffer, ArrayBuffer, Map, HashMap }
+object FeatureQuartiles{
+  def matchQuartileValueToQuartileName(value:Double):String={
+    if(value==1){
+      QuartileName.L.name()
+    }else if(value==2){
+      QuartileName.M.name()
+    }else{
+      QuartileName.H.name()
+    }
+  }
+}
 class FeatureQuartiles {
   val quartiles=new Array[Double](3)
   val set:ArrayBuffer[Double]=ArrayBuffer[Double]()
@@ -25,6 +37,21 @@ class FeatureQuartiles {
      (quartiles,3)
     }else{
       (quartiles,2)
+    }
+  }
+  def getQuartileForFeatureValue(featureValue:Double):Double={
+    val value= if(featureValue<1){
+      Math.round(featureValue)
+    }else{
+      featureValue
+    }
+
+    if(value<=quartiles(0)){
+      1
+    }else if(value>=quartiles(2)){
+      3
+    }else{
+      2
     }
   }
   

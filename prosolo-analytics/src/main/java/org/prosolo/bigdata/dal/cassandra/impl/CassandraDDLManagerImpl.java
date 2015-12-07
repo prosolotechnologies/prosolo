@@ -98,6 +98,10 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 				+ "posting counter,content_access counter,message counter,search counter, "
 				+ " PRIMARY KEY (date, userid))";
 		this.ddls.add(userprofileactionsobservationsbydateDDL);
+
+		String userquartilefeaturesbyweekDDL="CREATE TABLE IF NOT EXISTS userquartilefeaturesbyweek(course bigint, profile varchar, date bigint, userid bigint," +
+				"sequence varchar, PRIMARY KEY(course, profile, date))";
+		this.ddls.add(userquartilefeaturesbyweekDDL);
 	}
 
 	@Override

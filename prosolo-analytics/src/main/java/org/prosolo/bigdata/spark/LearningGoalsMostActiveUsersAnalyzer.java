@@ -123,8 +123,8 @@ public class LearningGoalsMostActiveUsersAnalyzer implements Serializable {
 					public void call(
 							Tuple2<Long, Iterable<UserLearningGoalActivitiesCount>> tuple)
 							throws Exception {
-						long learningGoalId = tuple._1;
-						Iterable<UserLearningGoalActivitiesCount> counters = tuple._2;
+						long learningGoalId = tuple._1();
+						Iterable<UserLearningGoalActivitiesCount> counters = tuple._2();
 						JsonObject data = new JsonObject();
 						data.add("date", new JsonPrimitive(daysSinceEpoch));
 						data.add("learninggoalid", new JsonPrimitive(
