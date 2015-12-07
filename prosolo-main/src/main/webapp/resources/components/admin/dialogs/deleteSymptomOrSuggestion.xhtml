@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+<h:head>
+</h:head>
+
+<composite:interface>
+	<composite:attribute name="name" required="true"/>
+	<composite:attribute name="context" required="true"/>
+	<composite:attribute name="update" required="true" />
+	<composite:attribute name="action" required="true"/>
+</composite:interface>
+
+<composite:implementation xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+		<div id="delete#{cc.attrs.context}Dialog" class="deleteRoleDialog"
+			style="display: none;">
+			<h:form id="delete#{cc.attrs.context}DialogForm">
+				<h4 class="warningMessage">Are you sure you want to delete
+					#{cc.attrs.name}?</h4>
+
+				<div class="actions">
+					<p:commandLink value="Yes" styleClass="button green size30 right"
+						oncomplete="$('#delete#{cc.attrs.context}Dialog').dialog('close');"
+						action="#{cc.attrs.action}" 
+						update="#{cc.attrs.update}" />
+					&#160; <a href="#" class="button gray size30 right"
+						onclick="$('#delete#{cc.attrs.context}Dialog').dialog('close');">Cancel</a>
+				</div>
+			</h:form>
+
+		</div>
+
+		<script>
+			$(function() {
+				$('#delete#{cc.attrs.context}Dialog')
+						.dialog(
+								{
+									title : 'Delete #{cc.attrs.context}',
+									dialogClass : 'warning',
+									show : 'slide',
+									autoOpen : false,
+									width : 400,
+									modal : true,
+									resizable : false,
+									open : function() {
+										$(this)
+												.children(':first')
+												.css('text-align', 'center')
+												.css('padding-top', '50px')
+												.html(
+														'<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
+
+										if ($(this)
+												.parent()
+												.find(
+														'.ui-dialog-titlebar .warningIcon').length == 0) {
+											$(this)
+													.parent()
+													.children(
+															'.ui-dialog-titlebar')
+													.prepend(
+															'<span class="warningIcon"></span>');
+										}
+									}
+								});
+				$('#delete#{cc.attrs.context}Dialog').show();
+			});
+		</script>
+</composite:implementation>
+</html>

@@ -62,7 +62,7 @@ public class MessagesObserver implements EventObserver {
 				
 				for (User participant : participants) {
 					if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
-						messageDistributer.distributeMessage(ServiceType.DIRECTMESSAGE, participant.getId(), message.getId(), null, null);
+						messageDistributer.distributeMessage(ServiceType.DIRECT_MESSAGE, participant.getId(), message.getId(), null, null);
 					} else {
 						HttpSession httpSession = applicationBean.getUserSession(participant.getId());
 						
@@ -82,7 +82,7 @@ public class MessagesObserver implements EventObserver {
 							messageInboxUpdater.addNewMessageThread(messagesThread, httpSession);
 						} else if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 							messageDistributer.distributeMessage(
-									ServiceType.ADDNEWMESSAGETHREAD, 
+									ServiceType.ADD_NEW_MESSAGE_THREAD, 
 									participant.getId(), 
 									messagesThread.getId(), 
 									null,

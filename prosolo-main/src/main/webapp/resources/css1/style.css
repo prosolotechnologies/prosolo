@@ -29,6 +29,17 @@ h4 {
 }
 
 
+h2 span {
+	font-size: 13px;
+	color: #EDA830;
+}
+
+
+.form-control {
+  height: 38px;
+}
+
+
 button.close {
 	font-size: 18px;
 }
@@ -54,6 +65,14 @@ button.close {
 	background-color: #e45b68;	
 }
 
+.heading header .green i, 
+.green {
+	color: #528b52;	
+}
+.heading header .red i, 
+.red {
+	color: #d13430;	
+}
 
 
 /* links */
@@ -77,7 +96,9 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 }
 
 
-
+#observationBar > .btn {
+	color: #FFF;
+}
 
 
 /* buttons */
@@ -441,7 +462,7 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 }
 
 
-.heading header i {
+.heading header .headIcon {
 	float: left;
 	color: #555;
 	font-size: 34px;
@@ -468,9 +489,157 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 	padding-right: 0px;	
 }	
 
+/* messages & notifications */
+
+.bdg {
+  background-color: #e7a225;
+  border-radius: 12px;
+  box-shadow: 0 1px 1px #666;
+  color: white;
+  cursor: default;
+  font: bold 10px Helvetica,Verdana,Tahoma;
+  min-width: 12px;
+  padding: 2px 6px;
+  position: absolute;
+  right: 5px;
+  text-align: center;
+  top: 16px;
+}
+
+.bdg:hover {
+	cursor: pointer;
+}
+
+
+.navbar-nav.userActions .dropdown-menu.messagesContainer {
+	width: 280px;
+	background-color: #fff;
+	border: 1px solid rgba(0, 0, 0, 0.15);
+	font-size: 12px;
+	border-top: 0;
+}
+
+.navbar-nav.userActions .dropdown-menu.notificationsContainer .title,
+.navbar-nav.userActions .dropdown-menu.messagesContainer .title {
+	background: #f7f7f7;
+	margin: 0;
+	padding: 5px;
+	border-bottom: 1px solid #ebebeb;	
+}
+
+
+
+.navbar-nav.userActions .dropdown-menu.notificationsContainer .item, 
+.navbar-nav.userActions .dropdown-menu.messagesContainer .item {
+	border-bottom: 1px solid #ebebeb;
+   color: #a1a1a1;
+	display: block;
+	padding: 10px;
+}
+
+.navbar-nav.userActions .dropdown-menu .item.unread,
+.navbar-nav.userActions .dropdown-menu.notificationsContainer .item:hover,
+.navbar-nav.userActions .dropdown-menu.messagesContainer .item:hover {
+	background-color: #f7fafd;
+	text-decoration: none;
+}
+
+
+
+
+
+.navbar-nav.userActions .dropdown-menu.notificationsContainer .item:hover .close,
+.navbar-nav.userActions .dropdown-menu.messagesContainer .item:hover .close {
+	display: block;
+}
+
+.navbar-nav.userActions .dropdown-menu.messagesContainer .item .userProfileImage {
+	float: left;
+}
+
+.navbar-nav.userActions .dropdown-menu .item .userName {
+	 color: #555;
+    font-weight: bold;
+	 padding-right: 10px;
+}
+
+
+.navbar-nav.userActions .dropdown-menu .item .date {
+    font-size: 11px;
+	 font-weight: normal;
+}
+
+.navbar-nav.userActions .dropdown-menu .item .more3 {
+	color: #2196f3;
+	float: right;
+	margin-left: 10px;
+}
+
+
+.alert.item {
+	margin: 0;
+	position: relative;
+	border-radius: 0;
+}
+
+.alert.item .close {
+	position: absolute;
+	top: 0;
+	right: 5px;
+	display: none;
+}
+
+
+.seeAll {
+	display: block;
+	background: #f7f7f7;
+	margin: 0;
+	padding: 5px;
+	text-align: center;
+}
+
+.noContent {
+	padding: 30px;
+	text-align: center;
+	font-style: italic;
+}
+
+
+.navbar-nav.userActions .dropdown-menu.notificationsContainer {
+	width: 280px;
+	background-color: #fff;
+	border: 1px solid rgba(0, 0, 0, 0.15);	
+	font-size: 12px;
+	border-top: 0;	
+}
+
+.navbar-nav.userActions .dropdown-menu.notificationsContainer .item .userName span {
+	 color: #a1a1a1;
+    font-weight: normal;
+}
+
+.navbar-nav.userActions .dropdown-menu.notificationsContainer .item .userName p{
+	 color: #a1a1a1;
+    font-weight: normal;
+	 margin: 5px 0;
+	 line-height: 15px;
+	 font-size: 13px;
+
+}
+
+
+.navbar-default .navbar-nav > .open > a, 
+.navbar-default .navbar-nav > .open > a:focus, 
+.navbar-default .navbar-nav > .open > a:hover {
+	background-color: #0277bd;
+	color: #fff;
+}
+
+
 
 
 /* search */
+
 .navbar-default .navbar-nav > li.search.open > a.dropdown-toggle, 
 .navbar-default .navbar-nav > li.search.open > a.dropdown-toggle:focus, 
 .navbar-default .navbar-nav > li.search.open > a.dropdown-toggle:hover {
@@ -748,6 +917,8 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 	background-color: #fff;
 	border-top: 1px solid #f1f1f1;
 	padding: 50px;
+	border-bottom-right-radius: 4px;
+	border-bottom-left-radius: 4px;	
 }
 
 
@@ -756,6 +927,7 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 .blockRow {
 	margin-bottom: 80px;
 	margin-left: 46px;
+	position: relative;
 }
 
 .progressBlock {
@@ -1413,6 +1585,93 @@ label {
 	margin: 0 3px 3px 0;
 }
 
+
+/* admin table */
+
+.table.admin > thead > tr > th {
+	border-bottom: 1px solid #efefef;
+	font-size: 13px;
+	color: #a9a9a9;
+	font-weight: 600;
+	padding: 20px 30px;
+	vertical-align: middle;
+}
+
+
+.table.admin tr th {
+	background-color: #ececec;
+	border-bottom-width: 2px;
+	font-size: 13px;
+	color: #444444;
+}
+
+.table.admin > tbody > tr > td {
+	padding: 13px 20px;  
+	border-bottom: 1px solid #efefef;
+	font-size: 12px;
+	vertical-align: middle;
+}
+
+
+.table.admin > tbody > tr > td ul {
+	margin: 0;
+	padding: 0;
+}
+.table.admin > tbody > tr > td .userProfileImage {
+	float: left;
+	margin-right: 8px;
+}
+
+.table.admin > tbody > tr > td li.label {
+	margin: 0 3px 3px 0;
+}
+
+.tableToolbar {
+	margin-bottom: 15px;
+}
+
+.tableToolbar .col-md-6:first-of-type {
+	position: relative;
+	height: 64px;
+}
+
+.tableToolbar .col-md-6 .checkbox  {
+	position: absolute;
+	bottom: 0;
+}
+
+.tableToolbar .filterCont button,
+.tableToolbar .filterCont input {
+	display: inline-block;
+	width: auto;
+}
+
+.tableToolbar .filterCont label {
+	display: block;
+	text-align: left;
+}
+
+.filterCont {
+	width: 280px;
+	float: right;
+	margin-top: 2px;
+	text-align: right;
+}
+
+.selectCont {
+	width: 135px;
+	float: right;
+	margin-right: 15px;
+	margin-bottom: 0;
+}
+
+
+.tableToolbar .fSearch {
+	padding: 8px 12px;
+	margin-top: -1px;
+}
+
+
 .linksType1 {
 	font-size: 11px;
 	font-weight: 100;
@@ -1478,6 +1737,214 @@ label {
 .bootstrap-select .dropdown-menu > li > a:hover {
   background-color: #f5f5f5 !important;
   color: #444 !important;
+}
+
+/* slider */
+
+
+.sliderIconLeft {
+	position: absolute;
+	left: -46px;
+	height: 210px;
+	width: 40px;
+	line-height: 210px;
+	text-align: center;
+}
+.sliderIconLeft:hover {
+	background: #fafafa;
+}
+
+.sliderIconLeft .fa {
+	font-size: 36px;
+}
+
+.sliderIconRight {
+	position: absolute;
+	right: -46px;
+	height: 210px;
+	width: 40px;
+	line-height: 210px;
+	text-align: center;
+}
+.sliderIconRight:hover {
+	background: #fafafa;
+}
+
+.sliderIconRight .fa {
+	font-size: 36px;
+}
+
+
+.sliderIconLeftCred {
+	position: absolute;
+	left: -46px;
+	height: 250px;
+	width: 40px;
+	line-height: 250px;
+	text-align: center;
+}
+.sliderIconLeftCred:hover {
+	background: #fafafa;
+}
+
+.sliderIconLeftCred .fa {
+	font-size: 36px;
+}
+
+.sliderIconRightCred {
+	position: absolute;
+	right: -46px;
+	height: 250px;
+	width: 40px;
+	line-height: 250px;
+	text-align: center;
+}
+.sliderIconRightCred:hover {
+	background: #fafafa;
+}
+
+.sliderIconRightCred .fa {
+	font-size: 36px;
+}
+
+
+/* dashboard */
+
+
+	.basicStats {
+		list-style: none;
+		padding: 0;
+		margin-top: 6px;
+	}
+
+	.basicStats li {
+		display: inline-block;
+		padding: 0 20px;
+		border-right: 1px solid #c7c7c7;
+	}
+	
+	.basicStats li:last-of-type {
+		border: 0;
+	}
+	
+	.statContLeft	{
+		float: left;
+	}	
+	.statContRight	{
+		font-size: 38px;
+		line-height: 32px;
+		float: right;
+		font-weight: 300;
+		padding-left: 5px;
+	}
+	
+	.users {
+		text-transform: uppercase;
+		color: #555555;
+		font-size: 11px;
+	}
+
+	.uPercentage {
+		font-size: 16px;
+		line-height: 16px;
+		margin-top: 1px;
+	}
+	
+	.uPercentage .fa {
+		margin-top: 0px;
+		font-size: 13px;
+		line-height: 13px;
+		float: left;
+		width: 40%;
+		text-align: right;
+		margin-top: 2px;
+		padding-right: 3px;		
+	}	
+
+	.uPercentage span {
+		float: right;
+		width: 60%;
+		display: block;
+		text-align: left;
+	}
+
+
+	.timeRange {
+	  margin-top: 25px;
+	}
+	.period {
+		float: right;
+	}
+
+
+	.period .btn-primary {
+		border: 1px solid #dddddd;
+		background-color: #d3d3d3;		
+	}
+	.period .btn-primary.active:hover,
+	.period .btn-primary.active, 
+	.period .btn-primary:active {
+	  background-color: #286090;
+	  border: 1px solid #204d74;
+	  color: #fff;
+	}
+
+	.period .btn-primary.hover, 
+	.period .btn-primary:hover {
+		color: #444;
+	}
+
+
+	.period .btn + .btn, 
+	.period .btn + .btn-group {
+	  margin-left: 0px;
+	}
+
+
+
+	/* table pagination */
+	
+.tablePagination label {
+	float: left;
+}
+
+.tablePagination .paging {
+	width: auto!important;
+	margin-right: 15px;
+	margin-left: 5px!important;
+}
+
+.tablePagination a {
+	border-left: 1px solid #EFEFEF;
+	padding: 0 10px;
+}
+.tablePagination a:first-of-type {
+	border-left: 0;
+}
+
+.tablePagination a.previous {
+	border-right: 1px solid #EFEFEF;
+}
+
+.tablePagination span.page {
+	margin-right: 5px;
+	padding-left: 6px;
+}
+
+.pagingNumbers {
+	padding-top: 7px;	
+	float: left;
+}
+
+
+/* graph */
+
+.graph {
+	margin-top: 25px;
+}
+
+.hashtagGraph {
+	margin-top: 40px;
 }
 
 
@@ -1656,13 +2123,27 @@ label {
 		font-size: 17px;
 	}
 	
-	.heading {
-		height: 100px;
+
+
+	.searchPanel form .form-group, 
+	.searchPanel form {
+		margin: 0;
 	}	
 	
-	.heading header i {
+	.heading {
+		height: 100px;
+	}		
+
+	
+	.heading header .headIcon {
 		font-size: 40px;
+		float: left;
 	}
+	
+	.headerTitle {
+		float: left;
+	}
+	
 	
 	.heading h1 {
 		font-size: 23px;
@@ -1673,16 +2154,23 @@ label {
 	}
 	
 	.heading header {
-		margin-top: 25px;
-		margin-left: 25px;
+		margin-top: 0;
+		margin-left: 20px;
+		padding-top: 27px;
 	}
-
-	.searchPanel form .form-group, 
-	.searchPanel form {
-		margin: 0;
+	
+	
+	.panel-body {
+	  padding: 20px;
 	}	
 
 /* student profile toolbar */
+
+.toolbarContainer {
+	background-color: #f7f7f7;
+	border: 1px solid #f1f1f1;
+	height: 89px;
+}
 
 
 .back,.studentInfo,.profileType,.interest,.social,.observation {
@@ -1741,13 +2229,97 @@ label {
 }
 
 .profileType {
-	padding: 5px;
-	width: 150px;
-	border-right: 1px solid #ebebeb;
+  padding: 5px;
+  width: 85px;
 }
 
+.profileType .toolbarContainer {
+	position: relative;
+}
+
+/* profile type badge */
+.profileTypeBadge {
+	border-color: #ddb627;
+	border-style: solid;
+	border-width: 1px;	
+	width: 60px;
+	height: 40px;
+	background: #f8d03b;
+	position: relative;
+	margin-top: 2px;
+	float: right;
+	border-left: 0;
+	margin-right: -5px;
+	color: #555;
+	font-size: 9px;
+	line-height: 9px;
+	text-align: center;
+}
+
+.profileTypeBadge:after, .profileTypeBadge:before {
+	right: 100%;
+	top: 0;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+
+.profileTypeBadge::after {
+  border-color: transparent #f8d03b transparent transparent;
+  border-style: solid;
+  border-width: 19px 9px 19px 0;
+  height: 0;
+  width: 0;
+}
+.profileTypeBadge::before {
+  border-color: transparent #432e00 transparent transparent;
+  border-style: solid;
+  border-width: 19px 9px 19px 0;
+  height: 0;
+  left: -9px;
+  top: 0;
+  width: 0;
+}
+
+.profileTypeBadge .shadow {
+	width: 100%;
+	height: 38px;
+	position: relative;
+	padding-top: 3px;
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;	
+	
+}
+.profileTypeBadge .shadow::after {
+	border-color: transparent transparent transparent #7a630d;
+	border-image: none;
+	border-style: solid;
+	border-width: 0 0 3px 3px;
+	bottom: -4px;
+	content: " ";
+	height: 0;
+	pointer-events: none;
+	position: absolute;
+	right: 0;
+	width: 0;
+}
+
+.profileTypeBadge .number {
+	display: block;
+	font-size: 22px;
+	line-height: 22px;
+	color: #FFF;
+	font-weight: 900;
+}
+
+
+
 h3.title{
-	font-size: 12px;
+	font-size: 10px;
 	text-transform: uppercase;
 	color: #333333;
 	margin: 5px;
@@ -1914,11 +2486,12 @@ ul.socIcons li i {
 
 .observation {
 	/* width: 665px; */
+   padding: 5px;
 }
 
 .observation h3.title {
-	margin: 10px;
 	float: left;
+	margin-bottom: 3px;
 }
 
 .observations {
@@ -1926,6 +2499,8 @@ ul.socIcons li i {
 	margin: 0;
 	padding: 0;
 	list-style: none;
+	float: left;
+	position: relative;
 }
 
 .observations li {
@@ -1934,26 +2509,101 @@ ul.socIcons li i {
 
 .observations li.symptoms {
 	margin: 0 9px 0 10px;
+
+}
+
+.observations li.symptoms .labels {
+	width: 160px;
+	border-right: 1px dotted #ebebeb;		
 	padding-right: 9px;
-	border-right: 1px dotted #ebebeb;
+}
+
+.label {
+	padding: 0.4em 0.7em;
+	margin-bottom: 1px;	
+}
+
+.observations li.symptoms .labels .label {
+	width: 100%;
+}
+.observations li.symptoms .more {
+	width: 100%;
+	text-align: center;
+}
+
+.observations li.symptoms .more a{
+	width: 100%;
+	display: block;
+	font-size: 16px;
+	line-height: 16px;
+	color: #a3a3a3;
 }
 
 .observations li.suggestions {
 	margin: 0 9px 0 0;
-	padding-right: 9px;
+}
+
+
+.observations li.suggestions .labels {
+	width: 160px;
+	padding-right: 9px;	
 	border-right: 1px dotted #ebebeb;
 }
+
+.observations li.suggestions .labels .label {
+	width: 100%;
+}
+.observations li.suggestions .more {
+	width: 100%;
+	text-align: center;
+}
+
+.observations li.suggestions .more a{
+	width: 100%;
+	display: block;
+	font-size: 16px;
+	line-height: 16px;
+	color: #a3a3a3;
+}
+
+
 
 .observations li.message {
 	margin: 0 9px 0 0;
 	padding-right: 9px;
 	border-right: 1px dotted #ebebeb;
-	height: 47px;
+	height: 45px;
 }
 
 
 .observations li.symptoms a {
 	clear: both;
+}
+
+
+.observations li .linksType1 {
+	font-size: 10px;
+	padding-top: 7px;
+}
+
+
+.observations .userInfo {
+
+}
+
+
+.col-md-7.observation {
+	width: auto;
+	position: inherit;
+}
+
+.userText {
+	float: left;
+}
+
+.createdBy {
+	margin-top: 3px;
+	padding-right: 15px;
 }
 
 .more {
@@ -1962,11 +2612,20 @@ ul.socIcons li i {
 }
 
 .more2 {
-  bottom: 5px;
+  bottom: 0;
   font-size: 10px;
   position: absolute;
-  right: 6px;
-  text-transform:uppercase;
+  right: 10px;
+  text-transform: uppercase;
+}
+
+.more3 {
+  display: block;
+  font-size: 10px;
+  text-align: right;
+  text-transform: uppercase;
+  padding-top: 9px;
+  color: #c6c6c6;
 }
 
 
@@ -2029,6 +2688,20 @@ ul.socIcons li i {
 	position: relative;
 }
 
+#observationBar {
+	border-left: 1px dotted #ebebeb;
+	float: left;
+	height: 88px;
+	padding: 25px 10px;
+	margin-top: -20px;
+}
+
+
+#observationBar > .btn {
+	display: block;
+}
+
+
 
 /* observation bar */
 #observationBar .dropdown-menu {
@@ -2038,6 +2711,9 @@ ul.socIcons li i {
 	box-shadow: none;
 	background-color: #fafafa;
 	padding: 15px 20px;
+	position: absolute;
+	right: 0;
+	top: 159px;
 }
 
 #observationBar .dropdown-menu.bar-fixed-top {
@@ -2059,7 +2735,7 @@ ul.socIcons li i {
 
 .posAbs {
 	position: absolute;
-	top: 32px;
+	top: 35px;
 }
 
 .creationDate {
@@ -2072,7 +2748,6 @@ ul.socIcons li i {
 	font-size: 10px;
 	float: right;
 	margin-right: 6px;
-	margin-top: 8px;
 }
 
 .dropdownToolbar {

@@ -63,7 +63,7 @@ public class RecommendationConverter {
 			
 			if (node != null) {
 				node = (Node) session.merge(node);
-				rData.setResourceId(node.getId());
+				rData.setId(node.getId());
 				Hibernate.initialize(node);
 				configureRecommendationType(rData, node, recommendation.getRecommendedTo());
 				rData.setRecommendationType(RecommendationType.USER);
@@ -75,7 +75,7 @@ public class RecommendationConverter {
 	private void configureRecommendationType(RecommendationData rData, BaseEntity node, User recommendedTo) {
 		node = HibernateUtil.initializeAndUnproxy(node);
 		rData.setResource(node);
-		rData.setResourceId(node.getId());
+		rData.setId(node.getId());
 		rData.setDateCreated(node.getDateCreated());
 		rData.setResourceTitle(node.getTitle());
 	

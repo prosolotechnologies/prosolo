@@ -162,5 +162,24 @@ public class RequestManagerImpl extends AbstractManagerImpl implements RequestMa
 		}
 		return null;
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.prosolo.services.notifications.RequestManager#getRequestMaker(long)
+	 *
+	 * @version 0.5
+	 */
+	@Override
+	public User getRequestMaker(long requestId) {
+		String query = 
+			"SELECT request.maker " +
+			"FROM Request request " +
+			"WHERE request.id = :requestId";
+		
+		User result = (User) getPersistence().currentManager().createQuery(query).
+			setLong("requestId", requestId).
+			uniqueResult();
+		
+		return result;
+	}
 
 }

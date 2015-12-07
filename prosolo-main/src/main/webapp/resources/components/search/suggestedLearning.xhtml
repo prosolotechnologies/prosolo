@@ -93,8 +93,8 @@
 								<h:panelGroup rendered="#{recommendedData.resourceType == 'LEARNINGGOAL'}">
 									<p:commandLink
 										onclick="$('#goalDetailsModalDialog').dialog('open');"
-										action="#{goalDialog.initializeRecommendedGoalDialog(recommendedData.resourceId, recommendedData.makerId)}"
-										actionListener="#{loggingBean.logServiceUse('GOAL_DIALOG', 'context', 'search.suggestedLearning.recommended', 'action', 'openLearningGoalDialog', 'targetGoalId', recommendedData.resourceId, 'recommenderId', recommendedData.makerId)}"
+										action="#{goalDialog.initializeRecommendedGoalDialog(recommendedData.id, recommendedData.makerId)}"
+										actionListener="#{loggingBean.logServiceUse('GOAL_DIALOG', 'context', 'search.suggestedLearning.recommended', 'action', 'openLearningGoalDialog', 'targetGoalId', recommendedData.id, 'recommenderId', recommendedData.makerId)}"
 										update=":goalDetailsDialogForm"
 										value="#{recommendedData.resourceTitle}"
 										styleClass="title" />
@@ -112,7 +112,7 @@
 									styleClass="button green size20 left" 
 									onclick='$("#requestToJoinGoalModalDialog").dialog("open");'
 									update=":requestToJoinGoalForm"
-									action="#{requestToJoinGoalBean.requestToJoinGoalById(recommendedData.resourceId, 'suggestedLearning')}" />
+									action="#{requestToJoinGoalBean.requestToJoinGoalById(recommendedData.id, 'suggestedLearning')}" />
 								
 								<p:commandLink id="freeToJoinButton" value="Join" 
 									rendered="#{recommendedData.resourceAvailability == 'IS_FREE_TO_JOIN'}"
@@ -160,8 +160,8 @@
 									learning goal 
 									<p:commandLink
 										onclick="$('#goalDetailsModalDialog').dialog('open');"
-										action="#{goalDialog.initializeRecommendedGoalDialog(recommendedData.resourceId)}"
-										actionListener="#{loggingBean.logServiceUse('GOAL_DIALOG', 'context', 'search.suggestedLearning.system', 'action', 'openLearningGoalDialog', 'targetGoalId', recommendedData.resourceId)}"
+										action="#{goalDialog.initializeRecommendedGoalDialog(recommendedData.id)}"
+										actionListener="#{loggingBean.logServiceUse('GOAL_DIALOG', 'context', 'search.suggestedLearning.system', 'action', 'openLearningGoalDialog', 'targetGoalId', recommendedData.id)}"
 										value="#{recommendedData.resourceTitle}"
 										update=":goalDetailsDialogForm"
 										styleClass="title" >
@@ -190,13 +190,13 @@
 									styleClass="button green size20 left" 
 									onclick='$("#requestToJoinGoalModalDialog").dialog("open");'
 									update=":requestToJoinGoalForm"
-									action="#{requestToJoinGoalBean.requestToJoinGoalById(recommendedData.resourceId, 'suggestedLearning')}"/>
+									action="#{requestToJoinGoalBean.requestToJoinGoalById(recommendedData.id, 'suggestedLearning')}"/>
 									
 								<p:commandLink id="freeToJoinButton2" value="Join" 
 									rendered="#{recommendedData.resourceAvailability == 'IS_FREE_TO_JOIN'}"
 									styleClass="button green size20 left" 
 									onclick='$("#goalDetailsModalDialog").dialog("close");'
-									action="#{goalDialog.joinLearningGoalById(recommendedData.resourceId)}"
+									action="#{goalDialog.joinLearningGoalById(recommendedData.id)}"
 									update="@form" />
 									
 								<p:commandLink rendered="#{goalDialog.resourceAvailability == 'USER_HAS_THIS_GOAL'}"

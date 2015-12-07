@@ -1,0 +1,278 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	template="templates/masterLayout.xhtml"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/admin/dialogs">
+
+	<ui:define name="windowTitle">
+		Administration: Analytics Settings
+	</ui:define>
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewAction action="#{analyticsSettingsBean.init()}" />
+		</f:metadata>
+	</ui:define>
+
+	<ui:define name="content">
+
+		<ui:remove>
+			<dlg:editSymptomOrSuggestion id="symptomDlg" title="Edit Symptom"
+				inputDesc="#{analyticsSettingsBean.symptomForEdit.description}"
+				validationMethodName="validateExistingSymptomName"
+				validateName="#{analyticsSettingsBean.validateExistingSymptomName}"
+				context="Symptom" update=":symptomForm"
+				action="#{analyticsSettingsBean.updateSymptom}" />
+		</ui:remove>
+
+
+		<dlg:deleteSymptomOrSuggestion id="delSymptomDlg"
+			name="#{analyticsSettingsBean.symptomForEdit.description}"
+			context="Symptom" update=":symptomForm"
+			action="#{analyticsSettingsBean.deleteSymptom}" />
+
+		<dlg:deleteSymptomOrSuggestion id="delSuggestionDlg"
+			name="#{analyticsSettingsBean.suggestionForEdit.description}"
+			context="Suggestion" update=":suggestionForm"
+			action="#{analyticsSettingsBean.deleteSuggestion}" />
+
+		<div class="container">
+			<div id="roleFormContainer" class="content wide">
+
+				<h:form id="symptomForm">
+					<p:growl id="symptomGrowl" showDetail="true" globalOnly="true" />
+					<table>
+						<tr>
+							<td class="col1"><h:outputLabel for="newSymptomDesc">Name:</h:outputLabel>
+							</td>
+							<td><h:inputText id="newSymptomDesc"
+									value="#{analyticsSettingsBean.newSymptom.description}"
+									required="true" requiredMessage="Name is required"
+									validator="#{analyticsSettingsBean.validateNewSymptomName}" />
+							</td>
+							<td><p:commandLink styleClass="blue button size25"
+									process="newSymptomDesc"
+									actionListener="#{analyticsSettingsBean.saveSymptom()}"
+									value="Save" update="@all">
+								</p:commandLink></td>
+						</tr>
+
+						<tr>
+							<td></td>
+							<td><h:message for="newSymptomDesc" style="color: red"></h:message>
+							</td>
+							<td></td>
+						</tr>
+					</table>
+
+
+					<br></br>
+					<br></br>
+					
+					
+					<p:dataTable id="symptomTable" var="symptom" editable="true"
+						value="#{analyticsSettingsBean.symptoms}" >
+					
+						<f:facet name="header">Symptoms</f:facet>
+
+						<p:ajax event="rowEditInit" 
+						    onstart="hideRowEdit();"
+							listener="#{analyticsSettingsBean.prepareSymptomEdit}" />
+
+						<p:ajax event="rowEdit" 
+						    oncomplete="showRowEdit();"
+							listener="#{analyticsSettingsBean.onSymptomEdit}"
+							update=":symptomForm:symptomGrowl" />
+							
+					    <p:ajax event="rowEditCancel" onstart="showRowEdit();"/>
+			
+
+						<p:column id="nameColumn" filterBy="#{symptom.description}"
+							filterMatchMode="contains" sortBy="#{symptom.description}">
+
+							<f:facet name="header">
+								<h:outputText value="Name" />
+							</f:facet>
+							<p:cellEditor>
+								<f:facet name="output">
+									<h:outputText value="#{symptom.description}" />
+								</f:facet>
+								<f:facet name="input">
+									<p:inputText id="symptomNameInputText"
+										value="#{symptom.description}" style="width:100%"
+										required="true" requiredMessage="Name is required"
+										validator="#{analyticsSettingsBean.validateExistingSymptomName}" />
+									<h:message for="symptomNameInputText" style="color: red"></h:message>
+								</f:facet>
+								
+							</p:cellEditor>
+
+						</p:column>
+
+						<ui:remove>
+							<p:column styleClass="center">
+								<f:facet name="header">
+									<h:outputText value="Edit" />
+								</f:facet>
+
+								<p:commandLink value="Edit" styleClass="blue button size25"
+									onclick="$('#editSymptomDialog').dialog('open');"
+									process="@this"
+									action="#{analyticsSettingsBean.prepareSymptomEdit(symptom)}"
+									update=":symptomDlg:editSymptomForm" />
+							</p:column>
+						</ui:remove>
+
+						<p:column style="width:32px">
+
+							<f:facet name="header">
+								<h:outputText value="Edit" />
+							</f:facet>
+							<p:rowEditor />
+						</p:column>
+
+						<p:column styleClass="center">
+							<f:facet name="header">
+								<h:outputText value="Delete" />
+							</f:facet>
+
+							<p:commandLink value="Delete" styleClass="button red size25"
+								process="@this"
+								rendered="#{!analyticsSettingsBean.isSymptomUsed(symptom.id)}"
+								onclick="$('#deleteSymptomDialog').dialog('open');"
+								action="#{analyticsSettingsBean.prepareSymptomEdit(symptom)}"
+								update=":delSymptomDlg:deleteSymptomDialogForm" />
+
+							<p:commandLink value="Delete"
+								styleClass="button disabled gray size25 hasTooltip"
+								rendered="#{analyticsSettingsBean.isSymptomUsed(symptom.id)}" />
+						</p:column>
+					</p:dataTable>
+				</h:form>
+
+				<br></br>
+
+				<h:form id="suggestionForm">
+					<p:growl id="suggestionGrowl" showDetail="true" globalOnly="true" />
+					<table>
+						<tr>
+							<td class="col1"><h:outputLabel for="newSuggestionDesc">Name:</h:outputLabel>
+							</td>
+							<td><h:inputText id="newSuggestionDesc"
+									value="#{analyticsSettingsBean.newSuggestion.description}"
+									required="true" requiredMessage="Name is required"
+									validator="#{analyticsSettingsBean.validateNewSuggestionName}" />
+							</td>
+							<td><p:commandLink styleClass="blue button size25"
+									process="newSuggestionDesc"
+									actionListener="#{analyticsSettingsBean.saveSuggestion}"
+									value="Save" update="@all">
+								</p:commandLink></td>
+						</tr>
+
+						<tr>
+							<td></td>
+							<td><h:message for="newSuggestionDesc" style="color: red"></h:message>
+							</td>
+							<td></td>
+						</tr>
+					</table>
+
+
+					<br></br>
+
+					<p:dataTable id="suggestionTable" var="suggestion" editable="true"
+						value="#{analyticsSettingsBean.suggestions}">
+
+						<f:facet name="header">Suggestions</f:facet>
+
+						<p:ajax event="rowEditInit" 
+							onstart="hideRowEdit();"
+							listener="#{analyticsSettingsBean.prepareSuggestionEdit}" />
+
+						<p:ajax event="rowEdit" 
+						    oncomplete="showRowEdit();"
+							listener="#{analyticsSettingsBean.onSuggestionEdit}"
+							update=":suggestionForm:suggestionGrowl" />
+			
+						<p:ajax event="rowEditCancel" onstart="showRowEdit();"/>
+						
+						<p:column id="nameColumn" filterBy="#{suggestion.description}"
+							filterMatchMode="contains" sortBy="#{suggestion.description}">
+
+							<f:facet name="header">
+								<h:outputText value="Name" />
+							</f:facet>
+							<p:cellEditor>
+								<f:facet name="output">
+									<h:outputText value="#{suggestion.description}" />
+								</f:facet>
+								<f:facet name="input">
+									<p:inputText id="suggestionNameInputText"
+										value="#{suggestion.description}" style="width:100%"
+										required="true" requiredMessage="Name is required"
+										validator="#{analyticsSettingsBean.validateExistingSuggestionName}" />
+									<h:message for="suggestionNameInputText" style="color: red"></h:message>
+								</f:facet>
+								
+							</p:cellEditor>
+
+						</p:column>
+						
+						<p:column style="width:32px">
+
+							<f:facet name="header">
+								<h:outputText value="Edit" />
+							</f:facet>
+							<p:rowEditor />
+						</p:column>
+
+						<ui:remove>
+						<p:column styleClass="center">
+							<f:facet name="header">
+								<h:outputText value="Edit" />
+							</f:facet>
+
+							<p:commandLink value="Edit" styleClass="blue button size25"
+								onclick="$('#editSuggestionDialog').dialog('open');"
+								process="@this"
+								action="#{analyticsSettingsBean.prepareSuggestionEdit(suggestion)}"
+								update=":suggestionDlg:editSuggestionForm" />
+						</p:column>
+						</ui:remove>
+
+						<p:column styleClass="center">
+							<f:facet name="header">
+								<h:outputText value="Delete" />
+							</f:facet>
+
+							<p:commandLink value="Delete" styleClass="button red size25"
+								process="@this"
+								rendered="#{!analyticsSettingsBean.isSuggestionUsed(suggestion.id)}"
+								onclick="$('#deleteSuggestionDialog').dialog('open');"
+								action="#{analyticsSettingsBean.prepareSuggestionEdit(suggestion)}"
+								update=":delSuggestionDlg:deleteSuggestionDialogForm" />
+
+							<p:commandLink value="Delete"
+								styleClass="button disabled gray size25 hasTooltip"
+								rendered="#{analyticsSettingsBean.isSuggestionUsed(suggestion.id)}" />
+
+						</p:column>
+					</p:dataTable>
+				</h:form>
+			</div>
+		</div>
+		<script>
+			function hideRowEdit () {
+				$('.ui-row-editor span.ui-icon-pencil').each(function(){$(this).css('visibility','hidden')});
+			};
+			function showRowEdit () {
+				$('.ui-row-editor span.ui-icon-pencil').each(function(){$(this).css('visibility','visible')});
+			};
+		</script>
+	</ui:define>
+</ui:composition>

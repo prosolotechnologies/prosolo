@@ -103,7 +103,7 @@ public class SearchSuggestedLearningBean implements Serializable {
 
 	public void dismissRecommendation(RecommendationData recommendationData) {
 		removeSuggestedRecommendation(recommendationData);
-		suggestedLearningBean.removeSuggestedResource(recommendationData);
+		suggestedLearningBean.removeSuggestedResource(recommendationData.getRecommendationType(), recommendationData.getId());
 		recommendationManager.dismissRecommendation(recommendationData, loggedUser.getUser());
 	}
 

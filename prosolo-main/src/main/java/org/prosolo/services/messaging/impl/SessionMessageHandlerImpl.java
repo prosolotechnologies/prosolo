@@ -5,7 +5,6 @@ package org.prosolo.services.messaging.impl;
  */
 import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -24,11 +23,10 @@ import org.prosolo.common.domainmodel.user.MessagesThread;
 import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.notifications.Notification;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.messaging.data.SessionMessage;
 import org.prosolo.core.hibernate.HibernateUtil;
-import org.prosolo.recommendation.dal.SuggestedLearningQueries;
+import org.prosolo.recommendation.LearningGoalRecommendationCacheUpdater;
 import org.prosolo.services.activityWall.SocialActivityFiltering;
 import org.prosolo.services.activityWall.SocialActivityHandler;
 import org.prosolo.services.interaction.MessageInboxUpdater;
@@ -38,6 +36,7 @@ import org.prosolo.services.interfaceSettings.LearnPageCacheUpdater;
 import org.prosolo.services.messaging.MessageHandler;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.notifications.EvaluationUpdater;
+import org.prosolo.services.notifications.NotificationCacheUpdater;
 import org.prosolo.util.StringUtils;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
@@ -47,10 +46,6 @@ import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.home.SuggestedLearningBean;
 import org.prosolo.web.home.data.RecommendationData;
 import org.prosolo.web.home.util.RecommendationConverter;
-import org.prosolo.web.notification.TopNotificationsBean;
-import org.prosolo.web.notification.data.NotificationData;
-import org.prosolo.web.notification.exceptions.NotificationNotSupported;
-import org.prosolo.web.notification.util.NotificationDataConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -61,7 +56,6 @@ public class SessionMessageHandlerImpl implements MessageHandler<SessionMessage>
 	
 	@Autowired private ApplicationBean applicationBean;
 	@Autowired private DefaultManager defaultManager;
-	@Autowired private SuggestedLearningQueries suggestedLearningQueries;
 	@Autowired private RecommendationConverter recommendationConverter;
 	@Autowired private EvaluationUpdater evaluationUpdater;
 	@Autowired private CommentUpdater commentUpdater;
@@ -69,6 +63,8 @@ public class SessionMessageHandlerImpl implements MessageHandler<SessionMessage>
 	@Autowired private LearnActivityCacheUpdater learnActivityCacheUpdaterImpl;
 	@Autowired private LearnPageCacheUpdater learnPageCacheUpdater;
 	@Autowired private MessageInboxUpdater messageInboxUpdater;
+	@Autowired private NotificationCacheUpdater notificationCacheUpdater;
+	@Autowired private LearningGoalRecommendationCacheUpdater learningGoalRecommendationCacheUpdater;
 	@Autowired private SocialActivityFiltering socialActivityFiltering;
 	
 	@Override
@@ -81,7 +77,7 @@ public class SessionMessageHandlerImpl implements MessageHandler<SessionMessage>
 			long resourceId = message.getResourceId();
 			
 			switch (message.getServiceType()) {
-				case DIRECTMESSAGE:
+				case DIRECT_MESSAGE:
 					if (httpSession != null) {
 						SimpleOfflineMessage directMessage = (SimpleOfflineMessage) session.load(
 								SimpleOfflineMessage.class,
@@ -93,7 +89,7 @@ public class SessionMessageHandlerImpl implements MessageHandler<SessionMessage>
 						messageInboxUpdater.updateOnNewMessage(directMessage, messagesThread, httpSession);
 					}
 					break;
-				case ADDNEWMESSAGETHREAD :
+				case ADD_NEW_MESSAGE_THREAD :
 					if (httpSession != null) {
 						MessagesThread messagesThread = (MessagesThread) session.load(
 								MessagesThread.class,
@@ -102,28 +98,11 @@ public class SessionMessageHandlerImpl implements MessageHandler<SessionMessage>
 						messageInboxUpdater.addNewMessageThread(messagesThread, httpSession);
 					}
 					break;
-				case ADDNOTIFICATION:
-					if (httpSession != null) {
-						TopNotificationsBean topNotificationsBean = (TopNotificationsBean) httpSession.getAttribute("topNotificationsBean");
-						LoggedUserBean loggedUserBean = (LoggedUserBean) httpSession.getAttribute("loggeduser");
-		
-						if (topNotificationsBean != null) {
-							try {
-								Notification notification = (Notification) session.load(Notification.class, resourceId);
-								notification = HibernateUtil.initializeAndUnproxy(notification);
-								
-								NotificationData notificationData = NotificationDataConverter.convertNotification(
-										loggedUserBean.getUser(), 
-										notification, 
-										session, 
-										loggedUserBean.getLocale());
-								
-								topNotificationsBean.addNotification(notificationData, session);
-							} catch (NotificationNotSupported e) {
-								logger.error(e);
-							}
-						}
-					}
+				case ADD_NOTIFICATION:
+					notificationCacheUpdater.updateNotificationData(
+							resourceId, 
+							httpSession, 
+							session);
 					break;
 				case UPDATE_EVALUAIION_DATA:
 					if (httpSession != null) {
@@ -133,32 +112,14 @@ public class SessionMessageHandlerImpl implements MessageHandler<SessionMessage>
 								session);
 					}
 					break;
-				case CHECKRECOMMENDATIONSFORACCEPTEDLEARNINGGOAL:
-					if (httpSession != null) {
-						LearningGoal goal = (LearningGoal) session.load(LearningGoal.class, resourceId);
-						User user = (User) session.load(User.class,	receiverId);
-						
-						List<Recommendation> recommendations = suggestedLearningQueries.findSuggestedLearningResourcesForResource(user, goal);
-						SuggestedLearningBean userSuggestedLearningBean = (SuggestedLearningBean) httpSession.getAttribute("suggestedLearningBean");
-	
-						ListIterator<Recommendation> recommendationIter = recommendations.listIterator();
-		
-						while (recommendationIter.hasNext()) {
-							Recommendation recommendation = recommendationIter.next();
-							recommendation.setDismissed(true);
-							session.saveOrUpdate(recommendation);
-		
-							if (userSuggestedLearningBean != null) {
-								RecommendationData rData = recommendationConverter.convertRecommendationToRecommendedData(
-												recommendation, 
-												session);
-								
-								userSuggestedLearningBean.removeSuggestedResource(rData);
-							}
-						}
-					}
+				case JOINED_LEARNING_GOAL:
+					learningGoalRecommendationCacheUpdater.removeLearningGoalRecommendation(
+							receiverId, 
+							resourceId, 
+							httpSession, 
+							session);
 					break;
-				case ADDSUGGESTEDBYCOLLEAGUES:
+				case ADD_SUGGESTED_BY_COLLEAGUES:
 					if (httpSession != null) {
 						SuggestedLearningBean suggestedLearningBean = (SuggestedLearningBean) httpSession.getAttribute("suggestedLearningBean");
 					
@@ -173,7 +134,7 @@ public class SessionMessageHandlerImpl implements MessageHandler<SessionMessage>
 						suggestedLearningBean.addSuggestedByColleagues(rData);
 					}
 					break;
-				case ACCEPTJOINGOALNOTIFICATION:
+				case ACCEPT_JOIN_GOAL_NOTIFICATION:
 					if (httpSession != null) {
 						LearningGoal goal1 = (LearningGoal) session.load(LearningGoal.class, resourceId);
 						LearnBean userLearningGoalBean = (LearnBean) httpSession.getAttribute("learninggoals");
@@ -188,7 +149,7 @@ public class SessionMessageHandlerImpl implements MessageHandler<SessionMessage>
 						}
 					}
 					break;
-				case UPDATEUSERSOCIALACTIVITYINBOX:
+				case UPDATE_USER_SOCIAL_ACTIVITY_INBOX:
 				//	boolean updateStatusWall = Boolean.parseBoolean(message.getParameters().get("updateStatusWall"));
 				//	boolean updateGoalWall = Boolean.parseBoolean(message.getParameters().get("updateGoalWall"));
 				//	boolean connectGoalNoteToStatus = Boolean.parseBoolean(message.getParameters().get("connectGoalNoteToStatus"));
@@ -448,7 +409,7 @@ public class SessionMessageHandlerImpl implements MessageHandler<SessionMessage>
 					}
 					break;
 					
-				case UPDATETARGETACTIVITYOUTCOME:
+				case UPDATE_TARGET_ACTIVITY_OUTCOME:
 					if (httpSession != null) {
 						long targetActivityId = Long.parseLong(message.getParameters().get("targetActivityId"));
 						long outcomeId = Long.parseLong(message.getParameters().get("outcomeId"));

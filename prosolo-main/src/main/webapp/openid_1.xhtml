@@ -1,0 +1,42 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:p="http://primefaces.org/ui">
+	
+<h:head>
+	<meta http-equiv="content-type" content="text/html" charset="UTF-8"/>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/style.css?#{loggeduser.loginTime}" />
+	<link rel="icon" href="#{request.contextPath}/favicon.ico" type="image/x-icon" />
+	<title>OpenID | ProSolo</title>
+</h:head>
+<f:view contentType="text/html">
+        <center>
+            <h:form>
+                <h:inputHidden value="#{openid.onLoad}"/>
+                <h:panelGrid columns="2">
+                    <p:outputLabel for="userSuppliedId" value="User Supplied Id: "/>
+                    <h:outputText id="userSuppliedId" value="#{openid.userSuppliedId}"/>
+
+                    <p:outputLabel for="email" value="Email "/>
+                    <h:outputText id="email" value="#{openid.openIdEmail}"/>
+
+                    <p:outputLabel for="firstname" value="Firstname: "/>
+                    <h:outputText id="firstname" value="#{openid.openIdFirstName}"/>
+
+                    <p:outputLabel for="lastname" value="Lastname: "/>
+                    <h:outputText id="lastname" value="#{openid.openIdLastName}"/>
+                    
+                    <p:outputLabel for="validatedId" value="validatedId: "/>
+                    <h:outputText id="validatedId" value="#{openid.validatedId}"/>
+                    
+                 </h:panelGrid>
+                 <h:commandButton id="loginButton" 
+                 action="#{loggeduser.loginOpenId(openid.openIdEmail)}" type="submit" class="button blue size30 left" value="Login"/>
+            </h:form>
+        </center>
+</f:view>
+</html>
+

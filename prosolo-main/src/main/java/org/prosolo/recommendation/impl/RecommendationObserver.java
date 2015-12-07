@@ -59,7 +59,7 @@ public class RecommendationObserver implements EventObserver {
 				User receiver = recommendation.getRecommendedTo();
 				
 			if(CommonSettings.getInstance().config.rabbitMQConfig.distributed){
-					messageDistributer.distributeMessage(ServiceType.ADDSUGGESTEDBYCOLLEAGUES, receiver.getId(), recommendation.getId(), null, null);
+					messageDistributer.distributeMessage(ServiceType.ADD_SUGGESTED_BY_COLLEAGUES, receiver.getId(), recommendation.getId(), null, null);
 			}else{
 				HttpSession httpSession = applicationBean.getUserSession(receiver.getId());
 				

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:dlgAnalytics="http://java.sun.com/jsf/composite/components/dialogs/analytics"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+<ui:insert name="metadata" />
+
+<h:head>
+	<f:facet name="first">
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+		<link rel="icon" href="#{request.contextPath}/favicon.ico" type="image/x-icon" />
+		<title><ui:insert name="windowTitle" /></title>
+	</f:facet>
+	
+	<!-- CSS -->
+	<link rel="stylesheet" media="all" src="//normalize-css.googlecode.com/svn/trunk/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css1/bootstrap-checkbox.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css1/bootstrap-select.css"/>
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css1/prosolo-theme/jquery-ui-1.8.21.custom.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css1/style.css?#{loggeduser.loginTime}" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css1/style.custom.css" />
+
+	<!-- FONTS -->
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,400italic,600italic,800' rel='stylesheet' type='text/css' />
+	<!-- JS 
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	-->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+	<script src="#{request.contextPath}/manage/js/jRespond.min.js"></script>
+	<script src="#{request.contextPath}/manage/js/jpanelmenu.js"></script>
+	<script src="#{request.contextPath}/manage/js/bootstrap-select.min.js"></script>
+	<script src="#{request.contextPath}/manage/js/custom.js"></script>
+
+
+	<!--  -->
+	<script src="#{request.contextPath}/resources/javascript/jquery-ui-1.11.2.min.js"></script>
+	<script src="#{request.contextPath}/resources/javascript/jquery.ui.dialog.closeOnClickOutside.min.js"></script>
+	<script src="#{request.contextPath}/resources/javascript/custom.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/jquery.shortenedText.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/jquery.moreLessBox.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/jquery.autosize.min.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/jquery.qtip.min.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/jquery.qtip.prosolo.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/prosolo.search.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/prosolo.bigTooltipControl.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/prosolo.logging.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript/prosolo.overlay.js"></script>
+	
+	<!-- 
+	<script src="https://www.youtube.com/iframe_api"/>
+	<script	src="#{request.contextPath}/resources/javascript/youtubevideo.js"></script>
+	 -->
+</h:head>
+
+<h:body>
+	<utilcomp:messagesBundle var="msg" />
+	<header>
+		<nav class="navbar navbar-default navbar-fixed-top">
+			<!-- container fluid --> 
+		  <div class="container-fluid">
+		  
+		      <div class="navbar-header">
+		      	<!-- mobile menu button start -->
+		         <button type="button" class="navbar-toggle collapsed pull-left" id="menu-trigger" aria-expanded="false">
+		            <span class="sr-only">Toggle navigation</span>
+		            <span class="icon-bar"></span>
+		            <span class="icon-bar"></span>
+		            <span class="icon-bar"></span>
+		         </button><!-- mobile menu button end -->  
+		         
+		         
+		         <!-- selection switch start-->
+		         <ul class="nav navbar-nav mainLogos">
+		         
+		            <li>
+		            	<h:link 
+		            		onclick="sendLogPageNavigation( '/admin/users', 'mainmenu');" 
+							outcome="/admin/users" 
+							class="logo" 
+							data-toggle="dropdown" 
+							role="button" 
+							aria-haspopup="true" 
+							aria-expanded="false">
+							<span class="secAdmin"></span>
+						</h:link>
+					</li>
+						
+						
+					<h:panelGroup rendered="#{loggeduser.hasCapability('basic.manager.access') 
+								or loggeduser.hasCapability('basic.user.access')}">
+		            	<li class="dropdown">
+		              		<a href="javascript:void(0);" class="dropdown-toggle sectionSwitch" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-angle-down"></i></a>
+		               		<ul class="dropdown-menu pull-right sectionPanel">
+		                  		<li>
+		                  			<h:link 
+		                  				class="logo" 
+		                  				rendered="#{loggeduser.hasCapability('basic.manager.access')}"
+										onclick="sendLogPageNavigation( '/manage/courses', 'mainmenu');"
+										outcome="/manage/courses">
+										<span class="secManage"></span>
+									</h:link>
+		                  		</li>
+		                  		<li>
+		                  			<h:link 
+		                  				class="logo"
+						  				onclick="sendLogPageNavigation('index','mainmenu');" 
+										outcome="/index">
+										<span class="secUser"></span>
+						  			</h:link>
+		                  		</li>
+		               		</ul>
+		            	</li>
+		         	</h:panelGroup>
+		         </ul><!-- selection switch end-->      
+		               
+		      </div>
+		
+		      <!-- main menu (left mobile menu) start -->
+		      <div class="collapse navbar-collapse pull-left" id="mainMenu">
+		         <ul class="nav navbar-nav mainMenu">
+		         	<li class="#{util:getPagePath(view.viewId)  == 'users' ? 'selected' : ''}">
+								<h:link rendered="#{loggeduser.hasCapability('users.view')}"
+									onclick="sendLogPageNavigation( '/admin/users','mainmenu');"
+									value="Users" 
+									outcome="/admin/users" />
+					</li>
+					<li class="#{util:getPagePath(view.viewId)  == 'roles' ? 'selected' : ''}">
+						<h:link rendered="#{loggeduser.hasCapability('roles.view')}"
+							onclick="sendLogPageNavigation( '/admin/roles','mainmenu');"
+							value="Roles"
+							outcome="/admin/roles" />
+					</li>
+					<li class="#{util:getPagePath(view.viewId)  == 'dashboard' ? 'selected' : ''}">
+						<h:link rendered="#{loggeduser.hasCapability('adminDashboard.view')}"
+							onclick="sendLogPageNavigation( '/admin/dashboard','mainmenu');"
+							value="Dashboard"
+							outcome="/admin/dashboard" />
+					</li>
+					<li class="#{util:getPagePath(view.viewId)  == 'settings' ? 'selected' : ''}">
+						<h:link
+							onclick="sendLogPageNavigation( '/admin/settings', 'mainmenu');"
+							value="Settings"
+							outcome="/admin/settings" />
+					</li>
+					<li class="#{util:getPagePath(view.viewId)  == 'analyticsSettings' ? 'selected' : ''}">
+						<h:link
+							onclick="sendLogPageNavigation( '/admin/analyticsSettings', 'mainmenu');"
+							value="Analytics Settings"
+							outcome="/admin/analyticsSettings" />
+					</li>
+		         </ul>
+		      </div> <!-- main menu (left mobile menu) end -->
+		    
+		    <ul class="nav navbar-nav userActions pull-right">
+		         <ui:include src="/resources/components/topmenu1/search.xhtml"></ui:include>
+		         <ui:include src="/resources/components/topmenu1/inbox.xhtml"></ui:include>
+		         <ui:include src="/resources/components/topmenu1/notifications.xhtml"></ui:include>
+		         <!-- <li><a href="#" class="faded"><i class="fa fa-envelope-o fa-lg"></i></a></li> -->
+		         
+		    
+		    	<li class="dropdown user">
+		            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+		               <span class="userProfileImage">
+		               <h:graphicImage value="#{profileSettings.accountData.avatarPath}"
+									   alt="" />
+		               </span>
+		               <span class="hideMobile">#{loggeduser.getUser().getName().concat(" ").concat(loggeduser.getUser().getLastname())}</span> <i class="fa fa-angle-down"></i>
+		            </a>
+		            <ul class="dropdown-menu pull-right">
+		               <li>
+		               		<h:link 
+								onclick="sendLogPageNavigation('diggest','mainmenu');" 
+								value="Digest" 
+								outcome="/digest" />
+		               </li>
+		               <li>
+		               		<h:link 
+								onclick="sendLogPageNavigation('communications','mainmenu');" 
+								value="Communications" 
+								outcome="/communications" />
+		               </li>
+		               <li>
+		               		<h:link 
+								onclick="sendLogPageNavigation('search','mainmenu');" 
+								value="Search" 
+								outcome="/search" />
+		               </li>
+		               <li>
+		               		<h:link 
+								onclick="sendLogPageNavigation('settings','mainmenu');" 
+								value="Settings" 
+								outcome="/settings" />
+		               </li>
+		               <li role="separator" class="divider"></li>
+		               <li>
+							<a href="#{request.contextPath}/logout">Logout</a>
+					   </li>
+		            </ul>
+		         </li>
+		    </ul>
+		    
+		     
+		    
+		  </div><!-- container fluid end--> 
+		</nav>
+	</header>
+	<!-- header end -->
+	
+	<ui:insert name="content" />
+	
+	
+	
+	<dlg:appendedActivities id="appActivities"/>
+	<ui:include	src="/resources/components/dialogs/addToCompetence.xhtml" />
+	<dlg:addToGoal id="addToGoal" />
+	<ui:include	src="/resources/components/dialogs/userDetailsData.xhtml" />
+	<ui:include	src="/resources/components/dialogs/newDirectMessage.xhtml" />
+	
+	<ui:remove>
+		<!-- Needed for the notifications dropdown -->
+	</ui:remove>
+	<ui:include	src="/resources/components/dialogs/goalDetailsDialog.xhtml" />
+	<ui:include	src="/resources/components/dialogs/peopleListDialog.xhtml" />
+	<ui:include	src="/resources/components/dialogs/joinGoalDialog.xhtml" />
+</h:body>
+
+</html>

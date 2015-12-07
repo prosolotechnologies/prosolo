@@ -15,7 +15,7 @@ public class RecommendationData implements Serializable {
 	
 	private static final long serialVersionUID = 6038078929220025547L;
 
-	private long resourceId;
+	private long id;
 	private long makerId;
 	private RecommendedResourceType resourceType;
 	private RecommendationType recommendationType;
@@ -91,12 +91,12 @@ public class RecommendationData implements Serializable {
 		this.recommendation = recommendation;
 	}
 
-	public long getResourceId() {
-		return resourceId;
+	public long getId() {
+		return id;
 	}
 
-	public void setResourceId(long resourceId) {
-		this.resourceId = resourceId;
+	public void setId(long id) {
+		this.id = id;
 	}
 
 	public long getMakerId() {

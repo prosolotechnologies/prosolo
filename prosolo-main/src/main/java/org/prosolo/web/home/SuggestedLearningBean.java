@@ -116,27 +116,24 @@ public class SuggestedLearningBean implements Serializable {
 		}
 	}
 	
-	public void removeSuggestedResource(RecommendationData recommendationData) {
-		RecommendationType rType = recommendationData.getRecommendationType();
-		Node node = (Node) recommendationData.getResource();
-		
-		if (rType.equals(RecommendationType.USER)) {
+	public void removeSuggestedResource(RecommendationType type, long resourceId) {
+		if (type.equals(RecommendationType.USER)) {
 			ListIterator<RecommendationData> suggestedByColleaguesIterator = this.suggestedByColleagues.listIterator();
 			
 			while (suggestedByColleaguesIterator.hasNext()) {
 				RecommendationData rData = suggestedByColleaguesIterator.next();
 				
-				if (rData.getResource().equals(node)) {
+				if (rData.getId() == resourceId) {
 					suggestedByColleaguesIterator.remove();
 				}
 			}
-		} else if (rType.equals(RecommendationType.SYSTEM)) {
+		} else if (type.equals(RecommendationType.SYSTEM)) {
 			ListIterator<RecommendationData> suggestedBySystemIterator = this.suggestedBySystem.listIterator();
 			
 			while (suggestedBySystemIterator.hasNext()) {
 				RecommendationData rData = suggestedBySystemIterator.next();
 				
-				if (rData.getResource().equals(node)) {
+				if (rData.getId() == resourceId) {
 					suggestedBySystemIterator.remove();
 				}
 			}
@@ -154,7 +151,7 @@ public class SuggestedLearningBean implements Serializable {
 			searchSuggestedLearningBean.removeSuggestedRecommendation(recommendationData);
 		}
 		
-		removeSuggestedResource(recommendationData);
+		removeSuggestedResource(recommendationData.getRecommendationType(), recommendationData.getId());
 		recommendationManager.dismissRecommendation(recommendationData, loggedUser.getUser());
 	}
 

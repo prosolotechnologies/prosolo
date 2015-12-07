@@ -3,7 +3,9 @@ package org.prosolo.web.communications.data;
 import java.io.Serializable;
 import java.util.Date;
 
+import org.prosolo.common.domainmodel.user.MessageParticipant;
 import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.web.activitywall.data.UserDataFactory;
@@ -20,12 +22,12 @@ public class MessageData implements Serializable, Comparable<MessageData> {
 	private String date;
 	private String message;
 
-	public MessageData(SimpleOfflineMessage message) {
+	public MessageData(SimpleOfflineMessage message, User user) {
 		this.id = message.getId();
 		this.threadId = message.getMessageThread().getId();
-		this.actor = UserDataFactory.createUserData(message.getSender());
+		this.actor = UserDataFactory.createUserData(message.getSender().getParticipant());
 		this.message = message.getContent();
-		this.readed = message.isRead();
+		this.readed = checkIfRead(message, user);
 		this.created = message.getDateCreated();
 		
 		String timeCreated = null;
@@ -38,6 +40,15 @@ public class MessageData implements Serializable, Comparable<MessageData> {
 		this.date = timeCreated;
 	}
 	
+	private boolean checkIfRead(SimpleOfflineMessage message, User user) {
+		for(MessageParticipant mp : message.getParticipants()) {
+			if(mp.getParticipant().equals(user)) {
+				return mp.isRead();
+			}
+		}
+		return false;
+	}
+
 	public long getId() {
 		return id;
 	}

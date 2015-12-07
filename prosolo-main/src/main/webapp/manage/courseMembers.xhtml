@@ -26,8 +26,8 @@
 			<h:form id="usersForm" class="usersForm" prependId="false" enctype="multipart/form-data">
 			
 				<div class="clear"></div>
-			
-				<p:dataTable id="usersDataTable" 
+
+				<p:dataTable id="usersDataTable"
 					var="user"
 					rowIndexVar="rowIndex"
 					value="#{courseMembersBean.members}" 
@@ -40,7 +40,7 @@
                     paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
                     rowsPerPageTemplate="5,10,15"
                     paginatorPosition="bottom">
-	
+
 					<f:facet name="header">Members</f:facet>
 					
 					<p:column headerText="#" styleClass="center middleAlign">
@@ -73,8 +73,5 @@
 			</h:form>
 		</div>
 	</div>
-	
-
 </ui:define>
-
 </ui:composition>

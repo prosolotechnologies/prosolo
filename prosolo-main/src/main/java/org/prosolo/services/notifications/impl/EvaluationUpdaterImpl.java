@@ -48,93 +48,94 @@ public class EvaluationUpdaterImpl extends AbstractManagerImpl implements Evalua
 
 	@Override
 	public void updateEvaluationData(long evSubmissionId, HttpSession userSession, Session session) throws ResourceCouldNotBeLoadedException {
-		EvaluationSubmission evSubmission = defaultManager.loadResource(EvaluationSubmission.class, evSubmissionId, session);
-
-		BaseEntity resource = evSubmission.getRequest().getResource();
-
-		LearnBean goalsBean = (LearnBean) userSession.getAttribute("learninggoals");
-		
-		
-		if (goalsBean != null) {
-			if (resource instanceof TargetCompetence) {
-				CompetenceDataCache compData = goalsBean.getData().getDataForTargetCompetence(resource.getId());
-				
-				Evaluation ev = evSubmission.getPrimaryEvaluation();
-				incrementEvaluationCount(compData, ev.getBadges(), ev.isAccepted());
-			} else if (resource instanceof TargetLearningGoal) {
-				GoalDataCache goalData = goalsBean.getData().getDataForTargetGoal(resource.getId());
-				
-				if (goalData != null) {
+		if (userSession != null) {
+			EvaluationSubmission evSubmission = defaultManager.loadResource(EvaluationSubmission.class, evSubmissionId, session);
+	
+			BaseEntity resource = evSubmission.getRequest().getResource();
+			
+			LearnBean goalsBean = (LearnBean) userSession.getAttribute("learninggoals");
+			
+			if (goalsBean != null) {
+				if (resource instanceof TargetCompetence) {
+					CompetenceDataCache compData = goalsBean.getData().getDataForTargetCompetence(resource.getId());
 					
-					evaluationsLoop: for (Evaluation ev : evSubmission.getEvaluations()) {
-						if (ev.getResource() instanceof TargetLearningGoal) {
-							incrementEvaluationCount(goalData.getData(), ev.getBadges(), ev.isAccepted());
-						} else if (ev.getResource() instanceof TargetCompetence) {
-							
-							// loop through goal's competences and look for the one evaluation is for
-							for (CompetenceDataCache compData : goalData.getCompetences()) {
-								if (compData.getData().getId() == ev.getResource().getId()) {
-									incrementEvaluationCount(compData, ev.getBadges(), ev.isAccepted());
-									
-									continue evaluationsLoop;
+					Evaluation ev = evSubmission.getPrimaryEvaluation();
+					incrementEvaluationCount(compData, ev.getBadges(), ev.isAccepted());
+				} else if (resource instanceof TargetLearningGoal) {
+					GoalDataCache goalData = goalsBean.getData().getDataForTargetGoal(resource.getId());
+					
+					if (goalData != null) {
+						
+						evaluationsLoop: for (Evaluation ev : evSubmission.getEvaluations()) {
+							if (ev.getResource() instanceof TargetLearningGoal) {
+								incrementEvaluationCount(goalData.getData(), ev.getBadges(), ev.isAccepted());
+							} else if (ev.getResource() instanceof TargetCompetence) {
+								
+								// loop through goal's competences and look for the one evaluation is for
+								for (CompetenceDataCache compData : goalData.getCompetences()) {
+									if (compData.getData().getId() == ev.getResource().getId()) {
+										incrementEvaluationCount(compData, ev.getBadges(), ev.isAccepted());
+										
+										continue evaluationsLoop;
+									}
 								}
 							}
 						}
 					}
 				}
 			}
-		}
-		
-		PortfolioBean portfolioBean = (PortfolioBean) userSession.getAttribute("portfolio");
-		
-		if (portfolioBean != null) {
-			if (resource instanceof TargetLearningGoal) {
-				if (portfolioBean.getCompletedGoals() != null && !portfolioBean.getCompletedGoals().isEmpty()) {
-					
-					for (GoalData completedGoalData : portfolioBean.getCompletedGoals()) {
+			
+			PortfolioBean portfolioBean = (PortfolioBean) userSession.getAttribute("portfolio");
+			
+			if (portfolioBean != null) {
+				if (resource instanceof TargetLearningGoal) {
+					if (portfolioBean.getCompletedGoals() != null && !portfolioBean.getCompletedGoals().isEmpty()) {
 						
-						if (completedGoalData.getGoalId() == resource.getId()) {
-							Evaluation ev = evSubmission.getPrimaryEvaluation();
+						for (GoalData completedGoalData : portfolioBean.getCompletedGoals()) {
 							
-							incrementEvaluationCount(completedGoalData, ev.getBadges(), ev.isAccepted());
-							
-							break;
+							if (completedGoalData.getGoalId() == resource.getId()) {
+								Evaluation ev = evSubmission.getPrimaryEvaluation();
+								
+								incrementEvaluationCount(completedGoalData, ev.getBadges(), ev.isAccepted());
+								
+								break;
+							}
 						}
-					}
-					
-					evaluationsLoop: for (Evaluation ev : evSubmission.getEvaluations()) {
-						if (ev.getResource() instanceof TargetCompetence) {
-							
-							// loop through goal's competences and look for the one evaluation is for
-							for (AchievedCompetenceData achievedCompData : portfolioBean.getCompletedAchievedComps()) {
-								if (achievedCompData.getCompetenceId() == ev.getResource().getId()) {
-									incrementEvaluationCount(achievedCompData, ev.getBadges(), ev.isAccepted());
-									
-									break evaluationsLoop;
+						
+						evaluationsLoop: for (Evaluation ev : evSubmission.getEvaluations()) {
+							if (ev.getResource() instanceof TargetCompetence) {
+								
+								// loop through goal's competences and look for the one evaluation is for
+								for (AchievedCompetenceData achievedCompData : portfolioBean.getCompletedAchievedComps()) {
+									if (achievedCompData.getCompetenceId() == ev.getResource().getId()) {
+										incrementEvaluationCount(achievedCompData, ev.getBadges(), ev.isAccepted());
+										
+										break evaluationsLoop;
+									}
 								}
 							}
 						}
 					}
-				}
-			} else if (resource instanceof AchievedCompetence || resource instanceof TargetCompetence) {
-				for (AchievedCompetenceData achievedCompData : portfolioBean.getCompletedAchievedComps()) {
-					if (achievedCompData.getId() == resource.getId()) {
-						
-						Evaluation ev = evSubmission.getPrimaryEvaluation();
-						incrementEvaluationCount(achievedCompData, ev.getBadges(), ev.isAccepted());
-						
-						break;
-					}
-				}
-			} else if (resource instanceof ExternalCredit) {
-				if (portfolioBean.getExternalCredits() != null && !portfolioBean.getExternalCredits().isEmpty()) {
-					
-					for (ExternalCreditData externalCreditData : portfolioBean.getExternalCredits()) {
-						if (externalCreditData.getId() == resource.getId()) {
+				} else if (resource instanceof AchievedCompetence || resource instanceof TargetCompetence) {
+					for (AchievedCompetenceData achievedCompData : portfolioBean.getCompletedAchievedComps()) {
+						if (achievedCompData.getId() == resource.getId()) {
+							
 							Evaluation ev = evSubmission.getPrimaryEvaluation();
-							incrementEvaluationCount(externalCreditData, ev.getBadges(), ev.isAccepted());
+							incrementEvaluationCount(achievedCompData, ev.getBadges(), ev.isAccepted());
 							
 							break;
+						}
+					}
+				} else if (resource instanceof ExternalCredit) {
+					if (portfolioBean.getExternalCredits() != null && !portfolioBean.getExternalCredits().isEmpty()) {
+						
+						for (ExternalCreditData externalCreditData : portfolioBean.getExternalCredits()) {
+							if (externalCreditData.getId() == resource.getId()) {
+								Evaluation ev = evSubmission.getPrimaryEvaluation();
+								incrementEvaluationCount(externalCreditData, ev.getBadges(), ev.isAccepted());
+								
+								break;
+							}
 						}
 					}
 				}

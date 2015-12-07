@@ -100,7 +100,7 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 			Map<String, Object> result = new HashMap<>();
 			result.put("observationId", observation.getId());
 			
-			if(insert && message != null && !message.isEmpty()){
+			if(insert && message != null && !message.isEmpty() && creatorId != studentId){
 				SimpleOfflineMessage msg = msgManager.sendMessage(creatorId, studentId, message);
 				result.put("message", msg);
 			}

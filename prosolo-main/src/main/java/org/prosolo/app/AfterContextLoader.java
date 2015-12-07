@@ -21,7 +21,6 @@ import org.prosolo.common.messaging.rabbitmq.QueueNames;
 import org.prosolo.common.messaging.rabbitmq.ReliableConsumer;
 import org.prosolo.common.messaging.rabbitmq.impl.ReliableConsumerImpl;
 import org.prosolo.config.security.SecurityService;
-import org.prosolo.config.security.impl.SecurityServiceImpl;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.recommendation.CollaboratorsRecommendation;
 import org.prosolo.services.admin.ResourceSettingsManager;

@@ -53,8 +53,8 @@
 										<icon:goal size="16" styleClass="icon" />
 										<p:commandLink
 											onclick="$('#goalDetailsModalDialog').dialog('open');"
-											actionListener="#{loggingBean.logServiceUse('GOAL_DIALOG', 'context', 'index.suggestedLearning.colleagues', 'action', 'openLearningGoalDialog', 'goalId', recommendedData.resourceId)}"
-											action="#{goalDialog.initializeRecommendedGoalDialog(recommendedData.resourceId, recommendedData.makerId)}"
+											actionListener="#{loggingBean.logServiceUse('GOAL_DIALOG', 'context', 'index.suggestedLearning.colleagues', 'action', 'openLearningGoalDialog', 'goalId', recommendedData.id)}"
+											action="#{goalDialog.initializeRecommendedGoalDialog(recommendedData.id, recommendedData.makerId)}"
 											update=":goalDetailsDialogForm"
 											value="#{recommendedData.resourceTitle}" styleClass="title" />
 									</h:panelGroup>
@@ -62,7 +62,7 @@
 									<h:panelGroup rendered="#{recommendedData.resourceType == 'COMPETENCE'}">
 										<icon:competence size="16" styleClass="icon" /> 
 										<link:competence
-											resourceId="#{recommendedData.resourceId}"
+											resourceId="#{recommendedData.id}"
 											title="#{recommendedData.resourceTitle}"
 											type="Competence"
 											styleClass="title" 
@@ -108,8 +108,8 @@
 										<icon:goal size="16" styleClass="icon"/>
 										<p:commandLink
 											onclick="$('#goalDetailsModalDialog').dialog('open');"
-											action="#{goalDialog.initializeRecommendedGoalDialog(recommendedData.resourceId)}"
-											actionListener="#{loggingBean.logServiceUse('GOAL_DIALOG', 'context', 'index.suggestedLearning.system', 'action', 'openLearningGoalDialog', 'goalId', recommendedData.resourceId)}"
+											action="#{goalDialog.initializeRecommendedGoalDialog(recommendedData.id)}"
+											actionListener="#{loggingBean.logServiceUse('GOAL_DIALOG', 'context', 'index.suggestedLearning.system', 'action', 'openLearningGoalDialog', 'goalId', recommendedData.id)}"
 											value="#{recommendedData.resourceTitle}"
 											update=":goalDetailsDialogForm" styleClass="title">
 										</p:commandLink>
@@ -118,7 +118,7 @@
 									<h:panelGroup rendered="#{recommendedData.resourceType == 'COMPETENCE'}">
 										<icon:competence size="16" styleClass="icon" />  
 										<link:competence
-											resourceId="#{recommendedData.resourceId}"
+											resourceId="#{recommendedData.id}"
 											title="#{recommendedData.resourceTitle}"
 											type="Competence"
 											styleClass="title" 
@@ -162,7 +162,7 @@
 									<li>
 										<icon:competence size="16" styleClass="icon" />
 										<link:competence
-											resourceId="#{recommendedData.resourceId}"
+											resourceId="#{recommendedData.id}"
 											title="#{recommendedData.resourceTitle}"
 											type="Competence"
 											styleClass="title" 

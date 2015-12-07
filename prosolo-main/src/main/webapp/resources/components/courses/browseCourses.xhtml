@@ -250,7 +250,7 @@
 									 <h:link id= "linkMembers" 
 									 	rendered="#{not empty courseData.memberIds}"
 										value="#{courseData.memberIds.size()} people" 
-										outcome="/manage/courseMembers" target="_blank">
+										outcome="/manage/courseMembers">
 										<f:param name="id" value="#{util:encodeId(courseData.id)}" />
 									</h:link>
 									

@@ -22,42 +22,41 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
-
+	
 	@Inject
 	private UserSessionDataLoader sessionDataLoader;
 	@Inject
 	private EventFactory eventFactory;
 	
 	@Override
-	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-			Authentication authentication) throws IOException, ServletException {
-
+	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
+			throws IOException, ServletException {
+			
 		User user = (User) authentication.getPrincipal();
 		HttpSession session = request.getSession(true);
 		
 		boolean success;
-		try{
+		try {
 			Map<String, Object> sessionData = sessionDataLoader.init(user.getUsername(), request, session);
 			session.setAttribute("user", sessionData);
-			try{
+			try {
 				eventFactory.generateEvent(EventType.LOGIN, (org.prosolo.common.domainmodel.user.User) sessionData.get("user"));
-			}catch(Exception e){
+			} catch (Exception e) {
 				logger.error(e);
 			}
 			success = true;
-		}catch(SessionInitializationException e){
+		} catch (SessionInitializationException e) {
 			success = false;
 		}
-		//session.setAttribute("email", user.getUsername());
-		//boolean success = loggedUserBean.login(user.getUsername(), user.getPassword(), request, session);
+		
 		if (success) {
-			if(authentication instanceof RememberMeAuthenticationToken){
+			if (authentication instanceof RememberMeAuthenticationToken) {
 				String uri = request.getRequestURI();
 				uri = uri.substring(request.getContextPath().length());
-				String url = request.getRequestURL().toString();
+//				String url = request.getRequestURL().toString();
 				
 				setDefaultTargetUrl(uri);
-			}else{
+			} else {
 				setDefaultTargetUrl(new HomePageResolver().getHomeUrl());
 			}
 			// setAlwaysUseDefaultTargetUrl(true);
@@ -69,7 +68,7 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 			setDefaultTargetUrl("/login?error=Incorrect email or password");
 			super.onAuthenticationSuccess(request, response, authentication);
 		}
-
+		
 	}
-
+	
 }

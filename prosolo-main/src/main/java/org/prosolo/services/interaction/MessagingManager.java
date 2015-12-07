@@ -14,8 +14,10 @@ import org.prosolo.web.communications.data.MessagesThreadData;
 
 public interface MessagingManager extends AbstractManager {
 	
-	List<SimpleOfflineMessage> sendMessages(long senderId, List<UserData> receivers, String text, long threadId, String context) throws ResourceCouldNotBeLoadedException;
+//	List<SimpleOfflineMessage> sendMessages(long senderId, List<UserData> receivers, String text, long threadId, String context) throws ResourceCouldNotBeLoadedException;
 
+	SimpleOfflineMessage sendMessages(long senderId, List<UserData> receivers, String text, long threadId, String context) throws ResourceCouldNotBeLoadedException;
+	
 	SimpleOfflineMessage sendSimpleOfflineMessage(long senderId, long receiverId,
 			String content, long threadId, String context) throws ResourceCouldNotBeLoadedException;
 
@@ -41,15 +43,15 @@ public interface MessagingManager extends AbstractManager {
 	MessagesThreadData convertMessagesThreadToMessagesThreadData(
 			MessagesThread mThread, User user);
 
-	boolean markAsRead(long[] messageIds, Session session) throws ResourceCouldNotBeLoadedException;
+	//boolean markAsRead(long[] messageIds, User user, Session session) throws ResourceCouldNotBeLoadedException;
 
-	SimpleOfflineMessage markAsRead(SimpleOfflineMessage message, Session session);
+	SimpleOfflineMessage markAsRead(SimpleOfflineMessage message, User user, Session session);
 
 	MessagesThread findMessagesThreadForUsers(long user1Id, long user2Id);
 
 	List<MessagesThread> getLatestUserMessagesThreads(User user, int page, int limit);
 
-	boolean markThreadAsRead(long threadId);
+	boolean markThreadAsRead(long threadId, User user);
 
 	List<SimpleOfflineMessage> getMessagesForThread(MessagesThread thread,
 			int page, int limit, Session session);

@@ -7,13 +7,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;
@@ -31,7 +29,6 @@ import org.prosolo.services.activityWall.filters.MyActivitiesFilter;
 import org.prosolo.services.activityWall.filters.MyNetworkFilter;
 import org.prosolo.services.activityWall.filters.TwitterFilter;
 import org.prosolo.services.annotation.TagManager;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.logging.AccessResolver;

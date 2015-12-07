@@ -1,10 +1,17 @@
 package org.prosolo.common.domainmodel.user;
 
+import java.util.List;
+import java.util.Set;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.MessagesThread;
@@ -16,30 +23,30 @@ public class SimpleOfflineMessage extends BaseEntity {
 
 	private static final long serialVersionUID = -2686037343840070507L;
 
-	private User receiver;
-	private User sender; 
+	private MessageParticipant sender; 
+	private Set<MessageParticipant> participants;
 	private String content;
-	private boolean read;
 	private MessagesThread messageThread;
 
 	// private String subject;
 
-	@ManyToOne
-	public User getReceiver() {
-		return receiver;
-	}
-
-	public void setReceiver(User receiver) {
-		this.receiver = receiver;
-	}
-
-	@ManyToOne
-	public User getSender() {
+	@OneToOne
+	public MessageParticipant getSender() {
 		return sender;
 	}
 
-	public void setSender(User sender) {
+	public void setSender(MessageParticipant sender) {
 		this.sender = sender;
+	}
+
+	@OneToMany
+	@Cascade (CascadeType.ALL)
+	public Set<MessageParticipant> getParticipants() {
+		return participants;
+	}
+
+	public void setParticipants(Set<MessageParticipant> participants) {
+		this.participants = participants;
 	}
 
 	@Column(name = "content", nullable = true, length=9000)
@@ -51,15 +58,6 @@ public class SimpleOfflineMessage extends BaseEntity {
 		this.content = content;
 	}
  
-	@Type(type = "true_false")
-	@Column(name = "readed", columnDefinition = "char(1) DEFAULT 'F'")
-	public boolean isRead() {
-		return read;
-	}
-
-	public void setRead(boolean read) {
-		this.read = read;
-	}
 	@ManyToOne
 	@JoinColumn(name="messageThread_id")
 	public MessagesThread getMessageThread() {

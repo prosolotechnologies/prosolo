@@ -92,7 +92,7 @@ public class TopInboxBean implements Serializable {
             @Override
             public void run() {
             	for (Long threadId : unreadThreadIds1) {
-            		messagingManager.markThreadAsRead(threadId);
+            		messagingManager.markThreadAsRead(threadId, loggedUser.getUser());
             	}
             }
 		});
