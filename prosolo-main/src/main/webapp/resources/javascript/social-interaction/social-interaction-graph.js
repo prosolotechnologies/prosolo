@@ -7,6 +7,8 @@ define(['jquery', 'd3'], function($, d3) {
         { name: "four", cond: function(id) { return true; }}
     ];
     
+    var foci = {"one" : {x: 150, y: 150}, "two" : {x: 350, y: 250}, "three" : {x: 700, y: 400}, "four" : {x: 700, y: 700}};
+    
     function getSocialInteractions(config){
         $.ajax({
             url : "http://" + config.host + "/api/social/interactions/all",
@@ -18,19 +20,22 @@ define(['jquery', 'd3'], function($, d3) {
         });
     }
     
-    function dofocus(user, config) {
-        var found = clusters.filter(function(cluster) {
+    function cluster(user) {
+        return clusters.filter(function(cluster) {
             return cluster.cond(user);
-        });
+        })[0].name;
+    }
+    
+    function dofocus(user, config) {
         var focus = user == config.studentId ? "focus " : "";
-        return focus + found[0].name;
+        return focus + cluster(user);
     }
     
     function run(config, links) {
 
         var nodes = links.reduce(function(res, link) {
-            res[link.source] = { name: link.source };
-            res[link.target] = { name: link.target };
+            res[link.source] = { name: link.source, cluster: cluster(link.source) };
+            res[link.target] = { name: link.target, cluster: cluster(link.target) };
             return res;
         }, {});
 
@@ -62,7 +67,8 @@ define(['jquery', 'd3'], function($, d3) {
                     source: nodes[link.source],
                     target: nodes[link.target],
                     value: link.count,
-                    type: type(v(link.count))
+                    type: type(v(link.count)),
+                    cluster: cluster(link.source)
                 };
             });
         }
@@ -73,7 +79,7 @@ define(['jquery', 'd3'], function($, d3) {
         var d3nodes = d3.values(nodes);
         var n = d3nodes.length;
         d3nodes.forEach(function(d, i) {
-            d.x = d.y = width / n * i;
+            d.x = d.y = width / n * n * i;
         });
         var force = d3.layout.force()
             .nodes(d3nodes)
@@ -141,19 +147,24 @@ define(['jquery', 'd3'], function($, d3) {
             svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
         }
         
-        function tick() {
+        function tick(e) {
             path.attr("d", function(d) {
                 var dx = d.target.x - d.source.x,
                     dy = d.target.y - d.source.y,
                     dr = Math.sqrt(dx * dx + dy * dy) * 2;
                 return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
             });
+
+            var k = .1 * e.alpha;
+            d3nodes.forEach(function(o, i) {
+                o.y += (foci[o.cluster].y - o.y) * k;
+                o.x += (foci[o.cluster].x - o.x) * k;
+            });
             
             node.attr("transform", function(d) {
                 return "translate(" + d.x + "," + d.y + ")";
             });
-        }
-        
+        }      
     }
     
     return {
