@@ -8,7 +8,7 @@ import org.prosolo.web.openid.data.OpenIdUserInfo;
 
 public interface EdxOpenIdAuthenticatorService {
 
-	Map<String, Object> startSignIn(HttpServletRequest request, String returnToUrl);
+	Map<String, Object> startSignIn(HttpServletRequest request);
 
 	OpenIdUserInfo verifyResponse(HttpServletRequest httpReq);
 

@@ -73,10 +73,10 @@ public class GoogleOpenIdAuthenticatorServiceImpl implements GoogleOpenIdAuthent
 	 * access token
 	 */
 	@Override
-	public OpenIdUserInfo finishSignIn(HttpServletRequest request) {
+	public OpenIdUserInfo completeSignIn(HttpServletRequest request) {
 		try {
 			String redirectUrl = Settings.getInstance().config.application.domain + GOOGLE_REDIRECT_URL + 
-					"?provider=Google";
+					"?provider="+OpenIdProvider.Google.name();
 			JsonFactory jsonFactory = new JacksonFactory();
 			HttpTransport httpTransport = new NetHttpTransport();
 			

@@ -39,11 +39,11 @@ public class GoogleOpenIdAuthenticator implements OpenIdAuthenticator {
 	}
 
 	@Override
-	public OpenIdUserInfo finishSignIn() {
+	public OpenIdUserInfo completeSignIn() {
 		try {
 			HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
 			googleAuthenticator.validateCallbackRequest(request);
-			return googleAuthenticator.finishSignIn(request);
+			return googleAuthenticator.completeSignIn(request);
 		} catch(OpenIdException e) {
 			try {
 				logger.error(e);

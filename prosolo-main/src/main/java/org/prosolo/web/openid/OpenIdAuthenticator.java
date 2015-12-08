@@ -17,5 +17,5 @@ public interface OpenIdAuthenticator {
 	 * we specified and this method is used for extracting needed user 
 	 * info from data provider sent
 	 */
-	public OpenIdUserInfo finishSignIn();
+	public OpenIdUserInfo completeSignIn();
 }

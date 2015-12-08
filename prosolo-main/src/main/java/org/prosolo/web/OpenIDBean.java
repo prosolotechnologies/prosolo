@@ -112,7 +112,7 @@ public class OpenIDBean implements Serializable {
 
 		String provider = request.getParameter("provider");
 
-		OpenIdUserInfo userInfo = openIdFactory.getOpenIdAuthenticator(provider).finishSignIn();
+		OpenIdUserInfo userInfo = openIdFactory.getOpenIdAuthenticator(provider).completeSignIn();
 
 		if (userInfo != null) {
 			openIdEmail = userInfo.getEmail();

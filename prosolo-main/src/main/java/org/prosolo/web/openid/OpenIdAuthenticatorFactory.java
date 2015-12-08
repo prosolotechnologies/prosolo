@@ -1,13 +1,17 @@
 package org.prosolo.web.openid;
 
+import java.io.Serializable;
+
 import javax.inject.Inject;
 
 import org.prosolo.web.openid.provider.OpenIdProvider;
 import org.springframework.stereotype.Component;
 
 @Component
-public class OpenIdAuthenticatorFactory {
+public class OpenIdAuthenticatorFactory implements Serializable {
 
+	private static final long serialVersionUID = -8225732299689433936L;
+	
 	@Inject
 	private org.prosolo.services.openid.GoogleOpenIdAuthenticatorService googleAuthenticator;
 	@Inject

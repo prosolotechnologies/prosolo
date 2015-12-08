@@ -9,7 +9,7 @@ public interface GoogleOpenIdAuthenticatorService {
 
 	String startSignIn(HttpServletRequest request);
 
-	OpenIdUserInfo finishSignIn(HttpServletRequest request);
+	OpenIdUserInfo completeSignIn(HttpServletRequest request);
 
 	void validateCallbackRequest(HttpServletRequest request) throws OpenIdException;
 
