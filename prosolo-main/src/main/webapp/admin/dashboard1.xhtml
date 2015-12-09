@@ -1,0 +1,178 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	template="templates/masterLayout.xhtml"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+	<ui:define name="windowTitle">
+		Administration: Dashboard
+	</ui:define>
+
+	<ui:define name="content">		
+		<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/tauCharts.min.css" />
+		<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/dashboard.css" />
+		
+		<script	src="#{request.contextPath}/resources/javascript/d3.min.js"></script>
+		<script	src="#{request.contextPath}/resources/javascript/underscore-min.js"></script>
+		<script	src="#{request.contextPath}/resources/javascript/tauCharts.min.js"></script>
+		<script	src="#{request.contextPath}/resources/javascript/readmore.custom.js"></script>
+		<script data-base-url="#{request.contextPath}/resources/javascript" src="#{request.contextPath}/resources/javascript/prosolo.require-config.js"></script>
+		<script data-main="dashboard/main" src="#{request.contextPath}/resources/javascript/require.min.js"></script>
+	
+		<div id="dashboard" class="container admin" data-api="#{dashboardBean.apiHost}" data-no-results-found-message="#{dashboardBean.noResultsFoundMessage}">
+			<div class="content wide">
+				<div class="counts" id="total-users">
+					<h2>Total users</h2>
+					<span class="arrow trend-up" id="total-users-trend"></span>
+					<span class="percent trend-up" id="total-users-count-percent">#{dashboardBean.totalUsersPercent}</span>
+					<span class="count" id="total-users-count">#{dashboardBean.totalUsers}</span>
+				</div>
+				<div class="counts" id="active-users">
+					<h2>Active users</h2>
+					<span class="arrow trend-up" id="active-users-trend"></span>
+					<span class="percent trend-up" id="active-users-count-percent">#{dashboardBean.activeUsersPercent}</span>
+					<span class="count" id="active-users-count">#{dashboardBean.activeUsers}</span>
+				</div>
+				<div class="counts"  id="currently-logged-in">
+					<h2>Logged in users</h2>
+					<span class="count" id="currently-logged-in-count">#{dashboardBean.currentlyLoggedIn}</span>
+				</div>
+				
+				<div id="activityGraph">
+					<h1>Activity graph</h1>
+					<div class="stats">
+						<label>New users<input type="checkbox" name="stats" value="registered" checked="checked"/></label>
+						<label>Logins<input type="checkbox" name="stats" value="login" checked="checked"/></label>
+						<label>Home page views<input type="checkbox" name="stats" value="homepagevisited" checked="checked"/></label>
+						<label>Goals views<input type="checkbox" name="stats" value="goalsviews" checked="checked"/></label>
+						<label>Competences views<input type="checkbox" name="stats" value="competencesviews" checked="checked"/></label>
+						<label>Profile views<input type="checkbox" name="stats" value="profileviews" checked="checked"/></label>
+					</div>
+					
+					<p>Choose date range:</p>
+		   			<div class="timeRange">
+		   				<strong>From:</strong>
+						<h:inputText class="dateField dateFrom" required="false" onfocus="blur();">
+						    <f:convertDateTime pattern="dd.MM.yyyy" />
+						</h:inputText>	
+		   				<strong>To:</strong>
+						<h:inputText class="dateField dateTo" required="false" onfocus="blur();">
+						    <f:convertDateTime pattern="dd.MM.yyyy" />
+						</h:inputText>
+					</div>
+					
+					<div class="period">
+						<input id="day" type="radio" name="periods" value="DAY" checked="checked" />
+	   					<label for="day">Day</label>
+	   					<input id="week" type="radio" name="periods" value="WEEK" />
+					   	<label for="week">Week</label>
+					</div>
+					
+					<div class="chart-block">
+						<div class="messages"></div>
+						<div class="loader"></div>
+						<div class="chart" id="activityGraphChart"></div>
+						<div class="legend" id="activityGraphChartLegend"></div>
+					</div>
+				</div>
+
+				<div id="twitterHashtags">
+					<h1>Twitter hashtags</h1>
+					<div id="mostActiveHashtags">
+						<h2>Most active hashtags<span id="statisticsPeriod"></span></h2>
+						<label for="include-hashtags-without-followers">Without followers</label>
+						<input type="checkbox" name="include-hashtags-without-followers" />
+						<button id="filter-most-active-hashtags">Filter</button>
+						<input name="hashtags-term" data-term="" type="text" />
+						<div class="messages"></div>
+						<table class="dashboard-table" id="mostActiveHashtagsTable"></table>
+						<div class="navigation" data-current="1" data-pages="0" data-paging="5">
+							<label>Paging:
+								<select class="paging">
+									<option value="5" selected="true">5</option>
+									<option value="10">10</option>
+									<option value="15">15</option>
+									<option value="20">20</option>
+									<option value="50">50</option>
+								</select>
+							</label>
+							<a href="#mostActiveHashtags" class="first">First</a>
+							<a href="#mostActiveHashtags" class="previous">Previous</a>
+							<span class="page">0/0</span>
+							<a href="#mostActiveHashtags" class="next">Next</a>
+							<a href="#mostActiveHashtags" class="last">Last</a>
+						</div>
+					</div>
+				
+					<div id="twitterHashtagsGraph">
+						<h2>Hashtags graph</h2>
+						<p>Choose date range:</p>
+			   			<div class="timeRange">
+			   				<strong>From:</strong>
+							<h:inputText class="dateField dateFrom" required="false" onfocus="blur();">
+							    <f:convertDateTime pattern="dd.MM.yyyy" />
+							</h:inputText>	
+			   				<strong>To:</strong>
+							<h:inputText class="dateField dateTo" required="false" onfocus="blur();">
+							    <f:convertDateTime pattern="dd.MM.yyyy" />
+							</h:inputText>
+						</div>
+						
+						<div class="period">
+							<input id="thday" type="radio" name="thperiods" value="DAY" checked="checked" />
+		   					<label for="thday">Day</label>
+		   					<input id="thweek" type="radio" name="thperiods" value="WEEK" />
+						   	<label for="thweek">Week</label>
+						</div>
+						
+						<div class="chart-block">
+							<div class="messages"></div>
+							<div class="loader"></div>
+							<div class="chart" id="twitterHashtagsChart"></div>
+							<div class="legend" id="twitterHashtagsChartLegend"></div>
+						</div>
+					</div>
+					<div id="disabled-twitter-hashtags">
+						<h2>Disabled hashtags</h2>
+						There are total <span id="disabled-hashtags-count">0</span> disabled Twitter hashtags.
+						<table class="dashboard-table" id="disabled-hashtags-table">
+							<thead>
+								<tr>
+									<th>Hashtag</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+						<div class="navigation">
+							<a href="#disabled-twitter-hashtags" class="previous">Previous</a>
+							<span class="page">0/0</span>
+							<a href="#disabled-twitter-hashtags" class="next">Next</a>
+						</div>
+						
+					</div>
+					<h:form id="disable-form" style="display: none;">
+						<h:inputHidden id="hashtag-to-disable" />
+						<h:commandButton id="disable-form-submit">
+							<f:ajax execute="@form" listener="#{dashboardBean.disableHashtag()}" />
+						</h:commandButton>
+					</h:form>
+					<h:form id="enable-form" style="display: none;">
+						<h:inputHidden id="hashtag-to-enable" />
+						<h:commandButton id="enable-form-submit">
+							<f:ajax execute="@form" listener="#{dashboardBean.enableHashtag()}" />
+						</h:commandButton>
+					</h:form>
+					<div id="system-not-available-notification">
+						<p>
+							#{dashboardBean.systemNotAvailableMessage}
+						</p>
+					</div>					
+				</div>	
+			</div>
+		</div>
+	</ui:define>
+</ui:composition>

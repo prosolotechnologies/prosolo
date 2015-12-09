@@ -1,0 +1,42 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:func="http://org.prosolo/functions"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks">
+
+	<composite:interface>
+		<composite:attribute name="styleClass" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<footer>
+			<ul>
+				<li>
+					<h:link 
+						onclick="sendLogPageNavigation('about', 'footer');" 
+						value="About" 
+						outcome="/about"/>
+				</li>
+				<li>
+					<h:link 
+						onclick="sendLogPageNavigation('terms', 'footer');" 
+						value="Terms" 
+						outcome="/terms"/>
+				</li>
+				<li>
+					<a onclick="sendLogPageNavigation( 'https://bitbucket.org/prosolo/prosolo/issues', 'footer');" 
+						href="https://bitbucket.org/prosolo/prosolo/issues">Support</a>
+				</li>
+				<li>
+					ProSolo Technologies Inc © 2015
+				</li>
+			</ul>
+		</footer>
+	</composite:implementation>
+</ui:component>

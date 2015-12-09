@@ -503,28 +503,38 @@
 						</h2>
 
 						<div class="blockRow" id="credentials" style="width: 680px;">
+						
+							<a href="" class="sliderIconLeft">
+								<i class="fa fa-angle-left"></i>
+							</a>
 
-							<ui:repeat var="goal" value="#{studentProfileBean.lGoals}">
-								<p:commandLink
-									styleClass="slideCred progressBlock #{goal.id == studentProfileBean.selectedGoal.id ? 'selected' : ''}"
-									action="#{studentProfileBean.selectGoal(goal)}"
-									update=":progression" oncomplete="drawTreePath()">
-
-									<div class="progress">
-										<div class="progression bgGreen"
-											style="height: #{goal.progress}"></div>
-										<div class="progressMask"></div>
-										<div class="percentage">#{goal.progress}%</div>
-									</div>
-									<h3>#{goal.name}</h3>
-								</p:commandLink>
-							</ui:repeat>
+							<span class="slides">
+								<ui:repeat var="goal" value="#{studentProfileBean.lGoals}">
+									<p:commandLink
+										styleClass="slideCred progressBlock #{goal.id == studentProfileBean.selectedGoal.id ? 'selected' : ''}"
+										action="#{studentProfileBean.selectGoal(goal)}"
+										update=":progression" oncomplete="drawTreePath()">
+	
+										<div class="progress">
+											<div class="progression bgGreen"
+												style="height: #{goal.progress}"></div>
+											<div class="progressMask"></div>
+											<div class="percentage">#{goal.progress}%</div>
+										</div>
+										<h3>#{goal.name}</h3>
+									</p:commandLink>
+								</ui:repeat>
+							</span>
+							
+							<a href="" class="sliderIconRight">
+								<i class="fa fa-angle-right"></i>
+							</a>
 
 							<div class="clearfix"></div>
 						</div>
 
 						<script>
-							$('#credentials').slick({
+							$('#credentials .slides').slick({
 								infinite : false,
 								slidesToShow : 3,
 								slidesToScroll : 2

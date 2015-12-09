@@ -15,75 +15,71 @@
 			<p:growl id="messagesGrowl" showDetail="true" />
 
 			<p:poll interval="#{topInboxBean.refreshRate}"
-				oncomplete="roundImages" update=":inboxForm:messagesInboxPanel"
+				oncomplete="roundImages" update=":inboxForm"
 				widgetVar="messagesPoll" autoStart="true" />
-			<h:panelGroup id="messagesInboxPanel">
-				<p:commandLink styleClass="faded" pt:aria-expanded="false"
-					pt:aria-haspopup="true" pt:role="button" pt:data-toggle="dropdown"
-					action="#{topInboxBean.readMessages()}"
-					actionListener="#{topInboxBean.logInboxServiceUse()}" async="true"
-					update=":inboxForm:messagesContainer @this">
+				
+			<p:commandLink styleClass="faded" pt:aria-expanded="false"
+				pt:aria-haspopup="true" pt:role="button" pt:data-toggle="dropdown"
+				action="#{topInboxBean.readMessages()}"
+				actionListener="#{topInboxBean.logInboxServiceUse()}" async="true"
+				update=":inboxForm:messagesPanelContent @this">
 
-					<i class="fa fa-envelope-o fa-lg"></i>
+				<i class="fa fa-envelope-o fa-lg"></i>
 
-					<h:panelGroup styleClass="bdg"
-						rendered="#{topInboxBean.unreadThreadsNo > 0}">
-						#{topInboxBean.unreadThreadsNo}
+				<h:panelGroup styleClass="bdg"
+					rendered="#{topInboxBean.unreadThreadsNo > 0}">
+					#{topInboxBean.unreadThreadsNo}
+				</h:panelGroup>
+			</p:commandLink>
+
+
+			<div class="dropdown-menu messagesContainer pull-right" aria-labelledby="dLabel">
+
+				<h3 class="title">Messages</h3>
+
+				<h:panelGroup layout="block" styleClass="itemsContainer"  id="messagesPanelContent">
+					
+					<h:panelGroup layout="block" 
+						styleClass="noContent"
+						rendered="#{empty topInboxBean.messagesThreads}">
+                 
+                          	No messages
 					</h:panelGroup>
-				</p:commandLink>
 
-
-				<h:panelGroup layout="block" id="messagesContainer"
-					styleClass="dropdown-menu messagesContainer pull-right"
-					pt:aria-labelledby="dLabel">
-
-					<h3 class="title">Messages</h3>
-
-					<h:panelGroup layout="block" styleClass="itemsContainer">
+					<ui:repeat value="#{topInboxBean.messagesThreads}"
+						var="messageThreadData" varStatus="iterator">
 						
-						<h:panelGroup layout="block" 
-							styleClass="noContent"
-							rendered="#{empty topInboxBean.messagesThreads}">
-                  
-                           	No messages
-						</h:panelGroup>
+						<h:link outcome="/messages" class="item"
+							onclick="sendLogPageNavigationWithParameters('messages', { context:'mainmenu', thread: #{messageThreadData.id}});">
+							<f:param name="id" value="#{util:encodeId(messageThreadData.id)}" />
 
-						<ui:repeat value="#{topInboxBean.messagesThreads}"
-							var="messageThreadData" varStatus="iterator">
-							
-							<h:link outcome="/messages" class="item"
-								onclick="sendLogPageNavigationWithParameters('messages', { context:'mainmenu', thread: #{messageThreadData.id}});">
-								<f:param name="id" value="#{util:encodeId(messageThreadData.id)}" />
+							<div class="row">
+								<div class="col-md-2">
 
-								<div class="row">
-									<div class="col-md-2">
-
-										<span class="userProfileImage"> 
-											<img
-												title="#{messageThreadData.participantsWithoutLoggedUser.get(0).name}"
-												src="#{messageThreadData.participantsWithoutLoggedUser.get(0).avatarUrl != null ? messageThreadData.participantsWithoutLoggedUser.get(0).avatarUrl : colleguesBean.avatarUrlByUserId(messageThreadData.participantsWithoutLoggedUser.get(0).id, 60)}"
-												alt="#{messageThreadData.participantsWithoutLoggedUser.get(0).name}" />
-										</span>
+									<span class="userProfileImage"> 
+										<img
+											title="#{messageThreadData.participantsWithoutLoggedUser.get(0).name}"
+											src="#{messageThreadData.participantsWithoutLoggedUser.get(0).avatarUrl != null ? messageThreadData.participantsWithoutLoggedUser.get(0).avatarUrl : colleguesBean.avatarUrlByUserId(messageThreadData.participantsWithoutLoggedUser.get(0).id, 60)}"
+											alt="#{messageThreadData.participantsWithoutLoggedUser.get(0).name}" />
+									</span>
+								</div>
+								
+								<div class="col-md-10">
+									<div class="userName">
+										#{messageThreadData.participantsWithoutLoggedUser.get(0).name}
+										<div class="date">#{messageThreadData.updateTime}</div>
 									</div>
 									
-									<div class="col-md-10">
-										<div class="userName">
-											#{messageThreadData.participantsWithoutLoggedUser.get(0).name}
-											<div class="date">#{messageThreadData.updateTime}</div>
-										</div>
-										
-										<span>"#{messageThreadData.latest.shortContent}"</span>
-										<div class="more3">Read message</div>
-									</div>
+									<span>"#{messageThreadData.latest.shortContent}"</span>
+									<div class="more3">Read message</div>
 								</div>
-							</h:link>
-						</ui:repeat>
-					</h:panelGroup>
-
-					<h:link styleClass="seeAll" value="See all messages" outcome="/messages" />
-
+							</div>
+						</h:link>
+					</ui:repeat>
 				</h:panelGroup>
-			</h:panelGroup>
+
+				<h:link styleClass="seeAll" value="See all messages" outcome="/messages" />
+			</div>
 		</h:form>
 	</li>
 </ui:composition>
