@@ -58,7 +58,7 @@ implements Serializable, UserObservationsDBManager{
 				+ "WHERE date=?;";
 		this.queries.put("findUserprofileactionsobservationsbydate", findUserprofileactionsobservationsbydate);
 
-		String insertUserquartilefeaturesbyweek  = "INSERT INTO userquartilefeaturesbyweek(course, profile, date, userid, sequence) VALUES (?, ?, ?,?,?);";
+		String insertUserquartilefeaturesbyweek  = "INSERT INTO userquartilefeaturesbyweek(course,  date,profile, userid, sequence) VALUES (?, ?, ?,?,?);";
 		this.queries.put("insertUserquartilefeaturesbyweek",
 				insertUserquartilefeaturesbyweek);
 
@@ -152,8 +152,9 @@ implements Serializable, UserObservationsDBManager{
 				preparedStatements
 						.get("insertUserquartilefeaturesbyweek"));
 		boundStatement.setLong(0, courseid);
-		boundStatement.setString(1, profile);
-		boundStatement.setLong(2,date);
+		boundStatement.setLong(1,date);
+		boundStatement.setString(2, profile);
+
 		boundStatement.setLong(3,userid);
 		boundStatement.setString(4,sequence);
 

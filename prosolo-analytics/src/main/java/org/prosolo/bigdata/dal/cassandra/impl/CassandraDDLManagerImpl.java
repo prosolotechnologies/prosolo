@@ -100,7 +100,7 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		this.ddls.add(userprofileactionsobservationsbydateDDL);
 
 		String userquartilefeaturesbyweekDDL="CREATE TABLE IF NOT EXISTS userquartilefeaturesbyweek(course bigint, profile varchar, date bigint, userid bigint," +
-				"sequence varchar, PRIMARY KEY(course, profile, date))";
+				"sequence varchar, PRIMARY KEY(course, date,profile))";
 		this.ddls.add(userquartilefeaturesbyweekDDL);
 	}
 
