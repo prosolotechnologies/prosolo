@@ -2,6 +2,7 @@ package org.prosolo.services.notifications;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
@@ -16,6 +17,7 @@ import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 import org.prosolo.common.domainmodel.activitywall.comments.Comment;
 import org.prosolo.common.domainmodel.content.Post;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.notifications.Notification;
@@ -27,11 +29,18 @@ import org.prosolo.recommendation.LearningGoalRecommendationCacheUpdater;
 import org.prosolo.services.event.CentralEventDispatcher;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
+import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.messaging.SessionMessageDistributer;
 import org.prosolo.services.nodes.DefaultManager;
+import org.prosolo.services.notifications.emailgenerators.NotificationEmailContentGenerator;
 import org.prosolo.services.notifications.eventprocessing.NotificationEventProcessor;
 import org.prosolo.services.notifications.eventprocessing.NotificationEventProcessorFactory;
 import org.prosolo.web.ApplicationBean;
+import org.prosolo.web.notification.data.NotificationData;
+import org.prosolo.web.notification.exceptions.NotificationNotSupported;
+import org.prosolo.web.notification.util.NotificationDataConverter;
+import org.prosolo.web.util.PageUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -47,6 +56,8 @@ public class NotificationObserver implements EventObserver {
 	@Inject private NotificationCacheUpdater notificationCacheUpdater;
 	@Inject private SessionMessageDistributer messageDistributer;
 	@Inject private NotificationEventProcessorFactory notificationEventProcessorFactory;
+	@Inject private InterfaceSettingsManager interfaceSettingsManager;
+	@Inject private NotificationManager notificationManager;
 	
 	@Override
 	public EventType[] getSupportedEvents() {
@@ -93,27 +104,70 @@ public class NotificationObserver implements EventObserver {
 			if (!notifications.isEmpty()) {
 				
 				for (Notification notification : notifications) {
-					if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
-						messageDistributer.distributeMessage(
-								ServiceType.ADD_NOTIFICATION, 
-								notification.getReceiver().getId(),
-								notification.getId(), 
-								null, 
-								null);
-					} else {
-						HttpSession httpSession = applicationBean.getUserSession(notification.getReceiver().getId());
-						
-						notificationCacheUpdater.updateNotificationData(
-								notification.getId(), 
-								httpSession, 
-								session);
+					if(notification.isNotifyByUI()) {
+						if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
+							messageDistributer.distributeMessage(
+									ServiceType.ADD_NOTIFICATION, 
+									notification.getReceiver().getId(),
+									notification.getId(), 
+									null, 
+									null);
+						} else {
+							HttpSession httpSession = applicationBean.getUserSession(notification.getReceiver().getId());
+							
+							notificationCacheUpdater.updateNotificationData(
+									notification.getId(), 
+									httpSession, 
+									session);
+						}
+					} 
+					
+					if(notification.isNotifyByEmail()) {
+						try {
+							User receiver = notification.getReceiver();
+							UserSettings userSettings = interfaceSettingsManager.
+									getOrCreateUserSettings(receiver, session);
+							Locale locale = getLocale(userSettings);
+							NotificationData notificationData = NotificationDataConverter.convertNotification(
+									receiver, 
+									notification, 
+									session, 
+									locale);
+							
+							String resourceTitle = null;
+							String resourceShortType = null;
+							
+							if(notificationData.getResource() != null) {
+								resourceTitle = notificationData.getResource().getTitle();
+								resourceShortType = notificationData.getResource().getShortType();
+							}
+							
+							notificationManager.sendNotificationByEmail(receiver.getEmail().getAddress(), 
+									receiver.getName(), notificationData.getActor().getName(), 
+									notificationData.getType(), resourceShortType, resourceTitle, 
+									notificationData.getMessage(), notificationData.getDate(), notification.isNotifyByUI());
+							
+							
+						} catch (Exception e) {
+							logger.error(e);
+							e.printStackTrace();
+						}
 					}
+					
 				}
 			}
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		} finally {
 			HibernateUtil.close(session);
+		}
+	}
+	
+	public Locale getLocale(UserSettings userSettings) {
+		if (userSettings!= null && userSettings.getLocaleSettings() != null) {
+			return userSettings.getLocaleSettings().createLocale();
+		} else {
+			return new Locale("en", "US");
 		}
 	}
 

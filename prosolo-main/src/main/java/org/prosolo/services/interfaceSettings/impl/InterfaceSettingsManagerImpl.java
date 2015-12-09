@@ -34,6 +34,12 @@ public class InterfaceSettingsManagerImpl extends AbstractManagerImpl implements
 	@Override
 	@Transactional
 	public UserSettings getOrCreateUserSettings(User user) {
+		return getOrCreateUserSettings(user, persistence.currentManager());
+	}
+	
+	@Override
+	@Transactional
+	public UserSettings getOrCreateUserSettings(User user, Session session) {
 		UserSettings result = getUserSettings(user.getId());
 		
 		if (result != null) {
@@ -42,7 +48,10 @@ public class InterfaceSettingsManagerImpl extends AbstractManagerImpl implements
 			UserSettings userSettings = new UserSettings(user);
 			userSettings.setLocaleSettings(saveEntity(new LocaleSettings("en", "US")));
 			userSettings.setUser(user);
-			this.persistence.save(userSettings);
+			//this.persistence.save(userSettings);
+			session.saveOrUpdate(userSettings);
+			session.flush();
+			
 			return userSettings;
 		}
 	}

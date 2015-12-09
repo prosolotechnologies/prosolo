@@ -25,7 +25,9 @@ public interface NotificationManager extends AbstractManager {
 	
 	boolean markAsRead(long[] notificationIds, Session session) throws ResourceCouldNotBeLoadedException;
 	
-	Notification createNotification(BaseEntity resource, User creator, User receiver, EventType type, String message, Date date, Session session);
+	Notification createNotification(BaseEntity resource, User creator, User receiver, EventType type, 
+			String message, Date date, boolean notifyByUI, 
+			boolean notifyByEmail, Session session);
 
 	Integer getNumberOfUnreadNotifications(User user);
 
@@ -33,4 +35,6 @@ public interface NotificationManager extends AbstractManager {
 
 	Notification markNotificationStatus(long notificationId, NotificationAction status) throws ResourceCouldNotBeLoadedException;
 
+	boolean sendNotificationByEmail(String email, String receiverName, String actor, 
+			String notificationType, String notificationShortType, String resourceTitle, String message, String date, boolean notifyByUI);
 }

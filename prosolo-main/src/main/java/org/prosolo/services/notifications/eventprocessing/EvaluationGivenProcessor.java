@@ -95,7 +95,7 @@ public class EvaluationGivenProcessor extends NotificationEventProcessor {
 	}
 
 	@Override
-	boolean isAdditionalConditionMet(User sender, User receiver) {
+	boolean isConditionMet(User sender, User receiver) {
 		return true;
 	}
 	

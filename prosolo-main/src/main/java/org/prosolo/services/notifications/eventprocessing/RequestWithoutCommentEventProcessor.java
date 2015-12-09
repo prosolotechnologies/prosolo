@@ -49,7 +49,7 @@ public class RequestWithoutCommentEventProcessor extends NotificationEventProces
 	}
 
 	@Override
-	boolean isAdditionalConditionMet(User sender, User receiver) {
+	boolean isConditionMet(User sender, User receiver) {
 		return true;
 	}
 	

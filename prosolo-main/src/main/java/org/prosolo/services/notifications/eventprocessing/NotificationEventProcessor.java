@@ -1,7 +1,9 @@
 package org.prosolo.services.notifications.eventprocessing;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.events.EventType;
@@ -13,6 +15,7 @@ import org.prosolo.common.domainmodel.user.notifications.Notification;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.notifications.NotificationManager;
+import org.prosolo.services.notifications.eventprocessing.data.NotificationDeliveryTypes;
 
 public abstract class NotificationEventProcessor {
 
@@ -51,51 +54,57 @@ public abstract class NotificationEventProcessor {
 		for(User receiver : receivers) {
 			User sender = getSender();
 			if(isConditionMet(sender, receiver)) {
-				Notification notification = notificationManager.createNotification(
-						resource,
-						sender, 
-						receiver,
-						notificationType, 
-						getNotificationMessage(),
-						event.getDateCreated(), 
-						session);
-				
-				afterProcessing(notification, session);
-				notifications.add(notification);
+				NotificationDeliveryTypes ndt = getNotificationDeliveryTypesForUser(receiver);
+				if(ndt.isUi() || ndt.isEmail()) {
+					Notification notification = notificationManager.createNotification(
+							resource,
+							sender, 
+							receiver,
+							notificationType, 
+							getNotificationMessage(),
+							event.getDateCreated(), 
+							ndt.isUi(),
+							ndt.isEmail(),
+							session);
+					
+					afterProcessing(notification, session);
+					notifications.add(notification);
+				}
 			}
 		}
 		
 		return notifications;
 	}
-
-
-	protected boolean isConditionMet(User sender, User receiver) {
-		return isAdditionalConditionMet(sender, receiver) && isReceiverRegisteredForNotification(receiver);
-	};
 	
-	private boolean isReceiverRegisteredForNotification(User receiver) {
+	private NotificationDeliveryTypes getNotificationDeliveryTypesForUser(User receiver) {
+		
 		UserNotificationsSettings userNotificationSettings = notificationsSettingsManager
-				.getOrCreateNotificationsSettings(receiver);
+				.getOrCreateNotificationsSettings(receiver, session);
+
 		if(userNotificationSettings != null) {
 			List<NotificationSettings> settings = userNotificationSettings
 					.getNotificationsSettings();
-			return isUserRegisteredForNotification(settings);
+			return getNotificationDeliveryTypesFromNotificationSettingsList(settings);
 		}
-		return false;
+		return new NotificationDeliveryTypes();
 	}
 
-	private boolean isUserRegisteredForNotification(List<NotificationSettings> settings) {
+	private NotificationDeliveryTypes getNotificationDeliveryTypesFromNotificationSettingsList(List<NotificationSettings> settings) {
+		NotificationDeliveryTypes ndt = new NotificationDeliveryTypes();
+		
 		if(settings != null) {
 			for(NotificationSettings ns : settings) {
 				if(event.getAction() == ns.getType()) {
-					return true;
+					ndt.setUi(ns.isSubscribedUI());
+					ndt.setEmail(ns.isSubscribedEmail());
+					return ndt;
 				}
 			}
 		}
-		return false;
+		return ndt;
 	}
 
-	abstract boolean isAdditionalConditionMet(User sender, User receiver);
+	abstract boolean isConditionMet(User sender, User receiver);
 
 	abstract List<User> getReceivers();
 	

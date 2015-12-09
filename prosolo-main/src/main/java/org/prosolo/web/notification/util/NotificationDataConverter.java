@@ -33,6 +33,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.notifications.Notification;
 import org.prosolo.common.domainmodel.workflow.evaluation.Evaluation;
 import org.prosolo.common.domainmodel.workflow.evaluation.EvaluationSubmission;
+import org.prosolo.common.email.generators.MoustacheUtil;
 import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
@@ -113,7 +114,7 @@ public class NotificationDataConverter {
 		// type
 		try {
 			String type = ResourceBundleUtil.getMessage(
-					"notification.type."+notificationType.toString(), 
+					"notification.type."+notificationType.name(), 
 					locale);
 			notificationData.setType(type);
 		} catch (KeyNotFoundInBundleException e) {

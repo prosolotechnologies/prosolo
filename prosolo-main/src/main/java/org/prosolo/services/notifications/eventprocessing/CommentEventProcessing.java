@@ -65,7 +65,7 @@ public class CommentEventProcessing extends NotificationEventProcessor {
 	}
 
 	@Override
-	boolean isAdditionalConditionMet(User sender, User receiver) {
+	boolean isConditionMet(User sender, User receiver) {
 		if (receiver != null && sender.getId() != receiver.getId()) {
 			return true;
 		} else {

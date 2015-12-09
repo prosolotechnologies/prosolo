@@ -1,13 +1,21 @@
 package org.prosolo.services.notifications.impl;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
+
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activities.requests.Request;
 import org.prosolo.common.domainmodel.activities.requests.RequestStatus;
@@ -29,8 +37,10 @@ import org.prosolo.common.domainmodel.workflow.evaluation.Evaluation;
 import org.prosolo.common.domainmodel.workflow.evaluation.EvaluationSubmission;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.reminders.dal.PersonalCalendarManager;
+import org.prosolo.services.email.EmailSender;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.notifications.NotificationManager;
+import org.prosolo.services.notifications.emailgenerators.NotificationEmailContentGenerator;
 import org.prosolo.services.notifications.util.RequestTypeToNotificationActionMapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,6 +56,8 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 	private static Logger logger = Logger.getLogger(NotificationManager.class);
 	
 	private @Autowired PersonalCalendarManager calendarManager;
+	@Inject
+	private EmailSender emailSender;
  	
 	@Override
 	@Transactional (readOnly = true)
@@ -57,10 +69,12 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 			"LEFT JOIN calendar.notifications notification "+
 			"WHERE user = :user " +
 				"AND notification.read = false " +
+				"AND notification.notifyByUI = :notifyByUI " +
 			"ORDER BY notification.dateCreated DESC" ;
 		
 		Integer resNumber = (Integer) persistence.currentManager().createQuery(query)
 		  	.setEntity("user", user)
+		  	.setBoolean("notifyByUI", true)
 		  	.uniqueResult();
 		
 	  	return resNumber;
@@ -105,11 +119,13 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 			"LEFT JOIN calendar.notifications notification "+
 			"LEFT JOIN FETCH notification.actor "+
 			"WHERE user = :user " +
+			"AND notification.notifyByUI = :notifyByUI " +
 			"ORDER BY notification.dateCreated DESC";
 	  	
 		@SuppressWarnings("unchecked")
 		List<Notification> result = persistence.currentManager().createQuery(query)
 		  	.setEntity("user", user)
+		  	.setBoolean("notifyByUI", true)
 		  	.setFirstResult(page * limit)
 			.setMaxResults(limit)
 	  		.list();
@@ -209,9 +225,12 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public Notification createNotification(BaseEntity resource, User creator, 
-			User receiver, EventType type, String message, Date date, Session session) {
+			User receiver, EventType type, String message, Date date, boolean notifyByUI, 
+			boolean notifyByEmail, Session session) {
 
 		Notification notification = createNotificationForResource(resource);
+		notification.setNotifyByUI(notifyByUI);
+		notification.setNotifyByEmail(notifyByEmail);
 		notification.setDateCreated(date);
 		notification.setUpdated(date);
 		notification.setMessage(message);
@@ -261,6 +280,36 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 		notification.setUpdated(new Date());
 		notification.setChosenAction(status);
 		return saveEntity(notification);
+	}
+	
+	@Override
+	public boolean sendNotificationByEmail(String email, String receiverName, String actor, 
+			String notificationType, String notificationShortType, String resourceTitle, String message, String date, boolean notifyByUI) {
+		email = email.toLowerCase();
+		
+		try {
+			String link = null; 
+			if(notifyByUI) {
+				link = Settings.getInstance().config.application.domain + "communications/notifications";
+			}
+			
+			NotificationEmailContentGenerator generator = new NotificationEmailContentGenerator(receiverName, actor, 
+					notificationType, notificationShortType, resourceTitle, message, date, link);
+			
+			emailSender.sendEmail(generator,  email, "ProSolo Notification");
+			return true;
+		} catch (AddressException e) {
+			logger.error(e);
+		} catch (MessagingException e) {
+			logger.error(e);
+		} catch (UnsupportedEncodingException e) {
+			logger.error(e);
+		} catch (FileNotFoundException e) {
+			logger.error(e);
+		} catch (IOException e) {
+			logger.error(e);
+		}
+		return false;
 	}
 	
 }

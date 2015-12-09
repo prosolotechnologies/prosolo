@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.interfacesettings.NotificationSettings;
 import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
@@ -36,6 +37,12 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 	@Override
 	@Transactional (readOnly = false)
 	public UserNotificationsSettings getOrCreateNotificationsSettings(User user) {
+		return getOrCreateNotificationsSettings(user, persistence.currentManager());
+	}
+	
+	@Override
+	@Transactional (readOnly = false)
+	public UserNotificationsSettings getOrCreateNotificationsSettings(User user, Session session) {
 		UserNotificationsSettings result = getNotificationsSettings(user.getId());
 		
 		if (result != null) {
@@ -46,7 +53,10 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 			
 			notificationsSettings.setNotificationsSettings(getDefaultSubscribedEventTypes());
 			
-			this.persistence.save(notificationsSettings);
+			//this.persistence.save(notificationsSettings);
+			session.saveOrUpdate(notificationsSettings);
+			session.flush();
+			
 			return notificationsSettings;
 		}
 	}

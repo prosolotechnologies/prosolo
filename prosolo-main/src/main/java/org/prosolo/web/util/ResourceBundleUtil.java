@@ -202,7 +202,7 @@ public class ResourceBundleUtil {
     public static String getResourceType(Class<?> clazz, Locale locale) {
 		try {
 			return ResourceBundleUtil.getMessage( 
-				"resource.type." + clazz.getSimpleName(),
+				"resource.type." + getClassName(clazz),
 				locale);
 		} catch (KeyNotFoundInBundleException e) {
 			logger.error(e);
@@ -210,7 +210,18 @@ public class ResourceBundleUtil {
 		return "";
     }
     
-    public static String getActionName(EventType action, Locale locale) {
+    /**
+     * if proxy class remove _$ ... appended to class name
+     */
+    private static String getClassName(Class<?> clazz) {
+    	String name = clazz.getSimpleName();
+    	if(name.indexOf("_") != -1) {
+    		name = name.substring(0, name.indexOf("_"));
+    	}
+    	return name;
+	}
+
+	public static String getActionName(EventType action, Locale locale) {
 		try {
 			return ResourceBundleUtil.getMessage( 
 					"activitywall.actionname." + action.toString(), 

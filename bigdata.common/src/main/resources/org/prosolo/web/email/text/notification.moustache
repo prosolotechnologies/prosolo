@@ -1,0 +1,9 @@
+Hi {{name}},
+
+Following notification has been created for you:
+
+{{actor}} {{notificationType}} {{notificationShortType}} {{resourceTitle}} 
+
+{{message}}
+
+{{date}}  {{#link}} Direct link to this notification: {{link}} {{/link}}

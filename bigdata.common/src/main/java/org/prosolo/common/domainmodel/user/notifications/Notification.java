@@ -39,6 +39,8 @@ public class Notification extends BaseEntity {
 	private NotificationAction chosenAction;
 	private User receiver;
 	private Date updated;
+	private boolean notifyByUI;
+	private boolean notifyByEmail;
 	
 	/**
 	 * User who has created the event.
@@ -146,6 +148,27 @@ public class Notification extends BaseEntity {
 	@Transient
 	public BaseEntity getObject() {
 		return null;
+	}
+
+	@Type(type="true_false")
+	@Column(columnDefinition = "char(1) DEFAULT 'T'")
+	public boolean isNotifyByUI() {
+		return notifyByUI;
+	}
+
+	public void setNotifyByUI(boolean notifyByUI) {
+		this.notifyByUI = notifyByUI;
+	}
+
+	@Type(type="true_false")
+	@Column(columnDefinition = "char(1) DEFAULT 'T'")
+	public boolean isNotifyByEmail() {
+		return notifyByEmail;
+	}
+
+	
+	public void setNotifyByEmail(boolean notifyByEmail) {
+		this.notifyByEmail = notifyByEmail;
 	}
 	
 }

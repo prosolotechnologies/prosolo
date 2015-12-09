@@ -17,6 +17,8 @@ public interface InterfaceSettingsManager extends AbstractManager {
 
 	UserSettings getOrCreateUserSettings(User user);
 	
+	UserSettings getOrCreateUserSettings(User user, Session session);
+	
 	boolean changeActivityWallFilter(UserSettings userSettings, FilterType filter, long courseId);
 	
 	UserSettings acceptTermsOfUse(UserSettings userSettings);
