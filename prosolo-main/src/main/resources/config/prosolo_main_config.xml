@@ -37,7 +37,7 @@
 		<development-mode>true</development-mode>
 		<developer-email>zoran.jeremic@gmail.com</developer-email>
 		<maintenance>false</maintenance>
-		<domain>http://localhost:8080/prosolo/</domain>
+		<domain>http://localhost:8080/</domain>  <!-- This URL must include context root if exists, e.g. http://example.com/ -->
 		<default-refresh-rate>60</default-refresh-rate>
 		<suggested-learning-refresh-rate>6000</suggested-learning-refresh-rate>
 		<messages-inbox-refresh-rate>30</messages-inbox-refresh-rate>
