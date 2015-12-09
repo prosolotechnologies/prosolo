@@ -32,23 +32,26 @@ circle {
   stroke-width: 1px;
 }
 
-circle.A {
-    fill: red;
+circle.one {
+    fill: gray;
 }
 
-circle.B {
+circle.two {
     fill: green;    
 }
 
-circle.C {
+circle.three {
     fill: blue;
+}
+
+circle.four {
+    fill: red;
 }
 
 circle.focus {
     stroke: violet;
     stroke-width: 6px;
 }
-
 
 text {
   fill: #000;

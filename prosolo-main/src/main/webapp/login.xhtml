@@ -61,6 +61,11 @@
 			<c:if test="#{applicationbean.config.application.registration.google or 
 						applicationbean.config.application.registration.edx}">
 				<h:form prependId="false" id="openFormId">
+					<c:if test="${not empty param.openiderr}">
+						<font color="red">
+							<h:outputText value="#{param['openiderr']}" />
+						</font>
+					</c:if>
 					<div class="openIdProviders">
 						<c:if test="#{applicationbean.config.application.registration.google}">
 						    <h:commandLink

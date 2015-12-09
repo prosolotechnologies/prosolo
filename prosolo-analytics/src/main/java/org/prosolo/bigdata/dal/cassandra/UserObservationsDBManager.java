@@ -19,5 +19,11 @@ public interface UserObservationsDBManager {
 
 	boolean updateUserProfileActionsObservationCounter(Long date, Long userid, ObservationType observationType);
 
-	List<Row> findAllUsersProfileObservationsForDate(Long date);
+	List<Row> findAllUsersProfileObservationsForDate(Long date, Long courseId);
+
+	void insertUserQuartileFeaturesByWeek(Long courseid, String profile, Long date, Long userid, String sequence);
+
+	List<Row> findAllUserQuartileFeaturesForCourse(Long courseId);
+
+	List<Row> findAllUserQuartileFeaturesForCourseAndWeek(Long courseId, Long date);
 }

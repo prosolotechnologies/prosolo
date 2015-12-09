@@ -243,12 +243,11 @@ public class AnalyticsSettingsBean implements Serializable {
 	/*public void onSymptomEdit(CellEditEvent event) {
 		DataTable dt=(DataTable) event.getSource();
 		SymptomData sd = (SymptomData) dt.getRowData();
-		System.out.println("Eto ti ga sad "+sd.getDescription());
+		
 	}*/
 	
 	public void prepareSymptomEdit(RowEditEvent event) {
 		SymptomData sd = (SymptomData) event.getObject();
-		System.out.println("SYSO "+((SymptomData) event.getObject()).getDescription());
 		prepareSymptomEdit(sd);
     }
 	

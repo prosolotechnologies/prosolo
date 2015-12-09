@@ -57,6 +57,18 @@ implements Serializable, UserObservationsDBManager{
 				+ "FROM userprofileactionsobservationsbydate "
 				+ "WHERE date=?;";
 		this.queries.put("findUserprofileactionsobservationsbydate", findUserprofileactionsobservationsbydate);
+
+		String insertUserquartilefeaturesbyweek  = "INSERT INTO userquartilefeaturesbyweek(course, profile, date, userid, sequence) VALUES (?, ?, ?,?,?);";
+		this.queries.put("insertUserquartilefeaturesbyweek",
+				insertUserquartilefeaturesbyweek);
+
+		String findUserquartilefeaturesbycourse = "SELECT * FROM userquartilefeaturesbyweek WHERE course=? ALLOW FILTERING;";
+		this.queries.put("findUserquartilefeaturesbycourse",
+				findUserquartilefeaturesbycourse);
+
+		String findUserquartilefeaturesbyweek = "SELECT * FROM userquartilefeaturesbyweek WHERE course=? and date=? ALLOW FILTERING;";
+		this.queries.put("findUserquartilefeaturesbyweek",
+				findUserquartilefeaturesbyweek);
 		
 		Set<String> stQueries = this.queries.keySet();
 		for (String query : stQueries) {
@@ -121,10 +133,53 @@ implements Serializable, UserObservationsDBManager{
 
 
 	@Override
-	public List<Row> findAllUsersProfileObservationsForDate(Long date) {
+	public List<Row> findAllUsersProfileObservationsForDate(Long date, Long courseId) {
 		BoundStatement boundStatement = new BoundStatement(
 				preparedStatements.get("findUserprofileactionsobservationsbydate"));
 		boundStatement.setLong(0, date);
+		List<Row> rows =null;
+		try{
+			ResultSet rs = this.getSession().execute(boundStatement);
+			rows = rs.all();
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+		return rows;
+	}
+	@Override
+	public void insertUserQuartileFeaturesByWeek(Long courseid, String profile, Long date, Long userid, String sequence) {
+		BoundStatement boundStatement = new BoundStatement(
+				preparedStatements
+						.get("insertUserquartilefeaturesbyweek"));
+		boundStatement.setLong(0, courseid);
+		boundStatement.setString(1, profile);
+		boundStatement.setLong(2,date);
+		boundStatement.setLong(3,userid);
+		boundStatement.setString(4,sequence);
+
+		this.getSession().execute(boundStatement);
+
+	}
+	@Override
+	public List<Row> findAllUserQuartileFeaturesForCourse(Long courseId) {
+		BoundStatement boundStatement = new BoundStatement(
+				preparedStatements.get("findUserquartilefeaturesbycourse"));
+		boundStatement.setLong(0, courseId);
+		List<Row> rows =null;
+		try{
+			ResultSet rs = this.getSession().execute(boundStatement);
+			rows = rs.all();
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+		return rows;
+	}
+	@Override
+	public List<Row> findAllUserQuartileFeaturesForCourseAndWeek(Long courseId, Long date) {
+		BoundStatement boundStatement = new BoundStatement(
+				preparedStatements.get("findUserquartilefeaturesbycourse"));
+		boundStatement.setLong(0, courseId);
+		boundStatement.setLong(1, date);
 		List<Row> rows =null;
 		try{
 			ResultSet rs = this.getSession().execute(boundStatement);
