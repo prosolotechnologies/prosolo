@@ -10,7 +10,6 @@ import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 import org.prosolo.common.domainmodel.activitywall.comments.Comment;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.notifications.Notification;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.notifications.NotificationManager;
@@ -58,12 +57,7 @@ public class CommentEventProcessing extends NotificationEventProcessor {
 	String getNotificationMessage() {
 		return ((Comment) resource).getText();
 	}
-
-	@Override
-	void afterProcessing(Notification notification, Session session) {
-		// no processing needed
-	}
-
+	
 	@Override
 	boolean isConditionMet(User sender, User receiver) {
 		if (receiver != null && sender.getId() != receiver.getId()) {

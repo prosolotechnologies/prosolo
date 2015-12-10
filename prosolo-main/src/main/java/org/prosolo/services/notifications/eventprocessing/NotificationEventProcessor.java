@@ -67,7 +67,6 @@ public abstract class NotificationEventProcessor {
 							ndt.isEmail(),
 							session);
 					
-					afterProcessing(notification, session);
 					notifications.add(notification);
 				}
 			}
@@ -112,5 +111,4 @@ public abstract class NotificationEventProcessor {
 	
 	abstract String getNotificationMessage();
 	
-	abstract void afterProcessing(Notification notification, Session session);
 }
