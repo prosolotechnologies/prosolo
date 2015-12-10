@@ -101,13 +101,26 @@ public class InterfaceCacheObserver implements EventObserver {
 				target = HibernateUtil.initializeAndUnproxy(target);
 			}
 			
+			/**
+			 * An event has occurred on the SocialACtivity item, an item on the Status Wall
+			 */
 			if (object instanceof SocialActivity) {
 				SocialActivity socialActivity = (SocialActivity) object;
 				
+				/**
+				 * User has deleted this SocialActivity (from the options menu for the SocialActivity 
+				 * on the Status Wall). Up to this point, SocialActivity item has already been marked as 
+				 * deleted in the database. It is also, synchronously removed from the maker's Status Wall 
+				 * cache. What is left is to remove this item from his/her followers' Status Wall cache.
+				 */
 				if (action.equals(EventType.Delete) && object instanceof SocialActivity) {
 					deleteSocialActivityFromCachesOfOnlineUsers(socialActivity, actor, session);
 					
-					// if it was a reshare of a post, then update share count 
+					/**
+					 * If user has deleted a post that was a reshare of someone else's post from his/her 
+					 * Status Wall, then we need to update reshare count number of the original post if the 
+					 * original post's maker is online (update his/her Status Wall cache).
+					 */
 					if (socialActivity instanceof PostSocialActivity) {
 						Post post = ((PostSocialActivity) socialActivity).getPostObject();
 						
@@ -122,20 +135,41 @@ public class InterfaceCacheObserver implements EventObserver {
 						}
 					}
 					
-				// comments must come before SocialActivity as Comment is subclass of SocialActivity
+				/**
+				 * An event has occurred on the Comment instance.
+				 */
 				} else if (object instanceof Comment) {
 					Comment comment = (Comment) object;
 					
+					/**
+					 * If a new comment has been posted, we need to determine whether it was made on the
+					 * SocialActivity instance (commenting on the Status Wall) or it was made on the 
+					 * TargetActivity instance (commenting on the competence's activity on the Learn page).
+					 */
 					if (action.equals(EventType.Comment)) {
 						BaseEntity commentedResource = comment.getObject();
 						
 						if (commentedResource instanceof SocialActivity) {
+							/**
+							 * If a comment was made on the SocialActivity instance (commenting on the Status Wall), 
+							 * update Status Wall cache of all users seeing this SocialActivity instance. They should
+							 * see new comment appear at the end of the comment list for this particular SocialActivity
+							 * instance.
+							 */
 							addCommentToSocialActiviesInCachesOfOnlineUsers(
 									comment, 
 									(SocialActivity) commentedResource, 
 									actor,
 									session);
 						} else if (commentedResource instanceof TargetActivity) {
+							/**
+							 * If a comment was made on the TargetActivity instance (commenting on the competence's activity 
+							 * on the Learn page), update TargetActivity cache of all users having this TargetActivity instance
+							 * in their goal(s). Actually, since TargetActivity instance is user specific, this should update
+							 * caches of TargetActivity that is based on the same Activity instance the commented TargetActivity 
+							 * instance is based on. Other users should see new comment appear at the end of the comment list 
+							 * for this particular TargetActivity instance on the Learn page.
+							 */
 							updateCommentsOfActivityInCachesOfOnlineUsers(
 									comment, 
 									(TargetActivity) commentedResource, 
@@ -146,6 +180,10 @@ public class InterfaceCacheObserver implements EventObserver {
 							action.equals(EventType.RemoveLike) ||
 							action.equals(EventType.Dislike) || 
 							action.equals(EventType.RemoveDislike)) {
+						/**
+						 * If a comment was liked/disliked/removed like from/removed dislike from,
+						 * then we need to update like/dislike count for all users seeing the same comment.
+						 */
 						updateCommentDataInCachesOfOnlineUsers(comment, actor, session);
 					}
 				} else if (object instanceof SocialActivity && 
@@ -157,11 +195,38 @@ public class InterfaceCacheObserver implements EventObserver {
 								action.equals(EventType.PostUpdate) || 
 								action.equals(EventType.RemoveDislike))){
 					
+					/**
+					 * This case will occur when post's maker on the Status Wall has disabled/enabled commenting
+					 * for a particular SocialActivity (post on a Status Wall). In that case, commenting box for
+					 * that Status Wall item should be removed/displayed to all other users seeing this SocialActivty
+					 * instance (maker's followers).
+					 * 
+					 * Also, this case will occur when anyone has liked/disliked/removed like from/removed dislike from
+					 * a SocialActivity item (item on a Status Wall). Then, we need to update like/dislike count for all 
+					 * users seeing this SocialActivty instance (maker's followers).
+					 */
+					
 					updateSocialActivityInCachesOfOnlineUsers(socialActivity, actor, session);
 				} else if (object instanceof LearningGoal && action.equals(EventType.Detach)) {
+					/**
+					 * An event of deleting a learning goal.
+					 * 
+					 * This should update maker's Portfolio cache and remove this learning goal
+					 * from displaying on the Portfolio.
+					 * 
+					 * Also, if user had collaborators on this learning goal, we need to update their
+					 * Learn page cache's so that this user is removed from the collaborator list.
+					 */
 					updateAfterGoalDeleted((LearningGoal) object, actor, session);
 				} 
 			} else if (action.equals(EventType.PostShare)) {
+				/**
+				 * If user has reshered someone else's post from a Status Wall (when looking 
+				 * at someone else's post on the Status Wall and clicking on a 'post' button),
+				 * we need to update reshare count number for all online users seeing this
+				 * SocialActivity item (item on a Status Wall). This should be performed for
+				 * all users who are following the original post maker.
+				 */
 				Map<String, String> params = event.getParameters();
 				
 				SocialActivity originalSocialActivity = activityManager.loadResource(SocialActivity.class, Long.parseLong(params.get("originalSocialActivityId")));
