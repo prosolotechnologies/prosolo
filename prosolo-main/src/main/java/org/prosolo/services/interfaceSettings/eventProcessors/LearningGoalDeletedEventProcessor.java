@@ -11,6 +11,7 @@ import org.hibernate.Session;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.LearningGoal;
+import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.messaging.data.ServiceType;
 import org.prosolo.services.event.Event;
@@ -43,10 +44,10 @@ public class LearningGoalDeletedEventProcessor extends InterfaceEventProcessor {
 
 	@Override
 	void process() {
-		updateAfterGoalDeleted((LearningGoal) object, event.getActor(), session);
+		updateAfterGoalDeleted((TargetLearningGoal) object, event.getActor(), session);
 	}
 	
-	private void updateAfterGoalDeleted(LearningGoal goal, User actor, Session session) {
+	private void updateAfterGoalDeleted(TargetLearningGoal goal, User actor, Session session) {
 		// update Portfolio cache of online user if exists
     	final PortfolioBean portfolioBean = (PortfolioBean) applicationBean.getUserSession(actor.getId()).getAttribute("portfolio");
     	
@@ -56,6 +57,8 @@ public class LearningGoalDeletedEventProcessor extends InterfaceEventProcessor {
     	
     	// update collaborator list of goal's members
     	goal = activityManager.merge(goal, session);
+    	
+    	//for Nikola: goal id or target learning goal id
     	List<User> collaborators = goalManager.retrieveCollaborators(goal.getId(), actor, session);
     	
     	Iterator<User> iterator = collaborators.iterator();
@@ -84,7 +87,8 @@ public class LearningGoalDeletedEventProcessor extends InterfaceEventProcessor {
 			} else {
 				HttpSession userSession = applicationBean.getUserSession(user.getId());
 				
-				learnPageCacheUpdater.removeCollaboratorFormGoal(actor, goal, userSession);
+				//for Nikola: goal.getLearningGoal() ?
+				learnPageCacheUpdater.removeCollaboratorFormGoal(actor, goal.getLearningGoal(), userSession);
 			}
 		}
 	}

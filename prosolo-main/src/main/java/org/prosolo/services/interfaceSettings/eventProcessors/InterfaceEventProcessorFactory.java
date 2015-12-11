@@ -14,6 +14,7 @@ import org.prosolo.common.domainmodel.activitywall.comments.Comment;
 import org.prosolo.common.domainmodel.content.Post;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.LearningGoal;
+import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.recommendation.LearningGoalRecommendationCacheUpdater;
 import org.prosolo.services.activityWall.ActivityWallManager;
@@ -157,7 +158,7 @@ public class InterfaceEventProcessorFactory {
 				processor = new SocialActivityUpdateEventProcessor(session, event, object, activityWallManager,
 						socialActivityHandler, messageDistributer, applicationBean);
 			}
-		} else if (object instanceof LearningGoal && action.equals(EventType.Detach)) {
+		} else if (object instanceof TargetLearningGoal && action.equals(EventType.Detach)) {
 			/**
 			 * An event of deleting a learning goal.
 			 * 
