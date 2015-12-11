@@ -16,6 +16,17 @@
 </ui:define>
 
 <ui:define name="content">
+  <link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/tauCharts.min.css" />
+  <!-- <link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/dashboard.css" /> -->
+  
+  <script	src="#{request.contextPath}/resources/javascript/d3.min.js"></script>
+  <script	src="#{request.contextPath}/resources/javascript/underscore-min.js"></script>
+  <script	src="#{request.contextPath}/resources/javascript/tauCharts.min.js"></script>
+  <script	src="#{request.contextPath}/resources/javascript/readmore.custom.js"></script>
+  <script data-base-url="#{request.contextPath}/resources/javascript" src="#{request.contextPath}/resources/javascript/prosolo.require-config.js"></script>
+  <script data-main="dashboard/main" src="#{request.contextPath}/resources/javascript/require.min.js"></script>
+
+  <div id="dashboard" data-api="#{dashboardBean.apiHost}" data-no-results-found-message="#{dashboardBean.noResultsFoundMessage}">
 	<section class="heading">
 		<header>
 			<i class="fa fa-tachometer headIcon"></i>
@@ -28,20 +39,20 @@
 					<li>
 						<div class="statContLeft">
 							<div class="users">Total Users</div>
-							<div class="uPercentage green">
-								<i class="fa fa-arrow-up"></i> <span>10%</span>
+							<div id="total-users-count-percent" class="uPercentage green">
+								<i id="total-users-trend" class="fa fa-arrow-up"></i> <span> 0%</span>
 							</div>
 						</div>
-						<div class="statContRight">300</div>
+						<div id="total-users-count"  class="statContRight">0</div>
 					</li>
 					<li>
 						<div class="statContLeft">
 							<div class="users">Active Users</div>
-							<div class="uPercentage red">
-								<i class="fa fa-arrow-down"></i> 5%
+							<div id="active-users-count-percent" class="uPercentage green">
+								<i id="active-users-trend" class="fa fa-arrow-down"></i><span>0%</span>
 							</div>
 						</div>
-						<div class="statContRight">100</div>
+						<div id="active-users-count" class="statContRight">0</div>
 					</li>
 					<li>
 						<div class="statContLeft">
@@ -49,7 +60,7 @@
 								Currently <br />logged In
 							</div>
 						</div>
-						<div class="statContRight">12</div>
+						<div id="currently-logged-in-count" class="statContRight">0</div>
 					</li>
 				</ul>
 
@@ -270,6 +281,7 @@
 	</div>
 	
 </section>
-
+  </div>
+  
 </ui:define>
 </ui:composition>
