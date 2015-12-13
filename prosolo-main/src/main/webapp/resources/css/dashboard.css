@@ -1,5 +1,5 @@
 @CHARSET "UTF-8";
-
+/*
 #dashboard h1 {
 	float: none;
 	padding: 0.6em 0em;
@@ -86,6 +86,7 @@
 	background-color: #d0d0d0;
 }
 
+*/
 #dashboard .loader {
 	display: none;
 	background-image: url('/resources/images/style/ajax-loader-black.gif');
@@ -99,6 +100,7 @@
 	clear: both;
 }
 
+/*
 #dashboard h1 {
 	clear: left;
 	margin: 1em 0em
@@ -277,9 +279,9 @@
 #system-not-available-notification {
 	display: none;
 }
-
+*/
 #activityGraph .chart-block, #twitterHashtagsGraph .chart-block {
-	height: 200px;
+ 	height: 226px;
 	position: relative;
 }
 
@@ -324,4 +326,12 @@
 .pattern-six {
     stroke-dasharray: 3,3,3,3,12,3;
 	stroke: #CC0033; 
+}
+
+.dateField + .ui-datepicker-trigger {
+	display: none;
+}
+
+.timeRange .input-group-addon {
+	cursor: pointer;	
 }
