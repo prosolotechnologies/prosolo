@@ -1,8 +1,8 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:comp="http://java.sun.com/jsf/composite/components"
 	template="templates/masterLayout1.xhtml">
 
@@ -16,32 +16,43 @@
 </ui:define>
 
 <ui:define name="content">
-	<section class="heading">
-		<header>
-			<i class="fa fa-tachometer headIcon"></i>
-			<div class="headerTitle">
-				<h1>Dashboard</h1>
-				<p>Statistics about application usage, user activity and Twitter hashtags.</p>
-				
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/tauCharts.min.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/dashboard.css" />
+  
+	<script src="#{request.contextPath}/resources/javascript/d3.min.js"></script>
+	<script src="#{request.contextPath}/resources/javascript/underscore-min.js"></script>
+	<script src="#{request.contextPath}/resources/javascript/tauCharts.min.js"></script>
+	<script src="#{request.contextPath}/resources/javascript/readmore.custom.js"></script>
+	<script data-base-url="#{request.contextPath}/resources/javascript" src="#{request.contextPath}/resources/javascript/prosolo.require-config.js"></script>
+	<script data-main="dashboard/main" src="#{request.contextPath}/resources/javascript/require.min.js"></script>
+
+	<div id="dashboard" data-api="#{dashboardBean.apiHost}" data-no-results-found-message="#{dashboardBean.noResultsFoundMessage}">
+		<section class="heading">
+			<header>
+				<i class="fa fa-tachometer headIcon"></i>
+				<div class="headerTitle">
+					<h1>Dashboard</h1>
+					<p>Statistics about application usage, user activity and Twitter hashtags.</p>
 				</div>
+				
 				<ul class="basicStats pull-right">
 					<li>
 						<div class="statContLeft">
 							<div class="users">Total Users</div>
-							<div class="uPercentage green">
-								<i class="fa fa-arrow-up"></i> <span>10%</span>
+							<div id="total-users-count-percent" class="uPercentage green">
+								<i id="total-users-trend" class="fa fa-arrow-up"></i> <span> 0%</span>
 							</div>
 						</div>
-						<div class="statContRight">300</div>
+						<div id="total-users-count" class="statContRight">0</div>
 					</li>
 					<li>
 						<div class="statContLeft">
 							<div class="users">Active Users</div>
-							<div class="uPercentage red">
-								<i class="fa fa-arrow-down"></i> 5%
+							<div id="active-users-count-percent" class="uPercentage green">
+								<i id="active-users-trend" class="fa fa-arrow-down"></i><span>0%</span>
 							</div>
 						</div>
-						<div class="statContRight">100</div>
+						<div id="active-users-count" class="statContRight">0</div>
 					</li>
 					<li>
 						<div class="statContLeft">
@@ -49,227 +60,281 @@
 								Currently <br />logged In
 							</div>
 						</div>
-						<div class="statContRight">12</div>
+						<div id="currently-logged-in-count" class="statContRight">0</div>
 					</li>
 				</ul>
 
 			</header>
 		</section>
-
 		<section class="container-fluid mainArea">
-	
-	<div class="row">
-      <div class="panel panel-default">
-         <div class="panel-heading">
-            <h3 class="panel-title">Activity graph</h3>
-         </div>
-         <div class="panel-body">
-                <div class="row">
-               <div class="col-md-12">
-                  <div class="checkbox checkbox-success checkbox-inline">
-                     <input type="checkbox" id="checkbox1" />
-                     <label for="checkbox1">New users</label>
-                  </div>
-                  <div class="checkbox checkbox-success checkbox-inline">
-                     <input type="checkbox" id="checkbox2" />
-                     <label for="checkbox2">Logins</label>
-                  </div>
-                  <div class="checkbox checkbox-success checkbox-inline">
-                     <input type="checkbox" id="checkbox3" />
-                     <label for="checkbox3">Home page views</label>
-                  </div>
-                  <div class="checkbox checkbox-success checkbox-inline">
-                     <input type="checkbox" id="checkbox4" />
-                     <label for="checkbox4">Goals views</label>
-                  </div>
-                  <div class="checkbox checkbox-success checkbox-inline">
-                     <input type="checkbox" id="checkbox5" />
-                     <label for="checkbox5">Competences views</label>
-                  </div>
-                  <div class="checkbox checkbox-success checkbox-inline">
-                     <input type="checkbox" id="checkbox6" />
-                     <label for="checkbox6">    Profile views</label>
-                  </div>                   
-               </div>
-            </div>
-                <div class="row">
-               <div class="col-md-12">
-                    <div class="timeRange form-inline">
-                     <p>Choose date range:</p>              
-                     <div class="form-group">
-                        <label for="example1">From:</label>
-                        <div class="input-group">
-                           <input type="text" class="form-control" id="example1" placeholder="" /> 
-                           <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
-                        </div>
-                     </div>
-                     <div class="form-group">
-                        <label for="example2">To:</label>
-                        <div class="input-group">
-                           <input type="text" class="form-control" id="example2" placeholder="" />
-                            <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
-                            </div>  
-                    </div>                  
-                            <div class="btn-group period" data-toggle="buttons">
-                        <label class="btn btn-primary active">
-                           <input type="radio" value="DAY" name="periods" id="day" autocomplete="off" checked="checked" /> Day
-                        </label>
-                        <label class="btn btn-primary">
-                           <input type="radio" name="periods" value="WEEK" id="week" autocomplete="off" /> Week
-                        </label>
-                    </div>
-                        </div>
-                  <div class="graph">
-                  Activity graph here
-                  </div>     
-               </div>
-            </div>
-         </div>
-      </div>
+			<div class="row">
+				<div id="activityGraph" class="panel panel-default">
+					<div class="panel-heading">
+         				<h3 class="panel-title">Activity graph</h3>
+					</div>
+					<div class="panel-body">
+                		<div class="row">
+							<div class="stats col-md-12">
+								<div class="checkbox checkbox-success checkbox-inline">
+									<input name="stats" value="registered" type="checkbox" checked="checked" id="ag-registered" />
+									<label for="ag-registered">New users</label>
+								</div>
+								<div class="checkbox checkbox-success checkbox-inline">
+									<input name="stats" value="login" type="checkbox" checked="checked" id="ag-login" />
+									<label for="ag-login">Logins</label>
+								</div>
+								<div class="checkbox checkbox-success checkbox-inline">
+									<input name="stats" value="homepagevisited" type="checkbox" checked="checked" id="ag-homepagevisited" />
+									<label for="ag-homepagevisited">Home page views</label>
+								</div>
+								<div class="checkbox checkbox-success checkbox-inline">
+									<input name="stats" value="goalsviews" type="checkbox" checked="checked" id="ag-goalsviews" />
+									<label for="ag-goalsviews">Goals views</label>
+								</div>
+								<div class="checkbox checkbox-success checkbox-inline">
+									<input name="stats" value="competencesviews" type="checkbox" checked="checked" id="ag-competencesviews" />
+									<label for="ag-competencesviews">Competences views</label>
+								</div>
+								<div class="checkbox checkbox-success checkbox-inline">
+									<input name="stats" value="profileviews" type="checkbox" checked="checked" id="ag-profileviews" />
+									<label for="ag-profileviews">Profile views</label>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-12">
+								<div class="timeRange form-inline">
+									<p>Choose date range:</p>              
+									<div class="form-group">
+										<label for="ag-date-from">From:</label>
+										<div class="input-group">
+											<h:inputText name="ag-date-from" class="dateField dateFrom form-control" required="false" onfocus="blur();">
+												<f:convertDateTime pattern="dd.MM.yyyy" />
+											</h:inputText>
+											<div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+										</div>
+									</div>
+									<div class="form-group">
+				                        <label for="ag-date-to">To:</label>
+				                        <div class="input-group">
+				                        	<h:inputText name="ag-date-to" class="dateField dateTo form-control" required="false" onfocus="blur();">
+										    	<f:convertDateTime pattern="dd.MM.yyyy" />
+											</h:inputText>
+											<div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+										</div>  
+									</div>                  
+									<div class="btn-group period" data-toggle="buttons">
+										<label class="btn btn-primary active" for="day">
+											<input type="radio" value="DAY" name="periods" id="day" autocomplete="off" checked="checked" /> Day
+										</label>
+										<label class="btn btn-primary" for="week">
+											<input type="radio" name="periods" value="WEEK" id="week" autocomplete="off" /> Week
+										</label>
+									</div>
+								</div>
+								<div class="graph chart-block">
+									<div class="messages"></div>
+									<div class="loader"></div>
+									<div class="chart" id="activityGraphChart"></div>
+									<div class="legend" id="activityGraphChartLegend"></div>
+								</div>     
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div id="mostActiveHashtags" class="panel panel-default">
+					<div class="panel-heading">
+						<h3 class="panel-title">Twitter hashtags</h3>
+					</div>
+					<div class="panel-body">
+						<h2>Most active hashtags <span id="statisticsPeriod"></span></h2>
+						<div class="tableToolbar">
+							<div class="row">
+								<div class="col-md-6">
+									<div class="checkbox checkbox-success">
+										<input name="include-hashtags-without-followers" type="checkbox" id="include-hashtags-without-followers" />
+										<label for="include-hashtags-without-followers">Without followers</label>
+									</div>
+								</div>
+                				<div class="col-md-6">
+                    				<div class="filterCont">
+										<label>Filter</label>
+										<input name="hashtags-term" type="text" placeholder="" class="form-control" />
+										<button id="filter-most-active-hashtags" type="submit" class="btn btn-default fSearch">Search</button>
+									</div>
+									<div class="messages"></div>
+									<!-- 
+									<div class="form-group selectCont">
+										<label>Show hashtags</label>
+										<select class="form-control selectpicker">
+											<option>All</option>
+											<option>Enabled</option>
+											<option>Disabled</option>
+										</select>
+									</div>
+									 -->                     
+								</div>
+							</div>
+						</div>
+						<table id="mostActiveHashtagsTable" class="dashboard-table table admin table-bordered">
+							<tr>
+								<th align="right" scope="col">No.</th>
+								<th scope="col">Hashtag</th>
+								<th scope="col">Daily avg. (last week)</th>
+								<th scope="col">Users using it</th>
+								<th align="center" scope="col">Action</th>
+							</tr>
+							<tr>
+								<td align="right">1</td>
+								<td>Education</td>
+								<td align="right">25.249</td>
+								<td align="center">3</td>
+								<td align="center">
+									<button type="button" class="btn btn-warning"><i class="fa fa-ban"></i> Disable</button>
+								</td>
+							</tr>
+							<tr>
+								<td align="right">2</td>
+								<td>Canada</td>
+								<td align="right">19.857</td>
+								<td align="center">1</td>
+								<td align="center"><button type="button" class="btn btn-success"><i class="fa fa-check"></i> Enable</button></td>
+							</tr>
+							<tr>
+								<td align="right">3</td>
+								<td>Analytics</td>
+								<td align="right">11.714</td>
+								<td align="center">3</td>
+								<td align="center">
+									<button type="button" class="btn btn-warning"><i class="fa fa-ban"></i> Disable</button>
+								</td>
+							</tr>
+							<tr>
+								<td align="right">4</td>
+								<td>Android</td>
+								<td align="right">10.322</td>
+								<td align="center">2</td>
+								<td align="center">
+									<button type="button" class="btn btn-warning"><i class="fa fa-ban"></i> Disable</button>
+								</td>
+							</tr>
+							<tr>
+								<td align="right">5</td>               
+								<td>School</td>
+								<td align="right">0.459</td>
+								<td align="center">1</td>
+								<td align="center">
+									<button type="button" class="btn btn-warning"><i class="fa fa-ban"></i> Disable</button>
+								</td>
+							</tr>               
+						</table>
+						<div class="navigation tablePagination" data-current="1" data-pages="0" data-paging="5">
+							<label>Paging:
+								<select class="paging selectpicker">
+									<option value="5" selected="selected">5</option>
+									<option value="10">10</option>
+									<option value="15">15</option>
+									<option value="20">20</option>
+									<option value="50">50</option>
+								</select>
+							</label>
+							<span class="pagingNumbers">
+								<a href="#mostActiveHashtags" class="first">First</a>
+								<a href="#mostActiveHashtags" class="previous">Previous</a>
+								<span class="page">0/0</span>
+								<a href="#mostActiveHashtags" class="next">Next</a>
+								<a href="#mostActiveHashtags" class="last">Last</a>
+							</span>
+						</div>
+						<div class="clearfix"></div>
+            
+						<div id="twitterHashtagsGraph" class="hashtagGraph">
+							<h2>Hashtags graph</h2>
+							<div class="timeRange form-inline">
+								<p>Choose date range:</p>
+								<div class="form-group">
+									<label for="thg-date-from">From:</label>
+									<div class="input-group">
+										<h:inputText name="thg-date-from" class="dateField dateFrom form-control" required="false" onfocus="blur();">
+											<f:convertDateTime pattern="dd.MM.yyyy" />
+										</h:inputText>
+										<div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+									</div>
+								</div>
+								<div class="form-group">
+			                        <label for="thg-date-to">To:</label>
+			                        <div class="input-group">
+			                        	<h:inputText name="thg-date-to" class="dateField dateTo form-control" required="false" onfocus="blur();">
+									    	<f:convertDateTime pattern="dd.MM.yyyy" />
+										</h:inputText>
+										<div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+									</div>  
+								</div>
+								<div class="btn-group period" data-toggle="buttons">
+									<label class="btn btn-primary active" for="day">
+										<input type="radio" value="DAY" name="thperiods" id="day" autocomplete="off" checked="checked" /> Day
+									</label>
+									<label class="btn btn-primary" for="week">
+										<input type="radio" name="thperiods" value="WEEK" id="week" autocomplete="off" /> Week
+									</label>
+								</div>
+							</div>
+						</div>
+						<div class="graph">
+							<div class="chart-block">
+								<div class="messages"></div>
+								<div class="loader"></div>
+								<div class="chart" id="twitterHashtagsChart"></div>
+								<div class="legend" id="twitterHashtagsChartLegend"></div>
+							</div>
+						</div> 
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div id="disabled-twitter-hashtags" class="panel panel-default">
+					<div class="panel-heading">
+						<h3 class="panel-title">Disabled hashtags</h3>
+					</div>
+					<div class="panel-body">
+						<h2>There are total <span id="disabled-hashtags-count">0</span> disabled Twitter hashtags.</h2>
+						<table class="dashboard-table table admin table-bordered" id="disabled-hashtags-table">
+							<thead>
+								<tr>
+									<th>Hashtag</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+						<div class="navigation">
+							<a href="#disabled-twitter-hashtags" class="previous">Previous</a>
+							<span class="page">0/0</span>
+							<a href="#disabled-twitter-hashtags" class="next">Next</a>
+						</div>
+					</div>
+				</div>
+				<h:form id="disable-form" style="display: none;">
+					<h:inputHidden id="hashtag-to-disable" />
+					<h:commandButton id="disable-form-submit">
+						<f:ajax execute="@form" listener="#{dashboardBean.disableHashtag()}" />
+					</h:commandButton>
+				</h:form>
+				<h:form id="enable-form" style="display: none;">
+					<h:inputHidden id="hashtag-to-enable" />
+					<h:commandButton id="enable-form-submit">
+						<f:ajax execute="@form" listener="#{dashboardBean.enableHashtag()}" />
+					</h:commandButton>
+				</h:form>
+				<div id="system-not-available-notification">
+					<p>
+						#{dashboardBean.systemNotAvailableMessage}
+					</p>
+				</div>					
+			</div>
+		</section>	
 	</div>
-	
-	<div class="row">
-      <div class="panel panel-default">
-         <div class="panel-heading">
-            <h3 class="panel-title">Twitter hashtags</h3>
-         </div>
-         <div class="panel-body">
-           <h2>Most active hashtags <span>(For period 23.10.2015. - 30.10.2015)</span></h2>
-            
-           <div class="tableToolbar">
-                <div class="row">
-                <div class="col-md-6">
-                     <div class="checkbox checkbox-success">
-                        <input type="checkbox" id="checkbox11" />
-                        <label for="checkbox11">Without followers</label>
-                     </div>
-                  </div>
-                <div class="col-md-6">
-                    <div class="filterCont">
-                        <label>Filter</label>
-                        <input type="text" placeholder="" id="" class="form-control" />
-                        <button type="submit" class="btn btn-default fSearch">Search</button>
-                     </div>
-                    <div class="form-group selectCont">
-                        <label>Show hashtags</label>
-                        <select class="form-control selectpicker">
-                           <option>All</option>
-                           <option>Enabled</option>
-                           <option>Disabled</option>
-                        </select>
-                     </div>                     
-                  </div>
-                </div>
-            </div>
-            <table class="table admin table-bordered">
-               <tr>
-                  <th align="right" scope="col">No.</th>
-                  <th scope="col">Hashtag</th>
-                  <th scope="col">Daily avg. (last week)</th>
-                  <th scope="col">Users using it</th>
-                  <th align="center" scope="col">Action</th>
-               </tr>
-               <tr>
-                  <td align="right">1</td>
-                  <td>Education</td>
-                  <td align="right">25.249</td>
-                  <td align="center">3</td>
-                  <td align="center">
-                    <button type="button" class="btn btn-warning"><i class="fa fa-ban"></i> Disable</button>
-                  </td>
-               </tr>
-               <tr>
-                  <td align="right">2</td>
-                  <td>Canada</td>
-                  <td align="right">19.857</td>
-                  <td align="center">1</td>
-                  <td align="center"><button type="button" class="btn btn-success"><i class="fa fa-check"></i> Enable</button></td>
-               </tr>
-               <tr>
-                  <td align="right">3</td>
-                  <td>Analytics</td>
-                  <td align="right">11.714</td>
-                  <td align="center">3</td>
-                  <td align="center">
-                    <button type="button" class="btn btn-warning"><i class="fa fa-ban"></i> Disable</button>
-                  </td>
-               </tr>
-               <tr>
-                  <td align="right">4</td>
-                  <td>Android</td>
-                  <td align="right">10.322</td>
-                  <td align="center">2</td>
-                  <td align="center">
-                    <button type="button" class="btn btn-warning"><i class="fa fa-ban"></i> Disable</button>
-                  </td>
-               </tr>
-               <tr>
-                  <td align="right">5</td>               
-                  <td>School</td>
-                  <td align="right">0.459</td>
-                  <td align="center">1</td>
-                  <td align="center">
-                    <button type="button" class="btn btn-warning"><i class="fa fa-ban"></i> Disable</button>
-                  </td>
-               </tr>               
-            </table>
-            <div class="tablePagination">
-               <label>Paging:
-                  <select class="paging selectpicker">
-                     <option value="5">5</option>
-                     <option value="10">10</option>
-                     <option value="15">15</option>
-                     <option value="20">20</option>
-                     <option value="50">50</option>
-                  </select>
-               </label>
-               <span class="pagingNumbers">
-                  <a class="first" href="">First</a>
-                  <a class="previous" href="">Previous</a>
-                  <span class="page">0/0</span>
-                  <a class="next" href="">Next</a>
-                  <a class="last" href="">Last</a>
-               </span>
-                </div>
-            <div class="clearfix"></div>
-            
-            
-            <div class="hashtagGraph">
-                <h2>Hashtags graph</h2>
-                        <div class="timeRange form-inline">
-                     <p>Choose date range:</p>              
-                     <div class="form-group">
-                        <label for="example1">From:</label>
-                        <div class="input-group">
-                           <input type="text" class="form-control" id="example1" placeholder="" /> 
-                           <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
-                        </div>
-                     </div>
-                     <div class="form-group">
-                        <label for="example2">To:</label>
-                        <div class="input-group">
-                           <input type="text" class="form-control" id="example2" placeholder="" />
-                            <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
-                            </div>  
-                    </div>                  
-                            <div class="btn-group period" data-toggle="buttons">
-                        <label class="btn btn-primary active">
-                           <input type="radio" value="DAY" name="periods" id="day" autocomplete="off" checked="checked" /> Day
-                        </label>
-                        <label class="btn btn-primary">
-                           <input type="radio" name="periods" value="WEEK" id="week" autocomplete="off" /> Week
-                        </label>
-                    </div>
-                        </div>
-                  <div class="graph">
-                  Hashtag graph here
-                  </div> 
-            </div>
-         </div>
-      </div>
-	</div>
-	
-</section>
-
 </ui:define>
 </ui:composition>

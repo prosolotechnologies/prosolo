@@ -6,7 +6,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.notifications.Notification;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
@@ -59,11 +58,6 @@ public class FollowEventProcessor extends NotificationEventProcessor {
 	@Override
 	String getNotificationMessage() {
 		return null;
-	}
-
-	@Override
-	void afterProcessing(Notification notification, Session session) {
-		//no processing needed
 	}
 
 	@Override

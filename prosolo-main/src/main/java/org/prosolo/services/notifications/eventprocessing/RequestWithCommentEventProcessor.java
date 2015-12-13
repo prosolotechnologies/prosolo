@@ -6,7 +6,6 @@ import java.util.List;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.requests.Request;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.notifications.Notification;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.notifications.NotificationManager;
@@ -41,11 +40,6 @@ public class RequestWithCommentEventProcessor extends NotificationEventProcessor
 	@Override
 	String getNotificationMessage() {
 		return ((Request) resource).getComment();
-	}
-
-	@Override
-	void afterProcessing(Notification notification, Session session) {
-		//no processing needed
 	}
 
 	@Override

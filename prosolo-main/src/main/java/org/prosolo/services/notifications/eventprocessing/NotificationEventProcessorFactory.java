@@ -3,14 +3,10 @@ package org.prosolo.services.notifications.eventprocessing;
 import javax.inject.Inject;
 
 import org.hibernate.Session;
-import org.prosolo.recommendation.LearningGoalRecommendationCacheUpdater;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
-import org.prosolo.services.messaging.SessionMessageDistributer;
 import org.prosolo.services.nodes.DefaultManager;
-import org.prosolo.services.notifications.EvaluationUpdater;
 import org.prosolo.services.notifications.NotificationManager;
-import org.prosolo.web.ApplicationBean;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,14 +14,6 @@ public class NotificationEventProcessorFactory {
 	
 	@Inject
 	private NotificationManager notificationManager;
-	@Inject
-	private SessionMessageDistributer messageDistributer;
-	@Inject
-	private LearningGoalRecommendationCacheUpdater learningGoalRecommendationCacheUpdater;
-	@Inject
-	private ApplicationBean applicationBean;
-	@Inject
-	private EvaluationUpdater evaluationUpdater;
 	@Inject
 	private DefaultManager defaultManager;
 	@Inject
@@ -65,26 +53,21 @@ public class NotificationEventProcessorFactory {
 			 * Following receiving a request for an assessment, the assessor has accepted it.
 			 * The assessment requester should be notified about this.
 			 */
+				/*
+				 *  Invoked when join goal request has been approved.
+				 *  Requester should be notified about this
+				 */
+			case JOIN_GOAL_REQUEST_APPROVED:
 			case EVALUATION_ACCEPTED:
 				return new RequestWithoutCommentEventProcessor(event, session, 
 						notificationManager, notificationsSettingsManager);
-			/*
-			 *  Invoked when join goal request has been approved.
-			 *  Requester should be notified about this
-			 */
-			case JOIN_GOAL_REQUEST_APPROVED:
-				return new JoinGoalRequestApprovedProcessor(event, session, 
-						notificationManager, notificationsSettingsManager,
-						messageDistributer, learningGoalRecommendationCacheUpdater, 
-						applicationBean);
 			/*
 			 * A new assessment has been submitted. USer being assessed should be 
 			 * notified about this.
 			 */
 			case EVALUATION_GIVEN:
 				return new EvaluationGivenProcessor(event, session, 
-						notificationManager, notificationsSettingsManager,
-						messageDistributer, applicationBean, evaluationUpdater);
+						notificationManager, notificationsSettingsManager);
 			/*
 			 * Someone started following a user. User being followed should 
 			 * be notified about this.
