@@ -78,9 +78,15 @@ define([], function() {
 							if (column.type == "text") {
 								td.innerHTML = item[column.name];
 							} else if (column.type == "button") {
+								var i = document.createElement("i");
+								i.classList.add("fa");
+								i.classList.add("fa-check");
+								i.innerHTML = column.value;
 								var button = document.createElement("button");
 								button.addEventListener("click", column.click);
-								button.innerHTML = column.value;
+								button.classList.add("btn");
+								button.classList.add("btn-success");
+								button.appendChild(i);
 								td.appendChild(button);
 							} else if (column.type == "checkbox") {
 								var checkbox = document.createElement("input");

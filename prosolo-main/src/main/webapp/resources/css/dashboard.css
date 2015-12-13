@@ -194,7 +194,7 @@
 	color: #0288D1;
 	margin-left: 0.4em;
 }
-
+*/
 #dashboard #mostActiveHashtagsTable tr > *:nth-child(1) {
 	width: 10%;
 }
@@ -218,7 +218,7 @@
 #dashboard #mostActiveHashtagsTable tr > *:nth-child(5) {
 	width: 5%;
 }
-
+/*
 .dashboard-table tr > * {
 	padding: 0.6em 1.2em;
 }
@@ -272,6 +272,7 @@
 	width: 18em;
 }
 
+*/
 #disabled-hashtags-dialog {
 	display: none;
 }
@@ -279,7 +280,7 @@
 #system-not-available-notification {
 	display: none;
 }
-*/
+
 #activityGraph .chart-block, #twitterHashtagsGraph .chart-block {
  	height: 226px;
 	position: relative;
