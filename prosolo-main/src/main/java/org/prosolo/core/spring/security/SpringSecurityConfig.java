@@ -54,7 +54,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/javax.faces.resource/schedule/**").permitAll()
 		   .antMatchers("/javax.faces.**").permitAll()
 		   .antMatchers("/api/lti/**").permitAll()
-		   .antMatchers("/prosolo/api/lti/**").permitAll()
+		   //.antMatchers("/prosolo/api/lti/**").permitAll()
 		   .antMatchers("/about").permitAll()
 		   .antMatchers("/elb_ping").permitAll()
 		   .antMatchers("/terms").permitAll()
