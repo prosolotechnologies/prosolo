@@ -98,34 +98,40 @@ public class ManageCourseBean implements Serializable {
 	private String id;
 	
 	public void init() {
-		long decodedId = idEncoder.decodeId(id);
-		
-		if (decodedId > 0) {
-			try {
-				Course course = courseManager.loadResource(Course.class, decodedId);
-				courseData = new CourseData(course);
-			} catch(ObjectNotFoundException onf) {
+		if(id == null) {
+			this.creatingNew = true;
+			this.courseData.setCreatorType(CreatorType.MANAGER);
+			this.courseData.setCreator(loggedUser.getUser());
+		} else {
+			long decodedId = idEncoder.decodeId(id);
+			
+			if (decodedId > 0) {
 				try {
-					logger.error(onf);
-					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound");
+					Course course = courseManager.loadResource(Course.class, decodedId);
+					courseData = new CourseData(course);
+				} catch(ObjectNotFoundException onf) {
+					try {
+						logger.error(onf);
+						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound");
+					} catch (IOException e) {
+						logger.error(e);
+					}
+				} catch (ResourceCouldNotBeLoadedException e) {
+					logger.error(e);
+				}
+				this.creatingNew = false;
+			} else {
+				/*this.creatingNew = true;
+				this.courseData.setCreatorType(CreatorType.MANAGER);
+				this.courseData.setCreator(loggedUser.getUser());*/
+				
+				try {
+					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
 				} catch (IOException e) {
 					logger.error(e);
 				}
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e);
+				
 			}
-			this.creatingNew = false;
-		} else {
-			/*this.creatingNew = true;
-			this.courseData.setCreatorType(CreatorType.MANAGER);
-			this.courseData.setCreator(loggedUser.getUser());*/
-			
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-			} catch (IOException e) {
-				logger.error(e);
-			}
-			
 		}
 	}
 	
