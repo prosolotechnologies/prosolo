@@ -32,9 +32,12 @@
 
 		<script type="text/javascript" src="//cdn.jsdelivr.net/jquery.slick/1.5.7/slick.min.js"></script>
 		<script src="#{request.contextPath}/resources/javascript/d3.min.js"></script>
+		<ui:remove><script src="#{request.contextPath}/manage/js/shape.js"></script></ui:remove>
 		<script src="#{request.contextPath}/manage/js/dimple.min.js"></script>
+		<script src="#{request.contextPath}/manage/js/shape.js"></script>
 		<script src="#{request.contextPath}/manage/js/quadrantchart.js"></script>
-
+		
+		
 		<p:growl id="msg" showDetail="true" globalOnly="true"></p:growl>
 
 		<section class="heading">
@@ -773,7 +776,12 @@
 							</div>
 							<div class="col-md-6 graph">
 								Performance graph
-								<div id="quadrantchart"></div>
+								<div id="quadrantchart">
+								<script>
+								    var service = "#{studentProfileBean.completedActivitiesServicePath}";
+									drawQuadrantChart(service);
+								</script>
+								</div>
 							</div>
 							<div class="clearfix"></div>
 						</div>
@@ -781,7 +789,7 @@
 
 					<div role="tabpanel" class="tab-pane fade" id="timeline">222</div>
 					<div role="tabpanel" class="tab-pane fade" id="social">
-						<script
+						<ui:remove><script
 							data-base-url="#{request.contextPath}/resources/javascript"
 							src="#{request.contextPath}/resources/javascript/prosolo.require-config.js"></script>
 						<script data-main="social-interaction/social-interaction-main"
@@ -864,6 +872,7 @@
 								</div>
 							</div>
 						</div>
+						</ui:remove>
 					</div>
 				</div>
 			</div>
