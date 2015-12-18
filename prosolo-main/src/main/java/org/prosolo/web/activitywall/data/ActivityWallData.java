@@ -3,6 +3,7 @@
  */
 package org.prosolo.web.activitywall.data;
 
+import java.util.Date;
 import java.util.List;
 
 import org.prosolo.common.domainmodel.activities.ExternalToolActivity;
@@ -30,6 +31,7 @@ public class ActivityWallData extends SocialActivityData implements Comparable<A
 	private boolean mandatory;
 	private boolean canBeAdded = true;
 	private String dateCompleted;
+	private Date dateStarted;
 	private double result = -1;
 	private boolean acceptGrades;
 	
@@ -47,7 +49,7 @@ public class ActivityWallData extends SocialActivityData implements Comparable<A
 		this.id = targetActivity.getId();
 		setActivity(new NodeData(targetActivity));
 		setDateCreated(targetActivity.getDateCreated());
-		
+		this.dateStarted = targetActivity.getDateStarted();
 		this.activity = new NodeData(targetActivity.getActivity());
 		this.mandatory = targetActivity.getActivity().isMandatory();
 		
@@ -97,6 +99,14 @@ public class ActivityWallData extends SocialActivityData implements Comparable<A
 
 	public void setCanBeAdded(boolean canBeAdded) {
 		this.canBeAdded = canBeAdded;
+	}
+    
+	public Date getDateStarted() {
+		return dateStarted;
+	}
+
+	public void setDateStarted(Date dateStarted) {
+		this.dateStarted = dateStarted;
 	}
 
 	public String getDateCompleted() {

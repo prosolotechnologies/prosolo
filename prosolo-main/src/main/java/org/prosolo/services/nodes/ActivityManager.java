@@ -1,6 +1,7 @@
 package org.prosolo.services.nodes;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -79,4 +80,5 @@ public interface ActivityManager extends AbstractManager {
 	
 	List<TargetActivity> getComptenceCompletedTargetActivities(long userId, long compId) throws DbConnectionException;
 
+	boolean updateActivityStartDate(long id, Date date, Session session);
 }

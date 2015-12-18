@@ -25,6 +25,7 @@ public class TargetActivity extends Node {
 	private static final long serialVersionUID = 5698106325669307105L;
 
 	private boolean completed;
+	private Date dateStarted;
 	private Date dateCompleted;
 	private long taPosition;
 	private Activity activity;
@@ -51,6 +52,15 @@ public class TargetActivity extends Node {
 		this.completed = completed;
 	}
 	
+	@Temporal(TemporalType.TIMESTAMP)
+	public Date getDateStarted() {
+		return dateStarted;
+	}
+
+	public void setDateStarted(Date dateStarted) {
+		this.dateStarted = dateStarted;
+	}
+
 	@Temporal(TemporalType.TIMESTAMP)
 	public Date getDateCompleted() {
 		return dateCompleted;

@@ -372,5 +372,21 @@ public class ActivityManagerImpl extends AbstractManagerImpl implements	Activity
 		}
 	}
 	
+	@Override
+	@Transactional (readOnly = false)
+	public boolean updateActivityStartDate(long id, Date date, Session session) {
+		try {
+			TargetActivity ta = loadResource(TargetActivity.class, id, session);
+			if(ta.getDateStarted() == null) {
+				ta.setDateStarted(date);
+			}
+			session.saveOrUpdate(ta);
+			return true;
+		} catch(Exception e) {
+			logger.error(e);
+			return false;
+		}
+	}
+	
 
 }

@@ -23,6 +23,7 @@ import org.prosolo.services.interfaceSettings.InterfaceCacheObserver;
 import org.prosolo.services.learningProgress.LearningProgressObserver;
 import org.prosolo.services.logging.LoggingEventsObserver;
 import org.prosolo.services.logging.UserActivityObserver;
+import org.prosolo.services.nodes.event.ActivityStartObserver;
 import org.prosolo.services.notifications.NotificationObserver;
 import org.prosolo.services.reporting.SocialInteractionStatisticsObserver;
 import org.prosolo.services.reporting.TwitterHashtagStatisticsObserver;
@@ -60,6 +61,7 @@ public class CentralEventDispatcher {
 	@Autowired private UserActivityStatisticsObserver userActivityStatisticsObserver;
 	@Autowired private TwitterHashtagStatisticsObserver twitterHashtagStatisticsObserver;
 	@Autowired private SocialInteractionStatisticsObserver socialInteractionStatisticsObserver;
+	@Autowired private ActivityStartObserver activityStartObserver;
 
 	private Collection<EventObserver> getObservers() {
 		if (observers == null) {
@@ -81,6 +83,7 @@ public class CentralEventDispatcher {
 			observers.add(userActivityStatisticsObserver);
 			observers.add(twitterHashtagStatisticsObserver);
 			observers.add(socialInteractionStatisticsObserver);
+			observers.add(activityStartObserver);
 		}
 		return observers;
 	}
