@@ -1,7 +1,0 @@
-2015-12-16 00:00:57,117 INFO  [Settings] - Settings loaded!
-2015-12-16 00:00:57,191 INFO  [CommonSettings] - Settings loaded!
-2015-12-16 00:00:59,227 INFO  [DCAwareRoundRobinPolicy] - Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
-2015-12-16 00:00:59,227 INFO  [Cluster] - New Cassandra host /52.2.214.133:9042 added
-2015-12-16 00:01:01,037 WARN  [NativeCodeLoader] - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
-2015-12-16 00:01:09,039 INFO  [DCAwareRoundRobinPolicy] - Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
-2015-12-16 00:01:09,039 INFO  [Cluster] - New Cassandra host /52.2.214.133:9042 added
