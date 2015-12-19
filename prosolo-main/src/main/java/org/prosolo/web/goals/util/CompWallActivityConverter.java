@@ -99,7 +99,7 @@ public class CompWallActivityConverter {
 			wallActivity.setCompleted(targetActivity.isCompleted());
 			wallActivity.setDateCompleted(DateUtil.getPrettyDate(targetActivity.getDateCompleted()));
 			wallActivity.setActionName(ActivityUtil.getActivityTitle(activity));
-			
+			wallActivity.setDateStarted(targetActivity.getDateStarted());
 			AttachmentPreview attachmentPreview = wallActivity.getAttachmentPreview();
 			
 			if (attachmentPreview != null) {

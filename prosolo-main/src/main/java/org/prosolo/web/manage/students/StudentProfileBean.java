@@ -11,6 +11,7 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
@@ -277,6 +278,14 @@ public class StudentProfileBean implements Serializable {
 		}
 	}
 	
+	public String getCompletedActivitiesServicePath() {
+		long compId = selectedGoal.getSelectedCompetence() != null ? 
+			selectedGoal.getSelectedCompetence().getId() : 0;
+		return Settings.getInstance().config.application.domain + 
+				"api/users/" + decodedId + "/competences/" + compId +
+				"/activities/completed";
+	}
+	
 	public ObservationBean getObservationBean() {
 		return observationBean;
 	}
@@ -333,6 +342,5 @@ public class StudentProfileBean implements Serializable {
 		this.selectedGoal = selectedGoal;
 	}
 
-	
 	
 }

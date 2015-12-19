@@ -6,6 +6,7 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
+import org.prosolo.services.nodes.rest.ActivityRestService;
 import org.prosolo.services.rest.api.LTIServiceOutcome;
 
 
@@ -22,6 +23,7 @@ public class WebApplication extends Application{
 	public WebApplication(){
 		System.out.println("INIT WEB APPLICATION: REST API exposed at:http://localhost:8080/api/servicepath");
 		singletons.add(new LTIServiceOutcome());
+		singletons.add(new ActivityRestService());
 	}
 	@Override
 	public Set<Class<?>> getClasses() {

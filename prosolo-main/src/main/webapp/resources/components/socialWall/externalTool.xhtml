@@ -23,7 +23,8 @@
 
 		<div class="box"> <h:panelGroup rendered="#{cc.attrs.activityData.haveScore}">Your grade on this activity: #{cc.attrs.activityData.score}</h:panelGroup>
 			<h:panelGroup layout="block" rendered="#{cc.attrs.toRender}" class="uploadAssignment richContent #{cc.attrs.styleClass}">
-				<h:link value="Load external activity" class="button blue size20 left"  outcome="/lti">
+				<h:link value="Load external activity" class="button blue size20 left" outcome="/lti" 
+				onclick="sendLogPageNavigationWithParameters('/lti', {context: '#{cc.attrs.context}.link', type: 'externalTool', targetActivityId: '#{cc.attrs.activityData.id}'});">
 					<f:param name="launchUrl" value="#{cc.attrs.activityData.activity.launchUrl}"/>
 					<f:param name="sharedSecret" value="#{cc.attrs.activityData.activity.sharedSecret}"/>
 					<f:param name="consumerKey" value="#{cc.attrs.activityData.activity.consumerKey}"/>

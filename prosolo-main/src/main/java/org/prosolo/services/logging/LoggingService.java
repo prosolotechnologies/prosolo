@@ -22,7 +22,7 @@ public interface LoggingService {
 	void logEventObserved(EventType eventType, User actor, String objectType,
 			long objectId, String objectTitle, String targetType,
 			long targetId, String reasonType, long reasonId,
-			Map<String, String> parameters, String link, String ipAddress) throws LoggingException;
+			Map<String, String> parameters, String ipAddress) throws LoggingException;
 
 	void logServiceUse(User user, String componentName, String parametersJson,
 			String ipAddress) throws LoggingException;

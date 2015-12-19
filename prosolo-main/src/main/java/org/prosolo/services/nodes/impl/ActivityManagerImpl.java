@@ -26,6 +26,7 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.PostManager;
+import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.web.activitywall.data.AttachmentPreview;
@@ -337,5 +338,55 @@ public class ActivityManagerImpl extends AbstractManagerImpl implements	Activity
 		
 		return result;
 	}
+	
+	@Override
+	@Transactional (readOnly = true)
+	public List<TargetActivity> getComptenceCompletedTargetActivities(long userId, long compId) throws DbConnectionException {
+		try{
+			String query =
+				"SELECT DISTINCT tActivity "+
+				"FROM User user "+
+				"LEFT JOIN user.learningGoals tGoal "+
+				"LEFT JOIN tGoal.targetCompetences tComp "+
+				"LEFT JOIN tComp.competence comp "+
+				"LEFT JOIN tComp.targetActivities tActivity "+
+				"WHERE user.id = :userId " +
+					"AND tComp.id = :compId " +
+					"AND tActivity.completed = :completed " +
+				"ORDER BY tActivity.dateCreated DESC"; 
+			
+			@SuppressWarnings("unchecked")
+			List<TargetActivity> result = persistence.currentManager().createQuery(query)
+				.setLong("userId", userId)
+				.setLong("compId", compId)
+				.setBoolean("completed", true)
+				.list();
+			
+			if (result != null && !result.isEmpty()) {
+				return result;
+			}
+			return new ArrayList<TargetActivity>();
+		} catch(Exception e) {
+			logger.error(e);
+			throw new DbConnectionException("Error while loading activities");
+		}
+	}
+	
+	@Override
+	@Transactional (readOnly = false)
+	public boolean updateActivityStartDate(long id, Date date, Session session) {
+		try {
+			TargetActivity ta = loadResource(TargetActivity.class, id, session);
+			if(ta.getDateStarted() == null) {
+				ta.setDateStarted(date);
+			}
+			session.saveOrUpdate(ta);
+			return true;
+		} catch(Exception e) {
+			logger.error(e);
+			return false;
+		}
+	}
+	
 
 }

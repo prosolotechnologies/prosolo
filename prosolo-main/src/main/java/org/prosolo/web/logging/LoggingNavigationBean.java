@@ -3,12 +3,16 @@ package org.prosolo.web.logging;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.services.event.EventException;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.logging.AccessResolver;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
@@ -17,6 +21,9 @@ import org.prosolo.web.LoggedUserBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.util.JSON;
 
 /**
  * @author Zoran Jeremic 2013-10-13
@@ -34,6 +41,7 @@ public class LoggingNavigationBean implements Serializable {
 	@Autowired private LoggingService loggingService;
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private AccessResolver accessResolver;
+	@Inject private EventFactory eventFactory;
 	
 	private long userId;
 	private User user;
@@ -188,8 +196,11 @@ public class LoggingNavigationBean implements Serializable {
 	
 	public void submitServiceUse(){
 		try {
-			loggingService.logServiceUse(loggedUser.getUser(), component, parameters, getIpAddress());
-		} catch (LoggingException e) {
+			Map<String, String> params = convertToMap(parameters);
+			params.put("objectType", component);
+			eventFactory.generateEvent(EventType.SERVICEUSE, loggedUser.getUser(), null, params);
+			//loggingService.logServiceUse(loggedUser.getUser(), component, parameters, getIpAddress());
+		} catch (EventException e) {
 			logger.error(e);
 		}
 	}
@@ -201,6 +212,20 @@ public class LoggingNavigationBean implements Serializable {
 			ipAddress = accessResolver.findRemoteIPAddress();
 		}
 		return ipAddress;
+	}
+	
+	private Map<String, String> convertToMap(String parametersJson) {
+		Map<String, String> parameters = new HashMap<String, String>();
+		
+		if (parametersJson != null && parametersJson.length() > 0) {
+			BasicDBObject parametersObject = (BasicDBObject) JSON.parse(parametersJson);
+			Set<String> keys = parametersObject.keySet();
+			
+			for (String key : keys) {
+				parameters.put(key, parametersObject.getString(key));
+			}
+		}
+		return parameters;
 	}
 	
 	/* 

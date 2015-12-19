@@ -98,24 +98,27 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			String parametersJson, String ipAddress) throws LoggingException {
 
 		Map<String, String> parameters = convertToMap(parametersJson);
-
+		
 		logEventObserved(EventType.SERVICEUSE, user, componentName, 0, null,
-				null, 0, null, 0, parameters, null, ipAddress);
+				null, 0, null, 0, parameters, ipAddress);
 	}
 
 	@Override
 	public void logServiceUse(User user, ComponentName component, String link,
 			Map<String, String> parameters, String ipAddress) throws LoggingException {
 
+		parameters.put("link", link);
 		logEventObserved(EventType.SERVICEUSE, user, component.name(), 0, link,
-				null, 0, null, 0, parameters, link, ipAddress);
+				null, 0, null, 0, parameters, ipAddress);
 	}
 
 	@Override
 	public void logNavigation(User user, String link, String ipAddress) throws LoggingException {
 
+		Map<String, String> parameters = new HashMap<>();
+		parameters.put("link", link);
 		logEventObserved(EventType.NAVIGATE, user, "page", 0, link, null, 0,
-				null, 0, null, link, ipAddress);
+				null, 0, parameters, ipAddress);
 	}
 
 	@Override
@@ -142,13 +145,15 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			String context, String parametersString, String ipAddress) throws LoggingException {
 
 		Map<String, String> parameters = convertToMap(parametersString);
-		
+	
 		if (context != null && context.length() > 0) {
 			parameters.put("context", context);
 		}
 		
+		parameters.put("link", tabName);
+		
 		logEventObserved(EventType.NAVIGATE, user, "tab", 0, null, null, 0,
-				null, 0, parameters, tabName, ipAddress);
+				null, 0, parameters, ipAddress);
 	}
 
 	@Override
@@ -158,7 +163,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			    @Override
 			    public void run() {
 			    	try {
-						logEventObserved(eventType, actor, null, 0, null, null, 0, null, 0, null, null, ipAddress);
+						logEventObserved(eventType, actor, null, 0, null, null, 0, null, 0, null, ipAddress);
 					} catch (LoggingException e) {
 						logger.error(e);
 					}
@@ -174,7 +179,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		    @Override
 		    public void run() {
 		    	try {
-		    		logEventObserved(eventType, actor, objectType, objectId, null, null, 0, null, 0, parameters, null, ipAddress);
+		    		logEventObserved(eventType, actor, objectType, objectId, null, null, 0, null, 0, parameters, ipAddress);
 				} catch (LoggingException e) {
 					logger.error(e);
 				}
@@ -186,7 +191,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	public void logEventObserved(EventType eventType, User actor,
 			String objectType, long objectId, String objectTitle,
 			String targetType, long targetId, String reasonType, long reasonId,
-			Map<String, String> parameters, String link, String ipAddress) throws LoggingException {
+			Map<String, String> parameters, String ipAddress) throws LoggingException {
 		
 		if (!Settings.getInstance().config.init.formatDB) {
 	 
@@ -211,6 +216,8 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 				actorId = 0;
 				actorName = "ANONYMOUS";
 			}
+			
+			String link = parameters.get("link");
 	
 			logObject.put("actorId", actorId);
 			logObject.put("actorFullname", actorName);

@@ -1,6 +1,7 @@
 package org.prosolo.services.nodes;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -13,6 +14,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
+import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.web.activitywall.data.AttachmentPreview;
 import org.prosolo.web.competences.data.ActivityType;
 
@@ -75,5 +77,8 @@ public interface ActivityManager extends AbstractManager {
 	List<TargetActivity> getAllTargetActivities();
 
 	List<Activity> getMockActivities(int limit);
+	
+	List<TargetActivity> getComptenceCompletedTargetActivities(long userId, long compId) throws DbConnectionException;
 
+	boolean updateActivityStartDate(long id, Date date, Session session);
 }

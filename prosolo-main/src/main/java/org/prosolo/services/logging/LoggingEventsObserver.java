@@ -45,6 +45,11 @@ public class LoggingEventsObserver implements EventObserver {
 			objectType = object.getClass().getSimpleName();
 			objectId = object.getId();
 			objectTitle = object.getTitle();
+		} else {
+			Map<String, String> params = event.getParameters();
+			if(params != null) {
+				objectType = event.getParameters().get("objectType");
+			}
 		}
 
 		String targetType = "";
@@ -98,7 +103,7 @@ public class LoggingEventsObserver implements EventObserver {
 		try {
 			loggingService.logEventObserved(event.getAction(), event.getActor(),
 					objectType, objectId, objectTitle, targetType, targetId,
-					reasonType, reasonId, event.getParameters(), null, ipAddress);
+					reasonType, reasonId, event.getParameters(), ipAddress);
 		} catch (LoggingException e) {
 			logger.error(e);
 		}
