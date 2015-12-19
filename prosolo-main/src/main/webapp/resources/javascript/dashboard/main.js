@@ -67,6 +67,9 @@ require(['jquery', 'bootstrap', 'bootstrap-select', 'dashboard/paging', 'dashboa
                     function displayLines() {
                     	$("#activityGraphChartLegend g").click(function() {
                     		var $g = $("#activityGraphChart g." + $(this).attr("class"));
+                    		if ($g.size() == 0) {
+                    			return;
+                    		}
                             if ($g.css("opacity") == "0") {
                             	$g.css("opacity", "100");
                             	$(this).children("text").get(0).classList.remove("selected");

@@ -305,37 +305,65 @@
 	fill: lightgray;
 }
 
-g.pattern-one > path {
+g.pattern-one > path, g.pattern-one > circle {
 	stroke-dasharray: 3,3;
 	stroke: #006699;
 }
 
-g.pattern-two > path {
+g.pattern-two > path, g.pattern-two > circle  {
 	stroke-dasharray: 6,6;
 	stroke: #700000;
 }
 
-g.pattern-three > path {
+g.pattern-three > path, g.pattern-three > circle  {
 	stroke-dasharray: 12,12;
 	stroke: #009900;	
 }
 
-g.pattern-four > path {
+g.pattern-four > path, g.pattern-four > circle  {
 	stroke-dasharray: 12,3,3,3;
 	stroke: #FF9900;	
 }
 
-g.pattern-five > path {
+g.pattern-five > path, g.pattern-five > circle  {
 	stroke: #663399; 
 }
 
-g.pattern-six > path {
+g.pattern-six > path, g.pattern-six > circle  {
     stroke-dasharray: 3,3,3,3,12,3;
 	stroke: #CC0033; 
 }
 
+g.pattern-one > circle {
+	fill: #006699;
+}
+
+g.pattern-two > circle  {
+	fill: #700000;
+}
+
+g.pattern-three > circle  {
+	fill: #009900;	
+}
+
+g.pattern-four > circle  {
+	fill: #FF9900;	
+}
+
+g.pattern-five > circle  {
+	fill: #663399; 
+}
+
+g.pattern-six > circle  {
+	fill: #CC0033; 
+}
+
 .dateField + .ui-datepicker-trigger {
 	display: none;
+}
+
+#activityGraph .timeRange {
+	margin-top: 0px;
 }
 
 .timeRange .input-group-addon {
