@@ -28,19 +28,6 @@
 	cursor: default;
 }
 
-#dashboard .stats {
-	padding: 0em 0em 0.6em 0em;
-}
-
-#dashboard .stats + p {
-	margin: 0.8em 0em 0.4em 0em;
-}
-
-#dashboard .stats input {
-    vertical-align: middle;
-    margin: 0em 1em 0em 0.3em;
-}
-
 #dashboard .timeRange .ui-datepicker-trigger {
 	margin-right: 1em;
 }
@@ -273,6 +260,7 @@
 }
 
 */
+
 #disabled-hashtags-dialog {
 	display: none;
 }
@@ -300,31 +288,48 @@
 	stroke-width: 2px;
 }
 
-.pattern-one {
+#activityGraphChartLegend g {
+	cursor: pointer;
+}
+
+#activityGraphChartLegend svg > text {
+	font-size: 0.75em;
+	fill: gray;
+}
+
+#activityGraphChartLegend g:hover {
+	fill: #0288D1;
+}
+
+#activityGraphChartLegend g text.selected {
+	fill: lightgray;
+}
+
+g.pattern-one > path {
 	stroke-dasharray: 3,3;
 	stroke: #006699;
 }
 
-.pattern-two {
+g.pattern-two > path {
 	stroke-dasharray: 6,6;
 	stroke: #700000;
 }
 
-.pattern-three {
+g.pattern-three > path {
 	stroke-dasharray: 12,12;
 	stroke: #009900;	
 }
 
-.pattern-four {
+g.pattern-four > path {
 	stroke-dasharray: 12,3,3,3;
 	stroke: #FF9900;	
 }
 
-.pattern-five {
+g.pattern-five > path {
 	stroke: #663399; 
 }
 
-.pattern-six {
+g.pattern-six > path {
     stroke-dasharray: 3,3,3,3,12,3;
 	stroke: #CC0033; 
 }
