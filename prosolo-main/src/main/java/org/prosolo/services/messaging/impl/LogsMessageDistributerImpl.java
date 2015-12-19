@@ -43,7 +43,7 @@ public class LogsMessageDistributerImpl implements LogsMessageDistributer{
 			// reliableProducer.startAsynchronousPublisher();
 		}
 		LogMessage message = new LogMessage();
-		logger.debug("\n timestamp: " + "));"+logObject.get("timestamp")+ 
+		logger.debug("\n timestamp: " + "));"+logObject.get("timestamp")+
 	 			"\n eventType: " + logObject.get("eventType") + 
 	 			"\n actorId: " + logObject.get("actorId") + 
 	 			"\n actorFullname: " + logObject.get("actorFullname") + 
@@ -68,6 +68,7 @@ public class LogsMessageDistributerImpl implements LogsMessageDistributer{
 		message.setReasonType((String) logObject.get("reasonType"));
 		message.setReasonId((long) logObject.get("reasonId"));
 		message.setLink((String) logObject.get("link"));
+		message.setCourseId((long)logObject.get("courseId"));
 		message.setParameters((DBObject) logObject.get("parameters"));
 		
 		wrapMessageAndSend(message);

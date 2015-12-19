@@ -9,12 +9,14 @@ import java.util.Date
 import be.ac.ulg.montefiore.run.jahmm.io.{ObservationVectorReader, ObservationSequencesReader}
 import be.ac.ulg.montefiore.run.jahmm.learn.BaumWelchLearner
 import be.ac.ulg.montefiore.run.jahmm.toolbox.MarkovGenerator
+import com.datastax.driver.core.Row
 import org.apache.hadoop.fs.Path
 import org.apache.hadoop.io.SequenceFile
 import org.apache.mahout.classifier.sequencelearning.hmm.HmmModel
 import org.apache.mahout.clustering.Cluster
 import org.apache.mahout.clustering.classify.WeightedPropertyVectorWritable
 import org.prosolo.bigdata.clustering.QuartileName
+import org.prosolo.bigdata.dal.cassandra.impl.UserObservationsDBManagerImpl
 import org.prosolo.bigdata.scala.clustering.EventsChecker._
 
 import scala.collection.mutable.{HashMap, Map}
@@ -31,67 +33,68 @@ import scala.collection.JavaConversions._
 /**
   * Zoran 05/12/15
   */
-object HmmClustering  extends App{
-  val dateFormat: SimpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
-  val startDate: Date = dateFormat.parse("10/20/2014")
-  val endDate: Date = dateFormat.parse("10/22/2014")
+class HmmClustering {
+  val dbManager = new UserObservationsDBManagerImpl()
+
+  //val dateFormat: SimpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+  //val startDate: Date = dateFormat.parse("10/20/2014")
+ // val endDate: Date = dateFormat.parse("10/22/2014")
   val nStates=4
   val learntHmmModels:Map[ClusterName.Value,Hmm[ObservationDiscrete[QuartileName]]]=new HashMap[ClusterName.Value,Hmm[ObservationDiscrete[QuartileName]]]()
     //testHmmModel()
-  initializeHmmModels()
-    def testHmmModel(){
-      val startDateSinceEpoch = DateUtil.getDaysSinceEpoch(startDate)
-      val endDateSinceEpoch = DateUtil.getDaysSinceEpoch(endDate)
-      println("testing hmm model")
 
-      val initFactoryA:OpdfDiscreteFactory[QuartileName]  = new OpdfDiscreteFactory[QuartileName](classOf[QuartileName])
-      //val hmm:Hmm[ObservationDiscrete[QuartileName]]=new Hmm[ObservationDiscrete[QuartileName]](nStates,initFactoryA)
-     // val stream: InputStream = getClass.getClassLoader.getResourceAsStream("/home/zoran/git/prosolo-multimodule/features_quartiles_110_16363_16365.seq")
-      val lines: Array[String] = scala.io.Source.fromFile(new File("/home/zoran/git/prosolo-multimodule/features_quartiles_573_16363_16365.seq")).getLines.toArray
-      val sequences:List[List[ObservationDiscrete[QuartileName]]]=new util.ArrayList[List[ObservationDiscrete[QuartileName]]]()
-         lines.foreach { line =>
-           println("sequenceA:"+line)
-           val sequence: java.util.List[ObservationDiscrete[QuartileName]] = line.split(";").map(_.trim).map{s=>QuartileName.valueOf(s)}.map{qn=>qn.observation()}.toList
-           sequences.add(sequence)
+  def performHmmClusteringForPeriod(startDate: Date, endDate: Date, courseId: Long) = {
+    initializeHmmModels(courseId)
+    processCourseTestSequencesForPeriod(startDate, endDate, courseId)
+  }
 
-      }
-      val initAHmm:Hmm[ObservationDiscrete[QuartileName]]=new Hmm[ObservationDiscrete[QuartileName]](nStates,initFactoryA)
-      val mABwl:BaumWelchLearner=new BaumWelchLearner
-      val learntAHmm:Hmm[ObservationDiscrete[QuartileName]]=mABwl.learn(initAHmm, sequences)
-
-      //val testSequences:List[List[ObservationDiscrete[QuartileName]]]=new util.ArrayList[List[ObservationDiscrete[QuartileName]]]()
-      val testLine="H;H;L;H;L;H;L;L;L;H;M;L;";
-      val testSequence: java.util.List[ObservationDiscrete[QuartileName]] = testLine.split(";").map(_.trim).map{s=>QuartileName.valueOf(s)}.map{qn=>qn.observation()}.toList
-      val probability:Double=learntAHmm.probability(testSequence);
-      println("PROBABILITY:"+probability+" LNprob:"+learntAHmm.lnProbability(testSequence))
-     // testSequences.add(testSequence)
-
-      //val hmm:Hmm[ObservationDiscrete[QuartileName]]=new Hmm[ObservationDiscrete[QuartileName]](3,initFactoryA)
-
-
-    }
-
-
-  def initializeHmmModels()={
+  def initializeHmmModels(courseId:Long)={
     ClusterName.values.foreach{clusterName=>
       val initFactory:OpdfDiscreteFactory[QuartileName]  = new OpdfDiscreteFactory[QuartileName](classOf[QuartileName])
-      val sequences:List[List[ObservationDiscrete[QuartileName]]]=getClusterSequences(clusterName)
+      val sequences:List[List[ObservationDiscrete[QuartileName]]]=getClusterCourseSequences(clusterName, courseId)
       val initHmm:Hmm[ObservationDiscrete[QuartileName]]=new Hmm[ObservationDiscrete[QuartileName]](nStates,initFactory)
       val mBwl:BaumWelchLearner=new BaumWelchLearner
       val learntHmm:Hmm[ObservationDiscrete[QuartileName]]=mBwl.learn(initHmm, sequences)
       learntHmmModels.put(clusterName,learntHmm)
     }
   }
-  def getClusterSequences(clusterName:ClusterName.Value):List[List[ObservationDiscrete[QuartileName]]]={
-    val lines: Array[String] = scala.io.Source.fromFile(new File("/home/zoran/git/prosolo-multimodule/features_quartiles_"+clusterName.toString+"_16363_16365.seq")).getLines.toArray
+  def getClusterCourseSequences(clusterName:ClusterName.Value, courseId:Long):List[List[ObservationDiscrete[QuartileName]]]={
+    val  results:util.List[Row]=dbManager.findAllUserQuartileFeaturesForCourseAndProfile(courseId, clusterName.toString)
     val sequences:List[List[ObservationDiscrete[QuartileName]]]=new util.ArrayList[List[ObservationDiscrete[QuartileName]]]()
-    lines.foreach { line =>
-      println("sequenceA:"+line)
-      val sequence: java.util.List[ObservationDiscrete[QuartileName]] = line.split(";").map(_.trim).map{s=>QuartileName.valueOf(s)}.map{qn=>qn.observation()}.toList
-      sequences.add(sequence)
+    results.toList.foreach{
+      row=>
+        val sequence: java.util.List[ObservationDiscrete[QuartileName]] =row.getString("sequence").split(",").map(_.trim).map{s=>QuartileName.valueOf(s)}.map{qn=>qn.observation()}.toList
+        sequences.add(sequence)
     }
     sequences
   }
+  def processCourseTestSequencesForPeriod(startDate: Date, endDate: Date, courseId: Long)={
+    val startDateSinceEpoch = DateUtil.getDaysSinceEpoch(startDate)
+    val endDateSinceEpoch = DateUtil.getDaysSinceEpoch(endDate)
+
+
+    val sequences:List[List[ObservationDiscrete[QuartileName]]]=new util.ArrayList[List[ObservationDiscrete[QuartileName]]]()
+    ClusterName.values.foreach(clusterName=>
+    {
+      val  results:util.List[Row]=dbManager.findAllUserQuartileFeaturesForCourseProfileAndWeek(courseId, clusterName.toString, endDateSinceEpoch)
+      println("FOUND TEST SEQUENCES:"+courseId+" cluster:"+clusterName.toString+" end date:"+endDateSinceEpoch+" size:"+results.size())
+      results.toList.foreach{
+        row=>
+          val testSequence: java.util.List[ObservationDiscrete[QuartileName]] =row.getString("sequence").split(",").map(_.trim).map{s=>QuartileName.valueOf(s)}.map{qn=>qn.observation()}.toList
+          val userid=row.getLong("userid");
+          learntHmmModels.foreach{
+            case(clusterName, learntHmm)=>
+            {
+              val probability:Double=learntHmm.probability(testSequence);
+              val lnProbability:Double=learntHmm.lnProbability(testSequence);
+              println("user "+userid+" has probability for cluster:"+clusterName.toString+" p:"+probability+" lnP:"+lnProbability)
+
+            }
+          }
+      }
+    })
+  }
+
   def extractSequenceProbabilities(testSequence: java.util.List[ObservationDiscrete[QuartileName]]):Map[ClusterName.Value,Tuple2[Double,Double]]={
     val probabilities:Map[ClusterName.Value,Tuple2[Double,Double]]=new HashMap[ClusterName.Value,Tuple2[Double,Double]]()
     learntHmmModels.foreach{

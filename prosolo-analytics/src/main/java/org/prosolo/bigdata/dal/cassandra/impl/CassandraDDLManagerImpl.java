@@ -85,23 +85,26 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		this.ddls.add("CREATE TABLE IF NOT EXISTS disabledtwitterhashtags(hashtag text, PRIMARY KEY(hashtag));");
 		this.ddls.add("CREATE TABLE IF NOT EXISTS socialinteractionscount(source bigint, target bigint, count counter, PRIMARY KEY(source, target));");
 		
-		String failedFeedsDDL = "CREATE TABLE IF NOT EXISTS failedfeeds(url text, date bigint, count counter,"
-				+ " PRIMARY KEY (url, date))";
+		String failedFeedsDDL = "CREATE TABLE IF NOT EXISTS failedfeeds(url text, date bigint, count counter, PRIMARY KEY (url, date))";
 		this.ddls.add(failedFeedsDDL);
 		
-		String clusteringusersobservationsbydateDDL = "CREATE TABLE IF NOT EXISTS clusteringusersobservationsbydate(date bigint, userid bigint, login counter, lmsuse counter, resourceview counter, discussionview counter, "
+		String clusteringusersobservationsbydateDDL =
+				"CREATE TABLE IF NOT EXISTS clusteringusersobservationsbydate(date bigint, userid bigint, login counter, lmsuse counter, resourceview counter, discussionview counter, "
 				+ " PRIMARY KEY (date, userid))";
 		this.ddls.add(clusteringusersobservationsbydateDDL);
 		
-		String userprofileactionsobservationsbydateDDL = "CREATE TABLE IF NOT EXISTS userprofileactionsobservationsbydate(date bigint, userid bigint, attach counter,  "
+		String userprofileactionsobservationsbydateDDL = "CREATE TABLE IF NOT EXISTS userprofileactionsobservationsbydate(date bigint,course bigint, userid bigint, attach counter,  "
 				+ "progress counter,  comment counter,  creating counter,  evaluation counter,join counter,like counter,login  counter,"
 				+ "posting counter,content_access counter,message counter,search counter, "
-				+ " PRIMARY KEY (date, userid))";
+				+ " PRIMARY KEY (date, course, userid))";
 		this.ddls.add(userprofileactionsobservationsbydateDDL);
 
 		String userquartilefeaturesbyweekDDL="CREATE TABLE IF NOT EXISTS userquartilefeaturesbyweek(course bigint, profile varchar, date bigint, userid bigint," +
-				"sequence varchar, PRIMARY KEY(course, date,profile))";
+				"sequence varchar, PRIMARY KEY(course, profile,date))";
 		this.ddls.add(userquartilefeaturesbyweekDDL);
+
+		String usercoursesDDL = "CREATE TABLE IF NOT EXISTS usercourses(userid bigint, courses set<bigint>, PRIMARY KEY (userid))";
+		this.ddls.add(usercoursesDDL);
 	}
 
 	@Override

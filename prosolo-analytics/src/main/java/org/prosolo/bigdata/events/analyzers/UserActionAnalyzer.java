@@ -12,6 +12,7 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
  * @author Zoran Jeremic, Oct 11, 2015
  *
  */
+@Deprecated
 public class UserActionAnalyzer implements EventAnalyzer {
 	UserObservationsDBManager dbManager = new UserObservationsDBManagerImpl();
 

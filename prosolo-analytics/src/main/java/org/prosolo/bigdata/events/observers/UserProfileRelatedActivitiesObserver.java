@@ -1,6 +1,7 @@
 package org.prosolo.bigdata.events.observers;
 
 import java.util.List;
+import java.util.Set;
 
 import org.prosolo.bigdata.dal.cassandra.UserObservationsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.UserObservationsDBManagerImpl;
@@ -47,12 +48,29 @@ public class UserProfileRelatedActivitiesObserver implements EventObserver{
 		Gson gson=new Gson();
 		String eventC=gson.toJson(event);
 		LogEvent logEvent=(LogEvent) event;
+		long userid=logEvent.getActorId();
+		long courseid=logEvent.getCourseId();
+		if(logEvent.getEventType().equals(EventType.ENROLL_COURSE)){
+			courseid=logEvent.getTargetId();
+			dbManager.enrollUserToCourse(userid,courseid);
+		}else if(logEvent.getEventType().equals(EventType.COURSE_WITHDRAWN)){
+			courseid=logEvent.getTargetId();
+			dbManager.withdrawUserFromCourse(userid, courseid);
+		}
 		if(eventsChecker.isEventObserved(logEvent)){
 			 ObservationType observationType=eventsChecker.getObservationType(logEvent);
-			 long userid=logEvent.getActorId();
 			 long date = DateUtil.getDaysSinceEpoch(logEvent.getTimestamp());
-			 dbManager.updateUserProfileActionsObservationCounter(date, userid, observationType);
+			if(courseid>0){
+				dbManager.updateUserProfileActionsObservationCounter(date, userid, courseid, observationType);
+			}else{
+				Set<Long> courses=dbManager.findAllUserCourses(userid);
+				 for(Long course:courses){
+					 dbManager.updateUserProfileActionsObservationCounter(date, userid, course, observationType);
+				 }
+			}
+
 		}
+
 	}
 
 }

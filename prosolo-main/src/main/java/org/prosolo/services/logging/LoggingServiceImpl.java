@@ -29,6 +29,7 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.logging.exception.LoggingException;
 import org.prosolo.services.messaging.LogsMessageDistributer;
+import org.prosolo.services.nodes.CourseManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -46,13 +47,14 @@ import com.mongodb.util.JSON;
 
 /**
  * @author Zoran Jeremic 2013-10-07
- * @param <E>
  * 
  */
 @Service("org.prosolo.services.logging.LoggingService")
 public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	
 	@Autowired LogsMessageDistributer logsMessageDistributer;
+	@Autowired
+	CourseManager courseManager;
 
 	private static Logger logger = Logger.getLogger(LoggingService.class.getName());
 	
@@ -220,6 +222,8 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			logObject.put("reasonType", reasonType);
 			logObject.put("reasonId", reasonId);
 			logObject.put("link", link);
+
+			logObject.put("courseId",extractCourseIdForUsedResource(objectType, objectId, targetType, targetId, reasonType, reasonId));
 	
 			if (parameters != null && !parameters.isEmpty()) {
 				Iterator<Map.Entry<String, String>> it = parameters.entrySet()
@@ -257,6 +261,22 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			}
 		}
 	}
+
+	private Long extractCourseIdForUsedResource(String objectType, long objectId, String targetType, long targetId, String reasonType, long reasonId) {
+		Map<String, Long> types=new HashMap<String, Long>();
+		types.put(objectType, objectId);
+		types.put(targetType, targetId);
+		types.put(reasonType, reasonId);
+		if(types.containsKey("TargetLearningGoal")){
+			return courseManager.findCourseIdForTargetLearningGoal(types.get("TargetLearningGoal"));
+		}else if(types.containsKey("TargetCompetence")){
+			return courseManager.findCourseIdForTargetCompetence(types.get("TargetCompetence"));
+		}else if(types.containsKey("TargetActivity")){
+			return courseManager.findCourseIdForTargetActivity(types.get("TargetActivity"));
+		}
+		return 0l;
+	}
+
 
 	@Override
 	public void recordUserActivity(long userid, long time) throws LoggingException {

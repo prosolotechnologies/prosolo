@@ -276,6 +276,9 @@ public class ReliableProducerImplTest{
 				if(eventType.equals("TwitterPost")|| eventType.equals("LOGOUT") || eventType.equals("SESSIONENDED")	){
 					ignore=true;					
 				}
+				if(eventType.equals("ENROLL_COURSE") || eventType.equals("COURSE_WITHDRAWN")){
+					ignore=true;
+				}
 				if(dbObject.containsKey("objectType") && dbObject.get("objectType")!=null){
 					String objectType=dbObject.get("objectType").toString();
 					if(objectType.equals("MOUSE_CLICK")){

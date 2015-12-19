@@ -24,7 +24,11 @@ public class LogMessage extends SimpleMessage{
 	private String reasonType;
 	private long reasonId;
 	private String link;
+	private long courseId;
 	private DBObject parameters;
+	public void setCourseId(long courseId) {this.courseId = courseId;}
+	public long getCourseId() {	return courseId;}
+
 	public long getTimestamp() {
 		return timestamp;
 	}

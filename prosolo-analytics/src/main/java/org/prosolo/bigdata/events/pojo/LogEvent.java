@@ -21,9 +21,15 @@ public class LogEvent extends DefaultEvent {
 	private long targetId;
 	private String reasonType;
 	private long reasonId;
+
+
+
+	private long courseId;
 	private String link;
 	private JsonObject parameters;
+	public long getCourseId() {	return courseId;}
 
+	public void setCourseId(long courseId) {this.courseId = courseId;}
 	public long getActorId() {
 		return actorId;
 	}

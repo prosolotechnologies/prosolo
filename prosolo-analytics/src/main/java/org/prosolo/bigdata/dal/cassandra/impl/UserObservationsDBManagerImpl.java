@@ -1,10 +1,7 @@
 package org.prosolo.bigdata.dal.cassandra.impl;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.prosolo.bigdata.dal.cassandra.UserObservationsDBManager;
 import org.prosolo.bigdata.events.analyzers.ObservationType;
@@ -48,17 +45,17 @@ implements Serializable, UserObservationsDBManager{
 				+ "SET attach=attach+?,progress=progress+?, comment=comment+?, creating=creating+?,"
 				+ "evaluation=evaluation+?, join=join+?,like=like+?, login=login+?,"
 				+ "posting=posting+?, content_access=content_access+?, message=message+?, search=search+? "
-				+ "WHERE date=? AND userid=?;";
+				+ "WHERE date=? AND course=? AND userid=?;";
 		this.queries.put("updateUserprofileactionsobservationsbydate", updateUserprofileactionsobservationsbydate);
 		
-		String findUserprofileactionsobservationsbydate = "SELECT date, userid, "
+		String findUserprofileactionsobservationsbydate = "SELECT date,  userid, "
 				+ "attach,  progress,  comment,  creating,  evaluation,join,like,"
 				+ "login ,posting,content_access,message,search "
 				+ "FROM userprofileactionsobservationsbydate "
-				+ "WHERE date=?;";
+				+ "WHERE date=? and course=?;";
 		this.queries.put("findUserprofileactionsobservationsbydate", findUserprofileactionsobservationsbydate);
 
-		String insertUserquartilefeaturesbyweek  = "INSERT INTO userquartilefeaturesbyweek(course,  date,profile, userid, sequence) VALUES (?, ?, ?,?,?);";
+		String insertUserquartilefeaturesbyweek  = "INSERT INTO userquartilefeaturesbyweek(course,  profile,date, userid, sequence) VALUES (?, ?, ?,?,?);";
 		this.queries.put("insertUserquartilefeaturesbyweek",
 				insertUserquartilefeaturesbyweek);
 
@@ -66,9 +63,22 @@ implements Serializable, UserObservationsDBManager{
 		this.queries.put("findUserquartilefeaturesbycourse",
 				findUserquartilefeaturesbycourse);
 
-		String findUserquartilefeaturesbyweek = "SELECT * FROM userquartilefeaturesbyweek WHERE course=? and date=? ALLOW FILTERING;";
+		String findUserquartilefeaturesbyweek = "SELECT * FROM userquartilefeaturesbyweek WHERE course=? and profile=? and date=? ALLOW FILTERING;";
 		this.queries.put("findUserquartilefeaturesbyweek",
 				findUserquartilefeaturesbyweek);
+
+		String findUserquartilefeaturesbyprofile = "SELECT * FROM userquartilefeaturesbyweek WHERE course=? and profile=? ALLOW FILTERING;";
+		this.queries.put("findUserquartilefeaturesbyprofile",
+				findUserquartilefeaturesbyprofile);
+
+		String findUserCourses="SELECT * FROM usercourses WHERE userid=? ALLOW FILTERING;";
+		this.queries.put("findUserCourses",findUserCourses);
+
+		String addCourseToUserCourses="UPDATE usercourses SET courses=courses+? WHERE userid=?;";
+		this.queries.put("addCourseToUserCourses", addCourseToUserCourses);
+
+		String deleteCourseFromUserCourses="UPDATE usercourses SET courses=courses-? WHERE userid=?;";
+		this.queries.put("deleteCourseFromUserCourses", deleteCourseFromUserCourses);
 		
 		Set<String> stQueries = this.queries.keySet();
 		for (String query : stQueries) {
@@ -77,6 +87,7 @@ implements Serializable, UserObservationsDBManager{
 		}
 	}
 	@Override
+	@Deprecated
 	public boolean updateUserObservationsCounter(Long date, Long userid,
 			long login, long lmsuse, long resourceview, long discussionview) {
 		BoundStatement updateStatement = new BoundStatement(this.preparedStatements.get("updateClusteringusersobservationsbydate"));
@@ -95,8 +106,8 @@ implements Serializable, UserObservationsDBManager{
 		return true;
 	}
 	@Override
-	public boolean updateUserProfileActionsObservationCounter(Long date, Long userid,
-			ObservationType observationType ) {
+	public boolean updateUserProfileActionsObservationCounter(Long date, Long userid, Long courseid,
+															  ObservationType observationType) {
 	BoundStatement updateStatement = new BoundStatement(this.preparedStatements.get("updateUserprofileactionsobservationsbydate"));
 		try {
 			for (int i=0;i<observationTypes.length;i++){
@@ -108,6 +119,7 @@ implements Serializable, UserObservationsDBManager{
 				}
 		}
 		updateStatement.setLong("date", date);
+		updateStatement.setLong("course", courseid);
 		updateStatement.setLong("userid", userid);
 			ResultSet rs=this.getSession().execute(updateStatement);
 		} catch (Exception ex) {
@@ -137,6 +149,7 @@ implements Serializable, UserObservationsDBManager{
 		BoundStatement boundStatement = new BoundStatement(
 				preparedStatements.get("findUserprofileactionsobservationsbydate"));
 		boundStatement.setLong(0, date);
+		boundStatement.setLong(1, courseId);
 		List<Row> rows =null;
 		try{
 			ResultSet rs = this.getSession().execute(boundStatement);
@@ -152,8 +165,8 @@ implements Serializable, UserObservationsDBManager{
 				preparedStatements
 						.get("insertUserquartilefeaturesbyweek"));
 		boundStatement.setLong(0, courseid);
-		boundStatement.setLong(1,date);
-		boundStatement.setString(2, profile);
+		boundStatement.setLong(2,date);
+		boundStatement.setString(1, profile);
 
 		boundStatement.setLong(3,userid);
 		boundStatement.setString(4,sequence);
@@ -176,11 +189,11 @@ implements Serializable, UserObservationsDBManager{
 		return rows;
 	}
 	@Override
-	public List<Row> findAllUserQuartileFeaturesForCourseAndWeek(Long courseId, Long date) {
+	public List<Row> findAllUserQuartileFeaturesForCourseAndProfile(Long courseId, String profile) {
 		BoundStatement boundStatement = new BoundStatement(
-				preparedStatements.get("findUserquartilefeaturesbycourse"));
+				preparedStatements.get("findUserquartilefeaturesbyprofile"));
 		boundStatement.setLong(0, courseId);
-		boundStatement.setLong(1, date);
+		boundStatement.setString(1, profile);
 		List<Row> rows =null;
 		try{
 			ResultSet rs = this.getSession().execute(boundStatement);
@@ -189,5 +202,71 @@ implements Serializable, UserObservationsDBManager{
 			ex.printStackTrace();
 		}
 		return rows;
+	}
+	@Override
+	public List<Row> findAllUserQuartileFeaturesForCourseProfileAndWeek(Long courseId, String profile, Long date) {
+		BoundStatement boundStatement = new BoundStatement(
+				preparedStatements.get("findUserquartilefeaturesbyweek"));
+		boundStatement.setLong(0, courseId);
+		boundStatement.setString(1, profile);
+		boundStatement.setLong(2, date);
+		List<Row> rows =null;
+		try{
+			ResultSet rs = this.getSession().execute(boundStatement);
+			rows = rs.all();
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+		return rows;
+	}
+	@Override
+	public Set<Long> findAllUserCourses(Long userId) {
+		BoundStatement boundStatement = new BoundStatement(
+				preparedStatements.get("findUserCourses"));
+		boundStatement.setLong(0, userId);
+		List<Row> rows =null;
+		Set<Long> courses=new HashSet<Long>();
+		try{
+			ResultSet rs = this.getSession().execute(boundStatement);
+			Row row = rs.one();
+			if(row!=null){
+				 courses=row.getSet("courses",Long.class);
+			}
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+		return courses;
+	}
+	@Override
+	public void enrollUserToCourse(Long userId, Long courseId){
+		System.out.println("ENROLLING USER TO THE COURSE CALLED FOR:"+userId+" course:"+courseId);
+		BoundStatement boundStatement = new BoundStatement(
+				preparedStatements
+						.get("addCourseToUserCourses"));
+		Set<Long> course=new HashSet<>();
+		course.add(courseId);
+		boundStatement.setSet(0, course);
+		boundStatement.setLong(1,userId);
+		try{
+			this.getSession().execute(boundStatement);
+		}catch(Exception ex){
+			ex.getStackTrace();
+		}
+
+	}
+	@Override
+	public void withdrawUserFromCourse(Long userId, Long courseId){
+		BoundStatement boundStatement = new BoundStatement(
+				preparedStatements
+						.get("deleteCourseFromUserCourses"));
+		Set<Long> course=new HashSet<>();
+		course.add(courseId);
+		boundStatement.setSet(0, course);
+		boundStatement.setLong(1,userId);
+		try{
+			 this.getSession().execute(boundStatement);
+		}catch(Exception ex){
+			ex.getStackTrace();
+		}
 	}
 }

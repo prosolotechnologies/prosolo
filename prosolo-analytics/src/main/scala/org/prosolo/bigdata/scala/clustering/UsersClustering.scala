@@ -35,56 +35,30 @@ import scala.collection.mutable._
 /**
   * Zoran 22/11/15
   */
-object UsersClustering extends App {
+class UsersClustering  {
   val dbManager = new UserObservationsDBManagerImpl()
-  val dateFormat: SimpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
 
-  val startDate: Date = dateFormat.parse("10/20/2014")
-  val endDate: Date = dateFormat.parse("10/22/2014")
-  val endDate2: Date = dateFormat.parse("12/20/2014")
-val courseId:Long=0//we are still not taking account of this value. It should be fixed in Cassandra DAO
+//val courseId:Long=0//we are still not taking account of this value. It should be fixed in Cassandra DAO
 
   //map feature id to FeatureQuartile
   val featuresQuartiles: mutable.Map[Int, FeatureQuartiles] = new HashMap[Int, FeatureQuartiles]
   val matchedClusterProfiles: Map[Long, ClusterName.Value] = new HashMap[Long, ClusterName.Value]()
 
- calculateUsersClusteringForPeriod(startDate, endDate, courseId)
- // runPeriodicalClustering(startDate,endDate2)
-  def addDaysToDate(date:Date, days:Int): Date ={
-    val cal:Calendar=Calendar.getInstance()
-    cal.setTime(date)
-    cal.add(Calendar.DATE,days)
-    val newDate:Date=cal.getTime
-    newDate
-  }
+
+
+
 
   def getMatchedClusterProfile(clusterId:Long):String={
     matchedClusterProfiles.getOrElse(clusterId,"").toString
   }
-  /**
-    * For the specific period of time e.g. course, runs clustering in specific intervals, e.g. week
-    * @param startDate
-    * @param endDate
-    */
-  def runPeriodicalClustering(startDate:Date, endDate:Date, courseId:Long): Unit ={
-    outputResults("******************************************************************************************")
-    outputResults("******************************************************************************************")
-    outputResults("******************************************************************************************")
-    var tempDate=startDate
 
-    while(endDate.compareTo(tempDate)>0){
-      calculateUsersClusteringForPeriod(tempDate,addDaysToDate(tempDate,ClusteringUtils.periodDays), courseId)
-      tempDate=addDaysToDate(tempDate, ClusteringUtils.periodDays+1)
-
-    }
-  }
 
   /**
     * Main function that executes clustering
     * @param startDate
     * @param endDate
     */
-  def calculateUsersClusteringForPeriod(startDate: Date, endDate: Date, courseId: Long) = {
+  def performKMeansClusteringForPeriod(startDate: Date, endDate: Date, courseId: Long) = {
     outputResults("ALGORITHM:"+ClusteringUtils.algorithmType.toString)
 
 
@@ -205,6 +179,7 @@ val courseId:Long=0//we are still not taking account of this value. It should be
     val clusterClassificationThreshold = 0.0
     val m: Float = 0.01f
     if (ClusteringUtils.algorithmType == AlgorithmType.KMeans) {
+
       KMeansDriver.run(ClusteringUtils.conf, ClusteringUtils.datapath, clustersIn, ClusteringUtils.output, convergenceDelta, maxIterations, true, clusterClassificationThreshold, true)
     } else if (ClusteringUtils.algorithmType == AlgorithmType.Canopy) {
       CanopyDriver.run(ClusteringUtils.conf, clustersIn, ClusteringUtils.output, new EuclideanDistanceMeasure(), 20, 5, false, clusterClassificationThreshold, false)
@@ -260,21 +235,26 @@ val courseId:Long=0//we are still not taking account of this value. It should be
     val clusterswriters:HashMap[Int,PrintWriter]=new HashMap[Int,PrintWriter]()
     val dates=startDateSinceEpoch.toString+"_"+endDateSinceEpoch.toString
     usersQuartilesFeaturesAndClusters.foreach{
-      case(userid, valueTuple)=>
-      {
-        val clusterId=valueTuple._1
-        val clusterProfile=getMatchedClusterProfile(clusterId)
-        val key=clusterId.toString+"_"+dates.toString
+      case(userid, valueTuple)=> {
+        val clusterId = valueTuple._1
+        val clusterProfile = getMatchedClusterProfile(clusterId)
+        val key = clusterId.toString + "_" + dates.toString
 
-        val clusterWriter=clusterswriters.getOrElseUpdate(clusterId,
-          new PrintWriter(new BufferedWriter(new FileWriter("features_quartiles_"+key+".seq", true))))
-       val userQuartilesSequence: Array[Double] = valueTuple._2
-               userQuartilesSequence.foreach{feature=>
-          clusterWriter.append(FeatureQuartiles.matchQuartileValueToQuartileName(feature)+";")
+        val clusterWriter = clusterswriters.getOrElseUpdate(clusterId,
+          new PrintWriter(new BufferedWriter(new FileWriter("features_quartiles_" + key + ".seq", true))))
+        val userQuartilesSequence: Array[Double] = valueTuple._2
+        userQuartilesSequence.foreach { feature =>
+          clusterWriter.append(FeatureQuartiles.matchQuartileValueToQuartileName(feature) + ";")
         }
         clusterWriter.append("\r\n")
-        println("course:"+courseId+" cluster-name:"+clusterProfile+" userid:"+userid+" date:"+endDateSinceEpoch+" sequence:"+userQuartilesSequence.map{
-          feature=>FeatureQuartiles.matchQuartileValueToQuartileName(feature)}.mkString(","))
+        val sequence = userQuartilesSequence.map {
+          feature => FeatureQuartiles.matchQuartileValueToQuartileName(feature)
+        }.mkString(",")
+
+        dbManager.insertUserQuartileFeaturesByWeek(courseId, clusterProfile, endDateSinceEpoch, userid, sequence);
+        println("course:" + courseId + " cluster-name:" + clusterProfile + " userid:" + userid + " date:" + endDateSinceEpoch + " sequence:" + userQuartilesSequence.map {
+          feature => FeatureQuartiles.matchQuartileValueToQuartileName(feature)
+        }.mkString(","))
 
       }
     }
@@ -365,17 +345,20 @@ val courseId:Long=0//we are still not taking account of this value. It should be
             } else if (matchingResults.size > 1) {
               val sorted: ArrayBuffer[(ClusterResults, Double)] = matchingResults.sortBy(_._2).reverse
               val notAssignedSorted = sorted.filterNot { p: (ClusterResults, Double) => matchedIds.contains(p._1.id) }
-              val highest = notAssignedSorted.head._2
-              val filtered = notAssignedSorted.filter {
-                _._2 == highest
+                     if(notAssignedSorted.size>0){
+                val highest = notAssignedSorted.head._2
+                val filtered = notAssignedSorted.filter {
+                  _._2 == highest
+                }
+                if (filtered.size == 1) {
+                  matchedElements.put(clusterName, filtered(0)._1)
+                  matchedIds += filtered(0)._1.id
+                } else {
+                  matchedElements.put(clusterName, filtered(0)._1)
+                  matchedIds += filtered(0)._1.id
+                }
               }
-              if (filtered.size == 1) {
-                matchedElements.put(clusterName, filtered(0)._1)
-                matchedIds += filtered(0)._1.id
-              } else {
-                matchedElements.put(clusterName, filtered(0)._1)
-                matchedIds += filtered(0)._1.id
-               }
+
             }
 
           }

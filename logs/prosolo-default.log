@@ -1,14 +1,7 @@
-2015-12-06 19:35:43,189 INFO  [Settings] - Settings loaded!
-2015-12-06 19:35:43,224 INFO  [CommonSettings] - Settings loaded!
-2015-12-06 19:35:45,679 INFO  [DCAwareRoundRobinPolicy] - Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
-2015-12-06 19:35:45,680 INFO  [Cluster] - New Cassandra host /52.2.214.133:9042 added
-2015-12-06 19:35:46,817 WARN  [NativeCodeLoader] - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
-2015-12-06 19:35:48,284 INFO  [HadoopUtil] - Deleting clustersdir/output
-2015-12-06 19:35:48,311 INFO  [CodecPool] - Got brand-new compressor [.deflate]
-2015-12-06 19:35:48,390 INFO  [RandomSeedGenerator] - Wrote 4 Klusters to clustersdir/output/random-seeds/part-randomSeed
-2015-12-06 19:35:48,397 INFO  [KMeansDriver] - Input: clustersdir/users/part-00000 Clusters In: clustersdir/output/random-seeds Out: clustersdir/output
-2015-12-06 19:35:48,397 INFO  [KMeansDriver] - convergence: 0.01 max Iterations: 50
-2015-12-06 19:35:48,406 INFO  [CodecPool] - Got brand-new decompressor [.deflate]
-2015-12-06 19:35:48,767 INFO  [KMeansDriver] - Clustering data
-2015-12-06 19:35:48,767 INFO  [KMeansDriver] - Running Clustering
-2015-12-06 19:35:48,767 INFO  [KMeansDriver] - Input: clustersdir/users/part-00000 Clusters In: clustersdir/output Out: clustersdir/output
+2015-12-16 00:00:57,117 INFO  [Settings] - Settings loaded!
+2015-12-16 00:00:57,191 INFO  [CommonSettings] - Settings loaded!
+2015-12-16 00:00:59,227 INFO  [DCAwareRoundRobinPolicy] - Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
+2015-12-16 00:00:59,227 INFO  [Cluster] - New Cassandra host /52.2.214.133:9042 added
+2015-12-16 00:01:01,037 WARN  [NativeCodeLoader] - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2015-12-16 00:01:09,039 INFO  [DCAwareRoundRobinPolicy] - Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor)
+2015-12-16 00:01:09,039 INFO  [Cluster] - New Cassandra host /52.2.214.133:9042 added

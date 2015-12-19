@@ -59,6 +59,65 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	private LearningGoalManager goalManager;
 
 	@Override
+	@Transactional
+	public Long findCourseIdForTargetCompetence(Long targetCompetenceId) {
+		System.out.println("FIND COURSE ID FOR TARGET COMPETENCE:"+targetCompetenceId);
+		String query =
+				"SELECT DISTINCT course.id " +
+						"FROM CourseEnrollment enrollment " +
+						"LEFT JOIN enrollment.course course " +
+						"LEFT JOIN enrollment.targetGoal tGoal "+
+						"LEFT JOIN tGoal.targetCompetences tCompetence "+
+						"WHERE tCompetence.id=:targetCompetenceId";
+
+		Long courseId=  (Long) persistence.currentManager().createQuery(query).
+				setLong("targetCompetenceId", targetCompetenceId).
+				uniqueResult();
+		if (courseId != null) {
+			return courseId;
+		}else return 0l;
+	}
+	@Override
+	@Transactional
+	public Long findCourseIdForTargetLearningGoal(Long targetGoalId) {
+		System.out.println("FIND COURSE ID FOR TARGET GOAL:"+targetGoalId);
+		String query =
+				"SELECT DISTINCT course.id " +
+						"FROM CourseEnrollment enrollment " +
+						"LEFT JOIN enrollment.course course " +
+						"LEFT JOIN enrollment.targetGoal tGoal "+
+					 	"WHERE tGoal.id=:targetGoalId";
+		Long courseId=  (Long) persistence.currentManager().createQuery(query).
+				setLong("targetGoalId", targetGoalId).
+				uniqueResult();
+		if (courseId != null) {
+			return courseId;
+		}else return 0l;
+	}
+
+	@Override
+	@Transactional
+	public Long findCourseIdForTargetActivity(Long targetActivityId) {
+		System.out.println("FIND COURSE ID FOR TARGET ACTIVITY:"+targetActivityId);
+
+		String query =
+				"SELECT DISTINCT course.id " +
+						"FROM CourseEnrollment enrollment " +
+						"LEFT JOIN enrollment.course course " +
+						"LEFT JOIN enrollment.targetGoal tGoal "+
+						"LEFT JOIN tGoal.targetCompetences tCompetence "+
+						"LEFT JOIN tCompetence.targetActivities tActivity "+
+						"WHERE tActivity.id=:targetActivityId";
+
+		Long courseId=  (Long) persistence.currentManager().createQuery(query).
+				setLong("targetActivityId", targetActivityId).
+				uniqueResult();
+		if (courseId != null) {
+			return courseId;
+		}else return 0l;
+	}
+
+	@Override
 	@Transactional (readOnly = false)
 	public Course updateCompetencesAndSaveNewCourse(String title, String description,
 			Course basedOn, List<CourseCompetenceData> competences, 
@@ -451,7 +510,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 				Map<String, String> parameters = new HashMap<String, String>();
 				parameters.put("context", context);
 			
-				eventFactory.generateEvent(EventType.ENROLL_COURSE, user, enrollment, parameters);
+				eventFactory.generateEvent(EventType.ENROLL_COURSE, user, enrollment, course, parameters);
 			} catch (EventException e) {
 				logger.error(e);
 			}

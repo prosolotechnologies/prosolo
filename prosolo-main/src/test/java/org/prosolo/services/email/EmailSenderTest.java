@@ -33,7 +33,7 @@ public class EmailSenderTest {
 	@Test
 	public void testSendEmail() {
 		EmailVerificationEmailContentGenerator contentGenerator = new EmailVerificationEmailContentGenerator("Test", "http://example.com");
-		String email="zoran.jeremic@gmail.com"; 
+		String email="test@gmail.com";
 		String subject= "Verify email1";
 		//final String FROM = "zoran.jeremic@gmail.com"; 
 		  SMTPConfig smtpConfig = CommonSettings.getInstance().config.emailNotifier.smtpConfig;

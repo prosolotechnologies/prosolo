@@ -23,14 +23,22 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.rest.courses.data.CompetenceJsonData;
 import org.prosolo.web.courses.data.CourseCompetenceData;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface CourseManager extends AbstractManager {
 
+	 Long findCourseIdForTargetCompetence(Long targetCompetenceId);
+
+	@Transactional
+	Long findCourseIdForTargetLearningGoal(Long targetGoalId);
+
+	Long findCourseIdForTargetActivity(Long targetCompetenceId);
+
 	Course updateCompetencesAndSaveNewCourse(String title, String description,
-			Course basedOn, List<CourseCompetenceData> courseCompetences, 
-			Collection<Tag> tags, Collection<Tag> hashtags, User maker, 
-			CreatorType creatorType, boolean studentsCanAddNewCompetences,
-			boolean pubilshed) throws EventException;
+											 Course basedOn, List<CourseCompetenceData> courseCompetences,
+											 Collection<Tag> tags, Collection<Tag> hashtags, User maker,
+											 CreatorType creatorType, boolean studentsCanAddNewCompetences,
+											 boolean pubilshed) throws EventException;
 	
 	Course saveNewCourse(String title, String description, 
 			Course basedOn, List<CourseCompetence> courseCompetences, 

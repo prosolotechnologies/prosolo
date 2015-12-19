@@ -5,6 +5,8 @@ PROGRESS,ChangeProgress,TargetLearningGoal
 PROGRESS,Completion,TargetActivity
 PROGRESS,Completion,TargetCompetence
 PROGRESS,Completion,TargetLearningGoal
+PROGRESS,ENROLL_COURSE,CourseEnrollment
+PROGRESS,COURSE_WITHDRAWN,CourseEnrollment
 PROGRESS,COURSE_COMPLETED,CourseEnrollment
 COMMENT,Comment,NodeComment
 COMMENT,Comment,SocialActivityComment

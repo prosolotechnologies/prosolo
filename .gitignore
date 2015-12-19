@@ -1,7 +1,8 @@
 /.settings/
 /.settings
 /.project
-.idea
-.clustersdir
+/clustersdir/
 .cache-main
 .cache-tests
+/.idea/
+
