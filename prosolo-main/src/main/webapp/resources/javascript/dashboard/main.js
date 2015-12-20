@@ -281,6 +281,9 @@ require(['jquery', 'bootstrap', 'bootstrap-select', 'dashboard/paging', 'dashboa
                     
                     var first = document.querySelector("#mostActiveHashtags .navigation .first");
                     first.addEventListener("click", function() {
+                    	if (navigation.dataset.current == 1) {
+                            return false;
+                        }
                         navigation.dataset.current=1;
                         load();
                         return false;
@@ -288,6 +291,9 @@ require(['jquery', 'bootstrap', 'bootstrap-select', 'dashboard/paging', 'dashboa
                     
                     var last = document.querySelector("#mostActiveHashtags .navigation .last");
                     last.addEventListener("click", function() {
+                    	if (navigation.dataset.current == navigation.dataset.pages) {
+                            return false;
+                        }
                         navigation.dataset.current=navigation.dataset.pages;
                         load();
                         return false;
@@ -370,7 +376,6 @@ require(['jquery', 'bootstrap', 'bootstrap-select', 'dashboard/paging', 'dashboa
                             var to = $("#twitterHashtagsGraph .dateTo").datepicker("getDate");
                             if (data.length==0) {
                                 $("#twitterHashtagsGraph .messages").text(noResultsMessage()).show().siblings().hide();
-                                twitterHashtagsChart.show(data, from, to);
                             } else {
                                 mostActiveHashtagsTable.selectFirst(6);
                                 $("#twitterHashtagsGraph .chart").show().siblings().hide();
@@ -408,9 +413,16 @@ require(['jquery', 'bootstrap', 'bootstrap-select', 'dashboard/paging', 'dashboa
                 
                 function init(data) {
                     var page = document.querySelector("#disabled-twitter-hashtags .navigation .page");
-                    disabledHashtagsTable.init(data.result.map(function(hashtag) { return {"hashtag" : hashtag }}));
                     $("#disabled-hashtags-count").html(data.size);
-                    page.innerHTML = data.page + "/" + data.pages;
+                    if (data.size == 0) {
+                    	$("#disabled-twitter-hashtags .navigation").hide();
+                    	$("#disabled-twitter-hashtags #disabled-hashtags-table").hide();
+                    } else {
+                    	$("#disabled-twitter-hashtags .navigation").show();
+                    	$("#disabled-twitter-hashtags #disabled-hashtags-table").show();
+	                    disabledHashtagsTable.init(data.result.map(function(hashtag) { return {"hashtag" : hashtag }}));
+	                    page.innerHTML = data.page + "/" + data.pages;
+                    }
                 }
                 
                 function loadDh(data) {
