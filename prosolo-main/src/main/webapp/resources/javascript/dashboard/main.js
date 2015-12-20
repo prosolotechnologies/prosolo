@@ -1,5 +1,5 @@
-require(['jquery', 'dashboard/paging', 'dashboard/datepicker', 'dashboard/service', 'dashboard/chart', 'dashboard/most-active-hashtags-table', 'dashboard/disabled-hashtags-table', 'dashboard/statistics'],
-        function($, paging, datepicker, service, chart, mostActiveHashtagsTable, disabledHashtagsTable, statistics) {
+require(['jquery', 'bootstrap', 'bootstrap-select', 'dashboard/paging', 'dashboard/datepicker', 'dashboard/service', 'dashboard/chart', 'dashboard/most-active-hashtags-table', 'dashboard/disabled-hashtags-table', 'dashboard/statistics'],
+        function($, bootstrap, bootstrapSelect, paging, datepicker, service, chart, mostActiveHashtagsTable, disabledHashtagsTable, statistics) {
             $(function () {
                 function dashboard() {
                     return document.querySelector("#dashboard");
@@ -65,11 +65,18 @@ require(['jquery', 'dashboard/paging', 'dashboard/datepicker', 'dashboard/servic
                     });
                     
                     function displayLines() {
-                        $("#activityGraph [name='stats']:checked").each(function() {
-                            $("g." + patterns[$(this).val()]).show();
-                        });
-                        $("#activityGraph [name='stats']:not(:checked)").each(function() {
-                            $("g." + patterns[$(this).val()]).hide();
+                    	$("#activityGraphChartLegend g").click(function() {
+                    		var $g = $("#activityGraphChart g." + $(this).attr("class"));
+                    		if ($g.size() == 0) {
+                    			return;
+                    		}
+                            if ($g.css("opacity") == "0") {
+                            	$g.css("opacity", "100");
+                            	$(this).children("text").get(0).classList.remove("selected");
+                            } else {
+                            	$g.css("opacity", "0");
+                            	$(this).children("text").get(0).classList.add("selected");
+                            }
                         });
                     }
                     
@@ -78,7 +85,7 @@ require(['jquery', 'dashboard/paging', 'dashboard/datepicker', 'dashboard/servic
                         dateTo : function() { return $("#activityGraph .dateTo").val(); },
                         period : function() { return $("#activityGraph [name='periods']:checked").val(); },
                         stats : function() {
-                            return $("#activityGraph [name='stats']").map(function() { return $(this).val(); }).get();
+							return ["registered", "login", "homepagevisited", "goalsviews", "competencesviews", "profileviews"];
                         },
                         showLoader : function() {
                             $("#activityGraph .loader").show().siblings().hide();
@@ -119,15 +126,6 @@ require(['jquery', 'dashboard/paging', 'dashboard/datepicker', 'dashboard/servic
                     }
                 });
                 
-                $("#activityGraph [name='stats']").change(function() {
-                    if (!activityGraph.isLoaded()) {
-                        activityGraph.showLoader();
-                        activityGraphService.get(activityGraph.onload);
-                    } else {
-                        activityGraph.displayLines();
-                    };
-                });
-                
                 $("#activityGraph .period .btn-primary").click(function() {
                 	if ($(this).children("input").is(":checked")) {
                 		return false;
@@ -145,13 +143,10 @@ require(['jquery', 'dashboard/paging', 'dashboard/datepicker', 'dashboard/servic
                 });
                 
                 datepicker.align("#activityGraph .dateFrom", "#activityGraph .dateTo", activityGraph.period());
-                
-                if ($("#activityGraph [name='stats']:checked").size() != 0) {
-                    if (activityGraph.isLoaded()) {
-                        return;
-                    }
-                    activityGraph.showLoader();
-                    activityGraphService.get(activityGraph.onload);
+
+                if (!activityGraph.isLoaded()) {
+            		activityGraph.showLoader();
+            		activityGraphService.get(activityGraph.onload);
                 }
                 
                 $("#activityGraph .timeRange .input-group-addon").click(function() {
@@ -189,15 +184,7 @@ require(['jquery', 'dashboard/paging', 'dashboard/datepicker', 'dashboard/servic
                     twitterHashtags.showLoader();
                     twitterHashtagsService.get(twitterHashtags.onload);
                 });
-                
-//                $("#twitterHashtagsGraph .period [name='thperiods']").change(function() {
-//                    datepicker.align("#twitterHashtagsGraph .dateFrom", "#twitterHashtagsGraph .dateTo", twitterHashtags.period());
-//                    
-//                    if ($(this).is(":checked")) {
-//                        twitterHashtags.showLoader();
-//                        twitterHashtagsService.get(twitterHashtags.onload);
-//                    }
-//                });
+
                 $("#twitterHashtagsGraph .timeRange .input-group-addon").click(function() {
                 	$(this).prev().click();
                 });
@@ -294,6 +281,9 @@ require(['jquery', 'dashboard/paging', 'dashboard/datepicker', 'dashboard/servic
                     
                     var first = document.querySelector("#mostActiveHashtags .navigation .first");
                     first.addEventListener("click", function() {
+                    	if (navigation.dataset.current == 1) {
+                            return false;
+                        }
                         navigation.dataset.current=1;
                         load();
                         return false;
@@ -301,6 +291,9 @@ require(['jquery', 'dashboard/paging', 'dashboard/datepicker', 'dashboard/servic
                     
                     var last = document.querySelector("#mostActiveHashtags .navigation .last");
                     last.addEventListener("click", function() {
+                    	if (navigation.dataset.current == navigation.dataset.pages) {
+                            return false;
+                        }
                         navigation.dataset.current=navigation.dataset.pages;
                         load();
                         return false;
@@ -383,7 +376,6 @@ require(['jquery', 'dashboard/paging', 'dashboard/datepicker', 'dashboard/servic
                             var to = $("#twitterHashtagsGraph .dateTo").datepicker("getDate");
                             if (data.length==0) {
                                 $("#twitterHashtagsGraph .messages").text(noResultsMessage()).show().siblings().hide();
-                                twitterHashtagsChart.show(data, from, to);
                             } else {
                                 mostActiveHashtagsTable.selectFirst(6);
                                 $("#twitterHashtagsGraph .chart").show().siblings().hide();
@@ -421,9 +413,16 @@ require(['jquery', 'dashboard/paging', 'dashboard/datepicker', 'dashboard/servic
                 
                 function init(data) {
                     var page = document.querySelector("#disabled-twitter-hashtags .navigation .page");
-                    disabledHashtagsTable.init(data.result.map(function(hashtag) { return {"hashtag" : hashtag }}));
                     $("#disabled-hashtags-count").html(data.size);
-                    page.innerHTML = data.page + "/" + data.pages;
+                    if (data.size == 0) {
+                    	$("#disabled-twitter-hashtags .navigation").hide();
+                    	$("#disabled-twitter-hashtags #disabled-hashtags-table").hide();
+                    } else {
+                    	$("#disabled-twitter-hashtags .navigation").show();
+                    	$("#disabled-twitter-hashtags #disabled-hashtags-table").show();
+	                    disabledHashtagsTable.init(data.result.map(function(hashtag) { return {"hashtag" : hashtag }}));
+	                    page.innerHTML = data.page + "/" + data.pages;
+                    }
                 }
                 
                 function loadDh(data) {

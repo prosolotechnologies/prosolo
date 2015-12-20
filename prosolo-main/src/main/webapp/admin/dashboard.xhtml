@@ -73,34 +73,6 @@
          				<h3 class="panel-title">Activity graph</h3>
 					</div>
 					<div class="panel-body">
-                		<div class="row">
-							<div class="stats col-md-12">
-								<div class="checkbox checkbox-success checkbox-inline">
-									<input name="stats" value="registered" type="checkbox" checked="checked" id="ag-registered" />
-									<label for="ag-registered">New users</label>
-								</div>
-								<div class="checkbox checkbox-success checkbox-inline">
-									<input name="stats" value="login" type="checkbox" checked="checked" id="ag-login" />
-									<label for="ag-login">Logins</label>
-								</div>
-								<div class="checkbox checkbox-success checkbox-inline">
-									<input name="stats" value="homepagevisited" type="checkbox" checked="checked" id="ag-homepagevisited" />
-									<label for="ag-homepagevisited">Home page views</label>
-								</div>
-								<div class="checkbox checkbox-success checkbox-inline">
-									<input name="stats" value="goalsviews" type="checkbox" checked="checked" id="ag-goalsviews" />
-									<label for="ag-goalsviews">Goals views</label>
-								</div>
-								<div class="checkbox checkbox-success checkbox-inline">
-									<input name="stats" value="competencesviews" type="checkbox" checked="checked" id="ag-competencesviews" />
-									<label for="ag-competencesviews">Competences views</label>
-								</div>
-								<div class="checkbox checkbox-success checkbox-inline">
-									<input name="stats" value="profileviews" type="checkbox" checked="checked" id="ag-profileviews" />
-									<label for="ag-profileviews">Profile views</label>
-								</div>
-							</div>
-						</div>
 						<div class="row">
 							<div class="col-md-12">
 								<div class="timeRange form-inline">
@@ -232,7 +204,8 @@
 						</table>
 						<div class="navigation tablePagination" data-current="1" data-pages="0" data-paging="5">
 							<label>Paging:
-								<select class="paging selectpicker">
+								<!-- <select class="paging selectpicker"> -->
+								<select class="paging">
 									<option value="5" selected="selected">5</option>
 									<option value="10">10</option>
 									<option value="15">15</option>
@@ -281,15 +254,13 @@
 									</label>
 								</div>
 							</div>
-						</div>
-						<div class="graph">
-							<div class="chart-block">
+							<div class="graph chart-block">
 								<div class="messages"></div>
 								<div class="loader"></div>
 								<div class="chart" id="twitterHashtagsChart"></div>
 								<div class="legend" id="twitterHashtagsChartLegend"></div>
-							</div>
-						</div> 
+							</div> 
+						</div>
 					</div>
 				</div>
 			</div>

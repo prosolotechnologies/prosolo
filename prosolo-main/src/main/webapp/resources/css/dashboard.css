@@ -28,19 +28,6 @@
 	cursor: default;
 }
 
-#dashboard .stats {
-	padding: 0em 0em 0.6em 0em;
-}
-
-#dashboard .stats + p {
-	margin: 0.8em 0em 0.4em 0em;
-}
-
-#dashboard .stats input {
-    vertical-align: middle;
-    margin: 0em 1em 0em 0.3em;
-}
-
 #dashboard .timeRange .ui-datepicker-trigger {
 	margin-right: 1em;
 }
@@ -273,6 +260,7 @@
 }
 
 */
+
 #disabled-hashtags-dialog {
 	display: none;
 }
@@ -300,37 +288,82 @@
 	stroke-width: 2px;
 }
 
-.pattern-one {
+#activityGraphChartLegend g {
+	cursor: pointer;
+}
+
+#activityGraphChartLegend svg > text {
+	font-size: 0.75em;
+	fill: gray;
+}
+
+#activityGraphChartLegend g:hover {
+	fill: #0288D1;
+}
+
+#activityGraphChartLegend g text.selected {
+	fill: lightgray;
+}
+
+g.pattern-one > path, g.pattern-one > circle {
 	stroke-dasharray: 3,3;
 	stroke: #006699;
 }
 
-.pattern-two {
+g.pattern-two > path, g.pattern-two > circle  {
 	stroke-dasharray: 6,6;
 	stroke: #700000;
 }
 
-.pattern-three {
+g.pattern-three > path, g.pattern-three > circle  {
 	stroke-dasharray: 12,12;
 	stroke: #009900;	
 }
 
-.pattern-four {
+g.pattern-four > path, g.pattern-four > circle  {
 	stroke-dasharray: 12,3,3,3;
 	stroke: #FF9900;	
 }
 
-.pattern-five {
+g.pattern-five > path, g.pattern-five > circle  {
 	stroke: #663399; 
 }
 
-.pattern-six {
+g.pattern-six > path, g.pattern-six > circle  {
     stroke-dasharray: 3,3,3,3,12,3;
 	stroke: #CC0033; 
 }
 
+g.pattern-one > circle {
+	fill: #006699;
+}
+
+g.pattern-two > circle  {
+	fill: #700000;
+}
+
+g.pattern-three > circle  {
+	fill: #009900;	
+}
+
+g.pattern-four > circle  {
+	fill: #FF9900;	
+}
+
+g.pattern-five > circle  {
+	fill: #663399; 
+}
+
+g.pattern-six > circle  {
+	fill: #CC0033; 
+}
+
 .dateField + .ui-datepicker-trigger {
 	display: none;
+}
+
+#activityGraph .timeRange {
+	margin-top: 0px;
 }
 
 .timeRange .input-group-addon {

@@ -17,7 +17,7 @@ define(["jquery"], function($) {
 			
 			function renderLegendTo(configuration) {
 				
-				var gen = 20;
+				var gen = 40;
 				var data = configuration.data();
 				data.map(function(e) { e.y = gen; gen += 20; });
 				
@@ -27,14 +27,23 @@ define(["jquery"], function($) {
 	        				  .data(data)
 	        				  .enter();
 				
-				paths.append("svg:path")
+				d3.select(configuration.selector).selectAll("svg")
+				  .append("text")
+				  .text("Click on legend item to show/hide statistic.")
+				  .attr("x", "0")
+				  .attr("y", "20");
+				
+				var node = paths.append("g").attr("class", function(d) { return d["class"]; });
+				
+				node.append("svg:path")
 					 .attr("d", function(d) { return "M0 " + d.y + " l36 0"; })
 					 .attr("class", function(d) { return d["class"]; });
 	        				
-				paths.append("text")
+				node.append("text")
 					 .text(function(d) { return d.name; })
 					 .attr("x", "50")
-					 .attr("y", function(d) { return d.y + 4; });
+					 .attr("y", function(d) { return d.y + 4; })
+					 .attr("class", function(d) { return d["class"]; });
 			}
 	
 			return {
