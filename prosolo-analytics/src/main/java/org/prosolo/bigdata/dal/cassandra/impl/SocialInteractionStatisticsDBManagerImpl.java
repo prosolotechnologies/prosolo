@@ -1,6 +1,7 @@
 package org.prosolo.bigdata.dal.cassandra.impl;
 
 import static org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl.Statements.FIND_SOCIAL_INTERACTION_COUNTS;
+import static org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl.Statements.FIND_STUDENT_SOCIAL_INTERACTION_COUNTS;
 
 import java.util.HashMap;
 import java.util.List;
@@ -25,11 +26,13 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 	private static final Map<Statements, String> statements = new HashMap<Statements, String>();
 	
 	public enum Statements {
-		FIND_SOCIAL_INTERACTION_COUNTS
+		FIND_SOCIAL_INTERACTION_COUNTS,
+		FIND_STUDENT_SOCIAL_INTERACTION_COUNTS
 	}
 
 	static {
 		statements.put(FIND_SOCIAL_INTERACTION_COUNTS,  "SELECT * FROM socialinteractionscount;");
+		statements.put(FIND_STUDENT_SOCIAL_INTERACTION_COUNTS, "SELECT * FROM socialinteractionscount where source = ?;");
 	}
 	
 	private List<Row> query(BoundStatement statement) {
@@ -65,6 +68,13 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 	public List<SocialInteractionCount> getSocialInteractionCounts() {
 		PreparedStatement prepared = getStatement(getSession(), FIND_SOCIAL_INTERACTION_COUNTS);
 		BoundStatement statement = StatementUtil.statement(prepared);
+		return map(query(statement), (row) -> new SocialInteractionCount(source(row), target(row), count(row)));
+	}
+
+	@Override
+	public List<SocialInteractionCount> getSocialInteractionCounts(Long id) {
+		PreparedStatement prepared = getStatement(getSession(), FIND_STUDENT_SOCIAL_INTERACTION_COUNTS);
+		BoundStatement statement = StatementUtil.statement(prepared, id);
 		return map(query(statement), (row) -> new SocialInteractionCount(source(row), target(row), count(row)));
 	}
 

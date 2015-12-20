@@ -1,12 +1,11 @@
 package org.prosolo.bigdata.api;
 
 import java.text.ParseException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -33,4 +32,14 @@ public class SocialInteractionStatisticsService {
 		List<SocialInteractionCount> socialInteractionCounts = dbManager.getSocialInteractionCounts();
 		return ResponseUtils.corsOk(socialInteractionCounts);
 	}
+	
+	@GET
+	@Path("/student/{id}")
+	@Produces({ MediaType.APPLICATION_JSON })
+	public Response getStudentInteractions(@PathParam("id") Long id) {
+		logger.debug("Service 'getStudentInteractions' called.");
+		List<SocialInteractionCount> socialInteractionCounts = dbManager.getSocialInteractionCounts(id);
+		return ResponseUtils.corsOk(socialInteractionCounts);
+	}
+	
 }

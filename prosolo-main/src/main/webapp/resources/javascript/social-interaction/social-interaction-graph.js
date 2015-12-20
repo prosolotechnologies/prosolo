@@ -7,8 +7,25 @@ define(['jquery', 'd3'], function($, d3) {
 		{ name: "four", cond: function(id) { return true; }}
 	];
 	
-	var foci = {"one" : {x: 150, y: 150}, "two" : {x: 350, y: 250}, "three" : {x: 700, y: 400}, "four" : {x: 700, y: 700}};
-	
+	var foci = {
+		"one" : {x: 0, y: 0},
+		"two" : {x: 300, y: 0},
+		"three" : {x: 0, y: 300},
+		"four" : {x: 300, y: 300}
+	};
+
+	function readInteractions(config) {
+		$.ajax({
+			url : "http://" + config.host + "/api/social/interactions/student/" + config.studentId,
+			type : "GET",
+			crossDomain: true,
+			dataType: 'json'
+		}).done(function(data) {
+			return run(config, data);
+		});
+	}
+
+	// TODO Deprecated
 	function getSocialInteractions(config){
 		$.ajax({
 			url : "http://" + config.host + "/api/social/interactions/all",
@@ -51,16 +68,14 @@ define(['jquery', 'd3'], function($, d3) {
 				var found = types.filter(function(type) {
 					return value > type.lower && value <= type.upper;
 				});
-				if (found.length == 0) {
-					return "";
-				}
-				return found[0].type;
+				return (found.length == 0) ? "" : found[0].type;
 			}
 
-			var v = d3.scale.linear().range([0, 100]);
-			v.domain([0, d3.max(links, function(d) {
+			var maxCount = d3.max(links, function(d) {
 				return d.count;
-			})]);
+			});
+
+			var v = d3.scale.linear().range([0, 100]).domain([0, maxCount]);
 			
 			return links.map(function(link) {
 				return {
@@ -169,7 +184,7 @@ define(['jquery', 'd3'], function($, d3) {
 	
 	return {
 		load: function (config) {
-			getSocialInteractions(config);
+			readInteractions(config);
 		}
 	};
 });

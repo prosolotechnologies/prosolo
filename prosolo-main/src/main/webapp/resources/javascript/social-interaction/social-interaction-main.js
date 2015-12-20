@@ -5,9 +5,9 @@ require([ 'social-interaction/social-interaction-graph' ], function(graph) {
 		host: root.dataset.api,
 		studentId : root.dataset.studentId,
 		width : 800,
-		height : 600,
+		height : 400,
 		links : 100,
-		selector : "#graph",
+		selector : "#social-interaction #graph",
 		charge : -300,
 		distance : 50
 	});
