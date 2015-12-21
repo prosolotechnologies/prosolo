@@ -672,7 +672,7 @@
 										<div class="panel panel-default">
 											<div class="panel-heading" role="tab" id="headingOne">
 
-												<h4 class="panel-title">
+												<h4 id="activity#{act.id}" class="panel-title">
 													<a class="done collapsed" role="button"
 														data-toggle="collapse" data-parent="#activities"
 														href="#act#{act.id}" aria-expanded="true"
@@ -789,7 +789,7 @@
 
 					<div role="tabpanel" class="tab-pane fade" id="timeline">222</div>
 					<div role="tabpanel" class="tab-pane fade" id="social">
-						<ui:remove><script
+						<script
 							data-base-url="#{request.contextPath}/resources/javascript"
 							src="#{request.contextPath}/resources/javascript/prosolo.require-config.js"></script>
 						<script data-main="social-interaction/social-interaction-main"
@@ -872,7 +872,7 @@
 								</div>
 							</div>
 						</div>
-						</ui:remove>
+						
 					</div>
 				</div>
 			</div>
