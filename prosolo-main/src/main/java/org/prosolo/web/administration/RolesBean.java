@@ -67,7 +67,7 @@ public class RolesBean implements Serializable {
 	private void loadCapabilities() {
 		try{
 			capabilities = new ArrayList<>();
-			Map<Capability, List<Long>> caps = capabilityManager.getAllCapabilitiesWithRoleIds2();
+			Map<Capability, List<Long>> caps = capabilityManager.getAllCapabilitiesWithRoleIds();
 			if(caps != null){
 				for (Map.Entry<Capability, List<Long>> entry : caps.entrySet()){
 					capabilities.add(new CapabilityData(entry.getKey(), entry.getValue()));
