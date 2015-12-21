@@ -44,7 +44,11 @@ public class ActivityStartObserver implements EventObserver {
 
 	@Override
 	public void handleEvent(Event event) {
-		activityStartEventProcessorFactory.getActivityStartEventProcessor(event).updateActivity();
+		ActivityStartEventProcessor processor = activityStartEventProcessorFactory
+				.getActivityStartEventProcessor(event);
+		if(processor != null) {
+			processor.updateActivity();
+		}
 	}
 
 	
