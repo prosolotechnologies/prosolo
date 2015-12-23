@@ -373,18 +373,8 @@ public class LearnBean implements Serializable {
 			return;
 		
 		if (goalData.getData().isProgressActivityDependent()) {
-			double newProgress = 0;
-			double numberOfComps = goalData.getCompetences().size();
 			
-			for (CompetenceDataCache compData : goalData.getCompetences()) {
-				double compProgress = CompWallBean.calculateCompetenceProgress(compData);
-				
-				if (compProgress != 0) {
-					newProgress += 1 / numberOfComps * (compProgress);
-				}
-			}
-			
-			int scaledProgress = (int) (newProgress * 100);
+			int scaledProgress = calculateGoalProgressFromCompetences(goalData);
 			
 			if (scaledProgress != goalData.getData().getProgress()) {
 				goalData.getData().setProgress(scaledProgress);
@@ -415,6 +405,27 @@ public class LearnBean implements Serializable {
 		final PortfolioBean portfolioBean = (PortfolioBean) applicationBean.getUserSession(loggedUser.getUser().getId()).getAttribute("portfolio");
 		portfolioBean.populateWithActiveCompletedGoals();
 		portfolioBean.populateWithActiveCompletedCompetences();
+	}
+
+	private int calculateGoalProgressFromCompetences(GoalDataCache goalData) {
+		List<CompetenceDataCache> competences = goalData.getCompetences();
+		List<CompetenceDataCache> predefinedComps = goalData.getPredefinedCompetences();
+		List<CompetenceDataCache> allComps = new ArrayList<>(competences);
+		for(CompetenceDataCache cdc : predefinedComps) {
+			allComps.add(cdc);
+		}
+		double newProgress = 0;
+		double numberOfComps = allComps.size();
+		
+		for (CompetenceDataCache compData : allComps) {
+			double compProgress = CompWallBean.calculateCompetenceProgress(compData);
+			
+			if (compProgress != 0) {
+				newProgress += 1 / numberOfComps * (compProgress);
+			}
+		}
+		
+		return (int) (newProgress * 100);
 	}
 
 	private TargetLearningGoal markAsComplete(final GoalData goalData, String context) {
