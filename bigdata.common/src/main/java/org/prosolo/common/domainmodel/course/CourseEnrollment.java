@@ -8,12 +8,14 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -43,6 +45,8 @@ public class CourseEnrollment extends BaseEntity {
 	private User user;
 	private TargetLearningGoal targetGoal;
 	private Status status;
+	private boolean assignedToInstructor;
+	private CourseInstructor instructor;
 	
 	private List<CourseCompetence> addedCompetences;
 	
@@ -146,5 +150,26 @@ public class CourseEnrollment extends BaseEntity {
 		}
 		return false;
 	}
+
+	@Type(type="true_false")
+	@Column(columnDefinition = "char(1) DEFAULT 'F'")
+	public boolean isAssignedToInstructor() {
+		return assignedToInstructor;
+	}
+
+	public void setAssignedToInstructor(boolean assignedToInstructor) {
+		this.assignedToInstructor = assignedToInstructor;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	public CourseInstructor getInstructor() {
+		return instructor;
+	}
+
+	public void setInstructor(CourseInstructor instructor) {
+		this.instructor = instructor;
+	}
+	
+	
 	
 }
