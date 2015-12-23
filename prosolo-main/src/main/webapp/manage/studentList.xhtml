@@ -1,0 +1,154 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	template="templates/masterLayout1.xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:actions="http://java.sun.com/jsf/composite/components/actions"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:util="http://www.prosolo.com/util">
+
+	<ui:define name="windowTitle">
+		Course members
+	</ui:define>
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewParam name="id" value="#{courseMembersBean.id}" default="null" />
+			<f:viewParam name="courseName" default="null" />
+			<f:viewAction action="#{courseMembersBean.init()}" />
+		</f:metadata>
+	</ui:define>
+
+	<ui:define name="content">
+
+		<script src="#{request.contextPath}/manage/js/stickyTable.js"></script>
+
+		<section class="heading">
+			<header>
+				<img class="ico40" title="Credentials" alt="Credentials"
+					src="#{request.contextPath}/resources/images/ico-credentials.svg"></img>
+				<div class="headerTitle">
+					<h1>#{param['courseName']}</h1>
+					<p>Student progression grid</p>
+				</div>
+
+
+			</header>
+		</section>
+
+		<section class="container-fluid mainArea">
+
+			<div class="row">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h3 class="panel-title">Students list</h3>
+					</div>
+					<div class="row narrow searchFilter">
+						<div class="col-md-12">
+							<span class="records">Students: <strong>124</strong></span> <span
+								class="checkbox checkbox-success checkbox-inline"> <input
+								type="checkbox" id="checkbox2"></input> <label for="checkbox2">Show
+									only unassigned</label>
+							</span>
+							<form class="form-inline searchField">
+								<div class="form-group">
+									<input type="text" class="form-control" id=""
+										placeholder=" Filter by keywords"></input>
+								</div>
+							</form>
+						</div>
+					</div>
+					<table class="table tableProsolo">
+						<thead>
+							<tr>
+								<th class="colNo" scope="col"><a href="#">No.</a></th>
+								<th class="colStudent" scope="col"><a href="">Student <i
+										class="fa fa-caret-down"></i></a></th>
+								<th scope="col" class="colProfile"><a href="#">Profile
+										Type</a></th>
+								<th class="colProgression" scope="col"><a href="#">Progression</a></th>
+								<th class="colInstructor" scope="col"><a href="#">Instructor</a></th>
+							</tr>
+						</thead>
+						<tbody>
+							<ui:repeat var="user" value="#{courseMembersBean.members}"
+								varStatus="status">
+								<tr>
+									<td class="colNoD">#{status.index + 1}</td>
+									<td class="colStudentD">
+										<span
+											class="userProfileImageLarge"> <h:link
+												outcome="/manage/studentProfile">
+												<h:graphicImage id="userImageId" value="#{user.avatarUrl}"
+													title="#{user.fullName}" alt="#{user.fullName}" />
+												<f:param name="id" value="#{util:encodeId(user.id)}" />
+											</h:link>
+										</span>
+										<div class="name">
+											<h1>
+												<h:link outcome="/manage/studentProfile">
+													#{user.fullName}
+											    	<f:param name="id" value="#{util:encodeId(user.id)}" />
+												</h:link>
+											</h1>
+											<h2>#{user.position}</h2>
+										</div>
+									</td>
+									<td class="colProfileD">
+
+										<div class="profileTypeBadgeTable">
+											<span>TYPE</span> <span class="number">1</span>
+										</div>
+									</td>
+									<td class="colProgressionD">#{user.courseProgress}</td>
+									<td class="colInstructorD"><p:commandLink
+											styleClass="btn btn-default"
+											rendered="#{user.instructor == null}" pt:role="button">
+											<i class="fa fa-plus"></i> Assign
+												Instructor
+										</p:commandLink> <h:link outcome="" rendered="#{user.instructor != null}">
+													#{user.instructor.fullName}"
+											    	<f:param name="id"
+												value="#{util:encodeId(user.instructor.id)}" />
+										</h:link></td>
+								</tr>
+							</ui:repeat>
+
+						</tbody>
+					</table>
+
+
+
+					<div class="tableProsoloNavigation">
+						<ul class="pagination">
+							<li class="disabled"><a aria-label="Previous" href="#"><span
+									aria-hidden="true"><i class="fa fa-angle-left"></i></span></a></li>
+							<li class="active"><a href="#">1</a></li>
+							<li><a href="#">2</a></li>
+							<li><a href="#">3</a></li>
+							<li><span>...</span></li>
+							<li><a href="#">9</a></li>
+							<li><a href="#">10</a></li>
+							<li><a aria-label="Next" href="#"><span
+									aria-hidden="true"><i class="fa fa-angle-right"></i></span></a></li>
+						</ul>
+					</div>
+
+
+
+
+				</div>
+			</div>
+
+
+
+		</section>
+
+
+	</ui:define>
+</ui:composition>

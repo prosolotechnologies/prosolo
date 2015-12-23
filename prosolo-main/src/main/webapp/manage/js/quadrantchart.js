@@ -124,7 +124,7 @@ function draw(data) {
     .style("stroke", "3")
     .moveToBack();
 	
-	svg.append("text")      
+	/*svg.append("text")      
     .attr("x", width - widthRightMargin - 25 )
     .attr("y", height - heightBottomMargin + 35 )
     .style("text-anchor", "middle")
@@ -134,7 +134,7 @@ function draw(data) {
     .attr("x", widthLeftMargin - 15 )
     .attr("y", heightTopMargin - 10 )
     .style("text-anchor", "middle")
-    .text("Time needed");
+    .text("Time needed");*/
 	
 	svg.append("text")      
     .attr("x", (width - widthLeftMargin - widthRightMargin)/2 + widthLeftMargin)

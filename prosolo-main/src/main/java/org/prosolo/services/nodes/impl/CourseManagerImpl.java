@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,12 +24,12 @@ import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CourseCompetence;
 import org.prosolo.common.domainmodel.course.CourseEnrollment;
+import org.prosolo.common.domainmodel.course.CourseInstructor;
 import org.prosolo.common.domainmodel.course.CoursePortfolio;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.course.Status;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.general.Node;
-import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -35,6 +37,7 @@ import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.ResourceFactory;
@@ -709,6 +712,49 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 				list();
 		
 		return result;
+	}
+	
+	@Override
+	@Transactional (readOnly = true)
+	public List<Map<String, Object>> getCourseParticipantsWithCourseInfo(long courseId) throws DbConnectionException {
+		try {
+		String query = 
+			"SELECT DISTINCT enrollment.user, instructorUser, tGoal.progress " +
+			"FROM CourseEnrollment enrollment " +
+				"LEFT JOIN enrollment.course course " +
+				"LEFT JOIN enrollment.targetGoal tGoal " +
+				"LEFT JOIN enrollment.instructor instructor " +
+				"LEFT JOIN instructor.user instructorUser " +
+				"WHERE course.id = :course " + 
+				"AND enrollment.status = :status";
+			
+			@SuppressWarnings("unchecked")
+			List<Object[]> result = persistence.currentManager().createQuery(query).
+					setLong("course", courseId).
+					setParameter("status", Status.ACTIVE).
+					list();
+			
+			List<Map<String, Object>> resultList = new LinkedList<>();
+			if (result != null && !result.isEmpty()) {
+				for (Object[] res : result) {
+					Map<String, Object> resMap = new LinkedHashMap<>();
+					User user = (User) res[0];
+					User instructor = (User) res[1];
+					Integer courseProgress = (int) res[2];
+	
+					resMap.put("user", user);
+					resMap.put("instructor", instructor);
+					resMap.put("courseProgress", courseProgress);
+					
+					resultList.add(resMap);
+				}
+			}
+			return resultList;
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while loading course participants");
+		}
 	}
 	
 	@Override
