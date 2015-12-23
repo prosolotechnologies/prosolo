@@ -21,21 +21,30 @@ function drawQuadrantChart(servicePath) {
 
 function draw(data) {
 	var selectedId;
-	var svg = dimple.newSvg("#quadrantchart", 390, 330);
-
+	var hoveredId;
+	
+	var width = 430;
+	var height = 330;
+	var widthLeftMargin = 60;
+	var widthRightMargin = 50;
+	var heightBottomMargin = 50;
+	var heightTopMargin = 30;
+	var svg = dimple.newSvg("#quadrantchart", width, height);
+	
 	var ch = new dimple.chart(svg, data);
-	ch.setBounds(50, 30, 330, 250);
+	ch.setBounds(widthLeftMargin, heightTopMargin, width - widthLeftMargin - widthRightMargin,
+			height - heightTopMargin - heightBottomMargin);
 	var xAxis = ch.addMeasureAxis("x", "Complexity");
 	var yAxis = ch.addMeasureAxis("y", "Time");
 
-	xAxis.overrideMin = -10;
+	xAxis.overrideMin = 0;
 	xAxis.overrideMax = +10;
 
-	yAxis.overrideMin = -10;
+	yAxis.overrideMin = 0;
 	yAxis.overrideMax = +10;
 
-	xAxis.title = "Time needed";
-	yAxis.title = "Complexity";
+	xAxis.title = "";
+	yAxis.title = "";
 
 	// 1 is added as a last parameter to avoid different tooltip color for every
 	// shape on a chart
@@ -51,14 +60,31 @@ function draw(data) {
 				parseFloat(shape.attr("cx")) - iconWidth / 2).attr("y",
 				parseFloat(shape.attr("cy")) - iconHeight / 2).attr(
 				"xlink:href", context + "/resources/images/ico-activities.svg")
-				.attr("width", iconWidth).attr("height", iconHeight).on(
-						'click', function(d, i) {
+				.attr("width", iconWidth)
+				.attr("height", iconHeight)
+				.on('click', function(d, i) {
 							// console.log(shape);
 							// console.log(shape[0][0].id);
 							var e = document.createEvent('UIEvents');
 							e.initUIEvent('click', true, true, window, 1);
 							shape.node().dispatchEvent(e);
-						});
+				})
+				.on('mouseover', function(d, i) {
+					
+							// console.log(shape);
+							// console.log(shape[0][0].id);
+							var e = document.createEvent('UIEvents');
+							e.initUIEvent('mouseover', true, true, window, 1);
+							shape.node().dispatchEvent(e);
+				})
+				.on('mouseleave', function(d, i) {
+					
+							// console.log(shape);
+							// console.log(shape[0][0].id);
+							var e = document.createEvent('UIEvents');
+							e.initUIEvent('mouseleave', true, true, window, 1);
+							shape.node().dispatchEvent(e);
+				});
 	};
 
 	series.addEventHandler("mouseover", function(e) {
@@ -80,30 +106,105 @@ function draw(data) {
 
 	ch.draw();
 
+	svg.append("line")
+    .attr("x1", xAxis._scale(5))
+    .attr("x2", xAxis._scale(5))
+    .attr("y1", ch._yPixels())
+    .attr("y2", ch._yPixels() + ch._heightPixels())
+    .style("stroke", "#000")
+    .style("stroke", "3")
+    .moveToBack();
+	
+	svg.append("line")
+    .attr("x1", ch._xPixels())
+    .attr("x2", ch._xPixels() + ch._widthPixels())
+    .attr("y1", yAxis._scale(5))
+    .attr("y2", yAxis._scale(5))
+    .style("stroke", "#000")
+    .style("stroke", "3")
+    .moveToBack();
+	
+	/*svg.append("text")      
+    .attr("x", width - widthRightMargin - 25 )
+    .attr("y", height - heightBottomMargin + 35 )
+    .style("text-anchor", "middle")
+    .text("Complexity");
+	
+	svg.append("text")      
+    .attr("x", widthLeftMargin - 15 )
+    .attr("y", heightTopMargin - 10 )
+    .style("text-anchor", "middle")
+    .text("Time needed");*/
+	
+	svg.append("text")      
+    .attr("x", (width - widthLeftMargin - widthRightMargin)/2 + widthLeftMargin)
+    .attr("y", heightTopMargin - 10 )
+    .style("text-anchor", "middle")
+    .text("Much time");
+	
+	svg.append("text")      
+    .attr("x", (width - widthLeftMargin - widthRightMargin)/2 + widthLeftMargin)
+    .attr("y", height - heightBottomMargin + 35 )
+    .style("text-anchor", "middle")
+    .text("Short time");
+	
+	svg.append("text")      
+    .attr("x", widthLeftMargin - 35 )
+    .attr("y", (height - heightTopMargin - heightBottomMargin)/2 + heightTopMargin )
+    .style("text-anchor", "middle")
+    .text("Simple");
+	
+	svg.append("text")      
+    .attr("x", width - widthRightMargin + 25 )
+    .attr("y", (height - heightTopMargin - heightBottomMargin)/2 + heightTopMargin )
+    .style("text-anchor", "middle")
+    .text("Complex");
+
 	// var circles = svg.selectAll("circle");
 
 	// circles.attr("r", 10);
 	// console.log(circles);
 
 	// "mouseover" or "click"
+	series.shapes.on("mouseover", function(e) {
+		console.log(e);
+		
+		hoveredId = e.aggField[0];
+		dimple._showPointTooltip(e, this, ch, series);
+		$("#activity"+hoveredId).toggleClass("bgRed");
+	});
 	series.shapes.on("click", function(e) {
 		console.log(e);
 		$("#act" + selectedId).toggle();
 		if(selectedId == e.aggField[0]) {
-			dimple._removeTooltip(e,this,ch,series);
-			selectedId = 0;
+			//dimple._removeTooltip(e,this,ch,series);
+			selectedId = null;
 		} else {
 			selectedId = e.aggField[0];
 			$("#act" + selectedId).toggle();
-			dimple._showPointTooltip(e, this, ch, series);
+			//dimple._showPointTooltip(e, this, ch, series);
 		}
 	});
 
-	/*
-	 * series.shapes.on("mouseleave", function (e) {
-	 * //$("#act"+selectedId).toggle(); //selectedId = null;
-	 * //dimple._removeTooltip(e,this,ch,series); });
-	 */
+	
+	  series.shapes.on("mouseleave", function (e) {
+		  //$("#act"+selectedId).toggle(); 
+		  dimple._removeTooltip(e,this,ch,series);
+		  $("#activity"+hoveredId).toggleClass("bgRed");
+		  hoveredId = null;
+	  });
+	
+	
+	
 
+};
+
+d3.selection.prototype.moveToBack = function() { 
+    return this.each(function() { 
+        var firstChild = this.parentNode.firstChild; 
+        if (firstChild) { 
+            this.parentNode.insertBefore(this, firstChild); 
+        } 
+    }); 
 };
 

@@ -15,12 +15,12 @@ import org.prosolo.common.domainmodel.course.CoursePortfolio;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.general.Node;
-import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
+import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.rest.courses.data.CompetenceJsonData;
 import org.prosolo.web.courses.data.CourseCompetenceData;
 
@@ -123,4 +123,5 @@ public interface CourseManager extends AbstractManager {
 	
 	public void enrollUserIfNotEnrolled(User user, long courseId) throws RuntimeException;
 
+	List<Map<String, Object>> getCourseParticipantsWithCourseInfo(long courseId) throws DbConnectionException;
 }

@@ -4,19 +4,18 @@
 package org.prosolo.web.courses;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.web.administration.data.UserData;
-import org.prosolo.web.util.AvatarUtils;
+import org.prosolo.web.courses.data.UserData;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -47,26 +46,28 @@ public class CourseMembersBean implements Serializable {
 		long decodedId = idEncoder.decodeId(id);
 		if (decodedId > 0) {
 			try{
-				List<User> users = courseManager.getCourseParticipants(decodedId);
-				populateCourseMembersData(users);
+				List<Map<String, Object>> result = courseManager.getCourseParticipantsWithCourseInfo(decodedId);
+				populateCourseMembersData(result);
 			}catch(Exception e){
-				PageUtil.fireErrorMessage("Error while loading course members");
+				PageUtil.fireErrorMessage(e.getMessage());
 			}
 		}
 	}
 	
 	
-	private void populateCourseMembersData(List<User> users) {
-		members = new ArrayList<>();
-		for (User user:users){
-			UserData ud = new UserData();
-			ud.setId(user.getId());
-			ud.setName(user.getName());
-			ud.setLastName(user.getLastname());
-			ud.setAvatarUrl(AvatarUtils.getAvatarUrlInFormat(user, ImageFormat.size60x60));
+	private void populateCourseMembersData(List<Map<String, Object>> result) {
+		members = new LinkedList<>();
+		for (Map<String, Object> resMap :result){
+			User user = (User) resMap.get("user");
+			User instructor = (User) resMap.get("instructor");
+			int progress = (int) resMap.get("courseProgress");
+			
+			UserData ud = new UserData(user, instructor, progress);
+			
 			members.add(ud);
 		}
 	}
+	
 
 	/*
 	 * PARAMETERS

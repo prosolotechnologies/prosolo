@@ -113,6 +113,20 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 	border-color: #e1e1e1;
 }
 
+.btn-default {
+  background-color: #fafafa;
+  border-color: #f1f1f1;
+  color: #444!important;
+}
+
+.btn-default:hover {
+  background-color: #f2f2f2;
+  border-color: #d4d4d4;
+}
+
+.btn-default i {
+	color: #2196f3!important;
+}
 
 
 /* top header */
@@ -1031,12 +1045,21 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 }
 
 
+.ico30 {
+	display: inline-block;
+	width: 30px;
+	height: 35px;
+}
+
 
 .ico40 {
 	display: inline-block;
 	width: 40px;
 	height: 46px;
 }
+
+
+
 
 
 
@@ -1759,6 +1782,7 @@ label {
 	vertical-align: middle;	  
 }
 
+.table > tbody > tr > th,
 .table > tbody > tr > td {
 	padding: 20px 30px;  
 	border-bottom: 1px solid #efefef;
@@ -2165,6 +2189,304 @@ footer ul li:first-of-type {
 }
 
 
+/* student list */
+
+
+.narrow {
+	margin-left: 0px;
+	margin-right: 0px;
+}
+
+.searchFilter {
+	background: #fcfcfc;
+	height: 49px;
+	border-bottom: 1px solid #f1f1f1;
+	padding-top: 13px;
+}
+
+.searchFilter .checkbox {
+	float: left;
+}
+
+
+.records {
+	float: left;
+	margin-left: 5px;
+	margin-right: 15px;
+}
+
+
+.searchFilter .searchField {
+	float: left;
+	margin-top: -5px;
+	margin-left: 40px;
+}
+
+.searchFilter .form-control {
+	height: 32px;
+	box-shadow: none;
+	border: 1px solid #f1f1f1;
+	width: 500px;
+}
+
+
+.form-control::-webkit-input-placeholder {
+   color: #dadada;
+}
+
+.form-control:-moz-placeholder { /* Firefox 18- */
+   color: #dadada;  
+}
+
+.form-control::-moz-placeholder {  /* Firefox 19+ */
+   color: #dadada;  
+}
+
+.form-control:-ms-input-placeholder {  
+   color: #dadada;  
+}
+
+
+.tableProsolo {
+   table-layout: fixed;
+}
+
+
+.sticky-thead > thead > tr > th,
+.tableProsolo > tr > th {
+	height: 80px;
+	vertical-align: middle;
+	font-size: 13px;
+	color: #a9a9a9;
+	font-weight: 600;
+	background: #ffffff;
+	border-bottom: 1px dashed #f1f1f1;
+	padding: 0 15px 0 25px;
+}
+
+.sticky-thead > thead > tr > th {
+	border-bottom: 0;
+	height: auto;
+	padding: 20px 30px;
+}
+
+.tableProsolo > tr > td {
+	border-top: 0;
+	border-bottom: 1px dashed #f1f1f1;
+	border-left: 1px solid #f1f1f1;	
+	font-size: 14px;
+	padding: 40px 25px;
+	vertical-align: middle;
+
+}
+
+
+.sticky-thead > thead > tr > th.colNo,
+.tableProsolo > thead > tr > th.colNo {
+	width: 62px;
+	text-align: right;
+	padding-right: 8px;
+}
+
+
+.sticky-col > tbody > tr > th.colStudentD,
+.sticky-thead > thead > tr > th.colStudent,
+.tableProsolo > thead > tr > th.colStudent {
+	width: 325px;
+	padding: 20px 30px;
+}
+
+
+
+
+
+.tableProsolo > thead > tr > th.colProgression {
+	width: 140px;
+}
+
+
+.sticky-thead > thead > tr > th.colCompetence,
+.tableProsolo > thead > tr > th.colCompetence {
+	font-size: 12px;
+	line-height: 14px;
+	color: #333333;
+	font-weight: normal;
+	border-left: 1px solid #f1f1f1;
+	width: 290px;
+	padding: 0 15px 0 25px;
+}
+
+
+.sticky-thead > thead > tr > th.colCompetence .ico30,
+.tableProsolo > thead > tr > th.colCompetence .ico30 {
+	float: left;
+	margin-right: 10px;
+}
+
+
+.tableProsolo > thead > tr > th.colProfile {
+	width: 150px;
+}
+.sticky-thead > thead > tr > th.colArrowLeft,
+.tableProsolo > thead > tr > th.colArrowLeft {
+  padding: 10px 0;
+  background: red;
+  position: absolute;
+  text-align:center;
+}
+
+
+
+.sticky-thead > thead > tr > th.colArrowLeft a,
+.tableProsolo > thead > tr > th.colArrowLeft a {
+	font-size: 32px;
+	line-height: 28px;  
+	width: 60px;
+   height: 40px;
+   display: inline-block;
+}
+
+
+.sticky-thead > thead > tr > th.colArrowRight,
+.tableProsolo > thead > tr > th.colArrowRight {
+  padding: 10px 0;
+  width: 50px;
+  text-align: center;
+  border-left: 0;  background: red;
+}
+
+.sticky-thead > thead > tr > th.colArrowRight a,
+.tableProsolo > thead > tr > th.colArrowRight a {
+	font-size: 32px;
+	line-height: 28px;
+}
+
+
+
+
+.tableProsolo > tbody > tr > td.colNoD {
+	padding-right: 8px;
+	text-align: right;
+}
+
+.sticky-thead > thead > tr > th.colNo,
+.sticky-thead > thead > tr > th.colStudent, 
+.sticky-thead > thead > tr > th.colProgression,
+.sticky-thead > thead > tr > th.colInstructor,
+.sticky-thead > thead > tr > th.colArrowLeft,
+.tableProsolo > tbody > tr > th.colNo,
+.tableProsolo > tbody > tr > th.colStudent, 
+.tableProsolo > tbody > tr > th.colProgression,
+.tableProsolo > tbody > tr > th.colInstructor,
+.tableProsolo > thead > tr > th.colArrowLeft,
+.tableProsolo > tbody > tr > td.colNoD,
+.tableProsolo > tbody > tr > td.colStudentD,
+.tableProsolo > tbody > tr > td.colProgressionD,
+.tableProsolo > tbody > tr > td.colInstructorD {
+	border-left: 0;
+}
+
+.tableProsolo .tdCompetenceD {
+	padding: 20px 30px;
+	border-left: 1px solid #f1f1f1;
+}
+
+.tableProsolo .tdCompetenceD .progress {
+	margin: 0 auto;
+	
+}
+
+
+.tableProsolo > tbody > tr > td.colProgressionD {
+	text-align: right;
+	font-size: 25px;
+	color: #333333;
+	font-weight: bold;
+}
+
+
+.sticky-col > tbody > tr > th.colStudentD {
+	border-bottom: 1px solid #f1f1f1;
+}
+
+.sticky-col > tbody > tr > th.colStudentD .userProfileImageLarge {
+	display: none;
+}
+
+.sticky-col > tbody > tr > th.colStudentD .name h1{
+  font-size: 18px;
+}
+
+.sticky-col > tbody > tr > th.colStudentD .name h2 {
+	display: none;
+}
+
+
+.sticky-col > tbody > tr > th.colStudentD .name,
+.tableProsolo > tbody > tr > th.colStudentD .name,
+.tableProsolo > tbody > tr > td.colStudentD .name{
+	float: left;
+}
+
+
+.tableProsolo > tbody > tr > th.colStudentD .name h1,
+.tableProsolo > tbody > tr > td.colStudentD .name h1{
+  color: #555555;
+  font-size: 23px;
+  font-weight: 500;
+  margin: 13px 0 0 0;
+  padding: 0;
+}
+
+.tableProsolo > tbody > tr > th.colStudentD .name h2,
+.tableProsolo > tbody > tr > td.colStudentD .name h2 {
+  color: #898989;
+  font-size: 12px;
+  margin: 2px 0 0;
+}
+
+
+
+
+.tableProsoloNavigation {
+	padding: 15px;
+}
+
+.tableProsoloNavigation ul {
+	margin: 0;
+}
+
+.tableProsoloNavigation ul > li > a, 
+.tableProsoloNavigation ul > li > span {
+	border: 1px solid #f1f1f1;
+	color: #444444;
+	padding: 8px 15px;
+}
+
+.tableProsoloNavigation ul > .disabled > a, 
+.tableProsoloNavigation ul > .disabled > a:focus, 
+.tableProsoloNavigation ul > .disabled > a:hover, 
+.tableProsoloNavigation ul > .disabled > span, 
+.tableProsoloNavigation ul > .disabled > span:focus, 
+.tableProsoloNavigation ul > .disabled > span:hover {
+  border-color: #f1f1f1;
+}
+
+.tableProsoloNavigation ul > .active > a, 
+.tableProsoloNavigation ul > .active > a:focus, 
+.tableProsoloNavigation ul > .active > a:hover, 
+.tableProsoloNavigation ul > .active > span, 
+.tableProsoloNavigation ul > .active > span:focus, 
+.tableProsoloNavigation ul > .active > span:hover {
+  background-color: #0277BD;
+  border-color: #f1f1f1;
+}
+
+
+
+
+
+
 /*********************************************/
 /*********************************************/
 /*********** R E S P O N S I V E *************/
@@ -2357,6 +2679,14 @@ footer ul li:first-of-type {
 		float: left;
 	}
 	
+	
+	.heading header img.ico40 {
+		float: left;
+		margin-right: 10px;
+	}	
+	
+	
+	
 	.headerTitle {
 		float: left;
 	}
@@ -2532,6 +2862,32 @@ footer ul li:first-of-type {
 	color: #FFF;
 	font-weight: 900;
 }
+
+
+
+
+/* profile type badge for table */
+.profileTypeBadgeTable {
+	border: 1px solid #ddb627;
+	width: 60px;
+	height: 50px;
+	background: #f8d03b;
+	color: #555;
+	font-size: 9px;
+	line-height: 9px;
+	text-align: center;
+	padding-top: 9px;
+}
+
+
+.profileTypeBadgeTable .number {
+	display: block;
+	font-size: 22px;
+	line-height: 22px;
+	color: #FFF;
+	font-weight: 900;
+}
+
 
 
 
@@ -3218,3 +3574,63 @@ background-color: #286090;
 
 }
 
+
+
+
+
+
+/* Component styles */
+
+/*
+tbody tr:nth-child(2n-1) {
+    background-color: #fdfdfd;
+    transition: all .125s ease-in-out;
+}
+tbody tr:hover {
+    background-color: rgba(255,255,221,.3);
+}
+*/
+/* For appearance */
+.sticky-wrap {
+	overflow-x: auto;
+	overflow-y: hidden;
+	position: relative;
+
+}
+.sticky-wrap .sticky-thead,
+.sticky-wrap .sticky-col,
+.sticky-wrap .sticky-intersect {
+	opacity: 0;
+	position: absolute;
+	top: 0;
+	left: 0;
+	transition: all .125s ease-in-out;
+	z-index: 50;
+	width: auto; /* Prevent table from stretching to full size */
+	background: #fff;
+	box-shadow: 0 0.25em 0.1em 0.1em rgba(0,0,0,.125);
+}
+	.sticky-wrap .sticky-thead {
+		box-shadow: 0 0.25em 0.1em -0.1em rgba(0,0,0,.125);
+		z-index: 100;
+		width: 100%; /* Force stretch */
+	}
+	.sticky-wrap .sticky-intersect {
+	  border-bottom: 1px solid #f1f1f1;
+	  box-shadow: none;
+	  height: 60px;
+	  opacity: 1;
+	  text-align: center;
+	  width: 136px;
+	  z-index: 150;
+	  display: none;
+	}
+.sticky-wrap td,
+.sticky-wrap th {
+	box-sizing: border-box;
+	text-align: left;
+}
+
+.sticky-col > thead > tr > th {
+	display: none;
+}

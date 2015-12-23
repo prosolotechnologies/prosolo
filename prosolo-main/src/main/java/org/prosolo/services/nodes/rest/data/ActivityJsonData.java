@@ -23,7 +23,7 @@ public class ActivityJsonData {
 		this.id = ta.getId();
 		this.name = ta.getTitle();
 		
-		int min = -10;
+		int min = 0;
 		int max = 10;
 		
 		Random r = new Random();
