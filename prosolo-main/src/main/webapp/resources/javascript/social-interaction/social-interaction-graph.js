@@ -1,22 +1,23 @@
 define(['jquery', 'd3'], function($, d3) {
 
-	var clusters = [
-		{ name: "one", cond: function(id) { return id % 4 == 0; }},
-		{ name: "two", cond: function(id) { return id % 3 == 0; }},
-		{ name: "three", cond: function(id) { return id % 2 == 0; }},
-		{ name: "four", cond: function(id) { return true; }}
-	];
+	var clusters = {
+		"0": "one",
+		"1": "two",
+		"2": "three",
+		"3": "four"
+	};
 	
 	var foci = {
 		"one" : {x: 0, y: 0},
-		"two" : {x: 300, y: 0},
-		"three" : {x: 0, y: 300},
-		"four" : {x: 300, y: 300}
+		"two" : {x: 400, y: 0},
+		"three" : {x: 0, y: 400},
+		"four" : {x: 400, y: 400}
 	};
 
 	function readInteractions(config) {
 		$.ajax({
-			url : "http://" + config.host + "/api/social/interactions/student/" + config.studentId,
+			url : "http://" + config.host + "/api/social/interactions/",
+			data : {"studentId" : config.studentId, "courseId" : config.courseId},
 			type : "GET",
 			crossDomain: true,
 			dataType: 'json'
@@ -25,34 +26,15 @@ define(['jquery', 'd3'], function($, d3) {
 		});
 	}
 
-	// TODO Deprecated
-	function getSocialInteractions(config){
-		$.ajax({
-			url : "http://" + config.host + "/api/social/interactions/all",
-			type : "GET",
-			crossDomain: true,
-			dataType: 'json'
-		}).done(function(data) {
-			return run(config, data);
-		});
-	}
-	
-	function cluster(user) {
-		return clusters.filter(function(cluster) {
-			return cluster.cond(user);
-		})[0].name;
-	}
-	
-	function dofocus(user, config) {
-		var focus = user == config.studentId ? "focus " : "";
-		return focus + cluster(user);
+	function dofocus(user, cluster, config) {
+		return user == config.studentId ? "focus " + cluster : "" + cluster;
 	}
 	
 	function run(config, links) {
 
 		var nodes = links.reduce(function(res, link) {
-			res[link.source] = { name: link.source, cluster: cluster(link.source) };
-			res[link.target] = { name: link.target, cluster: cluster(link.target) };
+			res[link.source] = { name: link.source, cluster: clusters[link.cluster] };
+			res[link.target] = { name: link.target, cluster: clusters[link.cluster] };
 			return res;
 		}, {});
 
@@ -83,7 +65,7 @@ define(['jquery', 'd3'], function($, d3) {
 					target: nodes[link.target],
 					value: link.count,
 					type: type(v(link.count)),
-					cluster: cluster(link.source)
+					cluster: clusters[link.cluster]
 				};
 			});
 		}
@@ -93,8 +75,10 @@ define(['jquery', 'd3'], function($, d3) {
 
 		var d3nodes = d3.values(nodes);
 		var n = d3nodes.length;
+		var m = Math.round(Math.sqrt(n));
 		d3nodes.forEach(function(d, i) {
-			d.x = d.y = width / n * n * i;
+			d.x = width / m * (i % m);
+			d.y = height / m * Math.round(i / m);
 		});
 		var force = d3.layout.force()
 			.nodes(d3nodes)
@@ -108,7 +92,7 @@ define(['jquery', 'd3'], function($, d3) {
 		var svg = d3.select(config.selector).append("svg")
 			.attr("width", width)
 			.attr("height", height)
-			.call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom));
+			.call(d3.behavior.zoom().scaleExtent([0.5, 8]).on("zoom", zoom));
 		
 		// build the arrow.
 		svg.append("svg:defs").selectAll("marker")
@@ -140,7 +124,7 @@ define(['jquery', 'd3'], function($, d3) {
 			.attr("class", "node");
 
 		node.append("circle").attr("r", 10).attr("class", function(d) {
-			return dofocus(d.name, config);
+			return dofocus(d.name, d.cluster, config);
 		});
 		
 		node.append("image")
@@ -170,7 +154,7 @@ define(['jquery', 'd3'], function($, d3) {
 				return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
 			});
 
-			var k = .1 * e.alpha;
+			var k = .05 * e.alpha;
 			d3nodes.forEach(function(o, i) {
 				o.y += (foci[o.cluster].y - o.y) * k;
 				o.x += (foci[o.cluster].x - o.x) * k;
