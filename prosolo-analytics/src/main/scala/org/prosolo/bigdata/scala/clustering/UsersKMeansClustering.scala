@@ -1,6 +1,7 @@
 package org.prosolo.bigdata.scala.clustering
 
 import org.prosolo.bigdata.dal.cassandra.impl.UserObservationsDBManagerImpl
+import org.prosolo.bigdata.scala.clustering.userprofiling.{FeaturesToProfileMatcher, ClusterResults, ClusterHelper, ClusterName}
 import org.prosolo.bigdata.scala.statistics.FeatureQuartiles
 import org.prosolo.bigdata.utils.DateUtil
 
@@ -28,6 +29,7 @@ import scala.collection.JavaConverters._
 /**
  * @author zoran October 24, 2015
  */
+@deprecated
 object UsersKMeansClustering {
   val dbManager = new UserObservationsDBManagerImpl()
   val clustersDir = "clustersdir"

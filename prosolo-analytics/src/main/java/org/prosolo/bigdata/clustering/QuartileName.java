@@ -1,4 +1,6 @@
-package org.prosolo.bigdata.clustering;/**
+package org.prosolo.bigdata.clustering;
+
+/**
  * Created by Zoran on 05/12/15.
  */
 

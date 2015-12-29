@@ -1,4 +1,4 @@
-package org.prosolo.bigdata.scala.clustering
+package org.prosolo.bigdata.scala.clustering.userprofiling
 
 import org.apache.hadoop.fs.{Path, PathFilter}
 

@@ -1,30 +1,22 @@
-package org.prosolo.bigdata.scala.clustering
+package org.prosolo.bigdata.scala.clustering.userprofiling
 
-import java.io.{File, InputStream, Reader, FileReader}
-import java.net.URI
-import java.text.SimpleDateFormat
 import java.util
 import java.util.Date
 
-import be.ac.ulg.montefiore.run.jahmm.io.{ObservationVectorReader, ObservationSequencesReader}
 import be.ac.ulg.montefiore.run.jahmm.learn.BaumWelchLearner
-import be.ac.ulg.montefiore.run.jahmm.toolbox.MarkovGenerator
 import com.datastax.driver.core.Row
-import org.apache.hadoop.fs.Path
-import org.apache.hadoop.io.SequenceFile
-import org.apache.mahout.classifier.sequencelearning.hmm.HmmModel
-import org.apache.mahout.clustering.Cluster
-import org.apache.mahout.clustering.classify.WeightedPropertyVectorWritable
 import org.prosolo.bigdata.clustering.QuartileName
 import org.prosolo.bigdata.dal.cassandra.impl.UserObservationsDBManagerImpl
-import org.prosolo.bigdata.scala.clustering.EventsChecker._
+
 
 import scala.collection.mutable.{HashMap, Map}
 
 //import org.prosolo.bigdata.scala.statistics.QuartileName
-import org.prosolo.bigdata.utils.DateUtil
-import be.ac.ulg.montefiore.run.jahmm._
 import java.util.List
+
+import be.ac.ulg.montefiore.run.jahmm._
+import org.prosolo.bigdata.utils.DateUtil
+
 import scala.collection.JavaConversions._
 
 /**

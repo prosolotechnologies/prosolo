@@ -1,10 +1,8 @@
-package org.prosolo.bigdata.scala.clustering
+package org.prosolo.bigdata.scala.clustering.userprofiling
 
 import java.io.InputStream
 
-import org.prosolo.bigdata.scala.clustering.EventsChecker._
-
-import scala.collection.mutable.{ Buffer,  Map, HashMap }
+import scala.collection.mutable.{HashMap, Map}
  
 
 object FeaturesToProfileMatcher {

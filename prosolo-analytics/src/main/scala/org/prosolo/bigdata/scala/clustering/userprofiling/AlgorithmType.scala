@@ -1,4 +1,4 @@
-package org.prosolo.bigdata.scala.clustering
+package org.prosolo.bigdata.scala.clustering.userprofiling
 
 /**
   * Created by Zoran on 22/11/15.

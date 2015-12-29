@@ -1,4 +1,4 @@
-package org.prosolo.bigdata.scala.clustering
+package org.prosolo.bigdata.scala.clustering.userprofiling
 
 import java.text.SimpleDateFormat
 import java.util.{Calendar, Date}
@@ -14,8 +14,8 @@ object UserProfileClusteringManager extends App{
 
   val startDate: Date = dateFormat.parse("10/20/2014")
   val endDate: Date = dateFormat.parse("12/20/2014")
-  //val moocCourses:Array[Long]=Array(1,32768,32769,32770,65536,98304,98305,98306,131072,131073,131074);
-   val moocCourses:Array[Long]=Array(1,32768);
+  val moocCourses:Array[Long]=Array(1,32768,32769,32770,65536,98304,98305,98306,131072,131073,131074)
+  // val moocCourses:Array[Long]=Array(1,32768);
 
   moocCourses.foreach(courseid=>
   {

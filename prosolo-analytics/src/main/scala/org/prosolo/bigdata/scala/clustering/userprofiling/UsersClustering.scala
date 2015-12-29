@@ -1,14 +1,11 @@
-package org.prosolo.bigdata.scala.clustering
+package org.prosolo.bigdata.scala.clustering.userprofiling
 
-import java.io.{FileWriter, BufferedWriter, PrintWriter}
-import java.text.SimpleDateFormat
-import java.util
-import java.util.{Calendar, Date}
+import java.io.{BufferedWriter, FileWriter, PrintWriter}
+import java.util.Date
 
 import com.datastax.driver.core.Row
-import org.apache.hadoop.conf.Configuration
-import org.apache.hadoop.fs.{Path, FileSystem}
-import org.apache.hadoop.io.{Text, SequenceFile}
+import org.apache.hadoop.fs.Path
+import org.apache.hadoop.io.{SequenceFile, Text}
 import org.apache.mahout.clustering.Cluster
 import org.apache.mahout.clustering.canopy.CanopyDriver
 import org.apache.mahout.clustering.classify.WeightedPropertyVectorWritable
@@ -16,15 +13,16 @@ import org.apache.mahout.clustering.fuzzykmeans.FuzzyKMeansDriver
 import org.apache.mahout.clustering.iterator.ClusterWritable
 import org.apache.mahout.clustering.kmeans.{KMeansDriver, RandomSeedGenerator}
 import org.apache.mahout.common.HadoopUtil
-import org.apache.mahout.common.distance.{EuclideanDistanceMeasure, CosineDistanceMeasure}
-import org.apache.mahout.math.{VectorWritable, NamedVector, DenseVector}
+import org.apache.mahout.common.distance.{CosineDistanceMeasure, EuclideanDistanceMeasure}
+import org.apache.mahout.math.{DenseVector, NamedVector, VectorWritable}
 import org.prosolo.bigdata.dal.cassandra.impl.UserObservationsDBManagerImpl
+//import org.prosolo.bigdata.scala.clustering.
 import org.prosolo.bigdata.scala.statistics.FeatureQuartiles
 import org.prosolo.bigdata.utils.DateUtil
 
 import scala.IndexedSeq
 
-//import scala.Predef.Map
+
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable._

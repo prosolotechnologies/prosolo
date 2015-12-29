@@ -1,4 +1,4 @@
-package org.prosolo.bigdata.scala.clustering
+package org.prosolo.bigdata.scala.clustering.userprofiling
 
 object ClusterName extends Enumeration{
   val A=Value("A")

@@ -1,6 +1,6 @@
-package org.prosolo.bigdata.scala.clustering
+package org.prosolo.bigdata.scala.clustering.userprofiling
 
-import scala.collection.mutable.{ Map, HashMap,ListBuffer }
+import scala.collection.mutable.{HashMap, ListBuffer, Map}
 
 class ClusterResults(val id: Int) {
   val featureValues:Map[Int,Tuple2[Double,Int]]=new HashMap[Int,Tuple2[Double,Int]]()
