@@ -64,7 +64,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	@Override
 	@Transactional
 	public Long findCourseIdForTargetCompetence(Long targetCompetenceId) {
-		System.out.println("FIND COURSE ID FOR TARGET COMPETENCE:"+targetCompetenceId);
+		//System.out.println("FIND COURSE ID FOR TARGET COMPETENCE:"+targetCompetenceId);
 		String query =
 				"SELECT DISTINCT course.id " +
 						"FROM CourseEnrollment enrollment " +
@@ -83,7 +83,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	@Override
 	@Transactional
 	public Long findCourseIdForTargetLearningGoal(Long targetGoalId) {
-		System.out.println("FIND COURSE ID FOR TARGET GOAL:"+targetGoalId);
+	//System.out.println("FIND COURSE ID FOR TARGET GOAL:"+targetGoalId);
 		String query =
 				"SELECT DISTINCT course.id " +
 						"FROM CourseEnrollment enrollment " +
@@ -101,7 +101,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	@Override
 	@Transactional
 	public Long findCourseIdForTargetActivity(Long targetActivityId) {
-		System.out.println("FIND COURSE ID FOR TARGET ACTIVITY:"+targetActivityId);
+		//System.out.println("FIND COURSE ID FOR TARGET ACTIVITY:"+targetActivityId);
 
 		String query =
 				"SELECT DISTINCT course.id " +

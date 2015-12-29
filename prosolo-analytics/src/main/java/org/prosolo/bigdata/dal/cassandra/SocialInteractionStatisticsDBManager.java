@@ -6,8 +6,8 @@ import org.prosolo.bigdata.common.dal.pojo.SocialInteractionCount;
 
 public interface SocialInteractionStatisticsDBManager {
 	
-	List<SocialInteractionCount> getSocialInteractionCounts();
+	List<SocialInteractionCount> getSocialInteractionCounts(Long courseid);
 
-	List<SocialInteractionCount> getSocialInteractionCounts(Long id);
+	List<SocialInteractionCount> getSocialInteractionCounts(Long courseid, Long userid);
 
 }

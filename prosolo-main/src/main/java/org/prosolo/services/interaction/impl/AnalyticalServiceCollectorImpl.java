@@ -165,8 +165,9 @@ public class AnalyticalServiceCollectorImpl implements AnalyticalServiceCollecto
 	}
 
 	@Override
-	public void increaseSocialInteractionCount(long source, long target) {
+	public void increaseSocialInteractionCount(long courseid, long source, long target) {
 		JsonObject data=new JsonObject();
+		data.add("course", new JsonPrimitive(courseid));
 		data.add("source", new JsonPrimitive(source));
 		data.add("target", new JsonPrimitive(target));
 		AnalyticalServiceMessage message=factory.createAnalyticalServiceMessage(DataName.SOCIALINTERACTIONCOUNT, DataType.COUNTER, data);

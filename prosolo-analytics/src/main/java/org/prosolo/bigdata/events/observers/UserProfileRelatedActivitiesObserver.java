@@ -68,7 +68,6 @@ public class UserProfileRelatedActivitiesObserver implements EventObserver{
 					 dbManager.updateUserProfileActionsObservationCounter(date, userid, course, observationType);
 				 }
 			}
-
 		}
 
 	}

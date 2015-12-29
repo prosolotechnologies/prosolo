@@ -41,6 +41,6 @@ public interface AnalyticalServiceCollector {
 
 	void disableHashtag(String hashtag);
 
-	void increaseSocialInteractionCount(long source, long target);
+	void increaseSocialInteractionCount(long courseid, long source, long target);
 
 }

@@ -34,7 +34,9 @@ public class SocialInteractionStatisticsService {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getAllUserInteractions() throws ParseException {
 		logger.debug("Service 'getAllUserInteractions' called");
-		List<SocialInteractionCount> socialInteractionCounts = dbManager.getSocialInteractionCounts();
+		long courseid=1;
+		//TODO Aleksandar This service doesn't have too much sense. It should be for course
+		List<SocialInteractionCount> socialInteractionCounts = dbManager.getSocialInteractionCounts(courseid);
 		return ResponseUtils.corsOk(socialInteractionCounts);
 	}
 	
@@ -43,6 +45,7 @@ public class SocialInteractionStatisticsService {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getStudentInteractions(@PathParam("id") Long id) {
 		logger.debug("Service 'getStudentInteractions' called.");
+		//TODO Aleksandar This service should have course
 		List<SocialInteractionCount> socialInteractionCounts = dbManager.getSocialInteractionCounts(id);
 		return ResponseUtils.corsOk(socialInteractionCounts);
 	}

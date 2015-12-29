@@ -2,18 +2,10 @@ package org.prosolo.services.logging;
 
 import static java.lang.String.format;
 import static java.util.Calendar.DAY_OF_MONTH;
+import static org.prosolo.common.domainmodel.activities.events.EventType.*;
+import static org.prosolo.common.domainmodel.activities.events.EventType.SEND_MESSAGE;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
+import java.util.*;
 
 import javax.annotation.PostConstruct;
 
@@ -67,6 +59,11 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	private static String eventsHappenedCollection = "log_events_happened";
 
 	private static String logReportDatesCollection= "log_report_dates";
+	private EventType[] interactions=new EventType[]{
+			Comment, EVALUATION_REQUEST,EVALUATION_ACCEPTED, EVALUATION_GIVEN,
+			JOIN_GOAL_INVITATION, JOIN_GOAL_INVITATION_ACCEPTED,JOIN_GOAL_REQUEST,
+			JOIN_GOAL_REQUEST_APPROVED, JOIN_GOAL_REQUEST_DENIED,
+			Like,SEND_MESSAGE};
 	
 	@PostConstruct
 	public void init() {
@@ -231,7 +228,13 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			logObject.put("link", link);
 
 			logObject.put("courseId",extractCourseIdForUsedResource(objectType, objectId, targetType, targetId, reasonType, reasonId));
-	
+			if(Arrays.asList(interactions).contains(eventType)){
+				System.out.println("INTERACTION SHOULD BE PROCESSED:"+logObject.toString());
+				Long targetUserId=extractSocialInteractionTargetUser(objectType, objectId, targetType, targetId, reasonType, reasonId);
+				if(targetUserId>0){
+					logObject.put("targetUserId", targetUserId);
+				}
+			}
 			if (parameters != null && !parameters.isEmpty()) {
 				Iterator<Map.Entry<String, String>> it = parameters.entrySet()
 						.iterator();
@@ -266,7 +269,13 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			} catch (Exception e) {
 				logger.error("Exception to log observed event for:" + logObject.toString(), e);
 			}
+
 		}
+	}
+
+	private Long extractSocialInteractionTargetUser(String objectType, long objectId, String targetType, long targetId, String reasonType, long reasonId){
+		Long targetUserId=0l;
+		return targetUserId;
 	}
 
 	private Long extractCourseIdForUsedResource(String objectType, long objectId, String targetType, long targetId, String reasonType, long reasonId) {

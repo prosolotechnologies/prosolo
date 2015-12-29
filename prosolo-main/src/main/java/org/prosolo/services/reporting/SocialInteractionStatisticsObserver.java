@@ -41,7 +41,40 @@ public class SocialInteractionStatisticsObserver implements EventObserver {
 		logger.info("comming in event with actor: " + event.getActor());
 		logger.info("comming in event with object: " + event.getObject());
 		logger.info("comming in event with target: " + event.getTarget());
-		
+		//TODO: to extract real course id here
+		/*
+		This is the list of events that should be processed
+		COMMENT,Comment,NodeComment
+EVALUATION,EVALUATION_REQUEST,AchievedCompetenceRequest
+EVALUATION,EVALUATION_REQUEST,NodeRequest
+EVALUATION,SERVICEUSE,ASK_FOR_EVALUATION_DIALOG
+JOIN,JOIN_GOAL_INVITATION,NodeRequest
+JOIN,JOIN_GOAL_REQUEST,NodeRequest
+JOIN,SERVICEUSE,INVITE_GOAL_COLLABORATOR_DIALOG
+JOIN,SERVICEUSE,REQUEST_TO_JOIN_GOAL_DIALOG
+LIKE,Like,Competence
+LIKE,Like,CourseSocialActivity
+LIKE,Like,DefaultSocialActivity
+LIKE,Like,GoalNoteSocialActivity
+LIKE,Like,NodeComment
+LIKE,Like,NodeSocialActivity
+LIKE,Like,NodeUserSocialActivity
+LIKE,Like,PostSocialActivity
+LIKE,Like,ResourceActivity
+LIKE,Like,SocialActivityComment
+LIKE,Like,TwitterPostSocialActivity
+LIKE,Like,UserSocialActivity
+MESSAGE,SEND_MESSAGE,SimpleOfflineMessage
+MESSAGE,SERVICEUSE,DIRECT_MESSAGE_DIALOG
+MESSAGE,START_MESSAGE_THREAD,MessagesThread
+MESSAGE,UPDATE_MESSAGE_THREAD,MessagesThread
+MESSAGE,SERVICEUSE,INBOX
+MESSAGE,SERVICEUSE,USERDIALOG
+MESSAGE,SERVICEUSE,USER_DIALOG
+SEARCH,SERVICEUSE,SEARCHPEOPLE
+SEARCH,SERVICEUSE,SEARCH_PEOPLE
+		 */
+		long courseid=1;
 		long source = event.getActor().getId();
 		
 		long target;
@@ -60,7 +93,7 @@ public class SocialInteractionStatisticsObserver implements EventObserver {
 		
 		if (source == target) return;
 		
-		collector.increaseSocialInteractionCount(source, target);
+		collector.increaseSocialInteractionCount(courseid, source, target);
 	}
 
 }

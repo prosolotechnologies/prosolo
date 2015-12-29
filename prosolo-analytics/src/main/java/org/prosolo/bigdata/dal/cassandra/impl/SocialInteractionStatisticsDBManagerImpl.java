@@ -31,8 +31,8 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 	}
 
 	static {
-		statements.put(FIND_SOCIAL_INTERACTION_COUNTS,  "SELECT * FROM socialinteractionscount;");
-		statements.put(FIND_STUDENT_SOCIAL_INTERACTION_COUNTS, "SELECT * FROM socialinteractionscount where source = ?;");
+		statements.put(FIND_SOCIAL_INTERACTION_COUNTS,  "SELECT * FROM socialinteractionscount where course=?;");
+		statements.put(FIND_STUDENT_SOCIAL_INTERACTION_COUNTS, "SELECT * FROM socialinteractionscount where course=? and source = ?;");
 	}
 	
 	private List<Row> query(BoundStatement statement) {
@@ -65,16 +65,16 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 	}
 
 	@Override
-	public List<SocialInteractionCount> getSocialInteractionCounts() {
+	public List<SocialInteractionCount> getSocialInteractionCounts(Long courseid) {
 		PreparedStatement prepared = getStatement(getSession(), FIND_SOCIAL_INTERACTION_COUNTS);
-		BoundStatement statement = StatementUtil.statement(prepared);
+		BoundStatement statement = StatementUtil.statement(prepared, courseid);
 		return map(query(statement), (row) -> new SocialInteractionCount(source(row), target(row), count(row)));
 	}
 
 	@Override
-	public List<SocialInteractionCount> getSocialInteractionCounts(Long id) {
+	public List<SocialInteractionCount> getSocialInteractionCounts(Long courseid, Long userid) {
 		PreparedStatement prepared = getStatement(getSession(), FIND_STUDENT_SOCIAL_INTERACTION_COUNTS);
-		BoundStatement statement = StatementUtil.statement(prepared, id);
+		BoundStatement statement = StatementUtil.statement(prepared,courseid,  userid);
 		return map(query(statement), (row) -> new SocialInteractionCount(source(row), target(row), count(row)));
 	}
 

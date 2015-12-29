@@ -3,6 +3,8 @@ package org.prosolo.services.messaging.rabbitmq.impl;
  
 
 import static org.junit.Assert.fail;
+import static org.prosolo.common.domainmodel.activities.events.EventType.*;
+import static org.prosolo.common.domainmodel.activities.events.EventType.SEND_MESSAGE;
 
 import java.net.UnknownHostException;
 import java.text.ParseException;
@@ -17,6 +19,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.events.pojo.DataName;
 import org.prosolo.bigdata.common.events.pojo.DataType;
@@ -31,6 +34,7 @@ import org.prosolo.common.messaging.rabbitmq.impl.ReliableConsumerImpl;
 import org.prosolo.common.messaging.rabbitmq.impl.ReliableProducerImpl;
 import org.prosolo.config.MongoDBServerConfig;
 import org.prosolo.config.MongoDBServersConfig;
+import org.prosolo.core.spring.SpringConfig;
 import org.prosolo.services.interaction.impl.AnalyticalServiceDataFactoryImpl;
  
 
@@ -45,13 +49,22 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
+import org.prosolo.services.nodes.CourseManager;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import javax.inject.Inject;
 
 /**
 @author Zoran Jeremic Sep 7, 2014
  */
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes={ SpringConfig.class })
 public class ReliableProducerImplTest{
 	private static Logger logger = Logger.getLogger(ReliableProducerImplTest.class);
+	@Inject
+	private CourseManager courseManager;
 	@Ignore
 	@Test
 	public void generateAnalyticsFromMongoTest() {
@@ -248,8 +261,8 @@ public class ReliableProducerImplTest{
 		  MongoClient mongoClient=new MongoClient(serverAddresses);
 		  DB db=mongoClient.getDB(Settings.getInstance().config.mongoDatabase.dbName);
 		 DBCollection eventsCollection= db.getCollection("log_events_observed");
-		 DBObject query=new BasicDBObject();
-		 query.put("actorId",2);
+		 //DBObject query=new BasicDBObject();
+		 //query.put("actorId",2);
 		int count= eventsCollection.find().count();
 		logger.info("COLLECTION HAS EVENTS:"+count);
 		int counter = 0;
@@ -273,6 +286,7 @@ public class ReliableProducerImplTest{
 				String eventType=dbObject.get("eventType").toString();
 				
 				boolean ignore=false;
+				boolean socialinteraction=false;
 				if(eventType.equals("TwitterPost")|| eventType.equals("LOGOUT") || eventType.equals("SESSIONENDED")	){
 					ignore=true;					
 				}
@@ -367,7 +381,11 @@ public class ReliableProducerImplTest{
 		reliableProducer.send(msg);
 		
 	}
-	
+	private EventType[] interactions=new EventType[]{
+			Comment, EVALUATION_REQUEST,EVALUATION_ACCEPTED, EVALUATION_GIVEN,
+			JOIN_GOAL_INVITATION, JOIN_GOAL_INVITATION_ACCEPTED,JOIN_GOAL_REQUEST,
+			JOIN_GOAL_REQUEST_APPROVED, JOIN_GOAL_REQUEST_DENIED,
+			Like,SEND_MESSAGE};
 	private void wrapMessageAndSend(ReliableProducerImpl reliableProducer,DBObject logObject){
 		LogMessage message = new LogMessage();
 		Gson g=new Gson();
@@ -388,6 +406,19 @@ public class ReliableProducerImplTest{
 			message.setReasonType((String) logObject.get("reasonType"));
 			message.setReasonId((long) logObject.get("reasonId"));
 			message.setLink((String) logObject.get("link"));
+		if(logObject.get("eventType").equals("SEND_MESSAGE")){
+			System.out.println("MESSAGE");
+		}
+		long courseId=extractCourseIdForUsedResource((String) logObject.get("objectType"), (long) logObject.get("objectId"),
+				(String) logObject.get("targetType"), (long) logObject.get("targetId"), (String) logObject.get("reasonType"), (long) logObject.get("reasonId"));
+		message.setCourseId(courseId);
+		long targetUserId =0;
+		if(Arrays.asList(interactions).contains(EventType.valueOf((String) logObject.get("eventType")))) {
+			System.out.println("INTERACTION SHOULD BE PROCESSED:" + logObject.toString());
+			 targetUserId = extractSocialInteractionTargetUser((String) logObject.get("objectType"), (long) logObject.get("objectId"),
+					(String) logObject.get("targetType"), (long) logObject.get("targetId"), (String) logObject.get("reasonType"), (long) logObject.get("reasonId"));
+		}
+
 			message.setParameters(parameters);
 			//wrapMessageAndSend(reliableProducer, message, ip);
 		GsonBuilder gson = new GsonBuilder();
@@ -397,7 +428,29 @@ public class ReliableProducerImplTest{
 		wrapper.setMessage(message);
 		wrapper.setTimecreated(System.currentTimeMillis());
 		String msg = gson.create().toJson(wrapper);
+		if(targetUserId>0){
+			System.out.println("SOCIAL INTERACTION:"+msg);
+		}
 		reliableProducer.send(msg);
+	}
+	private Long extractSocialInteractionTargetUser(String objectType, long objectId, String targetType, long targetId, String reasonType, long reasonId){
+		Long targetUserId=0l;
+
+		return targetUserId;
+	}
+	private Long extractCourseIdForUsedResource(String objectType, long objectId, String targetType, long targetId, String reasonType, long reasonId) {
+		Map<String, Long> types=new HashMap<String, Long>();
+		types.put(objectType, objectId);
+		types.put(targetType, targetId);
+		types.put(reasonType, reasonId);
+		if(types.containsKey("TargetLearningGoal")){
+			return courseManager.findCourseIdForTargetLearningGoal(types.get("TargetLearningGoal"));
+		}else if(types.containsKey("TargetCompetence")){
+			return courseManager.findCourseIdForTargetCompetence(types.get("TargetCompetence"));
+		}else if(types.containsKey("TargetActivity")){
+			return courseManager.findCourseIdForTargetActivity(types.get("TargetActivity"));
+		}
+		return 0l;
 	}
 	
 	@Test
