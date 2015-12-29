@@ -46,7 +46,7 @@ public class ActivityRestService {
 		   // Type listType = new TypeToken<ArrayList<Competence>>() {}.getType();
 		   // gson.toJson(activities, typeOfSrc)
 		    String s = gson.toJson(jsonActivities);
-		    System.out.println(s);
+		    //System.out.println(s);
 		    return s;
 		} catch (DbConnectionException dbce) {
 			throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);

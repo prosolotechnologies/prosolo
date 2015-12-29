@@ -51,6 +51,9 @@ public class Course extends BaseEntity {
 	private List<FeedSource> blogs;
 	private List<FeedSource> excludedFeedSources;
 
+	private boolean manuallyAssignStudentsToInstructors;
+	private int defaultNumberOfStudentsPerInstructor;
+	
 	public Course() {
 		competences = new ArrayList<CourseCompetence>();
 		tags = new HashSet<Tag>();
@@ -170,6 +173,24 @@ public class Course extends BaseEntity {
 	
 	public void addExcludedFeedSource(FeedSource feedSource) {
 		this.getExcludedFeedSources().add(feedSource);
+	}
+
+	@Type(type="true_false")
+	@Column(columnDefinition = "char(1) DEFAULT 'F'")
+	public boolean isManuallyAssignStudentsToInstructors() {
+		return manuallyAssignStudentsToInstructors;
+	}
+
+	public void setManuallyAssignStudentsToInstructors(boolean manuallyAssignStudentsToInstructors) {
+		this.manuallyAssignStudentsToInstructors = manuallyAssignStudentsToInstructors;
+	}
+
+	public int getDefaultNumberOfStudentsPerInstructor() {
+		return defaultNumberOfStudentsPerInstructor;
+	}
+
+	public void setDefaultNumberOfStudentsPerInstructor(int defaultNumberOfStudentsPerInstructor) {
+		this.defaultNumberOfStudentsPerInstructor = defaultNumberOfStudentsPerInstructor;
 	}
 
 	@Override

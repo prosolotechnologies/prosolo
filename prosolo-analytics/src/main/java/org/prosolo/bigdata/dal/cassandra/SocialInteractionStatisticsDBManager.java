@@ -8,4 +8,6 @@ public interface SocialInteractionStatisticsDBManager {
 	
 	List<SocialInteractionCount> getSocialInteractionCounts();
 
+	List<SocialInteractionCount> getSocialInteractionCounts(Long id);
+
 }

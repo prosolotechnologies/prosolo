@@ -3,12 +3,12 @@ require([ 'social-interaction/social-interaction-graph' ], function(graph) {
 
 	graph.load({
 		host: root.dataset.api,
+		courseId : root.dataset.courseId,
 		studentId : root.dataset.studentId,
 		width : 800,
-		height : 600,
-		links : 100,
-		selector : "#graph",
-		charge : -300,
-		distance : 50
+		height : 500,
+		selector : "#social-interaction #graph",
+		charge : -75,
+		distance : 150
 	});
 });

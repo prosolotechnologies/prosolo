@@ -1,60 +1,60 @@
 @CHARSET "UTF-8";
 
 path.link {
-  fill: none;
-  stroke: black;
-  stroke-width: 3px;
+	fill: none;
+	stroke: black;
+	stroke-width: 3px;
 }
 
 path.link.twofive {
-    opacity: 0.25;
-    stroke-width: 1px;
+	opacity: 0.25;
+	stroke-width: 1px;
 }
 
 path.link.fivezero {
-    opacity: 0.50;
-    stroke-width: 2px;
+	opacity: 0.50;
+	stroke-width: 2px;
 }
 
 path.link.sevenfive {
-    opacity: 0.75;
-    stroke-width: 3px;
+	opacity: 0.75;
+	stroke-width: 3px;
 }
 
 path.link.onezerozero {
-    opacity: 1.0;
-    stroke-width: 4px;
+	opacity: 1.0;
+	stroke-width: 4px;
 }
 
 circle {
-  fill: #ccc;
-  stroke: black;
-  stroke-width: 1px;
+	fill: #ccc;
+	stroke: black;
+	stroke-width: 1px;
 }
 
 circle.one {
-    fill: gray;
+	fill: gray;
 }
 
 circle.two {
-    fill: green;    
+	fill: green;	
 }
 
 circle.three {
-    fill: blue;
+	fill: blue;
 }
 
 circle.four {
-    fill: red;
+	fill: red;
 }
 
 circle.focus {
-    stroke: violet;
-    stroke-width: 6px;
+	stroke: violet;
+	stroke-width: 6px;
 }
 
 text {
-  fill: #000;
-  font: 10px sans-serif;
-  pointer-events: none;
+	fill: #000;
+	font: 10px sans-serif;
+	pointer-events: none;
 }

@@ -7,8 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.faces.bean.ManagedBean;
 
@@ -47,11 +45,11 @@ import org.springframework.stereotype.Component;
 @ManagedBean(name = "commentaction")
 @Component("commentaction")
 @Scope("view")
-public class ComentActionBean implements Serializable {
+public class CommentActionBean implements Serializable {
 	
 	private static final long serialVersionUID = -4386479460010699841L;
 
-	private static Logger logger = Logger.getLogger(ComentActionBean.class);
+	private static Logger logger = Logger.getLogger(CommentActionBean.class);
 	
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private CommentingManager commentManager;
@@ -88,10 +86,10 @@ public class ComentActionBean implements Serializable {
 	            	try {
 		            	long targetActiviryId = wallData.getId();
 						
-						BaseEntity resource = defaultManager.loadResource(TargetActivity.class, targetActiviryId, session);
+		            	TargetActivity resource = defaultManager.loadResource(TargetActivity.class, targetActiviryId, session);
 
 						Comment comment = commentManager.addComment(
-								resource, 
+								resource.getActivity(), 
 								loggedUser.getUser(), 
 								commentText, 
 								created,

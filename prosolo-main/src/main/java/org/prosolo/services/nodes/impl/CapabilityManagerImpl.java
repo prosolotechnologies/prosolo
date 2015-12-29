@@ -3,6 +3,7 @@ package org.prosolo.services.nodes.impl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -101,22 +102,23 @@ public class CapabilityManagerImpl extends AbstractManagerImpl implements Capabi
 		try {
 			String query = "SELECT cap, role.id " + 
 						   "FROM Capability cap " + 
-					       "INNER JOIN cap.roles role";
+					       "LEFT JOIN fetch cap.roles role " +
+						   "ORDER BY cap.description ASC";
 
 			List<Object[]> result = persistence.currentManager().createQuery(query).list();
-			Map<Capability, List<Long>> resultMap = new HashMap<Capability, List<Long>>();
+			Map<Capability, List<Long>> resultMap = new LinkedHashMap<Capability, List<Long>>();
 			if (result != null && !result.isEmpty()) {
 				for (Object[] res : result) {
 					Capability cap = (Capability) res[0];
 					Long roleId = (Long) res[1];
-
 					List<Long> roleIds = resultMap.get(cap);
-
+					
 					if (roleIds == null) {
 						roleIds = new ArrayList<Long>();
 					}
-					roleIds.add(roleId);
-
+					if(roleId != null) {
+						roleIds.add(roleId);
+					}
 					resultMap.put(cap, roleIds);
 				}
 			}
