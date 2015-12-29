@@ -13,6 +13,7 @@ import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.LearningGoal;
+import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.event.Event;
@@ -47,6 +48,7 @@ public class NodeChangeObserver implements EventObserver {
 	public Class<? extends BaseEntity>[] getResourceClasses() {
 		return new Class[] { 
 			LearningGoal.class, 
+			TargetLearningGoal.class,
 			TargetCompetence.class, 
 			Competence.class,
 			Course.class,
@@ -73,6 +75,14 @@ public class NodeChangeObserver implements EventObserver {
 			if (node instanceof User) {
 				User user = (User) session.load(User.class, node.getId());
 				userEntityESService.saveUserNode(user, session);
+				
+			//added for testing
+			} else if (node instanceof TargetLearningGoal) {
+				long actorId = event.getActor().getId();
+				User actor = (User) session.load(User.class, actorId);
+				//User actor = event.getActor();
+//				actor = (User) session.merge(actor);
+				userEntityESService.saveUserNode(actor, session);
 			} else {
 				nodeEntityESService.saveNodeToES(node);
 			}

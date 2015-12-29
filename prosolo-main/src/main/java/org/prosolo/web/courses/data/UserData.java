@@ -24,11 +24,15 @@ public class UserData {
 		this.id = user.getId();
 		this.name = user.getName();
 		this.lastName = user.getLastname();
-		this.fullName = user.getName() + (user.getLastname() != null ? " " + user.getLastname() : "");
+		setFullName(user.getName(), user.getLastname());
 		this.position = user.getPosition();
 		this.avatarUrl = AvatarUtils.getAvatarUrlInFormat(user, ImageFormat.size60x60);
 	}
 	
+	public void setFullName(String name, String lastName) {
+		this.fullName = name + (lastName != null ? " " + lastName : "");
+	}
+
 	public UserData(User user, User instructor, int progress) {
 		this(user);
 		if(instructor != null) {

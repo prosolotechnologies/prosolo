@@ -1,53 +1,101 @@
 {
-    "user":{
-		"properties":{
-			"id":{
+	"user": {
+		"properties": {
+			"id": {
 				"store": false,
-				"type":"string"
-				},
-			"url":{
-					"store": false,
-					"type":"string"
-				},
-			"name":{
-					"store": false,
-					"type":"string"
-				},
-				"lastname":{
-					"store": false,
-					"type":"string"
-				},
-				"location": {
-						"properties": {
-						"id": {
-								"type": "string"
-						},
-						"name": {
-								"type": "string"
-						},
-						"pin": {
-							"type": "geo_point"
-						}
+				"type": "string"
+			},
+			"url": {
+				"store": false,
+				"type": "string"
+			},
+			"name": {
+				"store": false,
+				"type": "string"
+			},
+			"lastname": {
+				"store": false,
+				"type": "string"
+			},
+			"location": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"pin": {
+						"type": "geo_point"
 					}
-				},
-				"system":{
-					"store": false,
-					"type":"boolean"
-				},
-				"learninggoals":{
-					"properties":{
-						"title":{
-							"store": false,
-							"type":"string"
-						},
-						"description":{
-							"store": false,
-							"type":"string"
+				}
+			},
+			"system": {
+				"store": false,
+				"type": "boolean"
+			},
+			"learninggoals": {
+				"properties": {
+					"title": {
+						"store": false,
+						"type": "string"
+					},
+					"description": {
+						"store": false,
+						"type": "string"
+					}
+				}
+			},
+
+			"avatar": {
+				"store": false,
+				"type": "string"
+			},
+
+			"position": {
+				"store": false,
+				"type": "string"
+			},
+
+			"profile_type": {
+				"store": false,
+				"type": "string"
+			},
+
+			"courses": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					},
+					"progress": {
+						"store": false,
+						"type": "integer"
+					},
+					"instructor_assigned": {
+						"store": false,
+						"type": "boolean"
+					},
+					"instructor": {
+						"properties": {
+							"id": {
+								"store": false,
+								"type": "long"
+							},
+							"first_name": {
+								"store": false,
+								"type": "string"
+							},
+							"last_name": {
+								"store": false,
+								"type": "string"
+							}
 						}
 					}
 				}
+			}
 		}
-			
-		}
+
+	}
 
 }

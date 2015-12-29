@@ -1,7 +1,11 @@
 package org.prosolo.services.indexing.impl;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -13,6 +17,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.ESIndexNames;
 import org.prosolo.services.indexing.UserEntityESService;
+import org.prosolo.services.nodes.CourseManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,12 +30,18 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	
 	private static Logger logger = Logger.getLogger(UserEntityESService.class);
 	
+	@Inject
+	private CourseManager courseManager;
+	
 	@Override
 	@Transactional
 	public void saveUserNode(User user, Session session) {
  //	user = (User) session.merge(user);
 		if(user!=null)
 	 		try {
+	 		List<Map<String, Object>> courseInfo = courseManager
+	 				.getUserCoursesWithProgressAndInstructorInfo(user.getId(), session);
+	 		
 			XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
 			builder.field("id", user.getId());
 		//	builder.field("url", user.getUri());
@@ -64,7 +75,37 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 //				builder.endObject();
 //			}
 			builder.endArray();
+			
+			builder.field("avatar", user.getAvatarUrl());
+			builder.field("position", user.getPosition());
+			//change when user profile types are implemented
+			builder.field("profile_type", "PROFILE1");
+			
+			builder.startArray("courses");
+			for(Map<String, Object> resMap : courseInfo) {
+				builder.startObject();
+				long courseId = (long) resMap.get("course");
+				builder.field("id", courseId);
+				int courseProgress = (int) resMap.get("courseProgress");
+				builder.field("progress", courseProgress);
+				User instructor = (User) resMap.get("instructor");
+				
+				boolean assigned = instructor != null ? true : false;
+				builder.field("instructor_assigned", assigned);
+				
+				builder.startObject("instructor");
+				if(instructor != null) {
+					builder.field("id", instructor.getId());
+					builder.field("first_name", instructor.getName());
+					builder.field("last_name", instructor.getLastname());
+				}
+				builder.endObject();
+				builder.endObject();
+			}
+			builder.endArray();
+			
 			builder.endObject();
+			System.out.println("JSON: " + builder.prettyPrint().string());
 			String indexType = getIndexTypeForNode(user);
 			indexNode(builder, String.valueOf(user.getId()), ESIndexNames.INDEX_USERS,indexType);
 		} catch (IOException e) {

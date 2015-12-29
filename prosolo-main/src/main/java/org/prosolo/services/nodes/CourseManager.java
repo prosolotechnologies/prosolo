@@ -132,4 +132,8 @@ public interface CourseManager extends AbstractManager {
 	public void enrollUserIfNotEnrolled(User user, long courseId) throws RuntimeException;
 
 	List<Map<String, Object>> getCourseParticipantsWithCourseInfo(long courseId) throws DbConnectionException;
+	
+	List<Map<String, Object>> getUserCoursesWithProgressAndInstructorInfo(long userId) throws DbConnectionException;
+	
+	List<Map<String, Object>> getUserCoursesWithProgressAndInstructorInfo(long userId, Session session) throws DbConnectionException;
 }

@@ -27,6 +27,20 @@
 	<ui:define name="content">
 
 		<script src="#{request.contextPath}/manage/js/stickyTable.js"></script>
+		
+		<script>
+			function searchListener() {
+				var $this = this;
+				//this.updateUrlQuery(); 
+				
+				var delayedSearch = function(){
+					execSearch();
+				};
+	
+				window.clearTimeout(this.keystrokeTimeout);
+				this.keystrokeTimeout = window.setTimeout(delayedSearch, 350);
+			};
+		</script>
 
 		<section class="heading">
 			<header>
@@ -50,97 +64,218 @@
 					</div>
 					<div class="row narrow searchFilter">
 						<div class="col-md-12">
-							<span class="records">Students: <strong>124</strong></span> <span
-								class="checkbox checkbox-success checkbox-inline"> <input
-								type="checkbox" id="checkbox2"></input> <label for="checkbox2">Show
-									only unassigned</label>
-							</span>
-							<form class="form-inline searchField">
+							<h:form>
+								<span class="records">Students: <strong>#{courseMembersBean.courseMembersNumber}</strong></span> <span
+									class="checkbox checkbox-success checkbox-inline">
+									<h:selectBooleanCheckbox id="checkbox2" value="#{courseMembersBean.filterUnassigned}">
+										<p:ajax event="click" process="@this checkbox2" 
+											listener="#{courseMembersBean.filterCourseMembers}" update=":studentListForm" />
+									</h:selectBooleanCheckbox>
+									<label for="checkbox2">Show
+										only unassigned</label> 
+								</span>
+							</h:form>
+							<h:form class="form-inline searchField">
+								<p:remoteCommand name="execSearch" 
+									process="inputFilterByName"
+									update=":studentListForm" 
+									actionListener="#{courseMembersBean.resetSearchOptions}"
+									action="#{courseMembersBean.searchCourseMembers}" />
+ 
 								<div class="form-group">
-									<input type="text" class="form-control" id=""
-										placeholder=" Filter by keywords"></input>
+									<h:inputText id="inputFilterByName" 
+										value="#{courseMembersBean.searchTerm}"
+								    	pt:placeholder=" Filter by name"
+								    	styleClass="form-control"
+								    	onclick="$(this).select();" 
+								    	onkeydown="searchListener();"></h:inputText>
 								</div>
-							</form>
+							</h:form>
 						</div>
 					</div>
-					<table class="table tableProsolo">
-						<thead>
-							<tr>
-								<th class="colNo" scope="col"><a href="#">No.</a></th>
-								<th class="colStudent" scope="col"><a href="">Student <i
-										class="fa fa-caret-down"></i></a></th>
-								<th scope="col" class="colProfile"><a href="#">Profile
-										Type</a></th>
-								<th class="colProgression" scope="col"><a href="#">Progression</a></th>
-								<th class="colInstructor" scope="col"><a href="#">Instructor</a></th>
-							</tr>
-						</thead>
-						<tbody>
-							<ui:repeat var="user" value="#{courseMembersBean.members}"
-								varStatus="status">
+					<h:form id="studentListForm">
+						<table class="table tableProsolo">
+							<thead>
 								<tr>
-									<td class="colNoD">#{status.index + 1}</td>
-									<td class="colStudentD">
-										<span
-											class="userProfileImageLarge"> <h:link
-												outcome="/manage/studentProfile">
-												<h:graphicImage id="userImageId" value="#{user.avatarUrl}"
-													title="#{user.fullName}" alt="#{user.fullName}" />
-												<f:param name="id" value="#{util:encodeId(user.id)}" />
-											</h:link>
-										</span>
-										<div class="name">
-											<h1>
-												<h:link outcome="/manage/studentProfile">
-													#{user.fullName}
-											    	<f:param name="id" value="#{util:encodeId(user.id)}" />
-												</h:link>
-											</h1>
-											<h2>#{user.position}</h2>
-										</div>
-									</td>
-									<td class="colProfileD">
-
-										<div class="profileTypeBadgeTable">
-											<span>TYPE</span> <span class="number">1</span>
-										</div>
-									</td>
-									<td class="colProgressionD">#{user.courseProgress}</td>
-									<td class="colInstructorD"><p:commandLink
-											styleClass="btn btn-default"
-											rendered="#{user.instructor == null}" pt:role="button">
-											<i class="fa fa-plus"></i> Assign
-												Instructor
-										</p:commandLink> <h:link outcome="" rendered="#{user.instructor != null}">
-													#{user.instructor.fullName}"
-											    	<f:param name="id"
-												value="#{util:encodeId(user.instructor.id)}" />
-										</h:link></td>
+									<th class="colNo" scope="col">No.</th>
+									<th class="colStudent" scope="col">
+									    <p:commandLink
+									     	process="@this"
+									    	actionListener="#{courseMembersBean.setSortByStudentName}"
+									    	action="#{courseMembersBean.searchCourseMembers}"
+									    	update="studentListForm">
+									    	Student
+									    	<h:panelGroup rendered="#{courseMembersBean.sortByStudent}">
+									    		<i class="#{courseMembersBean.isASCOrder() ? 'fa fa-caret-up' : 'fa fa-caret-down'}"></i>
+									    	</h:panelGroup>
+									    </p:commandLink>
+									</th>
+									<th scope="col" class="colProfile">
+										 <p:commandLink
+									     	process="@this"
+									    	actionListener="#{courseMembersBean.setSortByProfileType}"
+									    	action="#{courseMembersBean.searchCourseMembers}"
+									    	update="studentListForm">
+									    	Profile Type
+									    	<h:panelGroup rendered="#{courseMembersBean.sortByProfileType}">
+									    		<i class="#{courseMembersBean.isASCOrder() ? 'fa fa-caret-up' : 'fa fa-caret-down'}"></i>
+									    	</h:panelGroup>
+									    </p:commandLink>
+									</th>
+									<th class="colProgression" scope="col">
+										 <p:commandLink
+									     	process="@this"
+									    	actionListener="#{courseMembersBean.setSortByCourseProgress}"
+									    	action="#{courseMembersBean.searchCourseMembers}"
+									    	update="studentListForm">
+									    	Progression
+									    	<h:panelGroup rendered="#{courseMembersBean.sortByCourseProgress}">
+									    		<i class="#{courseMembersBean.isASCOrder() ? 'fa fa-caret-up' : 'fa fa-caret-down'}"></i>
+									    	</h:panelGroup>
+									    </p:commandLink>
+									</th>
+									<th class="colInstructor" scope="col">
+										<p:commandLink
+									     	process="@this"
+									    	actionListener="#{courseMembersBean.setSortByInstructorName}"
+									    	action="#{courseMembersBean.searchCourseMembers}"
+									    	update="studentListForm">
+									    	Instructor
+									    	<h:panelGroup rendered="#{courseMembersBean.sortByInstructorName}">
+									    		<i class="#{courseMembersBean.isASCOrder() ? 'fa fa-caret-up' : 'fa fa-caret-down'}"></i>
+									    	</h:panelGroup>
+									    </p:commandLink>
+									</th>
 								</tr>
-							</ui:repeat>
-
-						</tbody>
-					</table>
-
-
-
-					<div class="tableProsoloNavigation">
+							</thead>
+							<tbody>
+								<ui:repeat var="user" value="#{courseMembersBean.members}"
+									varStatus="status">
+									<tr>
+										<td class="colNoD">#{status.index + 1}</td>
+										<td class="colStudentD">
+											<span
+												class="userProfileImageLarge"> <h:link
+													outcome="/manage/studentProfile">
+													<h:graphicImage id="userImageId" value="#{user.avatarUrl}"
+														title="#{user.fullName}" alt="#{user.fullName}" />
+													<f:param name="id" value="#{util:encodeId(user.id)}" />
+												</h:link>
+											</span>
+											<div class="name">
+												<h1>
+													<h:link outcome="/manage/studentProfile">
+														#{user.fullName}
+												    	<f:param name="id" value="#{util:encodeId(user.id)}" />
+													</h:link>
+												</h1>
+												<h2>#{user.position}</h2>
+											</div>
+										</td>
+										<td class="colProfileD">
+	
+											<div class="profileTypeBadgeTable">
+												<span>TYPE</span> <span class="number">1</span>
+											</div>
+										</td>
+										<td class="colProgressionD">#{user.courseProgress}</td>
+										<td class="colInstructorD"><p:commandLink
+												styleClass="btn btn-default"
+												rendered="#{user.instructor == null}" pt:role="button">
+												<i class="fa fa-plus"></i> Assign
+													Instructor
+											</p:commandLink> <h:link outcome="" rendered="#{user.instructor != null}">
+														#{user.instructor.fullName}"
+												    	<f:param name="id"
+													value="#{util:encodeId(user.instructor.id)}" />
+											</h:link></td>
+									</tr>
+								</ui:repeat>
+	
+							</tbody>
+						</table>
+						
+						<div class="tableProsoloNavigation">
 						<ul class="pagination">
-							<li class="disabled"><a aria-label="Previous" href="#"><span
-									aria-hidden="true"><i class="fa fa-angle-left"></i></span></a></li>
-							<li class="active"><a href="#">1</a></li>
-							<li><a href="#">2</a></li>
-							<li><a href="#">3</a></li>
-							<li><span>...</span></li>
-							<li><a href="#">9</a></li>
-							<li><a href="#">10</a></li>
-							<li><a aria-label="Next" href="#"><span
-									aria-hidden="true"><i class="fa fa-angle-right"></i></span></a></li>
+							<ui:fragment rendered="#{courseMembersBean.isCurrentPageFirst()}">
+								<li class="disabled">
+									<a id="linkPreviousDisabled" aria-label="Previous" href="#">
+										<span aria-hidden="true"><i class="fa fa-angle-left"></i></span>
+									</a>
+								</li>
+							</ui:fragment>
+							<ui:fragment rendered="#{!courseMembersBean.isCurrentPageFirst()}">
+								<li>
+									<p:commandLink 
+										process="@this"
+									    actionListener="#{courseMembersBean.setPage(courseMembersBean.page - 1)}"
+									    action="#{courseMembersBean.searchCourseMembers}"
+									    update=":studentListForm"
+										pt:aria-label="Previous">
+										<span
+											aria-hidden="true"><i class="fa fa-angle-left"></i>
+										</span>
+									</p:commandLink>
+								
+								</li>
+							</ui:fragment>
+						<ui:repeat var="link" value="#{courseMembersBean.paginationLinks}">
+							<ui:fragment rendered="#{link.isLink()}">
+								<li class="#{link.selected ? 'active' : ''}">
+									<p:commandLink
+								     	process="@this"
+								    	actionListener="#{courseMembersBean.setPage(link.page)}"
+								    	action="#{courseMembersBean.searchCourseMembers}"
+								    	update=":studentListForm">
+								    	#{link.linkOutput}
+								    </p:commandLink>
+							    </li>   
+							</ui:fragment>	
+							
+							<ui:fragment rendered="#{!link.isLink()}">
+								<li><span>#{link.linkOutput}</span></li>
+							</ui:fragment>		
+						</ui:repeat>
+							<ui:fragment rendered="#{courseMembersBean.isCurrentPageLast()}">
+								<li class="disabled">
+									<a id="linkNextDisabled" aria-label="Next" href="#">
+										<span
+											aria-hidden="true"><i class="fa fa-angle-right"></i>
+										</span>
+									</a>
+								</li>
+							</ui:fragment>
+							<ui:fragment rendered="#{!courseMembersBean.isCurrentPageLast()}">
+								<li>
+									<p:commandLink 
+										process="@this"
+									    actionListener="#{courseMembersBean.setPage(courseMembersBean.page + 1)}"
+									    action="#{courseMembersBean.searchCourseMembers}"
+									    update=":studentListForm"
+										pt:aria-label="Next">
+										<span
+											aria-hidden="true"><i class="fa fa-angle-right"></i>
+										</span>
+									</p:commandLink>
+								
+								</li>
+							</ui:fragment>
 						</ul>
+						<script>
+						
+						function preventSendingToTheTopOfThePage(id) {
+							$("#" + id).click(function(e) {
+							    if(e.preventDefault)
+							        e.preventDefault();
+							    else
+							        e.stop();
+							});	
+						};
+						preventSendingToTheTopOfThePage("linkNextDisabled");
+						preventSendingToTheTopOfThePage("linkPreviousDisabled");
+						</script>
 					</div>
-
-
-
+					</h:form>
 
 				</div>
 			</div>

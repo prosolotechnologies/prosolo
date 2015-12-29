@@ -24,7 +24,6 @@ import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CourseCompetence;
 import org.prosolo.common.domainmodel.course.CourseEnrollment;
-import org.prosolo.common.domainmodel.course.CourseInstructor;
 import org.prosolo.common.domainmodel.course.CoursePortfolio;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.course.Status;
@@ -1078,5 +1077,55 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 		}catch(Exception e){
 			throw new RuntimeException("Error while enrolling user");
 		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Map<String, Object>> getUserCoursesWithProgressAndInstructorInfo(long userId) throws DbConnectionException {
+		return getUserCoursesWithProgressAndInstructorInfo(userId, persistence.currentManager());
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Map<String, Object>> getUserCoursesWithProgressAndInstructorInfo(long userId, Session session) throws DbConnectionException {
+		try{
+			String query = 
+					"SELECT  course.id, tGoal.progress, userInstructor " +
+					"FROM CoursePortfolio coursePortfolio " +
+					"LEFT JOIN coursePortfolio.enrollments enrollment "+
+					"LEFT JOIN enrollment.targetGoal tGoal " +
+					"LEFT JOIN enrollment.course course " +
+					"LEFT JOIN enrollment.instructor instructor " +
+					"LEFT JOIN instructor.user userInstructor " +
+					"WHERE coursePortfolio.user.id = :user";
+				
+			@SuppressWarnings("unchecked")
+			List<Object[]> result = persistence.currentManager().createQuery(query).
+					setLong("user", userId).
+					list();
+			
+			List<Map<String, Object>> resultList = new LinkedList<>();
+			if (result != null) {
+				for (Object[] res : result) {
+					Map<String, Object> resMap = new LinkedHashMap<>();
+					
+					Long courseId = (Long) res[0];
+					Integer courseProgress = (int) res[1];
+					User instructor = (User) res[2];
+					
+					resMap.put("course", courseId);
+					resMap.put("instructor", instructor);
+					resMap.put("courseProgress", courseProgress);
+					
+					resultList.add(resMap);
+				}
+			}
+			return resultList;
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while loading course info");
+		}
+			
 	}
 }

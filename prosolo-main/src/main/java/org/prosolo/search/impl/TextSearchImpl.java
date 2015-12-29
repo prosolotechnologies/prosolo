@@ -3,7 +3,10 @@ package org.prosolo.search.impl;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchPhaseExecutionException;
@@ -13,10 +16,13 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.MatchQueryBuilder;
+import org.elasticsearch.index.query.MatchQueryBuilder.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.SortOrder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.domainmodel.activities.Activity;
@@ -31,6 +37,10 @@ import org.prosolo.common.domainmodel.user.reminders.ReminderStatus;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.search.TextSearch;
+import org.prosolo.search.util.CourseMembersSortOption;
+import org.prosolo.search.util.CourseMembersSortOptionTranslator;
+import org.prosolo.search.util.ESSortOption;
+import org.prosolo.search.util.InstructorAssignedFilter;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexNames;
 import org.prosolo.services.indexing.ESIndexer;
@@ -87,12 +97,14 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			SearchResponse sResponse = null;
 			
 			try {
-				sResponse = client.prepareSearch(ESIndexNames.INDEX_USERS)
+				SearchRequestBuilder srb = client.prepareSearch(ESIndexNames.INDEX_USERS)
 						.setTypes(ESIndexTypes.USER)
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 						.setQuery(bQueryBuilder)
 						.setFrom(start).setSize(limit)
-						.addSort("name", SortOrder.ASC).execute().actionGet();
+						.addSort("name", SortOrder.ASC);
+				//System.out.println(srb.toString());
+				sResponse = srb.execute().actionGet();
 			} catch (SearchPhaseExecutionException spee) {
 				
 			}
@@ -524,4 +536,107 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 		return response;
 	}
 	
+	@Override
+	public Map<String, Object> searchCourseMembers (
+			String searchTerm, InstructorAssignedFilter filter, int page, int limit, long courseId, CourseMembersSortOption sortOption) {
+		
+		Map<String, Object> resultMap = new LinkedHashMap<>();
+		try {
+			int start = setStart(page, limit);
+			
+			Client client = ElasticSearchFactory.getClient();
+			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			
+			QueryBuilder qb = QueryBuilders
+					.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+					.field("name").field("lastname");
+			
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			//bQueryBuilder.minimumNumberShouldMatch(1);
+			
+			bQueryBuilder.must(qb);
+			bQueryBuilder.must(termQuery("courses.id", courseId));
+			
+			if(filter != InstructorAssignedFilter.All) {
+				boolean assigned = false;
+				if(filter == InstructorAssignedFilter.Assigned) {
+					assigned = true;
+				}
+				bQueryBuilder.must(termQuery("courses.instructor_assigned", assigned));
+			}
+			
+			try {
+				String[] excludes = {"learninggoals", "url", "location"};
+				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
+						.setTypes(ESIndexTypes.USER)
+						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+						.setQuery(bQueryBuilder)
+						.setFrom(start).setSize(limit)
+						.setFetchSource(null, excludes);
+				
+				//add sorting
+				ESSortOption esSortOption = CourseMembersSortOptionTranslator.getSortOption(sortOption);
+				SortOrder sortOrder = esSortOption.getSortOrder();
+				List<String> sortFields = esSortOption.getFields();
+				for(String field : sortFields) {
+					searchRequestBuilder.addSort(field, sortOrder);
+				}
+				//System.out.println(searchRequestBuilder.toString());
+				SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
+				if(sResponse != null) {
+					SearchHits searchHits = sResponse.getHits();
+					
+					resultMap.put("resultNumber", searchHits.getTotalHits());
+					
+					List<Map<String, Object>> data = new LinkedList<>();
+					
+					if(searchHits != null) {
+						for(SearchHit sh : searchHits) {
+							Map<String, Object> resMap = new LinkedHashMap<>();
+							Map<String, Object> fields = sh.getSource();
+							User user = new User();
+							user.setId(((Integer) fields.get("id")).longValue());
+							user.setName((String) fields.get("name"));
+							user.setLastname((String) fields.get("lastname"));
+							user.setAvatarUrl((String) fields.get("avatar"));
+							user.setPosition((String) fields.get("position"));
+							
+							resMap.put("user", user);
+							List<Map<String, Object>> courses = (List<Map<String, Object>>) fields.get("courses");
+							Map<String, Object> course = null;
+							if(courses != null && courses.size() == 1) {
+								course = courses.get(0);
+								Map<String, Object> instructorMap = (Map<String, Object>) course.get("instructor");
+							    if(instructorMap != null && !instructorMap.isEmpty()) {
+							    	User instructor = new User();
+							    	instructor.setId((long) instructorMap.get("id"));
+									instructor.setName((String) instructorMap.get("first_name"));
+									instructor.setLastname((String) instructorMap.get("last_name"));
+									resMap.put("instructor", instructor);
+							    }
+							    
+								resMap.put("courseProgress", course.get("progress"));
+							}
+												
+							data.add(resMap);
+						}
+					}
+					
+					resultMap.put("data", data);
+					
+					
+				
+				}
+			} catch (SearchPhaseExecutionException spee) {
+				spee.printStackTrace();
+				logger.error(spee);
+			}
+	
+		} catch (NoNodeAvailableException e1) {
+			logger.error(e1);
+		}
+		return resultMap;
+	}
+		
 }
