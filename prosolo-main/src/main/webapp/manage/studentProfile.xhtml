@@ -29,6 +29,7 @@
 		
 		<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/jquery.slick/1.5.7/slick.css"/>
 		<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/social-interaction.css" />
+		<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/timeline-graph.css" />
 
 		<script type="text/javascript" src="//cdn.jsdelivr.net/jquery.slick/1.5.7/slick.min.js"></script>
 		<script src="#{request.contextPath}/resources/javascript/d3.min.js"></script>
@@ -787,7 +788,37 @@
 						</div>
 					</h:panelGroup>
 
-					<div role="tabpanel" class="tab-pane fade" id="timeline">222</div>
+					<div role="tabpanel" class="tab-pane fade" id="timeline">
+						<ui:remove>
+							<script data-base-url="#{request.contextPath}/resources/javascript"
+							src="#{request.contextPath}/resources/javascript/prosolo.require-config.js"></script>
+						<script data-main="timeline/timeline-main"
+							src="#{request.contextPath}/resources/javascript/require.min.js"></script>
+					<h2>Timeline</h2>
+					<div class="row">
+						<div class="col-md-10">
+							<div id="timeline-graph"></div>
+						</div>
+							<div id="timeline-event-types" class="col-md-2">
+								<div class="checkbox checkbox-success">
+									<input id="timeline-credential-checkbox" event-type="Credentials" type="checkbox" checked="checked"/>
+									<label for="timeline-credential-checkbox">Credentials</label>
+								</div>
+								<div class="separator" />
+								<div class="checkbox checkbox-primary">
+									<input id="timeline-competence-checkbox" event-type="Competences" type="checkbox" checked="checked"/>
+									<label for="timeline-competence-checkbox">Competences</label>
+								</div>
+								<div class="separator" />
+								<div class="checkbox checkbox-danger">
+									<input id="timeline-activities-checkbox" event-type="Activities" type="checkbox" checked="checked"/>
+									<label for="timeline-activities-checkbox">Activities</label>
+								</div>
+							</div>
+							</div>
+							<div id="tooltip-holder" />
+						</ui:remove>
+					</div>
 					<div role="tabpanel" class="tab-pane fade" id="social">
 						<script
 							data-base-url="#{request.contextPath}/resources/javascript"

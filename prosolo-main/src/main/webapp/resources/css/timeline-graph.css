@@ -1,0 +1,64 @@
+.timeline-axis path,
+.timeline-axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.timeline-line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+.timeline-context .timeline-line {
+  stroke-width: 0.5px;
+}
+
+.timeline-brush .extent {
+  stroke: #fff;
+  fill-opacity: .125;
+  shape-rendering: crispEdges;
+}
+
+.timeline-cred-ann-line {
+	stroke : #0E9C57;
+	stroke-width : 2;
+	fill : none;
+}
+
+.timeline-comp-ann-line {
+	stroke : #428BCA;
+	stroke-width : 2;
+	fill : none;
+}
+
+.timeline-acti-ann-line {
+	stroke : #D9534F;
+	stroke-width : 2;
+	fill : none;
+}
+
+.tooltip-text {
+	font-size: 10px;
+}
+
+.timeline-tooltip {
+	fill : white;
+	stroke-width : 2;
+}
+
+.timeline-tooltip-title {
+	stroke-width : 2;
+}
+.timeline-link {
+	fill:#2196f3;
+}
+.timeline-tooltip-title-text {
+	fill: rgb(255,255,255);
+    font-weight: bold;
+}
+
+
+
+
