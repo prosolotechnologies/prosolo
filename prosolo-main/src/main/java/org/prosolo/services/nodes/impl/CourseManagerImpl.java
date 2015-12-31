@@ -1125,7 +1125,34 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 			e.printStackTrace();
 			logger.error(e);
 			throw new DbConnectionException("Error while loading course info");
-		}
-			
+		}	
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<User> getUsersAssignedToInstructor(long instructorId) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT DISTINCT student " +
+					"FROM CourseInstructor courseInstructor " +
+					"INNER JOIN courseInstructor.user instructor "+
+					"LEFT JOIN courseInstructor.assignedStudents courseEnrollment "+
+					"INNER JOIN courseEnrollment.user student "+
+					"WHERE instructor.id = :instructorId";
+			
+					@SuppressWarnings("unchecked")
+					List<User> result = persistence.currentManager().createQuery(query).
+							setLong("instructorId", instructorId).
+							list();
+					
+					if(result == null) {
+						return new ArrayList<>();
+					} 
+					
+					return result;
+		} catch(Exception e) {
+			throw new DbConnectionException("Error while loading students assigned to instructor");
+		}
+	}
+	
 }

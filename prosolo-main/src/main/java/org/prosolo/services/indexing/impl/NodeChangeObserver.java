@@ -1,6 +1,7 @@
 package org.prosolo.services.indexing.impl;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.ExternalToolActivity;
@@ -39,7 +40,9 @@ public class NodeChangeObserver implements EventObserver {
 			EventType.Delete,
 			EventType.ChangeVisibility,
 			EventType.Registered,
-			EventType.Attach
+			EventType.Attach,
+			EventType.Edit_Profile,
+			EventType.ENROLL_COURSE
 		};
 	}
 
@@ -64,11 +67,12 @@ public class NodeChangeObserver implements EventObserver {
 		Session session = (Session) defaultManager.getPersistence().openSession();
 		try{
 		BaseEntity node = event.getObject();
-		if (event.getAction().equals(EventType.Registered)) {
+		if (event.getAction().equals(EventType.Registered) || 
+				event.getAction().equals(EventType.Edit_Profile) ||
+				event.getAction().equals(EventType.ENROLL_COURSE)) {
 			User newuser = event.getActor();
 			// User user=(User) session.load(User.class, newuser.getId());
 			 userEntityESService.saveUserNode(newuser, session);
-			 
 		 } else if (event.getAction().equals(EventType.Create)
 				|| event.getAction().equals(EventType.Edit)
 				|| event.getAction().equals(EventType.ChangeVisibility)) {
@@ -88,7 +92,7 @@ public class NodeChangeObserver implements EventObserver {
 			}
 		} else if (event.getAction().equals(EventType.Delete)) {
 			nodeEntityESService.deleteNodeFromES(event.getObject());
-		}else if (event.getAction().equals(EventType.Attach)){
+		} else if (event.getAction().equals(EventType.Attach)){
 			if(event.getObject() instanceof TargetActivity && event.getTarget() instanceof TargetCompetence){
 				logger.info("attaching targetActivity to target Competence...Should add competence to activity");
 				Activity activityToUpdate=((TargetActivity) event.getObject()).getActivity();
@@ -97,14 +101,14 @@ public class NodeChangeObserver implements EventObserver {
 			}
 		}
 		
-		if (node instanceof LearningGoal) {
+		/*if (node instanceof LearningGoal) {
 			//node = (LearningGoal) node;
 			long actorId = event.getActor().getId();
 			User actor = (User) session.load(User.class, actorId);
 			//User actor = event.getActor();
 //			actor = (User) session.merge(actor);
 			userEntityESService.saveUserNode(actor, session);
-		}
+		}*/
 		session.flush();
 		}catch(Exception e){
 			logger.error("Exception in handling message",e);

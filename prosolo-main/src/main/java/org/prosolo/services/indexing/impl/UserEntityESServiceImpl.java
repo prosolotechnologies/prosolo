@@ -18,6 +18,7 @@ import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.ESIndexNames;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.nodes.CourseManager;
+import org.prosolo.services.nodes.LearningGoalManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +33,8 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	
 	@Inject
 	private CourseManager courseManager;
+	@Inject
+	private LearningGoalManager learningGoalManager;
 	
 	@Override
 	@Transactional
@@ -57,8 +60,8 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.field("system", user.isSystem());
 			builder.startArray("learninggoals");
 			
-			// TODO: Zoran - here you need to iterate through target learnign goals
-			Set<TargetLearningGoal> targetLearningGoals=user.getLearningGoals();
+			List<TargetLearningGoal> targetLearningGoals = learningGoalManager.getUserTargetGoals(user, session);
+			//Set<TargetLearningGoal> targetLearningGoals=user.getLearningGoals();
 			for(TargetLearningGoal tGoal: targetLearningGoals){
 				LearningGoal lGoal=tGoal.getLearningGoal();
 				builder.startObject();
@@ -88,6 +91,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 				builder.field("id", courseId);
 				int courseProgress = (int) resMap.get("courseProgress");
 				builder.field("progress", courseProgress);
+				
 				User instructor = (User) resMap.get("instructor");
 				
 				boolean assigned = instructor != null ? true : false;
@@ -107,7 +111,12 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.endObject();
 			System.out.println("JSON: " + builder.prettyPrint().string());
 			String indexType = getIndexTypeForNode(user);
-			indexNode(builder, String.valueOf(user.getId()), ESIndexNames.INDEX_USERS,indexType);
+			indexNode(builder, String.valueOf(user.getId()), ESIndexNames.INDEX_USERS, indexType);
+			
+			List<User> students = courseManager.getUsersAssignedToInstructor(user.getId());
+			for(User student : students) {
+				saveUserNode(student, session);
+			}
 		} catch (IOException e) {
 			logger.error(e);
 		}
