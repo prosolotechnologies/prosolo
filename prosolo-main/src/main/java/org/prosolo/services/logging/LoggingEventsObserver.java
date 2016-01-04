@@ -73,7 +73,10 @@ public class LoggingEventsObserver implements EventObserver {
 		
 		String ipAddress = null;
 		
-		if (event.getActor() != null) {
+		Map<String, String> params = event.getParameters();
+		if(params != null && params.containsKey("ip")) {
+			ipAddress = event.getParameters().get("ip");
+		} else if (event.getActor() != null) {
 			HttpSession httpSession = applicationBean.getUserSession(event
 					.getActor().getId());
 			
@@ -89,7 +92,7 @@ public class LoggingEventsObserver implements EventObserver {
 				
 					//LoggedUserBean loggedUserBean = ServiceLocator.getInstance().getService(LoggedUserBean.class);
 					ipAddress = loggedUserBean.getIpAddress();
-				}else {
+				} else {
 					Map<String, Object> userData = (Map<String, Object>) httpSession.getAttribute("user");
 					if(userData != null){
 						ipAddress = (String) userData.get("ipAddress");

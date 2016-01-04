@@ -63,5 +63,7 @@ public interface LoggingService {
 	Long getOldestObservedEventTime();
 
 	Collection<LoggedEvent> getLoggedEventsList(DBObject filterQuery);
+	
+	void logSessionEnded(EventType eventType, User actor, String ipAddress);
 
 }

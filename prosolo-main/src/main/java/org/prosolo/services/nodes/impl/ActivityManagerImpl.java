@@ -341,7 +341,7 @@ public class ActivityManagerImpl extends AbstractManagerImpl implements	Activity
 	
 	@Override
 	@Transactional (readOnly = true)
-	public List<TargetActivity> getComptenceCompletedTargetActivities(long userId, long compId) throws DbConnectionException {
+	public List<TargetActivity> getCompetenceCompletedTargetActivities(long userId, long compId) throws DbConnectionException {
 		try{
 			String query =
 				"SELECT DISTINCT tActivity "+
@@ -389,4 +389,47 @@ public class ActivityManagerImpl extends AbstractManagerImpl implements	Activity
 	}
 	
 
+	@Override
+	@Transactional (readOnly = true)
+	public List<Long> getTimeSpentOnActivityForAllUsersSorted(long activityId) throws DbConnectionException {
+		try{
+			String query =
+				"SELECT tActivity.timeSpent " +
+				"FROM TargetActivity tActivity "+
+				"INNER JOIN tActivity.activity activity "+
+				"WHERE activity.id = :activityId " +
+				"ORDER BY tActivity.timeSpent ASC"; 
+			
+			@SuppressWarnings("unchecked")
+			List<Long> result = persistence.currentManager().createQuery(query)
+				.setLong("activityId", activityId)
+				.list();
+			
+			if (result != null && !result.isEmpty()) {
+				return result;
+			}
+			return new ArrayList<Long>();
+		} catch(Exception e) {
+			logger.error(e);
+			throw new DbConnectionException("Error while loading time spent on activity");
+		}
+	}
+	
+	@Override
+	@Transactional (readOnly = false)
+	public boolean updateTimeSpentOnActivity(long activityId, long timeSpent, Session session) {
+		try{
+			TargetActivity targetActivity = (TargetActivity) session.load(TargetActivity.class, activityId);
+			long currentTimeSpent = targetActivity.getTimeSpent();
+			targetActivity.setTimeSpent(currentTimeSpent + timeSpent);
+		
+			session.saveOrUpdate(targetActivity);
+			
+			return true;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			return false;
+		}
+	}
 }
