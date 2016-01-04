@@ -4,7 +4,7 @@
 package org.prosolo.web.courses;
 
 import java.io.Serializable;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -127,7 +127,7 @@ public class CourseMembersBean implements Serializable {
 	}
 
 	private void populateCourseMembersData(Map<String, Object> searchResponse) {
-		members = new LinkedList<>();
+		members = new ArrayList<>();
 		
 		if (searchResponse != null) {
 			courseMembersNumber = ((Long) searchResponse.get("resultNumber")).intValue();
@@ -137,8 +137,9 @@ public class CourseMembersBean implements Serializable {
 					User user = (User) resMap.get("user");
 					User instructor = (User) resMap.get("instructor");
 					int progress = (int) resMap.get("courseProgress");
-					
-					UserData ud = new UserData(user, instructor, progress);
+					String profileType = (String) resMap.get("profileType");
+					String profileTitle = (String) resMap.get("profileTitle");
+					UserData ud = new UserData(user, instructor, progress, profileType, profileTitle);
 					
 					members.add(ud);
 				}
@@ -167,10 +168,6 @@ public class CourseMembersBean implements Serializable {
 	
 	public void setSortByStudentName() {
 		setSortField(CourseMembersSortField.STUDENT_NAME);
-	}
-	
-	public void setSortByInstructorName() {
-		setSortField(CourseMembersSortField.INSTRUCTOR_NAME);
 	}
 	
 	public void setSortByCourseProgress() {
@@ -212,10 +209,6 @@ public class CourseMembersBean implements Serializable {
 	
 	public boolean isSortByStudent() {
 		return sortField == CourseMembersSortField.STUDENT_NAME;
-	}
-	
-	public boolean isSortByInstructorName() {
-		return sortField == CourseMembersSortField.INSTRUCTOR_NAME;
 	}
 	
 	public boolean isSortByCourseProgress() {

@@ -135,16 +135,7 @@
 									    </p:commandLink>
 									</th>
 									<th class="colInstructor" scope="col">
-										<p:commandLink
-									     	process="@this"
-									    	actionListener="#{courseMembersBean.setSortByInstructorName}"
-									    	action="#{courseMembersBean.searchCourseMembers}"
-									    	update="studentListForm">
-									    	Instructor
-									    	<h:panelGroup rendered="#{courseMembersBean.sortByInstructorName}">
-									    		<i class="#{courseMembersBean.isASCOrder() ? 'fa fa-caret-up' : 'fa fa-caret-down'}"></i>
-									    	</h:panelGroup>
-									    </p:commandLink>
+									    Instructor
 									</th>
 								</tr>
 							</thead>
