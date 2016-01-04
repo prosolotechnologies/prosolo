@@ -78,7 +78,7 @@ public interface ActivityManager extends AbstractManager {
 
 	List<Activity> getMockActivities(int limit);
 	
-	List<TargetActivity> getCompetenceCompletedTargetActivities(long userId, long compId) throws DbConnectionException;
+	//List<TargetActivity> getCompetenceCompletedTargetActivities(long userId, long compId) throws DbConnectionException;
 
 	boolean updateActivityStartDate(long id, Date date, Session session);
 	

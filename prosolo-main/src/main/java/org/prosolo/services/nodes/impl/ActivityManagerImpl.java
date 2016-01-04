@@ -339,38 +339,38 @@ public class ActivityManagerImpl extends AbstractManagerImpl implements	Activity
 		return result;
 	}
 	
-	@Override
-	@Transactional (readOnly = true)
-	public List<TargetActivity> getCompetenceCompletedTargetActivities(long userId, long compId) throws DbConnectionException {
-		try{
-			String query =
-				"SELECT DISTINCT tActivity "+
-				"FROM User user "+
-				"LEFT JOIN user.learningGoals tGoal "+
-				"LEFT JOIN tGoal.targetCompetences tComp "+
-				"LEFT JOIN tComp.competence comp "+
-				"LEFT JOIN tComp.targetActivities tActivity "+
-				"WHERE user.id = :userId " +
-					"AND tComp.id = :compId " +
-					"AND tActivity.completed = :completed " +
-				"ORDER BY tActivity.dateCreated DESC"; 
-			
-			@SuppressWarnings("unchecked")
-			List<TargetActivity> result = persistence.currentManager().createQuery(query)
-				.setLong("userId", userId)
-				.setLong("compId", compId)
-				.setBoolean("completed", true)
-				.list();
-			
-			if (result != null && !result.isEmpty()) {
-				return result;
-			}
-			return new ArrayList<TargetActivity>();
-		} catch(Exception e) {
-			logger.error(e);
-			throw new DbConnectionException("Error while loading activities");
-		}
-	}
+//	@Override
+//	@Transactional (readOnly = true)
+//	public List<TargetActivity> getCompetenceCompletedTargetActivities(long userId, long compId) throws DbConnectionException {
+//		try{
+//			String query =
+//				"SELECT DISTINCT tActivity "+
+//				"FROM User user "+
+//				"LEFT JOIN user.learningGoals tGoal "+
+//				"LEFT JOIN tGoal.targetCompetences tComp "+
+//				"LEFT JOIN tComp.competence comp "+
+//				"LEFT JOIN tComp.targetActivities tActivity "+
+//				"WHERE user.id = :userId " +
+//					"AND tComp.id = :compId " +
+//					"AND tActivity.completed = :completed " +
+//				"ORDER BY tActivity.dateCreated DESC"; 
+//			
+//			@SuppressWarnings("unchecked")
+//			List<TargetActivity> result = persistence.currentManager().createQuery(query)
+//				.setLong("userId", userId)
+//				.setLong("compId", compId)
+//				.setBoolean("completed", true)
+//				.list();
+//			
+//			if (result != null && !result.isEmpty()) {
+//				return result;
+//			}
+//			return new ArrayList<TargetActivity>();
+//		} catch(Exception e) {
+//			logger.error(e);
+//			throw new DbConnectionException("Error while loading activities");
+//		}
+//	}
 	
 	@Override
 	@Transactional (readOnly = false)
@@ -398,11 +398,13 @@ public class ActivityManagerImpl extends AbstractManagerImpl implements	Activity
 				"FROM TargetActivity tActivity "+
 				"INNER JOIN tActivity.activity activity "+
 				"WHERE activity.id = :activityId " +
+				"AND tActivity.timeSpent != :timeSpent " +
 				"ORDER BY tActivity.timeSpent ASC"; 
 			
 			@SuppressWarnings("unchecked")
 			List<Long> result = persistence.currentManager().createQuery(query)
 				.setLong("activityId", activityId)
+				.setLong("timeSpent", 0)
 				.list();
 			
 			if (result != null && !result.isEmpty()) {
