@@ -144,7 +144,8 @@ public class UserActivityObserver  implements EventObserver {
 						targetLearningGoal=targetCompetence.getParentGoal();
 
 					}else if(target instanceof TargetActivity){
-						TargetActivity targetActivity =(TargetActivity) target;
+						//TargetActivity targetActivity =(TargetActivity) target;
+						TargetActivity targetActivity = (TargetActivity) session.load(TargetActivity.class, target.getId());
 						TargetCompetence targetCompetence = targetActivity.getParentCompetence();
 						targetLearningGoal=targetCompetence.getParentGoal();
 

@@ -25,6 +25,7 @@ public class LogMessage extends SimpleMessage{
 	private long reasonId;
 	private String link;
 	private long courseId;
+	private long targetUserId;
 	private DBObject parameters;
 	public void setCourseId(long courseId) {this.courseId = courseId;}
 	public long getCourseId() {	return courseId;}
@@ -107,6 +108,8 @@ public class LogMessage extends SimpleMessage{
 	public void setParameters(DBObject parameters) {
 		this.parameters = parameters;
 	}
+	public void setTargetUserId(long targetUserId){this.targetUserId=targetUserId;}
+	public long getTargetUserId(){return this.targetUserId;}
 
 }
 

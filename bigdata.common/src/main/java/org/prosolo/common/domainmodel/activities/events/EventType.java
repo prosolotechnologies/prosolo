@@ -88,7 +88,10 @@ public enum EventType {
 	ACTIVATE_COURSE, 
 	ACTIVITY_REPORT_AVAILABLE, 
 	MENTIONED, UPDATE_HASHTAGS, UPDATE_TAGS, PostUpdate,
-	HASHTAG_ENABLED, HASHTAG_DISABLED, ARCHIVE_GOAL;
+	HASHTAG_ENABLED, HASHTAG_DISABLED, ARCHIVE_GOAL,
+
+	//this activity exists in MOOC logs for some reasons
+	HIDE_ACTIVITY;
 	
 	private String customText;
 	

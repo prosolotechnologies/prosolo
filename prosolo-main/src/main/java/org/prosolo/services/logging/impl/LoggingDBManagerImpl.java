@@ -1,4 +1,4 @@
-package org.prosolo.services.logging;
+package org.prosolo.services.logging.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,6 +10,9 @@ import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.services.logging.AbstractDB;
+import org.prosolo.services.logging.LoggingDBManager;
+import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.logging.exception.LoggingException;
 import org.prosolo.web.reports.LogParameter;
 import org.prosolo.web.reports.LogRow;
@@ -27,7 +30,8 @@ import com.mongodb.DBObject;
 @Service("org.prosolo.services.logging.LoggingDBManager")
 public class LoggingDBManagerImpl extends AbstractDB implements LoggingDBManager {
 	
-	@Autowired LoggingService loggingService;
+	@Autowired
+	LoggingService loggingService;
 	
 	private static Logger logger = Logger.getLogger(LoggingDBManager.class.getName());
 	

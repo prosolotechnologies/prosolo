@@ -60,7 +60,7 @@ public class CentralEventDispatcher {
 	@Autowired private FilterUpdaterObserver filterUpdatedObserver;
 	@Autowired private UserActivityStatisticsObserver userActivityStatisticsObserver;
 	@Autowired private TwitterHashtagStatisticsObserver twitterHashtagStatisticsObserver;
-	@Autowired private SocialInteractionStatisticsObserver socialInteractionStatisticsObserver;
+	//@Autowired private SocialInteractionStatisticsObserver socialInteractionStatisticsObserver;
 	@Autowired private ActivityStartObserver activityStartObserver;
 
 	private Collection<EventObserver> getObservers() {
@@ -82,7 +82,7 @@ public class CentralEventDispatcher {
 			observers.add(filterUpdatedObserver);
 			observers.add(userActivityStatisticsObserver);
 			observers.add(twitterHashtagStatisticsObserver);
-			observers.add(socialInteractionStatisticsObserver);
+			//observers.add(socialInteractionStatisticsObserver);
 			observers.add(activityStartObserver);
 		}
 		return observers;

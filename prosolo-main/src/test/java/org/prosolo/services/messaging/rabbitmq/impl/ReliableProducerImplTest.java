@@ -7,6 +7,9 @@ import static org.prosolo.common.domainmodel.activities.events.EventType.*;
 import static org.prosolo.common.domainmodel.activities.events.EventType.SEND_MESSAGE;
 
 import java.net.UnknownHostException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -17,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,9 +67,11 @@ import javax.inject.Inject;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes={ SpringConfig.class })
 public class ReliableProducerImplTest{
+
+
+
 	private static Logger logger = Logger.getLogger(ReliableProducerImplTest.class);
-	@Inject
-	private CourseManager courseManager;
+
 	@Ignore
 	@Test
 	public void generateAnalyticsFromMongoTest() {
@@ -239,79 +246,7 @@ public class ReliableProducerImplTest{
 		}
 	}
 	
-	@Test
-	public void extractUserActivitiesFromMongoLogsTest(){
-		ReliableProducerImpl reliableProducer=new ReliableProducerImpl();
-		 reliableProducer.setQueue(QueueNames.LOGS.name().toLowerCase());
-		 reliableProducer.startAsynchronousPublisher();
-		 
-		 MongoDBServersConfig dbServersConfig=Settings.getInstance().config.mongoDatabase.dbServersConfig;
-		  List<ServerAddress> serverAddresses=new ArrayList<ServerAddress>();
-		  for(MongoDBServerConfig dbsConfig:dbServersConfig.dbServerConfig){
-			ServerAddress serverAddress;
-			try {
-				serverAddress = new ServerAddress(dbsConfig.dbHost,dbsConfig.dbPort);
-				serverAddresses.add(serverAddress);
-			} catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-		  }
-		  MongoClient mongoClient=new MongoClient(serverAddresses);
-		  DB db=mongoClient.getDB(Settings.getInstance().config.mongoDatabase.dbName);
-		 DBCollection eventsCollection= db.getCollection("log_events_observed");
-		 //DBObject query=new BasicDBObject();
-		 //query.put("actorId",2);
-		int count= eventsCollection.find().count();
-		logger.info("COLLECTION HAS EVENTS:"+count);
-		int counter = 0;
-		int batchSize = 1000;
-		int batchesCounter=0;
-		while(counter < count) {
-			
-			batchesCounter++;
-			if((batchesCounter % 10)==0){
-				logger.info(batchesCounter*1000+"/"+count);
-			}
-			DBCursor cursor = eventsCollection.find();
-			cursor.skip(counter);
-			cursor.limit(batchSize);
-			for(int i = 0; i<batchSize; i++) {
-				counter++;
-				if (!cursor.hasNext()) {
-					break;
-				}
-				DBObject dbObject=cursor.next();
-				String eventType=dbObject.get("eventType").toString();
-				
-				boolean ignore=false;
-				boolean socialinteraction=false;
-				if(eventType.equals("TwitterPost")|| eventType.equals("LOGOUT") || eventType.equals("SESSIONENDED")	){
-					ignore=true;					
-				}
-				if(eventType.equals("ENROLL_COURSE") || eventType.equals("COURSE_WITHDRAWN")){
-					ignore=true;
-				}
-				if(dbObject.containsKey("objectType") && dbObject.get("objectType")!=null){
-					String objectType=dbObject.get("objectType").toString();
-					if(objectType.equals("MOUSE_CLICK")){
-						ignore=true;
-					}
-				}
-				
-				if(!ignore){
-					wrapMessageAndSend(reliableProducer, dbObject);
-				}
-				
-			}
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-	}
+
 	
 	@Test
 	public void generateActivityInteractionsLogsFromMongoTest(){
@@ -381,11 +316,7 @@ public class ReliableProducerImplTest{
 		reliableProducer.send(msg);
 		
 	}
-	private EventType[] interactions=new EventType[]{
-			Comment, EVALUATION_REQUEST,EVALUATION_ACCEPTED, EVALUATION_GIVEN,
-			JOIN_GOAL_INVITATION, JOIN_GOAL_INVITATION_ACCEPTED,JOIN_GOAL_REQUEST,
-			JOIN_GOAL_REQUEST_APPROVED, JOIN_GOAL_REQUEST_DENIED,
-			Like,SEND_MESSAGE};
+
 	private void wrapMessageAndSend(ReliableProducerImpl reliableProducer,DBObject logObject){
 		LogMessage message = new LogMessage();
 		Gson g=new Gson();
@@ -409,7 +340,7 @@ public class ReliableProducerImplTest{
 		if(logObject.get("eventType").equals("SEND_MESSAGE")){
 			System.out.println("MESSAGE");
 		}
-		long courseId=extractCourseIdForUsedResource((String) logObject.get("objectType"), (long) logObject.get("objectId"),
+	/*	long courseId=extractCourseIdForUsedResource((String) logObject.get("objectType"), (long) logObject.get("objectId"),
 				(String) logObject.get("targetType"), (long) logObject.get("targetId"), (String) logObject.get("reasonType"), (long) logObject.get("reasonId"));
 		message.setCourseId(courseId);
 		long targetUserId =0;
@@ -417,7 +348,7 @@ public class ReliableProducerImplTest{
 			System.out.println("INTERACTION SHOULD BE PROCESSED:" + logObject.toString());
 			 targetUserId = extractSocialInteractionTargetUser((String) logObject.get("objectType"), (long) logObject.get("objectId"),
 					(String) logObject.get("targetType"), (long) logObject.get("targetId"), (String) logObject.get("reasonType"), (long) logObject.get("reasonId"));
-		}
+		}*/
 
 			message.setParameters(parameters);
 			//wrapMessageAndSend(reliableProducer, message, ip);
@@ -428,30 +359,11 @@ public class ReliableProducerImplTest{
 		wrapper.setMessage(message);
 		wrapper.setTimecreated(System.currentTimeMillis());
 		String msg = gson.create().toJson(wrapper);
-		if(targetUserId>0){
-			System.out.println("SOCIAL INTERACTION:"+msg);
-		}
+
 		reliableProducer.send(msg);
 	}
-	private Long extractSocialInteractionTargetUser(String objectType, long objectId, String targetType, long targetId, String reasonType, long reasonId){
-		Long targetUserId=0l;
 
-		return targetUserId;
-	}
-	private Long extractCourseIdForUsedResource(String objectType, long objectId, String targetType, long targetId, String reasonType, long reasonId) {
-		Map<String, Long> types=new HashMap<String, Long>();
-		types.put(objectType, objectId);
-		types.put(targetType, targetId);
-		types.put(reasonType, reasonId);
-		if(types.containsKey("TargetLearningGoal")){
-			return courseManager.findCourseIdForTargetLearningGoal(types.get("TargetLearningGoal"));
-		}else if(types.containsKey("TargetCompetence")){
-			return courseManager.findCourseIdForTargetCompetence(types.get("TargetCompetence"));
-		}else if(types.containsKey("TargetActivity")){
-			return courseManager.findCourseIdForTargetActivity(types.get("TargetActivity"));
-		}
-		return 0l;
-	}
+
 	
 	@Test
 	public void testSend() {

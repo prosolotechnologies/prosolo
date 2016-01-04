@@ -136,4 +136,7 @@ public interface CourseManager extends AbstractManager {
 	List<Map<String, Object>> getUserCoursesWithProgressAndInstructorInfo(long userId) throws DbConnectionException;
 	
 	List<Map<String, Object>> getUserCoursesWithProgressAndInstructorInfo(long userId, Session session) throws DbConnectionException;
+
+	@Transactional(readOnly = true)
+	List<User> getUsersAssignedToInstructor(long instructorId) throws DbConnectionException;
 }

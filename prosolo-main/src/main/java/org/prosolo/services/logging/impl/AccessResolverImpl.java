@@ -1,4 +1,4 @@
-package org.prosolo.services.logging;
+package org.prosolo.services.logging.impl;
 
 import java.io.Serializable;
 import java.net.InetAddress;
@@ -7,6 +7,7 @@ import java.net.UnknownHostException;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 
+import org.prosolo.services.logging.AccessResolver;
 import org.springframework.stereotype.Service;
 
 /**

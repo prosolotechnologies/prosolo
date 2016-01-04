@@ -83,7 +83,7 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		this.ddls.add("CREATE TABLE IF NOT EXISTS twitterhashtagweeklyaverage(day bigint, hashtag text, average double, PRIMARY KEY(day, hashtag));");
 		this.ddls.add("CREATE TABLE IF NOT EXISTS twitterhashtaguserscount(hashtag text, users counter, PRIMARY KEY(hashtag));");
 		this.ddls.add("CREATE TABLE IF NOT EXISTS disabledtwitterhashtags(hashtag text, PRIMARY KEY(hashtag));");
-		this.ddls.add("CREATE TABLE IF NOT EXISTS socialinteractionscount(course bigint, source bigint, target bigint, count counter, PRIMARY KEY(source, target));");
+		this.ddls.add("CREATE TABLE IF NOT EXISTS socialinteractionscount(course bigint, source bigint, target bigint, count counter, PRIMARY KEY(course, source, target));");
 		
 		String failedFeedsDDL = "CREATE TABLE IF NOT EXISTS failedfeeds(url text, date bigint, count counter, PRIMARY KEY (url, date))";
 		this.ddls.add(failedFeedsDDL);
@@ -100,7 +100,7 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		this.ddls.add(userprofileactionsobservationsbydateDDL);
 
 		String userquartilefeaturesbyweekDDL="CREATE TABLE IF NOT EXISTS userquartilefeaturesbyweek(course bigint, profile varchar, date bigint, userid bigint," +
-				"sequence varchar, PRIMARY KEY(course, profile,date))";
+				"sequence varchar, PRIMARY KEY(course, profile,date, userid))";
 		this.ddls.add(userquartilefeaturesbyweekDDL);
 
 		String usercoursesDDL = "CREATE TABLE IF NOT EXISTS usercourses(userid bigint, courses set<bigint>, PRIMARY KEY (userid))";
@@ -110,7 +110,7 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 	@Override
 	public void createSchemaIfNotExists(Session session, String schemaName,
 			int replicationFactor) {
-		ResultSet rs = session.execute("SELECT * FROM system.schema_keyspaces "
+		ResultSet rs = session.execute("select * FROM system.schema_keyspaces "
 				+ "WHERE keyspace_name = '" + schemaName + "';");
 		Row row = rs.one();
 		if (row == null) {

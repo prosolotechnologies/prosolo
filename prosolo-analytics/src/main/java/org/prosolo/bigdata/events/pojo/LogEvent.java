@@ -25,7 +25,9 @@ public class LogEvent extends DefaultEvent {
 
 
 	private long courseId;
+	private long targetUserId;
 	private String link;
+
 	private JsonObject parameters;
 	public long getCourseId() {	return courseId;}
 
@@ -118,4 +120,7 @@ public class LogEvent extends DefaultEvent {
 		this.parameters = parameters;
 	}
 
+	public long getTargetUserId() {return targetUserId;	}
+
+	public void setTargetUserId(long targetUserId) {this.targetUserId = targetUserId;}
 }
