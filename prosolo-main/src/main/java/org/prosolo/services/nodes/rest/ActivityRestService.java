@@ -40,7 +40,7 @@ public class ActivityRestService {
 			List<ActivityJsonData> jsonActivities = new ArrayList<>();
 			for(TargetActivity ta : activities) {
 				long timeSpent = ta.getTimeSpent();
-				if(timeSpent != 0) {
+				if(timeSpent != 0 || ta.isCompleted()) {
 					long activityId = ta.getActivity().getId();
 					List<Long> usersTimes = ServiceLocator.getInstance()
 							.getService(ActivityManager.class)

@@ -160,13 +160,13 @@ function draw(data) {
     .attr("x", (width - widthLeftMargin - widthRightMargin)/2 + widthLeftMargin)
     .attr("y", heightTopMargin - 10 )
     .style("text-anchor", "middle")
-    .text("Much time");
+    .text("A lot of time");
 	
 	svg.append("text")      
     .attr("x", (width - widthLeftMargin - widthRightMargin)/2 + widthLeftMargin)
     .attr("y", height - heightBottomMargin + 35 )
     .style("text-anchor", "middle")
-    .text("Short time");
+    .text("Little time");
 	
 	svg.append("text")      
     .attr("x", widthLeftMargin - 35 )

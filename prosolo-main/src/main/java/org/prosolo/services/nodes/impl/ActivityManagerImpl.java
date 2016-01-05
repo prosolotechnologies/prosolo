@@ -398,13 +398,15 @@ public class ActivityManagerImpl extends AbstractManagerImpl implements	Activity
 				"FROM TargetActivity tActivity "+
 				"INNER JOIN tActivity.activity activity "+
 				"WHERE activity.id = :activityId " +
-				"AND tActivity.timeSpent != :timeSpent " +
+				"AND (tActivity.timeSpent != :timeSpent " +
+					"OR tActivity.completed = :completed) " +
 				"ORDER BY tActivity.timeSpent ASC"; 
 			
 			@SuppressWarnings("unchecked")
 			List<Long> result = persistence.currentManager().createQuery(query)
 				.setLong("activityId", activityId)
 				.setLong("timeSpent", 0)
+				.setBoolean("completed", true)
 				.list();
 			
 			if (result != null && !result.isEmpty()) {
