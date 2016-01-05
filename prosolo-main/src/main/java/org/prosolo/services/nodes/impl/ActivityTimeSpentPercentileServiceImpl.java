@@ -38,7 +38,7 @@ public class ActivityTimeSpentPercentileServiceImpl implements ActivityTimeSpent
 		int size = times.size();
 		switch (size) {
 		case 1:
-			return 1;
+			return 3;
 		case 2:
 			if (times.get(0) == timeSpentForObservedActivity) {
 				return 1;
