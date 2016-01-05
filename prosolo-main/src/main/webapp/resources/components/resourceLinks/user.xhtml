@@ -114,14 +114,14 @@
 				</h:panelGroup>
 				
 				<p:commandLink rendered="#{cc.attrs.user != null}" 
-					styleClass="userDetailsRefresh" value="refresh" style="display: none;"
+					styleClass="userDetailsRefresh" value="" style="display: none;"
 					action="#{userDetailsBean.initializeUserDetails(cc.attrs.user)}" 
 					process="@this"
 					oncomplete="userDetailsControl#{cc.attrs.user.id}P#{cc.attrs.idPrefix}.show();"
 					update=":#{p:component('userDetailsTooltip')}" />
 	
 				<p:commandLink rendered="#{cc.attrs.userData != null}" 
-					styleClass="userDetailsRefresh" value="refresh" style="display: none;"
+					styleClass="userDetailsRefresh" value="" style="display: none;"
 					action="#{userDetailsBean.initializeUserDetailsByUserData(cc.attrs.userData)}"
 					process="@this"
 					oncomplete="userDetailsControl#{cc.attrs.userData.id}P#{cc.attrs.idPrefix}.show();"
