@@ -20,8 +20,15 @@ function drawQuadrantChart(servicePath) {
 };
 
 function draw(data) {
+	//console.log(data);
 	var selectedId;
 	var hoveredId;
+	
+	var xFrom = 1;
+	var xTo = 5;
+	
+	var yFrom = 1;
+	var yTo = 5;
 	
 	var width = 430;
 	var height = 330;
@@ -37,29 +44,40 @@ function draw(data) {
 	var xAxis = ch.addMeasureAxis("x", "Complexity");
 	var yAxis = ch.addMeasureAxis("y", "Time");
 
-	xAxis.overrideMin = 0;
-	xAxis.overrideMax = +10;
+	xAxis.overrideMin = xFrom;
+	xAxis.overrideMax = xTo;
 
-	yAxis.overrideMin = 0;
-	yAxis.overrideMax = +10;
+	yAxis.overrideMin = yFrom;
+	yAxis.overrideMax = yTo;
 
+	xAxis.tickFormat = d3.format("d");
+	yAxis.tickFormat = d3.format("d");
+	
+	xAxis.ticks = xTo - xFrom + 1;
+	yAxis.ticks = yTo - yFrom + 1;
+	
 	xAxis.title = "";
 	yAxis.title = "";
 
 	// 1 is added as a last parameter to avoid different tooltip color for every
 	// shape on a chart
 	// because it's determined by the last parameter added here
-	var series = ch.addSeries([ "id", "name", "Complexity", "Time", "1" ],
+	var series = ch.addSeries([ "id", "name", "Complexity", "Time", "completed", "1" ],
 			dimple.plot.custom);
 
 	var iconWidth = 20;
 	var iconHeight = 20;
 	series.afterDraw = function(shp, d) {
 		var shape = d3.select(shp);
+		//d contains all shape attributes that we added through ch.addSeries
+		//console.log(d);
+		var completed = d.aggField[4];
+		console.log(completed);
+		var imgLoc = completed ? context + "/resources/images/ico-activities.svg" : context + "/resources/images/ico-activities-not-completed.svg"
 		svg.append("image").attr("x",
 				parseFloat(shape.attr("cx")) - iconWidth / 2).attr("y",
 				parseFloat(shape.attr("cy")) - iconHeight / 2).attr(
-				"xlink:href", context + "/resources/images/ico-activities.svg")
+				"xlink:href", imgLoc)
 				.attr("width", iconWidth)
 				.attr("height", iconHeight)
 				.on('click', function(d, i) {
@@ -106,9 +124,11 @@ function draw(data) {
 
 	ch.draw();
 
+	var xMiddle = (xTo - xFrom) / 2 + xFrom;
+	var yMiddle = (yTo - yFrom) / 2 + yFrom;
 	svg.append("line")
-    .attr("x1", xAxis._scale(5))
-    .attr("x2", xAxis._scale(5))
+    .attr("x1", xAxis._scale(xMiddle))
+    .attr("x2", xAxis._scale(xMiddle))
     .attr("y1", ch._yPixels())
     .attr("y2", ch._yPixels() + ch._heightPixels())
     .style("stroke", "#000")
@@ -118,8 +138,8 @@ function draw(data) {
 	svg.append("line")
     .attr("x1", ch._xPixels())
     .attr("x2", ch._xPixels() + ch._widthPixels())
-    .attr("y1", yAxis._scale(5))
-    .attr("y2", yAxis._scale(5))
+    .attr("y1", yAxis._scale(yMiddle))
+    .attr("y2", yAxis._scale(yMiddle))
     .style("stroke", "#000")
     .style("stroke", "3")
     .moveToBack();
