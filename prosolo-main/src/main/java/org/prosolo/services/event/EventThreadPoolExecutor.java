@@ -4,6 +4,7 @@
 package org.prosolo.services.event;
 
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +32,11 @@ class EventThreadPoolExecutor {
 
 	void runTask(Runnable task) {
 		threadPool.execute(task);
+	}
+	
+	@SuppressWarnings("unchecked")
+	Future<EventObserver> submitTask(Runnable task) {
+		return (Future<EventObserver>) threadPool.submit(task);
 	}
 
 }
