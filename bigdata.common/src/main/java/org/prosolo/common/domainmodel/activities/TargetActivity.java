@@ -38,6 +38,8 @@ public class TargetActivity extends Node {
 	private String assignmentTitle;
 	private List<Outcome> outcomes;
 	
+	private long timeSpent;
+	
 	public TargetActivity(){
 		setOutcomes(new ArrayList<Outcome>());
 	}
@@ -134,6 +136,15 @@ public class TargetActivity extends Node {
 
 	public void setOutcomes(List<Outcome> outcomes) {
 		this.outcomes = outcomes;
+	}
+
+	@Column(nullable = false, columnDefinition = "bigint(20) default 0")
+	public long getTimeSpent() {
+		return timeSpent;
+	}
+
+	public void setTimeSpent(long timeSpent) {
+		this.timeSpent = timeSpent;
 	}
 	
 }

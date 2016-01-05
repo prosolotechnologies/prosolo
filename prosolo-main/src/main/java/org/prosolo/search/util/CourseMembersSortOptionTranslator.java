@@ -39,15 +39,11 @@ public class CourseMembersSortOptionTranslator {
 				sortFieldList.add("name");
 				sortFieldList.add("lastname");
 				break;
-			case INSTRUCTOR_NAME:
-				sortFieldList.add("courses.instructor.first_name");
-				sortFieldList.add("courses.instructor.last_name");
-				break;
 			case PROGRESS:
 				sortFieldList.add("courses.progress");
 				break;
 			case PROFILE_TYPE:
-				sortFieldList.add("profile_type");
+				sortFieldList.add("courses.profile.profileType");
 				break;
 			default:
 				sortFieldList.add("name");

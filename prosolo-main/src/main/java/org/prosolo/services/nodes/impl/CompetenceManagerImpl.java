@@ -319,7 +319,7 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 		String query =
 			"SELECT DISTINCT tActivity " +
 			"FROM TargetCompetence tComp " +
-			"LEFT JOIN tComp.targetActivities tActivity " +
+			"INNER JOIN tComp.targetActivities tActivity " +
 			"WHERE tComp.id = :targetCompId " +
 			"ORDER BY tActivity.dateCreated DESC";
 		

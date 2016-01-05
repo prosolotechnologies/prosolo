@@ -81,8 +81,6 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			
 			builder.field("avatar", user.getAvatarUrl());
 			builder.field("position", user.getPosition());
-			//change when user profile types are implemented
-			builder.field("profile_type", "PROFILE1");
 			
 			builder.startArray("courses");
 			for(Map<String, Object> resMap : courseInfo) {
@@ -91,19 +89,15 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 				builder.field("id", courseId);
 				int courseProgress = (int) resMap.get("courseProgress");
 				builder.field("progress", courseProgress);
-				
-				User instructor = (User) resMap.get("instructor");
-				
-				boolean assigned = instructor != null ? true : false;
-				builder.field("instructor_assigned", assigned);
-				
-				builder.startObject("instructor");
-				if(instructor != null) {
-					builder.field("id", instructor.getId());
-					builder.field("first_name", instructor.getName());
-					builder.field("last_name", instructor.getLastname());
-				}
+				//change when user profile types are implemented
+				builder.startObject("profile");
+				builder.field("profileType", "A");
+				builder.field("profileTitle", "PROFILE 1");
 				builder.endObject();
+				Long instructorId = (Long) resMap.get("instructorId");
+				instructorId = instructorId != null ? instructorId : 0;
+				builder.field("instructorId", instructorId);
+				
 				builder.endObject();
 			}
 			builder.endArray();
@@ -112,11 +106,6 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			System.out.println("JSON: " + builder.prettyPrint().string());
 			String indexType = getIndexTypeForNode(user);
 			indexNode(builder, String.valueOf(user.getId()), ESIndexNames.INDEX_USERS, indexType);
-			
-			List<User> students = courseManager.getUsersAssignedToInstructor(user.getId());
-			for(User student : students) {
-				saveUserNode(student, session);
-			}
 		} catch (IOException e) {
 			logger.error(e);
 		}

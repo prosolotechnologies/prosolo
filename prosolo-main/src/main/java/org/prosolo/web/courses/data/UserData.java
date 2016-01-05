@@ -29,11 +29,7 @@ public class UserData {
 		this.avatarUrl = AvatarUtils.getAvatarUrlInFormat(user, ImageFormat.size60x60);
 	}
 	
-	public void setFullName(String name, String lastName) {
-		this.fullName = name + (lastName != null ? " " + lastName : "");
-	}
-
-	public UserData(User user, User instructor, int progress) {
+	public UserData(User user, User instructor, int progress, String profileType, String profileTitle) {
 		this(user);
 		if(instructor != null) {
 			this.instructor = new UserData();
@@ -43,11 +39,15 @@ public class UserData {
 		}
 		this.courseProgress = progress;
 	}
+	
+	public void setFullName(String name, String lastName) {
+		this.fullName = name + (lastName != null ? " " + lastName : "");
+	}
 
 	public long getId() {
 		return id;
 	}
-
+	
 	public void setId(long id) {
 		this.id = id;
 	}

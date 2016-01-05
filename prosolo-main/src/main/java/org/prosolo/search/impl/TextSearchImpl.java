@@ -21,6 +21,7 @@ import org.elasticsearch.index.query.MatchQueryBuilder.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
+import org.elasticsearch.index.query.support.QueryInnerHitBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.SortOrder;
@@ -555,19 +556,26 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			//bQueryBuilder.minimumNumberShouldMatch(1);
 			
-			bQueryBuilder.must(qb);
-			bQueryBuilder.must(termQuery("courses.id", courseId));
+			QueryBuilder nestedQB = QueryBuilders.nestedQuery(
+			        "courses",               
+			        QueryBuilders.boolQuery()           
+			                .must(QueryBuilders.matchQuery("courses.id", courseId)))
+						.innerHit(new QueryInnerHitBuilder());
 			
+			bQueryBuilder.must(qb);
+			bQueryBuilder.must(nestedQB);
+			//bQueryBuilder.must(termQuery("courses.id", courseId));
 			if(filter != InstructorAssignedFilter.All) {
-				boolean assigned = false;
+				QueryBuilder qBuilder = termQuery("courses.instructorId", 0);
 				if(filter == InstructorAssignedFilter.Assigned) {
-					assigned = true;
+					bQueryBuilder.mustNot(qBuilder);
+				} else {
+					bQueryBuilder.must(qBuilder);
 				}
-				bQueryBuilder.must(termQuery("courses.instructor_assigned", assigned));
 			}
 			
 			try {
-				String[] excludes = {"learninggoals", "url", "location"};
+				String[] excludes = {"learninggoals", "url", "location", "courses"};
 				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
 						.setTypes(ESIndexTypes.USER)
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
@@ -582,7 +590,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				for(String field : sortFields) {
 					searchRequestBuilder.addSort(field, sortOrder);
 				}
-				//System.out.println(searchRequestBuilder.toString());
+				System.out.println(searchRequestBuilder.toString());
 				SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
 				if(sResponse != null) {
 					SearchHits searchHits = sResponse.getHits();
@@ -603,21 +611,33 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 							user.setPosition((String) fields.get("position"));
 							
 							resMap.put("user", user);
-							List<Map<String, Object>> courses = (List<Map<String, Object>>) fields.get("courses");
-							Map<String, Object> course = null;
-							if(courses != null && courses.size() == 1) {
-								course = courses.get(0);
-								Map<String, Object> instructorMap = (Map<String, Object>) course.get("instructor");
-							    if(instructorMap != null && !instructorMap.isEmpty()) {
-							    	User instructor = new User();
-							    	instructor.setId((long) instructorMap.get("id"));
-									instructor.setName((String) instructorMap.get("first_name"));
-									instructor.setLastname((String) instructorMap.get("last_name"));
+							
+							SearchHits innerHits = sh.getInnerHits().get("courses");
+							long totalInnerHits = innerHits.getTotalHits();
+							if(totalInnerHits == 1) {
+								Map<String, Object> course = innerHits.getAt(0).getSource();
+								
+								if(course != null) {
+									long instructorId = Long.parseLong(course.get("instructorId").toString());
+									User instructor = null;
+									if(instructorId != 0) {
+										try {
+											instructor = defaultManager.loadResource(User.class, instructorId);
+										} catch(Exception e) {
+											e.printStackTrace();
+											logger.error(e);
+										}
+									}
 									resMap.put("instructor", instructor);
-							    }
-							    
-								resMap.put("courseProgress", course.get("progress"));
+									resMap.put("courseProgress", course.get("progress"));
+									Map<String, Object> profile = (Map<String, Object>) course.get("profile");
+								    if(profile != null && !profile.isEmpty()) {
+								    	resMap.put("profileType", profile.get("profileType"));
+								    	resMap.put("profileTitle", profile.get("profileTitle"));
+								    }
+								}
 							}
+							
 												
 							data.add(resMap);
 						}

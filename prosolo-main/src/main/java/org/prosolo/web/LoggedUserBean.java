@@ -3,6 +3,7 @@ package org.prosolo.web;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -42,6 +43,7 @@ import org.prosolo.services.activityWall.filters.MyNetworkFilter;
 import org.prosolo.services.activityWall.filters.TwitterFilter;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.authentication.AuthenticationService;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
@@ -92,6 +94,8 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 
 	@Autowired
 	private LearningGoalManager learningGoalManager;
+	@Inject
+	private EventFactory eventFactory;
 
 	private SessionData sessionData;
 	
@@ -232,7 +236,15 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			userManager.fullCacheClear();
 			user = getUser();
 			if (user != null) {
-				loggingService.logEvent(EventType.SESSIONENDED, user, getIpAddress());
+				//previously logEvent method was called
+				//loggingService.logSessionEnded(EventType.SESSIONENDED, user, getIpAddress());
+				try {
+					Map<String, String> parameters = new HashMap<>();
+					parameters.put("ip", ipAddress);
+					eventFactory.generateEvent(EventType.SESSIONENDED, user, null, parameters);
+				} catch (EventException e) {
+					logger.error("Generate event failed.", e);
+				}
 				userManager.fullCacheClear();
 				logger.debug("UserSession unbound:" + event.getName() + " session:" + event.getSession().getId()
 						+ " for user:" + user.getId());

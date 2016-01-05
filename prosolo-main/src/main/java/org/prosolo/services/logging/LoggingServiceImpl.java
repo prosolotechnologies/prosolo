@@ -544,5 +544,16 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 				.next().get("timestamp");
     }
 
+	@Override
+	public void logSessionEnded(EventType eventType, User actor, String ipAddress) {
+		Map<String, String> parameters = new HashMap<>();
+		//parameters.put("ip", ipAddress);
+		try {
+			//ip address will be null
+			eventFactory.generateEvent(eventType, actor, null, parameters);
+		} catch (EventException e) {
+			logger.error("Generate event failed.", e);
+		}
+	}
 
 }

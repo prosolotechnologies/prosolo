@@ -1090,7 +1090,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	public List<Map<String, Object>> getUserCoursesWithProgressAndInstructorInfo(long userId, Session session) throws DbConnectionException {
 		try{
 			String query = 
-					"SELECT  course.id, tGoal.progress, userInstructor " +
+					"SELECT  course.id, tGoal.progress, userInstructor.id " +
 					"FROM CoursePortfolio coursePortfolio " +
 					"LEFT JOIN coursePortfolio.enrollments enrollment "+
 					"LEFT JOIN enrollment.targetGoal tGoal " +
@@ -1104,17 +1104,17 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 					setLong("user", userId).
 					list();
 			
-			List<Map<String, Object>> resultList = new LinkedList<>();
+			List<Map<String, Object>> resultList = new ArrayList<>();
 			if (result != null) {
 				for (Object[] res : result) {
 					Map<String, Object> resMap = new LinkedHashMap<>();
 					
 					Long courseId = (Long) res[0];
 					Integer courseProgress = (int) res[1];
-					User instructor = (User) res[2];
+					Long instructorId = (Long) res[2];
 					
 					resMap.put("course", courseId);
-					resMap.put("instructor", instructor);
+					resMap.put("instructorId", instructorId);
 					resMap.put("courseProgress", courseProgress);
 					
 					resultList.add(resMap);

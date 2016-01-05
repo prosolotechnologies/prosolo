@@ -29,6 +29,8 @@ public interface LoggingDBManager {
 	DBCursor getMostActiveUsersForDate(long date, int limit);
 
 	long getMostActiveUsersLastActivityTimestamp(long userid);
+	
+	List<DBObject> getAllEventsFromUserSession(long userid);
 
 
 }

@@ -3,6 +3,7 @@ package org.prosolo.services.logging.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -223,6 +224,54 @@ public class LoggingDBManagerImpl extends AbstractDB implements LoggingDBManager
 			}
 		}
 		return timestamp;
+	}
+	
+	@Override
+	public List<DBObject> getAllEventsFromUserSession(long userid) {
+		List<DBObject> result = new ArrayList<>();
+		try {
+			DBObject query = new BasicDBObject();
+			query.put("actorId", userid);
+			query.put("eventType", EventType.SESSIONENDED.toString());
+			DBObject sortQuery = new BasicDBObject();
+			sortQuery.put("timestamp", -1);
+			DBCollection collection = this.getEventObservedCollection();
+			DBCursor dbCursor = collection.find(query).sort(sortQuery).limit(1);
+			if(dbCursor.hasNext()) {
+				DBObject sessionEndedEvent = dbCursor.next();
+				query = new BasicDBObject();
+				query.put("actorId", userid);
+				query.put("eventType", EventType.LOGIN.toString());
+				query.put("timestamp", new BasicDBObject("$lt", sessionEndedEvent.get("timestamp")));
+				sortQuery = new BasicDBObject();
+				sortQuery.put("timestamp", -1);
+				dbCursor = collection.find(query).sort(sortQuery).limit(1);
+				if(dbCursor.hasNext()) {
+					DBObject sessionStarted = dbCursor.next();
+					query = new BasicDBObject();
+					query.put("actorId", userid);
+					DBObject timestampCond = new BasicDBObject();
+					timestampCond.put("$gt", sessionStarted.get("timestamp"));
+					timestampCond.put("$lt", sessionEndedEvent.get("timestamp"));
+					query.put("timestamp", timestampCond);
+					//query.put("timestamp", new BasicDBObject("$gt", sessionStarted.get("timestamp")));
+					//query.put("timestamp", new BasicDBObject("$lt", sessionEndedEvent.get("timestamp")));
+					sortQuery = new BasicDBObject();
+					sortQuery.put("timestamp", 1);
+					dbCursor = collection.find(query).sort(sortQuery);
+					
+					while(dbCursor.hasNext()) {
+						result.add(dbCursor.next());
+					}
+					
+					result.add(sessionEndedEvent);
+				}
+			}
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+		return result;
 	}
 	
 }

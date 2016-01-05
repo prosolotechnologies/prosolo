@@ -57,12 +57,8 @@
 				"type": "string"
 			},
 
-			"profile_type": {
-				"store": false,
-				"type": "string"
-			},
-
 			"courses": {
+				"type": "nested",
 				"properties": {
 					"id": {
 						"store": false,
@@ -72,26 +68,22 @@
 						"store": false,
 						"type": "integer"
 					},
-					"instructor_assigned": {
-						"store": false,
-						"type": "boolean"
-					},
-					"instructor": {
+					"profile": {
 						"properties": {
-							"id": {
-								"store": false,
-								"type": "long"
-							},
-							"first_name": {
+							"profileType": {
 								"store": false,
 								"type": "string"
 							},
-							"last_name": {
+							"profileTitle": {
 								"store": false,
 								"type": "string"
-							}
+							}	
 						}
-					}
+					},
+					"instructorId": {
+						"store": false,
+						"type": "long"
+					}		
 				}
 			}
 		}
