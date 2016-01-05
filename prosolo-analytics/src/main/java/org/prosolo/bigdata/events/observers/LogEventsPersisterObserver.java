@@ -53,19 +53,20 @@ public class LogEventsPersisterObserver implements EventObserver {
 				}else{
 					courses.add(logEvent.getCourseId());
 				}
-				for(Long courseId:courses){
-					Map<String,Object> data=new HashMap<String,Object>();
-					data.put("course", courseId);
-					data.put("source", logEvent.getActorId());
-					data.put("target", logEvent.getTargetUserId());
-					analyticalDBManager.updateGenericCounter(DataName.SOCIALINTERACTIONCOUNT,data);
+				if(logEvent.getActorId()!=logEvent.getTargetUserId()){
+					for(Long courseId:courses){
+						Map<String,Object> data=new HashMap<String,Object>();
+						data.put("course", courseId);
+						data.put("source", logEvent.getActorId());
+						data.put("target", logEvent.getTargetUserId());
+						analyticalDBManager.updateGenericCounter(DataName.SOCIALINTERACTIONCOUNT,data);
 					/*System.out.println("OBSERVED LOG EVENT:"+event.getEventType()
 							+" actor:"+logEvent.getActorId()
 							+" with Target UserID:"+logEvent.getTargetUserId()
 							+" course:"+logEvent.getCourseId()
 					+	 " inserted course:"+courseId);*/
+					}
 				}
-
 			}
 		}
 

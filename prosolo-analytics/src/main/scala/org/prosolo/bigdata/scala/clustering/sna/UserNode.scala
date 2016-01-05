@@ -6,7 +6,7 @@ package org.prosolo.bigdata.scala.clustering.sna
 /**
   * zoran 20/12/15
   */
-class UserNode(val id:Int) {
+class UserNode(val id:Long) {
 
   var cluster = 0
 

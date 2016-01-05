@@ -1,9 +1,5 @@
 package org.prosolo.services.nodes.rest.data;
 
-import java.util.Random;
-
-import org.prosolo.common.domainmodel.activities.TargetActivity;
-
 import com.google.gson.annotations.SerializedName;
 
 public class ActivityJsonData {
@@ -13,24 +9,11 @@ public class ActivityJsonData {
 	@SerializedName("Complexity")
 	private double complexity;
 	@SerializedName("Time")
-	private double timeNeeded;
+	private int timeNeeded;
+	private boolean completed;
 	
 	public ActivityJsonData() {
 		
-	}
-	
-	public ActivityJsonData(TargetActivity ta) {
-		this.id = ta.getId();
-		this.name = ta.getTitle();
-		
-		int min = 0;
-		int max = 10;
-		
-		Random r = new Random();
-		double randomValue1 = min + (max - min) * r.nextDouble();
-		double randomValue2 = min + (max - min) * r.nextDouble();
-		this.complexity = randomValue1;
-		this.timeNeeded = randomValue2;
 	}
 	
 	public long getId() {
@@ -51,13 +34,19 @@ public class ActivityJsonData {
 	public void setComplexity(double complexity) {
 		this.complexity = complexity;
 	}
-	public double getTimeNeeded() {
+	public int getTimeNeeded() {
 		return timeNeeded;
 	}
-	public void setTimeNeeded(double timeNeeded) {
+	public void setTimeNeeded(int timeNeeded) {
 		this.timeNeeded = timeNeeded;
 	}
-	
-	
+
+	public boolean isCompleted() {
+		return completed;
+	}
+
+	public void setCompleted(boolean completed) {
+		this.completed = completed;
+	}
 	
 }

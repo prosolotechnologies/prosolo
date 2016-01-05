@@ -5,7 +5,7 @@ import edu.uci.ics.jung.graph.DirectedSparseGraph
 import edu.uci.ics.jung.graph.util.EdgeType
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable.HashMap
+import scala.collection.mutable.{ArrayBuffer, HashMap}
 
 /**
   * Created by zoran on 20/12/15.
@@ -15,7 +15,7 @@ import scala.collection.mutable.HashMap
   */
 class DirectedNetwork{
   val network:DirectedSparseGraph[UserNode,UserLink]=new DirectedSparseGraph[UserNode,UserLink]
-  val addednodes=new HashMap[Int,UserNode]()
+  val addednodes=new HashMap[Long,UserNode]()
   def addLink (link:UserLink, source:UserNode, target: UserNode){
     network.addEdge(link,source, target,EdgeType.DIRECTED)
 
@@ -23,7 +23,7 @@ class DirectedNetwork{
   def addNode(node:UserNode): Unit ={
     network.addVertex(node)
   }
-  def getOrCreateUserNode(id:Int): UserNode ={
+  def getOrCreateUserNode(id:Long): UserNode ={
     val node=addednodes.getOrElseUpdate(id,{
       val usernode=new UserNode(id)
       addNode(usernode)
@@ -49,11 +49,12 @@ class DirectedNetwork{
    *          The parameter influences how the clusters are determined. A higher parameter-value creates smaller and more cohesive clusters.
     *          A value of about 5 to 10 should be good choice.
     */
-  def calculateEdgeBetweennessClustering(edgesToRemove:Int): Unit ={
+  def calculateEdgeBetweennessClustering(edgesToRemove:Int):ArrayBuffer[UserNode] ={
       val clusterer:EdgeBetweennessClusterer[UserNode, UserLink]=new EdgeBetweennessClusterer[UserNode, UserLink](edgesToRemove)
       val clusteredUsers:java.util.Set[java.util.Set[UserNode]] = clusterer.transform(network);
     val clustUsers=clusteredUsers.asScala
     var clusterNo=0
+    val finalUserNodes:ArrayBuffer[UserNode]=new ArrayBuffer[UserNode]()
     clustUsers.foreach{
       userNodes=> {
 
@@ -62,10 +63,14 @@ class DirectedNetwork{
         uNodes.foreach {
           userNode =>
             userNode.cluster=clusterNo
+            finalUserNodes+=userNode
             println("USER NODE:" + userNode.id + " cluster:" + userNode.cluster)
         }
+
         clusterNo+=1
       }
       }
+    println("FINISHED")
+     finalUserNodes
   }
 }

@@ -282,8 +282,8 @@ public class StudentProfileBean implements Serializable {
 		long compId = selectedGoal.getSelectedCompetence() != null ? 
 			selectedGoal.getSelectedCompetence().getId() : 0;
 		return Settings.getInstance().config.application.domain + 
-				"api/users/" + decodedId + "/competences/" + compId +
-				"/activities/completed";
+				"api/competences/" + compId +
+				"/activities";
 	}
 	
 	public ObservationBean getObservationBean() {

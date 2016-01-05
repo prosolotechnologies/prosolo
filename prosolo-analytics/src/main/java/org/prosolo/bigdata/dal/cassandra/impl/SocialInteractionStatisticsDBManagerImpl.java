@@ -70,6 +70,12 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 		BoundStatement statement = StatementUtil.statement(prepared, courseid);
 		return map(query(statement), (row) -> new SocialInteractionCount(source(row), target(row), count(row)));
 	}
+	@Override
+	public  List<Row> getSocialInteractions(Long courseid) {
+		PreparedStatement prepared = getStatement(getSession(), FIND_SOCIAL_INTERACTION_COUNTS);
+		BoundStatement statement = StatementUtil.statement(prepared, courseid);
+		return  query(statement);
+	}
 
 	@Override
 	public List<SocialInteractionCount> getSocialInteractionCounts(Long courseid, Long userid) {

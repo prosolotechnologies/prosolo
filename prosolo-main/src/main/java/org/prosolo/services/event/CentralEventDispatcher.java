@@ -8,7 +8,10 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
+import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.news.FeaturedNewsObserver;
 import org.prosolo.recommendation.impl.RecommendationObserver;
@@ -25,7 +28,6 @@ import org.prosolo.services.logging.LoggingEventsObserver;
 import org.prosolo.services.logging.UserActivityObserver;
 import org.prosolo.services.nodes.event.ActivityStartObserver;
 import org.prosolo.services.notifications.NotificationObserver;
-import org.prosolo.services.reporting.SocialInteractionStatisticsObserver;
 import org.prosolo.services.reporting.TwitterHashtagStatisticsObserver;
 import org.prosolo.services.reporting.UserActivityStatisticsObserver;
 import org.prosolo.web.observer.TimeSpentOnActivityObserver;
@@ -42,6 +44,8 @@ import org.springframework.stereotype.Service;
 @Service("org.prosolo.services.event.CentralEventDispatcher")
 public class CentralEventDispatcher {
 
+	protected static Logger logger = Logger.getLogger(CentralEventDispatcher.class);
+	
 	private Set<EventObserver> observers;
 	private EventThreadPoolExecutor tpe = new EventThreadPoolExecutor();
 	
@@ -108,6 +112,7 @@ public class CentralEventDispatcher {
 	}
 	
 	public void dispatchEvent(Event event, List<Class<? extends EventObserver>> observersToSkip, List<Class<? extends EventObserver>> observersToInvoke) {
+		Future<EventObserver> loggingEventsObserverTask = null;
 		for (EventObserver observer : getObservers()) {
 			
 			if (observersToSkip != null && observersToSkip.contains(observer.getClass())) {
@@ -115,7 +120,26 @@ public class CentralEventDispatcher {
 			}
 			
 			if (observersToInvoke == null || observersToInvoke.contains(observer.getClass())) {
-				tpe.runTask(new EventProcessor(observer, event));
+				if(observer instanceof LoggingEventsObserver) {
+					loggingEventsObserverTask = tpe.submitTask(new EventProcessor(observer, event));
+				} else {
+					if(observer instanceof TimeSpentOnActivityObserver) {
+						if(loggingEventsObserverTask != null) {
+							try {
+								loggingEventsObserverTask.get();
+								tpe.runTask(new EventProcessor(observer, event));
+							} catch (InterruptedException e) {
+								logger.error(e);
+								e.printStackTrace();
+							} catch (ExecutionException e) {
+								logger.error(e);
+								e.printStackTrace();
+							}
+						}
+					} else {
+						tpe.runTask(new EventProcessor(observer, event));
+					}
+				}
 			}
 		}
 	}
