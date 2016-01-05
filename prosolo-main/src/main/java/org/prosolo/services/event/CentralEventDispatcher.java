@@ -8,8 +8,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
@@ -30,7 +28,6 @@ import org.prosolo.services.nodes.event.ActivityStartObserver;
 import org.prosolo.services.notifications.NotificationObserver;
 import org.prosolo.services.reporting.TwitterHashtagStatisticsObserver;
 import org.prosolo.services.reporting.UserActivityStatisticsObserver;
-import org.prosolo.web.observer.TimeSpentOnActivityObserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -67,7 +64,6 @@ public class CentralEventDispatcher {
 	@Autowired private TwitterHashtagStatisticsObserver twitterHashtagStatisticsObserver;
 	//@Autowired private SocialInteractionStatisticsObserver socialInteractionStatisticsObserver;
 	@Autowired private ActivityStartObserver activityStartObserver;
-	@Autowired private TimeSpentOnActivityObserver timeSpentOnActivityObserver;
 
 	private Collection<EventObserver> getObservers() {
 		if (observers == null) {
@@ -90,7 +86,6 @@ public class CentralEventDispatcher {
 			observers.add(twitterHashtagStatisticsObserver);
 			//observers.add(socialInteractionStatisticsObserver);
 			observers.add(activityStartObserver);
-			observers.add(timeSpentOnActivityObserver);
 		}
 		return observers;
 	}
@@ -112,7 +107,6 @@ public class CentralEventDispatcher {
 	}
 	
 	public void dispatchEvent(Event event, List<Class<? extends EventObserver>> observersToSkip, List<Class<? extends EventObserver>> observersToInvoke) {
-		Future<EventObserver> loggingEventsObserverTask = null;
 		for (EventObserver observer : getObservers()) {
 			
 			if (observersToSkip != null && observersToSkip.contains(observer.getClass())) {
@@ -120,27 +114,32 @@ public class CentralEventDispatcher {
 			}
 			
 			if (observersToInvoke == null || observersToInvoke.contains(observer.getClass())) {
-				if(observer instanceof LoggingEventsObserver) {
-					loggingEventsObserverTask = tpe.submitTask(new EventProcessor(observer, event));
-				} else {
-					if(observer instanceof TimeSpentOnActivityObserver) {
-						if(loggingEventsObserverTask != null) {
-							try {
-								loggingEventsObserverTask.get();
-								tpe.runTask(new EventProcessor(observer, event));
-							} catch (InterruptedException e) {
-								logger.error(e);
-								e.printStackTrace();
-							} catch (ExecutionException e) {
-								logger.error(e);
-								e.printStackTrace();
-							}
-						}
-					} else {
-						tpe.runTask(new EventProcessor(observer, event));
-					}
-				}
+				tpe.runTask(new EventProcessor(observer, event));
 			}
+//			if (observersToInvoke == null || observersToInvoke.contains(observer.getClass())) {
+//				if(observer instanceof LoggingEventsObserver) {
+//					loggingEventsObserverTask = tpe.submitTask(new EventProcessor(observer, event));
+//				} else {
+//					if(observer instanceof TimeSpentOnActivityObserver) {
+//						if(loggingEventsObserverTask != null) {
+//							try {
+//								loggingEventsObserverTask.get();
+//								tpe.runTask(new EventProcessor(observer, event));
+//							} catch (InterruptedException e) {
+//								logger.error(e);
+//								e.printStackTrace();
+//							} catch (ExecutionException e) {
+//								logger.error(e);
+//								e.printStackTrace();
+//							}
+//						}
+//					} else {
+//						Future<EventObserver> observerFuture = tpe.submitTask(new EventProcessor(observer, event));
+//						
+//						processedObservers.put(observer, observerFuture);
+//					}
+//				}
+//			}
 		}
 	}
 
@@ -168,38 +167,46 @@ public class CentralEventDispatcher {
 		}
 
 		private void processEvent() {
-			
 			EventType[] eventClasses = observer.getSupportedEvents();
-			if (eventClasses == null || isInEventTypeArray(eventClasses, event.getAction())) {
-				Class<?>[] resourceClasses = observer.getResourceClasses();
-				if (resourceClasses == null || event.getObject() == null ||
-						(resourceClasses != null && event.getObject() != null && 
-							isInClassArray(resourceClasses, event.getObject().getClass())) ||
-						(resourceClasses != null && event.getTarget() != null && 
-							isInClassArray(resourceClasses, event.getTarget().getClass()))) {
-								observer.handleEvent(event);
-				}
+			Class<?>[] resourceClasses = observer.getResourceClasses();
+			
+			if (shouldProcessEvent(event, eventClasses, resourceClasses)) {
+				observer.handleEvent(event);
+			}
+		}
+	}
+	
+	public static boolean shouldProcessEvent(Event event, EventType[] eventClasses, Class<?>[] resourceClasses) {
+		if (eventClasses == null || isInEventTypeArray(eventClasses, event.getAction())) {
+			if (resourceClasses == null || event.getObject() == null ||
+				(resourceClasses != null && event.getObject() != null && 
+					isInClassArray(resourceClasses, event.getObject().getClass())) ||
+				(resourceClasses != null && event.getTarget() != null && 
+					isInClassArray(resourceClasses, event.getTarget().getClass()))) {
+						return true;
 			}
 		}
 		
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		private boolean isInClassArray(Class[] classesArray, Class clazz) {
-			for (int i = 0; i < classesArray.length; i++) {
-				if (classesArray[i] == null || 
-						classesArray[i].equals(clazz) || 
-						classesArray[i].isAssignableFrom(clazz) || 
-						clazz.isAssignableFrom(classesArray[i]))
-					return true;
-			}
-			return false;
+		return false;
+	}
+	
+	private static  boolean isInEventTypeArray(EventType[] supportedEvents, EventType event) {
+		for (int i = 0; i < supportedEvents.length; i++) {
+			if (supportedEvents[i].equals(event))
+				return true;
 		}
-		
-		private boolean isInEventTypeArray(EventType[] supportedEvents, EventType event) {
-			for (int i = 0; i < supportedEvents.length; i++) {
-				if (supportedEvents[i].equals(event))
-					return true;
-			}
-			return false;
+		return false;
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private static boolean isInClassArray(Class[] classesArray, Class clazz) {
+		for (int i = 0; i < classesArray.length; i++) {
+			if (classesArray[i] == null || 
+					classesArray[i].equals(clazz) || 
+					classesArray[i].isAssignableFrom(clazz) || 
+					clazz.isAssignableFrom(classesArray[i]))
+				return true;
 		}
+		return false;
 	}
 }

@@ -36,7 +36,7 @@ import org.springframework.stereotype.Service;
  *
  */
 @Service("org.prosolo.services.activitystream.filters.FilterUpdaterObserver")
-public class FilterUpdaterObserver implements EventObserver {
+public class FilterUpdaterObserver extends EventObserver {
 
 	private static Logger logger = Logger.getLogger(FilterUpdaterObserver.class
 			.getName());

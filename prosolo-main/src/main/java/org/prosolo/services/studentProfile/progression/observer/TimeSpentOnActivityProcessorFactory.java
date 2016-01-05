@@ -1,13 +1,9 @@
-package org.prosolo.web.observer;
-
-import java.util.Map;
+package org.prosolo.services.studentProfile.progression.observer;
 
 import javax.inject.Inject;
 
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.services.nodes.ActivityManager;
-import org.prosolo.services.nodes.event.ResourceLinkActivityStartEventProcessor;
-import org.prosolo.services.nodes.event.YoutubeActivityStartEventProcessor;
 import org.springframework.stereotype.Service;
 
 import com.mongodb.DBObject;

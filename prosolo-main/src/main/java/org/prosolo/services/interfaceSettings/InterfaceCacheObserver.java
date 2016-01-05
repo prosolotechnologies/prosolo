@@ -34,7 +34,7 @@ import org.springframework.stereotype.Service;
 
 
 @Service("org.prosolo.services.interfaceSettings.InterfaceCacheUpdater")
-public class InterfaceCacheObserver implements EventObserver {
+public class InterfaceCacheObserver extends EventObserver {
 	
 	private static Logger logger = Logger.getLogger(InterfaceCacheObserver.class);
 	

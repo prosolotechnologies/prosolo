@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service("org.prosolo.services.reporting.UserActivityStatisticsObserver")
-public class UserActivityStatisticsObserver implements EventObserver {
+public class UserActivityStatisticsObserver extends EventObserver {
 
 	protected static Logger logger = Logger
 			.getLogger(UserActivityStatisticsObserver.class);

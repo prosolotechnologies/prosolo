@@ -1,4 +1,4 @@
-package org.prosolo.services.observations;
+package org.prosolo.services.studentProfile.observations;
 
 import java.util.List;
 import java.util.Map;

@@ -27,7 +27,7 @@ import org.springframework.stereotype.Service;
  * @author Zoran Jeremic 2013-05-18
  */
 @Service("org.prosolo.services.interaction.MessagesObserver")
-public class MessagesObserver implements EventObserver {
+public class MessagesObserver extends EventObserver {
 	private static Logger logger = Logger.getLogger(MessagesObserver.class);
 	
 	@Autowired private ApplicationBean applicationBean;

@@ -1,4 +1,4 @@
-package org.prosolo.web.observer;
+package org.prosolo.services.studentProfile.progression.observer;
 
 import org.prosolo.services.nodes.ActivityManager;
 

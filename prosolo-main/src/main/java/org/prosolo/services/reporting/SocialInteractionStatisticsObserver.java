@@ -8,7 +8,6 @@ import static org.prosolo.common.domainmodel.activities.events.EventType.SEND_ME
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
@@ -17,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service("org.prosolo.services.reporting.SocialInteractionStatisticsObserver")
-public class SocialInteractionStatisticsObserver implements EventObserver {
+public class SocialInteractionStatisticsObserver extends EventObserver {
 	
 	protected static Logger logger = Logger.getLogger(SocialInteractionStatisticsObserver.class);
 	

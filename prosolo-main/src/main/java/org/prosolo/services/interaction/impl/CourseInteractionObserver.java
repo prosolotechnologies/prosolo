@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 @author Zoran Jeremic Nov 30, 2013
  */
 @Service("org.prosolo.services.interaction.CourseInteractionObserver")
-public class CourseInteractionObserver  implements EventObserver {
+public class CourseInteractionObserver  extends EventObserver {
 	private static Logger logger = Logger.getLogger(CourseInteractionObserver.class);
 	@Autowired private ApplicationBean applicationBean;
 	@Autowired private DefaultManager defaultManager;

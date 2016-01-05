@@ -127,9 +127,9 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		
 		if (context != null && context.length() > 0) {
 			parameters.put("context", context);
-			parameters.put("objectType", "page");
-			parameters.put("link", link);
 		}
+		parameters.put("objectType", "page");
+		parameters.put("link", link);
 		
 		try {
 			eventFactory.generateEvent(EventType.NAVIGATE, user, null, parameters);
@@ -248,11 +248,17 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 				logObject.put("parameters", parametersObject);
 			}
 
-			logger.info("\ntimestamp: " + logObject.get("timestamp") + 
-		 			"\neventType: " + logObject.get("eventType") + 
+			Object timestamp = logObject.get("timestamp");
+			
+			String linkString = logObject.get("link") != null ? "\nlink: " + logObject.get("link") : "";
+			String context = parameters.get("context") != null ? parameters.get("context") : "";
+			String action = parameters.get("action") != null ? parameters.get("action") : "";
+			
+			logger.info("\ntimestamp: " + timestamp + 
+		 			"\neventType: " + eventType + 
 		 			"\nactorId: " + logObject.get("actorId") + 
 		 			"\nactorFullname: " + logObject.get("actorFullname") + 
-		 			"\nobjectType: " + logObject.get("objectType") + 
+		 			"\nobjectType: " + objectType + 
 		 			(((Long) logObject.get("objectId")) > 0 ? "\nobjectId: " + logObject.get("objectId") : "") + 
 		 			(logObject.get("objectTitle") != null ? "\nobjectTitle: " + logObject.get("objectTitle") : "") + 
 		 			(logObject.get("targetType") != null ? "\ntargetType: " + logObject.get("targetType") : "") + 
@@ -261,8 +267,14 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 					(((Long) logObject.get("targetUserId")) > 0 ? "\ntargetUserId: " + logObject.get("targetUserId") : "") +
 					(logObject.get("reasonType") != null ? "\nreasonType: " + logObject.get("reasonType") : "") + 
 					(((Long) logObject.get("reasonId")) > 0 ? "\nreasonId: " + logObject.get("reasonId") : "") + 
-					(logObject.get("link") != null ? "\nlink: " + logObject.get("link") : "") +
+					linkString +
 				 	"\nparameters: " + logObject.get("parameters"));
+
+			String targetTypeString = logObject.get("targetType") != null ? (String) logObject.get("targetType") : "";
+			
+			// timestamp,eventType,objectType,targetType,link,context,action
+			logger.info(timestamp + "," + eventType + "," + objectType + "," + targetTypeString + "," + link + "," + context + "," + action);
+			
 			logsMessageDistributer.distributeMessage(logObject);
 				
 			try {

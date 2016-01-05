@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service("org.prosolo.news.FeaturedNewsObserver")
-public class FeaturedNewsObserver  implements EventObserver  {
+public class FeaturedNewsObserver extends EventObserver  {
 	private static Logger logger = Logger .getLogger(FeaturedNewsObserver.class.getName());
 	@Autowired private FeaturedNewsManager featuredNewsManager;
 	@Autowired private ApplicationBean applicationBean;

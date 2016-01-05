@@ -9,7 +9,7 @@ import org.prosolo.services.event.EventObserver;
 import org.springframework.stereotype.Service;
 
 @Service("org.prosolo.notification.InstantUpdateEventObserver")
-public class InstantUpdateEventObserver implements EventObserver {
+public class InstantUpdateEventObserver extends EventObserver {
 
 	@Override
 	public EventType[] getSupportedEvents() {

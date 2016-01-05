@@ -1,5 +1,7 @@
-package org.prosolo.web.observer;
+package org.prosolo.services.studentProfile.progression.observer;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -10,12 +12,13 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.logging.LoggingDBManager;
+import org.prosolo.services.logging.LoggingEventsObserver;
 import org.springframework.stereotype.Service;
 
 import com.mongodb.DBObject;
 
-@Service("org.prosolo.web.observer.TimeSpentOnActivityObserver")
-public class TimeSpentOnActivityObserver implements EventObserver {
+@Service
+public class TimeSpentOnActivityObserver extends EventObserver {
 
 	@Inject
 	private LoggingDBManager loggingDBManager;
@@ -49,6 +52,20 @@ public class TimeSpentOnActivityObserver implements EventObserver {
 			}
 		}
 		
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.prosolo.services.event.EventObserver#getPrerequisiteObservers()
+	 *
+	 * @version 0.5
+	 */
+	@Override
+	public Collection<Class<? extends EventObserver>> getPrerequisiteObservers() {
+		Collection<Class<? extends EventObserver>> prerequisiteClasses = new ArrayList<>();
+		
+		prerequisiteClasses.add(LoggingEventsObserver.class);
+		
+		return prerequisiteClasses;
 	}
 
 }

@@ -1,4 +1,4 @@
-package org.prosolo.services.observations.impl;
+package org.prosolo.services.studentProfile.observations.impl;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -19,11 +19,11 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
-import org.prosolo.services.observations.ObservationManager;
+import org.prosolo.services.studentProfile.observations.ObservationManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service("org.prosolo.services.observations.ObservationManager")
+@Service("org.prosolo.services.studentProfile.observations.ObservationManager")
 public class ObservationManagerImpl extends AbstractManagerImpl implements ObservationManager{
 
 	private static final long serialVersionUID = -7710666335405883922L;

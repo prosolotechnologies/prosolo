@@ -47,7 +47,7 @@ import org.springframework.stereotype.Service;
  * This class is an observer to the {@link CentralEventDispatcher} that is invoked whenever an event that is related to a notification occurs.  
  */
 @Service("org.prosolo.services.notifications.NotificationObserver")
-public class NotificationObserver implements EventObserver {
+public class NotificationObserver extends EventObserver {
 
 	private static Logger logger = Logger.getLogger(NotificationObserver.class.getName());
 

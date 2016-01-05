@@ -38,7 +38,7 @@ import org.springframework.stereotype.Service;
  *
  */
 @Service("org.prosolo.services.logging.UserActivityObserver")
-public class UserActivityObserver  implements EventObserver {
+public class UserActivityObserver extends EventObserver {
 	
 	protected static Logger logger = Logger.getLogger(UserActivityObserver.class);
 	

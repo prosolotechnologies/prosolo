@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
  * @author Zoran Jeremic 2013-05-25
  */
 @Service("org.prosolo.recommendation.RecommendationObserver")
-public class RecommendationObserver implements EventObserver {
+public class RecommendationObserver extends EventObserver {
 	
 	private static Logger logger = Logger .getLogger(RecommendationObserver.class.getName());
 	

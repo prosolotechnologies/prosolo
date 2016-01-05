@@ -24,7 +24,7 @@ import org.prosolo.web.home.SuggestedLearningBean;
 import org.springframework.stereotype.Service;
 
 @Service("org.prosolo.services.nodes.event.ActivityStartObserver")
-public class ActivityStartObserver implements EventObserver {
+public class ActivityStartObserver extends EventObserver {
 
 	@Inject
 	private ActivityStartEventProcessorFactory activityStartEventProcessorFactory;

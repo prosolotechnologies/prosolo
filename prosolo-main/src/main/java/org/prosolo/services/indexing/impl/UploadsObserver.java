@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 zoran
  */
 @Service("org.prosolo.services.annotation.impl.UploadsObserver")
-public class UploadsObserver implements EventObserver{
+public class UploadsObserver extends EventObserver{
 	
 	private static Logger logger = Logger.getLogger(UploadsObserver.class);
 	

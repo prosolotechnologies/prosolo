@@ -26,7 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service("org.prosolo.services.indexing.NodeChangeObserver")
-public class NodeChangeObserver implements EventObserver {
+public class NodeChangeObserver extends EventObserver {
 	private static Logger logger = Logger.getLogger(NodeChangeObserver.class.getName());
 	@Autowired private NodeEntityESService nodeEntityESService;
 	@Autowired private UserEntityESService userEntityESService;

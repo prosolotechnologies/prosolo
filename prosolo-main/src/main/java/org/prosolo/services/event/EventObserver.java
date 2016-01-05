@@ -3,6 +3,8 @@
  */
 package org.prosolo.services.event;
 
+import java.util.Collection;
+
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 
@@ -13,7 +15,7 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
  * @author Nikola Milikic
  * 
  */
-public interface EventObserver {
+public abstract class EventObserver {
 
 	/**
 	 * This method should return the @EventType enum instance 
@@ -21,7 +23,7 @@ public interface EventObserver {
 	 * 
 	 * @return
 	 */
-	public EventType[] getSupportedEvents();
+	public abstract EventType[] getSupportedEvents();
 
 	/**
 	 * This method should return the class of the resource this handler should
@@ -31,12 +33,23 @@ public interface EventObserver {
 	 * 
 	 * @return
 	 */
-	public Class<? extends BaseEntity>[] getResourceClasses();
+	public abstract Class<? extends BaseEntity>[] getResourceClasses();
 
 	/**
 	 * this method processes the event.
 	 * 
 	 * @param event
 	 */
-	public void handleEvent(Event event);
+	public abstract void handleEvent(Event event);
+	
+	/**
+	 * Returns a collection of observers that need to complete before invoking this observer.
+	 * 
+	 * @return
+	 *
+	 * @version 0.5
+	 */
+	public Collection<Class<? extends EventObserver>> getPrerequisiteObservers() {
+		return null;
+	};
 }

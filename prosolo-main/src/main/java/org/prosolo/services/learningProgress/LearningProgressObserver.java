@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service("org.prosolo.services.learningProgress.LearningProgressObserver")
-public class LearningProgressObserver implements EventObserver {
+public class LearningProgressObserver extends EventObserver {
 	
 	@Autowired private ApplicationBean applicationBean;
 

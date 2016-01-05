@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service("org.prosolo.reminders.RemindersObserver")
-public class RemindersObserver implements EventObserver {
+public class RemindersObserver extends EventObserver {
 	
 	@Autowired private UpdatePersonalCalendarReminder updatePersonalCalendarReminder;
 

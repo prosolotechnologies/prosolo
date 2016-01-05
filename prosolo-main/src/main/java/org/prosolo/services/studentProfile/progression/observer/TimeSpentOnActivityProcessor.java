@@ -1,4 +1,4 @@
-package org.prosolo.web.observer;
+package org.prosolo.services.studentProfile.progression.observer;
 
 import java.util.List;
 import java.util.regex.Matcher;

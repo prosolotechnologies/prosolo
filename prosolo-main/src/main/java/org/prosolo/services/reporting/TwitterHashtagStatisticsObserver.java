@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service("org.prosolo.services.reporting.TwitterHashtagStatisticsObserver")
-public class TwitterHashtagStatisticsObserver implements EventObserver {
+public class TwitterHashtagStatisticsObserver extends EventObserver {
 	private static Logger logger = Logger.getLogger(TwitterHashtagStatisticsObserver.class);
 
 	@Autowired

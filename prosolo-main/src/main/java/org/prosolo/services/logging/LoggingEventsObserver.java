@@ -8,7 +8,6 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.core.hibernate.HibernateUtil;
-import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.logging.exception.LoggingException;
@@ -21,7 +20,7 @@ import org.springframework.stereotype.Service;
  * @author Zoran Jeremic Dec 29, 2013
  */
 @Service("org.prosolo.services.logging.LoggingEventsObserver")
-public class LoggingEventsObserver implements EventObserver {
+public class LoggingEventsObserver extends EventObserver {
 	protected static Logger logger = Logger.getLogger(LoggingEventsObserver.class);
 	
 	@Autowired private ApplicationBean applicationBean;

@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service("org.prosolo.services.activitywall.SocialStreamObserver")
-public class SocialStreamObserver implements EventObserver {
+public class SocialStreamObserver extends EventObserver {
 
 	private static Logger logger = Logger.getLogger(SocialStreamObserver.class.getName());
 
