@@ -11,7 +11,11 @@
 	
 	<utilcomp:messagesBundle var="msg" />
 	
-	<h:outputScript library="javascript" name="prosolo.tags.js" target="head"/>
+	<h:outputScript library="javascript" name="prosolo.tags.js" target="head" />
+	<h:outputScript library="javascript" name="jquery.moreLessBox.js" target="head" />
+	<h:outputScript library="javascript" name="jquery.autosize.min.js" target="head" />
+	<h:outputScript library="javascript" name="prosolo.slider.js" target="head" />
+	<h:outputScript library="javascript" name="readmore.custom.js" target="head" />
 	
 	<h:panelGroup layout="block" id="goalDetails">
 		<h:panelGroup layout="block" rendered="#{learninggoals.selectedGoalData != null}">

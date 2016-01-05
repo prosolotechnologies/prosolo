@@ -17,10 +17,12 @@
 	
 	<composite:implementation>
 		<utilcomp:messagesBundle var="msg" />
-		
-		<h:outputScript library="javascript" name="jquery.switchButton.js" />
-		<h:outputScript library="javascript" name="prosolo.switchButton.js" />
+
 		<h:outputStylesheet library="css" name="jquery.switchButton.css"  />
+		
+		<h:outputScript library="javascript" name="jquery.switchButton.js" target="head" />
+		<h:outputScript library="javascript" name="prosolo.switchButton.js" target="head" />
+		<h:outputScript library="javascript" name="jquery.autosize.min.js" target="head" />
 	
 		<div id="submitEvaluation" class="container submitEvaluation">
 		

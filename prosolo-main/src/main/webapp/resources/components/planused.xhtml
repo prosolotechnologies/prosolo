@@ -28,6 +28,7 @@
 	</composite:interface>
 	
 	<composite:implementation>
+		<h:outputScript library="javascript" name="jquery.shortenedText.js" target="head"/>
 		
 		<h:panelGroup layout="block" id="availableUsedActivities" class="compPlans noPlans noContentMessage" rendered="#{empty cc.attrs.activities}">
 			<h:outputText value="#{cc.attrs.cantdisplaymessage}" />

@@ -1164,9 +1164,6 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 	@Override
 	@Transactional (readOnly = true)
 	public long getNumberOfUsersLearningGoal(LearningGoal goal) {
-		// TODO: add direct connection between a goal and a course
-		
-		// get one TargetLearningGoal for this goal
 		String query1 =
 			"SELECT tGoal " +
 			"FROM TargetLearningGoal tGoal " +
@@ -1231,9 +1228,6 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 	@Override
 	@Transactional (readOnly = true)
 	public List<User> getUsersLearningGoal(long goalId) {
-		// TODO: add direct connection between a goal and a course
-		
-		// get one TargetLearningGoal for this goal
 		String query1 =
 			"SELECT tGoal " +
 			"FROM TargetLearningGoal tGoal " +

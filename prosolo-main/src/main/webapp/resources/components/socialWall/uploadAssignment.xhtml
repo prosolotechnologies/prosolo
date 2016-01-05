@@ -26,6 +26,8 @@
 	</composite:interface>
 	
 	<composite:implementation>
+	
+		<h:outputScript library="javascript" name="jquery.shortenedText.js" target="head"/>
 		
 		<div class="box">
 			<h:panelGroup layout="block" rendered="#{cc.attrs.toRender}" class="uploadAssignment richContent #{cc.attrs.styleClass}">

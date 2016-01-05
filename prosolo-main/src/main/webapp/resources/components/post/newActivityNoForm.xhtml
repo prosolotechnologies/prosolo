@@ -38,7 +38,8 @@
 	</composite:interface>
 	
 	<composite:implementation>
-		<h:outputScript library="javascript" target="head" name="prosolo.newpost.js" />
+		<h:outputScript library="javascript" name="prosolo.newpost.js" target="head" />
+		<h:outputScript library="javascript" name="jquery.autosize.min.js" target="head" />
 	
 		<script>
 		var #{cc.attrs.value}NewPost;

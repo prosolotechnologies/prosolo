@@ -38,7 +38,7 @@
 	<composite:implementation>
 		<utilcomp:messagesBundle var="msg" />
 		
-		<h:outputScript library="javascript" name="prosolo.tabs.js" target="head" />
+		<h:outputScript library="javascript" name="jquery.shortenedText.js" target="head"/>
 		
 		<h:panelGroup layout="block" class="recommendedPlans" style="display: none;" id="recommendedPlansPanel">
 			<h:panelGroup layout="block" id="availablePlans" class="compPlans noPlans noContentMessage" rendered="#{empty cc.attrs.recommendedplans}">
@@ -50,10 +50,10 @@
 				rendered="#{! empty cc.attrs.recommendedplans}">
 				
 				<script>
-					$(document).ready(function() {
-						$('.#{cc.attrs.parentid}TabbedPlans').tabs();
-						$(".#{cc.attrs.parentid}ActivitiesForm .actLink").shortenedText({showChar: #{cc.attrs.activityNameLength}, mode: 'static'});
-					});
+				$(function() {
+					$('.#{cc.attrs.parentid}TabbedPlans').tabs();
+					$(".#{cc.attrs.parentid}ActivitiesForm .actLink").shortenedText({showChar: #{cc.attrs.activityNameLength}, mode: 'static'});
+				});
 				</script>
 				
 				<h:panelGroup layout="block" id="recommendedPlans"

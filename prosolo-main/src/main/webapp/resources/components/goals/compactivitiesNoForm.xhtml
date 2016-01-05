@@ -38,8 +38,12 @@
 	<composite:implementation>
 	
 		<h:outputScript library="javascript" name="prosolo.newcomment.js" target="head" />
+		<h:outputScript library="javascript" name="jquery.autosize.min.js" target="head" />
+		<h:outputScript library="javascript" name="prosolo.overlay.js" target="head" />
+		<h:outputScript library="javascript" name="jquery.shortenedText.js" target="head"/>
 		
 		<p:growl id="activityWallGrowl" showDetail="true" />
+		
 		<p:commandLink styleClass="refreshAllHanler" 
 			style="display:none;"
 			action="#{cc.attrs.initializeHandler != null ? cc.attrs.initializeHandler : ''}"

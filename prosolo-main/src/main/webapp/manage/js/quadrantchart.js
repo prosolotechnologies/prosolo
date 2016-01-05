@@ -49,7 +49,7 @@ function draw(data) {
 	// 1 is added as a last parameter to avoid different tooltip color for every
 	// shape on a chart
 	// because it's determined by the last parameter added here
-	var series = ch.addSeries([ "id", "name", "Complexity", "Time", "1" ],
+	var series = ch.addSeries([ "id", "name", "Activity Complexity", "Time Spent Learning", "1" ],
 			dimple.plot.custom);
 
 	var iconWidth = 20;
@@ -140,13 +140,13 @@ function draw(data) {
     .attr("x", (width - widthLeftMargin - widthRightMargin)/2 + widthLeftMargin)
     .attr("y", heightTopMargin - 10 )
     .style("text-anchor", "middle")
-    .text("Much time");
+    .text("A lot of time");
 	
 	svg.append("text")      
     .attr("x", (width - widthLeftMargin - widthRightMargin)/2 + widthLeftMargin)
     .attr("y", height - heightBottomMargin + 35 )
     .style("text-anchor", "middle")
-    .text("Short time");
+    .text("Little time");
 	
 	svg.append("text")      
     .attr("x", widthLeftMargin - 35 )

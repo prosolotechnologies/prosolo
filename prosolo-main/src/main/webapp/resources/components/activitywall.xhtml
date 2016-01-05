@@ -44,6 +44,11 @@
 	
 	<composite:implementation>
 		<utilcomp:messagesBundle var="msg" />
+		
+		<h:outputScript library="javascript" name="jquery.autosize.min.js" target="head" />
+		<h:outputScript library="javascript" name="prosolo.overlay.js" target="head" />
+		<h:outputScript library="javascript" name="readmore.custom.js" target="head" />
+		<h:outputScript library="javascript" name="jquery.shortenedText.js" target="head"/>
 	
 		<script>
 			var updatePrepend = true, lastRefresh = null, activityPollStop = false;

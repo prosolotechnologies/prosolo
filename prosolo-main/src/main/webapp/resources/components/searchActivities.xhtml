@@ -30,6 +30,9 @@
 	</composite:interface>
 	
 	<composite:implementation>
+		<h:outputScript library="javascript" name="prosolo.overlay.js" target="head" />
+		<h:outputScript library="javascript" name="prosolo.search.js" target="head" />
+	
 		<div class="activitySearch">
 			<h:panelGroup layout="group" id="actSearchform">
 				<p:remoteCommand name="#{cc.clientId.replace(':', 'i')}SendActivitiesAjaxical" 

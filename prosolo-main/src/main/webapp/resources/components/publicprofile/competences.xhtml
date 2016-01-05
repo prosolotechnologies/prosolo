@@ -13,6 +13,9 @@
 	<ui:param name="userId" value="#{publicportfolio.profileOwnerData.id}" />
 
 	<utilcomp:messagesBundle var="msg" />
+	
+	<h:outputScript library="javascript" name="jquery.moreLessBox.js" target="head" />
+	<h:outputScript library="javascript" name="jquery.shortenedText.js" target="head"/>
 
 	<script>
 		$(function() {
