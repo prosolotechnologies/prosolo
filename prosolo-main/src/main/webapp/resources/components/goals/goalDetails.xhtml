@@ -123,7 +123,7 @@
 					
 					<p:commandLink styleClass="btnGoalDelete"
 						rendered="#{learninggoals.selectedGoalData.data.connectedWithCourse}"
-						onclick='$("#removeCourseFormModalDialog").dialog("open");'
+						onclick="$('#removeCourseFormModalDialog').dialog('open');"
 						action="#{deleteGoalCourseDialog.setCourseToDelete(learninggoals.selectedGoalData.data.course)}"
 						update=":removeCourse:removeCourseForm"
 					>
