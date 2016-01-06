@@ -2,13 +2,11 @@ package org.prosolo.web;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.ExternalContext;
@@ -22,8 +20,6 @@ import javax.servlet.http.HttpSessionBindingListener;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;
 import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
@@ -32,24 +28,14 @@ import org.prosolo.common.util.ImageFormat;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.core.spring.security.HomePageResolver;
 import org.prosolo.core.spring.security.UserSessionDataLoader;
-import org.prosolo.services.activityWall.ActivityWallManager;
-import org.prosolo.services.activityWall.filters.AllFilter;
-import org.prosolo.services.activityWall.filters.AllProsoloFilter;
-import org.prosolo.services.activityWall.filters.CourseFilter;
 import org.prosolo.services.activityWall.filters.Filter;
 import org.prosolo.services.activityWall.filters.LearningGoalFilter;
-import org.prosolo.services.activityWall.filters.MyActivitiesFilter;
-import org.prosolo.services.activityWall.filters.MyNetworkFilter;
-import org.prosolo.services.activityWall.filters.TwitterFilter;
-import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
-import org.prosolo.services.logging.AccessResolver;
 import org.prosolo.services.logging.LoggingService;
-import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.sessiondata.SessionData;
@@ -231,7 +217,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		User user = null;
 		if(initialized){
 			final String ipAddress = this.getIpAddress();
-			loggingService.logEvent(EventType.LOGOUT, user, ipAddress);
+			//loggingService.logEvent(EventType.LOGOUT, user, ipAddress);
 
 			userManager.fullCacheClear();
 			user = getUser();
@@ -320,12 +306,15 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	
 	public void userLogout(){
 		try {
+			final String ipAddress = this.getIpAddress();
+			User user = getUser();
+			loggingService.logEvent(EventType.LOGOUT, user, ipAddress);
 			HttpServletRequest req = (HttpServletRequest) FacesContext.getCurrentInstance()
 					.getExternalContext().getRequest();
 			String contextP = req.getContextPath() == "/" ? "" : req.getContextPath();
 			FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + "/logout");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			logger.error(e);
 			e.printStackTrace();
 		}
 	}

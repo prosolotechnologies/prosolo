@@ -173,36 +173,48 @@
 		               </span>
 		               <span class="hideMobile">#{loggeduser.getUser().getName().concat(" ").concat(loggeduser.getUser().getLastname())}</span> <i class="fa fa-angle-down"></i>
 		            </a>
-		            <ul class="dropdown-menu pull-right">
-		               <li>
-		               		<h:link 
-								onclick="sendLogPageNavigation('diggest','mainmenu');" 
-								value="Digest" 
-								outcome="/digest" />
-		               </li>
-		               <li>
-		               		<h:link 
-								onclick="sendLogPageNavigation('communications','mainmenu');" 
-								value="Communications" 
-								outcome="/communications" />
-		               </li>
-		               <li>
-		               		<h:link 
-								onclick="sendLogPageNavigation('search','mainmenu');" 
-								value="Search" 
-								outcome="/search" />
-		               </li>
-		               <li>
-		               		<h:link 
-								onclick="sendLogPageNavigation('settings','mainmenu');" 
-								value="Settings" 
-								outcome="/settings" />
-		               </li>
-		               <li role="separator" class="divider"></li>
-		               <li>
-							<a href="#{request.contextPath}/logout">Logout</a>
-					   </li>
-		            </ul>
+		            <h:form id="userLogoutFormId">
+			            <ul class="dropdown-menu pull-right">
+			               <li>
+			               		<h:link 
+									onclick="sendLogPageNavigation('diggest','mainmenu');" 
+									value="Digest" 
+									outcome="/digest" />
+			               </li>
+			               <li>
+			               		<h:link 
+									onclick="sendLogPageNavigation('communications','mainmenu');" 
+									value="Communications" 
+									outcome="/communications" />
+			               </li>
+			               <li>
+			               		<h:link 
+									onclick="sendLogPageNavigation('search','mainmenu');" 
+									value="Search" 
+									outcome="/search" />
+			               </li>
+			               <li>
+			               		<h:link 
+									onclick="sendLogPageNavigation('settings','mainmenu');" 
+									value="Settings" 
+									outcome="/settings" />
+			               </li>
+			               <li role="separator" class="divider"></li>
+			               
+				           <li>
+						   		<h:commandLink id="userLogout" 
+									value="Logout" 
+									action="#{loggeduser.userLogout()}">
+								</h:commandLink>
+						   </li>
+						   
+						   <ui:remove>
+				               <li>
+									<a href="#{request.contextPath}/logout">Logout</a>
+							   </li>
+						   </ui:remove>
+			            </ul>
+		            </h:form>
 		         </li>
 		    </ul>
 		    

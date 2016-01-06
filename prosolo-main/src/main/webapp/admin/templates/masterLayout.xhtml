@@ -173,15 +173,17 @@
 											value="Settings" 
 											outcome="/settings" />
 									</li>
-									<ui:remove> <li>
+									<li>
 										<h:commandLink id="userLogout" 
 											value="Logout" 
-											action="#{loggeduser.logout}">
+											action="#{loggeduser.userLogout()}">
 										</h:commandLink>
-									</li></ui:remove>
+									</li>
+									<ui:remove> 
 									<li>
 										<a href="#{request.contextPath}/logout">Logout</a>
 									</li>
+									</ui:remove>
 								</h:form>
 							</ul>
 						</div>
