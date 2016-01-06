@@ -50,7 +50,7 @@ public class CourseMembersBean implements Serializable {
 	private String searchTerm = "";
 	private int courseMembersNumber;
 	private int page = 1;
-	private int limit = 1;
+	private int limit = 10;
 	private CourseMembersSortField sortField = CourseMembersSortField.STUDENT_NAME;
 	private SortingOption sortOrder = SortingOption.ASC;
 	private List<PaginationLink> paginationLinks;

@@ -57,8 +57,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Autowired private EventFactory eventFactory;
 	@Autowired private ResourceFactory resourceFactory;
-	@Inject
-	private LearningGoalManager goalManager;
+	@Inject private LearningGoalManager goalManager;
 
 	@Override
 	@Transactional
@@ -472,42 +471,8 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	@Override
 	@Transactional(readOnly = false)
 	public CourseEnrollment enrollInCourse(User user, Course course, TargetLearningGoal targetGoal, String context) {
-		if (course != null) {
-			// if user has previously been enrolled into this course, remove that enrollment
-			CourseEnrollment oldCourseEnrollment = getCourseEnrollment(user, course);
-			
-			if (oldCourseEnrollment != null) {
-				removeEnrollmentFromCoursePortfolio(user, oldCourseEnrollment.getId());
-			}
-			
-			
-			Date date = new Date();
-			List<CourseCompetence> courseCompetences = new ArrayList<CourseCompetence>();
-			
-			for (CourseCompetence courseCompetence : course.getCompetences()) {
-				CourseCompetence cc = new CourseCompetence();
-				cc.setDateCreated(date);
-				cc.setCompetence(courseCompetence.getCompetence());
-				cc.setDaysOffset(courseCompetence.getDaysOffset());
-				cc.setDuration(courseCompetence.getDuration());
-				cc = saveEntity(cc);
-				
-				courseCompetences.add(cc);
-			}
-			
-			CourseEnrollment enrollment = new CourseEnrollment();
-			enrollment.setCourse(course);
-			enrollment.setUser(user);
-			enrollment.setDateStarted(date);
-			enrollment.setStatus(Status.ACTIVE);
-			enrollment.setAddedCompetences(courseCompetences);
-			enrollment.setTargetGoal(targetGoal);
-			enrollment = saveEntity(enrollment);
-			
-			CoursePortfolio portfolio = getOrCreateCoursePortfolio(user);
-			portfolio.addEnrollment(enrollment);
-			saveEntity(portfolio);
-			
+		CourseEnrollment enrollment = resourceFactory.enrollUserInCourse(user, course, targetGoal, context);
+		if(enrollment != null) {
 			try {
 				Map<String, String> parameters = new HashMap<String, String>();
 				parameters.put("context", context);
@@ -515,11 +480,9 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 				eventFactory.generateEvent(EventType.ENROLL_COURSE, user, enrollment, course, parameters);
 			} catch (EventException e) {
 				logger.error(e);
-			}
-			
-			return enrollment;
+			}	
 		}
-		return null;
+		return enrollment;
 	}
 	
 	@Override
@@ -676,7 +639,8 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 		}
 	}
 	
-	private void removeEnrollmentFromCoursePortfolio(User user,	long enrollmentId) {
+	@Override
+	public void removeEnrollmentFromCoursePortfolio(User user,	long enrollmentId) {
 		removeEnrollmentFromCoursePortfolio(user, enrollmentId, persistence.currentManager());
 	}
 
@@ -1092,9 +1056,9 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 			String query = 
 					"SELECT  course.id, tGoal.progress, userInstructor.id " +
 					"FROM CoursePortfolio coursePortfolio " +
-					"LEFT JOIN coursePortfolio.enrollments enrollment "+
-					"LEFT JOIN enrollment.targetGoal tGoal " +
-					"LEFT JOIN enrollment.course course " +
+					"INNER JOIN coursePortfolio.enrollments enrollment "+
+					"INNER JOIN enrollment.targetGoal tGoal " +
+					"INNER JOIN enrollment.course course " +
 					"LEFT JOIN enrollment.instructor instructor " +
 					"LEFT JOIN instructor.user userInstructor " +
 					"WHERE coursePortfolio.user.id = :user";

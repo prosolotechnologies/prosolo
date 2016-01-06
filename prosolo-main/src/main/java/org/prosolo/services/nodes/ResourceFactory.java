@@ -12,6 +12,7 @@ import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CourseCompetence;
+import org.prosolo.common.domainmodel.course.CourseEnrollment;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.organization.Organization;
@@ -86,5 +87,7 @@ public interface ResourceFactory extends AbstractManager {
 			throws EventException;
 
 	SimpleOutcome createSimpleOutcome(double resultValue);
+	
+	CourseEnrollment enrollUserInCourse(User user, Course course, TargetLearningGoal targetGoal, String context);
 
 }

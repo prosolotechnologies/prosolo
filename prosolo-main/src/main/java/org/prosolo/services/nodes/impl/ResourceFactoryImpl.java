@@ -1,11 +1,14 @@
 package org.prosolo.services.nodes.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+
+import javax.inject.Inject;
 
 import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.activities.Activity;
@@ -22,7 +25,10 @@ import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.content.RichContent;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CourseCompetence;
+import org.prosolo.common.domainmodel.course.CourseEnrollment;
+import org.prosolo.common.domainmodel.course.CoursePortfolio;
 import org.prosolo.common.domainmodel.course.CreatorType;
+import org.prosolo.common.domainmodel.course.Status;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.organization.Capability;
@@ -52,6 +58,7 @@ import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.PostManager;
+import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.ScaleManager;
@@ -77,6 +84,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 	@Autowired private RoleManager roleManager;
 	@Autowired private ScaleManager scaleManager;
 	@Autowired private FeedSourceManager feedSourceManager;
+	@Inject private CourseManager courseManager;
 	
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -572,5 +580,49 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 		sOutcome.setDateCreated(new Date());
 		sOutcome.setResult(resultValue);
 		return saveEntity(sOutcome);
+	}
+	
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+	public CourseEnrollment enrollUserInCourse(User user, Course course, TargetLearningGoal targetGoal, String context) {
+		if (course != null) {
+			// if user has previously been enrolled into this course, remove that enrollment
+			CourseEnrollment oldCourseEnrollment = courseManager.getCourseEnrollment(user, course);
+			
+			if (oldCourseEnrollment != null) {
+				courseManager.removeEnrollmentFromCoursePortfolio(user, oldCourseEnrollment.getId());
+			}
+			
+			
+			Date date = new Date();
+			List<CourseCompetence> courseCompetences = new ArrayList<CourseCompetence>();
+			
+			for (CourseCompetence courseCompetence : course.getCompetences()) {
+				CourseCompetence cc = new CourseCompetence();
+				cc.setDateCreated(date);
+				cc.setCompetence(courseCompetence.getCompetence());
+				cc.setDaysOffset(courseCompetence.getDaysOffset());
+				cc.setDuration(courseCompetence.getDuration());
+				cc = saveEntity(cc);
+				
+				courseCompetences.add(cc);
+			}
+			
+			CourseEnrollment enrollment = new CourseEnrollment();
+			enrollment.setCourse(course);
+			enrollment.setUser(user);
+			enrollment.setDateStarted(date);
+			enrollment.setStatus(Status.ACTIVE);
+			enrollment.setAddedCompetences(courseCompetences);
+			enrollment.setTargetGoal(targetGoal);
+			enrollment = saveEntity(enrollment);
+			
+			CoursePortfolio portfolio = courseManager.getOrCreateCoursePortfolio(user);
+			portfolio.addEnrollment(enrollment);
+			saveEntity(portfolio);
+			
+			return enrollment;
+		}
+		return null;
 	}
 }
