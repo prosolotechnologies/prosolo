@@ -192,11 +192,13 @@ require(['jquery', 'bootstrap', 'bootstrap-select', 'dashboard/paging', 'dashboa
                 var disabledHashtags = [];
                 
                 mostActiveHashtagsTable.create();
-                mostActiveHashtagsTable.subscribe(function(hashtag) {
-                    document.querySelector("#disable-form\\:hashtag-to-disable").value = hashtag;
-                    document.querySelector("#disable-form\\:disable-form-submit").click();
-                    disabledHashtags.push(hashtag);
-                    loadDh(disabledHashtags);
+                mostActiveHashtagsTable.subscribe(function(event) {
+                	if (event.name == "disable-clicked") {
+	                    document.querySelector("#disable-form\\:hashtag-to-disable").value = event.hashtag;
+	                    document.querySelector("#disable-form\\:disable-form-submit").click();
+	                    disabledHashtags.push(event.hashtag);
+	                    loadDh(disabledHashtags);
+                	}
                 });
 
                 
@@ -377,7 +379,7 @@ require(['jquery', 'bootstrap', 'bootstrap-select', 'dashboard/paging', 'dashboa
                             if (data.length==0) {
                                 $("#twitterHashtagsGraph .messages").text(noResultsMessage()).show().siblings().hide();
                             } else {
-                                mostActiveHashtagsTable.selectFirst(6);
+                                mostActiveHashtagsTable.selectFirst(5);
                                 $("#twitterHashtagsGraph .chart").show().siblings().hide();
                                 $("#twitterHashtagsGraph .legend").show();
                                 twitterHashtagsChart.show(data, from, to);
