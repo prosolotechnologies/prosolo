@@ -200,6 +200,11 @@ require(['jquery', 'bootstrap', 'bootstrap-select', 'dashboard/paging', 'dashboa
 	                    loadDh(disabledHashtags);
                 	}
                 });
+                mostActiveHashtagsTable.subscribe(function(event) {
+                	if (event.name == "hashtags-selected") {
+                		console.log(event.selected);
+                	}
+                });
 
                 
                 (function () {

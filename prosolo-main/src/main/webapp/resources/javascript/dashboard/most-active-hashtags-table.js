@@ -3,7 +3,13 @@ define([ "dashboard/table", "dashboard/callbacks" ], function(table, Callbacks) 
 	var callbacks = new Callbacks();
 	
 	var hashtagsTable;
-
+	
+	function selectedHashtags() {
+		return hashtagsTable.selected().map(function(e) {
+			return e.dataset['hashtag'];
+		});
+	}
+	
 	var configuration = {
 		"container" : "#mostActiveHashtags",
 		"rows" : {
@@ -41,10 +47,8 @@ define([ "dashboard/table", "dashboard/callbacks" ], function(table, Callbacks) 
 			"title" : "Show",
 			"type" : "checkbox",
 			"change" : function() {
-				hashtagsTable.countSelected() >= 5 ? hashtagsTable.disableDeselected() : hashtagsTable.enableSelectors()
-				// $(this).parent().parent().parent().find("tr > td.selector > input:not(:checked)").prop('disabled', true);
-				// $(this).parent().parent().parent().find("tr > td.selector > input").prop('disabled', false);
-				// TODO raise event.
+				hashtagsTable.countSelected() >= 5 ? hashtagsTable.disableDeselected() : hashtagsTable.enableSelectors();
+				callbacks.notify({"name" : "hashtags-selected", "selected" : selectedHashtags()});
 			}
 		} ]
 	}
@@ -65,7 +69,7 @@ define([ "dashboard/table", "dashboard/callbacks" ], function(table, Callbacks) 
 			return hashtagsTable.rows().map(function(e) {
 				return e.dataset['hashtag'];
 			});
-		}
-	}
-
+		},
+		selectedHashtags : selectedHashtags
+	};
 });

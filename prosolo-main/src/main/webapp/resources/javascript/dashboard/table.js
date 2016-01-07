@@ -58,6 +58,12 @@ define([], function() {
 						select[i].setAttribute("disabled", true);
 					}
 				},
+				selected: function() {
+					var checked = document.querySelectorAll(container + " table tbody td.selector input[type='checkbox']:checked");
+					return Array.prototype.slice.call(checked).map(function(input) {
+						return input.parentElement.parentElement;
+					});
+				},
 				countSelected: function() {
 					return document.querySelectorAll(container + " table tbody td.selector input[type='checkbox']:checked").length;
 				},
