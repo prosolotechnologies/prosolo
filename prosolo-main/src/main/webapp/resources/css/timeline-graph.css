@@ -39,6 +39,24 @@
 	fill : none;
 }
 
+.timeline-cred-ann-dot {
+	stroke : #0E9C57;
+	stroke-width : 2;
+	fill : #0E9C57;
+}
+
+.timeline-comp-ann-dot {
+	stroke : #428BCA;
+	stroke-width : 2;
+	fill : #428BCA;
+}
+
+.timeline-acti-ann-dot {
+	stroke : #D9534F;
+	stroke-width : 2;
+	fill : #D9534F;
+}
+
 .tooltip-text {
 	font-size: 10px;
 }
