@@ -8,7 +8,7 @@ define([], function() {
 		var callbacks = [];
 
 		this.notify = function(changes) {
-			callbacks.map(function(callback) {
+			callbacks.forEach(function(callback) {
 				callback(changes);
 			});
 		};

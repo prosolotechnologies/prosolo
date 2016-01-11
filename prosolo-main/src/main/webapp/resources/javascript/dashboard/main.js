@@ -35,15 +35,6 @@ require(['jquery', 'bootstrap', 'bootstrap-select', 'dashboard/paging', 'dashboa
                 var activityGraph = (function() {
                     var loaded = false;
                     
-                    var patterns = {
-                        registered: "pattern-one",
-                        login: "pattern-two",
-                        homepagevisited: "pattern-three",
-                        goalsviews: "pattern-four",
-                        competencesviews: "pattern-five",
-                        profileviews: "pattern-six"
-                    };
-                    
                     var agc = chart.create({
                         container : "#activityGraphChart",
                         x : "date",
@@ -52,33 +43,20 @@ require(['jquery', 'bootstrap', 'bootstrap-select', 'dashboard/paging', 'dashboa
                         tooltip : {
                             fields: ["date", "count", "type"]
                         },
-                        brewer: function(data) { return patterns },
+                        brewer: function(data) {
+							return {
+								registered: "registered",
+								login: "login",
+								homepagevisited: "homepagevisited",
+								goalsviews: "goalsviews",
+								competencesviews: "competencesviews",
+								profileviews: "profileviews"
+							};
+						},
                         legend : {
-                            selector: "#activityGraph .legend",
-                            data: function() { return [{"name" : "Registered", "class" : "pattern-one"},
-                                                       {"name" : "Logins", "class" : "pattern-two"},
-                                                       {"name" : "Home page visited", "class" : "pattern-three"},
-                                                       {"name" : "Goals views", "class" : "pattern-four"},
-                                                       {"name" : "Competences views", "class" : "pattern-five"},
-                                                       {"name" : "Profile views", "class" : "pattern-six"}]; }
+                            selector: "#activityGraph .legend"
                         }
                     });
-                    
-                    function displayLines() {
-                    	$("#activityGraphChartLegend g").click(function() {
-                    		var $g = $("#activityGraphChart g." + $(this).attr("class"));
-                    		if ($g.size() == 0) {
-                    			return;
-                    		}
-                            if ($g.css("opacity") == "0") {
-                            	$g.css("opacity", "100");
-                            	$(this).children("text").get(0).classList.remove("selected");
-                            } else {
-                            	$g.css("opacity", "0");
-                            	$(this).children("text").get(0).classList.add("selected");
-                            }
-                        });
-                    }
                     
                     return {
                         dateFrom : function() { return $("#activityGraph .dateFrom").val(); },
@@ -101,13 +79,17 @@ require(['jquery', 'bootstrap', 'bootstrap-select', 'dashboard/paging', 'dashboa
                                 var from = $("#activityGraph .dateFrom").datepicker("getDate");
                                 var to = $("#activityGraph .dateTo").datepicker("getDate");
                                 agc.show(data, from, to);
-                                displayLines();
+								agc.renderLegend([ {"name" : "Registered", "class" : "registered"},
+                                                   {"name" : "Logins", "class" : "login"},
+                                                   {"name" : "Home page visited", "class" : "homepagevisited"},
+                                                   {"name" : "Goals views", "class" : "goalsviews"},
+                                                   {"name" : "Competences views", "class" : "competencesviews"},
+                                                   {"name" : "Profile views", "class" : "profileviews"} ]);
                             }
                         },
                         isLoaded : function() {
                             return loaded;
-                        },
-                        displayLines : displayLines
+                        }
                     };
                 })();
                 
@@ -134,6 +116,7 @@ require(['jquery', 'bootstrap', 'bootstrap-select', 'dashboard/paging', 'dashboa
                     datepicker.align("#activityGraph .dateFrom", "#activityGraph .dateTo", activityGraph.period());
                     activityGraph.showLoader();
                     activityGraphService.get(activityGraph.onload);
+					return false;
                 });
                                 
                 datepicker.init("activityGraph", function(dateText, inst) {
@@ -183,6 +166,7 @@ require(['jquery', 'bootstrap', 'bootstrap-select', 'dashboard/paging', 'dashboa
                     datepicker.align("#twitterHashtagsGraph .dateFrom", "#twitterHashtagsGraph .dateTo", twitterHashtags.period());
                     twitterHashtags.showLoader();
                     twitterHashtagsService.get(twitterHashtags.onload);
+					return false;
                 });
 
                 $("#twitterHashtagsGraph .timeRange .input-group-addon").click(function() {
@@ -198,11 +182,6 @@ require(['jquery', 'bootstrap', 'bootstrap-select', 'dashboard/paging', 'dashboa
 	                    document.querySelector("#disable-form\\:disable-form-submit").click();
 	                    disabledHashtags.push(event.hashtag);
 	                    loadDh(disabledHashtags);
-                	}
-                });
-                mostActiveHashtagsTable.subscribe(function(event) {
-                	if (event.name == "hashtags-selected") {
-                		console.log(event.selected);
                 	}
                 });
 
@@ -337,17 +316,6 @@ require(['jquery', 'bootstrap', 'bootstrap-select', 'dashboard/paging', 'dashboa
                 
                 
                 var twitterHashtags = (function() {
-                    var patterns = [ "pattern-one", "pattern-two", "pattern-three", "pattern-four", "pattern-five", "pattern-six" ];
-                    
-                    function cycle() {
-                        var index = 0;
-                        return function() {
-                            var result = patterns[index];
-                            index = (index + 1) % patterns.length;
-                            return result;
-                        };
-                    };
-                    
                     var twitterHashtagsChart = chart.create({
                         container : "#twitterHashtagsChart",
                         x : "date",
@@ -357,19 +325,24 @@ require(['jquery', 'bootstrap', 'bootstrap-select', 'dashboard/paging', 'dashboa
                             fields: ["date", "count", "hashtag"]
                         },
                         brewer: function(data) {
-                            return data.reduce(function(acc, element) {
-                                if (!acc.result[element.hashtag]) {
-                                    acc.result[element.hashtag] = acc.next() + " " + element.hastag;
-                                }
-                                return acc;
-                            }, { result : {}, next : cycle() });
+							return data.reduce(function(result, element) {
+								result[element.hashtag] = element.hashtag;
+								return result;
+							}, {});
                         },
                         legend : {
-                            selector: "#twitterHashtagsGraph .legend",
-                            data: function() { var next = cycle(); return mostActiveHashtagsTable.hashtags().map(function(hashtag) { return {"name" : "#" + hashtag, "class" : next()}  }) }
+                            selector: "#twitterHashtagsGraph .legend"
                         }
                     });
-                    
+
+					mostActiveHashtagsTable.subscribe(function(event) {
+                		if (event.name == "hashtags-selected") {
+							var hashtags = mostActiveHashtagsTable.selectedHashtags(); 
+							var legend = hashtags.map(function(hashtag) { return {"name" : "#" + hashtag, "class" : hashtag};  });
+							twitterHashtagsChart.renderLegend(legend);
+                		}
+					});
+
                     return {
                         dateFrom : function() { return $("#twitterHashtagsGraph .dateFrom").val(); },
                         dateTo : function() { return $("#twitterHashtagsGraph .dateTo").val(); },
@@ -384,13 +357,17 @@ require(['jquery', 'bootstrap', 'bootstrap-select', 'dashboard/paging', 'dashboa
                             if (data.length==0) {
                                 $("#twitterHashtagsGraph .messages").text(noResultsMessage()).show().siblings().hide();
                             } else {
-                                mostActiveHashtagsTable.selectFirst(5);
+                                mostActiveHashtagsTable.selectFirst(6);
                                 $("#twitterHashtagsGraph .chart").show().siblings().hide();
                                 $("#twitterHashtagsGraph .legend").show();
                                 twitterHashtagsChart.show(data, from, to);
+								var hashtags = mostActiveHashtagsTable.selectedHashtags(); 
+								var legend = hashtags.map(function(hashtag) { return {"name" : "#" + hashtag, "class" : hashtag};  });
+								twitterHashtagsChart.renderLegend(legend);
                             }
                         }
                     };
+
                 })();
                 
                 datepicker.align("#twitterHashtagsGraph .dateFrom", "#twitterHashtagsGraph .dateTo", twitterHashtags.period());
@@ -427,7 +404,7 @@ require(['jquery', 'bootstrap', 'bootstrap-select', 'dashboard/paging', 'dashboa
                     } else {
                     	$("#disabled-twitter-hashtags .navigation").show();
                     	$("#disabled-twitter-hashtags #disabled-hashtags-table").show();
-	                    disabledHashtagsTable.init(data.result.map(function(hashtag) { return {"hashtag" : hashtag }}));
+	                    disabledHashtagsTable.init(data.result.map(function(hashtag) { return {"hashtag" : hashtag }; }));
 	                    page.innerHTML = data.page + "/" + data.pages;
                     }
                 }

@@ -47,11 +47,11 @@ define([ "dashboard/table", "dashboard/callbacks" ], function(table, Callbacks) 
 			"title" : "Show",
 			"type" : "checkbox",
 			"change" : function() {
-				hashtagsTable.countSelected() >= 5 ? hashtagsTable.disableDeselected() : hashtagsTable.enableSelectors();
+				hashtagsTable.countSelected() >= 6 ? hashtagsTable.disableDeselected() : hashtagsTable.enableSelectors();
 				callbacks.notify({"name" : "hashtags-selected", "selected" : selectedHashtags()});
 			}
 		} ]
-	}
+	};
 	
 	return {
 		subscribe : callbacks.subscribe,
@@ -63,7 +63,7 @@ define([ "dashboard/table", "dashboard/callbacks" ], function(table, Callbacks) 
 		},
 		selectFirst : function(count) {
 			hashtagsTable.selectFirst(count);
-			hashtagsTable.countSelected() >= 5 ? hashtagsTable.disableDeselected() : hashtagsTable.enableSelectors()
+			hashtagsTable.countSelected() >= 6 ? hashtagsTable.disableDeselected() : hashtagsTable.enableSelectors();
 		},
 		hashtags : function() {
 			return hashtagsTable.rows().map(function(e) {
