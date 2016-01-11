@@ -41,20 +41,20 @@
 		
 		<p:growl id="msg" showDetail="true" globalOnly="true"></p:growl>
 
-		<section class="heading">
+		<section class="heading student">
 			<div class="col-md-1 back">
 				<a class="btn btn-default" href="#"><i class="fa fa-reply"></i></a>
 			</div>
 
 			<div class="col-md-2 studentInfo">
-				<span class="userProfileImageLarge"> <h:graphicImage
+				<span class="userProfileImageSmall"> <h:graphicImage
 						value="#{studentProfileBean.student.avatar}"
 						alt="#{studentProfileBean.student.name}'s avatar" />
 				</span>
 
 				<div class="name">
 					<h1>#{studentProfileBean.student.name}</h1>
-					<h2>#{studentProfileBean.student.position}</h2>
+					
 
 					<actions:directMessage
 						receiverData="#{studentProfileBean.getMessageReceiverData()}"
@@ -80,7 +80,8 @@
 							aria-label="Close">
 							<span aria-hidden="true">&#215;</span>
 						</button>
-
+						 <h3 class="title">University</h3>
+            			 <h2>#{studentProfileBean.student.position}</h2>
 						<h3 class="title">Interests</h3>
 						<ul>
 							<ui:repeat var="interest"
@@ -158,343 +159,32 @@
 				</div>
 			</div>
 
-			<div class="col-md-2 profileType">
-				<div class="toolbarContainer">
-					<h3 class="title">Profile type</h3>
-					<div class="profileTypeBadge">
-						<div class="shadow">
-							<span>TYPE</span> <span class="number">1</span>
-						</div>
-					</div>
-				</div>
-			</div>
-
 			<div class="col-md-7 observation">
-				<div class="toolbarContainer">
-
-					<h3 class="title">Observations</h3>
-
-					<h:panelGroup id="lastObservationPanel">
-						<h:panelGroup
-							rendered="#{studentProfileBean.observationBean.lastObservation == null}">
-							<ul class="observations">
-								<li class="symptoms">
-									<div class="link">There is no observation history for
-										this student</div>
-								</li>
-							</ul>
-						</h:panelGroup>
-
-						<h:panelGroup
-							rendered="#{studentProfileBean.observationBean.lastObservation != null}">
-
-							<ul class="observations">
-								<li class="symptoms">
-
-									<div class="labels">
-										<ui:repeat var="s"
-											value="#{studentProfileBean.observationBean.firstTwoSymptoms}">
-											<span class="label label-symptoms">#{s}</span>
-										</ui:repeat>
-
-									</div>
-
-									<div class="more dropdown">
-										<a data-target="#" data-toggle="dropdown" role="button"
-											aria-haspopup="true" aria-expanded="false"> <i
-											class="fa fa-caret-down"></i>
-										</a>
-										<ul class="dropdown-menu" aria-labelledby="dLabel">
-											<li>
-												<button type="button" class="close" data-dismiss="alert"
-													aria-label="Close">
-													<span aria-hidden="true">&#215;</span>
-												</button>
-											</li>
-											<ui:repeat var="symptom"
-												value="#{studentProfileBean.observationBean.lastObservation.symptoms}">
-												<li class="label label-symptoms">#{symptom.description}</li>
-											</ui:repeat>
-										</ul>
-									</div>
-								</li>
-
-								<li class="suggestions">
-
-									<div class="labels">
-										<ui:repeat var="s"
-											value="#{studentProfileBean.observationBean.firstTwoSuggestions}">
-											<span class="label label-suggestions">#{s}</span>
-										</ui:repeat>
-									</div>
-
-									<div class="more dropdown">
-										<a data-target="#" data-toggle="dropdown" role="button"
-											aria-haspopup="true" aria-expanded="false"> <i
-											class="fa fa-caret-down"></i>
-										</a>
-
-										<ul class="dropdown-menu" aria-labelledby="dLabel">
-											<li>
-												<button type="button" class="close" data-dismiss="alert"
-													aria-label="Close">
-													<span aria-hidden="true">&#215;</span>
-												</button>
-											</li>
-											<ui:repeat var="suggestion"
-												value="#{studentProfileBean.observationBean.lastObservation.suggestions}">
-												<li class="label label-suggestions">#{suggestion.description}</li>
-											</ui:repeat>
-										</ul>
-									</div>
-								</li>
-
-								<li class="message">
-									<div class="linksType1">
-										<span> <a href="#"> <i class="fa fa-comment-o"></i>
-												Show message
-										</a>
-										</span>
-										<h:panelGroup id="spanNoNote"
-											rendered="#{studentProfileBean.observationBean.lastObservation.note == null or
-													 empty studentProfileBean.observationBean.lastObservation.note}">
-											<i class="fa fa-sticky-note-o"></i> No note
-										</h:panelGroup>
-										<h:panelGroup id="spanExistingNote"
-											rendered="#{studentProfileBean.observationBean.lastObservation.note != null and
-											            not empty studentProfileBean.observationBean.lastObservation.note}">
-											<i class="fa fa-sticky-note-o"></i> #{studentProfileBean.observationBean.lastObservation.note}
-											</h:panelGroup>
-
-									</div>
-								</li>
-
-								<li class="createdBy">
-									<div class="userInfo">
-										<span class="userProfileImage pull-left"> <h:graphicImage
-												value="#{studentProfileBean.observationBean.lastObservation.createdBy.avatar}"
-												title="#{studentProfileBean.observationBean.lastObservation.createdBy.name}"
-												alt="#{studentProfileBean.observationBean.lastObservation.createdBy.name}" />
-										</span>
-										<div class="userText">
-											<span class="date">#{studentProfileBean.observationBean.lastObservation.formattedDate}</span>
-											by<br></br> <a href="#">#{studentProfileBean.observationBean.lastObservation.createdBy.name}</a>
-										</div>
-									</div>
-								</li>
-								<li><p:commandLink styleClass="more2"
-										action="#{studentProfileBean.observationBean.prepareEditObservation(studentProfileBean.observationBean.lastObservation)}"
-										oncomplete="$('#obs-toggle').dropdown('toggle'); return false;"
-										update=":newObservationForm:newObservationPanel">
-									
-										Edit
-		      						</p:commandLink></li>
-							</ul>
-
-						</h:panelGroup>
-					</h:panelGroup>
-
-					<div id="observationBar">
-						<p:commandLink styleClass="btn btn-primary"
-							actionListener="#{studentProfileBean.observationBean.prepareNewObservation()}"
-							oncomplete="$('#obs-toggle').dropdown('toggle'); return false;"
-							update=":newObservationForm:newObservationPanel">
-							<i class="fa fa-plus"></i> Create new
-		      			</p:commandLink>
-
-						<h:form id="newObservationForm">
-							<p:growl id="msgObs" showDetail="true" globalOnly="true"></p:growl>
-
-							<a class="dropdown-toggle" data-target="#" data-toggle="dropdown"
-								role="button" aria-haspopup="true" aria-expanded="false" id="obs-toggle" ></a>
-
-							<h:panelGroup layout="block" id="newObservationPanel"
-								styleClass="dropdown-menu pull-right" aria-labelledby="dLabel"
-								role="menu">
-
-								<h:panelGroup layout="block"
-									rendered="#{studentProfileBean.observationBean.editObservation != null}">
-
-									<a class="toggleToolbar" role="button" data-toggle="collapse"
-										href="#dropdownToolbar" aria-expanded="false"
-										aria-controls="dropdownToolbar"></a>
-
-									<h:panelGroup id="editObservationTitle"
-										rendered="#{!studentProfileBean.observationBean.isNew()}">
-
-										<div class="dropdown-header">Edit observation</div>
-										<div class="creationDate posAbs">Created
-											#{studentProfileBean.observationBean.lastObservation.formattedDate}
-											by
-											#{studentProfileBean.observationBean.lastObservation.createdBy.name}</div>
-									</h:panelGroup>
-
-									<h:panelGroup id="newObservationTitle"
-										rendered="#{studentProfileBean.observationBean.isNew()}">
-										<div class="dropdown-header">New observation</div>
-									</h:panelGroup>
-
-									<div class="dropdownToolbar collapse in" id="dropdownToolbar">
-
-										<!--accordion start-->
-										<div class="panel-group" id="accordion" role="tablist"
-											aria-multiselectable="true">
-
-											<div class="panel panel-default">
-												<div class="panel-heading" role="tab" id="headingOne">
-													<h4 class="panel-title">
-														<a role="button" data-toggle="collapse"
-															data-parent="#accordion" href="#collapseOne"
-															aria-expanded="true" aria-controls="collapseOne">
-															SYMPTOMS </a>
-													</h4>
-												</div>
-
-												<div id="collapseOne" class="panel-collapse collapse in"
-													role="tabpanel" aria-labelledby="headingOne">
-
-													<div class="panel-body obsBlock">
-														<h:selectManyCheckbox layout="pageDirection"
-															id="selectSymptoms"
-															value="#{studentProfileBean.observationBean.editObservation.selectedSymptoms}"
-															styleClass="checkbox checkbox-success" required="true"
-															requiredMessage="At least one symptom should be selected">
-															<f:selectItems
-																value="#{studentProfileBean.observationBean.allSymptoms}">
-															</f:selectItems>
-														</h:selectManyCheckbox>
-
-														<h:message for="selectSymptoms" style="color: red" />
-													</div>
-												</div>
-											</div>
-											<div class="panel panel-default">
-												<div class="panel-heading" role="tab" id="headingTwo">
-													<h4 class="panel-title">
-														<a class="collapsed" role="button" data-toggle="collapse"
-															data-parent="#accordion" href="#collapseTwo"
-															aria-expanded="false" aria-controls="collapseTwo">
-															Suggestions </a>
-													</h4>
-												</div>
-
-												<div id="collapseTwo" class="panel-collapse collapse"
-													role="tabpanel" aria-labelledby="headingTwo">
-													<div class="panel-body obsBlock">
-														<h:selectManyCheckbox layout="pageDirection"
-															id="selectSuggestions"
-															value="#{studentProfileBean.observationBean.editObservation.selectedSuggestions}"
-															styleClass="checkbox checkbox-success" required="true"
-															requiredMessage="At least one suggestion should be selected">
-															<f:selectItems
-																value="#{studentProfileBean.observationBean.allSuggestions}" />
-														</h:selectManyCheckbox>
-														<h:message for="selectSuggestions" style="color: red" />
-													</div>
-												</div>
-											</div>
-
-											<div class="panel panel-default">
-												<div class="panel-heading" role="tab" id="headingThree">
-													<h4 class="panel-title">
-														<a class="collapsed" role="button" data-toggle="collapse"
-															data-parent="#accordion" href="#collapseThree"
-															aria-expanded="false" aria-controls="collapseThree">
-															Message </a>
-													</h4>
-												</div>
-
-												<div id="collapseThree" class="panel-collapse collapse"
-													role="tabpanel" aria-labelledby="headingThree">
-
-													<div class="panel-body obsBlock">
-														<h:inputTextarea styleClass="form-control" rows="3"
-															disabled="#{!studentProfileBean.observationBean.isNew()}"
-															pt:placeholder="Message that will be sent to student if filled. Not mandatory."
-															value="#{studentProfileBean.observationBean.editObservation.editObservation.message}" />
-													</div>
-												</div>
-											</div>
-
-											<div class="panel panel-default">
-												<div class="panel-heading" role="tab" id="headingFour">
-													<h4 class="panel-title">
-														<a class="collapsed" role="button" data-toggle="collapse"
-															data-parent="#accordion" href="#collapseFour"
-															aria-expanded="false" aria-controls="collapseFour">
-															Note </a>
-													</h4>
-												</div>
-
-												<div id="collapseFour" class="panel-collapse collapse"
-													role="tabpanel" aria-labelledby="headingFour">
-													<div class="panel-body obsBlock">
-														<h:inputTextarea styleClass="form-control" rows="3"
-															pt:placeholder="Internal note. Not visible by student."
-															value="#{studentProfileBean.observationBean.editObservation.editObservation.note}" />
-													</div>
-												</div>
-											</div>
-										</div>
-										<!-- accordion end -->
-
-										<div class="obsBlock row">
-											<div class="col-md-6">
-												<button type="button" class="btn btn-block btn-default">
-													Cancel</button>
-											</div>
-
-											<div class="col-md-6">
-												<p:commandLink value="Save"
-													styleClass="btn btn-block btn-primary"
-													actionListener="#{studentProfileBean.observationBean.saveObservation()}"
-													update=":lastObservationPanel :newObservationForm:newObservationPanel :newObservationForm:msgObs" />
-											</div>
-										</div>
-									</div>
-								</h:panelGroup>
-							</h:panelGroup>
-						</h:form>
-						
-						<span class="more3">
-							<p:commandLink
-								actionListener="#{studentProfileBean.observationBean.loadObservationHistory}"
-								update=":historyPanel" oncomplete="showHistory();"
-								value="Show history">
-							</p:commandLink>
-						</span>
-					</div>
-
-					
-
-				</div>
-			</div>
-		</section>
+      			<!-- Nav tabs -->
+      			<ul class="nav nav-tabs centerTabs" role="tablist">
+         			<li role="progression" class="active">
+         				<a href="#progression" aria-controls="progression" role="tab" data-toggle="tab">Progression <i class="fa fa-line-chart"></i></a>
+         			</li>
+         			<li role="timeline">
+         				<a href="#timeline" aria-controls="timeline" role="tab" data-toggle="tab">Timeline <i class="fa fa-clock-o"></i></a>
+         			</li>
+         			<li role="social">
+         				<a href="#social" aria-controls="social" role="tab" data-toggle="tab">Social <i class="fa fa-users"></i></a>
+         			</li>
+      			</ul>   
+			</div>	
+			
+			</section>
 
 		<h:panelGroup id="historyPanel">
 			<comphistory:observationHistory />
 		</h:panelGroup>
 
-		<section class="container-fluid mainArea" id="learnTabs">
-			<div class="row">
-
-				<!-- Nav tabs -->
-				<ul class="nav nav-tabs" role="tablist">
-					<li role="progression" class="active"><a href="#progression"
-						aria-controls="progression" role="tab" data-toggle="tab">
-							Progression <i class="fa fa-line-chart"></i>
-					</a></li>
-					<li role="timeline"><a href="#timeline"
-						aria-controls="timeline" role="tab" data-toggle="tab">
-							Timeline <i class="fa fa-clock-o"></i>
-					</a></li>
-					<li role="social"><a href="#social" aria-controls="social"
-						role="tab" data-toggle="tab"> Social <i class="fa fa-users"></i>
-					</a></li>
-				</ul>
-
+		<section class="container-fluid mainArea fullWidth" id="learnTabs">
+			<div class="row fullWidthPanel">
+				<div class="col-md-10">
 				<!-- Tab panes -->
-				<div class="tab-content">
+				<div class="tab-content centerTabs">
 					
 					<ui:include src="/manage/studentProfile.progression.xhtml"></ui:include>
 
@@ -619,9 +309,238 @@
 						</ui:remove>
 					</div>
 				</div>
+				</div>
+				
+				<div class="col-md-2">
+			      <div class="observationPanel">
+			      	<div class="oProfileType">
+			            Profile type
+			            <span class="">1</span>
+			         </div>
+			         <div class="observationBox">
+			         	<h:panelGroup id="lastObservationPanel">
+							<h:panelGroup
+								rendered="#{studentProfileBean.observationBean.lastObservation == null}">
+									There is no observation history for this student
+							</h:panelGroup>
+			         	
+				         	<h:panelGroup
+								rendered="#{studentProfileBean.observationBean.lastObservation != null}">
+								<h3 class="oTitle">LAST OBSERVATION</h3>
+								<p:commandLink styleClass="oMore2"
+										action="#{studentProfileBean.observationBean.prepareEditObservation(studentProfileBean.observationBean.lastObservation)}"
+										oncomplete="showObservationPanel();$('#obs-toggle').dropdown('toggle'); return false;"
+										update=":newObservationForm:newObservationPanel">
+									
+										Edit
+		      					</p:commandLink>
+									<div class="userInfo">
+					               <span class="userProfileImage pull-left">
+						               <h:graphicImage
+												value="#{studentProfileBean.observationBean.lastObservation.createdBy.avatar}"
+												title="#{studentProfileBean.observationBean.lastObservation.createdBy.name}"
+												alt="#{studentProfileBean.observationBean.lastObservation.createdBy.name}" />
+					               </span>
+					               <div class="userText">
+					                  <span class="date">#{studentProfileBean.observationBean.lastObservation.formattedDate}</span>
+											by<br></br> <a href="#">#{studentProfileBean.observationBean.lastObservation.createdBy.name}</a>
+					               </div>
+					               <div class="clearfix"></div>
+					            </div>
+					            <h3 class="oTitleSmall">Symptoms</h3>
+					            <div class="labels">
+					               <ui:repeat var="symptom"
+										value="#{studentProfileBean.observationBean.lastObservation.symptoms}">
+										<span class="label label-symptoms">#{symptom.description}</span>
+								   </ui:repeat>
+					            </div>
+					            <h3 class="oTitleSmall">Suggestions</h3>
+					            <div class="labels">
+					               <ui:repeat var="suggestion"
+										value="#{studentProfileBean.observationBean.lastObservation.suggestions}">
+										<span class="label label-suggestions">#{suggestion.description}</span>
+								   </ui:repeat>
+					            </div>
+					            <div class="dottedDivider"></div>
+									<div class="linksType1">
+										<span> <a href="#"> <i class="fa fa-comment-o"></i>
+												Show message
+										</a>
+										</span>
+										<h:panelGroup id="spanNoNote"
+											rendered="#{studentProfileBean.observationBean.lastObservation.note == null or
+													 empty studentProfileBean.observationBean.lastObservation.note}">
+											<i class="fa fa-sticky-note-o"></i> No note
+										</h:panelGroup>
+										<h:panelGroup id="spanExistingNote"
+											rendered="#{studentProfileBean.observationBean.lastObservation.note != null and
+											            not empty studentProfileBean.observationBean.lastObservation.note}">
+											<i class="fa fa-sticky-note-o"></i> #{studentProfileBean.observationBean.lastObservation.note}
+										</h:panelGroup>
+					            	</div>
+				            </h:panelGroup>
+				           </h:panelGroup>
+				         </div>
+			         	<p:commandLink styleClass="btn btn-primary btn-block"
+							actionListener="#{studentProfileBean.observationBean.prepareNewObservation()}"
+							oncomplete="showObservationPanel();$('#obs-toggle').dropdown('toggle'); return false;"
+							update=":newObservationForm:newObservationPanel">
+							<i class="fa fa-plus"></i> Create new observation
+	      			    </p:commandLink>
+				         <span class="more3">
+							<p:commandLink
+								actionListener="#{studentProfileBean.observationBean.loadObservationHistory}"
+								update=":historyPanel" oncomplete="showHistory();"
+								value="Show history">
+							</p:commandLink>
+						</span>
+
+			<!-- EDIT OBSERVATION-->
+					<h:form id="newObservationForm">
+					
+						<p:growl id="msgObs" showDetail="true" globalOnly="true"></p:growl>
+
+						<a class="dropdown-toggle" data-target="#" data-toggle="dropdown"
+							role="button" aria-haspopup="true" aria-expanded="false" id="obs-toggle" ></a>
+						
+						<h:panelGroup layout="block" id="newObservationPanel"
+								styleClass="observationBar observationBox" aria-labelledby="dLabel"
+								role="menu" style="display:none">
+							<h:panelGroup layout="block"
+									rendered="#{studentProfileBean.observationBean.editObservation != null}">
+								
+								<a class="toggleToolbar" role="button" data-toggle="collapse"
+										href="#dropdownToolbar" aria-expanded="false"
+										aria-controls="dropdownToolbar"></a>
+
+									<h:panelGroup id="editObservationTitle"
+										rendered="#{!studentProfileBean.observationBean.isNew()}">
+
+										<div class="dropdown-header">Edit observation</div>
+										<div class="creationDate posAbs">Created
+											#{studentProfileBean.observationBean.lastObservation.formattedDate}
+											by
+											#{studentProfileBean.observationBean.lastObservation.createdBy.name}</div>
+									</h:panelGroup>
+
+									<h:panelGroup id="newObservationTitle"
+										rendered="#{studentProfileBean.observationBean.isNew()}">
+										<div class="dropdown-header">New observation</div>
+									</h:panelGroup>
+					               <div class="dropdownToolbar collapse in" id="dropdownToolbar">
+					                  
+											<!--accordion start-->
+					                  <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+					                    <div class="panel panel-default">
+					                      <div class="panel-heading" role="tab" id="headingOne">
+					                        <h4 class="panel-title">
+					                          <a class="heading-symptoms" role="button" data-toggle="collapse"
+													data-parent="#accordion" href="#collapseOne"
+													aria-expanded="true" aria-controls="collapseOne">
+													SYMPTOMS </a>
+					                        </h4>
+					                      </div>
+					                      <div id="collapseOne" class="panel-collapse collapse in " role="tabpanel" aria-labelledby="headingOne">
+					                        <div class="panel-body obsBlock checkboxes">
+					                          <h:selectManyCheckbox layout="pageDirection"
+													id="selectSymptoms"
+													value="#{studentProfileBean.observationBean.editObservation.selectedSymptoms}"
+													styleClass="checkbox checkbox-success" required="true"
+													requiredMessage="At least one symptom should be selected">
+													<f:selectItems
+														value="#{studentProfileBean.observationBean.allSymptoms}">
+													</f:selectItems>
+											  </h:selectManyCheckbox>
+
+											  <h:message for="selectSymptoms" style="color: red" />
+					                        </div>
+					                      </div>
+					                    </div>
+					                    <div class="panel panel-default">
+					                      <div class="panel-heading" role="tab" id="headingTwo">
+					                        <h4 class="panel-title">
+					                          <a class="collapsed heading-suggestions" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+					                            Suggestions
+					                          </a>
+					                        </h4>
+					                      </div>
+					                      <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+					                        <div class="panel-body obsBlock checkboxes">
+					                        		<h:selectManyCheckbox layout="pageDirection"
+															id="selectSuggestions"
+															value="#{studentProfileBean.observationBean.editObservation.selectedSuggestions}"
+															styleClass="checkbox checkbox-success" required="true"
+															requiredMessage="At least one suggestion should be selected">
+															<f:selectItems
+																value="#{studentProfileBean.observationBean.allSuggestions}" />
+													</h:selectManyCheckbox>
+													<h:message for="selectSuggestions" style="color: red" />
+					                
+					                      	</div>
+					                      </div>
+					                    </div>
+					                    <div class="panel panel-default">
+					                      <div class="panel-heading" role="tab" id="headingThree">
+					                        <h4 class="panel-title">
+					                          <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+					                            Message
+					                          </a>
+					                        </h4>
+					                      </div>
+					                      <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+					                        <div class="panel-body obsBlock">
+					                        	<h:inputTextarea styleClass="form-control" rows="3"
+															disabled="#{!studentProfileBean.observationBean.isNew()}"
+															pt:placeholder="Message that will be sent to student if filled. Not mandatory."
+															value="#{studentProfileBean.observationBean.editObservation.editObservation.message}" />
+					                        </div>
+					                      </div>
+					                    </div>
+					                    
+											  <div class="panel panel-default">
+					                      <div class="panel-heading" role="tab" id="headingFour">
+					                        <h4 class="panel-title">
+					                          <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+					                            Note 
+					                          </a>
+					                        </h4>
+					                      </div>
+					                      <div id="collapseFour" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFour">
+					                        <div class="panel-body obsBlock">
+					                        	<h:inputTextarea styleClass="form-control" rows="3"
+															pt:placeholder="Internal note. Not visible by student."
+															value="#{studentProfileBean.observationBean.editObservation.editObservation.note}" />        
+					                        </div>
+					                      </div>
+					                    </div>                    
+					                  </div>
+											<!-- accordion end -->
+					
+					                  
+					                  
+					                  <div class="obsBlock row">
+					                     <div class="col-md-6"><button type="button" class="btn btn-block btn-default">Cancel</button></div>	               
+					                     <div class="col-md-6">
+					                     	<p:commandLink value="Save"
+													styleClass="btn btn-block btn-primary"
+													actionListener="#{studentProfileBean.observationBean.saveObservation()}"
+													update=":lastObservationPanel :newObservationForm:newObservationPanel :newObservationForm:msgObs" />
+					                     </div>
+					                  </div> 
+					               </div>
+					     </h:panelGroup>
+					   </h:panelGroup>
+			      	</h:form>
+			         
+			<!-- NEW OBSERVATION-->       
+			         
+			
+			      </div>
+			   </div>
+				
 			</div>
 		</section>
-
+		
 		<h:outputScript library="javascript" name="prosolo.tags.js"
 			target="head" />
 		<script src="#{request.contextPath}/manage/js/jSvgConnect.js"></script>

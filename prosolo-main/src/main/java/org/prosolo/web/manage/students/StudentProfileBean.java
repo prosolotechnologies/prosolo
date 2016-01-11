@@ -90,6 +90,7 @@ public class StudentProfileBean implements Serializable {
 				
 				observationBean.setStudentId(decodedId);
 				observationBean.setStudentName(student.getName());
+				observationBean.setTargetGoalId(selectedGoal.getId());
 				observationBean.initializeObservationData();
 				
 				logger.info("User with id "+ 
@@ -186,6 +187,9 @@ public class StudentProfileBean implements Serializable {
 				}
 			}
 			selectedGoal.setCompetences(compData);
+			
+			//set selected target goal id to observation bean
+			observationBean.resetObservationData(selectedGoal.getId());
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error loading competences.");

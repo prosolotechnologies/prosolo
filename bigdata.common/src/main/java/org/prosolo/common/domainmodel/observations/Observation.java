@@ -15,6 +15,7 @@ import javax.persistence.ManyToOne;
 
 
 import org.hibernate.annotations.Type;
+import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 
 @Entity
@@ -28,6 +29,7 @@ public class Observation {
 	private User createdBy;
 	private User createdFor;
 	private Date creationDate;
+	private TargetLearningGoal targetLearningGoal;
 	
 	@Id
 	@Column(name = "id", unique = true, nullable = false, insertable = false, updatable = false)
@@ -103,6 +105,15 @@ public class Observation {
 
 	public void setCreationDate(Date creationDate) {
 		this.creationDate = creationDate;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	public TargetLearningGoal getTargetLearningGoal() {
+		return targetLearningGoal;
+	}
+
+	public void setTargetLearningGoal(TargetLearningGoal targetLearningGoal) {
+		this.targetLearningGoal = targetLearningGoal;
 	}
 	
 	

@@ -18,30 +18,30 @@
 			Credentials
 		</h2>
 
-		<div class="blockRow" id="credentials" style="width: 680px;">
+		<div class="blockRow" id="credentials">
 		
 			<a href="" class="sliderIconLeft">
 				<i class="fa fa-angle-left"></i>
 			</a>
 
-			<div class="slides">
-				<ui:repeat var="goal" value="#{studentProfileBean.lGoals}">
-					<p:commandLink
-						styleClass="slideCred progressBlock #{goal.id == studentProfileBean.selectedGoal.id ? 'selected' : ''}"
-						action="#{studentProfileBean.selectGoal(goal)}"
-						update=":progression" 
-						oncomplete="initProgressionTabScripts()">
-	
-						<div class="progress">
-							<div class="progression bgGreen"
-								style="height: #{goal.progress}%"></div>
-							<div class="progressMask"></div>
-							<div class="percentage">#{goal.progress}%</div>
-						</div>
-						<h3>#{goal.name}</h3>
-					</p:commandLink>
-				</ui:repeat>
-			</div>
+			
+			<ui:repeat var="goal" value="#{studentProfileBean.lGoals}">
+				<p:commandLink
+					styleClass="progressBlock #{goal.id == studentProfileBean.selectedGoal.id ? 'selected' : ''}"
+					action="#{studentProfileBean.selectGoal(goal)}"
+					update=":progression :lastObservationPanel" 
+					oncomplete="hideObservationPanel();initProgressionTabScripts();">
+
+					<div class="progress">
+						<div class="progression bgGreen"
+							style="height: #{goal.progress}%"></div>
+						<div class="progressMask"></div>
+						<div class="percentage">#{goal.progress}%</div>
+					</div>
+					<h3>#{goal.name}</h3>
+				</p:commandLink>
+			</ui:repeat>
+			
 			
 			<a href="" class="sliderIconRight">
 				<i class="fa fa-angle-right"></i>
@@ -56,8 +56,6 @@
 		});
 		</script>
 
-		<div class="clearfix"></div>
-
 		<h2>
 			<img
 				src="#{request.contextPath}/resources/images/ico-competences.svg"
@@ -65,7 +63,8 @@
 			Competences
 		</h2>
 
-		<div class="blockRow" id="competences" style="width: 680px;">
+		<div class="blockRow" id="competences">
+			<a href="" class="sliderIconLeftCred"><i class="fa fa-angle-left"></i></a>
 			<ui:repeat var="comp"
 				value="#{studentProfileBean.selectedGoal.competences}">
 
@@ -168,7 +167,7 @@
 					update=":progression"
 					oncomplete="initProgressionTabScripts()" />
 			</ui:repeat>
-
+			<a href="" class="sliderIconRightCred"><i class="fa fa-angle-right"></i></a>
 			<div class="clearfix"></div>
 		</div>
 
@@ -221,73 +220,6 @@
 							</div>
 						</div>
 					</ui:repeat>
-
-					<div class="panel panel-default">
-						<div class="panel-heading" role="tab" id="headingTwo">
-							<h4 class="panel-title">
-								<a class="done collapsed" role="button"
-									data-toggle="collapse" data-parent="#activities"
-									href="#act2" aria-expanded="false" aria-controls="act2">
-									<span class="hexagon done"></span> Watch video: Network
-									structure and Data sources
-								</a>
-							</h4>
-						</div>
-
-						<div id="act2" class="panel-collapse collapse" role="tabpanel"
-							aria-labelledby="headingTwo">
-							<div class="panel-body">
-								<p>Anim pariatur cliche reprehenderit, enim eiusmod high
-									life accusamus terry richardson ad squid.</p>
-								<div class="fileContainer">
-									<div class="col-md-10">
-										<div class="fileIcon youtube">
-											<i class="fa fa-youtube-square"></i>
-										</div>
-										<h5>
-											<a href="">Network structure and Data sources</a>
-										</h5>
-										<div class="fileUrl">https://www.youtube.com/ea0ef897e8f18d...</div>
-									</div>
-									<div class="col-md-2 fileSizeTime">27:32</div>
-									<div class="clearfix"></div>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="panel panel-default">
-						<div class="panel-heading" role="tab" id="headingThree">
-							<h4 class="panel-title">
-								<a class="collapsed" role="button" data-toggle="collapse"
-									data-parent="#activities" href="#act3"
-									aria-expanded="false" aria-controls="act3"> <span
-									class="hexagon"></span> Download the CCK11 dataset and
-									familiarize with the data
-								</a>
-							</h4>
-						</div>
-						<div id="act3" class="panel-collapse collapse" role="tabpanel"
-							aria-labelledby="headingThree">
-							<div class="panel-body">
-								<p>Download the CCK11 dataset and familiarize with the
-									data</p>
-
-								<div class="fileContainer">
-									<div class="col-md-10">
-										<div class="fileIcon pdf">
-											<i class="fa fa-file-pdf-o"></i>
-										</div>
-										<h5>
-											<a href="">CCK11 dataset for social network analysis</a>
-										</h5>
-										<div class="fileUrl">https://bitbucket.org/dalmooc/dalmooc/src/ea0ef897e8f18d...</div>
-									</div>
-									<div class="col-md-2 fileSizeTime">24.3Mb</div>
-									<div class="clearfix"></div>
-								</div>
-							</div>
-						</div>
-					</div>
 				</div>
 			</div>
 			<div class="col-md-6 graph">

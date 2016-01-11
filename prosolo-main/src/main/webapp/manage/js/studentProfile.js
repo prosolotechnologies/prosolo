@@ -63,6 +63,14 @@ function initProgressionTabScripts() {
 	drawTreePath();
 }
 
+function showObservationPanel() {
+	$('.observationBar.observationBox').show();
+}
+
+function hideObservationPanel() {
+	$('.observationBar.observationBox').hide();
+}
+
 $(function() {
 	initProgressionTabScripts();
 })
