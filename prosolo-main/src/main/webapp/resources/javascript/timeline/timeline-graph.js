@@ -26,7 +26,11 @@ define([ 'jquery', 'd3' ], function($, d3) {
 	    tooltipTitleRectHeight = 15,
 	    tooltipWidth = 120,
 	    height = 300 - margin.top - margin.bottom,
-	    height2 = 300 - margin2.top - margin2.bottom;
+	    height2 = 300 - margin2.top - margin2.bottom,
+		totalDaysZoomTreshold = (typeof config.totalDaysZoomTreshold === 'undefined') 
+			? 30 : config.totalDaysZoomTreshold,
+		daysToZoom = (typeof config.daysToZoom === 'undefined') 
+			? 30 : config.daysToZoom;
 
 		var parseDate = d3.time.format("%Y-%m-%d").parse;
 	
@@ -106,6 +110,8 @@ define([ 'jquery', 'd3' ], function($, d3) {
 		
 		var tooltipGroup = focus.append("g");
 		tooltipGroup.attr("clip-path", "url(#clip)");
+		
+		var milestoneDotGroup = context.append("g");
 	
 		d3.json("http://localhost:8080/resources/javascript/timeline/sp500.json", function(error, data) {
 			data = data.sort(function(a,b){
@@ -199,13 +205,7 @@ define([ 'jquery', 'd3' ], function($, d3) {
 		  	.style("fill",function(d){return eventColor(d.milestones[0].type)})
 		  	.style("stroke",function(d){return eventColor(d.milestones[0].type)})
 		  	.on('mouseover', function(d) {findTooltipTextRectangle(this.getAttribute("tooltip-index")).timelineTooltipMoveToFront()})
-		  	.on('mouseout', function(d) {findTooltipTextRectangle(this.getAttribute("tooltip-index")).timelineTooltipMoveToBack()})
-//		 	.append("image")
-//		 		.attr("xlink:href","https://upload.wikimedia.org/wikipedia/commons/e/ed/Nuclear_plant.gif")
-//		 		.attr("width", 15)
-//		 		.attr("height", 15)
-//		 		.attr("x", function(d) { return x(d.date) - (tooltipWidth/2) })
-//		 		.attr("y", function(d) { return 0  })  
+		  	.on('mouseout', function(d) {findTooltipTextRectangle(this.getAttribute("tooltip-index")).timelineTooltipMoveToBack()}) 
 		  	
 		  //create tooltop title text
 		  singleTooltipGroup.append("text")
@@ -263,8 +263,36 @@ define([ 'jquery', 'd3' ], function($, d3) {
 			  		})
 			  	.on('mouseout', function(d) {
 			  		findTooltipTextRectangle(this.getAttribute("tooltip-index")).timelineTooltipMoveToFront();
-			  	});  
+			  	});
+
+		milestoneDotGroup.selectAll("circle").data(data.filter(function(d) { 
+							return d.milestones; 
+						}), function(d) { return d.date; })
+					.enter()
+					.append("circle")
+					.attr("class", function(d){
+						if(d.milestones[0].type == "Credentials") 
+							return "timeline-cred-ann-dot"
+						else if(d.milestones[0].type == "Competences")
+							return "timeline-comp-ann-dot"
+						else if(d.milestones[0].type == "Activities")
+							return "timeline-acti-ann-dot"
+					})
+					.attr("cx",function(d){return x2(d.date);})
+					.attr("cy",function(d){return y2(d.value);})
+					.attr("event-type",function(d){ return d.milestones[0].type; })
+					.attr("r",3);
+					
+		var dataExtendInDays = getDataExtendInDays(data);
+		if(dataExtendInDays >= totalDaysZoomTreshold) {
+			brush.extent([new Date(data[daysToZoom].date), new Date(data[0].date)]);
+			context.select('.timeline-brush').call(brush);
+			brushed();
+		}
 		});
+		
+
+
 		
 		function brushed() {
 			x.domain(brush.empty() ? x2.domain() : brush.extent());
@@ -332,7 +360,7 @@ define([ 'jquery', 'd3' ], function($, d3) {
 		  });
 		}
 
-	eventColor = function(eventType) {
+	function eventColor(eventType) {
 	    if(eventType == "Credentials") 
 	    	return "#0E9C57"
 	    else if(eventType == "Competences")
@@ -340,6 +368,15 @@ define([ 'jquery', 'd3' ], function($, d3) {
 	    else if(eventType == "Activities")
 	    	return  "#D9534F"
     	return "#D9534F"
+	}
+	
+	function getDataExtendInDays(data) {
+		if(data || data.length > 0) {
+			var days = Math.round(new Date(data[0].date) - new Date(data[data.length-1].date))/(1000*60*60*24);
+			return days;
+		}
+		return 0;
+		
 	}
 	
 
@@ -356,7 +393,7 @@ define([ 'jquery', 'd3' ], function($, d3) {
 			//hide tooltips, given an array of "active" events
 			var hiddenTooltips = $.grep(this.allEventTypes, function(el){return $.inArray(el, events) == -1});
 			$.each(hiddenTooltips, function( index, value ) {
-				 $("line[event-type="+value+"], g[event-type="+value+"]").fadeOut("fast")
+				 $("line[event-type="+value+"], g[event-type="+value+"], circle[event-type="+value+"]").fadeOut("fast")
 			});
 			//show tooltips, given a array of "active" events
 			$.each(events, function( index, value ) {
