@@ -73,4 +73,9 @@ function hideObservationPanel() {
 
 $(function() {
 	initProgressionTabScripts();
+	
+	$("#activitiesBlock .panel.panel-default").on("mouseover", function(e) {
+		var id = $(this).find('input[type="hidden"]').val();
+		hoverActivity(id);
+	});
 })

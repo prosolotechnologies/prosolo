@@ -185,6 +185,7 @@
 					<ui:repeat var="act"
 						value="#{studentProfileBean.selectedGoal.selectedCompetence.activities}">
 						<div class="panel panel-default">
+							<h:inputHidden value="#{act.id}"></h:inputHidden>
 							<div class="panel-heading" role="tab" id="headingOne">
 
 								<h4 id="activity#{act.id}" class="panel-title">
