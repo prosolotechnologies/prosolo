@@ -203,18 +203,18 @@ public class CoursePortfolioBean implements Serializable {
 			addActiveCourse(enrollment);
 			
 			
-			final CourseEnrollment enrollment1 = enrollment;
+//			final CourseEnrollment enrollment1 = enrollment;
 			
-			taskExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-			    	try {
-						courseManager.addEnrollment(coursePortfolioId, enrollment1);
-					} catch (ResourceCouldNotBeLoadedException e) {
-						logger.error(e);
-					}
-				}
-			});
+//			taskExecutor.execute(new Runnable() {
+//				@Override
+//				public void run() {
+//			    	try {
+//						courseManager.addEnrollment(coursePortfolioId, enrollment1);
+//					} catch (ResourceCouldNotBeLoadedException e) {
+//						logger.error(e);
+//					}
+//				}
+//			});
 			
 			logger.debug("User " + loggedUser.getUser() + " is now enrollened in a course "+course.getId());
 			
