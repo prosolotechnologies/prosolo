@@ -1,5 +1,6 @@
 package org.prosolo.bigdata.common.dal.pojo;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,7 +9,7 @@ import java.util.Map;
  *
  */
 
-public class MostActiveUsersForLearningGoal {
+public class MostActiveUsersForLearningGoal implements Serializable{
 	long date;
 	long learninggoal;
 	Map<Long, Long> users;//user id, counter of user activities

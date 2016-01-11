@@ -3,28 +3,50 @@ package org.prosolo.bigdata.scala.clustering.userprofiling
 import java.text.SimpleDateFormat
 import java.util.{Calendar, Date}
 
+import org.apache.spark.rdd.RDD
+import org.prosolo.bigdata.dal.persistence.impl.ClusteringDAOImpl
+import org.prosolo.bigdata.scala.spark.SparkContextLoader
+import scala.collection.JavaConverters._
+
 /**
   * Created by zoran on 15/12/15.
   */
 /**
   * zoran 15/12/15
   */
-object UserProfileClusteringManager extends App{
+object UserProfileClusteringManager{
   val dateFormat: SimpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
 
-  val startDate: Date = dateFormat.parse("10/20/2014")
-  val endDate: Date = dateFormat.parse("12/20/2014")
-  val moocCourses:Array[Long]=Array(1,32768,32769,32770,65536,98304,98305,98306,131072,131073,131074)
+  //val startDate: Date = dateFormat.parse("10/20/2014")
+  val startDate: Date=new Date
+  val DAY_IN_MS:Long=1000*60*60*24
+  val periodToCalculate=7
+  val endDate:Date=new Date(startDate.getTime-(periodToCalculate*DAY_IN_MS))
+  //val endDate: Date = dateFormat.parse("12/20/2014")
+  //val moocCourses:Array[Long]=Array(1,32768,32769,32770,65536,98304,98305,98306,131072,131073,131074)
   // val moocCourses:Array[Long]=Array(1,32768);
+  println("INITIALIZE USER PROFLIE CLUSTERING")
+  val clusteringDAOManager=new ClusteringDAOImpl
 
-  moocCourses.foreach(courseid=>
-  {
-    println("RUNNING CLUSTERING FOR COURSE:"+courseid)
-    println("TEMPORARY DISABLED")
-   // runPeriodicalKMeansClustering(startDate,endDate,courseid)
-    runPeriodicalHmmClustering(startDate,endDate,courseid)
+  def runClustering()={
+    println("INITIALIZE USER PROFLIE CLUSTERING 2")
+    val sc=SparkContextLoader.getSC
+    val coursesIds=clusteringDAOManager.getAllCoursesIds
+    val coursesIdsScala:Seq[java.lang.Long]=coursesIds.asScala.toSeq
+    val coursesRDD:RDD[Long]=sc.parallelize(coursesIdsScala.map { Long2long})
+    coursesRDD.foreachPartition {
+      courses => {
+        courses.foreach { courseid => {
+          println("RUNNING CLUSTERING FOR COURSE:" + courseid)
+         // println("TEMPORARY DISABLED")
+          runPeriodicalKMeansClustering(startDate, endDate, courseid)
+          runPeriodicalHmmClustering(startDate, endDate, courseid)
+        }
+        }
+      }
     }
-  )
+  }
+
   // runPeriodicalClustering(startDate,endDate2)
   def addDaysToDate(date:Date, days:Int): Date ={
     val cal:Calendar=Calendar.getInstance()

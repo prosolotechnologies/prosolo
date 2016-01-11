@@ -6,6 +6,7 @@ import java.net.URL
 import com.datastax.driver.core.Row
 import edu.uci.ics.jung.graph.util.EdgeType
 import org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl
+import org.prosolo.bigdata.dal.persistence.impl.ClusteringDAOImpl
 
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.JavaConverters._
@@ -16,14 +17,19 @@ import scala.collection.JavaConverters._
 /**
   * zoran 21/12/15
   */
-object SNAclusterManager extends App{
+object SNAclusterManager{
 val edgesToRemove=5
   //val moocCourses:Array[Long]=Array(1,32768,32769,32770,65536,98304,98305,98306,131072,131073,131074)
-  val moocCourses:Array[Long]=Array(1)
+  //val moocCourses:Array[Long]=Array(1)
   val dbManager=new SocialInteractionStatisticsDBManagerImpl
+  println("INITIALIZED SNA CLUSTER MANAGER")
+  val clusteringDAOManager=new ClusteringDAOImpl
+
+
 
 def identifyClusters(): Unit ={
-  moocCourses.foreach(courseid=> {
+  val allCourses=clusteringDAOManager.getAllCoursesIds
+  allCourses.asScala.foreach(courseid=> {
     println("RUNNING CLUSTERING FOR COURSE:" + courseid)
     identifyClustersInCourse(courseid)
   })
@@ -39,7 +45,10 @@ def identifyClusters(): Unit ={
           directedNetwork.addLink(link,sourcenode,targetnode)
     }
     println("Users:"+directedNetwork.getNodes().size+" LINKS:"+directedNetwork.getLinks().size)
-    val finalUserNodes:ArrayBuffer[UserNode]=directedNetwork.calculateEdgeBetweennessClustering(edgesToRemove)
+    if(directedNetwork.getLinks().size>0){
+      val finalUserNodes:ArrayBuffer[UserNode]=directedNetwork.calculateEdgeBetweennessClustering(edgesToRemove)
+    }
+
   }
   def readCourseData(courseId:Long):Array[Tuple3[Long,Long,Long]] ={
     val rows: java.util.List[Row] =dbManager.getSocialInteractions(courseId)
@@ -49,42 +58,8 @@ def identifyClusters(): Unit ={
   def storeUserNodesClustersForCourse(courseId:Long,userNodes:ArrayBuffer[UserNode]): Unit ={
 
   }
-  identifyClusters()
-  /*def readTestCourseData():ArrayBuffer[Tuple3[Int,Int,Int]] ={
-    val testData:ArrayBuffer[Tuple3[Int,Int,Int]]=new ArrayBuffer[Tuple3[Int,Int,Int]]()
-    val filePath: URL = Thread.currentThread.getContextClassLoader.getResource("files/users_interactions_test_data.csv")
-    val testFile: File = new File(filePath.getPath)
-    try {
-      val br: BufferedReader = new BufferedReader(new FileReader(testFile))
-      var line: String = null
-      try {
-        var first: Boolean = true
-        while ((({
-          line = br.readLine; line
-        })) !=null ) {
-          if (!first) {
-            val parts: Array[String] = line.split("\\s*,\\s*")
-            // System.out.println("SOURCE:" + parts(0) + " TARGET:" + parts(1) + " COUNT:" + parts(2))
-            val row=new Tuple3(parts(0),parts(1),parts(2))
-            testData += Tuple3(parts(0).toInt,parts(1).toInt,parts(2).toInt)
-          }
-          first = false
-        }
-      }
-      catch {
-        case e1: IOException => {
-          e1.printStackTrace
-        }
-      }
-    }
-    catch {
-      case e2: FileNotFoundException => {
-        e2.printStackTrace
-      }
+  //identifyClusters()
 
-    }
-    testData
-  }*/
 
 
 }

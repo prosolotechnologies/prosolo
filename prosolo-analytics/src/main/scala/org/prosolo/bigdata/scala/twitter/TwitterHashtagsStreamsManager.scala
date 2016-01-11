@@ -1,20 +1,8 @@
 package org.prosolo.bigdata.scala.twitter
 
 import org.prosolo.bigdata.twitter.StreamListData
-import org.prosolo.common.twitter.{PropertiesFacade, TwitterSiteProperties}
-import org.prosolo.bigdata.events.pojo.AnalyticsEvent
-
 import org.prosolo.bigdata.dal.persistence.impl.TwitterStreamingDAOImpl
-import org.prosolo.bigdata.spark.SparkLauncher
- 
-import org.apache.spark.streaming.dstream.ReceiverInputDStream
-//import org.apache.spark.streaming.twitter.TwitterUtils
-import org.apache.spark.streaming.StreamingContext
-
-import twitter4j.{HashtagEntity, Status,TwitterStream,TwitterStreamFactory,FilterQuery}
-
-
-import com.google.gson.JsonObject
+import twitter4j.{TwitterStream,FilterQuery}
 import org.slf4j.LoggerFactory
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
@@ -26,7 +14,7 @@ import org.hibernate.Session
  * @author zoran
  */
 object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
- // val propFacade = new PropertiesFacade()
+
  
   val logger = LoggerFactory.getLogger(getClass)
   /** Keeps information about each hashtag and which users or learning goals are interested in it. Once nobody is interested in hashtag it can be removed   */
@@ -50,13 +38,12 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
     result
   }
   
- // val currentFilterList:ListBuffer[String]=new ListBuffer[String]
+
   
   /**
    * At the applicaiton startup reads all hashtags from database and initialize required number of spark twitter streams to listen for it on Twitter
    */
  def initialize() {
-  //  val filters = new Array[String](1)
     logger.info("INITIALIZE TWITTER STREAMING")
     val twitterDAO = new TwitterStreamingDAOImpl()
     val session:Session= HibernateUtil.getSessionFactory().openSession()
@@ -109,7 +96,7 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
      
   } 
   
-  def addNewHashTags(hashtags:ListBuffer[String], userId:java.lang.Long, goalId:java.lang.Long):Boolean={
+  def addNewHashTags(hashtags:ListBuffer[String], userId:Int, goalId:Int):Boolean={
     var changed=false 
         val currentFilterList:ListBuffer[String]=getLatestStreamList
    
@@ -127,7 +114,7 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
              currentFilterList+=(hashtag); changed=true; 
         }
       }     
-       val listData:StreamListData= hashtagsAndReferences.getOrElseUpdate(hashtag, new StreamListData(hashtag, userId, goalId))
+       val listData:StreamListData= hashtagsAndReferences.getOrElseUpdate(hashtag, new StreamListData(hashtag, userId.toLong, goalId.toLong))
        val streamid=if(streamsCounter==0) 0 else streamsCounter-1
        listData.setStreamId(streamid)
      }
@@ -136,13 +123,13 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
       }
    changed
   }
-  def removeHashTags(hashtags:ListBuffer[String], userId:java.lang.Long, goalId:java.lang.Long):ListBuffer[Int]={
+  def removeHashTags(hashtags:ListBuffer[String], userId:Int, goalId:Int):ListBuffer[Int]={
  
     val changedIds:ListBuffer[Int]=new ListBuffer[Int]()
     for(hashtag <- hashtags){
       val listData:StreamListData= hashtagsAndReferences.get(hashtag).get
-      if(goalId>0) listData.removeLearningGoalId(goalId)
-      if(userId>0) listData.removeUserId(userId)
+      if(goalId>0) listData.removeLearningGoalId(goalId.toLong)
+      if(userId>0) listData.removeUserId(userId.toLong)
       if(listData.isFreeToRemove()) {
         val changedId=listData.getStreamId
         if(!changedIds.contains(changedId)){

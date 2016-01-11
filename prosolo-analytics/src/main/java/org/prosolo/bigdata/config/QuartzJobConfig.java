@@ -17,4 +17,7 @@ public class QuartzJobConfig {
 
 	@Element(name = "on-startup", required = false)
 	public boolean onStartup = true;
+
+	@Element(name="schedule", required=false)
+	public String schedule;
 }

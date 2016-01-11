@@ -13,8 +13,8 @@ public class CompetenceActivitiesAssociationRulesAnalyzerTest {
 
 	@Test
 	public void testAnalyzeCompetenceActivitesAssociationRules() {
-		CompetenceActivitiesAssociationRulesAnalyzer analyzer = new CompetenceActivitiesAssociationRulesAnalyzer();
-		analyzer.analyzeCompetenceActivitesAssociationRules();
+		//CompetenceActivitiesAssociationRulesAnalyzer analyzer = new CompetenceActivitiesAssociationRulesAnalyzer();
+		//analyzer.analyzeCompetenceActivitesAssociationRules();
 	}
 
 }

@@ -51,6 +51,7 @@ class DirectedNetwork{
     */
   def calculateEdgeBetweennessClustering(edgesToRemove:Int):ArrayBuffer[UserNode] ={
       val clusterer:EdgeBetweennessClusterer[UserNode, UserLink]=new EdgeBetweennessClusterer[UserNode, UserLink](edgesToRemove)
+  println("NUMBER OF EDGES:"+network.getEdges.size())
       val clusteredUsers:java.util.Set[java.util.Set[UserNode]] = clusterer.transform(network);
     val clustUsers=clusteredUsers.asScala
     var clusterNo=0

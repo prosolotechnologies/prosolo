@@ -4,7 +4,6 @@ import scala.collection.mutable.ListBuffer
 import org.prosolo.bigdata.events.pojo.AnalyticsEvent
 import java.util.{TimerTask, Timer}
 import org.prosolo.bigdata.scala.twitter.TwitterHashtagsStreamsManager.updateHashTagsFromBufferAndRestartStream
-//import org.prosolo.bigdata.scala.twitter.TwitterStreamManager.addHashTagsFromBufferAndUpdateStream
 import org.prosolo.bigdata.scala.twitter.util.TwitterUtils._
 
 /**

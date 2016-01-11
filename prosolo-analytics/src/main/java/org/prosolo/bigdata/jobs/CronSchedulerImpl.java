@@ -15,16 +15,7 @@ import org.prosolo.bigdata.config.DBServerConfig;
 import org.prosolo.bigdata.config.QuartzJobConfig;
 import org.prosolo.bigdata.config.SchedulerConfig;
 import org.prosolo.bigdata.config.Settings;
-import org.quartz.Job;
-import org.quartz.JobBuilder;
-import org.quartz.JobDetail;
-import org.quartz.JobKey;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.SchedulerFactory;
-import org.quartz.SimpleScheduleBuilder;
-import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
+import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
@@ -301,18 +292,33 @@ public class CronSchedulerImpl implements CronScheduler {
 				.forName(jobClassName);
 
 		if (jobConfig.activated) {
+			JobKey jobKey = JobKey.jobKey(jobClassName, "job");
+
+			JobBuilder jobBuilder = JobBuilder.newJob(jobClass);
+			jobBuilder.withIdentity(jobKey);
+			jobBuilder.storeDurably();
+			JobDetail jobDetails = jobBuilder.build();
+			sched.addJob(jobDetails, true);
+
+			TriggerBuilder tb = TriggerBuilder.newTrigger();
+			tb.forJob(jobKey);
+			tb.withIdentity(jobClassName,"job");
+			String cronExpression=jobConfig.schedule;
+			CronScheduleBuilder.cronSchedule(cronExpression);
+			tb.withSchedule(CronScheduleBuilder.cronSchedule(cronExpression));
+			Trigger trigger=tb.build();
+			sched.scheduleJob(trigger);
+		}
+		if (jobConfig.onStartup) {
 			JobBuilder jobBuilder = JobBuilder.newJob(jobClass);
 			JobKey jobKey = JobKey.jobKey(jobClassName, "job");
 			jobBuilder.withIdentity(jobKey);
+			System.out.println("RUNNING ON startup JOB:"+jobClassName);
+			jobBuilder.storeDurably();
+			JobDetail jobDetails = jobBuilder.build();
+			sched.addJob(jobDetails, true);
+			sched.triggerJob(jobKey);
 
-			if (jobConfig.onStartup) {
-				System.out.println("RUNNING ON startup JOB:"+jobClassName);
-				jobBuilder.storeDurably();
-				JobDetail jobDetails = jobBuilder.build();
-				sched.addJob(jobDetails, true);
-				sched.triggerJob(jobKey);
-
-			}
 		}
 
 	}

@@ -13,6 +13,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
+import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -32,6 +33,7 @@ import org.prosolo.bigdata.es.AssociationRulesIndexerImpl;
 import org.prosolo.bigdata.es.RecommendationDataIndexer;
 import org.prosolo.bigdata.es.RecommendationDataIndexerImpl;
 import org.prosolo.bigdata.events.pojo.AnalyticsEvent;
+import org.prosolo.bigdata.scala.analyzers.LearningGoalsMostActiveUsers;
 import org.prosolo.bigdata.utils.DateUtil;
 
 import com.google.gson.Gson;
@@ -57,7 +59,10 @@ public class LearningGoalsMostActiveUsersAnalyzer implements Serializable {
 
 	public void analyzeLearningGoalsForMostActiveUsersForToday() {
 		long daysSinceEpoch = DateUtil.getDaysSinceEpoch();
-		this.analyzeLearningGoalsMostActiveUsersForDay(daysSinceEpoch);
+		//this.analyzeLearningGoalsMostActiveUsersForDay(daysSinceEpoch);
+		LearningGoalsMostActiveUsers analyser=new LearningGoalsMostActiveUsers();
+		analyser.analyzeLearningGoalsMostActiveUsersForDay(daysSinceEpoch);
+
 
 	}
 
@@ -66,8 +71,9 @@ public class LearningGoalsMostActiveUsersAnalyzer implements Serializable {
 
 		// final long daysSinceEpoch =16574;
 		final AnalyticalEventDBManager dbManager = new AnalyticalEventDBManagerImpl();
+		System.out.println("AnalyzeLearningGoalsMostActiveUsersForDay");
 		JavaSparkContext javaSparkContext = SparkLauncher.getSparkContext();
-
+		System.out.println("GOT JAVA SPARK CONTEXT");
 		List<UserLearningGoalActivitiesCount> activitiesCounters = dbManager
 				.findUserLearningGoalActivitiesByDate(daysSinceEpoch);
 		JavaRDD<UserLearningGoalActivitiesCount> activitiesCountersRDD = javaSparkContext
@@ -170,11 +176,7 @@ public class LearningGoalsMostActiveUsersAnalyzer implements Serializable {
 							throws Exception {
 						List<MostActiveUsersForLearningGoal> mostActiveUsersForDate = dbManager
 								.findMostActiveUsersForGoalsByDate(date);
-
-						// Tuple2<Long, List<MostActiveUsersForLearningGoal>>
-						// tuple = new Tuple2<Long,
-						// List<MostActiveUsersForLearningGoal>>(date,mostActiveUsersForDate);
-						return mostActiveUsersForDate;
+							return mostActiveUsersForDate;
 					}
 				});
 		System.out.println("COUNT:" + mostActiveUsersByDatePairRDD.count());

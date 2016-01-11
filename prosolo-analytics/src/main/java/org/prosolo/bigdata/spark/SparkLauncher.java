@@ -2,10 +2,12 @@ package org.prosolo.bigdata.spark;
 
 import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
+import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.streaming.Durations;
 import org.apache.spark.streaming.StreamingContext;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
+import org.prosolo.bigdata.scala.spark.SparkContextLoader$;
 
 /**
  * @author Zoran Jeremic May 10, 2015
@@ -18,11 +20,12 @@ public class SparkLauncher {
 	private static JavaSparkContext javaSparkContext = null;
 	private static StreamingContext scalaStreamingContext = null;
 
-	public static synchronized JavaSparkContext getSparkContext() {
+	 public static synchronized JavaSparkContext getSparkContext() {
 		if (javaSparkContext == null) {
 			try {
-				System.out.println("GET SPARK JAVA CONTEXT");
+				System.out.println("GET INIT-SPARK JAVA CONTEXT");
 				javaSparkContext = new JavaSparkContext(getSparkConf());
+
 				logger.debug("SPARK HOME=" + javaSparkContext.getSparkHome());
 			} catch (Exception ex) {
 				ex.printStackTrace();
@@ -32,6 +35,10 @@ public class SparkLauncher {
 
 		return javaSparkContext;
 	}
+	/*public static synchronized SparkContext getSparkContext(){
+		System.out.println("GET SPARK JAVA CONTEXT REDIRECTS TO SPARK CONTEXT");
+		return SparkContextLoader$.MODULE$.getSC();
+	}*/
 
 	public static JavaStreamingContext getSparkStreamingContext() {
 		/*
@@ -59,7 +66,7 @@ public class SparkLauncher {
 		Runtime runtime = Runtime.getRuntime();
 		runtime.gc();
 		int numOfCores = runtime.availableProcessors();
-		numOfCores = 0;
+		//numOfCores = 4;
 		SparkConf conf = new SparkConf();
 		conf.setMaster("local[" + numOfCores + "]");
 		conf.set("spark.executor.memory", "4g");
