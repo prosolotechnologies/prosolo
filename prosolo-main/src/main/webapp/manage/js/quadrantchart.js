@@ -16,8 +16,6 @@ function drawQuadrantChart(servicePath) {
 	 * analysis 5" }, { id: 3, Complexity: -4, Time: -6, name: "Statistical
 	 * analysis 6" } ];
 	 */
-
-	
 	
 };
 
@@ -85,28 +83,17 @@ function draw(data) {
 				.attr("width", iconWidth)
 				.attr("height", iconHeight)
 				.on('click', function(d, i) {
-							// console.log(shape);
-							// console.log(shape[0][0].id);
-							var e = document.createEvent('UIEvents');
-							e.initUIEvent('click', true, true, window, 1);
-							shape.node().dispatchEvent(e);
-				})
-				.on('mouseover', function(d, i) {
-					
-							// console.log(shape);
 							// console.log(shape[0][0].id);
 //							var e = document.createEvent('UIEvents');
-//							e.initUIEvent('mouseover', true, true, window, 1);
+//							e.initUIEvent('click', true, true, window, 1);
 //							shape.node().dispatchEvent(e);
+					$(shape.node()).d3Click("click");
+				})
+				.on('mouseover', function(d, i) {
 					$(shape.node()).d3Click("mouseover");
 				})
 				.on('mouseleave', function(d, i) {
-					
-							// console.log(shape);
-							// console.log(shape[0][0].id);
-							var e = document.createEvent('UIEvents');
-							e.initUIEvent('mouseleave', true, true, window, 1);
-							shape.node().dispatchEvent(e);
+					$(shape.node()).d3Click("mouseleave");
 				});
 	};
 
