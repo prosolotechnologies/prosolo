@@ -343,7 +343,10 @@
 					               </span>
 					               <div class="userText">
 					                  <span class="date">#{studentProfileBean.observationBean.lastObservation.formattedDate}</span>
-											by<br></br> <a href="#">#{studentProfileBean.observationBean.lastObservation.createdBy.name}</a>
+											by<br></br>
+											<h:link outcome="/publicprofile" value="#{studentProfileBean.observationBean.lastObservation.createdBy.name}">
+												<f:param name="id" value="#{util:encodeId(studentProfileBean.observationBean.lastObservation.createdBy.id)}" />
+											</h:link>
 					               </div>
 					               <div class="clearfix"></div>
 					            </div>
@@ -383,7 +386,7 @@
 				         </div>
 			         	<p:commandLink styleClass="btn btn-primary btn-block"
 							actionListener="#{studentProfileBean.observationBean.prepareNewObservation()}"
-							oncomplete="showObservationPanel();$('#obs-toggle').dropdown('toggle'); return false;"
+							oncomplete="$('#obs-toggle').dropdown('toggle'); return false;"
 							update=":newObservationForm:newObservationPanel">
 							<i class="fa fa-plus"></i> Create new observation
 	      			    </p:commandLink>
@@ -405,7 +408,7 @@
 						
 						<h:panelGroup layout="block" id="newObservationPanel"
 								styleClass="observationBar observationBox" aria-labelledby="dLabel"
-								role="menu" style="display:none">
+								role="menu" style="#{studentProfileBean.observationBean.editObservation != null ? '' : 'display:none'}">
 							<h:panelGroup layout="block"
 									rendered="#{studentProfileBean.observationBean.editObservation != null}">
 								
