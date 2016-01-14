@@ -56,14 +56,22 @@ public class SocialInteractionStatisticsService {
 	public Response getInteractions(@QueryParam("courseId") Long courseId, @QueryParam("studentId") Long studentId) {
 		Random generator = new Random(courseId * studentId);
 		logger.debug("Service 'getInteractions' called.");
-		List<Map<String, String>> result = new ArrayList<Map<String,String>>();
-		for(int i = 1; i < generator.nextInt(1000); i++) {
-			HashMap<String, String> interaction = new HashMap<String,String>();
-			interaction.put("source", Integer.toString(generator.nextInt(100)));
-			interaction.put("target", Integer.toString(generator.nextInt(100)));
-			interaction.put("cluster", Integer.toString(generator.nextInt(4)));
-			interaction.put("count", Integer.toString(generator.nextInt(50)));			
-			result.add(interaction);
+		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
+		for (int i = 1; i < generator.nextInt(100); i++) {
+			Map<String, Object> student = new HashMap<String, Object>();
+			student.put("student", Integer.toString(generator.nextInt(100)));
+			student.put("cluster", Integer.toString(generator.nextInt(4)));
+			student.put("name", Integer.toString(generator.nextInt(50)));
+			student.put("avatar", Integer.toString(generator.nextInt(50)));
+			List<Map<String, String>> interactions = new ArrayList<Map<String, String>>();
+			for (int j = 1; j < generator.nextInt(100); j++) {
+				Map<String, String> interaction = new HashMap<String, String>();
+				interaction.put("target", Integer.toString(generator.nextInt(100)));
+				interaction.put("count", Integer.toString(generator.nextInt(50)));
+				interactions.add(interaction);
+			}
+			student.put("interactions", interactions);
+			result.add(student);
 		}
 		return ResponseUtils.corsOk(result);
 	}

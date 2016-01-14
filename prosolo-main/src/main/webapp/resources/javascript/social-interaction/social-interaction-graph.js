@@ -1,5 +1,53 @@
 var socialInteractionGraph = (function () {
 
+	// Source:
+	// [
+	//     {
+	//         student: "student-id",
+	//         cluster: "cluster-id",
+	//         avatar: "avatar-url",
+	//         name: "student-name"
+	//         interactions: [
+	//             {
+	//                 target: "student-id",
+	//                 count: "interactions-count"
+	//             },
+	//         ]
+	//     },
+	// ]
+	//
+	// Result:
+	// [
+	//     {
+	//         source: "student-id",
+	//         target: "student-id",
+	//         count: "interactions-count",
+	//         cluster: "cluster-id",
+	//         avatar: "avatar-url",
+	//         name: "student-name"
+	//     },
+	// ]
+	function denormalize(interactions) {
+		function flatten(arrays) {
+			return [].concat.apply([], arrays);
+		}
+		
+		var result = interactions.map(function(student) {
+			return student.interactions.map(function(interaction) {
+				return {
+					source: student.student,
+					target: interaction.target,
+					count: interaction.count,
+					cluster: student.cluster,
+					avatar: student.avatar,
+					name: student.name
+				};
+			});
+		});
+
+		return flatten(result);
+	}
+
 	var clusters = {
 		"0": "one",
 		"1": "two",
@@ -13,6 +61,11 @@ var socialInteractionGraph = (function () {
 		"three" : {x: 0, y: 400},
 		"four" : {x: 400, y: 400}
 	};
+
+	function cluster(data, id) {
+		var matches = data.filter(function(student) { return student.student === id; });
+		return matches.length == 0 ? clusters[3] : clusters[matches[0].cluster];
+	}
 
 	function readInteractions(config) {
 		$.ajax({
@@ -30,11 +83,13 @@ var socialInteractionGraph = (function () {
 		return user == config.studentId ? "focus " + cluster : "" + cluster;
 	}
 	
-	function run(config, links) {
+	function run(config, data) {
+
+		var links = denormalize(data);
 
 		var nodes = links.reduce(function(res, link) {
-			res[link.source] = { name: link.source, cluster: clusters[link.cluster] };
-			res[link.target] = { name: link.target, cluster: clusters[link.cluster] };
+			res[link.source] = { name: link.source, cluster: cluster(data, link.source) };
+			res[link.target] = { name: link.target, cluster: cluster(data, link.target) };
 			return res;
 		}, {});
 
