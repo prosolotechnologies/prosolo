@@ -24,6 +24,7 @@ import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CourseCompetence;
 import org.prosolo.common.domainmodel.course.CourseEnrollment;
+import org.prosolo.common.domainmodel.course.CourseInstructor;
 import org.prosolo.common.domainmodel.course.CoursePortfolio;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.course.Status;
@@ -1116,6 +1117,78 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 					return result;
 		} catch(Exception e) {
 			throw new DbConnectionException("Error while loading students assigned to instructor");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Map<String, Object>> getCourseInstructors(long courseId) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT courseInstructor.id, instructor.avatarUrl, instructor.name, instructor.lastname, " +
+					"instructor.position, courseInstructor.maxNumberOfStudents, size(courseEnrollment) " +
+					"FROM CourseInstructor courseInstructor " +
+					"INNER JOIN courseInstructor.user instructor "+
+					"LEFT JOIN courseInstructor.assignedStudents courseEnrollment "+
+					"INNER JOIN courseInstructor.course course "+
+					"WHERE course.id = :courseId";
+			
+					@SuppressWarnings("unchecked")
+					List<Object[]> result = persistence.currentManager().createQuery(query).
+							setLong("courseId", courseId).
+							list();
+					
+					List<Map<String, Object>> resultList = new ArrayList<>();
+					if (result != null) {
+						for (Object[] res : result) {
+							
+							Long instructorId = (Long) res[0];
+							if(instructorId != null) {
+								Map<String, Object> resMap = new LinkedHashMap<>();
+								String avatarUrl = (String) res[1];
+								String firstName = (String) res[2];
+								String lastName = (String) res[3];
+								String position = (String) res[4];
+								int maxNumberOfStudents = (int) res[5];
+								int numberOfAssignedStudents = (int) res[6];
+								
+								resMap.put("instructorId", instructorId);
+								resMap.put("avatarUrl", avatarUrl);
+								resMap.put("firstName", firstName);
+								resMap.put("lastName", lastName);
+								resMap.put("position", position);
+								resMap.put("maxNumberOfStudents", maxNumberOfStudents);
+								resMap.put("numberOfAssignedStudents", numberOfAssignedStudents);
+								
+								resultList.add(resMap);
+							}
+
+						}
+				   }
+					
+				return resultList;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading course instructors");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false) 
+	public void assignInstructorToStudent(long studentId, long instructorId, long courseId) throws DbConnectionException {
+		try {
+			User user = (User) persistence.currentManager().load(User.class, studentId);
+			Course course = (Course) persistence.currentManager().load(Course.class, courseId);
+			CourseInstructor instructor = (CourseInstructor) persistence.currentManager().load(CourseInstructor.class, instructorId);
+			
+			CourseEnrollment enrollment = getCourseEnrollment(user, course);
+			if(enrollment != null) {
+				enrollment.setAssignedToInstructor(true);
+				enrollment.setInstructor(instructor);
+			}
+		} catch(Exception e) {
+			throw new DbConnectionException("Error while assigning student to an instructor");
 		}
 	}
 	

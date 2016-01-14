@@ -36,13 +36,40 @@ h2 span {
 
 
 .form-control {
-  height: 38px;
+  border: 1px solid #f1f1f1;
+  box-shadow: none;
+  height: 32px;
 }
 
+
+/* modal windows */
+
+.modal-header {
+    background-color: #f7f7f7;
+    border-bottom: 1px solid #f1f1f1;
+}
+.modal-header .close {
+	margin-top: 0;
+}
+
+.modal-content {
+	border-radius: 0;
+}
 
 button.close {
 	font-size: 18px;
 }
+
+
+.modal-body .fa {
+  font-size: 35px;
+  margin: 7px 0 0;
+}
+
+.modal-body .fa-warning {
+	color: #f0ad4e;
+}
+
 
 
 #svgContainer {
@@ -50,6 +77,9 @@ button.close {
 	position: absolute;
 }
 
+.noMargin {
+	margin: 0!important;
+}
 
 /* colors */
 
@@ -104,13 +134,17 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 /* buttons */
 
 .btn .fa {
-	font-size: 16px;
+	font-size: 15px;
 	vertical-align: inherit;
+}
+
+.btn .fa.red {
+	color: #d9534f!important;
 }
 
 .btn-primary {
 	background-color: #2196f3;
-	border-color: #e1e1e1;
+	border-color: #2196f3;
 }
 
 .btn-default {
@@ -127,6 +161,22 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 .btn-default i {
 	color: #2196f3!important;
 }
+
+.btn.remove i {
+	color: #d9534f!important;
+	vertical-align: initial;
+}
+
+
+.btn.panelButton {
+	margin-top: -24px;
+	margin-left: 10px;
+}
+
+.btn.btn-primary.panelButton {
+	color: #fff;
+}
+
 
 
 /* top header */
@@ -610,10 +660,17 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 	display: inline-block;
 }
 
-
 .filter .userProfileImage {
 	float: left;
 }
+
+.userProfileName {
+	display: inline-block;
+	width: 185px;
+	line-height: 13px;
+	vertical-align: middle;
+}
+
 
 .userProfileImage img {
 	border-radius: 40px;
@@ -1999,6 +2056,13 @@ label {
 
 /* bootstrap select */
 
+.checkbox input[type="checkbox"], 
+.checkbox-inline input[type="checkbox"], 
+.radio input[type="radio"], 
+.radio-inline input[type="radio"] {
+  margin-left: 0;
+}
+
 .bootstrap-select .btn-default {
 	background: #fafafa;
 	color: #444444;
@@ -2401,6 +2465,16 @@ footer ul li:first-of-type {
 .tableProsolo > thead > tr > th.colProfile {
 	width: 150px;
 }
+
+.tableProsolo > thead > tr > th.colAssigned {
+  width: 300px;	text-align: center;
+}
+
+.tableProsolo tr .colAssignedD {
+	text-align: center;
+	font-size: 20px;
+}
+
 .sticky-thead > thead > tr > th.colArrowLeft,
 .tableProsolo > thead > tr > th.colArrowLeft {
   padding: 10px 0;
@@ -2499,8 +2573,18 @@ footer ul li:first-of-type {
 .sticky-col > tbody > tr > th.colStudentD .name,
 .tableProsolo > tbody > tr > th.colStudentD .name,
 .tableProsolo > tbody > tr > td.colStudentD .name{
-	float: left;
+
+    display: inline-block;
+    vertical-align: middle;
+    width: 175px;
+
 }
+
+
+.tableProsolo > tbody > tr > td.colStudentD .userProfileImageLarge {
+	float: none;
+}
+
 
 
 .tableProsolo > tbody > tr > th.colStudentD .name h1,
@@ -2508,7 +2592,7 @@ footer ul li:first-of-type {
   color: #555555;
   font-size: 23px;
   font-weight: 500;
-  margin: 13px 0 0 0;
+  margin: 0;
   padding: 0;
 }
 
@@ -2556,10 +2640,103 @@ footer ul li:first-of-type {
   border-color: #f1f1f1;
 }
 
+/* instructor form */
 
 
+.form-inline label {
+	display: block;
+}
+
+.ddContainer {
+	border-left: 1px solid #f1f1f1;
+}
+
+.ddStudentsList {
+	height: 500px;
+	border: 1px solid #f0f0f0;
+	background: #fafafa;
+	border-radius: 3px;
+	list-style: none;
+	padding: 3px;
+	overflow: auto;
+}
+
+.ddStudentsList li {
+	background-color: #fff;
+	border-radius: 3px;
+	padding: 7px 7px 1px 7px;
+	margin-bottom: 3px;
+	border: 1px solid #f0f0f0;
+}
+
+.ddStudentsList li:hover {
+	background-color: #ffffdd;	
+}
+
+.ddStudentsList.results {
+	height: 440px;
+}
+
+.selectionBox {
+  float: left;
+  padding-top: 8px;
+}
+.ddStudentsList.results .userProfileName {
+	width: 155px;
+}
 
 
+.dd {
+	padding-top: 190px;
+	text-align: center;
+	color: #999;
+}
+.dd a .fa {
+	font-size: 18px;
+}
+
+.dd h3 {
+	font-size: 12px;
+}
+.modal-body.userList {
+  height: 500px;
+  overflow: auto;
+}
+
+.userList table td{
+	border-bottom: 1px solid #efefef;
+	vertical-align: middle;
+	padding: 10px 5px;
+}
+.userList .userInfo {
+	margin-bottom: 0;
+}
+
+.assign,
+.affiliation {
+	font-size: 12px;
+	color: #898989;
+}
+
+.assign {
+	text-align: right;
+}
+
+.assigned {
+	font-size: 16px;
+}
+
+.assigned.full {
+	color: #F00;
+}
+
+[data-toggle^="tooltip"] {
+}
+
+[data-toggle^="tooltip"]:hover {
+	cursor: help;
+
+}
 
 /*********************************************/
 /*********************************************/
