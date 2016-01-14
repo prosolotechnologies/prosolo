@@ -1,6 +1,6 @@
-require([ 'timeline/timeline-graph'], function(graph) {	
+$(function () {	
     var root = document.getElementById("timeline-graph");
-    graph.load({
+    timelineGraph.load({
     	element : root
     });
     
@@ -9,7 +9,7 @@ require([ 'timeline/timeline-graph'], function(graph) {
         $("input[type=checkbox][id^=timeline]:checked").each(function() {
         	  events.push($(this).attr("event-type"))
         })
-        graph.recalculateMilestones(events);
+        timelineGraph.recalculateMilestones(events);
     });
     
 });

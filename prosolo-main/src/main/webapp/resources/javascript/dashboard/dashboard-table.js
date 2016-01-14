@@ -1,4 +1,4 @@
-define([], function() {
+var table = (function () {
 	/*
 	{
 		"container" : "#table-container",
@@ -125,4 +125,4 @@ define([], function() {
 			}
 		}
 	}
-});
+})();

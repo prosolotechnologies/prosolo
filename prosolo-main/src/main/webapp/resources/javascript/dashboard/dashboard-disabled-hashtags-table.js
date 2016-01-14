@@ -1,4 +1,5 @@
-define([ "dashboard/table", "dashboard/callbacks" ], function(table, Callbacks) {
+// dependencies: [ "dashboard/table", "dashboard/callbacks" ]
+var disabledHashtagsTable = (function () {
 
 	var callbacks = new Callbacks();
 
@@ -37,4 +38,4 @@ define([ "dashboard/table", "dashboard/callbacks" ], function(table, Callbacks) 
 		}
 	}
 
-});
+})();

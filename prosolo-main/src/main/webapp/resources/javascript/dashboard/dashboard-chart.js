@@ -1,4 +1,4 @@
-define(["jquery"], function($) {
+var chart = (function() {
 
 	var patterns = ["pattern-one", "pattern-two", "pattern-three", "pattern-four", "pattern-five", "pattern-six"];
 
@@ -120,4 +120,4 @@ define(["jquery"], function($) {
 			};
 		}
 	};
-});
+})();

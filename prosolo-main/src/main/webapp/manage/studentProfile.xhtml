@@ -37,7 +37,12 @@
 		<script src="#{request.contextPath}/manage/js/dimple.min.js"></script>
 		<script src="#{request.contextPath}/manage/js/shape.js"></script>
 		<script src="#{request.contextPath}/manage/js/quadrantchart.js"></script>
+
+		<script src="#{request.contextPath}/resources/javascript/timeline/timeline-graph.js"></script>
+		<script src="#{request.contextPath}/resources/javascript/timeline/timeline-main.js"></script>
 		
+		<script src="#{request.contextPath}/resources/javascript/social-interaction/social-interaction-graph.js"></script>
+		<script src="#{request.contextPath}/resources/javascript/social-interaction/social-interaction-main.js"></script>
 		
 		<p:growl id="msg" showDetail="true" globalOnly="true"></p:growl>
 
@@ -189,12 +194,6 @@
 					<ui:include src="/manage/studentProfile.progression.xhtml"></ui:include>
 
 					<div role="tabpanel" class="tab-pane fade" id="timeline">
-						<ui:remove>
-							<script data-base-url="#{request.contextPath}/resources/javascript"
-								src="#{request.contextPath}/resources/javascript/prosolo.require-config.js"></script>
-							<script data-main="timeline/timeline-main"
-								src="#{request.contextPath}/resources/javascript/require.min.js"></script>
-						</ui:remove>
 					<h2>Timeline</h2>
 					<div class="row">
 						<div class="col-md-10">
@@ -221,13 +220,6 @@
 						
 					</div>
 					<div role="tabpanel" class="tab-pane fade" id="social">
-						<ui:remove>
-						<script
-							data-base-url="#{request.contextPath}/resources/javascript"
-							src="#{request.contextPath}/resources/javascript/prosolo.require-config.js"></script>
-						<script data-main="social-interaction/social-interaction-main"
-							src="#{request.contextPath}/resources/javascript/require.min.js"></script>
-
 						<h2>Social</h2>
 						<div class="row filter">
 							<div class="col-md-3">
@@ -306,7 +298,6 @@
 								</div>
 							</div>
 						</div>
-						</ui:remove>
 					</div>
 				</div>
 				</div>

@@ -1,4 +1,5 @@
-define([ "dashboard/table", "dashboard/callbacks" ], function(table, Callbacks) {
+// dependinces: [ "dashboard/table", "dashboard/callbacks" ]
+var mostActiveHashtagsTable = (function () {
 
 	var callbacks = new Callbacks();
 	
@@ -72,4 +73,4 @@ define([ "dashboard/table", "dashboard/callbacks" ], function(table, Callbacks) 
 		},
 		selectedHashtags : selectedHashtags
 	};
-});
+})();

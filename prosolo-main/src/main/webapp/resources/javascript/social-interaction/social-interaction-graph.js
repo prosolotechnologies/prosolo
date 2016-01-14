@@ -1,4 +1,4 @@
-define(['jquery', 'd3'], function($, d3) {
+var socialInteractionGraph = (function () {
 
 	var clusters = {
 		"0": "one",
@@ -15,15 +15,15 @@ define(['jquery', 'd3'], function($, d3) {
 	};
 
 	function readInteractions(config) {
-//		$.ajax({
-//			url : "http://" + config.host + "/api/social/interactions/",
-//			data : {"studentId" : config.studentId, "courseId" : config.courseId},
-//			type : "GET",
-//			crossDomain: true,
-//			dataType: 'json'
-//		}).done(function(data) {
-//			return run(config, data);
-//		});
+		$.ajax({
+			url : "http://" + config.host + "/api/social/interactions/",
+			data : {"studentId" : config.studentId, "courseId" : config.courseId},
+			type : "GET",
+			crossDomain: true,
+			dataType: 'json'
+		}).done(function(data) {
+			return run(config, data);
+		});
 	}
 
 	function dofocus(user, cluster, config) {
@@ -171,4 +171,4 @@ define(['jquery', 'd3'], function($, d3) {
 			readInteractions(config);
 		}
 	};
-});
+})();
