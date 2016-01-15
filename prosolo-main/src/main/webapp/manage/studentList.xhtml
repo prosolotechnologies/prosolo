@@ -64,8 +64,8 @@
 					</div>
 					<div class="row narrow searchFilter">
 						<div class="col-md-12">
-							<h:form>
-								<span class="records">Students: <strong>#{courseMembersBean.courseMembersNumber}</strong></span> <span
+							<h:form id="filterStudentsForm">
+								<h:panelGroup id="panelNoStudent" styleClass="records">Students: <strong>#{courseMembersBean.courseMembersNumber}</strong></h:panelGroup> <span
 									class="checkbox checkbox-success checkbox-inline">
 									<h:selectBooleanCheckbox id="checkbox2" value="#{courseMembersBean.filterUnassigned}">
 										<p:ajax event="click" process="@this checkbox2" 
@@ -78,7 +78,7 @@
 							<h:form class="form-inline searchField">
 								<p:remoteCommand name="execSearch" 
 									process="inputFilterByName"
-									update=":studentListForm" 
+									update=":studentListForm :filterStudentsForm:panelNoStudent" 
 									actionListener="#{courseMembersBean.resetSearchOptions}"
 									action="#{courseMembersBean.searchCourseMembers}" />
  
@@ -179,10 +179,10 @@
 												process="@this"
 												action="#{courseMembersBean.loadCourseInstructors(user)}"
 												oncomplete="$('#assignInstructorModal').modal('show');"
-												update=":studentListForm:assignInstructorModalContent">
+												update=":modalForm:assignInstructorModalContent">
 												<i class="fa fa-plus"></i> Assign Instructor
 											</p:commandLink> 
-											<h:link outcome="" rendered="#{user.instructor != null}">
+											<h:link rendered="#{user.instructor != null}">
 														#{user.instructor.fullName}
 												    	<f:param name="id"
 													value="#{util:encodeId(user.instructor.id)}" />
@@ -274,7 +274,16 @@
 						</script>
 					</div>
 					
-					<div id = "assignInstructorModal" class="modal fade assignInstructor" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+					
+					</h:form>
+
+				</div>
+			</div>
+
+		</section>
+
+		<h:form id="modalForm">
+			<div id = "assignInstructorModal" class="modal fade assignInstructor" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
 				         <div class="modal-dialog">
 				            <h:panelGroup layout="block" id="assignInstructorModalContent" styleClass="modal-content">
 				               <div class="modal-header"> <button aria-label="Close" data-dismiss="modal" class="close" type="button"><span aria-hidden="true">×</span></button> 
@@ -326,14 +335,7 @@
 				            </h:panelGroup>
 				         </div>
       				</div>
-					
-					</h:form>
-
-				</div>
-			</div>
-
-		</section>
-
+		</h:form>
 
 	</ui:define>
 </ui:composition>

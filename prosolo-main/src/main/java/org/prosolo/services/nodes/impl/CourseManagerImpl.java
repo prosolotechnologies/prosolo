@@ -1131,7 +1131,8 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 					"INNER JOIN courseInstructor.user instructor "+
 					"LEFT JOIN courseInstructor.assignedStudents courseEnrollment "+
 					"INNER JOIN courseInstructor.course course "+
-					"WHERE course.id = :courseId";
+					"WHERE course.id = :courseId " +
+					"GROUP BY courseInstructor.id";
 			
 					@SuppressWarnings("unchecked")
 					List<Object[]> result = persistence.currentManager().createQuery(query).
@@ -1190,6 +1191,121 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 		} catch(Exception e) {
 			throw new DbConnectionException("Error while assigning student to an instructor");
 		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> getCourseIdsForInstructor(long instructorId) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT course.id " +
+					"FROM CourseInstructor courseInstructor " +
+					"INNER JOIN courseInstructor.user instructor "+
+					"INNER JOIN courseInstructor.course course "+
+					"WHERE instructor.id = :instructorId";
+			
+					@SuppressWarnings("unchecked")
+					List<Long> result = persistence.currentManager().createQuery(query).
+							setLong("instructorId", instructorId).
+							list();
+					
+				return result == null ? new ArrayList<>() : result;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading course instructors");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Map<String, Object> getCourseInstructor(long userId) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT courseInstructor.id, instructor.avatarUrl, instructor.name, instructor.lastname, " +
+					"instructor.position, courseInstructor.maxNumberOfStudents, size(courseEnrollment) " +
+					"FROM CourseInstructor courseInstructor " +
+					"INNER JOIN courseInstructor.user instructor "+
+					"LEFT JOIN courseInstructor.assignedStudents courseEnrollment "+
+					"WHERE instructor.id = :userId";
+			
+					@SuppressWarnings("unchecked")
+					Object[] result = (Object[]) persistence.currentManager().createQuery(query).
+							setLong("userId", userId).
+							uniqueResult();
+					
+					Map<String, Object> resMap = null;
+					if (result != null) {
+						Long instructorId = (Long) result[0];
+						if(instructorId != null) {
+							resMap = new LinkedHashMap<>();
+							String avatarUrl = (String) result[1];
+							String firstName = (String) result[2];
+							String lastName = (String) result[3];
+							String position = (String) result[4];
+							int maxNumberOfStudents = (int) result[5];
+							int numberOfAssignedStudents = (int) result[6];
+							
+							resMap.put("instructorId", instructorId);
+							resMap.put("avatarUrl", avatarUrl);
+							resMap.put("firstName", firstName);
+							resMap.put("lastName", lastName);
+							resMap.put("position", position);
+							resMap.put("maxNumberOfStudents", maxNumberOfStudents);
+							resMap.put("numberOfAssignedStudents", numberOfAssignedStudents);
+						}
+
+				   }
+					
+				return resMap;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading course instructor data");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void removeInstructorFromCourse(long courseInstructorId) throws DbConnectionException {
+		try {
+			List<Long> enrollmentIds = getCourseEnrollmentsForInstructor(courseInstructorId);
+			if(enrollmentIds != null) {
+				for(long id : enrollmentIds) {
+					CourseEnrollment enrollment = (CourseEnrollment) persistence.currentManager().load(CourseEnrollment.class, id);
+					enrollment.setInstructor(null);
+					enrollment.setAssignedToInstructor(false);
+				}
+			}
+			CourseInstructor instructor = (CourseInstructor) persistence.currentManager().
+					load(CourseInstructor.class, courseInstructorId);
+			persistence.currentManager().delete(instructor);
+		} catch(Exception e) {
+			throw new DbConnectionException("Error while removing instructor from course");
+		}
+	}
+	
+	private List<Long> getCourseEnrollmentsForInstructor(long instructorId) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT enrollment.id " +
+					"FROM CourseEnrollment enrollment " +
+					"INNER JOIN enrollment.instructor courseInstructor "+
+					"WHERE courseInstructor.id = :instructorId";
+			
+				@SuppressWarnings("unchecked")
+				List<Long> result = persistence.currentManager().createQuery(query).
+						setLong("instructorId", instructorId).
+						list();
+					
+					
+				return result;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading course enrollments for instructor");
+		}
+
 	}
 	
 }

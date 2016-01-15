@@ -102,6 +102,15 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			}
 			builder.endArray();
 			
+			List<Long> courseIds = courseManager.getCourseIdsForInstructor(user.getId());
+			builder.startArray("coursesWithInstructorRole");
+			for(long id : courseIds) {
+				builder.startObject();
+				builder.field("id", id);
+				builder.endObject();
+			}
+			builder.endArray();
+			
 			builder.endObject();
 			System.out.println("JSON: " + builder.prettyPrint().string());
 			String indexType = getIndexTypeForNode(user);

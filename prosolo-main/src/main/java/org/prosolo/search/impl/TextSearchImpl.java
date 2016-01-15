@@ -8,6 +8,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchPhaseExecutionException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -16,8 +18,6 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
@@ -41,11 +41,14 @@ import org.prosolo.search.TextSearch;
 import org.prosolo.search.util.CourseMembersSortOption;
 import org.prosolo.search.util.CourseMembersSortOptionTranslator;
 import org.prosolo.search.util.ESSortOption;
+import org.prosolo.search.util.ESSortOrderTranslator;
 import org.prosolo.search.util.InstructorAssignedFilter;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexNames;
 import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.indexing.ElasticSearchFactory;
+import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.web.search.data.SortingOption;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +68,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	
 	@Autowired private DefaultManager defaultManager;
 	@Autowired private ESIndexer esIndexer;
+	@Inject private CourseManager courseManager;
 
 	@Override
 	@Transactional
@@ -590,7 +594,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				for(String field : sortFields) {
 					searchRequestBuilder.addSort(field, sortOrder);
 				}
-				System.out.println(searchRequestBuilder.toString());
+				//System.out.println(searchRequestBuilder.toString());
 				SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
 				if(sResponse != null) {
 					SearchHits searchHits = sResponse.getHits();
@@ -655,6 +659,78 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	
 		} catch (NoNodeAvailableException e1) {
 			logger.error(e1);
+		}
+		return resultMap;
+	}
+	
+	@Override
+	public Map<String, Object> searchInstructors (
+			String searchTerm, int page, int limit, long courseId, SortingOption sortingOption) {
+		
+		Map<String, Object> resultMap = new LinkedHashMap<>();
+		try {
+			int start = setStart(page, limit);
+			
+			Client client = ElasticSearchFactory.getClient();
+			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			
+			QueryBuilder qb = QueryBuilders
+					.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+					.field("name").field("lastname");
+			
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			//bQueryBuilder.minimumNumberShouldMatch(1);
+			
+			bQueryBuilder.must(termQuery("coursesWithInstructorRole.id", courseId));
+			bQueryBuilder.must(qb);
+			
+			try {
+				String[] includes = {"id"};
+				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
+						.setTypes(ESIndexTypes.USER)
+						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+						.setQuery(bQueryBuilder)
+						.setFrom(start).setSize(limit)
+						.setFetchSource(includes, null);
+				
+				//add sorting
+				SortOrder sortOrder = ESSortOrderTranslator.getSortOrder(sortingOption);
+				
+				searchRequestBuilder.addSort("name" , sortOrder);
+				searchRequestBuilder.addSort("lastname" , sortOrder);
+			
+				//System.out.println(searchRequestBuilder.toString());
+				SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
+				if(sResponse != null) {
+					SearchHits searchHits = sResponse.getHits();
+					
+					resultMap.put("resultNumber", searchHits.getTotalHits());
+					
+					List<Map<String, Object>> data = new LinkedList<>();
+					
+					if(searchHits != null) {
+						for(SearchHit sh : searchHits) {
+							Map<String, Object> fields = sh.getSource();
+							long id = Long.parseLong(fields.get("id") + "");
+							Map<String, Object> instructorData = courseManager.getCourseInstructor(id);
+							if(instructorData != null) {
+								data.add(instructorData);
+							}
+						}
+					}
+					
+					resultMap.put("data", data);
+				}
+			} catch (SearchPhaseExecutionException spee) {
+				spee.printStackTrace();
+				logger.error(spee);
+			}
+	
+		} catch (NoNodeAvailableException e1) {
+			logger.error(e1);
+		} catch(DbConnectionException dbce) {
+			logger.error(dbce);
 		}
 		return resultMap;
 	}

@@ -192,11 +192,11 @@ public class CourseMembersBean implements Serializable {
 	}
 	
 	public boolean isCurrentPageFirst() {
-		return page == 1;
+		return page == 1 || numberOfPages == 0;
 	}
 	
 	public boolean isCurrentPageLast() {
-		return page == numberOfPages;
+		return page == numberOfPages || numberOfPages == 0;
 	}
 	
 	public void setSortByStudentName() {
