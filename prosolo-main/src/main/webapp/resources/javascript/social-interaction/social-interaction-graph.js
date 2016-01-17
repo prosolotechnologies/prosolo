@@ -1,53 +1,4 @@
 var socialInteractionGraph = (function () {
-
-	// Source:
-	// [
-	//     {
-	//         student: "student-id",
-	//         cluster: "cluster-id",
-	//         avatar: "avatar-url",
-	//         name: "student-name"
-	//         interactions: [
-	//             {
-	//                 target: "student-id",
-	//                 count: "interactions-count"
-	//             },
-	//         ]
-	//     },
-	// ]
-	//
-	// Result:
-	// [
-	//     {
-	//         source: "student-id",
-	//         target: "student-id",
-	//         count: "interactions-count",
-	//         cluster: "cluster-id",
-	//         avatar: "avatar-url",
-	//         name: "student-name"
-	//     },
-	// ]
-	function denormalize(interactions) {
-		function flatten(arrays) {
-			return [].concat.apply([], arrays);
-		}
-		
-		var result = interactions.map(function(student) {
-			return student.interactions.map(function(interaction) {
-				return {
-					source: student.student,
-					target: interaction.target,
-					count: interaction.count,
-					cluster: student.cluster,
-					avatar: student.avatar,
-					name: student.name
-				};
-			});
-		});
-
-		return flatten(result);
-	}
-
 	var clusters = {
 		"0": "one",
 		"1": "two",
@@ -62,34 +13,38 @@ var socialInteractionGraph = (function () {
 		"four" : {x: 400, y: 400}
 	};
 
-	function cluster(data, id) {
-		var matches = data.filter(function(student) { return student.student === id; });
-		return matches.length == 0 ? clusters[3] : clusters[matches[0].cluster];
-	}
-
-	function readInteractions(config) {
-		$.ajax({
-			url : "http://" + config.host + "/api/social/interactions/",
+	function readClusterInteractions(config) {
+		return $.ajax({
+			url : "http://" + config.host + "/api/social/interactions/cluster",
 			data : {"studentId" : config.studentId, "courseId" : config.courseId},
 			type : "GET",
 			crossDomain: true,
 			dataType: 'json'
-		}).done(function(data) {
-			return run(config, data);
 		});
 	}
 
+	function readOuterInteractions(config) {
+		return $.ajax({
+			url : "http://" + config.host + "/api/social/interactions/outer",
+			data : {"studentId" : config.studentId, "courseId" : config.courseId},
+			type : "GET",
+			crossDomain: true,
+			dataType: 'json'
+		});
+	}
+	
 	function dofocus(user, cluster, config) {
 		return user == config.studentId ? "focus " + cluster : "" + cluster;
 	}
 	
-	function run(config, data) {
+	function run(config, clusterInteractions, outerInteractions) {
 
-		var links = denormalize(data);
+		var links = socialInteractionService.denormalize(clusterInteractions, outerInteractions);
+		console.log(links);
 
 		var nodes = links.reduce(function(res, link) {
-			res[link.source] = { name: link.source, cluster: cluster(data, link.source) };
-			res[link.target] = { name: link.target, cluster: cluster(data, link.target) };
+			res[link.source.student] = { name: link.source.student, cluster: clusters[link.source.cluster] };
+			res[link.target.student] = { name: link.target.student, cluster: clusters[link.target.cluster] };
 			return res;
 		}, {});
 
@@ -116,11 +71,11 @@ var socialInteractionGraph = (function () {
 			
 			return links.map(function(link) {
 				return {
-					source: nodes[link.source],
-					target: nodes[link.target],
+					source: nodes[link.source.student],
+					target: nodes[link.target.student],
 					value: link.count,
 					type: type(v(link.count)),
-					cluster: clusters[link.cluster]
+					cluster: clusters[link.source.cluster]
 				};
 			});
 		}
@@ -223,7 +178,13 @@ var socialInteractionGraph = (function () {
 	
 	return {
 		load: function (config) {
-			readInteractions(config);
+			$
+				.when(
+					readClusterInteractions(config),
+					readOuterInteractions(config))
+				.then(function(clusterInteractions, outerInteractions) {
+					run(config, clusterInteractions[0], outerInteractions[0]);
+				});
 		}
 	};
 })();

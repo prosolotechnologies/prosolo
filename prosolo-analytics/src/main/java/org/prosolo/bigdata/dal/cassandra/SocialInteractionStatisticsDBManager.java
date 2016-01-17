@@ -6,7 +6,7 @@ import com.datastax.driver.core.Row;
 import org.prosolo.bigdata.common.dal.pojo.SocialInteractionCount;
 
 public interface SocialInteractionStatisticsDBManager {
-	
+
 	List<SocialInteractionCount> getSocialInteractionCounts(Long courseid);
 
 	List<Row> getSocialInteractions(Long courseid);
