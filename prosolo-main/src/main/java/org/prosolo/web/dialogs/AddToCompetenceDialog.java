@@ -187,7 +187,24 @@ public class AddToCompetenceDialog implements Serializable {
 		
 		CompetenceDataCache compData = findChosenCompetence();
 		
-		if (compData != null) {
+		if (activity != null) {
+			try {
+				TargetActivity newActivity = goalManager.addActivityToTargetCompetence(loggedUser.getUser(),
+						compData.getData().getId(), 
+						activity.getId(),
+						context);
+				
+				logger.debug("Activity \""+activity.getTitle()+"\" ("+newActivity.getId()+
+						") connected to the target competence \""+
+						compData.getData().getId()+"\" of the user "+ loggedUser.getUser() );
+				
+				PageUtil.fireSuccessfulInfoMessage("Activity "+activity.getTitle()+ " is added!");
+			} catch (EventException e) {
+				logger.error(e);
+			} catch (ResourceCouldNotBeLoadedException e) {
+				logger.error(e);
+			}
+		} else if (compData != null) {
 			CompWallBean compWallBean = PageUtil.getViewScopedBean("compwall", CompWallBean.class);
 			
 			if (compWallBean == null) {
@@ -217,25 +234,6 @@ public class AddToCompetenceDialog implements Serializable {
 				}
 			} else if (newPostData != null) {
 				compWallBean.createNewActivity(newPostData, compData, context);
-			} else if (activity != null) {
-				try {
-					TargetActivity newActivity = goalManager.addActivityToTargetCompetence(							loggedUser.getUser(),
-							compData.getData().getId(), 
-							activity.getId(),
-							context);
-					
-					PageUtil.fireErrorMessage("addToCompetenceDialogGrowl", "You must choose one competence.");
-					
-					logger.debug("Activity \""+activity.getTitle()+"\" ("+newActivity.getId()+
-							") connected to the target competence \""+
-							compData.getData().getId()+"\" of the user "+ loggedUser.getUser() );
-					
-					PageUtil.fireSuccessfulInfoMessage("Activity "+activity.getTitle()+ " is added!");
-				} catch (EventException e) {
-					logger.error(e);
-				} catch (ResourceCouldNotBeLoadedException e) {
-					logger.error(e);
-				}
 			}
 		}
 	}
