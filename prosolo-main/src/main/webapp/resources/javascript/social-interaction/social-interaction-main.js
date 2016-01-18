@@ -9,7 +9,7 @@ $(function () {
 		width : 800,
 		height : 500,
 		selector : "#social-interaction #graph",
-		charge : -75,
+		charge : -60,
 		distance : 150
 	});
 });

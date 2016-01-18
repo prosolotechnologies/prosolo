@@ -8,9 +8,9 @@ var socialInteractionGraph = (function () {
 	
 	var foci = {
 		"one" : {x: 0, y: 0},
-		"two" : {x: 400, y: 0},
-		"three" : {x: 0, y: 400},
-		"four" : {x: 400, y: 400}
+		"two" : {x: 500, y: 0},
+		"three" : {x: 0, y: 500},
+		"four" : {x: 500, y: 500}
 	};
 
 	function readClusterInteractions(config) {
@@ -36,17 +36,31 @@ var socialInteractionGraph = (function () {
 	function dofocus(user, cluster, config) {
 		return user == config.studentId ? "focus " + cluster : "" + cluster;
 	}
-	
+
 	function run(config, clusterInteractions, outerInteractions) {
 
 		var links = socialInteractionService.denormalize(clusterInteractions, outerInteractions);
-		console.log(links);
-
+		
 		var nodes = links.reduce(function(res, link) {
-			res[link.source.student] = { name: link.source.student, cluster: clusters[link.source.cluster] };
-			res[link.target.student] = { name: link.target.student, cluster: clusters[link.target.cluster] };
+			res[link.source.student] = {
+				name: link.source.student,
+				cluster: clusters[link.source.cluster]
+			};
+			res[link.target.student] = {
+				name: link.target.student,
+				cluster: clusters[link.target.cluster]
+			};
 			return res;
 		}, {});
+
+		var positionNode = (function (width, height, length) {	
+			var n = length;
+			var m = Math.round(Math.sqrt(length));
+			return function(node, index) {
+				node.x = width / m * (index % m);
+				node.y = height / m * Math.round(index / m);
+			};
+		})(width, height, nodes.length);
 
 		function relations(links) {
 			var types = [
@@ -84,12 +98,7 @@ var socialInteractionGraph = (function () {
 			height = config.height;
 
 		var d3nodes = d3.values(nodes);
-		var n = d3nodes.length;
-		var m = Math.round(Math.sqrt(n));
-		d3nodes.forEach(function(d, i) {
-			d.x = width / m * (i % m);
-			d.y = height / m * Math.round(i / m);
-		});
+		d3nodes.forEach(positionNode);
 		var force = d3.layout.force()
 			.nodes(d3nodes)
 			.links(relations(links))
@@ -103,6 +112,7 @@ var socialInteractionGraph = (function () {
 			.attr("width", width)
 			.attr("height", height)
 			.call(d3.behavior.zoom().scaleExtent([0.5, 8]).on("zoom", zoom));
+
 		
 		// build the arrow.
 		svg.append("svg:defs").selectAll("marker")
@@ -130,19 +140,25 @@ var socialInteractionGraph = (function () {
 		// define the nodes
 		var node = svg.selectAll(".node")
 			.data(force.nodes())
-			.enter().append("g")
-			.attr("class", "node");
-
+			.enter()
+			.append("g")
+			.attr("class", "node")
+			.call(force.drag);
+		
 		node.append("circle").attr("r", 10).attr("class", function(d) {
 			return dofocus(d.name, d.cluster, config);
 		});
-		
+
 		node.append("image")
 			.attr("xlink:href", "http://code-bude.net/wp-content/uploads/2013/10/1372714624_github_circle_black.png")
 			.attr("x", -8)
 			.attr("y", -8)
 			.attr("width", 16)
 			.attr("height", 16);
+
+		node.append("svg:title").text(function(d) { return d.name + " : " + d.cluster; });
+
+		
 		d3.selectAll(".node image").attr("style", "display: none");
 
 		function zoom() {
@@ -153,7 +169,8 @@ var socialInteractionGraph = (function () {
 				d3.selectAll(".node image").attr("style", "display: none");
 				d3.selectAll(".node circle").attr("style", "display: block");
 			};
-			svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+			svg.attr("transform", "scale(" + d3.event.scale + ")");
+			// svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 		}
 		
 		function tick(e) {
