@@ -6,6 +6,6 @@ package org.prosolo.bigdata.scala.clustering.sna
 /**
   * zoran 20/12/15
   */
-class UserLink(val weight:Double) {
+class UserLink(val weight:Double, val source:UserNode, val target:UserNode) {
 
 }

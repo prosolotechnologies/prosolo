@@ -24,17 +24,35 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 	private static final Map<Statements, PreparedStatement> prepared = new ConcurrentHashMap<Statements, PreparedStatement>();
 	
 	private static final Map<Statements, String> statements = new HashMap<Statements, String>();
+
+	private Map<TableNames, Long> currenttimestamps;
 	
 	public enum Statements {
 		FIND_SOCIAL_INTERACTION_COUNTS,
-		FIND_STUDENT_SOCIAL_INTERACTION_COUNTS
+		FIND_STUDENT_SOCIAL_INTERACTION_COUNTS,
+		UPDATE_CURRENT_TIMESTAMPS,
+		FIND_CURRENT_TIMESTAMPS
+	}
+	public enum TableNames{
+		INSIDE_CLUSTER_INTERACTIONS,
+		OUTSIDE_CLUSTER_INTERACTIONS
 	}
 
 	static {
 		statements.put(FIND_SOCIAL_INTERACTION_COUNTS,  "SELECT * FROM socialinteractionscount where course=?;");
 		statements.put(FIND_STUDENT_SOCIAL_INTERACTION_COUNTS, "SELECT * FROM socialinteractionscount where course=? and source = ?;");
+		statements.put(Statements.UPDATE_CURRENT_TIMESTAMPS,"UPDATE currenttimestamps  SET timestamp=? WHERE tablename=?;");
+		statements.put(Statements.FIND_CURRENT_TIMESTAMPS,  "SELECT * FROM currenttimestamps ALLOW FILTERING;");
 	}
-	
+	private SocialInteractionStatisticsDBManagerImpl(){
+		currenttimestamps=getAllCurrentTimestamps();
+	}
+	public static class SocialInteractionStatisticsDBManagerHolder {
+		public static final SocialInteractionStatisticsDBManagerImpl INSTANCE = new SocialInteractionStatisticsDBManagerImpl();
+	}
+	public static SocialInteractionStatisticsDBManager getInstance() {
+		return SocialInteractionStatisticsDBManagerHolder.INSTANCE;
+	}
 	private List<Row> query(BoundStatement statement) {
 		return getSession().execute(statement).all();
 	}
@@ -83,5 +101,22 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 		BoundStatement statement = StatementUtil.statement(prepared,courseid,  userid);
 		return map(query(statement), (row) -> new SocialInteractionCount(source(row), target(row), count(row)));
 	}
+
+	@Override
+	public void updateCurrentTimestamp(TableNames tablename, Long timestamp){
+		PreparedStatement prepared = getStatement(getSession(), Statements.UPDATE_CURRENT_TIMESTAMPS);
+		BoundStatement statement = StatementUtil.statement(prepared, timestamp,tablename.name());
+		this.getSession().execute(statement);
+		this.currenttimestamps.put(tablename,timestamp);
+	}
+
+
+	private Map<TableNames, Long> getAllCurrentTimestamps(){
+		PreparedStatement prepared = getStatement(getSession(), Statements.FIND_CURRENT_TIMESTAMPS);
+		BoundStatement statement = StatementUtil.statement(prepared);
+		return query(statement).stream().collect(Collectors.toMap(row->TableNames.valueOf(row.getString("tablename")),row->row.getLong("timestamp")));
+	}
+
+
 
 }
