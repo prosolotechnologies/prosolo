@@ -1229,7 +1229,6 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 					"LEFT JOIN courseInstructor.assignedStudents courseEnrollment "+
 					"WHERE instructor.id = :userId";
 			
-					@SuppressWarnings("unchecked")
 					Object[] result = (Object[]) persistence.currentManager().createQuery(query).
 							setLong("userId", userId).
 							uniqueResult();
@@ -1306,6 +1305,169 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 			throw new DbConnectionException("Error while loading course enrollments for instructor");
 		}
 
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Map<String, Object> getBasicInstructorInfo(long instructorId) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT instructor.name, instructor.lastname, courseInstructor.maxNumberOfStudents, " +
+					"student.id, student.name, student.lastname, student.avatarUrl " +
+					"FROM CourseInstructor courseInstructor " +
+					"INNER JOIN courseInstructor.user instructor " +
+					"LEFT JOIN courseInstructor.assignedStudents enrollment " +
+					"LEFT JOIN enrollment.user student " +
+					"WHERE courseInstructor.id = :instructorId";
+			
+					@SuppressWarnings("unchecked")
+					List<Object[]> result = persistence.currentManager().createQuery(query).
+							setLong("instructorId", instructorId).
+							list();
+					
+					Map<String, Object> resMap = null;
+					if (result != null) {
+						resMap = new HashMap<>();
+					    boolean first = true;
+					    List<Map<String, Object>> assignedStudents = new ArrayList<>();
+					    for(Object[] res : result) {
+					    	if(first) {
+					    		String firstName = (String) res[0];
+								String lastName = (String) res[1];
+								int maxNumberOfStudents = (int) res[2];
+								resMap.put("firstName", firstName);
+								resMap.put("lastName", lastName);
+								resMap.put("maxNumberOfStudents", maxNumberOfStudents);
+								first = false;
+							}
+					    	Long id = (Long) res[3];
+					    	if(id != null) {
+					    		Map<String, Object> studentMap = new HashMap<>();
+					    		studentMap.put("id", id);
+					    		String firstName = (String) res[4];
+					    		studentMap.put("firstName", firstName);
+					    		String lastName = (String) res[5];
+					    		studentMap.put("lastName", lastName);
+					    		String avatarUrl = (String) res[6];
+					    		studentMap.put("avatarUrl", avatarUrl);
+					    		assignedStudents.add(studentMap);
+					    	}
+					    }
+					    if(!assignedStudents.isEmpty()) {
+					    	resMap.put("students", assignedStudents);
+					    }
+				   }
+					
+				return resMap;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving instructor data");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void updateStudentsAssignedToInstructor(long instructorId, long courseId, List<Long> studentsToAssign, List<Long> studentsToUnassign) throws DbConnectionException {
+		try {
+			CourseInstructor instructor = (CourseInstructor) persistence.currentManager()
+					.load(CourseInstructor.class, instructorId);
+//			String query = 
+//					"UPDATE " +
+//					"CourseEnrollment enrollment " +
+//				    "set enrollment.instructor = :instructor, " +
+//					"enrollment.assignedToInstructor = :assigned " +
+//				    "WHERE enrollment.id IN " +
+//						"(SELECT eId FROM (SELECT enr.id as eId " +
+//						"FROM CourseEnrollment enr "+
+//						"INNER JOIN enr.instructor inst " + 
+//						"INNER JOIN enr.user user " + 
+//						"WHERE inst = :instructor " +
+//						"AND user.id IN (:ids)))";
+			String query1 = "SELECT enrollment.id " +
+					"FROM CourseEnrollment enrollment "+
+					"INNER JOIN enrollment.course course " + 
+					"INNER JOIN enrollment.user user " + 
+					"WHERE course.id = :courseId " +
+					"AND user.id IN (:ids)";
+			
+			String query = 
+					"UPDATE " +
+					"CourseEnrollment enrollment " +
+				    "set enrollment.instructor = :instructor, " +
+					"enrollment.assignedToInstructor = :assigned " +
+				    "WHERE enrollment.id IN " +
+						"(:ids)";
+			
+			int numberOfAssigned = 0;
+			int numberOfUnassiged = 0;
+			if(studentsToAssign != null && !studentsToAssign.isEmpty()) {
+				@SuppressWarnings("unchecked")
+				List<Long> idsAssign = persistence.currentManager().createQuery(query1)
+						.setLong("courseId", courseId)
+						.setParameterList("ids", studentsToAssign)
+						.list();
+				
+				numberOfAssigned = persistence.currentManager().createQuery(query)
+								.setParameter("instructor", instructor)
+								.setBoolean("assigned", true)
+								.setParameterList("ids", idsAssign)
+								.executeUpdate();
+			}
+			if(studentsToUnassign != null && !studentsToUnassign.isEmpty()) {		
+				@SuppressWarnings("unchecked")
+				List<Long> idsUnAssign = persistence.currentManager().createQuery(query1)
+						.setLong("courseId", courseId)
+						.setParameterList("ids", studentsToUnassign)
+						.list();
+				
+				numberOfUnassiged = persistence.currentManager().createQuery(query)
+								.setParameter("instructor", null)
+								.setBoolean("assigned", false)
+								.setParameterList("ids", idsUnAssign)
+								.executeUpdate();
+			}
+				
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating instructor");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public CourseInstructor assignInstructorToCourse(long userId, long courseId, int maxNumberOfAssignedStudents) throws DbConnectionException {
+		try {
+			User user = (User) persistence.currentManager().load(User.class, userId);
+			Course course = (Course) persistence.currentManager().load(Course.class, courseId);
+			
+			CourseInstructor instructor = new CourseInstructor();
+			instructor.setUser(user);
+			instructor.setCourse(course);
+			int defaultNumberOfStudentsPerInstructor = 0;
+			if(maxNumberOfAssignedStudents == 0) {
+				defaultNumberOfStudentsPerInstructor = getDefaultNumberOfStudentsPerInstructor(courseId);
+			} else {
+				defaultNumberOfStudentsPerInstructor = maxNumberOfAssignedStudents;
+			}
+			instructor.setMaxNumberOfStudents(defaultNumberOfStudentsPerInstructor);
+			
+			return saveEntity(instructor);
+		} catch(Exception e) {
+			throw new DbConnectionException("Error while assigning instructor to a course");
+		}
+	}
+	
+	private int getDefaultNumberOfStudentsPerInstructor(long courseId) {
+		String query = "SELECT course.defaultNumberOfStudentsPerInstructor " +
+					   "FROM Course course " +
+					   "WHERE course.id = :courseId";
+		int result = (int) persistence.currentManager().createQuery(query)
+						.setLong("courseId", courseId)
+						.uniqueResult();
+		
+		return result;
 	}
 	
 }

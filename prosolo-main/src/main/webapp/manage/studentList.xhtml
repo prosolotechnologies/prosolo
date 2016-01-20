@@ -69,7 +69,7 @@
 									class="checkbox checkbox-success checkbox-inline">
 									<h:selectBooleanCheckbox id="checkbox2" value="#{courseMembersBean.filterUnassigned}">
 										<p:ajax event="click" process="@this checkbox2" 
-											listener="#{courseMembersBean.filterCourseMembers}" update=":studentListForm" />
+											listener="#{courseMembersBean.filterCourseMembers}" update=":studentListForm panelNoStudent" />
 									</h:selectBooleanCheckbox>
 									<label for="checkbox2">Show
 										only unassigned</label> 

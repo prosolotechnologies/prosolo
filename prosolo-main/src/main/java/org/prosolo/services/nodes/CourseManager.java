@@ -11,6 +11,7 @@ import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CourseCompetence;
 import org.prosolo.common.domainmodel.course.CourseEnrollment;
+import org.prosolo.common.domainmodel.course.CourseInstructor;
 import org.prosolo.common.domainmodel.course.CoursePortfolio;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
@@ -150,4 +151,10 @@ public interface CourseManager extends AbstractManager {
 	Map<String, Object> getCourseInstructor(long userId) throws DbConnectionException;
 	
 	void removeInstructorFromCourse(long courseInstructorId) throws DbConnectionException;
+	
+	Map<String, Object> getBasicInstructorInfo(long instructorId) throws DbConnectionException;
+	
+	void updateStudentsAssignedToInstructor(long instructorId, long courseId, List<Long> studentsToAssign, List<Long> studentsToUnassign) throws DbConnectionException;
+	
+	CourseInstructor assignInstructorToCourse(long userId, long courseId, int maxNumberOfAssignedStudents) throws DbConnectionException;
 }

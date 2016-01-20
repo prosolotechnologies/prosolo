@@ -133,6 +133,10 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 
 /* buttons */
 
+.btn {
+	font-style: normal!important;
+}
+
 .btn .fa {
 	font-size: 15px;
 	vertical-align: inherit;
@@ -145,6 +149,8 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 .btn-primary {
 	background-color: #2196f3;
 	border-color: #2196f3;
+	color: #fff!important;
+	
 }
 
 .btn-default {
@@ -2686,6 +2692,42 @@ footer ul li:first-of-type {
 }
 
 
+
+.acDropdown {
+	position: relative;
+}
+
+.acPanel {
+	display: none;
+	position: absolute;
+	top: 57px;;	
+	background: #fafafa;
+	width: 100%;
+	z-index: 9;
+	border: 1px solid #f0f0f0;
+	border-radius: 4px;
+	height: 400px;
+	overflow: auto;
+	padding: 0;
+}
+.acPanel table tr {
+	background-color: #FFF;
+}
+
+.acPanel table td:nth-of-type(1) {
+	width: 55%;
+}
+
+.acPanel table tr:hover {
+	cursor: pointer;
+	background-color: #ffffdd;
+}
+
+
+.acContainer {
+	position: relative;
+}
+
 .dd {
 	padding-top: 190px;
 	text-align: center;
@@ -2700,16 +2742,27 @@ footer ul li:first-of-type {
 }
 .modal-body.userList {
   height: 500px;
+  margin: 0;
   overflow: auto;
+  padding: 0;
 }
 
-.userList table td{
-	border-bottom: 1px solid #efefef;
-	vertical-align: middle;
-	padding: 10px 5px;
+.userList table td {
+  border-bottom: 1px solid #efefef;
+  padding: 10px 0 10px 15px;
+  vertical-align: middle;
 }
+
+.userList table td:last-of-type {
+  padding-right: 15px;
+}
+
 .userList .userInfo {
 	margin-bottom: 0;
+}
+
+.userList .userProfileName {
+  width: 110px;
 }
 
 .assign,
@@ -2736,6 +2789,38 @@ footer ul li:first-of-type {
 [data-toggle^="tooltip"]:hover {
 	cursor: help;
 
+}
+
+.insContainer {
+	border: 1px solid #f0f0f0;
+	border-radius: 3px;
+	padding: 5px 10px 5px 10px;
+	font-size: 11px;
+	font-style: italic;
+	color: #ccc;
+	height: 54px;
+}
+
+.insContainer .initial {
+	margin-top: 13px;
+	display:block;
+	float: left;
+}
+
+.insContainer .btn {
+	margin-top: 4px;
+}
+
+.insContainer .userInfo {
+	float: left;
+	margin-bottom: 0px;
+}
+
+
+.filterModal {
+  background: #fcfcfc none repeat scroll 0 0;
+  padding-top: 5px;
+  border-bottom: 1px solid #f1f1f1;
 }
 
 /*********************************************/

@@ -75,4 +75,9 @@ public interface TextSearch extends AbstractManager {
 	
 	Map<String, Object> searchInstructors (
 			String searchTerm, int page, int limit, long courseId, SortingOption sortingOption);
+	
+	Map<String, Object> searchUnassignedCourseMembers (
+			String searchTerm, long courseId);
+	
+	Map<String, Object> searchUsersWithInstructorRole (String searchTerm, long courseId, long roleId);
 }

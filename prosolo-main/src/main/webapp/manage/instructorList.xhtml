@@ -57,7 +57,14 @@
 		    <div class="panel panel-default">
 		         <div class="panel-heading">
 		         	<h3 class="panel-title">Instructor list</h3>
-		            <a class="btn btn-default panelButton pull-right" href="instructor-add.html" role="button"><i class="fa fa-plus"></i> Add new instructor</a>
+		         	<h:link 
+		         		outcome="/manage/instructor-add"
+		         		styleClass="btn btn-default panelButton pull-right"
+		         		pt:role="button">
+		         		<i class="fa fa-plus"></i> Add new instructor
+		         		<f:param name="courseId" value="#{param['id']}" />
+		         		<f:param name="courseName" value="#{param['courseName']}" />
+		         	</h:link>
 		         </div>
 		      <div class="row narrow searchFilter">
 		            <div class="col-md-12">
@@ -110,18 +117,26 @@
 														title="#{instructor.name}" alt="#{instructor.name}" />
 				              </span>
 				              <div class="name">
-				                <h1><a href="instructor-edit.html">#{instructor.name}</a></h1>
+				                <h1>
+				                	<h:link 
+						         		outcome="/manage/instructor-add"
+						         		value="#{instructor.name}">
+						         		<f:param name="id" value="#{util:encodeId(instructor.instructorId)}" />	         		
+						         		<f:param name="courseId" value="#{param['id']}" />
+						         		<f:param name="courseName" value="#{param['courseName']}" />
+		         					</h:link>
+				                	
+				                </h1>
 				                <h2>#{instructor.position}</h2>
 				              </div>
 				            </td>
 				            <td class="colAssignedD">
 				            	<a href="instructor-edit.html">#{instructor.numberOfAssignedStudents}/#{instructor.maxNumberOfStudents}</a>
-				               
-				            
 				            </td>
 				            <td class="colInstructorD">
 				            	<h:link 
 				            		styleClass="btn btn-default"  
+				            		pt:disabled="disabled"
 				            		disabled="#{instructor.numberOfAssignedStudents == 0}"
 				            		pt:role="button">
 				            		<i class="fa fa-random"></i> Reassign students

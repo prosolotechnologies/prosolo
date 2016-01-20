@@ -3,7 +3,7 @@ package org.prosolo.search.impl;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
 import java.util.Collection;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -545,9 +545,12 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	public Map<String, Object> searchCourseMembers (
 			String searchTerm, InstructorAssignedFilter filter, int page, int limit, long courseId, CourseMembersSortOption sortOption) {
 		
-		Map<String, Object> resultMap = new LinkedHashMap<>();
+		Map<String, Object> resultMap = new HashMap<>();
 		try {
-			int start = setStart(page, limit);
+			int start = 0;
+			if(page != -1) {
+				start = setStart(page, limit);
+			}
 			
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
@@ -560,32 +563,35 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			//bQueryBuilder.minimumNumberShouldMatch(1);
 			
-			QueryBuilder nestedQB = QueryBuilders.nestedQuery(
-			        "courses",               
-			        QueryBuilders.boolQuery()           
-			                .must(QueryBuilders.matchQuery("courses.id", courseId)))
-						.innerHit(new QueryInnerHitBuilder());
-			
-			bQueryBuilder.must(qb);
-			bQueryBuilder.must(nestedQB);
-			//bQueryBuilder.must(termQuery("courses.id", courseId));
+			BoolQueryBuilder nestedBQBuilder = QueryBuilders.boolQuery();
+			nestedBQBuilder.must(QueryBuilders.matchQuery("courses.id", courseId));
 			if(filter != InstructorAssignedFilter.All) {
 				QueryBuilder qBuilder = termQuery("courses.instructorId", 0);
 				if(filter == InstructorAssignedFilter.Assigned) {
-					bQueryBuilder.mustNot(qBuilder);
+					nestedBQBuilder.mustNot(qBuilder);
 				} else {
-					bQueryBuilder.must(qBuilder);
+					nestedBQBuilder.must(qBuilder);
 				}
 			}
+			QueryBuilder nestedQB = QueryBuilders.nestedQuery(
+			        "courses", nestedBQBuilder).innerHit(new QueryInnerHitBuilder());
+
+			bQueryBuilder.must(qb);
+			bQueryBuilder.must(nestedQB);
+			//bQueryBuilder.must(termQuery("courses.id", courseId));
+			
 			
 			try {
-				String[] excludes = {"learninggoals", "url", "location", "courses"};
+				String[] includes = {"id", "name", "lastname", "avatar", "position"};
 				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
 						.setTypes(ESIndexTypes.USER)
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 						.setQuery(bQueryBuilder)
-						.setFrom(start).setSize(limit)
-						.setFetchSource(null, excludes);
+						.setFetchSource(includes, null);
+				
+				if(page != -1) {
+					searchRequestBuilder.setFrom(start).setSize(limit);
+				}
 				
 				//add sorting
 				ESSortOption esSortOption = CourseMembersSortOptionTranslator.getSortOption(sortOption);
@@ -605,10 +611,10 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					
 					if(searchHits != null) {
 						for(SearchHit sh : searchHits) {
-							Map<String, Object> resMap = new LinkedHashMap<>();
+							Map<String, Object> resMap = new HashMap<>();
 							Map<String, Object> fields = sh.getSource();
 							User user = new User();
-							user.setId(((Integer) fields.get("id")).longValue());
+							user.setId(Long.parseLong(fields.get("id") + ""));
 							user.setName((String) fields.get("name"));
 							user.setLastname((String) fields.get("lastname"));
 							user.setAvatarUrl((String) fields.get("avatar"));
@@ -667,7 +673,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	public Map<String, Object> searchInstructors (
 			String searchTerm, int page, int limit, long courseId, SortingOption sortingOption) {
 		
-		Map<String, Object> resultMap = new LinkedHashMap<>();
+		Map<String, Object> resultMap = new HashMap<>();
 		try {
 			int start = setStart(page, limit);
 			
@@ -731,6 +737,149 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			logger.error(e1);
 		} catch(DbConnectionException dbce) {
 			logger.error(dbce);
+		}
+		return resultMap;
+	}
+	
+	@Override
+	public Map<String, Object> searchUnassignedCourseMembers (
+			String searchTerm, long courseId) {
+		
+		Map<String, Object> resultMap = new HashMap<>();
+		try {
+			Client client = ElasticSearchFactory.getClient();
+			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			
+			QueryBuilder qb = QueryBuilders
+					.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+					.field("name").field("lastname");
+			
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			//bQueryBuilder.minimumNumberShouldMatch(1);
+			
+			QueryBuilder nestedQB = QueryBuilders.nestedQuery(
+			        "courses",               
+			        QueryBuilders.boolQuery()           
+			                .must(QueryBuilders.matchQuery("courses.id", courseId))
+							.must(QueryBuilders.matchQuery("courses.instructorId", 0)));		
+			bQueryBuilder.must(qb);
+			bQueryBuilder.must(nestedQB);
+
+			try {
+				String[] includes = {"id", "name", "lastname", "avatar"};
+				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
+						.setTypes(ESIndexTypes.USER)
+						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+						.setQuery(bQueryBuilder)
+						.setFetchSource(includes, null)
+						.setFrom(0).setSize(Integer.MAX_VALUE);
+				
+				searchRequestBuilder.addSort("name", SortOrder.ASC);
+				searchRequestBuilder.addSort("lastname", SortOrder.ASC);
+				//System.out.println(searchRequestBuilder.toString());
+				SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
+				if(sResponse != null) {
+					SearchHits searchHits = sResponse.getHits();
+					
+					resultMap.put("resultNumber", searchHits.getTotalHits());
+					
+					List<Map<String, Object>> data = new LinkedList<>();
+					
+					if(searchHits != null) {
+						for(SearchHit sh : searchHits) {
+							Map<String, Object> resMap = new HashMap<>();
+							Map<String, Object> fields = sh.getSource();
+							
+							resMap.put("id", Long.parseLong(fields.get("id") + ""));
+				    		resMap.put("firstName", (String) fields.get("name"));
+				    		resMap.put("lastName", (String) fields.get("lastname"));
+				    		resMap.put("avatarUrl", (String) fields.get("avatar"));
+					
+							data.add(resMap);
+						}
+					}
+					
+					resultMap.put("data", data);
+				
+				}
+			} catch (SearchPhaseExecutionException spee) {
+				spee.printStackTrace();
+				logger.error(spee);
+			}
+	
+		} catch (NoNodeAvailableException e1) {
+			logger.error(e1);
+		}
+		return resultMap;
+	}
+	
+	@Override
+	public Map<String, Object> searchUsersWithInstructorRole (String searchTerm, long courseId, long roleId) {
+		
+		Map<String, Object> resultMap = new HashMap<>();
+		try {
+			Client client = ElasticSearchFactory.getClient();
+			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			
+			QueryBuilder qb = QueryBuilders
+					.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+					.field("name").field("lastname");
+			
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			//bQueryBuilder.minimumNumberShouldMatch(1);
+				
+			
+			bQueryBuilder.must(qb);
+			bQueryBuilder.mustNot(QueryBuilders.matchQuery("coursesWithInstructorRole.id", courseId));
+			bQueryBuilder.must(QueryBuilders.matchQuery("roles.id", roleId));
+
+			try {
+				String[] includes = {"id", "name", "lastname", "avatar", "position"};
+				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
+						.setTypes(ESIndexTypes.USER)
+						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+						.setQuery(bQueryBuilder)
+						.setFetchSource(includes, null)
+						.setFrom(0).setSize(Integer.MAX_VALUE);
+				
+				searchRequestBuilder.addSort("name", SortOrder.ASC);
+				searchRequestBuilder.addSort("lastname", SortOrder.ASC);
+				//System.out.println(searchRequestBuilder.toString());
+				SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
+				if(sResponse != null) {
+					SearchHits searchHits = sResponse.getHits();
+					
+					resultMap.put("resultNumber", searchHits.getTotalHits());
+					
+					List<Map<String, Object>> data = new LinkedList<>();
+					
+					if(searchHits != null) {
+						for(SearchHit sh : searchHits) {
+							Map<String, Object> resMap = new HashMap<>();
+							Map<String, Object> fields = sh.getSource();
+							
+							resMap.put("id", Long.parseLong(fields.get("id") + ""));
+				    		resMap.put("firstName", (String) fields.get("name"));
+				    		resMap.put("lastName", (String) fields.get("lastname"));
+				    		resMap.put("avatarUrl", (String) fields.get("avatar"));
+				    		resMap.put("position", (String) fields.get("position"));
+					
+							data.add(resMap);
+						}
+					}
+					
+					resultMap.put("data", data);
+				
+				}
+			} catch (SearchPhaseExecutionException spee) {
+				spee.printStackTrace();
+				logger.error(spee);
+			}
+	
+		} catch (NoNodeAvailableException e1) {
+			logger.error(e1);
 		}
 		return resultMap;
 	}

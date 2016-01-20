@@ -13,8 +13,13 @@ public class CourseInstructorData {
 	private String avatarUrl = "/" + Settings.getInstance().config.services.userService.defaultAvatarPath + "size60x60.png";
 	private String name;
 	private String position;
-	private int maxNumberOfStudents;
+	private Integer maxNumberOfStudents;
 	private int numberOfAssignedStudents;
+	private long userId;
+	
+	public CourseInstructorData() {
+		
+	}
 	
 	public CourseInstructorData(Map<String, Object> instructorMap) {
 		this.instructorId = (long) instructorMap.get("instructorId");
@@ -28,6 +33,10 @@ public class CourseInstructorData {
 		this.position = (String) instructorMap.get("position");
 		this.maxNumberOfStudents = (int) instructorMap.get("maxNumberOfStudents");
 		this.numberOfAssignedStudents = (int) instructorMap.get("numberOfAssignedStudents");
+	}
+	
+	public void setFullName(String name, String lastName) {
+		this.name = name + (lastName != null ? " " + lastName : "");
 	}
 
 	public boolean isFull() {
@@ -68,11 +77,11 @@ public class CourseInstructorData {
 		this.position = position;
 	}
 
-	public int getMaxNumberOfStudents() {
+	public Integer getMaxNumberOfStudents() {
 		return maxNumberOfStudents;
 	}
 
-	public void setMaxNumberOfStudents(int maxNumberOfStudents) {
+	public void setMaxNumberOfStudents(Integer maxNumberOfStudents) {
 		this.maxNumberOfStudents = maxNumberOfStudents;
 	}
 
@@ -82,6 +91,14 @@ public class CourseInstructorData {
 
 	public void setNumberOfAssignedStudents(int numberOfAssignedStudents) {
 		this.numberOfAssignedStudents = numberOfAssignedStudents;
+	}
+
+	public long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(long userId) {
+		this.userId = userId;
 	}
 	
 }

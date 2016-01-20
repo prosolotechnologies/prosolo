@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.hibernate.Session;
+import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
@@ -19,6 +20,7 @@ import org.prosolo.services.indexing.ESIndexNames;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.LearningGoalManager;
+import org.prosolo.services.nodes.RoleManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +37,8 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	private CourseManager courseManager;
 	@Inject
 	private LearningGoalManager learningGoalManager;
+	@Inject
+	private RoleManager roleManager;
 	
 	@Override
 	@Transactional
@@ -81,6 +85,15 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			
 			builder.field("avatar", user.getAvatarUrl());
 			builder.field("position", user.getPosition());
+			
+			builder.startArray("roles");
+			List<Role> roles = roleManager.getUserRoles(user.getEmail().getAddress());
+			for(Role role : roles) {
+				builder.startObject();
+				builder.field("id", role.getId());
+				builder.endObject();
+			}
+			builder.endArray();
 			
 			builder.startArray("courses");
 			for(Map<String, Object> resMap : courseInfo) {

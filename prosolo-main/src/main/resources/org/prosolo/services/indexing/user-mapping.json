@@ -56,6 +56,15 @@
 				"store": false,
 				"type": "string"
 			},
+			
+			"roles": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					}
+				}
+			},
 
 			"courses": {
 				"type": "nested",
