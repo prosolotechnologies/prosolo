@@ -1,4 +1,4 @@
-define([], function() {
+var paging = (function () {
 	return {
 		create : function(set, paging) {
 			function empty() {
@@ -59,4 +59,4 @@ define([], function() {
 			}
 		}
 	}
-});
+})();

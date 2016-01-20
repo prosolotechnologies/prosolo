@@ -1,79 +1,5 @@
 @CHARSET "UTF-8";
-/*
-#dashboard h1 {
-	float: none;
-	padding: 0.6em 0em;
-	border-top: 1px solid #ccc;
-	margin: 0em;
-	color: #0288D1;
-}
 
-#dashboard h2 {
-	padding: 1em 0em;
-	margin: 0em;
-	font-weight: normal;
-	color: #000;
-}
-
-#dashboard h3 {
-	padding: 0.3em 0em;
-	margin: 0em;
-	font-weight: normal;
-	color: #666;
-}
-
-#dashboard .dateField {
-	width: 62px;
-	height: 23px;
-	cursor: default;
-}
-
-#dashboard .timeRange .ui-datepicker-trigger {
-	margin-right: 1em;
-}
-
-#dashboard .timeRange strong {
-	margin-right: 0.3em;
-}
-
-#dashboard .chart-block {
-	padding-top: 24px;
-	clear: both;
-}
-
-#dashboard .dateField {
-	margin-right: 9px;
-}
-
-#dashboard .timeRange {
-	float: left;
-}
-
-#dashboard .period {
-	float: right;
-}
-
-#dashboard .period input[type=radio] {
-	display: none;
-	margin: 10px;
-}
-
-#dashboard .period input[type=radio]+label {
-	display: inline-block;
-	margin: -2px;
-	padding: 8px 18px;
-	background-color: #e7e7e7;
-	border-color: #ddd;
-	border: 2px #ddd solid;
-	cursor: pointer;
-}
-
-#dashboard .period input[type=radio]:checked+label {
-	background-image: none;
-	background-color: #d0d0d0;
-}
-
-*/
 #dashboard .loader {
 	display: none;
 	background-image: url('/resources/images/style/ajax-loader-black.gif');
@@ -87,101 +13,6 @@
 	clear: both;
 }
 
-/*
-#dashboard h1 {
-	clear: left;
-	margin: 1em 0em
-}
-
-#dashboard .counts {
-	float: left;
-	margin: 0em 2em 2em 0em;
-	padding: 1em;
-	width: 14em;
-	height: 5em;
-	border: 1px solid lightgray;
-}
-
-#dashboard .counts h2 {
-	padding: 0.3em 0em;
-}
-
-
-#dashboard .counts .count {
-	float: right;
-	font-size: 2em;
-	font-weight: bold;
-}
-
-#dashboard .counts .percent {
-	margin-left: 2.4em;
-	color: #22dd22;
-	font-size: 1.2em;
-}
-
-#dashboard .counts .trend-up {
-	color: #22dd22;
-}
-
-#dashboard .counts .trend-down {
-	color: #dd2222;
-}
-
-#dashboard .arrow.trend-up:after {
-	border-bottom-color: #22dd22;	
-	bottom: 0em;
-}
-
-#dashboard .arrow.trend-down:after {
-	border-top-color: #dd2222;	
-	top: 0em;
-}
-
-#dashboard .arrow {
-	position: relative;
-	background: #53d51c;
-}
-
-#dashboard .arrow:after {
-	border: solid transparent;
-	content: " ";
-	height: 0;
-	width: 0;
-	position: absolute;
-	pointer-events: none;
-	border-color: rgba(0, 0, 0, 0);
-	border-width: 1.2em;
-}
-
-.dashboard-table {
-	width: 100%;
-}
-
-.dashboard-table thead {
-	background-color: #0187D0;
-}
-
-.dashboard-table thead tr th {
-	text-align: left;
-	font-size: 1em;
-	font-weight: normal;
-	color: white;
-}
-
-.dashboard-table thead tr {
-	border:	1px solid #0187D0;
-}
-
-.dashboard-table td  {
-	border: 1px solid #ddd;
-}
-
-#dashboard #mostActiveHashtags #statisticsPeriod {
-	font-size: small;
-	color: #0288D1;
-	margin-left: 0.4em;
-}
-*/
 #dashboard #mostActiveHashtagsTable tr > *:nth-child(1) {
 	width: 10%;
 }
@@ -205,61 +36,6 @@
 #dashboard #mostActiveHashtagsTable tr > *:nth-child(5) {
 	width: 5%;
 }
-/*
-.dashboard-table tr > * {
-	padding: 0.6em 1.2em;
-}
-
-.dashboard-table tbody tr:nth-child(even) {
-	background-color: #eee;
-}
-
-.dashboard-table tbody tr:nth-child(odd) {
-	background-color: #fff;
-}
-
-#dashboard #mostActiveHashtagsTable tr.hashtag button {
-	width: auto;
-}
-
-#dashboard #twitterHashtagsGraph {
-	clear: both;
-}
-
-#dashboard .navigation {
-	margin-top: 1em;
-	height: 3em;
-}
-
-#dashboard .navigation > *:not(:last-child) {
-	margin-right: 0.6em;
-}
-
-#dashboard .navigation > *:not(:last-child):after {
-	content: "|";
-	margin: 0em 0.6em;
-	color: #ccc;
-}
-
-#dashboard #mostActiveHashtags h2:first-child {
-	padding-top: 0em;
-}
-
-#dashboard #filter-most-active-hashtags, #dashboard [name='hashtags-term'] {
-	float: right;
-	margin: 0.6em 0em 0.6em 0.6em;
-}
-
-#dashboard [name='include-hashtags-without-followers'], #dashboard [for='include-hashtags-without-followers'] {
-	float: left;
-	margin: 1.2em 0.6em 0.6em 0em;
-}
-
-#dashboard [name='hashtags-term'] {
-	width: 18em;
-}
-
-*/
 
 #disabled-hashtags-dialog {
 	display: none;
@@ -288,48 +64,48 @@
 	stroke-width: 2px;
 }
 
-#activityGraphChartLegend g {
+#dashboard .legend g {
 	cursor: pointer;
 }
 
-#activityGraphChartLegend svg > text {
+#dashboard .legend svg > text {
 	font-size: 0.75em;
 	fill: gray;
 }
 
-#activityGraphChartLegend g:hover {
+#dashboard .legend g:hover {
 	fill: #0288D1;
 }
 
-#activityGraphChartLegend g text.selected {
+#dashboard .legend g text.selected {
 	fill: lightgray;
 }
 
-g.pattern-one > path, g.pattern-one > circle {
+g.pattern-one > path, g.pattern-one > circle, g > path.pattern-one {
 	stroke-dasharray: 3,3;
 	stroke: #006699;
 }
 
-g.pattern-two > path, g.pattern-two > circle  {
+g.pattern-two > path, g.pattern-two > circle, g > path.pattern-two {
 	stroke-dasharray: 6,6;
 	stroke: #700000;
 }
 
-g.pattern-three > path, g.pattern-three > circle  {
+g.pattern-three > path, g.pattern-three > circle, g > path.pattern-three {
 	stroke-dasharray: 12,12;
 	stroke: #009900;	
 }
 
-g.pattern-four > path, g.pattern-four > circle  {
+g.pattern-four > path, g.pattern-four > circle, g > path.pattern-four {
 	stroke-dasharray: 12,3,3,3;
 	stroke: #FF9900;	
 }
 
-g.pattern-five > path, g.pattern-five > circle  {
+g.pattern-five > path, g.pattern-five > circle, g > path.pattern-five {
 	stroke: #663399; 
 }
 
-g.pattern-six > path, g.pattern-six > circle  {
+g.pattern-six > path, g.pattern-six > circle, g > path.pattern-six {
     stroke-dasharray: 3,3,3,3,12,3;
 	stroke: #CC0033; 
 }

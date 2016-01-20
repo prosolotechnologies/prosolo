@@ -63,6 +63,19 @@ function initProgressionTabScripts() {
 	drawTreePath();
 }
 
+function showObservationPanel() {
+	$('.observationBar.observationBox').show();
+}
+
+function hideObservationPanel() {
+	$('.observationBar.observationBox').hide();
+}
+
 $(function() {
 	initProgressionTabScripts();
+	
+	$("#activitiesBlock .panel.panel-default").on("mouseover", function(e) {
+		var id = $(this).find('input[type="hidden"]').val();
+		hoverActivity(id);
+	});
 })

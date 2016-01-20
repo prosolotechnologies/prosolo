@@ -224,7 +224,7 @@
    <listener>
       <listener-class>org.ocpsoft.rewrite.servlet.impl.RewriteServletContextListener</listener-class>
    </listener>
-
+   
    <filter>
       <filter-name>OCPsoft Rewrite Filter</filter-name>
       <filter-class>org.ocpsoft.rewrite.servlet.RewriteFilter</filter-class>
@@ -239,4 +239,14 @@
       <dispatcher>ASYNC</dispatcher>
       <dispatcher>ERROR</dispatcher>
    </filter-mapping>
+   <filter>
+    <filter-name>Save Page Url In Session Filter</filter-name>
+    <filter-class>org.prosolo.core.jsf.SavePageUrlInSessionFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>Save Page Url In Session Filter</filter-name>
+    <url-pattern>/*</url-pattern>
+    <dispatcher>FORWARD</dispatcher>
+    <dispatcher>REQUEST</dispatcher>
+  </filter-mapping>
 </web-app>

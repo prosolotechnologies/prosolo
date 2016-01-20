@@ -1,4 +1,4 @@
-define(['jquery'], function($) {
+var statistics = (function () {
 
     function negative(percentage) {
         return percentage.charAt(0) === "-";    
@@ -62,4 +62,4 @@ define(['jquery'], function($) {
         session : session
     };
     
-});
+})();

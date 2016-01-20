@@ -1,7 +1,16 @@
-define([ "dashboard/table", "dashboard/callbacks" ], function(table, Callbacks) {
+// dependinces: [ "dashboard/table", "dashboard/callbacks" ]
+var mostActiveHashtagsTable = (function () {
 
 	var callbacks = new Callbacks();
-
+	
+	var hashtagsTable;
+	
+	function selectedHashtags() {
+		return hashtagsTable.selected().map(function(e) {
+			return e.dataset['hashtag'];
+		});
+	}
+	
 	var configuration = {
 		"container" : "#mostActiveHashtags",
 		"rows" : {
@@ -31,27 +40,20 @@ define([ "dashboard/table", "dashboard/callbacks" ], function(table, Callbacks) 
 			"value" : "Disable",
 			"click" : function() {
 				this.setAttribute('disabled', 'disabled');
-				callbacks.notify(this.parentElement.parentElement.dataset["hashtag"]);
+				callbacks.notify({"name" : "disable-clicked", "hashtag" : this.parentElement.parentElement.dataset["hashtag"]});
 				return false;
 			}
-//		}, {
-//			"name" : "show-in-table",
-//			"title" : "Show",
-//			"type" : "checkbox",
-//			"change" : function() {
-//				var hashtag = $(this).parent().parent().data("hashtag");
-//				if($(this).is(":checked")) {
-//					$("#twitterHashtagsChart g." + hashtag).show();
-//					//$("g ." + hashtag).removeClass(Array.prototype.slice.call($("g ." + hashtag)[0].classList).filter(function(c) { return c.indexOf("pattern") > -1;}));
-//				} else {
-//					//$("g ." + hashtag).removeClass(Array.prototype.slice.call($("g ." + hashtag)[0].classList).filter(function(c) { return c.indexOf("pattern") > -1;}));
-//					$("#twitterHashtagsChart g." + hashtag).hide();
-//				}
-//			}
+		}, {
+			"name" : "show-in-table",
+			"title" : "Show",
+			"type" : "checkbox",
+			"change" : function() {
+				hashtagsTable.countSelected() >= 6 ? hashtagsTable.disableDeselected() : hashtagsTable.enableSelectors();
+				callbacks.notify({"name" : "hashtags-selected", "selected" : selectedHashtags()});
+			}
 		} ]
-	}
-
-	var hashtagsTable;
+	};
+	
 	return {
 		subscribe : callbacks.subscribe,
 		create : function() {
@@ -62,12 +64,13 @@ define([ "dashboard/table", "dashboard/callbacks" ], function(table, Callbacks) 
 		},
 		selectFirst : function(count) {
 			hashtagsTable.selectFirst(count);
+			hashtagsTable.countSelected() >= 6 ? hashtagsTable.disableDeselected() : hashtagsTable.enableSelectors();
 		},
 		hashtags : function() {
 			return hashtagsTable.rows().map(function(e) {
 				return e.dataset['hashtag'];
 			});
-		}
-	}
-
-});
+		},
+		selectedHashtags : selectedHashtags
+	};
+})();

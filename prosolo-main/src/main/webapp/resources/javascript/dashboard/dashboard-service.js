@@ -1,4 +1,4 @@
-define(['jquery'], function($) {
+var service = (function () {
 	return {
 		create : function(configuration) {
 			return {
@@ -16,4 +16,4 @@ define(['jquery'], function($) {
 			}
 		}
 	};
-});
+})();

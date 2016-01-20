@@ -26,7 +26,7 @@ public class SocialInteractionStatisticsService {
 
 	private final Logger logger = LoggerFactory.getLogger(SocialInteractionStatisticsService.class);
 	
-	private SocialInteractionStatisticsDBManager  dbManager = SocialInteractionStatisticsDBManagerImpl.getInstance();
+	private SocialInteractionStatisticsDBManager  dbManager = new SocialInteractionStatisticsDBManagerImpl();
 
 	
 	@GET

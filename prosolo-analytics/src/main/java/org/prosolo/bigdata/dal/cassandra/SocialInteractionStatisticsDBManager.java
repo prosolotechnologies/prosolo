@@ -7,7 +7,7 @@ import org.prosolo.bigdata.common.dal.pojo.SocialInteractionCount;
 import org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl;
 
 public interface SocialInteractionStatisticsDBManager {
-	
+
 	List<SocialInteractionCount> getSocialInteractionCounts(Long courseid);
 
 	List<Row> getSocialInteractions(Long courseid);

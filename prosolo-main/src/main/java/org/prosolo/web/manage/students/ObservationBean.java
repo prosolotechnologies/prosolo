@@ -62,6 +62,7 @@ public class ObservationBean implements Serializable {
 
 	private long studentId;
 	private String studentName;
+	private long targetGoalId;
 
 	private ObservationData lastObservation;
 
@@ -75,7 +76,7 @@ public class ObservationBean implements Serializable {
 
 	public void initializeObservationData() {
 		try {
-			Observation observation = observationManager.getLastObservationForUser(studentId);
+			Observation observation = observationManager.getLastObservationForUser(studentId, targetGoalId);
 			if (observation != null) {
 				lastObservation = new ObservationData(observation);
 			}
@@ -85,7 +86,7 @@ public class ObservationBean implements Serializable {
 	}
 	
 	public void loadObservationHistory() {
-		List<Observation> observations = observationManager.getObservations(studentId);
+		List<Observation> observations = observationManager.getObservations(studentId, targetGoalId);
 		observationHistory = new ArrayList<>();
 		for(Observation ob:observations){
 			observationHistory.add(new ObservationData(ob));
@@ -103,7 +104,7 @@ public class ObservationBean implements Serializable {
 			Map<String, Object> result = observationManager.saveObservation(editObservation.getEditObservation().getId(),
 					editObservation.getEditObservation().getMessage(), editObservation.getEditObservation().getNote(),
 					editObservation.getSelectedSymptoms(), editObservation.getSelectedSuggestions(), creatorId,
-					studentId);
+					studentId, targetGoalId);
 			
 			logger.info("User with id "+creatorId + " created observation for student with id "+studentId);
 			
@@ -131,7 +132,7 @@ public class ObservationBean implements Serializable {
 			}
 			
 			editObservation = null;
-			Observation observation = observationManager.getLastObservationForUser(studentId);
+			Observation observation = observationManager.getLastObservationForUser(studentId, targetGoalId);
 			if (observation != null) {
 				lastObservation = new ObservationData(observation);
 			}
@@ -299,6 +300,13 @@ public class ObservationBean implements Serializable {
 		
 		return s;
 	}
+	
+	public void resetObservationData(long targetGoalId) {
+		editObservation = null;
+		lastObservation = null;
+		setTargetGoalId(targetGoalId);
+		initializeObservationData();
+	}
 
 	public ObservationData getLastObservation() {
 		return lastObservation;
@@ -363,5 +371,14 @@ public class ObservationBean implements Serializable {
 	public void setObservationHistory(List<ObservationData> observationHistory) {
 		this.observationHistory = observationHistory;
 	}
+
+	public long getTargetGoalId() {
+		return targetGoalId;
+	}
+
+	public void setTargetGoalId(long targetGoalId) {
+		this.targetGoalId = targetGoalId;
+	}
+	
 	
 }

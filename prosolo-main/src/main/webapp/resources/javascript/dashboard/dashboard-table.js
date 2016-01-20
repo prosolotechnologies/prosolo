@@ -1,4 +1,4 @@
-define([], function() {
+var table = (function () {
 	/*
 	{
 		"container" : "#table-container",
@@ -45,6 +45,27 @@ define([], function() {
 			return {
 				rows: function() {
 					return Array.prototype.slice.call(document.querySelectorAll(container + " tbody tr"));
+				},
+				enableSelectors: function() {
+					var select = document.querySelectorAll(container + " table tbody > tr > td.selector > input[type='checkbox']");
+					for(var i = 0; i<select.length; i++) {
+						select[i].removeAttribute("disabled");
+					}
+				},
+				disableDeselected: function() {
+					var select = document.querySelectorAll(container + " table tbody > tr > td.selector > input:not(:checked)");
+					for(var i = 0; i<select.length; i++) {
+						select[i].setAttribute("disabled", true);
+					}
+				},
+				selected: function() {
+					var checked = document.querySelectorAll(container + " table tbody td.selector input[type='checkbox']:checked");
+					return Array.prototype.slice.call(checked).map(function(input) {
+						return input.parentElement.parentElement;
+					});
+				},
+				countSelected: function() {
+					return document.querySelectorAll(container + " table tbody td.selector input[type='checkbox']:checked").length;
 				},
 				selectFirst : function(count) {
 					var select = document.querySelectorAll(container + " table tbody td.selector input[type='checkbox']");
@@ -104,4 +125,4 @@ define([], function() {
 			}
 		}
 	}
-});
+})();

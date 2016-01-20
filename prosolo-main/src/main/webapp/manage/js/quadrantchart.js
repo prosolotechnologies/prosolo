@@ -1,3 +1,5 @@
+var series;
+
 function drawQuadrantChart(servicePath) {
 	$.ajax({
 		url : servicePath
@@ -14,8 +16,6 @@ function drawQuadrantChart(servicePath) {
 	 * analysis 5" }, { id: 3, Complexity: -4, Time: -6, name: "Statistical
 	 * analysis 6" } ];
 	 */
-
-	
 	
 };
 
@@ -64,6 +64,8 @@ function draw(data) {
 	// because it's determined by the last parameter added here
 	var series = ch.addSeries([ "id", "name", "Complexity", "Time", "completed", "1" ],
 			dimple.plot.custom);
+	
+	this.series = series;
 
 	var iconWidth = 20;
 	var iconHeight = 20;
@@ -72,7 +74,7 @@ function draw(data) {
 		//d contains all shape attributes that we added through ch.addSeries
 		//console.log(d);
 		var completed = d.aggField[4];
-		console.log(completed);
+		//console.log(completed);
 		var imgLoc = completed ? context + "/resources/images/ico-activities.svg" : context + "/resources/images/ico-activities-not-completed.svg"
 		svg.append("image").attr("x",
 				parseFloat(shape.attr("cx")) - iconWidth / 2).attr("y",
@@ -81,27 +83,17 @@ function draw(data) {
 				.attr("width", iconWidth)
 				.attr("height", iconHeight)
 				.on('click', function(d, i) {
-							// console.log(shape);
 							// console.log(shape[0][0].id);
-							var e = document.createEvent('UIEvents');
-							e.initUIEvent('click', true, true, window, 1);
-							shape.node().dispatchEvent(e);
+//							var e = document.createEvent('UIEvents');
+//							e.initUIEvent('click', true, true, window, 1);
+//							shape.node().dispatchEvent(e);
+					$(shape.node()).d3Click("click");
 				})
 				.on('mouseover', function(d, i) {
-					
-							// console.log(shape);
-							// console.log(shape[0][0].id);
-							var e = document.createEvent('UIEvents');
-							e.initUIEvent('mouseover', true, true, window, 1);
-							shape.node().dispatchEvent(e);
+					$(shape.node()).d3Click("mouseover");
 				})
 				.on('mouseleave', function(d, i) {
-					
-							// console.log(shape);
-							// console.log(shape[0][0].id);
-							var e = document.createEvent('UIEvents');
-							e.initUIEvent('mouseleave', true, true, window, 1);
-							shape.node().dispatchEvent(e);
+					$(shape.node()).d3Click("mouseleave");
 				});
 	};
 
@@ -123,7 +115,9 @@ function draw(data) {
 	// ch.addLegend(40, 10, 360, 10, "left");
 
 	ch.draw();
-
+	
+	//console.log(series.shapes);
+	
 	var xMiddle = (xTo - xFrom) / 2 + xFrom;
 	var yMiddle = (yTo - yFrom) / 2 + yFrom;
 	svg.append("line")
@@ -187,14 +181,13 @@ function draw(data) {
 
 	// "mouseover" or "click"
 	series.shapes.on("mouseover", function(e) {
-		console.log(e);
-		
+		//console.log(e);
 		hoveredId = e.aggField[0];
 		dimple._showPointTooltip(e, this, ch, series);
 		$("#activity"+hoveredId).toggleClass("bgRed");
 	});
 	series.shapes.on("click", function(e) {
-		console.log(e);
+		//console.log(e);
 		$("#act" + selectedId).toggle();
 		if(selectedId == e.aggField[0]) {
 			//dimple._removeTooltip(e,this,ch,series);
@@ -213,9 +206,6 @@ function draw(data) {
 		  $("#activity"+hoveredId).toggleClass("bgRed");
 		  hoveredId = null;
 	  });
-	
-	
-	
 
 };
 
@@ -228,3 +218,37 @@ d3.selection.prototype.moveToBack = function() {
     }); 
 };
 
+$.fn.d3Click = function (eventType) {
+	  this.each(function (i, e) {
+	    var evt = document.createEvent("MouseEvents");
+	    evt.initMouseEvent(eventType, true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+
+	    e.dispatchEvent(evt);
+	  });
+};
+
+function hoverActivity(activityId) {
+	//var shps = series.shapes.selectAll("circle");
+	//console.log(shps);
+	var shapes = d3.selectAll("#quadrantchart circle");
+	var shape = shapes.filter(function(d) { 
+		return d != null ? d.aggField[0] == activityId : false
+	});
+	//console.log(shape);
+	$(shape.node()).d3Click("mouseover");
+
+	//alternative for above
+//	var shps = series.shapes;
+//	shps = shps[0];
+//	shps.some(function(entry) {
+//		var shape = d3.select(entry);
+//		var id = shape[0][0].id;
+//		var attrs = id.split("/");
+//		var actId = attrs[0];
+//		if(actId == activityId) {
+//			$(shape.node()).d3Click("mouseover");
+//			return true;
+//		}
+//	    //console.log(shape);
+//	});
+};

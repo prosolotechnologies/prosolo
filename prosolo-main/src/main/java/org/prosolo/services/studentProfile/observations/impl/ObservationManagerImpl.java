@@ -15,6 +15,7 @@ import org.prosolo.common.domainmodel.observations.Observation;
 import org.prosolo.common.domainmodel.observations.Suggestion;
 import org.prosolo.common.domainmodel.observations.Symptom;
 import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
+import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.MessagingManager;
@@ -35,20 +36,23 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 
 	@Override
 	@Transactional(readOnly = true)
-	public Observation getLastObservationForUser(long userId) throws DbConnectionException{
+	public Observation getLastObservationForUser(long userId, long targetLearningGoalId) throws DbConnectionException{
 		try{
 			String queryString = 
 					"SELECT o " +
 					"FROM Observation o " +
 					"INNER JOIN fetch o.createdFor student " +
-					"INNER JOIN fetch o.createdBy user "+
-					"LEFT JOIN fetch o.symptoms sy "+
-					"LEFT JOIN fetch o.suggestions su "+
+					"INNER JOIN fetch o.createdBy user " +
+					"LEFT JOIN fetch o.symptoms sy " +
+					"LEFT JOIN fetch o.suggestions su " +
+					"LEFT JOIN o.targetLearningGoal tGoal " +
 					"WHERE student.id = :id " +
+					"AND tGoal.id = :targetGoalId " +
 					"ORDER BY o.creationDate desc";
 	
 			Query query = persistence.currentManager().createQuery(queryString);
-			query.setLong("id", userId);
+			query.setLong("id", userId)
+				.setLong("targetGoalId", targetLearningGoalId);
 			query.setMaxResults(1);
 			
 			return (Observation) query.uniqueResult();	
@@ -60,7 +64,7 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 	@Override
 	@Transactional
 	public Map<String, Object> saveObservation(long id, String message, String note, List<Long> symptomIds,
-			List<Long> suggestionIds, long creatorId, long studentId) throws DbConnectionException {
+			List<Long> suggestionIds, long creatorId, long studentId, long targetGoalId) throws DbConnectionException {
 		try{
 			boolean insert = true;
 			Observation observation = new Observation();
@@ -94,6 +98,10 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 		    }
 		    observation.setSuggestions(suggestions);
 		    
+		    TargetLearningGoal tGoal = new TargetLearningGoal();
+		    tGoal.setId(targetGoalId);
+		    observation.setTargetLearningGoal(tGoal);
+		    
 			observation =  saveEntity(observation);
 			persistence.currentManager().evict(observation);
 			
@@ -117,16 +125,18 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<Observation> getObservations(long userId) throws DbConnectionException{
+	public List<Observation> getObservations(long userId, long targetLearningGoalId) throws DbConnectionException{
 		try{
 			String queryString = 
 					"SELECT distinct o " +
 					"FROM Observation o " +
 					"INNER JOIN fetch o.createdFor student " +
-					"INNER JOIN fetch o.createdBy user "+
-					"LEFT JOIN fetch o.symptoms sy "+
-					"LEFT JOIN fetch o.suggestions su "+
+					"INNER JOIN fetch o.createdBy user " +
+					"LEFT JOIN fetch o.symptoms sy " +
+					"LEFT JOIN fetch o.suggestions su " +
+					"LEFT JOIN o.targetLearningGoal tGoal " +
 					"WHERE student.id = :id " +
+					"AND tGoal.id = :targetGoalId " +
 					"ORDER BY o.creationDate desc";
 	
 			Query query = persistence.currentManager().createQuery(queryString);

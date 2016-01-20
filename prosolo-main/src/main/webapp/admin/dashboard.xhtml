@@ -23,9 +23,17 @@
 	<script src="#{request.contextPath}/resources/javascript/underscore-min.js"></script>
 	<script src="#{request.contextPath}/resources/javascript/tauCharts.min.js"></script>
 	<script src="#{request.contextPath}/resources/javascript/readmore.custom.js"></script>
-	<script data-base-url="#{request.contextPath}/resources/javascript" src="#{request.contextPath}/resources/javascript/prosolo.require-config.js"></script>
-	<script data-main="dashboard/main" src="#{request.contextPath}/resources/javascript/require.min.js"></script>
-
+	<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-callbacks.js"></script>
+	<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-chart.js"></script>
+	<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-datepicker.js"></script>
+	<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-disabled-hashtags-table.js"></script>
+	<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-most-active-hashtags-table.js"></script>
+	<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-paging.js"></script>
+	<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-service.js"></script>
+	<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-statistics.js"></script>
+	<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-table.js"></script>
+	<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-main.js"></script>
+	
 	<div id="dashboard" data-api="#{dashboardBean.apiHost}" data-no-results-found-message="#{dashboardBean.noResultsFoundMessage}">
 		<section class="heading">
 			<header>

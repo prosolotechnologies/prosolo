@@ -33,6 +33,7 @@ import org.prosolo.services.activityWall.filters.LearningGoalFilter;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.event.context.LearningContext;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.logging.LoggingService;
@@ -85,8 +86,11 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 
 	private SessionData sessionData;
 	
+	private LearningContext learningContext;
+	
 	public LoggedUserBean(){
 		System.out.println("SESSION BEAN INITIALIZED");
+		learningContext = new LearningContext();
 	}
 	
 	private boolean initialized = false;
@@ -444,4 +448,11 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	public void setUserSettings(UserSettings userSettings) {
 		getSessionData().setUserSettings(userSettings);
 	}
+	public LearningContext getLearningContext() {
+		return learningContext;
+	}
+	public void setLearningContext(LearningContext learningContext) {
+		this.learningContext = learningContext;
+	}
+
 }

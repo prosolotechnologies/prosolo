@@ -1,5 +1,4 @@
-define([ 'jquery', 'd3' ], function($, d3) {
-	
+var timelineGraph = (function () {	
 	 /* As described in http://bl.ocks.org/eesur/4e0a69d57d3bfc8a82c2
 	  */
 	 d3.selection.prototype.timelineTooltipMoveToFront = function() {  
@@ -403,4 +402,4 @@ define([ 'jquery', 'd3' ], function($, d3) {
 		}
 		
 	};
-});
+})();

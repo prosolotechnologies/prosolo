@@ -640,7 +640,23 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 	border: 1px solid transparent;
 }
 
+.userProfileImageSmall {
+	width: 40px;
+	height: 40px;
+	border-radius: 40px;
+	border: 0px;
+	margin-right: 10px;
+	display: inline-block;
+	float: left;
+}
 
+
+.userProfileImageSmall img {
+	border-radius: 40px;
+	width: 40px;
+	height: 40px;
+	border: 1px solid transparent;
+}
 
 
 .navbar-default .navbar-nav.userActions > li.user > a:hover i {
@@ -1065,6 +1081,19 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 
 /* tabs */
 
+.nav.nav-tabs.centerTabs {
+   position: absolute;
+	left:0; 
+	right:0;
+	margin: 0 auto;
+	background: #FCFCFC;
+	width: 436px;
+	top: 78px;
+	border-top-left-radius: 0px;
+	border-top-right-radius: 0px;	
+}
+
+
 .nav-tabs {
 	border: 0;
 	background: #f7f7f7;	
@@ -1090,6 +1119,14 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 	background: none;
 }
 
+.centerTabs > li > a, 
+.centerTabs > li > a:focus, 
+.centerTabs > li > a:hover {
+	padding: 15px 25px;
+	color: #898989;
+}
+
+
 .nav-tabs > li > a:hover {
    color: #5ba4d6;
 	background: none;
@@ -1108,20 +1145,26 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 	border-radius: 0px;
 }
 
+.centerTabs > li.active > a, 
+.centerTabs > li.active > a:focus, 
+.centerTabs > li.active > a:hover {
+	border: 0;
+   color: #5ba4d6;
+	border-radius: 0px;
+	border-bottom: 2px solid #5ba4d6;
+	padding: 15px 25px;
+	background-color: transparent;
+}
+
+
 .nav-tabs > li.active .fa {
 	color: #757575;
 }
 
-.nav-tabs > li.active:first-of-type > a {
-	border-radius: 5px;
-	border-top-right-radius: 0;
-	border-bottom-right-radius: 0;
-	border-bottom-left-radius: 0;	
-}
+
 
 
 .nav-tabs > li {
-  border-right: 1px solid #f1f1f1;
 }
 
 .nav-tabs > li > a {
@@ -1131,14 +1174,41 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 
 
 
-.tab-content {
-	background-color: #fff;
-	border-top: 1px solid #f1f1f1;
-	padding: 50px;
-	border-bottom-right-radius: 4px;
-	border-bottom-left-radius: 4px;	
+.tab-content.centerTabs {
+  background-color: #fff;
+  margin-left: 0;
+  margin-right: -20px;
+  margin-top: 0;
+  padding: 46px 60px 46px 46px;
 }
 
+
+.fullWidthPanel .col-md-10 {
+	padding-left: 0;
+	border-right: 1px solid #e8e8e8;
+	width: 79.3333%;
+}
+
+.fullWidthPanel .col-md-2 {
+	padding-right: 0;	
+	padding-left: 5px;
+	width: 20.6667%;
+}
+
+
+/* observation panel */
+
+
+
+
+.observationPanel {
+	background-color: #fafafa;
+	padding: 20px;	
+}
+
+.observationPanel .btn-primary {
+	color: #FFF;
+}
 
 /* progression page blocks */
 
@@ -1382,13 +1452,13 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 
 
 .activities .col-md-6 {
+	border-right: 5px solid #dddddd;
 	width: 50.15%;
 	
 }
 .activities .graph {
 	border-right: 0;
-	width: 49.85%;
-	border-left: 5px solid #dddddd;
+	width: 49.85%;	
 }
 
 
@@ -1633,7 +1703,9 @@ border: 1px solid #ddd;
 	background-color: #f7f7f7;
 	position: relative;
 }
-
+.observationBar .panel-heading {
+	border-bottom: 0;
+}
 
 #activities .panel-default > .panel-heading {
 	border-bottom: none;
@@ -1896,6 +1968,8 @@ label {
 	font-weight: 100;
 	text-transform: uppercase;
 	color: #c6c6c6;
+	text-align: center;
+	margin-bottom: 5px;
 }
 
 
@@ -2673,6 +2747,13 @@ footer ul li:first-of-type {
 		height: 100px;
 	}		
 
+	.heading.student {
+		height: 70px;
+		border-bottom-color: #e8e8e8;
+	}		
+
+
+
 	
 	.heading header .headIcon {
 		font-size: 40px;
@@ -2695,6 +2776,11 @@ footer ul li:first-of-type {
 	.heading h1 {
 		font-size: 23px;
 	}
+	
+	.heading .studentInfo h1 {
+		font-size: 20px;
+		line-height: 10px;
+	}	
 	
 	.heading header p {
 		font-size: 12px;
@@ -2721,7 +2807,7 @@ footer ul li:first-of-type {
 
 
 .back,.studentInfo,.profileType,.interest,.social,.observation {
-	min-height: 99px;
+	min-height: 69px;
 	padding: 0;
 }
 .back {
@@ -2736,8 +2822,8 @@ footer ul li:first-of-type {
   border-radius: 0;
   color: #2196f3;
   font-size: 21px;
-  height: 99px;
-  line-height: 85px;
+  height: 69px;
+  line-height: 56px;
   width: 45px;
 }
 
@@ -2754,21 +2840,20 @@ footer ul li:first-of-type {
 
 
 .studentInfo {
-	padding: 15px 19px 0 19px;
+	padding: 15px 25px 0 15px;
 	border-right: 1px solid #ebebeb;
 	width: auto;
 }
 
 .studentInfo .name {
   float: left;
-  padding-left: 3px;
-  padding-top: 4px;
+  padding-top: 7px;
 }
 .studentInfo h2 {
-	font-size: 12px;
-	margin: 2px 0 0 0;
-	color: #898989;
-	width: 170px;
+  color: #898989;
+  font-size: 12px;
+  margin: 2px 0 10px;
+  width: 170px;
 }
 
 .studentInfo .name a {
@@ -2779,6 +2864,51 @@ footer ul li:first-of-type {
   padding: 5px;
   width: 85px;
 }
+
+.oProfileType {
+	background: #f8d03b;
+	padding: 10px 15px;
+	border: 1px solid #ddb627;
+	font-size: 14px;
+	color: #555555;
+	text-transform: uppercase;
+	margin-bottom: 20px;
+}
+.oProfileType span {
+	float: right;
+	color: #FFF;
+	font-weight: 900;
+}
+
+.observationBox {
+	background: #FFF;
+	border: 1px solid #e8e8e8;
+	padding: 10px;
+	position: relative;
+	margin-bottom: 15px;
+}
+
+.observationBox .userInfo {
+	margin: 0 auto;
+	width: 165px;
+	margin-bottom: 15px;
+}
+
+.observationBox .labels{
+	margin-bottom: 10px;
+}
+
+.dottedDivider {
+	border-top: 1px dotted #e8e8e8;
+	margin-bottom: 15px;
+}
+
+
+.observationBox .labels span{
+	width: 100%;
+}
+
+
 
 .profileType .toolbarContainer {
 	position: relative;
@@ -2898,6 +3028,25 @@ h3.title{
 	margin: 5px;
 	font-weight: 100;
 }
+
+h3.oTitle{
+	font-size: 10px;
+	text-transform: uppercase;
+	color: #333333;
+	font-weight: 100;
+	margin: 0;
+	margin-bottom: 15px;
+}
+
+h3.oTitleSmall{
+	font-size: 10px;
+	color: #333333;
+	font-weight: 100;
+	margin: 0;
+	margin-bottom: 5px;
+}
+
+
 
 .profileTypeLabel {
 	font-size: 14px;
@@ -3192,6 +3341,14 @@ ul.socIcons li i {
   text-transform: uppercase;
 }
 
+.oMore2 {
+  top: 9px;
+  font-size: 10px;
+  position: absolute;
+  right: 10px;
+  text-transform: uppercase;
+}
+
 .more3 {
   display: block;
   font-size: 10px;
@@ -3289,13 +3446,16 @@ ul.socIcons li i {
 	top: 159px;
 }
 
-#observationBar .dropdown-menu.bar-fixed-top {
+.observationPanel.bar-fixed-top {
 	top: 60px;
 	position: fixed;
-
+	width: 20.3334%;
 }
 
-
+.observationBar {
+	position: relative;
+}
+.observationBar .dropdown-header,
 #observationBar .dropdown-header {
 	padding: 0;
 	font-size: 14px;
@@ -3308,7 +3468,7 @@ ul.socIcons li i {
 
 .posAbs {
 	position: absolute;
-	top: 35px;
+	top: 27px;
 }
 
 .creationDate {
@@ -3323,40 +3483,71 @@ ul.socIcons li i {
 	margin-right: 6px;
 }
 
-.dropdownToolbar {
-	padding-top: 13px;
+.checkboxes {
+	padding-left: 5px!important;
 }
 
-
+.observationBar .panel-group,
 #observationBar .dropdown-menu .panel-group {
 	margin-bottom: 5px;
 }
 
+.observationBar h4 a,
 #observationBar .dropdown-menu h4 a {
 	font-size: 11px;
-	color: #fff;
+	color: #444;
 	text-transform: uppercase;
 	font-weight: 100;
 	display: block;
 	padding: 5px 7px 5px 5px;
-	background-color: #0288d1;
+	background-color: #fafafa;
 	position: relative;
+	border: 1px solid #f0f0f0;
 }
 
 
+.observationBar h4 a.heading-symptoms {
+	background: #F0C9CB;
+	color: #444;
+	border: 0px;
+}
+.observationBar h4 a.heading-suggestions {
+	background: #D8CFE8;
+	color: #444;
+	border: 0px;	
+}
+
+.observationBar h4 a.heading-symptoms:hover {
+	background: #d8b5b7;
+	color: #444;
+}
+.observationBar h4 a.heading-suggestions:hover {
+	background: #c3bbd1;
+	color: #444;	
+}
+
+
+
+.observationBar h4 a:focus,
+.observationBar h4 a:hover,
 #observationBar .dropdown-menu h4 a:focus,
 #observationBar .dropdown-menu h4 a:hover {
 	text-decoration: none;
 }
+
+.observationBar h4 a:hover,
 #observationBar .dropdown-menu h4 a:hover {
-background-color: #286090;
+background-color: #f7f7f7;
 }
+
+.observationBar h4 a:active,
 #observationBar .dropdown-menu h4 a:active {
 	text-decoration: none;
-	background-color: #1f4b72;
+	background-color: #f7f7f7;
 }
 
 /* accordion collapse icons */
+.observationBar h4 a::after,
 #observationBar .dropdown-menu h4 a::after {
   content: "\f106";
   display: block;
@@ -3368,17 +3559,20 @@ background-color: #286090;
   width: 14px;  	
 }
 
+.observationBar h4 a.collapsed::after,
 #observationBar .dropdown-menu h4 a.collapsed::after {
   content: "\f107";
 }
 
+
+.observationBar .panel-default,
 #observationBar .dropdown-menu .panel-default {
 	border-radius: 0px;
 	box-shadow: none;
 	border: 0;
 	background: none;
 }
-
+.observationBar .panel-default > .panel-heading, 
 #observationBar .dropdown-menu .panel-default > .panel-heading {
 	border-radius: 0px;
 	padding: 0px;  
@@ -3402,14 +3596,16 @@ background-color: #286090;
 
 
 .obsBlock label {
-	font-weight: 100;
+  font-weight: 100;
+  line-height: 15px;
+  padding-bottom: 5px;
 }
 .obsBlock .checkbox input[type="checkbox"]:checked + label::after {
 	font-family: 'FontAwesome';
 	content: "\f00c"; 
 	font-size: 8px;
-		top: 2px;
 }
+
 
 
 .checkbox-success input[type="checkbox"]:checked + label::before {
@@ -3459,6 +3655,11 @@ background-color: #286090;
 
 .mainArea {
 	margin: 20px;
+	margin-bottom: 0;
+}
+
+.mainArea.fullWidth {
+	margin: 0px;
 	margin-bottom: 0;
 }
 

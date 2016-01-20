@@ -1,4 +1,4 @@
-define([ 'jquery', 'jqueryui' ], function($) {
+var datepicker = (function() {
 	$.extend($.datepicker, {
 		_checkOffset : function(inst, offset, isFixed) {
 			return offset;
@@ -42,4 +42,4 @@ define([ 'jquery', 'jqueryui' ], function($) {
 			$(from).datepicker('option', 'maxDate', addDays(date, days));
 		}
 	};
-});
+})();
