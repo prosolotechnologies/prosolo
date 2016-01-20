@@ -98,7 +98,7 @@
 	                     		</h:inputText>
 	                     	</h:panelGroup> 
 	                    </h:panelGroup>
-								<div class="acPanel userList dropdown-menu">
+								<h:panelGroup layout="block" id="dropdownInstructors" styleClass="acPanel userList dropdown-menu">
 						         <h:panelGroup id="searchInstructorsResultPanel">
 						         <table width="100%" cellspacing="0" cellpadding="0" border="0">
                                     <tbody>
@@ -108,7 +108,7 @@
 												pt:data-id="#{instructor.id}"
 												action="#{instructorEditBean.selectInstructor(instructor)}"
                                       			update=":instructorInfoForm:instructorPanel"
-                                      			oncomplete="$('.acField').val('#{instructor.fullName}')">
+                                      			oncomplete="$('.acField').val('#{instructor.fullName}'); $('.acPanel').first().stop(true, true).slideUp(10);">
                                       		   
                                       	<tr onclick="$('.hiddenInstructorLink[data-id=&#34;#{instructor.id}&#34;]').trigger('click')">
 	                                       <td>
@@ -135,7 +135,7 @@
 
             					
                      	</h:panelGroup>
-                     	</div>
+                     	</h:panelGroup>
                      </div>
                   	<div class="form-group form-inline">
                      	<label>Maximum number of students to assign:</label>
