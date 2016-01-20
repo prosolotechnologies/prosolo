@@ -29,12 +29,12 @@
 		<script src="#{request.contextPath}/manage/js/stickyTable.js"></script>
 		
 		<script>
-			function searchListener() {
+			function searchListener(execFunction) {
 				var $this = this;
 				//this.updateUrlQuery(); 
 				
 				var delayedSearch = function(){
-					execSearch();
+					execFunction();
 				};
 	
 				window.clearTimeout(this.keystrokeTimeout);
@@ -88,7 +88,7 @@
 								    	pt:placeholder=" Filter by name"
 								    	styleClass="form-control"
 								    	onclick="$(this).select();" 
-								    	onkeydown="searchListener();"></h:inputText>
+								    	onkeydown="searchListener(execSearch);"></h:inputText>
 								</div>
 							</h:form>
 						</div>
@@ -288,7 +288,26 @@
 				            <h:panelGroup layout="block" id="assignInstructorModalContent" styleClass="modal-content">
 				               <div class="modal-header"> <button aria-label="Close" data-dismiss="modal" class="close" type="button"><span aria-hidden="true">×</span></button> 
 				               	<h4 id="myLargeModalLabel" class="modal-title">Assign instructor to #{courseMembersBean.userToAssignInstructor.fullName}</h4> </div>
-				               <div class="modal-body userList">
+				               <div class="row narrow filterModal">
+					               	<div class="col-md-12">
+			                  			<p:remoteCommand name="execInstructorSearch" 
+											process="inputInstructorSearch"
+											update=":modalForm:instructorSearchResults" 
+											action="#{courseMembersBean.loadCourseInstructors()}" />
+					                     <div class="form-group">
+					                        <label>Search</label>    
+					                        <h:inputText 
+					                        	id="inputInstructorSearch"
+					                        	value="#{courseMembersBean.instructorSearchTerm}"
+					                        	pt:placeholder=" Start typing..."
+					                        	styleClass="form-control"
+					                        	onclick="$(this).select();" 
+									    		onkeydown="searchListener(execInstructorSearch);">
+					                        </h:inputText>
+					                     </div>
+					               </div>
+					           </div>
+				               <h:panelGroup layout="block" id="instructorSearchResults" styleClass="modal-body userList">
 				                  <table width="100%" border="0" cellspacing="0" cellpadding="0">
 				                     <ui:repeat var="instructor" value="#{courseMembersBean.courseInstructors}">
 				                     	<tr>
@@ -313,7 +332,7 @@
 					                        <td class="assign">
 					                        	<ui:fragment rendered="#{!instructor.full}">
 					                        		<p:commandLink 
-					                        			value="Assign"
+					                        			value="Select"
 					                        			styleClass="btn btn-default"
 					                        			pt:role="button"
 					                        			action="#{courseMembersBean.assignInstructorToStudent(instructor)}"
@@ -331,7 +350,7 @@
 				                                                               
 				                  </table>
 				
-				               </div>
+				               </h:panelGroup>
 				            </h:panelGroup>
 				         </div>
       				</div>

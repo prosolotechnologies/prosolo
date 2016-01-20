@@ -148,7 +148,7 @@ public interface CourseManager extends AbstractManager {
 	
 	List<Long> getCourseIdsForInstructor(long instructorId) throws DbConnectionException;
 	
-	Map<String, Object> getCourseInstructor(long userId) throws DbConnectionException;
+	Map<String, Object> getCourseInstructor(long userId, long courseId) throws DbConnectionException;
 	
 	void removeInstructorFromCourse(long courseInstructorId) throws DbConnectionException;
 	

@@ -63,28 +63,11 @@ public class CourseInstructorsBean implements Serializable {
 		if (decodedId > 0) {
 			try {
 				searchCourseInstructors();
-				// List<Map<String, Object>> result =
-				// courseManager.getCourseParticipantsWithCourseInfo(decodedId);
-				// populateCourseMembersData(result);
 			} catch (Exception e) {
 				PageUtil.fireErrorMessage(e.getMessage());
 			}
 		}
 	}
-
-	// private void populateCourseMembersData(List<Map<String, Object>> result)
-	// {
-	// members = new LinkedList<>();
-	// for (Map<String, Object> resMap :result){
-	// User user = (User) resMap.get("user");
-	// User instructor = (User) resMap.get("instructor");
-	// int progress = (int) resMap.get("courseProgress");
-	//
-	// UserData ud = new UserData(user, instructor, progress);
-	//
-	// members.add(ud);
-	// }
-	// }
 
 	public void searchCourseInstructors() {
 		try {
@@ -99,10 +82,6 @@ public class CourseInstructorsBean implements Serializable {
 			logger.error(e);
 		}
 	}
-
-	// public void search(String searchQuery) {
-	// search(searchQuery, null, false);
-	// }
 
 	private void generatePagination() {
 		//if we don't want to generate all links

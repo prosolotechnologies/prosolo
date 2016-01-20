@@ -1219,19 +1219,22 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Map<String, Object> getCourseInstructor(long userId) throws DbConnectionException {
+	public Map<String, Object> getCourseInstructor(long userId, long courseId) throws DbConnectionException {
 		try {
 			String query = 
 					"SELECT courseInstructor.id, instructor.avatarUrl, instructor.name, instructor.lastname, " +
 					"instructor.position, courseInstructor.maxNumberOfStudents, size(courseEnrollment) " +
 					"FROM CourseInstructor courseInstructor " +
-					"INNER JOIN courseInstructor.user instructor "+
+					"INNER JOIN courseInstructor.user instructor " +
+					"INNER JOIN courseInstructor.course course " +
 					"LEFT JOIN courseInstructor.assignedStudents courseEnrollment "+
-					"WHERE instructor.id = :userId";
+					"WHERE instructor.id = :userId " +
+					"AND course.id = :courseId";
 			
-					Object[] result = (Object[]) persistence.currentManager().createQuery(query).
-							setLong("userId", userId).
-							uniqueResult();
+					Object[] result = (Object[]) persistence.currentManager().createQuery(query)
+							.setLong("userId", userId)
+							.setLong("courseId", courseId)
+							.uniqueResult();
 					
 					Map<String, Object> resMap = null;
 					if (result != null) {
@@ -1399,8 +1402,6 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 				    "WHERE enrollment.id IN " +
 						"(:ids)";
 			
-			int numberOfAssigned = 0;
-			int numberOfUnassiged = 0;
 			if(studentsToAssign != null && !studentsToAssign.isEmpty()) {
 				@SuppressWarnings("unchecked")
 				List<Long> idsAssign = persistence.currentManager().createQuery(query1)
@@ -1408,7 +1409,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 						.setParameterList("ids", studentsToAssign)
 						.list();
 				
-				numberOfAssigned = persistence.currentManager().createQuery(query)
+				persistence.currentManager().createQuery(query)
 								.setParameter("instructor", instructor)
 								.setBoolean("assigned", true)
 								.setParameterList("ids", idsAssign)
@@ -1421,7 +1422,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 						.setParameterList("ids", studentsToUnassign)
 						.list();
 				
-				numberOfUnassiged = persistence.currentManager().createQuery(query)
+				persistence.currentManager().createQuery(query)
 								.setParameter("instructor", null)
 								.setBoolean("assigned", false)
 								.setParameterList("ids", idsUnAssign)

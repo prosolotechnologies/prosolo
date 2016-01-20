@@ -65,6 +65,8 @@ public class CourseMembersBean implements Serializable {
 	
 	private List<CourseInstructorData> courseInstructors;
 	private UserData userToAssignInstructor;
+	
+	private String instructorSearchTerm = "";
 
 	public void init() {
 		decodedId = idEncoder.decodeId(id);
@@ -158,10 +160,22 @@ public class CourseMembersBean implements Serializable {
 	
 	public void loadCourseInstructors(UserData user) {
 		userToAssignInstructor = user;
+		setInstructorSearchTerm("");
+		loadCourseInstructors();
+	}
+	
+	public void loadCourseInstructors() {
 		courseInstructors = new ArrayList<>();
-		List<Map<String, Object>> instructors = courseManager.getCourseInstructors(decodedId);
-		for(Map<String, Object> instructorMap : instructors) {
-			courseInstructors.add(new CourseInstructorData(instructorMap));
+		Map<String, Object> searchResponse = textSearch.searchInstructors(instructorSearchTerm, 
+				-1, -1, decodedId, SortingOption.ASC);
+		
+		if (searchResponse != null) {
+			List<Map<String, Object>> data = (List<Map<String, Object>>) searchResponse.get("data");
+			if(data != null) {
+				for (Map<String, Object> resMap : data) {
+					courseInstructors.add(new CourseInstructorData(resMap));
+				}
+			}
 		}
 	}
 	
@@ -345,6 +359,14 @@ public class CourseMembersBean implements Serializable {
 
 	public void setUserToAssignInstructor(UserData userToAssignInstructor) {
 		this.userToAssignInstructor = userToAssignInstructor;
+	}
+
+	public String getInstructorSearchTerm() {
+		return instructorSearchTerm;
+	}
+
+	public void setInstructorSearchTerm(String instructorSearchTerm) {
+		this.instructorSearchTerm = instructorSearchTerm;
 	}
 	
 }

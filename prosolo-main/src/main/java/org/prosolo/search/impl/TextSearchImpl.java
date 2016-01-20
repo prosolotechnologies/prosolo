@@ -548,9 +548,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 		Map<String, Object> resultMap = new HashMap<>();
 		try {
 			int start = 0;
-			if(page != -1) {
-				start = setStart(page, limit);
-			}
+			start = setStart(page, limit);
+		
 			
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
@@ -589,9 +588,9 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						.setQuery(bQueryBuilder)
 						.setFetchSource(includes, null);
 				
-				if(page != -1) {
-					searchRequestBuilder.setFrom(start).setSize(limit);
-				}
+				
+				searchRequestBuilder.setFrom(start).setSize(limit);
+				
 				
 				//add sorting
 				ESSortOption esSortOption = CourseMembersSortOptionTranslator.getSortOption(sortOption);
@@ -669,13 +668,16 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 		return resultMap;
 	}
 	
+	/*
+	 * if pagination is not wanted and all results should be returned
+	 * -1 should be passed as a page parameter 
+	 */
 	@Override
 	public Map<String, Object> searchInstructors (
 			String searchTerm, int page, int limit, long courseId, SortingOption sortingOption) {
 		
 		Map<String, Object> resultMap = new HashMap<>();
 		try {
-			int start = setStart(page, limit);
 			
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
@@ -697,9 +699,16 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						.setTypes(ESIndexTypes.USER)
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 						.setQuery(bQueryBuilder)
-						.setFrom(start).setSize(limit)
+						//.setFrom(start).setSize(limit)
 						.setFetchSource(includes, null);
 				
+				int start = 0;
+				int size = Integer.MAX_VALUE;
+				if(page != -1) {
+					start = setStart(page, limit);
+					size = limit;
+				}
+				searchRequestBuilder.setFrom(start).setSize(size);
 				//add sorting
 				SortOrder sortOrder = ESSortOrderTranslator.getSortOrder(sortingOption);
 				
@@ -719,7 +728,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						for(SearchHit sh : searchHits) {
 							Map<String, Object> fields = sh.getSource();
 							long id = Long.parseLong(fields.get("id") + "");
-							Map<String, Object> instructorData = courseManager.getCourseInstructor(id);
+							Map<String, Object> instructorData = courseManager.getCourseInstructor(id, courseId);
 							if(instructorData != null) {
 								data.add(instructorData);
 							}
