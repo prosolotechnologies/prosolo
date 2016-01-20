@@ -111,8 +111,9 @@ var socialInteractionGraph = (function () {
 		var svg = d3.select(config.selector).append("svg")
 			.attr("width", width)
 			.attr("height", height)
-			.call(d3.behavior.zoom().scaleExtent([0.5, 8]).on("zoom", zoom));
+			.call(d3.behavior.zoom().scaleExtent([0.5, 4]).on("zoom", zoom));
 
+		svg.on('mousedown.zoom',null);
 		
 		// build the arrow.
 		svg.append("svg:defs").selectAll("marker")
@@ -150,7 +151,9 @@ var socialInteractionGraph = (function () {
 		});
 
 		node.append("image")
-			.attr("xlink:href", "http://code-bude.net/wp-content/uploads/2013/10/1372714624_github_circle_black.png")
+			.attr("xlink:href", function(d) {
+				return d.avatar;
+			})
 			.attr("x", -8)
 			.attr("y", -8)
 			.attr("width", 16)
@@ -162,15 +165,14 @@ var socialInteractionGraph = (function () {
 		d3.selectAll(".node image").attr("style", "display: none");
 
 		function zoom() {
-			if (d3.event.scale >= 4) {
+			if (d3.event.scale >= 3) {
 				d3.selectAll(".node circle").attr("style", "display: none");
 				d3.selectAll(".node image").attr("style", "display: block");
 			} else {
 				d3.selectAll(".node image").attr("style", "display: none");
 				d3.selectAll(".node circle").attr("style", "display: block");
 			};
-			svg.attr("transform", "scale(" + d3.event.scale + ")");
-			// svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+			svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 		}
 		
 		function tick(e) {
