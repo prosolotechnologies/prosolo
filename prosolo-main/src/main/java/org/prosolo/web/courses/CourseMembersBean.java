@@ -167,7 +167,7 @@ public class CourseMembersBean implements Serializable {
 	public void loadCourseInstructors() {
 		courseInstructors = new ArrayList<>();
 		Map<String, Object> searchResponse = textSearch.searchInstructors(instructorSearchTerm, 
-				-1, -1, decodedId, SortingOption.ASC);
+				-1, -1, decodedId, SortingOption.ASC, null);
 		
 		if (searchResponse != null) {
 			List<Map<String, Object>> data = (List<Map<String, Object>>) searchResponse.get("data");
@@ -179,7 +179,8 @@ public class CourseMembersBean implements Serializable {
 		}
 	}
 	
-	public void assignInstructorToStudent(CourseInstructorData instructor) {
+	//assign student to an instructor
+	public void selectInstructor(CourseInstructorData instructor) {
 		try {
 			courseManager.assignInstructorToStudent(userToAssignInstructor.getId(), instructor.getInstructorId(),
 				decodedId);

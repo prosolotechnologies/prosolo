@@ -157,4 +157,6 @@ public interface CourseManager extends AbstractManager {
 	void updateStudentsAssignedToInstructor(long instructorId, long courseId, List<Long> studentsToAssign, List<Long> studentsToUnassign) throws DbConnectionException;
 	
 	CourseInstructor assignInstructorToCourse(long userId, long courseId, int maxNumberOfAssignedStudents) throws DbConnectionException;
+	
+	void updateStudentsAssignedToInstructors(List<Map<String, Object>> data) throws DbConnectionException;
 }

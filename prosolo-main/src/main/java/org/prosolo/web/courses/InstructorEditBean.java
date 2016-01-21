@@ -66,7 +66,6 @@ public class InstructorEditBean implements Serializable {
 		assignedStudents = new ArrayList<>();
 		usersToAssign = new ArrayList<>();
 		usersToUnassign = new ArrayList<>();
-		usersToUnassign.add(24L);
 		decodedId = idEncoder.decodeId(id);
 		decodedCourseId = idEncoder.decodeId(courseId);
 		if(decodedCourseId > 0) {
@@ -86,8 +85,10 @@ public class InstructorEditBean implements Serializable {
 						List<Map<String, Object>> students = (List<Map<String, Object>>) instructorData.get("students");
 						int size = students != null ? students.size() : 0;
 						instructor.setNumberOfAssignedStudents(size);
-						for(Map<String, Object> student : students) {
-							assignedStudents.add(new BasicUserData(student));
+						if(students != null) {
+							for(Map<String, Object> student : students) {
+								assignedStudents.add(new BasicUserData(student));
+							}
 						}
 					} else {
 						try {
@@ -183,12 +184,6 @@ public class InstructorEditBean implements Serializable {
 			PageUtil.fireErrorMessage(e.getMessage());
 		}
 		
-	}
-
-	private void moveStudent(BasicUserData user, List<BasicUserData> unassignedStudents,
-			List<BasicUserData> assignedStudents) {
-		unassignedStudents.remove(user);
-		assignedStudents.add(user);
 	}
 	
 	public void selectInstructor(BasicUserData user) {

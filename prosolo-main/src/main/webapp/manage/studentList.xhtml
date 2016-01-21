@@ -10,7 +10,8 @@
 	xmlns:actions="http://java.sun.com/jsf/composite/components/actions"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:util="http://www.prosolo.com/util">
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:dlgComp="http://java.sun.com/jsf/composite/components/dialogs/manager">
 
 	<ui:define name="windowTitle">
 		Course members
@@ -179,7 +180,7 @@
 												process="@this"
 												action="#{courseMembersBean.loadCourseInstructors(user)}"
 												oncomplete="$('#assignInstructorModal').modal('show');"
-												update=":modalForm:assignInstructorModalContent">
+												update=":dlgInstructors:modalForm:assignInstructorModalContent">
 												<i class="fa fa-plus"></i> Assign Instructor
 											</p:commandLink> 
 											<h:link rendered="#{user.instructor != null}">
@@ -282,7 +283,14 @@
 
 		</section>
 
-		<h:form id="modalForm">
+		<dlgComp:instructorAssign id="dlgInstructors"
+			title="Assign instructor to #{courseMembersBean.userToAssignInstructor.fullName}"
+			bean="#{courseMembersBean}"
+			searchListener="searchListener"
+			instructorList="#{courseMembersBean.courseInstructors}"
+			updateRegion=":studentListForm" />
+		
+		<ui:remove><h:form id="modalForm">
 			<div id = "assignInstructorModal" class="modal fade assignInstructor" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
 				         <div class="modal-dialog">
 				            <h:panelGroup layout="block" id="assignInstructorModalContent" styleClass="modal-content">
@@ -292,7 +300,7 @@
 					               	<div class="col-md-12">
 			                  			<p:remoteCommand name="execInstructorSearch" 
 											process="inputInstructorSearch"
-											update=":modalForm:instructorSearchResults" 
+											update=":dlgInstructors:modalForm:instructorSearchResults" 
 											action="#{courseMembersBean.loadCourseInstructors()}" />
 					                     <div class="form-group">
 					                        <label>Search</label>    
@@ -354,7 +362,7 @@
 				            </h:panelGroup>
 				         </div>
       				</div>
-		</h:form>
+		</h:form></ui:remove>
 
 	</ui:define>
 </ui:composition>

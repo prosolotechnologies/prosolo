@@ -674,7 +674,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	 */
 	@Override
 	public Map<String, Object> searchInstructors (
-			String searchTerm, int page, int limit, long courseId, SortingOption sortingOption) {
+			String searchTerm, int page, int limit, long courseId, 
+			SortingOption sortingOption, List<Long> excludedIds) {
 		
 		Map<String, Object> resultMap = new HashMap<>();
 		try {
@@ -693,6 +694,11 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			bQueryBuilder.must(termQuery("coursesWithInstructorRole.id", courseId));
 			bQueryBuilder.must(qb);
 			
+			if (excludedIds != null) {
+				for (long id : excludedIds) {
+					bQueryBuilder.mustNot(QueryBuilders.matchQuery("id", id));
+				}
+			}
 			try {
 				String[] includes = {"id"};
 				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)

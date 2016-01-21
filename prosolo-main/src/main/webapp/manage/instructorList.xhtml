@@ -131,16 +131,37 @@
 				              </div>
 				            </td>
 				            <td class="colAssignedD">
-				            	<a href="instructor-edit.html">#{instructor.numberOfAssignedStudents}/#{instructor.maxNumberOfStudents}</a>
+				            		<h:link 
+						         		outcome="/manage/instructor-add"
+						         		value="#{instructor.numberOfAssignedStudents}/#{instructor.maxNumberOfStudents}">
+						         		<f:param name="id" value="#{util:encodeId(instructor.instructorId)}" />	         		
+						         		<f:param name="courseId" value="#{param['id']}" />
+						         		<f:param name="courseName" value="#{param['courseName']}" />
+		         					</h:link>
 				            </td>
 				            <td class="colInstructorD">
-				            	<h:link 
-				            		styleClass="btn btn-default"  
-				            		pt:disabled="disabled"
-				            		disabled="#{instructor.numberOfAssignedStudents == 0}"
-				            		pt:role="button">
-				            		<i class="fa fa-random"></i> Reassign students
-				            	</h:link>
+				            	<ui:fragment rendered="#{instructor.numberOfAssignedStudents == 0}">
+				            		<h:link 
+					            		styleClass="btn btn-default"  
+					            		disabled="true"
+					            		pt:disabled="disabled"
+					            		pt:role="button">
+					            		<i class="fa fa-random"></i> Reassign students
+				            		</h:link>
+				            	</ui:fragment>
+				            	
+				            	<ui:fragment rendered="#{instructor.numberOfAssignedStudents != 0}">
+				            		<h:link 
+					            		outcome="/manage/reassign"
+					            		styleClass="btn btn-default"  
+					            		pt:role="button">
+					            		<i class="fa fa-random"></i> Reassign students
+					            		<f:param name="id" value="#{util:encodeId(instructor.instructorId)}" />	         		
+							         	<f:param name="courseId" value="#{param['id']}" />
+							         	<f:param name="courseName" value="#{param['courseName']}" />
+				            		</h:link>
+				            	</ui:fragment>
+				            	
 				            	<p:commandLink 
 				            		process="@this"
 				            		styleClass="btn btn-default remove"

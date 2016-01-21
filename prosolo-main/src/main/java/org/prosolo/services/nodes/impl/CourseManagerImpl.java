@@ -1100,10 +1100,9 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 			String query = 
 					"SELECT DISTINCT student " +
 					"FROM CourseInstructor courseInstructor " +
-					"INNER JOIN courseInstructor.user instructor "+
 					"LEFT JOIN courseInstructor.assignedStudents courseEnrollment "+
 					"INNER JOIN courseEnrollment.user student "+
-					"WHERE instructor.id = :instructorId";
+					"WHERE courseInstructor.id = :instructorId";
 			
 					@SuppressWarnings("unchecked")
 					List<User> result = persistence.currentManager().createQuery(query).
@@ -1316,7 +1315,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 		try {
 			String query = 
 					"SELECT instructor.name, instructor.lastname, courseInstructor.maxNumberOfStudents, " +
-					"student.id, student.name, student.lastname, student.avatarUrl " +
+					"student.id, student.name, student.lastname, student.avatarUrl, instructor.id " +
 					"FROM CourseInstructor courseInstructor " +
 					"INNER JOIN courseInstructor.user instructor " +
 					"LEFT JOIN courseInstructor.assignedStudents enrollment " +
@@ -1338,9 +1337,11 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 					    		String firstName = (String) res[0];
 								String lastName = (String) res[1];
 								int maxNumberOfStudents = (int) res[2];
+								long userId = (long) res[7];
 								resMap.put("firstName", firstName);
 								resMap.put("lastName", lastName);
 								resMap.put("maxNumberOfStudents", maxNumberOfStudents);
+								resMap.put("userId", userId);
 								first = false;
 							}
 					    	Long id = (Long) res[3];
@@ -1471,4 +1472,21 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 		return result;
 	}
 	
+	@Override
+	@Transactional(readOnly = false)
+	public void updateStudentsAssignedToInstructors(List<Map<String, Object>> data) throws DbConnectionException {
+		try {
+			if(data != null) {
+				for(Map<String, Object> map : data) {
+					long instructorId = (long) map.get("id");
+					long courseId = (long) map.get("courseId");
+					@SuppressWarnings("unchecked")
+					List<Long> usersToAssign = (List<Long>) map.get("assign");
+					updateStudentsAssignedToInstructor(instructorId, courseId, usersToAssign, null);
+				}
+			}
+		} catch(Exception e) {
+			throw new DbConnectionException("Error while reassigning students");
+		}
+	}
 }

@@ -50,7 +50,7 @@ public class CourseInstructorsBean implements Serializable {
 	private String searchTerm = "";
 	private int courseInstructorsNumber;
 	private int page = 1;
-	private int limit = 1;
+	private int limit = 10;
 	private SortingOption sortOrder = SortingOption.ASC;
 	private List<PaginationLink> paginationLinks;
 	private int numberOfPages;
@@ -95,7 +95,8 @@ public class CourseInstructorsBean implements Serializable {
 	}
 
 	public void getCourseInstructors() {
-		Map<String, Object> searchResponse = textSearch.searchInstructors(searchTerm, page - 1, limit, decodedId, sortOrder); 
+		Map<String, Object> searchResponse = textSearch.searchInstructors(
+				searchTerm, page - 1, limit, decodedId, sortOrder, null); 
 
 		populateInstructorsData(searchResponse);
 	}
