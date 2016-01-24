@@ -105,6 +105,10 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 
 		String usercoursesDDL = "CREATE TABLE IF NOT EXISTS usercourses(userid bigint, courses set<bigint>, PRIMARY KEY (userid))";
 		this.ddls.add(usercoursesDDL);
+		
+		//Session tracking
+		String sessionRecordDDL = "CREATE TABLE IF NOT EXISTS sessionrecord(userid bigint, sessionstart bigint, sessionend bigint, endreason varchar,  PRIMARY KEY ((userid),sessionstart)) WITH CLUSTERING ORDER BY (sessionstart DESC)";
+		this.ddls.add(sessionRecordDDL);
 	}
 
 	@Override
