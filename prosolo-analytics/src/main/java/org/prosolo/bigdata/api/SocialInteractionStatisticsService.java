@@ -121,13 +121,49 @@ public class SocialInteractionStatisticsService {
 		return result;
 	}
 	
+	private Map<Long, Map<String, String>> randomStudentsData(Long[] students) {
+		String[] names = new String[] {
+				"Nick Powell",
+				"Eva Lu Ator",
+				"Adam Admin",
+				"Bob Alice",
+				"P Hacker",
+				"John Smith",
+				"John Doe",
+				"Peter Petrovich",
+				"Joe Armstrong",
+				"Erik Meijer"
+		};
+		String[] avatars = new String[] {
+				"https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcQiU2-3iy-GtYgWj0JiWocImdK4DTR2MhIX4VD67O-_CjQA3cZw",
+				"https://www.pedge.com/secretshopper2x2.jpg",
+				"https://metrouk2.files.wordpress.com/2015/06/west.jpg",
+				"http://wikis.zum.de/rmg/images/9/92/Bob_neutral.jpg",
+				"http://image.eveonline.com/Character/93474039_256.jpg",
+				"http://img.bleacherreport.net/img/images/photos/002/156/250/161589374_crop_north.jpg?w=630&h=420&q=75",
+				"http://www.johndoe.pro/img/John_Doe.jpg",
+				"http://www.chesshistory.com/winter/extra/pics/saburov2.jpg",
+				"https://pbs.twimg.com/profile_images/625217739280396288/LI3MIbLg.jpg",
+				"http://2014.geekout.ee/wp-content/uploads/sites/4/2014/02/Erik-Meijer.jpg"		
+		};
+		Map<Long, Map<String, String>> result = new HashMap<Long, Map<String, String>>();
+		for(Long student : students) {
+			Map<String, String> props = new HashMap<String, String>();
+			props.put("name", names[(int) (student % 10)]);
+			props.put("avatar", avatars[(int) (student % 10)]);
+			result.put(student, props);
+		}
+		return result;
+	}
+
+	
 	@GET
 	@Path("/outer")
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getOuterInteractions(@QueryParam("courseId") Long courseId, @QueryParam("studentId") Long studentId) {
 		logger.debug("Service 'getOuterInteractions' called.");
-		return ResponseUtils.corsOk(dbManager.getOuterInteractions(courseId, studentId));
-		// return ResponseUtils.corsOk(randomOuterInteractions(courseId, studentId));
+		// return ResponseUtils.corsOk(dbManager.getOuterInteractions(courseId, studentId));
+		return ResponseUtils.corsOk(randomOuterInteractions(courseId, studentId));
 	}
 
 	@GET
@@ -135,8 +171,15 @@ public class SocialInteractionStatisticsService {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getClusterInteractions(@QueryParam("courseId") Long courseId, @QueryParam("studentId") Long studentId) {
 		logger.debug("Service 'getClusterInteractions' called.");
-		return ResponseUtils.corsOk(dbManager.getClusterInteractions(courseId));
-		// return ResponseUtils.corsOk(randomClusterInteractions(courseId, studentId));
+		// return ResponseUtils.corsOk(dbManager.getClusterInteractions(courseId));
+		return ResponseUtils.corsOk(randomClusterInteractions(courseId, studentId));
 	}
 	
+	@GET
+	@Path("/data")
+	@Produces({ MediaType.APPLICATION_JSON })
+	public Response getStudentData(@QueryParam("students[]") Long[] students) {
+		logger.debug("Service 'getStudentData' called.");
+		return ResponseUtils.corsOk(randomStudentsData(students));
+	}	
 }

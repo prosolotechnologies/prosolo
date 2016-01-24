@@ -20,7 +20,17 @@ var socialInteractionGraph = (function () {
 		});
 	}
 
-	function run(config, clusterInteractions, outerInteractions) {
+	function readStudentData(config, students) {
+		return $.ajax({
+			url : "http://" + config.host + "/api/social/interactions/data",
+			data : {"students" : students},
+			type : "GET",
+			crossDomain: true,
+			dataType: 'json'
+		});
+	}
+
+	function run(config, clusterInteractions, outerInteractions, studentData) {
 
 		var links = socialInteractionService.denormalize(clusterInteractions, outerInteractions);
 
@@ -75,6 +85,7 @@ var socialInteractionGraph = (function () {
 			});
 
 			var v = d3.scale.linear().range([0, 100]).domain([0, maxCount]);
+			var dv = d3.scale.linear().range([1.5, 0.5]).domain([0, maxCount]);
 			
 			return links.map(function(link) {
 				return {
@@ -82,6 +93,7 @@ var socialInteractionGraph = (function () {
 					target: nodes[link.target.student],
 					value: link.count,
 					type: type(v(link.count)),
+					distanceFactor: dv(link.count), 
 					cluster: link.source.cluster
 				};
 			});
@@ -96,7 +108,7 @@ var socialInteractionGraph = (function () {
 			.nodes(d3nodes)
 			.links(relations(links))
 			.size([width, height])
-			.linkDistance(config.distance)
+			.linkDistance(function(d) { return config.distance * d.distanceFactor; })
 			.charge(config.charge)
 			.on("tick", tick)
 			.start();
@@ -107,9 +119,10 @@ var socialInteractionGraph = (function () {
 			.call(d3.behavior.zoom().scaleExtent([0.5, 4]).on("zoom", zoom));
 
 		svg.on('mousedown.zoom',null);
-		
+
+		var svgdefs = svg.append("svg:defs");
 		// build the arrow.
-		svg.append("svg:defs").selectAll("marker")
+		svgdefs.selectAll("marker")
 			.data(["end"]) // Different link/path types can be defined here
 			.enter().append("svg:marker") // This section adds in the arrows
 			.attr("id", String)
@@ -122,6 +135,13 @@ var socialInteractionGraph = (function () {
 			.attr("markerUnits", "userSpaceOnUse")
 			.append("svg:path")
 			.attr("d", "M0,-5L10,0L0,5");
+
+		svgdefs.append("svg:clipPath")
+			.attr("id", "circle-clip")
+			.append("svg:circle")
+			.attr("r", "10")
+			.attr("cx", "0")
+			.attr("cy", "0");
 		
 		// add the links and the arrows
 		var path = svg.append("svg:g").selectAll("path")
@@ -145,15 +165,15 @@ var socialInteractionGraph = (function () {
 
 		node.append("image")
 			.attr("xlink:href", function(d) {
-				return d.avatar;
+				return studentData[d.name].avatar;
 			})
-			.attr("x", -8)
-			.attr("y", -8)
-			.attr("width", 16)
-			.attr("height", 16);
+			.attr("x", -14)
+			.attr("y", -14)
+			.attr("width", 28)
+			.attr("height", 28)
+			.attr("clip-path", "url(#circle-clip)");
 
-		node.append("svg:title").text(function(d) { return d.name + " : " + d.clusterClass; });
-
+		node.append("svg:title").text(function(d) { return studentData[d.name].name; });
 		
 		d3.selectAll(".node image").attr("style", "display: none");
 
@@ -195,7 +215,16 @@ var socialInteractionGraph = (function () {
 					readClusterInteractions(config),
 					readOuterInteractions(config))
 				.then(function(clusterInteractions, outerInteractions) {
-					run(config, clusterInteractions[0], outerInteractions[0]);
+					var ci = clusterInteractions[0];
+					var oi = outerInteractions[0];
+					var students = socialInteractionService.students(ci, oi);
+					$
+						.when(
+							readStudentData(config, students)
+						)
+						.then(function(data) {
+							run(config, ci, oi, data);
+						});
 				});
 		}
 	};
