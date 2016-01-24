@@ -1,11 +1,13 @@
 package org.prosolo.bigdata.dal.cassandra.impl;
 
 import static org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl.Statements.FIND_CURRENT_TIMESTAMPS;
+import static org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl.Statements.FIND_INSIDE_CLUSTER_INTERACTIONS;
 import static org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl.Statements.FIND_OUTSIDE_CLUSTER_INTERACTIONS;
 import static org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl.Statements.FIND_SOCIAL_INTERACTION_COUNTS;
 import static org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl.Statements.FIND_STUDENT_SOCIAL_INTERACTION_COUNTS;
 import static org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl.Statements.UPDATE_CURRENT_TIMESTAMPS;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,8 +51,8 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 		statements.put(FIND_STUDENT_SOCIAL_INTERACTION_COUNTS, "SELECT * FROM socialinteractionscount where course=? and source = ?;");
 		statements.put(UPDATE_CURRENT_TIMESTAMPS,"UPDATE currenttimestamps  SET timestamp=? WHERE tablename=?;");
 		statements.put(FIND_CURRENT_TIMESTAMPS,  "SELECT * FROM currenttimestamps ALLOW FILTERING;");
-		statements.put(FIND_OUTSIDE_CLUSTER_INTERACTIONS, "SELECT * FROM outsideclustersinteractions WHERE course = ? AND student = ? ALLOW FILTERING;");
-		statements.put(Statements.FIND_INSIDE_CLUSTER_INTERACTIONS, "SELECT * FROM insideclustersinteractions WHERE course = ? ALLOW FILTERING;");
+		statements.put(FIND_OUTSIDE_CLUSTER_INTERACTIONS, "SELECT * FROM outsideclustersinteractions WHERE timestamp = ? AND course = ? AND student = ? ALLOW FILTERING;");
+		statements.put(FIND_INSIDE_CLUSTER_INTERACTIONS, "SELECT * FROM insideclustersinteractions WHERE timestamp = ? AND course = ? ALLOW FILTERING;");
 	}
 	private SocialInteractionStatisticsDBManagerImpl(){
 		currenttimestamps=getAllCurrentTimestamps();
@@ -138,16 +140,26 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 	
 	@Override
 	public List<SocialIneractionsCount> getClusterInteractions(Long course) {
-		PreparedStatement prepared = getStatement(getSession(), Statements.FIND_INSIDE_CLUSTER_INTERACTIONS);
-		BoundStatement statement = StatementUtil.statement(prepared, course);
-		return map(query(statement), row -> new SocialIneractionsCount(student(row), cluster(row), interactions(row)));
+		Long timestamp = currenttimestamps.get(TableNames.INSIDE_CLUSTER_INTERACTIONS);
+		if (timestamp != null) {
+			PreparedStatement prepared = getStatement(getSession(), Statements.FIND_INSIDE_CLUSTER_INTERACTIONS);
+			BoundStatement statement = StatementUtil.statement(prepared, timestamp, course);
+			return map(query(statement), row -> new SocialIneractionsCount(student(row), cluster(row), interactions(row)));
+		} else {
+			return new ArrayList<SocialIneractionsCount>();
+		}
 	}
 	
 	@Override
 	public List<SocialIneractionsCount> getOuterInteractions(Long course, Long student) {
-		PreparedStatement prepared = getStatement(getSession(), Statements.FIND_OUTSIDE_CLUSTER_INTERACTIONS);
-		BoundStatement statement = StatementUtil.statement(prepared, course, student);
-		return map(query(statement), row -> new SocialIneractionsCount(student(row), cluster(row), interactions(row)));
+		Long timestamp = currenttimestamps.get(TableNames.OUTSIDE_CLUSTER_INTERACTIONS);
+		if (timestamp != null) {
+			PreparedStatement prepared = getStatement(getSession(), Statements.FIND_OUTSIDE_CLUSTER_INTERACTIONS);
+			BoundStatement statement = StatementUtil.statement(prepared, course, student);
+			return map(query(statement), row -> new SocialIneractionsCount(student(row), cluster(row), interactions(row)));
+		} else {
+			return new ArrayList<SocialIneractionsCount>();
+		}
 	}
 
 }

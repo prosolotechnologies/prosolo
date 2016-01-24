@@ -24,7 +24,9 @@ var socialInteractionGraph = (function () {
 
 		var links = socialInteractionService.denormalize(clusterInteractions, outerInteractions);
 
-		var mainCluster = links.filter(function(link) { return link.source.student == config.studentId; })[0].source.cluster;
+		var students = links.filter(function(link) { return link.source.student == config.studentId; });
+		if (students.length == 0) return;
+		var mainCluster = students[0].source.cluster;
 
 		function cluster(cluster) {
 			return mainCluster == cluster ? config.clusterMain : config.clusters[cluster % config.clusters.length];

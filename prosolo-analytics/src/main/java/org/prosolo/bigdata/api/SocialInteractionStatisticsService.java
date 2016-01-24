@@ -126,8 +126,8 @@ public class SocialInteractionStatisticsService {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getOuterInteractions(@QueryParam("courseId") Long courseId, @QueryParam("studentId") Long studentId) {
 		logger.debug("Service 'getOuterInteractions' called.");
-		// return ResponseUtils.corsOk(dbManager.getOuterInteractions(courseId, studentId));
-		return ResponseUtils.corsOk(randomOuterInteractions(courseId, studentId));
+		return ResponseUtils.corsOk(dbManager.getOuterInteractions(courseId, studentId));
+		// return ResponseUtils.corsOk(randomOuterInteractions(courseId, studentId));
 	}
 
 	@GET
@@ -135,8 +135,8 @@ public class SocialInteractionStatisticsService {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getClusterInteractions(@QueryParam("courseId") Long courseId, @QueryParam("studentId") Long studentId) {
 		logger.debug("Service 'getClusterInteractions' called.");
-		// return ResponseUtils.corsOk(dbManager.getClusterInteractions(courseId));
-		return ResponseUtils.corsOk(randomClusterInteractions(courseId, studentId));
+		return ResponseUtils.corsOk(dbManager.getClusterInteractions(courseId));
+		// return ResponseUtils.corsOk(randomClusterInteractions(courseId, studentId));
 	}
 	
 }
