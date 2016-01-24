@@ -18,6 +18,12 @@ $(function () {
 			{x: 500, y: 0},
 			{x: 0, y: 500},
 			{x: 500, y: 500}
+		],
+		relations : [
+			{ lower: 0, upper: 33, type: "twofive" },
+			{ lower: 33, upper: 66, type: "fivezero" },
+			{ lower: 66, upper: 85, type: "sevenfive" },
+			{ lower: 85, upper: 100, type: "onezerozero" }	
 		]
 	});
 

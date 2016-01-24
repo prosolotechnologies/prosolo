@@ -37,11 +37,15 @@ var socialInteractionGraph = (function () {
 		var nodes = links.reduce(function(res, link) {
 			res[link.source.student] = {
 				name: link.source.student,
-				cluster: link.source.cluster
+				cluster: link.source.cluster,
+				clusterClass: cluster(link.source.cluster), 
+				foci: foci(link.source.cluster)
 			};
 			res[link.target.student] = {
 				name: link.target.student,
-				cluster: link.target.cluster
+				cluster: link.target.cluster,
+				clusterClass: cluster(link.source.cluster),
+				foci: foci(link.source.cluster)				
 			};
 			return res;
 		}, {});
@@ -56,15 +60,9 @@ var socialInteractionGraph = (function () {
 		})(width, height, nodes.length);
 
 		function relations(links) {
-			var types = [
-				{ lower: 0, upper: 33, type: "twofive" },
-				{ lower: 33, upper: 66, type: "fivezero" },
-				{ lower: 66, upper: 85, type: "sevenfive" },
-				{ lower: 85, upper: 100, type: "onezerozero" }
-			];
 			
 			function type(value) {
-				var found = types.filter(function(type) {
+				var found = config.relations.filter(function(type) {
 					return value > type.lower && value <= type.upper;
 				});
 				return (found.length == 0) ? "" : found[0].type;
@@ -140,7 +138,7 @@ var socialInteractionGraph = (function () {
 			.call(force.drag);
 		
 		node.append("circle").attr("r", 10).attr("class", function(d) {
-			return (d.name == config.studentId ? "focus " : "") + cluster(d.cluster);
+			return (d.name == config.studentId ? "focus " : "") + d.clusterClass;
 		});
 
 		node.append("image")
@@ -152,7 +150,7 @@ var socialInteractionGraph = (function () {
 			.attr("width", 16)
 			.attr("height", 16);
 
-		node.append("svg:title").text(function(d) { return d.name + " : " + cluster(d.cluster); });
+		node.append("svg:title").text(function(d) { return d.name + " : " + d.clusterClass; });
 
 		
 		d3.selectAll(".node image").attr("style", "display: none");
@@ -178,8 +176,8 @@ var socialInteractionGraph = (function () {
 
 			var k = .05 * e.alpha;
 			d3nodes.forEach(function(o, i) {
-				o.y += (foci(o.cluster).y - o.y) * k;
-				o.x += (foci(o.cluster).x - o.x) * k;
+				o.y += (o.foci.y - o.y) * k;
+				o.x += (o.foci.x - o.x) * k;
 			});
 			
 			node.attr("transform", function(d) {

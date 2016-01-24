@@ -84,7 +84,7 @@ public class SocialInteractionStatisticsService {
 			for (int j = 1; j < generator.nextInt(20); j++) {
 				Map<String, String> interaction = new HashMap<String, String>();
 				interaction.put("target", Integer.toString(generator.nextInt(100)));
-				interaction.put("count", Integer.toString(generator.nextInt(50)));
+				interaction.put("count", Integer.toString(generator.nextInt(100)));
 				interactions.add(interaction);
 			}
 			student.put("interactions", interactions);
@@ -112,7 +112,7 @@ public class SocialInteractionStatisticsService {
 				Map<String, String> interaction = new HashMap<String, String>();
 				interaction.put("target", Integer.toString(generator.nextInt(100)));
 				interaction.put("cluster", Integer.toString(generator.nextInt(100) + 1));
-				interaction.put("count", Integer.toString(generator.nextInt(50)));
+				interaction.put("count", Integer.toString(generator.nextInt(100)));
 				interactions.add(interaction);
 			}
 			student.put("interactions", interactions);
@@ -126,8 +126,8 @@ public class SocialInteractionStatisticsService {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getOuterInteractions(@QueryParam("courseId") Long courseId, @QueryParam("studentId") Long studentId) {
 		logger.debug("Service 'getOuterInteractions' called.");
-		return ResponseUtils.corsOk(dbManager.getOuterInteractions(courseId, studentId));
-		// return ResponseUtils.corsOk(randomOuterInteractions(courseId, studentId));
+		// return ResponseUtils.corsOk(dbManager.getOuterInteractions(courseId, studentId));
+		return ResponseUtils.corsOk(randomOuterInteractions(courseId, studentId));
 	}
 
 	@GET
@@ -135,8 +135,8 @@ public class SocialInteractionStatisticsService {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getClusterInteractions(@QueryParam("courseId") Long courseId, @QueryParam("studentId") Long studentId) {
 		logger.debug("Service 'getClusterInteractions' called.");
-		return ResponseUtils.corsOk(dbManager.getClusterInteractions(courseId));
-		// return ResponseUtils.corsOk(randomClusterInteractions(courseId, studentId));
+		// return ResponseUtils.corsOk(dbManager.getClusterInteractions(courseId));
+		return ResponseUtils.corsOk(randomClusterInteractions(courseId, studentId));
 	}
 	
 }
