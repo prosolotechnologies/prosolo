@@ -67,19 +67,16 @@ public class SocialInteractionStatisticsService {
 		return ResponseUtils.corsOk(result);
 	}
 
-	@GET
-	@Path("/cluster")
-	@Produces({ MediaType.APPLICATION_JSON })
-	public Response getClusterInteractions(@QueryParam("courseId") Long courseId, @QueryParam("studentId") Long studentId) {
-		logger.debug("Service 'getClusterInteractions' called.");
+	@SuppressWarnings("unused")
+	private List<Map<String, Object>> randomClusterInteractions(Long courseId, Long studentId) {
 		Random generator = new Random(courseId * studentId);
 		String cluster = "0";
 		String course = "1";
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
 		for (int i = 1; i < generator.nextInt(100); i++) {
 			Map<String, Object> student = new HashMap<String, Object>();
-			student.put("courseid", course);
-			student.put("clusterid", cluster);
+			student.put("course", course);
+			student.put("cluster", cluster);
 			student.put("student", Integer.toString(generator.nextInt(100)));
 			student.put("name", Integer.toString(generator.nextInt(50)));
 			student.put("avatar", Integer.toString(generator.nextInt(50)));
@@ -93,22 +90,19 @@ public class SocialInteractionStatisticsService {
 			student.put("interactions", interactions);
 			result.add(student);
 		}
-		return ResponseUtils.corsOk(result);
+		return result;
 	}
-	
-	@GET
-	@Path("/outer")
-	@Produces({ MediaType.APPLICATION_JSON })
-	public Response getOuterInteractions(@QueryParam("courseId") Long courseId, @QueryParam("studentId") Long studentId) {
-		logger.debug("Service 'getOuterInteractions' called.");
+
+	@SuppressWarnings("unused")
+	private List<Map<String, Object>> randomOuterInteractions(Long courseId, Long studentId) {
 		Random generator = new Random(courseId * studentId);
 		String cluster = "0";
 		String course = "1";
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
 		for (int i = 1; i < generator.nextInt(20); i++) {
 			Map<String, Object> student = new HashMap<String, Object>();
-			student.put("courseid", course);
-			student.put("clusterid", cluster);
+			student.put("course", course);
+			student.put("cluster", cluster);
 			student.put("student", studentId);
 			student.put("direction", generator.nextInt(2) == 0 ? "source" : "target");
 			student.put("name", Integer.toString(generator.nextInt(50)));
@@ -117,14 +111,32 @@ public class SocialInteractionStatisticsService {
 			for (int j = 1; j < generator.nextInt(20); j++) {
 				Map<String, String> interaction = new HashMap<String, String>();
 				interaction.put("target", Integer.toString(generator.nextInt(100)));
-				interaction.put("clusterid", Integer.toString(generator.nextInt(3) + 1));
+				interaction.put("cluster", Integer.toString(generator.nextInt(100) + 1));
 				interaction.put("count", Integer.toString(generator.nextInt(50)));
 				interactions.add(interaction);
 			}
 			student.put("interactions", interactions);
 			result.add(student);
 		}
-		return ResponseUtils.corsOk(result);
+		return result;
+	}
+	
+	@GET
+	@Path("/outer")
+	@Produces({ MediaType.APPLICATION_JSON })
+	public Response getOuterInteractions(@QueryParam("courseId") Long courseId, @QueryParam("studentId") Long studentId) {
+		logger.debug("Service 'getOuterInteractions' called.");
+		return ResponseUtils.corsOk(dbManager.getOuterInteractions(courseId, studentId));
+		// return ResponseUtils.corsOk(randomOuterInteractions(courseId, studentId));
+	}
+
+	@GET
+	@Path("/cluster")
+	@Produces({ MediaType.APPLICATION_JSON })
+	public Response getClusterInteractions(@QueryParam("courseId") Long courseId, @QueryParam("studentId") Long studentId) {
+		logger.debug("Service 'getClusterInteractions' called.");
+		return ResponseUtils.corsOk(dbManager.getClusterInteractions(courseId));
+		// return ResponseUtils.corsOk(randomClusterInteractions(courseId, studentId));
 	}
 	
 }

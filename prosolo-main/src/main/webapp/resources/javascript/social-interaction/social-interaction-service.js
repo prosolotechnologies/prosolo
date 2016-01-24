@@ -8,11 +8,11 @@ var socialInteractionService = (function() {
 			course: item.courseid,
 			source: {
 				student: item.student,
-				cluster: item.clusterid
+				cluster: item.cluster
 			},
 			target: {
 				student: interaction.target,
-				cluster: item.clusterid
+				cluster: item.cluster
 			},
 			count: interaction.count,
 			avatar: item.avatar,
@@ -23,11 +23,11 @@ var socialInteractionService = (function() {
 	function outerInteraction(item, interaction, isSource) {
 		var a = {
 			student: item.student,
-			cluster: item.clusterid
+			cluster: item.cluster
 		};
 		var b = {
 			student: interaction.target,
-			cluster: interaction.clusterid
+			cluster: interaction.cluster
 		};
 		return {
 			course: item.courseid,

@@ -1,17 +1,4 @@
 var socialInteractionGraph = (function () {
-	var clusters = {
-		"0": "one",
-		"1": "two",
-		"2": "three",
-		"3": "four"
-	};
-	
-	var foci = {
-		"one" : {x: 0, y: 0},
-		"two" : {x: 500, y: 0},
-		"three" : {x: 0, y: 500},
-		"four" : {x: 500, y: 500}
-	};
 
 	function readClusterInteractions(config) {
 		return $.ajax({
@@ -32,23 +19,29 @@ var socialInteractionGraph = (function () {
 			dataType: 'json'
 		});
 	}
-	
-	function dofocus(user, cluster, config) {
-		return user == config.studentId ? "focus " + cluster : "" + cluster;
-	}
 
 	function run(config, clusterInteractions, outerInteractions) {
 
 		var links = socialInteractionService.denormalize(clusterInteractions, outerInteractions);
+
+		var mainCluster = links.filter(function(link) { return link.source.student == config.studentId; })[0].source.cluster;
+
+		function cluster(cluster) {
+			return mainCluster == cluster ? config.clusterMain : config.clusters[cluster % config.clusters.length];
+		}
+
+		function foci(cluster) {
+			return mainCluster == cluster ? config.focusMain : config.focusPoints[cluster % config.focusPoints.length]; 
+		}
 		
 		var nodes = links.reduce(function(res, link) {
 			res[link.source.student] = {
 				name: link.source.student,
-				cluster: clusters[link.source.cluster]
+				cluster: link.source.cluster
 			};
 			res[link.target.student] = {
 				name: link.target.student,
-				cluster: clusters[link.target.cluster]
+				cluster: link.target.cluster
 			};
 			return res;
 		}, {});
@@ -89,7 +82,7 @@ var socialInteractionGraph = (function () {
 					target: nodes[link.target.student],
 					value: link.count,
 					type: type(v(link.count)),
-					cluster: clusters[link.source.cluster]
+					cluster: link.source.cluster
 				};
 			});
 		}
@@ -147,7 +140,7 @@ var socialInteractionGraph = (function () {
 			.call(force.drag);
 		
 		node.append("circle").attr("r", 10).attr("class", function(d) {
-			return dofocus(d.name, d.cluster, config);
+			return (d.name == config.studentId ? "focus " : "") + cluster(d.cluster);
 		});
 
 		node.append("image")
@@ -159,7 +152,7 @@ var socialInteractionGraph = (function () {
 			.attr("width", 16)
 			.attr("height", 16);
 
-		node.append("svg:title").text(function(d) { return d.name + " : " + d.cluster; });
+		node.append("svg:title").text(function(d) { return d.name + " : " + cluster(d.cluster); });
 
 		
 		d3.selectAll(".node image").attr("style", "display: none");
@@ -185,8 +178,8 @@ var socialInteractionGraph = (function () {
 
 			var k = .05 * e.alpha;
 			d3nodes.forEach(function(o, i) {
-				o.y += (foci[o.cluster].y - o.y) * k;
-				o.x += (foci[o.cluster].x - o.x) * k;
+				o.y += (foci(o.cluster).y - o.y) * k;
+				o.x += (foci(o.cluster).x - o.x) * k;
 			});
 			
 			node.attr("transform", function(d) {

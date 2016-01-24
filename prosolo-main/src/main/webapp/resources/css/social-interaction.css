@@ -32,6 +32,10 @@ circle {
 	stroke-width: 1px;
 }
 
+circle.main {
+	fill: red;
+}
+
 circle.one {
 	fill: gray;
 }
@@ -45,7 +49,15 @@ circle.three {
 }
 
 circle.four {
-	fill: red;
+	fill: purple;
+}
+
+circle.five {
+	fill: yellow;
+}
+
+circle.six {
+	fill: orange;
 }
 
 circle.focus {
