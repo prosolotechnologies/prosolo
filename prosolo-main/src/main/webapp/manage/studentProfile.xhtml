@@ -40,7 +40,8 @@
 
 		<script src="#{request.contextPath}/resources/javascript/timeline/timeline-graph.js"></script>
 		<script src="#{request.contextPath}/resources/javascript/timeline/timeline-main.js"></script>
-		
+
+		<script src="#{request.contextPath}/resources/javascript/social-interaction/social-interaction-service.js"></script>		
 		<script src="#{request.contextPath}/resources/javascript/social-interaction/social-interaction-graph.js"></script>
 		<script src="#{request.contextPath}/resources/javascript/social-interaction/social-interaction-main.js"></script>
 		
@@ -222,6 +223,7 @@
 					<div role="tabpanel" class="tab-pane fade" id="social">
 						<h2>Social</h2>
 						<div class="row filter">
+							<ui:remove>
 							<div class="col-md-3">
 								<div class="panel panel-inner">
 									<div class="panel-body">
@@ -286,6 +288,7 @@
 									</div>
 								</div>
 							</div>
+							</ui:remove>
 							<div class="col-md-9">
 								<div id="social-interaction"
 									data-api="#{socialInteractionBean.apiHost}"

@@ -11,6 +11,7 @@ import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CourseCompetence;
 import org.prosolo.common.domainmodel.course.CourseEnrollment;
+import org.prosolo.common.domainmodel.course.CourseInstructor;
 import org.prosolo.common.domainmodel.course.CoursePortfolio;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
@@ -140,4 +141,22 @@ public interface CourseManager extends AbstractManager {
 	List<User> getUsersAssignedToInstructor(long instructorId) throws DbConnectionException;
 	
 	void removeEnrollmentFromCoursePortfolio(User user,	long enrollmentId);
+	
+	List<Map<String, Object>> getCourseInstructors(long courseId) throws DbConnectionException;
+
+	void assignInstructorToStudent(long studentId, long instructorId, long courseId) throws DbConnectionException;
+	
+	List<Long> getCourseIdsForInstructor(long instructorId) throws DbConnectionException;
+	
+	Map<String, Object> getCourseInstructor(long userId, long courseId) throws DbConnectionException;
+	
+	void removeInstructorFromCourse(long courseInstructorId) throws DbConnectionException;
+	
+	Map<String, Object> getBasicInstructorInfo(long instructorId) throws DbConnectionException;
+	
+	void updateStudentsAssignedToInstructor(long instructorId, long courseId, List<Long> studentsToAssign, List<Long> studentsToUnassign) throws DbConnectionException;
+	
+	CourseInstructor assignInstructorToCourse(long userId, long courseId, int maxNumberOfAssignedStudents) throws DbConnectionException;
+	
+	void updateStudentsAssignedToInstructors(List<Map<String, Object>> data) throws DbConnectionException;
 }

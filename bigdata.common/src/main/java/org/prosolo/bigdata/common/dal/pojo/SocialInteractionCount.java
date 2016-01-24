@@ -1,5 +1,6 @@
 package org.prosolo.bigdata.common.dal.pojo;
 
+@Deprecated
 public class SocialInteractionCount {
 	
 	private Long source;

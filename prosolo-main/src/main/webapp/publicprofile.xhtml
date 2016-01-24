@@ -103,35 +103,35 @@
 				<ul>
 					<li	class="selected" tab-id="info">
 						<a href="#" 
-							onclick="scrollTo('#info');logTabNavigation('info', 'profile.#{userId}.navigation');">
+							onclick="scrollToSection('#info');logTabNavigation('info', 'profile.#{userId}.navigation');">
 							Info
 						</a>
 					</li>
 					
 					<li tab-id="learning">
 						<a href="#" 
-							onclick="scrollTo('#learning');logTabNavigation('learning', 'profile.#{userId}.navigation');">
+							onclick="scrollToSection('#learning');logTabNavigation('learning', 'profile.#{userId}.navigation');">
 							Learning
 						</a>
 					</li>
 					
 					<li tab-id="competences">
 						<a href="#" 
-							onclick="scrollTo('#competences');logTabNavigation('competences', 'profile.#{userId}.navigation');">
+							onclick="scrollToSection('#competences');logTabNavigation('competences', 'profile.#{userId}.navigation');">
 							Competences
 						</a>
 					</li>
 
 					<li tab-id="credits">
 						<a href="#" 
-							onclick="scrollTo('#credits');logTabNavigation('credits', 'profile.#{userId}.navigation');">
+							onclick="scrollToSection('#credits');logTabNavigation('credits', 'profile.#{userId}.navigation');">
 							External Credits
 						</a>
 					</li>
 
 					<li tab-id="statuswall">
 						<a href="#" 
-							onclick="scrollTo('#statuswall');logTabNavigation('statuswall', 'profile.#{userId}.navigation');">
+							onclick="scrollToSection('#statuswall');logTabNavigation('statuswall', 'profile.#{userId}.navigation');">
 							Status Wall
 						</a>
 					</li>
@@ -139,7 +139,7 @@
 			</div>
 			
 			<script>
-				function scrollTo(target) {
+				function scrollToSection(target) {
 					$('body').scrollTo(target, 1000, {offset: -70});
 					return false;
 				}

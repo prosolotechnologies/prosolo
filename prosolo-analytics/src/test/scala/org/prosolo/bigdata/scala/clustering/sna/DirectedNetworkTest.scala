@@ -64,7 +64,7 @@ class DirectedNetworkTest {
         }*/
         linkid=linkid+1
 
-        val link = new UserLink(row._3)
+        val link = new UserLink(row._3,sourcenode, targetnode)
         //for(i<-0 to row._3){
 
           network.addEdge(link,sourcenode, targetnode, EdgeType.DIRECTED)

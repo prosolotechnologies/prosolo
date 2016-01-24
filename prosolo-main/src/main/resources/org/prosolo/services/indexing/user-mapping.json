@@ -56,6 +56,15 @@
 				"store": false,
 				"type": "string"
 			},
+			
+			"roles": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					}
+				}
+			},
 
 			"courses": {
 				"type": "nested",
@@ -77,15 +86,24 @@
 							"profileTitle": {
 								"store": false,
 								"type": "string"
-							}	
+							}
 						}
 					},
 					"instructorId": {
 						"store": false,
 						"type": "long"
-					}		
+					}
+				}
+			},
+			"coursesWithInstructorRole": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					}
 				}
 			}
+
 		}
 
 	}
