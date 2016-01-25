@@ -112,6 +112,7 @@ public abstract class DefaultWallSocialActivitiesDisplayer {
 	public void loadMoreActivities(String context) {
 		Map<String, String> parameters = new HashMap<String, String>();
 		parameters.put("context", context);
+		parameters.put("link", "loadMore");
 		
 		loadMoreActivities(parameters);
 	}

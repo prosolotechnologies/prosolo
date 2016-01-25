@@ -203,6 +203,11 @@ public class EventFactory {
 	}
 	
 	@Transactional(readOnly = false)
+	public Event generateEvent(EventType eventType, User actor, Map<String, String> parameters) throws EventException {
+		return generateEvent(eventType, actor, null, null, null, null, parameters);
+	}
+	
+	@Transactional(readOnly = false)
 	public Event generateEvent(EventType eventType, User actor, BaseEntity object, BaseEntity target, 
 			BaseEntity reason, Class<? extends EventObserver>[] observersToExclude, Map<String, String> parameters) throws EventException {
 		
@@ -220,5 +225,5 @@ public class EventFactory {
 		genericEvent.setParameters(parameters);
 		return genericEvent;
 	}
-	
+
 }
