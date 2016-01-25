@@ -1,5 +1,7 @@
 package org.prosolo.bigdata.dal.cassandra.impl;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import com.datastax.driver.core.BoundStatement;
@@ -19,7 +21,9 @@ class StatementUtil {
 				statement.setBool(index++, (Boolean) parameter);
 			} else if (parameter instanceof Double) {
 				statement.setDouble(index++, (Double) parameter);
-			} else if (parameter instanceof Set) {
+			} else if (parameter instanceof Integer) {
+				statement.setInt(index++, (Integer) parameter);
+			}else if (parameter instanceof Set) {
 				for (Object element : ((Set<?>) parameter)) {
 					if (element instanceof String) {
 						statement.setString(index++, (String) element);
@@ -27,8 +31,16 @@ class StatementUtil {
 						throw new IllegalStateException("Parameter type not supported.");
 					}
 				}
+			}else if (parameter instanceof List) {
+				for (Object element : ((List<?>) parameter)) {
+					if (element instanceof String) {
+						statement.setString(index++, (String) element);
+					} else {
+						throw new IllegalStateException("Parameter type not supported.");
+					}
+				}
 			} else {
-				throw new IllegalStateException("Parameter type not supported.");
+				throw new IllegalStateException("Parameter type not supported.:"+parameter.getClass().getName());
 			}
 		}
 		return statement;

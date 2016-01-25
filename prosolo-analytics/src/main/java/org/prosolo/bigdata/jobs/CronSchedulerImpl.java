@@ -311,13 +311,20 @@ public class CronSchedulerImpl implements CronScheduler {
 		}
 		if (jobConfig.onStartup) {
 			JobBuilder jobBuilder = JobBuilder.newJob(jobClass);
-			JobKey jobKey = JobKey.jobKey(jobClassName, "job");
+			JobKey jobKey = JobKey.jobKey(jobClassName+"_startup", "job");
 			jobBuilder.withIdentity(jobKey);
 			System.out.println("RUNNING ON startup JOB:"+jobClassName);
 			jobBuilder.storeDurably();
 			JobDetail jobDetails = jobBuilder.build();
+
+			TriggerBuilder tb = TriggerBuilder.newTrigger();
+			tb.forJob(jobKey);
+			tb.withIdentity(jobClassName+"_startup","job");
+			tb.startAt(DateBuilder.futureDate(2, DateBuilder.IntervalUnit.MINUTE));
+			Trigger trigger=tb.build();
+
 			sched.addJob(jobDetails, true);
-			sched.triggerJob(jobKey);
+			sched.scheduleJob(trigger);
 
 		}
 

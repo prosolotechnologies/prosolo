@@ -67,16 +67,13 @@ public abstract class GenericDAOImpl implements GenericDAO {
 	}
 	@Override
 	public  <T extends BaseEntity> void saveInBatch(List<T> entities) {
-		System.out.println("SAVING in batch: entities:"+entities.size());
 		try{
 			 boolean isActive = session.getTransaction().isActive();  
 	            if ( !isActive) {  
 	                session.beginTransaction();  
 	            }  
 			for(Object entity:entities){
-				System.out.println("SAVING OR UPDATING in batch:"+((BaseEntity) entity).getId()+" class:"+entity.getClass().getName());
 				session.save(entity);
-				System.out.println("SAVED:"+((BaseEntity) entity).getId());
 			}
 			
 			session.getTransaction().commit();

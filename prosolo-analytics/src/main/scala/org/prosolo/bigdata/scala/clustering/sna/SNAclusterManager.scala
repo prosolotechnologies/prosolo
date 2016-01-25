@@ -24,7 +24,7 @@ import scala.collection.JavaConverters._
 /**
   * zoran 21/12/15
   */
-object SNAclusterManager extends App{
+object SNAclusterManager{
 
 val edgesToRemove=5
   //val moocCourses:Array[Long]=Array(1,32768,32769,32770,65536,98304,98305,98306,131072,131073,131074)
@@ -32,7 +32,7 @@ val edgesToRemove=5
   val dbManager=SocialInteractionStatisticsDBManagerImpl.getInstance()
 
   println("INITIALIZED SNA CLUSTER MANAGER")
-  val clusteringDAOManager=new ClusteringDAOImpl
+
 
 
   def identifyFakeClusters(): Unit ={
@@ -44,9 +44,10 @@ val edgesToRemove=5
       updateTimestamp(timestamp)
     })
   }
-  identifyFakeClusters()
+//  identifyFakeClusters()
 def identifyClusters(): Unit ={
   val timestamp=System.currentTimeMillis()
+    val clusteringDAOManager=new ClusteringDAOImpl
   val allCourses=clusteringDAOManager.getAllCoursesIds
   allCourses.asScala.foreach(courseid=> {
     println("RUNNING CLUSTERING FOR COURSE:" + courseid)
@@ -96,8 +97,8 @@ def identifyClusters(): Unit ={
           val inClusterUserInteractions=sourceInteractions.getOrElse(sourcekey,new ArrayBuffer[Tuple2[Long, Int]]())
           inClusterUserInteractions+=new Tuple2(userLink.target.id,userLink.weight.toInt)
           sourceInteractions+=sourcekey->inClusterUserInteractions
-        println("SOURCE INTERACTIONS:"+sourceInteractions.toString())
-
+      //  println("SOURCE INTERACTIONS:"+sourceInteractions.toString())
+       // userLink.target.cluster=131;
         if(userLink.source.cluster!=userLink.target.cluster){
           val sourceOutKey=new Tuple4(courseId,userLink.source.cluster,userLink.source.id,"SOURCE")
           val sourceOutClusterUserInteractions=targetInteractions.getOrElse(sourceOutKey,new ArrayBuffer[Tuple3[Long,Int,Int]]())
@@ -108,17 +109,31 @@ def identifyClusters(): Unit ={
           val targetOutClusterUserInteractions=targetInteractions.getOrElse(targetOutKey,new ArrayBuffer[Tuple3[Long,Int,Int]]())
           targetOutClusterUserInteractions+=new Tuple3(userLink.source.id, userLink.source.cluster, userLink.weight.toInt)
           targetInteractions+=targetOutKey->targetOutClusterUserInteractions
-          println("TARGET INTERACTIONS:"+targetInteractions.toString())
+         // println("TARGET INTERACTIONS:"+targetInteractions.toString())
         }
     }
     val sourceInteractionsConv=sourceInteractions.map{
       case(key,interactions)=>
         (key, interactions.map { i =>
-          val jsonObject=Json.obj("target"->1,"count"->2)
+          val jsonObject=Json.obj("target"->i._1,"count"->i._2)
            Json.stringify(jsonObject)
-     }.asJavaCollection)
+     }.toList.asJava)
+    }.foreach{
+      case(key,interactions)=>
+         dbManager.insertInsideClusterInteractions(timestamp,key._1,key._2.toLong,key._3,interactions)
     }
-     println("SOURCE INTERACTIONS CONVERTED:"+sourceInteractionsConv.toString)
+
+    val targetInteractionsConv=targetInteractions.map{
+      case(key,interactions)=>
+        (key, interactions.map { i =>
+          val jsonObject=Json.obj("target"->i._1,"cluster"->i._2, "count"->i._3)
+          Json.stringify(jsonObject)
+        }.toList.asJava)
+    }.foreach{
+      case(key,interactions)=>
+          dbManager.insertOutsideClusterInteractions(timestamp,key._1,key._3,key._2.toLong, key._4, interactions)
+    }
+    //println("SOURCE INTERACTIONS CONVERTED:"+sourceInteractionsConv.toString)
 
   }
   //identifyClusters()

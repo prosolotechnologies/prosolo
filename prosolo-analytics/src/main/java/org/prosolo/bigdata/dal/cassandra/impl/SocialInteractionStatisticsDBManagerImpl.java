@@ -3,6 +3,7 @@ package org.prosolo.bigdata.dal.cassandra.impl;
 import static org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl.Statements.FIND_SOCIAL_INTERACTION_COUNTS;
 import static org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl.Statements.FIND_STUDENT_SOCIAL_INTERACTION_COUNTS;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,9 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 		FIND_SOCIAL_INTERACTION_COUNTS,
 		FIND_STUDENT_SOCIAL_INTERACTION_COUNTS,
 		UPDATE_CURRENT_TIMESTAMPS,
-		FIND_CURRENT_TIMESTAMPS
+		FIND_CURRENT_TIMESTAMPS,
+		INSERT_INSIDE_CLUSTERS_INTERACTIONS,
+		INSERT_OUTSIDE_CLUSTERS_INTERACTIONS
 	}
 	public enum TableNames{
 		INSIDE_CLUSTER_INTERACTIONS,
@@ -43,6 +46,8 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 		statements.put(FIND_STUDENT_SOCIAL_INTERACTION_COUNTS, "SELECT * FROM socialinteractionscount where course=? and source = ?;");
 		statements.put(Statements.UPDATE_CURRENT_TIMESTAMPS,"UPDATE currenttimestamps  SET timestamp=? WHERE tablename=?;");
 		statements.put(Statements.FIND_CURRENT_TIMESTAMPS,  "SELECT * FROM currenttimestamps ALLOW FILTERING;");
+		statements.put(Statements.INSERT_INSIDE_CLUSTERS_INTERACTIONS, "INSERT INTO insideclustersinteractions(timestamp, course, cluster, student, interactions) VALUES(?,?,?,?,?); ");
+		statements.put(Statements.INSERT_OUTSIDE_CLUSTERS_INTERACTIONS, "INSERT INTO outsideclustersinteractions(timestamp, course,  student,direction, cluster, interactions) VALUES(?,?,?,?,?,?); ");
 	}
 	private SocialInteractionStatisticsDBManagerImpl(){
 		currenttimestamps=getAllCurrentTimestamps();
@@ -116,7 +121,42 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 		BoundStatement statement = StatementUtil.statement(prepared);
 		return query(statement).stream().collect(Collectors.toMap(row->TableNames.valueOf(row.getString("tablename")),row->row.getLong("timestamp")));
 	}
+	@Override
+	public void insertInsideClusterInteractions(Long timestamp, Long course, Long cluster, Long student,
+												List<String> interactions) {
+		System.out.println("INSERT INSIDE DATA..."+interactions.size()+" for timestamp:"+timestamp+" course:"+course+" cluster:"+cluster+" student:"+student);
+		PreparedStatement prepared = getStatement(getSession(), Statements.INSERT_INSIDE_CLUSTERS_INTERACTIONS);
+		BoundStatement statement = new BoundStatement(prepared);
+		statement.setLong(0,timestamp);
+		statement.setLong(1,course);
+		statement.setLong(2,cluster);
+		statement.setLong(3,student);
+		statement.setList(4,interactions);
+		try {
+			this.getSession().execute(statement);
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
 
+	}
+
+	@Override
+	public void insertOutsideClusterInteractions(Long timestamp, Long course, Long student, Long cluster, String direction, List<String> interactions) {
+		System.out.println("INSERT OUTSIDE DATA..."+interactions.size()+" for timestamp:"+timestamp+" course:"+course+" cluster:"+cluster+" student:"+student);
+		PreparedStatement prepared = getStatement(getSession(), Statements.INSERT_OUTSIDE_CLUSTERS_INTERACTIONS);
+		BoundStatement statement = new BoundStatement(prepared);
+		statement.setLong(0,timestamp);
+		statement.setLong(1,course);
+		statement.setLong(2,student);
+		statement.setString(3,direction);
+		statement.setLong(4,cluster);
+		statement.setList(5,interactions);
+		try {
+			this.getSession().execute(statement);
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+	}
 
 
 }
