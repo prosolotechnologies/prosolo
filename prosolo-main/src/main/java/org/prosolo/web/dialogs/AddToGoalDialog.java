@@ -15,8 +15,15 @@ import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 import org.prosolo.common.domainmodel.competences.Competence;
+import org.prosolo.common.domainmodel.content.GoalNote;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.util.string.StringUtil;
+import org.prosolo.services.activityWall.SocialActivityHandler;
+import org.prosolo.services.event.EventException;
+import org.prosolo.services.interaction.PostManager;
+import org.prosolo.services.interaction.impl.PostManagerImpl.PostEvent;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.upload.UploadManager;
@@ -24,7 +31,6 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.AttachmentPreview;
 import org.prosolo.web.data.GoalData;
 import org.prosolo.web.dialogs.data.AddToGoalData;
-import org.prosolo.web.goals.GoalWallBean;
 import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.goals.competences.CompetencesBean;
@@ -55,6 +61,8 @@ public class AddToGoalDialog implements Serializable {
 	@Autowired private UploadManager uploadManager;
 	@Autowired private CompetencesBean competencesBean;
 	@Autowired private LoggingNavigationBean actionLogger;
+	@Autowired private PostManager postManager;
+	@Autowired private SocialActivityHandler socialActivityHandler;
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 	
 	private Competence competenceToAdd;
@@ -247,8 +255,36 @@ public class AddToGoalDialog implements Serializable {
 		GoalDataCache chosenGoalData = findChosenGoal();
 		
 		if (chosenGoalData != null) {
-			GoalWallBean goalWall = PageUtil.getViewScopedBean("goalwall", GoalWallBean.class);
-			goalWall.createNewPost(chosenGoalData, newPostData);
+			try {
+				User user = loggedUser.getUser();
+				PostEvent postEvent = postManager.createNewGoalNote(
+						user, 
+						chosenGoalData.getData().getGoalId(), 
+						StringUtil.cleanHtml(newPostData.getText()), 
+						newPostData.getAttachmentPreview(),
+						goalsBean.getSelectedGoalData().getData().getVisibility(),
+						true,
+						true,
+						"digest");
+				
+				GoalNote goalNote = (GoalNote) postEvent.getPost();
+				
+				if (goalNote != null) {
+					logger.debug("User \"" + user.getName()+" "+user.getLastname()+"\" ("+user.getId()+")" +
+							" added a goal note \""+newPostData.getText()+"\" )"+goalNote.getId()+")");
+					
+					
+					socialActivityHandler.addSociaActivitySyncAndPropagateToStatusAndGoalWall(postEvent.getEvent());
+							
+					PageUtil.fireSuccessfulInfoMessage("New goal note posted!");
+					
+					this.newPostData = new NewPostData();
+				}
+			} catch (ResourceCouldNotBeLoadedException e) {
+				logger.error(e);
+			} catch (EventException e) {
+				logger.error(e.getMessage());
+			}
 		}
 	}
 	
