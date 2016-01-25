@@ -18,6 +18,8 @@ import javax.ws.rs.core.Response;
 import org.prosolo.bigdata.common.dal.pojo.SocialInteractionCount;
 import org.prosolo.bigdata.dal.cassandra.SocialInteractionStatisticsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl;
+import org.prosolo.bigdata.dal.persistence.UserDAO;
+import org.prosolo.bigdata.dal.persistence.impl.UserDAOImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +29,8 @@ public class SocialInteractionStatisticsService {
 	private final Logger logger = LoggerFactory.getLogger(SocialInteractionStatisticsService.class);
 	
 	private SocialInteractionStatisticsDBManager  dbManager = SocialInteractionStatisticsDBManagerImpl.getInstance();
+	
+	private UserDAO userDao = new UserDAOImpl();
 	
 	@GET
 	@Path("/all")
@@ -120,7 +124,8 @@ public class SocialInteractionStatisticsService {
 		}
 		return result;
 	}
-
+	
+	@SuppressWarnings("unused")
 	private Map<Long, Map<String, String>> randomStudentsData(Long[] students) {
 		String[] names = new String[] {
 				"Nick Powell",
@@ -162,8 +167,8 @@ public class SocialInteractionStatisticsService {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getOuterInteractions(@QueryParam("courseId") Long courseId, @QueryParam("studentId") Long studentId) {
 		logger.debug("Service 'getOuterInteractions' called.");
-		// return ResponseUtils.corsOk(dbManager.getOuterInteractions(courseId, studentId));
-		return ResponseUtils.corsOk(randomOuterInteractions(courseId, studentId));
+		return ResponseUtils.corsOk(dbManager.getOuterInteractions(courseId, studentId));
+		// return ResponseUtils.corsOk(randomOuterInteractions(courseId, studentId));
 	}
 
 	@GET
@@ -171,8 +176,8 @@ public class SocialInteractionStatisticsService {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getClusterInteractions(@QueryParam("courseId") Long courseId, @QueryParam("studentId") Long studentId) {
 		logger.debug("Service 'getClusterInteractions' called.");
-		// return ResponseUtils.corsOk(dbManager.getClusterInteractions(courseId));
-		return ResponseUtils.corsOk(randomClusterInteractions(courseId, studentId));
+		return ResponseUtils.corsOk(dbManager.getClusterInteractions(courseId));
+		// return ResponseUtils.corsOk(randomClusterInteractions(courseId, studentId));
 	}
 
 	@GET
@@ -180,6 +185,7 @@ public class SocialInteractionStatisticsService {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getStudentData(@QueryParam("students[]") Long[] students) {
 		logger.debug("Service 'getStudentData' called.");
-		return ResponseUtils.corsOk(randomStudentsData(students));
-	}
+		return ResponseUtils.corsOk(userDao.getUsersData(students));
+		// return ResponseUtils.corsOk(randomStudentsData(students));
+	}	
 }

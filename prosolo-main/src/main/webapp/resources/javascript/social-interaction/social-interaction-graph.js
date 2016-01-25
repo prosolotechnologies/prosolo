@@ -1,3 +1,4 @@
+
 var socialInteractionGraph = (function () {
 
 	function readClusterInteractions(config) {
@@ -165,7 +166,8 @@ var socialInteractionGraph = (function () {
 
 		node.append("image")
 			.attr("xlink:href", function(d) {
-				return studentData[d.name].avatar;
+				// TODO Default avatar?
+				return studentData[d.name] ? studentData[d.name].avatar : "";
 			})
 			.attr("x", -14)
 			.attr("y", -14)
@@ -173,7 +175,7 @@ var socialInteractionGraph = (function () {
 			.attr("height", 28)
 			.attr("clip-path", "url(#circle-clip)");
 
-		node.append("svg:title").text(function(d) { return studentData[d.name].name; });
+		node.append("svg:title").text(function(d) { return studentData[d.name] ? studentData[d.name].name : ""; });
 		
 		d3.selectAll(".node image").attr("style", "display: none");
 
