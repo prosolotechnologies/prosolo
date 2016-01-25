@@ -138,19 +138,19 @@ public class DislikeActionBean {
 		taskExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				long activityId = actData.getActivity().getId();
+				long targetActivityId = actData.getId();
 				Session session = (Session) defaultManager.getPersistence().openSession();
 				
 				try {
-					dislikeManager.removeDislikeFromNode(loggedUser.getUser(), activityId, session, context);
+					dislikeManager.removeDislikeFromNode(loggedUser.getUser(), targetActivityId, session, context);
 					
-					logger.debug("User "+loggedUser.getUser()+" removed dislike from activity ("+activityId+")");
+					logger.debug("User "+loggedUser.getUser()+" removed dislike from target activity ("+targetActivityId+")");
 					session.flush();
 				} catch (EventException e) {
-					logger.error("There was an error in removing dislike from activity "+activityId+
+					logger.error("There was an error in removing dislike from target activity "+targetActivityId+
 							" when user "+loggedUser.getUser() +" tried to remove dislike. " + e.getMessage());
 				} catch (ResourceCouldNotBeLoadedException e) {
-					logger.error("There was an error in removing dislike from activity "+activityId+
+					logger.error("There was an error in removing dislike from target activity "+targetActivityId+
 							" when user "+loggedUser.getUser() +" tried to remove dislike. " + e.getMessage());
 				}
 				
