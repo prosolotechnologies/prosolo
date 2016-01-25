@@ -3,14 +3,18 @@ package org.prosolo.web.digest;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.model.SelectItem;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.feeds.FeedEntry;
@@ -19,13 +23,16 @@ import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.digest.FilterOption;
 import org.prosolo.common.web.digest.data.FeedEntryData;
 import org.prosolo.common.web.digest.data.FeedsDigestData;
+import org.prosolo.services.event.EventException;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.feeds.FeedsManager;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.digest.data.DigestCriteria;
 import org.prosolo.web.digest.data.FeedEntryDataFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 /**
@@ -41,10 +48,18 @@ public class DigestBean implements Serializable{
 
 	protected static Logger logger = Logger.getLogger(DigestBean.class);
 
-	@Autowired private LoggedUserBean loggedUser;
-
-	@Autowired private FeedsManager feedsManager;
-	@Autowired private CourseManager courseManager;
+	@Inject
+	private LoggedUserBean loggedUser;
+	@Inject 
+	private FeedsManager feedsManager;
+	@Inject
+	private CourseManager courseManager;
+	@Inject
+	private EventFactory eventFactory;
+	
+	@Inject @Qualifier("taskExecutor") 
+	private ThreadPoolTaskExecutor taskExecutor;
+	
 	
 	private FeedsDigestData feedDigestData = new FeedsDigestData();
 	private FilterOption filter;
@@ -124,6 +139,22 @@ public class DigestBean implements Serializable{
 		setDefaults();
 		
 		collectFeedsForFilter();
+		
+		taskExecutor.execute(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Map<String, String> parameters = new HashMap<>();
+					parameters.put("context", "digest");
+					parameters.put("interval", interval.toString());
+					parameters.put("filter", filter.toString());
+				
+					eventFactory.generateEvent(EventType.DIGEST_FILTER_UPDATED, loggedUser.getUser(), parameters);
+				} catch (EventException e) {
+					logger.error(e);
+				}
+			}
+		});
 		
 //		Map<FilterOption, List<FeedEntry>> digests = feedsManager.filterAllDigests(userId, 1, date, filters, interval, limit, page);
 //		
