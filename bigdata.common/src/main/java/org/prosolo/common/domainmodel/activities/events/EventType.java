@@ -89,7 +89,8 @@ public enum EventType {
 	ACTIVITY_REPORT_AVAILABLE, 
 	MENTIONED, UPDATE_HASHTAGS, UPDATE_TAGS, PostUpdate,
 	HASHTAG_ENABLED, HASHTAG_DISABLED, ARCHIVE_GOAL,
-
+	DIGEST_FILTER_UPDATED,
+	
 	//this activity exists in MOOC logs for some reasons
 	HIDE_ACTIVITY;
 	

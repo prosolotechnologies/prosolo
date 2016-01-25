@@ -11,6 +11,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.user.User;
 
@@ -18,7 +20,7 @@ import org.prosolo.common.domainmodel.user.User;
 public class CourseInstructor {
 
 	private long id;
-	private long maxNumberOfStudents;
+	private int maxNumberOfStudents;
 	private User user;
 	private Course course;
 	private Set<CourseEnrollment> assignedStudents;
@@ -33,10 +35,10 @@ public class CourseInstructor {
 	public void setId(long id) {
 		this.id = id;
 	}
-	public long getMaxNumberOfStudents() {
+	public int getMaxNumberOfStudents() {
 		return maxNumberOfStudents;
 	}
-	public void setMaxNumberOfStudents(long maxNumberOfStudents) {
+	public void setMaxNumberOfStudents(int maxNumberOfStudents) {
 		this.maxNumberOfStudents = maxNumberOfStudents;
 	}
 	
@@ -58,13 +60,12 @@ public class CourseInstructor {
 	}
 	
 	@OneToMany(fetch = FetchType.LAZY, mappedBy="instructor")
+	@LazyCollection(LazyCollectionOption.EXTRA)
 	public Set<CourseEnrollment> getAssignedStudents() {
 		return assignedStudents;
 	}
 	public void setAssignedStudents(Set<CourseEnrollment> assignedStudents) {
 		this.assignedStudents = assignedStudents;
 	}
-	
-	
 	
 }

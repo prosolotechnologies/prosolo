@@ -36,13 +36,40 @@ h2 span {
 
 
 .form-control {
-  height: 38px;
+  border: 1px solid #f1f1f1;
+  box-shadow: none;
+  height: 32px;
 }
 
+
+/* modal windows */
+
+.modal-header {
+    background-color: #f7f7f7;
+    border-bottom: 1px solid #f1f1f1;
+}
+.modal-header .close {
+	margin-top: 0;
+}
+
+.modal-content {
+	border-radius: 0;
+}
 
 button.close {
 	font-size: 18px;
 }
+
+
+.modal-body .fa {
+  font-size: 35px;
+  margin: 7px 0 0;
+}
+
+.modal-body .fa-warning {
+	color: #f0ad4e;
+}
+
 
 
 #svgContainer {
@@ -50,6 +77,9 @@ button.close {
 	position: absolute;
 }
 
+.noMargin {
+	margin: 0!important;
+}
 
 /* colors */
 
@@ -103,14 +133,24 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 
 /* buttons */
 
+.btn {
+	font-style: normal!important;
+}
+
 .btn .fa {
-	font-size: 16px;
+	font-size: 15px;
 	vertical-align: inherit;
+}
+
+.btn .fa.red {
+	color: #d9534f!important;
 }
 
 .btn-primary {
 	background-color: #2196f3;
-	border-color: #e1e1e1;
+	border-color: #2196f3;
+	color: #fff!important;
+	
 }
 
 .btn-default {
@@ -127,6 +167,22 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 .btn-default i {
 	color: #2196f3!important;
 }
+
+.btn.remove i {
+	color: #d9534f!important;
+	vertical-align: initial;
+}
+
+
+.btn.panelButton {
+	margin-top: -24px;
+	margin-left: 10px;
+}
+
+.btn.btn-primary.panelButton {
+	color: #fff;
+}
+
 
 
 /* top header */
@@ -610,10 +666,17 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 	display: inline-block;
 }
 
-
 .filter .userProfileImage {
 	float: left;
 }
+
+.userProfileName {
+	display: inline-block;
+	width: 185px;
+	line-height: 13px;
+	vertical-align: middle;
+}
+
 
 .userProfileImage img {
 	border-radius: 40px;
@@ -1999,6 +2062,13 @@ label {
 
 /* bootstrap select */
 
+.checkbox input[type="checkbox"], 
+.checkbox-inline input[type="checkbox"], 
+.radio input[type="radio"], 
+.radio-inline input[type="radio"] {
+  margin-left: 0;
+}
+
 .bootstrap-select .btn-default {
 	background: #fafafa;
 	color: #444444;
@@ -2401,6 +2471,16 @@ footer ul li:first-of-type {
 .tableProsolo > thead > tr > th.colProfile {
 	width: 150px;
 }
+
+.tableProsolo > thead > tr > th.colAssigned {
+  width: 300px;	text-align: center;
+}
+
+.tableProsolo tr .colAssignedD {
+	text-align: center;
+	font-size: 20px;
+}
+
 .sticky-thead > thead > tr > th.colArrowLeft,
 .tableProsolo > thead > tr > th.colArrowLeft {
   padding: 10px 0;
@@ -2499,8 +2579,18 @@ footer ul li:first-of-type {
 .sticky-col > tbody > tr > th.colStudentD .name,
 .tableProsolo > tbody > tr > th.colStudentD .name,
 .tableProsolo > tbody > tr > td.colStudentD .name{
-	float: left;
+
+    display: inline-block;
+    vertical-align: middle;
+    width: 175px;
+
 }
+
+
+.tableProsolo > tbody > tr > td.colStudentD .userProfileImageLarge {
+	float: none;
+}
+
 
 
 .tableProsolo > tbody > tr > th.colStudentD .name h1,
@@ -2508,7 +2598,7 @@ footer ul li:first-of-type {
   color: #555555;
   font-size: 23px;
   font-weight: 500;
-  margin: 13px 0 0 0;
+  margin: 0;
   padding: 0;
 }
 
@@ -2556,10 +2646,182 @@ footer ul li:first-of-type {
   border-color: #f1f1f1;
 }
 
+/* instructor form */
+
+
+.form-inline label {
+	display: block;
+}
+
+.ddContainer {
+	border-left: 1px solid #f1f1f1;
+}
+
+.ddStudentsList {
+	height: 500px;
+	border: 1px solid #f0f0f0;
+	background: #fafafa;
+	border-radius: 3px;
+	list-style: none;
+	padding: 3px;
+	overflow: auto;
+}
+
+.ddStudentsList li {
+	background-color: #fff;
+	border-radius: 3px;
+	padding: 7px 7px 1px 7px;
+	margin-bottom: 3px;
+	border: 1px solid #f0f0f0;
+}
+
+.ddStudentsList li:hover {
+	background-color: #ffffdd;	
+}
+
+.ddStudentsList.results {
+	height: 440px;
+}
+
+.selectionBox {
+  float: left;
+  padding-top: 8px;
+}
+.ddStudentsList.results .userProfileName {
+	width: 155px;
+}
 
 
 
+.acDropdown {
+	position: relative;
+}
 
+.acPanel {
+	display: none;
+	position: absolute;
+	top: 57px;;	
+	background: #fafafa;
+	width: 100%;
+	z-index: 9;
+	border: 1px solid #f0f0f0;
+	border-radius: 4px;
+	height: 400px;
+	overflow: auto;
+	padding: 0;
+}
+.acPanel table tr {
+	background-color: #FFF;
+}
+
+.acPanel table td:nth-of-type(1) {
+	width: 55%;
+}
+
+.acPanel table tr:hover {
+	cursor: pointer;
+	background-color: #ffffdd;
+}
+
+
+.acContainer {
+	position: relative;
+}
+
+.dd {
+	padding-top: 190px;
+	text-align: center;
+	color: #999;
+}
+.dd a .fa {
+	font-size: 18px;
+}
+
+.dd h3 {
+	font-size: 12px;
+}
+.modal-body.userList {
+  height: 500px;
+  margin: 0;
+  overflow: auto;
+  padding: 0;
+}
+
+.userList table td {
+  border-bottom: 1px solid #efefef;
+  padding: 10px 0 10px 15px;
+  vertical-align: middle;
+}
+
+.userList table td:last-of-type {
+  padding-right: 15px;
+}
+
+.userList .userInfo {
+	margin-bottom: 0;
+}
+
+.userList .userProfileName {
+  width: 110px;
+}
+
+.assign,
+.affiliation {
+	font-size: 12px;
+	color: #898989;
+}
+
+.assign {
+	text-align: right;
+}
+
+.assigned {
+	font-size: 16px;
+}
+
+.assigned.full {
+	color: #F00;
+}
+
+[data-toggle^="tooltip"] {
+}
+
+[data-toggle^="tooltip"]:hover {
+	cursor: help;
+
+}
+
+.insContainer {
+	border: 1px solid #f0f0f0;
+	border-radius: 3px;
+	padding: 5px 10px 5px 10px;
+	font-size: 11px;
+	font-style: italic;
+	color: #ccc;
+	height: 54px;
+}
+
+.insContainer .initial {
+	margin-top: 13px;
+	display:block;
+	float: left;
+}
+
+.insContainer .btn {
+	margin-top: 4px;
+}
+
+.insContainer .userInfo {
+	float: left;
+	margin-bottom: 0px;
+}
+
+
+.filterModal {
+  background: #fcfcfc none repeat scroll 0 0;
+  padding-top: 5px;
+  border-bottom: 1px solid #f1f1f1;
+}
 
 /*********************************************/
 /*********************************************/

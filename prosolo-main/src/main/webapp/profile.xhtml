@@ -70,35 +70,35 @@
 				<ul>
 					<li	class="selected" tab-id="info">
 						<a href="#" 
-							onclick="scrollTo('#info');logTabNavigation('info', 'profile.navigation');">
+							onclick="scrollToSection('#info');logTabNavigation('info', 'profile.navigation');">
 							Info
 						</a>
 					</li>
 					
 					<li tab-id="learning">
 						<a href="#" 
-							onclick="scrollTo('#learning');logTabNavigation('learning', 'profile.navigation');">
+							onclick="scrollToSection('#learning');logTabNavigation('learning', 'profile.navigation');">
 							Learning
 						</a>
 					</li>
 					
 					<li tab-id="competences">
 						<a href="#" 
-							onclick="scrollTo('#competences');logTabNavigation('competences', 'profile.navigation');">
+							onclick="scrollToSection('#competences');logTabNavigation('competences', 'profile.navigation');">
 							Competences
 						</a>
 					</li>
 
 					<li tab-id="credits">
 						<a href="#" 
-							onclick="scrollTo('#credits');logTabNavigation('credits', 'profile.navigation');">
+							onclick="scrollToSection('#credits');logTabNavigation('credits', 'profile.navigation');">
 							External Credits
 						</a>
 					</li>
 
 					<li tab-id="statuswall">
 						<a href="#" 
-							onclick="scrollTo('#statuswall');logTabNavigation('statuswall', 'profile.navigation');">
+							onclick="scrollToSection('#statuswall');logTabNavigation('statuswall', 'profile.navigation');">
 							Status Wall
 						</a>
 					</li>
@@ -106,7 +106,7 @@
 			</div>
 			
 			<script>
-				function scrollTo(target) {
+				function scrollToSection(target) {
 					$('body').scrollTo(target, 1000, {offset: -70});
 					return false;
 				}

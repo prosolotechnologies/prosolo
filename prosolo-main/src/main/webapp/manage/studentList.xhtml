@@ -10,7 +10,8 @@
 	xmlns:actions="http://java.sun.com/jsf/composite/components/actions"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:util="http://www.prosolo.com/util">
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:dlgComp="http://java.sun.com/jsf/composite/components/dialogs/manager">
 
 	<ui:define name="windowTitle">
 		Course members
@@ -29,12 +30,12 @@
 		<script src="#{request.contextPath}/manage/js/stickyTable.js"></script>
 		
 		<script>
-			function searchListener() {
+			function searchListener(execFunction) {
 				var $this = this;
 				//this.updateUrlQuery(); 
 				
 				var delayedSearch = function(){
-					execSearch();
+					execFunction();
 				};
 	
 				window.clearTimeout(this.keystrokeTimeout);
@@ -64,12 +65,12 @@
 					</div>
 					<div class="row narrow searchFilter">
 						<div class="col-md-12">
-							<h:form>
-								<span class="records">Students: <strong>#{courseMembersBean.courseMembersNumber}</strong></span> <span
+							<h:form id="filterStudentsForm">
+								<h:panelGroup id="panelNoStudent" styleClass="records">Students: <strong>#{courseMembersBean.courseMembersNumber}</strong></h:panelGroup> <span
 									class="checkbox checkbox-success checkbox-inline">
 									<h:selectBooleanCheckbox id="checkbox2" value="#{courseMembersBean.filterUnassigned}">
 										<p:ajax event="click" process="@this checkbox2" 
-											listener="#{courseMembersBean.filterCourseMembers}" update=":studentListForm" />
+											listener="#{courseMembersBean.filterCourseMembers}" update=":studentListForm panelNoStudent" />
 									</h:selectBooleanCheckbox>
 									<label for="checkbox2">Show
 										only unassigned</label> 
@@ -78,7 +79,7 @@
 							<h:form class="form-inline searchField">
 								<p:remoteCommand name="execSearch" 
 									process="inputFilterByName"
-									update=":studentListForm" 
+									update=":studentListForm :filterStudentsForm:panelNoStudent" 
 									actionListener="#{courseMembersBean.resetSearchOptions}"
 									action="#{courseMembersBean.searchCourseMembers}" />
  
@@ -88,12 +89,13 @@
 								    	pt:placeholder=" Filter by name"
 								    	styleClass="form-control"
 								    	onclick="$(this).select();" 
-								    	onkeydown="searchListener();"></h:inputText>
+								    	onkeydown="searchListener(execSearch);"></h:inputText>
 								</div>
 							</h:form>
 						</div>
 					</div>
 					<h:form id="studentListForm">
+					    <p:growl id="studentListGrowl" showDetail="true"></p:growl>
 						<table class="table tableProsolo">
 							<thead>
 								<tr>
@@ -170,13 +172,19 @@
 											</div>
 										</td>
 										<td class="colProgressionD">#{user.courseProgress}%</td>
-										<td class="colInstructorD"><p:commandLink
+										<td class="colInstructorD">
+											<p:commandLink
 												styleClass="btn btn-default"
-												rendered="#{user.instructor == null}" pt:role="button">
-												<i class="fa fa-plus"></i> Assign
-													Instructor
-											</p:commandLink> <h:link outcome="" rendered="#{user.instructor != null}">
-														#{user.instructor.fullName}"
+												pt:role="button" 
+												rendered="#{user.instructor == null}"
+												process="@this"
+												action="#{courseMembersBean.loadCourseInstructors(user)}"
+												oncomplete="$('#assignInstructorModal').modal('show');"
+												update=":dlgInstructors:modalForm:assignInstructorModalContent">
+												<i class="fa fa-plus"></i> Assign Instructor
+											</p:commandLink> 
+											<h:link rendered="#{user.instructor != null}">
+														#{user.instructor.fullName}
 												    	<f:param name="id"
 													value="#{util:encodeId(user.instructor.id)}" />
 											</h:link></td>
@@ -266,15 +274,95 @@
 						preventSendingToTheTopOfThePage("linkPreviousDisabled");
 						</script>
 					</div>
+					
+					
 					</h:form>
 
 				</div>
 			</div>
 
-
-
 		</section>
 
+		<dlgComp:instructorAssign id="dlgInstructors"
+			title="Assign instructor to #{courseMembersBean.userToAssignInstructor.fullName}"
+			bean="#{courseMembersBean}"
+			searchListener="searchListener"
+			instructorList="#{courseMembersBean.courseInstructors}"
+			updateRegion=":studentListForm" />
+		
+		<ui:remove><h:form id="modalForm">
+			<div id = "assignInstructorModal" class="modal fade assignInstructor" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+				         <div class="modal-dialog">
+				            <h:panelGroup layout="block" id="assignInstructorModalContent" styleClass="modal-content">
+				               <div class="modal-header"> <button aria-label="Close" data-dismiss="modal" class="close" type="button"><span aria-hidden="true">×</span></button> 
+				               	<h4 id="myLargeModalLabel" class="modal-title">Assign instructor to #{courseMembersBean.userToAssignInstructor.fullName}</h4> </div>
+				               <div class="row narrow filterModal">
+					               	<div class="col-md-12">
+			                  			<p:remoteCommand name="execInstructorSearch" 
+											process="inputInstructorSearch"
+											update=":dlgInstructors:modalForm:instructorSearchResults" 
+											action="#{courseMembersBean.loadCourseInstructors()}" />
+					                     <div class="form-group">
+					                        <label>Search</label>    
+					                        <h:inputText 
+					                        	id="inputInstructorSearch"
+					                        	value="#{courseMembersBean.instructorSearchTerm}"
+					                        	pt:placeholder=" Start typing..."
+					                        	styleClass="form-control"
+					                        	onclick="$(this).select();" 
+									    		onkeydown="searchListener(execInstructorSearch);">
+					                        </h:inputText>
+					                     </div>
+					               </div>
+					           </div>
+				               <h:panelGroup layout="block" id="instructorSearchResults" styleClass="modal-body userList">
+				                  <table width="100%" border="0" cellspacing="0" cellpadding="0">
+				                     <ui:repeat var="instructor" value="#{courseMembersBean.courseInstructors}">
+				                     	<tr>
+				                        	<td>
+					                        	<div class="userInfo">
+					                           	<span class="userProfileImage">
+					                           		<h:graphicImage value="#{instructor.avatarUrl}"
+														title="#{instructor.name}" alt="#{instructor.name}" />
+					                           	</span>
+					                              #{instructor.name}		                           
+					                           </div>
+					                        </td>
+					                        <td class="affiliation">
+					                        	#{instructor.position}
+					                        </td>
+					                        <td>
+					                        	<span class="assigned #{instructor.full ? full : ''}" 
+					                        		data-toggle="tooltip" data-placement="top" title="Assigned/Limit">
+					                        		#{instructor.numberOfAssignedStudents}/#{instructor.maxNumberOfStudents}
+					                        	</span>
+					                        </td>
+					                        <td class="assign">
+					                        	<ui:fragment rendered="#{!instructor.full}">
+					                        		<p:commandLink 
+					                        			value="Select"
+					                        			styleClass="btn btn-default"
+					                        			pt:role="button"
+					                        			action="#{courseMembersBean.assignInstructorToStudent(instructor)}"
+					                        			update=":studentListForm"
+					                        			oncomplete="$('#assignInstructorModal').modal('hide');">	
+					                        		</p:commandLink>
+					                        	</ui:fragment>
+					                        	
+					                        	<ui:fragment rendered="#{instructor.full}">
+					                        		Load limit reached
+					                        	</ui:fragment>
+					                        </td>
+					                     </tr>
+				                     </ui:repeat>                                                     
+				                                                               
+				                  </table>
+				
+				               </h:panelGroup>
+				            </h:panelGroup>
+				         </div>
+      				</div>
+		</h:form></ui:remove>
 
 	</ui:define>
 </ui:composition>

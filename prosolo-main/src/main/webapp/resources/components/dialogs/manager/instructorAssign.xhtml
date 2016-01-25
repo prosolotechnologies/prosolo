@@ -1,0 +1,97 @@
+<ui:component
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+	<composite:interface>
+		<composite:attribute name="title" required="true" />
+		<composite:attribute name="bean" required="true" />
+		<composite:attribute name="searchListener" required="true" />
+		<composite:attribute name="instructorList" required="true" />
+		<composite:attribute name="updateRegion" required="true" />
+	</composite:interface>
+	
+	<composite:implementation>
+	
+		<h:form id="modalForm">
+			<div id = "assignInstructorModal" class="modal fade assignInstructor" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+				         <div class="modal-dialog">
+				            <h:panelGroup layout="block" id="assignInstructorModalContent" styleClass="modal-content">
+				               <div class="modal-header"> <button aria-label="Close" data-dismiss="modal" class="close" type="button"><span aria-hidden="true">×</span></button> 
+				               	<h4 id="myLargeModalLabel" class="modal-title">#{cc.attrs.title}</h4> </div>
+				               <div class="row narrow filterModal">
+					               	<div class="col-md-12">
+			                  			<p:remoteCommand name="execInstructorSearch" 
+											process="inputInstructorSearch"
+											update=":#{cc.attrs.id}:modalForm:instructorSearchResults" 
+											action="#{cc.attrs.bean.loadCourseInstructors()}" />
+					                     <div class="form-group">
+					                        <label>Search</label>    
+					                        <h:inputText 
+					                        	id="inputInstructorSearch"
+					                        	value="#{cc.attrs.bean.instructorSearchTerm}"
+					                        	pt:placeholder=" Start typing..."
+					                        	styleClass="form-control"
+					                        	onclick="$(this).select();" 
+									    		onkeydown="#{cc.attrs.searchListener}(execInstructorSearch);">
+					                        </h:inputText>
+					                     </div>
+					               </div>
+					           </div>
+				               <h:panelGroup layout="block" id="instructorSearchResults" styleClass="modal-body userList">
+				                  <table width="100%" border="0" cellspacing="0" cellpadding="0">
+				                     <ui:repeat var="instructor" value="#{cc.attrs.instructorList}">
+				                     	<tr>
+				                        	<td>
+					                        	<div class="userInfo">
+					                           	<span class="userProfileImage">
+					                           		<h:graphicImage value="#{instructor.avatarUrl}"
+														title="#{instructor.name}" alt="#{instructor.name}" />
+					                           	</span>
+					                              #{instructor.name}		                           
+					                           </div>
+					                        </td>
+					                        <td class="affiliation">
+					                        	#{instructor.position}
+					                        </td>
+					                        <td>
+					                        	<span class="assigned #{instructor.full ? full : ''}" 
+					                        		data-toggle="tooltip" data-placement="top" title="Assigned/Limit">
+					                        		#{instructor.numberOfAssignedStudents}/#{instructor.maxNumberOfStudents}
+					                        	</span>
+					                        </td>
+					                        <td class="assign">
+					                        	<ui:fragment rendered="#{!instructor.full}">
+					                        		<p:commandLink 
+					                        			value="Select"
+					                        			styleClass="btn btn-default"
+					                        			pt:role="button"
+					                        			action="#{cc.attrs.bean.selectInstructor(instructor)}"
+					                        			update="#{cc.attrs.updateRegion}"
+					                        			oncomplete="$('#assignInstructorModal').modal('hide');">	
+					                        		</p:commandLink>
+					                        	</ui:fragment>
+					                        	
+					                        	<ui:fragment rendered="#{instructor.full}">
+					                        		Load limit reached
+					                        	</ui:fragment>
+					                        </td>
+					                     </tr>
+				                     </ui:repeat>                                                     
+				                                                               
+				                  </table>
+				
+				               </h:panelGroup>
+				            </h:panelGroup>
+				         </div>
+      				</div>
+		</h:form>
+	</composite:implementation>
+</ui:component>

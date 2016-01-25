@@ -104,7 +104,6 @@ $(function () {
     }        
 	})*/
 	
-	
 	/* show search results if something is typed in search field */
 	$('.searchPanel input.form-control').on('keyup', function(event) {
 		 $('.searchResults').first().stop(true, true).slideDown(10);
@@ -121,6 +120,21 @@ $(function () {
 	$('[data-toggle="tooltip"]').tooltip();
 });
 
+/*  show and hide search results if something is typed in search field */
+function showInstructorSearchResults() {
+//	var length = $('.acField').val().length;
+//	//alert(length);
+//	if( (length > 0 && instructorSearchPreviousLength == 0) 
+//			|| (length === 0 && instructorSearchPreviousLength != 0)) {
+//		$('#instructorSearchResultsDropdown').dropdown("toggle");
+//	}
+//	instructorSearchPreviousLength = $('.acField').val().length;
+	if( $('.acField').val().length === 0 ) {
+		$('.acPanel').first().stop(true, true).slideUp(10);
+	} else if($('.acField').val().length >= 1) {
+		$('.acPanel').first().stop(true, true).slideDown(10);
+	}
+}
 
 //added from custom.js
 var context = '';

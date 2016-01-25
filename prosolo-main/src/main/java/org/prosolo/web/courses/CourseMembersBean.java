@@ -17,7 +17,10 @@ import org.prosolo.search.TextSearch;
 import org.prosolo.search.util.CourseMembersSortField;
 import org.prosolo.search.util.CourseMembersSortOption;
 import org.prosolo.search.util.InstructorAssignedFilter;
+import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.web.courses.data.CourseInstructorData;
 import org.prosolo.web.courses.data.UserData;
 import org.prosolo.web.courses.util.pagination.PaginationLink;
 import org.prosolo.web.courses.util.pagination.Paginator;
@@ -42,6 +45,8 @@ public class CourseMembersBean implements Serializable {
 	private UrlIdEncoder idEncoder;
 	@Inject
 	private TextSearch textSearch;
+	@Inject
+	private CourseManager courseManager;
 
 	// PARAMETERS
 	private String id;
@@ -57,6 +62,11 @@ public class CourseMembersBean implements Serializable {
 	private int numberOfPages;
 	private InstructorAssignedFilter instructorAssignedFilter = InstructorAssignedFilter.All;
 	private boolean filterUnassigned;
+	
+	private List<CourseInstructorData> courseInstructors;
+	private UserData userToAssignInstructor;
+	
+	private String instructorSearchTerm = "";
 
 	public void init() {
 		decodedId = idEncoder.decodeId(id);
@@ -148,6 +158,44 @@ public class CourseMembersBean implements Serializable {
 		}
 	}
 	
+	public void loadCourseInstructors(UserData user) {
+		userToAssignInstructor = user;
+		setInstructorSearchTerm("");
+		loadCourseInstructors();
+	}
+	
+	public void loadCourseInstructors() {
+		courseInstructors = new ArrayList<>();
+		Map<String, Object> searchResponse = textSearch.searchInstructors(instructorSearchTerm, 
+				-1, -1, decodedId, SortingOption.ASC, null);
+		
+		if (searchResponse != null) {
+			List<Map<String, Object>> data = (List<Map<String, Object>>) searchResponse.get("data");
+			if(data != null) {
+				for (Map<String, Object> resMap : data) {
+					courseInstructors.add(new CourseInstructorData(resMap));
+				}
+			}
+		}
+	}
+	
+	//assign student to an instructor
+	public void selectInstructor(CourseInstructorData instructor) {
+		try {
+			courseManager.assignInstructorToStudent(userToAssignInstructor.getId(), instructor.getInstructorId(),
+				decodedId);
+			UserData instructorData = new UserData();
+			instructorData.setFullName(instructor.getName());
+			instructorData.setId(instructor.getInstructorId());
+			userToAssignInstructor.setInstructor(instructorData);
+			userToAssignInstructor = null;
+			courseInstructors = null;
+			PageUtil.fireSuccessfulInfoMessage("Instructor successfully assigned");
+		} catch(DbConnectionException e) {
+			PageUtil.fireErrorMessage(e.getMessage());
+		}
+	}
+	
 	public void filterCourseMembers() {
 		this.page = 1;
 		if(filterUnassigned) {
@@ -159,11 +207,11 @@ public class CourseMembersBean implements Serializable {
 	}
 	
 	public boolean isCurrentPageFirst() {
-		return page == 1;
+		return page == 1 || numberOfPages == 0;
 	}
 	
 	public boolean isCurrentPageLast() {
-		return page == numberOfPages;
+		return page == numberOfPages || numberOfPages == 0;
 	}
 	
 	public void setSortByStudentName() {
@@ -297,6 +345,29 @@ public class CourseMembersBean implements Serializable {
 	public void setFilterUnassigned(boolean filterAssigned) {
 		this.filterUnassigned = filterAssigned;
 	}
-	
+
+	public List<CourseInstructorData> getCourseInstructors() {
+		return courseInstructors;
+	}
+
+	public void setCourseInstructors(List<CourseInstructorData> courseInstructors) {
+		this.courseInstructors = courseInstructors;
+	}
+
+	public UserData getUserToAssignInstructor() {
+		return userToAssignInstructor;
+	}
+
+	public void setUserToAssignInstructor(UserData userToAssignInstructor) {
+		this.userToAssignInstructor = userToAssignInstructor;
+	}
+
+	public String getInstructorSearchTerm() {
+		return instructorSearchTerm;
+	}
+
+	public void setInstructorSearchTerm(String instructorSearchTerm) {
+		this.instructorSearchTerm = instructorSearchTerm;
+	}
 	
 }

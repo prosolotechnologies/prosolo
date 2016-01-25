@@ -10,22 +10,8 @@ public class CourseMembersSortOptionTranslator {
 	public static ESSortOption getSortOption(CourseMembersSortOption sortOption) {
 	    ESSortOption esSortOption = new ESSortOption();
 		
-		SortOrder sortOrder = null;
-		if(sortOption.getSortOption() == null) {
-			sortOrder = SortOrder.ASC;
-		} else {
-			switch (sortOption.getSortOption()) {
-			case ASC:
-				sortOrder = SortOrder.ASC;
-				break;
-			case DESC:
-				sortOrder = SortOrder.DESC;
-				break;
-			default:
-				sortOrder = SortOrder.ASC;
-				break;
-			}
-		}
+		SortOrder sortOrder = ESSortOrderTranslator.getSortOrder(sortOption.getSortOption());
+		
 		esSortOption.setSortOrder(sortOrder);
 		
 		List<String> sortFieldList = new LinkedList<>();

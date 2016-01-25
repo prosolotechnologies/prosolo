@@ -8,11 +8,11 @@ var socialInteractionService = (function() {
 			course: item.courseid,
 			source: {
 				student: item.student,
-				cluster: item.clusterid
+				cluster: item.cluster
 			},
 			target: {
 				student: interaction.target,
-				cluster: item.clusterid
+				cluster: item.cluster
 			},
 			count: interaction.count,
 			avatar: item.avatar,
@@ -23,11 +23,11 @@ var socialInteractionService = (function() {
 	function outerInteraction(item, interaction, isSource) {
 		var a = {
 			student: item.student,
-			cluster: item.clusterid
+			cluster: item.cluster
 		};
 		var b = {
 			student: interaction.target,
-			cluster: interaction.clusterid
+			cluster: interaction.cluster
 		};
 		return {
 			course: item.courseid,
@@ -55,8 +55,37 @@ var socialInteractionService = (function() {
 		]);
 	}
 
+	function unique(array) {
+		return array.reduce(function(acc, e) {
+			if(acc.indexOf(e) < 0)
+				acc.push(e);
+			return acc;
+		}, []);
+	}
+
+	function students(clusterInteractions, outerInteractions) {
+		var students = clusterInteractions.map(function(item) {
+			return item.student;
+		});
+		students = students.concat(outerInteractions.map(function(item) {
+			return item.student;
+		}));
+		students = students.concat(flatten(clusterInteractions.map(function(item) {
+			return item.interactions.map(function(interaction) {
+				return interaction.target;
+			});
+		})));
+		students = students.concat(flatten(outerInteractions.map(function(item) {
+			return item.interactions.map(function(interaction) {
+				return interaction.target;
+			});
+		})));
+		return unique(students);
+	}
+
 	return {
-		denormalize: denormalize
+		denormalize: denormalize,
+		students : students
 	};
 
 })();

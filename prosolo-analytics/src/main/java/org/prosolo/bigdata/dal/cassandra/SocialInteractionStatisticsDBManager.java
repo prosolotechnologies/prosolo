@@ -7,6 +7,8 @@ import com.datastax.driver.core.Row;
 import org.prosolo.bigdata.common.dal.pojo.SocialInteractionCount;
 import org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl;
 
+import com.datastax.driver.core.Row;
+
 public interface SocialInteractionStatisticsDBManager {
 
 	List<SocialInteractionCount> getSocialInteractionCounts(Long courseid);
@@ -22,4 +24,9 @@ public interface SocialInteractionStatisticsDBManager {
 
 	void insertOutsideClusterInteractions(Long timestamp, Long course,  Long student,Long cluster, String direction,
 										 List<String> interactions);
+
+	List<SocialIneractionsCount> getClusterInteractions(Long course);
+
+	List<SocialIneractionsCount> getOuterInteractions(Long course, Long student);
+
 }

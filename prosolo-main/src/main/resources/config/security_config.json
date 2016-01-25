@@ -117,8 +117,7 @@
             "name": "student.assign.instructor",
             "description": "Assign a student to an instructor",
             "roles": [
-                "Manager",
-                "Instructor"
+                "Manager"
             ]
         },
         {
