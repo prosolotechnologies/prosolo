@@ -46,7 +46,7 @@ public class VideoUtils {
 	}
 	
 	public static boolean isEmbedableVideo(String videoLink){
-		if( videoLink != null && (videoLink.contains("www.youtube.com")
+		if( videoLink != null && (videoLink.contains("youtube.com")
 				|| (videoLink.contains("vimeo.com")))){
 			return true;
 		}else 
