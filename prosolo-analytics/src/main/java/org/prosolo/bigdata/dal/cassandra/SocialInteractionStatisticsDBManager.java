@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.datastax.driver.core.Row;
+import org.prosolo.bigdata.common.dal.pojo.SocialIneractionsCount;
 import org.prosolo.bigdata.common.dal.pojo.SocialInteractionCount;
 import org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl;
 
