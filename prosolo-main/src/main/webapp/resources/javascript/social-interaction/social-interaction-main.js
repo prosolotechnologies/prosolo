@@ -6,18 +6,19 @@ $(function () {
 		host: root.dataset.api,
 		courseId : root.dataset.courseId,
 		studentId : root.dataset.studentId,
-		width : 1024,
-		height : 768,
+		width : $("#social").width(),
+		height : 700,
 		selector : "#social-interaction #graph",
 		charge : -60,
-		distance : 150,
+		distance : 250,
 		clusterMain : "main",
 		clusters : ["one", "two", "three", "four", "five", "six"],
-		focusMain : {x: 0, y: 0},
+		focusMain : {x: $("#social").width() / 2, y: 350},
 		focusPoints : [
-			{x: 500, y: 0},
-			{x: 0, y: 500},
-			{x: 500, y: 500}
+			{x: 0, y: 0},
+			{x: $("#social").width(), y: 0},
+			{x: 0, y: 700},
+			{x: $("#social").width(), y: 700}
 		],
 		relations : [
 			{ lower: 0, upper: 33, type: "twofive" },
