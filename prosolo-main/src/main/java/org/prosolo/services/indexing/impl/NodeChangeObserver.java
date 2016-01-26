@@ -40,7 +40,12 @@ public class NodeChangeObserver extends EventObserver {
 			EventType.Registered,
 			EventType.Attach,
 			EventType.Edit_Profile,
-			EventType.ENROLL_COURSE
+			EventType.ENROLL_COURSE,
+			EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR,
+			EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR,
+			EventType.INSTRUCTOR_ASSIGNED_TO_COURSE,
+			EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR,
+			EventType.USER_ROLES_UPDATED
 		};
 	}
 

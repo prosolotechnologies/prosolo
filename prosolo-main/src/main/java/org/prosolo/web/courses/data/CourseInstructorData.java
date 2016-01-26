@@ -33,6 +33,10 @@ public class CourseInstructorData {
 		this.position = (String) instructorMap.get("position");
 		this.maxNumberOfStudents = (int) instructorMap.get("maxNumberOfStudents");
 		this.numberOfAssignedStudents = (int) instructorMap.get("numberOfAssignedStudents");
+		Long instructorUserId = (Long) instructorMap.get("userId");
+		if(instructorUserId != null) {
+			this.userId = instructorUserId;
+		}
 	}
 	
 	public void setFullName(String name, String lastName) {

@@ -3,6 +3,7 @@ package org.prosolo.web.courses;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -12,16 +13,24 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CourseInstructor;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.search.TextSearch;
+import org.prosolo.services.event.EventException;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.data.BasicUserData;
 import org.prosolo.web.courses.data.CourseInstructorData;
 import org.prosolo.web.util.PageUtil;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 @ManagedBean(name = "instructorEditBean")
@@ -37,6 +46,9 @@ public class InstructorEditBean implements Serializable {
 	@Inject private CourseManager courseManager;
 	@Inject private TextSearch textSearch;
 	@Inject private RoleManager roleManager;
+	@Inject private LoggedUserBean loggedUserBean;
+	@Inject private EventFactory eventFactory;
+	@Inject @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 	
 	// PARAMETERS
 	private String id;
@@ -176,6 +188,41 @@ public class InstructorEditBean implements Serializable {
 		try {
 			courseManager.updateStudentsAssignedToInstructor(instructor.getInstructorId(), decodedCourseId,
 					usersToAssign, usersToUnassign);
+			
+			taskExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					Map<String, String> parameters = new HashMap<String, String>();
+					parameters.put("courseId", decodedCourseId + "");
+					
+					for(Long userId : usersToAssign) {
+						try {
+							User target = new User();
+							target.setId(instructor.getUserId());
+							User object = new User();
+							object.setId(userId);
+							eventFactory.generateEvent(EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR, loggedUserBean.getUser(), object, target, 
+									null, null, null, parameters);
+						} catch (EventException e) {
+							logger.error(e);
+						}
+					}
+					
+					for(Long userId : usersToUnassign) {
+						try {
+							User target = new User();
+							target.setId(instructor.getInstructorId());
+							User object = new User();
+							object.setId(userId);
+							eventFactory.generateEvent(EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR, loggedUserBean.getUser(), object, target, 
+									null, null, null, parameters);
+						} catch (EventException e) {
+							logger.error(e);
+						}
+					}
+					
+				}
+			});
 			int numberOfAssigned = instructor.getNumberOfAssignedStudents();
 			instructor.setNumberOfAssignedStudents(numberOfAssigned + numberOfCurrentlySelectedUsers);
 			numberOfCurrentlySelectedUsers = 0;
@@ -200,6 +247,22 @@ public class InstructorEditBean implements Serializable {
 			}
 			CourseInstructor courseInstructor = courseManager.assignInstructorToCourse(instructor.getUserId(), 
 					decodedCourseId, numberOfStudents);
+			taskExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					Course course = new Course();
+					course.setId(decodedCourseId);
+					User instr = new User();
+					instr.setId(instructor.getUserId());
+					try {
+						eventFactory.generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_COURSE, loggedUserBean.getUser(), instr, course, 
+								null, null, null, null);
+					} catch (EventException e) {
+							logger.error(e);
+					}
+				}
+			});
+			
 			instructor.setInstructorId(courseInstructor.getId());
 			instructor.setMaxNumberOfStudents(courseInstructor.getMaxNumberOfStudents());
 		} catch(Exception e) {

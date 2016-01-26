@@ -14,18 +14,23 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.search.TextSearch;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.data.BasicUserData;
 import org.prosolo.web.courses.data.CourseInstructorData;
 import org.prosolo.web.courses.data.ExtendedUserData;
 import org.prosolo.web.courses.data.InstructorStudentsData;
 import org.prosolo.web.search.data.SortingOption;
 import org.prosolo.web.util.PageUtil;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 @ManagedBean(name = "studentReassignBean")
@@ -40,6 +45,9 @@ public class StudentReassignBean implements Serializable {
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private CourseManager courseManager;
 	@Inject private TextSearch textSearch;
+	@Inject private LoggedUserBean loggedUserBean;
+	@Inject private EventFactory eventFactory;
+	@Inject @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 	
 	// PARAMETERS
 	private String id;
@@ -155,6 +163,34 @@ public class StudentReassignBean implements Serializable {
 					instructorsForUpdate.add(instructorForUpdate);
 				}
 			}
+			taskExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					Map<String, String> parameters = new HashMap<String, String>();
+					parameters.put("courseId", decodedCourseId + "");
+					parameters.put("reassignedFromInstructorId", instructor.getInstructorId() + "");
+					
+					for(Entry<Long, InstructorStudentsData> entry : instructorsWithReassignedStudents.entrySet()) {
+						InstructorStudentsData inst = entry.getValue();
+						if(inst.getStudentsToAssign() != null) {
+							for(long id : inst.getStudentsToAssign()) {
+								try {
+									User target = new User();
+									target.setId(inst.getInstructor().getUserId());
+									User object = new User();
+									object.setId(id);
+									eventFactory.generateEvent(EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR, loggedUserBean.getUser(), object, target, 
+											null, null, null, parameters);
+								} catch(Exception e) {
+									logger.error(e);
+								}
+							}
+						}
+						
+					}			
+				}
+			});
+			
 			courseManager.updateStudentsAssignedToInstructors(instructorsForUpdate);
 		} catch(DbConnectionException e) {
 			PageUtil.fireErrorMessage(e.getMessage());

@@ -4,16 +4,21 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.OrganizationalUnit;
 import org.prosolo.common.domainmodel.organization.Role;
@@ -21,6 +26,7 @@ import org.prosolo.common.domainmodel.organization.Unit_User;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
@@ -29,10 +35,13 @@ import org.prosolo.web.administration.data.RoleData;
 import org.prosolo.web.administration.data.UnitData;
 import org.prosolo.web.administration.data.UnitUserData;
 import org.prosolo.web.administration.data.UserData;
+import org.prosolo.web.courses.data.InstructorStudentsData;
 import org.prosolo.web.util.PageUtil;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 @ManagedBean(name = "units")
@@ -48,6 +57,8 @@ public class UnitsBean implements Serializable {
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private RoleManager roleManager;
 	@Autowired private UserManager userManager;
+	@Inject private EventFactory eventFactory;
+	@Inject @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 
 	@SuppressWarnings("unused")
 	private boolean editMode;
@@ -262,7 +273,18 @@ public class UnitsBean implements Serializable {
 		if (this.selectedRoles != null) {
 			try {
 				User user = roleManager.updateUserRoles(userToEdit.getId(), selectedRoles);
-				
+				taskExecutor.execute(new Runnable() {
+					@Override
+					public void run() {
+						try{
+							eventFactory.generateEvent(EventType.USER_ROLES_UPDATED, loggedUser.getUser(), user, null, 
+								null, null, null, null);
+						} catch(Exception e) {
+							logger.error(e);
+						}
+								
+					}
+				});
 				if (user.equals(loggedUser.getUser())) {
 					loggedUser.refreshUser();
 					//loggedUser.initializeRoles(user);

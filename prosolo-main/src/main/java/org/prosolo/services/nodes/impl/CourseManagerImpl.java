@@ -1221,7 +1221,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	public Map<String, Object> getCourseInstructor(long userId, long courseId) throws DbConnectionException {
 		try {
 			String query = 
-					"SELECT courseInstructor.id, instructor.avatarUrl, instructor.name, instructor.lastname, " +
+					"SELECT courseInstructor.id, instructor.avatarUrl, instructor.id, instructor.name, instructor.lastname, " +
 					"instructor.position, courseInstructor.maxNumberOfStudents, size(courseEnrollment) " +
 					"FROM CourseInstructor courseInstructor " +
 					"INNER JOIN courseInstructor.user instructor " +
@@ -1241,14 +1241,16 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 						if(instructorId != null) {
 							resMap = new LinkedHashMap<>();
 							String avatarUrl = (String) result[1];
-							String firstName = (String) result[2];
-							String lastName = (String) result[3];
-							String position = (String) result[4];
-							int maxNumberOfStudents = (int) result[5];
-							int numberOfAssignedStudents = (int) result[6];
+							long instructorUserId = (Long) result[2];
+							String firstName = (String) result[3];
+							String lastName = (String) result[4];
+							String position = (String) result[5];
+							int maxNumberOfStudents = (int) result[6];
+							int numberOfAssignedStudents = (int) result[7];
 							
 							resMap.put("instructorId", instructorId);
 							resMap.put("avatarUrl", avatarUrl);
+							resMap.put("userId", instructorUserId);
 							resMap.put("firstName", firstName);
 							resMap.put("lastName", lastName);
 							resMap.put("position", position);
