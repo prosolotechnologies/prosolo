@@ -34,7 +34,7 @@ import scala.collection.mutable._
   * Zoran 22/11/15
   */
 class UsersClustering  {
-  val dbManager = new UserObservationsDBManagerImpl()
+ // val dbManager = new UserObservationsDBManagerImpl()
 
 //val courseId:Long=0//we are still not taking account of this value. It should be fixed in Cassandra DAO
 
@@ -72,10 +72,14 @@ class UsersClustering  {
     evaluateFeaturesQuartiles()
     val usersQuartilesFeatures: Predef.Map[Long, Array[Double]] =  usersFeatures.transform((userid, userFeatures)=>transformUserFeaturesToFeatureQuartiles(userid, userFeatures))
     prepareSequenceFile(usersQuartilesFeatures)
-    runClustering()
-
+    //runClustering()
+  if(runClustering()){
     readAndProcessClusters(usersQuartilesFeatures, startDateSinceEpoch, endDateSinceEpoch, courseId)
     outputResults("******************************************************************************************")
+  }else{
+    println("there was no data in cluster")
+  }
+
     // runClustering(date)
   }
 
@@ -88,7 +92,7 @@ class UsersClustering  {
     * @return
     */
   def mapUserObservationsForDateToRows(date: Long, courseId:Long) = {
-    val rows: java.util.List[Row] = dbManager.findAllUsersProfileObservationsForDate(date, courseId)
+    val rows: java.util.List[Row] = UserObservationsDBManagerImpl.getInstance().findAllUsersProfileObservationsForDate(date, courseId)
     rows.asScala.toList
   }
 
@@ -166,19 +170,25 @@ class UsersClustering  {
     * We are running clustering with selected algorithm
     */
 
-  def runClustering() {
+  def runClustering():Boolean= {
 
     HadoopUtil.delete(ClusteringUtils.conf, ClusteringUtils.output)
     val measure = new CosineDistanceMeasure()
     val clustersIn = new Path(ClusteringUtils.output, "random-seeds")
+    var success=true;
     RandomSeedGenerator.buildRandom(ClusteringUtils.conf, ClusteringUtils.datapath, clustersIn, ClusteringUtils.numClusters, measure)
     val convergenceDelta = 0.01
     val maxIterations = 50
     val clusterClassificationThreshold = 0.0
     val m: Float = 0.01f
     if (ClusteringUtils.algorithmType == AlgorithmType.KMeans) {
+      try{
+        KMeansDriver.run(ClusteringUtils.conf, ClusteringUtils.datapath, clustersIn, ClusteringUtils.output, convergenceDelta, maxIterations, true, clusterClassificationThreshold, true)
+      }catch{
+        case ise: IllegalStateException=>
+          success=false;
+      }
 
-      KMeansDriver.run(ClusteringUtils.conf, ClusteringUtils.datapath, clustersIn, ClusteringUtils.output, convergenceDelta, maxIterations, true, clusterClassificationThreshold, true)
     } else if (ClusteringUtils.algorithmType == AlgorithmType.Canopy) {
       CanopyDriver.run(ClusteringUtils.conf, clustersIn, ClusteringUtils.output, new EuclideanDistanceMeasure(), 20, 5, false, clusterClassificationThreshold, false)
     } else if (ClusteringUtils.algorithmType == AlgorithmType.FuzzyKMeans) {
@@ -186,7 +196,7 @@ class UsersClustering  {
     }
 
     // CanopyDriver.run(conf, datapath, clustersIn, output, convergenceDelta, maxIterations, true, 0.0, true)
-
+    success
   }
 
   /**
@@ -249,7 +259,7 @@ class UsersClustering  {
           feature => FeatureQuartiles.matchQuartileValueToQuartileName(feature)
         }.mkString(",")
 
-        dbManager.insertUserQuartileFeaturesByWeek(courseId, clusterProfile, endDateSinceEpoch, userid, sequence);
+        UserObservationsDBManagerImpl.getInstance().insertUserQuartileFeaturesByWeek(courseId, clusterProfile, endDateSinceEpoch, userid, sequence);
         println("course:" + courseId + " cluster-name:" + clusterProfile + " userid:" + userid + " date:" + endDateSinceEpoch + " sequence:" + userQuartilesSequence.map {
           feature => FeatureQuartiles.matchQuartileValueToQuartileName(feature)
         }.mkString(","))

@@ -21,10 +21,10 @@ public class StreamingManagerImpl {
 	public void initializeStreaming() {
 		logger.info("Initialize streaming");
 		// boolean format = true;
-		CassandraDDLManagerImpl client = new CassandraDDLManagerImpl();
+		//CassandraDDLManagerImpl client = new CassandraDDLManagerImpl();
 		String dbName = Settings.getInstance().config.dbConfig.dbServerConfig.dbName
 				+ CommonSettings.getInstance().config.getNamespaceSufix();
-		client.checkIfTablesExistsAndCreate(dbName);
+		CassandraDDLManagerImpl.getInstance().checkIfTablesExistsAndCreate(dbName);
 
 		StreamConsumerManager.getInstance().getEventDispatcher()
 				.registerObserver(new LogEventsPersisterObserver());

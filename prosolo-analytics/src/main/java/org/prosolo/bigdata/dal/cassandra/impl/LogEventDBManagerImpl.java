@@ -22,9 +22,16 @@ public class LogEventDBManagerImpl extends SimpleCassandraClientImpl implements
 		LogEventDBManager {
 	HashMap<String, PreparedStatement> preparedStatements = new HashMap<String, PreparedStatement>();
 
-	public LogEventDBManagerImpl() {
+	private LogEventDBManagerImpl() {
 		super();
 		this.prepareStatements();
+	}
+
+	public static class LogEventDBManagerImplHolder {
+		public static final LogEventDBManagerImpl INSTANCE = new LogEventDBManagerImpl();
+	}
+	public static LogEventDBManagerImpl getInstance() {
+		return LogEventDBManagerImplHolder.INSTANCE;
 	}
 
 	private void prepareStatements() {

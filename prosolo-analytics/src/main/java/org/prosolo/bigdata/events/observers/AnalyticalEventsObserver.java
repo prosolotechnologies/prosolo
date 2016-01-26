@@ -33,9 +33,9 @@ import com.google.gson.JsonObject;
  */
 
 public class AnalyticalEventsObserver implements EventObserver {
-	private AnalyticalEventDBManager dbManager = new AnalyticalEventDBManagerImpl();
-	private UserActivityStatisticsDBManager uasDBManager = new UserActivityStatisticsDBManagerImpl();
-	private TwitterHashtagStatisticsDBManager twitterDbManager = new TwitterHashtagStatisticsDBManagerImpl();
+	//private AnalyticalEventDBManager dbManager =  AnalyticalEventDBManagerImpl.getInstance();
+	//private UserActivityStatisticsDBManager uasDBManager = new UserActivityStatisticsDBManagerImpl();
+	//private TwitterHashtagStatisticsDBManager twitterDbManager = new TwitterHashtagStatisticsDBManagerImpl();
 	
 	HashtagsUpdatesBuffer$ hashtagsUpdatesBuffer = HashtagsUpdatesBuffer$.MODULE$;
 	TwitterUsersStreamsManager$ twitterUsersStreamManager = TwitterUsersStreamsManager$.MODULE$;
@@ -58,25 +58,25 @@ public class AnalyticalEventsObserver implements EventObserver {
 			AnalyticsEvent analyticsEvent = (AnalyticsEvent) event;
 			Gson g = new Gson();
 			if (analyticsEvent.getDataType().equals(DataType.COUNTER)) {
-				dbManager.updateAnalyticsEventCounter(analyticsEvent);
+				AnalyticalEventDBManagerImpl.getInstance().updateAnalyticsEventCounter(analyticsEvent);
 			} else if (analyticsEvent.getDataType().equals(DataType.RECORD)) {
 				if (analyticsEvent.getDataName().equals(DataName.INSTANCELOGGEDUSERSCOUNT)) {
 					JsonObject data = analyticsEvent.getData();
 					String instance = data.get("instance").getAsString();
 					Long timestamp = data.get("timestamp").getAsLong();
 					Long count = data.get("count").getAsLong();
-					uasDBManager.updateInstanceLoggedUsersCount(new InstanceLoggedUsersCount(instance, timestamp, count));
+					UserActivityStatisticsDBManagerImpl.getInstance().updateInstanceLoggedUsersCount(new InstanceLoggedUsersCount(instance, timestamp, count));
 				} else if (analyticsEvent.getDataName().equals(DataName.DISABLEDHASHTAGS)) {
 					JsonObject data = analyticsEvent.getData();
 					String hashtag = data.get("hashtag").getAsString();
 					String action = data.get("action").getAsString();
 					if ("disable".equals(action)) {
-						twitterDbManager.disableTwitterHashtag(hashtag);
+						TwitterHashtagStatisticsDBManagerImpl.getInstance().disableTwitterHashtag(hashtag);
 					} else {
-						twitterDbManager.enableTwitterHashtag(hashtag);
+						TwitterHashtagStatisticsDBManagerImpl.getInstance().enableTwitterHashtag(hashtag);
 					}
 				} else {
-					dbManager.insertAnalyticsEventRecord(analyticsEvent);
+					AnalyticalEventDBManagerImpl.getInstance().insertAnalyticsEventRecord(analyticsEvent);
 				}
 			} else if (analyticsEvent.getDataType().equals(DataType.PROCESS)) {
 				System.out.println("EVENT:" + g.toJson(analyticsEvent));
@@ -90,11 +90,11 @@ public class AnalyticalEventsObserver implements EventObserver {
 				String[] newhashtags = isBlank(newhashtagsData) ? new String[] {} : newhashtagsData.split(",");
 				
 				for (String removedTag : subtract(oldhashtags, newhashtags)) {
-					twitterDbManager.decrementTwitterHashtagUsersCount(removedTag);
+					TwitterHashtagStatisticsDBManagerImpl.getInstance().decrementTwitterHashtagUsersCount(removedTag);
 				}
 				
 				for (String addedTag : subtract(newhashtags, oldhashtags)) {
-					twitterDbManager.incrementTwitterHashtagUsersCount(addedTag);
+					TwitterHashtagStatisticsDBManagerImpl.getInstance().incrementTwitterHashtagUsersCount(addedTag);
 				}
 				
 				} else if (analyticsEvent.getDataName().equals(

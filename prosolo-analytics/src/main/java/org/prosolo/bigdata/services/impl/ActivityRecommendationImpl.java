@@ -15,7 +15,7 @@ import org.prosolo.bigdata.services.ActivityRecommendation;
  */
 
 public class ActivityRecommendationImpl implements ActivityRecommendation {
-	AnalyzedResultsDBManager dbManager = new AnalyzedResultsDBmanagerImpl();
+	//AnalyzedResultsDBManager dbManager = new AnalyzedResultsDBmanagerImpl();
 	ESAssociationRulesSearch esSearch = new ESAssociationRulesSearchImpl();
 
 	@Override
@@ -23,7 +23,7 @@ public class ActivityRecommendationImpl implements ActivityRecommendation {
 			Long competenceId, List<Long> alreadyAddedActivities, int limit) {
 		List<ActivityAccessCount> frequentActivities = null;
 		if (alreadyAddedActivities.isEmpty()) {
-			frequentActivities = dbManager
+			frequentActivities = AnalyzedResultsDBmanagerImpl.getInstance()
 					.findFrequentCompetenceActivities(competenceId);
 		} else {
 			frequentActivities = esSearch

@@ -60,7 +60,7 @@ public class JavaxXmlStreamFeedParser implements FeedParser, Serializable {
 	
 	// Sun, 07 Jun 2015 15:36:59 +0000
 	private String dateFormat = "EEE, dd MMM yyyy HH:mm:ss X";
-	private AnalyticalEventDBManager eventDBManager=new AnalyticalEventDBManagerImpl();
+	//private AnalyticalEventDBManager eventDBManager=new AnalyticalEventDBManagerImpl();
 	
 	public FeedData readFeed(String feedUrl, Date fromDate) {
 		logger.info("Parsing RSS feed entries from the feed: " + feedUrl);
@@ -230,7 +230,7 @@ public class JavaxXmlStreamFeedParser implements FeedParser, Serializable {
 		Map<String,Object> properties=new HashMap<String,Object>();
 		properties.put("url", url);
 		properties.put("date", DateUtil.getDaysSinceEpoch());
-		eventDBManager.updateGenericCounter(DataName.FAILEDFEEDS, properties);
+		AnalyticalEventDBManagerImpl.getInstance().updateGenericCounter(DataName.FAILEDFEEDS, properties);
 	}
 	
 	private String getCharacterData(XMLEvent event, XMLEventReader eventReader) throws XMLStreamException {

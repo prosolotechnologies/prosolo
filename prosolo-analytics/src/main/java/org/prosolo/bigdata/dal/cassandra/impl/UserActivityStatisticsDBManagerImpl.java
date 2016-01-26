@@ -38,6 +38,15 @@ public class UserActivityStatisticsDBManagerImpl extends SimpleCassandraClientIm
 		FIND_INSTANCE_LOGGED_USERS_COUNT,
 		DELETE_FROM_INSTANCE_LOGGED_USERS_COUNT
 	}
+	private UserActivityStatisticsDBManagerImpl(){
+		super();
+	}
+	public static class UserActivityStatisticsDBManagerImplHolder {
+		public static final UserActivityStatisticsDBManagerImpl INSTANCE = new UserActivityStatisticsDBManagerImpl();
+	}
+	public static UserActivityStatisticsDBManagerImpl getInstance() {
+		return UserActivityStatisticsDBManagerImplHolder.INSTANCE;
+	}
 
 	static {
 		statements.put(FIND_USER_EVENT_COUNT_FOR_PERIOD, "SELECT * FROM usereventdailycount WHERE date>=? AND date<=? AND event=? ALLOW FILTERING;");

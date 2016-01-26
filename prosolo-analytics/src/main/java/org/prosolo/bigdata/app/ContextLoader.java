@@ -31,7 +31,7 @@ public class ContextLoader implements ServletContextListener {
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
 		System.out.println("CONTEXT INITIALIZATION");
-		CassandraDDLManagerImpl dbManager = new CassandraDDLManagerImpl();
+		CassandraDDLManagerImpl dbManager = CassandraDDLManagerImpl.getInstance();
 		if (Settings.getInstance().config.initConfig.formatDB) {
 			String dbName = Settings.getInstance().config.dbConfig.dbServerConfig.dbName
 					+ CommonSettings.getInstance().config.getNamespaceSufix();

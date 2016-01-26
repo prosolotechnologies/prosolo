@@ -15,11 +15,11 @@ import scala.collection.JavaConverters._
 class CompetenceActivitiesAssociationRules {
   def analyzeCompetenceActivitesAssociationRules(): Unit ={
     val sc=SparkContextLoader.getSC
-    val eventDBManager = new AnalyticalEventDBManagerImpl
+    //val eventDBManager = new AnalyticalEventDBManagerImpl
     //val dbManager = new AnalyzedResultsDBmanagerImpl
    // val indexer = new AssociationRulesIndexerImpl
     val associationRulesAnalyzer=new CompetenceActivitiesAssociationRulesAnalyzer
-    val competences = eventDBManager.findAllCompetences
+    val competences = AnalyticalEventDBManagerImpl.getInstance().findAllCompetences
     val competencesRDD=sc.parallelize(competences.asScala)
     competencesRDD.foreach{
       competence=>

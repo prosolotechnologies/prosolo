@@ -22,9 +22,9 @@ import java.util.*;
  */
 
 public class LogEventsPersisterObserver implements EventObserver {
-	private LogEventDBManager dbManager = new LogEventDBManagerImpl();
-	private UserObservationsDBManager userObservationsDBManager=new UserObservationsDBManagerImpl();
-	private AnalyticalEventDBManager analyticalDBManager=new AnalyticalEventDBManagerImpl();
+	//private LogEventDBManager dbManager = new LogEventDBManagerImpl();
+	//private UserObservationsDBManager userObservationsDBManager=new UserObservationsDBManagerImpl();
+	//private AnalyticalEventDBManager analyticalDBManager=new AnalyticalEventDBManagerImpl();
 
 	@Override
 	public Topic[] getSupportedTopics() {
@@ -41,14 +41,14 @@ public class LogEventsPersisterObserver implements EventObserver {
 	public void handleEvent(DefaultEvent event) {
 		if (event instanceof LogEvent) {
 			LogEvent logEvent = (LogEvent) event;
-			dbManager.insertLogEvent(logEvent);
+			LogEventDBManagerImpl.getInstance().insertLogEvent(logEvent);
 			if(logEvent.getTargetUserId()>0){
 				Set<Long> courses=new HashSet<Long>();
 
 				if(logEvent.getCourseId()==0){
-					Set<Long> actorCourses=userObservationsDBManager.findAllUserCourses(logEvent.getActorId());
+					Set<Long> actorCourses=UserObservationsDBManagerImpl.getInstance().findAllUserCourses(logEvent.getActorId());
 					courses.addAll(actorCourses);
-					Set<Long> targetUserCourses=userObservationsDBManager.findAllUserCourses(logEvent.getTargetUserId());
+					Set<Long> targetUserCourses=UserObservationsDBManagerImpl.getInstance().findAllUserCourses(logEvent.getTargetUserId());
 					courses.addAll(targetUserCourses);
 				}else{
 					courses.add(logEvent.getCourseId());
@@ -59,7 +59,7 @@ public class LogEventsPersisterObserver implements EventObserver {
 						data.put("course", courseId);
 						data.put("source", logEvent.getActorId());
 						data.put("target", logEvent.getTargetUserId());
-						analyticalDBManager.updateGenericCounter(DataName.SOCIALINTERACTIONCOUNT,data);
+						AnalyticalEventDBManagerImpl.getInstance().updateGenericCounter(DataName.SOCIALINTERACTIONCOUNT,data);
 					/*System.out.println("OBSERVED LOG EVENT:"+event.getEventType()
 							+" actor:"+logEvent.getActorId()
 							+" with Target UserID:"+logEvent.getTargetUserId()

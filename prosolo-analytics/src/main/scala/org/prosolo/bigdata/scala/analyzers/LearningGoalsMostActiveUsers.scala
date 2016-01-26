@@ -25,10 +25,10 @@ import scala.collection.mutable.ArrayBuffer
 class LearningGoalsMostActiveUsers {
 
   def analyzeLearningGoalsMostActiveUsersForDay(daysSinceEpoch:Long)={
-    val dbManager = new AnalyticalEventDBManagerImpl;
+    //val dbManager = new AnalyticalEventDBManagerImpl;
     println("analyzeLearningGoalsMostActiveUsersForDay")
     val sc=SparkContextLoader.getSC
-    val activitiesCounters = dbManager.findUserLearningGoalActivitiesByDate(daysSinceEpoch);
+    val activitiesCounters = AnalyticalEventDBManagerImpl.getInstance().findUserLearningGoalActivitiesByDate(daysSinceEpoch);
    val activitiesCountersRDD:RDD[UserLearningGoalActivitiesCount]= sc.parallelize(activitiesCounters.asScala)
     val actCountersByLearningGoals:RDD[(Long,Iterable[UserLearningGoalActivitiesCount])]=activitiesCountersRDD.groupBy{
       counter:UserLearningGoalActivitiesCount=>
@@ -64,14 +64,14 @@ class LearningGoalsMostActiveUsers {
         event.setDataName(DataName.MOSTACTIVEUSERSFORLEARNINGGOALBYDATE)
         event.setDataType(DataType.RECORD)
         event.setData(data)
-        dbManager.insertAnalyticsEventRecord(event)
+        AnalyticalEventDBManagerImpl.getInstance().insertAnalyticsEventRecord(event)
 
     };
 
   }
   def analyzeLearningGoalsMostActiveUsersForWeek(): Unit ={
     println("NOT IMPLEMENTED YET")
-    val dbManager = new AnalyticalEventDBManagerImpl
+
     val indexer = new RecommendationDataIndexerImpl
     val daysSinceEpoch=DateUtil.getDaysSinceEpoch()
     val daysToAnalyze=daysSinceEpoch-7 to daysSinceEpoch
@@ -79,7 +79,7 @@ class LearningGoalsMostActiveUsers {
     val daysToAnalyzeRDD=sc.parallelize(daysToAnalyze)
     val mostActiveUsersByDateRDD:RDD[(Long,mutable.Buffer[MostActiveUsersForLearningGoal])]=daysToAnalyzeRDD.map{
       date=>
-      val mostActiveUsersList:mutable.Buffer[MostActiveUsersForLearningGoal]=dbManager.findMostActiveUsersForGoalsByDate(date).asScala
+      val mostActiveUsersList:mutable.Buffer[MostActiveUsersForLearningGoal]=AnalyticalEventDBManagerImpl.getInstance().findMostActiveUsersForGoalsByDate(date).asScala
         (date,mostActiveUsersList)
     }
     val mostActiveUsersByDateRDDGrouped=mostActiveUsersByDateRDD.groupByKey()

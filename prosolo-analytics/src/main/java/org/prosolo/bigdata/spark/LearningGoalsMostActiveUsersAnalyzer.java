@@ -70,11 +70,11 @@ public class LearningGoalsMostActiveUsersAnalyzer implements Serializable {
 			final long daysSinceEpoch) {
 
 		// final long daysSinceEpoch =16574;
-		final AnalyticalEventDBManager dbManager = new AnalyticalEventDBManagerImpl();
+		//final AnalyticalEventDBManager dbManager = new AnalyticalEventDBManagerImpl();
 		System.out.println("AnalyzeLearningGoalsMostActiveUsersForDay");
 		JavaSparkContext javaSparkContext = SparkLauncher.getSparkContext();
 		System.out.println("GOT JAVA SPARK CONTEXT");
-		List<UserLearningGoalActivitiesCount> activitiesCounters = dbManager
+		List<UserLearningGoalActivitiesCount> activitiesCounters = AnalyticalEventDBManagerImpl.getInstance()
 				.findUserLearningGoalActivitiesByDate(daysSinceEpoch);
 		JavaRDD<UserLearningGoalActivitiesCount> activitiesCountersRDD = javaSparkContext
 				.parallelize(activitiesCounters);
@@ -149,7 +149,7 @@ public class LearningGoalsMostActiveUsersAnalyzer implements Serializable {
 						event.setDataType(DataType.RECORD);
 						event.setData(data);
 
-						dbManager.insertAnalyticsEventRecord(event);
+						AnalyticalEventDBManagerImpl.getInstance().insertAnalyticsEventRecord(event);
 
 					}
 				});
@@ -157,7 +157,7 @@ public class LearningGoalsMostActiveUsersAnalyzer implements Serializable {
 
 	public void analyzeLearningGoalsMostActiveUsersForWeek() {
 
-		final AnalyticalEventDBManager dbManager = new AnalyticalEventDBManagerImpl();
+		//final AnalyticalEventDBManager dbManager = new AnalyticalEventDBManagerImpl();
 		final long daysSinceEpoch = DateUtil.getDaysSinceEpoch();
 		final RecommendationDataIndexer indexer = new RecommendationDataIndexerImpl();
 		List<Long> daysToAnalyze = new ArrayList<Long>();
@@ -174,7 +174,7 @@ public class LearningGoalsMostActiveUsersAnalyzer implements Serializable {
 					@Override
 					public List<MostActiveUsersForLearningGoal> call(Long date)
 							throws Exception {
-						List<MostActiveUsersForLearningGoal> mostActiveUsersForDate = dbManager
+						List<MostActiveUsersForLearningGoal> mostActiveUsersForDate = AnalyticalEventDBManagerImpl.getInstance()
 								.findMostActiveUsersForGoalsByDate(date);
 							return mostActiveUsersForDate;
 					}

@@ -26,9 +26,15 @@ public class UserSessionDBManagerImpl extends SimpleCassandraClientImpl implemen
 	private static final String USER_LOGOUT_QUERY_NAME = "logoutUser";
 	private static final String USER_MOST_RECENT_SESSION_QUERY_NAME = "findUserMostRecentLogin";
 
-	public UserSessionDBManagerImpl() {
+	private UserSessionDBManagerImpl() {
 		super();
 		this.prepareStatements();
+	}
+	public static class UserSessionDBManagerImplHolder {
+		public static final UserSessionDBManagerImpl INSTANCE = new UserSessionDBManagerImpl();
+	}
+	public static UserSessionDBManagerImpl getInstance() {
+		return UserSessionDBManagerImplHolder.INSTANCE;
 	}
 
 	@Override

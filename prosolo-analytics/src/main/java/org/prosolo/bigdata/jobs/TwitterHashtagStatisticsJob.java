@@ -15,25 +15,25 @@ import org.quartz.JobExecutionException;
 
 public class TwitterHashtagStatisticsJob implements Job {
 
-	TwitterHashtagStatisticsDBManager dbManager = new TwitterHashtagStatisticsDBManagerImpl();
+	//TwitterHashtagStatisticsDBManager dbManager = new TwitterHashtagStatisticsDBManagerImpl();
 
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		long to = DateUtil.getDaysSinceEpoch();
 		long from = to - 7;
-		List<TwitterHashtagDailyCount> counts = dbManager.getTwitterHashtagDailyCounts(from, to);
+		List<TwitterHashtagDailyCount> counts =TwitterHashtagStatisticsDBManagerImpl.getInstance().getTwitterHashtagDailyCounts(from, to);
 		Map<String, Long> result = new HashMap<String, Long>();
 		for (TwitterHashtagDailyCount count : counts) {
 			Long current = result.get(count.getHashtag());
 			result.put(count.getHashtag(), count.getCount() + (current == null ? 0 : current));
 		}
 		for (String hashtag : result.keySet()) {
-			dbManager.updateTwitterHashtagWeeklyAverage(to, hashtag, result.get(hashtag).doubleValue() / 7);
+			TwitterHashtagStatisticsDBManagerImpl.getInstance().updateTwitterHashtagWeeklyAverage(to, hashtag, result.get(hashtag).doubleValue() / 7);
 		}
-		List<String> invalidCounts = dbManager.getTwitterHashtagUsersCount().stream().filter((c) -> c.getUsers() <= 0)
+		List<String> invalidCounts = TwitterHashtagStatisticsDBManagerImpl.getInstance().getTwitterHashtagUsersCount().stream().filter((c) -> c.getUsers() <= 0)
 				.map((c) -> c.getHashtag()).collect(Collectors.toList());
 		for (String hashtag : invalidCounts) {
-			dbManager.deleteTwitterHashtagUsersCount(hashtag);
+			TwitterHashtagStatisticsDBManagerImpl.getInstance().deleteTwitterHashtagUsersCount(hashtag);
 		}
 	}
 

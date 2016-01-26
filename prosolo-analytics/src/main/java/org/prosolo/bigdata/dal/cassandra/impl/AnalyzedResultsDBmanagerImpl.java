@@ -29,9 +29,16 @@ public class AnalyzedResultsDBmanagerImpl extends SimpleCassandraClientImpl
 	static HashMap<String, PreparedStatement> preparedStatements = new HashMap<String, PreparedStatement>();
 	HashMap<String, String> queries = new HashMap<String, String>();
 
-	public AnalyzedResultsDBmanagerImpl() {
+	private AnalyzedResultsDBmanagerImpl() {
 		super();
 		this.prepareStatements();
+	}
+
+	public static class AnalyzedResultsDBmanagerImplHolder {
+		public static final AnalyzedResultsDBmanagerImpl INSTANCE = new AnalyzedResultsDBmanagerImpl();
+	}
+	public static AnalyzedResultsDBmanagerImpl getInstance() {
+		return AnalyzedResultsDBmanagerImplHolder.INSTANCE;
 	}
 
 	public HashMap<String, PreparedStatement> getPreparedStatements() {

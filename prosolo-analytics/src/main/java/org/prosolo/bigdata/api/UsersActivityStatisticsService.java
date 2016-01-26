@@ -36,7 +36,7 @@ public class UsersActivityStatisticsService {
 	
 	private final Logger logger = LoggerFactory.getLogger(UsersActivityStatisticsService.class);
 
-	private UserActivityStatisticsDBManager dbManager = new UserActivityStatisticsDBManagerImpl();
+	//private UserActivityStatisticsDBManager dbManager = new UserActivityStatisticsDBManagerImpl();
 	
 	private Date parse(String date) throws ParseException {
 		return new SimpleDateFormat("dd.MM.yyyy. Z").parse(date);
@@ -51,9 +51,9 @@ public class UsersActivityStatisticsService {
 		long oneWeekAgo = today - 6;
 		long twoWeeksAgo = today - 13;
 		
-		List<EventDailyCount> counts = dbManager.getEventDailyCounts(event);
-		List<EventDailyCount> currentWeekCounts = dbManager.getEventDailyCounts(event, oneWeekAgo, today);
-		List<EventDailyCount> previousWeekCounts = dbManager.getEventDailyCounts(event, twoWeeksAgo, oneWeekAgo - 1);
+		List<EventDailyCount> counts = UserActivityStatisticsDBManagerImpl.getInstance().getEventDailyCounts(event);
+		List<EventDailyCount> currentWeekCounts = UserActivityStatisticsDBManagerImpl.getInstance().getEventDailyCounts(event, oneWeekAgo, today);
+		List<EventDailyCount> previousWeekCounts = UserActivityStatisticsDBManagerImpl.getInstance().getEventDailyCounts(event, twoWeeksAgo, oneWeekAgo - 1);
 		
 		long sumCounts = sumCounts(counts);
 		
@@ -75,8 +75,8 @@ public class UsersActivityStatisticsService {
 		long oneWeekAgo = today - 6;
 		long twoWeeksAgo = oneWeekAgo - 13;
 		
-		List<UserEventDailyCount> currentWeekCounts = dbManager.getUserEventDailyCounts(event, oneWeekAgo, today);
-		List<UserEventDailyCount> previousWeekCounts = dbManager.getUserEventDailyCounts(event, twoWeeksAgo, oneWeekAgo - 1);
+		List<UserEventDailyCount> currentWeekCounts = UserActivityStatisticsDBManagerImpl.getInstance().getUserEventDailyCounts(event, oneWeekAgo, today);
+		List<UserEventDailyCount> previousWeekCounts = UserActivityStatisticsDBManagerImpl.getInstance().getUserEventDailyCounts(event, twoWeeksAgo, oneWeekAgo - 1);
 		int sumCurrent = distinctCount(currentWeekCounts);
 		int sumPrevious = distinctCount(previousWeekCounts);
 		
@@ -107,7 +107,7 @@ public class UsersActivityStatisticsService {
 		logger.debug("Service 'getSessionData' called.");
 		Calendar lastHour = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 		lastHour.add(Calendar.HOUR, -1);
-		List<InstanceLoggedUsersCount> counts = dbManager.getInstanceLoggedUsersCounts(lastHour.getTimeInMillis());
+		List<InstanceLoggedUsersCount> counts =UserActivityStatisticsDBManagerImpl.getInstance().getInstanceLoggedUsersCounts(lastHour.getTimeInMillis());
 		Map<String, String> result = new HashMap<String, String>();
 		result.put("loggedIn", String.valueOf(sumInstanceLoggedUsersCount(counts)));
 		return ResponseUtils.corsOk(result);
@@ -132,7 +132,7 @@ public class UsersActivityStatisticsService {
 		List<EventDailyCount> counts = new ArrayList<EventDailyCount>();
 		
 		for (String statistic : statistics) {
-			List<EventDailyCount> count = dbManager.getEventDailyCounts(statistic, daysFrom, daysTo);
+			List<EventDailyCount> count = UserActivityStatisticsDBManagerImpl.getInstance().getEventDailyCounts(statistic, daysFrom, daysTo);
 			if(Period.DAY.equals(Period.valueOf(period))) {
 				counts.addAll(count);			
 			} else {

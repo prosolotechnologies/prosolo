@@ -13,7 +13,7 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 
 public class UserSessionObserver implements EventObserver {
 	
-	private UserSessionDBManager userSesseionDBManager = new UserSessionDBManagerImpl();
+	//private UserSessionDBManager userSesseionDBManager = new UserSessionDBManagerImpl();
 
 	@Override
 	public Topic[] getSupportedTopics() {
@@ -29,10 +29,10 @@ public class UserSessionObserver implements EventObserver {
 	public void handleEvent(DefaultEvent event) {
 		LogEvent logEvent = (LogEvent) event;
 		if(logEvent.getEventType().equals(EventType.LOGIN)) {
-			userSesseionDBManager.userSessionStarted(logEvent.getActorId(), logEvent.getTimestamp());
+			UserSessionDBManagerImpl.getInstance().userSessionStarted(logEvent.getActorId(), logEvent.getTimestamp());
 		}
 		else {
-			userSesseionDBManager.userSessionEnded(logEvent.getActorId(), logEvent.getTimestamp(),
+			UserSessionDBManagerImpl.getInstance().userSessionEnded(logEvent.getActorId(), logEvent.getTimestamp(),
 					logEvent.getEventType().name());
 		}
 	}

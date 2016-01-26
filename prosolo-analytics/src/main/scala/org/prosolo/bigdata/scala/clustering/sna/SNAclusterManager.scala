@@ -39,7 +39,7 @@ val edgesToRemove=5
     val timestamp=System.currentTimeMillis()
    // val allCourses=clusteringDAOManager.getAllCoursesIds
     allCourses.foreach(courseid=> {
-      println("RUNNING CLUSTERING FOR COURSE:" + courseid)
+      println("RUNNING SNA FAKE CLUSTERING FOR COURSE:" + courseid)
       identifyClustersInCourse(timestamp,courseid)
       updateTimestamp(timestamp)
     })
@@ -50,7 +50,7 @@ def identifyClusters(): Unit ={
     val clusteringDAOManager=new ClusteringDAOImpl
   val allCourses=clusteringDAOManager.getAllCoursesIds
   allCourses.asScala.foreach(courseid=> {
-    println("RUNNING CLUSTERING FOR COURSE:" + courseid)
+    println("RUNNING SNA CLUSTERING FOR COURSE:" + courseid)
     identifyClustersInCourse(timestamp, courseid)
     updateTimestamp(timestamp)
   })

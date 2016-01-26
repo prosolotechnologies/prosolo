@@ -14,7 +14,7 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
  */
 @Deprecated
 public class UserActionAnalyzer implements EventAnalyzer {
-	UserObservationsDBManager dbManager = new UserObservationsDBManagerImpl();
+	//UserObservationsDBManager dbManager = new UserObservationsDBManagerImpl();
 
 	@Override
 	public void analyzeLogEvent(LogEvent event) {
@@ -64,7 +64,7 @@ public class UserActionAnalyzer implements EventAnalyzer {
 		default:
 			break;
 		}
-		dbManager.updateUserObservationsCounter(date, userid, login, lmsuse, resourceview, discussionview);
+		UserObservationsDBManagerImpl.getInstance().updateUserObservationsCounter(date, userid, login, lmsuse, resourceview, discussionview);
 	}
 
 }

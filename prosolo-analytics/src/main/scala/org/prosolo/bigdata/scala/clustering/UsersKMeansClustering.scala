@@ -31,7 +31,6 @@ import scala.collection.JavaConverters._
  */
 @deprecated
 object UsersKMeansClustering {
-  val dbManager = new UserObservationsDBManagerImpl()
   val clustersDir = "clustersdir"
   val vectorsDir = clustersDir + "/users"
   val outputDir: String = clustersDir + "/output"
@@ -53,7 +52,7 @@ object UsersKMeansClustering {
     }
     val vectors = new ListBuffer[NamedVector]
 
-    val rows: java.util.List[Row] = dbManager.findAllUsersObservationsForDate(date)
+    val rows: java.util.List[Row] = UserObservationsDBManagerImpl.getInstance().findAllUsersObservationsForDate(date)
 
     rows.asScala.foreach { row =>
       //creating dense vector for each user observation

@@ -320,7 +320,7 @@ public class CronSchedulerImpl implements CronScheduler {
 			TriggerBuilder tb = TriggerBuilder.newTrigger();
 			tb.forJob(jobKey);
 			tb.withIdentity(jobClassName+"_startup","job");
-			tb.startAt(DateBuilder.futureDate(2, DateBuilder.IntervalUnit.MINUTE));
+			tb.startAt(DateBuilder.futureDate(15, DateBuilder.IntervalUnit.SECOND));
 			Trigger trigger=tb.build();
 
 			sched.addJob(jobDetails, true);

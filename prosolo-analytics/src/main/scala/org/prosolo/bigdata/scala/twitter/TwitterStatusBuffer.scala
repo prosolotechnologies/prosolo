@@ -97,8 +97,8 @@ object TwitterStatusBuffer {
      session.getTransaction().commit()
     session.close();
     val day = DateUtil.getDaysSinceEpoch;
-    val twitterHashtagStatisticsDBManager:TwitterHashtagStatisticsDBManager=new TwitterHashtagStatisticsDBManagerImpl
-  	twitterHashtags.map { hashtag => twitterHashtagStatisticsDBManager.updateTwitterHashtagDailyCount(hashtag, day) };
+    //val twitterHashtagStatisticsDBManager:TwitterHashtagStatisticsDBManager=new TwitterHashtagStatisticsDBManagerImpl
+  	twitterHashtags.map { hashtag => TwitterHashtagStatisticsDBManagerImpl.getInstance().updateTwitterHashtagDailyCount(hashtag, day) };
      if(twitterPostSocialActivity !=null){
        val parameters:java.util.Map[String,String]=new java.util.HashMap[String,String]()
        parameters.put("socialActivityId", twitterPostSocialActivity.getId.toString())

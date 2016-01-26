@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagDailyCount;
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagUsersCount;
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagWeeklyAverage;
+import org.prosolo.bigdata.dal.cassandra.SocialInteractionStatisticsDBManager;
 import org.prosolo.bigdata.dal.cassandra.TwitterHashtagStatisticsDBManager;
 
 import com.datastax.driver.core.BoundStatement;
@@ -57,8 +58,16 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 	private static final Map<Statements, PreparedStatement> prepared = new ConcurrentHashMap<Statements, PreparedStatement>();
 	
 	private static final Map<Statements, String> statements = new HashMap<Statements, String>();
-	
-	
+
+	private TwitterHashtagStatisticsDBManagerImpl(){
+		super();
+	}
+	public static class TwitterHashtagStatisticsDBManagerImplHolder {
+		public static final TwitterHashtagStatisticsDBManagerImpl INSTANCE = new TwitterHashtagStatisticsDBManagerImpl();
+	}
+	public static TwitterHashtagStatisticsDBManagerImpl getInstance() {
+		return TwitterHashtagStatisticsDBManagerImplHolder.INSTANCE;
+	}
 	static {
 		statements.put(FIND_SPECIFIC_TWITTER_HASHTAG_COUNT_FOR_PERIOD, "SELECT * FROM twitterhashtagdailycount WHERE date>=? AND date<=? AND hashtag=?;");
 		statements.put(FIND_TWITTER_HASHTAG_COUNT_FOR_PERIOD, "SELECT * FROM twitterhashtagdailycount WHERE date>=? AND date<=? ALLOW FILTERING;");

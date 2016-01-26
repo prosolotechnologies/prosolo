@@ -6,6 +6,7 @@ import java.util.List;
 import org.prosolo.bigdata.config.DBServerConfig;
 import org.prosolo.bigdata.config.Settings;
 import org.prosolo.bigdata.dal.cassandra.CassandraDDLManager;
+import org.prosolo.bigdata.dal.cassandra.SocialInteractionStatisticsDBManager;
 import org.prosolo.common.config.CommonSettings;
 
 import com.datastax.driver.core.Cluster;
@@ -27,10 +28,17 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 	String dbName = Settings.getInstance().config.dbConfig.dbServerConfig.dbName
 			+ CommonSettings.getInstance().config.getNamespaceSufix();
 
-	public CassandraDDLManagerImpl() {
+	private CassandraDDLManagerImpl() {
 		this.createDDLs();
 		this.connectCluster();
 		this.checkIfTablesExistsAndCreate(this.dbName);
+	}
+
+	public static class CassandraDDLManagerImplHolder {
+		public static final CassandraDDLManagerImpl INSTANCE = new CassandraDDLManagerImpl();
+	}
+	public static CassandraDDLManagerImpl getInstance() {
+		return CassandraDDLManagerImplHolder.INSTANCE;
 	}
 
 	private void createDDLs() {

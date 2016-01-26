@@ -21,9 +21,16 @@ implements Serializable, UserObservationsDBManager{
 	HashMap<String, String> queries = new HashMap<String, String>();
 	ObservationType[] observationTypes=ObservationType.class.getEnumConstants();
 
-	public UserObservationsDBManagerImpl() {
+	private UserObservationsDBManagerImpl() {
 		super();
 		this.prepareStatements();
+	}
+
+	public static class UserObservationsDBManagerImplHolder {
+		public static final UserObservationsDBManagerImpl INSTANCE = new UserObservationsDBManagerImpl();
+	}
+	public static UserObservationsDBManagerImpl getInstance() {
+		return UserObservationsDBManagerImplHolder.INSTANCE;
 	}
  
 	

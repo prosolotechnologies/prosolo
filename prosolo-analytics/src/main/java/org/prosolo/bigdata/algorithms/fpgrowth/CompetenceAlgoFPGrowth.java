@@ -31,8 +31,8 @@ import org.prosolo.bigdata.es.AssociationRulesIndexerImpl;
 public class CompetenceAlgoFPGrowth {
 	private static Logger logger = Logger
 			.getLogger(CompetenceAlgoFPGrowth.class);
-	AnalyticalEventDBManager dbManager = new AnalyticalEventDBManagerImpl();
-	final AnalyzedResultsDBManager analyzeddbManager = new AnalyzedResultsDBmanagerImpl();
+	//AnalyticalEventDBManager dbManager = new AnalyticalEventDBManagerImpl();
+	//final AnalyzedResultsDBManager analyzeddbManager = new AnalyzedResultsDBmanagerImpl();
 	AssociationRulesIndexer esIndexer = new AssociationRulesIndexerImpl();
 	private long competenceId;
 	private long startTimestamp; // start time of the latest execution
@@ -106,7 +106,7 @@ public class CompetenceAlgoFPGrowth {
 		// of each item
 		// The frequency is stored in a map:
 		// key: item value: support
-		List<TargetCompetenceActivities> tCompActivities = dbManager
+		List<TargetCompetenceActivities> tCompActivities = AnalyticalEventDBManagerImpl.getInstance()
 				.findAllActivitiesByTargetCompetenceForCompetence(competenceId);
 		final Map<Long, Integer> mapSupport = scanDatabaseToDetermineFrequencyOfSingleItems(tCompActivities);
 

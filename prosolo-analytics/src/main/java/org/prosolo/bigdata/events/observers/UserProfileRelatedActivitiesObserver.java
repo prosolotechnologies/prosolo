@@ -24,7 +24,7 @@ import org.prosolo.bigdata.scala.clustering.EventsChecker$;
 public class UserProfileRelatedActivitiesObserver implements EventObserver{
 	
 	EventsChecker$ eventsChecker=EventsChecker$.MODULE$;
-	UserObservationsDBManager dbManager=new UserObservationsDBManagerImpl();
+	//UserObservationsDBManager dbManager=new UserObservationsDBManagerImpl();
 	EventType[] supportedTypes=null;
  
 
@@ -52,20 +52,20 @@ public class UserProfileRelatedActivitiesObserver implements EventObserver{
 		long courseid=logEvent.getCourseId();
 		if(logEvent.getEventType().equals(EventType.ENROLL_COURSE)){
 			courseid=logEvent.getTargetId();
-			dbManager.enrollUserToCourse(userid,courseid);
+			UserObservationsDBManagerImpl.getInstance().enrollUserToCourse(userid,courseid);
 		}else if(logEvent.getEventType().equals(EventType.COURSE_WITHDRAWN)){
 			courseid=logEvent.getTargetId();
-			dbManager.withdrawUserFromCourse(userid, courseid);
+			UserObservationsDBManagerImpl.getInstance().withdrawUserFromCourse(userid, courseid);
 		}
 		if(eventsChecker.isEventObserved(logEvent)){
 			 ObservationType observationType=eventsChecker.getObservationType(logEvent);
 			 long date = DateUtil.getDaysSinceEpoch(logEvent.getTimestamp());
 			if(courseid>0){
-				dbManager.updateUserProfileActionsObservationCounter(date, userid, courseid, observationType);
+				UserObservationsDBManagerImpl.getInstance().updateUserProfileActionsObservationCounter(date, userid, courseid, observationType);
 			}else{
-				Set<Long> courses=dbManager.findAllUserCourses(userid);
+				Set<Long> courses=UserObservationsDBManagerImpl.getInstance().findAllUserCourses(userid);
 				 for(Long course:courses){
-					 dbManager.updateUserProfileActionsObservationCounter(date, userid, course, observationType);
+					 UserObservationsDBManagerImpl.getInstance().updateUserProfileActionsObservationCounter(date, userid, course, observationType);
 				 }
 			}
 		}

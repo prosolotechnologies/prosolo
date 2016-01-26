@@ -39,9 +39,16 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 	static HashMap<String, PreparedStatement> preparedStatements = new HashMap<String, PreparedStatement>();
 	HashMap<String, String> queries = new HashMap<String, String>();
 
-	public AnalyticalEventDBManagerImpl() {
+	private AnalyticalEventDBManagerImpl() {
 		super();
 		this.prepareStatements();
+	}
+
+	public static class AnalyticalEventDBManagerImplHolder {
+		public static final AnalyticalEventDBManagerImpl INSTANCE = new AnalyticalEventDBManagerImpl();
+	}
+	public static AnalyticalEventDBManagerImpl getInstance() {
+		return AnalyticalEventDBManagerImplHolder.INSTANCE;
 	}
 
 	public HashMap<String, PreparedStatement> getPreparedStatements() {

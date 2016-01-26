@@ -26,7 +26,7 @@ import scala.collection.JavaConversions._
   * Zoran 05/12/15
   */
 class HmmClustering {
-  val dbManager = new UserObservationsDBManagerImpl()
+ // val dbManager = new UserObservationsDBManagerImpl()
 
   //val dateFormat: SimpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
   //val startDate: Date = dateFormat.parse("10/20/2014")
@@ -46,12 +46,16 @@ class HmmClustering {
       val sequences:List[List[ObservationDiscrete[QuartileName]]]=getClusterCourseSequences(clusterName, courseId)
       val initHmm:Hmm[ObservationDiscrete[QuartileName]]=new Hmm[ObservationDiscrete[QuartileName]](nStates,initFactory)
       val mBwl:BaumWelchLearner=new BaumWelchLearner
+    if(sequences.size>0){
       val learntHmm:Hmm[ObservationDiscrete[QuartileName]]=mBwl.learn(initHmm, sequences)
       learntHmmModels.put(clusterName,learntHmm)
     }
+
+    }
+
   }
   def getClusterCourseSequences(clusterName:ClusterName.Value, courseId:Long):List[List[ObservationDiscrete[QuartileName]]]={
-    val  results:util.List[Row]=dbManager.findAllUserQuartileFeaturesForCourseAndProfile(courseId, clusterName.toString)
+    val  results:util.List[Row]=UserObservationsDBManagerImpl.getInstance().findAllUserQuartileFeaturesForCourseAndProfile(courseId, clusterName.toString)
     val sequences:List[List[ObservationDiscrete[QuartileName]]]=new util.ArrayList[List[ObservationDiscrete[QuartileName]]]()
     results.toList.foreach{
       row=>
@@ -68,7 +72,7 @@ class HmmClustering {
     val sequences:List[List[ObservationDiscrete[QuartileName]]]=new util.ArrayList[List[ObservationDiscrete[QuartileName]]]()
     ClusterName.values.foreach(clusterName=>
     {
-      val  results:util.List[Row]=dbManager.findAllUserQuartileFeaturesForCourseProfileAndWeek(courseId, clusterName.toString, endDateSinceEpoch)
+      val  results:util.List[Row]=UserObservationsDBManagerImpl.getInstance().findAllUserQuartileFeaturesForCourseProfileAndWeek(courseId, clusterName.toString, endDateSinceEpoch)
       println("FOUND TEST SEQUENCES:"+courseId+" cluster:"+clusterName.toString+" end date:"+endDateSinceEpoch+" size:"+results.size())
       results.toList.foreach{
         row=>
