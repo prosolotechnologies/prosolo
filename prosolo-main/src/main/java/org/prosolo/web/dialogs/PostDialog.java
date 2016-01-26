@@ -38,7 +38,7 @@ import org.springframework.stereotype.Component;
 
 @ManagedBean(name = "postDialogBean")
 @Component("postDialogBean")
-@Scope("session")
+@Scope("view")
 public class PostDialog implements Serializable {
 
 	private static final long serialVersionUID = 4857479281675041602L;
@@ -72,14 +72,14 @@ public class PostDialog implements Serializable {
 	@PostConstruct
 	public void init() {
 		learningContextData = new LearningContextData();
+		learningContextData.setService("name:POST_DIALOG");
 		logger.debug("Initializing managed bean " + this.getClass().getSimpleName());
 	}
 
 	/*
 	 * ACTIONS
 	 */
-	public void preparePostDialog(String text, final String link, final String context, String page,
-			String learningContext, String service) {
+	public void preparePostDialog(String text, final String link, final String context) {
 		reset();
 		
 		if (text != null && link != null) {
@@ -91,9 +91,8 @@ public class PostDialog implements Serializable {
 
 			this.context = context;
 			
-			this.learningContextData.setPage(page);
-			this.learningContextData.setContext(learningContext);
-			this.learningContextData.setService(service);
+			this.learningContextData.setPage(PageUtil.getPostParameter("page"));
+			this.learningContextData.setContext(PageUtil.getPostParameter("learningContext"));
 			
 			taskExecutor.execute(new Runnable() {
 				@Override
@@ -121,18 +120,16 @@ public class PostDialog implements Serializable {
 //		this.activity = new ActivityData(activity);
 //	}
 
-	public void preparePostDialogForResourceById(long resourceId, String context, String page,
-			String learningContext, String service) {
+	public void preparePostDialogForResourceById(long resourceId, String context) {
 		try {
 			Node resource = defaultUser.loadResource(Node.class, resourceId, true);
-			preparePostDialogForResource(resource, context, page, learningContext, service);
+			preparePostDialogForResource(resource, context);
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		}
 	}
 	
-	public void preparePostDialogForResource(final Node resource, final String context,
-			String page, String learningContext, String service) {
+	public void preparePostDialogForResource(final Node resource, final String context) {
 		reset();
 		
 		this.resourceToShare = resource;
@@ -147,9 +144,8 @@ public class PostDialog implements Serializable {
 
 		this.context = context;
 		
-		this.learningContextData.setPage(page);
-		this.learningContextData.setContext(learningContext);
-		this.learningContextData.setService(service);
+		this.learningContextData.setPage(PageUtil.getPostParameter("page"));
+		this.learningContextData.setContext(PageUtil.getPostParameter("learningContext"));
 		
 		taskExecutor.execute(new Runnable() {
 			@Override
@@ -164,19 +160,17 @@ public class PostDialog implements Serializable {
 	}
 	
 
-	public void preparePostDialogForSocialActivityById(final long socialActivityId, final String context,
-			String page, String learningContext, String service) {
+	public void preparePostDialogForSocialActivityById(final long socialActivityId, final String context) {
 		try {
 			SocialActivity socialActivity = defaultUser.loadResource(SocialActivity.class, socialActivityId);
-			preparePostDialog(socialActivity, context, page, learningContext, service);
+			preparePostDialog(socialActivity, context);
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		}
 	}
 	
 	//changed for new context approach
-	public void preparePostDialog(final SocialActivity socialActivity, final String context, String page,
-			String learningContext, String service) {
+	public void preparePostDialog(final SocialActivity socialActivity, final String context) {
 		reset();
 		
 		if (socialActivity != null) {
@@ -191,9 +185,8 @@ public class PostDialog implements Serializable {
 			
 			this.context = context;
 			
-			this.learningContextData.setPage(page);
-			this.learningContextData.setContext(learningContext);
-			this.learningContextData.setService(service);
+			this.learningContextData.setPage(PageUtil.getPostParameter("page"));
+			this.learningContextData.setContext(PageUtil.getPostParameter("learningContext"));
 			
 			taskExecutor.execute(new Runnable() {
 				@Override

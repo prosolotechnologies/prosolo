@@ -617,7 +617,8 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			if(learningContext != null) {
 				Gson gson = new GsonBuilder().create();
 				String learningContextJson = gson.toJson(learningContext);
-				logObject.put("context", learningContextJson);
+				DBObject lContext = (DBObject) JSON.parse(learningContextJson);
+				logObject.put("learningContext", lContext);
 			}
 
 			logObject.put("courseId",extractCourseIdForUsedResource(objectType, objectId, targetType, targetId, reasonType, reasonId));

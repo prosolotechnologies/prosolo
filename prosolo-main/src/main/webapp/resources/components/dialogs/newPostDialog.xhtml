@@ -15,14 +15,6 @@
     
 		<h:form id="newPostDialogForm" class="newPostDialogForm">
 			<p:growl id="newPostDialogFormGrowl" showDetail="true" />
-		
-			<p:remoteCommand name="setServiceCommand"
-				process="@this"
-				action="#{postDialogBean.setService('name:POST_DIALOG')}">
-			</p:remoteCommand>
-			<script>
-				setServiceCommand();
-			</script>
 			
 			<h:panelGroup layout="block" class="postInputBox"
 				rendered="#{postDialogBean.newPostData != null}">
