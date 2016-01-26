@@ -18,6 +18,7 @@ import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.activitywall.data.SocialActivityCommentData;
+import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -82,7 +83,8 @@ public class DislikeActionBean {
 		
 		boolean successful = false;
 		try {
-			successful = dislikeManager.removeDislike(loggedUser.getUser(), resource, session, context);
+			successful = dislikeManager.removeDislike(loggedUser.getUser(), resource, session, context,
+					null, null, null);
 			
 			if (successful) {
 				logger.debug("User "+loggedUser.getUser()+" removed disliked resource ("+resource+")");
@@ -102,6 +104,10 @@ public class DislikeActionBean {
 		actData.setDisliked(true);
 		actData.setDislikeCount(actData.getDislikeCount()+1);
 		
+		String page = PageUtil.getPostParameter("page");
+		String lContext = PageUtil.getPostParameter("learningContext");
+		String service = PageUtil.getPostParameter("service");
+		
 		taskExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -109,7 +115,8 @@ public class DislikeActionBean {
 				Session session = (Session) defaultManager.getPersistence().openSession();
 				
 				try {
-					dislikeManager.dislikeNode(loggedUser.getUser(), targetActivityId, session, context);
+					dislikeManager.dislikeNode(loggedUser.getUser(), targetActivityId, session, context,
+							page, lContext, service);
 					
 					logger.debug("User "+loggedUser.getUser()+" disliked target activity ("+targetActivityId+")");
 					session.flush();
@@ -135,6 +142,10 @@ public class DislikeActionBean {
 		actData.setDisliked(false);
 		actData.setDislikeCount(actData.getDislikeCount()-1);
 		
+		String page = PageUtil.getPostParameter("page");
+		String lContext = PageUtil.getPostParameter("learningContext");
+		String service = PageUtil.getPostParameter("service");
+		
 		taskExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -142,7 +153,8 @@ public class DislikeActionBean {
 				Session session = (Session) defaultManager.getPersistence().openSession();
 				
 				try {
-					dislikeManager.removeDislikeFromNode(loggedUser.getUser(), targetActivityId, session, context);
+					dislikeManager.removeDislikeFromNode(loggedUser.getUser(), targetActivityId, session, context,
+							page, lContext, service);
 					
 					logger.debug("User "+loggedUser.getUser()+" removed dislike from target activity ("+targetActivityId+")");
 					session.flush();

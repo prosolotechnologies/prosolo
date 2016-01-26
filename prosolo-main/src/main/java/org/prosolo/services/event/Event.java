@@ -11,6 +11,7 @@ import javax.persistence.Transient;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.services.event.context.LearningContext;
 
 public class Event extends BaseEntity  {
 
@@ -41,6 +42,10 @@ public class Event extends BaseEntity  {
 	private Map<String, String> parameters;
 
 	private Class<? extends EventObserver>[] observersToExclude;
+	
+	private String page;
+	private String context;
+	private String service;
 
 	public Event() {
 		this.parameters = new HashMap<String, String>();
@@ -126,6 +131,30 @@ public class Event extends BaseEntity  {
 
 	public void setParameters(Map<String, String> parameters) {
 		this.parameters = parameters;
+	}
+
+	public String getPage() {
+		return page;
+	}
+
+	public void setPage(String page) {
+		this.page = page;
+	}
+
+	public String getContext() {
+		return context;
+	}
+
+	public void setContext(String context) {
+		this.context = context;
+	}
+
+	public String getService() {
+		return service;
+	}
+
+	public void setService(String service) {
+		this.service = service;
 	}
 
 	@Override

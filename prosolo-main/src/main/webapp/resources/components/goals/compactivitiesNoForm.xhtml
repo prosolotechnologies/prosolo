@@ -11,7 +11,8 @@
 	xmlns:socialWall="http://java.sun.com/jsf/composite/components/socialWall"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:post="http://java.sun.com/jsf/composite/components/post"
-	xmlns:pt="http://java.sun.com/jsf/passthrough">
+	xmlns:pt="http://java.sun.com/jsf/passthrough"
+	xmlns:util="http://www.prosolo.com/util">
 
 	<!-- 
 		actionBean: must have method for adding an activity to a competence with the following signature:
@@ -26,7 +27,9 @@
 		<composite:attribute name="allActivities" required="true"/>
 		<composite:attribute name="hideOptions" default="false" />
 		<composite:attribute name="readOnly" default="false" />
+		<composite:attribute name="page" />
 		<composite:attribute name="context" />
+		<composite:attribute name="learningContext" />
 		<composite:attribute name="refreshCommandAfterConnect" />
 		<composite:attribute name="activityStyleClass" default="" />
 		<composite:attribute name="initializeHandler" 
@@ -59,6 +62,7 @@
 			<ui:repeat id="activitiesRepeat" value="#{cc.attrs.allActivities}" var="actIterator" varStatus="actIteratorStatus">
 				
 				<ui:param name="contextRoot" value="#{cc.attrs.context}.targetActivity.#{actIterator.id}" />
+				<ui:param name="learningContextRoot" value="#{util:addSubContext(cc.attrs.learningContext, 'name:activity_wall|id:'.concat(actIterator.id))}" />
 			
 				<h:panelGroup layout="block" id="act" class="act act#{actIteratorStatus.index} #{cc.attrs.activityStyleClass}" pt:context="#{contextRoot}">
 						
@@ -175,13 +179,17 @@
 								process="@this"
 								update="actions actionCount">
 								Like
+								<f:param name="page" value="#{cc.attrs.page}" />
+								<f:param name="learningContext" value="#{learningContextRoot}" />
 							</p:commandLink>
 							<p:commandLink
 								rendered="#{actIterator.liked}"
 								action="#{likeaction.removeLikeActivity(actIterator, contextRoot)}"
 								process="@this"
 								update="actions actionCount">
-								Unike
+								Unlike
+								<f:param name="page" value="#{cc.attrs.page}" />
+								<f:param name="learningContext" value="#{learningContextRoot}" />
 							</p:commandLink>
 							<span></span>
 							<p:commandLink
@@ -190,6 +198,8 @@
 								process="@this"
 								update="actions actionCount">
 								Dislike
+								<f:param name="page" value="#{cc.attrs.page}" />
+								<f:param name="learningContext" value="#{learningContextRoot}" />
 							</p:commandLink>
 							<p:commandLink
 								rendered="#{actIterator.disliked}"
@@ -197,13 +207,17 @@
 								process="@this"
 								update="actions actionCount">
 								Remove dislike
+								<f:param name="page" value="#{cc.attrs.page}" />
+								<f:param name="learningContext" value="#{learningContextRoot}" />
 							</p:commandLink>
 							<span></span>
 							
 							<action:post 
 								activityId="#{actIterator.activity.id}"
 								resetStyle="true"
-								context="#{contextRoot}"/>
+								context="#{contextRoot}" 
+								page="#{cc.attrs.page}" 
+								learningContext="#{learningContextRoot}"/>
 							
 							<ui:remove>
 								<span></span>
@@ -338,10 +352,12 @@
 													value="post"
 													action="#{commentaction.newComment(actIterator, contextRoot.concat('.newComment'))}"
 													update="newCommentGrowl commentList">
+													<f:param name="page" value="#{cc.attrs.page}" />
+													<f:param name="learningContext" value="#{learningContextRoot}" />
 												</p:commandLink>
 												
 												<a class="cancelButton button gray size25"
-													onclick="sendServiceUse('MOUSE_CLICK', {context: '#{contextRoot}.newComment', link: 'cancel'})">Cancel</a>
+													onclick="cancelCommentEvent('MOUSE_CLICK', '#{cc.attrs.page}', '#{learningContextRoot}', null)">Cancel</a>
 											</div>
 											<div class="clear"></div>
 										</div>

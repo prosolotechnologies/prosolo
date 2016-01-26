@@ -13,7 +13,6 @@ import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 import org.prosolo.common.domainmodel.activitywall.comments.Comment;
 import org.prosolo.common.domainmodel.content.Post;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.recommendation.LearningGoalRecommendationCacheUpdater;
@@ -29,7 +28,6 @@ import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.notifications.EvaluationUpdater;
 import org.prosolo.web.ApplicationBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -172,7 +170,7 @@ public class InterfaceEventProcessorFactory {
 					activityManager, goalManager, learnPageCacheUpdater, applicationBean);
 		} else if (action.equals(EventType.PostShare)) {
 			/**
-			 * If user has reshered someone else's post from a Status Wall (when looking 
+			 * If user has reshared someone else's post from a Status Wall (when looking 
 			 * at someone else's post on the Status Wall and clicking on a 'post' button),
 			 * we need to update reshare count number for all online users seeing this
 			 * SocialActivity item (item on a Status Wall). This should be performed for
@@ -180,10 +178,13 @@ public class InterfaceEventProcessorFactory {
 			 */
 			try {
 				Map<String, String> params = event.getParameters();
-				SocialActivity originalSocialActivity = activityManager.loadResource(SocialActivity.class,
-						Long.parseLong(params.get("originalSocialActivityId")));
-				processor = new SocialActivityUpdateEventProcessor(session, event, originalSocialActivity,
-						activityWallManager, socialActivityHandler, messageDistributer, applicationBean);
+				String socId = params.get("originalSocialActivityId");
+				if(socId != null) {
+					SocialActivity originalSocialActivity = activityManager.loadResource(SocialActivity.class,
+							Long.parseLong(socId));
+					processor = new SocialActivityUpdateEventProcessor(session, event, originalSocialActivity,
+							activityWallManager, socialActivityHandler, messageDistributer, applicationBean);
+				}
 			} catch (NumberFormatException e) {
 				logger.error(e);
 				e.printStackTrace();

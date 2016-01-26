@@ -78,6 +78,10 @@ public class CommentActionBean implements Serializable {
 			wallData.addComment(commentData);
 			wallData.setShowHiddenComments(true);
 			
+			String page = PageUtil.getPostParameter("page");
+			String lContext = PageUtil.getPostParameter("learningContext");
+			String service = PageUtil.getPostParameter("service");
+			
 			taskExecutor.execute(new Runnable() {
 	            @Override
 	            public void run() {
@@ -102,7 +106,8 @@ public class CommentActionBean implements Serializable {
 						parameters.put("context", context);
 						session.flush();
 						
-						Event event = eventFactory.generateEvent(EventType.Comment, loggedUser.getUser(), comment, resource, parameters);
+						Event event = eventFactory.generateEvent(EventType.Comment, loggedUser.getUser(), comment, resource, 
+								page, lContext, service, parameters);
 						
 						if (event != null) {
 							socialActivityFactory.createSocialActivity(event, session, null);

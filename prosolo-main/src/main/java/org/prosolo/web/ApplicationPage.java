@@ -1,6 +1,6 @@
 package org.prosolo.web;
 
-public enum ApplicationPages {
+public enum ApplicationPage {
 
 	LOGIN("/login.xhtml"),
 	INDEX("/index.xhtml"), 
@@ -34,7 +34,7 @@ public enum ApplicationPages {
 
     private String uri; 
     
-    ApplicationPages(String uri) {
+    ApplicationPage(String uri) {
         this.uri = uri;
     }
 

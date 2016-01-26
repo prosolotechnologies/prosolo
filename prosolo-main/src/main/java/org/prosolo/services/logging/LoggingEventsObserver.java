@@ -2,14 +2,17 @@ package org.prosolo.services.logging;
 
 import java.util.Map;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
+import org.prosolo.services.event.context.LearningContext;
 import org.prosolo.services.logging.exception.LoggingException;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
@@ -25,6 +28,7 @@ public class LoggingEventsObserver extends EventObserver {
 	
 	@Autowired private ApplicationBean applicationBean;
 	@Autowired private LoggingService loggingService;
+	@Inject private ContextJsonParserService contextJsonParserService;
 
 	@Override
 	public Class<? extends BaseEntity>[] getResourceClasses() {
@@ -37,6 +41,10 @@ public class LoggingEventsObserver extends EventObserver {
 		long objectId = 0;
 		String objectTitle = "";
 
+		//adding for migration to new context approach
+		LearningContext learningContext = contextJsonParserService.
+				parseCustomContextString(event.getPage(), event.getContext(), event.getService());
+		
 		BaseEntity object = event.getObject();
 		if (object != null) {
 			object = HibernateUtil.initializeAndUnproxy(object);
@@ -105,7 +113,7 @@ public class LoggingEventsObserver extends EventObserver {
 		try {
 			loggingService.logEventObserved(event.getAction(), event.getActor(),
 					objectType, objectId, objectTitle, targetType, targetId,
-					reasonType, reasonId, event.getParameters(), ipAddress);
+					reasonType, reasonId, event.getParameters(), ipAddress, learningContext);
 		} catch (LoggingException e) {
 			logger.error(e);
 		}

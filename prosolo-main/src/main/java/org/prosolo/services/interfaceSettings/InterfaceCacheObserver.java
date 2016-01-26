@@ -21,6 +21,7 @@ import org.prosolo.common.messaging.data.ServiceType;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
+import org.prosolo.services.interfaceSettings.eventProcessors.InterfaceEventProcessor;
 import org.prosolo.services.interfaceSettings.eventProcessors.InterfaceEventProcessorFactory;
 import org.prosolo.services.messaging.SessionMessageDistributer;
 import org.prosolo.services.nodes.LearningGoalManager;
@@ -87,7 +88,10 @@ public class InterfaceCacheObserver extends EventObserver {
 				target = HibernateUtil.initializeAndUnproxy(target);
 			}
 			
-			interfaceEventProcessorFactory.getInterfaceEventProcessor(session, event).processEvent();
+			InterfaceEventProcessor processor = interfaceEventProcessorFactory.getInterfaceEventProcessor(session, event);
+			if(processor != null) {
+				interfaceEventProcessorFactory.getInterfaceEventProcessor(session, event).processEvent();
+			}
 
 		} catch (Exception e) {
 			logger.error("Exception in handling message", e);

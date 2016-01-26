@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.prosolo.core.spring.ServiceLocator;
-import org.prosolo.web.ApplicationPages;
+import org.prosolo.web.ApplicationPage;
 import org.prosolo.web.ApplicationPagesBean;
 import org.prosolo.web.LoggedUserBean;
 
@@ -43,7 +43,7 @@ public class SavePageUrlInSessionFilter implements Filter {
 			}
 			ApplicationPagesBean applicationPagesBean = ServiceLocator.getInstance()
 					.getService(ApplicationPagesBean.class);
-			ApplicationPages page = applicationPagesBean.getPageForURI(uri);
+			ApplicationPage page = applicationPagesBean.getPageForURI(uri);
 			HttpSession session = request.getSession(false);
 			if(page != null && session != null) {
 				LoggedUserBean loggedUserBean = (LoggedUserBean) session.getAttribute("loggeduser");

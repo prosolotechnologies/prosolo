@@ -24,6 +24,7 @@ import org.prosolo.web.activitywall.data.AttachmentPreview;
 import org.prosolo.web.activitywall.data.NodeData;
 import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.activitywall.util.WallActivityConverter;
+import org.prosolo.web.dialogs.data.context.LearningContextData;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.useractions.PostActionBean;
 import org.prosolo.web.useractions.data.NewPostData;
@@ -66,15 +67,19 @@ public class PostDialog implements Serializable {
 	private String context;
 	private String onComplete;
 	
+	private LearningContextData learningContextData;
+	
 	@PostConstruct
 	public void init() {
+		learningContextData = new LearningContextData();
 		logger.debug("Initializing managed bean " + this.getClass().getSimpleName());
 	}
 
 	/*
 	 * ACTIONS
 	 */
-	public void preparePostDialog(String text, final String link, final String context) {
+	public void preparePostDialog(String text, final String link, final String context, String page,
+			String learningContext, String service) {
 		reset();
 		
 		if (text != null && link != null) {
@@ -85,6 +90,10 @@ public class PostDialog implements Serializable {
 			postAction.fetchLinkContents(newPostData);
 
 			this.context = context;
+			
+			this.learningContextData.setPage(page);
+			this.learningContextData.setContext(learningContext);
+			this.learningContextData.setService(service);
 			
 			taskExecutor.execute(new Runnable() {
 				@Override
@@ -112,16 +121,18 @@ public class PostDialog implements Serializable {
 //		this.activity = new ActivityData(activity);
 //	}
 
-	public void preparePostDialogForResourceById(long resourceId, String context) {
+	public void preparePostDialogForResourceById(long resourceId, String context, String page,
+			String learningContext, String service) {
 		try {
 			Node resource = defaultUser.loadResource(Node.class, resourceId, true);
-			preparePostDialogForResource(resource, context);
+			preparePostDialogForResource(resource, context, page, learningContext, service);
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		}
 	}
 	
-	public void preparePostDialogForResource(final Node resource, final String context) {
+	public void preparePostDialogForResource(final Node resource, final String context,
+			String page, String learningContext, String service) {
 		reset();
 		
 		this.resourceToShare = resource;
@@ -135,6 +146,11 @@ public class PostDialog implements Serializable {
 		this.attachPreview = WallActivityConverter.createAttachmentPreviewForResource(new NodeData(resourceToShare), loggedUser.getLocale());
 
 		this.context = context;
+		
+		this.learningContextData.setPage(page);
+		this.learningContextData.setContext(learningContext);
+		this.learningContextData.setService(service);
+		
 		taskExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -148,16 +164,19 @@ public class PostDialog implements Serializable {
 	}
 	
 
-	public void preparePostDialogForSocialActivityById(final long socialActivityId, final String context) {
+	public void preparePostDialogForSocialActivityById(final long socialActivityId, final String context,
+			String page, String learningContext, String service) {
 		try {
 			SocialActivity socialActivity = defaultUser.loadResource(SocialActivity.class, socialActivityId);
-			preparePostDialog(socialActivity, context);
+			preparePostDialog(socialActivity, context, page, learningContext, service);
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		}
 	}
 	
-	public void preparePostDialog(final SocialActivity socialActivity, final String context) {
+	//changed for new context approach
+	public void preparePostDialog(final SocialActivity socialActivity, final String context, String page,
+			String learningContext, String service) {
 		reset();
 		
 		if (socialActivity != null) {
@@ -171,6 +190,10 @@ public class PostDialog implements Serializable {
 			}
 			
 			this.context = context;
+			
+			this.learningContextData.setPage(page);
+			this.learningContextData.setContext(learningContext);
+			this.learningContextData.setService(service);
 			
 			taskExecutor.execute(new Runnable() {
 				@Override
@@ -186,12 +209,16 @@ public class PostDialog implements Serializable {
 	
 	public void createNewPost() {
 		if (socialActivityToReshare != null) {
-			postAction.resharePost(this.newPostData, socialActivityToReshare, context);
+			postAction.resharePost(this.newPostData, socialActivityToReshare, context,
+					learningContextData.getPage(), learningContextData.getContext(),
+					learningContextData.getService());
 		} else if (resourceToShare != null) {
 //			newPostData = PostUtil.convertActivityToNewPostData(activity.getActivity());
-			postAction.shareResource(resourceToShare, this.text, context);
+			postAction.shareResource(resourceToShare, this.text, context, learningContextData.getPage(),
+					learningContextData.getContext(), learningContextData.getService());
 		} else {
-			postAction.createNewPostWithData(this.newPostData, context);
+			postAction.createNewPostWithData(this.newPostData, context, learningContextData.getPage(),
+					learningContextData.getContext(), learningContextData.getService());
 		}
 		//Ajax.update("mainActivityWall:mainActivityWallForm", "goalWall:goalWallForm");
 		
@@ -221,6 +248,10 @@ public class PostDialog implements Serializable {
 			PageUtil.fireErrorMessage("The file was not uploaded!");
 		}
     }
+	
+	public void setService(String service) {
+		this.learningContextData.setService(service);
+	}
 	
 	/*
 	 * GETTERS / SETTERS
@@ -260,6 +291,14 @@ public class PostDialog implements Serializable {
 
 	public void setOnComplete(String onComplete) {
 		this.onComplete = onComplete;
+	}
+
+	public LearningContextData getLearningContextData() {
+		return learningContextData;
+	}
+
+	public void setLearningContextData(LearningContextData learningContextData) {
+		this.learningContextData = learningContextData;
 	}
 	
 }

@@ -4,21 +4,21 @@ import com.google.gson.annotations.SerializedName;
 
 public class LearningContextInfo {
 
-	private String name;
-	private long id;
+	private ContextName name;
+	private Long id;
 	@SerializedName("object_type")
 	private String objectType;
 	
-	public String getName() {
+	public ContextName getName() {
 		return name;
 	}
-	public void setName(String name) {
+	public void setName(ContextName name) {
 		this.name = name;
 	}
-	public long getId() {
+	public Long getId() {
 		return id;
 	}
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 	public String getObjectType() {

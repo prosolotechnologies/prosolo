@@ -29,6 +29,7 @@ import org.prosolo.services.upload.UploadManager;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.AttachmentPreview;
+import org.prosolo.web.dialogs.data.context.LearningContextData;
 import org.prosolo.web.useractions.data.NewPostData;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,10 +66,11 @@ public class PostActionBean implements Serializable {
 	}
 	
 	public void createNewPost() {
-		createNewPostWithData(this.newPostData, "statusWall.newPost");
+		createNewPostWithData(this.newPostData, "statusWall.newPost", null, null, null);
 	}
 	
-	public void createNewPostWithData(NewPostData newPostData, String context) {
+	public void createNewPostWithData(NewPostData newPostData, String context, String page, 
+			String learningContext, String service) {
 		try {
 			System.out.println("Create new post with data");
 			User user = loggedUser.refreshUser();
@@ -80,7 +82,10 @@ public class PostActionBean implements Serializable {
 					newPostData.getAttachmentPreview(),
 					StringUtil.convertToArrayOfLongs(this.newPostData.getMentionedUsers()),
 					true,
-					context);
+					context,
+					page, 
+					learningContext,
+					service);
 		
 			Post post = postEvent.getPost();
 			
@@ -125,7 +130,8 @@ public class PostActionBean implements Serializable {
 //		}
 	//}
 	
-	public void shareResource(Node resource, String text, String context) {
+	public void shareResource(Node resource, String text, String context, String page,
+			String learningContext, String service) {
 		User user = loggedUser.getUser();
 		
 		try {
@@ -135,7 +141,10 @@ public class PostActionBean implements Serializable {
 				VisibilityType.PUBLIC, 
 				resource, 
 				true,
-				context);
+				context,
+				page,
+				learningContext, 
+				service);
 			
 			Post post = postEvent.getPost();
 			
@@ -152,7 +161,9 @@ public class PostActionBean implements Serializable {
 		}
 	}
 	
-	public void resharePost(NewPostData newPostData, SocialActivity originalSocialActivity, String context) {
+	//changed for new context approach
+	public void resharePost(NewPostData newPostData, SocialActivity originalSocialActivity, String context,
+			String page, String learningContext, String service) {
 		try {
 			User user = loggedUser.getUser();
 			PostEvent postEvent = postManager.reshareSocialActivity(
@@ -161,7 +172,10 @@ public class PostActionBean implements Serializable {
 					newPostData.getVisibility(), 
 					newPostData.getAttachmentPreview(), 
 					originalSocialActivity, 
-					true);
+					true,
+					page, 
+					learningContext,
+					service);
 			
 			Post post = postEvent.getPost();
 			
@@ -190,9 +204,9 @@ public class PostActionBean implements Serializable {
 			}
 		} catch (EventException e) {
 			logger.error(e);
-		} catch (ResourceCouldNotBeLoadedException e) {
-			logger.error(e);
-		}
+		} catch (ResourceCouldNotBeLoadedException ex) {
+			logger.error(ex);
+		} 
 	}
 	
 	public void resharePost(SocialActivityData wallData) {

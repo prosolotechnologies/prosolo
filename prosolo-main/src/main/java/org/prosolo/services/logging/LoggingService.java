@@ -8,6 +8,7 @@ import java.util.Map;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.activityreport.LoggedEvent;
+import org.prosolo.services.event.context.LearningContext;
 import org.prosolo.services.logging.exception.LoggingException;
 
 import com.mongodb.DBObject;
@@ -65,5 +66,10 @@ public interface LoggingService {
 	Collection<LoggedEvent> getLoggedEventsList(DBObject filterQuery);
 	
 	void logSessionEnded(EventType eventType, User actor, String ipAddress);
+
+	void logEventObserved(EventType eventType, User actor,
+			String objectType, long objectId, String objectTitle,
+			String targetType, long targetId, String reasonType, long reasonId,
+			Map<String, String> parameters, String ipAddress, LearningContext learningContext) throws LoggingException;
 
 }

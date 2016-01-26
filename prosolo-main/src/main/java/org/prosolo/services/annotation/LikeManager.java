@@ -32,9 +32,11 @@ public interface LikeManager {
 	void removeLikeFromSocialActivity(User user, long notificationId, long socialActivityId, 
 			int newLikeCount, Session session, String context) throws EventException, ResourceCouldNotBeLoadedException;
 
-	boolean removeLike(User user, BaseEntity resource, Session session, String context) throws EventException;
+	boolean removeLike(User user, BaseEntity resource, Session session, String context,
+			String page, String lContext, String service) throws EventException;
 
-	boolean removeLikeFromNode(User user, long resourceId, Session session, String context) throws EventException, ResourceCouldNotBeLoadedException;
+	 boolean removeLikeFromNode(User user, long resourceId, Session session, String context,
+				String page, String lContext, String service) throws EventException, ResourceCouldNotBeLoadedException;
 	
 	boolean removeLikeFromComment(User user, long commentId, Session session, String context) throws EventException, ResourceCouldNotBeLoadedException;
 
@@ -45,10 +47,12 @@ public interface LikeManager {
 	Annotation likeComment(User user, long commentId, Session session, String context) throws EventException,
 			ResourceCouldNotBeLoadedException;
 
-	Annotation likeNode(User user, long resourceId, Session session, String context) throws EventException,
+	Annotation likeNode(User user, long resourceId, Session session, String context, String page,
+			String lContext, String service) throws EventException,
 			ResourceCouldNotBeLoadedException;
 
-	Annotation like(User user, BaseEntity resource, Annotation like, Session session, String context)
+	Annotation like(User user, BaseEntity resource, Annotation like, Session session, String context, 
+			String page, String lContext, String service)
 			throws EventException, ResourceCouldNotBeLoadedException;
 
 }

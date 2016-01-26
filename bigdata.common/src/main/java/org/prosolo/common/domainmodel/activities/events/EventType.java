@@ -92,7 +92,8 @@ public enum EventType {
 	DIGEST_FILTER_UPDATED,
 	
 	//this activity exists in MOOC logs for some reasons
-	HIDE_ACTIVITY;
+	HIDE_ACTIVITY,
+	COMMENT_CANCEL;
 	
 	private String customText;
 	

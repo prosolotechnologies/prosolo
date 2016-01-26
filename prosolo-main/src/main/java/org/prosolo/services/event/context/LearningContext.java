@@ -1,17 +1,17 @@
 package org.prosolo.services.event.context;
 
-import org.prosolo.web.ApplicationPages;
+import org.prosolo.web.ApplicationPage;
 
 public class LearningContext {
 
-	private ApplicationPages page;
+	private ApplicationPage page;
 	private Context context;
 	private Service service;
 	
-	public ApplicationPages getPage() {
+	public ApplicationPage getPage() {
 		return page;
 	}
-	public void setPage(ApplicationPages page) {
+	public void setPage(ApplicationPage page) {
 		this.page = page;
 	}
 	public Context getContext() {

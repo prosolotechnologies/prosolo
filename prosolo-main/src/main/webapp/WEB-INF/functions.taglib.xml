@@ -78,6 +78,18 @@
 		<function-signature>java.lang.String encodeId(long)</function-signature>
 	</function>
 	
+	<function>
+		<function-name>addSubContext</function-name>
+		<function-class>org.prosolo.web.util.LearningContextUtil</function-class>
+		<function-signature>java.lang.String addSubContext(java.lang.String, java.lang.String)</function-signature>
+	</function>
+	
+	<function>
+		<function-name>addSubService</function-name>
+		<function-class>org.prosolo.web.util.LearningContextUtil</function-class>
+		<function-signature>java.lang.String addSubService(java.lang.String, java.lang.String)</function-signature>
+	</function>
+	
 	<!-- Components -->
 	
 	<tag>

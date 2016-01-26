@@ -50,6 +50,11 @@ public class LoggingNavigationBean implements Serializable {
 	private String component;
 	private String parameters;
 	
+	// added for new context approach
+	private String page;
+	private String learningContext;
+	private String service;
+	
 	/*
 	 * ACTIONS
 	 */
@@ -204,6 +209,15 @@ public class LoggingNavigationBean implements Serializable {
 			logger.error(e);
 		}
 	}
+	
+	public void submitCancelComment() {
+		try {
+			eventFactory.generateEvent(EventType.COMMENT_CANCEL, loggedUser.getUser(), null, null, page,
+					learningContext, service, null);
+		} catch (EventException e) {
+			logger.error(e);
+		}
+	}
 
 	private String getIpAddress() {
 		String ipAddress = loggedUser.getIpAddress();
@@ -278,6 +292,30 @@ public class LoggingNavigationBean implements Serializable {
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	public String getPage() {
+		return page;
+	}
+
+	public void setPage(String page) {
+		this.page = page;
+	}
+
+	public String getLearningContext() {
+		return learningContext;
+	}
+
+	public void setLearningContext(String learningContext) {
+		this.learningContext = learningContext;
+	}
+
+	public String getService() {
+		return service;
+	}
+
+	public void setService(String service) {
+		this.service = service;
 	}
 
 }

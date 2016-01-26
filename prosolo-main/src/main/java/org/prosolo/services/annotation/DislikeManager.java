@@ -18,11 +18,13 @@ public interface DislikeManager {
 	Annotation dislikeComment(User user, long commentId, Session session, String context) throws EventException,
 	ResourceCouldNotBeLoadedException;
 
-	Annotation dislikeNode(User user, long resourceId, Session session, String context) throws EventException,
-	ResourceCouldNotBeLoadedException;
+	Annotation dislikeNode(User user, long resourceId, Session session,
+			String context, String page, String lContext, String service) throws EventException,
+			ResourceCouldNotBeLoadedException;
 
-	Annotation dislike(User user, BaseEntity resource, Annotation like, Session session, String context)
-	throws EventException, ResourceCouldNotBeLoadedException;
+	Annotation dislike(User user, BaseEntity resource, Annotation dislike,
+			Session session, String context, String page, String lContext, String service) throws EventException,
+			ResourceCouldNotBeLoadedException;
 
 	Annotation dislike(User user, BaseEntity resource, Session session, String context) throws EventException;
 
@@ -37,11 +39,14 @@ public interface DislikeManager {
 	void removeDislikeFromSocialActivity(User user, long notificationId, long socialActivityId,
 			int newDislikeCount, Session session, String context) throws EventException, ResourceCouldNotBeLoadedException;
 	
-	boolean removeDislikeFromNode(User user, long resourceId, Session session, String context) throws EventException, ResourceCouldNotBeLoadedException;
+	boolean removeDislikeFromNode(User user, long resourceId,
+			Session session, String context, String page, String lContext, String service) throws EventException,
+			ResourceCouldNotBeLoadedException;
 
 	boolean removeDislikeFromComment(User user, long commentId, Session session, String context) throws EventException, ResourceCouldNotBeLoadedException;
 
-	boolean removeDislike(User user, BaseEntity resource, Session session, String context) throws EventException;
+	boolean removeDislike(User user, BaseEntity resource, Session session, String context,
+			String page, String lContext, String service) throws EventException;
 	
 	List<User> getPeopleWhoDislikedResource(long resourceId, Class<? extends BaseEntity> clazz);
 	

@@ -46,6 +46,15 @@
 		<h:inputText value="#{loggingBean.userId}"
 			id="loggingServiceUseUserId" styleClass="loggingServiceUseUserId" />
 			
+		<h:inputText value="#{loggingBean.page}"
+			id="loggingServiceUsePage" styleClass="loggingServiceUsePage" />
+			
+		<h:inputText value="#{loggingBean.learningContext}"
+			id="loggingServiceUseLearningContext" styleClass="loggingServiceUseLearningContext" />
+			
+		<h:inputText value="#{loggingBean.service}"
+			id="loggingServiceUseService" styleClass="loggingServiceUseService" />
+		
 		<h:inputText value="#{loggingBean.component}"
 			id="loggingComponentNameFieldValue"
 			styleClass="loggingComponentNameFieldValue" />
@@ -61,6 +70,33 @@
 		
 		<script>
 			$('.loggingServiceUseSubmitButton').click(function(e){
+				e.stopPropagation();
+			});
+		</script>
+	</h:form>
+	
+	<h:form id="logging_cancelcomment_form" style="display: none">
+			
+		<h:inputText value="#{loggingBean.page}"
+			id="loggingCancelCommentPage" styleClass="loggingCancelCommentPage" />
+			
+		<h:inputText value="#{loggingBean.learningContext}"
+			id="loggingCancelCommentLearningContext" styleClass="loggingCancelCommentLearningContext" />
+			
+		<h:inputText value="#{loggingBean.service}"
+			id="loggingCancelCommentService" styleClass="loggingCancelCommentService" />
+		
+		<h:inputText value="#{loggingBean.component}"
+			id="loggingComponentNameFieldValue"
+			styleClass="loggingComponentNameFieldValue" />
+			
+		<p:commandLink 
+			id="loggingCancelCommentSubmitButton"
+			styleClass="loggingCancelCommentSubmitButton"
+			action="#{loggingBean.submitCancelComment()}" />
+		
+		<script>
+			$('.loggingCancelCommentSubmitButton').click(function(e){
 				e.stopPropagation();
 			});
 		</script>

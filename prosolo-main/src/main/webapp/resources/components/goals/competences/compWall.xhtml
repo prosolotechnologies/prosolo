@@ -37,13 +37,18 @@
 				$('.goalCompWall a.refreshAllHanler').trigger('click');
 			}
 		</script>
+		
+		<ui:param name="courseContext" value="#{learninggoals.selectedGoalData.data.course != null ? 'name:Credential|id:'.concat(learninggoals.selectedGoalData.data.course.id) : ''}" />
+		
 		<goalcomp:compactivitiesNoForm id="compWall" value="compWall"
 			loadingMsg="Loading activities..."
 			addCommentMsg="Add a comment..."
 			allActivities="#{compwall.activities}"
 			actionBean="#{cc.attrs.actionBean}"
 			initializeHandler="#{compwall.initializeActivities()}"
+			page="#{facesContext.viewRoot.viewId}"
 			context="learn.targetGoal.#{learninggoals.selectedGoalData.data.targetGoalId}.targetComp.#{learninggoals.selectedGoalData.selectedCompetence.data.id}"
+			learningContext="#{courseContext}|context:/name:goal_wall|id:#{learninggoals.selectedGoalData.data.targetGoalId}|context:/name:competence_wall|id:#{learninggoals.selectedGoalData.selectedCompetence.data.id}//"
 			activityStyleClass="wide"
 		/>
 	</div>

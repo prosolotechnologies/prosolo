@@ -11,12 +11,19 @@
 	<utilcomp:messagesBundle var="msg" />
 	
 	<h:outputScript library="javascript" name="jquery.shortenedText.js" target="head"/>
-	
 	<div id="newPostDialog" title="Post to my Status Wall" class="newPostDialog" style="display: none;">
     
 		<h:form id="newPostDialogForm" class="newPostDialogForm">
 			<p:growl id="newPostDialogFormGrowl" showDetail="true" />
 		
+			<p:remoteCommand name="setServiceCommand"
+				process="@this"
+				action="#{postDialogBean.setService('name:POST_DIALOG')}">
+			</p:remoteCommand>
+			<script>
+				setServiceCommand();
+			</script>
+			
 			<h:panelGroup layout="block" class="postInputBox"
 				rendered="#{postDialogBean.newPostData != null}">
 				
@@ -37,7 +44,8 @@
 					containerDiv=".newPostDialogForm"
 					afterCreatePostCallback="$('#newPostDialog').dialog('close');#{postDialogBean.onComplete};"
 					watermark="Write something..."
-					regionToRefresh=":newPostDialogForm:newPostDialogFormGrowl :#{p:component('addToGoalForm')}" />
+					regionToRefresh=":newPostDialogForm:newPostDialogFormGrowl :#{p:component('addToGoalForm')}" 
+					service="name:POST_DIALOG" />
 					
 			</h:panelGroup>
 				

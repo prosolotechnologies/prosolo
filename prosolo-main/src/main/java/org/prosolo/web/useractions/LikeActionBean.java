@@ -23,6 +23,7 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.activitywall.data.SocialActivityCommentData;
 import org.prosolo.web.goals.LearnBean;
+import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -86,7 +87,8 @@ public class LikeActionBean {
 
 		boolean successful = false;
 		try {
-			successful = likeManager.removeLike(loggedUser.getUser(), resource, session, context);
+			successful = likeManager.removeLike(loggedUser.getUser(), resource, session, context, 
+					null, null, null);
 			
 			if (successful) {
 				logger.debug("User "+loggedUser.getUser()+" unliked resource ("+resource+")");
@@ -106,6 +108,10 @@ public class LikeActionBean {
 		actData.setLiked(true);
 		actData.setLikeCount(actData.getLikeCount()+1);
 		
+		String page = PageUtil.getPostParameter("page");
+		String lContext = PageUtil.getPostParameter("learningContext");
+		String service = PageUtil.getPostParameter("service");
+		
 		taskExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -113,7 +119,8 @@ public class LikeActionBean {
 				Session session = (Session) defaultManager.getPersistence().openSession();
 				
 				try {
-					likeManager.likeNode(loggedUser.getUser(), targetActivityId, session, context);
+					likeManager.likeNode(loggedUser.getUser(), targetActivityId, session, context,
+							page, lContext, service);
 					
 					logger.debug("User "+loggedUser.getUser()+" liked target activity ("+targetActivityId+")");
 					session.flush();
@@ -153,6 +160,10 @@ public class LikeActionBean {
 		actData.setLiked(false);
 		actData.setLikeCount(actData.getLikeCount()-1);
 		
+		String page = PageUtil.getPostParameter("page");
+		String lContext = PageUtil.getPostParameter("learningContext");
+		String service = PageUtil.getPostParameter("service");
+		
 		taskExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -160,7 +171,8 @@ public class LikeActionBean {
 				Session session = (Session) defaultManager.getPersistence().openSession();
 				
 				try {
-					likeManager.removeLikeFromNode(loggedUser.getUser(), targetActivityId, session, context);
+					likeManager.removeLikeFromNode(loggedUser.getUser(), targetActivityId, session, context,
+							page, lContext, service);
 					
 					logger.debug("User "+loggedUser.getUser()+" unliked target activity ("+targetActivityId+")");
 					session.flush();

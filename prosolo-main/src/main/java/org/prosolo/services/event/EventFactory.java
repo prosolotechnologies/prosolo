@@ -163,6 +163,13 @@ public class EventFactory {
 	public Event generateEvent(EventType eventType, User actor, BaseEntity object, BaseEntity target, Map<String, String> parameters) throws EventException {
 		return generateEvent(eventType, actor, object, target, null, null, parameters);
 	}
+	
+	//added because of migration to new context approach
+	@Transactional(readOnly = false)
+	public Event generateEvent(EventType eventType, User actor, BaseEntity object, BaseEntity target, 
+			String page, String context, String service, Map<String, String> parameters) throws EventException {
+		return generateEvent(eventType, actor, object, target, null, page, context, service, null, parameters);
+	}
 
 	@Transactional(readOnly = false)
 	public Event generateEvent(EventType eventType, User actor, BaseEntity object, BaseEntity target, BaseEntity reason) throws EventException {
@@ -225,5 +232,29 @@ public class EventFactory {
 		genericEvent.setParameters(parameters);
 		return genericEvent;
 	}
-
+	
+	//added for migration to new context approach
+	@Transactional(readOnly = false)
+	public Event generateEvent(EventType eventType, User actor, BaseEntity object, BaseEntity target, 
+			BaseEntity reason, String page, String context, String service, 
+			Class<? extends EventObserver>[] observersToExclude, Map<String, String> parameters) throws EventException {
+		
+	 	logger.debug("Generating "+eventType.name()+" " +
+				"event " + (object != null ? " object: "+object.getId() : "") + 
+				(target != null ? ", target: "+target.getId() : "") + 
+				", created by the user " + actor);
+		Event genericEvent = new Event(eventType);
+		genericEvent.setActor(actor);
+		genericEvent.setDateCreated(new Date());
+		genericEvent.setObject(object);
+		genericEvent.setTarget(target);
+		genericEvent.setReason(reason);
+		genericEvent.setPage(page);
+		genericEvent.setContext(context);
+		genericEvent.setService(service);
+		genericEvent.setObserversToExclude(observersToExclude);
+		genericEvent.setParameters(parameters);
+		return genericEvent;
+	}
+	
 }

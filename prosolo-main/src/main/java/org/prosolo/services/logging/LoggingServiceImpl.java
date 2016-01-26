@@ -19,6 +19,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.activityreport.LoggedEvent;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.event.context.LearningContext;
 import org.prosolo.services.logging.exception.LoggingException;
 import org.prosolo.services.messaging.LogsMessageDistributer;
 import org.prosolo.services.nodes.CourseManager;
@@ -27,6 +28,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
@@ -565,6 +568,114 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			eventFactory.generateEvent(eventType, actor, null, parameters);
 		} catch (EventException e) {
 			logger.error("Generate event failed.", e);
+		}
+	}
+
+	//added for migration to new context approach
+	@Override
+	public void logEventObserved(EventType eventType, User actor,
+			String objectType, long objectId, String objectTitle,
+			String targetType, long targetId, String reasonType, long reasonId,
+			Map<String, String> parameters, String ipAddress, LearningContext learningContext) throws LoggingException {
+		if (!Settings.getInstance().config.init.formatDB) {
+			 
+			if (parameters == null) {
+				parameters = new HashMap<String, String>();
+			}
+	
+			parameters.put("ip", ipAddress);
+	
+			DBObject logObject = new BasicDBObject();
+			logObject.put("timestamp", System.currentTimeMillis());
+			logObject.put("eventType", eventType.name());
+	
+			long actorId = 0;
+			String actorName = "";
+	
+			if (actor != null) {
+				actorId = actor.getId();
+				actorName = actor.getName() + " " + actor.getLastname();
+				this.recordUserActivity(actorId, System.currentTimeMillis());
+			} else {
+				actorId = 0;
+				actorName = "ANONYMOUS";
+			}
+			
+			String link = parameters.get("link");
+	
+			logObject.put("actorId", actorId);
+			logObject.put("actorFullname", actorName);
+			logObject.put("objectType", objectType);
+			logObject.put("objectId", objectId);
+			logObject.put("objectTitle", objectTitle);
+			logObject.put("targetType", targetType);
+			logObject.put("targetId", targetId);
+			logObject.put("reasonType", reasonType);
+			logObject.put("reasonId", reasonId);
+			logObject.put("link", link);
+			
+			if(learningContext != null) {
+				Gson gson = new GsonBuilder().create();
+				String learningContextJson = gson.toJson(learningContext);
+				logObject.put("context", learningContextJson);
+			}
+
+			logObject.put("courseId",extractCourseIdForUsedResource(objectType, objectId, targetType, targetId, reasonType, reasonId));
+			Long targetUserId=(long) 0;
+			if(Arrays.asList(interactions).contains(eventType)){
+				//System.out.println("INTERACTION SHOULD BE PROCESSED:"+logObject.toString());
+				 targetUserId=extractSocialInteractionTargetUser(logObject, eventType);
+			}
+			logObject.put("targetUserId", targetUserId);
+			if (parameters != null && !parameters.isEmpty()) {
+				Iterator<Map.Entry<String, String>> it = parameters.entrySet()
+						.iterator();
+				DBObject parametersObject = new BasicDBObject();
+	
+				while (it.hasNext()) {
+					Map.Entry<String, String> pairs = (Map.Entry<String, String>) it
+							.next();
+					parametersObject.put(pairs.getKey(), pairs.getValue());
+				}
+				logObject.put("parameters", parametersObject);
+			}
+
+			Object timestamp = logObject.get("timestamp");
+			
+			String linkString = logObject.get("link") != null ? "\nlink: " + logObject.get("link") : "";
+			String context = parameters.get("context") != null ? parameters.get("context") : "";
+			String action = parameters.get("action") != null ? parameters.get("action") : "";
+			
+			logger.info("\ntimestamp: " + timestamp + 
+		 			"\neventType: " + eventType + 
+		 			"\nactorId: " + logObject.get("actorId") + 
+		 			"\nactorFullname: " + logObject.get("actorFullname") + 
+		 			"\nobjectType: " + objectType + 
+		 			(((Long) logObject.get("objectId")) > 0 ? "\nobjectId: " + logObject.get("objectId") : "") + 
+		 			(logObject.get("objectTitle") != null ? "\nobjectTitle: " + logObject.get("objectTitle") : "") + 
+		 			(logObject.get("targetType") != null ? "\ntargetType: " + logObject.get("targetType") : "") + 
+					(((Long) logObject.get("targetId")) > 0 ? "\ntargetId: " + logObject.get("targetId") : "") +
+					(((Long) logObject.get("courseId")) > 0 ? "\ncourseId: " + logObject.get("courseId") : "") +
+					(((Long) logObject.get("targetUserId")) > 0 ? "\ntargetUserId: " + logObject.get("targetUserId") : "") +
+					(logObject.get("reasonType") != null ? "\nreasonType: " + logObject.get("reasonType") : "") + 
+					(((Long) logObject.get("reasonId")) > 0 ? "\nreasonId: " + logObject.get("reasonId") : "") + 
+					linkString +
+				 	"\nparameters: " + logObject.get("parameters"));
+
+			String targetTypeString = logObject.get("targetType") != null ? (String) logObject.get("targetType") : "";
+			
+			// timestamp,eventType,objectType,targetType,link,context,action
+			logger.info(timestamp + "," + eventType + "," + objectType + "," + targetTypeString + "," + link + "," + context + "," + action);
+			
+			logsMessageDistributer.distributeMessage(logObject);
+				
+			try {
+				@SuppressWarnings("unused")
+				WriteResult wr = this.getEventObservedCollection().insert(logObject);
+			} catch (Exception e) {
+				logger.error("Exception to log observed event for:" + logObject.toString(), e);
+			}
+
 		}
 	}
 

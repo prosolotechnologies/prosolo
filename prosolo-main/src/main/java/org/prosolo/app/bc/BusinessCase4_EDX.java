@@ -1056,7 +1056,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 						.getInstance()
 						.getService(PostManager.class)
 						.createNewPost(userNickPowell,
-								"Learning parametric data.", VisibilityType.PUBLIC, null, null, true, null);
+								"Learning parametric data.", VisibilityType.PUBLIC, null, null, true, null, null, null, null);
 			} catch (EventException e) {
 				
 				logger.error(e.getLocalizedMessage());
@@ -1067,7 +1067,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					.getInstance()
 					.getService(PostManager.class)
 					.createNewPost(userNickPowell,
-							"Learning parametric data.", VisibilityType.PUBLIC, null, null, true, null);
+							"Learning parametric data.", VisibilityType.PUBLIC, null, null, true, null, null, null, null);
 			} catch (EventException e) {
 				
 				logger.error(e.getLocalizedMessage());
@@ -1718,7 +1718,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 						.createNewPost(
 								userNickPowell,
 								"Can anybody recommend me a good book for SPSS basics? Thanks!",
-								VisibilityType.PUBLIC, null, null, true, null);
+								VisibilityType.PUBLIC, null, null, true, null, null, null, null);
 			} catch (EventException e4) {
 				
 				logger.error(e4.getLocalizedMessage());

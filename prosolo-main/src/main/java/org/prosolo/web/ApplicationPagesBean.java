@@ -13,16 +13,16 @@ import org.springframework.stereotype.Component;
 @Scope("singleton")
 public class ApplicationPagesBean {
 
-	private Map<String,ApplicationPages> pagesMap;
+	private Map<String,ApplicationPage> pagesMap;
 	
 	public ApplicationPagesBean() {
-	    pagesMap = new HashMap<String, ApplicationPages>();
-	    for (ApplicationPages ap : ApplicationPages.values()) {
+	    pagesMap = new HashMap<String, ApplicationPage>();
+	    for (ApplicationPage ap : ApplicationPage.values()) {
 	        pagesMap.put(ap.getUri(), ap);
 	    }
 	}
 	
-	public ApplicationPages getPageForURI(String uri) {
+	public ApplicationPage getPageForURI(String uri) {
 		return pagesMap.get(uri);
 	}
 }

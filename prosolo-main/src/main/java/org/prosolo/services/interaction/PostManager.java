@@ -23,8 +23,9 @@ import org.prosolo.web.activitywall.data.AttachmentPreview;
 public interface PostManager extends AbstractManager{
 
 	PostEvent createNewPost(User user, String text, VisibilityType visibility, 
-			AttachmentPreview attachmentPreview, long[] mentionedUsers, boolean propagateManuallyToSocialStream,
-			String context) throws EventException;
+			AttachmentPreview attachmentPreview, long[] mentionedUsers, 
+			boolean propagateManuallyToSocialStream, String context,
+			String page, String learningContext, String service) throws EventException;
 	
 	PostEvent createNewGoalNote(User user, long goalId, String text,
 			AttachmentPreview attachmentPreview, VisibilityType visibility, 
@@ -37,9 +38,11 @@ public interface PostManager extends AbstractManager{
 	
 	PostEvent resharePost(User user, SocialActivity socialActivity, boolean propagateManuallyToSocialStream) throws EventException;
 	
-	PostEvent reshareSocialActivity(User user, String text, VisibilityType visibility,
-			AttachmentPreview attachmentPreview,
-			SocialActivity socialActivityToReshare, boolean propagateManuallyToSocialStream) throws EventException, ResourceCouldNotBeLoadedException;
+	PostEvent reshareSocialActivity(User user, String text,
+			VisibilityType visibility, AttachmentPreview attachmentPreview,
+			SocialActivity originalSocialActivity,
+			boolean propagateManuallyToSocialStream, String page,
+			String learningContext, String service) throws EventException, ResourceCouldNotBeLoadedException;
 	
 	RichContent createRichContent(AttachmentPreview attachmentPreview);
 	
@@ -51,9 +54,11 @@ public interface PostManager extends AbstractManager{
 			String screenName, String userUrl, String profileImage, String text, VisibilityType visibility, 
 			Collection<String> hashtags, boolean toSave) throws EventException;
 
-	PostEvent shareResource(User user, String text, VisibilityType visibility,
-			Node resource, boolean propagateManuallyToSocialStream,
-			String context) throws EventException;
+	PostEvent shareResource(User user, String text,
+			VisibilityType visibility, Node resource,
+			boolean propagateManuallyToSocialStream,
+			String context, String page,
+			String learningContext, String service) throws EventException;
 
 	int getNumberOfTwitterPostsCreatedBefore(Session session,Date createDate);
 

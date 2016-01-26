@@ -60,21 +60,23 @@ public class DislikeManagerImpl extends AnnotationsManagerImpl implements Dislik
 			ResourceCouldNotBeLoadedException {
 		Comment resource = (Comment) session.get(Comment.class, commentId);
 		Annotation dislike = new CommentAnnotation(AnnotationType.Dislike);
-		return dislike(user, resource, dislike, session, context);
+		return dislike(user, resource, dislike, session, context, null, null, null);
 	}
 	
+	//changed because of new context approach
 	@Override
 	public Annotation dislikeNode(User user, long resourceId, Session session,
-			String context) throws EventException,
+			String context, String page, String lContext, String service) throws EventException,
 			ResourceCouldNotBeLoadedException {
 		Node resource = loadResource(Node.class, resourceId, session);
 		Annotation dislike = new NodeAnnotation(AnnotationType.Dislike);
-		return dislike(user, resource, dislike, session, context);
+		return dislike(user, resource, dislike, session, context, page, lContext, service);
 	}
 	
+	//changed because of new context approach
 	@Override
 	public Annotation dislike(User user, BaseEntity resource, Annotation dislike,
-			Session session, String context) throws EventException,
+			Session session, String context, String page, String lContext, String service) throws EventException,
 			ResourceCouldNotBeLoadedException {
 		logger.debug("Adding dislike of a resource "+resource.getId()+" by the user "+user);
 		
@@ -89,7 +91,8 @@ public class DislikeManagerImpl extends AnnotationsManagerImpl implements Dislik
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("context", context);
 			
-			eventFactory.generateEvent(EventType.Dislike, user, resource, target(resource), parameters);
+			eventFactory.generateEvent(EventType.Dislike, user, resource, target(resource), page, lContext,
+					service, parameters);
 			
 			return dislike;
 		}
@@ -171,15 +174,15 @@ public class DislikeManagerImpl extends AnnotationsManagerImpl implements Dislik
 		socialActivity.setDislikeCount(newDislikeCount);
 		session.save(socialActivity);
     	
-    	removeDislike(user, socialActivity, session, context);
+    	removeDislike(user, socialActivity, session, context, null, null, null);
 	}
 
 	@Override
 	public boolean removeDislikeFromNode(User user, long resourceId,
-			Session session, String context) throws EventException,
+			Session session, String context, String page, String lContext, String service) throws EventException,
 			ResourceCouldNotBeLoadedException {
 		Node resource = (Node) session.get(Node.class, resourceId);
-		return removeDislike(user, resource, session, context);
+		return removeDislike(user, resource, session, context, page, lContext, service);
 	}
 	
 	@Override
@@ -187,12 +190,13 @@ public class DislikeManagerImpl extends AnnotationsManagerImpl implements Dislik
 			Session session, String context) throws EventException,
 			ResourceCouldNotBeLoadedException {
 		Comment comment = (Comment) session.get(Comment.class, commentId);
-		return removeDislike(user, comment, session, context);
+		return removeDislike(user, comment, session, context, null, null, null);
 	}
 
 	@Override
 	@Transactional (readOnly = false)
-	public boolean removeDislike(User user, BaseEntity resource, Session session, String context) throws EventException {
+	public boolean removeDislike(User user, BaseEntity resource, Session session, String context,
+			String page, String lContext, String service) throws EventException {
 		logger.debug("Removing dislike from a resource '"+resource.getId()+"' by the user "+user);
 		
 		boolean successful = super.removeAnnotation(resource, user, AnnotationType.Dislike, true, session);
@@ -200,7 +204,10 @@ public class DislikeManagerImpl extends AnnotationsManagerImpl implements Dislik
 		Map<String, String> parameters = new HashMap<String, String>();
 		parameters.put("context", context);
 		
-		eventFactory.generateEvent(EventType.RemoveDislike, user, resource, parameters);
+		//eventFactory.generateEvent(EventType.RemoveDislike, user, resource, parameters);
+		//changed new context approach
+		eventFactory.generateEvent(EventType.RemoveDislike, user, resource, null, page, lContext, 
+				service, parameters);
 		return successful;
 	}
 	
