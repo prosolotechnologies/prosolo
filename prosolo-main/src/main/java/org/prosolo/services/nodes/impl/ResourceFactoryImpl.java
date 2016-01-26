@@ -516,7 +516,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 	}
 	
 	@Override
-	@Transactional (readOnly = false)//, propagation = Propagation.REQUIRES_NEW)
+	@Transactional (readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified, 
 			String password, Organization organization, String position, boolean system) throws EventException {
 		
