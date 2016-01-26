@@ -36,7 +36,7 @@ public class TestESSearchQueryForAssociationRules {
 		int limit = 10;
 		if (alreadyAddedActivities.isEmpty()) {
 			System.out.println("SEARCH FREQUENT ACTIVITIES");
-			AnalyzedResultsDBManager dbManager = new AnalyzedResultsDBmanagerImpl();
+			AnalyzedResultsDBManager dbManager = AnalyzedResultsDBmanagerImpl.getInstance();
 			List<ActivityAccessCount> frequentActivities = dbManager
 					.findFrequentCompetenceActivities(competenceId);
 			System.out.println("FrequentActivities:"

@@ -13,7 +13,7 @@ public class TwitterHashtagDailyCountTest {
 	@Test
 	public void generateEntries() {
 		// Generates 10000 hashtag counts for last two weeks.
-		TwitterHashtagStatisticsDBManagerImpl manager = new TwitterHashtagStatisticsDBManagerImpl();
+		TwitterHashtagStatisticsDBManagerImpl manager =  TwitterHashtagStatisticsDBManagerImpl.getInstance();
 		long to = DateUtil.getDaysSinceEpoch();
 		long from = to - 15;
 

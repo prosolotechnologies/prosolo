@@ -41,7 +41,7 @@ public class DataImportMySQL {
 	public void importMOOCData() {
 		Connection conn = null;
 		Statement stmt = null;
-		AnalyticalEventDBManager dbManager = new AnalyticalEventDBManagerImpl();
+		AnalyticalEventDBManager dbManager = AnalyticalEventDBManagerImpl.getInstance();
 		try {
 			// STEP 2: Register JDBC driver
 			Class.forName("com.mysql.jdbc.Driver");
@@ -130,7 +130,7 @@ public class DataImportMySQL {
 	public void importData() {
 		Connection conn = null;
 		Statement stmt = null;
-		AnalyticalEventDBManager dbManager = new AnalyticalEventDBManagerImpl();
+		AnalyticalEventDBManager dbManager = AnalyticalEventDBManagerImpl.getInstance();
 		try {
 			// STEP 2: Register JDBC driver
 			Class.forName("com.mysql.jdbc.Driver");
@@ -213,7 +213,7 @@ public class DataImportMySQL {
 
 	@Test
 	public void testGenerateRandomData() {
-		AnalyticalEventDBManager dbManager = new AnalyticalEventDBManagerImpl();
+		AnalyticalEventDBManager dbManager =  AnalyticalEventDBManagerImpl.getInstance();
 		try {
 
 			Random r = new Random();

@@ -22,7 +22,7 @@ public class UserObservationsDBManagerImplTest {
 
     @Test
     public void testFindAllUserCourses() throws Exception {
-        UserObservationsDBManager dbManager=new UserObservationsDBManagerImpl();
+        UserObservationsDBManager dbManager=UserObservationsDBManagerImpl.getInstance();
         Set<Long> courses=dbManager.findAllUserCourses(101l);
         assertEquals("Not correct result",2, courses.size());
 
@@ -30,14 +30,14 @@ public class UserObservationsDBManagerImplTest {
 
     @Test
     public void testEnrollUserToCourse() throws Exception {
-        UserObservationsDBManager dbManager=new UserObservationsDBManagerImpl();
+        UserObservationsDBManager dbManager= UserObservationsDBManagerImpl.getInstance();
         dbManager.enrollUserToCourse(101l,56l);
         dbManager.enrollUserToCourse(101l,57l);
     }
 
     @Test
     public void testWithrawUserFromCourse() throws Exception {
-        UserObservationsDBManager dbManager=new UserObservationsDBManagerImpl();
+        UserObservationsDBManager dbManager= UserObservationsDBManagerImpl.getInstance();
         dbManager.withdrawUserFromCourse(101l,56l);
         dbManager.withdrawUserFromCourse(101l,57l);
         dbManager.withdrawUserFromCourse(101l,58l);
@@ -48,7 +48,7 @@ public class UserObservationsDBManagerImplTest {
     public void importMoocUserCourses()throws Exception{
         URL filePath = Thread.currentThread().getContextClassLoader()
                 .getResource("files/mooc_users_enrollment_data.csv");
-        UserObservationsDBManager dbManager=new UserObservationsDBManagerImpl();
+        UserObservationsDBManager dbManager= UserObservationsDBManagerImpl.getInstance();
         File moocFile = new File(filePath.getPath());
         try{
             BufferedReader br = new BufferedReader(new FileReader(moocFile));

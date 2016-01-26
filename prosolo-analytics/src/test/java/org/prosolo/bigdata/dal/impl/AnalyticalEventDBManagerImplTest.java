@@ -22,7 +22,7 @@ public class AnalyticalEventDBManagerImplTest {
 
 	@Test
 	public void testUpdateAnalyticsEventCounter() {
-		AnalyticalEventDBManagerImpl dbManager = new AnalyticalEventDBManagerImpl();
+		AnalyticalEventDBManagerImpl dbManager =  AnalyticalEventDBManagerImpl.getInstance();
 		BoundStatement boundStatement = new BoundStatement(dbManager
 				.getPreparedStatements().get("update_useractivity"));
 		try {
@@ -36,7 +36,7 @@ public class AnalyticalEventDBManagerImplTest {
 
 	@Test
 	public void testGenerateJserLearninggoalActivities() {
-		AnalyticalEventDBManagerImpl dbManager = new AnalyticalEventDBManagerImpl();
+		AnalyticalEventDBManagerImpl dbManager =  AnalyticalEventDBManagerImpl.getInstance();
 		Random r = new Random();
 
 		long epoch = DateUtil.getDaysSinceEpoch();
@@ -73,7 +73,7 @@ public class AnalyticalEventDBManagerImplTest {
 
 	@Test
 	public void testFindUserLearningGoalActivitiesByDate() {
-		AnalyticalEventDBManagerImpl dbManager = new AnalyticalEventDBManagerImpl();
+		AnalyticalEventDBManagerImpl dbManager =  AnalyticalEventDBManagerImpl.getInstance();
 		dbManager.findUserLearningGoalActivitiesByDate(16579);
 	}
 

@@ -31,7 +31,7 @@ public class CompetenceAlgoFPGrowthTest {
 	@Test
 	public void testRunAlgorithm() {
 		ESAdministration admin = new ESAdministrationImpl();
-		AnalyzedResultsDBManager dbManager = new AnalyzedResultsDBmanagerImpl();
+		AnalyzedResultsDBManager dbManager =  AnalyzedResultsDBmanagerImpl.getInstance();
 		try {
 			admin.createIndexes();
 		} catch (IndexingServiceNotAvailable e1) {
