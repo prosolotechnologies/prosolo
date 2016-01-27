@@ -21,7 +21,7 @@ implements Serializable, UserObservationsDBManager{
 	HashMap<String, String> queries = new HashMap<String, String>();
 	ObservationType[] observationTypes=ObservationType.class.getEnumConstants();
 
-	private UserObservationsDBManagerImpl() {
+	public UserObservationsDBManagerImpl() {
 		super();
 		this.prepareStatements();
 	}
@@ -62,19 +62,28 @@ implements Serializable, UserObservationsDBManager{
 				+ "WHERE date=? and course=?;";
 		this.queries.put("findUserprofileactionsobservationsbydate", findUserprofileactionsobservationsbydate);
 
-		String insertUserquartilefeaturesbyweek  = "INSERT INTO userquartilefeaturesbyweek(course,  profile,date, userid, sequence) VALUES (?, ?, ?,?,?);";
-		this.queries.put("insertUserquartilefeaturesbyweek",
-				insertUserquartilefeaturesbyweek);
+		String insertUserquartilefeaturesbyprofile  = "INSERT INTO userquartilefeaturesbyprofile(course,  profile,date, userid, sequence) VALUES (?, ?, ?,?,?);";
+		this.queries.put("insertUserquartilefeaturesbyprofile",
+				insertUserquartilefeaturesbyprofile);
 
-		String findUserquartilefeaturesbycourse = "SELECT * FROM userquartilefeaturesbyweek WHERE course=? ALLOW FILTERING;";
+		String insertUserquartilefeaturesbydate  = "INSERT INTO userquartilefeaturesbydate(course,  date, userid,profile, sequence) VALUES (?, ?, ?,?,?);";
+		this.queries.put("insertUserquartilefeaturesbydate",
+				insertUserquartilefeaturesbydate);
+
+		String findUserquartilefeaturesbycourse = "SELECT * FROM userquartilefeaturesbyprofile WHERE course=? ALLOW FILTERING;";
 		this.queries.put("findUserquartilefeaturesbycourse",
 				findUserquartilefeaturesbycourse);
 
-		String findUserquartilefeaturesbyweek = "SELECT * FROM userquartilefeaturesbyweek WHERE course=? and profile=? and date=? ALLOW FILTERING;";
-		this.queries.put("findUserquartilefeaturesbyweek",
-				findUserquartilefeaturesbyweek);
+		String findUserquartilefeaturesbyprofileAndDate = "SELECT * FROM userquartilefeaturesbyprofile WHERE course=? and profile=? and date=? ALLOW FILTERING;";
+		this.queries.put("findUserquartilefeaturesbyprofileanddate",
+				findUserquartilefeaturesbyprofileAndDate);
 
-		String findUserquartilefeaturesbyprofile = "SELECT * FROM userquartilefeaturesbyweek WHERE course=? and profile=? ALLOW FILTERING;";
+		String findUserquartilefeaturesbyDate = "SELECT * FROM userquartilefeaturesbydate WHERE course=? and date=? ALLOW FILTERING;";
+		this.queries.put("findUserquartilefeaturesbydate",
+				findUserquartilefeaturesbyDate);
+
+
+		String findUserquartilefeaturesbyprofile = "SELECT * FROM userquartilefeaturesbyprofile WHERE course=? and profile=? ALLOW FILTERING;";
 		this.queries.put("findUserquartilefeaturesbyprofile",
 				findUserquartilefeaturesbyprofile);
 
@@ -167,15 +176,31 @@ implements Serializable, UserObservationsDBManager{
 		return rows;
 	}
 	@Override
-	public void insertUserQuartileFeaturesByWeek(Long courseid, String profile, Long date, Long userid, String sequence) {
+	public void insertUserQuartileFeaturesByProfile(Long courseid, String profile, Long date, Long userid, String sequence) {
 		BoundStatement boundStatement = new BoundStatement(
 				preparedStatements
-						.get("insertUserquartilefeaturesbyweek"));
+						.get("insertUserquartilefeaturesbyprofile"));
 		boundStatement.setLong(0, courseid);
 		boundStatement.setLong(2,date);
 		boundStatement.setString(1, profile);
 
 		boundStatement.setLong(3,userid);
+		boundStatement.setString(4,sequence);
+
+		this.getSession().execute(boundStatement);
+
+	}
+
+	@Override
+	public void insertUserQuartileFeaturesByDate(Long courseid, Long date, Long userid, String profile, String sequence) {
+		BoundStatement boundStatement = new BoundStatement(
+				preparedStatements
+						.get("insertUserquartilefeaturesbydate"));
+		boundStatement.setLong(0, courseid);
+		boundStatement.setLong(1,date);
+		boundStatement.setString(3, profile);
+
+		boundStatement.setLong(2,userid);
 		boundStatement.setString(4,sequence);
 
 		this.getSession().execute(boundStatement);
@@ -211,9 +236,25 @@ implements Serializable, UserObservationsDBManager{
 		return rows;
 	}
 	@Override
+	public List<Row> findAllUserQuartileFeaturesForCourseDate(Long  courseId, Long  endDateSinceEpoch){
+		BoundStatement boundStatement = new BoundStatement(
+				preparedStatements.get("findUserquartilefeaturesbydate"));
+		boundStatement.setLong(0, courseId);
+		boundStatement.setLong(1, endDateSinceEpoch);
+		List<Row> rows =null;
+		try{
+			ResultSet rs = this.getSession().execute(boundStatement);
+			rows = rs.all();
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+		return rows;
+	}
+
+	@Override
 	public List<Row> findAllUserQuartileFeaturesForCourseProfileAndWeek(Long courseId, String profile, Long date) {
 		BoundStatement boundStatement = new BoundStatement(
-				preparedStatements.get("findUserquartilefeaturesbyweek"));
+				preparedStatements.get("findUserquartilefeaturesbyprofileanddate"));
 		boundStatement.setLong(0, courseId);
 		boundStatement.setString(1, profile);
 		boundStatement.setLong(2, date);

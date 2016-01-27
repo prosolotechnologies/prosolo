@@ -259,7 +259,8 @@ class UsersClustering  {
           feature => FeatureQuartiles.matchQuartileValueToQuartileName(feature)
         }.mkString(",")
 
-        UserObservationsDBManagerImpl.getInstance().insertUserQuartileFeaturesByWeek(courseId, clusterProfile, endDateSinceEpoch, userid, sequence);
+        UserObservationsDBManagerImpl.getInstance().insertUserQuartileFeaturesByProfile(courseId, clusterProfile, endDateSinceEpoch, userid, sequence);
+        UserObservationsDBManagerImpl.getInstance().insertUserQuartileFeaturesByDate(courseId, endDateSinceEpoch, userid, clusterProfile, sequence);
         println("course:" + courseId + " cluster-name:" + clusterProfile + " userid:" + userid + " date:" + endDateSinceEpoch + " sequence:" + userQuartilesSequence.map {
           feature => FeatureQuartiles.matchQuartileValueToQuartileName(feature)
         }.mkString(","))

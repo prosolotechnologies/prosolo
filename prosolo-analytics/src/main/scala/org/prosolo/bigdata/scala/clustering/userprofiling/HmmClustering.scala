@@ -7,6 +7,7 @@ import be.ac.ulg.montefiore.run.jahmm.learn.BaumWelchLearner
 import com.datastax.driver.core.Row
 import org.prosolo.bigdata.clustering.QuartileName
 import org.prosolo.bigdata.dal.cassandra.impl.UserObservationsDBManagerImpl
+import org.prosolo.bigdata.dal.persistence.impl.ClusteringDAOImpl
 
 
 import scala.collection.mutable.{HashMap, Map}
@@ -67,28 +68,54 @@ class HmmClustering {
   def processCourseTestSequencesForPeriod(startDate: Date, endDate: Date, courseId: Long)={
     val startDateSinceEpoch = DateUtil.getDaysSinceEpoch(startDate)
     val endDateSinceEpoch = DateUtil.getDaysSinceEpoch(endDate)
-
-
+    val clusteringDBManager=new ClusteringDAOImpl
+    println("PROCESSING COURSE:"+courseId)
     val sequences:List[List[ObservationDiscrete[QuartileName]]]=new util.ArrayList[List[ObservationDiscrete[QuartileName]]]()
-    ClusterName.values.foreach(clusterName=>
-    {
-      val  results:util.List[Row]=UserObservationsDBManagerImpl.getInstance().findAllUserQuartileFeaturesForCourseProfileAndWeek(courseId, clusterName.toString, endDateSinceEpoch)
-      println("FOUND TEST SEQUENCES:"+courseId+" cluster:"+clusterName.toString+" end date:"+endDateSinceEpoch+" size:"+results.size())
+  //  ClusterName.values.foreach(clusterName=>
+  //  {
+      val  results:util.List[Row]=UserObservationsDBManagerImpl.getInstance().findAllUserQuartileFeaturesForCourseDate(courseId, endDateSinceEpoch)
+      println("FOUND TEST SEQUENCES:"+courseId+" cluster:"+" end date:"+endDateSinceEpoch+" size:"+results.size())
       results.toList.foreach{
         row=>
           val testSequence: java.util.List[ObservationDiscrete[QuartileName]] =row.getString("sequence").split(",").map(_.trim).map{s=>QuartileName.valueOf(s)}.map{qn=>qn.observation()}.toList
           val userid=row.getLong("userid");
-          learntHmmModels.foreach{
-            case(clusterName, learntHmm)=>
-            {
-              val probability:Double=learntHmm.probability(testSequence);
-              val lnProbability:Double=learntHmm.lnProbability(testSequence);
-              println("user "+userid+" has probability for cluster:"+clusterName.toString+" p:"+probability+" lnP:"+lnProbability)
+          println("CHECKING ROW WITH TEST SEQUENCE:"+testSequence.toString)
+       /*    val learntHmm= learntHmmModels.get(clusterName).get
+          val probability:Double=learntHmm.probability(testSequence);
+          val lnProbability:Double=learntHmm.lnProbability(testSequence);
+          println("user "+userid+" has probability for cluster:"+clusterName.toString+" p:"+probability+" lnP:"+lnProbability)
+*/
+          var bestCluster=None:Option[ClusterName.Value]
+          var bestClusterProbability=0.0
 
+          learntHmmModels.foreach{
+           case(clusterName, learntHmm)=>
+           {
+
+             val probability:Double=learntHmm.probability(testSequence);
+             if(bestClusterProbability<probability){
+               bestCluster=Some(clusterName)
+               bestClusterProbability=probability
+
+             }
+             val lnProbability:Double=learntHmm.lnProbability(testSequence);
+             println("user "+userid+" has probability for cluster:"+clusterName.toString+" p:"+probability+" lnP:"+lnProbability)
+
+           }
+
+         }
+          bestCluster match {
+            case Some(cluster)=>{
+
+              val clusterTemplate:ClusterTemplate=FeaturesToProfileMatcher.clusterProfiles.get(cluster).get
+              println("BEST CLUSTER IDENTIFIED for course:"+courseId+" user:"+userid+" IS:"+cluster+" cluster full name:"+clusterTemplate.clusterFullName)
+              clusteringDBManager.updateUserCourseProfile(courseId,userid, bestCluster.get.toString, clusterTemplate.clusterFullName)
             }
+            case None=>println("NO BEST CLUSTER FOUND")
           }
       }
-    })
+   // })
+    println("FINISHED PROCESSING COURSE:"+courseId)
   }
 
   def extractSequenceProbabilities(testSequence: java.util.List[ObservationDiscrete[QuartileName]]):Map[ClusterName.Value,Tuple2[Double,Double]]={

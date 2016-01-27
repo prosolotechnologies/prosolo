@@ -47,6 +47,27 @@ public class CourseEnrollment extends BaseEntity {
 	private Status status;
 	private boolean assignedToInstructor;
 	private CourseInstructor instructor;
+	private String cluster;
+	private String clusterName;
+
+	@Column(name = "cluster", nullable = true)
+	public String getCluster() {
+		return cluster;
+	}
+
+	public void setCluster(String cluster) {
+		this.cluster = cluster;
+	}
+	@Column(name = "clusterName", nullable = true)
+	public String getClusterName() {
+		return clusterName;
+	}
+
+	public void setClusterName(String clusterName) {
+		this.clusterName = clusterName;
+	}
+
+
 	
 	private List<CourseCompetence> addedCompetences;
 	

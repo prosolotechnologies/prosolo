@@ -5,6 +5,8 @@ package org.prosolo.bigdata.dal.persistence.impl;/**
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.dal.persistence.ClusteringDAO;
 import org.prosolo.bigdata.dal.persistence.HibernateUtil;
+import org.prosolo.bigdata.scala.clustering.userprofiling.ClusterName;
+import org.prosolo.bigdata.scala.clustering.userprofiling.ClusterName.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,5 +43,33 @@ public class ClusteringDAOImpl extends GenericDAOImpl implements
             return result;
         }
         return new ArrayList<Long>();
+    }
+
+    public void updateUserCourseProfile(Long courseId, Long userId, String currentCluster , String clusterName ){
+        System.out.println("UPDATE USER COURSE PROFILE:"+courseId+" userId:"+userId+" cluster:"+currentCluster+" clusterFullName:"+clusterName);
+        String query =
+                "UPDATE " +
+                        "CourseEnrollment enrollment " +
+                        "set enrollment.cluster = :currentCluster, " +
+                        "enrollment.clusterName = :clusterName " +
+                        "WHERE enrollment.course IN " +
+                        "(" +
+                        "SELECT course " +
+                        " FROM Course course "+
+                        " WHERE course.id=:courseId"+
+                        ") AND " +
+                        "enrollment.user IN "+
+                        "("+
+                        "SELECT user "+
+                        " FROM User user "+
+                        " WHERE user.id=:userId"+
+                        ")";
+        System.out.println("QUERY:"+query);
+        int result=session.createQuery(query)
+                .setParameter("currentCluster",currentCluster)
+                .setParameter("clusterName",clusterName)
+                .setParameter("courseId",courseId)
+                .setParameter("userId",userId).executeUpdate();
+        System.out.println("ROWS AFFECTED:"+result);
     }
 }

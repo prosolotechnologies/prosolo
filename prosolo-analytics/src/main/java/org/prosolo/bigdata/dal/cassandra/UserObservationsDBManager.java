@@ -25,7 +25,9 @@ public interface UserObservationsDBManager {
 
 	List<Row> findAllUsersProfileObservationsForDate(Long date, Long courseId);
 
-	void insertUserQuartileFeaturesByWeek(Long courseid, String profile, Long date, Long userid, String sequence);
+	void insertUserQuartileFeaturesByProfile(Long courseid, String profile, Long date, Long userid, String sequence);
+
+	void insertUserQuartileFeaturesByDate(Long courseid, Long date, Long userid, String profile, String sequence);
 
 	List<Row> findAllUserQuartileFeaturesForCourse(Long courseId);
 
@@ -34,6 +36,7 @@ public interface UserObservationsDBManager {
 	List<Row> findAllUserQuartileFeaturesForCourseAndProfile(Long courseId, String profile);
 
 	List<Row> findAllUserQuartileFeaturesForCourseProfileAndWeek(Long courseId, String profile, Long date);
+	List<Row> findAllUserQuartileFeaturesForCourseDate(Long  courseId, Long  endDateSinceEpoch);
 
 	Set<Long> findAllUserCourses(Long userId);
 

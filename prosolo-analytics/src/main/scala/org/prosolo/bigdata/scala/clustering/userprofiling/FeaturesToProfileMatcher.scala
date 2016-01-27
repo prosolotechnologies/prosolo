@@ -29,10 +29,10 @@ object FeaturesToProfileMatcher {
         val line=profileLines(i)
         val cols: Array[String] = line.split(",").map(_.trim)
         val featuresCols:Array[Double]=new Array[Double](cols.length-1)
-        for(i<-1 to cols.length-1){
+        for(i<-2 to cols.length-1){
           featuresCols(i-1)=cols(i).toDouble
         }
-        val cluster:ClusterTemplate=new ClusterTemplate(ClusterName.withName(cols(0)),headerCols, featuresCols)
+        val cluster:ClusterTemplate=new ClusterTemplate(ClusterName.withName(cols(0)),cols(1),headerCols, featuresCols)
           profiles.put(cluster.clusterName,cluster)
 
 
@@ -99,7 +99,8 @@ object FeaturesToProfileMatcher {
   * @param featureNames
   * @param featureValues
   */
-class ClusterTemplate(val clusterName:ClusterName.Value, val featureNames: Array[String],val featureValues:Array[Double]){
+class ClusterTemplate(val clusterName:ClusterName.Value, val clusterFullName:String, val featureNames: Array[String],val featureValues:Array[Double]){
+  println("Cluster:"+clusterName+" has fullname:"+clusterFullName)
   def getFeatureValue(featureId:Int):Double={
     featureValues(featureId)
   }
