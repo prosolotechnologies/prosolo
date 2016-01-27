@@ -40,6 +40,9 @@
 				window.clearTimeout(this.keystrokeTimeout);
 				this.keystrokeTimeout = window.setTimeout(delayedSearch, 350);
 			};
+			function triggerCancelLink() {
+			    document.getElementById("cancelLink").click();
+			};
 		</script>
 		
 	<section class="heading">
@@ -61,7 +64,7 @@
     <div class="panel panel-default">
          <div class="panel-heading">
          	<h3 class="panel-title">Reassign #{studentReassignBean.instructor.name}'s students</h3>
-            <h:link
+            <h:link id="cancelLink"
             	styleClass="btn btn-default panelButton pull-right" 
             	outcome="/manage/instructorList" 
             	pt:role="button">
@@ -72,7 +75,8 @@
 		    <p:commandLink
 		    	styleClass="btn btn-primary panelButton pull-right"
 		    	process="@this"
-		    	action="#{studentReassignBean.saveReassignedStudents()}">
+		    	action="#{studentReassignBean.saveReassignedStudents()}"
+		    	oncomplete="triggerCancelLink();return false;">
 		    	<i class="fa fa-save"></i> Save
 		    </p:commandLink>    
          </div>

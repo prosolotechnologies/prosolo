@@ -1441,23 +1441,31 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional(readOnly = false)
-	public CourseInstructor assignInstructorToCourse(long userId, long courseId, int maxNumberOfAssignedStudents) throws DbConnectionException {
+	public CourseInstructor assignInstructorToCourse(long instructorId, long userId, long courseId, 
+			int maxNumberOfAssignedStudents) throws DbConnectionException {
+		int defaultNumberOfStudentsPerInstructor = 0;
+		if(maxNumberOfAssignedStudents == 0) {
+			defaultNumberOfStudentsPerInstructor = getDefaultNumberOfStudentsPerInstructor(courseId);
+		} else {
+			defaultNumberOfStudentsPerInstructor = maxNumberOfAssignedStudents;
+		}
 		try {
-			User user = (User) persistence.currentManager().load(User.class, userId);
-			Course course = (Course) persistence.currentManager().load(Course.class, courseId);
-			
-			CourseInstructor instructor = new CourseInstructor();
-			instructor.setUser(user);
-			instructor.setCourse(course);
-			int defaultNumberOfStudentsPerInstructor = 0;
-			if(maxNumberOfAssignedStudents == 0) {
-				defaultNumberOfStudentsPerInstructor = getDefaultNumberOfStudentsPerInstructor(courseId);
+			if(instructorId != 0) {
+				CourseInstructor courseInstructor = (CourseInstructor) persistence.currentManager().load(CourseInstructor.class,
+						instructorId);
+				courseInstructor.setMaxNumberOfStudents(defaultNumberOfStudentsPerInstructor);
+				return courseInstructor;
 			} else {
-				defaultNumberOfStudentsPerInstructor = maxNumberOfAssignedStudents;
+				User user = (User) persistence.currentManager().load(User.class, userId);
+				Course course = (Course) persistence.currentManager().load(Course.class, courseId);
+				
+				CourseInstructor instructor = new CourseInstructor();
+				instructor.setUser(user);
+				instructor.setCourse(course);
+				instructor.setMaxNumberOfStudents(defaultNumberOfStudentsPerInstructor);
+				
+				return saveEntity(instructor);
 			}
-			instructor.setMaxNumberOfStudents(defaultNumberOfStudentsPerInstructor);
-			
-			return saveEntity(instructor);
 		} catch(Exception e) {
 			throw new DbConnectionException("Error while assigning instructor to a course");
 		}
@@ -1490,5 +1498,29 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 		} catch(Exception e) {
 			throw new DbConnectionException("Error while reassigning students");
 		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public boolean areStudentsManuallyAssignedToInstructor(long courseId) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT course.manuallyAssignStudentsToInstructors " +
+					"FROM Course course " +
+					"WHERE course.id = :courseId";
+			
+				Boolean res = (Boolean) persistence.currentManager().createQuery(query).
+						setLong("courseId", courseId).
+						uniqueResult();
+				if(res == null) {
+					throw new Exception();
+				} 
+				return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading course data");
+		}
+
 	}
 }

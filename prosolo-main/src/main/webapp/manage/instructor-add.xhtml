@@ -194,7 +194,9 @@
                      </h:panelGroup>
                      
                     <h:form id="assignStudentsForm">
-                  	<div class="col-md-1 dd">
+                  	<h:panelGroup layout="block" id="panelMoveStudents" 
+                  		styleClass="col-md-1 dd"
+                  		rendered="#{instructorEditBean.manuallyAssignStudents}">
                      	<h3>Select and click to assign</h3>
                      	<p:commandLink
                      		styleClass="btn btn-default"
@@ -203,7 +205,7 @@
                      		update=":assignedStudentsPanel :assignStudentsForm:studentSearchResults ">
                      		<i class="fa fa-long-arrow-left"></i>
                      	</p:commandLink>
-                     </div>
+                     </h:panelGroup>
 							<div class="col-md-5">
                         <p:remoteCommand name="execSearchStudents" 
 									process="inputNameStudent"
@@ -213,6 +215,7 @@
                            <div class="form-group noMargin">
                               <label>Search for student</label>
                               <h:inputText id="inputNameStudent" 
+                              			disabled="#{!instructorEditBean.manuallyAssignStudents}"
 										value="#{instructorEditBean.studentSearchTerm}"
 								    	pt:placeholder="Start typing..."
 								    	styleClass="form-control"

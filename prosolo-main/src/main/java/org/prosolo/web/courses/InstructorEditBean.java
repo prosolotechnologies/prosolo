@@ -74,19 +74,23 @@ public class InstructorEditBean implements Serializable {
 	
 	private int numberOfCurrentlySelectedUsers;
 	
+	private boolean manuallyAssignStudents;
+	
 	public void init() {
-		assignedStudents = new ArrayList<>();
-		usersToAssign = new ArrayList<>();
-		usersToUnassign = new ArrayList<>();
-		decodedId = idEncoder.decodeId(id);
-		decodedCourseId = idEncoder.decodeId(courseId);
-		if(decodedCourseId > 0) {
-			searchUnassignedStudents();
-			
-			if (decodedId > 0) {
-				//instructor edit
-				title = "Edit instructor";
-				try {
+		try {
+			assignedStudents = new ArrayList<>();
+			usersToAssign = new ArrayList<>();
+			usersToUnassign = new ArrayList<>();
+			decodedId = idEncoder.decodeId(id);
+			decodedCourseId = idEncoder.decodeId(courseId);
+			if(decodedCourseId > 0) {
+				manuallyAssignStudents = courseManager.areStudentsManuallyAssignedToInstructor(decodedCourseId);
+				searchUnassignedStudents();
+				
+				if (decodedId > 0) {
+					//instructor edit
+					title = "Edit instructor";
+					
 					Map<String, Object> instructorData = courseManager.getBasicInstructorInfo(decodedId);
 					instructor = new CourseInstructorData();
 					if(instructorData != null && !instructorData.isEmpty()) {
@@ -94,6 +98,8 @@ public class InstructorEditBean implements Serializable {
 						instructor.setFullName((String) instructorData.get("firstName"), 
 								(String) instructorData.get("lastName"));
 						instructor.setMaxNumberOfStudents((int) instructorData.get("maxNumberOfStudents")); 
+						instructor.setUserId((long) instructorData.get("userId"));
+						@SuppressWarnings("unchecked")
 						List<Map<String, Object>> students = (List<Map<String, Object>>) instructorData.get("students");
 						int size = students != null ? students.size() : 0;
 						instructor.setNumberOfAssignedStudents(size);
@@ -109,25 +115,26 @@ public class InstructorEditBean implements Serializable {
 							logger.error(e);
 						}
 					}
-				} catch (Exception e) {
-					PageUtil.fireErrorMessage(e.getMessage());
+				} else if(decodedId == 0) {
+					//instructor add
+					isNew = true;
+					title = "Add new instructor";
+					List<Long> roleIds = roleManager.getRoleIdsForName("INSTRUCTOR");
+					if(roleIds.size() == 1) {
+						instructorRoleId = roleIds.get(0);
+					}
+					instructor = new CourseInstructorData();
 				}
-			} else if(decodedId == 0) {
-				//instructor add
-				isNew = true;
-				title = "Add new instructor";
-				List<Long> roleIds = roleManager.getRoleIdsForName("INSTRUCTOR");
-				if(roleIds.size() == 1) {
-					instructorRoleId = roleIds.get(0);
+			} else {
+				try {
+					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+				} catch (IOException e) {
+					logger.error(e);
 				}
-				instructor = new CourseInstructorData();
 			}
-		} else {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-			} catch (IOException e) {
-				logger.error(e);
-			}
+		
+		} catch (Exception e) {
+			PageUtil.fireErrorMessage(e.getMessage());
 		}
 		
 	}
@@ -138,6 +145,7 @@ public class InstructorEditBean implements Serializable {
 			if(instructorSearchTerm != null && !"".equals(instructorSearchTerm)) {
 				Map<String, Object> result = textSearch.searchUsersWithInstructorRole(instructorSearchTerm, 
 						decodedCourseId, instructorRoleId);
+				@SuppressWarnings("unchecked")
 				List<Map<String, Object>> users = (List<Map<String, Object>>) result.get("data");
 				if(users != null) {
 					for(Map<String, Object> user : users) {
@@ -155,13 +163,16 @@ public class InstructorEditBean implements Serializable {
 	public void searchUnassignedStudents() {
 		try {
 			unassignedStudents = new ArrayList<>();
-			Map<String, Object> result = textSearch.searchUnassignedCourseMembers(studentSearchTerm, decodedCourseId);
-			List<Map<String, Object>> unassignedUsers = (List<Map<String, Object>>) result.get("data");
-			if(unassignedUsers != null) {
-				for(Map<String, Object> user : unassignedUsers) {
-					BasicUserData data = new BasicUserData(user);
-					unassignedStudents.add(data);
-					//unassignedStudentsMap.put(data, false);
+			if(manuallyAssignStudents) {
+				Map<String, Object> result = textSearch.searchUnassignedCourseMembers(studentSearchTerm, decodedCourseId);
+				@SuppressWarnings("unchecked")
+				List<Map<String, Object>> unassignedUsers = (List<Map<String, Object>>) result.get("data");
+				if(unassignedUsers != null) {
+					for(Map<String, Object> user : unassignedUsers) {
+						BasicUserData data = new BasicUserData(user);
+						unassignedStudents.add(data);
+						//unassignedStudentsMap.put(data, false);
+					}
 				}
 			}
 		} catch(Exception e) {
@@ -245,23 +256,25 @@ public class InstructorEditBean implements Serializable {
 			if(i != null) {
 				numberOfStudents = i.intValue();
 			}
-			CourseInstructor courseInstructor = courseManager.assignInstructorToCourse(instructor.getUserId(), 
-					decodedCourseId, numberOfStudents);
-			taskExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					Course course = new Course();
-					course.setId(decodedCourseId);
-					User instr = new User();
-					instr.setId(instructor.getUserId());
-					try {
-						eventFactory.generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_COURSE, loggedUserBean.getUser(), instr, course, 
-								null, null, null, null);
-					} catch (EventException e) {
-							logger.error(e);
+			CourseInstructor courseInstructor = courseManager.assignInstructorToCourse(instructor.getInstructorId(),
+					instructor.getUserId(), decodedCourseId, numberOfStudents);
+			//if(instructor.getInstructorId() != 0){
+				taskExecutor.execute(new Runnable() {
+					@Override
+					public void run() {
+						Course course = new Course();
+						course.setId(decodedCourseId);
+						User instr = new User();
+						instr.setId(instructor.getUserId());
+						try {
+							eventFactory.generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_COURSE, loggedUserBean.getUser(), instr, course, 
+									null, null, null, null);
+						} catch (EventException e) {
+								logger.error(e);
+						}
 					}
-				}
-			});
+				});
+			//}
 			
 			instructor.setInstructorId(courseInstructor.getId());
 			instructor.setMaxNumberOfStudents(courseInstructor.getMaxNumberOfStudents());
@@ -378,6 +391,14 @@ public class InstructorEditBean implements Serializable {
 
 	public void setNumberOfCurrentlySelectedUsers(int numberOfCurrentlySelectedUsers) {
 		this.numberOfCurrentlySelectedUsers = numberOfCurrentlySelectedUsers;
+	}
+
+	public boolean isManuallyAssignStudents() {
+		return manuallyAssignStudents;
+	}
+
+	public void setManuallyAssignStudents(boolean manuallyAssignStudents) {
+		this.manuallyAssignStudents = manuallyAssignStudents;
 	}
 	
 }

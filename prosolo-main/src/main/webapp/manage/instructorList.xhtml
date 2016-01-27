@@ -140,7 +140,7 @@
 		         					</h:link>
 				            </td>
 				            <td class="colInstructorD">
-				            	<ui:fragment rendered="#{instructor.numberOfAssignedStudents == 0}">
+				            	<ui:fragment rendered="#{instructor.numberOfAssignedStudents == 0 or !courseInstructorsBean.manuallyAssignStudents}">
 				            		<h:link 
 					            		styleClass="btn btn-default"  
 					            		disabled="true"
@@ -150,7 +150,7 @@
 				            		</h:link>
 				            	</ui:fragment>
 				            	
-				            	<ui:fragment rendered="#{instructor.numberOfAssignedStudents != 0}">
+				            	<ui:fragment rendered="#{courseInstructorsBean.manuallyAssignStudents and instructor.numberOfAssignedStudents != 0}">
 				            		<h:link 
 					            		outcome="/manage/reassign"
 					            		styleClass="btn btn-default"  

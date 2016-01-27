@@ -31,7 +31,6 @@ public class CourseInstructorsBean implements Serializable {
 
 	private static final long serialVersionUID = -4892911343069292524L;
 
-	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(CourseInstructorsBean.class);
 
 	private List<CourseInstructorData> instructors;
@@ -57,11 +56,14 @@ public class CourseInstructorsBean implements Serializable {
 	
 	private CourseInstructorData instructorForRemoval;
 	
+	private boolean manuallyAssignStudents;
+	
 
 	public void init() {
 		decodedId = idEncoder.decodeId(id);
 		if (decodedId > 0) {
 			try {
+				manuallyAssignStudents = courseManager.areStudentsManuallyAssignedToInstructor(decodedId);
 				searchCourseInstructors();
 			} catch (Exception e) {
 				PageUtil.fireErrorMessage(e.getMessage());
@@ -106,6 +108,7 @@ public class CourseInstructorsBean implements Serializable {
 		
 		if (searchResponse != null) {
 			courseInstructorsNumber = ((Long) searchResponse.get("resultNumber")).intValue();
+			@SuppressWarnings("unchecked")
 			List<Map<String, Object>> data = (List<Map<String, Object>>) searchResponse.get("data");
 			if(data != null) {
 				for (Map<String, Object> resMap : data) {
@@ -226,5 +229,13 @@ public class CourseInstructorsBean implements Serializable {
 	public void setInstructorForRemoval(CourseInstructorData instructorForRemoval) {
 		this.instructorForRemoval = instructorForRemoval;
 	}
-	
+
+	public boolean isManuallyAssignStudents() {
+		return manuallyAssignStudents;
+	}
+
+	public void setManuallyAssignStudents(boolean manuallyAssignStudents) {
+		this.manuallyAssignStudents = manuallyAssignStudents;
+	}
+
 }
