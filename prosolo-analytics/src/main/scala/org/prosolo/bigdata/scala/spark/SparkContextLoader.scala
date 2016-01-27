@@ -1,5 +1,6 @@
 package org.prosolo.bigdata.scala.spark
 
+import org.apache.spark.api.java.JavaSparkContext
 import org.apache.spark.{SparkConf, SparkContext}
 
 /**
@@ -17,40 +18,28 @@ object SparkContextLoader {
    * Return a SparkContext that has hard-coded parameters
    * for testing, ideally these should be supplied by config
    * of being reliant on parsing some SPARK_HOME/conf dir.
+ *
    * @return SparkContext .
    */
-  /*def getSC: SparkContext = {
-    if (sc == null) {
-      println("INIT-SPARK CONTEXT SCALA")
-      sparkConf = new SparkConf()
-      sparkConf.set("spark.scheduler.mode", "FAIR")
-      sparkConf.set("spark.speculation", "true")
-      sparkConf.setMaster("local[1]")
-      sparkConf.setAppName("ProsoloBigDataScala")
-      sparkConf.set("spark.executor.memory", "512M")
-      sparkConf.set("spark.driver.memory", "1G")
-      sc = new SparkContext(sparkConf)
-    }
-    sc
-  }*/
-  /*def getSC:SparkContext={
-    if (!hasSC) {
-      println("INIT-SPARK CONTEXT SCALA:"+test)
-      val workers=1
-      val sparkConf = new SparkConf().setMaster("local[" + workers + "]").setAppName("SparkApp")
-      sc = new SparkContext(sparkConf)
-      hasSC = true
-      test="some"
-    }
 
-    return sc.asInstanceOf[SparkContext]
-  }*/
-  val sparkConf = new SparkConf().setMaster("local[1]").setAppName("SparkApp")
+
+  val numOfCores=Runtime.getRuntime.availableProcessors()
+  val sparkConf = new SparkConf()
+    .setMaster("local["+numOfCores+"]")
+      .set("spark.cores_max","4")
+      .set("spark.executor.memory","4g")
+      .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+      .setAppName("prosolo.bigdata")
 
   val sc = new SparkContext(sparkConf)
+  val jsc=new JavaSparkContext(sc)
   def getSC:SparkContext={
-    println("INIT-SPARK CONTEXT SCALA:")
+    println("GET-SPARK CONTEXT SCALA")
     sc
+  }
+  def getJSC:JavaSparkContext={
+    println("GET-SPARK CONTEXT JAVA")
+    jsc
   }
 
 }
