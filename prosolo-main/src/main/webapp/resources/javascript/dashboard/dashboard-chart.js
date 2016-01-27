@@ -101,6 +101,10 @@ var chart = (function() {
 				renderLegend : function(data) {
 					renderLegendTo(configuration.legend.selector, data);
 					displayLines(configuration.container, configuration.legend.selector);
+					$(configuration.legend.selector + " g").each(function() {
+						var $g = $(configuration.container + " g." + $(this).attr("class"));
+						$g.css("opacity", "100");
+					});
 					$(configuration.legend.selector + " g").click(function() {
 						var $g = $(configuration.container + " g." + $(this).attr("class"));
 						if ($g.size() == 0) {

@@ -1,6 +1,6 @@
 package org.prosolo.web.courses.data;
 
-import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.web.util.AvatarUtils;
@@ -12,7 +12,7 @@ public class UserData {
 	private String lastName;
 	private String fullName;
 	private String position;
-	private String avatarUrl = "/" + Settings.getInstance().config.services.userService.defaultAvatarPath + "size60x60.png";
+	private String avatarUrl = "/" + CommonSettings.getInstance().config.services.userService.defaultAvatarPath + "size60x60.png";
 	private UserData instructor;
 	private int courseProgress;
 	

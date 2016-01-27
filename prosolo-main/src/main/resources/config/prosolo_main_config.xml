@@ -81,11 +81,6 @@
 	    </url-encoding>
 	</app-config>
 	<services>
-		<user>
-			<default-avatar-path>resources/images/users/default/</default-avatar-path>
-			<user-avatar-path>images/users/</user-avatar-path>
-			<default-avatar-name>default</default-avatar-name>
-		</user>
 		<activity-report>
  		<report-directory>reports</report-directory>
  	</activity-report>
@@ -125,8 +120,6 @@
 				icons -->
 			<file-type-icons-path>/resources/images/teambox-free-file-icons/</file-type-icons-path>
 		</images>
-		<file-store-service-url>https://s3.amazonaws.com</file-store-service-url>
-		<file-store-bucket-name>prosolo_nikola</file-store-bucket-name>
 	</file-management>
 
 	<twitter-stream-config>

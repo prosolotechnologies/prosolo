@@ -15,15 +15,7 @@ public class FileManagementConfig {
 	public String urlPrefixFolder;
 
 	@Element(name = "buffer-size")
-	public int bufferSize;
-	
-	@Element(name = "file-store-service-url")
-	public String fileStoreServiceUrl;
-	
-	@Element(name = "file-store-bucket-name")
-	public String fileStoreBucketName;
-	
-	
+	public int bufferSize;	
 
 	@Override
 	public String toString() {

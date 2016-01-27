@@ -1,11 +1,13 @@
 package org.prosolo.bigdata.api;
 
+import java.io.File;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.Consumer;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -20,6 +22,9 @@ import org.prosolo.bigdata.dal.cassandra.SocialInteractionStatisticsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl;
 import org.prosolo.bigdata.dal.persistence.UserDAO;
 import org.prosolo.bigdata.dal.persistence.impl.UserDAOImpl;
+import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.config.services.UserServiceConfig;
+import org.prosolo.common.util.ImageFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -185,7 +190,35 @@ public class SocialInteractionStatisticsService {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getStudentData(@QueryParam("students[]") Long[] students) {
 		logger.debug("Service 'getStudentData' called.");
-		return ResponseUtils.corsOk(userDao.getUsersData(students));
+		Map<Long, Map<String, String>> studentsData = userDao.getUsersData(students);
+		studentsData.keySet().forEach(new Consumer<Long>() {
+
+			@Override
+			public void accept(Long key) {
+				String avatar = studentsData.get(key).get("avatar");
+				studentsData.get(key).put("avatar", getAvatarUrlInFormat(key, avatar, ImageFormat.size60x60));
+			}
+
+		});
+		return ResponseUtils.corsOk(studentsData);
 		// return ResponseUtils.corsOk(randomStudentsData(students));
-	}	
+	}
+
+	private String getAvatarUrlInFormat(Long userId, String avatarUrl, ImageFormat format) {
+		if (avatarUrl != null && avatarUrl.startsWith("http")) {
+			return avatarUrl;
+		}
+
+		UserServiceConfig avatarConfig = CommonSettings.getInstance().config.services.userService;
+
+		if (avatarUrl == null || avatarUrl.equals("") || avatarUrl.equals(avatarConfig.defaultAvatarName)) {
+			return "/" + avatarConfig.defaultAvatarPath + format + ".png";
+		}
+		String serviceUrl = CommonSettings.getInstance().config.fileStore.fileStoreServiceUrl;
+		String bucketName = CommonSettings.getInstance().config.fileStore.fileStoreBucketName;
+		String avatarPath = avatarConfig.userAvatarPath;
+		String separator = File.separator;
+		return serviceUrl + separator + bucketName + separator + avatarPath + avatarUrl + separator + format + ".png";
+	}
+	
 }

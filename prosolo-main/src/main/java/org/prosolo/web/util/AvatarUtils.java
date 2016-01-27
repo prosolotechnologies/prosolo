@@ -7,11 +7,12 @@ import java.util.UUID;
 
 import org.hibernate.Hibernate;
 import org.prosolo.app.Settings;
-import org.prosolo.config.fileManagement.FileManagementConfig;
-import org.prosolo.core.spring.ServiceLocator;
+import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.config.services.FileStoreConfig;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.common.util.ImageFormat;
+import org.prosolo.core.spring.ServiceLocator;
+import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.util.StringUtils;
 
 /**
@@ -26,7 +27,7 @@ public class AvatarUtils {
 	}
 	
 	public static String getDefaultAvatarUrl(){
-		return Settings.getInstance().config.services.userService.defaultAvatarName;
+		return CommonSettings.getInstance().config.services.userService.defaultAvatarName;
 	}
 	
 	public static String getAvatarUrlInFormat(User user, ImageFormat format) {
@@ -53,12 +54,12 @@ public class AvatarUtils {
 		String url;
 
 		if (avatarUrl == null || avatarUrl.equals("") || avatarUrl.equals(getDefaultAvatarUrl())) {
-			url = "/" + Settings.getInstance().config.services.userService.defaultAvatarPath + format + ".png";
+			url = "/" + CommonSettings.getInstance().config.services.userService.defaultAvatarPath + format + ".png";
 		} else {
-			FileManagementConfig filesConfig=Settings.getInstance().config.fileManagement;
+			FileStoreConfig filesConfig=CommonSettings.getInstance().config.fileStore;
 			url = filesConfig.fileStoreServiceUrl + File.separator + 
 					filesConfig.fileStoreBucketName + File.separator +
-					Settings.getInstance().config.services.userService.userAvatarPath +
+					CommonSettings.getInstance().config.services.userService.userAvatarPath +
 					avatarUrl + File.separator + 
 					format+".png";
 		//	url = Settings.getInstance().config.fileManagement.uploadPath + Settings.getInstance().config.services.userService.userAvatarPath + avatarUrl + File.separator + format + ".png";
