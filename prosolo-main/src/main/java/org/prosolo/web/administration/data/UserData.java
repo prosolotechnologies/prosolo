@@ -3,10 +3,10 @@ package org.prosolo.web.administration.data;
 import java.io.Serializable;
 
 import org.primefaces.model.UploadedFile;
-import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.util.ImageFormat;
 import org.prosolo.web.util.AvatarUtils;
- import org.prosolo.common.util.ImageFormat;
 
 public class UserData implements Serializable {
 
@@ -19,7 +19,7 @@ public class UserData implements Serializable {
 	private String position;
 	private String email;
 	private String reEnterPassword;
-	private String avatarUrl = "/" + Settings.getInstance().config.services.userService.defaultAvatarPath + "size60x60.png";;
+	private String avatarUrl = "/" + CommonSettings.getInstance().config.services.userService.defaultAvatarPath + "size60x60.png";;
 	private boolean changePassword = false;
 	private boolean sendEmail = false;
 	private UploadedFile file;

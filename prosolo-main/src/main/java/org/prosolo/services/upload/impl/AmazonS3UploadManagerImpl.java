@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.log4j.Logger;
-import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.services.upload.AmazonS3Provider;
 import org.prosolo.services.upload.AmazonS3UploadManager;
 import org.prosolo.util.urigenerator.MD5HashUtility;
@@ -32,7 +32,7 @@ public class AmazonS3UploadManagerImpl implements AmazonS3UploadManager {
 	private Logger logger = Logger.getLogger(AmazonS3UploadManagerImpl.class);
 
 	@Autowired private AmazonS3Provider s3Provider;
-	private String bucketName = Settings.getInstance().config.fileManagement.fileStoreBucketName;
+	private String bucketName = CommonSettings.getInstance().config.fileStore.fileStoreBucketName;
 
 	@Override
 	public String storeInputStreamByFileName(InputStream sourceInputStream, String fileName, String fileType){

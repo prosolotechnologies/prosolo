@@ -16,13 +16,14 @@ import javax.imageio.ImageIO;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
-import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.services.upload.AmazonS3UploadManager;
 import org.prosolo.services.upload.AvatarProcessor;
 import org.prosolo.services.upload.ImageUtil;
 import org.prosolo.util.FileUtil;
+import org.prosolo.web.util.AvatarUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,7 +45,7 @@ public class AvatarProcessorImpl implements AvatarProcessor, Serializable {
 	@Override
 	public String storeUserAvatar(User user, InputStream imageInputStream, String avatarFilename, boolean createResizedCopies) throws IOException {
 		String userFolder = AvatarUtils.getUserFolderPath(user);
-		String avatarUploadFolder = Settings.getInstance().config.fileManagement.uploadPath + Settings.getInstance().config.services.userService.userAvatarPath + userFolder;
+		String avatarUploadFolder = Settings.getInstance().config.fileManagement.uploadPath + CommonSettings.getInstance().config.services.userService.userAvatarPath + userFolder;
 		
 		String imageExtension = ImageUtil.getExtension(avatarFilename);
 		
@@ -58,7 +59,7 @@ public class AvatarProcessorImpl implements AvatarProcessor, Serializable {
 		FileUtils.copyInputStreamToFile(imageInputStream, originalFile);
 		String fileType=FileUtil.getFileType(originalFile);
 		amazonS3UploadManager.storeInputStreamByKey(new FileInputStream(originalFile), 
-		 Settings.getInstance().config.services.userService.userAvatarPath +
+		 CommonSettings.getInstance().config.services.userService.userAvatarPath +
 				// "images/users/"+
 				userFolder + File.separator + "original.png",fileType);
 		// create resized copies
@@ -68,7 +69,7 @@ public class AvatarProcessorImpl implements AvatarProcessor, Serializable {
 
 	@Override
 	public String storeTempAvatar(User user, InputStream imageInputStream, String avatarFilename, int scaledWidth, int scaledHeight) throws IOException {
-		String avatarUrl = "temp" + File.separator + Settings.getInstance().config.services.userService.userAvatarPath + AvatarUtils.getUserFolderPath(user);
+		String avatarUrl = "temp" + File.separator + CommonSettings.getInstance().config.services.userService.userAvatarPath + AvatarUtils.getUserFolderPath(user);
 		String avatarUploadFolder = Settings.getInstance().config.fileManagement.uploadPath + avatarUrl;
 		
 		AvatarUtils.createDirectoryIfDoesNotExist(avatarUploadFolder);
@@ -186,7 +187,7 @@ public class AvatarProcessorImpl implements AvatarProcessor, Serializable {
 		ImageIO.write(scaledBI, imageExtension, resizedImage);
 		String fileType=FileUtil.getFileType(resizedImage);
 	 	amazonS3UploadManager.storeInputStreamByKey(new FileInputStream(resizedImage), 
-		 		Settings.getInstance().config.services.userService.userAvatarPath+  userFolder+File.separator +imageName, fileType);
+	 			CommonSettings.getInstance().config.services.userService.userAvatarPath+  userFolder+File.separator +imageName, fileType);
     }
 	
 	@Override
@@ -198,7 +199,7 @@ public class AvatarProcessorImpl implements AvatarProcessor, Serializable {
 		String format =  pathTokens[pathTokens.length - 1];
 		
 		String userFolder = AvatarUtils.getUserFolderPath(user);
-		String avatarUploadFolder = Settings.getInstance().config.fileManagement.uploadPath + Settings.getInstance().config.services.userService.userAvatarPath + userFolder;
+		String avatarUploadFolder = Settings.getInstance().config.fileManagement.uploadPath + CommonSettings.getInstance().config.services.userService.userAvatarPath + userFolder;
 		
 		AvatarUtils.createDirectoryIfDoesNotExist(avatarUploadFolder);
 		

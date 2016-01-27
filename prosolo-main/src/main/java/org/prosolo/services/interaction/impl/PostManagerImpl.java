@@ -28,7 +28,7 @@ import javax.imageio.ImageIO;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activities.ResourceActivity;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
@@ -577,7 +577,7 @@ public class PostManagerImpl extends AbstractManagerImpl implements PostManager 
 									imageName;
 					
 					s3Manager.storeInputStreamByKey(is, key,fileType);
-					selectedImage = Settings.getInstance().config.fileManagement.fileStoreServiceUrl + "/" + Settings.getInstance().config.fileManagement.fileStoreBucketName + "/" + key;
+					selectedImage = CommonSettings.getInstance().config.fileStore.fileStoreServiceUrl + "/" + CommonSettings.getInstance().config.fileStore.fileStoreBucketName + "/" + key;
 				} catch (IOException e) {
 					logger.error("IOException while storing:"+selectedImage,e);
 				} catch (NoSuchAlgorithmException e) {

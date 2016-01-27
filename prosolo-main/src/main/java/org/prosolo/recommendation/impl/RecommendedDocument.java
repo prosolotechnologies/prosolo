@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHitField;
 import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 
 /**
 zoran
@@ -54,8 +55,8 @@ public class RecommendedDocument implements Serializable {
 	}
 	
 	private String createLinkToFileFromKey(String key){
-		return Settings.getInstance().config.fileManagement.fileStoreServiceUrl + "/" + 
-				Settings.getInstance().config.fileManagement.fileStoreBucketName + "/" + 
+		return CommonSettings.getInstance().config.fileStore.fileStoreServiceUrl + "/" + 
+				CommonSettings.getInstance().config.fileStore.fileStoreBucketName + "/" + 
 				key;
 	}
 

@@ -2,8 +2,10 @@ package org.prosolo.common.config;
 
  
  
-import org.simpleframework.xml.Element;
 import org.prosolo.common.config.hibernate.HibernateConfig;
+import org.prosolo.common.config.services.FileStoreConfig;
+import org.prosolo.common.config.services.ServicesConfig;
+import org.simpleframework.xml.Element;
 
 
 public class Config {
@@ -28,6 +30,12 @@ public class Config {
 	
 	 @Element(name = "app-config", required = true)
 		 public AppConfig appConfig;
+	 
+	@Element(name = "services")
+	public ServicesConfig services;
+	
+	@Element(name = "file-store")
+	public FileStoreConfig fileStore;
 	
 	public String getNamespacePrefix(){
 		if(this.namespace.equals("local")){

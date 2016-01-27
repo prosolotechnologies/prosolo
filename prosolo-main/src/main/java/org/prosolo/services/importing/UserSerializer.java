@@ -6,6 +6,7 @@ import java.lang.reflect.Type;
 
 import org.apache.commons.io.FileUtils;
 import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.user.User;
 
 import com.google.gson.JsonElement;
@@ -41,7 +42,7 @@ public class UserSerializer implements JsonSerializer<User>  {
 			//if (link.contains("+")) {
 			//	link = link.replaceAll("\\+", " ");
 			//}
-			link =Settings.getInstance().config.fileManagement.uploadPath+ Settings.getInstance().config.services.userService.userAvatarPath + link;
+			link =Settings.getInstance().config.fileManagement.uploadPath+ CommonSettings.getInstance().config.services.userService.userAvatarPath + link;
 			File file = new File(link);
 			
 			String filename=file.getName();
