@@ -20,6 +20,7 @@ import org.prosolo.search.util.InstructorAssignedFilter;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.data.CourseInstructorData;
 import org.prosolo.web.courses.data.UserData;
 import org.prosolo.web.courses.util.pagination.PaginationLink;
@@ -36,7 +37,6 @@ public class CourseMembersBean implements Serializable {
 
 	private static final long serialVersionUID = 1827743731093959636L;
 
-	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(CourseMembersBean.class);
 
 	private List<UserData> members;
@@ -47,6 +47,7 @@ public class CourseMembersBean implements Serializable {
 	private TextSearch textSearch;
 	@Inject
 	private CourseManager courseManager;
+	@Inject private LoggedUserBean loggedUserBean;
 
 	// PARAMETERS
 	private String id;
@@ -67,11 +68,17 @@ public class CourseMembersBean implements Serializable {
 	private UserData userToAssignInstructor;
 	
 	private String instructorSearchTerm = "";
+	
+	private long personalizedForUserId = -1;
 
 	public void init() {
 		decodedId = idEncoder.decodeId(id);
 		if (decodedId > 0) {
 			try {
+				boolean showPersonalized = !loggedUserBean.hasCapability("COURSE.MEMBERS.VIEW");
+				if(showPersonalized) {
+					personalizedForUserId = loggedUserBean.getUser().getId();
+				}
 				searchCourseMembers();
 				// List<Map<String, Object>> result =
 				// courseManager.getCourseParticipantsWithCourseInfo(decodedId);
@@ -131,7 +138,7 @@ public class CourseMembersBean implements Serializable {
 		Map<String, Object> searchResponse = textSearch.searchCourseMembers(searchTerm, 
 				instructorAssignedFilter, 
 				page - 1, limit, 
-				decodedId, sortOption);
+				decodedId, personalizedForUserId, sortOption);
 
 		populateCourseMembersData(searchResponse);
 	}

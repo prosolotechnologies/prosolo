@@ -127,6 +127,27 @@
                 "Manager",
                 "Instructor"
             ]
+        },
+        {
+            "name": "course.instructors.view",
+            "description": "View course instructors",
+            "roles": [
+                "Manager"
+            ]
+        },
+        {
+            "name": "course.members.view",
+            "description": "View all course members",
+            "roles": [
+                "Manager"
+            ]
+        },
+        {
+            "name": "course.members.view.personalized",
+            "description": "View course members assigned to him",
+            "roles": [
+                "Instructor"
+            ]
         }
     ]
 }

@@ -543,7 +543,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	
 	@Override
 	public Map<String, Object> searchCourseMembers (
-			String searchTerm, InstructorAssignedFilter filter, int page, int limit, long courseId, CourseMembersSortOption sortOption) {
+			String searchTerm, InstructorAssignedFilter filter, int page, int limit, long courseId, 
+			long instructorId, CourseMembersSortOption sortOption) {
 		
 		Map<String, Object> resultMap = new HashMap<>();
 		try {
@@ -564,6 +565,9 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			
 			BoolQueryBuilder nestedBQBuilder = QueryBuilders.boolQuery();
 			nestedBQBuilder.must(QueryBuilders.matchQuery("courses.id", courseId));
+			if(instructorId != -1) {
+				nestedBQBuilder.must(QueryBuilders.matchQuery("courses.instructorId", instructorId));
+			}
 			if(filter != InstructorAssignedFilter.All) {
 				QueryBuilder qBuilder = termQuery("courses.instructorId", 0);
 				if(filter == InstructorAssignedFilter.Assigned) {
@@ -627,11 +631,11 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 								Map<String, Object> course = innerHits.getAt(0).getSource();
 								
 								if(course != null) {
-									long instructorId = Long.parseLong(course.get("instructorId").toString());
+									long instrId = Long.parseLong(course.get("instructorId").toString());
 									User instructor = null;
-									if(instructorId != 0) {
+									if(instrId != 0) {
 										try {
-											instructor = defaultManager.loadResource(User.class, instructorId);
+											instructor = defaultManager.loadResource(User.class, instrId);
 										} catch(Exception e) {
 											e.printStackTrace();
 											logger.error(e);

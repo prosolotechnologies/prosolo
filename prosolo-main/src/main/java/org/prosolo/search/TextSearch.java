@@ -70,8 +70,8 @@ public interface TextSearch extends AbstractManager {
 			boolean loadOneMore, Collection<Tag> tagsToExclude);
 	
 	Map<String, Object> searchCourseMembers (
-			String searchTerm, InstructorAssignedFilter filter, int page, int limit, 
-			long courseId, CourseMembersSortOption sortOption);
+			String searchTerm, InstructorAssignedFilter filter, int page, int limit, long courseId, 
+			long instructorId, CourseMembersSortOption sortOption);
 	
 	Map<String, Object> searchInstructors (
 			String searchTerm, int page, int limit, long courseId, 

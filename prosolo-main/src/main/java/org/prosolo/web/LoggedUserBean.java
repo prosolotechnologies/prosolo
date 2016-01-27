@@ -2,6 +2,7 @@ package org.prosolo.web;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -294,6 +295,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			return false;
 		}
 
+		@SuppressWarnings("unchecked")
 		List<GrantedAuthority> capabilities = (List<GrantedAuthority>) authentication.getAuthorities();
 
 		if (capabilities == null) {
@@ -301,8 +303,9 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		}
 
 		for (GrantedAuthority auth : capabilities) {
-			if (capability.toUpperCase().equals(auth.getAuthority()))
+			if (auth.getAuthority().toUpperCase().equals(capability.toUpperCase())) {
 				return true;
+			}
 		}
 
 		return false;

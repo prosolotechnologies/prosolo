@@ -80,11 +80,11 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/manage/competences/*/tools").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/competences/**").hasAuthority("COMPETENCES.VIEW")
 		   .antMatchers("/manage/credentials/*/feeds").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
-		   .antMatchers("/manage/credentials/*/students").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
+		   .antMatchers("/manage/credentials/*/students").hasAnyAuthority("COURSE.MEMBERS.VIEW", "COURSE.MEMBERS.VIEW.PERSONALIZED")
 		   .antMatchers("/manage/credentials/create/").hasAnyAuthority("COURSE.CREATE")
 		   //capability for external tool?
 		   .antMatchers("/manage/credentials/*/tools").hasAuthority("BASIC.MANAGER.ACCESS")
-		   .antMatchers("/manage/credentials/*/instructors").hasAuthority("COURSE.ASSIGNINSTRUCTOR")
+		   .antMatchers("/manage/credentials/*/instructors").hasAuthority("COURSE.INSTRUCTORS.VIEW")
 		   .antMatchers("/manage/credentials/**").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
 		   
 		   .antMatchers("/manage/tools/*/*/*/create").hasAuthority("BASIC.MANAGER.ACCESS")
