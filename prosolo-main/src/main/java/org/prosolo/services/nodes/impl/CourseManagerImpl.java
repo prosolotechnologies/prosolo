@@ -1,5 +1,6 @@
 package org.prosolo.services.nodes.impl;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -475,6 +476,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 		CourseEnrollment enrollment = resourceFactory.enrollUserInCourse(user, course, targetGoal, context);
 		if(enrollment != null) {
 			try {
+				
 				Map<String, String> parameters = new HashMap<String, String>();
 				parameters.put("context", context);
 			
@@ -598,7 +600,10 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 			logger.error(e);
 		}
 		
-		return saveEntity(enrollment);
+		enrollment = saveEntity(enrollment);
+		
+		return enrollment;
+		
 	}
 	
 	@Override
@@ -1523,4 +1528,6 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 		}
 
 	}
+	
 }
+

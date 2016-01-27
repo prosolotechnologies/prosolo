@@ -1,10 +1,13 @@
 package org.prosolo.services.nodes.impl;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -26,6 +29,7 @@ import org.prosolo.common.domainmodel.content.RichContent;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CourseCompetence;
 import org.prosolo.common.domainmodel.course.CourseEnrollment;
+import org.prosolo.common.domainmodel.course.CourseInstructor;
 import org.prosolo.common.domainmodel.course.CoursePortfolio;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.course.Status;
@@ -621,8 +625,45 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 			portfolio.addEnrollment(enrollment);
 			saveEntity(portfolio);
 			
+			if(!course.isManuallyAssignStudentsToInstructors()) {
+				assignStudentToInstructorAutomatically(course.getId(), enrollment.getId());
+			}
+			
 			return enrollment;
 		}
 		return null;
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public void assignStudentToInstructorAutomatically(long courseId, long courseEnrollmentId) {
+		List<Map<String, Object>> instructors = courseManager.getCourseInstructors(courseId);
+		
+		if(instructors != null) {
+			BigDecimal min = BigDecimal.ONE;
+			long instructorIdMinOccupied = 0;
+			for(Map<String, Object> map : instructors) {
+				int max = (int) map.get("maxNumberOfStudents");
+				int assigned = (int) map.get("numberOfAssignedStudents");
+				BigDecimal occupiedFactor = BigDecimal.valueOf(assigned).divide(BigDecimal.valueOf(max),
+						10, RoundingMode.HALF_UP);
+				if(occupiedFactor.compareTo(min) == -1) {
+					min = occupiedFactor;
+					instructorIdMinOccupied = (long) map.get("instructorId");
+					if(occupiedFactor.compareTo(BigDecimal.ZERO) == 0) {
+						break;
+					}
+				}
+			}
+			
+			if(min.compareTo(BigDecimal.ONE) != 0) {
+				CourseInstructor inst = (CourseInstructor) persistence.currentManager()
+						.load(CourseInstructor.class, instructorIdMinOccupied);
+				CourseEnrollment enr = (CourseEnrollment) persistence.currentManager()
+						.load(CourseEnrollment.class, courseEnrollmentId);
+				enr.setAssignedToInstructor(true);
+				enr.setInstructor(inst);
+			}
+		}
 	}
 }

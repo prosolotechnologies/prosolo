@@ -89,5 +89,7 @@ public interface ResourceFactory extends AbstractManager {
 	SimpleOutcome createSimpleOutcome(double resultValue);
 	
 	CourseEnrollment enrollUserInCourse(User user, Course course, TargetLearningGoal targetGoal, String context);
+	
+	void assignStudentToInstructorAutomatically(long courseId, long courseEnrollmentId);
 
 }
