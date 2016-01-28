@@ -68,23 +68,28 @@
 			<ui:repeat var="comp"
 				value="#{studentProfileBean.selectedGoal.competences}">
 
-				<h:panelGroup layout="block"
-					styleClass="progressBlock competence #{comp.id == studentProfileBean.selectedGoal.selectedCompetence.id ? 'selected' : ''}"
-					onclick="$('.hiddenCompLink[data-id=&#34;#{comp.id}&#34;]').trigger('click')">
-					<div class="trophy #{comp.trophyWon ? 'achieved' : ''}">
-						<i class="fa fa-trophy" data-toggle="tooltip"
-							data-placement="top"
-							title="#{comp.trophyWon ? 'Trophy won' : 'Trophy'}"></i>
-					</div>
-
-					<div class="progress">
-						<div class="progression bgBlue"
-							style="height: #{comp.progress}%"></div>
-						<div class="progressMask"></div>
-						<div class="percentage">#{comp.progress}%</div>
-					</div>
-
-					<h3>#{comp.name}</h3>
+				<h:panelGroup layout="block" id="competencePanel"
+					styleClass="progressBlock competence #{comp.id == studentProfileBean.selectedGoal.selectedCompetence.id ? 'selected' : ''}">
+					<p:commandLink
+						action="#{studentProfileBean.selectCompetence(comp)}"
+						update=":progression :lastObservationPanel" 
+						oncomplete="hideObservationPanel();initProgressionTabScripts();">
+	
+						<div class="trophy #{comp.trophyWon ? 'achieved' : ''}">
+							<i class="fa fa-trophy" data-toggle="tooltip"
+								data-placement="top"
+								title="#{comp.trophyWon ? 'Trophy won' : 'Trophy'}"></i>
+						</div>
+	
+						<div class="progress">
+							<div class="progression bgBlue"
+								style="height: #{comp.progress}%"></div>
+							<div class="progressMask"></div>
+							<div class="percentage">#{comp.progress}%</div>
+						</div>
+						
+						<h3>#{comp.name}</h3>
+					</p:commandLink>
 					<div class="blockBar">
 						<div class="assessments">
 							Assessments
@@ -97,13 +102,17 @@
 						<div class="assessmentExpand dropup">
 							<p:commandLink
 								actionListener="#{studentProfileBean.loadSubmissions(comp)}"
-								oncomplete="$('#assesmentDropdown').dropdown('toggle'); return false;"
+								oncomplete="$('.hiddenAssessmendDropdownToggleLink[data-id=&#34;#{comp.id}&#34;]').dropdown('toggle'); return false;"
 								update="assesmentPanel">
 								<i class="fa fa-external-link"></i>
 							</p:commandLink>
 
-							<a id="assesmentDropdown" data-target="#"
-								data-toggle="dropdown" role="button" aria-haspopup="true"
+							<a class="hiddenAssessmendDropdownToggleLink"
+								data-id="#{comp.id}"
+								data-target="#"
+								data-toggle="dropdown" 
+								role="button" 
+								aria-haspopup="true"
 								aria-expanded="false"></a>
 
 							<h:panelGroup layout="block" id="assesmentPanel"
@@ -134,7 +143,6 @@
 													<f:param name="id"
 														value="#{util:encodeId(submission.evaluator.id)}" />
 												</h:link>
-												<a href="#">#{submission.evaluator.name}</a>
 
 												<div class="icons">
 													<i
@@ -160,12 +168,6 @@
 					</div>
 				</h:panelGroup>
 
-				<p:commandLink styleClass="hiddenCompLink"
-					style="display: none;" 
-					pt:data-id="#{comp.id}"
-					action="#{studentProfileBean.selectCompetence(comp)}"
-					update=":progression"
-					oncomplete="initProgressionTabScripts()" />
 			</ui:repeat>
 			<a href="" class="sliderIconRightCred"><i class="fa fa-angle-right"></i></a>
 			<div class="clearfix"></div>
