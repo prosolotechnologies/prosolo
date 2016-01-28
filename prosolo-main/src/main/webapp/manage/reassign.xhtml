@@ -78,6 +78,7 @@
 		    	action="#{studentReassignBean.saveReassignedStudents()}"
 		    	oncomplete="triggerCancelLink();return false;">
 		    	<i class="fa fa-save"></i> Save
+		    	<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 		    </p:commandLink>    
          </div>
      		<div class="panel-body"> 
@@ -201,7 +202,9 @@
 			bean="#{studentReassignBean}"
 			searchListener="searchListener"
 			instructorList="#{studentReassignBean.otherInstructorsList}"
-			updateRegion=":formAssignedStudents :panelSelectedInstructorAssignedStudents :formSelectInstructor:panelSelectedInstructor" />
+			updateRegion=":formAssignedStudents :panelSelectedInstructorAssignedStudents :formSelectInstructor:panelSelectedInstructor" 
+			page="#{facesContext.viewRoot.viewId}"/>
+			
 
 </ui:define>
 </ui:composition>

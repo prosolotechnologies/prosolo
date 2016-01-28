@@ -76,6 +76,8 @@ public class InstructorEditBean implements Serializable {
 	
 	private boolean manuallyAssignStudents;
 	
+	private String context;
+	
 	public void init() {
 		try {
 			assignedStudents = new ArrayList<>();
@@ -84,12 +86,14 @@ public class InstructorEditBean implements Serializable {
 			decodedId = idEncoder.decodeId(id);
 			decodedCourseId = idEncoder.decodeId(courseId);
 			if(decodedCourseId > 0) {
+				context = "name:CREDENTIAL|id:" + decodedCourseId;
 				manuallyAssignStudents = courseManager.areStudentsManuallyAssignedToInstructor(decodedCourseId);
 				searchUnassignedStudents();
 				
 				if (decodedId > 0) {
 					//instructor edit
 					title = "Edit instructor";
+					context += "|context:/name:INSTRUCTOR|id:" + decodedId + "/";
 					
 					Map<String, Object> instructorData = courseManager.getBasicInstructorInfo(decodedId);
 					instructor = new CourseInstructorData();
@@ -200,6 +204,8 @@ public class InstructorEditBean implements Serializable {
 			courseManager.updateStudentsAssignedToInstructor(instructor.getInstructorId(), decodedCourseId,
 					usersToAssign, usersToUnassign);
 			
+			String page = PageUtil.getPostParameter("page");
+			String service = PageUtil.getPostParameter("service");
 			taskExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
@@ -213,7 +219,7 @@ public class InstructorEditBean implements Serializable {
 							User object = new User();
 							object.setId(userId);
 							eventFactory.generateEvent(EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR, loggedUserBean.getUser(), object, target, 
-									null, null, null, parameters);
+									page, context, service, parameters);
 						} catch (EventException e) {
 							logger.error(e);
 						}
@@ -222,11 +228,11 @@ public class InstructorEditBean implements Serializable {
 					for(Long userId : usersToUnassign) {
 						try {
 							User target = new User();
-							target.setId(instructor.getInstructorId());
+							target.setId(instructor.getUserId());
 							User object = new User();
 							object.setId(userId);
 							eventFactory.generateEvent(EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR, loggedUserBean.getUser(), object, target, 
-									null, null, null, parameters);
+									page, context, service, parameters);
 						} catch (EventException e) {
 							logger.error(e);
 						}
@@ -249,16 +255,19 @@ public class InstructorEditBean implements Serializable {
 		instructor.setName(user.getFullName());
 	}
 	
-	public void assignInstructorToCourse() {
+	public void saveInstructor() {
 		try {
 			int numberOfStudents = 0;
 			Integer i = instructor.getMaxNumberOfStudents();
 			if(i != null) {
 				numberOfStudents = i.intValue();
 			}
-			CourseInstructor courseInstructor = courseManager.assignInstructorToCourse(instructor.getInstructorId(),
+			CourseInstructor courseInstructor = courseManager.saveCourseInstructor(instructor.getInstructorId(),
 					instructor.getUserId(), decodedCourseId, numberOfStudents);
-			//if(instructor.getInstructorId() != 0){
+			if(instructor.getInstructorId() == 0) {
+				String page = PageUtil.getPostParameter("page");
+				String service = PageUtil.getPostParameter("service");
+				final String lContext = context;
 				taskExecutor.execute(new Runnable() {
 					@Override
 					public void run() {
@@ -268,16 +277,17 @@ public class InstructorEditBean implements Serializable {
 						instr.setId(instructor.getUserId());
 						try {
 							eventFactory.generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_COURSE, loggedUserBean.getUser(), instr, course, 
-									null, null, null, null);
+									page, lContext, service, null);
 						} catch (EventException e) {
 								logger.error(e);
 						}
 					}
 				});
-			//}
+			}
 			
 			instructor.setInstructorId(courseInstructor.getId());
 			instructor.setMaxNumberOfStudents(courseInstructor.getMaxNumberOfStudents());
+			context += "|context:/name:INSTRUCTOR|id:" + instructor.getInstructorId() + "/";
 		} catch(Exception e) {
 			PageUtil.fireErrorMessage(e.getMessage());
 		}

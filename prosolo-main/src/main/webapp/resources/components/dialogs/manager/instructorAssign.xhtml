@@ -16,6 +16,8 @@
 		<composite:attribute name="searchListener" required="true" />
 		<composite:attribute name="instructorList" required="true" />
 		<composite:attribute name="updateRegion" required="true" />
+		<composite:attribute name="page" />
+		<composite:attribute name="service" default="" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -76,6 +78,9 @@
 					                        			action="#{cc.attrs.bean.selectInstructor(instructor)}"
 					                        			update="#{cc.attrs.updateRegion}"
 					                        			oncomplete="$('#assignInstructorModal').modal('hide');">	
+					                        			<f:param name="page" value="#{cc.attrs.page}" />
+														<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
+														<f:param name="service" value="name:INSTRUCTOR_DIALOG|id:#{instructor.instructorId}" />
 					                        		</p:commandLink>
 					                        	</ui:fragment>
 					                        	

@@ -150,16 +150,18 @@ public interface CourseManager extends AbstractManager {
 	
 	Map<String, Object> getCourseInstructor(long userId, long courseId) throws DbConnectionException;
 	
-	void removeInstructorFromCourse(long courseInstructorId) throws DbConnectionException;
+	List<Long> removeInstructorFromCourse(long courseInstructorId) throws DbConnectionException;
 	
 	Map<String, Object> getBasicInstructorInfo(long instructorId) throws DbConnectionException;
 	
 	void updateStudentsAssignedToInstructor(long instructorId, long courseId, List<Long> studentsToAssign, List<Long> studentsToUnassign) throws DbConnectionException;
 	
-	CourseInstructor assignInstructorToCourse(long instructorId, long userId, long courseId, 
+	CourseInstructor saveCourseInstructor(long instructorId, long userId, long courseId, 
 			int maxNumberOfAssignedStudents) throws DbConnectionException;
 	
 	void updateStudentsAssignedToInstructors(List<Map<String, Object>> data) throws DbConnectionException;
 	
 	boolean areStudentsManuallyAssignedToInstructor(long courseId) throws DbConnectionException;
+	
+	List<Long> getUserIdsForEnrollments(List<Long> enrollmentIds) throws DbConnectionException;
 }

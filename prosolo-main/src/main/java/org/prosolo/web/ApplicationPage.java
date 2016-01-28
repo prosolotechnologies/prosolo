@@ -29,8 +29,10 @@ public enum ApplicationPage {
 	ROLES("/admin/roles.xhtml"),
 	DASHBOARD("/admin/dashboard.xhtml"),
 	ADMIN_SETTINGS("/admin/settings.xhtml"),
-	ANALYTICS_SETTINGS("/admin/analyticsSettings.xhtml");
-	
+	ANALYTICS_SETTINGS("/admin/analyticsSettings.xhtml"),
+	INSTRUCTOR_DETAILS("/manage/instructor-add.xhtml"),
+	INSTRUCTOR_LIST("/manage/instructorList.xhtml"),
+	STUDENT_REASSIGN("/manage/reassign.xhtml");
 
     private String uri; 
     

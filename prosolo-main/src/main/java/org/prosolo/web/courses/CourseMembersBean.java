@@ -12,11 +12,14 @@ import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.util.CourseMembersSortField;
 import org.prosolo.search.util.CourseMembersSortOption;
 import org.prosolo.search.util.InstructorAssignedFilter;
+import org.prosolo.services.event.EventException;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -48,6 +51,7 @@ public class CourseMembersBean implements Serializable {
 	@Inject
 	private CourseManager courseManager;
 	@Inject private LoggedUserBean loggedUserBean;
+	@Inject private EventFactory eventFactory;
 
 	// PARAMETERS
 	private String id;
@@ -70,10 +74,13 @@ public class CourseMembersBean implements Serializable {
 	private String instructorSearchTerm = "";
 	
 	private long personalizedForUserId = -1;
+	
+	private String context;
 
 	public void init() {
 		decodedId = idEncoder.decodeId(id);
 		if (decodedId > 0) {
+			context = "name:CREDENTIAL|id:" + decodedId;
 			try {
 				boolean showPersonalized = !loggedUserBean.hasCapability("COURSE.MEMBERS.VIEW");
 				if(showPersonalized) {
@@ -148,6 +155,7 @@ public class CourseMembersBean implements Serializable {
 		
 		if (searchResponse != null) {
 			courseMembersNumber = ((Long) searchResponse.get("resultNumber")).intValue();
+			@SuppressWarnings("unchecked")
 			List<Map<String, Object>> data = (List<Map<String, Object>>) searchResponse.get("data");
 			if(data != null) {
 				for (Map<String, Object> resMap : data) {
@@ -168,6 +176,7 @@ public class CourseMembersBean implements Serializable {
 	public void loadCourseInstructors(UserData user) {
 		userToAssignInstructor = user;
 		setInstructorSearchTerm("");
+		context += "|context:/name:USER|id:" + user.getId() + "/";
 		loadCourseInstructors();
 	}
 	
@@ -177,6 +186,7 @@ public class CourseMembersBean implements Serializable {
 				-1, -1, decodedId, SortingOption.ASC, null);
 		
 		if (searchResponse != null) {
+			@SuppressWarnings("unchecked")
 			List<Map<String, Object>> data = (List<Map<String, Object>>) searchResponse.get("data");
 			if(data != null) {
 				for (Map<String, Object> resMap : data) {
@@ -191,6 +201,20 @@ public class CourseMembersBean implements Serializable {
 		try {
 			courseManager.assignInstructorToStudent(userToAssignInstructor.getId(), instructor.getInstructorId(),
 				decodedId);
+			
+			String page = PageUtil.getPostParameter("page");
+			String service = PageUtil.getPostParameter("service");
+			
+			try {
+				User target = new User();
+				target.setId(instructor.getUserId());
+				User object = new User();
+				object.setId(userToAssignInstructor.getId());
+				eventFactory.generateEvent(EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR, loggedUserBean.getUser(), object, target, 
+						page, context, service, null);
+			} catch (EventException e) {
+				logger.error(e);
+			}
 			UserData instructorData = new UserData();
 			instructorData.setFullName(instructor.getName());
 			instructorData.setId(instructor.getInstructorId());
@@ -375,6 +399,14 @@ public class CourseMembersBean implements Serializable {
 
 	public void setInstructorSearchTerm(String instructorSearchTerm) {
 		this.instructorSearchTerm = instructorSearchTerm;
+	}
+
+	public long getDecodedId() {
+		return decodedId;
+	}
+
+	public void setDecodedId(long decodedId) {
+		this.decodedId = decodedId;
 	}
 	
 }

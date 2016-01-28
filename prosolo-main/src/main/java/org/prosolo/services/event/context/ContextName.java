@@ -6,8 +6,11 @@ public enum ContextName {
 	GOAL_WALL("TargetLearningGoal"),
 	COMPETENCE_WALL("TargetCompetence"),
 	ACTIVITY_WALL("TargetActivity"),
-	POST_DIALOG("Post");
-
+	POST_DIALOG("Post"),
+	INSTRUCTOR("CourseInstructor"),
+	INSTRUCTOR_DIALOG("CourseInstructor"),
+	USER("User");
+	
     private String objectType; 
     
     ContextName(String objectType) {

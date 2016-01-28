@@ -159,9 +159,10 @@
 		            	styleClass="btn btn-primary panelButton pull-right"
 		            	pt:role="button"
 		            	process="instructorPanel inputMaxNumberOfStudents"
-		            	action="#{instructorEditBean.assignInstructorToCourse()}"
+		            	action="#{instructorEditBean.saveInstructor()}"
 		            	update=":instructorInfoForm :assignStudentsForm :assignedStudentsPanel">
 		            	<i class="fa fa-save"></i> Save
+		            	<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
             		</p:commandLink>       
             		                
                   	</h:form>
@@ -204,6 +205,7 @@
                      		action="#{instructorEditBean.moveStudentsToAssigned()}"
                      		update=":assignedStudentsPanel :assignStudentsForm:studentSearchResults ">
                      		<i class="fa fa-long-arrow-left"></i>
+                     		<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
                      	</p:commandLink>
                      </h:panelGroup>
 							<div class="col-md-5">

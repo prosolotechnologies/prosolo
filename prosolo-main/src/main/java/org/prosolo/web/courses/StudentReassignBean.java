@@ -68,6 +68,8 @@ public class StudentReassignBean implements Serializable {
 	
 	private boolean instructorSelected;
 	
+	private String context;
+	
 	public void init() {
 		assignedStudents = new ArrayList<>();
 		instructorsWithReassignedStudents = new HashMap<>();
@@ -75,6 +77,7 @@ public class StudentReassignBean implements Serializable {
 		decodedId = idEncoder.decodeId(id);
 		decodedCourseId = idEncoder.decodeId(courseId);
 		if (decodedCourseId > 0 && decodedId > 0) {
+			context = "name:CREDENTIAL|id:" + decodedCourseId + "|context:/name:INSTRUCTOR|id:" + decodedId + "/";
 			try {
 				Map<String, Object> instructorData = courseManager.getBasicInstructorInfo(decodedId);
 				instructor = new CourseInstructorData();
@@ -84,6 +87,7 @@ public class StudentReassignBean implements Serializable {
 							(String) instructorData.get("lastName"));
 					instructor.setMaxNumberOfStudents((int) instructorData.get("maxNumberOfStudents")); 
 					instructor.setUserId((long) instructorData.get("userId"));
+					@SuppressWarnings("unchecked")
 					List<Map<String, Object>> students = (List<Map<String, Object>>) instructorData.get("students");
 					int size = students != null ? students.size() : 0;
 					instructor.setNumberOfAssignedStudents(size);
@@ -124,6 +128,7 @@ public class StudentReassignBean implements Serializable {
 				-1, -1, decodedCourseId, SortingOption.ASC, excluded);
 		
 		if (searchResponse != null) {
+			@SuppressWarnings("unchecked")
 			List<Map<String, Object>> data = (List<Map<String, Object>>) searchResponse.get("data");
 			if(data != null) {
 				for (Map<String, Object> resMap : data) {
@@ -163,6 +168,8 @@ public class StudentReassignBean implements Serializable {
 					instructorsForUpdate.add(instructorForUpdate);
 				}
 			}
+			String page = PageUtil.getPostParameter("page");
+			String service = PageUtil.getPostParameter("service");
 			taskExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
@@ -180,7 +187,7 @@ public class StudentReassignBean implements Serializable {
 									User object = new User();
 									object.setId(id);
 									eventFactory.generateEvent(EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR, loggedUserBean.getUser(), object, target, 
-											null, null, null, parameters);
+											page, context, service, parameters);
 								} catch(Exception e) {
 									logger.error(e);
 								}
@@ -312,6 +319,22 @@ public class StudentReassignBean implements Serializable {
 
 	public void setInstructorSelected(boolean instructorSelected) {
 		this.instructorSelected = instructorSelected;
+	}
+
+	public long getDecodedId() {
+		return decodedId;
+	}
+
+	public void setDecodedId(long decodedId) {
+		this.decodedId = decodedId;
+	}
+
+	public long getDecodedCourseId() {
+		return decodedCourseId;
+	}
+
+	public void setDecodedCourseId(long decodedCourseId) {
+		this.decodedCourseId = decodedCourseId;
 	}
 	
 }

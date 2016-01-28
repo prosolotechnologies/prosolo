@@ -288,7 +288,8 @@
 			bean="#{courseMembersBean}"
 			searchListener="searchListener"
 			instructorList="#{courseMembersBean.courseInstructors}"
-			updateRegion=":studentListForm" />
+			updateRegion=":studentListForm" 
+			page="#{facesContext.viewRoot.viewId}"/>
 		
 		<ui:remove><h:form id="modalForm">
 			<div id = "assignInstructorModal" class="modal fade assignInstructor" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">

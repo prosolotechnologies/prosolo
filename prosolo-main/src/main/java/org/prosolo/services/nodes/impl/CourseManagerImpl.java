@@ -1,6 +1,5 @@
 package org.prosolo.services.nodes.impl;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -1275,7 +1274,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional(readOnly = false)
-	public void removeInstructorFromCourse(long courseInstructorId) throws DbConnectionException {
+	public List<Long> removeInstructorFromCourse(long courseInstructorId) throws DbConnectionException {
 		try {
 			List<Long> enrollmentIds = getCourseEnrollmentsForInstructor(courseInstructorId);
 			if(enrollmentIds != null) {
@@ -1288,6 +1287,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 			CourseInstructor instructor = (CourseInstructor) persistence.currentManager().
 					load(CourseInstructor.class, courseInstructorId);
 			persistence.currentManager().delete(instructor);
+			return enrollmentIds;
 		} catch(Exception e) {
 			throw new DbConnectionException("Error while removing instructor from course");
 		}
@@ -1446,7 +1446,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional(readOnly = false)
-	public CourseInstructor assignInstructorToCourse(long instructorId, long userId, long courseId, 
+	public CourseInstructor saveCourseInstructor(long instructorId, long userId, long courseId, 
 			int maxNumberOfAssignedStudents) throws DbConnectionException {
 		int defaultNumberOfStudentsPerInstructor = 0;
 		if(maxNumberOfAssignedStudents == 0) {
@@ -1525,6 +1525,32 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while loading course data");
+		}
+
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> getUserIdsForEnrollments(List<Long> enrollmentIds) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT user.id " +
+					"FROM CourseEnrollment enrollment " +
+					"INNER JOIN enrollment.user user " +
+					"WHERE enrollment.id IN (:enrollmentIds)";
+			
+				@SuppressWarnings("unchecked")
+				List<Long> res = persistence.currentManager().createQuery(query).
+						setParameterList("enrollmentIds", enrollmentIds).
+						list();
+				if(res == null) {
+					return new ArrayList<>();
+				} 
+				return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading user ids");
 		}
 
 	}

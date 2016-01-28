@@ -38,6 +38,7 @@ public class NodeChangeProcessorFactory {
 			case INSTRUCTOR_ASSIGNED_TO_COURSE:
 			case STUDENT_REASSIGNED_TO_INSTRUCTOR:
 			case USER_ROLES_UPDATED:
+			case INSTRUCTOR_REMOVED_FROM_COURSE:
 				if (node instanceof User) {
 					return new UserNodeChangeProcessor(event, session, userEntityESService, EventUserRole.Object);
 				} else if (node instanceof TargetLearningGoal) {
