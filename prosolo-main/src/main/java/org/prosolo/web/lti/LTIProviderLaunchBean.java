@@ -95,7 +95,7 @@ public class LTIProviderLaunchBean implements Serializable {
 			String url = ToolLaunchUrlBuilderFactory.getLaunchUrlBuilder(tool.getToolType()).
 					getLaunchUrl(tool, user.getId());
 			logger.info("Redirecting to "+url);
-			externalContext.redirect("index.xhtml");
+			externalContext.redirect(externalContext.getRequestContextPath() + "/index.xhtml");
 			//externalContext.redirect(url);
 		}else{
 			throw new Exception("User loggin unsuccessful");
