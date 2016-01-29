@@ -10,6 +10,8 @@
 	<div class="goalCompWall">
 		<h3>Activity Wall</h3>
 		
+		<ui:param name="courseContext" value="#{learninggoals.selectedGoalData.data.course != null ? 'name:Credential|id:'.concat(learninggoals.selectedGoalData.data.course.id) : ''}" />
+		
 		<post:newActivityNoForm value="compActivity" 
 			content="#{compwall.newActFormData}" 
 			createPostAction="#{compwall.createNewPost()}"
@@ -25,6 +27,8 @@
 			displayLimitedInsteadOfPrivateVisibility="true"
 			limitedVisibilityTooltipText="#{msg['learn.goal.composite.visibility.limited']}"
 			postStyleClass="wide"
+			page="#{facesContext.viewRoot.viewId}"
+			learningContext="#{courseContext}|context:/name:goal_wall|id:#{learninggoals.selectedGoalData.data.targetGoalId}|context:/name:competence_wall|id:#{learninggoals.selectedGoalData.selectedCompetence.data.id}//"
 		/>
 		
 		<script>
@@ -37,8 +41,6 @@
 				$('.goalCompWall a.refreshAllHanler').trigger('click');
 			}
 		</script>
-		
-		<ui:param name="courseContext" value="#{learninggoals.selectedGoalData.data.course != null ? 'name:Credential|id:'.concat(learninggoals.selectedGoalData.data.course.id) : ''}" />
 		
 		<goalcomp:compactivitiesNoForm id="compWall" value="compWall"
 			loadingMsg="Loading activities..."

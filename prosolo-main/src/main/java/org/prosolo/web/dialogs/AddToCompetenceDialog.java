@@ -224,7 +224,8 @@ public class AddToCompetenceDialog implements Serializable {
 							newPostData.getVisibility(),
 							targetCompId,
 							false,
-							context);
+							context,
+							null, null, null);
 					
 					PageUtil.fireSuccessfulInfoMessage("Created new activity "+title+".");
 				} catch (EventException e) {
@@ -233,7 +234,7 @@ public class AddToCompetenceDialog implements Serializable {
 					logger.error(e);
 				}
 			} else if (newPostData != null) {
-				compWallBean.createNewActivity(newPostData, compData, context);
+				compWallBean.createNewActivity(newPostData, compData, context, null, null, null);
 			}
 		}
 	}

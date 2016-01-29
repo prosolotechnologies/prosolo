@@ -52,15 +52,17 @@ public class ActivityManagerImpl extends AbstractManagerImpl implements	Activity
 	public Activity createNewActivity(User user, String title, String description, 
 			AttachmentPreview attachmentPreview, VisibilityType visType, Collection<Tag> tags) 
 					throws EventException {
-		return createNewResourceActivity(user, title, description, attachmentPreview, visType, null, false, null);
+		return createNewResourceActivity(user, title, description, attachmentPreview, visType, null, false, null,
+				null, null, null);
 	}
 	
 	@Override
 	@Transactional
 	public Activity createNewActivity(User user, String title,
 			String description, AttachmentPreview attachmentPreview, VisibilityType visType, boolean sync,
-			String context) throws EventException {
-		return createNewResourceActivity(user, title, description, attachmentPreview, visType, null, sync, context);
+			String context, String page, String learningContext, String service) throws EventException {
+		return createNewResourceActivity(user, title, description, attachmentPreview, visType, null, sync, 
+				context, page, learningContext, service);
 	}
 	
 	@Override
@@ -69,7 +71,7 @@ public class ActivityManagerImpl extends AbstractManagerImpl implements	Activity
 	public Activity createNewResourceActivity(User user, String title,
 			String description, AttachmentPreview attachmentPreview, VisibilityType visType, 
 			Collection<Tag> tags, boolean propagateToSocialStreamManualy,
-			String context) throws EventException {
+			String context, String page, String learningContext, String service) throws EventException {
 
 		Activity newActivity = resourceFactory.createNewResourceActivity(
 				user, 
@@ -84,9 +86,15 @@ public class ActivityManagerImpl extends AbstractManagerImpl implements	Activity
 		parameters.put("context", context);
 		
 		if (propagateToSocialStreamManualy) {
-			eventFactory.generateEvent(EventType.Create, user, newActivity, new Class[]{SocialStreamObserver.class}, parameters);
+			//eventFactory.generateEvent(EventType.Create, user, newActivity, new Class[]{SocialStreamObserver.class}, parameters);
+			//migration to new context approach
+			eventFactory.generateEvent(EventType.Create, user, newActivity, null, null, page, learningContext,
+					service, new Class[]{SocialStreamObserver.class}, parameters);
 		} else {
-			eventFactory.generateEvent(EventType.Create, user, newActivity, parameters);
+			//eventFactory.generateEvent(EventType.Create, user, newActivity, parameters);
+			//migration to new context approach
+			eventFactory.generateEvent(EventType.Create, user, newActivity, null, 
+					page, learningContext, service, parameters);
 		}
 		
 		return newActivity;

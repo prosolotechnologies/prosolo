@@ -79,8 +79,10 @@ public interface LearningGoalManager extends AbstractManager {
 			List<Activity> targetActivities, boolean sync, String context) throws EventException, 
 			ResourceCouldNotBeLoadedException;
 
-	TargetActivity addActivityToTargetCompetence(User user, long targetCompetenceId, Activity activity,
-			String context) throws EventException, ResourceCouldNotBeLoadedException;
+	TargetActivity addActivityToTargetCompetence(User user,
+			long targetCompetenceId, Activity activity, String context, String page,
+			String learningContext, String service)
+			throws EventException, ResourceCouldNotBeLoadedException;
 	
 	TargetActivity addActivityToTargetCompetence(User user, long targetCompetenceId, long activityId, String context)
 			throws EventException, ResourceCouldNotBeLoadedException;
@@ -111,8 +113,9 @@ public interface LearningGoalManager extends AbstractManager {
 
 	TargetActivity createActivityAndAddToTargetCompetence(User user,
 			String title, String description, AttachmentPreview attachmentPreview,
-			VisibilityType visibility, long targetCompId, boolean connectWithStatus,
-			String context) throws EventException, ResourceCouldNotBeLoadedException;
+			VisibilityType visType, long targetCompetenceId, boolean connectWithStatus,
+			String context, String page, String learningContext, String service) 
+					throws EventException, ResourceCouldNotBeLoadedException;
 	
 	NodeEvent createCompetenceAndAddToGoal(User user, String title, String description, 
 			int validity, int duration, VisibilityType visibilityType, Collection<Tag> tags, 

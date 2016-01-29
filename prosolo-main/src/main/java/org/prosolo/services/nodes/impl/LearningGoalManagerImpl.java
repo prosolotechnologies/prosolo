@@ -481,7 +481,8 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 	public TargetActivity createActivityAndAddToTargetCompetence(User user,
 			String title, String description, AttachmentPreview attachmentPreview,
 			VisibilityType visType, long targetCompetenceId, boolean connectWithStatus,
-			String context) throws EventException, ResourceCouldNotBeLoadedException {
+			String context, String page, String learningContext, String service) 
+					throws EventException, ResourceCouldNotBeLoadedException {
 		
 		Activity newActivity = activityManager.createNewActivity(
 				user, 
@@ -490,15 +491,20 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 				attachmentPreview, 
 				visType, 
 				!connectWithStatus,
-				context);
+				context,
+				page,
+				learningContext,
+				service);
 		
-		return addActivityToTargetCompetence(user, targetCompetenceId, newActivity, context);
+		return addActivityToTargetCompetence(user, targetCompetenceId, newActivity, context,
+				page, learningContext, service);
 	}
 	
 	@Override
 	@Transactional (readOnly = false)
 	public TargetActivity addActivityToTargetCompetence(User user,
-			long targetCompetenceId, Activity activity, String context)
+			long targetCompetenceId, Activity activity, String context, String page,
+			String learningContext, String service)
 			throws EventException, ResourceCouldNotBeLoadedException {
 		
 		if (activity != null) {
@@ -515,7 +521,9 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("context", context);
 			
-			eventFactory.generateEvent(EventType.Attach, user, newTargetActivity, targetCompetence, parameters);
+			//migration to new context approach
+			eventFactory.generateEvent(EventType.Attach, user, newTargetActivity, targetCompetence, page, learningContext,
+					service, parameters);
 			return newTargetActivity;
 		}
 		return null;
@@ -527,7 +535,7 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 			throws EventException, ResourceCouldNotBeLoadedException {
 		
 		Activity activity = loadResource(Activity.class, activityId);
-		return addActivityToTargetCompetence(user, targetCompetenceId, activity, context);
+		return addActivityToTargetCompetence(user, targetCompetenceId, activity, context, null, null, null);
 	}
 	
 	@Override

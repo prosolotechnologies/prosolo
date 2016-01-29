@@ -23,16 +23,17 @@ public interface ActivityManager extends AbstractManager {
 	// TargetActivity toggleCompleted(TargetActivity activity) throws
 	// EventException;
 	Activity createNewActivity(User user, String title,
-			String description, AttachmentPreview attachmentPreview, VisibilityType visType, boolean sync, String context)
-			throws EventException;
+			String description, AttachmentPreview attachmentPreview, VisibilityType visType, boolean sync,
+			String context, String page, String learningContext, String service) throws EventException;
 
 	Activity createNewActivity(User user, String title, String description,
 			AttachmentPreview attachmentPreview, VisibilityType visType,
 			Collection<Tag> tags) throws EventException;
 
-	Activity createNewResourceActivity(User user, String title, String description,
-			AttachmentPreview attachmentPreview, VisibilityType visType,
-			Collection<Tag> tags, boolean sync, String context) throws EventException;
+	Activity createNewResourceActivity(User user, String title,
+			String description, AttachmentPreview attachmentPreview, VisibilityType visType, 
+			Collection<Tag> tags, boolean propagateToSocialStreamManualy,
+			String context, String page, String learningContext, String service) throws EventException;
 
 	boolean checkIfCompletedByUser(User user, Activity activity);
 

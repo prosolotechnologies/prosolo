@@ -173,7 +173,8 @@ public class CompWallBean implements Serializable {
 					loggedUser.getUser(),
 					parentTargetCompId, 
 					activity,
-					context);
+					context,
+					null, null, null);
 		
 			// update cache
 			addActivity(compData, newActivity);
@@ -347,6 +348,10 @@ public class CompWallBean implements Serializable {
 	}
 	
 	public void createNewPost() {
+		
+		String page = PageUtil.getPostParameter("page");
+		String learningContext = PageUtil.getPostParameter("learningContext");
+		
 		CompetenceDataCache competenceDataCache = goalsBean.getSelectedGoalData().getSelectedCompetence();
 		
 		long targetCompId = goalsBean.getSelectedGoalData().getSelectedCompetence().getData().getId();
@@ -355,11 +360,14 @@ public class CompWallBean implements Serializable {
 		createNewActivity(
 				this.newActFormData, 
 				competenceDataCache, 
-				"learn.targetGoal."+targetGoalId+".targetComp."+targetCompId);
+				"learn.targetGoal."+targetGoalId+".targetComp."+targetCompId,
+				page,
+				learningContext,
+				null);
 	}
 	
 	public void createNewActivity(NewPostData newActFormData, CompetenceDataCache competenceDataCache, 
-			String context) {
+			String context, String page, String learningContext, String service) {
 		
 		long targetCompId = competenceDataCache.getData().getId();
 
@@ -378,7 +386,10 @@ public class CompWallBean implements Serializable {
 					newActFormData.getVisibility(),
 					targetCompId,
 					newActFormData.isConnectWithStatus(),
-					context);
+					context,
+					page,
+					learningContext,
+					service);
 			
 			@SuppressWarnings("unused")
 			ActivityWallData actData = addActivity(competenceDataCache, newActivity);
