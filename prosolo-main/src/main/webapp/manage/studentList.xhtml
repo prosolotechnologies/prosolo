@@ -182,12 +182,15 @@
 												oncomplete="$('#assignInstructorModal').modal('show');"
 												update=":dlgInstructors:modalForm:assignInstructorModalContent">
 												<i class="fa fa-plus"></i> Assign Instructor
-											</p:commandLink> 
-											<h:link rendered="#{user.instructor != null}">
-														#{user.instructor.fullName}
-												    	<f:param name="id"
-													value="#{util:encodeId(user.instructor.id)}" />
-											</h:link></td>
+											</p:commandLink>
+											<h:link rendered="#{user.instructor != null}"
+						         				outcome="/manage/instructor-add"
+						         				value="#{user.instructor.name}">
+						         				<f:param name="id" value="#{util:encodeId(user.instructor.instructorId)}" />	         		
+						         				<f:param name="courseId" value="#{param['id']}" />
+						         				<f:param name="courseName" value="#{param['courseName']}" />
+		         							</h:link> 
+										</td>
 									</tr>
 								</ui:repeat>
 	

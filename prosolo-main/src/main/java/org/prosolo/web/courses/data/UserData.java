@@ -1,5 +1,7 @@
 package org.prosolo.web.courses.data;
 
+import java.util.Map;
+
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
@@ -13,7 +15,7 @@ public class UserData {
 	private String fullName;
 	private String position;
 	private String avatarUrl = "/" + CommonSettings.getInstance().config.services.userService.defaultAvatarPath + "size60x60.png";
-	private UserData instructor;
+	private CourseInstructorData instructor;
 	private int courseProgress;
 	
 	public UserData() {
@@ -29,13 +31,13 @@ public class UserData {
 		this.avatarUrl = AvatarUtils.getAvatarUrlInFormat(user, ImageFormat.size60x60);
 	}
 	
-	public UserData(User user, User instructor, int progress, String profileType, String profileTitle) {
+	public UserData(User user, Map<String, Object> instructor, int progress, String profileType, String profileTitle) {
 		this(user);
 		if(instructor != null) {
-			this.instructor = new UserData();
-			this.instructor.setFullName(instructor.getName() + (instructor.getLastname() != null ? " " + 
-					instructor.getLastname() : ""));
-			this.instructor.id = instructor.getId();
+			this.instructor = new CourseInstructorData();
+			this.instructor.setName((String) instructor.get("firstName") + (instructor.get("lastName") != null ? " " + 
+					(String) instructor.get("lastName") : ""));
+			this.instructor.setInstructorId((long) instructor.get("instructorId"));
 		}
 		this.courseProgress = progress;
 	}
@@ -92,11 +94,11 @@ public class UserData {
 		this.avatarUrl = avatarUrl;
 	}
 
-	public UserData getInstructor() {
+	public CourseInstructorData getInstructor() {
 		return instructor;
 	}
 
-	public void setInstructor(UserData instructor) {
+	public void setInstructor(CourseInstructorData instructor) {
 		this.instructor = instructor;
 	}
 

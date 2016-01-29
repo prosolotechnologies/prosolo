@@ -168,6 +168,8 @@ public class StudentReassignBean implements Serializable {
 					instructorsForUpdate.add(instructorForUpdate);
 				}
 			}
+			courseManager.updateStudentsAssignedToInstructors(instructorsForUpdate);
+			
 			String page = PageUtil.getPostParameter("page");
 			String service = PageUtil.getPostParameter("service");
 			taskExecutor.execute(new Runnable() {
@@ -197,8 +199,6 @@ public class StudentReassignBean implements Serializable {
 					}			
 				}
 			});
-			
-			courseManager.updateStudentsAssignedToInstructors(instructorsForUpdate);
 		} catch(DbConnectionException e) {
 			PageUtil.fireErrorMessage(e.getMessage());
 		}

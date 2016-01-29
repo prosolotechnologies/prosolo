@@ -160,7 +160,8 @@ public class CourseMembersBean implements Serializable {
 			if(data != null) {
 				for (Map<String, Object> resMap : data) {
 					User user = (User) resMap.get("user");
-					User instructor = (User) resMap.get("instructor");
+					@SuppressWarnings("unchecked")
+					Map<String, Object> instructor = (Map<String, Object>) resMap.get("instructor");
 					int progress = (int) resMap.get("courseProgress");
 					String profileType = (String) resMap.get("profileType");
 					String profileTitle = (String) resMap.get("profileTitle");
@@ -215,9 +216,9 @@ public class CourseMembersBean implements Serializable {
 			} catch (EventException e) {
 				logger.error(e);
 			}
-			UserData instructorData = new UserData();
-			instructorData.setFullName(instructor.getName());
-			instructorData.setId(instructor.getInstructorId());
+			CourseInstructorData instructorData = new CourseInstructorData();
+			instructorData.setName(instructor.getName());
+			instructorData.setInstructorId(instructor.getInstructorId());
 			userToAssignInstructor.setInstructor(instructorData);
 			userToAssignInstructor = null;
 			courseInstructors = null;

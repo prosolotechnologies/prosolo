@@ -632,10 +632,10 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 								
 								if(course != null) {
 									long instrId = Long.parseLong(course.get("instructorId").toString());
-									User instructor = null;
+									Map<String, Object> instructor = null;
 									if(instrId != 0) {
 										try {
-											instructor = defaultManager.loadResource(User.class, instrId);
+											instructor = courseManager.getCourseInstructor(instrId, courseId);
 										} catch(Exception e) {
 											e.printStackTrace();
 											logger.error(e);
