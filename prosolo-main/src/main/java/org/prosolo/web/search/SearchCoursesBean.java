@@ -7,7 +7,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.course.Course;
@@ -16,6 +18,7 @@ import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.CourseManager;
+import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.data.CourseData;
 import org.prosolo.web.courses.util.CourseDataConverter;
 import org.prosolo.web.logging.LoggingNavigationBean;
@@ -35,6 +38,7 @@ public class SearchCoursesBean implements Serializable {
 	@Autowired private TextSearch textSearch;
 	@Autowired private CourseManager courseManager;
 	@Autowired private LoggingNavigationBean loggingNavigationBean;
+	@Inject private LoggedUserBean loggedUserBean;
 	
 	private String query;
 	private CreatorType creatorType;
@@ -50,10 +54,16 @@ public class SearchCoursesBean implements Serializable {
 	private SortingOption sortTitleAsc = SortingOption.ASC;
 	private SortingOption sortDateAsc = SortingOption.NONE;
 	
+	private List<Long> personalizedCourseIds;
+	
 	public SearchCoursesBean() {
 		courses = new ArrayList<CourseData>();
 	}
 	
+	@PostConstruct
+	public void init() {
+		
+	}
 //	public void searchListener(ValueChangeEvent event) {
 //		this.limit = 3;
 //		search(event.getNewValue().toString(), null, false);
@@ -61,6 +71,17 @@ public class SearchCoursesBean implements Serializable {
 	
 	public void searchAllCourses() {
 		String role = PageUtil.getPostParameter("role");
+		
+		if(role.equals("MANAGER") && personalizedCourseIds == null) {
+			boolean showAll = loggedUserBean.hasCapability("COURSE.VIEW");
+			if(!showAll) {
+				long personalizedForUserId = loggedUserBean.getUser().getId();
+				List<Long> ids = textSearch.getInstructorCourseIds(personalizedForUserId);
+				personalizedCourseIds = (ids == null ? new ArrayList<>() : ids);
+			} else {
+				personalizedCourseIds = new ArrayList<>();
+			}
+		}
 		
 		boolean published = false;
 		
@@ -78,6 +99,9 @@ public class SearchCoursesBean implements Serializable {
 	public void search(String searchQuery, Collection<Course> objToExclude, boolean loadOneMore, boolean published) {
 		this.courses.clear();
 		this.size = 0;
+		
+		
+		
 		fetchCourses(searchQuery, creatorType, objToExclude, this.limit, loadOneMore, published);
 		
 		if (searchQuery != null && searchQuery.length() > 0) {
@@ -114,6 +138,7 @@ public class SearchCoursesBean implements Serializable {
 				coursesToExclude,
 				published,
 				filterTags,
+				personalizedCourseIds,
 				this.sortTitleAsc,
 				this.sortDateAsc);
 		

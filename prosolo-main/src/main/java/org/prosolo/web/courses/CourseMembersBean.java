@@ -82,8 +82,8 @@ public class CourseMembersBean implements Serializable {
 		if (decodedId > 0) {
 			context = "name:CREDENTIAL|id:" + decodedId;
 			try {
-				boolean showPersonalized = !loggedUserBean.hasCapability("COURSE.MEMBERS.VIEW");
-				if(showPersonalized) {
+				boolean showAll = loggedUserBean.hasCapability("COURSE.MEMBERS.VIEW");
+				if(!showAll) {
 					personalizedForUserId = loggedUserBean.getUser().getId();
 				}
 				searchCourseMembers();

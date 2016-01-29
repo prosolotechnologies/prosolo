@@ -53,9 +53,9 @@ public interface TextSearch extends AbstractManager {
 	 * @param sortDateAsc 
 	 * @return
 	 */
-	TextSearchResponse searchCourses(String searchQuery,
-			CreatorType creatorType, int page, int limit, boolean loadOneMore,
-			Collection<Course> coursesToExclude, boolean published, List<Tag> filterTags, 
+	TextSearchResponse searchCourses(
+			String searchQuery, CreatorType creatorType, int page, int limit, boolean loadOneMore,
+			Collection<Course> excludeCourses, boolean published, List<Tag> filterTags, List<Long> courseIds,
 			SortingOption sortTitleAsc, SortingOption sortDateAsc);
 
 	/**
@@ -81,4 +81,6 @@ public interface TextSearch extends AbstractManager {
 			String searchTerm, long courseId);
 	
 	Map<String, Object> searchUsersWithInstructorRole (String searchTerm, long courseId, long roleId);
+	
+	List<Long> getInstructorCourseIds (long userId);
 }

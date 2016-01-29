@@ -2,6 +2,7 @@ package org.prosolo.search.impl;
 
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -357,7 +358,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	@Override
 	public TextSearchResponse searchCourses(
 			String searchQuery, CreatorType creatorType, int page, int limit, boolean loadOneMore,
-			Collection<Course> excludeCourses, boolean published, List<Tag> filterTags, 
+			Collection<Course> excludeCourses, boolean published, List<Tag> filterTags, List<Long> courseIds,
 			SortingOption sortTitleAsc, SortingOption sortDateAsc) {
 		
 		TextSearchResponse response = new TextSearchResponse();
@@ -378,6 +379,10 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			bQueryBuilder.should(qb);
+			
+			if(courseIds != null && !courseIds.isEmpty()) {
+				bQueryBuilder.must(QueryBuilders.termsQuery("id", courseIds));
+			}
 			
 			if (filterTags != null) {
 				for (Tag tag : filterTags) {
@@ -903,4 +908,50 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 		return resultMap;
 	}
 		
+	@Override
+	public List<Long> getInstructorCourseIds (long userId) {
+		try {
+			Client client = ElasticSearchFactory.getClient();
+			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+	
+			
+//			QueryBuilder nestedQB = QueryBuilders.nestedQuery(
+//			        "courses", termQuery("courses.id", 1)).innerHit(new QueryInnerHitBuilder().setFetchSource(new String[] {"id"}, null));
+//			bQueryBuilder.must(nestedQB);
+			
+			bQueryBuilder.must(termQuery("id", userId));
+
+			
+			String[] includes = {"coursesWithInstructorRole.id"};
+			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
+					.setTypes(ESIndexTypes.USER)
+					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+					.setQuery(bQueryBuilder)
+					.setFetchSource(includes, null)
+					.setFrom(0).setSize(Integer.MAX_VALUE);
+			
+			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
+			if(sResponse != null) {
+				SearchHits searchHits = sResponse.getHits();
+				long numberOfResults = searchHits.getTotalHits();
+				
+				if(searchHits != null && numberOfResults == 1) {
+					List<Long> ids = new ArrayList<>();
+					SearchHit hit = searchHits.getAt(0);
+					Map<String, Object> source = hit.getSource();
+					List<Map<String, Object>> courses =  (List<Map<String, Object>>) source.get("coursesWithInstructorRole");	
+					for(Map<String, Object> courseMap : courses) {
+						ids.add(Long.parseLong(courseMap.get("id") + ""));
+					}
+					return ids;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return null;
+	}
 }
