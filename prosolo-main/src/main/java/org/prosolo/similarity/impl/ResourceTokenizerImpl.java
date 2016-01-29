@@ -40,7 +40,7 @@ public class ResourceTokenizerImpl implements ResourceTokenizer {
 	}
 	
 	@Override
-	@Transactional(readOnly = true)
+	@Transactional(readOnly = false)
 	public String getTokenizedStringForUser(User user) {
 		StringBuffer userStringBuffer = new StringBuffer();
 		user = defaultManager.merge(user);

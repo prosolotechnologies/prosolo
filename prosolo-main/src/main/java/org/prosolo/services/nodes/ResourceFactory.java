@@ -90,6 +90,10 @@ public interface ResourceFactory extends AbstractManager {
 	
 	CourseEnrollment enrollUserInCourse(User user, Course course, TargetLearningGoal targetGoal, String context);
 	
+	CourseEnrollment enrollUserInCourseInSameTransaction(User user, Course course, TargetLearningGoal targetGoal, String context);
+	
 	void assignStudentToInstructorAutomatically(long courseId, long courseEnrollmentId);
+	
+	CourseEnrollment enrollUserInCourse(User user, Course course) throws EventException;
 
 }

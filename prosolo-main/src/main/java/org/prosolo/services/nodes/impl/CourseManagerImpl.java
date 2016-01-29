@@ -12,8 +12,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.events.EventType;
@@ -39,7 +37,6 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CourseManager;
-import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.rest.courses.data.CompetenceJsonData;
 import org.prosolo.services.rest.courses.data.SerieJsonData;
@@ -58,7 +55,6 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Autowired private EventFactory eventFactory;
 	@Autowired private ResourceFactory resourceFactory;
-	@Inject private LearningGoalManager goalManager;
 
 	@Override
 	@Transactional
@@ -1032,18 +1028,26 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional
-	public void enrollUserIfNotEnrolled(User user, long courseId) throws RuntimeException{
+	public void enrollUserIfNotEnrolled(User user, long courseId) throws RuntimeException {
 		try{
 			Course course = (Course) persistence.currentManager().load(Course.class, courseId);
 			boolean enrolled = isUserEnrolledInCourse(user, course);
 			if(!enrolled){
-				TargetLearningGoal targetLGoal = goalManager.createNewCourseBasedLearningGoal(user, course, null, "");
-				CourseEnrollment enrollment = enrollInCourse(user, course, targetLGoal, null);
-				targetLGoal.setCourseEnrollment(enrollment);
-				targetLGoal = saveEntity(targetLGoal);
+				CourseEnrollment enrollment = resourceFactory.enrollUserInCourse(user, course);
 				logger.info("User with email "+user.getEmail().getAddress() + " enrolled in course with id "+course.getId());
+				
+				if(enrollment != null) {
+					try {
+						Map<String, String> parameters = null;
+						eventFactory.generateEvent(EventType.ENROLL_COURSE, user, enrollment, course, parameters);
+					} catch (EventException e) {
+						logger.error(e);
+					}	
+				}
 			}
 		}catch(Exception e){
+			logger.error(e);
+			e.printStackTrace();
 			throw new RuntimeException("Error while enrolling user");
 		}
 	}

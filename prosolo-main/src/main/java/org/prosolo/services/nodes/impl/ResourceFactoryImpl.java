@@ -63,6 +63,7 @@ import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.PostManager;
 import org.prosolo.services.nodes.CourseManager;
+import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.ScaleManager;
@@ -89,6 +90,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 	@Autowired private ScaleManager scaleManager;
 	@Autowired private FeedSourceManager feedSourceManager;
 	@Inject private CourseManager courseManager;
+	@Inject private LearningGoalManager goalManager;
 	
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -589,6 +591,12 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public CourseEnrollment enrollUserInCourse(User user, Course course, TargetLearningGoal targetGoal, String context) {
+		return enrollUserInCourseInSameTransaction(user, course, targetGoal, context);
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public CourseEnrollment enrollUserInCourseInSameTransaction(User user, Course course, TargetLearningGoal targetGoal, String context) {
 		if (course != null) {
 			// if user has previously been enrolled into this course, remove that enrollment
 			CourseEnrollment oldCourseEnrollment = courseManager.getCourseEnrollment(user, course);
@@ -632,6 +640,17 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 			return enrollment;
 		}
 		return null;
+	}
+	
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+	public CourseEnrollment enrollUserInCourse(User user, Course course) throws EventException {
+		TargetLearningGoal targetLGoal = goalManager.createNewCourseBasedLearningGoal(user, course, null, "");
+		//CourseEnrollment enrollment = enrollInCourse(user, course, targetLGoal, null);
+		CourseEnrollment enrollment = enrollUserInCourseInSameTransaction(user, course, targetLGoal, null);
+		targetLGoal.setCourseEnrollment(enrollment);
+		targetLGoal = saveEntity(targetLGoal);
+		return enrollment;
 	}
 	
 	@Override

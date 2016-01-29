@@ -2,7 +2,6 @@ package org.prosolo.web;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -106,14 +105,17 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		
 	}
 	public void initializeSessionData(HttpSession session) {
-		sessionData = new SessionData();
+		@SuppressWarnings("unchecked")
 		Map<String, Object> sData = (Map<String, Object>) session.getAttribute("user");
 		initializeData(sData);
 		sData = null;
 		session.removeAttribute("user");
 	}
+	
+	@SuppressWarnings("unchecked")
 	private void initializeData(Map<String, Object> userData) {
 		if(userData != null){
+			sessionData = new SessionData();
 			sessionData.setUser((User) userData.get("user"));
 			sessionData.setLoginTime((long) userData.get("loginTime"));
 			sessionData.setBigAvatar((String) userData.get("avatar")); 
