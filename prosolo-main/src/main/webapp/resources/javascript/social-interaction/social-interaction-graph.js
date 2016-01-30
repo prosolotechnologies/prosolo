@@ -115,8 +115,8 @@ var socialInteractionGraph = (function () {
 			.start();
 		
 		var svg = d3.select(config.selector).append("svg")
-			.attr("width", width)
-			.attr("height", height)
+			// .attr("width", width)
+			// .attr("height", height)
 			.call(d3.behavior.zoom().scaleExtent([0.5, 4]).on("zoom", zoom));
 
 		svg.on('mousedown.zoom',null);
