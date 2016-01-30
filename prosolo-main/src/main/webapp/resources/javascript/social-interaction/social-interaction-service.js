@@ -43,7 +43,7 @@ var socialInteractionService = (function() {
 		return flatten([
 			flatten(outerInteractions.map(function(item) {
 				return item.interactions.map(function(interaction) {
-					var isSource = item.direction === "source";
+					var isSource = item.direction === "SOURCE";
 					return outerInteraction(item, interaction, isSource);
 				});
 			})),

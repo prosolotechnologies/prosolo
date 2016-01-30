@@ -3,7 +3,6 @@ package org.prosolo.bigdata.dal.cassandra.impl;
 import static org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl.Statements.FIND_SOCIAL_INTERACTION_COUNTS;
 import static org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl.Statements.FIND_STUDENT_SOCIAL_INTERACTION_COUNTS;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +11,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.prosolo.bigdata.common.dal.pojo.SocialIneractionsCount;
+import org.prosolo.bigdata.common.dal.pojo.OuterInteractionsCount;
+import org.prosolo.bigdata.common.dal.pojo.SocialInteractionsCount;
 import org.prosolo.bigdata.common.dal.pojo.SocialInteractionCount;
 import org.prosolo.bigdata.dal.cassandra.SocialInteractionStatisticsDBManager;
 
@@ -104,7 +104,11 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 	private Long student(Row row) {
 		return row.getLong("student");
 	}
-
+	
+	private String direction(Row row) {
+		return row.getString("direction");
+	}
+	
 	@Override
 	public List<SocialInteractionCount> getSocialInteractionCounts(Long courseid) {
 		PreparedStatement prepared = getStatement(getSession(), FIND_SOCIAL_INTERACTION_COUNTS);
@@ -178,26 +182,26 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 
 
 	@Override
-	public List<SocialIneractionsCount> getClusterInteractions(Long course) {
+	public List<SocialInteractionsCount> getClusterInteractions(Long course) {
 		Long timestamp = currenttimestamps.get(TableNames.INSIDE_CLUSTER_INTERACTIONS);
 		if (timestamp != null) {
 			PreparedStatement prepared = getStatement(getSession(), Statements.FIND_INSIDE_CLUSTER_INTERACTIONS);
 			BoundStatement statement = StatementUtil.statement(prepared, timestamp, course);
-			return map(query(statement), row -> new SocialIneractionsCount(student(row), cluster(row), interactions(row)));
+			return map(query(statement), row -> new SocialInteractionsCount(student(row), cluster(row), interactions(row)));
 		} else {
-			return new ArrayList<SocialIneractionsCount>();
+			return new ArrayList<SocialInteractionsCount>();
 		}
 	}
 
 	@Override
-	public List<SocialIneractionsCount> getOuterInteractions(Long course, Long student) {
+	public List<OuterInteractionsCount> getOuterInteractions(Long course, Long student) {
 		Long timestamp = currenttimestamps.get(TableNames.OUTSIDE_CLUSTER_INTERACTIONS);
 		if (timestamp != null) {
 			PreparedStatement prepared = getStatement(getSession(), Statements.FIND_OUTSIDE_CLUSTER_INTERACTIONS);
 			BoundStatement statement = StatementUtil.statement(prepared, course, student);
-			return map(query(statement), row -> new SocialIneractionsCount(student(row), cluster(row), interactions(row)));
+			return map(query(statement), row -> new OuterInteractionsCount(student(row), cluster(row), interactions(row), direction(row)));
 		} else {
-			return new ArrayList<SocialIneractionsCount>();
+			return new ArrayList<OuterInteractionsCount>();
 		}
 	}
 

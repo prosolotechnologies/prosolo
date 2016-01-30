@@ -113,7 +113,7 @@ public class SocialInteractionStatisticsService {
 			student.put("course", course);
 			student.put("cluster", cluster);
 			student.put("student", studentId);
-			student.put("direction", generator.nextInt(2) == 0 ? "source" : "target");
+			student.put("direction", generator.nextInt(2) == 0 ? "SOURCE" : "TARGET");
 			student.put("name", Integer.toString(generator.nextInt(50)));
 			student.put("avatar", Integer.toString(generator.nextInt(50)));
 			List<Map<String, String>> interactions = new ArrayList<Map<String, String>>();
