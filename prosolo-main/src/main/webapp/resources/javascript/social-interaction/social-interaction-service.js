@@ -44,12 +44,12 @@ var socialInteractionService = (function() {
 			flatten(outerInteractions.map(function(item) {
 				return item.interactions.map(function(interaction) {
 					var isSource = item.direction === "SOURCE";
-					return outerInteraction(item, interaction, isSource);
+					return outerInteraction(item, JSON.parse(interaction), isSource);
 				});
 			})),
 			flatten(clusterInteractions.map(function(item) {
 				return item.interactions.map(function(interaction) {
-					return clusterInteraction(item, interaction);
+					return clusterInteraction(item, JSON.parse(interaction));
 				});
 			}))
 		]);

@@ -21,13 +21,22 @@ var socialInteractionGraph = (function () {
 		});
 	}
 
+	function partition(items, size) {
+		var result = _.groupBy(items, function(item, i) {
+			return Math.floor(i/size);
+		});
+		return _.values(result);
+	}
+
 	function readStudentData(config, students) {
-		return $.ajax({
-			url : "http://" + config.host + "/api/social/interactions/data",
-			data : {"students" : students},
-			type : "GET",
-			crossDomain: true,
-			dataType: 'json'
+		return partition(students, 50).map(function(part) {
+			return $.ajax({
+				url : "http://" + config.host + "/api/social/interactions/data",
+				data : {"students" : part},
+				type : "GET",
+				crossDomain: true,
+				dataType: 'json'
+			});
 		});
 	}
 
@@ -225,7 +234,7 @@ var socialInteractionGraph = (function () {
 							readStudentData(config, students)
 						)
 						.then(function(data) {
-							run(config, ci, oi, data);
+							run(config, ci, oi, Array.prototype.concat.apply([], data));
 						});
 				});
 		}

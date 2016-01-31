@@ -1,17 +1,20 @@
 package org.prosolo.bigdata.common.dal.pojo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SocialInteractionsCount {
 
 	private Long student;
 
 	private Long cluster;
 
-	private String interactions;
+	private List<String> interactions;
 
-	public SocialInteractionsCount(Long student, Long cluster, String interactions) {
+	public SocialInteractionsCount(Long student, Long cluster, List<String> interactions) {
 		this.student = student;
 		this.cluster = cluster;
-		this.interactions = interactions;
+		this.interactions = interactions != null ? interactions : new ArrayList<String>();
 	}
 
 	public Long getStudent() {
@@ -30,11 +33,11 @@ public class SocialInteractionsCount {
 		this.cluster = cluster;
 	}
 
-	public String getInteractions() {
+	public List<String> getInteractions() {
 		return interactions;
 	}
 
-	public void setInteractions(String interactions) {
+	public void setInteractions(List<String> interactions) {
 		this.interactions = interactions;
 	}
 

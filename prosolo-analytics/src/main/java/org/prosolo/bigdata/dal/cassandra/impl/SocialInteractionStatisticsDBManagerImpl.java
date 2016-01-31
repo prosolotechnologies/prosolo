@@ -12,8 +12,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.prosolo.bigdata.common.dal.pojo.OuterInteractionsCount;
-import org.prosolo.bigdata.common.dal.pojo.SocialInteractionsCount;
 import org.prosolo.bigdata.common.dal.pojo.SocialInteractionCount;
+import org.prosolo.bigdata.common.dal.pojo.SocialInteractionsCount;
 import org.prosolo.bigdata.dal.cassandra.SocialInteractionStatisticsDBManager;
 
 import com.datastax.driver.core.BoundStatement;
@@ -93,8 +93,8 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 		return row.getLong("count");
 	}
 
-	private String interactions(Row row) {
-		return row.getString("interactions");
+	private List<String> interactions(Row row) {
+		return row.getList("interactions", String.class);
 	}
 
 	private Long cluster(Row row) {
