@@ -17,6 +17,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.google.gson.Gson;
 import org.prosolo.bigdata.common.dal.pojo.SocialInteractionCount;
 import org.prosolo.bigdata.dal.cassandra.SocialInteractionStatisticsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl;
@@ -200,6 +201,7 @@ public class SocialInteractionStatisticsService {
 			}
 
 		});
+
 		return ResponseUtils.corsOk(studentsData);
 		// return ResponseUtils.corsOk(randomStudentsData(students));
 	}

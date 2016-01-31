@@ -39,9 +39,9 @@ public class LogEventDBManagerImpl extends SimpleCassandraClientImpl implements
 				+ "topic,"
 				+ "eventtype,timestamp, actorid, actorfullname, "
 				+ "objecttype, objectid, objecttitle,  "
-				+ "targettype, targetid, reasontype, reasonid, link, parameters "
+				+ "targettype, targetid, reasontype, reasonid, link, parameters, learningcontext "
 
-				+ ") VALUES (now(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? );";
+				+ ") VALUES (now(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,? );";
 		this.preparedStatements.put("insertDefaultEvent", this.getSession()
 				.prepare(insertLogEvent));
 
@@ -75,6 +75,11 @@ public class LogEventDBManagerImpl extends SimpleCassandraClientImpl implements
 				boundStatement.setString(13, event.getParameters().toString());
 			}else{
 				boundStatement.setString(13, "");
+			}
+			if(event.getLearningContext()!=null){
+				boundStatement.setString(14, event.getLearningContext().toString());
+			}else{
+				boundStatement.setString(14, "");
 			}
 
 			this.getSession().execute(boundStatement);

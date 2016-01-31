@@ -70,7 +70,10 @@ def identifyClusters(): Unit ={
     }
     println("Users:"+directedNetwork.getNodes().size+" LINKS:"+directedNetwork.getLinks().size)
     if(directedNetwork.getLinks().size>0){
-      val finalUserNodes:ArrayBuffer[UserNode]=directedNetwork.calculateEdgeBetweennessClustering(edgesToRemove)
+      val finalUserNodes:ArrayBuffer[UserNode]=if(directedNetwork.getLinks().size<edgesToRemove){
+        directedNetwork.calculateEdgeBetweennessClustering(directedNetwork.getLinks().size)
+      }else directedNetwork.calculateEdgeBetweennessClustering(edgesToRemove)
+      //val finalUserNodes:ArrayBuffer[UserNode]=directedNetwork.calculateEdgeBetweennessClustering(edgesToRemove)
       storeUserNodesClustersForCourse(timestamp, courseId,finalUserNodes, directedNetwork.getLinks())
     }
 

@@ -47,7 +47,7 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		String createEventsDDL = "CREATE TABLE IF NOT EXISTS logevents (id timeuuid,  topic varchar, eventtype varchar, timestamp bigint, "
 				+ "actorid bigint, actorfullname varchar, objecttype varchar, "
 				+ "objectid bigint, objecttitle varchar, targettype varchar, targetid bigint, "
-				+ "reasontype varchar, reasonid bigint, link varchar, parameters varchar,"
+				+ "reasontype varchar, reasonid bigint, link varchar, parameters varchar, learningcontext varchar, "
 				+ "PRIMARY KEY (actorid, objectid, timestamp));";
 		this.ddls.add(createEventsDDL);
 

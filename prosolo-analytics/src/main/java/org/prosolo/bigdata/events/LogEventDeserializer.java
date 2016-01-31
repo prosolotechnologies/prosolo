@@ -32,6 +32,11 @@ public class LogEventDeserializer implements JsonDeserializer<LogEvent> {
 		String messageParameters = message.get("parameters").toString();
 		JsonObject parameters = (JsonObject) parser.parse(messageParameters);
 		event.setParameters(parameters);
+		if(message.has("learningContext")){
+			String learningContext = message.get("learningContext").toString();
+			JsonObject learningContextObject = (JsonObject) parser.parse(learningContext);
+			event.setLearningContext(learningContextObject);
+		}
 		return event;
 	}
 
