@@ -78,6 +78,8 @@ public class InstructorEditBean implements Serializable {
 	
 	private String context;
 	
+	private String courseTitle;
+	
 	public void init() {
 		try {
 			assignedStudents = new ArrayList<>();
@@ -87,6 +89,9 @@ public class InstructorEditBean implements Serializable {
 			decodedCourseId = idEncoder.decodeId(courseId);
 			if(decodedCourseId > 0) {
 				context = "name:CREDENTIAL|id:" + decodedCourseId;
+				if(courseTitle == null) {
+					courseTitle = courseManager.getCourseTitle(decodedCourseId);
+				}
 				manuallyAssignStudents = courseManager.areStudentsManuallyAssignedToInstructor(decodedCourseId);
 				searchUnassignedStudents();
 				
@@ -409,6 +414,14 @@ public class InstructorEditBean implements Serializable {
 
 	public void setManuallyAssignStudents(boolean manuallyAssignStudents) {
 		this.manuallyAssignStudents = manuallyAssignStudents;
+	}
+
+	public String getCourseTitle() {
+		return courseTitle;
+	}
+
+	public void setCourseTitle(String courseTitle) {
+		this.courseTitle = courseTitle;
 	}
 	
 }

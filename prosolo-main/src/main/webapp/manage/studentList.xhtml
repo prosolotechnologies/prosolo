@@ -20,7 +20,7 @@
 	<ui:define name="metadata">
 		<f:metadata>
 			<f:viewParam name="id" value="#{courseMembersBean.id}" default="null" />
-			<f:viewParam name="courseName" default="null" />
+			<f:viewParam value="#{courseMembersBean.courseTitle}" name="courseName" default="null" />
 			<f:viewAction action="#{courseMembersBean.init()}" />
 		</f:metadata>
 	</ui:define>
@@ -48,7 +48,7 @@
 				<img class="ico40" title="Credentials" alt="Credentials"
 					src="#{request.contextPath}/resources/images/ico-credentials.svg"></img>
 				<div class="headerTitle">
-					<h1>#{param['courseName']}</h1>
+					<h1>#{courseMembersBean.courseTitle}</h1>
 					<p>Student progression grid</p>
 				</div>
 
@@ -189,7 +189,7 @@
 						         				value="#{user.instructor.name}">
 						         				<f:param name="id" value="#{util:encodeId(user.instructor.instructorId)}" />	         		
 						         				<f:param name="courseId" value="#{param['id']}" />
-						         				<f:param name="courseName" value="#{param['courseName']}" />
+						         				<f:param name="courseName" value="#{courseMembersBean.courseTitle}" />
 		         							</h:link> 
 										</td>
 									</tr>

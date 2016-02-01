@@ -50,7 +50,19 @@
 
 		<section class="heading student">
 			<div class="col-md-1 back">
-				<a class="btn btn-default" href="#"><i class="fa fa-reply"></i></a>
+				<h:link
+					styleClass="btn btn-default"
+				 	rendered="#{param['courseId'] != null}"
+					outcome="/manage/studentList.xhtml">
+					<f:param name="id" value="#{param['courseId']}" />
+					<i class="fa fa-reply"></i>
+				</h:link>
+				<h:link id="nesto"
+					styleClass="btn btn-default"
+				 	rendered="#{param['courseId'] == null}"
+				 	onclick="return false;">
+					<i class="fa fa-reply"></i>
+				</h:link>
 			</div>
 
 			<div class="col-md-2 studentInfo">

@@ -18,7 +18,7 @@
 	<ui:define name="metadata">
 		<f:metadata>
 			<f:viewParam name="id" value="#{courseInstructorsBean.id}" default="null" />
-			<f:viewParam name="courseName" default="null" />
+			<f:viewParam name="courseName" value="#{courseInstructorsBean.courseTitle}" default="null" />
 			<f:viewAction action="#{courseInstructorsBean.init()}" />
 		</f:metadata>
 	</ui:define>
@@ -43,7 +43,7 @@
 			<img class="ico40" title="Credentials" alt="Credentials"
 					src="#{request.contextPath}/resources/images/ico-credentials.svg"></img>
 		      <div class="headerTitle">
-		         <h1>#{param['courseName']}</h1>
+		         <h1>#{courseInstructorsBean.courseTitle}</h1>
 		         <p>Instructors</p>
 		      </div>
 		      
@@ -63,7 +63,7 @@
 		         		pt:role="button">
 		         		<i class="fa fa-plus"></i> Add new instructor
 		         		<f:param name="courseId" value="#{param['id']}" />
-		         		<f:param name="courseName" value="#{param['courseName']}" />
+		         		<f:param name="courseName" value="#{courseInstructorsBean.courseTitle}" />
 		         	</h:link>
 		         </div>
 		      <div class="row narrow searchFilter">
@@ -123,7 +123,7 @@
 						         		value="#{instructor.name}">
 						         		<f:param name="id" value="#{util:encodeId(instructor.instructorId)}" />	         		
 						         		<f:param name="courseId" value="#{param['id']}" />
-						         		<f:param name="courseName" value="#{param['courseName']}" />
+						         		<f:param name="courseName" value="#{courseInstructorsBean.courseTitle}" />
 		         					</h:link>
 				                	
 				                </h1>
@@ -136,7 +136,7 @@
 						         		value="#{instructor.numberOfAssignedStudents}/#{instructor.maxNumberOfStudents}">
 						         		<f:param name="id" value="#{util:encodeId(instructor.instructorId)}" />	         		
 						         		<f:param name="courseId" value="#{param['id']}" />
-						         		<f:param name="courseName" value="#{param['courseName']}" />
+						         		<f:param name="courseName" value="#{courseInstructorsBean.courseTitle}" />
 		         					</h:link>
 				            </td>
 				            <td class="colInstructorD">
@@ -158,7 +158,7 @@
 					            		<i class="fa fa-random"></i> Reassign students
 					            		<f:param name="id" value="#{util:encodeId(instructor.instructorId)}" />	         		
 							         	<f:param name="courseId" value="#{param['id']}" />
-							         	<f:param name="courseName" value="#{param['courseName']}" />
+							         	<f:param name="courseName" value="#{courseInstructorsBean.courseTitle}" />
 				            		</h:link>
 				            	</ui:fragment>
 				            	

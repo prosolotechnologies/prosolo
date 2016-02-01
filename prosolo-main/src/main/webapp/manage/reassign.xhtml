@@ -21,7 +21,7 @@
 		<f:metadata>
 			<f:viewParam name="id" value="#{studentReassignBean.id}" default="null" />
 			<f:viewParam name="courseId" value="#{studentReassignBean.courseId}" default="null" />
-			<f:viewParam name="courseName" default="null" />
+			<f:viewParam name="courseName" value="#{studentReassignBean.courseTitle}" default="null" />
 			<f:viewAction action="#{studentReassignBean.init()}" />
 		</f:metadata>
 	</ui:define>
@@ -50,7 +50,7 @@
 		  <img class="ico40" title="Credentials" alt="Credentials"
 				src="#{request.contextPath}/resources/images/ico-credentials.svg"></img>
 	      <div class="headerTitle">
-	         <h1>#{param['courseName']}</h1>
+	         <h1>#{studentReassignBean.courseTitle}</h1>
 	         <p>Instructors > Reassign Students</p>
 	      </div>
 	      
@@ -70,7 +70,7 @@
             	pt:role="button">
             		<i class="fa fa-ban red"></i> Cancel
             		<f:param name="id" value="#{param['courseId']}" />
-            		<f:param name="courseName" value="#{param['courseName']}"/>
+            		<f:param name="courseName" value="#{studentReassignBean.courseTitle}"/>
             </h:link>
 		    <p:commandLink
 		    	styleClass="btn btn-primary panelButton pull-right"

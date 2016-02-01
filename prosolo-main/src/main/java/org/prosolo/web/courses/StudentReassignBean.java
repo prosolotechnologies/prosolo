@@ -70,6 +70,8 @@ public class StudentReassignBean implements Serializable {
 	
 	private String context;
 	
+	private String courseTitle;
+	
 	public void init() {
 		assignedStudents = new ArrayList<>();
 		instructorsWithReassignedStudents = new HashMap<>();
@@ -79,6 +81,9 @@ public class StudentReassignBean implements Serializable {
 		if (decodedCourseId > 0 && decodedId > 0) {
 			context = "name:CREDENTIAL|id:" + decodedCourseId + "|context:/name:INSTRUCTOR|id:" + decodedId + "/";
 			try {
+				if(courseTitle == null) {
+					courseTitle = courseManager.getCourseTitle(decodedCourseId);
+				}
 				Map<String, Object> instructorData = courseManager.getBasicInstructorInfo(decodedId);
 				instructor = new CourseInstructorData();
 				if(instructorData != null && !instructorData.isEmpty()) {
@@ -335,6 +340,14 @@ public class StudentReassignBean implements Serializable {
 
 	public void setDecodedCourseId(long decodedCourseId) {
 		this.decodedCourseId = decodedCourseId;
+	}
+
+	public String getCourseTitle() {
+		return courseTitle;
+	}
+
+	public void setCourseTitle(String courseTitle) {
+		this.courseTitle = courseTitle;
 	}
 	
 }

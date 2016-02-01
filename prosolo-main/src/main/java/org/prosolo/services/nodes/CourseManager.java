@@ -164,4 +164,6 @@ public interface CourseManager extends AbstractManager {
 	boolean areStudentsManuallyAssignedToInstructor(long courseId) throws DbConnectionException;
 	
 	List<Long> getUserIdsForEnrollments(List<Long> enrollmentIds) throws DbConnectionException;
+	
+	String getCourseTitle(long courseId) throws DbConnectionException;
 }

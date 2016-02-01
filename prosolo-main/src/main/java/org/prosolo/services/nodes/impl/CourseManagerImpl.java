@@ -1543,20 +1543,39 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 					"INNER JOIN enrollment.user user " +
 					"WHERE enrollment.id IN (:enrollmentIds)";
 			
-				@SuppressWarnings("unchecked")
-				List<Long> res = persistence.currentManager().createQuery(query).
-						setParameterList("enrollmentIds", enrollmentIds).
-						list();
-				if(res == null) {
-					return new ArrayList<>();
-				} 
-				return res;
+			@SuppressWarnings("unchecked")
+			List<Long> res = persistence.currentManager().createQuery(query).
+					setParameterList("enrollmentIds", enrollmentIds).
+					list();
+			if(res == null) {
+				return new ArrayList<>();
+			} 
+			return res;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while loading user ids");
 		}
-
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public String getCourseTitle(long courseId) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT course.title " +
+					"FROM Course course " +
+					"WHERE course.id = :courseId";
+			
+			String res = (String) persistence.currentManager().createQuery(query).
+					setLong("courseId", courseId).
+					uniqueResult();
+				return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading course title");
+		}
 	}
 	
 }

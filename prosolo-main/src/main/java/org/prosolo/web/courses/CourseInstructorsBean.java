@@ -71,12 +71,17 @@ public class CourseInstructorsBean implements Serializable {
 	private boolean manuallyAssignStudents;
 	
 	private String context;
+	
+	private String courseTitle;
 
 	public void init() {
 		decodedId = idEncoder.decodeId(id);
 		if (decodedId > 0) {
 			context = "name:CREDENTIAL|id:" + decodedId;
 			try {
+				if(courseTitle == null) {
+					courseTitle = courseManager.getCourseTitle(decodedId);
+				}
 				manuallyAssignStudents = courseManager.areStudentsManuallyAssignedToInstructor(decodedId);
 				searchCourseInstructors();
 			} catch (Exception e) {
@@ -288,6 +293,14 @@ public class CourseInstructorsBean implements Serializable {
 
 	public void setManuallyAssignStudents(boolean manuallyAssignStudents) {
 		this.manuallyAssignStudents = manuallyAssignStudents;
+	}
+
+	public String getCourseTitle() {
+		return courseTitle;
+	}
+
+	public void setCourseTitle(String courseTitle) {
+		this.courseTitle = courseTitle;
 	}
 
 }
