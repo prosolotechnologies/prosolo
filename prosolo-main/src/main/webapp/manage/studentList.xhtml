@@ -160,6 +160,7 @@
 													<h:link outcome="/manage/studentProfile">
 														#{user.fullName}
 												    	<f:param name="id" value="#{util:encodeId(user.id)}" />
+												    	<f:param name="courseId" value="#{param['id']}" />
 													</h:link>
 												</h1>
 												<h2>#{user.position}</h2>
