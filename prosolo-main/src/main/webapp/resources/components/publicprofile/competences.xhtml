@@ -55,7 +55,7 @@
 						styleClass="#{iterator.index % 2 == 1 ? 'noMargin' : '' }"
 						editable="false"
 						canBeBrushedUp="false"
-						context="publicprofile.#{userId}.competences.ongoing" />
+						context="profile.#{userId}.competences.ongoing" />
 				</ui:repeat>
 				
 				<div class="clear marginBottom10"></div>
@@ -74,7 +74,7 @@
 						styleClass="#{iterator.index % 2 == 1 ? 'noMargin' : '' }"
 						editable="false"
 						canBeBrushedUp="false"
-						context="publicprofile.#{userId}.competences.achieved" />
+						context="profile.#{userId}.competences.achieved" />
 					
 					<ui:remove>
 					<div class="profileItem profileItemBlue #{iterator.index % 2 == 1 ? 'noMargin' : '' }">

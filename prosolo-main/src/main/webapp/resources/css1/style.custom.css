@@ -134,6 +134,27 @@ textarea, .ui-widget textarea {
 	text-align: justify;
 	font-size: 12px;
 }
+
+/*--- EDITABLE TEXT ---*/
+.editable-input {
+	vertical-align: top;
+	display: inline-block;
+	width: auto;
+	white-space: normal;
+	zoom: 1;
+}
+
+.editable-buttons {
+	display: inline-block;
+	vertical-align: top;
+	margin-left: 7px;
+	zoom: 1;
+}
+
+.analyticsSettings {
+	
+}
+
 /*---------------------------------------------------------------------*/
 /*--- END GENERAL ---*/
 /*---------------------------------------------------------------------*/
@@ -235,6 +256,10 @@ textarea, .ui-widget textarea {
 }
 
 /* Growl Text */
+.ui-growl {
+    top: 80px;
+}
+
 .ui-growl-message {
 	text-shadow: none;
 }
@@ -245,6 +270,17 @@ textarea, .ui-widget textarea {
 
 .ui-growl-message p {
 	font-size: 14px;
+}
+
+.ui-growl .ui-shadow {
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+.ui-growl .ui-state-highlight {
+	background-color: #fcf8e3;
+	border: 1px solid #faebcc;
 }
 
 /* button */
@@ -368,6 +404,12 @@ textarea, .ui-widget textarea {
 	font: 12px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
 	text-align: justify;
 	text-justify: inter-word;
+}
+
+.ui-state-hover,
+.ui-datatable-data tr.ui-state-hover {
+	background: inherit;
+	border: inherit;
 }
 
 .messageTextarea {

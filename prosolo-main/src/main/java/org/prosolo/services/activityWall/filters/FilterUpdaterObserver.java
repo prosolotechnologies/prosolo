@@ -65,19 +65,19 @@ public class FilterUpdaterObserver extends EventObserver {
 
 	@Override
 	public void handleEvent(Event event) {
-		logger.info("comming in event with action: " + event.getAction());
-		logger.info("comming in event with actor: " + event.getActor());
+//		logger.info("comming in event with action: " + event.getAction());
+//		logger.info("comming in event with actor: " + event.getActor());
 		BaseEntity object=null;
 		if(event.getObject()!=null){
 			 object=HibernateUtil.initializeAndUnproxy(event.getObject());
-			 logger.info("comming in event with object: "
-						+ object.getClass().getSimpleName()+" id:"+object.getId());
+//			 logger.info("comming in event with object: "
+//						+ object.getClass().getSimpleName()+" id:"+object.getId());
 		}		
 		BaseEntity target=null;
 		if(event.getTarget()!=null){
 			target=HibernateUtil.initializeAndUnproxy(event.getTarget());
-			logger.info("comming in event with target: "
-					+ target.getClass().getSimpleName()+" id:"+target.getId());
+//			logger.info("comming in event with target: "
+//					+ target.getClass().getSimpleName()+" id:"+target.getId());
 		}
 		// User actor=event.getActor();
 	
@@ -102,21 +102,21 @@ public class FilterUpdaterObserver extends EventObserver {
 		} else if (event.getAction().equals(EventType.Detach)) {
 			if ((target instanceof TargetLearningGoal)
 					&& (object instanceof TargetCompetence)) {
-				System.out
-						.println("Detaching Target Competence from Target learning goal...");
+//				System.out
+//						.println("Detaching Target Competence from Target learning goal...");
 				updateFiltersOnDetachTargetCompetenceFromTargetLearningGoal(
 						target.getId(), object.getId(),
 						event.getActor().getId());
 			} else if ((target instanceof TargetCompetence)
 					&& (object instanceof TargetActivity)) {
-				System.out
-						.println("Detaching Target Activity from Target Competence...");
+//				System.out
+//						.println("Detaching Target Activity from Target Competence...");
 				updateFiltersOnDetachTargetActivityFromTargetCompetence(event
 						.getTarget().getId(), object.getId(), event
 						.getActor().getId());
 			} else if (object instanceof TargetLearningGoal) {
-				System.out
-						.println("Detaching/Deleting Target learning Goal. Not processed yet");
+//				System.out
+//						.println("Detaching/Deleting Target learning Goal. Not processed yet");
 			}
 		} else if (event.getAction().equals(EventType.ENROLL_COURSE)) {
 			CourseEnrollment courseEnrollment = (CourseEnrollment) event

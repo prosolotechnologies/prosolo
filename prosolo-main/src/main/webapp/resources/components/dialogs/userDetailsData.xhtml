@@ -13,7 +13,7 @@
 		<div class="userDetails tooltip user#{userDetailsBean.userData.id}" >
 			<div class="avatarContainer">
 				<h:link class="userDetailsLink"
-					onclick="sendLogPageNavigationWithParameters('/profile', {context: 'userDetails', userId: #{userDetailsBean.userData.id}});"
+					onclick="sendLogPageNavigationWithParameters('profile', {context: 'userDetails', userId: #{userDetailsBean.userData.id}});"
 					rendered="#{userDetailsBean.userData.profileUrl == null or userDetailsBean.userData.profileUrl.length() == 0}"
 					outcome="/publicprofile" >
 					<f:param name="id" value="#{util:encodeId(userDetailsBean.userData.id)}" />
@@ -44,7 +44,7 @@
 				<h2 class="name">
 					<h:link rendered="#{userDetailsBean.userData.profileUrl == null or userDetailsBean.userData.profileUrl.length() == 0}"
 						value="#{userDetailsBean.userData.name}" 
-						onclick="sendLogPageNavigationWithParameters('/profile', {context: 'userDetails', userId: #{userDetailsBean.userData.id}});"
+						onclick="sendLogPageNavigationWithParameters('profile', {context: 'userDetails', userId: #{userDetailsBean.userData.id}});"
 						outcome="/publicprofile" >
 		                <f:param  name="id" value="#{util:encodeId(userDetailsBean.userData.id)}" />  
 		            </h:link>

@@ -198,25 +198,31 @@ public class CommentActionBean implements Serializable {
 					
 					session.flush();
 					
-					for(User interactedWith : interactions) {
-						Map<String, String> parameters = new HashMap<String, String>();
-						parameters.put("context", context);
-						parameters.put("targetUserId", Long.toString(interactedWith.getId()));
-						session.flush();
-						
-						Event event = eventFactory.generateEvent(EventType.Comment, loggedUser.getUser(), comment, resource, parameters);
-						
-						if (event != null) {
-							socialActivityFactory.createSocialActivity(event, session, null);
-						}
+					Map<String, String> parameters = new HashMap<String, String>();
+					parameters.put("context", context);
+					
+					Event event = eventFactory.generateEvent(EventType.Comment, loggedUser.getUser(), comment, resource, parameters);
+					
+					if (event != null) {
+						socialActivityFactory.createSocialActivity(event, session, null);
 					}
+					
+					// Needs to be refactored
+//					for(User interactedWith : interactions) {
+//						parameters = new HashMap<String, String>();
+//						parameters.put("context", context);
+//						parameters.put("targetUserId", Long.toString(interactedWith.getId()));
+//						session.flush();
+//						
+//						event = eventFactory.generateEvent(EventType.MENTIONED, loggedUser.getUser(), interactedWith, comment, parameters);
+//					}
 					
 					logger.debug("User \"" + loggedUser.getUser() +
 							" commented on an resource "+resourceId+")");
 					
 					commentData.setId(comment.getId());
 					
-//		            	update of other registered users' walls is performed in InterfaceCacheUpdater
+//		            update of other registered users' walls is performed in InterfaceCacheUpdater
 				} catch (EventException e) {
 					logger.error(e);
 				} catch (ResourceCouldNotBeLoadedException e) {
