@@ -20,9 +20,9 @@
 	<script type="text/javascript">
 		$(function() {
 			var query = "#{param['query']}";
-			
-			$('form.filteredSearch .searchContainer .inputContainer.compSearch .searchInput').val("#{param['query']}");
-			$('form.filteredSearch .searchContainer .inputContainer.compSearch .searchInputHidden').val("#{param['query']}");
+			var query1 = "#{param['query']}"
+			$('form.filteredSearch .inputContainer.compSearch .searchInput').val("#{param['query']}");
+			$('form.filteredSearch .inputContainer.compSearch .searchInputHidden').val("#{param['query']}");
 			searchControl.executeSearch();
 		});
 		
