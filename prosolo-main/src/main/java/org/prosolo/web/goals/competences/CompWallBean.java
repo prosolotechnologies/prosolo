@@ -139,10 +139,16 @@ public class CompWallBean implements Serializable {
 		long targetGoalId = goalsBean.getSelectedGoalData().getData().getTargetGoalId();
 		
 		long targetCompId = goalsBean.getSelectedGoalData().getSelectedCompetence().getData().getId();
+		
+		String page = PageUtil.getPostParameter("page");
+		String lContext = PageUtil.getPostParameter("learningContext");
+		String service = PageUtil.getPostParameter("service");
+		
 		connectActivity(
 				activity, 
 				goalsBean.getSelectedGoalData().getSelectedCompetence(), 
-				"learn.targetGoal."+targetGoalId+".targetComp."+targetCompId+".activitySearch");
+				"learn.targetGoal."+targetGoalId+".targetComp."+targetCompId+".activitySearch",
+				page, lContext, service);
 	}
 	
 	public void connectActivityWallData(ActivityWallData activityData, String context) {
@@ -153,13 +159,15 @@ public class CompWallBean implements Serializable {
 	public void connectActivityById(long activityId, String context) {
 		try {
 			Activity activity = goalManager.loadResource(Activity.class, activityId);
-			connectActivity(activity, goalsBean.getSelectedGoalData().getSelectedCompetence(), context);
+			connectActivity(activity, goalsBean.getSelectedGoalData().getSelectedCompetence(), context,
+					null, null, null);
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		}
 	}
 	
-	public void connectActivity(Activity act, CompetenceDataCache compData, String context) {
+	public void connectActivity(Activity act, CompetenceDataCache compData, String context, String page,
+			String lContext, String service) {
 		Activity activity = goalManager.merge(act);
 		long parentTargetCompId = compData.getData().getId();
 
@@ -167,14 +175,14 @@ public class CompWallBean implements Serializable {
 		
 		logger.debug("Connecting Activity \""+activity+"\" to the competence \""+
 				parentTargetCompId+"\" for the user "+ loggedUser.getUser());
-			
+		
 		try {
 			TargetActivity newActivity = goalManager.addActivityToTargetCompetence(
 					loggedUser.getUser(),
 					parentTargetCompId, 
 					activity,
 					context,
-					null, null, null);
+					page, lContext, service);
 		
 			// update cache
 			addActivity(compData, newActivity);

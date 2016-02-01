@@ -9,7 +9,8 @@ public enum ContextName {
 	POST_DIALOG("Post"),
 	INSTRUCTOR("CourseInstructor"),
 	INSTRUCTOR_DIALOG("CourseInstructor"),
-	USER("User");
+	USER("User"),
+	ACTIVITY_SEARCH("Activity");
 	
     private String objectType; 
     

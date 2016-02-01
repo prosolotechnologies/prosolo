@@ -181,7 +181,7 @@ public class ContextJsonParserServiceImpl implements ContextJsonParserService {
 	}
 
 	private String addNestedDoc(String base, String subdoc, String type) {
-		if(base != null) {
+		if(base != null && !base.isEmpty()) {
 			subdoc = type + ":/" + subdoc + "/|";
 			int index = base.lastIndexOf(type + ":/");
 			if(index != -1) {

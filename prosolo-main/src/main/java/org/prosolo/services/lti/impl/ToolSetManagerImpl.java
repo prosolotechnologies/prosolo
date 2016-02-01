@@ -13,8 +13,6 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.lti.ToolSetManager;
 import org.prosolo.services.lti.exceptions.ConsumerAlreadyRegisteredException;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
-import org.prosolo.web.lti.LTIConfigLoader;
-import org.prosolo.web.lti.json.data.ToolProxy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,7 +37,7 @@ public class ToolSetManagerImpl extends AbstractManagerImpl implements ToolSetMa
 			consumer.setKeyLtiOne(UUID.randomUUID().toString());
 			consumer.setSecretLtiOne(UUID.randomUUID().toString());
 			ts.setConsumer(consumer);
-			String regUrl = Settings.getInstance().config.application.domain+"ltitoolproxyregistration.xhtml";
+			String regUrl = domain+"ltitoolproxyregistration.xhtml";
 			ts.setRegistrationUrl(regUrl);
 			return saveEntity(ts);
 		}catch(Exception e){

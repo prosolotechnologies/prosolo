@@ -18,6 +18,8 @@
 			<h:panelGroup id="actSearchForm" class="activitySearchForm">
 				<p:growl id="actSearchGrowl" showDetail="true" />
 				
+				<ui:param name="courseContext" value="#{learninggoals.selectedGoalData.data.course != null ? 'name:Credential|id:'.concat(learninggoals.selectedGoalData.data.course.id) : ''}" />
+				
 				<comp:searchActivities value="compActivities"
 					container=".sideRecommendedAct"
 					actionLinkName="Add"
@@ -30,6 +32,8 @@
 					disabled="#{learninggoals.completed}"
 					disabledTooltip="#{msg['learn.disabledAsGoalIsCompleted.tooltip']}"
 					context="learn.targetGoal.#{learninggoals.selectedGoalData.data.targetGoalId}.targetComp.#{learninggoals.selectedGoalData.selectedCompetence.data.id}"
+					page="#{facesContext.viewRoot.viewId}"
+					learningContext="#{courseContext}|context:/name:goal_wall|id:#{learninggoals.selectedGoalData.data.targetGoalId}|context:/name:competence_wall|id:#{learninggoals.selectedGoalData.selectedCompetence.data.id}//"
 				/>
 			</h:panelGroup>
 		</div><!-- end sideSearch -->
