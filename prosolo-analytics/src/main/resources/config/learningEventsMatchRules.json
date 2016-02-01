@@ -1,0 +1,16 @@
+[{
+     "id": "dialog.goal.creator.navigate",
+     "description": "In a goal dialog, navigating to creator profile",
+     "process": "SRL.Planning.TaskAnalysis",
+     "patterns" : [
+         {
+             "eventType": "SERVICEUSE",
+             "objectType": "USER_DIALOG",
+             "context": "goal(Details)?Dialog\.creator\.imageName\.goal\.\\d+"
+   },
+         {
+             "eventType": "NAVIGATE",
+             "context": "userDetails"
+   }
+     ]
+ }]
