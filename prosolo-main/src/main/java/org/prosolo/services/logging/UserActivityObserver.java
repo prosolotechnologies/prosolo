@@ -99,11 +99,11 @@ public class UserActivityObserver extends EventObserver {
 	@Override
 	public void handleEvent(Event event) {
 		Session session = (Session) defaultManager.getPersistence().openSession();
-		System.out.println("UserActivityObserver handling event");
-		logger.info("comming in event with action: " + event.getAction());
-		logger.info("comming in event with actor: " + event.getActor());
-		logger.info("comming in event with object: " + event.getObject());
-		logger.info("comming in event with target: " + event.getTarget());
+//		System.out.println("UserActivityObserver handling event");
+//		logger.info("comming in event with action: " + event.getAction());
+//		logger.info("comming in event with actor: " + event.getActor());
+//		logger.info("comming in event with object: " + event.getObject());
+//		logger.info("comming in event with target: " + event.getTarget());
 		
  		try {
 			if (event.getActor() != null) {

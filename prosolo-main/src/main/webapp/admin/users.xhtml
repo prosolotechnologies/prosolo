@@ -32,126 +32,146 @@
 	
 		<p:growl id="usersFormGrowl" showDetail="true" />
 
-		<section class="heading usersActions">
-			<p:commandLink id="newUserBtn" value="Add User"
-				action="#{adminUsers.prepareAdd}"
-				styleClass="button green size30 left marginBottom10"
-				onclick='$("#newUserDetailsDialog").dialog("open");'
-				update=":newUser:userDetailsForm" />
-
-			<p:commandLink value="Import Users"
-				styleClass="button uploadUsers green size30 left marginLeft10 marginBottom10"
-				onclick='$("#usersImportModalDialog").dialog("open");' />
+		<section class="heading">
+			<header>
+				<i class="fa fa-users headIcon"></i>
+				<div class="headerTitle">
+					<h1>Users</h1>
+					<p>Manage users and their roles.</p>
+				</div>
 				
-			<p:commandLink value="Reindex ElasticSearch"
-				action="#{bulkDataAdministration.deleteAndReindexElasticSearch}"
-				styleClass="button uploadUsers red size30 left marginLeft10 marginBottom10" />
-				
-			<p:commandLink value="Reindex Users"
-				action="#{bulkDataAdministration.deleteAndReindexUsers}"
-				styleClass="button uploadUsers red size30 left marginLeft10 marginBottom10" />
-				
-			<p:commandLink value="Reindex Documents"
-				action="#{bulkDataAdministration.deleteAndReindexDocuments}"
-				styleClass="button uploadUsers red size30 left marginLeft10 marginBottom10" />
-				
-			<p:commandLink value="Delete Twitter posts"
-				action="#{bulkDataAdministration.deleteOldTwitterPosts}"
-				styleClass="button uploadUsers red size30 left marginLeft10 marginBottom10" 
-				update="usersFormGrowl" />
+				<ul class="basicStats pull-right">
+					<li>
+						<p:commandLink id="newUserBtn" value="Add User"
+							action="#{adminUsers.prepareAdd}"
+							styleClass="button green size30 left marginBottom10"
+							onclick='$("#newUserDetailsDialog").dialog("open");'
+							update=":newUser:userDetailsForm" />
+					</li>
+					<li>
+						<p:commandLink value="Import Users"
+							styleClass="button uploadUsers green size30 left marginLeft10 marginBottom10"
+							onclick='$("#usersImportModalDialog").dialog("open");' />
+					</li>
+					<li>
+						<p:commandLink value="Reindex ElasticSearch"
+							action="#{bulkDataAdministration.deleteAndReindexElasticSearch}"
+							styleClass="button uploadUsers red size30 left marginLeft10 marginBottom10" />
+					</li>
+					<li>
+						<p:commandLink value="Reindex Users"
+							action="#{bulkDataAdministration.deleteAndReindexUsers}"
+							styleClass="button uploadUsers red size30 left marginLeft10 marginBottom10" />
+					</li>
+					<li>
+						<p:commandLink value="Reindex Documents"
+							action="#{bulkDataAdministration.deleteAndReindexDocuments}"
+							styleClass="button uploadUsers red size30 left marginLeft10 marginBottom10" />
+					</li>
+					<li>
+						<p:commandLink value="Delete Twitter posts"
+							action="#{bulkDataAdministration.deleteOldTwitterPosts}"
+							styleClass="button uploadUsers red size30 left marginLeft10 marginBottom10" 
+							update="usersFormGrowl" />
+					</li>
+				</ul>
+			</header>
 		</section>
-	
+		
 		<section class="container-fluid mainArea">
-			<div class="container">
-				<div class="row">
-					<div id="usersFormContainer" class="content wide">
-						
-						<p:dataTable id="usersDataTable"
-							tableStyleClass="table table-striped"
-							var="user"
-							rowIndexVar="rowIndex"
-							value="#{adminUsers.users}" 
-							widgetVar="usersTable"
-							emptyMessage="No users match given filter criteria"
-							filteredValue="#{adminUsers.filteredUsers}">
-							
-							<f:facet name="header">
-								<p:outputPanel>
-									<h:outputText value="Filter using all fields: " />
+			<div class="row">
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<div class="row">
+							<div class="col-md-12">
+								<p:dataTable id="usersDataTable"
+									tableStyleClass="table table-striped"
+									var="user"
+									rowIndexVar="rowIndex"
+									value="#{adminUsers.users}" 
+									widgetVar="usersTable"
+									emptyMessage="No users match given filter criteria"
+									filteredValue="#{adminUsers.filteredUsers}">
 									
-									<p:inputText id="globalFilter"
-										value="#{adminUsers.keyword}"
-										onkeyup="PF('usersTable').filter()"
-										placeholder="Enter keyword"
-										style="width:150px" />
-								</p:outputPanel>
-							</f:facet>
-			
-							<p:column headerText="#" styleClass="center middleAlign">
-						        #{rowIndex+1}.
-						    </p:column>
-						    
-							<p:column id="nameColumn" styleClass="middleAlign" headerText="Name" filterBy="#{user.name}"
-								filterMatchMode="contains" sortBy="#{user.name}">
-								<h:outputText value="#{user.name}" />
-							</p:column>
-			
-							<p:column id="lastNameColumn" styleClass="middleAlign" headerText="Last Name" 
-								filterBy="#{user.lastName}"	filterMatchMode="contains" sortBy="#{user.lastName}">
-								
-								<h:outputText value="#{user.lastName}" />
-							</p:column>
-			
-							<p:column id="emailColumn" headerText="Email" styleClass="middleAlign"
-								filterBy="email" filterMatchMode="contains">
-								
-								<h:outputText value="#{user.email}" />
-							</p:column>
-			
-							<p:column styleClass="center middleAlign" headerText="Edit">
-								<p:commandLink value="Edit" styleClass="blue button size25"
-									onclick="$('#editUserDetailsDialog').dialog('open');"
-									action="#{adminUsers.prepareEdit(user)}"
-									update=":editUser:userDetailsForm" />
-							</p:column>
-			
-							<p:column styleClass="center middleAlign" headerText="Roles">
-								<p:commandLink value="Roles" styleClass="blue button size25"
-									action="#{units.prepareEditRoles(user)}"
-									onclick='$("#userRolesModalDialog").dialog("open");'
-									update=":userRoles:userRolesForm">
-								</p:commandLink>
-							</p:column>
-			
-							<p:column styleClass="center middleAlign" headerText="Delete">
-								<p:commandButton value="Delete" styleClass="red button size25"
-									onclick="$('#deleteUserDialog').dialog('open');"
-									action="#{adminUsers.setUserToDelete(user)}" 
-									update=":deleteUserDialogForm" />
-							</p:column>
-							
-							<p:column styleClass="center middleAlign" headerText="Photo">
-								<div class="usersUploadContainer">
-									<h:graphicImage id="userImageId" styleClass="imageRound image30"
-										value="#{user.avatarUrl}" width="30"
-										height="30" alt="" />
-			
-									<ui:remove>
-										<p:fileUpload fileUploadListener="#{user.handleFileUpload}"
-											mode="advanced" update="messages userImageId" auto="true"
-											immediate="true" sizeLimit="100000" styleClass="browseFile"
-											allowTypes="/(\.|\/)(gif|jpe?g|png)$/">
-										</p:fileUpload>
-									</ui:remove>
-								</div>
-							</p:column>
-						</p:dataTable>
+									<f:facet name="header">
+										<p:outputPanel>
+											<h:outputText value="Filter using all fields: " />
+											
+											<p:inputText id="globalFilter"
+												value="#{adminUsers.keyword}"
+												onkeyup="PF('usersTable').filter()"
+												placeholder="Enter keyword"
+												style="width:150px" />
+										</p:outputPanel>
+									</f:facet>
 					
-						<script>
-					 	$('#usersForm .button.uploadUsers').on('click', function(e){
-							$('.usersUploadContainer .browseFile').trigger('click');
-						});
-						</script>
+									<p:column headerText="#" styleClass="center middleAlign">
+								        #{rowIndex+1}.
+								    </p:column>
+								    
+									<p:column id="nameColumn" styleClass="middleAlign" headerText="Name" filterBy="#{user.name}"
+										filterMatchMode="contains" sortBy="#{user.name}">
+										<h:outputText value="#{user.name}" />
+									</p:column>
+					
+									<p:column id="lastNameColumn" styleClass="middleAlign" headerText="Last Name" 
+										filterBy="#{user.lastName}"	filterMatchMode="contains" sortBy="#{user.lastName}">
+										
+										<h:outputText value="#{user.lastName}" />
+									</p:column>
+					
+									<p:column id="emailColumn" headerText="Email" styleClass="middleAlign"
+										filterBy="email" filterMatchMode="contains">
+										
+										<h:outputText value="#{user.email}" />
+									</p:column>
+					
+									<p:column styleClass="center middleAlign" headerText="Edit">
+										<p:commandLink value="Edit" styleClass="blue button size25"
+											onclick="$('#editUserDetailsDialog').dialog('open');"
+											action="#{adminUsers.prepareEdit(user)}"
+											update=":editUser:userDetailsForm" />
+									</p:column>
+					
+									<p:column styleClass="center middleAlign" headerText="Roles">
+										<p:commandLink value="Roles" styleClass="blue button size25"
+											action="#{units.prepareEditRoles(user)}"
+											onclick='$("#userRolesModalDialog").dialog("open");'
+											update=":userRoles:userRolesForm">
+										</p:commandLink>
+									</p:column>
+					
+									<p:column styleClass="center middleAlign" headerText="Delete">
+										<p:commandButton value="Delete" styleClass="red button size25"
+											onclick="$('#deleteUserDialog').dialog('open');"
+											action="#{adminUsers.setUserToDelete(user)}" 
+											update=":deleteUserDialogForm" />
+									</p:column>
+									
+									<p:column styleClass="center middleAlign" headerText="Photo">
+										<div class="usersUploadContainer">
+											<h:graphicImage id="userImageId" styleClass="imageRound image30"
+												value="#{user.avatarUrl}" width="30"
+												height="30" alt="" />
+					
+											<ui:remove>
+												<p:fileUpload fileUploadListener="#{user.handleFileUpload}"
+													mode="advanced" update="messages userImageId" auto="true"
+													immediate="true" sizeLimit="100000" styleClass="browseFile"
+													allowTypes="/(\.|\/)(gif|jpe?g|png)$/">
+												</p:fileUpload>
+											</ui:remove>
+										</div>
+									</p:column>
+								</p:dataTable>
+							
+								<script>
+							 	$('#usersForm .button.uploadUsers').on('click', function(e){
+									$('.usersUploadContainer .browseFile').trigger('click');
+								});
+								</script>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
