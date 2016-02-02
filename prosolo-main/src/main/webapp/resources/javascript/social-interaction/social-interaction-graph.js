@@ -234,7 +234,8 @@ var socialInteractionGraph = (function () {
 							readStudentData(config, students)
 						)
 						.then(function(data) {
-							run(config, ci, oi, Array.prototype.concat.apply([], data));
+							var merge = data.reduce(function(a, e) { return $.extend(a, e.responseJSON); }, {});
+							run(config, ci, oi, merge);
 						});
 				});
 		}
