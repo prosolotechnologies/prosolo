@@ -3,6 +3,7 @@ package org.prosolo.services.nodes;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
@@ -92,7 +93,8 @@ public interface ResourceFactory extends AbstractManager {
 	
 	CourseEnrollment enrollUserInCourseInSameTransaction(User user, Course course, TargetLearningGoal targetGoal, String context);
 	
-	void assignStudentToInstructorAutomatically(long courseId, long courseEnrollmentId);
+	Map<String, Object> assignStudentsToInstructorAutomatically(long courseId, List<Long> courseEnrollmentIds,
+			long instructorToExcludeId);
 	
 	CourseEnrollment enrollUserInCourse(User user, Course course) throws EventException;
 

@@ -150,7 +150,10 @@ public interface CourseManager extends AbstractManager {
 	
 	Map<String, Object> getCourseInstructor(long userId, long courseId) throws DbConnectionException;
 	
-	List<Long> removeInstructorFromCourse(long courseInstructorId) throws DbConnectionException;
+	Map<String, Object> removeInstructorFromCourse(long courseInstructorId, long courseId,
+			boolean reassignAutomatically) throws DbConnectionException;
+	
+	Map<String, Object> reassignStudentsAutomatically(long instructorId, long courseId) throws DbConnectionException;
 	
 	Map<String, Object> getBasicInstructorInfo(long instructorId) throws DbConnectionException;
 	
@@ -166,4 +169,8 @@ public interface CourseManager extends AbstractManager {
 	List<Long> getUserIdsForEnrollments(List<Long> enrollmentIds) throws DbConnectionException;
 	
 	String getCourseTitle(long courseId) throws DbConnectionException;
+	
+	long getUserIdForEnrollment(long enrollmentId) throws DbConnectionException;
+	
+	long getUserIdForInstructor(long instructorId) throws DbConnectionException;
 }

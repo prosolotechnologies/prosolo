@@ -5,7 +5,9 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -634,7 +636,9 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 			saveEntity(portfolio);
 			
 			if(!course.isManuallyAssignStudentsToInstructors()) {
-				assignStudentToInstructorAutomatically(course.getId(), enrollment.getId());
+				List<Long> ids = new ArrayList<>();
+				ids.add(enrollment.getId());
+				assignStudentsToInstructorAutomatically(course.getId(), ids, 0);
 			}
 			
 			return enrollment;
@@ -653,36 +657,102 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 		return enrollment;
 	}
 	
+//	@Override
+//	@Transactional(readOnly = true)
+//	public void assignStudentToInstructorAutomatically(long courseId, long courseEnrollmentId) {
+//		List<Map<String, Object>> instructors = courseManager.getCourseInstructors(courseId);
+//		
+//		if(instructors != null) {
+//			BigDecimal min = BigDecimal.ONE;
+//			long instructorIdMinOccupied = 0;
+//			for(Map<String, Object> map : instructors) {
+//				int max = (int) map.get("maxNumberOfStudents");
+//				int assigned = (int) map.get("numberOfAssignedStudents");
+//				BigDecimal occupiedFactor = BigDecimal.valueOf(assigned).divide(BigDecimal.valueOf(max),
+//						10, RoundingMode.HALF_UP);
+//				if(occupiedFactor.compareTo(min) == -1) {
+//					min = occupiedFactor;
+//					instructorIdMinOccupied = (long) map.get("instructorId");
+//					if(occupiedFactor.compareTo(BigDecimal.ZERO) == 0) {
+//						break;
+//					}
+//				}
+//			}
+//			
+//			if(min.compareTo(BigDecimal.ONE) != 0) {
+//				System.out.println("MIN " + min);
+//				CourseInstructor inst = (CourseInstructor) persistence.currentManager()
+//						.load(CourseInstructor.class, instructorIdMinOccupied);
+//				CourseEnrollment enr = (CourseEnrollment) persistence.currentManager()
+//						.load(CourseEnrollment.class, courseEnrollmentId);
+//				enr.setAssignedToInstructor(true);
+//				enr.setInstructor(inst);
+//			}
+//		}
+//	}
+	
 	@Override
-	@Transactional(readOnly = true)
-	public void assignStudentToInstructorAutomatically(long courseId, long courseEnrollmentId) {
+	@Transactional(readOnly = false)
+	public Map<String, Object> assignStudentsToInstructorAutomatically(long courseId, List<Long> courseEnrollmentIds,
+			long instructorToExcludeId) {
 		List<Map<String, Object>> instructors = courseManager.getCourseInstructors(courseId);
-		
-		if(instructors != null) {
-			BigDecimal min = BigDecimal.ONE;
-			long instructorIdMinOccupied = 0;
-			for(Map<String, Object> map : instructors) {
+		Map<String, Object> resultMap = new HashMap<>();
+		Map<Long, Long> assigned = new HashMap<>();
+		if(instructors != null && courseEnrollmentIds != null) {
+			List<Long> enrollmentIdsCopy = new ArrayList<>(courseEnrollmentIds);
+			Iterator<Long> iterator = enrollmentIdsCopy.iterator();
+			while(iterator.hasNext()) {
+				long eid = iterator.next();
+				long instructorId = assignStudentToInstructor(eid, instructors, instructorToExcludeId);
+				if(instructorId == 0) {
+					break;
+				}
+				assigned.put(eid, instructorId);
+				iterator.remove();
+			}
+			if(!enrollmentIdsCopy.isEmpty()) {
+				resultMap.put("unassigned", enrollmentIdsCopy);
+			}
+			resultMap.put("assigned", assigned);
+			return resultMap;
+		}
+		return null;
+	}
+
+	private long assignStudentToInstructor(long eid, List<Map<String, Object>> instructors,
+			long instructorToExclude) {
+		BigDecimal min = BigDecimal.ONE;
+		Map<String, Object> minOccupiedInstructor = null;
+		for(Map<String, Object> map : instructors) {
+			long instructorId= (long) map.get("instructorId");
+			if(instructorToExclude != 0 && instructorId != instructorToExclude) {
 				int max = (int) map.get("maxNumberOfStudents");
 				int assigned = (int) map.get("numberOfAssignedStudents");
 				BigDecimal occupiedFactor = BigDecimal.valueOf(assigned).divide(BigDecimal.valueOf(max),
 						10, RoundingMode.HALF_UP);
 				if(occupiedFactor.compareTo(min) == -1) {
 					min = occupiedFactor;
-					instructorIdMinOccupied = (long) map.get("instructorId");
+					minOccupiedInstructor = map;
 					if(occupiedFactor.compareTo(BigDecimal.ZERO) == 0) {
 						break;
 					}
 				}
 			}
-			
-			if(min.compareTo(BigDecimal.ONE) != 0) {
-				CourseInstructor inst = (CourseInstructor) persistence.currentManager()
-						.load(CourseInstructor.class, instructorIdMinOccupied);
-				CourseEnrollment enr = (CourseEnrollment) persistence.currentManager()
-						.load(CourseEnrollment.class, courseEnrollmentId);
-				enr.setAssignedToInstructor(true);
-				enr.setInstructor(inst);
-			}
 		}
+		
+		if(min.compareTo(BigDecimal.ONE) != 0) {
+			System.out.println("MIN " + min);
+			int assigned = (int) minOccupiedInstructor.get("numberOfAssignedStudents");
+			minOccupiedInstructor.put("numberOfAssignedStudents", assigned + 1);
+			long instructorIdMinOccupied = (long) minOccupiedInstructor.get("instructorId");
+			CourseInstructor inst = (CourseInstructor) persistence.currentManager()
+					.load(CourseInstructor.class, instructorIdMinOccupied);
+			CourseEnrollment enr = (CourseEnrollment) persistence.currentManager()
+					.load(CourseEnrollment.class, eid);
+			enr.setAssignedToInstructor(true);
+			enr.setInstructor(inst);
+			return instructorIdMinOccupied;
+		}
+		return 0;
 	}
 }

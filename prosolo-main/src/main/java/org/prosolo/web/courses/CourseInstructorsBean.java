@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
@@ -17,8 +18,10 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.search.TextSearch;
+import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.indexing.impl.NodeChangeObserver;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -53,6 +56,7 @@ public class CourseInstructorsBean implements Serializable {
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private EventFactory eventFactory;
 	@Inject @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
+	@Inject private NodeChangeObserver nodeChangeObserver;
 
 	// PARAMETERS
 	private String id;
@@ -67,6 +71,7 @@ public class CourseInstructorsBean implements Serializable {
 	private int numberOfPages;
 	
 	private CourseInstructorData instructorForRemoval;
+	private CourseInstructorData instructorForReassign;
 	
 	private boolean manuallyAssignStudents;
 	
@@ -167,52 +172,106 @@ public class CourseInstructorsBean implements Serializable {
 		return sortOrder == SortingOption.ASC;
 	}
 	
-	public void removeInstructorFromCourse() {
+	public void automaticallyReassignStudents() {
 		try {
-			List<Long> unassignedEnrollmentIds = courseManager.removeInstructorFromCourse(instructorForRemoval.getInstructorId());
+			Map<String, Object> result = courseManager.reassignStudentsAutomatically(instructorForReassign.getInstructorId(), decodedId);
 			String appPage = PageUtil.getPostParameter("page");
 			String service = PageUtil.getPostParameter("service");
-			
-			final long instructorUserId = instructorForRemoval.getUserId();
-			final long instructorId = instructorForRemoval.getInstructorId();
-			taskExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					Course course = new Course();
-					course.setId(decodedId);
-					User instr = new User();
-					instr.setId(instructorUserId);
-					try {
-						eventFactory.generateEvent(EventType.INSTRUCTOR_REMOVED_FROM_COURSE, loggedUserBean.getUser(), instr, course, 
-								appPage, context, service, null);
-						Map<String, String> parameters = new HashMap<String, String>();
-						parameters.put("courseId", decodedId + "");
-						List<Long> unassignedUserIds = courseManager
-								.getUserIdsForEnrollments(unassignedEnrollmentIds);
-						for(Long userId : unassignedUserIds) {
-							try {
-								User target = new User();
-								target.setId(instructorUserId);
-								User object = new User();
-								object.setId(userId);
-								String lContext = context + "|context:/name:INSTRUCTOR|id:" + instructorId + "/";
-								
-								eventFactory.generateEvent(EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR, loggedUserBean.getUser(), object, target, 
-										appPage, lContext, service, parameters);
-							} catch (EventException e) {
-								logger.error(e);
-							}
-						}
-					} catch (EventException e) {
-						logger.error(e);
-					}
-				}
-			});
+			fireReassignEvents(instructorForReassign, appPage, service, result, true);
+			searchCourseInstructors();
+			instructorForReassign = null;
+			PageUtil.fireSuccessfulInfoMessage("Students successfully reassigned");
+		} catch (DbConnectionException e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage(e.getMessage());
+		}
+	}
+	public void removeInstructorFromCourse(boolean automatic) {
+		try {
+			Map<String, Object> res = courseManager.removeInstructorFromCourse(instructorForRemoval.getInstructorId(),
+					decodedId, automatic);
+			String appPage = PageUtil.getPostParameter("page");
+			String service = PageUtil.getPostParameter("service");
+
+			Course course = new Course();
+			course.setId(decodedId);
+			User instr = new User();
+			instr.setId(instructorForRemoval.getUserId());
+			try {
+				eventFactory.generateEvent(EventType.INSTRUCTOR_REMOVED_FROM_COURSE, loggedUserBean.getUser(), 
+						instr, course, appPage, context, service, null);
+				fireReassignEvents(instructorForRemoval, appPage, service, res, automatic);
+
+			} catch (EventException e) {
+				logger.error(e);
+			}
+
 			searchCourseInstructors();
 			instructorForRemoval = null;
 			PageUtil.fireSuccessfulInfoMessage("Instructor successfully removed from course");
 		} catch(DbConnectionException e) {
 			PageUtil.fireErrorMessage(e.getMessage());
+		}
+	}
+
+	private void fireReassignEvents(CourseInstructorData instructorData, String appPage, 
+			String service, Map<String, Object> res, boolean automatic) {
+		long instructorUserId = instructorData.getUserId();
+		long instructorId = instructorData.getInstructorId();
+		String lContext = context + "|context:/name:INSTRUCTOR|id:" + instructorId + "/";
+		
+		if(automatic) {
+			@SuppressWarnings("unchecked")
+			Map<Long, Long> ids = (Map<Long, Long>) res.get("automatic");
+			if(ids != null && !ids.isEmpty()) {
+				Map<String, String> parameters = new HashMap<String, String>();
+				parameters.put("courseId", decodedId + "");
+				parameters.put("reassignedFromInstructorId", instructorId + "");
+				for(Entry<Long, Long> entry : ids.entrySet()) {
+					long eid = entry.getKey();
+					long studentUserId = courseManager.getUserIdForEnrollment(eid);
+					long insId = entry.getValue();
+					long insUserId = courseManager.getUserIdForInstructor(insId);
+					try {
+						User target = new User();
+						target.setId(insUserId);
+						User object = new User();
+						object.setId(studentUserId);
+						@SuppressWarnings("unchecked")
+						Event event = eventFactory.generateEvent(EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR, loggedUserBean.getUser(), object, target, 
+								null, appPage, lContext, service, 
+								new Class[] {NodeChangeObserver.class}, parameters);
+						nodeChangeObserver.handleEvent(event);
+					} catch(Exception e) {
+						logger.error(e);
+					}
+				}
+			}	
+		} 
+			
+		@SuppressWarnings("unchecked")
+		List<Long> unassignedEnrollmentIds = (List<Long>) res.get("manual");
+		if(unassignedEnrollmentIds != null && !unassignedEnrollmentIds.isEmpty()) {
+			Map<String, String> parameters = new HashMap<String, String>();
+			parameters.put("courseId", decodedId + "");
+			List<Long> unassignedUserIds = courseManager
+					.getUserIdsForEnrollments(unassignedEnrollmentIds);
+			for(Long userId : unassignedUserIds) {
+				try {
+					User target = new User();
+					target.setId(instructorUserId);
+					User object = new User();
+					object.setId(userId);
+					
+					@SuppressWarnings("unchecked")
+					Event event = eventFactory.generateEvent(EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR, loggedUserBean.getUser(), object, target, 
+							null, appPage, lContext, service, 
+							new Class[] {NodeChangeObserver.class} ,parameters);
+					nodeChangeObserver.handleEvent(event);
+				} catch (EventException e) {
+					logger.error(e);
+				}
+			}
 		}
 	}
 
@@ -301,6 +360,14 @@ public class CourseInstructorsBean implements Serializable {
 
 	public void setCourseTitle(String courseTitle) {
 		this.courseTitle = courseTitle;
+	}
+
+	public CourseInstructorData getInstructorForReassign() {
+		return instructorForReassign;
+	}
+
+	public void setInstructorForReassign(CourseInstructorData instructorForReassign) {
+		this.instructorForReassign = instructorForReassign;
 	}
 
 }

@@ -196,8 +196,7 @@
                      
                     <h:form id="assignStudentsForm">
                   	<h:panelGroup layout="block" id="panelMoveStudents" 
-                  		styleClass="col-md-1 dd"
-                  		rendered="#{instructorEditBean.manuallyAssignStudents}">
+                  		styleClass="col-md-1 dd">
                      	<h3>Select and click to assign</h3>
                      	<p:commandLink
                      		styleClass="btn btn-default"
@@ -217,7 +216,6 @@
                            <div class="form-group noMargin">
                               <label>Search for student</label>
                               <h:inputText id="inputNameStudent" 
-                              			disabled="#{!instructorEditBean.manuallyAssignStudents}"
 										value="#{instructorEditBean.studentSearchTerm}"
 								    	pt:placeholder="Start typing..."
 								    	styleClass="form-control"

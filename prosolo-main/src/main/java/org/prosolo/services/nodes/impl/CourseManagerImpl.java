@@ -1276,24 +1276,66 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 		}
 	}
 	
+	/*remove instructor from course and based on boolean parameter, sets all their students
+	  as unassigned and returns list of unassigned enrollment ids as a map entry with key 'manual'
+	  or automatically assigns students to instructors and returns map with enrollment id - instructor id
+	  key value pairs as a map entry with key 'automatic'. With automatic assign, there is a possibility to
+	  have unassigned students if maximum capacity is reached for all instructors and in that case, list of 
+	  unassigned enrollment ids is also returned
+	*/
 	@Override
 	@Transactional(readOnly = false)
-	public List<Long> removeInstructorFromCourse(long courseInstructorId) throws DbConnectionException {
+	public Map<String, Object> removeInstructorFromCourse(long courseInstructorId, long courseId, 
+			boolean reassignAutomatically) throws DbConnectionException {
 		try {
-			List<Long> enrollmentIds = getCourseEnrollmentsForInstructor(courseInstructorId);
-			if(enrollmentIds != null) {
-				for(long id : enrollmentIds) {
-					CourseEnrollment enrollment = (CourseEnrollment) persistence.currentManager().load(CourseEnrollment.class, id);
-					enrollment.setInstructor(null);
-					enrollment.setAssignedToInstructor(false);
-				}
-			}
 			CourseInstructor instructor = (CourseInstructor) persistence.currentManager().
 					load(CourseInstructor.class, courseInstructorId);
+			List<Long> enrollmentIds = getCourseEnrollmentsForInstructor(courseInstructorId);
+			Map<String, Object> result = null;
+			if(reassignAutomatically) {
+				result = assignStudentsAutomatically(courseId, enrollmentIds, 
+						courseInstructorId);
+				return result;
+			} else {
+				result = new HashMap<>();
+				updateStudentsAssigned(instructor, null, enrollmentIds);
+				result.put("manual", enrollmentIds);
+			}
 			persistence.currentManager().delete(instructor);
-			return enrollmentIds;
+			return result;
 		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
 			throw new DbConnectionException("Error while removing instructor from course");
+		}
+	}
+	
+	private Map<String, Object> assignStudentsAutomatically(long courseId, List<Long> enrollmentIds, long courseInstructorId) {
+		Map<String, Object> result = resourceFactory
+				.assignStudentsToInstructorAutomatically(courseId, enrollmentIds, courseInstructorId);
+		@SuppressWarnings("unchecked")
+		List<Long> unassigned = (List<Long>) result.get("unassigned");
+		if(unassigned != null && !unassigned.isEmpty()) {
+			CourseInstructor instructor = (CourseInstructor) persistence.currentManager().
+					load(CourseInstructor.class, courseInstructorId);
+			updateStudentsAssigned(instructor, null, unassigned);
+		}
+		Map<String, Object> res = new HashMap<>();
+		@SuppressWarnings("unchecked")
+		Map<Long, Long> ids = (Map<Long, Long>) result.get("assigned");
+		res.put("automatic", ids);
+		res.put("manual", unassigned);
+		return res;
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public Map<String, Object> reassignStudentsAutomatically(long instructorId, long courseId) throws DbConnectionException {
+		try {
+			List<Long> enrollmentIds = getCourseEnrollmentsForInstructor(instructorId);
+			return assignStudentsAutomatically(courseId, enrollmentIds, instructorId);
+		} catch(Exception e) {
+			throw new DbConnectionException("Error while reassigning students");
 		}
 	}
 	
@@ -1381,24 +1423,13 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly = false)
 	public void updateStudentsAssignedToInstructor(long instructorId, long courseId, List<Long> studentsToAssign, List<Long> studentsToUnassign) throws DbConnectionException {
 		try {
 			CourseInstructor instructor = (CourseInstructor) persistence.currentManager()
 					.load(CourseInstructor.class, instructorId);
-//			String query = 
-//					"UPDATE " +
-//					"CourseEnrollment enrollment " +
-//				    "set enrollment.instructor = :instructor, " +
-//					"enrollment.assignedToInstructor = :assigned " +
-//				    "WHERE enrollment.id IN " +
-//						"(SELECT eId FROM (SELECT enr.id as eId " +
-//						"FROM CourseEnrollment enr "+
-//						"INNER JOIN enr.instructor inst " + 
-//						"INNER JOIN enr.user user " + 
-//						"WHERE inst = :instructor " +
-//						"AND user.id IN (:ids)))";
 			String query1 = "SELECT enrollment.id " +
 					"FROM CourseEnrollment enrollment "+
 					"INNER JOIN enrollment.course course " + 
@@ -1406,6 +1437,32 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 					"WHERE course.id = :courseId " +
 					"AND user.id IN (:ids)";
 			
+			List<Long> idsAssign = null;
+			if(studentsToAssign != null && !studentsToAssign.isEmpty()) {
+				idsAssign = persistence.currentManager().createQuery(query1)
+						.setLong("courseId", courseId)
+						.setParameterList("ids", studentsToAssign)
+						.list();
+			}
+			List<Long> idsUnAssign = null;
+			if(studentsToUnassign != null && !studentsToUnassign.isEmpty()) {		
+				idsUnAssign = persistence.currentManager().createQuery(query1)
+						.setLong("courseId", courseId)
+						.setParameterList("ids", studentsToUnassign)
+						.list();
+			}
+			
+			updateStudentsAssigned(instructor, idsAssign, idsUnAssign);
+				
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating instructor");
+		}
+	}
+
+	private void updateStudentsAssigned(CourseInstructor instructor, List<Long> enrollmentsToAssign, List<Long> enrollmentsToUnassign) throws DbConnectionException {
+		try {
 			String query = 
 					"UPDATE " +
 					"CourseEnrollment enrollment " +
@@ -1414,30 +1471,18 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 				    "WHERE enrollment.id IN " +
 						"(:ids)";
 			
-			if(studentsToAssign != null && !studentsToAssign.isEmpty()) {
-				@SuppressWarnings("unchecked")
-				List<Long> idsAssign = persistence.currentManager().createQuery(query1)
-						.setLong("courseId", courseId)
-						.setParameterList("ids", studentsToAssign)
-						.list();
-				
+			if(enrollmentsToAssign != null && !enrollmentsToAssign.isEmpty()) {
 				persistence.currentManager().createQuery(query)
 								.setParameter("instructor", instructor)
 								.setBoolean("assigned", true)
-								.setParameterList("ids", idsAssign)
+								.setParameterList("ids", enrollmentsToAssign)
 								.executeUpdate();
 			}
-			if(studentsToUnassign != null && !studentsToUnassign.isEmpty()) {		
-				@SuppressWarnings("unchecked")
-				List<Long> idsUnAssign = persistence.currentManager().createQuery(query1)
-						.setLong("courseId", courseId)
-						.setParameterList("ids", studentsToUnassign)
-						.list();
-				
+			if(enrollmentsToUnassign != null && !enrollmentsToUnassign.isEmpty()) {						
 				persistence.currentManager().createQuery(query)
 								.setParameter("instructor", null)
 								.setBoolean("assigned", false)
-								.setParameterList("ids", idsUnAssign)
+								.setParameterList("ids", enrollmentsToUnassign)
 								.executeUpdate();
 			}
 				
@@ -1537,6 +1582,9 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	@Transactional(readOnly = true)
 	public List<Long> getUserIdsForEnrollments(List<Long> enrollmentIds) throws DbConnectionException {
 		try {
+			if(enrollmentIds == null || enrollmentIds.isEmpty()) {
+				return null;
+			}
 			String query = 
 					"SELECT user.id " +
 					"FROM CourseEnrollment enrollment " +
@@ -1575,6 +1623,54 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while loading course title");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public long getUserIdForEnrollment(long enrollmentId) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT user.id " +
+					"FROM CourseEnrollment enrollment " +
+					"INNER JOIN enrollment.user user " +
+					"WHERE enrollment.id = :enrollmentId";
+			
+			Long res = (Long) persistence.currentManager().createQuery(query).
+					setLong("enrollmentId", enrollmentId).
+					uniqueResult();
+			if(res == null) {
+				return 0;
+			}
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading user id");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public long getUserIdForInstructor(long instructorId) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT user.id " +
+					"FROM CourseInstructor instructor " +
+					"INNER JOIN instructor.user user " +
+					"WHERE instructor.id = :instructorId";
+			
+			Long res = (Long) persistence.currentManager().createQuery(query).
+					setLong("instructorId", instructorId).
+					uniqueResult();
+			if(res == null) {
+				return 0;
+			}
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading user id");
 		}
 	}
 	

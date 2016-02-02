@@ -24,6 +24,7 @@
 	</ui:define>
 
 	<ui:define name="content">
+	<h:outputScript library="javascript" name="prosolo.overlay.js" target="head" />
 	<script>
 			function searchListener() {
 				var $this = this;
@@ -140,12 +141,15 @@
 		         					</h:link>
 				            </td>
 				            <td class="colInstructorD">
-				            	<ui:fragment rendered="#{instructor.numberOfAssignedStudents == 0 or !courseInstructorsBean.manuallyAssignStudents}">
+				            	<ui:fragment rendered="#{instructor.numberOfAssignedStudents == 0}">
 				            		<h:link 
 					            		styleClass="btn btn-default"  
 					            		disabled="true"
 					            		pt:disabled="disabled"
-					            		pt:role="button">
+					            		pt:role="button"
+					            		data-toggle="tooltip" 
+					            		data-placement="top" 
+					            		title="There are no students to reassign">
 					            		<i class="fa fa-random"></i> Reassign students
 				            		</h:link>
 				            	</ui:fragment>
@@ -160,6 +164,19 @@
 							         	<f:param name="courseId" value="#{param['id']}" />
 							         	<f:param name="courseName" value="#{courseInstructorsBean.courseTitle}" />
 				            		</h:link>
+				            	</ui:fragment>
+				            	
+				            	<ui:fragment rendered="#{!courseInstructorsBean.manuallyAssignStudents and instructor.numberOfAssignedStudents != 0}">
+				            		<p:commandLink 
+					            		process="@this"
+					            		styleClass="btn btn-default"
+					            		pt:role="button" 
+					            		pt:data-toggle="modal" 
+					            		action="#{courseInstructorsBean.setInstructorForReassign(instructor)}"
+					            		update=":modalsForm:linkReassign"
+					            		oncomplete="$('#modalReassign').modal('show');">
+					            		<i class="fa fa-random"></i> Reassign students
+				           			</p:commandLink>
 				            	</ui:fragment>
 				            	
 				            	<p:commandLink 
@@ -282,19 +299,45 @@
 							<i class="fa fa-warning"></i>       
 		       		</div>
 		            <div class="col-md-11">
+						<ui:fragment rendered="#{courseInstructorsBean.manuallyAssignStudents}"	>
 							<p>This instructor has students assigned. If you remove him/her, students will be marked as unassigned. You will then need to manually assign new instructor to them.</p>
+						</ui:fragment>
+						<ui:fragment rendered="#{!courseInstructorsBean.manuallyAssignStudents}"	>
+							<p>This instructor has students assigned. You can remove the instructor and automatically reassign their students to other instructors. Or you can manually assign a new instructor to the students.</p>
+						</ui:fragment>
 		       		</div>
 		         </div>
 		      </div>
 		      <div class="modal-footer">
-		        <p:commandLink
+		        <p:commandLink rendered="#{courseInstructorsBean.manuallyAssignStudents}"
 		        	value="Confirm removal" 
 		        	styleClass="btn btn-primary" 
-		        	action="#{courseInstructorsBean.removeInstructorFromCourse()}"
+		        	onclick="$('#modalFull').modal('hide');prosolo.overlay.activate();"
+		        	action="#{courseInstructorsBean.removeInstructorFromCourse(false)}"
 		        	update=":instructorForm"
-		        	oncomplete="$('#modalFull').modal('hide');">
+		        	oncomplete="prosolo.overlay.reset();">
 		        	<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 		        </p:commandLink>
+		        <ui:fragment rendered="#{!courseInstructorsBean.manuallyAssignStudents}">
+			        <p:commandLink
+			        	value="Remove and Reassign" 
+			        	styleClass="btn btn-primary" 
+			        	onclick="$('#modalFull').modal('hide');prosolo.overlay.activate();"
+			        	action="#{courseInstructorsBean.removeInstructorFromCourse(true)}"
+			        	update=":instructorForm"
+			        	oncomplete="prosolo.overlay.reset();">
+			        	<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+			        </p:commandLink>
+			        <p:commandLink
+			        	value="Only remove" 
+			        	styleClass="btn btn-primary" 
+			        	onclick="$('#modalFull').modal('hide');prosolo.overlay.activate();"
+			        	action="#{courseInstructorsBean.removeInstructorFromCourse(false)}"
+			        	update=":instructorForm"
+			        	oncomplete="prosolo.overlay.reset();">
+			        	<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+			        </p:commandLink>
+			    </ui:fragment>
 		        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
 		      </div>
 		    </div>
@@ -317,14 +360,68 @@
 		        <p:commandLink
 		        	value="Confirm removal" 
 		        	styleClass="btn btn-primary" 
-		        	action="#{courseInstructorsBean.removeInstructorFromCourse}"
+		        	action="#{courseInstructorsBean.removeInstructorFromCourse(false)}"
 		        	update=":instructorForm"
-		        	oncomplete="$('#modalOk').modal('hide');"/>
+		        	oncomplete="$('#modalOk').modal('hide');">
+		        	<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+		        </p:commandLink>
 		        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
 		      </div>
 		    </div>
 		  </div>
 		</div>
+		
+		<div class="modal fade" id="modalReassign">
+		  <div class="modal-dialog">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+		        <h4 class="modal-title">Reassign Students</h4>
+		      </div>
+		      <div class="modal-body">
+		      	<div class="row">
+		         	<div class="col-md-1">
+							<i class="fa fa-info-circle "></i>       
+		       		</div>
+		            <div class="col-md-11">
+						<p>You can choose to automatically reassign students to other instructors or you can manually assign them.</p>
+		       		</div>
+		         </div>
+		      </div>
+		      <div class="modal-footer">
+		       
+		        <p:commandLink
+		        	value="Reassign automatically" 
+		        	styleClass="btn btn-primary" 
+		        	onclick="$('#modalReassign').modal('hide');prosolo.overlay.activate();"
+		        	action="#{courseInstructorsBean.automaticallyReassignStudents()}"
+		        	update=":instructorForm"
+		        	oncomplete="prosolo.overlay.reset();">
+		        	<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+		        </p:commandLink>
+		        <h:link id="linkReassign"
+            		outcome="/manage/reassign"
+            		styleClass="btn btn-primary"  
+            		pt:role="button"
+            		value="Reassign manually">
+            		<f:param name="id" value="#{util:encodeId(courseInstructorsBean.instructorForReassign.instructorId)}" />	         		
+		         	<f:param name="courseId" value="#{param['id']}" />
+		         	<f:param name="courseName" value="#{courseInstructorsBean.courseTitle}" />
+           		</h:link>
+			   
+		        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+		
+		
 		</h:form>
+		<div id="loaderOverlay">
+			<span class="text">
+				<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif"/>
+				Please wait, this action is taking some time.
+			</span>
+		</div>
 	</ui:define>
 </ui:composition>

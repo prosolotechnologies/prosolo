@@ -74,7 +74,7 @@ public class InstructorEditBean implements Serializable {
 	
 	private int numberOfCurrentlySelectedUsers;
 	
-	private boolean manuallyAssignStudents;
+	//private boolean manuallyAssignStudents;
 	
 	private String context;
 	
@@ -92,7 +92,7 @@ public class InstructorEditBean implements Serializable {
 				if(courseTitle == null) {
 					courseTitle = courseManager.getCourseTitle(decodedCourseId);
 				}
-				manuallyAssignStudents = courseManager.areStudentsManuallyAssignedToInstructor(decodedCourseId);
+				//manuallyAssignStudents = courseManager.areStudentsManuallyAssignedToInstructor(decodedCourseId);
 				searchUnassignedStudents();
 				
 				if (decodedId > 0) {
@@ -172,18 +172,18 @@ public class InstructorEditBean implements Serializable {
 	public void searchUnassignedStudents() {
 		try {
 			unassignedStudents = new ArrayList<>();
-			if(manuallyAssignStudents) {
-				Map<String, Object> result = textSearch.searchUnassignedCourseMembers(studentSearchTerm, decodedCourseId);
-				@SuppressWarnings("unchecked")
-				List<Map<String, Object>> unassignedUsers = (List<Map<String, Object>>) result.get("data");
-				if(unassignedUsers != null) {
-					for(Map<String, Object> user : unassignedUsers) {
-						BasicUserData data = new BasicUserData(user);
-						unassignedStudents.add(data);
-						//unassignedStudentsMap.put(data, false);
-					}
+			
+			Map<String, Object> result = textSearch.searchUnassignedCourseMembers(studentSearchTerm, decodedCourseId);
+			@SuppressWarnings("unchecked")
+			List<Map<String, Object>> unassignedUsers = (List<Map<String, Object>>) result.get("data");
+			if(unassignedUsers != null) {
+				for(Map<String, Object> user : unassignedUsers) {
+					BasicUserData data = new BasicUserData(user);
+					unassignedStudents.add(data);
+					//unassignedStudentsMap.put(data, false);
 				}
 			}
+			
 		} catch(Exception e) {
 			logger.error(e);
 		}
@@ -406,14 +406,6 @@ public class InstructorEditBean implements Serializable {
 
 	public void setNumberOfCurrentlySelectedUsers(int numberOfCurrentlySelectedUsers) {
 		this.numberOfCurrentlySelectedUsers = numberOfCurrentlySelectedUsers;
-	}
-
-	public boolean isManuallyAssignStudents() {
-		return manuallyAssignStudents;
-	}
-
-	public void setManuallyAssignStudents(boolean manuallyAssignStudents) {
-		this.manuallyAssignStudents = manuallyAssignStudents;
 	}
 
 	public String getCourseTitle() {
