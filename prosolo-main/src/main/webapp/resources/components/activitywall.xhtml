@@ -29,6 +29,8 @@
 		<composite:attribute name="noOptions" default="false" />
 		<composite:attribute name="oncomplete" />
 		<composite:attribute name="context" />
+		<composite:attribute name="learningContext" default=""/>
+		<composite:attribute name="service" default=""/>
 		<composite:attribute name="disabledPooling" default="false" />
 		<composite:attribute name="initializeOnLoad" default="true" />
 		<composite:attribute name="postStyleClass" />
@@ -167,7 +169,8 @@
 							noOptions="#{cc.attrs.noOptions}"
 							disabledPooling="#{cc.attrs.disabledPooling}"
 							onActionComplete="refreshActivityWall();"
-							postStyleClass="#{cc.attrs.postStyleClass}" />
+							postStyleClass="#{cc.attrs.postStyleClass}" 
+							learningContext="#{cc.attrs.learningContext}"/>
 					</ui:repeat>
 				</h:panelGroup>
 				

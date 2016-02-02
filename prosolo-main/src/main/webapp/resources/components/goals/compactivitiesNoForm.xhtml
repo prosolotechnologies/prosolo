@@ -317,11 +317,13 @@
 									</h:panelGroup>
 									
 									<ui:repeat id="commentLoop" value="#{actIterator.comments}" var="commentIterator" varStatus="commentIteratorStatus">
+										<ui:param name="learningContextComment" value="#{util:addSubContext(learningContextRoot, 'name:node_comment|id:'.concat(commentIterator.id))}"></ui:param>
 										<post:comment 
 											commentData="#{commentIterator}" 
 											idPrefix="#{iterator.index}I#{commentIteratorStatus.index}"
 											context="#{contextRoot}"
-											styleClass="#{actIterator.comments.size() - commentIteratorStatus.index > 2 ? 'collapsible' : ''}" />
+											styleClass="#{actIterator.comments.size() - commentIteratorStatus.index > 2 ? 'collapsible' : ''}" 
+											learningContext="#{learningContextComment}"/>
 									</ui:repeat>
 									
 									<script>

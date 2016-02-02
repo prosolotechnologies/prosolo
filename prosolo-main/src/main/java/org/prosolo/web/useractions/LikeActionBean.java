@@ -61,7 +61,7 @@ public class LikeActionBean {
 	
 	public boolean like(Node resource, Session session, String context) {
 		try {
-			Annotation ann = likeManager.like(loggedUser.getUser(), resource, session, context);
+			Annotation ann = likeManager.like(loggedUser.getUser(), resource, session, context, null, null, null);
 			
 			if (ann != null) {
 				logger.debug("User "+loggedUser.getUser()+" liked resource ("+resource.getId()+")");
@@ -201,6 +201,9 @@ public class LikeActionBean {
 		wallData.setLikeCount(newLikeCount);
 		wallData.setLiked(true);
 		
+		String page = PageUtil.getPostParameter("page");
+		String learningContext = PageUtil.getPostParameter("learningContext");
+		String service = PageUtil.getPostParameter("service");
 		taskExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -208,7 +211,8 @@ public class LikeActionBean {
             	
             	try {
             		likeManager.likeSocialActivity(loggedUser.getUser(), wallData.getConfigId(), 
-            				wallData.getSocialActivity().getId(), newLikeCount, session, context);
+            				wallData.getSocialActivity().getId(), newLikeCount, session, context,
+            				page, learningContext, service);
             		
         			logger.debug("User "+loggedUser.getUser()+" liked Social Activity ("+socialActivityId+")");
 
@@ -237,13 +241,18 @@ public class LikeActionBean {
 		wallData.setLikeCount(newLikeCount);
 		wallData.setLiked(false);
 			
+		String page = PageUtil.getPostParameter("page");
+		String learningContext = PageUtil.getPostParameter("learningContext");
+		String service = PageUtil.getPostParameter("service");
 		taskExecutor.execute(new Runnable() {
             @Override
             public void run() {
             	Session session = (Session) defaultManager.getPersistence().openSession();
             	
 				try {
-					likeManager.removeLikeFromSocialActivity(loggedUser.getUser(), wallData.getConfigId(), wallData.getSocialActivity().getId(), newLikeCount, session, context);
+					likeManager.removeLikeFromSocialActivity(loggedUser.getUser(), wallData.getConfigId(), 
+							wallData.getSocialActivity().getId(), newLikeCount, session, context,
+							page, learningContext, service);
 
 					logger.debug("User "+loggedUser.getUser()+" unliked Social Activity ("+socialActivityId+")");
 
@@ -278,6 +287,9 @@ public class LikeActionBean {
 		final int likeCount = liked ? commentData.getLikeCount()+1 : commentData.getLikeCount()-1;
 		commentData.setLikeCount(likeCount);
 		
+		String page = PageUtil.getPostParameter("page");
+		String lContext = PageUtil.getPostParameter("learningContext");
+		String service = PageUtil.getPostParameter("service");
 		taskExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -286,10 +298,12 @@ public class LikeActionBean {
 			
 				try {
 					if (liked) {
-						likeManager.likeComment(loggedUser.getUser(), commentId, session, context);
+						likeManager.likeComment(loggedUser.getUser(), commentId, session, context,
+								page, lContext, service);
 						logger.debug("User "+loggedUser.getUser()+" liked comment "+commentId);
 					} else {
-						likeManager.removeLikeFromComment(loggedUser.getUser(), commentId, session, context);
+						likeManager.removeLikeFromComment(loggedUser.getUser(), commentId, session, context,
+								page, lContext, service);
 						logger.debug("User "+loggedUser.getUser()+" unliked comment "+commentId);
 					}
 					session.flush();

@@ -38,7 +38,8 @@ public class DislikeManagerImpl extends AnnotationsManagerImpl implements Dislik
 	@Override
 	@Transactional (readOnly = false)
 	public void dislikeSocialActivity(User user, long notificationId, long socialActivityId,
-			int newDislikeCount, Session session, String context) 
+			int newDislikeCount, Session session, String context, String page, 
+			String lContext, String service) 
 			throws EventException, ResourceCouldNotBeLoadedException {
 		
 		if (notificationId > 0) {
@@ -51,7 +52,7 @@ public class DislikeManagerImpl extends AnnotationsManagerImpl implements Dislik
 		socialActivity.setDislikeCount(newDislikeCount);
 		session.save(socialActivity);
     	
-    	dislike(user, socialActivity, session, context);
+    	dislike(user, socialActivity, session, context, page, lContext, service);
 	}
 	
 	@Override
@@ -111,7 +112,8 @@ public class DislikeManagerImpl extends AnnotationsManagerImpl implements Dislik
 	
 	@Override
 	@Transactional (readOnly = false)
-	public Annotation dislike(User user, BaseEntity resource, Session session, String context) throws EventException {
+	public Annotation dislike(User user, BaseEntity resource, Session session, String context,
+			String page, String lContext, String service) throws EventException {
 		logger.debug("Adding dislike of a resource "+resource.getId()+" by the user "+user.getId());
 		
 		if (resource != null && user != null) {
@@ -125,7 +127,9 @@ public class DislikeManagerImpl extends AnnotationsManagerImpl implements Dislik
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("context", context);
 				
-			eventFactory.generateEvent(EventType.Dislike, user, resource, target(resource), parameters);
+			//migration to new context approach
+			eventFactory.generateEvent(EventType.Dislike, user, resource, target(resource), page, 
+					lContext, service, parameters);
 			return dislike;
 		} 
 		return null;
@@ -161,7 +165,8 @@ public class DislikeManagerImpl extends AnnotationsManagerImpl implements Dislik
 	
 	@Override
 	public void removeDislikeFromSocialActivity(User user, long notificationId, long socialActivityId,
-			int newDislikeCount, Session session, String context) throws EventException,
+			int newDislikeCount, Session session, String context,
+			String page, String lContext, String service) throws EventException,
 			ResourceCouldNotBeLoadedException {
 		
 		if (notificationId > 0) {
@@ -174,7 +179,7 @@ public class DislikeManagerImpl extends AnnotationsManagerImpl implements Dislik
 		socialActivity.setDislikeCount(newDislikeCount);
 		session.save(socialActivity);
     	
-    	removeDislike(user, socialActivity, session, context, null, null, null);
+    	removeDislike(user, socialActivity, session, context, page, lContext, service);
 	}
 
 	@Override

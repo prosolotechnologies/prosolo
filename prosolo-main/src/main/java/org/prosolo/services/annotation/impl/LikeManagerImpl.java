@@ -38,7 +38,8 @@ public class LikeManagerImpl extends AnnotationsManagerImpl implements LikeManag
 	
 	@Override
 	public void likeSocialActivity(User user, long notificationId, long socialActivityId, 
-			int newLikeCount, Session session, String context) throws EventException, ResourceCouldNotBeLoadedException {
+			int newLikeCount, Session session, String context, String page,
+			String lContext, String service) throws EventException, ResourceCouldNotBeLoadedException {
 		
 		// it can happen that we don't have notificationId, like in the hashtag search
 		
@@ -52,15 +53,16 @@ public class LikeManagerImpl extends AnnotationsManagerImpl implements LikeManag
 		socialActivity.setLikeCount(newLikeCount);
 		session.save(socialActivity);
     	
-    	like(user, socialActivity, session, context);
+    	like(user, socialActivity, session, context, page, lContext, service);
 	}
 	
 	@Override
 	@Transactional (readOnly = false)
-	public Annotation likeComment(User user, long commentId, Session session, String context) throws EventException, ResourceCouldNotBeLoadedException {
+	public Annotation likeComment(User user, long commentId, Session session, String context,
+			String page, String learningContext, String service) throws EventException, ResourceCouldNotBeLoadedException {
 		Comment resource = (Comment) session.get(Comment.class, commentId);
 		Annotation like = new CommentAnnotation(AnnotationType.Like);
-		return like(user, resource, like, session, context, null, null, null);
+		return like(user, resource, like, session, context, page, learningContext, service);
 	}
 	
 	//changed because new context approach
@@ -103,7 +105,8 @@ public class LikeManagerImpl extends AnnotationsManagerImpl implements LikeManag
 	
 	@Override
 	@Transactional (readOnly = false)
-	public Annotation like(User user, BaseEntity resource, Session session, String context) throws EventException {
+	public Annotation like(User user, BaseEntity resource, Session session, String context,
+			String page, String lContext, String service) throws EventException {
 		logger.debug("Adding like of a resource "+resource.getId()+" by the user "+user);
 		
 		if (resource != null && user != null) {
@@ -116,8 +119,10 @@ public class LikeManagerImpl extends AnnotationsManagerImpl implements LikeManag
 			
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("context", context);
-
-			eventFactory.generateEvent(EventType.Like, user, resource, target(resource), parameters);
+			
+			//changed for migration to new context approach
+			eventFactory.generateEvent(EventType.Like, user, resource, target(resource), 
+					page, lContext, service, parameters);
 			return like;
 		}
 		return null;
@@ -163,7 +168,8 @@ public class LikeManagerImpl extends AnnotationsManagerImpl implements LikeManag
 	
 	@Override
 	public void removeLikeFromSocialActivity(User user, long notificationId, 
-			long socialActivityId, int newLikeCount, Session session, String context) 
+			long socialActivityId, int newLikeCount, Session session, String context,
+			String page, String lContext, String service) 
 			throws EventException, ResourceCouldNotBeLoadedException {
 		
 		if (notificationId > 0) {
@@ -176,7 +182,7 @@ public class LikeManagerImpl extends AnnotationsManagerImpl implements LikeManag
 		socialActivity.setLikeCount(newLikeCount);
 		session.save(socialActivity);
     	
-    	removeLike(user, socialActivity, session, context, null, null, null);
+    	removeLike(user, socialActivity, session, context, page, lContext, service);
 	}
 	
 	@Override
@@ -189,9 +195,10 @@ public class LikeManagerImpl extends AnnotationsManagerImpl implements LikeManag
 	
 	@Override
 	@Transactional (readOnly = false)
-	public boolean removeLikeFromComment(User user, long commentId, Session session, String context) throws EventException, ResourceCouldNotBeLoadedException {
+	public boolean removeLikeFromComment(User user, long commentId, Session session, String context,
+			String page, String learningContext, String service) throws EventException, ResourceCouldNotBeLoadedException {
 		Comment comment = (Comment) session.get(Comment.class, commentId);
-		return removeLike(user, comment, session, context, null, null, null);
+		return removeLike(user, comment, session, context, page, learningContext, service);
 	}
 
 	//changed because of new context approach

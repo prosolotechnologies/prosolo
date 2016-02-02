@@ -15,6 +15,8 @@
 		<composite:attribute name="update" />
 		<composite:attribute name="styleClass" />
 		<composite:attribute name="context" />
+		<composite:attribute name="learningContext" />
+		<composite:attribute name="service" default=""/>
 	</composite:interface>
 	
 	<composite:implementation>
@@ -54,8 +56,11 @@
 							action="#{likeaction.likeComment(cc.attrs.commentData, ''.concat(cc.attrs.context).concat('.comment.').concat(cc.attrs.commentData.id))}"
 							process="@this"
 							oncomplete="#{cc.attrs.oncomplete}"
-							update="time"
-						/>
+							update="time">
+							<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+							<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
+							<f:param name="service" value="#{cc.attrs.service}" />
+						</p:commandLink>
 						
 						<p:commandLink
 							rendered="#{cc.attrs.commentData.liked}"
@@ -64,8 +69,11 @@
 							action="#{likeaction.removeLikeFromComment(cc.attrs.commentData, ''.concat(cc.attrs.context).concat('.comment.').concat(cc.attrs.commentData.id))}"
 							process="@this"
 							oncomplete="#{cc.attrs.oncomplete}"
-							update="time"
-						/>
+							update="time">
+							<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+							<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
+							<f:param name="service" value="#{cc.attrs.service}" />
+						</p:commandLink>
 						<span class="bullet"></span>
 					</c:if>
 					
