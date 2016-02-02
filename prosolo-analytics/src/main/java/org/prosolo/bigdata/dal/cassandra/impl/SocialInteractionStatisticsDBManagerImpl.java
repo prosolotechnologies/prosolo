@@ -39,7 +39,8 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 		INSERT_OUTSIDE_CLUSTERS_INTERACTIONS,
 		FIND_OUTSIDE_CLUSTER_INTERACTIONS,
 		FIND_INSIDE_CLUSTER_INTERACTIONS,
-		INSERT_STUDENT_CLUSTER
+		INSERT_STUDENT_CLUSTER,
+		FIND_STUDENT_CLUSTER
 	}
 	public enum TableNames{
 		INSIDE_CLUSTER_INTERACTIONS,
@@ -55,8 +56,9 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 		statements.put(Statements.INSERT_INSIDE_CLUSTERS_INTERACTIONS, "INSERT INTO insideclustersinteractions(timestamp, course, cluster, student, interactions) VALUES(?,?,?,?,?); ");
 		statements.put(Statements.INSERT_OUTSIDE_CLUSTERS_INTERACTIONS, "INSERT INTO outsideclustersinteractions(timestamp, course,  student,direction, cluster, interactions) VALUES(?,?,?,?,?,?); ");
 		statements.put(Statements.FIND_OUTSIDE_CLUSTER_INTERACTIONS, "SELECT * FROM outsideclustersinteractions WHERE timestamp = ? AND course = ? AND student = ? ALLOW FILTERING;");
-		statements.put(Statements.FIND_INSIDE_CLUSTER_INTERACTIONS, "SELECT * FROM insideclustersinteractions WHERE timestamp = ? AND course = ? ALLOW FILTERING;");
+		statements.put(Statements.FIND_INSIDE_CLUSTER_INTERACTIONS, "SELECT * FROM insideclustersinteractions WHERE timestamp = ? AND course = ? AND cluster = ? ALLOW FILTERING;");
 		statements.put(Statements.INSERT_STUDENT_CLUSTER, "INSERT INTO studentcluster(timestamp, course,  student,cluster) VALUES(?,?,?,?); ");
+		statements.put(Statements.FIND_STUDENT_CLUSTER, "SELECT * FROM studentcluster WHERE timestamp = ? AND student = ? AND course = ? ALLOW FILTERING;");
 	}
 
 	private SocialInteractionStatisticsDBManagerImpl(){
@@ -202,11 +204,15 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 	}
 
 	@Override
-	public List<SocialInteractionsCount> getClusterInteractions(Long course) {
+	public List<SocialInteractionsCount> getClusterInteractions(Long course, Long student) {
 		Long timestamp = currenttimestamps.get(TableNames.INSIDE_CLUSTER_INTERACTIONS);
 		if (timestamp != null) {
+			Long cluster = findStudentCluster(course, student);
+			if (cluster == null) {
+				return new ArrayList<SocialInteractionsCount>();
+			}
 			PreparedStatement prepared = getStatement(getSession(), Statements.FIND_INSIDE_CLUSTER_INTERACTIONS);
-			BoundStatement statement = StatementUtil.statement(prepared, timestamp, course);
+			BoundStatement statement = StatementUtil.statement(prepared, timestamp, course, cluster);
 			return map(query(statement), row -> new SocialInteractionsCount(student(row), cluster(row), interactions(row)));
 		} else {
 			return new ArrayList<SocialInteractionsCount>();
@@ -225,5 +231,23 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 			return new ArrayList<OuterInteractionsCount>();
 		}
 	}
+	
+	@Override
+	public Long findStudentCluster(Long course, Long student) {
+		Long timestamp = currenttimestamps.get(TableNames.STUDENT_CLUSTER);
+		if (timestamp != null) {
+			PreparedStatement prepared = getStatement(getSession(), Statements.FIND_STUDENT_CLUSTER);
+			BoundStatement statement = StatementUtil.statement(prepared, timestamp, student, course);
+			List<Row> result = query(statement);
+			if (result.size() == 1) {
+				return cluster(result.get(0));
+			} else {
+				return null;
+			}
+		} else {
+			return null;
+		}
+	}
+
 
 }

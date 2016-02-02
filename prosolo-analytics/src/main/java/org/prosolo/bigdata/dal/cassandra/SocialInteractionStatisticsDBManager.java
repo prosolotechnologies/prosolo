@@ -24,10 +24,12 @@ public interface SocialInteractionStatisticsDBManager {
 
 	void insertOutsideClusterInteractions(Long timestamp, Long course,  Long student,Long cluster, String direction,
 										 List<String> interactions);
+	
+	Long findStudentCluster(Long course, Long student);
 
 	void insertStudentCluster(Long timestamp, Long course, Long student, Long cluster);
 
-	List<SocialInteractionsCount> getClusterInteractions(Long course);
+	List<SocialInteractionsCount> getClusterInteractions(Long course, Long student);
 
 	List<OuterInteractionsCount> getOuterInteractions(Long course, Long student);
 
