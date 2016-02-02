@@ -235,9 +235,13 @@ var socialInteractionGraph = (function () {
 						)
 						.then(function(data) {
 							var merge = {};
-							data.forEach(function(e) {
-								$.extend(true, merge, e.responseJSON);
-							});
+							if (data.constructor === Array) {
+								data.forEach(function(e) {
+									$.extend(true, merge, e.responseJSON);
+								});
+							} else {
+								$.extend(true, merge, data.responseJSON);
+							}
 							run(config, ci, oi, merge);
 						});
 				});
