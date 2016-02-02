@@ -236,7 +236,7 @@ var socialInteractionGraph = (function () {
 						.then(function(data) {
 							var merge = {};
 							data.forEach(function(e) {
-								$.extend(merge, e.responseJSON);
+								$.extend(true, merge, e.responseJSON);
 							});
 							run(config, ci, oi, merge);
 						});
