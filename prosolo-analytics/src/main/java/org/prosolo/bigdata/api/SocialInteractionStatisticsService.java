@@ -201,7 +201,6 @@ public class SocialInteractionStatisticsService {
 			}
 
 		});
-
 		return ResponseUtils.corsOk(studentsData);
 		// return ResponseUtils.corsOk(randomStudentsData(students));
 	}

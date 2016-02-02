@@ -50,13 +50,14 @@ def identifyClusters(): Unit ={
     val clusteringDAOManager=new ClusteringDAOImpl
   val allCourses=clusteringDAOManager.getAllCoursesIds
   allCourses.asScala.foreach(courseid=> {
-    println("RUNNING SNA CLUSTERING FOR COURSE:" + courseid)
+    println("RUNNING SNA CLUSTERING FOR COURSE:" + courseid+ " timestamp:"+timestamp)
     identifyClustersInCourse(timestamp, courseid)
     updateTimestamp(timestamp)
   })
 }
   def updateTimestamp(timestamp:Long)={
     dbManager.updateCurrentTimestamp(TableNames.INSIDE_CLUSTER_INTERACTIONS,timestamp)
+    dbManager.updateCurrentTimestamp(TableNames.OUTSIDE_CLUSTER_INTERACTIONS,timestamp)
   }
   def identifyClustersInCourse(timestamp:Long, courseId:Long): Unit ={
     val socialInteractionsData=readCourseData(courseId)

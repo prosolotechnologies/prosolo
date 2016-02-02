@@ -55,6 +55,7 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 		statements.put(Statements.FIND_OUTSIDE_CLUSTER_INTERACTIONS, "SELECT * FROM outsideclustersinteractions WHERE timestamp = ? AND course = ? AND student = ? ALLOW FILTERING;");
 		statements.put(Statements.FIND_INSIDE_CLUSTER_INTERACTIONS, "SELECT * FROM insideclustersinteractions WHERE timestamp = ? AND course = ? ALLOW FILTERING;");
 	}
+
 	private SocialInteractionStatisticsDBManagerImpl(){
 		currenttimestamps=getAllCurrentTimestamps();
 	}
@@ -195,10 +196,11 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 
 	@Override
 	public List<OuterInteractionsCount> getOuterInteractions(Long course, Long student) {
+		System.out.println("get outer interactions:course:"+course+" student:"+student);
 		Long timestamp = currenttimestamps.get(TableNames.OUTSIDE_CLUSTER_INTERACTIONS);
 		if (timestamp != null) {
 			PreparedStatement prepared = getStatement(getSession(), Statements.FIND_OUTSIDE_CLUSTER_INTERACTIONS);
-			BoundStatement statement = StatementUtil.statement(prepared, course, student);
+			BoundStatement statement = StatementUtil.statement(prepared, timestamp, course, student);
 			return map(query(statement), row -> new OuterInteractionsCount(student(row), cluster(row), interactions(row), direction(row)));
 		} else {
 			return new ArrayList<OuterInteractionsCount>();
