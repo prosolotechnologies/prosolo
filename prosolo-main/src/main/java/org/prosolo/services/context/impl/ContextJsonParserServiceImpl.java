@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.apache.log4j.Logger;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.context.util.CustomContextNameDeserializer;
 import org.prosolo.services.event.context.Context;
@@ -21,6 +22,8 @@ import com.google.gson.GsonBuilder;
 @org.springframework.stereotype.Service("org.prosolo.services.context.ContextJsonParserService")
 public class ContextJsonParserServiceImpl implements ContextJsonParserService {
 
+	private static Logger logger = Logger.getLogger(ContextJsonParserServiceImpl.class);
+	
 	@Inject private ApplicationPagesBean applicationPagesBean;
 	
 	@Override
@@ -62,6 +65,8 @@ public class ContextJsonParserServiceImpl implements ContextJsonParserService {
 			return lContext;
 			
 		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
 			return null;
 		}
 	}

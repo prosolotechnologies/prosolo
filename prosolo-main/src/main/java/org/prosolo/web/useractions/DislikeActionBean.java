@@ -57,7 +57,8 @@ public class DislikeActionBean {
 	
 	public boolean dislike(Node resource, Session session, String context) {
 		try {
-			Annotation ann = dislikeManager.dislike(loggedUser.getUser(), resource, session, context);
+			Annotation ann = dislikeManager.dislike(loggedUser.getUser(), resource, session, context, 
+					null, null, null);
 			
 			if (ann != null) {
 				logger.debug("User "+loggedUser.getUser()+" disliked resource ("+resource.getId()+")");
@@ -184,12 +185,17 @@ public class DislikeActionBean {
 		wallData.setDislikeCount(newDislikeCount);
 		wallData.setDisliked(true);
 		
+		String page = PageUtil.getPostParameter("page");
+		String learningContext = PageUtil.getPostParameter("learningContext");
+		String service = PageUtil.getPostParameter("service");
 		taskExecutor.execute(new Runnable() {
             @Override
             public void run() {
             	Session session = (Session) defaultManager.getPersistence().openSession();
             	try {
-            		dislikeManager.dislikeSocialActivity(loggedUser.getUser(), wallData.getConfigId(), wallData.getSocialActivity().getId(), newDislikeCount, session, context);
+            		dislikeManager.dislikeSocialActivity(loggedUser.getUser(), wallData.getConfigId(), 
+            				wallData.getSocialActivity().getId(), newDislikeCount, session, context,
+            				page, learningContext, service);
             		
         			logger.debug("User "+loggedUser.getUser()+" liked Social Activity ("+socialActivityId+")");
         			session.flush();
@@ -218,13 +224,18 @@ public class DislikeActionBean {
 		wallData.setDislikeCount(newDislikeCount);
 		wallData.setDisliked(false);
 			
+		String page = PageUtil.getPostParameter("page");
+		String learningContext = PageUtil.getPostParameter("learningContext");
+		String service = PageUtil.getPostParameter("service");
 		taskExecutor.execute(new Runnable() {
             @Override
             public void run() {
             	Session session = (Session) defaultManager.getPersistence().openSession();
             	
 				try {
-					dislikeManager.removeDislikeFromSocialActivity(loggedUser.getUser(), wallData.getConfigId(), wallData.getSocialActivity().getId(), newDislikeCount, session, context);
+					dislikeManager.removeDislikeFromSocialActivity(loggedUser.getUser(), 
+							wallData.getConfigId(), wallData.getSocialActivity().getId(), newDislikeCount, 
+							session, context, page, learningContext, service);
 					
 					logger.debug("User "+loggedUser.getUser()+" removed dislike from Social Activity ("+socialActivityId+")");
 					
