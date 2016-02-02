@@ -58,6 +58,7 @@ def identifyClusters(): Unit ={
   def updateTimestamp(timestamp:Long)={
     dbManager.updateCurrentTimestamp(TableNames.INSIDE_CLUSTER_INTERACTIONS,timestamp)
     dbManager.updateCurrentTimestamp(TableNames.OUTSIDE_CLUSTER_INTERACTIONS,timestamp)
+    dbManager.updateCurrentTimestamp(TableNames.STUDENT_CLUSTER,timestamp)
   }
   def identifyClustersInCourse(timestamp:Long, courseId:Long): Unit ={
     val socialInteractionsData=readCourseData(courseId)
@@ -125,6 +126,7 @@ def identifyClusters(): Unit ={
     }.foreach{
       case(key,interactions)=>
          dbManager.insertInsideClusterInteractions(timestamp,key._1,key._2.toLong,key._3,interactions)
+        dbManager.insertStudentCluster(timestamp,key._1,key._3,key._2.toLong)
     }
 
     val targetInteractionsConv=targetInteractions.map{

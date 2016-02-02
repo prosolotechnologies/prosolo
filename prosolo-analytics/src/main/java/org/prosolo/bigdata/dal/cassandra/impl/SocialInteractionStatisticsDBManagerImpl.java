@@ -38,11 +38,13 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 		INSERT_INSIDE_CLUSTERS_INTERACTIONS,
 		INSERT_OUTSIDE_CLUSTERS_INTERACTIONS,
 		FIND_OUTSIDE_CLUSTER_INTERACTIONS,
-		FIND_INSIDE_CLUSTER_INTERACTIONS
+		FIND_INSIDE_CLUSTER_INTERACTIONS,
+		INSERT_STUDENT_CLUSTER
 	}
 	public enum TableNames{
 		INSIDE_CLUSTER_INTERACTIONS,
-		OUTSIDE_CLUSTER_INTERACTIONS
+		OUTSIDE_CLUSTER_INTERACTIONS,
+		STUDENT_CLUSTER
 	}
 
 	static {
@@ -54,6 +56,7 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 		statements.put(Statements.INSERT_OUTSIDE_CLUSTERS_INTERACTIONS, "INSERT INTO outsideclustersinteractions(timestamp, course,  student,direction, cluster, interactions) VALUES(?,?,?,?,?,?); ");
 		statements.put(Statements.FIND_OUTSIDE_CLUSTER_INTERACTIONS, "SELECT * FROM outsideclustersinteractions WHERE timestamp = ? AND course = ? AND student = ? ALLOW FILTERING;");
 		statements.put(Statements.FIND_INSIDE_CLUSTER_INTERACTIONS, "SELECT * FROM insideclustersinteractions WHERE timestamp = ? AND course = ? ALLOW FILTERING;");
+		statements.put(Statements.INSERT_STUDENT_CLUSTER, "INSERT INTO studentcluster(timestamp, course,  student,cluster) VALUES(?,?,?,?); ");
 	}
 
 	private SocialInteractionStatisticsDBManagerImpl(){
@@ -180,7 +183,23 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 			ex.printStackTrace();
 		}
 	}
+	@Override
+	public void insertStudentCluster(Long timestamp, Long course, Long student, Long cluster) {
+		System.out.println("INSERT Student cluster... for timestamp:"+timestamp+" course:"+course+" cluster:"+cluster+" student:"+student);
+		PreparedStatement prepared = getStatement(getSession(), Statements.INSERT_STUDENT_CLUSTER);
+		BoundStatement statement = new BoundStatement(prepared);
+		statement.setLong(0,timestamp);
+		statement.setLong(1,course);
+		statement.setLong(2,student);
+		statement.setLong(3,cluster);
 
+		try {
+			this.getSession().execute(statement);
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+
+	}
 
 	@Override
 	public List<SocialInteractionsCount> getClusterInteractions(Long course) {
