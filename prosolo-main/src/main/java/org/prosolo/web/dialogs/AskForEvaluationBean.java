@@ -69,6 +69,8 @@ public class AskForEvaluationBean implements Serializable {
 	private String context;
 	private String message = "";
 	
+	private String learningContext;
+	
 	private List<UserData> userSearchResults;
 	
 	// users who are not allowed to create an evaluation because they have already 
@@ -142,7 +144,8 @@ public class AskForEvaluationBean implements Serializable {
 			Collection<Request> requests = evaluationManager.sendEvaluationRequests(loggedUser.refreshUser(), ResourceDataUtil.getUserIds(evaluatorList), resource, message);
 		
 			if (requests != null) {
-				
+				String page = PageUtil.getPostParameter("page");
+				String service = PageUtil.getPostParameter("service");
 				for (Request request : requests) {
 					Map<String, String> parameters = new HashMap<String, String>();
 					parameters.put("context", context+".askForEvaluation");
@@ -150,7 +153,9 @@ public class AskForEvaluationBean implements Serializable {
 					parameters.put("resourceType", resource.getClass().getSimpleName());
 					parameters.put("user", String.valueOf(request.getSentTo().getId()));
 					
-					eventFactory.generateEvent(request.getRequestType(), request.getMaker(), request, parameters);
+					//migration to new context approach
+					eventFactory.generateEvent(request.getRequestType(), request.getMaker(), request, null,
+							page, learningContext, service, parameters);
 				}
 			
 				try {
@@ -247,7 +252,7 @@ public class AskForEvaluationBean implements Serializable {
 		return resource;
 	}
 
-	public void setResource(BaseEntity resource, String context) {
+	public void setResource(BaseEntity resource, String context, String learningContext) {
 		this.resource = resource;
 		
 		if (resourceSettings.getSettings().getSettings().isSelectedUsersCanDoEvaluation()) {
@@ -257,6 +262,7 @@ public class AskForEvaluationBean implements Serializable {
 		}
 		
 		this.context = context;
+		this.learningContext = learningContext;
 		
 		actionLogger.logServiceUse(
 				ComponentName.ASK_FOR_EVALUATION_DIALOG, 
@@ -293,7 +299,8 @@ public class AskForEvaluationBean implements Serializable {
 		try {
 			Node resource = userManager.loadResource(Node.class, resourceId);
 			resource = HibernateUtil.initializeAndUnproxy(resource);
-			setResource(resource, context);
+			String lContext = PageUtil.getPostParameter("learningContext");
+			setResource(resource, context, lContext);
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		}
@@ -345,6 +352,14 @@ public class AskForEvaluationBean implements Serializable {
 
 	public String getContext() {
 		return context;
+	}
+
+	public String getLearningContext() {
+		return learningContext;
+	}
+
+	public void setLearningContext(String learningContext) {
+		this.learningContext = learningContext;
 	}
 	
 }

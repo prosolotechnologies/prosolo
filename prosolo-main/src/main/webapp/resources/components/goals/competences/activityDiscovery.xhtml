@@ -33,7 +33,7 @@
 					disabledTooltip="#{msg['learn.disabledAsGoalIsCompleted.tooltip']}"
 					context="learn.targetGoal.#{learninggoals.selectedGoalData.data.targetGoalId}.targetComp.#{learninggoals.selectedGoalData.selectedCompetence.data.id}"
 					page="#{facesContext.viewRoot.viewId}"
-					learningContext="#{courseContext}|context:/name:goal_wall|id:#{learninggoals.selectedGoalData.data.targetGoalId}|context:/name:competence_wall|id:#{learninggoals.selectedGoalData.selectedCompetence.data.id}//"
+					learningContext="#{courseContext}|context:/name:learning_goal|id:#{learninggoals.selectedGoalData.data.targetGoalId}|context:/name:competence|id:#{learninggoals.selectedGoalData.selectedCompetence.data.id}//"
 				/>
 			</h:panelGroup>
 		</div><!-- end sideSearch -->

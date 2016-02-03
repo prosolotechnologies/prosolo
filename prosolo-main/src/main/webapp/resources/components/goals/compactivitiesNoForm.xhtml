@@ -62,7 +62,7 @@
 			<ui:repeat id="activitiesRepeat" value="#{cc.attrs.allActivities}" var="actIterator" varStatus="actIteratorStatus">
 				
 				<ui:param name="contextRoot" value="#{cc.attrs.context}.targetActivity.#{actIterator.id}" />
-				<ui:param name="learningContextRoot" value="#{util:addSubContext(cc.attrs.learningContext, 'name:activity_wall|id:'.concat(actIterator.id))}" />
+				<ui:param name="learningContextRoot" value="#{util:addSubContext(cc.attrs.learningContext, 'name:activity|id:'.concat(actIterator.id))}" />
 			
 				<h:panelGroup layout="block" id="act" class="act act#{actIteratorStatus.index} #{cc.attrs.activityStyleClass}" pt:context="#{contextRoot}">
 						

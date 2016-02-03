@@ -28,7 +28,7 @@
 			limitedVisibilityTooltipText="#{msg['learn.goal.composite.visibility.limited']}"
 			postStyleClass="wide"
 			page="#{facesContext.viewRoot.viewId}"
-			learningContext="#{courseContext}|context:/name:goal_wall|id:#{learninggoals.selectedGoalData.data.targetGoalId}|context:/name:competence_wall|id:#{learninggoals.selectedGoalData.selectedCompetence.data.id}//"
+			learningContext="#{courseContext}|context:/name:learning_goal|id:#{learninggoals.selectedGoalData.data.targetGoalId}|context:/name:competence|id:#{learninggoals.selectedGoalData.selectedCompetence.data.id}//"
 		/>
 		
 		<script>
@@ -50,7 +50,7 @@
 			initializeHandler="#{compwall.initializeActivities()}"
 			page="#{facesContext.viewRoot.viewId}"
 			context="learn.targetGoal.#{learninggoals.selectedGoalData.data.targetGoalId}.targetComp.#{learninggoals.selectedGoalData.selectedCompetence.data.id}"
-			learningContext="#{courseContext}|context:/name:goal_wall|id:#{learninggoals.selectedGoalData.data.targetGoalId}|context:/name:competence_wall|id:#{learninggoals.selectedGoalData.selectedCompetence.data.id}//"
+			learningContext="#{courseContext}|context:/name:learning_goal|id:#{learninggoals.selectedGoalData.data.targetGoalId}|context:/name:competence|id:#{learninggoals.selectedGoalData.selectedCompetence.data.id}//"
 			activityStyleClass="wide"
 		/>
 	</div>
