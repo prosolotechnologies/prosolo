@@ -3,7 +3,6 @@ package org.prosolo.services.indexing.impl;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -46,9 +45,6 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
  //	user = (User) session.merge(user);
 		if(user!=null)
 	 		try {
-	 		List<Map<String, Object>> courseInfo = courseManager
-	 				.getUserCoursesWithProgressAndInstructorInfo(user.getId(), session);
-	 		
 			XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
 			builder.field("id", user.getId());
 		//	builder.field("url", user.getUri());
@@ -94,7 +90,8 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 				builder.endObject();
 			}
 			builder.endArray();
-			
+			List<Map<String, Object>> courseInfo = courseManager
+	 				.getUserCoursesWithProgressAndInstructorInfo(user.getId(), session);
 			builder.startArray("courses");
 			for(Map<String, Object> resMap : courseInfo) {
 				builder.startObject();

@@ -1058,6 +1058,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 		return getUserCoursesWithProgressAndInstructorInfo(userId, persistence.currentManager());
 	}
 	
+	//returns only active courses
 	@Override
 	@Transactional(readOnly = true)
 	public List<Map<String, Object>> getUserCoursesWithProgressAndInstructorInfo(long userId, Session session) throws DbConnectionException {
@@ -1070,11 +1071,13 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 					"INNER JOIN enrollment.course course " +
 					"LEFT JOIN enrollment.instructor instructor " +
 					"LEFT JOIN instructor.user userInstructor " +
-					"WHERE coursePortfolio.user.id = :user";
+					"WHERE coursePortfolio.user.id = :user " +
+					"AND enrollment.status = :status";
 				
 			@SuppressWarnings("unchecked")
 			List<Object[]> result = persistence.currentManager().createQuery(query).
 					setLong("user", userId).
+					setParameter("status", Status.ACTIVE).
 					list();
 			
 			List<Map<String, Object>> resultList = new ArrayList<>();
