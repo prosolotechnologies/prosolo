@@ -7,6 +7,7 @@ import org.prosolo.services.logging.ComponentName;
 import org.prosolo.web.courses.CoursePortfolioBean;
 import org.prosolo.web.courses.data.CourseData;
 import org.prosolo.web.logging.LoggingNavigationBean;
+import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -29,11 +30,12 @@ public class ActivateCourseDialogBean {
 	private boolean restorePreviousLearning = true;
 	private boolean hasLearningHistory = false;
 	private String context;
+	private String learningContext;
 	
 	public void initialize(final CourseData courseToActivate, final String context) {
 		this.courseToActivate = courseToActivate;
 		this.context = context;
-		
+		learningContext = PageUtil.getPostParameter("learningContext");
 		if (courseToActivate != null) {
 			hasLearningHistory = courseToActivate.getEnrollmentId() > 0;
 		}
@@ -53,7 +55,10 @@ public class ActivateCourseDialogBean {
 	 * ACTIONS
 	 */
 	public void activateCourse() {
-		coursePortfolioBean.activateCourse(courseToActivate, restorePreviousLearning, context);
+		String page = PageUtil.getPostParameter("page");
+		String service = PageUtil.getPostParameter("service");
+		coursePortfolioBean.activateCourse(courseToActivate, restorePreviousLearning, context,
+				page, learningContext, service);
 	}
 
 	

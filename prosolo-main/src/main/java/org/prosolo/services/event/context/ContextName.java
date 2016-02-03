@@ -16,7 +16,9 @@ public enum ContextName {
 	LEARNING_GOAL("TargetLearningGoal"),
 	SOCIAL_ACTIVITY("SocialActivity"),
 	STATUS_WALL(""),
-	ASSESSMENT_DIALOG("");
+	ASSESSMENT_DIALOG(""),
+	ACTIVATE_COURSE_DIALOG(""),
+	WITHDRAW_COURSE_DIALOG("");
 	
     private String objectType; 
     

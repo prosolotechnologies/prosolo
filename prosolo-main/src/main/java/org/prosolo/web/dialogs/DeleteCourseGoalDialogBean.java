@@ -7,6 +7,7 @@ import org.prosolo.services.logging.ComponentName;
 import org.prosolo.web.courses.CoursePortfolioBean;
 import org.prosolo.web.courses.data.CourseData;
 import org.prosolo.web.logging.LoggingNavigationBean;
+import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -28,11 +29,13 @@ public class DeleteCourseGoalDialogBean {
 	private CourseData courseToDelete;
 	private boolean deleteLearningHistory = false;
 	private String context;
+	private String learningContext;
+	private String service = "name:withdraw_course_dialog";
 	
 	public void initialize(final CourseData courseToDelete, final String context) {
 		this.courseToDelete = courseToDelete;
 		this.context = context;
-		
+		this.learningContext = PageUtil.getPostParameter("learningContext");
 		taskExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -48,7 +51,9 @@ public class DeleteCourseGoalDialogBean {
 	 * ACTIONS
 	 */
 	public void deleteCourse() {
-		coursePortfolioBean.deleteCourse(courseToDelete, deleteLearningHistory, context);
+		String page = PageUtil.getPostParameter("page");
+		coursePortfolioBean.deleteCourse(courseToDelete, deleteLearningHistory, context,
+				page, learningContext, service);
 	}
 	
 

@@ -592,13 +592,13 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 	
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-	public CourseEnrollment enrollUserInCourse(User user, Course course, TargetLearningGoal targetGoal, String context) {
+	public Map<String, Object> enrollUserInCourse(User user, Course course, TargetLearningGoal targetGoal, String context) {
 		return enrollUserInCourseInSameTransaction(user, course, targetGoal, context);
 	}
 	
 	@Override
 	@Transactional(readOnly = false)
-	public CourseEnrollment enrollUserInCourseInSameTransaction(User user, Course course, TargetLearningGoal targetGoal, String context) {
+	public Map<String, Object> enrollUserInCourseInSameTransaction(User user, Course course, TargetLearningGoal targetGoal, String context) {
 		if (course != null) {
 			// if user has previously been enrolled into this course, remove that enrollment
 			CourseEnrollment oldCourseEnrollment = courseManager.getCourseEnrollment(user, course);
@@ -635,26 +635,40 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 			portfolio.addEnrollment(enrollment);
 			saveEntity(portfolio);
 			
+			Map<String, Object> res = null;
 			if(!course.isManuallyAssignStudentsToInstructors()) {
 				List<Long> ids = new ArrayList<>();
 				ids.add(enrollment.getId());
-				assignStudentsToInstructorAutomatically(course.getId(), ids, 0);
+				res = assignStudentsToInstructorAutomatically(course.getId(), ids, 0);
+			}
+			Map<String, Object> resultMap = new HashMap<>();
+			resultMap.put("enrollment", enrollment);
+			if(res != null) {
+				@SuppressWarnings("unchecked")
+				Map<Long, Long> assigned = (Map<Long, Long>) res.get("assigned");
+				if(assigned != null) {
+					resultMap.put("assigned", assigned);
+				}
 			}
 			
-			return enrollment;
+			return resultMap;
 		}
 		return null;
 	}
 	
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-	public CourseEnrollment enrollUserInCourse(User user, Course course) throws EventException {
+	public Map<String, Object> enrollUserInCourse(User user, Course course) throws EventException {
 		TargetLearningGoal targetLGoal = goalManager.createNewCourseBasedLearningGoal(user, course, null, "");
 		//CourseEnrollment enrollment = enrollInCourse(user, course, targetLGoal, null);
-		CourseEnrollment enrollment = enrollUserInCourseInSameTransaction(user, course, targetLGoal, null);
+		Map<String, Object> res = enrollUserInCourseInSameTransaction(user, course, targetLGoal, null);
+		CourseEnrollment enrollment = null;
+		if(res != null) {
+			enrollment = (CourseEnrollment) res.get("enrollment");
+		}
 		targetLGoal.setCourseEnrollment(enrollment);
 		targetLGoal = saveEntity(targetLGoal);
-		return enrollment;
+		return res;
 	}
 	
 //	@Override
@@ -725,7 +739,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 		Map<String, Object> minOccupiedInstructor = null;
 		for(Map<String, Object> map : instructors) {
 			long instructorId= (long) map.get("instructorId");
-			if(instructorToExclude != 0 && instructorId != instructorToExclude) {
+			if(instructorId != instructorToExclude) {
 				int max = (int) map.get("maxNumberOfStudents");
 				int assigned = (int) map.get("numberOfAssignedStudents");
 				BigDecimal occupiedFactor = BigDecimal.valueOf(assigned).divide(BigDecimal.valueOf(max),
