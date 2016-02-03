@@ -25,7 +25,7 @@
 			process="@this"
 			update=":askForEvaluationDialogForm"
 			async="true">
-			<f:param name="learningContext" value="#{courseContext}|context:/name:learning_goal|id:#{learninggoals.selectedGoalData.data.targetGoalId}|context:/name:competence|id:#{learninggoals.selectedGoalData.selectedCompetence.data.id}//"/>
+			<f:param name="learningContext" value="#{courseContext}|context:/name:learning_goal|id:#{learninggoals.selectedGoalData.data.targetGoalId}|context:/name:competence|id:#{learninggoals.selectedGoalData.selectedCompetence.data.id}|context:/name:assessment///"/>
 		</p:commandLink>
 					
 		<h:panelGroup id="selectedCompetenceEvaluations">

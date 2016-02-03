@@ -17,7 +17,7 @@
 	
 		<h3>#{msg['learn.goals.evaluations.title']}</h3>
 		<ui:param name="courseContext" value="#{learninggoals.selectedGoalData.data.course != null ? 'name:Credential|id:'.concat(learninggoals.selectedGoalData.data.course.id) : ''}" />
-		<ui:param name="learningContext" value="#{courseContext}|context:/name:learning_goal|id:#{learninggoals.selectedGoalData.data.targetGoalId}|context:/name:goal_wall//"></ui:param>
+		<ui:param name="learningContext" value="#{courseContext}|context:/name:learning_goal|id:#{learninggoals.selectedGoalData.data.targetGoalId}|context:/name:assessment//"></ui:param>
 		<p:commandLink value="#{msg['learn.goals.evaluations.button.askForEvaluations.title']}" 
 			styleClass="button green size20 left marginRight10 uppercase"
 			onclick="$( '#askForEvaluationDialog' ).dialog('open');"

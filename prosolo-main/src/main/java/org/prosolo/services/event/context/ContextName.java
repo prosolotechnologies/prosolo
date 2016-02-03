@@ -18,7 +18,8 @@ public enum ContextName {
 	STATUS_WALL(""),
 	ASSESSMENT_DIALOG(""),
 	ACTIVATE_COURSE_DIALOG(""),
-	WITHDRAW_COURSE_DIALOG("");
+	WITHDRAW_COURSE_DIALOG(""),
+	ASSESSMENT("");
 	
     private String objectType; 
     
