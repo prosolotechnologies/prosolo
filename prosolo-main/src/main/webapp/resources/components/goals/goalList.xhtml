@@ -63,7 +63,7 @@
 			
 			<script>
 				$('.expandableGoal').shortenedText({showChar: 21, mode: 'static'});
-				hideLearningGoals('goalsList', #{learninggoals.goals.indexOf(learninggoals.selectedGoalData) >= 4 ? learninggoals.goals.indexOf(learninggoals.selectedGoalData)+1 : 4});
+				hideLearningGoals('#goalsList', #{learninggoals.goals.indexOf(learninggoals.selectedGoalData) >= 4 ? learninggoals.goals.indexOf(learninggoals.selectedGoalData)+1 : 4});
 				
 				//update goal links' href
 				$('#goalsList .goalLink').each(function() {
