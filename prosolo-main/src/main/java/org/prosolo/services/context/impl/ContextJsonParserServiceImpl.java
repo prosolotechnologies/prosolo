@@ -31,7 +31,7 @@ public class ContextJsonParserServiceImpl implements ContextJsonParserService {
 		try {
 			LearningContext lContext = new LearningContext();
 			
-			ApplicationPage appPage = applicationPagesBean.getPageForURI(page);
+			ApplicationPage appPage = page != null ? applicationPagesBean.getPageForURI(page) : null;
 			
 			GsonBuilder builder = new GsonBuilder();
 			builder.registerTypeAdapter(ContextName.class, new CustomContextNameDeserializer());	

@@ -81,7 +81,6 @@ public class LTIProviderLaunchBean implements Serializable {
 		//if there is a different user logged in in same browser, we must invalidate his session first or exception will be thrown
 		applicationBean.unregisterSession(session);
 		
-		
 		HttpServletRequest request = (HttpServletRequest) externalContext.getRequest();
 		LtiTool tool = toolManager.getLtiToolForLaunch(msg.getId());
 		toolLaunchValidator.validateLaunch(tool, msg.getConsumerKey(), getVersion(msg.getLtiVersion()), request);
@@ -90,14 +89,15 @@ public class LTIProviderLaunchBean implements Serializable {
 		logger.info("User for LTI launch logged in, user email "+user.getEmail().getAddress());
 		boolean loggedIn = login(user);
 		
-		if(loggedIn){
-			courseManager.enrollUserIfNotEnrolled(user, tool.getLearningGoalId());
+		if(loggedIn) {
+			String page = FacesContext.getCurrentInstance().getViewRoot().getViewId();
+			courseManager.enrollUserIfNotEnrolled(user, tool.getLearningGoalId(), page, "name:lti_launch|context:/name:lti_tool|id:" + msg.getId() + "/", null);
 			String url = ToolLaunchUrlBuilderFactory.getLaunchUrlBuilder(tool.getToolType()).
 					getLaunchUrl(tool, user.getId());
 			logger.info("Redirecting to "+url);
 			externalContext.redirect(externalContext.getRequestContextPath() + "/index.xhtml");
 			//externalContext.redirect(url);
-		}else{
+		} else {
 			throw new Exception("User loggin unsuccessful");
 		}
 	}

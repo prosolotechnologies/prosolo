@@ -19,7 +19,9 @@ public enum ContextName {
 	ASSESSMENT_DIALOG(""),
 	ACTIVATE_COURSE_DIALOG(""),
 	WITHDRAW_COURSE_DIALOG(""),
-	ASSESSMENT("");
+	ASSESSMENT(""),
+	LTI_LAUNCH(""),
+	LTI_TOOL("LtiTool");
 	
     private String objectType; 
     

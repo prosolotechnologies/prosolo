@@ -52,7 +52,6 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 	
 	private static final long serialVersionUID = -1373529937043699141L;
 	
-	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(NotificationManager.class);
 	
 	private @Autowired PersonalCalendarManager calendarManager;
@@ -307,6 +306,8 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 		} catch (FileNotFoundException e) {
 			logger.error(e);
 		} catch (IOException e) {
+			logger.error(e);
+		} catch(Exception e) {
 			logger.error(e);
 		}
 		return false;
