@@ -389,13 +389,13 @@ public class CoursePortfolioBean implements Serializable {
 					logger.error(e);
 				} catch (ResourceCouldNotBeLoadedException e) {
 					logger.error(e);
-				}
-				
-			
-				catch(Exception e){
+				} catch(Exception e){
      				logger.error("Exception in handling message",e);
-     			
-				} 
+				} finally {
+					if(session != null && session.isOpen()) {
+						HibernateUtil.close(session);
+					}
+				}
 			}
 		});
 	}

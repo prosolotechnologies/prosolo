@@ -1120,7 +1120,8 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional
-	public void enrollUserIfNotEnrolled(User user, long courseId) throws RuntimeException {
+	public void enrollUserIfNotEnrolled(User user, long courseId, String page, 
+			String learningContext, String service) throws RuntimeException {
 		try{
 			Course course = (Course) persistence.currentManager().load(Course.class, courseId);
 			boolean enrolled = isUserEnrolledInCourse(user, course);
@@ -1140,7 +1141,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 						logger.error(e);
 					}
 					
-					fireInstructorAssignEvent(user, enrollment, courseId, res, null, null, null);
+					fireInstructorAssignEvent(user, enrollment, courseId, res, page, learningContext, service);
 				}
 			}
 		}catch(Exception e){

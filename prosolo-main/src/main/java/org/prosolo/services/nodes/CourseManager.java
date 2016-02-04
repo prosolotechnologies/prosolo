@@ -133,7 +133,8 @@ public interface CourseManager extends AbstractManager {
 	
 	public Object[] getTargetGoalAndCompetenceIds(long userId, long courseId, long competenceId);
 	
-	public void enrollUserIfNotEnrolled(User user, long courseId) throws RuntimeException;
+	void enrollUserIfNotEnrolled(User user, long courseId, String page, 
+			String learningContext, String service) throws RuntimeException;
 
 	List<Map<String, Object>> getCourseParticipantsWithCourseInfo(long courseId) throws DbConnectionException;
 	

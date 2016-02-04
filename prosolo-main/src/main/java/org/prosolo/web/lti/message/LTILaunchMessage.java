@@ -1,8 +1,5 @@
 package org.prosolo.web.lti.message;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.prosolo.web.lti.LTIConstants;
 import org.prosolo.web.lti.validator.EmptyValidator;
 import org.prosolo.web.lti.validator.EqualValuesValidator;
