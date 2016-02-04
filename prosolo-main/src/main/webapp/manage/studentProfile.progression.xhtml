@@ -7,202 +7,239 @@
 	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons"
 	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
-	
-	<h:panelGroup layout="block" role="tabpanel" styleClass="tab-pane fade in active" id="progression">
 
-		<div id="svgContainer"></div>
+	<style>
+		.slick-slide{
+			width: 180px;
+		}
+	</style>
+	
+	<div role="tabpanel" class="tab-pane fade in active">
+
+
+		<h:panelGroup layout="block" id="svgContainer">
+			<script>
+			if (drawTreePath){
+				drawTreePath();
+			}
+			</script>
+		</h:panelGroup>
+		
 		<h2>
-			<img
-				src="#{request.contextPath}/resources/images/ico-credentials.svg"
+			<img src="#{request.contextPath}/resources/images/ico-credentials.svg"
 				alt="Credentials" title="Credentials" class="ico40" />
 			Credentials
 		</h2>
 
-		<div class="blockRow" id="credentials">
+		<div class="blockRow" id="credentials" style="display: none;">
 		
-			<a href="" class="sliderIconLeft">
+			<p:commandLink styleClass="sliderIconLeft"
+				update=":svgContainer">
 				<i class="fa fa-angle-left"></i>
-			</a>
+			</p:commandLink>
 
 			
-			<ui:repeat var="goal" value="#{studentProfileBean.lGoals}">
-				<p:commandLink
-					styleClass="progressBlock #{goal.id == studentProfileBean.selectedGoal.id ? 'selected' : ''}"
-					action="#{studentProfileBean.selectGoal(goal)}"
-					update=":progression :lastObservationPanel" 
-					oncomplete="hideObservationPanel();initProgressionTabScripts();">
-
-					<div class="progress">
-						<div class="progression bgGreen"
-							style="height: #{goal.progress}%"></div>
-						<div class="progressMask"></div>
-						<div class="percentage">#{goal.progress}%</div>
-					</div>
-					<h3>#{goal.name}</h3>
-				</p:commandLink>
-			</ui:repeat>
+			<div class="slides">
+				<ui:repeat var="goal" value="#{studentProfileBean.lGoals}">
+				
+					<p:commandLink
+						styleClass="progressBlock #{goal.id == studentProfileBean.selectedGoal.id ? 'selected' : ''}"
+						action="#{studentProfileBean.selectGoal(goal)}"
+						update=":competencesBlock :lastObservationPanel :svgContainer"
+						onclick="$('#credentials .slides .progressBlock').removeClass('selected');$(this).addClass('selected');"
+						oncomplete="hideObservationPanel();">
+	
+						<div class="progress">
+							<div class="progression bgGreen"
+								style="height: #{goal.progress}%"></div>
+							<div class="progressMask"></div>
+							<div class="percentage">#{goal.progress}%</div>
+						</div>
+						<h3>#{goal.name}</h3>
+					</p:commandLink>
+				</ui:repeat>
+			</div>
 			
 			
-			<a href="" class="sliderIconRight">
+			<p:commandLink styleClass="sliderIconRight"
+				update=":svgContainer">
 				<i class="fa fa-angle-right"></i>
-			</a>
+			</p:commandLink>
 
 			<div class="clearfix"></div>
+			
+			<script>
+			$(function(){
+				initCredentialsSlider();
+				$('#credentials').fadeIn();
+			});
+			</script>
 		</div>
-		
-		<script>
-		$(function() {
-			//initCredentialsSlider();
-		});
-		</script>
 
 		<h2>
-			<img
+			<img 
 				src="#{request.contextPath}/resources/images/ico-competences.svg"
 				alt="Competences" title="Competences" class="ico40" />
 			Competences
 		</h2>
 
-		<div class="blockRow" id="competences">
-			<a href="" class="sliderIconLeftCred"><i class="fa fa-angle-left"></i></a>
-			<ui:repeat var="comp"
-				value="#{studentProfileBean.selectedGoal.competences}">
-
-				<h:panelGroup layout="block" id="competencePanel"
-					styleClass="progressBlock competence #{comp.id == studentProfileBean.selectedGoal.selectedCompetence.id ? 'selected' : ''}">
-					<p:commandLink
-						action="#{studentProfileBean.selectCompetence(comp)}"
-						update=":progression :lastObservationPanel" 
-						oncomplete="hideObservationPanel();initProgressionTabScripts();">
+		<h:panelGroup layout="block" styleClass="blockRow" id="competencesBlock" style="display: none;">
+			
+			<p:commandLink styleClass="sliderIconLeftCred"
+				update=":svgContainer">
+				<i class="fa fa-angle-left"></i>
+			</p:commandLink>
+			
+			<div class="slides">
+				<ui:repeat var="comp" value="#{studentProfileBean.selectedGoal.competences}">
 	
-						<div class="trophy #{comp.trophyWon ? 'achieved' : ''}">
-							<i class="fa fa-trophy" data-toggle="tooltip"
-								data-placement="top"
-								title="#{comp.trophyWon ? 'Trophy won' : 'Trophy'}"></i>
-						</div>
-	
-						<div class="progress">
-							<div class="progression bgBlue"
-								style="height: #{comp.progress}%"></div>
-							<div class="progressMask"></div>
-							<div class="percentage">#{comp.progress}%</div>
-						</div>
+					<h:panelGroup layout="block" id="competencePanel"
+						styleClass="progressBlock competence #{comp.id == studentProfileBean.selectedGoal.selectedCompetence.id ? 'selected' : ''}">
 						
-						<h3>#{comp.name}</h3>
-					</p:commandLink>
-					<div class="blockBar">
-						<div class="assessments">
-							Assessments
-							<div class="count">
-								<span class="good">#{comp.approvedSubmissionNumber}</span> <span
-									class="bad">#{comp.rejectedSubmissionNumber}</span>
+						<p:commandLink
+							onclick="$('#competencesBlock .slides .progressBlock').removeClass('selected');$(this).parent().addClass('selected');"
+							action="#{studentProfileBean.selectCompetence(comp)}"
+							update=":activitiesBlock :svgContainer">
+		
+							<div class="trophy #{comp.trophyWon ? 'achieved' : ''}">
+								<i class="fa fa-trophy" data-toggle="tooltip"
+									data-placement="top"
+									title="#{comp.trophyWon ? 'Trophy won' : 'Trophy'}"></i>
+							</div>
+		
+							<div class="progress">
+								<div class="progression bgBlue" style="height: #{comp.progress}%"></div>
+								<div class="progressMask"></div>
+								<div class="percentage">#{comp.progress}%</div>
+							</div>
+							
+							<h3>#{comp.name}</h3>
+						</p:commandLink>
+						
+						<div class="blockBar">
+							<div class="assessments">
+								Assessments
+								<div class="count">
+									<span class="good">#{comp.approvedSubmissionNumber}</span>
+									<span class="bad">#{comp.rejectedSubmissionNumber}</span>
+								</div>
+							</div>
+	
+							<div class="assessmentExpand dropup">
+								<p:commandLink
+									actionListener="#{studentProfileBean.loadSubmissions(comp)}"
+									oncomplete="$('.hiddenAssessmendDropdownToggleLink[data-id=&#34;#{comp.id}&#34;]').dropdown('toggle'); return false;"
+									update="assesmentPanel">
+									<i class="fa fa-external-link"></i>
+								</p:commandLink>
+	
+								<a class="hiddenAssessmendDropdownToggleLink"
+									data-id="#{comp.id}"
+									data-target="#"
+									data-toggle="dropdown" 
+									role="button" 
+									aria-haspopup="true"
+									aria-expanded="false"></a>
+	
+								<h:panelGroup layout="block" id="assesmentPanel"
+									styleClass="dropdown-menu" pt:aria-labelledby="dLabel">
+	
+									<div class="ddPanelHeader">
+										<h4>Assessments</h4>
+										
+										<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+											<span aria-hidden="true">
+												<i class="fa fa-times"></i>
+											</span>
+										</button>
+									</div>
+	
+									<div class="ddPanelBody">
+									
+										<ui:repeat value="#{comp.submissions}" var="submission">
+											<div class="assessment">
+												<div class="userInfo">
+													<span class="userProfileImage"> <h:graphicImage
+															value="#{submission.evaluator.avatar}"
+															title="#{submission.evaluator.name}"
+															alt="#{submission.evaluator.name}" />
+													</span> <span class="date">#{submission.formattedDate}</span>
+													by
+	
+													<h:link value="#{submission.evaluator.name}" outcome="/publicprofile">
+														<f:param name="id" value="#{util:encodeId(submission.evaluator.id)}" />
+													</h:link>
+	
+													<div class="icons">
+														<i class="fa fa-check-circle #{submission.accepted ? 'good' : 'bad'}"
+															data-toggle="tooltip" data-placement="top"
+															title="#{submission.accepted ? 'Passed' : 'Failed'}"></i>
+	
+														<span class="trophy #{submission.trophyWon ? 'achieved' : ''}">
+															<i class="fa fa-trophy" data-toggle="tooltip"
+																data-placement="top"
+																title="#{submission.trophyWon ? 'Trophy won' : 'Trophy'}"></i>
+														</span>
+													</div>
+	
+												</div>
+												<p>#{submission.message}</p>
+											</div>
+										</ui:repeat>
+									</div>
+								</h:panelGroup>
 							</div>
 						</div>
+					</h:panelGroup>
+				</ui:repeat>
+			</div>
 
-						<div class="assessmentExpand dropup">
-							<p:commandLink
-								actionListener="#{studentProfileBean.loadSubmissions(comp)}"
-								oncomplete="$('.hiddenAssessmendDropdownToggleLink[data-id=&#34;#{comp.id}&#34;]').dropdown('toggle'); return false;"
-								update="assesmentPanel">
-								<i class="fa fa-external-link"></i>
-							</p:commandLink>
-
-							<a class="hiddenAssessmendDropdownToggleLink"
-								data-id="#{comp.id}"
-								data-target="#"
-								data-toggle="dropdown" 
-								role="button" 
-								aria-haspopup="true"
-								aria-expanded="false"></a>
-
-							<h:panelGroup layout="block" id="assesmentPanel"
-								styleClass="dropdown-menu" pt:aria-labelledby="dLabel">
-
-								<div class="ddPanelHeader">
-									<h4>Assessments</h4>
-									<button type="button" class="close" data-dismiss="alert"
-										aria-label="Close">
-										<span aria-hidden="true"> <i class="fa fa-times"></i>
-										</span>
-									</button>
-								</div>
-
-								<div class="ddPanelBody">
-									<ui:repeat value="#{comp.submissions}" var="submission">
-										<div class="assessment">
-											<div class="userInfo">
-												<span class="userProfileImage"> <h:graphicImage
-														value="#{submission.evaluator.avatar}"
-														title="#{submission.evaluator.name}"
-														alt="#{submission.evaluator.name}" />
-												</span> <span class="date">#{submission.formattedDate}</span>
-												by
-
-												<h:link value="#{submission.evaluator.name}"
-													outcome="/publicprofile">
-													<f:param name="id"
-														value="#{util:encodeId(submission.evaluator.id)}" />
-												</h:link>
-
-												<div class="icons">
-													<i
-														class="fa fa-check-circle #{submission.accepted ? 'good' : 'bad'}"
-														data-toggle="tooltip" data-placement="top"
-														title="#{submission.accepted ? 'Passed' : 'Failed'}"></i>
-
-													<span
-														class="trophy #{submission.trophyWon ? 'achieved' : ''}">
-														<i class="fa fa-trophy" data-toggle="tooltip"
-														data-placement="top"
-														title="#{submission.trophyWon ? 'Trophy won' : 'Trophy'}"></i>
-													</span>
-												</div>
-
-											</div>
-											<p>#{submission.message}</p>
-										</div>
-									</ui:repeat>
-								</div>
-							</h:panelGroup>
-						</div>
-					</div>
-				</h:panelGroup>
-
-			</ui:repeat>
-			<a href="" class="sliderIconRightCred"><i class="fa fa-angle-right"></i></a>
+			<p:commandLink styleClass="sliderIconRightCred"
+				update=":svgContainer">
+				<i class="fa fa-angle-right"></i>
+			</p:commandLink>
+			
 			<div class="clearfix"></div>
-		</div>
+			<script>
+			$(function(){
+				initCompetenceSlider();
+				$('#competencesBlock').fadeIn();
+			});
+			</script>
+		</h:panelGroup>
+		
 
 		<h2>
-			<img
-				src="#{request.contextPath}/resources/images/ico-activities.svg"
-				alt="Activities" title="Activities" class="ico40" /> Activities
+			<img src="#{request.contextPath}/resources/images/ico-activities.svg"
+				alt="Activities" title="Activities" class="ico40" />
+			Activities
 		</h2>
 
-		<div class="activities" id="activitiesBlock">
+		<h:panelGroup layout="block" class="activities" id="activitiesBlock" style="display: none;">
 			<div class="col-md-6">
 				<div class="panel-group" id="activities" role="tablist"
 					aria-multiselectable="true">
 
-					<ui:repeat var="act"
-						value="#{studentProfileBean.selectedGoal.selectedCompetence.activities}">
+					<ui:repeat var="act" value="#{studentProfileBean.selectedGoal.selectedCompetence.activities}">
+					
 						<div class="panel panel-default">
 							<h:inputHidden value="#{act.id}"></h:inputHidden>
+							
 							<div class="panel-heading" role="tab" id="headingOne">
 
 								<h4 id="activity#{act.id}" class="panel-title">
 									<a class="done collapsed" role="button"
 										data-toggle="collapse" data-parent="#activities"
 										href="#act#{act.id}" aria-expanded="true"
-										aria-controls="act#{act.id}"> <span
-										class="hexagon #{act.completed ? 'done' : ''}"></span>
+										aria-controls="act#{act.id}">
+										
+										<span class="hexagon #{act.completed ? 'done' : ''}"></span>
 										#{act.name}
 									</a>
 								</h4>
 							</div>
 
-							<div id="act#{act.id}" class="panel-collapse collapse"
-								role="tabpanel" aria-labelledby="headingOne">
+							<div id="act#{act.id}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
 								<div class="panel-body">
 									<p>#{act.description}</p>
 
@@ -216,6 +253,7 @@
 											</h5>
 											<div class="fileUrl">https://www.youtube.com/ea0ef897e8f18d...</div>
 										</div>
+										
 										<div class="col-md-2 fileSizeTime">12:08</div>
 										<div class="clearfix"></div>
 									</div>
@@ -225,16 +263,23 @@
 					</ui:repeat>
 				</div>
 			</div>
+			
 			<div class="col-md-6 graph">
 				Performance graph
 				<div id="quadrantchart">
-				<script>
-				    var service = "#{studentProfileBean.completedActivitiesServicePath}";
-					drawQuadrantChart(service);
-				</script>
+					<script>
+					    var service = "#{studentProfileBean.completedActivitiesServicePath}";
+						drawQuadrantChart(service);
+					</script>
 				</div>
 			</div>
 			<div class="clearfix"></div>
-		</div>
-	</h:panelGroup>
+			
+			<script>
+			$(function(){
+				$('#activitiesBlock').fadeIn();
+			});
+			</script>
+		</h:panelGroup>
+	</div>
 </ui:composition>
