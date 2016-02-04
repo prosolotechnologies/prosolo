@@ -784,11 +784,15 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 			"SELECT DISTINCT course.id, enrollment.user.id " +
 			"FROM CourseEnrollment enrollment " +
 			"LEFT JOIN enrollment.course course " +
-			"WHERE course IN (:courses)";
+			"WHERE course IN (:courses) " +
+			"AND (enrollment.status = :statusActive " +
+			  "OR enrollment.status = :statusCompleted)";
 
 		@SuppressWarnings("unchecked")
 		List<Object[]> result = persistence.currentManager().createQuery(query).
 				setParameterList("courses", courses).
+				setParameter("statusActive", Status.ACTIVE).
+				setParameter("statusCompleted", Status.COMPLETED).
 				list();
 		Map<Long, List<Long>> counts = new HashMap<Long, List<Long>>();
 		if (result != null && !result.isEmpty()) {
@@ -1193,12 +1197,14 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 					"LEFT JOIN enrollment.instructor instructor " +
 					"LEFT JOIN instructor.user userInstructor " +
 					"WHERE coursePortfolio.user.id = :user " +
-					"AND enrollment.status = :status";
+					"AND (enrollment.status = :statusActive " +
+						  "OR enrollment.status = :statusCompleted)";
 				
 			@SuppressWarnings("unchecked")
 			List<Object[]> result = persistence.currentManager().createQuery(query).
 					setLong("user", userId).
-					setParameter("status", Status.ACTIVE).
+					setParameter("statusActive", Status.ACTIVE).
+					setParameter("statusCompleted", Status.COMPLETED).
 					list();
 			
 			List<Map<String, Object>> resultList = new ArrayList<>();
