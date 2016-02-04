@@ -3,6 +3,7 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui"
+	xmlns:util="http://www.prosolo.com/util"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons">
 	
@@ -28,12 +29,12 @@
 		<div class="leftNav learnTripStep3">
 			<ul id="goalsList">
 				<ui:repeat value="#{learninggoals.goals}" var="goalIterator">
-					<li class="goal #{goalIterator.data.targetGoalId == learninggoals.selectedGoalData.data.targetGoalId ? 'selected' : ''}" data-id="#{goalIterator.data.targetGoalId}">
+					<li class="goal #{goalIterator.data.targetGoalId == learninggoals.selectedGoalData.data.targetGoalId ? 'selected' : ''}" data-id="#{util:encodeId(goalIterator.data.targetGoalId)}">
 						
 						<p:commandLink id="goal"
 							value="#{goalIterator.data.title}"
 							styleClass="expandableGoal #{goalIterator.data.progress == 100 ? 'completed' : ''} goalLink"
-							onclick="learnControl.selectGoal(#{goalIterator.data.targetGoalId});"
+							onclick="learnControl.selectGoal('#{util:encodeId(goalIterator.data.targetGoalId)}');"
 							update=":goalListForm :goalDetails :navigation :selectedGoalEvaluations :selectedGoalBadges:badgeContainer 
 								:competenceList :newCompetenceButtonForm :compSearchForm :compRecommendationsForm :activities"
 							action="#{learninggoals.selectGoal(goalIterator)}"

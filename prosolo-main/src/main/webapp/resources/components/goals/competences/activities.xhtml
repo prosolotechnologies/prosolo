@@ -25,20 +25,16 @@
 					
 					<p:commandLink 
 						styleClass="button gray size25 backBtn navItemCompetences marginRight20"
-						onclick="learnMenuControl.menuItemChange('navItemCompetences');sendServiceUse('MOUSE_CLICK', {context: 'learn.targetGoal.#{learninggoals.selectedGoalData.data.targetGoalId}.targetComp.#{learninggoals.selectedGoalData.data.targetGoalId}', link: 'back'});"
+						onclick="learnControl.selectGoal(learnControl.goal);;sendServiceUse('MOUSE_CLICK', {context: 'learn.targetGoal.#{learninggoals.selectedGoalData.data.targetGoalId}.targetComp.#{learninggoals.selectedGoalData.data.targetGoalId}', link: 'back'});"
 					 	action="#{learninggoals.selectedGoalData.setSelectedCompetence(null)}"
 					 	value="Back" />
 					 	
-					<script>
-					$('.goalsPage .activities .backBtn').on('click', function(){
-						history.replaceState({}, null, removeQueryParameter('comp'));
-						setQueryParam('id', $('.leftNav li.goal.selected').attr('data-id'));
-					});
-					</script>
 					<ui:include src="/resources/components/goals/competences/compDetails.xhtml" />
 					<div class="clear"></div>
+					
 					<ui:include src="/resources/components/goals/competences/recommendedActivities.xhtml" />
 					<ui:include src="/resources/components/goals/competences/compWall.xhtml" />
+					
 				</div><!-- .middleColumn end -->
 				
 				<div class="oneThirdColumn marginLeft30">
