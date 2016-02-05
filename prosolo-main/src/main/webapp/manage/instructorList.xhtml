@@ -9,7 +9,8 @@
 	xmlns:actions="http://java.sun.com/jsf/composite/components/actions"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:util="http://www.prosolo.com/util">
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:mngComp="http://java.sun.com/jsf/composite/components/manage">
 
 	<ui:define name="windowTitle">
 		Course Instructors
@@ -39,34 +40,31 @@
 			};
 	</script>
 	
-		<section class="heading">
-			<header>
-			<img class="ico40" title="Credentials" alt="Credentials"
-					src="#{request.contextPath}/resources/images/ico-credentials.svg"></img>
-		      <div class="headerTitle">
-		         <h1>#{courseInstructorsBean.courseTitle}</h1>
-		         <p>Instructors</p>
-		      </div>
-		      
-		      
-			</header>
+		 <mngComp:credentialsHeader
+        	courseName="#{courseInstructorsBean.courseTitle}"
+        	activeLink="Instructors"/>
+        	
+        <section>
+			<div class="subHeader">
+		   	<h3 class="title">Instructors list</h3>
+		   </div>
 		</section>
 		
-		<section class="container-fluid mainArea">
+		<section class="container-fluid mainArea fullWidth">
 		
-		<div class="row">
+		<div class="row fullWidthPanel">
+		   <div class="col-md-12">
 		    <div class="panel panel-default">
-		         <div class="panel-heading">
-		         	<h3 class="panel-title">Instructor list</h3>
+		         <div class="tabPanel">
 		         	<h:link 
 		         		outcome="/manage/instructor-add"
-		         		styleClass="btn btn-default panelButton pull-right"
+		         		styleClass="btn btn-primary"
 		         		pt:role="button">
 		         		<i class="fa fa-plus"></i> Add new instructor
 		         		<f:param name="courseId" value="#{param['id']}" />
 		         		<f:param name="courseName" value="#{courseInstructorsBean.courseTitle}" />
 		         	</h:link>
-		         </div>
+            	 </div>
 		      <div class="row narrow searchFilter">
 		            <div class="col-md-12">
 							<h:panelGroup id="panelNoInstructors" styleClass="records">Instructors: <strong>#{courseInstructorsBean.courseInstructorsNumber}</strong></h:panelGroup>
@@ -280,6 +278,7 @@
  
  			 </h:form>
 		      </div>
+		     </div>
 		</div>
 		
 		</section>

@@ -9,7 +9,8 @@
 	xmlns:actions="http://java.sun.com/jsf/composite/components/actions"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:util="http://www.prosolo.com/util">
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:mngComp="http://java.sun.com/jsf/composite/components/manage">
 
 	<ui:define name="windowTitle">
 		Course Instructors
@@ -45,28 +46,22 @@
 				
 			}
 	</script>
-	<section class="heading">
-		<header>
-		  <img class="ico40" title="Credentials" alt="Credentials"
-				src="#{request.contextPath}/resources/images/ico-credentials.svg"></img>
-	      <div class="headerTitle">
-	         <h1>#{instructorEditBean.courseTitle}</h1>
-	         <p>Instructors > #{instructorEditBean.title}</p>
-	      </div>
-	      
-	      
-		</header>
-	</section>
+	 <mngComp:credentialsHeader
+        	courseName="#{instructorEditBean.courseTitle}"
+        	activeLink="Instructors"/>
 
-<section class="container-fluid mainArea">
+<section>
+	<div class="subHeader">
+   	<h3 class="title">#{instructorEditBean.title}</h3>
+      <a class="btn btn-default panelButton pull-right" href="credentials-instructors.html" role="button"><i class="fa fa-ban red"></i> Cancel</a>
+      <a class="btn btn-primary panelButton pull-right" href="credentials-instructors.html" role="button"><i class="fa fa-save"></i> Save</a>         
+   </div>
+</section>
 
-<div class="row">
-    <div class="panel panel-default">
-         <div class="panel-heading">
-         	<h3 class="panel-title">#{instructorEditBean.title} #{instructorEditBean.new ? '' : ' - '.concat(instructorEditBean.instructor.name)}</h3>
-                
-         </div>
-     		<div class="panel-body"> 
+<section class="container-fluid mainArea fullWidth">
+
+<div class="row fullWidthPanel">
+    	<div class="col-md-12">
    			<div class="row">    
             	<div class="col-md-4">
 					<h:form id="instructorInfoForm">
@@ -172,7 +167,7 @@
             	<div class="col-md-8 ddContainer">
                	<div class="row">
                   <h:panelGroup layout="block" id="assignedStudentsPanel" styleClass="col-md-5">
-   	                  <label>Assigned students</label>
+   	                  <label>Assigned students #{instructorEditBean.new ? '' : ' ('.concat(instructorEditBean.instructor.numberOfAssignedStudents).concat('/').concat(instructorEditBean.instructor.maxNumberOfStudents).concat(')')}</label>
 	                     <ul class="ddStudentsList">
 	                     	<ui:repeat var="student" value="#{instructorEditBean.assignedStudents}">
 	                     		<li>
@@ -196,7 +191,7 @@
                      
                     <h:form id="assignStudentsForm">
                   	<h:panelGroup layout="block" id="panelMoveStudents" 
-                  		styleClass="col-md-1 dd">
+                  		styleClass="col-md-2 dd">
                      	<h3>Select and click to assign</h3>
                      	<p:commandLink
                      		styleClass="btn btn-default"
@@ -255,7 +250,6 @@
                   </div>
                </div>               
 				</div>
-			</div>
       </div>
 </div>
 

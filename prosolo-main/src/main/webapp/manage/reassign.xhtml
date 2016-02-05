@@ -11,7 +11,8 @@
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:util="http://www.prosolo.com/util"
-	xmlns:dlgComp="http://java.sun.com/jsf/composite/components/dialogs/manager">
+	xmlns:dlgComp="http://java.sun.com/jsf/composite/components/dialogs/manager"
+	xmlns:mngComp="http://java.sun.com/jsf/composite/components/manage">
 
 	<ui:define name="windowTitle">
 		Reassign Students
@@ -45,26 +46,14 @@
 			};
 		</script>
 		
-	<section class="heading">
-		<header>
-		  <img class="ico40" title="Credentials" alt="Credentials"
-				src="#{request.contextPath}/resources/images/ico-credentials.svg"></img>
-	      <div class="headerTitle">
-	         <h1>#{studentReassignBean.courseTitle}</h1>
-	         <p>Instructors > Reassign Students</p>
-	      </div>
-	      
-	      
-		</header>
-	</section>
-
-<section class="container-fluid mainArea">
-
-<div class="row">
-    <div class="panel panel-default">
-         <div class="panel-heading">
-         	<h3 class="panel-title">Reassign #{studentReassignBean.instructor.name}'s students</h3>
-            <h:link id="cancelLink"
+		<mngComp:credentialsHeader
+        	courseName="#{studentReassignBean.courseTitle}"
+        	activeLink="Instructors"/>
+        	
+        <section>
+			<div class="subHeader">
+		   	<h3 class="title">Reassign #{studentReassignBean.instructor.name}'s students</h3>
+		    <h:link id="cancelLink"
             	styleClass="btn btn-default panelButton pull-right" 
             	outcome="/manage/instructorList" 
             	pt:role="button">
@@ -79,9 +68,15 @@
 		    	oncomplete="triggerCancelLink();return false;">
 		    	<i class="fa fa-save"></i> Save
 		    	<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
-		    </p:commandLink>    
-         </div>
-     		<div class="panel-body"> 
+		    </p:commandLink>            
+		   </div>
+		</section>
+
+<section class="container-fluid mainArea fullWidth">
+
+<div class="row fullWidthPanel">
+   
+     	<div class="col-md-12">
    			<div class="row">    
             	<div class="col-md-9">
                	<div class="row">
@@ -115,7 +110,7 @@
                         </ul>
                      </div>
                      </h:form>
-                  	<div class="col-md-1 dd">
+                  	<div class="col-md-2 dd">
                      	<h3>Select and click to reassign</h3>
                      	<p:commandLink
                      		styleClass="btn btn-default"
@@ -190,8 +185,8 @@
                </div>               
 				</div>
 			</div>
-      </div>
-</div>
+  
+		</div>
 
 
 
