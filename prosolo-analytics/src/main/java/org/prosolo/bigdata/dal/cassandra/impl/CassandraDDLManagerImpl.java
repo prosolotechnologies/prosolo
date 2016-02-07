@@ -125,7 +125,7 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		String currentTimestamps="CREATE TABLE IF NOT EXISTS currenttimestamps(tablename varchar, timestamp bigint, PRIMARY KEY(tablename))";
 		this.ddls.add(currentTimestamps);
 
-		String studentCluster="CREATE TABLE IF NOT EXISTS studentcluster(timestamp bigint, course bigint, student bigint, cluster bigint, PRIMARY KEY(timestamp, student))";
+		String studentCluster="CREATE TABLE IF NOT EXISTS studentcluster(timestamp bigint,  course bigint, student bigint, cluster bigint, PRIMARY KEY(timestamp, course, student))";
 		this.ddls.add(studentCluster);
 
 		String insideClusterUserInteractions="CREATE TABLE IF NOT EXISTS insideclustersinteractions(timestamp bigint, course bigint,  cluster bigint, student bigint, interactions list<varchar>, " +

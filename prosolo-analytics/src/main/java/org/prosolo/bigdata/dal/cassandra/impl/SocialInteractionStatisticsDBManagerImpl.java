@@ -58,7 +58,7 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 		statements.put(Statements.FIND_OUTSIDE_CLUSTER_INTERACTIONS, "SELECT * FROM outsideclustersinteractions WHERE timestamp = ? AND course = ? AND student = ? ALLOW FILTERING;");
 		statements.put(Statements.FIND_INSIDE_CLUSTER_INTERACTIONS, "SELECT * FROM insideclustersinteractions WHERE timestamp = ? AND course = ? AND cluster = ? ALLOW FILTERING;");
 		statements.put(Statements.INSERT_STUDENT_CLUSTER, "INSERT INTO studentcluster(timestamp, course,  student,cluster) VALUES(?,?,?,?); ");
-		statements.put(Statements.FIND_STUDENT_CLUSTER, "SELECT * FROM studentcluster WHERE timestamp = ? AND student = ? AND course = ? ALLOW FILTERING;");
+		statements.put(Statements.FIND_STUDENT_CLUSTER, "SELECT * FROM studentcluster WHERE timestamp = ? AND course = ? AND student = ? ALLOW FILTERING;");
 	}
 
 	private SocialInteractionStatisticsDBManagerImpl(){
@@ -235,9 +235,10 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 	@Override
 	public Long findStudentCluster(Long course, Long student) {
 		Long timestamp = currenttimestamps.get(TableNames.STUDENT_CLUSTER);
+		System.out.println("FIND Student cluster timestamp:"+timestamp+" course:"+course+" student:"+student);
 		if (timestamp != null) {
 			PreparedStatement prepared = getStatement(getSession(), Statements.FIND_STUDENT_CLUSTER);
-			BoundStatement statement = StatementUtil.statement(prepared, timestamp, student, course);
+			BoundStatement statement = StatementUtil.statement(prepared, timestamp, course, student);
 			List<Row> result = query(statement);
 			if (result.size() == 1) {
 				return cluster(result.get(0));

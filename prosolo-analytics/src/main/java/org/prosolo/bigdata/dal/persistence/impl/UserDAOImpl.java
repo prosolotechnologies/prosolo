@@ -49,7 +49,7 @@ public class UserDAOImpl extends GenericDAOImpl implements UserDAO {
 			String query = "SELECT id, name, lastname, avatar_url FROM user user WHERE id in (:users)";
 			Long[] in = Arrays.copyOfRange(users, partition[0].intValue(), partition[1].intValue());
 			try {
-				List<Object[]> list = session.createSQLQuery(query).setParameterList("users", Arrays.asList(in)).list();
+			List<Object[]> list = session.createSQLQuery(query).setParameterList("users", Arrays.asList(in)).list();
 				for(Object[] row : list) {
 					Map<String, String> data = new HashMap<String, String>();
 					data.put("name", name(row[1], row[2]));
