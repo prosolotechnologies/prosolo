@@ -11,7 +11,8 @@
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:util="http://www.prosolo.com/util"
-	xmlns:dlgComp="http://java.sun.com/jsf/composite/components/dialogs/manager">
+	xmlns:dlgComp="http://java.sun.com/jsf/composite/components/dialogs/manager"
+	xmlns:mngComp="http://java.sun.com/jsf/composite/components/manage">
 
 	<ui:define name="windowTitle">
 		Course members
@@ -42,27 +43,23 @@
 				this.keystrokeTimeout = window.setTimeout(delayedSearch, 350);
 			};
 		</script>
-
-		<section class="heading">
-			<header>
-				<img class="ico40" title="Credentials" alt="Credentials"
-					src="#{request.contextPath}/resources/images/ico-credentials.svg"></img>
-				<div class="headerTitle">
-					<h1>#{courseMembersBean.courseTitle}</h1>
-					<p>Student progression grid</p>
-				</div>
-
-
-			</header>
+		
+        <mngComp:credentialsHeader
+        	courseName="#{courseMembersBean.courseTitle}"
+        	activeLink="Students"/>
+        	
+        <!-- Added subheader -->
+		<section>
+			<div class="subHeader">
+		   	<h3 class="title">Students list</h3>
+		   </div>
 		</section>
+		<!-- Added subheader END -->
+		<section class="container-fluid mainArea fullWidth">
 
-		<section class="container-fluid mainArea">
-
-			<div class="row">
+			<div class="row fullWidthPanel">
+			  <div class="col-md-12">
 				<div class="panel panel-default">
-					<div class="panel-heading">
-						<h3 class="panel-title">Students list</h3>
-					</div>
 					<div class="row narrow searchFilter">
 						<div class="col-md-12">
 							<h:form id="filterStudentsForm">
@@ -283,6 +280,7 @@
 					</h:form>
 
 				</div>
+			  </div>
 			</div>
 
 		</section>

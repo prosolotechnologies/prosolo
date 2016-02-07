@@ -39,7 +39,7 @@ public class LearnViewScopedBean implements Serializable {
 		logger.info("Initializing managed bean " + this.getClass().getSimpleName());
 		learningGoalsBean.resetNewGoalFormData();
 		
-		decodedId =idEncoder.decodeId(id);
+		decodedId = idEncoder.decodeId(id);
 		decodedTargetCompId = idEncoder.decodeId(targetCompId);
 		
 		if (decodedId > 0) {			

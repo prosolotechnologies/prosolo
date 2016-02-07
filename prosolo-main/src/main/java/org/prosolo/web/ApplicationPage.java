@@ -32,7 +32,8 @@ public enum ApplicationPage {
 	ANALYTICS_SETTINGS("/admin/analyticsSettings.xhtml"),
 	INSTRUCTOR_DETAILS("/manage/instructor-add.xhtml"),
 	INSTRUCTOR_LIST("/manage/instructorList.xhtml"),
-	STUDENT_REASSIGN("/manage/reassign.xhtml");
+	STUDENT_REASSIGN("/manage/reassign.xhtml"),
+	LTI_PROVIDER_LAUNCH("/ltiproviderlaunch.xhtml");
 
     private String uri; 
     

@@ -19,8 +19,8 @@
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewParam name="id" value="#{learn.id}" default="null" />
-			<f:viewParam name="comp" value="#{learn.targetCompId}" default="null" />
+			<f:viewParam name="id" value="#{learn.id}" default="" />
+			<f:viewParam name="comp" value="#{learn.targetCompId}" default="" />
 			<f:viewAction action="#{learn.init()}" />
 		</f:metadata>
 	</ui:define>
@@ -51,14 +51,14 @@
 						$('.learnNavItem.navItemCompetences').addClass('selected');
 					}
 				},
-				/* goal: #{learn.id},
-				comp: #{learn.targetCompId}, */
-				goal: #{learn.decodedId},
-				comp: #{learn.decodedTargetCompId},
+				goal: '#{learn.id}',
+				comp: '#{learn.targetCompId}', 
+				/*goal: #{learn.decodedId},
+				comp: #{learn.decodedTargetCompId},*/
 				currentPath: null,
 				selectGoal: function(newGoal) {
 					learnControl.goal = newGoal;
-					learnControl.comp = 0;
+					learnControl.comp = '';
 					
 					learnControl.menuItemChange('navItemCompetences');
 
@@ -77,7 +77,7 @@
 					return false;
 				},
 				selectGoalWall: function() {
-					learnControl.comp = 0;
+					learnControl.comp = '';
 					
 					addLoader('.goalWallForm .goalWall', 'Loading Goal Wall...');
 					
@@ -87,7 +87,7 @@
 					return false;
 				},
 				updateCurrentPath: function() {
-					learnControl.currentPath = '#{request.contextPath}/learn' + (learnControl.goal > 0 ? '/'+learnControl.goal : '') +  (learnControl.comp > 0 ? '/'+learnControl.comp : '');
+					learnControl.currentPath = '#{request.contextPath}/learn' + (learnControl.goal.length > 0 ? '/'+learnControl.goal : '') +  (learnControl.comp.length > 0 ? '/'+learnControl.comp : '');
 				},
 				updateUrl: function() {
 					learnControl.updateCurrentPath();
@@ -117,11 +117,11 @@
 			</h:panelGroup>
 		
 			<h:panelGroup layout="block" class="content wide learnContainer" id="changableActivitiesRegion">
-				<ui:include src="/resources/components/goals/navigation.xhtml" />
+				<ui:include src="/resources/components/goals/navigationBar.xhtml" />
 			
 				<ui:include src="/resources/components/goals/goalWall.xhtml" />
 
-				<ui:include src="/resources/components/goals/competences/competences.xhtml" />
+				<ui:include src="/resources/components/goals/competences/competenceList.xhtml" />
 
 				<ui:include src="/resources/components/goals/competences/activities.xhtml" />
 			</h:panelGroup>

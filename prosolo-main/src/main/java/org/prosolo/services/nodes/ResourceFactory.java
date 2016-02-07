@@ -13,7 +13,6 @@ import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CourseCompetence;
-import org.prosolo.common.domainmodel.course.CourseEnrollment;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.organization.Organization;
@@ -89,13 +88,13 @@ public interface ResourceFactory extends AbstractManager {
 
 	SimpleOutcome createSimpleOutcome(double resultValue);
 	
-	CourseEnrollment enrollUserInCourse(User user, Course course, TargetLearningGoal targetGoal, String context);
+	Map<String, Object> enrollUserInCourse(User user, Course course, TargetLearningGoal targetGoal, String context);
 	
-	CourseEnrollment enrollUserInCourseInSameTransaction(User user, Course course, TargetLearningGoal targetGoal, String context);
+	Map<String, Object> enrollUserInCourseInSameTransaction(User user, Course course, TargetLearningGoal targetGoal, String context);
 	
 	Map<String, Object> assignStudentsToInstructorAutomatically(long courseId, List<Long> courseEnrollmentIds,
 			long instructorToExcludeId);
 	
-	CourseEnrollment enrollUserInCourse(User user, Course course) throws EventException;
+	Map<String, Object> enrollUserInCourse(User user, Course course) throws EventException;
 
 }

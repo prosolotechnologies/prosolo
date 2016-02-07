@@ -130,10 +130,19 @@ public class CoursePortfolioBean implements Serializable {
 	}
 	
 	public void activateCourse(final CourseData courseData, String context) {
-		activateCourse(courseData, restorePreviousLearning, context);
+		activateCourse(courseData, restorePreviousLearning, context, null, null, null);
 	}
 	
-	public CourseEnrollment activateCourse(final CourseData courseData, boolean restorePreviousLearning, String context) {
+	public CourseEnrollment activateCourse(final CourseData courseData, boolean restorePreviousLearning, 
+			String context) {
+		String page = PageUtil.getPostParameter("page");
+		String lContext = PageUtil.getPostParameter("learningContext");
+		String service = PageUtil.getPostParameter("service");
+		return activateCourse(courseData, restorePreviousLearning, context, page, lContext, service);
+	}
+	
+	public CourseEnrollment activateCourse(final CourseData courseData, boolean restorePreviousLearning, 
+			String context, String page, String learningContext, String service) {
 		// remove from future courses
 		removeFromFutureCourses(courseData.getId());
 		
@@ -158,7 +167,8 @@ public class CoursePortfolioBean implements Serializable {
 						enrollment = courseManager.addCourseCompetencesToEnrollment(course, enrollment);
 					}
 					
-					enrollment = courseManager.activateCourseEnrollment(loggedUser.getUser(), enrollment, context);
+					enrollment = courseManager.activateCourseEnrollment(loggedUser.getUser(), enrollment, context,
+							page, learningContext, service);
 					
 					GoalDataCache goalData = learningGoalsBean.getData().getDataForTargetGoal(courseData.getTargetGoalId());
 					
@@ -178,7 +188,8 @@ public class CoursePortfolioBean implements Serializable {
 						null,
 						"");
 				
-				enrollment = courseManager.enrollInCourse(loggedUser.getUser(), course, newTargetGoal, context);
+				enrollment = courseManager.enrollInCourse(loggedUser.getUser(), course, newTargetGoal, 
+						context, page, learningContext, service);
 				
 				newTargetGoal.setCourseEnrollment(enrollment);
 				newTargetGoal = courseManager.saveEntity(newTargetGoal);
@@ -289,8 +300,9 @@ public class CoursePortfolioBean implements Serializable {
 		}
 	}
 	
-	public void deleteCourse(CourseData course, boolean deleteLearningHistory, String context) {
-		removeCourse(course, deleteLearningHistory);
+	public void deleteCourse(CourseData course, boolean deleteLearningHistory, String context,
+			String page, String lContext, String service) {
+		removeCourse(course, deleteLearningHistory, page, lContext, service);
 		
 		GoalDataCache goalData = learningGoalsBean.getData().getDataForTargetGoal(course.getTargetGoalId());
 		
@@ -323,7 +335,8 @@ public class CoursePortfolioBean implements Serializable {
 		}
 	}
 
-	public void removeCourse(final CourseData courseData, final boolean deleteLearningHistory) {
+	public void removeCourse(final CourseData courseData, final boolean deleteLearningHistory, 
+			String page, String learningContext, String service) {
 		boolean deletingActiveCourse = false;
 		
 		// if inside active courses, remove it from there
@@ -366,7 +379,8 @@ public class CoursePortfolioBean implements Serializable {
 				Session session = (Session) courseManager.getPersistence().openSession();
 				
 				try {
-					courseManager.withdrawFromCourse(loggedUser.getUser(), courseData.getEnrollmentId(), deleteLearningHistory, session);
+					courseManager.withdrawFromCourse(loggedUser.getUser(), courseData.getEnrollmentId(), 
+							deleteLearningHistory, session, page, learningContext, service);
 				
 					Course course = courseManager.loadResource(Course.class, courseData.getId(), session);
 					eventFactory.generateEvent(EventType.COURSE_WITHDRAWN, loggedUser.getUser(), course);
@@ -375,13 +389,13 @@ public class CoursePortfolioBean implements Serializable {
 					logger.error(e);
 				} catch (ResourceCouldNotBeLoadedException e) {
 					logger.error(e);
-				}
-				
-			
-				catch(Exception e){
+				} catch(Exception e){
      				logger.error("Exception in handling message",e);
-     			
-				} 
+				} finally {
+					if(session != null && session.isOpen()) {
+						HibernateUtil.close(session);
+					}
+				}
 			}
 		});
 	}

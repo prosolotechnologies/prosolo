@@ -17,15 +17,16 @@
 		</script>
 		
 		<h3>#{msg['learn.competences.evaluations.title']}</h3>
-		
+		<ui:param name="courseContext" value="#{learninggoals.selectedGoalData.data.course != null ? 'name:Credential|id:'.concat(learninggoals.selectedGoalData.data.course.id) : ''}" />
 		<p:commandLink value="#{msg['learn.competences.evaluations.button.askForEvaluations.title']}" 
 			styleClass="button green size20 left marginRight10"
 			onclick="$( '#askForEvaluationDialog' ).dialog('open');"
 			action="#{askForEvaluation.setResourceById(learninggoals.selectedGoalData.selectedCompetence.data.id, 'learn.targetGoal.'.concat(learninggoals.selectedGoalData.data.targetGoalId).concat('.targetComp.').concat(learninggoals.selectedGoalData.selectedCompetence.data.id))}"
 			process="@this"
 			update=":askForEvaluationDialogForm"
-			async="true"
-		/>
+			async="true">
+			<f:param name="learningContext" value="#{courseContext}|context:/name:learning_goal|id:#{learninggoals.selectedGoalData.data.targetGoalId}|context:/name:competence|id:#{learninggoals.selectedGoalData.selectedCompetence.data.id}|context:/name:assessment///"/>
+		</p:commandLink>
 					
 		<h:panelGroup id="selectedCompetenceEvaluations">
 			<h:panelGroup id="compEvaluations" class="compEvaluations">

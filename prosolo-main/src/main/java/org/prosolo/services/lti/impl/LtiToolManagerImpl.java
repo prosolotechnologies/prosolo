@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.prosolo.common.domainmodel.lti.LtiTool;
@@ -13,7 +11,6 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.lti.LtiToolManager;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.lti.filter.Filter;
-import org.prosolo.services.nodes.CourseManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -85,6 +82,7 @@ public class LtiToolManagerImpl  extends AbstractManagerImpl implements LtiToolM
 	}
 	
 
+	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly=true)
 	public List<LtiTool> searchTools(long userId, Map<String,Object> parameters, Filter filter) throws DbConnectionException{
@@ -132,6 +130,7 @@ public class LtiToolManagerImpl  extends AbstractManagerImpl implements LtiToolM
 		
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly = true)
 	public List<LtiTool> getToolsForToolProxy(long toolSetId) throws DbConnectionException{

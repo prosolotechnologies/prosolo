@@ -35,6 +35,7 @@ import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.indexing.impl.NodeChangeObserver;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.ResourceFactory;
@@ -467,8 +468,13 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional(readOnly = false)
-	public CourseEnrollment enrollInCourse(User user, Course course, TargetLearningGoal targetGoal, String context) {
-		CourseEnrollment enrollment = resourceFactory.enrollUserInCourse(user, course, targetGoal, context);
+	public CourseEnrollment enrollInCourse(User user, Course course, TargetLearningGoal targetGoal, String context,
+			String page, String lContext, String service) {
+		Map<String, Object> res = resourceFactory.enrollUserInCourse(user, course, targetGoal, context);
+		CourseEnrollment enrollment = null;
+		if(res != null) {
+			enrollment = (CourseEnrollment) res.get("enrollment");
+		}
 		if(enrollment != null) {
 			try {
 				
@@ -476,6 +482,8 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 				parameters.put("context", context);
 			
 				eventFactory.generateEvent(EventType.ENROLL_COURSE, user, enrollment, course, parameters);
+				
+				fireInstructorAssignEvent(user, enrollment, course.getId(), res, page, lContext, service);
 			} catch (EventException e) {
 				logger.error(e);
 			}	
@@ -574,7 +582,8 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional (readOnly = false)
-	public CourseEnrollment activateCourseEnrollment(User user, CourseEnrollment enrollment, String context) {
+	public CourseEnrollment activateCourseEnrollment(User user, CourseEnrollment enrollment, String context,
+			String page, String learningContext, String service) {
 		enrollment.setDateStarted(new Date());
 		enrollment.setStatus(Status.ACTIVE);
 		
@@ -583,6 +592,18 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 		if (targetGoal != null) {
 			targetGoal.setCourseEnrollment(enrollment);
 			targetGoal = saveEntity(targetGoal);
+		}
+		
+		Map<String, Object> courseData = getCourseIdAndInstructorAssignMethod(enrollment.getId());
+		if(courseData != null) {
+			Long courseId = (Long) courseData.get("id");
+			Boolean automaticAssign = !((Boolean) courseData.get("assignManually"));
+			if(automaticAssign) {
+				List<Long> ids = new ArrayList<>();
+				ids.add(enrollment.getId());
+				Map<String, Object> res = resourceFactory.assignStudentsToInstructorAutomatically(courseId, ids, 0);
+				fireInstructorAssignEvent(user, enrollment, courseId, res, page, learningContext, service);
+			}
 		}
 		
 		Map<String, String> parameters = new HashMap<String, String>();
@@ -601,10 +622,40 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 		
 	}
 	
+	private Map<String, Object> getCourseIdAndInstructorAssignMethod(long enrollmentId) {
+		try {
+			String query = 
+					"SELECT course.id, course.manuallyAssignStudentsToInstructors " +
+					"FROM CourseEnrollment enrollment " +
+					"INNER JOIN enrollment.course course " +
+					"WHERE enrollment.id = :enrollmentId";
+			
+			Object[] res = (Object[]) persistence.currentManager().createQuery(query).
+					setLong("enrollmentId", enrollmentId).
+					uniqueResult();
+			if(res == null) {
+				return null;
+			}
+			Long id = (Long) res[0];
+			Boolean assignManually = (Boolean) res[1];
+			Map<String, Object> result = null;
+			if(id != null) {
+				result = new HashMap<>();
+				result.put("id", id);
+				result.put("assignManually", assignManually);
+			}
+			return result;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading course data");
+		}
+	}
+	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional (readOnly = false)
 	public CourseEnrollment withdrawFromCourse(User user, long enrollmentId, boolean deleteLearningHistory, 
-			Session session) throws ResourceCouldNotBeLoadedException {
+			Session session, String page, String lContext, String service) throws ResourceCouldNotBeLoadedException {
 		logger.info("withdrawFromCourse");
 		CourseEnrollment enrollment = (CourseEnrollment) session.get(CourseEnrollment.class, enrollmentId);
 		logger.info("withdrawFromCourse");
@@ -622,10 +673,51 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 			enrollment.setTargetGoal(null);
 			saveEntity(enrollment, session);
 		}
+		enrollment.setInstructor(null);
+		enrollment.setAssignedToInstructor(false);
 		logger.info("withdrawFromCourse");
+		
+		try {
+			Map<String, String> parameters = new HashMap<String, String>();
+			Map<String, Object> courseData = getCourseIdAndInstructorAssignMethod(enrollment.getId());
+			if(courseData != null) {
+				Long courseId = (Long) courseData.get("id");
+				parameters.put("courseId", courseId + "");
+				long instructorUserId = getInstructorUserIdForEnrollment(enrollment.getId());
+				User target = new User();
+				target.setId(instructorUserId);
+				eventFactory.generateEvent(EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR, user, user, target, 
+						null, page, lContext, service, new Class[] {NodeChangeObserver.class}, parameters);
+			}
+		} catch (EventException e) {
+			logger.error(e);
+		}
+		
 		return enrollment;
 	}
 	
+	private long getInstructorUserIdForEnrollment(long enrollmentId) {
+		try {
+			String query = 
+					"SELECT user.id " +
+					"FROM CourseEnrollment enrollment " +
+					"INNER JOIN enrollment.instructor instructor " +
+					"INNER JOIN instructor.user user " +
+					"WHERE enrollment.id = :enrollmentId";
+			
+			Long res = (Long) persistence.currentManager().createQuery(query).
+					setLong("enrollmentId", enrollmentId).
+					uniqueResult();
+			if(res == null) {
+				return 0;
+			}
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading user id");
+		}
+	}
 	@Override
 	@Transactional (readOnly = false)
 	public void deleteEnrollmentForCourse(User user, Course course) {
@@ -692,11 +784,15 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 			"SELECT DISTINCT course.id, enrollment.user.id " +
 			"FROM CourseEnrollment enrollment " +
 			"LEFT JOIN enrollment.course course " +
-			"WHERE course IN (:courses)";
+			"WHERE course IN (:courses) " +
+			"AND (enrollment.status = :statusActive " +
+			  "OR enrollment.status = :statusCompleted)";
 
 		@SuppressWarnings("unchecked")
 		List<Object[]> result = persistence.currentManager().createQuery(query).
 				setParameterList("courses", courses).
+				setParameter("statusActive", Status.ACTIVE).
+				setParameter("statusCompleted", Status.COMPLETED).
 				list();
 		Map<Long, List<Long>> counts = new HashMap<Long, List<Long>>();
 		if (result != null && !result.isEmpty()) {
@@ -1028,12 +1124,17 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional
-	public void enrollUserIfNotEnrolled(User user, long courseId) throws RuntimeException {
+	public void enrollUserIfNotEnrolled(User user, long courseId, String page, 
+			String learningContext, String service) throws RuntimeException {
 		try{
 			Course course = (Course) persistence.currentManager().load(Course.class, courseId);
 			boolean enrolled = isUserEnrolledInCourse(user, course);
 			if(!enrolled){
-				CourseEnrollment enrollment = resourceFactory.enrollUserInCourse(user, course);
+				Map<String, Object> res = resourceFactory.enrollUserInCourse(user, course);
+				CourseEnrollment enrollment = null;
+				if(res != null) {
+					enrollment = (CourseEnrollment) res.get("enrollment");
+				}
 				logger.info("User with email "+user.getEmail().getAddress() + " enrolled in course with id "+course.getId());
 				
 				if(enrollment != null) {
@@ -1042,7 +1143,9 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 						eventFactory.generateEvent(EventType.ENROLL_COURSE, user, enrollment, course, parameters);
 					} catch (EventException e) {
 						logger.error(e);
-					}	
+					}
+					
+					fireInstructorAssignEvent(user, enrollment, courseId, res, page, learningContext, service);
 				}
 			}
 		}catch(Exception e){
@@ -1052,12 +1155,35 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
+	private void fireInstructorAssignEvent(User user, CourseEnrollment enrollment, long courseId, 
+			Map<String, Object> res, String page, String lContext, String service) {
+		Map<Long, Long> assigned = (Map<Long, Long>) res.get("assigned");
+		if(assigned != null) {
+			Long instructorId = assigned.get(enrollment.getId());
+			if(instructorId != null) {
+				long insUserId = getUserIdForInstructor(instructorId);
+				try {
+					Map<String, String> parameters = new HashMap<String, String>();
+					parameters.put("courseId", courseId + "");
+					User target = new User();
+					target.setId(insUserId);
+					eventFactory.generateEvent(EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR, user, user, target,
+						null, page, lContext, service, new Class[] {NodeChangeObserver.class}, null);
+				} catch(Exception e) {
+					e.printStackTrace();
+					logger.error(e);
+				}
+			}
+		}
+	}
 	@Override
 	@Transactional(readOnly = true)
 	public List<Map<String, Object>> getUserCoursesWithProgressAndInstructorInfo(long userId) throws DbConnectionException {
 		return getUserCoursesWithProgressAndInstructorInfo(userId, persistence.currentManager());
 	}
 	
+	//returns only active courses
 	@Override
 	@Transactional(readOnly = true)
 	public List<Map<String, Object>> getUserCoursesWithProgressAndInstructorInfo(long userId, Session session) throws DbConnectionException {
@@ -1070,11 +1196,15 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 					"INNER JOIN enrollment.course course " +
 					"LEFT JOIN enrollment.instructor instructor " +
 					"LEFT JOIN instructor.user userInstructor " +
-					"WHERE coursePortfolio.user.id = :user";
+					"WHERE coursePortfolio.user.id = :user " +
+					"AND (enrollment.status = :statusActive " +
+						  "OR enrollment.status = :statusCompleted)";
 				
 			@SuppressWarnings("unchecked")
 			List<Object[]> result = persistence.currentManager().createQuery(query).
 					setLong("user", userId).
+					setParameter("statusActive", Status.ACTIVE).
+					setParameter("statusCompleted", Status.COMPLETED).
 					list();
 			
 			List<Map<String, Object>> resultList = new ArrayList<>();

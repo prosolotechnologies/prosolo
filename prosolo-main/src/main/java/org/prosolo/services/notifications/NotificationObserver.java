@@ -1,6 +1,5 @@
 package org.prosolo.services.notifications;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -10,37 +9,26 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.config.CommonSettings;
-import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.activities.requests.Request;
-import org.prosolo.common.domainmodel.activitywall.SocialActivity;
-import org.prosolo.common.domainmodel.activitywall.comments.Comment;
-import org.prosolo.common.domainmodel.content.Post;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
-import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.notifications.Notification;
-import org.prosolo.common.domainmodel.workflow.evaluation.EvaluationSubmission;
-import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.messaging.data.ServiceType;
 import org.prosolo.core.hibernate.HibernateUtil;
-import org.prosolo.recommendation.LearningGoalRecommendationCacheUpdater;
 import org.prosolo.services.event.CentralEventDispatcher;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.messaging.SessionMessageDistributer;
 import org.prosolo.services.nodes.DefaultManager;
-import org.prosolo.services.notifications.emailgenerators.NotificationEmailContentGenerator;
 import org.prosolo.services.notifications.eventprocessing.NotificationEventProcessor;
 import org.prosolo.services.notifications.eventprocessing.NotificationEventProcessorFactory;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.notification.data.NotificationData;
-import org.prosolo.web.notification.exceptions.NotificationNotSupported;
 import org.prosolo.web.notification.util.NotificationDataConverter;
-import org.prosolo.web.util.PageUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 /**
@@ -58,6 +46,7 @@ public class NotificationObserver extends EventObserver {
 	@Inject private NotificationEventProcessorFactory notificationEventProcessorFactory;
 	@Inject private InterfaceSettingsManager interfaceSettingsManager;
 	@Inject private NotificationManager notificationManager;
+	@Inject @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 	
 	@Override
 	public EventType[] getSupportedEvents() {
@@ -142,10 +131,19 @@ public class NotificationObserver extends EventObserver {
 								resourceShortType = notificationData.getResource().getShortType();
 							}
 							
-							notificationManager.sendNotificationByEmail(receiver.getEmail().getAddress(), 
-									receiver.getName(), notificationData.getActor().getName(), 
-									notificationData.getType(), resourceShortType, resourceTitle, 
-									notificationData.getMessage(), notificationData.getDate(), notification.isNotifyByUI());
+							final String resTitle = resourceTitle;
+							final String resShortType = resourceShortType;
+							
+							taskExecutor.execute(new Runnable() {
+								@Override
+								public void run() {
+									notificationManager.sendNotificationByEmail(receiver.getEmail().getAddress(), 
+											receiver.getName(), notificationData.getActor().getName(), 
+											notificationData.getType(), resShortType, resTitle, 
+											notificationData.getMessage(), notificationData.getDate(), notification.isNotifyByUI());
+								}
+							});
+							
 							
 							
 						} catch (Exception e) {
@@ -156,10 +154,13 @@ public class NotificationObserver extends EventObserver {
 					
 				}
 			}
-		} catch (ResourceCouldNotBeLoadedException e) {
+		} catch (Exception e) {
+			e.printStackTrace();
 			logger.error(e);
 		} finally {
-			HibernateUtil.close(session);
+			if(session != null && session.isOpen()) {
+				HibernateUtil.close(session);
+			}
 		}
 	}
 	

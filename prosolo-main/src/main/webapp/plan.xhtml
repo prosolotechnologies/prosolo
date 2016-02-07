@@ -58,6 +58,7 @@
 								</h:panelGroup>
 								
 								<ui:repeat id="activeCourses" value="#{coursePortfolioBean.activeCourses}" var="courseData" varStatus="iterator">
+									<ui:param name="learningContextPlan" value="name:learning_goal|id:#{courseData.id}"></ui:param>
 									<div class="profileItem profileItemGreen #{iterator.index % 3 != 2 ? 'rightMargin' : '' } #{iterator.index ge 3 ? 'topMargin' : '' }">
 										<div class="topContent">
 											<h4>
@@ -101,8 +102,9 @@
 											<p:commandLink value="Withdraw"
 												onclick='$("#removeCourseFormModalDialog").dialog("open");'
 												action="#{deleteGoalCourseDialog.initialize(courseData, 'plan.active.'.concat(courseData.id))}"
-												update=":removeCourse:removeCourseForm"
-											/>
+												update=":removeCourse:removeCourseForm">
+												<f:param name="learningContext" value="#{learningContextPlan}" />
+											</p:commandLink>
 										</div>
 									</div>
 								</ui:repeat>
@@ -159,13 +161,15 @@
 											<p:commandLink value="Activate"
 												onclick='$("#activateCourseFormModalDialog").dialog("open");'
 												action="#{activateCourseDialog.initialize(courseData, 'plan.future.'.concat(courseData.id))}"
-												update=":activateCourse:activateCourseForm"
-											/>
+												update=":activateCourse:activateCourseForm">
+												<f:param name="learningContext" value="#{learningContextPlan}" />
+											</p:commandLink>
 											<p:commandLink value="Withdraw"
 												onclick='$("#removeCourseFormModalDialog").dialog("open");'
 												action="#{deleteGoalCourseDialog.initialize(courseData, 'plan.future.'.concat(courseData.id))}"
-												update=":removeCourse:removeCourseForm"
-											/>
+												update=":removeCourse:removeCourseForm">
+												<f:param name="learningContext" value="#{learningContextPlan}" />
+											</p:commandLink>
 										</div>
 									</div>
 								</ui:repeat>
@@ -282,8 +286,9 @@
 												rendered="#{courseData.targetGoalId > 0}"
 												onclick='$("#activateCourseFormModalDialog").dialog("open");'
 												action="#{activateCourseDialog.initialize(courseData, 'plan.withdrawn.'.concat(courseData.id))}"
-												update=":activateCourse:activateCourseForm"
-											/>
+												update=":activateCourse:activateCourseForm">
+												<f:param name="learningContext" value="#{learningContextPlan}"></f:param>
+											</p:commandLink>
 											
 											<p:commandLink value="Activate"
 												rendered="#{courseData.targetGoalId == 0}"
@@ -291,8 +296,10 @@
 												update=":coursePortfolio:activeCourseOuterContainer 
 													:coursePortfolio:futureCourseOuterContainer 
 													:coursePortfolio:withdrawnCourseOuterContainer
-													:coursePortfolio:coursePortfolioGrowl"
-											/>
+													:coursePortfolio:coursePortfolioGrowl">
+												<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+												<f:param name="learningContext" value="#{learningContextPlan}"></f:param>
+											</p:commandLink>
 										</div>
 									</div>
 								</ui:repeat>

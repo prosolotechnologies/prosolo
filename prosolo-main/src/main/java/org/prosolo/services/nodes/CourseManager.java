@@ -79,7 +79,8 @@ public interface CourseManager extends AbstractManager {
 
 	Course deleteCourse(long courseId) throws ResourceCouldNotBeLoadedException;
 
-	CourseEnrollment enrollInCourse(User user, Course course, TargetLearningGoal targetGoal, String context);
+	CourseEnrollment enrollInCourse(User user, Course course, TargetLearningGoal targetGoal, String context,
+			String page, String lContext, String service);
 
 	CourseEnrollment updateEnrollment(long enrollmentId, List<CourseCompetence> competences) throws ResourceCouldNotBeLoadedException;
 	
@@ -93,9 +94,11 @@ public interface CourseManager extends AbstractManager {
 
 	CourseEnrollment addCourseCompetencesToEnrollment(Course course, CourseEnrollment enrollment);
 
-	CourseEnrollment activateCourseEnrollment(User user, CourseEnrollment enrollment, String context);
+	CourseEnrollment activateCourseEnrollment(User user, CourseEnrollment enrollment, String context,
+			String page, String learningContext, String service);
 	
-	CourseEnrollment withdrawFromCourse(User user, long enrollmentId, boolean deleteLearningHistory, Session session) throws ResourceCouldNotBeLoadedException;
+	CourseEnrollment withdrawFromCourse(User user, long enrollmentId, boolean deleteLearningHistory, 
+			Session session, String page, String lContext, String service) throws ResourceCouldNotBeLoadedException;
 
 	CoursePortfolio addEnrollment(long portfolioId, CourseEnrollment enrollment) throws ResourceCouldNotBeLoadedException;
 
@@ -130,7 +133,8 @@ public interface CourseManager extends AbstractManager {
 	
 	public Object[] getTargetGoalAndCompetenceIds(long userId, long courseId, long competenceId);
 	
-	public void enrollUserIfNotEnrolled(User user, long courseId) throws RuntimeException;
+	void enrollUserIfNotEnrolled(User user, long courseId, String page, 
+			String learningContext, String service) throws RuntimeException;
 
 	List<Map<String, Object>> getCourseParticipantsWithCourseInfo(long courseId) throws DbConnectionException;
 	
