@@ -48,7 +48,8 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 				+ "actorid bigint, actorfullname varchar, objecttype varchar, "
 				+ "objectid bigint, objecttitle varchar, targettype varchar, targetid bigint, "
 				+ "reasontype varchar, reasonid bigint, link varchar, parameters varchar, learningcontext varchar, "
-				+ "PRIMARY KEY (actorid, objectid, timestamp));";
+				+ "PRIMARY KEY (actorid, timestamp));";
+
 		this.ddls.add(createEventsDDL);
 
 		String eventtypeindex = "CREATE INDEX IF NOT EXISTS eventtype_id ON logevents (eventtype);";
