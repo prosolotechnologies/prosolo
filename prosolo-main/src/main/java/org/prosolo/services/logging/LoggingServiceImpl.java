@@ -320,6 +320,15 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		}else {
 			if(eventType.equals(EventType.SEND_MESSAGE)){
 				DBObject parameters=(DBObject) logObject.get("parameters");
+				if(logObject==null){
+					System.out.println("X");
+				}
+				if(parameters==null){
+					System.out.println("Y");
+				}
+				if(parameters.get("user")==null){
+					System.out.println("Z");
+				}
 				System.out.println("SEND MESSAGE:"+logObject.toString()+" USER:"+parameters.get("user"));
 				targetUserId=  Long.valueOf(parameters.get("user").toString());
 			}else if(eventType.equals(EventType.Like) || eventType.equals(EventType.Dislike)){
@@ -642,6 +651,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			logObject.put("reasonType", reasonType);
 			logObject.put("reasonId", reasonId);
 			logObject.put("link", link);
+
 			
 			if(learningContext != null) {
 				Gson gson = new GsonBuilder().create();
@@ -653,13 +663,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 
 			logObject.put("courseId",extractCourseIdForUsedResource(objectType, objectId, targetType, targetId, reasonType, reasonId,learningContext));
 			Long targetUserId=(long) 0;
-			if(Arrays.asList(interactions).contains(eventType)){
-				 System.out.println("INTERACTION SHOULD BE PROCESSED:"+logObject.toString());
-				 targetUserId=extractSocialInteractionTargetUser(logObject, eventType);
-			}else{
-				System.out.println("We are not interested in this interaction:"+eventType.name());
-			}
-			logObject.put("targetUserId", targetUserId);
+
 			if (parameters != null && !parameters.isEmpty()) {
 				Iterator<Map.Entry<String, String>> it = parameters.entrySet()
 						.iterator();
@@ -672,6 +676,13 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 				}
 				logObject.put("parameters", parametersObject);
 			}
+			if(Arrays.asList(interactions).contains(eventType)){
+				System.out.println("INTERACTION SHOULD BE PROCESSED:"+logObject.toString());
+				targetUserId=extractSocialInteractionTargetUser(logObject, eventType);
+			}else{
+				System.out.println("We are not interested in this interaction:"+eventType.name());
+			}
+			logObject.put("targetUserId", targetUserId);
 
 			Object timestamp = logObject.get("timestamp");
 			
