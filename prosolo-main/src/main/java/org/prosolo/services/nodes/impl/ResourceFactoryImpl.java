@@ -64,6 +64,7 @@ import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.PostManager;
+import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.ResourceFactory;
@@ -768,5 +769,36 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 			return instructorIdMinOccupied;
 		}
 		return 0;
+	}
+	
+	@Override
+	@Transactional (readOnly = false)
+	public Course updateCourse(long courseId, String title, String description, Collection<Tag> tags, 
+			Collection<Tag> hashtags, boolean published) throws DbConnectionException {
+		try {
+			Course course = (Course) persistence.currentManager().load(Course.class, courseId);
+			course.setTitle(title);
+			course.setDescription(description);
+			
+			Set<Tag> tagsSet = new HashSet<Tag>();
+			if (tags != null) {
+				tagsSet.addAll(tags);
+			}
+			
+			Set<Tag> hashtagsSet = new HashSet<Tag>();
+			if (hashtags != null) {
+				hashtagsSet.addAll(hashtags);
+			}
+			course.setTags(tagsSet);
+			course.setHashtags(hashtagsSet);
+		
+			course.setPublished(published);
+		
+			return saveEntity(course);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating course");
+		}
 	}
 }

@@ -11,13 +11,16 @@ import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 
+import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.logging.ComponentName;
+import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CourseManager;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.data.CourseData;
 import org.prosolo.web.courses.util.CourseDataConverter;
@@ -35,10 +38,13 @@ public class SearchCoursesBean implements Serializable {
 
 	private static final long serialVersionUID = -795112624657629753L;
 
+	private static Logger logger = Logger.getLogger(SearchCoursesBean.class);
+	
 	@Autowired private TextSearch textSearch;
 	@Autowired private CourseManager courseManager;
 	@Autowired private LoggingNavigationBean loggingNavigationBean;
 	@Inject private LoggedUserBean loggedUserBean;
+	@Inject private UrlIdEncoder idEncoder;
 	
 	private String query;
 	private CreatorType creatorType;
@@ -217,6 +223,20 @@ public class SearchCoursesBean implements Serializable {
 	private void resetSorting() {
 		this.sortTitleAsc = SortingOption.NONE;
 		this.sortDateAsc = SortingOption.NONE;
+	}
+	
+	public String createNewCourseAndNavigate(String url) {
+		try {
+			Course course = courseManager.createNewUntitledCourse(loggedUserBean.getUser(), CreatorType.MANAGER);
+			String encodedId = idEncoder.encodeId(course.getId());
+			String redirectUrl = url + "?faces-redirect=true&id=" + encodedId;
+			return redirectUrl;
+		} catch(DbConnectionException e) {
+			e.printStackTrace();
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error while navigating, please try again");
+		}
+		return null;
 	}
 	
 	/*

@@ -158,10 +158,15 @@
 					</script>
 				</div>
 	
-				<h:link styleClass="left button green size30 marginBottom10"
+				<p:commandLink styleClass="left button green size30 marginBottom10"
 					rendered="#{cc.attrs.role == 'MANAGER'}"
 					value="#{msg['composite.browseCourses.button.newCourse']}"
-					outcome="#{cc.attrs.newCoursePagePath}" />
+					action="#{searchCoursesBean.createNewCourseAndNavigate(cc.attrs.newCoursePagePath)}"/>
+
+				<ui:remove><h:link styleClass="left button green size30 marginBottom10"
+					rendered="#{cc.attrs.role == 'MANAGER'}"
+					value="#{msg['composite.browseCourses.button.newCourse']}"
+					outcome="#{cc.attrs.newCoursePagePath}" /></ui:remove>
 					
 				<p:commandLink styleClass="left button green size30 marginBottom10"
 					rendered="#{cc.attrs.role == 'MANAGER'}"									
