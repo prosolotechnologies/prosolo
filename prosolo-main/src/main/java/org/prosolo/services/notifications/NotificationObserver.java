@@ -12,6 +12,7 @@ import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
+import org.prosolo.common.domainmodel.user.Email;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.notifications.Notification;
 import org.prosolo.common.messaging.data.ServiceType;
@@ -133,11 +134,11 @@ public class NotificationObserver extends EventObserver {
 							
 							final String resTitle = resourceTitle;
 							final String resShortType = resourceShortType;
-							
+							final Email email = receiver.getEmail();
 							taskExecutor.execute(new Runnable() {
 								@Override
 								public void run() {
-									notificationManager.sendNotificationByEmail(receiver.getEmail().getAddress(), 
+									notificationManager.sendNotificationByEmail(email.getAddress(), 
 											receiver.getName(), notificationData.getActor().getName(), 
 											notificationData.getType(), resShortType, resTitle, 
 											notificationData.getMessage(), notificationData.getDate(), notification.isNotifyByUI());
