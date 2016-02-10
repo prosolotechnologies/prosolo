@@ -95,16 +95,17 @@ def identifyClusters(): Unit ={
     userLinks.foreach{
       userLink=>
         println("USER LINK:"+userLink.weight+" source:" +userLink.source.id+"cluster:"+userLink.source.cluster+" target:"+userLink.target.id+" target cl:"+userLink.target.cluster)
-       val sourcekey=new Tuple3(courseId,userLink.source.cluster,userLink.source.id)
-       // val targetkey=new Tuple3(courseId,userLink.target.cluster,userLink.target.id)
-       // val x=new ArrayBuffer[Tuple3[Long,Long,Int]]()
-       // val x=new ArrayBuffer[Tuple3[Long,Long,Int]]]()
-          val inClusterUserInteractions=sourceInteractions.getOrElse(sourcekey,new ArrayBuffer[Tuple2[Long, Int]]())
-          inClusterUserInteractions+=new Tuple2(userLink.target.id,userLink.weight.toInt)
-          sourceInteractions+=sourcekey->inClusterUserInteractions
-      //  println("SOURCE INTERACTIONS:"+sourceInteractions.toString())
-       // userLink.target.cluster=131;
-        if(userLink.source.cluster!=userLink.target.cluster){
+        if(userLink.source.cluster==userLink.target.cluster) {
+          val sourcekey = new Tuple3(courseId, userLink.source.cluster, userLink.source.id)
+          // val targetkey=new Tuple3(courseId,userLink.target.cluster,userLink.target.id)
+          // val x=new ArrayBuffer[Tuple3[Long,Long,Int]]()
+          // val x=new ArrayBuffer[Tuple3[Long,Long,Int]]]()
+          val inClusterUserInteractions = sourceInteractions.getOrElse(sourcekey, new ArrayBuffer[Tuple2[Long, Int]]())
+          inClusterUserInteractions += new Tuple2(userLink.target.id, userLink.weight.toInt)
+          sourceInteractions += sourcekey -> inClusterUserInteractions
+          //  println("SOURCE INTERACTIONS:"+sourceInteractions.toString())
+          // userLink.target.cluster=131;
+        }else{
           val sourceOutKey=new Tuple4(courseId,userLink.source.cluster,userLink.source.id,"SOURCE")
           val sourceOutClusterUserInteractions=targetInteractions.getOrElse(sourceOutKey,new ArrayBuffer[Tuple3[Long,Int,Int]]())
           sourceOutClusterUserInteractions+=new Tuple3(userLink.target.id,userLink.target.cluster, userLink.weight.toInt)
