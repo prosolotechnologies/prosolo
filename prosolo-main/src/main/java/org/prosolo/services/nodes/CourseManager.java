@@ -177,4 +177,15 @@ public interface CourseManager extends AbstractManager {
 	long getUserIdForEnrollment(long enrollmentId) throws DbConnectionException;
 	
 	long getUserIdForInstructor(long instructorId) throws DbConnectionException;
+	
+	List<CourseCompetence> getCourseCompetences(long courseId) throws DbConnectionException;
+	
+	Course createNewUntitledCourse(User maker, CreatorType creatorType) throws DbConnectionException;
+	
+	Course updateCourse(long courseId, String title, String description, Collection<Tag> tags, 
+			Collection<Tag> hashtags, boolean published, User user) throws DbConnectionException;
+	
+	void removeFeed(long courseId, long feedSourceId) throws DbConnectionException;
+	
+	boolean saveNewCourseFeed(long courseId, String feedLink) throws DbConnectionException;
 }

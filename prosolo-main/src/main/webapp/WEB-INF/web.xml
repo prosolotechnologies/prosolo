@@ -239,7 +239,7 @@
       <dispatcher>ASYNC</dispatcher>
       <dispatcher>ERROR</dispatcher>
    </filter-mapping>
-   <filter>
+   <!-- <filter>
     <filter-name>Save Page Url In Session Filter</filter-name>
     <filter-class>org.prosolo.core.jsf.SavePageUrlInSessionFilter</filter-class>
   </filter>
@@ -248,5 +248,5 @@
     <url-pattern>/*</url-pattern>
     <dispatcher>FORWARD</dispatcher>
     <dispatcher>REQUEST</dispatcher>
-  </filter-mapping>
+  </filter-mapping> -->
 </web-app>

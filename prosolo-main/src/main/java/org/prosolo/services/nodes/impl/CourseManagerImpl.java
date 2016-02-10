@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.inject.Inject;
+
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.events.EventType;
@@ -34,6 +36,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.impl.NodeChangeObserver;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
@@ -56,6 +59,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Autowired private EventFactory eventFactory;
 	@Autowired private ResourceFactory resourceFactory;
+	@Inject private FeedSourceManager feedSourceManager;
 
 	@Override
 	@Transactional
@@ -1801,6 +1805,99 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while loading user id");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<CourseCompetence> getCourseCompetences(long courseId) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT competence " +
+					"FROM Course course " +
+					"LEFT JOIN course.competences competence " +
+					"WHERE course.id = :courseId " +
+					"ORDER BY competence.order";
+			
+			@SuppressWarnings("unchecked")
+			List<CourseCompetence> competences = persistence.currentManager().createQuery(query).
+					setLong("courseId", courseId).
+					list();
+			if(competences == null) {
+				return new ArrayList<>();
+			}
+			return competences;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading course competences");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public Course createNewUntitledCourse(User maker, CreatorType creatorType) throws DbConnectionException {
+		try {
+			return saveNewCourse("Untitled", null, null, null, null, null, maker, creatorType, false, false);
+		} catch(Exception e) {
+			throw new DbConnectionException("Error while creating new course");
+		}
+	}
+	
+	@Override
+	@Transactional (readOnly = false)
+	public Course updateCourse(long courseId, String title, String description, Collection<Tag> tags, 
+			Collection<Tag> hashtags, boolean published, User user) throws DbConnectionException {
+		try {
+			Course updatedCourse = resourceFactory.updateCourse(
+					courseId, 
+					title, 
+					description, 
+					tags, 
+					hashtags,
+					published);
+			
+			eventFactory.generateEvent(EventType.Edit, user, updatedCourse);
+			
+			return updatedCourse;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating course");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void removeFeed(long courseId, long feedSourceId) throws DbConnectionException {
+		try {
+			Course course = (Course) persistence.currentManager().load(Course.class, courseId);
+			FeedSource feedSource = (FeedSource) persistence.currentManager().load(FeedSource.class, feedSourceId);
+			course.getBlogs().remove(feedSource);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while removing blog from the course");
+		}
+	}
+	
+	//returns true if new blog is added to the course, false if it already exists
+	@Override
+	@Transactional(readOnly = false)
+	public boolean saveNewCourseFeed(long courseId, String feedLink) throws DbConnectionException {
+		try {
+			Course course = (Course) persistence.currentManager().load(Course.class, courseId);
+			FeedSource feedSource = feedSourceManager.getOrCreateFeedSource(null, feedLink);
+			List<FeedSource> blogs = course.getBlogs();
+			if(!blogs.contains(feedSource)) {
+				blogs.add(feedSource);
+				return true;
+			}
+			return false;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while adding new course blog");
 		}
 	}
 	

@@ -1,5 +1,7 @@
 package org.prosolo.services.feeds.impl;
 
+import java.util.List;
+
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
@@ -55,11 +57,16 @@ public class FeedSourceManagerImpl extends AbstractManagerImpl implements FeedSo
 			"FROM FeedSource feedSource " +
 			"WHERE feedSource.link = :link";
 		
-		FeedSource result = (FeedSource) persistence.currentManager().createQuery(query).
+		@SuppressWarnings("unchecked")
+		List<FeedSource> result = persistence.currentManager().createQuery(query).
 			setString("link", link).
-			uniqueResult();
+			list();
 		
-		return result;
+		if(result == null || result.isEmpty()) {
+			return null;
+		}
+		
+		return result.get(0);
 	}
 	
 }

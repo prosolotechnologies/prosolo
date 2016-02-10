@@ -29,9 +29,11 @@ import org.prosolo.common.web.digest.data.FeedsDigestData;
 import org.prosolo.services.email.EmailSender;
 import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.feeds.FeedsManager;
+import org.prosolo.services.feeds.data.CourseFeedsData;
 import org.prosolo.services.feeds.data.UserFeedSourceAggregate;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
+import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.digest.DigestBean;
 import org.prosolo.web.settings.data.FeedSourceData;
@@ -708,6 +710,109 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 			.list();
 		
 		return feedEntries;
+	}
+	
+	@Override
+	@Transactional (readOnly = true)
+	public List<CourseFeedsData> getUserFeedsForCourse(long courseId) throws DbConnectionException {
+		try {
+			logger.debug("Loading feed sources for the course: " + courseId);
+	
+			String query = 
+				"SELECT user.name, user.lastname, personalBlog.link, personalBlog.id, " + 
+			    "case when (personalBlog in (excludedFeeds)) then false else true end as included " +
+				"FROM FeedsPreferences feedPreferences, CourseEnrollment enrollment " + 
+				"LEFT JOIN feedPreferences.user user " + 
+				"LEFT JOIN feedPreferences.personalBlogSource personalBlog " +
+				"LEFT JOIN enrollment.course course " +
+				"LEFT JOIN course.excludedFeedSources excludedFeeds " +
+				"WHERE feedPreferences.class IN ('FeedsPreferences') "	+
+					"AND user.id = enrollment.user " +
+					"AND course.id = :courseId "	+
+					"AND personalBlog IS NOT NULL "	+
+				"ORDER BY personalBlog.title";
+			
+			@SuppressWarnings("unchecked")
+			List<Object[]> result = persistence.currentManager().createQuery(query)
+				.setLong("courseId", courseId)
+				.list();
+			
+			if (result != null && !result.isEmpty()) {
+				List<CourseFeedsData> userFeedSources = new ArrayList<CourseFeedsData>();
+				
+				//Course course = loadResource(Course.class, courseId);
+			
+				for (Object[] res : result) {
+					String firstName = (String) res[0];
+					String lastName = (String) res[1];
+					String feedLink = (String) res[2];
+					long id = (long) res[3];
+					boolean included = (boolean) res[4];
+					
+					// could not find the proper way to extract this data in the query
+					//boolean excluded = course.getExcludedFeedSources().contains(feedSource);
+					
+					userFeedSources.add(new CourseFeedsData(firstName, lastName, id, feedLink, included));
+				}
+				
+				return userFeedSources;
+			}
+			
+			return new ArrayList<>();
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while loading course feeds");
+		}
+	}
+	
+	
+	@Override
+	@Transactional (readOnly = true)
+	public List<CourseFeedsData> getCourseFeeds(long courseId) throws DbConnectionException {
+		try {
+			logger.debug("Loading feed sources for the course: " + courseId);
+	
+			String query = 
+				"SELECT feed " + 
+				"FROM Course course " + 
+				"LEFT JOIN course.blogs feed " + 
+				"WHERE course.id = :courseId";
+			
+			@SuppressWarnings("unchecked")
+			List<FeedSource> result = persistence.currentManager().createQuery(query)
+				.setLong("courseId", courseId)
+				.list();
+			
+				if(result == null) {
+					return new ArrayList<>();
+				}
+				List<CourseFeedsData> feeds = new ArrayList<>();
+				for(FeedSource fs : result) {
+					CourseFeedsData data = new CourseFeedsData();
+					data.setId(fs.getId());
+					data.setFeedLink(fs.getLink());
+					feeds.add(data);
+				}
+				return feeds;
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while loading course feeds");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void updateFeedLink(CourseFeedsData feed) throws DbConnectionException {
+		try {
+			FeedSource feedSource = (FeedSource) persistence.currentManager().load(FeedSource.class, feed.getId());
+			feedSource.setLink(feed.getFeedLink());
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while saving feed");
+		}
 	}
 
 }
