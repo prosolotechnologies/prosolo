@@ -622,6 +622,8 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 			
 			for (CourseCompetence courseCompetence : course.getCompetences()) {
 				CourseCompetence cc = new CourseCompetence();
+				//changed relationship course - coursecompetence
+				cc.setCourse(course);
 				cc.setDateCreated(date);
 				cc.setCompetence(courseCompetence.getCompetence());
 				cc.setDaysOffset(courseCompetence.getDaysOffset());
