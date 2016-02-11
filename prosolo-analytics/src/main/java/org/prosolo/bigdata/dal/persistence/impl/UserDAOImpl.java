@@ -47,7 +47,7 @@ public class UserDAOImpl extends GenericDAOImpl implements UserDAO {
 		Map<Long, Map<String, String>> result = new HashMap<Long, Map<String, String>>();
 		for (Long[] partition : partitions(users.length, 50)) {
 			String query = "SELECT id, name, lastname, avatar_url FROM user user WHERE id in (:users)";
-			Long[] in = Arrays.copyOfRange(users, partition[0].intValue(), partition[1].intValue());
+			Long[] in = Arrays.copyOfRange(users, partition[0].intValue(), partition[1].intValue() + 1);
 			try {
 			List<Object[]> list = session.createSQLQuery(query).setParameterList("users", Arrays.asList(in)).list();
 				for(Object[] row : list) {

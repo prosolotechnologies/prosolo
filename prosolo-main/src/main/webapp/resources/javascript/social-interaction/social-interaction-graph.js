@@ -66,8 +66,8 @@ var socialInteractionGraph = (function () {
 			res[link.target.student] = {
 				name: link.target.student,
 				cluster: link.target.cluster,
-				clusterClass: cluster(link.source.cluster),
-				foci: foci(link.source.cluster)				
+				clusterClass: cluster(link.target.cluster),
+				foci: foci(link.target.cluster)				
 			};
 			return res;
 		}, {});
@@ -218,6 +218,14 @@ var socialInteractionGraph = (function () {
 			});
 		}	   
 	}
+
+	function parse(collection) {
+		collection.forEach(function(item) {
+			for(var i = 0; i < item.interactions.length; i++) {
+				item.interactions[i] = JSON.parse(item.interactions[i]);
+			}
+		});
+	}
 	
 	return {
 		load: function (config) {
@@ -225,25 +233,19 @@ var socialInteractionGraph = (function () {
 				.when(
 					readClusterInteractions(config),
 					readOuterInteractions(config))
-				.then(function(clusterInteractions, outerInteractions) {
-					var ci = clusterInteractions[0];
-					var oi = outerInteractions[0];
-					var students = socialInteractionService.students(ci, oi);
-					$
-						.when(
-							readStudentData(config, students)
-						)
-						.then(function(data) {
-							var merge = {};
-							if (data.constructor === Array) {
-								data.forEach(function(e) {
-									$.extend(true, merge, e.responseJSON);
-								});
-							} else {
-								$.extend(true, merge, data.responseJSON);
-							}
-							run(config, ci, oi, merge);
-						});
+				.then(function(ci, oi) {
+					parse(ci[0]);
+					parse(oi[0]);
+					
+					var students = socialInteractionService.students(ci[0], oi[0]);
+					$.when.apply($, readStudentData(config, students))
+					 .then(function() {
+						 var merge = {};
+						 for(var i = 0; i < arguments.length; i++) {
+							 $.extend(true, merge, arguments[i].responseJSON);								
+						 }
+						 run(config, ci[0], oi[0], merge);
+					 });
 				});
 		}
 	};
