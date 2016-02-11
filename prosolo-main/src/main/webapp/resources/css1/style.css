@@ -2871,7 +2871,7 @@ table.compact > tbody > tr:hover .actionButtons a:hover {
 	z-index: 9;
 	border: 1px solid #f0f0f0;
 	border-radius: 4px;
-	height: 400px;
+	max-height: 600px;
 	overflow: auto;
 	padding: 0;
 }
@@ -2892,6 +2892,32 @@ table.compact > tbody > tr:hover .actionButtons a:hover {
 .acContainer {
 	position: relative;
 }
+
+.acContainerInline {
+	position: relative;
+}
+
+.acContainerInline .acPanel {
+  top: 30px;
+}
+
+
+.itemIco {
+	width: 50px!important;
+}
+
+.itemTitle {
+	 color: #333;
+    font-size: 12px;
+	 line-height: 14px;
+    font-weight: bold;
+}
+
+
+.competenceField {
+	width: 300px!important;
+}
+
 
 .fullWidthPanel .col-md-2.dd {
     padding-left: 0px;

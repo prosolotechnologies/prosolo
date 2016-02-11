@@ -22,6 +22,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.nodes.data.CompetenceData;
 import org.prosolo.services.rest.courses.data.CompetenceJsonData;
 import org.prosolo.web.courses.data.CourseCompetenceData;
 import org.springframework.transaction.annotation.Transactional;
@@ -188,4 +189,9 @@ public interface CourseManager extends AbstractManager {
 	void removeFeed(long courseId, long feedSourceId) throws DbConnectionException;
 	
 	boolean saveNewCourseFeed(long courseId, String feedLink) throws DbConnectionException;
+	
+	boolean isMandatoryStructure(long courseId) throws DbConnectionException;
+	
+	void updateCourseCompetences(long courseId, boolean mandatoryStructure, 
+			List<CompetenceData> competences) throws DbConnectionException;
 }

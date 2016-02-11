@@ -5,6 +5,9 @@ package org.prosolo.common.domainmodel.course;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
 import org.prosolo.common.domainmodel.competences.Competence;
@@ -24,6 +27,7 @@ public class CourseCompetence extends BaseEntity {
 	private long daysOffset;
 	private long duration;
 	private Competence competence;
+	private Course course;
 	
 	public CourseCompetence() {}
 	
@@ -71,6 +75,16 @@ public class CourseCompetence extends BaseEntity {
 
 	public void setCompetence(Competence competence) {
 		this.competence = competence;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(nullable = false)
+	public Course getCourse() {
+		return course;
+	}
+
+	public void setCourse(Course course) {
+		this.course = course;
 	}
 
 }

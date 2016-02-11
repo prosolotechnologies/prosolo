@@ -83,7 +83,7 @@
 		                     		value="#{instructorEditBean.instructorSearchTerm}"
 		                     		placeholder="Start typing..."
 		                     		onclick="$(this).select();" 
-								    onkeyup="showInstructorSearchResults();searchInstructorsIfNeeded();">
+								    onkeyup="showSearchResults();searchInstructorsIfNeeded();">
 	                     		</h:inputText>
 	                     	</h:panelGroup> 
 	                     	<h:panelGroup rendered="#{instructorEditBean.instructor.instructorId > 0}">

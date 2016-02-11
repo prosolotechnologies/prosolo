@@ -430,7 +430,15 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 		}
 		
 		newCourse.setHashtags(hashtagsSet);
-		newCourse.setCompetences(competences);
+		//changed when changing relationship to OneToMany
+		//newCourse.setCompetences(competences);
+		if(competences != null) {
+			newCourse.setCompetences(new ArrayList<>());
+			for(CourseCompetence cc : competences) {
+				cc.setCourse(newCourse);
+				newCourse.getCompetences().add(cc);
+			}
+		}
 		newCourse.setStudentsCanAddNewCompetences(studentsCanAddNewCompetences);
 		newCourse.setPublished(pubilshed);
 		

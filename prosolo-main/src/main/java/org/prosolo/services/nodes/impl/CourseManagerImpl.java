@@ -42,6 +42,7 @@ import org.prosolo.services.indexing.impl.NodeChangeObserver;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.ResourceFactory;
+import org.prosolo.services.nodes.data.CompetenceData;
 import org.prosolo.services.rest.courses.data.CompetenceJsonData;
 import org.prosolo.services.rest.courses.data.SerieJsonData;
 import org.prosolo.services.rest.courses.data.SerieType;
@@ -1901,5 +1902,92 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 		}
 	}
 	
+	@Override
+	@Transactional(readOnly = true)
+	public boolean isMandatoryStructure(long courseId) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT course.competenceOrderMandatory " +
+					"FROM Course course " +
+					"WHERE course.id = :courseId";
+
+			Boolean mandatory = (Boolean) persistence.currentManager().createQuery(query).
+					setLong("courseId", courseId).
+					uniqueResult();
+			if(mandatory == null) {
+				return false;
+			}
+			return mandatory;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading course data");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void updateCourseCompetences(long courseId, boolean mandatoryStructure, 
+			List<CompetenceData> competences) throws DbConnectionException {
+		try {
+			Course course = (Course) persistence.currentManager().load(Course.class, courseId);
+			course.setCompetenceOrderMandatory(mandatoryStructure);
+			saveCompetences(course, competences);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while saving course competences");
+		}
+	}
+	
+	private void saveCompetences(Course course, List<CompetenceData> competences) {
+		try {
+			for (CompetenceData c : competences) {
+				switch(c.getStatus()) {
+					case CREATED:
+						createNewCourseCompetence(course, c.getCompetenceId(), c.getOrder());
+						break;
+					case CHANGED:
+						updateCourseCompetence(c.getCourseCompetenceId(), c.getOrder());
+						break;
+					case UP_TO_DATE:
+						break;
+					case REMOVED:
+						deleteById(CourseCompetence.class, c.getCourseCompetenceId(), persistence.currentManager());
+						break;
+				}
+			}
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while saving competences");
+		}
+	}
+	private CourseCompetence updateCourseCompetence(long courseCompetenceId, long order) {
+		try {
+			CourseCompetence cc = (CourseCompetence) persistence.currentManager().
+					load(CourseCompetence.class, courseCompetenceId);
+			cc.setOrder(order);
+			return cc;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while saving course competence");
+		}
+	}
+	private CourseCompetence createNewCourseCompetence(Course course, long competenceId, long order) {
+		try {
+			CourseCompetence cc = new CourseCompetence();
+			Competence c = (Competence) persistence.currentManager().load(Competence.class, competenceId);
+			cc.setCompetence(c);
+			cc.setOrder(order);
+			cc.setCourse(course);
+			return saveEntity(cc);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while saving course competence");
+		}
+	}
 }
 

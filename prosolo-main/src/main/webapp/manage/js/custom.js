@@ -121,7 +121,7 @@ $(function () {
 });
 
 /*  show and hide search results if something is typed in search field */
-function showInstructorSearchResults() {
+function showSearchResults() {
 //	var length = $('.acField').val().length;
 //	//alert(length);
 //	if( (length > 0 && instructorSearchPreviousLength == 0) 

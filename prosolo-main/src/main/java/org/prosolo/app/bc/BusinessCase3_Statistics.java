@@ -1539,7 +1539,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		CourseCompetence oc1=new CourseCompetence(comp1);
 		oc1.setDaysOffset(14);
 		oc1.setDuration(14);
-		ServiceLocator.getInstance().getService(CompetenceManager.class).saveEntity(oc1);
+		//changed course - coursecompetence relationship
+		//ServiceLocator.getInstance().getService(CompetenceManager.class).saveEntity(oc1);
 		courseCompetences.add(oc1);
 		
 		
@@ -1644,7 +1645,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		oc2.setCompetence(comp2);
 		oc2.setDaysOffset(7);
 		oc2.setDuration(21);
-		ServiceLocator.getInstance().getService(CompetenceManager.class).saveEntity(oc2);
+		//changed course - coursecompetence relationship
+		//ServiceLocator.getInstance().getService(CompetenceManager.class).saveEntity(oc2);
 		courseCompetences.add(oc2);
 		
 		String c3title="Interpret results of social network analysis";
@@ -1662,7 +1664,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		oc3.setDaysOffset(5);
 		oc3.setDuration(30);
 		oc3.setCompetence(comp3);
-		ServiceLocator.getInstance().getService(CompetenceManager.class).saveEntity(oc3);
+		//changed course - coursecompetence relationship
+		//ServiceLocator.getInstance().getService(CompetenceManager.class).saveEntity(oc3);
 		courseCompetences.add(oc3);
 		
 		

@@ -76,13 +76,14 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   
 		   //remove
 		   .antMatchers("/manage/course.xhtml").hasAuthority("BASIC.MANAGER.ACCESS")
-		   .antMatchers("/manage/credentials-competences.xhtml").hasAuthority("BASIC.MANAGER.ACCESS")
+		   // remove end
 		   .antMatchers("/manage/css/**").hasAnyAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/js/**").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/images/**").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/competences/*/tools").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/competences/**").hasAuthority("COMPETENCES.VIEW")
 		   .antMatchers("/manage/credentials/*/students/*").hasAuthority("BASIC.MANAGER.ACCESS")
+		   .antMatchers("/manage/credentials/*/competences").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
 		   .antMatchers("/manage/credentials/*/feeds").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
 		   .antMatchers("/manage/credentials/*/students").hasAnyAuthority("COURSE.MEMBERS.VIEW", "COURSE.MEMBERS.VIEW.PERSONALIZED")
 		   .antMatchers("/manage/credentials/create/").hasAnyAuthority("COURSE.CREATE")
