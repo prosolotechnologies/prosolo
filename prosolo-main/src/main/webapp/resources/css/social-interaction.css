@@ -36,6 +36,12 @@ circle {
 	stroke-width: 2px;
 }
 
+g.node > circle:hover {
+	cursor: pointer;
+	stroke: pink;
+	stroke-width: 6px;
+}
+
 circle.main {
 	fill: red;
 }
