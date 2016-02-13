@@ -251,6 +251,10 @@ var socialInteractionGraph = (function () {
 				.then(function(ci, oi) {
 					parse(ci[0]);
 					parse(oi[0]);
+					if ((ci[0].length + oi[0].length) == 0) {
+						$("#social-interaction").text(config.noResultsMessage);
+						return;
+					}
 					
 					var students = socialInteractionService.students(ci[0], oi[0]);
 					$.when.apply($, readStudentData(config, students))
@@ -261,6 +265,8 @@ var socialInteractionGraph = (function () {
 						 }
 						 run(config, ci[0], oi[0], merge);
 					 });
+				}).fail(function() {
+					$("#social-interaction").text(config.systemNotAvailableMessage);
 				});
 		}
 	};

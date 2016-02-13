@@ -33,7 +33,9 @@ $(function () {
 			$("#social-interactions-selected-cluster").text(student.cluster);
 			$("#social-interactions-selected-avatar").attr("src", student.avatar);
 			$("#social-interactions-selected-avatar").show();
-		}
+		},
+		noResultsMessage: "No results found for given parameters.",
+		systemNotAvailableMessage: "System is not available."
 	});
 
 });
