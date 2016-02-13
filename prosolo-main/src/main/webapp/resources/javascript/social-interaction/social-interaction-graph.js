@@ -166,6 +166,14 @@ var socialInteractionGraph = (function () {
 			.data(force.nodes())
 			.enter()
 			.append("g")
+			.on("click", function(d) {
+				config.onNodeClick({
+					id: d.name,
+					cluster: d.cluster,
+					name: studentData[d.name] ? studentData[d.name].name : "",
+					avatar: studentData[d.name] ? studentData[d.name].avatar : ""
+				});
+			})
 			.attr("class", "node")
 			.call(force.drag);
 		

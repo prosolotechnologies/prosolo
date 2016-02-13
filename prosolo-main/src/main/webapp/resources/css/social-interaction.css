@@ -75,6 +75,10 @@ text {
 	pointer-events: none;
 }
 
+#social-interaction {
+	width: 100%;
+}
+
 #social-interaction #graph {
 	padding: 0.2em;
 	border: solid 1px #ccc;
