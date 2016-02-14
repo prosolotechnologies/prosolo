@@ -122,7 +122,11 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		//Session tracking
 		String sessionRecordDDL = "CREATE TABLE IF NOT EXISTS sessionrecord(userid bigint, sessionstart bigint, sessionend bigint, endreason varchar,  PRIMARY KEY ((userid),sessionstart)) WITH CLUSTERING ORDER BY (sessionstart DESC)";
 		this.ddls.add(sessionRecordDDL);
-
+		
+		//learning events counters and milestones
+		String learningEventsDDL = "CREATE TABLE IF NOT EXISTS learningevents(actorid bigint, sessionstart bigint, sessionend bigint, number int, milestones list<text>, PRIMARY KEY (actorid,sessionstart,sessionend));";
+		this.ddls.add(learningEventsDDL);
+		
 		String currentTimestamps="CREATE TABLE IF NOT EXISTS currenttimestamps(tablename varchar, timestamp bigint, PRIMARY KEY(tablename))";
 		this.ddls.add(currentTimestamps);
 

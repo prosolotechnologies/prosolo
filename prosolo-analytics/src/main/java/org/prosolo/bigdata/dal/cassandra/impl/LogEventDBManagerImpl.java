@@ -1,17 +1,20 @@
 package org.prosolo.bigdata.dal.cassandra.impl;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.prosolo.bigdata.dal.cassandra.LogEventDBManager;
 import org.prosolo.bigdata.events.pojo.LogEvent;
+import org.prosolo.bigdata.streaming.Topic;
+import org.prosolo.common.domainmodel.activities.events.EventType;
 
-import com.datastax.driver.core.BatchStatement;
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.PreparedStatement;
-import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 /**
  * @author Zoran Jeremic Apr 6, 2015
@@ -42,8 +45,11 @@ public class LogEventDBManagerImpl extends SimpleCassandraClientImpl implements
 				+ "targettype, targetid, reasontype, reasonid, link, parameters, learningcontext "
 
 				+ ") VALUES (now(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,? );";
+		String getLogEventsInPeriod = "SELECT * FROM logevents where actorid = ?  and timestamp >= ? and timestamp <= ? ALLOW FILTERING;";
 		this.preparedStatements.put("insertDefaultEvent", this.getSession()
 				.prepare(insertLogEvent));
+		this.preparedStatements.put("getLogEventsInPeriod", this.getSession()
+				.prepare(getLogEventsInPeriod));
 
 	}
 
@@ -87,4 +93,49 @@ public class LogEventDBManagerImpl extends SimpleCassandraClientImpl implements
 			ex.printStackTrace();
 		}
 	}
+
+
+	@Override
+	public List<LogEvent> getLogEventsBetweenTimestamps(long actorId, long fromTimestamp,
+			long toTimestamp) {
+		BoundStatement boundStatement = new BoundStatement(
+				this.preparedStatements.get("getLogEventsInPeriod"));
+		boundStatement.setLong(0, actorId);
+		boundStatement.setLong(1, fromTimestamp);
+		boundStatement.setLong(2, toTimestamp);
+		final JsonParser parser = new JsonParser();
+		return map(query(boundStatement), (row) -> {
+			LogEvent logEvent = new LogEvent();
+			logEvent.setActorId(row.getLong(0));
+			logEvent.setTimestamp(row.getLong(1));
+			logEvent.setActorFullname(row.getString(2));
+			logEvent.setEventType(EventType.valueOf(row.getString(3)));
+			if(StringUtils.isNotBlank(row.getString(5))){
+				logEvent.setLearningContext(parser.parse(row.getString(5)).getAsJsonObject());
+			}
+			logEvent.setLink(row.getString(6));
+			logEvent.setObjectId(row.getLong(7));
+			logEvent.setObjectTitle(row.getString(8));
+			logEvent.setObjectType(row.getString(9));
+			if(StringUtils.isNotBlank(row.getString(10))){
+				logEvent.setParameters(parser.parse(row.getString(10)).getAsJsonObject());
+			}
+			logEvent.setReasonId(row.getLong(11));
+			logEvent.setReasonType(row.getString(12));
+			logEvent.setTargetId(row.getLong(13));
+			logEvent.setTargetType(row.getString(14));
+			logEvent.setTopic(Topic.valueOf(row.getString(15)));
+			return logEvent;
+		});
+		
+	}
+	
+	private List<Row> query(BoundStatement statement) {
+		return getSession().execute(statement).all();
+	}
+	
+	private <T> List<T> map(List<Row> rows, Function<Row, T> function) {
+		return rows.stream().map(function).collect(Collectors.toList());
+	}
+	
 }

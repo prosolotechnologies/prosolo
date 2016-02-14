@@ -10,6 +10,6 @@ import org.prosolo.bigdata.events.pojo.DefaultEvent;
  */
 public interface EventMatcherDao<T extends DefaultEvent> {
 	
-	public List<EventMatcher<T>> getEventMatchers();
+	public List<? extends EventMatcher<T>> getEventMatchers();
 
 }
