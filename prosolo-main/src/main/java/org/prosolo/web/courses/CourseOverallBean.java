@@ -22,7 +22,7 @@ import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.data.BasicCourseData;
-import org.prosolo.web.courses.data.CourseStatus;
+import org.prosolo.web.courses.data.PublishedStatus;
 import org.prosolo.web.util.PageUtil;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +48,7 @@ public class CourseOverallBean implements Serializable {
 
 	private String id;
 	
-	private CourseStatus[] courseStatusArray;
+	private PublishedStatus[] courseStatusArray;
 	
 	public void init() {
 		if(id == null) {
@@ -61,7 +61,7 @@ public class CourseOverallBean implements Serializable {
 					Course course = courseManager.loadResource(Course.class, decodedId);
 					courseData = new BasicCourseData(course);
 					backupCourseData = BasicCourseData.copyBasicCourseData(courseData);
-					courseStatusArray = CourseStatus.values();
+					courseStatusArray = PublishedStatus.values();
 				} catch(ObjectNotFoundException onf) {
 					try {
 						logger.error(onf);
@@ -132,11 +132,11 @@ public class CourseOverallBean implements Serializable {
 		this.courseData.setCreatorType(creatorType);
 	}
 
-	public CourseStatus[] getCourseStatusArray() {
+	public PublishedStatus[] getCourseStatusArray() {
 		return courseStatusArray;
 	}
 
-	public void setCourseStatusArray(CourseStatus[] courseStatusArray) {
+	public void setCourseStatusArray(PublishedStatus[] courseStatusArray) {
 		this.courseStatusArray = courseStatusArray;
 	}
 

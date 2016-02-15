@@ -217,7 +217,7 @@ public class CourseInstructorsBean implements Serializable {
 	private void fireReassignEvents(CourseInstructorData instructorData, String appPage, 
 			String service, Map<String, Object> res, boolean automatic) {
 		long instructorUserId = instructorData.getUserId();
-		long instructorId = instructorData.getInstructorId();
+		long instructorId = instructorData.getUserId();
 		String lContext = context + "|context:/name:INSTRUCTOR|id:" + instructorId + "/";
 		
 		if(automatic) {
@@ -226,7 +226,7 @@ public class CourseInstructorsBean implements Serializable {
 			if(ids != null && !ids.isEmpty()) {
 				Map<String, String> parameters = new HashMap<String, String>();
 				parameters.put("courseId", decodedId + "");
-				parameters.put("reassignedFromInstructorId", instructorId + "");
+				parameters.put("reassignedFromInstructorUserId", instructorUserId + "");
 				for(Entry<Long, Long> entry : ids.entrySet()) {
 					long eid = entry.getKey();
 					long studentUserId = courseManager.getUserIdForEnrollment(eid);

@@ -25,7 +25,7 @@ public class BasicCourseData {
 	
 	private String hashtagsString = "";
 	
-	private CourseStatus courseStatus;
+	private PublishedStatus courseStatus;
 	
 	public BasicCourseData() {
 		this.tags = new ArrayList<Tag>();
@@ -62,12 +62,12 @@ public class BasicCourseData {
 	
 	//setting course status based on published flag
 	public void setCourseStatus() {
-		this.courseStatus = this.published ? CourseStatus.PUBLISHED : CourseStatus.UNPUBLISHED;
+		this.courseStatus = this.published ? PublishedStatus.PUBLISHED : PublishedStatus.UNPUBLISHED;
 	}
 	
 	//setting published flag based on course status
 	public void setPublished() {
-		this.published = courseStatus == CourseStatus.PUBLISHED ? true : false;
+		this.published = courseStatus == PublishedStatus.PUBLISHED ? true : false;
 	}
 
 	public List<Tag> getTags() {
@@ -127,11 +127,11 @@ public class BasicCourseData {
 		this.hashtagsString = hashtagsString;
 	}
 	
-	public CourseStatus getCourseStatus() {
+	public PublishedStatus getCourseStatus() {
 		return courseStatus;
 	}
 
-	public void setCourseStatus(CourseStatus courseStatus) {
+	public void setCourseStatus(PublishedStatus courseStatus) {
 		this.courseStatus = courseStatus;
 	}
 

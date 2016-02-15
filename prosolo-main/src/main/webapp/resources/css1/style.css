@@ -34,11 +34,15 @@ h2 span {
 	color: #EDA830;
 }
 
+.text-right {
+  text-align: right!important;
+}
 
 .form-control {
   border: 1px solid #f1f1f1;
   box-shadow: none;
-  height: 32px;
+  height: 38px;
+  border-radius: 2px;
 }
 
 
@@ -70,6 +74,17 @@ button.close {
 	color: #f0ad4e;
 }
 
+.modal-body .checkbox {
+	margin-bottom: 15px;
+}
+
+
+.modal h2 {
+	color: #333;
+	font-size: 14px;
+	font-weight: bold;
+	margin-top: 9px;
+}
 
 
 #svgContainer {
@@ -180,6 +195,18 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 .btn-default i {
 	color: #2196f3!important;
 }
+
+
+.btn-white {
+  background-color: #fff;	
+}
+
+.btn-white .fa {
+  color: #000!important;
+  margin: 0;	
+}
+
+
 
 .btn.remove i {
 	color: #d9534f!important;
@@ -1767,6 +1794,9 @@ border: 1px solid #ddd;
 	color: #999999;
 }
 
+.fileUrl {
+  margin-left: 52px;
+}
 
 .fileContainer .col-md-10 {
 	padding-left: 0;
@@ -2507,6 +2537,15 @@ footer ul li:first-of-type {
 
 }
 
+.tableActivities td {
+	vertical-align: top!important;	
+}
+
+
+.activityList thead tr th {
+	padding-left: 15px;
+}
+
 
 .sticky-thead > thead > tr > th.colNo,
 .tableProsolo > thead > tr > th.colNo {
@@ -2761,49 +2800,125 @@ table.compact > tbody > tr > td {
 
 
 .actionButtons a {
-	font-size: 19px;
+	font-size: 15px;
 	color: #e3eae8;
 	text-transform: uppercase;
 	font-weight: bold;
 	float: left;
-	margin-right: 25px;
+	margin-right: 20px;
+	position: relative;
+	display: block;
+	height: 11px;
+	line-height: 11px;
 }
 
 .actionButtons a:hover {
 	text-decoration: none;
-}
-
-
-.actionButtons a .fa {
-	float: left;
-	font-size: 17px;
-	margin-right: 5px;
-	margin-top: 6px;
-	color: #ccd2db;
-}
-
-.actionButtons a.delete .fa {
-  font-size: 21px;
-	margin-top: 3px;  
-}
-
-
-
-table.compact > tbody > tr:hover .actionButtons a {
-	color: #ccd2db;
-}
-
-table.compact > tbody > tr:hover .actionButtons a.delete i {
-	color: red;
-}
-
-table.compact > tbody > tr:hover .actionButtons a.edit i {
-	color: #59af4d;
-}
-
-table.compact > tbody > tr:hover .actionButtons a:hover {
 	color: #757575;
 }
+
+
+.actionButtons a .delete {
+	content: "";
+	display: block;
+	float: left;
+	height: 11px;
+	margin-right: 4px;
+	width: 11px;
+	background-image: url(../images/sprites-edit.png);
+	background-repeat: no-repeat;
+	background-position: 0 -22px;
+}
+
+.actionButtons a:hover .delete {
+	background-position: -11px -22px;	
+}
+
+
+.actionButtons a .edit {
+	content: "";
+	display: block;
+	float: left;
+	height: 11px;
+	margin-right: 4px;
+	width: 11px;
+	background-image: url(../images/sprites-edit.png);
+	background-repeat: no-repeat;
+	background-position: 0 -33px;	
+}
+
+.actionButtons a:hover .edit {
+	background-position: -11px -33px;	
+}
+
+
+
+
+
+
+.actionButtons .sort {
+	float: left;
+   color: #e3eae8;
+   font-size: 15px;
+   font-weight: bold;
+   margin-right: 25px;
+   text-transform: uppercase;
+	display: block;
+	height: 11px;
+	line-height: 11px;
+}
+
+
+.actionButtons .sort a {
+	margin-right: 5px;
+	width: 9px;
+	height: 11px;
+	background-image: url(../images/sprites-edit.png);
+	background-repeat: no-repeat;
+}
+
+.actionButtons .sort a.sort-up {
+	background-position: 0px -11px;
+}
+
+.actionButtons .sort a.sort-down {
+	background-position: 0 0;
+}
+
+
+
+table.compact > tbody > tr .actionButtons .sort a.sort-up:hover {
+		background-position: -9px -11px;	
+}
+
+table.compact > tbody > tr .actionButtons .sort a.sort-down:hover {
+	background-position: -9px 0px;
+}
+.actionButtons .sort .blank {
+	display:block;
+	width: 9px;
+	height: 11px;
+	float: left;
+	margin-right: 5px;
+	background-image: url(../images/sprites-edit.png);
+	background-repeat: no-repeat;	
+}
+
+.actionButtons .sort .sort-up.blank {
+	background-position: 0px -11px;
+}
+
+.actionButtons .sort .sort-down.blank {
+	background-position: 0 0;
+}
+
+
+
+
+
+
+
+
 
 
 .compactTabs {
@@ -2898,13 +3013,28 @@ table.compact > tbody > tr:hover .actionButtons a:hover {
 }
 
 .acContainerInline .acPanel {
-  top: 30px;
+  top: 36px;
+  z-index: 999;
 }
 
 
 .itemIco {
 	width: 50px!important;
+	position: relative;
 }
+
+.itemIco i {
+  color: #9f414b;
+  font-size: 14px;
+  left: 25px;
+  position: absolute;
+  top: 21px;
+}
+
+.itemIco i.fa-edit {
+  top: 24px;
+}
+
 
 .itemTitle {
 	 color: #333;
@@ -2914,8 +3044,8 @@ table.compact > tbody > tr:hover .actionButtons a:hover {
 }
 
 
-.competenceField {
-	width: 300px!important;
+.addActivity .competenceField {
+	width: 300px!important; 
 }
 
 
@@ -3095,6 +3225,14 @@ table.compact > tbody > tr:hover .actionButtons a:hover {
   font-weight: bold;
   text-transform: uppercase;
 }
+.subHeader .title span{
+  color: #666666;
+  font-size: 14px;
+  font-weight: normal;
+}
+
+
+
 
 .addInstance {
 	background: #fbfbfb;
@@ -3117,10 +3255,6 @@ table.compact > tbody > tr:hover .actionButtons a:hover {
 
 label .fa {
 	color: #000!important;
-}
-
-.compList {
-
 }
 
 .compItem {
@@ -3220,6 +3354,217 @@ label .fa {
 	padding: 45px;
 }
 
+
+/*** Competences ***/
+
+.inlineSelect {
+	float: left;
+	width: 85px;
+}
+
+.inline {
+	margin-top: 33px;
+	margin-left: 10px;
+	float: left;
+	font-size: 14px;
+	color: #757575;
+}
+
+.competences {
+	margin-left: 15px;
+}
+
+.addActivity{
+	color: #757575;
+	font-size: 13px;
+}
+
+
+.addActivity span {
+    margin: 0 10px;
+}
+
+.holder {
+	background: #fbfbfb;
+	border: 1px solid #f1f1f1;
+	padding: 15px;
+	text-align: center;
+	border-radius: 2px;
+}
+
+.holder .close {
+  margin-top: -5px;
+}
+
+.holder .row {
+	text-align: left;
+}
+
+.holder .url {
+  color: #999999;
+  font-size: 10px;
+  padding-left: 10px;
+  padding-top: 1px;
+}
+
+.holder .col-md-3.wide {
+	padding-right: 0;
+}
+
+#imgInfoContainer {
+	text-align: center;
+}
+
+#imgInfoContainer .fa {
+	font-size: 25px;
+}
+
+#atcImages {
+	border-radius: 2px;
+	border: 1px solid #f1f1f1;
+}
+
+
+#atcImages img {
+	border-radius: 2px;
+}
+
+
+#atcTotalImageNav {
+	color: #CCC;
+	cursor: default;
+}
+
+
+#atcTotalImageNav a {
+	text-decoration: none;
+}
+
+#atcTotalImageNav a:hover {
+	color: #0277bd;
+}
+
+.atcTotalImagesInfo {
+	font-size: 12px;
+	padding-top: 5px;
+}
+
+
+.holder .form-control {
+  height: 30px;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+
+.holder textarea.form-control {
+  height: auto;
+}
+
+.holder .btn {
+	padding: 5px 12px;		
+	font-size: 12px;
+}
+
+.holder hr {
+	border-color: #f1f1f1;
+	border-style: dashed none none;
+	margin: 15px 0 15px 0;
+}
+
+.holder .holderInput {
+  margin-bottom: 10px;
+}
+
+
+.modal-body .bootstrap-select .fa {
+  margin: 0;
+}
+
+.dropFile {
+	padding: 20px 0;
+	border: 1px dashed #f1f1f1;
+	background: #FFF;
+	border-radius: 2px;
+}
+
+.dropFile h2 {
+    margin-bottom: 5px;
+}
+
+.dropFile h2 a {
+	font-size: 13px;
+	color: #000;
+}
+
+.dropFile h2 a .fa {
+	font-size: 17px;
+}
+
+
+
+.assignmentForm {
+	margin-top: 15px;
+}
+
+.marBtm20 {
+	margin-bottom: 20px;
+}
+
+
+/* competence list (Show all dialog) */
+
+.compList {
+	font-size: 13px;
+	padding-top: 0;
+	padding-bottom: 0;	
+}
+
+.compList .row {
+	border-top: 1px solid #f1f1f1;
+	padding-top: 15px;
+	padding-bottom: 15px;	
+}
+
+.compList .row:first-of-type {
+	border-top: 0;
+}
+
+
+.compList h2 {
+	margin-bottom: 10px;	
+}
+
+
+.inlineAction {
+	margin-right: 15px;
+}
+
+.pageCounter {
+	text-align: right;
+	font-size: 12px;
+	color: #757575;
+	margin-bottom: 15px;
+}
+
+.modalActions {
+	text-align: right;
+}
+
+.modalActions span.inlineAction {
+	color: #CCC;
+}
+
+
+.modalActions span.left {
+	float: left;
+}
+
+.modal-footer.text-left {
+	text-align: left!important;
+}
+.modal-footer .pagination {
+  margin: 0;
+}
 
 
 /*********************************************/

@@ -182,7 +182,7 @@ public class StudentReassignBean implements Serializable {
 				public void run() {
 					Map<String, String> parameters = new HashMap<String, String>();
 					parameters.put("courseId", decodedCourseId + "");
-					parameters.put("reassignedFromInstructorId", instructor.getInstructorId() + "");
+					parameters.put("reassignedFromInstructorId", instructor.getUserId() + "");
 					
 					for(Entry<Long, InstructorStudentsData> entry : instructorsWithReassignedStudents.entrySet()) {
 						InstructorStudentsData inst = entry.getValue();

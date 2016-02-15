@@ -2,6 +2,7 @@ package org.prosolo.services.nodes;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -77,5 +78,8 @@ public interface CompetenceManager extends AbstractManager {
 	public List<TargetCompetence> getTargetCompetencesForTargetLearningGoal(long goalId) throws DbConnectionException;
 	
 	public void updateCompetenceProgress(long compId, int progress) throws DbConnectionException;
+
+	Competence updateCompetence(long id, String title, String description, int duration, int validity, boolean published,
+			HashSet<Tag> tags) throws DbConnectionException;
 
 }

@@ -1,11 +1,11 @@
 package org.prosolo.web.courses.data;
 
-public enum CourseStatus {
+public enum PublishedStatus {
 	PUBLISHED("Published"), UNPUBLISHED("Unpublished");
 	
 	private String label;
 
-    private CourseStatus(String label) {
+    private PublishedStatus(String label) {
         this.label = label;
     }
 

@@ -504,4 +504,23 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 			throw new DbConnectionException("Error while saving progress");
 		}
 	}
+
+	@Override
+	@Transactional(readOnly=false)
+	public Competence updateCompetence(long id, String title, String description, int duration, int validity,
+			boolean published, HashSet<Tag> tags) throws DbConnectionException {
+		try {
+			Competence competence = (Competence) persistence.currentManager().load(Competence.class, id);
+			
+			competence.setTitle(title);
+			competence.setDescription(description);
+			competence.setDuration(duration);
+			competence.setValidityPeriod(validity);
+			competence.setTags(tags);
+		
+			return competence;
+		} catch(Exception e) {
+			throw new DbConnectionException("Error while saving competence");
+		}
+	}
 }
