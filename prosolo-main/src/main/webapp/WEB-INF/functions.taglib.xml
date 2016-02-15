@@ -61,6 +61,12 @@
 	</function>
 		
 	<function>
+		<function-name>matchPageURLRegex</function-name>
+		<function-class>org.prosolo.web.util.URLUtil</function-class>
+		<function-signature>java.lang.Boolean matchForwardRequestURLRegex(java.lang.String)</function-signature>
+	</function>
+		
+	<function>
 		<function-name>longToString</function-name>
 		<function-class>org.prosolo.util.StringUtils</function-class>
 		<function-signature>java.lang.String longToString(java.lang.Long)</function-signature>

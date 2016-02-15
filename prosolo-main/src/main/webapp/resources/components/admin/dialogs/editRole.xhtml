@@ -6,7 +6,8 @@
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:p="http://primefaces.org/ui"
-	xmlns:composite="http://java.sun.com/jsf/composite">
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 <h:head>
 </h:head>
 
@@ -18,22 +19,26 @@
 	
 	<h:outputScript library="javascript" name="jquery.autosize.min.js" target="head" />
 
-	<div id="editRoleModalDialog" class="admin roleDetails editRole" title="#{msg['admin.roles.dialog.edit.title']}" style="display: none;">
+	<div id="editRoleModalDialog" class="admin roleDetails roleDialog" title="#{msg['admin.roles.dialog.edit.title']}" style="display: none;">
 						
 		<h:form id="editRoleForm" prependId="false">
 			<p:growl id="editRoleFormGrowl" showDetail="true" /> 
 			
-			<table>
+			<table class="table">
 				<tr>
 					<td class="col1">
-						<h:outputLabel for="editName">Name:</h:outputLabel>
+						<h:outputLabel for="editName">Title:</h:outputLabel>
 					</td>
 					<td>
-						<h:inputText id="editName" 
-							value="#{roles.formData.name}" 
-							required="true"
-							validator="#{roles.validateName}"
-							requiredMessage="Name is required" />
+						<div class="form-group">
+							<h:inputText id="editName" 
+								pt:placeholder="Role title"
+						    	styleClass="form-control title"
+								value="#{roles.formData.name}" 
+								required="true"
+								validator="#{roles.validateName}"
+								requiredMessage="Name is required" />
+						</div>
 					</td>
 				</tr>
 				<tr>
@@ -43,6 +48,7 @@
 					<td>
 						<h:inputTextarea id="editDescription"
 							value="#{roles.formData.description}"
+							styleClass="form-control description"
 							placeholder="#{msg['textarea.description']}" />
 					
 						<script>
@@ -53,22 +59,25 @@
 					</td>
 				</tr>
 			</table>
-			<h:panelGroup>
-			<h:outputLabel class = "bold">Capabilities:</h:outputLabel>
-			<p:selectManyCheckbox
-				value="#{roles.selectedCapabilities}" layout="grid" columns="2">
+			
+			<div class="bold">Capabilities:</div>
+			
+			<h:selectManyCheckbox
+				value="#{roles.selectedCapabilities}" layout="pageDirection">
 				<f:selectItems value="#{roles.allCapabilities}" />
-			</p:selectManyCheckbox>
-			</h:panelGroup>
+			</h:selectManyCheckbox>
 			
 			<div class="actions">
 				<p:commandLink id="saveedit" value="Save"
-					styleClass="button green size30 right"
+					pt:role="button"
+					styleClass="btn btn-primary"
 					onclick='$("#editRoleModalDialog").dialog("close");'
 				 	actionListener="#{roles.updateRole}" 
 				 	update="@form :rolesForm" />
 				
-				<a href="#"	class="button gray size30 right"
+				<a href="#"
+					role="button"
+					class="btn btn-default"
 					onclick='$("#editRoleModalDialog").dialog("close");'>Cancel</a>
 			</div>
 		</h:form>

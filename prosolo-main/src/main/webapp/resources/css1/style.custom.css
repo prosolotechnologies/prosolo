@@ -14,31 +14,35 @@
 }
 
 .button.blue {
-	color: #136db2;
-	background: #d7eeff;
+  color: #136db2;
+    background: #d7eeff;
 }
 
 .button.blue:hover {
-	color: #fff;
-	background: #136db2;
+  color: #fff;
+  background: #136db2;
 }
 
 .button.green {
-	color: #fff;
-	background: #5cb258;
+  color: #fff;
+    background: #59af4d;
 }
 
 .button.green:hover {
-	background: #70C26B;
+	background-color: #4f9c45;
+    border-color: #4f9c45;
 }
 
 .button.red {
-	color: #fff;
-	background: #dd5a5a;
+    color: #fff;
+    background-color: #d9534f;
+    border-color: #d43f3a;
 }
 
 .button.red:hover {
-	background: #d53030;
+    color: #fff;
+    background-color: #c9302c;
+    border-color: #ac2925;
 }
 
 .button.gray {
@@ -166,6 +170,7 @@ textarea, .ui-widget textarea {
   background-color: rgba(255, 255, 255, 0.5);
   text-align: center;
 }
+
 #loaderOverlay .text {
   display: inline-block;
   font-size: 18px;
@@ -176,6 +181,18 @@ textarea, .ui-widget textarea {
   -moz-border-radius: 2px;
   border-radius: 2px;
   border: 1px solid #e5e5e5;
+}
+
+.tableProsolo > thead > tr > th.colEmail {
+	width: 200px;
+}
+
+.tableProsolo > thead > tr > th.colActions {
+	width: 250px;
+}
+
+.tableProsolo > tbody > tr > td.actions a {
+	margin-right: 10px;
 }
 
 /*---------------------------------------------------------------------*/
@@ -211,6 +228,19 @@ textarea, .ui-widget textarea {
 	overflow: hidden;
 	word-wrap: break-word;
 	resize: none;
+}
+
+/* ROLE DIALOG */
+.roleDialog .form-control.title,
+.roleDialog .form-control.description {
+    height: 32px;
+    box-shadow: none;
+    border: 1px solid #f1f1f1;
+    width: 320px;
+}
+
+.roleDialog .form-control.description {
+    height: 100px;
 }
 
 /*---------------------------------------------------------------------*/
@@ -367,21 +397,7 @@ textarea, .ui-widget textarea {
 }
 
 .warning .ui-widget-header {
-	background: #eddb0c; /* Old browsers */
-	background: -moz-linear-gradient(top, #eddb0c 0%, #cfbe00 100%);
-	/* FF3.6+ */
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #eddb0c),
-		color-stop(100%, #cfbe00)); /* Chrome,Safari4+ */
-	background: -webkit-linear-gradient(top, #eddb0c 0%, #cfbe00 100%);
-	/* Chrome10+,Safari5.1+ */
-	background: -o-linear-gradient(top, #eddb0c 0%, #cfbe00 100%);
-	/* Opera 11.10+ */
-	background: -ms-linear-gradient(top, #eddb0c 0%, #cfbe00 100%);
-	/* IE10+ */
-	background: linear-gradient(to bottom, #eddb0c 0%, #cfbe00 100%);
-	/* W3C */
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eddb0c',
-		endColorstr='#cfbe00', GradientType=0); /* IE6-9 */
+	background: #d9534f;
 }
 
 .ui-message-error {
@@ -575,6 +591,16 @@ textarea, .ui-widget textarea {
 /* Tiny MCE */
 .mce-panel {
 	border-color: #e5e5e5;
+}
+
+a, a:link,a:hover,a:active, a:focus {
+  color: #2196f3;
+  outline: 0;
+}
+
+.btn.btn-info,
+.btn.btn-danger {
+	color: #fff;
 }
 /*---------------------------------------------------------------------*/
 /*--- END OVERRIDES ---*/

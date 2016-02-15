@@ -27,7 +27,7 @@
 	</ui:define>
 
 	<ui:define name="content">
-
+	
 		<script src="#{request.contextPath}/manage/js/stickyTable.js"></script>
 		
 		<script>
@@ -64,16 +64,25 @@
 					<div class="row narrow searchFilter">
 						<div class="col-md-12">
 							<h:form id="filterStudentsForm">
-								<h:panelGroup id="panelNoStudent" styleClass="records">Students: <strong>#{courseMembersBean.courseMembersNumber}</strong></h:panelGroup> <span
-									class="checkbox checkbox-success checkbox-inline">
-									<h:selectBooleanCheckbox id="checkbox2" value="#{courseMembersBean.filterUnassigned}">
+								<h:panelGroup id="panelNoStudent" styleClass="records">
+									Students: <strong>#{courseMembersBean.courseMembersNumber}</strong>
+								</h:panelGroup>
+								
+								<span class="checkbox checkbox-success checkbox-inline">
+									<h:selectBooleanCheckbox id="checkbox2" 
+										value="#{courseMembersBean.filterUnassigned}">
+										
 										<p:ajax event="click" process="@this checkbox2" 
-											listener="#{courseMembersBean.filterCourseMembers}" update=":studentListForm panelNoStudent" />
+											listener="#{courseMembersBean.filterCourseMembers}" 
+											update=":studentListForm panelNoStudent" />
 									</h:selectBooleanCheckbox>
-									<label for="checkbox2">Show
-										only unassigned</label> 
+									
+									<label for="checkbox2">
+										Show only unassigned
+									</label> 
 								</span>
 							</h:form>
+							
 							<h:form class="form-inline searchField">
 								<p:remoteCommand name="execSearch" 
 									process="inputFilterByName"
@@ -92,8 +101,10 @@
 							</h:form>
 						</div>
 					</div>
+					
 					<h:form id="studentListForm">
 					    <p:growl id="studentListGrowl" showDetail="true"></p:growl>
+						
 						<table class="table tableProsolo">
 							<thead>
 								<tr>
@@ -140,14 +151,12 @@
 								</tr>
 							</thead>
 							<tbody>
-								<ui:repeat var="user" value="#{courseMembersBean.members}"
-									varStatus="status">
+								<ui:repeat var="user" value="#{courseMembersBean.members}" varStatus="status">
 									<tr>
-										<td class="colNoD">#{status.index + 1}</td>
+										<td class="colNoD">#{status.index + 1}.</td>
 										<td class="colStudentD">
-											<span
-												class="userProfileImageLarge"> <h:link
-													outcome="/manage/studentProfile">
+											<span class="userProfileImageLarge"> 
+												<h:link outcome="/manage/studentProfile">
 													<h:graphicImage id="userImageId" value="#{user.avatarUrl}"
 														title="#{user.fullName}" alt="#{user.fullName}" />
 													<f:param name="id" value="#{util:encodeId(user.id)}" />

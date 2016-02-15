@@ -6,10 +6,11 @@
 	template="templates/masterLayout1.xhtml"
 	xmlns:dlg="http://java.sun.com/jsf/composite/components/admin/dialogs"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-	xmlns:c="http://java.sun.com/jsp/jstl/core">
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 
 	<ui:define name="windowTitle">
-	Administration: Roles
+	Roles &amp; cCapabilities | Admin 
 </ui:define>
 
 <ui:define name="content">
@@ -20,21 +21,19 @@
 		<header>
 			<i class="fa fa-sitemap headIcon"></i>
 			<div class="headerTitle">
-				<h1>Roles</h1>
+				<h1>Roles &amp; Capabilities</h1>
 				<p>Manage user roles and capabilities in the application.</p>
 			</div>
 			
 			<ul class="basicStats pull-right">
 				<li>
 					<p:commandLink immediate="true" id="newRoleBtn"
-						styleClass="btn btn-default panelButton pull-right"
+						value="Add"
+						pt:role="button"
+						styleClass="btn btn-primary"
 						action="#{roles.prepareAddRole()}"
 						onclick='$("#newRoleModalDialog").dialog("open");'
-						update=":newRole:newRoleForm">
-						
-						<i class="fa fa-plus"></i>
-						Add Role
-					</p:commandLink>
+						update=":newRole:newRoleForm" />
 				</li>
 			</ul>
 		</header>
@@ -43,75 +42,80 @@
 	<section class="container-fluid mainArea">
 		<div class="row">
 			<div class="panel panel-default">
+				<div class="panel-heading">
+       				<h3 class="panel-title">Roles</h3>
+				</div>
+				
 				<div class="panel-body">
 					<div class="row">
 						<div class="col-md-12">
 							<h:form id="rolesForm" prependId="false">
 							
-								<p:dataTable id="rolessDataTable" var="role" value="#{roles.roles}">
-					
-									<f:facet name="header">Roles</f:facet>
-					
-									<p:column id="nameColumn" filterBy="#{role.name}"
-										filterMatchMode="contains" sortBy="#{role.name}">
-					
-										<f:facet name="header">
-											<h:outputText value="Name" />
-										</f:facet>
-										<h:outputText value="#{role.name}" />
-									</p:column>
-					
-									<p:column id="usersColumn" filterBy="#{role.name}"
-										filterMatchMode="contains" sortBy="#{role.name}">
-					
-										<f:facet name="header">
-											<h:outputText value="Users" />
-										</f:facet>
-										<p:commandLink rendered="#{not empty role.userIds}"
-											value="#{role.userIds.size()} users"
-											action="#{peopleListDialog.initializePeopleWithIds(role.userIds)}"
-											onclick="$('#peopleListDialog').dialog('open');"
-											update=":peopleListForm" />
-					
-										<h:outputText rendered="#{empty role.userIds}" value="0 users" />
-									</p:column>
-					
-					
-									<p:column>
-										<f:facet name="header">
-											<h:outputText value="Description" />
-										</f:facet>
-										<h:outputText value="#{role.description}" />
-									</p:column>
-					
-									<p:column styleClass="center">
-										<f:facet name="header">
-											<h:outputText value="Edit" />
-										</f:facet>
-					
-										<p:commandLink immediate="true" value="Edit" styleClass="blue button size25"
-											onclick="$('#editRoleModalDialog').dialog('open');"
-											action="#{roles.prepareEdit(role)}"
-											update=":editRole:editRoleForm" />
-									</p:column>
-					
-									<p:column styleClass="center">
-										<f:facet name="header">
-											<h:outputText value="Delete" />
-										</f:facet>
-					
-										<p:commandLink value="Delete" styleClass="button red size25"
-											rendered="#{!roles.isRoleUsed(role)}"
-											onclick="$('#deleteRoleDialog').dialog('open');"
-											action="#{roles.setRoleToDelete(role)}"
-											update=":deleteRoleDialogForm" />
-					
-										<p:commandLink value="Delete"
-											styleClass="button disabled gray size25 hasTooltip"
-											rendered="#{roles.isRoleUsed(role)}"
-											title="#{msg['admin.roles.delete.disabled.tooltip']}" />
-									</p:column>
-								</p:dataTable>
+								<table class="panel table tableProsolo">
+									<thead>
+										<tr>
+											<th class="colNo" scope="col">
+												No.
+											</th>
+											<th class="colStudent" scope="col">
+												Title
+											</th>
+											<th class="colStudent" scope="col">
+										    	Description
+											</th>
+											<th class="colEmail" scope="col">
+										    	Users no.
+											</th>
+											<th class="colActions" scope="col">
+										    	Actions
+											</th>
+										</tr>
+									</thead>
+									<tbody>
+										<ui:repeat var="role" value="#{roles.roles}" varStatus="status">
+											<tr>
+												<td class="colNoD">#{status.index + 1}.</td>
+												<td class="colStudentD">
+													#{role.name}
+												</td>
+												<td class="colStudentD">
+													<h:outputText value="#{role.description}" />
+												</td>
+												<td class="colProfileD">
+													<p:commandLink rendered="#{not empty role.userIds}"
+														value="#{role.userIds.size()} users"
+														action="#{peopleListDialog.initializePeopleWithIds(role.userIds)}"
+														onclick="$('#peopleListDialog').dialog('open');"
+														update=":peopleListForm" />
+								
+													<h:outputText rendered="#{empty role.userIds}" value="0 users" />
+												</td>
+												<td class="actions">
+													<p:commandLink immediate="true" value="Edit"
+														pt:role="button"
+														styleClass="btn btn-info" 
+														onclick="$('#editRoleModalDialog').dialog('open');"
+														action="#{roles.prepareEdit(role)}"
+														update=":editRole:editRoleForm" />
+														
+													<p:commandLink value="Delete"
+														pt:role="button"
+														styleClass="btn btn-danger" 
+														rendered="#{!roles.isRoleUsed(role)}"
+														onclick="$('#deleteRoleDialog').dialog('open');"
+														action="#{roles.setRoleToDelete(role)}"
+														update=":deleteRoleDialogForm" />
+								
+													<p:commandLink value="Delete"
+														pt:role="button"
+														styleClass="btn btn-default disabled hasTooltip" 
+														rendered="#{roles.isRoleUsed(role)}"
+														title="#{msg['admin.roles.delete.disabled.tooltip']}" />
+												</td>
+											</tr>
+										</ui:repeat>
+									</tbody>
+								</table>
 							</h:form>
 						</div>
 					</div>
@@ -121,32 +125,52 @@
 		
 		<div class="row">
 			<div class="panel panel-default">
+				<div class="panel-heading">
+       				<h3 class="panel-title">Capabilities</h3>
+				</div>
+				
 				<div class="panel-body">
 					<div class="row">
 						<div class="col-md-12">
 							<h:form id="capabilitiesForm" prependId="false">
 							
-								<p:dataTable id="capabilitiesTable" var="cap" value="#{roles.capabilities}">
-			
-									<f:facet name="header">Capabilities</f:facet>
-									<p:column id="nameColumn" filterBy="#{cap.description}"
-										filterMatchMode="contains" sortBy="#{cap.description}">
-			
-										<f:facet name="header">
-											<h:outputText value="Name" />
-										</f:facet>
-										<h:outputText value="#{cap.description}" />
-									</p:column>
-									
-									<c:forEach items="#{roles.roles}" var="role">
-			    						<p:column headerText="#{role.name}">
-			        						<h:selectBooleanCheckbox checked="#{roles.isSelected(cap,role)}">
-											<p:ajax event="click" process="@this"
-												listener="#{roles.capabilityChanged(cap, role)}" update=":capabilitiesForm:growlMsg @this" />
-										</h:selectBooleanCheckbox>
-			    						</p:column> 
-									</c:forEach>
-								</p:dataTable>
+								<table class="panel table tableProsolo">
+									<thead>
+										<tr>
+											<th class="colNo" scope="col">
+												No.
+											</th>
+											<th class="colStudent" scope="col">
+												Title
+											</th>
+											
+											<c:forEach items="#{roles.roles}" var="role">
+												<th class="colStudent" scope="col">
+					    							#{role.name}
+					    						</th>
+											</c:forEach>
+										</tr>
+									</thead>
+									<tbody>
+										<ui:repeat var="cap" value="#{roles.capabilities}" varStatus="status">
+											<tr>
+												<td class="colNoD">#{status.index + 1}.</td>
+												<td class="colStudentD">
+													#{cap.description}
+												</td>
+												
+												<c:forEach items="#{roles.roles}" var="role">
+													<td class="colProfileD">
+						        						<h:selectBooleanCheckbox checked="#{roles.isSelected(cap,role)}">
+															<p:ajax event="click" process="@this"
+																listener="#{roles.capabilityChanged(cap, role)}" update=":capabilitiesForm:growlMsg @this" />
+														</h:selectBooleanCheckbox>
+							    					</td>
+												</c:forEach>
+											</tr>
+										</ui:repeat>
+									</tbody>
+								</table>
 								
 								<p:growl id="growlMsg" showDetail="true"/>
 							</h:form>
@@ -160,14 +184,21 @@
 	<div id="deleteRoleDialog" class="deleteRoleDialog"
 		style="display: none;">
 		<h:form id="deleteRoleDialogForm">
-			<h4 class="warningMessage">Are you sure you want to delete role
-				#{roles.roleToDelete.name}?</h4>
+			<h4 class="warningMessage">
+				Are you sure you want to delete role #{roles.roleToDelete.name}?
+			</h4>
 
 			<div class="actions">
-				<p:commandLink value="Yes" styleClass="button green size30 right"
+				<p:commandLink value="Yes" 
+					pt:role="button"
+					styleClass="btn btn-danger"
 					onclick="$('#deleteRoleDialog').dialog('close');"
 					action="#{roles.delete()}" update=":rolesForm" />
-				&#160; <a href="#" class="button gray size30 right"
+					
+				&#160;
+				<a href="#"
+					role="button"
+					class="btn btn-default"
 					onclick="$('#deleteRoleDialog').dialog('close');">Cancel</a>
 			</div>
 		</h:form>

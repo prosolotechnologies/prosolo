@@ -1,5 +1,5 @@
-profile,attach,comment,content_access,creating,evaluation,join,like,login,message,posting,progress,search
-A,'Profile A',1,1,1,1,1,1,1,1,1,1,1,1
+profile,profile_name,attach,comment,content_access,creating,evaluation,join,like,login,message,posting,progress,search
+A,’Low Activity’,1,1,1,1,1,1,1,1,1,1,1,1
 B,'Profile B',2,2,1,1,1,1,1,2,1,2,2,1
-C,'Profile C',3,3,3,3,3,3,3,3,3,3,3,3
-D,'Profile D',3,3,1,3,3,3,1,3,3,3,3,3
+C,'High Active’,3,3,3,3,3,3,3,3,3,3,3,3
+D,’Profile 4’,3,3,1,3,3,3,1,3,3,3,3,3

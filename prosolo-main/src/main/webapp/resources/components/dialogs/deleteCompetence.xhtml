@@ -21,7 +21,7 @@
 			</ui:remove>
 			
 			<p:commandLink id="saveButton" value="Delete"
-				styleClass="button green size30 right"
+				styleClass="button red size30 right"
 				onclick='$("#deleteCompFormModalDialog").dialog("close");'
 			 	actionListener="#{deleteCompetenceDialog.deleteCompetence}"
 			 	update=":competenceList :deleteCompForm:deleteCompGrowl :goalDetails :goalWall:goalWallForm:goalWall"
