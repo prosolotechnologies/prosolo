@@ -70,7 +70,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		boolean credentialsNonExpired = true;
 		boolean accountNonLocked = true;
 		
-		logger.debug("Returnign user details " + defaultEmail +", user.getPassword(): "+ 
+		logger.debug("Returning user details " + defaultEmail +", user.getPassword(): "+ 
 				user.getPassword()+", enabled: "+ enabled+", accountNonExpired: "+
 				accountNonExpired+", credentialsNonExpired: "+credentialsNonExpired+", accountNonLocked: "+ 
 				accountNonLocked+", userAuthorities: "+userAuthorities);
