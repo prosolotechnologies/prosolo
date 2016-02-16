@@ -26,6 +26,7 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.ResourceFactory;
+import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.activitywall.data.AttachmentPreview;
 import org.prosolo.web.competences.data.ActivityType;
@@ -521,6 +522,66 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 			return competence;
 		} catch(Exception e) {
 			throw new DbConnectionException("Error while saving competence");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly=true)
+	public List<ActivityData> getCompetenceActivities(long compId) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT cAct.id, cAct.activityPosition, act.id, act.title, " +
+				    "act.description, act.mandatory " +
+					"FROM Competence comp " +
+					"LEFT JOIN comp.activities cAct " +
+					"INNER JOIN cAct.activity act " +
+					"WHERE comp.id = :compId " + 
+				    "ORDER BY cAct.activityPosition";
+			
+			@SuppressWarnings("unchecked")
+			List<Object[]> result = persistence.currentManager()
+					.createQuery(query)
+					.setLong("compId", compId)
+					.list();
+			
+			if(result == null) {
+				return new ArrayList<>();
+			}
+			List<ActivityData> activities = new ArrayList<>();
+			for(Object[] obj : result) {
+				ActivityData act = new ActivityData();
+				act.setCompetenceActivityId((long) obj[0]);
+				act.setOrder((long) obj[1]);
+				act.setActivityId((long) obj[2]);
+				act.setTitle((String) obj[3]);
+				act.setDescription((String) obj[4]);
+				act.setMandatory((boolean) obj[5]);
+				
+				activities.add(act);
+			}
+			return activities;
+		} catch(Exception e) {
+			throw new DbConnectionException("Error while loading competence activities");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public String getCompetenceTitle(long compId) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT comp.title " +
+					"FROM Competence comp " +
+					"WHERE comp.id = :compId";
+			
+			String res = (String) persistence.currentManager().createQuery(query).
+					setLong("compId", compId).
+					uniqueResult();
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading competence title");
 		}
 	}
 }

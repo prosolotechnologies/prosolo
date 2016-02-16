@@ -18,6 +18,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.activitywall.data.AttachmentPreview;
 import org.prosolo.web.competences.data.ActivityType;
@@ -82,4 +83,8 @@ public interface CompetenceManager extends AbstractManager {
 	Competence updateCompetence(long id, String title, String description, int duration, int validity, boolean published,
 			HashSet<Tag> tags) throws DbConnectionException;
 
+	List<ActivityData> getCompetenceActivities(long compId) throws DbConnectionException;
+	
+	String getCompetenceTitle(long compId) throws DbConnectionException;
+	
 }
