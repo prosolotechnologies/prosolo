@@ -48,7 +48,18 @@
 	
 	          <div class="panel panel-default">
 	            <div class="tabPanel addActivity form-inline">
-	                  <a role="button" class="btn btn-primary" href="#" data-toggle="modal" data-target="#modalFull"><i class="fa fa-plus"></i> Add new activity</a>
+        			
+	            	  <p:commandLink
+	            	  	process="@this"
+	            	  	action="#{competenceActivitiesBean.setActivityForEdit()}"
+	            	  	update=":formAddActivity"
+	            	  	oncomplete="$('#modalFull').modal('show');initializePageJS();"
+	            	  	pt:role="button"
+	            	  	styleClass="btn btn-primary"
+	            	  	pt:data-toggle="modal">
+	            	  	<i class="fa fa-plus"></i> Add new activity
+	            	  </p:commandLink>
+	                  
 	                  <span>or search existing</span>
 	                  <div class="form-group acContainerInline">
 	                     <input type="text" class="form-control acField competenceField" id="" placeholder="Start typing..."></input>
@@ -214,6 +225,7 @@
 	</section>
     </h:form>
 	<!-- Modal 1 - ADD ACTIVITY -->
+	<h:form id="formAddActivity">
 	<div class="modal fade" id="modalFull">
 	  <div class="modal-dialog">
 	    <div class="modal-content">
@@ -226,37 +238,47 @@
 	         	<div class="col-md-12">
 	               <div class="form-group">
 	                  <label for="">Title</label>
-	                  <input type="text" class="form-control"></input>
+	                  <h:inputText styleClass="form-control"
+	                  	value="#{competenceActivitiesBean.activityToEdit.title}">
+	                  </h:inputText>
 	               </div>
 	               <div class="form-group">
 	                  <label for="">Description</label>
-							<textarea rows="5" class="form-control" placeholder="EDITOR PLACEHOLDER"></textarea>
+	                  		<h:inputTextarea styleClass="form-control"
+	                  			rows="5"
+	                  			pt:placeholder="EDITOR PLACEHOLDER"
+	                  			value="#{competenceActivitiesBean.activityToEdit.description}">
+	                  		</h:inputTextarea>
 	               </div>
-	               <div class="checkbox checkbox-success">
-	                  <input type="checkbox" id="checkbox1"></input>
+	               
+	               <ui:remove><div class="checkbox checkbox-success"></div></ui:remove>
+	                  <h:selectBooleanCheckbox id="checkbox1"
+	                  	value="#{competenceActivitiesBean.activityToEdit.mandatory}">
+	                  </h:selectBooleanCheckbox>
 	                  <label for="checkbox1">Mandatory</label>
-	               </div>
+	               <ui:remove><div></div></ui:remove>
 	               
 	               <div class="row">
 	               	<div class="col-md-6">
 	                     <div class="form-group">
 	                        <label>Type</label>
-	                        <select class="form-control selectpicker">
-	                           <option>- Select -</option>
-	                           <option>Video</option>
-	                           <option>URL</option>
-	                           <option>File</option>
-	                           <option>Assignment</option> 
-	                           <option>External Activity</option>                         
-	                        </select>
+	                        <h:selectOneMenu 
+	                        	styleClass="form-control selectpicker"
+	                        	value="#{competenceActivitiesBean.activityToEdit.activityType}">
+	                        	<f:selectItems value="#{competenceActivitiesBean.resTypes}"
+	                        		var="resType" itemValue="#{resType}" itemLabel="#{resType.label}"/>
+								<f:ajax event="valueChange" execute="@this" listener="#{competenceActivitiesBean.initResourceData()}" 
+									render=":formAddActivity:panelSpecificActivityData"/>
+	                        </h:selectOneMenu>
 	                     </div>
 	                  </div>
 	               </div>
 	
 	
 	
-	
-						<div id="externalActivity" style="display: none;"><!-- START External Activity SECTION -->
+						<h:panelGroup id="panelSpecificActivityData">
+						<h:panelGroup id="externalActivity" 
+							rendered="#{competenceActivitiesBean.activityToEdit.activityType eq 'EXTERNAL_ACTIVITY'}"><!-- START External Activity SECTION -->
 	                  <label for="">Resource details - External Activity</label>
 							<div class="holder">
 								<div class="row">
@@ -268,7 +290,8 @@
 	                           	</div>
 	                           	<div class="col-md-9">
 	                           		<div class="form-group">
-	                           			<input type="text" class="form-control"></input>
+	                           			<h:inputText styleClass="form-control"
+	                           				value="#{competenceActivitiesBean.externalResData.launchUrl}"></h:inputText>
 	                           		</div>                          	
 	                           	</div>								
 	                           </div>
@@ -278,7 +301,8 @@
 	                              </div>
 	                              <div class="col-md-9">
 	                                 <div class="form-group">
-	                                 	<input type="text" class="form-control"></input>
+	                                 	<h:inputText styleClass="form-control" 
+	                                 		value="#{competenceActivitiesBean.externalResData.sharedSecret}"></h:inputText>
 	                                 </div>                          	
 	                              </div>								
 	                           </div>
@@ -288,27 +312,31 @@
 	                              </div>
 	                              <div class="col-md-9">
 	                                 <div class="form-group">
-	                                 	<input type="text" class="form-control"></input>
+	                                 	<h:inputText styleClass="form-control" 
+	                                 		value="#{competenceActivitiesBean.externalResData.consumerKey}"></h:inputText>
 	                                 </div>                          	
 	                              </div>								
 	                           </div>
 	                           <div class="row">
 	                              <div class="col-md-3"></div>
 	                              <div class="col-md-9">
-	                                 <div class="checkbox checkbox-success">
-	                                    <input type="checkbox" id="checkbox3"></input>
+	                                <ui:remove> <div class="checkbox checkbox-success"></div></ui:remove>
+	                                 	<h:selectBooleanCheckbox id="checkbox3"
+	                                 		value="#{competenceActivitiesBean.externalResData.acceptGrades}">
+	                                 	</h:selectBooleanCheckbox>
 	                                    <label for="checkbox3">Accept grades</label>
-	                                 </div>   
+	                                 <ui:remove><div></div></ui:remove>   
 	                              </div>								
 	                           </div>
 		                     </div>
 	                     </div>   
 	                  </div>
-	               </div><!-- END External Activity SECTION -->
+	               </h:panelGroup><!-- END External Activity SECTION -->
 	
 	
 	
-						<div id="assignment" style="display: none;"><!-- START ASSIGNMENT SECTION -->
+						<h:panelGroup id="assignment" 
+							rendered="#{competenceActivitiesBean.activityToEdit.activityType eq 'ASSIGNMENT'}"><!-- START ASSIGNMENT SECTION -->
 	                  <label for="">Resource details - Assignment</label>
 							<div class="holder">
 								<div class="row assignmentForm">
@@ -342,13 +370,14 @@
 	                     	<div class="col-md-3"></div>
 	                     </div>   
 	                  </div>
-	               </div><!-- END ASSIGNMENT SECTION -->
+	               </h:panelGroup><!-- END ASSIGNMENT SECTION -->
 	
 	
 	
 	
 	
-						<div id="file"><!-- START FILE SECTION -->
+						<h:panelGroup id="file"
+							rendered="#{competenceActivitiesBean.activityToEdit.activityType eq 'FILE'}"><!-- START FILE SECTION -->
 	                  <label for="">Resource details - File</label>
 							<div class="holder">
 								<div class="row">
@@ -378,7 +407,7 @@
 	                        </div>                     
 								</div>                     
 	                  </div>
-	               </div><!-- END FILE SECTION -->
+	               </h:panelGroup><!-- END FILE SECTION -->
 	
 	
 	
@@ -386,7 +415,8 @@
 	
 	               
 	               
-	               <div id="video" style="display: none;"><!-- START VIDEO SECTION -->
+	               <h:panelGroup id="video" 
+	               		rendered="#{competenceActivitiesBean.activityToEdit.activityType eq 'VIDEO'}"><!-- START VIDEO SECTION -->
 	                  <label for="">Resource details - Video</label>
 							<div class="holder">
 								<div class="row">
@@ -409,11 +439,12 @@
 	                        </div>
 								</div>                     
 	                  </div>
-	               </div><!-- END VIDEO SECTION -->
+	               </h:panelGroup><!-- END VIDEO SECTION -->
 	
 	
 	
-	               <div id="url" style="display: none;"><!-- START URL SECTION -->
+	               <h:panelGroup id="url" 
+	               		rendered="#{competenceActivitiesBean.activityToEdit.activityType eq 'URL'}"><!-- START URL SECTION -->
 	                  <label for="">Resource details - URL</label>
 							<div class="holder">
 								<div class="row">
@@ -458,19 +489,25 @@
 								</div>                     
 	                     
 	                  </div>
-	               </div><!-- END URL SECTION -->            
-	                              
+	               </h:panelGroup><!-- END URL SECTION -->            
+	              </h:panelGroup>                
 	            </div>
 	         </div>
 	      </div>
 	      <div class="modal-footer">
-	        <button type="button" class="btn btn-primary">Save</button>
+	      	<p:commandLink 
+	      		styleClass="btn btn-primary" 
+	      		action="#{competenceActivitiesBean.saveActivity()}"
+	      		oncomplete="$('#modalFull').modal('hide');"
+	      		update=":formMain">
+	      		Save
+	      	</p:commandLink>
 	        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
 	      </div>
 	    </div>
 	  </div>
 	</div>
-	
+	</h:form>
 	
 	<!-- Modal 2 - EDIT ACTIVITY -->
 	<div class="modal fade" id="modalFullEdit">
@@ -596,6 +633,6 @@
 	    </div>
 	  </div>
 	</div>
-
+<script src="#{request.contextPath}/manage/js/credentialsOverall.js"></script>
 </ui:define>
 </ui:composition>

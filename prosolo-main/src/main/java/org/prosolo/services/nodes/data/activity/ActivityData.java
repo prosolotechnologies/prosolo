@@ -1,8 +1,9 @@
-package org.prosolo.services.nodes.data;
+package org.prosolo.services.nodes.data.activity;
 
 import java.io.Serializable;
 
 import org.prosolo.common.domainmodel.activities.Activity;
+import org.prosolo.common.domainmodel.organization.VisibilityType;
 
 public class ActivityData implements Serializable{
 
@@ -16,9 +17,14 @@ public class ActivityData implements Serializable{
 	private String title;
 	private String description;
 	private boolean mandatory;
+	private long makerId;
+	private VisibilityType visibilityType;
+	private ResourceType activityType;
+	private ResourceData resourceData;
 	
 	public ActivityData() {
-	
+		this.activityType = ResourceType.NONE;
+		this.visibilityType = VisibilityType.PUBLIC;
 	}
 
 	public ActivityData(Activity activity) { 
@@ -39,6 +45,26 @@ public class ActivityData implements Serializable{
 		ad.setMandatory(data.isMandatory());
 		
 		return ad;
+	}
+	
+	public void createResourceDataBasedOnResourceType() {
+		switch(activityType) {
+			case ASSIGNMENT:
+				this.resourceData = new UploadAssignmentResourceData();
+				return;
+			case EXTERNAL_ACTIVITY:
+				this.resourceData = new ExternalActivityResourceData();
+				return;
+			case FILE:
+			case SLIDESHARE:
+			case URL:
+			case VIDEO:
+				this.resourceData = new ResourceActivityResourceData();
+				return;
+			case NONE:
+				this.resourceData = null;
+				return;
+		}
 	}
 	
 	
@@ -92,6 +118,38 @@ public class ActivityData implements Serializable{
 
 	public void setOrder(long order) {
 		this.order = order;
+	}
+
+	public ResourceType getActivityType() {
+		return activityType;
+	}
+
+	public void setActivityType(ResourceType activityType) {
+		this.activityType = activityType;
+	}
+
+	public ResourceData getResourceData() {
+		return resourceData;
+	}
+
+	public void setResourceData(ResourceData resourceData) {
+		this.resourceData = resourceData;
+	}
+
+	public long getMakerId() {
+		return makerId;
+	}
+
+	public void setMakerId(long makerId) {
+		this.makerId = makerId;
+	}
+
+	public VisibilityType getVisibilityType() {
+		return visibilityType;
+	}
+
+	public void setVisibilityType(VisibilityType visibilityType) {
+		this.visibilityType = visibilityType;
 	}
 	
 }

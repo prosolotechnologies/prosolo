@@ -30,6 +30,7 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.nodes.data.activity.ActivityData;
 import org.prosolo.web.activitywall.data.AttachmentPreview;
 import org.prosolo.web.competences.data.ActivityFormData;
 import org.prosolo.web.competences.data.ActivityType;
@@ -100,5 +101,7 @@ public interface ResourceFactory extends AbstractManager {
 	
 	Course updateCourse(long courseId, String title, String description, Collection<Tag> tags, 
 			Collection<Tag> hashtags, boolean published) throws DbConnectionException;
+	
+	Activity createNewActivity(ActivityData activityData) throws DbConnectionException;
 
 }

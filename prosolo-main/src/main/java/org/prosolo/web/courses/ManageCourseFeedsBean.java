@@ -61,12 +61,8 @@ public class ManageCourseFeedsBean implements Serializable {
 				userFeedSources = feedsManager.getUserFeedsForCourse(decodedId);
 				courseFeeds = feedsManager.getCourseFeeds(decodedId);
 			} catch(DbConnectionException e) {
-				try {
-					logger.error(e);
-					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound");
-				} catch (IOException ie) {
-					logger.error(ie);
-				}
+				logger.error(e);
+				PageUtil.fireErrorMessage(e.getMessage());
 			}
 		} else {
 			try {

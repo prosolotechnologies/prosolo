@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.Activity;
+import org.prosolo.common.domainmodel.activities.CompetenceActivity;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
@@ -18,7 +19,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
-import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.activity.ActivityData;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.activitywall.data.AttachmentPreview;
 import org.prosolo.web.competences.data.ActivityType;
@@ -86,5 +87,7 @@ public interface CompetenceManager extends AbstractManager {
 	List<ActivityData> getCompetenceActivities(long compId) throws DbConnectionException;
 	
 	String getCompetenceTitle(long compId) throws DbConnectionException;
+	
+	CompetenceActivity saveCompetenceActivity(long compId, ActivityData activityData) throws DbConnectionException;
 	
 }

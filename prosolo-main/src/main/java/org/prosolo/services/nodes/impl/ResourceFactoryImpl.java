@@ -70,6 +70,8 @@ import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.ScaleManager;
+import org.prosolo.services.nodes.data.activity.ActivityData;
+import org.prosolo.services.nodes.data.activity.ActivityTypeMapper;
 import org.prosolo.web.activitywall.data.AttachmentPreview;
 import org.prosolo.web.competences.data.ActivityFormData;
 import org.prosolo.web.competences.data.ActivityType;
@@ -809,6 +811,20 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while updating course");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public Activity createNewActivity(ActivityData activityData) throws DbConnectionException {
+		try {
+			Activity activity = ActivityTypeMapper.mapToActivity(activityData);
+			
+			return saveEntity(activity);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while creating new activity");
 		}
 	}
 }

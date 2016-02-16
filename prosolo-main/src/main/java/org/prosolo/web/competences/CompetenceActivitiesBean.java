@@ -9,10 +9,17 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.domainmodel.activities.CompetenceActivity;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CompetenceManager;
-import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.activity.ActivityData;
+import org.prosolo.services.nodes.data.activity.ExternalActivityResourceData;
+import org.prosolo.services.nodes.data.activity.ResourceActivityResourceData;
+import org.prosolo.services.nodes.data.activity.ResourceData;
+import org.prosolo.services.nodes.data.activity.ResourceType;
+import org.prosolo.services.nodes.data.activity.UploadAssignmentResourceData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -29,20 +36,31 @@ public class CompetenceActivitiesBean implements Serializable {
 
 	@Autowired private CompetenceManager competenceManager;
 	@Inject private UrlIdEncoder idEncoder;
+	@Inject private LoggedUserBean loggedUserBean;
 	
 	private String id;
 	private String title;
+	private long decodedId;
 	
 	private List<ActivityData> activities;
+	
 	private ActivityData activityToEdit;
+	private UploadAssignmentResourceData uploadResData;
+	private ExternalActivityResourceData externalResData;
+	private ResourceActivityResourceData resourceResData;
+	
 	private ActivityData activityToEditBackup;
+	
+	private ResourceType[] resTypes;
 	
 	public CompetenceActivitiesBean() {
 
 	}
 	
 	public void init() {
-		long decodedId = idEncoder.decodeId(id);
+		decodedId = idEncoder.decodeId(id);
+		resTypes = ResourceType.values();
+		activityToEdit = new ActivityData();
 		if (decodedId > 0) {
 			logger.info("Searching activities for competence with id: " + decodedId);
 			try {
@@ -60,6 +78,51 @@ public class CompetenceActivitiesBean implements Serializable {
 			} catch (IOException e) {
 				logger.error(e);
 			}
+		}
+	}
+	
+
+	public void initResourceData() {
+		activityToEdit.createResourceDataBasedOnResourceType();
+		this.uploadResData = null;
+		this.externalResData = null;
+		this.resourceResData = null;
+		
+		ResourceData resData = activityToEdit.getResourceData();
+		if(resData != null) {
+			switch(resData.getActivityType()) {
+				case ASSIGNMENT_UPLOAD:
+					this.uploadResData = (UploadAssignmentResourceData) resData;
+					return;
+				case EXTERNAL_TOOL:
+					this.externalResData = (ExternalActivityResourceData) resData;
+					return;
+				case RESOURCE:
+					this.resourceResData = (ResourceActivityResourceData) resData;
+					return;
+			}
+		}
+	}
+	
+	public void setActivityForEdit() {
+		setActivityForEdit(new ActivityData());
+		activityToEdit.setMakerId(loggedUserBean.getUser().getId());
+	}
+
+	private void setActivityForEdit(ActivityData activityData) {
+		this.activityToEdit = activityData;
+	}
+	
+	public void saveActivity() {
+		try {
+			CompetenceActivity compAct = competenceManager.saveCompetenceActivity(decodedId, activityToEdit);
+			activityToEdit.setCompetenceActivityId(compAct.getId());
+			activities.add(activityToEdit);
+			activityToEdit = null;
+			PageUtil.fireSuccessfulInfoMessage("Competence activity saved");
+		} catch(DbConnectionException e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage(e.getMessage());
 		}
 	}
 
@@ -104,6 +167,38 @@ public class CompetenceActivitiesBean implements Serializable {
 
 	public void setActivityToEditBackup(ActivityData activityToEditBackup) {
 		this.activityToEditBackup = activityToEditBackup;
+	}
+
+	public ResourceType[] getResTypes() {
+		return resTypes;
+	}
+
+	public void setResTypes(ResourceType[] resTypes) {
+		this.resTypes = resTypes;
+	}
+
+	public UploadAssignmentResourceData getUploadResData() {
+		return uploadResData;
+	}
+
+	public void setUploadResData(UploadAssignmentResourceData uploadResData) {
+		this.uploadResData = uploadResData;
+	}
+
+	public ExternalActivityResourceData getExternalResData() {
+		return externalResData;
+	}
+
+	public void setExternalResData(ExternalActivityResourceData externalResData) {
+		this.externalResData = externalResData;
+	}
+
+	public ResourceActivityResourceData getResourceResData() {
+		return resourceResData;
+	}
+
+	public void setResourceResData(ResourceActivityResourceData resourceResData) {
+		this.resourceResData = resourceResData;
 	}
 
 }

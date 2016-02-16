@@ -26,7 +26,8 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.ResourceFactory;
-import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.activity.ActivityData;
+import org.prosolo.services.nodes.data.activity.ActivityTypeMapper;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.activitywall.data.AttachmentPreview;
 import org.prosolo.web.competences.data.ActivityType;
@@ -530,8 +531,7 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 	public List<ActivityData> getCompetenceActivities(long compId) throws DbConnectionException {
 		try {
 			String query = 
-					"SELECT cAct.id, cAct.activityPosition, act.id, act.title, " +
-				    "act.description, act.mandatory " +
+					"SELECT cAct.id, cAct.activityPosition, act " +
 					"FROM Competence comp " +
 					"LEFT JOIN comp.activities cAct " +
 					"INNER JOIN cAct.activity act " +
@@ -549,15 +549,19 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 			}
 			List<ActivityData> activities = new ArrayList<>();
 			for(Object[] obj : result) {
-				ActivityData act = new ActivityData();
-				act.setCompetenceActivityId((long) obj[0]);
-				act.setOrder((long) obj[1]);
-				act.setActivityId((long) obj[2]);
-				act.setTitle((String) obj[3]);
-				act.setDescription((String) obj[4]);
-				act.setMandatory((boolean) obj[5]);
-				
-				activities.add(act);
+				Activity activity = (Activity) obj[2];
+				if(activity != null) {
+					ActivityData act = ActivityTypeMapper.mapToActivityData(activity);
+					act.setCompetenceActivityId((long) obj[0]);
+					act.setOrder((long) obj[1]);
+					act.setActivityId(activity.getId());
+					act.setTitle(activity.getTitle());
+					act.setDescription(activity.getDescription());
+					act.setMandatory(activity.isMandatory());
+					
+					activities.add(act);
+				}
+
 			}
 			return activities;
 		} catch(Exception e) {
@@ -582,6 +586,26 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while loading competence title");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public CompetenceActivity saveCompetenceActivity(long compId, ActivityData activityData) throws DbConnectionException {
+		try {
+			CompetenceActivity compAct = new CompetenceActivity();
+			compAct.setActivityPosition(activityData.getOrder());
+			Activity activity = resourceFactory.createNewActivity(activityData);
+			compAct.setActivity(activity);
+			saveEntity(compAct);
+			
+			Competence comp = (Competence) persistence.currentManager().load(Competence.class, compId);
+			comp.getActivities().add(compAct);
+			return compAct;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while saving course competence");
 		}
 	}
 }
