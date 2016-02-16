@@ -12,6 +12,7 @@ import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
@@ -177,5 +178,8 @@ public interface LearningGoalManager extends AbstractManager {
 	Set<Long> getTargetActivitiesForTargetLearningGoal(Long targetLearningGoalId);
 
 	List<Long> getUserGoalsIds(User user);
+	
+	TargetLearningGoal createNewCourseBasedLearningGoal(User user, Course course, LearningGoal courseGoal,
+			String context) throws EventException, ResourceCouldNotBeLoadedException;
 
 }

@@ -1139,7 +1139,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	}
 	
 	@Override
-	@Transactional
+	@Transactional(readOnly = false)
 	public void enrollUserIfNotEnrolled(User user, long courseId, String page, 
 			String learningContext, String service) throws RuntimeException {
 		try {
@@ -1169,6 +1169,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 			}
 		} catch (Exception e) {
 			logger.error(e);
+			e.printStackTrace();
 			throw new RuntimeException("Error while enrolling user");
 		}
 	}

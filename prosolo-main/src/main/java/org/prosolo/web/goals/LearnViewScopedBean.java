@@ -9,7 +9,6 @@ import org.apache.log4j.Logger;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.goals.competences.ActivitiesRecommendationBean;
-import org.prosolo.web.util.UrlDbIdEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -48,6 +47,7 @@ public class LearnViewScopedBean implements Serializable {
 				learningGoalsBean.setSelectedGoalData(dataForGoal);
 			}
 		} else {
+			learningGoalsBean.initializeGoals();
 			if (!learningGoalsBean.getData().getGoals().isEmpty()){
 				learningGoalsBean.selectGoal(learningGoalsBean.getGoals().get(0));
 			}

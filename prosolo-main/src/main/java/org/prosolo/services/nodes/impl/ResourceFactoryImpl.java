@@ -678,7 +678,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public Map<String, Object> enrollUserInCourse(User user, Course course) throws EventException, ResourceCouldNotBeLoadedException {
         
-        TargetLearningGoal targetLGoal = goalManager.createNewCourseBasedLearningGoal(user, course.getId(), null, "");
+        TargetLearningGoal targetLGoal = goalManager.createNewCourseBasedLearningGoal(user, course, null, "");
         
         //CourseEnrollment enrollment = enrollInCourse(user, course, targetLGoal, null);
         Map<String, Object> res = enrollUserInCourseInSameTransaction(user, course, targetLGoal, null);

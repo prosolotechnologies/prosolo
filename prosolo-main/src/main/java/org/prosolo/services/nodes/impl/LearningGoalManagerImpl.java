@@ -167,6 +167,13 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 		
 		Course course = loadResource(Course.class, courseId);
 
+		return createNewCourseBasedLearningGoal(user, course, courseGoal, context);
+	}
+	
+	@Override
+	@Transactional (readOnly = false)
+	public TargetLearningGoal createNewCourseBasedLearningGoal(User user, Course course, LearningGoal courseGoal,
+			String context) throws EventException, ResourceCouldNotBeLoadedException {
 		if (courseGoal == null) {
 			courseGoal = resourceFactory.createNewLearningGoal(
 					user, 

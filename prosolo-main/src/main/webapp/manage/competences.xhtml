@@ -193,7 +193,8 @@
 								<span class="title">
 									<h:link value="#{compData.title}" 
 										outcome="/manage/competence-overall">
-										<f:param name="id" value="#{util:encodeId(compData.id)}" />
+										<f:param name="compId" value="#{util:encodeId(compData.id)}" />
+										<f:param name="origin" value="/manage/competences" />
 									</h:link>
 								</span>
 								<div class="clear"></div>
