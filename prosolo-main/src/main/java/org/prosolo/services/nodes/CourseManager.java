@@ -37,10 +37,10 @@ public interface CourseManager extends AbstractManager {
 	Long findCourseIdForTargetActivity(Long targetCompetenceId);
 
 	Course updateCompetencesAndSaveNewCourse(String title, String description,
-											 Course basedOn, List<CourseCompetenceData> courseCompetences,
+											 long basedOnCourseId, List<CourseCompetenceData> courseCompetences,
 											 Collection<Tag> tags, Collection<Tag> hashtags, User maker,
 											 CreatorType creatorType, boolean studentsCanAddNewCompetences,
-											 boolean pubilshed) throws EventException;
+											 boolean pubilshed) throws EventException, ResourceCouldNotBeLoadedException;
 	
 	Course saveNewCourse(String title, String description, 
 			Course basedOn, List<CourseCompetence> courseCompetences, 
@@ -48,11 +48,11 @@ public interface CourseManager extends AbstractManager {
 			CreatorType creatorType, boolean studentsCanAddNewCompetences, 
 			boolean published) throws EventException;
 	
-	Course updateCourse(Course course, String title, String description,
+	Course updateCourse(long courseId, String title, String description,
 			List<CourseCompetenceData> courseCompetences, 
 			Collection<Tag> tags, Collection<Tag> hashtags, List<String> blogs, User user,
 			boolean studentsCanAddNewCompetences, 
-			boolean pubilshed) throws EventException;
+			boolean pubilshed) throws EventException, ResourceCouldNotBeLoadedException;
 	
 	Course updateCourseFeeds(Course course, List<String> blogs, User user) throws EventException;
 	
@@ -67,7 +67,7 @@ public interface CourseManager extends AbstractManager {
 
 	List<CompetenceJsonData> getCourseComeptences(long id);
 
-	List<Competence> getOtherUsersCompetences(Course course,
+	List<Competence> getOtherUsersCompetences(long courseId,
 			List<Long> idsOfcompetencesToExclude, User user);
 
 	List<Node> getCourseCompetencesFromActiveCourse(User user);
@@ -91,7 +91,7 @@ public interface CourseManager extends AbstractManager {
 
 	void removeCompetenceFromEnrollment(long enrollmentId, long competenceId) throws ResourceCouldNotBeLoadedException;
 
-	CourseEnrollment addToFutureCourses(long coursePortfolioId, Course course) throws ResourceCouldNotBeLoadedException;
+	CourseEnrollment addToFutureCourses(long coursePortfolioId, long courseId) throws ResourceCouldNotBeLoadedException;
 
 	CourseEnrollment addCourseCompetencesToEnrollment(Course course, CourseEnrollment enrollment);
 

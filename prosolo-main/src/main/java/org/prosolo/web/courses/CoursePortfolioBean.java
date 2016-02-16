@@ -151,9 +151,9 @@ public class CoursePortfolioBean implements Serializable {
 		
 		
 		CourseEnrollment enrollment = null;
-		Course course = courseData.getCourse();
 		
 		try {
+			Course course = courseManager.loadResource(Course.class, courseData.getId());
 		
 			// check if maybe this course is in withdrawn courses
 			if (restorePreviousLearning && courseData.getTargetGoalId() != 0) {
@@ -213,20 +213,6 @@ public class CoursePortfolioBean implements Serializable {
 			portfolioBean.initGoalStatistics();
 			addActiveCourse(enrollment);
 			
-			
-//			final CourseEnrollment enrollment1 = enrollment;
-			
-//			taskExecutor.execute(new Runnable() {
-//				@Override
-//				public void run() {
-//			    	try {
-//						courseManager.addEnrollment(coursePortfolioId, enrollment1);
-//					} catch (ResourceCouldNotBeLoadedException e) {
-//						logger.error(e);
-//					}
-//				}
-//			});
-			
 			logger.debug("User " + loggedUser.getUser() + " is now enrollened in a course "+course.getId());
 			
 			PageUtil.fireSuccessfulInfoMessage("coursesFormGrowl", 
@@ -237,6 +223,8 @@ public class CoursePortfolioBean implements Serializable {
 		} catch (EventException e) {
 			logger.error(e);
 		} catch (KeyNotFoundInBundleException e) {
+			logger.error(e);
+		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		}
 		return enrollment;
@@ -276,7 +264,7 @@ public class CoursePortfolioBean implements Serializable {
 		Collections.sort(this.futureCourses);
 		
 		try {
-			CourseEnrollment enrollment = courseManager.addToFutureCourses(coursePortfolioId, courseData.getCourse());
+			CourseEnrollment enrollment = courseManager.addToFutureCourses(coursePortfolioId, courseData.getId());
 			courseData.setEnrollment(enrollment);
 			
 			PageUtil.fireSuccessfulInfoMessage("coursesFormGrowl", 
@@ -458,7 +446,7 @@ public class CoursePortfolioBean implements Serializable {
 	
 	public void replaceFutureCourse(CourseData updatedObjData) {
 		for (int i = 0; i < futureCourses.size(); i++) {
-			if (futureCourses.get(i).getCourse().getId() == updatedObjData.getCourse().getId()){
+			if (futureCourses.get(i).getId() == updatedObjData.getId()){
 				futureCourses.set(i, updatedObjData);
 				break;
 			}

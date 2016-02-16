@@ -124,12 +124,14 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	@Override
 	@Transactional (readOnly = false)
 	public Course updateCompetencesAndSaveNewCourse(String title, String description,
-			Course basedOn, List<CourseCompetenceData> competences, 
+			long basedOnCourseId, List<CourseCompetenceData> competences, 
 			Collection<Tag> tags, Collection<Tag> hashtags, User maker,
 			CreatorType creatorType,
-			boolean studentsCanAddNewCompetences, boolean pubilshed) throws EventException {
+			boolean studentsCanAddNewCompetences, boolean pubilshed) throws EventException, ResourceCouldNotBeLoadedException {
 		
 		List<CourseCompetence> updatedCompetences = saveUnsavedCompetences(competences);
+		
+		Course basedOn = loadResource(Course.class, basedOnCourseId);
 		
 		Course newCourse = resourceFactory.createCourse(
 				title, 
@@ -175,15 +177,16 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional (readOnly = false)
-	public Course updateCourse(Course course, String title, String description,
+	public Course updateCourse(long courseId, String title, String description,
 			List<CourseCompetenceData> competences,
 			Collection<Tag> tags, Collection<Tag> hashtags, List<String> blogs, User user,
-			boolean studentsCanAddNewCompetences, boolean pubilshed) throws EventException {
+			boolean studentsCanAddNewCompetences, boolean pubilshed) throws EventException, ResourceCouldNotBeLoadedException {
 		
 		List<CourseCompetence> updatedCompetences = saveUnsavedCompetences(competences);
 		
-		if (course != null) {
-			course = merge(course);
+		if (courseId > 0) {
+			Course course = loadResource(Course.class, courseId);
+			
 			Course updatedCourse = resourceFactory.updateCourse(
 					course, 
 					title, 
@@ -401,7 +404,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional (readOnly = true)
-	public List<Competence> getOtherUsersCompetences(Course course,
+	public List<Competence> getOtherUsersCompetences(long courseId,
 			List<Long> idsOfcompetencesToExclude, User user) {
 		
 		String query = 
@@ -410,13 +413,13 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 			"LEFT JOIN enrollment.course course " +
 			"LEFT JOIN enrollment.addedCompetences addedCompetences " +
 			"LEFT JOIN addedCompetences.competence comp " +
-			"WHERE course = :course " +
+			"WHERE course.id = :courseId " +
 				"AND comp.id NOT IN (:excludedCompIds)" +
 			"ORDER BY comp.title ";
 
 		@SuppressWarnings("unchecked")
 		List<Competence> result = persistence.currentManager().createQuery(query).
-				setEntity("course", course).
+				setLong("courseId", courseId).
 				setParameterList("excludedCompIds", idsOfcompetencesToExclude).
 				list();
 		return result;
@@ -570,8 +573,9 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional (readOnly = false)
-	public CourseEnrollment addToFutureCourses(long coursePortfolioId, Course course) throws ResourceCouldNotBeLoadedException {
+	public CourseEnrollment addToFutureCourses(long coursePortfolioId, long courseId) throws ResourceCouldNotBeLoadedException {
 		CoursePortfolio coursePortfolio = loadResource(CoursePortfolio.class, coursePortfolioId);
+		Course course = loadResource(Course.class, coursePortfolioId);
 		
 		CourseEnrollment enrollment = new CourseEnrollment();
 		enrollment.setCourse(course);

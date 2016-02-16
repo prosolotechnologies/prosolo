@@ -455,12 +455,12 @@ public class CourseBean implements Serializable {
 	public void initializeSuggestedCompetences() {
 		if (suggestedCompetences == null) {
 			
-			if (courseData.getCourse() != null) {
+			if (courseData.getId() > 0) {
 				List<Long> idsOfcompetencesToExclude = getAllCompetencesIds();
 				
 				suggestedCompetences = SearchCompetencesBean.convertToCompetenceData(
 						courseManager.getOtherUsersCompetences(
-								courseData.getCourse(), 
+								courseData.getId(), 
 								idsOfcompetencesToExclude, 
 								loggedUser.getUser()));
 			}
