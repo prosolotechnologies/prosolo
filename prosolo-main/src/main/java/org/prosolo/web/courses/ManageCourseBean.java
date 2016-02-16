@@ -488,6 +488,8 @@ public class ManageCourseBean implements Serializable {
 	}
 	
 	
+	
+	
 	/*
 	 * PARAMETERS
 	 */

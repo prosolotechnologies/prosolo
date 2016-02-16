@@ -13,6 +13,7 @@ import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -89,5 +90,7 @@ public interface CompetenceManager extends AbstractManager {
 	String getCompetenceTitle(long compId) throws DbConnectionException;
 	
 	CompetenceActivity saveCompetenceActivity(long compId, ActivityData activityData) throws DbConnectionException;
+
+	Competence createNewUntitledCompetence(User user, CreatorType manager);
 	
 }

@@ -17,6 +17,7 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -73,6 +74,7 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 	public Competence createCompetence(User user, String title,
 			String description, int validity, int duration, Collection<Tag> tags, 
 			List<Competence> prerequisites, List<Competence> corequisites, Date dateCreated) throws EventException {
+		
 		Competence newCompetence = resourceFactory.createCompetence(user, title, description,
 				validity, duration, tags, prerequisites, corequisites, dateCreated);
 
@@ -80,6 +82,17 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 		
 		return newCompetence;
 	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public Competence createNewUntitledCompetence(User maker, CreatorType creatorType) throws DbConnectionException {
+		try {
+			return createCompetence(maker, "Untitled", "", 1, 1, null, null, null, new Date());
+		} catch(Exception e) {
+			throw new DbConnectionException("Error while creating new competence");
+		}
+	}
+	
 	@Override
 	@Transactional
 	@Deprecated

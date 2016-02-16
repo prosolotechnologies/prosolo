@@ -111,8 +111,7 @@
 						    		autocomplete="off"
 							  		onclick="$(this).select();" 
 									valueChangeListener="#{searchTagsBean.searchListener}">
-									<f:ajax
-										render="keywordSearchResultPanel"
+									<f:ajax render="keywordSearchResultPanel"
 										execute="@this" event="keyup" />
 						  		</h:inputText>
 						  		
@@ -158,10 +157,7 @@
 				
 				<p:commandLink styleClass="left button green size30 marginBottom10"
 					value="New Competence"
-					onclick="$('#newCompFormModalDialog').dialog('open');"
-					action="#{competenceDialog.reset()}"
-					update=":newComp:newCompForm"
-				/>
+					action="#{searchCompetencesBean.createNewCompetenceAndNavigate('/manage/competences')}" />
 					
 				<div class="separator clear"></div>
 			

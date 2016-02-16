@@ -94,7 +94,7 @@
 								value="Competences"
 								outcome="/manage/competences" />
 						</li>
-						<li class="#{util:matchPageURLRegex('/manage/course(.*?)') ? 'selected' : ''}">
+						<li class="#{util:matchPageURLRegex('/manage/credentials(.*?)') ? 'selected' : ''}">
 							<h:link rendered="#{loggeduser.hasCapability('basic.manager.access')}"
 								onclick="sendLogPageNavigation('/manage/courses','mainmenu');"
 								value="#{msg['manager.mainmenu.courses']}"

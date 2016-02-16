@@ -8,17 +8,25 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.component.UIInput;
 import javax.faces.event.ValueChangeEvent;
+import javax.inject.Inject;
 
+import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
+import org.prosolo.common.domainmodel.course.Course;
+import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.logging.ComponentName;
+import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.nodes.CompetenceManager;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.search.data.CompetenceData;
 import org.prosolo.web.search.data.SortingOption;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.prosolo.web.util.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -29,8 +37,13 @@ public class SearchCompetencesBean implements Serializable {
 
 	private static final long serialVersionUID = 7425398428736202443L;
 	
-	@Autowired private TextSearch textSearch;
-	@Autowired private LoggingNavigationBean loggingNavigationBean;
+	private static Logger logger = Logger.getLogger(SearchCompetencesBean.class);
+	
+	@Inject private LoggedUserBean loggedUser;
+	@Inject private TextSearch textSearch;
+	@Inject private CompetenceManager competenceManager;
+	@Inject private LoggingNavigationBean loggingNavigationBean;
+	@Inject private UrlIdEncoder idEncoder;
 	
 	private String query;
 	private List<CompetenceData> competences;
@@ -162,6 +175,20 @@ public class SearchCompetencesBean implements Serializable {
 				}
 			}
 		}
+	}
+	
+	public String createNewCompetenceAndNavigate(String origin) {
+		try {
+			Competence competence = competenceManager.createNewUntitledCompetence(loggedUser.getUser(), CreatorType.MANAGER);
+			String encodedId = idEncoder.encodeId(competence.getId());
+			String redirectUrl = "/manage/competence-overall?faces-redirect=true&compId=" + encodedId + "&origin=" + origin;
+			return redirectUrl;
+		} catch(DbConnectionException e) {
+			e.printStackTrace();
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error while navigating, please try again");
+		}
+		return null;
 	}
 //	
 //	public void addCompetenceToExclude(Competence competence){
