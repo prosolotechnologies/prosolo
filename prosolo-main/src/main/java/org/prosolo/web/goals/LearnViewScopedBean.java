@@ -40,14 +40,13 @@ public class LearnViewScopedBean implements Serializable {
 		
 		decodedId = idEncoder.decodeId(id);
 		decodedTargetCompId = idEncoder.decodeId(targetCompId);
-		
-		if (decodedId > 0) {			
+		learningGoalsBean.initializeGoals();
+		if (decodedId > 0) {	
 			GoalDataCache dataForGoal = learningGoalsBean.getData().getDataForTargetGoal(decodedId);
 			if (dataForGoal != null) {
 				learningGoalsBean.setSelectedGoalData(dataForGoal);
 			}
 		} else {
-			learningGoalsBean.initializeGoals();
 			if (!learningGoalsBean.getData().getGoals().isEmpty()){
 				learningGoalsBean.selectGoal(learningGoalsBean.getGoals().get(0));
 			}
