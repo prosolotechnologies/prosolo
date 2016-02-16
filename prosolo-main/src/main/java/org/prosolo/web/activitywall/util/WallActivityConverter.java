@@ -321,8 +321,7 @@ public class WallActivityConverter {
 				socialActivityData.setMaker(actor.getId() == loggedUser.getId());
 			}
 			
-			
-			if (socialActivityData.getSocialActivity().getClazz().equals(TwitterPostSocialActivity.class) 
+			if (TwitterPostSocialActivity.class.equals(socialActivityData.getSocialActivity().getClazz())
 					&& socialActivityData.getTwitterUserType() != null
 					&& socialActivityData.getTwitterUserType().equals(UserType.TWITTER_USER)) {
 
