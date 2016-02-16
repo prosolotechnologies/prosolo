@@ -1,10 +1,11 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-	template="../templates/masterLayout.xhtml"
+	template="../templates/masterLayout1.xhtml"
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 
 <ui:define name="windowTitle">
 	<utilcomp:messagesBundle var="msg" />
@@ -27,90 +28,92 @@
 	
 	<h:outputScript library="javascript" name="jquery.autosize.min.js" target="head" />
 	
-	<div id="externalToolDetails" class="container">
-		<div class="content wide">
-			
-			<h2 class="left heading">
-				Edit external tool
-			</h2>
-			<div class="clear"></div>
-			
-			<h:form id="toolForm" class="wideForm">
-				<p:growl id="toolFormGrowl" showDetail="true" />
-				<div class="leftContainer">
-					<table>
-						<tr>
-							<td class="col1"><label for="name">Title:</label></td>
-							<td>
-								<h:inputText id="name" class="title" value="#{extenalToolDetailsBean.toolData.title}"
-									placeholder="#{msg['textfield.title']}"/>
-							</td>
-						</tr>
-						<tr class="description">
-							<td class="label top col1">
-								<label for="description">Description:</label>
-							</td>
-							<td>
-								<h:inputTextarea id="description"
-									value="#{extenalToolDetailsBean.toolData.description}"
-									placeholder="#{msg['textarea.description']}" />
-							</td>
-						</tr>
-					</table>
-					<div class="clear"></div>
-					
-					<div class="actions">
-						<p:commandLink value="Save"
-							styleClass="button green size30 left"
-						 	action="#{extenalToolDetailsBean.save}"
-						 	update=":toolForm:toolFormGrowl :toolForm:consumerConfig">
-						</p:commandLink>
-						
-						&#160;
-						<h:link value="Cancel" styleClass="button gray size30 left"
-							outcome="#{empty param['origin'] ? '/manage/courses' : param['origin']}" />
+	<h:form id="toolsForm">
+		<p:growl id="toolsGrowl" showDetail="true" />
+	
+		<section class="heading">
+			<header>
+				<i class="fa fa-puzzle-piece headIcon"></i>
+				<div class="headerTitle">
+					<h1>#{extenalToolDetailsBean.toolData.initialized ? extenalToolDetailsBean.toolData.title : "New External Tool"}</h1>
+					<p>Manage external tool details</p>
+				</div>
+			</header>
+		</section>
+		
+		<section class="container-fluid mainArea">
+			<div class="row">
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<div class="row">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label>Title</label>
+									
+									<h:inputText id="name"
+										styleClass="form-control"
+										value="#{extenalToolDetailsBean.toolData.title}"
+										placeholder="#{msg['textfield.title']}" />
+								</div>
+								<div class="form-group">
+									<label>Description</label>
+									
+									<h:inputTextarea id="description"
+										styleClass="form-control" rows="5"
+										value="#{extenalToolDetailsBean.toolData.description}"
+										placeholder="#{msg['textarea.description']}" />
+								</div>
+								
+									<p:commandLink value="Save"
+										pt:role="button"
+										styleClass="btn btn-primary"
+									 	action="#{extenalToolDetailsBean.save}"
+									 	update="@form">
+									</p:commandLink>
+									
+									&#160;
+									<h:link value="Cancel"
+										pt:role="button"
+										styleClass="btn btn-default"
+										outcome="#{empty param['origin'] ? '/manage/courses' : param['origin']}" />
+							</div>
+							
+							<div class="col-md-6">
+								<div class="form-group">
+									<h2>LTI 1</h2>
+									
+									<table class="table">
+										<tr>
+											<td class="col1">Launch URL:</td>
+											<td>#{extenalToolDetailsBean.toolData.launchUrl}</td>
+										</tr>
+										<tr>
+											<td class="col1">Consumer key:</td>
+											<td>#{extenalToolDetailsBean.toolData.consumerKey}</td>
+										</tr>
+										<tr>
+											<td class="col1">Shared secret:</td>
+											<td>#{extenalToolDetailsBean.toolData.consumerSecret}</td>
+										</tr>
+									</table>
+								</div>
+								
+								<div class="form-group">
+									<h2>LTI 2</h2>
+									
+									<table class="table">
+										<tr>
+											<td class="col1">Registration URL:</td>
+											<td>#{extenalToolDetailsBean.toolData.regUrl}</td>
+										</tr>
+									</table>
+								</div>                
+							</div>
+						</div>
 					</div>
 				</div>
-				
-				<h:panelGroup id="consumerConfig">
-				<div class="rightContainer">
-					<h3>Configuration details</h3>
-					
-					<h4>LTI 1</h4>
-						<table>
-							<tr>
-								<td class="col1">Launch URL:</td>
-								<td>#{extenalToolDetailsBean.toolData.launchUrl}</td>
-							</tr>
-							<tr>
-								<td class="col1">Consumer key:</td>
-								<td>#{extenalToolDetailsBean.toolData.consumerKey}</td>
-							</tr>
-							<tr>
-								<td class="col1">Shared secret:</td>
-								<td>#{extenalToolDetailsBean.toolData.consumerSecret}</td>
-							</tr>
-						</table>
-					
-					<h4>LTI 2</h4>
-						<table>
-							<tr>
-								<td class="col1">Registration URL:</td>
-								<td>#{extenalToolDetailsBean.toolData.regUrl}</td>
-							</tr>
-						</table>
-				</div>
-				</h:panelGroup>
-				
-				<script>
-				$(function() {
-					$('#externalToolDetails tr.description textarea').autosize();
-					$('#externalToolDetails .title').focus();
-				});
-				</script>
-			</h:form>
-		</div><!-- .content -->
-	</div><!-- .container end -->
-
+			</div>
+		</section>
+	</h:form>
 </ui:define>
 </ui:composition>

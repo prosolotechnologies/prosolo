@@ -201,6 +201,8 @@ public class ManageExternalToolsBean implements Serializable {
 			boolean enabled = !tool.isEnabled();
 			toolManager.changeEnabled(tool.getId(), enabled);
 			tool.setEnabled(enabled);
+			
+			PageUtil.fireSuccessfulInfoMessage("toolsForm:externalToolsGrowl", "Tool " + (enabled ? "enabled." : "disabled."));
 			logger.info("LTI tool enabled status changed");
 		} catch (Exception e) {
 			PageUtil.fireErrorMessage(e.getMessage());

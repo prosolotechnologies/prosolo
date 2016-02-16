@@ -57,10 +57,10 @@
                	  	<a href="#">External Tools</a>
                	  </ui:fragment>
                	  <ui:fragment rendered="#{'ExternalTools' ne cc.attrs.activeLink}">
-               	  	<h:link>
+               	  	<h:link outcome="/manage/tools">
                	  		External Tools
-               	  		<f:param name="compId" value="#{cc.attrs.competenceEncodedId}"></f:param>
-               	  		<f:param name="origin" value="#{cc.attrs.origin}"></f:param>
+               	  		<f:param name="comp" value="#{cc.attrs.competenceEncodedId}"></f:param>
+               	  		<f:param name="cred" value="#{cc.attrs.origin}"></f:param>
                	  	</h:link>
                	  </ui:fragment>
                	 </li>

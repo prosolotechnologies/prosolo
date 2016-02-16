@@ -20,6 +20,8 @@ public class ExternalToolFormData implements Serializable {
 	private String consumerSecret;
 	private String regUrl;
 	
+	private boolean initialized;
+	
 	
 	public ExternalToolFormData () {
 		
@@ -32,6 +34,7 @@ public class ExternalToolFormData implements Serializable {
 		consumerKey = tool.getToolSet().getConsumer().getKeyLtiOne();
 		consumerSecret = tool.getToolSet().getConsumer().getSecretLtiOne();
 		regUrl = tool.getToolSet().getFullRegistrationURL();
+		initialized = true;
 	}
 
 	public String getTitle() {
@@ -81,6 +84,13 @@ public class ExternalToolFormData implements Serializable {
 	public void setRegUrl(String regUrl) {
 		this.regUrl = regUrl;
 	}
-	
+
+	public boolean isInitialized() {
+		return initialized;
+	}
+
+	public void setInitialized(boolean initialized) {
+		this.initialized = initialized;
+	}
 	
 }
