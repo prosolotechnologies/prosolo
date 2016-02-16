@@ -26,6 +26,7 @@ import org.prosolo.services.lti.filter.ToolSearchActivityFilter;
 import org.prosolo.services.lti.filter.ToolSearchCompetenceFilter;
 import org.prosolo.services.lti.filter.ToolSearchCredentialFilter;
 import org.prosolo.services.lti.util.EntityConstants;
+import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
@@ -54,6 +55,7 @@ public class ManageExternalToolsBean implements Serializable {
 	@Inject private LtiToolManager toolManager;
 	@Inject private LoggedUserBean userBean;
 	@Inject private UrlIdEncoder idEncoder;
+	@Inject private CompetenceManager competenceManager;
 
 	private String cred;
 	private String comp;
@@ -62,6 +64,8 @@ public class ManageExternalToolsBean implements Serializable {
 	private long decodedCred;
 	private long decodedComp;
 	private long decodedAct;
+	
+	private String competenceTitle;
 	
 	private long origin;
 	
@@ -76,20 +80,24 @@ public class ManageExternalToolsBean implements Serializable {
 	
 	public void init() {
 		logger.info("User with email "+userBean.getUser().getEmail().getAddress()+" redirected the page manage/tools.xhtml");
+		
 		decodedCred = idEncoder.decodeId(cred);
 		decodedComp = idEncoder.decodeId(comp);
 		decodedAct = idEncoder.decodeId(act);
 		
+		competenceTitle = competenceManager.getCompetenceTitle(decodedComp);
+		
 		if (decodedCred > 0) {
-			if (decodedAct > 0){
+			if (decodedAct > 0) {
 				origin = decodedAct;
-			}else{
-				if(decodedComp > 0){
+			} else {
+				if (decodedComp > 0) {
 					origin = decodedComp;
-				}else{
+				} else {
 					origin = decodedCred;
 				}
 			}
+			
 			try {
 				Course course = defaultManager.loadResource(Course.class, decodedCred);
 
@@ -105,9 +113,10 @@ public class ManageExternalToolsBean implements Serializable {
 					Competence comp = courseCompetences.getCompetence();
 					
 					ExternalToolFilterData compItem = new ExternalToolFilterData(comp.getId(), comp.getTitle(), courseData.getId(), ResourceType.Competence, new ToolSearchCompetenceFilter());
-					if(selectedFilter == null){
+					if (selectedFilter == null) {
 						setOriginFilter(compItem);
 					}
+					
 					for (CompetenceActivity compActivity : comp.getActivities()) {
 						Activity activity = compActivity.getActivity();
 						
@@ -121,10 +130,10 @@ public class ManageExternalToolsBean implements Serializable {
 					resourceFilter.add(compItem);
 				}
 				
-				if(selectedFilter == null){
+				if (selectedFilter == null) {
 					resourceFilter = new LinkedList<>();
 					PageUtil.fireErrorMessage("That resource does not exist");
-				}else{
+				} else {
 					loadData();
 				}
 			} catch (ResourceCouldNotBeLoadedException e) {
@@ -140,21 +149,22 @@ public class ManageExternalToolsBean implements Serializable {
 	}
 	
 	private void setOriginFilter(ExternalToolFilterData filter){
-		if(filter.getId() == origin){
+		if (filter.getId() == origin) {
 			setSelectedFilter(filter);
 		}
 	}
 	
 	public void setSelectedFilter (ExternalToolFilterData filter){
 		this.selectedFilter = filter;
-		if(selectedFilter.getResType().equals(ResourceType.Activity)){
+		
+		if (selectedFilter.getResType().equals(ResourceType.Activity)) {
 			currentActivity = selectedFilter.getId();
 			currentCompetence = selectedFilter.getParentId();
-		}else{
-			if(selectedFilter.getResType().equals(ResourceType.Competence)){
+		} else {
+			if (selectedFilter.getResType().equals(ResourceType.Competence)) {
 				currentCompetence = selectedFilter.getId();
 				currentActivity = 0;
-			}else{
+			} else {
 				currentCompetence = 0;
 				currentActivity = 0;
 			}
@@ -163,26 +173,26 @@ public class ManageExternalToolsBean implements Serializable {
 	
 	
 	public void loadData() {
-		Map <String, Object> params = prepareSearchParameters();
+		Map<String, Object> params = prepareSearchParameters();
 		List<LtiTool> tools = toolManager.searchTools(userBean.getUser().getId(), params, selectedFilter.getFilter());
 		externalTools = new LinkedList<>();
-		for(LtiTool t : tools){
+		for (LtiTool t : tools) {
 			externalTools.add(new ExternalToolData(t));
 		}
 	}
 	
-	public String setEnabledButton(ExternalToolData tool){
-		if(tool.isEnabled()){
+	public String setEnabledButton(ExternalToolData tool) {
+		if (tool.isEnabled()) {
 			return "Disable";
 		}
 		return "Enable";
-		
 	}
-	
-	private Map<String, Object> prepareSearchParameters () {
-		Map<String, Object> parameters= new HashMap<>();
+
+	private Map<String, Object> prepareSearchParameters() {
+		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(EntityConstants.CREDENTIAL_ID, decodedCred);
-		switch(selectedFilter.getResType()){
+		
+		switch (selectedFilter.getResType()) {
 			case Credential:
 				break;
 			case Competence:
@@ -196,12 +206,12 @@ public class ManageExternalToolsBean implements Serializable {
 		return parameters;
 	}
 	
-	public void changeEnabled(ExternalToolData tool){
+	public void changeEnabled(ExternalToolData tool) {
 		try {
 			boolean enabled = !tool.isEnabled();
 			toolManager.changeEnabled(tool.getId(), enabled);
 			tool.setEnabled(enabled);
-			
+
 			PageUtil.fireSuccessfulInfoMessage("toolsForm:externalToolsGrowl", "Tool " + (enabled ? "enabled." : "disabled."));
 			logger.info("LTI tool enabled status changed");
 		} catch (Exception e) {
@@ -209,12 +219,12 @@ public class ManageExternalToolsBean implements Serializable {
 		}
 	}
 	
-	public void deleteTool(ExternalToolData tool){
+	public void deleteTool(ExternalToolData tool) {
 		try {
 			toolManager.deleteLtiTool(tool.getId());
 			externalTools.remove(tool);
 			logger.info("LTI tool deleted");
-			//loadData();
+			// loadData();
 		} catch (Exception e) {
 			PageUtil.fireErrorMessage(e.getMessage());
 		}
@@ -227,6 +237,7 @@ public class ManageExternalToolsBean implements Serializable {
 	public String getCred() {
 		return cred;
 	}
+	
 	public void setCred(String id) {
 		this.cred = id;
 	}
@@ -278,6 +289,9 @@ public class ManageExternalToolsBean implements Serializable {
 	public void setCurrentActivity(long currentActivity) {
 		this.currentActivity = currentActivity;
 	}
-	
+
+	public String getCompetenceTitle() {
+		return competenceTitle;
+	}
 	
 }

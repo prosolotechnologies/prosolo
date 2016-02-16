@@ -1,0 +1,41 @@
+<ui:composition
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+	<div role="tabpanel" class="tab-pane fade" id="timeline">
+					
+		<h2>Timeline</h2>
+		
+		<div class="row">
+			<div class="col-md-10">
+				<div id="timeline-graph"></div>
+			</div>
+			<div id="timeline-event-types" class="col-md-2">
+				<div class="checkbox checkbox-success">
+					<input id="timeline-credential-checkbox" event-type="Credentials" type="checkbox" checked="checked"/>
+					<label for="timeline-credential-checkbox">Credentials</label>
+				</div>
+				<div class="separator" />
+				
+				<div class="checkbox checkbox-primary">
+					<input id="timeline-competence-checkbox" event-type="Competences" type="checkbox" checked="checked"/>
+					<label for="timeline-competence-checkbox">Competences</label>
+				</div>
+				<div class="separator" />
+				
+				<div class="checkbox checkbox-danger">
+					<input id="timeline-activities-checkbox" event-type="Activities" type="checkbox" checked="checked"/>
+					<label for="timeline-activities-checkbox">Activities</label>
+				</div>
+			</div>
+		</div>
+			
+		<div id="tooltip-holder" />
+	</div>
+</ui:composition>

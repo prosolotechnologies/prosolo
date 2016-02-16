@@ -257,7 +257,7 @@
 									 <h:link id= "linkMembers" 
 									 	rendered="#{not empty courseData.memberIds}"
 										value="#{courseData.memberIds.size()} people" 
-										outcome="/manage/studentList.xhtml">
+										outcome="/manage/credential-students.xhtml">
 										<f:param name="id" value="#{util:encodeId(courseData.id)}" />
 										<f:param name="courseName" value="#{courseData.title}" />
 									</h:link>
