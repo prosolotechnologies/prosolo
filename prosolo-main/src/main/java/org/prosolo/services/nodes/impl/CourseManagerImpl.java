@@ -476,34 +476,41 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional(readOnly = false)
-	public CourseEnrollment enrollInCourse(User user, Course course, TargetLearningGoal targetGoal, String context,
-			String page, String lContext, String service) {
+	public CourseEnrollment enrollInCourse(User user, long courseId, TargetLearningGoal targetGoal, String context,
+			String page, String lContext, String service) throws ResourceCouldNotBeLoadedException {
+		
+		Course course = loadResource(Course.class, courseId);
+		
 		Map<String, Object> res = resourceFactory.enrollUserInCourse(user, course, targetGoal, context);
 		CourseEnrollment enrollment = null;
-		if(res != null) {
+		
+		if (res != null) {
 			enrollment = (CourseEnrollment) res.get("enrollment");
 		}
-		if(enrollment != null) {
-			try {
-				
-				Map<String, String> parameters = new HashMap<String, String>();
-				parameters.put("context", context);
-			
-				eventFactory.generateEvent(EventType.ENROLL_COURSE, user, enrollment, course, parameters);
-				
-				fireInstructorAssignEvent(user, enrollment, course.getId(), res, page, lContext, service);
-			} catch (EventException e) {
-				logger.error(e);
-			}	
-		}
+		
+//		if (enrollment != null) {
+//			try {
+//				
+//				Map<String, String> parameters = new HashMap<String, String>();
+//				parameters.put("context", context);
+//			
+//				eventFactory.generateEvent(EventType.ENROLL_COURSE, user, enrollment, course, parameters);
+//				
+//				fireInstructorAssignEvent(user, enrollment, course.getId(), res, page, lContext, service);
+//			} catch (EventException e) {
+//				logger.error(e);
+//			}	
+//		}
 		return enrollment;
 	}
 	
 	@Override
 	@Transactional (readOnly = false)
-	public CourseEnrollment addCourseCompetencesToEnrollment(Course course,
-			CourseEnrollment enrollment) {
+	public CourseEnrollment addCourseCompetencesToEnrollment(long courseId,
+			CourseEnrollment enrollment) throws ResourceCouldNotBeLoadedException {
 		List<CourseCompetence> courseCompetences = new ArrayList<CourseCompetence>();
+		
+		Course course = loadResource(Course.class, courseId);
 		
 		for (CourseCompetence courseCompetence : course.getCompetences()) {
 			CourseCompetence cc = new CourseCompetence();
@@ -1135,31 +1142,33 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	@Transactional
 	public void enrollUserIfNotEnrolled(User user, long courseId, String page, 
 			String learningContext, String service) throws RuntimeException {
-		try{
+		try {
 			Course course = (Course) persistence.currentManager().load(Course.class, courseId);
 			boolean enrolled = isUserEnrolledInCourse(user, course);
-			if(!enrolled){
+			
+			if (!enrolled) {
 				Map<String, Object> res = resourceFactory.enrollUserInCourse(user, course);
 				CourseEnrollment enrollment = null;
-				if(res != null) {
+				
+				if (res != null) {
 					enrollment = (CourseEnrollment) res.get("enrollment");
 				}
+				
 				logger.info("User with email "+user.getEmail().getAddress() + " enrolled in course with id "+course.getId());
 				
-				if(enrollment != null) {
+				if (enrollment != null) {
 					try {
 						Map<String, String> parameters = null;
 						eventFactory.generateEvent(EventType.ENROLL_COURSE, user, enrollment, course, parameters);
 					} catch (EventException e) {
 						logger.error(e);
 					}
-					
+
 					fireInstructorAssignEvent(user, enrollment, courseId, res, page, learningContext, service);
 				}
 			}
-		}catch(Exception e){
+		} catch (Exception e) {
 			logger.error(e);
-			e.printStackTrace();
 			throw new RuntimeException("Error while enrolling user");
 		}
 	}
@@ -1168,24 +1177,28 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	private void fireInstructorAssignEvent(User user, CourseEnrollment enrollment, long courseId, 
 			Map<String, Object> res, String page, String lContext, String service) {
 		Map<Long, Long> assigned = (Map<Long, Long>) res.get("assigned");
-		if(assigned != null) {
+		
+		if (assigned != null) {
 			Long instructorId = assigned.get(enrollment.getId());
-			if(instructorId != null) {
+			
+			if (instructorId != null) {
 				long insUserId = getUserIdForInstructor(instructorId);
+				
 				try {
 					Map<String, String> parameters = new HashMap<String, String>();
 					parameters.put("courseId", courseId + "");
 					User target = new User();
 					target.setId(insUserId);
 					eventFactory.generateEvent(EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR, user, user, target,
-						null, page, lContext, service, new Class[] {NodeChangeObserver.class}, null);
-				} catch(Exception e) {
+							null, page, lContext, service, new Class[] { NodeChangeObserver.class }, null);
+				} catch (Exception e) {
 					e.printStackTrace();
 					logger.error(e);
 				}
 			}
 		}
 	}
+	
 	@Override
 	@Transactional(readOnly = true)
 	public List<Map<String, Object>> getUserCoursesWithProgressAndInstructorInfo(long userId) throws DbConnectionException {
@@ -1196,7 +1209,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	@Override
 	@Transactional(readOnly = true)
 	public List<Map<String, Object>> getUserCoursesWithProgressAndInstructorInfo(long userId, Session session) throws DbConnectionException {
-		try{
+		try {
 			String query = 
 					"SELECT  course.id, tGoal.progress, userInstructor.id " +
 					"FROM CoursePortfolio coursePortfolio " +

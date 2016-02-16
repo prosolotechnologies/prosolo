@@ -1190,7 +1190,7 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 	right:0;
 	margin: 0 auto;
 	background: none;
-	width: 436px;
+	width: 435px;
 	top: 78px;
 	border-top-left-radius: 0px;
 	border-top-right-radius: 0px;	
@@ -2825,7 +2825,7 @@ table.compact > tbody > tr > td {
 	height: 11px;
 	margin-right: 4px;
 	width: 11px;
-	background-image: url(../images/sprites-edit.png);
+	background-image: url(../images/sprites.png);
 	background-repeat: no-repeat;
 	background-position: 0 -22px;
 }
@@ -2842,7 +2842,7 @@ table.compact > tbody > tr > td {
 	height: 11px;
 	margin-right: 4px;
 	width: 11px;
-	background-image: url(../images/sprites-edit.png);
+	background-image: url(../images/sprites.png);
 	background-repeat: no-repeat;
 	background-position: 0 -33px;	
 }
@@ -2873,7 +2873,7 @@ table.compact > tbody > tr > td {
 	margin-right: 5px;
 	width: 9px;
 	height: 11px;
-	background-image: url(../images/sprites-edit.png);
+	background-image: url(../images/sprites.png);
 	background-repeat: no-repeat;
 }
 
@@ -2900,7 +2900,7 @@ table.compact > tbody > tr .actionButtons .sort a.sort-down:hover {
 	height: 11px;
 	float: left;
 	margin-right: 5px;
-	background-image: url(../images/sprites-edit.png);
+	background-image: url(../images/sprites.png);
 	background-repeat: no-repeat;	
 }
 
@@ -3015,6 +3015,11 @@ table.compact > tbody > tr .actionButtons .sort a.sort-down:hover {
 .acContainerInline .acPanel {
   top: 36px;
   z-index: 999;
+}
+
+
+.acContainerInline .competenceField {
+	width: 300px;
 }
 
 

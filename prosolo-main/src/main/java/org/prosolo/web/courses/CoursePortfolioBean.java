@@ -149,11 +149,10 @@ public class CoursePortfolioBean implements Serializable {
 		// remove from withdrawn courses
 		removeFromWithdrawnCourses(courseData.getId());
 		
-		
 		CourseEnrollment enrollment = null;
 		
 		try {
-			Course course = courseManager.loadResource(Course.class, courseData.getId());
+//			Course course = courseManager.loadResource(Course.class, courseData.getId());
 		
 			// check if maybe this course is in withdrawn courses
 			if (restorePreviousLearning && courseData.getTargetGoalId() != 0) {
@@ -164,7 +163,7 @@ public class CoursePortfolioBean implements Serializable {
 					// if enrollment has not been active before, then add course's competences to it. 
 					// If it was withdrawn, then competences are already there
 					if (enrollment.getStatus().equals(Status.NOT_STARTED)) {
-						enrollment = courseManager.addCourseCompetencesToEnrollment(course, enrollment);
+						enrollment = courseManager.addCourseCompetencesToEnrollment(courseData.getId(), enrollment);
 					}
 					
 					enrollment = courseManager.activateCourseEnrollment(loggedUser.getUser(), enrollment, context,
@@ -184,11 +183,11 @@ public class CoursePortfolioBean implements Serializable {
 			} else {
 				TargetLearningGoal newTargetGoal = goalManager.createNewCourseBasedLearningGoal(
 						loggedUser.getUser(), 
-						course,
+						courseData.getId(),
 						null,
 						"");
 				
-				enrollment = courseManager.enrollInCourse(loggedUser.getUser(), course, newTargetGoal, 
+				enrollment = courseManager.enrollInCourse(loggedUser.getUser(), courseData.getId(), newTargetGoal, 
 						context, page, learningContext, service);
 				
 				newTargetGoal.setCourseEnrollment(enrollment);
@@ -213,13 +212,13 @@ public class CoursePortfolioBean implements Serializable {
 			portfolioBean.initGoalStatistics();
 			addActiveCourse(enrollment);
 			
-			logger.debug("User " + loggedUser.getUser() + " is now enrollened in a course "+course.getId());
+			logger.debug("User " + loggedUser.getUser() + " is now enrollened in a course "+courseData.getId());
 			
 			PageUtil.fireSuccessfulInfoMessage("coursesFormGrowl", 
 					ResourceBundleUtil.getMessage(
 							"courses.coursePortfolio.courseActivated.growl", 
 							loggedUser.getLocale(), 
-							course.getTitle()));
+							courseData.getTitle()));
 		} catch (EventException e) {
 			logger.error(e);
 		} catch (KeyNotFoundInBundleException e) {

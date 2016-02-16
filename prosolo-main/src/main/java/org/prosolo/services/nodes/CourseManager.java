@@ -80,8 +80,8 @@ public interface CourseManager extends AbstractManager {
 
 	Course deleteCourse(long courseId) throws ResourceCouldNotBeLoadedException;
 
-	CourseEnrollment enrollInCourse(User user, Course course, TargetLearningGoal targetGoal, String context,
-			String page, String lContext, String service);
+	CourseEnrollment enrollInCourse(User user, long courseId, TargetLearningGoal targetGoal, String context,
+			String page, String lContext, String service) throws ResourceCouldNotBeLoadedException;
 
 	CourseEnrollment updateEnrollment(long enrollmentId, List<CourseCompetence> competences) throws ResourceCouldNotBeLoadedException;
 	
@@ -93,7 +93,7 @@ public interface CourseManager extends AbstractManager {
 
 	CourseEnrollment addToFutureCourses(long coursePortfolioId, long courseId) throws ResourceCouldNotBeLoadedException;
 
-	CourseEnrollment addCourseCompetencesToEnrollment(Course course, CourseEnrollment enrollment);
+	CourseEnrollment addCourseCompetencesToEnrollment(long courseId, CourseEnrollment enrollment) throws ResourceCouldNotBeLoadedException;
 
 	CourseEnrollment activateCourseEnrollment(User user, CourseEnrollment enrollment, String context,
 			String page, String learningContext, String service);
