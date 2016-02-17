@@ -322,7 +322,7 @@ public class WallActivityConverter {
 			}
 			
 			
-			if (socialActivityData.getSocialActivity().getClazz().equals(TwitterPostSocialActivity.class) 
+			if (socialActivityData.getSocialActivity()!=null && socialActivityData.getSocialActivity().getClazz().equals(TwitterPostSocialActivity.class)
 					&& socialActivityData.getTwitterUserType() != null
 					&& socialActivityData.getTwitterUserType().equals(UserType.TWITTER_USER)) {
 

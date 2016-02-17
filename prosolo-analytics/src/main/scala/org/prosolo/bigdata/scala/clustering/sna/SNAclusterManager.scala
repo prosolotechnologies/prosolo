@@ -26,7 +26,7 @@ import scala.collection.JavaConverters._
   */
 object SNAclusterManager{
 
-val edgesToRemove=5
+val edgesToRemove=2
   //val moocCourses:Array[Long]=Array(1,32768,32769,32770,65536,98304,98305,98306,131072,131073,131074)
    val allCourses:Array[Long]=Array(1)
   val dbManager=SocialInteractionStatisticsDBManagerImpl.getInstance()
