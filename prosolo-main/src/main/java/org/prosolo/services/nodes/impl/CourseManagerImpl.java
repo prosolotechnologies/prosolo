@@ -488,19 +488,19 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 			enrollment = (CourseEnrollment) res.get("enrollment");
 		}
 		
-//		if (enrollment != null) {
-//			try {
-//				
-//				Map<String, String> parameters = new HashMap<String, String>();
-//				parameters.put("context", context);
-//			
-//				eventFactory.generateEvent(EventType.ENROLL_COURSE, user, enrollment, course, parameters);
-//				
-//				fireInstructorAssignEvent(user, enrollment, course.getId(), res, page, lContext, service);
-//			} catch (EventException e) {
-//				logger.error(e);
-//			}	
-//		}
+		if (enrollment != null) {
+			try {
+				
+				Map<String, String> parameters = new HashMap<String, String>();
+				parameters.put("context", context);
+			
+				eventFactory.generateEvent(EventType.ENROLL_COURSE, user, enrollment, course, parameters);
+				
+				fireInstructorAssignEvent(user, enrollment, course.getId(), res, page, lContext, service);
+			} catch (EventException e) {
+				logger.error(e);
+			}	
+		}
 		return enrollment;
 	}
 	
