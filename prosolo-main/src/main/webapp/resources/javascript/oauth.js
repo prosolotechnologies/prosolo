@@ -364,7 +364,9 @@ OAuth.setProperties(OAuth.SignatureMethod.prototype, // instance members
 {
     /** Add a signature to the message. */
     sign: function sign(message) {
+    	console.log(message.parameters);
         var baseString = OAuth.SignatureMethod.getBaseString(message);
+        console.log("BASE STRING " + baseString);
         var signature = this.getSignature(baseString);
         OAuth.setParameter(message, "oauth_signature", signature);
         return signature; // just in case someone's interested
