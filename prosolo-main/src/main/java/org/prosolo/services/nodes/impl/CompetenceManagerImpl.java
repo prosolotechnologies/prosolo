@@ -534,7 +534,7 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 			competence.setTags(tags);
 		
 			return competence;
-		} catch(Exception e) {
+		} catch (Exception e) {
 			throw new DbConnectionException("Error while saving competence");
 		}
 	}

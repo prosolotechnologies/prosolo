@@ -47,12 +47,9 @@ public class CourseInstructorsBean implements Serializable {
 
 	private List<CourseInstructorData> instructors;
 
-	@Inject
-	private UrlIdEncoder idEncoder;
-	@Inject
-	private TextSearch textSearch;
-	@Inject
-	private CourseManager courseManager;
+	@Inject private UrlIdEncoder idEncoder;
+	@Inject private TextSearch textSearch;
+	@Inject private CourseManager courseManager;
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private EventFactory eventFactory;
 	@Inject @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
@@ -81,10 +78,12 @@ public class CourseInstructorsBean implements Serializable {
 
 	public void init() {
 		decodedId = idEncoder.decodeId(id);
+		
 		if (decodedId > 0) {
 			context = "name:CREDENTIAL|id:" + decodedId;
+			
 			try {
-				if(courseTitle == null) {
+				if (courseTitle == null) {
 					courseTitle = courseManager.getCourseTitle(decodedId);
 				}
 				manuallyAssignStudents = courseManager.areStudentsManuallyAssignedToInstructor(decodedId);
