@@ -28,7 +28,8 @@ import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.data.activity.ActivityData;
-import org.prosolo.services.nodes.data.activity.ActivityTypeMapper;
+import org.prosolo.services.nodes.data.activity.mapper.ActivityMapperFactory;
+import org.prosolo.services.nodes.data.activity.mapper.activityData.ActivityDataMapper;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.activitywall.data.AttachmentPreview;
 import org.prosolo.web.competences.data.ActivityType;
@@ -564,15 +565,14 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 			for(Object[] obj : result) {
 				Activity activity = (Activity) obj[2];
 				if(activity != null) {
-					ActivityData act = ActivityTypeMapper.mapToActivityData(activity);
-					act.setCompetenceActivityId((long) obj[0]);
-					act.setOrder((long) obj[1]);
-					act.setActivityId(activity.getId());
-					act.setTitle(activity.getTitle());
-					act.setDescription(activity.getDescription());
-					act.setMandatory(activity.isMandatory());
-					
-					activities.add(act);
+					ActivityDataMapper mapper = ActivityMapperFactory.getActivityDataMapper(activity);
+					if(mapper != null) {
+						ActivityData act = mapper.mapToActivityData();
+						act.setCompetenceActivityId((long) obj[0]);
+						act.setOrder((long) obj[1]);
+	
+						activities.add(act);
+					}
 				}
 
 			}

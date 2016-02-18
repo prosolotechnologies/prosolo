@@ -12,6 +12,7 @@ import org.prosolo.common.domainmodel.content.RichContent;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.User;
 
+@Deprecated
 public class ActivityTypeMapper {
 
 	public static ActivityData mapToActivityData(Activity activity) {
@@ -46,7 +47,7 @@ public class ActivityTypeMapper {
 				activity = createResourceActivity(activityData, ContentType.NONE);
 			    break;
 			case FILE:
-				activity = createResourceActivity(activityData, ContentType.RESOURCE);
+				activity = createResourceActivity(activityData, ContentType.UPLOAD);
 				break;
 			case URL:
 				activity = createResourceActivity(activityData, ContentType.LINK);
