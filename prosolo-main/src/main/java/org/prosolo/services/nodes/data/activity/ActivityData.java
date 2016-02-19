@@ -19,11 +19,13 @@ public class ActivityData implements Serializable{
 	private boolean mandatory;
 	private long makerId;
 	private VisibilityType visibilityType;
-	private ResourceType activityType;
+	private ResourceType resourceType;
 	private ResourceData resourceData;
 	
+	private Class<? extends Activity> activityClass;
+	
 	public ActivityData() {
-		this.activityType = ResourceType.NONE;
+		this.resourceType = ResourceType.NONE;
 		this.visibilityType = VisibilityType.PUBLIC;
 	}
 
@@ -48,7 +50,7 @@ public class ActivityData implements Serializable{
 	}
 	
 	public void createResourceDataBasedOnResourceType() {
-		switch(activityType) {
+		switch(resourceType) {
 			case ASSIGNMENT:
 				this.resourceData = new UploadAssignmentResourceData();
 				return;
@@ -120,12 +122,12 @@ public class ActivityData implements Serializable{
 		this.order = order;
 	}
 
-	public ResourceType getActivityType() {
-		return activityType;
+	public ResourceType getResourceType() {
+		return resourceType;
 	}
 
-	public void setActivityType(ResourceType activityType) {
-		this.activityType = activityType;
+	public void setResourceType(ResourceType activityType) {
+		this.resourceType = activityType;
 	}
 
 	public ResourceData getResourceData() {
@@ -150,6 +152,14 @@ public class ActivityData implements Serializable{
 
 	public void setVisibilityType(VisibilityType visibilityType) {
 		this.visibilityType = visibilityType;
+	}
+	
+	public Class<? extends Activity> getActivityClass () {
+		return activityClass;
+	}
+
+	public void setActivityClass(Class<? extends Activity> activityClass) {
+		this.activityClass = activityClass;
 	}
 	
 }

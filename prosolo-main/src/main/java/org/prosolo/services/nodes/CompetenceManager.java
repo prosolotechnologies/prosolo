@@ -18,6 +18,7 @@ import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
+import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.data.activity.ActivityData;
@@ -89,8 +90,15 @@ public interface CompetenceManager extends AbstractManager {
 	
 	String getCompetenceTitle(long compId) throws DbConnectionException;
 	
-	CompetenceActivity saveCompetenceActivity(long compId, ActivityData activityData) throws DbConnectionException;
+	CompetenceActivity saveCompetenceActivity(long compId, ActivityData activityData,
+			LearningContextData context) throws DbConnectionException;
 
 	Competence createNewUntitledCompetence(User user, CreatorType manager);
+	
+	void deleteCompetenceActivity(ActivityData activityData,
+			List<ActivityData> changedActivities, User user, 
+			LearningContextData context) throws DbConnectionException;
+	
+	void updateOrderOfCompetenceActivities(List<ActivityData> activities) throws DbConnectionException;
 	
 }

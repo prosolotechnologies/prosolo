@@ -13,6 +13,7 @@ import org.prosolo.common.domainmodel.outcomes.Outcome;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
+import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.web.activitywall.data.AttachmentPreview;
@@ -86,4 +87,9 @@ public interface ActivityManager extends AbstractManager {
 	List<Long> getTimeSpentOnActivityForAllUsersSorted(long activityId) throws DbConnectionException;
 	
 	boolean updateTimeSpentOnActivity(long activityId, long timeSpent, Session session);
+	
+	boolean checkIfActivityIsReferenced(long activityId) throws DbConnectionException;
+	
+	void deleteActivity(long activityId, Class<? extends Activity> activityClass, User user, 
+			LearningContextData data);
 }

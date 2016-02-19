@@ -333,8 +333,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				for (SearchHit hit : sResponse.getHits()) {
 					Long id = ((Integer) hit.getSource().get("id")).longValue();
 					try {
-						Activity activity = defaultManager.loadResource(Activity.class, id);
-						
+						Activity activity = defaultManager.get(Activity.class, id);
+						//activity = HibernateUtil.initializeAndUnproxy(activity);
 						if (activity != null) {
 							response.addFoundNode(activity);
 						}

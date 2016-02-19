@@ -71,7 +71,8 @@ import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.ScaleManager;
 import org.prosolo.services.nodes.data.activity.ActivityData;
-import org.prosolo.services.nodes.data.activity.ActivityTypeMapper;
+import org.prosolo.services.nodes.data.activity.mapper.ActivityMapperFactory;
+import org.prosolo.services.nodes.data.activity.mapper.activity.ActivityMapper;
 import org.prosolo.web.activitywall.data.AttachmentPreview;
 import org.prosolo.web.competences.data.ActivityFormData;
 import org.prosolo.web.competences.data.ActivityType;
@@ -824,16 +825,32 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     }
 
     @Override
-    @Transactional(readOnly = false)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public Activity createNewActivity(ActivityData activityData) throws DbConnectionException {
         try {
-            Activity activity = ActivityTypeMapper.mapToActivity(activityData);
+        	ActivityMapper mapper = ActivityMapperFactory.getActivityMapper(activityData);
+        	if(mapper != null) {
+        		Activity activity = mapper.mapToActivity();
             
-            return saveEntity(activity);
+        		return saveEntity(activity);
+        	}
+        	return null;
         } catch(Exception e) {
             logger.error(e);
             e.printStackTrace();
             throw new DbConnectionException("Error while creating new activity");
         }
+    }
+    
+    @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    public void deleteCompetenceActivityInSeparateTransaction(long competenceActivityId) 
+    		throws DbConnectionException {
+    	try {
+    		deleteById(CompetenceActivity.class, competenceActivityId, 
+					persistence.currentManager());
+    	} catch(Exception e) {
+    		throw new DbConnectionException("Error while deleting competence activity");
+    	}
     }
 }

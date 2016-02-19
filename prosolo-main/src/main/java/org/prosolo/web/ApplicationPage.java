@@ -33,7 +33,8 @@ public enum ApplicationPage {
 	INSTRUCTOR_DETAILS("/manage/credential-instructors-add.xhtml"),
 	INSTRUCTOR_LIST("/manage/credential-instructors.xhtml"),
 	STUDENT_REASSIGN("/manage/credential-instructors-reassign.xhtml"),
-	LTI_PROVIDER_LAUNCH("/ltiproviderlaunch.xhtml");
+	LTI_PROVIDER_LAUNCH("/ltiproviderlaunch.xhtml"),
+	COMPETENCE_ACTIVITIES("/manage/competence-activities.xhtml");
 
     private String uri; 
     
