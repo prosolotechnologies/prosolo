@@ -17,6 +17,7 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -26,6 +27,8 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.ResourceFactory;
+import org.prosolo.services.nodes.data.activity.ActivityData;
+import org.prosolo.services.nodes.data.activity.ActivityTypeMapper;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.activitywall.data.AttachmentPreview;
 import org.prosolo.web.competences.data.ActivityType;
@@ -71,6 +74,7 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 	public Competence createCompetence(User user, String title,
 			String description, int validity, int duration, Collection<Tag> tags, 
 			List<Competence> prerequisites, List<Competence> corequisites, Date dateCreated) throws EventException {
+		
 		Competence newCompetence = resourceFactory.createCompetence(user, title, description,
 				validity, duration, tags, prerequisites, corequisites, dateCreated);
 
@@ -78,6 +82,17 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 		
 		return newCompetence;
 	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public Competence createNewUntitledCompetence(User maker, CreatorType creatorType) throws DbConnectionException {
+		try {
+			return createCompetence(maker, "Untitled", "", 1, 1, null, null, null, new Date());
+		} catch(Exception e) {
+			throw new DbConnectionException("Error while creating new competence");
+		}
+	}
+	
 	@Override
 	@Transactional
 	@Deprecated
@@ -519,8 +534,91 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 			competence.setTags(tags);
 		
 			return competence;
-		} catch(Exception e) {
+		} catch (Exception e) {
 			throw new DbConnectionException("Error while saving competence");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly=true)
+	public List<ActivityData> getCompetenceActivities(long compId) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT cAct.id, cAct.activityPosition, act " +
+					"FROM Competence comp " +
+					"LEFT JOIN comp.activities cAct " +
+					"INNER JOIN cAct.activity act " +
+					"WHERE comp.id = :compId " + 
+				    "ORDER BY cAct.activityPosition";
+			
+			@SuppressWarnings("unchecked")
+			List<Object[]> result = persistence.currentManager()
+					.createQuery(query)
+					.setLong("compId", compId)
+					.list();
+			
+			if(result == null) {
+				return new ArrayList<>();
+			}
+			List<ActivityData> activities = new ArrayList<>();
+			for(Object[] obj : result) {
+				Activity activity = (Activity) obj[2];
+				if(activity != null) {
+					ActivityData act = ActivityTypeMapper.mapToActivityData(activity);
+					act.setCompetenceActivityId((long) obj[0]);
+					act.setOrder((long) obj[1]);
+					act.setActivityId(activity.getId());
+					act.setTitle(activity.getTitle());
+					act.setDescription(activity.getDescription());
+					act.setMandatory(activity.isMandatory());
+					
+					activities.add(act);
+				}
+
+			}
+			return activities;
+		} catch(Exception e) {
+			throw new DbConnectionException("Error while loading competence activities");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public String getCompetenceTitle(long compId) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT comp.title " +
+					"FROM Competence comp " +
+					"WHERE comp.id = :compId";
+			
+			String res = (String) persistence.currentManager().createQuery(query).
+					setLong("compId", compId).
+					uniqueResult();
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading competence title");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public CompetenceActivity saveCompetenceActivity(long compId, ActivityData activityData) throws DbConnectionException {
+		try {
+			CompetenceActivity compAct = new CompetenceActivity();
+			compAct.setActivityPosition(activityData.getOrder());
+			Activity activity = resourceFactory.createNewActivity(activityData);
+			compAct.setActivity(activity);
+			saveEntity(compAct);
+			
+			Competence comp = (Competence) persistence.currentManager().load(Competence.class, compId);
+			comp.getActivities().add(compAct);
+			return compAct;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while saving course competence");
 		}
 	}
 }

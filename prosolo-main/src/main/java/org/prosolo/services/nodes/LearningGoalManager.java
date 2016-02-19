@@ -42,8 +42,8 @@ public interface LearningGoalManager extends AbstractManager {
 					throws EventException, ResourceCouldNotBeLoadedException;
 	
 	TargetLearningGoal createNewCourseBasedLearningGoal(User user,
-			Course course, LearningGoal courseGoal,
-			String context) throws EventException;
+			long courseId, LearningGoal courseGoal,
+			String context) throws EventException, ResourceCouldNotBeLoadedException;
 	
 //	TargetLearningGoal updateLearningGoal(User user, TargetLearningGoal targetGoal) throws EventException;
 	
@@ -178,5 +178,8 @@ public interface LearningGoalManager extends AbstractManager {
 	Set<Long> getTargetActivitiesForTargetLearningGoal(Long targetLearningGoalId);
 
 	List<Long> getUserGoalsIds(User user);
+	
+	TargetLearningGoal createNewCourseBasedLearningGoal(User user, Course course, LearningGoal courseGoal,
+			String context) throws EventException, ResourceCouldNotBeLoadedException;
 
 }

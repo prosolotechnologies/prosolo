@@ -149,11 +149,10 @@ public class CoursePortfolioBean implements Serializable {
 		// remove from withdrawn courses
 		removeFromWithdrawnCourses(courseData.getId());
 		
-		
 		CourseEnrollment enrollment = null;
-		Course course = courseData.getCourse();
 		
 		try {
+//			Course course = courseManager.loadResource(Course.class, courseData.getId());
 		
 			// check if maybe this course is in withdrawn courses
 			if (restorePreviousLearning && courseData.getTargetGoalId() != 0) {
@@ -164,7 +163,7 @@ public class CoursePortfolioBean implements Serializable {
 					// if enrollment has not been active before, then add course's competences to it. 
 					// If it was withdrawn, then competences are already there
 					if (enrollment.getStatus().equals(Status.NOT_STARTED)) {
-						enrollment = courseManager.addCourseCompetencesToEnrollment(course, enrollment);
+						enrollment = courseManager.addCourseCompetencesToEnrollment(courseData.getId(), enrollment);
 					}
 					
 					enrollment = courseManager.activateCourseEnrollment(loggedUser.getUser(), enrollment, context,
@@ -184,11 +183,11 @@ public class CoursePortfolioBean implements Serializable {
 			} else {
 				TargetLearningGoal newTargetGoal = goalManager.createNewCourseBasedLearningGoal(
 						loggedUser.getUser(), 
-						course,
+						courseData.getId(),
 						null,
 						"");
 				
-				enrollment = courseManager.enrollInCourse(loggedUser.getUser(), course, newTargetGoal, 
+				enrollment = courseManager.enrollInCourse(loggedUser.getUser(), courseData.getId(), newTargetGoal, 
 						context, page, learningContext, service);
 				
 				newTargetGoal.setCourseEnrollment(enrollment);
@@ -213,30 +212,18 @@ public class CoursePortfolioBean implements Serializable {
 			portfolioBean.initGoalStatistics();
 			addActiveCourse(enrollment);
 			
-			
-//			final CourseEnrollment enrollment1 = enrollment;
-			
-//			taskExecutor.execute(new Runnable() {
-//				@Override
-//				public void run() {
-//			    	try {
-//						courseManager.addEnrollment(coursePortfolioId, enrollment1);
-//					} catch (ResourceCouldNotBeLoadedException e) {
-//						logger.error(e);
-//					}
-//				}
-//			});
-			
-			logger.debug("User " + loggedUser.getUser() + " is now enrollened in a course "+course.getId());
+			logger.debug("User " + loggedUser.getUser() + " is now enrollened in a course "+courseData.getId());
 			
 			PageUtil.fireSuccessfulInfoMessage("coursesFormGrowl", 
 					ResourceBundleUtil.getMessage(
 							"courses.coursePortfolio.courseActivated.growl", 
 							loggedUser.getLocale(), 
-							course.getTitle()));
+							courseData.getTitle()));
 		} catch (EventException e) {
 			logger.error(e);
 		} catch (KeyNotFoundInBundleException e) {
+			logger.error(e);
+		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		}
 		return enrollment;
@@ -276,7 +263,7 @@ public class CoursePortfolioBean implements Serializable {
 		Collections.sort(this.futureCourses);
 		
 		try {
-			CourseEnrollment enrollment = courseManager.addToFutureCourses(coursePortfolioId, courseData.getCourse());
+			CourseEnrollment enrollment = courseManager.addToFutureCourses(coursePortfolioId, courseData.getId());
 			courseData.setEnrollment(enrollment);
 			
 			PageUtil.fireSuccessfulInfoMessage("coursesFormGrowl", 
@@ -458,7 +445,7 @@ public class CoursePortfolioBean implements Serializable {
 	
 	public void replaceFutureCourse(CourseData updatedObjData) {
 		for (int i = 0; i < futureCourses.size(); i++) {
-			if (futureCourses.get(i).getCourse().getId() == updatedObjData.getCourse().getId()){
+			if (futureCourses.get(i).getId() == updatedObjData.getId()){
 				futureCourses.set(i, updatedObjData);
 				break;
 			}

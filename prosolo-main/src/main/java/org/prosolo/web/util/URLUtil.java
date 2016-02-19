@@ -80,7 +80,11 @@ public class URLUtil {
 		
 		String forwardRequestUri = (String) request.getAttribute("javax.servlet.forward.request_uri");
 		
-		return forwardRequestUri.matches(pageRegex);
+		if (forwardRequestUri != null && !forwardRequestUri.isEmpty()) {
+			return forwardRequestUri.matches(pageRegex);
+		} else {
+			return false;
+		}
 	}
 	
 	

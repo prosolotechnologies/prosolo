@@ -14,12 +14,10 @@
 		}
 	</style>
 	
-	<div role="tabpanel" class="tab-pane fade in active">
-
-
+	<div role="tabpanel" id="progression" class="tab-pane fade in active">
 		<h:panelGroup layout="block" id="svgContainer">
 			<script>
-			if (drawTreePath){
+			if (typeof (drawTreePath) == "function"){
 				drawTreePath();
 			}
 			</script>

@@ -20,7 +20,7 @@ var timelineGraph = (function () {
 		
 		var margin = {top: 10, right: 10, bottom: 100, left: 40},
 	    margin2 = {top: 220, right: 10, bottom: 20, left: 40},
-	    width = 960 - margin.left - margin.right,
+	    width = 860 - margin.left - margin.right,
 	    tooltipMainRectHeight = 45,
 	    tooltipTitleRectHeight = 15,
 	    tooltipWidth = 120,
@@ -181,7 +181,6 @@ var timelineGraph = (function () {
 				  	.attr("height", tooltipMainRectHeight)
 				  	.attr("tooltip-index", function (d,i) { return i })
 				  	.attr("id",function(d,i){return "tooltip-"+i+"-"+d.value})
-				  	.style("filter", "url(#drop-shadow)")
 				  	.style("stroke",function(d){
 				  		return eventColor(d.milestones[0].type)
 				  		})
@@ -199,7 +198,6 @@ var timelineGraph = (function () {
 		  	.attr("width", tooltipWidth)
 		  	.attr("height", tooltipTitleRectHeight)
 		  	.attr("tooltip-index", function (d,i) { return i })
-		  	.style("filter", "url(#drop-shadow)")
 		  	.attr("id",function(d,i){return "tooltip-title-"+i+"-"+d.value})
 		  	.style("fill",function(d){return eventColor(d.milestones[0].type)})
 		  	.style("stroke",function(d){return eventColor(d.milestones[0].type)})

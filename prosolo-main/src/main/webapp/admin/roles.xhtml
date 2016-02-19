@@ -145,7 +145,7 @@
 											</th>
 											
 											<c:forEach items="#{roles.roles}" var="role">
-												<th class="colStudent" scope="col">
+												<th class="" scope="col">
 					    							#{role.name}
 					    						</th>
 											</c:forEach>
@@ -160,7 +160,7 @@
 												</td>
 												
 												<c:forEach items="#{roles.roles}" var="role">
-													<td class="colProfileD">
+													<td class="">
 						        						<h:selectBooleanCheckbox checked="#{roles.isSelected(cap,role)}">
 															<p:ajax event="click" process="@this"
 																listener="#{roles.capabilityChanged(cap, role)}" update=":capabilitiesForm:growlMsg @this" />

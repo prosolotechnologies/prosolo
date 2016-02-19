@@ -18,12 +18,10 @@ import org.prosolo.common.domainmodel.course.CourseCompetence;
 import org.prosolo.common.domainmodel.course.CourseEnrollment;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
-import org.prosolo.common.domainmodel.user.User;
 //import org.prosolo.util.nodes.CreatedAscComparator;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.util.nodes.AnnotationUtil;
-import org.prosolo.util.nodes.CreatedAscComparator;
 import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.courses.util.CourseDataConverter;
 
@@ -41,7 +39,6 @@ public class CourseData implements Comparable<CourseData>, Serializable {
 	private long targetGoalId;
 	private String title;
 	private String description;
-	private User creator;
 	private UserData maker;
 	private boolean enrolled;
 	private boolean editable;
@@ -67,8 +64,9 @@ public class CourseData implements Comparable<CourseData>, Serializable {
 	
 	private String hashtagsString = "";
 
-	private Course basedOnCourse;
-	private Course course;
+//	private Course basedOnCourse;
+//	private Course course;
+	private long basedOnCourse;
 
 	public CourseData() {
 		this.originalCompetences = new ArrayList<CourseCompetenceData>();
@@ -83,14 +81,14 @@ public class CourseData implements Comparable<CourseData>, Serializable {
 		this.dateCreated = course.getDateCreated();
 		this.title = course.getTitle();
 		this.description = course.getDescription();
-		this.creator = course.getMaker();
 		this.maker = UserDataFactory.createUserData(course.getMaker());
-		this.basedOnCourse = course.getBasedOn();
+		if (course.getBasedOn() != null) {
+			this.basedOnCourse = course.getBasedOn().getId();
+		}
 		this.originalCompetences = CourseDataConverter.convertToCompetenceCourseData(course.getCompetences(), true);
 		this.tags = new ArrayList<Tag>(course.getTags());
 		this.tagsString = AnnotationUtil.getAnnotationsAsSortedCSV(this.tags);
 		this.creatorType = course.getCreatorType();
-		this.course = course;
 		this.studentsCanAddNewCompetences = course.isStudentsCanAddNewCompetences();
 		this.published = course.isPublished();
 		
@@ -144,14 +142,6 @@ public class CourseData implements Comparable<CourseData>, Serializable {
 
 	public void setDescription(String description) {
 		this.description = description;
-	}
-	
-	public User getCreator() {
-		return creator;
-	}
-	
-	public void setCreator(User creator) {
-		this.creator = creator;
 	}
 	
 	public UserData getMaker() {
@@ -230,14 +220,6 @@ public class CourseData implements Comparable<CourseData>, Serializable {
 		this.progress = progress;
 	}
 
-	public Course getCourse() {
-		return course;
-	}
-
-	public void setCourse(Course course) {
-		this.course = course;
-	}
-	
 	public List<CourseCompetenceData> getOriginalCompetences() {
 		return originalCompetences;
 	}
@@ -298,11 +280,11 @@ public class CourseData implements Comparable<CourseData>, Serializable {
 		return false;
 	}
 
-	public Course getBasedOnCourse() {
+	public long getBasedOnCourse() {
 		return basedOnCourse;
 	}
 
-	public void setBasedOnCourse(Course basedOnCourse) {
+	public void setBasedOnCourse(long basedOnCourse) {
 		this.basedOnCourse = basedOnCourse;
 	}
 
@@ -380,8 +362,14 @@ public class CourseData implements Comparable<CourseData>, Serializable {
 
 	@Override
 	public int compareTo(CourseData o) {
-		return new CreatedAscComparator().compare(this.getCourse(),
-				o.getCourse());
+		if (this.dateCreated != null && o.dateCreated != null) {
+			if (this.dateCreated.before(o.dateCreated)) {
+				return -1;
+			} else {
+				return 1;
+			}
+		}
+		return this.getTitle().compareToIgnoreCase(o.getTitle());
 	}
 
 	@Override

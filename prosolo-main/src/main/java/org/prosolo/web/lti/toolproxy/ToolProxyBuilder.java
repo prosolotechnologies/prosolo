@@ -42,6 +42,7 @@ public class ToolProxyBuilder {
 			tp.setWantedServices(null);
 			return tp;
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new Exception("Error while building the ToolProxy");
 		}
 	}

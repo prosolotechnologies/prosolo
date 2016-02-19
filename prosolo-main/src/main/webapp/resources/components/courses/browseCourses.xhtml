@@ -242,7 +242,7 @@
 									
 									<h:panelGroup rendered="#{courseData.creatorType == 'USER'}">
 										<link:user value="userDetailsImage" 
-						    				user="#{courseData.creator}"
+						    				userData="#{courseData.maker}"
 						    				mode="imageName"
 						    				imageSize="22"
 						    				idPrefix="objSearchCreator#{iterator.index}" 
@@ -257,7 +257,7 @@
 									 <h:link id= "linkMembers" 
 									 	rendered="#{not empty courseData.memberIds}"
 										value="#{courseData.memberIds.size()} people" 
-										outcome="/manage/studentList.xhtml">
+										outcome="/manage/credential-students.xhtml">
 										<f:param name="id" value="#{util:encodeId(courseData.id)}" />
 										<f:param name="courseName" value="#{courseData.title}" />
 									</h:link>
@@ -301,7 +301,9 @@
 								<div class="links">
 									<h:link class="button green size20 left"
 										rendered="#{cc.attrs.role == 'MANAGER'}"
-										value="Edit" outcome="/manage/course">
+										onclick="sendLogPageNavigationWithParameters('credentials', {context: 'plan.browse.#{courseData.id}.title', courseId: #{courseData.id}});"
+										value="Edit"
+										outcome="#{cc.attrs.courseDetailsPagePath}">
 										<f:param name="id" value="#{util:encodeId(courseData.id)}" />
 									</h:link>
 									

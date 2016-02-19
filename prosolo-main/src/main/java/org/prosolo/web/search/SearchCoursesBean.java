@@ -40,9 +40,9 @@ public class SearchCoursesBean implements Serializable {
 
 	private static Logger logger = Logger.getLogger(SearchCoursesBean.class);
 	
-	@Autowired private TextSearch textSearch;
-	@Autowired private CourseManager courseManager;
-	@Autowired private LoggingNavigationBean loggingNavigationBean;
+	@Inject private TextSearch textSearch;
+	@Inject private CourseManager courseManager;
+	@Inject private LoggingNavigationBean loggingNavigationBean;
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private UrlIdEncoder idEncoder;
 	

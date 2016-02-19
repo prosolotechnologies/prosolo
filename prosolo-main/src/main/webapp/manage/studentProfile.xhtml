@@ -53,10 +53,11 @@
 				<h:link
 					styleClass="btn btn-default"
 				 	rendered="#{param['courseId'] != null}"
-					outcome="/manage/studentList.xhtml">
+					outcome="/manage/credential-students.xhtml">
 					<f:param name="id" value="#{param['courseId']}" />
 					<i class="fa fa-reply"></i>
 				</h:link>
+				
 				<h:link id="nesto"
 					styleClass="btn btn-default"
 				 	rendered="#{param['courseId'] == null}"
@@ -66,14 +67,14 @@
 			</div>
 
 			<div class="col-md-2 studentInfo">
-				<span class="userProfileImageSmall"> <h:graphicImage
+				<span class="userProfileImageSmall">
+					<h:graphicImage
 						value="#{studentProfileBean.student.avatar}"
 						alt="#{studentProfileBean.student.name}'s avatar" />
 				</span>
 
 				<div class="name">
 					<h1>#{studentProfileBean.student.name}</h1>
-					
 
 					<actions:directMessage
 						receiverData="#{studentProfileBean.getMessageReceiverData()}"
@@ -93,18 +94,17 @@
 					<a id="socialDropdown" data-target="#" data-toggle="dropdown"
 						role="button" aria-haspopup="true" aria-expanded="false"></a>
 
-					<h:panelGroup id="socialPanel" layout="block" class="dropdown-menu"
-						aria-labelledby="dLabel">
-						<button type="button" class="close" data-dismiss="alert"
-							aria-label="Close">
+					<h:panelGroup id="socialPanel" layout="block" class="dropdown-menu"	aria-labelledby="dLabel">
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 							<span aria-hidden="true">&#215;</span>
 						</button>
-						 <h3 class="title">University</h3>
-            			 <h2>#{studentProfileBean.student.position}</h2>
+
+						<h3 class="title">University</h3>
+						<h2>#{studentProfileBean.student.position}</h2>
 						<h3 class="title">Interests</h3>
+						
 						<ul>
-							<ui:repeat var="interest"
-								value="#{studentProfileBean.student.interests}">
+							<ui:repeat var="interest" value="#{studentProfileBean.student.interests}">
 								<li class="label label-interest">#{interest}</li>
 							</ui:repeat>
 						</ul>
@@ -114,37 +114,38 @@
 
 							<h:panelGroup id="socNetworks" class="socNetworks">
 								<ul class="socIcons">
-									<li><c:if
-											test="#{studentProfileBean.socialNetworksData.twitterLink != null and 
-													studentProfileBean.socialNetworksData.twitterLink.length() > 0}">
+									<li>
+										<c:if test="#{studentProfileBean.socialNetworksData.twitterLink != null and 
+											studentProfileBean.socialNetworksData.twitterLink.length() > 0}">
 
-											<a
-												href="#{studentProfileBean.socialNetworksData.twitterLink}"
+											<a href="#{studentProfileBean.socialNetworksData.twitterLink}"
 												onclick="sendLogPageNavigation('#{studentProfileBean.socialNetworksData.twitterLink}', 'publicprofile.${userId}.info.socialNetworks.twitter');"
 												target="_blank"> <i class="fa fa-twitter-square twitter"></i>
 											</a>
-										</c:if> <c:if
-											test="#{studentProfileBean.socialNetworksData.twitterLink == null or 
+										</c:if>
+										
+										<c:if test="#{studentProfileBean.socialNetworksData.twitterLink == null or 
 													studentProfileBean.socialNetworksData.twitterLink.length() == 0}">
 											<i class="fa fa-twitter-square twitter inactive"></i>
-										</c:if></li>
-									<li><c:if
-											test="#{studentProfileBean.socialNetworksData.facebookLink != null and 
-												studentProfileBean.socialNetworksData.facebookLink.length() > 0}">
+										</c:if>
+									</li>
+									<li>
+										<c:if test="#{studentProfileBean.socialNetworksData.facebookLink != null and 
+													studentProfileBean.socialNetworksData.facebookLink.length() > 0}">
 
-											<a
-												href="#{studentProfileBean.socialNetworksData.facebookLink}"
+											<a href="#{studentProfileBean.socialNetworksData.facebookLink}"
 												onclick="sendLogPageNavigation('#{studentProfileBean.socialNetworksData.facebookLink}', 'publicprofile.${userId}.info.socialNetworks.facebook');"
 												target="_blank"> <i
 												class="fa fa-facebook-square facebook"></i>
 											</a>
-										</c:if> <c:if
-											test="#{studentProfileBean.socialNetworksData.facebookLink == null or 
+										</c:if>
+										<c:if test="#{studentProfileBean.socialNetworksData.facebookLink == null or 
 													studentProfileBean.socialNetworksData.facebookLink.length() == 0}">
 											<i class="fa fa-facebook-square facebook inactive"></i>
-										</c:if></li>
-									<li><c:if
-											test="#{studentProfileBean.socialNetworksData.gplusLink != null and 
+										</c:if>
+									</li>
+									<li>
+										<c:if test="#{studentProfileBean.socialNetworksData.gplusLink != null and 
 													studentProfileBean.socialNetworksData.gplusLink.length() > 0}">
 
 											<a href="#{studentProfileBean.socialNetworksData.gplusLink}"
@@ -152,26 +153,27 @@
 												target="_blank"> <i
 												class="fa fa-google-plus-square gplus"></i>
 											</a>
-										</c:if> <c:if
-											test="#{studentProfileBean.socialNetworksData.gplusLink == null or 
+										</c:if>
+										<c:if test="#{studentProfileBean.socialNetworksData.gplusLink == null or 
 													studentProfileBean.socialNetworksData.gplusLink.length() == 0}">
 											<i class="fa fa-google-plus-square gplus inactive"></i>
-										</c:if></li>
-									<li><c:if
-											test="#{studentProfileBean.socialNetworksData.blogLink != null and 
+										</c:if>
+									</li>
+									<li>
+										<c:if test="#{studentProfileBean.socialNetworksData.blogLink != null and 
 													studentProfileBean.socialNetworksData.blogLink.length() > 0}">
 
 											<a href="#{studentProfileBean.socialNetworksData.blogLink}"
 												onclick="sendLogPageNavigation('#{studentProfileBean.socialNetworksData.blogLink}', 'publicprofile.${userId}.info.socialNetworks.blog');"
 												target="_blank"> <i class="fa fa-pencil-square blog"></i>
 											</a>
-										</c:if> <c:if
-											test="#{studentProfileBean.socialNetworksData.blogLink == null or 
+										</c:if>
+										<c:if test="#{studentProfileBean.socialNetworksData.blogLink == null or 
 													studentProfileBean.socialNetworksData.blogLink.length() == 0}">
 											<i class="fa fa-pencil-square blog inactive"></i>
-										</c:if></li>
+										</c:if>
+									</li>
 								</ul>
-
 							</h:panelGroup>
 						</div>
 					</h:panelGroup>
@@ -192,8 +194,7 @@
          			</li>
       			</ul>   
 			</div>	
-			
-			</section>
+		</section>
 
 		<h:panelGroup id="historyPanel">
 			<comphistory:observationHistory />
@@ -202,131 +203,15 @@
 		<section class="container-fluid mainArea fullWidth" id="learnTabs">
 			<div class="row fullWidthPanel">
 				<div class="col-md-10">
-				<!-- Tab panes -->
-				<div class="tab-content centerTabs">
-					
-					<ui:include src="/manage/studentProfile.progression.xhtml"></ui:include>
-
-					<div role="tabpanel" class="tab-pane fade" id="timeline">
-					<h2>Timeline</h2>
-					<div class="row">
-						<div class="col-md-10">
-							<div id="timeline-graph"></div>
-						</div>
-							<div id="timeline-event-types" class="col-md-2">
-								<div class="checkbox checkbox-success">
-									<input id="timeline-credential-checkbox" event-type="Credentials" type="checkbox" checked="checked"/>
-									<label for="timeline-credential-checkbox">Credentials</label>
-								</div>
-								<div class="separator" />
-								<div class="checkbox checkbox-primary">
-									<input id="timeline-competence-checkbox" event-type="Competences" type="checkbox" checked="checked"/>
-									<label for="timeline-competence-checkbox">Competences</label>
-								</div>
-								<div class="separator" />
-								<div class="checkbox checkbox-danger">
-									<input id="timeline-activities-checkbox" event-type="Activities" type="checkbox" checked="checked"/>
-									<label for="timeline-activities-checkbox">Activities</label>
-								</div>
-							</div>
-							</div>
-							<div id="tooltip-holder" />
+					<!-- Tab panes -->
+					<div class="tab-content centerTabs">
 						
+						<ui:include src="/manage/studentProfile-progression.xhtml"></ui:include>
+
+						<ui:include src="/manage/studentProfile-timeline.xhtml"></ui:include>
+
+						<ui:include src="/manage/studentProfile-socialInteraction.xhtml"></ui:include>
 					</div>
-					<div role="tabpanel" class="tab-pane fade" id="social">
-						<h2>Social interaction graph</h2>
-						<div class="row filter">
-							<div class="col-md-3">
-								<div class="panel panel-inner">
-									<div class="panel-body">
-										<div id="social-interactions-selected">
-											<h4>Selected student</h4>
-											ID: <span id="social-interactions-selected-id">None</span><br />
-											Name: <span id="social-interactions-selected-name">None</span><br />
-											Cluster: <span id="social-interactions-selected-cluster">None</span><br />
-											<img id="social-interactions-selected-avatar" style="display: none" />
-										</div>
-									</div>
-								</div>
-							</div>
-							<ui:remove>
-							<div class="col-md-3">
-								<div class="panel panel-inner">
-									<div class="panel-body">
-										<div class="form-group">
-											<label>Type of user interaction</label> <select
-												class="form-control selectpicker">
-												<option>Communication</option>
-											</select>
-										</div>
-										<h4>Most interaction with</h4>
-										<div class="row mostInteraction">
-											<div class="col-md-6">
-												<h3 class="title">In last week</h3>
-												<!-- <div class="userInfo">
-													<span class="userProfileImage">
-														<img title="Phill Amstrong" alt="Phill Amstrong" src="images/user3120x120.png" />
-													</span>
-													<a href="#">Phill Amstrong</a>
-												</div> -->
- 												<!-- ... -->
-											</div>
-											<div class="col-md-6">
-												<h3 class="title">Overall</h3>
-												<!-- <div class="userInfo">
-													<span class="userProfileImage">
-														<img title="Anthony Moore" alt="Anthony Moore" src="images/user5120x120.png" />
-													</span>
-													<a href="#">Anthony Moore</a>
-												</div> -->
-												<!-- ... -->
-											</div>
-										</div>
-										<h4>Highlight members of</h4>
-										<div class="row toggleButtons">
-											<div class="col-md-6">
-												<h3 class="title">Credential</h3>
-												<button type="button" class="btn btn-credential" 
-													data-toggle="button" aria-pressed="false"
-													autocomplete="off">Basics of Social Network
-													Analysis</button>
-												<button type="button" class="btn btn-credential"
-													data-toggle="button" aria-pressed="false"
-													autocomplete="off">Introduction to Learning
-													Analytics</button>
-											</div>
-											<div class="col-md-6">
-												<h3 class="title">Competence</h3>
-												<button type="button" class="btn btn-competence"
-													data-toggle="button" aria-pressed="false"
-													autocomplete="off">Define Social Network analysis
-													and it's main analysis methods</button>
-												<button type="button" class="btn btn-competence"
-													data-toggle="button" aria-pressed="false"
-													autocomplete="off">Perform social network analysis
-													and visualize analysis results in Gebhi</button>
-												<button type="button" class="btn btn-competence"
-													data-toggle="button" aria-pressed="false"
-													autocomplete="off">Define Social Network analysis
-													and it's main analysis methods</button>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-							</ui:remove>
-							<div class="col-md-9">
-								<div id="social-interaction"
-									data-api="#{socialInteractionBean.apiHost}"
-									data-student-id="#{studentProfileBean.decodedId}"
-									data-course-id="#{studentProfileBean.getDecodedId(param['courseId'])}"
-									class="container manage">
-									<div id="graph"></div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
 				</div>
 				
 				<div class="col-md-2">
@@ -562,8 +447,7 @@
 			</div>
 		</section>
 		
-		<h:outputScript library="javascript" name="prosolo.tags.js"
-			target="head" />
+		<h:outputScript library="javascript" name="prosolo.tags.js"	target="head" />
 		<script src="#{request.contextPath}/manage/js/jSvgConnect.js"></script>
 		<script src="#{request.contextPath}/manage/js/studentProfile.js"></script>
 

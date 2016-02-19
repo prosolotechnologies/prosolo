@@ -34,6 +34,7 @@ import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.rest.courses.CourseParser;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.courses.data.CourseCompetenceData;
 import org.prosolo.web.courses.data.CourseData;
 import org.prosolo.web.courses.util.CourseDataConverter;
@@ -98,7 +99,7 @@ public class ManageCourseBean implements Serializable {
 		if(id == null) {
 			this.creatingNew = true;
 			this.courseData.setCreatorType(CreatorType.MANAGER);
-			this.courseData.setCreator(loggedUser.getUser());
+			this.courseData.setMaker(UserDataFactory.createUserData(loggedUser.getUser()));
 		} else {
 			long decodedId = idEncoder.decodeId(id);
 			
@@ -192,22 +193,28 @@ public class ManageCourseBean implements Serializable {
 			logger.error(e);
 		} catch (IOException e) {
 			logger.error(e);
+		} catch (ResourceCouldNotBeLoadedException e) {
+			logger.error(e);
 		}
 	}
 	
 	private void updateCourse() throws EventException {
-		@SuppressWarnings("unused")
-		Course updatedCourse = courseManager.updateCourse(
-				courseData.getCourse(), 
-				courseData.getTitle(), 
-				courseData.getDescription(), 
-				courseData.getOriginalCompetences(),
-				new HashSet<Tag>(tagManager.parseCSVTagsAndSave(courseData.getTagsString())),
-				new HashSet<Tag>(tagManager.parseCSVTagsAndSave(courseData.getHashtagsString())),
-				courseData.getBlogs(),
-				loggedUser.getUser(),
-				courseData.isStudentsCanAddNewCompetences(),
-				courseData.isPublished());
+		try {
+			@SuppressWarnings("unused")
+			Course updatedCourse = courseManager.updateCourse(
+					courseData.getId(), 
+					courseData.getTitle(), 
+					courseData.getDescription(), 
+					courseData.getOriginalCompetences(),
+					new HashSet<Tag>(tagManager.parseCSVTagsAndSave(courseData.getTagsString())),
+					new HashSet<Tag>(tagManager.parseCSVTagsAndSave(courseData.getHashtagsString())),
+					courseData.getBlogs(),
+					loggedUser.getUser(),
+					courseData.isStudentsCanAddNewCompetences(),
+					courseData.isPublished());
+		} catch (ResourceCouldNotBeLoadedException e) {
+			logger.error(e);
+		}
 	}
 
 	/*
@@ -390,12 +397,12 @@ public class ManageCourseBean implements Serializable {
 	public void initializeSuggestedCompetences() {
 		if (suggestedCompetences == null) {
 			
-			if (courseData.getCourse() != null) {
+			if (courseData.getId() > 0) {
 				List<Long> idsOfcompetencesToExclude = CourseDataConverter.getIdsOfCourseCompetences(courseData.getAddedCompetences());
 				
 				suggestedCompetences = SearchCompetencesBean.convertToCompetenceData(
 						courseManager.getOtherUsersCompetences(
-								courseData.getCourse(), 
+								courseData.getId(), 
 								idsOfcompetencesToExclude, 
 								loggedUser.getUser()));
 			}
@@ -479,6 +486,8 @@ public class ManageCourseBean implements Serializable {
 		
 		return CourseDataConverter.getIdsOfCourseCompetences(competences);
 	}
+	
+	
 	
 	
 	/*

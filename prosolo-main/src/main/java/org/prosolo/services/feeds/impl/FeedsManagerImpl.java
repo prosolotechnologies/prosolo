@@ -776,7 +776,7 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 			String query = 
 				"SELECT feed " + 
 				"FROM Course course " + 
-				"LEFT JOIN course.blogs feed " + 
+				"INNER JOIN course.blogs feed " + 
 				"WHERE course.id = :courseId";
 			
 			@SuppressWarnings("unchecked")

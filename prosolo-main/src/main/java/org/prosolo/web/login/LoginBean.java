@@ -10,11 +10,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 import org.prosolo.core.spring.security.HomePageResolver;
-import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.OpenIDBean;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,6 +25,7 @@ public class LoginBean implements Serializable{
 	
 	private static final long serialVersionUID = -3615713392420092355L;
 	
+	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(LoginBean.class);
 	
 	//@Inject

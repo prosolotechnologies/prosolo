@@ -80,22 +80,25 @@ public class ExternalToolDetailsBean implements Serializable {
 		tool.setToolType(getResourceType());
 		tool.setName(toolData.getTitle());
 		tool.setDescription(toolData.getDescription());
-		if(decodedId > 0){
+		
+		if (decodedId > 0) {
 			tool.setId(decodedId);
-			try{
+			
+			try {
 				toolManager.updateLtiTool(tool);
 				logger.info("LTI tool updated");
 				PageUtil.fireSuccessfulInfoMessage("External tool updated");
-			}catch(Exception e){
+			} catch (Exception e) {
 				PageUtil.fireErrorMessage(e.getMessage());
 			}
-		}else{
-			if(decodedCred > 0){
+		} else {
+			if (decodedCred > 0) {
 				tool.setLearningGoalId(decodedCred);
 				tool.setCompetenceId(decodedComp);
 				tool.setActivityId(decodedAct);
 				tool.setCreatedBy(user.getUser());
-				try{
+				
+				try {
 					LtiToolSet ts = tsManager.saveToolSet(tool);
 					logger.info("LTI tool saved");
 					toolData.setConsumerKey(ts.getConsumer().getKeyLtiOne());
@@ -105,7 +108,8 @@ public class ExternalToolDetailsBean implements Serializable {
 					toolData.setLaunchUrl(tool.getFullLaunchURL());
 					toolData.setRegUrl(ts.getFullRegistrationURL());
 					PageUtil.fireSuccessfulInfoMessage("External tool saved");
-				}catch(Exception e){
+					toolData.setInitialized(true);
+				} catch (Exception e) {
 					PageUtil.fireErrorMessage(e.getMessage());
 				}
 			}

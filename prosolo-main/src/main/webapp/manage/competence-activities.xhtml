@@ -1,0 +1,638 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	template="templates/masterLayout1.xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:actions="http://java.sun.com/jsf/composite/components/actions"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:dlgComp="http://java.sun.com/jsf/composite/components/dialogs/manager"
+	xmlns:mngComp="http://java.sun.com/jsf/composite/components/manage">
+
+	<ui:define name="windowTitle">
+		Competences
+	</ui:define>
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewParam name="compId" value="#{competenceActivitiesBean.id}" default="null" />
+			<f:viewParam name="compTitle" value="#{competenceActivitiesBean.title}" default="null" />
+			<f:viewParam name="origin" default="null"/>
+			<f:viewAction action="#{competenceActivitiesBean.init()}"/>
+		</f:metadata>
+	</ui:define>
+
+<ui:define name="content">
+	<h:form id="formMain">
+	<p:growl showDetail="true"></p:growl>
+	<mngComp:competenceHeader id="competenceHeader"
+        	competenceName="#{competenceActivitiesBean.title}"
+        	competenceEncodedId="#{param['compId']}"
+        	activeLink="Activities"
+        	origin="#{empty param['origin'] ? '/manage/competences' : param['origin']}"/>
+	<section>
+		<div class="subHeader">
+	   	<h3 class="title">Activities</h3>
+	   </div>
+	</section>
+
+
+	<section class="container-fluid mainArea fullWidth">
+	   <div class="row fullWidthPanel">
+	   	<div class="col-md-12">
+	
+	          <div class="panel panel-default">
+	            <div class="tabPanel addActivity form-inline">
+        			
+	            	  <p:commandLink
+	            	  	process="@this"
+	            	  	action="#{competenceActivitiesBean.setActivityForEdit()}"
+	            	  	update=":formAddActivity"
+	            	  	oncomplete="$('#modalFull').modal('show');initializePageJS();"
+	            	  	pt:role="button"
+	            	  	styleClass="btn btn-primary"
+	            	  	pt:data-toggle="modal">
+	            	  	<i class="fa fa-plus"></i> Add new activity
+	            	  </p:commandLink>
+	                  
+	                  <span>or search existing</span>
+	                  <div class="form-group acContainerInline">
+	                     <input type="text" class="form-control acField competenceField" id="" placeholder="Start typing..."></input>
+	                     <div class="acPanel userList dropdown-menu">
+	                        <table width="100%" cellspacing="0" cellpadding="0" border="0">
+	                           <tbody>
+	                              <tr>
+	                                 <td class="itemIco">
+	                                    <img class="ico40" title="Activity" alt="Activity" src="#{request.contextPath}/resources/images/ico-activities-blank.svg"></img>
+	                                    <i class="fa fa-link"></i>
+	                                 </td>
+	                                 <td class="itemTitle">
+	                                    Visit website: Network structure and Data sources
+	                                 </td>
+	                              </tr>
+	                              <tr>
+	                                 <td class="itemIco">
+	                                    <img class="ico40" title="Activity" alt="Activity" src="#{request.contextPath}/resources/images/ico-activities-blank.svg"></img>
+	                                    <i class="fa fa-file-pdf-o"></i>
+	                                 </td>
+	                                 <td class="itemTitle">
+	                                    Download the CCK11 dataset and familiarize with the data
+	                                 </td>
+	                              </tr>
+	                              <tr>
+	                                 <td class="itemIco">
+	                                    <img class="ico40" title="Activity" alt="Activity" src="#{request.contextPath}/resources/images/ico-activities-blank.svg"></img>
+	                                    <i class="fa fa-video-camera"></i>
+	                                 </td>
+	                                 <td class="itemTitle">
+	                                     Watch video: Network structure and Data sources
+	                                 </td>
+	                              </tr>
+	                              <tr>
+	                                 <td class="itemIco">
+	                                    <img class="ico40" title="Activity" alt="Activity" src="#{request.contextPath}/resources/images/ico-activities-blank.svg"></img>
+	                                    <i class="fa fa-edit"></i>
+	                                 </td>
+	                                 <td class="itemTitle">
+	                                    Visualize analysis results in Gebhi and perform social network analysis	
+	                                 </td>
+	                              </tr>
+	                           </tbody>
+	                        </table>
+	
+	                    	</div>
+	                  </div>
+	            </div>
+	            <table class="table compact tableActivities" style="margin: 0px; width: 100%;">
+	               <thead>
+	                  <tr>
+	                    <th scope="col" class="text-right">No.</th>
+	                     <th scope="col">Title</th>
+	                     <th scope="col">Description</th>
+	                     <th scope="col" class="actions">Actions</th>
+	                  </tr>
+	               </thead>
+	               <tbody>
+	               	  <ui:repeat var="act" value="#{competenceActivitiesBean.activities}" varStatus="status">
+	               	  		<tr>
+			                    <td class="text-right">#{status.index + 1}</td>
+			                     <td>
+			                     	<a href="#" data-toggle="modal" data-target="#modalFullEdit">#{act.title}</a>
+			                     </td>
+			                     <td>
+			                        <div class="actDesc">
+			                          <p>#{act.description}</p>
+			                           <ui:remove><div class="fileContainer">
+			                              <div class="col-md-10">
+			                                 <div class="fileIcon">
+			                                 	<img src="#{request.contextPath}/resources/images/ico-youtube-small.png" width="37" height="50" alt="YouTube" title="YouTube"> </img>
+			                                 </div>                        
+			                                 <h5><a href="">Network structure and Data sources</a></h5>
+			                                 <div class="fileUrl">https://www.youtube.com/ea0ef897e8f18d...</div>
+			                              </div>                         
+			                              <div class="col-md-2 fileSizeTime">27:32</div>
+			                              <div class="clearfix"></div>
+			                           </div></ui:remove>
+			                        </div>
+			                     </td>
+			                     <td>
+			                        <div class="actionButtons">
+			                        	<div class="sort">
+			                              <span class="sort-up blank"></span>
+			                              <a href="#" class="sort-down"></a>
+			                              <span>Sort</span>                           
+			                           </div>
+			                           <a href="#" data-toggle="modal" data-target="#modalFullEdit"><span class="edit"></span>Edit</a>
+			                           <a href="#" role="button" data-toggle="modal" data-target="#modalOk"><span class="delete"></span>Delete</a>
+			                        </div>
+			                     </td>
+			                </tr>
+	               	  </ui:repeat>
+	                  <ui:remove><tr>
+	                    <td class="text-right">1</td>
+	                     <td><a href="#" data-toggle="modal" data-target="#modalFullEdit">Visit website: Network structure and Data sources</a></td>
+	                     <td>
+	                        <div class="actDesc">
+	                          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</p>
+	                           <div class="fileContainer">
+	                              <div class="col-md-10">
+	                                 <div class="fileIcon">
+	                                 	<img src="#{request.contextPath}/resources/images/ico-youtube-small.png" width="37" height="50" alt="YouTube" title="YouTube"> </img>
+	                                 </div>                        
+	                                 <h5><a href="">Network structure and Data sources</a></h5>
+	                                 <div class="fileUrl">https://www.youtube.com/ea0ef897e8f18d...</div>
+	                              </div>                         
+	                              <div class="col-md-2 fileSizeTime">27:32</div>
+	                              <div class="clearfix"></div>
+	                           </div>
+	                        </div>
+	                     </td>
+	                     <td>
+	                        <div class="actionButtons">
+	                        	<div class="sort">
+	                              <span class="sort-up blank"></span>
+	                              <a href="#" class="sort-down"></a>
+	                              <span>Sort</span>                           
+	                           </div>
+	                           <a href="#" data-toggle="modal" data-target="#modalFullEdit"><span class="edit"></span>Edit</a>
+	                           <a href="#" role="button" data-toggle="modal" data-target="#modalOk"><span class="delete"></span>Delete</a>
+	                        </div>
+	                     </td>
+	                  </tr>
+						<tr>
+	                    <td class="text-right">1</td>
+	                     <td><a href="#" data-toggle="modal" data-target="#modalFullEdit">Download the CCK11 dataset and familiarize with the data</a></td>
+	                     <td>
+	                        <div class="actDesc">
+	                          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</p>
+	                          	 <div class="fileContainer">
+	                              <div class="col-md-10">
+	                                 <div class="fileIcon">
+	                                    <img src="#{request.contextPath}/resources/images/ico-pdf-small.png" width="37" height="50" alt="PDF" title="PDF"> </img>
+	                                 </div>                        
+	                                 <h5><a href="">CCK11 dataset for social network analysis</a></h5>
+	                                 <div class="fileUrl">https://bitbucket.org/dalmooc/dalmooc/src/ea0ef897e8f18d...</div>
+	                              </div>                         
+	                              <div class="col-md-2 fileSizeTime">24.3Mb</div>
+	                              <div class="clearfix"></div>
+	                           </div>
+	                        </div>
+	                     </td>
+	                     <td>
+	                        <div class="actionButtons">
+	                        	<div class="sort">
+	                              <a href="#" class="sort-up"></a>
+	                              <a href="#" class="sort-down"></a>
+	                              <span>Sort</span>                           
+	                           </div>
+	                           <a href="#" data-toggle="modal" data-target="#modalFullEdit"><span class="edit"></span>Edit</a>
+	                           <a href="#" role="button" data-toggle="modal" data-target="#modalOk"><span class="delete"></span>Delete</a>
+	                        </div>
+	                     </td>
+	                  </tr></ui:remove>                    
+	               </tbody>
+	            </table>
+	            </div>
+	      
+		</div>   
+	</div>
+	
+	</section>
+    </h:form>
+	<!-- Modal 1 - ADD ACTIVITY -->
+	<h:form id="formAddActivity">
+	<div class="modal fade" id="modalFull">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+	        <h4 class="modal-title">Add Activity</h4>
+	      </div>
+	      <div class="modal-body">
+	      	<div class="row">
+	         	<div class="col-md-12">
+	               <div class="form-group">
+	                  <label for="">Title</label>
+	                  <h:inputText styleClass="form-control"
+	                  	value="#{competenceActivitiesBean.activityToEdit.title}">
+	                  </h:inputText>
+	               </div>
+	               <div class="form-group">
+	                  <label for="">Description</label>
+	                  		<h:inputTextarea styleClass="form-control"
+	                  			rows="5"
+	                  			pt:placeholder="EDITOR PLACEHOLDER"
+	                  			value="#{competenceActivitiesBean.activityToEdit.description}">
+	                  		</h:inputTextarea>
+	               </div>
+	               
+	               <ui:remove><div class="checkbox checkbox-success"></div></ui:remove>
+	                  <h:selectBooleanCheckbox id="checkbox1"
+	                  	value="#{competenceActivitiesBean.activityToEdit.mandatory}">
+	                  </h:selectBooleanCheckbox>
+	                  <label for="checkbox1">Mandatory</label>
+	               <ui:remove><div></div></ui:remove>
+	               
+	               <div class="row">
+	               	<div class="col-md-6">
+	                     <div class="form-group">
+	                        <label>Type</label>
+	                        <h:selectOneMenu 
+	                        	styleClass="form-control selectpicker"
+	                        	value="#{competenceActivitiesBean.activityToEdit.activityType}">
+	                        	<f:selectItems value="#{competenceActivitiesBean.resTypes}"
+	                        		var="resType" itemValue="#{resType}" itemLabel="#{resType.label}"/>
+								<f:ajax event="valueChange" execute="@this" listener="#{competenceActivitiesBean.initResourceData()}" 
+									render=":formAddActivity:panelSpecificActivityData"/>
+	                        </h:selectOneMenu>
+	                     </div>
+	                  </div>
+	               </div>
+	
+	
+	
+						<h:panelGroup id="panelSpecificActivityData">
+						<h:panelGroup id="externalActivity" 
+							rendered="#{competenceActivitiesBean.activityToEdit.activityType eq 'EXTERNAL_ACTIVITY'}"><!-- START External Activity SECTION -->
+	                  <label for="">Resource details - External Activity</label>
+							<div class="holder">
+								<div class="row">
+	                   		<div class="col-md-12">
+	                           <p class="small marBtm20">External activities are added via LTI protocol. Please provide LTI tool details obtained from your LTI provider.</p>
+	                           <div class="row">
+	                           	<div class="col-md-3">
+	                           		<label>Launch URL</label>
+	                           	</div>
+	                           	<div class="col-md-9">
+	                           		<div class="form-group">
+	                           			<h:inputText styleClass="form-control"
+	                           				value="#{competenceActivitiesBean.externalResData.launchUrl}"></h:inputText>
+	                           		</div>                          	
+	                           	</div>								
+	                           </div>
+	                           <div class="row">
+	                              <div class="col-md-3">
+	                              	<label>Shared secret</label>
+	                              </div>
+	                              <div class="col-md-9">
+	                                 <div class="form-group">
+	                                 	<h:inputText styleClass="form-control" 
+	                                 		value="#{competenceActivitiesBean.externalResData.sharedSecret}"></h:inputText>
+	                                 </div>                          	
+	                              </div>								
+	                           </div>
+	                           <div class="row">
+	                              <div class="col-md-3">
+	                              	<label>Consumer key<br></br>(Optional)</label>
+	                              </div>
+	                              <div class="col-md-9">
+	                                 <div class="form-group">
+	                                 	<h:inputText styleClass="form-control" 
+	                                 		value="#{competenceActivitiesBean.externalResData.consumerKey}"></h:inputText>
+	                                 </div>                          	
+	                              </div>								
+	                           </div>
+	                           <div class="row">
+	                              <div class="col-md-3"></div>
+	                              <div class="col-md-9">
+	                                <ui:remove> <div class="checkbox checkbox-success"></div></ui:remove>
+	                                 	<h:selectBooleanCheckbox id="checkbox3"
+	                                 		value="#{competenceActivitiesBean.externalResData.acceptGrades}">
+	                                 	</h:selectBooleanCheckbox>
+	                                    <label for="checkbox3">Accept grades</label>
+	                                 <ui:remove><div></div></ui:remove>   
+	                              </div>								
+	                           </div>
+		                     </div>
+	                     </div>   
+	                  </div>
+	               </h:panelGroup><!-- END External Activity SECTION -->
+	
+	
+	
+						<h:panelGroup id="assignment" 
+							rendered="#{competenceActivitiesBean.activityToEdit.activityType eq 'ASSIGNMENT'}"><!-- START ASSIGNMENT SECTION -->
+	                  <label for="">Resource details - Assignment</label>
+							<div class="holder">
+								<div class="row assignmentForm">
+									<div class="col-md-3"></div>
+	                   		<div class="col-md-6">
+	                           <div class="checkbox checkbox-success">
+	                              <input type="checkbox" id="checkbox2"></input>
+	                              <label for="checkbox2">Visible to everyone</label>
+	                           </div>                           
+	                           <div class="row">
+	                              <div class="col-md-9">
+	                                 <label>Duration</label>
+	                              </div>
+	                              <div class="col-md-3">
+	                                 <div class="form-group">
+	                                    <input type="text" class="form-control"></input>
+	                                 </div>                          	
+	                              </div>								
+	                           </div>
+	                           <div class="row">
+	                              <div class="col-md-9">
+	                                 <label>Maximum number of files</label>
+	                              </div>
+	                              <div class="col-md-3">
+	                                 <div class="form-group">
+	                                    <input type="text" class="form-control"></input>
+	                                 </div>                          	
+	                              </div>								
+	                         	 </div>
+		                      </div>
+	                     	<div class="col-md-3"></div>
+	                     </div>   
+	                  </div>
+	               </h:panelGroup><!-- END ASSIGNMENT SECTION -->
+	
+	
+	
+	
+	
+						<h:panelGroup id="file"
+							rendered="#{competenceActivitiesBean.activityToEdit.activityType eq 'FILE'}"><!-- START FILE SECTION -->
+	                  <label for="">Resource details - File</label>
+							<div class="holder">
+								<div class="row">
+	                   		<div class="col-md-12">
+	                        	<div class="dropFile text-center">
+	                              <h2>Drop file to upload <a data-original-title="To replace file just upload again" href="#" data-toggle="tooltip" title=""><i class="fa fa-question-circle"></i></a></h2>
+	                              <p>- or -</p>
+	                              <a href="#" class="btn btn-info">Select from Computer </a>
+	                           </div>
+	                        </div>
+	                     </div>
+	                     
+								<div class="row">
+	                     	<hr></hr>
+	                        <div class="col-md-3 wide">
+	                           <div id="imgInfoContainer">
+									   	<img src="#{request.contextPath}/resources/images/ico-docx.png" width="73" height="100" alt="Word document" title="Word document"></img>
+	                           </div>
+	                        </div>
+	                        <div class="col-md-9">
+	                        <div class="form-group holderInput">
+	                           <input type="text" class="form-control" placeholder="File title"></input>
+	               			</div>
+	                           <div class="form-group noMargin">
+	                              <textarea rows="5" class="form-control" placeholder="File description"></textarea>
+	               				</div>
+	                        </div>                     
+								</div>                     
+	                  </div>
+	               </h:panelGroup><!-- END FILE SECTION -->
+	
+	
+	
+	
+	
+	               
+	               
+	               <h:panelGroup id="video" 
+	               		rendered="#{competenceActivitiesBean.activityToEdit.activityType eq 'VIDEO'}"><!-- START VIDEO SECTION -->
+	                  <label for="">Resource details - Video</label>
+							<div class="holder">
+								<div class="row">
+	                   		<div class="col-md-8">
+	                           <div class="form-group noMargin">
+	                              <input type="text" value="https://www.youtube.com/watch?v=6TX0fUK22Kg" class="form-control"></input>
+	                           </div>                         	
+	                        </div>
+	                        <div class="col-md-4">
+	                        	<a href="#" class="btn btn-info btn-block">Add Link </a>
+	                        </div>
+	                     </div>
+	                     
+								<div class="row">
+							
+	                     	<hr/>
+	                     	
+	                        <div class="col-md-12">
+										<iframe width="536" height="302" src="https://www.youtube.com/embed/6TX0fUK22Kg" frameborder="0" allowfullscreen="true"></iframe>
+	                        </div>
+								</div>                     
+	                  </div>
+	               </h:panelGroup><!-- END VIDEO SECTION -->
+	
+	
+	
+	               <h:panelGroup id="url" 
+	               		rendered="#{competenceActivitiesBean.activityToEdit.activityType eq 'URL'}"><!-- START URL SECTION -->
+	                  <label for="">Resource details - URL</label>
+							<div class="holder">
+								<div class="row">
+	                   		<div class="col-md-9">
+	                           <div class="form-group noMargin">
+	                              <input type="text" class="form-control"></input>
+	                           </div>                         	
+	                        </div>
+	                        <div class="col-md-3">
+	                        	<a href="#" class="btn btn-info btn-block">Add Link </a>
+	                        </div>
+	                     </div>
+	                     
+								<div class="row">
+	                     	<hr></hr>
+	                        <div class="col-md-3 wide">
+	                           <div id="imgInfoContainer">
+	                              <div id="statusUpdate:j_id_ou:link:imageContainer">
+	                                 <div id="atcImages">
+	                                 	<img width="125" class="shown" src="#{request.contextPath}/resources/images/noImage.jpg"></img>
+	                                 	<img width="100" class="hidden" src="#{request.contextPath}/resources/images/noImage.jpg"></img>
+	                                 </div>   
+	                                 <div id="atcTotalImageNav">                                    
+	                                    	<i class="fa fa-chevron-circle-left"></i>
+	                                    	<i class="fa fa-chevron-circle-right"></i>
+	                                 </div>
+	                                 <div class="atcTotalImagesInfo" id="statusUpdate:j_id_ou:link:atcTotalImagesInfo"> 
+	                                    <span id="atc_total_images">0</span> images
+	                                 </div>
+	                              </div>
+	                           </div>
+	                        </div>
+	                        <div class="col-md-9">
+	                        <div class="form-group holderInput">
+	                           <input type="text" value="Some webpage title" class="form-control"></input>
+	               			</div>
+	                           <div class="form-group noMargin">
+	                              <label for="">Page description</label>
+	                              <textarea rows="5" class="form-control">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore...</textarea>
+	               				</div>
+	                        </div>                     
+								</div>                     
+	                     
+	                  </div>
+	               </h:panelGroup><!-- END URL SECTION -->            
+	              </h:panelGroup>                
+	            </div>
+	         </div>
+	      </div>
+	      <div class="modal-footer">
+	      	<p:commandLink 
+	      		styleClass="btn btn-primary" 
+	      		action="#{competenceActivitiesBean.saveActivity()}"
+	      		oncomplete="$('#modalFull').modal('hide');"
+	      		update=":formMain">
+	      		Save
+	      	</p:commandLink>
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	</h:form>
+	
+	<!-- Modal 2 - EDIT ACTIVITY -->
+	<div class="modal fade" id="modalFullEdit">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+	        <h4 class="modal-title">Edit Activity</h4>
+	      </div>
+	      <div class="modal-body">
+	      	<div class="row">
+	         	<div class="col-md-12">
+	               <div class="form-group">
+	                  <label for="">Title</label>
+	                  <input type="text" class="form-control" value="Visit website: Network structure and Data sources"></input>
+	               </div>
+	               <div class="form-group">
+	                  <label for="">Description</label>
+							<textarea rows="5" class="form-control" placeholder="EDITOR PLACEHOLDER"></textarea>
+	               </div>
+	               <div class="checkbox checkbox-success">
+	                  <input type="checkbox" id="checkbox1" checked="true"></input>
+	                  <label for="checkbox1">Mandatory</label>
+	               </div>
+	               
+	               <div class="row">
+	               	<div class="col-md-6">
+	                     <div class="form-group">
+	                        <label>Type</label>
+	                        <select class="form-control selectpicker">
+	                           <option>- Select -</option>
+	                           <option>Video</option>
+	                           <option selected="true">URL</option>
+	                           <option>File</option>
+	                           <option>Assignment</option>
+	                           <option>External Activity</option>                           
+	                        </select>
+	                     </div>
+	                  </div>
+	               </div>
+	               <div>
+	                  <label for="">Resource details - URL</label>
+							<div id="resources" class="holder">
+	                     <div class="row">
+	                   		<div class="col-md-9">
+	                           <div class="form-group noMargin">
+	                              <input type="text" value="http://www.b92.net/zivot/vesti.php?yyyy=2016&amp;mm=02&amp;dd=11&amp;nav_id=1095780" class="form-control"></input>
+	                           </div>                         	
+	                        </div>
+	                        <div class="col-md-3">
+	                        	<a href="#" class="btn btn-info btn-block">Add Link </a>
+	                        
+	                        </div>
+	                        
+	                     </div>
+								<div class="row">
+	                     	<hr></hr>
+	                        <div class="col-md-3 wide">
+	                           <div id="imgInfoContainer">
+	                              <div id="statusUpdate:j_id_ou:link:imageContainer">
+	                                 <div id="atcImages">
+	                                 	<img width="125" class="shown" src="http://www.b92.net/news/pics/2016/01/09/4100941605690434dc9bca164603788_v4_big.JPG"></img>
+	                                 	<img width="100" class="hidden" src="http://www.b92.net/news/pics/2016/01/09/13975894465690434e05504200522481_v330.JPG"></img>
+	                                 </div>   
+	                                 <div id="atcTotalImageNav">
+	                                    <a onclick="PrimeFaces.ab({source:'statusUpdate:j_id_ou:link:prev',update:'statusUpdate:j_id_ou:link:atcTotalImagesInfo',oncomplete:function(xhr,status,args){showImage('prev');}});return false;" class="ui-commandlink ui-widget prev marginRight10" href="#" id="statusUpdate:j_id_ou:link:prev">
+	                                    	<i class="fa fa-chevron-circle-left"></i>
+	                                    </a>
+	                                    <a onclick="PrimeFaces.ab({source:'statusUpdate:j_id_ou:link:next',update:'statusUpdate:j_id_ou:link:atcTotalImagesInfo',oncomplete:function(xhr,status,args){showImage('next');}});return false;" class="ui-commandlink ui-widget next" href="#" id="statusUpdate:j_id_ou:link:next">
+	                                    	<i class="fa fa-chevron-circle-right"></i>
+	                                    </a>
+	                                 </div>
+	                                 <div class="atcTotalImagesInfo" id="statusUpdate:j_id_ou:link:atcTotalImagesInfo"><span id="statusUpdate:j_id_ou:link:cur_image_num">1</span> of 
+	                                    <span id="atc_total_images">2</span> images
+	                                 </div>
+	                              </div>
+	                           </div>                        
+	                        
+	                        
+	                        
+	                        </div>
+	                        <div class="col-md-9">
+	                        <div class="form-group holderInput">
+	                           <input type="text" value="Some webpage title" class="form-control"></input>
+	               			</div>
+	                           <div class="form-group noMargin">
+	                              <label for="">Page description</label>
+	                              <textarea rows="5" class="form-control">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore...</textarea>
+	               				</div>
+	                        </div>                     
+								</div>
+	                  </div>
+	               </div>               
+	                              
+	            </div>
+	         </div>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-primary">Save</button>
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	
+	
+	
+	<!-- Modal 3 -->
+	<div class="modal fade" id="modalOk">
+	  <div class="modal-dialog modal-sm">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+	        <h4 class="modal-title">Remove Activity</h4>
+	      </div>
+	      <div class="modal-body">
+	       <p>Are you sure?</p>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-primary">Confirm removal</button>
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+<script src="#{request.contextPath}/manage/js/credentialsOverall.js"></script>
+</ui:define>
+</ui:composition>
