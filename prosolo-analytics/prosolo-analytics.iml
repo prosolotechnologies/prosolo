@@ -40,6 +40,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="scala-sdk-2.11.6" level="application" />
     <orderEntry type="library" name="Maven: javax.mail:mail:1.4.5" level="project" />
     <orderEntry type="library" name="Maven: javax.activation:activation:1.1" level="project" />
     <orderEntry type="module" module-name="bigdata.common" />
@@ -52,14 +53,18 @@
     <orderEntry type="library" name="Maven: org.reflections:reflections:0.9.10" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.findbugs:annotations:2.0.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.tomcat:tomcat-jdbc:8.0.14" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.tomcat:tomcat-juli:8.0.14" level="project" />
     <orderEntry type="library" name="Maven: com.github.spullara.mustache.java:compiler:0.8.17" level="project" />
     <orderEntry type="library" name="Maven: com.rabbitmq:amqp-client:3.5.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.logging.log4j.adapters:log4j-to-slf4j:2.0-beta4" level="project" />
     <orderEntry type="library" name="Maven: org.apache.logging.log4j:log4j-api:2.0-beta4" level="project" />
-    <orderEntry type="library" name="Maven: com.datastax.cassandra:cassandra-driver-core:2.1.4" level="project" />
-    <orderEntry type="library" name="Maven: com.google.guava:guava:14.0.1" level="project" />
-    <orderEntry type="library" name="Maven: com.codahale.metrics:metrics-core:3.0.2" level="project" />
+    <orderEntry type="library" name="Maven: com.datastax.cassandra:cassandra-driver-core:3.0.0" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-handler:4.0.33.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-buffer:4.0.33.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-common:4.0.33.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-transport:4.0.33.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-codec:4.0.33.Final" level="project" />
+    <orderEntry type="library" name="Maven: com.google.guava:guava:16.0.1" level="project" />
+    <orderEntry type="library" name="Maven: io.dropwizard.metrics:metrics-core:3.1.2" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: mysql:mysql-connector-java:5.1.35" level="project" />
     <orderEntry type="library" name="Maven: com.googlecode.json-simple:json-simple:1.1" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.2.2" level="project" />
@@ -83,12 +88,6 @@
     <orderEntry type="library" name="Maven: org.codehaus.jackson:jackson-core-asl:1.9.12" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.jackson:jackson-jaxrs:1.9.12" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.jackson:jackson-xc:1.9.12" level="project" />
-    <orderEntry type="library" name="Maven: org.eclipse.jetty.aggregate:jetty-all-server:8.1.16.v20140903" level="project" />
-    <orderEntry type="library" name="Maven: org.eclipse.jetty.orbit:javax.servlet:3.0.0.v201112011016" level="project" />
-    <orderEntry type="library" name="Maven: org.eclipse.jetty.orbit:javax.security.auth.message:1.0.0.v201108011116" level="project" />
-    <orderEntry type="library" name="Maven: org.eclipse.jetty.orbit:javax.mail.glassfish:1.4.1.v201005082020" level="project" />
-    <orderEntry type="library" name="Maven: org.eclipse.jetty.orbit:javax.activation:1.1.0.v201105071233" level="project" />
-    <orderEntry type="library" name="Maven: org.eclipse.jetty.orbit:javax.annotation:1.1.0.v201108011116" level="project" />
     <orderEntry type="library" name="Maven: org.apache.spark:spark-core_2.11:1.4.1" level="project" />
     <orderEntry type="library" name="Maven: com.twitter:chill_2.11:0.5.0" level="project" />
     <orderEntry type="library" name="Maven: com.esotericsoftware.kryo:kryo:2.21" level="project" />
@@ -141,6 +140,7 @@
     <orderEntry type="library" name="Maven: org.apache.curator:curator-client:2.4.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.zookeeper:zookeeper:3.4.5" level="project" />
     <orderEntry type="library" name="Maven: jline:jline:0.9.94" level="project" />
+    <orderEntry type="library" name="Maven: org.eclipse.jetty.orbit:javax.servlet:3.0.0.v201112011016" level="project" />
     <orderEntry type="library" name="Maven: org.apache.commons:commons-math3:3.4.1" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.findbugs:jsr305:1.3.9" level="project" />
     <orderEntry type="library" name="Maven: com.ning:compress-lzf:1.0.3" level="project" />
@@ -158,7 +158,6 @@
     <orderEntry type="library" name="Maven: org.apache.mesos:mesos:shaded-protobuf:0.21.1" level="project" />
     <orderEntry type="library" name="Maven: io.netty:netty-all:4.0.23.Final" level="project" />
     <orderEntry type="library" name="Maven: com.clearspring.analytics:stream:2.7.0" level="project" />
-    <orderEntry type="library" name="Maven: io.dropwizard.metrics:metrics-core:3.1.0" level="project" />
     <orderEntry type="library" name="Maven: io.dropwizard.metrics:metrics-jvm:3.1.0" level="project" />
     <orderEntry type="library" name="Maven: io.dropwizard.metrics:metrics-json:3.1.0" level="project" />
     <orderEntry type="library" name="Maven: io.dropwizard.metrics:metrics-graphite:3.1.0" level="project" />
@@ -226,13 +225,10 @@
     <orderEntry type="library" name="Maven: commons-digester:commons-digester:1.8" level="project" />
     <orderEntry type="library" name="Maven: commons-beanutils:commons-beanutils:1.7.0" level="project" />
     <orderEntry type="library" name="Maven: commons-beanutils:commons-beanutils-core:1.8.0" level="project" />
-    <orderEntry type="library" name="Maven: org.mortbay.jetty:jetty:6.1.26" level="project" />
-    <orderEntry type="library" name="Maven: org.mortbay.jetty:servlet-api:2.5-20081211" level="project" />
     <orderEntry type="library" name="Maven: org.mortbay.jetty:jetty-util:6.1.26" level="project" />
     <orderEntry type="library" name="Maven: tomcat:jasper-runtime:5.5.12" level="project" />
     <orderEntry type="library" name="Maven: tomcat:jasper-compiler:5.5.12" level="project" />
     <orderEntry type="library" name="Maven: org.mortbay.jetty:jsp-api-2.1:6.1.14" level="project" />
-    <orderEntry type="library" name="Maven: org.mortbay.jetty:servlet-api-2.5:6.1.14" level="project" />
     <orderEntry type="library" name="Maven: org.mortbay.jetty:jsp-2.1:6.1.14" level="project" />
     <orderEntry type="library" name="Maven: ant:ant:1.6.5" level="project" />
     <orderEntry type="library" name="Maven: commons-el:commons-el:1.0" level="project" />
@@ -291,6 +287,5 @@
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-log4j12:1.7.10" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:jul-to-slf4j:1.7.10" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: org.slf4j:jcl-over-slf4j:1.7.10" level="project" />
-    <orderEntry type="library" name="scala-sdk-2.11.6" level="application" />
   </component>
 </module>

@@ -150,10 +150,11 @@
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore:4.3.2" level="project" />
     <orderEntry type="library" name="Maven: org.twitter4j:twitter4j-core:4.0.1" level="project" />
     <orderEntry type="library" name="Maven: org.twitter4j:twitter4j-stream:4.0.1" level="project" />
-    <orderEntry type="library" name="Maven: com.sun.jersey:jersey-core:1.17.1" level="project" />
-    <orderEntry type="library" name="Maven: com.sun.jersey:jersey-server:1.17.1" level="project" />
-    <orderEntry type="library" name="Maven: com.sun.jersey:jersey-servlet:1.17.1" level="project" />
-    <orderEntry type="library" name="Maven: com.sun.jersey:jersey-client:1.17.1" level="project" />
+    <orderEntry type="library" name="Maven: com.sun.jersey:jersey-core:1.19" level="project" />
+    <orderEntry type="library" name="Maven: javax.ws.rs:jsr311-api:1.1.1" level="project" />
+    <orderEntry type="library" name="Maven: com.sun.jersey:jersey-server:1.19" level="project" />
+    <orderEntry type="library" name="Maven: com.sun.jersey:jersey-servlet:1.19" level="project" />
+    <orderEntry type="library" name="Maven: com.sun.jersey:jersey-client:1.19" level="project" />
     <orderEntry type="library" name="Maven: org.jsoup:jsoup:1.7.2" level="project" />
     <orderEntry type="library" name="Maven: com.google.guava:guava:14.0.1" level="project" />
     <orderEntry type="library" name="Maven: org.elasticsearch:elasticsearch:1.6.0" level="project" />

@@ -33,6 +33,7 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 				+ CommonSettings.getInstance().config.getNamespaceSufix();
 		try {
 			this.connect(dbConfig.dbHost, dbName, dbConfig.replicationFactor);
+			System.out.println("Simple cassandra client initialized...");
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -47,22 +48,24 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 	
 	private PoolingOptions getPoolingOptions(){
 		PoolingOptions poolingOpts=new PoolingOptions();
-		poolingOpts.setCoreConnectionsPerHost(HostDistance.REMOTE, 2);
+		poolingOpts.setCoreConnectionsPerHost(HostDistance.REMOTE, 8);
         poolingOpts.setMaxConnectionsPerHost(HostDistance.REMOTE, 200);
-        poolingOpts.setMaxSimultaneousRequestsPerConnectionThreshold(HostDistance.REMOTE, 128);
-        poolingOpts.setMinSimultaneousRequestsPerConnectionThreshold(HostDistance.REMOTE, 2);
+		poolingOpts.setConnectionsPerHost(HostDistance.REMOTE, 8, 8);
+		poolingOpts.setMaxRequestsPerConnection(HostDistance.REMOTE, 128);
+		poolingOpts.setNewConnectionThreshold(HostDistance.REMOTE,100);
         return poolingOpts;
 	}
 
 	@Override
 	public void connect(String node, String keyspace, int replicationFactor) {
+		System.out.println("CONNECTING CASSANDRA:"+node+" keyspace:"+keyspace);
 		if (this.session != null) {
 			return;
 		}
 		if (this.cluster != null) {
 			return;
 		}
-	
+		/*cluster = Cluster.builder().addContactPoint(node).build();*/
 		this.cluster = Cluster.builder()
 				.withPoolingOptions( getPoolingOptions())
 				.withRetryPolicy(DowngradingConsistencyRetryPolicy.INSTANCE)

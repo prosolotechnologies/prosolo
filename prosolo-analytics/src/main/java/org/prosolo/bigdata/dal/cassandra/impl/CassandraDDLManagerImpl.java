@@ -145,8 +145,8 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 	@Override
 	public void createSchemaIfNotExists(Session session, String schemaName,
 			int replicationFactor) {
-		ResultSet rs = session.execute("select * FROM system.schema_keyspaces "
-				+ "WHERE keyspace_name = '" + schemaName + "';");
+		ResultSet rs = session.execute("SELECT * FROM system_schema.keyspaces " +
+				"WHERE keyspace_name = '"+ schemaName+"';");
 		Row row = rs.one();
 		if (row == null) {
 			session.execute("CREATE KEYSPACE  IF NOT EXISTS  " + schemaName

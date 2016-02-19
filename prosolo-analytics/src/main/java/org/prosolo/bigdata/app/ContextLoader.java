@@ -58,13 +58,9 @@ public class ContextLoader implements ServletContextListener {
 			System.out.println("INITIALIZED TWITTER STREAMING");
 		
 			TwitterHashtagsStreamsManager$ twitterManager = TwitterHashtagsStreamsManager$.MODULE$;
-			System.out.println("KT-1");
 			twitterManager.initialize();
-			System.out.println("KT-2");
 			TwitterUsersStreamsManager$  twitterUsersManager=TwitterUsersStreamsManager$.MODULE$;
-			System.out.println("KT-3");
 			twitterUsersManager.initialize();
-			System.out.println("KT-4");
 		}
 		// After context is initialized. Should not be changed.
 		// Initialization of Streaming manager that is responsible for

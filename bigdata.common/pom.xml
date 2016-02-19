@@ -136,6 +136,12 @@
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-jdbc</artifactId>
 			<version>8.0.14</version>
+			<exclusions>
+					<exclusion>
+						<artifactId>tomcat-juli</artifactId>
+						<groupId>org.apache.tomcat</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 <dependency>
 			<groupId>com.github.spullara.mustache.java</groupId>
