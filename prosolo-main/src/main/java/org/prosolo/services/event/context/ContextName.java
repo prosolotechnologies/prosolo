@@ -21,7 +21,11 @@ public enum ContextName {
 	WITHDRAW_COURSE_DIALOG(""),
 	ASSESSMENT(""),
 	LTI_LAUNCH(""),
-	LTI_TOOL("LtiTool");
+	LTI_TOOL("LtiTool"),
+	ADD_ACTIVITY_DIALOG("Activity"),
+	BASE_COMPETENCE("Competence"),
+	BASE_ACTIVITY("Activity");
+	
 	
     private String objectType; 
     

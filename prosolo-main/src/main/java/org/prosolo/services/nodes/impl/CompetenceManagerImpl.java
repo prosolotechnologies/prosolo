@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -604,11 +605,20 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 	
 	@Override
 	@Transactional(readOnly = false)
-	public CompetenceActivity saveCompetenceActivity(long compId, ActivityData activityData) throws DbConnectionException {
+	public CompetenceActivity saveCompetenceActivity(long compId, ActivityData activityData,
+			String page, String learningContext, String service) throws DbConnectionException {
 		try {
 			CompetenceActivity compAct = new CompetenceActivity();
 			compAct.setActivityPosition(activityData.getOrder());
-			Activity activity = resourceFactory.createNewActivity(activityData);
+			Activity activity = null;
+			if(activityData.getActivityId() > 0) {
+				activity = (Activity) persistence.currentManager().
+						load(Activity.class, activityData.getActivityId());
+			} else {
+				activity = resourceFactory.createNewActivity(activityData);
+				eventFactory.generateEvent(EventType.Create, activity.getMaker(), activity, null, 
+						page, learningContext, service, null);
+			}
 			compAct.setActivity(activity);
 			saveEntity(compAct);
 			
@@ -618,7 +628,44 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while saving course competence");
+			throw new DbConnectionException("Error while saving competence activity");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void deleteCompetenceActivity(long compId, long competenceActivityId,
+			List<ActivityData> changedActivities) throws DbConnectionException {
+		try {
+			Competence comp = (Competence) persistence.currentManager().get(Competence.class, compId);
+			Iterator<CompetenceActivity> iterator = comp.getActivities().iterator();
+			while(iterator.hasNext()) {
+				CompetenceActivity ca = iterator.next();
+				if(ca.getId() == competenceActivityId) {
+					iterator.remove();
+				}
+			}
+			updateOrderOfCompetenceActivities(changedActivities);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while deleting competence activity");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void updateOrderOfCompetenceActivities(List<ActivityData> activities) throws DbConnectionException {
+		try {
+			for(ActivityData ad : activities) {
+				CompetenceActivity ca = (CompetenceActivity) persistence.currentManager().
+						load(CompetenceActivity.class, ad.getCompetenceActivityId());
+				ca.setActivityPosition(ad.getOrder());
+			}
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating activities");
 		}
 	}
 }

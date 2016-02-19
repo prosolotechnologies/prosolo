@@ -14,8 +14,6 @@ import javax.persistence.OrderBy;
 
 import org.prosolo.common.domainmodel.activities.CompetenceActivity;
 import org.prosolo.common.domainmodel.general.Node;
-import org.prosolo.common.domainmodel.competences.Competence;
-import org.prosolo.common.domainmodel.competences.CompetenceType;
 
 @Entity
 ////@Table(name="comp_Competence")
@@ -100,7 +98,7 @@ public class Competence extends Node {
 		this.corequisites = corequisites;
 	}
 
-	@OneToMany
+	@OneToMany(orphanRemoval = true)
 	@OrderBy("activityPosition ASC")
 	public List<CompetenceActivity> getActivities() {
 		return activities;

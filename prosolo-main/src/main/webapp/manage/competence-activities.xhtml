@@ -28,8 +28,28 @@
 	</ui:define>
 
 <ui:define name="content">
+		<script>
+			function searchListener(execFunction) {
+				var $this = this;
+				//this.updateUrlQuery(); 
+
+				var delayedSearch = function() {
+					execFunction();
+				};
+
+				window.clearTimeout(this.keystrokeTimeout);
+				this.keystrokeTimeout = window.setTimeout(delayedSearch, 250);
+			};
+
+			function searchActivitiesIfNeeded() {
+				if ($('.acField').val().length != 0) {
+					searchListener(execSearchActivities);
+				}
+			}
+		</script>
 	<h:form id="formMain">
-	<p:growl showDetail="true"></p:growl>
+	<p:growl id="growlMain" showDetail="true"></p:growl>
+	<ui:param name="learningContextRoot" value="name:base_competence|id:#{competenceActivitiesBean.decodedId}"></ui:param>
 	<mngComp:competenceHeader id="competenceHeader"
         	competenceName="#{competenceActivitiesBean.title}"
         	competenceEncodedId="#{param['compId']}"
@@ -62,52 +82,65 @@
 	                  
 	                  <span>or search existing</span>
 	                  <div class="form-group acContainerInline">
-	                     <input type="text" class="form-control acField competenceField" id="" placeholder="Start typing..."></input>
+	                  	 <p:remoteCommand name="execSearchActivities" process="inputActName"
+										update=":formMain:panelActSearchResults"
+										action="#{competenceActivitiesBean.searchActivities()}" />
+						<h:inputText id="inputActName"
+							styleClass="form-control acField competenceField"
+							value="#{competenceActivitiesBean.actSearchTerm}"
+							placeholder="Start typing..." 
+							onclick="$(this).select();"
+							onkeyup="showSearchResults();searchActivitiesIfNeeded();">
+						</h:inputText>
 	                     <div class="acPanel userList dropdown-menu">
+	                     	<h:panelGroup id="panelActSearchResults">
 	                        <table width="100%" cellspacing="0" cellpadding="0" border="0">
 	                           <tbody>
-	                              <tr>
-	                                 <td class="itemIco">
-	                                    <img class="ico40" title="Activity" alt="Activity" src="#{request.contextPath}/resources/images/ico-activities-blank.svg"></img>
-	                                    <i class="fa fa-link"></i>
-	                                 </td>
-	                                 <td class="itemTitle">
-	                                    Visit website: Network structure and Data sources
-	                                 </td>
-	                              </tr>
-	                              <tr>
-	                                 <td class="itemIco">
-	                                    <img class="ico40" title="Activity" alt="Activity" src="#{request.contextPath}/resources/images/ico-activities-blank.svg"></img>
-	                                    <i class="fa fa-file-pdf-o"></i>
-	                                 </td>
-	                                 <td class="itemTitle">
-	                                    Download the CCK11 dataset and familiarize with the data
-	                                 </td>
-	                              </tr>
-	                              <tr>
-	                                 <td class="itemIco">
-	                                    <img class="ico40" title="Activity" alt="Activity" src="#{request.contextPath}/resources/images/ico-activities-blank.svg"></img>
-	                                    <i class="fa fa-video-camera"></i>
-	                                 </td>
-	                                 <td class="itemTitle">
-	                                     Watch video: Network structure and Data sources
-	                                 </td>
-	                              </tr>
-	                              <tr>
-	                                 <td class="itemIco">
-	                                    <img class="ico40" title="Activity" alt="Activity" src="#{request.contextPath}/resources/images/ico-activities-blank.svg"></img>
-	                                    <i class="fa fa-edit"></i>
-	                                 </td>
-	                                 <td class="itemTitle">
-	                                    Visualize analysis results in Gebhi and perform social network analysis	
-	                                 </td>
-	                              </tr>
+	                           	  <ui:repeat var="act" value="#{competenceActivitiesBean.searchResults}">
+	                           	  	<p:commandLink styleClass="hiddenActLink"
+										style="display: none;" pt:data-id="#{act.activityId}"
+										action="#{competenceActivitiesBean.addActivityFromSearch(act)}"
+										update=":formMain:panelActivities :formMain:panelActSearchResults"
+										oncomplete="$('.acField').val(''); $('.acPanel').first().stop(true, true).slideUp(10);">
+										<f:param name="learningContext" value="#{util:addSubContext(learningContextRoot, 'name:base_activity|id:'.concat(act.activityId))}"></f:param>
+										<f:param name="service" value="name:add_activity_dialog"></f:param>
+	      								<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+									</p:commandLink>
+									<tr onclick="$('.hiddenActLink[data-id=&#34;#{act.activityId}&#34;]').trigger('click')">
+		                                 <td class="itemIco">
+		                                    <img class="ico40" title="Activity" alt="Activity" src="#{request.contextPath}/resources/images/ico-activities-blank.svg"></img>
+		                                    <ui:fragment rendered="#{act.resourceType eq 'URL'}">
+		                                    	<i class="fa fa-link"></i>
+		                                    </ui:fragment>
+		                                    <ui:fragment rendered="#{act.resourceType eq 'VIDEO'}">
+		                                    	<i class="fa fa-video-camera"></i>
+		                                    </ui:fragment>
+		                                    <ui:fragment rendered="#{act.resourceType eq 'FILE'}">
+		                                    	<i class="fa fa-file-pdf-o"></i>
+		                                    </ui:fragment>
+		                                    <ui:fragment rendered="#{act.resourceType eq 'SLIDESHARE'}">
+		                                    	<i class="fa fa-slideshare"></i>
+		                                    </ui:fragment>
+		                                    <ui:fragment rendered="#{act.resourceType eq 'ASSIGNMENT'}">
+		                                    	<i class="fa fa-edit"></i>
+		                                    </ui:fragment>
+		                                    <ui:fragment rendered="#{act.resourceType eq 'EXTERNAL_ACTIVITY'}">
+		                                    	<i class="fa fa-external-link-square"></i>
+		                                    </ui:fragment>
+		                                 </td>
+		                                 <td class="itemTitle">
+		                                    #{act.title}
+		                                 </td>
+                              		</tr>
+	                           	  </ui:repeat>
 	                           </tbody>
 	                        </table>
 	
+	                    	</h:panelGroup>
 	                    	</div>
 	                  </div>
 	            </div>
+	            <h:panelGroup id="panelActivities">
 	            <table class="table compact tableActivities" style="margin: 0px; width: 100%;">
 	               <thead>
 	                  <tr>
@@ -143,12 +176,37 @@
 			                     <td>
 			                        <div class="actionButtons">
 			                        	<div class="sort">
-			                              <span class="sort-up blank"></span>
-			                              <a href="#" class="sort-down"></a>
+			                        	  <ui:fragment rendered="#{status.index != competenceActivitiesBean.currentNumberOfActivities - 1}">
+			                        	  	<p:commandLink
+			                        	  		styleClass="sort-down"
+			                        	  		action="#{competenceActivitiesBean.moveDown(status.index)}"
+			                        	  		update=":formMain:panelActivities">
+			                        	  	</p:commandLink>
+			                        	  </ui:fragment>
+			                        	  <ui:fragment rendered="#{status.index == competenceActivitiesBean.currentNumberOfActivities - 1}">
+			                        	  	<span class="sort-down blank"></span>
+			                        	  </ui:fragment>
+			                        	  <ui:fragment rendered="#{status.index != 0}">
+			                        	  	<p:commandLink
+			                        	  		styleClass="sort-up"
+			                        	  		action="#{competenceActivitiesBean.moveUp(status.index)}"
+			                        	  		update=":formMain:panelActivities">
+			                        	  	</p:commandLink>
+			                        	  </ui:fragment>
+			                        	  <ui:fragment rendered="#{status.index == 0}">
+			                        	  	<span class="sort-up blank"></span>
+			                        	  </ui:fragment>
 			                              <span>Sort</span>                           
 			                           </div>
 			                           <a href="#" data-toggle="modal" data-target="#modalFullEdit"><span class="edit"></span>Edit</a>
-			                           <a href="#" role="button" data-toggle="modal" data-target="#modalOk"><span class="delete"></span>Delete</a>
+			                           <p:commandLink 
+			                           		pt:role="button"
+			                           		pt:data-toggle="modal"
+			                           		action="#{competenceActivitiesBean.setActivityForEdit(act)}"
+			                           		update=":formModalDelete"
+			                           		oncomplete="$('#modalOk').modal('show');">
+			                           		<span class="delete"></span>Delete
+			                           	</p:commandLink>
 			                        </div>
 			                     </td>
 			                </tr>
@@ -217,6 +275,7 @@
 	                  </tr></ui:remove>                    
 	               </tbody>
 	            </table>
+	            </h:panelGroup>
 	            </div>
 	      
 		</div>   
@@ -264,7 +323,7 @@
 	                        <label>Type</label>
 	                        <h:selectOneMenu 
 	                        	styleClass="form-control selectpicker"
-	                        	value="#{competenceActivitiesBean.activityToEdit.activityType}">
+	                        	value="#{competenceActivitiesBean.activityToEdit.resourceType}">
 	                        	<f:selectItems value="#{competenceActivitiesBean.resTypes}"
 	                        		var="resType" itemValue="#{resType}" itemLabel="#{resType.label}"/>
 								<f:ajax event="valueChange" execute="@this" listener="#{competenceActivitiesBean.initResourceData()}" 
@@ -278,7 +337,7 @@
 	
 						<h:panelGroup id="panelSpecificActivityData">
 						<h:panelGroup id="externalActivity" 
-							rendered="#{competenceActivitiesBean.activityToEdit.activityType eq 'EXTERNAL_ACTIVITY'}"><!-- START External Activity SECTION -->
+							rendered="#{competenceActivitiesBean.activityToEdit.resourceType eq 'EXTERNAL_ACTIVITY'}"><!-- START External Activity SECTION -->
 	                  <label for="">Resource details - External Activity</label>
 							<div class="holder">
 								<div class="row">
@@ -336,7 +395,7 @@
 	
 	
 						<h:panelGroup id="assignment" 
-							rendered="#{competenceActivitiesBean.activityToEdit.activityType eq 'ASSIGNMENT'}"><!-- START ASSIGNMENT SECTION -->
+							rendered="#{competenceActivitiesBean.activityToEdit.resourceType eq 'ASSIGNMENT'}"><!-- START ASSIGNMENT SECTION -->
 	                  <label for="">Resource details - Assignment</label>
 							<div class="holder">
 								<div class="row assignmentForm">
@@ -377,7 +436,7 @@
 	
 	
 						<h:panelGroup id="file"
-							rendered="#{competenceActivitiesBean.activityToEdit.activityType eq 'FILE'}"><!-- START FILE SECTION -->
+							rendered="#{competenceActivitiesBean.activityToEdit.resourceType eq 'FILE'}"><!-- START FILE SECTION -->
 	                  <label for="">Resource details - File</label>
 							<div class="holder">
 								<div class="row">
@@ -416,7 +475,7 @@
 	               
 	               
 	               <h:panelGroup id="video" 
-	               		rendered="#{competenceActivitiesBean.activityToEdit.activityType eq 'VIDEO'}"><!-- START VIDEO SECTION -->
+	               		rendered="#{competenceActivitiesBean.activityToEdit.resourceType eq 'VIDEO'}"><!-- START VIDEO SECTION -->
 	                  <label for="">Resource details - Video</label>
 							<div class="holder">
 								<div class="row">
@@ -444,7 +503,7 @@
 	
 	
 	               <h:panelGroup id="url" 
-	               		rendered="#{competenceActivitiesBean.activityToEdit.activityType eq 'URL'}"><!-- START URL SECTION -->
+	               		rendered="#{competenceActivitiesBean.activityToEdit.resourceType eq 'URL'}"><!-- START URL SECTION -->
 	                  <label for="">Resource details - URL</label>
 							<div class="holder">
 								<div class="row">
@@ -501,6 +560,9 @@
 	      		oncomplete="$('#modalFull').modal('hide');"
 	      		update=":formMain">
 	      		Save
+	      		<f:param name="learningContext" value="#{learningContextRoot}"></f:param>
+	      		<f:param name="service" value="name:add_activity_dialog"></f:param>
+	      		<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
 	      	</p:commandLink>
 	        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
 	      </div>
@@ -616,6 +678,7 @@
 	
 	
 	<!-- Modal 3 -->
+	<h:form id="formModalDelete">
 	<div class="modal fade" id="modalOk">
 	  <div class="modal-dialog modal-sm">
 	    <div class="modal-content">
@@ -627,12 +690,19 @@
 	       <p>Are you sure?</p>
 	      </div>
 	      <div class="modal-footer">
-	        <button type="button" class="btn btn-primary">Confirm removal</button>
+	        <p:commandLink
+	        	styleClass="btn btn-primary"
+	        	value="Confirm removal"
+	        	action="#{competenceActivitiesBean.deleteCompActivity()}"
+	        	update=":formMain:growlMain :formMain:panelActivities"
+	        	oncomplete="$('#modalOk').modal('hide');">
+	        </p:commandLink>
 	        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
 	      </div>
 	    </div>
 	  </div>
 	</div>
+	</h:form>
 <script src="#{request.contextPath}/manage/js/credentialsOverall.js"></script>
 </ui:define>
 </ui:composition>

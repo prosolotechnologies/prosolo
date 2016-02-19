@@ -2,6 +2,8 @@ package org.prosolo.web.competences;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
@@ -9,7 +11,10 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.CompetenceActivity;
+import org.prosolo.search.TextSearch;
+import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.data.activity.ActivityData;
@@ -18,6 +23,8 @@ import org.prosolo.services.nodes.data.activity.ResourceActivityResourceData;
 import org.prosolo.services.nodes.data.activity.ResourceData;
 import org.prosolo.services.nodes.data.activity.ResourceType;
 import org.prosolo.services.nodes.data.activity.UploadAssignmentResourceData;
+import org.prosolo.services.nodes.data.activity.mapper.ActivityMapperFactory;
+import org.prosolo.services.nodes.data.activity.mapper.activityData.ActivityDataMapper;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.PageUtil;
@@ -37,6 +44,7 @@ public class CompetenceActivitiesBean implements Serializable {
 	@Autowired private CompetenceManager competenceManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private LoggedUserBean loggedUserBean;
+	@Inject private TextSearch textSearch;
 	
 	private String id;
 	private String title;
@@ -53,21 +61,30 @@ public class CompetenceActivitiesBean implements Serializable {
 	
 	private ResourceType[] resTypes;
 	
+	private String actSearchTerm;
+	private List<ActivityData> searchResults;
+	private List<Long> activitiesToExclude;
+	
+	private int currentNumberOfActivities;
+	
 	public CompetenceActivitiesBean() {
-
+		
 	}
 	
 	public void init() {
 		decodedId = idEncoder.decodeId(id);
 		resTypes = ResourceType.values();
 		activityToEdit = new ActivityData();
+		
 		if (decodedId > 0) {
 			logger.info("Searching activities for competence with id: " + decodedId);
 			try {
 				if(title == null || "".equals(title)) {
 					title = competenceManager.getCompetenceTitle(decodedId);
 				}
-				activities = competenceManager.getCompetenceActivities(decodedId);
+				initializeActivities();
+				logger.info("Loaded competence activities for competence with id "+ 
+						decodedId);
 			} catch(DbConnectionException e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage(e.getMessage());
@@ -81,7 +98,82 @@ public class CompetenceActivitiesBean implements Serializable {
 		}
 	}
 	
+	private void initializeActivities() {
+		activities = competenceManager.getCompetenceActivities(decodedId);
+		activitiesToExclude = new ArrayList<>();
+		for(ActivityData ad : activities) {
+			activitiesToExclude.add(ad.getActivityId());
+		}
+		currentNumberOfActivities = activities.size();
+	}
 
+	public void searchActivities() {
+		searchResults = new ArrayList<>();
+		if(actSearchTerm != null && !actSearchTerm.isEmpty()) {
+			int size = activitiesToExclude.size();
+			long [] toExclude = new long[size];
+			for(int i = 0; i < size; i++) {
+				toExclude[i] = activitiesToExclude.get(i);
+			}
+			TextSearchResponse searchResponse = textSearch.searchActivities(
+					actSearchTerm, 
+					0, 
+					Integer.MAX_VALUE, 
+					false, 
+					toExclude);
+			
+			@SuppressWarnings("unchecked")
+			List<Activity> acts = (List<Activity>) searchResponse.getFoundNodes();
+			if(acts != null) {
+				for(Activity a : acts) {
+					ActivityDataMapper mapper = ActivityMapperFactory.getActivityDataMapper(a);
+					if(mapper != null) {
+						ActivityData ad = mapper.mapToActivityData();
+						searchResults.add(ad);
+					}
+				}
+			}
+		} 
+	}
+	
+	public void addActivityFromSearch(ActivityData act) {
+		try {
+			saveNewCompActivity(act);
+			PageUtil.fireSuccessfulInfoMessage("Activity added");
+		} catch(DbConnectionException e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage(e.getMessage());
+		}
+		searchResults = new ArrayList<>();
+	}
+	
+	private void saveNewCompActivity(ActivityData act) {
+		currentNumberOfActivities++;
+		act.setOrder(currentNumberOfActivities);
+		CompetenceActivity cAct = getLearningContextParametersAndSaveActivity(act);
+		act.setCompetenceActivityId(cAct.getId());
+		activities.add(act);
+		activitiesToExclude.add(act.getActivityId());
+	}
+
+	public void deleteCompActivity() {
+		try {
+			currentNumberOfActivities--;
+			int index = activities.indexOf(activityToEdit);
+			List<ActivityData> changedActivities = shiftOrderOfActivitiesUp(index);
+			competenceManager.deleteCompetenceActivity(decodedId, activityToEdit.getCompetenceActivityId(), 
+					changedActivities);
+			activities.remove(activityToEdit);
+			activitiesToExclude.remove(new Long(activityToEdit.getActivityId()));
+			PageUtil.fireSuccessfulInfoMessage("Activity deleted");
+		} catch(DbConnectionException e) {
+			logger.error(e);
+			initializeActivities();
+			PageUtil.fireErrorMessage(e.getMessage());
+		}
+		activityToEdit = null;
+	}
+	
 	public void initResourceData() {
 		activityToEdit.createResourceDataBasedOnResourceType();
 		this.uploadResData = null;
@@ -109,21 +201,65 @@ public class CompetenceActivitiesBean implements Serializable {
 		activityToEdit.setMakerId(loggedUserBean.getUser().getId());
 	}
 
-	private void setActivityForEdit(ActivityData activityData) {
+	public void setActivityForEdit(ActivityData activityData) {
 		this.activityToEdit = activityData;
 	}
 	
 	public void saveActivity() {
 		try {
-			CompetenceActivity compAct = competenceManager.saveCompetenceActivity(decodedId, activityToEdit);
-			activityToEdit.setCompetenceActivityId(compAct.getId());
-			activities.add(activityToEdit);
-			activityToEdit = null;
+			saveNewCompActivity(activityToEdit);
 			PageUtil.fireSuccessfulInfoMessage("Competence activity saved");
 		} catch(DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage(e.getMessage());
 		}
+		activityToEdit = null;
+	}
+
+	private CompetenceActivity getLearningContextParametersAndSaveActivity(ActivityData activity) {
+		String learningContext = PageUtil.getPostParameter("learningContext");
+		String service = PageUtil.getPostParameter("service");
+		String page = PageUtil.getPostParameter("page");
+		return competenceManager.saveCompetenceActivity(decodedId, activity,
+				page, learningContext, service);
+	}
+	
+	public void moveDown(int index) {
+		moveActivity(index, index + 1);
+	}
+	
+	public void moveUp(int index) {
+		moveActivity(index - 1, index);
+	}
+	
+	public void moveActivity(int i, int k) {
+		ActivityData ad1 = activities.get(i);
+		ad1.setOrder(ad1.getOrder() + 1);
+		ActivityData ad2 = activities.get(k);
+		ad2.setOrder(ad2.getOrder() - 1);
+		try {
+			List<ActivityData> changed = new ArrayList<>();
+			changed.add(ad1);
+			changed.add(ad2);
+			competenceManager.updateOrderOfCompetenceActivities(changed);
+			Collections.swap(activities, i, k);
+		} catch(DbConnectionException e) {
+			logger.error(e);
+			ad1.setOrder(ad1.getOrder() - 1);
+			ad2.setOrder(ad2.getOrder() + 1);
+			PageUtil.fireErrorMessage(e.getMessage());
+		}
+		
+	}
+	
+	private List<ActivityData> shiftOrderOfActivitiesUp(int index) {
+		List<ActivityData> changedActivities = new ArrayList<>();
+		for(int i = index; i < currentNumberOfActivities; i++) {
+			ActivityData ad = activities.get(i);
+			ad.setOrder(ad.getOrder() - 1);
+			changedActivities.add(ad);
+		}
+		return changedActivities;
 	}
 
 	/*
@@ -199,6 +335,38 @@ public class CompetenceActivitiesBean implements Serializable {
 
 	public void setResourceResData(ResourceActivityResourceData resourceResData) {
 		this.resourceResData = resourceResData;
+	}
+
+	public String getActSearchTerm() {
+		return actSearchTerm;
+	}
+
+	public void setActSearchTerm(String actSearchTerm) {
+		this.actSearchTerm = actSearchTerm;
+	}
+
+	public List<ActivityData> getSearchResults() {
+		return searchResults;
+	}
+
+	public void setSearchResults(List<ActivityData> searchResults) {
+		this.searchResults = searchResults;
+	}
+
+	public long getDecodedId() {
+		return decodedId;
+	}
+
+	public void setDecodedId(long decodedId) {
+		this.decodedId = decodedId;
+	}
+
+	public int getCurrentNumberOfActivities() {
+		return currentNumberOfActivities;
+	}
+
+	public void setCurrentNumberOfActivities(int currentNumberOfActivities) {
+		this.currentNumberOfActivities = currentNumberOfActivities;
 	}
 
 }

@@ -31,13 +31,13 @@ public class ActivityTypeMapper {
 		}
 		
 		ActivityData activityData = new ActivityData();
-		activityData.setActivityType(actType);
+		activityData.setResourceType(actType);
 		activityData.setResourceData(resData);
 		return activityData;
 	}
 	
 	public static Activity mapToActivity(ActivityData activityData) {
-		ResourceType type = activityData.getActivityType();
+		ResourceType type = activityData.getResourceType();
 		if(type == null) {
 			return null;
 		}

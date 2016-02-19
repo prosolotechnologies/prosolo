@@ -825,7 +825,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     }
 
     @Override
-    @Transactional(readOnly = false)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public Activity createNewActivity(ActivityData activityData) throws DbConnectionException {
         try {
         	ActivityMapper mapper = ActivityMapperFactory.getActivityMapper(activityData);

@@ -23,7 +23,7 @@ public class ActivityMapperFactory {
 
 	public static ActivityMapper getActivityMapper(ActivityData activityData) {
 		ActivityMapper activityMapper = null;
-		ResourceType type = activityData.getActivityType();
+		ResourceType type = activityData.getResourceType();
 		if(type == null) {
 			return null;
 		}

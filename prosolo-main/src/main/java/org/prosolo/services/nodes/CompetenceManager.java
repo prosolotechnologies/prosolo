@@ -89,8 +89,14 @@ public interface CompetenceManager extends AbstractManager {
 	
 	String getCompetenceTitle(long compId) throws DbConnectionException;
 	
-	CompetenceActivity saveCompetenceActivity(long compId, ActivityData activityData) throws DbConnectionException;
+	CompetenceActivity saveCompetenceActivity(long compId, ActivityData activityData,
+			String page, String learningContext, String service) throws DbConnectionException;
 
 	Competence createNewUntitledCompetence(User user, CreatorType manager);
+	
+	void deleteCompetenceActivity(long compId, long competenceActivityId,
+			List<ActivityData> changedActivities) throws DbConnectionException;
+	
+	void updateOrderOfCompetenceActivities(List<ActivityData> activities) throws DbConnectionException;
 	
 }

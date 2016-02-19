@@ -15,7 +15,7 @@ public abstract class ActivityDataMapper {
 	
 	public ActivityData mapToActivityData() {
 		ActivityData activityData = getActivityDataWithCommonData();
-		activityData.setActivityType(getActivityType());
+		activityData.setResourceType(getActivityType());
 		activityData.setResourceData(getResourceData());
 		return activityData;
 	}
@@ -29,7 +29,8 @@ public abstract class ActivityDataMapper {
 		data.setActivityId(activity.getId());
 		data.setTitle(activity.getTitle());
 		data.setDescription(activity.getDescription());
-		data.setMandatory(activity.isMandatory());
+		boolean mandatory = activity.isMandatory() == null ? false : activity.isMandatory();
+		data.setMandatory(mandatory);
 		return data;
 	}
 }
