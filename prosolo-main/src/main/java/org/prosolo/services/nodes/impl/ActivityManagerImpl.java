@@ -24,6 +24,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.activityWall.SocialStreamObserver;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.PostManager;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
@@ -40,7 +41,6 @@ public class ActivityManagerImpl extends AbstractManagerImpl implements	Activity
 	
 	private static final long serialVersionUID = -6629875178124643511L;
 	
-	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(ActivityManagerImpl.class);
 	
 	@Autowired private ResourceFactory resourceFactory;
@@ -442,6 +442,73 @@ public class ActivityManagerImpl extends AbstractManagerImpl implements	Activity
 			logger.error(e);
 			e.printStackTrace();
 			return false;
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public boolean checkIfActivityIsReferenced(long activityId) throws DbConnectionException {
+		try {
+			boolean referencedByCompetenceActivity = checkIfActivityIsReferencedByCompetenceActivity(activityId);
+			if(referencedByCompetenceActivity) {
+				return true;
+			}
+			boolean referencedByTargetActivity = checkIfActivityIsReferencedByTargetActivity(activityId);
+			return referencedByTargetActivity;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while checking if activity is referenced");
+		}
+	}
+
+	private boolean checkIfActivityIsReferencedByTargetActivity(long activityId) {
+		String query =
+				"SELECT tActivity.id " +
+				"FROM TargetActivity tActivity "+
+				"INNER JOIN tActivity.activity activity "+
+				"WHERE activity.id = :activityId";
+			
+		Long result = (Long) persistence.currentManager().createQuery(query)
+			.setLong("activityId", activityId)
+			.setMaxResults(1)
+			.uniqueResult();
+		
+		return result != null;
+	}
+
+	private boolean checkIfActivityIsReferencedByCompetenceActivity(long activityId) {
+		String query =
+				"SELECT cActivity.id " +
+				"FROM CompetenceActivity cActivity "+
+				"INNER JOIN cActivity.activity activity "+
+				"WHERE activity.id = :activityId"; 
+			
+		Long result = (Long) persistence.currentManager().createQuery(query)
+			.setLong("activityId", activityId)
+			.setMaxResults(1)
+			.uniqueResult();
+		
+		return result != null;
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void deleteActivity(long activityId, Class<? extends Activity> activityClass, User user, 
+			LearningContextData data) {
+		try {
+			//deleteById(Activity.class, activityId, persistence.currentManager());
+			//Constructor<? extends Activity> constructor = activityClass.getConstructor();
+			//Activity activity = constructor.newInstance();
+			//activity.setId(activityId);
+			Activity act = (Activity) persistence.currentManager().load(Activity.class, activityId);
+			act.setDeleted(true);
+			eventFactory.generateEvent(EventType.Delete, user, act, null, 
+					data.getPage(), data.getLearningContext(), data.getService(), null);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while deleting activity");
 		}
 	}
 }

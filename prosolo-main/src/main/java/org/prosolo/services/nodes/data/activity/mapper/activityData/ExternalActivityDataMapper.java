@@ -29,4 +29,9 @@ public class ExternalActivityDataMapper extends ActivityDataMapper {
 		return ResourceType.EXTERNAL_ACTIVITY;
 	}
 
+	@Override
+	Class<? extends Activity> getActivityClass() {
+		return ExternalToolActivity.class;
+	}
+
 }

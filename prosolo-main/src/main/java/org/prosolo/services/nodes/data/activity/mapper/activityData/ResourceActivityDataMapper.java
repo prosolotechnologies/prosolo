@@ -7,6 +7,8 @@ import org.prosolo.common.domainmodel.content.RichContent;
 import org.prosolo.services.nodes.data.activity.ResourceActivityResourceData;
 import org.prosolo.services.nodes.data.activity.ResourceData;
 import org.prosolo.services.nodes.data.activity.ResourceType;
+import org.prosolo.web.activitywall.data.AttachmentPreview;
+import org.prosolo.web.activitywall.util.WallActivityConverter;
 
 public class ResourceActivityDataMapper extends ActivityDataMapper {
 
@@ -18,9 +20,23 @@ public class ResourceActivityDataMapper extends ActivityDataMapper {
 	ResourceData getResourceData() {
 		ResourceActivity act = (ResourceActivity) activity;
 		ResourceActivityResourceData res = new ResourceActivityResourceData();
-		res.setRichContent(act.getRichContent());
+		//res.setRichContent(act.getRichContent());
+		RichContent richContent = act.getRichContent();
+	    AttachmentPreview attachPreview = richContent == null ? null : getAttachmentPreview(richContent);
+		res.setAttachmentPreview(attachPreview);
 		
 		return res;
+	}
+
+	private AttachmentPreview getAttachmentPreview(RichContent richContent) {
+		AttachmentPreview attachPreview = WallActivityConverter.createAttachmentPreview(
+				richContent.getTitle(), 
+				richContent.getDescription(), 
+				richContent.getLink(), 
+				richContent.getImageUrl(), 
+				richContent.getContentType(),
+				null);
+		return attachPreview;
 	}
 
 	@Override
@@ -63,6 +79,11 @@ public class ResourceActivityDataMapper extends ActivityDataMapper {
 		} else {
 			return ResourceType.NONE;
 		}
+	}
+
+	@Override
+	Class<? extends Activity> getActivityClass() {
+		return ResourceActivity.class;
 	}
 
 }

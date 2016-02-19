@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
@@ -24,8 +25,10 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.data.activity.ActivityData;
@@ -47,6 +50,7 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 	
 	@Autowired private EventFactory eventFactory;
 	@Autowired private ResourceFactory resourceFactory;
+	@Inject private ActivityManager activityManager;
 	
 	@Override
 	@Transactional
@@ -116,11 +120,11 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 					duration, 
 					VisibilityType.PUBLIC);
 
-		CompetenceActivity compActivity = new CompetenceActivity(competence.getActivities().size(), activity);
+		CompetenceActivity compActivity = new CompetenceActivity(competence, competence.getActivities().size(), activity);
 		compActivity = saveEntity(compActivity);
 		
-		competence.addActivity(compActivity);
-		saveEntity(competence);
+		//competence.addActivity(compActivity);
+		//saveEntity(competence);
 		
 		return activity;
 	}
@@ -150,10 +154,11 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 					long activityId = actData.getObject().getId();
 					Activity activity = loadResource(Activity.class, activityId);
 					
-					CompetenceActivity compActivity = new CompetenceActivity(actData.getPosition(), activity);
+					//changed relationship between competence and competence activity
+					CompetenceActivity compActivity = new CompetenceActivity(competence, actData.getPosition(), activity);
 					compActivity = saveEntity(compActivity);
 					
-					competence.addActivity(compActivity);
+					//competence.addActivity(compActivity);
 				} catch (ResourceCouldNotBeLoadedException e) {
 					logger.error(e);
 				}
@@ -606,9 +611,11 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 	@Override
 	@Transactional(readOnly = false)
 	public CompetenceActivity saveCompetenceActivity(long compId, ActivityData activityData,
-			String page, String learningContext, String service) throws DbConnectionException {
+			LearningContextData context) throws DbConnectionException {
 		try {
 			CompetenceActivity compAct = new CompetenceActivity();
+			Competence comp = (Competence) persistence.currentManager().load(Competence.class, compId);
+			compAct.setCompetence(comp);
 			compAct.setActivityPosition(activityData.getOrder());
 			Activity activity = null;
 			if(activityData.getActivityId() > 0) {
@@ -617,13 +624,11 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 			} else {
 				activity = resourceFactory.createNewActivity(activityData);
 				eventFactory.generateEvent(EventType.Create, activity.getMaker(), activity, null, 
-						page, learningContext, service, null);
+						context.getPage(), context.getLearningContext(), context.getService(), null);
 			}
 			compAct.setActivity(activity);
 			saveEntity(compAct);
-			
-			Competence comp = (Competence) persistence.currentManager().load(Competence.class, compId);
-			comp.getActivities().add(compAct);
+		
 			return compAct;
 		} catch(Exception e) {
 			logger.error(e);
@@ -634,18 +639,18 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 	
 	@Override
 	@Transactional(readOnly = false)
-	public void deleteCompetenceActivity(long compId, long competenceActivityId,
-			List<ActivityData> changedActivities) throws DbConnectionException {
+	public void deleteCompetenceActivity(ActivityData activityData,
+			List<ActivityData> changedActivities, User user, 
+			LearningContextData context) throws DbConnectionException {
 		try {
-			Competence comp = (Competence) persistence.currentManager().get(Competence.class, compId);
-			Iterator<CompetenceActivity> iterator = comp.getActivities().iterator();
-			while(iterator.hasNext()) {
-				CompetenceActivity ca = iterator.next();
-				if(ca.getId() == competenceActivityId) {
-					iterator.remove();
-				}
-			}
+			resourceFactory.deleteCompetenceActivityInSeparateTransaction(
+					activityData.getCompetenceActivityId());
+			long activityId = activityData.getActivityId();
 			updateOrderOfCompetenceActivities(changedActivities);
+			boolean isReferenced = activityManager.checkIfActivityIsReferenced(activityId);
+			if(!isReferenced) {
+				activityManager.deleteActivity(activityId, activityData.getActivityClass(), user, context);
+			}
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

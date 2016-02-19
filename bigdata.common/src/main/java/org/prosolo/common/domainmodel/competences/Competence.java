@@ -98,7 +98,7 @@ public class Competence extends Node {
 		this.corequisites = corequisites;
 	}
 
-	@OneToMany(orphanRemoval = true)
+	@OneToMany(mappedBy="competence", cascade = CascadeType.ALL, orphanRemoval = true)
 	@OrderBy("activityPosition ASC")
 	public List<CompetenceActivity> getActivities() {
 		return activities;

@@ -841,4 +841,16 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
             throw new DbConnectionException("Error while creating new activity");
         }
     }
+    
+    @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    public void deleteCompetenceActivityInSeparateTransaction(long competenceActivityId) 
+    		throws DbConnectionException {
+    	try {
+    		deleteById(CompetenceActivity.class, competenceActivityId, 
+					persistence.currentManager());
+    	} catch(Exception e) {
+    		throw new DbConnectionException("Error while deleting competence activity");
+    	}
+    }
 }

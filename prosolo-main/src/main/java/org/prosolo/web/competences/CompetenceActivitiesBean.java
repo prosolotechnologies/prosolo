@@ -15,6 +15,7 @@ import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.CompetenceActivity;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
+import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.data.activity.ActivityData;
@@ -66,6 +67,8 @@ public class CompetenceActivitiesBean implements Serializable {
 	private List<Long> activitiesToExclude;
 	
 	private int currentNumberOfActivities;
+	
+	private String learningContext;
 	
 	public CompetenceActivitiesBean() {
 		
@@ -138,7 +141,11 @@ public class CompetenceActivitiesBean implements Serializable {
 	
 	public void addActivityFromSearch(ActivityData act) {
 		try {
-			saveNewCompActivity(act);
+			String learningContext = PageUtil.getPostParameter("learningContext");
+			String service = PageUtil.getPostParameter("service");
+			String page = PageUtil.getPostParameter("page");
+			LearningContextData context = new LearningContextData(page, learningContext, service);
+			saveNewCompActivity(act, context);
 			PageUtil.fireSuccessfulInfoMessage("Activity added");
 		} catch(DbConnectionException e) {
 			logger.error(e);
@@ -147,23 +154,29 @@ public class CompetenceActivitiesBean implements Serializable {
 		searchResults = new ArrayList<>();
 	}
 	
-	private void saveNewCompActivity(ActivityData act) {
+	private void saveNewCompActivity(ActivityData act, LearningContextData context) {
 		currentNumberOfActivities++;
 		act.setOrder(currentNumberOfActivities);
-		CompetenceActivity cAct = getLearningContextParametersAndSaveActivity(act);
+		CompetenceActivity cAct = competenceManager.saveCompetenceActivity(decodedId, act, context);
 		act.setCompetenceActivityId(cAct.getId());
+		if(act.getActivityId() == 0) {
+			act.setActivityId(cAct.getActivity().getId());
+		}
 		activities.add(act);
 		activitiesToExclude.add(act.getActivityId());
 	}
 
 	public void deleteCompActivity() {
 		try {
-			currentNumberOfActivities--;
+			String service = PageUtil.getPostParameter("service");
+			String page = PageUtil.getPostParameter("page");
+			LearningContextData context = new LearningContextData(page, learningContext, service);
 			int index = activities.indexOf(activityToEdit);
 			List<ActivityData> changedActivities = shiftOrderOfActivitiesUp(index);
-			competenceManager.deleteCompetenceActivity(decodedId, activityToEdit.getCompetenceActivityId(), 
-					changedActivities);
+			competenceManager.deleteCompetenceActivity(activityToEdit, 
+					changedActivities, loggedUserBean.getUser(), context);
 			activities.remove(activityToEdit);
+			currentNumberOfActivities--;
 			activitiesToExclude.remove(new Long(activityToEdit.getActivityId()));
 			PageUtil.fireSuccessfulInfoMessage("Activity deleted");
 		} catch(DbConnectionException e) {
@@ -203,25 +216,21 @@ public class CompetenceActivitiesBean implements Serializable {
 
 	public void setActivityForEdit(ActivityData activityData) {
 		this.activityToEdit = activityData;
+		this.learningContext = PageUtil.getPostParameter("learningContext");
 	}
 	
 	public void saveActivity() {
 		try {
-			saveNewCompActivity(activityToEdit);
+			String service = PageUtil.getPostParameter("service");
+			String page = PageUtil.getPostParameter("page");
+			LearningContextData context = new LearningContextData(page, learningContext, service);
+			saveNewCompActivity(activityToEdit, context);
 			PageUtil.fireSuccessfulInfoMessage("Competence activity saved");
 		} catch(DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage(e.getMessage());
 		}
 		activityToEdit = null;
-	}
-
-	private CompetenceActivity getLearningContextParametersAndSaveActivity(ActivityData activity) {
-		String learningContext = PageUtil.getPostParameter("learningContext");
-		String service = PageUtil.getPostParameter("service");
-		String page = PageUtil.getPostParameter("page");
-		return competenceManager.saveCompetenceActivity(decodedId, activity,
-				page, learningContext, service);
 	}
 	
 	public void moveDown(int index) {
@@ -254,7 +263,7 @@ public class CompetenceActivitiesBean implements Serializable {
 	
 	private List<ActivityData> shiftOrderOfActivitiesUp(int index) {
 		List<ActivityData> changedActivities = new ArrayList<>();
-		for(int i = index; i < currentNumberOfActivities; i++) {
+		for(int i = index + 1; i < currentNumberOfActivities; i++) {
 			ActivityData ad = activities.get(i);
 			ad.setOrder(ad.getOrder() - 1);
 			changedActivities.add(ad);
@@ -367,6 +376,14 @@ public class CompetenceActivitiesBean implements Serializable {
 
 	public void setCurrentNumberOfActivities(int currentNumberOfActivities) {
 		this.currentNumberOfActivities = currentNumberOfActivities;
+	}
+
+	public String getLearningContext() {
+		return learningContext;
+	}
+
+	public void setLearningContext(String learningContext) {
+		this.learningContext = learningContext;
 	}
 
 }

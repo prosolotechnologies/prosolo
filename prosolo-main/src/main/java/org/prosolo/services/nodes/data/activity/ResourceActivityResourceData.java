@@ -1,33 +1,30 @@
 package org.prosolo.services.nodes.data.activity;
 
-import org.prosolo.common.domainmodel.content.RichContent;
+import org.prosolo.web.activitywall.data.AttachmentPreview;
 
 public class ResourceActivityResourceData extends ResourceData {
 
-	private RichContent richContent;
+	private AttachmentPreview attachmentPreview;
 	
 	public ResourceActivityResourceData() {
 		setActivityType();
 	}
 
-	public ResourceActivityResourceData(RichContent richContent) {
-		this.richContent = richContent;
+	public ResourceActivityResourceData(AttachmentPreview attachment) {
 		setActivityType();
 	}
-
-
-	public RichContent getRichContent() {
-		return richContent;
-	}
-
-	public void setRichContent(RichContent richContent) {
-		this.richContent = richContent;
-	}
-
+	
 	@Override
 	void setActivityType() {
 		this.activityType = ActivityType.RESOURCE;
 	}
-	
+
+	public AttachmentPreview getAttachmentPreview() {
+		return attachmentPreview;
+	}
+
+	public void setAttachmentPreview(AttachmentPreview attachmentPreview) {
+		this.attachmentPreview = attachmentPreview;
+	}
 	
 }

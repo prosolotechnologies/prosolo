@@ -22,6 +22,8 @@ public class ActivityData implements Serializable{
 	private ResourceType resourceType;
 	private ResourceData resourceData;
 	
+	private Class<? extends Activity> activityClass;
+	
 	public ActivityData() {
 		this.resourceType = ResourceType.NONE;
 		this.visibilityType = VisibilityType.PUBLIC;
@@ -150,6 +152,14 @@ public class ActivityData implements Serializable{
 
 	public void setVisibilityType(VisibilityType visibilityType) {
 		this.visibilityType = visibilityType;
+	}
+	
+	public Class<? extends Activity> getActivityClass () {
+		return activityClass;
+	}
+
+	public void setActivityClass(Class<? extends Activity> activityClass) {
+		this.activityClass = activityClass;
 	}
 	
 }

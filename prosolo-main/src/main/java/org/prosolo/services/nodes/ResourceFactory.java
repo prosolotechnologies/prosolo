@@ -104,5 +104,8 @@ public interface ResourceFactory extends AbstractManager {
             Collection<Tag> hashtags, boolean published) throws DbConnectionException;
 
     Activity createNewActivity(ActivityData activityData) throws DbConnectionException;
+    
+    void deleteCompetenceActivityInSeparateTransaction(long competenceActivityId) 
+    		throws DbConnectionException;
 
 }

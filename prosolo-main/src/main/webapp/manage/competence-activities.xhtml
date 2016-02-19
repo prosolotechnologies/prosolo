@@ -78,6 +78,7 @@
 	            	  	styleClass="btn btn-primary"
 	            	  	pt:data-toggle="modal">
 	            	  	<i class="fa fa-plus"></i> Add new activity
+	            	  	<f:param name="learningContext" value="#{learningContextRoot}"></f:param>
 	            	  </p:commandLink>
 	                  
 	                  <span>or search existing</span>
@@ -102,7 +103,7 @@
 										action="#{competenceActivitiesBean.addActivityFromSearch(act)}"
 										update=":formMain:panelActivities :formMain:panelActSearchResults"
 										oncomplete="$('.acField').val(''); $('.acPanel').first().stop(true, true).slideUp(10);">
-										<f:param name="learningContext" value="#{util:addSubContext(learningContextRoot, 'name:base_activity|id:'.concat(act.activityId))}"></f:param>
+										<f:param name="learningContext" value="#{util:addSubContext(learningContextRoot, 'name:activity_search_box|id:'.concat(act.activityId))}"></f:param>
 										<f:param name="service" value="name:add_activity_dialog"></f:param>
 	      								<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
 									</p:commandLink>
@@ -206,6 +207,7 @@
 			                           		update=":formModalDelete"
 			                           		oncomplete="$('#modalOk').modal('show');">
 			                           		<span class="delete"></span>Delete
+			                           		<f:param name="learningContext" value="#{learningContextRoot}"></f:param>
 			                           	</p:commandLink>
 			                        </div>
 			                     </td>
@@ -493,7 +495,17 @@
 							
 	                     	<hr/>
 	                     	
-	                        <div class="col-md-12">
+	                        <div class="col-md-12" id="o6b9JpBFjd4">
+	                        	<script>
+									$(function(){
+										initializeYouTubeAPI({
+											width: '536', 
+											height: '302',
+											container: '.col-md-12',
+											context: '',
+										});
+									});
+								</script>
 										<iframe width="536" height="302" src="https://www.youtube.com/embed/6TX0fUK22Kg" frameborder="0" allowfullscreen="true"></iframe>
 	                        </div>
 								</div>                     
@@ -560,7 +572,6 @@
 	      		oncomplete="$('#modalFull').modal('hide');"
 	      		update=":formMain">
 	      		Save
-	      		<f:param name="learningContext" value="#{learningContextRoot}"></f:param>
 	      		<f:param name="service" value="name:add_activity_dialog"></f:param>
 	      		<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
 	      	</p:commandLink>
@@ -696,6 +707,8 @@
 	        	action="#{competenceActivitiesBean.deleteCompActivity()}"
 	        	update=":formMain:growlMain :formMain:panelActivities"
 	        	oncomplete="$('#modalOk').modal('hide');">
+	        	<f:param name="service" value="name:delete_competence_activity_dialog|id:#{competenceActivitiesBean.activityToEdit.competenceActivityId}"></f:param>
+	      		<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
 	        </p:commandLink>
 	        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
 	      </div>

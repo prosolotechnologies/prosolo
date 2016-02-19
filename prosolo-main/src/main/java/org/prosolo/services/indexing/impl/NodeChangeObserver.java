@@ -4,6 +4,7 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.ExternalToolActivity;
 import org.prosolo.common.domainmodel.activities.ResourceActivity;
 import org.prosolo.common.domainmodel.activities.UploadAssignmentActivity;
@@ -62,6 +63,7 @@ public class NodeChangeObserver extends EventObserver {
 			TargetCompetence.class, 
 			Competence.class,
 			Course.class,
+			Activity.class,
 			ResourceActivity.class, 
 			ExternalToolActivity.class,
 			UploadAssignmentActivity.class,

@@ -28,4 +28,9 @@ public class AssignmentActivityDataMapper extends ActivityDataMapper {
 		return ResourceType.ASSIGNMENT;
 	}
 
+	@Override
+	Class<? extends Activity> getActivityClass() {
+		return UploadAssignmentActivity.class;
+	}
+
 }

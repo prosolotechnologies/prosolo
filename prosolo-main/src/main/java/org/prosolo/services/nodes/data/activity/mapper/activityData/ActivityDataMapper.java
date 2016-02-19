@@ -17,9 +17,12 @@ public abstract class ActivityDataMapper {
 		ActivityData activityData = getActivityDataWithCommonData();
 		activityData.setResourceType(getActivityType());
 		activityData.setResourceData(getResourceData());
+		activityData.setActivityClass(getActivityClass());
 		return activityData;
 	}
 	
+	abstract Class<? extends Activity> getActivityClass();
+
 	abstract ResourceData getResourceData();
 
 	abstract ResourceType getActivityType();

@@ -1631,12 +1631,14 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					15, 
 					VisibilityType.PUBLIC);
 			
-			CompetenceActivity uplaodGephiAssignmentCompActivity = new CompetenceActivity(4, uplaodGephiAssignment);
-			uplaodGephiAssignmentCompActivity = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(uplaodGephiAssignmentCompActivity);
-			
 			comp2 = ServiceLocator.getInstance().getService(DefaultManager.class).merge(comp2);
-			comp2.addActivity(uplaodGephiAssignmentCompActivity);
-			comp2 = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(comp2);
+			CompetenceActivity uplaodGephiAssignmentCompActivity = new CompetenceActivity(comp2, 
+					4, uplaodGephiAssignment);
+			uplaodGephiAssignmentCompActivity = ServiceLocator.getInstance().
+					getService(DefaultManager.class).saveEntity(uplaodGephiAssignmentCompActivity);
+			
+			//comp2.addActivity(uplaodGephiAssignmentCompActivity);
+			//comp2 = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(comp2);
 		} catch (EventException e5) {
 			logger.error(e5.getLocalizedMessage());
 		}
