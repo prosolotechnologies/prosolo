@@ -21,6 +21,7 @@ public class TwitterHashtagStatisticsJob implements Job {
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		long to = DateUtil.getDaysSinceEpoch();
 		long from = to - 7;
+		System.out.println("Twitter Hashtag Statistics Job running...");
 		List<TwitterHashtagDailyCount> counts =TwitterHashtagStatisticsDBManagerImpl.getInstance().getTwitterHashtagDailyCounts(from, to);
 		Map<String, Long> result = new HashMap<String, Long>();
 		for (TwitterHashtagDailyCount count : counts) {
@@ -35,6 +36,7 @@ public class TwitterHashtagStatisticsJob implements Job {
 		for (String hashtag : invalidCounts) {
 			TwitterHashtagStatisticsDBManagerImpl.getInstance().deleteTwitterHashtagUsersCount(hashtag);
 		}
+		System.out.println("Twitter Hashtag Statistics Job finished...");
 	}
 
 }

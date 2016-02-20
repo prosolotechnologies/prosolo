@@ -45,7 +45,10 @@ public class SocialActivityFilteringImpl implements SocialActivityFiltering {
 				
 				if (shouldBeDisplayedOnStatusWall) {
 					ActivityWallBean activityWallBean = (ActivityWallBean) httpSession.getAttribute("activitywall");
-					activityWallBean.getActivityWallDisplayer().addSocialActivity(socialActivity, user, loggedUserBean.getLocale(), true);
+					if(activityWallBean!=null){
+						activityWallBean.getActivityWallDisplayer().addSocialActivity(socialActivity, user, loggedUserBean.getLocale(), true);
+					}
+
 				}				
 				Filter selectedGoalWallFilter = loggedUserBean.getSelectedLearningGoalFilter();
 				

@@ -308,10 +308,14 @@ public class SocialActivityData implements Serializable {
 			
 			TwitterPostSocialActivity twitterPostSocialActivity = (TwitterPostSocialActivity) socialActivity;
 			this.anonUser = true;
+			if(this.actor!=null){
+				this.actor.setAvatarUrl(twitterPostSocialActivity.getAvatarUrl());
+				this.actor.setProfileUrl(twitterPostSocialActivity.getProfileUrl());
+				this.actor.setName(twitterPostSocialActivity.getName());
+			}else{
+				System.out.println("Actor is null here...");
+			}
 
-			this.actor.setAvatarUrl(twitterPostSocialActivity.getAvatarUrl());
-			this.actor.setProfileUrl(twitterPostSocialActivity.getProfileUrl());
-			this.actor.setName(twitterPostSocialActivity.getName());
 			
 			this.publishingService = new PublishingServiceData(
 					ServiceType.TWITTER, 

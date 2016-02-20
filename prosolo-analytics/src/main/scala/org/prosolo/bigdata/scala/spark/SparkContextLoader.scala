@@ -34,11 +34,9 @@ object SparkContextLoader {
   val sc = new SparkContext(sparkConf)
   val jsc=new JavaSparkContext(sc)
   def getSC:SparkContext={
-    println("GET-SPARK CONTEXT SCALA")
     sc
   }
   def getJSC:JavaSparkContext={
-    println("GET-SPARK CONTEXT JAVA")
     jsc
   }
 
