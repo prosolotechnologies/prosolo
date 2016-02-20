@@ -49,16 +49,16 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 	}
 
 	static {
-		statements.put(FIND_SOCIAL_INTERACTION_COUNTS,  "SELECT * FROM socialinteractionscount where course=?;");
-		statements.put(FIND_STUDENT_SOCIAL_INTERACTION_COUNTS, "SELECT * FROM socialinteractionscount where course=? and source = ?;");
+		statements.put(FIND_SOCIAL_INTERACTION_COUNTS,  "SELECT * FROM sna_socialinteractionscount where course=?;");
+		statements.put(FIND_STUDENT_SOCIAL_INTERACTION_COUNTS, "SELECT * FROM sna_socialinteractionscount where course=? and source = ?;");
 		statements.put(Statements.UPDATE_CURRENT_TIMESTAMPS,"UPDATE currenttimestamps  SET timestamp=? WHERE tablename=?;");
 		statements.put(Statements.FIND_CURRENT_TIMESTAMPS,  "SELECT * FROM currenttimestamps ALLOW FILTERING;");
-		statements.put(Statements.INSERT_INSIDE_CLUSTERS_INTERACTIONS, "INSERT INTO insideclustersinteractions(timestamp, course, cluster, student, interactions) VALUES(?,?,?,?,?); ");
-		statements.put(Statements.INSERT_OUTSIDE_CLUSTERS_INTERACTIONS, "INSERT INTO outsideclustersinteractions(timestamp, course,  student,direction, cluster, interactions) VALUES(?,?,?,?,?,?); ");
-		statements.put(Statements.FIND_OUTSIDE_CLUSTER_INTERACTIONS, "SELECT * FROM outsideclustersinteractions WHERE timestamp = ? AND course = ? AND student = ? ALLOW FILTERING;");
-		statements.put(Statements.FIND_INSIDE_CLUSTER_INTERACTIONS, "SELECT * FROM insideclustersinteractions WHERE timestamp = ? AND course = ? AND cluster = ? ALLOW FILTERING;");
-		statements.put(Statements.INSERT_STUDENT_CLUSTER, "INSERT INTO studentcluster(timestamp, course,  student,cluster) VALUES(?,?,?,?); ");
-		statements.put(Statements.FIND_STUDENT_CLUSTER, "SELECT * FROM studentcluster WHERE timestamp = ? AND course = ? AND student = ? ALLOW FILTERING;");
+		statements.put(Statements.INSERT_INSIDE_CLUSTERS_INTERACTIONS, "INSERT INTO sna_insideclustersinteractions(timestamp, course, cluster, student, interactions) VALUES(?,?,?,?,?); ");
+		statements.put(Statements.INSERT_OUTSIDE_CLUSTERS_INTERACTIONS, "INSERT INTO sna_outsideclustersinteractions(timestamp, course,  student,direction, cluster, interactions) VALUES(?,?,?,?,?,?); ");
+		statements.put(Statements.FIND_OUTSIDE_CLUSTER_INTERACTIONS, "SELECT * FROM sna_outsideclustersinteractions WHERE timestamp = ? AND course = ? AND student = ? ALLOW FILTERING;");
+		statements.put(Statements.FIND_INSIDE_CLUSTER_INTERACTIONS, "SELECT * FROM sna_insideclustersinteractions WHERE timestamp = ? AND course = ? AND cluster = ? ALLOW FILTERING;");
+		statements.put(Statements.INSERT_STUDENT_CLUSTER, "INSERT INTO sna_studentcluster(timestamp, course,  student,cluster) VALUES(?,?,?,?); ");
+		statements.put(Statements.FIND_STUDENT_CLUSTER, "SELECT * FROM sna_studentcluster WHERE timestamp = ? AND course = ? AND student = ? ALLOW FILTERING;");
 	}
 
 	private SocialInteractionStatisticsDBManagerImpl(){

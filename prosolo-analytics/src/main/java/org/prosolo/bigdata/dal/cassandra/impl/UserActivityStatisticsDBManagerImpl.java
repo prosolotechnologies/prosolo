@@ -49,12 +49,12 @@ public class UserActivityStatisticsDBManagerImpl extends SimpleCassandraClientIm
 	}
 
 	static {
-		statements.put(FIND_USER_EVENT_COUNT_FOR_PERIOD, "SELECT * FROM usereventdailycount WHERE date>=? AND date<=? AND event=? ALLOW FILTERING;");
-		statements.put(FIND_EVENTS_COUNT_FOR_PERIOD, "SELECT * FROM eventdailycount WHERE date>=? AND date<=? AND event=? ALLOW FILTERING;");
-		statements.put(FIND_EVENT_COUNT, "SELECT * FROM eventdailycount WHERE event=? ALLOW FILTERING;");
-		statements.put(UPDATE_INSTANCE_LOGGED_USERS_COUNT, "UPDATE instanceloggeduserscount set count = ? where instance = ? and timestamp = ?;");
-		statements.put(FIND_INSTANCE_LOGGED_USERS_COUNT, "SELECT * FROM instanceloggeduserscount WHERE timestamp > ? ALLOW FILTERING;");
-		statements.put(DELETE_FROM_INSTANCE_LOGGED_USERS_COUNT, "DELETE FROM instanceloggeduserscount WHERE instance = ?;");
+		statements.put(FIND_USER_EVENT_COUNT_FOR_PERIOD, "SELECT * FROM dash_usereventdailycount WHERE date>=? AND date<=? AND event=? ALLOW FILTERING;");
+		statements.put(FIND_EVENTS_COUNT_FOR_PERIOD, "SELECT * FROM dash_eventdailycount WHERE date>=? AND date<=? AND event=? ALLOW FILTERING;");
+		statements.put(FIND_EVENT_COUNT, "SELECT * FROM dash_eventdailycount WHERE event=? ALLOW FILTERING;");
+		statements.put(UPDATE_INSTANCE_LOGGED_USERS_COUNT, "UPDATE dash_instanceloggeduserscount set count = ? where instance = ? and timestamp = ?;");
+		statements.put(FIND_INSTANCE_LOGGED_USERS_COUNT, "SELECT * FROM dash_instanceloggeduserscount WHERE timestamp > ? ALLOW FILTERING;");
+		statements.put(DELETE_FROM_INSTANCE_LOGGED_USERS_COUNT, "DELETE FROM dash_instanceloggeduserscount WHERE instance = ?;");
 	}
 
 	private BoundStatement statement(PreparedStatement prepared, Object... parameters) {
