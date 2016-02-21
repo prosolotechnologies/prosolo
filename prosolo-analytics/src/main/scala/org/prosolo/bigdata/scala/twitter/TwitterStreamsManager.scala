@@ -1,8 +1,7 @@
 package org.prosolo.bigdata.scala.twitter
 
-import twitter4j.{HashtagEntity, Status,TwitterStream,TwitterStreamFactory,FilterQuery}
-import scala.collection.mutable.Buffer
-import scala.collection.Iterable
+import twitter4j.{TwitterStream,TwitterStreamFactory,FilterQuery}
+
 /**
  * @author zoran Aug 6, 2015
  */

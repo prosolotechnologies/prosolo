@@ -20,6 +20,7 @@ import org.prosolo.bigdata.events.pojo.AnalyticsEvent;
 import org.prosolo.bigdata.events.pojo.DefaultEvent;
 import org.prosolo.bigdata.scala.twitter.HashtagsUpdatesBuffer$;
 import org.prosolo.bigdata.scala.twitter.TwitterHashtagsStreamsManager$;
+import org.prosolo.bigdata.scala.twitter.TwitterStatusBuffer$;
 import org.prosolo.bigdata.scala.twitter.TwitterUsersStreamsManager$;
 //import org.prosolo.bigdata.scala.twitter.util.TwitterUtils$;
 import org.prosolo.bigdata.streaming.Topic;
@@ -76,10 +77,12 @@ public class AnalyticalEventsObserver implements EventObserver {
 						TwitterHashtagStatisticsDBManagerImpl.getInstance().disableTwitterHashtag(hashtag);
 						System.out.println("SHOULD DISABLE THIS HASHTAG..."+hashtag);
 						twitterHashtagsStreamsManager.adminDisableHashtag(hashtag);
+						TwitterStatusBuffer$.MODULE$.disableHashtagInFilter(hashtag);
 					} else {
 						TwitterHashtagStatisticsDBManagerImpl.getInstance().enableTwitterHashtag(hashtag);
 						System.out.println("SHOULD ENABLE THIS HASHTAG...."+hashtag);
 						twitterHashtagsStreamsManager.adminEnableHashtag(hashtag);
+						TwitterStatusBuffer$.MODULE$.enableHashtagInFilter(hashtag);
 					}
 				} else {
 					AnalyticalEventDBManagerImpl.getInstance().insertAnalyticsEventRecord(analyticsEvent);

@@ -1,7 +1,6 @@
 package org.prosolo.bigdata.scala.analyzers
 
-import org.prosolo.bigdata.dal.cassandra.impl.{AnalyzedResultsDBmanagerImpl, AnalyticalEventDBManagerImpl}
-import org.prosolo.bigdata.es.AssociationRulesIndexerImpl
+import org.prosolo.bigdata.dal.cassandra.impl.{AnalyticalEventDBManagerImpl}
 import org.prosolo.bigdata.scala.spark.SparkContextLoader
 import org.prosolo.bigdata.spark.CompetenceActivitiesAssociationRulesAnalyzer
 import scala.collection.JavaConverters._

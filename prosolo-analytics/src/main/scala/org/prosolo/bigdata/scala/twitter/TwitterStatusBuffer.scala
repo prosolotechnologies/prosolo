@@ -45,6 +45,12 @@ object TwitterStatusBuffer {
     buffer.clear()
     statuses
   }
+  def disableHashtagInFilter(hashtag:String): Unit ={
+    profanityFilter.addDisabledHashtag(hashtag)
+  }
+  def enableHashtagInFilter(hashtag:String):Unit={
+    profanityFilter.enableDisabledHashtag(hashtag)
+  }
 
   def processBufferStatuses(){
 
