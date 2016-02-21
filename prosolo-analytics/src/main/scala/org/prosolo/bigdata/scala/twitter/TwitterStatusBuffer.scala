@@ -81,8 +81,9 @@ object TwitterStatusBuffer {
      val twitterUser=status.getUser
      val twitterHashtags:java.util.List[String]=new java.util.ArrayList[String]()
      status.getHashtagEntities.map { htent => twitterHashtags.add(htent.getText.toLowerCase) }
-     val(twitterId,creatorName,screenName,profileImage)=(twitterUser.getId,twitterUser.getName,twitterUser.getScreenName,twitterUser.getProfileImageURL)
-     val profileUrl="https://twitter.com/"+screenName
+     val(twitterId,cName,screenName,profileImage)=(twitterUser.getId,twitterUser.getName,twitterUser.getScreenName,twitterUser.getProfileImageURL)
+    val creatorName=cName.replaceAll("[^\\x00-\\x7f-\\x80-\\xad]", "")
+    val profileUrl="https://twitter.com/"+screenName
    
    val twitterStreamingDao:TwitterStreamingDAO=new TwitterStreamingDAOImpl
    val session:Session= HibernateUtil.getSessionFactory().openSession()
