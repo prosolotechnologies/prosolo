@@ -7,16 +7,16 @@ import java.io.InputStream
  */
 trait ProfanityCensor {
    val badWordFile = "files/badwords.sav"
-   val forbiddenHashtagsFile="files/instagrambannedtags.sav"
+   val instagramForbiddenHashtagsFile="files/instagrambannedtags.sav"
+  val customForbiddenHashtagsFile="files/customforbiddentags.sav"
    def readBadWordsFromFile(file:String): Array[String]= {
      val stream : InputStream =getClass.getClassLoader.getResourceAsStream(file)
      val lines: Array[String] = scala.io.Source.fromInputStream( stream ).getLines.toArray
-     
-     
      lines
    }
    val badWords=readBadWordsFromFile(badWordFile)
-   val forbiddenHashtags=readBadWordsFromFile(forbiddenHashtagsFile)
+   val forbiddenHashtags=readBadWordsFromFile(instagramForbiddenHashtagsFile)++readBadWordsFromFile(customForbiddenHashtagsFile)
+  println("FORBIDDEN HASHTAGS:"+forbiddenHashtags.mkString(" "))
 }
    class BadWordsCensor extends ProfanityCensor{
      def isPolite(text:String):Boolean={

@@ -19,6 +19,7 @@ import org.prosolo.bigdata.dal.cassandra.impl.UserActivityStatisticsDBManagerImp
 import org.prosolo.bigdata.events.pojo.AnalyticsEvent;
 import org.prosolo.bigdata.events.pojo.DefaultEvent;
 import org.prosolo.bigdata.scala.twitter.HashtagsUpdatesBuffer$;
+import org.prosolo.bigdata.scala.twitter.TwitterHashtagsStreamsManager$;
 import org.prosolo.bigdata.scala.twitter.TwitterUsersStreamsManager$;
 //import org.prosolo.bigdata.scala.twitter.util.TwitterUtils$;
 import org.prosolo.bigdata.streaming.Topic;
@@ -39,6 +40,7 @@ public class AnalyticalEventsObserver implements EventObserver {
 	
 	HashtagsUpdatesBuffer$ hashtagsUpdatesBuffer = HashtagsUpdatesBuffer$.MODULE$;
 	TwitterUsersStreamsManager$ twitterUsersStreamManager = TwitterUsersStreamsManager$.MODULE$;
+	TwitterHashtagsStreamsManager$ twitterHashtagsStreamsManager= TwitterHashtagsStreamsManager$.MODULE$;
 
 	@Override
 	public Topic[] getSupportedTopics() {
@@ -72,8 +74,12 @@ public class AnalyticalEventsObserver implements EventObserver {
 					String action = data.get("action").getAsString();
 					if ("disable".equals(action)) {
 						TwitterHashtagStatisticsDBManagerImpl.getInstance().disableTwitterHashtag(hashtag);
+						System.out.println("SHOULD DISABLE THIS HASHTAG..."+hashtag);
+						twitterHashtagsStreamsManager.adminDisableHashtag(hashtag);
 					} else {
 						TwitterHashtagStatisticsDBManagerImpl.getInstance().enableTwitterHashtag(hashtag);
+						System.out.println("SHOULD ENABLE THIS HASHTAG...."+hashtag);
+						twitterHashtagsStreamsManager.adminEnableHashtag(hashtag);
 					}
 				} else {
 					AnalyticalEventDBManagerImpl.getInstance().insertAnalyticsEventRecord(analyticsEvent);

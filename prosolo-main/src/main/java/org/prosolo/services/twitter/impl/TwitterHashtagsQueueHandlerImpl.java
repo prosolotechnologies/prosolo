@@ -35,7 +35,8 @@ import twitter4j.Status;
  * @author Zoran Jeremic 2013-10-14
  *
  */
-@Service("org.prosolo.services.twitter.TwitterHashtagsQueueHandler")
+//@Service("org.prosolo.services.twitter.TwitterHashtagsQueueHandler")
+	@Deprecated
 public class TwitterHashtagsQueueHandlerImpl implements TwitterHashtagsQueueHandler {
 	
 	private static Logger logger = Logger.getLogger(TwitterHashtagsQueueHandler.class);

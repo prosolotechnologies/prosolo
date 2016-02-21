@@ -10,6 +10,9 @@ import java.util.List;
  */
 
 public class StreamListData implements Serializable {
+
+
+	private Boolean dissabled;
 	private Integer streamId;
 	private String hashtag;
 	private List<Long> goalsIds;
@@ -19,6 +22,7 @@ public class StreamListData implements Serializable {
 		setGoalsIds(new ArrayList<Long>());
 		setUsersIds(new ArrayList<Long>());
 		setHashtag(hashtag);
+		setDissabled(false);
 	}
 
 	public StreamListData(String hashtag, List<Long> goalsIds) {
@@ -108,5 +112,12 @@ public class StreamListData implements Serializable {
 			goalsIds.remove(lGoalId);
 		}
 		return isFreeToRemove();
+	}
+	public Boolean isDissabled() {
+		return dissabled;
+	}
+
+	public void setDissabled(Boolean dissabled) {
+		this.dissabled = dissabled;
 	}
 }

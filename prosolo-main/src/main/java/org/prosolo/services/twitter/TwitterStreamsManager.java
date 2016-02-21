@@ -11,6 +11,7 @@ import twitter4j.TwitterStream;
  * @author Zoran Jeremic 2013-08-11
  *
  */
+@Deprecated
 public interface TwitterStreamsManager {
 
 	public abstract void start();

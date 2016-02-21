@@ -33,7 +33,6 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 				+ CommonSettings.getInstance().config.getNamespaceSufix();
 		try {
 			this.connect(dbConfig.dbHost, dbName, dbConfig.replicationFactor);
-			System.out.println("Simple cassandra client initialized...");
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
