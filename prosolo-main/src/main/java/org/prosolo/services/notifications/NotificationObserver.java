@@ -112,7 +112,7 @@ public class NotificationObserver extends EventObserver {
 						}
 					} 
 					
-					if(notification.isNotifyByEmail()) {
+					if (notification.isNotifyByEmail() && CommonSettings.getInstance().config.emailNotifier.activated) {
 						try {
 							User receiver = notification.getReceiver();
 							UserSettings userSettings = interfaceSettingsManager.
