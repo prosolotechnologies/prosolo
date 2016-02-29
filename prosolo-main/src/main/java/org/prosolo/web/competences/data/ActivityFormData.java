@@ -5,8 +5,8 @@ import java.io.Serializable;
 import org.prosolo.common.domainmodel.activities.ExternalToolActivity;
 import org.prosolo.common.domainmodel.activities.ResourceActivity;
 import org.prosolo.common.domainmodel.activities.UploadAssignmentActivity;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.web.activitywall.data.ActivityWallData;
-import org.prosolo.web.activitywall.data.AttachmentPreview;
 
 /**
  * @author Zoran Jeremic Nov 15, 2013

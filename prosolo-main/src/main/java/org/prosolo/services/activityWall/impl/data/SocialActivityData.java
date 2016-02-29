@@ -26,12 +26,12 @@ import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.activitywall.data.PublishingServiceData;
 import org.prosolo.common.web.activitywall.data.UserData;
-import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.services.activityWall.impl.util.SocialActivityConverterUtil;
-import org.prosolo.web.activitywall.data.AttachmentPreview;
-import org.prosolo.web.activitywall.data.NodeData;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.NodeData;
 import org.prosolo.web.activitywall.data.SocialActivityCommentData;
 import org.prosolo.web.activitywall.data.UserDataFactory;
+import org.prosolo.web.util.AvatarUtils;
 
 /**
  * @author Nikola Milikic

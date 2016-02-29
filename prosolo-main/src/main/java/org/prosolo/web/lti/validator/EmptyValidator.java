@@ -1,7 +1,8 @@
 package org.prosolo.web.lti.validator;
 
+import org.prosolo.web.validator.Validator;
 
-public class EmptyValidator extends Validator{
+public class EmptyValidator extends Validator {
 
     public EmptyValidator(Validator v){
         super(v);

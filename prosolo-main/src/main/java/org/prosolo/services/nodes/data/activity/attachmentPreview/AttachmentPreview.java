@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.prosolo.web.activitywall.data;
+package org.prosolo.services.nodes.data.activity.attachmentPreview;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -48,6 +48,8 @@ public class AttachmentPreview implements Serializable {
 	private List<String> images;
 	private int selectedImageIndex;
 	private boolean initialized = false;
+	
+	private String fileIcon;
 	
 	public AttachmentPreview() {
 		this.images = new ArrayList<String>();
@@ -233,6 +235,14 @@ public class AttachmentPreview implements Serializable {
 
 	public void setUploadLink(String uploadLink) {
 		this.uploadLink = uploadLink;
+	}
+
+	public String getFileIcon() {
+		return fileIcon;
+	}
+
+	public void setFileIcon(String fileIcon) {
+		this.fileIcon = fileIcon;
 	}
 
 	@Override

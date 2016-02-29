@@ -14,6 +14,7 @@ import org.prosolo.common.domainmodel.outcomes.Outcome;
 import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.NodeData;
 import org.prosolo.web.competences.data.ActivityType;
 import org.prosolo.web.goals.cache.ActionDisabledReason;
 import org.prosolo.web.goals.cache.CompetenceDataCache;

@@ -6,7 +6,7 @@ package org.prosolo.web.useractions.util;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 import org.prosolo.common.domainmodel.content.ContentType;
 import org.prosolo.common.domainmodel.content.RichContent;
-import org.prosolo.web.activitywall.data.AttachmentPreview;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.web.useractions.data.NewPostData;
 
 /**

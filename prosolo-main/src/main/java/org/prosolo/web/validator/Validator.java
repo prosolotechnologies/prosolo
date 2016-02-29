@@ -1,4 +1,4 @@
-package org.prosolo.web.lti.validator;
+package org.prosolo.web.validator;
 
 
 public abstract class Validator {

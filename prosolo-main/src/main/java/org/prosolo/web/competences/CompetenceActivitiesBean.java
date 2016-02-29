@@ -10,13 +10,22 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
+import org.apache.commons.validator.routines.UrlValidator;
 import org.apache.log4j.Logger;
+import org.primefaces.event.FileUploadEvent;
+import org.primefaces.model.UploadedFile;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.CompetenceActivity;
+import org.prosolo.common.domainmodel.activities.ResourceActivity;
+import org.prosolo.common.domainmodel.content.RichContent;
+import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.event.context.data.LearningContextData;
+import org.prosolo.services.htmlparser.HTMLParser;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.media.util.SlideShareUtils;
+import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.data.activity.ActivityData;
 import org.prosolo.services.nodes.data.activity.ExternalActivityResourceData;
@@ -24,13 +33,20 @@ import org.prosolo.services.nodes.data.activity.ResourceActivityResourceData;
 import org.prosolo.services.nodes.data.activity.ResourceData;
 import org.prosolo.services.nodes.data.activity.ResourceType;
 import org.prosolo.services.nodes.data.activity.UploadAssignmentResourceData;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.services.nodes.data.activity.mapper.ActivityMapperFactory;
 import org.prosolo.services.nodes.data.activity.mapper.activityData.ActivityDataMapper;
+import org.prosolo.services.upload.UploadManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.competences.validator.YoutubeLinkValidator;
 import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.images.ImageSize;
+import org.prosolo.web.util.images.ImageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 @ManagedBean(name = "competenceActivitiesBean")
@@ -46,6 +62,10 @@ public class CompetenceActivitiesBean implements Serializable {
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private TextSearch textSearch;
+	@Inject @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
+	@Inject private HTMLParser htmlParser;
+	@Inject private ActivityManager activityManager;
+	@Inject private UploadManager uploadManager;
 	
 	private String id;
 	private String title;
@@ -69,6 +89,10 @@ public class CompetenceActivitiesBean implements Serializable {
 	private int currentNumberOfActivities;
 	
 	private String learningContext;
+	
+	private static String VIDEO_INPUT_COMP_ID = "formAddActivity:textFieldYoutubeLink";
+	private static String SLIDESHARE_INPUT_COMP_ID = "formAddActivity:textFieldSlideshareLink";
+	private static String URL_INPUT_COMP_ID = "formAddActivity:textFieldPlainUrl";
 	
 	public CompetenceActivitiesBean() {
 		
@@ -154,7 +178,7 @@ public class CompetenceActivitiesBean implements Serializable {
 		searchResults = new ArrayList<>();
 	}
 	
-	private void saveNewCompActivity(ActivityData act, LearningContextData context) {
+	private CompetenceActivity saveNewCompActivity(ActivityData act, LearningContextData context) {
 		currentNumberOfActivities++;
 		act.setOrder(currentNumberOfActivities);
 		CompetenceActivity cAct = competenceManager.saveCompetenceActivity(decodedId, act, context);
@@ -164,6 +188,7 @@ public class CompetenceActivitiesBean implements Serializable {
 		}
 		activities.add(act);
 		activitiesToExclude.add(act.getActivityId());
+		return cAct;
 	}
 
 	public void deleteCompActivity() {
@@ -219,18 +244,20 @@ public class CompetenceActivitiesBean implements Serializable {
 		this.learningContext = PageUtil.getPostParameter("learningContext");
 	}
 	
-	public void saveActivity() {
+	public CompetenceActivity saveActivity() {
+		CompetenceActivity cAct = null;
 		try {
 			String service = PageUtil.getPostParameter("service");
 			String page = PageUtil.getPostParameter("page");
 			LearningContextData context = new LearningContextData(page, learningContext, service);
-			saveNewCompActivity(activityToEdit, context);
+			cAct = saveNewCompActivity(activityToEdit, context);
 			PageUtil.fireSuccessfulInfoMessage("Competence activity saved");
 		} catch(DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage(e.getMessage());
 		}
 		activityToEdit = null;
+		return cAct;
 	}
 	
 	public void moveDown(int index) {
@@ -269,6 +296,200 @@ public class CompetenceActivitiesBean implements Serializable {
 			changedActivities.add(ad);
 		}
 		return changedActivities;
+	}
+	
+	public void addPlainUrl() {
+		AttachmentPreview ap = resourceResData.getAttachmentPreview();
+		UrlValidator urlValidator = new UrlValidator();
+		boolean valid = urlValidator.isValid(ap.getLink());
+		if(valid) {
+			AttachmentPreview attachmentPreview = htmlParser.parseUrl(StringUtil.
+					cleanHtml(ap.getLink()));
+			if(attachmentPreview != null) {
+				resourceResData.setAttachmentPreview(attachmentPreview);
+			} else {
+				markUrlError(ap);
+			}
+		} else {
+			markUrlError(ap);
+		}
+	}
+	
+	private void markUrlError(AttachmentPreview ap) {
+		resetAttachmentPreview(ap);
+		PageUtil.fireErrorMessage(URL_INPUT_COMP_ID, 
+				"Url not valid");
+	}
+
+	private void resetAttachmentPreview(AttachmentPreview ap) {
+		ap.setInitialized(false);
+		ap.setInvalidLink(true);
+		ap.setTitle(null);
+		ap.setDescription(null);
+		ap.setImages(new ArrayList<>());
+	}
+	
+	public void addSlideshareLink() {
+		AttachmentPreview ap = resourceResData.getAttachmentPreview();
+		String embedLink = SlideShareUtils.convertSlideShareURLToEmbededUrl(ap.getLink());
+		if(embedLink != null) {
+			ap.setEmbedingLink(embedLink);
+			ap.setInitialized(true);
+		} else {
+			ap.setEmbedingLink(null);
+			ap.setInitialized(false);
+			PageUtil.fireErrorMessage(SLIDESHARE_INPUT_COMP_ID, 
+					"Url not valid");
+		}
+	}
+	
+	public void addYoutubeLink() {
+		AttachmentPreview ap = resourceResData.getAttachmentPreview();
+		YoutubeLinkValidator validator = new YoutubeLinkValidator(null);
+		try {
+			String id = (String) validator.performValidation(ap.getLink(), null);
+			if(id != null) {
+				ap.setId(id);
+				ap.setInitialized(true);
+			} else {
+				ap.setId(null);
+				ap.setInitialized(false);
+				PageUtil.fireErrorMessage(VIDEO_INPUT_COMP_ID, 
+						"Url not valid");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+		}
+		
+	}
+	
+	public void saveCompActivity() {
+		switch(activityToEdit.getResourceType()) {
+			case VIDEO:
+			case SLIDESHARE:
+				saveActivityAsync();
+				return;
+			case URL:
+				saveResourceActivity();
+				return;
+			case ASSIGNMENT:
+			case EXTERNAL_ACTIVITY:
+			case FILE:
+			case NONE:
+				saveActivity();
+				return;
+		}
+	}
+	
+	public CompetenceActivity saveResourceActivity() {
+		try {
+			AttachmentPreview ap = resourceResData.getAttachmentPreview();
+			if(!ap.isInitialized()) {
+				String compId = getCompId();
+				if(compId != null) {
+					PageUtil.fireErrorMessage(compId, 
+							"Url not valid");
+				}
+				FacesContext context = FacesContext.getCurrentInstance();
+				context.validationFailed();
+			} else {
+				CompetenceActivity cAct = saveActivity();
+				return cAct;
+			}
+		} catch(DbConnectionException e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage(e.getMessage());
+		}
+		return null;
+	}
+	
+	private String getCompId() {
+		switch(activityToEdit.getResourceType()) {
+			case VIDEO:
+				return VIDEO_INPUT_COMP_ID;
+			case SLIDESHARE:
+				return SLIDESHARE_INPUT_COMP_ID;
+			case URL:
+				return URL_INPUT_COMP_ID;
+			default:
+				return null;
+		}
+	}
+
+	public void saveActivityAsync() {
+			CompetenceActivity cAct = saveResourceActivity();
+			if(cAct != null) {
+				final RichContent richContent = ((ResourceActivity) cAct.getActivity()).getRichContent();
+				
+				taskExecutor.execute(new Runnable() {
+					@Override
+					public void run() {
+						AttachmentPreview attachmentPreview = htmlParser.parseUrl(StringUtil.
+								cleanHtml(richContent.getLink()));
+						try {
+							activityManager.updateRichContent(richContent.getId(), attachmentPreview.getTitle(), 
+									attachmentPreview.getDescription());
+						} catch(DbConnectionException e) {
+							logger.error(e);
+						}
+					}
+				});
+			}
+	}
+	
+	public void getNextImage(){
+		AttachmentPreview ap = resourceResData.getAttachmentPreview();
+		int currentIndex = ap.getSelectedImageIndex();
+		int size = ap.getImages().size();
+		
+		if (currentIndex == -1) {
+			// do nothing
+		} else if (currentIndex == size-1) {
+			currentIndex = 0;
+		} else {
+			currentIndex++;
+		}
+		
+		ap.setSelectedImageIndex(currentIndex);
+		
+		if (currentIndex >= 0)
+			ap.setImage(ap.getImages().get(currentIndex));
+	}
+	
+	public void getPrevImage(){
+		AttachmentPreview ap = resourceResData.getAttachmentPreview();
+		int currentIndex = ap.getSelectedImageIndex();
+		int size = ap.getImages().size();
+		
+		if (currentIndex == -1) {
+			// do nothing
+		} else if (currentIndex == 0) {
+			currentIndex = size - 1;
+		} else {
+			currentIndex--;
+		}
+		
+		ap.setSelectedImageIndex(currentIndex);
+		
+		if (currentIndex >= 0)
+			ap.setImage(ap.getImages().get(currentIndex));
+	}
+	
+	public void handleFileUpload(FileUploadEvent event) {
+		UploadedFile uploadedFile = event.getFile();
+		
+		try {
+			AttachmentPreview attachmentPreview = uploadManager.uploadFile(loggedUserBean.getUser(), 
+					uploadedFile, uploadedFile.getFileName());
+			attachmentPreview.setFileIcon(ImageUtil.getFileTypeIcon(attachmentPreview.getLink(), 
+					ImageSize.size0x100));
+			attachmentPreview.setTitle(attachmentPreview.getUploadTitle());
+			resourceResData.setAttachmentPreview(attachmentPreview);
+		} catch (IOException ioe) {
+			logger.error(ioe.getMessage());
+			PageUtil.fireErrorMessage("The file was not uploaded!");
+		}
 	}
 
 	/*

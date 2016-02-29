@@ -7,7 +7,7 @@ import java.io.IOException;
 
 import org.primefaces.model.UploadedFile;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.web.activitywall.data.AttachmentPreview;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 
 /**
  * @author "Nikola Milikic"

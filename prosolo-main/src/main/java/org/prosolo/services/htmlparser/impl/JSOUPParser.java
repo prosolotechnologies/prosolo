@@ -25,7 +25,7 @@ import org.prosolo.common.domainmodel.content.ContentType;
 import org.prosolo.common.util.net.HTTPSConnectionValidator;
 import org.prosolo.services.htmlparser.HTMLParser;
 import org.prosolo.services.htmlparser.Image;
-import org.prosolo.web.activitywall.data.AttachmentPreview;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.springframework.stereotype.Service;
 
 /**

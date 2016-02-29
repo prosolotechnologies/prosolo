@@ -1,6 +1,6 @@
 package org.prosolo.web.lti.message;
 
-import org.prosolo.web.lti.validator.Validator;
+import org.prosolo.web.validator.Validator;
 
 public class LtiMessageParameter {
 

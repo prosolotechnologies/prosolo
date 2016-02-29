@@ -32,10 +32,10 @@ import org.prosolo.services.annotation.LikeManager;
 import org.prosolo.services.interaction.CommentingManager;
 import org.prosolo.services.media.util.SlideShareUtils;
 import org.prosolo.services.media.util.VideoUtils;
-import org.prosolo.web.activitywall.data.AttachmentPreview;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaType;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.NodeData;
 import org.prosolo.web.activitywall.data.FileType;
-import org.prosolo.web.activitywall.data.MediaType;
-import org.prosolo.web.activitywall.data.NodeData;
 import org.prosolo.web.activitywall.data.SocialActivityCommentData;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.images.ImageSize;
@@ -142,6 +142,9 @@ public class WallActivityConverter {
 			if (ImageUtility.showImage(fileType)) {
 				attachmentPreview.setImage(attachmentPreview.getLink());
 			} else if (attachmentPreview.getContentType() != null) {
+				if(attachmentPreview.getContentType().equals(ContentType.UPLOAD)) {
+					attachmentPreview.setFileIcon(ImageUtil.getFileTypeIcon(fileType, ImageSize.size0x100));
+				}
 				
 				if (attachmentPreview.getContentType().equals(ContentType.UPLOAD) || 
 						!fileType.equals(FileType._BLANK)) {

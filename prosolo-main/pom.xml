@@ -614,7 +614,12 @@
 			<artifactId>google-api-client</artifactId>
 			<version>1.20.0</version>
 		</dependency>
-
+		<!-- Used for url validation -->
+		<dependency>
+			<groupId>commons-validator</groupId>
+			<artifactId>commons-validator</artifactId>
+			<version>1.5.0</version>
+		</dependency>
 	</dependencies>
 
 	<repositories>

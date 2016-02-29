@@ -19,3 +19,29 @@ function initializePageJS() {
 	    $(this).parent().removeClass("focusedTags");
 	})
 }
+
+function hideDialogOnSuccess(args, dialogId) {
+    if (args && !args.validationFailed) {
+    	$('#' + dialogId).modal('hide');
+    }
+}
+
+function showLoader(comp) {
+	$(comp).css('text-align', 'center');
+	$(comp).html('<img src="' + context + '/resources/images/style/ajax-loader-black.gif"/>');
+	$(comp).show();
+};
+
+function hideLoader() {
+	var loaderContainer = $('#loaderContainer');
+	loaderContainer.hide();
+	loaderContainer.empty();
+};
+
+function showComp(compId) {
+	$(document.getElementById(compId)).show();
+}
+
+function hideComp(compId) {
+	$(document.getElementById(compId)).hide();
+}

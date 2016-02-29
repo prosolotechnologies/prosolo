@@ -2,7 +2,7 @@ package org.prosolo.services.htmlparser;
 
 import java.io.IOException;
 
-import org.prosolo.web.activitywall.data.AttachmentPreview;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 
 
 /**

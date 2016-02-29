@@ -7,8 +7,7 @@ import org.prosolo.common.domainmodel.content.RichContent;
 import org.prosolo.services.nodes.data.activity.ResourceActivityResourceData;
 import org.prosolo.services.nodes.data.activity.ResourceData;
 import org.prosolo.services.nodes.data.activity.ResourceType;
-import org.prosolo.web.activitywall.data.AttachmentPreview;
-import org.prosolo.web.activitywall.util.WallActivityConverter;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 
 public class ResourceActivityDataMapper extends ActivityDataMapper {
 
@@ -29,13 +28,18 @@ public class ResourceActivityDataMapper extends ActivityDataMapper {
 	}
 
 	private AttachmentPreview getAttachmentPreview(RichContent richContent) {
-		AttachmentPreview attachPreview = WallActivityConverter.createAttachmentPreview(
-				richContent.getTitle(), 
-				richContent.getDescription(), 
-				richContent.getLink(), 
-				richContent.getImageUrl(), 
-				richContent.getContentType(),
-				null);
+		AttachmentPreview attachPreview = new AttachmentPreview();
+		attachPreview.setTitle(richContent.getTitle());
+		attachPreview.setDescription(richContent.getDescription());
+		attachPreview.setLink(richContent.getTitle());
+		attachPreview.setContentType(richContent.getContentType());
+		String imageUrl = richContent.getImageUrl();
+		if (imageUrl != null) {
+			attachPreview.setImage(imageUrl);
+			attachPreview.getImages().add(imageUrl);
+			attachPreview.setSelectedImageIndex(0);
+		}
+		
 		return attachPreview;
 	}
 

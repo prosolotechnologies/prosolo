@@ -1,6 +1,8 @@
 package org.prosolo.web.lti.validator;
 
-public class EqualValuesValidator extends Validator{
+import org.prosolo.web.validator.Validator;
+
+public class EqualValuesValidator extends Validator {
 	
 	private String compareTo="";
 	

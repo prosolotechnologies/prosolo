@@ -16,7 +16,7 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
-import org.prosolo.web.activitywall.data.AttachmentPreview;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.web.competences.data.ActivityType;
 
 public interface ActivityManager extends AbstractManager {
@@ -92,4 +92,6 @@ public interface ActivityManager extends AbstractManager {
 	
 	void deleteActivity(long activityId, Class<? extends Activity> activityClass, User user, 
 			LearningContextData data);
+	
+	void updateRichContent(long id, String title, String description) throws DbConnectionException;
 }

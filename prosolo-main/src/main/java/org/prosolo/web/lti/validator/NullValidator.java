@@ -1,6 +1,8 @@
 package org.prosolo.web.lti.validator;
 
-public class NullValidator extends Validator{
+import org.prosolo.web.validator.Validator;
+
+public class NullValidator extends Validator {
 	public NullValidator(Validator v) {
 		super(v);
 	}

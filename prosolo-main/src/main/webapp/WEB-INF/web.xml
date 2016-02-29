@@ -68,6 +68,7 @@
     <dispatcher>FORWARD</dispatcher>
     <dispatcher>REQUEST</dispatcher>
   </filter-mapping>
+  <!--  
   <filter>
     <filter-name>PrimeFaces FileUpload Filter</filter-name>
     <filter-class>org.prosolo.core.jsf.primefaces.FileUploadFilter</filter-class>
@@ -76,6 +77,7 @@
     <filter-name>PrimeFaces FileUpload Filter</filter-name>
     <servlet-name>Faces Servlet</servlet-name>
   </filter-mapping>
+  -->
   <filter>
     <filter-name>gzipResponseFilter</filter-name>
     <filter-class>org.omnifaces.filter.GzipResponseFilter</filter-class>
@@ -101,6 +103,11 @@
   <context-param>
     <param-name>com.sun.faces.expressionFactory</param-name>
     <param-value>com.sun.el.ExpressionFactoryImpl</param-value>
+  </context-param>
+  <!-- added for p:fileUpload, options: auto, native, commons-->
+  <context-param>
+	<param-name>primefaces.UPLOADER</param-name>
+	<param-value>native</param-value>
   </context-param>
   <listener>
     <listener-class>org.prosolo.app.BeforeContextLoader</listener-class>

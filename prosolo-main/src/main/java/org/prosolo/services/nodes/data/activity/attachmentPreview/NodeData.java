@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.prosolo.web.activitywall.data;
+package org.prosolo.services.nodes.data.activity.attachmentPreview;
 
 import java.io.Serializable;
 

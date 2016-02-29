@@ -3,7 +3,7 @@ package org.prosolo.web.useractions.data;
 import java.io.Serializable;
 
 import org.prosolo.common.domainmodel.organization.VisibilityType;
-import org.prosolo.web.activitywall.data.AttachmentPreview;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 
 public class NewPostData implements Serializable {
 	

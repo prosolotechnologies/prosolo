@@ -20,9 +20,9 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.services.nodes.impl.LearningGoalManagerImpl.GoalTargetCompetenceAnon;
 import org.prosolo.services.nodes.impl.LearningGoalManagerImpl.NodeEvent;
-import org.prosolo.web.activitywall.data.AttachmentPreview;
 
 public interface LearningGoalManager extends AbstractManager {
 	

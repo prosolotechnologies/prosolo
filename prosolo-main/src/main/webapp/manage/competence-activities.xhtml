@@ -12,7 +12,8 @@
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:util="http://www.prosolo.com/util"
 	xmlns:dlgComp="http://java.sun.com/jsf/composite/components/dialogs/manager"
-	xmlns:mngComp="http://java.sun.com/jsf/composite/components/manage">
+	xmlns:mngComp="http://java.sun.com/jsf/composite/components/manage"
+	xmlns:socialWall="http://java.sun.com/jsf/composite/components/socialWall">
 
 	<ui:define name="windowTitle">
 		Competences
@@ -48,7 +49,7 @@
 			}
 		</script>
 	<h:form id="formMain">
-	<p:growl id="growlMain" showDetail="true"></p:growl>
+	<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
 	<ui:param name="learningContextRoot" value="name:base_competence|id:#{competenceActivitiesBean.decodedId}"></ui:param>
 	<mngComp:competenceHeader id="competenceHeader"
         	competenceName="#{competenceActivitiesBean.title}"
@@ -286,7 +287,7 @@
 	</section>
     </h:form>
 	<!-- Modal 1 - ADD ACTIVITY -->
-	<h:form id="formAddActivity">
+	<h:form id="formAddActivity" enctype="multipart/form-data">
 	<div class="modal fade" id="modalFull">
 	  <div class="modal-dialog">
 	    <div class="modal-content">
@@ -403,17 +404,23 @@
 								<div class="row assignmentForm">
 									<div class="col-md-3"></div>
 	                   		<div class="col-md-6">
-	                           <div class="checkbox checkbox-success">
-	                              <input type="checkbox" id="checkbox2"></input>
+	                           <ui:remove><div class="checkbox checkbox-success"></div></ui:remove>
+	                           	  <h:selectBooleanCheckbox 
+	                           	  	id="checkbox2" 
+	                           	  	value="#{competenceActivitiesBean.uploadResData.visibleToEveryone}">
+	                           	  </h:selectBooleanCheckbox>
 	                              <label for="checkbox2">Visible to everyone</label>
-	                           </div>                           
+	                           <ui:remove><div></div></ui:remove>                           
 	                           <div class="row">
 	                              <div class="col-md-9">
 	                                 <label>Duration</label>
 	                              </div>
 	                              <div class="col-md-3">
 	                                 <div class="form-group">
-	                                    <input type="text" class="form-control"></input>
+	                                 	<h:inputText
+	                                 		styleClass="form-control"
+	                                 		value="#{competenceActivitiesBean.uploadResData.duration}">
+	                                 	</h:inputText>
 	                                 </div>                          	
 	                              </div>								
 	                           </div>
@@ -423,7 +430,10 @@
 	                              </div>
 	                              <div class="col-md-3">
 	                                 <div class="form-group">
-	                                    <input type="text" class="form-control"></input>
+	                                 	<h:inputText
+	                                 		styleClass="form-control"
+	                                 		value="#{competenceActivitiesBean.uploadResData.maxFilesNumber}">
+	                                 	</h:inputText>
 	                                 </div>                          	
 	                              </div>								
 	                         	 </div>
@@ -443,75 +453,149 @@
 							<div class="holder">
 								<div class="row">
 	                   		<div class="col-md-12">
+	                   			<p:fileUpload id="fileUploadActivity" 
+	                   				style="display: none;"
+	                   				styleClass="fileUploadActivity"
+									fileUploadListener="#{competenceActivitiesBean.handleFileUpload}"  
+						            dragDropSupport="true"
+						            fileLimit="1"
+						        	auto="true"
+						            label="Choose a file"
+						            update=":formAddActivity:file"
+						            onstart="hideComp('formAddActivity:filePreview');showLoader('#loaderContainerFileUpload');"
+						            oncomplete="hideLoader('#loaderContainerFileUpload');showComp('formAddActivity:filePreview');"
+				            	/>
 	                        	<div class="dropFile text-center">
 	                              <h2>Drop file to upload <a data-original-title="To replace file just upload again" href="#" data-toggle="tooltip" title=""><i class="fa fa-question-circle"></i></a></h2>
 	                              <p>- or -</p>
-	                              <a href="#" class="btn btn-info">Select from Computer </a>
+	                              <a id="linkTriggerFileUpload" href="#" class="btn btn-info">Select from Computer </a>
 	                           </div>
+	                           <div id="loaderContainerFileUpload"/>
 	                        </div>
 	                     </div>
 	                     
-								<div class="row">
-	                     	<hr></hr>
-	                        <div class="col-md-3 wide">
-	                           <div id="imgInfoContainer">
-									   	<img src="#{request.contextPath}/resources/images/ico-docx.png" width="73" height="100" alt="Word document" title="Word document"></img>
-	                           </div>
-	                        </div>
-	                        <div class="col-md-9">
-	                        <div class="form-group holderInput">
-	                           <input type="text" class="form-control" placeholder="File title"></input>
-	               			</div>
-	                           <div class="form-group noMargin">
-	                              <textarea rows="5" class="form-control" placeholder="File description"></textarea>
-	               				</div>
-	                        </div>                     
-								</div>                     
+						 <socialWall:filePreview id="filePreview"
+						 	attachmentPreview="#{competenceActivitiesBean.resourceResData.attachmentPreview}"
+						 />
+								<script>
+								 $('.dropFile').on(
+										    'dragover',
+										    function(e) {
+										        e.preventDefault();
+										        e.stopPropagation();
+										    }
+										)
+										$('.dropFile').on(
+										    'dragenter',
+										    function(e) {
+										        e.preventDefault();
+										        e.stopPropagation();
+										    }
+										)
+									$(".dropFile").on('drop', function(e){
+										e.preventDefault();
+									    e.stopPropagation();
+										if(e.originalEvent.dataTransfer){
+											if(e.originalEvent.dataTransfer.files.length) {
+												var f = e.originalEvent.dataTransfer.files;
+											    $('.fileUploadActivity').fileupload('add', {files: f});
+											}
+										}
+									});
+								 	$('#linkTriggerFileUpload').on('click', function(e){
+								 		e.stopPropagation();
+										$('.fileUploadActivity :input').trigger('click');
+									});
+								 	
+								</script>                 
 	                  </div>
 	               </h:panelGroup><!-- END FILE SECTION -->
-	
-	
-	
-	
-	
 	               
-	               
-	               <h:panelGroup id="video" 
+	               <h:panelGroup id="panelVideo">
+	               <h:panelGroup
 	               		rendered="#{competenceActivitiesBean.activityToEdit.resourceType eq 'VIDEO'}"><!-- START VIDEO SECTION -->
 	                  <label for="">Resource details - Video</label>
 							<div class="holder">
 								<div class="row">
 	                   		<div class="col-md-8">
 	                           <div class="form-group noMargin">
-	                              <input type="text" value="https://www.youtube.com/watch?v=6TX0fUK22Kg" class="form-control"></input>
+	                           	  <h:inputText id="textFieldYoutubeLink"
+	                           	  	value="#{competenceActivitiesBean.resourceResData.attachmentPreview.link}" 
+	                           	  	styleClass="form-control"/>
+	                           	  <h:message for="textFieldYoutubeLink" style="color: red"></h:message>
 	                           </div>                         	
 	                        </div>
 	                        <div class="col-md-4">
-	                        	<a href="#" class="btn btn-info btn-block">Add Link </a>
+	                        	<p:commandLink
+	                        		value="Add Link "
+	                        		styleClass="btn btn-info btn-block"
+	                        		action="#{competenceActivitiesBean.addYoutubeLink()}"
+	                        		process="textFieldYoutubeLink"
+	                        		update=":formAddActivity:panelVideo">
+	                        	</p:commandLink>
 	                        </div>
 	                     </div>
 	                     
 								<div class="row">
 							
 	                     	<hr/>
-	                     	
-	                        <div class="col-md-12" id="o6b9JpBFjd4">
-	                        	<script>
-									$(function(){
-										initializeYouTubeAPI({
-											width: '536', 
-											height: '302',
-											container: '.col-md-12',
-											context: '',
-										});
-									});
-								</script>
-										<iframe width="536" height="302" src="https://www.youtube.com/embed/6TX0fUK22Kg" frameborder="0" allowfullscreen="true"></iframe>
-	                        </div>
+	                     	<h:panelGroup id="panelVideoPreview" layout="block" styleClass="col-md-12">
+	                     		<ui:fragment rendered="#{competenceActivitiesBean.resourceResData.attachmentPreview.initialized == true}">
+	                     			<socialWall:youtubevideopreview
+	                     				attachmentPreview="#{competenceActivitiesBean.resourceResData.attachmentPreview}"
+	                     				width="536"
+	                     				height="302"
+	                     				context=""
+	                     			/>
+	                     		</ui:fragment>
+	                     	</h:panelGroup>
 								</div>                     
 	                  </div>
+	               </h:panelGroup>
 	               </h:panelGroup><!-- END VIDEO SECTION -->
 	
+					
+				   <h:panelGroup id="panelSlideshare">
+	               <h:panelGroup
+	               		rendered="#{competenceActivitiesBean.activityToEdit.resourceType eq 'SLIDESHARE'}"><!-- START SLIDESHARE SECTION -->
+	                  <label for="">Resource details - Slides</label>
+							<div class="holder">
+								<div class="row">
+	                   		<div class="col-md-8">
+	                           <div class="form-group noMargin">
+	                           	  <h:inputText id="textFieldSlideshareLink"
+	                           	  	value="#{competenceActivitiesBean.resourceResData.attachmentPreview.link}" 
+	                           	  	styleClass="form-control"/>
+	                           	  <h:message for="textFieldSlideshareLink" style="color: red"></h:message>
+	                           </div>                         	
+	                        </div>
+	                        <div class="col-md-4">
+	                        	<p:commandLink
+	                        		value="Add Link "
+	                        		styleClass="btn btn-info btn-block"
+	                        		action="#{competenceActivitiesBean.addSlideshareLink()}"
+	                        		process="textFieldSlideshareLink"
+	                        		update=":formAddActivity:panelSlideshare">
+	                        	</p:commandLink>
+	                        </div>
+	                     </div>
+	                     
+								<div class="row">
+							
+	                     	<hr/>
+	                     	<h:panelGroup id="panelSlidesharePreview" layout="block" styleClass="col-md-12">
+	                     		<ui:fragment rendered="#{competenceActivitiesBean.resourceResData.attachmentPreview.initialized == true}">
+	                     			<iframe src="#{competenceActivitiesBean.resourceResData.attachmentPreview.embedingLink}"
+										class="slideshare" width="536" height="302" frameborder="0"
+										marginwidth="0" marginheight="0" scrolling="no"
+										style="border: 1px solid #CCC; border-width: 1px 1px 0; margin-bottom: 5px">
+									</iframe>
+	                     		</ui:fragment>
+	                     	</h:panelGroup>
+								</div>                     
+	                  </div>
+	               </h:panelGroup>
+	               </h:panelGroup><!-- END SLIDESHARE SECTION -->
 	
 	
 	               <h:panelGroup id="url" 
@@ -521,43 +605,30 @@
 								<div class="row">
 	                   		<div class="col-md-9">
 	                           <div class="form-group noMargin">
-	                              <input type="text" class="form-control"></input>
+	                           	  <h:inputText 
+	                           	    id="textFieldPlainUrl"
+	                           	  	styleClass="form-control"
+	                           	  	value="#{competenceActivitiesBean.resourceResData.attachmentPreview.link}">
+	                           	  </h:inputText>
+	                           	  <h:message for="textFieldPlainUrl" style="color: red"></h:message>
 	                           </div>                         	
 	                        </div>
 	                        <div class="col-md-3">
-	                        	<a href="#" class="btn btn-info btn-block">Add Link </a>
+	                        	<p:commandLink
+	                        		value="Add Link "
+	                        		styleClass="btn btn-info btn-block"
+	                        		action="#{competenceActivitiesBean.addPlainUrl()}"
+	                        		process="textFieldPlainUrl"
+	                        		update=":formAddActivity:url"
+	                        		onclick="showLoader('#loaderContainer');hideComp('formAddActivity:linkPreview');"
+	                        		oncomplete="hideLoader('#loaderContainer');showComp('formAddActivity:linkPreview');">
+	                        	</p:commandLink>
 	                        </div>
 	                     </div>
-	                     
-								<div class="row">
-	                     	<hr></hr>
-	                        <div class="col-md-3 wide">
-	                           <div id="imgInfoContainer">
-	                              <div id="statusUpdate:j_id_ou:link:imageContainer">
-	                                 <div id="atcImages">
-	                                 	<img width="125" class="shown" src="#{request.contextPath}/resources/images/noImage.jpg"></img>
-	                                 	<img width="100" class="hidden" src="#{request.contextPath}/resources/images/noImage.jpg"></img>
-	                                 </div>   
-	                                 <div id="atcTotalImageNav">                                    
-	                                    	<i class="fa fa-chevron-circle-left"></i>
-	                                    	<i class="fa fa-chevron-circle-right"></i>
-	                                 </div>
-	                                 <div class="atcTotalImagesInfo" id="statusUpdate:j_id_ou:link:atcTotalImagesInfo"> 
-	                                    <span id="atc_total_images">0</span> images
-	                                 </div>
-	                              </div>
-	                           </div>
-	                        </div>
-	                        <div class="col-md-9">
-	                        <div class="form-group holderInput">
-	                           <input type="text" value="Some webpage title" class="form-control"></input>
-	               			</div>
-	                           <div class="form-group noMargin">
-	                              <label for="">Page description</label>
-	                              <textarea rows="5" class="form-control">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore...</textarea>
-	               				</div>
-	                        </div>                     
-								</div>                     
+	                     <div id="loaderContainer"></div>
+						<socialWall:linkPreview id = "linkPreview"
+							attachmentPreview="#{competenceActivitiesBean.resourceResData.attachmentPreview}"
+						/>                   
 	                     
 	                  </div>
 	               </h:panelGroup><!-- END URL SECTION -->            
@@ -568,9 +639,9 @@
 	      <div class="modal-footer">
 	      	<p:commandLink 
 	      		styleClass="btn btn-primary" 
-	      		action="#{competenceActivitiesBean.saveActivity()}"
-	      		oncomplete="$('#modalFull').modal('hide');"
-	      		update=":formMain">
+	      		action="#{competenceActivitiesBean.saveCompActivity()}"
+	      		oncomplete="hideDialogOnSuccess(args, 'modalFull');"
+	      		update=":formMain :formAddActivity:panelSpecificActivityData">
 	      		Save
 	      		<f:param name="service" value="name:add_activity_dialog"></f:param>
 	      		<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>

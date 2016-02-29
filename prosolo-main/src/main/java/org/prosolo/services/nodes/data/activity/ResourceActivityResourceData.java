@@ -1,6 +1,6 @@
 package org.prosolo.services.nodes.data.activity;
 
-import org.prosolo.web.activitywall.data.AttachmentPreview;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 
 public class ResourceActivityResourceData extends ResourceData {
 
@@ -8,6 +8,7 @@ public class ResourceActivityResourceData extends ResourceData {
 	
 	public ResourceActivityResourceData() {
 		setActivityType();
+		attachmentPreview = new AttachmentPreview();
 	}
 
 	public ResourceActivityResourceData(AttachmentPreview attachment) {

@@ -30,7 +30,7 @@ import org.prosolo.services.interaction.PostManager;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.services.nodes.ResourceFactory;
-import org.prosolo.web.activitywall.data.AttachmentPreview;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.web.competences.data.ActivityType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -509,6 +509,18 @@ public class ActivityManagerImpl extends AbstractManagerImpl implements	Activity
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while deleting activity");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void updateRichContent(long id, String title, String description) throws DbConnectionException {
+		try {
+			RichContent richContent = (RichContent) persistence.currentManager().load(RichContent.class, id);
+			richContent.setTitle(title);
+			richContent.setDescription(description);
+		} catch(Exception e) {
+			throw new DbConnectionException("Error while saving activity data");
 		}
 	}
 }
