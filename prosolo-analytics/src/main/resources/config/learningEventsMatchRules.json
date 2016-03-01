@@ -1,2959 +1,875 @@
 [
-	{
-	    "id": "course.search",
-	    "description": "Performing credentials search",
-	    "process": "SRL.Planning.TaskAnalysis",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "SEARCH_COURSE"
-			}
-	    ]
-	},
-	{
-	    "id": "course.navigate",
-	    "description": "Examining credentials details",
-	    "process": "SRL.Planning.TaskAnalysis",
-	    "patterns" : [
-	        {
-	            "eventType": "NAVIGATE",
-	            "objectType": "page",
-	            "link": "course(\.xhtml)?"
-			}
-	    ]
-	},
-	{
-	    "id": "dialog.goal",
-	    "description": "Opening a learning goal dialog",
-	    "process": "SRL.Planning.TaskAnalysis",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "GOAL_DIALOG"
-			}
-	    ]
-	},
-	{
-	    "id": "dialog.goal.creator",
-	    "description": "In a goal dialog, opening creator dialog",
-	    "process": "SRL.Planning.TaskAnalysis",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "USER_DIALOG",
-	            "context": "goal(Details)?Dialog\.creator\.imageName\.(sendRequest\.)?goal\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "dialog.goal.creator.navigate",
-	    "description": "In a goal dialog, navigating to creator profile",
-	    "process": "SRL.Planning.TaskAnalysis",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "USER_DIALOG",
-	            "context": "goal(Details)?Dialog\.creator\.imageName\.goal\.\\d+"
-			},
-	        {
-	            "eventType": "NAVIGATE",
-	            "context": "userDetails"
-			}
-	    ]
-	},
-	{
-	    "id": "dialog.goal.creator.followunfollow",
-	    "description": "In a goal dialog, follow/unfollow creator",
-	    "process": "SRL.Planning.TaskAnalysis",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "USER_DIALOG",
-	            "context": "goal(Details)?Dialog\.creator\.imageName\.goal\.\\d+"
-			},
-	        {
-	            "eventType": "(Follow|Unfollow)",
-	            "context": "userDetails"
-			}
-	    ]
-	},
-	{
-	    "id": "dialog.goal.description",
-	    "description": "In a goal dialog, expanding/collapsing description",
-	    "process": "SRL.Planning.TaskAnalysis",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "MOUSE_CLICK",
-	            "context": "goal(Details)?Dialog\.goal\.\\d+\.description",
-	            "link": "(more|less)"
-			}
-	    ]
-	},
-	{
-	    "id": "dialog.goal.participants",
-	    "description": "In a goal dialog, inspecting current list of goal participants",
-	    "process": "SRL.Planning.TaskAnalysis",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "PEOPLE_LIST_DIALOG",
-	            "context": "goal(Details)?Dialog\.\\d+\.participantNumber"
-			}
-	    ]
-	},
-	{
-	    "id": "dialog.goal.activity.navigate",
-	    "description": "From a goal dialog, navigating to activity's link",
-	    "process": "SRL.Planning.TaskAnalysis",
-	    "patterns" : [
-	        {
-	            "eventType": "NAVIGATE",
-	            "context": "goal(Details)?Dialog\.planUsed\.goal\.\\d+\.activity\.\\d+\.(title|image|link)"
-			}
-	    ]
-	},
-	{
-	    "id": "dialog.competence",
-	    "description": "Opening a competence dialog",
-	    "process": "SRL.Planning.TaskAnalysis",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "COMPETENCE_DIALOG"
-			}
-	    ]
-	},
-	{
-	    "id": "dialog.competence.creator",
-	    "description": "From a competence dialog, opening creator dialog",
-	    "process": "SRL.Planning.TaskAnalysis",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "USER_DIALOG",
-	            "context": "compDetailsDialog\.targetComp\.\\d+\.creator\.imageName"
-			}
-	    ]
-	},
-	{
-	    "id": "dialog.competence.creator.navigate",
-	    "description": "From a competence dialog, navigating to creator profile",
-	    "process": "SRL.Planning.TaskAnalysis",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "USER_DIALOG",
-	            "context": "compDetailsDialog\.targetComp\.\\d+\.creator\.imageName"
-			},
-	        {
-	            "eventType": "NAVIGATE",
-	            "context": "userDetails"
-			}
-	    ]
-	},
-	{
-	    "id": "dialog.competence.creator.followunfollow",
-	    "description": "From a competence dialog, follow/unfollow creator",
-	    "process": "SRL.Planning.TaskAnalysis",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "USER_DIALOG",
-	            "context": "compDetailsDialog\.targetComp\.\\d+\.creator\.imageName"
-			},
-			{
-	            "eventType": "(Follow|Unfollow)",
-	            "context": "userDetails"
-			}
-	    ]
-	},
-	{
-	    "id": "dialog.competence.description",
-	    "description": "From a competence dialog, expanding/collapsing description",
-	    "process": "SRL.Planning.TaskAnalysis",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "MOUSE_CLICK",
-	            "context": "compDetailsDialog\.targetComp\.\\d+\.description",
-	            "link": "(less|more)"
-			}
-	    ]
-	},
-	{
-	    "id": "dialog.competence.activity.navigate",
-	    "description": "From a competence dialog, navigating to activity's link",
-	    "process": "SRL.Planning.TaskAnalysis",
-	    "patterns" : [
-	        {
-	            "eventType": "NAVIGATE",
-	            "context": "compDetailsDialog\.targetComp\.\\d+\.activity\.\\d+\.(title|image|link)"
-			}
-	    ]
-	},
-	{
-	    "id": "dialog.competence.likedislike",
-	    "description": "From a competence dialog, like/remove like/dislike/remove dislike for a competence",
-	    "process": "SRL.Planning.TaskAnalysis",
-	    "patterns" : [
-	        {
-	            "eventType": "(Like|RemoveLike|Dislike|RemoveDislike)",
-	            "objectType": "(Target)?Competence",
-	            "context": "competenceDialog\.targetComp\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "dialog.competence.addToGoal.open",
-	    "description": "From a competence dialog, opening Add to Learning dialog",
-	    "process": "SRL.Planning.TaskAnalysis",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "ADD_TO_GOAL_DIALOG",
-	            "context": "compDetailsDialog\.targetComp\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "dialog.competence.share",
-	    "description": "From a competence dialog, sharing a competence to the Status Wall",
-	    "process": "SRL.Planning.TaskAnalysis",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "POST_DIALOG",
-	            "context": "compDetailsDialog\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "dialog.competence.followunfollow",
-	    "description": "From a competence dialog, follow/unfollow the competence",
-	    "process": "SRL.Planning.TaskAnalysis",
-	    "patterns" : [
-	        {
-	            "eventType": "(Follow|Unfollow)",
-	            "objectType": "Competence",
-	            "context": "competenceDialog\.targetComp\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "publicprofile.navigate",
-	    "description": "Navigating to other student's profile page",
-	    "process": "SRL.Planning.TaskAnalysis",
-	    "patterns" : [
-	        {
-	            "eventType": "NAVIGATE",
-	            "objectType": "page",
-	            "link": "(((public)?profile\.xhtml\\?user=\\d+)|(profile))"
-			}
-	    ]
-	},
-	{
-	    "id": "publicprofile.tab.learning",
-	    "description": "Navigating to the Learning section of other student's profile",
-	    "process": "SRL.Planning.TaskAnalysis",
-	    "patterns" : [
-	        {
-	            "eventType": "NAVIGATE",
-	            "objectType": "tab",
-	            "link": "learning",
-	            "context": "(public)?profile\.\\d+\.navigation"
-			}
-	    ]
-	},
-	{
-	    "id": "publicprofile.tab.competences",
-	    "description": "Navigating to the Competences section of other student's profile",
-	    "process": "SRL.Planning.TaskAnalysis",
-	    "patterns" : [
-	        {
-	            "eventType": "NAVIGATE",
-	            "objectType": "tab",
-	            "link": "competences",
-	            "context": "(public)?profile\.\\d+\.navigation"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.search.competence",
-	    "description": "Performing competence search - on the Learn page",
-	    "process": "SRL.Planning.TaskAnalysis",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "SEARCH_COMPETENCES",
-	            "context": "learn\.targetGoal\.\\d+\.competences\.search"
-			}
-	    ]
-	},
-	{
-	    "id": "search.competence",
-	    "description": "Performing competence search - on the Search page",
-	    "process": "SRL.Planning.TaskAnalysis",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "SEARCH_COMPETENCES",
-	            "context": "search\.allCompetences"
-			}
-	    ]
-	},
-	{
-	    "id": "globalsearch.goal",
-	    "description": "Performing learning goal search on the Search page",
-	    "process": "SRL.Planning.TaskAnalysis",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "GLOBAL_SEARCH"
-			}
-	    ]
-	},
-	
-	
-	{
-	    "id": "learn.goal.create",
-	    "description": "Creating a new learning goal",
-	    "process": "SRL.Planning.GoalSetting",
-	    "patterns" : [
-	        {
-	            "eventType": "Create",
-	            "objectType": "TargetLearningGoal"
-			}
-	    ]
-	},
-	{
-	    "id": "course.enroll",
-	    "description": "Enrolling a credential",
-	    "process": "SRL.Planning.GoalSetting",
-	    "patterns" : [
-	        {
-	            "eventType": "ENROLL_COURSE",
-	            "objectType": "CourseEnrollment"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.goal.join",
-	    "description": "Joining a learning goal from the learning goal dialog (when learning goal is to 'free to join')",
-	    "process": "SRL.Planning.GoalSetting",
-	    "patterns" : [
-	        {
-	            "eventType": "JoinedGoal",
-	            "objectType": "TargetLearningGoal"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.goal.join.requested",
-	    "description": "Sending a request to join a learning goal (when learning goal is set to 'ask to join')",
-	    "process": "SRL.Planning.GoalSetting",
-	    "patterns" : [
-	        {
-	            "eventType": "JOIN_GOAL_REQUEST",
-	            "objectType": "NodeRequest"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.goal.join.approved",
-	    "description": "Joining a learning goal after a request to join the learning goal has been accepted (when learning goal is set to 'ask to join')",
-	    "process": "SRL.Planning.GoalSetting",
-	    "patterns" : [
-	        {
-	            "eventType": "JOIN_GOAL_REQUEST_APPROVED",
-	            "objectType": "NodeRequest"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.goal.edit",
-	    "description": "Editing learning goal's properties (title, description, keywords, twitter hashtags, deadline, free to join/ask to join, progress activity dependent/progress activity independent)",
-	    "process": "SRL.Planning.GoalSetting",
-	    "patterns" : [
-	        {
-	            "eventType": "Edit",
-	            "objectType": "TargetLearningGoal",
-	            "context": "learn"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.goal.delete",
-	    "description": "Deleting learning goal",
-	    "process": "SRL.Planning.GoalSetting",
-	    "patterns" : [
-	        {
-	            "eventType": "Detach",
-	            "objectType": "TargetLearningGoal",
-	            "context": "learn"
-			}
-	    ]
-	},
-	{
-	    "id": "course.withdraw",
-	    "description": "Withdrawing a credential",
-	    "process": "SRL.Planning.GoalSetting",
-	    "patterns" : [
-	        {
-	            "eventType": "COURSE_WITHDRAWN",
-	            "objectType": "Course"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.goal.invite",
-	    "description": "Inviting a peer to collaborate on a learning goal",
-	    "process": "SRL.Planning.GoalSetting",
-	    "patterns" : [
-	        {
-	            "eventType": "JOIN_GOAL_INVITATION",
-	            "objectType": "NodeRequest"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.goal.invitation.accepted",
-	    "description": "Accepting an invitation to join a learning goal",
-	    "process": "SRL.Planning.GoalSetting",
-	    "patterns" : [
-	        {
-	            "eventType": "JOIN_GOAL_INVITATION_ACCEPTED",
-	            "objectType": "NodeRequest"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.goal.invitation.ignored",
-	    "description": "Ignoring an invitation to join a learning goal",
-	    "process": "SRL.Planning.GoalSetting",
-	    "patterns" : [
-	        {
-	            "eventType": "JOIN_GOAL_REQUEST_IGNORED"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.competence.add",
-	    "description": "Creating a new competence for a learning goal",
-	    "process": "SRL.Planning.GoalSetting",
-	    "patterns" : [
-	        {
-	            "eventType": "Create",
-	            "objectType": "Competence"
-			},
-	        {
-	            "eventType": "Attach",
-	            "objectType": "TargetCompetence",
-	            "targetType": "TargetLearningGoal",
-	            "context" : "learn\.targetGoal\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.competence.search.add",
-	    "description": "Adding a competence to a learning goal - after competence search on the Learn page",
-	    "process": "SRL.Planning.GoalSetting",
-	    "patterns" : [
-	        {
-	            "eventType": "Attach",
-	            "objectType": "TargetCompetence",
-	            "targetType": "TargetLearningGoal",
-	            "context" : "learn\.targetGoal\.\\d+\.competences\.search"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.competence.suggested.add",
-	    "description": "Adding a competence to a learning goal - from the Suggested Competence section",
-	    "process": "SRL.Planning.GoalSetting",
-	    "patterns" : [
-	        {
-	            "eventType": "Attach",
-	            "objectType": "TargetCompetence",
-	            "targetType": "TargetLearningGoal",
-	            "context" : "learn\.targetGoal\.\\d+\.competences\.recommendation"
-			}
-	    ]
-	},
-	{
-	    "id": "course.competence.add",
-	    "description": "Adding a competence to a credential from the Credential details page",
-	    "process": "SRL.Planning.GoalSetting",
-	    "patterns" : [
-	        {
-	            "eventType": "Attach",
-	            "objectType": "TargetCompetence",
-	            "targetType": "TargetLearningGoal",
-	            "context" : "plan\.course\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "dialog.competence.add",
-	    "description": "Adding a competence to a credential - from the competence dialog",
-	    "process": "SRL.Planning.GoalSetting",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "COMPETENCE_DIALOG"
-			},
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "ADD_TO_GOAL_DIALOG",
-	            "context" : "compDetailsDialog\.(targetComp.)?\\d+"
-			},
-	        {
-	            "eventType": "Attach",
-	            "objectType": "TargetCompetence",
-	            "targetType": "TargetLearningGoal",
-	            "context" : "compDetailsDialog\.(targetComp.)?\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "globalsearch.competence.add",
-	    "description": "Adding a competence to a credential - after searching it from the global search",
-	    "process": "SRL.Planning.GoalSetting",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "GLOBAL_SEARCH"
-			},
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "COMPETENCE_DIALOG",
-	            "context": "((globalsearch)|(topsearch\.competences\.\\d+\.details))",
-	            "action": "openCompetenceDialog"
-			},
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "ADD_TO_GOAL_DIALOG"
-			},
-	        {
-	            "eventType": "Attach",
-	            "objectType": "TargetCompetence",
-	            "targetType": "TargetLearningGoal"
-			}
-	    ]
-	},
-	{
-	    "id": "search.competence.add",
-	    "description": "Adding a competence to a credential - after searching it from the Search page",
-	    "process": "SRL.Planning.GoalSetting",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "SEARCH_COMPETENCES",
-	            "context": "search\.allCompetences"
-			},
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "ADD_TO_GOAL_DIALOG"
-			},
-	        {
-	            "eventType": "Attach",
-	            "objectType": "TargetCompetence",
-	            "targetType": "TargetLearningGoal"
-			}
-	    ]
-	},
-	{
-	    "id": "index.suggested.competence.add",
-	    "description": "Adding a competence to a credential - from the Suggested Learning section on the homepage",
-	    "process": "SRL.Planning.GoalSetting",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "COMPETENCE_DIALOG",
-	            "context" : "index\.suggestedLearning\.(colleagues|system|course)"
-			},
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "ADD_TO_GOAL_DIALOG"
-			},
-	        {
-	            "eventType": "Attach",
-	            "objectType": "TargetCompetence",
-	            "targetType": "TargetLearningGoal"
-			}
-	    ]
-	},
-	{
-	    "id": "search.suggested.competence.add",
-	    "description": "Adding a competence to a credential - from the Suggested Learning section on the Search page",
-	    "process": "SRL.Planning.GoalSetting",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "ADD_TO_GOAL_DIALOG",
-	            "context" : "search\.suggestedLearning"
-			},
-	        {
-	            "eventType": "Attach",
-	            "objectType": "TargetCompetence",
-	            "targetType": "TargetLearningGoal"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.competence.edit",
-	    "description": "Editing competence details",
-	    "process": "SRL.Planning.GoalSetting",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "COMPETENCE_DIALOG",
-	            "context" : "learn\.targetGoal\.\\d+\.targetComp\.\\d+\.competenceDetails"
-			},
-	        {
-	            "eventType": "Edit",
-	            "objectType": "Competence"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.competence.delete",
-	    "description": "Removing a competence from a learning goal",
-	    "process": "SRL.Planning.GoalSetting",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "DELETE_COMPETENCE_DIALOG"
-			},
-	        {
-	            "eventType": "Detach",
-	            "objectType": "TargetCompetence",
-	            "targetType": "TargetLearningGoal"
-			}
-	    ]
-	},
-
-	
-	{
-	    "id": "learn.activity.create",
-	    "description": "Creating a new activity for a competence",
-	    "process": "SRL.Planning.MakingPlans",
-	    "patterns" : [
-	        {
-	            "eventType": "Create",
-	            "objectType": "ResourceActivity",
-	            "context": "learn\.targetGoal\.\\d+\.targetComp\.\\d+"
-			},
-			{
-	            "eventType": "Attach",
-	            "objectType": "TargetActivity",
-	            "targetType": "TargetCompetence",
-	            "context": "learn\.targetGoal\.\\d+\.targetComp\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.activity.search.add",
-	    "description": "Adding an activity to a competence - after searching it on the Learn page",
-	    "process": "SRL.Planning.MakingPlans",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "SEARCH_ACTIVITIES",
-	            "context": "learn\.targetGoal\.\\d+\.targetComp\.\\d+"
-			},
-	        {
-	            "eventType": "Attach",
-	            "objectType": "TargetActivity",
-	            "targetType": "TargetCompetence",
-	            "context": "learn\.targetGoal\.\\d+\.targetComp\.\\d+\.activitySearch"
-			}
-	    ]
-	},
-	{
-	    "id": "search.activity",
-	    "description": "Searching for an activity",
-	    "process": "SRL.Planning.MakingPlans",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "SEARCH_ACTIVITIES"
-			}
-	    ]
-	},
-	{
-	    "id": "search.activity.add",
-	    "description": "Adding an activity to a competence - after searching it on the Search page",
-	    "process": "SRL.Planning.MakingPlans",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "SEARCH_ACTIVITIES",
-	            "context": "search\.allActivities"
-			},
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "ADD_TO_COMPETENCE_DIALOG",
-	            "context": "(?:search\.allActivities)?"
-			},
-			{
-	            "eventType": "Attach",
-	            "objectType": "TargetActivity",
-	            "targetType": "TargetCompetence",
-	            "context": "(?:search\.allActivities)?"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.recommended.activity.add",
-	    "description": "Adding an activity to a competence - from the Recommended Activities section - from Add button",
-	    "process": "SRL.Planning.MakingPlans",
-	    "patterns" : [
-			{
-	            "eventType": "Attach",
-	            "objectType": "TargetActivity",
-	            "targetType": "TargetCompetence",
-	            "context": "learn\.targetGoal\.\\d+.targetComp\.\\d+\.recommendedActivities\.addButton"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.recommended.activity.dialog.add",
-	    "description": "Adding an activity to a competence - from the Recommended Activities section - from Activity dialog",
-	    "process": "SRL.Planning.MakingPlans",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "ACTIVITY_DIALOG",
-	            "context": "search\.allActivities"
-			},
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "ADD_TO_COMPETENCE_DIALOG",
-	            "context": "activityDetailsDialog\.\\d+"
-			},
-			{
-	            "eventType": "Attach",
-	            "objectType": "TargetActivity",
-	            "targetType": "TargetCompetence",
-	            "context": "activityDetailsDialog\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.related.activity.add",
-	    "description": "Adding an activity to a competence - from the Related Activities section - from Add button",
-	    "process": "SRL.Planning.MakingPlans",
-	    "patterns" : [
-	        {
-	            "eventType": "Attach",
-	            "objectType": "TargetActivity",
-	            "targetType": "TargetCompetence",
-	            "context": "learn\.targetGoal\.\\d+.targetComp\.\\d+\.relatedActivities\.addButton"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.related.activity.dialog.add",
-	    "description": "Adding an activity to a competence - from the Related Activities section - from Activity dialog",
-	    "process": "SRL.Planning.MakingPlans",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "ACTIVITY_DIALOG",
-	            "context": "learn\.targetGoal\.\\d+.targetComp\.\\d+\.relatedActivities\.details"
-			},
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "ADD_TO_COMPETENCE_DIALOG",
-	            "context": "activityDetailsDialog\.\\d+"
-			},
-	        {
-	            "eventType": "Attach",
-	            "objectType": "TargetActivity",
-	            "targetType": "TargetCompetence",
-	            "context": "activityDetailsDialog\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.activity.delete",
-	    "description": "Removing an activity from a competence",
-	    "process": "SRL.Planning.MakingPlans",
-	    "patterns" : [
-	        {
-	            "eventType": "Detach",
-	            "objectType": "TargetActivity",
-	            "targetType": "TargetCompetence",
-	            "context": "learn\.targetGoal\.\\d+\.targetComp\.\\d+\.targetActivity\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.activity.assignment.upload",
-	    "description": "Uploading a solution for upload-assignment type of activity",
-	    "process": "SRL.Engagement.WorkingOnTheTask",
-	    "patterns" : [
-	        {
-	            "eventType": "FileUploaded",
-	            "objectType": "RichContent"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.activity.assignment.remove",
-	    "description": "Uploading a solution for upload-assignment type of activity",
-	    "process": "SRL.Engagement.WorkingOnTheTask",
-	    "patterns" : [
-	        {
-	            "eventType": "AssignmentRemoved"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.activity.link",
-	    "description": "Removing a solution from upload-assignment type of activity",
-	    "process": "SRL.Engagement.WorkingOnTheTask",
-	    "patterns" : [
-	        {
-	            "eventType": "NAVIGATE",
-	            "objectType": "page",
-	            "context": "learn.targetGoal\.\\d+\.targetComp\.\\d+\.targetActivity\.\\d+\.(title|image|link)"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.activity.description.expandCollapse",
-	    "description": "Expanding activity's description",
-	    "process": "SRL.Engagement.WorkingOnTheTask",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "MOUSE_CLICK",
-	            "link": "(more|less)",
-	            "context": "learn.targetGoal\.\\d+\.targetComp\.\\d+\.targetActivity\.\\d*"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.activity.video.play",
-	    "description": "Interacting with a Youtube video (video type of activity)",
-	    "process": "SRL.Engagement.WorkingOnTheTask",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "VIDEO",
-	            "context": "learn.targetGoal\.\\d+\.targetComp\.\\d+\.targetActivity\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.competence.complete",
-	    "description": "Marking a competence as completed",
-	    "process": "SRL.Engagement.WorkingOnTheTask",
-	    "patterns" : [
-	        {
-	            "eventType": "Completion",
-	            "objectType": "TargetCompetence",
-	            "context": "learn.targetGoal\.\\d+\.(competences\.\\d+|targetComp\.\\d+\.competenceDetails)"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.activity.complete",
-	    "description": "Marking a activity as completed",
-	    "process": "SRL.Engagement.WorkingOnTheTask",
-	    "patterns" : [
-	        {
-	            "eventType": "Completion",
-	            "objectType": "TargetActivity",
-	            "context": "learn.targetGoal\.\\d+\.targetComp\.\\d+\.targetActivity\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.goal.complete",
-	    "description": "Marking a learning goal as completed",
-	    "process": "SRL.Engagement.WorkingOnTheTask",
-	    "patterns" : [
-	        {
-	            "eventType": "Completion",
-	            "objectType": "TargetLearningGoal",
-	            "context": "learn"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.activity.uncomplete",
-	    "description": "Marking an activity as uncompleted",
-	    "process": "SRL.Engagement.WorkingOnTheTask",
-	    "patterns" : [
-	        {
-	            "eventType": "NotCompleted",
-	            "objectType": "TargetActivity",
-	            "context": "learn.targetGoal\.\\d+\.targetComp\.\\d+\.targetActivity\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.competence.uncomplete",
-	    "description": "Marking a competence as uncompleted",
-	    "process": "SRL.Engagement.WorkingOnTheTask",
-	    "patterns" : [
-	        {
-	            "eventType": "NotCompleted",
-	            "objectType": "TargetCompetence",
-	            "context": "learn.targetGoal\.\\d+\.(competences\.\\d+|targetComp\.\\d+\.competenceDetails)"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.goal.join1",
-	    "description": "Joining a learning goal from the learning goal dialog (when learning goal is to 'free to join')",
-	    "process": "SRL.Engagement.WorkingOnTheTask",
-	    "patterns" : [
-	        {
-	            "eventType": "JoinedGoal",
-	            "objectType": "TargetLearningGoal"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.goal.join.requested1",
-	    "description": "Sending a request to join a learning goal (when learning goal is set to 'ask to join')",
-	    "process": "SRL.Engagement.WorkingOnTheTask",
-	    "patterns" : [
-	        {
-	            "eventType": "JOIN_GOAL_REQUEST",
-	            "objectType": "NodeRequest"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.goal.join.approved1",
-	    "description": "Joining a learning goal after a request to join the learning goal has been accepted (when learning goal is set to 'ask to join')",
-	    "process": "SRL.Engagement.WorkingOnTheTask",
-	    "patterns" : [
-	        {
-	            "eventType": "JOIN_GOAL_REQUEST_APPROVED",
-	            "objectType": "NodeRequest"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.goal.edit1",
-	    "description": "Editing learning goal's properties (title, description, keywords, twitter hashtags, deadline, free to join/ask to join, progress activity dependent/progress activity independent)",
-	    "process": "SRL.Engagement.WorkingOnTheTask",
-	    "patterns" : [
-	        {
-	            "eventType": "Edit",
-	            "objectType": "TargetLearningGoal",
-	            "context": "learn"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.goal.visibilityChange",
-	    "description": "Changing learning goal's visibility",
-	    "process": "SRL.Engagement.WorkingOnTheTask",
-	    "patterns" : [
-	        {
-	            "eventType": "ChangeVisibility",
-	            "objectType": "TargetLearningGoal",
-	            "context": "learn\.targetGoal\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "search.activity1",
-	    "description": "Searching for an activity",
-	    "process": "SRL.Engagement.ApplyingAppropriateStrategyChanges",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "SEARCH_ACTIVITIES"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.activity.create1",
-	    "description": "Creating a new activity for a competence",
-	    "process": "SRL.Engagement.ApplyingAppropriateStrategyChanges",
-	    "patterns" : [
-	        {
-	            "eventType": "Create",
-	            "objectType": "ResourceActivity",
-	            "context": "learn\.targetGoal\.\\d+\.targetComp\.\\d+"
-			},
-			{
-	            "eventType": "Attach",
-	            "objectType": "TargetActivity",
-	            "targetType": "TargetCompetence",
-	            "context": "learn\.targetGoal\.\\d+\.targetComp\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.activity.delete1",
-	    "description": "Removing an activity from a competence",
-	    "process": "SRL.Engagement.ApplyingAppropriateStrategyChanges",
-	    "patterns" : [
-	        {
-	            "eventType": "Detach",
-	            "objectType": "TargetActivity",
-	            "targetType": "TargetCompetence",
-	            "context": "learn\.targetGoal\.\\d+\.targetComp\.\\d+\.targetActivity\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.competence.add1",
-	    "description": "Creating a new competence for a learning goal",
-	    "process": "SRL.Engagement.ApplyingAppropriateStrategyChanges",
-	    "patterns" : [
-	        {
-	            "eventType": "Create",
-	            "objectType": "Competence"
-			},
-	        {
-	            "eventType": "Attach",
-	            "objectType": "TargetCompetence",
-	            "targetType": "TargetLearningGoal",
-	            "context" : "learn\.targetGoal\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.competence.search.add1",
-	    "description": "Adding a competence to a learning goal - after competence search on the Learn page",
-	    "process": "SRL.Engagement.ApplyingAppropriateStrategyChanges",
-	    "patterns" : [
-	        {
-	            "eventType": "Attach",
-	            "objectType": "TargetCompetence",
-	            "targetType": "TargetLearningGoal",
-	            "context" : "learn\.targetGoal\.\\d+\.competences\.search"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.competence.suggested.add1",
-	    "description": "Adding a competence to a learning goal - from the Suggested Competence section",
-	    "process": "SRL.Engagement.ApplyingAppropriateStrategyChanges",
-	    "patterns" : [
-	        {
-	            "eventType": "Attach",
-	            "objectType": "TargetCompetence",
-	            "targetType": "TargetLearningGoal",
-	            "context" : "learn\.targetGoal\.\\d+\.competences\.recommendation"
-			}
-	    ]
-	},
-	{
-	    "id": "course.competence.add1",
-	    "description": "Adding a competence to a credential from the Credential details page",
-	    "process": "SRL.Engagement.ApplyingAppropriateStrategyChanges",
-	    "patterns" : [
-	        {
-	            "eventType": "Attach",
-	            "objectType": "TargetCompetence",
-	            "targetType": "TargetLearningGoal",
-	            "context" : "plan\.course\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "dialog.competence.add1",
-	    "description": "Adding a competence to a credential - from the competence dialog",
-	    "process": "SRL.Engagement.ApplyingAppropriateStrategyChanges",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "COMPETENCE_DIALOG"
-			},
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "ADD_TO_GOAL_DIALOG",
-	            "context" : "compDetailsDialog\.(targetComp.)?\\d+"
-			},
-	        {
-	            "eventType": "Attach",
-	            "objectType": "TargetCompetence",
-	            "targetType": "TargetLearningGoal",
-	            "context" : "compDetailsDialog\.(targetComp.)?\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "globalsearch.competence.add1",
-	    "description": "Adding a competence to a credential - after searching it from the global search",
-	    "process": "SRL.Engagement.ApplyingAppropriateStrategyChanges",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "GLOBAL_SEARCH"
-			},
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "COMPETENCE_DIALOG",
-	            "context": "((globalsearch)|(topsearch\.competences\.\\d+\.details))",
-	            "action": "openCompetenceDialog"
-			},
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "ADD_TO_GOAL_DIALOG"
-			},
-	        {
-	            "eventType": "Attach",
-	            "objectType": "TargetCompetence",
-	            "targetType": "TargetLearningGoal"
-			}
-	    ]
-	},
-	{
-	    "id": "search.competence.add1",
-	    "description": "Adding a competence to a credential - after searching it from the Search page",
-	    "process": "SRL.Engagement.ApplyingAppropriateStrategyChanges",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "SEARCH_COMPETENCES",
-	            "context": "search\.allCompetences"
-			},
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "ADD_TO_GOAL_DIALOG"
-			},
-	        {
-	            "eventType": "Attach",
-	            "objectType": "TargetCompetence",
-	            "targetType": "TargetLearningGoal"
-			}
-	    ]
-	},
-	{
-	    "id": "index.suggested.competence.add1",
-	    "description": "Adding a competence to a credential - from the Suggested Learning section on the homepage",
-	    "process": "SRL.Engagement.ApplyingAppropriateStrategyChanges",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "COMPETENCE_DIALOG",
-	            "context" : "index\.suggestedLearning\.(colleagues|system|course)"
-			},
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "ADD_TO_GOAL_DIALOG"
-			},
-	        {
-	            "eventType": "Attach",
-	            "objectType": "TargetCompetence",
-	            "targetType": "TargetLearningGoal"
-			}
-	    ]
-	},
-	{
-	    "id": "search.suggested.competence.add1",
-	    "description": "Adding a competence to a credential - from the Suggested Learning section on the Search page",
-	    "process": "SRL.Engagement.ApplyingAppropriateStrategyChanges",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "ADD_TO_GOAL_DIALOG",
-	            "context" : "search\.suggestedLearning"
-			},
-	        {
-	            "eventType": "Attach",
-	            "objectType": "TargetCompetence",
-	            "targetType": "TargetLearningGoal"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.competence.edit1",
-	    "description": "Editing competence details",
-	    "process": "SRL.Engagement.ApplyingAppropriateStrategyChanges",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "COMPETENCE_DIALOG",
-	            "context" : "learn\.targetGoal\.\\d+\.targetComp\.\\d+\.competenceDetails"
-			},
-	        {
-	            "eventType": "Edit",
-	            "objectType": "Competence"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.competence.delete1",
-	    "description": "Removing a competence from a learning goal",
-	    "process": "SRL.Engagement.ApplyingAppropriateStrategyChanges",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "DELETE_COMPETENCE_DIALOG"
-			},
-	        {
-	            "eventType": "Detach",
-	            "objectType": "TargetCompetence",
-	            "targetType": "TargetLearningGoal"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.goal.edit2",
-	    "description": "Editing learning goal's properties (title, description, keywords, twitter hashtags, deadline, free to join/ask to join, progress activity dependent/progress activity independent)",
-	    "process": "SRL.Engagement.ApplyingAppropriateStrategyChanges",
-	    "patterns" : [
-	        {
-	            "eventType": "Edit",
-	            "objectType": "TargetLearningGoal",
-	            "context": "learn"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.goal.invite1",
-	    "description": "Inviting a peer to collaborate on a learning goal",
-	    "process": "SRL.Engagement.ApplyingAppropriateStrategyChanges",
-	    "patterns" : [
-	        {
-	            "eventType": "JOIN_GOAL_INVITATION",
-	            "objectType": "NodeRequest"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.goal.invitation.accepted1",
-	    "description": "Accepting an invitation to join a learning goal",
-	    "process": "SRL.Engagement.ApplyingAppropriateStrategyChanges",
-	    "patterns" : [
-	        {
-	            "eventType": "JOIN_GOAL_INVITATION_ACCEPTED",
-	            "objectType": "NodeRequest"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.goal.join.approved2",
-	    "description": "Joining a learning goal after a request to join the learning goal has been accepted (when learning goal is set to 'ask to join')",
-	    "process": "SRL.Engagement.ApplyingAppropriateStrategyChanges",
-	    "patterns" : [
-	        {
-	            "eventType": "JOIN_GOAL_REQUEST_APPROVED",
-	            "objectType": "NodeRequest"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.competence.complete1",
-	    "description": "Marking a competence as completed",
-	    "process": "SRL.Evaluation&Reflection.Evaluation",
-	    "patterns" : [
-	        {
-	            "eventType": "Completion",
-	            "objectType": "TargetCompetence",
-	            "context": "learn.targetGoal\.\\d+\.(competences\.\\d+|targetComp\.\\d+\.competenceDetails)"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.activity.complete1",
-	    "description": "Marking a activity as completed",
-	    "process": "SRL.Evaluation&Reflection.Evaluation",
-	    "patterns" : [
-	        {
-	            "eventType": "Completion",
-	            "objectType": "TargetActivity",
-	            "context": "learn.targetGoal\.\\d+\.targetComp\.\\d+\.targetActivity\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.goal.complete1",
-	    "description": "Marking a learning goal as completed",
-	    "process": "SRL.Evaluation&Reflection.Evaluation",
-	    "patterns" : [
-	        {
-	            "eventType": "Completion",
-	            "objectType": "TargetLearningGoal",
-	            "context": "learn"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.activity.uncomplete1",
-	    "description": "Marking an activity as uncompleted",
-	    "process": "SRL.Evaluation&Reflection.Evaluation",
-	    "patterns" : [
-	        {
-	            "eventType": "NotCompleted",
-	            "objectType": "TargetActivity",
-	            "context": "learn.targetGoal\.\\d+\.targetComp\.\\d+\.targetActivity\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.competence.uncomplete1",
-	    "description": "Marking a competence as uncompleted",
-	    "process": "SRL.Evaluation&Reflection.Evaluation",
-	    "patterns" : [
-	        {
-	            "eventType": "NotCompleted",
-	            "objectType": "TargetCompetence",
-	            "context": "learn.targetGoal\.\\d+\.(competences\.\\d+|targetComp\.\\d+\.competenceDetails)"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.goal.progressChange",
-	    "description": "Manually changing learning goal's progress",
-	    "process": "SRL.Evaluation&Reflection.Evaluation",
-	    "patterns" : [
-	        {
-	            "eventType": "ChangeProgress",
-	            "objectType": "TargetLearningGoal",
-	            "context": "learn"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.goal.archive",
-	    "description": "Sending a learning goal to the Profile (archiving it)",
-	    "process": "SRL.Evaluation&Reflection.Evaluation",
-	    "patterns" : [
-	        {
-	            "eventType": "ARCHIVE_GOAL",
-	            "objectType": "TargetLearningGoal"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.activity.like",
-	    "description": "Liking an activity",
-	    "process": "SRL.Evaluation&Reflection.Evaluation",
-	    "patterns" : [
-	        {
-	            "eventType": "Like",
-	            "objectType": "(TargetActivity|ResourceActivity)",
-	            "context": "learn\.targetGoal\.\\d+\.targetComp\.\\d+\.targetActivity\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.activity.removeLike",
-	    "description": "Removing like from an activity",
-	    "process": "SRL.Evaluation&Reflection.Evaluation",
-	    "patterns" : [
-	        {
-	            "eventType": "RemoveLike",
-	            "objectType": "(TargetActivity|ResourceActivity)",
-	            "context": "learn\.targetGoal\.\\d+\.targetComp\.\\d+\.targetActivity\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.activity.dislike",
-	    "description": "Disliking an activity",
-	    "process": "SRL.Evaluation&Reflection.Evaluation",
-	    "patterns" : [
-	        {
-	            "eventType": "Dislike",
-	            "objectType": "(TargetActivity|ResourceActivity)",
-	            "context": "learn\.targetGoal\.\\d+\.targetComp\.\\d+\.targetActivity\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.activity.removeDislike",
-	    "description": "Removing dislike from an activity",
-	    "process": "SRL.Evaluation&Reflection.Evaluation",
-	    "patterns" : [
-	        {
-	            "eventType": "RemoveDislike",
-	            "objectType": "(TargetActivity|ResourceActivity)",
-	            "context": "learn\.targetGoal\.\\d+\.targetComp\.\\d+\.targetActivity\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.activity.comment",
-	    "description": "Posting a comment for an activity",
-	    "process": "SRL.Evaluation&Reflection.Evaluation",
-	    "patterns" : [
-	        {
-	            "eventType": "Comment",
-	            "targetType": "TargetActivity",
-	            "context": "learn.targetGoal\.\\d+\.targetComp\.\\d+\.targetActivity\.\\d+\.newComment"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.activity.comment.like",
-	    "description": "Liking a comment",
-	    "process": "SRL.Evaluation&Reflection.Evaluation",
-	    "patterns" : [
-	        {
-	            "eventType": "Like",
-	            "objectType": "NodeComment",
-	            "context": "learn.targetGoal\.\\d+\.targetComp\.\\d+\.targetActivity\.\\d+\.comment\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.activity.comment.removeLike",
-	    "description": "Removing like from a comment",
-	    "process": "SRL.Evaluation&Reflection.Evaluation",
-	    "patterns" : [
-	        {
-	            "eventType": "RemoveLike",
-	            "objectType": "NodeComment",
-	            "context": "learn.targetGoal\.\\d+\.targetComp\.\\d+\.targetActivity\.\\d+\.comment\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.activity.postToStatusWall",
-	    "description": "Posting an activity to the Status Wall",
-	    "process": "SRL.Evaluation&Reflection.Evaluation",
-	    "patterns" : [
-	        {
-	            "eventType": "PostShare",
-	            "objectType": "Post"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.goal.edit.hashtags",
-	    "description": "Adding new hashtags to or updating existing hashtags of a learning goal or competence",
-	    "process": "SRL.Evaluation&Reflection.Evaluation",
-	    "patterns" : [
-	        {
-	            "eventType": "UPDATE_HASHTAGS",
-	            "objectType": "(LearningGoal|Competence)"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.goal.edit.tags",
-	    "description": "Adding new keywords to or updating existing keywords of a learning goal or competence",
-	    "process": "SRL.Evaluation&Reflection.Evaluation",
-	    "patterns" : [
-	        {
-	            "eventType": "UPDATE_TAGS",
-	            "objectType": "(LearningGoal|Competence)"
-			}
-	    ]
-	},
-	{
-	    "id": "dialog.people.likeOrDislikePeople",
-	    "description": "Viewing the list of people who liked/disliked an activity/comment",
-	    "process": "SRL.Evaluation&Reflection.Evaluation",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "PEOPLE_LIST_DIALOG",
-	            "action": "(like|dislike)",
-	            "context": "learn.targetGoal\.\\d+\.targetComp\.\\d+\.targetActivity\.\\d+(\.comment\.\\d+)?"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.activity.comment1",
-	    "description": "Posting a comment for an activity",
-	    "process": "SRL.Evaluation&Reflection.Reflection",
-	    "patterns" : [
-	        {
-	            "eventType": "Comment",
-	            "targetType": "TargetActivity",
-	            "context": "learn.targetGoal\.\\d+\.targetComp\.\\d+\.targetActivity\.\\d+\.newComment"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.goal.edit.hashtags1",
-	    "description": "Adding new hashtags to or updating existing hashtags of a learning goal or competence",
-	    "process": "SRL.Evaluation&Reflection.Reflection",
-	    "patterns" : [
-	        {
-	            "eventType": "UPDATE_HASHTAGS",
-	            "objectType": "(LearningGoal|Competence)"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.goal.edit.tags1",
-	    "description": "Adding new keywords to or updating existing keywords of a learning goal or competence",
-	    "process": "SRL.Evaluation&Reflection.Reflection",
-	    "patterns" : [
-	        {
-	            "eventType": "UPDATE_TAGS",
-	            "objectType": "(LearningGoal|Competence)"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.goal.visibilityChange1",
-	    "description": "Changing learning goal's visibility",
-	    "process": "SRL.Evaluation&Reflection.Reflection",
-	    "patterns" : [
-	        {
-	            "eventType": "ChangeVisibility",
-	            "objectType": "TargetLearningGoal",
-	            "context": "learn\.targetGoal\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "learn.goal.archive1",
-	    "description": "Sending a learning goal to the Profile (archiving it)",
-	    "process": "SRL.Evaluation&Reflection.Reflection",
-	    "patterns" : [
-	        {
-	            "eventType": "ARCHIVE_GOAL",
-	            "objectType": "TargetLearningGoal"
-			}
-	    ]
-	},
-	{
-	    "id": "profile.completed.goal.sendToLearn",
-	    "description": "Sending goal to learning (from the Profile page)",
-	    "process": "SRL.Evaluation&Reflection.Reflection",
-	    "patterns" : [
-	        {
-	            "eventType": "SEND_TO_LEARN",
-	            "objectType": "TargetLearningGoal"
-			}
-	    ]
-	},
-	
-	
-	{
-	    "id": "index.navigate",
-	    "description": "Navigating to Index page",
-	    "process": "Interventions.StatusWall.Main",
-	    "patterns" : [
-	        {
-	            "eventType": "NAVIGATE",
-	            "objectType": "page",
-	            "link": "index(.xhtml)?",
-	            "context": "mainmenu"
-			}
-	    ]
-	},
-	{
-	    "id": "statuswall.newpost",
-	    "description": "Posting to Status Wall",
-	    "process": "Interventions.StatusWall.Main",
-	    "patterns" : [
-	        {
-	            "eventType": "Post",
-	            "objectType": "Post",
-	            "context": "statusWall\.newPost"
-			}
-	    ]
-	},
-	{
-	    "id": "statuswall.post.user",
-	    "description": "Examining user information from a dialog",
-	    "process": "Interventions.StatusWall.Main",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "USER_DIALOG",
-	            "context": "statusWall\.[^\\,]*"
-			}
-	    ]
-	},
-	{
-	    "id": "statuswall.post.user.navigate",
-	    "description": "Navigating to user Profile page from a dialog",
-	    "process": "Interventions.StatusWall.Main",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "USER_DIALOG",
-	            "context": "statusWall\.[^\\,]*"
-			},
-	        {
-	            "eventType": "NAVIGATE",
-	            "context": "userDetails"
-			}
-	    ]
-    },
-    {
-	    "id": "statuswall.post.user.navigate1",
-	    "description": "Navigating to user Profile page",
-	    "process": "Interventions.StatusWall.Profile",
-	    "patterns" : [
-	        {
-	            "eventType": "NAVIGATE",
-	            "objectType": "page",
-	            "link": "profile",
-	            "context": "statusWall\.[^\\,]*"
-			}
-	    ]
-	},
-	{
-	    "id": "statuswall.post.content",
-	    "description": "Expanding/collapsing a description of an activity",
-	    "process": "Interventions.StatusWall.Main",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "MOUSE_CLICK",
-	            "context": "statusWall\.post\.\\d+",
-	            "link": "(more|less)"
-			}
-	    ]
-	},
-	{
-	    "id": "statuswall.post.richcontent.content",
-	    "description": "Expanding/Collapsing activity's rich content description",
-	    "process": "Interventions.StatusWall.Main",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "MOUSE_CLICK",
-	            "context": "statusWall\.post\.\\d+\.attachment\.\\d+",
-	            "link": "(more|less)"
-			}
-	    ]
-	},
-	{
-	    "id": "statuswall.post.likeUnlike",
-	    "description": "Liking/removing like/disliking/removing dislike from an activity/comment",
-	    "process": "Interventions.StatusWall.Main",
-	    "patterns" : [
-	        {
-	            "eventType": "(Like|RemoveLike|Dislike|RemoveDislike)",
-	            "context": "statusWall\.post\.[^\\,]*"
-			}
-	    ]
-	},
-	{
-	    "id": "statuswall.post.comment",
-	    "description": "Leaving a comment on an activity",
-	    "process": "Interventions.StatusWall.Main",
-	    "patterns" : [
-	        {
-	            "eventType": "Comment",
-	            "objectType": "SocialActivityComment",
-	            "context": "statusWall\.post\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "statuswall.post.navigate",
-	    "description": "Navigating to a link of an activity",
-	    "process": "Interventions.StatusWall.Main",
-	    "patterns" : [
-	        {
-	            "eventType": "NAVIGATE",
-	            "context": "statusWall\.post\.\\d+\.attachment\.\\d+\.(title|image|link)"
-			}
-	    ]
-	},
-	{
-	    "id": "statuswall.post.goal.dialog",
-	    "description": "Opening details dialog of a learning goal that is a subject/object of a Status Wall activity",
-	    "process": "Interventions.StatusWall.Main",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "GOAL_DIALOG",
-	            "context": "statusWall\.(object|target)\.post\.\\d+",
-	            "action": "openLearningGoalDialog"
-			}
-	    ]
-	},
-	{
-	    "id": "statuswall.post.competence.dialog",
-	    "description": "Opening details dialog of a competence that is an object/target  of a Status Wall activity",
-	    "process": "Interventions.StatusWall.Main",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "COMPETENCE_DIALOG",
-	            "context": "statusWall\.(object|target)\.post\.\\d+",
-	            "action": "openCompetenceDialog"
-			}
-	    ]
-	},
-	{
-	    "id": "statuswall.post.post.video",
-	    "description": "Interacting with a Youtube video (video type of activity)",
-	    "process": "Interventions.StatusWall.Main",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "VIDEO",
-	            "context": "statusWall\.post\.\\d+\.attachment\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "statuswall.more",
-	    "description": "Loading more activities",
-	    "process": "Interventions.StatusWall.Main",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "MOUSE_CLICK",
-	            "context": "statusWall",
-	            "link": "loadMore"
-			}
-	    ]
-	},
-	{
-	    "id": "statuswall.refresh",
-	    "description": "Manually refreshing the Status Wall",
-	    "process": "Interventions.StatusWall.Main",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "MOUSE_CLICK",
-	            "context": "statusWall",
-	            "link": "refresh"
-			}
-	    ]
-	},
-	{
-	    "id": "statuswall.filter.open",
-	    "description": "Opening status wall filter dropdown",
-	    "process": "Interventions.StatusWall.Main",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "MOUSE_CLICK",
-	            "context": "statusWall",
-	            "link": "filterOpen"
-			}
-	    ]
-	},
-	{
-	    "id": "statuswall.filter.change",
-	    "description": "Changing the filter of the Status Wall",
-	    "process": "Interventions.StatusWall.Main",
-	    "patterns" : [
-	        {
-	            "eventType": "FILTER_CHANGE",
-	            "context": "statusWall\.filter"
-			}
-	    ]
-	},
-	{
-	    "id": "statuswall.post.hide",
-	    "description": "Hiding an activity",
-	    "process": "Interventions.StatusWall.Main",
-	    "patterns" : [
-	        {
-	            "eventType": "HIDE_SOCIAL_ACTIVITY",
-	            "objectType": "SocialActivityConfig",
-	            "context": "statusWall\.post\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "statuswall.post.delete",
-	    "description": "Deleting an activity",
-	    "process": "Interventions.StatusWall.Main",
-	    "patterns" : [
-	        {
-	            "eventType": "Delete",
-	            "objectType": "PostSocialActivity",
-	            "context": "statusWall\.post\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "statuswall.post.unfollowAuthor",
-	    "description": "Unfollowing a user from the post context menu",
-	    "process": "Interventions.StatusWall.Main",
-	    "patterns" : [
-	        {
-	            "eventType": "Unfollow",
-	            "objectType": "User",
-	            "context": "statusWall\.post\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "statuswall.post.enableDisableComments",
-	    "description": "Disabling/Enabling comments on an activity",
-	    "process": "Interventions.StatusWall.Main",
-	    "patterns" : [
-	        {
-	            "eventType": "(CommentsDisabled|CommentsEnabled)",
-	            "context": "statusWall\.post\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "statuswall.post.edit",
-	    "description": "Editing post content",
-	    "process": "Interventions.StatusWall.Main",
-	    "patterns" : [
-	        {
-	            "eventType": "PostUpdate",
-	            "objectType": "PostSocialActivity",
-	            "context": "statusWall\.post\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "statuswall.post.likeOrDislikePeople",
-	    "description": "Viewing the list of people who liked/disliked an activity/comment",
-	    "process": "Interventions.StatusWall.Main",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "PEOPLE_LIST_DIALOG",
-	            "context": "statusWall\.post\.\\d+(\.comment\.\\d+)?"
-			}
-	    ]
-	},
-	{
-	    "id": "goalwall.navigate",
-	    "description": "Navigating to Goal Wall tab on the Learn page",
-	    "process": "Interventions.StatusWall.Goal",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "MOUSE_CLICK",
-	            "context": "learn\.targetGoal\.\\d+\.navigation",
-	            "link": "goalWall"
-			}
-	    ]
-	},
-	{
-	    "id": "goalwall.newpost",
-	    "description": "Posting to Goal Wall",
-	    "process": "Interventions.StatusWall.Goal",
-	    "patterns" : [
-	        {
-	            "eventType": "AddNote",
-	            "objectType": "GoalNote",
-	            "context": "learn\.goalWall\.newPost"
-			}
-	    ]
-	},
-	{
-	    "id": "goalwall.post.user",
-	    "description": "Examining user information from a dialog",
-	    "process": "Interventions.StatusWall.Goal",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "USER_DIALOG",
-	            "context": "learn\.goalWall\.targetGoal.\\d+\.[^\\,]*"
-			}
-	    ]
-	},
-	{
-	    "id": "goalwall.post.user.navigate",
-	    "description": "Navigating to user Profile page from a dialog",
-	    "process": "Interventions.StatusWall.Goal",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "USER_DIALOG",
-	            "context": "learn\.goalWall\.targetGoal.\\d+\.[^\\,]*"
-			},
-	        {
-	            "eventType": "NAVIGATE",
-	            "context": "userDetails"
-			}
-	    ]
-	},
-	{
-	    "id": "goalwall.post.user.navigate1",
-	    "description": "Navigating to user Profile page",
-	    "process": "Interventions.StatusWall.Profile",
-	    "patterns" : [
-	        {
-	            "eventType": "NAVIGATE",
-	            "objectType": "page",
-	            "link": "profile",
-	            "context": "learn\.goalWall\.targetGoal.\\d+\.[^\\,]*"
-			}
-	    ]
-	},
-	{
-	    "id": "goalwall.post.content",
-	    "description": "Expanding a description of an activity",
-	    "process": "Interventions.StatusWall.Goal",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "MOUSE_CLICK",
-	            "context": "learn\.goalWall\.targetGoal\.\\d+\.post\.\\d+",
-	            "link": "(more|less)"
-			}
-	    ]
-	},
-	{
-	    "id": "goalwall.post.richcontent.content",
-	    "description": "Expanding/Collapsing activity's rich content description",
-	    "process": "Interventions.StatusWall.Goal",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "MOUSE_CLICK",
-	            "context": "learn\.goalWall\.targetGoal\.\\d+\.post\.\\d+\.attachment\.\\d+",
-	            "link": "(more|less)"
-			}
-	    ]
-	},
-	{
-	    "id": "goalwall.post.likeUnlike",
-	    "description": "Liking/removing like/disliking/removing dislike from an activity/comment",
-	    "process": "Interventions.StatusWall.Goal",
-	    "patterns" : [
-	        {
-	            "eventType": "(Like|RemoveLike|Dislike|RemoveDislike)",
-	            "context": "learn\.goalWall\.targetGoal\.\\d+\.post\.\\d+(\.comment\.\\d+)?"
-			}
-	    ]
-	},
-	{
-	    "id": "goalwall.post.comment",
-	    "description": "Leaving a comment on an activity",
-	    "process": "Interventions.StatusWall.Goal",
-	    "patterns" : [
-	        {
-	            "eventType": "Comment",
-	            "context": "learn\.goalWall\.targetGoal\.\\d+\.post\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "goalwall.post.navigate",
-	    "description": "Navigating to a link of an activity",
-	    "process": "Interventions.StatusWall.Goal",
-	    "patterns" : [
-	        {
-	            "eventType": "NAVIGATE",
-	            "context": "learn\.goalWall\.targetGoal\.\\d+\.post\.\\d+\.attachment\.\\d+\.(title|image|link)"
-			}
-	    ]
-	},
-	{
-	    "id": "goalwall.post.goal.dialog",
-	    "description": "Opening details dialog of a learning goal that is an object/target of a Status Wall activity ",
-	    "process": "Interventions.StatusWall.Goal",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "GOAL_DIALOG",
-	            "context": "learn\.goalWall\.targetGoal\.\\d+\.(object|target)\.post\.\\d+",
-	            "action": "openLearningGoalDialog"
-			}
-	    ]
-	},
-	{
-	    "id": "goalwall.post.competence.dialog",
-	    "description": "Opening details dialog of a competence that is an object/target of a Status Wall activity",
-	    "process": "Interventions.StatusWall.Goal",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "GOAL_DIALOG",
-	            "context": "learn\.goalWall\.targetGoal\.\\d+\.(object|target)\.post\.\\d+",
-	            "action": "openLearningGoalDialog"
-			}
-	    ]
-	},
-	{
-	    "id": "goalwall.post.post.video",
-	    "description": "Interacting with a Youtube video (video type of activity)",
-	    "process": "Interventions.StatusWall.Goal",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "VIDEO",
-	            "context": "learn\.goalWall\.targetGoal\.\\d+\.post\.\\d+\.attachment\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "goalwall.more",
-	    "description": "Loading more activities",
-	    "process": "Interventions.StatusWall.Goal",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "MOUSE_CLICK",
-	            "context": "learn\.goalWall\.targetGoal\.\\d+",
-	            "link": "loadMore"
-			}
-	    ]
-	},
-	{
-	    "id": "goalwall.post.hide",
-	    "description": "Hiding an activity",
-	    "process": "Interventions.StatusWall.Goal",
-	    "patterns" : [
-	        {
-	            "eventType": "HIDE_SOCIAL_ACTIVITY",
-	            "objectType": "SocialActivityConfig",
-	            "context": "learn\.goalWall\.targetGoal\.\\d+\.post\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "goalwall.post.delete",
-	    "description": "Deleting an activity",
-	    "process": "Interventions.StatusWall.Goal",
-	    "patterns" : [
-	        {
-	            "eventType": "Delete",
-	            "context": "learn\.goalWall\.targetGoal\.\\d+\.post\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "goalwall.post.unfollowAuthor",
-	    "description": "Unfollowing a user from the post context menu",
-	    "process": "Interventions.StatusWall.Goal",
-	    "patterns" : [
-	        {
-	            "eventType": "Unfollow",
-	            "objectType": "User",
-	            "context": "learn\.goalWall\.targetGoal\.\\d+\.post\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "goalwall.post.enableDisableComments",
-	    "description": "Disabling/Enabling comments on an activity",
-	    "process": "Interventions.StatusWall.Goal",
-	    "patterns" : [
-	        {
-	            "eventType": "(CommentsDisabled|CommentsEnabled)",
-	            "context": "learn\.goalWall\.targetGoal\.\\d+\.post\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "goalwall.post.likeOrDislikePeople",
-	    "description": "Viewing the list of people who liked/disliked an activity/comment",
-	    "process": "Interventions.StatusWall.Goal",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "PEOPLE_LIST_DIALOG",
-	            "context": "learn\.goalWall\.targetGoal\.\\d+\.post\.\\d+(\.comment\.\\d+)?"
-			}
-	    ]
-	},
-	
-	
-	
-	
-	{
-	    "id": "profilewall.navigate",
-	    "description": "Navigating to Status Wall section of the Profile page",
-	    "process": "Interventions.StatusWall.Profile",
-	    "patterns" : [
-	        {
-	            "eventType": "NAVIGATE",
-	            "objectType": "tab",
-	            "context": "(public)?profile\.\\d+\.navigation",
-	            "link": "statuswall"
-			}
-	    ]
-	},
-	{
-	    "id": "profilewall.post.user",
-	    "description": "Examining user information from a dialog",
-	    "process": "Interventions.StatusWall.Profile",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "USER_DIALOG",
-	            "context": "(public)?profile\.\\d+\.(activity|status)Wall\.[^\\,]*"
-			}
-	    ]
-	},
-	{
-	    "id": "profilewall.post.user.navigate",
-	    "description": "Navigating to user Profile page from a dialog",
-	    "process": "Interventions.StatusWall.Profile",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "USER_DIALOG",
-	            "context": "(public)?profile\.\\d+\.(activity|status)Wall\.[^\\,]*"
-			},
-	        {
-	            "eventType": "NAVIGATE",
-	            "context": "userDetails"
-			}
-	    ]
-	},
-	{
-	    "id": "profilewall.post.user.navigate1",
-	    "description": "Navigating to user Profile page",
-	    "process": "Interventions.StatusWall.Profile",
-	    "patterns" : [
-	        {
-	            "eventType": "NAVIGATE",
-	            "objectType": "page",
-	            "link": "profile",
-	            "context": "(public)?profile\.\\d+\.(activity|status)Wall\.[^\\,]*"
-			}
-	    ]
-	},
-	{
-	    "id": "profilewall.post.content",
-	    "description": "Expanding a description of an activity",
-	    "process": "Interventions.StatusWall.Profile",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "MOUSE_CLICK",
-	            "context": "(public)?profile\.\\d+\.(activity|status)Wall.post\.\\d+",
-	            "link": "(more|less)"
-			}
-	    ]
-	},
-	{
-	    "id": "profilewall.post.richcontent.content",
-	    "description": "Expanding/Collapsing activity's rich content description",
-	    "process": "Interventions.StatusWall.Profile",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "MOUSE_CLICK",
-	            "context": "(public)?profile\.\\d+\.(activity|status)Wall.post\.\\d+\.attachment\.\\d+",
-	            "link": "(more|less)"
-			}
-	    ]
-	},
-	{
-	    "id": "profilewall.post.likeUnlike",
-	    "description": "Liking/removing like/disliking/removing dislike from an activity/comment",
-	    "process": "Interventions.StatusWall.Profile",
-	    "patterns" : [
-	        {
-	            "eventType": "(Like|RemoveLike|Dislike|RemoveDislike)",
-	            "context": "(public)?profile\.\\d+\.(activity|status)Wall.post\.\\d+(\.comment\.\\d+)?"
-			}
-	    ]
-	},
-	{
-	    "id": "profilewall.post.comment",
-	    "description": "Leaving a comment on an activity",
-	    "process": "Interventions.StatusWall.Profile",
-	    "patterns" : [
-	        {
-	            "eventType": "Comment",
-	            "context": "(public)?profile\.\\d+\.(activity|status)Wall.post\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "profilewall.post.navigate",
-	    "description": "Navigating to a link of an activity",
-	    "process": "Interventions.StatusWall.Profile",
-	    "patterns" : [
-	        {
-	            "eventType": "NAVIGATE",
-	            "context": "(public)?profile\.\\d+\.(activity|status)Wall.post\.\\d+\.attachment\.\\d+\.(title|image|link)"
-			}
-	    ]
-	},
-	{
-	    "id": "profilewall.post.goal.dialog",
-	    "description": "Opening details dialog of a learning goal that is an object/target of a Status Wall activity ",
-	    "process": "Interventions.StatusWall.Profile",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "GOAL_DIALOG",
-	            "context": "(public)?profile\.\\d+\.(activity|status)Wall\.(object|target)\.post\.\\d+",
-	            "action": "openLearningGoalDialog"
-			}
-	    ]
-	},
-	{
-	    "id": "profilewall.post.competence.dialog",
-	    "description": "Opening details dialog of a competence that is an object/target of a Status Wall activity",
-	    "process": "Interventions.StatusWall.Profile",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "GOAL_DIALOG",
-	            "context": "(public)?profile\.\\d+\.(activity|status)Wall\.(object|target)\.post\.\\d+",
-	            "action": "openLearningGoalDialog"
-			}
-	    ]
-	},
-	{
-	    "id": "profilewall.post.post.video",
-	    "description": "Interacting with a Youtube video (video type of activity)",
-	    "process": "Interventions.StatusWall.Profile",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "VIDEO",
-	            "context": "(public)?profile\.\\d+\.(activity|status)Wall\.post\.\\d+\.attachment\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "profilewall.more",
-	    "description": "Loading more activities",
-	    "process": "Interventions.StatusWall.Profile",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "MOUSE_CLICK",
-	            "context": "(public)?profile\.\\d+(\.(activity|status)Wall)?",
-	            "link": "loadMore"
-			}
-	    ]
-	},
-	{
-	    "id": "profilewall.post.likeOrDislikePeople",
-	    "description": "Viewing the list of people who liked/disliked an activity/comment",
-	    "process": "Interventions.StatusWall.Profile",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "PEOPLE_LIST_DIALOG",
-	            "context": "(public)?profile\.\\d+\.(activity|status)Wall\.post\.\\d+(\.comment\.\\d+)?"
-			}
-	    ]
-	},
-	
-	
-	
-	{
-	    "id": "digest.navigate",
-	    "description": "Navigating to daily digest page",
-	    "process": "Interventions.Digest.Digest",
-	    "patterns" : [
-	        {
-	            "eventType": "NAVIGATE",
-	            "objectType": "page",
-	            "link": "dig(g)?est"
-			}
-	    ]
-	},
-	{
-	    "id": "digest.changeFilters",
-	    "description": "Navigating to daily digest page",
-	    "process": "Interventions.Digest.Digest",
-	    "patterns" : [
-	        {
-	            "eventType": "DIGEST_FILTER_UPDATED",
-	            "context": "digest"
-			}
-	    ]
-	},
-	{
-	    "id": "digest.post.navigate",
-	    "description": "Navigating to a link of a digest entry",
-	    "process": "Interventions.Digest.Digest",
-	    "patterns" : [
-	        {
-	            "eventType": "NAVIGATE",
-	            "objectType": "page",
-	            "context": "digest"
-			}
-	    ]
-	},
-	{
-	    "id": "digest.post.share",
-	    "description": "Posting a digest item to Status Wall or Goal Wall",
-	    "process": "Interventions.Digest.Digest",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "POST_DIALOG",
-	            "context": "digest\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "digest.post.addToGoal",
-	    "description": "Posting a digest item to Status Wall or Goal Wall",
-	    "process": "Interventions.Digest.Digest",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "POST_DIALOG",
-	            "context": "digest\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "digest.post.user",
-	    "description": "Posting a digest item to Status Wall or Goal Wall",
-	    "process": "Interventions.Digest.Digest",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "USER_DIALOG",
-	            "context": "digest\.\\d+\.maker\.name"
-			}
-	    ]
-	},
-
-
-	{
-	    "id": "recommendations.competence.dialog",
-	    "description": "Opening a recommended competence's details dialog",
-	    "process": "Interventions.Suggestions.Competence",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "COMPETENCE_DIALOG",
-	            "context": "learn\.targetGoal\.\\d+\.competences\.recommendation",
-	            "action": "openCompetenceDialog"
-			}
-	    ]
-	},
-	{
-	    "id": "recommendations.competence.add",
-	    "description": "Adding a recommended competence to a learning goal",
-	    "process": "Interventions.Suggestions.Competence",
-	    "patterns" : [
-	        {
-	            "eventType": "Attach",
-	            "objectType": "TargetCompetence",
-	            "targetType": "TargetLearningGoal",
-	            "context": "learn\.targetGoal\.\\d+\.competences\.recommendation"
-			}
-	    ]
-	},
-	{
-	    "id": "recommendations.competence.dialog.description",
-	    "description": "Expanding/collapsing competence description inside a dialog",
-	    "process": "Interventions.Suggestions.Competence",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "COMPETENCE_DIALOG",
-	            "context": "learn\.targetGoal\.\\d+\.competences\.recommendation",
-	            "action": "openCompetenceDialog"
-			},
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "MOUSE_CLICK",
-	            "context": "compDetailsDialog\.comp\.\\d+\.description",
-	            "link": "(more|less)"
-			}
-	    ]
-	},
-	{
-	    "id": "recommendations.competence.dialog.user",
-	    "description": "Examining user information from a competence dialog",
-	    "process": "Interventions.Suggestions.Competence",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "COMPETENCE_DIALOG",
-	            "context": "learn\.targetGoal\.\\d+\.competences\.recommendation",
-	            "action": "openCompetenceDialog"
-			},
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "USER_DIALOG",
-	            "context": "compDetailsDialog\.comp\.\\d+\.creator\.imageName"
-			}
-	    ]
-	},
-	{
-	    "id": "recommendations.competence.dialog.user.navigate",
-	    "description": "Navigating to user Profile page from a competence dialog",
-	    "process": "Interventions.Suggestions.Competence",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "COMPETENCE_DIALOG",
-	            "context": "learn\.targetGoal\.\\d+\.competences\.recommendation",
-	            "action": "openCompetenceDialog"
-			},
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "USER_DIALOG",
-	            "context": "compDetailsDialog\.comp\.\\d+\.creator\.imageName"
-			},
-	        {
-	            "eventType": "NAVIGATE",
-	            "context": "(userDetails|compDetailsDialog\.comp\.\\d+\.creator\.imageName)"
-			}
-	    ]
-	},
-	{
-	    "id": "recommendations.competence.dialog.activity.dialog",
-	    "description": "Opening activity dialog from a competence dialog",
-	    "process": "Interventions.Suggestions.Competence",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "COMPETENCE_DIALOG",
-	            "context": "learn\.targetGoal\.\\d+\.competences\.recommendation",
-	            "action": "openCompetenceDialog"
-			},
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "ACTIVITY_DIALOG",
-				"context": "compDetailsDialog\.comp\.\\d+",
-	            "action": "openActivityDetails"
-			}
-	    ]
-	},
-	{
-	    "id": "recommendations.competence.dialog.likeDislike",
-	    "description": "Liking/Disliking/Removing a like/Removing a dislike from competence from the dialog",
-	    "process": "Interventions.Suggestions.Competence",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "COMPETENCE_DIALOG",
-	            "context": "learn\.targetGoal\.\\d+\.competences\.recommendation",
-	            "action": "openCompetenceDialog"
-			},
-	        {
-	            "eventType": "(Like|RemoveLike|Dislike|RemoveDislike)",
-	            "objectType": "Competence",
-	            "context": "comp(etence)?(Details)?Dialog\.comp\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "recommendations.competence.dialog.addToGoal",
-	    "description": "Opening Add to goal dialog from a competence dialog",
-	    "process": "Interventions.Suggestions.Competence",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "COMPETENCE_DIALOG",
-	            "context": "learn\.targetGoal\.\\d+\.competences\.recommendation",
-	            "action": "openCompetenceDialog"
-			},
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "ADD_TO_GOAL_DIALOG",
-	            "context": "comp(etence)?(Details)?Dialog\.comp\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "recommendations.competence.followUnfollow",
-	    "description": "Following/Unfollowing competence creator from a dialog",
-	    "process": "Interventions.Suggestions.Competence",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "COMPETENCE_DIALOG",
-	            "context": "learn\.targetGoal\.\\d+\.competences\.recommendation",
-	            "action": "openCompetenceDialog"
-			},
-	        {
-	            "eventType": "(Follow|Unfollow)",
-				"context": "comp(etence)?(Details)?Dialog\.comp\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "recommendations.competence.statistics",
-	    "description": "Opening activity statistics dialog from the competence dialog",
-	    "process": "Interventions.Suggestions.Competence",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "COMPETENCE_DIALOG",
-	            "context": "learn\.targetGoal\.\\d+\.competences\.recommendation",
-	            "action": "openCompetenceDialog"
-			},
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "ACTIVITY_ANALYTICS_DIALOG",
-				"context": "comp(etence)?(Details)?Dialog\.comp\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "recommendations.competence.dialog.activity.addToCompetence",
-	    "description": "Opening Add to competence dialog for an activity from the competence dialog",
-	    "process": "Interventions.Suggestions.Competence",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "COMPETENCE_DIALOG",
-	            "context": "learn\.targetGoal\.\\d+\.competences\.recommendation",
-	            "action": "openCompetenceDialog"
-			},
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "ADD_TO_COMPETENCE_DIALOG",
-				"context": "comp(etence)?(Details)?Dialog\.comp\.\\d+"
-			}
-	    ]
-	},
-	
-	
-	{
-	    "id": "recommendations.document.navigate",
-	    "description": "Viewing suggested document/link",
-	    "process": "Interventions.Suggestions.Document",
-	    "patterns" : [
-	        {
-	            "eventType": "NAVIGATE",
-	            "objectType": "page",
-				"context": "learn\.targetGoal\.\\d+\.suggestedDocuments"
-			}
-	    ]
-	},
-	
-	
-	
-	{
-	    "id": "recommendations.people.dialog.user",
-	    "description": "Examining user information from the similarity/activity/location tab",
-	    "process": "Interventions.Suggestions.People",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "USER_DIALOG",
-				"context": "recommendpeople\.(similarity|activity.|location)\.(name|image)"
-			}
-	    ]
-	},
-	{
-	    "id": "recommendations.people.dialog.user.navigate",
-	    "description": "Navigating to user Profile page from a user dialog on the similarity/activity/location tab",
-	    "process": "Interventions.Suggestions.People",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "USER_DIALOG",
-				"context": "recommendpeople\.(similarity|activity.|location)\.(name|image)"
-			},
-			{
-				"eventType": "NAVIGATE",
-	            "objectType": "page",
-				"context": "userDetails"
-			}
-	    ]
-	},
-	{
-	    "id": "recommendations.people.user.navigate",
-	    "description": "Navigating to user Profile page by clicking on user name on the similarity/activity/location tab",
-	    "process": "Interventions.Suggestions.People",
-	    "patterns" : [
-	        {
-	            "eventType": "NAVIGATE",
-	            "objectType": "page",
-	            "link": "(\/)?profile",
-				"context": "recommendpeople\.(similarity|activity.|location)\.(name|image)"
-			}
-	    ]
-	},
-	{
-	    "id": "recommendations.people.followUnfollow",
-	    "description": "Follow/Unfollow user from the similarity/activity/location tab",
-	    "process": "Interventions.Suggestions.People",
-	    "patterns" : [
-	        {
-	            "eventType": "(Follow|Unfollow)",
-				"context": "recommendpeople\.(similarity|activity.|location)"
-			}
-	    ]
-	},
-	{
-	    "id": "recommendations.people.sendMessage.dialog",
-	    "description": "Opening direct message dialog from the similarity/activity/location tab",
-	    "process": "Interventions.Suggestions.People",
-	    "patterns" : [
-	        {
-	            "eventType": "SERVICEUSE",
-	            "objectType": "DIRECT_MESSAGE_DIALOG",
-				"context": "recommendpeople\.(similarity|activity.|location)"
-			}
-	    ]
-	},
-	{
-	    "id": "recommendations.people.sendMessage",
-	    "description": "Sending a direct message from the similarity/activity/location tab",
-	    "process": "Interventions.Suggestions.People",
-	    "patterns" : [
-			{
-				"eventType": "SERVICEUSE",
-				"objectType": "DIRECT_MESSAGE_DIALOG",
-				"context": "recommendpeople\.(similarity|activity.|location)"
-			},
-			{
-				"eventType": "SEND_MESSAGE",
-				"objectType": "SimpleOfflineMessage",
-				"context": "recommendpeople\.(similarity|activity.|location)"
-			}
-	    ]
-	},
-	
-	
-	
-	{
-	    "id": "userProfile.navigate",
-	    "description": "Navigating to user's profile",
-	    "process": "Interventions.UserProfile.Info",
-	    "patterns" : [
-			{
-				"eventType": "NAVIGATE",
-				"objectType": "page",
-				"link": "(public)?profile(.xhtml)?"
-			}
-	    ]
-	},
-	{
-	    "id": "userProfile.info",
-	    "description": "Navigating to Info section of a profile",
-	    "process": "Interventions.UserProfile.Info",
-	    "patterns" : [
-			{
-				"eventType": "NAVIGATE",
-				"objectType": "tab",
-				"link": "info",
-				"context": "(public)?(p|P)rofile\.\\d+\.navigation"
-			}
-	    ]
-	},
-	{
-	    "id": "userProfile.info.location",
-	    "description": "Clicking on profile owner's location to open a location dialog",
-	    "process": "Interventions.UserProfile.Info",
-	    "patterns" : [
-			{
-				"eventType": "SERVICEUSE",
-				"objectType": "USER_LOCATION_DIALOG",
-				"context": "(public)?(p|P)rofile\.\\d+\.info\.location"
-			}
-	    ]
-	},
-	{
-	    "id": "userProfile.info.socialNetwork",
-	    "description": "Visiting profile owner's social network profiles",
-	    "process": "Interventions.UserProfile.Info",
-	    "patterns" : [
-			{
-				"eventType": "NAVIGATE",
-				"objectType": "page",
-				"context": "(public)?(p|P)rofile\.\\d+\.info\.socialNetworks\.(twitter|facebook|gplus|blog)"
-			}
-	    ]
-	},
-	{
-	    "id": "userProfile.navigate1",
-	    "description": "Navigating to user's profile",
-	    "process": "Interventions.UserProfile.Learning",
-	    "patterns" : [
-			{
-				"eventType": "NAVIGATE",
-				"objectType": "page",
-				"link": "(public)?profile(.xhtml)?"
-			}
-	    ]
-	},
-	{
-	    "id": "userProfile.learning",
-	    "description": "Navigating to Learning section of a profile",
-	    "process": "Interventions.UserProfile.Learning",
-	    "patterns" : [
-			{
-				"eventType": "NAVIGATE",
-				"objectType": "tab",
-				"link": "learning",
-				"context": "(public)?(p|P)rofile\.\\d+\.navigation"
-			}
-	    ]
-	},
-	{
-	    "id": "userProfile.learning.dialog",
-	    "description": "Opening goal details dialog from the Ongoing Learning/Completed Learning sections",
-	    "process": "Interventions.UserProfile.Learning",
-	    "patterns" : [
-			{
-				"eventType": "SERVICEUSE",
-				"objectType": "GOAL_DIALOG",
-				"context": "(public)?(p|P)rofile\.\\d+\.learning\.[^\,]*",
-				"action": "openLearningGoalDialog"
-			}
-	    ]
-	},
-	{
-	    "id": "userProfile.learning.statistics",
-	    "description": "Opening goal statistics dialog",
-	    "process": "Interventions.UserProfile.Learning",
-	    "patterns" : [
-			{
-				"eventType": "SERVICEUSE",
-				"objectType": "GOAL_ANALYTICS_DIALOG",
-				"context": "(public)?(p|P)rofile\.\\d+\.learning\.[^\,]*"
-			}
-	    ]
-	},
-	{
-	    "id": "userProfile.learning.badges",
-	    "description": "Opening goal badges dialog",
-	    "process": "Interventions.UserProfile.Learning",
-	    "patterns" : [
-			{
-				"eventType": "SERVICEUSE",
-				"objectType": "BADGE_LIST_DIALOG",
-				"context": "(public)?(p|P)rofile\.\\d+\.learning\.[^\,]*"
-			}
-	    ]
-	},
-	{
-	    "id": "userProfile.learning.evaluations",
-	    "description": "Opening goal evaluations dialog",
-	    "process": "Interventions.UserProfile.Learning",
-	    "patterns" : [
-			{
-				"eventType": "SERVICEUSE",
-				"objectType": "EVALUATION_LIST_DIALOG",
-				"context": "(public)?(p|P)rofile\.\\d+\.learning\.[^\,]*"
-			}
-	    ]
-	},
-	{
-	    "id": "userProfile.learning.freeToJoinDialog",
-	    "description": "Opening join goal dialog when goal is free to join",
-	    "process": "Interventions.UserProfile.Learning",
-	    "patterns" : [
-			{
-				"eventType": "SERVICEUSE",
-				"objectType": "FREE_TO_JOIN_GOAL_DIALOG",
-				"context": "(public)?(p|P)rofile\.\\d+\.learning\.[^\,]*"
-			}
-	    ]
-	},
-	{
-	    "id": "userProfile.learning.requestToJoinDialog",
-	    "description": "Opening join goal dialog when goal should be requested to join",
-	    "process": "Interventions.UserProfile.Learning",
-	    "patterns" : [
-			{
-				"eventType": "SERVICEUSE",
-				"objectType": "REQUEST_TO_JOIN_GOAL_DIALOG",
-				"context": "(public)?(p|P)rofile\.\\d+\.learning\.[^\,]*"
-			}
-	    ]
-	},
-	{
-	    "id": "userProfile.navigate2",
-	    "description": "Navigating to user's profile",
-	    "process": "Interventions.UserProfile.Competences",
-	    "patterns" : [
-			{
-				"eventType": "NAVIGATE",
-				"objectType": "page",
-				"link": "(public)?profile(.xhtml)?"
-			}
-	    ]
-	},
-	{
-	    "id": "userProfile.competences",
-	    "description": "Navigating to Competences section of a profile",
-	    "process": "Interventions.UserProfile.Competences",
-	    "patterns" : [
-			{
-				"eventType": "NAVIGATE",
-				"objectType": "tab",
-				"link": "competences",
-				"context": "(public)?(p|P)rofile\.\\d+\.navigation"
-			}
-	    ]
-	},
-	{
-	    "id": "userProfile.competences.dialog",
-	    "description": "Opening competence details dialog from the Ongoing/Completed Competences sections",
-	    "process": "Interventions.UserProfile.Competences",
-	    "patterns" : [
-			{
-				"eventType": "SERVICEUSE",
-				"objectType": "COMPETENCE_DIALOG",
-				"context": "(public)?(p|P)rofile\.\\d+\.competences\.[^\,]*"
-			}
-	    ]
-	},
-	{
-	    "id": "userProfile.competences.statistics",
-	    "description": "Opening competence statistics dialog",
-	    "process": "Interventions.UserProfile.Competences",
-	    "patterns" : [
-			{
-				"eventType": "SERVICEUSE",
-				"objectType": "COMPETENCE_ANALYTICS_DIALOG",
-				"context": "(public)?(p|P)rofile\.\\d+\.competences\.[^\,]*"
-			}
-	    ]
-	},
-	{
-	    "id": "userProfile.competences.badges",
-	    "description": "Opening competence badges dialog",
-	    "process": "Interventions.UserProfile.Competences",
-	    "patterns" : [
-			{
-				"eventType": "SERVICEUSE",
-				"objectType": "BADGE_LIST_DIALOG",
-				"context": "(public)?(p|P)rofile\.\\d+\.competences\.[^\,]*"
-			}
-	    ]
-	},
-	{
-	    "id": "userProfile.competences.evaluations",
-	    "description": "Opening competence evaluations dialog",
-	    "process": "Interventions.UserProfile.Competences",
-	    "patterns" : [
-			{
-				"eventType": "SERVICEUSE",
-				"objectType": "EVALUATION_LIST_DIALOG",
-				"context": "(public)?(p|P)rofile\.\\d+\.competences\.[^\,]*"
-			}
-	    ]
-	},
-	
-	
-	
-	{
-	    "id": "compare.collaborator.user",
-	    "description": "Inspecting user data from the collaborator list",
-	    "process": "Interventions.LearningGroups.CompareCompetences",
-	    "patterns" : [
-			{
-				"eventType": "SERVICEUSE",
-				"objectType": "USER_DIALOG",
-				"context": "learn\.targetGoal\.\\d+\.collaborators\.image"
-			}
-	    ]
-	},
-	{
-	    "id": "compare.competences",
-	    "description": "Opening competence compare dialog",
-	    "process": "Interventions.LearningGroups.CompareCompetences",
-	    "patterns" : [
-			{
-				"eventType": "COMPETENCES_COMPARE",
-				"objectType": "TargetLearningGoal",
-				"context": "learn\.targetGoal\.\\d+\.competences"
-			}
-	    ]
-	},
-	{
-	    "id": "compare.competences.add",
-	    "description": "Adding a competence from other collaborator",
-	    "process": "Interventions.LearningGroups.CompareCompetences",
-	    "patterns" : [
-			{
-				"eventType": "Attach",
-				"objectType": "TargetCompetence",
-				"targetType": "TargetLearningGoal",
-				"context": "learn\.targetGoal\.\\d+\.competences\.compare"
-			}
-	    ]
-	},
-	{
-	    "id": "compare.collaborator.user1",
-	    "description": "Inspecting user data from the collaborator list",
-	    "process": "Interventions.LearningGroups.CompareActivities",
-	    "patterns" : [
-			{
-				"eventType": "SERVICEUSE",
-				"objectType": "USER_DIALOG",
-				"context": "learn\.targetGoal\.\\d+\.collaborators\.image"
-			}
-	    ]
-	},
-	{
-	    "id": "compare.activities",
-	    "description": "Opening activities compare dialog",
-	    "process": "Interventions.LearningGroups.CompareActivities",
-	    "patterns" : [
-			{
-				"eventType": "ACTIVITIES_COMPARE",
-				"objectType": "TargetCompetence",
-				"context": "learn\.targetGoal\.\\d+\.targetComp(\.)?\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "compare.activities.add",
-	    "description": "Adding an activity from other collaborator",
-	    "process": "Interventions.LearningGroups.CompareActivities",
-	    "patterns" : [
-			{
-				"eventType": "Attach",
-				"objectType": "TargetActivity",
-				"targetType": "TargetCompetence",
-				"context": "learn\.targetGoal\.\\d+\.targetComp\.\\d+\.activityComparison(\.)?[^\,]*"
-			}
-	    ]
-	},
-	{
-	    "id": "compare.activities.navigate",
-	    "description": "Clicking on a link for the link type of activity",
-	    "process": "Interventions.LearningGroups.CompareActivities",
-	    "patterns" : [
-			{
-				"eventType": "NAVIGATE",
-				"objectType": "page",
-				"context": "learn\.targetGoal\.\\d+\.targetComp\.\\d+\.activityComparison(\.)?(target)?(A|a)ctivity\.\\d+\.(title|image|link)"
-			}
-	    ]
-	},
-	{
-	    "id": "compare.activities.video",
-	    "description": "Interacting with a Youtube video (video type of activity)",
-	    "process": "Interventions.LearningGroups.CompareActivities",
-	    "patterns" : [
-			{
-				"eventType": "SERVICEUSE",
-				"objectType": "VIDEO",
-				"context": "learn\.targetGoal\.\\d+\.targetComp\.\\d+\.activityComparison(\.)?(target)?(A|a)ctivity\.\\d+"
-			}
-	    ]
-	},
-	{
-	    "id": "compare.activities.comment",
-	    "description": "Posting a comment for an activity",
-	    "process": "Interventions.LearningGroups.CompareActivities",
-	    "patterns" : [
-			{
-				"eventType": "Comment",
-				"context": "learn\.targetGoal\.\\d+\.targetComp\.\\d+\.activityComparison(\.)?(target)?(A|a)ctivity\.\\d+\.newComment"
-			}
-	    ]
-	},
-	{
-	    "id": "compare.activities.likeDislike",
-	    "description": "Liking/removing like/disliking/removing dislike from an activity/comment",
-	    "process": "Interventions.LearningGroups.CompareActivities",
-	    "patterns" : [
-			{
-				"eventType": "(Like|RemoveLike|Dislike|RemoveDislike)",
-				"context": "learn\.targetGoal\.\\d+\.targetComp\.\\d+\.activityComparison(\.)?(target)?(A|a)ctivity\.\\d+(\.comment\.\\d+)?"
-			}
-	    ]
-	},
-	{
-	    "id": "compare.activities.likeOrDislikePeople",
-	    "description": "Viewing the list of people who liked/disliked an activity/comment",
-	    "process": "Interventions.LearningGroups.CompareActivities",
-	    "patterns" : [
-			{
-				"eventType": "SERVICEUSE",
-				"objectType": "PEOPLE_LIST_DIALOG",
-				"context": "learn\.targetGoal\.\\d+\.targetComp\.\\d+\.activityComparison(\.)?(target)?(A|a)ctivity\.\\d+(\.comment\.\\d+)?"
-			}
-	    ]
-	}
-	
-	
+  {
+    "id": "course.search",
+    "description": "Performing credentials search",
+    "process": "SRL.Planning.TaskAnalysis",
+    "patterns": [
+      {
+        "eventType": "SERVICEUSE",
+        "objectType": "SEARCH_COURSE"
+      }
+    ]
+  },
+  {
+    "id": "course.navigate",
+    "description": "Examining credentials details",
+    "process": "SRL.Planning.TaskAnalysis",
+    "patterns": [
+      {
+        "eventType": "NAVIGATE",
+        "objectType": "page",
+        "link": "course(.xhtml)?"
+      }
+    ]
+  },
+  {
+    "id": "dialog.goal",
+    "description": "Opening a learning goal dialog",
+    "process": "SRL.Planning.TaskAnalysis",
+    "patterns": [
+      {
+        "eventType": "SERVICEUSE",
+        "objectType": "GOAL_DIALOG"
+      }
+    ]
+  },
+  {
+    "id": "dialog.goal.creator",
+    "description": "In a goal dialog, opening creator dialog",
+    "process": "SRL.Planning.TaskAnalysis",
+    "patterns": [
+      {
+        "eventType": "SERVICEUSE",
+        "objectType": "USER_DIALOG",
+        "context": "goal(Details)?Dialog.creator.imageName.(sendRequest.)?goal.\\\\d+"
+      }
+    ]
+  },
+  {
+    "id": "dialog.goal.creator.navigate",
+    "description": "In a goal dialog, navigating to creator profile",
+    "process": "SRL.Planning.TaskAnalysis",
+    "patterns": [
+      {
+        "eventType": "SERVICEUSE",
+        "objectType": "USER_DIALOG",
+        "context": "goal(Details)?Dialog.creator.imageName.goal.\\\\d+"
+      },
+      {
+        "eventType": "NAVIGATE",
+        "context": "userDetails"
+      },
+      {
+        "eventType": "NAVIGATE",
+        "context": "userDetails"
+      }
+    ]
+  },
+  {
+    "id": "dialog.goal.description",
+    "description": "In a goal dialog, expanding/collapsing description",
+    "process": "SRL.Planning.TaskAnalysis",
+    "patterns": [
+      {
+        "eventType": "SERVICEUSE",
+        "objectType": "MOUSE_CLICK",
+        "context": "goal(Details)?Dialog.goal.\\\\d+.description",
+        "link": "(more|less)"
+      }
+    ]
+  },
+  {
+    "id": "dialog.goal.participants",
+    "description": "In a goal dialog, inspecting current list of goal participants",
+    "process": "SRL.Planning.TaskAnalysis",
+    "patterns": [
+      {
+        "eventType": "SERVICEUSE",
+        "objectType": "PEOPLE_LIST_DIALOG",
+        "context": "goal(Details)?Dialog.\\\\d+.participantNumber"
+      }
+    ]
+  },
+  {
+    "id": "dialog.goal.activity.navigate",
+    "description": "From a goal dialog, navigating to activity\u0027s link",
+    "process": "SRL.Planning.TaskAnalysis",
+    "patterns": [
+      {
+        "eventType": "NAVIGATE",
+        "context": "goal(Details)?Dialog.planUsed.goal.\\\\d+.activity.\\\\d+.(title|image|link)"
+      }
+    ]
+  },
+  {
+    "id": "dialog.competence",
+    "description": "Opening a competence dialog",
+    "process": "SRL.Planning.TaskAnalysis",
+    "patterns": [
+      {
+        "eventType": "SERVICEUSE",
+        "objectType": "COMPETENCE_DIALOG"
+      }
+    ]
+  },
+  {
+    "id": "dialog.competence.creator",
+    "description": "From a competence dialog, opening creator dialog",
+    "process": "SRL.Planning.TaskAnalysis",
+    "patterns": [
+      {
+        "eventType": "SERVICEUSE",
+        "objectType": "USER_DIALOG",
+        "context": "compDetailsDialog.targetComp.\\\\d+.creator.imageName"
+      }
+    ]
+  },
+  {
+    "id": "dialog.competence.creator.navigate",
+    "description": "From a competence dialog, navigating to creator profile",
+    "process": "SRL.Planning.TaskAnalysis",
+    "patterns": [
+      {
+        "eventType": "SERVICEUSE",
+        "objectType": "USER_DIALOG",
+        "context": "compDetailsDialog.targetComp.\\\\d+.creator.imageName"
+      },
+      {
+        "eventType": "NAVIGATE",
+        "context": "userDetails"
+      },
+      {
+        "eventType": "NAVIGATE",
+        "context": "userDetails"
+      }
+    ]
+  },
+  {
+    "id": "dialog.competence.description",
+    "description": "From a competence dialog, expanding/collapsing description",
+    "process": "SRL.Planning.TaskAnalysis",
+    "patterns": [
+      {
+        "eventType": "SERVICEUSE",
+        "objectType": "MOUSE_CLICK",
+        "context": "compDetailsDialog.targetComp.\\\\d+.description",
+        "link": "(less|more)"
+      }
+    ]
+  },
+  {
+    "id": "dialog.competence.activity.navigate",
+    "description": "From a competence dialog, navigating to activity\u0027s link",
+    "process": "SRL.Planning.TaskAnalysis",
+    "patterns": [
+      {
+        "eventType": "NAVIGATE",
+        "context": "compDetailsDialog.targetComp.\\\\d+.activity.\\\\d+.(title|image|link)"
+      }
+    ]
+  },
+  {
+    "id": "publicprofile.navigate",
+    "description": "Navigating to other student\u0027s profile page",
+    "process": "SRL.Planning.TaskAnalysis",
+    "patterns": [
+      {
+        "eventType": "NAVIGATE",
+        "objectType": "page",
+        "link": "(((public)?profile.xhtml\\\\?user\u003d\\\\d+)|(profile))"
+      }
+    ]
+  },
+  {
+    "id": "publicprofile.tab.learning",
+    "description": "Navigating to the Learning section of other student\u0027s profile",
+    "process": "SRL.Planning.TaskAnalysis",
+    "patterns": [
+      {
+        "eventType": "NAVIGATE",
+        "objectType": "tab",
+        "context": "(public)?profile.\\\\d+.navigation",
+        "link": "learning"
+      }
+    ]
+  },
+  {
+    "id": "publicprofile.tab.competences",
+    "description": "Navigating to the Competences section of other student\u0027s profile",
+    "process": "SRL.Planning.TaskAnalysis",
+    "patterns": [
+      {
+        "eventType": "NAVIGATE",
+        "objectType": "tab",
+        "context": "(public)?profile.\\\\d+.navigation",
+        "link": "competences"
+      }
+    ]
+  },
+  {
+    "id": "learn.search.competence",
+    "description": "Searching for a competence",
+    "process": "SRL.Planning.TaskAnalysis",
+    "patterns": [
+      {
+        "eventType": "SERVICEUSE",
+        "objectType": "SEARCH_COMPETENCES"
+      }
+    ]
+  },
+  {
+    "id": "globalsearch.goal",
+    "description": "Performing global search",
+    "process": "SRL.Planning.TaskAnalysis",
+    "patterns": [
+      {
+        "eventType": "SERVICEUSE",
+        "objectType": "GLOBAL_SEARCH"
+      }
+    ]
+  },
+  {
+    "id": "learn.goal.create",
+    "description": "Creating a new personal learning goal",
+    "process": "SRL.Planning.GoalSetting",
+    "patterns": [
+      {
+        "eventType": "Create",
+        "objectType": "TargetLearningGoal"
+      }
+    ]
+  },
+  {
+    "id": "course.enroll",
+    "description": "Enrolling a credential",
+    "process": "SRL.Planning.GoalSetting",
+    "patterns": [
+      {
+        "eventType": "ENROLL_COURSE",
+        "objectType": "CourseEnrollment"
+      }
+    ]
+  },
+  {
+    "id": "learn.goal.join",
+    "description": "Joining a learning goal from the learning goal dialog (when learning goal is to \u0027free to join\u0027)",
+    "process": "SRL.Planning.GoalSetting",
+    "patterns": [
+      {
+        "eventType": "JoinedGoal",
+        "objectType": "TargetLearningGoal"
+      }
+    ]
+  },
+  {
+    "id": "learn.goal.invite",
+    "description": "Inviting a peer to collaborate on a learning goal",
+    "process": "SRL.Planning.GoalSetting",
+    "patterns": [
+      {
+        "eventType": "JOIN_GOAL_INVITATION",
+        "objectType": "NodeRequest"
+      }
+    ]
+  },
+  {
+    "id": "learn.goal.invitation.accepted",
+    "description": "Accepting an invitation to join a learning goal",
+    "process": "SRL.Planning.GoalSetting",
+    "patterns": [
+      {
+        "eventType": "JOIN_GOAL_INVITATION_ACCEPTED",
+        "objectType": "NodeRequest"
+      }
+    ]
+  },
+  {
+    "id": "learn.goal.join.requested",
+    "description": "Sending a request to join an existing learning goal (when learning goal is set to \u0027ask to join\u0027)",
+    "process": "SRL.Planning.GoalSetting",
+    "patterns": [
+      {
+        "eventType": "JOIN_GOAL_REQUEST",
+        "objectType": "NodeRequest"
+      }
+    ]
+  },
+  {
+    "id": "learn.goal.join.approved",
+    "description": "Joining a learning goal after a request to join the learning goal has been accepted (when learning goal is set to \u0027ask to join\u0027)",
+    "process": "SRL.Planning.GoalSetting",
+    "patterns": [
+      {
+        "eventType": "JOIN_GOAL_REQUEST_APPROVED",
+        "objectType": "NodeRequest"
+      }
+    ]
+  },
+  {
+    "id": "learn.goal.invitation.ignored",
+    "description": "Ignoring an invitation to join a learning goal",
+    "process": "SRL.Planning.GoalSetting",
+    "patterns": [
+      {
+        "eventType": "JOIN_GOAL_REQUEST_IGNORED"
+      }
+    ]
+  },
+  {
+    "id": "learn.goal.edit",
+    "description": "Editing learning goal\u0027s properties (title, description, keywords, twitter hashtags, deadline, free to join/ask to join, progress activity dependent/progress activity independent)",
+    "process": "SRL.Planning.GoalSetting",
+    "patterns": [
+      {
+        "eventType": "Edit",
+        "objectType": "TargetLearningGoal",
+        "context": "learn"
+      }
+    ]
+  },
+  {
+    "id": "learn.goal.delete",
+    "description": "Deleting a personal learning goal",
+    "process": "SRL.Planning.GoalSetting",
+    "patterns": [
+      {
+        "eventType": "Detach",
+        "objectType": "TargetLearningGoal",
+        "context": "learn"
+      }
+    ]
+  },
+  {
+    "id": "course.withdraw",
+    "description": "Withdrawing a credential",
+    "process": "SRL.Planning.GoalSetting",
+    "patterns": [
+      {
+        "eventType": "COURSE_WITHDRAWN",
+        "objectType": "Course"
+      }
+    ]
+  },
+  {
+    "id": "learn.search.competence",
+    "description": "Searching for a competence",
+    "process": "SRL.Planning.MakingPlans",
+    "patterns": [
+      {
+        "eventType": "SERVICEUSE",
+        "objectType": "SEARCH_COMPETENCES"
+      }
+    ]
+  },
+  {
+    "id": "learn.competence.search.add",
+    "description": "Adding a competence to a learning goal",
+    "process": "SRL.Planning.MakingPlans",
+    "patterns": [
+      {
+        "eventType": "Attach",
+        "objectType": "TargetCompetence",
+        "targetType": "TargetLearningGoal"
+      }
+    ]
+  },
+  {
+    "id": "learn.competence.edit",
+    "description": "Editing competence details",
+    "process": "SRL.Planning.MakingPlans",
+    "patterns": [
+      {
+        "eventType": "Edit",
+        "objectType": "Competence"
+      }
+    ]
+  },
+  {
+    "id": "learn.competence.delete",
+    "description": "Removing a competence from a learning goal",
+    "process": "SRL.Planning.MakingPlans",
+    "patterns": [
+      {
+        "eventType": "Detach",
+        "objectType": "TargetCompetence",
+        "targetType": "TargetLearningGoal"
+      }
+    ]
+  },
+  {
+    "id": "search.activity",
+    "description": "Searching for an activity",
+    "process": "SRL.Planning.MakingPlans",
+    "patterns": [
+      {
+        "eventType": "SERVICEUSE",
+        "objectType": "SEARCH_ACTIVITIES"
+      }
+    ]
+  },
+  {
+    "id": "search.activity.add",
+    "description": "Adding an activity to a competence",
+    "process": "SRL.Planning.MakingPlans",
+    "patterns": [
+      {
+        "eventType": "Attach",
+        "objectType": "TargetActivity",
+        "targetType": "TargetCompetence"
+      }
+    ]
+  },
+  {
+    "id": "learn.activity.delete",
+    "description": "Removing an activity from a competence",
+    "process": "SRL.Planning.MakingPlans",
+    "patterns": [
+      {
+        "eventType": "Detach",
+        "objectType": "TargetActivity",
+        "targetType": "TargetCompetence"
+      }
+    ]
+  },
+  {
+    "id": "learn.competence.complete",
+    "description": "Marking a competence as completed",
+    "process": "SRL.Engagement.WorkingOnTheTask",
+    "patterns": [
+      {
+        "eventType": "Completion",
+        "objectType": "TargetCompetence"
+      }
+    ]
+  },
+  {
+    "id": "learn.competence.uncomplete",
+    "description": "Marking a competence as uncompleted",
+    "process": "SRL.Engagement.WorkingOnTheTask",
+    "patterns": [
+      {
+        "eventType": "NotCompleted",
+        "objectType": "TargetCompetence"
+      }
+    ]
+  },
+  {
+    "id": "learn.activity.complete",
+    "description": "Marking an activity as completed",
+    "process": "SRL.Engagement.WorkingOnTheTask",
+    "patterns": [
+      {
+        "eventType": "Completion",
+        "objectType": "TargetActivity"
+      }
+    ]
+  },
+  {
+    "id": "learn.activity.uncomplete",
+    "description": "Marking an activity as uncompleted",
+    "process": "SRL.Engagement.WorkingOnTheTask",
+    "patterns": [
+      {
+        "eventType": "NotCompleted",
+        "objectType": "TargetActivity"
+      }
+    ]
+  },
+  {
+    "id": "learn.activity.description.expandCollapse",
+    "description": "Examining activity\u0027s description",
+    "process": "SRL.Engagement.WorkingOnTheTask",
+    "patterns": [
+      {
+        "eventType": "SERVICEUSE",
+        "objectType": "MOUSE_CLICK",
+        "context": "learn.targetGoal.\\\\d+.targetComp.\\\\d+.targetActivity.\\\\d*",
+        "link": "(more|less)"
+      }
+    ]
+  },
+  {
+    "id": "learn.activity.link",
+    "description": "Navigating to activity\u0027s link",
+    "process": "SRL.Engagement.WorkingOnTheTask",
+    "patterns": [
+      {
+        "eventType": "NAVIGATE",
+        "objectType": "page",
+        "context": "learn.targetGoal.\\\\d+.targetComp.\\\\d+.targetActivity.\\\\d+.(title|image|link)"
+      }
+    ]
+  },
+  {
+    "id": "learn.activity.video.play",
+    "description": "Interacting with a Youtube video (video type of activity)",
+    "process": "SRL.Engagement.WorkingOnTheTask",
+    "patterns": [
+      {
+        "eventType": "SERVICEUSE",
+        "objectType": "VIDEO",
+        "context": "learn.targetGoal.\\\\d+.targetComp.\\\\d+.targetActivity.\\\\d+"
+      }
+    ]
+  },
+  {
+    "id": "learn.activity.assignment.upload",
+    "description": "Uploading a solution for upload-assignment type of activity",
+    "process": "SRL.Engagement.WorkingOnTheTask",
+    "patterns": [
+      {
+        "eventType": "FileUploaded",
+        "objectType": "RichContent"
+      }
+    ]
+  },
+  {
+    "id": "learn.activity.assignment.remove",
+    "description": "Removing a solution from upload-assignment type of activity",
+    "process": "SRL.Engagement.WorkingOnTheTask",
+    "patterns": [
+      {
+        "eventType": "AssignmentRemoved"
+      }
+    ]
+  },
+  {
+    "id": "learn.goal.edit",
+    "description": "Editing learning goal\u0027s properties (title, description, keywords, twitter hashtags, deadline, free to join/ask to join, progress activity dependent/progress activity independent)",
+    "process": "SRL.Engagement.WorkingOnTheTask",
+    "patterns": [
+      {
+        "eventType": "Edit",
+        "objectType": "TargetLearningGoal",
+        "context": "learn"
+      }
+    ]
+  },
+  {
+    "id": "learn.goal.visibilityChange",
+    "description": "Changing learning goal\u0027s visibility",
+    "process": "SRL.Engagement.WorkingOnTheTask",
+    "patterns": [
+      {
+        "eventType": "ChangeVisibility",
+        "objectType": "TargetLearningGoal"
+      }
+    ]
+  },
+  {
+    "id": "learn.search.competence",
+    "description": "Searching for a competence",
+    "process": "SRL.Engagement.ApplyingStrategyChanges",
+    "patterns": [
+      {
+        "eventType": "SERVICEUSE",
+        "objectType": "SEARCH_COMPETENCES"
+      }
+    ]
+  },
+  {
+    "id": "learn.competence.search.add",
+    "description": "Adding a competence to a learning goal",
+    "process": "SRL.Engagement.ApplyingStrategyChanges",
+    "patterns": [
+      {
+        "eventType": "Attach",
+        "objectType": "TargetCompetence",
+        "targetType": "TargetLearningGoal"
+      }
+    ]
+  },
+  {
+    "id": "learn.competence.edit",
+    "description": "Editing competence details",
+    "process": "SRL.Engagement.ApplyingStrategyChanges",
+    "patterns": [
+      {
+        "eventType": "Edit",
+        "objectType": "Competence"
+      }
+    ]
+  },
+  {
+    "id": "learn.competence.delete",
+    "description": "Removing a competence from a learning goal",
+    "process": "SRL.Engagement.ApplyingStrategyChanges",
+    "patterns": [
+      {
+        "eventType": "Detach",
+        "objectType": "TargetCompetence",
+        "targetType": "TargetLearningGoal"
+      }
+    ]
+  },
+  {
+    "id": "search.activity1",
+    "description": "Searching for an activity",
+    "process": "SRL.Engagement.ApplyingStrategyChanges",
+    "patterns": [
+      {
+        "eventType": "SERVICEUSE",
+        "objectType": "SEARCH_ACTIVITIES"
+      }
+    ]
+  },
+  {
+    "id": "search.activity.add",
+    "description": "Adding an activity to a competence",
+    "process": "SRL.Engagement.ApplyingStrategyChanges",
+    "patterns": [
+      {
+        "eventType": "Attach",
+        "objectType": "TargetActivity",
+        "targetType": "TargetCompetence"
+      }
+    ]
+  },
+  {
+    "id": "learn.activity.delete",
+    "description": "Removing an activity from a competence",
+    "process": "SRL.Engagement.ApplyingStrategyChanges",
+    "patterns": [
+      {
+        "eventType": "Detach",
+        "objectType": "TargetActivity",
+        "targetType": "TargetCompetence"
+      }
+    ]
+  },
+  {
+    "id": "learn.goal.invite1",
+    "description": "Inviting a peer to collaborate on a learning goal",
+    "process": "SRL.Engagement.ApplyingStrategyChanges",
+    "patterns": [
+      {
+        "eventType": "JOIN_GOAL_INVITATION",
+        "objectType": "NodeRequest"
+      }
+    ]
+  },
+  {
+    "id": "learn.goal.edit.hashtags",
+    "description": "Adding new hashtags to or updating existing hashtags of a learning goal or competence",
+    "process": "SRL.Engagement.ApplyingStrategyChanges",
+    "patterns": [
+      {
+        "eventType": "UPDATE_HASHTAGS",
+        "objectType": "(LearningGoal|Competence)"
+      }
+    ]
+  },
+  {
+    "id": "learn.goal.complete",
+    "description": "Marking a learning goal as completed",
+    "process": "SRL.Evaluation\u0026Reflection.Evaluation",
+    "patterns": [
+      {
+        "eventType": "Completion",
+        "objectType": "TargetLearningGoal"
+      }
+    ]
+  },
+  {
+    "id": "learn.goal.progressChange",
+    "description": "Manually changing learning goal\u0027s progress",
+    "process": "SRL.Evaluation\u0026Reflection.Evaluation",
+    "patterns": [
+      {
+        "eventType": "ChangeProgress",
+        "objectType": "TargetLearningGoal"
+      }
+    ]
+  },
+  {
+    "id": "learn.goal.archive",
+    "description": "Sending a learning goal to the Profile (archiving it)",
+    "process": "SRL.Evaluation\u0026Reflection.Evaluation",
+    "patterns": [
+      {
+        "eventType": "ARCHIVE_GOAL",
+        "objectType": "TargetLearningGoal"
+      }
+    ]
+  },
+  {
+    "id": "learn.competence.complete",
+    "description": "Marking a competence as completed",
+    "process": "SRL.Evaluation\u0026Reflection.Evaluation",
+    "patterns": [
+      {
+        "eventType": "Completion",
+        "objectType": "TargetCompetence"
+      }
+    ]
+  },
+  {
+    "id": "learn.activity.complete",
+    "description": "Marking an activity as completed",
+    "process": "SRL.Evaluation\u0026Reflection.Evaluation",
+    "patterns": [
+      {
+        "eventType": "Completion",
+        "objectType": "TargetActivity"
+      }
+    ]
+  },
+  {
+    "id": "learn.goal.edit.hashtags",
+    "description": "Adding new hashtags to or updating existing hashtags of a learning goal or competence",
+    "process": "SRL.Evaluation\u0026Reflection.Evaluation",
+    "patterns": [
+      {
+        "eventType": "UPDATE_HASHTAGS",
+        "objectType": "(LearningGoal|Competence)"
+      }
+    ]
+  },
+  {
+    "id": "learn.goal.edit.tags",
+    "description": "Adding new keywords to or updating existing keywords of a learning goal or competence",
+    "process": "SRL.Evaluation\u0026Reflection.Evaluation",
+    "patterns": [
+      {
+        "eventType": "UPDATE_TAGS",
+        "objectType": "(LearningGoal|Competence)"
+      }
+    ]
+  },
+  {
+    "id": "learn.goal.visibilityChange",
+    "description": "Changing learning goal\u0027s visibility",
+    "process": "SRL.Evaluation\u0026Reflection.Reflection",
+    "patterns": [
+      {
+        "eventType": "ChangeVisibility",
+        "objectType": "TargetLearningGoal"
+      }
+    ]
+  },
+  {
+    "id": "learn.activity.like",
+    "description": "Liking an activity",
+    "process": "SRL.Evaluation\u0026Reflection.Reflection",
+    "patterns": [
+      {
+        "eventType": "Like",
+        "objectType": "(TargetActivity|ResourceActivity)"
+      }
+    ]
+  },
+  {
+    "id": "learn.activity.removeLike",
+    "description": "Removing a like from an activity",
+    "process": "SRL.Evaluation\u0026Reflection.Reflection",
+    "patterns": [
+      {
+        "eventType": "RemoveLike",
+        "objectType": "(TargetActivity|ResourceActivity)"
+      }
+    ]
+  },
+  {
+    "id": "learn.activity.dislike",
+    "description": "Disliking an activity",
+    "process": "SRL.Evaluation\u0026Reflection.Reflection",
+    "patterns": [
+      {
+        "eventType": "Dislike",
+        "objectType": "(TargetActivity|ResourceActivity)"
+      }
+    ]
+  },
+  {
+    "id": "learn.activity.removeDislike",
+    "description": "Removing a dislike from an activity",
+    "process": "SRL.Evaluation\u0026Reflection.Reflection",
+    "patterns": [
+      {
+        "eventType": "RemoveDislike",
+        "objectType": "(TargetActivity|ResourceActivity)"
+      }
+    ]
+  },
+  {
+    "id": "learn.activity.comment",
+    "description": "Posting a comment to an activity",
+    "process": "SRL.Evaluation\u0026Reflection.Reflection",
+    "patterns": [
+      {
+        "eventType": "Comment",
+        "objectType": "NodeComment",
+        "targetType": "TargetActivity"
+      }
+    ]
+  },
+  {
+    "id": "learn.activity.comment.like",
+    "description": "Liking a comment",
+    "process": "SRL.Evaluation\u0026Reflection.Reflection",
+    "patterns": [
+      {
+        "eventType": "Like",
+        "objectType": "NodeComment",
+        "context": "learn.targetGoal.\\\\d+.targetComp.\\\\d+.targetActivity.\\\\d+.comment.\\\\d+"
+      }
+    ]
+  },
+  {
+    "id": "learn.activity.comment.removeLike",
+    "description": "Removing a like from a comment",
+    "process": "SRL.Evaluation\u0026Reflection.Reflection",
+    "patterns": [
+      {
+        "eventType": "RemoveLike",
+        "objectType": "NodeComment",
+        "context": "learn.targetGoal.\\\\d+.targetComp.\\\\d+.targetActivity.\\\\d+.comment.\\\\d+"
+      }
+    ]
+  },
+  {
+    "id": "learn.activity.postToStatusWall",
+    "description": "Posting an activity to the Status Wall",
+    "process": "SRL.Evaluation\u0026Reflection.Reflection",
+    "patterns": [
+      {
+        "eventType": "PostShare",
+        "objectType": "Post"
+      }
+    ]
+  },
+  {
+    "id": "dialog.people.likeOrDislikePeople",
+    "description": "Viewing the list of people who liked/disliked an activity/comment",
+    "process": "SRL.Evaluation\u0026Reflection.Reflection",
+    "patterns": [
+      {
+        "eventType": "SERVICEUSE",
+        "objectType": "PEOPLE_LIST_DIALOG",
+        "context": "learn.targetGoal.\\\\d+.targetComp.\\\\d+.targetActivity.\\\\d+(.comment.\\\\d+)?"
+      }
+    ]
+  },
+  {
+    "id": "profile.completed.goal.sendToLearn",
+    "description": "Sending goal to learning (from the Profile page)",
+    "process": "SRL.Evaluation\u0026Reflection.Reflection",
+    "patterns": [
+      {
+        "eventType": "SEND_TO_LEARN",
+        "objectType": "TargetLearningGoal"
+      }
+    ]
+  },
+  {
+    "id": "dialog.competence.likedislike",
+    "description": "From a competence dialog, like/remove like/dislike/remove dislike for a competence",
+    "process": "SRL.Evaluation\u0026Reflection.Reflection",
+    "patterns": [
+      {
+        "eventType": "(Like|RemoveLike|Dislike|RemoveDislike)",
+        "objectType": "(Target)?Competence"
+      }
+    ]
+  }
 ]

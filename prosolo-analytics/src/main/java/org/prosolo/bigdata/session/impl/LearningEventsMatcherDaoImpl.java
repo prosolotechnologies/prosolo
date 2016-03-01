@@ -59,6 +59,6 @@ public class LearningEventsMatcherDaoImpl implements EventMatcherDao<LogEvent> {
 		} catch (Exception e) {
 			logger.error("Failed to parse rules for matching learning events", e);
 		}
-	}
+	}			
 	
 }

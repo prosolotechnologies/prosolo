@@ -1,6 +1,7 @@
 package org.prosolo.bigdata.session.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -114,12 +115,12 @@ public class LearningEventMatcher implements EventMatcher<LogEvent> {
 
 	public static class EventPattern {
 		
-		private static final String EVENT_TYPE_KEY = "eventType";
-		private static final String OBJECT_TYPE_KEY = "objectType";
-		private static final String TARGET_TYPE_KEY = "tagetType";
-		private static final String LINK_KEY ="link";
-		private static final String CONTEXT_KEY = "context";
-		private static final String ACTION_KEY = "action";
+		public static final String EVENT_TYPE_KEY = "eventType";
+		public static final String OBJECT_TYPE_KEY = "objectType";
+		public static final String TARGET_TYPE_KEY = "targetType";
+		public static final String LINK_KEY ="link";
+		public static final String CONTEXT_KEY = "context";
+		public static final String ACTION_KEY = "action";
 		private Map<String,Pattern> patterns;
 		
 
@@ -155,11 +156,15 @@ public class LearningEventMatcher implements EventMatcher<LogEvent> {
 				}
 				case CONTEXT_KEY : {
 					if(event.getParameters() == null || event.getParameters().get("context") == null) return false;
-					else return e.getValue().matcher(event.getParameters().get("context").toString()).matches();
+					else {
+						return e.getValue().matcher(event.getParameters().get("context").getAsString()).matches();
+					}
 				}
 				case ACTION_KEY : {
 					if(event.getParameters() == null || event.getParameters().get("action") == null) return false;
-					else return e.getValue().matcher(event.getParameters().get("action").toString()).matches();
+					else {
+						return e.getValue().matcher(event.getParameters().get("action").getAsString()).matches();
+					}
 				}
 				default : return false;
 			}
@@ -177,6 +182,10 @@ public class LearningEventMatcher implements EventMatcher<LogEvent> {
 		@Override
 		public String toString() {
 			return "EventPattern [patterns=" + patterns + "]";
+		}
+		
+		public Map<String,Pattern> getRaw() {
+			return Collections.unmodifiableMap(patterns);
 		}
 		
 		

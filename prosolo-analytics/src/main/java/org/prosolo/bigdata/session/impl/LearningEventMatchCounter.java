@@ -22,7 +22,7 @@ public class LearningEventMatchCounter {
 		result = new LearningEventsMatchSummary(matcher.getId(), matcher.getDescription(), matcher.getProcess(), matcher.isMilestoneEvent());
 	}
 
-	public void processEvent(LogEvent event) {
+	public void processEvent(LogEvent event,final int eventYear, final int eventDayInYear) {
 		//get the matcher based on current state (if we had matches previously, 
 		//we will get next matcher, and so on)
 		boolean match = matcher.getPatternList().get(state).match(event); 
@@ -32,7 +32,7 @@ public class LearningEventMatchCounter {
 			if(state == numberOfStates) {
 				//last state reached, restart from beginning
 				state = 0;
-				result.hit();
+				result.hit(event,eventYear,eventDayInYear);
 			}
 		}
 		//no matter what state we had before, object given does not have properties required to
