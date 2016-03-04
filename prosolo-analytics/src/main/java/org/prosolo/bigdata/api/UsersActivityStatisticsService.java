@@ -97,7 +97,7 @@ public class UsersActivityStatisticsService {
 			return "+";
 		}
 		double percent = Math.round(1000.0 * ((double) current / previous - 1)) / 10.0;
-		return percent + "%";
+		return (percent < 0 ? "" : "+") + percent + "%";
 	}
 	
 	@GET
