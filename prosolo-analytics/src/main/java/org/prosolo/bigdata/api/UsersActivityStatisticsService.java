@@ -91,10 +91,10 @@ public class UsersActivityStatisticsService {
 			return "";
 		}
 		if (current == 0) {
-			return "-";
+			return "-" + previous;
 		}
 		if (previous == 0) {
-			return "+";
+			return "+" + current;
 		}
 		double percent = Math.round(1000.0 * ((double) current / previous - 1)) / 10.0;
 		return (percent < 0 ? "" : "+") + percent + "%";
