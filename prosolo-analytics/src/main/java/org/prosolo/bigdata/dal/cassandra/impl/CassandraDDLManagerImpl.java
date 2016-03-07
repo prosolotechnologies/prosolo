@@ -47,8 +47,9 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		String createEventsDDL = "CREATE TABLE IF NOT EXISTS logevents (id timeuuid,  topic varchar, eventtype varchar, timestamp bigint, "
 				+ "actorid bigint, actorfullname varchar, objecttype varchar, "
 				+ "objectid bigint, objecttitle varchar, targettype varchar, targetid bigint, "
-				+ "reasontype varchar, reasonid bigint, link varchar, parameters varchar,"
-				+ "PRIMARY KEY (actorid, objectid, timestamp));";
+				+ "reasontype varchar, reasonid bigint, link varchar, parameters varchar, learningcontext varchar, "
+				+ "PRIMARY KEY (actorid, timestamp));";
+
 		this.ddls.add(createEventsDDL);
 
 		String eventtypeindex = "CREATE INDEX IF NOT EXISTS eventtype_id ON logevents (eventtype);";
@@ -84,34 +85,34 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		String frequentCompetenceActivitiesDDL = "CREATE TABLE IF NOT EXISTS frequentcompetenceactivities(competenceid bigint, activities list<bigint>, PRIMARY KEY (competenceid))";
 		this.ddls.add(frequentCompetenceActivitiesDDL);
 		
- 		this.ddls.add("CREATE TABLE IF NOT EXISTS eventdailycount(event text, count counter, date bigint, PRIMARY KEY(event, date));");
-		this.ddls.add("CREATE TABLE IF NOT EXISTS usereventdailycount(user bigint, event text, count counter, date bigint, PRIMARY KEY(user, event, date));");
-		this.ddls.add("CREATE TABLE IF NOT EXISTS instanceloggeduserscount(instance text, timestamp bigint, count bigint, PRIMARY KEY(instance, timestamp));");
-		this.ddls.add("CREATE TABLE IF NOT EXISTS twitterhashtagdailycount(hashtag text, date bigint, count counter, PRIMARY KEY(hashtag, date));");
-		this.ddls.add("CREATE TABLE IF NOT EXISTS twitterhashtagweeklyaverage(day bigint, hashtag text, average double, PRIMARY KEY(day, hashtag));");
-		this.ddls.add("CREATE TABLE IF NOT EXISTS twitterhashtaguserscount(hashtag text, users counter, PRIMARY KEY(hashtag));");
-		this.ddls.add("CREATE TABLE IF NOT EXISTS disabledtwitterhashtags(hashtag text, PRIMARY KEY(hashtag));");
-		this.ddls.add("CREATE TABLE IF NOT EXISTS socialinteractionscount(course bigint, source bigint, target bigint, count counter, PRIMARY KEY(course, source, target));");
+ 		this.ddls.add("CREATE TABLE IF NOT EXISTS dash_eventdailycount(event text, count counter, date bigint, PRIMARY KEY(event, date));");
+		this.ddls.add("CREATE TABLE IF NOT EXISTS dash_usereventdailycount(user bigint, event text, count counter, date bigint, PRIMARY KEY(user, event, date));");
+		this.ddls.add("CREATE TABLE IF NOT EXISTS dash_instanceloggeduserscount(instance text, timestamp bigint, count bigint, PRIMARY KEY(instance, timestamp));");
+		this.ddls.add("CREATE TABLE IF NOT EXISTS twitter_hashtagdailycount(hashtag text, date bigint, count counter, PRIMARY KEY(hashtag, date));");
+		this.ddls.add("CREATE TABLE IF NOT EXISTS twitter_hashtagweeklyaverage(day bigint, hashtag text, average double, PRIMARY KEY(day, hashtag));");
+		this.ddls.add("CREATE TABLE IF NOT EXISTS twitter_hashtaguserscount(hashtag text, users counter, PRIMARY KEY(hashtag));");
+		this.ddls.add("CREATE TABLE IF NOT EXISTS twitter_disabledhashtags(hashtag text, PRIMARY KEY(hashtag));");
+		this.ddls.add("CREATE TABLE IF NOT EXISTS sna_socialinteractionscount(course bigint, source bigint, target bigint, count counter, PRIMARY KEY(course, source, target));");
 		
 		String failedFeedsDDL = "CREATE TABLE IF NOT EXISTS failedfeeds(url text, date bigint, count counter, PRIMARY KEY (url, date))";
 		this.ddls.add(failedFeedsDDL);
 		
 		String clusteringusersobservationsbydateDDL =
-				"CREATE TABLE IF NOT EXISTS clusteringusersobservationsbydate(date bigint, userid bigint, login counter, lmsuse counter, resourceview counter, discussionview counter, "
+				"CREATE TABLE IF NOT EXISTS sna_clusteringusersobservationsbydate(date bigint, userid bigint, login counter, lmsuse counter, resourceview counter, discussionview counter, "
 				+ " PRIMARY KEY (date, userid))";
 		this.ddls.add(clusteringusersobservationsbydateDDL);
 		
-		String userprofileactionsobservationsbydateDDL = "CREATE TABLE IF NOT EXISTS userprofileactionsobservationsbydate(date bigint,course bigint, userid bigint, attach counter,  "
+		String userprofileactionsobservationsbydateDDL = "CREATE TABLE IF NOT EXISTS profile_userprofileactionsobservationsbydate(date bigint,course bigint, userid bigint, attach counter,  "
 				+ "progress counter,  comment counter,  creating counter,  evaluation counter,join counter,like counter,login  counter,"
 				+ "posting counter,content_access counter,message counter,search counter, "
 				+ " PRIMARY KEY (date, course, userid))";
 		this.ddls.add(userprofileactionsobservationsbydateDDL);
 
-		String userquartilefeaturesbyprofileDDL="CREATE TABLE IF NOT EXISTS userquartilefeaturesbyprofile(course bigint, profile varchar, date bigint, userid bigint," +
+		String userquartilefeaturesbyprofileDDL="CREATE TABLE IF NOT EXISTS profile_userquartilefeaturesbyprofile(course bigint, profile varchar, date bigint, userid bigint," +
 				"sequence varchar, PRIMARY KEY(course, profile,date, userid))";
 		this.ddls.add(userquartilefeaturesbyprofileDDL);
 
-		String userquartilefeaturesbydateDDL="CREATE TABLE IF NOT EXISTS userquartilefeaturesbydate(course bigint, profile varchar, date bigint, userid bigint," +
+		String userquartilefeaturesbydateDDL="CREATE TABLE IF NOT EXISTS profile_userquartilefeaturesbydate(course bigint, profile varchar, date bigint, userid bigint," +
 				"sequence varchar, PRIMARY KEY(course, date, userid))";
 		this.ddls.add(userquartilefeaturesbydateDDL);
 
@@ -121,18 +122,25 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		//Session tracking
 		String sessionRecordDDL = "CREATE TABLE IF NOT EXISTS sessionrecord(userid bigint, sessionstart bigint, sessionend bigint, endreason varchar,  PRIMARY KEY ((userid),sessionstart)) WITH CLUSTERING ORDER BY (sessionstart DESC)";
 		this.ddls.add(sessionRecordDDL);
-
+		
+		//learning events counters and milestones
+		String learningEventsDDL = "CREATE TABLE IF NOT EXISTS learningevents(actorid bigint, year int, dayofyear int, number counter, PRIMARY KEY (actorid,year,dayofyear));";
+		this.ddls.add(learningEventsDDL);
+		
+		String learningMilestonesDDL = "CREATE TABLE IF NOT EXISTS learningmilestones(actorid bigint, year int, dayofyear int, milestones list<varchar>, PRIMARY KEY (actorid,year,dayofyear));";
+		this.ddls.add(learningMilestonesDDL);
+		
 		String currentTimestamps="CREATE TABLE IF NOT EXISTS currenttimestamps(tablename varchar, timestamp bigint, PRIMARY KEY(tablename))";
 		this.ddls.add(currentTimestamps);
 
-		String studentCluster="CREATE TABLE IF NOT EXISTS studentcluster(timestamp bigint, student bigint, cluster bigint, PRIMARY KEY(timestamp, student))";
+		String studentCluster="CREATE TABLE IF NOT EXISTS sna_studentcluster(timestamp bigint,  course bigint, student bigint, cluster bigint, PRIMARY KEY(timestamp, course, student))";
 		this.ddls.add(studentCluster);
 
-		String insideClusterUserInteractions="CREATE TABLE IF NOT EXISTS insideclustersinteractions(timestamp bigint, course bigint,  cluster bigint, student bigint, interactions list<varchar>, " +
+		String insideClusterUserInteractions="CREATE TABLE IF NOT EXISTS sna_insideclustersinteractions(timestamp bigint, course bigint,  cluster bigint, student bigint, interactions list<varchar>, " +
 				"PRIMARY KEY(timestamp, course, cluster,student))";
 		this.ddls.add(insideClusterUserInteractions);
 
-		String outsideClusterUserInteractions="CREATE TABLE IF NOT EXISTS outsideclustersinteractions(timestamp bigint, course bigint, student bigint, direction varchar,cluster bigint,  interactions list<varchar>, " +
+		String outsideClusterUserInteractions="CREATE TABLE IF NOT EXISTS sna_outsideclustersinteractions(timestamp bigint, course bigint, student bigint, direction varchar,cluster bigint,  interactions list<varchar>, " +
 				"PRIMARY KEY(timestamp, course, student,direction))";
 		this.ddls.add(outsideClusterUserInteractions);
 	}
@@ -140,8 +148,8 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 	@Override
 	public void createSchemaIfNotExists(Session session, String schemaName,
 			int replicationFactor) {
-		ResultSet rs = session.execute("select * FROM system.schema_keyspaces "
-				+ "WHERE keyspace_name = '" + schemaName + "';");
+		ResultSet rs = session.execute("SELECT * FROM system_schema.keyspaces " +
+				"WHERE keyspace_name = '"+ schemaName+"';");
 		Row row = rs.one();
 		if (row == null) {
 			session.execute("CREATE KEYSPACE  IF NOT EXISTS  " + schemaName

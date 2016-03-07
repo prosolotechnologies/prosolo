@@ -26,12 +26,12 @@ function hideHistory() {
 }
 
 function drawTreePath() {
-	$("#svgContainer").HTMLSVGconnect({
+	$('#svgContainer').HTMLSVGconnect({
 		strokeWidth: 5,
-		stroke: "#dddddd",
+		stroke: '#dddddd',
 		paths: [
-			{ start: "#credentials .selected", end: "#competences .selected"},
-			{ start: "#competences .selected", end: "#activitiesBlock .col-md-6"}
+			{ start: '#credentials .slick-slide.selected', end: '#competencesBlock .slick-slide.selected'},
+			{ start: '#competencesBlock .slick-slide.selected', end: '#activitiesBlock .col-md-6'}
         ]
 	});
 }
@@ -40,27 +40,73 @@ function drawTreePath() {
 function initCredentialsSlider() {
 	$('#credentials .slides').slick({
 		infinite : false,
-		slidesToShow : 3,
+		variableWidth: true,
+		slidesToShow : 4,
 		slidesToScroll : 2,
 		prevArrow: '#credentials .sliderIconLeft',
-		nextArrow: '#credentials .sliderIconRight'
+		nextArrow: '#credentials .sliderIconRight',
+		responsive: [
+		             {
+		            	 breakpoint: 1024,
+		            	 settings: {
+		            		 slidesToShow: 3,
+		            		 slidesToScroll: 2
+		            	 }
+		             },
+		             {
+		            	 breakpoint: 600,
+		            	 settings: {
+		            		 slidesToShow: 2,
+		            		 slidesToScroll: 1
+		            	 }
+		             },
+		             {
+		            	 breakpoint: 480,
+		            	 settings: {
+		            		 slidesToShow: 1,
+		            		 slidesToScroll: 1
+		            	 }
+		             }
+		     		]
+	}).on('afterChange', function(event, slick, currentSlide, nextSlide){
+		drawTreePath();
 	});
 }
 
 function initCompetenceSlider() {
-	$('#competences .slides').slick({
+	$('#competencesBlock .slides').slick({
 		infinite : false,
-		slidesToShow : 3,
+		variableWidth: true,
+		slidesToShow : 4,
 		slidesToScroll : 2,
-		prevArrow: '#competences .sliderIconLeft',
-		nextArrow: '#competences .sliderIconRight'
+		prevArrow: '#competencesBlock .sliderIconLeftCred',
+		nextArrow: '#competencesBlock .sliderIconRightCred',
+		responsive: [
+		             {
+		            	 breakpoint: 1024,
+		            	 settings: {
+		            		 slidesToShow: 3,
+		            		 slidesToScroll: 2
+		            	 }
+		             },
+		             {
+		            	 breakpoint: 600,
+		            	 settings: {
+		            		 slidesToShow: 2,
+		            		 slidesToScroll: 1
+		            	 }
+		             },
+		             {
+		            	 breakpoint: 480,
+		            	 settings: {
+		            		 slidesToShow: 1,
+		            		 slidesToScroll: 1
+		            	 }
+		             }
+		]
+	}).on('afterChange', function(event, slick, currentSlide, nextSlide){
+		drawTreePath();
 	});
-}
-
-function initProgressionTabScripts() {
-	initCredentialsSlider();
-	initCompetenceSlider();
-	drawTreePath();
 }
 
 function showObservationPanel() {
@@ -72,7 +118,7 @@ function hideObservationPanel() {
 }
 
 $(function() {
-	initProgressionTabScripts();
+	drawTreePath();
 	
 	$("#activitiesBlock .panel.panel-default").on("mouseover", function(e) {
 		var id = $(this).find('input[type="hidden"]').val();

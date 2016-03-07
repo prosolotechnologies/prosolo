@@ -30,8 +30,8 @@
 					<ui:repeat value="#{coursePortfolioBean.activeCourses}" var="courseData" varStatus="iterator">
 						<div class="course">
 							<h:link class="title" outcome="/course" 
-								onclick="sendLogPageNavigationWithParameters('credentials', { context: 'index.activeCourses', courseId: #{courseData.course.id}});">
-								<f:param name="id" value="#{util:encodeId(courseData.course.id)}" />
+								onclick="sendLogPageNavigationWithParameters('credentials', { context: 'index.activeCourses', courseId: #{courseData.id}});">
+								<f:param name="id" value="#{util:encodeId(courseData.id)}" />
 								#{courseData.title} <span class="bold nobreak">(#{courseData.progress} %)</span>
 							</h:link>
 	

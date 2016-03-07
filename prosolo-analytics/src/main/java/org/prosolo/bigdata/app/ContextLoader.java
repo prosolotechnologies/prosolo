@@ -58,7 +58,6 @@ public class ContextLoader implements ServletContextListener {
 			System.out.println("INITIALIZED TWITTER STREAMING");
 		
 			TwitterHashtagsStreamsManager$ twitterManager = TwitterHashtagsStreamsManager$.MODULE$;
-
 			twitterManager.initialize();
 			TwitterUsersStreamsManager$  twitterUsersManager=TwitterUsersStreamsManager$.MODULE$;
 			twitterUsersManager.initialize();

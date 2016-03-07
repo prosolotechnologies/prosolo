@@ -2,23 +2,28 @@ package org.prosolo.services.nodes;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.Activity;
+import org.prosolo.common.domainmodel.activities.CompetenceActivity;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
+import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.nodes.data.activity.ActivityData;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.web.activitywall.data.ActivityWallData;
-import org.prosolo.web.activitywall.data.AttachmentPreview;
 import org.prosolo.web.competences.data.ActivityType;
 
 public interface CompetenceManager extends AbstractManager {
@@ -78,4 +83,22 @@ public interface CompetenceManager extends AbstractManager {
 	
 	public void updateCompetenceProgress(long compId, int progress) throws DbConnectionException;
 
+	Competence updateCompetence(long id, String title, String description, int duration, int validity, boolean published,
+			HashSet<Tag> tags) throws DbConnectionException;
+
+	List<ActivityData> getCompetenceActivities(long compId) throws DbConnectionException;
+	
+	String getCompetenceTitle(long compId) throws DbConnectionException;
+	
+	CompetenceActivity saveCompetenceActivity(long compId, ActivityData activityData,
+			LearningContextData context) throws DbConnectionException;
+
+	Competence createNewUntitledCompetence(User user, CreatorType manager);
+	
+	void deleteCompetenceActivity(ActivityData activityData,
+			List<ActivityData> changedActivities, User user, 
+			LearningContextData context) throws DbConnectionException;
+	
+	void updateOrderOfCompetenceActivities(List<ActivityData> activities) throws DbConnectionException;
+	
 }

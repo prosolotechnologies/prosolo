@@ -151,6 +151,7 @@ public class EventFactory {
 	
 	@Transactional(readOnly = false)
 	public Event generateEvent(EventType eventType, User actor, BaseEntity object, Map<String, String> parameters) throws EventException {
+		System.out.println("PARAMETERS SIZE:"+parameters.size());
 		return generateEvent(eventType, actor, object, null, null, null, parameters);
 	}
 

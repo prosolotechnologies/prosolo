@@ -26,6 +26,8 @@
 		<composite:attribute name="predefinedCompetences" />
 		<composite:attribute name="cancelLinkPath" />
 		<composite:attribute name="context" />
+		<composite:attribute name="learningContext" default=""/>
+		<composite:attribute name="service" default="" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -112,6 +114,8 @@
 						 		:#{cc.clientId}:newCourseForm:addedCompetencesContainer 
 						 		:#{cc.clientId}:newCourseForm:actions">
 						 	<f:param name="context" value="#{cc.attrs.context}" />
+						 	<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+						 	<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
 						 </p:commandLink>
 				 		
 				 		<p:commandLink value="#{msg['composite.course.action.enrollInCourse.button.enroll']}"
@@ -119,8 +123,9 @@
 							styleClass="button green size40 left marginBottom10"
 							onclick='$("#activateCourseFormModalDialog").dialog("open");'
 							action="#{activateCourseDialog.initialize(cc.attrs.courseBean.course, cc.attrs.context)}"
-							update=":#{cc.clientId}:activateCourse:activateCourseForm"
-						/>
+							update=":#{cc.clientId}:activateCourse:activateCourseForm">
+							<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
+						</p:commandLink>
 				 		
 				 		<h:panelGroup layout="block"
 				 			rendered="#{!coursePortfolioBean.futureCourses.contains(cc.attrs.courseBean.course)}"
@@ -210,9 +215,9 @@
 							styleClass="bold"
 							onclick='$("#removeCourseFormModalDialog").dialog("open");'
 							action="#{deleteGoalCourseDialog.initialize(cc.attrs.courseBean.course, cc.attrs.context)}"
-							update=":#{cc.clientId}:removeCourse:removeCourseForm"
-						/>
-						
+							update=":#{cc.clientId}:removeCourse:removeCourseForm">
+							<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
+						</p:commandLink>
 						at any point if you decide to.
 					</h:panelGroup>
 				</h:panelGroup>
@@ -229,7 +234,7 @@
 			    			rendered="#{param['id'] != null}"
 								class="button size25 blue left"
 								value="Manage external tools">
-								<f:param  name="cred" value="#{cc.attrs.courseBean.id}" />
+								<f:param  name="credId" value="#{cc.attrs.courseBean.id}" />
 							</h:link>
 						</p>
 				</div>

@@ -28,6 +28,7 @@
 	    <render-kit-factory>org.omnifaces.renderkit.Html5RenderKitFactory</render-kit-factory>
 	</factory>
 	
+	<!--  
 	<render-kit>
 		<renderer>
 			<component-family>org.primefaces.component</component-family>
@@ -35,7 +36,14 @@
 	        <renderer-class>org.prosolo.core.jsf.renderers.FileUploadRenderer</renderer-class>
 		</renderer>
 	</render-kit>
-
+	-->
+	<render-kit>
+		<renderer>
+			<component-family>org.primefaces.component</component-family>
+	        <renderer-type>org.primefaces.component.FileUploadRenderer</renderer-type>
+	        <renderer-class>org.prosolo.core.jsf.renderers.CustomFileUploadRenderer</renderer-class>
+		</renderer>
+	</render-kit>
 	<converter>
 		<converter-for-class>java.lang.Enum</converter-for-class>
 		<converter-class>javax.faces.convert.EnumConverter</converter-class>

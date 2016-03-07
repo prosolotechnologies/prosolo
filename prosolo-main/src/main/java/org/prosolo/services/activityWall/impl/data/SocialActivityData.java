@@ -26,12 +26,12 @@ import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.activitywall.data.PublishingServiceData;
 import org.prosolo.common.web.activitywall.data.UserData;
-import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.services.activityWall.impl.util.SocialActivityConverterUtil;
-import org.prosolo.web.activitywall.data.AttachmentPreview;
-import org.prosolo.web.activitywall.data.NodeData;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.NodeData;
 import org.prosolo.web.activitywall.data.SocialActivityCommentData;
 import org.prosolo.web.activitywall.data.UserDataFactory;
+import org.prosolo.web.util.AvatarUtils;
 
 /**
  * @author Nikola Milikic
@@ -308,10 +308,14 @@ public class SocialActivityData implements Serializable {
 			
 			TwitterPostSocialActivity twitterPostSocialActivity = (TwitterPostSocialActivity) socialActivity;
 			this.anonUser = true;
+			if(this.actor!=null){
+				this.actor.setAvatarUrl(twitterPostSocialActivity.getAvatarUrl());
+				this.actor.setProfileUrl(twitterPostSocialActivity.getProfileUrl());
+				this.actor.setName(twitterPostSocialActivity.getName());
+			}else{
+				System.out.println("Actor is null here...");
+			}
 
-			this.actor.setAvatarUrl(twitterPostSocialActivity.getAvatarUrl());
-			this.actor.setProfileUrl(twitterPostSocialActivity.getProfileUrl());
-			this.actor.setName(twitterPostSocialActivity.getName());
 			
 			this.publishingService = new PublishingServiceData(
 					ServiceType.TWITTER, 

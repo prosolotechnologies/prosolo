@@ -1,11 +1,10 @@
 package org.prosolo.bigdata.dal.cassandra;
 
-import java.util.Collection;
 import java.util.List;
 
-import com.datastax.driver.core.Row;
-import org.prosolo.bigdata.common.dal.pojo.SocialIneractionsCount;
+import org.prosolo.bigdata.common.dal.pojo.OuterInteractionsCount;
 import org.prosolo.bigdata.common.dal.pojo.SocialInteractionCount;
+import org.prosolo.bigdata.common.dal.pojo.SocialInteractionsCount;
 import org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl;
 
 import com.datastax.driver.core.Row;
@@ -25,9 +24,13 @@ public interface SocialInteractionStatisticsDBManager {
 
 	void insertOutsideClusterInteractions(Long timestamp, Long course,  Long student,Long cluster, String direction,
 										 List<String> interactions);
+	
+	Long findStudentCluster(Long course, Long student);
 
-	List<SocialIneractionsCount> getClusterInteractions(Long course);
+	void insertStudentCluster(Long timestamp, Long course, Long student, Long cluster);
 
-	List<SocialIneractionsCount> getOuterInteractions(Long course, Long student);
+	List<SocialInteractionsCount> getClusterInteractions(Long course, Long student);
+
+	List<OuterInteractionsCount> getOuterInteractions(Long course, Long student);
 
 }

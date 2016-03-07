@@ -21,7 +21,8 @@ import twitter4j.StatusListener;
  * @author Zoran Jeremic 2013-08-11
  *
  */
-@Service("org.prosolo.services.twitter.TwitterStatusListener")
+//@Service("org.prosolo.services.twitter.TwitterStatusListener")
+	@Deprecated
 public class TwitterStatusListenerImpl implements StatusListener, TwitterStatusListener {
 
 	private static Logger logger = Logger.getLogger(TwitterHashtagsStatusConsumer.class);

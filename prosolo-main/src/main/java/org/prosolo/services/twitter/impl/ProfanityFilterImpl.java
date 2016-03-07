@@ -18,7 +18,8 @@ import org.springframework.stereotype.Service;
  * @author Zoran Jeremic Sep 17, 2014
  *
  */
-@Service("org.prosolo.services.twitter.ProfanityFilter")
+//@Service("org.prosolo.services.twitter.ProfanityFilter")
+	@Deprecated
 public class ProfanityFilterImpl implements ProfanityFilter {
 
 	private static Logger logger = Logger.getLogger(ProfanityFilter.class);

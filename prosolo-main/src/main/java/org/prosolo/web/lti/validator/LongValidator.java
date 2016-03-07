@@ -1,7 +1,8 @@
 package org.prosolo.web.lti.validator;
 
+import org.prosolo.web.validator.Validator;
 
-public class LongValidator extends Validator{
+public class LongValidator extends Validator {
     public LongValidator(Validator v){
         super(v);
     }

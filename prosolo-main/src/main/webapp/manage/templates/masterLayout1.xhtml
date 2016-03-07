@@ -129,29 +129,25 @@
 		            	</li>
 		         	</h:panelGroup>
 		         </ul><!-- selection switch end-->      
-		               
 		      </div>
-		
+		      
 		      <!-- main menu (left mobile menu) start -->
 		      <div class="collapse navbar-collapse pull-left" id="mainMenu">
 		         <ul class="nav navbar-nav mainMenu">
-		         	<li class="#{(util:getPagePath(view.viewId)  == 'competences' or 
-									util:getPagePath(view.viewId)  == 'competence') ? 'selected' : ''}">
+		         	<li class="#{util:matchPageURLRegex('/manage/competences(.*?)') ? 'active' : ''}">
 						<h:link rendered="#{loggeduser.hasCapability('competences.view')}"
 								onclick="sendLogPageNavigation('/manage/competences','mainmenu');"
 								value="Competences"
 								outcome="/manage/competences" />
 					</li>
 		       
-		            <li class="#{(util:getPagePath(view.viewId)  == 'courses' or 
-									util:getPagePath(view.viewId)  == 'course')? 'selected' : ''}">
+		            <li class="#{util:matchPageURLRegex('/manage/credentials(.*?)') ? 'active' : ''}">
 						<h:link rendered="#{loggeduser.hasCapability('basic.manager.access')}"
 								onclick="sendLogPageNavigation('/manage/courses','mainmenu');"
 								value="#{msg['manager.mainmenu.courses']}"
 								outcome="/manage/courses" />
 					</li>
-		            <li class="#{(util:getPagePath(view.viewId)  == 'reports' or 
-									util:getPagePath(view.viewId)  == 'reports')? 'selected' : ''}">
+		            <li class="#{util:matchPageURLRegex('/manage/reports') ? 'active' : ''}">
 						<h:link rendered="#{loggeduser.hasCapability('reports.view')}"
 								onclick="sendLogPageNavigation('/manage/reports','mainmenu');"
 								value="Reports"
@@ -161,7 +157,7 @@
 		      </div> <!-- main menu (left mobile menu) end -->
 		    
 		    <ul class="nav navbar-nav userActions pull-right">
-		         <ui:include src="/resources/components/topmenu1/search.xhtml"></ui:include>
+		         <ui:include src="/resources/components/manage/topmenu1/search.xhtml"></ui:include>
 		         <ui:include src="/resources/components/topmenu1/inbox.xhtml"></ui:include>
 		         <ui:include src="/resources/components/topmenu1/notifications.xhtml"></ui:include>
 		         <!-- <li><a href="#" class="faded"><i class="fa fa-envelope-o fa-lg"></i></a></li> -->
@@ -242,6 +238,9 @@
 	<ui:include	src="/resources/components/dialogs/peopleListDialog.xhtml" />
 	<ui:include	src="/resources/components/dialogs/joinGoalDialog.xhtml" />
 	
+	<ui:include src="/resources/components/dialogs/compDetailsDialog.xhtml" />
+	<ui:include	src="/resources/components/dialogs/newPostDialog.xhtml" />
+	
 	<footer>
 			<ul>
 				<li><a href="" onclick="sendLogPageNavigation('about', 'footer');">About</a>
@@ -252,7 +251,7 @@
 					<a href="">Support</a>
 				</li>
 				<li>
-					ProSolo Technologies Inc © 2015
+					ProSolo Technologies Inc © 2016
 				</li>
 			</ul>
 	</footer>

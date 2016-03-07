@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.apache.log4j.Logger;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.context.util.CustomContextNameDeserializer;
 import org.prosolo.services.event.context.Context;
@@ -21,6 +22,8 @@ import com.google.gson.GsonBuilder;
 @org.springframework.stereotype.Service("org.prosolo.services.context.ContextJsonParserService")
 public class ContextJsonParserServiceImpl implements ContextJsonParserService {
 
+	private static Logger logger = Logger.getLogger(ContextJsonParserServiceImpl.class);
+	
 	@Inject private ApplicationPagesBean applicationPagesBean;
 	
 	@Override
@@ -28,7 +31,7 @@ public class ContextJsonParserServiceImpl implements ContextJsonParserService {
 		try {
 			LearningContext lContext = new LearningContext();
 			
-			ApplicationPage appPage = applicationPagesBean.getPageForURI(page);
+			ApplicationPage appPage = page != null ? applicationPagesBean.getPageForURI(page) : null;
 			
 			GsonBuilder builder = new GsonBuilder();
 			builder.registerTypeAdapter(ContextName.class, new CustomContextNameDeserializer());	
@@ -62,6 +65,8 @@ public class ContextJsonParserServiceImpl implements ContextJsonParserService {
 			return lContext;
 			
 		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
 			return null;
 		}
 	}
@@ -181,7 +186,7 @@ public class ContextJsonParserServiceImpl implements ContextJsonParserService {
 	}
 
 	private String addNestedDoc(String base, String subdoc, String type) {
-		if(base != null) {
+		if(base != null && !base.isEmpty()) {
 			subdoc = type + ":/" + subdoc + "/|";
 			int index = base.lastIndexOf(type + ":/");
 			if(index != -1) {

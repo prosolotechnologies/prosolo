@@ -35,6 +35,8 @@
 		<composite:attribute name="handleFileUpload"
 			method-signature="void handleFileUpload(org.primefaces.event.FileUploadEvent)"
 		/>
+		<composite:attribute name="page" />
+		<composite:attribute name="learningContext" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -131,15 +133,19 @@
 						actionListener="#{cc.attrs.setNewPostData}"
 						action="#{cc.attrs.createPostAction}" 
 						oncomplete="$('#{cc.attrs.refreshCommand}').trigger('click'); #{cc.attrs.afterCreatePostCallback};"
-						update="newPostGrowl #{cc.attrs.regionToRefresh}"
-					/>
+						update="newPostGrowl #{cc.attrs.regionToRefresh}">
+						<f:param name="page" value="#{cc.attrs.page}" />
+						<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
+					</p:commandLink>
 					<p:commandLink rendered="#{!cc.attrs.hideActions and empty cc.getValueExpression('setNewPostData')}"
 						styleClass="postButton button green size25" 
 						value="#{cc.attrs.actionButtonName}"
 						action="#{cc.attrs.createPostAction}" 
 						oncomplete="$('#{cc.attrs.refreshCommand}').trigger('click'); #{cc.attrs.afterCreatePostCallback};"
-						update="newPostGrowl #{cc.attrs.regionToRefresh}"
-					/>
+						update="newPostGrowl #{cc.attrs.regionToRefresh}">
+						<f:param name="page" value="#{cc.attrs.page}" />
+						<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
+					</p:commandLink>
 				
 					<utilcomp:visibility id="postVisibility"
 						visibility="#{cc.attrs.visibilityFixed != null ? cc.attrs.visibilityFixed : cc.attrs.content.visibility}"

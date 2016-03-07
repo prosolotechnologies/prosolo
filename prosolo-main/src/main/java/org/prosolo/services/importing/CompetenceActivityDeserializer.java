@@ -6,8 +6,6 @@ import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.CompetenceActivity;
 import org.prosolo.common.domainmodel.activities.ResourceActivity;
 import org.prosolo.common.domainmodel.activities.UploadAssignmentActivity;
-import org.prosolo.core.spring.ServiceLocator;
-import org.prosolo.services.nodes.DefaultManager;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -38,8 +36,9 @@ public class CompetenceActivityDeserializer  implements JsonDeserializer<Compete
 			}else if(dType.equals("ResourceActivity")){
 				 activity=context.deserialize(jsonObject.get("activity"), ResourceActivity.class);
 			}
-			 compActivity = new CompetenceActivity(activityPosition, activity);
-			compActivity = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(compActivity);
+			//commented out because of change of relationship between Competence and CompetenceActivity
+			//compActivity = new CompetenceActivity(activityPosition, activity);
+			//compActivity = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(compActivity);
 		}
 		return compActivity;
 	}

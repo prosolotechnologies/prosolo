@@ -18,11 +18,13 @@
 		<h2 class="indexTripStep18">Learning Progress</h2>
 		
 		<h:panelGroup layout="block" id="learningProgressContainer" class="learningProgressContainer">
+			<ui:remove>
 			<h4 class="title">
 				Ongoing Learning
 				<h:panelGroup rendered="#{not empty learninggoals.ongoingGoals}" class="date">Last Action</h:panelGroup>
 				<h:panelGroup rendered="#{not empty learninggoals.ongoingGoals}" class="progressBar">Progress</h:panelGroup>
 			</h4>
+			</ui:remove>
 			
 			<div class="resourceProgress goalsProgress last">
 				<div class="donut">

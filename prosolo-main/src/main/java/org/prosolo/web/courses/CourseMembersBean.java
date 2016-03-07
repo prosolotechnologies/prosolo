@@ -76,6 +76,8 @@ public class CourseMembersBean implements Serializable {
 	private long personalizedForUserId = -1;
 	
 	private String context;
+	
+	private String courseTitle;
 
 	public void init() {
 		decodedId = idEncoder.decodeId(id);
@@ -85,6 +87,9 @@ public class CourseMembersBean implements Serializable {
 				boolean showAll = loggedUserBean.hasCapability("COURSE.MEMBERS.VIEW");
 				if(!showAll) {
 					personalizedForUserId = loggedUserBean.getUser().getId();
+				}
+				if(courseTitle == null) {
+					courseTitle = courseManager.getCourseTitle(decodedId);
 				}
 				searchCourseMembers();
 				// List<Map<String, Object>> result =
@@ -408,6 +413,14 @@ public class CourseMembersBean implements Serializable {
 
 	public void setDecodedId(long decodedId) {
 		this.decodedId = decodedId;
+	}
+
+	public String getCourseTitle() {
+		return courseTitle;
+	}
+
+	public void setCourseTitle(String courseTitle) {
+		this.courseTitle = courseTitle;
 	}
 	
 }

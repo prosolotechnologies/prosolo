@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -15,18 +16,15 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
-import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.course.Course;
-import org.prosolo.common.domainmodel.course.CourseCompetence;
-import org.prosolo.common.domainmodel.course.CreatorType;
 
 /**
  * @author "Nikola Milikic"
@@ -53,6 +51,8 @@ public class Course extends BaseEntity {
 
 	private boolean manuallyAssignStudentsToInstructors;
 	private int defaultNumberOfStudentsPerInstructor;
+	
+	private boolean competenceOrderMandatory;
 	
 	public Course() {
 		competences = new ArrayList<CourseCompetence>();
@@ -91,8 +91,7 @@ public class Course extends BaseEntity {
 		this.hashtags = hashtags;
 	}
 
-	@ManyToMany
-	@Cascade({org.hibernate.annotations.CascadeType.SAVE_UPDATE, org.hibernate.annotations.CascadeType.MERGE})
+	@OneToMany(mappedBy="course", cascade = CascadeType.ALL, orphanRemoval = true)
 	public List<CourseCompetence> getCompetences() {
 		return competences;
 	}
@@ -191,6 +190,14 @@ public class Course extends BaseEntity {
 
 	public void setDefaultNumberOfStudentsPerInstructor(int defaultNumberOfStudentsPerInstructor) {
 		this.defaultNumberOfStudentsPerInstructor = defaultNumberOfStudentsPerInstructor;
+	}
+
+	public boolean isCompetenceOrderMandatory() {
+		return competenceOrderMandatory;
+	}
+
+	public void setCompetenceOrderMandatory(boolean competenceOrderMandatory) {
+		this.competenceOrderMandatory = competenceOrderMandatory;
 	}
 
 	@Override

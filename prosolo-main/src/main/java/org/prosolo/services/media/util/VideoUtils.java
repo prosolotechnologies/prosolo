@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
-import org.prosolo.web.activitywall.data.AttachmentPreview;
-import org.prosolo.web.activitywall.data.MediaType;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaType;
 
 /**
  * @author Zoran Jeremic 2013-09-30

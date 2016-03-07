@@ -17,6 +17,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.google.gson.Gson;
 import org.prosolo.bigdata.common.dal.pojo.SocialInteractionCount;
 import org.prosolo.bigdata.dal.cassandra.SocialInteractionStatisticsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl;
@@ -113,7 +114,7 @@ public class SocialInteractionStatisticsService {
 			student.put("course", course);
 			student.put("cluster", cluster);
 			student.put("student", studentId);
-			student.put("direction", generator.nextInt(2) == 0 ? "source" : "target");
+			student.put("direction", generator.nextInt(2) == 0 ? "SOURCE" : "TARGET");
 			student.put("name", Integer.toString(generator.nextInt(50)));
 			student.put("avatar", Integer.toString(generator.nextInt(50)));
 			List<Map<String, String>> interactions = new ArrayList<Map<String, String>>();
@@ -181,7 +182,7 @@ public class SocialInteractionStatisticsService {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getClusterInteractions(@QueryParam("courseId") Long courseId, @QueryParam("studentId") Long studentId) {
 		logger.debug("Service 'getClusterInteractions' called.");
-		return ResponseUtils.corsOk(dbManager.getClusterInteractions(courseId));
+		return ResponseUtils.corsOk(dbManager.getClusterInteractions(courseId, studentId));
 		// return ResponseUtils.corsOk(randomClusterInteractions(courseId, studentId));
 	}
 

@@ -41,14 +41,14 @@ implements Serializable, UserObservationsDBManager{
 
 	private void prepareStatements() {
 	 
-		String updateClusteringusersobservationsbydate = "UPDATE clusteringusersobservationsbydate  SET login=login+?,lmsuse=lmsuse+?, resourceview=resourceview+?, discussionview=discussionview+? WHERE date=? AND userid=?;";
+		String updateClusteringusersobservationsbydate = "UPDATE sna_clusteringusersobservationsbydate  SET login=login+?,lmsuse=lmsuse+?, resourceview=resourceview+?, discussionview=discussionview+? WHERE date=? AND userid=?;";
 		this.queries.put("updateClusteringusersobservationsbydate", updateClusteringusersobservationsbydate);
 		
-		String findClusteringusersobservationsbydate = "SELECT date, userid, discussionview, lmsuse, resourceview FROM clusteringusersobservationsbydate WHERE date=?;";
+		String findClusteringusersobservationsbydate = "SELECT date, userid, discussionview, lmsuse, resourceview FROM sna_clusteringusersobservationsbydate WHERE date=?;";
 		this.queries.put("findClusteringusersobservationsbydate", findClusteringusersobservationsbydate);
 		
 		
-		String updateUserprofileactionsobservationsbydate = "UPDATE userprofileactionsobservationsbydate  "
+		String updateUserprofileactionsobservationsbydate = "UPDATE profile_userprofileactionsobservationsbydate  "
 				+ "SET attach=attach+?,progress=progress+?, comment=comment+?, creating=creating+?,"
 				+ "evaluation=evaluation+?, join=join+?,like=like+?, login=login+?,"
 				+ "posting=posting+?, content_access=content_access+?, message=message+?, search=search+? "
@@ -58,32 +58,32 @@ implements Serializable, UserObservationsDBManager{
 		String findUserprofileactionsobservationsbydate = "SELECT date,  userid, "
 				+ "attach,  progress,  comment,  creating,  evaluation,join,like,"
 				+ "login ,posting,content_access,message,search "
-				+ "FROM userprofileactionsobservationsbydate "
+				+ "FROM profile_userprofileactionsobservationsbydate "
 				+ "WHERE date=? and course=?;";
 		this.queries.put("findUserprofileactionsobservationsbydate", findUserprofileactionsobservationsbydate);
 
-		String insertUserquartilefeaturesbyprofile  = "INSERT INTO userquartilefeaturesbyprofile(course,  profile,date, userid, sequence) VALUES (?, ?, ?,?,?);";
+		String insertUserquartilefeaturesbyprofile  = "INSERT INTO profile_userquartilefeaturesbyprofile(course,  profile,date, userid, sequence) VALUES (?, ?, ?,?,?);";
 		this.queries.put("insertUserquartilefeaturesbyprofile",
 				insertUserquartilefeaturesbyprofile);
 
-		String insertUserquartilefeaturesbydate  = "INSERT INTO userquartilefeaturesbydate(course,  date, userid,profile, sequence) VALUES (?, ?, ?,?,?);";
+		String insertUserquartilefeaturesbydate  = "INSERT INTO profile_userquartilefeaturesbydate(course,  date, userid,profile, sequence) VALUES (?, ?, ?,?,?);";
 		this.queries.put("insertUserquartilefeaturesbydate",
 				insertUserquartilefeaturesbydate);
 
-		String findUserquartilefeaturesbycourse = "SELECT * FROM userquartilefeaturesbyprofile WHERE course=? ALLOW FILTERING;";
+		String findUserquartilefeaturesbycourse = "SELECT * FROM profile_userquartilefeaturesbyprofile WHERE course=? ALLOW FILTERING;";
 		this.queries.put("findUserquartilefeaturesbycourse",
 				findUserquartilefeaturesbycourse);
 
-		String findUserquartilefeaturesbyprofileAndDate = "SELECT * FROM userquartilefeaturesbyprofile WHERE course=? and profile=? and date=? ALLOW FILTERING;";
+		String findUserquartilefeaturesbyprofileAndDate = "SELECT * FROM profile_userquartilefeaturesbyprofile WHERE course=? and profile=? and date=? ALLOW FILTERING;";
 		this.queries.put("findUserquartilefeaturesbyprofileanddate",
 				findUserquartilefeaturesbyprofileAndDate);
 
-		String findUserquartilefeaturesbyDate = "SELECT * FROM userquartilefeaturesbydate WHERE course=? and date=? ALLOW FILTERING;";
+		String findUserquartilefeaturesbyDate = "SELECT * FROM profile_userquartilefeaturesbydate WHERE course=? and date=? ALLOW FILTERING;";
 		this.queries.put("findUserquartilefeaturesbydate",
 				findUserquartilefeaturesbyDate);
 
 
-		String findUserquartilefeaturesbyprofile = "SELECT * FROM userquartilefeaturesbyprofile WHERE course=? and profile=? ALLOW FILTERING;";
+		String findUserquartilefeaturesbyprofile = "SELECT * FROM profile_userquartilefeaturesbyprofile WHERE course=? and profile=? ALLOW FILTERING;";
 		this.queries.put("findUserquartilefeaturesbyprofile",
 				findUserquartilefeaturesbyprofile);
 

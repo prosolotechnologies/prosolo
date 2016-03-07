@@ -5,7 +5,6 @@ var socialInteractionService = (function() {
 
 	function clusterInteraction(item, interaction) {
 		return {
-			course: item.courseid,
 			source: {
 				student: item.student,
 				cluster: item.cluster
@@ -14,9 +13,7 @@ var socialInteractionService = (function() {
 				student: interaction.target,
 				cluster: item.cluster
 			},
-			count: interaction.count,
-			avatar: item.avatar,
-			name: item.name	
+			count: interaction.count
 		};
 	}
 
@@ -30,12 +27,9 @@ var socialInteractionService = (function() {
 			cluster: interaction.cluster
 		};
 		return {
-			course: item.courseid,
 			source: isSource ? a : b,
 			target: isSource ? b : a,
-			count: interaction.count,
-			avatar: item.avatar,
-			name: item.name	
+			count: interaction.count
 		};
 	}
 
@@ -43,7 +37,7 @@ var socialInteractionService = (function() {
 		return flatten([
 			flatten(outerInteractions.map(function(item) {
 				return item.interactions.map(function(interaction) {
-					var isSource = item.direction === "source";
+					var isSource = item.direction === "SOURCE";
 					return outerInteraction(item, interaction, isSource);
 				});
 			})),

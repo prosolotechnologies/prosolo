@@ -1,5 +1,6 @@
 package org.prosolo.bigdata.scala.twitter
 
+import org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl
 import org.prosolo.bigdata.twitter.StreamListData
 import org.prosolo.bigdata.dal.persistence.impl.TwitterStreamingDAOImpl
 import twitter4j.{TwitterStream,FilterQuery}
@@ -56,7 +57,15 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
        listData.addUsersIds(userIds)
        hashtagsAndReferences.put(hashtag,listData)
     }
-    
+    val disabled:Buffer[String]  = TwitterHashtagStatisticsDBManagerImpl.getInstance.getDisabledTwitterHashtags.asScala
+    disabled.foreach(disabledhashtag=>{
+     if(hashtagsAndReferences.contains("#"+disabledhashtag)){
+       hashtagsAndReferences.get("#"+disabledhashtag).get.setDissabled(true)
+     }
+  }
+    )
+
+
     startStreamsForInitialSetOfData
   }
   /**
@@ -65,12 +74,17 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
   def startStreamsForInitialSetOfData(){
      val currentFilterList:ListBuffer[String]=new ListBuffer[String]()
     for((tag,streamListData) <-hashtagsAndReferences){
-      currentFilterList+=(tag)
-      currentFilterList.size match {
-        case x if x > STREAMLIMIT =>initializeNewCurrentListAndStream(currentFilterList)
-        case _ => 
+      if(!streamListData.isDissabled){
+        currentFilterList+=(tag)
+        currentFilterList.size match {
+          case x if x > STREAMLIMIT =>initializeNewCurrentListAndStream(currentFilterList)
+          case _ =>
+        }
+        streamListData.setStreamId(streamsCounter)
+      }else{
+        println("NOT FOLLOWING THIS BECAUSE DISABLED:"+tag)
       }
-      streamListData.setStreamId(streamsCounter)      
+
     }
    initializeNewCurrentListAndStream(currentFilterList)
   }
@@ -99,9 +113,6 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
   def addNewHashTags(hashtags:ListBuffer[String], userId:Int, goalId:Int):Boolean={
     var changed=false 
         val currentFilterList:ListBuffer[String]=getLatestStreamList
-   
-    
-     
     for(hashtag <- hashtags){
        if(currentFilterList.size>STREAMLIMIT ){
          restartStream(getLatestStreamAndList._1, getLatestStreamAndList._2)
@@ -123,6 +134,25 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
       }
    changed
   }
+  def enableHashtagByListData(listData:StreamListData): Unit ={
+    println("Enable hashtag by list data:"+listData.getHashtag)
+    val currentFilterList:ListBuffer[String]=getLatestStreamList
+    if(currentFilterList.size>STREAMLIMIT ){
+      initializeNewCurrentListAndStream(currentFilterList)
+    }
+
+
+    val streamid=if(streamsCounter==0) 0 else streamsCounter-1
+    listData.setStreamId(streamid)
+    val latestStreamAndList=getLatestStreamAndList()
+    val streamList=getLatestStreamList()
+    streamList+=listData.getHashtag
+    val stream=getLatestStreamAndList()._1
+
+    twitterStreamsAndHashtags.put(streamid, (stream,streamList))
+    restartStream(getLatestStreamAndList._1, getLatestStreamAndList._2)
+  }
+
   def removeHashTags(hashtags:ListBuffer[String], userId:Int, goalId:Int):ListBuffer[Int]={
  
     val changedIds:ListBuffer[Int]=new ListBuffer[Int]()
@@ -135,14 +165,18 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
         if(!changedIds.contains(changedId)){
           changedIds+=changedId
         }
-        hashtagsAndReferences.remove(hashtag)   
-        val streamHashtagsTuple:(TwitterStream,ListBuffer[String])=twitterStreamsAndHashtags.get(changedId).get
-       val newhashtags:ListBuffer[String]= streamHashtagsTuple._2.filterNot(p => p==hashtag)
-       twitterStreamsAndHashtags.put(changedId, (streamHashtagsTuple._1,newhashtags))
-       
+        removeHashTagByStreamListData(hashtag,listData)
       }
     }
     changedIds
+  }
+  def removeHashTagByStreamListData(hashtag:String,listData:StreamListData)={
+    println("REMOVE HASH TAG:"+hashtag)
+    val changedId=listData.getStreamId
+    // hashtagsAndReferences.remove(hashtag)
+    val streamHashtagsTuple:(TwitterStream,ListBuffer[String])=twitterStreamsAndHashtags.get(changedId).get
+    val newhashtags:ListBuffer[String]= streamHashtagsTuple._2.filterNot(p => p==hashtag)
+    twitterStreamsAndHashtags.put(changedId, (streamHashtagsTuple._1,newhashtags))
   }
   /**
    * Receives an array of events from buffer and add it to stream, followed by stream restart
@@ -169,7 +203,6 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
       
    }
  if(currentStreamChanged && streamsCounter>0){
-   println("changed ids:"+changedIds)
     if(changedIds.contains(streamsCounter-1)){
       changedIds-=streamsCounter-1
     }
@@ -178,16 +211,20 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
  } 
  if(!changedIds.isEmpty){
    for(streamid <- changedIds){
-     val streamTagsTuple=twitterStreamsAndHashtags.get(streamid).get
-     if(streamTagsTuple._2.size>0){
-       restartStream(streamTagsTuple._1,streamTagsTuple._2)
-     }else{
-       terminateStream(streamTagsTuple._1)
-       twitterStreamsAndHashtags.remove(streamid)
-     }
+     restartStreamById(streamid)
       
     }
  }
+  }
+  def restartStreamById(streamid:Integer): Unit ={
+    println("RESTART STREAM BY ID:"+streamid)
+    val streamTagsTuple=twitterStreamsAndHashtags.get(streamid).get
+    if(streamTagsTuple._2.size>0){
+      restartStream(streamTagsTuple._1,streamTagsTuple._2)
+    }else{
+      terminateStream(streamTagsTuple._1)
+      twitterStreamsAndHashtags.remove(streamid)
+    }
   }
     /**
    * Initialize new stream for an array of hashtags
@@ -199,10 +236,29 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
  
   def restartStream(twitterStream:TwitterStream, filters: ListBuffer[String]){//twitterStream:TwitterStream, streamId:Int){
       super.restartStream(twitterStream, new FilterQuery().track(filters:_*))
+      println("STREAM FILTER:"+filters.mkString(" "))
    }
   def terminateStream(twitterStream:TwitterStream){
      twitterStream.shutdown()
 
+  }
+  def adminDisableHashtag(hashtag:String): Unit ={
+    println("Admin disable hashtag:"+hashtag)
+    if(hashtagsAndReferences.contains("#"+hashtag)){
+      val streamListData=hashtagsAndReferences.get("#"+hashtag).get
+      streamListData.setDissabled(true)
+      removeHashTagByStreamListData("#"+hashtag,streamListData)
+      restartStreamById(streamListData.getStreamId)
+    }
+  }
+  def adminEnableHashtag(hashtag:String):Unit={
+    println("Admin enable hashtag:"+hashtag)
+    if(hashtagsAndReferences.contains("#"+hashtag)){
+      println("contains it")
+      val streamListData=hashtagsAndReferences.get("#"+hashtag).get
+      streamListData.setDissabled(false)
+      enableHashtagByListData(streamListData)
+    }
   }
 
   

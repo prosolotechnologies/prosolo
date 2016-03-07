@@ -87,7 +87,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			esIndexer.addMapping(client,ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
 			
 			QueryBuilder qb = QueryBuilders
-					.queryString(searchString.toLowerCase() + "*").useDisMax(true)
+					.queryStringQuery(searchString.toLowerCase() + "*").useDisMax(true)
 					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 					.field("name").field("lastname");
 			
@@ -153,7 +153,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			esIndexer.addMapping(client,ESIndexNames.INDEX_NODES,ESIndexTypes.LEARNINGGOAL);
 			
 			QueryBuilder qb = QueryBuilders
-					.queryString(searchString.toLowerCase() + "*").useDisMax(true)
+					.queryStringQuery(searchString.toLowerCase() + "*").useDisMax(true)
 					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 					.field("title");
 			
@@ -216,7 +216,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE);
 			
 			QueryBuilder qb = QueryBuilders
-					.queryString(searchString.toLowerCase() + "*").useDisMax(true)
+					.queryStringQuery(searchString.toLowerCase() + "*").useDisMax(true)
 					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 					.field("title");
 	
@@ -231,7 +231,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			if (filterTags != null) {
 				for (Tag tag : filterTags) {
 					QueryBuilder tagQB = QueryBuilders
-							.queryString(tag.getTitle()).useDisMax(true)
+							.queryStringQuery(tag.getTitle()).useDisMax(true)
 							.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 							.field("tags.title");
 					bQueryBuilder.must(tagQB);
@@ -306,7 +306,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			esIndexer.addMapping(client,ESIndexNames.INDEX_NODES, ESIndexTypes.ACTIVITY);
 			
 			QueryBuilder qb = QueryBuilders
-					.queryString(searchString.toLowerCase() + "*").useDisMax(true)
+					.queryStringQuery(searchString.toLowerCase() + "*").useDisMax(true)
 					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 					.field("title");
 			
@@ -333,8 +333,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				for (SearchHit hit : sResponse.getHits()) {
 					Long id = ((Integer) hit.getSource().get("id")).longValue();
 					try {
-						Activity activity = defaultManager.loadResource(Activity.class, id);
-						
+						Activity activity = defaultManager.get(Activity.class, id);
+						//activity = HibernateUtil.initializeAndUnproxy(activity);
 						if (activity != null) {
 							response.addFoundNode(activity);
 						}
@@ -371,14 +371,14 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COURSE );
 			
 			QueryBuilder qb = QueryBuilders
-					.queryString(searchQuery.toLowerCase() + "*").useDisMax(true)
+					.queryStringQuery(searchQuery.toLowerCase() + "*").useDisMax(true)
 					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 					.field("description")
 					.field("tags.title")
 					.field("title");
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-			bQueryBuilder.should(qb);
+			bQueryBuilder.must(qb);
 			
 			if(courseIds != null && !courseIds.isEmpty()) {
 				bQueryBuilder.must(QueryBuilders.termsQuery("id", courseIds));
@@ -387,7 +387,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			if (filterTags != null) {
 				for (Tag tag : filterTags) {
 					QueryBuilder tagQB = QueryBuilders
-							.queryString(tag.getTitle()).useDisMax(true)
+							.queryStringQuery(tag.getTitle()).useDisMax(true)
 							.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 							.field("tags.title");
 					bQueryBuilder.must(tagQB);
@@ -500,7 +500,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.TAGS);
 			
 			QueryBuilder qb = QueryBuilders
-					.queryString(searchQuery.toLowerCase() + "*").useDisMax(true)
+					.queryStringQuery(searchQuery.toLowerCase() + "*").useDisMax(true)
 					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 					.field("title");
 			
@@ -648,6 +648,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 									}
 									resMap.put("instructor", instructor);
 									resMap.put("courseProgress", course.get("progress"));
+									@SuppressWarnings("unchecked")
 									Map<String, Object> profile = (Map<String, Object>) course.get("profile");
 								    if(profile != null && !profile.isEmpty()) {
 								    	resMap.put("profileType", profile.get("profileType"));
@@ -941,6 +942,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					List<Long> ids = new ArrayList<>();
 					SearchHit hit = searchHits.getAt(0);
 					Map<String, Object> source = hit.getSource();
+					@SuppressWarnings("unchecked")
 					List<Map<String, Object>> courses =  (List<Map<String, Object>>) source.get("coursesWithInstructorRole");	
 					for(Map<String, Object> courseMap : courses) {
 						ids.add(Long.parseLong(courseMap.get("id") + ""));

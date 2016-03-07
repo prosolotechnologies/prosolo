@@ -11,6 +11,7 @@ import twitter4j.Status;
  * @author Zoran Jeremic, Sep 1, 2014
  *
  */
+@Deprecated
 public interface TwitterPostsFactory {
 
 	void postStatusFromHashtagListener(Status tweet, List<String> twitterHashtags);

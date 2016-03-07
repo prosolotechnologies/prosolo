@@ -14,7 +14,8 @@ import org.springframework.stereotype.Service;
 import twitter4j.Twitter;
 import twitter4j.auth.AccessToken;
 
-@Service("org.prosolo.services.twitter.TwitterSearchService")
+//@Service("org.prosolo.services.twitter.TwitterSearchService")
+@Deprecated
 public class TwitterSearchServiceImpl implements TwitterSearchService {
 
 	private static Logger logger = Logger.getLogger(TwitterSearchServiceImpl.class);

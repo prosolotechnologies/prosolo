@@ -1,5 +1,6 @@
 package org.prosolo.bigdata.events.observers;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.prosolo.bigdata.common.events.pojo.DataName;
@@ -42,6 +43,8 @@ public class LogEventsPersisterObserver implements EventObserver {
 		if (event instanceof LogEvent) {
 			LogEvent logEvent = (LogEvent) event;
 			LogEventDBManagerImpl.getInstance().insertLogEvent(logEvent);
+			Gson g=new Gson();
+			System.out.println("HANDLING LOG EVENT:"+g.toJson(logEvent));
 			if(logEvent.getTargetUserId()>0){
 				Set<Long> courses=new HashSet<Long>();
 
@@ -60,11 +63,11 @@ public class LogEventsPersisterObserver implements EventObserver {
 						data.put("source", logEvent.getActorId());
 						data.put("target", logEvent.getTargetUserId());
 						AnalyticalEventDBManagerImpl.getInstance().updateGenericCounter(DataName.SOCIALINTERACTIONCOUNT,data);
-					/*System.out.println("OBSERVED LOG EVENT:"+event.getEventType()
+					System.out.println("OBSERVED LOG EVENT:"+event.getEventType()
 							+" actor:"+logEvent.getActorId()
 							+" with Target UserID:"+logEvent.getTargetUserId()
 							+" course:"+logEvent.getCourseId()
-					+	 " inserted course:"+courseId);*/
+					+	 " inserted course:"+courseId);
 					}
 				}
 			}

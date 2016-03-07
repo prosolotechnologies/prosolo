@@ -460,9 +460,9 @@ public class TopNotificationsBean {
 	}
 
 	private TargetLearningGoal joinUserToCourseBasedGoalForFirstTime(final TargetLearningGoal targetGoalInvited, User user) throws EventException, ResourceCouldNotBeLoadedException {
-		TargetLearningGoal newTargetGoal = goalManager.createNewCourseBasedLearningGoal(user, targetGoalInvited.getCourseEnrollment().getCourse(), targetGoalInvited.getLearningGoal(), "notifications.accept");
+		TargetLearningGoal newTargetGoal = goalManager.createNewCourseBasedLearningGoal(user, targetGoalInvited.getCourseEnrollment().getCourse().getId(), targetGoalInvited.getLearningGoal(), "notifications.accept");
 		
-		CourseEnrollment enrollment = courseManager.enrollInCourse(user, targetGoalInvited.getCourseEnrollment().getCourse(), newTargetGoal, "notifications.accept");
+		CourseEnrollment enrollment = courseManager.enrollInCourse(user, targetGoalInvited.getCourseEnrollment().getCourse().getId(), newTargetGoal, "notifications.accept", null, null, null);
 		
 		newTargetGoal.setCourseEnrollment(enrollment);
 		newTargetGoal = goalManager.saveEntity(newTargetGoal);

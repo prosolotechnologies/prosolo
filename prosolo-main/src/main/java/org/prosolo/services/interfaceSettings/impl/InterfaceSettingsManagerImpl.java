@@ -46,7 +46,10 @@ public class InterfaceSettingsManagerImpl extends AbstractManagerImpl implements
 			return result;
 		} else {
 			UserSettings userSettings = new UserSettings(user);
-			userSettings.setLocaleSettings(saveEntity(new LocaleSettings("en", "US")));
+			LocaleSettings ls = new LocaleSettings("en", "US"); 
+			session.saveOrUpdate(ls);
+			//saveEntity(new LocaleSettings("en", "US"));
+			userSettings.setLocaleSettings(ls);
 			userSettings.setUser(user);
 			//this.persistence.save(userSettings);
 			session.saveOrUpdate(userSettings);

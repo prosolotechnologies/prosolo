@@ -35,7 +35,8 @@
 					courseBean="#{courseBean}"
 					cancelLinkPath="/plan"
 					role="USER"
-					context="plan.course.#{courseBean.course.id}" />
+					context="plan.course.#{courseBean.course.id}" 
+					learningContext="name:credential|id:#{courseBean.course.id}"/>
 			</div><!-- .content -->
 		</div><!-- .container end -->
 

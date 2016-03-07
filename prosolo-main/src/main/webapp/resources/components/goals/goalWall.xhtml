@@ -8,7 +8,8 @@
 	
 	<h:panelGroup id="goalWallContainer" layout="block" class="learnMenuContent goalWall" style="display: none;">
 		<div class="goalWall twoThirdsColumn learnTripStep9">
-		
+		<ui:param name="courseContext" value="#{learninggoals.selectedGoalData.data.course != null ? 'name:Credential|id:'.concat(learninggoals.selectedGoalData.data.course.id) : ''}" />
+		<ui:param name="learningContextGoalWall" value="#{courseContext}|context:/name:learning_goal|id:#{learninggoals.selectedGoalData.data.targetGoalId}|context:/name:goal_wall//"></ui:param>
 			<h:form id="goalWallTitle">
 				<h3 class="title">
 					<span class="left">Goal Wall</span>
@@ -61,6 +62,7 @@
 				context="learn.goalWall.targetGoal.#{learninggoals.selectedGoalData.data.targetGoalId}"
 				initializeOnLoad="false"
 				postStyleClass="wide"
+				learningContext="#{learningContextGoalWall}"
 			/>
 		</div><!-- .main end -->
 		

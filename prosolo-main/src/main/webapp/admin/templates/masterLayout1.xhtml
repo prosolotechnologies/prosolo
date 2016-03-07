@@ -119,37 +119,36 @@
 		            	</li>
 		         	</h:panelGroup>
 		         </ul><!-- selection switch end-->      
-		               
 		      </div>
-		
+		      
 		      <!-- main menu (left mobile menu) start -->
 		      <div class="collapse navbar-collapse pull-left" id="mainMenu">
 		         <ul class="nav navbar-nav mainMenu">
-		         	<li class="#{util:getPagePath(view.viewId)  == 'users' ? 'selected' : ''}">
-								<h:link rendered="#{loggeduser.hasCapability('users.view')}"
-									onclick="sendLogPageNavigation( '/admin/users','mainmenu');"
-									value="Users" 
-									outcome="/admin/users" />
+		         	<li class="#{util:matchPageURLRegex('/admin/users(.*?)') ? 'active' : ''}">
+						<h:link rendered="#{loggeduser.hasCapability('users.view')}"
+							onclick="sendLogPageNavigation( '/admin/users','mainmenu');"
+							value="Users" 
+							outcome="/admin/users" />
 					</li>
-					<li class="#{util:getPagePath(view.viewId)  == 'roles' ? 'selected' : ''}">
+					<li class="#{util:matchPageURLRegex('/admin/roles(.*?)') ? 'active' : ''}">
 						<h:link rendered="#{loggeduser.hasCapability('roles.view')}"
 							onclick="sendLogPageNavigation( '/admin/roles','mainmenu');"
 							value="Roles"
 							outcome="/admin/roles" />
 					</li>
-					<li class="#{util:getPagePath(view.viewId)  == 'dashboard' ? 'selected' : ''}">
+					<li class="#{util:matchPageURLRegex('/admin/dashboard(.*?)') ? 'active' : ''}">
 						<h:link rendered="#{loggeduser.hasCapability('adminDashboard.view')}"
 							onclick="sendLogPageNavigation( '/admin/dashboard','mainmenu');"
 							value="Dashboard"
 							outcome="/admin/dashboard" />
 					</li>
-					<li class="#{util:getPagePath(view.viewId)  == 'settings' ? 'selected' : ''}">
+					<li class="#{util:matchPageURLRegex('/admin/settings(.*?)') ? 'active' : ''}">
 						<h:link
 							onclick="sendLogPageNavigation( '/admin/settings', 'mainmenu');"
 							value="Settings"
 							outcome="/admin/settings" />
 					</li>
-					<li class="#{util:getPagePath(view.viewId)  == 'analyticsSettings' ? 'selected' : ''}">
+					<li class="#{util:matchPageURLRegex('/admin/analyticsSettings(.*?)') ? 'active' : ''}">
 						<h:link
 							onclick="sendLogPageNavigation( '/admin/analyticsSettings', 'mainmenu');"
 							value="Analytics Settings"
@@ -158,69 +157,66 @@
 		         </ul>
 		      </div> <!-- main menu (left mobile menu) end -->
 		    
-		    <ul class="nav navbar-nav userActions pull-right">
-		         <ui:include src="/resources/components/topmenu1/search.xhtml"></ui:include>
-		         <ui:include src="/resources/components/topmenu1/inbox.xhtml"></ui:include>
-		         <ui:include src="/resources/components/topmenu1/notifications.xhtml"></ui:include>
-		         <!-- <li><a href="#" class="faded"><i class="fa fa-envelope-o fa-lg"></i></a></li> -->
-		         
-		    
-		    	<li class="dropdown user">
-		            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-		               <span class="userProfileImage">
-		               <h:graphicImage value="#{profileSettings.accountData.avatarPath}"
-									   alt="" />
-		               </span>
-		               <span class="hideMobile">#{loggeduser.getUser().getName().concat(" ").concat(loggeduser.getUser().getLastname())}</span> <i class="fa fa-angle-down"></i>
-		            </a>
-		            <h:form id="userLogoutFormId">
-			            <ul class="dropdown-menu pull-right">
-			               <li>
-			               		<h:link 
-									onclick="sendLogPageNavigation('diggest','mainmenu');" 
-									value="Digest" 
-									outcome="/digest" />
-			               </li>
-			               <li>
-			               		<h:link 
-									onclick="sendLogPageNavigation('communications','mainmenu');" 
-									value="Communications" 
-									outcome="/communications" />
-			               </li>
-			               <li>
-			               		<h:link 
-									onclick="sendLogPageNavigation('search','mainmenu');" 
-									value="Search" 
-									outcome="/search" />
-			               </li>
-			               <li>
-			               		<h:link 
-									onclick="sendLogPageNavigation('settings','mainmenu');" 
-									value="Settings" 
-									outcome="/settings" />
-			               </li>
-			               <li role="separator" class="divider"></li>
-			               
-				           <li>
-						   		<h:commandLink id="userLogout" 
-									value="Logout" 
-									action="#{loggeduser.userLogout()}">
-								</h:commandLink>
-						   </li>
-						   
-						   <ui:remove>
+			    <ul class="nav navbar-nav userActions pull-right">
+			         <ui:include src="/resources/components/topmenu1/search.xhtml"></ui:include>
+			         <ui:include src="/resources/components/topmenu1/inbox.xhtml"></ui:include>
+			         <ui:include src="/resources/components/topmenu1/notifications.xhtml"></ui:include>
+			         <!-- <li><a href="#" class="faded"><i class="fa fa-envelope-o fa-lg"></i></a></li> -->
+			         
+			    
+			    	<li class="dropdown user">
+			            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+			               <span class="userProfileImage">
+			               <h:graphicImage value="#{profileSettings.accountData.avatarPath}"
+										   alt="" />
+			               </span>
+			               <span class="hideMobile">#{loggeduser.getUser().getName().concat(" ").concat(loggeduser.getUser().getLastname())}</span> <i class="fa fa-angle-down"></i>
+			            </a>
+			            <h:form id="userLogoutFormId">
+				            <ul class="dropdown-menu pull-right">
 				               <li>
-									<a href="#{request.contextPath}/logout">Logout</a>
+				               		<h:link 
+										onclick="sendLogPageNavigation('diggest','mainmenu');" 
+										value="Digest" 
+										outcome="/digest" />
+				               </li>
+				               <li>
+				               		<h:link 
+										onclick="sendLogPageNavigation('communications','mainmenu');" 
+										value="Communications" 
+										outcome="/communications" />
+				               </li>
+				               <li>
+				               		<h:link 
+										onclick="sendLogPageNavigation('search','mainmenu');" 
+										value="Search" 
+										outcome="/search" />
+				               </li>
+				               <li>
+				               		<h:link 
+										onclick="sendLogPageNavigation('settings','mainmenu');" 
+										value="Settings" 
+										outcome="/settings" />
+				               </li>
+				               <li role="separator" class="divider"></li>
+				               
+					           <li>
+							   		<h:commandLink id="userLogout" 
+										value="Logout" 
+										action="#{loggeduser.userLogout()}">
+									</h:commandLink>
 							   </li>
-						   </ui:remove>
-			            </ul>
-		            </h:form>
-		         </li>
-		    </ul>
-		    
-		     
-		    
-		  </div><!-- container fluid end--> 
+							   
+							   <ui:remove>
+					               <li>
+										<a href="#{request.contextPath}/logout">Logout</a>
+								   </li>
+							   </ui:remove>
+				            </ul>
+			            </h:form>
+			         </li>
+			    </ul>
+			</div><!-- container fluid end--> 
 		</nav>
 	</header>
 	<!-- header end -->

@@ -1,8 +1,5 @@
 package org.prosolo.web.lti.message;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.prosolo.web.lti.LTIConstants;
 import org.prosolo.web.lti.validator.EmptyValidator;
 import org.prosolo.web.lti.validator.EqualValuesValidator;
@@ -33,6 +30,7 @@ public class LTILaunchMessage extends LTIMessage{
 	//private String toolConsumerInstanceName;
 	
 	public LTILaunchMessage(){
+		messageType = new LtiMessageParameter(new EmptyValidator(new EqualValuesValidator(null, LTIConstants.MESSAGE_TYPE)));
 		messageType = new LtiMessageParameter(new NullValidator(new EmptyValidator(
 				new EqualValuesValidator(null, LTIConstants.MESSAGE_TYPE_LTILAUNCH))));
 		consumerKey = new LtiMessageParameter(new NullValidator(new EmptyValidator(null)));

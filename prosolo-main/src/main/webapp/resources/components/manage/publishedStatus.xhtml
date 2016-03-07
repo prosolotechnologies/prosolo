@@ -1,0 +1,34 @@
+<ui:component
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+	<composite:interface>
+		<composite:attribute name="values" required="true" />
+		<composite:attribute name="value" required="true" />
+	</composite:interface>
+	
+	<composite:implementation>
+	    <div class="col-md-2">
+	      	<div class="observationPanel cloneHeight">
+	         	<div class="form-group">
+	               <label>Status</label>
+	               <h:selectOneMenu 
+	                	styleClass="form-control selectpicker"
+	               		value="#{cc.attrs.value}">
+	               		<f:selectItems value="#{cc.attrs.values}" var="status"
+    						itemValue="#{status}" itemLabel="#{status.label}" />
+	               </h:selectOneMenu>
+	           
+	            </div>
+	         </div>
+	      </div>
+	</composite:implementation>
+</ui:component>

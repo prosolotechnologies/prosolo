@@ -26,6 +26,9 @@ public class LogMessage extends SimpleMessage{
 	private String link;
 	private long courseId;
 	private long targetUserId;
+
+
+	private DBObject learningContext;
 	private DBObject parameters;
 	public void setCourseId(long courseId) {this.courseId = courseId;}
 	public long getCourseId() {	return courseId;}
@@ -110,6 +113,7 @@ public class LogMessage extends SimpleMessage{
 	}
 	public void setTargetUserId(long targetUserId){this.targetUserId=targetUserId;}
 	public long getTargetUserId(){return this.targetUserId;}
-
+	public DBObject getLearningContext() {return learningContext;}
+	public void setLearningContext(DBObject learningContext) {this.learningContext = learningContext;}
 }
 

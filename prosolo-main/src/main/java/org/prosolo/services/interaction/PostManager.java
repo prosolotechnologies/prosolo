@@ -18,7 +18,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.interaction.impl.PostManagerImpl.PostEvent;
-import org.prosolo.web.activitywall.data.AttachmentPreview;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 
 public interface PostManager extends AbstractManager{
 

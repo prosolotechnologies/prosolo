@@ -15,6 +15,35 @@ public class LogsDataManagerImpl extends AbstractManagerImpl implements LogsData
 	
     private static final long serialVersionUID = -4680208114021696275L;
 
+    @Override
+    @Transactional(readOnly = true)
+    public Long getPostMaker(long actorId, long postId) {
+        String query =
+                "SELECT maker.id " +
+                        "FROM Post post " +
+                        "LEFT JOIN post.maker maker "+
+                        "WHERE post.id = :postId";
+
+        return  (Long) persistence.currentManager().createQuery(query)
+                .setParameter("postId", postId)
+                .uniqueResult();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Long getActivityMakerForTargetActivity(long actorId, long targetId) {
+        String query =
+                "SELECT maker.id " +
+                        "FROM TargetActivity ta "+
+                        "LEFT JOIN ta.activity act "+
+                        "LEFT JOIN act.maker maker "+
+                        "WHERE ta.id = :targetId";
+        System.out.println("Query:"+query+" for targetID:"+targetId);
+        return  (Long) persistence.currentManager().createQuery(query)
+                .setParameter("targetId", targetId)
+                .uniqueResult();
+    }
+
 	@Override
     @Transactional(readOnly = true)
     public Long getSocialActivityMaker(long actorId, long targetId) {

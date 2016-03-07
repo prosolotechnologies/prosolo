@@ -1,22 +1,34 @@
 package org.prosolo.bigdata.scala.twitter
 
-import java.net.URL
+
 import java.io.InputStream
+
+import org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl
+
+import scala.collection.mutable
+import scala.collection.JavaConverters._
+
+
 /**
  * @author zoran Jul 28, 2015
  */
 trait ProfanityCensor {
    val badWordFile = "files/badwords.sav"
-   val forbiddenHashtagsFile="files/instagrambannedtags.sav"
-   def readBadWordsFromFile(file:String): Array[String]= {
+   val instagramForbiddenHashtagsFile="files/instagrambannedtags.sav"
+  val customForbiddenHashtagsFile="files/customforbiddentags.sav"
+   def readBadWordsFromFile(file:String): mutable.Buffer[String]= {
      val stream : InputStream =getClass.getClassLoader.getResourceAsStream(file)
-     val lines: Array[String] = scala.io.Source.fromInputStream( stream ).getLines.toArray
-     
-     
+     val lines: mutable.Buffer[String] = scala.io.Source.fromInputStream( stream ).getLines.toBuffer
      lines
    }
+  def readDisabledHashtags(): mutable.Buffer[String] ={
+    TwitterHashtagStatisticsDBManagerImpl.getInstance.getDisabledTwitterHashtags.asScala.map(tag=>"#"+tag)
+
+  }
+
    val badWords=readBadWordsFromFile(badWordFile)
-   val forbiddenHashtags=readBadWordsFromFile(forbiddenHashtagsFile)
+   val forbiddenHashtags=readBadWordsFromFile(instagramForbiddenHashtagsFile)++readBadWordsFromFile(customForbiddenHashtagsFile)++readDisabledHashtags()
+  println("FORBIDDEN HASHTAGS:"+forbiddenHashtags.mkString(" "))
 }
    class BadWordsCensor extends ProfanityCensor{
      def isPolite(text:String):Boolean={
@@ -38,5 +50,13 @@ trait ProfanityCensor {
           
        }
        polite
+     }
+     def addDisabledHashtag(hashtag:String): Unit ={
+       forbiddenHashtags+="#"+hashtag
+       println("Adding disabled hashtag:"+hashtag+" RESULTING:"+forbiddenHashtags.mkString(" "))
+     }
+     def enableDisabledHashtag(hashtag:String): Unit ={
+       forbiddenHashtags-="#"+hashtag
+      println("REMOVING HASHTAG:"+hashtag+" RESULTING:"+forbiddenHashtags.mkString(" "))
      }
    }

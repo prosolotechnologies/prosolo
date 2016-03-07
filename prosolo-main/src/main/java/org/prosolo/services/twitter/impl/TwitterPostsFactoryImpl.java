@@ -30,6 +30,7 @@ import twitter4j.Status;
  *
  */
 //@Service("org.prosolo.services.twitter.TwitterPostsFactory")
+	@Deprecated
 public class TwitterPostsFactoryImpl implements TwitterPostsFactory {
 	
 	private static Logger logger = Logger.getLogger(TwitterPostsFactory.class);

@@ -107,7 +107,10 @@
 						styleClass="button green size30 right"
 						onclick="$('#askForEvaluationDialog').dialog('option', 'fireCloseHandler', false ).dialog('close');"
 						action="#{askForEvaluation.sendEvaluationRequests()}"
-						update="askForEvaluationDialogGrowl askForEvaluationDialogForm" />
+						update="askForEvaluationDialogGrowl askForEvaluationDialogForm" >
+						<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+						<f:param name="service" value="name:assessment_dialog" />
+					</p:commandLink>
 						
 				    <p:commandLink value="Submit"
 						rendered="#{empty askForEvaluation.evaluatorList}"

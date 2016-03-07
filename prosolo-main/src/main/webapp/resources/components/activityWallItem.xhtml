@@ -21,6 +21,8 @@
 		<composite:attribute name="actData" required="true" />
 		<composite:attribute name="iterator" required="true" />
 		<composite:attribute name="context" required="true" />
+		<composite:attribute name="learningContext" default="" />
+		<composite:attribute name="service" default="" />
 		<composite:attribute name="noOptions" />
 		<composite:attribute name="disabledPooling" />
 		<composite:attribute name="onActionComplete" />
@@ -35,6 +37,7 @@
 		<h:outputScript library="javascript" name="prosolo.overlay.js" target="head" />
 		<h:outputScript library="javascript" name="readmore.custom.js" target="head" />
 
+		<ui:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:SOCIAL_ACTIVITY|id:'.concat(cc.attrs.actData.socialActivity.id))}"></ui:param>
 		<div class="post post#{cc.attrs.actData.socialActivity.id} #{cc.attrs.postStyleClass}">
 
 			<link:user value="actWall"
@@ -310,6 +313,9 @@
 							rendered="#{!cc.attrs.actData.liked}"
 							update="actions actionCount">
 							Like
+							<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+							<f:param name="learningContext" value="#{learningContext}" />
+							<f:param name="service" value="#{cc.attrs.service}" />
 						</p:commandLink>
 						<p:commandLink
 							action="#{likeaction.removeLikeFromSocialActivity(cc.attrs.actData, cc.attrs.context.concat('.post.').concat(cc.attrs.actData.socialActivity.id))}"
@@ -317,6 +323,9 @@
 							rendered="#{cc.attrs.actData.liked}"
 							update="actions actionCount">
 							Unlike
+							<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+							<f:param name="learningContext" value="#{learningContext}" />
+							<f:param name="service" value="#{cc.attrs.service}" />
 						</p:commandLink>
 						<p:commandLink
 							action="#{dislikeAction.dislikeSocialActivity(cc.attrs.actData, cc.attrs.context.concat('.post.').concat(cc.attrs.actData.socialActivity.id))}"
@@ -325,6 +334,9 @@
 							update="actions actionCount">
 							<span class="bullet"></span>
 							Dislike
+							<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+							<f:param name="learningContext" value="#{learningContext}" />
+							<f:param name="service" value="#{cc.attrs.service}" />
 						</p:commandLink>
 						<p:commandLink
 							action="#{dislikeAction.removeDislikeFromSocialActivity(cc.attrs.actData, cc.attrs.context.concat('.post.').concat(cc.attrs.actData.socialActivity.id))}"
@@ -333,6 +345,9 @@
 							update="actions actionCount">
 							<span class="bullet"></span>
 							Remove dislike
+							<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+							<f:param name="learningContext" value="#{learningContext}" />
+							<f:param name="service" value="#{cc.attrs.service}" />
 						</p:commandLink>
 
 						<action:post
@@ -444,12 +459,14 @@
 								</h:panelGroup>
 
 								<ui:repeat id="commentLoop" value="#{cc.attrs.actData.comments}" var="commentIterator" varStatus="commentIteratorStatus">
+									<ui:param name="learningContextComment" value="#{util:addSubContext(learningContext, 'name:social_activity_comment|id:'.concat(commentIterator.id))}"></ui:param>
 									<post:comment
 										commentData="#{commentIterator}"
 										idPrefix="#{cc.attrs.iterator.index}I#{commentIteratorStatus.index}"
 										context="#{cc.attrs.context}.post.#{cc.attrs.actData.socialActivity.id}"
 										styleClass="#{cc.attrs.actData.comments.size() - commentIteratorStatus.index > 2 ? 'collapsible' : ''}
-											#{param['comment'] == commentIterator.id ? 'scrollTarget' : ''}" />
+											#{param['comment'] == commentIterator.id ? 'scrollTarget' : ''}" 
+										learningContext="#{learningContextComment}"/>
 								</ui:repeat>
 								<script>
 									roundImages();

@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.common.domainmodel.lti.ResourceType;
-import org.prosolo.web.activitywall.data.NodeData;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.NodeData;
 
 /**
  * @author Nikola Milikic

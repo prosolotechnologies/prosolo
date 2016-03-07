@@ -13,7 +13,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.LearningGoalManager;
-import org.prosolo.web.activitywall.data.NodeData;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.NodeData;
 import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.notification.TopNotificationsBean;
 import org.prosolo.web.notification.data.GoalStatus;

@@ -64,7 +64,10 @@
 					styleClass="button green size30 right"
 					onclick="$('#activateCourseFormModalDialog').dialog('option', 'submit', true);$('#activateCourseFormModalDialog').dialog('close');"
 				 	action="#{activateCourseDialog.activateCourse()}"
-					update="#{cc.attrs.updateOncomplete}" />
+					update="#{cc.attrs.updateOncomplete}" >
+					<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+					<f:param name="service" value="name:activate_course_dialog" />
+				</p:commandButton>
 		
 				<a class="button gray size30 right"
 					onclick='$("#activateCourseFormModalDialog").dialog("close");'>Cancel</a>

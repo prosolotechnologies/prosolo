@@ -58,9 +58,9 @@ import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.VisibilityManager;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.services.nodes.exceptions.VisibilityCoercionError;
-import org.prosolo.web.activitywall.data.AttachmentPreview;
 import org.prosolo.web.competences.data.ActivityType;
 import org.springframework.stereotype.Service;
 
@@ -995,12 +995,13 @@ public class BusinessCase4_EDX extends BusinessCase {
 						15, 
 						VisibilityType.PUBLIC);
 				
-				CompetenceActivity uplaodGephiAssignmentCompActivity = new CompetenceActivity(4, uplaodGephiAssignment);
+				comp2 = ServiceLocator.getInstance().getService(DefaultManager.class).merge(comp2);
+				CompetenceActivity uplaodGephiAssignmentCompActivity = new CompetenceActivity(comp2,
+						4, uplaodGephiAssignment);
 				uplaodGephiAssignmentCompActivity = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(uplaodGephiAssignmentCompActivity);
 				
-				comp2 = ServiceLocator.getInstance().getService(DefaultManager.class).merge(comp2);
-				comp2.addActivity(uplaodGephiAssignmentCompActivity);
-				comp2 = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(comp2);
+				//comp2.addActivity(uplaodGephiAssignmentCompActivity);
+				//comp2 = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(comp2);
 			} catch (EventException e5) {
 				logger.error(e5.getLocalizedMessage());
 			}

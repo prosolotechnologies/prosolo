@@ -95,39 +95,45 @@ h5{
 
 .button {
 	display: inline-block;
-	-webkit-border-radius: 2px;
-	-moz-border-radius: 2px;
-	border-radius: 2px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	border: 1px solid transparent;
 	cursor: pointer;
 	margin: 0;
-	border: none;}
+	font-size: 14px;
+}
 
-.button.blue{
+.button.blue {
   color: #136db2;
     background: #d7eeff;
 }
 
-.button.blue:hover{
+.button.blue:hover {
   color: #fff;
   background: #136db2;
 }
 
-.button.green{
+.button.green {
   color: #fff;
-    background: #5cb258;
+    background: #59af4d;
 }
 
 .button.green:hover{
-    background: #70C26B;
+	background-color: #4f9c45;
+    border-color: #4f9c45;
 }
 
-.button.red{
-  color: #fff;
-    background: #dd5a5a;
+.button.red {
+    color: #fff;
+    background-color: #d9534f;
+    border-color: #d43f3a;
 }
 
-.button.red:hover{
-    background: #d53030;
+.button.red:hover {
+    color: #fff;
+    background-color: #c9302c;
+    border-color: #ac2925;
 }
 
 .button.gray{
@@ -2168,7 +2174,8 @@ h1 a:hover{
 .sideTabs{
   width: 218px;
   height: 29px;
-  background: url(../images/style/tabs-bg.png) repeat-x left top;
+  background-color: #f7f7f7;
+  /*background: url(../images/style/tabs-bg.png) repeat-x left top;*/
 }
 
 .sideTabs li{
@@ -3353,14 +3360,14 @@ h1 a:hover{
   display: inline-block;
   height: 20px;
   line-height: 20px;
-  background: #dd5a5a;
+  background: #E64A19;
   -webkit-border-radius: 2px;
   -moz-border-radius: 2px;
   border-radius: 2px;
 }
 
 .btnGoalDelete:hover{
-  background: #d53030;
+  background: #BF360C;
 }
 
 .btnGoalDelete span{
@@ -3470,12 +3477,12 @@ h1 a:hover{
   outline: none;
 }
 
-.jq_tags_editor .jq_tags_tokens  .jq_tags_token {
-  background-color: #D7EEFF;
-  color: #136DB2;
+.jq_tags_editor .jq_tags_tokens .jq_tags_token {
+  background-color: #d7eeff;
+  color: #136db2;
   float: left;
   margin: 0 5px 5px 0;
-  padding: 0 7px;
+  padding: 4px 7px 5px 10px;
   -webkit-border-radius: 2px;
   -moz-border-radius: 2px;
   border-radius: 2px;
@@ -6267,14 +6274,7 @@ a.iconUnCheck:hover {
   height: 55px;
   line-height: 24px;
   clear: both;
-  background: #f4fafe; /* Old browsers */
-  background: -moz-linear-gradient(top,  #f4fafe 0%, #e7f5ff 100%); /* FF3.6+ */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f4fafe), color-stop(100%,#e7f5ff)); /* Chrome,Safari4+ */
-  background: -webkit-linear-gradient(top,  #f4fafe 0%,#e7f5ff 100%); /* Chrome10+,Safari5.1+ */
-  background: -o-linear-gradient(top,  #f4fafe 0%,#e7f5ff 100%); /* Opera 11.10+ */
-  background: -ms-linear-gradient(top,  #f4fafe 0%,#e7f5ff 100%); /* IE10+ */
-  background: linear-gradient(to bottom,  #f4fafe 0%,#e7f5ff 100%); /* W3C */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f4fafe', endColorstr='#e7f5ff',GradientType=0 ); /* IE6-9 */
+  background-color: #E3F2FD;
   border: 1px solid #d5e5f2;
   -webkit-border-top-left-radius: 2px;
   -moz-border-radius-topleft: 2px;
@@ -6666,7 +6666,7 @@ a.iconUnCheck:hover {
 .goalsPage .activities .backBtn {
   float: left;
   margin-bottom: 10px;
-  margin-right: 30px;
+  margin-right: 20px;
 }
 
 .goalsPage .activities .competenceDetails {
@@ -11262,14 +11262,7 @@ table tr td .iconConnect,
 }
 
 .warning .ui-widget-header {
-  background: #eddb0c; /* Old browsers */
-  background: -moz-linear-gradient(top,  #eddb0c 0%, #cfbe00 100%); /* FF3.6+ */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#eddb0c), color-stop(100%,#cfbe00)); /* Chrome,Safari4+ */
-  background: -webkit-linear-gradient(top,  #eddb0c 0%,#cfbe00 100%); /* Chrome10+,Safari5.1+ */
-  background: -o-linear-gradient(top,  #eddb0c 0%,#cfbe00 100%); /* Opera 11.10+ */
-  background: -ms-linear-gradient(top,  #eddb0c 0%,#cfbe00 100%); /* IE10+ */
-  background: linear-gradient(to bottom,  #eddb0c 0%,#cfbe00 100%); /* W3C */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eddb0c', endColorstr='#cfbe00',GradientType=0 ); /* IE6-9 */
+  background: #d9534f;
 }
 
 .ui-message-error {

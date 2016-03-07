@@ -24,12 +24,13 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.activityWall.SocialStreamObserver;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.PostManager;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.services.nodes.ResourceFactory;
-import org.prosolo.web.activitywall.data.AttachmentPreview;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.web.competences.data.ActivityType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,7 +41,6 @@ public class ActivityManagerImpl extends AbstractManagerImpl implements	Activity
 	
 	private static final long serialVersionUID = -6629875178124643511L;
 	
-	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(ActivityManagerImpl.class);
 	
 	@Autowired private ResourceFactory resourceFactory;
@@ -52,15 +52,17 @@ public class ActivityManagerImpl extends AbstractManagerImpl implements	Activity
 	public Activity createNewActivity(User user, String title, String description, 
 			AttachmentPreview attachmentPreview, VisibilityType visType, Collection<Tag> tags) 
 					throws EventException {
-		return createNewResourceActivity(user, title, description, attachmentPreview, visType, null, false, null);
+		return createNewResourceActivity(user, title, description, attachmentPreview, visType, null, false, null,
+				null, null, null);
 	}
 	
 	@Override
 	@Transactional
 	public Activity createNewActivity(User user, String title,
 			String description, AttachmentPreview attachmentPreview, VisibilityType visType, boolean sync,
-			String context) throws EventException {
-		return createNewResourceActivity(user, title, description, attachmentPreview, visType, null, sync, context);
+			String context, String page, String learningContext, String service) throws EventException {
+		return createNewResourceActivity(user, title, description, attachmentPreview, visType, null, sync, 
+				context, page, learningContext, service);
 	}
 	
 	@Override
@@ -69,7 +71,7 @@ public class ActivityManagerImpl extends AbstractManagerImpl implements	Activity
 	public Activity createNewResourceActivity(User user, String title,
 			String description, AttachmentPreview attachmentPreview, VisibilityType visType, 
 			Collection<Tag> tags, boolean propagateToSocialStreamManualy,
-			String context) throws EventException {
+			String context, String page, String learningContext, String service) throws EventException {
 
 		Activity newActivity = resourceFactory.createNewResourceActivity(
 				user, 
@@ -84,9 +86,15 @@ public class ActivityManagerImpl extends AbstractManagerImpl implements	Activity
 		parameters.put("context", context);
 		
 		if (propagateToSocialStreamManualy) {
-			eventFactory.generateEvent(EventType.Create, user, newActivity, new Class[]{SocialStreamObserver.class}, parameters);
+			//eventFactory.generateEvent(EventType.Create, user, newActivity, new Class[]{SocialStreamObserver.class}, parameters);
+			//migration to new context approach
+			eventFactory.generateEvent(EventType.Create, user, newActivity, null, null, page, learningContext,
+					service, new Class[]{SocialStreamObserver.class}, parameters);
 		} else {
-			eventFactory.generateEvent(EventType.Create, user, newActivity, parameters);
+			//eventFactory.generateEvent(EventType.Create, user, newActivity, parameters);
+			//migration to new context approach
+			eventFactory.generateEvent(EventType.Create, user, newActivity, null, 
+					page, learningContext, service, parameters);
 		}
 		
 		return newActivity;
@@ -434,6 +442,85 @@ public class ActivityManagerImpl extends AbstractManagerImpl implements	Activity
 			logger.error(e);
 			e.printStackTrace();
 			return false;
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public boolean checkIfActivityIsReferenced(long activityId) throws DbConnectionException {
+		try {
+			boolean referencedByCompetenceActivity = checkIfActivityIsReferencedByCompetenceActivity(activityId);
+			if(referencedByCompetenceActivity) {
+				return true;
+			}
+			boolean referencedByTargetActivity = checkIfActivityIsReferencedByTargetActivity(activityId);
+			return referencedByTargetActivity;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while checking if activity is referenced");
+		}
+	}
+
+	private boolean checkIfActivityIsReferencedByTargetActivity(long activityId) {
+		String query =
+				"SELECT tActivity.id " +
+				"FROM TargetActivity tActivity "+
+				"INNER JOIN tActivity.activity activity "+
+				"WHERE activity.id = :activityId";
+			
+		Long result = (Long) persistence.currentManager().createQuery(query)
+			.setLong("activityId", activityId)
+			.setMaxResults(1)
+			.uniqueResult();
+		
+		return result != null;
+	}
+
+	private boolean checkIfActivityIsReferencedByCompetenceActivity(long activityId) {
+		String query =
+				"SELECT cActivity.id " +
+				"FROM CompetenceActivity cActivity "+
+				"INNER JOIN cActivity.activity activity "+
+				"WHERE activity.id = :activityId"; 
+			
+		Long result = (Long) persistence.currentManager().createQuery(query)
+			.setLong("activityId", activityId)
+			.setMaxResults(1)
+			.uniqueResult();
+		
+		return result != null;
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void deleteActivity(long activityId, Class<? extends Activity> activityClass, User user, 
+			LearningContextData data) {
+		try {
+			//deleteById(Activity.class, activityId, persistence.currentManager());
+			//Constructor<? extends Activity> constructor = activityClass.getConstructor();
+			//Activity activity = constructor.newInstance();
+			//activity.setId(activityId);
+			Activity act = (Activity) persistence.currentManager().load(Activity.class, activityId);
+			act.setDeleted(true);
+			eventFactory.generateEvent(EventType.Delete, user, act, null, 
+					data.getPage(), data.getLearningContext(), data.getService(), null);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while deleting activity");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void updateRichContent(long id, String title, String description) throws DbConnectionException {
+		try {
+			RichContent richContent = (RichContent) persistence.currentManager().load(RichContent.class, id);
+			richContent.setTitle(title);
+			richContent.setDescription(description);
+		} catch(Exception e) {
+			throw new DbConnectionException("Error while saving activity data");
 		}
 	}
 }

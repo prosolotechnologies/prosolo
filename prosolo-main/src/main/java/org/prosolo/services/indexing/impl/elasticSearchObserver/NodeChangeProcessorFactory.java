@@ -29,6 +29,8 @@ public class NodeChangeProcessorFactory {
 			case Registered:
 			case Edit_Profile:
 			case ENROLL_COURSE:
+			case COURSE_WITHDRAWN:
+			case ACTIVATE_COURSE:
 				 return new UserNodeChangeProcessor(event, session, userEntityESService, EventUserRole.Subject);
 			case Create:
 			case Edit:

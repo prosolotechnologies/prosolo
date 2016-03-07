@@ -74,30 +74,38 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/javax.faces.resource/**").permitAll()
 		   .antMatchers("/notfound").permitAll()
 		   
+		   //remove
+		   .antMatchers("/manage/course.xhtml").hasAuthority("BASIC.MANAGER.ACCESS")
+		   .antMatchers("/manage/competence.xhtml").hasAuthority("BASIC.MANAGER.ACCESS")
+		   // remove end
 		   .antMatchers("/manage/css/**").hasAnyAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/js/**").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/images/**").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/competences/*/tools").hasAuthority("BASIC.MANAGER.ACCESS")
-		   .antMatchers("/manage/competences/**").hasAuthority("COMPETENCES.VIEW")
+		   .antMatchers("/manage/competences/*").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
+		   .antMatchers("/manage/competences/*/activities").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
+		   .antMatchers("/manage/competences").hasAuthority("COMPETENCES.VIEW")
+		   .antMatchers("/manage/credentials/*/students/*").hasAuthority("BASIC.MANAGER.ACCESS")
+		   .antMatchers("/manage/credentials/*/competences").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
 		   .antMatchers("/manage/credentials/*/feeds").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
 		   .antMatchers("/manage/credentials/*/students").hasAnyAuthority("COURSE.MEMBERS.VIEW", "COURSE.MEMBERS.VIEW.PERSONALIZED")
 		   .antMatchers("/manage/credentials/create/").hasAnyAuthority("COURSE.CREATE")
 		   //capability for external tool?
 		   .antMatchers("/manage/credentials/*/tools").hasAuthority("BASIC.MANAGER.ACCESS")
+		   .antMatchers("/manage/credentials/*/instructors/*/reassignStudents").hasAuthority("STUDENT.ASSIGN.INSTRUCTOR")
+		   .antMatchers("/manage/credentials/*/instructors/*/edit").hasAuthority("COURSE.ASSIGNINSTRUCTOR")
+		   .antMatchers("/manage/credentials/*/instructors/new").hasAuthority("COURSE.ASSIGNINSTRUCTOR")
 		   .antMatchers("/manage/credentials/*/instructors").hasAuthority("COURSE.INSTRUCTORS.VIEW")
+		   .antMatchers("/manage/credentials/*/rss").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
 		   .antMatchers("/manage/credentials/**").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
 		   
 		   .antMatchers("/manage/tools/*/*/*/create").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/tools/*").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/social-interaction*").hasAuthority("BASIC.MANAGER.ACCESS")
-		   .antMatchers("/manage/students/*").hasAuthority("BASIC.MANAGER.ACCESS")
 		   
 		   // ADDED
 		   .antMatchers("/manage/studentProfile.history.xhtml").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/reports").hasAuthority("REPORTS.VIEW")
-		   .antMatchers("/manage/instructors/*/reassignStudents").hasAuthority("STUDENT.ASSIGN.INSTRUCTOR")
-		   .antMatchers("/manage/instructors/*/edit").hasAuthority("COURSE.ASSIGNINSTRUCTOR")
-		   .antMatchers("/manage/instructors/new").hasAuthority("COURSE.ASSIGNINSTRUCTOR")
 		   .antMatchers("/admin/users").hasAuthority("USERS.VIEW")
 		   .antMatchers("/admin/roles").hasAuthority("ROLES.VIEW")
 		   .antMatchers("/admin/dashboard").hasAuthority("ADMINDASHBOARD.VIEW")

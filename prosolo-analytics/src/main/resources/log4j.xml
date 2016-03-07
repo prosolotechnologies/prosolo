@@ -28,6 +28,10 @@
 		<level value="ERROR" />
 		<appender-ref ref="console" />
 	</logger>
+	<logger name="org.prosolo.bigdata.scala.twitter">
+		<level value="DEBUG" />
+		<appender-ref ref="console" />
+	</logger>
 		<logger name="javax.persistence">
 		<level value="ERROR" />
 		<appender-ref ref="console" />
@@ -42,7 +46,7 @@
 		<appender-ref ref="default.file" />
 	</logger>
 	<logger name="org.prosolo.bigdata.rabbitmq" additivity="false">
-		<level value="INFO" />
+		<level value="DEBUG" />
 		<appender-ref ref="console" />
 		<appender-ref ref="default.file" />
 	</logger>

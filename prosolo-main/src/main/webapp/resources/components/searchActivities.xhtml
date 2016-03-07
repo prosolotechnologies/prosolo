@@ -27,6 +27,9 @@
 		<composite:attribute name="disabled" type="java.lang.Boolean" />
 		<composite:attribute name="disabledTooltip" type="java.lang.String" />
 		<composite:attribute name="context" type="java.lang.String" />
+		<composite:attribute name="page" />
+		<composite:attribute name="learningContext" />
+		<composite:attribute name="service" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -133,6 +136,9 @@
 												update="#{cc.attrs.regionToRenderOnAction}"
 												oncomplete="#{cc.attrs.refreshCommand};prosolo.overlay.reset();">
 												<f:param name="context" value="#{cc.attrs.context}" />
+												<f:param name="page" value="#{cc.attrs.page}" />
+												<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
+												<f:param name="service" value="#{util:addSubService(cc.attrs.service, 'name:ACTIVITY_SEARCH')}" />
 											</p:commandLink>
 										</div>
 									</div>

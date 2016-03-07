@@ -27,12 +27,12 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.LearningGoalManager;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.NodeData;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.ActivityWallData;
-import org.prosolo.web.activitywall.data.AttachmentPreview;
-import org.prosolo.web.activitywall.data.NodeData;
 import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.RecommendedLearningPlansBean;
 import org.prosolo.web.goals.cache.CompetenceDataCache;
@@ -139,10 +139,16 @@ public class CompWallBean implements Serializable {
 		long targetGoalId = goalsBean.getSelectedGoalData().getData().getTargetGoalId();
 		
 		long targetCompId = goalsBean.getSelectedGoalData().getSelectedCompetence().getData().getId();
+		
+		String page = PageUtil.getPostParameter("page");
+		String lContext = PageUtil.getPostParameter("learningContext");
+		String service = PageUtil.getPostParameter("service");
+		
 		connectActivity(
 				activity, 
 				goalsBean.getSelectedGoalData().getSelectedCompetence(), 
-				"learn.targetGoal."+targetGoalId+".targetComp."+targetCompId+".activitySearch");
+				"learn.targetGoal."+targetGoalId+".targetComp."+targetCompId+".activitySearch",
+				page, lContext, service);
 	}
 	
 	public void connectActivityWallData(ActivityWallData activityData, String context) {
@@ -153,13 +159,15 @@ public class CompWallBean implements Serializable {
 	public void connectActivityById(long activityId, String context) {
 		try {
 			Activity activity = goalManager.loadResource(Activity.class, activityId);
-			connectActivity(activity, goalsBean.getSelectedGoalData().getSelectedCompetence(), context);
+			connectActivity(activity, goalsBean.getSelectedGoalData().getSelectedCompetence(), context,
+					null, null, null);
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		}
 	}
 	
-	public void connectActivity(Activity act, CompetenceDataCache compData, String context) {
+	public void connectActivity(Activity act, CompetenceDataCache compData, String context, String page,
+			String lContext, String service) {
 		Activity activity = goalManager.merge(act);
 		long parentTargetCompId = compData.getData().getId();
 
@@ -167,13 +175,14 @@ public class CompWallBean implements Serializable {
 		
 		logger.debug("Connecting Activity \""+activity+"\" to the competence \""+
 				parentTargetCompId+"\" for the user "+ loggedUser.getUser());
-			
+		
 		try {
 			TargetActivity newActivity = goalManager.addActivityToTargetCompetence(
 					loggedUser.getUser(),
 					parentTargetCompId, 
 					activity,
-					context);
+					context,
+					page, lContext, service);
 		
 			// update cache
 			addActivity(compData, newActivity);
@@ -347,6 +356,10 @@ public class CompWallBean implements Serializable {
 	}
 	
 	public void createNewPost() {
+		
+		String page = PageUtil.getPostParameter("page");
+		String learningContext = PageUtil.getPostParameter("learningContext");
+		
 		CompetenceDataCache competenceDataCache = goalsBean.getSelectedGoalData().getSelectedCompetence();
 		
 		long targetCompId = goalsBean.getSelectedGoalData().getSelectedCompetence().getData().getId();
@@ -355,11 +368,14 @@ public class CompWallBean implements Serializable {
 		createNewActivity(
 				this.newActFormData, 
 				competenceDataCache, 
-				"learn.targetGoal."+targetGoalId+".targetComp."+targetCompId);
+				"learn.targetGoal."+targetGoalId+".targetComp."+targetCompId,
+				page,
+				learningContext,
+				null);
 	}
 	
 	public void createNewActivity(NewPostData newActFormData, CompetenceDataCache competenceDataCache, 
-			String context) {
+			String context, String page, String learningContext, String service) {
 		
 		long targetCompId = competenceDataCache.getData().getId();
 
@@ -378,7 +394,10 @@ public class CompWallBean implements Serializable {
 					newActFormData.getVisibility(),
 					targetCompId,
 					newActFormData.isConnectWithStatus(),
-					context);
+					context,
+					page,
+					learningContext,
+					service);
 			
 			@SuppressWarnings("unused")
 			ActivityWallData actData = addActivity(competenceDataCache, newActivity);

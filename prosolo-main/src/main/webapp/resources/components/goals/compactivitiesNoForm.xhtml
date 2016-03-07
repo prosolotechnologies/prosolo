@@ -62,7 +62,7 @@
 			<ui:repeat id="activitiesRepeat" value="#{cc.attrs.allActivities}" var="actIterator" varStatus="actIteratorStatus">
 				
 				<ui:param name="contextRoot" value="#{cc.attrs.context}.targetActivity.#{actIterator.id}" />
-				<ui:param name="learningContextRoot" value="#{util:addSubContext(cc.attrs.learningContext, 'name:activity_wall|id:'.concat(actIterator.id))}" />
+				<ui:param name="learningContextRoot" value="#{util:addSubContext(cc.attrs.learningContext, 'name:activity|id:'.concat(actIterator.id))}" />
 			
 				<h:panelGroup layout="block" id="act" class="act act#{actIteratorStatus.index} #{cc.attrs.activityStyleClass}" pt:context="#{contextRoot}">
 						
@@ -317,11 +317,13 @@
 									</h:panelGroup>
 									
 									<ui:repeat id="commentLoop" value="#{actIterator.comments}" var="commentIterator" varStatus="commentIteratorStatus">
+										<ui:param name="learningContextComment" value="#{util:addSubContext(learningContextRoot, 'name:node_comment|id:'.concat(commentIterator.id))}"></ui:param>
 										<post:comment 
 											commentData="#{commentIterator}" 
 											idPrefix="#{iterator.index}I#{commentIteratorStatus.index}"
 											context="#{contextRoot}"
-											styleClass="#{actIterator.comments.size() - commentIteratorStatus.index > 2 ? 'collapsible' : ''}" />
+											styleClass="#{actIterator.comments.size() - commentIteratorStatus.index > 2 ? 'collapsible' : ''}" 
+											learningContext="#{learningContextComment}"/>
 									</ui:repeat>
 									
 									<script>

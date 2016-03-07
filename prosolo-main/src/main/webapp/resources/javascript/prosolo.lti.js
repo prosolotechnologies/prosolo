@@ -4,16 +4,21 @@ function sign(oForm,consSecret) {
     	    parameters: OAuth.decodeForm('ltiLaunchForm')};
     for (var e = 0; e < oForm.elements.length; ++e) {
         var input = oForm.elements[e];
+        //alert(input.name);
+        //alert(input.value);
         if(input.name=="javax.faces.ViewState"){
         	oForm.removeChild(input);
         }else if (input.name !=null && input.name !="oauth_signature" && input.name !="oauth_signature_method" && input.name !="ltiLaunchForm"
-        && input.value !="start" && input.value != null && input.value != ""  && input.name != "javax.faces.ViewState" && input.name != "submit_form_button")
+        && input.value !="start" && input.value != null  && input.name != "javax.faces.ViewState" && input.name != "submit_form_button")
             { 
         		message.parameters.push([input.name, input.value]);     
         	}
-        OAuth.SignatureMethod.sign(message, accessor);
+       //sign here
+        //OAuth.SignatureMethod.sign(message, accessor);
     }
+    OAuth.SignatureMethod.sign(message, accessor);
     oForm.oauth_signature.value = OAuth.getParameter(message.parameters,"oauth_signature");
+    //alert(OAuth.getParameter(message.parameters,"oauth_signature"));
 }
 function doOnLoad(consSecret, launchUrl, oForm) {
 	freshNonce(oForm);

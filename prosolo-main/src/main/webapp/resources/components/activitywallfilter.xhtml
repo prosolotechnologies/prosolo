@@ -84,8 +84,8 @@
 													action="#{activitywall.changeFilter()}"
 													oncomplete="refreshActivityWall();">
 													<f:param name="filter" value="COURSE" />
-													<f:param name="courseId" value="#{courseData.course.id}" />
-													#{courseData.course.title}
+													<f:param name="courseId" value="#{courseData.id}" />
+													#{courseData.title}
 												</p:commandLink>
 											</li>
 										</ui:repeat>

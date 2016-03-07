@@ -18,7 +18,7 @@ import twitter4j.Status;
  * @author Zoran Jeremic 2013-10-14
  * 
  */
-
+@Deprecated
 public class TwitterHashtagsStatusConsumer implements Runnable {
 	
 	private static Logger logger = Logger.getLogger(TwitterHashtagsStatusConsumer.class);

@@ -13,9 +13,10 @@ import org.prosolo.common.domainmodel.outcomes.Outcome;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
+import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
-import org.prosolo.web.activitywall.data.AttachmentPreview;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.web.competences.data.ActivityType;
 
 public interface ActivityManager extends AbstractManager {
@@ -23,16 +24,17 @@ public interface ActivityManager extends AbstractManager {
 	// TargetActivity toggleCompleted(TargetActivity activity) throws
 	// EventException;
 	Activity createNewActivity(User user, String title,
-			String description, AttachmentPreview attachmentPreview, VisibilityType visType, boolean sync, String context)
-			throws EventException;
+			String description, AttachmentPreview attachmentPreview, VisibilityType visType, boolean sync,
+			String context, String page, String learningContext, String service) throws EventException;
 
 	Activity createNewActivity(User user, String title, String description,
 			AttachmentPreview attachmentPreview, VisibilityType visType,
 			Collection<Tag> tags) throws EventException;
 
-	Activity createNewResourceActivity(User user, String title, String description,
-			AttachmentPreview attachmentPreview, VisibilityType visType,
-			Collection<Tag> tags, boolean sync, String context) throws EventException;
+	Activity createNewResourceActivity(User user, String title,
+			String description, AttachmentPreview attachmentPreview, VisibilityType visType, 
+			Collection<Tag> tags, boolean propagateToSocialStreamManualy,
+			String context, String page, String learningContext, String service) throws EventException;
 
 	boolean checkIfCompletedByUser(User user, Activity activity);
 
@@ -85,4 +87,11 @@ public interface ActivityManager extends AbstractManager {
 	List<Long> getTimeSpentOnActivityForAllUsersSorted(long activityId) throws DbConnectionException;
 	
 	boolean updateTimeSpentOnActivity(long activityId, long timeSpent, Session session);
+	
+	boolean checkIfActivityIsReferenced(long activityId) throws DbConnectionException;
+	
+	void deleteActivity(long activityId, Class<? extends Activity> activityClass, User user, 
+			LearningContextData data);
+	
+	void updateRichContent(long id, String title, String description) throws DbConnectionException;
 }

@@ -1,4 +1,3 @@
-
 var socialInteractionGraph = (function () {
 
 	function readClusterInteractions(config) {
@@ -21,13 +20,22 @@ var socialInteractionGraph = (function () {
 		});
 	}
 
+	function partition(items, size) {
+		var result = _.groupBy(items, function(item, i) {
+			return Math.floor(i/size);
+		});
+		return _.values(result);
+	}
+
 	function readStudentData(config, students) {
-		return $.ajax({
-			url : "http://" + config.host + "/api/social/interactions/data",
-			data : {"students" : students},
-			type : "GET",
-			crossDomain: true,
-			dataType: 'json'
+		return partition(students, 50).map(function(part) {
+			return $.ajax({
+				url : "http://" + config.host + "/api/social/interactions/data",
+				data : {"students" : part},
+				type : "GET",
+				crossDomain: true,
+				dataType: 'json'
+			});
 		});
 	}
 
@@ -57,8 +65,8 @@ var socialInteractionGraph = (function () {
 			res[link.target.student] = {
 				name: link.target.student,
 				cluster: link.target.cluster,
-				clusterClass: cluster(link.source.cluster),
-				foci: foci(link.source.cluster)				
+				clusterClass: cluster(link.target.cluster),
+				foci: foci(link.target.cluster)				
 			};
 			return res;
 		}, {});
@@ -113,10 +121,13 @@ var socialInteractionGraph = (function () {
 			.charge(config.charge)
 			.on("tick", tick)
 			.start();
+
+		var drag = force.drag()
+			.on("dragstart", dragstart);
 		
 		var svg = d3.select(config.selector).append("svg")
-			.attr("width", width)
-			.attr("height", height)
+			// .attr("width", width)
+			// .attr("height", height)
 			.call(d3.behavior.zoom().scaleExtent([0.5, 4]).on("zoom", zoom));
 
 		svg.on('mousedown.zoom',null);
@@ -157,9 +168,17 @@ var socialInteractionGraph = (function () {
 			.data(force.nodes())
 			.enter()
 			.append("g")
+			.on("click", function(d) {
+				config.onNodeClick({
+					id: d.name,
+					cluster: d.cluster,
+					name: studentData[d.name] ? studentData[d.name].name : "",
+					avatar: studentData[d.name] ? studentData[d.name].avatar : ""
+				});
+			})
 			.attr("class", "node")
-			.call(force.drag);
-		
+			.call(drag);
+
 		node.append("circle").attr("r", 10).attr("class", function(d) {
 			return (d.name == config.studentId ? "focus " : "") + d.clusterClass;
 		});
@@ -207,7 +226,20 @@ var socialInteractionGraph = (function () {
 			node.attr("transform", function(d) {
 				return "translate(" + d.x + "," + d.y + ")";
 			});
-		}	   
+		}
+
+		function dragstart(d) {
+			d3.select(this).classed("fixed", d.fixed = true);
+		}
+
+	}
+
+	function parse(collection) {
+		collection.forEach(function(item) {
+			for(var i = 0; i < item.interactions.length; i++) {
+				item.interactions[i] = JSON.parse(item.interactions[i]);
+			}
+		});
 	}
 	
 	return {
@@ -216,17 +248,25 @@ var socialInteractionGraph = (function () {
 				.when(
 					readClusterInteractions(config),
 					readOuterInteractions(config))
-				.then(function(clusterInteractions, outerInteractions) {
-					var ci = clusterInteractions[0];
-					var oi = outerInteractions[0];
-					var students = socialInteractionService.students(ci, oi);
-					$
-						.when(
-							readStudentData(config, students)
-						)
-						.then(function(data) {
-							run(config, ci, oi, data);
-						});
+				.then(function(ci, oi) {
+					parse(ci[0]);
+					parse(oi[0]);
+					if ((ci[0].length + oi[0].length) == 0) {
+						$("#social-interaction").text(config.noResultsMessage);
+						return;
+					}
+					
+					var students = socialInteractionService.students(ci[0], oi[0]);
+					$.when.apply($, readStudentData(config, students))
+					 .then(function() {
+						 var merge = {};
+						 for(var i = 0; i < arguments.length; i++) {
+							 $.extend(true, merge, arguments[i].responseJSON);								
+						 }
+						 run(config, ci[0], oi[0], merge);
+					 });
+				}).fail(function() {
+					$("#social-interaction").text(config.systemNotAvailableMessage);
 				});
 		}
 	};

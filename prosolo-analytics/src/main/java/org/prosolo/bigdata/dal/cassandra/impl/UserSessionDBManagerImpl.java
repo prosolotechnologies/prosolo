@@ -6,6 +6,7 @@ package org.prosolo.bigdata.dal.cassandra.impl;
  */
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -50,18 +51,21 @@ public class UserSessionDBManagerImpl extends SimpleCassandraClientImpl implemen
 	}
 
 	@Override
-	public void userSessionEnded(Long userId, Long logoutTime, String reason) {
+	public Optional<SessionRecord> userSessionEnded(Long userId, Long logoutTime, String reason) {
 
 		BoundStatement statement = StatementUtil.statement(preparedStatements.get(USER_MOST_RECENT_SESSION_QUERY_NAME),
 				userId);
 		List<SessionRecord> mostRecentSessionSingletonList = map(query(statement), (row) -> toSessionRecord(row));
 		if (CollectionUtils.isEmpty(mostRecentSessionSingletonList)) {
 			logger.warn(String.format("No sessionrecord objects found for user %s, cannot update logout time", userId));
+			return Optional.empty();
 		} else {
 			SessionRecord mostRecentSession = mostRecentSessionSingletonList.get(0);
 			BoundStatement logoutStatement = StatementUtil.statement(preparedStatements.get(USER_LOGOUT_QUERY_NAME),
 					logoutTime, reason, userId, mostRecentSession.getSessionStart());
 			getSession().execute(logoutStatement);
+			return Optional.of(new SessionRecord(mostRecentSession.getUserId(), 
+					mostRecentSession.getSessionStart(), logoutTime, reason));
 		}
 
 	}

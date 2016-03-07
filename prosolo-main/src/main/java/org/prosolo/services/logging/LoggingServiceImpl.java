@@ -14,19 +14,33 @@ import org.joda.time.Days;
 import org.joda.time.DurationFieldType;
 import org.joda.time.LocalDate;
 import org.prosolo.app.Settings;
+import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.activities.requests.NodeRequest;
+import org.prosolo.common.domainmodel.activitywall.NodeSocialActivity;
+import org.prosolo.common.domainmodel.activitywall.PostSocialActivity;
+import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
+import org.prosolo.common.domainmodel.activitywall.UserSocialActivity;
+import org.prosolo.common.domainmodel.activitywall.comments.NodeComment;
+import org.prosolo.common.domainmodel.activitywall.comments.SocialActivityComment;
+import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.workflow.evaluation.EvaluationSubmission;
 import org.prosolo.services.activityreport.LoggedEvent;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.event.context.ContextName;
 import org.prosolo.services.event.context.LearningContext;
 import org.prosolo.services.logging.exception.LoggingException;
 import org.prosolo.services.messaging.LogsMessageDistributer;
 import org.prosolo.services.nodes.CourseManager;
+import org.prosolo.web.ApplicationPage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
+import org.prosolo.common.domainmodel.content.Post;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -67,7 +81,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			Comment, EVALUATION_REQUEST,EVALUATION_ACCEPTED, EVALUATION_GIVEN,
 			JOIN_GOAL_INVITATION, JOIN_GOAL_INVITATION_ACCEPTED,JOIN_GOAL_REQUEST,
 			JOIN_GOAL_REQUEST_APPROVED, JOIN_GOAL_REQUEST_DENIED,
-			Like,SEND_MESSAGE};
+			Like,Dislike, SEND_MESSAGE, PostShare};
 	
 	@PostConstruct
 	public void init() {
@@ -193,7 +207,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			String objectType, long objectId, String objectTitle,
 			String targetType, long targetId, String reasonType, long reasonId,
 			Map<String, String> parameters, String ipAddress) throws LoggingException {
-		
+
 		if (!Settings.getInstance().config.init.formatDB) {
 	 
 			if (parameters == null) {
@@ -231,7 +245,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			logObject.put("reasonId", reasonId);
 			logObject.put("link", link);
 
-			logObject.put("courseId",extractCourseIdForUsedResource(objectType, objectId, targetType, targetId, reasonType, reasonId));
+			logObject.put("courseId",extractCourseIdForUsedResource(objectType, objectId, targetType, targetId, reasonType, reasonId,null));
 			Long targetUserId=(long) 0;
 			if(Arrays.asList(interactions).contains(eventType)){
 				//System.out.println("INTERACTION SHOULD BE PROCESSED:"+logObject.toString());
@@ -298,31 +312,46 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		long targetId= (long) logObject.get("targetId");
 		String reasonType= (String) logObject.get("reasonType");
 		long reasonId=(long) logObject.get("reasonId");
-
 		Long targetUserId=(long)0;
-		if(objectType.equals("NodeRequest")){
+		if(objectType.equals(NodeRequest.class.getSimpleName())){
 			targetUserId=logsDataManager.getRequestMaker(actorId, objectId);
-		}else if(objectType.equals("EvaluationSubmission")){
-
+		}else if(objectType.equals(EvaluationSubmission.class.getSimpleName())){
 			targetUserId=logsDataManager.getEvaluationSubmissionRequestMaker(actorId,objectId);
 		}else {
 			if(eventType.equals(EventType.SEND_MESSAGE)){
 				DBObject parameters=(DBObject) logObject.get("parameters");
+				if(logObject==null){
+					System.out.println("X");
+				}
+				if(parameters==null){
+					System.out.println("Y");
+				}
+				if(parameters.get("user")==null){
+					System.out.println("Z");
+				}
 				System.out.println("SEND MESSAGE:"+logObject.toString()+" USER:"+parameters.get("user"));
 				targetUserId=  Long.valueOf(parameters.get("user").toString());
-			}else if(eventType.equals(EventType.Like)){
-
-				if(objectType.equals("PostSocialActivity")||objectType.equals("SocialActivityComment")||
-						objectType.equals("TwitterPostSocialActivity")||objectType.equals("UserSocialActivity")||
-						objectType.equals("UserSocialActivity")||objectType.equals("NodeSocialActivity")||
-						objectType.equals("NodeComment")){
+			}else if(eventType.equals(EventType.Like) || eventType.equals(EventType.Dislike)){
+				if(objectType.equals(PostSocialActivity.class.getSimpleName())||objectType.equals(SocialActivityComment.class.getSimpleName())||
+						objectType.equals(TwitterPostSocialActivity.class.getSimpleName())||objectType.equals(UserSocialActivity.class.getSimpleName())||
+						objectType.equals(UserSocialActivity.class.getSimpleName())||objectType.equals(NodeSocialActivity.class.getSimpleName())||
+						objectType.equals(NodeComment.class.getSimpleName())){
 					targetUserId=logsDataManager.getSocialActivityMaker(actorId,objectId);
 					System.out.println("GET FOR SOCIAL ACTIVITY:"+actorId+" targetUser:"+targetUserId+" objectId:"+objectId);
+				}else if(objectType.equals(TargetActivity.class.getSimpleName())){
+					targetUserId=logsDataManager.getActivityMakerForTargetActivity(actorId,objectId);
 				}
 			}else if(eventType.equals(EventType.Comment)){
-				if(objectType.equals("SocialActivityComment")){
+				if(objectType.equals(SocialActivityComment.class.getSimpleName())){
 					targetUserId=logsDataManager.getSocialActivityMaker(actorId,targetId);
-					System.out.println("GET FOR COMMENT ON SOCIAL ACTIVITY:"+actorId+" targetUser:"+targetUserId+" objectId:"+objectId);
+				}else if(objectType.equals(NodeComment.class.getSimpleName())){
+						if(targetType.equals(TargetActivity.class.getSimpleName())){
+							targetUserId=logsDataManager.getActivityMakerForTargetActivity(actorId,targetId);
+					}
+				}
+			}else if(eventType.equals(EventType.PostShare)){
+				if(objectType.equals(Post.class.getSimpleName())){
+					targetUserId=logsDataManager.getPostMaker(actorId,objectId);
 				}
 			}
 		}
@@ -330,26 +359,34 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		return targetUserId;
 	}
 
-	private Long extractCourseIdForUsedResource(String objectType, long objectId, String targetType, long targetId, String reasonType, long reasonId) {
+	private Long extractCourseIdForUsedResource(String objectType, long objectId, String targetType, long targetId, String reasonType, long reasonId,LearningContext learningContext) {
 		Map<String, Long> types=new HashMap<String, Long>();
 		types.put(objectType, objectId);
 		types.put(targetType, targetId);
 		types.put(reasonType, reasonId);
 		Long courseId=0l;
-		if(types.containsKey("TargetLearningGoal")){
-			courseId= courseManager.findCourseIdForTargetLearningGoal(types.get("TargetLearningGoal"));
-		}else if(types.containsKey("TargetCompetence")){
-			courseId= courseManager.findCourseIdForTargetCompetence(types.get("TargetCompetence"));
-		}else if(types.containsKey("TargetActivity")){
-			courseId= courseManager.findCourseIdForTargetActivity(types.get("TargetActivity"));
-		}else  if(types.containsKey("NodeRequest")){
-
+		if(types.containsKey(TargetLearningGoal.class.getSimpleName())){
+			courseId= courseManager.findCourseIdForTargetLearningGoal(types.get(TargetLearningGoal.class.getSimpleName()));
+		}else if(types.containsKey(TargetCompetence.class.getSimpleName())){
+			courseId= courseManager.findCourseIdForTargetCompetence(types.get(TargetCompetence.class.getSimpleName()));
+		}else if(types.containsKey(TargetActivity.class.getSimpleName())){
+			courseId= courseManager.findCourseIdForTargetActivity(types.get(TargetActivity.class.getSimpleName()));
+		}/*else  if(types.containsKey("NodeRequest ...")){
+			System.out.println("Node request ...");
 		}else  if(types.containsKey("PostSocialActivity")){
-
+			System.out.println("Post Social Activity ...");
 		}else if(types.containsKey("SocialActivityComment")){
 			System.out.println("SHOULD GET SOCIAL ACTIVITY COMMENT");
+		}*/
+		if(courseId==0 && learningContext!=null && learningContext.getPage()!=null){
+			if(learningContext.getPage().equals(ApplicationPage.LEARN)){
+				if(learningContext.getContext().getName().equals(ContextName.CREDENTIAL)){
+					courseId=learningContext.getContext().getId();
+				}
+			}
 		}
-		System.out.println("Extracted course id:"+courseId);
+			System.out.println("ExtractedCourse id:"+courseId);
+
 		return courseId;
 	}
 
@@ -577,6 +614,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			String objectType, long objectId, String objectTitle,
 			String targetType, long targetId, String reasonType, long reasonId,
 			Map<String, String> parameters, String ipAddress, LearningContext learningContext) throws LoggingException {
+
 		if (!Settings.getInstance().config.init.formatDB) {
 			 
 			if (parameters == null) {
@@ -613,21 +651,19 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			logObject.put("reasonType", reasonType);
 			logObject.put("reasonId", reasonId);
 			logObject.put("link", link);
+
 			
 			if(learningContext != null) {
 				Gson gson = new GsonBuilder().create();
 				String learningContextJson = gson.toJson(learningContext);
 				DBObject lContext = (DBObject) JSON.parse(learningContextJson);
 				logObject.put("learningContext", lContext);
+				System.out.println("HAS LEARNING CONTEXT...:"+lContext.toString());
 			}
 
-			logObject.put("courseId",extractCourseIdForUsedResource(objectType, objectId, targetType, targetId, reasonType, reasonId));
+			logObject.put("courseId",extractCourseIdForUsedResource(objectType, objectId, targetType, targetId, reasonType, reasonId,learningContext));
 			Long targetUserId=(long) 0;
-			if(Arrays.asList(interactions).contains(eventType)){
-				//System.out.println("INTERACTION SHOULD BE PROCESSED:"+logObject.toString());
-				 targetUserId=extractSocialInteractionTargetUser(logObject, eventType);
-			}
-			logObject.put("targetUserId", targetUserId);
+
 			if (parameters != null && !parameters.isEmpty()) {
 				Iterator<Map.Entry<String, String>> it = parameters.entrySet()
 						.iterator();
@@ -640,6 +676,13 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 				}
 				logObject.put("parameters", parametersObject);
 			}
+			if(Arrays.asList(interactions).contains(eventType)){
+				System.out.println("INTERACTION SHOULD BE PROCESSED:"+logObject.toString());
+				targetUserId=extractSocialInteractionTargetUser(logObject, eventType);
+			}else{
+				System.out.println("We are not interested in this interaction:"+eventType.name());
+			}
+			logObject.put("targetUserId", targetUserId);
 
 			Object timestamp = logObject.get("timestamp");
 			

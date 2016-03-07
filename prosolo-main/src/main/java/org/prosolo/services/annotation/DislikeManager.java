@@ -12,8 +12,9 @@ import org.prosolo.services.event.EventException;
 public interface DislikeManager {
 	
 	void dislikeSocialActivity(User user, long notificationId, long socialActivityId,
-			int newDislikeCount, Session session, String context) throws EventException,
-			ResourceCouldNotBeLoadedException;
+			int newDislikeCount, Session session, String context, String page, 
+			String lContext, String service) 
+			throws EventException, ResourceCouldNotBeLoadedException;
 
 	Annotation dislikeComment(User user, long commentId, Session session, String context) throws EventException,
 	ResourceCouldNotBeLoadedException;
@@ -26,7 +27,8 @@ public interface DislikeManager {
 			Session session, String context, String page, String lContext, String service) throws EventException,
 			ResourceCouldNotBeLoadedException;
 
-	Annotation dislike(User user, BaseEntity resource, Session session, String context) throws EventException;
+	Annotation dislike(User user, BaseEntity resource, Session session, String context,
+			String page, String lContext, String service) throws EventException;
 
 	int dislikeCount(BaseEntity resource);
 	
@@ -37,7 +39,9 @@ public interface DislikeManager {
 	boolean isDislikedByUser(BaseEntity resource, User user);
 
 	void removeDislikeFromSocialActivity(User user, long notificationId, long socialActivityId,
-			int newDislikeCount, Session session, String context) throws EventException, ResourceCouldNotBeLoadedException;
+			int newDislikeCount, Session session, String context,
+			String page, String lContext, String service) throws EventException,
+			ResourceCouldNotBeLoadedException;
 	
 	boolean removeDislikeFromNode(User user, long resourceId,
 			Session session, String context, String page, String lContext, String service) throws EventException,

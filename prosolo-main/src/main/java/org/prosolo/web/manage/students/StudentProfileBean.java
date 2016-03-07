@@ -317,6 +317,10 @@ public class StudentProfileBean implements Serializable {
 	public long getDecodedId() {
 		return decodedId;
 	}
+	
+	public long getDecodedId(String id) {
+		return idEncoder.decodeId(id);
+	}
 
 	public void setDecodedId(long decodedId) {
 		this.decodedId = decodedId;

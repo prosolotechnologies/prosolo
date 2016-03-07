@@ -5,6 +5,7 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
 
+import com.google.gson.Gson;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
@@ -37,6 +38,13 @@ public class LoggingEventsObserver extends EventObserver {
 
 	@Override
 	public void handleEvent(Event event) {
+		logger.info("LoggingEvent handling event action: " + event.getAction());
+		logger.info("LoggingEvent handling event actor: " + event.getActor());
+		logger.info("LoggingEvent handling event object: " + event.getObject());
+		logger.info("LoggingEvent handling event target: " + event.getTarget());
+		logger.info("LoggingEvent handling event page:"+event.getPage());
+		logger.info("LoggingEvent handling event context:"+event.getContext());
+		logger.info("LoggingEvent handling event service:"+event.getService());
 		String objectType = "";
 		long objectId = 0;
 		String objectTitle = "";

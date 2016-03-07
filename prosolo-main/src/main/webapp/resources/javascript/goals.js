@@ -1,5 +1,5 @@
 function hideLearningGoals(goalsDiv, limit){
-	var goalList = $("#"+goalsDiv);
+	var goalList = $(goalsDiv);
 	var goals = goalList.children("li");
 	var goalCount = goals.length;
 	if (goalCount > limit) {
@@ -13,6 +13,6 @@ function hideLearningGoals(goalsDiv, limit){
 		}
 		$('#hiddenGoals').hide();
 
-		goalList.after('<a id="moreGoals" class="navDown" href="javascript:void(0);">expand</a>');
+		goalList.after('<a id="moreGoals" class="navDown" href="#" onclick="$(\'#hiddenGoals\').slideToggle();return false;">expand</a>');
 	}
 }

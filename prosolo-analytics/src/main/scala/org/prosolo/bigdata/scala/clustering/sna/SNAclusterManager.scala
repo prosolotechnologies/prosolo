@@ -26,7 +26,7 @@ import scala.collection.JavaConverters._
   */
 object SNAclusterManager{
 
-val edgesToRemove=5
+val edgesToRemove=2
   //val moocCourses:Array[Long]=Array(1,32768,32769,32770,65536,98304,98305,98306,131072,131073,131074)
    val allCourses:Array[Long]=Array(1)
   val dbManager=SocialInteractionStatisticsDBManagerImpl.getInstance()
@@ -50,13 +50,15 @@ def identifyClusters(): Unit ={
     val clusteringDAOManager=new ClusteringDAOImpl
   val allCourses=clusteringDAOManager.getAllCoursesIds
   allCourses.asScala.foreach(courseid=> {
-    println("RUNNING SNA CLUSTERING FOR COURSE:" + courseid)
+    println("RUNNING SNA CLUSTERING FOR COURSE:" + courseid+ " timestamp:"+timestamp)
     identifyClustersInCourse(timestamp, courseid)
     updateTimestamp(timestamp)
   })
 }
   def updateTimestamp(timestamp:Long)={
     dbManager.updateCurrentTimestamp(TableNames.INSIDE_CLUSTER_INTERACTIONS,timestamp)
+    dbManager.updateCurrentTimestamp(TableNames.OUTSIDE_CLUSTER_INTERACTIONS,timestamp)
+    dbManager.updateCurrentTimestamp(TableNames.STUDENT_CLUSTER,timestamp)
   }
   def identifyClustersInCourse(timestamp:Long, courseId:Long): Unit ={
     val socialInteractionsData=readCourseData(courseId)
@@ -70,7 +72,10 @@ def identifyClusters(): Unit ={
     }
     println("Users:"+directedNetwork.getNodes().size+" LINKS:"+directedNetwork.getLinks().size)
     if(directedNetwork.getLinks().size>0){
-      val finalUserNodes:ArrayBuffer[UserNode]=directedNetwork.calculateEdgeBetweennessClustering(edgesToRemove)
+      val finalUserNodes:ArrayBuffer[UserNode]=if(directedNetwork.getLinks().size<edgesToRemove){
+        directedNetwork.calculateEdgeBetweennessClustering(directedNetwork.getLinks().size)
+      }else directedNetwork.calculateEdgeBetweennessClustering(edgesToRemove)
+      //val finalUserNodes:ArrayBuffer[UserNode]=directedNetwork.calculateEdgeBetweennessClustering(edgesToRemove)
       storeUserNodesClustersForCourse(timestamp, courseId,finalUserNodes, directedNetwork.getLinks())
     }
 
@@ -90,16 +95,17 @@ def identifyClusters(): Unit ={
     userLinks.foreach{
       userLink=>
         println("USER LINK:"+userLink.weight+" source:" +userLink.source.id+"cluster:"+userLink.source.cluster+" target:"+userLink.target.id+" target cl:"+userLink.target.cluster)
-       val sourcekey=new Tuple3(courseId,userLink.source.cluster,userLink.source.id)
-       // val targetkey=new Tuple3(courseId,userLink.target.cluster,userLink.target.id)
-       // val x=new ArrayBuffer[Tuple3[Long,Long,Int]]()
-       // val x=new ArrayBuffer[Tuple3[Long,Long,Int]]]()
-          val inClusterUserInteractions=sourceInteractions.getOrElse(sourcekey,new ArrayBuffer[Tuple2[Long, Int]]())
-          inClusterUserInteractions+=new Tuple2(userLink.target.id,userLink.weight.toInt)
-          sourceInteractions+=sourcekey->inClusterUserInteractions
-      //  println("SOURCE INTERACTIONS:"+sourceInteractions.toString())
-       // userLink.target.cluster=131;
-        if(userLink.source.cluster!=userLink.target.cluster){
+        if(userLink.source.cluster==userLink.target.cluster) {
+          val sourcekey = new Tuple3(courseId, userLink.source.cluster, userLink.source.id)
+          // val targetkey=new Tuple3(courseId,userLink.target.cluster,userLink.target.id)
+          // val x=new ArrayBuffer[Tuple3[Long,Long,Int]]()
+          // val x=new ArrayBuffer[Tuple3[Long,Long,Int]]]()
+          val inClusterUserInteractions = sourceInteractions.getOrElse(sourcekey, new ArrayBuffer[Tuple2[Long, Int]]())
+          inClusterUserInteractions += new Tuple2(userLink.target.id, userLink.weight.toInt)
+          sourceInteractions += sourcekey -> inClusterUserInteractions
+          //  println("SOURCE INTERACTIONS:"+sourceInteractions.toString())
+          // userLink.target.cluster=131;
+        }else{
           val sourceOutKey=new Tuple4(courseId,userLink.source.cluster,userLink.source.id,"SOURCE")
           val sourceOutClusterUserInteractions=targetInteractions.getOrElse(sourceOutKey,new ArrayBuffer[Tuple3[Long,Int,Int]]())
           sourceOutClusterUserInteractions+=new Tuple3(userLink.target.id,userLink.target.cluster, userLink.weight.toInt)
@@ -121,6 +127,7 @@ def identifyClusters(): Unit ={
     }.foreach{
       case(key,interactions)=>
          dbManager.insertInsideClusterInteractions(timestamp,key._1,key._2.toLong,key._3,interactions)
+        dbManager.insertStudentCluster(timestamp,key._1,key._3,key._2.toLong)
     }
 
     val targetInteractionsConv=targetInteractions.map{

@@ -115,13 +115,52 @@ $(function () {
 			  $('.searchResults').first().stop(true, true).slideUp(10);
 		 }
 	});
+	
+	/* Observation panel */
+	$('#observationBar').on({
+	    "shown.bs.dropdown": function() { this.closable = false; },
+	    "click":             function() { this.closable = false; },
+	    "hide.bs.dropdown":  function() { return this.closable; }
+	});
+	 
+	 
+	/* Notifications and messages panel settings */
+	/*$('#notifications').on({
+	    "shown.bs.dropdown": function() { this.closable = false; },
+	    "click":             function() { this.closable = false; },
+	    "hide.bs.dropdown":  function() { return this.closable; }
+	});*/
+	 
+	$('#notifications a.keepOpen').on('click', function (event) {
+	    $(this).parent().toggleClass('open');
+	});
+	 
+	$('body').on('click', function (e) {
+	    if (!$('#notifications').is(e.target) 
+	        && $('#notifications').has(e.target).length === 0 
+	        && $('.open').has(e.target).length === 0
+	    ) {
+	        $('#notifications').removeClass('open');
+	    }
+	});
+	 
+	 
+	/* stick observation panel to the top */
+	$(window).bind('scroll', function() {
+	     if ($(window).scrollTop() > 67) {
+	         $('.observationPanel').addClass('bar-fixed-top');
+	     }
+	     else {
+	         $('.observationPanel').removeClass('bar-fixed-top');
+	     }
+	});
 
 	/* tooltip initialization */
 	$('[data-toggle="tooltip"]').tooltip();
 });
 
 /*  show and hide search results if something is typed in search field */
-function showInstructorSearchResults() {
+function showSearchResults() {
 //	var length = $('.acField').val().length;
 //	//alert(length);
 //	if( (length > 0 && instructorSearchPreviousLength == 0) 

@@ -20,9 +20,9 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.services.nodes.impl.LearningGoalManagerImpl.GoalTargetCompetenceAnon;
 import org.prosolo.services.nodes.impl.LearningGoalManagerImpl.NodeEvent;
-import org.prosolo.web.activitywall.data.AttachmentPreview;
 
 public interface LearningGoalManager extends AbstractManager {
 	
@@ -42,8 +42,8 @@ public interface LearningGoalManager extends AbstractManager {
 					throws EventException, ResourceCouldNotBeLoadedException;
 	
 	TargetLearningGoal createNewCourseBasedLearningGoal(User user,
-			Course course, LearningGoal courseGoal,
-			String context) throws EventException;
+			long courseId, LearningGoal courseGoal,
+			String context) throws EventException, ResourceCouldNotBeLoadedException;
 	
 //	TargetLearningGoal updateLearningGoal(User user, TargetLearningGoal targetGoal) throws EventException;
 	
@@ -79,8 +79,10 @@ public interface LearningGoalManager extends AbstractManager {
 			List<Activity> targetActivities, boolean sync, String context) throws EventException, 
 			ResourceCouldNotBeLoadedException;
 
-	TargetActivity addActivityToTargetCompetence(User user, long targetCompetenceId, Activity activity,
-			String context) throws EventException, ResourceCouldNotBeLoadedException;
+	TargetActivity addActivityToTargetCompetence(User user,
+			long targetCompetenceId, Activity activity, String context, String page,
+			String learningContext, String service)
+			throws EventException, ResourceCouldNotBeLoadedException;
 	
 	TargetActivity addActivityToTargetCompetence(User user, long targetCompetenceId, long activityId, String context)
 			throws EventException, ResourceCouldNotBeLoadedException;
@@ -111,8 +113,9 @@ public interface LearningGoalManager extends AbstractManager {
 
 	TargetActivity createActivityAndAddToTargetCompetence(User user,
 			String title, String description, AttachmentPreview attachmentPreview,
-			VisibilityType visibility, long targetCompId, boolean connectWithStatus,
-			String context) throws EventException, ResourceCouldNotBeLoadedException;
+			VisibilityType visType, long targetCompetenceId, boolean connectWithStatus,
+			String context, String page, String learningContext, String service) 
+					throws EventException, ResourceCouldNotBeLoadedException;
 	
 	NodeEvent createCompetenceAndAddToGoal(User user, String title, String description, 
 			int validity, int duration, VisibilityType visibilityType, Collection<Tag> tags, 
@@ -175,5 +178,8 @@ public interface LearningGoalManager extends AbstractManager {
 	Set<Long> getTargetActivitiesForTargetLearningGoal(Long targetLearningGoalId);
 
 	List<Long> getUserGoalsIds(User user);
+	
+	TargetLearningGoal createNewCourseBasedLearningGoal(User user, Course course, LearningGoal courseGoal,
+			String context) throws EventException, ResourceCouldNotBeLoadedException;
 
 }

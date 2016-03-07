@@ -151,7 +151,7 @@ public class GoalDataCache implements Serializable {
 			Course course = null;
 			
 			if (courseData != null) {
-				course = defaultManager.loadResource(Course.class, courseData.getCourse().getId());
+				course = defaultManager.loadResource(Course.class, courseData.getId());
 			}
 			
 			for (TargetCompetence tComp : competences) {

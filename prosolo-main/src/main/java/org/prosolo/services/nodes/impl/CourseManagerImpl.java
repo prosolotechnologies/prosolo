@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.inject.Inject;
+
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.events.EventType;
@@ -34,10 +36,13 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.indexing.impl.NodeChangeObserver;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.ResourceFactory;
+import org.prosolo.services.nodes.data.CompetenceData;
 import org.prosolo.services.rest.courses.data.CompetenceJsonData;
 import org.prosolo.services.rest.courses.data.SerieJsonData;
 import org.prosolo.services.rest.courses.data.SerieType;
@@ -55,6 +60,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Autowired private EventFactory eventFactory;
 	@Autowired private ResourceFactory resourceFactory;
+	@Inject private FeedSourceManager feedSourceManager;
 
 	@Override
 	@Transactional
@@ -118,12 +124,14 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	@Override
 	@Transactional (readOnly = false)
 	public Course updateCompetencesAndSaveNewCourse(String title, String description,
-			Course basedOn, List<CourseCompetenceData> competences, 
+			long basedOnCourseId, List<CourseCompetenceData> competences, 
 			Collection<Tag> tags, Collection<Tag> hashtags, User maker,
 			CreatorType creatorType,
-			boolean studentsCanAddNewCompetences, boolean pubilshed) throws EventException {
+			boolean studentsCanAddNewCompetences, boolean pubilshed) throws EventException, ResourceCouldNotBeLoadedException {
 		
 		List<CourseCompetence> updatedCompetences = saveUnsavedCompetences(competences);
+		
+		Course basedOn = loadResource(Course.class, basedOnCourseId);
 		
 		Course newCourse = resourceFactory.createCourse(
 				title, 
@@ -169,15 +177,16 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional (readOnly = false)
-	public Course updateCourse(Course course, String title, String description,
+	public Course updateCourse(long courseId, String title, String description,
 			List<CourseCompetenceData> competences,
 			Collection<Tag> tags, Collection<Tag> hashtags, List<String> blogs, User user,
-			boolean studentsCanAddNewCompetences, boolean pubilshed) throws EventException {
+			boolean studentsCanAddNewCompetences, boolean pubilshed) throws EventException, ResourceCouldNotBeLoadedException {
 		
 		List<CourseCompetence> updatedCompetences = saveUnsavedCompetences(competences);
 		
-		if (course != null) {
-			course = merge(course);
+		if (courseId > 0) {
+			Course course = loadResource(Course.class, courseId);
+			
 			Course updatedCourse = resourceFactory.updateCourse(
 					course, 
 					title, 
@@ -395,7 +404,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional (readOnly = true)
-	public List<Competence> getOtherUsersCompetences(Course course,
+	public List<Competence> getOtherUsersCompetences(long courseId,
 			List<Long> idsOfcompetencesToExclude, User user) {
 		
 		String query = 
@@ -404,13 +413,13 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 			"LEFT JOIN enrollment.course course " +
 			"LEFT JOIN enrollment.addedCompetences addedCompetences " +
 			"LEFT JOIN addedCompetences.competence comp " +
-			"WHERE course = :course " +
+			"WHERE course.id = :courseId " +
 				"AND comp.id NOT IN (:excludedCompIds)" +
 			"ORDER BY comp.title ";
 
 		@SuppressWarnings("unchecked")
 		List<Competence> result = persistence.currentManager().createQuery(query).
-				setEntity("course", course).
+				setLong("courseId", courseId).
 				setParameterList("excludedCompIds", idsOfcompetencesToExclude).
 				list();
 		return result;
@@ -467,15 +476,27 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional(readOnly = false)
-	public CourseEnrollment enrollInCourse(User user, Course course, TargetLearningGoal targetGoal, String context) {
-		CourseEnrollment enrollment = resourceFactory.enrollUserInCourse(user, course, targetGoal, context);
-		if(enrollment != null) {
+	public CourseEnrollment enrollInCourse(User user, long courseId, TargetLearningGoal targetGoal, String context,
+			String page, String lContext, String service) throws ResourceCouldNotBeLoadedException {
+		
+		Course course = loadResource(Course.class, courseId);
+		
+		Map<String, Object> res = resourceFactory.enrollUserInCourse(user, course, targetGoal, context);
+		CourseEnrollment enrollment = null;
+		
+		if (res != null) {
+			enrollment = (CourseEnrollment) res.get("enrollment");
+		}
+		
+		if (enrollment != null) {
 			try {
 				
 				Map<String, String> parameters = new HashMap<String, String>();
 				parameters.put("context", context);
 			
 				eventFactory.generateEvent(EventType.ENROLL_COURSE, user, enrollment, course, parameters);
+				
+				fireInstructorAssignEvent(user, enrollment, course.getId(), res, page, lContext, service);
 			} catch (EventException e) {
 				logger.error(e);
 			}	
@@ -485,9 +506,11 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional (readOnly = false)
-	public CourseEnrollment addCourseCompetencesToEnrollment(Course course,
-			CourseEnrollment enrollment) {
+	public CourseEnrollment addCourseCompetencesToEnrollment(long courseId,
+			CourseEnrollment enrollment) throws ResourceCouldNotBeLoadedException {
 		List<CourseCompetence> courseCompetences = new ArrayList<CourseCompetence>();
+		
+		Course course = loadResource(Course.class, courseId);
 		
 		for (CourseCompetence courseCompetence : course.getCompetences()) {
 			CourseCompetence cc = new CourseCompetence();
@@ -557,8 +580,9 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional (readOnly = false)
-	public CourseEnrollment addToFutureCourses(long coursePortfolioId, Course course) throws ResourceCouldNotBeLoadedException {
+	public CourseEnrollment addToFutureCourses(long coursePortfolioId, long courseId) throws ResourceCouldNotBeLoadedException {
 		CoursePortfolio coursePortfolio = loadResource(CoursePortfolio.class, coursePortfolioId);
+		Course course = loadResource(Course.class, coursePortfolioId);
 		
 		CourseEnrollment enrollment = new CourseEnrollment();
 		enrollment.setCourse(course);
@@ -574,7 +598,8 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional (readOnly = false)
-	public CourseEnrollment activateCourseEnrollment(User user, CourseEnrollment enrollment, String context) {
+	public CourseEnrollment activateCourseEnrollment(User user, CourseEnrollment enrollment, String context,
+			String page, String learningContext, String service) {
 		enrollment.setDateStarted(new Date());
 		enrollment.setStatus(Status.ACTIVE);
 		
@@ -583,6 +608,18 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 		if (targetGoal != null) {
 			targetGoal.setCourseEnrollment(enrollment);
 			targetGoal = saveEntity(targetGoal);
+		}
+		
+		Map<String, Object> courseData = getCourseIdAndInstructorAssignMethod(enrollment.getId());
+		if(courseData != null) {
+			Long courseId = (Long) courseData.get("id");
+			Boolean automaticAssign = !((Boolean) courseData.get("assignManually"));
+			if(automaticAssign) {
+				List<Long> ids = new ArrayList<>();
+				ids.add(enrollment.getId());
+				Map<String, Object> res = resourceFactory.assignStudentsToInstructorAutomatically(courseId, ids, 0);
+				fireInstructorAssignEvent(user, enrollment, courseId, res, page, learningContext, service);
+			}
 		}
 		
 		Map<String, String> parameters = new HashMap<String, String>();
@@ -601,10 +638,40 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 		
 	}
 	
+	private Map<String, Object> getCourseIdAndInstructorAssignMethod(long enrollmentId) {
+		try {
+			String query = 
+					"SELECT course.id, course.manuallyAssignStudentsToInstructors " +
+					"FROM CourseEnrollment enrollment " +
+					"INNER JOIN enrollment.course course " +
+					"WHERE enrollment.id = :enrollmentId";
+			
+			Object[] res = (Object[]) persistence.currentManager().createQuery(query).
+					setLong("enrollmentId", enrollmentId).
+					uniqueResult();
+			if(res == null) {
+				return null;
+			}
+			Long id = (Long) res[0];
+			Boolean assignManually = (Boolean) res[1];
+			Map<String, Object> result = null;
+			if(id != null) {
+				result = new HashMap<>();
+				result.put("id", id);
+				result.put("assignManually", assignManually);
+			}
+			return result;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading course data");
+		}
+	}
+	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional (readOnly = false)
 	public CourseEnrollment withdrawFromCourse(User user, long enrollmentId, boolean deleteLearningHistory, 
-			Session session) throws ResourceCouldNotBeLoadedException {
+			Session session, String page, String lContext, String service) throws ResourceCouldNotBeLoadedException {
 		logger.info("withdrawFromCourse");
 		CourseEnrollment enrollment = (CourseEnrollment) session.get(CourseEnrollment.class, enrollmentId);
 		logger.info("withdrawFromCourse");
@@ -622,10 +689,51 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 			enrollment.setTargetGoal(null);
 			saveEntity(enrollment, session);
 		}
+		enrollment.setInstructor(null);
+		enrollment.setAssignedToInstructor(false);
 		logger.info("withdrawFromCourse");
+		
+		try {
+			Map<String, String> parameters = new HashMap<String, String>();
+			Map<String, Object> courseData = getCourseIdAndInstructorAssignMethod(enrollment.getId());
+			if(courseData != null) {
+				Long courseId = (Long) courseData.get("id");
+				parameters.put("courseId", courseId + "");
+				long instructorUserId = getInstructorUserIdForEnrollment(enrollment.getId());
+				User target = new User();
+				target.setId(instructorUserId);
+				eventFactory.generateEvent(EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR, user, user, target, 
+						null, page, lContext, service, new Class[] {NodeChangeObserver.class}, parameters);
+			}
+		} catch (EventException e) {
+			logger.error(e);
+		}
+		
 		return enrollment;
 	}
 	
+	private long getInstructorUserIdForEnrollment(long enrollmentId) {
+		try {
+			String query = 
+					"SELECT user.id " +
+					"FROM CourseEnrollment enrollment " +
+					"INNER JOIN enrollment.instructor instructor " +
+					"INNER JOIN instructor.user user " +
+					"WHERE enrollment.id = :enrollmentId";
+			
+			Long res = (Long) persistence.currentManager().createQuery(query).
+					setLong("enrollmentId", enrollmentId).
+					uniqueResult();
+			if(res == null) {
+				return 0;
+			}
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading user id");
+		}
+	}
 	@Override
 	@Transactional (readOnly = false)
 	public void deleteEnrollmentForCourse(User user, Course course) {
@@ -692,11 +800,15 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 			"SELECT DISTINCT course.id, enrollment.user.id " +
 			"FROM CourseEnrollment enrollment " +
 			"LEFT JOIN enrollment.course course " +
-			"WHERE course IN (:courses)";
+			"WHERE course IN (:courses) " +
+			"AND (enrollment.status = :statusActive " +
+			  "OR enrollment.status = :statusCompleted)";
 
 		@SuppressWarnings("unchecked")
 		List<Object[]> result = persistence.currentManager().createQuery(query).
 				setParameterList("courses", courses).
+				setParameter("statusActive", Status.ACTIVE).
+				setParameter("statusCompleted", Status.COMPLETED).
 				list();
 		Map<Long, List<Long>> counts = new HashMap<Long, List<Long>>();
 		if (result != null && !result.isEmpty()) {
@@ -1027,28 +1139,64 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	}
 	
 	@Override
-	@Transactional
-	public void enrollUserIfNotEnrolled(User user, long courseId) throws RuntimeException {
-		try{
+	@Transactional(readOnly = false)
+	public void enrollUserIfNotEnrolled(User user, long courseId, String page, 
+			String learningContext, String service) throws RuntimeException {
+		try {
 			Course course = (Course) persistence.currentManager().load(Course.class, courseId);
 			boolean enrolled = isUserEnrolledInCourse(user, course);
-			if(!enrolled){
-				CourseEnrollment enrollment = resourceFactory.enrollUserInCourse(user, course);
+			
+			if (!enrolled) {
+				Map<String, Object> res = resourceFactory.enrollUserInCourse(user, course);
+				CourseEnrollment enrollment = null;
+				
+				if (res != null) {
+					enrollment = (CourseEnrollment) res.get("enrollment");
+				}
+				
 				logger.info("User with email "+user.getEmail().getAddress() + " enrolled in course with id "+course.getId());
 				
-				if(enrollment != null) {
+				if (enrollment != null) {
 					try {
 						Map<String, String> parameters = null;
 						eventFactory.generateEvent(EventType.ENROLL_COURSE, user, enrollment, course, parameters);
 					} catch (EventException e) {
 						logger.error(e);
-					}	
+					}
+
+					fireInstructorAssignEvent(user, enrollment, courseId, res, page, learningContext, service);
 				}
 			}
-		}catch(Exception e){
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new RuntimeException("Error while enrolling user");
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void fireInstructorAssignEvent(User user, CourseEnrollment enrollment, long courseId, 
+			Map<String, Object> res, String page, String lContext, String service) {
+		Map<Long, Long> assigned = (Map<Long, Long>) res.get("assigned");
+		
+		if (assigned != null) {
+			Long instructorId = assigned.get(enrollment.getId());
+			
+			if (instructorId != null) {
+				long insUserId = getUserIdForInstructor(instructorId);
+				
+				try {
+					Map<String, String> parameters = new HashMap<String, String>();
+					parameters.put("courseId", courseId + "");
+					User target = new User();
+					target.setId(insUserId);
+					eventFactory.generateEvent(EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR, user, user, target,
+							null, page, lContext, service, new Class[] { NodeChangeObserver.class }, null);
+				} catch (Exception e) {
+					e.printStackTrace();
+					logger.error(e);
+				}
+			}
 		}
 	}
 	
@@ -1058,10 +1206,11 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 		return getUserCoursesWithProgressAndInstructorInfo(userId, persistence.currentManager());
 	}
 	
+	//returns only active courses
 	@Override
 	@Transactional(readOnly = true)
 	public List<Map<String, Object>> getUserCoursesWithProgressAndInstructorInfo(long userId, Session session) throws DbConnectionException {
-		try{
+		try {
 			String query = 
 					"SELECT  course.id, tGoal.progress, userInstructor.id " +
 					"FROM CoursePortfolio coursePortfolio " +
@@ -1070,11 +1219,15 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 					"INNER JOIN enrollment.course course " +
 					"LEFT JOIN enrollment.instructor instructor " +
 					"LEFT JOIN instructor.user userInstructor " +
-					"WHERE coursePortfolio.user.id = :user";
+					"WHERE coursePortfolio.user.id = :user " +
+					"AND (enrollment.status = :statusActive " +
+						  "OR enrollment.status = :statusCompleted)";
 				
 			@SuppressWarnings("unchecked")
 			List<Object[]> result = persistence.currentManager().createQuery(query).
 					setLong("user", userId).
+					setParameter("statusActive", Status.ACTIVE).
+					setParameter("statusCompleted", Status.COMPLETED).
 					list();
 			
 			List<Map<String, Object>> resultList = new ArrayList<>();
@@ -1276,24 +1429,66 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 		}
 	}
 	
+	/*remove instructor from course and based on boolean parameter, sets all their students
+	  as unassigned and returns list of unassigned enrollment ids as a map entry with key 'manual'
+	  or automatically assigns students to instructors and returns map with enrollment id - instructor id
+	  key value pairs as a map entry with key 'automatic'. With automatic assign, there is a possibility to
+	  have unassigned students if maximum capacity is reached for all instructors and in that case, list of 
+	  unassigned enrollment ids is also returned
+	*/
 	@Override
 	@Transactional(readOnly = false)
-	public List<Long> removeInstructorFromCourse(long courseInstructorId) throws DbConnectionException {
+	public Map<String, Object> removeInstructorFromCourse(long courseInstructorId, long courseId, 
+			boolean reassignAutomatically) throws DbConnectionException {
 		try {
-			List<Long> enrollmentIds = getCourseEnrollmentsForInstructor(courseInstructorId);
-			if(enrollmentIds != null) {
-				for(long id : enrollmentIds) {
-					CourseEnrollment enrollment = (CourseEnrollment) persistence.currentManager().load(CourseEnrollment.class, id);
-					enrollment.setInstructor(null);
-					enrollment.setAssignedToInstructor(false);
-				}
-			}
 			CourseInstructor instructor = (CourseInstructor) persistence.currentManager().
 					load(CourseInstructor.class, courseInstructorId);
+			List<Long> enrollmentIds = getCourseEnrollmentsForInstructor(courseInstructorId);
+			Map<String, Object> result = null;
+			if(reassignAutomatically) {
+				result = assignStudentsAutomatically(courseId, enrollmentIds, 
+						courseInstructorId);
+				return result;
+			} else {
+				result = new HashMap<>();
+				updateStudentsAssigned(instructor, null, enrollmentIds);
+				result.put("manual", enrollmentIds);
+			}
 			persistence.currentManager().delete(instructor);
-			return enrollmentIds;
+			return result;
 		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
 			throw new DbConnectionException("Error while removing instructor from course");
+		}
+	}
+	
+	private Map<String, Object> assignStudentsAutomatically(long courseId, List<Long> enrollmentIds, long courseInstructorId) {
+		Map<String, Object> result = resourceFactory
+				.assignStudentsToInstructorAutomatically(courseId, enrollmentIds, courseInstructorId);
+		@SuppressWarnings("unchecked")
+		List<Long> unassigned = (List<Long>) result.get("unassigned");
+		if(unassigned != null && !unassigned.isEmpty()) {
+			CourseInstructor instructor = (CourseInstructor) persistence.currentManager().
+					load(CourseInstructor.class, courseInstructorId);
+			updateStudentsAssigned(instructor, null, unassigned);
+		}
+		Map<String, Object> res = new HashMap<>();
+		@SuppressWarnings("unchecked")
+		Map<Long, Long> ids = (Map<Long, Long>) result.get("assigned");
+		res.put("automatic", ids);
+		res.put("manual", unassigned);
+		return res;
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public Map<String, Object> reassignStudentsAutomatically(long instructorId, long courseId) throws DbConnectionException {
+		try {
+			List<Long> enrollmentIds = getCourseEnrollmentsForInstructor(instructorId);
+			return assignStudentsAutomatically(courseId, enrollmentIds, instructorId);
+		} catch(Exception e) {
+			throw new DbConnectionException("Error while reassigning students");
 		}
 	}
 	
@@ -1381,24 +1576,13 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly = false)
 	public void updateStudentsAssignedToInstructor(long instructorId, long courseId, List<Long> studentsToAssign, List<Long> studentsToUnassign) throws DbConnectionException {
 		try {
 			CourseInstructor instructor = (CourseInstructor) persistence.currentManager()
 					.load(CourseInstructor.class, instructorId);
-//			String query = 
-//					"UPDATE " +
-//					"CourseEnrollment enrollment " +
-//				    "set enrollment.instructor = :instructor, " +
-//					"enrollment.assignedToInstructor = :assigned " +
-//				    "WHERE enrollment.id IN " +
-//						"(SELECT eId FROM (SELECT enr.id as eId " +
-//						"FROM CourseEnrollment enr "+
-//						"INNER JOIN enr.instructor inst " + 
-//						"INNER JOIN enr.user user " + 
-//						"WHERE inst = :instructor " +
-//						"AND user.id IN (:ids)))";
 			String query1 = "SELECT enrollment.id " +
 					"FROM CourseEnrollment enrollment "+
 					"INNER JOIN enrollment.course course " + 
@@ -1406,6 +1590,32 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 					"WHERE course.id = :courseId " +
 					"AND user.id IN (:ids)";
 			
+			List<Long> idsAssign = null;
+			if(studentsToAssign != null && !studentsToAssign.isEmpty()) {
+				idsAssign = persistence.currentManager().createQuery(query1)
+						.setLong("courseId", courseId)
+						.setParameterList("ids", studentsToAssign)
+						.list();
+			}
+			List<Long> idsUnAssign = null;
+			if(studentsToUnassign != null && !studentsToUnassign.isEmpty()) {		
+				idsUnAssign = persistence.currentManager().createQuery(query1)
+						.setLong("courseId", courseId)
+						.setParameterList("ids", studentsToUnassign)
+						.list();
+			}
+			
+			updateStudentsAssigned(instructor, idsAssign, idsUnAssign);
+				
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating instructor");
+		}
+	}
+
+	private void updateStudentsAssigned(CourseInstructor instructor, List<Long> enrollmentsToAssign, List<Long> enrollmentsToUnassign) throws DbConnectionException {
+		try {
 			String query = 
 					"UPDATE " +
 					"CourseEnrollment enrollment " +
@@ -1414,30 +1624,18 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 				    "WHERE enrollment.id IN " +
 						"(:ids)";
 			
-			if(studentsToAssign != null && !studentsToAssign.isEmpty()) {
-				@SuppressWarnings("unchecked")
-				List<Long> idsAssign = persistence.currentManager().createQuery(query1)
-						.setLong("courseId", courseId)
-						.setParameterList("ids", studentsToAssign)
-						.list();
-				
+			if(enrollmentsToAssign != null && !enrollmentsToAssign.isEmpty()) {
 				persistence.currentManager().createQuery(query)
 								.setParameter("instructor", instructor)
 								.setBoolean("assigned", true)
-								.setParameterList("ids", idsAssign)
+								.setParameterList("ids", enrollmentsToAssign)
 								.executeUpdate();
 			}
-			if(studentsToUnassign != null && !studentsToUnassign.isEmpty()) {		
-				@SuppressWarnings("unchecked")
-				List<Long> idsUnAssign = persistence.currentManager().createQuery(query1)
-						.setLong("courseId", courseId)
-						.setParameterList("ids", studentsToUnassign)
-						.list();
-				
+			if(enrollmentsToUnassign != null && !enrollmentsToUnassign.isEmpty()) {						
 				persistence.currentManager().createQuery(query)
 								.setParameter("instructor", null)
 								.setBoolean("assigned", false)
-								.setParameterList("ids", idsUnAssign)
+								.setParameterList("ids", enrollmentsToUnassign)
 								.executeUpdate();
 			}
 				
@@ -1537,27 +1735,277 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	@Transactional(readOnly = true)
 	public List<Long> getUserIdsForEnrollments(List<Long> enrollmentIds) throws DbConnectionException {
 		try {
+			if(enrollmentIds == null || enrollmentIds.isEmpty()) {
+				return null;
+			}
 			String query = 
 					"SELECT user.id " +
 					"FROM CourseEnrollment enrollment " +
 					"INNER JOIN enrollment.user user " +
 					"WHERE enrollment.id IN (:enrollmentIds)";
 			
-				@SuppressWarnings("unchecked")
-				List<Long> res = persistence.currentManager().createQuery(query).
-						setParameterList("enrollmentIds", enrollmentIds).
-						list();
-				if(res == null) {
-					return new ArrayList<>();
-				} 
-				return res;
+			@SuppressWarnings("unchecked")
+			List<Long> res = persistence.currentManager().createQuery(query).
+					setParameterList("enrollmentIds", enrollmentIds).
+					list();
+			if(res == null) {
+				return new ArrayList<>();
+			} 
+			return res;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while loading user ids");
 		}
-
 	}
 	
+	@Override
+	@Transactional(readOnly = true)
+	public String getCourseTitle(long courseId) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT course.title " +
+					"FROM Course course " +
+					"WHERE course.id = :courseId";
+			
+			String res = (String) persistence.currentManager().createQuery(query).
+					setLong("courseId", courseId).
+					uniqueResult();
+				return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading course title");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public long getUserIdForEnrollment(long enrollmentId) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT user.id " +
+					"FROM CourseEnrollment enrollment " +
+					"INNER JOIN enrollment.user user " +
+					"WHERE enrollment.id = :enrollmentId";
+			
+			Long res = (Long) persistence.currentManager().createQuery(query).
+					setLong("enrollmentId", enrollmentId).
+					uniqueResult();
+			if(res == null) {
+				return 0;
+			}
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading user id");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public long getUserIdForInstructor(long instructorId) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT user.id " +
+					"FROM CourseInstructor instructor " +
+					"INNER JOIN instructor.user user " +
+					"WHERE instructor.id = :instructorId";
+			
+			Long res = (Long) persistence.currentManager().createQuery(query).
+					setLong("instructorId", instructorId).
+					uniqueResult();
+			if(res == null) {
+				return 0;
+			}
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading user id");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<CourseCompetence> getCourseCompetences(long courseId) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT competence " +
+					"FROM Course course " +
+					"LEFT JOIN course.competences competence " +
+					"WHERE course.id = :courseId " +
+					"ORDER BY competence.order";
+			
+			@SuppressWarnings("unchecked")
+			List<CourseCompetence> competences = persistence.currentManager().createQuery(query).
+					setLong("courseId", courseId).
+					list();
+			if(competences == null) {
+				return new ArrayList<>();
+			}
+			return competences;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading course competences");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public Course createNewUntitledCourse(User maker, CreatorType creatorType) throws DbConnectionException {
+		try {
+			return saveNewCourse("Untitled", null, null, null, null, null, maker, creatorType, false, false);
+		} catch(Exception e) {
+			throw new DbConnectionException("Error while creating new course");
+		}
+	}
+	
+	@Override
+	@Transactional (readOnly = false)
+	public Course updateCourse(long courseId, String title, String description, Collection<Tag> tags, 
+			Collection<Tag> hashtags, boolean published, User user) throws DbConnectionException {
+		try {
+			Course updatedCourse = resourceFactory.updateCourse(
+					courseId, 
+					title, 
+					description, 
+					tags, 
+					hashtags,
+					published);
+			
+			eventFactory.generateEvent(EventType.Edit, user, updatedCourse);
+			
+			return updatedCourse;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating course");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void removeFeed(long courseId, long feedSourceId) throws DbConnectionException {
+		try {
+			Course course = (Course) persistence.currentManager().load(Course.class, courseId);
+			FeedSource feedSource = (FeedSource) persistence.currentManager().load(FeedSource.class, feedSourceId);
+			course.getBlogs().remove(feedSource);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while removing blog from the course");
+		}
+	}
+	
+	//returns true if new blog is added to the course, false if it already exists
+	@Override
+	@Transactional(readOnly = false)
+	public boolean saveNewCourseFeed(long courseId, String feedLink) throws DbConnectionException {
+		try {
+			Course course = (Course) persistence.currentManager().load(Course.class, courseId);
+			FeedSource feedSource = feedSourceManager.getOrCreateFeedSource(null, feedLink);
+			List<FeedSource> blogs = course.getBlogs();
+			if(!blogs.contains(feedSource)) {
+				blogs.add(feedSource);
+				return true;
+			}
+			return false;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while adding new course blog");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public boolean isMandatoryStructure(long courseId) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT course.competenceOrderMandatory " +
+					"FROM Course course " +
+					"WHERE course.id = :courseId";
+
+			Boolean mandatory = (Boolean) persistence.currentManager().createQuery(query).
+					setLong("courseId", courseId).
+					uniqueResult();
+			if(mandatory == null) {
+				return false;
+			}
+			return mandatory;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading course data");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void updateCourseCompetences(long courseId, boolean mandatoryStructure, 
+			List<CompetenceData> competences) throws DbConnectionException {
+		try {
+			Course course = (Course) persistence.currentManager().load(Course.class, courseId);
+			course.setCompetenceOrderMandatory(mandatoryStructure);
+			saveCompetences(course, competences);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while saving course competences");
+		}
+	}
+	
+	private void saveCompetences(Course course, List<CompetenceData> competences) {
+		try {
+			for (CompetenceData c : competences) {
+				switch(c.getStatus()) {
+					case CREATED:
+						createNewCourseCompetence(course, c.getCompetenceId(), c.getOrder());
+						break;
+					case CHANGED:
+						updateCourseCompetence(c.getCourseCompetenceId(), c.getOrder());
+						break;
+					case UP_TO_DATE:
+						break;
+					case REMOVED:
+						deleteById(CourseCompetence.class, c.getCourseCompetenceId(), persistence.currentManager());
+						break;
+				}
+			}
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while saving competences");
+		}
+	}
+	private CourseCompetence updateCourseCompetence(long courseCompetenceId, long order) {
+		try {
+			CourseCompetence cc = (CourseCompetence) persistence.currentManager().
+					load(CourseCompetence.class, courseCompetenceId);
+			cc.setOrder(order);
+			return cc;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while saving course competence");
+		}
+	}
+	private CourseCompetence createNewCourseCompetence(Course course, long competenceId, long order) {
+		try {
+			CourseCompetence cc = new CourseCompetence();
+			Competence c = (Competence) persistence.currentManager().load(Competence.class, competenceId);
+			cc.setCompetence(c);
+			cc.setOrder(order);
+			cc.setCourse(course);
+			return saveEntity(cc);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while saving course competence");
+		}
+	}
 }
 

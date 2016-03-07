@@ -1,0 +1,78 @@
+<ui:component
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+	<composite:interface>
+		<composite:attribute name="activeLink" required="true" />
+		<composite:attribute name="competenceName" required="true" />
+		<composite:attribute name="competenceEncodedId" required="true" />
+		<composite:attribute name="origin" required="true" />
+	</composite:interface>
+
+	<composite:implementation>
+		<div id="#{cc.clientId}">
+			<section class="heading">
+				<header>
+					<img class="ico40" title="Credentials" alt="Credentials" src="#{request.contextPath}/resources/images/ico-competences.svg"></img>
+					<div class="headerTitle">
+						<h1>#{cc.attrs.competenceName}</h1>
+					</div>
+					
+					<ul class="nav nav-tabs centerTabs credentialTabs">
+						<li class="#{'Overall' eq cc.attrs.activeLink ? 'active' : ''}">
+							<ui:fragment rendered="#{'Overall' eq cc.attrs.activeLink}">
+								<a href="#">Overall</a>
+							</ui:fragment>
+							
+							<ui:fragment rendered="#{'Overall' ne cc.attrs.activeLink}">
+								<h:link outcome="/manage/competence-overall">
+			               	  		Overall
+			               	  		<f:param name="compId" value="#{cc.attrs.competenceEncodedId}" />
+									<f:param name="origin" value="#{cc.attrs.origin}" />
+									<f:param name="credId" value="#{param['credId']}" />
+								</h:link>
+							</ui:fragment>
+						</li>
+						<li class="#{'Activities' eq cc.attrs.activeLink ? 'active' : ''}">
+							<ui:fragment rendered="#{'Activities' eq cc.attrs.activeLink}">
+								<a href="#">Activities</a>
+							</ui:fragment>
+							
+							<ui:fragment rendered="#{'Activities' ne cc.attrs.activeLink}">
+								<h:link outcome="/manage/competence-activities">
+			               	  		Activities
+			               	  		<f:param name="compId" value="#{cc.attrs.competenceEncodedId}" />
+									<f:param name="origin" value="#{cc.attrs.origin}" />
+									<f:param name="credId" value="#{param['credId']}" />
+								</h:link>
+							</ui:fragment>
+						</li>
+						<li class="#{'External Tools' eq cc.attrs.activeLink ? 'active' : ''}">
+							<ui:fragment rendered="#{'ExternalTools' eq cc.attrs.activeLink}">
+								<a href="#">External Tools</a>
+							</ui:fragment>
+							
+							<ui:fragment rendered="#{'ExternalTools' ne cc.attrs.activeLink}">
+								<h:link outcome="/manage/tools">
+			               	  		External Tools
+			               	  		<f:param name="compId" value="#{cc.attrs.competenceEncodedId}" />
+									<f:param name="origin" value="#{cc.attrs.origin}" />
+									<f:param name="credId" value="#{param['credId']}" />
+								</h:link>
+							</ui:fragment>
+						</li>
+					</ul>
+					<div class="clearfix"></div>
+				</header>
+			</section>
+		</div>
+	</composite:implementation>
+</ui:component>

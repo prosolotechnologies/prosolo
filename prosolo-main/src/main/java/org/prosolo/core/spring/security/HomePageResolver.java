@@ -1,5 +1,6 @@
 package org.prosolo.core.spring.security;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -28,17 +29,22 @@ public class HomePageResolver {
 	     }
 	}
 	
-	public String getHomeUrl(){
-	     switch (getHighestPriorityCapability(getGrantedAuthorities())) {
-	     	case "basic.admin.access":
-	     		return "/admin/users";
-	     	case "basic.manager.access":
-	     		return "/manage/credentials";
-	     	case "basic.user.access":
-	     		return "/";
-	     	default:
-	     		return "/terms";
-	     }
+	public String getHomeUrl() {
+		 String cap = getHighestPriorityCapability(getGrantedAuthorities());
+		 if(cap != null) {
+			 switch (cap) {
+			 	case "basic.admin.access":
+			 		return "/admin/users";
+			 	case "basic.manager.access":
+			 		return "/manage/credentials";
+			 	case "basic.user.access":
+			 		return "/";
+			 	default:
+			 		return "/terms";
+			 }
+		 } else {
+			 return "/terms";
+		 }
 	}
 	
 	
@@ -46,19 +52,19 @@ public class HomePageResolver {
 		String current = null;
 		int priority = -1;
 		Iterator<GrantedAuthority> it = authorities.iterator();
-		while(it.hasNext()){
+		while(it.hasNext()) {
 			GrantedAuthority ga = it.next();
 			switch (ga.getAuthority().toLowerCase()) {
 			case "basic.admin.access":
 				return ga.getAuthority().toLowerCase();
 			case "basic.manager.access":
-				if(isHigherPriority(current, MANAGE, priority)){
+				if(isHigherPriority(current, MANAGE, priority)) {
 					current = ga.getAuthority().toLowerCase();
 					priority = MANAGE;
 				}
 				break;
 			case "basic.user.access":
-				if(isHigherPriority(current, USER, priority)){
+				if(isHigherPriority(current, USER, priority)) {
 					current = ga.getAuthority().toLowerCase();
 					priority = USER;
 				}
@@ -82,6 +88,7 @@ public class HomePageResolver {
 		SecurityContext context = SecurityContextHolder.getContext();
 		Authentication authentication = context.getAuthentication();
 
-		return (List<GrantedAuthority>) authentication.getAuthorities();
+		List<GrantedAuthority> grantedAuthorities = (List<GrantedAuthority>) authentication.getAuthorities();
+		return grantedAuthorities == null ? new ArrayList<GrantedAuthority>() : grantedAuthorities;
 	}
 }

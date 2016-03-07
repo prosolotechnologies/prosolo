@@ -41,9 +41,9 @@ import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.PortfolioManager;
 import org.prosolo.services.nodes.ResourceFactory;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.util.nodes.AnnotationUtil;
 import org.prosolo.util.nodes.NodeUtil;
-import org.prosolo.web.activitywall.data.AttachmentPreview;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -162,10 +162,18 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 	
 	@Override
 	@Transactional (readOnly = false)
-	public TargetLearningGoal createNewCourseBasedLearningGoal(User user, Course course, LearningGoal courseGoal,
-			String context) throws EventException {
+	public TargetLearningGoal createNewCourseBasedLearningGoal(User user, long courseId, LearningGoal courseGoal,
+			String context) throws EventException, ResourceCouldNotBeLoadedException {
 		
-		course = merge(course);
+		Course course = loadResource(Course.class, courseId);
+
+		return createNewCourseBasedLearningGoal(user, course, courseGoal, context);
+	}
+	
+	@Override
+	@Transactional (readOnly = false)
+	public TargetLearningGoal createNewCourseBasedLearningGoal(User user, Course course, LearningGoal courseGoal,
+			String context) throws EventException, ResourceCouldNotBeLoadedException {
 		if (courseGoal == null) {
 			courseGoal = resourceFactory.createNewLearningGoal(
 					user, 
@@ -481,7 +489,8 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 	public TargetActivity createActivityAndAddToTargetCompetence(User user,
 			String title, String description, AttachmentPreview attachmentPreview,
 			VisibilityType visType, long targetCompetenceId, boolean connectWithStatus,
-			String context) throws EventException, ResourceCouldNotBeLoadedException {
+			String context, String page, String learningContext, String service) 
+					throws EventException, ResourceCouldNotBeLoadedException {
 		
 		Activity newActivity = activityManager.createNewActivity(
 				user, 
@@ -490,15 +499,20 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 				attachmentPreview, 
 				visType, 
 				!connectWithStatus,
-				context);
+				context,
+				page,
+				learningContext,
+				service);
 		
-		return addActivityToTargetCompetence(user, targetCompetenceId, newActivity, context);
+		return addActivityToTargetCompetence(user, targetCompetenceId, newActivity, context,
+				page, learningContext, service);
 	}
 	
 	@Override
 	@Transactional (readOnly = false)
 	public TargetActivity addActivityToTargetCompetence(User user,
-			long targetCompetenceId, Activity activity, String context)
+			long targetCompetenceId, Activity activity, String context, String page,
+			String learningContext, String service)
 			throws EventException, ResourceCouldNotBeLoadedException {
 		
 		if (activity != null) {
@@ -515,7 +529,9 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("context", context);
 			
-			eventFactory.generateEvent(EventType.Attach, user, newTargetActivity, targetCompetence, parameters);
+			//migration to new context approach
+			eventFactory.generateEvent(EventType.Attach, user, newTargetActivity, targetCompetence, page, learningContext,
+					service, parameters);
 			return newTargetActivity;
 		}
 		return null;
@@ -527,7 +543,7 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 			throws EventException, ResourceCouldNotBeLoadedException {
 		
 		Activity activity = loadResource(Activity.class, activityId);
-		return addActivityToTargetCompetence(user, targetCompetenceId, activity, context);
+		return addActivityToTargetCompetence(user, targetCompetenceId, activity, context, null, null, null);
 	}
 	
 	@Override

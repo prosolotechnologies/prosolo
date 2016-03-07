@@ -11,13 +11,13 @@ import org.primefaces.model.UploadedFile;
 import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.content.ContentType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.services.upload.AmazonS3UploadManager;
 import org.prosolo.services.upload.ImageUtil;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.util.FileUtil;
 import org.prosolo.util.urigenerator.AmazonS3Utility;
 import org.prosolo.util.urigenerator.MD5HashUtility;
-import org.prosolo.web.activitywall.data.AttachmentPreview;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -181,8 +181,9 @@ public class CourseBean implements Serializable {
 	 */
 	public void enrollInCourse() {
 		String context = PageUtil.getPostParameter("context");
-		
-		coursePortfolioBean.activateCourse(courseData, true, context);
+		String page = PageUtil.getPostParameter("page");
+		String learningContext = PageUtil.getPostParameter("learningContext");
+		coursePortfolioBean.activateCourse(courseData, true, context, page, learningContext, null);
 	}
 	
 	public void addToFutureCourses() {
@@ -454,12 +455,12 @@ public class CourseBean implements Serializable {
 	public void initializeSuggestedCompetences() {
 		if (suggestedCompetences == null) {
 			
-			if (courseData.getCourse() != null) {
+			if (courseData.getId() > 0) {
 				List<Long> idsOfcompetencesToExclude = getAllCompetencesIds();
 				
 				suggestedCompetences = SearchCompetencesBean.convertToCompetenceData(
 						courseManager.getOtherUsersCompetences(
-								courseData.getCourse(), 
+								courseData.getId(), 
 								idsOfcompetencesToExclude, 
 								loggedUser.getUser()));
 			}

@@ -20,9 +20,9 @@ import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.LearningGoalManager;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.AttachmentPreview;
 import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.CompetenceDataCache;
 import org.prosolo.web.goals.cache.GoalDataCache;
@@ -224,7 +224,8 @@ public class AddToCompetenceDialog implements Serializable {
 							newPostData.getVisibility(),
 							targetCompId,
 							false,
-							context);
+							context,
+							null, null, null);
 					
 					PageUtil.fireSuccessfulInfoMessage("Created new activity "+title+".");
 				} catch (EventException e) {
@@ -233,7 +234,7 @@ public class AddToCompetenceDialog implements Serializable {
 					logger.error(e);
 				}
 			} else if (newPostData != null) {
-				compWallBean.createNewActivity(newPostData, compData, context);
+				compWallBean.createNewActivity(newPostData, compData, context, null, null, null);
 			}
 		}
 	}

@@ -107,6 +107,7 @@ public class UserSessionDataLoader implements Serializable{
 			sessionData.put("statusWallFilter", selectedFilter);
 			sessionData.put("userSettings", userSettings);
 			sessionData.put("notificationsSettings", notificationsSettings);
+			sessionData.put("email", email);
 			
 			logger.info("init finished");
 			return sessionData;
