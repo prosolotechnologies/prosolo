@@ -25,6 +25,7 @@ import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.messaging.data.SessionMessage;
+import org.prosolo.common.messaging.rabbitmq.WorkerException;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.recommendation.LearningGoalRecommendationCacheUpdater;
 import org.prosolo.services.activityWall.SocialActivityFiltering;
@@ -68,7 +69,7 @@ public class SessionMessageHandlerImpl implements MessageHandler<SessionMessage>
 	@Autowired private SocialActivityFiltering socialActivityFiltering;
 	
 	@Override
-	public void handle(SessionMessage message) {
+	public void handle(SessionMessage message) throws WorkerException {
 		Session session = (Session) defaultManager.getPersistence().openSession();
 		
 		long receiverId = message.getReceiverId();
@@ -201,6 +202,7 @@ public class SessionMessageHandlerImpl implements MessageHandler<SessionMessage>
 						
 					} catch (ResourceCouldNotBeLoadedException e) {
 						logger.error(e);
+						throw new WorkerException();
 					}
 					break;
 	/*			case UPDATEUSERSOCIALACTIVITYINBOX:
@@ -423,6 +425,7 @@ public class SessionMessageHandlerImpl implements MessageHandler<SessionMessage>
 			}
 		} catch (Exception e) {
 			logger.error("Exception in handling message", e);
+			throw new WorkerException();
 		} finally {
 			HibernateUtil.close(session);
 		}

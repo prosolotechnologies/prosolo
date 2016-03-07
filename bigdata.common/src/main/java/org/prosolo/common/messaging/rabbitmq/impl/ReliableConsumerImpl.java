@@ -105,11 +105,13 @@ public class ReliableConsumerImpl extends ReliableClientImpl implements Reliable
 									// so requeue it
 										e.printStackTrace();
 								ReliableConsumerImpl.this.channel.basicReject(
-											envelope.getDeliveryTag(), true);
+											envelope.getDeliveryTag(), false);
+									ReliableConsumerImpl.this.disconnect();
 								}catch(Exception ex){
 												logger.error("EXCEPTION WITH MESSAGE:"+envelope.getDeliveryTag(),ex);
 									ReliableConsumerImpl.this.channel.basicReject(
-											envelope.getDeliveryTag(), true);
+											envelope.getDeliveryTag(), false);
+									ReliableConsumerImpl.this.disconnect();
 								}
 							}
 						}

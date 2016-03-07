@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 import org.prosolo.common.messaging.data.BroadcastMessage;
+import org.prosolo.common.messaging.rabbitmq.WorkerException;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.activityWall.SocialActivityFiltering;
 import org.prosolo.services.messaging.MessageHandler;
@@ -21,7 +22,7 @@ public class BroadcastMessageHandlerImpl  implements MessageHandler<BroadcastMes
 	@Autowired private DefaultManager defaultManager;
 	
 	@Override
-	public void handle(BroadcastMessage message) {
+	public void handle(BroadcastMessage message)  throws WorkerException {
 		Session session = (Session) defaultManager.getPersistence().openSession();
 		try{
 		switch (message.getServiceType()) {
@@ -35,6 +36,7 @@ public class BroadcastMessageHandlerImpl  implements MessageHandler<BroadcastMes
 		}
 	} catch (Exception e) {
 		logger.error("Exception in handling message", e);
+			throw new WorkerException();
 	} finally {
 		HibernateUtil.close(session);
 	}
