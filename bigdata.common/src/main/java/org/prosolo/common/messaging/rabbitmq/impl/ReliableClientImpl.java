@@ -52,7 +52,7 @@ public class ReliableClientImpl implements ReliableClient {
 				String exchange=this.queue;
 				//String exchange=this.rabbitmqConfig.exchange;
 				this.channel.exchangeDeclare(exchange,
-						"direct", false);
+						"direct", this.rabbitmqConfig.durableQueue);
 				// Map<String, Object> args = new HashMap<String, Object>();
 				// args.put("x-message-ttl", rabbitmqConfig.exchange);
 				this.channel.queueDeclare(this.queue,

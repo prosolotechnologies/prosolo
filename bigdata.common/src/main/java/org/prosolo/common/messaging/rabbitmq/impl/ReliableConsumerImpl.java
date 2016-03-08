@@ -2,7 +2,9 @@ package org.prosolo.common.messaging.rabbitmq.impl;
 
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -26,11 +28,15 @@ public class ReliableConsumerImpl extends ReliableClientImpl implements Reliable
 			.getLogger(ReliableConsumerImpl.class);
 	long lastItem;
 	long latestMessageTime=0;
-	int counter=0;
+	int maxRetry=3;
+
 	Set<Long> moreReceivedItems;
+	Map<Long,Integer> retriedItems;
 	// MessageWorker worker;
 	private MessageWorker worker;
 	private ExecutorService exService;
+	public static final boolean REQUEUE = true;
+	public static final boolean DONT_REQUEUE = false;
 	@Override
 	public void setWorker(MessageWorker worker) {
 		this.worker = worker;
@@ -46,6 +52,7 @@ public class ReliableConsumerImpl extends ReliableClientImpl implements Reliable
 		super();
 		this.lastItem = 0;
 		this.moreReceivedItems = new HashSet<Long>();
+		this.retriedItems=new HashMap<Long,Integer>();
 	}
 
 	@Override
@@ -84,7 +91,7 @@ public class ReliableConsumerImpl extends ReliableClientImpl implements Reliable
 									|| ReliableConsumerImpl.this
 											.toBeWorked(messageId)) {
 								try {
-									counter++;
+
 									latestMessageTime=System.currentTimeMillis();
 									ReliableConsumerImpl.this.worker
 											.handle(new String(body));
@@ -94,24 +101,32 @@ public class ReliableConsumerImpl extends ReliableClientImpl implements Reliable
 									// secured (handled, stored in database...)
 									ReliableConsumerImpl.this
 											.setAsWorked(messageId);
+
 									//ReliableConsumer.this.channel.basicAck(
 										//	envelope.getDeliveryTag(), false);
-								} catch (WorkerException e) {
-									// the message worker has reported an
-									// exception,
-									// so the message
-									// can not be considered to be handled
-									// properly,
-									// so requeue it
-										e.printStackTrace();
-								ReliableConsumerImpl.this.channel.basicReject(
-											envelope.getDeliveryTag(), false);
-									ReliableConsumerImpl.this.disconnect();
-								}catch(Exception ex){
-												logger.error("EXCEPTION WITH MESSAGE:"+envelope.getDeliveryTag(),ex);
-									ReliableConsumerImpl.this.channel.basicReject(
-											envelope.getDeliveryTag(), false);
-									ReliableConsumerImpl.this.disconnect();
+								} catch(Exception ex){
+
+									Integer counter=0;
+									if(retriedItems.containsKey(messageId)){
+										System.out.println("ALREADY CONTAINS:"+messageId);
+										counter=retriedItems.get(messageId);
+									}else{
+										System.out.println("DOESN' T CONTAINS:"+messageId);
+										retriedItems.put(messageId,counter);
+									}
+									logger.error("EXCEPTION WITH MESSAGE:"+envelope.getDeliveryTag()+" counter:"+counter+" body:"+new String(body),ex);
+									if (++counter <= maxRetry) {
+										logger.debug("RETRY:counter:"+counter+" messageId:"+messageId+" tag:"+envelope.getDeliveryTag());
+										ReliableConsumerImpl.this.channel.basicReject(
+												envelope.getDeliveryTag(), REQUEUE);
+									}else{
+										logger.debug("DON'T RETRY THIS MESSAGE:counter:"+counter+" messageId:"+messageId+" tag:"+envelope.getDeliveryTag());
+										ReliableConsumerImpl.this.channel.basicReject(
+												envelope.getDeliveryTag(), DONT_REQUEUE);
+										retriedItems.remove(messageId);
+									}
+
+
 								}
 							}
 						}
@@ -170,6 +185,7 @@ public class ReliableConsumerImpl extends ReliableClientImpl implements Reliable
 @Override
 	public void StartAsynchronousConsumer() {
 		this.exService = Executors.newSingleThreadExecutor();
+	System.out.println("START ASYNCHRONOUSE CONSUMER CALLED");
 		this.exService.execute(new Runnable() {
 
 			@Override
