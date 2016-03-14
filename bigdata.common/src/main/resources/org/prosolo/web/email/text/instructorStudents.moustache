@@ -1,0 +1,14 @@
+Hi {{name}},
+
+Here are the lists of assigned and unassigned students for the course:
+{{courseName}}
+
+Assigned students:
+{{#assignedStudents}}
+	{{.}}
+{{/assignedStudents}}
+
+Unassigned students:
+{{#unassignedStudents}}
+	{{.}}
+{{/unassignedStudents}}

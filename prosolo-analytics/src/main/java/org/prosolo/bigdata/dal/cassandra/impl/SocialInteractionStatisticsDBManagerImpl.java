@@ -45,7 +45,8 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 	public enum TableNames{
 		INSIDE_CLUSTER_INTERACTIONS,
 		OUTSIDE_CLUSTER_INTERACTIONS,
-		STUDENT_CLUSTER
+		STUDENT_CLUSTER,
+		STUDENT_ASSIGN_EVENTS
 	}
 
 	static {
@@ -147,7 +148,7 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 	private Map<TableNames, Long> getAllCurrentTimestamps(){
 		PreparedStatement prepared = getStatement(getSession(), Statements.FIND_CURRENT_TIMESTAMPS);
 		BoundStatement statement = StatementUtil.statement(prepared);
-		return query(statement).stream().collect(Collectors.toMap(row->TableNames.valueOf(row.getString("tablename")),row->row.getLong("timestamp")));
+		return query(statement).stream().collect(Collectors.toMap(row->TableNames.valueOf(row.getString("tablename").toUpperCase()),row->row.getLong("timestamp")));
 	}
 	@Override
 	public void insertInsideClusterInteractions(Long timestamp, Long course, Long cluster, Long student,

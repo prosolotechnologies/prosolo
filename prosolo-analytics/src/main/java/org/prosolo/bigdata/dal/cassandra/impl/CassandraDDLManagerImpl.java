@@ -6,7 +6,6 @@ import java.util.List;
 import org.prosolo.bigdata.config.DBServerConfig;
 import org.prosolo.bigdata.config.Settings;
 import org.prosolo.bigdata.dal.cassandra.CassandraDDLManager;
-import org.prosolo.bigdata.dal.cassandra.SocialInteractionStatisticsDBManager;
 import org.prosolo.common.config.CommonSettings;
 
 import com.datastax.driver.core.Cluster;
@@ -143,6 +142,11 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		String outsideClusterUserInteractions="CREATE TABLE IF NOT EXISTS sna_outsideclustersinteractions(timestamp bigint, course bigint, student bigint, direction varchar,cluster bigint,  interactions list<varchar>, " +
 				"PRIMARY KEY(timestamp, course, student,direction))";
 		this.ddls.add(outsideClusterUserInteractions);
+		
+		String studentAssignEventsByProffesor="CREATE TABLE IF NOT EXISTS student_assign_events(courseId bigint, timestamp bigint, instructorId bigint, assigned list<bigint>, unassigned list<bigint>, " +
+				"PRIMARY KEY(courseId, timestamp, instructorId)) " +
+				"WITH CLUSTERING ORDER BY (timestamp DESC);";
+		this.ddls.add(studentAssignEventsByProffesor);
 	}
 
 	@Override
