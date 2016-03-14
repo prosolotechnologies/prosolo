@@ -9,7 +9,6 @@ import org.prosolo.bigdata.dal.cassandra.impl.data.StudentAssign;
 import org.prosolo.bigdata.dal.cassandra.impl.data.StudentAssignEventData;
 import org.prosolo.bigdata.events.pojo.DefaultEvent;
 import org.prosolo.bigdata.events.pojo.LogEvent;
-import org.prosolo.bigdata.jobs.InstructorEmailSenderJob;
 //import org.prosolo.bigdata.scala.twitter.util.TwitterUtils$;
 import org.prosolo.bigdata.streaming.Topic;
 import org.prosolo.common.domainmodel.activities.events.EventType;
@@ -44,10 +43,8 @@ public class StudentAssignObserver implements EventObserver {
 				LogEvent ev = (LogEvent) event;
 				List<StudentAssignEventData> events = getProcessedEvents(ev);
 				StudentAssignEventDBManagerImpl manager = StudentAssignEventDBManagerImpl.getInstance();
-				events.forEach(e -> manager.saveStudentAssignEvent(e));
+				manager.saveStudentAssignEvents(events.get(0).getCourseId(), events);
 			}
-			//InstructorEmailSenderJob job = new InstructorEmailSenderJob();
-			//job.execute();
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

@@ -8,6 +8,7 @@ import org.prosolo.bigdata.dal.cassandra.StudentAssignEventDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.data.StudentAssign;
 import org.prosolo.bigdata.dal.cassandra.impl.data.StudentAssignEventData;
 
+import com.datastax.driver.core.BatchStatement;
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Row;
@@ -113,9 +114,28 @@ public class StudentAssignEventDBManagerImpl extends SimpleCassandraClientImpl i
 			return false;
 		}
 	}
-
+	
+	//enforcing same partition key (course id) when saving data in batch
 	@Override
-	public void saveStudentAssignEvent(StudentAssignEventData event) { 
+	public void saveStudentAssignEvents(long courseId, List<StudentAssignEventData> events) { 
+		try {
+			BatchStatement batchStatement = new BatchStatement(BatchStatement.Type.UNLOGGED);
+		    batchStatement.enableTracing();
+
+		    for (StudentAssignEventData event : events) {
+		        batchStatement.add(getBoundStatementForEvent(courseId, event));
+		    }
+
+		    this.getSession().execute(batchStatement);
+			
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+	
+	private BoundStatement getBoundStatementForEvent(long courseId, StudentAssignEventData event) 
+			throws Exception {
 		try {
 			BoundStatement statement = null;
 			if(event.getType() == StudentAssign.ASSIGNED) {
@@ -129,16 +149,16 @@ public class StudentAssignEventDBManagerImpl extends SimpleCassandraClientImpl i
 			List<Long> paramList = new ArrayList<>();
 			paramList.add(event.getStudentId());
 			statement.setList(0, paramList);
-			statement.setLong(1, event.getCourseId());
+			statement.setLong(1, courseId);
 			statement.setLong(2, bucket);
 			statement.setLong(3, event.getInstructorId());
-			this.getSession().execute(statement);
+			
+			return statement;
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			throw new Exception("Error while binding statements");
 		}
 	}
-	
+
 	public long getBucket() {
 		return bucket;
 	}
