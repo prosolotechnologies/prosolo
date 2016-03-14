@@ -79,6 +79,7 @@ public class ReliableConsumerImpl extends ReliableClientImpl implements Reliable
 				public void handleDelivery(String consumerTag,
 						Envelope envelope, BasicProperties properties,
 						byte[] body) throws IOException {
+					logger.debug("Handling delivery:"+new String(body));
 					long messageId = 0;
 					if (properties.getMessageId() != null) {
 						messageId = Long.parseLong(properties.getMessageId());
@@ -86,47 +87,26 @@ public class ReliableConsumerImpl extends ReliableClientImpl implements Reliable
 							// if the message is not a re-delivery, sure it is
 							// not a
 							// retransmission
-									
+							//System.out.println("Is redeliver:"+envelope.isRedeliver()+" messageId:"+messageId);
 							if (!envelope.isRedeliver()
 									|| ReliableConsumerImpl.this
 											.toBeWorked(messageId)) {
 								try {
 
 									latestMessageTime=System.currentTimeMillis();
-									ReliableConsumerImpl.this.worker
-											.handle(new String(body));
+									ReliableConsumerImpl.this.worker.handle(new String(body));
 									
 									// the message is ack'ed just after it has
 									// been
 									// secured (handled, stored in database...)
 									ReliableConsumerImpl.this
 											.setAsWorked(messageId);
-
-									//ReliableConsumer.this.channel.basicAck(
+											//ReliableConsumer.this.channel.basicAck(
 										//	envelope.getDeliveryTag(), false);
 								} catch(Exception ex){
-
-									Integer counter=0;
-									if(retriedItems.containsKey(messageId)){
-										System.out.println("ALREADY CONTAINS:"+messageId);
-										counter=retriedItems.get(messageId);
-									}else{
-										System.out.println("DOESN' T CONTAINS:"+messageId);
-										retriedItems.put(messageId,counter);
-									}
-									logger.error("EXCEPTION WITH MESSAGE:"+envelope.getDeliveryTag()+" counter:"+counter+" body:"+new String(body),ex);
-									if (++counter <= maxRetry) {
-										logger.debug("RETRY:counter:"+counter+" messageId:"+messageId+" tag:"+envelope.getDeliveryTag());
-										ReliableConsumerImpl.this.channel.basicReject(
-												envelope.getDeliveryTag(), REQUEUE);
-									}else{
-										logger.debug("DON'T RETRY THIS MESSAGE:counter:"+counter+" messageId:"+messageId+" tag:"+envelope.getDeliveryTag());
-										ReliableConsumerImpl.this.channel.basicReject(
-												envelope.getDeliveryTag(), DONT_REQUEUE);
-										retriedItems.remove(messageId);
-									}
-
-
+								// ReliableConsumerImpl.this.channel.basicReject(
+								// 			envelope.getDeliveryTag(), DONT_REQUEUE);
+									logger.error("Exception in RabbitMQConsumer",ex);
 								}
 							}
 						}
@@ -141,7 +121,7 @@ public class ReliableConsumerImpl extends ReliableClientImpl implements Reliable
 				@Override
 				public void handleShutdownSignal(String consumerTag,
 						ShutdownSignalException cause) {
-					 logger.trace("got shutdown signal");
+					 logger.debug("got shutdown signal");
 
 				}
 
@@ -206,6 +186,7 @@ public class ReliableConsumerImpl extends ReliableClientImpl implements Reliable
 							this.wait(5000);
 							long passedTime=System.currentTimeMillis()-latestMessageTime;
 							if(passedTime>2000){
+								logger.debug("Disconnect_1");
 								ReliableConsumerImpl.this.disconnect();
 							}
 							
@@ -214,6 +195,7 @@ public class ReliableConsumerImpl extends ReliableClientImpl implements Reliable
 					}
 				} catch (InterruptedException ex) {
 					// disconnect and exit
+					logger.debug("Disconnect_2");
 						ReliableConsumerImpl.this.disconnect();
 				}
 			}

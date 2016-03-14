@@ -25,7 +25,9 @@ public class ReliableClientImpl implements ReliableClient {
 	protected String queue;
 
 	protected void waitForConnection() throws InterruptedException {
+		System.out.println("Wait for connection called");
 		while (true) {
+			if (this.connection == null && this.channel == null) {
 			ConnectionFactory factory = new ConnectionFactory();
 			ArrayList<Address> addresses = new ArrayList<Address>();
 			// for (int i = 0; i < rabbitMQConfig.hosts.length; ++i) {
@@ -50,8 +52,10 @@ public class ReliableClientImpl implements ReliableClient {
 				this.channel = this.connection.createChannel();
 				String exchange=this.queue;
 				//String exchange=this.rabbitmqConfig.exchange;
+			//this.channel.exchangeDeclare(exchange,
+						//"direct", this.rabbitmqConfig.durableQueue);
 				this.channel.exchangeDeclare(exchange,
-						"direct", this.rabbitmqConfig.durableQueue);
+						"direct");
 				// Map<String, Object> args = new HashMap<String, Object>();
 				// args.put("x-message-ttl", rabbitmqConfig.exchange);
 				this.channel.queueDeclare(this.queue,
@@ -62,7 +66,7 @@ public class ReliableClientImpl implements ReliableClient {
 						exchange,
 						this.rabbitmqConfig.routingKey);
 						//this.rabbitmqConfig.routingKey+" "+this.queue);
-			 	logger.trace("DECLARE CHANNEL: exchange:"+exchange+" queue:"+this.queue+" routing key:"+this.rabbitmqConfig.routingKey+" durable:"+this.rabbitmqConfig.durableQueue
+			 	logger.debug("DECLARE CHANNEL: exchange:"+exchange+" queue:"+this.queue+" routing key:"+this.rabbitmqConfig.routingKey+" durable:"+this.rabbitmqConfig.durableQueue
 			 			 +" exclusive:"+this.rabbitmqConfig.exclusiveQueue+" autodelete:"+this.rabbitmqConfig.autodeleteQueue);
 				return;
 			} catch (Exception e) {
@@ -72,13 +76,16 @@ public class ReliableClientImpl implements ReliableClient {
 				// some hint on what to do in case it is not possible to
 				// connect after some timeouts, properly notifying persistent
 				// errors
+				logger.debug("Disconnect_3");
 				this.disconnect();
 				Thread.sleep(1000);
 			}
+			}else {}
 		}
 	}
 
 	protected void disconnect() {
+		logger.debug("Disconnecting connection");
 		try {
 			if (this.channel != null && this.channel.isOpen()) {
 				this.channel.close();
