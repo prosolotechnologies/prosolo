@@ -29,13 +29,13 @@ public class LearningEventsMatchSummary {
 		return result;
 	}
 
-	public void hit(LogEvent event, final int eventYear, final int eventDayInYear) {
-		Optional<DailyHits> dailyHit = findDailyHit(eventYear, eventDayInYear);
+	public void hit(LogEvent event, final long epochDay) {
+		Optional<DailyHits> dailyHit = findDailyHit(epochDay);
 		if(dailyHit.isPresent()) {
 			dailyHit.get().hit();
 		}
 		else {
-			DailyHits dh = new DailyHits(eventYear, eventDayInYear);
+			DailyHits dh = new DailyHits(epochDay);
 			dh.hit();
 			result.add(dh);
 		}
@@ -98,28 +98,27 @@ public class LearningEventsMatchSummary {
 		return true;
 	}
 	
-	private Optional<DailyHits> findDailyHit(int year, int dayOfYear) {
+	private Optional<DailyHits> findDailyHit(long epochDay) {
 		return result.stream()
-				.filter(d -> d.getDayInYear().getDayOfYear() == dayOfYear 
-					&& d.getDayInYear().getYear() == year)
+				.filter(d -> d.getEpochDay() == epochDay)
 				.findFirst();
 	}
 	
 	public class DailyHits {
 		
-		private DayInYear dayInYear;
+		private long epochDay;
 		private int hitCount;
 		
-		public DailyHits(int year, int dayOfYear) {
+		public DailyHits(long epochDay) {
 			super();
-			this.dayInYear = new DayInYear(year, dayOfYear);
+			this.epochDay = epochDay;
 			this.hitCount = 0;
 		}
 		
-		public DayInYear getDayInYear() {
-			return dayInYear;
+		public long getEpochDay() {
+			return epochDay;
 		}
-		
+
 		public int getHitCount() {
 			return hitCount;
 		}
@@ -127,13 +126,15 @@ public class LearningEventsMatchSummary {
 		public void hit() {
 			hitCount++;
 		}
+
 		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ((dayInYear == null) ? 0 : dayInYear.hashCode());
+			result = prime * result + (int) (epochDay ^ (epochDay >>> 32));
 			return result;
 		}
+
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj)
@@ -143,64 +144,11 @@ public class LearningEventsMatchSummary {
 			if (getClass() != obj.getClass())
 				return false;
 			DailyHits other = (DailyHits) obj;
-			if (dayInYear == null) {
-				if (other.dayInYear != null)
-					return false;
-			} else if (!dayInYear.equals(other.dayInYear))
+			if (epochDay != other.epochDay)
 				return false;
 			return true;
 		}
-		
-	}
 	
-	public class DayInYear {
-		
-		private final int year;
-		private final int dayOfYear;
-		
-		public DayInYear(int year, int dayOfYear) {
-			super();
-			this.year = year;
-			this.dayOfYear = dayOfYear;
-		}
-
-		public int getYear() {
-			return year;
-		}
-
-		public int getDayOfYear() {
-			return dayOfYear;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + dayOfYear;
-			result = prime * result + year;
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			DayInYear other = (DayInYear) obj;
-			if (dayOfYear != other.dayOfYear)
-				return false;
-			if (year != other.year)
-				return false;
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return "DayInYear [year=" + year + ", dayOfYear=" + dayOfYear + "]";
-		}
 	}
 	
 }

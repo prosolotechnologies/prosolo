@@ -124,10 +124,10 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		this.ddls.add(sessionRecordDDL);
 		
 		//learning events counters and milestones
-		String learningEventsDDL = "CREATE TABLE IF NOT EXISTS learningevents(actorid bigint, year int, dayofyear int, number counter, PRIMARY KEY (actorid,year,dayofyear));";
+		String learningEventsDDL = "CREATE TABLE IF NOT EXISTS learningevents(actorid bigint, epochday bigint, number counter, PRIMARY KEY (actorid, epochday));";
 		this.ddls.add(learningEventsDDL);
 		
-		String learningMilestonesDDL = "CREATE TABLE IF NOT EXISTS learningmilestones(actorid bigint, year int, dayofyear int, milestones list<varchar>, PRIMARY KEY (actorid,year,dayofyear));";
+		String learningMilestonesDDL = "CREATE TABLE IF NOT EXISTS learningmilestones(actorid bigint, epochday bigint, milestones list<varchar>, PRIMARY KEY (actorid, epochday));";
 		this.ddls.add(learningMilestonesDDL);
 		
 		String currentTimestamps="CREATE TABLE IF NOT EXISTS currenttimestamps(tablename varchar, timestamp bigint, PRIMARY KEY(tablename))";
