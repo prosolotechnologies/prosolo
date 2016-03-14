@@ -2,6 +2,7 @@ package org.prosolo.common.messaging.rabbitmq.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Logger;
 //import org.prosolo.app.Settings;
@@ -13,6 +14,7 @@ import com.rabbitmq.client.Address;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+
 /**
 @author Zoran Jeremic Sep 7, 2014
  */
@@ -96,7 +98,11 @@ public class ReliableClientImpl implements ReliableClient {
 				this.connection.close();
 				this.connection = null;
 			}
-		} catch (IOException e) {
+		}catch(TimeoutException te){
+			te.printStackTrace();
+		}
+
+		catch (IOException e) {
 			// just ignore
 			e.printStackTrace();
 		}
