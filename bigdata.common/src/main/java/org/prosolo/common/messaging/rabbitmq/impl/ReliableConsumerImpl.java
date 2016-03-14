@@ -181,7 +181,7 @@ public class ReliableConsumerImpl extends ReliableClientImpl implements Reliable
 							// would be,
 							// reconnect if no messages have
 							// been received for 1 second. Reconnect always
-							// after say 5
+							// after say 51
 							// minutes.
 							this.wait(5000);
 							long passedTime=System.currentTimeMillis()-latestMessageTime;
