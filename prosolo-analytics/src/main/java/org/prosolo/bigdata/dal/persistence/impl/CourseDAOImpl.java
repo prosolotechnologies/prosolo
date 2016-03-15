@@ -7,13 +7,8 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.dal.persistence.CourseDAO;
 import org.prosolo.bigdata.dal.persistence.HibernateUtil;
 
- 
-
-
 public class CourseDAOImpl extends GenericDAOImpl implements CourseDAO {
-	
-	
-	
+
 	private static Logger logger = Logger
 			.getLogger(CourseDAOImpl.class);
 	

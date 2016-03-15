@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import com.mongodb.DBObject;
 
+@Deprecated
 @Service
 public class TimeSpentOnActivityObserver extends EventObserver {
 
