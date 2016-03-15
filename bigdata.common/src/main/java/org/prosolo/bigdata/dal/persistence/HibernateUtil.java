@@ -16,7 +16,7 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.cfg.ImprovedNamingStrategy;
 import org.hibernate.service.ServiceRegistry;
-import org.hibernate.service.ServiceRegistryBuilder;
+//import org.hibernate.service.ServiceRegistryBuilder;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.config.Config;
 import org.prosolo.common.config.MySQLConfig;

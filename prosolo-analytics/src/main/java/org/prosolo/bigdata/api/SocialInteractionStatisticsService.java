@@ -17,8 +17,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.google.gson.Gson;
-import org.prosolo.bigdata.common.dal.pojo.SocialInteractionCount;
+//import com.google.gson.Gson;
+//import org.prosolo.bigdata.common.dal.pojo.SocialInteractionCount;
 import org.prosolo.bigdata.dal.cassandra.SocialInteractionStatisticsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl;
 import org.prosolo.bigdata.dal.persistence.UserDAO;
@@ -45,8 +45,9 @@ public class SocialInteractionStatisticsService {
 		logger.debug("Service 'getAllUserInteractions' called");
 		long courseid=1;
 		//TODO Aleksandar This service doesn't have too much sense. It should be for course
-		List<SocialInteractionCount> socialInteractionCounts = dbManager.getSocialInteractionCounts(courseid);
-		return ResponseUtils.corsOk(socialInteractionCounts);
+		//List<SocialInteractionCount> socialInteractionCounts = dbManager.getSocialInteractionCounts(courseid);
+		//return ResponseUtils.corsOk(socialInteractionCounts);
+		return ResponseUtils.corsOk("");
 	}
 	
 	@GET
@@ -55,8 +56,9 @@ public class SocialInteractionStatisticsService {
 	public Response getStudentInteractions(@PathParam("id") Long id) {
 		logger.debug("Service 'getStudentInteractions' called.");
 		//TODO Aleksandar This service should have course
-		List<SocialInteractionCount> socialInteractionCounts = dbManager.getSocialInteractionCounts(id);
-		return ResponseUtils.corsOk(socialInteractionCounts);
+		//List<SocialInteractionCount> socialInteractionCounts = dbManager.getSocialInteractionCounts(id);
+		//return ResponseUtils.corsOk(socialInteractionCounts);
+		return ResponseUtils.corsOk("");
 	}
 	
 	@GET

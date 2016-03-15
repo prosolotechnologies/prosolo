@@ -1,6 +1,6 @@
 package org.prosolo.bigdata.events.observers;
 
-import org.prosolo.bigdata.events.analyzers.UserActionAnalyzer;
+//import org.prosolo.bigdata.events.analyzers.UserActionAnalyzer;
 import org.prosolo.bigdata.events.pojo.DefaultEvent;
 import org.prosolo.bigdata.events.pojo.LogEvent;
 import org.prosolo.bigdata.streaming.Topic;
@@ -13,7 +13,7 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 @Deprecated
 public class UserActionsAnalyzerObserver implements EventObserver{
 
-	UserActionAnalyzer actionAnalyzer=new UserActionAnalyzer();
+	//UserActionAnalyzer actionAnalyzer=new UserActionAnalyzer();
 	@Override
 	public Topic[] getSupportedTopics() {
 		return new Topic[] { Topic.LOGS };
@@ -29,7 +29,8 @@ public class UserActionsAnalyzerObserver implements EventObserver{
 
 	@Override
 	public void handleEvent(DefaultEvent event) {
-		actionAnalyzer.analyzeLogEvent((LogEvent) event);
+
+		//actionAnalyzer.analyzeLogEvent((LogEvent) event);
 	}
 
 }
