@@ -14,12 +14,12 @@
 		<resteasy.version>3.0.9.Final</resteasy.version>
 		<jetty.version>9.3.7.v20160115</jetty.version>
 		<!--jetty.version>8.1.16.v20140903</jetty.version-->
-		<spark.version>1.4.1</spark.version>
+		<spark.version>1.6.0</spark.version>
 		<scala.version>2.11.6</scala.version>
 		<quartz.version>2.2.1</quartz.version>
 		<twitter4j.version>4.0.4</twitter4j.version>
 		<mahout.version>0.9</mahout.version>
-
+	    <spark-cassandra-connector.version>1.5.0</spark-cassandra-connector.version>
 	</properties>
 	<repositories>
 		<!-- boilerpipe repo -->
@@ -338,6 +338,30 @@
 
 		<!-- dependency> <groupId>com.novemberain</groupId> <artifactId>quartz-mongodb</artifactId> 
 			<version>1.5.0</version> </dependency -->
+	    
+	    <!-- added spark cassandra connector -->
+	    <dependency>
+			<groupId>com.datastax.spark</groupId>
+			<artifactId>spark-cassandra-connector_2.11</artifactId>
+			<version>${spark-cassandra-connector.version}</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.datastax.spark</groupId>
+		    <artifactId>spark-cassandra-connector-java_2.11</artifactId>
+		    <version>${spark-cassandra-connector.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.spark</groupId>
+			<artifactId>spark-sql_2.11</artifactId>
+			<version>${spark.version}</version>
+		</dependency>
+		<!-- Used for hashing database ids in urls -->
+		<dependency>
+			<groupId>org.hashids</groupId>
+			<artifactId>hashids</artifactId>
+			<version>1.0.1</version>
+		</dependency>
+	    
 	</dependencies>
 	<build>
 		<finalName>prosolo-analytics</finalName>

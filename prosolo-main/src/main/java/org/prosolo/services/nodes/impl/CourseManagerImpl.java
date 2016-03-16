@@ -1191,7 +1191,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 					User target = new User();
 					target.setId(insUserId);
 					eventFactory.generateEvent(EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR, user, user, target,
-							null, page, lContext, service, new Class[] { NodeChangeObserver.class }, null);
+							null, page, lContext, service, new Class[] { NodeChangeObserver.class }, parameters);
 				} catch (Exception e) {
 					e.printStackTrace();
 					logger.error(e);

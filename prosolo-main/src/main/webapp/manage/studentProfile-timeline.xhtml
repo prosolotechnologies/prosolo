@@ -13,7 +13,10 @@
 		
 		<div class="row">
 			<div class="col-md-11">
-				<div id="timeline-graph"></div>
+				<div id="timeline-graph" 
+					 student-data-id="#{studentProfileBean.decodedId}"
+					 data-api="#{socialInteractionBean.apiHost}">
+				</div>
 			</div>
 			<div id="timeline-event-types" class="col-md-1">
 				<div class="checkbox checkbox-success">

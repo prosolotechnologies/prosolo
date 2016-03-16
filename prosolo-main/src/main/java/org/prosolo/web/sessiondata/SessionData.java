@@ -15,7 +15,6 @@ public class SessionData {
 	private User user;
 	private String email;
 	private String password;
-	private long loginTime;
 	private String bigAvatar;
 	private boolean doNotShowTutorial;
 	private Set<String> pagesTutorialPlayed = new HashSet<String>();
@@ -69,14 +68,6 @@ public class SessionData {
 
 	public Locale getLocale() {
 		return userSettings.getLocaleSettings().createLocale();
-	}
-
-	public long getLoginTime() {
-		return loginTime;
-	}
-
-	public void setLoginTime(long loginTime) {
-		this.loginTime = loginTime;
 	}
 
 	public String getBigAvatar() {

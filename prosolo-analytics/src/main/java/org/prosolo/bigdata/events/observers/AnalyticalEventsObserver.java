@@ -75,12 +75,10 @@ public class AnalyticalEventsObserver implements EventObserver {
 					String action = data.get("action").getAsString();
 					if ("disable".equals(action)) {
 						TwitterHashtagStatisticsDBManagerImpl.getInstance().disableTwitterHashtag(hashtag);
-						System.out.println("SHOULD DISABLE THIS HASHTAG..."+hashtag);
-						twitterHashtagsStreamsManager.adminDisableHashtag(hashtag);
+								twitterHashtagsStreamsManager.adminDisableHashtag(hashtag);
 						TwitterStatusBuffer$.MODULE$.disableHashtagInFilter(hashtag);
 					} else {
 						TwitterHashtagStatisticsDBManagerImpl.getInstance().enableTwitterHashtag(hashtag);
-						System.out.println("SHOULD ENABLE THIS HASHTAG...."+hashtag);
 						twitterHashtagsStreamsManager.adminEnableHashtag(hashtag);
 						TwitterStatusBuffer$.MODULE$.enableHashtagInFilter(hashtag);
 					}
@@ -108,7 +106,6 @@ public class AnalyticalEventsObserver implements EventObserver {
 				
 				} else if (analyticsEvent.getDataName().equals(
 						DataName.UPDATETWITTERUSER)) {
-					System.out.println("SHOULD UPDATE TWITTER USER HERE");
 					twitterUsersStreamManager
 							.updateTwitterUserFromAnalyticsEvent(analyticsEvent);
 

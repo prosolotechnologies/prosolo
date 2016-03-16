@@ -1,6 +1,6 @@
 package org.prosolo.bigdata.api;
 
-import java.util.List;
+//import java.util.List;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -9,11 +9,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.log4j.Logger;
-import org.prosolo.bigdata.common.dal.pojo.ActivityAccessCount;
+//import org.prosolo.bigdata.common.dal.pojo.ActivityAccessCount;
 import org.prosolo.bigdata.common.rest.pojo.RequestListParametersObject;
 import org.prosolo.bigdata.common.rest.pojo.RequestParametersObject;
-import org.prosolo.bigdata.services.ActivityRecommendation;
-import org.prosolo.bigdata.services.impl.ActivityRecommendationImpl;
+//import org.prosolo.bigdata.services.ActivityRecommendation;
+//import org.prosolo.bigdata.services.impl.ActivityRecommendationImpl;
 
 import com.google.gson.Gson;
 

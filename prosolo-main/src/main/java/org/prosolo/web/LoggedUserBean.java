@@ -117,7 +117,6 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		if(userData != null){
 			sessionData = new SessionData();
 			sessionData.setUser((User) userData.get("user"));
-			sessionData.setLoginTime((long) userData.get("loginTime"));
 			sessionData.setBigAvatar((String) userData.get("avatar")); 
 			sessionData.setPagesTutorialPlayed((Set<String>) userData.get("pagesTutorialPlayed"));
 			sessionData.setIpAddress((String) userData.get("ipAddress"));
@@ -386,14 +385,6 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		} else {
 			return new Locale("en", "US");
 		}
-	}
-
-	public long getLoginTime() {
-		return getSessionData() == null ? null : getSessionData().getLoginTime();
-	}
-
-	public void setLoginTime(long loginTime) {
-		getSessionData().setLoginTime(loginTime);
 	}
 
 	public String getBigAvatar() {

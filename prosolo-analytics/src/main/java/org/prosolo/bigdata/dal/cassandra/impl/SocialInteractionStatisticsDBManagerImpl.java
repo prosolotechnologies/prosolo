@@ -12,7 +12,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.prosolo.bigdata.common.dal.pojo.OuterInteractionsCount;
-import org.prosolo.bigdata.common.dal.pojo.SocialInteractionCount;
+//import org.prosolo.bigdata.common.dal.pojo.SocialInteractionCount;
 import org.prosolo.bigdata.common.dal.pojo.SocialInteractionsCount;
 import org.prosolo.bigdata.dal.cassandra.SocialInteractionStatisticsDBManager;
 
@@ -45,7 +45,8 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 	public enum TableNames{
 		INSIDE_CLUSTER_INTERACTIONS,
 		OUTSIDE_CLUSTER_INTERACTIONS,
-		STUDENT_CLUSTER
+		STUDENT_CLUSTER,
+		STUDENT_ASSIGN_EVENTS
 	}
 
 	static {
@@ -115,12 +116,12 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 		return row.getString("direction");
 	}
 	
-	@Override
+	/*@Override
 	public List<SocialInteractionCount> getSocialInteractionCounts(Long courseid) {
 		PreparedStatement prepared = getStatement(getSession(), FIND_SOCIAL_INTERACTION_COUNTS);
 		BoundStatement statement = StatementUtil.statement(prepared, courseid);
 		return map(query(statement), (row) -> new SocialInteractionCount(source(row), target(row), count(row)));
-	}
+	}*/
 	@Override
 	public  List<Row> getSocialInteractions(Long courseid) {
 		PreparedStatement prepared = getStatement(getSession(), FIND_SOCIAL_INTERACTION_COUNTS);
@@ -128,12 +129,12 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 		return  query(statement);
 	}
 
-	@Override
+	/*@Override
 	public List<SocialInteractionCount> getSocialInteractionCounts(Long courseid, Long userid) {
 		PreparedStatement prepared = getStatement(getSession(), FIND_STUDENT_SOCIAL_INTERACTION_COUNTS);
 		BoundStatement statement = StatementUtil.statement(prepared,courseid,  userid);
 		return map(query(statement), (row) -> new SocialInteractionCount(source(row), target(row), count(row)));
-	}
+	}*/
 
 	@Override
 	public void updateCurrentTimestamp(TableNames tablename, Long timestamp){
@@ -147,7 +148,7 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 	private Map<TableNames, Long> getAllCurrentTimestamps(){
 		PreparedStatement prepared = getStatement(getSession(), Statements.FIND_CURRENT_TIMESTAMPS);
 		BoundStatement statement = StatementUtil.statement(prepared);
-		return query(statement).stream().collect(Collectors.toMap(row->TableNames.valueOf(row.getString("tablename")),row->row.getLong("timestamp")));
+		return query(statement).stream().collect(Collectors.toMap(row->TableNames.valueOf(row.getString("tablename").toUpperCase()),row->row.getLong("timestamp")));
 	}
 	@Override
 	public void insertInsideClusterInteractions(Long timestamp, Long course, Long cluster, Long student,

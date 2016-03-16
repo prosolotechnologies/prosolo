@@ -2,13 +2,14 @@ package org.prosolo.services.urlencoding.impl;
 
 import org.hashids.Hashids;
 import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.springframework.stereotype.Service;
 
 @Service("org.prosolo.services.urlencoding.UrlIdEncoder")
 public class HashidsUrlIdEncoderImpl implements UrlIdEncoder {
 
-	private String salt = Settings.getInstance().config.application.urlEncoding.salt;
+	private String salt = CommonSettings.getInstance().config.appConfig.urlEncoding.salt;
 	private static final String alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 	private static final int minHashLength = 8;
 	

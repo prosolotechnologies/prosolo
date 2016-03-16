@@ -27,7 +27,6 @@ public class ReliableClientImpl implements ReliableClient {
 	protected String queue;
 
 	protected void waitForConnection() throws InterruptedException {
-		System.out.println("Wait for connection called");
 		while (true) {
 			if (this.connection == null && this.channel == null) {
 			ConnectionFactory factory = new ConnectionFactory();

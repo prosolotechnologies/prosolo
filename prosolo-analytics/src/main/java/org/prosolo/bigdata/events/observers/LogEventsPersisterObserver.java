@@ -44,7 +44,6 @@ public class LogEventsPersisterObserver implements EventObserver {
 			LogEvent logEvent = (LogEvent) event;
 			LogEventDBManagerImpl.getInstance().insertLogEvent(logEvent);
 			Gson g=new Gson();
-			System.out.println("HANDLING LOG EVENT:"+g.toJson(logEvent));
 			if(logEvent.getTargetUserId()>0){
 				Set<Long> courses=new HashSet<Long>();
 

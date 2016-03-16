@@ -2,10 +2,32 @@ package org.prosolo.services.logging;
 
 import static java.lang.String.format;
 import static java.util.Calendar.DAY_OF_MONTH;
-import static org.prosolo.common.domainmodel.activities.events.EventType.*;
+import static org.prosolo.common.domainmodel.activities.events.EventType.Comment;
+import static org.prosolo.common.domainmodel.activities.events.EventType.Dislike;
+import static org.prosolo.common.domainmodel.activities.events.EventType.EVALUATION_ACCEPTED;
+import static org.prosolo.common.domainmodel.activities.events.EventType.EVALUATION_GIVEN;
+import static org.prosolo.common.domainmodel.activities.events.EventType.EVALUATION_REQUEST;
+import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_INVITATION;
+import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_INVITATION_ACCEPTED;
+import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_REQUEST;
+import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_REQUEST_APPROVED;
+import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_REQUEST_DENIED;
+import static org.prosolo.common.domainmodel.activities.events.EventType.Like;
+import static org.prosolo.common.domainmodel.activities.events.EventType.PostShare;
 import static org.prosolo.common.domainmodel.activities.events.EventType.SEND_MESSAGE;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
 
 import javax.annotation.PostConstruct;
 
@@ -24,6 +46,7 @@ import org.prosolo.common.domainmodel.activitywall.UserSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.comments.NodeComment;
 import org.prosolo.common.domainmodel.activitywall.comments.SocialActivityComment;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.content.Post;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.workflow.evaluation.EvaluationSubmission;
@@ -32,6 +55,7 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.context.ContextName;
 import org.prosolo.services.event.context.LearningContext;
+import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.logging.exception.LoggingException;
 import org.prosolo.services.messaging.LogsMessageDistributer;
 import org.prosolo.services.nodes.CourseManager;
@@ -40,7 +64,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
-import org.prosolo.common.domainmodel.content.Post;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -150,6 +173,24 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		
 		try {
 			eventFactory.generateEvent(EventType.NAVIGATE, user, null, parameters);
+		} catch (EventException e) {
+			logger.error("Generate event failed.", e);
+		}
+	}
+	
+	@Override
+	public void logEmailNavigation(User user, String link,
+			String parametersString, String ipAddress,
+			LearningContextData lContext) throws LoggingException {
+
+		Map<String, String> parameters = convertToMap(parametersString);
+		
+		parameters.put("objectType", "email");
+		parameters.put("link", link);
+		
+		try {
+			eventFactory.generateEvent(EventType.NAVIGATE, user, null, null, 
+					lContext.getPage(), lContext.getLearningContext(), lContext.getService(), parameters);
 		} catch (EventException e) {
 			logger.error("Generate event failed.", e);
 		}

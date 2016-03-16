@@ -9,11 +9,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
+//import java.util.TreeMap;
+//import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
-import org.apache.spark.SparkContext;
+//import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -25,11 +25,11 @@ import org.prosolo.bigdata.common.dal.pojo.MostActiveUsersForLearningGoal;
 import org.prosolo.bigdata.common.dal.pojo.UserLearningGoalActivitiesCount;
 import org.prosolo.bigdata.common.events.pojo.DataName;
 import org.prosolo.bigdata.common.events.pojo.DataType;
-import org.prosolo.bigdata.dal.cassandra.AnalyticalEventDBManager;
+//import org.prosolo.bigdata.dal.cassandra.AnalyticalEventDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.AnalyticalEventDBManagerImpl;
 
-import org.prosolo.bigdata.es.AssociationRulesIndexer;
-import org.prosolo.bigdata.es.AssociationRulesIndexerImpl;
+//import org.prosolo.bigdata.es.AssociationRulesIndexer;
+//import org.prosolo.bigdata.es.AssociationRulesIndexerImpl;
 import org.prosolo.bigdata.es.RecommendationDataIndexer;
 import org.prosolo.bigdata.es.RecommendationDataIndexerImpl;
 import org.prosolo.bigdata.events.pojo.AnalyticsEvent;
@@ -37,7 +37,7 @@ import org.prosolo.bigdata.scala.analyzers.LearningGoalsMostActiveUsers;
 import org.prosolo.bigdata.utils.DateUtil;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
+//import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 

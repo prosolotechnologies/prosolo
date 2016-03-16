@@ -63,5 +63,53 @@ public class UserDAOImpl extends GenericDAOImpl implements UserDAO {
 		}
 		return result;
 	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<String> getUserNames(List<Long> userIds) {
+		List<String> result = new ArrayList<>();
+		try {
+			String query = "SELECT user.name, user.lastname FROM User user WHERE user.id in (:users)";
+			
+			List<Object[]> users = session.createQuery(query)
+					 .setParameterList("users", userIds)
+					 .list();
+			if(users != null) {
+				for(Object[] row : users) {
+					result.add(name(row[0], row[1]));
+				}
+			}
+			
+		} catch (Exception e) {
+			logger.error("Cannot read users data.", e);
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	@Override
+	public Map<String, String> getUserNameAndEmail(long userId) {
+		Map<String, String> result = new HashMap<>();
+		try {
+			String query = "SELECT user.name, user.lastname, email.address " + 
+					"FROM User user " +
+					"JOIN user.email email " +
+					"WHERE user.id = :userId";
+			
+			Object[] res = (Object[]) session.createQuery(query)
+					 .setLong("userId", userId)
+					 .uniqueResult();
+			
+			String name = name(res[0], res[1]);
+			String email = (String) res[2];
+			
+			result.put("name", name);
+			result.put("email", email);
+		} catch (Exception e) {
+			logger.error("Cannot read user name.", e);
+			e.printStackTrace();
+		}
+		return result;
+	}
 
 }

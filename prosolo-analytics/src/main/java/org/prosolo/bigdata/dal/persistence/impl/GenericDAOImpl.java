@@ -101,6 +101,7 @@ public abstract class GenericDAOImpl implements GenericDAO {
 	@Override
 	public <T extends BaseEntity> T load(Class<T> clazz, long id)  throws ResourceCouldNotBeLoadedException{
 		try {
+			@SuppressWarnings("unchecked")
 			T resource = (T) session.load(clazz, id);
 			return  resource;
 		} catch (ObjectNotFoundException e) {

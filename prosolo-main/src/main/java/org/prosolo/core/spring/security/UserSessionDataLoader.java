@@ -1,7 +1,6 @@
 package org.prosolo.core.spring.security;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -68,7 +67,6 @@ public class UserSessionDataLoader implements Serializable{
 	
 	
 	//private User user;
-	//private long loginTime;
 	//private String bigAvatar;
 	//private Set<String> pagesTutorialPlayed = new HashSet<String>();
 	//private String ipAddress;
@@ -82,7 +80,6 @@ public class UserSessionDataLoader implements Serializable{
 			Map<String, Object> sessionData = new HashMap<>();
 			
 			User user = userManager.getUser(email);
-			long loginTime = new Date().getTime();
 			String avatar = initializeAvatar(user.getAvatarUrl());
 			
 			registerNewUserSession(user, session);
@@ -100,7 +97,6 @@ public class UserSessionDataLoader implements Serializable{
 			logger.debug("User \"" + email + "\" IP address:" + ipAddress);
 			
 			sessionData.put("user", user);
-			sessionData.put("loginTime", loginTime);
 			sessionData.put("avatar", avatar);
 			sessionData.put("pagesTutorialPlayed", pagesTutorialPlayed);
 			sessionData.put("ipAddress", ipAddress);
