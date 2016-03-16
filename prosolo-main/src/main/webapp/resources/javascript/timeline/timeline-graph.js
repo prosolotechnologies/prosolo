@@ -1,10 +1,10 @@
 var timelineGraph = (function () {
 	
-	Date.prototype.yyyymmdd = function() {
+	Date.prototype.ddmmyyyy = function() {
 		var yyyy = this.getFullYear().toString();
 		var mm = (this.getMonth()+1).toString(); 
 		var dd  = this.getDate().toString();
-		return yyyy + "-" +  (mm[1]?mm:"0"+mm[0]) + "-" + (dd[1]?dd:"0"+dd[0]); 
+		return (dd[1]?dd:"0"+dd[0]) + "." + (mm[1]?mm:"0"+mm[0]) + "." + yyyy; 
 	};
 	 /* As described in http://bl.ocks.org/eesur/4e0a69d57d3bfc8a82c2
 	  */
@@ -119,8 +119,8 @@ var timelineGraph = (function () {
 		
 		var milestoneDotGroup = context.append("g");
 		
-		var dateTo = new Date().yyyymmdd()+" UTC";
-		var dateFrom = new Date(new Date().setDate(new Date().getDate()-30)).yyyymmdd() + " UTC"
+		var dateTo = new Date().ddmmyyyy()+". UTC";
+		var dateFrom = new Date(new Date().setDate(new Date().getDate()-30)).ddmmyyyy() + ". UTC"
 	
 		d3.json("http://" + config.apiHost + "/api/learning/activity/student/" + config.studentId + "?dateFrom="+dateFrom+"&dateTo="+dateTo, function(error, data) {
 			data = data.sort(function(a,b){
