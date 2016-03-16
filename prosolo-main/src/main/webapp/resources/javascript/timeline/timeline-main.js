@@ -1,7 +1,9 @@
 $(function () {	
     var root = document.getElementById("timeline-graph");
     timelineGraph.load({
-    	element : root
+    	element : root,
+    	apiHost : $(root).attr('data-api'),
+		studentId : $(root).attr('student-data-id')
     });
     
     $("input[type=checkbox][id^=timeline]").click(function(){

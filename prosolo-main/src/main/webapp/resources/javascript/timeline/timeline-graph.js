@@ -1,4 +1,11 @@
-var timelineGraph = (function () {	
+var timelineGraph = (function () {
+	
+	Date.prototype.yyyymmdd = function() {
+		var yyyy = this.getFullYear().toString();
+		var mm = (this.getMonth()+1).toString(); 
+		var dd  = this.getDate().toString();
+		return yyyy + "-" +  (mm[1]?mm:"0"+mm[0]) + "-" + (dd[1]?dd:"0"+dd[0]); 
+	};
 	 /* As described in http://bl.ocks.org/eesur/4e0a69d57d3bfc8a82c2
 	  */
 	 d3.selection.prototype.timelineTooltipMoveToFront = function() {  
@@ -111,8 +118,11 @@ var timelineGraph = (function () {
 		tooltipGroup.attr("clip-path", "url(#clip)");
 		
 		var milestoneDotGroup = context.append("g");
+		
+		var dateTo = new Date().yyyymmdd()+" UTC";
+		var dateFrom = new Date(new Date().setDate(new Date().getDate()-30)).yyyymmdd() + " UTC"
 	
-		d3.json("http://localhost:8080/resources/javascript/timeline/sp500.json", function(error, data) {
+		d3.json("http://" + config.apiHost + "/api/learning/activity/student/" + config.studentId + "?dateFrom="+dateFrom+"&dateTo="+dateTo, function(error, data) {
 			data = data.sort(function(a,b){
 				  return new Date(b.date) - new Date(a.date);
 			})
