@@ -22,4 +22,7 @@ public class AppConfig {
 	
 	@Element(name = "domain")
 	public String domain;
+	
+	@Element(name="url-encoding")
+	public UrlEncoding urlEncoding;
 }

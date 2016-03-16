@@ -2,6 +2,7 @@ package org.prosolo.web;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,10 +39,12 @@ public class ApplicationBean implements Serializable {
 	private BiMap<Long, HttpSession> userSessions;
 	private BiMap<HttpSession, Long> sessionIdsUser;
 	private String serverIP = null;
+	private long loginTime;
 	
 	public ApplicationBean(){
 		userSessions = HashBiMap.create();
 		sessionIdsUser = userSessions.inverse();
+		loginTime = new Date().getTime();
 	}
 	
 	public void registerNewUserSession(User user, HttpSession session){
@@ -162,6 +165,14 @@ public class ApplicationBean implements Serializable {
 	}
 	public String getDomain(){
 		return Settings.getInstance().config.application.domain;
+	}
+
+	public long getLoginTime() {
+		return loginTime;
+	}
+
+	public void setLoginTime(long loginTime) {
+		this.loginTime = loginTime;
 	}
 
 }

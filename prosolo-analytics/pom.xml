@@ -355,7 +355,12 @@
 			<artifactId>spark-sql_2.11</artifactId>
 			<version>${spark.version}</version>
 		</dependency>
-		
+		<!-- Used for hashing database ids in urls -->
+		<dependency>
+			<groupId>org.hashids</groupId>
+			<artifactId>hashids</artifactId>
+			<version>1.0.1</version>
+		</dependency>
 	    
 	</dependencies>
 	<build>

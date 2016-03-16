@@ -9,9 +9,9 @@ import scala.collection.JavaConverters._
 import com.datastax.spark.connector._
 import org.prosolo.bigdata.config.Settings
 import org.prosolo.common.config.CommonSettings
-import org.prosolo.bigdata.services.instructorEmail.InstructorStudentsEmailService
-import org.prosolo.bigdata.services.instructorEmail.impl.InstructorStudentsEmailServiceImpl
 import org.prosolo.bigdata.dal.cassandra.impl.StudentAssignEventDBManagerImpl
+import org.prosolo.bigdata.services.email.instructorEmail.InstructorStudentsEmailService
+import org.prosolo.bigdata.services.email.instructorEmail.impl.InstructorStudentsEmailServiceImpl
 
 object InstructorEmailSender {
   

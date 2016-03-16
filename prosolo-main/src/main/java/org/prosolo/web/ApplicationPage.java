@@ -34,7 +34,8 @@ public enum ApplicationPage {
 	INSTRUCTOR_LIST("/manage/credential-instructors.xhtml"),
 	STUDENT_REASSIGN("/manage/credential-instructors-reassign.xhtml"),
 	LTI_PROVIDER_LAUNCH("/ltiproviderlaunch.xhtml"),
-	COMPETENCE_ACTIVITIES("/manage/competence-activities.xhtml");
+	COMPETENCE_ACTIVITIES("/manage/competence-activities.xhtml"),
+	EMAIL("/email.xhtml");
 
     private String uri; 
     

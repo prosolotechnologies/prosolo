@@ -1,4 +1,4 @@
-package org.prosolo.bigdata.services.instructorEmail.impl;
+package org.prosolo.bigdata.services.email.instructorEmail.impl;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -14,8 +14,8 @@ import org.prosolo.bigdata.dal.persistence.UserDAO;
 import org.prosolo.bigdata.dal.persistence.impl.CourseDAOImpl;
 import org.prosolo.bigdata.dal.persistence.impl.UserDAOImpl;
 import org.prosolo.bigdata.email.EmailSender;
-import org.prosolo.bigdata.services.instructorEmail.InstructorStudentsEmailService;
-import org.prosolo.bigdata.services.instructorEmail.emailGenerator.InstructorEmailGenerator;
+import org.prosolo.bigdata.services.email.instructorEmail.InstructorStudentsEmailService;
+import org.prosolo.bigdata.services.email.instructorEmail.emailGenerator.InstructorEmailGenerator;
 import org.prosolo.common.config.CommonSettings;
 
 public class InstructorStudentsEmailServiceImpl implements InstructorStudentsEmailService {
@@ -25,9 +25,6 @@ public class InstructorStudentsEmailServiceImpl implements InstructorStudentsEma
 	CourseDAO courseDAO = new CourseDAOImpl();
 	UserDAO userDAO = new UserDAOImpl();
 
-	/* (non-Javadoc)
-	 * @see org.prosolo.bigdata.services.instructorEmail.InstructorStudentsEmailService#sendEmailToInstructors(long, long, java.util.List, java.util.List)
-	 */
 	@Override
 	public void sendEmailToInstructor(long courseId, long instructorId, List<Long> assignedStudents, 
 			List<Long> unassignedStudents) {

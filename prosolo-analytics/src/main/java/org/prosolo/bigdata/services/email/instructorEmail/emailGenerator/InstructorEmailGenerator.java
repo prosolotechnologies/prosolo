@@ -1,4 +1,4 @@
-package org.prosolo.bigdata.services.instructorEmail.emailGenerator;
+package org.prosolo.bigdata.services.email.instructorEmail.emailGenerator;
 
 import java.util.List;
 

@@ -13,6 +13,7 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.logging.AccessResolver;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
@@ -62,6 +63,14 @@ public class LoggingNavigationBean implements Serializable {
 	public void logPageNavigation(User user, String link){
 		try {
 			loggingService.logNavigationFromContext(user, link, null, null, getIpAddress());
+		} catch (LoggingException e) {
+			logger.error(e);
+		}
+	}
+	
+	public void logEmailNavigation(User user, String link, LearningContextData lContext){
+		try {
+			loggingService.logEmailNavigation(user, link, null, getIpAddress(), lContext);
 		} catch (LoggingException e) {
 			logger.error(e);
 		}

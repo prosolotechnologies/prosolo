@@ -107,5 +107,8 @@ public interface ResourceFactory extends AbstractManager {
     
     void deleteCompetenceActivityInSeparateTransaction(long competenceActivityId) 
     		throws DbConnectionException;
+    
+    String getLinkForObjectType(String simpleClassName, long id, String linkField) 
+			throws DbConnectionException;
 
 }

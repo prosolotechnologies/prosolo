@@ -25,7 +25,12 @@ public enum ContextName {
 	ADD_ACTIVITY_DIALOG("Activity"),
 	BASE_COMPETENCE("Competence"),
 	ACTIVITY_SEARCH_BOX("Activity"),
-	DELETE_COMPETENCE_ACTIVITY_DIALOG("CompetenceActivity");
+	DELETE_COMPETENCE_ACTIVITY_DIALOG("CompetenceActivity"),
+	PERSONAL_FEEDS("FeedEntry"), 
+	FRIENDS_FEEDS("FeedEntry"), 
+	COURSE_FEEDS("FeedEntry"), 
+	PERSONAL_TWEETS("TwitterPostSocialActivity"), 
+	COURSE_TWEETS("TwitterPostSocialActivity");
 	
 	
     private String objectType; 
