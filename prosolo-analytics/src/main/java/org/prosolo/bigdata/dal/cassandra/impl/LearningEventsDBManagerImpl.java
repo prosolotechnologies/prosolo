@@ -149,6 +149,7 @@ public class LearningEventsDBManagerImpl extends SimpleCassandraClientImpl imple
 			Row milestoneRow = findMilestoneRowForSameDay(eventCounterRow,milestoneRows);
 			if(milestoneRow != null) {
 				List<String> list = milestoneRow.getList(2, String.class);
+				summary.setMilestones(new ArrayList<>());
 				for(String milestone : list){
 					summary.getMilestones().add(new Gson().fromJson(milestone,LearningEventSummary.Milestone.class));
 				}

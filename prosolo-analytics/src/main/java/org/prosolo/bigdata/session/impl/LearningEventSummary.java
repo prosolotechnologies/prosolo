@@ -1,13 +1,12 @@
 package org.prosolo.bigdata.session.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class LearningEventSummary {
 
 	private  String date;
 	private long value;
-	private List<Milestone> milestones = new ArrayList<>();
+	private List<Milestone> milestones;
 	
 	public String getDate() {
 		return date;
@@ -33,6 +32,8 @@ public class LearningEventSummary {
 		private String id;
 		private String process;
 		private String description;
+		private String type = "Competences";
+		
 		public String getId() {
 			return id;
 		}
@@ -51,6 +52,13 @@ public class LearningEventSummary {
 		public void setDescription(String description) {
 			this.description = description;
 		}
+		public String getType() {
+			return type;
+		}
+		public void setType(String type) {
+			this.type = type;
+		}
+		
 		
 	}
 	
