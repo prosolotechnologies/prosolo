@@ -13,13 +13,11 @@
 </h:head>
 
 <f:metadata>
-	<f:viewParam name="id" value="#{digestLinkBean.id}"
+	<f:viewParam name="user" value="#{emailLinkBean.userId}"
 				default="null" />
-	<f:viewParam name="user" value="#{digestLinkBean.userId}"
+	<f:viewParam name="context" value="#{emailLinkBean.context}"
 				default="null" />
-	<f:viewParam name="context" value="#{digestLinkBean.contextName}"
-				default="null" />
-    <f:viewAction action="#{digestLinkBean.init()}"/>
+    <f:viewAction action="#{emailLinkBean.init()}"/>
 </f:metadata>
 
 </html>

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -14,6 +15,7 @@ import javax.mail.internet.AddressException;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.dal.persistence.DiggestGeneratorDAO;
 import org.prosolo.bigdata.dal.persistence.impl.DiggestGeneratorDAOImpl;
+import org.prosolo.bigdata.dal.persistence.impl.FeedsDigestDAOImpl;
 import org.prosolo.bigdata.email.EmailSender;
 //import org.prosolo.services.annotation.TagManager;
 import org.prosolo.bigdata.feeds.FeedParser;
@@ -472,8 +474,12 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 		}
 		
 		for (FeedEntry feedEntry : entries) {
-			String link = EmailLinkGeneratorImpl.getInstance().getLink(
-					feedEntry, userId, context);
+			long feedsDigestId = FeedsDigestDAOImpl.getInstance().getFeedsDigestIdForFeedEntry(
+					feedEntry.getId());
+			LinkedHashMap<String, Long> ctxParams = new LinkedHashMap<>();
+			ctxParams.put("news_digest", feedsDigestId);
+			ctxParams.put(context, feedEntry.getId());
+			String link = EmailLinkGeneratorImpl.getInstance().getLink(userId, ctxParams);
 			feedsDigestData.addEntry(new FeedEntryData(feedEntry, link));
 		}
 	}
@@ -488,8 +494,12 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 		}
 		
 		for (TwitterPostSocialActivity tweet : entries) {
-			String link = EmailLinkGeneratorImpl.getInstance().getLink(
-					tweet, userId, context);
+			long feedsDigestId = FeedsDigestDAOImpl.getInstance().getFeedsDigestIdForTweet(
+					tweet.getId());
+			LinkedHashMap<String, Long> ctxParams = new LinkedHashMap<>();
+			ctxParams.put("news_digest", feedsDigestId);
+			ctxParams.put(context, tweet.getId());
+			String link = EmailLinkGeneratorImpl.getInstance().getLink(userId, ctxParams);
 			feedsDigestData.addEntry(createFeedEntryData(tweet, link));
 		}
 	}

@@ -1,10 +1,12 @@
 package org.prosolo.bigdata.services.email.impl;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.prosolo.bigdata.services.email.EmailLinkGenerator;
 import org.prosolo.bigdata.services.urlencoding.UrlIdEncoder;
 import org.prosolo.bigdata.services.urlencoding.impl.HashidsUrlIdEncoderImpl;
 import org.prosolo.common.config.CommonSettings;
-import org.prosolo.common.domainmodel.general.BaseEntity;
 
 public class EmailLinkGeneratorImpl implements EmailLinkGenerator {
 
@@ -23,11 +25,15 @@ public class EmailLinkGeneratorImpl implements EmailLinkGenerator {
 	}
 	
 	@Override
-	public <T extends BaseEntity> String getLink(T entity, long userId, String context) {
+	public String getLink(long userId, LinkedHashMap<String, Long> contextParams) {
 		String baseUrl = CommonSettings.getInstance().config.appConfig.domain + getPage();
-		String id = idEncoder.encodeId(entity.getId());
 		String user = idEncoder.encodeId(userId);
-		String params = String.format("?id=%1$s&user=%2$s&context=%3$s", id, user, context);
+		String context = "";
+		for (Map.Entry<String, Long> entry : contextParams.entrySet()) {
+			String currentCtx = entry.getKey() + ":" + idEncoder.encodeId(entry.getValue());
+		    context = context.isEmpty() ? currentCtx : context + "." + currentCtx;
+		}
+		String params = String.format("?user=%1$s&context=%2$s", user, context);
 		return baseUrl + params;
 	}
 

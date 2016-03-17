@@ -1,15 +1,15 @@
-package org.prosolo.web.emailLinks.data;
+package org.prosolo.services.email.emailLinks.data;
 
-public class ObjectData {
+public class LinkObjectGeneralInfo {
 
 	private String className;
 	private String linkField;
 	
-	public ObjectData() {
+	public LinkObjectGeneralInfo() {
 		
 	}
 	
-	public ObjectData(String className, String linkField) {
+	public LinkObjectGeneralInfo(String className, String linkField) {
 		this.className = className;
 		this.linkField = linkField;
 	}

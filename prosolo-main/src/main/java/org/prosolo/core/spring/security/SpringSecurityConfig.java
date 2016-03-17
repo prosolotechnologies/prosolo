@@ -49,6 +49,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		http.authorizeRequests()
 		   .antMatchers("/favicon.ico").permitAll()
 		   .antMatchers("/resources/css/**").permitAll()
+		   .antMatchers("/resources/css1/**").permitAll()
 		   .antMatchers("/resources/images/**").permitAll()
 		   .antMatchers("/resources/javascript/**").permitAll()
 		   .antMatchers("/javax.faces.resource/**").permitAll()
@@ -73,7 +74,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	       .antMatchers("/passwordReset").permitAll()
 		   .antMatchers("/recovery").permitAll()
 		   .antMatchers("/javax.faces.resource/**").permitAll()
-		   .antMatchers("/notfound").permitAll()
+		   //.antMatchers("/notfound").permitAll()
 		   //.antMatchers("/email.xhtml").permitAll()
 		   
 		   //remove
@@ -146,7 +147,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		permitAll method on httpsecurity object which
 		applies filters and requires any 'role' for user
 		to be present (at least anonymous)*/
-		web.ignoring().antMatchers("/email.xhtml");
+		web.ignoring()
+			.antMatchers("/email.xhtml")
+			.antMatchers("/notfound");
 	}
 	
 	@Inject

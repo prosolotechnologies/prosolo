@@ -56,7 +56,6 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 				uri = uri.substring(request.getContextPath().length());
 				//uri = uri.startsWith("/") ? uri : "/" + uri;
 //				String url = request.getRequestURL().toString();
-				
 				setDefaultTargetUrl(uri);
 			} else {
 				setDefaultTargetUrl(new HomePageResolver().getHomeUrl());

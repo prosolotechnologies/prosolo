@@ -1,9 +1,9 @@
 package org.prosolo.bigdata.services.email;
 
-import org.prosolo.common.domainmodel.general.BaseEntity;
+import java.util.LinkedHashMap;
 
 public interface EmailLinkGenerator {
 
-	<T extends BaseEntity> String getLink(T entity, long userId, String context);
+	String getLink(long userId, LinkedHashMap<String, Long> contextParams);
 
 }

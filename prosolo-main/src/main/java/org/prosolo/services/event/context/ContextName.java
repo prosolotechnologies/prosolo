@@ -30,7 +30,8 @@ public enum ContextName {
 	FRIENDS_FEEDS("FeedEntry"), 
 	COURSE_FEEDS("FeedEntry"), 
 	PERSONAL_TWEETS("TwitterPostSocialActivity"), 
-	COURSE_TWEETS("TwitterPostSocialActivity");
+	COURSE_TWEETS("TwitterPostSocialActivity"),
+	NEWS_DIGEST("FeedsDigest");
 	
 	
     private String objectType; 
