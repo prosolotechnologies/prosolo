@@ -7,6 +7,7 @@ import java.util.List;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CreatorType;
+import org.prosolo.services.nodes.data.PublishedStatus;
 import org.prosolo.util.nodes.AnnotationUtil;
 
 public class BasicCourseData {
@@ -62,7 +63,7 @@ public class BasicCourseData {
 	
 	//setting course status based on published flag
 	public void setCourseStatus() {
-		this.courseStatus = this.published ? PublishedStatus.PUBLISHED : PublishedStatus.UNPUBLISHED;
+		this.courseStatus = this.published ? PublishedStatus.PUBLISHED : PublishedStatus.DRAFT;
 	}
 	
 	//setting published flag based on course status

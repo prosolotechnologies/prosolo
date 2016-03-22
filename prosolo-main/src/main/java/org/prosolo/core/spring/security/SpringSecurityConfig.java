@@ -50,8 +50,11 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/favicon.ico").permitAll()
 		   .antMatchers("/resources/css/**").permitAll()
 		   .antMatchers("/resources/css1/**").permitAll()
+		   .antMatchers("/resources/css2/**").permitAll()
 		   .antMatchers("/resources/images/**").permitAll()
+		   .antMatchers("/resources/images2/**").permitAll()
 		   .antMatchers("/resources/javascript/**").permitAll()
+		   .antMatchers("/resources/javascript2/**").permitAll()
 		   .antMatchers("/javax.faces.resource/**").permitAll()
 		   .antMatchers("/javax.faces.resource/schedule/**").permitAll()
 		   .antMatchers("/javax.faces.**").permitAll()
@@ -77,6 +80,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   //.antMatchers("/notfound").permitAll()
 		   //.antMatchers("/email.xhtml").permitAll()
 		   
+		   .antMatchers("/credentials/new").hasAuthority("BASIC.USER.ACCESS")
 		   //remove
 		   .antMatchers("/manage/course.xhtml").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/competence.xhtml").hasAuthority("BASIC.MANAGER.ACCESS")

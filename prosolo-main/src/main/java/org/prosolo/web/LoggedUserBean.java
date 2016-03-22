@@ -124,6 +124,8 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			sessionData.setUserSettings((UserSettings) userData.get("userSettings"));
 			sessionData.setNotificationsSettings((UserNotificationsSettings) userData.get("notificationsSettings"));
 			sessionData.setEmail((String) userData.get("email"));
+			sessionData.setFullName(setFullName(sessionData.getUser().getName(), 
+					sessionData.getUser().getLastname()));
 			initialized = true;
 		}
 	}
@@ -134,6 +136,10 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		HttpServletRequest request = (HttpServletRequest) ec.getRequest();
 		Map<String, Object> userData = sessionDataLoader.init(email, request, session);
 		initializeData(userData);
+	}
+	
+	public String setFullName(String name, String lastName) {
+		return name + (lastName != null ? " " + lastName : "");
 	}
 	
 	public void initializeAvatar() {
@@ -451,5 +457,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	public void setLearningContext(LearningContext learningContext) {
 		this.learningContext = learningContext;
 	}
-
+	public String getFullName() {
+		return getSessionData() == null ? null : getSessionData().getFullName();
+	}
 }

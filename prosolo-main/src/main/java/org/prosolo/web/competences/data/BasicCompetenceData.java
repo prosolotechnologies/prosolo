@@ -3,8 +3,8 @@ package org.prosolo.web.competences.data;
 import java.io.Serializable;
 
 import org.prosolo.common.domainmodel.competences.Competence;
+import org.prosolo.services.nodes.data.PublishedStatus;
 import org.prosolo.util.nodes.AnnotationUtil;
-import org.prosolo.web.courses.data.PublishedStatus;
 
 public class BasicCompetenceData implements Serializable{
 

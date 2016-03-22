@@ -13,6 +13,7 @@ import org.prosolo.services.activityWall.filters.LearningGoalFilter;
 public class SessionData {
 
 	private User user;
+	private String fullName;
 	private String email;
 	private String password;
 	private String bigAvatar;
@@ -133,4 +134,13 @@ public class SessionData {
 	public void setUserSettings(UserSettings userSettings) {
 		this.userSettings = userSettings;
 	}
+
+	public String getFullName() {
+		return fullName;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+	
 }

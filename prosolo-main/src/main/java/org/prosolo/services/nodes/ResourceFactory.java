@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
@@ -14,6 +15,8 @@ import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CourseCompetence;
 import org.prosolo.common.domainmodel.course.CreatorType;
+import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.CredentialType1;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.OrganizationalUnit;
@@ -110,5 +113,8 @@ public interface ResourceFactory extends AbstractManager {
     
     String getLinkForObjectType(String simpleClassName, long id, String linkField) 
 			throws DbConnectionException;
+
+	Credential1 createCredential(String title, String description, Set<Tag> tags, Set<Tag> hashtags, User createdBy,
+			CredentialType1 type, boolean compOrderMandatory, boolean published);
 
 }

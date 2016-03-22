@@ -34,6 +34,7 @@ public class TargetCredential1 extends BaseEntity {
 	private List<TargetCompetence1> targetCompetences;
 	
 	private boolean hiddenFromProfile;
+	private boolean bookmarked;
 	
 	public TargetCredential1() {
 		
@@ -125,6 +126,14 @@ public class TargetCredential1 extends BaseEntity {
 
 	public void setHiddenFromProfile(boolean hiddenFromProfile) {
 		this.hiddenFromProfile = hiddenFromProfile;
+	}
+
+	public boolean isBookmarked() {
+		return bookmarked;
+	}
+
+	public void setBookmarked(boolean bookmarked) {
+		this.bookmarked = bookmarked;
 	}
 	
 }

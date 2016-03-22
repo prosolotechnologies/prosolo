@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+<ui:insert name="metadata" />
+
+<h:head>
+	<f:facet name="first">
+		<meta charset="utf-8"></meta>
+	    <meta http-equiv="X-UA-Compatible" content="IE=edge"></meta>
+	    <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+		<link rel="icon" href="#{request.contextPath}/favicon.ico" type="image/x-icon" />
+		<title><ui:insert name="windowTitle" /></title>
+	</f:facet>
+	
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/bootstrap.min.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/awesome-bootstrap-checkbox.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/bootstrap-select.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/style.css?#{applicationbean.loginTime}" />
+    
+    <script	src="#{request.contextPath}/resources/javascript/prosolo.logging.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="#{request.contextPath}/resources/javascript2/bootstrap.min.js"></script>
+    <script src="#{request.contextPath}/resources/javascript2/bootstrap-select.min.js"></script>
+    <script src="#{request.contextPath}/resources/javascript2/custom.js"></script>
+</h:head>
+
+<h:body>
+	<utilcomp:messagesBundle var="msg" />
+	
+	 <header>
+        <div class="container">
+            <div class="headerTop">
+                <div class="headerTopLeft">
+                    <a href="#" id="logo">ProSolo</a>
+                 
+                    <nav>
+                        <ul class="nav nav-pills">
+                        	<li role="presentation" 
+                        		class="#{util:getPagePath(view.viewId)  == 'index' ? 'active' : ''}">
+								<h:link 
+									onclick="sendLogPageNavigation('index','mainmenu');" 
+									value="Home" 
+									outcome="/index"/>
+							</li>
+							<li role="presentation" 
+                        		class="#{util:getPagePath(view.viewId)  == 'library' ? 'active' : ''}">
+								<h:link 
+									onclick="sendLogPageNavigation('library','mainmenu');" 
+									value="Library" 
+									/>
+							</li>
+                            <li role="presentation" 
+                        		class="#{util:getPagePath(view.viewId)  == 'people' ? 'active' : ''}">
+								<h:link 
+									onclick="sendLogPageNavigation('people','mainmenu');" 
+									value="People" 
+									/>
+							</li>
+                        </ul>
+                    </nav>
+                </div>
+                <div class="headerTopRight">
+                    <div class="dropdown createMenu">
+                        <a class="btn btn-orange btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">Create</a>
+                        <ul class="dropdown-menu">
+                        	<li>
+                        		<h:link 
+									value="New Credential" 
+									outcome="/create-credential.xhtml"/>
+							</li>
+                            <li>
+                            	<h:link 
+									value="New Competence" 
+									/>
+                            </li>
+                            <li>
+                            	<h:link 
+									value="New Activity" 
+									/>
+                            </li>
+                        </ul>
+                    </div>
+                    <a class="iconMessages active" href="#">Messages<span class="unreadDot">unreadDot</span></a>
+                    <a class="iconNotifications" href="#">Notifications</a>
+                    <h:form>
+                    <div class="dropdown userMenu">
+                        <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        	<h:graphicImage value="#{loggeduser.bigAvatar}"
+										   alt="#{loggeduser.fullName}" 
+										   styleClass="img-circle"
+										   width="32" height="32"/>
+                            <span class="arrowDown">arrowDown</span>
+                        </a>
+                        
+                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
+                            <li><a href="#">Profile</a></li>
+                            <li><a href="#">Account Settings</a></li>
+                            <li><a href="#">Achievements</a></li>
+                            <li>
+						   		<h:commandLink id="userLogout" 
+									value="Sign Out" 
+									action="#{loggeduser.userLogout()}">
+								</h:commandLink>
+                            </li>
+                        </ul>
+                        
+                    </div>
+                    </h:form>
+                </div>
+            </div>
+            <h1>New Credential</h1>
+        </div>
+    </header>
+
+	<ui:insert name="content" />
+	
+	<ui:include	src="/resources/components/loggingForm.xhtml" />
+
+	<c:if test="#{loggeduser != null and loggeduser.loggedIn}">
+		<h:form>
+			<!-- If idle 300 seconds, run 'idleDialog' -->
+			<p:idleMonitor timeout="3600000"
+				onidle="sendLogPageNavigation('login','SESSIONTIMEOUT');">
+				<p:ajax event="idle" listener="#{loggeduser.userLogout}"></p:ajax>
+			</p:idleMonitor>
+		</h:form>
+	</c:if>
+	
+	
+</h:body>
+
+</html>

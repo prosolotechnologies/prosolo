@@ -1,7 +1,7 @@
-package org.prosolo.web.courses.data;
+package org.prosolo.services.nodes.data;
 
 public enum PublishedStatus {
-	PUBLISHED("Published"), UNPUBLISHED("Unpublished");
+	PUBLISHED("Published"), DRAFT("Draft");
 	
 	private String label;
 

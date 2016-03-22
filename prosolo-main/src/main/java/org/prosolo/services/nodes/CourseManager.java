@@ -14,6 +14,7 @@ import org.prosolo.common.domainmodel.course.CourseEnrollment;
 import org.prosolo.common.domainmodel.course.CourseInstructor;
 import org.prosolo.common.domainmodel.course.CoursePortfolio;
 import org.prosolo.common.domainmodel.course.CreatorType;
+import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
@@ -22,6 +23,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.nodes.data.BasicCredentialData;
 import org.prosolo.services.nodes.data.CompetenceData;
 import org.prosolo.services.rest.courses.data.CompetenceJsonData;
 import org.prosolo.web.courses.data.CourseCompetenceData;
@@ -194,4 +196,8 @@ public interface CourseManager extends AbstractManager {
 	
 	void updateCourseCompetences(long courseId, boolean mandatoryStructure, 
 			List<CompetenceData> competences) throws DbConnectionException;
+	
+	Credential1 saveNewCredential(BasicCredentialData data, User createdBy) throws DbConnectionException;
+	
+	Credential1 deleteCredential(long credId) throws DbConnectionException;
 }

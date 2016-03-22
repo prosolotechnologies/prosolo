@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.6.1 (26313) - http://www.bohemiancoding.com/sketch -->
+    <title>iconUniversity20</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Assets" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="iconUniversity20" fill="#D5D8DA">
+            <g id="icon-university" transform="translate(0.000000, -1.000000)">
+                <rect id="Rectangle-78" x="2" y="18" width="16" height="2" rx="3"></rect>
+                <rect id="Rectangle-78" x="14" y="8" width="2" height="8" rx="3"></rect>
+                <rect id="Rectangle-78" x="9" y="8" width="2" height="8" rx="3"></rect>
+                <rect id="Rectangle-78" x="4" y="8" width="2" height="8" rx="3"></rect>
+                <rect id="Rectangle-78" transform="translate(13.963140, 4.500000) rotate(-60.000000) translate(-13.963140, -4.500000) " x="12.9631395" y="-1" width="2" height="11" rx="3"></rect>
+                <rect id="Rectangle-78" transform="translate(6.033140, 4.500000) rotate(-300.000000) translate(-6.033140, -4.500000) " x="5.0331397" y="-1" width="2" height="11" rx="3"></rect>
+            </g>
+        </g>
+    </g>
+</svg>

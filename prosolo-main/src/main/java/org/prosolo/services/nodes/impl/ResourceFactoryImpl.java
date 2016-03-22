@@ -35,6 +35,8 @@ import org.prosolo.common.domainmodel.course.CourseInstructor;
 import org.prosolo.common.domainmodel.course.CoursePortfolio;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.course.Status;
+import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.CredentialType1;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.organization.Capability;
@@ -875,5 +877,27 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 		}
 	}
     
-    
+    @Override
+    @Transactional(readOnly = false)
+    public Credential1 createCredential(String title, String description, Set<Tag> tags, 
+    		Set<Tag> hashtags, User createdBy, CredentialType1 type, 
+    		boolean compOrderMandatory, boolean published) {
+    	try {
+			 Credential1 cred = new Credential1();
+		     cred.setTitle(title);
+		     cred.setDescription(description);
+		     cred.setCreatedBy(createdBy);
+		     cred.setType(type);		   		
+		     cred.setTags(tags);		     
+		     cred.setHashTags(hashtags);
+		     cred.setCompetenceOrderMandatory(compOrderMandatory);
+		     cred.setPublished(published);
+		
+		     saveEntity(cred);
+		     logger.info("New credential is created with id " + cred.getId());
+		     return cred;
+    	} catch(Exception e) {
+    		throw new DbConnectionException("Error while saving credential");
+    	}
+    }
 }
