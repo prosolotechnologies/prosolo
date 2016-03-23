@@ -6,10 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import org.prosolo.bigdata.events.pojo.LogEvent;
 import org.prosolo.bigdata.session.impl.LearningEventsMatchSummary.DailyHits;
-import org.prosolo.bigdata.session.impl.LearningEventsMatchSummary.DayInYear;
+import org.prosolo.bigdata.utils.DateUtil;
 
 import com.google.gson.JsonObject;
 
@@ -36,15 +35,15 @@ public class LearningEventsCalculator {
 				.collect(Collectors.toList());
 	}
 	
-	public Map<DayInYear, Integer> calculateHitsPerDay(List<LearningEventsMatchSummary> summaries){
+	public Map<Long, Integer> calculateHitsPerDay(List<LearningEventsMatchSummary> summaries){
 		return summaries.stream()
 	        	.flatMap(d -> d.getResult().stream())
-	        	.collect(Collectors.groupingBy(dailyHits -> dailyHits.getDayInYear(),
+	        	.collect(Collectors.groupingBy(dailyHits -> dailyHits.getEpochDay(),
 	                    Collectors.summingInt(item -> item.getHitCount())));
 	}
 	
-	public Map<DayInYear, List<String>> getAllMilestonesJsonFormat(List<LearningEventsMatchSummary> summaries) {
-		Map<DayInYear, List<String>> milestoneHits = new HashMap<>();
+	public Map<Long, List<String>> getAllMilestonesJsonFormat(List<LearningEventsMatchSummary> summaries) {
+		Map<Long, List<String>> milestoneHits = new HashMap<>();
 		for(LearningEventsMatchSummary summary : summaries) {
 			//go through all summaries that are milestones and have results
 			if(summary.isMilestone() && summary.getResult().size() > 0) {
@@ -57,12 +56,12 @@ public class LearningEventsCalculator {
 					object.addProperty("description", summary.getDescription());
 					String milestoneString = object.toString();
 					//if we do not have hit for this day of this year, create one
-					if(!milestoneHits.containsKey(dh.getDayInYear())) {
-						milestoneHits.put(dh.getDayInYear(), new ArrayList<String>());
+					if(!milestoneHits.containsKey(dh.getEpochDay())) {
+						milestoneHits.put(dh.getEpochDay(), new ArrayList<String>());
 					}
 					//now, add milestone string for every hit 
 					for(int i = 0; i < dh.getHitCount(); i++) {
-						milestoneHits.get(dh.getDayInYear()).add(milestoneString);
+						milestoneHits.get(dh.getEpochDay()).add(milestoneString);
 					}
 					
 				}
@@ -76,7 +75,7 @@ public class LearningEventsCalculator {
 		 * date in every matcher, only to access same fields with same values) */
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(event.getTimestamp());
-		eventCounters.stream().forEach((counter) -> counter.processEvent(event,calendar.get(Calendar.YEAR),calendar.get(Calendar.DAY_OF_YEAR)));
+		eventCounters.stream().forEach((counter) -> counter.processEvent(event, DateUtil.getDaysSinceEpoch(event.getTimestamp())));
 	}
 	
 }

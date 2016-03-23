@@ -11,13 +11,11 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.ActivityManager;
-import org.prosolo.services.nodes.impl.ActivityManagerImpl;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.goals.LearnBean;
@@ -27,7 +25,6 @@ import org.prosolo.web.goals.cache.LearningGoalPageDataCache;
 
 public abstract class ActivityStartEventProcessor {
 
-	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(ActivityStartEventProcessor.class);
 	
 	protected Event event;
@@ -68,7 +65,9 @@ public abstract class ActivityStartEventProcessor {
 			
 			Map<String, String> params = event.getParameters();
 			String context = params.get("context");
-			
+			if(context == null || context.isEmpty()) {
+				return null;
+			}
 			Matcher m = pattern.matcher(context);
 	
 			if (m.matches()) {

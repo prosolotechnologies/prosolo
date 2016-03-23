@@ -853,4 +853,27 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     		throw new DbConnectionException("Error while deleting competence activity");
     	}
     }
+    
+    @Override
+	@Transactional (readOnly = true)
+	public String getLinkForObjectType(String simpleClassName, long id, String linkField) 
+			throws DbConnectionException {
+		try{
+			String query = String.format(
+				"SELECT obj.%1$s " +
+				"FROM %2$s obj " +
+				"WHERE obj.id = :id",
+				linkField, simpleClassName);
+			
+			String link = (String) persistence.currentManager().createQuery(query)
+				.setLong("id", id)
+				.uniqueResult();
+			
+			return link;
+		}catch(Exception e){
+			throw new DbConnectionException("Error while loading learning goals");
+		}
+	}
+    
+    
 }

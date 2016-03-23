@@ -9,6 +9,7 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.activityreport.LoggedEvent;
 import org.prosolo.services.event.context.LearningContext;
+import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.logging.exception.LoggingException;
 
 import com.mongodb.DBObject;
@@ -35,6 +36,10 @@ public interface LoggingService {
 
 	void logNavigationFromContext(User user, String link, String context, String parameters,
 			String ipAddress) throws LoggingException;
+	
+	void logEmailNavigation(User user, String link,
+			String parametersString, String ipAddress,
+			LearningContextData lContext) throws LoggingException;
 
 	void logTabNavigationFromContext(User user, String tabName, String context,
 			String parameters, String ipAddress) throws LoggingException;

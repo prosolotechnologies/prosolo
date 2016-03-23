@@ -34,7 +34,7 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 			
 		User user = (User) authentication.getPrincipal();
 		HttpSession session = request.getSession(true);
-		
+	
 		boolean success;
 		try {
 			Map<String, Object> sessionData = sessionDataLoader.init(user.getUsername(), request, session);
@@ -51,10 +51,11 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 		
 		if (success) {
 			if (authentication instanceof RememberMeAuthenticationToken) {
-				String uri = request.getRequestURI();
+				String uri = request.getRequestURI() + 
+						(request.getQueryString() != null ? "?" + request.getQueryString() : "");
 				uri = uri.substring(request.getContextPath().length());
+				//uri = uri.startsWith("/") ? uri : "/" + uri;
 //				String url = request.getRequestURL().toString();
-				
 				setDefaultTargetUrl(uri);
 			} else {
 				setDefaultTargetUrl(new HomePageResolver().getHomeUrl());

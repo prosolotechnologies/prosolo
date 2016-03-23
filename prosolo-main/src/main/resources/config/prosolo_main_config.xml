@@ -76,9 +76,6 @@
 			<yahoo>false</yahoo>
 			<self-registration>true</self-registration>
 		</registration>
-		<url-encoding>
-		 <salt>prosoloidencodingsalt</salt>
-	    </url-encoding>
 	</app-config>
 	<services>
 		<activity-report>

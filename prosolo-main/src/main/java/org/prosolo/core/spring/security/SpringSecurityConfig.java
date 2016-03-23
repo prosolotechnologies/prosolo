@@ -16,6 +16,7 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -48,6 +49,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		http.authorizeRequests()
 		   .antMatchers("/favicon.ico").permitAll()
 		   .antMatchers("/resources/css/**").permitAll()
+		   .antMatchers("/resources/css1/**").permitAll()
 		   .antMatchers("/resources/images/**").permitAll()
 		   .antMatchers("/resources/javascript/**").permitAll()
 		   .antMatchers("/javax.faces.resource/**").permitAll()
@@ -72,7 +74,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	       .antMatchers("/passwordReset").permitAll()
 		   .antMatchers("/recovery").permitAll()
 		   .antMatchers("/javax.faces.resource/**").permitAll()
-		   .antMatchers("/notfound").permitAll()
+		   //.antMatchers("/notfound").permitAll()
+		   //.antMatchers("/email.xhtml").permitAll()
 		   
 		   //remove
 		   .antMatchers("/manage/course.xhtml").hasAuthority("BASIC.MANAGER.ACCESS")
@@ -136,6 +139,18 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
    		   .frameOptions().disable();
 		
     }
+	
+	@Override
+	public void configure(WebSecurity web) throws Exception {
+		/*this means security filters will not be applied
+		against this pattern and it is not the same as
+		permitAll method on httpsecurity object which
+		applies filters and requires any 'role' for user
+		to be present (at least anonymous)*/
+		web.ignoring()
+			.antMatchers("/email.xhtml")
+			.antMatchers("/notfound");
+	}
 	
 	@Inject
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {

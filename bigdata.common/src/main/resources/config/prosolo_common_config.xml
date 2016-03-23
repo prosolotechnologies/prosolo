@@ -105,6 +105,9 @@
       	<developer-email>name.lastname@gmail.com</developer-email>
        	<maintenance>false</maintenance>
       	<domain>http://localhost:8080/prosolo/</domain>
+      	<url-encoding>
+			<salt>prosoloidencodingsalt</salt>
+		</url-encoding>
 	</app-config>
 	<services>
 		<user>

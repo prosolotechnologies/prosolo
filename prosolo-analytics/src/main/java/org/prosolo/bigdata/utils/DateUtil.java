@@ -1,5 +1,7 @@
 package org.prosolo.bigdata.utils;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.joda.time.DateTimeZone;
@@ -47,6 +49,10 @@ public class DateUtil {
 		MutableDateTime firstDay = utc(day);
 		firstDay.setDayOfWeek(1);
 		return days(firstDay);
+	}
+	
+	public static long parseDaysSinceEpoch(String dateString, String format) throws ParseException {
+		return getDaysSinceEpoch(new SimpleDateFormat(format).parse(dateString));
 	}
 
 }

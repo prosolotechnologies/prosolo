@@ -1,0 +1,51 @@
+{{> org/prosolo/web/email/html/header.html}}
+
+<table style="border-collapse: collapse" width="100%">
+	<tr style="padding: 0;">
+		<td style="padding: 30px 0;">
+			<h1 style="font-size: 24px;
+						font: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+						color: #555; 
+						font-weight: bold; 
+						margin: 0;">
+				Hi {{name}},
+			</h1>
+			<p style="font: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+						color: #555; 
+						font-size: 14px; 
+						line-height: 1.3; 
+						margin-bottom: 20px">
+				Here are the lists of assigned and unassigned students for the course:
+				{{courseName}}
+			</p>
+		 	<br></br>
+		 	Assigned students:
+			{{#assignedStudents}}
+			
+			<h2 style="font-size: 18px;
+						font: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+						color: #555; 
+						font-weight: bold; 
+						margin-bottom: 15px;">
+				{{.}}
+			</h2>
+
+			{{/assignedStudents}}
+			<br></br>
+			Unassigned students:
+			{{#unassignedStudents}}
+			
+			<h2 style="font-size: 18px;
+						font: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+						color: #555; 
+						font-weight: bold; 
+						margin-bottom: 15px;">
+				{{.}}
+			</h2>
+
+			{{/unassignedStudents}}
+		</td>
+	</tr>
+</table>
+
+{{> org/prosolo/web/email/html/footer.html}}

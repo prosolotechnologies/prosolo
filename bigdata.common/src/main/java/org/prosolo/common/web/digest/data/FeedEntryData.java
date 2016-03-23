@@ -24,18 +24,25 @@ public class FeedEntryData implements Serializable {
 	private String link;
 	private String date;
 	private UserData maker;
+	private String systemLink;
 	
 	public FeedEntryData(FeedEntry feedEntry) {
+		this(feedEntry, feedEntry.getLink());
+	}
+	
+	public FeedEntryData(FeedEntry feedEntry, String link) {
 		this.id = feedEntry.getId();
 		this.title = feedEntry.getTitle();
 		this.description = feedEntry.getDescription();
 		this.image = feedEntry.getImage();
 		this.link = feedEntry.getLink();
 		this.date = DateUtil.getPrettyDate(feedEntry.getDateCreated());
+		this.systemLink = link;
 		
 	//	if (feedEntry.getMaker() != null)
 	//		this.maker = new UserData(feedEntry.getMaker());
 	}
+	
 	public FeedEntryData(){
 		
 	}
@@ -96,6 +103,14 @@ public class FeedEntryData implements Serializable {
 
 	public void setMaker(UserData maker) {
 		this.maker = maker;
+	}
+
+	public String getSystemLink() {
+		return systemLink;
+	}
+
+	public void setSystemLink(String systemLink) {
+		this.systemLink = systemLink;
 	}
 
 	@Override
