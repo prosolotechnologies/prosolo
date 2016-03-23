@@ -8,6 +8,7 @@ import org.prosolo.bigdata.common.dal.pojo.MostActiveUsersForLearningGoal;
 import org.prosolo.bigdata.common.dal.pojo.TargetCompetenceActivities;
 import org.prosolo.bigdata.common.dal.pojo.UserLearningGoalActivitiesCount;
 import org.prosolo.bigdata.common.events.pojo.DataName;
+import org.prosolo.bigdata.events.analyzers.ObservationType;
 import org.prosolo.bigdata.events.pojo.AnalyticsEvent;
 
 /**
@@ -35,4 +36,6 @@ public interface AnalyticalEventDBManager {
 			long date);
 
 	void updateGenericCounter(DataName dataName, Map<String, Object> properties);
+
+	void updateToFromInteraction(Long courseId, Long actorId, Long targetUserId, ObservationType observationType);
 }

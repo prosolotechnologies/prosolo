@@ -143,6 +143,10 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		String outsideClusterUserInteractions="CREATE TABLE IF NOT EXISTS sna_outsideclustersinteractions(timestamp bigint, course bigint, student bigint, direction varchar,cluster bigint,  interactions list<varchar>, " +
 				"PRIMARY KEY(timestamp, course, student,direction))";
 		this.ddls.add(outsideClusterUserInteractions);
+
+		String interactionsByTypeForStudent="CREATE TABLE IF NOT EXISTS sna_interactionsbytypeforstudent(course bigint, timestamp bigint, student bigint, interactiontype varchar,fromuser counter, touser counter, " +
+				"PRIMARY KEY(course, timestamp, student,interactiontype))";
+		this.ddls.add(interactionsByTypeForStudent);
 	}
 
 	@Override

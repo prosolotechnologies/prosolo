@@ -8,13 +8,14 @@ import org.prosolo.bigdata.dal.cassandra.impl.UserObservationsDBManagerImpl;
 import org.prosolo.bigdata.events.analyzers.ObservationType;
 import org.prosolo.bigdata.events.pojo.DefaultEvent;
 import org.prosolo.bigdata.events.pojo.LogEvent;
+import org.prosolo.bigdata.scala.clustering.ProfileEventsChecker$;
 import org.prosolo.bigdata.streaming.Topic;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 
 import com.google.gson.Gson;
 
 import org.prosolo.bigdata.utils.DateUtil;
-import org.prosolo.bigdata.scala.clustering.EventsChecker$;
+import org.prosolo.bigdata.scala.clustering.ProfileEventsChecker$;
 
 
 /**
@@ -23,7 +24,7 @@ import org.prosolo.bigdata.scala.clustering.EventsChecker$;
 */
 public class UserProfileRelatedActivitiesObserver implements EventObserver{
 	
-	EventsChecker$ eventsChecker=EventsChecker$.MODULE$;
+	ProfileEventsChecker$ eventsChecker=ProfileEventsChecker$.MODULE$;
 	//UserObservationsDBManager dbManager=new UserObservationsDBManagerImpl();
 	EventType[] supportedTypes=null;
  
@@ -64,9 +65,10 @@ public class UserProfileRelatedActivitiesObserver implements EventObserver{
 				UserObservationsDBManagerImpl.getInstance().updateUserProfileActionsObservationCounter(date, userid, courseid, observationType);
 			}else{
 				Set<Long> courses=UserObservationsDBManagerImpl.getInstance().findAllUserCourses(userid);
-				 for(Long course:courses){
-					 UserObservationsDBManagerImpl.getInstance().updateUserProfileActionsObservationCounter(date, userid, course, observationType);
-				 }
+				for(Long course:courses){
+				 	UserObservationsDBManagerImpl.getInstance().updateUserProfileActionsObservationCounter(date, userid, course, observationType);
+
+				}
 			}
 		}
 

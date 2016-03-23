@@ -23,15 +23,14 @@ public class AnalyticalEventDBManagerImplTest {
 	@Test
 	public void testUpdateAnalyticsEventCounter() {
 		AnalyticalEventDBManagerImpl dbManager =  AnalyticalEventDBManagerImpl.getInstance();
-		BoundStatement boundStatement = new BoundStatement(dbManager
-				.getPreparedStatements().get("update_useractivity"));
+		/*BoundStatement boundStatement = new BoundStatement(dbManager.getPreparedStatements().get("update_useractivity"));
 		try {
 			boundStatement.setLong(0, 11);
 			boundStatement.setLong(1, 1234);
 			dbManager.getSession().execute(boundStatement);
 		} catch (Exception ex) {
 			ex.printStackTrace();
-		}
+		}*/
 	}
 
 	@Test

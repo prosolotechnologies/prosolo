@@ -21,7 +21,9 @@
       <configuration>
         <setting name="validation-enabled" value="true" />
         <setting name="provider-name" value="" />
-        <datasource-mapping />
+        <datasource-mapping>
+          <factory-entry name="entityManager2" />
+        </datasource-mapping>
         <deploymentDescriptor name="persistence.xml" url="file://$MODULE_DIR$/src/main/resources/META-INF/persistence.xml" />
       </configuration>
     </facet>
@@ -41,14 +43,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="scala-sdk-2.11.6" level="application" />
-    <orderEntry type="library" name="Maven: com.datastax.cassandra:cassandra-driver-core:3.0.0" level="project" />
-    <orderEntry type="library" name="Maven: io.netty:netty-handler:4.0.33.Final" level="project" />
-    <orderEntry type="library" name="Maven: io.netty:netty-buffer:4.0.33.Final" level="project" />
-    <orderEntry type="library" name="Maven: io.netty:netty-common:4.0.33.Final" level="project" />
-    <orderEntry type="library" name="Maven: io.netty:netty-transport:4.0.33.Final" level="project" />
-    <orderEntry type="library" name="Maven: io.netty:netty-codec:4.0.33.Final" level="project" />
-    <orderEntry type="library" name="Maven: com.google.guava:guava:16.0.1" level="project" />
-    <orderEntry type="library" name="Maven: io.dropwizard.metrics:metrics-core:3.1.2" level="project" />
     <orderEntry type="library" name="Maven: javax.mail:mail:1.4.5" level="project" />
     <orderEntry type="library" name="Maven: javax.activation:activation:1.1" level="project" />
     <orderEntry type="module" module-name="bigdata.common" />

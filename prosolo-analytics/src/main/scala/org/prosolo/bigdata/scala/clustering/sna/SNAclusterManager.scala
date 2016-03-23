@@ -8,7 +8,7 @@ import org.json4s.native.Serialization
 
 
 import org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl
-import org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl.TableNames
+import org.prosolo.bigdata.dal.cassandra.impl.SimpleCassandraClientImpl.TableNames
 import org.prosolo.bigdata.dal.persistence.impl.ClusteringDAOImpl
 import play.api.libs.json.Json
 
