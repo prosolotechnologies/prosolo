@@ -108,19 +108,20 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			boolean loadCompetences) throws DbConnectionException {
 		CredentialData credData = null;
 		User user = (User) persistence.currentManager().load(User.class, userId);
+		Credential1 cred = (Credential1) persistence.currentManager().load(
+				Credential1.class, credentialId);
 		try {
 			String query = "SELECT targetCred, user.id, user.name, user.lastname, user.avatarUrl " +
 						   "FROM TargetCredential1 targetCred " + 
-						   "INNER JOIN targetCred.credential cred " + 
-						   "INNER JOIN cred.createdBy user " + 
+						   "INNER JOIN targetCred.createdBy user " + 
 						   //"LEFT JOIN fetch targetCred.tags tags " +
 						   //"LEFT JOIN fetch targetCred.hashtags hashtags " +
-						   "WHERE cred.id = :credentialId " +
+						   "WHERE targetCred.credential = :cred " +
 						   "AND targetCred.user = :student";
 
 			Object[] res = (Object[]) persistence.currentManager()
 					.createQuery(query)
-					.setLong("credentialId", credentialId)
+					.setEntity("cred", cred)
 					.setEntity("student", user)
 					.uniqueResult();
 
@@ -224,7 +225,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					TargetCredential1.class, targetCredentialId);
 			String query = "SELECT targetComp, user.id, user.name, user.lastname, user.avatarUrl " +
 					       "FROM TargetCompetence1 targetComp " + 
-					       "INNER JOIN targetComp.competence comp " +
+					       "INNER JOIN targetComp.createdBy user " +
 					       //"LEFT JOIN fetch comp.tags tags " +
 					       "WHERE targetComp.targetCredential = :targetCred";
 

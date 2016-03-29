@@ -46,6 +46,8 @@ public class TargetCredential1 extends BaseEntity {
 	private boolean studentsCanAddCompetences;
 	private boolean competenceOrderMandatory;
 	
+	private User createdBy;
+	
 	public TargetCredential1() {
 		
 	}
@@ -196,4 +198,14 @@ public class TargetCredential1 extends BaseEntity {
 	public void setCompetenceOrderMandatory(boolean competenceOrderMandatory) {
 		this.competenceOrderMandatory = competenceOrderMandatory;
 	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	public User getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(User createdBy) {
+		this.createdBy = createdBy;
+	}
+	
 }

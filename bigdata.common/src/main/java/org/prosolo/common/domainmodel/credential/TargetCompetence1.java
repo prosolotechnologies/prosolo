@@ -13,6 +13,7 @@ import javax.persistence.OneToMany;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.user.User;
 
 @Entity
 public class TargetCompetence1 extends BaseEntity {
@@ -32,6 +33,8 @@ public class TargetCompetence1 extends BaseEntity {
 	private int order;
 	//is competence added by student
 	private boolean added;
+	
+	private User createdBy;
 	
 	public TargetCompetence1() {
 		
@@ -124,4 +127,12 @@ public class TargetCompetence1 extends BaseEntity {
 		this.added = added;
 	}
 	
+	@ManyToOne(fetch = FetchType.LAZY)
+	public User getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(User createdBy) {
+		this.createdBy = createdBy;
+	}
 }
