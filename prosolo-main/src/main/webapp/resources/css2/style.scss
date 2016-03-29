@@ -141,7 +141,7 @@ a, a:focus{
 	}
 }
 
-h1, h2, h3, h1 a, h2 a, h3 a{
+h1, h2, h3, h1 a, h2 a, h3 a, h1 a:focus, h2 a:focus, h3 a:focus{
 	margin-bottom: 30px;
 	margin-top: 0;
 	color: $darkText;
@@ -190,7 +190,7 @@ input{
 		float: right;
 		margin-left: 10px;
 		text-indent: -10000px;
-		background: url("../images/arrowDown.svg") no-repeat;
+		background: url("../images2/arrowDown.svg") no-repeat;
 		opacity: .5;
 		transition: all 0.2s ease;
 		-webkit-transition: all 0.2s ease;
@@ -212,6 +212,16 @@ input{
 		&:hover{
 			color: $darkText;
 			background: none;
+		}
+	}
+}
+
+.bootstrap-select{
+	margin-bottom: 30px;
+	.btn{
+		margin-bottom: 0;
+		&:focus{
+			font-weight: 400;
 		}
 	}
 }
@@ -304,7 +314,7 @@ input{
 .mandatoryArrow{
 	height: 14px;
 	margin-bottom: 15px;
-	background: url("../images/mandatoryArrow.svg") no-repeat center center;
+	background: url("../images2/mandatoryArrow.svg") no-repeat center center;
 }
 
 .madeByUser,
@@ -316,11 +326,11 @@ input{
 }
 
 .madeByUser{
-	background: url("../images/iconUser20.svg") no-repeat;
+	background: url("../images2/iconUser20.svg") no-repeat;
 }
 
 .madeByUniversity{
-	background: url("../images/iconUniversity20.svg") no-repeat;
+	background: url("../images2/iconUniversity20.svg") no-repeat;
 }
 
 .duration,
@@ -332,11 +342,11 @@ input{
 }
 
 .duration{
-	background: url("../images/iconClock20.svg") no-repeat;
+	background: url("../images2/iconClock20.svg") no-repeat;
 }
 
 .mandatoryTag{
-	background: url("../images/iconMandFlow20.svg") no-repeat;
+	background: url("../images2/iconMandFlow20.svg") no-repeat;
 }
 
 .tooltip-inner{
@@ -380,7 +390,7 @@ input{
 	font-weight: 600;
 	padding-left: 30px;
 	line-height: 32px;
-	background: url("../images/iconCheck20Green.svg") no-repeat left center;
+	background: url("../images2/iconCheck20Green.svg") no-repeat left center;
 }
 
 .paginationWrapper{
@@ -482,10 +492,9 @@ textarea{
 .formWrapper{
 	.formLine{
 		display: flex;
-		flex-wrap: wrap;
 		padding-bottom: 30px;
 		> label{
-			width: 170px;
+			min-width: 170px;
 			font-weight: 600;
 			color: $darkText;
 			line-height: 40px;
@@ -498,6 +507,63 @@ textarea{
 			}
 		}
 	}
+}
+
+.bootstrap-tagsinput{
+	background-color: #fff;
+	border: 1px solid #E6E7EC;
+	border-radius: 4px;
+	-webkit-box-shadow: inset 0px 1px 2px 0px rgba(0,0,0,0.1);
+	-moz-box-shadow: inset 0px 1px 2px 0px rgba(0,0,0,0.1);
+	box-shadow: inset 0px 1px 2px 0px rgba(0,0,0,0.1);
+	display: inline-block;
+	line-height: 30px;
+	padding: 5px 10px;
+	vertical-align: middle;
+	width: 100%;
+	max-width: 100%;
+	line-height: 22px;
+	cursor: text;
+}
+.bootstrap-tagsinput input {
+	border: none!important;
+	box-shadow: none!important;
+	outline: none;
+	background-color: transparent;
+	line-height: 30px;
+	padding: 0!important;
+	margin: 0;
+	width: auto!important;
+	max-width: inherit;
+}
+
+.bootstrap-tagsinput input:focus {
+	border: none;
+	box-shadow: none;
+}
+.bootstrap-tagsinput .tag {
+	margin-right: 2px;
+	color: $normalText;
+	background: #E9EBEF;
+	line-height: 30px;
+	padding: 5px;
+	font-size: 13px;
+	font-weight: 400;
+}
+.bootstrap-tagsinput .tag [data-role="remove"] {
+	margin-left: 8px;
+	cursor: pointer;
+}
+.bootstrap-tagsinput .tag [data-role="remove"]:after {
+	content: "x";
+	color: $normalText;
+	padding: 0px 2px;
+}
+.bootstrap-tagsinput .tag [data-role="remove"]:hover {
+
+}
+.bootstrap-tagsinput .tag [data-role="remove"]:hover:active {
+
 }
 
 /*---------------------------------------------------------------------*/
@@ -574,7 +640,7 @@ header{
 					width: 54px;
 					height: 32px;
 					.arrowDown{
-						background: url("../images/arrowDownWhite.svg") no-repeat;
+						background: url("../images2/arrowDownWhite.svg") no-repeat;
 					}
 				}
 			}
@@ -597,17 +663,17 @@ header{
 						position: absolute;
 						width: 8px;
 						height: 8px;
-						background: url("../images/unreadDot.svg") no-repeat;
+						background: url("../images2/unreadDot.svg") no-repeat;
 						top: 0;
 						right: -2px;
 					}
 				}
 			}
 			.iconMessages{
-				background: url("../images/iconEnvelope20White.svg") no-repeat;
+				background: url("../images2/iconEnvelope20White.svg") no-repeat;
 			}
 			.iconNotifications{
-				background: url("../images/iconBell20White.svg") no-repeat;
+				background: url("../images2/iconBell20White.svg") no-repeat;
 			}
 		}
 	}
@@ -632,7 +698,7 @@ header{
 		.searchBox{
 			height: 46px;
 			padding-left: 30px;
-			background: url("../images/iconSearch20.svg") no-repeat left center;
+			background: url("../images2/iconSearch20.svg") no-repeat left center;
 			input{
 				width: 300px;
 				line-height: 32px;
@@ -673,6 +739,9 @@ header{
 		float: left;
 		margin-top: 0;
 		margin-bottom: 20px;
+		a span{
+			color: $lightText;
+		}
 	}
 	.metaBox{
 		display: flex;
@@ -720,10 +789,10 @@ header{
 			}
 		}
 		.moveUp{
-			background: url("../images/arrowUp.svg") no-repeat center center;
+			background: url("../images2/arrowUp.svg") no-repeat center center;
 		}
 		.moveDown{
-			background: url("../images/arrowDown.svg") no-repeat center center;
+			background: url("../images2/arrowDown.svg") no-repeat center center;
 		}
 	}
 	.bookmarkStar{
@@ -735,13 +804,13 @@ header{
 		top: 30px;
 		right: 30px;
 		visibility: hidden;
-		background: url("../images/iconStar20Gray.svg") no-repeat;
+		background: url("../images2/iconStar20Gray.svg") no-repeat;
 		transition: none;
 		-webkit-transition: none;
 		&.active,
 		&:hover{
 			visibility: visible;
-			background: url("../images/iconStar20Yellow.svg") no-repeat;
+			background: url("../images2/iconStar20Yellow.svg") no-repeat;
 		}
 	}
 	&:hover .bookmarkStar{
@@ -782,10 +851,10 @@ header{
 				}
 			}
 			.arrowUp{
-				background: url("../images/arrowUp.svg") no-repeat center center;
+				background: url("../images2/arrowUp.svg") no-repeat center center;
 			}
 			.arrowDown{
-				background: url("../images/arrowDown.svg") no-repeat center center;
+				background: url("../images2/arrowDown.svg") no-repeat center center;
 			}
 			.textShow,
 			.arrowDown{
@@ -812,11 +881,9 @@ header{
 			list-style: none;
 			li{
 				a{
-					display: flex;
-					align-items: center;
-					height: 40px;
-					line-height: 40px;
-					padding: 0 30px;
+					display: block;
+					line-height: 20px;
+					padding: 10px 30px;
 					font-weight: 400;
 					color: $normalText;
 					background: #F8F9FB;
@@ -824,25 +891,33 @@ header{
 					&:hover{
 						color: $darkText;
 					}
-					span{
+					.icon,
+					.check{
 						display: block;
 						width: 20px;
 						height: 20px;
+					}
+					.icon{
+						float: left;
 						margin-right: 20px;
-						background: purple;
+					}
+					.check{
+						float: right;
+						margin-left: 30px;
+						background: url("../images2/iconCheck20Green.svg") no-repeat;
 					}
 				}
-				&.activityVideo span{
-
+				&.activityVideo .icon{
+					background: url("../images2/iconVideo20.svg") no-repeat;
 				}
-				&.activityText span{
-
+				&.activityText .icon{
+					background: url("../images2/iconText20.svg") no-repeat;
 				}
-				&.activitySlide span{
-
+				&.activitySlide .icon{
+					background: url("../images2/iconSlide20.svg") no-repeat;
 				}
-				&.activityExternal span{
-
+				&.activityExternal .icon{
+					background: url("../images2/iconExternal20.svg") no-repeat;
 				}
 			}
 		}

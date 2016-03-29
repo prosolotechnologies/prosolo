@@ -15,21 +15,26 @@
 		<composite:attribute name="publishValues" required="true" />
 		<composite:attribute name="publishValue" required="true" />
 		<composite:attribute name="saveAction" required="true" method-signature="void saveCredential()"/>
-		<composite:attribute name="deleteAction" required="true" />
+		<composite:attribute name="deleteAction" required="true" method-signature="void deleteCredential()"/>
 		<composite:attribute name="toUpdate" required="true" />
+		<composite:attribute name="previewAction" required="true" method-signature="void previewCredential()"/>
 	</composite:interface>
 	
 	<composite:implementation>
 	      <div class="whiteBox publishBox">
               <h2>Publish</h2>
-              <a href="#" class="linkPreview">Preview</a>
+              <p:commandLink
+                    	value="Preview"
+                    	styleClass="linkPreview"
+                    	action="#{cc.attrs.previewAction}"/>
               <div class="clear"></div>
               <div class="checkbox checkMandatory">
               	  <h:selectBooleanCheckbox 
               	  	id="checkMandatory"
               	  	value="#{cc.attrs.mandatoryFlow}">
               	  	<f:ajax listener="#{credentialEditBean.listener}"/>
-              	  </h:selectBooleanCheckbox> 
+              	  </h:selectBooleanCheckbox>
+              	   <ui:remove><input type="checkbox" id="checkMandatory"></input></ui:remove>
                   <label for="checkMandatory">Mandatory flow</label>
               </div>
               <h:selectOneMenu styleClass="selectpicker" value="#{cc.attrs.publishValue}">
@@ -43,7 +48,12 @@
               	  	update="#{cc.attrs.toUpdate}">
               	  		Save changes
               	  </p:commandLink>
-              	  <p:commandLink styleClass="linkRed" action="#{cc.attrs.deleteAction}">Delete</p:commandLink>
+              	  <p:commandLink 
+              	  	styleClass="linkRed" 
+              	  	action="#{cc.attrs.deleteAction}"
+              	  	update="#{cc.attrs.toUpdate}">
+              	  		Delete
+              	  </p:commandLink>
               </div>
           </div>
 	</composite:implementation>

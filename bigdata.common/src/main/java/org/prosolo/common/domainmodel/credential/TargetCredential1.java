@@ -1,16 +1,21 @@
 package org.prosolo.common.domainmodel.credential;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
-import org.prosolo.common.domainmodel.course.Status;
+import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
@@ -22,19 +27,24 @@ public class TargetCredential1 extends BaseEntity {
 	private Credential1 credential;
 	private User user;
 	
-	//from course enrollment
-	private Status status;
+	private Date dateStarted;
+	private Date dateFinished;
 	private boolean assignedToInstructor;
 	private CourseInstructor1 instructor;
 	private String cluster;
 	private String clusterName;
 	
-	//from target learning goal
 	private int progress;
 	private List<TargetCompetence1> targetCompetences;
 	
 	private boolean hiddenFromProfile;
-	private boolean bookmarked;
+	
+	private CredentialType1 credentialType;
+	private Set<Tag> tags;
+	private Set<Tag> hashtags;
+	private long duration;
+	private boolean studentsCanAddCompetences;
+	private boolean competenceOrderMandatory;
 	
 	public TargetCredential1() {
 		
@@ -60,15 +70,6 @@ public class TargetCredential1 extends BaseEntity {
 		this.user = user;
 	}
 
-	@Enumerated(EnumType.STRING)
-	public Status getStatus() {
-		return status;
-	}
-
-	public void setStatus(Status status) {
-		this.status = status;
-	}
-
 	public boolean isAssignedToInstructor() {
 		return assignedToInstructor;
 	}
@@ -78,7 +79,6 @@ public class TargetCredential1 extends BaseEntity {
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(nullable = false)
 	public CourseInstructor1 getInstructor() {
 		return instructor;
 	}
@@ -128,12 +128,72 @@ public class TargetCredential1 extends BaseEntity {
 		this.hiddenFromProfile = hiddenFromProfile;
 	}
 
-	public boolean isBookmarked() {
-		return bookmarked;
+	@Temporal(TemporalType.TIMESTAMP)
+	public Date getDateStarted() {
+		return dateStarted;
 	}
 
-	public void setBookmarked(boolean bookmarked) {
-		this.bookmarked = bookmarked;
+	public void setDateStarted(Date dateStarted) {
+		this.dateStarted = dateStarted;
+	}
+
+	@Temporal(TemporalType.TIMESTAMP)
+	public Date getDateFinished() {
+		return dateFinished;
+	}
+
+	public void setDateFinished(Date dateFinished) {
+		this.dateFinished = dateFinished;
 	}
 	
+	@ManyToMany
+	public Set<Tag> getTags() {
+		return tags;
+	}
+
+	public void setTags(Set<Tag> tags) {
+		this.tags = tags;
+	}
+
+	@ManyToMany
+	public Set<Tag> getHashtags() {
+		return hashtags;
+	}
+
+	public void setHashtags(Set<Tag> hashTags) {
+		this.hashtags = hashTags;
+	}
+
+	public long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(long duration) {
+		this.duration = duration;
+	}
+
+	public boolean isStudentsCanAddCompetences() {
+		return studentsCanAddCompetences;
+	}
+
+	public void setStudentsCanAddCompetences(boolean studentsCanAddCompetences) {
+		this.studentsCanAddCompetences = studentsCanAddCompetences;
+	}
+	
+	@Enumerated(EnumType.STRING)
+	public CredentialType1 getCredentialType() {
+		return credentialType;
+	}
+
+	public void setCredentialType(CredentialType1 credentialType) {
+		this.credentialType = credentialType;
+	}
+
+	public boolean isCompetenceOrderMandatory() {
+		return competenceOrderMandatory;
+	}
+
+	public void setCompetenceOrderMandatory(boolean competenceOrderMandatory) {
+		this.competenceOrderMandatory = competenceOrderMandatory;
+	}
 }

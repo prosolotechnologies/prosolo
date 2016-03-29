@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -29,14 +28,12 @@ import org.prosolo.common.domainmodel.course.CourseInstructor;
 import org.prosolo.common.domainmodel.course.CoursePortfolio;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.course.Status;
-import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
-import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.feeds.FeedSourceManager;
@@ -45,7 +42,6 @@ import org.prosolo.services.indexing.impl.NodeChangeObserver;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.ResourceFactory;
-import org.prosolo.services.nodes.data.BasicCredentialData;
 import org.prosolo.services.nodes.data.CompetenceData;
 import org.prosolo.services.rest.courses.data.CompetenceJsonData;
 import org.prosolo.services.rest.courses.data.SerieJsonData;
@@ -65,7 +61,6 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	@Autowired private EventFactory eventFactory;
 	@Autowired private ResourceFactory resourceFactory;
 	@Inject private FeedSourceManager feedSourceManager;
-	@Inject private TagManager tagManager;
 
 	@Override
 	@Transactional
@@ -2013,47 +2008,5 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 		}
 	}
 	
-	@Override
-	@Transactional (readOnly = false)
-	public Credential1 saveNewCredential(BasicCredentialData data, User createdBy) throws DbConnectionException {
-		Credential1 cred = null;
-		try {
-			cred = resourceFactory.createCredential(
-					data.getTitle(), 
-					data.getDescription(), 
-					new HashSet<Tag>(tagManager.parseCSVTagsAndSave(data.getTagsString())), 
-					new HashSet<Tag>(tagManager.parseCSVTagsAndSave(data.getHashtagsString())),
-					createdBy, 
-					data.getType(), 
-					data.isMandatoryFlow(),
-					data.isPublished());
-			
-			eventFactory.generateEvent(EventType.Create, createdBy, cred);
-			
-			return cred;
-		} catch(EventException e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while saving credential");
-		} catch(DbConnectionException dbe) {
-			logger.error(dbe);
-			dbe.printStackTrace();
-			throw dbe;
-		}
-	}
-	
-	@Override
-	@Transactional(readOnly = false)
-	public Credential1 deleteCredential(long credId) throws DbConnectionException {
-		try {
-			Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, credId);
-			cred.setDeleted(true);
-			return saveEntity(cred);
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while deleting credential");
-		}
-	}
 }
 

@@ -1,5 +1,6 @@
 package org.prosolo.common.domainmodel.credential;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -15,6 +16,11 @@ public class TargetActivity1 extends BaseEntity {
 	private boolean completed;
 	private TargetCompetence1 targetCompetence;
 	private Activity1 activity;
+	
+	private int order;
+	private long duration;
+	//is activity added by student
+	private boolean added;
 	
 	public TargetActivity1() {
 		
@@ -46,6 +52,31 @@ public class TargetActivity1 extends BaseEntity {
 
 	public void setActivity(Activity1 activity) {
 		this.activity = activity;
+	}
+
+	@Column(name = "actOrder")
+	public int getOrder() {
+		return order;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
+	}
+
+	public long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(long duration) {
+		this.duration = duration;
+	}
+
+	public boolean isAdded() {
+		return added;
+	}
+
+	public void setAdded(boolean added) {
+		this.added = added;
 	}
 
 }

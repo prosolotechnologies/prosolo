@@ -6,11 +6,11 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.user.User;
 
 @Entity
 public class Comment1 extends BaseEntity {
@@ -24,10 +24,7 @@ public class Comment1 extends BaseEntity {
 	private long commentedResourceId;
 	private CommentedResourceType resourceType;
 	
-	//user reference or denormalization
-	private long userId;
-	private String name;
-	private String userAvatar;
+	private User user;
 	private boolean isInstructor;
 	
 	public Comment1() {
@@ -43,7 +40,6 @@ public class Comment1 extends BaseEntity {
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(nullable = false)
 	public Comment1 getParentComment() {
 		return parentComment;
 	}
@@ -78,28 +74,13 @@ public class Comment1 extends BaseEntity {
 		this.resourceType = resourceType;
 	}
 
-	public long getUserId() {
-		return userId;
+	@ManyToOne(fetch = FetchType.LAZY)
+	public User getUser() {
+		return user;
 	}
 
-	public void setUserId(long userId) {
-		this.userId = userId;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getUserAvatar() {
-		return userAvatar;
-	}
-
-	public void setUserAvatar(String userAvatar) {
-		this.userAvatar = userAvatar;
+	public void setUser(User user) {
+		this.user = user;
 	}
 
 	public boolean isInstructor() {

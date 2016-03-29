@@ -25,7 +25,7 @@ public class Credential1 extends BaseEntity {
 
 	private User createdBy;
 	private Set<Tag> tags;
-	private Set<Tag> hashTags;
+	private Set<Tag> hashtags;
 	private boolean published;
 	private List<CredentialCompetence1> competences;
 	private boolean competenceOrderMandatory;
@@ -37,7 +37,7 @@ public class Credential1 extends BaseEntity {
 	
 	public Credential1() {
 		tags = new HashSet<>();
-		hashTags = new HashSet<>();
+		hashtags = new HashSet<>();
 		competences = new ArrayList<>();
 	}
 
@@ -61,12 +61,12 @@ public class Credential1 extends BaseEntity {
 	}
 
 	@ManyToMany
-	public Set<Tag> getHashTags() {
-		return hashTags;
+	public Set<Tag> getHashtags() {
+		return hashtags;
 	}
 
-	public void setHashTags(Set<Tag> hashTags) {
-		this.hashTags = hashTags;
+	public void setHashtags(Set<Tag> hashTags) {
+		this.hashtags = hashTags;
 	}
 
 	public boolean isPublished() {

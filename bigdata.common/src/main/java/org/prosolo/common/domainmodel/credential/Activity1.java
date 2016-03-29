@@ -5,7 +5,6 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 
 @Entity
@@ -15,7 +14,7 @@ public class Activity1 extends BaseEntity {
 	
 	private int orderInCompetence;
 	private long duration;
-	private Competence competence;
+	private Competence1 competence;
 	private boolean published;
 	
 	public Activity1() {
@@ -32,11 +31,11 @@ public class Activity1 extends BaseEntity {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(nullable = false)
-	public Competence getCompetence() {
+	public Competence1 getCompetence() {
 		return competence;
 	}
 
-	public void setCompetence(Competence competence) {
+	public void setCompetence(Competence1 competence) {
 		this.competence = competence;
 	}
 

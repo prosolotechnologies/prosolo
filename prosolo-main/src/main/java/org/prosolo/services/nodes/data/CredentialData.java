@@ -1,39 +1,46 @@
 package org.prosolo.services.nodes.data;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.CredentialType1;
 
-public class BasicCredentialData {
+public class CredentialData implements Serializable {
 
+	private static final long serialVersionUID = -8784334832131740545L;
+	
+	private long id;
 	private String title;
 	private String description;
-	
-	private List<Tag> tags;
+	private Set<Tag> tags;
 	private String tagsString;
-	
+	private Set<Tag> hashtags;
 	private String hashtagsString = "";
-	
 	private boolean published;
 	private PublishedStatus status;
-	
 	private String typeString;
 	private CredentialType1 type;
-	
 	private boolean mandatoryFlow;
+	private String durationString;
+	private ResourceCreator creator;
+	private List<CompetenceData1> competences;
 	
-	public BasicCredentialData() {
-		this.tags = new ArrayList<Tag>();
+	//target credential data
+	private boolean enrolled;
+	private long targetCredId;
+	private int progress;
+	
+	
+	public CredentialData() {
 		setCredentialStatus();
 	}
-
-	public static BasicCredentialData copyBasicCourseData(BasicCredentialData data) {
-		BasicCredentialData course = new BasicCredentialData();
+	
+	public static CredentialData copyBasicCourseData(CredentialData data) {
+		CredentialData course = new CredentialData();
 		course.setTitle(data.getTitle());
 		course.setDescription(data.getDescription());
-		course.setTags(new ArrayList<>(data.getTags()));
 		course.setTagsString(data.getTagsString());
 		course.setPublished(data.isPublished());
 		course.setCredentialStatus();
@@ -86,14 +93,6 @@ public class BasicCredentialData {
 		this.published = published;
 	}
 
-	public List<Tag> getTags() {
-		return tags;
-	}
-
-	public void setTags(List<Tag> tags) {
-		this.tags = tags;
-	}
-
 	public String getTagsString() {
 		return tagsString;
 	}
@@ -140,6 +139,78 @@ public class BasicCredentialData {
 
 	public void setTypeString(String typeString) {
 		this.typeString = typeString;
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long credId) {
+		this.id = credId;
+	}
+
+	public List<CompetenceData1> getCompetences() {
+		return competences;
+	}
+
+	public void setCompetences(List<CompetenceData1> competences) {
+		this.competences = competences;
+	}
+
+	public ResourceCreator getCreator() {
+		return creator;
+	}
+
+	public void setCreator(ResourceCreator creator) {
+		this.creator = creator;
+	}
+
+	public Set<Tag> getTags() {
+		return tags;
+	}
+
+	public void setTags(Set<Tag> tags) {
+		this.tags = tags;
+	}
+
+	public Set<Tag> getHashtags() {
+		return hashtags;
+	}
+
+	public void setHashtags(Set<Tag> hashtags) {
+		this.hashtags = hashtags;
+	}
+
+	public boolean isEnrolled() {
+		return enrolled;
+	}
+
+	public void setEnrolled(boolean enrolled) {
+		this.enrolled = enrolled;
+	}
+
+	public long getTargetCredId() {
+		return targetCredId;
+	}
+
+	public void setTargetCredId(long targetCredId) {
+		this.targetCredId = targetCredId;
+	}
+
+	public int getProgress() {
+		return progress;
+	}
+
+	public void setProgress(int progress) {
+		this.progress = progress;
+	}
+
+	public String getDurationString() {
+		return durationString;
+	}
+	
+	public void setDurationString(String durationString) {
+		this.durationString = durationString;
 	}
 
 }

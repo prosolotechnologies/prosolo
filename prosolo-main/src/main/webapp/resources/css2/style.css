@@ -122,7 +122,7 @@ a, a:focus {
     border-color: #51b7c7; }
 
 /* line 144, style.scss */
-h1, h2, h3, h1 a, h2 a, h3 a {
+h1, h2, h3, h1 a, h2 a, h3 a, h1 a:focus, h2 a:focus, h3 a:focus {
   margin-bottom: 30px;
   margin-top: 0;
   color: #363636;
@@ -202,16 +202,26 @@ input {
       background: none; }
 
 /* line 219, style.scss */
+.bootstrap-select {
+  margin-bottom: 30px; }
+  /* line 221, style.scss */
+  .bootstrap-select .btn {
+    margin-bottom: 0; }
+    /* line 223, style.scss */
+    .bootstrap-select .btn:focus {
+      font-weight: 400; }
+
+/* line 229, style.scss */
 .nav > li > a:focus {
   background: none; }
 
-/* line 223, style.scss */
+/* line 233, style.scss */
 .nav-tabs {
   border: none; }
-  /* line 225, style.scss */
+  /* line 235, style.scss */
   .nav-tabs > li {
     margin: 0 30px 0 0; }
-    /* line 227, style.scss */
+    /* line 237, style.scss */
     .nav-tabs > li > a {
       font-size: 12px;
       line-height: 46px;
@@ -222,12 +232,12 @@ input {
       opacity: .5;
       border: none;
       border-bottom: 2px solid transparent; }
-      /* line 237, style.scss */
+      /* line 247, style.scss */
       .nav-tabs > li > a:hover {
         background: none;
         opacity: 1;
         border-bottom: 2px solid transparent; }
-  /* line 244, style.scss */
+  /* line 254, style.scss */
   .nav-tabs > li.active > a,
   .nav-tabs > li.active > a:focus,
   .nav-tabs > li.active > a:hover {
@@ -237,7 +247,7 @@ input {
     border: none;
     border-bottom: 2px solid #FCA567; }
 
-/* line 255, style.scss */
+/* line 265, style.scss */
 .whiteBar {
   width: 100%;
   margin-bottom: 30px;
@@ -246,28 +256,28 @@ input {
   -webkit-box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
   -moz-box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
   box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15); }
-  /* line 263, style.scss */
+  /* line 273, style.scss */
   .whiteBar .whiteBarContent {
     display: flex;
     justify-content: space-between;
     height: 46px; }
 
-/* line 270, style.scss */
+/* line 280, style.scss */
 .breadcrumb {
   padding: 0;
   margin-top: -10px;
   margin-bottom: 30px;
   background: none;
   font-size: 12px; }
-  /* line 276, style.scss */
+  /* line 286, style.scss */
   .breadcrumb a {
     font-weight: 400;
     color: #AAB1B5; }
-    /* line 279, style.scss */
+    /* line 289, style.scss */
     .breadcrumb a:hover {
       color: #64BFCD; }
 
-/* line 285, style.scss */
+/* line 295, style.scss */
 .whiteBox {
   margin-bottom: 30px;
   padding: 30px 30px 0 30px;
@@ -278,23 +288,23 @@ input {
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px; }
-  /* line 293, style.scss */
+  /* line 303, style.scss */
   .whiteBox.summaryCompetence {
     padding: 0; }
-    /* line 295, style.scss */
+    /* line 305, style.scss */
     .whiteBox.summaryCompetence .innerWrapper {
       padding: 30px 30px 0 30px; }
-  /* line 299, style.scss */
+  /* line 309, style.scss */
   .mandatoryFlow .whiteBox {
     margin-bottom: 15px; }
 
-/* line 304, style.scss */
+/* line 314, style.scss */
 .mandatoryArrow {
   height: 14px;
   margin-bottom: 15px;
   background: url("../images2/mandatoryArrow.svg") no-repeat center center; }
 
-/* line 310, style.scss */
+/* line 320, style.scss */
 .madeByUser,
 .madeByUniversity {
   width: 20px;
@@ -302,15 +312,15 @@ input {
   display: block;
   text-indent: -10000px; }
 
-/* line 318, style.scss */
+/* line 328, style.scss */
 .madeByUser {
   background: url("../images2/iconUser20.svg") no-repeat; }
 
-/* line 322, style.scss */
+/* line 332, style.scss */
 .madeByUniversity {
   background: url("../images2/iconUniversity20.svg") no-repeat; }
 
-/* line 326, style.scss */
+/* line 336, style.scss */
 .duration,
 .mandatoryTag {
   height: 20px;
@@ -318,31 +328,31 @@ input {
   font-size: 13px;
   color: #AAB1B5; }
 
-/* line 334, style.scss */
+/* line 344, style.scss */
 .duration {
   background: url("../images2/iconClock20.svg") no-repeat; }
 
-/* line 338, style.scss */
+/* line 348, style.scss */
 .mandatoryTag {
   background: url("../images2/iconMandFlow20.svg") no-repeat; }
 
-/* line 342, style.scss */
+/* line 352, style.scss */
 .tooltip-inner {
   background: #1e1e1e;
   padding: 15px;
   font-size: 13px;
   font-weight: 500; }
 
-/* line 349, style.scss */
+/* line 359, style.scss */
 .tooltip.top .tooltip-arrow {
   border-top-color: #1e1e1e; }
 
-/* line 353, style.scss */
+/* line 363, style.scss */
 .progressBar {
   display: flex;
   font-size: 13px;
   align-items: center; }
-  /* line 357, style.scss */
+  /* line 367, style.scss */
   .progressBar .progress {
     width: 100px;
     height: 4px;
@@ -355,7 +365,7 @@ input {
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     box-shadow: none; }
-    /* line 367, style.scss */
+    /* line 377, style.scss */
     .progressBar .progress .progress-bar {
       background-color: #FCA567;
       -webkit-border-radius: 2px;
@@ -365,7 +375,7 @@ input {
       -moz-box-shadow: none;
       box-shadow: none; }
 
-/* line 377, style.scss */
+/* line 387, style.scss */
 .tagCompleted {
   color: #64BFCD;
   font-size: 13px;
@@ -374,20 +384,20 @@ input {
   line-height: 32px;
   background: url("../images2/iconCheck20Green.svg") no-repeat left center; }
 
-/* line 386, style.scss */
+/* line 396, style.scss */
 .paginationWrapper {
   display: flex;
   justify-content: center; }
-  /* line 389, style.scss */
+  /* line 399, style.scss */
   .paginationWrapper .pagination {
     margin: 0 0 30px 0; }
-    /* line 391, style.scss */
+    /* line 401, style.scss */
     .paginationWrapper .pagination li {
       display: inline-block;
       float: left;
       margin: 0 5px;
       line-height: 30px; }
-      /* line 396, style.scss */
+      /* line 406, style.scss */
       .paginationWrapper .pagination li a {
         display: inline-block;
         min-width: 30px;
@@ -402,24 +412,24 @@ input {
         -webkit-border-radius: 5px;
         -moz-border-radius: 5px;
         border-radius: 5px; }
-        /* line 408, style.scss */
+        /* line 418, style.scss */
         .paginationWrapper .pagination li a:hover {
           color: #363636;
           background: none; }
-      /* line 413, style.scss */
+      /* line 423, style.scss */
       .paginationWrapper .pagination li.active a, .paginationWrapper .pagination li.active a:hover {
         color: #363636;
         background: #EDEFF1; }
 
-/* line 422, style.scss */
+/* line 432, style.scss */
 .tags {
   margin-bottom: 30px;
   padding: 0; }
-  /* line 425, style.scss */
+  /* line 435, style.scss */
   .tags li {
     display: inline-block;
     margin: 0 10px 10px 0; }
-    /* line 428, style.scss */
+    /* line 438, style.scss */
     .tags li a {
       display: inline-block;
       padding: 0 10px;
@@ -431,24 +441,24 @@ input {
       color: #859095;
       font-weight: 400;
       font-size: 13px; }
-      /* line 437, style.scss */
+      /* line 447, style.scss */
       .tags li a:hover {
         color: #363636; }
 
-/* line 444, style.scss */
+/* line 454, style.scss */
 .user32 {
   display: flex;
   height: 32px;
   align-items: center; }
-  /* line 448, style.scss */
+  /* line 458, style.scss */
   .user32 img {
     margin-right: 10px; }
-  /* line 451, style.scss */
+  /* line 461, style.scss */
   .user32 h3 {
     margin: 0; }
 
 /*--- FORM ELEMENTS ---*/
-/* line 458, style.scss */
+/* line 468, style.scss */
 input[type="text"],
 input[type="email"],
 input[type="password"],
@@ -462,87 +472,141 @@ textarea {
   -moz-box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
   box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.1); }
 
-/* line 470, style.scss */
+/* line 480, style.scss */
 input[type="text"],
 input[type="email"],
 input[type="password"] {
   line-height: 30px;
   padding: 5px 10px; }
 
-/* line 477, style.scss */
+/* line 487, style.scss */
 textarea {
   height: 100px;
   padding: 10px; }
 
-/* line 483, style.scss */
+/* line 493, style.scss */
 .formWrapper .formLine {
   display: flex;
-  flex-wrap: wrap;
   padding-bottom: 30px; }
-  /* line 487, style.scss */
+  /* line 496, style.scss */
   .formWrapper .formLine > label {
-    width: 170px;
+    min-width: 170px;
     font-weight: 600;
     color: #363636;
     line-height: 40px; }
-  /* line 493, style.scss */
+  /* line 502, style.scss */
   .formWrapper .formLine .formLineRight {
     flex-grow: 1; }
-    /* line 495, style.scss */
+    /* line 504, style.scss */
     .formWrapper .formLine .formLineRight input[type="text"],
     .formWrapper .formLine .formLineRight textarea {
       width: 100%; }
 
+/* line 512, style.scss */
+.bootstrap-tagsinput {
+  background-color: #fff;
+  border: 1px solid #E6E7EC;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
+  -moz-box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
+  display: inline-block;
+  line-height: 30px;
+  padding: 5px 10px;
+  vertical-align: middle;
+  width: 100%;
+  max-width: 100%;
+  line-height: 22px;
+  cursor: text; }
+
+/* line 528, style.scss */
+.bootstrap-tagsinput input {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none;
+  background-color: transparent;
+  line-height: 30px;
+  padding: 0 !important;
+  margin: 0;
+  width: auto !important;
+  max-width: inherit; }
+
+/* line 540, style.scss */
+.bootstrap-tagsinput input:focus {
+  border: none;
+  box-shadow: none; }
+
+/* line 544, style.scss */
+.bootstrap-tagsinput .tag {
+  margin-right: 2px;
+  color: #859095;
+  background: #E9EBEF;
+  line-height: 30px;
+  padding: 5px;
+  font-size: 13px;
+  font-weight: 400; }
+
+/* line 553, style.scss */
+.bootstrap-tagsinput .tag [data-role="remove"] {
+  margin-left: 8px;
+  cursor: pointer; }
+
+/* line 557, style.scss */
+.bootstrap-tagsinput .tag [data-role="remove"]:after {
+  content: "x";
+  color: #859095;
+  padding: 0px 2px; }
+
 /*---------------------------------------------------------------------*/
 /*--- 02. HEADER ---*/
 /*---------------------------------------------------------------------*/
-/* line 507, style.scss */
+/* line 573, style.scss */
 header {
   width: 100%;
   background: #444C5A;
   -webkit-box-shadow: inset 0px -1px 2px 0px rgba(0, 0, 0, 0.1);
   -moz-box-shadow: inset 0px -1px 2px 0px rgba(0, 0, 0, 0.1);
   box-shadow: inset 0px -1px 2px 0px rgba(0, 0, 0, 0.1); }
-  /* line 513, style.scss */
+  /* line 579, style.scss */
   header .headerTop {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between; }
-    /* line 517, style.scss */
+    /* line 583, style.scss */
     header .headerTop .headerTopLeft {
       display: flex; }
-      /* line 519, style.scss */
+      /* line 585, style.scss */
       header .headerTop .headerTopLeft #logo {
         width: 100px;
         height: 30px;
         margin: 15px 20px 15px 0;
         background: #000; }
-      /* line 525, style.scss */
+      /* line 591, style.scss */
       header .headerTop .headerTopLeft nav {
         height: 30px;
         padding: 15px 0; }
-        /* line 528, style.scss */
+        /* line 594, style.scss */
         header .headerTop .headerTopLeft nav .nav > li > a {
           font-size: 12px;
           line-height: 30px;
           color: #fff;
           font-weight: 700;
           text-transform: uppercase; }
-        /* line 536, style.scss */
+        /* line 602, style.scss */
         header .headerTop .headerTopLeft nav .nav-pills > li {
           margin: 0 10px 0 0; }
-          /* line 538, style.scss */
+          /* line 604, style.scss */
           header .headerTop .headerTopLeft nav .nav-pills > li > a {
             -webkit-border-radius: 5px;
             -moz-border-radius: 5px;
             border-radius: 5px;
             padding: 0 10px;
             opacity: .5; }
-            /* line 542, style.scss */
+            /* line 608, style.scss */
             header .headerTop .headerTopLeft nav .nav-pills > li > a:hover {
               background: none;
               opacity: 1; }
-        /* line 548, style.scss */
+        /* line 614, style.scss */
         header .headerTop .headerTopLeft nav .nav-pills > li.active > a,
         header .headerTop .headerTopLeft nav .nav-pills > li.active > a:focus,
         header .headerTop .headerTopLeft nav .nav-pills > li.active > a:hover {
@@ -551,29 +615,29 @@ header {
           -webkit-box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.1), inset 0px 1px 0px 0px rgba(0, 0, 0, 0.1);
           -moz-box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.1), inset 0px 1px 0px 0px rgba(0, 0, 0, 0.1);
           box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.1), inset 0px 1px 0px 0px rgba(0, 0, 0, 0.1); }
-    /* line 560, style.scss */
+    /* line 626, style.scss */
     header .headerTop .headerTopRight {
       display: flex;
       height: 32px;
       padding: 14px 0; }
-      /* line 564, style.scss */
+      /* line 630, style.scss */
       header .headerTop .headerTopRight .createMenu {
         height: 32px; }
-        /* line 566, style.scss */
+        /* line 632, style.scss */
         header .headerTop .headerTopRight .createMenu > a {
           margin: 0 20px 0 0;
           font-weight: 700; }
-      /* line 571, style.scss */
+      /* line 637, style.scss */
       header .headerTop .headerTopRight .userMenu {
         height: 32px; }
-        /* line 573, style.scss */
+        /* line 639, style.scss */
         header .headerTop .headerTopRight .userMenu > a {
           width: 54px;
           height: 32px; }
-          /* line 576, style.scss */
+          /* line 642, style.scss */
           header .headerTop .headerTopRight .userMenu > a .arrowDown {
             background: url("../images2/arrowDownWhite.svg") no-repeat; }
-      /* line 581, style.scss */
+      /* line 647, style.scss */
       header .headerTop .headerTopRight .iconMessages,
       header .headerTop .headerTopRight .iconNotifications {
         display: block;
@@ -583,15 +647,15 @@ header {
         opacity: .5;
         text-indent: -10000px;
         position: relative; }
-        /* line 590, style.scss */
+        /* line 656, style.scss */
         header .headerTop .headerTopRight .iconMessages:hover,
         header .headerTop .headerTopRight .iconNotifications:hover {
           opacity: 1; }
-        /* line 593, style.scss */
+        /* line 659, style.scss */
         header .headerTop .headerTopRight .iconMessages.active,
         header .headerTop .headerTopRight .iconNotifications.active {
           opacity: 1; }
-          /* line 595, style.scss */
+          /* line 661, style.scss */
           header .headerTop .headerTopRight .iconMessages.active .unreadDot,
           header .headerTop .headerTopRight .iconNotifications.active .unreadDot {
             display: block;
@@ -601,102 +665,105 @@ header {
             background: url("../images2/unreadDot.svg") no-repeat;
             top: 0;
             right: -2px; }
-      /* line 606, style.scss */
+      /* line 672, style.scss */
       header .headerTop .headerTopRight .iconMessages {
         background: url("../images2/iconEnvelope20White.svg") no-repeat; }
-      /* line 609, style.scss */
+      /* line 675, style.scss */
       header .headerTop .headerTopRight .iconNotifications {
         background: url("../images2/iconBell20White.svg") no-repeat; }
-  /* line 614, style.scss */
+  /* line 680, style.scss */
   header h1 {
     color: #fff;
     margin-top: 10px;
     margin-bottom: 30px; }
-  /* line 619, style.scss */
+  /* line 685, style.scss */
   header .headerSubmenu {
     margin-top: -20px; }
 
 /*---------------------------------------------------------------------*/
 /*--- 03. MAIN  ---*/
 /*---------------------------------------------------------------------*/
-/* line 629, style.scss */
+/* line 695, style.scss */
 .whiteBarContent .whiteBarLeft {
   display: flex;
   align-items: center; }
-  /* line 632, style.scss */
+  /* line 698, style.scss */
   .whiteBarContent .whiteBarLeft .searchBox {
     height: 46px;
     padding-left: 30px;
     background: url("../images2/iconSearch20.svg") no-repeat left center; }
-    /* line 636, style.scss */
+    /* line 702, style.scss */
     .whiteBarContent .whiteBarLeft .searchBox input {
       width: 300px;
       line-height: 32px;
       padding: 8px 0;
       border: none; }
-  /* line 643, style.scss */
+  /* line 709, style.scss */
   .whiteBarContent .whiteBarLeft .item {
     margin-right: 30px; }
-  /* line 646, style.scss */
+  /* line 712, style.scss */
   .whiteBarContent .whiteBarLeft .progressBar {
     margin-left: 20px; }
-/* line 650, style.scss */
+/* line 716, style.scss */
 .whiteBarContent .whiteBarRight {
   display: flex;
   align-items: center; }
-  /* line 653, style.scss */
+  /* line 719, style.scss */
   .whiteBarContent .whiteBarRight .sortDrop,
   .whiteBarContent .whiteBarRight .showDrop {
     display: flex;
     line-height: 30px;
     padding: 8px 0;
     color: #AAB1B5; }
-    /* line 659, style.scss */
+    /* line 725, style.scss */
     .whiteBarContent .whiteBarRight .sortDrop > a,
     .whiteBarContent .whiteBarRight .showDrop > a {
       margin-left: 10px;
       color: #859095; }
-  /* line 664, style.scss */
+  /* line 730, style.scss */
   .whiteBarContent .whiteBarRight .item {
     margin-left: 30px; }
 
-/* line 670, style.scss */
+/* line 736, style.scss */
 .summaryCard {
   position: relative; }
-  /* line 672, style.scss */
+  /* line 738, style.scss */
   .summaryCard h2 {
     float: left;
     margin-top: 0;
     margin-bottom: 20px; }
-  /* line 677, style.scss */
+    /* line 742, style.scss */
+    .summaryCard h2 a span {
+      color: #AAB1B5; }
+  /* line 746, style.scss */
   .summaryCard .metaBox {
     display: flex;
     justify-content: space-between;
     padding-bottom: 30px; }
-    /* line 681, style.scss */
+    /* line 750, style.scss */
     .summaryCard .metaBox .metaLeft {
       display: flex; }
-      /* line 683, style.scss */
+      /* line 752, style.scss */
       .summaryCard .metaBox .metaLeft .progressBar {
         height: 32px;
         margin-left: 20px; }
-    /* line 688, style.scss */
+    /* line 757, style.scss */
     .summaryCard .metaBox .metaRight {
       display: flex;
       padding: 6px 0; }
-      /* line 691, style.scss */
+      /* line 760, style.scss */
       .summaryCard .metaBox .metaRight .duration {
         margin-left: 20px; }
-  /* line 696, style.scss */
+  /* line 765, style.scss */
   .summaryCard .editOptions {
     float: right;
     margin-top: 4px;
     display: flex;
     align-items: center; }
-    /* line 701, style.scss */
+    /* line 770, style.scss */
     .summaryCard .editOptions .linkEdit {
       margin-right: 10px; }
-    /* line 704, style.scss */
+    /* line 773, style.scss */
     .summaryCard .editOptions .moveUp,
     .summaryCard .editOptions .moveDown {
       display: inline-block;
@@ -707,22 +774,22 @@ header {
       opacity: .5;
       transition: all 0.2s ease;
       -webkit-transition: all 0.2s ease; }
-      /* line 714, style.scss */
+      /* line 783, style.scss */
       .summaryCard .editOptions .moveUp.disabled, .summaryCard .editOptions .moveUp[disabled],
       .summaryCard .editOptions .moveDown.disabled,
       .summaryCard .editOptions .moveDown[disabled] {
         opacity: 0.2 !important; }
-      /* line 718, style.scss */
+      /* line 787, style.scss */
       .summaryCard .editOptions .moveUp:hover,
       .summaryCard .editOptions .moveDown:hover {
         opacity: 1; }
-    /* line 722, style.scss */
+    /* line 791, style.scss */
     .summaryCard .editOptions .moveUp {
       background: url("../images2/arrowUp.svg") no-repeat center center; }
-    /* line 725, style.scss */
+    /* line 794, style.scss */
     .summaryCard .editOptions .moveDown {
       background: url("../images2/arrowDown.svg") no-repeat center center; }
-  /* line 729, style.scss */
+  /* line 798, style.scss */
   .summaryCard .bookmarkStar {
     position: absolute;
     display: block;
@@ -735,14 +802,14 @@ header {
     background: url("../images2/iconStar20Gray.svg") no-repeat;
     transition: none;
     -webkit-transition: none; }
-    /* line 741, style.scss */
+    /* line 810, style.scss */
     .summaryCard .bookmarkStar.active, .summaryCard .bookmarkStar:hover {
       visibility: visible;
       background: url("../images2/iconStar20Yellow.svg") no-repeat; }
-  /* line 747, style.scss */
+  /* line 816, style.scss */
   .summaryCard:hover .bookmarkStar {
     visibility: visible; }
-  /* line 751, style.scss */
+  /* line 820, style.scss */
   .summaryCard .collapseActivityList .collapseButton {
     display: flex;
     justify-content: center;
@@ -750,13 +817,13 @@ header {
     height: 40px;
     line-height: 40px;
     border-top: 1px solid #EEEFF3; }
-    /* line 758, style.scss */
+    /* line 827, style.scss */
     .summaryCard .collapseActivityList .collapseButton span {
       transition: all 0.2s ease;
       -webkit-transition: all 0.2s ease;
       color: #AAB1B5;
       font-weight: 400; }
-    /* line 764, style.scss */
+    /* line 833, style.scss */
     .summaryCard .collapseActivityList .collapseButton .arrowUp,
     .summaryCard .collapseActivityList .collapseButton .arrowDown {
       display: inline-block;
@@ -767,82 +834,100 @@ header {
       opacity: .5;
       transition: all 0.2s ease;
       -webkit-transition: all 0.2s ease; }
-    /* line 776, style.scss */
+    /* line 845, style.scss */
     .summaryCard .collapseActivityList .collapseButton:hover span {
       color: #859095; }
-    /* line 779, style.scss */
+    /* line 848, style.scss */
     .summaryCard .collapseActivityList .collapseButton:hover .arrowUp,
     .summaryCard .collapseActivityList .collapseButton:hover .arrowDown {
       opacity: 1; }
-    /* line 784, style.scss */
+    /* line 853, style.scss */
     .summaryCard .collapseActivityList .collapseButton .arrowUp {
       background: url("../images2/arrowUp.svg") no-repeat center center; }
-    /* line 787, style.scss */
+    /* line 856, style.scss */
     .summaryCard .collapseActivityList .collapseButton .arrowDown {
       background: url("../images2/arrowDown.svg") no-repeat center center; }
-    /* line 790, style.scss */
+    /* line 859, style.scss */
     .summaryCard .collapseActivityList .collapseButton .textShow,
     .summaryCard .collapseActivityList .collapseButton .arrowDown {
       display: none; }
-    /* line 794, style.scss */
+    /* line 863, style.scss */
     .summaryCard .collapseActivityList .collapseButton .textHide,
     .summaryCard .collapseActivityList .collapseButton .arrowUp {
       display: inline-block; }
-    /* line 799, style.scss */
+    /* line 868, style.scss */
     .summaryCard .collapseActivityList .collapseButton.collapsed .textShow,
     .summaryCard .collapseActivityList .collapseButton.collapsed .arrowDown {
       display: inline-block; }
-    /* line 803, style.scss */
+    /* line 872, style.scss */
     .summaryCard .collapseActivityList .collapseButton.collapsed .textHide,
     .summaryCard .collapseActivityList .collapseButton.collapsed .arrowUp {
       display: none; }
-  /* line 809, style.scss */
+  /* line 878, style.scss */
   .summaryCard .collapseActivityList ul {
     margin: 0;
     padding: 0;
     list-style: none; }
-    /* line 814, style.scss */
+    /* line 883, style.scss */
     .summaryCard .collapseActivityList ul li a {
-      display: flex;
-      align-items: center;
-      height: 40px;
-      line-height: 40px;
-      padding: 0 30px;
+      display: block;
+      line-height: 20px;
+      padding: 10px 30px;
       font-weight: 400;
       color: #859095;
       background: #F8F9FB;
       border-top: 1px solid #EEEFF3; }
-      /* line 824, style.scss */
+      /* line 891, style.scss */
       .summaryCard .collapseActivityList ul li a:hover {
         color: #363636; }
-      /* line 827, style.scss */
-      .summaryCard .collapseActivityList ul li a span {
+      /* line 894, style.scss */
+      .summaryCard .collapseActivityList ul li a .icon,
+      .summaryCard .collapseActivityList ul li a .check {
         display: block;
         width: 20px;
-        height: 20px;
-        margin-right: 20px;
-        background: purple; }
+        height: 20px; }
+      /* line 900, style.scss */
+      .summaryCard .collapseActivityList ul li a .icon {
+        float: left;
+        margin-right: 20px; }
+      /* line 904, style.scss */
+      .summaryCard .collapseActivityList ul li a .check {
+        float: right;
+        margin-left: 30px;
+        background: url("../images2/iconCheck20Green.svg") no-repeat; }
+    /* line 910, style.scss */
+    .summaryCard .collapseActivityList ul li.activityVideo .icon {
+      background: url("../images2/iconVideo20.svg") no-repeat; }
+    /* line 913, style.scss */
+    .summaryCard .collapseActivityList ul li.activityText .icon {
+      background: url("../images2/iconText20.svg") no-repeat; }
+    /* line 916, style.scss */
+    .summaryCard .collapseActivityList ul li.activitySlide .icon {
+      background: url("../images2/iconSlide20.svg") no-repeat; }
+    /* line 919, style.scss */
+    .summaryCard .collapseActivityList ul li.activityExternal .icon {
+      background: url("../images2/iconExternal20.svg") no-repeat; }
 
-/* line 852, style.scss */
+/* line 927, style.scss */
 .publishBox {
   padding-bottom: 30px; }
-  /* line 854, style.scss */
+  /* line 929, style.scss */
   .publishBox h2 {
     float: left; }
-  /* line 857, style.scss */
+  /* line 932, style.scss */
   .publishBox .checkMandatory {
     margin-bottom: 20px; }
-  /* line 860, style.scss */
+  /* line 935, style.scss */
   .publishBox .linkPreview {
     float: right;
     margin-top: 4px; }
-  /* line 864, style.scss */
+  /* line 939, style.scss */
   .publishBox .publishRow {
     display: flex;
     justify-content: space-between;
     align-items: center; }
 
-/* line 871, style.scss */
+/* line 946, style.scss */
 .newCompetenceBox {
   display: flex;
   height: 180px;
@@ -854,24 +939,24 @@ header {
   border-radius: 5px;
   justify-content: center;
   align-items: center; }
-  /* line 880, style.scss */
+  /* line 955, style.scss */
   .newCompetenceBox .elementsWrapper {
     display: flex;
     align-items: flex-start;
     flex-wrap: wrap; }
-    /* line 884, style.scss */
+    /* line 959, style.scss */
     .newCompetenceBox .elementsWrapper .btn {
       margin-bottom: 30px; }
-    /* line 887, style.scss */
+    /* line 962, style.scss */
     .newCompetenceBox .elementsWrapper span {
       line-height: 40px;
       margin: 0 20px;
       color: #AAB1B5; }
-    /* line 892, style.scss */
+    /* line 967, style.scss */
     .newCompetenceBox .elementsWrapper .elementsRight {
       display: flex;
       flex-direction: column; }
-      /* line 895, style.scss */
+      /* line 970, style.scss */
       .newCompetenceBox .elementsWrapper .elementsRight input {
         width: 300px;
         margin-bottom: 8px; }

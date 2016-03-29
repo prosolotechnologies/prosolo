@@ -1,7 +1,6 @@
 package org.prosolo.services.urlencoding.impl;
 
 import org.hashids.Hashids;
-import org.prosolo.app.Settings;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.springframework.stereotype.Service;
@@ -38,5 +37,10 @@ public class HashidsUrlIdEncoderImpl implements UrlIdEncoder {
 		}
 		
 		return decodedId;
+	}
+	
+	public static void main(String[] args) {
+		long id = 1;
+		System.out.println(new HashidsUrlIdEncoderImpl().encodeId(id));
 	}
 }
