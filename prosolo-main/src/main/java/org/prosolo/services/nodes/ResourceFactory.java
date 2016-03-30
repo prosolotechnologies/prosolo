@@ -17,7 +17,6 @@ import org.prosolo.common.domainmodel.course.CourseCompetence;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType1;
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.OrganizationalUnit;
@@ -117,10 +116,5 @@ public interface ResourceFactory extends AbstractManager {
 
 	Credential1 createCredential(String title, String description, Set<Tag> tags, Set<Tag> hashtags, User createdBy,
 			CredentialType1 type, boolean compOrderMandatory, boolean published);
-	
-	TargetCredential1 enrollInCredential(Credential1 cred, User user) throws DbConnectionException;
-	
-	TargetCredential1 createNewTargetCredential(Credential1 cred, User user) 
-    		throws DbConnectionException;
 
 }

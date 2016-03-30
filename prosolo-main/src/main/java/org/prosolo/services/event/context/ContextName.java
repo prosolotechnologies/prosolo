@@ -2,7 +2,7 @@ package org.prosolo.services.event.context;
 
 public enum ContextName {
 
-	CREDENTIAL("Course"),
+	CREDENTIAL("Credential"),
 	GOAL_WALL(""),
 	COMPETENCE("TargetCompetence"),
 	ACTIVITY("TargetActivity"),

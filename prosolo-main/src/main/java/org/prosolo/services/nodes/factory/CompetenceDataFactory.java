@@ -1,11 +1,15 @@
 package org.prosolo.services.nodes.factory;
 
+import java.util.List;
 import java.util.Map;
 
+import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
+import org.prosolo.services.nodes.data.BasicActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.PublishedStatus;
 import org.prosolo.services.nodes.data.ResourceCreator;
@@ -50,6 +54,19 @@ public class CompetenceDataFactory {
 		comp.setCreator(creator);
 		
 		return comp;
+	}
+	
+	public CompetenceData1 getFullCompetenceData(TargetCompetence1 targetComp) {
+		CompetenceData1 cd = getCompetenceData(targetComp.getCreatedBy(), targetComp);
+		List<TargetActivity1> activities = targetComp.getTargetActivities();
+		if(activities != null) {
+			for(TargetActivity1 ta : activities) {
+				//TODO add mapping when activity model is implemented
+				BasicActivityData bad = new BasicActivityData();
+				cd.getActivities().add(bad);
+			}
+		}
+		return cd;
 	}
 	
 	private String getFullName(String name, String lastName) {

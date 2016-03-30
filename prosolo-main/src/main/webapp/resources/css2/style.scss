@@ -141,6 +141,10 @@ a, a:focus{
 	}
 }
 
+.btnFullWidth{
+	width: 100%;
+}
+
 h1, h2, h3, h1 a, h2 a, h3 a, h1 a:focus, h2 a:focus, h3 a:focus{
 	margin-bottom: 30px;
 	margin-top: 0;
@@ -163,8 +167,12 @@ h2{
 }
 
 h3{
-	font-size: 13px;
+	font-size: 14px;
 	line-height: 20px;
+}
+
+.hidden{
+	display: none;
 }
 
 .clear{
@@ -384,6 +392,18 @@ input{
 	}
 }
 
+.sortDrop,
+.showDrop{
+	display: flex;
+	line-height: 30px;
+	padding: 8px 0;
+	color: $lightText;
+	> a{
+		margin-left: 10px;
+		color: $normalText;
+	}
+}
+
 .tagCompleted{
 	color: $green;
 	font-size: 13px;
@@ -391,6 +411,64 @@ input{
 	padding-left: 30px;
 	line-height: 32px;
 	background: url("../images2/iconCheck20Green.svg") no-repeat left center;
+}
+
+.check{
+	display: block;
+	width: 20px;
+	height: 20px;
+	background: url("../images2/iconCheck20Green.svg") no-repeat;
+}
+
+.iconType{
+	display: block;
+	width: 20px;
+	height: 20px;
+}
+
+.activityVideo .iconType{
+	background: url("../images2/iconVideo20.svg") no-repeat;
+}
+.activityText .iconType{
+	background: url("../images2/iconText20.svg") no-repeat;
+}
+.activitySlide .iconType{
+	background: url("../images2/iconSlide20.svg") no-repeat;
+}
+.activityExternal .iconType{
+	background: url("../images2/iconExternal20.svg") no-repeat;
+}
+
+.editOptions{
+	display: flex;
+	align-items: center;
+	.linkEdit{
+		margin-right: 10px;
+	}
+	.moveUp,
+	.moveDown{
+		display: inline-block;
+		width: 16px;
+		height: 16px;
+		margin-left: 10px;
+		text-indent: -10000px;
+		opacity: .5;
+		transition: all 0.2s ease;
+		-webkit-transition: all 0.2s ease;
+		&.disabled,
+		&[disabled]{
+			opacity: .2!important;
+		}
+		&:hover{
+			opacity: 1;
+		}
+	}
+	.moveUp{
+		background: url("../images2/arrowUp.svg") no-repeat center center;
+	}
+	.moveDown{
+		background: url("../images2/arrowDown.svg") no-repeat center center;
+	}
 }
 
 .paginationWrapper{
@@ -484,9 +562,15 @@ input[type="password"]{
 	padding: 5px 10px;
 }
 
+button{
+	transition: all 0.2s ease;
+	-webkit-transition: all 0.2s ease;
+}
+
 textarea{
 	height: 100px;
 	padding: 10px;
+	resize: none;
 }
 
 .formWrapper{
@@ -716,17 +800,6 @@ header{
 	.whiteBarRight{
 		display: flex;
 		align-items: center;
-		.sortDrop,
-		.showDrop{
-			display: flex;
-			line-height: 30px;
-			padding: 8px 0;
-			color: $lightText;
-			> a{
-				margin-left: 10px;
-				color: $normalText;
-			}
-		}
 		.item{
 			margin-left: 30px;
 		}
@@ -765,35 +838,6 @@ header{
 	.editOptions{
 		float: right;
 		margin-top: 4px;
-		display: flex;
-		align-items: center;
-		.linkEdit{
-			margin-right: 10px;
-		}
-		.moveUp,
-		.moveDown{
-			display: inline-block;
-			width: 16px;
-			height: 16px;
-			margin-left: 10px;
-			text-indent: -10000px;
-			opacity: .5;
-			transition: all 0.2s ease;
-			-webkit-transition: all 0.2s ease;
-			&.disabled,
-			&[disabled]{
-				opacity: .2!important;
-			}
-			&:hover{
-				opacity: 1;
-			}
-		}
-		.moveUp{
-			background: url("../images2/arrowUp.svg") no-repeat center center;
-		}
-		.moveDown{
-			background: url("../images2/arrowDown.svg") no-repeat center center;
-		}
 	}
 	.bookmarkStar{
 		position: absolute;
@@ -891,55 +935,17 @@ header{
 					&:hover{
 						color: $darkText;
 					}
-					.icon,
-					.check{
-						display: block;
-						width: 20px;
-						height: 20px;
-					}
-					.icon{
+					.iconType{
 						float: left;
 						margin-right: 20px;
 					}
 					.check{
 						float: right;
 						margin-left: 30px;
-						background: url("../images2/iconCheck20Green.svg") no-repeat;
 					}
-				}
-				&.activityVideo .icon{
-					background: url("../images2/iconVideo20.svg") no-repeat;
-				}
-				&.activityText .icon{
-					background: url("../images2/iconText20.svg") no-repeat;
-				}
-				&.activitySlide .icon{
-					background: url("../images2/iconSlide20.svg") no-repeat;
-				}
-				&.activityExternal .icon{
-					background: url("../images2/iconExternal20.svg") no-repeat;
 				}
 			}
 		}
-	}
-}
-
-.publishBox{
-	padding-bottom: 30px;
-	h2{
-		float: left;
-	}
-	.checkMandatory{
-		margin-bottom: 20px;
-	}
-	.linkPreview{
-		float: right;
-		margin-top: 4px;
-	}
-	.publishRow{
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
 	}
 }
 
@@ -970,6 +976,210 @@ header{
 			input{
 				width: 300px;
 				margin-bottom: 8px;
+			}
+		}
+	}
+}
+
+.activitiesList{
+	padding: 0;
+	.activityItem{
+		height: 60px;
+		padding: 0 30px;
+		border-bottom: 1px solid #EEEFF3;
+		.check,
+		.iconType,
+		.iconPlus{
+			float: left;
+			margin: 20px 20px 0 0;
+		}
+		h3{
+			float: left;
+			margin: 20px 10px 0 0;
+		}
+		.editOptions{
+			float: right;
+			margin-top: 20px;
+		}
+		.duration{
+			float: right;
+			margin-top: 20px;
+		}
+		&.addActivity{
+			display: block;
+			line-height: 60px;
+			border: none;
+			.iconPlus{
+				display: block;
+				width: 20px;
+				height: 20px;
+				background: url("../images2/iconPlus20.svg") no-repeat;
+				opacity: .5;
+				transition: all 0.2s ease;
+				-webkit-transition: all 0.2s ease;
+			}
+			&:hover .iconPlus{
+				opacity: 1;
+			}
+		}
+	}
+}
+
+.formLineRight{
+	.parentCredentials{
+		padding: 10px 0 2px 0;
+		list-style: none;
+		li{
+			margin-bottom: 10px;
+			.removeX{
+				float: right;
+				width: 12px;
+				height: 12px;
+				margin-top: 5px;
+				display: block;
+				text-indent: -10000px;
+				background: url("../images2/removeX.svg") no-repeat;
+			}
+		}
+	}
+}
+
+.publishBox{
+	padding-bottom: 30px;
+	h2{
+		float: left;
+	}
+	.checkLine{
+		margin-bottom: 20px;
+	}
+	.linkPreview{
+		float: right;
+		margin-top: 4px;
+	}
+	.publishRow{
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+}
+
+.discussion{
+	h2{
+		display: inline-block;
+	}
+	.sortDrop{
+		float: right;
+		padding: 0;
+	}
+	img{
+		margin: 9px 20px 0 0;
+	}
+	.addComment{
+		display: flex;
+		margin-bottom: 30px;
+	}
+	.commentForm,
+	.editComment{
+		width: 100%;
+		textarea{
+			float: left;
+			width: 100%;
+			height: 50px;
+			padding: 15px;
+		}
+		.btn{
+			margin: 15px 10px 0 0;
+		}
+	}
+	.commentForm{
+		min-height: 50px;
+	}
+	.editComment{
+		padding-bottom: 20px;
+	}
+	.comments{
+		padding-bottom: 30px;
+		ul{
+			margin-bottom: 30px;
+		}
+		.media-left, .media>.pull-left{
+			padding: 0;
+		}
+		.media-body{
+			padding-top: 16px;
+			&.replyComment{
+				padding-top: 0;
+			}
+			h3{
+				margin-bottom: 10px;
+				span{
+					display: inline-block;
+					margin-left: 10px;
+					font-size: 11px;
+					border: 1px solid $orange;
+					height: 20px;
+					padding: 0 5px;
+					color: $orange;
+					@include rounded-corners(5px);
+				}
+			}
+			p{
+				margin-bottom: 10px;
+			}
+			.commentOptions{
+				display: flex;
+				a{
+					display: flex;
+					align-items: center;
+					color: $normalText;
+					font-weight: 400;
+					font-size: 13px;
+					margin-right: 20px;
+					.icon{
+						display: inline-block;
+						width: 12px;
+						height: 12px;
+						margin-right: 5px;
+						margin-bottom: 2px;
+						#triangle{
+							transition: all 0.2s ease;
+							-webkit-transition: all 0.2s ease;
+						}
+					}
+					&.reply{
+						.icon{
+							background: url("../images2/iconReply12.svg") no-repeat;
+							opacity: .5;
+							transition: all 0.2s ease;
+							-webkit-transition: all 0.2s ease;
+						}
+						&:hover .icon{
+							opacity: 1;
+						}
+					}
+					&.edit{
+						.icon{
+							background: url("../images2/iconEdit12.svg") no-repeat;
+							opacity: .5;
+							transition: all 0.2s ease;
+							-webkit-transition: all 0.2s ease;
+						}
+						&:hover .icon{
+							opacity: 1;
+						}
+					}
+					&:hover{
+						color: $darkText;
+						#triangle{
+							fill: $orange;
+						}
+					}
+					&.liked{
+						#triangle{
+							fill: $orange;
+						}
+					}
+				}
 			}
 		}
 	}

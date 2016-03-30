@@ -8,6 +8,7 @@ import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.general.BaseEntity;
@@ -24,6 +25,8 @@ public class Competence1 extends BaseEntity {
 	private Set<Tag> tags;
 	private boolean studentAllowedToAddActivities;
 	private boolean published;
+	private Competence1 draftVersion;
+	private boolean draft;
 	
 	private List<CredentialCompetence1> credentialCompetence;
 	
@@ -91,6 +94,23 @@ public class Competence1 extends BaseEntity {
 
 	public void setCredentialCompetence(List<CredentialCompetence1> credentialCompetence) {
 		this.credentialCompetence = credentialCompetence;
+	}
+
+	@OneToOne(fetch = FetchType.LAZY)
+	public Competence1 getDraftVersion() {
+		return draftVersion;
+	}
+
+	public void setDraftVersion(Competence1 draftVersion) {
+		this.draftVersion = draftVersion;
+	}
+
+	public boolean isDraft() {
+		return draft;
+	}
+
+	public void setDraft(boolean draft) {
+		this.draft = draft;
 	}
 	
 }

@@ -1,6 +1,8 @@
 package org.prosolo.common.domainmodel.credential;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -49,7 +51,9 @@ public class TargetCredential1 extends BaseEntity {
 	private User createdBy;
 	
 	public TargetCredential1() {
-		
+		tags = new HashSet<>();
+		hashtags = new HashSet<>();
+		targetCompetences = new ArrayList<>();
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)

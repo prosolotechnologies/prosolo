@@ -1,5 +1,6 @@
 package org.prosolo.services.nodes.data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CompetenceData1 {
@@ -19,6 +20,7 @@ public class CompetenceData1 {
 	
 	public CompetenceData1() {
 		setCompStatus();
+		activities = new ArrayList<>();
 	}
 	
 	//setting competence status based on published flag

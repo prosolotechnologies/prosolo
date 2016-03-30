@@ -24,11 +24,13 @@
 	      <div class="whiteBox publishBox">
               <h2>Publish</h2>
               <p:commandLink
+              			ajax="false"
                     	value="Preview"
                     	styleClass="linkPreview"
-                    	action="#{cc.attrs.previewAction}"/>
+                    	action="#{cc.attrs.previewAction}"
+                    	target="_blank"/>
               <div class="clear"></div>
-              <div class="checkbox checkMandatory">
+              <div class="checkbox checkLine">
               	  <h:selectBooleanCheckbox 
               	  	id="checkMandatory"
               	  	value="#{cc.attrs.mandatoryFlow}">

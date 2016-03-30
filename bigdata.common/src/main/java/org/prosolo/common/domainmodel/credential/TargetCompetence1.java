@@ -1,5 +1,7 @@
 package org.prosolo.common.domainmodel.credential;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -37,7 +39,8 @@ public class TargetCompetence1 extends BaseEntity {
 	private User createdBy;
 	
 	public TargetCompetence1() {
-		
+		tags = new HashSet<>();
+		targetActivities = new ArrayList<>();
 	}
 
 	public int getProgress() {

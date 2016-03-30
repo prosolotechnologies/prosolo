@@ -1,21 +1,29 @@
 package org.prosolo.services.nodes.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
+import org.prosolo.common.domainmodel.credential.CredentialType1;
+import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CredentialManager;
@@ -110,6 +118,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		User user = (User) persistence.currentManager().load(User.class, userId);
 		Credential1 cred = (Credential1) persistence.currentManager().load(
 				Credential1.class, credentialId);
+	    Credential1 cr1 = new Credential1();
+	    cr1.setCreatedBy(cred.getCreatedBy());
 		try {
 			String query = "SELECT targetCred, user.id, user.name, user.lastname, user.avatarUrl " +
 						   "FROM TargetCredential1 targetCred " + 
@@ -203,8 +213,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				CredentialData credData = credentialFactory.getCredentialData(user, cred);
 				
 				if(loadCompetences) {
-					List<CompetenceData1> comps = getCompetencesData(credentialId);
-					credData.setCompetences(comps);
+					List<CompetenceData1> compsData = getCompetencesData(credentialId);
+					credData.setCompetences(compsData);
 				}
 				
 				return credData;
@@ -374,5 +384,184 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw dbe;
 		}
 	}
+	
+	@Override
+	@Transactional
+	public CredentialData enrollInCredential(long credentialId, User user, LearningContextData context) 
+			throws DbConnectionException {
+		try {
+			Credential1 cred = getFullCredentialData(credentialId);
+			TargetCredential1 targetCred = createTargetCredential(cred, user);
+			
+			Map<String, String> params = null;
+			
+			if(cred.getType() == CredentialType1.UNIVERSITY_CREATED) {
+	    		//TODO assign student to instructor automatically if automatic assign is turned on
+	    	}
+			CredentialData cd = credentialFactory.getFullCredentialData(targetCred);
+			
+			String page = null;
+			String lContext = null;
+			String service = null;
+			if(context != null) {
+				page = context.getPage();
+				lContext = context.getLearningContext();
+				service = context.getService();
+			}
+			eventFactory.generateEvent(EventType.ENROLL_COURSE, user, cred, null, 
+					page, lContext, service, params);
+			
+			return cd;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while enrolling in a credential");
+		}
+	}
+	
+	private TargetCredential1 createTargetCredential(Credential1 cred, User user) {
+		TargetCredential1 targetCred = new TargetCredential1();
+		targetCred.setCredential(cred);
+		targetCred.setUser(user);
+		targetCred.setDateStarted(new Date());
+		targetCred.setCredentialType(cred.getType());
 
+		if(cred.getTags() != null) {
+			Set<Tag> tags = new HashSet<>();
+			for(Tag tag : cred.getTags()) {
+				tags.add(tag);
+			}
+			targetCred.setTags(tags);
+		}
+		
+		if(cred.getHashtags() != null) {
+			Set<Tag> hashtags = new HashSet<>();
+			for(Tag tag : cred.getHashtags()) {
+				hashtags.add(tag);
+			}
+			targetCred.setHashtags(hashtags);
+		}
+		
+		targetCred.setDuration(cred.getDuration());
+		targetCred.setStudentsCanAddCompetences(cred.isStudentsCanAddCompetences());
+		targetCred.setCompetenceOrderMandatory(cred.isCompetenceOrderMandatory());
+		targetCred.setCreatedBy(cred.getCreatedBy());
+		saveEntity(targetCred);
+		
+		List<CredentialCompetence1> credComps = getFullCredentialCompetencesData(cred.getId());
+		for(CredentialCompetence1 cc : credComps) {
+			TargetCompetence1 targetComp = createTargetCompetence(targetCred, cc);
+			targetCred.getTargetCompetences().add(targetComp);
+		}
+		
+		return targetCred;
+	}
+
+	private TargetCompetence1 createTargetCompetence(TargetCredential1 targetCred, 
+			CredentialCompetence1 cc) {
+		TargetCompetence1 targetComp = new TargetCompetence1();
+		Competence1 comp = cc.getCompetence();
+		targetComp.setTargetCredential(targetCred);
+		targetComp.setCompetence(comp);
+		targetComp.setDuration(comp.getDuration());
+		targetComp.setStudentAllowedToAddActivities(comp.isStudentAllowedToAddActivities());
+		targetComp.setOrder(cc.getOrder());
+		targetComp.setCreatedBy(comp.getCreatedBy());
+		
+		if(comp.getTags() != null) {
+			Set<Tag> tags = new HashSet<>();
+			for(Tag tag : comp.getTags()) {
+				tags.add(tag);
+			}
+			targetComp.setTags(tags);
+		}
+		saveEntity(targetComp);
+		
+		List<Activity1> activities = comp.getActivities();
+		if(activities != null) {
+			for(Activity1 act : activities) {
+				TargetActivity1 ta = createTargetActivity(targetComp, act);
+				targetComp.getTargetActivities().add(ta);
+			}
+		}
+		
+		return targetComp;
+	}
+
+	private TargetActivity1 createTargetActivity(TargetCompetence1 targetComp, Activity1 act) {
+		TargetActivity1 targetAct = new TargetActivity1();
+		targetAct.setTargetCompetence(targetComp);
+		targetAct.setActivity(act);
+		targetAct.setOrder(act.getOrderInCompetence());
+		targetAct.setDuration(act.getDuration());
+		return saveEntity(targetAct);
+	}
+
+	@Transactional(readOnly = true)
+	private Credential1 getFullCredentialData(long credentialId) throws DbConnectionException {
+		try {
+			String query = "SELECT cred " +
+					   "FROM Credential1 cred " + 
+					   "LEFT JOIN fetch cred.tags tags " +
+					   "LEFT JOIN fetch cred.hashtags hashtags " +
+					   "WHERE cred.id = :credentialId " +
+					   "AND cred.deleted = :deleted " +
+					   "AND cred.published = :published " +
+					   "AND cred.draft = :draft " ;
+			
+			Credential1 res = (Credential1) persistence.currentManager()
+					.createQuery(query)
+					.setLong("credentialId", credentialId)
+					.setBoolean("deleted", false)
+					.setBoolean("published", true)
+					.setBoolean("draft", false)
+					.uniqueResult();
+			
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credential data");
+		}
+	}
+
+	private List<CredentialCompetence1> getFullCredentialCompetencesData(long credentialId) throws DbConnectionException {
+		try {
+			Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, 
+					credentialId);
+			String query = "SELECT credComp " +
+					   "FROM CredentialCompetence1 credComp " + 
+					   "INNER JOIN fetch credComp.competence comp " +
+					   "LEFT JOIN fetch comp.tags tags " +
+					   "LEFT JOIN fetch comp.activities act " +
+					   "WHERE credComp.credential = :cred " +
+					   "AND comp.deleted = :deleted " +
+					   "AND comp.published = :published " +
+					   "AND comp.draft = :draft " +
+					   "AND (act is null or " +
+					   "(act.deleted = :deleted " +
+					   "AND act.published = :published " +
+					   "AND act.draft = :draft))";
+			
+			@SuppressWarnings("unchecked")
+			List<CredentialCompetence1> res = persistence.currentManager()
+					.createQuery(query)
+					.setEntity("cred", cred)
+					.setBoolean("deleted", false)
+					.setBoolean("published", true)
+					.setBoolean("draft", false)
+					.list();
+			
+			if(res == null) {
+				return new ArrayList<>();	
+			}
+			
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credential data");
+		}
+	}
+	
 }

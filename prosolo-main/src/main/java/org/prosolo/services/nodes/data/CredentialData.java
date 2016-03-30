@@ -1,6 +1,8 @@
 package org.prosolo.services.nodes.data;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -35,6 +37,9 @@ public class CredentialData implements Serializable {
 	
 	public CredentialData() {
 		setCredentialStatus();
+		tags = new HashSet<>();
+		hashtags = new HashSet<>();
+		competences = new ArrayList<>();
 	}
 	
 	public static CredentialData copyBasicCourseData(CredentialData data) {

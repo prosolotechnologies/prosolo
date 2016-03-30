@@ -13,6 +13,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.general.BaseEntity;
@@ -34,6 +35,8 @@ public class Credential1 extends BaseEntity {
 	private boolean manuallyAssignStudents;
 	private int defaultNumberOfStudentsPerInstructor;
 	private CredentialType1 type;
+	private Credential1 draftVersion;
+	private boolean draft;
 	
 	public Credential1() {
 		tags = new HashSet<>();
@@ -133,6 +136,23 @@ public class Credential1 extends BaseEntity {
 
 	public void setType(CredentialType1 type) {
 		this.type = type;
+	}
+
+	@OneToOne(fetch = FetchType.LAZY)
+	public Credential1 getDraftVersion() {
+		return draftVersion;
+	}
+
+	public void setDraftVersion(Credential1 draftVersion) {
+		this.draftVersion = draftVersion;
+	}
+
+	public boolean isDraft() {
+		return draft;
+	}
+
+	public void setDraft(boolean draft) {
+		this.draft = draft;
 	}
 	
 }

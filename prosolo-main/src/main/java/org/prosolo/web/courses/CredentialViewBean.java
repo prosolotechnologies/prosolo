@@ -8,6 +8,7 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.CredentialData;
@@ -31,12 +32,13 @@ public class CredentialViewBean implements Serializable {
 	@Inject private UrlIdEncoder idEncoder;
 
 	private String id;
+	private long decodedId;
 	
 	private CredentialData credentialData;
 
 	
 	public void init() {	
-		long decodedId = idEncoder.decodeId(id);
+		decodedId = idEncoder.decodeId(id);
 		if (decodedId > 0) {
 			try {
 				credentialData = credentialManager.getAllCredentialDataForUser(decodedId, 
@@ -63,9 +65,14 @@ public class CredentialViewBean implements Serializable {
 	 * ACTIONS
 	 */
 	
-	public void saveCredential() {
+	public void enrollInCredential() {
 		try {
-			
+			LearningContextData lcd = new LearningContextData();
+			lcd.setPage(FacesContext.getCurrentInstance().getViewRoot().getViewId());
+			lcd.setLearningContext(PageUtil.getPostParameter("context"));
+			lcd.setService(PageUtil.getPostParameter("service"));
+			CredentialData cd = credentialManager.enrollInCredential(decodedId, loggedUser.getUser(), lcd);
+			cd.getId();
 		} catch(DbConnectionException e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -95,6 +102,14 @@ public class CredentialViewBean implements Serializable {
 
 	public void setCredentialData(CredentialData credentialData) {
 		this.credentialData = credentialData;
+	}
+
+	public long getDecodedId() {
+		return decodedId;
+	}
+
+	public void setDecodedId(long decodedId) {
+		this.decodedId = decodedId;
 	}
 
 }

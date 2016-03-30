@@ -2,6 +2,7 @@ package org.prosolo.services.nodes;
 
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.data.CredentialData;
 
@@ -22,4 +23,6 @@ public interface CredentialManager {
 	
 	Credential1 updateCredential(CredentialData data, User user) throws DbConnectionException;
 	
+	CredentialData enrollInCredential(long credentialId, User user, LearningContextData context) 
+			throws DbConnectionException;
 }

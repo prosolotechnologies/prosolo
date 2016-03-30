@@ -7,7 +7,7 @@ public enum ApplicationPage {
 	LEARN("/learn.xhtml"), 
 	PLAN("/plan.xhtml"), 
 	BROWSE_CREDENTIALS("/courseBrowse.xhtml"),
-	CREDENTIAL("/course.xhtml"),
+	COURSE("/course.xhtml"),
 	PROFILE("/profile.xhtml"),
 	PUBLIC_PROFILE("/publicprofile.xhtml"),
 	MESSAGES("/messages.xhtml"),
@@ -16,12 +16,12 @@ public enum ApplicationPage {
 	SEARCH("/search.xhtml"),
 	SETTINGS("/settings.xhtml"),
 	COMPETENCES("/manage/competences.xhtml"),
-	CREDENTIALS("/manage/courses.xhtml"),
+	COURSES("/manage/courses.xhtml"),
 	REPORTS("/manage/reports.xhtml"),
 	STUDENT_LIST("/manage/credential-students.xhtml"),
 	STUDENT_PROFILE("/manage/studentProfile.xhtml"),
 	COMPETENCE("/manage/competence.xhtml"),
-	CREDENTIAL_MANAGE("/manage/course.xhtml"),
+	COURSE_MANAGE("/manage/course.xhtml"),
 	EXTERNAL_TOOLS("/manage/tools.xhtml"),
 	EXTERNAL_TOOL_DETAILS("/manage/externalTools/toolDetails.xhtml"),
 	COURSE_FEEDS("/manage/courseFeeds.xhtml"),
@@ -35,7 +35,8 @@ public enum ApplicationPage {
 	STUDENT_REASSIGN("/manage/credential-instructors-reassign.xhtml"),
 	LTI_PROVIDER_LAUNCH("/ltiproviderlaunch.xhtml"),
 	COMPETENCE_ACTIVITIES("/manage/competence-activities.xhtml"),
-	EMAIL("/email.xhtml");
+	EMAIL("/email.xhtml"),
+	CREDENTIAL("/credential.xhtml");
 
     private String uri; 
     

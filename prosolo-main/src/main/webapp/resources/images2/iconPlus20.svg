@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.6.1 (26313) - http://www.bohemiancoding.com/sketch -->
+    <title>iconPlus20</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Assets" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="iconPlus20" fill="#AAB1B5">
+            <g id="icon-plus">
+                <rect id="Rectangle-107" x="9" y="3" width="2" height="14" rx="2"></rect>
+                <rect id="Rectangle-107" x="3" y="9" width="14" height="2" rx="2"></rect>
+            </g>
+        </g>
+    </g>
+</svg>

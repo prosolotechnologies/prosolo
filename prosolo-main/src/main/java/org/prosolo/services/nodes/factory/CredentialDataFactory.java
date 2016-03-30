@@ -1,11 +1,16 @@
 package org.prosolo.services.nodes.factory;
 
+import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
+import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.PublishedStatus;
 import org.prosolo.services.nodes.data.ResourceCreator;
@@ -16,8 +21,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CredentialDataFactory {
+	
+	@Inject
+	private CompetenceDataFactory compFactory;
 
-	public CredentialData getCredentialData(User user, Credential1 credential) {
+	public CredentialData getCredentialData(User createdBy, Credential1 credential) {
 		CredentialData cred = new CredentialData();
 		cred.setId(credential.getId());
 		cred.setTitle(credential.getTitle());
@@ -32,16 +40,16 @@ public class CredentialDataFactory {
 		cred.setMandatoryFlow(credential.isCompetenceOrderMandatory());
 		Map<String, Integer> durationMap = TimeUtil.getHoursAndMinutes(credential.getDuration());
 		cred.setDurationString(getDurationString(durationMap.get("hours"), durationMap.get("minutes")));
-		if(user != null) {
-			ResourceCreator creator = new ResourceCreator(user.getId(), 
-					getFullName(user.getName(), user.getLastname()),
-					AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size60x60));
+		if(createdBy != null) {
+			ResourceCreator creator = new ResourceCreator(createdBy.getId(), 
+					getFullName(createdBy.getName(), createdBy.getLastname()),
+					AvatarUtils.getAvatarUrlInFormat(createdBy.getAvatarUrl(), ImageFormat.size60x60));
 			cred.setCreator(creator);
 		}
 		return cred;
 	}
 	
-	public CredentialData getCredentialData(User user, long credId, TargetCredential1 credential) {
+	public CredentialData getCredentialData(User createdBy, long credId, TargetCredential1 credential) {
 		CredentialData cred = new CredentialData();
 		cred.setId(credId);
 		cred.setTitle(credential.getTitle());
@@ -54,15 +62,29 @@ public class CredentialDataFactory {
 		cred.setMandatoryFlow(credential.isCompetenceOrderMandatory());
 		Map<String, Integer> durationMap = TimeUtil.getHoursAndMinutes(credential.getDuration());
 		cred.setDurationString(getDurationString(durationMap.get("hours"), durationMap.get("minutes")));
-		ResourceCreator creator = new ResourceCreator(user.getId(), 
-				getFullName(user.getName(), user.getLastname()),
-				AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size60x60));
-		cred.setCreator(creator);
-		
+		if(createdBy != null) {
+			ResourceCreator creator = new ResourceCreator(createdBy.getId(), 
+					getFullName(createdBy.getName(), createdBy.getLastname()),
+					AvatarUtils.getAvatarUrlInFormat(createdBy.getAvatarUrl(), ImageFormat.size60x60));
+			cred.setCreator(creator);
+		}
 		cred.setEnrolled(true);
 		cred.setTargetCredId(credential.getId());
 		cred.setProgress(credential.getProgress());
 		return cred;
+	}
+	
+	public CredentialData getFullCredentialData(TargetCredential1 targetCred) {
+		CredentialData cd = getCredentialData(targetCred.getCreatedBy(), 
+				targetCred.getCredential().getId(), targetCred);
+		List<TargetCompetence1> targetComps = targetCred.getTargetCompetences();
+		if(targetComps != null) {
+			for(TargetCompetence1 tc : targetComps) {
+				CompetenceData1 compData = compFactory.getFullCompetenceData(tc);
+				cd.getCompetences().add(compData);
+			}
+		}
+		return cd;
 	}
 	
 	private PublishedStatus getPublishedStatusBasedOnPublishFlag(boolean published) {

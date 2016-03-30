@@ -37,7 +37,6 @@ import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.course.Status;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType1;
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.organization.Capability;
@@ -900,37 +899,5 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     		throw new DbConnectionException("Error while saving credential");
     	}
     }
-    
-    @Override
-    @Transactional(readOnly = false)
-    public TargetCredential1 enrollInCredential(Credential1 cred, User user) throws DbConnectionException {
-    	try {
-	    	TargetCredential1 targetCred = createNewTargetCredential(cred, user);
-	    	if(cred.getType() == CredentialType1.UNIVERSITY_CREATED) {
-	    		//TODO assign student to instructor automatically if automatic assign is turned on
-	    	}
-	    	return targetCred;
-    	} catch(Exception e) {
-    		logger.error(e);
-    		e.printStackTrace();
-    		throw new DbConnectionException("Error while enrolling in a credential");
-    	}
-    }
-    
-    @Override
-    @Transactional (readOnly = false)
-    public TargetCredential1 createNewTargetCredential(Credential1 cred, User user) 
-    		throws DbConnectionException {
-    	try {
-	    	TargetCredential1 targetCredential = new TargetCredential1();
-	    	targetCredential.setCredential(cred);
-	    	targetCredential.setUser(user);
-	        
-	        return saveEntity(targetCredential);
-    	} catch(Exception e) {
-    		logger.error(e);
-    		e.printStackTrace();
-    		throw new DbConnectionException("Error while creating target credential");
-    	}
-    }
+
 }

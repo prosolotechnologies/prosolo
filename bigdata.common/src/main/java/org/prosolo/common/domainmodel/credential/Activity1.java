@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 
 import org.prosolo.common.domainmodel.general.BaseEntity;
 
@@ -16,6 +17,8 @@ public class Activity1 extends BaseEntity {
 	private long duration;
 	private Competence1 competence;
 	private boolean published;
+	private Activity1 draftVersion;
+	private boolean draft;
 	
 	public Activity1() {
 		
@@ -53,6 +56,23 @@ public class Activity1 extends BaseEntity {
 
 	public void setPublished(boolean published) {
 		this.published = published;
+	}
+
+	@OneToOne(fetch = FetchType.LAZY)
+	public Activity1 getDraftVersion() {
+		return draftVersion;
+	}
+
+	public void setDraftVersion(Activity1 draftVersion) {
+		this.draftVersion = draftVersion;
+	}
+
+	public boolean isDraft() {
+		return draft;
+	}
+
+	public void setDraft(boolean draft) {
+		this.draft = draft;
 	}
 
 }
