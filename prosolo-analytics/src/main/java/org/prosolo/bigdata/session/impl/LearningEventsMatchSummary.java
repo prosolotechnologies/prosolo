@@ -15,13 +15,19 @@ public class LearningEventsMatchSummary {
 	//TODO session can span 2 days, perhaps? do we need a list? possible optimization spot
 	private List<DailyHits> result;
 	private final boolean milestone;
+	//used only for milestone events
+	private MilestoneType type;
+	private String name;
 	
-	public LearningEventsMatchSummary(String id, String description, String process, boolean milestone) {
+	public LearningEventsMatchSummary(String id, String description,
+			String process, boolean milestone, MilestoneType type, String name) {
 		super();
 		this.id = id;
 		this.description = description;
 		this.process = process;
 		this.milestone = milestone;
+		this.type = type;
+		this.name = name;
 		result = new ArrayList<>();
 	}
 	
@@ -56,7 +62,22 @@ public class LearningEventsMatchSummary {
 	public String getProcess() {
 		return process;
 	}
+	
+	public MilestoneType getType() {
+		return type;
+	}
 
+	public void setType(MilestoneType type) {
+		this.type = type;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 
 	@Override
 	public int hashCode() {

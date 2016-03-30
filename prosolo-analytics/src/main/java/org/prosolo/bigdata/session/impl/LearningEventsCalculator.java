@@ -54,6 +54,8 @@ public class LearningEventsCalculator {
 					object.addProperty("id", summary.getId());
 					object.addProperty("process", summary.getProcess());
 					object.addProperty("description", summary.getDescription());
+					object.addProperty("type", summary.getType().getValue());
+					object.addProperty("name", summary.getName());
 					String milestoneString = object.toString();
 					//if we do not have hit for this day of this year, create one
 					if(!milestoneHits.containsKey(dh.getEpochDay())) {
