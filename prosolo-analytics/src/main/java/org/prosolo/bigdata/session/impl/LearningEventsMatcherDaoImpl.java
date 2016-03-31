@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.prosolo.bigdata.events.pojo.LogEvent;
 import org.prosolo.bigdata.session.EventMatcherDao;
@@ -46,9 +47,14 @@ public class LearningEventsMatcherDaoImpl implements EventMatcherDao<LogEvent> {
 			JSONArray milestoneTypes = (JSONArray) new JSONParser().parse(new FileReader(milestoneTypesFile));
 			//JSONArray is a raw sub type of ArrayList. Methods it inherits are raw, all their type parameter 
 			//uses are erased and reduced to Object. So no ugly casting in streams, using just foreach loop.
-			List<String> milestoneTypesList = new ArrayList<>(milestoneTypes.size());
+			List<LearningEventSummary.Milestone> milestoneTypesList = new ArrayList<>(milestoneTypes.size());
 			for(Object milestoneType : milestoneTypes) {
-				milestoneTypesList.add(milestoneType.toString());
+				JSONObject jsonMilestone = (JSONObject) milestoneType;
+				LearningEventSummary.Milestone milestone = new LearningEventSummary.Milestone();
+				milestone.setId(jsonMilestone.get("id").toString());
+				milestone.setType(MilestoneType.valueOf(jsonMilestone.get("type").toString()));
+				milestone.setName(jsonMilestone.get("name").toString());
+				milestoneTypesList.add(milestone);
 			}
 			matchers = new ArrayList<>(learningEventRules.size());
 			for(int i = 0; i < learningEventRules.size(); i++) {

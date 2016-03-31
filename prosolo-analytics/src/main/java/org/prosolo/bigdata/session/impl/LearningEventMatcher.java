@@ -14,6 +14,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.prosolo.bigdata.events.pojo.LogEvent;
 import org.prosolo.bigdata.session.EventMatcher;
+import org.prosolo.bigdata.session.impl.LearningEventSummary.Milestone;
 
 /**
  * @author Nikola Maric
@@ -28,6 +29,9 @@ public class LearningEventMatcher implements EventMatcher<LogEvent> {
 	private String process;
 	private List<EventPattern> patternList;
 	private boolean isMilestoneEvent = false;
+	//used for milestones
+	private MilestoneType type;
+	private String name;
 	
 	@Override
 	public boolean eventMatches(LogEvent event) {
@@ -41,7 +45,7 @@ public class LearningEventMatcher implements EventMatcher<LogEvent> {
 
 
 	
-	public static LearningEventMatcher fromJSONString(String jsonString, List<String> milestoneTypes) throws ParseException {
+	public static LearningEventMatcher fromJSONString(String jsonString, List<LearningEventSummary.Milestone> milestoneTypes) throws ParseException {
 		JSONObject json = (JSONObject) new JSONParser().parse(jsonString);
 		LearningEventMatcher ler = new LearningEventMatcher();
 		ler.setId(json.get("id").toString());
@@ -61,8 +65,28 @@ public class LearningEventMatcher implements EventMatcher<LogEvent> {
 			}
 			ler.setPatternList(eventPatternList);
 		}
-		ler.setMilestoneEvent(milestoneTypes.contains(ler.getId()));
+		if(isMilestone(ler.getId(), milestoneTypes)) {
+			Milestone matchingMilestone = getMilestoneById(ler.getId(), milestoneTypes);
+			if(matchingMilestone != null) {
+				ler.setMilestoneEvent(true);
+				ler.setType(matchingMilestone.getType());
+				ler.setName(matchingMilestone.getName());
+			}
+		}
 		return ler;
+	}
+	
+	private static Milestone getMilestoneById(String ruleId, List<LearningEventSummary.Milestone> milestoneTypes) {
+		for(LearningEventSummary.Milestone mil : milestoneTypes) {
+			if(mil.getId().equals(ruleId)) {
+				return mil;
+			}
+		}
+		return null;
+	}
+	
+	private static boolean isMilestone(String ruleId,List<LearningEventSummary.Milestone> milestoneTypes) {
+		return milestoneTypes.stream().map(mil -> mil.getId().equals(ruleId)).reduce(true,(acc,val) -> acc || val);
 	}
 	
 	public String getId() {
@@ -110,6 +134,24 @@ public class LearningEventMatcher implements EventMatcher<LogEvent> {
 		return "LearningEventRule [id=" + id + ", description=" + description + ", process=" + process
 				+ ", patternList=" + patternList + "]";
 	}
+	
+	public MilestoneType getType() {
+		return type;
+	}
+
+	public void setType(MilestoneType type) {
+		this.type = type;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+
 
 
 

@@ -19,7 +19,8 @@ public class LearningEventMatchCounter {
 		this.matcher = matcher;
 		//number of possible states is equal to number of rules we need to match + initial
 		numberOfStates = matcher.getPatternList().size();
-		result = new LearningEventsMatchSummary(matcher.getId(), matcher.getDescription(), matcher.getProcess(), matcher.isMilestoneEvent());
+		result = new LearningEventsMatchSummary(matcher.getId(), matcher.getDescription(), 
+				matcher.getProcess(), matcher.isMilestoneEvent(),matcher.getType(),matcher.getName());
 	}
 
 	public void processEvent(LogEvent event,final long epochDay) {

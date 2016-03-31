@@ -2,6 +2,7 @@ package org.prosolo.bigdata.utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import org.joda.time.DateTimeZone;
@@ -53,6 +54,10 @@ public class DateUtil {
 	
 	public static long parseDaysSinceEpoch(String dateString, String format) throws ParseException {
 		return getDaysSinceEpoch(new SimpleDateFormat(format).parse(dateString));
+	}
+	
+	public static Date getDateFromDaysSinceEpoch(long daysSinceEpoch) {
+		return new Date(utc(Math.toIntExact(daysSinceEpoch)).getMillis());
 	}
 
 }

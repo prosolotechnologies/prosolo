@@ -1,6 +1,10 @@
 package org.prosolo.bigdata.session.impl;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
+
+import org.prosolo.bigdata.utils.DateUtil;
 
 public class LearningEventSummary {
 
@@ -27,13 +31,22 @@ public class LearningEventSummary {
 		this.milestones = milestones;
 	}
 	
-	public class Milestone {
+	public long getSummaryEpochDay(String format) throws ParseException {
+		SimpleDateFormat sdf = new SimpleDateFormat(format);
+		return DateUtil.getDaysSinceEpoch(sdf.parse(getDate()));
+	}
+	
+	public static class Milestone {
 		
 		private String id;
 		private String process;
 		private String description;
-		private String type = "Competences";
+		private MilestoneType type;
+		private String name;
 		
+		public Milestone() {
+			super();
+		}
 		public String getId() {
 			return id;
 		}
@@ -52,14 +65,19 @@ public class LearningEventSummary {
 		public void setDescription(String description) {
 			this.description = description;
 		}
-		public String getType() {
+		
+		public MilestoneType getType() {
 			return type;
 		}
-		public void setType(String type) {
+		public void setType(MilestoneType type) {
 			this.type = type;
 		}
-		
-		
+		public String getName() {
+			return name;
+		}
+		public void setName(String name) {
+			this.name = name;
+		}
 	}
 	
 }
