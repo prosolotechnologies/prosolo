@@ -54,8 +54,14 @@
 			<job>
 				<class-name>org.prosolo.bigdata.jobs.GenerateUserProfileClusters</class-name>
 				<activated>false</activated>
-				<on-startup>true</on-startup>
+				<on-startup>false</on-startup>
 				<schedule>0 0 1 ? * SUN *</schedule><!--0 0 1 ? * SUN * every Sunday at 1AM-->
+			</job>
+			<job>
+				<class-name>org.prosolo.bigdata.jobs.GenerateUserProfileInteractions</class-name>
+				<activated>false</activated>
+				<on-startup>false</on-startup>
+				<schedule>0 0 0/6 1/1 * ? *</schedule><!--0 0 0/6 1/1 * ? * Execute every 6 hours-->
 			</job>
 		</quartz-jobs>
 		<streaming-jobs>

@@ -9,6 +9,7 @@ import org.prosolo.bigdata.dal.cassandra.impl.SimpleCassandraClientImpl;
 import org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl;
 
 import com.datastax.driver.core.Row;
+import org.prosolo.bigdata.events.analyzers.ObservationType;
 
 public interface SocialInteractionStatisticsDBManager {
 
@@ -34,4 +35,7 @@ public interface SocialInteractionStatisticsDBManager {
 
 	List<OuterInteractionsCount> getOuterInteractions(Long course, Long student);
 
+	void updateToFromInteraction(Long courseId, Long actorId, Long targetUserId, ObservationType observationType);
+
+	List<Row> getSocialInteractionsByType(Long courseid);
 }
