@@ -46,7 +46,7 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 		UPDATE_TOINTERACTION,
 		SELECT_INTERACTIONSBYTYPE,
 
-		UPDATE_SOCIALINTERACTIONCOUNT
+		INSERT_STUDENT_INTERACTIONS_BY_PEER, INSERT_STUDENT_INTERACTIONS_BY_TYPE, UPDATE_SOCIALINTERACTIONCOUNT
 	}
 	/*public enum TableNames{
 		INSIDE_CLUSTER_INTERACTIONS,
@@ -70,6 +70,9 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 
 		statements.put(Statements.SELECT_INTERACTIONSBYTYPE,"SELECT * FROM sna_interactionsbytypeforstudent WHERE course=? ALLOW FILTERING;");
 		statements.put(Statements.UPDATE_SOCIALINTERACTIONCOUNT, "UPDATE sna_socialinteractionscount SET count = count + 1 WHERE course=? AND source=? AND target=?;");
+
+		statements.put(Statements.INSERT_STUDENT_INTERACTIONS_BY_PEER, "INSERT INTO sna_studentinteractionbypeersoverview(course, student, interactions) VALUES(?,?,?); ");
+		statements.put(Statements.INSERT_STUDENT_INTERACTIONS_BY_TYPE, "INSERT INTO sna_studentinteractionbytypeoverview(course, student, interactions) VALUES(?,?,?); ");
 	}
 
 	private SocialInteractionStatisticsDBManagerImpl(){
@@ -89,6 +92,7 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 		// If two threads access prepared map concurrently, prepared can be repeated twice.
 		// This should be better than synchronizing access.
 		if (prepared.get(statement) == null) {
+			System.out.println("Not prepared:"+statement.toString());
 			prepared.put(statement, session.prepare(statements.get(statement)));
 		}
 		return prepared.get(statement);
@@ -258,6 +262,36 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 		PreparedStatement prepared = getStatement(getSession(), Statements.SELECT_INTERACTIONSBYTYPE);
 		BoundStatement statement = StatementUtil.statement(prepared, courseid);
 		return  query(statement);
+	}
+
+	@Override
+	public void insertStudentInteractionsByPeer(Long course, Long student, List<String> interactions) {
+		System.out.println("INSERT STUDENT INTERACTIONS BY PEER..."+interactions.size()+" course:"+course+" student:"+student);
+		PreparedStatement prepared = getStatement(getSession(), Statements.INSERT_STUDENT_INTERACTIONS_BY_PEER);
+		BoundStatement statement = new BoundStatement(prepared);
+		statement.setLong(0,course);
+		statement.setLong(1,student);
+		statement.setList(2,interactions);
+		try {
+			this.getSession().execute(statement);
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+	}
+
+	@Override
+	public void insertStudentInteractionsByType(Long course, Long student, List<String> interactions) {
+		System.out.println("INSERT STUDENT INTERACTIONS BY TYPE..."+interactions.size()+" course:"+course+" student:"+student);
+		PreparedStatement prepared = getStatement(getSession(), Statements.INSERT_STUDENT_INTERACTIONS_BY_TYPE);
+		BoundStatement statement = new BoundStatement(prepared);
+		statement.setLong(0,course);
+		statement.setLong(1,student);
+		statement.setList(2,interactions);
+		try {
+			this.getSession().execute(statement);
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
 	}
 
 

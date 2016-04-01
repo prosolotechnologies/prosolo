@@ -29,10 +29,11 @@ object SparkContextLoader {
   val dbConfig = Settings.getInstance().config.dbConfig.dbServerConfig;
 	val dbHost = dbConfig.dbHost
 	val dbPort = dbConfig.dbPort
-	
+  val maxCores=if(numOfCores>4) 4 else numOfCores
+ // val numOfCores=1;
   val sparkConf = new SparkConf()
     .setMaster("local["+numOfCores+"]")
-      .set("spark.cores_max","4")
+      .set("spark.cores_max",maxCores.toString)
       .set("spark.executor.memory","4g")
       .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
       .setAppName("prosolo.bigdata")

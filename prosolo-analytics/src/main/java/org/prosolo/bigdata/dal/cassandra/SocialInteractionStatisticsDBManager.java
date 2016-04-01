@@ -38,4 +38,8 @@ public interface SocialInteractionStatisticsDBManager {
 	void updateToFromInteraction(Long courseId, Long actorId, Long targetUserId, ObservationType observationType);
 
 	List<Row> getSocialInteractionsByType(Long courseid);
+
+	void insertStudentInteractionsByPeer(Long course, Long student, List<String> interactions);
+
+	void insertStudentInteractionsByType(Long course, Long student, List<String> interactions);
 }

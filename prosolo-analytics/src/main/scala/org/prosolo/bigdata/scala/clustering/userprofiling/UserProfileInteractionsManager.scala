@@ -6,6 +6,7 @@ import org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManag
 import org.prosolo.bigdata.dal.persistence.impl.ClusteringDAOImpl
 import org.prosolo.bigdata.scala.spark.SparkContextLoader
 import scala.collection.JavaConverters._
+import play.api.libs.json.Json
 
 /**
   * Created by zoran on 29/03/16.
@@ -17,22 +18,28 @@ object UserProfileInteractionsManager {
 
   def runAnalyser() = {
     println("RUN ANALYZER")
-
     val coursesIds = clusteringDAOManager.getAllCoursesIds
     val coursesIdsScala: Seq[java.lang.Long] = coursesIds.asScala.toSeq
-    val coursesRDD: RDD[Long] = sc.parallelize(coursesIdsScala.map {
+   /* val coursesRDD: RDD[Long] = sc.parallelize(coursesIdsScala.map {
       Long2long
-    })
-    coursesRDD.foreachPartition {
+    })*/
+    coursesIdsScala.foreach { courseid =>
+      println("RUNNING USER PROFILE ANALYZER FOR COURSE:" + courseid)
+      runStudentInteractionsGeneralOverviewAnalysis(courseid)
+      runStudentInteractionsByTypeOverviewAnalysis(courseid)
+      println("FINISHED ANALYZER FOR COURSE:"+courseid)
+    }
+   /* coursesRDD.foreachPartition {
       courses => {
         courses.foreach { courseid => {
           println("RUNNING USER PROFILE ANALYZER FOR COURSE:" + courseid)
            runStudentInteractionsGeneralOverviewAnalysis(courseid)
           runStudentInteractionsByTypeOverviewAnalysis(courseid)
+          println("FINISHED ANALYZER FOR COURSE:"+courseid)
         }
         }
-      }
-    }
+      }*/
+
   }
 
   def runStudentInteractionsGeneralOverviewAnalysis(courseId: Long) = {
@@ -49,7 +56,19 @@ object UserProfileInteractionsManager {
       })
       (studinteractions._1, newtuple)
     })
+    val calculatedInteractionsForDB = calculatedpercentage.map {
+      case (student, interactions) =>
+        (student, interactions.map {
+          i =>
+            val jsonObject = Json.obj("direction" -> i._1, "peer" -> i._2, "count" -> i._3, "percentage" -> i._4)
+            Json.stringify(jsonObject)
+        }.toList.asJava)
+    }.foreach{
+      case(student, interactions) =>
+          dbManager.insertStudentInteractionsByPeer(courseId, student, interactions)
+     }
     println("CALCULATED PERCENTAGE OF INTERACTIONS:" + calculatedpercentage.collect.mkString(", "))
+   // println("CALCULATED PERCENTAGE OF INTERACTIONS FOR DB:" + calculatedInteractionsForDB.collect.mkString(", "))
   }
   def runStudentInteractionsByTypeOverviewAnalysis(courseId: Long) = {
 
@@ -63,12 +82,22 @@ object UserProfileInteractionsManager {
     println(socialInteractionsCountDataByStudent.collect.mkString(", "))
     val calculatedpercentage=socialInteractionsCountDataByStudent.map(studinteractions=>{
       val total=studinteractions._2.foldLeft(0l)((s:Long, t:Tuple3[String,Long,Long])=>s+t._2+t._3)
-      println("student:"+studinteractions._1+" has total:"+total)
       val newtuple=studinteractions._2.map(t=>{
         Tuple5(t._1,t._2,t._2.toFloat/total,t._3,t._3.toFloat/total)
       })
       (studinteractions._1,newtuple)
     })
+    val calculatedInteractionsForDB = calculatedpercentage.map {
+      case (student, interactions) =>
+        (student, interactions.map {
+          i =>
+            val jsonObject = Json.obj("type" -> i._1, "fromusercount" -> i._2, "fromuserpercentage" -> i._3, "tousercount" -> i._4,"touserpercentage"->i._5)
+            Json.stringify(jsonObject)
+        }.toList.asJava)
+    }.foreach{
+      case(student, interactions) =>
+        dbManager.insertStudentInteractionsByType(courseId, student, interactions)
+    }
     println("CALCULATED PERCENTAGE OF INTERACTIONS BY TYPE:" + calculatedpercentage.collect.mkString(", "))
   }
 
