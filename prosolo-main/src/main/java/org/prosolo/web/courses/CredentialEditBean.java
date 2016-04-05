@@ -1,6 +1,10 @@
 package org.prosolo.web.courses;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.event.AjaxBehaviorEvent;
@@ -8,12 +12,17 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.search.TextSearch;
+import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.PublishedStatus;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.search.data.SortingOption;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -30,37 +39,67 @@ public class CredentialEditBean implements Serializable {
 	@Inject private LoggedUserBean loggedUser;
 	@Inject private CredentialManager credentialManager;
 	@Inject private UrlIdEncoder idEncoder;
+	@Inject private TextSearch textSearch;
 
 	private String id;
 	
 	private CredentialData credentialData;
+	private List<CompetenceData1> compsToRemove;
+	private List<CompetenceData1> compSearchResults;
+	private String compSearchTerm;
+	private List<Long> compsToExcludeFromSearch;
+	private int currentNumberOfComps;
 	
 	private PublishedStatus[] courseStatusArray;
 	
 	public void init() {
-		courseStatusArray = PublishedStatus.values();
+		initializeValues();
 		if(id == null) {
-			credentialData = new CredentialData();
+			credentialData = new CredentialData(false);
 		} else {
 			try {
 				long decodedId = idEncoder.decodeId(id);
 				logger.info("Editing credential with id " + decodedId);
-				
-				credentialData = credentialManager.getCredentialDataForCreator(decodedId, 
-						loggedUser.getUser().getId());
-				
-				if(credentialData == null) {
-					credentialData = new CredentialData();
-					PageUtil.fireErrorMessage("Credential data can not be found");
-				}
+
+				loadCredentialData(decodedId);
 			} catch(Exception e) {
 				logger.error(e);
-				credentialData = new CredentialData();
+				credentialData = new CredentialData(true);
 				PageUtil.fireErrorMessage(e.getMessage());
 			}
 		}
+	}
+	
+	private void loadCredentialData(long id) {
+		credentialData = credentialManager.getCredentialDataForEdit(id, 
+				loggedUser.getUser().getId(), true);
 		
+		if(credentialData == null) {
+			credentialData = new CredentialData(false);
+			PageUtil.fireErrorMessage("Credential data can not be found");
+		}
+		List<CompetenceData1> comps = credentialData.getCompetences();
+		for(CompetenceData1 cd : comps) {
+			compsToExcludeFromSearch.add(cd.getCompetenceId());
+		}
+		currentNumberOfComps = comps.size();
 		
+		logger.info("Loaded credential data for credential with id "+ id);
+	}
+
+	private void initializeValues() {
+		compsToRemove = new ArrayList<>();
+		compsToExcludeFromSearch = new ArrayList<>();
+		courseStatusArray = PublishedStatus.values();
+	}
+
+	public boolean hasMoreCompetences(int index) {
+		return credentialData.getCompetences().size() != index + 1;
+	}
+	
+	public boolean isCompetenceCreator(CompetenceData1 comp) {
+		return comp.getCreator() == null ? false : 
+			comp.getCreator().getId() == loggedUser.getUser().getId();
 	}
 	
 	/*
@@ -82,7 +121,6 @@ public class CredentialEditBean implements Serializable {
 	
 	public boolean saveCredentialData() {
 		try {
-			credentialData.setAdditionalValues();
 			if(credentialData.getId() > 0) {
 				credentialManager.updateCredential(credentialData, 
 						loggedUser.getUser());
@@ -91,6 +129,8 @@ public class CredentialEditBean implements Serializable {
 						loggedUser.getUser());
 				credentialData.setId(cred.getId());
 			}
+			initializeValues();
+			loadCredentialData(credentialData.getId());
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			return true;
 		} catch(DbConnectionException e) {
@@ -105,7 +145,7 @@ public class CredentialEditBean implements Serializable {
 		try {
 			if(credentialData.getId() > 0) {
 				credentialManager.deleteCredential(credentialData.getId());
-				credentialData = new CredentialData();
+				credentialData = new CredentialData(true);
 				PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			}
 		} catch(Exception e) {
@@ -115,9 +155,98 @@ public class CredentialEditBean implements Serializable {
 		}
 	}
 	
+	public void searchCompetences() {
+		compSearchResults = new ArrayList<>();
+		if(compSearchTerm != null && !compSearchTerm.isEmpty()) {
+			int size = compsToExcludeFromSearch.size();
+			long [] toExclude = new long[size];
+			for(int i = 0; i < size; i++) {
+				toExclude[i] = compsToExcludeFromSearch.get(i);
+			}
+			TextSearchResponse1<CompetenceData1> searchResponse = textSearch.searchCompetences1(
+					compSearchTerm,
+					0, 
+					Integer.MAX_VALUE,
+					false,
+					toExclude,
+					null,
+					SortingOption.ASC);
+			
+			List<CompetenceData1> comps = searchResponse.getFoundNodes();
+			if(comps != null) {
+				compSearchResults = comps;
+			}
+		} 
+	}
+	
+	public void addComp(CompetenceData1 compData) {
+		List<CompetenceData1> competences = credentialData.getCompetences();
+		compData.setOrder(competences.size() + 1);
+		compData.startObservingChanges();
+		competences.add(compData);
+		compsToExcludeFromSearch.add(compData.getCompetenceId());
+		currentNumberOfComps ++;
+		compSearchResults = new ArrayList<>();
+	}
+	
+	public void moveDown(int index) {
+		moveComp(index, index + 1);
+	}
+	
+	public void moveUp(int index) {
+		moveComp(index - 1, index);
+	}
+	
+	public void moveComp(int i, int k) {
+		List<CompetenceData1> competences = credentialData.getCompetences();
+		CompetenceData1 cd1 = competences.get(i);
+		cd1.setOrder(cd1.getOrder() + 1);
+		cd1.statusChangeTransitionBasedOnOrderChange();
+		CompetenceData1 cd2 = competences.get(k);
+		cd2.setOrder(cd2.getOrder() - 1);
+		cd2.statusChangeTransitionBasedOnOrderChange();
+		Collections.swap(competences, i, k);
+	}
+	
+	public void removeComp(int index) {
+		CompetenceData1 cd = credentialData.getCompetences().remove(index);
+		cd.statusRemoveTransition();
+		if(cd.getObjectStatus() == ObjectStatus.REMOVED) {
+			compsToRemove.add(cd);
+		}
+		currentNumberOfComps--;
+		long compId = cd.getCompetenceId();
+		removeIdFromExcludeList(compId);
+		shiftOrderOfCompetencesUp(index);
+	}
+	
+	private void shiftOrderOfCompetencesUp(int index) {
+		List<CompetenceData1> competences = credentialData.getCompetences();
+		for(int i = index; i < currentNumberOfComps; i++) {
+			CompetenceData1 comp = competences.get(i);
+			comp.setOrder(comp.getOrder() - 1);
+			comp.statusChangeTransitionBasedOnOrderChange();
+		}
+	}
+
+	private void removeIdFromExcludeList(long compId) {
+		Iterator<Long> iterator = compsToExcludeFromSearch.iterator();
+		while(iterator.hasNext()) {
+			long id = iterator.next();
+			if(id == compId) {
+				iterator.remove();
+				return;
+			}
+		}
+	}
+	
 	 public void listener(AjaxBehaviorEvent event) {
 	        System.out.println("listener");
 	        System.out.println(credentialData.isMandatoryFlow());
+	 }
+	 
+	 public String getPageHeaderTitle() {
+		 return credentialData.getId() > 0 ? "Edit Credential" : "New Credential";
 	 }
 	
 	/*
@@ -146,6 +275,30 @@ public class CredentialEditBean implements Serializable {
 
 	public void setId(String id) {
 		this.id = id;
+	}
+
+	public List<CompetenceData1> getCompSearchResults() {
+		return compSearchResults;
+	}
+
+	public void setCompSearchResults(List<CompetenceData1> compSearchResults) {
+		this.compSearchResults = compSearchResults;
+	}
+
+	public String getCompSearchTerm() {
+		return compSearchTerm;
+	}
+
+	public void setCompSearchTerm(String compSearchTerm) {
+		this.compSearchTerm = compSearchTerm;
+	}
+
+	public int getCurrentNumberOfComps() {
+		return currentNumberOfComps;
+	}
+
+	public void setCurrentNumberOfComps(int currentNumberOfComps) {
+		this.currentNumberOfComps = currentNumberOfComps;
 	}
 
 }

@@ -58,7 +58,8 @@ public class CredentialViewBean implements Serializable {
 	}
 	
 	public boolean isCurrentUserCreator() {
-		return credentialData.getCreator().getId() == loggedUser.getUser().getId();
+		return credentialData.getCreator() == null ? false : 
+			credentialData.getCreator().getId() == loggedUser.getUser().getId();
 	}
 	
 	/*

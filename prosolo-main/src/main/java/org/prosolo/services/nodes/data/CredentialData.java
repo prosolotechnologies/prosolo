@@ -2,14 +2,17 @@ package org.prosolo.services.nodes.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.CredentialType1;
+import org.prosolo.services.common.observable.StandardObservable;
+import org.prosolo.services.nodes.util.TimeUtil;
 
-public class CredentialData implements Serializable {
+/** For all fields that can be updated changes can be tracked */
+public class CredentialData extends StandardObservable implements Serializable {
 
 	private static final long serialVersionUID = -8784334832131740545L;
 	
@@ -25,39 +28,39 @@ public class CredentialData implements Serializable {
 	private String typeString;
 	private CredentialType1 type;
 	private boolean mandatoryFlow;
+	private long duration;
 	private String durationString;
 	private ResourceCreator creator;
 	private List<CompetenceData1> competences;
+	//true if this is data for draft version of credential
+	private boolean draft;
+	private boolean studentsCanAddCompetences;
+	private boolean manuallyAssingStudents;
+	private int defaultNumberOfStudentsPerInstructor;
 	
 	//target credential data
 	private boolean enrolled;
 	private long targetCredId;
 	private int progress;
 	
-	
-	public CredentialData() {
-		setCredentialStatus();
-		tags = new HashSet<>();
-		hashtags = new HashSet<>();
+	public CredentialData(boolean listenChanges) {
+		this.status = PublishedStatus.DRAFT;
 		competences = new ArrayList<>();
+		this.listenChanges = listenChanges;
 	}
 	
-	public static CredentialData copyBasicCourseData(CredentialData data) {
-		CredentialData course = new CredentialData();
-		course.setTitle(data.getTitle());
-		course.setDescription(data.getDescription());
-		course.setTagsString(data.getTagsString());
-		course.setPublished(data.isPublished());
-		course.setCredentialStatus();
-		course.setHashtagsString(data.getHashtagsString());
-		course.setType(data.getType());
-		course.setMandatoryFlow(data.isMandatoryFlow());
-		return course;
-	}
-	
-	public void setAdditionalValues() {
-		setPublished();
-		setCredentialTypeFromString(typeString);
+	public void calculateDurationString() {
+		Map<String, Integer> durationMap = TimeUtil.getHoursAndMinutes(this.duration);
+		int hours = durationMap.get("hours");
+		int minutes = durationMap.get("minutes");
+		String duration = hours != 0 ? hours + " hours " : "";
+		if(duration.isEmpty()) {
+			duration = minutes + " minutes";
+		} else if(minutes != 0) {
+			duration += minutes + " minutes";
+		}
+		
+		durationString = duration;
 	}
 	
 	//setting course status based on published flag
@@ -66,11 +69,11 @@ public class CredentialData implements Serializable {
 	}
 	
 	//setting published flag based on course status
-	public void setPublished() {
-		this.published = status == PublishedStatus.PUBLISHED ? true : false;
+	private void setPublished() {
+		setPublished(status == PublishedStatus.PUBLISHED ? true : false);
 	}
 	
-	public void setCredentialTypeFromString(String typeString) {
+	private void setCredentialTypeFromString() {
 		type = CredentialType1.valueOf(typeString.toUpperCase());
 	}
 
@@ -79,6 +82,7 @@ public class CredentialData implements Serializable {
 	}
 
 	public void setTitle(String title) {
+		observeAttributeChange("title", this.title, title);
 		this.title = title;
 	}
 
@@ -87,6 +91,7 @@ public class CredentialData implements Serializable {
 	}
 
 	public void setDescription(String description) {
+		observeAttributeChange("description", this.description, description);
 		this.description = description;
 	}
 
@@ -95,6 +100,7 @@ public class CredentialData implements Serializable {
 	}
 
 	public void setPublished(boolean published) {
+		observeAttributeChange("published", this.published, published);
 		this.published = published;
 	}
 
@@ -103,6 +109,7 @@ public class CredentialData implements Serializable {
 	}
 
 	public void setTagsString(String tagsString) {
+		observeAttributeChange("tagsString", this.tagsString, tagsString);
 		this.tagsString = tagsString;
 	}
 
@@ -111,6 +118,7 @@ public class CredentialData implements Serializable {
 	}
 
 	public void setHashtagsString(String hashtagsString) {
+		observeAttributeChange("hashtagsString", this.hashtagsString, hashtagsString);
 		this.hashtagsString = hashtagsString;
 	}
 
@@ -120,6 +128,7 @@ public class CredentialData implements Serializable {
 
 	public void setStatus(PublishedStatus status) {
 		this.status = status;
+		setPublished();
 	}
 
 	public CredentialType1 getType() {
@@ -135,6 +144,7 @@ public class CredentialData implements Serializable {
 	}
 
 	public void setMandatoryFlow(boolean mandatoryFlow) {
+		observeAttributeChange("mandatoryFlow", this.mandatoryFlow, mandatoryFlow);
 		this.mandatoryFlow = mandatoryFlow;
 	}
 
@@ -144,6 +154,7 @@ public class CredentialData implements Serializable {
 
 	public void setTypeString(String typeString) {
 		this.typeString = typeString;
+		setCredentialTypeFromString();
 	}
 
 	public long getId() {
@@ -168,22 +179,6 @@ public class CredentialData implements Serializable {
 
 	public void setCreator(ResourceCreator creator) {
 		this.creator = creator;
-	}
-
-	public Set<Tag> getTags() {
-		return tags;
-	}
-
-	public void setTags(Set<Tag> tags) {
-		this.tags = tags;
-	}
-
-	public Set<Tag> getHashtags() {
-		return hashtags;
-	}
-
-	public void setHashtags(Set<Tag> hashtags) {
-		this.hashtags = hashtags;
 	}
 
 	public boolean isEnrolled() {
@@ -218,4 +213,96 @@ public class CredentialData implements Serializable {
 		this.durationString = durationString;
 	}
 
+	//change tracking get methods
+	
+	public boolean isTitleChanged() {
+		return changedAttributes.containsKey("title");
+	}
+
+	public boolean isDescriptionChanged() {
+		return changedAttributes.containsKey("description");
+	}
+
+	public boolean isTagsStringChanged() {
+		return changedAttributes.containsKey("tagsString");
+	}
+
+	public boolean isHashtagsStringChanged() {
+		return changedAttributes.containsKey("hashtagsString");
+	}
+
+	public boolean isPublishedChanged() {
+		return changedAttributes.containsKey("published");
+	}
+
+	public boolean isStatusChanged() {
+		return changedAttributes.containsKey("status");
+	}
+
+	public boolean isMandatoryFlowChanged() {
+		return changedAttributes.containsKey("mandatoryFlow");
+	}
+	
+	public boolean isDurationChanged() {
+		return changedAttributes.containsKey("duration");
+	}
+	
+	public Set<Tag> getTags() {
+		return tags;
+	}
+
+	public void setTags(Set<Tag> tags) {
+		this.tags = tags;
+	}
+
+	public Set<Tag> getHashtags() {
+		return hashtags;
+	}
+
+	public void setHashtags(Set<Tag> hashtags) {
+		this.hashtags = hashtags;
+	}
+
+	public boolean isDraft() {
+		return draft;
+	}
+
+	public void setDraft(boolean draft) {
+		this.draft = draft;
+	}
+
+	public boolean isStudentsCanAddCompetences() {
+		return studentsCanAddCompetences;
+	}
+
+	public void setStudentsCanAddCompetences(boolean studentsCanAddCompetences) {
+		this.studentsCanAddCompetences = studentsCanAddCompetences;
+	}
+
+	public boolean isManuallyAssingStudents() {
+		return manuallyAssingStudents;
+	}
+
+	public void setManuallyAssingStudents(boolean manuallyAssingStudents) {
+		this.manuallyAssingStudents = manuallyAssingStudents;
+	}
+
+	public int getDefaultNumberOfStudentsPerInstructor() {
+		return defaultNumberOfStudentsPerInstructor;
+	}
+
+	public void setDefaultNumberOfStudentsPerInstructor(int defaultNumberOfStudentsPerInstructor) {
+		this.defaultNumberOfStudentsPerInstructor = defaultNumberOfStudentsPerInstructor;
+	}
+
+	public long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(long duration) {
+		observeAttributeChange("duration", this.duration, duration);
+		this.duration = duration;
+		calculateDurationString();
+	}
+	
 }

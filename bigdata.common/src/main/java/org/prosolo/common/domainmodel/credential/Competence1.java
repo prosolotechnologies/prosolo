@@ -26,7 +26,18 @@ public class Competence1 extends BaseEntity {
 	private boolean studentAllowedToAddActivities;
 	private boolean published;
 	private Competence1 draftVersion;
+	/** 
+	 * means that this credential instance is just a draft
+	 * version of some other credential
+	 */
 	private boolean draft;
+	/**
+	 * tells if credential has draft version of
+	 * credential which means that credential was
+	 * published once but is changed and has draft
+	 * version
+	 */
+	private boolean hasDraft;
 	
 	private List<CredentialCompetence1> credentialCompetence;
 	
@@ -111,6 +122,14 @@ public class Competence1 extends BaseEntity {
 
 	public void setDraft(boolean draft) {
 		this.draft = draft;
+	}
+
+	public boolean isHasDraft() {
+		return hasDraft;
+	}
+
+	public void setHasDraft(boolean hasDraft) {
+		this.hasDraft = hasDraft;
 	}
 	
 }

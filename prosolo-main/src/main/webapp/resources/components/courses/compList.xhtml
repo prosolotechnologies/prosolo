@@ -1,0 +1,160 @@
+<ui:component
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+	<composite:interface>
+		<composite:attribute name="competences" required="true" />
+		<composite:attribute name="bean" required="true" />
+		<composite:attribute name="isEdit" required="true" type="java.lang.Boolean" />
+		<composite:attribute name="startedLearning" required="true" type="java.lang.Boolean" />
+	</composite:interface>
+	
+	<composite:implementation>
+		 <div id="#{cc.clientId}">
+	     <ui:repeat var="comp" value="#{cc.attrs.competences}" varStatus="status">
+                	<article class="whiteBox summaryCard summaryCompetence">
+                    <div class="innerWrapper">
+                        <h2>
+                        	<ui:fragment rendered="#{cc.attrs.isEdit}">
+                        		#{comp.title}
+                        		<h:panelGroup rendered="#{!comp.published}">(Draft)</h:panelGroup>
+                        	</ui:fragment>
+                        	<ui:fragment rendered="#{!cc.attrs.isEdit}">
+                        		<a href="credential.html">
+                        			#{comp.title} 
+                        		</a>
+                        	</ui:fragment>
+                        </h2>
+                        <h:panelGroup layout="block" styleClass="editOptions" rendered="#{cc.attrs.isEdit}">
+                        	<ui:fragment rendered="#{status.index == credentialEditBean.currentNumberOfComps - 1}">
+								<a href="javascript:void(0);" class="moveDown" disabled="disabled">up</a>
+							</ui:fragment>
+                   
+                        	<p:commandLink
+                        		styleClass="moveDown"
+								rendered="#{status.index != credentialEditBean.currentNumberOfComps - 1}"
+								process="@this"
+								action="#{credentialEditBean.moveDown(status.index)}"
+								update=":#{cc.clientId}">
+								down
+							</p:commandLink>
+							
+							<ui:fragment rendered="#{status.index == 0}">
+								<a href="javascript:void(0);" class="moveUp" disabled="disabled">up</a>
+							</ui:fragment>
+						
+							<p:commandLink 
+								styleClass="moveUp"
+								rendered="#{status.index != 0}"
+								process="@this"
+								action="#{credentialEditBean.moveUp(status.index)}"
+								update=":#{cc.clientId}">
+								up
+							</p:commandLink>
+				
+                        </h:panelGroup>
+                        <div class="clear"></div>
+                        <p>#{comp.description}</p>
+                        <div class="metaBox">
+                            <div class="metaLeft">
+                            	<ui:fragment rendered="#{cc.attrs.isEdit and cc.attrs.bean.isCompetenceCreator(comp)}">
+                        			<a href="#" class="btn btn-green-stroke btn-sm">Edit</a>
+                        		</ui:fragment>
+                            	
+                            	<ui:fragment rendered="#{!cc.attrs.isEdit}">
+                        			<ui:fragment rendered="#{cc.attrs.startedLearning}">
+		                            	<h:link 
+		                                	rendered="#{comp.progress == 0}"
+		                                	styleClass="btn btn-green btn-sm">
+		                                	Start
+		                                </h:link>
+		                                <h:link 
+		                                	rendered="#{comp.progress != 0 and comp.progress != 100}"
+		                                	styleClass="btn btn-green btn-sm">
+		                                	Resume
+		                                </h:link>
+		                                <h:panelGroup 
+		                                	layout="block" 
+		                                	styleClass="tagCompleted"
+		                                	rendered="#{comp.progress == 100}">Completed</h:panelGroup>
+	                            	</ui:fragment>
+	                            	
+	                            	<h:panelGroup rendered="#{cc.attrs.startedLearning}" styleClass="progressBar">
+	                                    <span>#{comp.progress}</span>
+	                                    <div class="progress">
+	                                        <div class="progress-bar" role="progressbar" aria-valuenow="#{comp.progress}" aria-valuemin="0" aria-valuemax="100" style="width: #{comp.progress}%;">
+	                                       </div>
+	                                    </div>
+                                	</h:panelGroup>
+                        		</ui:fragment>
+                            	
+                            </div>
+                            <div class="metaRight">
+                                <div class="duration">#{comp.durationString}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapseActivityList">
+                        <div id="comp#{comp.competenceId}" class="collapse">
+                            <ul>
+                            	<ui:repeat var="act" value="#{comp.activities}">
+                            		<li class="activityVideo">
+	                                    <a href="#">
+	                                        <span class="iconType"></span>
+	                                        Aliquam vestibulum nulla commodo
+	                                        <ui:fragment rendered="#{!cc.attrs.isEdit and act.completed}">
+	                                        	<span class="check"></span>
+	                                        </ui:fragment>
+	                                    </a>
+                                	</li>
+                            	</ui:repeat>
+                                <li class="activityVideo">
+                                    <a href="#">
+                                        <span class="iconType"></span>
+                                        Aliquam vestibulum nulla commodo
+                                        <span class="check"></span>
+                                    </a>
+                                </li>
+                                <li class="activityText">
+                                    <a href="#">
+                                        <span class="iconType"></span>
+                                        Class aptent taciti sociosqu ad litora torquent
+                                        <span class="check"></span>
+                                    </a>
+                                </li>
+                                <li class="activitySlide">
+                                    <a href="#">
+                                        <span class="iconType"></span>
+                                        Quisque a nisl sed lacus laoreet dapibus
+                                        <span class="check"></span>
+                                    </a>
+                                </li>
+                                <li class="activityExternal">
+                                    <a href="#">
+                                        <span class="iconType"></span>
+                                        Cras pellentesque id sapien eu malesuada
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <a href="#comp#{comp.competenceId}" data-toggle="collapse" class="collapseButton collapsed">
+                            <span class="textShow">Show Activities</span>
+                            <span class="arrowDown">down</span>
+                            <span class="textHide">Hide Activities</span>
+                            <span class="arrowUp">up</span>
+                        </a>
+                    </div>
+               		</article>
+               		<h:panelGroup layout="block" rendered="#{cc.attrs.bean.hasMoreCompetences(status.index)}" styleClass="mandatoryArrow"></h:panelGroup>
+                </ui:repeat>
+                </div>
+	</composite:implementation>
+</ui:component>

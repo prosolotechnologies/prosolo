@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -36,7 +37,18 @@ public class Credential1 extends BaseEntity {
 	private int defaultNumberOfStudentsPerInstructor;
 	private CredentialType1 type;
 	private Credential1 draftVersion;
+	/** 
+	 * means that this credential instance is just a draft
+	 * version of some other credential
+	 */
 	private boolean draft;
+	/**
+	 * tells if credential has draft version of
+	 * credential which means that credential was
+	 * published once but is changed and has draft
+	 * version
+	 */
+	private boolean hasDraft;
 	
 	public Credential1() {
 		tags = new HashSet<>();
@@ -80,7 +92,7 @@ public class Credential1 extends BaseEntity {
 		this.published = published;
 	}
 
-	@OneToMany(mappedBy = "credential")
+	@OneToMany(mappedBy = "credential", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	public List<CredentialCompetence1> getCompetences() {
 		return competences;
 	}
@@ -153,6 +165,14 @@ public class Credential1 extends BaseEntity {
 
 	public void setDraft(boolean draft) {
 		this.draft = draft;
+	}
+
+	public boolean isHasDraft() {
+		return hasDraft;
+	}
+
+	public void setHasDraft(boolean hasDraft) {
+		this.hasDraft = hasDraft;
 	}
 	
 }

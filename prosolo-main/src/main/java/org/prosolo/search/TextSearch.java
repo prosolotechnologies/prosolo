@@ -11,9 +11,11 @@ import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.reminders.Reminder;
 import org.prosolo.common.domainmodel.user.reminders.ReminderStatus;
 import org.prosolo.search.impl.TextSearchResponse;
+import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.CourseMembersSortOption;
 import org.prosolo.search.util.InstructorAssignedFilter;
 import org.prosolo.services.general.AbstractManager;
+import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.web.search.data.SortingOption;
 
 /**
@@ -83,4 +85,8 @@ public interface TextSearch extends AbstractManager {
 	Map<String, Object> searchUsersWithInstructorRole (String searchTerm, long courseId, long roleId);
 	
 	List<Long> getInstructorCourseIds (long userId);
+	
+	TextSearchResponse1<CompetenceData1> searchCompetences1(
+			String searchString, int page, int limit, boolean loadOneMore,
+			long[] toExclude, List<Tag> filterTags, SortingOption sortTitleAsc);
 }

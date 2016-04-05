@@ -1,26 +1,57 @@
 package org.prosolo.services.nodes.data;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-public class CompetenceData1 {
+import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.services.common.observable.StandardObservable;
+import org.prosolo.services.nodes.util.TimeUtil;
 
+public class CompetenceData1 extends StandardObservable implements Serializable {
+
+	private static final long serialVersionUID = 6562985459763765320L;
+	
 	private long credentialCompetenceId;
 	private long competenceId;
 	private String title;
 	private String description;
+	private long duration;
 	private String durationString;
 	private int order;
 	private boolean published;
 	private PublishedStatus status;
 	private List<BasicActivityData> activities;
+	private Set<Tag> tags;
+	private String tagsString;
 	
 	private int progress;
 	private ResourceCreator creator;
 	
-	public CompetenceData1() {
-		setCompStatus();
+	private ObjectStatus objectStatus;
+	
+	public CompetenceData1(boolean listenChanges) {
+		this.status = PublishedStatus.DRAFT;
 		activities = new ArrayList<>();
+		this.listenChanges = listenChanges;
+	}
+	
+	/** 
+	 * Sets object status based on order - if order changed
+	 * from initial value, status should be changed too
+	*/
+	public void statusChangeTransitionBasedOnOrderChange() {
+		if(isOrderChanged()) {
+			setObjectStatus(ObjectStatusTransitions.changeTransition(getObjectStatus()));
+		} else {
+			setObjectStatus(ObjectStatusTransitions.upToDateTransition(getObjectStatus()));
+		}
+	}
+	
+	public void statusRemoveTransition() {
+		setObjectStatus(ObjectStatusTransitions.removeTransition(getObjectStatus()));
 	}
 	
 	//setting competence status based on published flag
@@ -28,9 +59,23 @@ public class CompetenceData1 {
 		this.status = this.published ? PublishedStatus.PUBLISHED : PublishedStatus.DRAFT;
 	}
 	
-	//setting published flag based on course status
-	public void setPublished() {
-		this.published = status == PublishedStatus.PUBLISHED ? true : false;
+	//setting published flag based on competence status
+	private void setPublished() {
+		setPublished(status == PublishedStatus.PUBLISHED ? true : false);
+	}
+	
+	public void calculateDurationString() {
+		Map<String, Integer> durationMap = TimeUtil.getHoursAndMinutes(this.duration);
+		int hours = durationMap.get("hours");
+		int minutes = durationMap.get("minutes");
+		String duration = hours != 0 ? hours + " hours " : "";
+		if(duration.isEmpty()) {
+			duration = minutes + " minutes";
+		} else if(minutes != 0) {
+			duration += minutes + " minutes";
+		}
+		
+		durationString = duration;
 	}
 
 	public long getCredentialCompetenceId() {
@@ -54,6 +99,7 @@ public class CompetenceData1 {
 	}
 
 	public void setTitle(String title) {
+		observeAttributeChange("title", this.title, title);
 		this.title = title;
 	}
 
@@ -62,6 +108,7 @@ public class CompetenceData1 {
 	}
 
 	public void setDescription(String description) {
+		observeAttributeChange("description", this.description, description);
 		this.description = description;
 	}
 
@@ -78,6 +125,7 @@ public class CompetenceData1 {
 	}
 
 	public void setOrder(int order) {
+		observeAttributeChange("order", this.order, order);
 		this.order = order;
 	}
 
@@ -94,8 +142,8 @@ public class CompetenceData1 {
 	}
 
 	public void setPublished(boolean published) {
+		observeAttributeChange("published", this.published, published);
 		this.published = published;
-		setCompStatus();
 	}
 
 	public PublishedStatus getStatus() {
@@ -104,6 +152,7 @@ public class CompetenceData1 {
 
 	public void setStatus(PublishedStatus status) {
 		this.status = status;
+		setPublished();
 	}
 
 	public int getProgress() {
@@ -120,6 +169,72 @@ public class CompetenceData1 {
 
 	public void setCreator(ResourceCreator creator) {
 		this.creator = creator;
+	}
+
+	public ObjectStatus getObjectStatus() {
+		return objectStatus;
+	}
+
+	public void setObjectStatus(ObjectStatus objectStatus) {
+		observeAttributeChange("objectStatus", this.objectStatus, objectStatus);
+		this.objectStatus = objectStatus;
+	}
+
+	public Set<Tag> getTags() {
+		return tags;
+	}
+
+	public void setTags(Set<Tag> tags) {
+		this.tags = tags;
+	}
+
+	public String getTagsString() {
+		return tagsString;
+	}
+
+	public void setTagsString(String tagsString) {
+		observeAttributeChange("tagsString", this.tagsString, tagsString);
+		this.tagsString = tagsString;
+	}
+
+	public long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(long duration) {
+		observeAttributeChange("duration", this.duration, duration);
+		this.duration = duration;
+		calculateDurationString();
+	}
+	
+	//change tracking get methods
+	
+	public boolean isTitleChanged() {
+		return changedAttributes.containsKey("title");
+	}
+
+	public boolean isDescriptionChanged() {
+		return changedAttributes.containsKey("description");
+	}
+
+	public boolean isTagsStringChanged() {
+		return changedAttributes.containsKey("tagsString");
+	}
+
+	public boolean isPublishedChanged() {
+		return changedAttributes.containsKey("published");
+	}
+	
+	public boolean isObjectStatusChanged() {
+		return changedAttributes.containsKey("objectStatus");
+	}
+	
+	public boolean isOrderChanged() {
+		return changedAttributes.containsKey("order");
+	}
+	
+	public boolean isDurationChanged() {
+		return changedAttributes.containsKey("duration");
 	}
 	
 }

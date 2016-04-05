@@ -49,8 +49,10 @@ import org.prosolo.services.indexing.ESIndexNames;
 import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.DefaultManager;
+import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.web.search.data.SortingOption;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -70,6 +72,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	@Autowired private DefaultManager defaultManager;
 	@Autowired private ESIndexer esIndexer;
 	@Inject private CourseManager courseManager;
+	@Inject private Competence1Manager compManager;
 
 	@Override
 	@Transactional
@@ -288,6 +291,94 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			logger.error(e1);
 		}
 		return response;
+	}
+	
+	//query for new competence
+	@Override
+	@Transactional
+	public TextSearchResponse1<CompetenceData1> searchCompetences1(
+			String searchString, int page, int limit, boolean loadOneMore,
+			long[] toExclude, List<Tag> filterTags, SortingOption sortTitleAsc) {
+		
+		TextSearchResponse1<CompetenceData1> response = new TextSearchResponse1<>();
+		
+		try {
+			int start = setStart(page, limit);
+			limit = setLimit(limit, loadOneMore);
+			
+			Client client = ElasticSearchFactory.getClient();
+			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE);
+			
+			QueryBuilder qb = QueryBuilders
+					.queryStringQuery(searchString.toLowerCase() + "*").useDisMax(true)
+					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+					.field("title");
+	
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			bQueryBuilder.should(qb);
+		
+			if (filterTags != null) {
+				for (Tag tag : filterTags) {
+					QueryBuilder tagQB = QueryBuilders
+							.queryStringQuery(tag.getTitle()).useDisMax(true)
+							.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+							.field("tags.title");
+					bQueryBuilder.must(tagQB);
+				}
+			}
+			
+			if (toExclude != null) {
+				for (int i = 0; i < toExclude.length; i++) {
+					bQueryBuilder.mustNot(termQuery("id", toExclude[i]));
+				}
+			}
+			
+			SearchRequestBuilder searchResultBuilder = client
+					.prepareSearch(ESIndexNames.INDEX_NODES)
+					.setTypes(ESIndexTypes.COMPETENCE)
+					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+					.setQuery(bQueryBuilder).setFrom(start).setSize(limit);
+			
+			if (!sortTitleAsc.equals(SortingOption.NONE)) {
+				switch (sortTitleAsc) {
+					case ASC:
+						searchResultBuilder.addSort("title", SortOrder.ASC);
+						break;
+					case DESC:
+						searchResultBuilder.addSort("title", SortOrder.DESC);
+						break;
+					default:
+						break;
+				}
+			}
+			//System.out.println("SEARCH QUERY:"+searchResultBuilder.toString());
+			SearchResponse sResponse = searchResultBuilder
+					.execute().actionGet();
+			
+			if (sResponse != null) {
+				response.setHitsNumber(sResponse.getHits().getTotalHits());
+				
+				for (SearchHit hit : sResponse.getHits()) {
+					Long id = ((Integer) hit.getSource().get("id")).longValue();
+					
+					try {
+						CompetenceData1 cd = compManager.getCompetenceData(id, false, 
+								false, false, false);
+						
+						if (cd != null) {
+							response.addFoundNode(cd);
+						}
+					} catch (DbConnectionException e) {
+						logger.error(e);
+					}
+				}
+			}
+			return response;
+		} catch (NoNodeAvailableException e1) {
+			logger.error(e1);
+			e1.printStackTrace();
+			return null;
+		}
 	}
 	
 	@Override

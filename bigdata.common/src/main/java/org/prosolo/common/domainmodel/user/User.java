@@ -130,7 +130,7 @@ public class User extends BaseEntity {
 
 	}
 
-	@OneToOne(cascade = CascadeType.ALL)
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_user_organization")
 	public Organization getOrganization() {
 		return organization;
@@ -195,8 +195,8 @@ public class User extends BaseEntity {
 		return name + " " + lastname +" (id=" + getId() + ")";
 	}
 	
-	@OneToOne
-	@NotFound(action=NotFoundAction.IGNORE)
+	@OneToOne(fetch = FetchType.LAZY)
+	//@NotFound(action=NotFoundAction.IGNORE)
 	public Email getEmail() {
 		return email;
 	}
