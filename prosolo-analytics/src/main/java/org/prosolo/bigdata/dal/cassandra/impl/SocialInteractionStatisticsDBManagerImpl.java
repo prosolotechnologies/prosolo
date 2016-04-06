@@ -1,7 +1,7 @@
 package org.prosolo.bigdata.dal.cassandra.impl;
 
-import static org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl.Statements.FIND_SOCIAL_INTERACTION_COUNTS;
-import static org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl.Statements.FIND_STUDENT_SOCIAL_INTERACTION_COUNTS;
+import static org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionsStatements.FIND_SOCIAL_INTERACTION_COUNTS;
+import static org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionsStatements.FIND_STUDENT_SOCIAL_INTERACTION_COUNTS;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,29 +25,12 @@ import org.prosolo.bigdata.events.analyzers.ObservationType;
 public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraClientImpl implements
 		SocialInteractionStatisticsDBManager {
 
-	private static final Map<Statements, PreparedStatement> prepared = new ConcurrentHashMap<Statements, PreparedStatement>();
+	private static final Map<SocialInteractionsStatements, PreparedStatement> prepared = new ConcurrentHashMap<SocialInteractionsStatements, PreparedStatement>();
 	
-	private static final Map<Statements, String> statements = new HashMap<Statements, String>();
+	private static final Map<SocialInteractionsStatements, String> statements = new HashMap<SocialInteractionsStatements, String>();
 
 	//private Map<TableNames, Long> currenttimestamps;
-	
-	public enum Statements {
-		FIND_SOCIAL_INTERACTION_COUNTS,
-		FIND_STUDENT_SOCIAL_INTERACTION_COUNTS,
-		UPDATE_CURRENT_TIMESTAMPS,
-		FIND_CURRENT_TIMESTAMPS,
-		INSERT_INSIDE_CLUSTERS_INTERACTIONS,
-		INSERT_OUTSIDE_CLUSTERS_INTERACTIONS,
-		FIND_OUTSIDE_CLUSTER_INTERACTIONS,
-		FIND_INSIDE_CLUSTER_INTERACTIONS,
-		INSERT_STUDENT_CLUSTER,
-		FIND_STUDENT_CLUSTER,
-		UPDATE_FROMINTERACTION,
-		UPDATE_TOINTERACTION,
-		SELECT_INTERACTIONSBYTYPE,
 
-		INSERT_STUDENT_INTERACTIONS_BY_PEER, INSERT_STUDENT_INTERACTIONS_BY_TYPE, UPDATE_SOCIALINTERACTIONCOUNT
-	}
 	/*public enum TableNames{
 		INSIDE_CLUSTER_INTERACTIONS,
 		OUTSIDE_CLUSTER_INTERACTIONS,
@@ -57,22 +40,24 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 	static {
 		statements.put(FIND_SOCIAL_INTERACTION_COUNTS,  "SELECT * FROM sna_socialinteractionscount where course=?;");
 		statements.put(FIND_STUDENT_SOCIAL_INTERACTION_COUNTS, "SELECT * FROM sna_socialinteractionscount where course=? and source = ?;");
-		statements.put(Statements.UPDATE_CURRENT_TIMESTAMPS,"UPDATE currenttimestamps  SET timestamp=? WHERE tablename=?;");
-		statements.put(Statements.FIND_CURRENT_TIMESTAMPS,  "SELECT * FROM currenttimestamps ALLOW FILTERING;");
-		statements.put(Statements.INSERT_INSIDE_CLUSTERS_INTERACTIONS, "INSERT INTO sna_insideclustersinteractions(timestamp, course, cluster, student, interactions) VALUES(?,?,?,?,?); ");
-		statements.put(Statements.INSERT_OUTSIDE_CLUSTERS_INTERACTIONS, "INSERT INTO sna_outsideclustersinteractions(timestamp, course,  student,direction, cluster, interactions) VALUES(?,?,?,?,?,?); ");
-		statements.put(Statements.FIND_OUTSIDE_CLUSTER_INTERACTIONS, "SELECT * FROM sna_outsideclustersinteractions WHERE timestamp = ? AND course = ? AND student = ? ALLOW FILTERING;");
-		statements.put(Statements.FIND_INSIDE_CLUSTER_INTERACTIONS, "SELECT * FROM sna_insideclustersinteractions WHERE timestamp = ? AND course = ? AND cluster = ? ALLOW FILTERING;");
-		statements.put(Statements.INSERT_STUDENT_CLUSTER, "INSERT INTO sna_studentcluster(timestamp, course,  student,cluster) VALUES(?,?,?,?); ");
-		statements.put(Statements.FIND_STUDENT_CLUSTER, "SELECT * FROM sna_studentcluster WHERE timestamp = ? AND course = ? AND student = ? ALLOW FILTERING;");
-		statements.put(Statements.UPDATE_FROMINTERACTION,"UPDATE sna_interactionsbytypeforstudent  SET fromuser=fromuser+1 WHERE course=? AND student=? AND interactiontype=?;");
-		statements.put(Statements.UPDATE_TOINTERACTION,"UPDATE sna_interactionsbytypeforstudent  SET touser=touser+1 WHERE course=? AND student=? AND interactiontype=?;");
+		statements.put(SocialInteractionsStatements.UPDATE_CURRENT_TIMESTAMPS,"UPDATE currenttimestamps  SET timestamp=? WHERE tablename=?;");
+		statements.put(SocialInteractionsStatements.FIND_CURRENT_TIMESTAMPS,  "SELECT * FROM currenttimestamps ALLOW FILTERING;");
+		statements.put(SocialInteractionsStatements.INSERT_INSIDE_CLUSTERS_INTERACTIONS, "INSERT INTO sna_insideclustersinteractions(timestamp, course, cluster, student, interactions) VALUES(?,?,?,?,?); ");
+		statements.put(SocialInteractionsStatements.INSERT_OUTSIDE_CLUSTERS_INTERACTIONS, "INSERT INTO sna_outsideclustersinteractions(timestamp, course,  student,direction, cluster, interactions) VALUES(?,?,?,?,?,?); ");
+		statements.put(SocialInteractionsStatements.FIND_OUTSIDE_CLUSTER_INTERACTIONS, "SELECT * FROM sna_outsideclustersinteractions WHERE timestamp = ? AND course = ? AND student = ? ALLOW FILTERING;");
+		statements.put(SocialInteractionsStatements.FIND_INSIDE_CLUSTER_INTERACTIONS, "SELECT * FROM sna_insideclustersinteractions WHERE timestamp = ? AND course = ? AND cluster = ? ALLOW FILTERING;");
+		statements.put(SocialInteractionsStatements.INSERT_STUDENT_CLUSTER, "INSERT INTO sna_studentcluster(timestamp, course,  student,cluster) VALUES(?,?,?,?); ");
+		statements.put(SocialInteractionsStatements.FIND_STUDENT_CLUSTER, "SELECT * FROM sna_studentcluster WHERE timestamp = ? AND course = ? AND student = ? ALLOW FILTERING;");
+		statements.put(SocialInteractionsStatements.UPDATE_FROMINTERACTION,"UPDATE sna_interactionsbytypeforstudent  SET fromuser=fromuser+1, touser=touser+0 WHERE course=? AND student=? AND interactiontype=?;");
+		statements.put(SocialInteractionsStatements.UPDATE_TOINTERACTION,"UPDATE sna_interactionsbytypeforstudent  SET touser=touser+1,fromuser=fromuser+0 WHERE course=? AND student=? AND interactiontype=?;");
 
-		statements.put(Statements.SELECT_INTERACTIONSBYTYPE,"SELECT * FROM sna_interactionsbytypeforstudent WHERE course=? ALLOW FILTERING;");
-		statements.put(Statements.UPDATE_SOCIALINTERACTIONCOUNT, "UPDATE sna_socialinteractionscount SET count = count + 1 WHERE course=? AND source=? AND target=?;");
+		statements.put(SocialInteractionsStatements.SELECT_INTERACTIONSBYTYPE,"SELECT * FROM sna_interactionsbytypeforstudent WHERE course=? ALLOW FILTERING;");
+		statements.put(SocialInteractionsStatements.SELECT_INTERACTIONSBYTYPEOVERVIEW,"SELECT * FROM sna_studentinteractionbytypeoverview WHERE course=? AND student=? ALLOW FILTERING;");
+		statements.put(SocialInteractionsStatements.SELECT_INTERACTIONSBYPEERSOVERVIEW,"SELECT * FROM sna_studentinteractionbypeersoverview WHERE course=? AND student=? ALLOW FILTERING;");
+		//statements.put(SocialInteractionsStatements.UPDATE_SOCIALINTERACTIONCOUNT, "UPDATE sna_socialinteractionscount SET count = count + 1 WHERE course=? AND source=? AND target=?;");
 
-		statements.put(Statements.INSERT_STUDENT_INTERACTIONS_BY_PEER, "INSERT INTO sna_studentinteractionbypeersoverview(course, student, interactions) VALUES(?,?,?); ");
-		statements.put(Statements.INSERT_STUDENT_INTERACTIONS_BY_TYPE, "INSERT INTO sna_studentinteractionbytypeoverview(course, student, interactions) VALUES(?,?,?); ");
+		statements.put(SocialInteractionsStatements.INSERT_STUDENT_INTERACTIONS_BY_PEER, "INSERT INTO sna_studentinteractionbypeersoverview(course, student, interactions) VALUES(?,?,?); ");
+		statements.put(SocialInteractionsStatements.INSERT_STUDENT_INTERACTIONS_BY_TYPE, "INSERT INTO sna_studentinteractionbytypeoverview(course, student, interactions) VALUES(?,?,?); ");
 	}
 
 	private SocialInteractionStatisticsDBManagerImpl(){
@@ -88,11 +73,10 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 		return getSession().execute(statement).all();
 	}
 	
-	private PreparedStatement getStatement(Session session, Statements statement) {
+	private PreparedStatement getStatement(Session session, SocialInteractionsStatements statement) {
 		// If two threads access prepared map concurrently, prepared can be repeated twice.
 		// This should be better than synchronizing access.
 		if (prepared.get(statement) == null) {
-			System.out.println("Not prepared:"+statement.toString());
 			prepared.put(statement, session.prepare(statements.get(statement)));
 		}
 		return prepared.get(statement);
@@ -142,7 +126,7 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 	public void insertInsideClusterInteractions(Long timestamp, Long course, Long cluster, Long student,
 												List<String> interactions) {
 		System.out.println("INSERT INSIDE DATA..."+interactions.size()+" for timestamp:"+timestamp+" course:"+course+" cluster:"+cluster+" student:"+student);
-		PreparedStatement prepared = getStatement(getSession(), Statements.INSERT_INSIDE_CLUSTERS_INTERACTIONS);
+		PreparedStatement prepared = getStatement(getSession(), SocialInteractionsStatements.INSERT_INSIDE_CLUSTERS_INTERACTIONS);
 		BoundStatement statement = new BoundStatement(prepared);
 		statement.setLong(0,timestamp);
 		statement.setLong(1,course);
@@ -160,7 +144,7 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 	@Override
 	public void insertOutsideClusterInteractions(Long timestamp, Long course, Long student, Long cluster, String direction, List<String> interactions) {
 		System.out.println("INSERT OUTSIDE DATA..."+interactions.size()+" for timestamp:"+timestamp+" course:"+course+" cluster:"+cluster+" student:"+student);
-		PreparedStatement prepared = getStatement(getSession(), Statements.INSERT_OUTSIDE_CLUSTERS_INTERACTIONS);
+		PreparedStatement prepared = getStatement(getSession(), SocialInteractionsStatements.INSERT_OUTSIDE_CLUSTERS_INTERACTIONS);
 		BoundStatement statement = new BoundStatement(prepared);
 		statement.setLong(0,timestamp);
 		statement.setLong(1,course);
@@ -177,7 +161,7 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 	@Override
 	public void insertStudentCluster(Long timestamp, Long course, Long student, Long cluster) {
 		System.out.println("INSERT Student cluster... for timestamp:"+timestamp+" course:"+course+" cluster:"+cluster+" student:"+student);
-		PreparedStatement prepared = getStatement(getSession(), Statements.INSERT_STUDENT_CLUSTER);
+		PreparedStatement prepared = getStatement(getSession(), SocialInteractionsStatements.INSERT_STUDENT_CLUSTER);
 		BoundStatement statement = new BoundStatement(prepared);
 		statement.setLong(0,timestamp);
 		statement.setLong(1,course);
@@ -200,7 +184,7 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 			if (cluster == null) {
 				return new ArrayList<SocialInteractionsCount>();
 			}
-			PreparedStatement prepared = getStatement(getSession(), Statements.FIND_INSIDE_CLUSTER_INTERACTIONS);
+			PreparedStatement prepared = getStatement(getSession(), SocialInteractionsStatements.FIND_INSIDE_CLUSTER_INTERACTIONS);
 			BoundStatement statement = StatementUtil.statement(prepared, timestamp, course, cluster);
 			return map(query(statement), row -> new SocialInteractionsCount(student(row), cluster(row), interactions(row)));
 		} else {
@@ -213,7 +197,7 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 		System.out.println("get outer interactions:course:"+course+" student:"+student);
 		Long timestamp = getCurrentTimestampForTable(TableNames.OUTSIDE_CLUSTER_INTERACTIONS);
 		if (timestamp != null) {
-			PreparedStatement prepared = getStatement(getSession(), Statements.FIND_OUTSIDE_CLUSTER_INTERACTIONS);
+			PreparedStatement prepared = getStatement(getSession(), SocialInteractionsStatements.FIND_OUTSIDE_CLUSTER_INTERACTIONS);
 			BoundStatement statement = StatementUtil.statement(prepared, timestamp, course, student);
 			return map(query(statement), row -> new OuterInteractionsCount(student(row), cluster(row), interactions(row), direction(row)));
 		} else {
@@ -226,7 +210,7 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 		Long timestamp = getCurrentTimestampForTable(TableNames.STUDENT_CLUSTER);
 		System.out.println("FIND Student cluster timestamp:"+timestamp+" course:"+course+" student:"+student);
 		if (timestamp != null) {
-			PreparedStatement prepared = getStatement(getSession(), Statements.FIND_STUDENT_CLUSTER);
+			PreparedStatement prepared = getStatement(getSession(), SocialInteractionsStatements.FIND_STUDENT_CLUSTER);
 			BoundStatement statement = StatementUtil.statement(prepared, timestamp, course, student);
 			List<Row> result = query(statement);
 			if (result.size() == 1) {
@@ -242,13 +226,13 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 	@Override
 	public void updateToFromInteraction(Long courseId, Long actorId, Long targetUserId, ObservationType observationType) {
 		try {
-			PreparedStatement preparedOutStatement=getStatement(getSession(),Statements.UPDATE_FROMINTERACTION);
+			PreparedStatement preparedOutStatement=getStatement(getSession(), SocialInteractionsStatements.UPDATE_FROMINTERACTION);
 
 			BoundStatement outStatement = StatementUtil.statement(preparedOutStatement, courseId, actorId, observationType.toString());
 
 			getSession().execute(outStatement);
 
-			PreparedStatement preparedInStatement=getStatement(getSession(),Statements.UPDATE_TOINTERACTION);
+			PreparedStatement preparedInStatement=getStatement(getSession(), SocialInteractionsStatements.UPDATE_TOINTERACTION);
 			BoundStatement inStatement = StatementUtil.statement(preparedInStatement, courseId, targetUserId, observationType.toString());
 
 			getSession().execute(inStatement);
@@ -259,7 +243,7 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 
 	@Override
 	public  List<Row> getSocialInteractionsByType(Long courseid) {
-		PreparedStatement prepared = getStatement(getSession(), Statements.SELECT_INTERACTIONSBYTYPE);
+		PreparedStatement prepared = getStatement(getSession(), SocialInteractionsStatements.SELECT_INTERACTIONSBYTYPE);
 		BoundStatement statement = StatementUtil.statement(prepared, courseid);
 		return  query(statement);
 	}
@@ -267,7 +251,7 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 	@Override
 	public void insertStudentInteractionsByPeer(Long course, Long student, List<String> interactions) {
 		System.out.println("INSERT STUDENT INTERACTIONS BY PEER..."+interactions.size()+" course:"+course+" student:"+student);
-		PreparedStatement prepared = getStatement(getSession(), Statements.INSERT_STUDENT_INTERACTIONS_BY_PEER);
+		PreparedStatement prepared = getStatement(getSession(), SocialInteractionsStatements.INSERT_STUDENT_INTERACTIONS_BY_PEER);
 		BoundStatement statement = new BoundStatement(prepared);
 		statement.setLong(0,course);
 		statement.setLong(1,student);
@@ -282,7 +266,7 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 	@Override
 	public void insertStudentInteractionsByType(Long course, Long student, List<String> interactions) {
 		System.out.println("INSERT STUDENT INTERACTIONS BY TYPE..."+interactions.size()+" course:"+course+" student:"+student);
-		PreparedStatement prepared = getStatement(getSession(), Statements.INSERT_STUDENT_INTERACTIONS_BY_TYPE);
+		PreparedStatement prepared = getStatement(getSession(), SocialInteractionsStatements.INSERT_STUDENT_INTERACTIONS_BY_TYPE);
 		BoundStatement statement = new BoundStatement(prepared);
 		statement.setLong(0,course);
 		statement.setLong(1,student);
@@ -292,6 +276,21 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}
+	}
+
+	@Override
+	public List<SocialInteractionsCount> getInteractionsByPeers(Long courseId, Long studentId) {
+		PreparedStatement prepared = getStatement(getSession(), SocialInteractionsStatements.SELECT_INTERACTIONSBYPEERSOVERVIEW);
+		BoundStatement statement = StatementUtil.statement(prepared, courseId, studentId);
+		return map(query(statement), row -> new SocialInteractionsCount(student(row), 0l, interactions(row)));
+	}
+
+	@Override
+	public List<SocialInteractionsCount> getInteractionsByType(Long courseId, Long studentId) {
+		PreparedStatement prepared = getStatement(getSession(), SocialInteractionsStatements.SELECT_INTERACTIONSBYTYPEOVERVIEW);
+		BoundStatement statement = StatementUtil.statement(prepared, courseId, studentId);
+		return map(query(statement), row -> new SocialInteractionsCount(student(row), 0l, interactions(row)));
+
 	}
 
 

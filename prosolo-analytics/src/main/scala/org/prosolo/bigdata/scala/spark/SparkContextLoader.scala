@@ -26,6 +26,7 @@ object SparkContextLoader {
 
 
   val numOfCores=Runtime.getRuntime.availableProcessors()
+  //val numOfCores=2
   val dbConfig = Settings.getInstance().config.dbConfig.dbServerConfig;
 	val dbHost = dbConfig.dbHost
 	val dbPort = dbConfig.dbPort
@@ -33,6 +34,7 @@ object SparkContextLoader {
  // val numOfCores=1;
   val sparkConf = new SparkConf()
     .setMaster("local["+numOfCores+"]")
+
       .set("spark.cores_max",maxCores.toString)
       .set("spark.executor.memory","4g")
       .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")

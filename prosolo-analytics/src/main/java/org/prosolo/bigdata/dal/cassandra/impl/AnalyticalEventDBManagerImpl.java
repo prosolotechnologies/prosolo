@@ -50,6 +50,7 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 		 statements.put(Statements.UPDATE_EVENTDAILYCOUNT,"UPDATE dash_eventdailycount SET count=count+1 WHERE event=? AND date=?;");
 		 statements.put(Statements.UPDATE_USEREVENTDAILYCOUNT, "UPDATE dash_usereventdailycount SET count=count+1 WHERE user=? AND event=? AND date=?;");
 		statements.put(Statements.UPDATE_FAILEDFEEDS,"UPDATE failedfeeds  SET count=count+1 WHERE url=? AND date=?;");
+		statements.put(Statements.UPDATE_SOCIALINTERACTIONCOUNT,"UPDATE sna_socialinteractionscount SET count = count + 1 WHERE course=? AND source=? AND target=?;");
 
 
 
@@ -118,7 +119,6 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 			//preparedStatements.get(statementName));
 			//JsonObject data = event.getData();
 			String str = statements.get(statement);
-
 			String whereclause = str.substring(str.lastIndexOf("WHERE") + 6,
 					str.lastIndexOf(";"));
 			whereclause = whereclause.replaceAll("AND ", "");
@@ -333,7 +333,8 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 		UPDATE_FAILEDFEEDS,
 
 		FIND_ALLCOMPETENCES,
-		 UPDATE_USERACTIVITY
+		 UPDATE_USERACTIVITY,
+		UPDATE_SOCIALINTERACTIONCOUNT
 	}
 
 	public static class AnalyticalEventDBManagerImplHolder {

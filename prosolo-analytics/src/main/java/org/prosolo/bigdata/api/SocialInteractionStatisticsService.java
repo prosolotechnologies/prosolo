@@ -223,5 +223,22 @@ public class SocialInteractionStatisticsService {
 		String separator = File.separator;
 		return serviceUrl + separator + bucketName + separator + avatarPath + avatarUrl + separator + format + ".png";
 	}
+
+	@GET
+	@Path("/interactionsbypeers/{course}/{student}")
+	@Produces({ MediaType.APPLICATION_JSON })
+	public Response getInteractionsByPeers(@PathParam("course") Long courseId, @PathParam("student") Long studentId) {
+		logger.debug("Service 'getInteractionsByPeers' called.");
+		return ResponseUtils.corsOk(dbManager.getInteractionsByPeers(courseId, studentId));
+		// return ResponseUtils.corsOk(randomOuterInteractions(courseId, studentId));
+	}
+	@GET
+	@Path("/interactionsbytype/{course}/{student}")
+	@Produces({ MediaType.APPLICATION_JSON })
+	public Response getInteractionsByType(@PathParam("course") Long courseId, @PathParam("student") Long studentId) {
+		logger.debug("Service 'getInteractionsByType' called.");
+		return ResponseUtils.corsOk(dbManager.getInteractionsByType(courseId, studentId));
+		// return ResponseUtils.corsOk(randomOuterInteractions(courseId, studentId));
+	}
 	
 }

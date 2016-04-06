@@ -42,4 +42,7 @@ public interface SocialInteractionStatisticsDBManager {
 	void insertStudentInteractionsByPeer(Long course, Long student, List<String> interactions);
 
 	void insertStudentInteractionsByType(Long course, Long student, List<String> interactions);
+
+	List<SocialInteractionsCount> getInteractionsByPeers(Long courseId, Long studentId);
+	List<SocialInteractionsCount> getInteractionsByType(Long courseId, Long studentId);
 }
