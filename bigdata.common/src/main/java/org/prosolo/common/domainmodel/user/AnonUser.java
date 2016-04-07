@@ -3,8 +3,8 @@
  */
 package org.prosolo.common.domainmodel.user;
 
-import org.prosolo.common.domainmodel.user.ServiceType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 
 //import org.prosolo.services.twitter.ServiceType;
 

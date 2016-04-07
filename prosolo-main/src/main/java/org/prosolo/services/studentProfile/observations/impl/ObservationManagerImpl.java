@@ -11,10 +11,10 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
+import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.observations.Observation;
 import org.prosolo.common.domainmodel.observations.Suggestion;
 import org.prosolo.common.domainmodel.observations.Symptom;
-import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
@@ -109,7 +109,7 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 			result.put("observationId", observation.getId());
 			
 			if(insert && message != null && !message.isEmpty() && creatorId != studentId){
-				SimpleOfflineMessage msg = msgManager.sendMessage(creatorId, studentId, message);
+				Message msg = msgManager.sendMessage(creatorId, studentId, message);
 				result.put("message", msg);
 			}
 

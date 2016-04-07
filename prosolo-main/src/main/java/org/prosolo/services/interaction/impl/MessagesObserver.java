@@ -9,8 +9,8 @@ import org.hibernate.Session;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.user.MessagesThread;
-import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
+import org.prosolo.common.domainmodel.messaging.Message;
+import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.messaging.data.ServiceType;
 import org.prosolo.core.hibernate.HibernateUtil;
@@ -54,9 +54,9 @@ public class MessagesObserver extends EventObserver {
 		
 		try {
 			if (event.getAction().equals(EventType.SEND_MESSAGE)) {
-				SimpleOfflineMessage message = (SimpleOfflineMessage) event.getObject();
-				MessagesThread messagesThread = message.getMessageThread();
-				messagesThread = (MessagesThread) session.merge(messagesThread);
+				Message message = (Message) event.getObject();
+				MessageThread messagesThread = message.getMessageThread();
+				messagesThread = (MessageThread) session.merge(messagesThread);
 				
 				List<User> participants = messagesThread.getParticipants();
 				
@@ -70,7 +70,7 @@ public class MessagesObserver extends EventObserver {
 					}
 				}
 			} else if (event.getAction().equals(EventType.START_MESSAGE_THREAD)) {
-				MessagesThread messagesThread = (MessagesThread) event.getObject();
+				MessageThread messagesThread = (MessageThread) event.getObject();
 
 				if (messagesThread != null) {
 					List<User> participants = messagesThread.getParticipants();

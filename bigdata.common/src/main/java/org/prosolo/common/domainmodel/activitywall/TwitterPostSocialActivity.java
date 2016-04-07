@@ -7,8 +7,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.Transient;
 
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.user.ServiceType;
 import org.prosolo.common.domainmodel.user.UserType;
+import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 
 @Entity

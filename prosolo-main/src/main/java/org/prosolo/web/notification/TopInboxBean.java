@@ -10,7 +10,7 @@ import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
-import org.prosolo.common.domainmodel.user.MessagesThread;
+import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.logging.ComponentName;
@@ -57,7 +57,7 @@ public class TopInboxBean implements Serializable {
 		if (messagesThreads == null) {
 			logger.debug("Initializing messages");
 			
-			List<MessagesThread> mThreads = messagingManager.getLatestUserMessagesThreads(
+			List<MessageThread> mThreads = messagingManager.getLatestUserMessagesThreads(
 					loggedUser.getUser(), 
 					0,
 					messagesLimit);
@@ -98,7 +98,7 @@ public class TopInboxBean implements Serializable {
 		});
 	}
 	
-	public void addNewMessageThread(MessagesThread thread) {
+	public void addNewMessageThread(MessageThread thread) {
 		messagesThreads.add(0, new MessagesThreadData(thread, loggedUser.getUser()));
 		
 		if (messagesThreads.size() > messagesLimit) {
@@ -106,7 +106,7 @@ public class TopInboxBean implements Serializable {
 		}
 	}
 
-	public void updateMessageThread(MessagesThread thread) {
+	public void updateMessageThread(MessageThread thread) {
 		MessagesThreadData updatedMessageThread = new MessagesThreadData(thread, loggedUser.getUser());
 		
 		// find the current instance of this thread and remove it

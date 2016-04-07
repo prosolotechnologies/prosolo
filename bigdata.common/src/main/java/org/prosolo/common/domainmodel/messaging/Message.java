@@ -1,4 +1,4 @@
-package org.prosolo.common.domainmodel.user;
+package org.prosolo.common.domainmodel.messaging;
 
 import java.util.List;
 import java.util.Set;
@@ -14,19 +14,18 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.user.MessagesThread;
+import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.domainmodel.user.User;
 
 @Entity
-//@Table(name = "user_SimpleOfflineMessage")
-public class SimpleOfflineMessage extends BaseEntity {
+public class Message extends BaseEntity {
 
 	private static final long serialVersionUID = -2686037343840070507L;
 
 	private MessageParticipant sender; 
 	private Set<MessageParticipant> participants;
 	private String content;
-	private MessagesThread messageThread;
+	private MessageThread messageThread;
 
 	// private String subject;
 
@@ -60,11 +59,11 @@ public class SimpleOfflineMessage extends BaseEntity {
  
 	@ManyToOne
 	@JoinColumn(name="messageThread_id")
-	public MessagesThread getMessageThread() {
+	public MessageThread getMessageThread() {
 		return messageThread;
 	}
 
-	public void setMessageThread(MessagesThread messageThread) {
+	public void setMessageThread(MessageThread messageThread) {
 		this.messageThread = messageThread;
 	}
 

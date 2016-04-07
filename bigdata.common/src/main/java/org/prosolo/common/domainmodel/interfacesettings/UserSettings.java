@@ -17,11 +17,6 @@ import javax.persistence.OneToOne;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.interfacesettings.ActivityWallSettings;
-import org.prosolo.common.domainmodel.interfacesettings.LocaleSettings;
-import org.prosolo.common.domainmodel.interfacesettings.StickyMenuSettings;
-import org.prosolo.common.domainmodel.interfacesettings.TermsOfUse;
-import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 
 /**
  * @author "Nikola Milikic"
@@ -34,7 +29,6 @@ public class UserSettings implements Serializable {
 	
 	private User user;
 	private ActivityWallSettings activityWallSettings;
-	private StickyMenuSettings stickyMenuSettings;
 	private LocaleSettings localeSettings;
 	private TermsOfUse termsOfUse;
 	private Set<String> pagesTutorialPlayed;
@@ -44,7 +38,6 @@ public class UserSettings implements Serializable {
 	public UserSettings(User user) {
 		this.user = user;
 		this.activityWallSettings = new ActivityWallSettings();
-		this.stickyMenuSettings = new StickyMenuSettings();
 		this.termsOfUse = new TermsOfUse();
 		this.pagesTutorialPlayed = new HashSet<String>();
 	}
@@ -68,16 +61,6 @@ public class UserSettings implements Serializable {
 	
 	public void setActivityWallSettings(ActivityWallSettings activityWallSettings) {
 		this.activityWallSettings = activityWallSettings;
-	}
-	
-	@OneToOne
-	@Cascade({ CascadeType.MERGE, CascadeType.SAVE_UPDATE, CascadeType.DELETE })
-	public StickyMenuSettings getStickyMenuSettings() {
-		return stickyMenuSettings;
-	}
-	
-	public void setStickyMenuSettings(StickyMenuSettings stickyMenuSettings) {
-		this.stickyMenuSettings = stickyMenuSettings;
 	}
 	
 	@OneToOne

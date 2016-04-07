@@ -9,8 +9,8 @@ import java.util.List;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.general.Node;
-import org.prosolo.common.domainmodel.user.FollowedEntity;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.following.FollowedEntity;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 

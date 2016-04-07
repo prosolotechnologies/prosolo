@@ -5,10 +5,9 @@ import java.util.Collection;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.user.Email;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.preferences.UserPreference;
-import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.nodes.UserManager;
+import org.prosolo.web.util.AvatarUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,10 +44,10 @@ public class DataGenerator {
 		email.setAddress(id+"test@email.com");
 		userManager.saveEntity(email);
 		user.setEmail(email);
-		UserPreference uPreferences=new UserPreference();
-		uPreferences.setTitle("test");
-		uPreferences.setUser(user);
-		userManager.saveEntity(uPreferences);
+//		UserPreference uPreferences=new UserPreference();
+//		uPreferences.setTitle("test");
+//		uPreferences.setUser(user);
+//		userManager.saveEntity(uPreferences);
 		//user.addPreference(uPreferences);
 		 
 		user.setPassword(oldUser.getPassword());

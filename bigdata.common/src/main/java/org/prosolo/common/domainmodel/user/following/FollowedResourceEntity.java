@@ -1,4 +1,4 @@
-package org.prosolo.common.domainmodel.user;
+package org.prosolo.common.domainmodel.user.following;
 
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
@@ -6,7 +6,7 @@ import javax.persistence.Transient;
 
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.general.Node;
-import org.prosolo.common.domainmodel.user.FollowedEntity;
+import org.prosolo.common.domainmodel.user.following.FollowedEntity;
 
 /**
  * @author Zoran Jeremic Dec 30, 2013

@@ -46,15 +46,10 @@ import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
 import org.prosolo.common.domainmodel.user.AnonUser;
 import org.prosolo.common.domainmodel.user.Email;
 import org.prosolo.common.domainmodel.user.LearningGoal;
-import org.prosolo.common.domainmodel.user.ServiceType;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.UserDefinedPriority;
-import org.prosolo.common.domainmodel.user.UserPriorityType;
 import org.prosolo.common.domainmodel.user.UserType;
-import org.prosolo.common.domainmodel.user.preferences.FeedsPreferences;
-import org.prosolo.common.domainmodel.user.preferences.RecommendationPreferences;
-import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
+import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.spring.TransactionDebugUtil;
 import org.prosolo.services.authentication.PasswordEncrypter;
@@ -69,7 +64,6 @@ import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
-import org.prosolo.services.nodes.ScaleManager;
 import org.prosolo.services.nodes.data.activity.ActivityData;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.services.nodes.data.activity.mapper.ActivityMapperFactory;
@@ -94,7 +88,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Autowired private PostManager postManager;
     @Autowired private PasswordEncrypter passwordEncrypter;
     @Autowired private RoleManager roleManager;
-    @Autowired private ScaleManager scaleManager;
     @Autowired private FeedSourceManager feedSourceManager;
     @Inject private CourseManager courseManager;
     @Inject private LearningGoalManager goalManager;
@@ -570,31 +563,28 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         user.addRole(roleManager.getRoleByName("User"));
         user = saveEntity(user);
     
-        RecommendationPreferences recPref = new RecommendationPreferences();
-        recPref.addUserPriority(createUserDefinedPriority(UserPriorityType.TOPIC_PRIORITY));
-        recPref.addUserPriority(createUserDefinedPriority(UserPriorityType.LEARNING_GOAL_PRIORITY));
-        recPref.addUserPriority(createUserDefinedPriority(UserPriorityType.LEARNING_HISTORY_PRIORITY));
-        recPref.setUser(user);
-        recPref = saveEntity(recPref);
+//        RecommendationPreferences recPref = new RecommendationPreferences();
+//        recPref.addUserPriority(createUserDefinedPriority(UserPriorityType.TOPIC_PRIORITY));
+//        recPref.addUserPriority(createUserDefinedPriority(UserPriorityType.LEARNING_GOAL_PRIORITY));
+//        recPref.addUserPriority(createUserDefinedPriority(UserPriorityType.LEARNING_HISTORY_PRIORITY));
+//        recPref.setUser(user);
+//        recPref = saveEntity(recPref);
         
-        FeedsPreferences feedsPreferences = new FeedsPreferences();
-        feedsPreferences.setUser(user);
-        feedsPreferences = saveEntity(feedsPreferences);
+//        FeedsPreferences feedsPreferences = new FeedsPreferences();
+//        feedsPreferences.setUser(user);
+//        feedsPreferences = saveEntity(feedsPreferences);
 
-        TopicPreference tPref = new TopicPreference();
-        tPref.setUser(user);
-        tPref = saveEntity(tPref);
         this.flush();
         return user;
     }
     
-    private UserDefinedPriority createUserDefinedPriority(UserPriorityType topicPriority) {
-        UserDefinedPriority priority = new UserDefinedPriority();
-        priority.setPriorityType(topicPriority);
-        priority.setPriorityScale(scaleManager.getScale0To5());
-        priority.setPriorityLevel(1);
-        return saveEntity(priority);
-    }
+//    private UserDefinedPriority createUserDefinedPriority(UserPriorityType topicPriority) {
+//        UserDefinedPriority priority = new UserDefinedPriority();
+//        priority.setPriorityType(topicPriority);
+//        priority.setPriorityScale(scaleManager.getScale0To5());
+//        priority.setPriorityLevel(1);
+//        return saveEntity(priority);
+//    }
     @Override
     @Transactional (readOnly = false)
     public SimpleOutcome createSimpleOutcome(double resultValue){

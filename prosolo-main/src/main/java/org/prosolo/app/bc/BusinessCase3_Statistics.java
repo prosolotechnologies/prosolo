@@ -22,7 +22,6 @@ import org.prosolo.common.domainmodel.activities.RecommendationType;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.annotation.UserRating;
 import org.prosolo.common.domainmodel.app.RegistrationKey;
 import org.prosolo.common.domainmodel.app.RegistrationType;
 import org.prosolo.common.domainmodel.competences.Competence;
@@ -35,12 +34,11 @@ import org.prosolo.common.domainmodel.organization.OrganizationalPosition;
 import org.prosolo.common.domainmodel.organization.OrganizationalUnit;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
-import org.prosolo.common.domainmodel.user.FollowedEntity;
-import org.prosolo.common.domainmodel.user.FollowedUserEntity;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.workflow.Scale;
+import org.prosolo.common.domainmodel.user.following.FollowedEntity;
+import org.prosolo.common.domainmodel.user.following.FollowedUserEntity;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.util.string.StringUtil;
@@ -825,7 +823,6 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		}
 
 		logger.info("initRepository");
-		ServiceLocator.getInstance().getService(UserManager.class).addTopicPreferences(userNickPowell, nickPowellPreferences);
 		userNickPowell = ServiceLocator.getInstance().getService(DefaultManager.class).merge(userNickPowell);
 
 		ServiceLocator.getInstance().getService(UserManager.class).addTopicPreferences(userRichardAnderson, nickPowellPreferences);
@@ -3736,13 +3733,6 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		return null;
 	}
 
-	protected UserRating createNumericRating(int ratingValue, Scale scale) throws Exception {
-		UserRating rating = new UserRating();
-		rating.setRatingValue(ratingValue);
-		rating.setScale(scale);
-		return ServiceLocator.getInstance().getService(DefaultManager.class)
-				.saveEntity(rating);
-	}
 
 	protected Tag getOrCreateTag(String tagTitle) throws Exception {
 		return ServiceLocator.getInstance().getService(TagManager.class)

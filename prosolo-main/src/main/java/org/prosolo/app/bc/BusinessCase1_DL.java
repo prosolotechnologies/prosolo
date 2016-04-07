@@ -10,27 +10,22 @@ import java.util.Map;
 
 import org.prosolo.common.domainmodel.activities.ResourceActivity;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.annotation.UserRating;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.OrganizationalPosition;
 import org.prosolo.common.domainmodel.organization.OrganizationalUnit;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
-import org.prosolo.common.domainmodel.user.FollowedEntity;
-import org.prosolo.common.domainmodel.user.FollowedUserEntity;
 import org.prosolo.common.domainmodel.user.LearningGoal;
-import org.prosolo.common.domainmodel.user.TimeFrame;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.preferences.EmailPreferences;
-import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
-import org.prosolo.common.domainmodel.workflow.Scale;
-import org.prosolo.web.util.AvatarUtils;
+import org.prosolo.common.domainmodel.user.following.FollowedEntity;
+import org.prosolo.common.domainmodel.user.following.FollowedUserEntity;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
+import org.prosolo.web.util.AvatarUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -153,8 +148,6 @@ public class BusinessCase1_DL extends BusinessCase {
 		 
 			// addRandomFollowedEntity(us,4);
 			  //addEventsExamples(us,org);
-		
-			addUserPreferences(us);
 		}
 		//generateTestEvents(nikolaDamjanovic);
 
@@ -250,33 +243,6 @@ public class BusinessCase1_DL extends BusinessCase {
 //			setUserStatus(us);
 		}
 		
-	}
-	
-	private void addUserPreferences(User user) throws Exception{
-		TopicPreference tPreference=new TopicPreference();
-		for (int i=0;i<1;i++){
-			 //tPreference.addPreferredConcept(getRandomConcept());
-			 //tPreference.addPreferredKeyword(getRandomTag());
-			//cPreference.addPreferredCompetence(getRandomCompetence());
-		}
-		//tPreference.addPreferredKeyword(getTag("OWL"));
-	//	tPreference.addPreferredKeyword(getTag("Software engineering"));
-		//tPreference.addPreferredKeyword(getTag("Software quality"));
-		tPreference.setUser(user);
-		tPreference = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(tPreference);
-//		cPreference = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(cPreference);
-		 
-		EmailPreferences ePreference = new EmailPreferences();
-		ePreference.addNotificationFrequency(TimeFrame.DAILY);
-		ePreference.setUser(user);
-		ePreference = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(ePreference);
-		
-		//user.addPreference(ePreference);
- 
-		//user.addPreference(tPreference);
-//		user.addPreference(cPreference);
-		 
-		user = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(user);
 	}
 	
 //	private Date setPreviousDate() throws Exception {
@@ -489,27 +455,18 @@ public class BusinessCase1_DL extends BusinessCase {
 			allUsers.add(tanjaMilic);
 			allUsers.add(sreckoJoksimovic);
 			
-			TopicPreference zjPreference=new TopicPreference();
-			//zjPreference.addPreferredKeyword(getTag("Semantic Web"));
-			//zjPreference.addPreferredKeyword(getTag("RDF"));
-			//zjPreference.addPreferredKeyword(getTag("Ontology development"));
-			zjPreference.setUser(zoranJeremic);
-			ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(zjPreference);
-			
-			//zoranJeremic.addPreference(zjPreference);
- 
-			TopicPreference nmPreference=new TopicPreference();
-			nmPreference.addPreferredKeyword(getTag("Semantic Web"));
-			nmPreference.addPreferredKeyword(getTag("RDF"));
-			nmPreference.addPreferredKeyword(getTag("Ontology development"));
-			nmPreference.addPreferredKeyword(getTag("domain modelling"));
-			nmPreference.addPreferredKeyword(getTag("Ontology modelling"));
-			nmPreference.addPreferredKeyword(getTag("Ontology extraction"));
-			nmPreference.addPreferredKeyword(getTag("Data mining"));
-			nmPreference.addPreferredKeyword(getTag("Text mining"));
-			nmPreference.addPreferredKeyword(getTag("Reasoning"));
-			nmPreference.setUser(zoranJeremic);
-			ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(nmPreference);
+//			TopicPreference nmPreference=new TopicPreference();
+//			nmPreference.addPreferredKeyword(getTag("Semantic Web"));
+//			nmPreference.addPreferredKeyword(getTag("RDF"));
+//			nmPreference.addPreferredKeyword(getTag("Ontology development"));
+//			nmPreference.addPreferredKeyword(getTag("domain modelling"));
+//			nmPreference.addPreferredKeyword(getTag("Ontology modelling"));
+//			nmPreference.addPreferredKeyword(getTag("Ontology extraction"));
+//			nmPreference.addPreferredKeyword(getTag("Data mining"));
+//			nmPreference.addPreferredKeyword(getTag("Text mining"));
+//			nmPreference.addPreferredKeyword(getTag("Reasoning"));
+//			nmPreference.setUser(zoranJeremic);
+//			ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(nmPreference);
 			
 			//zoranJeremic.addPreference(nmPreference);
 			ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(zoranJeremic);
@@ -1499,7 +1456,6 @@ public class BusinessCase1_DL extends BusinessCase {
 //	 			us = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(us);
 	  			// addRandomFollowedEntity(us,4);
 				//addEventsExamples(us,nugs);
-				addUserPreferences(us);
 			}
 
 //			Project op4lProject = new Project();
@@ -2019,13 +1975,6 @@ public class BusinessCase1_DL extends BusinessCase {
 		}
 	}
  
-	protected UserRating createNumericRating(int ratingValue, Scale scale) throws Exception {
-		UserRating rating = new UserRating();
-		rating.setRatingValue(ratingValue);
-		rating.setScale(scale);
-		return ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(rating);
-	}
-	
 	protected Tag createTag(String tagTitle) throws Exception {
 		Tag tag = null;
 		tag = ServiceLocator.getInstance().getService(TagManager.class).getOrCreateTag(tagTitle);
