@@ -3,8 +3,8 @@ package org.prosolo.web.communications.data;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.prosolo.common.domainmodel.user.MessageParticipant;
-import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
+import org.prosolo.common.domainmodel.messaging.Message;
+import org.prosolo.common.domainmodel.messaging.MessageParticipant;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
@@ -22,7 +22,7 @@ public class MessageData implements Serializable, Comparable<MessageData> {
 	private String date;
 	private String message;
 
-	public MessageData(SimpleOfflineMessage message, User user) {
+	public MessageData(Message message, User user) {
 		this.id = message.getId();
 		this.threadId = message.getMessageThread().getId();
 		this.actor = UserDataFactory.createUserData(message.getSender().getParticipant());
@@ -40,7 +40,7 @@ public class MessageData implements Serializable, Comparable<MessageData> {
 		this.date = timeCreated;
 	}
 	
-	private boolean checkIfRead(SimpleOfflineMessage message, User user) {
+	private boolean checkIfRead(Message message, User user) {
 		for(MessageParticipant mp : message.getParticipants()) {
 			if(mp.getParticipant().equals(user)) {
 				return mp.isRead();
@@ -57,7 +57,7 @@ public class MessageData implements Serializable, Comparable<MessageData> {
 		this.id = id;
 	}
 
-	private SimpleOfflineMessage resource;
+	private Message resource;
 
 	public boolean isReaded() {
 		return readed;
@@ -81,11 +81,11 @@ public class MessageData implements Serializable, Comparable<MessageData> {
 		return shortContent;
 	}
 
-	public SimpleOfflineMessage getResource() {
+	public Message getResource() {
 		return resource;
 	}
 
-	public void setResource(SimpleOfflineMessage resource) {
+	public void setResource(Message resource) {
 		this.resource = resource;
 	}
 

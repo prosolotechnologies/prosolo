@@ -4,8 +4,8 @@ import java.io.Serializable;
 
 import javax.servlet.http.HttpSession;
 
-import org.prosolo.common.domainmodel.user.MessagesThread;
-import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
+import org.prosolo.common.domainmodel.messaging.Message;
+import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.services.interaction.MessageInboxUpdater;
 import org.prosolo.web.MessagesBean;
 import org.prosolo.web.notification.TopInboxBean;
@@ -22,7 +22,7 @@ public class MessageInboxUpdaterImpl implements MessageInboxUpdater, Serializabl
 	private static final long serialVersionUID = 344209605228225877L;
 
 	@Override
-	public void updateOnNewMessage(SimpleOfflineMessage message, MessagesThread messagesThread, HttpSession httpSession) {
+	public void updateOnNewMessage(Message message, MessageThread messagesThread, HttpSession httpSession) {
 		if (httpSession != null) {
 			TopInboxBean inboxBean = (TopInboxBean) httpSession.getAttribute("topInboxBean");
 			
@@ -42,7 +42,7 @@ public class MessageInboxUpdaterImpl implements MessageInboxUpdater, Serializabl
 	}
 	
 	@Override
-	public void addNewMessageThread(MessagesThread messagesThread, HttpSession httpSession) {
+	public void addNewMessageThread(MessageThread messagesThread, HttpSession httpSession) {
 		if (httpSession != null) {
 			TopInboxBean topInboxBean = (TopInboxBean) httpSession.getAttribute("topInboxBean");
 			

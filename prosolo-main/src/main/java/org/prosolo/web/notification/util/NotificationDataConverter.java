@@ -11,8 +11,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.activities.requests.AchievedCompetenceRequest;
-import org.prosolo.common.domainmodel.activities.requests.ExternalCreditRequest;
 import org.prosolo.common.domainmodel.activities.requests.NodeRequest;
 import org.prosolo.common.domainmodel.activities.requests.Request;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity;
@@ -211,26 +209,26 @@ public class NotificationDataConverter {
 						}
 					}
 				} 
-				// is it External Credit evaluation submitted
-				else if (request instanceof ExternalCreditRequest) {
-					Set<Evaluation> evaluations = evSubmission.getEvaluations();
-					
-					for (Evaluation evaluation : evaluations) {
-						if (evaluation.getResource() instanceof ExternalCredit) {
-							notificationData.setResource(new NodeData(evaluation.getResource()));
-						}
-					}
-				}
-				// is it Achieved Competence evaluation submitted
-				else if (request instanceof AchievedCompetenceRequest) {
-					Set<Evaluation> evaluations = evSubmission.getEvaluations();
-					
-					for (Evaluation evaluation : evaluations) {
-						if (evaluation.getResource() instanceof AchievedCompetence) {
-							notificationData.setResource(new NodeData(evaluation.getResource()));
-						}
-					}
-				}
+//				// is it External Credit evaluation submitted
+//				else if (request instanceof ExternalCreditRequest) {
+//					Set<Evaluation> evaluations = evSubmission.getEvaluations();
+//					
+//					for (Evaluation evaluation : evaluations) {
+//						if (evaluation.getResource() instanceof ExternalCredit) {
+//							notificationData.setResource(new NodeData(evaluation.getResource()));
+//						}
+//					}
+//				}
+//				// is it Achieved Competence evaluation submitted
+//				else if (request instanceof AchievedCompetenceRequest) {
+//					Set<Evaluation> evaluations = evSubmission.getEvaluations();
+//					
+//					for (Evaluation evaluation : evaluations) {
+//						if (evaluation.getResource() instanceof AchievedCompetence) {
+//							notificationData.setResource(new NodeData(evaluation.getResource()));
+//						}
+//					}
+//				}
 //			} else if (notificationType.equals(EventType.EVALUATION_EDITED)){
 //				Evaluation evaluation = (Evaluation) object;
 //				

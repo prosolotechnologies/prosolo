@@ -11,8 +11,8 @@ import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.user.MessagesThread;
-import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
+import org.prosolo.common.domainmodel.messaging.Message;
+import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
@@ -23,7 +23,6 @@ import org.prosolo.services.logging.ComponentName;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.communications.data.MessageData;
-import org.prosolo.web.home.MessagesBean;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,7 +75,7 @@ public class DirectMessagesDialog implements Serializable {
 	}
 	
 	public void sendMessage() {
-		MessagesThread messagesThread = null;
+		MessageThread messagesThread = null;
 		
 		try {
 			messagesThread = messagingManager.findMessagesThreadForUsers(loggedUser.getUser().getId(), receiver.getId());
@@ -92,7 +91,7 @@ public class DirectMessagesDialog implements Serializable {
 					this.messageContent);
 			}
 			
-			SimpleOfflineMessage message = messagingManager.sendSimpleOfflineMessage(
+			Message message = messagingManager.sendSimpleOfflineMessage(
 					loggedUser.getUser(), 
 					receiver.getId(), 
 					this.messageContent, 
@@ -112,7 +111,7 @@ public class DirectMessagesDialog implements Serializable {
 			List<UserData> participants = new ArrayList<UserData>();
 			participants.add(UserDataFactory.createUserData(loggedUser.getUser()));
 			
-			final SimpleOfflineMessage message1 = message;
+			final Message message1 = message;
 			final User user = loggedUser.getUser();
 			
 			taskExecutor.execute(new Runnable() {

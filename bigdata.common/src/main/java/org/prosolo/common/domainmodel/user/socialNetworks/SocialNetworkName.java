@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.prosolo.common.domainmodel.user;
+package org.prosolo.common.domainmodel.user.socialNetworks;
 
 /**
  * @author "Nikola Milikic"

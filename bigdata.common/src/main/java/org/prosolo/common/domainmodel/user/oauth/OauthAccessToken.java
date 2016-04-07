@@ -1,4 +1,4 @@
-package org.prosolo.common.domainmodel.user;
+package org.prosolo.common.domainmodel.user.oauth;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,8 +9,8 @@ import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.user.ServiceType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 
 /**
  * @author Zoran Jeremic 2013-08-04

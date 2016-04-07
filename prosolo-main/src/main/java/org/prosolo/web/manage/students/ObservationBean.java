@@ -12,10 +12,10 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.observations.Observation;
 import org.prosolo.common.domainmodel.observations.Suggestion;
 import org.prosolo.common.domainmodel.observations.Symptom;
-import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
@@ -113,7 +113,7 @@ public class ObservationBean implements Serializable {
 			if(msg != null){
 				final String context = "studentProfile.observation." + Long.parseLong(result.get("observationId").toString());
 
-				final SimpleOfflineMessage message1 = (SimpleOfflineMessage) msg;
+				final Message message1 = (Message) msg;
 				final User user = loggedUserBean.getUser();
 				taskExecutor.execute(new Runnable() {
 		            @Override

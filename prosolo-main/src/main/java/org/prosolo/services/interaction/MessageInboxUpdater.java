@@ -2,8 +2,8 @@ package org.prosolo.services.interaction;
 
 import javax.servlet.http.HttpSession;
 
-import org.prosolo.common.domainmodel.user.MessagesThread;
-import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
+import org.prosolo.common.domainmodel.messaging.Message;
+import org.prosolo.common.domainmodel.messaging.MessageThread;
 
 /**
  * @author Nikola Milikic
@@ -12,8 +12,8 @@ import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
  */
 public interface MessageInboxUpdater {
 
-	void updateOnNewMessage(SimpleOfflineMessage message, MessagesThread messagesThread, HttpSession httpSession);
+	void updateOnNewMessage(Message message, MessageThread messagesThread, HttpSession httpSession);
 
-	void addNewMessageThread(MessagesThread messagesThread, HttpSession httpSession);
+	void addNewMessageThread(MessageThread messagesThread, HttpSession httpSession);
 
 }

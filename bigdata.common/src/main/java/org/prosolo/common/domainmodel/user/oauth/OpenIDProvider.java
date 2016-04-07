@@ -1,4 +1,4 @@
-package org.prosolo.common.domainmodel.user;
+package org.prosolo.common.domainmodel.user.oauth;
 
 /**
  *

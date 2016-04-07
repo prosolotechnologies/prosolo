@@ -1,15 +1,14 @@
 package org.prosolo.services.twitter.impl;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.user.OauthAccessToken;
-import org.prosolo.common.domainmodel.user.ServiceType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.oauth.OauthAccessToken;
+import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 //import org.prosolo.services.twitter.TwitterApiManager;
 import org.prosolo.services.twitter.TwitterConfigurationManager;
 import org.prosolo.services.twitter.TwitterSearchService;
 import org.prosolo.services.twitter.UserOauthTokensManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import twitter4j.Twitter;
 import twitter4j.auth.AccessToken;

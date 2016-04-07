@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.prosolo.common.domainmodel.user;
+package org.prosolo.common.domainmodel.user.socialNetworks;
 
 import java.io.Serializable;
 
@@ -14,7 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import org.hibernate.annotations.Type;
-import org.prosolo.common.domainmodel.user.SocialNetworkName;
+import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
 
 /**
  * @author "Nikola Milikic"

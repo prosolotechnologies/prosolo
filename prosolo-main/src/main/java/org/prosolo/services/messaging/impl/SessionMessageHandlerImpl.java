@@ -17,10 +17,10 @@ import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 import org.prosolo.common.domainmodel.activitywall.comments.Comment;
 import org.prosolo.common.domainmodel.course.CourseEnrollment;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.messaging.Message;
+import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.domainmodel.outcomes.Outcome;
 import org.prosolo.common.domainmodel.user.LearningGoal;
-import org.prosolo.common.domainmodel.user.MessagesThread;
-import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -80,20 +80,20 @@ public class SessionMessageHandlerImpl implements MessageHandler<SessionMessage>
 			switch (message.getServiceType()) {
 				case DIRECT_MESSAGE:
 					if (httpSession != null) {
-						SimpleOfflineMessage directMessage = (SimpleOfflineMessage) session.load(
-								SimpleOfflineMessage.class,
+						Message directMessage = (Message) session.load(
+								Message.class,
 								resourceId);
 						
-						MessagesThread messagesThread = directMessage.getMessageThread();
-						messagesThread = (MessagesThread) session.merge(messagesThread);
+						MessageThread messagesThread = directMessage.getMessageThread();
+						messagesThread = (MessageThread) session.merge(messagesThread);
 						
 						messageInboxUpdater.updateOnNewMessage(directMessage, messagesThread, httpSession);
 					}
 					break;
 				case ADD_NEW_MESSAGE_THREAD :
 					if (httpSession != null) {
-						MessagesThread messagesThread = (MessagesThread) session.load(
-								MessagesThread.class,
+						MessageThread messagesThread = (MessageThread) session.load(
+								MessageThread.class,
 								resourceId);
 						
 						messageInboxUpdater.addNewMessageThread(messagesThread, httpSession);

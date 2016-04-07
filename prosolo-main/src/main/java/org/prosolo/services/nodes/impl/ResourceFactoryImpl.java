@@ -49,15 +49,10 @@ import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
 import org.prosolo.common.domainmodel.user.AnonUser;
 import org.prosolo.common.domainmodel.user.Email;
 import org.prosolo.common.domainmodel.user.LearningGoal;
-import org.prosolo.common.domainmodel.user.ServiceType;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.UserDefinedPriority;
-import org.prosolo.common.domainmodel.user.UserPriorityType;
 import org.prosolo.common.domainmodel.user.UserType;
-import org.prosolo.common.domainmodel.user.preferences.FeedsPreferences;
-import org.prosolo.common.domainmodel.user.preferences.RecommendationPreferences;
-import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
+import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.spring.TransactionDebugUtil;
 import org.prosolo.services.authentication.PasswordEncrypter;
@@ -573,31 +568,31 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         user.addRole(roleManager.getRoleByName("User"));
         user = saveEntity(user);
     
-        RecommendationPreferences recPref = new RecommendationPreferences();
-        recPref.addUserPriority(createUserDefinedPriority(UserPriorityType.TOPIC_PRIORITY));
-        recPref.addUserPriority(createUserDefinedPriority(UserPriorityType.LEARNING_GOAL_PRIORITY));
-        recPref.addUserPriority(createUserDefinedPriority(UserPriorityType.LEARNING_HISTORY_PRIORITY));
-        recPref.setUser(user);
-        recPref = saveEntity(recPref);
+//        RecommendationPreferences recPref = new RecommendationPreferences();
+//        recPref.addUserPriority(createUserDefinedPriority(UserPriorityType.TOPIC_PRIORITY));
+//        recPref.addUserPriority(createUserDefinedPriority(UserPriorityType.LEARNING_GOAL_PRIORITY));
+//        recPref.addUserPriority(createUserDefinedPriority(UserPriorityType.LEARNING_HISTORY_PRIORITY));
+//        recPref.setUser(user);
+//        recPref = saveEntity(recPref);
         
-        FeedsPreferences feedsPreferences = new FeedsPreferences();
-        feedsPreferences.setUser(user);
-        feedsPreferences = saveEntity(feedsPreferences);
+//        FeedsPreferences feedsPreferences = new FeedsPreferences();
+//        feedsPreferences.setUser(user);
+//        feedsPreferences = saveEntity(feedsPreferences);
 
-        TopicPreference tPref = new TopicPreference();
-        tPref.setUser(user);
-        tPref = saveEntity(tPref);
+//        TopicPreference tPref = new TopicPreference();
+//        tPref.setUser(user);
+//        tPref = saveEntity(tPref);
         this.flush();
         return user;
     }
     
-    private UserDefinedPriority createUserDefinedPriority(UserPriorityType topicPriority) {
-        UserDefinedPriority priority = new UserDefinedPriority();
-        priority.setPriorityType(topicPriority);
-        priority.setPriorityScale(scaleManager.getScale0To5());
-        priority.setPriorityLevel(1);
-        return saveEntity(priority);
-    }
+//  private UserDefinedPriority createUserDefinedPriority(UserPriorityType topicPriority) {
+//  UserDefinedPriority priority = new UserDefinedPriority();
+//  priority.setPriorityType(topicPriority);
+//  priority.setPriorityScale(scaleManager.getScale0To5());
+//  priority.setPriorityLevel(1);
+//  return saveEntity(priority);
+//}
     @Override
     @Transactional (readOnly = false)
     public SimpleOutcome createSimpleOutcome(double resultValue){

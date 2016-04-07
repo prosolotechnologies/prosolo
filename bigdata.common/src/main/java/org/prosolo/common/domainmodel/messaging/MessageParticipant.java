@@ -1,4 +1,4 @@
-package org.prosolo.common.domainmodel.user;
+package org.prosolo.common.domainmodel.messaging;
 
 import java.io.Serializable;
 
@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
 import org.hibernate.annotations.Type;
+import org.prosolo.common.domainmodel.user.User;
 
 @Entity
 public class MessageParticipant implements Serializable {

@@ -2,7 +2,7 @@ package org.prosolo.common.web.activitywall.data;
 
 import java.io.Serializable;
 
-import org.prosolo.common.domainmodel.user.ServiceType;
+import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 
 public class PublishingServiceData implements Serializable {
 

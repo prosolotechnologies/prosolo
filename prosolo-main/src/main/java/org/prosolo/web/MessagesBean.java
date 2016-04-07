@@ -10,8 +10,8 @@ import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.user.MessagesThread;
-import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
+import org.prosolo.common.domainmodel.messaging.Message;
+import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
@@ -73,7 +73,7 @@ public class MessagesBean implements Serializable {
 	}
 
 	private boolean tryToInitMessages() {
-		MessagesThread thread = null;
+		MessageThread thread = null;
 		
 		if (decodedThreadId == 0) {
 			thread = messagingManager.getLatestMessageThread(loggedUser.getUser());
@@ -87,7 +87,7 @@ public class MessagesBean implements Serializable {
 		if (loggedUser != null && loggedUser.isLoggedIn()) {
 			if (decodedThreadId > 0) {
 				try {
-					thread = messagingManager.get(MessagesThread.class, decodedThreadId);
+					thread = messagingManager.get(MessageThread.class, decodedThreadId);
 					
 					if (thread == null) {
 						logger.info("User "+loggedUser.getUser()+" tried to open messages page for nonexisting messages thread with id: " + threadId);
@@ -110,7 +110,7 @@ public class MessagesBean implements Serializable {
 		return true;
 	}
 
-	private boolean initializeThreadData(MessagesThread thread) {
+	private boolean initializeThreadData(MessageThread thread) {
 		this.threadData = new MessagesThreadData(thread, loggedUser.getUser());
 		this.receivers = threadData.getParticipants();
 		
@@ -126,9 +126,9 @@ public class MessagesBean implements Serializable {
 	}
 	
 	public void changeThread(MessagesThreadData threadData) {
-		MessagesThread thread;
+		MessageThread thread;
 		try {
-			thread = messagingManager.get(MessagesThread.class, threadData.getId());
+			thread = messagingManager.get(MessageThread.class, threadData.getId());
 			initializeThreadData(thread);
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
@@ -138,7 +138,7 @@ public class MessagesBean implements Serializable {
 	}
 
 	private void loadMessages() {
-		List<SimpleOfflineMessage> mess = messagingManager.getMessagesForThread(this.threadData.getId(), messages.size(), limit);
+		List<Message> mess = messagingManager.getMessagesForThread(this.threadData.getId(), messages.size(), limit);
 		
 		if (mess.size() > limit) {
 			this.loadMore = true;
@@ -148,7 +148,7 @@ public class MessagesBean implements Serializable {
 			this.loadMore = false;
 		}
 		
-		for (SimpleOfflineMessage message : mess) {
+		for (Message message : mess) {
 			this.messages.add(0, new MessageData(message, loggedUser.getUser()));
 		}
 		
@@ -159,7 +159,7 @@ public class MessagesBean implements Serializable {
 		messageData.setText(StringUtil.cleanHtml(messageData.getText()));
 		
 		try {
-			SimpleOfflineMessage message = messagingManager.sendMessages(
+			Message message = messagingManager.sendMessages(
 					loggedUser.getUser().getId(), 
 					receivers,
 					this.messageData.getText(), 
@@ -199,7 +199,7 @@ public class MessagesBean implements Serializable {
 		return userNames;
 	}
 	
-	public void addMessage(SimpleOfflineMessage message) {
+	public void addMessage(Message message) {
 		messages.add(new MessageData(message, loggedUser.getUser()));
 	}
 	

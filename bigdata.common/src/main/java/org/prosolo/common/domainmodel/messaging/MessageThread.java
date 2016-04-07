@@ -1,4 +1,4 @@
-package org.prosolo.common.domainmodel.user;
+package org.prosolo.common.domainmodel.messaging;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,7 +15,7 @@ import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.Cascade;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
+import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.user.User;
 
 
@@ -25,7 +25,7 @@ import org.prosolo.common.domainmodel.user.User;
  */
 @Entity
 //@Table(name = "user_MessagesThread")
-public class MessagesThread extends BaseEntity { 
+public class MessageThread extends BaseEntity { 
 
 	private static final long serialVersionUID = -1640160399285990926L;
 
@@ -34,11 +34,11 @@ public class MessagesThread extends BaseEntity {
 	private Date lastUpdated;
 	private String subject;
 	private List<User> participants;
-	private List<SimpleOfflineMessage> messages;
+	private List<Message> messages;
 
-	public MessagesThread() {
+	public MessageThread() {
 		setParticipants(new ArrayList<User>());
-		setMessages(new ArrayList<SimpleOfflineMessage>());
+		setMessages(new ArrayList<Message>());
 	}
 
 	@ManyToOne
@@ -82,15 +82,15 @@ public class MessagesThread extends BaseEntity {
 	}
 
 	@OneToMany(mappedBy="messageThread")
-	public List<SimpleOfflineMessage> getMessages() {
+	public List<Message> getMessages() {
 		return messages;
 	}
 
-	public void setMessages(List<SimpleOfflineMessage> messages) {
+	public void setMessages(List<Message> messages) {
 		this.messages = messages;
 	}
 
-	public void addMessage(SimpleOfflineMessage message) {
+	public void addMessage(Message message) {
 		if (message != null) {
 			this.messages.add(message);
 			this.lastUpdated=new Date();

@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.annotation.UserRating;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.workflow.Scale;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.nodes.DefaultManager;
 
@@ -1778,13 +1776,6 @@ public class BusinessCase2_AU extends BusinessCase {
 //		}
 	}
 
-	protected static UserRating createNumericRating(int ratingValue, Scale scale) throws Exception {
-		UserRating rating = new UserRating();
-		rating.setRatingValue(ratingValue);
-		rating.setScale(scale);
-		return ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(rating);
-	}
-	
 	protected static Tag createTag(String tagTitle) throws Exception {
 		Tag slidesTag = new Tag();
 		slidesTag.setTitle(tagTitle);

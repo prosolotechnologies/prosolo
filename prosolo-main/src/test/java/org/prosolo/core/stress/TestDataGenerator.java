@@ -12,19 +12,14 @@ import org.junit.Test;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.Email;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.UserDefinedPriority;
-import org.prosolo.common.domainmodel.user.UserPriorityType;
 import org.prosolo.common.domainmodel.user.UserType;
-import org.prosolo.common.domainmodel.user.preferences.FeedsPreferences;
-import org.prosolo.common.domainmodel.user.preferences.RecommendationPreferences;
-import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
-import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.services.authentication.PasswordEncrypter;
 import org.prosolo.services.authentication.impl.JasyptStrongPasswordEncryptor;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.ScaleManager;
+import org.prosolo.web.util.AvatarUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -144,18 +139,18 @@ public class TestDataGenerator extends TestContext{
 			user.setUserType(UserType.REGULAR_USER);
 			user.addRole(roleManager.getRoleByName("User"));
 			user = userManager.saveEntity(user);
-			RecommendationPreferences recPref = new RecommendationPreferences();
-			recPref.addUserPriority(createUserDefinedPriority(UserPriorityType.TOPIC_PRIORITY));
-			recPref.addUserPriority(createUserDefinedPriority(UserPriorityType.LEARNING_GOAL_PRIORITY));
-			recPref.addUserPriority(createUserDefinedPriority(UserPriorityType.LEARNING_HISTORY_PRIORITY));
-			recPref.setUser(user);
-			recPref = userManager.saveEntity(recPref);
-			FeedsPreferences feedsPreferences = new FeedsPreferences();
-			feedsPreferences.setUser(user);
-			feedsPreferences = userManager.saveEntity(feedsPreferences);
-			TopicPreference tPref = new TopicPreference();
-			tPref.setUser(user);
-			tPref = userManager.saveEntity(tPref);
+//			RecommendationPreferences recPref = new RecommendationPreferences();
+//			recPref.addUserPriority(createUserDefinedPriority(UserPriorityType.TOPIC_PRIORITY));
+//			recPref.addUserPriority(createUserDefinedPriority(UserPriorityType.LEARNING_GOAL_PRIORITY));
+//			recPref.addUserPriority(createUserDefinedPriority(UserPriorityType.LEARNING_HISTORY_PRIORITY));
+//			recPref.setUser(user);
+//			recPref = userManager.saveEntity(recPref);
+//			FeedsPreferences feedsPreferences = new FeedsPreferences();
+//			feedsPreferences.setUser(user);
+//			feedsPreferences = userManager.saveEntity(feedsPreferences);
+//			TopicPreference tPref = new TopicPreference();
+//			tPref.setUser(user);
+//			tPref = userManager.saveEntity(tPref);
 			userManager.flush();
 			userEntityESService.saveUserNode(user,session);
 			if(writer!=null){
@@ -182,13 +177,13 @@ public class TestDataGenerator extends TestContext{
 			}
  
 	}
-	private UserDefinedPriority createUserDefinedPriority(UserPriorityType topicPriority) {
-		UserDefinedPriority priority = new UserDefinedPriority();
-		priority.setPriorityType(topicPriority);
-		priority.setPriorityScale(scaleManager.getScale0To5());
-		priority.setPriorityLevel(1);
-		return userManager.saveEntity(priority);
-	}
+//	private UserDefinedPriority createUserDefinedPriority(UserPriorityType topicPriority) {
+//		UserDefinedPriority priority = new UserDefinedPriority();
+//		priority.setPriorityType(topicPriority);
+//		priority.setPriorityScale(scaleManager.getScale0To5());
+//		priority.setPriorityLevel(1);
+//		return userManager.saveEntity(priority);
+//	}
 	@Test
 	public  void listAllUsers(){
 		Collection<User> users=userManager.getAllUsers();

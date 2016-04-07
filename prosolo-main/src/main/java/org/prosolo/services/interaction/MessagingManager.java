@@ -3,8 +3,8 @@ package org.prosolo.services.interaction;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.user.MessagesThread;
-import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
+import org.prosolo.common.domainmodel.messaging.Message;
+import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
@@ -16,48 +16,48 @@ public interface MessagingManager extends AbstractManager {
 	
 //	List<SimpleOfflineMessage> sendMessages(long senderId, List<UserData> receivers, String text, long threadId, String context) throws ResourceCouldNotBeLoadedException;
 
-	SimpleOfflineMessage sendMessages(long senderId, List<UserData> receivers, String text, long threadId, String context) throws ResourceCouldNotBeLoadedException;
+	Message sendMessages(long senderId, List<UserData> receivers, String text, long threadId, String context) throws ResourceCouldNotBeLoadedException;
 	
-	SimpleOfflineMessage sendSimpleOfflineMessage(long senderId, long receiverId,
+	Message sendSimpleOfflineMessage(long senderId, long receiverId,
 			String content, long threadId, String context) throws ResourceCouldNotBeLoadedException;
 
-	SimpleOfflineMessage sendSimpleOfflineMessage(User sender, long receiverId,
-			String content, MessagesThread messagesThread, String context) throws ResourceCouldNotBeLoadedException;
+	Message sendSimpleOfflineMessage(User sender, long receiverId,
+			String content, MessageThread messagesThread, String context) throws ResourceCouldNotBeLoadedException;
 	
-	List<SimpleOfflineMessage> getUnreadSimpleOfflineMessages(User user,
+	List<Message> getUnreadSimpleOfflineMessages(User user,
 			int page, int limit);
 
-	List<SimpleOfflineMessage> getSimpleOfflineMessages(User user, int page, int limit);
+	List<Message> getSimpleOfflineMessages(User user, int page, int limit);
 
-	List<MessagesThread> getUserMessagesThreads(User user, int page, int limit);
+	List<MessageThread> getUserMessagesThreads(User user, int page, int limit);
 
-	MessagesThread getMessagesThreadForPrevoiusMessage(
-			SimpleOfflineMessage previousMessage);
+	MessageThread getMessagesThreadForPrevoiusMessage(
+			Message previousMessage);
 
-	MessagesThread createNewMessagesThread(User creator, List<Long> participantIds, String subject);
+	MessageThread createNewMessagesThread(User creator, List<Long> participantIds, String subject);
 
-	List<SimpleOfflineMessage> getMessagesForThread(long threadId, int page, int limit);
+	List<Message> getMessagesForThread(long threadId, int page, int limit);
 
-	List<MessagesThreadData> convertMessagesThreadsToMessagesThreadData(List<MessagesThread> mThreads, User user);
+	List<MessagesThreadData> convertMessagesThreadsToMessagesThreadData(List<MessageThread> mThreads, User user);
 
 	MessagesThreadData convertMessagesThreadToMessagesThreadData(
-			MessagesThread mThread, User user);
+			MessageThread mThread, User user);
 
 	//boolean markAsRead(long[] messageIds, User user, Session session) throws ResourceCouldNotBeLoadedException;
 
-	SimpleOfflineMessage markAsRead(SimpleOfflineMessage message, User user, Session session);
+	Message markAsRead(Message message, User user, Session session);
 
-	MessagesThread findMessagesThreadForUsers(long user1Id, long user2Id);
+	MessageThread findMessagesThreadForUsers(long user1Id, long user2Id);
 
-	List<MessagesThread> getLatestUserMessagesThreads(User user, int page, int limit);
+	List<MessageThread> getLatestUserMessagesThreads(User user, int page, int limit);
 
 	boolean markThreadAsRead(long threadId, User user);
 
-	List<SimpleOfflineMessage> getMessagesForThread(MessagesThread thread,
+	List<Message> getMessagesForThread(MessageThread thread,
 			int page, int limit, Session session);
 
-	MessagesThread getLatestMessageThread(User user);
+	MessageThread getLatestMessageThread(User user);
 	
-	public SimpleOfflineMessage sendMessage(long senderId, long receiverId, String msg) throws DbConnectionException;
+	public Message sendMessage(long senderId, long receiverId, String msg) throws DbConnectionException;
 
 }

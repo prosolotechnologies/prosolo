@@ -6,8 +6,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import org.prosolo.common.domainmodel.user.MessagesThread;
-import org.prosolo.common.domainmodel.user.SimpleOfflineMessage;
+import org.prosolo.common.domainmodel.messaging.Message;
+import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
@@ -39,7 +39,7 @@ public class MessagesThreadData implements Serializable {
 		participantsWithoutLoggedUser = new ArrayList<UserData>();
 	}
 	
-	public MessagesThreadData(MessagesThread thread, User loggedUser) {
+	public MessagesThreadData(MessageThread thread, User loggedUser) {
 		this();
 		
 		this.id = thread.getId();
@@ -76,7 +76,7 @@ public class MessagesThreadData implements Serializable {
 		
 		List<MessageData> messagesData = new ArrayList<MessageData>();
 		
-		for (SimpleOfflineMessage m : thread.getMessages()) {
+		for (Message m : thread.getMessages()) {
 			messagesData.add(new MessageData(m, loggedUser));
 		}
 		this.messages = messagesData;

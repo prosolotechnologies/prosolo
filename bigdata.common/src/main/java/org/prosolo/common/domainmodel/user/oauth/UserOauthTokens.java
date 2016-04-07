@@ -1,6 +1,4 @@
-package org.prosolo.common.domainmodel.user;
-
-import org.prosolo.common.domainmodel.user.OauthAccessToken;
+package org.prosolo.common.domainmodel.user.oauth;
 
 /**
  * @author Zoran Jeremic 2013-08-04

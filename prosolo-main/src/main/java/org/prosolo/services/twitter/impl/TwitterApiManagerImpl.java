@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.user.OauthAccessToken;
-import org.prosolo.common.domainmodel.user.ServiceType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.oauth.OauthAccessToken;
+import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.services.interaction.AnalyticalServiceCollector;
 import org.prosolo.services.twitter.TwitterApiManager;
 import org.prosolo.services.twitter.TwitterConfigurationManager;

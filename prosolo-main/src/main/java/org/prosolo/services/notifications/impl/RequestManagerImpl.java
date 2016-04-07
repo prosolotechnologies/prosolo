@@ -7,15 +7,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.activities.requests.AchievedCompetenceRequest;
-import org.prosolo.common.domainmodel.activities.requests.ExternalCreditRequest;
 import org.prosolo.common.domainmodel.activities.requests.NodeRequest;
 import org.prosolo.common.domainmodel.activities.requests.Request;
 import org.prosolo.common.domainmodel.activities.requests.RequestStatus;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.general.Node;
-import org.prosolo.common.domainmodel.portfolio.AchievedCompetence;
-import org.prosolo.common.domainmodel.portfolio.ExternalCredit;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
@@ -64,10 +60,6 @@ public class RequestManagerImpl extends AbstractManagerImpl implements RequestMa
 		
 		if (resource instanceof Node) {
 			request = new NodeRequest();
-		} else if (resource instanceof AchievedCompetence) {
-			request = new AchievedCompetenceRequest();
-		} else if (resource instanceof ExternalCredit) {
-			request = new ExternalCreditRequest();
 		}
 		
 		// check if there was a previous request for evaluation for this resource
