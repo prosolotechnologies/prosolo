@@ -35,6 +35,7 @@ import org.prosolo.common.domainmodel.course.CourseInstructor;
 import org.prosolo.common.domainmodel.course.CoursePortfolio;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.course.Status;
+import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType1;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
@@ -876,7 +877,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Transactional(readOnly = false)
     public Credential1 createCredential(String title, String description, Set<Tag> tags, 
     		Set<Tag> hashtags, User createdBy, CredentialType1 type, 
-    		boolean compOrderMandatory, boolean published) {
+    		boolean compOrderMandatory, boolean published, long duration) {
     	try {
 			 Credential1 cred = new Credential1();
 		     cred.setCreatedBy(createdBy);
@@ -888,6 +889,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 		     cred.setHashtags(hashtags);
 		     cred.setCompetenceOrderMandatory(compOrderMandatory);
 		     cred.setPublished(published);
+		     cred.setDuration(duration);
 		     
 		     saveEntity(cred);
 		
@@ -898,6 +900,29 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     		logger.error(e);
     		throw new DbConnectionException("Error while saving credential");
     	}
+    }
+    
+    public Competence1 createCompetence(String title, String description, Set<Tag> tags, User createdBy,
+			boolean studentAllowedToAddActivities, boolean published, long duration) {
+    	try {
+			 Competence1 comp = new Competence1();
+			 comp.setTitle(title);
+			 comp.setDateCreated(new Date());
+			 comp.setDescription(description);
+			 comp.setTags(tags);
+		     comp.setCreatedBy(createdBy);
+		     comp.setStudentAllowedToAddActivities(studentAllowedToAddActivities);
+		     comp.setPublished(published);
+		     comp.setDuration(duration);
+		     saveEntity(comp);
+		
+		     logger.info("New competence is created with id " + comp.getId());
+		     return comp;
+   	} catch(Exception e) {
+   		e.printStackTrace();
+   		logger.error(e);
+   		throw new DbConnectionException("Error while saving competence");
+   	}
     }
 
 }

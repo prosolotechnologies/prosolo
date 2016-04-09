@@ -1,8 +1,6 @@
 package org.prosolo.services.nodes.impl;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -11,6 +9,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Competence1;
@@ -34,9 +33,7 @@ import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.CredentialDataFactory;
-import org.prosolo.services.nodes.impl.util.CredentialPublishTransition;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.prosolo.services.nodes.impl.util.EntityPublishTransition;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +42,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	private static final long serialVersionUID = -2783669846949034832L;
 
+	private static Logger logger = Logger.getLogger(CredentialManagerImpl.class);
+	
 	@Inject
 	private EventFactory eventFactory;
 	@Inject
@@ -57,9 +56,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	private CredentialDataFactory credentialFactory;
 	@Inject
 	private CompetenceDataFactory competenceFactory;
-	@Inject 
-	@Qualifier("taskExecutor") 
-	private ThreadPoolTaskExecutor taskExecutor;
 	
 	@Override
 	@Transactional(readOnly = false)
@@ -69,7 +65,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			cred = resourceFactory.createCredential(data.getTitle(), data.getDescription(),
 					new HashSet<Tag>(tagManager.parseCSVTagsAndSave(data.getTagsString())),
 					new HashSet<Tag>(tagManager.parseCSVTagsAndSave(data.getHashtagsString())), createdBy,
-					data.getType(), data.isMandatoryFlow(), data.isPublished());
+					data.getType(), data.isMandatoryFlow(), data.isPublished(), data.getDuration());
 
 			if(data.getCompetences() != null) {
 				for(CompetenceData1 cd : data.getCompetences()) {
@@ -79,7 +75,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					Competence1 comp = (Competence1) persistence.currentManager().load(
 							Competence1.class, cd.getCompetenceId());
 					cc.setCompetence(comp);
-					saveEntity(comp);
+					saveEntity(cc);
 				}
 			}
 			eventFactory.generateEvent(EventType.Create, createdBy, cred);
@@ -156,11 +152,11 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			if (res != null) {
 				credData = credentialFactory.getCredentialData(res.getCreatedBy(), 
-						credentialId, res, true);
+						res, res.getTags(), res.getHashtags(), true);
 				
 				if(credData != null && loadCompetences) {
 					List<CompetenceData1> targetCompData = compManager
-							.getTargetCompetencesData(res.getId());
+							.getTargetCompetencesData(res.getId(), false);
 					credData.setCompetences(targetCompData);
 				}
 				return credData;
@@ -177,15 +173,16 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	private CredentialData getCredentialData(long credentialId, boolean loadCreatorData,
 			boolean loadCompetences) throws DbConnectionException {
 		try {
-			Credential1 cred = getCredential(credentialId, loadCreatorData, loadCompetences);
+			Credential1 cred = getCredential(credentialId, loadCreatorData);
 
 			if (cred != null) {
 				User createdBy = loadCreatorData ? cred.getCreatedBy() : null;
-				CredentialData credData = credentialFactory.getCredentialData(createdBy, cred, true);
+				CredentialData credData = credentialFactory.getCredentialData(createdBy, cred,
+						cred.getTags(), cred.getHashtags(), true);
 				
 				if(loadCompetences) {
-					List<CompetenceData1> compsData = getCredentialCompetencesData(credentialId, 
-							false, false , false);
+					List<CompetenceData1> compsData = compManager.getCredentialCompetencesData(
+							credentialId, false, false , false, false);
 					credData.setCompetences(compsData);
 				}
 				
@@ -200,8 +197,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 	
 	@Transactional(readOnly = true)
-	private Credential1 getCredential(long credentialId, boolean loadCreatorData,
-			boolean loadCompetences) throws DbConnectionException {
+	private Credential1 getCredential(long credentialId, boolean loadCreatorData) throws DbConnectionException {
 		try {
 			StringBuilder builder = new StringBuilder();
 			builder.append("SELECT cred FROM Credential1 cred ");
@@ -235,87 +231,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
-	@Transactional(readOnly = true)
-	private List<CompetenceData1> getCredentialCompetencesData(long credentialId, boolean loadCreator, 
-			boolean loadTags, boolean loadActivities) throws DbConnectionException {
-		List<CompetenceData1> result = new ArrayList<>();
-		try {
-			List<CredentialCompetence1> res = getCredentialCompetences(credentialId, 
-					loadCreator, loadTags, loadActivities);
-
-			for (CredentialCompetence1 credComp : res) {
-				User creator = loadCreator ? credComp.getCompetence().getCreatedBy() : null;
-				Set<Tag> tags = loadTags ? credComp.getCompetence().getTags() : null;
-				
-				CompetenceData1 compData = competenceFactory.getCompetenceData(
-						creator, credComp, tags, true);
-				result.add(compData);
-			}
-			return result;
-		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while loading competence data");
-		}
-	}
-	
-	@Transactional(readOnly = true)
-	private List<CredentialCompetence1> getCredentialCompetences(long credentialId, boolean loadCreator, 
-			boolean loadTags, boolean loadActivities) throws DbConnectionException {
-		try {
-			Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, 
-					credentialId);
-			
-			StringBuilder builder = new StringBuilder();
-			builder.append("SELECT credComp " + 
-						   "FROM CredentialCompetence1 credComp " +
-						   "INNER JOIN fetch credComp.competence comp ");
-			if(loadCreator) {
-				builder.append("INNER JOIN fetch comp.createdBy user ");
-			}
-			if(loadTags) {
-				builder.append("LEFT JOIN fetch comp.tags tags ");
-			}
-			if(loadActivities) {
-				builder.append("LEFT JOIN fetch comp.activities act ");
-			}
-			builder.append("WHERE credComp.credential = :credential " + 
-					   "AND comp.deleted = :deleted " + 
-					   "AND (comp.published = :published OR (comp.published = :notPublished " +
-					   "AND comp.hasDraft = :hasDraft)) " +
-					   "AND comp.draft = :draft " +
-					   "AND credComp.deleted = :deleted ");
-			if(loadActivities) {
-				builder.append("AND (act is null or " +
-					   "(act.deleted = :deleted " +
-					   "AND (act.published = :published OR (act.published = :notPublished " +
-					   "AND act.hasDraft = :hasDraft)) " +
-					   "AND act.draft = :draft)) ");
-			}
-			
-			builder.append("ORDER BY credComp.order");
-
-			@SuppressWarnings("unchecked")
-			List<CredentialCompetence1> res = persistence.currentManager()
-				.createQuery(builder.toString())
-				.setEntity("credential", cred)
-				.setBoolean("deleted", false)
-				.setBoolean("published", true)
-				.setBoolean("notPublished", false)
-				.setBoolean("draft", false)
-				.setBoolean("hasDraft", true)
-				.list();
-
-			if (res == null) {
-				return new ArrayList<>();
-			}
-			return res;
-		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while loading credential competences data");
-		}
-	}
 	
 	@Override
 	@Transactional(readOnly = true)
@@ -351,14 +266,16 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 							.setEntity("draftVersion", res.getDraftVersion())
 							.uniqueResult();
 					if(draftCred != null) {
-						credData = credentialFactory.getCredentialData(null, draftCred, true);
+						credData = credentialFactory.getCredentialData(null, draftCred, 
+								draftCred.getTags(), draftCred.getHashtags(), true);
 					}	
 				} else {
-					credData = credentialFactory.getCredentialData(null, res, true);
+					credData = credentialFactory.getCredentialData(null, res, res.getTags(),
+							res.getHashtags(), true);
 				}
 				if(credData != null && loadCompetences) {
-					List<CompetenceData1> compsData = getCredentialCompetencesData(credData.getId(),
-							true, false, false);
+					List<CompetenceData1> compsData = compManager.getCredentialCompetencesData(
+							credData.getId(), true, false, false, true);
 					credData.setCompetences(compsData);
 				}
 				return credData;
@@ -382,18 +299,18 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			 * draft should be created if something changed, draft option is chosen 
 			 * and credential was published before this update
 			*/
-			CredentialPublishTransition publishTransition = (!data.isPublished() && data.isPublishedChanged()) ? 
-					CredentialPublishTransition.FROM_PUBLISHED_TO_DRAFT_VERSION :
-					CredentialPublishTransition.NO_TRANSITION;
+			EntityPublishTransition publishTransition = (!data.isPublished() && data.isPublishedChanged()) ? 
+					EntityPublishTransition.FROM_PUBLISHED_TO_DRAFT_VERSION :
+					EntityPublishTransition.NO_TRANSITION;
 			/*
 			 * check if published option was chosen, it was draft before update and 
 			 * draft version (and not original credential) of credential is updated.
 			 * Last check added because it is possible for original credential to be
 			 * draft and that it doesn't have draft version because it was never published.
 			*/
-			if(publishTransition == CredentialPublishTransition.NO_TRANSITION) {
+			if(publishTransition == EntityPublishTransition.NO_TRANSITION) {
 				publishTransition = (data.isPublished() && data.isPublishedChanged() && data.isDraft()) ? 
-						publishTransition = CredentialPublishTransition.FROM_DRAFT_VERSION_TO_PUBLISHED :
+						publishTransition = EntityPublishTransition.FROM_DRAFT_VERSION_TO_PUBLISHED :
 						publishTransition;
 			}
 			
@@ -404,7 +321,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		    boolean shouldPropagateChanges = data.isPublished() && (data.isTitleChanged() 
 		    		|| data.isDescriptionChanged() || data.isTagsStringChanged() 
 		    		|| data.isHashtagsStringChanged());
+		    
 		    /*
+		     * TODO generate event and implement observer that will update
+		     * all users target credentials if needed
 		     * pass to event shouldPropagateChanges or each attribute that
 		     * changed so observer can know if changes should be propagated.
 		    */
@@ -430,14 +350,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	 * this version. If status is changed from draft to published,
 	 * it is checked if credential has been published once and if 
 	 * it has, that means that draft version exists and this version
-	 * is deleted. Also, CredentialData object will be updated with 
-	 * new ids for credential and competences and changed data too.
+	 * is deleted.
 	 * @param cred
 	 * @param publishTransition
 	 * @param data
 	 */
 	@Transactional(readOnly = true)
-	private Credential1 updateCredentialData(Credential1 cred, CredentialPublishTransition publishTransition,
+	private Credential1 updateCredentialData(Credential1 cred, EntityPublishTransition publishTransition,
 			CredentialData data) {
 		Credential1 credToUpdate = null;
 		switch(publishTransition) {
@@ -446,6 +365,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				credToUpdate.setDraft(true);
 				credToUpdate.setCreatedBy(cred.getCreatedBy());
 				cred.setHasDraft(true);
+				cred.setPublished(false);
 				break;
 			case FROM_DRAFT_VERSION_TO_PUBLISHED:
 				credToUpdate = getOriginalCredentialForDraft(cred.getId());
@@ -466,7 +386,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		credToUpdate.setManuallyAssignStudents(data.isManuallyAssingStudents());
 		credToUpdate.setDefaultNumberOfStudentsPerInstructor(data.getDefaultNumberOfStudentsPerInstructor());
 		credToUpdate.setDuration(data.getDuration());
-	    if(publishTransition == CredentialPublishTransition.NO_TRANSITION) {
+	    if(publishTransition == EntityPublishTransition.NO_TRANSITION) {
 	    	if(data.isTagsStringChanged()) {
 	    		credToUpdate.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(
 	    				data.getTagsString())));		     
@@ -482,18 +402,18 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    			data.getHashtagsString())));
 	    }
 	    
-		if(publishTransition == CredentialPublishTransition.FROM_PUBLISHED_TO_DRAFT_VERSION) {
+		if(publishTransition == EntityPublishTransition.FROM_PUBLISHED_TO_DRAFT_VERSION) {
 			saveEntity(credToUpdate);
 			cred.setDraftVersion(credToUpdate);
 		}
 		
-		if(publishTransition == CredentialPublishTransition.FROM_DRAFT_VERSION_TO_PUBLISHED) {
+		if(publishTransition == EntityPublishTransition.FROM_DRAFT_VERSION_TO_PUBLISHED) {
 			deleteCredentialCompetences(credToUpdate.getId());
 		}
 
 		List<CompetenceData1> comps = data.getCompetences();
 	    if(comps != null) {
-	    	if(publishTransition == CredentialPublishTransition.NO_TRANSITION) {
+	    	if(publishTransition == EntityPublishTransition.NO_TRANSITION) {
 	    		Iterator<CompetenceData1> compIterator = comps.iterator();
 	    		while(compIterator.hasNext()) {
 	    			CompetenceData1 cd = compIterator.next();
@@ -618,7 +538,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	public CredentialData enrollInCredential(long credentialId, User user, LearningContextData context) 
 			throws DbConnectionException {
 		try {
-			Credential1 cred = getCredential(credentialId, false, false);
+			Credential1 cred = getCredential(credentialId, false);
 			TargetCredential1 targetCred = createTargetCredential(cred, user);
 			
 			Map<String, String> params = null;
@@ -626,7 +546,17 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			if(cred.getType() == CredentialType1.UNIVERSITY_CREATED) {
 	    		//TODO assign student to instructor automatically if automatic assign is turned on
 	    	}
-			CredentialData cd = credentialFactory.getFullCredentialData(targetCred, true);
+			CredentialData cd = credentialFactory.getCredentialData(targetCred.getCreatedBy(), 
+					targetCred, targetCred.getTags(), targetCred.getHashtags(), true);
+			
+			List<TargetCompetence1> comps = targetCred.getTargetCompetences();
+			if(comps != null) {
+				for(TargetCompetence1 tc : comps) {
+					CompetenceData1 compData = competenceFactory.getCompetenceData(null, tc, null, 
+							true);
+					cd.getCompetences().add(compData);
+				}
+			}
 			
 			String page = null;
 			String lContext = null;
@@ -650,6 +580,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Transactional(readOnly = false)
 	private TargetCredential1 createTargetCredential(Credential1 cred, User user) {
 		TargetCredential1 targetCred = new TargetCredential1();
+		targetCred.setTitle(cred.getTitle());
+		targetCred.setDescription(cred.getDescription());
 		targetCred.setCredential(cred);
 		targetCred.setUser(user);
 		targetCred.setDateStarted(new Date());
@@ -677,14 +609,99 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		targetCred.setCreatedBy(cred.getCreatedBy());
 		saveEntity(targetCred);
 		
-		List<CredentialCompetence1> credComps = getCredentialCompetences(cred.getId(), 
-				false, true, true);
+		List<CredentialCompetence1> credComps = compManager.getCredentialCompetences(cred.getId(), 
+				false, true, true, false);
 		for(CredentialCompetence1 cc : credComps) {
 			TargetCompetence1 targetComp = compManager.createTargetCompetence(targetCred, cc);
 			targetCred.getTargetCompetences().add(targetComp);
 		}
 		
 		return targetCred;
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void addCompetenceToCredential(long credentialId, Competence1 comp) 
+			throws DbConnectionException {
+		try {
+			Credential1 cred = (Credential1) persistence.currentManager().load(
+					Credential1.class, credentialId);
+			
+			/*
+			 * if credential has draft version, that version is loaded and if credential 
+			 * is published draft version will be created and attached to original credential
+			 */
+			Credential1 draftCred = null;
+			if(cred.isHasDraft()) {
+				draftCred = cred.getDraftVersion();
+			} else if(cred.isPublished()) {
+				draftCred = createDraftVersionOfCredential(credentialId);
+				cred.setHasDraft(true);
+				cred.setPublished(false);
+				cred.setDraftVersion(draftCred);
+			}
+			
+			Credential1 credToUpdate = draftCred != null ? draftCred : cred;
+			CredentialCompetence1 cc = new CredentialCompetence1();
+			cc.setCompetence(comp);
+			cc.setCredential(credToUpdate);
+			cc.setOrder(credToUpdate.getCompetences().size() + 1);
+			saveEntity(cc);
+			/* 
+			 * If duration of added competence is greater than 0,
+			 * update credential duration
+			*/
+			//TODO check if this requires select + update and if so, use hql update instead
+			if(comp.getDuration() > 0) {
+				credToUpdate.setDuration(credToUpdate.getDuration() + comp.getDuration());
+			}
+		} catch(Exception e) {
+			throw new DbConnectionException("Error while adding competence to credential");
+		}
+		
+	}
+	
+	private Credential1 createDraftVersionOfCredential(long originalCredentialId) {
+		Credential1 originalCred = getCredential(originalCredentialId, false);
+		
+		Credential1 draftCred = new Credential1();
+		draftCred.setDraft(true);
+		draftCred.setPublished(false);
+		draftCred.setCreatedBy(originalCred.getCreatedBy());
+		draftCred.setTitle(originalCred.getTitle());
+		draftCred.setDescription(originalCred.getDescription());
+		draftCred.setCompetenceOrderMandatory(originalCred.isCompetenceOrderMandatory());
+		draftCred.setStudentsCanAddCompetences(originalCred.isStudentsCanAddCompetences());
+		draftCred.setManuallyAssignStudents(originalCred.isManuallyAssignStudents());
+		draftCred.setDefaultNumberOfStudentsPerInstructor(originalCred.getDefaultNumberOfStudentsPerInstructor());
+		draftCred.setDuration(originalCred.getDuration());
+	    
+		if(originalCred.getTags() != null) {
+			for(Tag tag : originalCred.getTags()) {
+				draftCred.getTags().add(tag);
+			}
+		}
+		if(originalCred.getHashtags() != null) {
+			for(Tag hashtag : originalCred.getHashtags()) {
+				draftCred.getHashtags().add(hashtag);
+			}
+		}
+	    
+		saveEntity(draftCred);	
+
+		List<CredentialCompetence1> comps = compManager.getCredentialCompetences(originalCredentialId, false, false, false, true);
+	    if(comps != null) {
+    		for(CredentialCompetence1 cc : comps) {
+    			CredentialCompetence1 cc1 = new CredentialCompetence1();
+				cc1.setOrder(cc.getOrder());
+				cc1.setCredential(draftCred);
+				cc1.setCompetence(cc.getCompetence());
+				saveEntity(cc1);
+				draftCred.getCompetences().add(cc1);
+    		}	
+	    }
+	    
+		return draftCred;
 	}
 	
 }

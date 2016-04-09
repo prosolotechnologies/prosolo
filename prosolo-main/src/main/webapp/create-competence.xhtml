@@ -1,0 +1,175 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	template="templates/masterLayout2.xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:courses="http://java.sun.com/jsf/composite/components/courses">
+
+	<ui:define name="windowTitle">
+		ProSolo - #{competenceEditBean.pageHeaderTitle}
+	</ui:define>
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewParam name="id" value="#{competenceEditBean.id}" default="null" />
+			<f:viewParam name="credId" value="#{competenceEditBean.credId}" default="null"/>
+			<f:viewAction action="#{competenceEditBean.init()}" />
+		</f:metadata>
+	</ui:define>
+
+    <ui:define name="resourceTitle">
+    	<h1>#{competenceEditBean.pageHeaderTitle}</h1>
+    </ui:define>
+    
+	<ui:define name="content">
+
+	<script src="https://use.typekit.net/zvv0dgl.js"></script>
+    <script>try{Typekit.load({ async: true });}catch(e){}</script>
+
+    <div class="whiteBar">
+
+    </div>
+	<h:form id="formMain">
+	<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="whiteBox">
+                    <ul class="nav nav-tabs pageSubmenu" role="tablist">
+                        <li role="presentation" class="active"><a href="#info" aria-controls="info" role="tab" data-toggle="tab">Competence Info</a></li>
+                        <li role="presentation"><a href="#activities" aria-controls="activities" role="tab" data-toggle="tab">Activities</a></li>
+                    </ul>
+                </div>
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane fade in active" id="info">
+                        <div class="whiteBox">
+                            <h2>Competence Info</h2>
+                            <div class="formWrapper">
+                                <div class="formLine">
+                                    <label>Parent credential(s)</label>
+                                    <div class="formLineRight">
+                                        <ul class="parentCredentials">
+                                        	<ui:repeat var="cred" value="#{competenceEditBean.competenceData.credentialsWithIncludedCompetence}">
+                                        		<li>
+                                        			<h:link value="#{cred.title}"
+                                        				outcome="/credential.xhtml">
+                                        				<f:param name="id" value="#{util:encodeId(cred.id)}" />
+                                        			</h:link>
+	                                                <a href="#" class="removeX" data-toggle="tooltip" title="Remove">remove</a>
+	                                            </li>
+                                        	</ui:repeat>
+                                            <li>
+                                                <a href="#">Introduction to Learning Analytics</a>
+                                                <a href="#" class="removeX" data-toggle="tooltip" title="Remove">remove</a>
+                                            </li>
+                                            <li>
+                                                <a href="#">Introduction to Learning Analytics</a>
+                                                <a href="#" class="removeX" data-toggle="tooltip" title="Remove">remove</a>
+                                            </li>
+                                        </ul>
+                                        <input type="text" placeholder="Assign to credential..."></input>
+                                    </div>
+                                </div>
+                                <div class="formLine">
+                                    <label>Title</label>
+                                    <div class="formLineRight">
+                                    	<h:inputText value="#{competenceEditBean.competenceData.title}"></h:inputText>
+                                    </div>
+                                </div>
+                                <div class="formLine">
+                                    <label>About competence</label>
+                                    <div class="formLineRight">
+                                        <h:inputTextarea value="#{competenceEditBean.competenceData.description}"></h:inputTextarea>
+                                    </div>
+                                </div>
+                                <div class="formLine">
+                                    <label>Keywords</label>
+                                    <div class="formLineRight">
+                                    	<h:inputText styleClass="tagsInputCompTag"
+		                                	value="#{competenceEditBean.competenceData.tagsString}"
+		                                	pt:placeholder="Type and press 'Enter'"
+		                                	pt:data-role="tagsinput">
+	                                	</h:inputText>
+                                    </div>
+                                </div>
+                                <script>$('.tagsInputCompTag').tagsinput();</script>
+                            </div>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" id="activities">
+                    	<courses:activityList
+                    		activities="#{competenceEditBean.competenceData.activities}"
+                    		bean="#{competenceEditBean}"
+                    		isEdit="true"
+                    		showMarkedIfCompleted="false"/>
+                        <ui:remove><div class="whiteBox activitiesList">
+                            <div class="activityItem activityVideo">
+                                <span class="iconType"></span>
+                                <h3>Class aptent taciti sociosqu ad litora torquent</h3>
+                                <div class="editOptions">
+                                    <a href="#" class="linkEdit">Edit</a>
+                                    <a href="#" class="moveUp" disabled="disabled">up</a>
+                                    <a href="#" class="moveDown">down</a>
+                                </div>
+                            </div>
+                            <div class="activityItem activityText">
+                                <span class="iconType"></span>
+                                <h3>Class aptent taciti sociosqu ad litora torquent</h3>
+                                <div class="editOptions">
+                                    <a href="#" class="linkEdit">Edit</a>
+                                    <a href="#" class="moveUp">up</a>
+                                    <a href="#" class="moveDown">down</a>
+                                </div>
+                            </div>
+                            <div class="activityItem activitySlide">
+                                <span class="iconType"></span>
+                                <h3>Class aptent taciti sociosqu ad litora torquent</h3>
+                                <div class="editOptions">
+                                    <a href="#" class="linkEdit">Edit</a>
+                                    <a href="#" class="moveUp">up</a>
+                                    <a href="#" class="moveDown">down</a>
+                                </div>
+                            </div>
+                            <div class="activityItem activityExternal">
+                                <span class="iconType"></span>
+                                <h3>Class aptent taciti sociosqu ad litora torquent</h3>
+                                <div class="editOptions">
+                                    <a href="#" class="linkEdit">Edit</a>
+                                    <a href="#" class="moveUp">up</a>
+                                    <a href="#" class="moveDown" disabled="disabled">down</a>
+                                </div>
+                            </div>
+                            <a href="#" class="activityItem addActivity">
+                                <span class="iconPlus"></span>
+                                Add Activity
+                            </a>
+                        </div></ui:remove>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+            	<courses:rightSideBar
+            		chooseOptionText="Allow students to add activities"
+            		chooseOptionValue="#{competenceEditBean.competenceData.studentAllowedToAddActivities}"
+            		publishValues="#{competenceEditBean.compStatusArray}" 
+            		publishValue="#{competenceEditBean.competenceData.status}"
+            		saveAction="#{competenceEditBean.saveCompetence}"
+            		deleteAction="#{competenceEditBean.deleteCompetence}"
+            		toUpdate=":formMain" 
+            		previewAction="#{competenceEditBean.previewCompetence}"/>
+            </div>
+        </div>
+
+    </div>
+    </h:form>
+
+	<script src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
+</ui:define>
+</ui:composition>

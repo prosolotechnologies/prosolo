@@ -3,6 +3,7 @@ package org.prosolo.common.domainmodel.credential;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
@@ -10,6 +11,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
@@ -21,7 +24,7 @@ public class Competence1 extends BaseEntity {
 	
 	private User createdBy;
 	private long duration;
-	private List<Activity1> activities;
+	private List<CompetenceActivity1> activities;
 	private Set<Tag> tags;
 	private boolean studentAllowedToAddActivities;
 	private boolean published;
@@ -56,12 +59,13 @@ public class Competence1 extends BaseEntity {
 	}
 
 
-	@OneToMany(mappedBy = "competence")
-	public List<Activity1> getActivities() {
+	@OneToMany(mappedBy = "competence", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	@LazyCollection(LazyCollectionOption.EXTRA)
+	public List<CompetenceActivity1> getActivities() {
 		return activities;
 	}
 
-	public void setActivities(List<Activity1> activities) {
+	public void setActivities(List<CompetenceActivity1> activities) {
 		this.activities = activities;
 	}
 

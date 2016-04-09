@@ -14,4 +14,18 @@ public class TimeUtil {
 		res.put("minutes", minutes);
 		return res;
 	}
+	
+	public static String getHoursAndMinutesInString(long timeInMinutes) {
+		Map<String, Integer> durationMap = TimeUtil.getHoursAndMinutes(timeInMinutes);
+		int hours = durationMap.get("hours");
+		int minutes = durationMap.get("minutes");
+		String duration = hours != 0 ? hours + " hours " : "";
+		if(duration.isEmpty()) {
+			duration = minutes + " minutes";
+		} else if(minutes != 0) {
+			duration += minutes + " minutes";
+		}
+		
+		return duration;
+	}
 }

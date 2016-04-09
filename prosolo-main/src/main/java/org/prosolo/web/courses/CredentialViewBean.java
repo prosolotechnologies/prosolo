@@ -43,6 +43,13 @@ public class CredentialViewBean implements Serializable {
 			try {
 				credentialData = credentialManager.getAllCredentialDataForUser(decodedId, 
 						loggedUser.getUser().getId());
+				if(credentialData == null) {
+					try {
+						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+					} catch (IOException e) {
+						logger.error(e);
+					}
+				}
 			} catch(Exception e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage(e.getMessage());
@@ -58,7 +65,7 @@ public class CredentialViewBean implements Serializable {
 	}
 	
 	public boolean isCurrentUserCreator() {
-		return credentialData.getCreator() == null ? false : 
+		return credentialData == null || credentialData.getCreator() == null ? false : 
 			credentialData.getCreator().getId() == loggedUser.getUser().getId();
 	}
 	

@@ -42,6 +42,7 @@ public class CredentialEditBean implements Serializable {
 	@Inject private TextSearch textSearch;
 
 	private String id;
+	private long decodedId;
 	
 	private CredentialData credentialData;
 	private List<CompetenceData1> compsToRemove;
@@ -58,13 +59,13 @@ public class CredentialEditBean implements Serializable {
 			credentialData = new CredentialData(false);
 		} else {
 			try {
-				long decodedId = idEncoder.decodeId(id);
+				decodedId = idEncoder.decodeId(id);
 				logger.info("Editing credential with id " + decodedId);
 
 				loadCredentialData(decodedId);
 			} catch(Exception e) {
 				logger.error(e);
-				credentialData = new CredentialData(true);
+				credentialData = new CredentialData(false);
 				PageUtil.fireErrorMessage(e.getMessage());
 			}
 		}
@@ -106,11 +107,19 @@ public class CredentialEditBean implements Serializable {
 	 * ACTIONS
 	 */
 	
+	public String saveAndNavigateToCreateCompetence() {
+		//boolean saved = saveCredentialData();
+		boolean saved = true;
+		if(saved) {
+			return "create-competence.xhtml?faces-redirect=true&credId=" + id;
+		}
+		return null;
+	}
+	
 	public String previewCredential() {
 		boolean saved = saveCredentialData();
 		if(saved) {
-			return "credential.xhtml?faces-redirect=true&id=" + 
-					idEncoder.encodeId(credentialData.getId());
+			return "credential.xhtml?faces-redirect=true&id=" + id;
 		}
 		return null;
 	}
@@ -145,8 +154,10 @@ public class CredentialEditBean implements Serializable {
 		try {
 			if(credentialData.getId() > 0) {
 				credentialManager.deleteCredential(credentialData.getId());
-				credentialData = new CredentialData(true);
+				credentialData = new CredentialData(false);
 				PageUtil.fireSuccessfulInfoMessage("Changes are saved");
+			} else {
+				PageUtil.fireErrorMessage("Credential is not saved so it can't be deleted");
 			}
 		} catch(Exception e) {
 			logger.error(e);
@@ -181,14 +192,33 @@ public class CredentialEditBean implements Serializable {
 	
 	public void addComp(CompetenceData1 compData) {
 		List<CompetenceData1> competences = credentialData.getCompetences();
-		compData.setOrder(competences.size() + 1);
-		compData.startObservingChanges();
-		competences.add(compData);
-		compsToExcludeFromSearch.add(compData.getCompetenceId());
+		CompetenceData1 removedComp = getCompetenceIfPreviouslyRemoved(compData);
+		CompetenceData1 compToEdit = removedComp != null ? removedComp : compData;
+		compToEdit.setOrder(competences.size() + 1);
+		competences.add(compToEdit);
+		credentialData.setDuration(compToEdit.getDuration() + compToEdit.getDuration());
+		if(removedComp != null) {
+			removedComp.statusBackFromRemovedTransition();
+		} else {
+			compData.startObservingChanges();
+		}
+		compsToExcludeFromSearch.add(compToEdit.getCompetenceId());
 		currentNumberOfComps ++;
 		compSearchResults = new ArrayList<>();
 	}
 	
+	private CompetenceData1 getCompetenceIfPreviouslyRemoved(CompetenceData1 compData) {
+		Iterator<CompetenceData1> iter = compsToRemove.iterator();
+		while(iter.hasNext()) {
+			CompetenceData1 cd = iter.next();
+			if(cd.getCompetenceId() == compData.getCompetenceId()) {
+				iter.remove();
+				return cd;
+			}
+		}
+		return null;
+	}
+
 	public void moveDown(int index) {
 		moveComp(index, index + 1);
 	}
@@ -210,6 +240,7 @@ public class CredentialEditBean implements Serializable {
 	
 	public void removeComp(int index) {
 		CompetenceData1 cd = credentialData.getCompetences().remove(index);
+		credentialData.setDuration(credentialData.getDuration() - cd.getDuration());
 		cd.statusRemoveTransition();
 		if(cd.getObjectStatus() == ObjectStatus.REMOVED) {
 			compsToRemove.add(cd);
@@ -240,14 +271,14 @@ public class CredentialEditBean implements Serializable {
 		}
 	}
 	
-	 public void listener(AjaxBehaviorEvent event) {
-	        System.out.println("listener");
-	        System.out.println(credentialData.isMandatoryFlow());
-	 }
+	public void listener(AjaxBehaviorEvent event) {
+	     System.out.println("listener");
+	     System.out.println(credentialData.isMandatoryFlow());
+	}
 	 
-	 public String getPageHeaderTitle() {
-		 return credentialData.getId() > 0 ? "Edit Credential" : "New Credential";
-	 }
+	public String getPageHeaderTitle() {
+		return credentialData.getId() > 0 ? "Edit Credential" : "New Credential";
+	}
 	
 	/*
 	 * GETTERS / SETTERS

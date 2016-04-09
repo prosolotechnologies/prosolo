@@ -1,5 +1,6 @@
 package org.prosolo.services.nodes;
 
+import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.context.data.LearningContextData;
@@ -39,5 +40,17 @@ public interface CredentialManager {
 	Credential1 updateCredential(CredentialData data, User user) throws DbConnectionException;
 	
 	CredentialData enrollInCredential(long credentialId, User user, LearningContextData context) 
+			throws DbConnectionException;
+	
+	/**
+	 * Adds competence to credential, updates credential duration. If credential is published, draft version 
+	 * for credential is created, competence is added to that draft version and original credential becomes draft. 
+	 * If draft version for credential already exists, competence will be attached to existing draft version.
+	 * 
+	 * @param credentialId
+	 * @param comp
+	 * @throws DbConnectionException
+	 */
+	void addCompetenceToCredential(long credentialId, Competence1 comp) 
 			throws DbConnectionException;
 }

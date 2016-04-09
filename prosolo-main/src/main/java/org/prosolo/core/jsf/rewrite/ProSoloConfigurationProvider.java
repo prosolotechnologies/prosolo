@@ -48,6 +48,11 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/credentials/new").to("/create-credential.xhtml"))
 				//.addRule(Join.path("/credentials/{id}").to("/course.xhtml"))
 				.addRule(Join.path("/credentials/{id}").to("/credential.xhtml"))
+				//TODO validate these competence patterns 
+				.addRule(Join.path("/credentials/{credId}/competences/new").to("/create-competence.xhtml"))
+				.addRule(Join.path("/competences/{id}/edit").to("/create-competence.xhtml"))
+				.addRule(Join.path("/competences/new").to("/create-competence.xhtml"))
+				.addRule(Join.path("/competences/{compId}/{targetCompId}").to("/competence.xhtml"))
 				.addRule(Join.path("/digest").to("/digest.xhtml"))
 				.addRule(Join.path("/communications/{tab}").to("/communications.xhtml"))
 				.addRule(Join.path("/search/{tab}").to("/search.xhtml"))

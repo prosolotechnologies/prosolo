@@ -3,7 +3,6 @@ package org.prosolo.services.nodes.data;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
@@ -26,15 +25,23 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	private List<BasicActivityData> activities;
 	private Set<Tag> tags;
 	private String tagsString;
+	private boolean studentAllowedToAddActivities;
+	//true if this is data for draft version of credential
+	private boolean draft;
 	
+	private boolean enrolled;
+	private long targetCompId;
 	private int progress;
 	private ResourceCreator creator;
 	
 	private ObjectStatus objectStatus;
 	
+	private List<CredentialData> credentialsWithIncludedCompetence;
+	
 	public CompetenceData1(boolean listenChanges) {
 		this.status = PublishedStatus.DRAFT;
 		activities = new ArrayList<>();
+		credentialsWithIncludedCompetence = new ArrayList<>();
 		this.listenChanges = listenChanges;
 	}
 	
@@ -54,6 +61,14 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 		setObjectStatus(ObjectStatusTransitions.removeTransition(getObjectStatus()));
 	}
 	
+	public void statusBackFromRemovedTransition() {
+		if(isOrderChanged()) {
+			setObjectStatus(ObjectStatus.CHANGED);
+		} else {
+			setObjectStatus(ObjectStatus.UP_TO_DATE);
+		}
+	}
+	
 	//setting competence status based on published flag
 	public void setCompStatus() {
 		this.status = this.published ? PublishedStatus.PUBLISHED : PublishedStatus.DRAFT;
@@ -65,17 +80,7 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	}
 	
 	public void calculateDurationString() {
-		Map<String, Integer> durationMap = TimeUtil.getHoursAndMinutes(this.duration);
-		int hours = durationMap.get("hours");
-		int minutes = durationMap.get("minutes");
-		String duration = hours != 0 ? hours + " hours " : "";
-		if(duration.isEmpty()) {
-			duration = minutes + " minutes";
-		} else if(minutes != 0) {
-			duration += minutes + " minutes";
-		}
-		
-		durationString = duration;
+		durationString = TimeUtil.getHoursAndMinutesInString(this.duration);
 	}
 
 	public long getCredentialCompetenceId() {
@@ -207,6 +212,16 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 		calculateDurationString();
 	}
 	
+	public boolean isStudentAllowedToAddActivities() {
+		return studentAllowedToAddActivities;
+	}
+
+	public void setStudentAllowedToAddActivities(boolean studentAllowedToAddActivities) {
+		observeAttributeChange("studentAllowedToAddActivities", this.studentAllowedToAddActivities, 
+				studentAllowedToAddActivities);
+		this.studentAllowedToAddActivities = studentAllowedToAddActivities;
+	}
+	
 	//change tracking get methods
 	
 	public boolean isTitleChanged() {
@@ -235,6 +250,42 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	
 	public boolean isDurationChanged() {
 		return changedAttributes.containsKey("duration");
+	}
+	
+	public boolean isStudentAllowedToAddActivitiesChanged() {
+		return changedAttributes.containsKey("studentAllowedToAddActivities");
+	}
+
+	public boolean isDraft() {
+		return draft;
+	}
+
+	public void setDraft(boolean draft) {
+		this.draft = draft;
+	}
+
+	public boolean isEnrolled() {
+		return enrolled;
+	}
+
+	public void setEnrolled(boolean enrolled) {
+		this.enrolled = enrolled;
+	}
+
+	public long getTargetCompId() {
+		return targetCompId;
+	}
+
+	public void setTargetCompId(long targetCompId) {
+		this.targetCompId = targetCompId;
+	}
+
+	public List<CredentialData> getCredentialsWithIncludedCompetence() {
+		return credentialsWithIncludedCompetence;
+	}
+
+	public void setCredentialsWithIncludedCompetence(List<CredentialData> credentialsWithIncludedCompetence) {
+		this.credentialsWithIncludedCompetence = credentialsWithIncludedCompetence;
 	}
 	
 }

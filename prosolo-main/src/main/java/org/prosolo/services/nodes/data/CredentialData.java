@@ -3,7 +3,6 @@ package org.prosolo.services.nodes.data;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
@@ -50,17 +49,7 @@ public class CredentialData extends StandardObservable implements Serializable {
 	}
 	
 	public void calculateDurationString() {
-		Map<String, Integer> durationMap = TimeUtil.getHoursAndMinutes(this.duration);
-		int hours = durationMap.get("hours");
-		int minutes = durationMap.get("minutes");
-		String duration = hours != 0 ? hours + " hours " : "";
-		if(duration.isEmpty()) {
-			duration = minutes + " minutes";
-		} else if(minutes != 0) {
-			duration += minutes + " minutes";
-		}
-		
-		durationString = duration;
+		durationString = TimeUtil.getHoursAndMinutesInString(this.duration);
 	}
 	
 	//setting course status based on published flag

@@ -1,0 +1,88 @@
+<ui:component
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:courses="http://java.sun.com/jsf/composite/components/courses">
+
+	<composite:interface>
+		<composite:attribute name="activities" required="true" />
+		<composite:attribute name="bean" required="true" />
+		<composite:attribute name="isEdit" required="true" type="java.lang.Boolean" />
+		<composite:attribute name="showMarkedIfCompleted" required="true" type="java.lang.Boolean" />
+	</composite:interface>
+	
+	<composite:implementation>
+		 <div id="#{cc.clientId}">
+		 <div class="whiteBox activitiesList">
+	     <ui:repeat var="act" value="#{cc.attrs.activities}" varStatus="status">
+             <div class="activityItem activityVideo">
+          		<h:panelGroup 
+          			rendered="#{cc.attrs.showMarkedIfCompleted and act.completed}"
+          			styleClass="check">    
+          		</h:panelGroup>
+            		<h:panelGroup
+            			rendered="#{!cc.attrs.showMarkedIfCompleted || !act.completed}"
+            			styleClass="iconType">
+            		</h:panelGroup>
+                    <h3>#{act.title}</h3>
+               <h:panelGroup 
+	               	layout="block" 
+	               	styleClass="editOptions"
+	               	rendered="#{cc.attrs.isEdit}">
+	               	
+                <a href="#" class="linkEdit">Edit</a>
+                    
+                <ui:fragment rendered="#{status.index == cc.attrs.bean.currentNumberOfActivities - 1}">
+					<a href="javascript:void(0);" class="moveDown" disabled="disabled">up</a>
+				</ui:fragment>
+                
+               	<p:commandLink
+               		styleClass="moveDown"
+					rendered="#{status.index != cc.attrs.bean.currentNumberOfActivities - 1}"
+					process="@this"
+					action="#{cc.attrs.bean.moveDown(status.index)}"
+					update=":#{cc.clientId}">
+					down
+				</p:commandLink>
+				
+				<ui:fragment rendered="#{status.index == 0}">
+					<a href="javascript:void(0);" class="moveUp" disabled="disabled">up</a>
+				</ui:fragment>
+			
+				<p:commandLink 
+					styleClass="moveUp"
+					rendered="#{status.index != 0}"
+					process="@this"
+					action="#{cc.attrs.bean.moveUp(status.index)}"
+					update=":#{cc.clientId}">
+					up
+				</p:commandLink>
+                </h:panelGroup>
+                <h:panelGroup
+                	layout="block"
+                	styleClass="duration"
+                	rendered="#{!cc.attrs.isEdit}">
+                	#{act.durationString}
+                </h:panelGroup>
+            </div>
+         </ui:repeat>
+         <div class="activityItem activityText">
+                                <span class="iconType"></span>
+                                <h3>Class aptent taciti sociosqu ad litora torquent</h3>
+                                <div class="editOptions">
+                                    <a href="#" class="linkEdit">Edit</a>
+                                    <a href="#" class="moveUp">up</a>
+                                    <a href="#" class="moveDown">down</a>
+                                </div>
+                            </div>
+        </div>
+        </div>
+	</composite:implementation>
+</ui:component>
