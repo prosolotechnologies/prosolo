@@ -1,5 +1,7 @@
 package org.prosolo.services.nodes;
 
+import java.util.List;
+
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.user.User;
@@ -52,5 +54,8 @@ public interface CredentialManager {
 	 * @throws DbConnectionException
 	 */
 	void addCompetenceToCredential(long credentialId, Competence1 comp) 
+			throws DbConnectionException;
+	
+	List<CredentialData> getCredentialsWithIncludedCompetenceBasicData(long compId) 
 			throws DbConnectionException;
 }

@@ -25,7 +25,13 @@
 	</ui:define>
 
     <ui:define name="resourceTitle">
-    	<h1>#{competenceEditBean.pageHeaderTitle}</h1>
+    	<h:panelGroup id="panelTitle">
+	    	<h1>#{competenceEditBean.pageHeaderTitle}
+	    		<h:panelGroup rendered="#{competenceEditBean.competenceData.competenceId > 0 and !competenceEditBean.competenceData.published}">
+	    			(Draft)
+	    		</h:panelGroup>
+	    	</h1>
+	    </h:panelGroup>
     </ui:define>
     
 	<ui:define name="content">
@@ -64,15 +70,7 @@
                                         			</h:link>
 	                                                <a href="#" class="removeX" data-toggle="tooltip" title="Remove">remove</a>
 	                                            </li>
-                                        	</ui:repeat>
-                                            <li>
-                                                <a href="#">Introduction to Learning Analytics</a>
-                                                <a href="#" class="removeX" data-toggle="tooltip" title="Remove">remove</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">Introduction to Learning Analytics</a>
-                                                <a href="#" class="removeX" data-toggle="tooltip" title="Remove">remove</a>
-                                            </li>
+                                        	</ui:repeat>                                     
                                         </ul>
                                         <input type="text" placeholder="Assign to credential..."></input>
                                     </div>
@@ -108,7 +106,8 @@
                     		activities="#{competenceEditBean.competenceData.activities}"
                     		bean="#{competenceEditBean}"
                     		isEdit="true"
-                    		showMarkedIfCompleted="false"/>
+                    		showMarkedIfCompleted="false"
+                    		isPreview="false"/>
                         <ui:remove><div class="whiteBox activitiesList">
                             <div class="activityItem activityVideo">
                                 <span class="iconType"></span>
@@ -162,7 +161,7 @@
             		publishValue="#{competenceEditBean.competenceData.status}"
             		saveAction="#{competenceEditBean.saveCompetence}"
             		deleteAction="#{competenceEditBean.deleteCompetence}"
-            		toUpdate=":formMain" 
+            		toUpdate=":formMain :panelTitle" 
             		previewAction="#{competenceEditBean.previewCompetence}"/>
             </div>
         </div>

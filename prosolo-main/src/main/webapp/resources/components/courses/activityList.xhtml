@@ -16,6 +16,7 @@
 		<composite:attribute name="bean" required="true" />
 		<composite:attribute name="isEdit" required="true" type="java.lang.Boolean" />
 		<composite:attribute name="showMarkedIfCompleted" required="true" type="java.lang.Boolean" />
+		<composite:attribute name="isPreview" required="true" type="java.lang.Boolean" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -24,14 +25,27 @@
 	     <ui:repeat var="act" value="#{cc.attrs.activities}" varStatus="status">
              <div class="activityItem activityVideo">
           		<h:panelGroup 
-          			rendered="#{cc.attrs.showMarkedIfCompleted and act.completed}"
+          			rendered="#{cc.attrs.showMarkedIfCompleted and !cc.attrs.isPreview and act.completed}"
           			styleClass="check">    
           		</h:panelGroup>
             		<h:panelGroup
-            			rendered="#{!cc.attrs.showMarkedIfCompleted || !act.completed}"
+            			rendered="#{!cc.attrs.showMarkedIfCompleted || !act.completed || cc.attrs.isPreview}"
             			styleClass="iconType">
             		</h:panelGroup>
-                    <h3>#{act.title}</h3>
+            		<h3>
+	            		<ui:fragment rendered="#{cc.attrs.isEdit}">
+	                   		#{act.title}
+	                   		<h:panelGroup rendered="#{!act.published}">(Draft)</h:panelGroup>
+	                   	</ui:fragment>
+	                   	<ui:fragment rendered="#{!cc.attrs.isEdit and !cc.attrs.isPreview}">
+	                   		<a href="competence.html">
+	                   			#{act.title} 
+	                   		</a>
+	                   	</ui:fragment>
+	                   	<ui:fragment rendered="#{!cc.attrs.isEdit and cc.attrs.isPreview}">
+	                   		#{act.title}
+	                   	</ui:fragment>
+	                </h3>
                <h:panelGroup 
 	               	layout="block" 
 	               	styleClass="editOptions"
@@ -81,7 +95,7 @@
                                     <a href="#" class="moveUp">up</a>
                                     <a href="#" class="moveDown">down</a>
                                 </div>
-                            </div>
+         </div>
         </div>
         </div>
 	</composite:implementation>

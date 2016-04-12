@@ -8,13 +8,15 @@
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
 	xmlns:post="http://java.sun.com/jsf/composite/components/post"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:util="http://www.prosolo.com/util">
 
 	<composite:interface>
 		<composite:attribute name="competences" required="true" />
 		<composite:attribute name="bean" required="true" />
 		<composite:attribute name="isEdit" required="true" type="java.lang.Boolean" />
 		<composite:attribute name="startedLearning" required="true" type="java.lang.Boolean" />
+		<composite:attribute name="isPreview" type="java.lang.Boolean" default="false"/>
 	</composite:interface>
 	
 	<composite:implementation>
@@ -27,10 +29,21 @@
                         		#{comp.title}
                         		<h:panelGroup rendered="#{!comp.published}">(Draft)</h:panelGroup>
                         	</ui:fragment>
-                        	<ui:fragment rendered="#{!cc.attrs.isEdit}">
-                        		<a href="credential.html">
-                        			#{comp.title} 
-                        		</a>
+                        	<ui:fragment rendered="#{!cc.attrs.isEdit and !cc.attrs.isPreview}">
+                        		<h:link rendered="#{comp.enrolled}"
+                        			value="#{comp.title}"
+                        			outcome="/competence">
+                        			<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"/>
+                        			<f:param name="targetCompId" value="#{util:encodeId(comp.targetCompId)}"/>
+                        		</h:link>
+                        		<h:link rendered="#{!comp.enrolled}"
+                        			value="#{comp.title}"
+                        			outcome="/competence">
+                        			<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"/>
+                        		</h:link>                   
+                        	</ui:fragment>
+                        	<ui:fragment rendered="#{!cc.attrs.isEdit and cc.attrs.isPreview}">
+                        		#{comp.title}     
                         	</ui:fragment>
                         </h2>
                         <h:panelGroup layout="block" styleClass="editOptions" rendered="#{cc.attrs.isEdit}">
@@ -74,7 +87,7 @@
                         			</h:link>
                         		</ui:fragment>
                             	
-                            	<ui:fragment rendered="#{!cc.attrs.isEdit}">
+                            	<ui:fragment rendered="#{!cc.attrs.isEdit and !cc.attrs.isPreview}">
                         			<ui:fragment rendered="#{cc.attrs.startedLearning}">
 		                            	<h:link 
 		                                	rendered="#{comp.progress == 0}"

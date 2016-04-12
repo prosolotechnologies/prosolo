@@ -8,10 +8,12 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.ResourceCreator;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.PageUtil;
@@ -33,6 +35,7 @@ public class CredentialViewBean implements Serializable {
 
 	private String id;
 	private long decodedId;
+	private String mode;
 	
 	private CredentialData credentialData;
 
@@ -41,8 +44,18 @@ public class CredentialViewBean implements Serializable {
 		decodedId = idEncoder.decodeId(id);
 		if (decodedId > 0) {
 			try {
-				credentialData = credentialManager.getAllCredentialDataForUser(decodedId, 
-						loggedUser.getUser().getId());
+				if("preview".equals(mode)) {
+					credentialData = credentialManager.getCredentialDataForEdit(decodedId, 
+							loggedUser.getUser().getId(), true);
+					ResourceCreator rc = new ResourceCreator();
+					User user = loggedUser.getUser();
+					rc.setFullName(user.getName(), user.getLastname());
+					rc.setAvatarUrl(user.getAvatarUrl());
+					credentialData.setCreator(rc);
+				} else {
+					credentialData = credentialManager.getAllCredentialDataForUser(decodedId, 
+							loggedUser.getUser().getId());
+				}
 				if(credentialData == null) {
 					try {
 						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
@@ -69,6 +82,10 @@ public class CredentialViewBean implements Serializable {
 			credentialData.getCreator().getId() == loggedUser.getUser().getId();
 	}
 	
+	public boolean isPreview() {
+		return "preview".equals(mode);
+	}
+	
 	/*
 	 * ACTIONS
 	 */
@@ -80,7 +97,7 @@ public class CredentialViewBean implements Serializable {
 			lcd.setLearningContext(PageUtil.getPostParameter("context"));
 			lcd.setService(PageUtil.getPostParameter("service"));
 			CredentialData cd = credentialManager.enrollInCredential(decodedId, loggedUser.getUser(), lcd);
-			cd.getId();
+			credentialData = cd;
 		} catch(DbConnectionException e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -118,6 +135,14 @@ public class CredentialViewBean implements Serializable {
 
 	public void setDecodedId(long decodedId) {
 		this.decodedId = decodedId;
+	}
+
+	public String getMode() {
+		return mode;
+	}
+
+	public void setMode(String mode) {
+		this.mode = mode;
 	}
 
 }

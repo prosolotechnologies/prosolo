@@ -33,7 +33,8 @@ public interface Competence1Manager {
 	List<CompetenceData1> getTargetCompetencesData(long targetCredentialId, boolean loadTags) 
 			throws DbConnectionException;
 
-	TargetCompetence1 createTargetCompetence(TargetCredential1 targetCred, CredentialCompetence1 cc);
+	List<TargetCompetence1> createTargetCompetences(long credId, TargetCredential1 targetCred) 
+			throws DbConnectionException;
 	
 	CompetenceData1 getCompetenceData(long compId, boolean loadCreator, boolean loadTags, 
 			boolean loadActivities, boolean shouldTrackChanges) throws DbConnectionException;
@@ -46,7 +47,10 @@ public interface Competence1Manager {
 					throws DbConnectionException;
 	
 	List<CredentialCompetence1> getCredentialCompetences(long credentialId, boolean loadCreator, 
-			boolean loadTags, boolean loadActivities, boolean includeNotPublished) 
+			boolean loadTags, boolean includeNotPublished) 
 					throws DbConnectionException;
+	
+	CompetenceData1 getTargetCompetenceData(long targetCompId, boolean loadActivities, 
+			boolean loadCredentialTitle) throws DbConnectionException;
 
 }

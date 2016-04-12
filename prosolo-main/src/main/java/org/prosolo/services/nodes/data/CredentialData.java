@@ -48,6 +48,19 @@ public class CredentialData extends StandardObservable implements Serializable {
 		this.listenChanges = listenChanges;
 	}
 	
+	@Override
+	public boolean hasObjectChanged() {
+		boolean changed = super.hasObjectChanged();
+		if(!changed) {
+			for(CompetenceData1 cd : getCompetences()) {
+				if(cd.getObjectStatus() != ObjectStatus.UP_TO_DATE) {
+					return true;
+				}
+			}
+		}
+		return changed;
+	}
+	
 	public void calculateDurationString() {
 		durationString = TimeUtil.getHoursAndMinutesInString(this.duration);
 	}

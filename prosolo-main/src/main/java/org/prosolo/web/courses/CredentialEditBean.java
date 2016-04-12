@@ -1,5 +1,6 @@
 package org.prosolo.web.courses;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,6 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.inject.Inject;
 
@@ -108,38 +111,50 @@ public class CredentialEditBean implements Serializable {
 	 */
 	
 	public String saveAndNavigateToCreateCompetence() {
-		//boolean saved = saveCredentialData();
-		boolean saved = true;
+		boolean saved = saveCredentialData(true);
 		if(saved) {
 			return "create-competence.xhtml?faces-redirect=true&credId=" + id;
 		}
 		return null;
 	}
 	
-	public String previewCredential() {
-		boolean saved = saveCredentialData();
+	public void previewCredential() {
+		boolean saved = saveCredentialData(true);
 		if(saved) {
-			return "credential.xhtml?faces-redirect=true&id=" + id;
+			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
+			try {
+				extContext.redirect(extContext.getRequestContextPath() + 
+						"/credential.xhtml?mode=preview&id=" + id);
+			} catch (IOException e) {
+				logger.error(e);
+			}
+			//return "credential.xhtml?faces-redirect=true&id=" + id;
 		}
-		return null;
+		//return null;
 	}
 	
 	public void saveCredential() {
-		saveCredentialData();
+		saveCredentialData(false);
 	}
 	
-	public boolean saveCredentialData() {
+	public boolean saveCredentialData(boolean saveAsDraft) {
 		try {
 			if(credentialData.getId() > 0) {
-				credentialManager.updateCredential(credentialData, 
-						loggedUser.getUser());
+				credentialData.getCompetences().addAll(compsToRemove);
+				if(credentialData.hasObjectChanged()) {
+					if(saveAsDraft) {
+						credentialData.setStatus(PublishedStatus.DRAFT);
+					}
+					credentialManager.updateCredential(credentialData, 
+							loggedUser.getUser());
+				}
 			} else {
 				Credential1 cred = credentialManager.saveNewCredential(credentialData, 
 						loggedUser.getUser());
 				credentialData.setId(cred.getId());
 			}
 			initializeValues();
-			loadCredentialData(credentialData.getId());
+			loadCredentialData(decodedId);
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			return true;
 		} catch(DbConnectionException e) {

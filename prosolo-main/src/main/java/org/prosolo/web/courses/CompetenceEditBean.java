@@ -107,27 +107,39 @@ public class CompetenceEditBean implements Serializable {
 	 * ACTIONS
 	 */
 	
-	public String previewCompetence() {
-		boolean saved = saveCompetenceData();
+	public void previewCompetence() {
+		boolean saved = saveCompetenceData(true);
 		if(saved) {
-			return "competence.xhtml?faces-redirect=true&id=" + 
-					idEncoder.encodeId(competenceData.getCompetenceId());
+			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
+			try {
+				extContext.redirect(extContext.getRequestContextPath() + 
+						"/competence.xhtml?mode=preview&compId=" + id);
+			} catch (IOException e) {
+				logger.error(e);
+			}
+			//return "/competence.xhtml?faces-redirect=true&mode=preview&compId=" + id;
 		}
-		return null;
+		//return null;
 	}
 	
 	public void saveCompetence() {
-		saveCompetenceData();
+		saveCompetenceData(false);
 	}
 	
-	public boolean saveCompetenceData() {
+	public boolean saveCompetenceData(boolean saveAsDraft) {
 		try {
 			if(competenceData.getCompetenceId() > 0) {
-				compManager.updateCompetence(competenceData, 
-						loggedUser.getUser());
+				competenceData.getActivities().addAll(activitiesToRemove);
+				if(competenceData.hasObjectChanged()) {
+					if(saveAsDraft) {
+						competenceData.setStatus(PublishedStatus.DRAFT);
+					}
+					compManager.updateCompetence(competenceData, 
+							loggedUser.getUser());
+				}
 			} else {
 				long credentialId = addToCredential ? decodedCredId : 0;
-				competenceData.setDuration(4);
+				//competenceData.setDuration(4);
 				Competence1 comp = compManager.saveNewCompetence(competenceData, 
 						loggedUser.getUser(), credentialId);
 				competenceData.setCompetenceId(comp.getId());
@@ -143,7 +155,7 @@ public class CompetenceEditBean implements Serializable {
 				}
 			}
 			initializeValues();
-			loadCompetenceData(competenceData.getCompetenceId());
+			loadCompetenceData(decodedId);
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			return true;
 		} catch(DbConnectionException e) {

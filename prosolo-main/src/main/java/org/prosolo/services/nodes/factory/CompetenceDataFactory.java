@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.user.User;
@@ -45,12 +46,6 @@ public class CompetenceDataFactory {
 			comp.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(tags));
 		}
 
-//		if(activities != null) {
-//			for(Activity1 act : activities) {
-//				BasicActivityData bad = activityFactory.getActivityData(act, true);
-//				comp.getActivities().add(bad);
-//			}
-//		}
 		comp.setObjectStatus(ObjectStatus.UP_TO_DATE);
 		
 		if(shouldTrackChanges) {
@@ -68,7 +63,7 @@ public class CompetenceDataFactory {
 	}
 	
 	public CompetenceData1 getCompetenceData(User user, TargetCompetence1 competence, 
-			Set<Tag> tags, boolean shouldTrackChanges) {
+			Set<Tag> tags, Credential1 cred, boolean shouldTrackChanges) {
 		CompetenceData1 comp = new CompetenceData1(false);
 		comp.setCompetenceId(competence.getCompetence().getId());
 		comp.setOrder(competence.getOrder());
@@ -89,13 +84,10 @@ public class CompetenceDataFactory {
 			comp.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(tags));
 		}
 		
-//		if(activities != null) {
-//			for(TargetActivity1 act : activities) {
-//				BasicActivityData bad = activityFactory.getActivityData(act, true);
-//				comp.getActivities().add(bad);
-//			}
-//		}
-		
+		if(cred != null) {
+			comp.setCredentialId(cred.getId());
+			comp.setCredentialTitle(cred.getTitle());
+		}
 		if(shouldTrackChanges) {
 			comp.startObservingChanges();
 		}
