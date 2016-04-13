@@ -111,6 +111,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						.load(Competence1.class, compId);
 				comp.setDeleted(true);
 				
+				if(comp.isHasDraft()) {
+					Competence1 draftVersion = comp.getDraftVersion();
+					comp.setDraftVersion(null);
+					delete(draftVersion);
+				}
+				
 				deleteAllCredentialCompetencesForCompetence(comp.getId());
 	
 				return comp;

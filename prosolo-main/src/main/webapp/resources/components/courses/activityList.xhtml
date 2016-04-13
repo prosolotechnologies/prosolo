@@ -51,7 +51,22 @@
 	               	styleClass="editOptions"
 	               	rendered="#{cc.attrs.isEdit}">
 	               	
-                <a href="#" class="linkEdit">Edit</a>
+                <div class="dropdown optMoreMenu">
+                    <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                        <li><a href="#">Edit</a></li>
+                        <li>
+                        	<p:commandLink
+	                     		value="Remove"
+			            	  	process="@this"
+			            	  	action="#{cc.attrs.bean.setActivityForRemovalIndex(status.index)}"
+			            	  	oncomplete="$('#modalRemoveActivity').modal('show');"
+			            	  	pt:data-toggle="modal">	            
+			            	</p:commandLink>
+			            </li>
+                    </ul>
+                    
+                </div>
                     
                 <ui:fragment rendered="#{status.index == cc.attrs.bean.currentNumberOfActivities - 1}">
 					<a href="javascript:void(0);" class="moveDown" disabled="disabled">up</a>
@@ -87,15 +102,7 @@
                 </h:panelGroup>
             </div>
          </ui:repeat>
-         <div class="activityItem activityText">
-                                <span class="iconType"></span>
-                                <h3>Class aptent taciti sociosqu ad litora torquent</h3>
-                                <div class="editOptions">
-                                    <a href="#" class="linkEdit">Edit</a>
-                                    <a href="#" class="moveUp">up</a>
-                                    <a href="#" class="moveDown">down</a>
-                                </div>
-         </div>
+        
         </div>
         </div>
 	</composite:implementation>

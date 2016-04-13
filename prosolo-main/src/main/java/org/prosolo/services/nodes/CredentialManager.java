@@ -13,7 +13,18 @@ public interface CredentialManager {
 
 	Credential1 saveNewCredential(CredentialData data, User createdBy) throws DbConnectionException;
 	
-	Credential1 deleteCredential(long credId) throws DbConnectionException;
+	/**
+	 * Deletes credential by setting deleted flag to true on original credential and 
+	 * deleting draft version of a credential from database if exists.
+	 * 
+	 * IMPORTANT! Id of original credential should always be passed and not id of a
+	 * draft version.
+	 * @param credId
+	 * @param user
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	Credential1 deleteCredential(long credId, User user) throws DbConnectionException;
 	
 	/**
 	 * Returns credential data for user -

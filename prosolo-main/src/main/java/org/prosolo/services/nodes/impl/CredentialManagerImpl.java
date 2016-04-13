@@ -95,12 +95,19 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = false)
-	public Credential1 deleteCredential(long credId) throws DbConnectionException {
+	public Credential1 deleteCredential(long credId, User user) throws DbConnectionException {
 		try {
 			if(credId > 0) {
 				Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, credId);
 				cred.setDeleted(true);
+				
+				if(cred.isHasDraft()) {
+					Credential1 draftVersion = cred.getDraftVersion();
+					cred.setDraftVersion(null);
+					delete(draftVersion);
+				}
 	
+				eventFactory.generateEvent(EventType.Delete, user, cred);
 				return cred;
 			}
 			return null;

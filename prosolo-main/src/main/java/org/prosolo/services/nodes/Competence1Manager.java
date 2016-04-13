@@ -26,6 +26,16 @@ public interface Competence1Manager {
 	Competence1 saveNewCompetence(CompetenceData1 data, User createdBy, long credentialId) 
 			throws DbConnectionException;
 	
+	/**
+	 * Deletes competence by setting deleted flag to true on original competence and 
+	 * deleting draft version of a competence from database if exists.
+	 * 
+	 * IMPORTANT! Id of original competence should always be passed and not id of a
+	 * draft version.
+	 * @param compId
+	 * @return
+	 * @throws DbConnectionException
+	 */
 	Competence1 deleteCompetence(long compId) throws DbConnectionException;
 	
 	Competence1 updateCompetence(CompetenceData1 data, User user) throws DbConnectionException;

@@ -38,7 +38,7 @@
 
 	<script src="https://use.typekit.net/zvv0dgl.js"></script>
     <script>try{Typekit.load({ async: true });}catch(e){}</script>
-
+	<script src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
     <div class="whiteBar">
 
     </div>
@@ -103,6 +103,7 @@
                     </div>
                     <div role="tabpanel" class="tab-pane fade" id="activities">
                     	<courses:activityList
+                    		id="activityList"
                     		activities="#{competenceEditBean.competenceData.activities}"
                     		bean="#{competenceEditBean}"
                     		isEdit="true"
@@ -159,16 +160,41 @@
             		chooseOptionValue="#{competenceEditBean.competenceData.studentAllowedToAddActivities}"
             		publishValues="#{competenceEditBean.compStatusArray}" 
             		publishValue="#{competenceEditBean.competenceData.status}"
-            		saveAction="#{competenceEditBean.saveCompetence}"
-            		deleteAction="#{competenceEditBean.deleteCompetence}"
+            		saveAction="#{competenceEditBean.save}"
             		toUpdate=":formMain :panelTitle" 
-            		previewAction="#{competenceEditBean.previewCompetence}"/>
+            		previewAction="#{competenceEditBean.preview}"/>
             </div>
         </div>
 
     </div>
     </h:form>
-
-	<script src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
+    
+    <h:form id="formRemoveActivityModal">
+    	<div class="modal fade" id="modalRemoveActivity" tabindex="-1" role="dialog" aria-labelledby="removeActivity">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                        <h2 class="modal-title" id="removeActivity1">Remove Activity?</h2>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to remove this activity from competence?<br></br><br></br>
+                        <small>Note: Activity will not be deleted entirely. In order to do that, go to activity Edit > Delete.</small></p>
+                    </div>
+                    <div class="modal-footer">
+                    	<p:commandLink
+                    		value="Remove"
+                    		styleClass="btn btn-red"
+                    		process="@this"
+                    		action="#{competenceEditBean.removeActivity()}"
+                    		update=":formMain:activityList"
+                    		oncomplete="$('#modalRemoveActivity').modal('hide');">
+                    	</p:commandLink>
+                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </h:form>
 </ui:define>
 </ui:composition>

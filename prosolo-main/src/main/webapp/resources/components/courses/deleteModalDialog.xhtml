@@ -1,0 +1,49 @@
+<ui:component
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+	<composite:interface>
+		<composite:attribute name="deleteAction" required="true" method-signature="void delete()"/>
+		<composite:attribute name="toUpdate" required="true" />
+		<composite:attribute name="modalDeleteTitle" required="true"/>
+		<composite:attribute name="modalDeleteText" required="true"/>
+	</composite:interface>
+	
+	<composite:implementation>
+	    <h:form id="formDeleteModal">  
+       	  <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteCredential">
+               <div class="modal-dialog" role="document">
+                   <div class="modal-content">
+                       <div class="modal-header">
+                           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                           <h2 class="modal-title" id="deleteCredential">Delete #{cc.attrs.modalDeleteTitle}?</h2>
+                       </div>
+                       <div class="modal-body">
+                           <p>Are you sure you want to delete #{cc.attrs.modalDeleteText}?<br></br><br></br>
+                           <small>Note: Action can NOT be un-done!</small></p>
+                       </div>
+                       <div class="modal-footer">
+                       	  <p:commandLink
+                       	  		value="Delete"
+                       	  		styleClass="btn btn-red"
+                       	  		process="@this"
+                        	  	action="#{cc.attrs.deleteAction}"
+        	  					update="#{cc.attrs.toUpdate}"
+        	  					oncomplete="$('#deleteModal').modal('hide');">
+       	  				  </p:commandLink>
+                           <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                       </div>
+                   </div>
+               </div>
+          </div>
+       </h:form>       
+	</composite:implementation>
+</ui:component>
