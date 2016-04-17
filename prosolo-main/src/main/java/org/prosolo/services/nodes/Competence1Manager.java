@@ -26,6 +26,16 @@ public interface Competence1Manager {
 	Competence1 saveNewCompetence(CompetenceData1 data, User createdBy, long credentialId) 
 			throws DbConnectionException;
 	
+	/**
+	 * Deletes competence by setting deleted flag to true on original competence and 
+	 * deleting draft version of a competence from database if exists.
+	 * 
+	 * IMPORTANT! Id of original competence should always be passed and not id of a
+	 * draft version.
+	 * @param compId
+	 * @return
+	 * @throws DbConnectionException
+	 */
 	Competence1 deleteCompetence(long compId) throws DbConnectionException;
 	
 	Competence1 updateCompetence(CompetenceData1 data, User user) throws DbConnectionException;
@@ -33,7 +43,8 @@ public interface Competence1Manager {
 	List<CompetenceData1> getTargetCompetencesData(long targetCredentialId, boolean loadTags) 
 			throws DbConnectionException;
 
-	TargetCompetence1 createTargetCompetence(TargetCredential1 targetCred, CredentialCompetence1 cc);
+	List<TargetCompetence1> createTargetCompetences(long credId, TargetCredential1 targetCred) 
+			throws DbConnectionException;
 	
 	CompetenceData1 getCompetenceData(long compId, boolean loadCreator, boolean loadTags, 
 			boolean loadActivities, boolean shouldTrackChanges) throws DbConnectionException;
@@ -46,7 +57,10 @@ public interface Competence1Manager {
 					throws DbConnectionException;
 	
 	List<CredentialCompetence1> getCredentialCompetences(long credentialId, boolean loadCreator, 
-			boolean loadTags, boolean loadActivities, boolean includeNotPublished) 
+			boolean loadTags, boolean includeNotPublished) 
 					throws DbConnectionException;
+	
+	CompetenceData1 getTargetCompetenceData(long targetCompId, boolean loadActivities, 
+			boolean loadCredentialTitle) throws DbConnectionException;
 
 }

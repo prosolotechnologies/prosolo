@@ -52,6 +52,7 @@ public class CompetenceEditBean implements Serializable {
 	private String activitySearchTerm;
 	private List<Long> activitiesToExcludeFromSearch;
 	private int currentNumberOfActivities;
+	private int activityForRemovalIndex;
 	
 	private PublishedStatus[] compStatusArray;
 	
@@ -107,43 +108,60 @@ public class CompetenceEditBean implements Serializable {
 	 * ACTIONS
 	 */
 	
-	public String previewCompetence() {
-		boolean saved = saveCompetenceData();
+	public void preview() {
+		boolean saved = saveCompetenceData(true, true);
 		if(saved) {
-			return "competence.xhtml?faces-redirect=true&id=" + 
-					idEncoder.encodeId(competenceData.getCompetenceId());
+			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
+			try {
+				extContext.redirect(extContext.getRequestContextPath() + 
+						"/competence.xhtml?mode=preview&compId=" + id);
+			} catch (IOException e) {
+				logger.error(e);
+			}
+			//return "/competence.xhtml?faces-redirect=true&mode=preview&compId=" + id;
 		}
-		return null;
+		//return null;
 	}
 	
-	public void saveCompetence() {
-		saveCompetenceData();
+	public void save() {
+		saveCompetenceData(false, !addToCredential);
+		if(addToCredential) {
+			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
+			try {
+				extContext.redirect(extContext.getRequestContextPath() + 
+						"/create-credential.xhtml?id=" + credId);
+			} catch (IOException e) {
+				logger.error(e);
+			}
+		}
 	}
 	
-	public boolean saveCompetenceData() {
+	public boolean saveCompetenceData(boolean saveAsDraft, boolean reloadData) {
 		try {
 			if(competenceData.getCompetenceId() > 0) {
-				compManager.updateCompetence(competenceData, 
-						loggedUser.getUser());
+				competenceData.getActivities().addAll(activitiesToRemove);
+				if(competenceData.hasObjectChanged()) {
+					if(saveAsDraft) {
+						competenceData.setStatus(PublishedStatus.DRAFT);
+					}
+					compManager.updateCompetence(competenceData, 
+							loggedUser.getUser());
+				}
 			} else {
+				if(saveAsDraft) {
+					competenceData.setStatus(PublishedStatus.DRAFT);
+				}
 				long credentialId = addToCredential ? decodedCredId : 0;
-				competenceData.setDuration(4);
+				//competenceData.setDuration(4);
 				Competence1 comp = compManager.saveNewCompetence(competenceData, 
 						loggedUser.getUser(), credentialId);
 				competenceData.setCompetenceId(comp.getId());
-				
-				if(addToCredential) {
-					ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-					try {
-						extContext.redirect(extContext.getRequestContextPath() + 
-								"/create-credential.xhtml?id=" + credId);
-					} catch (IOException e) {
-						logger.error(e);
-					}
-				}
+				id = idEncoder.encodeId(competenceData.getCompetenceId());
 			}
-			initializeValues();
-			loadCompetenceData(competenceData.getCompetenceId());
+			if(reloadData) {
+				initializeValues();
+				loadCompetenceData(decodedId);
+			}
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			return true;
 		} catch(DbConnectionException e) {
@@ -154,10 +172,14 @@ public class CompetenceEditBean implements Serializable {
 		}
 	}
 	
-	public void deleteCompetence() {
+	public void delete() {
 		try {
 			if(competenceData.getCompetenceId() > 0) {
-				compManager.deleteCompetence(competenceData.getCompetenceId());
+				/*
+				 * passing decodedId because we need to pass id of
+				 * original competence and not id of a draft version
+				 */
+				compManager.deleteCompetence(decodedId);
 				competenceData = new CompetenceData1(false);
 				PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			} else {
@@ -215,6 +237,10 @@ public class CompetenceEditBean implements Serializable {
 		bad2.setOrder(bad2.getOrder() - 1);
 		bad2.statusChangeTransitionBasedOnOrderChange();
 		Collections.swap(activities, i, k);
+	}
+	
+	public void removeActivity() {
+		removeActivity(activityForRemovalIndex);
 	}
 	
 	public void removeActivity(int index) {
@@ -311,6 +337,14 @@ public class CompetenceEditBean implements Serializable {
 
 	public void setCompStatusArray(PublishedStatus[] compStatusArray) {
 		this.compStatusArray = compStatusArray;
+	}
+
+	public int getActivityForRemovalIndex() {
+		return activityForRemovalIndex;
+	}
+
+	public void setActivityForRemovalIndex(int activityForRemovalIndex) {
+		this.activityForRemovalIndex = activityForRemovalIndex;
 	}
 
 }

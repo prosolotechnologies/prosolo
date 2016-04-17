@@ -1,12 +1,9 @@
 package org.prosolo.services.nodes.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -35,6 +32,7 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.data.BasicActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.impl.util.EntityPublishTransition;
@@ -112,6 +110,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				Competence1 comp = (Competence1) persistence.currentManager()
 						.load(Competence1.class, compId);
 				comp.setDeleted(true);
+				
+				if(comp.isHasDraft()) {
+					Competence1 draftVersion = comp.getDraftVersion();
+					comp.setDraftVersion(null);
+					delete(draftVersion);
+				}
 				
 				deleteAllCredentialCompetencesForCompetence(comp.getId());
 	
@@ -221,7 +225,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			if (res != null) {
 				for (TargetCompetence1 targetComp : res) {
 					CompetenceData1 compData = competenceFactory.getCompetenceData(
-							targetComp.getCreatedBy(), targetComp, targetComp.getTags(), true);
+							targetComp.getCreatedBy(), targetComp, targetComp.getTags(), null, true);
 					result.add(compData);
 				}
 			}
@@ -235,7 +239,26 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 	@Override
 	@Transactional(readOnly = false)
-	public TargetCompetence1 createTargetCompetence(TargetCredential1 targetCred, 
+	public List<TargetCompetence1> createTargetCompetences(long credId, TargetCredential1 targetCred) 
+			throws DbConnectionException {
+		try {
+			List<CredentialCompetence1> credComps = getCredentialCompetences(credId, 
+					false, true, false);
+			List<TargetCompetence1> targetComps =  new ArrayList<>();
+			for(CredentialCompetence1 cc : credComps) {
+				TargetCompetence1 targetComp = createTargetCompetence(targetCred, cc);
+				targetComps.add(targetComp);
+			}
+			return targetComps;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while enrolling competences");
+		}
+	}
+	
+	@Transactional(readOnly = false)
+	private TargetCompetence1 createTargetCompetence(TargetCredential1 targetCred, 
 			CredentialCompetence1 cc) {
 		TargetCompetence1 targetComp = new TargetCompetence1();
 		Competence1 comp = cc.getCompetence();
@@ -257,13 +280,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 		saveEntity(targetComp);
 		
-		List<CompetenceActivity1> compActivities = comp.getActivities();
-		if(compActivities != null) {
-			for(CompetenceActivity1 act : compActivities) {
-				TargetActivity1 ta = activityManager.createTargetActivity(targetComp, act);
-				targetComp.getTargetActivities().add(ta);
-			}
-		}
+		List<TargetActivity1> targetActivities = activityManager.createTargetActivities(
+				comp.getId(), targetComp);
+		targetComp.setTargetActivities(targetActivities);
 		
 		return targetComp;
 	}
@@ -273,13 +292,19 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	public CompetenceData1 getCompetenceData(long compId, boolean loadCreator, boolean loadTags, 
 			boolean loadActivities, boolean shouldTrackChanges) throws DbConnectionException {
 		try {
-			Competence1 comp = getCompetence(compId, loadCreator, loadTags, loadActivities);
-			
+			Competence1 comp = getCompetence(compId, loadCreator, loadTags);
+		
 			User creator = loadCreator ? comp.getCreatedBy() : null;
 			Set<Tag> tags = loadTags ? comp.getTags() : null;
 			
 			CompetenceData1 compData = competenceFactory.getCompetenceData(
 					creator, comp, tags, shouldTrackChanges);
+			
+			if(loadActivities) {
+				List<BasicActivityData> activities = activityManager.getCompetenceActivitiesData(compId);
+				compData.setActivities(activities);
+			}
+			
 			return compData;
 		} catch(Exception e) {
 			logger.error(e);
@@ -289,8 +314,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	}
 	
 	@Transactional(readOnly = true)
-	private Competence1 getCompetence(long compId, boolean loadCreator, boolean loadTags,
-			boolean loadActivities) {
+	private Competence1 getCompetence(long compId, boolean loadCreator, boolean loadTags) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("SELECT comp " + 
 					   "FROM Competence1 comp ");
@@ -300,26 +324,27 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		if(loadTags) {
 			builder.append("LEFT JOIN fetch comp.tags tags ");
 		}
-		if(loadActivities) {
-			builder.append("LEFT JOIN fetch comp.activities compAct " +
-					       "LEFT JOIN fetch compAct.activity act ");
-		}
+//		if(loadActivities) {
+//			builder.append("LEFT JOIN fetch comp.activities compAct " +
+//					       "INNER JOIN fetch compAct.activity act ");
+//		}
 		builder.append("WHERE comp.id = :compId " +
-				   "comp.deleted = :deleted " + 
+				   "AND comp.deleted = :deleted " + 
 				   "AND (comp.published = :published OR (comp.published = :notPublished " +
 				   "AND comp.hasDraft = :hasDraft)) " +
 				   "AND comp.draft = :draft ");
-		if(loadActivities) {
-			builder.append("AND (act is null or " +
-				   "(act.deleted = :deleted " +
-				   "AND (act.published = :published OR (act.published = :notPublished " +
-				   "AND act.hasDraft = :hasDraft)) " +
-				   "AND act.draft = :draft))");
-		}
+//		if(loadActivities) {
+//			builder.append("AND (act is null or " +
+//				   "(act.deleted = :deleted " +
+//				   "AND (act.published = :published OR (act.published = :notPublished " +
+//				   "AND act.hasDraft = :hasDraft)) " +
+//				   "AND act.draft = :draft))");
+//		}
 
+		logger.info("QUERY: " + builder.toString());
 		Competence1 res = (Competence1) persistence.currentManager()
 			.createQuery(builder.toString())
-			.setEntity("compId", compId)
+			.setLong("compId", compId)
 			.setBoolean("deleted", false)
 			.setBoolean("published", true)
 			.setBoolean("notPublished", false)
@@ -371,9 +396,13 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				}
 				if(cd != null && loadActivities) {
 					List<BasicActivityData> activities = activityManager
-							.getCompetenceActivities(cd.getCompetenceId());
+							.getCompetenceActivitiesData(cd.getCompetenceId());
 					cd.setActivities(activities);
 				}
+				
+				List<CredentialData> credentials = credentialManager
+						.getCredentialsWithIncludedCompetenceBasicData(res.getId());
+				cd.setCredentialsWithIncludedCompetence(credentials);
 				return cd;
 			}
 			
@@ -596,7 +625,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		List<CompetenceData1> result = new ArrayList<>();
 		try {
 			List<CredentialCompetence1> res = getCredentialCompetences(credentialId, 
-					loadCreator, loadTags, loadActivities, includeNotPublished);
+					loadCreator, loadTags, includeNotPublished);
 
 			for (CredentialCompetence1 credComp : res) {
 				User creator = loadCreator ? credComp.getCompetence().getCreatedBy() : null;
@@ -604,6 +633,13 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				
 				CompetenceData1 compData = competenceFactory.getCompetenceData(
 						creator, credComp, tags, true);
+				
+				if(loadActivities) {
+					List<BasicActivityData> activities = activityManager.getCompetenceActivitiesData(
+							credComp.getCompetence().getId());
+					compData.setActivities(activities);
+				}
+				
 				result.add(compData);
 			}
 			return result;
@@ -617,7 +653,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Override
 	@Transactional(readOnly = true)
 	public List<CredentialCompetence1> getCredentialCompetences(long credentialId, boolean loadCreator, 
-			boolean loadTags, boolean loadActivities, boolean includeNotPublished) 
+			boolean loadTags, boolean includeNotPublished) 
 					throws DbConnectionException {
 		try {
 			Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, 
@@ -633,10 +669,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			if(loadTags) {
 				builder.append("LEFT JOIN fetch comp.tags tags ");
 			}
-			if(loadActivities) {
-				builder.append("LEFT JOIN fetch comp.activities compAct " +
-							   "LEFT JOIN fetch compAct.activity act ");
-			}
+	
 			builder.append("WHERE credComp.credential = :credential " + 
 					   "AND comp.deleted = :deleted " + 
 					   "AND comp.draft = :draft " +
@@ -645,18 +678,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			if(!includeNotPublished) {
 				builder.append("AND (comp.published = :published OR (comp.published = :notPublished " +
 						   	   "AND comp.hasDraft = :hasDraft)) ");
-			}
-			
-			if(loadActivities) {
-				builder.append("AND (act is null or " +
-					   "(act.deleted = :deleted " +
-					   "AND act.draft = :draft ");
-				
-				if(!includeNotPublished) {
-					builder.append("AND (act.published = :published OR (act.published = :notPublished " +
-							       "AND act.hasDraft = :hasDraft))");
-				}
-				builder.append("))");
 			}
 			
 			builder.append("ORDER BY credComp.order");
@@ -683,6 +704,59 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while loading credential competences data");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public CompetenceData1 getTargetCompetenceData(long targetCompId, boolean loadActivities, 
+			boolean loadCredentialTitle) throws DbConnectionException {
+		CompetenceData1 compData = null;
+		try {			
+			String query = "SELECT targetComp " +
+						   "FROM TargetCompetence1 targetComp " + 
+						   "INNER JOIN fetch targetComp.createdBy user " + 
+						   "LEFT JOIN fetch targetComp.tags tags " +
+						   "WHERE targetComp.id = :id";
+
+			TargetCompetence1 res = (TargetCompetence1) persistence.currentManager()
+					.createQuery(query)
+					.setLong("id", targetCompId)
+					.uniqueResult();
+
+			if (res != null) {
+				Credential1 cred = null;
+				if(loadCredentialTitle) {
+					String query1 = "SELECT cred.id, cred.title " +
+									"FROM TargetCompetence1 comp " +
+									"INNER JOIN TargetCredential1 targetCred " +
+									"INNER JOIN targetCred.credential cred " +
+									"WHERE comp = :comp";
+					Object[] credentialData = (Object[]) persistence.currentManager()
+							.createQuery(query1)
+							.setEntity("comp", res)
+							.uniqueResult();
+					
+					cred = new Credential1();
+					cred.setId((long) credentialData[0]);
+					cred.setTitle((String) credentialData[1]);
+					
+				}
+				compData = competenceFactory.getCompetenceData(res.getCreatedBy(), res, 
+						res.getTags(), cred, true);
+				
+				if(compData != null && loadActivities) {
+					List<BasicActivityData> activities = activityManager
+							.getTargetActivitiesData(targetCompId);
+					compData.setActivities(activities);
+				}
+				return compData;
+			}
+			return null;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading competence data");
 		}
 	}
 

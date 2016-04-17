@@ -1,5 +1,8 @@
 package org.prosolo.services.nodes.data;
 
+import org.prosolo.common.util.ImageFormat;
+import org.prosolo.web.util.AvatarUtils;
+
 public class ResourceCreator {
 
 	private long id;
@@ -14,6 +17,14 @@ public class ResourceCreator {
 		this.name = creatorName;
 		this.id = creatorId;
 		this.avatar = creatorAvatar;
+	}
+	
+	public void setFullName(String name, String lastName) {
+		this.name = name + (lastName != null ? " " + lastName : "");
+	}
+	
+	public void setAvatarUrl(String avatarUrl) {
+		this.avatar = AvatarUtils.getAvatarUrlInFormat(avatarUrl, ImageFormat.size60x60);
 	}
 
 	public String getName() {

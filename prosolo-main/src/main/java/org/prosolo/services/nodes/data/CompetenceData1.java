@@ -29,10 +29,15 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	//true if this is data for draft version of credential
 	private boolean draft;
 	
+	private long resumeFromId;
 	private boolean enrolled;
+	private boolean started;
 	private long targetCompId;
 	private int progress;
 	private ResourceCreator creator;
+	
+	private long credentialId;
+	private String credentialTitle;
 	
 	private ObjectStatus objectStatus;
 	
@@ -43,6 +48,44 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 		activities = new ArrayList<>();
 		credentialsWithIncludedCompetence = new ArrayList<>();
 		this.listenChanges = listenChanges;
+	}
+	
+	@Override
+	public boolean hasObjectChanged() {
+		boolean changed = super.hasObjectChanged();
+		if(!changed) {
+			for(BasicActivityData bad : getActivities()) {
+				if(bad.getObjectStatus() != ObjectStatus.UP_TO_DATE) {
+					return true;
+				}
+			}
+		}
+		return changed;
+	}
+	
+	/**
+	 * Called when you need to determine if learning started for this
+	 * competence. After calling this method {@link #isStarted()} method
+	 * will tell you if user started learning.
+	 */
+	public void determineIfStartedWorkingOnCompetence() {
+		if(!getActivities().isEmpty()) {
+			setStarted(getActivities().get(0).isCompleted());
+		}
+	}
+	
+	/**
+	 * Called when you want to set id of first uncompleted activity in a
+	 * competence. After calling this method, {@link #getResumeFromId()} 
+	 * will give you id of first uncompleted activity
+	 */
+	public void determineActivityFromWhichToStartLearning() {
+		for(BasicActivityData bad : getActivities()) {
+			if(!bad.isCompleted()) {
+				setResumeFromId(bad.getActivityId());
+				break;
+			}
+		}
 	}
 	
 	/** 
@@ -286,6 +329,38 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 
 	public void setCredentialsWithIncludedCompetence(List<CredentialData> credentialsWithIncludedCompetence) {
 		this.credentialsWithIncludedCompetence = credentialsWithIncludedCompetence;
+	}
+
+	public long getCredentialId() {
+		return credentialId;
+	}
+
+	public void setCredentialId(long credentialId) {
+		this.credentialId = credentialId;
+	}
+
+	public String getCredentialTitle() {
+		return credentialTitle;
+	}
+
+	public void setCredentialTitle(String credentialTitle) {
+		this.credentialTitle = credentialTitle;
+	}
+
+	public boolean isStarted() {
+		return started;
+	}
+
+	public void setStarted(boolean started) {
+		this.started = started;
+	}
+
+	public long getResumeFromId() {
+		return resumeFromId;
+	}
+
+	public void setResumeFromId(long resumeFromId) {
+		this.resumeFromId = resumeFromId;
 	}
 	
 }

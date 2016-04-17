@@ -15,10 +15,9 @@
 		<composite:attribute name="chooseOptionValue" required="true" />
 		<composite:attribute name="publishValues" required="true" />
 		<composite:attribute name="publishValue" required="true" />
-		<composite:attribute name="saveAction" required="true" method-signature="void saveCredential()"/>
-		<composite:attribute name="deleteAction" required="true" method-signature="void deleteCredential()"/>
+		<composite:attribute name="saveAction" required="true" method-signature="void save()"/>
 		<composite:attribute name="toUpdate" required="true" />
-		<composite:attribute name="previewAction" required="true" method-signature="void previewCredential()"/>
+		<composite:attribute name="previewAction" required="true" method-signature="void preview()"/>
 	</composite:interface>
 	
 	<composite:implementation>
@@ -53,12 +52,7 @@
               	  	update="#{cc.attrs.toUpdate}">
               	  		Save changes
               	  </p:commandLink>
-              	  <p:commandLink 
-              	  	styleClass="linkRed" 
-              	  	action="#{cc.attrs.deleteAction}"
-              	  	update="#{cc.attrs.toUpdate}">
-              	  		Delete
-              	  </p:commandLink>
+              	  <a href="#" class="linkRed" data-toggle="modal" data-target="#deleteModal">Delete</a>      
               </div>
           </div>
 	</composite:implementation>

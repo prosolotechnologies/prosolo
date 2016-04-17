@@ -1,5 +1,6 @@
 package org.prosolo.services.nodes.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -94,12 +95,19 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = false)
-	public Credential1 deleteCredential(long credId) throws DbConnectionException {
+	public Credential1 deleteCredential(long credId, User user) throws DbConnectionException {
 		try {
 			if(credId > 0) {
 				Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, credId);
 				cred.setDeleted(true);
+				
+				if(cred.isHasDraft()) {
+					Credential1 draftVersion = cred.getDraftVersion();
+					cred.setDraftVersion(null);
+					delete(draftVersion);
+				}
 	
+				eventFactory.generateEvent(EventType.Delete, user, cred);
 				return cred;
 			}
 			return null;
@@ -553,7 +561,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			if(comps != null) {
 				for(TargetCompetence1 tc : comps) {
 					CompetenceData1 compData = competenceFactory.getCompetenceData(null, tc, null, 
-							true);
+							null, true);
 					cd.getCompetences().add(compData);
 				}
 			}
@@ -609,12 +617,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		targetCred.setCreatedBy(cred.getCreatedBy());
 		saveEntity(targetCred);
 		
-		List<CredentialCompetence1> credComps = compManager.getCredentialCompetences(cred.getId(), 
-				false, true, true, false);
-		for(CredentialCompetence1 cc : credComps) {
-			TargetCompetence1 targetComp = compManager.createTargetCompetence(targetCred, cc);
-			targetCred.getTargetCompetences().add(targetComp);
-		}
+		List<TargetCompetence1> targetComps = compManager.createTargetCompetences(cred.getId(), 
+				targetCred);
+		targetCred.setTargetCompetences(targetComps);
 		
 		return targetCred;
 	}
@@ -689,7 +694,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    
 		saveEntity(draftCred);	
 
-		List<CredentialCompetence1> comps = compManager.getCredentialCompetences(originalCredentialId, false, false, false, true);
+		List<CredentialCompetence1> comps = compManager.getCredentialCompetences(originalCredentialId, 
+				false, false, true);
 	    if(comps != null) {
     		for(CredentialCompetence1 cc : comps) {
     			CredentialCompetence1 cc1 = new CredentialCompetence1();
@@ -702,6 +708,44 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    }
 	    
 		return draftCred;
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<CredentialData> getCredentialsWithIncludedCompetenceBasicData(long compId) 
+			throws DbConnectionException {
+		try {
+			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, compId);
+			String query = "SELECT cred.id, cred.title " +
+					       "FROM CredentialCompetence1 credComp " +
+					       "INNER JOIN credComp.credential cred " +
+					       "WHERE credComp.competence = :comp " +
+					       "AND cred.draft = :draft " +
+					       "AND cred.deleted = :deleted";
+			@SuppressWarnings("unchecked")
+			List<Object[]> res = persistence.currentManager()
+									.createQuery(query)
+									.setEntity("comp", comp)
+									.setBoolean("draft", false)
+									.setBoolean("deleted", false)
+									.list();
+			if(res == null) {
+				return new ArrayList<>();
+			}
+			
+			List<CredentialData> resultList = new ArrayList<>();
+			for(Object[] row : res) {
+				CredentialData cd = new CredentialData(false);
+				cd.setId((long) row[0]);
+				cd.setTitle((String) row[1]);
+				resultList.add(cd);
+			}
+			return resultList;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading credential data");
+		}
 	}
 	
 }
