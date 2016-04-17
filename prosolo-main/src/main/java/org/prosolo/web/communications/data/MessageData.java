@@ -73,7 +73,7 @@ public class MessageData implements Serializable, Comparable<MessageData> {
 
 	public String getShortContent() {
 		String shortContent = this.getMessage();
-		int length = 100;
+		int length = 30;
 		
 		if (shortContent != null && shortContent.length() > length) {
 			shortContent = shortContent.substring(0, length) + "...";

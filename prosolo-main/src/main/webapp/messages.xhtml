@@ -3,7 +3,7 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui"
-	template="templates/masterLayout.xhtml"
+	template="templates/masterLayout2.xhtml"
 	xmlns:c="http://java.sun.com/jsp/jstl/core"
 	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
 	xmlns:post="http://java.sun.com/jsf/composite/components/post"
@@ -15,152 +15,130 @@
 
 <ui:define name="metadata">
 	<f:metadata>
-		<f:viewParam name="id" value="#{messagesBean.threadId}" />
-		
+		<f:viewParam name="id" value="#{messagesBean.threadId}" />		
 		<f:viewAction action="#{messagesBean.init()}" />
 	</f:metadata>
 </ui:define>
 
-<ui:define name="content">
+    <ui:define name="resourceTitle">
+    	<h1>Message Center</h1>
+    		<ul class="nav nav-tabs headerSubmenu">
+                <li role="presentation" class="active"><a href="#">Messages</a></li>
+                <li role="presentation"><a href="#">Assessments</a></li>
+            </ul>
 
-	<div id="messageThreads" class="container tabbedLayout">
+    </ui:define>
+
+	<ui:define name="content">
 	
-		<div class="leftSidebar">
-			<h:panelGroup layout="block" id="messageItemsContainer" class="leftNav">
-				<ul class="itemsContainer">
-					<ui:repeat value="#{topInboxBean.messagesThreads}" var="messageThreadData" varStatus="iterator">
+	<script src="https://use.typekit.net/zvv0dgl.js"></script>
+    <script>try{Typekit.load({ async: true });}catch(e){}</script>
+    <div class="whiteBar"></div>
+    
+    
 
-						<li class="conversation conversation#{messageThreadData.id} item #{messageThreadData.id == messagesBean.threadData.id ? 'selected' : ''}">
-							
-							<p:commandLink styleClass=""
-								action="#{messagesBean.changeThread(messageThreadData)}"
-								update=":messagesForm:messagesContainer"
-								onclick="changeConversation(#{messageThreadData.id})">
-								
-								<h:panelGroup rendered="#{messageThreadData.participantsWithoutLoggedUser.size() == 1}">
-					    			<img class="imageRound image30 left" 
-					    				src="#{messageThreadData.participantsWithoutLoggedUser.get(0).avatarUrl != null ? messageThreadData.participantsWithoutLoggedUser.get(0).avatarUrl : colleguesBean.avatarUrlByUserId(messageThreadData.participantsWithoutLoggedUser.get(0).id, 60)}" 
-										width="30" height="30" alt="#{messageThreadData.participantsWithoutLoggedUser.get(0).name}" />
-										
-									<div class="contentContainer">
-										<span class="user">
-											#{messageThreadData.participantsWithoutLoggedUser.get(0).name}
-										</span>
-										<span class="time">
-											#{messageThreadData.updateTime}
-										</span>
-		
-										<div class="clear"></div>
-		
-										<span>
-											"#{messageThreadData.latest.shortContent}"
-										</span>
-									</div>
-								</h:panelGroup>
-								<div class="clear"></div>
-							</p:commandLink>
-								
-							<ui:remove>
-							<h:panelGroup rendered="#{messageThreadData.participantsWithoutLoggedUser.size() > 1}">
-								<div class="avatars">
-									<ui:repeat value="#{messageThreadData.participantsWithoutLoggedUser}" var="participantDataAvatar">
-										<img class="imageRound image30 left" 
-						    				src="#{participantDataAvatar.avatarUrl != null ? participantDataAvatar.avatarUrl : colleguesBean.avatarUrlByUserId(participantDataAvatar.id, 60)}" 
-											width="30" height="30" alt="#{participantDataAvatar.name}" />
-									</ui:repeat>
-								</div>
-								<div class="clear"></div>
-								
-								<span class="users">
-									#{messageThreadData.participantsListWithoutLoggedUser}
-								</span>
-							</h:panelGroup>
-							</ui:remove>
-						</li>
-					</ui:repeat>
-				</ul>
-				
-				<script>
-					roundImages();
-				</script>
-			</h:panelGroup>	
-			
-		</div><!-- .leftSidebar -->
-		
-		<div class="content">
-		
-			<h:form id="messagesForm" prependId="false">
-	            
-	            <h:panelGroup layout="block" id="messagesContainer">
-				
-					<p>Conversation with 
-						<span class="bold">
-							#{messagesBean.threadData.participantsListWithoutLoggedUser}
-						</span>
-					</p>
-	            
-					<p:commandLink styleClass="loadMore" 
-						rendered="#{messagesBean.loadMore}"
-						action="#{messagesBean.loadMore()}"
-			       		update=":messagesForm:messagesContainer"
-			       		value="Show previous messages"
-			       	/>
-		            <div class="clear marginBottom10"></div>
-
-					<ui:repeat value="#{messagesBean.messages}" var="message" varStatus="iterator">
-			            
-						<div class="box messageItem">
-							<div class="avatar">
-								<link:user value="userDetailsImage" 
-				    				userData="#{message.actor}"
-				    				mode="image"
-				    				imageSize="48"
-				    				idPrefix="messageParticipantImage#{iterator.index}"
-				    				context="message.image"/>
-							</div>
-							
-							<div class="text">
-								<div class="user left">
-									<link:user value="userDetails" 
-					    				userData="#{message.actor}"
-					    				divClass="bold"
-					    				mode="name"
-					    				idPrefix="messageParticipant#{iterator.index}"
-					    				context="message.name"/>
-								</div>							
-								<div class="date">#{message.date}</div>
-				                <div class="clear"></div>
-								<div class="messageContent">#{message.content}</div>
-							</div>
-			            </div>
-		            </ui:repeat>
-	            </h:panelGroup>
-			
-				<post:newpostNoForm value="messageReply" id="messageReply" 
-					content="#{messagesBean.messageData}" 
-					createPostAction="#{messagesBean.createNewPost()}"
-					containerDiv="#messageThreads"
-					linkEnabled="false"
-					watermark="Reply..."
-					regionToRefresh=":messagesForm:messagesContainer :messageItemsContainer"
-					actionButtonName="Reply"
-				/>
-				
-				<p:growl id="messagesFormGrowl" for="messagesFormGrowl" showDetail="true" />
-				
-				<script>
-				$(function() {
-					roundImages();
-				});
-				</script>
-			</h:form>
-		</div><!-- .content -->
-	</div><!-- .container end -->
+	<div class="container">
+        <div class="row">
+        
+           <!-- rendered when there is no messages -->
+                <h:panelGroup layout="block" class="col-md-3" rendered="#{topInboxBean.messagesThreads.size() == 0}">
+            	 </h:panelGroup>
+            	 <h:panelGroup class="col-md-6 messageColumn" rendered="#{topInboxBean.messagesThreads.size() == 0}">
+                 	<section class="whiteBox messagesPane noSelected">
+                    	<h2>You don't have any messages yet.</h2>
+                    	<a href="#" class="btn btn-green">Send a message</a>
+                 	</section>
+                 </h:panelGroup>
+           <!-- end no messages rendering -->
+        
+            <!-- END LEFT MESSAGE PANEL(VIEW OF THREADS) -->
+            <h:panelGroup layout="block" class="col-md-3" rendered="#{topInboxBean.messagesThreads.size() > 0}">
+                <div class="messagesListHead">
+                    <div class="dropdown showDrop">
+                        <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            Inbox
+                            <span class="arrowDown">arrowDown</span>
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                            <li><a href="#">Inbox</a></li>
+                            <li><a href="#">Archive</a></li>
+                        </ul>
+                    </div>
+                    <a href="message-new.html" class="newMessageBtn"><span></span>New Message</a>
+                </div>
+                
+                <div class="messagesList">
+                	<ul>
+	                	<ui:repeat value="#{topInboxBean.messagesThreads}" var="messageThreadData" varStatus="iterator">
+	                		 <li thread-id="#{messageThreadData.id}" class="#{messageThreadData.id == messagesBean.threadData.id ? 'active' : ''}">
+	                		 	<p:commandLink 
+									action="#{messagesBean.changeThread(messageThreadData)}"
+									update=":messagesForm:messagesContainer"
+									onclick="changeConversation(#{messageThreadData.id})">
+								<div class="media">
+	                                <div class="media-left">
+	                                    <img src="#{messageThreadData.participantsWithoutLoggedUser.get(0).avatarUrl != null 
+	                                    				? messageThreadData.participantsWithoutLoggedUser.get(0).avatarUrl 
+	                                    				: colleguesBean.avatarUrlByUserId(messageThreadData.participantsWithoutLoggedUser.get(0).id, 60)}" 
+	                                    class="img-circle media-object" width="36" height="36" alt="#{messageThreadData.participantsWithoutLoggedUser.get(0).name}" />
+	                                </div>
+	                                <div class="media-body">
+	                                    <h3 class="media-heading">#{messageThreadData.participantsWithoutLoggedUser.get(0).name}</h3>
+	                                    <span>#{messageThreadData.updateTime}</span>
+	                                    <div class="clear"></div>
+	                                    <p style="color: #859095 !important;">#{messageThreadData.latest.shortContent}</p>
+	                                </div>
+	                            </div>
+	                            </p:commandLink>
+	                            <span class="unread hidden"></span>
+	                		 </li>
+	                	</ui:repeat>
+                	</ul>
+                </div>
+              </h:panelGroup>
+              <!-- END LEFT MESSAGE PANEL(VIEW OF THREADS) -->
+              
+              <!-- BEGIN MESSAGE PANEL FOR DISPLAYING/SENDING MESSAGES -->
+              <h:form id="messagesForm" prependId="false" >
+	          	<h:panelGroup layout="block" id="messagesContainer" class="col-md-6 messageColumn">
+	          		<section class="whiteBox messagesPane">
+	          			<div class="messagePaneHead">
+                        <h2>#{messagesBean.threadData.participantsListWithoutLoggedUser}</h2>
+                        <div class="dropdown messageMenu">
+                            <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">message menu</a>
+                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
+                                <li><a href="#">Archive</a></li>
+                                <li><a href="#">Delete Conversation</a></li>
+                            </ul>
+                        </div>
+                    	</div>
+                    	<div class="greyBar"></div>
+                    	<div class="innerWrapper">
+                    		<ui:repeat value="#{messagesBean.messages}" var="message" varStatus="iterator">
+                    			<div class="media">
+                            		<div class="media-left">
+                                		<img src="#{message.actor.avatarUrl}" class="img-circle media-object" width="32" height="32" alt="#{message.actor.name}" />
+                            		</div>
+                            		<div class="media-body">
+                                		<h3 class="media-heading">#{message.actor.name}</h3>
+                               			<span>#{message.date}</span>
+                                		<div class="clear"></div>
+                                		<p>#{message.content}</p>
+                            		</div>
+                        		</div>
+                    		</ui:repeat>
+                    	</div>
+	          		</section>
+	          	</h:panelGroup>
+	          </h:form>
+	          <!-- END MESSAGE PANEL FOR DISPLAYING/SENDING MESSAGES -->
+            </div>
+    </div>
 	
 	<script>
 		function changeConversation(threadId) {
-			$('#messageThreads .leftNav .conversation').removeClass('selected');
-			$('#messageThreads .leftNav .conversation'+threadId).addClass('selected');
+			$('.messagesList li.active').removeClass('active');
+			$('.messagesList li[thread-id='+threadId+']').addClass('active');
 			setQueryParam('id', threadId);
 		}
 		

@@ -57,13 +57,17 @@ public class MessagesBean implements Serializable {
 	
 	private long decodedThreadId;
 	
+	private enum MessageProcessingResult {
+		OK, FORBIDDEN, ERROR, NO_MESSAGES
+	}
+	
 	public void init() {
 		
 		decodedThreadId = idEncoder.decodeId(threadId);
 		
-		boolean hasAccess = tryToInitMessages();
+		MessageProcessingResult result = tryToInitMessages();
 
-		if (!hasAccess) {
+		if (result.equals(MessageProcessingResult.FORBIDDEN)) {
 			try {
 				PageUtil.sendToAccessDeniedPage();
 			} catch (IOException e) {
@@ -72,7 +76,7 @@ public class MessagesBean implements Serializable {
 		}
 	}
 
-	private boolean tryToInitMessages() {
+	private MessageProcessingResult tryToInitMessages() {
 		MessageThread thread = null;
 		
 		if (decodedThreadId == 0) {
@@ -81,7 +85,7 @@ public class MessagesBean implements Serializable {
 			if (thread != null) {
 				return initializeThreadData(thread);
 			}
-			return false;
+			else return MessageProcessingResult.NO_MESSAGES;
 		}
 		
 		if (loggedUser != null && loggedUser.isLoggedIn()) {
@@ -91,38 +95,35 @@ public class MessagesBean implements Serializable {
 					
 					if (thread == null) {
 						logger.info("User "+loggedUser.getUser()+" tried to open messages page for nonexisting messages thread with id: " + threadId);
-						
-						return false;
+						return MessageProcessingResult.FORBIDDEN;
 					}
 				
 					return initializeThreadData(thread);
 				} catch (ResourceCouldNotBeLoadedException e) {
 					logger.error(e);
-					
-					return false;
+					return MessageProcessingResult.ERROR;
 				}
 			}
-		} else {
+		} 
+		else {
 			logger.info("Not logged-in user tried to open messages page with thread id: " + threadId);
-			
-			return false;
+			return MessageProcessingResult.FORBIDDEN;
 		}
-		return true;
+		return MessageProcessingResult.OK;
 	}
 
-	private boolean initializeThreadData(MessageThread thread) {
+	private MessageProcessingResult initializeThreadData(MessageThread thread) {
 		this.threadData = new MessagesThreadData(thread, loggedUser.getUser());
 		this.receivers = threadData.getParticipants();
 		
 		if (!threadData.containsParticipant(loggedUser.getUser().getId())) {
 			logger.info("User "+loggedUser.getUser()+" doesn't have permisisons to view messages thread with id " + threadId);
-			
-			return false;
+			return MessageProcessingResult.FORBIDDEN;
 		} else {
 			this.messages = new LinkedList<MessageData>();
 			loadMessages();
 		}
-		return true;
+		return MessageProcessingResult.OK;
 	}
 	
 	public void changeThread(MessagesThreadData threadData) {

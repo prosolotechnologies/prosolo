@@ -254,7 +254,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	@Override
 	@Transactional(readOnly = true)
 	public MessageThread findMessagesThreadForUsers(long user1Id, long user2Id) {
-		String query = "SELECT DISTINCT thread " + "FROM MessagesThread thread "
+		String query = "SELECT DISTINCT thread " + "FROM MessageThread thread "
 				+ "LEFT JOIN thread.participants participant1 " + "LEFT JOIN thread.participants participant2 "
 				+ "WHERE participant1.id = :userid1 " + "AND participant2.id = :userid2";
 
@@ -278,7 +278,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	@Override
 	@Transactional(readOnly = true)
 	public List<MessageThread> getLatestUserMessagesThreads(User user, int page, int limit) {
-		String query = "SELECT DISTINCT thread " + "FROM MessagesThread thread "
+		String query = "SELECT DISTINCT thread " + "FROM MessageThread thread "
 				+ "LEFT JOIN thread.participants participants " + "WHERE :receiver IN (participants)  "
 				+ "ORDER BY thread.lastUpdated DESC";
 
@@ -306,7 +306,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	@Override
 	@Transactional(readOnly = true)
 	public List<Message> getUnreadSimpleOfflineMessages(User user, int page, int limit) {
-		String query = "SELECT DISTINCT message " + "FROM SimpleOfflineMessage message "
+		String query = "SELECT DISTINCT message " + "FROM Message message "
 				+ "WHERE message.receiver = :receiver " + "AND message.read = :read "
 				+ "ORDER BY message.dateCreated DESC";
 
@@ -332,7 +332,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	@Override
 	@Transactional(readOnly = true)
 	public List<Message> getSimpleOfflineMessages(User user, int page, int limit) {
-		String query = "SELECT DISTINCT message " + "FROM SimpleOfflineMessage as message "
+		String query = "SELECT DISTINCT message " + "FROM Message as message "
 				+ "LEFT JOIN message.receiver receiver " + "WHERE receiver = :receiver "
 				+ "ORDER BY message.dateCreated DESC";
 
@@ -350,7 +350,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	@Override
 	@Transactional(readOnly = true)
 	public List<Message> getMessagesForThread(long threadId, int offset, int limit) {
-		String query = "SELECT DISTINCT message " + "FROM MessagesThread thread " + "LEFT JOIN thread.messages message "
+		String query = "SELECT DISTINCT message " + "FROM MessageThread thread " + "LEFT JOIN thread.messages message "
 				+ "WHERE thread.id = :threadId " + "ORDER BY message.dateCreated DESC";
 
 		@SuppressWarnings("unchecked")
@@ -368,7 +368,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	@Transactional(readOnly = true)
 	public List<Message> getMessagesForThread(MessageThread thread, int page, int limit,
 			Session session) {
-		String query = "SELECT DISTINCT message " + "FROM MessagesThread thread " + "LEFT JOIN thread.messages message "
+		String query = "SELECT DISTINCT message " + "FROM MessageThread thread " + "LEFT JOIN thread.messages message "
 				+ "WHERE thread = :thread " + "ORDER BY message.dateCreated ASC";
 
 		@SuppressWarnings("unchecked")
@@ -385,7 +385,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	@Override
 	@Transactional(readOnly = true)
 	public List<MessageThread> getUserMessagesThreads(User user, int page, int limit) {
-		String query = "SELECT DISTINCT thread " + "FROM MessagesThread thread "
+		String query = "SELECT DISTINCT thread " + "FROM MessageThread thread "
 				+ "LEFT JOIN thread.participants participant " + "WHERE participant = :user "
 				+ "ORDER BY thread.lastUpdated DESC";
 
@@ -403,7 +403,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	@Override
 	@Transactional(readOnly = true)
 	public MessageThread getMessagesThreadForPrevoiusMessage(Message previousMessage) {
-		String query = "SELECT DISTINCT thread " + "FROM MessagesThread thread " + "LEFT JOIN thread.messages message "
+		String query = "SELECT DISTINCT thread " + "FROM MessageThread thread " + "LEFT JOIN thread.messages message "
 				+ "WHERE message = :message";
 
 		return (MessageThread) persistence.currentManager().createQuery(query).setEntity("message", previousMessage)
@@ -413,7 +413,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	@Override
 	@Transactional(readOnly = true)
 	public MessageThread getLatestMessageThread(User user) {
-		String query = "SELECT DISTINCT thread " + "FROM MessagesThread thread "
+		String query = "SELECT DISTINCT thread " + "FROM MessageThread thread "
 				+ "LEFT JOIN thread.participants participants " + "WHERE :user IN (participants) "
 				+ "ORDER BY thread.lastUpdated DESC ";
 
