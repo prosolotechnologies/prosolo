@@ -2,6 +2,7 @@ package org.prosolo.services.nodes;
 
 import java.util.List;
 
+import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
@@ -9,6 +10,7 @@ import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 
 public interface Competence1Manager {
 
@@ -32,13 +34,18 @@ public interface Competence1Manager {
 	 * 
 	 * IMPORTANT! Id of original competence should always be passed and not id of a
 	 * draft version.
-	 * @param compId
+	 * @param originalCompId
+	 * @param data
+	 * @param user
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	Competence1 deleteCompetence(long compId) throws DbConnectionException;
+	Competence1 deleteCompetence(long originalCompId, CompetenceData1 data, User user) 
+			throws DbConnectionException;
 	
 	Competence1 updateCompetence(CompetenceData1 data, User user) throws DbConnectionException;
+	
+	Competence1 updateCompetence(CompetenceData1 data) throws DbConnectionException;
 	
 	List<CompetenceData1> getTargetCompetencesData(long targetCredentialId, boolean loadTags) 
 			throws DbConnectionException;
@@ -62,5 +69,19 @@ public interface Competence1Manager {
 	
 	CompetenceData1 getTargetCompetenceData(long targetCompId, boolean loadActivities, 
 			boolean loadCredentialTitle) throws DbConnectionException;
+	
+	void updateTargetCompetencesWithChangedData(long compId, CompetenceChangeTracker changeTracker) 
+			throws DbConnectionException;
+	
+	List<Tag> getCompetenceTags(long compId) 
+			throws DbConnectionException;
+
+	/**
+	 * Sets published to true for all competences from the list that do not have
+	 * draft version
+	 * @param compIds
+	 * @throws DbConnectionException
+	 */
+	void publishDraftCompetencesWithoutDraftVersion(List<Long> compIds) throws DbConnectionException;
 
 }

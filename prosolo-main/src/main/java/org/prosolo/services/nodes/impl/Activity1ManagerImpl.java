@@ -172,4 +172,69 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	public void publishAllCompetenceActivitiesWithoutDraftVersion(Long compId) 
+			throws DbConnectionException {
+		try {
+			List<Long> actIds = getAllCompetenceActivitiesIds(compId);
+			publishDraftActivitiesWithoutDraftVersion(actIds);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating activities");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public void publishDraftActivitiesWithoutDraftVersion(List<Long> actIds) 
+			throws DbConnectionException {
+		try {
+			if(actIds == null || actIds.isEmpty()) {
+				return;
+			}
+			
+			String query = "UPDATE Activity1 act " +
+						   "SET act.published = :published " + 
+						   "WHERE act.hasDraft = :hasDraft " +
+						   "AND act.id IN :actIds";
+			persistence.currentManager()
+				.createQuery(query)
+				.setBoolean("published", true)
+				.setBoolean("hasDraft", false)
+				.setParameterList("actIds", actIds)
+				.executeUpdate();
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating activities");
+		}
+	}
+
+	private List<Long> getAllCompetenceActivitiesIds(Long compId) {
+		try {
+			String query = "Select act.id " +
+						   "FROM CompetenceActivity1 compAct " + 
+						   "INNER JOIN compAct.competence comp " +
+						   "INNER JOIN compAct.activity act " +
+						   "WHERE act.deleted = :deleted " +
+						   "AND comp.id = :compId";
+			
+			@SuppressWarnings("unchecked")
+			List<Long> actIds = persistence.currentManager()
+				.createQuery(query)
+				.setBoolean("deleted", false)
+				.setLong("compId", compId)
+				.list();
+			
+			if(actIds == null) {
+				return new ArrayList<>();
+			}
+			return actIds;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating activities");
+		}
+	}
+	
 }

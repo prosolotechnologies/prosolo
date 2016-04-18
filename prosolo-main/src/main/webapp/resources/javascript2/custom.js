@@ -1,10 +1,12 @@
-//tooltips
-$('[data-toggle="tooltip"]').tooltip({
-    'placement': 'top'
-});
-$('[data-toggle="popover"]').popover({
-    trigger: 'hover',
-        'placement': 'top'
+$(function () {
+	//tooltips
+	$('[data-toggle="tooltip"]').tooltip({
+	    'placement': 'top'
+	});
+	$('[data-toggle="popover"]').popover({
+	    trigger: 'hover',
+	        'placement': 'top'
+	});
 });
 
 //comment form hide/show

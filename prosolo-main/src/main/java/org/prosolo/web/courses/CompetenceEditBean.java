@@ -156,7 +156,8 @@ public class CompetenceEditBean implements Serializable {
 				Competence1 comp = compManager.saveNewCompetence(competenceData, 
 						loggedUser.getUser(), credentialId);
 				competenceData.setCompetenceId(comp.getId());
-				id = idEncoder.encodeId(competenceData.getCompetenceId());
+				decodedId = competenceData.getCompetenceId();
+				id = idEncoder.encodeId(decodedId);
 			}
 			if(reloadData) {
 				initializeValues();
@@ -179,7 +180,7 @@ public class CompetenceEditBean implements Serializable {
 				 * passing decodedId because we need to pass id of
 				 * original competence and not id of a draft version
 				 */
-				compManager.deleteCompetence(decodedId);
+				compManager.deleteCompetence(decodedId, competenceData, loggedUser.getUser());
 				competenceData = new CompetenceData1(false);
 				PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			} else {

@@ -8,6 +8,8 @@ public class ESIndexTypes {
 	public static final String COURSE = "courses";
 	public static final String ACTIVITY = "activities";
 	public static String DOCUMENT="document";
+	public static final String CREDENTIAL = "credential";
+	public static final String COMPETENCE1 = "competence1";
 	
 	public static final String COMPETENCE_ACTIVITIES="competence_activity";
 	public static final String MOSTACTIVEUSERSFORLEARNINGGOAL = "mostactiveusersforlearninggoal";

@@ -35,6 +35,8 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.activity.ActivityData;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.web.competences.data.ActivityFormData;
@@ -120,5 +122,9 @@ public interface ResourceFactory extends AbstractManager {
 
 	Competence1 createCompetence(String title, String description, Set<Tag> hashSet, User createdBy,
 			boolean studentAllowedToAddActivities, boolean published, long duration);
+
+	Credential1 updateCredential(CredentialData data);
+
+	Competence1 updateCompetence(CompetenceData1 data);
 
 }

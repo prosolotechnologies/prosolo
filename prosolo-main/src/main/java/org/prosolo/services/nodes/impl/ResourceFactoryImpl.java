@@ -63,11 +63,15 @@ import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.PostManager;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CourseManager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.ScaleManager;
+import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.activity.ActivityData;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.services.nodes.data.activity.mapper.ActivityMapperFactory;
@@ -96,6 +100,8 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Autowired private FeedSourceManager feedSourceManager;
     @Inject private CourseManager courseManager;
     @Inject private LearningGoalManager goalManager;
+    @Inject private CredentialManager credentialManager;
+    @Inject private Competence1Manager competenceManager;
     
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -925,4 +931,15 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
    	}
     }
 
+    @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    public Credential1 updateCredential(CredentialData data) {
+    	return credentialManager.updateCredential(data);
+    }
+    
+    @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    public Competence1 updateCompetence(CompetenceData1 data) {
+    	return competenceManager.updateCompetence(data);
+    }
 }

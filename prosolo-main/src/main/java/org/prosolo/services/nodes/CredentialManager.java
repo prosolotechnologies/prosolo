@@ -2,12 +2,15 @@ package org.prosolo.services.nodes;
 
 import java.util.List;
 
+import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 
 public interface CredentialManager {
 
@@ -19,12 +22,13 @@ public interface CredentialManager {
 	 * 
 	 * IMPORTANT! Id of original credential should always be passed and not id of a
 	 * draft version.
-	 * @param credId
+	 * @param originalCredId
+	 * @param data
 	 * @param user
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	Credential1 deleteCredential(long credId, User user) throws DbConnectionException;
+	Credential1 deleteCredential(long originalCredId, CredentialData data, User user) throws DbConnectionException;
 	
 	/**
 	 * Returns credential data for user -
@@ -52,6 +56,8 @@ public interface CredentialManager {
 	
 	Credential1 updateCredential(CredentialData data, User user) throws DbConnectionException;
 	
+	Credential1 updateCredential(CredentialData data);
+	
 	CredentialData enrollInCredential(long credentialId, User user, LearningContextData context) 
 			throws DbConnectionException;
 	
@@ -69,4 +75,15 @@ public interface CredentialManager {
 	
 	List<CredentialData> getCredentialsWithIncludedCompetenceBasicData(long compId) 
 			throws DbConnectionException;
+
+	void updateTargetCredentialsWithChangedData(long credentialId, CredentialChangeTracker changeTracker) 
+			throws DbConnectionException;
+	
+	List<Tag> getCredentialTags(long credentialId) 
+			throws DbConnectionException;
+	
+	List<Tag> getCredentialHashtags(long credentialId) 
+			throws DbConnectionException;
+
+	List<CredentialBookmark> getBookmarkedByIds(long id) throws DbConnectionException;
 }

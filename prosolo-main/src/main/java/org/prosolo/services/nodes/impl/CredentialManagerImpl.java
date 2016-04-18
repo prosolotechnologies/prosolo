@@ -2,6 +2,7 @@ package org.prosolo.services.nodes.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -15,6 +16,7 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
 import org.prosolo.common.domainmodel.credential.CredentialType1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
@@ -35,8 +37,12 @@ import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.CredentialDataFactory;
 import org.prosolo.services.nodes.impl.util.EntityPublishTransition;
+import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 @Service("org.prosolo.services.nodes.CredentialManager")
 public class CredentialManagerImpl extends AbstractManagerImpl implements CredentialManager {
@@ -79,7 +85,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					saveEntity(cc);
 				}
 			}
-			eventFactory.generateEvent(EventType.Create, createdBy, cred);
+			//generate create event only if credential is published
+			if(data.isPublished()) {
+				eventFactory.generateEvent(EventType.Create, createdBy, cred);
+			}
 
 			return cred;
 		} catch (EventException e) {
@@ -95,19 +104,23 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = false)
-	public Credential1 deleteCredential(long credId, User user) throws DbConnectionException {
+	public Credential1 deleteCredential(long originalCredId, CredentialData data, User user) throws DbConnectionException {
 		try {
-			if(credId > 0) {
-				Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, credId);
+			if(originalCredId > 0) {
+				Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, originalCredId);
 				cred.setDeleted(true);
 				
-				if(cred.isHasDraft()) {
-					Credential1 draftVersion = cred.getDraftVersion();
+				if(data.isDraft()) {
+					Credential1 draftVersion = (Credential1) persistence.currentManager()
+							.load(Credential1.class, data.getId());
 					cred.setDraftVersion(null);
 					delete(draftVersion);
 				}
 	
-				eventFactory.generateEvent(EventType.Delete, user, cred);
+				if(data.isPublished() || data.isDraft()) {
+					eventFactory.generateEvent(EventType.Delete, user, cred);
+				}
+				
 				return cred;
 			}
 			return null;
@@ -301,44 +314,24 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Transactional(readOnly = false)
 	public Credential1 updateCredential(CredentialData data, User user) throws DbConnectionException {
 		try {
-			Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, 
-					data.getId());
-			/*
-			 * draft should be created if something changed, draft option is chosen 
-			 * and credential was published before this update
-			*/
-			EntityPublishTransition publishTransition = (!data.isPublished() && data.isPublishedChanged()) ? 
-					EntityPublishTransition.FROM_PUBLISHED_TO_DRAFT_VERSION :
-					EntityPublishTransition.NO_TRANSITION;
-			/*
-			 * check if published option was chosen, it was draft before update and 
-			 * draft version (and not original credential) of credential is updated.
-			 * Last check added because it is possible for original credential to be
-			 * draft and that it doesn't have draft version because it was never published.
-			*/
-			if(publishTransition == EntityPublishTransition.NO_TRANSITION) {
-				publishTransition = (data.isPublished() && data.isPublishedChanged() && data.isDraft()) ? 
-						publishTransition = EntityPublishTransition.FROM_DRAFT_VERSION_TO_PUBLISHED :
-						publishTransition;
-			}
-			
-			Credential1 updatedCredential = updateCredentialData(cred, publishTransition, data);		  
-		    
-		    /* determine if changes should be propagated
-		     * to users enrolled in a credential */
-		    boolean shouldPropagateChanges = data.isPublished() && (data.isTitleChanged() 
-		    		|| data.isDescriptionChanged() || data.isTagsStringChanged() 
-		    		|| data.isHashtagsStringChanged());
-		    
-		    /*
-		     * TODO generate event and implement observer that will update
-		     * all users target credentials if needed
-		     * pass to event shouldPropagateChanges or each attribute that
-		     * changed so observer can know if changes should be propagated.
-		    */
-		    eventFactory.generateEvent(EventType.Edit, user, cred);
+			Credential1 cred = resourceFactory.updateCredential(data);
 
-		    return updatedCredential;
+			if(data.isPublished()) {
+				if(data.isPublishedChanged() && !data.isDraft()) {
+					eventFactory.generateEvent(EventType.Create, user, cred);
+				} else {
+					Map<String, String> params = new HashMap<>();
+				    CredentialChangeTracker changeTracker = new CredentialChangeTracker(data.isPublished(),
+				    		data.isTitleChanged(), data.isDescriptionChanged(), data.isTagsStringChanged(), 
+				    		data.isHashtagsStringChanged());
+				    Gson gson = new GsonBuilder().create();
+				    String jsonChangeTracker = gson.toJson(changeTracker);
+				    params.put("changes", jsonChangeTracker);
+				    eventFactory.generateEvent(EventType.Edit, user, cred, params);
+				}
+			}
+
+		    return cred;
 		} catch (EventException e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -348,6 +341,33 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			dbe.printStackTrace();
 			throw dbe;
 		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public Credential1 updateCredential(CredentialData data) {
+		Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, 
+				data.getId());
+		/*
+		 * draft should be created if something changed, draft option is chosen 
+		 * and credential was published before this update
+		*/
+		EntityPublishTransition publishTransition = (!data.isPublished() && data.isPublishedChanged()) ? 
+				EntityPublishTransition.FROM_PUBLISHED_TO_DRAFT_VERSION :
+				EntityPublishTransition.NO_TRANSITION;
+		/*
+		 * check if published option was chosen, it was draft before update and 
+		 * draft version (and not original credential) of credential is updated.
+		 * Last check added because it is possible for original credential to be
+		 * draft and that it doesn't have draft version because it was never published.
+		*/
+		if(publishTransition == EntityPublishTransition.NO_TRANSITION) {
+			publishTransition = (data.isPublished() && data.isPublishedChanged() && data.isDraft()) ? 
+					publishTransition = EntityPublishTransition.FROM_DRAFT_VERSION_TO_PUBLISHED :
+					publishTransition;
+		}
+		
+		return updateCredentialData(cred, publishTransition, data);
 	}
 	
 	/**
@@ -451,6 +471,11 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		    	}
 	    	} else {
 	    		Iterator<CompetenceData1> compIterator = comps.iterator();
+	    		/*
+	    		 * List of competence ids so we can call method that will publish all draft
+	    		 * competences
+	    		 */
+	    		List<Long> compIds = new ArrayList<>();
 	    		while(compIterator.hasNext()) {
 	    			CompetenceData1 cd = compIterator.next();
 		    		if(cd.getObjectStatus() != ObjectStatus.REMOVED) {
@@ -461,7 +486,11 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    						Competence1.class, cd.getCompetenceId());
 	    				cc1.setCompetence(comp);
 	    				saveEntity(cc1);
+	    				compIds.add(cd.getCompetenceId());
 		    		}
+	    		}
+	    		if(publishTransition == EntityPublishTransition.FROM_DRAFT_VERSION_TO_PUBLISHED) {
+	    			compManager.publishDraftCompetencesWithoutDraftVersion(compIds);
 	    		}
 	    	}
 	    }
@@ -488,37 +517,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving credential data");
 		}
-	}
-
-	private List<TargetCredential1> getTargetCredentialsForCredential(long id) {
-//		try {
-//			
-//			String query = "SELECT targetCred " +
-//						   "FROM TargetCredential1 targetCred " + 
-//						   "LEFT JOIN fetch cred.tags tags " +
-//						   "LEFT JOIN fetch cred.hashtags hashtags " +
-//						   "WHERE cred.id = :credentialId " +
-//						   "AND cred.deleted = :deleted " +
-//						   "AND cred.createdBy = :user";
-//
-//			Credential1 res = (Credential1) persistence.currentManager()
-//					.createQuery(query)
-//					.setLong("credentialId", credentialId)
-//					.setBoolean("deleted", false)
-//					.setEntity("user", user)
-//					.uniqueResult();
-//			
-//			if(res == null) {
-//				return null;
-//			}
-//
-//			return credentialFactory.getCredentialData(null, res);
-//		} catch (Exception e) {
-//			logger.error(e);
-//			e.printStackTrace();
-//			throw new DbConnectionException("Error while loading credential data");
-//		}
-		return null;
 	}
 
 	@Transactional(readOnly = false)
@@ -745,6 +743,187 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while loading credential data");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<Tag> getCredentialTags(long credentialId) 
+			throws DbConnectionException {
+		try {			
+			String query = "SELECT tag " +
+					       "FROM Credential1 cred " +
+					       "INNER JOIN cred.tags tag " +
+					       "WHERE cred.id = :credentialId";					    
+			@SuppressWarnings("unchecked")
+			List<Tag> res = persistence.currentManager()
+				.createQuery(query)
+				.setLong("credentialId", credentialId)
+				.list();
+			if(res == null) {
+				return new ArrayList<>();
+			}
+			
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading credential tags");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Tag> getCredentialHashtags(long credentialId) 
+			throws DbConnectionException {
+		try {			
+			String query = "SELECT hashtag " +
+					       "FROM Credential1 cred " +
+					       "INNER JOIN cred.hashtags hashtag " +
+					       "WHERE cred.id = :credentialId";					    
+			@SuppressWarnings("unchecked")
+			List<Tag> res = persistence.currentManager()
+				.createQuery(query)
+				.setLong("credentialId", credentialId)
+				.list();
+			if(res == null) {
+				return new ArrayList<>();
+			}
+			
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading credential hashtags");
+		}
+	}
+			
+	@Transactional(readOnly = false)
+	private void updateTitleAndDescriptionForTargetCredentials(long credentialId) 
+			throws DbConnectionException {
+		try {	
+			Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, 
+					credentialId);
+			String query = "UPDATE TargetCredential1 targetCred " +
+					       "SET targetCred.title = :title, " +
+					       "targetCred.description = :description " +
+					       "WHERE targetCred.credential = :cred";					    
+
+			persistence.currentManager()
+				.createQuery(query)
+				.setString("title", cred.getTitle())
+				.setString("description", cred.getDescription())
+				.setEntity("cred", cred)
+				.executeUpdate();
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating user credentials");
+		}
+	}
+	
+	@Transactional(readOnly = true)
+	private List<TargetCredential1> getTargetCredentialsForCredential(long credentialId) 
+			throws DbConnectionException {
+		try {		
+			Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, 
+					credentialId);
+			String query = "SELECT cred " +
+					       "FROM TargetCredential1 cred " +
+					       "WHERE cred.credential = :cred";					    
+			@SuppressWarnings("unchecked")
+			List<TargetCredential1> res = persistence.currentManager()
+				.createQuery(query)
+				.setEntity("cred", cred)
+				.list();
+			if(res == null) {
+				return new ArrayList<>();
+			}
+			
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading user credentials");
+		}
+	}
+	
+	@Transactional(readOnly = false)
+	private void updateTargetCredentialTags(long credentialId) 
+			throws DbConnectionException {
+		try {
+			List<TargetCredential1> targetCredentials = getTargetCredentialsForCredential(credentialId);
+			List<Tag> tags = getCredentialTags(credentialId);
+			for(TargetCredential1 tc : targetCredentials) {
+				tc.getTags().clear();
+				for(Tag tag : tags) {
+					tc.getTags().add(tag);
+				}
+			}
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating user credentials");
+		}
+	}
+	
+	@Transactional(readOnly = false)
+	private void updateTargetCredentialHashtags(long credentialId) 
+			throws DbConnectionException {
+		try {
+			List<TargetCredential1> targetCredentials = getTargetCredentialsForCredential(credentialId);
+			List<Tag> hashtags = getCredentialHashtags(credentialId);
+			for(TargetCredential1 tc : targetCredentials) {
+				tc.getHashtags().clear();
+				for(Tag hashtag : hashtags) {
+					tc.getHashtags().add(hashtag);
+				}
+			}
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating user credentials");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void updateTargetCredentialsWithChangedData(long credentialId, CredentialChangeTracker changeTracker) 
+			throws DbConnectionException {
+		if(changeTracker.isPublished()) {
+			if(changeTracker.isTagsChanged()) {
+				updateTargetCredentialTags(credentialId);
+			}
+			if(changeTracker.isHashtagsChanged()) {
+				updateTargetCredentialHashtags(credentialId);
+			}
+			if(changeTracker.isTitleChanged() || changeTracker.isDescriptionChanged()) {
+				updateTitleAndDescriptionForTargetCredentials(credentialId);
+			}
+		}
+	}
+	
+	public List<CredentialBookmark> getBookmarkedByIds(long credId) throws DbConnectionException {
+		try {
+			Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, credId);
+			String query = "SELECT bookmark " +
+						   "FROM CredentialBookmark bookmark " +
+						   "WHERE bookmark.credential = :cred";
+			
+			@SuppressWarnings("unchecked")
+			List<CredentialBookmark> bookmarks = persistence.currentManager()
+					.createQuery(query)
+					.setEntity("cred", cred)
+					.list();
+			
+			if(bookmarks == null) {
+				return new ArrayList<>();
+			}
+			return bookmarks;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading credential bookmarks");
 		}
 	}
 	

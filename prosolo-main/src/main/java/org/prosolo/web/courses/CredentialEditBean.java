@@ -161,7 +161,8 @@ public class CredentialEditBean implements Serializable {
 				Credential1 cred = credentialManager.saveNewCredential(credentialData, 
 						loggedUser.getUser());
 				credentialData.setId(cred.getId());
-				id = idEncoder.encodeId(credentialData.getId());
+				decodedId = credentialData.getId();
+				id = idEncoder.encodeId(decodedId);
 			}
 			if(reloadData) {
 				initializeValues();
@@ -184,7 +185,7 @@ public class CredentialEditBean implements Serializable {
 				 * decoded id is passed because we want to pass id of original version
 				 * and not draft
 				 */
-				credentialManager.deleteCredential(decodedId, loggedUser.getUser());
+				credentialManager.deleteCredential(decodedId, credentialData, loggedUser.getUser());
 				credentialData = new CredentialData(false);
 				PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			} else {
@@ -231,6 +232,7 @@ public class CredentialEditBean implements Serializable {
 		if(removedComp != null) {
 			removedComp.statusBackFromRemovedTransition();
 		} else {
+			compData.setObjectStatus(ObjectStatus.CREATED);
 			compData.startObservingChanges();
 		}
 		compsToExcludeFromSearch.add(compToEdit.getCompetenceId());

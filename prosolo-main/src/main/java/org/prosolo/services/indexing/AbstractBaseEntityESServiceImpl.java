@@ -20,6 +20,8 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.course.Course;
+import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.user.LearningGoal;
@@ -112,6 +114,10 @@ public abstract class AbstractBaseEntityESServiceImpl implements AbstractBaseEnt
 			indexType = ESIndexTypes.ACTIVITY;
 		} else if (node instanceof Tag) {
 			indexType = ESIndexTypes.TAGS;
+		} else if (node instanceof Credential1) {
+			indexType = ESIndexTypes.CREDENTIAL;
+		} else if (node instanceof Competence1) {
+			indexType = ESIndexTypes.COMPETENCE1;
 		}
 		return indexType;
 	}

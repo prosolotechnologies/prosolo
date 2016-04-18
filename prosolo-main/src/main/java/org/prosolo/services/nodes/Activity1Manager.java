@@ -18,4 +18,20 @@ public interface Activity1Manager {
 	List<BasicActivityData> getTargetActivitiesData(long targetCompId) 
 			throws DbConnectionException;
 
+	/**
+	 * Sets published to true for all competence activities that do not have
+	 * draft version
+	 * @param compId
+	 * @throws DbConnectionException
+	 */
+	void publishAllCompetenceActivitiesWithoutDraftVersion(Long compId) throws DbConnectionException;
+	
+	/**
+	 * Sets published to true for all activities from the list that do not have
+	 * draft version
+	 * @param actIds
+	 * @throws DbConnectionException
+	 */
+	void publishDraftActivitiesWithoutDraftVersion(List<Long> actIds) throws DbConnectionException;
+
 }

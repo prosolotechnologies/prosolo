@@ -13,6 +13,8 @@ import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CourseEnrollment;
+import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
@@ -68,7 +70,9 @@ public class NodeChangeObserver extends EventObserver {
 			ExternalToolActivity.class,
 			UploadAssignmentActivity.class,
 			User.class,
-			CourseEnrollment.class
+			CourseEnrollment.class,
+			Credential1.class,
+			Competence1.class
 		};
 	}
 

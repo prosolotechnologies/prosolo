@@ -1,0 +1,28 @@
+{
+    "competence1":{
+		"properties":{
+			"id":{
+				"store": false,
+				"type":"long"
+			},
+			"title":{
+				"store": false,
+				"type":"string"
+			},
+			"description":{
+				"store": false,
+				"type":"string"
+			},
+			"tags":{
+				"properties":{
+					"title":{
+						"store": false,
+						"type":"string"
+					} 
+				}
+			}
+		}
+			
+		}
+
+}

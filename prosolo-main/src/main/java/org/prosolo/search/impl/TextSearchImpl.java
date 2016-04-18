@@ -307,7 +307,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			limit = setLimit(limit, loadOneMore);
 			
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE);
+			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1);
 			
 			QueryBuilder qb = QueryBuilders
 					.queryStringQuery(searchString.toLowerCase() + "*").useDisMax(true)
@@ -335,7 +335,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			
 			SearchRequestBuilder searchResultBuilder = client
 					.prepareSearch(ESIndexNames.INDEX_NODES)
-					.setTypes(ESIndexTypes.COMPETENCE)
+					.setTypes(ESIndexTypes.COMPETENCE1)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bQueryBuilder).setFrom(start).setSize(limit);
 			
@@ -362,7 +362,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					Long id = ((Integer) hit.getSource().get("id")).longValue();
 					
 					try {
-						CompetenceData1 cd = compManager.getCompetenceData(id, false, 
+						CompetenceData1 cd = compManager.getCompetenceData(id, true, 
 								false, false, false);
 						
 						if (cd != null) {

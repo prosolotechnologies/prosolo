@@ -6,10 +6,14 @@ import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.Event;
+import org.prosolo.services.indexing.CompetenceESService;
+import org.prosolo.services.indexing.CredentialESService;
 import org.prosolo.services.indexing.NodeEntityESService;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.springframework.stereotype.Service;
@@ -21,6 +25,10 @@ public class NodeChangeProcessorFactory {
 	private UserEntityESService userEntityESService;
 	@Inject
 	private NodeEntityESService nodeEntityESService;
+	@Inject
+	private CredentialESService credentialESService;
+	@Inject
+	private CompetenceESService competenceESService;
 	
 	public NodeChangeProcessor getNodeChangeProcessor(Event event, Session session) {
 		EventType type = event.getAction();
@@ -45,10 +53,35 @@ public class NodeChangeProcessorFactory {
 					return new UserNodeChangeProcessor(event, session, userEntityESService, EventUserRole.Object);
 				} else if (node instanceof TargetLearningGoal) {
 					return new UserNodeChangeProcessor(event, session, userEntityESService, EventUserRole.Subject);
-				} else {
+				} else if(node instanceof Credential1) {
+					NodeOperation operation = null;
+					if(type == EventType.Create) {
+						operation = NodeOperation.Save;
+					} else {
+						operation = NodeOperation.Update;
+					}
+					return new CredentialNodeChangeProcessor(event, credentialESService, operation);
+				} else if(node instanceof Competence1) {
+					NodeOperation operation = null;
+					if(type == EventType.Create) {
+						operation = NodeOperation.Save;
+					} else {
+						operation = NodeOperation.Update;
+					}
+					return new CompetenceNodeChangeProcessor(event, competenceESService, operation);
+				}
+				else {
 					return new RegularNodeChangeProcessor(event, nodeEntityESService, NodeOperation.Save);
 				}
+				
 			case Delete:
+				if(node instanceof Credential1) {
+					return new CredentialNodeChangeProcessor(event, credentialESService, 
+							NodeOperation.Delete);
+				} else if(node instanceof Competence1) {
+					return new CompetenceNodeChangeProcessor(event, competenceESService, 
+							NodeOperation.Delete);
+				}
 				return new RegularNodeChangeProcessor(event, nodeEntityESService, NodeOperation.Delete);
 			case Attach:
 				if(event.getObject() instanceof TargetActivity && event.getTarget() instanceof TargetCompetence) {

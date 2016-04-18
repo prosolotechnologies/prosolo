@@ -84,8 +84,10 @@
                         				value="Edit" 
                         				outcome="/create-competence">
                         				<f:param name="id" value="#{util:encodeId(comp.competenceId)}" />
-                        			</h:link>
-                        			<p:commandLink
+                        			</h:link> 
+                        		</ui:fragment>
+                        		<ui:fragment rendered="#{cc.attrs.isEdit}">
+	                        		<p:commandLink
                         				value="Remove"
 					            	  	process="@this"
 					            	  	action="#{cc.attrs.bean.setCompetenceForRemovalIndex(status.index)}"
@@ -93,8 +95,7 @@
 					            	  	styleClass="linkRed"
 					            	  	pt:data-toggle="modal">	            
 					            	</p:commandLink>
-                                    
-                        		</ui:fragment>
+					            </ui:fragment>
                             	
                             	<ui:fragment rendered="#{!cc.attrs.isEdit and !cc.attrs.isPreview}">
                         			<ui:fragment rendered="#{cc.attrs.startedLearning}">
