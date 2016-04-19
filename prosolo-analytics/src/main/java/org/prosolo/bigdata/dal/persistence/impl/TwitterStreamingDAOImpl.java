@@ -24,7 +24,8 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.content.TwitterPost;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.AnonUser;
-import org.prosolo.common.domainmodel.user.ServiceType;
+//import org.prosolo.common.domainmodel.user.ServiceType;
+import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserType;
 
