@@ -4,8 +4,9 @@ import java.util.{TimerTask, Timer}
 import scala.collection.mutable.ListBuffer
 import org.prosolo.bigdata.scala.spark.SparkContextLoader
 import org.prosolo.bigdata.scala.messaging.BroadcastDistributer
-import org.prosolo.common.messaging.data.{ServiceType=>MServiceType}
-import org.prosolo.common.domainmodel.user.{User,AnonUser,ServiceType,UserType}
+import org.prosolo.common.messaging.data.{ServiceType => MServiceType}
+import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType
+import org.prosolo.common.domainmodel.user.{User,AnonUser,UserType}
 import org.prosolo.common.domainmodel.organization.VisibilityType
 import twitter4j.Status
 import org.prosolo.common.domainmodel.content.TwitterPost
