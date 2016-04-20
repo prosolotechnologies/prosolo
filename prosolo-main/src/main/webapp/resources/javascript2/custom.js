@@ -19,7 +19,10 @@ function displaySubmitButton(inputElem) {
 }
 
 function toggleReplyInput(replyBtn) {
-    $(replyBtn).parent().next('.replyInput').toggleClass('hidden');
+	console.log(replyBtn);
+	$(replyBtn).parent().parent().next('.replyInput').toggleClass('hidden');
+	var el = $(replyBtn).parent();
+	console.log(el);
     return false;
 }
 
@@ -59,3 +62,10 @@ function setQueryParamOfUri(uri, key, value) {
 		return uri + separator + key + "=" + value;
 	}
 }
+
+function scrollTo(elementId) {
+    $('html, body').animate({
+        scrollTop: $("#"+elementId).offset().top
+    }, 2000);
+}
+

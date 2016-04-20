@@ -36,7 +36,8 @@ public enum ApplicationPage {
 	LTI_PROVIDER_LAUNCH("/ltiproviderlaunch.xhtml"),
 	COMPETENCE_ACTIVITIES("/manage/competence-activities.xhtml"),
 	EMAIL("/email.xhtml"),
-	CREDENTIAL("/credential.xhtml");
+	USER_CREDENTIAL("/credential.xhtml"),
+	USER_COMPETENCE("/competence.xhtml");
 
     private String uri; 
     

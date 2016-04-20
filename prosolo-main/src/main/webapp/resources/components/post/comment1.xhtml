@@ -1,0 +1,124 @@
+<ui:component
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post">
+
+	<composite:interface>
+		<composite:attribute name="comment" required="true"/>
+		<composite:attribute name="isTopLevel" required="true" type="java.lang.Boolean" />
+		<composite:attribute name="learningContext" />
+		<composite:attribute name="service" default=""/>
+		<composite:attribute name="toUpdate" default="" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<ui:param name="comment" value="#{cc.attrs.comment}" />
+		<div id="comment_#{comment.commentId}">
+            <div class="media-left">
+            	 <h:graphicImage value="#{comment.creator.avatarUrl}"
+					alt="#{comment.creator.fullName}" 
+					styleClass="img-circle"
+					width="32" height="32"/>           
+            </div>
+            <div class="media-body">
+            	<div class="commentMain">
+                 	<span class="commentTime">Apr 10, 2016</span>
+                <h3 class="media-heading">#{comment.creator.fullName}</h3>
+                <p class="commentText">#{comment.comment}</p>
+                <h:panelGroup rendered="#{commentBean.isCurrentUserCommentCreator(comment)}" class="editComment hidden">
+                	 <h:inputTextarea 
+                	 	rows="8"
+                	 	cols="40"
+                	 	value="#{comment.comment}">
+                	 </h:inputTextarea> 
+                	 <p:commandButton
+			       	 	styleClass="btn btn-sm btn-green"
+			       	 	value="Submit"
+			       	 	action="#{commentBean.editComment(comment)}"
+			       	 	update="#{cc.attrs.toUpdate}">
+			       	 	<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
+                 	 	<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment|id:'.concat(comment.commentId))}"/>
+			       	 </p:commandButton>          
+                    <a href="javascript:void(0)" class="btn btn-sm btn-green-stroke" onclick="hideEditComment(this)">Cancel</a>
+                </h:panelGroup>
+                <div class="commentOptions">
+                	 <p:commandLink
+                	 	styleClass="like #{comment.likedByCurrentUser ? 'liked' : ''}"
+                	 	action="#{commentBean.likeAction(comment)}"
+                	 	update="@this">
+                	 	<svg class="icon" width="12px" height="12px" viewBox="0 0 12 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                            <g id="triangle" stroke="none" stroke-width="1" fill="#D5D8DA" fill-rule="evenodd">
+                                <polygon id="Triangle-5" points="6 1 12 11 0 11 "></polygon>
+                            </g>
+                        </svg>
+                        #{comment.likedByCurrentUser ? 'Like' : comment.likeCount}
+                        <f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
+                 	 	<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment|id:'.concat(comment.commentId))}"/>
+                	 </p:commandLink>
+                	 <p:commandLink 
+                	 	styleClass="reply"
+                	 	action="#{commentBean.prepareAddingNewComment(comment)}"
+                	 	update="#{cc.attrs.toUpdate}"
+                	 	oncomplete="toggleReplyInput(this);">
+                	 	<span class="icon"></span>
+                	 	Reply
+                	 </p:commandLink>  
+            
+                	 <p:commandLink
+                	 	rendered="#{commentBean.isCurrentUserCommentCreator(comment)}"
+                	 	styleClass="edit"
+                	 	onclick="showEditComment(this)">
+                	 	<span class="icon"></span>
+                	 	Edit
+                	 </p:commandLink>                           
+                </div>
+                </div>
+                <div class="media replyInput hidden">
+                    <div class="media-left">
+                    	 <h:graphicImage value="#{loggeduser.bigAvatar}"
+							alt="#{loggeduser.fullName}" 
+							styleClass="img-circle"
+							width="32" height="32"/>
+                    </div>
+                    <div class="media-body replyComment">
+                        <h:panelGroup layout="block" rendered="#{commentBean.isReplyToCurrentComment(comment)}" styleClass="commentForm">
+                            <h:inputTextarea 
+                            	value="#{commentBean.replyTo.comment}"
+                            	pt:placeholder="Add Comment..."  
+                            	onkeyup="displaySubmitButton(this)">
+                            </h:inputTextarea>
+                            <p:commandButton 
+                            	styleClass="btn btn-sm btn-green hidden"
+                            	value="Submit"
+                            	action="#{commentBean.saveNewComment(false)}">
+                            	<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
+                            	<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment')}"/>
+                            </p:commandButton>
+                        </h:panelGroup>
+                    </div>
+                </div>
+                
+                <c:if test="#{cc.attrs.isTopLevel}">
+                	<ui:repeat var="child" value="#{comment.childComments}">
+		                <div class="media">
+		                    <post:comment1
+		                    	id="childComment"
+		                    	comment="#{child}"
+		                    	isTopLevel="false"
+		                    	toUpdate="#{cc.attrs.toUpdate}"
+		                    	learningContext=""/>
+		                </div>
+                	</ui:repeat>
+                </c:if>
+                
+            </div>
+                     
+		</div>
+	</composite:implementation>
+</ui:component>

@@ -8,12 +8,14 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.ResourceCreator;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.useractions.CommentBean;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -30,6 +32,7 @@ public class CompetenceViewBean implements Serializable {
 	@Inject private LoggedUserBean loggedUser;
 	@Inject private Competence1Manager competenceManager;
 	@Inject private UrlIdEncoder idEncoder;
+	@Inject private CommentBean commentBean;
 
 	private String id;
 	private long decodedId;
@@ -68,6 +71,8 @@ public class CompetenceViewBean implements Serializable {
 					} catch (IOException e) {
 						logger.error(e);
 					}
+				} else {
+					commentBean.init(CommentedResourceType.Competence, competenceData.getCompetenceId());
 				}
 			} catch(Exception e) {
 				logger.error(e);

@@ -1,0 +1,90 @@
+<ui:component
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post">
+
+	<composite:interface>
+		<composite:attribute name="learningContext" />
+		<composite:attribute name="service" default=""/>
+	</composite:interface>
+	
+	<composite:implementation>
+		<div id="#{cc.clientId}">
+		<h:form id="formComments">
+		<p:growl id="growlComments" globalOnly="true" showDetail="true"/>
+		<ui:param name="bean" value="#{commentBean}"></ui:param>
+		<input type="hidden" id="newestCommentId" value="#{commentBean.newestCommentId}"/>
+		<div class="discussion">
+             <h2>Discussion</h2>
+             <div class="dropdown sortDrop">
+                 <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                     #{bean.sortOption.label}
+                     <span class="arrowDown">arrowDown</span>
+                 </a>
+                 <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
+                 	<ui:repeat var="sortOption" value="#{bean.sortOptions}">
+                 		<li>
+                 			<p:commandLink
+                 				value="#{sortOption.label}"
+                 				process="@this"
+                 				action="#{bean.sortChanged(sortOption)}"
+                 				update=":#{cc.clientId}:formComments">
+                 			</p:commandLink>
+                 		</li>
+                 	</ui:repeat>   
+                 </ul>
+             </div>
+             <div class="addComment">
+             	 <h:graphicImage value="#{loggeduser.bigAvatar}"
+										   alt="#{loggeduser.fullName}" 
+										   styleClass="img-circle"
+										   width="32" height="32"/>              
+                 <div class="commentForm">
+                 	 <h:inputTextarea 
+                 	 	pt:placeholder="Add Comment..."
+                 	 	value="#{bean.topLevelComment}"
+                 	 	onkeyup="displaySubmitButton(this);">
+                 	 </h:inputTextarea>
+                 	 <p:commandButton
+                 	 	styleClass="btn btn-sm btn-green hidden"
+                 	 	value="Submit"
+                 	 	action="#{bean.saveNewComment(true)}"
+                 	 	update=":#{cc.clientId}:formComments"
+                 	 	oncomplete="scrollToNewestComment();">
+                 	 	<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
+                 	 	<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment')}"/>
+                 	 </p:commandButton>
+                 </div>
+             </div>
+             <div class="comments">
+                 <ul class="media-list">            
+                 	<ui:repeat var="comment" value="#{bean.comments}">
+                 	 	<li class="media">
+                         	<post:comment1 
+                         		id="comment"
+                         		comment="#{comment}"
+                         		isTopLevel="true"
+                         		toUpdate=":#{cc.clientId}:formComments"
+                         		learningContext="#{cc.attrs.learningContext}"/>
+                     	</li>
+                 	 </ui:repeat>
+                 </ul>
+        
+             </div>
+         </div>
+         </h:form>
+         <script>
+         	function scrollToNewestComment() {
+         		var id = document.getElementById('newestCommentId').value;
+         		scrollTo('comment_'+id);
+         	}
+         </script>
+		</div>
+	</composite:implementation>
+</ui:component>

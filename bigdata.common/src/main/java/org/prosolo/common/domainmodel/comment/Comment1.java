@@ -1,5 +1,6 @@
-package org.prosolo.common.domainmodel.credential;
+package org.prosolo.common.domainmodel.comment;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -9,6 +10,7 @@ import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
@@ -26,6 +28,9 @@ public class Comment1 extends BaseEntity {
 	
 	private User user;
 	private boolean isInstructor;
+	
+	//date from baseentity not saving hours, minutes
+	private Date postDate;
 	
 	public Comment1() {
 		
@@ -89,6 +94,14 @@ public class Comment1 extends BaseEntity {
 
 	public void setInstructor(boolean isInstructor) {
 		this.isInstructor = isInstructor;
+	}
+
+	public Date getPostDate() {
+		return postDate;
+	}
+
+	public void setPostDate(Date postDate) {
+		this.postDate = postDate;
 	}
 	
 }
