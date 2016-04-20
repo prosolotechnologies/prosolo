@@ -62,17 +62,18 @@ public class Annotation1ManagerImpl extends AbstractManagerImpl implements Annot
 			AnnotationType annotationType) throws DbConnectionException {
 		try {
 			String query = "DELETE FROM Annotation1 annotation " +
-						   "WHERE annotation.maker = :maker " +
-						   "AND annotation.annotatedResourceId = :resourceId " +
+						   "WHERE annotation.annotatedResourceId = :resourceId " +
 						   "AND annotation.annotatedResource = :resource " +
 						   "AND annotation.annotationType = :annotationType";
 			
-			persistence.currentManager()
+			int affected = persistence.currentManager()
 				.createQuery(query)
 				.setLong("resourceId", resourceId)
 				.setParameter("resource", resource)
 				.setParameter("annotationType", annotationType)
 				.executeUpdate();
+			
+			logger.info("Deleted annotations number: " + affected);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
