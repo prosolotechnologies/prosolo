@@ -36,8 +36,6 @@ public class CommentBean implements Serializable {
 	@Autowired private CommentManager commentManager;
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 
-	private CommentData editComment;
-	private CommentData replyTo;
 	private String topLevelComment;
 	
 	private List<CommentData> comments;
@@ -73,27 +71,31 @@ public class CommentBean implements Serializable {
 			loadComments();
 		}
 	}
-
-	public void prepareAddingNewComment(CommentData parent) {
-		editComment = new CommentData();
-		replyTo = parent;
+	
+	public void saveTopLevelComment() {
+		saveNewComment(null);
 	}
 	
-	public void saveNewComment(boolean topLevel) {
-		if(topLevel) {
-			editComment = new CommentData();
-			editComment.setComment(topLevelComment);
+	public void saveNewComment(CommentData parent) {
+		CommentData newComment = new CommentData();
+		CommentData realParent = null;
+		if(parent == null) {
+			newComment.setComment(topLevelComment);
 			topLevelComment = null;
 		} else {
-			long parentId = replyTo.getParentCommentId() > 0 ? replyTo.getParentCommentId() : 
-				replyTo.getCommentId();
-			editComment.setParentCommentId(parentId);
-			replyTo = null;
+			/*
+			 * if parent comment has parent, then that comment will be the
+			 * parent of a new comment because we have only one level of replies
+			 */
+			realParent = parent.getParent() != null ? parent.getParent() : 
+				parent;
+			newComment.setParent(realParent);
+			newComment.setComment(parent.getReplyToComment());
 		}
-		editComment.setCommentedResourceId(resourceId);
-		editComment.setDateCreated(new Date());
+		newComment.setCommentedResourceId(resourceId);
+		newComment.setDateCreated(new Date());
 		UserData creator = new UserData(loggedUser.getUser());
-		editComment.setCreator(creator);
+		newComment.setCreator(creator);
 		
 		String page = PageUtil.getPostParameter("page");
 		String lContext = PageUtil.getPostParameter("learningContext");
@@ -101,19 +103,23 @@ public class CommentBean implements Serializable {
 			
 		try {
     		LearningContextData context = new LearningContextData(page, lContext, service);
-    		Comment1 comment = commentManager.saveNewComment(editComment, loggedUser.getUser().getId(), 
+    		Comment1 comment = commentManager.saveNewComment(newComment, loggedUser.getUser().getId(), 
     				resourceType, context);
         	
-        	editComment.setCommentId(comment.getId());
-        	newestCommentId = editComment.getCommentId();
-        	/*
-        	 * if selected sort option is newest first, add element to the
-        	 * beggining of a list, otherwise add it to the end
-        	 */
-        	if(sortOption == CommentSortOption.NEWEST_FIRST) {
-        		comments.add(0, editComment);
+        	newComment.setCommentId(comment.getId());
+        	newestCommentId = newComment.getCommentId();
+        	if(parent != null) {
+        		realParent.getChildComments().add(newComment);
         	} else {
-        		comments.add(editComment);
+	        	/* 
+	        	 * if selected sort option is newest first, add element to the
+	        	 * beggining of a list, otherwise add it to the end
+	        	 */
+	        	if(sortOption == CommentSortOption.NEWEST_FIRST) {
+	        		comments.add(0, newComment);
+	        	} else {
+	        		comments.add(newComment);
+	        	}
         	}
         	PageUtil.fireSuccessfulInfoMessage("Comment posted");
     	} catch (DbConnectionException e) {
@@ -189,25 +195,8 @@ public class CommentBean implements Serializable {
         });
 	}
 	
-	public boolean isReplyToCurrentComment(CommentData comment) {
-		if(replyTo == null) {
-			return false;
-		} else {
-			boolean isReply = comment.getCommentId() == replyTo.getCommentId();
-			return isReply;
-		}
-	}
-	
 	public boolean isCurrentUserCommentCreator(CommentData comment) {
 		return loggedUser.getUser().getId() == comment.getCreator().getId();
-	}
-
-	public CommentData getEditComment() {
-		return editComment;
-	}
-
-	public void setEditComment(CommentData editComment) {
-		this.editComment = editComment;
 	}
 
 	public String getTopLevelComment() {
@@ -224,14 +213,6 @@ public class CommentBean implements Serializable {
 
 	public void setComments(List<CommentData> comments) {
 		this.comments = comments;
-	}
-
-	public CommentData getReplyTo() {
-		return replyTo;
-	}
-
-	public void setReplyTo(CommentData replyTo) {
-		this.replyTo = replyTo;
 	}
 
 	public CommentSortOption getSortOption() {

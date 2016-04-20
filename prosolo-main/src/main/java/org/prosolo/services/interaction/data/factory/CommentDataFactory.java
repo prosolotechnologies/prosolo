@@ -1,6 +1,7 @@
 package org.prosolo.services.interaction.data.factory;
 
 import org.prosolo.common.domainmodel.comment.Comment1;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.nodes.data.UserData;
 import org.springframework.stereotype.Component;
@@ -15,14 +16,14 @@ public class CommentDataFactory {
 	 * @param parentCommentId
 	 * @return
 	 */
-	public CommentData getCommentData(Comment1 comment, boolean likedByCurrentUser, long parentCommentId) {
+	public CommentData getCommentData(Comment1 comment, boolean likedByCurrentUser, CommentData parent) {
 		if(comment == null) {
 			return null;
 		}
 		CommentData cd = new CommentData();
 		cd.setCommentId(comment.getId());
-		if(parentCommentId > 0) {
-			cd.setParentCommentId(parentCommentId);
+		if(parent != null) {
+			cd.setParent(parent);
 		}
 		cd.setComment(comment.getDescription());
 		cd.setCreator(new UserData(comment.getUser()));
@@ -31,6 +32,7 @@ public class CommentDataFactory {
 		cd.setLikedByCurrentUser(likedByCurrentUser);
 		cd.setCommentedResourceId(comment.getCommentedResourceId());
 		cd.setDateCreated(comment.getPostDate());
+		cd.setFormattedDate(DateUtil.getTimeAgoFromNow(cd.getDateCreated()));
 		return cd;
 	}
 

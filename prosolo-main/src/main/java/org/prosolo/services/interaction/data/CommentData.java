@@ -9,7 +9,7 @@ import org.prosolo.services.nodes.data.UserData;
 public class CommentData {
 
 	private long commentId;
-	private long parentCommentId;
+	private CommentData parent;
 	private long commentedResourceId;
 	private String comment;
 	private UserData creator;
@@ -19,6 +19,9 @@ public class CommentData {
 	private boolean likedByCurrentUser;
 	private List<CommentData> childComments;
 	private Date dateCreated;
+	private String formattedDate;
+	//text of a comment that represents reply to this comment
+	private String replyToComment;
 	
 	public CommentData() {
 		likedBy = new ArrayList<>();
@@ -79,12 +82,12 @@ public class CommentData {
 		this.likedByCurrentUser = likedByCurrentUser;
 	}
 
-	public long getParentCommentId() {
-		return parentCommentId;
+	public CommentData getParent() {
+		return parent;
 	}
 
-	public void setParentCommentId(long parentCommentId) {
-		this.parentCommentId = parentCommentId;
+	public void setParent(CommentData parent) {
+		this.parent = parent;
 	}
 
 	public long getCommentedResourceId() {
@@ -101,6 +104,22 @@ public class CommentData {
 
 	public void setDateCreated(Date dateCreated) {
 		this.dateCreated = dateCreated;
+	}
+
+	public String getFormattedDate() {
+		return formattedDate;
+	}
+
+	public void setFormattedDate(String formattedDate) {
+		this.formattedDate = formattedDate;
+	}
+
+	public String getReplyToComment() {
+		return replyToComment;
+	}
+
+	public void setReplyToComment(String replyToComment) {
+		this.replyToComment = replyToComment;
 	}
 	
 }

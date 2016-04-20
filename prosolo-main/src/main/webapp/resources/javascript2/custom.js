@@ -19,10 +19,7 @@ function displaySubmitButton(inputElem) {
 }
 
 function toggleReplyInput(replyBtn) {
-	console.log(replyBtn);
 	$(replyBtn).parent().parent().next('.replyInput').toggleClass('hidden');
-	var el = $(replyBtn).parent();
-	console.log(el);
     return false;
 }
 
@@ -67,5 +64,10 @@ function scrollTo(elementId) {
     $('html, body').animate({
         scrollTop: $("#"+elementId).offset().top
     }, 2000);
+}
+
+function scrollToNewestComment() {
+	var id = document.getElementById('newestCommentId').value;
+	scrollTo('comment_'+id);
 }
 

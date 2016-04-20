@@ -28,10 +28,10 @@
             </div>
             <div class="media-body">
             	<div class="commentMain">
-                 	<span class="commentTime">Apr 10, 2016</span>
+                 	<span class="commentTime">#{comment.formattedDate}</span>
                 <h3 class="media-heading">#{comment.creator.fullName}</h3>
                 <p class="commentText">#{comment.comment}</p>
-                <h:panelGroup rendered="#{commentBean.isCurrentUserCommentCreator(comment)}" class="editComment hidden">
+                <h:panelGroup layout="block" rendered="#{commentBean.isCurrentUserCommentCreator(comment)}" class="editComment hidden">
                 	 <h:inputTextarea 
                 	 	rows="8"
                 	 	cols="40"
@@ -52,7 +52,7 @@
                 	 	styleClass="like #{comment.likedByCurrentUser ? 'liked' : ''}"
                 	 	action="#{commentBean.likeAction(comment)}"
                 	 	update="@this">
-                	 	<svg class="icon" width="12px" height="12px" viewBox="0 0 12 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                	 	<svg class="icon" width="12px" height="12px" viewBox="0 0 12 12" version="1.1">
                             <g id="triangle" stroke="none" stroke-width="1" fill="#D5D8DA" fill-rule="evenodd">
                                 <polygon id="Triangle-5" points="6 1 12 11 0 11 "></polygon>
                             </g>
@@ -61,14 +61,9 @@
                         <f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
                  	 	<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment|id:'.concat(comment.commentId))}"/>
                 	 </p:commandLink>
-                	 <p:commandLink 
-                	 	styleClass="reply"
-                	 	action="#{commentBean.prepareAddingNewComment(comment)}"
-                	 	update="#{cc.attrs.toUpdate}"
-                	 	oncomplete="toggleReplyInput(this);">
-                	 	<span class="icon"></span>
-                	 	Reply
-                	 </p:commandLink>  
+                	 <a href="javascript:void(0)" class="reply" onclick="toggleReplyInput(this)">
+                	 	<span class="icon"></span>Reply
+                	 </a>        
             
                 	 <p:commandLink
                 	 	rendered="#{commentBean.isCurrentUserCommentCreator(comment)}"
@@ -87,20 +82,22 @@
 							width="32" height="32"/>
                     </div>
                     <div class="media-body replyComment">
-                        <h:panelGroup layout="block" rendered="#{commentBean.isReplyToCurrentComment(comment)}" styleClass="commentForm">
+                        <div class="commentForm">
                             <h:inputTextarea 
-                            	value="#{commentBean.replyTo.comment}"
+                            	value="#{comment.replyToComment}"
                             	pt:placeholder="Add Comment..."  
                             	onkeyup="displaySubmitButton(this)">
                             </h:inputTextarea>
                             <p:commandButton 
                             	styleClass="btn btn-sm btn-green hidden"
                             	value="Submit"
-                            	action="#{commentBean.saveNewComment(false)}">
+                            	action="#{commentBean.saveNewComment(comment)}"
+                            	update="#{cc.attrs.toUpdate}"
+                            	oncomplete="scrollToNewestComment();">
                             	<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
                             	<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment')}"/>
                             </p:commandButton>
-                        </h:panelGroup>
+                        </div>
                     </div>
                 </div>
                 

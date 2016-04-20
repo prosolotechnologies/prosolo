@@ -82,11 +82,11 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 	
 			List<CommentData> comments = new ArrayList<>();
 			for(Comment1 comment : res) {
-				CommentData commentData = getCommentData(comment, userId, 0);
+				CommentData commentData = getCommentData(comment, userId, null);
 				List<CommentData> childComments = new ArrayList<>();
 				if(comment.getChildComments() != null) {
 					for(Comment1 childComment : comment.getChildComments()) {
-						CommentData child = getCommentData(childComment, userId, comment.getId());
+						CommentData child = getCommentData(childComment, userId, commentData);
 						childComments.add(child);
 					}
 					commentData.setChildComments(childComments);
@@ -102,9 +102,9 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		}
 	}
 
-	private CommentData getCommentData(Comment1 comment, long userId, long parentId) {
+	private CommentData getCommentData(Comment1 comment, long userId, CommentData parent) {
 		boolean liked = hasUserLikedComment(userId, comment.getId());
-		return commentFactory.getCommentData(comment, liked, parentId);
+		return commentFactory.getCommentData(comment, liked, parent);
 	}
 
 	private boolean hasUserLikedComment(long userId, long resourceId) {
@@ -199,9 +199,9 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 			comment.setPostDate(data.getDateCreated());
 			User user = (User) persistence.currentManager().load(User.class, userId);
 			comment.setUser(user);
-			if(data.getParentCommentId() > 0) {
+			if(data.getParent() != null) {
 				Comment1 parent = (Comment1) persistence.currentManager().load(Comment1.class, 
-						data.getParentCommentId());
+						data.getParent().getCommentId());
 				comment.setParentComment(parent);
 			}
 			

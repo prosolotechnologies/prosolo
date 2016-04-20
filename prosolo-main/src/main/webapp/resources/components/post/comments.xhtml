@@ -54,7 +54,7 @@
                  	 <p:commandButton
                  	 	styleClass="btn btn-sm btn-green hidden"
                  	 	value="Submit"
-                 	 	action="#{bean.saveNewComment(true)}"
+                 	 	action="#{bean.saveTopLevelComment()}"
                  	 	update=":#{cc.clientId}:formComments"
                  	 	oncomplete="scrollToNewestComment();">
                  	 	<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
@@ -79,12 +79,6 @@
              </div>
          </div>
          </h:form>
-         <script>
-         	function scrollToNewestComment() {
-         		var id = document.getElementById('newestCommentId').value;
-         		scrollTo('comment_'+id);
-         	}
-         </script>
 		</div>
 	</composite:implementation>
 </ui:component>
