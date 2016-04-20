@@ -13,19 +13,44 @@
 		
 		<div class="row filter">
 			<div class="col-md-3">
-				<div class="panel panel-inner">
+				<div class="panel panel-inner"  id="social-interactions-nonodeselected">
+					<div class="panel-body">
+						<div>Select one of the nodes to display more information
+							</div>
+						</div>
+					</div>
+				<div class="panel panel-inner"  id="social-interactions-selectedstudent"  style="display: none">
 					<div class="panel-body">
 						<div id="social-interactions-selected">
 							<h4>Selected student</h4>
-							ID: <span id="social-interactions-selected-id">None</span><br />
-							Name: <span id="social-interactions-selected-name">None</span><br />
-							Cluster: <span id="social-interactions-selected-cluster">None</span><br />
+							<!--span id="social-interactions-selected-id">None</span><br /-->
+							<span id="social-interactions-selected-name"></span><br />
+							<!--span id="social-interactions-selected-cluster">None</span><br /-->
 							<img id="social-interactions-selected-avatar" style="display: none" />
 						</div>
 					</div>
 				</div>
+				<div class="panel panel-inner" id="social-interactions-by-type-panel"  style="display: none">
+					<div class="panel-body">
+						<div id="social-interactions-bytype">
+							<h4>Social interactions by type</h4>
+							<!--table>
+								<tr><td>Type</td><td>OUT</td><td>IN</td></tr>
+								<tr><td>Comment:</td><td>4(12%)</td><td>8 (22%)</td></tr>
+								<tr><td>Like:</td><td>4(12%)</td><td>8 (22%)</td></tr>
+							</table-->
+						</div>
+					</div>
+				</div>
+				<div class="panel panel-inner"  id="social-interactions-by-peer-panel"  style="display: none">
+					<div class="panel-body">
+						<div id="social-interactions-bypeers">
+							<h4>Social interactions by peers</h4>
+							</div>
+					</div>
+				</div>
 			</div>
-			
+
 			<ui:remove>
 			<div class="col-md-3">
 				<div class="panel panel-inner">
