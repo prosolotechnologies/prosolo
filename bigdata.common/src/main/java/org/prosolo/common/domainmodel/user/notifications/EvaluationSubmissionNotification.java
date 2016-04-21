@@ -6,7 +6,7 @@ import javax.persistence.FetchType;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
-import org.prosolo.common.domainmodel.workflow.evaluation.EvaluationSubmission;
+import org.prosolo.common.domainmodel.evaluation.EvaluationSubmission;
 import org.prosolo.common.domainmodel.user.notifications.Notification;
 
 /**

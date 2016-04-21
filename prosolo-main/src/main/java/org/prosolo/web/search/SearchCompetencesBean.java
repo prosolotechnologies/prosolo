@@ -13,7 +13,6 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
-import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.search.TextSearch;

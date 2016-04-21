@@ -1,15 +1,15 @@
 /**
  * 
  */
-package org.prosolo.common.domainmodel.workflow.evaluation;
+package org.prosolo.common.domainmodel.evaluation;
 
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.evaluation.Evaluation;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.workflow.evaluation.Evaluation;
 
 /**
  * @author "Nikola Milikic"

@@ -57,7 +57,6 @@ public class DataGenerator {
 		
 		user.setAvatarUrl(AvatarUtils.getDefaultAvatarUrl());
 		user.setSystem(false);
-		user.setOrganization(oldUser.getOrganization());
 		userManager.saveEntity(user);
 		userEntityESService.saveUserNode(user,(Session) userManager.getPersistence().currentManager());
 		

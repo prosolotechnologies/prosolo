@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.prosolo.common.domainmodel.workflow.evaluation;
+package org.prosolo.common.domainmodel.evaluation;
 
 /**
  * @author "Nikola Milikic"

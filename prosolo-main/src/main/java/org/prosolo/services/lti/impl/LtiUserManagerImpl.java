@@ -6,21 +6,15 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
-import org.prosolo.common.domainmodel.course.Course;
-import org.prosolo.common.domainmodel.course.CourseEnrollment;
 import org.prosolo.common.domainmodel.lti.LtiConsumer;
 import org.prosolo.common.domainmodel.lti.LtiUser;
-import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.lti.LtiUserManager;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
-import org.prosolo.services.nodes.CourseManager;
-import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,8 +27,6 @@ public class LtiUserManagerImpl extends AbstractManagerImpl implements LtiUserMa
 
 	@Inject
 	private UserManager userManager;
-	@Inject
-	private CourseManager courseManager;
 
 	@Override
 	@Transactional
@@ -62,7 +54,7 @@ public class LtiUserManagerImpl extends AbstractManagerImpl implements LtiUserMa
 			User user = null;
 			String password = UUID.randomUUID().toString();
 			try {
-				user = userManager.createNewUser(name, lastName, email, true, password, null, null);
+				user = userManager.createNewUser(name, lastName, email, true, password, null);
 			} catch (UserAlreadyRegisteredException e) {
 				user = userManager.getUser(email);
 			} catch (EventException e) {

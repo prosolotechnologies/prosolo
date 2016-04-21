@@ -2,8 +2,7 @@ package org.prosolo.web.administration.data;
 
 import java.io.Serializable;
 
-import org.prosolo.common.domainmodel.organization.Organization;
-
+@Deprecated
 public class OrganizationData implements Serializable {
 
 	private static final long serialVersionUID = 5001726153966660904L;
@@ -16,14 +15,14 @@ public class OrganizationData implements Serializable {
 
 	public OrganizationData() {}
 	
-	public OrganizationData(Organization org) {
-		this.name = org.getTitle();
-		this.description = org.getDescription();
-		//this.uri = org.getUri();
-		this.abbreviatedName = org.getAbbreviatedName();
-		this.setId(org.getId());
-		
-	}
+//	public OrganizationData(Organization org) {
+//		this.name = org.getTitle();
+//		this.description = org.getDescription();
+//		//this.uri = org.getUri();
+//		this.abbreviatedName = org.getAbbreviatedName();
+//		this.setId(org.getId());
+//		
+//	}
 
 	public String getUri() {
 		return uri;
@@ -57,14 +56,14 @@ public class OrganizationData implements Serializable {
 		this.description = description;
 	}
 	
-	public void updateOrganization(Organization organization){
-		if (organization!=null){
-		organization.setTitle(this.getName());
-		organization.setName(this.getName());
-		organization.setAbbreviatedName(this.getAbbreviatedName());
-		organization.setDescription(this.getDescription());
-		}
-	}
+//	public void updateOrganization(Organization organization){
+//		if (organization!=null){
+//		organization.setTitle(this.getName());
+//		organization.setName(this.getName());
+//		organization.setAbbreviatedName(this.getAbbreviatedName());
+//		organization.setDescription(this.getDescription());
+//		}
+//	}
 
 	public long getId() {
 		return id;

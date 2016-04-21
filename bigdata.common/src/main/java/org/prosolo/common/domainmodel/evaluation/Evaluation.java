@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.prosolo.common.domainmodel.workflow.evaluation;
+package org.prosolo.common.domainmodel.evaluation;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -17,10 +17,10 @@ import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.Type;
+import org.prosolo.common.domainmodel.evaluation.Badge;
+import org.prosolo.common.domainmodel.evaluation.EvaluationSubmission;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.workflow.evaluation.Badge;
-import org.prosolo.common.domainmodel.workflow.evaluation.EvaluationSubmission;
 
 /**
  * @author "Nikola Milikic"

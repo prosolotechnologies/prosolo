@@ -12,11 +12,9 @@ import org.prosolo.app.bc.BusinessCase2_AU;
 import org.prosolo.app.bc.BusinessCase3_Statistics;
 import org.prosolo.app.bc.BusinessCase4_EDX;
 import org.prosolo.common.config.CommonSettings;
-import org.prosolo.common.domainmodel.organization.Organization;
-import org.prosolo.common.domainmodel.organization.OrganizationalUnit;
+import org.prosolo.common.domainmodel.evaluation.BadgeType;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.workflow.evaluation.BadgeType;
 import org.prosolo.common.messaging.rabbitmq.QueueNames;
 import org.prosolo.common.messaging.rabbitmq.ReliableConsumer;
 import org.prosolo.common.messaging.rabbitmq.impl.ReliableConsumerImpl;
@@ -31,10 +29,8 @@ import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.indexing.impl.ESAdministrationImpl;
 import org.prosolo.services.messaging.rabbitmq.impl.DefaultMessageWorker;
 import org.prosolo.services.nodes.BadgeManager;
-import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
-import org.prosolo.services.nodes.UserManager;
 
 public class AfterContextLoader implements ServletContextListener {
 
@@ -160,34 +156,8 @@ public class AfterContextLoader implements ServletContextListener {
 							true,
 							Settings.getInstance().config.init.defaultUser.pass,
 							null, 
-							null, 
-							true);
-			
-			Organization organization = ServiceLocator.getInstance().getService(OrganizationManager.class)
-					.createNewOrganization(adminUser, "", "", "");
-	
-			adminUser.setOrganization(organization);
-			adminUser = ServiceLocator.getInstance().getService(UserManager.class)
-					.saveEntity(adminUser);
-	
-			OrganizationalUnit headOfficeOrgUnit = ServiceLocator.getInstance().getService(OrganizationManager.class)
-					.createNewOrganizationalUnit(
-							organization,
-							"Head Office",
-							"Default inital organizational Unit for: " + organization.getTitle(), 
-							false);
-			
-			OrganizationalUnit systemOrgUnit = ServiceLocator.getInstance().getService(OrganizationManager.class)
-					.createNewOrganizationalUnit(
-							organization, 
-							"System",
-							"System unit", 
 							true);
 	
-			organization.addOrgUnit(headOfficeOrgUnit);
-			organization.addOrgUnit(systemOrgUnit);
-			ServiceLocator.getInstance().getService(OrganizationManager.class).saveEntity(organization);
-		
 			String roleAdminTitle = "Admin";
 			
 			Role adminRole = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(roleAdminTitle);

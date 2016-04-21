@@ -3,29 +3,20 @@ package org.prosolo.common.domainmodel.user;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
-import org.prosolo.common.domainmodel.user.Email;
-import org.prosolo.common.domainmodel.user.TargetLearningGoal;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.UserType;
 
 
 @Entity
@@ -46,7 +37,6 @@ public class User extends BaseEntity {
 	private int passwordLength = 0;
 	private String profileUrl;
 	private UserType userType;
-	private Organization organization;
 	private String position;
 	private boolean system;
 	
@@ -128,16 +118,6 @@ public class User extends BaseEntity {
 	public int compareTo(User o) {
 		return getEmail().toString().compareTo(( (User) o).getEmail().toString());
 
-	}
-
-	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_user_organization")
-	public Organization getOrganization() {
-		return organization;
-	}
-
-	public void setOrganization(Organization organization) {
-		this.organization = organization;
 	}
 
 	@Type(type="true_false")

@@ -1,4 +1,4 @@
-package org.prosolo.web.communications.data;
+package org.prosolo.web.messaging.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.messaging.MessageThread;
+import org.prosolo.common.domainmodel.messaging.ThreadParticipant;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
@@ -47,7 +48,8 @@ public class MessagesThreadData implements Serializable {
 		this.lastUpdated = thread.getLastUpdated();
 		this.updateTime = DateUtil.createUpdateTime(lastUpdated);
 		
-		for (User user : thread.getParticipants()) {
+		for (ThreadParticipant participant : thread.getParticipants()) {
+			User user = participant.getUser();
 			UserData userData = UserDataFactory.createUserData(user);
 			
 			participants.add(userData);

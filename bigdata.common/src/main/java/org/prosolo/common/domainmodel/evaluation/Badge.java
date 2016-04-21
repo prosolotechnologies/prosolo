@@ -1,14 +1,14 @@
 /**
  * 
  */
-package org.prosolo.common.domainmodel.workflow.evaluation;
+package org.prosolo.common.domainmodel.evaluation;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
+import org.prosolo.common.domainmodel.evaluation.BadgeType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.workflow.evaluation.BadgeType;
 
 /**
  * @author "Nikola Milikic"

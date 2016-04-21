@@ -1,6 +1,6 @@
 package org.prosolo.services.interaction.impl;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpSession;
 
@@ -11,6 +11,7 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.messaging.MessageThread;
+import org.prosolo.common.domainmodel.messaging.ThreadParticipant;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.messaging.data.ServiceType;
 import org.prosolo.core.hibernate.HibernateUtil;
@@ -58,13 +59,14 @@ public class MessagesObserver extends EventObserver {
 				MessageThread messagesThread = message.getMessageThread();
 				messagesThread = (MessageThread) session.merge(messagesThread);
 				
-				List<User> participants = messagesThread.getParticipants();
+				Set<ThreadParticipant> participants = messagesThread.getParticipants();
 				
-				for (User participant : participants) {
+				for (ThreadParticipant participant : participants) {
+					User user = participant.getUser();
 					if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
-						messageDistributer.distributeMessage(ServiceType.DIRECT_MESSAGE, participant.getId(), message.getId(), null, null);
+						messageDistributer.distributeMessage(ServiceType.DIRECT_MESSAGE, user.getId(), message.getId(), null, null);
 					} else {
-						HttpSession httpSession = applicationBean.getUserSession(participant.getId());
+						HttpSession httpSession = applicationBean.getUserSession(user.getId());
 						
 						messageInboxUpdater.updateOnNewMessage(message, messagesThread, httpSession);
 					}
@@ -73,17 +75,18 @@ public class MessagesObserver extends EventObserver {
 				MessageThread messagesThread = (MessageThread) event.getObject();
 
 				if (messagesThread != null) {
-					List<User> participants = messagesThread.getParticipants();
+					Set<ThreadParticipant> participants = messagesThread.getParticipants();
 					
-					for (User participant : participants) {
-						HttpSession httpSession = applicationBean.getUserSession(participant.getId());
+					for (ThreadParticipant participant : participants) {
+						User user = participant.getUser();
+						HttpSession httpSession = applicationBean.getUserSession(user.getId());
 						
 						if (httpSession != null) {
 							messageInboxUpdater.addNewMessageThread(messagesThread, httpSession);
 						} else if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 							messageDistributer.distributeMessage(
 									ServiceType.ADD_NEW_MESSAGE_THREAD, 
-									participant.getId(), 
+									user.getId(), 
 									messagesThread.getId(), 
 									null,
 									null);

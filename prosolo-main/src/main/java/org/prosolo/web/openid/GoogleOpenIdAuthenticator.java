@@ -3,17 +3,13 @@ package org.prosolo.web.openid;
 import java.io.IOException;
 
 import javax.faces.context.FacesContext;
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
 import org.prosolo.services.openid.GoogleOpenIdAuthenticatorService;
 import org.prosolo.services.openid.exception.OpenIdException;
-import org.prosolo.services.openid.impl.GoogleOpenIdAuthenticatorServiceImpl;
 import org.prosolo.web.openid.data.OpenIdUserInfo;
-import org.springframework.stereotype.Component;
-
 
 public class GoogleOpenIdAuthenticator implements OpenIdAuthenticator {
 

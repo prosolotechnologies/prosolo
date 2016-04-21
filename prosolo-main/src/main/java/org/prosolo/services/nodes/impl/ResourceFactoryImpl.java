@@ -41,8 +41,6 @@ import org.prosolo.common.domainmodel.credential.CredentialType1;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.organization.Capability;
-import org.prosolo.common.domainmodel.organization.Organization;
-import org.prosolo.common.domainmodel.organization.OrganizationalUnit;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
@@ -69,7 +67,6 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
-import org.prosolo.services.nodes.ScaleManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.activity.ActivityData;
@@ -96,7 +93,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Autowired private PostManager postManager;
     @Autowired private PasswordEncrypter passwordEncrypter;
     @Autowired private RoleManager roleManager;
-    @Autowired private ScaleManager scaleManager;
     @Autowired private FeedSourceManager feedSourceManager;
     @Inject private CourseManager courseManager;
     @Inject private LearningGoalManager goalManager;
@@ -120,31 +116,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         return role;
     }
 
-    @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public Organization createNewOrganization(User currentUser, String name, String abbreviatedName, String description){
-        Organization organization = new Organization();
-        organization.setName(name);
-        organization.setTitle(name);
-        organization.setAbbreviatedName(abbreviatedName);
-        organization.setDateCreated(new Date());
-        organization.setDescription(description);
-        organization = saveEntity(organization);
-        return organization;
-        //should this generate any events?
-    }
-
-    @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public OrganizationalUnit createNewOrganizationalUnit(Organization organization, String name, String description, boolean system){
-        OrganizationalUnit orgUnit = new OrganizationalUnit();
-        orgUnit.setTitle(name);
-        orgUnit.setOrganization(organization);
-        orgUnit.setDescription(description);
-        orgUnit.setSystem(system);
-        return saveEntity(orgUnit);
-    }
-    
     @Override
 //  @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Transactional(readOnly = false)
@@ -544,7 +515,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Override
     @Transactional (readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified, 
-            String password, Organization organization, String position, boolean system) throws EventException {
+            String password, String position, boolean system) throws EventException {
         
         emailAddress = emailAddress.toLowerCase();
         
@@ -567,7 +538,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         
         user.setAvatarUrl(AvatarUtils.getDefaultAvatarUrl());
         user.setSystem(system);
-        user.setOrganization(organization);
         user.setPosition(position);
             
         user.setUserType(UserType.REGULAR_USER);

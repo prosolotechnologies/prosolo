@@ -3,10 +3,7 @@ package org.prosolo.web.students.data.learning;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
-import org.prosolo.services.nodes.CompetenceManager;
 
 public class LearningGoalData implements Serializable {
 

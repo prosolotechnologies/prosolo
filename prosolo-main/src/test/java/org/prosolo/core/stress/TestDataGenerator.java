@@ -9,7 +9,6 @@ import java.util.UUID;
 
 import org.hibernate.Session;
 import org.junit.Test;
-import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.Email;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserType;
@@ -18,7 +17,6 @@ import org.prosolo.services.authentication.impl.JasyptStrongPasswordEncryptor;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
-import org.prosolo.services.nodes.ScaleManager;
 import org.prosolo.web.util.AvatarUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
@@ -35,7 +33,6 @@ public class TestDataGenerator extends TestContext{
 	@Autowired private ResourceFactory resourceFactory;
 	@Autowired private UserEntityESService userEntityESService;
 	@Autowired private RoleManager roleManager;
-	@Autowired private ScaleManager scaleManager;
  
 	@Test
 	public void createTestUsersTest(){
@@ -85,19 +82,16 @@ public class TestDataGenerator extends TestContext{
 	}
 	@Transactional(readOnly=false, propagation=Propagation.REQUIRED)
 	private void populateDBwithUsersTest(FileWriter writer){
-		 PasswordEncrypter passwordEncrypter=new JasyptStrongPasswordEncryptor();
-		 BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		PasswordEncrypter passwordEncrypter = new JasyptStrongPasswordEncryptor();
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		Session session=(Session) userManager.getPersistence().openSession();
-		Organization organization=organizationalManager.lookupDefaultOrganization();
 		int numberOfUsers=0;
 		System.out.println("Enter number of users:");
 		try {
 			numberOfUsers=Integer.parseInt(br.readLine());
 		} catch (NumberFormatException e1) {
-			// TODO Auto-generated catch block
 			System.out.println("Not appropriate format. Should be number.");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}  
 		System.out.println("Number of users to generate:"+numberOfUsers);
@@ -106,7 +100,6 @@ public class TestDataGenerator extends TestContext{
 		try {
 			 namePattern=br.readLine();
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		System.out.println("Name pattern:"+namePattern);
@@ -133,7 +126,6 @@ public class TestDataGenerator extends TestContext{
 			user.setPasswordLength(password.length());
 			user.setAvatarUrl(AvatarUtils.getDefaultAvatarUrl());
 			user.setSystem(false);
-			user.setOrganization(organization);
 			user.setPosition(position);
 				
 			user.setUserType(UserType.REGULAR_USER);

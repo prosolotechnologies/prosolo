@@ -10,7 +10,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
-import org.prosolo.web.communications.data.MessagesThreadData;
+import org.prosolo.web.messaging.data.MessagesThreadData;
 
 public interface MessagingManager extends AbstractManager {
 	
@@ -51,7 +51,7 @@ public interface MessagingManager extends AbstractManager {
 
 	List<MessageThread> getLatestUserMessagesThreads(User user, int page, int limit);
 
-	boolean markThreadAsRead(long threadId, User user);
+	boolean markThreadAsRead(long threadId, long userId);
 
 	List<Message> getMessagesForThread(MessageThread thread,
 			int page, int limit, Session session);

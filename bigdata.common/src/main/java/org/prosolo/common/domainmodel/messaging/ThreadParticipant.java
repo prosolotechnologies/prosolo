@@ -13,14 +13,15 @@ import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.user.User;
 
 @Entity
-public class MessageParticipant implements Serializable {
+public class ThreadParticipant implements Serializable {
 
 	private static final long serialVersionUID = 1156059969948940348L;
 	
 	private long id;
-	private boolean sender;
 	private boolean read;
-	private User participant;
+	private boolean archived;
+	private User user;
+	private Message lastReadMessage;
 	
 	@Id
 	@Column(name = "id", unique = true, nullable = false, insertable = false, updatable = false)
@@ -35,16 +36,6 @@ public class MessageParticipant implements Serializable {
 	}
 
 	@Type(type = "true_false")
-	@Column(name="sender", columnDefinition = "char(1) DEFAULT 'F'")
-	public boolean isSender() {
-		return sender;
-	}
-
-	public void setSender(boolean sender) {
-		this.sender = sender;
-	}
-
-	@Type(type = "true_false")
 	@Column(name="is_read", columnDefinition = "char(1) DEFAULT 'F'")
 	public boolean isRead() {
 		return read;
@@ -53,14 +44,33 @@ public class MessageParticipant implements Serializable {
 	public void setRead(boolean read) {
 		this.read = read;
 	}
-
-	@ManyToOne
-	public User getParticipant() {
-		return participant;
+	
+	@Type(type = "true_false")
+	@Column(name="archived", columnDefinition = "char(1) DEFAULT 'F'")
+	public boolean isArchived() {
+		return archived;
 	}
 
-	public void setParticipant(User participant) {
-		this.participant = participant;
+	public void setArchived(boolean archived) {
+		this.archived = archived;
+	}
+
+	@ManyToOne
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+	
+	@ManyToOne
+	public Message getLastReadMessage() {
+		return lastReadMessage;
+	}
+
+	public void setLastReadMessage(Message lastReadMessage) {
+		this.lastReadMessage = lastReadMessage;
 	}
 	
 }

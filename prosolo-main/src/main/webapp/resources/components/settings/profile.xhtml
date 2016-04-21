@@ -134,45 +134,6 @@
 							placeholder="#{msg['settings.profile.position']}" />
 					</div>
 				</h:panelGroup>
-				
-			<ui:remove>
-				<h:panelGroup layout="block" id="department" class="department row infoEdit">
-					<div class="first bold">Department:</div>
-					<h:panelGroup layout="block" id="departmentList" class="second departmentList">
-						<a class="deptDrop" href="javascript:void(0);">
-							#{profileSettings.accountData.department.title}
-						</a>
-						<div class="dropdown hidden">
-							<ul>
-								<ui:repeat value="#{profileSettings.departments}" var="dept" varStatus="iterator">
-									<li>
-										<p:commandLink 
-											value="#{dept.title}"
-											styleClass="#{dept == profileSettings.accountData.department ? 'selected' : ''}"
-											actionListener="#{profileSettings.accountData.setDepartment(dept)}"
-											update=":profileForm:departmentList"
-										/>
-									</li>
-								</ui:repeat>
-							</ul>
-						</div>
-						
-						<script>
-							enableDropdown('.profile .department .deptDrop');
-						</script>
-					</h:panelGroup>
-				</h:panelGroup>
-					
-				<utilcomp:lazyLoad 
-					parentClass="profile"
-					specificClassIdentifier="department"
-					updateOnComplete=":profileForm:departmentList"
-					loaderContainer=".departmentList"
-					initializeAction="#{profileSettings.initializeDepartments()}"
-					withLoader="false"
-					removeContentBeforeLoader="false"
-				/>
-			</ui:remove>
 			</div>
 			
 			<div class="separator"></div>

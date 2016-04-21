@@ -5,7 +5,7 @@ package org.prosolo.web.portfolio.data;
 
 import java.io.Serializable;
 
-import org.prosolo.common.domainmodel.workflow.evaluation.Evaluation;
+import org.prosolo.common.domainmodel.evaluation.Evaluation;
 
 /**
  * @author "Nikola Milikic"

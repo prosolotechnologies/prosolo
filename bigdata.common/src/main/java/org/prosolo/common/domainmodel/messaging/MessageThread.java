@@ -2,11 +2,12 @@ package org.prosolo.common.domainmodel.messaging;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -15,7 +16,6 @@ import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.Cascade;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.user.User;
 
 
@@ -33,11 +33,11 @@ public class MessageThread extends BaseEntity {
 	private Date dateStarted;
 	private Date lastUpdated;
 	private String subject;
-	private List<User> participants;
+	private Set<ThreadParticipant> participants;
 	private List<Message> messages;
 
 	public MessageThread() {
-		setParticipants(new ArrayList<User>());
+		setParticipants(new HashSet<ThreadParticipant>());
 		setMessages(new ArrayList<Message>());
 	}
 
@@ -52,13 +52,26 @@ public class MessageThread extends BaseEntity {
 
 	@ManyToMany
 	@Cascade({ org.hibernate.annotations.CascadeType.PERSIST, org.hibernate.annotations.CascadeType.REFRESH })
-	@JoinTable(name = "user_MessageThread_participants_User")
-	public List<User> getParticipants() {
+	public Set<ThreadParticipant> getParticipants() {
 		return participants;
 	}
+	
+	public ThreadParticipant getParticipant(long userId) {
+		for (ThreadParticipant participant : participants) {
+			if (participant.getUser().getId() == userId) {
+				return participant;
+			}
+		}
+		return null;
+	}
 
-	public void setParticipants(List<User> participants2) {
+	public void setParticipants(Set<ThreadParticipant> participants2) {
 		this.participants = participants2;
+	}
+	
+	public void addParticipant(ThreadParticipant participant) {
+		if (participant != null)
+			this.participants.add(participant);
 	}
 
 	@Temporal(TemporalType.TIMESTAMP)

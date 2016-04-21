@@ -7,7 +7,7 @@ import javax.servlet.http.HttpSession;
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.services.interaction.MessageInboxUpdater;
-import org.prosolo.web.MessagesBean;
+import org.prosolo.web.messaging.MessagesBean;
 import org.prosolo.web.notification.TopInboxBean;
 import org.springframework.stereotype.Service;
 

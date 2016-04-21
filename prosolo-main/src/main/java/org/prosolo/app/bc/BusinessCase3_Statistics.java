@@ -29,9 +29,6 @@ import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CourseCompetence;
 import org.prosolo.common.domainmodel.course.CreatorType;
-import org.prosolo.common.domainmodel.organization.Organization;
-import org.prosolo.common.domainmodel.organization.OrganizationalPosition;
-import org.prosolo.common.domainmodel.organization.OrganizationalUnit;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.LearningGoal;
@@ -57,7 +54,6 @@ import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.NodeRecommendationManager;
-import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
@@ -157,39 +153,18 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		regKey2.setUid(UUID.randomUUID().toString().replace("-", ""));
 		regKey2.setRegistrationType(RegistrationType.NO_APPROVAL_ACCESS);
 		ServiceLocator.getInstance().getService(RegistrationManager.class).saveEntity(regKey2);
-		logger.info("initRepository");
-		Organization org = ServiceLocator.getInstance()
-				.getService(OrganizationManager.class)
-				.lookupDefaultOrganization();
-		
-		OrganizationalUnit headOfficeOrgUnit = ServiceLocator.getInstance()
-				.getService(OrganizationManager.class)
-				.lookupHeadOfficeUnit(org);
-		OrganizationalUnit fosGoodOldAiResearchNetworkOrgUnit = new OrganizationalUnit();
-		fosGoodOldAiResearchNetworkOrgUnit.setTitle("FOS GOOD OLD AI");
-		fosGoodOldAiResearchNetworkOrgUnit.setOrganization(org);
-		fosGoodOldAiResearchNetworkOrgUnit.setParentUnit(headOfficeOrgUnit);
-		fosGoodOldAiResearchNetworkOrgUnit = ServiceLocator.getInstance()
-				.getService(DefaultManager.class)
-				.saveEntity(fosGoodOldAiResearchNetworkOrgUnit);
-		ServiceLocator
-				.getInstance()
-				.getService(OrganizationManager.class)
-				.addSubUnit(headOfficeOrgUnit,
-						fosGoodOldAiResearchNetworkOrgUnit);
+
 		logger.info("initRepository");
 		String dataApplicationDeveloperOrgPosition = "Data Application Developer";
 		String fictitiousUser = "Fictitious User";
-		ServiceLocator.getInstance().getService(OrganizationManager.class)
-				.addOrgUnit(org, fosGoodOldAiResearchNetworkOrgUnit);
-		logger.info("initRepository");
+
 		User userNickPowell=null;
 		try {
 			userNickPowell = ServiceLocator
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser("Nick", "Powell", "nick.powell@gmail.com",
-							true, "prosolo@2014", org, fictitiousUser, getAvatarInputStream("male1.png"), "male1.png");
+							true, "prosolo@2014", fictitiousUser, getAvatarInputStream("male1.png"), "male1.png");
 		} catch (UserAlreadyRegisteredException e1) {
 			logger.error(e1.getLocalizedMessage());
 		} catch (EventException e) {
@@ -202,7 +177,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser("Richard", "Anderson", "richard.anderson@gmail.com",
-							true, "prosolo@2014", org, fictitiousUser, getAvatarInputStream("male2.png"), "male2.png");
+							true, "prosolo@2014", fictitiousUser, getAvatarInputStream("male2.png"), "male2.png");
 		} catch (UserAlreadyRegisteredException e1) {
 			logger.error(e1.getLocalizedMessage());
 		} catch (EventException e) {
@@ -215,7 +190,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser("Kevin", "Mitchell", "kevin.mitchell@gmail.com",
-							true, "prosolo@2014", org, dataApplicationDeveloperOrgPosition, getAvatarInputStream("male3.png"), "male3.png");
+							true, "prosolo@2014", dataApplicationDeveloperOrgPosition, getAvatarInputStream("male3.png"), "male3.png");
 		} catch (UserAlreadyRegisteredException e1) {
 			logger.error(e1.getLocalizedMessage());
 		} catch (EventException e) {
@@ -238,26 +213,6 @@ public class BusinessCase3_Statistics extends BusinessCase {
 	
 		userKevinMitchell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleAdmin, userKevinMitchell);
 
-		OrganizationalUnit keyToMetalsIniOrgUnit = new OrganizationalUnit();
-		keyToMetalsIniOrgUnit.setTitle("Key to Metals");
-		keyToMetalsIniOrgUnit.setOrganization(org);
-		keyToMetalsIniOrgUnit.setParentUnit(headOfficeOrgUnit);
-		keyToMetalsIniOrgUnit = ServiceLocator.getInstance()
-				.getService(DefaultManager.class)
-				.saveEntity(keyToMetalsIniOrgUnit);
-
-		ServiceLocator.getInstance().getService(OrganizationManager.class)
-				.addSubUnit(headOfficeOrgUnit, keyToMetalsIniOrgUnit);
-
-		ServiceLocator.getInstance().getService(OrganizationManager.class)
-				.addOrgUnit(org, keyToMetalsIniOrgUnit);
-
-		OrganizationalPosition fosAssistantProfessorPosition = new OrganizationalPosition();
-		fosAssistantProfessorPosition.setTitle("Assistant Professor");
-		fosAssistantProfessorPosition.setAllocatedToOrgUnit(fosGoodOldAiResearchNetworkOrgUnit);
-		fosAssistantProfessorPosition = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(fosAssistantProfessorPosition);
-		logger.info("initRepository");
-		
 		/*
 		 * CREATING USERS
 		 */
@@ -268,7 +223,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser("Paul", "Edwards", "paul.edwards@gmail.com",
-							true, "prosolo@2014", org, fictitiousUser, getAvatarInputStream("male4.png"), "male4.png");
+							true, "prosolo@2014", fictitiousUser, getAvatarInputStream("male4.png"), "male4.png");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e.getLocalizedMessage());
 		} catch (EventException e) {
@@ -286,7 +241,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser("Steven", "Turner",
-							"steven.turner@gmail.com", true, "prosolo@2014", org, fictitiousUser,
+							"steven.turner@gmail.com", true, "prosolo@2014", fictitiousUser,
 							getAvatarInputStream("male5.png"), "male5.png");
 		} catch (UserAlreadyRegisteredException e1) {
 			logger.error(e1.getLocalizedMessage());
@@ -305,7 +260,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser("George", "Young", "george.young@gmail.com",
-							true, "prosolo@2014", org, fictitiousUser, getAvatarInputStream("male6.png"), "male6.png");
+							true, "prosolo@2014", fictitiousUser, getAvatarInputStream("male6.png"), "male6.png");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e.getLocalizedMessage());
 		} catch (EventException e) {
@@ -323,7 +278,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser("Phill", "Amstrong",
-							"phill.amstrong@gmail.com", true, "prosolo@2014", org, fictitiousUser,
+							"phill.amstrong@gmail.com", true, "prosolo@2014", fictitiousUser,
 							getAvatarInputStream("male7.png"), "male7.png");
 		} catch (UserAlreadyRegisteredException e1) {
 			logger.error(e1.getLocalizedMessage());
@@ -337,7 +292,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser("Joseph", "Garcia",
-							"joseph.garcia@gmail.com", true, "prosolo@2014", org, fictitiousUser,
+							"joseph.garcia@gmail.com", true, "prosolo@2014", fictitiousUser,
 							getAvatarInputStream("male8.png"), "male8.png");
 		} catch (UserAlreadyRegisteredException e1) {
 			logger.error(e1.getLocalizedMessage());
@@ -351,7 +306,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser("Timothy", "Rivera",
-							"timothy.rivera@gmail.com", true, "prosolo@2014", org, fictitiousUser,
+							"timothy.rivera@gmail.com", true, "prosolo@2014", fictitiousUser,
 							getAvatarInputStream("male9.png"), "male9.png");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e.getLocalizedMessage());
@@ -376,7 +331,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser("Kevin", "Hall", "kevin.hall@gmail.com",
-							true, "prosolo@2014", org, fictitiousUser, getAvatarInputStream("male10.png"), "male10.png");
+							true, "prosolo@2014", fictitiousUser, getAvatarInputStream("male10.png"), "male10.png");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e.getLocalizedMessage());
 		} catch (EventException e) {
@@ -393,7 +348,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser("Kenneth", "Carter",
-							"kenneth.carter@gmail.com", true, "prosolo@2014", org, fictitiousUser,
+							"kenneth.carter@gmail.com", true, "prosolo@2014", fictitiousUser,
 							getAvatarInputStream("male11.png"), "male11.png");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e.getLocalizedMessage());
@@ -411,7 +366,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser("Karen", "White", "karen.white@gmail.com",
-							true, "prosolo@2014", org, fictitiousUser, getAvatarInputStream("female10.png"), "female10.png");
+							true, "prosolo@2014", fictitiousUser, getAvatarInputStream("female10.png"), "female10.png");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e.getLocalizedMessage());
 		} catch (EventException e) {
@@ -428,7 +383,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser("Helen", "Campbell",
-							"helen.campbell@gmail.com", true, "prosolo@2014", org, fictitiousUser,
+							"helen.campbell@gmail.com", true, "prosolo@2014", fictitiousUser,
 							getAvatarInputStream("female13.png"), "female13.png");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e.getLocalizedMessage());
@@ -446,7 +401,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser("Anthony", "Moore",
-							"anthony.moore@gmail.com", true, "prosolo@2014", org, fictitiousUser,
+							"anthony.moore@gmail.com", true, "prosolo@2014", fictitiousUser,
 							getAvatarInputStream("male12.png"), "male12.png");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e.getLocalizedMessage());
@@ -464,7 +419,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser("Richard", "Rodrigues",
-							"richard.rodrigues@gmail.com", true, "prosolo@2014", org, fictitiousUser,
+							"richard.rodrigues@gmail.com", true, "prosolo@2014", fictitiousUser,
 							getAvatarInputStream("male12.png"), "male12.png");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e.getLocalizedMessage());
@@ -482,7 +437,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser("Tania", "Cortese",
-							"tania.cortese@gmail.com", true, "prosolo@2014", org, fictitiousUser,
+							"tania.cortese@gmail.com", true, "prosolo@2014", fictitiousUser,
 							getAvatarInputStream("female1.png"), "female1.png");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e.getLocalizedMessage());
@@ -500,7 +455,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser("Ida", "Fritz", "ida.fritz@gmail.com",
-							true, "prosolo@2014", org, fictitiousUser, getAvatarInputStream("female17.png"), "female17.png");
+							true, "prosolo@2014", fictitiousUser, getAvatarInputStream("female17.png"), "female17.png");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e.getLocalizedMessage());
 		} catch (EventException e) {
@@ -517,7 +472,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser("Sonya", "Elston", "sonya.elston@gmail.com",
-							true, "prosolo@2014", org, fictitiousUser, getAvatarInputStream("female2.png"), "female2.png");
+							true, "prosolo@2014", fictitiousUser, getAvatarInputStream("female2.png"), "female2.png");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e.getLocalizedMessage());
 		} catch (EventException e) {
@@ -534,7 +489,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser("Lori", "Abner", "lori.abner@gmail.com",
-							true, "prosolo@2014", org, fictitiousUser, getAvatarInputStream("female3.png"), "female3.png");
+							true, "prosolo@2014", fictitiousUser, getAvatarInputStream("female3.png"), "female3.png");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e.getLocalizedMessage());
 		} catch (EventException e) {
@@ -551,7 +506,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser("Samantha", "Dell",
-							"samantha.dell@gmail.com", true, "prosolo@2014", org, fictitiousUser,
+							"samantha.dell@gmail.com", true, "prosolo@2014", fictitiousUser,
 							getAvatarInputStream("female4.png"), "female4.png");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e.getLocalizedMessage());
@@ -569,7 +524,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser("Anna", "Hallowell",
-							"anna.hallowell@gmail.com", true, "prosolo@2014", org, fictitiousUser,
+							"anna.hallowell@gmail.com", true, "prosolo@2014", fictitiousUser,
 							getAvatarInputStream("female11.png"), "female11.png");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e.getLocalizedMessage());
@@ -587,7 +542,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser("Sheri", "Laureano",
-							"sheri.laureano@gmail.com", true, "prosolo@2014", org, fictitiousUser,
+							"sheri.laureano@gmail.com", true, "prosolo@2014", fictitiousUser,
 							getAvatarInputStream("female14.png"), "female14.png");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e.getLocalizedMessage());
@@ -605,7 +560,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser("Erika", "Ames", "erika.ames@gmail.com",
-							true, "prosolo@2014", org, fictitiousUser, getAvatarInputStream("female10.png"), "female10.png");
+							true, "prosolo@2014", fictitiousUser, getAvatarInputStream("female10.png"), "female10.png");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e.getLocalizedMessage());
 		} catch (EventException e) {
@@ -622,7 +577,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser("Akiko", "Kido", "akiko.kido@gmail.com",
-							true, "prosolo@2014", org, fictitiousUser, getAvatarInputStream("female7.png"), "female7.png");
+							true, "prosolo@2014", fictitiousUser, getAvatarInputStream("female7.png"), "female7.png");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e.getLocalizedMessage());
 		} catch (EventException e) {
@@ -639,7 +594,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser("Angelica", "Fallon",
-							"angelica.fallon@gmail.com", true, "prosolo@2014", org, fictitiousUser,
+							"angelica.fallon@gmail.com", true, "prosolo@2014", fictitiousUser,
 							getAvatarInputStream("female16.png"), "female16.png");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e.getLocalizedMessage());
@@ -657,7 +612,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser("Rachel", "Wiggins",
-							"rachel.wiggins@gmail.com", true, "prosolo@2014", org, fictitiousUser,
+							"rachel.wiggins@gmail.com", true, "prosolo@2014", fictitiousUser,
 							getAvatarInputStream("female20.png"), "female20.png");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e.getLocalizedMessage());
@@ -675,7 +630,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser("Andrew", "Camper",
-							"andrew.camper@gmail.com", true, "prosolo@2014", org, fictitiousUser,
+							"andrew.camper@gmail.com", true, "prosolo@2014", fictitiousUser,
 							getAvatarInputStream("male6.png"), "male6.png");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e.getLocalizedMessage());

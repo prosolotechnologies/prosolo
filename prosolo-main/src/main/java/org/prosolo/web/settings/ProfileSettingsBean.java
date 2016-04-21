@@ -5,7 +5,6 @@ package org.prosolo.web.settings;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -19,32 +18,29 @@ import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.organization.OrganizationalUnit;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.web.activitywall.data.UserData;
-import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.upload.AvatarProcessor;
-import org.prosolo.util.nodes.NodeTitleComparator;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.ActivityWallBean;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.activitywall.data.SocialActivityCommentData;
-import org.prosolo.web.communications.data.MessagesThreadData;
 import org.prosolo.web.goals.GoalWallBean;
 import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.CompetenceDataCache;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.home.PeopleRecommenderBean;
+import org.prosolo.web.messaging.data.MessagesThreadData;
 import org.prosolo.web.notification.TopInboxBean;
 import org.prosolo.web.notification.TopNotificationsBean;
 import org.prosolo.web.notification.data.NotificationData;
 import org.prosolo.web.settings.data.AccountData;
+import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -67,7 +63,6 @@ public class ProfileSettingsBean implements Serializable {
 
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private UserManager userManager;
-	@Autowired private OrganizationManager orgManager;
 	@Autowired private AvatarProcessor avatarProcessor;
 	@Autowired private EventFactory eventFactory;
 	@Autowired private ApplicationBean applicationBean;
@@ -76,9 +71,6 @@ public class ProfileSettingsBean implements Serializable {
 	@Autowired private PeopleRecommenderBean peopleRecommenderBean;
 	
 	private AccountData accountData;
-	
-	private OrganizationalUnit[] departments;
-	private OrganizationalUnit tempDepartment;
 	
 	@PostConstruct
 	public void initializeAccountData() {
@@ -160,19 +152,6 @@ public class ProfileSettingsBean implements Serializable {
 			
 			initializeAccountData();
 			asyncUpdateUserDataInSocialActivities(accountData);
-		}
-	}
-	
-	public void initializeDepartments() {
-		if (departments == null) {
-			List<OrganizationalUnit> departmentsList = (List<OrganizationalUnit>) orgManager.getAllUnitsOfOrganization(loggedUser.getUser().getOrganization());
-			Collections.sort(departmentsList, new NodeTitleComparator());
-			
-			departments = new OrganizationalUnit[departmentsList.size()];
-			
-			for (int i = 0; i < departmentsList.size(); i++) {
-				departments[i] = departmentsList.get(i);
-			}
 		}
 	}
 	
@@ -357,18 +336,6 @@ public class ProfileSettingsBean implements Serializable {
 	
 	public AccountData getAccountData() {
 		return accountData;
-	}
-
-	public OrganizationalUnit[] getDepartments() {
-		return departments;
-	}
-
-	public OrganizationalUnit getTempDepartment() {
-		return tempDepartment;
-	}
-	
-	public void setTempDepartment(OrganizationalUnit tempDepartment) {
-		this.tempDepartment = tempDepartment;
 	}
 
 	public String getNewAvatar() {

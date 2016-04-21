@@ -13,13 +13,13 @@
 	<name>ProSolo</name>
 	<packaging>war</packaging>
 	<properties>
-		<maven.compiler.source>1.7</maven.compiler.source>
+		<maven.compiler.source>1.8</maven.compiler.source>
 		<jsf.version>2.2.6</jsf.version>
 		<myfaces.version>2.2.4</myfaces.version>
 		<el.version>2.2</el.version>
 		<primefaces.version>5.0</primefaces.version>
 		<org.richfaces.bom.version>4.0.0.Final</org.richfaces.bom.version>
-		<jetty.version>8.1.16.v20140903</jetty.version>
+		<jetty.version>9.3.7.v20160115</jetty.version>
 
 		<jersey.version>1.19</jersey.version>
 		<resteasy.version>3.0.9.Final</resteasy.version>
@@ -555,11 +555,6 @@
 			<version>3.5.1</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.tomcat</groupId>
-			<artifactId>tomcat-jdbc</artifactId>
-			<version>8.0.14</version>
-		</dependency>
-		<dependency>
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>
 			<version>4.0-beta5</version>
@@ -817,7 +812,7 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 			</plugin>
 			<plugin>
-				<groupId>org.mortbay.jetty</groupId>
+				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-maven-plugin</artifactId>
 				<version>${jetty.version}</version>
 				<configuration>

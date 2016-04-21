@@ -11,13 +11,11 @@ import javax.faces.bean.ManagedBean;
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
-import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.email.EmailSenderManager;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.web.LoggedUserBean;
@@ -57,7 +55,6 @@ public class UsersImportingBean implements Serializable {
 			try {
 				InputStream inputStream = file.getInputstream();
 				BufferedReader bReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
-				Organization org = ServiceLocator.getInstance().getService(OrganizationManager.class).lookupDefaultOrganization();
 				String line = "";
 
 				while ((line = bReader.readLine()) != null) {
@@ -86,7 +83,7 @@ public class UsersImportingBean implements Serializable {
 							User user = ServiceLocator
 									.getInstance()
 									.getService(UserManager.class)
-									.createNewUser(firstName, lastName, emailAddress, true, "pass", org, rolePosition);
+									.createNewUser(firstName, lastName, emailAddress, true, "pass", rolePosition);
 							
 							emailSenderManager.sendEmailAboutNewAccount(user, emailAddress);
 							

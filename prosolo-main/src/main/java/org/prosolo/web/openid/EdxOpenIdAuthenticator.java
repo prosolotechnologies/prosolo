@@ -7,10 +7,8 @@ import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
-import org.prosolo.app.Settings;
 import org.prosolo.services.openid.EdxOpenIdAuthenticatorService;
 import org.prosolo.web.openid.data.OpenIdUserInfo;
-import org.prosolo.web.openid.provider.OpenIdProvider;
 
 public class EdxOpenIdAuthenticator implements OpenIdAuthenticator {
 

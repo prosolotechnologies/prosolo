@@ -28,9 +28,6 @@ import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CourseCompetence;
 import org.prosolo.common.domainmodel.course.CreatorType;
-import org.prosolo.common.domainmodel.organization.Organization;
-import org.prosolo.common.domainmodel.organization.OrganizationalPosition;
-import org.prosolo.common.domainmodel.organization.OrganizationalUnit;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.LearningGoal;
@@ -53,7 +50,6 @@ import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.NodeRecommendationManager;
-import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
@@ -115,39 +111,20 @@ public class BusinessCase4_EDX extends BusinessCase {
 		regKey2.setRegistrationType(RegistrationType.NO_APPROVAL_ACCESS);
 		ServiceLocator.getInstance().getService(RegistrationManager.class).saveEntity(regKey2);
 		logger.info("initRepository");
-		Organization org = ServiceLocator.getInstance()
-				.getService(OrganizationManager.class)
-				.lookupDefaultOrganization();
 		
-		OrganizationalUnit headOfficeOrgUnit = ServiceLocator.getInstance()
-				.getService(OrganizationManager.class)
-				.lookupHeadOfficeUnit(org);
-		OrganizationalUnit fosGoodOldAiResearchNetworkOrgUnit = new OrganizationalUnit();
-		fosGoodOldAiResearchNetworkOrgUnit.setTitle("ProSolo");
-		fosGoodOldAiResearchNetworkOrgUnit.setOrganization(org);
-		fosGoodOldAiResearchNetworkOrgUnit.setParentUnit(headOfficeOrgUnit);
-		fosGoodOldAiResearchNetworkOrgUnit = ServiceLocator.getInstance()
-				.getService(DefaultManager.class)
-				.saveEntity(fosGoodOldAiResearchNetworkOrgUnit);
-		ServiceLocator
-				.getInstance()
-				.getService(OrganizationManager.class)
-				.addSubUnit(headOfficeOrgUnit,
-						fosGoodOldAiResearchNetworkOrgUnit);
 		logger.info("initRepository");
 //		String goodOldAiChair = "Senior Data Scientist";
 		//String dataApplicationDeveloperOrgPosition = "Data Application Developer";
  		String fictitiousUser = "System analyst";
-		ServiceLocator.getInstance().getService(OrganizationManager.class)
-				.addOrgUnit(org, fosGoodOldAiResearchNetworkOrgUnit);
-		logger.info("initRepository");
+
+ 		logger.info("initRepository");
 		User userNickPowell=null;
 		try {
 			userNickPowell = ServiceLocator
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser("Zoran", "Jeremic", "zoran.jeremic@gmail.com",
-							true, "prosolo@2014", org, fictitiousUser, getAvatarInputStream("male1.png"), "male1.png");
+							true, "prosolo@2014", fictitiousUser, getAvatarInputStream("male1.png"), "male1.png");
 		} catch (UserAlreadyRegisteredException e1) {
 			logger.error(e1.getLocalizedMessage());
 		} catch (EventException e) {
@@ -172,11 +149,6 @@ public class BusinessCase4_EDX extends BusinessCase {
 		
  
  
-
-		OrganizationalPosition fosAssistantProfessorPosition = new OrganizationalPosition();
-		fosAssistantProfessorPosition.setTitle("Assistant Professor");
-		fosAssistantProfessorPosition.setAllocatedToOrgUnit(fosGoodOldAiResearchNetworkOrgUnit);
-		fosAssistantProfessorPosition = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(fosAssistantProfessorPosition);
 		logger.info("initRepository");
 //		String fosTeachingAssistantPosition = "Teaching Assistant";
   

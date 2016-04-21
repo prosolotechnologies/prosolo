@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.Email;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
@@ -22,9 +21,9 @@ public interface UserManager extends AbstractManager {
 
 	Collection<User> getAllUsers();
 	
-	User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified, String password, Organization organization, String position) throws UserAlreadyRegisteredException, EventException;
+	User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified, String password, String position) throws UserAlreadyRegisteredException, EventException;
 
-	User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified, String password, Organization organization, String position, InputStream avatar, String avatarName) throws UserAlreadyRegisteredException, EventException;
+	User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified, String password, String position, InputStream avatar, String avatarName) throws UserAlreadyRegisteredException, EventException;
 
 	User updateUserAvatar(User user, InputStream imageInputStream, String originalName);
 	

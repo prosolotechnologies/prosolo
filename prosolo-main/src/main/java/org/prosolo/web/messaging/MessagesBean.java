@@ -1,4 +1,4 @@
-package org.prosolo.web;
+package org.prosolo.web.messaging;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -17,8 +17,9 @@ import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.web.communications.data.MessageData;
-import org.prosolo.web.communications.data.MessagesThreadData;
+import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.messaging.data.MessageData;
+import org.prosolo.web.messaging.data.MessagesThreadData;
 import org.prosolo.web.useractions.data.NewPostData;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -18,6 +18,13 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activities.requests.Request;
 import org.prosolo.common.domainmodel.activities.requests.RequestStatus;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.evaluation.AchievedCompetenceEvaluation;
+import org.prosolo.common.domainmodel.evaluation.Badge;
+import org.prosolo.common.domainmodel.evaluation.Evaluation;
+import org.prosolo.common.domainmodel.evaluation.EvaluationSubmission;
+import org.prosolo.common.domainmodel.evaluation.ExternalCreditEvaluation;
+import org.prosolo.common.domainmodel.evaluation.TargetCompetenceEvaluation;
+import org.prosolo.common.domainmodel.evaluation.TargetLearningGoalEvaluation;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.portfolio.AchievedCompetence;
@@ -25,13 +32,6 @@ import org.prosolo.common.domainmodel.portfolio.CompletedResource;
 import org.prosolo.common.domainmodel.portfolio.ExternalCredit;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.workflow.evaluation.AchievedCompetenceEvaluation;
-import org.prosolo.common.domainmodel.workflow.evaluation.Badge;
-import org.prosolo.common.domainmodel.workflow.evaluation.Evaluation;
-import org.prosolo.common.domainmodel.workflow.evaluation.EvaluationSubmission;
-import org.prosolo.common.domainmodel.workflow.evaluation.ExternalCreditEvaluation;
-import org.prosolo.common.domainmodel.workflow.evaluation.TargetCompetenceEvaluation;
-import org.prosolo.common.domainmodel.workflow.evaluation.TargetLearningGoalEvaluation;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.event.EventException;
@@ -839,6 +839,7 @@ public class EvaluationManagerImpl extends AbstractManagerImpl implements Evalua
 					"AND evSubmission.finalized = true " +
 					"ORDER BY ev.dateCreated DESC";
 			
+			@SuppressWarnings("unchecked")
 			List<Evaluation> evaluations = persistence.currentManager().createQuery(query).
 				setLong("resourceId", resourceId).
 				list();

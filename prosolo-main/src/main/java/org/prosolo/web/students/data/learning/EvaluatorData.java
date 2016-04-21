@@ -1,7 +1,5 @@
 package org.prosolo.web.students.data.learning;
 
-import java.util.ArrayList;
-
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.web.util.AvatarUtils;

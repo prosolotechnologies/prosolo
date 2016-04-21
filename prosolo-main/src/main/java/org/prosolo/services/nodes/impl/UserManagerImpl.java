@@ -10,7 +10,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.Email;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
@@ -109,9 +108,9 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Override
 	@Transactional (readOnly = false)
 	public User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified, 
-			String password, Organization organization, String position, InputStream avatar, 
+			String password, String position, InputStream avatar, 
 			String avatarFilename) throws UserAlreadyRegisteredException, EventException {
-		User newUser = createNewUser(name, lastname, emailAddress, emailVerified, password, organization, position);
+		User newUser = createNewUser(name, lastname, emailAddress, emailVerified, password, position);
 		newUser = updateUserAvatar(newUser, avatar, avatarFilename);
 		return newUser;
 	}
@@ -119,13 +118,13 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Override
 	//@Transactional (readOnly = false)
 	public User createNewUser(String name, String lastname,	String emailAddress, boolean emailVerified, 
-			String password, Organization organization, String position) 
+			String password, String position) 
 					throws UserAlreadyRegisteredException, EventException {
 		if (checkIfUserExists(emailAddress)) {
 			throw new UserAlreadyRegisteredException("User with email address "+emailAddress+" is already registered.");
 		}
 		// it is called in a new transaction
-		User newUser = resourceFactory.createNewUser(name, lastname, emailAddress, emailVerified, password, organization, position, false);
+		User newUser = resourceFactory.createNewUser(name, lastname, emailAddress, emailVerified, password, position, false);
 		eventFactory.generateEvent(EventType.Registered, newUser);
 		
 		return newUser;

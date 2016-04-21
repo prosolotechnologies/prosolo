@@ -3,8 +3,8 @@ package org.prosolo.web.students.data.learning;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.prosolo.common.domainmodel.workflow.evaluation.Evaluation;
-import org.prosolo.common.domainmodel.workflow.evaluation.EvaluationSubmission;
+import org.prosolo.common.domainmodel.evaluation.Evaluation;
+import org.prosolo.common.domainmodel.evaluation.EvaluationSubmission;
 
 public class EvaluationSubmissionData {
 

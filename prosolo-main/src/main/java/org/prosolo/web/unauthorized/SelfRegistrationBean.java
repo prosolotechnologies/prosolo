@@ -8,13 +8,11 @@ import javax.faces.bean.ManagedBean;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.app.RegistrationKey;
 import org.prosolo.common.domainmodel.app.RegistrationType;
-import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.Email;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.authentication.RegistrationManager;
 import org.prosolo.services.email.EmailSenderManager;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +30,6 @@ public class SelfRegistrationBean {
 	
 	private static Logger logger = Logger.getLogger(SelfRegistrationBean.class);
 
-	@Autowired private OrganizationManager organizationManager;
 	@Autowired private UserManager userManager;
 	@Autowired private EmailSenderManager emailSenderManager;
 	@Autowired private RegistrationManager registrationManager;
@@ -109,7 +106,6 @@ public class SelfRegistrationBean {
 			return;
 		}
 		
-		Organization org = organizationManager.lookupDefaultOrganization();
 		try {
 			User user = userManager.createNewUser(
 					name, 
@@ -117,7 +113,6 @@ public class SelfRegistrationBean {
 					email,
 					false,
 					password, 
-					org, 
 					null);
 			
 			Email email = user.getEmail();
@@ -136,11 +131,10 @@ public class SelfRegistrationBean {
 	
 	public User registerUserOpenId(String firstName, String lastName, String email){
 		System.out.println("register user open id:"+email);
-		Organization org = organizationManager.lookupDefaultOrganization();
 		User user = null;
 		
 		try {
-			user = userManager.createNewUser(firstName, lastName, email, true, null, org, null);
+			user = userManager.createNewUser(firstName, lastName, email, true, null, null);
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e);
 		} catch (EventException e) {

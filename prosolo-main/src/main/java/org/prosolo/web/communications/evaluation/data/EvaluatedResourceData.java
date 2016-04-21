@@ -7,9 +7,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.prosolo.common.domainmodel.evaluation.Badge;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
-import org.prosolo.common.domainmodel.workflow.evaluation.Badge;
 import org.prosolo.common.util.date.DateUtil;
 
 /**

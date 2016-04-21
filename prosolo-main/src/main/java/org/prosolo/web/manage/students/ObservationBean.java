@@ -19,7 +19,6 @@ import org.prosolo.common.domainmodel.observations.Symptom;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.studentProfile.observations.ObservationManager;
 import org.prosolo.services.studentProfile.observations.SuggestionManager;
@@ -52,8 +51,6 @@ public class ObservationBean implements Serializable {
 	private SymptomManager symptomManager;
 	@Inject
 	private SuggestionManager suggestionManager;
-	@Inject
-	private MessagingManager msgManager;
 	@Inject
 	@Qualifier("taskExecutor") 
 	private ThreadPoolTaskExecutor taskExecutor;
@@ -162,7 +159,7 @@ public class ObservationBean implements Serializable {
 		editObservation.setEditObservation(observation);
 		prepareSymptomList();
 		prepareSuggestionList();
-		List<Long> symps = editObservation.getSelectedSymptoms();
+//		List<Long> symps = editObservation.getSelectedSymptoms();
 	}
 
 	private void prepareSymptomList() {

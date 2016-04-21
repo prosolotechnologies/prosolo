@@ -15,9 +15,9 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.communications.data.MessageData;
-import org.prosolo.web.communications.data.MessagesThreadData;
 import org.prosolo.web.logging.LoggingNavigationBean;
+import org.prosolo.web.messaging.data.MessageData;
+import org.prosolo.web.messaging.data.MessagesThreadData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -92,7 +92,7 @@ public class TopInboxBean implements Serializable {
             @Override
             public void run() {
             	for (Long threadId : unreadThreadIds1) {
-            		messagingManager.markThreadAsRead(threadId, loggedUser.getUser());
+            		messagingManager.markThreadAsRead(threadId, loggedUser.getUser().getId());
             	}
             }
 		});

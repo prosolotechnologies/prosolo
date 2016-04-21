@@ -7,7 +7,6 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.prosolo.common.domainmodel.organization.OrganizationalUnit;
 import org.prosolo.common.domainmodel.user.Email;
 
 /**
@@ -27,7 +26,6 @@ public class AccountData implements Serializable {
 	private Email defaultEmail;
 	private List<Email> emails;
 	private String position;
-	private OrganizationalUnit department;
 
 	private String locationName;
 	private String latitude;
@@ -114,14 +112,6 @@ public class AccountData implements Serializable {
 
 	public void setPosition(String position) {
 		this.position = position;
-	}
-
-	public OrganizationalUnit getDepartment() {
-		return department;
-	}
-
-	public void setDepartment(OrganizationalUnit department) {
-		this.department = department;
 	}
 
 	public String getLocationName() {

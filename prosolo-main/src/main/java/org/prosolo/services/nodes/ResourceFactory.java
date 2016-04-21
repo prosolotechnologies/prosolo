@@ -19,8 +19,6 @@ import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType1;
 import org.prosolo.common.domainmodel.general.Node;
-import org.prosolo.common.domainmodel.organization.Organization;
-import org.prosolo.common.domainmodel.organization.OrganizationalUnit;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
@@ -44,8 +42,6 @@ import org.prosolo.web.competences.data.ActivityType;
 
 public interface ResourceFactory extends AbstractManager {
 
-    Organization createNewOrganization(User currentUser, String name, String abbreviatedName, String description);
-
     public Role createNewRole(String name, String description, boolean systemDefined, List<Long> capabilities);
 
     LearningGoal createNewLearningGoal(User currentUser, String name, String description, Date deadline, 
@@ -59,11 +55,6 @@ public interface ResourceFactory extends AbstractManager {
     Activity createNewResourceActivity(User maker, String title,
             String description, AttachmentPreview attachmentPreview, VisibilityType vis,
             Collection<Tag> tags, boolean save) throws EventException;
-
-    OrganizationalUnit createNewOrganizationalUnit(Organization organization, String name, String description, boolean system);
-
-    // LearningGoal createLearningGoal(User currentUser,
-    // CompletedGoal completedGoal) throws EventException;
 
     Competence createCompetence(User user, String title, String description, int validity, int duration, 
             Collection<Tag> tags, List<Competence> prerequisites, List<Competence> corequisites, Date dateCreated);
@@ -89,7 +80,7 @@ public interface ResourceFactory extends AbstractManager {
             Class<? extends EventObserver>[] observersToExclude) throws EventException;
 
     User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified, String password, 
-            Organization organization, String position, boolean system) throws EventException;
+            String position, boolean system) throws EventException;
 
     Activity createNewActivity(User currentUser,
             ActivityFormData activityFormData, VisibilityType vis)

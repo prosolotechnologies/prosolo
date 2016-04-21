@@ -1,7 +1,6 @@
 package org.prosolo.core.stress;
 
 import org.junit.runner.RunWith;
-import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -21,6 +20,5 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public abstract class TestContext {
 	protected @Autowired UserManager userManager;
-	protected @Autowired OrganizationManager organizationalManager;
 
 }

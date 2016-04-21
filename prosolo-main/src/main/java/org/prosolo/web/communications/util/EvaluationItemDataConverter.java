@@ -9,13 +9,13 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.domainmodel.evaluation.Badge;
+import org.prosolo.common.domainmodel.evaluation.Evaluation;
+import org.prosolo.common.domainmodel.evaluation.EvaluationSubmission;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.portfolio.AchievedCompetence;
 import org.prosolo.common.domainmodel.portfolio.CompletedGoal;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.workflow.evaluation.Badge;
-import org.prosolo.common.domainmodel.workflow.evaluation.Evaluation;
-import org.prosolo.common.domainmodel.workflow.evaluation.EvaluationSubmission;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.NodeData;
 import org.prosolo.util.nodes.NodeCreatedDescComparator;

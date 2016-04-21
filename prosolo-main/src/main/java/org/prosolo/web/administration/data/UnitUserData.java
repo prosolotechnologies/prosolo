@@ -2,13 +2,12 @@ package org.prosolo.web.administration.data;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.prosolo.common.domainmodel.organization.Unit_User;
 //import org.prosolo.common.domainmodel.user.UserType;
 //import org.prosolo.web.activitywall.data.UserData;
 //import org.prosolo.web.activitywall.data.UserDataFactory;
 //import org.prosolo.web.util.AvatarUtils;
 
+@Deprecated
 public class UnitUserData extends UserData {
 
 	private static final long serialVersionUID = -6086111495385442574L;
@@ -22,21 +21,21 @@ public class UnitUserData extends UserData {
 
 	}
 
-	public UnitUserData(Unit_User unitUser) {
-		super(unitUser.getUser());
-		this.active = unitUser.isActive();
-		this.unitUserId = unitUser.getId();
-		this.status = this.active ? "Active" : "Inactive";
-//		Set<Unit_User_Role> unitRoles = unitUser.getUnitUserRole();
-//		Iterator<Unit_User_Role> iterator = unitRoles.iterator();
-//
-//		while (iterator.hasNext()) {
-//			Unit_User_Role unitRole = iterator.next();
-//			RoleData roleData = new RoleData(unitRole.getRole());
-//			roleData.setActive(unitRole.isActive());
-//			roles.add(roleData);
-//		}
-	}
+//	public UnitUserData(Unit_User unitUser) {
+//		super(unitUser.getUser());
+//		this.active = unitUser.isActive();
+//		this.unitUserId = unitUser.getId();
+//		this.status = this.active ? "Active" : "Inactive";
+////		Set<Unit_User_Role> unitRoles = unitUser.getUnitUserRole();
+////		Iterator<Unit_User_Role> iterator = unitRoles.iterator();
+////
+////		while (iterator.hasNext()) {
+////			Unit_User_Role unitRole = iterator.next();
+////			RoleData roleData = new RoleData(unitRole.getRole());
+////			roleData.setActive(unitRole.isActive());
+////			roles.add(roleData);
+////		}
+//	}
 
 	public long getUnitUserId() {
 		return unitUserId;

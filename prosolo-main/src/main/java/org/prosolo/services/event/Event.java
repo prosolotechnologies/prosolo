@@ -11,7 +11,6 @@ import javax.persistence.Transient;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.event.context.LearningContext;
 
 public class Event extends BaseEntity  {
 

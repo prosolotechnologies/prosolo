@@ -3,7 +3,7 @@ package org.prosolo.common.domainmodel.user.notifications;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
-import org.prosolo.common.domainmodel.workflow.evaluation.Evaluation;
+import org.prosolo.common.domainmodel.evaluation.Evaluation;
 import org.prosolo.common.domainmodel.user.notifications.Notification;
 
 /**
