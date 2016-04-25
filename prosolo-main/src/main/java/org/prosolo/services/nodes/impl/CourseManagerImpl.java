@@ -1154,7 +1154,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 					enrollment = (CourseEnrollment) res.get("enrollment");
 				}
 				
-				logger.info("User with email "+user.getEmail().getAddress() + " enrolled in course with id "+course.getId());
+				logger.info("User with email "+user.getEmail() + " enrolled in course with id "+course.getId());
 				
 				if (enrollment != null) {
 					try {

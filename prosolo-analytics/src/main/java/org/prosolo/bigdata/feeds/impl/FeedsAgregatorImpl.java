@@ -429,7 +429,7 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 				}
 			}
 			
-			String email = user.getEmail().getAddress();
+			String email = user.getEmail();
 			System.out.println("FEEDS DIGEST TO SEND:"+feedsDigests.size()+" for user:"+user.getId()+" email:"+email);
 			// If development mode, send only to developer email
 			if(!feedsDigests.isEmpty()){

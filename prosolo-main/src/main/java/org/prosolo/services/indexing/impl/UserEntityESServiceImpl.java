@@ -83,7 +83,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.field("position", user.getPosition());
 			
 			builder.startArray("roles");
-			List<Role> roles = roleManager.getUserRoles(user.getEmail().getAddress());
+			List<Role> roles = roleManager.getUserRoles(user.getEmail());
 			for(Role role : roles) {
 				builder.startObject();
 				builder.field("id", role.getId());

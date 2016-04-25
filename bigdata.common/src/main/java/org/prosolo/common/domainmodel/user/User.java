@@ -11,7 +11,6 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Type;
@@ -30,7 +29,6 @@ public class User extends BaseEntity {
 	private String avatarUrl;
 	private Set<TargetLearningGoal> learningGoals;
 	private Set<Role> roles;
-	private Email email;
 	
 	@Type(type="encryptedString")
 	private String password;
@@ -44,6 +42,11 @@ public class User extends BaseEntity {
 	private String locationName;
 	private Double latitude;
 	private Double longitude;
+	
+	// email
+	private String email;
+	private boolean verified;
+	private String verificationKey;
 	
 	public User() {
 		learningGoals = new HashSet<TargetLearningGoal>();
@@ -175,16 +178,6 @@ public class User extends BaseEntity {
 		return name + " " + lastname +" (id=" + getId() + ")";
 	}
 	
-	@OneToOne(fetch = FetchType.LAZY)
-	//@NotFound(action=NotFoundAction.IGNORE)
-	public Email getEmail() {
-		return email;
-	}
-
-	public void setEmail(Email email) {
-		this.email = email;
-	}
-
 	public String getLocationName() {
 		return locationName;
 	}
@@ -207,6 +200,32 @@ public class User extends BaseEntity {
 
 	public void setLongitude(Double longitude) {
 		this.longitude = longitude;
+	}
+	
+	@Type(type = "true_false")
+	public boolean isVerified() {
+		return verified;
+	}
+
+	public void setVerified(boolean confirmed) {
+		this.verified = confirmed;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	@Column(name = "verificationKey", nullable = true)
+	public String getVerificationKey() {
+		return verificationKey;
+	}
+
+	public void setVerificationKey(String confirmationKey) {
+		this.verificationKey = confirmationKey;
 	}
 	
 }

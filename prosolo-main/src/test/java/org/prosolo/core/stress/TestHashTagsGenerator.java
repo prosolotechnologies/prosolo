@@ -24,7 +24,6 @@ import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.twitter.TwitterStreamsManager;
 import org.prosolo.util.nodes.AnnotationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -135,7 +134,7 @@ public class TestHashTagsGenerator extends TestContext {
 				oldHashTags.addAll(topicPreference.getPreferredHashtags());
 				topicPreference.setPreferredHashtags(new HashSet<Tag>(hashTagList));
 				tagManager.saveEntity(topicPreference);
-				System.out.println(" UPDATING USER:" + user.getEmail().getAddress() + " - " + i);
+				System.out.println(" UPDATING USER:" + user.getEmail() + " - " + i);
 
 			}
 		} catch (NumberFormatException e1) {
@@ -245,7 +244,7 @@ public class TestHashTagsGenerator extends TestContext {
 		topicPreference.setPreferredHashtags(new HashSet<Tag>(
 				hashTagList));
 		tagManager.saveEntity(topicPreference);
-		System.out.println("UPDATING USER:" + user.getEmail().getAddress());
+		System.out.println("UPDATING USER:" + user.getEmail());
 		//twitterStreamsManager.updateHashTagsForUserAndRestartStream(
 			//	oldHashTags, topicPreference.getPreferredHashtags(),
 			//	user.getId());

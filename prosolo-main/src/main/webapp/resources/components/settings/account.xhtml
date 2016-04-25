@@ -22,10 +22,7 @@
 						<div class="row info">
 							<div class="first bold">Email:</div>
 							<div class="second">
-								<h:outputText value="#{accountSettings.accountData.defaultEmail.address}" />
-								<ui:repeat value="#{accountSettings.accountData.emails}" var="email" varStatus="iterator">
-									#{email.address}
-								</ui:repeat>
+								<h:outputText value="#{accountSettings.accountData.email}" />
 							</div>
 						</div>
 					</h:panelGroup>

@@ -89,7 +89,7 @@ public class OpenIDBean implements Serializable {
 				// Create new user
 				logger.info("create new user :" + openIdFirstName + " : " + openIdLastName + " : " + openIdEmail);
 				user = selfRegistration.registerUserOpenId(openIdFirstName, openIdLastName, openIdEmail);
-				registrationManager.setEmailAsVerified(openIdEmail, true);
+				registrationManager.setUserAsVerified(openIdEmail, true);
 			}
 			openIDAccount.setUser(user);
 			userManager.saveEntity(openIDAccount);

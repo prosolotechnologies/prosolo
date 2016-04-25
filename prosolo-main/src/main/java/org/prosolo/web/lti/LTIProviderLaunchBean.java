@@ -86,7 +86,7 @@ public class LTIProviderLaunchBean implements Serializable {
 		toolLaunchValidator.validateLaunch(tool, msg.getConsumerKey(), getVersion(msg.getLtiVersion()), request);
 		logger.info("Tool launch valid, tool id: "+tool.getId());
 		User user = getUserForLaunch(tool, msg);
-		logger.info("User for LTI launch logged in, user email "+user.getEmail().getAddress());
+		logger.info("User for LTI launch logged in, user email "+user.getEmail());
 		boolean loggedIn = login(user);
 		
 		if(loggedIn) {
@@ -119,9 +119,9 @@ public class LTIProviderLaunchBean implements Serializable {
 	}
 
 	private boolean login(User user) throws AuthenticationException {
-		boolean loggedIn = authenticationService.loginOpenId(user.getEmail().getAddress());
+		boolean loggedIn = authenticationService.loginOpenId(user.getEmail());
 		if(loggedIn){
-			loggedUserBean.init(user.getEmail().getAddress());
+			loggedUserBean.init(user.getEmail());
 			return true;
 		}
 		return false;

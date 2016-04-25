@@ -1,7 +1,5 @@
 package org.prosolo.bigdata.feeds.impl;
 
-import static org.junit.Assert.*;
-
 import javax.transaction.Transactional;
 
 import org.apache.log4j.Logger;

@@ -4,10 +4,6 @@
 package org.prosolo.web.settings.data;
 
 import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.prosolo.common.domainmodel.user.Email;
 
 /**
  * @author "Nikola Milikic"
@@ -23,18 +19,13 @@ public class AccountData implements Serializable {
 	private String lastName;
 	private String password;
 	private String passwordConfirm;
-	private Email defaultEmail;
-	private List<Email> emails;
+	private String email;
 	private String position;
 
 	private String locationName;
 	private String latitude;
 	private String longitude;
 
-	public AccountData() {
-		emails = new LinkedList<Email>();
-	}
-	
 	public long getId() {
 		return id;
 	}
@@ -83,27 +74,12 @@ public class AccountData implements Serializable {
 		this.passwordConfirm = passwordConfirm;
 	}
 
-	public Email getDefaultEmail() {
-		return defaultEmail;
+	public String getEmail() {
+		return email;
 	}
 
-	public void setDefaultEmail(Email defaultEmail) {
-		this.defaultEmail = defaultEmail;
-	}
-
-	public List<Email> getEmails() {
-		return emails;
-	}
-
-	public void setEmails(List<Email> emails) {
-		this.emails = emails;
-	}
-
-	public boolean addEmail(Email email) {
-		if (email != null) {
-			return emails.add(email);
-		}
-		return false;
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	public String getPosition() {

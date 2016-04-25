@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.user.Email;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -15,7 +14,7 @@ import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 
 public interface UserManager extends AbstractManager {
 
-	User getUser(String defaultEmail);
+	User getUser(String email);
 
 	boolean checkIfUserExists(String email);
 
@@ -31,8 +30,6 @@ public interface UserManager extends AbstractManager {
 	
 	User changePassword(User user, String newPassword);
 	
-	Collection<Email> getEmails(User user);
-
 	User changeAvatar(User user, String newAvatarPath);
 
 	List<User> loadUsers(List<Long> ids);

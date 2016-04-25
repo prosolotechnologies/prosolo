@@ -4,14 +4,11 @@
 package org.prosolo.web.settings;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.user.Email;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.LoggedUserBean;
@@ -45,20 +42,8 @@ public class AccountSettingsBean implements Serializable {
 		accountData = new AccountData();
 		
 		// emails
-		Email defaultEmail = loggedUser.getUser().getEmail();
-		List<Email> emails = new ArrayList<Email>();
-		
-//		for (Email email : userManager.getEmails(loggedUser.getUser())) {
-//			if (email.isDefaultEmail()) {
-//				defaultEmail = email;
-//			} else {
-//				emails.add(email);
-//			}
-//		}
-		
-	//	Collections.sort(emails, new NodeTitleComparator());
-		accountData.setDefaultEmail(defaultEmail);
-		accountData.setEmails(emails);
+		String email = loggedUser.getUser().getEmail();
+		accountData.setEmail(email);
 	}
 	
 	/*

@@ -2998,8 +2998,8 @@ public class BusinessCase4_EDX extends BusinessCase {
 			
  
 			logger.info("initRepository");
-			ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("prosolo.admin@gmail.com", true);
-			ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("nick.powell@gmail.com", true);
+			ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("prosolo.admin@gmail.com", true);
+			ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("nick.powell@gmail.com", true);
  	}
 
 	public TargetCompetence createTargetCompetence(User user, String title, String description, int validity, int duration)

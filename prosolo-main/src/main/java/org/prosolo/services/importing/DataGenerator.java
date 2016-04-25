@@ -3,12 +3,11 @@ package org.prosolo.services.importing;
 import java.util.Collection;
 
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.user.Email;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
-import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.nodes.UserManager;
+import org.prosolo.web.util.AvatarUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,10 +40,7 @@ public class DataGenerator {
 		User user = new User();
 		user.setName(oldUser.getName()+id);
 		user.setLastname(oldUser.getLastname());
-		Email email=new Email();
-		email.setAddress(id+"test@email.com");
-		userManager.saveEntity(email);
-		user.setEmail(email);
+		user.setEmail(id+"test@email.com");
 		UserPreference uPreferences=new UserPreference();
 		uPreferences.setTitle("test");
 		uPreferences.setUser(user);

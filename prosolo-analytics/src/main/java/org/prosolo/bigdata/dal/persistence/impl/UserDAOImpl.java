@@ -91,9 +91,8 @@ public class UserDAOImpl extends GenericDAOImpl implements UserDAO {
 	public Map<String, String> getUserNameAndEmail(long userId) {
 		Map<String, String> result = new HashMap<>();
 		try {
-			String query = "SELECT user.name, user.lastname, email.address " + 
+			String query = "SELECT user.name, user.lastname, user.email " + 
 					"FROM User user " +
-					"JOIN user.email email " +
 					"WHERE user.id = :userId";
 			
 			Object[] res = (Object[]) session.createQuery(query)

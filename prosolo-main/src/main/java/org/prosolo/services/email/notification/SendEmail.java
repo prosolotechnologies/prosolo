@@ -21,9 +21,7 @@ import org.prosolo.common.domainmodel.user.User;
 public class SendEmail {
 
 	public void sendEmailToUser(User user, String html, String subject) throws AddressException, MessagingException {
-		//Collection<String> emails = new LinkedList<String>();
-		//emails.add(user.lookupDefaultEmail());
-		sendEmail(html, user.getEmail().getAddress(), subject);
+		sendEmail(html, user.getEmail(), subject);
 	}
 
 	public void sendEmail(String html, String email, String subject) throws AddressException, MessagingException {

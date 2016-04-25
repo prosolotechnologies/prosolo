@@ -32,9 +32,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public UserDetails loadUserByUsername(String defaultEmail) throws UsernameNotFoundException {
-		logger.debug("Loading user details for the user: " + defaultEmail);
-		org.prosolo.common.domainmodel.user.User user = userManager.getUser(defaultEmail);
+	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+		logger.debug("Loading user details for the user: " + email);
+		org.prosolo.common.domainmodel.user.User user = userManager.getUser(email);
 
 		if (user == null)
 			throw new UsernameNotFoundException("There is no user registered with this email.");
@@ -70,12 +70,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		boolean credentialsNonExpired = true;
 		boolean accountNonLocked = true;
 		
-		logger.debug("Returning user details " + defaultEmail +", user.getPassword(): "+ 
+		logger.debug("Returning user details " + email +", user.getPassword(): "+ 
 				user.getPassword()+", enabled: "+ enabled+", accountNonExpired: "+
 				accountNonExpired+", credentialsNonExpired: "+credentialsNonExpired+", accountNonLocked: "+ 
 				accountNonLocked+", userAuthorities: "+userAuthorities);
 
-		return new User(defaultEmail, user.getPassword(), enabled,
+		return new User(email, user.getPassword(), enabled,
 				accountNonExpired, credentialsNonExpired, accountNonLocked,
 				userAuthorities);
 	}

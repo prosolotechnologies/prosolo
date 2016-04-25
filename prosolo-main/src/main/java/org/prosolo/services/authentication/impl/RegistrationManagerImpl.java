@@ -2,7 +2,7 @@ package org.prosolo.services.authentication.impl;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.app.RegistrationKey;
-import org.prosolo.common.domainmodel.user.Email;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.oauth.OpenIDAccount;
 import org.prosolo.services.authentication.RegistrationManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
@@ -41,13 +41,13 @@ public class RegistrationManagerImpl extends AbstractManagerImpl implements Regi
 	
 	@Override
 	@Transactional
-	public Email getEmailByVerificationKey(String verificationKey){
+	public User getUserByVerificationKey(String verificationKey){
 		String query = 
-			"SELECT email " +
-			"FROM Email email " +
-			"WHERE email.verificationKey = :verificationKey " ;
+			"SELECT user " +
+			"FROM User user " +
+			"WHERE user.verificationKey = :verificationKey " ;
 	
-		Email email = (Email) persistence.currentManager().createQuery(query).
+		User email = (User) persistence.currentManager().createQuery(query).
 				setString("verificationKey", verificationKey).
 				uniqueResult();
 		return email;
@@ -55,19 +55,19 @@ public class RegistrationManagerImpl extends AbstractManagerImpl implements Regi
 	
 	@Override
 	@Transactional
-	public boolean setEmailAsVerified(String emailAddress,boolean verified){
+	public boolean setUserAsVerified(String email, boolean verified){
 		String query = 
-			"SELECT email " +
-			"FROM Email email " +
-			"WHERE email.address = :emailAddress " ;
+			"SELECT user " +
+			"FROM User user " +
+			"WHERE user.email = :email " ;
 		
-		Email email = (Email) persistence.currentManager().createQuery(query).
-				setString("emailAddress", emailAddress).
+		User user = (User) persistence.currentManager().createQuery(query).
+				setString("email", email).
 				uniqueResult();
 		
-		if (email != null) {
-			email.setVerified(verified);
-			this.saveEntity(email);
+		if (user != null) {
+			user.setVerified(verified);
+			this.saveEntity(user);
 			return true;
 		}
 		return false;

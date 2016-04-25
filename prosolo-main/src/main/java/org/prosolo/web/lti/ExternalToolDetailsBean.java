@@ -59,7 +59,7 @@ public class ExternalToolDetailsBean implements Serializable {
 	private ExternalToolFormData toolData;
 	
 	public void init() {
-		logger.info("User with email "+user.getUser().getEmail().getAddress()+" redirected to the page manage/externalTools/toolDetails.xhtml");
+		logger.info("User with email " + user.getUser().getEmail() +" redirected to the page manage/externalTools/toolDetails.xhtml");
 		decodedCred = idEncoder.decodeId(cred);
 		decodedComp = idEncoder.decodeId(comp);
 		decodedAct = idEncoder.decodeId(act);

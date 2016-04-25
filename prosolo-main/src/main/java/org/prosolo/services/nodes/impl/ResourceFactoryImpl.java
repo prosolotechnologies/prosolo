@@ -45,7 +45,6 @@ import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
 import org.prosolo.common.domainmodel.user.AnonUser;
-import org.prosolo.common.domainmodel.user.Email;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
@@ -517,19 +516,15 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     public User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified, 
             String password, String position, boolean system) throws EventException {
         
-        emailAddress = emailAddress.toLowerCase();
-        
-        Email email = new Email();
-        email.setAddress(emailAddress);
-        email.setDefaultEmail(true);
-        email.setVerified(emailVerified);
-        email.setVerificationKey(UUID.randomUUID().toString().replace("-", ""));
-        email = saveEntity(email);
+    	emailAddress = emailAddress.toLowerCase();
         
         User user = new User();
         user.setName(name);
         user.setLastname(lastname);
-        user.setEmail(email);
+        
+        user.setEmail(emailAddress);
+        user.setVerified(emailVerified);
+        user.setVerificationKey(UUID.randomUUID().toString().replace("-", ""));
         
         if (password != null) {
             user.setPassword(passwordEncrypter.encodePassword(password));
@@ -544,20 +539,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         user.addRole(roleManager.getRoleByName("User"));
         user = saveEntity(user);
     
-//        RecommendationPreferences recPref = new RecommendationPreferences();
-//        recPref.addUserPriority(createUserDefinedPriority(UserPriorityType.TOPIC_PRIORITY));
-//        recPref.addUserPriority(createUserDefinedPriority(UserPriorityType.LEARNING_GOAL_PRIORITY));
-//        recPref.addUserPriority(createUserDefinedPriority(UserPriorityType.LEARNING_HISTORY_PRIORITY));
-//        recPref.setUser(user);
-//        recPref = saveEntity(recPref);
-        
-//        FeedsPreferences feedsPreferences = new FeedsPreferences();
-//        feedsPreferences.setUser(user);
-//        feedsPreferences = saveEntity(feedsPreferences);
-
-//        TopicPreference tPref = new TopicPreference();
-//        tPref.setUser(user);
-//        tPref = saveEntity(tPref);
         this.flush();
         return user;
     }

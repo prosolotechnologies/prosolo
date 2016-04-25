@@ -9,7 +9,6 @@ import java.util.UUID;
 
 import org.hibernate.Session;
 import org.junit.Test;
-import org.prosolo.common.domainmodel.user.Email;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserType;
 import org.prosolo.services.authentication.PasswordEncrypter;
@@ -111,17 +110,12 @@ public class TestDataGenerator extends TestContext{
 		String password="pass";
 		String position=namePattern;
 		 
-			Email email = new Email();
-			email.setAddress(emailAddress);
-			email.setDefaultEmail(true);
-			email.setVerified(true);
-			email.setVerificationKey(UUID.randomUUID().toString().replace("-", ""));
-			email = userManager.saveEntity(email);
 	 		User user = new User();
 			user.setName(name);
 			user.setLastname(lastname);
-			user.setEmail(email);
-			System.out.println("email:"+emailAddress);
+			user.setEmail(emailAddress);
+			user.setVerified(true);
+			user.setVerificationKey(UUID.randomUUID().toString().replace("-", ""));
  			user.setPassword(passwordEncrypter.encodePassword(password, null));
 			user.setPasswordLength(password.length());
 			user.setAvatarUrl(AvatarUtils.getDefaultAvatarUrl());

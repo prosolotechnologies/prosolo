@@ -45,10 +45,10 @@ public class PasswordRecoveryBean {
 		passwordResetManager.invalidateResetKey(key);
 		
 		try {
-			boolean loggedIn = authenticationService.login(user.getEmail().getAddress(), newPass);
+			boolean loggedIn = authenticationService.login(user.getEmail(), newPass);
 			
 			if (loggedIn) {
-				loggedUserBean.init(user.getEmail().getAddress());
+				loggedUserBean.init(user.getEmail());
 				this.toRedirect = true;
 				PageUtil.fireInfoMessage("messages", "Password successfully changed. Redirecting...", "");
 			}

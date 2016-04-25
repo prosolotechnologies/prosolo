@@ -10,7 +10,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.user.Email;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
@@ -47,15 +46,12 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		String query = 
 			"SELECT user " +
 			"FROM User user " +
-			"LEFT JOIN user.email email " +
-			"WHERE email.address = :email " +
-				"AND email.verified =:verifiedEmail "+
-				"AND email.defaultEmail = :def";
+			"WHERE user.email = :email " +
+				"AND user.verified = :verifiedEmail";
 		
 		User result = (User) persistence.currentManager().createQuery(query).
 			setString("email", email).
 		 	setBoolean("verifiedEmail",true).
-			setBoolean("def", true).
 			uniqueResult();
 		
 		if (result != null) {
@@ -72,8 +68,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		String query = 
 			"SELECT user.id " +
 			"FROM User user " +
-			"LEFT JOIN user.email email " +
-			"WHERE email.address = :email ";
+			"WHERE user.email = :email ";
 		
 		Long result = (Long) persistence.currentManager().createQuery(query).
 				setString("email", email).
@@ -190,26 +185,6 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	}
 	
 	@Override
-	@Transactional (readOnly = true)
-	public Collection<Email> getEmails(User user) {
-		String query = 
-			"SELECT user.emails " +
-			"FROM User user " +
-			"WHERE user = :user ";
-		
-		@SuppressWarnings("unchecked")
-		List<Email> result = persistence.currentManager().createQuery(query).
-			setEntity("user", user).
-			list();
-		
-		if (result != null) {
-			return result;
-		}
-		
-		return new ArrayList<Email>();
-	}
-
-	@Override
 	@Transactional (readOnly = false)
 	public User changeAvatar(User user, String newAvatarPath) {
 	//	user = merge(user);
@@ -248,21 +223,12 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		user.setName(name);
 		user.setLastname(lastName);
 		user.setPosition(position);
+		user.setEmail(email);
+		user.setVerified(true);
 		
 		if (changePassword) {
 			user.setPassword(passwordEncrypter.encodePassword(password));
 			user.setPasswordLength(password.length());
-		}
-		
-		String oldEmail = user.getEmail().getAddress();
-
-		if (oldEmail == null || !oldEmail.equals(email)) {
-			Email newEmail = new Email();
-			newEmail.setAddress(email);
-			newEmail.setDefaultEmail(true);
-			newEmail.setVerified(true);
-			newEmail = saveEntity(newEmail);
-			user.setEmail(newEmail);
 		}
 		
 		return saveEntity(user);

@@ -32,7 +32,7 @@ public class UserSerializer implements JsonSerializer<User>  {
 		final JsonObject jsonObject = new JsonObject();
 		//final JsonElement dateCreated=context.serialize(activity.getDateCreated());
 		jsonObject.addProperty("id", user.getId());
-		jsonObject.addProperty("email", user.getEmail().getAddress());
+		jsonObject.addProperty("email", user.getEmail());
 		jsonObject.addProperty("lastname", user.getLastname());
 		jsonObject.addProperty("name",user.getName());
 		jsonObject.addProperty("position", user.getPosition());

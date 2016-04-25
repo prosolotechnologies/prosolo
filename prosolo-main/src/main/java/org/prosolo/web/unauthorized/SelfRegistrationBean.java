@@ -8,7 +8,6 @@ import javax.faces.bean.ManagedBean;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.app.RegistrationKey;
 import org.prosolo.common.domainmodel.app.RegistrationType;
-import org.prosolo.common.domainmodel.user.Email;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.authentication.RegistrationManager;
 import org.prosolo.services.email.EmailSenderManager;
@@ -115,8 +114,7 @@ public class SelfRegistrationBean {
 					password, 
 					null);
 			
-			Email email = user.getEmail();
-			emailSenderManager.sendEmailVerificationEmailForNewUser(user, email);
+			emailSenderManager.sendEmailVerificationEmailForNewUser(user);
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e);
 		} catch (EventException e) {
@@ -166,11 +164,11 @@ public class SelfRegistrationBean {
 
 	public void setVerifyKey(String verifyKey) {
 		if (verifyKey != null) {
-			Email email = registrationManager.getEmailByVerificationKey(verifyKey);
+			User user = registrationManager.getUserByVerificationKey(verifyKey);
 			
 			if (email != null) {
 				this.verifyKeyValid = true;
-				email.setVerified(true);
+				user.setVerified(true);
 				registrationManager.saveEntity(email);
 			} else {
 				this.verifyKeyValid = false;

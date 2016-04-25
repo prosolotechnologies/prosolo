@@ -627,7 +627,7 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 			}
 			
 			try {
-				String email = user.getEmail().getAddress();
+				String email = user.getEmail();
 				
 				// If development mode, send only to developer email
 				if (!feedsDigests.isEmpty() && 

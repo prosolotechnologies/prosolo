@@ -780,10 +780,10 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		logger.info("initRepository");
 		userNickPowell = ServiceLocator.getInstance().getService(DefaultManager.class).merge(userNickPowell);
 
-		ServiceLocator.getInstance().getService(UserManager.class).addTopicPreferences(userRichardAnderson, nickPowellPreferences);
+		//ServiceLocator.getInstance().getService(UserManager.class).addTopicPreferences(userRichardAnderson, nickPowellPreferences);
 		userRichardAnderson = ServiceLocator.getInstance().getService(DefaultManager.class).merge(userRichardAnderson);
 		
-		ServiceLocator.getInstance().getService(UserManager.class).addTopicPreferences(userKevinMitchell, nickPowellPreferences);
+//		ServiceLocator.getInstance().getService(UserManager.class).addTopicPreferences(userKevinMitchell, nickPowellPreferences);
 		userKevinMitchell = ServiceLocator.getInstance().getService(DefaultManager.class).merge(userKevinMitchell);
 		logger.info("initRepository");
 		
@@ -3621,39 +3621,39 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		userAnnaHallowell = ServiceLocator.getInstance().getService(DefaultManager.class).merge(userAnnaHallowell);
 		userAnnaHallowell = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(userAnnaHallowell);
 		logger.info("initRepository");
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("prosolo.admin@gmail.com", true);
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("nick.powell@gmail.com", true);
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("richard.anderson@gmail.com", true);
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("kevin.mitchell@gmail.com", true);
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("paul.edwards@gmail.com", true);
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("steven.turner@gmail.com", true);
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("george.young@gmail.com", true);
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("phill.amstrong@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("prosolo.admin@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("nick.powell@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("richard.anderson@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("kevin.mitchell@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("paul.edwards@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("steven.turner@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("george.young@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("phill.amstrong@gmail.com", true);
 		
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("joseph.garcia@gmail.com", true);
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("timothy.rivera@gmail.com", true);
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("kevin.hall@gmail.com", true);
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("kenneth.carter@gmail.com", true);
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("karen.white@gmail.com", true);
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("helen.campbell@gmail.com", true);
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("anthony.moore@gmail.com", true);
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("richard.rodrigues@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("joseph.garcia@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("timothy.rivera@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("kevin.hall@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("kenneth.carter@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("karen.white@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("helen.campbell@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("anthony.moore@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("richard.rodrigues@gmail.com", true);
 		
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("tania.cortese@gmail.com", true);
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("ida.fritz@gmail.com", true);
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("sonya.elston@gmail.com", true);
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("lori.abner@gmail.com", true);
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("samantha.dell@gmail.com", true);
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("anna.hallowell@gmail.com", true);
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("sheri.laureano@gmail.com", true);
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("erika.ames@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("tania.cortese@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("ida.fritz@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("sonya.elston@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("lori.abner@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("samantha.dell@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("anna.hallowell@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("sheri.laureano@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("erika.ames@gmail.com", true);
 		
 
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("akiko.kido@gmail.com", true);
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("angelica.fallon@gmail.com", true);
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("rachel.wiggins@gmail.com", true);
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("andrew.camper@gmail.com", true);
-		ServiceLocator.getInstance().getService(RegistrationManager.class).setEmailAsVerified("nick2.powell@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("akiko.kido@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("angelica.fallon@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("rachel.wiggins@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("andrew.camper@gmail.com", true);
+		ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("nick2.powell@gmail.com", true);
 		logger.info("initRepository");
 		logger.info("initRepository");
 	}

@@ -32,7 +32,7 @@ import org.prosolo.common.email.generators.EmailVerificationEmailContentGenerato
  */
 public class EmailSender {
 	public void sendEmailToUser(User user, EmailContentGenerator html, String subject) throws AddressException, MessagingException, FileNotFoundException, IOException {
-		sendEmail(html,  user.getEmail().getAddress(), subject);
+		sendEmail(html, user.getEmail(), subject);
 	}
 	
 	public void sendEmail(EmailContentGenerator contentGenerator, String email, String subject) throws AddressException, MessagingException, FileNotFoundException, IOException {

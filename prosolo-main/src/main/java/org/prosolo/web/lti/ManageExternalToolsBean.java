@@ -79,7 +79,7 @@ public class ManageExternalToolsBean implements Serializable {
 	private List<ExternalToolData> externalTools;
 	
 	public void init() {
-		logger.info("User with email "+userBean.getUser().getEmail().getAddress()+" redirected the page manage/tools.xhtml");
+		logger.info("User with email " + userBean.getUser().getEmail() + " redirected the page manage/tools.xhtml");
 		
 		decodedCred = idEncoder.decodeId(cred);
 		decodedComp = idEncoder.decodeId(comp);

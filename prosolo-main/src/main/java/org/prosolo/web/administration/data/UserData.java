@@ -31,7 +31,7 @@ public class UserData implements Serializable {
 		this.name = user.getName();
 		this.lastName = user.getLastname();
 		this.password = user.getPassword();
-		this.email = user.getEmail().getAddress();
+		this.email = user.getEmail();
 		this.position = user.getPosition();
 		this.avatarUrl = AvatarUtils.getAvatarUrlInFormat(user, ImageFormat.size60x60);
 	}
@@ -56,8 +56,8 @@ public class UserData implements Serializable {
 		return email;
 	}
 
-	public void setEmail(String defaultEmail) {
-		this.email = defaultEmail;
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	public String getLastName() {
