@@ -31,7 +31,7 @@ object SparkContextLoader {
 	val dbHost = dbConfig.dbHost
 	val dbPort = dbConfig.dbPort
   val maxCores=if(numOfCores>4) 4 else numOfCores
- // val numOfCores=1;
+ //val numOfCores=1;
   val sparkConf = new SparkConf()
     .setMaster("local["+numOfCores+"]")
 

@@ -284,10 +284,11 @@ public class CronSchedulerImpl implements CronScheduler {
 	}
 
 	@Override
-	public void checkAndActivateJob(QuartzJobConfig jobConfig)
+	public void checkAndActivateJob(String jobClassName, QuartzJobConfig jobConfig)
 			throws SchedulerException, ClassNotFoundException {
-		String jobClassName = jobConfig.className;
+		//String jobClassName = jobConfig.className;
 		System.out.println("JOB CLASS NAME:" + jobClassName);
+
 		Class<? extends Job> jobClass = (Class<? extends Job>) Class
 				.forName(jobClassName);
 

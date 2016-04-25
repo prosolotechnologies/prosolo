@@ -9,8 +9,8 @@ import org.simpleframework.xml.Element;
 
 public class QuartzJobConfig {
 
-	@Element(name = "class-name", required = true)
-	public String className;
+	//@Element(name = "class-name", required = true)
+	//public String className;
 
 	@Element(name = "activated", required = false)
 	public boolean activated = true;
@@ -20,4 +20,7 @@ public class QuartzJobConfig {
 
 	@Element(name="schedule", required=false)
 	public String schedule;
+
+	 @Element(name="properties", required=false)
+	 public JobProperties jobProperties;
 }

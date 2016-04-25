@@ -21,48 +21,67 @@
 		<job-store-class>org.quartz.simpl.RAMJobStore</job-store-class>
 		<collection-prefix>quartzjobs</collection-prefix>
 		<quartz-jobs>
-			<job>
-				<class-name>org.prosolo.bigdata.jobs.AssociationRulesForCompetencesDiscoveryJob</class-name>
-				<activated>true</activated>
-				<on-startup>true</on-startup>
-				<schedule>0 0 9 * * ?</schedule><!--0 0 9 * * ? Executes every day at 9AM-->
-			</job>
-			<job>
-				<class-name>org.prosolo.bigdata.jobs.LearningGoalsMostActiveUsersAnalyzerJob</class-name>
-				<activated>true</activated>
-				<on-startup>true</on-startup>
-				<schedule>0 0 6 * * ?</schedule><!--0 0 6 * * ? Executes every day at 6AM-->
-			</job>
-			<job>
-				<class-name>org.prosolo.bigdata.jobs.GenerateFeedsJob</class-name>
-				<activated>false</activated>
-				<on-startup>false</on-startup>
-				<schedule>0 0 1 * * ?</schedule><!--0 0 1 * * ? Executes every day at 1AM-->
-			</job>
-			<job>
-				<class-name>org.prosolo.bigdata.jobs.TwitterHashtagStatisticsJob</class-name>
-				<activated>false</activated>
-				<on-startup>false</on-startup>
-				<schedule>0 0 0,12 1/1 * ? *</schedule><!--0 0 0,12 1/1 * ? * Execute twice daily at 12 Noon & 12 Midnight every Day-->
-			</job>
-			<job>
-				<class-name>org.prosolo.bigdata.jobs.GenerateSNAClusters</class-name>
-				<activated>false</activated>
-				<on-startup>false</on-startup>
-				<schedule>0 0 1 ? * SAT *</schedule><!--0 0 1 ? * SAT * every Saturday at 1AM-->
-			</job>
-			<job>
-				<class-name>org.prosolo.bigdata.jobs.GenerateUserProfileClusters</class-name>
-				<activated>false</activated>
-				<on-startup>false</on-startup>
-				<schedule>0 0 1 ? * SUN *</schedule><!--0 0 1 ? * SUN * every Sunday at 1AM-->
-			</job>
-			<job>
-				<class-name>org.prosolo.bigdata.jobs.GenerateUserProfileInteractions</class-name>
-				<activated>false</activated>
-				<on-startup>false</on-startup>
-				<schedule>0 0 0/6 1/1 * ? *</schedule><!--0 0 0/6 1/1 * ? * Execute every 6 hours-->
-			</job>
+			<class name="org.prosolo.bigdata.jobs.GenerateFeedsJob">
+				<job>
+					<activated>true</activated>
+					<on-startup>true</on-startup>
+					<schedule>0 0 1 ? * SUN *</schedule>
+				</job>
+			</class>
+
+			<class name="org.prosolo.bigdata.jobs.AssociationRulesForCompetencesDiscoveryJob">
+				<job>
+					<activated>false</activated>
+					<on-startup>false</on-startup>
+					<schedule>0 0 9 * * ?</schedule><!--0 0 9 * * ? Executes every day at 9AM-->
+				</job>
+			</class>
+			<class name="org.prosolo.bigdata.jobs.LearningGoalsMostActiveUsersAnalyzerJob">
+				<job>
+					<activated>false</activated>
+					<on-startup>false</on-startup>
+					<schedule>0 0 6 * * ?</schedule><!--0 0 6 * * ? Executes every day at 6AM-->
+				</job>
+			</class>
+			<class name="org.prosolo.bigdata.jobs.GenerateFeedsJob">
+				<job>
+					<activated>false</activated>
+					<on-startup>false</on-startup>
+					<schedule>0 0 1 * * ?</schedule><!--0 0 1 * * ? Executes every day at 1AM-->
+				</job>
+			</class>
+			<class name="org.prosolo.bigdata.jobs.TwitterHashtagStatisticsJob">
+				<job>
+					<activated>false</activated>
+					<on-startup>false</on-startup>
+					<schedule>0 0 0,12 1/1 * ? *</schedule><!--0 0 0,12 1/1 * ? * Execute twice daily at 12 Noon & 12 Midnight every Day-->
+				</job>
+			</class>
+			<class name="org.prosolo.bigdata.jobs.GenerateSNAClusters">
+				<job>
+					<activated>false</activated>
+					<on-startup>false</on-startup>
+					<schedule>0 0 1 ? * SAT *</schedule><!--0 0 1 ? * SAT * every Saturday at 1AM-->
+				</job>
+			</class>
+			<class name="org.prosolo.bigdata.jobs.GenerateUserProfileClusters">
+				<job>
+					<activated>true</activated>
+					<on-startup>true</on-startup>
+					<schedule>0 0 1 ? * SUN *</schedule><!--0 0 1 ? * SUN * every Sunday at 1AM-->
+					<properties>
+						<property name="name">xxx</property>
+						<property name="name2">yyy</property>
+					</properties>
+				</job>
+			</class>
+			<class name="org.prosolo.bigdata.jobs.GenerateUserProfileInteractions">
+				<job>
+					<activated>false</activated>
+					<on-startup>false</on-startup>
+					<schedule>0 0 0/6 1/1 * ? *</schedule><!--0 0 0/6 1/1 * ? * Execute every 6 hours-->
+				</job>
+			</class>
 		</quartz-jobs>
 		<streaming-jobs>
 			<twitterStreaming>true</twitterStreaming>

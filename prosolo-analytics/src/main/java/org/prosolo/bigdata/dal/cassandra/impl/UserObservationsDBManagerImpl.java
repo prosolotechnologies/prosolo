@@ -162,6 +162,7 @@ implements Serializable, UserObservationsDBManager{
 
 	@Override
 	public List<Row> findAllUsersProfileObservationsForDate(Long date, Long courseId) {
+
 		BoundStatement boundStatement = new BoundStatement(
 				preparedStatements.get("findUserprofileactionsobservationsbydate"));
 		boundStatement.setLong(0, date);
@@ -173,6 +174,7 @@ implements Serializable, UserObservationsDBManager{
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}
+		System.out.println("FIND ALL USER PROFILES FOR DATE:"+date+" course:"+courseId+" has results:"+rows.size());
 		return rows;
 	}
 	@Override
