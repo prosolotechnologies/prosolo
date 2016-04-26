@@ -129,8 +129,11 @@ public class CredentialEditBean implements Serializable {
 		if(saved) {
 			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
 			try {
+//				extContext.redirect(extContext.getRequestContextPath() + 
+//						"/credential.xhtml?mode=preview&id=" + id);
+				
 				extContext.redirect(extContext.getRequestContextPath() + 
-						"/credential.xhtml?mode=preview&id=" + id);
+						"/credentials/" + id + "?mode=preview");
 			} catch (IOException e) {
 				logger.error(e);
 			}

@@ -18,7 +18,10 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
+import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.FilteredQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
@@ -32,6 +35,7 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CreatorType;
+import org.prosolo.common.domainmodel.credential.CredentialType1;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.reminders.Reminder;
@@ -39,11 +43,13 @@ import org.prosolo.common.domainmodel.user.reminders.ReminderStatus;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.search.TextSearch;
-import org.prosolo.search.util.CourseMembersSortOption;
-import org.prosolo.search.util.CourseMembersSortOptionTranslator;
 import org.prosolo.search.util.ESSortOption;
 import org.prosolo.search.util.ESSortOrderTranslator;
-import org.prosolo.search.util.InstructorAssignedFilter;
+import org.prosolo.search.util.course.CourseMembersSortOption;
+import org.prosolo.search.util.course.CourseMembersSortOptionTranslator;
+import org.prosolo.search.util.course.InstructorAssignedFilter;
+import org.prosolo.search.util.credential.CredentialSearchFilter;
+import org.prosolo.search.util.credential.CredentialSortOption;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexNames;
 import org.prosolo.services.indexing.ESIndexer;
@@ -51,8 +57,10 @@ import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CourseManager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.web.search.data.SortingOption;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -73,6 +81,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	@Autowired private ESIndexer esIndexer;
 	@Inject private CourseManager courseManager;
 	@Inject private Competence1Manager compManager;
+	@Inject private CredentialManager credentialManager;
 
 	@Override
 	@Transactional
@@ -1046,5 +1055,163 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			logger.error(e);
 		}
 		return null;
+	}
+	
+	@Override
+	public TextSearchResponse1<CredentialData> searchCredentials(
+			String searchTerm, int page, int limit, long userId, 
+			CredentialSearchFilter filter, CredentialSortOption sortOption) {
+		TextSearchResponse1<CredentialData> response = new TextSearchResponse1<>();
+		try {
+			int start = 0;
+			start = setStart(page, limit);
+
+			Client client = ElasticSearchFactory.getClient();
+			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL);
+			
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			
+			if(searchTerm != null && !searchTerm.isEmpty()) {
+				QueryBuilder qb = QueryBuilders
+						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.field("title").field("description")
+						.field("tags.title").field("hashtags.title");
+				
+				bQueryBuilder.must(qb);
+			}
+			
+			//bQueryBuilder.minimumNumberShouldMatch(1);
+			
+			switch(filter) {
+				case ALL:
+					break;
+				case BOOKMARKS:
+					QueryBuilder qb = QueryBuilders.nestedQuery(
+					        "bookmarkedBy",               
+					        QueryBuilders.boolQuery()          
+					             .must(termQuery("bookmarkedBy.id", userId))); 
+					bQueryBuilder.must(qb);
+					break;
+				case FROM_CREATOR:
+					bQueryBuilder.must(termQuery("creatorId", userId));
+					break;
+				case FROM_OTHER_STUDENTS:
+					bQueryBuilder.mustNot(termQuery("creatorId", userId));
+					/*
+					 * Because lowercased strings are always stored in index. Alternative
+					 * is to use match query that would analyze term passed.
+					 */
+					bQueryBuilder.must(termQuery("type", 
+							CredentialType1.USER_CREATED.toString().toLowerCase()));
+					break;
+				case UNIVERSITY:
+					bQueryBuilder.must(termQuery("type", 
+							CredentialType1.UNIVERSITY_CREATED.toString().toLowerCase()));
+					break;
+			}
+			
+			/*
+			 * this is how query should look like in pseudo code
+			 */
+//			(creator != {loggedUserId} AND (published = true or published = false and hasDraft = true)) 
+//			OR (creator = {loggedUserId} AND ((isDraft = false AND published = false AND hasDraft = false) 
+//			                                                           OR (isDraft = true)) 
+//			                                                           OR published = true))
+			
+			BoolFilterBuilder boolFilter = FilterBuilders.boolFilter();
+			
+			/*
+			 * include all published credentials and draft credentials that have draft version
+			 * by other users
+			 */
+			BoolFilterBuilder publishedCredentialsByOthersFilter = FilterBuilders.boolFilter();
+			publishedCredentialsByOthersFilter.mustNot(FilterBuilders.termFilter("creatorId", userId));
+			BoolFilterBuilder publishedOrHasDraft = FilterBuilders.boolFilter();
+			publishedOrHasDraft.should(FilterBuilders.termFilter("published", true));
+			BoolFilterBuilder hasDraft = FilterBuilders.boolFilter();
+			hasDraft.must(FilterBuilders.termFilter("published", false));
+			hasDraft.must(FilterBuilders.termFilter("hasDraft", true));
+			publishedOrHasDraft.should(hasDraft);
+			publishedCredentialsByOthersFilter.must(publishedOrHasDraft);
+			
+			boolFilter.should(publishedCredentialsByOthersFilter);
+			
+			/*
+			 * include all draft credentials created first time as draft (never been published),
+			 * draft versions of credentials instead of original versions and published credentials
+			 */
+			BoolFilterBuilder currentUsersCredentials = FilterBuilders.boolFilter();
+			currentUsersCredentials.must(FilterBuilders.termFilter("creatorId", userId));
+			BoolFilterBuilder correctlySelectedPublishedAndDraftVersions = FilterBuilders.boolFilter();
+			BoolFilterBuilder firstTimeDraft = FilterBuilders.boolFilter();
+			firstTimeDraft.must(FilterBuilders.termFilter("isDraft", false));
+			firstTimeDraft.must(FilterBuilders.termFilter("published", false));
+			firstTimeDraft.must(FilterBuilders.termFilter("hasDraft", false));
+			correctlySelectedPublishedAndDraftVersions.should(firstTimeDraft);
+			correctlySelectedPublishedAndDraftVersions.should(FilterBuilders.termFilter("isDraft", true));
+			correctlySelectedPublishedAndDraftVersions.should(FilterBuilders.termFilter("published", true));
+			currentUsersCredentials.must(correctlySelectedPublishedAndDraftVersions);
+			
+			boolFilter.should(currentUsersCredentials);
+			
+			FilteredQueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder, 
+					boolFilter);
+			
+			System.out.println("QUERY: " + filteredQueryBuilder.toString());
+			
+			String[] includes = {"id", "originalVersionId"};
+			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_NODES)
+					.setTypes(ESIndexTypes.CREDENTIAL)
+					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+					.setQuery(filteredQueryBuilder)
+					.setFetchSource(includes, null);
+			
+			
+			searchRequestBuilder.setFrom(start).setSize(limit);
+			
+			//add sorting
+			SortOrder order = sortOption.getSortOrder() == 
+					org.prosolo.services.util.SortingOption.ASC ? SortOrder.ASC 
+					: SortOrder.DESC;
+			searchRequestBuilder.addSort(sortOption.getSortField(), order);
+			//System.out.println(searchRequestBuilder.toString());
+			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
+			
+			if(sResponse != null) {
+				SearchHits searchHits = sResponse.getHits();
+				response.setHitsNumber(sResponse.getHits().getTotalHits());
+				if(searchHits != null) {
+					for (SearchHit hit : sResponse.getHits()) {
+						/*
+						 * long field is parsed this way because ES is returning integer although field type
+						 * is specified as long in mapping file
+						 */
+						Long id = Long.parseLong(hit.getSource().get("id").toString());
+						Long originalCredId = Long.parseLong(hit.getSource()
+								.get("originalVersionId").toString());
+						try {
+							CredentialData cd = null;
+							if(originalCredId != null && originalCredId != 0) {
+								cd = credentialManager
+									.getDraftVersionCredentialDataWithProgressIfExists(originalCredId, userId);
+							} else {
+								cd = credentialManager
+									.getCredentialDataWithProgressIfExists(id, userId);
+							}
+							if (cd != null) {
+								response.addFoundNode(cd);
+							}
+						} catch (DbConnectionException e) {
+							logger.error(e);
+						}
+					}
+				}
+			}
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			logger.error(e1);
+		}
+		return response;
 	}
 }

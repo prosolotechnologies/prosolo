@@ -33,6 +33,7 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private List<CompetenceData1> competences;
 	//true if this is data for draft version of credential
 	private boolean draft;
+	private boolean hasDraft;
 	private boolean studentsCanAddCompetences;
 	private boolean manuallyAssingStudents;
 	private int defaultNumberOfStudentsPerInstructor;
@@ -41,6 +42,8 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private boolean enrolled;
 	private long targetCredId;
 	private int progress;
+	
+	private boolean bookmarkedByCurrentUser;
 	
 	public CredentialData(boolean listenChanges) {
 		this.status = PublishedStatus.DRAFT;
@@ -61,6 +64,15 @@ public class CredentialData extends StandardObservable implements Serializable {
 		return changed;
 	}
 	
+	/**
+	 * Returns true if credential is draft and it is not a draft version, so it
+	 * means that it is original version that is created as draft - has never been published
+	 * @return
+	 */
+	public boolean isFirstTimeDraft() {
+		return !published && !draft && !hasDraft;
+	}
+	
 	public void calculateDurationString() {
 		durationString = TimeUtil.getHoursAndMinutesInString(this.duration);
 	}
@@ -77,6 +89,18 @@ public class CredentialData extends StandardObservable implements Serializable {
 	
 	private void setCredentialTypeFromString() {
 		type = CredentialType1.valueOf(typeString.toUpperCase());
+	}
+	
+	public boolean isUniversityCreated() {
+		return type == CredentialType1.UNIVERSITY_CREATED;
+	}
+	
+	public boolean isUserCreated() {
+		return type == CredentialType1.USER_CREATED;
+	}
+	
+	public boolean isCompleted() {
+		return progress == 100;
 	}
 
 	public String getTitle() {
@@ -305,6 +329,22 @@ public class CredentialData extends StandardObservable implements Serializable {
 		observeAttributeChange("duration", this.duration, duration);
 		this.duration = duration;
 		calculateDurationString();
+	}
+
+	public boolean isHasDraft() {
+		return hasDraft;
+	}
+
+	public void setHasDraft(boolean hasDraft) {
+		this.hasDraft = hasDraft;
+	}
+
+	public boolean isBookmarkedByCurrentUser() {
+		return bookmarkedByCurrentUser;
+	}
+
+	public void setBookmarkedByCurrentUser(boolean bookmarkedByCurrentUser) {
+		this.bookmarkedByCurrentUser = bookmarkedByCurrentUser;
 	}
 	
 }

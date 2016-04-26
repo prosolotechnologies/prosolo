@@ -37,6 +37,7 @@ import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.course.Status;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.credential.CredentialType1;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.general.Node;
@@ -892,5 +893,18 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public Competence1 updateCompetence(CompetenceData1 data) {
     	return competenceManager.updateCompetence(data);
+    }
+    
+    @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    public long deleteCredentialBookmark(long credId, long userId) {
+    	return credentialManager.deleteCredentialBookmark(credId, userId);
+    }
+    
+    @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    public CredentialBookmark bookmarkCredential(long credId, long userId) 
+			throws DbConnectionException {
+    	return credentialManager.bookmarkCredential(credId, userId);
     }
 }

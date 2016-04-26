@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -64,6 +65,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Inject
 	private CompetenceDataFactory competenceFactory;
 	
+	
 	@Override
 	@Transactional(readOnly = false)
 	public Credential1 saveNewCredential(CredentialData data, User createdBy) throws DbConnectionException {
@@ -88,6 +90,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			//generate create event only if credential is published
 			if(data.isPublished()) {
 				eventFactory.generateEvent(EventType.Create, createdBy, cred);
+			} else {
+				eventFactory.generateEvent(EventType.Create_Draft, createdBy, cred);
 			}
 
 			return cred;
@@ -115,10 +119,26 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 							.load(Credential1.class, data.getId());
 					cred.setDraftVersion(null);
 					delete(draftVersion);
+					//eventFactory.generateEvent(EventType.Delete_Draft, user, draftVersion);
 				}
 	
+				/*
+				 * if credential was once published delete event is generated
+				 */
 				if(data.isPublished() || data.isDraft()) {
-					eventFactory.generateEvent(EventType.Delete, user, cred);
+					Map<String, String> params = null;
+					if(data.isDraft()) {
+						params = new HashMap<>();
+						params.put("draftVersionId", data.getId() + "");
+					}
+					eventFactory.generateEvent(EventType.Delete, user, cred, params);
+				}
+				/*
+				 * if credential is draft and it was never published delete_draft event
+				 * is generated
+				 */
+				else {
+					eventFactory.generateEvent(EventType.Delete_Draft, user, cred);
 				}
 				
 				return cred;
@@ -133,7 +153,105 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = true)
-	public CredentialData getAllCredentialDataForUser(long credentialId, long userId)
+	public CredentialData getCredentialDataWithProgressIfExists(long credentialId, long userId) 
+					throws DbConnectionException {
+		CredentialData credData = null;
+		try {
+			User user = (User) persistence.currentManager().load(User.class, userId);
+			String query = "SELECT cred, targetCred.progress, bookmark.id " +
+						   "FROM Credential1 cred " + 
+						   "LEFT JOIN cred.targetCredentials targetCred " + 
+						   "WITH targetCred.user.id = :user " +
+						   "LEFT JOIN cred.bookmarks bookmark " +
+						   "WITH bookmark.user.id = :user " +
+						   "WHERE cred.id = :credId";
+
+			Object[] res = (Object[]) persistence.currentManager()
+					.createQuery(query)
+					.setLong("user", user.getId())
+					.setLong("credId", credentialId)
+					.uniqueResult();
+
+			if (res != null) {
+				Credential1 cred = (Credential1) res[0];
+				Integer paramProgress = (Integer) res[1];
+				Long paramBookmarkId = (Long) res[2];
+				if(paramProgress != null) {
+					credData = credentialFactory.getCredentialDataWithProgress(null, cred, null, 
+							null, false, paramProgress.intValue());
+				} else {
+					credData = credentialFactory.getCredentialData(null, cred, null, null, false);
+				}
+				if(paramBookmarkId != null) {
+					credData.setBookmarkedByCurrentUser(true);
+				}
+				
+				return credData;
+			}
+			return null;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading credential data");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public CredentialData getDraftVersionCredentialDataWithProgressIfExists(long originalVersionId, 
+			long userId) throws DbConnectionException {
+		CredentialData credData = null;
+		try {
+			User user = (User) persistence.currentManager().load(User.class, userId);
+			String query = "SELECT draftCred, targetCred.progress, bookmark.id " +
+						   "FROM Credential1 cred " + 
+						   "LEFT JOIN cred.draftVersion draftCred " +
+						   "LEFT JOIN cred.targetCredentials targetCred " + 
+						   "WITH targetCred.user.id = :user " +
+						   "LEFT JOIN cred.bookmarks bookmark " +
+						   "WITH bookmark.user.id = :user " +
+						   "WHERE cred.id = :credId";
+
+			Object[] res = (Object[]) persistence.currentManager()
+					.createQuery(query)
+					.setLong("user", user.getId())
+					.setLong("credId", originalVersionId)
+					.uniqueResult();
+
+			if (res != null) {
+				Credential1 cred = (Credential1) res[0];
+				Integer paramProgress = (Integer) res[1];
+				Long paramBookmarkId = (Long) res[2];
+				
+				if(paramProgress != null) {
+					credData = credentialFactory.getCredentialDataWithProgress(null, cred, 
+							null, null, false, paramProgress.intValue());
+				} else {
+					credData = credentialFactory.getCredentialData(null, cred, 
+							null, null, false);
+				}
+				if(paramBookmarkId != null) {
+					credData.setBookmarkedByCurrentUser(true);
+				}
+				
+				
+				/*
+				 * id of original credential version is set
+				 */
+				credData.setId(originalVersionId);
+				return credData;
+			}
+			return null;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading credential data");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public CredentialData getFullTargetCredentialOrCredentialData(long credentialId, long userId)
 			throws DbConnectionException {
 		CredentialData credData = null;
 		try {
@@ -153,10 +271,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	private CredentialData getTargetCredentialData(long credentialId, long userId, 
 			boolean loadCompetences) throws DbConnectionException {
 		CredentialData credData = null;
-		User user = (User) persistence.currentManager().load(User.class, userId);
-		Credential1 cred = (Credential1) persistence.currentManager().load(
-				Credential1.class, credentialId);
 		try {
+			User user = (User) persistence.currentManager().load(User.class, userId);
+			Credential1 cred = (Credential1) persistence.currentManager().load(
+					Credential1.class, credentialId);
 			String query = "SELECT targetCred " +
 						   "FROM TargetCredential1 targetCred " + 
 						   "INNER JOIN fetch targetCred.createdBy user " + 
@@ -317,17 +435,59 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			Credential1 cred = resourceFactory.updateCredential(data);
 
 			if(data.isPublished()) {
-				if(data.isPublishedChanged() && !data.isDraft()) {
-					eventFactory.generateEvent(EventType.Create, user, cred);
-				} else {
+				//credential remains published
+				if(!data.isPublishedChanged()) {
 					Map<String, String> params = new HashMap<>();
 				    CredentialChangeTracker changeTracker = new CredentialChangeTracker(data.isPublished(),
-				    		data.isTitleChanged(), data.isDescriptionChanged(), data.isTagsStringChanged(), 
+				    		false, data.isTitleChanged(), data.isDescriptionChanged(), data.isTagsStringChanged(), 
 				    		data.isHashtagsStringChanged());
 				    Gson gson = new GsonBuilder().create();
 				    String jsonChangeTracker = gson.toJson(changeTracker);
 				    params.put("changes", jsonChangeTracker);
 				    eventFactory.generateEvent(EventType.Edit, user, cred, params);
+				} 
+				/*
+				 * this means that credential is published for the first time
+				 */
+				else if(!data.isDraft()) {
+					eventFactory.generateEvent(EventType.Create, user, cred);
+				}
+				/*
+				 * Credential becomes published again. Because data can show what has changed
+				 * based on draft version, we can't use that. We need to know what has changed based on
+				 * original credential, so all fields are treated as changed.
+				 */
+				else {
+					Map<String, String> params = new HashMap<>();
+				    CredentialChangeTracker changeTracker = new CredentialChangeTracker(data.isPublished(),
+				    		true, true, true, true, true);
+				    Gson gson = new GsonBuilder().create();
+				    String jsonChangeTracker = gson.toJson(changeTracker);
+				    params.put("changes", jsonChangeTracker);
+				    params.put("draftVersionId", data.getId() + "");
+				    eventFactory.generateEvent(EventType.Edit, user, cred, params);
+				}
+			} else {
+				/*
+				 * if credential remains draft
+				 */
+				if(!data.isPublishedChanged()) {
+					Map<String, String> params = new HashMap<>();
+				    CredentialChangeTracker changeTracker = new CredentialChangeTracker(data.isPublished(),
+				    		false, data.isTitleChanged(), data.isDescriptionChanged(), data.isTagsStringChanged(), 
+				    		data.isHashtagsStringChanged());
+				    Gson gson = new GsonBuilder().create();
+				    String jsonChangeTracker = gson.toJson(changeTracker);
+				    params.put("changes", jsonChangeTracker);
+					eventFactory.generateEvent(EventType.Edit_Draft, user, cred, params);
+				} 
+				/*
+				 * This means that credential was published before so draft version is created.
+				 */
+				else {
+					Map<String, String> params = new HashMap<>();
+					params.put("originalVersionId", data.getId() + "");
+					eventFactory.generateEvent(EventType.Create_Draft, user, cred, params);
 				}
 			}
 
@@ -392,6 +552,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				credToUpdate = new Credential1();
 				credToUpdate.setDraft(true);
 				credToUpdate.setCreatedBy(cred.getCreatedBy());
+				credToUpdate.setType(cred.getType());
+				credToUpdate.setDateCreated(cred.getDateCreated());
 				cred.setHasDraft(true);
 				cred.setPublished(false);
 				break;
@@ -414,6 +576,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		credToUpdate.setManuallyAssignStudents(data.isManuallyAssingStudents());
 		credToUpdate.setDefaultNumberOfStudentsPerInstructor(data.getDefaultNumberOfStudentsPerInstructor());
 		credToUpdate.setDuration(data.getDuration());
+		
 	    if(publishTransition == EntityPublishTransition.NO_TRANSITION) {
 	    	if(data.isTagsStringChanged()) {
 	    		credToUpdate.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(
@@ -498,8 +661,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    return credToUpdate;
 	}
 
+	@Override
 	@Transactional(readOnly = true)
-	private Credential1 getOriginalCredentialForDraft(long draftCredId) {
+	public Credential1 getOriginalCredentialForDraft(long draftCredId) throws DbConnectionException {  
 		try {
 			Credential1 draftCred = (Credential1) persistence.currentManager().load(
 					Credential1.class, draftCredId);
@@ -541,9 +705,11 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = false)
-	public CredentialData enrollInCredential(long credentialId, User user, LearningContextData context) 
+	public CredentialData enrollInCredential(long credentialId, long userId, LearningContextData context) 
 			throws DbConnectionException {
 		try {
+			User user = (User) persistence.currentManager().load(User.class, userId);
+			
 			Credential1 cred = getCredential(credentialId, false);
 			TargetCredential1 targetCred = createTargetCredential(cred, user);
 			
@@ -572,7 +738,14 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				lContext = context.getLearningContext();
 				service = context.getService();
 			}
-			eventFactory.generateEvent(EventType.ENROLL_COURSE, user, cred, null, 
+			
+			/*
+			 * Loaded user instance is not used because that would lead to select query
+			 * when trying to get name of a user while capturing ENROLL_COURSE event.
+			 */
+			User actor = new User();
+			actor.setId(userId);
+			eventFactory.generateEvent(EventType.ENROLL_COURSE, actor, cred, null, 
 					page, lContext, service, params);
 			
 			return cd;
@@ -903,6 +1076,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Override
+	@Transactional(readOnly = true)
 	public List<CredentialBookmark> getBookmarkedByIds(long credId) throws DbConnectionException {
 		try {
 			Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, credId);
@@ -924,6 +1099,132 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while loading credential bookmarks");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void bookmarkCredential(long credId, long userId, LearningContextData context) 
+			throws DbConnectionException {
+		try {
+			CredentialBookmark cb = resourceFactory.bookmarkCredential(credId, userId);
+			
+			/* 
+			 * To avoid SQL query when for example user name is accessed.
+			 * This way, only id will be accessible.
+			 */
+			User actor = new User();
+			actor.setId(userId);
+			CredentialBookmark bookmark = new CredentialBookmark();
+			bookmark.setId(cb.getId());
+			Credential1 credential = new Credential1();
+			credential.setId(credId);
+			
+			eventFactory.generateEvent(EventType.Bookmark, actor, bookmark, credential, 
+					context.getPage(), context.getLearningContext(), context.getService(), null);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while bookmarking credential");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public CredentialBookmark bookmarkCredential(long credId, long userId) 
+			throws DbConnectionException {
+		try {
+			Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, credId);
+			User user = (User) persistence.currentManager().load(User.class, userId);
+			CredentialBookmark cb = new CredentialBookmark();
+			cb.setCredential(cred);
+			cb.setUser(user);
+			return saveEntity(cb);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while bookmarking credential");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void deleteCredentialBookmark(long credId, long userId, LearningContextData context) 
+			throws DbConnectionException {
+		try {
+			long deletedBookmarkId = resourceFactory.deleteCredentialBookmark(credId, userId);
+			/* 
+			 * To avoid SQL query when for example user name is accessed.
+			 * This way, only id will be accessible.
+			 */
+			User actor = new User();
+			actor.setId(userId);
+			CredentialBookmark cb = new CredentialBookmark();
+			cb.setId(deletedBookmarkId);
+			Credential1 credential = new Credential1();
+			credential.setId(credId);
+			
+			eventFactory.generateEvent(EventType.RemoveBookmark, actor, cb, credential, 
+					context.getPage(), context.getLearningContext(), context.getService(), null);
+			
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while deleting credential bookmark");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public long deleteCredentialBookmark(long credId, long userId) 
+			throws DbConnectionException {
+		try {
+			Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, credId);
+			User user = (User) persistence.currentManager().load(User.class, userId);
+			String query = "SELECT cb " +
+						   "FROM CredentialBookmark cb " +
+						   "WHERE cb.credential = :cred " +
+						   "AND cb.user = :user";
+			
+			CredentialBookmark bookmark = (CredentialBookmark) persistence.currentManager()
+					.createQuery(query)
+					.setEntity("cred", cred)
+					.setEntity("user", user)
+					.uniqueResult();
+			
+			long id = bookmark.getId();
+			
+			delete(bookmark);
+			
+			return id;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while deleting credential bookmark");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Optional<Long> getDraftVersionIdIfExists(long credId) throws DbConnectionException {
+		try {
+			String query = "SELECT draftCred.id " +
+						   "FROM Credential1 cred " +
+						   "LEFT JOIN cred.draftVersion draftCred " +
+						   "WHERE cred.id = :credId";
+			Long id = (Long) persistence.currentManager()
+					.createQuery(query)
+					.setLong("credId", credId)
+					.uniqueResult();
+			
+			if(id != null) {
+				return Optional.of(id);
+			}
+			return Optional.empty();
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credential data");
 		}
 	}
 	

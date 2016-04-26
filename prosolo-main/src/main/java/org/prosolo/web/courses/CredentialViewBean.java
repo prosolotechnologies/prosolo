@@ -36,6 +36,7 @@ public class CredentialViewBean implements Serializable {
 	private String id;
 	private long decodedId;
 	private String mode;
+	private boolean justEnrolled;
 	
 	private CredentialData credentialData;
 
@@ -53,8 +54,12 @@ public class CredentialViewBean implements Serializable {
 					rc.setAvatarUrl(user.getAvatarUrl());
 					credentialData.setCreator(rc);
 				} else {
-					credentialData = credentialManager.getAllCredentialDataForUser(decodedId, 
+					credentialData = credentialManager.getFullTargetCredentialOrCredentialData(decodedId, 
 							loggedUser.getUser().getId());
+					if(justEnrolled) {
+						PageUtil.fireSuccessfulInfoMessage("You have enrolled to the credential " + 
+								credentialData.getTitle());
+					}
 				}
 				if(credentialData == null) {
 					try {
@@ -96,7 +101,8 @@ public class CredentialViewBean implements Serializable {
 			lcd.setPage(FacesContext.getCurrentInstance().getViewRoot().getViewId());
 			lcd.setLearningContext(PageUtil.getPostParameter("context"));
 			lcd.setService(PageUtil.getPostParameter("service"));
-			CredentialData cd = credentialManager.enrollInCredential(decodedId, loggedUser.getUser(), lcd);
+			CredentialData cd = credentialManager.enrollInCredential(decodedId, 
+					loggedUser.getUser().getId(), lcd);
 			credentialData = cd;
 		} catch(DbConnectionException e) {
 			logger.error(e);
@@ -143,6 +149,14 @@ public class CredentialViewBean implements Serializable {
 
 	public void setMode(String mode) {
 		this.mode = mode;
+	}
+
+	public boolean isJustEnrolled() {
+		return justEnrolled;
+	}
+
+	public void setJustEnrolled(boolean justEnrolled) {
+		this.justEnrolled = justEnrolled;
 	}
 
 }

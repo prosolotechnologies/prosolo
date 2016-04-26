@@ -12,10 +12,13 @@ import org.prosolo.common.domainmodel.user.reminders.Reminder;
 import org.prosolo.common.domainmodel.user.reminders.ReminderStatus;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.search.impl.TextSearchResponse1;
-import org.prosolo.search.util.CourseMembersSortOption;
-import org.prosolo.search.util.InstructorAssignedFilter;
+import org.prosolo.search.util.course.CourseMembersSortOption;
+import org.prosolo.search.util.course.InstructorAssignedFilter;
+import org.prosolo.search.util.credential.CredentialSearchFilter;
+import org.prosolo.search.util.credential.CredentialSortOption;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.web.search.data.SortingOption;
 
 /**
@@ -89,4 +92,8 @@ public interface TextSearch extends AbstractManager {
 	TextSearchResponse1<CompetenceData1> searchCompetences1(
 			String searchString, int page, int limit, boolean loadOneMore,
 			long[] toExclude, List<Tag> filterTags, SortingOption sortTitleAsc);
+	
+	TextSearchResponse1<CredentialData> searchCredentials(
+			String searchTerm, int page, int limit, long userId, 
+			CredentialSearchFilter filter, CredentialSortOption sortOption);
 }

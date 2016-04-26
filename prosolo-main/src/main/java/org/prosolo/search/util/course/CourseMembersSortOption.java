@@ -1,4 +1,4 @@
-package org.prosolo.search.util;
+package org.prosolo.search.util.course;
 
 import org.prosolo.web.search.data.SortingOption;
 

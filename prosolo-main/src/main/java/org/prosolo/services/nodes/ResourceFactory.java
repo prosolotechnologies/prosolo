@@ -17,6 +17,7 @@ import org.prosolo.common.domainmodel.course.CourseCompetence;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.credential.CredentialType1;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.organization.Role;
@@ -117,5 +118,10 @@ public interface ResourceFactory extends AbstractManager {
 	Credential1 updateCredential(CredentialData data);
 
 	Competence1 updateCompetence(CompetenceData1 data);
+	
+	long deleteCredentialBookmark(long credId, long userId);
+	
+	CredentialBookmark bookmarkCredential(long credId, long userId) 
+			throws DbConnectionException;
 
 }

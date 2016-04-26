@@ -39,6 +39,7 @@ public class Credential1 extends BaseEntity {
 	private int defaultNumberOfStudentsPerInstructor;
 	private CredentialType1 type;
 	private Credential1 draftVersion;
+	private List<TargetCredential1> targetCredentials;
 	/** 
 	 * means that this credential instance is just a draft
 	 * version of some other credential
@@ -51,6 +52,8 @@ public class Credential1 extends BaseEntity {
 	 * version
 	 */
 	private boolean hasDraft;
+	
+	private List<CredentialBookmark> bookmarks;
 	
 	public Credential1() {
 		tags = new HashSet<>();
@@ -176,6 +179,24 @@ public class Credential1 extends BaseEntity {
 
 	public void setHasDraft(boolean hasDraft) {
 		this.hasDraft = hasDraft;
+	}
+
+	@OneToMany(mappedBy = "credential")
+	public List<TargetCredential1> getTargetCredentials() {
+		return targetCredentials;
+	}
+
+	public void setTargetCredentials(List<TargetCredential1> targetCredentials) {
+		this.targetCredentials = targetCredentials;
+	}
+
+	@OneToMany(mappedBy = "credential")
+	public List<CredentialBookmark> getBookmarks() {
+		return bookmarks;
+	}
+
+	public void setBookmarks(List<CredentialBookmark> bookmarks) {
+		this.bookmarks = bookmarks;
 	}
 	
 }

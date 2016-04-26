@@ -15,6 +15,7 @@ import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CourseEnrollment;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
@@ -38,7 +39,9 @@ public class NodeChangeObserver extends EventObserver {
 	public EventType[] getSupportedEvents() {
 		return new EventType[] { 
 			EventType.Create,
+			EventType.Create_Draft,
 			EventType.Edit,
+			EventType.Edit_Draft,
 			EventType.Delete,
 			EventType.ChangeVisibility,
 			EventType.Registered,
@@ -52,7 +55,9 @@ public class NodeChangeObserver extends EventObserver {
 			EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR,
 			EventType.USER_ROLES_UPDATED,
 			EventType.COURSE_WITHDRAWN,
-			EventType.ACTIVATE_COURSE
+			EventType.ACTIVATE_COURSE,
+			EventType.Bookmark,
+			EventType.RemoveBookmark
 		};
 	}
 
@@ -72,7 +77,8 @@ public class NodeChangeObserver extends EventObserver {
 			User.class,
 			CourseEnrollment.class,
 			Credential1.class,
-			Competence1.class
+			Competence1.class, 
+			CredentialBookmark.class
 		};
 	}
 

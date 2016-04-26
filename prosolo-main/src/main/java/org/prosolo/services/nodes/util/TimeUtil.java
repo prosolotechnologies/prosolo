@@ -16,7 +16,7 @@ public class TimeUtil {
 	}
 	
 	public static String getHoursAndMinutesInString(long timeInMinutes) {
-		Map<String, Integer> durationMap = TimeUtil.getHoursAndMinutes(timeInMinutes);
+		Map<String, Integer> durationMap = getHoursAndMinutes(timeInMinutes);
 		int hours = durationMap.get("hours");
 		int minutes = durationMap.get("minutes");
 		String duration = hours != 0 ? hours + " hours " : "";

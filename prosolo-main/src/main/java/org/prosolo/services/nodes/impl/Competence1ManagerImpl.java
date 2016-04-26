@@ -439,7 +439,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					eventFactory.generateEvent(EventType.Create, user, updatedComp);
 				} else {
 					Map<String, String> params = new HashMap<>();
-				    CompetenceChangeTracker changeTracker = new CompetenceChangeTracker(data.isPublished(),
+				    CompetenceChangeTracker changeTracker = new CompetenceChangeTracker(data.isPublished(), false,
 				    		data.isTitleChanged(), data.isDescriptionChanged(), data.isTagsStringChanged());
 				    Gson gson = new GsonBuilder().create();
 				    String jsonChangeTracker = gson.toJson(changeTracker);

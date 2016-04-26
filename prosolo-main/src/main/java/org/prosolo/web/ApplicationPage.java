@@ -37,7 +37,8 @@ public enum ApplicationPage {
 	COMPETENCE_ACTIVITIES("/manage/competence-activities.xhtml"),
 	EMAIL("/email.xhtml"),
 	USER_CREDENTIAL("/credential.xhtml"),
-	USER_COMPETENCE("/competence.xhtml");
+	USER_COMPETENCE("/competence.xhtml"),
+	CREDENTIAL_LIBRARY("/credentialLibrary.xhtml");
 
     private String uri; 
     

@@ -16,7 +16,6 @@ public class TextSearchResponse1<T> implements Serializable {
 		hitsNumber = hits;
 	}
 
-	@SuppressWarnings("unchecked")
 	public TextSearchResponse1(List<T> nodes) {
 		foundNodes = nodes;
 	}

@@ -29,6 +29,7 @@ public class Competence1 extends BaseEntity {
 	private boolean studentAllowedToAddActivities;
 	private boolean published;
 	private Competence1 draftVersion;
+	private List<TargetCompetence1> targetCompetences;
 	/** 
 	 * means that this credential instance is just a draft
 	 * version of some other credential
@@ -134,6 +135,15 @@ public class Competence1 extends BaseEntity {
 
 	public void setHasDraft(boolean hasDraft) {
 		this.hasDraft = hasDraft;
+	}
+
+	@OneToMany(mappedBy = "competence")
+	public List<TargetCompetence1> getTargetCompetences() {
+		return targetCompetences;
+	}
+
+	public void setTargetCompetences(List<TargetCompetence1> targetCompetences) {
+		this.targetCompetences = targetCompetences;
 	}
 	
 }

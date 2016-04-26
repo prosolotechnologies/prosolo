@@ -19,9 +19,12 @@ public enum EventType {
 	Detach,
 	Edit, 
 	Edit_Profile, 
+	Edit_Draft,
 	Create,
 	Create_Manager,
+	Create_Draft,
 	Delete,
+	Delete_Draft,
 	Follow,
 	Unfollow,
 	Registered,
@@ -101,7 +104,10 @@ public enum EventType {
 	STUDENT_UNASSIGNED_FROM_INSTRUCTOR,
 	STUDENT_REASSIGNED_TO_INSTRUCTOR,
 	
-	USER_ROLES_UPDATED;
+	USER_ROLES_UPDATED,
+	
+	Bookmark,
+	RemoveBookmark;
 	
 	private String customText;
 	

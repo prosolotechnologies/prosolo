@@ -38,6 +38,7 @@ public class CredentialDataFactory {
 		cred.setCredentialStatus();
 		cred.setMandatoryFlow(credential.isCompetenceOrderMandatory());
 		cred.setDraft(credential.isDraft());
+		cred.setHasDraft(credential.isHasDraft());
 		cred.setDuration(credential.getDuration());
 		cred.calculateDurationString();
 		if(createdBy != null) {
@@ -91,6 +92,26 @@ public class CredentialDataFactory {
 		if(shouldTrackChanges) {
 			cred.startObservingChanges();
 		}
+		return cred;
+	}
+	
+	/**
+	 * If you want to create data object based on data from Credential object and additionally set
+	 * progress for that data this method should be called. Use this method only when user is enrolled
+	 * but you want data from original credential to be shown.
+	 * @param createdBy
+	 * @param credential
+	 * @param tags
+	 * @param hashtags
+	 * @param shouldTrackChanges
+	 * @param progress
+	 * @return
+	 */
+	public CredentialData getCredentialDataWithProgress(User createdBy, Credential1 credential,
+			Set<Tag> tags, Set<Tag> hashtags, boolean shouldTrackChanges, int progress) {
+		CredentialData cred = getCredentialData(createdBy, credential, tags, hashtags, shouldTrackChanges);
+		cred.setProgress(progress);
+		cred.setEnrolled(true);
 		return cred;
 	}
 	

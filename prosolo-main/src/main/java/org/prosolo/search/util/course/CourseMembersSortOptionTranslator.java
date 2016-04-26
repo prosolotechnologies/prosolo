@@ -1,9 +1,11 @@
-package org.prosolo.search.util;
+package org.prosolo.search.util.course;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import org.elasticsearch.search.sort.SortOrder;
+import org.prosolo.search.util.ESSortOption;
+import org.prosolo.search.util.ESSortOrderTranslator;
 
 public class CourseMembersSortOptionTranslator {
 

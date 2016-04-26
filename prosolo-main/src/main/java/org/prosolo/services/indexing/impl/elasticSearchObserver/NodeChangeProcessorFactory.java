@@ -41,7 +41,9 @@ public class NodeChangeProcessorFactory {
 			case ACTIVATE_COURSE:
 				 return new UserNodeChangeProcessor(event, session, userEntityESService, EventUserRole.Subject);
 			case Create:
+			case Create_Draft:
 			case Edit:
+			case Edit_Draft:
 			case ChangeVisibility:
 			case STUDENT_ASSIGNED_TO_INSTRUCTOR:
 			case STUDENT_UNASSIGNED_FROM_INSTRUCTOR:
@@ -55,7 +57,7 @@ public class NodeChangeProcessorFactory {
 					return new UserNodeChangeProcessor(event, session, userEntityESService, EventUserRole.Subject);
 				} else if(node instanceof Credential1) {
 					NodeOperation operation = null;
-					if(type == EventType.Create) {
+					if(type == EventType.Create || type == EventType.Create_Draft) {
 						operation = NodeOperation.Save;
 					} else {
 						operation = NodeOperation.Update;
@@ -87,6 +89,10 @@ public class NodeChangeProcessorFactory {
 				if(event.getObject() instanceof TargetActivity && event.getTarget() instanceof TargetCompetence) {
 					return new AttachActivityNodeChangeProcessor(event, nodeEntityESService);
 				}
+			case Bookmark:
+				return new BookmarkNodeChangeProcessor(event, credentialESService, NodeOperation.Save);
+			case RemoveBookmark:
+				return new BookmarkNodeChangeProcessor(event, credentialESService, NodeOperation.Delete);
 			default:
 				return null;
 		}

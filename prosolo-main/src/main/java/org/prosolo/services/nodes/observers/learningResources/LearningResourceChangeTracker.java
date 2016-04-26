@@ -3,6 +3,12 @@ package org.prosolo.services.nodes.observers.learningResources;
 public class LearningResourceChangeTracker {
 
 	private boolean published;
+	/*
+	 * true if draft version object is created,
+	 * or draft version object is deleted and original
+	 * version is updated
+	 */
+	private boolean versionChanged;
 	private boolean titleChanged;
 	private boolean descriptionChanged;
 	
@@ -10,9 +16,10 @@ public class LearningResourceChangeTracker {
 		
 	}
 	
-	public LearningResourceChangeTracker(boolean published, boolean titleChanged, 
+	public LearningResourceChangeTracker(boolean published, boolean versionChanged, boolean titleChanged, 
 			boolean descriptionChanged) {
 		this.published = published;
+		this.versionChanged = versionChanged;
 		this.titleChanged = titleChanged;
 		this.descriptionChanged = descriptionChanged;
 	}
@@ -35,6 +42,12 @@ public class LearningResourceChangeTracker {
 	public void setDescriptionChanged(boolean descriptionChanged) {
 		this.descriptionChanged = descriptionChanged;
 	}
-	
-	
+
+	public boolean isVersionChanged() {
+		return versionChanged;
+	}
+	public void setVersionChanged(boolean versionChanged) {
+		this.versionChanged = versionChanged;
+	}
+
 }

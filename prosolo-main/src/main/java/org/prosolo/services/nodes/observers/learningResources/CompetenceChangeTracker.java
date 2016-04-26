@@ -8,9 +8,9 @@ public class CompetenceChangeTracker extends LearningResourceChangeTracker {
 		
 	}
 	
-	public CompetenceChangeTracker(boolean published, boolean titleChanged, 
+	public CompetenceChangeTracker(boolean published, boolean versionChanged, boolean titleChanged, 
 			boolean descriptionChanged, boolean tagsChanged) {
-		super(published, titleChanged, descriptionChanged);
+		super(published, versionChanged, titleChanged, descriptionChanged);
 		this.tagsChanged = tagsChanged;
 	}
 
