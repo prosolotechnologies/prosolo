@@ -3,6 +3,8 @@ package org.prosolo.bigdata.dal.cassandra.impl;
 import java.io.Serializable;
 import java.util.*;
 
+import org.prosolo.bigdata.common.dal.pojo.SocialInteractionsCount;
+import org.prosolo.bigdata.common.dal.pojo.UserProfileFeatures;
 import org.prosolo.bigdata.dal.cassandra.UserObservationsDBManager;
 import org.prosolo.bigdata.events.analyzers.ObservationType;
 
@@ -69,6 +71,14 @@ implements Serializable, UserObservationsDBManager{
 		String insertUserquartilefeaturesbydate  = "INSERT INTO profile_userquartilefeaturesbydate(course,  date, userid,profile, sequence) VALUES (?, ?, ?,?,?);";
 		this.queries.put("insertUserquartilefeaturesbydate",
 				insertUserquartilefeaturesbydate);
+
+		String updateUserCurrentProfile  = "UPDATE profile_usercurrentprofileincourse SET profile=?, sequence=? WHERE course=? AND userid=?;";
+		this.queries.put("updateUserCurrentProfile",
+				updateUserCurrentProfile);
+
+		String findUserCurrentProfile = "SELECT * FROM profile_usercurrentprofileincourse WHERE course=? AND userid=? ALLOW FILTERING;";
+		this.queries.put("findUserCurrentProfile",
+				findUserCurrentProfile);
 
 		String findUserquartilefeaturesbycourse = "SELECT * FROM profile_userquartilefeaturesbyprofile WHERE course=? ALLOW FILTERING;";
 		this.queries.put("findUserquartilefeaturesbycourse",
@@ -207,6 +217,39 @@ implements Serializable, UserObservationsDBManager{
 
 		this.getSession().execute(boundStatement);
 
+	}
+
+	@Override
+	public void updateUserCurrentProfile(Long courseid, Long userid, String profile, List<String> sequence) {
+		//profile=?, sequence=? WHERE course=? AND userid=?
+		BoundStatement boundStatement = new BoundStatement(
+				preparedStatements
+						.get("updateUserCurrentProfile"));
+		boundStatement.setString(0, profile);
+		boundStatement.setList(1,sequence);
+		boundStatement.setLong(2, courseid);
+		boundStatement.setLong(3,userid);
+		this.getSession().execute(boundStatement);
+
+	}
+	@Override
+	public UserProfileFeatures findUserCurrentProfileInCourse(Long courseId, Long userId) {
+		BoundStatement boundStatement = new BoundStatement(
+				preparedStatements.get("findUserCurrentProfile"));
+		boundStatement.setLong(0, courseId);
+		boundStatement.setLong(1, userId);
+		Row row =null;
+		UserProfileFeatures profile=null;
+		try{
+			ResultSet rs = this.getSession().execute(boundStatement);
+			row = rs.one();
+			profile=new UserProfileFeatures(row.getLong("course"),row.getLong("userid"),row.getString("profile"),row.getList("sequence",String.class));
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+
+
+	return profile;
 	}
 	@Override
 	public List<Row> findAllUserQuartileFeaturesForCourse(Long courseId) {

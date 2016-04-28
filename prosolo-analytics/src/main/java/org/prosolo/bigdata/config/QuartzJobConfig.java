@@ -23,4 +23,6 @@ public class QuartzJobConfig {
 
 	 @Element(name="properties", required=false)
 	 public JobProperties jobProperties;
+
+
 }

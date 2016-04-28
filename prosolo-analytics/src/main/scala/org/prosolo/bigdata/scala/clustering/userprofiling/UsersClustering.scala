@@ -16,7 +16,10 @@ import org.apache.mahout.clustering.kmeans.{KMeansDriver, RandomSeedGenerator}
 import org.apache.mahout.common.HadoopUtil
 import org.apache.mahout.common.distance.{CosineDistanceMeasure, EuclideanDistanceMeasure}
 import org.apache.mahout.math.{DenseVector, NamedVector, VectorWritable}
+import org.prosolo.bigdata.config.Settings
 import org.prosolo.bigdata.dal.cassandra.impl.UserObservationsDBManagerImpl
+import org.prosolo.bigdata.jobs.GenerateUserProfileClusters
+
 //import org.prosolo.bigdata.scala.clustering.
 import org.prosolo.bigdata.scala.statistics.FeatureQuartiles
 import org.prosolo.bigdata.utils.DateUtil
@@ -42,8 +45,9 @@ class UsersClustering  {
   //map feature id to FeatureQuartile
   val featuresQuartiles: mutable.Map[Int, FeatureQuartiles] = new HashMap[Int, FeatureQuartiles]
   val matchedClusterProfiles: Map[Long, ClusterName.Value] = new HashMap[Long, ClusterName.Value]()
-
-
+  val jobProperties=Settings.getInstance().config.schedulerConfig.jobs.getJobConfig(classOf[GenerateUserProfileClusters].getName)
+  val numClusters = jobProperties.jobProperties.getProperty("numberOfClusters").toInt;
+  val numFeatures =jobProperties.jobProperties.getProperty("numberOfFeatures").toInt;
 
 
 
@@ -118,8 +122,8 @@ class UsersClustering  {
     * @return
     */
   def transformUserFeaturesToFeatureQuartiles(userid:Long, userFeatures: Array[Double]): Array[Double]={
-  val quartilesFeaturesArray: Array[Double] = new Array[Double](ClusteringUtils.numFeatures)
-  for(i<-0 to ClusteringUtils.numFeatures - 1){
+  val quartilesFeaturesArray: Array[Double] = new Array[Double](numFeatures)
+  for(i<-0 to numFeatures - 1){
     val quartile:FeatureQuartiles=featuresQuartiles.getOrElseUpdate(i,new FeatureQuartiles())
  //   println("Transforming feature:"+i+" featureValue:"+userFeatures(i)+" quartile:"+quartile.getQuartileForFeatureValue(userFeatures(i)))
 
@@ -135,9 +139,9 @@ class UsersClustering  {
     * @return
     */
   def transformUserFeaturesForPeriod(userid: Long, userRows: IndexedSeq[Row]) = {
-    val featuresArray: Array[Double] = new Array[Double](ClusteringUtils.numFeatures)
+    val featuresArray: Array[Double] = new Array[Double](numFeatures)
     for (userRow <- userRows) {
-      for (i <- 0 to ClusteringUtils.numFeatures - 1) {
+      for (i <- 0 to numFeatures - 1) {
         val featureValue = userRow.getLong(i + 2).toDouble
         featuresArray(i) = featuresArray(i).+(featureValue)
         featuresArray(i) = featuresArray(i).+(featureValue)
@@ -194,7 +198,7 @@ class UsersClustering  {
     val measure = new CosineDistanceMeasure()
     val clustersIn = new Path(courseClusterConfiguration.output, "random-seeds")
     var success=true;
-    RandomSeedGenerator.buildRandom(ClusteringUtils.conf, courseClusterConfiguration.datapath, clustersIn, ClusteringUtils.numClusters, measure)
+    RandomSeedGenerator.buildRandom(ClusteringUtils.conf, courseClusterConfiguration.datapath, clustersIn, numClusters, measure)
     /*NEW*/
    //val conf = new Configuration()
     //val clustersDir = "clustersdir"
@@ -307,7 +311,7 @@ println("BUILD RANDOM FINISHED for course:"+courseClusterConfiguration.courseId)
     * For each feature finds quartiles based on the maximum identified value
     */
   def evaluateFeaturesQuartiles() {
-    for (i <- 0 to ClusteringUtils.numFeatures - 1) {
+    for (i <- 0 to numFeatures - 1) {
       featuresQuartiles.getOrElseUpdate(i, new FeatureQuartiles()).findQuartiles()
     }
   }
@@ -331,7 +335,7 @@ println("BUILD RANDOM FINISHED for course:"+courseClusterConfiguration.courseId)
   def extractClusterResultFeatureQuartileForCluster(cluster: Cluster): ClusterResults = {
     val cid = cluster.getId
     val clusterResult = new ClusterResults(cid)
-    for (i <- 0 to ClusteringUtils.numFeatures - 1) {
+    for (i <- 0 to numFeatures - 1) {
       val featureVal = cluster.getCenter.get(i)
       val (featureQuartileMean: Array[Double], featureQuartile) = featuresQuartiles.getOrElseUpdate(i, new FeatureQuartiles()).checkQuartileForFeatureValue(featureVal)
       clusterResult.addFeatureValue(i, (featureVal, featureQuartile))
@@ -360,8 +364,8 @@ println("BUILD RANDOM FINISHED for course:"+courseClusterConfiguration.courseId)
   def findClustersAffiliation(clusterResults: Buffer[ClusterResults]) {
     val matchedElements: Map[ClusterName.Value, ClusterResults] = new HashMap[ClusterName.Value, ClusterResults]()
     val matchedIds:ArrayBuffer[Int]=new ArrayBuffer[Int]()
-    for {index <- 0 to ClusteringUtils.numClusters-1
-      if (matchedIds.size<ClusteringUtils.numClusters)
+    for {index <- 0 to numClusters-1
+      if (matchedIds.size<numClusters)
     } {
       val elementsToCheck: Map[ClusterName.Value, ArrayBuffer[(ClusterResults,Double)]] = new HashMap[ClusterName.Value, ArrayBuffer[(ClusterResults,Double)]]()
       clusterResults.foreach { clusterResult =>

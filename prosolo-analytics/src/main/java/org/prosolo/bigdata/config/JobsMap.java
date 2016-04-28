@@ -16,7 +16,9 @@ public class JobsMap {
 
 	@ElementMap(entry= "class", key="name", attribute=true, inline=true)
 	public Map<String,QuartzJobConfig> jobsConfig;
-	 //@ElementList(entry = "job", inline = true)
-	 //public ArrayList<QuartzJobConfig> jobsConfig;
+
+	public QuartzJobConfig getJobConfig(String key){
+		return jobsConfig.get(key);
+	}
 
 }

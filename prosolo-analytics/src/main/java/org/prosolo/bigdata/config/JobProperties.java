@@ -11,4 +11,8 @@ import java.util.Map;
 public class JobProperties {
     @ElementMap(entry = "property", key = "name", attribute = true, inline = true)
     public Map<String, String> properties=new HashMap<String,String>();
+
+    public String getProperty(String key){
+        return properties.get(key);
+    }
 }

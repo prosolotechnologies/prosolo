@@ -112,6 +112,10 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 				"sequence varchar, PRIMARY KEY(course, profile,date, userid))";
 		this.ddls.add(userquartilefeaturesbyprofileDDL);
 
+		String userfinalprofilesDDL="CREATE TABLE IF NOT EXISTS profile_usercurrentprofileincourse(course bigint, userid bigint, profile varchar, " +
+				"sequence list<varchar>, PRIMARY KEY(course, userid))";
+		this.ddls.add(userfinalprofilesDDL);
+
 		String userquartilefeaturesbydateDDL="CREATE TABLE IF NOT EXISTS profile_userquartilefeaturesbydate(course bigint, profile varchar, date bigint, userid bigint," +
 				"sequence varchar, PRIMARY KEY(course, date, userid))";
 		this.ddls.add(userquartilefeaturesbydateDDL);

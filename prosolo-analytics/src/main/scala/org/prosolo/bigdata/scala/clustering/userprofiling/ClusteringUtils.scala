@@ -17,6 +17,7 @@ object ClusteringUtils {
   val fs = FileSystem.get(conf)
 
   val algorithmType: AlgorithmType.AlgorithmType = AlgorithmType.KMeans
-  val numClusters = 4
-  val periodDays=7
+  //val numClusters = 4
+ // val periodDays=7
+
 }

@@ -240,5 +240,7 @@ public class SocialInteractionStatisticsService {
 		return ResponseUtils.corsOk(dbManager.getInteractionsByType(courseId, studentId));
 		// return ResponseUtils.corsOk(randomOuterInteractions(courseId, studentId));
 	}
+
+
 	
 }

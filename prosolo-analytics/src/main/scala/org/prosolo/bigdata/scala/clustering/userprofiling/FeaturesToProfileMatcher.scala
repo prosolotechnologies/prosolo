@@ -19,10 +19,10 @@ object FeaturesToProfileMatcher {
       val profileLines=readLinesFromFile(profileFeaturesTemplatesFile)
       val header=profileLines(0)
       val hCols: Array[String] = header.split(",").map(_.trim)
-      val headerCols:Array[String]=new Array[String](hCols.length-1)
-      for( index<-headerCols.indices){
-        if(index>0){
-          headerCols(index-1)=hCols(index)
+      val headerCols:Array[String]=new Array[String](hCols.length-2)
+      for( index<-hCols.indices){
+        if(index>1){
+          headerCols(index-2)=hCols(index)
         }
       }
       for(i<- 1 to profileLines.length-1){
@@ -30,13 +30,12 @@ object FeaturesToProfileMatcher {
         val cols: Array[String] = line.split(",").map(_.trim)
         val featuresCols:Array[Double]=new Array[Double](cols.length-1)
         for(i<-2 to cols.length-1){
-          featuresCols(i-1)=cols(i).toDouble
+          featuresCols(i-2)=cols(i).toDouble
         }
         val cluster:ClusterTemplate=new ClusterTemplate(ClusterName.withName(cols(0)),cols(1),headerCols, featuresCols)
           profiles.put(cluster.clusterName,cluster)
-
-
       }
+
     }
     def readLinesFromFile(file: String): Array[String] = {
       val stream: InputStream = getClass.getClassLoader.getResourceAsStream(file)
@@ -100,9 +99,11 @@ object FeaturesToProfileMatcher {
   * @param featureValues
   */
 class ClusterTemplate(val clusterName:ClusterName.Value, val clusterFullName:String, val featureNames: Array[String],val featureValues:Array[Double]){
-  println("Cluster:"+clusterName+" has fullname:"+clusterFullName)
   def getFeatureValue(featureId:Int):Double={
     featureValues(featureId)
+  }
+  def getFeatureName(featureId:Int):String={
+    featureNames(featureId)
   }
   
 }

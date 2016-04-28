@@ -3,6 +3,7 @@ package org.prosolo.bigdata.dal.cassandra;
 import java.util.Set;
 import java.util.List;
 
+import org.prosolo.bigdata.common.dal.pojo.UserProfileFeatures;
 import org.prosolo.bigdata.events.analyzers.ObservationType;
 
 import com.datastax.driver.core.Row;
@@ -28,6 +29,10 @@ public interface UserObservationsDBManager {
 	void insertUserQuartileFeaturesByProfile(Long courseid, String profile, Long date, Long userid, String sequence);
 
 	void insertUserQuartileFeaturesByDate(Long courseid, Long date, Long userid, String profile, String sequence);
+
+	void updateUserCurrentProfile(Long courseid, Long userid, String profile, List<String> sequence);
+
+	UserProfileFeatures findUserCurrentProfileInCourse(Long courseId, Long userId);
 
 	List<Row> findAllUserQuartileFeaturesForCourse(Long courseId);
 

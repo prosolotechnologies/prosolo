@@ -1,5 +1,6 @@
 package org.prosolo.bigdata.scala.clustering.userprofiling
 
+import java.math.RoundingMode
 import java.util
 import java.util.Date
 
@@ -8,6 +9,7 @@ import com.datastax.driver.core.Row
 import org.prosolo.bigdata.clustering.QuartileName
 import org.prosolo.bigdata.dal.cassandra.impl.UserObservationsDBManagerImpl
 import org.prosolo.bigdata.dal.persistence.impl.ClusteringDAOImpl
+import play.api.libs.json.Json
 
 
 import scala.collection.mutable.{HashMap, Map}
@@ -19,6 +21,7 @@ import be.ac.ulg.montefiore.run.jahmm._
 import org.prosolo.bigdata.utils.DateUtil
 
 import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /**
   * Created by Zoran on 05/12/15.
@@ -69,6 +72,7 @@ class HmmClustering {
     val startDateSinceEpoch = DateUtil.getDaysSinceEpoch(startDate)
     val endDateSinceEpoch = DateUtil.getDaysSinceEpoch(endDate)
     val clusteringDBManager=new ClusteringDAOImpl
+
     println("PROCESSING COURSE:"+courseId)
     val sequences:List[List[ObservationDiscrete[QuartileName]]]=new util.ArrayList[List[ObservationDiscrete[QuartileName]]]()
   //  ClusterName.values.foreach(clusterName=>
@@ -77,8 +81,12 @@ class HmmClustering {
       println("FOUND TEST SEQUENCES:"+courseId+" cluster:"+" end date:"+endDateSinceEpoch+" size:"+results.size())
       results.toList.foreach{
         row=>
+
+
           val testSequence: java.util.List[ObservationDiscrete[QuartileName]] =row.getString("sequence").split(",").map(_.trim).map{s=>QuartileName.valueOf(s)}.map{qn=>qn.observation()}.toList
+          println("TEST-Sequence:"+ testSequence.toString)
           val userid=row.getLong("userid");
+          println("*****************************************")
           println("CHECKING ROW WITH TEST SEQUENCE:"+testSequence.toString)
        /*    val learntHmm= learntHmmModels.get(clusterName).get
           val probability:Double=learntHmm.probability(testSequence);
@@ -86,20 +94,22 @@ class HmmClustering {
           println("user "+userid+" has probability for cluster:"+clusterName.toString+" p:"+probability+" lnP:"+lnProbability)
 */
           var bestCluster=None:Option[ClusterName.Value]
-          var bestClusterProbability=0.0
+          var bestClusterProbability:Double=0.0
 
           learntHmmModels.foreach{
            case(clusterName, learntHmm)=>
            {
 
              val probability:Double=learntHmm.probability(testSequence);
-             if(bestClusterProbability<probability){
+             val probability2:Double=BigDecimal(probability).setScale(3,BigDecimal.RoundingMode.HALF_UP).toDouble
+            if(bestClusterProbability < probability){
                bestCluster=Some(clusterName)
                bestClusterProbability=probability
 
+
              }
              val lnProbability:Double=learntHmm.lnProbability(testSequence);
-             println("user "+userid+" has probability for cluster:"+clusterName.toString+" p:"+probability+" lnP:"+lnProbability)
+             println("---user "+userid+" has probability for cluster:"+clusterName.toString+" p:"+probability+" lnP:"+lnProbability)
 
            }
 
@@ -110,6 +120,11 @@ class HmmClustering {
               val clusterTemplate:ClusterTemplate=FeaturesToProfileMatcher.clusterProfiles.get(cluster).get
               println("BEST CLUSTER IDENTIFIED for course:"+courseId+" user:"+userid+" IS:"+cluster+" cluster full name:"+clusterTemplate.clusterFullName)
               clusteringDBManager.updateUserCourseProfile(courseId,userid, bestCluster.get.toString, clusterTemplate.clusterFullName)
+              val tSeq=testSequence.zipWithIndex.map{case(sv,i)=>
+                val jsonObject=Json.obj("featurename"->clusterTemplate.getFeatureName(i),"value"->clusterTemplate.getFeatureValue(i),"quartile"->sv.toString)
+                Json.stringify(jsonObject)}.toList.asJava
+              println("T--SEQ:"+tSeq)
+              UserObservationsDBManagerImpl.getInstance().updateUserCurrentProfile(courseId,userid,bestCluster.get.toString,tSeq)
             }
             case None=>println("NO BEST CLUSTER FOUND")
           }
