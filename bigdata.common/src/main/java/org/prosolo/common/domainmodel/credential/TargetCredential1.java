@@ -50,6 +50,8 @@ public class TargetCredential1 extends BaseEntity {
 	
 	private User createdBy;
 	
+	private Date dateCompleted;
+	
 	public TargetCredential1() {
 		tags = new HashSet<>();
 		hashtags = new HashSet<>();
@@ -212,4 +214,11 @@ public class TargetCredential1 extends BaseEntity {
 		this.createdBy = createdBy;
 	}
 	
+	public Date getDateCompleted() {
+		return dateCompleted;
+	}
+
+	public void setDateCompleted(Date dateCompleted) {
+		this.dateCompleted = dateCompleted;
+	}
 }

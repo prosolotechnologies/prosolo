@@ -32,10 +32,11 @@ import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
-import org.prosolo.services.nodes.data.BasicActivityData;
+import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ObjectStatus;
+import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.impl.util.EntityPublishTransition;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
@@ -77,7 +78,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					data.getDuration());
 			
 			if(data.getActivities() != null) {
-				for(BasicActivityData bad : data.getActivities()) {
+				for(ActivityData bad : data.getActivities()) {
 					CompetenceActivity1 ca = new CompetenceActivity1();
 					ca.setOrder(bad.getOrder());
 					ca.setCompetence(comp);
@@ -100,7 +101,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (EventException e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while saving credential");
+			throw new DbConnectionException("Error while saving competence");
 		} catch (DbConnectionException dbe) {
 			logger.error(dbe);
 			dbe.printStackTrace();
@@ -139,7 +140,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while deleting credential");
+			throw new DbConnectionException("Error while deleting competence");
 		}
 	}
 	
@@ -180,8 +181,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			cc.setOrder(cc.getOrder() - 1);
 		}
 	}
-
-
 
 	private List<CredentialCompetence1> getAllCredentialCompetencesAfterSpecified(long credId, int order) {
 		Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, credId);
@@ -315,7 +314,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					creator, comp, tags, shouldTrackChanges);
 			
 			if(loadActivities) {
-				List<BasicActivityData> activities = activityManager.getCompetenceActivitiesData(compId);
+				List<ActivityData> activities = activityManager.getCompetenceActivitiesData(compId);
 				compData.setActivities(activities);
 			}
 			
@@ -409,7 +408,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					cd = competenceFactory.getCompetenceData(null, res, res.getTags(), true);
 				}
 				if(cd != null && loadActivities) {
-					List<BasicActivityData> activities = activityManager
+					List<ActivityData> activities = activityManager
 							.getCompetenceActivitiesData(cd.getCompetenceId());
 					cd.setActivities(activities);
 				}
@@ -424,7 +423,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading credential data");
+			throw new DbConnectionException("Error while loading competence data");
 		}
 	}
 	
@@ -483,7 +482,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					publishTransition;
 		}
 		
-		return updateComeptenceData(comp, publishTransition, data);		   
+		return updateComptenceData(comp, publishTransition, data);		   
 	}
 	
 	/**
@@ -499,7 +498,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	 * @param publishTransition
 	 * @param data
 	 */
-	private Competence1 updateComeptenceData(Competence1 comp, EntityPublishTransition publishTransition,
+	private Competence1 updateComptenceData(Competence1 comp, EntityPublishTransition publishTransition,
 			CompetenceData1 data) {
 		Competence1 compToUpdate = null;
 		switch(publishTransition) {
@@ -546,12 +545,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			deleteCompetenceActivities(compToUpdate.getId());
 		}
 
-		List<BasicActivityData> activities = data.getActivities();
+		List<ActivityData> activities = data.getActivities();
 	    if(activities != null) {
 	    	if(publishTransition == EntityPublishTransition.NO_TRANSITION) {
-	    		Iterator<BasicActivityData> actIterator = activities.iterator();
+	    		Iterator<ActivityData> actIterator = activities.iterator();
 	    		while(actIterator.hasNext()) {
-	    			BasicActivityData bad = actIterator.next();
+	    			ActivityData bad = actIterator.next();
 		    		switch(bad.getObjectStatus()) {
 		    			case CREATED:
 		    				CompetenceActivity1 ca1 = new CompetenceActivity1();
@@ -578,14 +577,14 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		    		}
 		    	}
 	    	} else {
-	    		Iterator<BasicActivityData> actIterator = activities.iterator();
+	    		Iterator<ActivityData> actIterator = activities.iterator();
 	    		/*
 	    		 * List of activity ids so we can call method that will publish all draft
 	    		 * activities
 	    		 */
 	    		List<Long> actIds = new ArrayList<>();
 	    		while(actIterator.hasNext()) {
-	    			BasicActivityData bad = actIterator.next();
+	    			ActivityData bad = actIterator.next();
 		    		if(bad.getObjectStatus() != ObjectStatus.REMOVED) {
 		    			CompetenceActivity1 ca = new CompetenceActivity1();
 	    				ca.setOrder(bad.getOrder());
@@ -642,7 +641,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving credential data");
+			throw new DbConnectionException("Error while retrieving competence data");
 		}
 	}
 	
@@ -664,7 +663,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						creator, credComp, tags, true);
 				
 				if(loadActivities) {
-					List<BasicActivityData> activities = activityManager.getCompetenceActivitiesData(
+					List<ActivityData> activities = activityManager.getCompetenceActivitiesData(
 							credComp.getCompetence().getId());
 					compData.setActivities(activities);
 				}
@@ -775,7 +774,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						res.getTags(), cred, true);
 				
 				if(compData != null && loadActivities) {
-					List<BasicActivityData> activities = activityManager
+					List<ActivityData> activities = activityManager
 							.getTargetActivitiesData(targetCompId);
 					compData.setActivities(activities);
 				}
@@ -926,6 +925,136 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while updating competences");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void addActivityToCompetence(long compId, Activity1 act) 
+			throws DbConnectionException {
+		try {
+			Competence1 comp = (Competence1) persistence.currentManager().load(
+					Competence1.class, compId);
+			
+			/*
+			 * if credential has draft version, that version is loaded and if credential 
+			 * is published draft version will be created and attached to original credential
+			 */
+			Competence1 draftComp = null;
+			if(comp.isHasDraft()) {
+				draftComp = comp.getDraftVersion();
+			} else if(comp.isPublished()) {
+				draftComp = createDraftVersionOfCompetence(compId);
+				comp.setHasDraft(true);
+				comp.setPublished(false);
+				comp.setDraftVersion(draftComp);
+			}
+			
+			Competence1 compToUpdate = draftComp != null ? draftComp : comp;
+			CompetenceActivity1 ca = new CompetenceActivity1();
+			ca.setActivity(act);
+			ca.setCompetence(compToUpdate);
+			ca.setOrder(compToUpdate.getActivities().size() + 1);
+			saveEntity(ca);
+			/* 
+			 * If duration of added activity is greater than 0,
+			 * update competence duration
+			*/
+			if(act.getDuration() > 0) {
+				/*
+				 * if it is draft competence we know that draft version can't be
+				 * attached to credential so there is no need to issue update to credential table.
+				 */
+				if(draftComp != null) {
+					compToUpdate.setDuration(compToUpdate.getDuration() + act.getDuration());
+				} else {
+					updateDuration(compToUpdate.getId(), act.getDuration(), Operation.Add);
+				}
+			}
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while adding activity to competence");
+		}
+		
+	}
+	
+	private Competence1 createDraftVersionOfCompetence(long originalCompId) {
+		Competence1 originalComp = getCompetence(originalCompId, false, true);
+		
+		Competence1 draftComp = new Competence1();
+		draftComp.setDraft(true);
+		draftComp.setPublished(false);
+		draftComp.setCreatedBy(originalComp.getCreatedBy());
+		draftComp.setTitle(originalComp.getTitle());
+		draftComp.setDescription(originalComp.getDescription());
+		draftComp.setStudentAllowedToAddActivities(originalComp.isStudentAllowedToAddActivities());
+		draftComp.setDuration(originalComp.getDuration());
+	    
+		if(originalComp.getTags() != null) {
+			for(Tag tag : originalComp.getTags()) {
+				draftComp.getTags().add(tag);
+			}
+		}
+	    
+		saveEntity(draftComp);	
+
+		List<CompetenceActivity1> activities = activityManager.getCompetenceActivities(originalCompId);
+	    if(activities != null) {
+    		for(CompetenceActivity1 ca : activities) {
+    			CompetenceActivity1 ca1 = new CompetenceActivity1();
+				ca1.setOrder(ca.getOrder());
+				ca1.setCompetence(draftComp);
+				ca1.setActivity(ca.getActivity());
+				saveEntity(ca1);
+				draftComp.getActivities().add(ca1);
+    		}	
+	    }
+	    
+		return draftComp;
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void updateDuration(long id, long duration, Operation op) throws DbConnectionException {
+		try {
+			String opString = op == Operation.Add ? "+" : "-";
+			String query = "UPDATE Competence1 comp SET " +
+						   "comp.duration = comp.duration " + opString + " :duration " +
+						   "WHERE comp.id = :compId";
+			
+			persistence.currentManager()
+				.createQuery(query)
+				.setLong("duration", duration)
+				.setLong("compId", id)
+				.executeUpdate();
+			
+			credentialManager.updateDurationForCredentialsWithCompetence(id, duration, op);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating competence duration");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public String getCompetenceTitle(long id) throws DbConnectionException {
+		try {
+			String query = "SELECT comp.title " +
+						   "FROM Competence1 comp " +
+						   "WHERE comp.id = :compId";
+			
+			String title = (String) persistence.currentManager()
+				.createQuery(query)
+				.setLong("compId", id)
+				.uniqueResult();
+			
+			return title;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving competence title");
 		}
 	}
 }

@@ -9,6 +9,8 @@ $(function () {
 	});
 });
 
+var context = '';
+
 //comment form hide/show
 function displaySubmitButton(inputElem) {
     if ($(inputElem).val().length==0) {
@@ -70,4 +72,16 @@ function scrollToNewestComment() {
 	var id = document.getElementById('newestCommentId').value;
 	scrollTo('comment_'+id);
 }
+
+function showLoader(comp) {
+	$(comp).css('text-align', 'center');
+	$(comp).html('<img src="' + context + '/resources/images/style/ajax-loader-black.gif"/>');
+	$(comp).show();
+};
+
+function hideLoader(comp) {
+	var loaderContainer = $(comp);
+	loaderContainer.hide();
+	loaderContainer.empty();
+};
 

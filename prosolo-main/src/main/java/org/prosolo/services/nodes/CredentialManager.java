@@ -12,6 +12,7 @@ import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 
 public interface CredentialManager extends AbstractManager {
@@ -126,5 +127,8 @@ public interface CredentialManager extends AbstractManager {
 			throws DbConnectionException;
 	
 	Optional<Long> getDraftVersionIdIfExists(long credId) throws DbConnectionException;
+
+	void updateDurationForCredentialsWithCompetence(long compId, long duration, Operation op)
+			throws DbConnectionException;
 	
 }

@@ -8,7 +8,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.ocpsoft.rewrite.servlet.config.rule.Join;
 import org.prosolo.services.authentication.PasswordEncrypter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -87,6 +86,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/credentials/*/competences/new").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/competences/new").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/competences/**").hasAuthority("BASIC.USER.ACCESS")
+		   .antMatchers("/activities/new").hasAuthority("BASIC.USER.ACCESS")
+		   .antMatchers("/activities/**").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/library/credentials").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/library/competences").hasAuthority("BASIC.USER.ACCESS")
 		   //remove

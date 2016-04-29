@@ -1,5 +1,7 @@
 package org.prosolo.common.domainmodel.credential;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -46,7 +48,8 @@ public class Competence1 extends BaseEntity {
 	private List<CredentialCompetence1> credentialCompetence;
 	
 	public Competence1() {
-		
+		tags = new HashSet<>();
+		activities = new ArrayList<>();
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)

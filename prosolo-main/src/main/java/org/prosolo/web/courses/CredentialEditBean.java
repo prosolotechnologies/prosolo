@@ -117,7 +117,7 @@ public class CredentialEditBean implements Serializable {
 			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
 			try {
 				extContext.redirect(extContext.getRequestContextPath() + 
-						"/create-competence.xhtml?credId=" + id);
+						"/competences/new?credId=" + id);
 			} catch (IOException e) {
 				logger.error(e);
 			}

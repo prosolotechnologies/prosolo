@@ -22,7 +22,7 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	private int order;
 	private boolean published;
 	private PublishedStatus status;
-	private List<BasicActivityData> activities;
+	private List<ActivityData> activities;
 	private Set<Tag> tags;
 	private String tagsString;
 	private boolean studentAllowedToAddActivities;
@@ -54,7 +54,7 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	public boolean hasObjectChanged() {
 		boolean changed = super.hasObjectChanged();
 		if(!changed) {
-			for(BasicActivityData bad : getActivities()) {
+			for(ActivityData bad : getActivities()) {
 				if(bad.getObjectStatus() != ObjectStatus.UP_TO_DATE) {
 					return true;
 				}
@@ -80,7 +80,7 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	 * will give you id of first uncompleted activity
 	 */
 	public void determineActivityFromWhichToStartLearning() {
-		for(BasicActivityData bad : getActivities()) {
+		for(ActivityData bad : getActivities()) {
 			if(!bad.isCompleted()) {
 				setResumeFromId(bad.getActivityId());
 				break;
@@ -177,11 +177,11 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 		this.order = order;
 	}
 
-	public List<BasicActivityData> getActivities() {
+	public List<ActivityData> getActivities() {
 		return activities;
 	}
 
-	public void setActivities(List<BasicActivityData> activities) {
+	public void setActivities(List<ActivityData> activities) {
 		this.activities = activities;
 	}
 

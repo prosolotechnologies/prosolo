@@ -1,18 +1,32 @@
 package org.prosolo.common.domainmodel.credential;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.user.User;
 
 @Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Activity1 extends BaseEntity {
 
 	private static final long serialVersionUID = 15293664172196082L;
 	
 	private long duration;
 	private boolean published;
+	private Set<ResourceLink> links;
+	private Set<ResourceLink> files;
+	private boolean uploadAssignment;
+	
 	private Activity1 draftVersion;
 	/** 
 	 * means that this credential instance is just a draft
@@ -27,8 +41,11 @@ public class Activity1 extends BaseEntity {
 	 */
 	private boolean hasDraft;
 	
+	private User createdBy;
+	
 	public Activity1() {
-		
+		links = new HashSet<>();
+		files = new HashSet<>();
 	}
 
 	public long getDuration() {
@@ -72,4 +89,38 @@ public class Activity1 extends BaseEntity {
 		this.hasDraft = hasDraft;
 	}
 
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	public Set<ResourceLink> getLinks() {
+		return links;
+	}
+
+	public void setLinks(Set<ResourceLink> links) {
+		this.links = links;
+	}
+
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	public Set<ResourceLink> getFiles() {
+		return files;
+	}
+
+	public void setFiles(Set<ResourceLink> files) {
+		this.files = files;
+	}
+
+	public boolean isUploadAssignment() {
+		return uploadAssignment;
+	}
+
+	public void setUploadAssignment(boolean uploadAssignment) {
+		this.uploadAssignment = uploadAssignment;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	public User getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(User createdBy) {
+		this.createdBy = createdBy;
+	}
 }

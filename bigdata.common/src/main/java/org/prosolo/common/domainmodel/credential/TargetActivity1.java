@@ -1,10 +1,14 @@
 package org.prosolo.common.domainmodel.credential;
 
+import java.util.Date;
+import java.util.Set;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 import org.prosolo.common.domainmodel.general.BaseEntity;
 
@@ -19,8 +23,18 @@ public class TargetActivity1 extends BaseEntity {
 	
 	private int order;
 	private long duration;
+	private Set<ResourceLink> links;
+	private Set<ResourceLink> files;
+	private boolean uploadAssignment;
+	private Date dateCompleted;
 	//is activity added by student
 	private boolean added;
+	
+	//uploaded file
+	private String assignmentLink;
+	private String assignmentTitle;
+	
+	private long timeSpent;
 	
 	public TargetActivity1() {
 		
@@ -79,4 +93,62 @@ public class TargetActivity1 extends BaseEntity {
 		this.added = added;
 	}
 
+	@OneToMany
+	public Set<ResourceLink> getLinks() {
+		return links;
+	}
+
+	public void setLinks(Set<ResourceLink> links) {
+		this.links = links;
+	}
+
+	@OneToMany
+	public Set<ResourceLink> getFiles() {
+		return files;
+	}
+
+	public void setFiles(Set<ResourceLink> files) {
+		this.files = files;
+	}
+
+	public boolean isUploadAssignment() {
+		return uploadAssignment;
+	}
+
+	public void setUploadAssignment(boolean uploadAssignment) {
+		this.uploadAssignment = uploadAssignment;
+	}
+
+	public Date getDateCompleted() {
+		return dateCompleted;
+	}
+
+	public void setDateCompleted(Date dateCompleted) {
+		this.dateCompleted = dateCompleted;
+	}
+
+	public String getAssignmentLink() {
+		return assignmentLink;
+	}
+
+	public void setAssignmentLink(String assignmentLink) {
+		this.assignmentLink = assignmentLink;
+	}
+
+	public String getAssignmentTitle() {
+		return assignmentTitle;
+	}
+
+	public void setAssignmentTitle(String assignmentTitle) {
+		this.assignmentTitle = assignmentTitle;
+	}
+
+	public long getTimeSpent() {
+		return timeSpent;
+	}
+
+	public void setTimeSpent(long timeSpent) {
+		this.timeSpent = timeSpent;
+	}
+	
 }

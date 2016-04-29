@@ -35,6 +35,7 @@ import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ObjectStatus;
+import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.CredentialDataFactory;
 import org.prosolo.services.nodes.impl.util.EntityPublishTransition;
@@ -543,7 +544,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	 * @param publishTransition
 	 * @param data
 	 */
-	@Transactional(readOnly = true)
+	@Transactional(readOnly = false)
 	private Credential1 updateCredentialData(Credential1 cred, EntityPublishTransition publishTransition,
 			CredentialData data) {
 		Credential1 credToUpdate = null;
@@ -1225,6 +1226,54 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving credential data");
+		}
+	}
+	
+	public void updateDurationForCredentialsWithCompetence(long compId, long duration, Operation op)
+			throws DbConnectionException {
+		try {
+			List<Long> credIds = getIdsOfCredentialsWithCompetence(compId);
+			if(!credIds.isEmpty()) {
+				String opString = op == Operation.Add ? "+" : "-";
+				String query = "UPDATE Credential1 cred SET " +
+						   	   "cred.duration = cred.duration " + opString + " :duration " +
+						       "WHERE cred.id IN :credIds";
+				
+				persistence.currentManager()
+					.createQuery(query)
+					.setLong("duration", duration)
+					.setParameterList("credIds", credIds)
+					.executeUpdate();
+			}
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating credential duration");
+		}
+	}
+
+	private List<Long> getIdsOfCredentialsWithCompetence(long compId) {
+		try {
+			String query = "SELECT cred.id " +
+					   	   "FROM CredentialCompetence1 credComp " +
+					   	   "INNER JOIN credComp.credential cred " +
+					       "WHERE credComp.competence.id = :compId";
+		
+			@SuppressWarnings("unchecked")
+			List<Long> res = persistence.currentManager()
+				.createQuery(query)
+				.setLong("compId", compId)	
+				.list();
+			
+			if(res == null) {
+				return new ArrayList<>();
+			}
+			
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credential ids");
 		}
 	}
 	

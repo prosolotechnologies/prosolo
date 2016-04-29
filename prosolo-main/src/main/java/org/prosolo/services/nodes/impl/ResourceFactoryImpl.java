@@ -35,10 +35,12 @@ import org.prosolo.common.domainmodel.course.CourseInstructor;
 import org.prosolo.common.domainmodel.course.CoursePortfolio;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.course.Status;
+import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.credential.CredentialType1;
+import org.prosolo.common.domainmodel.credential.ResourceLink;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.organization.Capability;
@@ -61,6 +63,7 @@ import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.PostManager;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -69,10 +72,12 @@ import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.ResourceLinkData;
 import org.prosolo.services.nodes.data.activity.ActivityData;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.services.nodes.data.activity.mapper.ActivityMapperFactory;
 import org.prosolo.services.nodes.data.activity.mapper.activity.ActivityMapper;
+import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.web.competences.data.ActivityFormData;
 import org.prosolo.web.competences.data.ActivityType;
 import org.prosolo.web.util.AvatarUtils;
@@ -98,6 +103,8 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Inject private LearningGoalManager goalManager;
     @Inject private CredentialManager credentialManager;
     @Inject private Competence1Manager competenceManager;
+    @Inject private Activity1Manager activityManager;
+    @Inject private ActivityDataFactory activityFactory;
     
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -906,5 +913,58 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     public CredentialBookmark bookmarkCredential(long credId, long userId) 
 			throws DbConnectionException {
     	return credentialManager.bookmarkCredential(credId, userId);
+    }
+    
+    @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    public Activity1 createActivity(org.prosolo.services.nodes.data.ActivityData activityData, 
+    		long userId) throws DbConnectionException {
+    	try {
+    		Activity1 act = activityFactory.getActivityFromActivityData(activityData);
+    		if(activityData.getLinks() != null) {
+    			Set<ResourceLink> activityLinks = new HashSet<>();
+    			for(ResourceLinkData rl : activityData.getLinks()) {
+    				ResourceLink link = new ResourceLink();
+    				link.setLinkName(rl.getLinkName());
+    				link.setUrl(rl.getUrl());
+    				saveEntity(link);
+    				activityLinks.add(link);
+    			}
+    			act.setLinks(activityLinks);
+    		}
+    		
+    		Set<ResourceLink> activityFiles = new HashSet<>();
+    		if(activityData.getFiles() != null) {		
+    			for(ResourceLinkData rl : activityData.getFiles()) {
+    				ResourceLink link = new ResourceLink();
+    				link.setLinkName(rl.getLinkName());
+    				link.setUrl(rl.getUrl());
+    				saveEntity(link);
+    				activityFiles.add(link);
+    			}
+    			act.setFiles(activityFiles);
+    		}
+   
+    		User creator = (User) persistence.currentManager().load(User.class, userId);
+    		act.setCreatedBy(creator);
+    		saveEntity(act);
+    		
+    		if(activityData.getCompetenceId() > 0) {
+				competenceManager.addActivityToCompetence(activityData.getCompetenceId(), act);
+			}
+    		
+    		return act;
+    	} catch(Exception e) {
+    		logger.error(e);
+    		e.printStackTrace();
+    		throw new DbConnectionException("Error while saving activity");
+    	}
+    }
+    
+    @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    public Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data) 
+			throws DbConnectionException {
+    	return activityManager.updateActivity(data);
     }
 }

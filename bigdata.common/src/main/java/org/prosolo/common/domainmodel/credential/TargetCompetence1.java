@@ -1,6 +1,7 @@
 package org.prosolo.common.domainmodel.credential;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,6 +38,8 @@ public class TargetCompetence1 extends BaseEntity {
 	private boolean added;
 	
 	private User createdBy;
+	
+	private Date dateCompleted;
 	
 	public TargetCompetence1() {
 		tags = new HashSet<>();
@@ -137,5 +140,13 @@ public class TargetCompetence1 extends BaseEntity {
 
 	public void setCreatedBy(User createdBy) {
 		this.createdBy = createdBy;
+	}
+	
+	public Date getDateCompleted() {
+		return dateCompleted;
+	}
+
+	public void setDateCompleted(Date dateCompleted) {
+		this.dateCompleted = dateCompleted;
 	}
 }

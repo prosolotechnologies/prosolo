@@ -102,6 +102,7 @@
                         </div>
                     </div>
                     <div role="tabpanel" class="tab-pane fade" id="activities">
+                    <div class="whiteBox activitiesList">
                     	<courses:activityList
                     		id="activityList"
                     		activities="#{competenceEditBean.competenceData.activities}"
@@ -109,6 +110,14 @@
                     		isEdit="true"
                     		showMarkedIfCompleted="false"
                     		isPreview="false"/>
+                    		
+                    		<h:link styleClass="activityItem addActivity"
+                            	outcome="/create-activity">
+                                <span class="iconPlus"></span>
+                                Add Activity
+                                <f:param name="compId" value="#{param['id']}"></f:param>
+                            </h:link>
+                    </div>
                         <ui:remove><div class="whiteBox activitiesList">
                             <div class="activityItem activityVideo">
                                 <span class="iconType"></span>
@@ -146,10 +155,12 @@
                                     <a href="#" class="moveDown" disabled="disabled">down</a>
                                 </div>
                             </div>
-                            <a href="#" class="activityItem addActivity">
+                            <h:link styleClass="activityItem addActivity"
+                            	outcome="/create-activity">
                                 <span class="iconPlus"></span>
                                 Add Activity
-                            </a>
+                                <f:param name="compId" value="#{param['id]}"></f:param>
+                            </h:link>
                         </div></ui:remove>
                     </div>
                 </div>

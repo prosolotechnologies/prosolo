@@ -21,7 +21,7 @@
 	
 	<composite:implementation>
 		 <div id="#{cc.clientId}">
-		 <div class="whiteBox activitiesList">
+		 
 	     <ui:repeat var="act" value="#{cc.attrs.activities}" varStatus="status">
              <div class="activityItem activityVideo">
           		<h:panelGroup 
@@ -38,7 +38,7 @@
 	                   		<h:panelGroup rendered="#{!act.published}">(Draft)</h:panelGroup>
 	                   	</ui:fragment>
 	                   	<ui:fragment rendered="#{!cc.attrs.isEdit and !cc.attrs.isPreview}">
-	                   		<a href="competence.html">
+	                   		<a href="activity.html">
 	                   			#{act.title} 
 	                   		</a>
 	                   	</ui:fragment>
@@ -54,7 +54,13 @@
                 <div class="dropdown optMoreMenu">
                     <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                        <li><a href="#">Edit</a></li>
+                        <li>	
+                        	<h:link 
+                   				value="Edit" 
+                   				outcome="/create-activity">
+                   				<f:param name="id" value="#{util:encodeId(act.activityId)}" />
+                   			</h:link> 
+                        </li>
                         <li>
                         	<p:commandLink
 	                     		value="Remove"
@@ -103,7 +109,6 @@
             </div>
          </ui:repeat>
         
-        </div>
         </div>
 	</composite:implementation>
 </ui:component>

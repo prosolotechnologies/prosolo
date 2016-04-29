@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.data.BasicActivityData;
+import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.PublishedStatus;
@@ -47,8 +47,8 @@ public class CompetenceEditBean implements Serializable {
 	private boolean addToCredential;
 	
 	private CompetenceData1 competenceData;
-	private List<BasicActivityData> activitiesToRemove;
-	private List<BasicActivityData> activitySearchResults;
+	private List<ActivityData> activitiesToRemove;
+	private List<ActivityData> activitySearchResults;
 	private String activitySearchTerm;
 	private List<Long> activitiesToExcludeFromSearch;
 	private int currentNumberOfActivities;
@@ -85,8 +85,8 @@ public class CompetenceEditBean implements Serializable {
 			competenceData = new CompetenceData1(false);
 			PageUtil.fireErrorMessage("Competence data can not be found");
 		}
-		List<BasicActivityData> activities = competenceData.getActivities();
-		for(BasicActivityData bad : activities) {
+		List<ActivityData> activities = competenceData.getActivities();
+		for(ActivityData bad : activities) {
 			activitiesToExcludeFromSearch.add(bad.getActivityId());
 		}
 		currentNumberOfActivities = activities.size();
@@ -124,8 +124,8 @@ public class CompetenceEditBean implements Serializable {
 	}
 	
 	public void save() {
-		saveCompetenceData(false, !addToCredential);
-		if(addToCredential) {
+		boolean saved = saveCompetenceData(false, !addToCredential);
+		if(saved && addToCredential) {
 			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
 			try {
 				extContext.redirect(extContext.getRequestContextPath() + 
@@ -230,11 +230,11 @@ public class CompetenceEditBean implements Serializable {
 	}
 	
 	public void moveActivity(int i, int k) {
-		List<BasicActivityData> activities = competenceData.getActivities();
-		BasicActivityData bad1 = activities.get(i);
+		List<ActivityData> activities = competenceData.getActivities();
+		ActivityData bad1 = activities.get(i);
 		bad1.setOrder(bad1.getOrder() + 1);
 		bad1.statusChangeTransitionBasedOnOrderChange();
-		BasicActivityData bad2 = activities.get(k);
+		ActivityData bad2 = activities.get(k);
 		bad2.setOrder(bad2.getOrder() - 1);
 		bad2.statusChangeTransitionBasedOnOrderChange();
 		Collections.swap(activities, i, k);
@@ -245,7 +245,7 @@ public class CompetenceEditBean implements Serializable {
 	}
 	
 	public void removeActivity(int index) {
-		BasicActivityData bad = competenceData.getActivities().remove(index);
+		ActivityData bad = competenceData.getActivities().remove(index);
 		bad.statusRemoveTransition();
 		if(bad.getObjectStatus() == ObjectStatus.REMOVED) {
 			activitiesToRemove.add(bad);
@@ -257,9 +257,9 @@ public class CompetenceEditBean implements Serializable {
 	}
 	
 	private void shiftOrderUpFromIndex(int index) {
-		List<BasicActivityData> activities = competenceData.getActivities();
+		List<ActivityData> activities = competenceData.getActivities();
 		for(int i = index; i < currentNumberOfActivities; i++) {
-			BasicActivityData bad = activities.get(i);
+			ActivityData bad = activities.get(i);
 			bad.setOrder(bad.getOrder() - 1);
 			bad.statusChangeTransitionBasedOnOrderChange();
 		}
@@ -308,11 +308,11 @@ public class CompetenceEditBean implements Serializable {
 		this.competenceData = competenceData;
 	}
 
-	public List<BasicActivityData> getActivitySearchResults() {
+	public List<ActivityData> getActivitySearchResults() {
 		return activitySearchResults;
 	}
 
-	public void setActivitySearchResults(List<BasicActivityData> activitySearchResults) {
+	public void setActivitySearchResults(List<ActivityData> activitySearchResults) {
 		this.activitySearchResults = activitySearchResults;
 	}
 

@@ -3,6 +3,7 @@ package org.prosolo.services.nodes;
 import java.util.List;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
@@ -10,6 +11,7 @@ import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 
 public interface Competence1Manager {
@@ -83,5 +85,11 @@ public interface Competence1Manager {
 	 * @throws DbConnectionException
 	 */
 	void publishDraftCompetencesWithoutDraftVersion(List<Long> compIds) throws DbConnectionException;
+	
+	void addActivityToCompetence(long compId, Activity1 act) throws DbConnectionException;
+
+	void updateDuration(long id, long duration, Operation op) throws DbConnectionException;
+	
+	String getCompetenceTitle(long id) throws DbConnectionException;
 
 }
