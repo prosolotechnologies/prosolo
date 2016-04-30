@@ -68,6 +68,7 @@
 							<p:commandLink styleClass="button size25 green left" value="Crop and Save"
 								onclick="$('.profile .avatar .hiddenCoordinates').val(ic.getInfo().t+'_'+ic.getInfo().l+'_'+ic.getInfo().w+'_'+ic.getInfo().h);"
 								action="#{profileSettings.crop()}"
+								process="hiddenCoordinates"
 								update=":avatarContainer :profileForm:avatar :profileForm:profileFormGrowl" />
 								
 							<p:commandLink styleClass="button size25 gray left" 

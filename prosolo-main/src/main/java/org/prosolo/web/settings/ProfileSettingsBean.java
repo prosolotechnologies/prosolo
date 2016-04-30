@@ -148,7 +148,7 @@ public class ProfileSettingsBean implements Serializable {
 			} catch (EventException e) {
 				logger.error(e);
 			}
-			PageUtil.fireSuccessfulInfoMessage(":profileForm:profileFormGrowl", "Profile information updated!");
+			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			
 			initializeAccountData();
 			asyncUpdateUserDataInSocialActivities(accountData);

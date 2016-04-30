@@ -53,7 +53,7 @@ public class AvatarProcessorImpl implements AvatarProcessor, Serializable {
 			imageExtension = "png";
 		}
  
-		File originalFile = new File(avatarUploadFolder + File.separator + "original.png");
+		File originalFile = new File(avatarUploadFolder + '/' + "original.png");
 	 	
 		// store original
 		FileUtils.copyInputStreamToFile(imageInputStream, originalFile);
@@ -61,7 +61,7 @@ public class AvatarProcessorImpl implements AvatarProcessor, Serializable {
 		amazonS3UploadManager.storeInputStreamByKey(new FileInputStream(originalFile), 
 		 CommonSettings.getInstance().config.services.userService.userAvatarPath +
 				// "images/users/"+
-				userFolder + File.separator + "original.png",fileType);
+				userFolder + '/' + "original.png",fileType);
 		// create resized copies
 		createAllResizedCopies(originalFile, avatarUploadFolder, imageExtension, userFolder);
 		return userFolder;
@@ -69,7 +69,7 @@ public class AvatarProcessorImpl implements AvatarProcessor, Serializable {
 
 	@Override
 	public String storeTempAvatar(User user, InputStream imageInputStream, String avatarFilename, int scaledWidth, int scaledHeight) throws IOException {
-		String avatarUrl = "temp" + File.separator + CommonSettings.getInstance().config.services.userService.userAvatarPath + AvatarUtils.getUserFolderPath(user);
+		String avatarUrl = "temp" + '/' + CommonSettings.getInstance().config.services.userService.userAvatarPath + AvatarUtils.getUserFolderPath(user);
 		String avatarUploadFolder = Settings.getInstance().config.fileManagement.uploadPath + avatarUrl;
 		
 		AvatarUtils.createDirectoryIfDoesNotExist(avatarUploadFolder);
@@ -93,9 +93,9 @@ public class AvatarProcessorImpl implements AvatarProcessor, Serializable {
 			imageExtension = "png";
 		}
 		
-		ImageIO.write(scaledBI, imageExtension, new File(avatarUploadFolder + File.separator + avatarFilename));
+		ImageIO.write(scaledBI, imageExtension, new File(avatarUploadFolder + '/' + avatarFilename));
 		
-		return avatarUrl + File.separator + avatarFilename;
+		return avatarUrl + '/' + avatarFilename;
 	}
 	
 	public static ImageDimensions getScalledImageDimensions(int originalWidth, int originalHeight, int targetScalledWidth, int targetScalledHeight) {
@@ -123,7 +123,7 @@ public class AvatarProcessorImpl implements AvatarProcessor, Serializable {
 		}
 		
 		for (ImageFormat imgFormat : ImageFormat.values()) {
-			String fileAvatarUrl = avatarUploadFolder + File.separator + imgFormat + ".png" /*+ imageExtension*/;
+			String fileAvatarUrl = avatarUploadFolder + '/' + imgFormat + ".png" /*+ imageExtension*/;
 			
 			try {
 				createResizedCopy(
@@ -187,7 +187,7 @@ public class AvatarProcessorImpl implements AvatarProcessor, Serializable {
 		ImageIO.write(scaledBI, imageExtension, resizedImage);
 		String fileType=FileUtil.getFileType(resizedImage);
 	 	amazonS3UploadManager.storeInputStreamByKey(new FileInputStream(resizedImage), 
-	 			CommonSettings.getInstance().config.services.userService.userAvatarPath+  userFolder+File.separator +imageName, fileType);
+	 			CommonSettings.getInstance().config.services.userService.userAvatarPath+  userFolder+'/' +imageName, fileType);
     }
 	
 	@Override
@@ -203,7 +203,7 @@ public class AvatarProcessorImpl implements AvatarProcessor, Serializable {
 		
 		AvatarUtils.createDirectoryIfDoesNotExist(avatarUploadFolder);
 		
-		File destinationFile = new File(avatarUploadFolder + File.separator + "original.png");
+		File destinationFile = new File(avatarUploadFolder + '/' + "original.png");
 		ImageIO.write(dest, format, destinationFile);
 		
 		// create resized copies

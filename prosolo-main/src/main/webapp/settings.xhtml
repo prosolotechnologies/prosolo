@@ -3,127 +3,174 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui"
-	xmlns:comp="http://java.sun.com/jsf/composite/components"
-	template="templates/masterLayout.xhtml"
-	xmlns:c="http://java.sun.com/jsp/jstl/core"
-	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs">
+	template="templates/masterLayout2.xhtml">
 
 	<ui:define name="windowTitle">
-		Settings | ProSolo
+		Account settings
 	</ui:define>
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewParam name="tab" value="#{settings.selectedMenu}" />
-			<f:viewParam name="origin" value="#{settings.origin}" />
+			<f:viewParam name="id" value="#{profileSettings.accountData.id}"></f:viewParam>
 		</f:metadata>
 	</ui:define>
-	
-	<ui:define name="content">
-		<div class="container settings tabbedLayout">
-		 
-			<div class="leftSidebar">
-				<h:form>
-					<div class="leftNav">
-						<ul id="goalsList">
-							<li class="#{settings.selectedMenu == 'profile' ? 'selected' : ''}">
-								<h:link value="Profile" outcome="/settings"
-									onclick="logTabNavigation('profile', 'settings.navigation');">
-									<f:param  name="tab" value="profile" />
-								</h:link>
-							</li>
-							
-							<li class="#{settings.selectedMenu == 'account' ? 'selected' : ''}">
-					 			<h:link value="Account" outcome="/settings" 
-					 				onclick="logTabNavigation('account', 'settings.navigation');">
-									<f:param  name="tab" value="account" />
-								</h:link>
-							</li>
-							
-							<li class="#{settings.selectedMenu == 'notifications' ? 'selected' : ''}">
-					 			<h:link value="Notifications" outcome="/settings" 
-					 				onclick="logTabNavigation('notifications', 'settings.navigation');">
-									<f:param  name="tab" value="notifications" />
-								</h:link>
-							</li>
-							
-							<li class="#{settings.selectedMenu == 'socialNetworks' ? 'selected' : ''}">
-							 	<h:link value="Social Networks" outcome="/settings"
-							 		onclick="logTabNavigation('socialNetworks', 'settings.navigation');">
-									<f:param  name="tab" value="socialNetworks" />
-								</h:link>
-							</li>
-							
-							<li class="#{settings.selectedMenu == 'statusWall' ? 'selected' : ''}">
-							 	<h:link value="Status Wall" outcome="/settings"
-							 		onclick="logTabNavigation('statusWall', 'settings.navigation');">
-									<f:param  name="tab" value="statusWall" />
-								</h:link>
-							</li>
-							
-							<li class="#{settings.selectedMenu == 'feeds' ? 'selected' : ''}">
-								<h:link value="Blog and RSS Feeds" outcome="/settings"
-									onclick="logTabNavigation('feeds', 'settings.navigation');">
-									<f:param  name="tab" value="feeds" />
-								</h:link>
-							</li>
-					 
-							<li class="#{settings.selectedMenu == 'reports' ? 'selected' : ''}">
-								<h:link value="Reports" outcome="/settings" 
-									onclick="logTabNavigation('terms', 'settings.navigation');">
-									<f:param name="tab" value="reports" />
-								</h:link>
-							</li>
-							
-							<li class="#{settings.selectedMenu == 'terms' ? 'selected' : ''}">
-								<h:link value="Terms of Use" outcome="/settings" 
-									onclick="logTabNavigation('terms', 'settings.navigation');">
-									<f:param name="tab" value="terms" />
-								</h:link>
-							</li>
-						</ul>
-					</div>	
-				</h:form>
-			</div><!-- .leftSidebar -->
-		
-			<h:panelGroup layout="block" class="content">
-				<c:if test="#{settings.selectedMenu == 'profile'}">
-					<ui:include src="/resources/components/settings/profile.xhtml" />
-				</c:if>
-				
-				<c:if test="#{settings.selectedMenu == 'account'}">
-					<ui:include src="/resources/components/settings/account.xhtml" />
-				</c:if>
-				
-				<c:if test="#{settings.selectedMenu == 'notifications'}">
-					<ui:include src="/resources/components/settings/notifications.xhtml" />
-				</c:if>
-				
-				<c:if test="#{settings.selectedMenu == 'socialNetworks'}">
-					<ui:include src="/resources/components/settings/socialNetworks.xhtml" />
-				</c:if>
-				
-				<c:if test="#{settings.selectedMenu == 'statusWall'}">
-					<ui:include src="/resources/components/settings/statusWall.xhtml" />
-				</c:if>
-				
-				<c:if test="#{settings.selectedMenu == 'feeds'}">
-					<ui:include src="/resources/components/settings/feeds.xhtml" />
-				</c:if>
-		 
-				<c:if test="#{settings.selectedMenu == 'reports'}">
-					<ui:include src="/resources/components/settings/reports.xhtml" />
-				</c:if>
-				
-				<c:if test="#{settings.selectedMenu == 'terms'}">
-					<ui:include src="/resources/components/settings/terms.xhtml" />
-				</c:if>
-		 
-			</h:panelGroup><!-- .content -->
-		
-			<div class="clear"></div>
-			
-		</div><!-- .container end -->
+
+	<ui:define name="resourceTitle">
+		<h:panelGroup id="panelTitle">
+			<h1>Account settings</h1>
+			<ul class="nav nav-tabs headerSubmenu">
+				<li role="presentation" class="active"><a
+					href="settings-personal.html">Personal Info</a></li>
+				<li role="presentation"><a href="settings-email.html">Email
+						Notifications</a></li>
+				<li role="presentation"><a href="settings-password.html">Change
+						Password</a></li>
+			</ul>
+		</h:panelGroup>
 	</ui:define>
 
+	<ui:define name="content">
+
+		<!-- Internal resources -->
+
+		<link rel="stylesheet" type="text/css" media="all"
+			href="#{request.contextPath}/resources/css2/bootstrap-tagsinput.css" />
+
+		<script
+			src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
+		<script
+			src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput-angular.min.js"></script>
+
+
+		<!-- External resources -->
+		<script
+			src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+		<script src="https://use.typekit.net/zvv0dgl.js"></script>
+		<script>try{Typekit.load({ async: true });}catch(e){}</script>
+
+
+		<div class="whiteBar"></div>
+
+
+		<h:form id="settingsPersonalForm">
+			<p:growl id="settingsGrowl" showDetail="true"></p:growl>
+			<div class="container">
+
+				<div class="row">
+					<div class="col-md-8">
+						<div class="whiteBox">
+							<h2>Personal Info</h2>
+							<div class="formWrapper">
+								<div class="formLine">
+									<label>First name</label>
+									<div class="formLineRight">
+										<h:inputText id="editName" class="editName"
+											value="#{profileSettings.accountData.firstName}"
+											placeholder="#{msg['settings.personal.name']}" />
+									</div>
+								</div>
+								<div class="formLine">
+									<label>Last name</label>
+									<div class="formLineRight">
+										<h:inputText id="editLastName" class="editLastName"
+											value="#{profileSettings.accountData.lastName}"
+											placeholder="#{msg['settings.personal.lastname']}" />
+									</div>
+								</div>
+								<div class="formLine">
+									<label>Email</label>
+									<div class="formLineRight">
+										<h:inputText id="editEmail" class="editEmail"
+											value="#{profileSettings.accountData.email}"
+											placeholder="#{msg['settings.personal.email']}" />
+										<small>Email will not be publicly displayed.</small>
+									</div>
+								</div>
+								<div class="formLine">
+									<label>Position</label>
+									<div class="formLineRight">
+										<h:inputText id="editPosition" class="editPosition"
+											value="#{profileSettings.accountData.position}"
+											placeholder="#{msg['settings.personal.position']}" />
+									</div>
+								</div>
+								<div class="formLine">
+									<label>Location</label>
+									<div class="formLineRight">
+										<h:inputText id="editLocationName"
+											class="searchLocationTextField" size="50"
+											value="#{profileSettings.accountData.locationName}"
+											placeholder="#{msg['settings.personal.location']}" />
+									</div>
+								</div>
+								<div class="formLine">
+									<label>&#160;</label>
+									<div class="formLineRight">
+										<p:commandLink styleClass="btn btn-green" value="Save Changes"
+											action="#{profileSettings.saveChanges}"
+											update="settingsGrowl" />
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="whiteBox">
+							<h2>Social Profiles</h2>
+							<div class="formWrapper">
+								<div class="formLine">
+									<label>LinkedIn username</label>
+									<div class="formLineRight">
+										<input type="text" />
+									</div>
+								</div>
+								<div class="formLine">
+									<label>Twitter username</label>
+									<div class="formLineRight">
+										<input type="text" />
+										<div class="twitterBtnBox">
+											<a href="#" class="btn btnTwitterConnect btn-sm"><span></span>Connect
+												to Twitter</a> <small>Connect your Twitter account and
+												republish your tweets to your ProSolo followers.</small>
+										</div>
+									</div>
+								</div>
+								<div class="formLine">
+									<label>Facebook username</label>
+									<div class="formLineRight">
+										<input type="text" />
+									</div>
+								</div>
+								<div class="formLine">
+									<label>Blog</label>
+									<div class="formLineRight">
+										<input type="text" />
+									</div>
+								</div>
+								<div class="formLine">
+									<label>&#160;</label>
+									<div class="formLineRight">
+										<a href="#" class="btn btn-green">Save Changes</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="whiteBox yourPhotoBox">
+							<h2>Your Photo</h2>
+							<div class="yourPhotoContent">
+								<img src="images/temp-walter.png" class="img-circle" width="100"
+									height="100" alt="Walter White" />
+								<div class="chooseBtnBox">
+									<a href="#" class="btn btn-green">Choose File</a>
+									<div class="clear"></div>
+									<small>JPG or PNG,<br></br>Min 400x400 px.
+									</small>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</h:form>
+	</ui:define>
 </ui:composition>

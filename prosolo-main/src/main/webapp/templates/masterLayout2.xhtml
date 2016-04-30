@@ -15,117 +15,109 @@
 <h:head>
 	<f:facet name="first">
 		<meta charset="utf-8"></meta>
-	    <meta http-equiv="X-UA-Compatible" content="IE=edge"></meta>
-	    <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
-		<link rel="icon" href="#{request.contextPath}/favicon.ico" type="image/x-icon" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"></meta>
+		<meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+		<link rel="icon" href="#{request.contextPath}/favicon.ico"
+			type="image/x-icon" />
 		<title><ui:insert name="windowTitle" /></title>
 	</f:facet>
-	
-	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/bootstrap.min.css" />
-	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/awesome-bootstrap-checkbox.css" />
-	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/bootstrap-select.css" />
-	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/style.css?#{applicationbean.loginTime}" />
-    
-    <script	src="#{request.contextPath}/resources/javascript/prosolo.logging.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="#{request.contextPath}/resources/javascript2/bootstrap.min.js"></script>
-    <script src="#{request.contextPath}/resources/javascript2/bootstrap-select.min.js"></script>
-    <script src="#{request.contextPath}/resources/javascript2/custom.js?#{applicationbean.loginTime}"></script>
+
+	<link rel="stylesheet" type="text/css" media="all"
+		href="#{request.contextPath}/resources/css2/bootstrap.min.css" />
+	<link rel="stylesheet" type="text/css" media="all"
+		href="#{request.contextPath}/resources/css2/awesome-bootstrap-checkbox.css" />
+	<link rel="stylesheet" type="text/css" media="all"
+		href="#{request.contextPath}/resources/css2/bootstrap-select.css" />
+	<link rel="stylesheet" type="text/css" media="all"
+		href="#{request.contextPath}/resources/css2/style.css?#{applicationbean.loginTime}" />
+
+	<script
+		src="#{request.contextPath}/resources/javascript/prosolo.logging.js"></script>
+	<!-- Include all compiled plugins (below), or include individual files as needed -->
+	<script
+		src="#{request.contextPath}/resources/javascript2/bootstrap.min.js"></script>
+	<script
+		src="#{request.contextPath}/resources/javascript2/bootstrap-select.min.js"></script>
+	<script
+		src="#{request.contextPath}/resources/javascript2/custom.js?#{applicationbean.loginTime}"></script>
 </h:head>
 
 <h:body>
 	<utilcomp:messagesBundle var="msg" />
-	
-	 <header>
-        <div class="container">
-            <div class="headerTop">
-                <div class="headerTopLeft">
-                    <a href="#" id="logo">ProSolo</a>
-                 
-                    <nav>
-                        <ul class="nav nav-pills">
-                        	<li role="presentation" 
-                        		class="#{util:getPagePath(view.viewId)  == 'index' ? 'active' : ''}">
-								<h:link 
-									onclick="sendLogPageNavigation('index','mainmenu');" 
-									value="Home" 
-									outcome="/index"/>
+
+	<header>
+		<div class="container">
+			<div class="headerTop">
+				<div class="headerTopLeft">
+					<a href="#" id="logo">ProSolo</a>
+
+					<nav>
+						<ul class="nav nav-pills">
+							<li role="presentation"
+								class="#{util:getPagePath(view.viewId)  == 'index' ? 'active' : ''}">
+								<h:link onclick="sendLogPageNavigation('index','mainmenu');"
+									value="Home" outcome="/index" />
 							</li>
-							<li role="presentation" 
-                        		class="#{util:getPagePath(view.viewId)  == 'library' ? 'active' : ''}">
-								<h:link 
-									onclick="sendLogPageNavigation('library','mainmenu');" 
-									value="Library" 
-									outcome="/credentialLibrary"
-									/>
+							<li role="presentation"
+								class="#{util:getPagePath(view.viewId)  == 'library' ? 'active' : ''}">
+								<h:link onclick="sendLogPageNavigation('library','mainmenu');"
+									value="Library" outcome="/credentialLibrary" />
 							</li>
-                            <li role="presentation" 
-                        		class="#{util:getPagePath(view.viewId)  == 'people' ? 'active' : ''}">
-								<h:link 
-									onclick="sendLogPageNavigation('people','mainmenu');" 
-									value="People" 
-									/>
+							<li role="presentation"
+								class="#{util:getPagePath(view.viewId)  == 'people' ? 'active' : ''}">
+								<h:link onclick="sendLogPageNavigation('people','mainmenu');"
+									value="People" />
 							</li>
-                        </ul>
-                    </nav>
-                </div>
-                <div class="headerTopRight">
-                    <div class="dropdown createMenu">
-                        <a class="btn btn-orange btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">Create</a>
-                        <ul class="dropdown-menu">
-                        	<li>
-                        		<h:link 
-									value="New Credential" 
-									outcome="/create-credential.xhtml"/>
-							</li>
-                            <li>
-                            	<h:link 
-									value="New Competence" 
-									/>
-                            </li>
-                            <li>
-                            	<h:link 
-									value="New Activity" 
-									/>
-                            </li>
-                        </ul>
-                    </div>
-                    <a class="iconMessages active" href="#">Messages<span class="unreadDot">unreadDot</span></a>
-                    <a class="iconNotifications" href="#">Notifications</a>
-                    <h:form>
-                    <div class="dropdown userMenu">
-                        <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        	<h:graphicImage value="#{loggeduser.bigAvatar}"
-										   alt="#{loggeduser.fullName}" 
-										   styleClass="img-circle"
-										   width="32" height="32"/>
-                            <span class="arrowDown">arrowDown</span>
-                        </a>
-                        
-                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
-                            <li><a href="#">Profile</a></li>
-                            <li><a href="#">Account Settings</a></li>
-                            <li><a href="#">Achievements</a></li>
-                            <li>
-						   		<h:commandLink id="userLogout" 
-									value="Sign Out" 
-									action="#{loggeduser.userLogout()}">
-								</h:commandLink>
-                            </li>
-                        </ul>
-                        
-                    </div>
-                    </h:form>
-                </div>
-            </div>
-            <ui:insert name="resourceTitle" />
-            <ui:insert name="navLinks" />
-        </div>
-    </header>
+						</ul>
+					</nav>
+				</div>
+				<div class="headerTopRight">
+					<div class="dropdown createMenu">
+						<a class="btn btn-orange btn-sm" data-toggle="dropdown"
+							aria-haspopup="true" aria-expanded="true">Create</a>
+						<ul class="dropdown-menu">
+							<li><h:link value="New Credential"
+									outcome="/create-credential.xhtml" /></li>
+							<li><h:link value="New Competence" /></li>
+							<li><h:link value="New Activity" /></li>
+						</ul>
+					</div>
+					<a class="iconMessages active" href="#">Messages<span
+						class="unreadDot">unreadDot</span></a> <a class="iconNotifications"
+						href="#">Notifications</a>
+					<h:form>
+						<div class="dropdown userMenu">
+							<a data-toggle="dropdown" aria-haspopup="true"
+								aria-expanded="true"> <h:graphicImage
+									value="#{loggeduser.bigAvatar}" alt="#{loggeduser.fullName}"
+									styleClass="img-circle" width="32" height="32" /> <span
+								class="arrowDown">arrowDown</span>
+							</a>
+
+							<ul class="dropdown-menu dropdown-menu-right"
+								aria-labelledby="dropdownMenu1">
+								<li><a href="#">Profile</a></li>
+								<li><h:link
+										onclick="sendLogPageNavigation('settings','mainmenu');"
+										value="Settings" outcome="/settings" /></li>
+								<li><a href="#">Achievements</a></li>
+								<li><h:commandLink id="userLogout" value="Sign Out"
+										action="#{loggeduser.userLogout()}">
+									</h:commandLink></li>
+							</ul>
+
+						</div>
+					</h:form>
+				</div>
+			</div>
+			<ui:insert name="resourceTitle" />
+			<ui:insert name="navLinks" />
+		</div>
+	</header>
 
 	<ui:insert name="content" />
-	
-	<ui:include	src="/resources/components/loggingForm.xhtml" />
+
+	<ui:include src="/resources/components/loggingForm.xhtml" />
 
 	<c:if test="#{loggeduser != null and loggeduser.loggedIn}">
 		<h:form>
@@ -136,8 +128,8 @@
 			</p:idleMonitor>
 		</h:form>
 	</c:if>
-	
-	
+
+
 </h:body>
 
 </html>

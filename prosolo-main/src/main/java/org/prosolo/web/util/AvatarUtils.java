@@ -57,10 +57,10 @@ public class AvatarUtils {
 			url = "/" + CommonSettings.getInstance().config.services.userService.defaultAvatarPath + format + ".png";
 		} else {
 			FileStoreConfig filesConfig=CommonSettings.getInstance().config.fileStore;
-			url = filesConfig.fileStoreServiceUrl + File.separator + 
-					filesConfig.fileStoreBucketName + File.separator +
+			url = filesConfig.fileStoreServiceUrl + "/" + 
+					filesConfig.fileStoreBucketName + "/" +
 					CommonSettings.getInstance().config.services.userService.userAvatarPath +
-					avatarUrl + File.separator + 
+					avatarUrl + "/" + 
 					format+".png";
 		//	url = Settings.getInstance().config.fileManagement.uploadPath + Settings.getInstance().config.services.userService.userAvatarPath + avatarUrl + File.separator + format + ".png";
 			//url = getUrlFromPath(url);
@@ -71,7 +71,7 @@ public class AvatarUtils {
 	public static String getUserFolderPath(User user){
 		String hashedUserId = StringUtils.getHashValue(String.valueOf(user.getId()));
 		String timestamp = String.valueOf(new Date().getTime());
-		return hashedUserId + File.separator + timestamp;
+		return hashedUserId + '/' + timestamp;
 	}
 	
 	public static boolean createDirectoryIfDoesNotExist(String path) {

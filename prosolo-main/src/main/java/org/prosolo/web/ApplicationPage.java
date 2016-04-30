@@ -14,6 +14,7 @@ public enum ApplicationPage {
 	DIGEST("/digest.xhtml"),
 	COMMUNICATIONS("/communications.xhtml"),
 	SEARCH("/search.xhtml"),
+	SETTINGS_OLD("/settings_old.xhtml"),
 	SETTINGS("/settings.xhtml"),
 	COMPETENCES("/manage/competences.xhtml"),
 	COURSES("/manage/courses.xhtml"),
