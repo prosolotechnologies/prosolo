@@ -5,11 +5,13 @@ package org.prosolo.web.settings.data;
 
 import java.io.Serializable;
 
+import org.prosolo.web.data.IData;
+
 /**
  * @author "Nikola Milikic"
  * 
  */
-public class AccountData implements Serializable {
+public class AccountData implements Serializable, IData {
 
 	private static final long serialVersionUID = -1762307654954041067L;
 
@@ -19,6 +21,7 @@ public class AccountData implements Serializable {
 	private String lastName;
 	private String password;
 	private String passwordConfirm;
+	private String newPassword;
 	private String email;
 	private String position;
 
@@ -65,7 +68,7 @@ public class AccountData implements Serializable {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	
+
 	public String getPasswordConfirm() {
 		return passwordConfirm;
 	}
@@ -113,5 +116,13 @@ public class AccountData implements Serializable {
 	public void setLongitude(String longitude) {
 		this.longitude = longitude;
 	}
-	
+
+	public String getNewPassword() {
+		return newPassword;
+	}
+
+	public void setNewPassword(String newPassword) {
+		this.newPassword = newPassword;
+	}
+
 }

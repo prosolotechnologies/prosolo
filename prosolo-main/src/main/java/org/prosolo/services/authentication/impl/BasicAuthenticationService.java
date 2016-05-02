@@ -62,5 +62,10 @@ public class BasicAuthenticationService implements AuthenticationService {
 ////		UserSession currentSession = (UserSession) Session.get();
 ////		currentSession.invalidateNow();
 	}
+	
+	@Override
+	public boolean checkPassword(String oldPassword, String newPassword) {
+		return passwordEncrypter.isPasswordValid(oldPassword, newPassword, null);
+	}
 
 }

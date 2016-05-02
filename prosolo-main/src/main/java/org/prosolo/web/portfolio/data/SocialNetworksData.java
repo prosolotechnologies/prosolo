@@ -4,24 +4,35 @@
 package org.prosolo.web.portfolio.data;
 
 import java.io.Serializable;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkAccount;
+import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
+import org.prosolo.web.data.IData;
 
 /**
  * @author "Nikola Milikic"
  * 
  */
-public class SocialNetworksData implements Serializable {
+public class SocialNetworksData implements Serializable, IData {
 
 	private static final long serialVersionUID = 2744838596870425737L;
 
 	private long id;
-	private String twitterLink = "";
-	private String twitterLinkEdit = "";
-	private String facebookLink = "";
-	private String facebookLinkEdit = "";
-	private String gplusLink = "";
-	private String gplusLinkEdit = "";
-	private String blogLink = "";
-	private String blogLinkEdit = "";
+
+	private Map<String, SocialNetworkAccount> socialNetworkAccounts;
+
+	public SocialNetworksData() {
+		socialNetworkAccounts = new LinkedHashMap<>();
+		socialNetworkAccounts.put(SocialNetworkName.LINKEDIN.toString(),
+				new SocialNetworkAccount(SocialNetworkName.LINKEDIN));
+		socialNetworkAccounts.put(SocialNetworkName.TWITTER.toString(),
+				new SocialNetworkAccount(SocialNetworkName.TWITTER));
+		socialNetworkAccounts.put(SocialNetworkName.FACEBOOK.toString(),
+				new SocialNetworkAccount(SocialNetworkName.FACEBOOK));
+		socialNetworkAccounts.put(SocialNetworkName.BLOG.toString(), new SocialNetworkAccount(SocialNetworkName.BLOG));
+	}
 
 	public long getId() {
 		return id;
@@ -31,68 +42,18 @@ public class SocialNetworksData implements Serializable {
 		this.id = id;
 	}
 
-	public String getTwitterLink() {
-		return twitterLink;
+	public Map<String, SocialNetworkAccount> getSocialNetworkAccounts() {
+		return socialNetworkAccounts;
 	}
 
-	public void setTwitterLink(String twitterLink) {
-		this.twitterLink = twitterLink;
-	}
-	
-	public String getTwitterLinkEdit() {
-		return twitterLinkEdit;
+	public void setSocialNetworkAccounts(Map<String, SocialNetworkAccount> socialNetworkAccounts) {
+		this.socialNetworkAccounts = socialNetworkAccounts;
 	}
 
-	public void setTwitterLinkEdit(String twitterLinkEdit) {
-		this.twitterLinkEdit = twitterLinkEdit;
-	}
-
-	public String getFacebookLink() {
-		return facebookLink;
-	}
-
-	public void setFacebookLink(String facebookLink) {
-		this.facebookLink = facebookLink;
-	}
-
-	public String getFacebookLinkEdit() {
-		return facebookLinkEdit;
-	}
-
-	public void setFacebookLinkEdit(String facebookLinkEdit) {
-		this.facebookLinkEdit = facebookLinkEdit;
-	}
-
-	public String getGplusLink() {
-		return gplusLink;
-	}
-
-	public void setGplusLink(String gplusLink) {
-		this.gplusLink = gplusLink;
-	}
-
-	public String getGplusLinkEdit() {
-		return gplusLinkEdit;
-	}
-
-	public void setGplusLinkEdit(String gplusLinkEdit) {
-		this.gplusLinkEdit = gplusLinkEdit;
-	}
-
-	public String getBlogLink() {
-		return blogLink;
-	}
-
-	public void setBlogLink(String blogLink) {
-		this.blogLink = blogLink;
-	}
-
-	public String getBlogLinkEdit() {
-		return blogLinkEdit;
-	}
-
-	public void setBlogLinkEdit(String blogLinkEdit) {
-		this.blogLinkEdit = blogLinkEdit;
+	public void setAccountLink(SocialNetworkAccount account) {
+		SocialNetworkAccount socialNetworkAccount = socialNetworkAccounts.get(account.getSocialNetwork().toString());
+		socialNetworkAccount.setLink(account.getLink());
+		socialNetworkAccount.setLinkEdit(account.getLink());
 	}
 
 }

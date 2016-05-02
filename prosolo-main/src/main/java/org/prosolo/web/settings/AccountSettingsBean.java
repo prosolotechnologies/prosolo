@@ -10,6 +10,8 @@ import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.services.authentication.AuthenticationService;
+import org.prosolo.services.authentication.PasswordEncrypter;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.settings.data.AccountData;
@@ -31,48 +33,74 @@ public class AccountSettingsBean implements Serializable {
 
 	protected static Logger logger = Logger.getLogger(AccountSettingsBean.class);
 
-	@Autowired private LoggedUserBean loggedUser;
-	@Autowired private UserManager userManager;
-	
+	@Autowired
+	private LoggedUserBean loggedUser;
+	@Autowired
+	private UserManager userManager;
+
 	private AccountData accountData;
 	private String currentPassword;
-	
+
+	@Autowired
+	private PasswordEncrypter passwordEncrypter;
+
+	@Autowired
+	private AuthenticationService authenticationService;
+
 	@PostConstruct
 	public void initializeAccountData() {
 		accountData = new AccountData();
-		
+
 		// emails
 		String email = loggedUser.getUser().getEmail();
 		accountData.setEmail(email);
 	}
-	
+
 	/*
 	 * ACTIONS
 	 */
 	public void savePassChange() {
 		if (accountData.getPassword().equals(accountData.getPasswordConfirm())) {
-			if (accountData.getPassword().length() < 6) {
-				PageUtil.fireErrorMessage(":accountForm:accountFormGrowl", "Password is too short. It has to contain more that 6 characters.");
+			if (accountData.getNewPassword().length() < 6) {
+				PageUtil.fireErrorMessage(":accountForm:accountFormGrowl",
+						"Password is too short. It has to contain more that 6 characters.");
 				return;
 			}
-			
+
 			User user = userManager.changePassword(loggedUser.getUser(), accountData.getPassword());
 			loggedUser.setUser(user);
-			
+
 			PageUtil.fireSuccessfulInfoMessage(":accountForm:accountFormGrowl", "Password updated!");
 		} else {
 			PageUtil.fireErrorMessage(":accountForm:accountFormGrowl", "Passwords do not match.");
 		}
 	}
-	
+
+	public void savePassChangeRedesign() {
+		if (authenticationService.checkPassword(loggedUser.getUser().getPassword(), accountData.getPassword())) {
+			if (accountData.getNewPassword().length() < 6) {
+				PageUtil.fireErrorMessage(":settingsPasswordForm:settingsPasswordGrowl",
+						"Password is too short. It has to contain more that 6 characters.");
+				return;
+			}
+
+			User user = userManager.changePassword(loggedUser.getUser(), accountData.getNewPassword());
+			loggedUser.setUser(user);
+
+			PageUtil.fireSuccessfulInfoMessage(":settingsPasswordForm:settingsPasswordGrowl", "Password updated!");
+		} else {
+			PageUtil.fireErrorMessage(":settingsPasswordForm:settingsPasswordGrowl", "Old password is not correct.");
+		}
+	}
+
 	/*
 	 * GETTERS / SETTERS
 	 */
-	
+
 	public AccountData getAccountData() {
 		return accountData;
 	}
-	
+
 	public String getCurrentPassword() {
 		return currentPassword;
 	}

@@ -40,6 +40,7 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.activitywall.displayers.PortfolioSocialActivitiesDisplayer;
 import org.prosolo.web.data.GoalData;
+import org.prosolo.web.datatopagemappers.SocialNetworksDataToPageMapper;
 import org.prosolo.web.dialogs.data.ExternalCreditData;
 import org.prosolo.web.portfolio.data.AchievedCompetenceData;
 import org.prosolo.web.portfolio.data.GoalStatisticsData;
@@ -52,53 +53,64 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-@ManagedBean(name="publicportfolio")
+@ManagedBean(name = "publicportfolio")
 @Component("publicportfolio")
 @Scope("view")
 public class PublicPortfolioBean implements Serializable {
-	
+
 	private static final long serialVersionUID = 5004810142702166055L;
 
 	private static Logger logger = Logger.getLogger(PublicPortfolioBean.class);
-	
-	@Autowired private LoggedUserBean loggedUser;
-	@Autowired private PortfolioManager portfolioManager;
-	@Autowired private UserManager userManager;
-	@Autowired private ExternalCreditsDataConverter externalCreditsDataConverter;
-	@Autowired private CompletedGoalDataConverter completedGoalDataConverter;
-	@Autowired private AchievedCompetenceDataConverter achievedCompetenceDataConverter;
-	@Autowired private SocialNetworksManager socialNetworksManager;
-	@Autowired private EvaluationManager evaluationManager;
-	@Autowired private BadgeManager badgeManager;
-	@Inject private UrlIdEncoder idEncoder;
-	
+
+	@Autowired
+	private LoggedUserBean loggedUser;
+	@Autowired
+	private PortfolioManager portfolioManager;
+	@Autowired
+	private UserManager userManager;
+	@Autowired
+	private ExternalCreditsDataConverter externalCreditsDataConverter;
+	@Autowired
+	private CompletedGoalDataConverter completedGoalDataConverter;
+	@Autowired
+	private AchievedCompetenceDataConverter achievedCompetenceDataConverter;
+	@Autowired
+	private SocialNetworksManager socialNetworksManager;
+	@Autowired
+	private EvaluationManager evaluationManager;
+	@Autowired
+	private BadgeManager badgeManager;
+	@Inject
+	private UrlIdEncoder idEncoder;
+
 	private List<GoalData> ongoingGoals;
 
 	private List<GoalData> completedGoals;
-	
+
 	private List<AchievedCompetenceData> ongoingCompetences;
 	private List<AchievedCompetenceData> achievedComps;
 	private GoalStatisticsData goalStats;
-	
+
 	private List<ExternalCreditData> externalCredits;
-	
+
 	private User profileOwner;
 	private UserData profileOwnerData;
-	
+
 	private SocialNetworksData socialNetworksData;
-	
+
 	private PortfolioSocialActivitiesDisplayer portfolioActivitiesDisplayer;
-	
-	public void init(){
+
+	public void init() {
 		logger.debug("initializing");
-//		String accessedFromIpAddress = accessResolver.findRemoteIPAddress();
+		// String accessedFromIpAddress = accessResolver.findRemoteIPAddress();
 
 		decodedId = idEncoder.decodeId(id);
 		initializeUser();
-		portfolioActivitiesDisplayer = ServiceLocator.getInstance().getService(PortfolioSocialActivitiesDisplayer.class);
+		portfolioActivitiesDisplayer = ServiceLocator.getInstance()
+				.getService(PortfolioSocialActivitiesDisplayer.class);
 		portfolioActivitiesDisplayer.init(loggedUser.getUser(), loggedUser.getLocale(), null, decodedId);
 	}
-	
+
 	private void initializeUser() {
 		if (decodedId > 0) {
 			try {
@@ -113,17 +125,18 @@ public class PublicPortfolioBean implements Serializable {
 				}
 			}
 		} else if (loggedUser != null && loggedUser.isLoggedIn()) {
-			//profileOwner = loggedUser.refreshUser();
-			//profileOwnerData = UserDataFactory.createUserData(profileOwner);
-			
+			// profileOwner = loggedUser.refreshUser();
+			// profileOwnerData = UserDataFactory.createUserData(profileOwner);
+
 			try {
 				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
 			} catch (IOException e) {
 				logger.error(e);
 			}
-			
+
 		} else {
-			// user is not authenticated and is accessing a page of a user that does not exist
+			// user is not authenticated and is accessing a page of a user that
+			// does not exist
 			PageUtil.redirectToLoginPage();
 		}
 	}
@@ -131,50 +144,48 @@ public class PublicPortfolioBean implements Serializable {
 	public void initCompletedGoals() {
 		if (profileOwner != null) {
 			profileOwner = portfolioManager.merge(profileOwner);
-			
+
 			// ongoing goals
 			ongoingGoals = new ArrayList<GoalData>();
-			
-			Collection<TargetLearningGoal> ongoingTargetGoals = portfolioManager.getPublicOngoingTargetLearningGoals(profileOwner);
-			
+
+			Collection<TargetLearningGoal> ongoingTargetGoals = portfolioManager
+					.getPublicOngoingTargetLearningGoals(profileOwner);
+
 			if (ongoingTargetGoals != null && !ongoingTargetGoals.isEmpty()) {
 				for (TargetLearningGoal targetLearningGoal : ongoingTargetGoals) {
 					GoalData goalData = new GoalData(targetLearningGoal);
-					
+
 					goalData.setEvaluationCount(evaluationManager.getApprovedEvaluationCountForResource(
-							TargetLearningGoal.class, 
-							targetLearningGoal.getId(), 
+							TargetLearningGoal.class, targetLearningGoal.getId(),
 							(Session) portfolioManager.getPersistence().currentManager()));
-					
+
 					goalData.setRejectedEvaluationCount(evaluationManager.getRejectedEvaluationCountForResource(
-							TargetLearningGoal.class, 
-							targetLearningGoal.getId(), 
+							TargetLearningGoal.class, targetLearningGoal.getId(),
 							(Session) portfolioManager.getPersistence().currentManager()));
-					
-					goalData.setBadgeCount(badgeManager.getBadgeCountForResource(
-							TargetLearningGoal.class, 
-							targetLearningGoal.getId(), 
-							(Session) portfolioManager.getPersistence().currentManager()));
-					
+
+					goalData.setBadgeCount(badgeManager.getBadgeCountForResource(TargetLearningGoal.class,
+							targetLearningGoal.getId(), (Session) portfolioManager.getPersistence().currentManager()));
+
 					ongoingGoals.add(goalData);
 				}
 			}
-			
-			
+
 			// completed goals
 			completedGoals = new ArrayList<GoalData>();
-			
+
 			// archieved completed goals
-			Collection<CompletedGoal> archievedCompletedGoals = portfolioManager.getPublicCompletedArchivedGoals(profileOwner);
-	
+			Collection<CompletedGoal> archievedCompletedGoals = portfolioManager
+					.getPublicCompletedArchivedGoals(profileOwner);
+
 			if (archievedCompletedGoals != null && !archievedCompletedGoals.isEmpty()) {
 				List<CompletedGoal> completedList = new ArrayList<CompletedGoal>(archievedCompletedGoals);
 				this.completedGoals.addAll(completedGoalDataConverter.convertCompletedGoals(completedList));
 			}
-			
+
 			// nonarchieved completed goals
-			Collection<TargetLearningGoal> activeCompletedGoals = portfolioManager.getPublicCompletedNonarchivedLearningGoals(profileOwner);
-			
+			Collection<TargetLearningGoal> activeCompletedGoals = portfolioManager
+					.getPublicCompletedNonarchivedLearningGoals(profileOwner);
+
 			if (activeCompletedGoals != null && !activeCompletedGoals.isEmpty()) {
 				List<TargetLearningGoal> completedList = new ArrayList<TargetLearningGoal>(activeCompletedGoals);
 				this.completedGoals.addAll(completedGoalDataConverter.convertTargetGoals(completedList));
@@ -183,30 +194,30 @@ public class PublicPortfolioBean implements Serializable {
 			initGoalStatistics();
 		}
 	}
-	
+
 	public void initGoalStatistics() {
 		goalStats = new GoalStatisticsData();
-		
+
 		int diffSeconds = 0;
-		
+
 		if (completedGoals != null && !completedGoals.isEmpty()) {
 			int totalDiffs = 0;
-			
+
 			for (GoalData cGoalData : completedGoals) {
 				if (cGoalData.getDateStarted() != null && cGoalData.getDateCompleted() != null) {
 					Date timeCompleted = cGoalData.getDateCompleted();
 					Date timeStarted = cGoalData.getDateStarted();
-					
+
 					if (timeCompleted != null && timeStarted != null)
 						totalDiffs += timeCompleted.getTime() - timeStarted.getTime();
 				}
 			}
-			
+
 			diffSeconds = totalDiffs / completedGoals.size();
 		}
-		
+
 		goalStats.setAverageTime(DateUtil.getTimeDuration((long) diffSeconds));
-		
+
 		int completedGoalsNo = completedGoals.size();
 		goalStats.setCompletedNo(completedGoalsNo);
 		goalStats.setTotalNo(completedGoalsNo + portfolioManager.merge(profileOwner).getLearningGoals().size());
@@ -215,121 +226,90 @@ public class PublicPortfolioBean implements Serializable {
 	public void initAchievedCompetences() {
 		if (profileOwner != null) {
 			this.achievedComps = new ArrayList<AchievedCompetenceData>();
-			
+
 			List<AchievedCompetence> achievedCompList = portfolioManager.getPublicAchievedCompetences(profileOwner);
 			this.achievedComps = achievedCompetenceDataConverter.convertAchievedComps(achievedCompList);
-			
-			List<TargetCompetence> nonarchievedCompList = portfolioManager.getPublicCompletedNonarchivedTargetCompetences(profileOwner);
+
+			List<TargetCompetence> nonarchievedCompList = portfolioManager
+					.getPublicCompletedNonarchivedTargetCompetences(profileOwner);
 			this.achievedComps.addAll(achievedCompetenceDataConverter.convertTargetCompetences(nonarchievedCompList));
-			
+
 			Collections.sort(this.achievedComps);
-			
+
 			// ongoing competences
-			
+
 			this.ongoingCompetences = new ArrayList<AchievedCompetenceData>();
 			List<TargetCompetence> ongoingCompList = portfolioManager.getPublicOngoingTargetCompetences(profileOwner);
 			this.ongoingCompetences.addAll(achievedCompetenceDataConverter.convertTargetCompetences(ongoingCompList));
-			
+
 		}
 	}
-	
+
 	public void initExternalCredits() {
 		if (profileOwner != null) {
 			if (externalCredits == null) {
-				logger.debug("Initializing external credits for user "+profileOwner);
-				
+				logger.debug("Initializing external credits for user " + profileOwner);
+
 				User user = loggedUser != null ? loggedUser.getUser() : null;
-				Locale locale = loggedUser != null ? loggedUser.getLocale() : new Locale("en", "US");;
-				
-				this.externalCredits = externalCreditsDataConverter.convertExternalCredits(
-						portfolioManager.getVisibleExternalCredits(profileOwner),
-						user,
-						locale);
+				Locale locale = loggedUser != null ? loggedUser.getLocale() : new Locale("en", "US");
+				;
+
+				this.externalCredits = externalCreditsDataConverter
+						.convertExternalCredits(portfolioManager.getVisibleExternalCredits(profileOwner), user, locale);
 			}
 		}
 	}
-	
+
 	public void initSocialNetworks() {
 		if (socialNetworksData == null) {
-			logger.debug("Initializing social networks data for user "+profileOwner);
-			
-			UserSocialNetworks socialNetworks = socialNetworksManager.getSocialNetworks(profileOwner);
-			
-			socialNetworksData = new SocialNetworksData();
-			socialNetworksData.setId(socialNetworks.getId());
-			
-			SocialNetworkAccount twitterAccount = socialNetworks.getAccount(SocialNetworkName.TWITTER);
-			
-			if (twitterAccount != null) {
-				socialNetworksData.setTwitterLink(twitterAccount.getLink());
-				socialNetworksData.setTwitterLinkEdit(twitterAccount.getLink());
-			}
-			
-			SocialNetworkAccount facebookAccount = socialNetworks.getAccount(SocialNetworkName.FACEBOOK);
-			
-			if (facebookAccount != null) {
-				socialNetworksData.setFacebookLink(facebookAccount.getLink());
-				socialNetworksData.setFacebookLinkEdit(facebookAccount.getLink());
-			}
-			
-			SocialNetworkAccount gplusAccount = socialNetworks.getAccount(SocialNetworkName.GPLUS);
-			
-			if (gplusAccount != null) {
-				socialNetworksData.setGplusLink(gplusAccount.getLink());
-				socialNetworksData.setGplusLinkEdit(gplusAccount.getLink());
-			}
-			
-			SocialNetworkAccount blogAccount = socialNetworks.getAccount(SocialNetworkName.BLOG);
-			
-			if (blogAccount != null) {
-				socialNetworksData.setBlogLink(blogAccount.getLink());
-				socialNetworksData.setBlogLinkEdit(blogAccount.getLink());
-			}
+			socialNetworksData = new SocialNetworksDataToPageMapper(socialNetworksManager, loggedUser)
+					.mapDataToPageObject(socialNetworksData);
 		}
 	}
-	
+
 	// Status Wall
 	public void initializeActivities() {
 		logger.debug("Initializing public portfolio activity wall");
-		
+
 		portfolioActivitiesDisplayer.initializeActivities();
 		logger.debug("Initialized public portfolio activity wall");
 	}
-	
+
 	public void refresh() {
-		
+
 	}
-	
+
 	public void loadMoreActivities() {
 		Map<String, String> parameters = new HashMap<String, String>();
-		parameters.put("context", "profile."+decodedId);
+		parameters.put("context", "profile." + decodedId);
 		parameters.put("link", "loadMore");
-		
+
 		portfolioActivitiesDisplayer.loadMoreActivities(parameters);
 	}
-	
+
 	public List<SocialActivityData> getAllActivities() {
-		return portfolioActivitiesDisplayer != null ? portfolioActivitiesDisplayer.getAllActivities() : new ArrayList<SocialActivityData>();
+		return portfolioActivitiesDisplayer != null ? portfolioActivitiesDisplayer.getAllActivities()
+				: new ArrayList<SocialActivityData>();
 	}
-	
+
 	public boolean isMoreToLoad() {
 		return portfolioActivitiesDisplayer.isMoreToLoad();
 	}
-	
+
 	/*
 	 * PARAMETERS
 	 */
 	private String id;
 	private long decodedId;
-	
+
 	public void setId(String id) {
 		this.id = id;
 	}
-	
+
 	public String getId() {
 		return id;
 	}
-	
+
 	/*
 	 * GETTERS/SETTERS
 	 */
@@ -352,7 +332,7 @@ public class PublicPortfolioBean implements Serializable {
 	public User getProfileOwner() {
 		return profileOwner;
 	}
-	
+
 	public UserData getProfileOwnerData() {
 		return profileOwnerData;
 	}
@@ -368,5 +348,5 @@ public class PublicPortfolioBean implements Serializable {
 	public List<AchievedCompetenceData> getOngoingCompetences() {
 		return ongoingCompetences;
 	}
-	
+
 }

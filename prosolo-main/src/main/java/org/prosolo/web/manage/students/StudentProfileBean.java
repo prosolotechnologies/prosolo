@@ -32,6 +32,7 @@ import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.datatopagemappers.SocialNetworksDataToPageMapper;
 import org.prosolo.web.portfolio.data.SocialNetworksData;
 import org.prosolo.web.students.data.StudentData;
 import org.prosolo.web.students.data.learning.ActivityData;
@@ -50,8 +51,8 @@ public class StudentProfileBean implements Serializable {
 	private static final long serialVersionUID = -569778470324074695L;
 
 	private static Logger logger = Logger.getLogger(StudentProfileBean.class);
-	
-	@Inject 
+
+	@Inject
 	private ObservationBean observationBean;
 	@Inject
 	private UrlIdEncoder idEncoder;
@@ -63,39 +64,37 @@ public class StudentProfileBean implements Serializable {
 	private LoggedUserBean loggedUserBean;
 	@Inject
 	private PortfolioManager portfolioManager;
-	@Inject 
+	@Inject
 	private CompetenceManager compManager;
 	@Inject
 	private EvaluationManager evalManager;
 
-	
 	private String id;
 	private long decodedId;
-	
+
 	private StudentData student;
 	private SocialNetworksData socialNetworksData;
-	
+
 	private List<LearningGoalData> lGoals;
 	private LearningGoalData selectedGoal;
-	
+
 	public void initStudent() {
 		decodedId = idEncoder.decodeId(id);
-		
+
 		if (decodedId > 0) {
 			try {
 				User user = userManager.loadResource(User.class, decodedId, true);
 				student = new StudentData(user);
-				
+
 				initLearningGoals();
-				
+
 				observationBean.setStudentId(decodedId);
 				observationBean.setStudentName(student.getName());
 				observationBean.setTargetGoalId(selectedGoal.getId());
 				observationBean.initializeObservationData();
-				
-				logger.info("User with id "+ 
-						loggedUserBean.getUser().getId() + 
-						" came to the studentProfile page for student with id " + decodedId);
+
+				logger.info("User with id " + loggedUserBean.getUser().getId()
+						+ " came to the studentProfile page for student with id " + decodedId);
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error(e);
 				try {
@@ -103,31 +102,32 @@ public class StudentProfileBean implements Serializable {
 				} catch (IOException ioe) {
 					ioe.printStackTrace();
 				}
-			} catch(DbConnectionException dbce){
+			} catch (DbConnectionException dbce) {
 				logger.error(dbce);
 				PageUtil.fireErrorMessage(dbce.getMessage());
-			} catch(Exception ex){
+			} catch (Exception ex) {
 				logger.error(ex);
 			}
-		}else{
+		} else {
 			try {
 				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
 			}
 		}
-		
+
 	}
-	
+
 	public void loadSocialNetworkData() {
 		try {
 			if (student.getInterests() == null) {
 				User user = new User();
 				user.setId(decodedId);
-				
-				TopicPreference topicPreference = (TopicPreference) userManager.getUserPreferences(user, TopicPreference.class);
+
+				TopicPreference topicPreference = (TopicPreference) userManager.getUserPreferences(user,
+						TopicPreference.class);
 				Set<Tag> preferredKeywords = topicPreference.getPreferredKeywords();
-				
+
 				student.addInterests(preferredKeywords);
 			}
 			if (socialNetworksData == null) {
@@ -144,11 +144,11 @@ public class StudentProfileBean implements Serializable {
 			lGoals = new ArrayList<>();
 			List<TargetLearningGoal> goals = portfolioManager.getAllGoals(decodedId);
 			boolean first = true;
-			
+
 			for (TargetLearningGoal tg : goals) {
 				LearningGoalData lgd = new LearningGoalData(tg);
 				lGoals.add(lgd);
-				
+
 				if (first) {
 					selectGoal(lgd);
 					first = false;
@@ -166,36 +166,38 @@ public class StudentProfileBean implements Serializable {
 				selectedGoal.setCompetences(null);
 			}
 			selectedGoal = goal;
-			
+
 			List<TargetCompetence> competences = compManager.getTargetCompetencesForTargetLearningGoal(goal.getId());
 			List<CompetenceData> compData = new ArrayList<>();
 			boolean first = true;
-			
+
 			for (TargetCompetence tg : competences) {
 				CompetenceData cd = new CompetenceData(tg);
-				long acceptedSubmissions = evalManager.getApprovedEvaluationCountForResource(TargetCompetence.class, cd.getId());
+				long acceptedSubmissions = evalManager.getApprovedEvaluationCountForResource(TargetCompetence.class,
+						cd.getId());
 				cd.setApprovedSubmissionNumber(acceptedSubmissions);
-				long rejectedSubmissions = evalManager.getRejectedEvaluationCountForResource(TargetCompetence.class, cd.getId());
+				long rejectedSubmissions = evalManager.getRejectedEvaluationCountForResource(TargetCompetence.class,
+						cd.getId());
 				cd.setRejectedSubmissionNumber(rejectedSubmissions);
 				boolean trophy = evalManager.hasAnyBadge(TargetCompetence.class, cd.getId());
 				cd.setTrophyWon(trophy);
 				compData.add(cd);
-				
+
 				if (first) {
 					selectCompetence(cd);
 					first = false;
 				}
 			}
 			selectedGoal.setCompetences(compData);
-			
-			//set selected target goal id to observation bean
+
+			// set selected target goal id to observation bean
 			observationBean.resetObservationData(selectedGoal.getId());
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error loading competences.");
 		}
 	}
-	
+
 	public void loadSubmissions(CompetenceData cd) {
 		try {
 			if (cd.getSubmissions() == null) {
@@ -217,11 +219,11 @@ public class StudentProfileBean implements Serializable {
 			if (selectedGoal.getSelectedCompetence() != null) {
 				selectedGoal.getSelectedCompetence().setActivities(null);
 			}
-			
+
 			selectedGoal.setSelectedCompetence(cd);
 			List<TargetActivity> activities = compManager.getTargetActivities(cd.getId());
 			List<ActivityData> actData = new ArrayList<>();
-			
+
 			for (TargetActivity ta : activities) {
 				if (ta != null) {
 					actData.add(new ActivityData(ta));
@@ -239,57 +241,19 @@ public class StudentProfileBean implements Serializable {
 		ud.setId(decodedId);
 		return ud;
 	}
-	
+
 	public void initSocialNetworks() {
 		if (socialNetworksData == null) {
-			logger.debug("Initializing social networks data for user "+decodedId);
-			
-			User user = new User();
-			user.setId(decodedId);
-			
-			UserSocialNetworks socialNetworks = socialNetworksManager.getSocialNetworks(user);
-			
-			socialNetworksData = new SocialNetworksData();
-			socialNetworksData.setId(socialNetworks.getId());
-			
-			SocialNetworkAccount twitterAccount = socialNetworks.getAccount(SocialNetworkName.TWITTER);
-			
-			if (twitterAccount != null) {
-				socialNetworksData.setTwitterLink(twitterAccount.getLink());
-				socialNetworksData.setTwitterLinkEdit(twitterAccount.getLink());
-			}
-			
-			SocialNetworkAccount facebookAccount = socialNetworks.getAccount(SocialNetworkName.FACEBOOK);
-			
-			if (facebookAccount != null) {
-				socialNetworksData.setFacebookLink(facebookAccount.getLink());
-				socialNetworksData.setFacebookLinkEdit(facebookAccount.getLink());
-			}
-			
-			SocialNetworkAccount gplusAccount = socialNetworks.getAccount(SocialNetworkName.GPLUS);
-			
-			if (gplusAccount != null) {
-				socialNetworksData.setGplusLink(gplusAccount.getLink());
-				socialNetworksData.setGplusLinkEdit(gplusAccount.getLink());
-			}
-			
-			SocialNetworkAccount blogAccount = socialNetworks.getAccount(SocialNetworkName.BLOG);
-			
-			if (blogAccount != null) {
-				socialNetworksData.setBlogLink(blogAccount.getLink());
-				socialNetworksData.setBlogLinkEdit(blogAccount.getLink());
-			}
+			socialNetworksData = new SocialNetworksDataToPageMapper(socialNetworksManager, loggedUserBean)
+					.mapDataToPageObject(socialNetworksData);
 		}
 	}
-	
+
 	public String getCompletedActivitiesServicePath() {
-		long compId = selectedGoal.getSelectedCompetence() != null ? 
-			selectedGoal.getSelectedCompetence().getId() : 0;
-		return Settings.getInstance().config.application.domain + 
-				"api/competences/" + compId +
-				"/activities";
+		long compId = selectedGoal.getSelectedCompetence() != null ? selectedGoal.getSelectedCompetence().getId() : 0;
+		return Settings.getInstance().config.application.domain + "api/competences/" + compId + "/activities";
 	}
-	
+
 	public ObservationBean getObservationBean() {
 		return observationBean;
 	}
@@ -317,7 +281,7 @@ public class StudentProfileBean implements Serializable {
 	public long getDecodedId() {
 		return decodedId;
 	}
-	
+
 	public long getDecodedId(String id) {
 		return idEncoder.decodeId(id);
 	}
@@ -350,5 +314,4 @@ public class StudentProfileBean implements Serializable {
 		this.selectedGoal = selectedGoal;
 	}
 
-	
 }

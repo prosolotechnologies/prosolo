@@ -7,11 +7,13 @@ import java.util.List;
 
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.services.authentication.AuthenticationService;
+import org.prosolo.services.authentication.PasswordEncrypter;
 import org.prosolo.services.authentication.exceptions.AuthenticationException;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
@@ -34,6 +36,8 @@ public class SpringSecurityAuthenticationServiceImpl implements AuthenticationSe
 	@Autowired private AuthenticationManager authenticationManager; // specific for Spring Security
 	@Autowired private UserManager userManager;
 	@Autowired private RoleManager roleManager;
+	@Inject
+	private PasswordEncrypter passwordEncrypter;
 	
 	//@Inject private TokenBasedRememberMeServices rememberMeService;
 
@@ -189,6 +193,8 @@ public class SpringSecurityAuthenticationServiceImpl implements AuthenticationSe
 		request.getSession(false).invalidate();
 	}
 
-
-	
+	@Override
+	public boolean checkPassword(String oldPassword, String newPassword) {
+		return passwordEncrypter.isPasswordValid(oldPassword, newPassword, null);
+	}
 }

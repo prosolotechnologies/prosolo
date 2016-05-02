@@ -8,9 +8,9 @@ package org.prosolo.common.domainmodel.user.socialNetworks;
  *
  */
 public enum SocialNetworkName {
-
 	TWITTER, 
 	FACEBOOK,
+	LINKEDIN,
 	GPLUS,
 	BLOG
 }
