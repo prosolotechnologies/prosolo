@@ -1,5 +1,6 @@
 .checkbox {
   padding-left: 20px;
+  margin-top: 8px;
 }
 .checkbox label {
   display: inline-block;

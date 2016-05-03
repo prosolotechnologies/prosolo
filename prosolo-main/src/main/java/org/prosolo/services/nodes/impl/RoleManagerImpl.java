@@ -117,29 +117,25 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 	public List<Role> getUserRoles(String email) {
 		String query = 
 				"SELECT role " +
-						"FROM User user " +
-						"LEFT JOIN user.email email " +
-						"LEFT JOIN user.roles role "+
-						"WHERE email.address = :email " ;
-						
-						
-			 
-		
-		@SuppressWarnings("unchecked")
-		List<Role> roles = persistence.currentManager().createQuery(query)
-			.setParameter("email", email)
-			.list();
-		
-		return roles;
+				"FROM User user " +
+				"LEFT JOIN user.roles role "+
+				"WHERE user.email = :email " ;
+							
+			@SuppressWarnings("unchecked")
+			List<Role> roles = persistence.currentManager().createQuery(query)
+				.setParameter("email", email)
+				.list();
+			
+			return roles;
 	}
 	
 	@Override
 	@Transactional (readOnly = true)
 	public Role getRoleByName(String roleName) {
 		String query = 
-				"SELECT r " +
-				"FROM Role r " +
-				"WHERE r.title = :name";
+			"SELECT r " +
+			"FROM Role r " +
+			"WHERE r.title = :name";
 		
 		return (Role) persistence.currentManager().createQuery(query)
 			.setParameter("name", roleName)

@@ -1,102 +1,76 @@
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:c="http://java.sun.com/jsp/jstl/core"
 	xmlns:comp="http://java.sun.com/jsf/composite/components"
-	xmlns:p="http://primefaces.org/ui">
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 
 <f:view transient="true" contentType="text/html">
 <h:head>
-	<meta http-equiv="content-type" content="text/html" charset="UTF-8"/>
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/style.css" />
-	<link rel="icon" href="#{request.contextPath}/favicon.ico" type="image/x-icon" />
-	<title>Login | ProSolo</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://use.typekit.net/zvv0dgl.js"></script>
+    <script>try{Typekit.load({ async: true });}catch(e){}</script>
+    <title>ProSolo - Sign in</title>
+    <link href="#{request.contextPath}/resources/css2/bootstrap.min.css" rel="stylesheet" />
+    <link href="#{request.contextPath}/resources/css2/awesome-bootstrap-checkbox.css" rel="stylesheet" />
+    <link href="#{request.contextPath}/resources/css2/style.css" rel="stylesheet" />
 </h:head>
 
-
-	<script>
-		$(function() {
-		    $('form:first input[type!=hidden]:first').focus();
-		});
-		
-		function showLoader() {
-			$('#loginloader').show();
-		}
-	</script>
+<f:metadata>
+   	<f:event type="preRenderView" listener="#{loginbean.checkIfLoggedIn}" />
+</f:metadata>
 	
-	<f:metadata>
-    	<f:event type="preRenderView" listener="#{loginbean.checkIfLoggedIn}" />
-	</f:metadata>
-
-	<div class="signContainer">
-		<div class="signTop">
-			<h1>
-				<h:link outcome="/login">
-					<span class="logo"></span>
-				</h:link>
-			</h1>
-		</div>
-		
-		<div class="signMain">
-			<h2 style="text-align: center;">Login</h2>
-			
-			<c:if test="#{applicationbean.config.application.maintenance}">
-				<div class="infoBlockYellowMessage maintenance">
-					The server is presently under maintenance and you can
-					experience some unexpected issues with the use of Pro Solo. The
-					maintenance will be finished within next few hours. We are sorry for
-					any inconvenience caused.
-				</div>
-			</c:if>
-			<!--[if lt IE 9]>
-				<div class="infoBlockYellowMessage"> 
-					Please note that ProSolo is not optimized for Internet Explorer 7 and 8. 
-					As a consequence, some functionalities may not work properly and the design
-					may be broken.
-				</div>
-			< ![endif]-->
-		
-			<c:if test="#{applicationbean.config.application.registration.google or 
-						applicationbean.config.application.registration.edx}">
-				<h:form prependId="false" id="openFormId">
-					<c:if test="${not empty param.openiderr}">
-						<font color="red">
-							<h:outputText value="#{param['openiderr']}" />
-						</font>
-					</c:if>
-					<div class="openIdProviders">
-						<c:if test="#{applicationbean.config.application.registration.google}">
-						    <h:commandLink
-				            	id="openidGmail" 
-				            	class="google"
-				            	action="#{loginbean.signinOpenidGoogle}" 
-				            />
-						</c:if>
-						
-						<c:if test="#{applicationbean.config.application.registration.edx}">
-				            <h:commandLink
-				            	id="openidEdx" 
-				            	class="edx"
-				            	action="#{loginbean.signinOpenidEDX}" 
-				            />
-			            </c:if>
-					 </div>
-				</h:form>
-			</c:if>
-			
-			<c:if test="#{(applicationbean.config.application.registration.google or 
-							applicationbean.config.application.registration.edx) and 
-						applicationbean.config.application.registration.selfRegistration}">
-				<div class="signInSeparator">
-					<span>Or sign in with your email</span>
-				</div>
-			</c:if>
-		
-			<c:if test="#{applicationbean.config.application.registration.selfRegistration}">
-				<form method="POST" 
-						action='loginspring'>
+<h:body>
+	
+    <div class="loginBox">
+        <div class="logo"></div>
+        <div class="whiteBox">
+            <div class="loginTop">
+                <h1>Sign in</h1>
+                
+                <c:if test="#{applicationbean.config.application.registration.google or 
+					applicationbean.config.application.registration.edx}">
+					
+					<h:form prependId="false" id="openFormId">
+		                <div class="buttonBox">
+		                	<c:if test="#{applicationbean.config.application.registration.google}">
+		                		<h:commandLink
+					            	id="openidGmail" 
+					            	class="btnGoogle"
+					            	action="#{loginbean.signinOpenidGoogle}">
+		                			<span></span>Sign in with Google
+	                			</h:commandLink>
+		                    </c:if>
+		                    
+		                    <c:if test="#{applicationbean.config.application.registration.edx}">
+		                    	<h:commandLink
+					            	id="openidEdx" 
+					            	class="btnedX"
+					            	action="#{loginbean.signinOpenidEDX}">
+					            	<span></span>Sign in with edX
+				            	</h:commandLink>
+		                    </c:if>
+		                </div>
+	                </h:form>
+                </c:if>
+		                
+                <c:if test="#{(applicationbean.config.application.registration.google or 
+								applicationbean.config.application.registration.edx) and 
+							applicationbean.config.application.registration.selfRegistration}">
+	                <div class="loginSeparator">
+	                    <span>or sign in with your email</span>
+	                </div>
+				</c:if>
+            </div>
+	            
+	           
+	        <c:if test="#{applicationbean.config.application.registration.selfRegistration}">
+				<form method="POST" action='loginspring'>
 					<c:if test="${not empty SPRING_SECURITY_LAST_EXCEPTION}">
       					<font color="red">
         			
@@ -109,51 +83,40 @@
 						</font>
 					</c:if>
 					<p:messages id="loginMessage" showDetail="false" autoUpdate="true" closable="true" />
-
-					<table>
-						<tr>
-							<td class="col1">
-								<label>Email:</label>
-							</td>
-							<td>
-								<h:inputText type="email" id="username" name="username" required="true" requiredMessage="Email is required." />
-							</td>
-						</tr>
-						<tr>
-							<td class="col1">
-								<label>Password:</label>
-							</td>
-							<td>
-								<h:inputSecret  id="password" name="password" required="true" requiredMessage="Password is required." />
-							</td>
-						</tr>
-						<tr>
-							<td class="col1">
-							</td>
-							<td>
-								<label class="right"><input type="checkbox" name="remember-me"/> Remember me</label>
-								<input id="loginButton" type="submit" class="button blue size30 left" value="Login" onclick="showLoader();"/>
-								<img class="loader left marginLeft10" src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" id="loginloader" />
-							</td>
-						</tr>
-					</table>
-				
-					<div class="clear"></div>
 					
-					<div class="buttonsLine">
+					<h:inputText type="email" id="username" name="username" pt:placeholder="Email address" 
+						required="true" requiredMessage="Email is required." />
+					
+	                <h:inputSecret id="password" name="password" pt:placeholder="Password" 
+	                	required="true" requiredMessage="Password is required." />
+	                
+					<div class="loginOpt">
+						<div class="checkbox checkLine">
+							<input type="checkbox" id="checkRemember" name="remember-me" />
+							<label for="checkRemember">Remember me</label>
+						</div>
+						<a href="login-forgot-password.html">Forgot Password?</a>
 					</div>
-					<div class="center clear">
-						<h:link value="Forgot password?" outcome="/passwordReset" />
-					</div>
+	                
+					<input id="loginButton" type="submit" class="btn btn-green" value="Sign in"/>
 				</form>
 			</c:if>
-		</div><!-- .main end -->
-		
-		<div class="clear"></div>
-	</div><!-- .signContainer end -->
-	
-	<comp:footer styleClass="public" />
+        </div>
+        
+        <div class="loginFooter">
+            <ul>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Terms</a></li>
+                <li><a href="#">Support</a></li>
+            </ul>
+            <p>ProSolo Technologies Inc @ 2016</p>
+        </div>
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="#{request.contextPath}/resources/javascript2/bootstrap.min.js"></script>
+</h:body>
 </f:view>
 </html>
-
-	

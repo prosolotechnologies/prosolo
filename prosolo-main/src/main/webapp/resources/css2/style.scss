@@ -66,6 +66,7 @@ a, a:focus{
 	text-decoration: none;
 	transition: all 0.2s ease;
 	-webkit-transition: all 0.2s ease;
+	outline: none!important;
 	&:hover{
 		color: darken($green, 10%);
 		text-decoration: none;
@@ -82,6 +83,12 @@ a, a:focus{
 		opacity: .5;
 		cursor: not-allowed;
 	}
+}
+
+ul{
+	list-style-position: inside;
+	padding-left: 0;
+	margin-bottom: 30px;
 }
 
 .btn{
@@ -353,7 +360,9 @@ input{
 	box-shadow: 0px 1px 2px 0px rgba(0,0,0,0.15);
 	@include rounded-corners(5px);
 	&.summaryCompetence,
-	&.messagesPane{
+	&.messagesPane,
+	&.activityLinksBox,
+	&.activityFilesBox{
 		padding: 0;
 		.innerWrapper{
 			padding: 30px 30px 0 30px;
@@ -361,6 +370,12 @@ input{
 	}
 	.mandatoryFlow &{
 		margin-bottom: 15px;
+	}
+	&.activityTextBox{
+		padding-bottom: 1px;
+	}
+	&.settingsEmailNotifications{
+		padding-bottom: 30px;
 	}
 }
 
@@ -614,6 +629,9 @@ input{
 		padding: 30px;
 		text-align: center;
 		position: relative;
+		&.alignLeft{
+			text-align: left;
+		}
 		.modal-title{
 			margin: 0;
 		}
@@ -629,23 +647,97 @@ input{
 			}
 		}
 	}
-
 	.modal-body{
 		padding: 0 30px;
 		text-align: center;
+		&.alignLeft{
+			text-align: left;
+		}
 		small{
 			color: $lightText;
 		}
 	}
-
 	.modal-footer{
 		border: none;
-		padding: 0 30px 20px 30px;
+		padding: 0 30px 30px 30px;
 		text-align: center;
+		&.alignLeft{
+			text-align: left;
+		}
 		.btn+.btn{
 			margin-left: 10px;
 		}
 	}
+}
+#askAssessment{
+	.assessmentModalMeta{
+		background: #F8F9FB;
+		border-top: 1px solid #EEEFF3;
+		border-bottom: 1px solid #EEEFF3;
+		display: flex;
+		flex-direction: column;
+		padding: 0 30px;
+		.assessmentModalMetaLine{
+			display: flex;
+			padding-top: 10px;
+			&:last-child{
+				padding-bottom: 10px;
+			}
+			.assessmentModalMetaLeft,
+			.assessmentModalMetaRight{
+				display: flex;
+				line-height: 32px;
+				align-items: center;
+				h3{
+					margin: 0;
+				}
+			}
+			.assessmentModalMetaLeft{
+				width: 80px;
+			}
+			.assessmentModalMetaRight img{
+				margin-right: 10px;
+			}
+		}
+	}
+	.modal-body textarea{
+		width: 100%;
+		height: 100px;
+		margin-top: 20px;
+		padding: 0;
+		border: none;
+		-webkit-box-shadow: none;
+		-moz-box-shadow: none;
+		box-shadow: none;
+	}
+}
+
+.alert{
+	border: none;
+	@include rounded-corners(5px);
+}
+
+.alert-success,
+.alert-info,
+.alert-warning,
+.alert-danger{
+	color: #fff;
+}
+
+.alert-success{
+	background: #87BA54;
+}
+
+.alert-info{
+	background: #5197D8;
+}
+
+.alert-warning{
+	background: #F2B24F;
+}
+
+.alert-danger{
+	background: #E45E5E;
 }
 
 /*--- FORM ELEMENTS ---*/
@@ -784,10 +876,11 @@ header{
 		.headerTopLeft{
 			display: flex;
 			#logo{
-				width: 100px;
+				width: 86px;
 				height: 30px;
 				margin: 15px 20px 15px 0;
-				background: #000;
+				background: url("../images2/logo.svg") no-repeat;
+				text-indent: -10000px;
 			}
 			nav{
 				height: 30px;
@@ -891,6 +984,102 @@ header{
 /*---------------------------------------------------------------------*/
 /*--- 03. MAIN  ---*/
 /*---------------------------------------------------------------------*/
+
+.loginBox{
+	width: 400px;
+	margin: 70px auto 0 auto;
+	.logo{
+		width: 143px;
+		height: 50px;
+		margin: 0 auto 20px auto;
+		background: url("../images2/logo-black.svg") no-repeat;
+		text-indent: -10000px;
+	}
+	.whiteBox{
+		margin-bottom: 20px;
+		.loginTop{
+			text-align: center;
+			.buttonBox a{
+				margin-bottom: 20px;
+				width: 100%;
+				height: 40px;
+				line-height: 22px;
+				padding: 10px 0;
+				display: flex;
+				justify-content: center;
+				color: $normalText;
+				@include rounded-corners(5px);
+				-webkit-box-shadow: 0px 0px 2px 0px rgba(0,0,0,0.15);
+				-moz-box-shadow: 0px 0px 2px 0px rgba(0,0,0,0.15);
+				box-shadow: 0px 0px 2px 0px rgba(0,0,0,0.15);
+				background: #ffffff;
+				background: -moz-linear-gradient(top,  #ffffff 0%, #fcfcfc 100%);
+				background: -webkit-linear-gradient(top,  #ffffff 0%,#fcfcfc 100%);
+				background: linear-gradient(to bottom,  #ffffff 0%,#fcfcfc 100%);
+				filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#fcfcfc',GradientType=0 );
+				&:hover{
+					color: $darkText;
+					background: #fff;
+				}
+				span{
+					height: 20px;
+					display: inline-block;
+					margin-right: 10px;
+				}
+				&.btnGoogle span{
+					width: 19px;
+					background: url("../images2/loginGoogle.svg") no-repeat center center;
+				}
+				&.btnedX span{
+					width: 43px;
+					background: url("../images2/loginedX.svg") no-repeat;
+				}
+			}
+			.loginSeparator{
+				width: 100%;
+				height: 20px;
+				margin-bottom: 30px;
+				background: url("../images2/loginSeparator.svg") no-repeat center 11px;
+				span{
+					padding: 0 10px;
+					background: #fff;
+				}
+			}
+		}
+		input{
+			width: 100%;
+			margin-bottom: 20px;
+		}
+		.loginOpt{
+			display: flex;
+			justify-content: space-between;
+			height: 41px;
+			margin-bottom: 10px;
+			align-items: center;
+		}
+		.bottomLine{
+			text-align: center;
+			font-size: 12px;
+			padding-bottom: 30px;
+		}
+		.btn{
+			width: 100%;
+			margin-bottom: 30px;
+		}
+	}
+	.loginFooter{
+		text-align: center;
+		font-size: 12px;
+		ul{
+			list-style: none;
+			margin-bottom: 0;
+			li{
+				padding: 0 10px;
+				display: inline;
+			}
+		}
+	}
+}
 
 .whiteBarContent{
 	.whiteBarLeft{
@@ -1176,56 +1365,6 @@ header{
 	}
 }
 
-// .activitiesList{
-// 	padding: 0;
-// 	.activityItem{
-// 		height: 60px;
-// 		padding: 0 30px;
-// 		border-bottom: 1px solid #EEEFF3;
-// 		.check,
-// 		.iconType,
-// 		.iconPlus{
-// 			float: left;
-// 			margin: 20px 20px 0 0;
-// 		}
-// 		h3{
-// 			float: left;
-// 			margin: 20px 10px 0 0;
-// 		}
-// 		.editOptions{
-// 			float: right;
-// 			margin-top: 20px;
-// 			.optMoreMenu{
-// 				margin-right: 10px;
-// 			}
-// 		}
-// 		.duration{
-// 			float: right;
-// 			margin-top: 20px;
-// 		}
-// 		&.addActivity{
-// 			display: block;
-// 			line-height: 60px;
-// 			border: none;
-// 			.iconPlus{
-// 				display: block;
-// 				width: 20px;
-// 				height: 20px;
-// 				background: url("../images2/iconPlus20.svg") no-repeat;
-// 				opacity: .5;
-// 				transition: all 0.2s ease;
-// 				-webkit-transition: all 0.2s ease;
-// 			}
-// 			&:hover .iconPlus{
-// 				opacity: 1;
-// 			}
-// 		}
-// 		&:last-child{
-// 			border-bottom: none;
-// 		}
-// 	}
-// }
-
 .activitiesList{
 	padding: 0;
 	.activityItem{
@@ -1295,9 +1434,9 @@ header{
 					color: $darkText;
 				}
 			}
-			&.active a{
-				color: $darkText;
-			}
+		}
+		&.active h3 a{
+			color: $darkText;
 		}
 	}
 }
@@ -1305,6 +1444,7 @@ header{
 .formLineRight{
 	.addedItems{
 		padding: 10px 0 2px 0;
+		margin-bottom: 10px;
 		list-style: none;
 		li{
 			margin-bottom: 10px;
@@ -1356,6 +1496,57 @@ header{
 	}
 }
 
+.activityMain{
+	margin-bottom: 30px;
+}
+
+.activityLinksBox,
+.activityFilesBox{
+	list-style: none;
+	li{
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		height: 100px;
+		padding: 0 30px 0 70px;
+		border-bottom: 1px solid #EEEFF3;
+		&:last-child{
+			border: none;
+		}
+		h3{
+			margin-bottom: 10px;
+		}
+		span{
+			font-size: 12px;
+		}
+		a{
+			width: 100px;
+		}
+	}
+}
+
+.activityLinksBox li{
+	background: url("../images2/iconLink20.svg") no-repeat 30px center;
+}
+
+.activityFilesBox li{
+	background: url("../images2/iconFile20.svg") no-repeat 30px center;
+}
+
+.uploadResultBox{
+	display: flex;
+	flex-direction: column;
+	height: 160px;
+	margin-bottom: 30px;
+	border: 1px dashed #D5D8DA;
+	@include rounded-corners(5px);
+	justify-content: center;
+	align-items: center;
+	h3, p{
+		margin-bottom: 10px;
+	}
+}
+
 .discussion{
 	h2{
 		display: inline-block;
@@ -1403,79 +1594,143 @@ header{
 			&.replyComment{
 				padding-top: 0;
 			}
-			h3{
-				margin-bottom: 10px;
-				span{
-					display: inline-block;
-					margin-left: 10px;
-					font-size: 11px;
-					border: 1px solid $orange;
-					height: 20px;
-					padding: 0 5px;
-					color: $orange;
-					@include rounded-corners(5px);
-				}
-			}
-			p{
-				margin-bottom: 10px;
-			}
-			.commentOptions{
-				display: flex;
-				a{
-					display: flex;
-					align-items: center;
-					color: $normalText;
-					font-weight: 400;
-					font-size: 13px;
-					margin-right: 20px;
-					.icon{
+			.commentMain{
+				position: relative;
+				h3{
+					margin-bottom: 10px;
+					position: relative;
+					span{
 						display: inline-block;
-						width: 12px;
-						height: 12px;
-						margin-right: 5px;
-						margin-bottom: 2px;
-						#triangle{
-							transition: all 0.2s ease;
-							-webkit-transition: all 0.2s ease;
-						}
+						margin-left: 10px;
+						font-size: 11px;
+						border: 1px solid $orange;
+						height: 20px;
+						padding: 0 5px;
+						color: $orange;
+						@include rounded-corners(5px);
 					}
-					&.reply{
+				}
+				.commentTime{
+					position: absolute;
+					top: 0;
+					right: 0;
+					font-size: 12px;
+					color: $lightText;
+					display: none;
+				}
+				&:hover > .commentTime{
+					display: block;
+				}
+				p{
+					margin-bottom: 10px;
+				}
+				.commentOptions{
+					display: flex;
+					a{
+						display: flex;
+						align-items: center;
+						color: $normalText;
+						font-weight: 400;
+						font-size: 13px;
+						margin-right: 20px;
 						.icon{
-							background: url("../images2/iconReply12.svg") no-repeat;
-							opacity: .5;
-							transition: all 0.2s ease;
-							-webkit-transition: all 0.2s ease;
+							display: inline-block;
+							width: 12px;
+							height: 12px;
+							margin-right: 5px;
+							margin-bottom: 2px;
+							#triangle{
+								transition: all 0.2s ease;
+								-webkit-transition: all 0.2s ease;
+							}
 						}
-						&:hover .icon{
-							opacity: 1;
+						&.reply{
+							.icon{
+								background: url("../images2/iconReply12.svg") no-repeat;
+								opacity: .5;
+								transition: all 0.2s ease;
+								-webkit-transition: all 0.2s ease;
+							}
+							&:hover .icon{
+								opacity: 1;
+							}
 						}
-					}
-					&.edit{
-						.icon{
-							background: url("../images2/iconEdit12.svg") no-repeat;
-							opacity: .5;
-							transition: all 0.2s ease;
-							-webkit-transition: all 0.2s ease;
+						&.edit{
+							.icon{
+								background: url("../images2/iconEdit12.svg") no-repeat;
+								opacity: .5;
+								transition: all 0.2s ease;
+								-webkit-transition: all 0.2s ease;
+							}
+							&:hover .icon{
+								opacity: 1;
+							}
 						}
-						&:hover .icon{
-							opacity: 1;
+						&:hover{
+							color: $darkText;
+							#triangle{
+								fill: $orange;
+							}
 						}
-					}
-					&:hover{
-						color: $darkText;
-						#triangle{
-							fill: $orange;
-						}
-					}
-					&.liked{
-						#triangle{
-							fill: $orange;
+						&.liked{
+							#triangle{
+								fill: $orange;
+							}
 						}
 					}
 				}
 			}
 		}
 	}
+}
+
+.twitterBtnBox{
+	padding-top: 20px;
+	.btnTwitterConnect, .btnTwitterConnect:focus{
+		float: left;
+		margin-right: 10px;
+		color: #fff;
+		background: #55ACEE;
+		border: 1px solid #55ACEE;
+		&:hover{
+			color: #fff;
+			background: darken(#55ACEE, 5%);
+			border-color: darken(#55ACEE, 5%);
+		}
+		span{
+			float: left;
+			margin: 8px 10px 0 0;
+			display: inline-block;
+			width: 16px;
+			height: 13px;
+			background: url("../images2/iconTwitter.svg") no-repeat;
+		}
+	}
+	small{
+		line-height: 16px;
+		display: block;
+	}
+}
+
+.yourPhotoContent{
+	display: flex;
+	padding-bottom: 30px;
+	img{
+		margin-right: 20px;
+	}
+	.chooseBtnBox{
+		.btn{
+			margin-bottom: 20px;
+		}
+	}
+}
+
+.settingsEmailNotifications .checkLine{
+	margin-bottom: 20px;
+}
+
+.settingsChangePassword .formLine{
+	width: 400px;
 }
 
 .messagesListHead{
@@ -1595,6 +1850,29 @@ header{
 				float: right;
 				margin: 20px 30px;
 			}
+			.linkApprove{
+				line-height: 24px;
+				margin: 18px 30px 0 0;
+				color: $lightText;
+				font-size: 13px;
+				span{
+					width: 24px;
+					height: 24px;
+					display: block;
+					float: right;
+					margin-left: 10px;
+					background: url("../images2/icon-approve.svg") no-repeat;
+					transition: all 0.2s ease;
+					-webkit-transition: all 0.2s ease;
+				}
+				&:hover,
+				&.approved{
+					color: $normalText;
+					span{
+						background: url("../images2/icon-approved.svg") no-repeat;
+					}
+				}
+			}
 			.toBox{
 				display: inline-block;
 				line-height: 60px;
@@ -1629,6 +1907,28 @@ header{
 			background: #F8F9FB;
 			border-top: 1px solid #EEEFF3;
 			border-bottom: 1px solid #EEEFF3;
+			.assessmentModalMetaLine{
+				display: flex;
+				padding-top: 10px;
+				&:last-child{
+					padding-bottom: 10px;
+				}
+				.assessmentModalMetaLeft,
+				.assessmentModalMetaRight{
+					display: flex;
+					line-height: 32px;
+					align-items: center;
+					h3{
+						margin: 0;
+					}
+				}
+				.assessmentModalMetaLeft{
+					width: 80px;
+				}
+				.assessmentModalMetaRight img{
+					margin-right: 10px;
+				}
+			}
 		}
 		.media{
 			.media-body{

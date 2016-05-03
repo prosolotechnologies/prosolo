@@ -27,17 +27,23 @@ font-weight: 400;
 color: #859095;
 margin-bottom: 30px;
 }
-.bootstrap-select > .dropdown-toggle:active{
+.bootstrap-select > .dropdown-toggle:hover {
+  background: #ffffff;
+background: -moz-linear-gradient(top,  #ffffff 0%, #fafafa 100%);
+background: -webkit-linear-gradient(top,  #ffffff 0%,#fafafa 100%);
+background: linear-gradient(to bottom,  #ffffff 0%,#fafafa 100%);
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#fafafa',GradientType=0 );
+}
+.bootstrap-select > .dropdown-toggle:active,
+.bootstrap-select > .dropdown-toggle:focus,
+.bootstrap-select > .dropdown-toggle:focus:hover{
     color: #859095;
-    background: #fff;
+    background: #fff!important;
     border: 1px solid #E6E7EC;
-    -webkit-box-shadow: inset 0px 1px 2px 0px rgba(0,0,0,0.1);
-	-moz-box-shadow: inset 0px 1px 2px 0px rgba(0,0,0,0.1);
-	box-shadow: inset 0px 1px 2px 0px rgba(0,0,0,0.1);
 }
 .open>.dropdown-toggle.btn-default:focus, .open>.dropdown-toggle.btn-default:hover{
     color: #859095;
-    background-color: #fff;
+    background-color: #fff!important;
     border: 1px solid #E6E7EC;
     -webkit-box-shadow: none;
 	-moz-box-shadow: none;

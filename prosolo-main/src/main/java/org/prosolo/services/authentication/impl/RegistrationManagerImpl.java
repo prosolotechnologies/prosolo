@@ -23,18 +23,18 @@ public class RegistrationManagerImpl extends AbstractManagerImpl implements Regi
 
 	@Override
 	@Transactional
-	public boolean isEmailAlreadyExists(String emailAddress) {
+	public boolean isEmailAlreadyExists(String email) {
 		String query = 
-				"SELECT count(email) " + 
-				"FROM Email email " + 
-				"WHERE email.address = :emailAddress ";
+				"SELECT count(user) " + 
+				"FROM User user " + 
+				"WHERE user.email = :email ";
 		
-		Long emailCount = (Long) persistence.currentManager().createQuery(query)
-				.setString("emailAddress", emailAddress)
+		Long userCount = (Long) persistence.currentManager().createQuery(query)
+				.setString("email", email)
 				.uniqueResult();
 		
-		if (emailCount != null) {
-			return emailCount > 0;
+		if (userCount != null) {
+			return userCount > 0;
 		}
 		return false;
 	}
