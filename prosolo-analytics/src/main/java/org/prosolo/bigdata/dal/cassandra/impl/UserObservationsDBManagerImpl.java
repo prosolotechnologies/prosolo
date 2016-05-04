@@ -73,7 +73,7 @@ implements Serializable, UserObservationsDBManager{
 		this.queries.put("insertUserquartilefeaturesbydate",
 				insertUserquartilefeaturesbydate);
 
-		String updateUserCurrentProfile  = "UPDATE profile_usercurrentprofileincourse SET profile=?, sequence=? WHERE course=? AND userid=?;";
+		String updateUserCurrentProfile  = "UPDATE profile_usercurrentprofileincourse SET profile=?, profilefullname=?, sequence=? WHERE course=? AND userid=?;";
 		this.queries.put("updateUserCurrentProfile",
 				updateUserCurrentProfile);
 
@@ -221,15 +221,16 @@ implements Serializable, UserObservationsDBManager{
 	}
 
 	@Override
-	public void updateUserCurrentProfile(Long courseid, Long userid, String profile, List<String> sequence) {
+	public void updateUserCurrentProfile(Long courseid, Long userid, String profile, String profilefullname, List<String> sequence) {
 		//profile=?, sequence=? WHERE course=? AND userid=?
 		BoundStatement boundStatement = new BoundStatement(
 				preparedStatements
 						.get("updateUserCurrentProfile"));
 		boundStatement.setString(0, profile);
-		boundStatement.setList(1,sequence);
-		boundStatement.setLong(2, courseid);
-		boundStatement.setLong(3,userid);
+		boundStatement.setString(1, profilefullname);
+		boundStatement.setList(2,sequence);
+		boundStatement.setLong(3, courseid);
+		boundStatement.setLong(4,userid);
 		this.getSession().execute(boundStatement);
 
 	}
@@ -251,7 +252,7 @@ implements Serializable, UserObservationsDBManager{
 				UserProfileFeatures.ProfileFeature feature=g.fromJson(featureStr,UserProfileFeatures.ProfileFeature.class);
 				features.add(feature);
 			}
-			profile=new UserProfileFeatures(row.getLong("course"),row.getLong("userid"),row.getString("profile"),features);
+			profile=new UserProfileFeatures(row.getLong("course"),row.getLong("userid"),row.getString("profile"),row.getString("profilefullname"),features);
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}

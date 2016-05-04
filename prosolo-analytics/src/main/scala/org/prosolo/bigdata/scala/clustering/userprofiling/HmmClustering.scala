@@ -124,7 +124,7 @@ class HmmClustering {
                 val jsonObject=Json.obj("featurename"->clusterTemplate.getFeatureName(i),"value"->clusterTemplate.getFeatureValue(i),"quartile"->sv.toString)
                 Json.stringify(jsonObject)}.toList.asJava
               println("T--SEQ:"+tSeq)
-              UserObservationsDBManagerImpl.getInstance().updateUserCurrentProfile(courseId,userid,bestCluster.get.toString,tSeq)
+              UserObservationsDBManagerImpl.getInstance().updateUserCurrentProfile(courseId,userid,bestCluster.get.toString,clusterTemplate.clusterFullName,tSeq)
             }
             case None=>println("NO BEST CLUSTER FOUND")
           }

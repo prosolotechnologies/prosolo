@@ -30,7 +30,7 @@ public interface UserObservationsDBManager {
 
 	void insertUserQuartileFeaturesByDate(Long courseid, Long date, Long userid, String profile, String sequence);
 
-	void updateUserCurrentProfile(Long courseid, Long userid, String profile, List<String> sequence);
+	void updateUserCurrentProfile(Long courseid, Long userid, String profile,String profilefullname,  List<String> sequence);
 
 	UserProfileFeatures findUserCurrentProfileInCourse(Long courseId, Long userId);
 

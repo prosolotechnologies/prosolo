@@ -39,6 +39,16 @@ public class UserProfileFeatures {
 
     private String profile;
 
+    public String getProfilefullname() {
+        return profilefullname;
+    }
+
+    public void setProfilefullname(String profilefullname) {
+        this.profilefullname = profilefullname;
+    }
+
+    private String profilefullname;
+
 
     public List<ProfileFeature> getFeatures() {
         return features;
@@ -50,10 +60,11 @@ public class UserProfileFeatures {
 
     private List<ProfileFeature> features;
 
-    public UserProfileFeatures(Long course, Long student, String profile, List<ProfileFeature> features){
+    public UserProfileFeatures(Long course, Long student, String profile, String profilefullname, List<ProfileFeature> features){
         this.course=course;
         this.student=student;
         this.profile=profile;
+        this.profilefullname=profilefullname;
         this.features=features;
 
     }
