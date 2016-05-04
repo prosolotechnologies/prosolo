@@ -3,6 +3,7 @@ package org.prosolo.bigdata.dal.cassandra.impl;
 import java.io.Serializable;
 import java.util.*;
 
+import com.google.gson.Gson;
 import org.prosolo.bigdata.common.dal.pojo.SocialInteractionsCount;
 import org.prosolo.bigdata.common.dal.pojo.UserProfileFeatures;
 import org.prosolo.bigdata.dal.cassandra.UserObservationsDBManager;
@@ -243,7 +244,14 @@ implements Serializable, UserObservationsDBManager{
 		try{
 			ResultSet rs = this.getSession().execute(boundStatement);
 			row = rs.one();
-			profile=new UserProfileFeatures(row.getLong("course"),row.getLong("userid"),row.getString("profile"),row.getList("sequence",String.class));
+			List<String> sequence=row.getList("sequence",String.class);
+			List<UserProfileFeatures.ProfileFeature> features=new ArrayList<UserProfileFeatures.ProfileFeature>();
+			Gson g=new Gson();
+			for(String featureStr:sequence){
+				UserProfileFeatures.ProfileFeature feature=g.fromJson(featureStr,UserProfileFeatures.ProfileFeature.class);
+				features.add(feature);
+			}
+			profile=new UserProfileFeatures(row.getLong("course"),row.getLong("userid"),row.getString("profile"),features);
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}

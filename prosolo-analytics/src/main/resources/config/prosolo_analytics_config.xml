@@ -70,8 +70,9 @@
 					<on-startup>true</on-startup>
 					<schedule>0 0 1 ? * SUN *</schedule><!--0 0 1 ? * SUN * every Sunday at 1AM-->
 					<properties>
-						<property name="name">xxx</property>
-						<property name="name2">yyy</property>
+						<property name="periodToCalculate">30</property>
+						<property name="numberOfClusters">4</property>
+						<property name="numberOfFeatures">12</property>
 					</properties>
 				</job>
 			</class>
