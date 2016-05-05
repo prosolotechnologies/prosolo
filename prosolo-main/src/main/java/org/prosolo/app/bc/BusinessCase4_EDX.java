@@ -279,11 +279,11 @@ public class BusinessCase4_EDX extends BusinessCase {
 //			RichContent rcA9 = ServiceLocator
 //					.getInstance()
 //					.getService(PostManager.class)
-//					.createRichContent("http://www.socialresearchmethods.net/kb/statdesc.php", true);
+//					.createRichContent("http://www.socialresearchmethods.net/kb/statdesc.php");
 			AttachmentPreview rcA9 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://www.socialresearchmethods.net/kb/statdesc.php", true);
+					.extractAttachmentPreview("http://www.socialresearchmethods.net/kb/statdesc.php");
 
 			Collection<Tag> a9Tags = new ArrayList<Tag>();
 
@@ -314,11 +314,11 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcA10 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://www.slideshare.net/christineshearer/univariate-analysis", true);
+					.extractAttachmentPreview("http://www.slideshare.net/christineshearer/univariate-analysis");
 //			RichContent rcA10 = ServiceLocator
 //					.getInstance()
 //					.getService(PostManager.class)
-//					.createRichContent("http://www.socqrl.niu.edu/myers/univariate.htm", true);
+//					.createRichContent("http://www.socqrl.niu.edu/myers/univariate.htm");
  
 			Collection<Tag> a10Tags = new ArrayList<Tag>();
 			try {
@@ -347,11 +347,11 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcA11 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://en.wikipedia.org/wiki/Data_collection", true);
+					.extractAttachmentPreview("http://en.wikipedia.org/wiki/Data_collection");
 //			RichContent rcA11 = ServiceLocator
 //					.getInstance()
 //					.getService(PostManager.class)
-//					.createRichContent("http://people.uwec.edu/piercech/researchmethods/data%20collection%20methods/data%20collection%20methods.htm", true);
+//					.createRichContent("http://people.uwec.edu/piercech/researchmethods/data%20collection%20methods/data%20collection%20methods.htm");
 			logger.info("initRepository");
 
 			Collection<Tag> a11Tags = new ArrayList<Tag>();
@@ -380,11 +380,11 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcA12 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://www.stat.yale.edu/Courses/1997-98/101/sampinf.htm", true);
+					.extractAttachmentPreview("http://www.stat.yale.edu/Courses/1997-98/101/sampinf.htm");
 //			RichContent rcA12 = ServiceLocator
 //					.getInstance()
 //					.getService(PostManager.class)
-//					.createRichContent("http://www.stat.yale.edu/Courses/1997-98/101/sampinf.htm", true);
+//					.createRichContent("http://www.stat.yale.edu/Courses/1997-98/101/sampinf.htm");
  
  
 			Collection<Tag> a12Tags = new ArrayList<Tag>();
@@ -440,7 +440,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcA1 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://www.uvm.edu/~dhowell/StatPages/Resampling/Resampling.html", true);
+					.extractAttachmentPreview("http://www.uvm.edu/~dhowell/StatPages/Resampling/Resampling.html");
  
 		 
 			
@@ -469,7 +469,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcA2 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://laboratory-manager.advanceweb.com/Columns/Interpreting-Statistics/Non-Parametric-Statistics.aspx", true);
+					.extractAttachmentPreview("http://laboratory-manager.advanceweb.com/Columns/Interpreting-Statistics/Non-Parametric-Statistics.aspx");
  
  
 
@@ -499,7 +499,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcA3 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://isomorphismes.tumblr.com/post/18913494015/probability-distributions", true);
+					.extractAttachmentPreview("http://isomorphismes.tumblr.com/post/18913494015/probability-distributions");
  
  
 			
@@ -529,7 +529,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcA4 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://www.mathwave.com/articles/distribution-fitting-graphs.html", true);
+					.extractAttachmentPreview("http://www.mathwave.com/articles/distribution-fitting-graphs.html");
  			Collection<Tag> a4Tags = new ArrayList<Tag>();
 			try {
 				a4Tags.add(getTag("statistics"));
@@ -675,7 +675,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcA5 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://records.viu.ca/~johnstoi/maybe/maybe3.htm", true);
+					.extractAttachmentPreview("http://records.viu.ca/~johnstoi/maybe/maybe3.htm");
   
  
 			Collection<Tag> a5Tags = new ArrayList<Tag>();
@@ -706,7 +706,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcA6 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://www.physics.csbsju.edu/stats/box2.html", true);
+					.extractAttachmentPreview("http://www.physics.csbsju.edu/stats/box2.html");
   
  
 			Collection<Tag> a6Tags = new ArrayList<Tag>();
@@ -736,7 +736,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcA7 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://wiki.stat.ucla.edu/socr/index.php/AP_Statistics_Curriculum_2007_EDA_DataTypes", true);
+					.extractAttachmentPreview("http://wiki.stat.ucla.edu/socr/index.php/AP_Statistics_Curriculum_2007_EDA_DataTypes");
   
 			Collection<Tag> a7Tags = new ArrayList<Tag>();
 			try {
@@ -765,7 +765,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcA8 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://wiki.stat.ucla.edu/socr/index.php/AP_Statistics_Curriculum_2007_Prob_Simul", true);
+					.extractAttachmentPreview("http://wiki.stat.ucla.edu/socr/index.php/AP_Statistics_Curriculum_2007_Prob_Simul");
   
 
 			Collection<Tag> a8Tags = new ArrayList<Tag>();
@@ -893,7 +893,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			}
 			
 			AttachmentPreview gephiHomepage = ServiceLocator.getInstance().getService(HTMLParser.class).
-					parseUrl(StringUtil.cleanHtml("https://gephi.org"));
+					extractAttachmentPreview(StringUtil.cleanHtml("https://gephi.org"));
 			
 			try {
 				ServiceLocator.getInstance().getService(CompetenceManager.class).
@@ -913,7 +913,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			}
 			
 			AttachmentPreview gephiDemoYoutubeLink= ServiceLocator.getInstance().getService(HTMLParser.class).
-					parseUrl(StringUtil.cleanHtml("http://www.youtube.com/watch?v=JgDYV5ArXgw"));
+					extractAttachmentPreview(StringUtil.cleanHtml("http://www.youtube.com/watch?v=JgDYV5ArXgw"));
 			
 			try {
 				ServiceLocator.getInstance().getService(CompetenceManager.class).
@@ -933,7 +933,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			}
 			
 			AttachmentPreview gephiPaper = ServiceLocator.getInstance().getService(HTMLParser.class).
-					parseUrl(StringUtil.cleanHtml("http://www.aaai.org/ocs/index.php/ICWSM/09/paper/view/154"));
+					extractAttachmentPreview(StringUtil.cleanHtml("http://www.aaai.org/ocs/index.php/ICWSM/09/paper/view/154"));
 			
 			try {
 				ServiceLocator.getInstance().getService(CompetenceManager.class).
@@ -1049,7 +1049,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 	 		AttachmentPreview rcA13 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://hsc.uwe.ac.uk/dataanalysis/quantinfasspear.asp", true);
+					.extractAttachmentPreview("http://hsc.uwe.ac.uk/dataanalysis/quantinfasspear.asp");
  
 			Collection<Tag> a13Tags = new ArrayList<Tag>();
 		
@@ -1079,7 +1079,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcA14 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://www.math.uah.edu/stat/sample/Covariance.html", true);
+					.extractAttachmentPreview("http://www.math.uah.edu/stat/sample/Covariance.html");
  			Collection<Tag> a14Tags = new ArrayList<Tag>();
 			try {
 				a14Tags.add(getTag("statistics"));
@@ -1109,7 +1109,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcA15 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://www.statisticshowto.com/articles/how-to-find-the-coefficient-of-determination/", true);
+					.extractAttachmentPreview("http://www.statisticshowto.com/articles/how-to-find-the-coefficient-of-determination/");
  			Collection<Tag> a15Tags = new ArrayList<Tag>();
 			try {
 				a15Tags.add(getTag("statistics"));
@@ -1138,7 +1138,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcA16 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://udel.edu/~mcdonald/statspearman.html", true);
+					.extractAttachmentPreview("http://udel.edu/~mcdonald/statspearman.html");
   
 
 			Collection<Tag> a16Tags = new ArrayList<Tag>();
@@ -1169,8 +1169,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcA17 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://www.statisticssolutions.com/academic-solutions/resources/directory-of-statistical-analyses/kendalls-tau-and-spearmans-rank-correlation-coefficient/", 
-							true);
+					.extractAttachmentPreview("http://www.statisticssolutions.com/academic-solutions/resources/directory-of-statistical-analyses/kendalls-tau-and-spearmans-rank-correlation-coefficient/");
  
 			Collection<Tag> a17Tags = new ArrayList<Tag>();
 			try {
@@ -1199,7 +1198,7 @@ public class BusinessCase4_EDX extends BusinessCase {
   			AttachmentPreview rcA18 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://www.apexdissertations.com/articles/point-biserial_correlation.html", true);
+					.extractAttachmentPreview("http://www.apexdissertations.com/articles/point-biserial_correlation.html");
  
 			Collection<Tag> a18Tags = new ArrayList<Tag>();
 			try {
@@ -1344,7 +1343,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcA19 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://www.apexdissertations.com/articles/point-biserial_correlation.html", true);
+					.extractAttachmentPreview("http://www.apexdissertations.com/articles/point-biserial_correlation.html");
  
 			Collection<Tag> a19Tags = new ArrayList<Tag>();
 			try {
@@ -1372,7 +1371,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcA20 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://explorable.com/partial-correlation-analysis.html", true);
+					.extractAttachmentPreview("http://explorable.com/partial-correlation-analysis.html");
  
 			Collection<Tag> a20Tags = new ArrayList<Tag>();
 			try {
@@ -1435,7 +1434,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcA21 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://exploringdata.net/sampling.htm", true);
+					.extractAttachmentPreview("http://exploringdata.net/sampling.htm");
  			
 
 			Collection<Tag> a21Tags = new ArrayList<Tag>();
@@ -1463,7 +1462,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcA22 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://www.khanacademy.org/math/statistics/v/introduction-to-the-normal-distribution", true);
+					.extractAttachmentPreview("http://www.khanacademy.org/math/statistics/v/introduction-to-the-normal-distribution");
  			
 			Collection<Tag> a22Tags = new ArrayList<Tag>();
 			try {
@@ -1746,7 +1745,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcAB1 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://www.mathsisfun.com/data/standard-normal-distribution.html", true);
+					.extractAttachmentPreview("http://www.mathsisfun.com/data/standard-normal-distribution.html");
  
 
 			Collection<Tag> ab1Tags = new ArrayList<Tag>();
@@ -1773,14 +1772,11 @@ public class BusinessCase4_EDX extends BusinessCase {
 				
 				logger.error(e4.getLocalizedMessage());
 			}
- 
 			
 			AttachmentPreview rcAB2 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://laboratory-manager.advanceweb.com/Columns/Interpreting-Statistics/Non-Parametric-Statistics.aspx", 
-							true);
- 
+					.extractAttachmentPreview("http://laboratory-manager.advanceweb.com/Columns/Interpreting-Statistics/Non-Parametric-Statistics.aspx");
 			
 			try {
 				@SuppressWarnings("unused")
@@ -1795,8 +1791,6 @@ public class BusinessCase4_EDX extends BusinessCase {
 				
 				logger.error(e4.getLocalizedMessage());
 			}
-			
- 
 			
 			try {
 				tc7 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tc7, ab1, true);
@@ -1884,7 +1878,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcACs = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://www.probabilitytheory.info/", true);
+					.extractAttachmentPreview("http://www.probabilitytheory.info/");
  
 
 			Activity ac1 = null;
@@ -1903,10 +1897,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 	 		AttachmentPreview rcAC2 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://www.vosesoftware.com/ModelRiskHelp/index.htm#Probability_theory_and_statistics/The_basics/Probability_equations/Probability_mass_function_%28pmf%29.htm", 
-						true);
-  
-			
+					.extractAttachmentPreview("http://www.vosesoftware.com/ModelRiskHelp/index.htm#Probability_theory_and_statistics/The_basics/Probability_equations/Probability_mass_function_%28pmf%29.htm");
 
 			Activity ac2 = null;
 			try {
@@ -2034,7 +2025,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcAD1 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://krypton.mnsu.edu/~tony/courses/502/Regression.html", true);
+					.extractAttachmentPreview("http://krypton.mnsu.edu/~tony/courses/502/Regression.html");
  
 			
  
@@ -2056,7 +2047,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcAD2 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://www.csse.monash.edu.au/~smarkham/resources/param.htm", true);
+					.extractAttachmentPreview("http://www.csse.monash.edu.au/~smarkham/resources/param.htm");
  
 			
 			
@@ -2204,7 +2195,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcBA1 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://www.jrsa.org/ibrrc/using-data/preparing_data/preparing-file/index.shtml", true);
+					.extractAttachmentPreview("http://www.jrsa.org/ibrrc/using-data/preparing_data/preparing-file/index.shtml");
  
  
 			logger.info("initRepository");
@@ -2237,7 +2228,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcBA2 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://www.jrsa.org/ibrrc/using-data/preparing_data/preparing-file/preparing_data.shtml", true);
+					.extractAttachmentPreview("http://www.jrsa.org/ibrrc/using-data/preparing_data/preparing-file/preparing_data.shtml");
  
 			
 			Activity ba2 = null;
@@ -2257,7 +2248,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcBA3 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://www.jrsa.org/ibrrc/using-data/preparing_data/preparing-file/reading_data.shtml", true);
+					.extractAttachmentPreview("http://www.jrsa.org/ibrrc/using-data/preparing_data/preparing-file/reading_data.shtml");
  
  
 
@@ -2367,7 +2358,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcBB2 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://www.chem1.com/acad/webtext/matmeasure/mm5.html", true);
+					.extractAttachmentPreview("http://www.chem1.com/acad/webtext/matmeasure/mm5.html");
  
  
 
@@ -2388,7 +2379,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcBB3 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://www.chem1.com/acad/webtext/matmeasure/mm1.html", true);
+					.extractAttachmentPreview("http://www.chem1.com/acad/webtext/matmeasure/mm1.html");
  
  
 
@@ -2504,7 +2495,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcBC1 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://www.nationalatlas.gov/articles/mapping/a_statistics.html", true);
+					.extractAttachmentPreview("http://www.nationalatlas.gov/articles/mapping/a_statistics.html");
  
 			
 			
@@ -2525,7 +2516,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcBC2 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://www.amstat.org/publications/jse/secure/v8n3/preston.cfm", true);
+					.extractAttachmentPreview("http://www.amstat.org/publications/jse/secure/v8n3/preston.cfm");
  
 			
 
@@ -2738,7 +2729,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcCA1 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://mste.illinois.edu/hill/dstat/dstat.html", true);
+					.extractAttachmentPreview("http://mste.illinois.edu/hill/dstat/dstat.html");
  
  
 
@@ -2770,7 +2761,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcCA2 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://psychology.ucdavis.edu/sommerb/sommerdemo/stat_inf/intro.htm", true);
+					.extractAttachmentPreview("http://psychology.ucdavis.edu/sommerb/sommerdemo/stat_inf/intro.htm");
  
  
 
@@ -2791,10 +2782,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcCA3 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://www.rgs.org/OurWork/Schools/Fieldwork+and+local+learning/Fieldwork+techniques/Sampling+techniques.htm", 
-							true);
- 
-			
+					.extractAttachmentPreview("http://www.rgs.org/OurWork/Schools/Fieldwork+and+local+learning/Fieldwork+techniques/Sampling+techniques.htm");
 
 			Activity ca3 = null;
 			try {
@@ -2847,7 +2835,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcCC1 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://www.psychwiki.com/wiki/Inferential_Statistics", true);
+					.extractAttachmentPreview("http://www.psychwiki.com/wiki/Inferential_Statistics");
  
 			
 			
@@ -2868,7 +2856,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcCC2 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://www.psychwiki.com/wiki/What_is_%22normality%22%3F", true);
+					.extractAttachmentPreview("http://www.psychwiki.com/wiki/What_is_%22normality%22%3F");
  
  
 
@@ -2899,7 +2887,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcCD1 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://www.psychwiki.com/wiki/Inferential_Statistics", true);
+					.extractAttachmentPreview("http://www.psychwiki.com/wiki/Inferential_Statistics");
  
 			logger.info("initRepository");
 			Activity cd1 = null;
@@ -2920,7 +2908,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			AttachmentPreview rcCD2 = ServiceLocator
 					.getInstance()
 					.getService(HTMLParser.class)
-					.parseUrl("http://en.wikipedia.org/wiki/Approximation_theory", true);
+					.extractAttachmentPreview("http://en.wikipedia.org/wiki/Approximation_theory");
 			logger.info("initRepository");
 			 Activity cd2 = null;
 			try {

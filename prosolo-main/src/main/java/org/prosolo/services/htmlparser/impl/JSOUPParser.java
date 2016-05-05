@@ -4,7 +4,6 @@
 package org.prosolo.services.htmlparser.impl;
 
 import java.awt.image.BufferedImage;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -44,88 +43,38 @@ public class JSOUPParser implements HTMLParser {
 	}
 	
 	@Override
-	public boolean checkIfValidLink(String link) {
+	public boolean checkIfValidUrl(String url) {
 		try {
-		    Jsoup.connect(link).get();
+		    Jsoup.connect(url).get();
 		    return true;
 		} catch (IOException e) {
 		   return false;
 		}
 	}
-
+	
 	@Override
-	public AttachmentPreview parseUrl(String pageUrl) {
+	public AttachmentPreview extractAttachmentPreview(String url) {
 		boolean withImages = true;
 		
-		if (pageUrl.contains("www.slideshare.net/")) {
+		if (url.contains("www.slideshare.net/")) {
 			withImages = false;
 		}
 		
-		return parseUrl(pageUrl, withImages);
-	}
-	
-	@Override
-	public AttachmentPreview parseUrl(String pageUrl, boolean withImages) {
-		logger.debug("Parsing URL '"+pageUrl+"'");
-		int currentAttempt = 0;
-		
-		while (currentAttempt <= numberOfAttempts) {
-			currentAttempt++;
-			try {
-				return tryParsingUrl(pageUrl, withImages);
-			} catch (SocketTimeoutException ste) {
-				logger.warn("Could not retrieve url '"+pageUrl+"' in attempt "+currentAttempt+
-						". Trying again. Error: "+ste.getMessage());
-			} catch (MalformedURLException e) {
-				logger.error("Malformed URL '"+pageUrl+"'.");
-				logger.debug("Checking whether protocol is missing for URL '"+pageUrl+"'.");
-				
-				if (!pageUrl.startsWith("http")) {
-					logger.debug("Adding 'http://' protocol to URL '"+pageUrl+"'.");
-					pageUrl = "http://"+pageUrl;
-				}
-			} catch (Exception e) {
-				logger.error("Error retrieving URL '"+pageUrl+"': "+e.getMessage());
-			}
-		}
-		
-		logger.error("Error parsing url '"+pageUrl+"'. Attempts tried "+numberOfAttempts);
-		return null;
+		return extractAttachmentPreview(url, withImages);
 	}
 
-	private AttachmentPreview tryParsingUrl(String pageUrl, boolean withImages)
-			throws MalformedURLException, IOException {
-		// creating URL instance just to check if the url is valid
-		URL url = new URL(pageUrl);
-		HttpURLConnection connection =(HttpURLConnection) url.openConnection();
-		HttpURLConnection.setFollowRedirects(true);
-		connection.setRequestProperty("User-Agent",
-				"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:25.0) Gecko/20100101 Firefox/25.0");
-		connection.setConnectTimeout(5000);
-		connection.setReadTimeout(10000);
-		HTTPSConnectionValidator.checkIfHttpsConnection((HttpURLConnection) connection);
-		String contentEncoding= connection.getContentEncoding();
-		 connection.connect();
-		 InputStream inputStream=null;
-		 Document document=null;
-		 try {
-				inputStream = connection.getInputStream();
-				
-			} catch (FileNotFoundException fileNotFoundException) {
-				logger.error("File not found for:" + url);
-			} catch (IOException ioException) {
-				logger.error("IO exception for:" + url + " cause:"
-						+ ioException.getLocalizedMessage()
-			);
+	public AttachmentPreview extractAttachmentPreview(String url, boolean withImages) {
+		Document document = parseUrl(url);
+		
+		if (document == null) {
+			return null;
 		}
-		if (inputStream != null) {
-					document=Jsoup.parse(inputStream, contentEncoding, pageUrl);
-		}
+		
 		AttachmentPreview htmlPage = new AttachmentPreview();
 		htmlPage.setInitialized(true);
 		
 		// link
-		htmlPage.setLink(pageUrl.toString());
+		htmlPage.setLink(url.toString());
 		
 		// title
 		htmlPage.setTitle(getHeadTag(document, "title"));
@@ -143,12 +92,71 @@ public class JSOUPParser implements HTMLParser {
 		return htmlPage;
 	}
 	
+	@Override
+	public String getPageTitle(String url) {
+		Document document = parseUrl(url);
+		
+		if (document == null) {
+			return null;
+		}
+		
+		return document.title();
+	}
+
+	@Override
+	public Document parseUrl(String url) {
+		logger.debug("Parsing URL '" + url + "'");
+		int currentAttempt = 0;
+		
+		while (currentAttempt <= numberOfAttempts) {
+			currentAttempt++;
+			
+			try {
+				return getPageContents(url);
+			} catch (SocketTimeoutException ste) {
+				logger.warn("Could not retrieve url '" + url + "' in attempt " + currentAttempt + ". Trying again. Error: " + ste.getMessage());
+			} catch (MalformedURLException e) {
+				logger.error("Malformed URL '" + url + "'.");
+				logger.debug("Checking whether protocol is missing for URL '" + url + "'.");
+				
+				if (!url.startsWith("http")) {
+					logger.debug("Adding 'http://' protocol to URL '" + url + "'.");
+					url = "http://" + url;
+				}
+			} catch (Exception e) {
+				logger.error("Error retrieving URL '" + url + "': " + e.getMessage());
+			}
+		}
+		
+		logger.error("Error parsing url '" + url + "'. Attempts tried " + numberOfAttempts);
+		return null;
+	}
+	
+	private Document getPageContents(String pageUrl) throws IOException {
+		HttpURLConnection.setFollowRedirects(true);
+
+		HttpURLConnection connection = (HttpURLConnection) new URL(pageUrl).openConnection();
+		connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:25.0) Gecko/20100101 Firefox/25.0");
+		connection.setConnectTimeout(5000);
+		connection.setReadTimeout(10000);
+		
+		HTTPSConnectionValidator.checkIfHttpsConnection((HttpURLConnection) connection);
+		
+		connection.connect();
+		InputStream inputStream = connection.getInputStream();
+		
+		if (inputStream != null) {
+			return Jsoup.parse(inputStream, connection.getContentEncoding(), pageUrl);
+		}
+		return null;
+	}
+	
 	private String getHeadTag(Document document, String attr) {
 		Elements elements = document.select(attr);
 		
 		for (Element element : elements) {
 			final String s = element.text();
-			if (s != null) 
+			if (s != null)
 				return s;
 		}
 		return null;
@@ -162,6 +170,7 @@ public class JSOUPParser implements HTMLParser {
 	        if (s != null) 
 	        	return s;
 	    }
+	    
 	    elements = document.select("meta[property=" + attr + "]");
 	    
 	    for (Element element : elements) {
@@ -208,31 +217,12 @@ public class JSOUPParser implements HTMLParser {
 	
 	@Override
 	public String getFirstImage(String pageUrl) throws IOException {
-		URL url=new URL(pageUrl);
-		HttpURLConnection connection =(HttpURLConnection) url.openConnection();
-		HttpURLConnection.setFollowRedirects(true);
-		connection.setRequestProperty("User-Agent",
-				"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:25.0) Gecko/20100101 Firefox/25.0");
-		connection.setConnectTimeout(5000);
-		connection.setReadTimeout(10000);
-		HTTPSConnectionValidator.checkIfHttpsConnection((HttpURLConnection) connection);
-		String contentEncoding= connection.getContentEncoding();
-		 connection.connect();
-		 InputStream inputStream=null;
-		 Document document=null;
-		 try {
-				inputStream = connection.getInputStream();
-				
-			} catch (FileNotFoundException fileNotFoundException) {
-				logger.error("File not found for:" + url);
-			} catch (IOException ioException) {
-				logger.error("IO exception for:" + url + " cause:"
-						+ ioException.getLocalizedMessage()
-			);
+		Document document = parseUrl(pageUrl);
+		
+		if (document == null) {
+			return null;
 		}
-		 if (inputStream != null) {
-				document=Jsoup.parse(inputStream, contentEncoding, pageUrl);
-	}
+		
 		Elements imgages = document.select("img[src]");
 		
 		for (Element imgElement : imgages) {
@@ -274,24 +264,18 @@ public class JSOUPParser implements HTMLParser {
 	}
 
 	public static Image getImage(String resourceFile) throws IOException, Exception {
-		URL url = new URL(resourceFile);
-	 
- 
-		
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		HttpURLConnection connection = (HttpURLConnection) new URL(resourceFile).openConnection();
 		HTTPSConnectionValidator.checkIfHttpsConnection((HttpURLConnection) connection);
 		connection.setConnectTimeout(3000);
 		connection.setReadTimeout(3000);
-	   // httpcon.addRequestProperty("User-Agent", "Mozilla/4.76");
 	    HttpURLConnection.setFollowRedirects(true);
-	    connection.setRequestProperty("User-Agent", 
-	          "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:10.0.2) Gecko/20100101 Firefox/10.0.2");
+	    connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:10.0.2) Gecko/20100101 Firefox/10.0.2");
 	    connection.connect();
 
 	    InputStream imageInputStream = connection.getInputStream();
 	 	BufferedImage bimg = ImageIO.read(imageInputStream);
-		// BufferedImage bimg = ImageIO.read(inStream);
-		if (bimg != null) {
+
+	 	if (bimg != null) {
 			int width          = bimg.getWidth();
 			int height         = bimg.getHeight();
 			return new Image(resourceFile, width, height);

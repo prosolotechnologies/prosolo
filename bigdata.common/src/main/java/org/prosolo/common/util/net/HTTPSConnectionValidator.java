@@ -14,19 +14,18 @@ import javax.net.ssl.TrustManager;
  */
 
 public class HTTPSConnectionValidator {
-	public static void checkIfHttpsConnection(HttpURLConnection connection){
+	public static void checkIfHttpsConnection(HttpURLConnection connection) {
 		if (connection instanceof HttpsURLConnection) {
-		    try {
-		       // KeyManager[] km = null;
-		        TrustManager[] tm = {new RelaxedX509TrustManager()};
-		        SSLContext sslContext = SSLContext.getInstance("SSL");
-		        sslContext.init(null, tm, new java.security.SecureRandom());
-		        SSLSocketFactory sf = sslContext.getSocketFactory();
-		        ((HttpsURLConnection)connection).setSSLSocketFactory(sf);
-	 
-		    }catch (java.security.GeneralSecurityException e) {
-		        System.out.println("GeneralSecurityException: "+e.getLocalizedMessage());
-		    }
+			try {
+				TrustManager[] tm = { new RelaxedX509TrustManager() };
+				SSLContext sslContext = SSLContext.getInstance("SSL");
+				sslContext.init(null, tm, new java.security.SecureRandom());
+				SSLSocketFactory sf = sslContext.getSocketFactory();
+				((HttpsURLConnection) connection).setSSLSocketFactory(sf);
+
+			} catch (java.security.GeneralSecurityException e) {
+				System.out.println("GeneralSecurityException: " + e.getLocalizedMessage());
+			}
 		}
 	}
 }

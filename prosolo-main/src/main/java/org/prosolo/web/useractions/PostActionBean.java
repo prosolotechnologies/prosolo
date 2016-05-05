@@ -251,7 +251,7 @@ public class PostActionBean implements Serializable {
 		if (linkString != null && linkString.length() > 0) {
 			logger.debug("User "+loggedUser.getUser()+" is fetching contents of a link: "+linkString);
 			
-			AttachmentPreview attachmentPreview = htmlParser.parseUrl(StringUtil.cleanHtml(linkString.trim()));
+			AttachmentPreview attachmentPreview = htmlParser.extractAttachmentPreview(StringUtil.cleanHtml(linkString.trim()));
 			
 			if (attachmentPreview != null) {
 				newPostData.setAttachmentPreview(attachmentPreview);

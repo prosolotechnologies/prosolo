@@ -2,6 +2,7 @@ package org.prosolo.services.htmlparser;
 
 import java.io.IOException;
 
+import org.jsoup.nodes.Document;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 
 
@@ -11,12 +12,14 @@ import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPrev
  */
 public interface HTMLParser {
 
-	boolean checkIfValidLink(String link);
+	boolean checkIfValidUrl(String url);
 
-	AttachmentPreview parseUrl(String pageUrl);
+	Document parseUrl(String url);
 
-	AttachmentPreview parseUrl(String pageUrl, boolean withImages);
+	String getFirstImage(String url) throws IOException;
 
-	String getFirstImage(String pageUrl) throws IOException;
+	AttachmentPreview extractAttachmentPreview(String url);
+
+	String getPageTitle(String url);
 
 }

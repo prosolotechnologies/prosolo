@@ -303,8 +303,7 @@ public class CompetenceActivitiesBean implements Serializable {
 		UrlValidator urlValidator = new UrlValidator();
 		boolean valid = urlValidator.isValid(ap.getLink());
 		if(valid) {
-			AttachmentPreview attachmentPreview = htmlParser.parseUrl(StringUtil.
-					cleanHtml(ap.getLink()));
+			AttachmentPreview attachmentPreview = htmlParser.extractAttachmentPreview(StringUtil.cleanHtml(ap.getLink()));
 			if(attachmentPreview != null) {
 				resourceResData.setAttachmentPreview(attachmentPreview);
 			} else {
@@ -425,8 +424,7 @@ public class CompetenceActivitiesBean implements Serializable {
 				taskExecutor.execute(new Runnable() {
 					@Override
 					public void run() {
-						AttachmentPreview attachmentPreview = htmlParser.parseUrl(StringUtil.
-								cleanHtml(richContent.getLink()));
+						AttachmentPreview attachmentPreview = htmlParser.extractAttachmentPreview(StringUtil.cleanHtml(richContent.getLink()));
 						try {
 							activityManager.updateRichContent(richContent.getId(), attachmentPreview.getTitle(), 
 									attachmentPreview.getDescription());

@@ -158,7 +158,7 @@ public class FeedsBean {
 	public void processPersonalBlogLink() {
 		String newPersonalBlogLink = addBlogSourceData.getLinkToAdd();
 
-		boolean validLink = htmlParser.checkIfValidLink(newPersonalBlogLink);
+		boolean validLink = htmlParser.checkIfValidUrl(newPersonalBlogLink);
 
 		RequestContext context = RequestContext.getCurrentInstance();
 
