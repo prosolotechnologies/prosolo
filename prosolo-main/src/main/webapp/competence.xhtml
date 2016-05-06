@@ -19,8 +19,8 @@
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewParam name="compId" value="#{competenceViewBean.id}" default="null" />
-			<f:viewParam name="targetCompId" value="#{competenceViewBean.targetId}" default="null"/>
+			<f:viewParam name="credId" value="#{competenceViewBean.credId}" default="null"/>
+			<f:viewParam name="compId" value="#{competenceViewBean.compId}" default="null"/>
 			<f:viewParam name="mode" value="#{competenceViewBean.mode}" default="null"/>
 			<f:viewAction action="#{competenceViewBean.init()}" />
 		</f:metadata>
@@ -41,20 +41,29 @@
         <div class="container">
             <div class="whiteBarContent">
                 <div class="whiteBarLeft">
-                	<ui:fragment rendered="#{competenceViewBean.competenceData.enrolled and !isPreview}">
+                	<ui:fragment rendered="#{competenceViewBean.competenceData.enrolled and 
+                		competenceViewBean.competenceData.progress lt 100 and !isPreview}">
                 		<h:link 
-                			value="#{competenceViewBean.competenceData.started ? 'Resume' : 'Start'}"
-                			styleClass="btn btn-green btn-sm">
-                			
+                			value="#{competenceViewBean.competenceData.progress != 0 ? 'Resume' : 'Start'}"
+                			styleClass="btn btn-green btn-sm"
+                			outcome="/activity">
+                			<f:param name="actId" value="#{util:encodeId(competenceViewBean.competenceData.nextActivityToLearnId)}"></f:param>
+			            	<f:param name="compId" value="#{param['compId']}"></f:param>
+			            	<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}"></f:param>
                 		</h:link>
                 	
 	                    <div class="progressBar">
 	                        <span>#{competenceViewBean.competenceData.progress}%</span>
 	                        <div class="progress">
-	                            <div class="progress-bar" role="progressbar" aria-valuenow="#{competenceViewBean.competenceData.enrolled}" aria-valuemin="0" aria-valuemax="100" style="width: #{competenceViewBean.competenceData.enrolled}%;">
+	                            <div class="progress-bar" role="progressbar" aria-valuenow="#{competenceViewBean.competenceData.progress}" aria-valuemin="0" aria-valuemax="100" style="width: #{competenceViewBean.competenceData.progress}%;">
 	                            </div>
 	                        </div>
 	                    </div>
+                	</ui:fragment>
+                	
+                	<ui:fragment rendered="#{competenceViewBean.competenceData.enrolled and 
+                		competenceViewBean.competenceData.progress == 100}">
+                		<div class="tagCompleted">Completed</div>
                 	</ui:fragment>
                     
                 </div>
@@ -73,21 +82,26 @@
     </div>
 
     <div class="container">
-    	<ui:fragment rendered="#{competenceViewBean.competenceData.enrolled}">
+    	<ui:fragment rendered="#{competenceViewBean.competenceData.credentialId != 0}">
     		<ol class="breadcrumb">
-	            <li><a href="#">Credentials</a></li>
+	            <li>
+	            	<h:link value="Credentials" outcome="/credentialLibrary"/>
+	            </li>
 	            <li>
 	            	<h:link 
 	            		value="#{competenceViewBean.competenceData.credentialTitle}"
 	            		outcome="/credential">
-	            		<f:param name="id" value="#{competenceViewBean.competenceData.credentialId}"></f:param>
+	            		<f:param name="id" value="#{util:encodeId(competenceViewBean.competenceData.credentialId)}"></f:param>
 	            	</h:link>
 	            </li>
 	            <li class="active">#{competenceViewBean.competenceData.title}</li>
 	        </ol>
     	</ui:fragment>
-        <ui:fragment rendered="#{!competenceViewBean.competenceData.enrolled}">
-    		<ol class="breadcrumb">	          
+        <ui:fragment rendered="#{competenceViewBean.competenceData.credentialId == 0}">
+    		<ol class="breadcrumb">	
+    			<li>
+	            	<a href="javascript:void(0);">Competences</a>
+	            </li>          
 	            <li class="active">#{competenceViewBean.competenceData.title}</li>
 	        </ol>
     	</ui:fragment>
@@ -98,14 +112,17 @@
             <div class="col-md-8">
                 <h2>About Competence</h2>
                 <p>#{competenceViewBean.competenceData.description}</p>
-                <courses:activityList
-                    		activities="#{competenceViewBean.competenceData.activities}"
-                    		bean="#{competenceViewBean}"
-                    		isEdit="false"
-                    		showMarkedIfCompleted="true"
-                    		isPreview="#{isPreview}"
-                />
-              
+                <div class="whiteBox activitiesList">
+	                <courses:activityList
+	                    		activities="#{competenceViewBean.competenceData.activities}"
+	                    		encodedCredentialId="#{param['credId']}"
+	                    		encodedCompetenceId="#{param['compId']}"
+	                    		bean="#{competenceViewBean}"
+	                    		isEdit="false"
+	                    		showMarkedIfCompleted="true"
+	                    		isPreview="#{isPreview}"
+	                />
+               </div>
                <post:comments 
                		id="comments"
                		learningContext="#{learningContext}"

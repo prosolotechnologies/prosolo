@@ -79,7 +79,11 @@
                                 </div>
                                 <div class="formLine">
                                     <label>Activity type</label>
-                                    <h:panelGroup id="panelSelectActivity" class="formLineRight">
+                                    <h:panelGroup 
+                                    	layout="block" 
+                                    	id="panelSelectActivity" 
+                                    	styleClass="formLineRight"
+                                    	rendered="#{activityEditBean.isCreateUseCase()}">
                                         <ul class="nav nav-tabs innerSubmenu" role="tablist">
                                         	<ui:repeat var="type" value="#{activityEditBean.activityTypes}">
                                         		<li role="presentation" class="#{activityEditBean.isActivityTypeSelected(type) ? 'active' : ''}">
@@ -95,6 +99,17 @@
                                         		</li>
                                         	</ui:repeat>   
                                         </ul>
+                                    </h:panelGroup>
+                                    <h:panelGroup 
+                                    	layout="block" 
+                                    	id="panelActivityType" 
+                                    	styleClass="formLineRight"
+                                    	rendered="#{!activityEditBean.isCreateUseCase()}">
+                                         <ul class="addedItems">
+                                             <li>
+                                                 #{activityEditBean.activityData.activityType.label}
+                                             </li>
+                                         </ul>        
                                     </h:panelGroup>
                                 </div>
                                 

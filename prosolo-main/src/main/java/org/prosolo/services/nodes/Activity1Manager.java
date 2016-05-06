@@ -8,6 +8,7 @@ import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.CompetenceData1;
 
 public interface Activity1Manager {
 	
@@ -42,7 +43,8 @@ public interface Activity1Manager {
 	 */
 	void publishDraftActivitiesWithoutDraftVersion(List<Long> actIds) throws DbConnectionException;
 	
-	List<CompetenceActivity1> getCompetenceActivities(long competenceId) throws DbConnectionException;
+	List<CompetenceActivity1> getCompetenceActivities(long competenceId, boolean loadResourceLinks) 
+			throws DbConnectionException;
 	
 	ActivityData getActivityDataForEdit(long activityId, long creatorId) throws DbConnectionException;
 	
@@ -51,5 +53,42 @@ public interface Activity1Manager {
 	Activity1 updateActivity(ActivityData data);
 	
 	Activity1 getOriginalActivityForDraft(long draftActivityId) throws DbConnectionException;
+	
+//	CompetenceData1 getTargetCompetenceActivitiesWithSpecifiedActivityInFocus(long targetActivityId) 
+//			throws DbConnectionException;
+	
+	/**
+	 * Returns activity with all details for specified id as well as all competence
+	 * activities and competence basic info (title). 
+	 * @param activityId
+	 * @param creatorId id of a logged in user that should be creator of activity if {@code shouldReturnDraft}
+	 * is true. If this id doesn not match activity creator id, null will be returned.
+	 * @param credId if greater than 0, credential title and id will be set in return result
+	 * @param shouldReturnDraft true if draft updates for activity with specified id should
+	 * be returned
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	 CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocus(long activityId, 
+				long creatorId, long credId, boolean shouldReturnDraft) throws DbConnectionException;
+
+	void saveAssignment(long targetActId, String fileName, String path) 
+			throws DbConnectionException;
+
+	/**
+	 * Updates activity flag to true. Also, progress of a competence that includes
+	 * activity is updated, as well as progress of target credential. Also, id of first unfinished
+	 * activity is set to credential and competence that includes this activity
+	 * @param targetActId
+	 * @param targetCompId
+	 * @param credId
+	 * @param userId
+	 * @throws DbConnectionException
+	 */
+	void completeActivity(long targetActId, long targetCompId, long credId, long userId) 
+			throws DbConnectionException;
+	
+	CompetenceData1 getFullTargetActivityOrActivityData(long credId, long compId, 
+			long actId, long userId) throws DbConnectionException;
 
 }

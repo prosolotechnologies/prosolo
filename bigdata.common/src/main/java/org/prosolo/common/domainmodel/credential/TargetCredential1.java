@@ -17,6 +17,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
@@ -51,6 +53,9 @@ public class TargetCredential1 extends BaseEntity {
 	private User createdBy;
 	
 	private Date dateCompleted;
+	
+	private long nextCompetenceToLearnId;
+	private long nextActivityToLearnId;
 	
 	public TargetCredential1() {
 		tags = new HashSet<>();
@@ -120,6 +125,7 @@ public class TargetCredential1 extends BaseEntity {
 	}
 
 	@OneToMany(mappedBy = "targetCredential")
+	@LazyCollection(LazyCollectionOption.EXTRA)
 	public List<TargetCompetence1> getTargetCompetences() {
 		return targetCompetences;
 	}
@@ -221,4 +227,21 @@ public class TargetCredential1 extends BaseEntity {
 	public void setDateCompleted(Date dateCompleted) {
 		this.dateCompleted = dateCompleted;
 	}
+
+	public long getNextActivityToLearnId() {
+		return nextActivityToLearnId;
+	}
+
+	public void setNextActivityToLearnId(long nextActivityToLearnId) {
+		this.nextActivityToLearnId = nextActivityToLearnId;
+	}
+
+	public long getNextCompetenceToLearnId() {
+		return nextCompetenceToLearnId;
+	}
+
+	public void setNextCompetenceToLearnId(long nextCompetenceToLearnId) {
+		this.nextCompetenceToLearnId = nextCompetenceToLearnId;
+	}
+	
 }

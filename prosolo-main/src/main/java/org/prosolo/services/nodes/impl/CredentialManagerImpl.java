@@ -13,6 +13,7 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Query;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Competence1;
@@ -793,6 +794,12 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				targetCred);
 		targetCred.setTargetCompetences(targetComps);
 		
+		/*
+		 * set first competence and first activity in first competence as next to learn
+		 */
+		targetCred.setNextCompetenceToLearnId(targetComps.get(0).getCompetence().getId());
+		targetCred.setNextActivityToLearnId(targetComps.get(0).getTargetActivities()
+				.get(0).getActivity().getId());
 		return targetCred;
 	}
 	
@@ -1274,6 +1281,152 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving credential ids");
+		}
+	}
+	
+	public void updateProgressForTargetCredentialWithCompetence(long targetCompId) throws DbConnectionException {
+		try {	
+			String query1 = "SELECT cred.id " +
+					"FROM TargetCompetence1 comp " +
+					"INNER JOIN comp.targetCredential cred " +
+					"WHERE comp.id = :compId";
+	
+			Long targetCredId =  (Long) persistence.currentManager()
+					.createQuery(query1)
+					.setLong("compId", targetCompId)
+					.uniqueResult();
+			
+			TargetCredential1 targetCred = (TargetCredential1) persistence.currentManager()
+					.load(TargetCredential1.class, targetCredId);
+			
+			String query = "SELECT comp.progress " +
+						   "FROM TargetCompetence1 comp " +
+						   "WHERE comp.targetCredential = :cred";
+			
+			@SuppressWarnings("unchecked")
+			List<Integer> res =  persistence.currentManager()
+				.createQuery(query)
+				.setEntity("cred", targetCred)
+				.list();
+			
+			if(res != null) {
+				int cumulativeProgress = 0;
+				for(Integer p : res) {
+					cumulativeProgress += p.intValue();
+				}
+				int newProgress = cumulativeProgress / res.size();
+				targetCred.setProgress(newProgress); 
+			}
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating credential progress");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void updateCredentialAndCompetenceProgressAndNextActivityToLearn(long credId, 
+			long targetCompId, long targetActIda, long userId) throws DbConnectionException {
+		try {
+			String query = "SELECT tCred.id, comp.id, tComp.id, act.id, tComp.progress, tAct.completed " +
+						   "FROM TargetCredential1 tCred " +
+						   "LEFT JOIN tCred.targetCompetences tComp " +
+						   "INNER JOIN tComp.competence comp " +
+						   "LEFT JOIN tComp.targetActivities tAct " +
+						   "INNER JOIN tAct.activity act " +
+						   "WHERE tCred.credential.id = :credId " +
+						   "AND tCred.user.id = :userId " +
+						   "ORDER BY tComp.order, tAct.order";
+		
+			@SuppressWarnings("unchecked")
+			List<Object[]> res =  persistence.currentManager()
+				.createQuery(query)
+				.setLong("credId", credId)
+				.setLong("userId", userId)
+				.list();
+			
+			long nextCompToLearnId = 0;
+			long nextActToLearnId = 0;
+			long currentCompId = 0;
+			int cumulativeCredProgress = 0;
+			int numberOfCompetencesInCredential = 0;
+			int cumulativeCompProgress = 0;
+			int numberOfActivitiesInACompetence = 0;
+			long nextActToLearnInACompetenceId = 0;
+			if(res != null) {
+				for(Object[] obj : res) {
+					long compId = (long) obj[1];
+					long tCompId = (long) obj[2];
+					long actId = (long) obj[3];
+					long compProgress = (int) obj[4];
+					boolean actCompleted = (boolean) obj[5];
+					
+					int progress = actCompleted ? 100 : 0;
+					if(tCompId != currentCompId) {
+						currentCompId = tCompId;
+						numberOfCompetencesInCredential ++;
+						if(tCompId != targetCompId) {
+							cumulativeCredProgress += compProgress;
+						}
+					}
+					if(tCompId == targetCompId) {
+						cumulativeCompProgress += progress;
+						numberOfActivitiesInACompetence ++;
+						if(nextActToLearnInACompetenceId == 0 && !actCompleted) {
+							nextActToLearnInACompetenceId = actId;
+						}
+					}
+					if(nextActToLearnId == 0 && !actCompleted) {
+						nextActToLearnId = actId;
+						nextCompToLearnId = compId;
+					}
+				}
+				
+				int finalCompProgress = cumulativeCompProgress / numberOfActivitiesInACompetence;
+				int finalCredProgress = (cumulativeCredProgress + finalCompProgress) 
+						/ numberOfCompetencesInCredential;
+				
+
+				String updateCredQuery = "UPDATE TargetCredential1 targetCred SET " +
+										 "targetCred.progress = :progress, " +
+										 "targetCred.nextCompetenceToLearnId = :nextCompToLearnId, " +
+										 "targetCred.nextActivityToLearnId = :nextActToLearnId " +
+										 "WHERE targetCred.id = :targetCredId";
+				persistence.currentManager()
+					.createQuery(updateCredQuery)
+					.setInteger("progress", finalCredProgress)
+					.setLong("nextCompToLearnId", nextCompToLearnId)
+					.setLong("nextActToLearnId", nextActToLearnId)
+					.setLong("targetCredId", (long) res.get(0)[0])
+					.executeUpdate();
+				
+				/*
+				 * Update competence progress and id of next activity to learn.
+				 * Next activity to learn should be updated if competence progress is not 100.
+				 * If competence is completed there is no need to update next activity to learn.
+				 */
+				StringBuilder builder = new StringBuilder();
+				builder.append("UPDATE TargetCompetence1 targetComp SET " +
+		 				 	   "targetComp.progress = :progress ");
+				if(finalCompProgress != 100) {
+					builder.append(", targetComp.nextActivityToLearnId = :nextActToLearnId ");
+				}
+				builder.append("WHERE targetComp.id = :targetCompId");
+				
+				Query q = persistence.currentManager()
+					.createQuery(builder.toString())
+					.setInteger("progress", finalCompProgress)
+					.setLong("targetCompId", targetCompId);
+				if(finalCompProgress != 100) {
+					q.setLong("nextActToLearnId", nextActToLearnInACompetenceId);
+				}
+				q.executeUpdate();
+			}
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating credential progress");
 		}
 	}
 	

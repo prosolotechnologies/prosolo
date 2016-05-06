@@ -88,6 +88,8 @@ public class CredentialDataFactory {
 		cred.setEnrolled(true);
 		cred.setTargetCredId(credential.getId());
 		cred.setProgress(credential.getProgress());
+		cred.setNextCompetenceToLearnId(credential.getNextCompetenceToLearnId());
+		cred.setNextActivityToLearnId(credential.getNextActivityToLearnId());
 		
 		if(shouldTrackChanges) {
 			cred.startObservingChanges();

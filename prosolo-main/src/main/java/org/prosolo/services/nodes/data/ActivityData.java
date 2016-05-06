@@ -20,6 +20,8 @@ public class ActivityData extends StandardObservable implements Serializable {
 	//target activity specific
 	private boolean enrolled;
 	private boolean completed;
+	private String assignmentLink;
+	private String assignmentTitle; 
 	
 	private int order;
 	private int durationHours;
@@ -41,6 +43,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 	//UrlActivity specific
 	private String link;
 	private String linkName;
+	private String embedId;
 	
 	//ExternalToolActivity specific
 	private String launchUrl;
@@ -59,6 +62,10 @@ public class ActivityData extends StandardObservable implements Serializable {
 		links = new ArrayList<>();
 		files = new ArrayList<>();
 		activityType = ActivityType.TEXT;
+	}
+	
+	public long getTargetOrRegularActivityId() {
+		return targetActivityId != 0 ? targetActivityId : activityId;
 	}
 	
 	/** 
@@ -348,6 +355,30 @@ public class ActivityData extends StandardObservable implements Serializable {
 	public void setText(String text) {
 		observeAttributeChange("text", this.text, text);
 		this.text = text;
+	}
+	
+	public String getAssignmentLink() {
+		return assignmentLink;
+	}
+
+	public void setAssignmentLink(String assignmentLink) {
+		this.assignmentLink = assignmentLink;
+	}
+
+	public String getAssignmentTitle() {
+		return assignmentTitle;
+	}
+
+	public void setAssignmentTitle(String assignmentTitle) {
+		this.assignmentTitle = assignmentTitle;
+	}
+	
+	public String getEmbedId() {
+		return embedId;
+	}
+
+	public void setEmbedId(String embedId) {
+		this.embedId = embedId;
 	}
 	
 	//change tracking get methods

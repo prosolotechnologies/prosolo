@@ -69,8 +69,8 @@ public interface Competence1Manager {
 			boolean loadTags, boolean includeNotPublished) 
 					throws DbConnectionException;
 	
-	CompetenceData1 getTargetCompetenceData(long targetCompId, boolean loadActivities, 
-			boolean loadCredentialTitle) throws DbConnectionException;
+//	CompetenceData1 getTargetCompetenceData(long targetCompId, boolean loadActivities, 
+//			boolean loadCredentialTitle) throws DbConnectionException;
 	
 	void updateTargetCompetencesWithChangedData(long compId, CompetenceChangeTracker changeTracker) 
 			throws DbConnectionException;
@@ -91,5 +91,20 @@ public interface Competence1Manager {
 	void updateDuration(long id, long duration, Operation op) throws DbConnectionException;
 	
 	String getCompetenceTitle(long id) throws DbConnectionException;
+
+	void updateProgressForTargetCompetenceWithActivity(long targetActId) 
+			throws DbConnectionException;
+	
+	/**
+	 * Returns full target competence data if user is enrolled, otherwise it returns
+	 * full competence data.
+	 * @param credId
+	 * @param compId
+	 * @param userId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	CompetenceData1 getFullTargetCompetenceOrCompetenceData(long credId, long compId, 
+			long userId) throws DbConnectionException;
 
 }

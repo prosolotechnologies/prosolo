@@ -2,6 +2,8 @@ package org.prosolo.web.courses;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
@@ -11,7 +13,10 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ResourceCreator;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -31,6 +36,7 @@ public class CredentialViewBean implements Serializable {
 	
 	@Inject private LoggedUserBean loggedUser;
 	@Inject private CredentialManager credentialManager;
+	@Inject private Activity1Manager activityManager;
 	@Inject private UrlIdEncoder idEncoder;
 
 	private String id;
@@ -40,7 +46,6 @@ public class CredentialViewBean implements Serializable {
 	
 	private CredentialData credentialData;
 
-	
 	public void init() {	
 		decodedId = idEncoder.decodeId(id);
 		if (decodedId > 0) {
@@ -94,6 +99,19 @@ public class CredentialViewBean implements Serializable {
 	/*
 	 * ACTIONS
 	 */
+	
+	public void loadCompetenceActivitiesIfNotLoaded(CompetenceData1 cd) {
+		if(!cd.isActivitiesInitialized()) {
+			List<ActivityData> activities = new ArrayList<>();
+			if(cd.isEnrolled()) {
+				activities = activityManager.getTargetActivitiesData(cd.getTargetCompId());
+			} else {
+				activities = activityManager.getCompetenceActivitiesData(cd.getCompetenceId());
+			}
+			cd.setActivities(activities);
+			cd.setActivitiesInitialized(true);
+		}
+	}
 	
 	public void enrollInCredential() {
 		try {

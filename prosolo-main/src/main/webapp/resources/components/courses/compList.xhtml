@@ -13,6 +13,7 @@
 
 	<composite:interface>
 		<composite:attribute name="competences" required="true" />
+		<composite:attribute name="credentialId" default="null" />
 		<composite:attribute name="bean" required="true" />
 		<composite:attribute name="isEdit" required="true" type="java.lang.Boolean" />
 		<composite:attribute name="startedLearning" required="true" type="java.lang.Boolean" />
@@ -21,7 +22,7 @@
 	
 	<composite:implementation>
 		 <div id="#{cc.clientId}">
-	     <ui:repeat var="comp" value="#{cc.attrs.competences}" varStatus="status">
+	     <ui:repeat id="compList" var="comp" value="#{cc.attrs.competences}" varStatus="status">
                 	<article class="whiteBox summaryCard summaryCompetence">
                     <div class="innerWrapper">
                         <h2>
@@ -30,17 +31,12 @@
                         		<h:panelGroup rendered="#{!comp.published}">(Draft)</h:panelGroup>
                         	</ui:fragment>
                         	<ui:fragment rendered="#{!cc.attrs.isEdit and !cc.attrs.isPreview}">
-                        		<h:link rendered="#{comp.enrolled}"
+                        		<h:link
                         			value="#{comp.title}"
                         			outcome="/competence">
                         			<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"/>
-                        			<f:param name="targetCompId" value="#{util:encodeId(comp.targetCompId)}"/>
-                        		</h:link>
-                        		<h:link rendered="#{!comp.enrolled}"
-                        			value="#{comp.title}"
-                        			outcome="/competence">
-                        			<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"/>
-                        		</h:link>                   
+                        			<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"/>
+                        		</h:link>                 
                         	</ui:fragment>
                         	<ui:fragment rendered="#{!cc.attrs.isEdit and cc.attrs.isPreview}">
                         		#{comp.title}     
@@ -99,29 +95,28 @@
                             	
                             	<ui:fragment rendered="#{!cc.attrs.isEdit and !cc.attrs.isPreview}">
                         			<ui:fragment rendered="#{cc.attrs.startedLearning}">
-		                            	<h:link 
-		                                	rendered="#{comp.progress == 0}"
-		                                	styleClass="btn btn-green btn-sm">
-		                                	Start
-		                                </h:link>
-		                                <h:link 
-		                                	rendered="#{comp.progress != 0 and comp.progress != 100}"
-		                                	styleClass="btn btn-green btn-sm">
-		                                	Resume
-		                                </h:link>
+                        				<h:link rendered="#{comp.progress lt 100}"
+				                			value="#{comp.progress != 0 ? 'Resume' : 'Start'}"
+				                			styleClass="btn btn-green btn-sm"
+				                			outcome="/activity">
+				                			<f:param name="actId" value="#{util:encodeId(comp.nextActivityToLearnId)}"></f:param>
+							            	<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"></f:param>
+							            	<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"></f:param>
+				                		</h:link>
+				                		<h:panelGroup layout="block" rendered="#{comp.progress lt 100}" styleClass="progressBar">
+		                                    <span>#{comp.progress}</span>
+		                                    <div class="progress">
+		                                        <div class="progress-bar" role="progressbar" aria-valuenow="#{comp.progress}" aria-valuemin="0" aria-valuemax="100" style="width: #{comp.progress}%;">
+		                                       </div>
+		                                    </div>
+	                                	</h:panelGroup>
 		                                <h:panelGroup 
 		                                	layout="block" 
 		                                	styleClass="tagCompleted"
-		                                	rendered="#{comp.progress == 100}">Completed</h:panelGroup>
+		                                	rendered="#{comp.progress == 100}">Completed
+		                                </h:panelGroup>
 	                            	</ui:fragment>
-	                            	
-	                            	<h:panelGroup rendered="#{cc.attrs.startedLearning}" styleClass="progressBar">
-	                                    <span>#{comp.progress}</span>
-	                                    <div class="progress">
-	                                        <div class="progress-bar" role="progressbar" aria-valuenow="#{comp.progress}" aria-valuemin="0" aria-valuemax="100" style="width: #{comp.progress}%;">
-	                                       </div>
-	                                    </div>
-                                	</h:panelGroup>
+
                         		</ui:fragment>
                             	
                             </div>
@@ -132,53 +127,47 @@
                     </div>
                     <div class="collapseActivityList">
                         <div id="comp#{comp.competenceId}" class="collapse">
+                        	<h:panelGroup id="actList">
                             <ul>
                             	<ui:repeat var="act" value="#{comp.activities}">
-                            		<li class="activityVideo">
-	                                    <a href="#">
+                            		<li class="#{styleUtilBean.getStyleClassBasedOnActivityType(act.activityType)}">
+	                                    <h:link outcome="/activity">
 	                                        <span class="iconType"></span>
-	                                        Aliquam vestibulum nulla commodo
+	                                        #{act.title}
 	                                        <ui:fragment rendered="#{!cc.attrs.isEdit and act.completed}">
 	                                        	<span class="check"></span>
 	                                        </ui:fragment>
-	                                    </a>
+	                                        <f:param name="actId" value="#{util:encodeId(act.activityId)}"/> 
+	                                        <f:param name="compId" value="#{util:encodeId(comp.competenceId)}"/>
+                        					<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"/>
+	                                    </h:link>
                                 	</li>
-                            	</ui:repeat>
-                                <li class="activityVideo">
-                                    <a href="#">
-                                        <span class="iconType"></span>
-                                        Aliquam vestibulum nulla commodo
-                                        <span class="check"></span>
-                                    </a>
-                                </li>
-                                <li class="activityText">
-                                    <a href="#">
-                                        <span class="iconType"></span>
-                                        Class aptent taciti sociosqu ad litora torquent
-                                        <span class="check"></span>
-                                    </a>
-                                </li>
-                                <li class="activitySlide">
-                                    <a href="#">
-                                        <span class="iconType"></span>
-                                        Quisque a nisl sed lacus laoreet dapibus
-                                        <span class="check"></span>
-                                    </a>
-                                </li>
-                                <li class="activityExternal">
-                                    <a href="#">
-                                        <span class="iconType"></span>
-                                        Cras pellentesque id sapien eu malesuada
-                                    </a>
-                                </li>
+                            	</ui:repeat>                         
                             </ul>
+                            </h:panelGroup>
                         </div>
-                        <a href="#comp#{comp.competenceId}" data-toggle="collapse" class="collapseButton collapsed">
-                            <span class="textShow">Show Activities</span>
-                            <span class="arrowDown">down</span>
-                            <span class="textHide">Hide Activities</span>
-                            <span class="arrowUp">up</span>
-                        </a>
+                        <h:panelGroup id="panelExpandActivityList">
+	                        <h:panelGroup rendered="#{comp.activitiesInitialized}">
+		                        <a href="javascript:void(0);" data-toggle="collapse" data-target="#comp#{comp.competenceId}" class="collapseButton collapsed">
+		                            <span class="textShow">Show Activities</span>
+		                            <span class="arrowDown">down</span>
+		                            <span class="textHide">Hide Activities</span>
+		                            <span class="arrowUp">up</span>
+		                        </a>
+	                        </h:panelGroup>
+	                        <p:commandLink  
+	                        	rendered="#{!comp.activitiesInitialized}"
+	                        	styleClass="collapseButton collapsed"
+	                        	process="@this"
+	                        	action="#{credentialViewBean.loadCompetenceActivitiesIfNotLoaded(comp)}"
+	                        	update=":#{cc.clientId}:compList:actList :#{cc.clientId}:compList:panelExpandActivityList"
+	                        	oncomplete="$('#comp#{comp.competenceId}').collapse();">
+		                            <span class="textShow">Show Activities</span>
+		                            <span class="arrowDown">down</span>
+		                            <span class="textHide">Hide Activities</span>
+		                            <span class="arrowUp">up</span>
+		                    </p:commandLink>
+	                    </h:panelGroup>
                     </div>
                		</article>
                		<h:panelGroup layout="block" rendered="#{cc.attrs.bean.hasMoreCompetences(status.index)}" styleClass="mandatoryArrow"></h:panelGroup>

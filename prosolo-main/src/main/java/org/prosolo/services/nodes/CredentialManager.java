@@ -130,5 +130,10 @@ public interface CredentialManager extends AbstractManager {
 
 	void updateDurationForCredentialsWithCompetence(long compId, long duration, Operation op)
 			throws DbConnectionException;
+
+	void updateProgressForTargetCredentialWithCompetence(long targetCompId) throws DbConnectionException;
+	
+	void updateCredentialAndCompetenceProgressAndNextActivityToLearn(long credId, 
+			long targetCompId, long targetActId, long userId) throws DbConnectionException;
 	
 }

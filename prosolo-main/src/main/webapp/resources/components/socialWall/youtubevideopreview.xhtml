@@ -11,26 +11,32 @@
 	xmlns:c="http://java.sun.com/jsp/jstl/core">
 
 	<composite:interface>
-		<composite:attribute name="attachmentPreview"
-			type="org.prosolo.web.activitywall.data.AttachmentPreview" />
+		<composite:attribute name="embedId" required="true"/>
 		<composite:attribute name="width" default="380" />
 		<composite:attribute name="height" default="270" />
 		<composite:attribute name="context" />
 	</composite:interface>
 	
 	<composite:implementation>
-	
-     	<div id="#{cc.attrs.attachmentPreview.id}" class="youtubevideodiv"></div>
+		<script src="https://www.youtube.com/iframe_api"/>
+		<script	src="#{request.contextPath}/resources/javascript/youtubevideo.js"></script>
+     	<div id="#{cc.attrs.embedId}" class="youtubevideodiv"></div>
 	  	<script>
-		  	$(function(){
-				initializeYouTubeAPI({
+		  	function initializeYTApi() {
+		  		initializeYouTubeAPI({
 					width: '#{cc.attrs.width}', 
 					height: '#{cc.attrs.height}',
 					container: '.youtubevideodiv',
 					context: '#{cc.attrs.context}',
 				});
-			});
+		  	}
+		</script>
+		<script>
+	  		window.onYouTubePlayerAPIReady = function() {
+	  			initializeYTApi();
+            };
 		</script>
 
+		
 	</composite:implementation>
 </ui:component>

@@ -2,6 +2,7 @@ package org.prosolo.web.courses;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.ExternalContext;
@@ -101,6 +102,32 @@ public class ActivityEditBean implements Serializable {
 		logger.info("Loaded activity data for activity with id "+ id);
 	}
 	
+	public boolean isLinkListEmpty() {
+		List<ResourceLinkData> links = activityData.getLinks();
+		if(links == null || links.isEmpty()) {
+			return true;
+		}
+		for(ResourceLinkData rl : links) {
+			if(rl.getStatus() != ObjectStatus.REMOVED) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	public boolean isFileListEmpty() {
+		List<ResourceLinkData> files = activityData.getFiles();
+		if(files == null || files.isEmpty()) {
+			return true;
+		}
+		for(ResourceLinkData rl : files) {
+			if(rl.getStatus() != ObjectStatus.REMOVED) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	public boolean isActivityTypeSelected(ActivityType type) {
 		return type == activityData.getActivityType();
 	}
@@ -140,6 +167,10 @@ public class ActivityEditBean implements Serializable {
 		rl.setStatus(ObjectStatus.CREATED);
 		activityData.getLinks().add(rl);
 		linkToAdd = "";
+	}
+	
+	public boolean isCreateUseCase() {
+		return activityData.getActivityId() == 0;
 	}
 	
 	/*

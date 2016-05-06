@@ -22,6 +22,8 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	private int order;
 	private boolean published;
 	private PublishedStatus status;
+	private ActivityData activityToShowWithDetails;
+	private boolean activitiesInitialized;
 	private List<ActivityData> activities;
 	private Set<Tag> tags;
 	private String tagsString;
@@ -29,11 +31,10 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	//true if this is data for draft version of credential
 	private boolean draft;
 	
-	private long resumeFromId;
 	private boolean enrolled;
-	private boolean started;
 	private long targetCompId;
 	private int progress;
+	private long nextActivityToLearnId;
 	private ResourceCreator creator;
 	
 	private long credentialId;
@@ -61,31 +62,6 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 			}
 		}
 		return changed;
-	}
-	
-	/**
-	 * Called when you need to determine if learning started for this
-	 * competence. After calling this method {@link #isStarted()} method
-	 * will tell you if user started learning.
-	 */
-	public void determineIfStartedWorkingOnCompetence() {
-		if(!getActivities().isEmpty()) {
-			setStarted(getActivities().get(0).isCompleted());
-		}
-	}
-	
-	/**
-	 * Called when you want to set id of first uncompleted activity in a
-	 * competence. After calling this method, {@link #getResumeFromId()} 
-	 * will give you id of first uncompleted activity
-	 */
-	public void determineActivityFromWhichToStartLearning() {
-		for(ActivityData bad : getActivities()) {
-			if(!bad.isCompleted()) {
-				setResumeFromId(bad.getActivityId());
-				break;
-			}
-		}
 	}
 	
 	/** 
@@ -175,6 +151,14 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	public void setOrder(int order) {
 		observeAttributeChange("order", this.order, order);
 		this.order = order;
+	}
+
+	public ActivityData getActivityToShowWithDetails() {
+		return activityToShowWithDetails;
+	}
+
+	public void setActivityToShowWithDetails(ActivityData activityToShowWithDetails) {
+		this.activityToShowWithDetails = activityToShowWithDetails;
 	}
 
 	public List<ActivityData> getActivities() {
@@ -347,20 +331,20 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 		this.credentialTitle = credentialTitle;
 	}
 
-	public boolean isStarted() {
-		return started;
+	public boolean isActivitiesInitialized() {
+		return activitiesInitialized;
 	}
 
-	public void setStarted(boolean started) {
-		this.started = started;
+	public void setActivitiesInitialized(boolean activitiesInitialized) {
+		this.activitiesInitialized = activitiesInitialized;
 	}
 
-	public long getResumeFromId() {
-		return resumeFromId;
+	public long getNextActivityToLearnId() {
+		return nextActivityToLearnId;
 	}
 
-	public void setResumeFromId(long resumeFromId) {
-		this.resumeFromId = resumeFromId;
+	public void setNextActivityToLearnId(long nextActivityToLearnId) {
+		this.nextActivityToLearnId = nextActivityToLearnId;
 	}
-	
+
 }

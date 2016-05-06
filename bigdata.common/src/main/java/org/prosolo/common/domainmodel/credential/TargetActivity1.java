@@ -9,6 +9,8 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.prosolo.common.domainmodel.general.BaseEntity;
 
@@ -119,6 +121,7 @@ public class TargetActivity1 extends BaseEntity {
 		this.uploadAssignment = uploadAssignment;
 	}
 
+	@Temporal(TemporalType.TIMESTAMP)
 	public Date getDateCompleted() {
 		return dateCompleted;
 	}

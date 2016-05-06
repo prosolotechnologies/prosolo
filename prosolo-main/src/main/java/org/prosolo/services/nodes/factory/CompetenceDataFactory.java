@@ -73,6 +73,7 @@ public class CompetenceDataFactory {
 		comp.setTargetCompId(competence.getId());
 		comp.setEnrolled(true);
 		comp.setProgress(competence.getProgress());
+		comp.setNextActivityToLearnId(competence.getNextActivityToLearnId());
 		if(user != null) {
 			ResourceCreator creator = new ResourceCreator(user.getId(), 
 					getFullName(user.getName(), user.getLastname()),

@@ -109,8 +109,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 
-	
-
 	@Override
 	@Transactional(readOnly = false)
 	public Competence1 deleteCompetence(long originalCompId, CompetenceData1 data, User user) 
@@ -237,8 +235,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 			if (res != null) {
 				for (TargetCompetence1 targetComp : res) {
+					Set<Tag> tags = loadTags ? targetComp.getTags() : null;
 					CompetenceData1 compData = competenceFactory.getCompetenceData(
-							targetComp.getCreatedBy(), targetComp, targetComp.getTags(), null, true);
+							targetComp.getCreatedBy(), targetComp, tags, null, true);
 					result.add(compData);
 				}
 			}
@@ -297,6 +296,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				comp.getId(), targetComp);
 		targetComp.setTargetActivities(targetActivities);
 		
+		/*
+		 * set first activity as next to learn
+		 */
+		targetComp.setNextActivityToLearnId(targetActivities.get(0).getActivity().getId());
 		return targetComp;
 	}
 	
@@ -735,58 +738,58 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
-	@Override
-	@Transactional(readOnly = true)
-	public CompetenceData1 getTargetCompetenceData(long targetCompId, boolean loadActivities, 
-			boolean loadCredentialTitle) throws DbConnectionException {
-		CompetenceData1 compData = null;
-		try {			
-			String query = "SELECT targetComp " +
-						   "FROM TargetCompetence1 targetComp " + 
-						   "INNER JOIN fetch targetComp.createdBy user " + 
-						   "LEFT JOIN fetch targetComp.tags tags " +
-						   "WHERE targetComp.id = :id";
-
-			TargetCompetence1 res = (TargetCompetence1) persistence.currentManager()
-					.createQuery(query)
-					.setLong("id", targetCompId)
-					.uniqueResult();
-
-			if (res != null) {
-				Credential1 cred = null;
-				if(loadCredentialTitle) {
-					String query1 = "SELECT cred.id, cred.title " +
-									"FROM TargetCompetence1 comp " +
-									"INNER JOIN TargetCredential1 targetCred " +
-									"INNER JOIN targetCred.credential cred " +
-									"WHERE comp = :comp";
-					Object[] credentialData = (Object[]) persistence.currentManager()
-							.createQuery(query1)
-							.setEntity("comp", res)
-							.uniqueResult();
-					
-					cred = new Credential1();
-					cred.setId((long) credentialData[0]);
-					cred.setTitle((String) credentialData[1]);
-					
-				}
-				compData = competenceFactory.getCompetenceData(res.getCreatedBy(), res, 
-						res.getTags(), cred, true);
-				
-				if(compData != null && loadActivities) {
-					List<ActivityData> activities = activityManager
-							.getTargetActivitiesData(targetCompId);
-					compData.setActivities(activities);
-				}
-				return compData;
-			}
-			return null;
-		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while loading competence data");
-		}
-	}
+//	@Override
+//	@Transactional(readOnly = true)
+//	public CompetenceData1 getTargetCompetenceData(long targetCompId, boolean loadActivities, 
+//			boolean loadCredentialTitle) throws DbConnectionException {
+//		CompetenceData1 compData = null;
+//		try {			
+//			String query = "SELECT targetComp " +
+//						   "FROM TargetCompetence1 targetComp " + 
+//						   "INNER JOIN fetch targetComp.createdBy user " + 
+//						   "LEFT JOIN fetch targetComp.tags tags " +
+//						   "WHERE targetComp.id = :id";
+//
+//			TargetCompetence1 res = (TargetCompetence1) persistence.currentManager()
+//					.createQuery(query)
+//					.setLong("id", targetCompId)
+//					.uniqueResult();
+//
+//			if (res != null) {
+//				Credential1 cred = null;
+//				if(loadCredentialTitle) {
+//					String query1 = "SELECT cred.id, cred.title " +
+//									"FROM TargetCompetence1 comp " +
+//									"INNER JOIN comp.targetCredential targetCred " +
+//									"INNER JOIN targetCred.credential cred " +
+//									"WHERE comp = :comp";
+//					Object[] credentialData = (Object[]) persistence.currentManager()
+//							.createQuery(query1)
+//							.setEntity("comp", res)
+//							.uniqueResult();
+//					
+//					cred = new Credential1();
+//					cred.setId((long) credentialData[0]);
+//					cred.setTitle((String) credentialData[1]);
+//					
+//				}
+//				compData = competenceFactory.getCompetenceData(res.getCreatedBy(), res, 
+//						res.getTags(), cred, true);
+//				
+//				if(compData != null && loadActivities) {
+//					List<ActivityData> activities = activityManager
+//							.getTargetActivitiesData(targetCompId);
+//					compData.setActivities(activities);
+//				}
+//				return compData;
+//			}
+//			return null;
+//		} catch (Exception e) {
+//			logger.error(e);
+//			e.printStackTrace();
+//			throw new DbConnectionException("Error while loading competence data");
+//		}
+//	}
 	
 	@Override
 	@Transactional(readOnly = true)
@@ -999,7 +1002,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	    
 		saveEntity(draftComp);	
 
-		List<CompetenceActivity1> activities = activityManager.getCompetenceActivities(originalCompId);
+		List<CompetenceActivity1> activities = activityManager
+				.getCompetenceActivities(originalCompId, true);
 	    if(activities != null) {
     		for(CompetenceActivity1 ca : activities) {
     			CompetenceActivity1 ca1 = new CompetenceActivity1();
@@ -1055,6 +1059,154 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving competence title");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void updateProgressForTargetCompetenceWithActivity(long targetActId) 
+			throws DbConnectionException {
+		try {
+			String query1 = "SELECT comp.id " +
+							"FROM TargetActivity1 act " +
+							"INNER JOIN act.targetCompetence comp " +
+							"WHERE act.id = :actId";
+			
+			Long targetCompId =  (Long) persistence.currentManager()
+					.createQuery(query1)
+					.setLong("actId", targetActId)
+					.uniqueResult();
+			
+			TargetCompetence1 targetComp = (TargetCompetence1) persistence.currentManager()
+					.load(TargetCompetence1.class, targetCompId);
+			
+			String query = "SELECT CASE act.completed " +
+							   "WHEN true then 100 " +
+							   "else 0 " + 
+							   "END " +
+						   "FROM TargetActivity1 act " +
+						   "WHERE act.targetCompetence = :comp";
+			
+			@SuppressWarnings("unchecked")
+			List<Integer> res =  persistence.currentManager()
+				.createQuery(query)
+				.setEntity("comp", targetComp)
+				.list();
+			
+			if(res != null) {
+				int cumulativeProgress = 0;
+				for(Integer p : res) {
+					cumulativeProgress += p.intValue();
+				}
+				int newProgress = cumulativeProgress / res.size();
+				targetComp.setProgress(newProgress); 
+				persistence.currentManager().flush();
+				
+				credentialManager.updateProgressForTargetCredentialWithCompetence(targetCompId);
+			}
+			
+//			String query = "UPDATE TargetCompetence1 comp SET " +
+//			   "comp.progress = comp.progress + :progress / " +
+//			   		"(SELECT count(act.id) FROM TargetActivity1 act " +
+//			   		"WHERE act.targetCompetence = comp) " +
+//			   "WHERE comp.id = :compId";
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating competence progress");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public CompetenceData1 getFullTargetCompetenceOrCompetenceData(long credId, long compId, 
+			long userId) throws DbConnectionException {
+		CompetenceData1 compData = null;
+		try {
+			compData = getTargetCompetenceData(credId, compId, userId, true, true);
+			String credTitle = null;
+			if (compData == null) {
+				compData = getCompetenceData(compId, true, true, true, true);
+				String query = "SELECT cred.title " +
+						   "FROM Credential1 cred " +
+						   "WHERE cred.id = :credId";
+			
+				credTitle = (String) persistence.currentManager()
+						.createQuery(query)
+						.setLong("credId", credId)
+						.uniqueResult();
+			} else {
+				String query = "SELECT targetCred.title " +
+						   "FROM TargetCredential1 targetCred " +
+						   "WHERE targetCred.credential.id = :credId " + 
+						   "AND targetCred.user.id = :userId";
+			
+				credTitle = (String) persistence.currentManager()
+						.createQuery(query)
+						.setLong("credId", credId)
+						.setLong("userId", userId)
+						.uniqueResult();
+			}
+			
+			compData.setCredentialId(credId);
+			compData.setCredentialTitle(credTitle);
+				
+			return compData;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading competence data");
+		}
+	}
+	
+	/**
+	 * Returns full target competence data when id of a target competence is not known.
+	 * @param credId
+	 * @param compId
+	 * @param userId
+	 * @param loadActivities
+	 * @param loadCredentialTitle
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	@Transactional(readOnly = true)
+	private CompetenceData1 getTargetCompetenceData(long credId, long compId, long userId, 
+			boolean loadActivities, boolean loadCredentialTitle) throws DbConnectionException {
+		CompetenceData1 compData = null;
+		try {		
+			String query = "SELECT targetComp " +
+					   "FROM TargetCompetence1 targetComp " +
+					   "INNER JOIN targetComp.targetCredential targetCred " +
+					   		"WITH targetCred.credential.id = :credId " +
+					   		"AND targetCred.user.id = :userId " +
+				   	   "INNER JOIN fetch targetComp.createdBy user " + 
+					   "LEFT JOIN fetch targetComp.tags tags " +
+				   	   "WHERE targetComp.competence.id = :compId";
+
+
+			TargetCompetence1 res = (TargetCompetence1) persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", userId)
+					.setLong("credId", credId)
+					.setLong("compId", compId)
+					.uniqueResult();
+
+			if (res != null) {
+				compData = competenceFactory.getCompetenceData(res.getCreatedBy(), res, 
+						res.getTags(), null, true);
+				
+				if(compData != null && loadActivities) {
+					List<ActivityData> activities = activityManager
+							.getTargetActivitiesData(compData.getTargetCompId());
+					compData.setActivities(activities);
+				}
+				return compData;
+			}
+			return null;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading competence data");
 		}
 	}
 }

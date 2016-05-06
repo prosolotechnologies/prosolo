@@ -33,7 +33,8 @@ public enum ContextName {
 	COURSE_TWEETS("TwitterPostSocialActivity"),
 	NEWS_DIGEST("FeedsDigest"),
 	COMMENT("Comment"),
-	LIBRARY("");
+	LIBRARY(""),
+	BASE_ACTIVITY("Activity");
 	
 	
     private String objectType; 

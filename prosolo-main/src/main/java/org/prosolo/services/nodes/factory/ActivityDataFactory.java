@@ -8,15 +8,20 @@ import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
 import org.prosolo.common.domainmodel.credential.ExternalToolActivity1;
+import org.prosolo.common.domainmodel.credential.ExternalToolTargetActivity1;
 import org.prosolo.common.domainmodel.credential.ResourceLink;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TextActivity1;
+import org.prosolo.common.domainmodel.credential.TextTargetActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivityType;
+import org.prosolo.common.domainmodel.credential.UrlTargetActivity1;
+import org.prosolo.services.media.util.SlideShareUtils;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.ResourceLinkData;
+import org.prosolo.web.competences.validator.YoutubeLinkValidator;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -36,6 +41,7 @@ public class ActivityDataFactory {
 		act.setDescription(activity.getDescription());
 		act.setDurationHours((int) (activity.getDuration() / 60));
 		act.setDurationMinutes((int) (activity.getDuration() % 60));
+		act.calculateDurationString();
 		act.setPublished(activity.isPublished());
 		act.setDraft(activity.isDraft());
 		act.setHasDraft(activity.isHasDraft());
@@ -102,9 +108,16 @@ public class ActivityDataFactory {
 			switch(urlAct.getType()) {
 				case Video:
 					act.setActivityType(ActivityType.VIDEO);
+					try {
+						act.setEmbedId((String) new YoutubeLinkValidator(null)
+								.performValidation(urlAct.getUrl(), null));
+					} catch(Exception e) {
+						e.printStackTrace();
+					}
 					break;
 				case Slides:
 					act.setActivityType(ActivityType.SLIDESHARE);
+					act.setEmbedId(SlideShareUtils.convertSlideShareURLToEmbededUrl(urlAct.getUrl()));
 					break;
 			}
 			act.setLink(urlAct.getUrl());
@@ -118,21 +131,75 @@ public class ActivityDataFactory {
 			act.setAcceptGrades(extAct.isAcceptGrades());
 		}
 	}
+	
+	public ActivityData getBasicActivityData(CompetenceActivity1 competenceActivity, 
+			boolean shouldTrackChanges) {
+		if(competenceActivity == null || competenceActivity.getActivity() == null) {
+			return null;
+		}
 
-	public ActivityData getActivityData(TargetActivity1 activity, boolean shouldTrackChanges) {
+		ActivityData act = new ActivityData(false);
+		Activity1 activity = competenceActivity.getActivity();
+		act.setCompetenceActivityId(competenceActivity.getId());
+		act.setActivityId(activity.getId());
+		act.setOrder(competenceActivity.getOrder());
+		act.setTitle(activity.getTitle());		
+		act.setDurationHours((int) (activity.getDuration() / 60));
+		act.setDurationMinutes((int) (activity.getDuration() % 60));
+		act.calculateDurationString();
+		act.setPublished(activity.isPublished());
+		act.setDraft(activity.isDraft());
+		act.setHasDraft(activity.isHasDraft());
+		
+		act.setActivityType(determineActivityType(activity));
+		
+		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
+		
+		if(shouldTrackChanges) {
+			act.startObservingChanges();
+		}
+
+		return act;
+	}
+
+	private ActivityType determineActivityType(Activity1 activity) {
+		if(activity instanceof TextActivity1) {
+			return ActivityType.TEXT;
+		} else if(activity instanceof UrlActivity1) {
+			UrlActivity1 urlAct = (UrlActivity1) activity;
+			switch(urlAct.getType()) {
+				case Video:
+					return ActivityType.VIDEO;
+				case Slides:
+					return ActivityType.SLIDESHARE;
+			}
+		} else if(activity instanceof ExternalToolActivity1) {
+			return ActivityType.EXTERNAL_TOOL;
+		}
+		
+		return null;
+	}
+
+
+	public ActivityData getActivityData(TargetActivity1 activity, Set<ResourceLink> links,
+			Set<ResourceLink> files, boolean shouldTrackChanges) {
 		if(activity == null) {
 			return null;
 		}
 		ActivityData act = new ActivityData(false);
-		act.setActivityId(activity.getId());
+		act.setActivityId(activity.getActivity().getId());
+		act.setTargetActivityId(activity.getId());
 		act.setOrder(activity.getOrder());
 		act.setTitle(activity.getTitle());
 		act.setDescription(activity.getDescription());
 		act.setDurationHours((int) (activity.getDuration() / 60));
 		act.setDurationMinutes((int) (activity.getDuration() % 60));
-		//act.setUploadAssignment(activity.isUploadAssignment());
+		act.calculateDurationString();
+		act.setUploadAssignment(activity.isUploadAssignment());
 		act.setCompleted(activity.isCompleted());
 		act.setEnrolled(true);
+		act.setAssignmentLink(activity.getAssignmentLink());
+		act.setAssignmentTitle(activity.getAssignmentTitle());
 		
 		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
 		
@@ -140,7 +207,135 @@ public class ActivityDataFactory {
 			act.startObservingChanges();
 		}
 		
+		if(links != null) {
+			List<ResourceLinkData> activityLinks = new ArrayList<>();
+			for(ResourceLink rl : links) {
+				ResourceLinkData rlData = new ResourceLinkData();
+				rlData.setId(rl.getId());
+				rlData.setLinkName(rl.getLinkName());
+				rlData.setUrl(rl.getUrl());
+				rlData.setStatus(ObjectStatus.UP_TO_DATE);
+				activityLinks.add(rlData);
+			}
+			act.setLinks(activityLinks);
+		}
+		
+		if(files != null) {
+			List<ResourceLinkData> activityFiles = new ArrayList<>();
+			for(ResourceLink rl : files) {
+				ResourceLinkData rlData = new ResourceLinkData();
+				rlData.setId(rl.getId());
+				rlData.setLinkName(rl.getLinkName());
+				rlData.setUrl(rl.getUrl());
+				rlData.setStatus(ObjectStatus.UP_TO_DATE);
+				activityFiles.add(rlData);
+			}
+			act.setFiles(activityFiles);
+		}
+		
+		//or add targetCompetenceId to activitydata
+		act.setCompetenceId(activity.getTargetCompetence().getId());
+		
+		populateTypeSpecificData(act, activity);
+
+		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
+		
+		if(shouldTrackChanges) {
+			act.startObservingChanges();
+		}
+		
 		return act;
+	}
+	
+	private void populateTypeSpecificData(ActivityData act, TargetActivity1 activity) {
+		if(activity instanceof TextTargetActivity1) {
+			TextTargetActivity1 ta = (TextTargetActivity1) activity;
+			act.setActivityType(ActivityType.TEXT);
+			act.setText(ta.getText());
+		} else if(activity instanceof UrlTargetActivity1) {
+			UrlTargetActivity1 urlAct = (UrlTargetActivity1) activity;
+			switch(urlAct.getType()) {
+				case Video:
+					act.setActivityType(ActivityType.VIDEO);
+					try {
+						act.setEmbedId((String) new YoutubeLinkValidator(null)
+								.performValidation(urlAct.getUrl(), null));
+					} catch(Exception e) {
+						e.printStackTrace();
+					}
+					break;
+				case Slides:
+					act.setActivityType(ActivityType.SLIDESHARE);
+					act.setEmbedId(SlideShareUtils.convertSlideShareURLToEmbededUrl(urlAct.getUrl()));
+					break;
+			}
+			act.setLink(urlAct.getUrl());
+			act.setLinkName(urlAct.getLinkName());
+		} else if(activity instanceof ExternalToolTargetActivity1) {
+			ExternalToolTargetActivity1 extAct = (ExternalToolTargetActivity1) activity;
+			act.setActivityType(ActivityType.EXTERNAL_TOOL);
+			act.setLaunchUrl(extAct.getLaunchUrl());
+			act.setSharedSecret(extAct.getSharedSecret());
+			act.setConsumerKey(extAct.getConsumerKey());
+		}
+	}
+	
+	public ActivityData getBasicActivityData(TargetActivity1 activity, boolean shouldTrackChanges) {
+		if(activity == null) {
+			return null;
+		}
+		ActivityData act = new ActivityData(false);
+		act.setActivityId(activity.getActivity().getId());
+		act.setTargetActivityId(activity.getId());
+		act.setTitle(activity.getTitle());
+		act.setCompleted(activity.isCompleted());
+		act.setEnrolled(true);
+		act.setDurationHours((int) (activity.getDuration() / 60));
+		act.setDurationMinutes((int) (activity.getDuration() % 60));
+		act.calculateDurationString();
+		
+		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
+		
+		if(shouldTrackChanges) {
+			act.startObservingChanges();
+		}
+		
+		act.setActivityType(determineActivityType(activity));
+
+		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
+		
+		if(shouldTrackChanges) {
+			act.startObservingChanges();
+		}
+		
+		return act;
+	}
+
+	private ActivityType determineActivityType(TargetActivity1 activity) {
+		if(activity instanceof TextTargetActivity1) {
+			return ActivityType.TEXT;
+		} else if(activity instanceof UrlTargetActivity1) {
+			UrlTargetActivity1 urlAct = (UrlTargetActivity1) activity;
+			switch(urlAct.getType()) {
+				case Video:
+					return ActivityType.VIDEO;
+				case Slides:
+					return ActivityType.SLIDESHARE;
+			}
+		} else if(activity instanceof ExternalToolTargetActivity1) {
+			return ActivityType.EXTERNAL_TOOL;
+		}
+		
+		return null;
+	}
+
+	private void populateCommonData(Activity1 act, ActivityData activity) {
+		act.setId(activity.getActivityId());
+		act.setTitle(activity.getTitle());
+		act.setDescription(activity.getDescription());
+		act.setDuration(activity.getDurationHours() * 60 + activity.getDurationMinutes());
+		act.setPublished(activity.isPublished());
+		act.setUploadAssignment(activity.isUploadAssignment());
 	}
 	
 	public Activity1 getActivityFromActivityData(ActivityData activity) {
@@ -181,58 +376,5 @@ public class ActivityDataFactory {
 				return null;
 		}
 	}
-
-	private void populateCommonData(Activity1 act, ActivityData activity) {
-		act.setId(activity.getActivityId());
-		act.setTitle(activity.getTitle());
-		act.setDescription(activity.getDescription());
-		act.setDuration(activity.getDurationHours() * 60 + activity.getDurationMinutes());
-		act.setPublished(activity.isPublished());
-		act.setUploadAssignment(activity.isUploadAssignment());
-	
-//		if(activity.getLinks() != null) {
-//			Set<ResourceLink> activityLinks = new HashSet<>();
-//			for(ResourceLinkData rl : activity.getLinks()) {
-//				ResourceLink link = new ResourceLink();
-//				link.setLinkName(rl.getLinkName());
-//				link.setUrl(rl.getUrl());
-//				activityLinks.add(link);
-//			}
-//			act.setLinks(activityLinks);
-//		}
-//		
-//		if(activity.getFiles() != null) {
-//			Set<ResourceLink> activityFiles = new HashSet<>();
-//			for(ResourceLinkData rl : activity.getFiles()) {
-//				ResourceLink link = new ResourceLink();
-//				link.setLinkName(rl.getLinkName());
-//				link.setUrl(rl.getUrl());
-//				activityFiles.add(link);
-//			}
-//			act.setFiles(activityFiles);
-//		}
-	}
-	
-//	public BasicActivityData getActivityData(Activity1 activity, boolean shouldTrackChanges) {
-//	if(activity == null) {
-//		return null;
-//	}
-//	BasicActivityData act = new BasicActivityData(false);
-//	act.setId(activity.getId());
-//	act.setOrder(activity.getOrderInCompetence());
-//	act.setTitle(activity.getTitle());
-//	act.setDescription(activity.getDescription());
-//	act.setDuration(activity.getDuration());
-//	act.setPublished(activity.isPublished());
-//	act.setActivityStatus();
-//
-//	act.setObjectStatus(ObjectStatus.UP_TO_DATE);
-//	
-//	if(shouldTrackChanges) {
-//		act.startObservingChanges();
-//	}
-//	
-//	return act;
-//}
 	
 }

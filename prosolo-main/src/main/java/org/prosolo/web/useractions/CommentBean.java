@@ -61,7 +61,7 @@ public class CommentBean implements Serializable {
 	}
 
 	private void loadComments() {
-		this.comments = commentManager.getAllComments(CommentedResourceType.Competence, resourceId, 
+		this.comments = commentManager.getAllComments(resourceType, resourceId, 
 				sortOption.getSortField(), sortOption.getSortOption(), loggedUser.getUser().getId());
 	}
 	

@@ -52,6 +52,7 @@
 	             <label>Upload file</label>
 	             <div class="formLineRight">
 	             	<h:panelGroup id="panelFiles">
+	             	<h:panelGroup id="panelAddedFiles" rendered="#{!cc.attrs.bean.isFileListEmpty()}">	
 	                 <ul class="addedItems">
 	                 	<ui:repeat var="file" value="#{cc.attrs.activity.files}">
 	                 		<ui:fragment rendered="#{file.status != 'REMOVED'}">
@@ -70,6 +71,7 @@
 	                 		</ui:fragment>
 	                 	</ui:repeat>
 	                 </ul>
+	                 </h:panelGroup>
 	                 <p:fileUpload id="fileUploadActivityFile" 
 	                 		process="@this"
                				style="display: none;"
@@ -98,6 +100,7 @@
 	             <label>Add URL</label>
 	             <div class="formLineRight">
 	             	<h:panelGroup id="panelLinks">
+	             	<h:panelGroup id="panelAddedLinks" rendered="#{!cc.attrs.bean.isLinkListEmpty()}">	
 	                 <ul class="addedItems">
 	                 	<ui:repeat var="link" value="#{cc.attrs.activity.links}">
 	                 		<ui:fragment rendered="#{link.status != 'REMOVED'}">
@@ -116,6 +119,7 @@
 		                     </ui:fragment>
 	                 	</ui:repeat>
 	                 </ul>
+	                 </h:panelGroup>
 	                 </h:panelGroup>
 	                 
 	                 <p:remoteCommand

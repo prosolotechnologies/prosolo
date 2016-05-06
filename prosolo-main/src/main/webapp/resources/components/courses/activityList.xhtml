@@ -13,6 +13,8 @@
 
 	<composite:interface>
 		<composite:attribute name="activities" required="true" />
+		<composite:attribute name="encodedCredentialId" default=""/>
+		<composite:attribute name="encodedCompetenceId" default=""/>
 		<composite:attribute name="bean" required="true" />
 		<composite:attribute name="isEdit" required="true" type="java.lang.Boolean" />
 		<composite:attribute name="showMarkedIfCompleted" required="true" type="java.lang.Boolean" />
@@ -21,9 +23,8 @@
 	
 	<composite:implementation>
 		 <div id="#{cc.clientId}">
-		 
 	     <ui:repeat var="act" value="#{cc.attrs.activities}" varStatus="status">
-             <div class="activityItem activityVideo">
+             <div class="activityItem #{styleUtilBean.getStyleClassBasedOnActivityType(act.activityType)}">
           		<h:panelGroup 
           			rendered="#{cc.attrs.showMarkedIfCompleted and !cc.attrs.isPreview and act.completed}"
           			styleClass="check">    
@@ -38,9 +39,13 @@
 	                   		<h:panelGroup rendered="#{!act.published}">(Draft)</h:panelGroup>
 	                   	</ui:fragment>
 	                   	<ui:fragment rendered="#{!cc.attrs.isEdit and !cc.attrs.isPreview}">
-	                   		<a href="activity.html">
-	                   			#{act.title} 
-	                   		</a>
+                   			<h:link
+			            		value="#{act.title}"
+			            		outcome="/activity">
+			            		<f:param name="actId" value="#{util:encodeId(act.activityId)}"></f:param>
+			            		<f:param name="compId" value="#{cc.attrs.encodedCompetenceId}" disable="#{empty cc.attrs.encodedCompetenceId}"></f:param>
+            					<f:param name="credId" value="#{cc.attrs.encodedCredentialId}" disable="#{empty cc.attrs.encodedCredentialId}"></f:param>
+            				</h:link>
 	                   	</ui:fragment>
 	                   	<ui:fragment rendered="#{!cc.attrs.isEdit and cc.attrs.isPreview}">
 	                   		#{act.title}

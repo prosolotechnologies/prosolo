@@ -14,6 +14,8 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
@@ -40,6 +42,8 @@ public class TargetCompetence1 extends BaseEntity {
 	private User createdBy;
 	
 	private Date dateCompleted;
+	
+	private long nextActivityToLearnId;
 	
 	public TargetCompetence1() {
 		tags = new HashSet<>();
@@ -75,6 +79,7 @@ public class TargetCompetence1 extends BaseEntity {
 	}
 
 	@OneToMany(mappedBy = "targetCompetence")
+	@LazyCollection(LazyCollectionOption.EXTRA)
 	public List<TargetActivity1> getTargetActivities() {
 		return targetActivities;
 	}
@@ -148,5 +153,13 @@ public class TargetCompetence1 extends BaseEntity {
 
 	public void setDateCompleted(Date dateCompleted) {
 		this.dateCompleted = dateCompleted;
+	}
+	
+	public long getNextActivityToLearnId() {
+		return nextActivityToLearnId;
+	}
+
+	public void setNextActivityToLearnId(long nextActivityToLearnId) {
+		this.nextActivityToLearnId = nextActivityToLearnId;
 	}
 }

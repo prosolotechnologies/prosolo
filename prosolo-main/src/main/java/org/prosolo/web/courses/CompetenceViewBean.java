@@ -34,26 +34,25 @@ public class CompetenceViewBean implements Serializable {
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private CommentBean commentBean;
 
-	private String id;
-	private long decodedId;
-	private String targetId;
-	private long decodedTargetId;
+	private String credId;
+	private long decodedCredId;
+	private String compId;
+	private long decodedCompId;
 	private String mode;
 	
 	private CompetenceData1 competenceData;
 
 	public void init() {	
-		decodedId = idEncoder.decodeId(id);
-		if (decodedId > 0) {
+		decodedCompId = idEncoder.decodeId(compId);
+		if (decodedCompId > 0) {
 			try {
-				decodedTargetId = idEncoder.decodeId(targetId);
-				if(decodedTargetId > 0) {
-					competenceData = competenceManager.getTargetCompetenceData(decodedTargetId, true, true);
-					competenceData.determineIfStartedWorkingOnCompetence();
-					competenceData.determineActivityFromWhichToStartLearning();
+				decodedCredId = idEncoder.decodeId(credId);
+				if(decodedCredId > 0) {
+					competenceData = competenceManager.getFullTargetCompetenceOrCompetenceData(
+							decodedCredId, decodedCompId, loggedUser.getUser().getId());
 				} else {
 					if("preview".equals(mode)) {
-						competenceData = competenceManager.getCompetenceDataForEdit(decodedId, 
+						competenceData = competenceManager.getCompetenceDataForEdit(decodedCompId, 
 								loggedUser.getUser().getId(), true);
 						ResourceCreator rc = new ResourceCreator();
 						User user = loggedUser.getUser();
@@ -61,7 +60,7 @@ public class CompetenceViewBean implements Serializable {
 						rc.setAvatarUrl(user.getAvatarUrl());
 						competenceData.setCreator(rc);
 					} else {
-						competenceData = competenceManager.getCompetenceData(decodedId, true, true, 
+						competenceData = competenceManager.getCompetenceData(decodedCompId, true, true, 
 								true, true);
 					}
 				}
@@ -97,10 +96,6 @@ public class CompetenceViewBean implements Serializable {
 		return competenceData.getActivities().size() != index + 1;
 	}
 	
-	public String getIdOfResumeFromActivity() {
-		return idEncoder.encodeId(competenceData.getResumeFromId());
-	}
-	
 	public boolean isPreview() {
 		return "preview".equals(mode);
 	}
@@ -113,41 +108,41 @@ public class CompetenceViewBean implements Serializable {
 	/*
 	 * GETTERS / SETTERS
 	 */
-	
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public long getDecodedId() {
-		return decodedId;
-	}
-
-	public void setDecodedId(long decodedId) {
-		this.decodedId = decodedId;
-	}
-
-	public String getTargetId() {
-		return targetId;
-	}
-
-	public void setTargetId(String targetId) {
-		this.targetId = targetId;
-	}
-
-	public long getDecodedTargetId() {
-		return decodedTargetId;
-	}
-
-	public void setDecodedTargetId(long decodedTargetId) {
-		this.decodedTargetId = decodedTargetId;
-	}
 
 	public CompetenceData1 getCompetenceData() {
 		return competenceData;
+	}
+
+	public String getCredId() {
+		return credId;
+	}
+
+	public void setCredId(String credId) {
+		this.credId = credId;
+	}
+
+	public long getDecodedCredId() {
+		return decodedCredId;
+	}
+
+	public void setDecodedCredId(long decodedCredId) {
+		this.decodedCredId = decodedCredId;
+	}
+
+	public String getCompId() {
+		return compId;
+	}
+
+	public void setCompId(String compId) {
+		this.compId = compId;
+	}
+
+	public long getDecodedCompId() {
+		return decodedCompId;
+	}
+
+	public void setDecodedCompId(long decodedCompId) {
+		this.decodedCompId = decodedCompId;
 	}
 
 	public void setCompetenceData(CompetenceData1 competenceData) {
