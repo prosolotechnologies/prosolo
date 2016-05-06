@@ -110,9 +110,12 @@ public class CredentialDataFactory {
 	 * @return
 	 */
 	public CredentialData getCredentialDataWithProgress(User createdBy, Credential1 credential,
-			Set<Tag> tags, Set<Tag> hashtags, boolean shouldTrackChanges, int progress) {
+			Set<Tag> tags, Set<Tag> hashtags, boolean shouldTrackChanges, int progress,
+			long nextCompToLearnId, long nextActToLearnId) {
 		CredentialData cred = getCredentialData(createdBy, credential, tags, hashtags, shouldTrackChanges);
 		cred.setProgress(progress);
+		cred.setNextCompetenceToLearnId(nextCompToLearnId);
+		cred.setNextActivityToLearnId(nextActToLearnId);
 		cred.setEnrolled(true);
 		return cred;
 	}

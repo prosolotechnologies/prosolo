@@ -160,7 +160,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		CredentialData credData = null;
 		try {
 			User user = (User) persistence.currentManager().load(User.class, userId);
-			String query = "SELECT cred, targetCred.progress, bookmark.id " +
+			String query = "SELECT cred, targetCred.progress, bookmark.id, targetCred.nextCompetenceToLearnId, targetCred.nextActivityToLearnId " +
 						   "FROM Credential1 cred " + 
 						   "LEFT JOIN cred.targetCredentials targetCred " + 
 						   "WITH targetCred.user.id = :user " +
@@ -178,9 +178,12 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				Credential1 cred = (Credential1) res[0];
 				Integer paramProgress = (Integer) res[1];
 				Long paramBookmarkId = (Long) res[2];
+				Long nextCompId = (Long) res[3];
+				Long nextActId = (Long) res[4];
 				if(paramProgress != null) {
 					credData = credentialFactory.getCredentialDataWithProgress(null, cred, null, 
-							null, false, paramProgress.intValue());
+							null, false, paramProgress.intValue(), nextCompId.longValue(),
+							nextActId.longValue());
 				} else {
 					credData = credentialFactory.getCredentialData(null, cred, null, null, false);
 				}
@@ -205,7 +208,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		CredentialData credData = null;
 		try {
 			User user = (User) persistence.currentManager().load(User.class, userId);
-			String query = "SELECT draftCred, targetCred.progress, bookmark.id " +
+			String query = "SELECT draftCred, targetCred.progress, bookmark.id, targetCred.nextCompetenceToLearnId, targetCred.nextActivityToLearnId " +
 						   "FROM Credential1 cred " + 
 						   "LEFT JOIN cred.draftVersion draftCred " +
 						   "LEFT JOIN cred.targetCredentials targetCred " + 
@@ -224,10 +227,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				Credential1 cred = (Credential1) res[0];
 				Integer paramProgress = (Integer) res[1];
 				Long paramBookmarkId = (Long) res[2];
+				Long nextCompId = (Long) res[3];
+				Long nextActId = (Long) res[4];
 				
 				if(paramProgress != null) {
 					credData = credentialFactory.getCredentialDataWithProgress(null, cred, 
-							null, null, false, paramProgress.intValue());
+							null, null, false, paramProgress.intValue(), nextCompId.longValue(),
+							nextActId.longValue());
 				} else {
 					credData = credentialFactory.getCredentialData(null, cred, 
 							null, null, false);
