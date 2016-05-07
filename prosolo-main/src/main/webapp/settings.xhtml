@@ -109,7 +109,7 @@
 									<div class="formLineRight">
 										<p:commandLink styleClass="btn btn-green" value="Save Changes"
 											action="#{profileSettings.saveAccountChanges}"
-											update="settingsPersonalGrowl" />
+											update=":settingsPersonalForm :panelTitle" />
 									</div>
 								</div>
 							</h:form>
@@ -122,31 +122,46 @@
 								<p:growl id="settingsSocialNetworksGrowl" showDetail="true"></p:growl>
 								<h:panelGroup layout="block" id="socialNetworksContainer"
 									class="socialNetworksContainer">
-									<c:forEach
-										items="#{profileSettings.socialNetworksData.socialNetworkAccounts}"
-										var="account">
-										<div class="formLine">
-											<label><h:outputText value="#{account.value.label}" /></label>
-											<div class="formLineRight">
-												<h:inputText value="#{account.value.linkEdit}" />
-												<h:panelGroup
-													rendered="#{account.value.socialNetwork.toString().equals('TWITTER')}">
-													<div class="twitterBtnBox">
-														<a href="#" class="btn btnTwitterConnect btn-sm"><span></span>Connect
-															to Twitter</a> <small>Connect your Twitter account
-															and republish your tweets to your ProSolo followers.</small>
-													</div>
-												</h:panelGroup>
-
+									<div class="formLine">
+										<label>LinkedIn username</label>
+										<div class="formLineRight">
+											<h:inputText
+												value="#{profileSettings.socialNetworksData.socialNetworkAccountDatas['LINKEDIN'].linkEdit}" />
+										</div>
+									</div>
+									<div class="formLine">
+										<label>Twitter username</label>
+										<div class="formLineRight">
+											<h:inputText
+												value="#{profileSettings.socialNetworksData.socialNetworkAccountDatas['TWITTER'].linkEdit}" />
+											<div class="twitterBtnBox">
+												<a href="#" class="btn btnTwitterConnect btn-sm"><span></span>Connect
+													to Twitter</a> <small>Connect your Twitter account and
+													republish your tweets to your ProSolo followers.</small>
 											</div>
 										</div>
-									</c:forEach>
+									</div>
+									<div class="formLine">
+										<label>Facebook username</label>
+										<div class="formLineRight">
+											<h:inputText
+												value="#{profileSettings.socialNetworksData.socialNetworkAccountDatas['FACEBOOK'].linkEdit}" />
+										</div>
+									</div>
+									<div class="formLine">
+										<label>Blog URL</label>
+										<div class="formLineRight">
+											<h:inputText
+												value="#{profileSettings.socialNetworksData.socialNetworkAccountDatas['BLOG'].linkEdit}" />
+										</div>
+									</div>
 									<div class="formLine">
 										<label>&#160;</label>
 										<div class="formLineRight">
 											<p:commandLink styleClass="btn btn-green"
-												value="Save Changes" action="#{profileSettings.saveSocialNetworkChanges}"
-												update="settingsSocialNetworksGrowl" />
+												value="Save Changes"
+												action="#{profileSettings.saveSocialNetworkChanges}"
+												update=":socialNetworksForm :panelTitle" />
 										</div>
 									</div>
 								</h:panelGroup>

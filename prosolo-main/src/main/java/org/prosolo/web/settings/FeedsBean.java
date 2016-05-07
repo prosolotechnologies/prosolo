@@ -76,7 +76,7 @@ public class FeedsBean {
 		}
 
 		PortfolioBean portfolio = PageUtil.getSessionScopedBean("portfolio", PortfolioBean.class);
-		this.personalBlogSource = portfolio.getSocialNetworksData().getSocialNetworkAccounts()
+		this.personalBlogSource = portfolio.getSocialNetworksData().getSocialNetworkAccountDatas()
 				.get(SocialNetworkName.BLOG.toString()).getLink();
 
 		this.subscribedRssSources = new ArrayList<FeedSourceData>();
@@ -208,7 +208,7 @@ public class FeedsBean {
 		PortfolioBean portfolio = PageUtil.getSessionScopedBean("portfolio", PortfolioBean.class);
 
 		if (portfolio != null) {
-			portfolio.getSocialNetworksData().getSocialNetworkAccounts().get(SocialNetworkName.BLOG.toString())
+			portfolio.getSocialNetworksData().getSocialNetworkAccountDatas().get(SocialNetworkName.BLOG.toString())
 					.setLinkEdit(this.personalBlogSource);
 			portfolio.saveSocialNetworks();
 		}

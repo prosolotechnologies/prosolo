@@ -21,17 +21,18 @@ public class SocialNetworksData implements Serializable, IData {
 
 	private long id;
 
-	private Map<String, SocialNetworkAccount> socialNetworkAccounts;
+	private Map<String, SocialNetworkAccountData> socialNetworkAccountDatas;
 
 	public SocialNetworksData() {
-		socialNetworkAccounts = new LinkedHashMap<>();
-		socialNetworkAccounts.put(SocialNetworkName.LINKEDIN.toString(),
-				new SocialNetworkAccount(SocialNetworkName.LINKEDIN));
-		socialNetworkAccounts.put(SocialNetworkName.TWITTER.toString(),
-				new SocialNetworkAccount(SocialNetworkName.TWITTER));
-		socialNetworkAccounts.put(SocialNetworkName.FACEBOOK.toString(),
-				new SocialNetworkAccount(SocialNetworkName.FACEBOOK));
-		socialNetworkAccounts.put(SocialNetworkName.BLOG.toString(), new SocialNetworkAccount(SocialNetworkName.BLOG));
+		socialNetworkAccountDatas = new LinkedHashMap<>();
+		socialNetworkAccountDatas.put(SocialNetworkName.LINKEDIN.toString(),
+				new SocialNetworkAccountData(SocialNetworkName.LINKEDIN));
+		socialNetworkAccountDatas.put(SocialNetworkName.TWITTER.toString(),
+				new SocialNetworkAccountData(SocialNetworkName.TWITTER));
+		socialNetworkAccountDatas.put(SocialNetworkName.FACEBOOK.toString(),
+				new SocialNetworkAccountData(SocialNetworkName.FACEBOOK));
+		socialNetworkAccountDatas.put(SocialNetworkName.BLOG.toString(),
+				new SocialNetworkAccountData(SocialNetworkName.BLOG));
 	}
 
 	public long getId() {
@@ -42,18 +43,20 @@ public class SocialNetworksData implements Serializable, IData {
 		this.id = id;
 	}
 
-	public Map<String, SocialNetworkAccount> getSocialNetworkAccounts() {
-		return socialNetworkAccounts;
+	public Map<String, SocialNetworkAccountData> getSocialNetworkAccountDatas() {
+		return socialNetworkAccountDatas;
 	}
 
-	public void setSocialNetworkAccounts(Map<String, SocialNetworkAccount> socialNetworkAccounts) {
-		this.socialNetworkAccounts = socialNetworkAccounts;
+	public void setSocialNetworkAccountDatas(Map<String, SocialNetworkAccountData> socialNetworkAccountDatas) {
+		this.socialNetworkAccountDatas = socialNetworkAccountDatas;
 	}
 
-	public void setAccountLink(SocialNetworkAccount account) {
-		SocialNetworkAccount socialNetworkAccount = socialNetworkAccounts.get(account.getSocialNetwork().toString());
-		socialNetworkAccount.setLink(account.getLink());
-		socialNetworkAccount.setLinkEdit(account.getLink());
+	public void setAccount(SocialNetworkAccount account) {
+		SocialNetworkAccountData socialNetworkAccountData = socialNetworkAccountDatas
+				.get(account.getSocialNetwork().toString());
+		socialNetworkAccountData.setLinkEdit(account.getLink());
+		socialNetworkAccountData.setLink(account.getLink());
+		socialNetworkAccountData.setId(account.getId());
 	}
 
 }

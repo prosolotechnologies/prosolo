@@ -74,6 +74,8 @@ public class StudentProfileBean implements Serializable {
 
 	private StudentData student;
 	private SocialNetworksData socialNetworksData;
+	
+	private UserSocialNetworks userSocialNetworks;
 
 	private List<LearningGoalData> lGoals;
 	private LearningGoalData selectedGoal;
@@ -244,7 +246,8 @@ public class StudentProfileBean implements Serializable {
 
 	public void initSocialNetworks() {
 		if (socialNetworksData == null) {
-			socialNetworksData = new SocialNetworksDataToPageMapper(socialNetworksManager, loggedUserBean)
+			userSocialNetworks = socialNetworksManager.getSocialNetworks(loggedUserBean.getUser());
+			socialNetworksData = new SocialNetworksDataToPageMapper(userSocialNetworks)
 					.mapDataToPageObject(socialNetworksData);
 		}
 	}

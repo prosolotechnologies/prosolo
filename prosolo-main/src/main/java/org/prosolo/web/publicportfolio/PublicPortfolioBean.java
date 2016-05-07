@@ -98,6 +98,8 @@ public class PublicPortfolioBean implements Serializable {
 
 	private SocialNetworksData socialNetworksData;
 
+	private UserSocialNetworks userSocialNetworks;
+
 	private PortfolioSocialActivitiesDisplayer portfolioActivitiesDisplayer;
 
 	public void init() {
@@ -262,7 +264,8 @@ public class PublicPortfolioBean implements Serializable {
 
 	public void initSocialNetworks() {
 		if (socialNetworksData == null) {
-			socialNetworksData = new SocialNetworksDataToPageMapper(socialNetworksManager, loggedUser)
+			userSocialNetworks = socialNetworksManager.getSocialNetworks(loggedUser.getUser());
+			socialNetworksData = new SocialNetworksDataToPageMapper(userSocialNetworks)
 					.mapDataToPageObject(socialNetworksData);
 		}
 	}

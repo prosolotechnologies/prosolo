@@ -101,11 +101,11 @@ public class TwitterBean implements Serializable {
 			PortfolioBean portfolio = PageUtil.getSessionScopedBean("portfolio", PortfolioBean.class);
 
 			if (portfolio != null) {
-				String twitterLink = portfolio.getSocialNetworksData().getSocialNetworkAccounts()
+				String twitterLink = portfolio.getSocialNetworksData().getSocialNetworkAccountDatas()
 						.get(SocialNetworkName.TWITTER.toString()).getLink();
 
 				if (twitterLink == null || !twitterProfileUrl.equals(twitterLink)) {
-					portfolio.getSocialNetworksData().getSocialNetworkAccounts()
+					portfolio.getSocialNetworksData().getSocialNetworkAccountDatas()
 							.get(SocialNetworkName.TWITTER.toString()).setLinkEdit(twitterProfileUrl);
 					portfolio.saveSocialNetworks();
 					PageUtil.fireSuccessfulInfoMessage("socialNetworksSettingsForm:socialNetworksFormGrowl",
@@ -176,11 +176,11 @@ public class TwitterBean implements Serializable {
 		PortfolioBean portfolio = PageUtil.getSessionScopedBean("portfolio", PortfolioBean.class);
 
 		if (portfolio != null) {
-			String twitterLink = portfolio.getSocialNetworksData().getSocialNetworkAccounts()
-					.get(SocialNetworkName.TWITTER.toString()).getLink();
+			String twitterLink = portfolio.getSocialNetworksData().getSocialNetworkAccountDatas()
+					.get(SocialNetworkName.TWITTER.toString()).getLinkEdit();
 
 			if (twitterLink != null && twitterLink.length() > 0) {
-				portfolio.getSocialNetworksData().getSocialNetworkAccounts().get(SocialNetworkName.TWITTER.toString())
+				portfolio.getSocialNetworksData().getSocialNetworkAccountDatas().get(SocialNetworkName.TWITTER.toString())
 						.setLinkEdit("");
 				portfolio.saveSocialNetworks();
 			}

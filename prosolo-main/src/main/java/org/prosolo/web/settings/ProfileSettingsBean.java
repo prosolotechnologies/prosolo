@@ -27,6 +27,7 @@ import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.upload.AvatarProcessor;
@@ -46,6 +47,7 @@ import org.prosolo.web.messaging.data.MessagesThreadData;
 import org.prosolo.web.notification.TopInboxBean;
 import org.prosolo.web.notification.TopNotificationsBean;
 import org.prosolo.web.notification.data.NotificationData;
+import org.prosolo.web.portfolio.data.SocialNetworkAccountData;
 import org.prosolo.web.portfolio.data.SocialNetworksData;
 import org.prosolo.web.settings.data.AccountData;
 import org.prosolo.web.util.AvatarUtils;
@@ -91,6 +93,8 @@ public class ProfileSettingsBean implements Serializable {
 	private AccountData accountData;
 	private SocialNetworksData socialNetworksData;
 
+	private UserSocialNetworks userSocialNetworks;
+
 	@PostConstruct
 	public void initializeAccountData() {
 		// loggedUser.refreshUser();
@@ -100,12 +104,14 @@ public class ProfileSettingsBean implements Serializable {
 
 	public void initSocialNetworksData() {
 		if (socialNetworksData == null) {
-			socialNetworksData = new SocialNetworksDataToPageMapper(socialNetworksManager, loggedUser)
+			userSocialNetworks = socialNetworksManager.getSocialNetworks(loggedUser.getUser());
+			socialNetworksData = new SocialNetworksDataToPageMapper(userSocialNetworks)
 					.mapDataToPageObject(socialNetworksData);
 		}
 	}
 
 	private void initAccountData() {
+
 		accountData = new AccountDataToPageMapper(loggedUser).mapDataToPageObject(accountData);
 	}
 
@@ -332,20 +338,32 @@ public class ProfileSettingsBean implements Serializable {
 	}
 
 	public void saveSocialNetworkChanges() {
+		boolean newSocialNetworkAccountIsAdded = false;
 
-		UserSocialNetworksChanged userSocialNetworksChanged = new UserSocialNetworksChanged();
+		Map<String, SocialNetworkAccountData> newSocialNetworkAccounts = socialNetworksData
+				.getSocialNetworkAccountDatas();
+		try {
+			for (SocialNetworkAccountData socialNetowrkAccountData : newSocialNetworkAccounts.values()) {
+				if (socialNetowrkAccountData.isChanged()) {
+					SocialNetworkAccount account;
+					if (socialNetowrkAccountData.getId() == 0) {
+						account = socialNetworksManager.createSocialNetworkAccount(
+								socialNetowrkAccountData.getSocialNetworkName(),
+								socialNetowrkAccountData.getLinkEdit());
+						userSocialNetworks.getSocialNetworkAccounts().add(account);
+						newSocialNetworkAccountIsAdded = true;
+					} else {
+						socialNetworksManager.updateSocialNetworkAccount(socialNetowrkAccountData);
+					}
 
-		Map<String, SocialNetworkAccount> newSocialNetworkAccounts = socialNetworksData.getSocialNetworkAccounts();
-
-		for (SocialNetworkAccount account : newSocialNetworkAccounts.values()) {
-			userSocialNetworksChanged = updateSocialNetworkAccount(userSocialNetworksChanged,
-					account.getSocialNetwork(), account.getLink(), account.getLinkEdit());
-			account.setLink(account.getLinkEdit());
+				}
+			}
+		} catch (DbConnectionException e) {
+			PageUtil.fireErrorMessage("Custom error.");
 		}
 
-		if (userSocialNetworksChanged.changed) {
-			userSocialNetworksChanged.userSocialNetworks = socialNetworksManager
-					.saveEntity(userSocialNetworksChanged.userSocialNetworks);
+		if (newSocialNetworkAccountIsAdded) {
+			socialNetworksManager.saveEntity(userSocialNetworks);
 			try {
 				eventFactory.generateEvent(EventType.UpdatedSocialNetworks, loggedUser.getUser());
 			} catch (EventException e) {
@@ -353,32 +371,6 @@ public class ProfileSettingsBean implements Serializable {
 			}
 		}
 
-	}
-
-	private UserSocialNetworksChanged updateSocialNetworkAccount(UserSocialNetworksChanged userSocialNetworksChanged,
-			SocialNetworkName socialNetworkName, String originalLink, String editedLink) {
-
-		if (!originalLink.equals(editedLink)) {
-
-			if (userSocialNetworksChanged.userSocialNetworks == null) {
-				userSocialNetworksChanged.userSocialNetworks = socialNetworksManager
-						.getSocialNetworks(socialNetworksData.getId());
-			}
-
-			SocialNetworkAccount account = userSocialNetworksChanged.userSocialNetworks.getAccount(socialNetworkName);
-
-			if (account != null) {
-				userSocialNetworksChanged.userSocialNetworks = socialNetworksManager.updateSocialNetwork(
-						userSocialNetworksChanged.userSocialNetworks, socialNetworkName, editedLink);
-			} else {
-				account = socialNetworksManager.createSocialNetworkAccount(socialNetworkName, editedLink);
-
-				userSocialNetworksChanged.userSocialNetworks.addSocialNetworkAccount(account);
-			}
-
-			userSocialNetworksChanged.changed = true;
-		}
-		return userSocialNetworksChanged;
 	}
 
 	public void cancelCrop() {
@@ -413,9 +405,4 @@ public class ProfileSettingsBean implements Serializable {
 		this.socialNetworksData = socialNetworksData;
 	}
 
-}
-
-class UserSocialNetworksChanged {
-	UserSocialNetworks userSocialNetworks;
-	boolean changed;
 }
