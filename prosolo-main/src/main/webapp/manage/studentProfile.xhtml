@@ -220,8 +220,20 @@
 			      <div class="observationPanel">
 			      	<div class="oProfileType">
 			            Profile type
-			            <span class="">1</span>
+			            <span class="">#{studentProfileBean.profileFeatures.profilefullname}</span>
 			         </div>
+					  <div class="observationBox"><!--this is profileBox-->
+						  <h:panelGroup id="profileFeaturesPanel" rendered="true">
+							  <h3 class="oTitle">FEATURES</h3>
+							  <ui:repeat var="feature"
+										 value="#{studentProfileBean.profileFeatures.features}">
+								  <div>
+								  <span class="label label-symptoms">#{feature.featurename}</span>
+								  <span class="label label-suggestions">#{feature.quartile}</span>
+								  </div>
+							  </ui:repeat>
+								  </h:panelGroup>
+					  </div>
 			         <div class="observationBox">
 			         	<h:panelGroup id="lastObservationPanel">
 							<h:panelGroup

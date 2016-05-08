@@ -10,8 +10,11 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
+import com.google.gson.Gson;
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
+import org.prosolo.bigdata.common.dal.pojo.UserProfileFeatures;
+import org.prosolo.bigdata.common.rest.exceptions.ConnectException;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
@@ -30,6 +33,7 @@ import org.prosolo.services.nodes.EvaluationManager;
 import org.prosolo.services.nodes.PortfolioManager;
 import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.rest.clients.RecommendationServicesRest;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.datatopagemappers.SocialNetworksDataToPageMapper;
@@ -40,6 +44,7 @@ import org.prosolo.web.students.data.learning.CompetenceData;
 import org.prosolo.web.students.data.learning.EvaluationSubmissionData;
 import org.prosolo.web.students.data.learning.LearningGoalData;
 import org.prosolo.web.util.PageUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -69,6 +74,14 @@ public class StudentProfileBean implements Serializable {
 	@Inject
 	private EvaluationManager evalManager;
 
+<<<<<<< Updated upstream
+=======
+	@Autowired
+	RecommendationServicesRest restClient;
+
+
+	
+>>>>>>> Stashed changes
 	private String id;
 	private long decodedId;
 
@@ -80,6 +93,13 @@ public class StudentProfileBean implements Serializable {
 	private List<LearningGoalData> lGoals;
 	private LearningGoalData selectedGoal;
 
+<<<<<<< Updated upstream
+=======
+
+
+	UserProfileFeatures profileFeatures;
+	
+>>>>>>> Stashed changes
 	public void initStudent() {
 		decodedId = idEncoder.decodeId(id);
 
@@ -89,14 +109,25 @@ public class StudentProfileBean implements Serializable {
 				student = new StudentData(user);
 
 				initLearningGoals();
+<<<<<<< Updated upstream
 
+=======
+				loadStudentProfileInCourse();
+>>>>>>> Stashed changes
 				observationBean.setStudentId(decodedId);
 				observationBean.setStudentName(student.getName());
+				System.out.println("Student Profile Bean has selected goal:"+selectedGoal.getId());
 				observationBean.setTargetGoalId(selectedGoal.getId());
 				observationBean.initializeObservationData();
 
+<<<<<<< Updated upstream
 				logger.info("User with id " + loggedUserBean.getUser().getId()
 						+ " came to the studentProfile page for student with id " + decodedId);
+=======
+				logger.info("User with id "+ 
+						loggedUserBean.getUser().getId() + 
+						" came to the studentProfile page for student with id " + decodedId);
+>>>>>>> Stashed changes
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error(e);
 				try {
@@ -257,6 +288,26 @@ public class StudentProfileBean implements Serializable {
 		return Settings.getInstance().config.application.domain + "api/competences/" + compId + "/activities";
 	}
 
+<<<<<<< Updated upstream
+=======
+	public void loadStudentProfileInCourse(){
+		long courseId=1;
+		long studentId=8;
+		String servicePath="/user/profile/currentprofileincourse/"+courseId+"/"+studentId;
+		try{
+			String response=restClient.sendGetRequest(servicePath);
+
+			System.out.println("RESPONSE:"+response);
+			Gson gson=new Gson();
+			profileFeatures=gson.fromJson(response, UserProfileFeatures.class);
+			System.out.println("PROFILE FEATURES:"+profileFeatures.getFeatures().size());
+		}catch(ConnectException ce){
+			ce.printStackTrace();
+		}
+
+	}
+	
+>>>>>>> Stashed changes
 	public ObservationBean getObservationBean() {
 		return observationBean;
 	}
@@ -316,5 +367,15 @@ public class StudentProfileBean implements Serializable {
 	public void setSelectedGoal(LearningGoalData selectedGoal) {
 		this.selectedGoal = selectedGoal;
 	}
+	public UserProfileFeatures getProfileFeatures() {
+		return profileFeatures;
+	}
 
+<<<<<<< Updated upstream
+=======
+	public void setProfileFeatures(UserProfileFeatures profileFeatures) {
+		this.profileFeatures = profileFeatures;
+	}
+	
+>>>>>>> Stashed changes
 }
