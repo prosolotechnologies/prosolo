@@ -7,7 +7,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.user.User;
@@ -22,9 +24,10 @@ public class ThreadParticipant implements Serializable {
 	private boolean archived;
 	private User user;
 	private Message lastReadMessage;
+	private MessageThread messageThread;
 	
 	@Id
-	@Column(name = "id", unique = true, nullable = false, insertable = false, updatable = false)
+	@Column(name = "id",nullable = false, insertable = false, updatable = false)
 	@GeneratedValue(strategy = GenerationType.TABLE)
 	@Type(type = "long")
 	public long getId() {
@@ -64,13 +67,23 @@ public class ThreadParticipant implements Serializable {
 		this.user = user;
 	}
 	
-	@ManyToOne
+	@OneToOne
 	public Message getLastReadMessage() {
 		return lastReadMessage;
 	}
 
 	public void setLastReadMessage(Message lastReadMessage) {
 		this.lastReadMessage = lastReadMessage;
+	}
+	
+	@ManyToOne
+	@JoinColumn(referencedColumnName="id")
+	public MessageThread getMessageThread() {
+		return messageThread;
+	}
+
+	public void setMessageThread(MessageThread messageThread) {
+		this.messageThread = messageThread;
 	}
 	
 }

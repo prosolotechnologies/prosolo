@@ -9,7 +9,7 @@
 	<h:form id="inboxForm">
 		<p:growl id="messagesGrowl" showDetail="true" />
 
-		<p:poll interval="#{topInboxBean.refreshRate}"
+		<p:poll interval="#{messagesBean.refreshRate}"
 			oncomplete="roundImages" update=":inboxForm:messagesInboxPanel"
 			widgetVar="messagesPoll" autoStart="true" />
 			
@@ -18,16 +18,16 @@
 				<p:commandLink
 					pt:position="s"
 					styleClass="btnMessages indexTripStep7 inlineBlock right"
-					action="#{topInboxBean.readMessages()}" 
-					actionListener="#{topInboxBean.logInboxServiceUse()}"
+					action="#{messagesBean.readMessages()}" 
+					actionListener="#{messagesBean.logInboxServiceUse()}"
 					oncomplete="$('.messagesContainer .inboxCircle').hide();"
 					async="true"
 					update=":inboxForm:messagesContainer @this">
 					
 					<i class="fa fa-envelope-o fa-lg"></i>
 					
-					<h:panelGroup layout="block" class="inboxCircle" rendered="#{topInboxBean.unreadThreadsNo > 0}">
-						#{topInboxBean.unreadThreadsNo}
+					<h:panelGroup layout="block" class="inboxCircle" rendered="#{messagesBean.unreadThreadsNo > 0}">
+						#{messagesBean.unreadThreadsNo}
 					</h:panelGroup>
 				</p:commandLink>
 			</div>
@@ -40,9 +40,9 @@
 						Messages
 					</div>
 					
-					<h:panelGroup layout="block" class="itemsContainer" id="messagesResultPanelContent" rendered="#{!empty topInboxBean.messagesThreads}">
+					<h:panelGroup layout="block" class="itemsContainer" id="messagesResultPanelContent" rendered="#{!empty messagesBean.messagesThreads}">
 						
-						<ui:repeat value="#{topInboxBean.messagesThreads}" var="messageThreadData" varStatus="iterator">
+						<ui:repeat value="#{messagesBean.messagesThreads}" var="messageThreadData" varStatus="iterator">
 							
 							<h:link outcome="/messages" 
 								class="item #{messageThreadData.readed == 'false' ? 'selected' : ''}"
@@ -77,11 +77,11 @@
 					</h:panelGroup>
 						
 					<h:panelGroup layout="block" id="noResultsPanel" styleClass="noResults"
-						rendered="#{empty topInboxBean.messagesThreads}">
+						rendered="#{empty messagesBean.messagesThreads}">
 						<h:outputText value="There are no new messages" />
 					</h:panelGroup>
 									
-					<h:link styleClass="seeAll" value="See all messages" outcome="/messages" />
+					<h:link styleClass="seeAll" value="See all messages" outcome="/messages_old" />
 										
 					<script type="text/javascript">
 						$(function() {

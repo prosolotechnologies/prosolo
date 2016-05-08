@@ -43,8 +43,8 @@ import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.CompetenceDataCache;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.home.PeopleRecommenderBean;
+import org.prosolo.web.messaging.MessagesBean;
 import org.prosolo.web.messaging.data.MessagesThreadData;
-import org.prosolo.web.notification.TopInboxBean;
 import org.prosolo.web.notification.TopNotificationsBean;
 import org.prosolo.web.notification.data.NotificationData;
 import org.prosolo.web.portfolio.data.SocialNetworkAccountData;
@@ -256,12 +256,11 @@ public class ProfileSettingsBean implements Serializable {
 							}
 						}
 
-						// updating messages data
-						TopInboxBean topInbox = (TopInboxBean) userSession.getAttribute("topInboxBean");
-
-						if (topInbox != null) {
-							List<MessagesThreadData> messages = topInbox.getMessagesThreads();
-
+						MessagesBean messagesBean = (MessagesBean) userSession.getAttribute("messagesBean");
+						
+						if (messagesBean != null) {
+							List<MessagesThreadData> messages = messagesBean.getMessagesThreads();
+							
 							if (messages != null) {
 								for (MessagesThreadData messageData : messages) {
 									updateUserData(accountData, messageData.getLatest().getActor());

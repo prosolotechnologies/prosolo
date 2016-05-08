@@ -98,14 +98,6 @@ public class DirectMessagesDialog implements Serializable {
 					messagesThread,
 					context);
 
-			messagesThread = messagingManager.merge(messagesThread);
-			messagesThread.addMessage(message);
-			messagesThread.setLastUpdated(new Date());
-			messagingManager.saveEntity(messagesThread);
-			
-			message.setMessageThread(messagesThread);
-			messagingManager.saveEntity(message);
-			
 			logger.debug("User "+loggedUser.getUser()+" sent a message to "+receiver+" with content: '"+this.messageContent+"'");
 			
 			List<UserData> participants = new ArrayList<UserData>();
@@ -131,7 +123,8 @@ public class DirectMessagesDialog implements Serializable {
 			
 			PageUtil.fireSuccessfulInfoMessage("dmcomp:newDirectMessageFormGrowl", 
 					"You have sent a message to " + receiver.getName());
-		} catch (ResourceCouldNotBeLoadedException e) {
+		//TODO ovde je bio ResoureCouldNotBeFound ex
+		} catch (Exception e) {
 			logger.error(e);
 		}
 	}

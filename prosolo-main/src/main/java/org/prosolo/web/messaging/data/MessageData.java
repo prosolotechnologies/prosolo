@@ -20,6 +20,7 @@ public class MessageData implements Serializable, Comparable<MessageData> {
 	private UserData actor;
 	private String date;
 	private String message;
+	private String createdTimeValue;
 
 	public MessageData(Message message, User user) {
 		this.id = message.getId();
@@ -27,7 +28,27 @@ public class MessageData implements Serializable, Comparable<MessageData> {
 		this.actor = UserDataFactory.createUserData(message.getSender().getUser());
 		this.message = message.getContent();
 		this.readed = checkIfRead(message, user);
-		this.created = message.getDateCreated();
+		this.created = message.getCreatedTimestamp();
+		this.createdTimeValue = DateUtil.createUpdateTime(this.created);
+		
+		String timeCreated = null;
+		
+		if (DateUtil.daysBetween(message.getDateCreated(), new Date()) == 0) {
+			timeCreated = DateUtil.getTimeAgoFromNow(message.getDateCreated());
+		} else {
+			timeCreated = DateUtil.getPrettyDate(message.getDateCreated());
+		}
+		this.date = timeCreated;
+	}
+	
+	public MessageData(Message message, User user, boolean read) {
+		this.id = message.getId();
+		this.threadId = message.getMessageThread().getId();
+		this.actor = UserDataFactory.createUserData(message.getSender().getUser());
+		this.message = message.getContent();
+		this.readed = read;
+		this.created = message.getCreatedTimestamp();
+		this.createdTimeValue = DateUtil.createUpdateTime(this.created);
 		
 		String timeCreated = null;
 		
@@ -40,11 +61,7 @@ public class MessageData implements Serializable, Comparable<MessageData> {
 	}
 	
 	private boolean checkIfRead(Message message, User user) {
-//		for(ThreadParticipant mp : message.getParticipants()) {
-//			if(mp.getUser().equals(user)) {
-//				return mp.isRead();
-//			}
-//		}
+		//TODO how to check if this message is read, by using User entity?
 		return false;
 	}
 
@@ -128,6 +145,14 @@ public class MessageData implements Serializable, Comparable<MessageData> {
 		this.message = message;
 	}
 	
+	public String getCreatedTimeValue() {
+		return createdTimeValue;
+	}
+
+	public void setCreatedTimeValue(String createdTimeValue) {
+		this.createdTimeValue = createdTimeValue;
+	}
+
 	@Override
 	public int compareTo(MessageData o) {
 		return o.getCreated().compareTo(this.getCreated());

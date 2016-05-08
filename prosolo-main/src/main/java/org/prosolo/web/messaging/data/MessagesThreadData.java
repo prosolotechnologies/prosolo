@@ -21,7 +21,6 @@ public class MessagesThreadData implements Serializable {
 	
 	private static final long serialVersionUID = -5533560146824083368L;
 
-	private boolean unreaded;
 	private String subject;
 	private long id;
 	private Date lastUpdated;
@@ -105,14 +104,6 @@ public class MessagesThreadData implements Serializable {
 	
 	public void setUpdateTime(String updateTime) {
 		this.updateTime = updateTime;
-	}
-	
-	public boolean isUnreaded() {
-		return unreaded;
-	}
-
-	public void setUnreaded(boolean unreaded) {
-		this.unreaded = unreaded;
 	}
 
 	public String getSubject() {

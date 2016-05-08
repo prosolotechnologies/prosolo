@@ -38,12 +38,12 @@
     
 
 	<div class="container">
-        <div class="row">
+       <h:panelGroup id="rowDiv" layout="block">
         
            <!-- rendered when there is no messages -->
-                <h:panelGroup layout="block" class="col-md-3" rendered="#{topInboxBean.messagesThreads.size() == 0}">
+                <h:panelGroup layout="block" class="col-md-3" rendered="#{messagesBean.messagesThreads.size() == 0 and !messagesBean.archiveView}}">
             	 </h:panelGroup>
-            	 <h:panelGroup class="col-md-6 messageColumn" rendered="#{topInboxBean.messagesThreads.size() == 0}">
+            	 <h:panelGroup class="col-md-6 messageColumn" rendered="#{messagesBean.messagesThreads.size() == 0 and !messagesBean.archiveView}">
                  	<section class="whiteBox messagesPane noSelected">
                     	<h2>You don't have any messages yet.</h2>
                     	<a href="#" class="btn btn-green">Send a message</a>
@@ -52,25 +52,38 @@
            <!-- end no messages rendering -->
         
             <!-- END LEFT MESSAGE PANEL(VIEW OF THREADS) -->
-            <h:panelGroup layout="block" class="col-md-3" rendered="#{topInboxBean.messagesThreads.size() > 0}">
+            <h:panelGroup id="messageItemsContainer" layout="block" class="col-md-3">
                 <div class="messagesListHead">
                     <div class="dropdown showDrop">
                         <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            Inbox
+                            #{messagesBean.archiveView == true ? 'Archive' : 'Inbox'}
                             <span class="arrowDown">arrowDown</span>
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                            <li><a href="#">Inbox</a></li>
-                            <li><a href="#">Archive</a></li>
+                            <li>
+                            	<p:commandLink 
+									action="#{messagesBean.setArchiveView(false)}"
+									update=":rowDiv">
+									Inbox
+								</p:commandLink>
+							</li>
+                            <li>
+                            	<p:commandLink
+									action="#{messagesBean.setArchiveView(true)}"
+									update=":rowDiv">
+									Archive
+								</p:commandLink>
+                            </li>
                         </ul>
                     </div>
                     <a href="message-new.html" class="newMessageBtn"><span></span>New Message</a>
                 </div>
                 
-                <div class="messagesList">
+                <h:panelGroup rendered="#{messagesBean.messagesThreads.size() > 0}" layout="block" class="messagesList">
                 	<ul>
-	                	<ui:repeat value="#{topInboxBean.messagesThreads}" var="messageThreadData" varStatus="iterator">
-	                		 <li thread-id="#{messageThreadData.id}" class="#{messageThreadData.id == messagesBean.threadData.id ? 'active' : ''}">
+	                	<ui:repeat value="#{messagesBean.messagesThreads}" var="messageThreadData" varStatus="iterator">
+	                		 <li thread-readed="#{messageThreadData.readed}" thread-id="#{messageThreadData.id}" 
+	                		 		class="#{messageThreadData.id == messagesBean.threadData.id ? 'active' : ''} #{messageThreadData.readed == false ? 'unreadMessage' : ''}">
 	                		 	<p:commandLink 
 									action="#{messagesBean.changeThread(messageThreadData)}"
 									update=":messagesForm:messagesContainer"
@@ -89,17 +102,18 @@
 	                                    <p style="color: #859095 !important;">#{messageThreadData.latest.shortContent}</p>
 	                                </div>
 	                            </div>
+	                            <h:panelGroup rendered="#{!messageThreadData.readed}" id="markerSpan" class="unread hidden">
+	                            </h:panelGroup>
 	                            </p:commandLink>
-	                            <span class="unread hidden"></span>
 	                		 </li>
 	                	</ui:repeat>
                 	</ul>
-                </div>
+                </h:panelGroup>
               </h:panelGroup>
               <!-- END LEFT MESSAGE PANEL(VIEW OF THREADS) -->
               
               <!-- BEGIN MESSAGE PANEL FOR DISPLAYING/SENDING MESSAGES -->
-              <h:form id="messagesForm" prependId="false" >
+              <h:form id="messagesForm" prependId="false" rendered="#{messagesBean.messagesThreads.size() > 0}">
 	          	<h:panelGroup layout="block" id="messagesContainer" class="col-md-6 messageColumn">
 	          		<section class="whiteBox messagesPane">
 	          			<div class="messagePaneHead">
@@ -112,16 +126,44 @@
                             </ul>
                         </div>
                     	</div>
+                    	<!-- BEGIN : SEPARATOR OF MESSAGES HEADER AND ACTUAL MESSAGES -->
                     	<div class="greyBar"></div>
+                    	<!-- END : SEPARATOR OF MESSAGES HEADER AND ACTUAL MESSAGES -->
+                    	<h:panelGroup layout="block" rendered="#{messagesBean.loadMore}">
+                    		<p:commandLink id="somthing"
+                    				action="#{messagesBean.increaseLimit()}"
+									update=":messagesForm:messagesContainer">
+                    		    <span class="arrowUp">Load earlier messages</span>
+                    		</p:commandLink>
+                    	</h:panelGroup>
                     	<div class="innerWrapper">
-                    		<ui:repeat value="#{messagesBean.messages}" var="message" varStatus="iterator">
+                    		<!-- FIRST SHOW MESSAGES THAT ARE READ -->
+                    		<ui:repeat value="#{messagesBean.readMessages}" var="message" varStatus="iterator">
                     			<div class="media">
                             		<div class="media-left">
                                 		<img src="#{message.actor.avatarUrl}" class="img-circle media-object" width="32" height="32" alt="#{message.actor.name}" />
                             		</div>
                             		<div class="media-body">
                                 		<h3 class="media-heading">#{message.actor.name}</h3>
-                               			<span>#{message.date}</span>
+                               			<span>#{message.createdTimeValue}</span>
+                                		<div class="clear"></div>
+                                		<p>#{message.content}</p>
+                            		</div>
+                        		</div>
+                    		</ui:repeat>
+                    		<!-- SEPARATE THEM BY SEPARATOR -->
+                    		<h:panelGroup layout="block" class="newMessagesSeparator" rendered="#{messagesBean.unreadMessages.size() > 0}" >
+                    		New Messages
+                    		</h:panelGroup>
+                    		<!-- FOLLOWED BY UNREAD MESSAGES -->
+                    		<ui:repeat value="#{messagesBean.unreadMessages}" var="message" varStatus="iterator">
+                    			<div class="media">
+                            		<div class="media-left">
+                                		<img src="#{message.actor.avatarUrl}" class="img-circle media-object" width="32" height="32" alt="#{message.actor.name}" />
+                            		</div>
+                            		<div class="media-body">
+                                		<h3 class="media-heading">#{message.actor.name}</h3>
+                               			<span>#{message.createdTimeValue}</span>
                                 		<div class="clear"></div>
                                 		<p>#{message.content}</p>
                             		</div>
@@ -130,9 +172,11 @@
                     	</div>
 	          		</section>
 	          	</h:panelGroup>
-	          </h:form>
+	         
 	          <!-- END MESSAGE PANEL FOR DISPLAYING/SENDING MESSAGES -->
-            </div>
+	          
+				 </h:form>
+            </h:panelGroup>
     </div>
 	
 	<script>

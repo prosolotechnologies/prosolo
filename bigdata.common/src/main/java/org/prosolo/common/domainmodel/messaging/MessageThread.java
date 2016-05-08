@@ -6,15 +6,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
+import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.hibernate.annotations.Cascade;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
@@ -50,8 +50,7 @@ public class MessageThread extends BaseEntity {
 		this.creator = creator;
 	}
 
-	@ManyToMany
-	@Cascade({ org.hibernate.annotations.CascadeType.PERSIST, org.hibernate.annotations.CascadeType.REFRESH })
+	@OneToMany(cascade=CascadeType.ALL, mappedBy="messageThread",fetch= FetchType.LAZY)
 	public Set<ThreadParticipant> getParticipants() {
 		return participants;
 	}
@@ -94,7 +93,7 @@ public class MessageThread extends BaseEntity {
 		this.lastUpdated = lastUpdated;
 	}
 
-	@OneToMany(mappedBy="messageThread")
+	@OneToMany(mappedBy="messageThread", fetch= FetchType.LAZY)
 	public List<Message> getMessages() {
 		return messages;
 	}
@@ -109,7 +108,7 @@ public class MessageThread extends BaseEntity {
 			this.lastUpdated=new Date();
 		}
 	}
-
+	
 	@Column(name = "subject", nullable = true)
 	public String getSubject() {
 		return subject;

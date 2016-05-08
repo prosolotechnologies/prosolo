@@ -14,21 +14,21 @@
 		<h:form id="inboxForm">
 			<p:growl id="messagesGrowl" showDetail="true" />
 
-			<p:poll interval="#{topInboxBean.refreshRate}"
+			<p:poll interval="#{messagesBean.refreshRate}"
 				oncomplete="roundImages" update=":inboxForm"
 				widgetVar="messagesPoll" autoStart="true" />
 				
 			<p:commandLink styleClass="faded" pt:aria-expanded="false"
 				pt:aria-haspopup="true" pt:role="button" pt:data-toggle="dropdown"
-				action="#{topInboxBean.readMessages()}"
-				actionListener="#{topInboxBean.logInboxServiceUse()}" async="true"
+				action="#{messagesBean.readMessages()}"
+				actionListener="#{messagesBean.logInboxServiceUse()}" async="true"
 				update=":inboxForm:messagesPanelContent @this">
 
 				<i class="fa fa-envelope-o fa-lg"></i>
 
 				<h:panelGroup styleClass="bdg"
-					rendered="#{topInboxBean.unreadThreadsNo > 0}">
-					#{topInboxBean.unreadThreadsNo}
+					rendered="#{messagesBean.unreadThreadsNo > 0}">
+					#{messagesBean.unreadThreadsNo}
 				</h:panelGroup>
 			</p:commandLink>
 
@@ -41,12 +41,12 @@
 					
 					<h:panelGroup layout="block" 
 						styleClass="noContent"
-						rendered="#{empty topInboxBean.messagesThreads}">
+						rendered="#{empty messagesBean.messagesThreads}">
                  
                           	No messages
 					</h:panelGroup>
 
-					<ui:repeat value="#{topInboxBean.messagesThreads}"
+					<ui:repeat value="#{messagesBean.messagesThreads}"
 						var="messageThreadData" varStatus="iterator">
 						
 						<h:link outcome="/messages" class="item"

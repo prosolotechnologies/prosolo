@@ -5,6 +5,7 @@ import java.util.List;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.messaging.MessageThread;
+import org.prosolo.common.domainmodel.messaging.ThreadParticipant;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
@@ -24,10 +25,10 @@ public interface MessagingManager extends AbstractManager {
 	Message sendSimpleOfflineMessage(User sender, long receiverId,
 			String content, MessageThread messagesThread, String context) throws ResourceCouldNotBeLoadedException;
 	
-	List<Message> getUnreadSimpleOfflineMessages(User user,
-			int page, int limit);
+//	List<Message> getUnreadSimpleOfflineMessages(User user,
+//			int page, int limit);
 
-	List<Message> getSimpleOfflineMessages(User user, int page, int limit);
+	List<Message> getMessages(User user, int page, int limit);
 
 	List<MessageThread> getUserMessagesThreads(User user, int page, int limit);
 
@@ -49,7 +50,7 @@ public interface MessagingManager extends AbstractManager {
 
 	MessageThread findMessagesThreadForUsers(long user1Id, long user2Id);
 
-	List<MessageThread> getLatestUserMessagesThreads(User user, int page, int limit);
+	List<MessageThread> getLatestUserMessagesThreads(User user, int page, int limit, boolean archived);
 
 	boolean markThreadAsRead(long threadId, long userId);
 
@@ -59,5 +60,11 @@ public interface MessagingManager extends AbstractManager {
 	MessageThread getLatestMessageThread(User user);
 	
 	public Message sendMessage(long senderId, long receiverId, String msg) throws DbConnectionException;
-
+	
+	public ThreadParticipant findParticipation(long threadId, long userId);
+	
+	public List<Message> getUnreadMessages(long threadId, Message lastReadMessage);
+	
+	public List<Message> getMessagesBeforeMessage(long threadId, Message message, int numberOfMessages);
+	
 }
