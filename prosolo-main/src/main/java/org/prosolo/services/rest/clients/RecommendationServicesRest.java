@@ -12,6 +12,5 @@ public interface RecommendationServicesRest {
 
 	String sendPostRequest(String serviceLocalPath, RequestObject paramObject) throws ConnectException;
 
-	String sendGetRequest(String serviceLocalPath) throws ConnectException;
 }
 

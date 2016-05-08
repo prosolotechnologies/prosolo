@@ -38,19 +38,5 @@ public class RecommendationServicesRestImpl implements RecommendationServicesRes
 		return response;
 	}
 
-	@Override
-	public String sendGetRequest(String serviceLocalPath) throws ConnectException {
-		AnalyticalServerConfig analyticalConfig = Settings.getInstance().config.analyticalServerConfig;
-		String serviceUrl = "http://" + analyticalConfig.apiHost;
-
-		if (analyticalConfig.apiPort > 0) {
-			serviceUrl = serviceUrl + ":" + analyticalConfig.apiPort;
-		}
-
-		serviceUrl = serviceUrl + "/" + analyticalConfig.apiServicesPath + serviceLocalPath;
-		String response = restClient.sendGetRequest(serviceUrl);
-
-		return response;
-	}
 	
 }
