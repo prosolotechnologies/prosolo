@@ -2,6 +2,7 @@ package org.prosolo.services.nodes.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,6 +18,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private long targetActivityId;
 	private String title;
 	private String description;
+	private Date dateCreated;
 	//target activity specific
 	private boolean enrolled;
 	private boolean completed;
@@ -62,6 +64,25 @@ public class ActivityData extends StandardObservable implements Serializable {
 		links = new ArrayList<>();
 		files = new ArrayList<>();
 		activityType = ActivityType.TEXT;
+	}
+	
+	@Override
+	public boolean hasObjectChanged() {
+		boolean changed = super.hasObjectChanged();
+		if(!changed) {
+			for(ResourceLinkData rl : getLinks()) {
+				if(rl.getStatus() != ObjectStatus.UP_TO_DATE) {
+					return true;
+				}
+			}
+			
+			for(ResourceLinkData rl : getFiles()) {
+				if(rl.getStatus() != ObjectStatus.UP_TO_DATE) {
+					return true;
+				}
+			}
+		}
+		return changed;
 	}
 	
 	public long getTargetOrRegularActivityId() {
@@ -291,6 +312,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 	}
 
 	public void setActivityType(ActivityType activityType) {
+		observeAttributeChange("activityType", this.activityType, activityType);
 		this.activityType = activityType;
 	}
 
@@ -443,6 +465,10 @@ public class ActivityData extends StandardObservable implements Serializable {
 		return changedAttributes.containsKey("durationMinutes");
 	}
 	
+	public boolean isActivityTypeChanged() {
+		return changedAttributes.containsKey("activityType");
+	}
+	
 	//special methods to retrieve duration before update
 	public Optional<Integer> getDurationHoursBeforeUpdate() {
 		Integer dur = (Integer) changedAttributes.get("durationHours");
@@ -460,6 +486,14 @@ public class ActivityData extends StandardObservable implements Serializable {
 		} else {
 			return Optional.of(dur);
 		}
+	}
+
+	public Date getDateCreated() {
+		return dateCreated;
+	}
+
+	public void setDateCreated(Date dateCreated) {
+		this.dateCreated = dateCreated;
 	}
 	
 }

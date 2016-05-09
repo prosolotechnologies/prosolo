@@ -109,18 +109,7 @@ public class CompetenceEditBean implements Serializable {
 	 */
 	
 	public void preview() {
-		boolean saved = saveCompetenceData(true, true);
-		if(saved) {
-			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-			try {
-				extContext.redirect(extContext.getRequestContextPath() + 
-						"/competence.xhtml?mode=preview&compId=" + id);
-			} catch (IOException e) {
-				logger.error(e);
-			}
-			//return "/competence.xhtml?faces-redirect=true&mode=preview&compId=" + id;
-		}
-		//return null;
+		saveCompetenceData(true, true);
 	}
 	
 	public void save() {
@@ -159,7 +148,7 @@ public class CompetenceEditBean implements Serializable {
 				decodedId = competenceData.getCompetenceId();
 				id = idEncoder.encodeId(decodedId);
 			}
-			if(reloadData) {
+			if(reloadData && competenceData.hasObjectChanged()) {
 				initializeValues();
 				loadCompetenceData(decodedId);
 			}

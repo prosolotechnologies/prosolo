@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
+import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -137,11 +138,17 @@ public class ActivityEditBean implements Serializable {
 	}
 	
 	public void removeFile(ResourceLinkData link) {
-		link.setStatus(ObjectStatus.REMOVED);
+		link.statusRemoveTransition();
+		if(link.getStatus() != ObjectStatus.REMOVED) {
+			activityData.getFiles().remove(link);
+		}
 	}
 	
 	public void removeLink(ResourceLinkData link) {
-		link.setStatus(ObjectStatus.REMOVED);
+		link.statusRemoveTransition();
+		if(link.getStatus() != ObjectStatus.REMOVED) {
+			activityData.getLinks().remove(link);
+		}
 	}
 	
 	public void handleFileUpload(FileUploadEvent event) {
@@ -169,8 +176,9 @@ public class ActivityEditBean implements Serializable {
 		linkToAdd = "";
 	}
 	
-	public boolean isCreateUseCase() {
-		return activityData.getActivityId() == 0;
+	public boolean isCreateUseCaseOrFirstTimeDraft() {
+		return activityData.getActivityId() == 0 || 
+				(!activityData.isPublished() && !activityData.isDraft());
 	}
 	
 	/*
@@ -178,21 +186,12 @@ public class ActivityEditBean implements Serializable {
 	 */
 	
 	public void preview() {
-		boolean saved = saveActivityData(true);
-		if(saved) {
-			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-			try {
-				extContext.redirect(extContext.getRequestContextPath() + 
-						"/activities/" + id + "?mode=preview");
-			} catch (IOException e) {
-				logger.error(e);
-			}
-		}
+		saveActivityData(true, true);
 	}
 	
 	public void save() {
 		boolean isNew = activityData.getActivityId() == 0;
-		boolean saved = saveActivityData(false);
+		boolean saved = saveActivityData(false, !isNew);
 		if(saved && isNew) {
 			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
 			try {
@@ -204,38 +203,40 @@ public class ActivityEditBean implements Serializable {
 		}
 	}
 	
-	public boolean saveActivityData(boolean saveAsDraft) {
+	public boolean saveActivityData(boolean saveAsDraft, boolean reloadData) {
 		try {
 			if(activityData.getActivityId() > 0) {
-				if(saveAsDraft) {
-					activityData.setStatus(PublishedStatus.DRAFT);
+				if(activityData.hasObjectChanged()) {
+					if(saveAsDraft) {
+						activityData.setStatus(PublishedStatus.DRAFT);
+					}
+					activityManager.updateActivity(activityData, 
+							loggedUser.getUser().getId());
 				}
-				activityManager.updateActivity(activityData, 
-						loggedUser.getUser().getId());
-				
-				//reload data
-				loadActivityData(decodedId);
-				activityData.setCompetenceName(competenceName);
 			} else {
 				if(saveAsDraft) {
 					activityData.setStatus(PublishedStatus.DRAFT);
 				}
-				activityManager.saveNewActivity(activityData, 
+				Activity1 act = activityManager.saveNewActivity(activityData, 
 						loggedUser.getUser().getId());
-//				activityData.setActivityId(act.getId());
-//				decodedId = activityData.getActivityId();
-//				id = idEncoder.encodeId(decodedId);
-//				
-//				//reload
-//				initializeValues();
-//				loadActivityData(decodedId);
-//				activityData.setCompetenceName(competenceName);
+				decodedId = act.getId();
+				id = idEncoder.encodeId(decodedId);
+			}
+			
+			if(reloadData && activityData.hasObjectChanged()) {
+				//reload data
+				loadActivityData(decodedId);
+				activityData.setCompetenceName(competenceName);
 			}
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			return true;
 		} catch(DbConnectionException e) {
 			logger.error(e);
 			e.printStackTrace();
+			/*
+			 * to be able to check in oncomplete event if action executed successfully or not.
+			 */
+			FacesContext.getCurrentInstance().validationFailed();
 			PageUtil.fireErrorMessage(e.getMessage());
 			return false;
 		}

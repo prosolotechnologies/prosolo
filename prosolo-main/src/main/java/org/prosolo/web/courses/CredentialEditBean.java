@@ -125,20 +125,20 @@ public class CredentialEditBean implements Serializable {
 	}
 	
 	public void preview() {
-		boolean saved = saveCredentialData(true, true);
-		if(saved) {
-			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-			try {
+		saveCredentialData(true, true);
+//		if(saved) {
+//			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
+//			try {
+////				extContext.redirect(extContext.getRequestContextPath() + 
+////						"/credential.xhtml?mode=preview&id=" + id);
+//				
 //				extContext.redirect(extContext.getRequestContextPath() + 
-//						"/credential.xhtml?mode=preview&id=" + id);
-				
-				extContext.redirect(extContext.getRequestContextPath() + 
-						"/credentials/" + id + "?mode=preview");
-			} catch (IOException e) {
-				logger.error(e);
-			}
-			//return "credential.xhtml?faces-redirect=true&id=" + id;
-		}
+//						"/credentials/" + id + "?mode=preview");
+//			} catch (IOException e) {
+//				logger.error(e);
+//			}
+//			//return "credential.xhtml?faces-redirect=true&id=" + id;
+//		}
 		//return null;
 	}
 	
@@ -167,7 +167,7 @@ public class CredentialEditBean implements Serializable {
 				decodedId = credentialData.getId();
 				id = idEncoder.encodeId(decodedId);
 			}
-			if(reloadData) {
+			if(reloadData && credentialData.hasObjectChanged()) {
 				initializeValues();
 				loadCredentialData(decodedId);
 			}

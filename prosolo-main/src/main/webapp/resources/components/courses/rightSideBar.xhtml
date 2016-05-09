@@ -18,6 +18,7 @@
 		<composite:attribute name="saveAction" required="true" method-signature="void save()"/>
 		<composite:attribute name="toUpdate" required="true" />
 		<composite:attribute name="previewAction" required="true" method-signature="void preview()"/>
+		<composite:attribute name="linkPreviewClass" required="true" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -25,11 +26,11 @@
 			<h2>Publish</h2>
 			
 			<p:commandLink
-				ajax="false"
 				value="Preview"
 				styleClass="linkPreview"
 				action="#{cc.attrs.previewAction}"
-				target="_blank"/>
+				update="#{cc.attrs.toUpdate}"
+				oncomplete="if(args &amp;&amp; !args.validationFailed) { document.getElementsByClassName('#{cc.attrs.linkPreviewClass}')[0].click();}"/>
 			
 			<div class="clear"></div>
 			
@@ -39,8 +40,6 @@
 					id="checkMandatory"
 					onclick="console.log(this.checked)"
 					value="#{cc.attrs.chooseOptionValue}">
-					
-					<f:ajax listener="#{credentialEditBean.listener}"/>
 				</h:selectBooleanCheckbox>
 				
 				<label for="#{cc.clientId}:checkMandatory">
@@ -51,7 +50,6 @@
 			<h:selectOneMenu styleClass="selectpicker" value="#{cc.attrs.publishValue}">
 				<f:selectItems value="#{cc.attrs.publishValues}" var="status"
 					itemValue="#{status}" itemLabel="#{status.label}" />
-				<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/bootstrap-select.css" />
 			</h:selectOneMenu>
 			
 			<script>$('.selectpicker').selectpicker('refresh');</script>

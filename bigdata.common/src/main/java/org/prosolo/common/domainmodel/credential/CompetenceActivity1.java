@@ -31,7 +31,6 @@ public class CompetenceActivity1 extends BaseEntity {
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(nullable = false)
 	public Activity1 getActivity() {
 		return activity;
 	}

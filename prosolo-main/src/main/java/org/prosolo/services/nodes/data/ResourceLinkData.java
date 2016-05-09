@@ -10,6 +10,10 @@ public class ResourceLinkData {
 	public ResourceLinkData() {
 		
 	}
+	
+	public void statusRemoveTransition() {
+		setStatus(ObjectStatusTransitions.removeTransition(getStatus()));
+	}
 
 	public long getId() {
 		return id;

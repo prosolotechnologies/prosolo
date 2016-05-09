@@ -83,7 +83,7 @@
                                     	layout="block" 
                                     	id="panelSelectActivity" 
                                     	styleClass="formLineRight"
-                                    	rendered="#{activityEditBean.isCreateUseCase()}">
+                                    	rendered="#{activityEditBean.isCreateUseCaseOrFirstTimeDraft()}">
                                         <ul class="nav nav-tabs innerSubmenu" role="tablist">
                                         	<ui:repeat var="type" value="#{activityEditBean.activityTypes}">
                                         		<li role="presentation" class="#{activityEditBean.isActivityTypeSelected(type) ? 'active' : ''}">
@@ -104,7 +104,7 @@
                                     	layout="block" 
                                     	id="panelActivityType" 
                                     	styleClass="formLineRight"
-                                    	rendered="#{!activityEditBean.isCreateUseCase()}">
+                                    	rendered="#{!activityEditBean.isCreateUseCaseOrFirstTimeDraft()}">
                                          <ul class="addedItems">
                                              <li>
                                                  #{activityEditBean.activityData.activityType.label}
@@ -126,7 +126,21 @@
             <div class="col-md-4">
                 <div class="whiteBox publishBox">
                     <h2>Publish</h2>
-                    <a href="#" class="linkPreview">Preview</a>
+                    <p:commandLink
+						value="Preview"
+						styleClass="linkPreview"
+						action="#{activityEditBean.preview()}"
+						update=":formMain"
+						oncomplete="if(args &amp;&amp; !args.validationFailed) { document.getElementsByClassName('hiddenLinkPreview')[0].click();}"/>
+					<h:link
+						style="display: none;"
+						styleClass="hiddenLinkPreview"
+						target="_blank"
+						outcome="/activity">
+						<f:param name="compId" value="#{util:encodeId(activityEditBean.activityData.competenceId)}"></f:param>
+						<f:param name="actId" value="#{activityEditBean.id}"></f:param>
+						<f:param name="mode" value="preview"></f:param>
+					</h:link>
                     <div class="clear"></div>
                     <div class="estimatedTime">
                         <p>Estimated time to complete:</p>

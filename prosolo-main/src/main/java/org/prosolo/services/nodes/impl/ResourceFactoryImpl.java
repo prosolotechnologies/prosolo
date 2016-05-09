@@ -963,8 +963,8 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data) 
+    public Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data, long userId) 
 			throws DbConnectionException {
-    	return activityManager.updateActivity(data);
+    	return activityManager.updateActivityData(data, userId);
     }
 }

@@ -114,6 +114,14 @@
             </div>
          </ui:repeat>
         
+         <ui:fragment rendered="#{cc.attrs.isEdit}">
+	         <h:link styleClass="activityItem addActivity"
+	         	outcome="/create-activity">
+	             <span class="iconPlus"></span>
+	             Add Activity
+	             <f:param name="compId" value="#{cc.attrs.encodedCompetenceId}"></f:param>
+	         </h:link>
+	     </ui:fragment>
         </div>
 	</composite:implementation>
 </ui:component>

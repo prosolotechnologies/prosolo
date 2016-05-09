@@ -109,14 +109,15 @@
                     		bean="#{competenceEditBean}"
                     		isEdit="true"
                     		showMarkedIfCompleted="false"
-                    		isPreview="false"/>
+                    		isPreview="false"
+                    		encodedCompetenceId="#{param['id']}"/>
                     		
-                    		<h:link styleClass="activityItem addActivity"
+                    		<ui:remove><h:link styleClass="activityItem addActivity"
                             	outcome="/create-activity">
                                 <span class="iconPlus"></span>
                                 Add Activity
                                 <f:param name="compId" value="#{param['id']}"></f:param>
-                            </h:link>
+                            </h:link></ui:remove>
                     </div>
                     </div>
                 </div>
@@ -129,7 +130,17 @@
             		publishValue="#{competenceEditBean.competenceData.status}"
             		saveAction="#{competenceEditBean.save}"
             		toUpdate=":formMain :panelTitle" 
-            		previewAction="#{competenceEditBean.preview}"/>
+            		previewAction="#{competenceEditBean.preview}"
+            		linkPreviewClass="hiddenLinkPreview"/>
+            		
+            	<h:link
+					style="display: none;"
+					styleClass="hiddenLinkPreview"
+					target="_blank"
+					outcome="/competence">
+					<f:param name="compId" value="#{competenceEditBean.id}"></f:param>
+					<f:param name="mode" value="preview"></f:param>
+				</h:link>
             </div>
         </div>
 

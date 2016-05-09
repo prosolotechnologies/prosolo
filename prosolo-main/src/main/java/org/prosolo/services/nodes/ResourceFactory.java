@@ -128,7 +128,7 @@ public interface ResourceFactory extends AbstractManager {
 	Activity1 createActivity(org.prosolo.services.nodes.data.ActivityData activityData, 
 			long userId) throws DbConnectionException;
 
-	Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data) 
+	Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data, long userId) 
 			throws DbConnectionException;
 
 }

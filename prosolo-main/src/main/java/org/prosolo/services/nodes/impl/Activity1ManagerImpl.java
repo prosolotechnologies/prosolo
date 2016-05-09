@@ -556,7 +556,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Transactional(readOnly = false)
 	public Activity1 updateActivity(ActivityData data, long userId) throws DbConnectionException {
 		try {
-			Activity1 act = resourceFactory.updateActivity(data);
+			Activity1 act = resourceFactory.updateActivity(data, userId);
 
 			User user = new User();
 			user.setId(userId);
@@ -629,26 +629,25 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = false)
-	public Activity1 updateActivity(ActivityData data) {
+	public Activity1 updateActivityData(ActivityData data, long userId) {
 		Activity1 act = null;
 		Class<? extends Activity1> activityClass = null;
-		switch(data.getActivityType()) {
-			case TEXT:
-				act = (TextActivity1) persistence.currentManager().load(TextActivity1.class, 
-						data.getActivityId());
-				activityClass = TextActivity1.class;
-				break;
-			case VIDEO:
-			case SLIDESHARE:
-				act = (UrlActivity1) persistence.currentManager().load(UrlActivity1.class, 
-						data.getActivityId());
-				activityClass = UrlActivity1.class;
-				break;
-			case EXTERNAL_TOOL:
-				act = (ExternalToolActivity1) persistence.currentManager().load(
-						ExternalToolActivity1.class, data.getActivityId());
-				activityClass = ExternalToolActivity1.class;
-				break;
+		
+		/*
+		 * If activity type is changed it should mean that activity is first time draft and only way
+		 * to change activity type is to delete old activity from database and insert as new activity
+		 * with different type.
+		 */
+		if(data.isActivityTypeChanged()) {
+			boolean firstTimeDraft = ((!data.isPublished() && !data.isPublishedChanged())
+					|| (data.isPublished() && data.isPublishedChanged())) && !data.isDraft();
+			
+			if(firstTimeDraft) {
+				updateActivityType(data.getActivityId(), data.getActivityType());
+			} else {
+				throw new RuntimeException("You can't change type for activity that was published once");
+			}
+			
 		}
 		/*
 		 * draft should be created if something changed, draft option is chosen 
@@ -669,8 +668,70 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					publishTransition;
 		}
 		
+		switch(data.getActivityType()) {
+			case TEXT:
+				act = (TextActivity1) persistence.currentManager().load(TextActivity1.class, 
+						data.getActivityId());
+				activityClass = TextActivity1.class;
+				break;
+			case VIDEO:
+			case SLIDESHARE:
+				act = (UrlActivity1) persistence.currentManager().load(UrlActivity1.class, 
+						data.getActivityId());
+				activityClass = UrlActivity1.class;
+				break;
+			case EXTERNAL_TOOL:
+				act = (ExternalToolActivity1) persistence.currentManager().load(
+						ExternalToolActivity1.class, data.getActivityId());
+				activityClass = ExternalToolActivity1.class;
+				break;
+		}
+		
 		return updateActivityData(act, activityClass, publishTransition, data);
+		
 	}
+	
+	private void updateActivityType(long activityId, ActivityType activityType) {
+		Activity1 act = activityFactory.getObjectForActivityType(activityType);
+		boolean isUrlActivity = act instanceof UrlActivity1;
+		StringBuilder builder = new StringBuilder();
+		builder.append("UPDATE activity1 SET dtype = :type ");
+		if(isUrlActivity) {
+			builder.append(", type = :urlType ");
+		}
+		builder.append("WHERE id = :id");
+
+		Query q = persistence.currentManager()
+			.createSQLQuery(builder.toString())
+			.setString("type", act.getClass().getSimpleName())
+			.setLong("id", activityId);
+		if(isUrlActivity) {
+			q.setString("urlType", ((UrlActivity1) act).getType().toString());
+		}
+		
+		q.executeUpdate();
+	}
+
+//	@Transactional(readOnly = false)
+//	private void deleteActivity(long activityId) {
+//		String query1 = "DELETE FROM activity1_links where activity1 = :activityId";
+//		persistence.currentManager()
+//			.createSQLQuery(query1)
+//			.setLong("activityId", activityId)
+//			.executeUpdate();
+//		
+//		String query2 = "DELETE FROM activity1_files where activity1 = :activityId";
+//		persistence.currentManager()
+//			.createSQLQuery(query2)
+//			.setLong("activityId", activityId)
+//			.executeUpdate();
+//		
+//		String query3 = "DELETE FROM activity1 where id = :activityId";
+//		persistence.currentManager()
+//			.createSQLQuery(query3)
+//			.setLong("activityId", activityId)
+//			.executeUpdate();
+//	}
 	
 	/**
 	 * Updates all activity updatable fields and takes into

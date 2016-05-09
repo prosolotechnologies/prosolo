@@ -50,7 +50,7 @@ public interface Activity1Manager {
 	
 	Activity1 updateActivity(ActivityData data, long userId) throws DbConnectionException;
 	
-	Activity1 updateActivity(ActivityData data);
+	Activity1 updateActivityData(ActivityData data, long userId);
 	
 	Activity1 getOriginalActivityForDraft(long draftActivityId) throws DbConnectionException;
 	
