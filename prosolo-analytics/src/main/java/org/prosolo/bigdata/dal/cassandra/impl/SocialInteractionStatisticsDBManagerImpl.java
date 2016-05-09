@@ -20,6 +20,8 @@ import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
+import org.prosolo.bigdata.dal.cassandra.impl.SimpleCassandraClientImpl;
+import org.prosolo.bigdata.dal.cassandra.impl.SimpleCassandraClientImpl.TableNames;
 
 public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraClientImpl implements
 		SocialInteractionStatisticsDBManager {
@@ -135,7 +137,7 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 		return map(query(statement), (row) -> new SocialInteractionCount(source(row), target(row), count(row)));
 	}*/
 
-	@Override
+	//@Override
 	public void updateCurrentTimestamp(TableNames tablename, Long timestamp){
 		PreparedStatement prepared = getStatement(getSession(), Statements.UPDATE_CURRENT_TIMESTAMPS);
 		BoundStatement statement = StatementUtil.statement(prepared, timestamp,tablename.name());

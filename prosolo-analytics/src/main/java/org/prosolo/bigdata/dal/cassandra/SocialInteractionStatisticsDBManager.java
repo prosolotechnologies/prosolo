@@ -6,6 +6,7 @@ import org.prosolo.bigdata.common.dal.pojo.OuterInteractionsCount;
 //import org.prosolo.bigdata.common.dal.pojo.SocialInteractionCount;
 import org.prosolo.bigdata.common.dal.pojo.SocialInteractionsCount;
 import org.prosolo.bigdata.dal.cassandra.impl.SimpleCassandraClientImpl;
+import org.prosolo.bigdata.dal.cassandra.impl.SimpleCassandraClientImpl.TableNames;
 import org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl;
 
 import com.datastax.driver.core.Row;
@@ -18,7 +19,8 @@ public interface SocialInteractionStatisticsDBManager {
 
 	//List<SocialInteractionCount> getSocialInteractionCounts(Long courseid, Long userid);
 
-	void updateCurrentTimestamp(SimpleCassandraClientImpl.TableNames tablename, Long timestamp);
+
+	void updateCurrentTimestamp(TableNames tablename, Long timestamp);
 
 	void insertInsideClusterInteractions(Long timestamp, Long course, Long cluster, Long student,
 										 List<String> interactions);
