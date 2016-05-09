@@ -6,12 +6,7 @@ import java.util.Set;
 import javax.ws.rs.core.Application;
 
 import org.apache.log4j.Logger;
-import org.prosolo.bigdata.api.LearningActivityService;
-import org.prosolo.bigdata.api.PingResource;
-import org.prosolo.bigdata.api.RecommendationServices;
-import org.prosolo.bigdata.api.SocialInteractionStatisticsService;
-import org.prosolo.bigdata.api.TwitterHashtagStatisticsService;
-import org.prosolo.bigdata.api.UsersActivityStatisticsService;
+import org.prosolo.bigdata.api.*;
 
 /**
  * @author Zoran Jeremic Apr 2, 2015
@@ -34,12 +29,13 @@ public class WebApplication extends Application {
 	}
 
 	public WebApplication() {
-		logger.info("INIT WEB APPLICATION: REST API exposed at:http://{host}:8080/api/{servicepath}");
+		logger.info("INIT WEB APPLICATION: REST API exposed at:http://{host}:{port}/api/{servicepath}");
 		singletons.add(new PingResource());
 		singletons.add(new RecommendationServices());
 		singletons.add(new UsersActivityStatisticsService());
 		singletons.add(new TwitterHashtagStatisticsService());
 		singletons.add(new SocialInteractionStatisticsService());
 		singletons.add(new LearningActivityService());
+		singletons.add(new UserProfileService());
 	}
 }

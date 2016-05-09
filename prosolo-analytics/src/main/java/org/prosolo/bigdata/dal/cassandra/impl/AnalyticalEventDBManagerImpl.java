@@ -38,61 +38,23 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 
 	static {
 		statements.put(Statements.UPDATE_USERACTIVITY,"UPDATE useractivity  SET count=count+1 WHERE userid=? AND date=?;");
-		//String update_useractivity = "UPDATE useractivity  SET count=count+1 WHERE userid=? AND date=?;";
-		//this.statements.put("update_useractivity", update_useractivity);
 		statements.put(Statements.UPDATE_USERLEARNINGGOALACTIVITY,"UPDATE userlearninggoalactivity  SET count=count+1 WHERE userid=? AND learninggoalid=? AND date=?;");
-		//String update_userlearninggoalactivity = "UPDATE userlearninggoalactivity  SET count=count+1 WHERE userid=? AND learninggoalid=? AND date=?;";
-		//this.statements.put("update_userlearninggoalactivity",
-				//update_userlearninggoalactivity);
 		statements.put(Statements.FIND_USERLEARNINGOALACTIVITY,"SELECT * FROM userlearninggoalactivity WHERE date=? ALLOW FILTERING;");
-		//String find_userlearninggoalactivity = "SELECT * FROM userlearninggoalactivity WHERE date=? ALLOW FILTERING;";
-		//this.statements.put("find_userlearninggoalactivity",
-				//find_userlearninggoalactivity);
 		statements.put(Statements.UPDATE_ACTIVITYINTERACTION,"UPDATE activityinteraction  SET count=count+1 WHERE competenceid=? AND activityid=?;");
-		//String update_activityinteraction = "UPDATE activityinteraction  SET count=count+1 WHERE competenceid=? AND activityid=?;";
-		//this.statements.put("update_activityinteraction",
-				//update_activityinteraction);
 		statements.put(Statements.INSERT_TARGETCOMPETENCEACTIVITIES,"");
-		//String insert_targetcompetenceactivities = "INSERT INTO targetcompetenceactivities(competenceid, targetcompetenceid, activities) VALUES (?, ?, ?);";
-	//	this.statements.put("insert_targetcompetenceactivities",
-			//	insert_targetcompetenceactivities);
 		statements.put(Statements.INSERT_MOSTACTIVEUSERSFORLEARNINGGOALBYDATE,"INSERT INTO mostactiveusersforlearninggoalbydate(date, learninggoalid, mostactiveusers) VALUES (?, ?, ?);");
-		//String insert_mostactiveusersforlearninggoalbydate = "INSERT INTO mostactiveusersforlearninggoalbydate(date, learninggoalid, mostactiveusers) VALUES (?, ?, ?);";
-		//this.statements.put("insert_mostactiveusersforlearninggoalbydate",
-		//		insert_mostactiveusersforlearninggoalbydate);
 		statements.put(Statements.FIND_MOSTACTIVEUSERSFORLEARNINGGOALBYDATE,"SELECT * FROM mostactiveusersforlearninggoalbydate WHERE date=? ALLOW FILTERING;");
-		//String find_mostactiveusersforlearninggoalbydate = "SELECT * FROM mostactiveusersforlearninggoalbydate WHERE date=? ALLOW FILTERING;";
-		//this.statements.put("find_mostactiveusersforlearninggoalbydate",
-			//	find_mostactiveusersforlearninggoalbydate);
 		statements.put(Statements.FIND_ACTIVITIESFORCOMPETENCE,"SELECT * FROM activityinteraction WHERE competenceid=? ALLOW FILTERING;");
-		//String find_activitiesforcompetence = "SELECT * FROM activityinteraction WHERE competenceid=? ALLOW FILTERING;";
-		//this.statements.put("find_activitiesforcompetence",
-			//	find_activitiesforcompetence);
 		statements.put(Statements.FIND_TARGETCOMPETENCEACTIVITIES,"SELECT * FROM targetcompetenceactivities WHERE competenceid=? ALLOW FILTERING;");
-		//String find_targetcompetenceactivities = "SELECT * FROM targetcompetenceactivities WHERE competenceid=? ALLOW FILTERING;";
-	//	this.statements.put("find_targetcompetenceactivities",
-			//	find_targetcompetenceactivities);
 		statements.put(Statements.FIND_ALLCOMPETENCES,"SELECT distinct competenceid FROM targetcompetenceactivities;");
-		//String find_allcompetences = "SELECT distinct competenceid FROM targetcompetenceactivities;";
-		//this.statements.put("find_allcompetences", find_allcompetences);
-
 		 statements.put(Statements.UPDATE_EVENTDAILYCOUNT,"UPDATE dash_eventdailycount SET count=count+1 WHERE event=? AND date=?;");
 		 statements.put(Statements.UPDATE_USEREVENTDAILYCOUNT, "UPDATE dash_usereventdailycount SET count=count+1 WHERE user=? AND event=? AND date=?;");
-
-		 statements.put(Statements.UPDATE_SOCIALINTERACTIONCOUNT, "UPDATE sna_socialinteractionscount SET count = count + 1 WHERE course=? AND source=? AND target=?;");
-
 		statements.put(Statements.UPDATE_FAILEDFEEDS,"UPDATE failedfeeds  SET count=count+1 WHERE url=? AND date=?;");
-		//String update_failedfeeds = "UPDATE failedfeeds  SET count=count+1 WHERE url=? AND date=?;";
-		//this.statements.put("update_failedfeeds",
-		//		update_failedfeeds);
-		statements.put(Statements.UPDATE_FROMINTERACTION,"UPDATE sna_interactionsbytypeforstudent  SET fromuser=fromuser+1 WHERE course=? AND timestamp=? AND student=? AND interactiontype=?;");
-		//String update_out_interaction = "UPDATE sna_interactionsbytypeforstudent  SET out=out+1 WHERE course=? AND timestamp=? AND student=? AND interactiontype=?;";
-		//this.statements.put("update_out_interaction",
-			//	update_out_interaction);
-		statements.put(Statements.UPDATE_TOINTERACTION,"UPDATE sna_interactionsbytypeforstudent  SET touser=touser+1 WHERE course=? AND timestamp=? AND student=? AND interactiontype=?;");
-	//	String update_in_interaction = "UPDATE sna_interactionsbytypeforstudent  SET in=in+1 WHERE course=? AND timestamp=? AND student=? AND interactiontype=?;";
-		//this.statements.put("update_in_interaction",
-		//		update_in_interaction);
+		statements.put(Statements.UPDATE_SOCIALINTERACTIONCOUNT,"UPDATE sna_socialinteractionscount SET count = count + 1 WHERE course=? AND source=? AND target=?;");
+
+
+
+
 
 
 	}
@@ -157,8 +119,6 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 			//preparedStatements.get(statementName));
 			//JsonObject data = event.getData();
 			String str = statements.get(statement);
-System.out.println("Statement name:"+statementName+" statements size:"+statements.size());
-			System.out.println("str:"+str);
 			String whereclause = str.substring(str.lastIndexOf("WHERE") + 6,
 					str.lastIndexOf(";"));
 			whereclause = whereclause.replaceAll("AND ", "");
@@ -183,23 +143,7 @@ System.out.println("Statement name:"+statementName+" statements size:"+statement
 		}
 	}
 
-	@Override
-	public void updateToFromInteraction(Long courseId, Long actorId, Long targetUserId, ObservationType observationType) {
-		try {
-		PreparedStatement preparedOutStatement=getStatement(getSession(),Statements.UPDATE_FROMINTERACTION);
 
-		BoundStatement outStatement = StatementUtil.statement(preparedOutStatement, courseId, getCurrentTimestampForTable(TableNames.TOFROM_INTERACTIONS), actorId, observationType.toString());
-
-			getSession().execute(outStatement);
-
-		PreparedStatement preparedInStatement=getStatement(getSession(),Statements.UPDATE_TOINTERACTION);
-		BoundStatement inStatement = StatementUtil.statement(preparedInStatement, courseId, getCurrentTimestampForTable(TableNames.TOFROM_INTERACTIONS), actorId, observationType.toString());
-
-			getSession().execute(inStatement);
-		} catch (Exception e) {
-			logger.error("Error executing update statement.", e);
-		}
-	}
 	
 	@Override
 	public void insertAnalyticsEventRecord(AnalyticsEvent event) {
@@ -387,11 +331,10 @@ System.out.println("Statement name:"+statementName+" statements size:"+statement
 		UPDATE_EVENTDAILYCOUNT,
 		UPDATE_USEREVENTDAILYCOUNT,
 		UPDATE_FAILEDFEEDS,
-		UPDATE_FROMINTERACTION,
-		UPDATE_TOINTERACTION,
-		UPDATE_SOCIALINTERACTIONCOUNT,
+
 		FIND_ALLCOMPETENCES,
-		UPDATE_USERACTIVITY
+		 UPDATE_USERACTIVITY,
+		UPDATE_SOCIALINTERACTIONCOUNT
 	}
 
 	public static class AnalyticalEventDBManagerImplHolder {

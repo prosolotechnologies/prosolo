@@ -33,9 +33,23 @@ public class CronInitializer extends HttpServlet {
 		// @SuppressWarnings("unused")
 		System.out.println("CRON INITIALIZER INIT");
 		CronScheduler cronScheduler = CronSchedulerImpl.getInstance();
-		List<QuartzJobConfig> jobsConfigs = Settings.getInstance().config.schedulerConfig.jobs.jobsConfig;
+	 	Map<String, QuartzJobConfig> jobs=Settings.getInstance().config.schedulerConfig.jobs.jobsConfig;
+		//Map<String, QuartzJobConfig> jobs=null;
+		//List<QuartzJobConfig> jobsConfigs = Settings.getInstance().config.schedulerConfig.jobs.jobsConfig;
 		// Set<String> jobsKeys=jobsMap.keySet();
-		for (QuartzJobConfig jobConfig : jobsConfigs) {
+		System.out.println("JOBS NUMBER:"+jobs.size());
+		for(Map.Entry<String, QuartzJobConfig> entry: jobs.entrySet()){
+			try {
+				cronScheduler.checkAndActivateJob(entry.getKey(), entry.getValue());
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SchedulerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		/*for (QuartzJobConfig jobConfig : jobsConfigs) {
 			// QuartzJobConfig jobConfig= jobsMap.get(jobKey);
 			try {
 				cronScheduler.checkAndActivateJob(jobConfig);
@@ -46,7 +60,7 @@ public class CronInitializer extends HttpServlet {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
+		}*/
 
 	}
 

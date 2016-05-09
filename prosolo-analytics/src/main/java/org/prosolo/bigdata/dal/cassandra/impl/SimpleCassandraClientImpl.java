@@ -78,7 +78,6 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 	private PreparedStatement getStatement(Session session, Statements statement) {
 		// If two threads access preparedStatements map concurrently, preparedStatements can be repeated twice.
 		// This should be better than synchronizing access.
-		System.out.println("GET STATEMENT:"+ statementsQueries.get(statement));
 		if (preparedStatements.get(statement) == null) {
 			preparedStatements.put(statement, session.prepare(statementsQueries.get(statement)));
 		}
@@ -153,7 +152,6 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 
 
 	private Map<TableNames, Long> getAllCurrentTimestamps(){
-		System.out.println("STATEMENT:"+Statements.FIND_CURRENT_TIMESTAMPS+" ");
 		PreparedStatement prepared = getStatement(getSession(), Statements.FIND_CURRENT_TIMESTAMPS);
 		BoundStatement statement = StatementUtil.statement(prepared);
 		return query(statement).stream().collect(Collectors.toMap(row->TableNames.valueOf(row.getString("tablename")), row->row.getLong("timestamp")));

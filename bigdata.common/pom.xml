@@ -132,6 +132,11 @@
 	<artifactId>reflections</artifactId>
 	<version>0.9.10</version>
 </dependency>
+		<!--dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-juli</artifactId>
+			<version>9.0.0.M4</version>
+		</dependency-->
 <dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-jdbc</artifactId>
@@ -143,6 +148,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+
 <dependency>
 			<groupId>com.github.spullara.mustache.java</groupId>
 			<artifactId>compiler</artifactId>

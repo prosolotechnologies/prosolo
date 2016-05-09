@@ -9,10 +9,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.prosolo.common.util.date.DateUtil;
-//import org.prosolo.services.feeds.data.FeedData;
-//import org.prosolo.services.feeds.data.FeedMessageData;
-//import org.prosolo.services.feeds.impl.JavaxXmlStreamFeedParser;
-import org.prosolo.util.appenders.TestAppender;
+//import org.prosolo.util.appenders.TestAppender;
 
 /**
  * @author Nikola Milikic
@@ -28,13 +25,13 @@ public class JavaxXmlStreamFeedParserTest {
 	private String feedUrl = "http://techcrunch.com/feed/";
 	//private FeedData feedData;
 	
-	private TestAppender appender;
+//	private TestAppender appender;
 	
 	@Before
 	public void initLogger() {
-		appender = new TestAppender();
+//		appender = new TestAppender();
 		final Logger logger = Logger.getRootLogger();
-		logger.addAppender(appender);
+//		logger.addAppender(appender);
 	}
 	
 	@Before

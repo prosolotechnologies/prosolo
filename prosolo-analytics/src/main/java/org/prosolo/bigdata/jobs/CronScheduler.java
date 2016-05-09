@@ -13,7 +13,7 @@ public interface CronScheduler {
 
 	// void startAssociationRulesForCompetenceDiscovery();
 
-	void checkAndActivateJob(QuartzJobConfig jobConfig)
+	void checkAndActivateJob(String className,QuartzJobConfig jobConfig)
 			throws SchedulerException, ClassNotFoundException;
 
 	// <T extends Job> void startAssociationRulesForCompetenceDiscovery(T

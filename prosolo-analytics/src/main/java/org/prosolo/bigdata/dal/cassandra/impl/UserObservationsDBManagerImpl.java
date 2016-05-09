@@ -3,6 +3,9 @@ package org.prosolo.bigdata.dal.cassandra.impl;
 import java.io.Serializable;
 import java.util.*;
 
+import com.google.gson.Gson;
+import org.prosolo.bigdata.common.dal.pojo.SocialInteractionsCount;
+import org.prosolo.bigdata.common.dal.pojo.UserProfileFeatures;
 import org.prosolo.bigdata.dal.cassandra.UserObservationsDBManager;
 import org.prosolo.bigdata.events.analyzers.ObservationType;
 
@@ -69,6 +72,14 @@ implements Serializable, UserObservationsDBManager{
 		String insertUserquartilefeaturesbydate  = "INSERT INTO profile_userquartilefeaturesbydate(course,  date, userid,profile, sequence) VALUES (?, ?, ?,?,?);";
 		this.queries.put("insertUserquartilefeaturesbydate",
 				insertUserquartilefeaturesbydate);
+
+		String updateUserCurrentProfile  = "UPDATE profile_usercurrentprofileincourse SET profile=?, profilefullname=?, sequence=? WHERE course=? AND userid=?;";
+		this.queries.put("updateUserCurrentProfile",
+				updateUserCurrentProfile);
+
+		String findUserCurrentProfile = "SELECT * FROM profile_usercurrentprofileincourse WHERE course=? AND userid=? ALLOW FILTERING;";
+		this.queries.put("findUserCurrentProfile",
+				findUserCurrentProfile);
 
 		String findUserquartilefeaturesbycourse = "SELECT * FROM profile_userquartilefeaturesbyprofile WHERE course=? ALLOW FILTERING;";
 		this.queries.put("findUserquartilefeaturesbycourse",
@@ -162,6 +173,7 @@ implements Serializable, UserObservationsDBManager{
 
 	@Override
 	public List<Row> findAllUsersProfileObservationsForDate(Long date, Long courseId) {
+
 		BoundStatement boundStatement = new BoundStatement(
 				preparedStatements.get("findUserprofileactionsobservationsbydate"));
 		boundStatement.setLong(0, date);
@@ -173,6 +185,7 @@ implements Serializable, UserObservationsDBManager{
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}
+		System.out.println("FIND ALL USER PROFILES FOR DATE:"+date+" course:"+courseId+" has results:"+rows.size());
 		return rows;
 	}
 	@Override
@@ -205,6 +218,47 @@ implements Serializable, UserObservationsDBManager{
 
 		this.getSession().execute(boundStatement);
 
+	}
+
+	@Override
+	public void updateUserCurrentProfile(Long courseid, Long userid, String profile, String profilefullname, List<String> sequence) {
+		//profile=?, sequence=? WHERE course=? AND userid=?
+		BoundStatement boundStatement = new BoundStatement(
+				preparedStatements
+						.get("updateUserCurrentProfile"));
+		boundStatement.setString(0, profile);
+		boundStatement.setString(1, profilefullname);
+		boundStatement.setList(2,sequence);
+		boundStatement.setLong(3, courseid);
+		boundStatement.setLong(4,userid);
+		this.getSession().execute(boundStatement);
+
+	}
+	@Override
+	public UserProfileFeatures findUserCurrentProfileInCourse(Long courseId, Long userId) {
+		BoundStatement boundStatement = new BoundStatement(
+				preparedStatements.get("findUserCurrentProfile"));
+		boundStatement.setLong(0, courseId);
+		boundStatement.setLong(1, userId);
+		Row row =null;
+		UserProfileFeatures profile=null;
+		try{
+			ResultSet rs = this.getSession().execute(boundStatement);
+			row = rs.one();
+			List<String> sequence=row.getList("sequence",String.class);
+			List<UserProfileFeatures.ProfileFeature> features=new ArrayList<UserProfileFeatures.ProfileFeature>();
+			Gson g=new Gson();
+			for(String featureStr:sequence){
+				UserProfileFeatures.ProfileFeature feature=g.fromJson(featureStr,UserProfileFeatures.ProfileFeature.class);
+				features.add(feature);
+			}
+			profile=new UserProfileFeatures(row.getLong("course"),row.getLong("userid"),row.getString("profile"),row.getString("profilefullname"),features);
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+
+
+	return profile;
 	}
 	@Override
 	public List<Row> findAllUserQuartileFeaturesForCourse(Long courseId) {

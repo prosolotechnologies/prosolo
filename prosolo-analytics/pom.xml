@@ -361,7 +361,14 @@
 			<artifactId>hashids</artifactId>
 			<version>1.0.1</version>
 		</dependency>
-	    
+
+		<!--dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-juli</artifactId>
+			<version>9.0.0.M4</version>
+		</dependency-->
+
+
 	</dependencies>
 	<build>
 		<finalName>prosolo-analytics</finalName>
@@ -500,8 +507,12 @@
 					<stopKey>stop</stopKey>
 					<stopPort>8081</stopPort>
 					<scanIntervalSeconds>10</scanIntervalSeconds>
+					<webAppConfig>
+						<parentLoaderPriority>true</parentLoaderPriority>
+					</webAppConfig>
 					<webApp>
 						<contextPath>/</contextPath>
+
 					</webApp>
 					<httpConnector>
 						<port>8082</port>

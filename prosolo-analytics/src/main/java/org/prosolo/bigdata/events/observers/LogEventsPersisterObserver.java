@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import org.prosolo.bigdata.common.events.pojo.DataName;
 import org.prosolo.bigdata.dal.cassandra.impl.AnalyticalEventDBManagerImpl;
 import org.prosolo.bigdata.dal.cassandra.impl.LogEventDBManagerImpl;
+import org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl;
 import org.prosolo.bigdata.dal.cassandra.impl.UserObservationsDBManagerImpl;
 import org.prosolo.bigdata.events.analyzers.ObservationType;
 import org.prosolo.bigdata.events.pojo.DefaultEvent;
@@ -68,9 +69,10 @@ public class LogEventsPersisterObserver implements EventObserver {
 							+" course:"+logEvent.getCourseId()
 					+	 " inserted course:"+courseId);
 						if(eventsChecker.isEventObserved(logEvent)){
-										ObservationType observationType=eventsChecker.getObservationType(logEvent);
+														ObservationType observationType=eventsChecker.getObservationType(logEvent);
+
 						//	long date = DateUtil.getDaysSinceEpoch(logEvent.getTimestamp());
-							AnalyticalEventDBManagerImpl.getInstance().updateToFromInteraction(courseId, actorId, targetUserId,observationType);
+							SocialInteractionStatisticsDBManagerImpl.getInstance().updateToFromInteraction(courseId, actorId, targetUserId,observationType);
 						}
 					}
 

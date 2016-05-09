@@ -112,6 +112,10 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 				"sequence varchar, PRIMARY KEY(course, profile,date, userid))";
 		this.ddls.add(userquartilefeaturesbyprofileDDL);
 
+		String userfinalprofilesDDL="CREATE TABLE IF NOT EXISTS profile_usercurrentprofileincourse(course bigint, userid bigint, profile varchar,  profilefullname varchar, " +
+				"sequence list<varchar>, PRIMARY KEY(course, userid))";
+		this.ddls.add(userfinalprofilesDDL);
+
 		String userquartilefeaturesbydateDDL="CREATE TABLE IF NOT EXISTS profile_userquartilefeaturesbydate(course bigint, profile varchar, date bigint, userid bigint," +
 				"sequence varchar, PRIMARY KEY(course, date, userid))";
 		this.ddls.add(userquartilefeaturesbydateDDL);
@@ -143,6 +147,24 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		String outsideClusterUserInteractions="CREATE TABLE IF NOT EXISTS sna_outsideclustersinteractions(timestamp bigint, course bigint, student bigint, direction varchar,cluster bigint,  interactions list<varchar>, " +
 				"PRIMARY KEY(timestamp, course, student,direction))";
 		this.ddls.add(outsideClusterUserInteractions);
+
+		String interactionsByTypeForStudent="CREATE TABLE IF NOT EXISTS sna_interactionsbytypeforstudent(course bigint, student bigint, interactiontype varchar, fromuser counter,  touser counter, " +
+				"PRIMARY KEY(course, student,interactiontype))";
+		this.ddls.add(interactionsByTypeForStudent);
+
+		String studentInteractionsByPeerOverview="CREATE TABLE IF NOT EXISTS sna_studentinteractionbypeersoverview(course bigint, student bigint, interactions list<varchar>, " +
+				"PRIMARY KEY(course, student))";
+
+		//(8,List((OUT,2,8,0.33333334), (OUT,14,1,0.041666668), (IN,2,3,0.125), (IN,6,1,0.041666668), (IN,14,9,0.375), (IN,15,2,0.083333336))),
+		this.ddls.add(studentInteractionsByPeerOverview);
+
+		String studentInteractionsByTypeOverview="CREATE TABLE IF NOT EXISTS sna_studentinteractionbytypeoverview(course bigint, student bigint, interactions list<varchar>, " +
+				"PRIMARY KEY(course, student))";
+
+		//(8,List((LIKE,0,0.0,2,1.0))), (2,List((COMMENT,0,0.0,2,0.6666667), (LIKE,0,0.0,1,0.33333334))),
+		this.ddls.add(studentInteractionsByTypeOverview);
+
+
 	}
 
 	@Override

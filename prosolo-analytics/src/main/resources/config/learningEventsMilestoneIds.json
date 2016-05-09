@@ -1,6 +1,22 @@
 [
-    "course.enroll",
-    "learn.competence.complete",
-    "learn.activity.complete",
-    "learn.goal.complete"
+    {
+    	"id":"course.enroll",
+    	"name":"Enroll course",
+    	"type":"Credentials"
+    },
+    {
+    	"id":"learn.competence.complete",
+    	"name":"Competence completed",
+    	"type":"Competences"
+    },
+    {
+    	"id":"learn.activity.complete",
+    	"name":"Activity complete",
+    	"type":"Activities"
+    },
+    {
+    	"id":"learn.goal.complete",
+    	"name":"Goal completed",
+    	"type":"Competences"
+    }
 ]

@@ -1,6 +1,9 @@
 package org.prosolo.bigdata.config;
 
 import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementMap;
+
+import java.util.Map;
 
 /**
  * @author Zoran Jeremic May 18, 2015
@@ -23,8 +26,10 @@ public class SchedulerConfig {
 	@Element(name = "collection-prefix", required = true)
 	public String collectionPrefix;
 
-	@Element(name = "quartz-jobs", required = true)
-	public JobsMap jobs;
+	 @Element(name = "quartz-jobs", required = true)
+	 public JobsMap jobs;
+
+
 	
 	@Element(name = "streaming-jobs", required = true)
 	public StreamingJobs streamingJobs;

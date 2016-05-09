@@ -37,5 +37,5 @@ public interface AnalyticalEventDBManager {
 
 	void updateGenericCounter(DataName dataName, Map<String, Object> properties);
 
-	void updateToFromInteraction(Long courseId, Long actorId, Long targetUserId, ObservationType observationType);
+	//void updateToFromInteraction(Long courseId, Long actorId, Long targetUserId, ObservationType observationType);
 }
