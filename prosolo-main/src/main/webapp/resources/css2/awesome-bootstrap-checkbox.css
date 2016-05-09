@@ -51,7 +51,7 @@
 }
 .checkbox input[type="checkbox"]:checked + label::after,
 .checkbox input[type="radio"]:checked + label::after {
-  content: url(../images2/checkMark.svg);
+  content: url(../images/checkMark.svg);
 }
 .checkbox input[type="checkbox"]:indeterminate + label::after,
 .checkbox input[type="radio"]:indeterminate + label::after {

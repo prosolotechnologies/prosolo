@@ -164,7 +164,7 @@ h1, h2, h3, h1 a, h2 a, h3 a, h1 a:focus, h2 a:focus, h3 a:focus {
 
 /* line 185, style.scss */
 h1 a:hover, h2 a:hover, h3 a:hover {
-  color: #838383;
+  color: dimgray;
   text-decoration: none; }
 
 /* line 190, style.scss */
@@ -202,12 +202,34 @@ input {
   -webkit-appearance: none; }
 
 /* line 218, style.scss */
+.letterAvatar {
+  background: #E9EBEF;
+  color: #859095;
+  text-align: center;
+  font-weight: 700;
+  display: block; }
+
+/* line 226, style.scss */
+.letterAvatar32 {
+  width: 32px;
+  height: 32px;
+  font-size: 11px;
+  line-height: 32px; }
+
+/* line 233, style.scss */
+.letterAvatar100 {
+  width: 100px;
+  height: 100px;
+  font-size: 22px;
+  line-height: 100px; }
+
+/* line 240, style.scss */
 .dropdown > a {
   display: flex;
   align-items: center;
   cursor: pointer;
   font-weight: 400; }
-  /* line 223, style.scss */
+  /* line 245, style.scss */
   .dropdown > a .arrowDown {
     display: block;
     width: 12px;
@@ -219,13 +241,13 @@ input {
     opacity: .5;
     transition: all 0.2s ease;
     -webkit-transition: all 0.2s ease; }
-  /* line 235, style.scss */
+  /* line 257, style.scss */
   .dropdown > a:hover .arrowDown {
     opacity: 1; }
 
-/* line 240, style.scss */
+/* line 262, style.scss */
 .dropdown-menu {
-  margin: 1px 0 0;
+  margin: 3px 0 0;
   -webkit-box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
   -moz-box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
   box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
@@ -233,53 +255,53 @@ input {
   -moz-border-radius: 5px;
   border-radius: 5px;
   border: none; }
-  /* line 247, style.scss */
+  /* line 269, style.scss */
   .dropdown-menu > li > a {
     font-size: 13px;
     font-weight: 500;
     line-height: 20px;
     color: #859095;
     padding: 5px 20px; }
-    /* line 253, style.scss */
+    /* line 275, style.scss */
     .dropdown-menu > li > a:hover {
       color: #363636;
       background: none;
       background: #F8F9FB; }
 
-/* line 261, style.scss */
+/* line 283, style.scss */
 .searchResultsDrop {
   position: absolute;
   width: 100%; }
-  /* line 264, style.scss */
+  /* line 286, style.scss */
   .searchResultsDrop li a {
     display: block;
     padding: 10px 20px;
     white-space: normal; }
-    /* line 268, style.scss */
+    /* line 290, style.scss */
     .searchResultsDrop li a h3 {
       margin-bottom: 0; }
 
-/* line 274, style.scss */
+/* line 296, style.scss */
 .bootstrap-select {
   margin-bottom: 30px; }
-  /* line 276, style.scss */
+  /* line 298, style.scss */
   .bootstrap-select .btn {
     margin-bottom: 0; }
-    /* line 278, style.scss */
+    /* line 300, style.scss */
     .bootstrap-select .btn:focus {
       font-weight: 400; }
 
-/* line 284, style.scss */
+/* line 306, style.scss */
 .nav > li > a:focus {
   background: none; }
 
-/* line 288, style.scss */
+/* line 310, style.scss */
 .nav-tabs {
   border: none; }
-  /* line 290, style.scss */
+  /* line 312, style.scss */
   .nav-tabs > li {
     margin: 0 30px 0 0; }
-    /* line 292, style.scss */
+    /* line 314, style.scss */
     .nav-tabs > li > a {
       font-size: 12px;
       line-height: 46px;
@@ -290,12 +312,12 @@ input {
       opacity: .5;
       border: none;
       border-bottom: 2px solid transparent; }
-      /* line 302, style.scss */
+      /* line 324, style.scss */
       .nav-tabs > li > a:hover {
         background: none;
         opacity: 1;
         border-bottom: 2px solid transparent; }
-  /* line 309, style.scss */
+  /* line 331, style.scss */
   .nav-tabs > li.active > a,
   .nav-tabs > li.active > a:focus,
   .nav-tabs > li.active > a:hover {
@@ -305,7 +327,7 @@ input {
     border: none;
     border-bottom: 2px solid #FCA567; }
 
-/* line 320, style.scss */
+/* line 342, style.scss */
 .whiteBar {
   width: 100%;
   margin-bottom: 30px;
@@ -314,32 +336,32 @@ input {
   -webkit-box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
   -moz-box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
   box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15); }
-  /* line 328, style.scss */
+  /* line 350, style.scss */
   .whiteBar .whiteBarContent {
     display: flex;
     justify-content: space-between;
     height: 46px; }
 
-/* line 335, style.scss */
+/* line 357, style.scss */
 .breadcrumb {
   padding: 0;
   margin-top: -10px;
   margin-bottom: 30px;
   background: none;
   font-size: 12px; }
-  /* line 341, style.scss */
+  /* line 363, style.scss */
   .breadcrumb a {
     font-weight: 400;
     color: #AAB1B5; }
-    /* line 344, style.scss */
+    /* line 366, style.scss */
     .breadcrumb a:hover {
       color: #64BFCD; }
 
-/* line 350, style.scss */
+/* line 372, style.scss */
 .mandatoryFlow {
   padding-bottom: 35px; }
 
-/* line 354, style.scss */
+/* line 376, style.scss */
 .whiteBox {
   margin-bottom: 30px;
   padding: 30px 30px 0 30px;
@@ -350,29 +372,29 @@ input {
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px; }
-  /* line 362, style.scss */
-  .whiteBox.summaryCompetence, .whiteBox.messagesPane, .whiteBox.activityLinksBox, .whiteBox.activityFilesBox {
+  /* line 384, style.scss */
+  .whiteBox.summaryCompetence, .whiteBox.messagesPane, .whiteBox.activityLinksBox, .whiteBox.activityFilesBox, .whiteBox.activityResultBox, .whiteBox.incomingActivity {
     padding: 0; }
-    /* line 367, style.scss */
-    .whiteBox.summaryCompetence .innerWrapper, .whiteBox.messagesPane .innerWrapper, .whiteBox.activityLinksBox .innerWrapper, .whiteBox.activityFilesBox .innerWrapper {
+    /* line 391, style.scss */
+    .whiteBox.summaryCompetence .innerWrapper, .whiteBox.messagesPane .innerWrapper, .whiteBox.activityLinksBox .innerWrapper, .whiteBox.activityFilesBox .innerWrapper, .whiteBox.activityResultBox .innerWrapper, .whiteBox.incomingActivity .innerWrapper {
       padding: 30px 30px 0 30px; }
-  /* line 371, style.scss */
+  /* line 395, style.scss */
   .mandatoryFlow .whiteBox {
     margin-bottom: 15px; }
-  /* line 374, style.scss */
+  /* line 398, style.scss */
   .whiteBox.activityTextBox {
     padding-bottom: 1px; }
-  /* line 377, style.scss */
+  /* line 401, style.scss */
   .whiteBox.settingsEmailNotifications {
     padding-bottom: 30px; }
 
-/* line 382, style.scss */
+/* line 406, style.scss */
 .mandatoryArrow {
   height: 14px;
   margin-bottom: 15px;
   background: url("../images2/mandatoryArrow.svg") no-repeat center center; }
 
-/* line 388, style.scss */
+/* line 412, style.scss */
 .madeByUser,
 .madeByUniversity {
   width: 20px;
@@ -380,15 +402,15 @@ input {
   display: block;
   text-indent: -10000px; }
 
-/* line 396, style.scss */
+/* line 420, style.scss */
 .madeByUser {
   background: url("../images2/iconUser20.svg") no-repeat; }
 
-/* line 400, style.scss */
+/* line 424, style.scss */
 .madeByUniversity {
   background: url("../images2/iconUniversity20.svg") no-repeat; }
 
-/* line 404, style.scss */
+/* line 428, style.scss */
 .duration,
 .mandatoryTag {
   height: 20px;
@@ -396,31 +418,31 @@ input {
   font-size: 13px;
   color: #AAB1B5; }
 
-/* line 412, style.scss */
+/* line 436, style.scss */
 .duration {
   background: url("../images2/iconClock20.svg") no-repeat; }
 
-/* line 416, style.scss */
+/* line 440, style.scss */
 .mandatoryTag {
   background: url("../images2/iconMandFlow20.svg") no-repeat; }
 
-/* line 420, style.scss */
+/* line 444, style.scss */
 .tooltip-inner {
   background: #1e1e1e;
   padding: 15px;
   font-size: 13px;
   font-weight: 500; }
 
-/* line 427, style.scss */
+/* line 451, style.scss */
 .tooltip.top .tooltip-arrow {
   border-top-color: #1e1e1e; }
 
-/* line 431, style.scss */
+/* line 455, style.scss */
 .progressBar {
   display: flex;
   font-size: 13px;
   align-items: center; }
-  /* line 435, style.scss */
+  /* line 459, style.scss */
   .progressBar .progress {
     width: 100px;
     height: 4px;
@@ -433,7 +455,7 @@ input {
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     box-shadow: none; }
-    /* line 445, style.scss */
+    /* line 469, style.scss */
     .progressBar .progress .progress-bar {
       background-color: #FCA567;
       -webkit-border-radius: 2px;
@@ -443,20 +465,20 @@ input {
       -moz-box-shadow: none;
       box-shadow: none; }
 
-/* line 455, style.scss */
+/* line 479, style.scss */
 .sortDrop,
 .showDrop {
   display: flex;
   line-height: 30px;
   padding: 8px 0;
   color: #AAB1B5; }
-  /* line 461, style.scss */
+  /* line 485, style.scss */
   .sortDrop > a,
   .showDrop > a {
     margin-left: 10px;
     color: #859095; }
 
-/* line 467, style.scss */
+/* line 491, style.scss */
 .tagCompleted {
   color: #64BFCD;
   font-size: 13px;
@@ -465,43 +487,43 @@ input {
   line-height: 32px;
   background: url("../images2/iconCheck20Green.svg") no-repeat left center; }
 
-/* line 476, style.scss */
+/* line 500, style.scss */
 .check {
   display: block;
   width: 20px;
   height: 20px;
   background: url("../images2/iconCheck20Green.svg") no-repeat; }
 
-/* line 483, style.scss */
+/* line 507, style.scss */
 .iconType {
   display: block;
   width: 20px;
   height: 20px; }
 
-/* line 489, style.scss */
+/* line 513, style.scss */
 .activityVideo .iconType {
   background: url("../images2/iconVideo20.svg") no-repeat; }
 
-/* line 492, style.scss */
+/* line 516, style.scss */
 .activityText .iconType {
   background: url("../images2/iconText20.svg") no-repeat; }
 
-/* line 495, style.scss */
+/* line 519, style.scss */
 .activitySlide .iconType {
   background: url("../images2/iconSlide20.svg") no-repeat; }
 
-/* line 498, style.scss */
+/* line 522, style.scss */
 .activityExternal .iconType {
   background: url("../images2/iconExternal20.svg") no-repeat; }
 
-/* line 502, style.scss */
+/* line 526, style.scss */
 .editOptions {
   display: flex;
   align-items: center; }
-  /* line 505, style.scss */
+  /* line 529, style.scss */
   .editOptions .linkEdit {
     margin-right: 10px; }
-  /* line 508, style.scss */
+  /* line 532, style.scss */
   .editOptions .moveUp,
   .editOptions .moveDown {
     display: inline-block;
@@ -512,36 +534,36 @@ input {
     opacity: .5;
     transition: all 0.2s ease;
     -webkit-transition: all 0.2s ease; }
-    /* line 518, style.scss */
+    /* line 542, style.scss */
     .editOptions .moveUp.disabled, .editOptions .moveUp[disabled],
     .editOptions .moveDown.disabled,
     .editOptions .moveDown[disabled] {
       opacity: 0.2 !important; }
-    /* line 522, style.scss */
+    /* line 546, style.scss */
     .editOptions .moveUp:hover,
     .editOptions .moveDown:hover {
       opacity: 1; }
-  /* line 526, style.scss */
+  /* line 550, style.scss */
   .editOptions .moveUp {
     background: url("../images2/arrowUp.svg") no-repeat center center; }
-  /* line 529, style.scss */
+  /* line 553, style.scss */
   .editOptions .moveDown {
     background: url("../images2/arrowDown.svg") no-repeat center center; }
 
-/* line 534, style.scss */
+/* line 558, style.scss */
 .paginationWrapper {
   display: flex;
   justify-content: center; }
-  /* line 537, style.scss */
+  /* line 561, style.scss */
   .paginationWrapper .pagination {
     margin: 0 0 30px 0; }
-    /* line 539, style.scss */
+    /* line 563, style.scss */
     .paginationWrapper .pagination li {
       display: inline-block;
       float: left;
       margin: 0 5px;
       line-height: 30px; }
-      /* line 544, style.scss */
+      /* line 568, style.scss */
       .paginationWrapper .pagination li a {
         display: inline-block;
         min-width: 30px;
@@ -556,24 +578,24 @@ input {
         -webkit-border-radius: 5px;
         -moz-border-radius: 5px;
         border-radius: 5px; }
-        /* line 556, style.scss */
+        /* line 580, style.scss */
         .paginationWrapper .pagination li a:hover {
           color: #363636;
           background: none; }
-      /* line 561, style.scss */
+      /* line 585, style.scss */
       .paginationWrapper .pagination li.active a, .paginationWrapper .pagination li.active a:hover {
         color: #363636;
         background: #EDEFF1; }
 
-/* line 570, style.scss */
+/* line 594, style.scss */
 .tags {
   margin-bottom: 30px;
   padding: 0; }
-  /* line 573, style.scss */
+  /* line 597, style.scss */
   .tags li {
     display: inline-block;
     margin: 0 10px 10px 0; }
-    /* line 576, style.scss */
+    /* line 600, style.scss */
     .tags li a {
       display: inline-block;
       padding: 0 10px;
@@ -585,28 +607,28 @@ input {
       color: #859095;
       font-weight: 400;
       font-size: 13px; }
-      /* line 585, style.scss */
+      /* line 609, style.scss */
       .tags li a:hover {
         color: #363636; }
 
-/* line 592, style.scss */
+/* line 616, style.scss */
 .user32 {
   display: flex;
   height: 32px;
   align-items: center; }
-  /* line 596, style.scss */
-  .user32 img {
+  /* line 620, style.scss */
+  .user32 img, .user32 .letterAvatar32 {
     margin-right: 10px; }
-  /* line 599, style.scss */
+  /* line 623, style.scss */
   .user32 h3 {
     margin: 0; }
 
-/* line 604, style.scss */
+/* line 628, style.scss */
 .messageMenu,
 .optMoreMenu {
   width: 20px;
   height: 20px; }
-  /* line 608, style.scss */
+  /* line 632, style.scss */
   .messageMenu > a,
   .optMoreMenu > a {
     display: block;
@@ -615,12 +637,12 @@ input {
     text-indent: -10000px;
     background: url("../images2/iconMore20.svg") no-repeat;
     opacity: .5; }
-    /* line 615, style.scss */
+    /* line 639, style.scss */
     .messageMenu > a:hover,
     .optMoreMenu > a:hover {
       opacity: 1; }
 
-/* line 621, style.scss */
+/* line 645, style.scss */
 .modal-content {
   border: none;
   -webkit-box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
@@ -629,49 +651,49 @@ input {
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px; }
-  /* line 627, style.scss */
+  /* line 651, style.scss */
   .modal-content .modal-header {
     border: none;
     padding: 30px;
     text-align: center;
     position: relative; }
-    /* line 632, style.scss */
+    /* line 656, style.scss */
     .modal-content .modal-header.alignLeft {
       text-align: left; }
-    /* line 635, style.scss */
+    /* line 659, style.scss */
     .modal-content .modal-header .modal-title {
       margin: 0; }
-    /* line 638, style.scss */
+    /* line 662, style.scss */
     .modal-content .modal-header .close {
       position: absolute;
       top: 6px;
       right: 10px; }
-    /* line 645, style.scss */
+    /* line 669, style.scss */
     .summaryCard .modal-content .modal-header h2, .publishBox .modal-content .modal-header h2 {
       float: none; }
-  /* line 650, style.scss */
+  /* line 674, style.scss */
   .modal-content .modal-body {
     padding: 0 30px;
     text-align: center; }
-    /* line 653, style.scss */
+    /* line 677, style.scss */
     .modal-content .modal-body.alignLeft {
       text-align: left; }
-    /* line 656, style.scss */
+    /* line 680, style.scss */
     .modal-content .modal-body small {
       color: #AAB1B5; }
-  /* line 660, style.scss */
+  /* line 684, style.scss */
   .modal-content .modal-footer {
     border: none;
     padding: 0 30px 30px 30px;
     text-align: center; }
-    /* line 664, style.scss */
+    /* line 688, style.scss */
     .modal-content .modal-footer.alignLeft {
       text-align: left; }
-    /* line 667, style.scss */
+    /* line 691, style.scss */
     .modal-content .modal-footer .btn + .btn {
       margin-left: 10px; }
 
-/* line 673, style.scss */
+/* line 697, style.scss */
 #askAssessment .assessmentModalMeta {
   background: #F8F9FB;
   border-top: 1px solid #EEEFF3;
@@ -679,30 +701,30 @@ input {
   display: flex;
   flex-direction: column;
   padding: 0 30px; }
-  /* line 680, style.scss */
+  /* line 704, style.scss */
   #askAssessment .assessmentModalMeta .assessmentModalMetaLine {
     display: flex;
     padding-top: 10px; }
-    /* line 683, style.scss */
+    /* line 707, style.scss */
     #askAssessment .assessmentModalMeta .assessmentModalMetaLine:last-child {
       padding-bottom: 10px; }
-    /* line 686, style.scss */
+    /* line 710, style.scss */
     #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
     #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight {
       display: flex;
       line-height: 32px;
       align-items: center; }
-      /* line 691, style.scss */
+      /* line 715, style.scss */
       #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft h3,
       #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight h3 {
         margin: 0; }
-    /* line 695, style.scss */
+    /* line 719, style.scss */
     #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft {
       width: 80px; }
-    /* line 698, style.scss */
+    /* line 722, style.scss */
     #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img {
       margin-right: 10px; }
-/* line 703, style.scss */
+/* line 727, style.scss */
 #askAssessment .modal-body textarea {
   width: 100%;
   height: 100px;
@@ -713,38 +735,53 @@ input {
   -moz-box-shadow: none;
   box-shadow: none; }
 
-/* line 715, style.scss */
+/* line 740, style.scss */
+#uploadFile .modal-body, #addURL .modal-body {
+  padding-bottom: 10px; }
+  /* line 742, style.scss */
+  #uploadFile .modal-body input[type="text"], #addURL .modal-body input[type="text"] {
+    margin-bottom: 20px; }
+  /* line 745, style.scss */
+  #uploadFile .modal-body .chooseFileBox, #addURL .modal-body .chooseFileBox {
+    display: flex;
+    align-items: center;
+    padding-bottom: 20px; }
+    /* line 749, style.scss */
+    #uploadFile .modal-body .chooseFileBox .btn, #addURL .modal-body .chooseFileBox .btn {
+      margin-right: 10px; }
+
+/* line 756, style.scss */
 .alert {
   border: none;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px; }
 
-/* line 720, style.scss */
+/* line 761, style.scss */
 .alert-success,
 .alert-info,
 .alert-warning,
 .alert-danger {
   color: #fff; }
 
-/* line 727, style.scss */
+/* line 768, style.scss */
 .alert-success {
   background: #87BA54; }
 
-/* line 731, style.scss */
+/* line 772, style.scss */
 .alert-info {
   background: #5197D8; }
 
-/* line 735, style.scss */
+/* line 776, style.scss */
 .alert-warning {
   background: #F2B24F; }
 
-/* line 739, style.scss */
+/* line 780, style.scss */
 .alert-danger {
   background: #E45E5E; }
 
 /*--- FORM ELEMENTS ---*/
-/* line 745, style.scss */
+/* line 786, style.scss */
 input[type="text"],
 input[type="email"],
 input[type="password"],
@@ -757,54 +794,67 @@ textarea {
   -webkit-box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
   -moz-box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
   box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.1); }
+  /* line 796, style.scss */
+  input[type="text"].inputError,
+  input[type="email"].inputError,
+  input[type="password"].inputError,
+  textarea.inputError {
+    border: 1px solid #E45E5E;
+    margin-bottom: 5px !important; }
 
-/* line 757, style.scss */
+/* line 802, style.scss */
 input[type="text"],
 input[type="email"],
 input[type="password"] {
   line-height: 30px;
   padding: 5px 10px; }
 
-/* line 764, style.scss */
+/* line 809, style.scss */
 button {
   transition: all 0.2s ease;
   -webkit-transition: all 0.2s ease; }
 
-/* line 769, style.scss */
+/* line 814, style.scss */
 textarea {
   height: auto;
   padding: 10px;
   resize: none; }
 
-/* line 776, style.scss */
+/* line 820, style.scss */
+.inputErrorInfo {
+  display: block;
+  color: #E45E5E;
+  margin-bottom: 20px; }
+
+/* line 827, style.scss */
 .formWrapper .formLine {
   display: flex;
   padding-bottom: 30px; }
-  /* line 779, style.scss */
+  /* line 830, style.scss */
   .formWrapper .formLine > label {
     min-width: 170px;
     font-weight: 600;
     color: #363636;
     line-height: 40px; }
-  /* line 785, style.scss */
+  /* line 836, style.scss */
   .formWrapper .formLine .formLineRight {
     flex-grow: 1; }
-    /* line 787, style.scss */
+    /* line 838, style.scss */
     .formWrapper .formLine .formLineRight input[type="text"],
     .formWrapper .formLine .formLineRight textarea {
       width: 100%; }
-    /* line 791, style.scss */
+    /* line 842, style.scss */
     .formWrapper .formLine .formLineRight textarea {
       height: 100px; }
-      /* line 793, style.scss */
+      /* line 844, style.scss */
       .formWrapper .formLine .formLineRight textarea.textareaBig {
         height: 300px; }
-    /* line 797, style.scss */
+    /* line 848, style.scss */
     .formWrapper .formLine .formLineRight .bootstrap-select,
     .formWrapper .formLine .formLineRight p {
       margin-bottom: 0; }
 
-/* line 805, style.scss */
+/* line 856, style.scss */
 .bootstrap-tagsinput {
   background-color: #fff;
   border: 1px solid #E6E7EC;
@@ -821,7 +871,7 @@ textarea {
   line-height: 22px;
   cursor: text; }
 
-/* line 821, style.scss */
+/* line 872, style.scss */
 .bootstrap-tagsinput input {
   border: none !important;
   box-shadow: none !important;
@@ -833,12 +883,12 @@ textarea {
   width: auto !important;
   max-width: inherit; }
 
-/* line 833, style.scss */
+/* line 884, style.scss */
 .bootstrap-tagsinput input:focus {
   border: none;
   box-shadow: none; }
 
-/* line 837, style.scss */
+/* line 888, style.scss */
 .bootstrap-tagsinput .tag {
   margin-right: 2px;
   color: #859095;
@@ -848,12 +898,12 @@ textarea {
   font-size: 13px;
   font-weight: 400; }
 
-/* line 846, style.scss */
+/* line 897, style.scss */
 .bootstrap-tagsinput .tag [data-role="remove"] {
   margin-left: 8px;
   cursor: pointer; }
 
-/* line 850, style.scss */
+/* line 901, style.scss */
 .bootstrap-tagsinput .tag [data-role="remove"]:after {
   content: "x";
   color: #859095;
@@ -862,54 +912,54 @@ textarea {
 /*---------------------------------------------------------------------*/
 /*--- 02. HEADER ---*/
 /*---------------------------------------------------------------------*/
-/* line 866, style.scss */
+/* line 917, style.scss */
 header {
   width: 100%;
   background: #444C5A;
   -webkit-box-shadow: inset 0px -1px 2px 0px rgba(0, 0, 0, 0.1);
   -moz-box-shadow: inset 0px -1px 2px 0px rgba(0, 0, 0, 0.1);
   box-shadow: inset 0px -1px 2px 0px rgba(0, 0, 0, 0.1); }
-  /* line 872, style.scss */
+  /* line 923, style.scss */
   header .headerTop {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between; }
-    /* line 876, style.scss */
+    /* line 927, style.scss */
     header .headerTop .headerTopLeft {
       display: flex; }
-      /* line 878, style.scss */
+      /* line 929, style.scss */
       header .headerTop .headerTopLeft #logo {
         width: 86px;
         height: 30px;
         margin: 15px 20px 15px 0;
         background: url("../images2/logo.svg") no-repeat;
         text-indent: -10000px; }
-      /* line 885, style.scss */
+      /* line 936, style.scss */
       header .headerTop .headerTopLeft nav {
         height: 30px;
         padding: 15px 0; }
-        /* line 888, style.scss */
+        /* line 939, style.scss */
         header .headerTop .headerTopLeft nav .nav > li > a {
           font-size: 12px;
           line-height: 30px;
           color: #fff;
           font-weight: 700;
           text-transform: uppercase; }
-        /* line 896, style.scss */
+        /* line 947, style.scss */
         header .headerTop .headerTopLeft nav .nav-pills > li {
           margin: 0 10px 0 0; }
-          /* line 898, style.scss */
+          /* line 949, style.scss */
           header .headerTop .headerTopLeft nav .nav-pills > li > a {
             -webkit-border-radius: 5px;
             -moz-border-radius: 5px;
             border-radius: 5px;
             padding: 0 10px;
             opacity: .5; }
-            /* line 902, style.scss */
+            /* line 953, style.scss */
             header .headerTop .headerTopLeft nav .nav-pills > li > a:hover {
               background: none;
               opacity: 1; }
-        /* line 908, style.scss */
+        /* line 959, style.scss */
         header .headerTop .headerTopLeft nav .nav-pills > li.active > a,
         header .headerTop .headerTopLeft nav .nav-pills > li.active > a:focus,
         header .headerTop .headerTopLeft nav .nav-pills > li.active > a:hover {
@@ -918,47 +968,30 @@ header {
           -webkit-box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.1), inset 0px 1px 0px 0px rgba(0, 0, 0, 0.1);
           -moz-box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.1), inset 0px 1px 0px 0px rgba(0, 0, 0, 0.1);
           box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.1), inset 0px 1px 0px 0px rgba(0, 0, 0, 0.1); }
-    /* line 920, style.scss */
+    /* line 971, style.scss */
     header .headerTop .headerTopRight {
       display: flex;
       height: 32px;
       padding: 14px 0; }
-      /* line 924, style.scss */
-      header .headerTop .headerTopRight .createMenu {
-        height: 32px; }
-        /* line 926, style.scss */
-        header .headerTop .headerTopRight .createMenu > a {
-          margin: 0 20px 0 0;
-          font-weight: 700; }
-      /* line 931, style.scss */
-      header .headerTop .headerTopRight .userMenu {
-        height: 32px; }
-        /* line 933, style.scss */
-        header .headerTop .headerTopRight .userMenu > a {
-          width: 54px;
-          height: 32px; }
-          /* line 936, style.scss */
-          header .headerTop .headerTopRight .userMenu > a .arrowDown {
-            background: url("../images2/arrowDownWhite.svg") no-repeat; }
-      /* line 941, style.scss */
+      /* line 975, style.scss */
       header .headerTop .headerTopRight .iconMessages,
       header .headerTop .headerTopRight .iconNotifications {
         display: block;
         width: 20px;
         height: 20px;
-        margin: 6px 20px 0 0;
+        margin: 6px 0 0 0;
         opacity: .5;
         text-indent: -10000px;
         position: relative; }
-        /* line 950, style.scss */
+        /* line 984, style.scss */
         header .headerTop .headerTopRight .iconMessages:hover,
         header .headerTop .headerTopRight .iconNotifications:hover {
           opacity: 1; }
-        /* line 953, style.scss */
+        /* line 987, style.scss */
         header .headerTop .headerTopRight .iconMessages.active,
         header .headerTop .headerTopRight .iconNotifications.active {
           opacity: 1; }
-          /* line 955, style.scss */
+          /* line 989, style.scss */
           header .headerTop .headerTopRight .iconMessages.active .unreadDot,
           header .headerTop .headerTopRight .iconNotifications.active .unreadDot {
             display: block;
@@ -968,42 +1001,113 @@ header {
             background: url("../images2/unreadDot.svg") no-repeat;
             top: 0;
             right: -2px; }
-      /* line 966, style.scss */
+      /* line 1000, style.scss */
       header .headerTop .headerTopRight .iconMessages {
-        background: url("../images2/iconEnvelope20White.svg") no-repeat; }
-      /* line 969, style.scss */
+        background: url("../images2/iconEnvelope20White.svg") no-repeat;
+        margin-right: 20px; }
+      /* line 1004, style.scss */
       header .headerTop .headerTopRight .iconNotifications {
         background: url("../images2/iconBell20White.svg") no-repeat; }
-  /* line 974, style.scss */
+      /* line 1007, style.scss */
+      header .headerTop .headerTopRight .createMenu {
+        height: 32px;
+        margin-right: 20px; }
+        /* line 1010, style.scss */
+        header .headerTop .headerTopRight .createMenu > a {
+          margin: 0;
+          font-weight: 700; }
+      /* line 1015, style.scss */
+      header .headerTop .headerTopRight .notificationsMenu {
+        height: 32px;
+        margin-right: 20px; }
+        /* line 1018, style.scss */
+        header .headerTop .headerTopRight .notificationsMenu .dropdown-menu {
+          width: 250px;
+          padding-bottom: 0; }
+          /* line 1021, style.scss */
+          header .headerTop .headerTopRight .notificationsMenu .dropdown-menu li {
+            border-bottom: 1px solid #EEEFF3;
+            padding: 10px 20px;
+            position: relative; }
+            /* line 1025, style.scss */
+            header .headerTop .headerTopRight .notificationsMenu .dropdown-menu li .icon {
+              display: block;
+              position: absolute;
+              top: 10px;
+              left: 20px;
+              width: 20px;
+              height: 20px;
+              background: red; }
+            /* line 1034, style.scss */
+            header .headerTop .headerTopRight .notificationsMenu .dropdown-menu li .line01,
+            header .headerTop .headerTopRight .notificationsMenu .dropdown-menu li .line02 {
+              padding-left: 30px; }
+            /* line 1038, style.scss */
+            header .headerTop .headerTopRight .notificationsMenu .dropdown-menu li .line02 {
+              font-size: 12px;
+              color: #AAB1B5; }
+            /* line 1042, style.scss */
+            header .headerTop .headerTopRight .notificationsMenu .dropdown-menu li a {
+              white-space: normal;
+              color: #363636; }
+              /* line 1045, style.scss */
+              header .headerTop .headerTopRight .notificationsMenu .dropdown-menu li a:hover {
+                color: dimgray;
+                text-decoration: none; }
+          /* line 1051, style.scss */
+          header .headerTop .headerTopRight .notificationsMenu .dropdown-menu .linkAllActivity {
+            text-align: center;
+            border-bottom: none; }
+            /* line 1054, style.scss */
+            header .headerTop .headerTopRight .notificationsMenu .dropdown-menu .linkAllActivity a {
+              display: inline;
+              padding: 0; }
+              /* line 1057, style.scss */
+              header .headerTop .headerTopRight .notificationsMenu .dropdown-menu .linkAllActivity a:hover {
+                background: none; }
+      /* line 1065, style.scss */
+      header .headerTop .headerTopRight .userMenu {
+        height: 32px; }
+        /* line 1067, style.scss */
+        header .headerTop .headerTopRight .userMenu > a {
+          width: 54px;
+          height: 32px; }
+          /* line 1070, style.scss */
+          header .headerTop .headerTopRight .userMenu > a .arrowDown {
+            background: url("../images2/arrowDownWhite.svg") no-repeat; }
+        /* line 1074, style.scss */
+        header .headerTop .headerTopRight .userMenu .dropdown-menu {
+          right: -10px; }
+  /* line 1080, style.scss */
   header h1 {
     color: #fff;
     margin-top: 10px;
     margin-bottom: 30px; }
-  /* line 979, style.scss */
+  /* line 1085, style.scss */
   header .headerSubmenu {
     margin-top: -20px; }
 
 /*---------------------------------------------------------------------*/
 /*--- 03. MAIN  ---*/
 /*---------------------------------------------------------------------*/
-/* line 988, style.scss */
+/* line 1094, style.scss */
 .loginBox {
   width: 400px;
   margin: 70px auto 0 auto; }
-  /* line 991, style.scss */
+  /* line 1097, style.scss */
   .loginBox .logo {
     width: 143px;
     height: 50px;
     margin: 0 auto 20px auto;
     background: url("../images2/logo-black.svg") no-repeat;
     text-indent: -10000px; }
-  /* line 998, style.scss */
+  /* line 1104, style.scss */
   .loginBox .whiteBox {
     margin-bottom: 20px; }
-    /* line 1000, style.scss */
+    /* line 1106, style.scss */
     .loginBox .whiteBox .loginTop {
       text-align: center; }
-      /* line 1002, style.scss */
+      /* line 1108, style.scss */
       .loginBox .whiteBox .loginTop .buttonBox a {
         margin-bottom: 20px;
         width: 100%;
@@ -1024,113 +1128,121 @@ header {
         background: -webkit-linear-gradient(top, #ffffff 0%, #fcfcfc 100%);
         background: linear-gradient(to bottom, #ffffff 0%, #fcfcfc 100%);
         filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#fcfcfc',GradientType=0 ); }
-        /* line 1020, style.scss */
+        /* line 1126, style.scss */
         .loginBox .whiteBox .loginTop .buttonBox a:hover {
           color: #363636;
           background: #fff; }
-        /* line 1024, style.scss */
+        /* line 1130, style.scss */
         .loginBox .whiteBox .loginTop .buttonBox a span {
           height: 20px;
           display: inline-block;
           margin-right: 10px; }
-        /* line 1029, style.scss */
+        /* line 1135, style.scss */
         .loginBox .whiteBox .loginTop .buttonBox a.btnGoogle span {
           width: 19px;
           background: url("../images2/loginGoogle.svg") no-repeat center center; }
-        /* line 1033, style.scss */
+        /* line 1139, style.scss */
         .loginBox .whiteBox .loginTop .buttonBox a.btnedX span {
           width: 43px;
           background: url("../images2/loginedX.svg") no-repeat; }
-      /* line 1038, style.scss */
+      /* line 1144, style.scss */
       .loginBox .whiteBox .loginTop .loginSeparator {
         width: 100%;
         height: 20px;
         margin-bottom: 30px;
         background: url("../images2/loginSeparator.svg") no-repeat center 11px; }
-        /* line 1043, style.scss */
+        /* line 1149, style.scss */
         .loginBox .whiteBox .loginTop .loginSeparator span {
           padding: 0 10px;
           background: #fff; }
-    /* line 1049, style.scss */
+    /* line 1155, style.scss */
     .loginBox .whiteBox input {
       width: 100%;
       margin-bottom: 20px; }
-    /* line 1053, style.scss */
+    /* line 1159, style.scss */
     .loginBox .whiteBox .loginOpt {
       display: flex;
       justify-content: space-between;
       height: 41px;
       margin-bottom: 10px;
       align-items: center; }
-    /* line 1060, style.scss */
+    /* line 1166, style.scss */
     .loginBox .whiteBox .bottomLine {
       text-align: center;
       font-size: 12px;
       padding-bottom: 30px; }
-    /* line 1065, style.scss */
+    /* line 1171, style.scss */
     .loginBox .whiteBox .btn {
       width: 100%;
       margin-bottom: 30px; }
-  /* line 1070, style.scss */
+  /* line 1176, style.scss */
   .loginBox .loginFooter {
     text-align: center;
     font-size: 12px; }
-    /* line 1073, style.scss */
+    /* line 1179, style.scss */
     .loginBox .loginFooter ul {
       list-style: none;
       margin-bottom: 0; }
-      /* line 1076, style.scss */
+      /* line 1182, style.scss */
       .loginBox .loginFooter ul li {
         padding: 0 10px;
         display: inline; }
+  /* line 1189, style.scss */
+  .loginBox .registerForm input[type="password"] {
+    margin-bottom: 5px; }
+  /* line 1192, style.scss */
+  .loginBox .registerForm small {
+    display: block;
+    line-height: 16px;
+    margin-bottom: 20px; }
 
-/* line 1085, style.scss */
+/* line 1201, style.scss */
 .whiteBarContent .whiteBarLeft {
   display: flex;
   align-items: center; }
-  /* line 1088, style.scss */
+  /* line 1204, style.scss */
   .whiteBarContent .whiteBarLeft .searchBox {
     height: 46px;
     padding-left: 30px;
     background: url("../images2/iconSearch20.svg") no-repeat left center; }
-    /* line 1092, style.scss */
+    /* line 1208, style.scss */
     .whiteBarContent .whiteBarLeft .searchBox input {
       width: 300px;
       line-height: 32px;
       padding: 8px 0;
       border: none; }
-  /* line 1099, style.scss */
+  /* line 1215, style.scss */
   .whiteBarContent .whiteBarLeft .item {
     margin-right: 30px; }
-  /* line 1102, style.scss */
+  /* line 1218, style.scss */
   .whiteBarContent .whiteBarLeft .progressBar {
     margin-left: 20px; }
-/* line 1106, style.scss */
+/* line 1222, style.scss */
 .whiteBarContent .whiteBarRight {
   display: flex;
   align-items: center; }
-  /* line 1109, style.scss */
+  /* line 1225, style.scss */
   .whiteBarContent .whiteBarRight .item {
     margin-left: 30px; }
 
-/* line 1115, style.scss */
+/* line 1231, style.scss */
 .pageSubmenu {
   margin-top: -28px; }
-  /* line 1117, style.scss */
+  /* line 1233, style.scss */
   .pageSubmenu > li > a {
     color: #AAB1B5;
     opacity: 1; }
-    /* line 1120, style.scss */
+    /* line 1236, style.scss */
     .pageSubmenu > li > a:hover {
       color: #363636; }
-  /* line 1124, style.scss */
+  /* line 1240, style.scss */
   .pageSubmenu > li.active > a,
   .pageSubmenu > li.active > a:focus,
   .pageSubmenu > li.active > a:hover {
     color: #363636;
     border-bottom: 2px solid #FCA567; }
 
-/* line 1132, style.scss */
+/* line 1248, style.scss */
 .innerSubmenu {
   display: flex;
   background: #F8F9FB;
@@ -1139,23 +1251,23 @@ header {
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px; }
-  /* line 1138, style.scss */
+  /* line 1254, style.scss */
   .innerSubmenu > li {
     margin: 0;
     flex-grow: 1; }
-    /* line 1141, style.scss */
+    /* line 1257, style.scss */
     .innerSubmenu > li:first-child a {
       border-left: 0 !important;
       border-radius: 4px 0px 0px 4px;
       -moz-border-radius: 4px 0px 0px 4px;
       -webkit-border-radius: 4px 0px 0px 4px; }
-    /* line 1147, style.scss */
+    /* line 1263, style.scss */
     .innerSubmenu > li:last-child a {
       border-right: 0 !important;
       border-radius: 0px 4px 4px 0px;
       -moz-border-radius: 0px 4px 4px 0px;
       -webkit-border-radius: 0px 4px 4px 0px; }
-    /* line 1153, style.scss */
+    /* line 1269, style.scss */
     .innerSubmenu > li > a {
       color: #AAB1B5;
       opacity: 1;
@@ -1166,11 +1278,11 @@ header {
       -webkit-border-radius: 0px;
       -moz-border-radius: 0px;
       border-radius: 0px; }
-      /* line 1161, style.scss */
+      /* line 1277, style.scss */
       .innerSubmenu > li > a:hover {
         color: #363636;
         border: none; }
-  /* line 1167, style.scss */
+  /* line 1283, style.scss */
   .innerSubmenu > li.active > a,
   .innerSubmenu > li.active > a:focus,
   .innerSubmenu > li.active > a:hover {
@@ -1180,45 +1292,45 @@ header {
     border-bottom: 0;
     background: #fff; }
 
-/* line 1178, style.scss */
+/* line 1294, style.scss */
 .summaryCard {
   position: relative; }
-  /* line 1180, style.scss */
+  /* line 1296, style.scss */
   .summaryCard h2 {
     float: left;
     margin-top: 0;
     margin-bottom: 20px; }
-    /* line 1184, style.scss */
+    /* line 1300, style.scss */
     .summaryCard h2 span {
       color: #AAB1B5; }
-  /* line 1188, style.scss */
+  /* line 1304, style.scss */
   .summaryCard .metaBox {
     display: flex;
     justify-content: space-between;
     padding-bottom: 30px; }
-    /* line 1192, style.scss */
+    /* line 1308, style.scss */
     .summaryCard .metaBox .metaLeft {
       display: flex; }
-      /* line 1194, style.scss */
+      /* line 1310, style.scss */
       .summaryCard .metaBox .metaLeft .progressBar {
         height: 32px;
         margin-left: 20px; }
-      /* line 1198, style.scss */
+      /* line 1314, style.scss */
       .summaryCard .metaBox .metaLeft .linkRed {
         margin-left: 20px;
         line-height: 32px; }
-    /* line 1203, style.scss */
+    /* line 1319, style.scss */
     .summaryCard .metaBox .metaRight {
       display: flex;
       padding: 6px 0; }
-      /* line 1206, style.scss */
+      /* line 1322, style.scss */
       .summaryCard .metaBox .metaRight .duration {
         margin-left: 20px; }
-  /* line 1211, style.scss */
+  /* line 1327, style.scss */
   .summaryCard .editOptions {
     float: right;
     margin-top: 4px; }
-  /* line 1215, style.scss */
+  /* line 1331, style.scss */
   .summaryCard .bookmarkStar {
     position: absolute;
     display: block;
@@ -1231,14 +1343,14 @@ header {
     background: url("../images2/iconStar20Gray.svg") no-repeat;
     transition: none;
     -webkit-transition: none; }
-    /* line 1227, style.scss */
+    /* line 1343, style.scss */
     .summaryCard .bookmarkStar.active, .summaryCard .bookmarkStar:hover {
       visibility: visible;
       background: url("../images2/iconStar20Yellow.svg") no-repeat; }
-  /* line 1233, style.scss */
+  /* line 1349, style.scss */
   .summaryCard:hover .bookmarkStar {
     visibility: visible; }
-  /* line 1237, style.scss */
+  /* line 1353, style.scss */
   .summaryCard .collapseActivityList .collapseButton {
     display: flex;
     justify-content: center;
@@ -1246,13 +1358,13 @@ header {
     height: 40px;
     line-height: 40px;
     border-top: 1px solid #EEEFF3; }
-    /* line 1244, style.scss */
+    /* line 1360, style.scss */
     .summaryCard .collapseActivityList .collapseButton span {
       transition: all 0.2s ease;
       -webkit-transition: all 0.2s ease;
       color: #AAB1B5;
       font-weight: 400; }
-    /* line 1250, style.scss */
+    /* line 1366, style.scss */
     .summaryCard .collapseActivityList .collapseButton .arrowUp,
     .summaryCard .collapseActivityList .collapseButton .arrowDown {
       display: inline-block;
@@ -1263,52 +1375,52 @@ header {
       opacity: .5;
       transition: all 0.2s ease;
       -webkit-transition: all 0.2s ease; }
-    /* line 1262, style.scss */
+    /* line 1378, style.scss */
     .summaryCard .collapseActivityList .collapseButton:hover span {
       color: #859095; }
-    /* line 1265, style.scss */
+    /* line 1381, style.scss */
     .summaryCard .collapseActivityList .collapseButton:hover .arrowUp,
     .summaryCard .collapseActivityList .collapseButton:hover .arrowDown {
       opacity: 1; }
-    /* line 1270, style.scss */
+    /* line 1386, style.scss */
     .summaryCard .collapseActivityList .collapseButton .arrowUp {
       background: url("../images2/arrowUp.svg") no-repeat center center; }
-    /* line 1273, style.scss */
+    /* line 1389, style.scss */
     .summaryCard .collapseActivityList .collapseButton .arrowDown {
       background: url("../images2/arrowDown.svg") no-repeat center center; }
-    /* line 1276, style.scss */
+    /* line 1392, style.scss */
     .summaryCard .collapseActivityList .collapseButton .textShow,
     .summaryCard .collapseActivityList .collapseButton .arrowDown {
       display: none; }
-    /* line 1280, style.scss */
+    /* line 1396, style.scss */
     .summaryCard .collapseActivityList .collapseButton .textHide,
     .summaryCard .collapseActivityList .collapseButton .arrowUp {
       display: inline-block; }
-    /* line 1285, style.scss */
+    /* line 1401, style.scss */
     .summaryCard .collapseActivityList .collapseButton.collapsed .textShow,
     .summaryCard .collapseActivityList .collapseButton.collapsed .arrowDown {
       display: inline-block; }
-    /* line 1289, style.scss */
+    /* line 1405, style.scss */
     .summaryCard .collapseActivityList .collapseButton.collapsed .textHide,
     .summaryCard .collapseActivityList .collapseButton.collapsed .arrowUp {
       display: none; }
-  /* line 1295, style.scss */
+  /* line 1411, style.scss */
   .summaryCard .collapseActivityList ul {
     margin: 0;
     padding: 0;
     list-style: none; }
-    /* line 1300, style.scss */
+    /* line 1416, style.scss */
     .summaryCard .collapseActivityList ul li .iconType {
       float: left;
       margin-right: 20px; }
-    /* line 1304, style.scss */
+    /* line 1420, style.scss */
     .summaryCard .collapseActivityList ul li.noLink {
       display: block;
       line-height: 20px;
       padding: 10px 30px;
       background: #F8F9FB;
       border-top: 1px solid #EEEFF3; }
-    /* line 1311, style.scss */
+    /* line 1427, style.scss */
     .summaryCard .collapseActivityList ul li a {
       display: block;
       line-height: 20px;
@@ -1317,15 +1429,15 @@ header {
       color: #859095;
       background: #F8F9FB;
       border-top: 1px solid #EEEFF3; }
-      /* line 1319, style.scss */
+      /* line 1435, style.scss */
       .summaryCard .collapseActivityList ul li a:hover {
         color: #363636; }
-      /* line 1322, style.scss */
+      /* line 1438, style.scss */
       .summaryCard .collapseActivityList ul li a .check {
         float: right;
         margin-left: 30px; }
 
-/* line 1332, style.scss */
+/* line 1448, style.scss */
 .newCompetenceBox {
   display: flex;
   height: 180px;
@@ -1337,66 +1449,66 @@ header {
   border-radius: 5px;
   justify-content: center;
   align-items: center; }
-  /* line 1341, style.scss */
+  /* line 1457, style.scss */
   .newCompetenceBox .elementsWrapper {
     display: flex;
     align-items: flex-start;
     flex-wrap: wrap; }
-    /* line 1345, style.scss */
+    /* line 1461, style.scss */
     .newCompetenceBox .elementsWrapper .btn {
       margin-bottom: 30px; }
-    /* line 1348, style.scss */
+    /* line 1464, style.scss */
     .newCompetenceBox .elementsWrapper span {
       line-height: 40px;
       margin: 0 20px;
       color: #AAB1B5; }
-    /* line 1353, style.scss */
+    /* line 1469, style.scss */
     .newCompetenceBox .elementsWrapper .elementsRight {
       display: flex;
       flex-direction: column;
       position: relative; }
-      /* line 1357, style.scss */
+      /* line 1473, style.scss */
       .newCompetenceBox .elementsWrapper .elementsRight input {
         width: 300px;
         margin-bottom: 8px; }
-      /* line 1361, style.scss */
+      /* line 1477, style.scss */
       .newCompetenceBox .elementsWrapper .elementsRight .searchResultsDrop {
         top: 41px; }
 
-/* line 1368, style.scss */
+/* line 1484, style.scss */
 .activitiesList {
   padding: 0; }
-  /* line 1370, style.scss */
+  /* line 1486, style.scss */
   .activitiesList .activityItem {
     display: flex;
     align-items: center;
     min-height: 60px;
     padding: 0 30px;
     border-bottom: 1px solid #EEEFF3; }
-    /* line 1376, style.scss */
+    /* line 1492, style.scss */
     .activitiesList .activityItem .check,
     .activitiesList .activityItem .iconType,
     .activitiesList .activityItem .iconPlus {
       margin-right: 20px;
       flex-shrink: 0; }
-    /* line 1382, style.scss */
+    /* line 1498, style.scss */
     .activitiesList .activityItem h3 {
       flex-grow: 1;
       margin: 0 10px 0 0; }
-    /* line 1386, style.scss */
+    /* line 1502, style.scss */
     .activitiesList .activityItem .editOptions {
       flex-shrink: 0; }
-      /* line 1388, style.scss */
+      /* line 1504, style.scss */
       .activitiesList .activityItem .editOptions .optMoreMenu {
         margin-right: 10px; }
-    /* line 1392, style.scss */
+    /* line 1508, style.scss */
     .activitiesList .activityItem .duration {
       flex-shrink: 0; }
-    /* line 1395, style.scss */
+    /* line 1511, style.scss */
     .activitiesList .activityItem.addActivity {
       line-height: 60px;
       border: none; }
-      /* line 1398, style.scss */
+      /* line 1514, style.scss */
       .activitiesList .activityItem.addActivity .iconPlus {
         display: block;
         width: 20px;
@@ -1405,49 +1517,56 @@ header {
         opacity: .5;
         transition: all 0.2s ease;
         -webkit-transition: all 0.2s ease; }
-      /* line 1407, style.scss */
+      /* line 1523, style.scss */
       .activitiesList .activityItem.addActivity:hover .iconPlus {
         opacity: 1; }
-    /* line 1411, style.scss */
+    /* line 1527, style.scss */
     .activitiesList .activityItem:last-child {
       border-bottom: none; }
 
-/* line 1417, style.scss */
+/* line 1533, style.scss */
 .competenceProgressList {
   list-style: none;
   padding: 0; }
-  /* line 1420, style.scss */
+  /* line 1536, style.scss */
   .competenceProgressList li {
     display: flex;
     align-items: center;
     margin-bottom: 30px; }
-    /* line 1424, style.scss */
+    /* line 1540, style.scss */
     .competenceProgressList li .check,
     .competenceProgressList li .iconType {
       margin-right: 20px;
       flex-shrink: 0; }
-    /* line 1429, style.scss */
+    /* line 1545, style.scss */
     .competenceProgressList li h3 {
       margin: 0; }
-      /* line 1431, style.scss */
+      /* line 1547, style.scss */
       .competenceProgressList li h3 a {
         color: #859095; }
-        /* line 1433, style.scss */
+        /* line 1549, style.scss */
         .competenceProgressList li h3 a:hover {
           color: #363636; }
-    /* line 1438, style.scss */
+    /* line 1554, style.scss */
     .competenceProgressList li.active h3 a {
       color: #363636; }
 
-/* line 1445, style.scss */
+/* line 1561, style.scss */
 .formLineRight .addedItems {
   padding: 10px 0 2px 0;
   margin-bottom: 10px;
   list-style: none; }
-  /* line 1449, style.scss */
+  /* line 1565, style.scss */
   .formLineRight .addedItems li {
     margin-bottom: 10px; }
-    /* line 1451, style.scss */
+    /* line 1567, style.scss */
+    .formLineRight .addedItems li h3 {
+      float: left;
+      margin: 0; }
+    /* line 1571, style.scss */
+    .formLineRight .addedItems li a {
+      word-break: break-word; }
+    /* line 1574, style.scss */
     .formLineRight .addedItems li .removeX {
       float: right;
       width: 12px;
@@ -1457,82 +1576,95 @@ header {
       text-indent: -10000px;
       background: url("../images2/removeX.svg") no-repeat; }
 
-/* line 1464, style.scss */
+/* line 1587, style.scss */
 .publishBox {
   padding-bottom: 30px; }
-  /* line 1466, style.scss */
+  /* line 1589, style.scss */
   .publishBox h2 {
     float: left; }
-  /* line 1469, style.scss */
+  /* line 1592, style.scss */
   .publishBox .checkLine {
     margin-bottom: 20px; }
-  /* line 1472, style.scss */
+  /* line 1595, style.scss */
   .publishBox .linkPreview {
     float: right;
     margin-top: 4px; }
-  /* line 1476, style.scss */
+  /* line 1599, style.scss */
   .publishBox .publishRow {
     display: flex;
     justify-content: space-between;
     align-items: center; }
-  /* line 1482, style.scss */
+  /* line 1605, style.scss */
   .publishBox .estimatedTime > p {
     margin-bottom: 10px; }
-  /* line 1485, style.scss */
+  /* line 1608, style.scss */
   .publishBox .estimatedTime .selectRow {
     display: flex;
     align-items: center; }
-    /* line 1488, style.scss */
+    /* line 1611, style.scss */
     .publishBox .estimatedTime .selectRow .bootstrap-select {
       width: 70px !important;
       margin-right: 10px; }
-    /* line 1492, style.scss */
+    /* line 1615, style.scss */
     .publishBox .estimatedTime .selectRow .pickMinutes {
       margin-left: 10px; }
 
-/* line 1499, style.scss */
+/* line 1622, style.scss */
 .activityMain {
   margin-bottom: 30px; }
 
-/* line 1503, style.scss */
+/* line 1626, style.scss */
 .activityLinksBox,
-.activityFilesBox {
+.activityFilesBox,
+.activityResultBox {
   list-style: none; }
-  /* line 1506, style.scss */
+  /* line 1630, style.scss */
   .activityLinksBox li,
-  .activityFilesBox li {
+  .activityFilesBox li,
+  .activityResultBox li {
     display: flex;
     align-items: center;
     justify-content: space-between;
     height: 100px;
     padding: 0 30px 0 70px;
     border-bottom: 1px solid #EEEFF3; }
-    /* line 1513, style.scss */
+    /* line 1637, style.scss */
     .activityLinksBox li:last-child,
-    .activityFilesBox li:last-child {
+    .activityFilesBox li:last-child,
+    .activityResultBox li:last-child {
       border: none; }
-    /* line 1516, style.scss */
+    /* line 1640, style.scss */
     .activityLinksBox li h3,
-    .activityFilesBox li h3 {
+    .activityFilesBox li h3,
+    .activityResultBox li h3 {
       margin-bottom: 10px; }
-    /* line 1519, style.scss */
-    .activityLinksBox li span,
-    .activityFilesBox li span {
+    /* line 1643, style.scss */
+    .activityLinksBox li .actBoxLeft > span,
+    .activityLinksBox li .deleteLink,
+    .activityFilesBox li .actBoxLeft > span,
+    .activityFilesBox li .deleteLink,
+    .activityResultBox li .actBoxLeft > span,
+    .activityResultBox li .deleteLink {
       font-size: 12px; }
-    /* line 1522, style.scss */
+    /* line 1647, style.scss */
     .activityLinksBox li a,
-    .activityFilesBox li a {
+    .activityFilesBox li a,
+    .activityResultBox li a {
       width: 100px; }
 
-/* line 1528, style.scss */
+/* line 1653, style.scss */
 .activityLinksBox li {
   background: url("../images2/iconLink20.svg") no-repeat 30px center; }
 
-/* line 1532, style.scss */
+/* line 1657, style.scss */
 .activityFilesBox li {
   background: url("../images2/iconFile20.svg") no-repeat 30px center; }
 
-/* line 1536, style.scss */
+/* line 1661, style.scss */
+.activityResultBox li {
+  background: url("../images2/iconResult20.svg") no-repeat 30px center; }
+
+/* line 1665, style.scss */
 .uploadResultBox {
   display: flex;
   flex-direction: column;
@@ -1544,68 +1676,69 @@ header {
   border-radius: 5px;
   justify-content: center;
   align-items: center; }
-  /* line 1545, style.scss */
+  /* line 1674, style.scss */
   .uploadResultBox h3, .uploadResultBox p {
     margin-bottom: 10px; }
 
-/* line 1551, style.scss */
+/* line 1680, style.scss */
 .discussion h2 {
   display: inline-block; }
-/* line 1554, style.scss */
+/* line 1683, style.scss */
 .discussion .sortDrop {
   float: right;
   padding: 0; }
-/* line 1558, style.scss */
-.discussion img {
+/* line 1687, style.scss */
+.discussion img,
+.discussion .letterAvatar {
   margin: 9px 20px 0 0; }
-/* line 1561, style.scss */
+/* line 1691, style.scss */
 .discussion .addComment {
   display: flex;
   margin-bottom: 30px; }
-/* line 1565, style.scss */
+/* line 1695, style.scss */
 .discussion .commentForm,
 .discussion .editComment {
   width: 100%; }
-  /* line 1568, style.scss */
+  /* line 1698, style.scss */
   .discussion .commentForm textarea,
   .discussion .editComment textarea {
     float: left;
     width: 100%;
     height: 50px;
     padding: 15px; }
-  /* line 1574, style.scss */
+  /* line 1704, style.scss */
   .discussion .commentForm .btn,
   .discussion .editComment .btn {
     margin: 15px 10px 0 0; }
-/* line 1578, style.scss */
+/* line 1708, style.scss */
 .discussion .commentForm {
   min-height: 50px; }
-/* line 1581, style.scss */
+/* line 1711, style.scss */
 .discussion .editComment {
   padding-bottom: 20px; }
-/* line 1584, style.scss */
+/* line 1714, style.scss */
 .discussion .comments {
   padding-bottom: 30px; }
-  /* line 1586, style.scss */
+  /* line 1716, style.scss */
   .discussion .comments ul {
     margin-bottom: 30px; }
-  /* line 1589, style.scss */
+  /* line 1719, style.scss */
   .discussion .comments .media-left, .discussion .comments .media > .pull-left {
     padding: 0; }
-  /* line 1592, style.scss */
+  /* line 1722, style.scss */
   .discussion .comments .media-body {
     padding-top: 16px; }
-    /* line 1594, style.scss */
+    /* line 1724, style.scss */
     .discussion .comments .media-body.replyComment {
       padding-top: 0; }
-    /* line 1597, style.scss */
+    /* line 1727, style.scss */
     .discussion .comments .media-body .commentMain {
       position: relative; }
-      /* line 1599, style.scss */
+      /* line 1729, style.scss */
       .discussion .comments .media-body .commentMain h3 {
         margin-bottom: 10px;
         position: relative; }
-        /* line 1602, style.scss */
+        /* line 1732, style.scss */
         .discussion .comments .media-body .commentMain h3 span {
           display: inline-block;
           margin-left: 10px;
@@ -1617,7 +1750,7 @@ header {
           -webkit-border-radius: 5px;
           -moz-border-radius: 5px;
           border-radius: 5px; }
-      /* line 1613, style.scss */
+      /* line 1743, style.scss */
       .discussion .comments .media-body .commentMain .commentTime {
         position: absolute;
         top: 0;
@@ -1625,16 +1758,16 @@ header {
         font-size: 12px;
         color: #AAB1B5;
         display: none; }
-      /* line 1621, style.scss */
+      /* line 1751, style.scss */
       .discussion .comments .media-body .commentMain:hover > .commentTime {
         display: block; }
-      /* line 1624, style.scss */
+      /* line 1754, style.scss */
       .discussion .comments .media-body .commentMain p {
         margin-bottom: 10px; }
-      /* line 1627, style.scss */
+      /* line 1757, style.scss */
       .discussion .comments .media-body .commentMain .commentOptions {
         display: flex; }
-        /* line 1629, style.scss */
+        /* line 1759, style.scss */
         .discussion .comments .media-body .commentMain .commentOptions a {
           display: flex;
           align-items: center;
@@ -1642,61 +1775,61 @@ header {
           font-weight: 400;
           font-size: 13px;
           margin-right: 20px; }
-          /* line 1636, style.scss */
+          /* line 1766, style.scss */
           .discussion .comments .media-body .commentMain .commentOptions a .icon {
             display: inline-block;
             width: 12px;
             height: 12px;
             margin-right: 5px;
             margin-bottom: 2px; }
-            /* line 1642, style.scss */
+            /* line 1772, style.scss */
             .discussion .comments .media-body .commentMain .commentOptions a .icon #triangle {
               transition: all 0.2s ease;
               -webkit-transition: all 0.2s ease; }
-          /* line 1648, style.scss */
+          /* line 1778, style.scss */
           .discussion .comments .media-body .commentMain .commentOptions a.reply .icon {
             background: url("../images2/iconReply12.svg") no-repeat;
             opacity: .5;
             transition: all 0.2s ease;
             -webkit-transition: all 0.2s ease; }
-          /* line 1654, style.scss */
+          /* line 1784, style.scss */
           .discussion .comments .media-body .commentMain .commentOptions a.reply:hover .icon {
             opacity: 1; }
-          /* line 1659, style.scss */
+          /* line 1789, style.scss */
           .discussion .comments .media-body .commentMain .commentOptions a.edit .icon {
             background: url("../images2/iconEdit12.svg") no-repeat;
             opacity: .5;
             transition: all 0.2s ease;
             -webkit-transition: all 0.2s ease; }
-          /* line 1665, style.scss */
+          /* line 1795, style.scss */
           .discussion .comments .media-body .commentMain .commentOptions a.edit:hover .icon {
             opacity: 1; }
-          /* line 1669, style.scss */
+          /* line 1799, style.scss */
           .discussion .comments .media-body .commentMain .commentOptions a:hover {
             color: #363636; }
-            /* line 1671, style.scss */
+            /* line 1801, style.scss */
             .discussion .comments .media-body .commentMain .commentOptions a:hover #triangle {
               fill: #FCA567; }
-          /* line 1676, style.scss */
+          /* line 1806, style.scss */
           .discussion .comments .media-body .commentMain .commentOptions a.liked #triangle {
             fill: #FCA567; }
 
-/* line 1687, style.scss */
+/* line 1817, style.scss */
 .twitterBtnBox {
   padding-top: 20px; }
-  /* line 1689, style.scss */
+  /* line 1819, style.scss */
   .twitterBtnBox .btnTwitterConnect, .twitterBtnBox .btnTwitterConnect:focus {
     float: left;
     margin-right: 10px;
     color: #fff;
     background: #55ACEE;
     border: 1px solid #55ACEE; }
-    /* line 1695, style.scss */
+    /* line 1825, style.scss */
     .twitterBtnBox .btnTwitterConnect:hover, .twitterBtnBox .btnTwitterConnect:focus:hover {
       color: #fff;
       background: #3ea1ec;
       border-color: #3ea1ec; }
-    /* line 1700, style.scss */
+    /* line 1830, style.scss */
     .twitterBtnBox .btnTwitterConnect span, .twitterBtnBox .btnTwitterConnect:focus span {
       float: left;
       margin: 8px 10px 0 0;
@@ -1704,52 +1837,53 @@ header {
       width: 16px;
       height: 13px;
       background: url("../images2/iconTwitter.svg") no-repeat; }
-  /* line 1709, style.scss */
+  /* line 1839, style.scss */
   .twitterBtnBox small {
     line-height: 16px;
     display: block; }
 
-/* line 1715, style.scss */
+/* line 1845, style.scss */
 .yourPhotoContent {
   display: flex;
   padding-bottom: 30px; }
-  /* line 1718, style.scss */
-  .yourPhotoContent img {
+  /* line 1848, style.scss */
+  .yourPhotoContent img,
+  .yourPhotoContent .letterAvatar {
     margin-right: 20px; }
-  /* line 1722, style.scss */
+  /* line 1853, style.scss */
   .yourPhotoContent .chooseBtnBox .btn {
     margin-bottom: 20px; }
 
-/* line 1728, style.scss */
+/* line 1859, style.scss */
 .settingsEmailNotifications .checkLine {
   margin-bottom: 20px; }
 
-/* line 1732, style.scss */
+/* line 1863, style.scss */
 .settingsChangePassword .formLine {
   width: 400px; }
 
-/* line 1736, style.scss */
+/* line 1867, style.scss */
 .messagesListHead {
   height: 50px; }
-  /* line 1738, style.scss */
+  /* line 1869, style.scss */
   .messagesListHead .showDrop {
     float: left;
     padding: 10px 0; }
-    /* line 1741, style.scss */
+    /* line 1872, style.scss */
     .messagesListHead .showDrop > a {
       margin: 0;
       font-size: 13px; }
-    /* line 1745, style.scss */
+    /* line 1876, style.scss */
     .messagesListHead .showDrop .dropdown-menu {
       top: 40px; }
-  /* line 1749, style.scss */
+  /* line 1880, style.scss */
   .messagesListHead .newMessageBtn {
     float: right;
     height: 30px;
     line-height: 30px;
     margin-top: 10px;
     font-size: 13px; }
-    /* line 1755, style.scss */
+    /* line 1886, style.scss */
     .messagesListHead .newMessageBtn span {
       width: 12px;
       height: 12px;
@@ -1760,47 +1894,47 @@ header {
       background: url("../images2/iconEdit12.svg") no-repeat;
       transition: all 0.2s ease;
       -webkit-transition: all 0.2s ease; }
-    /* line 1766, style.scss */
+    /* line 1897, style.scss */
     .messagesListHead .newMessageBtn:hover span {
       opacity: 1; }
 
-/* line 1773, style.scss */
+/* line 1904, style.scss */
 .messagesList ul {
   list-style: none;
   padding: 0;
   border-top: 1px solid #ECEDF1; }
-  /* line 1777, style.scss */
+  /* line 1908, style.scss */
   .messagesList ul li {
     position: relative;
     height: 68px;
     padding: 16px 8px;
     border-bottom: 1px solid #ECEDF1;
     border-left: 2px solid #F8F9FB; }
-    /* line 1783, style.scss */
+    /* line 1914, style.scss */
     .messagesList ul li.active {
       border-left: 2px solid #FCA567; }
-    /* line 1786, style.scss */
+    /* line 1917, style.scss */
     .messagesList ul li .media {
       margin: 0; }
-      /* line 1789, style.scss */
+      /* line 1920, style.scss */
       .messagesList ul li .media .media-body h3 {
         float: left;
         margin-top: 0;
         margin-bottom: 0;
         line-height: 20px; }
-      /* line 1795, style.scss */
+      /* line 1926, style.scss */
       .messagesList ul li .media .media-body span {
         float: right;
         margin-top: 0;
         font-size: 12px;
         line-height: 20px;
         color: #AAB1B5; }
-      /* line 1802, style.scss */
+      /* line 1933, style.scss */
       .messagesList ul li .media .media-body p {
         font-size: 13px;
         margin: 0;
         line-height: 20px; }
-    /* line 1809, style.scss */
+    /* line 1940, style.scss */
     .messagesList ul li .unread {
       display: block;
       position: absolute;
@@ -1809,48 +1943,54 @@ header {
       background: url("../images2/unreadDot.svg") no-repeat;
       top: 42px;
       right: 8px; }
-    /* line 1818, style.scss */
+    /* line 1949, style.scss */
     .messagesList ul li.unreadMessage .unread {
       display: block !important; }
+/* line 1954, style.scss */
+.messagesList .noMessagesList {
+  border-top: 1px solid #ECEDF1;
+  text-align: center;
+  padding-top: 30px;
+  font-size: 13px; }
 
-/* line 1825, style.scss */
+/* line 1962, style.scss */
 .messageColumn {
   display: flex;
   /* set height based on browser height */ }
-  /* line 1828, style.scss */
+  /* line 1965, style.scss */
   .messageColumn .messagesPane {
     width: 100%; }
-    /* line 1830, style.scss */
+    /* line 1967, style.scss */
     .messageColumn .messagesPane.noSelected {
       min-height: 300px;
       display: flex;
       justify-content: center;
       align-items: center;
       flex-direction: column; }
-      /* line 1836, style.scss */
+      /* line 1973, style.scss */
       .messageColumn .messagesPane.noSelected > h2 {
         color: #AAB1B5; }
-    /* line 1840, style.scss */
+    /* line 1977, style.scss */
     .messageColumn .messagesPane .messagePaneHead {
       position: relative;
       display: flex;
       height: 60px;
       justify-content: space-between; }
-      /* line 1845, style.scss */
-      .messageColumn .messagesPane .messagePaneHead h2 {
+      /* line 1982, style.scss */
+      .messageColumn .messagesPane .messagePaneHead > h2 {
         float: left;
         margin: 18px 0 0 30px; }
-      /* line 1849, style.scss */
+      /* line 1986, style.scss */
       .messageColumn .messagesPane .messagePaneHead .messageMenu {
         float: right;
         margin: 20px 30px; }
-      /* line 1853, style.scss */
+      /* line 1990, style.scss */
       .messageColumn .messagesPane .messagePaneHead .linkApprove {
         line-height: 24px;
         margin: 18px 30px 0 0;
         color: #AAB1B5;
         font-size: 13px; }
-        /* line 1858, style.scss */
+        /* line 1995, style.scss */
         .messageColumn .messagesPane .messagePaneHead .linkApprove span {
           width: 24px;
           height: 24px;
@@ -1860,19 +2000,19 @@ header {
           background: url("../images2/icon-approve.svg") no-repeat;
           transition: all 0.2s ease;
           -webkit-transition: all 0.2s ease; }
-        /* line 1868, style.scss */
+        /* line 2005, style.scss */
         .messageColumn .messagesPane .messagePaneHead .linkApprove:hover, .messageColumn .messagesPane .messagePaneHead .linkApprove.approved {
           color: #859095; }
-          /* line 1871, style.scss */
+          /* line 2008, style.scss */
           .messageColumn .messagesPane .messagePaneHead .linkApprove:hover span, .messageColumn .messagesPane .messagePaneHead .linkApprove.approved span {
             background: url("../images2/icon-approved.svg") no-repeat; }
-      /* line 1876, style.scss */
+      /* line 2013, style.scss */
       .messageColumn .messagesPane .messagePaneHead .toBox {
         display: inline-block;
         line-height: 60px;
         width: 20px;
         margin: 0 10px 0 30px; }
-      /* line 1882, style.scss */
+      /* line 2019, style.scss */
       .messageColumn .messagesPane .messagePaneHead input[type="text"] {
         width: 100%;
         border: none;
@@ -1881,62 +2021,63 @@ header {
         box-shadow: none;
         color: #363636;
         font-weight: 500; }
-      /* line 1891, style.scss */
+      /* line 2028, style.scss */
       .messageColumn .messagesPane .messagePaneHead .searchResultsDrop {
         top: 60px; }
-        /* line 1893, style.scss */
+        /* line 2030, style.scss */
         .messageColumn .messagesPane .messagePaneHead .searchResultsDrop li a {
           height: 52px; }
-          /* line 1895, style.scss */
-          .messageColumn .messagesPane .messagePaneHead .searchResultsDrop li a img {
+          /* line 2032, style.scss */
+          .messageColumn .messagesPane .messagePaneHead .searchResultsDrop li a img,
+          .messageColumn .messagesPane .messagePaneHead .searchResultsDrop li a .letterAvatar {
             float: left;
             margin-right: 15px; }
-          /* line 1899, style.scss */
+          /* line 2037, style.scss */
           .messageColumn .messagesPane .messagePaneHead .searchResultsDrop li a h3 {
             margin: 7px 0 0 0; }
-    /* line 1905, style.scss */
+    /* line 2043, style.scss */
     .messageColumn .messagesPane .greyBar {
       padding: 1px 30px;
       background: #F8F9FB;
       border-top: 1px solid #EEEFF3;
       border-bottom: 1px solid #EEEFF3; }
-      /* line 1910, style.scss */
+      /* line 2048, style.scss */
       .messageColumn .messagesPane .greyBar .assessmentModalMetaLine {
         display: flex;
         padding-top: 10px; }
-        /* line 1913, style.scss */
+        /* line 2051, style.scss */
         .messageColumn .messagesPane .greyBar .assessmentModalMetaLine:last-child {
           padding-bottom: 10px; }
-        /* line 1916, style.scss */
+        /* line 2054, style.scss */
         .messageColumn .messagesPane .greyBar .assessmentModalMetaLine .assessmentModalMetaLeft,
         .messageColumn .messagesPane .greyBar .assessmentModalMetaLine .assessmentModalMetaRight {
           display: flex;
           line-height: 32px;
           align-items: center; }
-          /* line 1921, style.scss */
+          /* line 2059, style.scss */
           .messageColumn .messagesPane .greyBar .assessmentModalMetaLine .assessmentModalMetaLeft h3,
           .messageColumn .messagesPane .greyBar .assessmentModalMetaLine .assessmentModalMetaRight h3 {
             margin: 0; }
-        /* line 1925, style.scss */
+        /* line 2063, style.scss */
         .messageColumn .messagesPane .greyBar .assessmentModalMetaLine .assessmentModalMetaLeft {
           width: 80px; }
-        /* line 1928, style.scss */
+        /* line 2066, style.scss */
         .messageColumn .messagesPane .greyBar .assessmentModalMetaLine .assessmentModalMetaRight img {
           margin-right: 10px; }
-    /* line 1935, style.scss */
+    /* line 2073, style.scss */
     .messageColumn .messagesPane .media .media-body h3 {
       float: left;
       margin-top: 7px; }
-    /* line 1939, style.scss */
+    /* line 2077, style.scss */
     .messageColumn .messagesPane .media .media-body span {
       float: right;
       margin-top: 7px;
       font-size: 12px;
       color: #AAB1B5; }
-    /* line 1945, style.scss */
+    /* line 2083, style.scss */
     .messageColumn .messagesPane .media .media-body p {
       margin-bottom: 20px; }
-    /* line 1950, style.scss */
+    /* line 2088, style.scss */
     .messageColumn .messagesPane .newMessagesSeparator {
       height: 20px;
       line-height: 20px;
@@ -1945,19 +2086,19 @@ header {
       text-transform: uppercase;
       color: #FCA567;
       background: url("../images2/newMessagesLine.svg") no-repeat 85px 9px; }
-    /* line 1959, style.scss */
+    /* line 2097, style.scss */
     .messageColumn .messagesPane .typeBox {
       min-height: 32px;
       padding: 20px 30px; }
-      /* line 1962, style.scss */
+      /* line 2100, style.scss */
       .messageColumn .messagesPane .typeBox .media-body > div {
         display: flex;
         justify-content: space-between; }
-        /* line 1965, style.scss */
+        /* line 2103, style.scss */
         .messageColumn .messagesPane .typeBox .media-body > div .btn {
           height: 32px;
           margin-left: 10px; }
-        /* line 1969, style.scss */
+        /* line 2107, style.scss */
         .messageColumn .messagesPane .typeBox .media-body > div textarea {
           width: 100%;
           height: 32px;
@@ -1966,6 +2107,45 @@ header {
           -webkit-box-shadow: none;
           -moz-box-shadow: none;
           box-shadow: none; }
+
+/* line 2122, style.scss */
+.incomingActivity ul {
+  list-style: none; }
+  /* line 2124, style.scss */
+  .incomingActivity ul li {
+    display: flex;
+    height: 90px;
+    padding: 0 30px;
+    align-items: center;
+    border-bottom: 1px solid #EEEFF3; }
+    /* line 2130, style.scss */
+    .incomingActivity ul li:last-child {
+      border: none;
+      flex-shrink: 0; }
+    /* line 2134, style.scss */
+    .incomingActivity ul li .icon {
+      display: block;
+      width: 20px;
+      height: 20px;
+      background: red;
+      margin-right: 10px;
+      flex-shrink: 0; }
+    /* line 2142, style.scss */
+    .incomingActivity ul li img, .incomingActivity ul li .letterAvatar {
+      margin-right: 10px;
+      flex-shrink: 0; }
+    /* line 2146, style.scss */
+    .incomingActivity ul li p {
+      margin: 0;
+      flex-grow: 1; }
+    /* line 2150, style.scss */
+    .incomingActivity ul li .timestamp {
+      font-size: 12px;
+      color: #AAB1B5;
+      margin-left: 10px;
+      width: 100px;
+      flex-shrink: 0;
+      text-align: right; }
 
 /*---------------------------------------------------------------------*/
 /*--- 04. FOOTER ---*/
