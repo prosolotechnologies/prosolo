@@ -64,6 +64,7 @@
                    				value="Edit" 
                    				outcome="/create-activity">
                    				<f:param name="id" value="#{util:encodeId(act.activityId)}" />
+                   				<f:param name="compId" value="#{cc.attrs.encodedCompetenceId}"></f:param>
                    			</h:link> 
                         </li>
                         <li>
@@ -115,12 +116,12 @@
          </ui:repeat>
         
          <ui:fragment rendered="#{cc.attrs.isEdit}">
-	         <h:link styleClass="activityItem addActivity"
-	         	outcome="/create-activity">
-	             <span class="iconPlus"></span>
-	             Add Activity
-	             <f:param name="compId" value="#{cc.attrs.encodedCompetenceId}"></f:param>
-	         </h:link>
+         	 <p:commandLink
+         	  	styleClass="activityItem addActivity"
+         	 	action="#{cc.attrs.bean.saveAndNavigateToCreateActivity()}">
+         	 	<span class="iconPlus"></span>
+	            Add Activity
+         	 </p:commandLink>
 	     </ui:fragment>
         </div>
 	</composite:implementation>

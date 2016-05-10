@@ -901,19 +901,19 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throws DbConnectionException {
 		try {
 			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, compId);
-			String query = "SELECT cred.id, cred.title " +
+			String query = "SELECT coalesce(originalCred.id, cred.id), cred.title " +
 					       "FROM CredentialCompetence1 credComp " +
 					       "INNER JOIN credComp.credential cred " +
+					       "LEFT JOIN cred.originalVersion originalCred " +
 					       "WHERE credComp.competence = :comp " +
-					       "AND cred.draft = :draft " +
-					       "AND cred.deleted = :deleted";
+					       "AND cred.hasDraft = :boolFalse " +
+					       "AND cred.deleted = :boolFalse";
 			@SuppressWarnings("unchecked")
 			List<Object[]> res = persistence.currentManager()
-									.createQuery(query)
-									.setEntity("comp", comp)
-									.setBoolean("draft", false)
-									.setBoolean("deleted", false)
-									.list();
+					.createQuery(query)
+					.setEntity("comp", comp)
+					.setBoolean("boolFalse", false)
+					.list();
 			if(res == null) {
 				return new ArrayList<>();
 			}
@@ -1433,6 +1433,28 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while updating credential progress");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public String getCredentialDraftOrOriginalTitle(long id) throws DbConnectionException {
+		try {
+			String query = "SELECT coalesce(draftCred.title, cred.title) " +
+						   "FROM Credential1 cred " +
+						   "LEFT JOIN cred.draftVersion draftCred " +
+						   "WHERE cred.id = :credId";
+			
+			String title = (String) persistence.currentManager()
+				.createQuery(query)
+				.setLong("credId", id)
+				.uniqueResult();
+			
+			return title;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credential title");
 		}
 	}
 	

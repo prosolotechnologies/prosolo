@@ -16,8 +16,10 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.PublishedStatus;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -37,6 +39,7 @@ public class CompetenceEditBean implements Serializable {
 	
 	@Inject private LoggedUserBean loggedUser;
 	@Inject private Competence1Manager compManager;
+	@Inject private CredentialManager credManager;
 	@Inject private UrlIdEncoder idEncoder;
 
 	private String id;
@@ -63,6 +66,11 @@ public class CompetenceEditBean implements Serializable {
 			if(credId != null) {
 				decodedCredId = idEncoder.decodeId(credId);
 				addToCredential = true;
+				String credTitle = credManager.getCredentialDraftOrOriginalTitle(decodedCredId);
+				CredentialData cd = new CredentialData(false);
+				cd.setId(decodedCredId);
+				cd.setTitle(credTitle);
+				competenceData.getCredentialsWithIncludedCompetence().add(cd);
 			}
 		} else {
 			try {
@@ -110,6 +118,24 @@ public class CompetenceEditBean implements Serializable {
 	
 	public void preview() {
 		saveCompetenceData(true, true);
+	}
+	
+	public void saveAndNavigateToCreateActivity() {
+		boolean saved = saveCompetenceData(true, false);
+		if(saved) {
+			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
+			try {
+				StringBuilder builder = new StringBuilder();
+				builder.append(extContext.getRequestContextPath() + "/competences/" + id + "/newActivity");
+
+				if(credId != null && !credId.isEmpty()) {
+					builder.append("?credId=" + credId);
+				}
+				extContext.redirect(builder.toString());
+			} catch (IOException e) {
+				logger.error(e);
+			}
+		}
 	}
 	
 	public void save() {

@@ -515,6 +515,15 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 
+	/**
+	 * It will return competence activity from draft version of a competence if it exists and from
+	 * original version otherwise.
+	 * @param activityId
+	 * @param userId
+	 * @param loadLinks
+	 * @return
+	 * @throws DbConnectionException
+	 */
 	@Transactional(readOnly = true)
 	private CompetenceActivity1 getCompetenceActivityForCreator(long activityId, long userId, 
 			boolean loadLinks) throws DbConnectionException {
@@ -524,14 +533,16 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			StringBuilder builder = new StringBuilder();
 			builder.append("SELECT compAct " +
 					   	   "FROM CompetenceActivity1 compAct " + 
-					       "INNER JOIN fetch compAct.activity act ");
+					       "INNER JOIN fetch compAct.activity act " +
+					   	   "INNER JOIN compAct.competence comp ");
 			
 			if(loadLinks) {
 				builder.append("LEFT JOIN fetch act.links link " +
 						       "LEFT JOIN fetch act.files file ");
 			}
 			builder.append("WHERE act.id = :actId " +
-					       "AND act.deleted = :deleted ");
+					       "AND act.deleted = :boolFalse " +
+						   "AND comp.hasDraft = :boolFalse ");
 			
 			if(userId > 0) {
 				builder.append("AND act.createdBy = :user");
@@ -540,7 +551,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			Query q = persistence.currentManager()
 					.createQuery(builder.toString())
 					.setLong("actId", activityId)
-					.setBoolean("deleted", false);
+					.setBoolean("boolFalse", false);
 			if(userId > 0) {
 				q.setEntity("user", user);
 			}

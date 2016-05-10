@@ -136,4 +136,6 @@ public interface CredentialManager extends AbstractManager {
 	void updateCredentialAndCompetenceProgressAndNextActivityToLearn(long credId, 
 			long targetCompId, long targetActId, long userId) throws DbConnectionException;
 	
+	String getCredentialDraftOrOriginalTitle(long id) throws DbConnectionException;
+	
 }

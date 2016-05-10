@@ -84,4 +84,3 @@ function hideLoader(comp) {
 	loaderContainer.hide();
 	loaderContainer.empty();
 };
-

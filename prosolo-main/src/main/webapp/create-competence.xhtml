@@ -174,5 +174,11 @@
             </div>
         </div>
     </h:form>
+    
+     <courses:deleteModalDialog       	
+		deleteAction="#{competenceEditBean.delete}"
+		toUpdate=":formMain :panelTitle" 
+		modalDeleteTitle="Competence"
+		modalDeleteText="competence"/>
 </ui:define>
 </ui:composition>

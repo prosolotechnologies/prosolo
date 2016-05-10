@@ -4,7 +4,13 @@ public class ResourceLinkData {
 
 	private long id;
 	private String url;
+	private boolean urlInvalid;
 	private String linkName;
+	private boolean linkNameInvalid;
+	/*
+	 * name of uploaded file
+	 */
+	private String fetchedTitle;
 	private ObjectStatus status;
 	
 	public ResourceLinkData() {
@@ -45,6 +51,30 @@ public class ResourceLinkData {
 
 	public void setStatus(ObjectStatus status) {
 		this.status = status;
+	}
+
+	public String getFetchedTitle() {
+		return fetchedTitle;
+	}
+
+	public void setFetchedTitle(String fetchedTitle) {
+		this.fetchedTitle = fetchedTitle;
+	}
+
+	public boolean isUrlInvalid() {
+		return urlInvalid;
+	}
+
+	public void setUrlInvalid(boolean urlInvalid) {
+		this.urlInvalid = urlInvalid;
+	}
+
+	public boolean isLinkNameInvalid() {
+		return linkNameInvalid;
+	}
+
+	public void setLinkNameInvalid(boolean linkNameInvalid) {
+		this.linkNameInvalid = linkNameInvalid;
 	}
 	
 }

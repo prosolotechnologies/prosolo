@@ -20,6 +20,7 @@
 		<f:metadata>
 			<f:viewParam name="id" value="#{activityEditBean.id}" default="null" />
 			<f:viewParam name="compId" value="#{activityEditBean.compId}" default="null"/>
+			<f:viewParam name="credId" value="#{activityEditBean.credId}" default="null"/>
 			<f:viewAction action="#{activityEditBean.init()}" />
 		</f:metadata>
 	</ui:define>
@@ -42,8 +43,58 @@
 
     </div>
 	
-	<h:form id="formMain" enctype="multipart/form-data">
+	<h:form id="formMain">
 	<p:growl id="growlMain" globalOnly="true" showDetail="true"/>
+    <div class="container">
+    	<ui:fragment rendered="#{not empty param['credId']}">
+    		<ol class="breadcrumb">
+	            <li>
+	            	<h:link value="Credentials" outcome="/credentialLibrary"/>
+	            </li>
+	            <li>
+	            	<h:link 
+	            		value="#{activityEditBean.credentialTitle}"
+	            		outcome="/create-credential">
+	            		<f:param name="id" value="#{param['credId']}"></f:param>
+	            	</h:link>
+	            </li>
+	            <li>
+	            	<h:link 
+	            		value="#{activityEditBean.activityData.competenceName}"
+	            		outcome="/create-competence">
+	            		<f:param name="id" value="#{param['compId']}"></f:param>
+	            	</h:link>
+	            </li>
+	            <ui:fragment rendered="#{!activityEditBean.isCreateUseCase()}">
+	            	<li class="active">#{activityEditBean.activityData.title}</li>
+	            </ui:fragment>
+	            <ui:fragment rendered="#{activityEditBean.isCreateUseCase()}">
+	            	<li class="active">New Activity</li>
+	            </ui:fragment>
+	        </ol>
+    	</ui:fragment>
+        <ui:fragment rendered="#{empty param['credId']}">
+    		<ol class="breadcrumb">	 
+    			<li>
+	            	<a href="javascript:void(0);">Competences</a>
+	            </li> 
+    			<li>
+	            	<h:link 
+	            		value="#{activityEditBean.activityData.competenceName}"
+	            		outcome="/create-competence">
+	            		<f:param name="id" value="#{param['compId']}"></f:param>
+	            	</h:link>
+	            </li>
+	            <ui:fragment rendered="#{!activityEditBean.isCreateUseCase()}">
+	            	<li class="active">#{activityEditBean.activityData.title}</li>
+	            </ui:fragment>
+	            <ui:fragment rendered="#{activityEditBean.isCreateUseCase()}">
+	            	<li class="active">New Activity</li>
+	            </ui:fragment>
+	        </ol>
+    	</ui:fragment>
+    </div>
+
     <div class="container">
         <div class="row">
             <div class="col-md-8">
@@ -52,15 +103,6 @@
                         <div class="whiteBox">
                             <h2>Activity Info</h2>
                             <div class="formWrapper">
-                                <div class="formLine">
-                                    <label>Parent competence</label>
-                                    <div class="formLineRight">
-                                        <ui:remove><select class="selectpicker">
-                                            <option>Select Competence</option>
-                                        </select></ui:remove>
-                                        <span>#{activityEditBean.activityData.competenceName}</span>
-                                    </div>
-                                </div>
                                 <div class="formLine">
                                     <label>Title</label>
                                     <div class="formLineRight">
@@ -117,6 +159,12 @@
                                 	id="activityPanel"
                                 	activity="#{activityEditBean.activityData}"
                                 	bean="#{activityEditBean}"
+                                	uploadFileModalId="uploadFile"
+                                	addLinkModalId="addURL"
+                                	prepareAddingResLinkMethodName="prepareAddingResourceLink"
+                                	prepareAddingResLinkMethod="#{activityEditBean.prepareAddingResourceLink}"
+                                	toUpdateModalUploadFile=":formModalUploadFile"
+                                	toUpdateModalAddLink=":formModalAddUrl"
                                 />
                             </div>
                         </div>
@@ -204,10 +252,132 @@
     </div>
     </h:form>
     
-     <courses:deleteModalDialog          	
-            		deleteAction="#{activityEditBean.delete}"
-            		toUpdate=":formMain :panelTitle" 
-            		modalDeleteTitle="Activity"
-            		modalDeleteText="activity"/>
+    <h:form id="formModalUploadFile" enctype="multipart/form-data">
+        <div class="modal fade" id="uploadFile" tabindex="-1" role="dialog" aria-labelledby="uploadNewFile">
+            <div class="modal-dialog" role="document">
+                <h:panelGroup layout="block" id="panelUploadFile" styleClass="modal-content">
+                    <div class="modal-header alignLeft">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                        <h2 class="modal-title" id="uploadNewFile">Upload New File</h2>
+                    </div>
+                    <div class="modal-body alignLeft">
+                        <h:inputText id="inputFileTitle"
+                        	placeholder="File title..."
+							value="#{activityEditBean.resLinkToAdd.linkName}">
+                        </h:inputText>
+                        <div class="chooseFileBox">
+                        	<utilcomp:simpleFileUpload
+                        		id="simpleFileUpload"
+			            		fileUploadListenerMethodName="handleFileUpload"
+			            		fileUploadListenerMethod="#{activityEditBean.handleFileUpload}"
+			            		toUpdate=":formModalUploadFile:panelFileName"
+			            		uploadButtonStyle="btn btn-green btn-sm"
+                        	/>
+                            <h:panelGroup id="panelFileName">
+                            	#{activityEditBean.resLinkToAdd.fetchedTitle}
+                            </h:panelGroup>
+                        </div>
+						
+						<h:panelGroup layout="block" rendered="#{activityEditBean.resLinkToAdd.linkNameInvalid}" styleClass="alert alert-warning">							
+							 File title must be entered
+						</h:panelGroup>
+						
+						<h:panelGroup layout="block" rendered="#{activityEditBean.resLinkToAdd.urlInvalid}" styleClass="alert alert-warning">
+							  File must be uploaded
+						</h:panelGroup>
+      
+                       
+                    </div>
+                    <div class="modal-footer alignLeft">
+                    	<p:commandLink 
+                    		styleClass="btn btn-green"
+                    		value="Save"
+                    		action="#{activityEditBean.addUploadedFile()}"
+                    		update=":formModalUploadFile:panelUploadFile :formMain:activityPanel:panelFiles"
+                    		oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#uploadFile').modal('hide'); }">               
+                    	</p:commandLink>
+                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                    </div>
+                </h:panelGroup>
+            </div>
+        </div>
+    </h:form>
+    
+    <h:form id="formModalAddUrl">
+    	<div class="modal fade" id="addURL" tabindex="-1" role="dialog" aria-labelledby="addNewURL">
+            <div class="modal-dialog" role="document">
+                <h:panelGroup layout="block" id="panelAddUrlContent" styleClass="modal-content">
+                    <div class="modal-header alignLeft">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                        <h2 class="modal-title" id="addNewURL">Add New URL</h2>
+                    </div>
+                    <div class="modal-body alignLeft">
+                        <h:inputText id="inputUrlTitle"
+                        	placeholder="URL title..."
+                        	value="#{activityEditBean.resLinkToAdd.linkName}"
+                        	required="true"
+                        	requiredMessage="Url title must be entered">
+                        </h:inputText>
+                        <div id="loaderContainerUrlTitle"/>
+                        <h:inputText id="inputUrl"
+                        	placeholder="http://..."
+                        	value="#{activityEditBean.resLinkToAdd.url}"
+                        	required="true"
+                        	requiredMessage="Url must be entered"
+                        	validator="urlValidator">
+                        </h:inputText>
+                        <p:remoteCommand
+                        	name="fetchPageTitle"
+                        	process="@this"
+                        	action="#{activityEditBean.fetchLinkTitle()}"
+                        	onstart="showLoader('#loaderContainerUrlTitle');"
+	            			oncomplete="hideLoader('#loaderContainerUrlTitle');"
+                        	update="inputUrlTitle">
+                        </p:remoteCommand>
+                        
+                        <h:panelGroup 
+                        	layout="block" 
+                        	rendered="#{not empty facesContext.getMessageList('formModalAddUrl:inputUrlTitle')}" 
+                        	styleClass="alert alert-warning" 
+                        	pt:role="alert">
+                            <h:message for="inputUrlTitle"></h:message>
+                        </h:panelGroup>
+                        <h:panelGroup 
+                        	layout="block" 
+                        	rendered="#{not empty facesContext.getMessageList('formModalAddUrl:inputUrl')}" 
+                        	styleClass="alert alert-warning" 
+                        	pt:role="alert">
+                            <h:message for="inputUrl"></h:message>
+                        </h:panelGroup>
+                    </div>
+                    <div class="modal-footer alignLeft">
+                    	<p:commandLink 
+                    		styleClass="btn btn-green"
+                    		value="Save"
+                    		action="#{activityEditBean.addLink()}"
+                    		update=":formModalAddUrl:panelAddUrlContent :formMain:activityPanel:panelLinks"
+                    		oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#addURL').modal('hide'); }">               
+                    	</p:commandLink>
+                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                    </div>
+                </h:panelGroup>
+            </div>
+        </div>
+    </h:form>
+    
+    <script>
+	    $(document).on('paste', document.getElementById('formModalAddUrl:inputUrl') ,function(e){
+	    	var pastedData = e.originalEvent.clipboardData.getData('text');
+	    	var valTitle = document.getElementById('formModalAddUrl:inputUrlTitle').value;
+	        fetchPageTitle([{name:'link', value: pastedData}, {name:'title', value: valTitle}]);
+	    });
+    </script>
+    <courses:deleteModalDialog          	
+           		deleteAction="#{activityEditBean.delete}"
+           		toUpdate=":formMain :panelTitle" 
+           		modalDeleteTitle="Activity"
+           		modalDeleteText="activity"/>
+            		
+    
 </ui:define>
 </ui:composition>

@@ -3,6 +3,7 @@ package org.prosolo.web.courses;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.ExternalContext;
@@ -13,9 +14,11 @@ import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.services.htmlparser.HTMLParser;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.ObjectStatus;
@@ -42,42 +45,45 @@ public class ActivityEditBean implements Serializable {
 	@Inject private Activity1Manager activityManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private UploadManager uploadManager;
+	@Inject private HTMLParser htmlParser;
+	@Inject private CredentialManager credManager;
 
 	private String id;
 	private String compId;
+	private String credId;
 	private long decodedId;
 	private long decodedCompId;
 	
 	private ActivityData activityData;
 	private String competenceName;
+	private ResourceLinkData resLinkToAdd;
+	private String credentialTitle;
 	
 	private ActivityType[] activityTypes;
-	
-	private String linkToAdd;
 	
 	private PublishedStatus[] actStatusArray;
 	
 	public void init() {
 		initializeValues();
-		if(id == null) {
-			activityData = new ActivityData(false);
-			if(compId != null) {
-				decodedCompId = idEncoder.decodeId(compId);
-				activityData.setCompetenceId(decodedCompId);
-			}
-		} else {
-			try {
+		try {
+			if(id == null) {
+				activityData = new ActivityData(false);
+				if(compId != null) {
+					decodedCompId = idEncoder.decodeId(compId);
+					activityData.setCompetenceId(decodedCompId);
+				}
+			} else {
 				decodedId = idEncoder.decodeId(id);
 				logger.info("Editing activity with id " + decodedId);
 				loadActivityData(decodedId);
-			} catch(Exception e) {
-				logger.error(e);
-				activityData = new ActivityData(false);
-				PageUtil.fireErrorMessage(e.getMessage());
 			}
+			loadCompAndCredTitle();
+		} catch(Exception e) {
+			logger.error(e);
+			activityData = new ActivityData(false);
+			PageUtil.fireErrorMessage(e.getMessage());
 		}
 		
-		loadCompetenceName();
 	}
 	
 	private void initializeValues() {
@@ -85,10 +91,13 @@ public class ActivityEditBean implements Serializable {
 		actStatusArray = PublishedStatus.values();
 	}
 
-	private void loadCompetenceName() {
+	private void loadCompAndCredTitle() {
 		if(activityData.getCompetenceId() > 0) {
 			competenceName = compManager.getCompetenceTitle(activityData.getCompetenceId());
 			activityData.setCompetenceName(competenceName);
+		}
+		if(credId != null) {
+			credentialTitle = credManager.getCredentialDraftOrOriginalTitle(idEncoder.decodeId(credId));
 		}
 	}
 
@@ -134,6 +143,10 @@ public class ActivityEditBean implements Serializable {
 	}
 	
 	public void updateType(ActivityType type) {
+		ActivityType oldType = activityData.getActivityType();
+		if(oldType == ActivityType.SLIDESHARE || oldType == ActivityType.VIDEO) {
+			 activityData.setLink(null);
+		}
 		activityData.setActivityType(type);
 	}
 	
@@ -157,28 +170,63 @@ public class ActivityEditBean implements Serializable {
 		try {
 			String fileName = uploadedFile.getFileName();
 			String fullPath = uploadManager.storeFile(null, uploadedFile, fileName);
-			ResourceLinkData rl = new ResourceLinkData();
-			rl.setUrl(fullPath);
-			rl.setLinkName(fileName);
-			rl.setStatus(ObjectStatus.CREATED);
-			activityData.getFiles().add(rl);
+			resLinkToAdd.setUrl(fullPath);
+			resLinkToAdd.setFetchedTitle(fileName);
+			//activityData.getFiles().add(rl);
 		} catch (IOException ioe) {
 			logger.error(ioe.getMessage());
 			PageUtil.fireErrorMessage("The file was not uploaded!");
 		}
 	}
 	
+	public void addUploadedFile() {
+		if(resLinkToAdd.getUrl() == null || resLinkToAdd.getUrl().isEmpty() 
+				|| resLinkToAdd.getLinkName() == null || resLinkToAdd.getLinkName().isEmpty()) {
+			FacesContext.getCurrentInstance().validationFailed();
+			resLinkToAdd.setUrlInvalid(resLinkToAdd.getUrl() == null || 
+					resLinkToAdd.getUrl().isEmpty());
+			resLinkToAdd.setLinkNameInvalid(resLinkToAdd.getLinkName() == null || 
+					resLinkToAdd.getLinkName().isEmpty());
+		} else {
+			activityData.getFiles().add(resLinkToAdd);
+			resLinkToAdd = null;
+		}
+	}
+	
 	public void addLink() {
-		ResourceLinkData rl = new ResourceLinkData();
-		rl.setUrl(linkToAdd);
-		rl.setStatus(ObjectStatus.CREATED);
-		activityData.getLinks().add(rl);
-		linkToAdd = "";
+		activityData.getLinks().add(resLinkToAdd);
+		resLinkToAdd = null;
+	}
+	
+	public void fetchLinkTitle() {
+		try {
+			Map<String, String> params = FacesContext.getCurrentInstance()
+					.getExternalContext().getRequestParameterMap();
+			String link =  params.get("link");
+			String linkTitle = params.get("title");
+			if(linkTitle == null || linkTitle.isEmpty()) {
+				String pageTitle = htmlParser.getPageTitle(link);
+				resLinkToAdd.setLinkName(pageTitle);
+			} else {
+				resLinkToAdd.setLinkName(linkTitle);
+			}
+		} catch(Exception e) {
+			logger.error(e);
+		}
 	}
 	
 	public boolean isCreateUseCaseOrFirstTimeDraft() {
 		return activityData.getActivityId() == 0 || 
 				(!activityData.isPublished() && !activityData.isDraft());
+	}
+	
+	public void prepareAddingResourceLink() {
+		resLinkToAdd = new ResourceLinkData();
+		resLinkToAdd.setStatus(ObjectStatus.CREATED);
+	}
+	
+	public boolean isCreateUseCase() {
+		return activityData.getActivityId() == 0;
 	}
 	
 	/*
@@ -303,20 +351,36 @@ public class ActivityEditBean implements Serializable {
 		this.activityTypes = activityTypes;
 	}
 
-	public String getLinkToAdd() {
-		return linkToAdd;
-	}
-
-	public void setLinkToAdd(String linkToAdd) {
-		this.linkToAdd = linkToAdd;
-	}
-
 	public PublishedStatus[] getActStatusArray() {
 		return actStatusArray;
 	}
 
 	public void setActStatusArray(PublishedStatus[] actStatusArray) {
 		this.actStatusArray = actStatusArray;
+	}
+
+	public ResourceLinkData getResLinkToAdd() {
+		return resLinkToAdd;
+	}
+
+	public void setResLinkToAdd(ResourceLinkData resLinkToAdd) {
+		this.resLinkToAdd = resLinkToAdd;
+	}
+
+	public String getCredId() {
+		return credId;
+	}
+
+	public void setCredId(String credId) {
+		this.credId = credId;
+	}
+
+	public String getCredentialTitle() {
+		return credentialTitle;
+	}
+
+	public void setCredentialTitle(String credentialTitle) {
+		this.credentialTitle = credentialTitle;
 	}
 
 }

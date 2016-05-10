@@ -39,6 +39,7 @@ public class Credential1 extends BaseEntity {
 	private int defaultNumberOfStudentsPerInstructor;
 	private CredentialType1 type;
 	private Credential1 draftVersion;
+	private Credential1 originalVersion;
 	private List<TargetCredential1> targetCredentials;
 	/** 
 	 * means that this credential instance is just a draft
@@ -163,6 +164,15 @@ public class Credential1 extends BaseEntity {
 
 	public void setDraftVersion(Credential1 draftVersion) {
 		this.draftVersion = draftVersion;
+	}
+
+	@OneToOne(fetch = FetchType.LAZY, mappedBy = "draftVersion")
+	public Credential1 getOriginalVersion() {
+		return originalVersion;
+	}
+
+	public void setOriginalVersion(Credential1 originalVersion) {
+		this.originalVersion = originalVersion;
 	}
 
 	public boolean isDraft() {

@@ -69,6 +69,7 @@ public class ActivityDataFactory {
 				rlData.setId(rl.getId());
 				rlData.setLinkName(rl.getLinkName());
 				rlData.setUrl(rl.getUrl());
+				rlData.setFetchedTitle(rl.getUrl().substring(rl.getUrl().lastIndexOf("/") + 1));
 				rlData.setStatus(ObjectStatus.UP_TO_DATE);
 				activityFiles.add(rlData);
 			}
@@ -228,6 +229,7 @@ public class ActivityDataFactory {
 				rlData.setId(rl.getId());
 				rlData.setLinkName(rl.getLinkName());
 				rlData.setUrl(rl.getUrl());
+				rlData.setFetchedTitle(rl.getUrl().substring(rl.getUrl().lastIndexOf("/") + 1));
 				rlData.setStatus(ObjectStatus.UP_TO_DATE);
 				activityFiles.add(rlData);
 			}
