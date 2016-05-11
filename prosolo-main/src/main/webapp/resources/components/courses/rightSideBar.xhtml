@@ -22,7 +22,7 @@
 	</composite:interface>
 	
 	<composite:implementation>
-		<div class="whiteBox publishBox">
+		<div id="#{cc.clientId}" class="whiteBox publishBox">
 			<h2>Publish</h2>
 			
 			<p:commandLink
@@ -30,7 +30,7 @@
 				styleClass="linkPreview"
 				action="#{cc.attrs.previewAction}"
 				update="#{cc.attrs.toUpdate}"
-				oncomplete="if(args &amp;&amp; !args.validationFailed) { document.getElementsByClassName('#{cc.attrs.linkPreviewClass}')[0].click();}"/>
+				oncomplete="if(args &amp;&amp; !args.validationFailed) {document.getElementsByClassName('#{cc.attrs.linkPreviewClass}')[0].click();}"/>
 			
 			<div class="clear"></div>
 			
@@ -39,7 +39,8 @@
 				<h:selectBooleanCheckbox 
 					id="checkMandatory"
 					onclick="console.log(this.checked)"
-					value="#{cc.attrs.chooseOptionValue}">
+					value="#{cc.attrs.chooseOptionValue}"
+					onchange="updateStatusToDraft();">
 				</h:selectBooleanCheckbox>
 				
 				<label for="#{cc.clientId}:checkMandatory">
@@ -47,7 +48,9 @@
 				</label>
 			</div>
 			
-			<h:selectOneMenu styleClass="selectpicker" value="#{cc.attrs.publishValue}">
+			<h:selectOneMenu 
+				id="selectStatus" styleClass="selectpicker" 
+				value="#{cc.attrs.publishValue}">
 				<f:selectItems value="#{cc.attrs.publishValues}" var="status"
 					itemValue="#{status}" itemLabel="#{status.label}" />
 			</h:selectOneMenu>

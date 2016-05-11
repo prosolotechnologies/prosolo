@@ -39,6 +39,7 @@
 
 	<script src="https://use.typekit.net/zvv0dgl.js"></script>
     <script>try{Typekit.load({ async: true });}catch(e){}</script>
+    <script src="#{request.contextPath}/resources/javascript2/createActivity.js?#{applicationbean.loginTime}"></script>
     <div class="whiteBar">
 
     </div>
@@ -107,7 +108,9 @@
                                     <label>Title</label>
                                     <div class="formLineRight">
                                     	<h:inputText 
-                                    		value="#{activityEditBean.activityData.title}">
+                                    		styleClass="pasteable"
+                                    		value="#{activityEditBean.activityData.title}"
+                                    		onkeypress="updateStatusToDraft();">
                                     	</h:inputText>
                                     </div>
                                 </div>
@@ -115,7 +118,9 @@
                                     <label>Description</label>
                                     <div class="formLineRight">
                                     	<h:inputTextarea
-                                    		value="#{activityEditBean.activityData.description}">
+                                    		styleClass="pasteable"
+                                    		value="#{activityEditBean.activityData.description}"
+                                    		onkeypress="updateStatusToDraft();">
                                     	</h:inputTextarea>
                                     </div>
                                 </div>
@@ -136,7 +141,8 @@
                                         				pt:data-toggle="tab"
                                         				process="@this"
                                         				action="#{activityEditBean.updateType(type)}"
-                                        				update=":formMain:panelSelectActivity :formMain:activityPanel">
+                                        				update=":formMain:panelSelectActivity :formMain:activityPanel :formMain:panelStatus"
+                                        				oncomplete="bindPasteEventForUpdatingStatus();">
                                         			</p:commandLink>
                                         		</li>
                                         	</ui:repeat>   
@@ -163,6 +169,7 @@
                                 	addLinkModalId="addURL"
                                 	prepareAddingResLinkMethodName="prepareAddingResourceLink"
                                 	prepareAddingResLinkMethod="#{activityEditBean.prepareAddingResourceLink}"
+                                	toUpdate=":formMain:panelStatus"
                                 	toUpdateModalUploadFile=":formModalUploadFile"
                                 	toUpdateModalAddLink=":formModalAddUrl"
                                 />
@@ -194,7 +201,8 @@
                         <p>Estimated time to complete:</p>
                         <div class="selectRow">
                         	<h:selectOneMenu styleClass="selectpicker pickHours"
-                        		value="#{activityEditBean.activityData.durationHours}">
+                        		value="#{activityEditBean.activityData.durationHours}"
+                        		onchange="updateStatusToDraft();">
                         		<f:selectItem itemValue="0"/>
                         		<f:selectItem itemValue="1"/>
                         		<f:selectItem itemValue="2"/>
@@ -211,7 +219,8 @@
                         	</h:selectOneMenu>
                             <p>hours</p>
                             <h:selectOneMenu styleClass="selectpicker pickMinutes"
-                        		value="#{activityEditBean.activityData.durationMinutes}">
+                        		value="#{activityEditBean.activityData.durationMinutes}"
+                        		onchange="updateStatusToDraft();">
                         		<f:selectItem itemValue="0"/>
                         		<f:selectItem itemValue="5"/>
                         		<f:selectItem itemValue="10"/>
@@ -229,12 +238,15 @@
                         </div>
                         <script>$('.selectpicker').selectpicker('refresh');</script>
                     </div>
-                    <h:selectOneMenu 
-	                	styleClass="selectpicker"
-	               		value="#{activityEditBean.activityData.status}">
-	               		<f:selectItems value="#{activityEditBean.actStatusArray}" var="status"
-    						itemValue="#{status}" itemLabel="#{status.label}" />
-	                </h:selectOneMenu>
+                    <h:panelGroup id="panelStatus">
+	                    <h:selectOneMenu id="selectStatus"
+		                	styleClass="selectpicker"
+		               		value="#{activityEditBean.activityData.status}">
+		               		<f:selectItems value="#{activityEditBean.actStatusArray}" var="status"
+	    						itemValue="#{status}" itemLabel="#{status.label}" />
+		                </h:selectOneMenu>
+		                <script>$('.selectpicker').selectpicker('refresh');</script>
+		            </h:panelGroup>
           
                     <div class="publishRow">
                     	<p:commandLink 
@@ -293,7 +305,7 @@
                     		styleClass="btn btn-green"
                     		value="Save"
                     		action="#{activityEditBean.addUploadedFile()}"
-                    		update=":formModalUploadFile:panelUploadFile :formMain:activityPanel:panelFiles"
+                    		update=":formModalUploadFile:panelUploadFile :formMain:activityPanel:panelFiles :formMain:panelStatus"
                     		oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#uploadFile').modal('hide'); }">               
                     	</p:commandLink>
                         <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
@@ -355,7 +367,7 @@
                     		styleClass="btn btn-green"
                     		value="Save"
                     		action="#{activityEditBean.addLink()}"
-                    		update=":formModalAddUrl:panelAddUrlContent :formMain:activityPanel:panelLinks"
+                    		update=":formModalAddUrl:panelAddUrlContent :formMain:activityPanel:panelLinks :formMain:panelStatus"
                     		oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#addURL').modal('hide'); }">               
                     	</p:commandLink>
                         <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
@@ -365,13 +377,6 @@
         </div>
     </h:form>
     
-    <script>
-	    $(document).on('paste', document.getElementById('formModalAddUrl:inputUrl') ,function(e){
-	    	var pastedData = e.originalEvent.clipboardData.getData('text');
-	    	var valTitle = document.getElementById('formModalAddUrl:inputUrlTitle').value;
-	        fetchPageTitle([{name:'link', value: pastedData}, {name:'title', value: valTitle}]);
-	    });
-    </script>
     <courses:deleteModalDialog     
     			deleteActionMethodName="delete"     	
            		deleteAction="#{activityEditBean.delete}"

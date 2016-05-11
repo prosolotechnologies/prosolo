@@ -148,6 +148,9 @@ public class ActivityEditBean implements Serializable {
 			 activityData.setLink(null);
 		}
 		activityData.setActivityType(type);
+		
+		//change status to draft
+		activityData.setStatus(PublishedStatus.DRAFT);
 	}
 	
 	public void removeFile(ResourceLinkData link) {
@@ -155,6 +158,8 @@ public class ActivityEditBean implements Serializable {
 		if(link.getStatus() != ObjectStatus.REMOVED) {
 			activityData.getFiles().remove(link);
 		}
+		
+		activityData.setStatus(PublishedStatus.DRAFT);
 	}
 	
 	public void removeLink(ResourceLinkData link) {
@@ -162,6 +167,8 @@ public class ActivityEditBean implements Serializable {
 		if(link.getStatus() != ObjectStatus.REMOVED) {
 			activityData.getLinks().remove(link);
 		}
+		
+		activityData.setStatus(PublishedStatus.DRAFT);
 	}
 	
 	public void handleFileUpload(FileUploadEvent event) {
@@ -190,12 +197,16 @@ public class ActivityEditBean implements Serializable {
 		} else {
 			activityData.getFiles().add(resLinkToAdd);
 			resLinkToAdd = null;
+			
+			activityData.setStatus(PublishedStatus.DRAFT);
 		}
 	}
 	
 	public void addLink() {
 		activityData.getLinks().add(resLinkToAdd);
 		resLinkToAdd = null;
+		
+		activityData.setStatus(PublishedStatus.DRAFT);
 	}
 	
 	public void fetchLinkTitle() {

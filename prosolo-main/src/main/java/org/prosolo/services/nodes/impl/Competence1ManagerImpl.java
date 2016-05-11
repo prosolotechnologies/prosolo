@@ -550,6 +550,11 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 		List<ActivityData> activities = data.getActivities();
 	    if(activities != null) {
+	    	/*
+    		 * List of activity ids so we can call method that will publish all draft
+    		 * activities
+    		 */
+    		List<Long> actIds = new ArrayList<>();
 	    	if(publishTransition == EntityPublishTransition.NO_TRANSITION) {
 	    		Iterator<ActivityData> actIterator = activities.iterator();
 	    		while(actIterator.hasNext()) {
@@ -563,12 +568,14 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		    						Activity1.class, bad.getActivityId());
 		    				ca1.setActivity(act);
 		    				saveEntity(ca1);
+		    				actIds.add(bad.getActivityId());
 		    				break;
 		    			case CHANGED:
 		    				CompetenceActivity1 ca2 = (CompetenceActivity1) persistence
 		    					.currentManager().load(CompetenceActivity1.class, 
 		    							bad.getCompetenceActivityId());
 		    				ca2.setOrder(bad.getOrder());
+		    				actIds.add(bad.getActivityId());
 		    				break;
 		    			case REMOVED:
 		    				CompetenceActivity1 ca3 = (CompetenceActivity1) persistence.currentManager().load(
@@ -576,16 +583,13 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		    				delete(ca3);
 		    				break;
 		    			case UP_TO_DATE:
+		    				actIds.add(bad.getActivityId());
 		    				break;
 		    		}
 		    	}
 	    	} else {
 	    		Iterator<ActivityData> actIterator = activities.iterator();
-	    		/*
-	    		 * List of activity ids so we can call method that will publish all draft
-	    		 * activities
-	    		 */
-	    		List<Long> actIds = new ArrayList<>();
+	    		
 	    		while(actIterator.hasNext()) {
 	    			ActivityData bad = actIterator.next();
 		    		if(bad.getObjectStatus() != ObjectStatus.REMOVED) {
@@ -599,10 +603,16 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	    				actIds.add(bad.getActivityId());
 		    		}
 	    		}
-	    		if(publishTransition == EntityPublishTransition.FROM_DRAFT_VERSION_TO_PUBLISHED) {
-	    			activityManager.publishDraftActivitiesWithoutDraftVersion(actIds);
-	    		}
 	    	}
+	    	/*
+	    	 * if draft version is published or original version becomes published for the 
+	    	 * first time, publish all draft activities that were never published.
+	    	 */
+	    	if(publishTransition == EntityPublishTransition.FROM_DRAFT_VERSION_TO_PUBLISHED
+	    			|| (publishTransition == EntityPublishTransition.NO_TRANSITION
+	    			&& data.isPublished() && data.isPublishedChanged())) {
+	    		activityManager.publishDraftActivitiesWithoutDraftVersion(actIds);;
+    		}
 	    }
 	    
 	    return compToUpdate;
@@ -921,7 +931,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				.executeUpdate();
 			
 			for(Long compId : compIds) {
-				//TODO test if it works when creat-activity page is implemented
 				activityManager.publishAllCompetenceActivitiesWithoutDraftVersion(compId);
 			}
 		} catch(Exception e) {

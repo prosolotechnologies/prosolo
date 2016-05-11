@@ -16,6 +16,7 @@
 		<composite:attribute name="addLinkModalId" required="true" />
 		<composite:attribute name="prepareAddingResLinkMethodName" required="true" />
 		<composite:attribute name="prepareAddingResLinkMethod" required="true" method-signature="void #{cc.attrs.prepareAddingResLinkMethodName}()" />
+		<composite:attribute name="toUpdate" default="" />
 		<composite:attribute name="toUpdateModalUploadFile" default="" />
 		<composite:attribute name="toUpdateModalAddLink" default="" />
 	</composite:interface>
@@ -27,7 +28,10 @@
            <div class="formLine">
                <label>Video URL</label>
                <div class="formLineRight">
-               	   <h:inputText value="#{cc.attrs.activity.link}"/>
+               	   <h:inputText 
+               	   		styleClass="pasteable"
+               	   		value="#{cc.attrs.activity.link}"
+               	   		onkeypress="updateStatusToDraft();"/>
                </div>
            </div>
         </h:panelGroup>
@@ -39,7 +43,8 @@
               <div class="formLineRight">
               	  <h:inputTextarea 
               	  	value="#{cc.attrs.activity.text}"
-              	  	styleClass="textareaBig"/>
+              	  	styleClass="textareaBig pasteable"
+              	  	onkeypress="updateStatusToDraft();"/>
               </div>
           </div>
      	</h:panelGroup>
@@ -48,7 +53,10 @@
 	          <div class="formLine">
 	              <label>Slideshare URL</label>
 	              <div class="formLineRight">
-	                   <h:inputText value="#{cc.attrs.activity.link}"/>
+	                   <h:inputText 
+	                   		styleClass="pasteable"
+	                   		value="#{cc.attrs.activity.link}"
+	                   		onkeypress="updateStatusToDraft();"/>
 	              </div>
 	          </div>
 	     </h:panelGroup>
@@ -70,7 +78,7 @@
 			                         	pt:title="Remove"
 			                         	process="@this"
 			                         	action="#{cc.attrs.bean.removeFile(file)}"
-			                         	update=":#{cc.clientId}:panelFiles">
+			                         	update=":#{cc.clientId}:panelFiles #{cc.attrs.toUpdate}">
 			                         	remove
 			                         </p:commandLink>
                                     <div class="clear">
@@ -110,7 +118,7 @@
 			                         	pt:title="Remove"
 			                         	process="@this"
 			                         	action="#{cc.attrs.bean.removeLink(link)}"
-			                         	update=":#{cc.clientId}:panelLinks">
+			                         	update=":#{cc.clientId}:panelLinks #{cc.attrs.toUpdate}">
 			                         	remove
 			                         </p:commandLink>
                                     <div class="clear">
@@ -138,8 +146,10 @@
 	             <label>Upload result</label>
 	             <div class="formLineRight">
 	                 <div class="checkbox checkLine">
-	                 	 <h:selectBooleanCheckbox id="checkUploadResult"
-                    		value="#{cc.attrs.activity.uploadAssignment}">
+	                 	 <h:selectBooleanCheckbox 
+	                 	 	id="checkUploadResult"
+                    		value="#{cc.attrs.activity.uploadAssignment}"
+                    		onchange="updateStatusToDraft();">
                     	 </h:selectBooleanCheckbox>
 	                     <label for="#{cc.clientId}:checkUploadResult">Show "Upload Result" option</label>
 	                 </div>
@@ -158,19 +168,28 @@
             <div class="formLine">
                 <label>Launch URL</label>
                 <div class="formLineRight">
-                     <h:inputText value="#{cc.attrs.activity.launchUrl}"/>
+                     <h:inputText 
+                     	styleClass="pasteable"
+                     	value="#{cc.attrs.activity.launchUrl}"
+                     	onkeypress="updateStatusToDraft();"/>
                 </div>
             </div>
             <div class="formLine">
                 <label>Shared secred</label>
                 <div class="formLineRight">
-                     <h:inputText value="#{cc.attrs.activity.sharedSecret}"/>
+                     <h:inputText 
+                     	styleClass="pasteable"
+                     	value="#{cc.attrs.activity.sharedSecret}"
+                     	onkeypress="updateStatusToDraft();"/>
                 </div>
             </div>
             <div class="formLine">
                 <label>Consumer key (optional)</label>
                 <div class="formLineRight">
-                     <h:inputText value="#{cc.attrs.activity.consumerKey}"/>
+                     <h:inputText 
+                     	styleClass="pasteable"
+                     	value="#{cc.attrs.activity.consumerKey}"
+                     	onkeypress="updateStatusToDraft();"/>
                 </div>
             </div>
             <div class="formLine">
@@ -178,7 +197,8 @@
                 <div class="formLineRight">
                     <div class="checkbox checkLine">
                     	<h:selectBooleanCheckbox id="checkAcceptGrades"
-                    		value="#{cc.attrs.activity.acceptGrades}">
+                    		value="#{cc.attrs.activity.acceptGrades}"
+                    		onchange="updateStatusToDraft();">
                     	</h:selectBooleanCheckbox>
                         <label for="#{cc.clientId}:checkAcceptGrades">Accept grades</label>
                     </div>

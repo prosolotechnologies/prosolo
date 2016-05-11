@@ -18,7 +18,9 @@ import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ObjectStatus;
@@ -43,6 +45,7 @@ public class CredentialEditBean implements Serializable {
 	@Inject private CredentialManager credentialManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private TextSearch textSearch;
+	@Inject private Activity1Manager activityManager;
 
 	private String id;
 	private long decodedId;
@@ -91,6 +94,15 @@ public class CredentialEditBean implements Serializable {
 		
 		logger.info("Loaded credential data for credential with id "+ id);
 	}
+	
+	public void loadCompetenceActivitiesIfNotLoaded(CompetenceData1 cd) {
+		if(!cd.isActivitiesInitialized()) {
+			List<ActivityData> activities = new ArrayList<>();
+			activities = activityManager.getCompetenceActivitiesData(cd.getCompetenceId());
+			cd.setActivities(activities);
+			cd.setActivitiesInitialized(true);
+		}
+	}
 
 	private void initializeValues() {
 		compsToRemove = new ArrayList<>();
@@ -126,20 +138,6 @@ public class CredentialEditBean implements Serializable {
 	
 	public void preview() {
 		saveCredentialData(true, true);
-//		if(saved) {
-//			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-//			try {
-////				extContext.redirect(extContext.getRequestContextPath() + 
-////						"/credential.xhtml?mode=preview&id=" + id);
-//				
-//				extContext.redirect(extContext.getRequestContextPath() + 
-//						"/credentials/" + id + "?mode=preview");
-//			} catch (IOException e) {
-//				logger.error(e);
-//			}
-//			//return "credential.xhtml?faces-redirect=true&id=" + id;
-//		}
-		//return null;
 	}
 	
 	public void save() {
@@ -241,6 +239,8 @@ public class CredentialEditBean implements Serializable {
 		compsToExcludeFromSearch.add(compToEdit.getCompetenceId());
 		currentNumberOfComps ++;
 		compSearchResults = new ArrayList<>();
+		//change status because competence is added
+		credentialData.setStatus(PublishedStatus.DRAFT);
 	}
 	
 	private CompetenceData1 getCompetenceIfPreviouslyRemoved(CompetenceData1 compData) {
@@ -272,10 +272,16 @@ public class CredentialEditBean implements Serializable {
 		cd2.setOrder(cd2.getOrder() - 1);
 		cd2.statusChangeTransitionBasedOnOrderChange();
 		Collections.swap(competences, i, k);
+		
+		//set status to draft because order changed
+		credentialData.setStatus(PublishedStatus.DRAFT);
 	}
 	
 	public void removeComp() {
 		removeComp(competenceForRemovalIndex);
+		
+		//set status to draft because competence is removed
+		credentialData.setStatus(PublishedStatus.DRAFT);
 	}
 	
 	public void removeComp(int index) {

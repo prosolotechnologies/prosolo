@@ -612,6 +612,11 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 		List<CompetenceData1> comps = data.getCompetences();
 	    if(comps != null) {
+	    	/*
+			 * List of competence ids so we can call method that will publish all draft
+			 * competences
+			 */
+			List<Long> compIds = new ArrayList<>();
 	    	if(publishTransition == EntityPublishTransition.NO_TRANSITION) {
 	    		Iterator<CompetenceData1> compIterator = comps.iterator();
 	    		while(compIterator.hasNext()) {
@@ -625,11 +630,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		    						Competence1.class, cd.getCompetenceId());
 		    				cc1.setCompetence(comp);
 		    				saveEntity(cc1);
+		    				compIds.add(cd.getCompetenceId());
 		    				break;
 		    			case CHANGED:
 		    				CredentialCompetence1 cc2 = (CredentialCompetence1) persistence.currentManager().load(
 				    				CredentialCompetence1.class, cd.getCredentialCompetenceId());
 		    				cc2.setOrder(cd.getOrder());
+		    				compIds.add(cd.getCompetenceId());
 		    				break;
 		    			case REMOVED:
 		    				CredentialCompetence1 cc3 = (CredentialCompetence1) persistence.currentManager().load(
@@ -637,16 +644,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		    				delete(cc3);
 		    				break;
 		    			case UP_TO_DATE:
+		    				compIds.add(cd.getCompetenceId());
 		    				break;
 		    		}
 		    	}
 	    	} else {
 	    		Iterator<CompetenceData1> compIterator = comps.iterator();
-	    		/*
-	    		 * List of competence ids so we can call method that will publish all draft
-	    		 * competences
-	    		 */
-	    		List<Long> compIds = new ArrayList<>();
+	    		
 	    		while(compIterator.hasNext()) {
 	    			CompetenceData1 cd = compIterator.next();
 		    		if(cd.getObjectStatus() != ObjectStatus.REMOVED) {
@@ -660,10 +664,17 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    				compIds.add(cd.getCompetenceId());
 		    		}
 	    		}
-	    		if(publishTransition == EntityPublishTransition.FROM_DRAFT_VERSION_TO_PUBLISHED) {
-	    			compManager.publishDraftCompetencesWithoutDraftVersion(compIds);
-	    		}
 	    	}
+	    	
+	    	/*
+	    	 * if draft version is published or original version becomes published for the 
+	    	 * first time, publish all draft competences that were never published.
+	    	 */
+	    	if(publishTransition == EntityPublishTransition.FROM_DRAFT_VERSION_TO_PUBLISHED
+	    			|| (publishTransition == EntityPublishTransition.NO_TRANSITION
+	    			&& data.isPublished() && data.isPublishedChanged())) {
+    			compManager.publishDraftCompetencesWithoutDraftVersion(compIds);
+    		}
 	    }
 	    
 	    return credToUpdate;

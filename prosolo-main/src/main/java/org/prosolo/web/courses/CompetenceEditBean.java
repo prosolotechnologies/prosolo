@@ -253,10 +253,16 @@ public class CompetenceEditBean implements Serializable {
 		bad2.setOrder(bad2.getOrder() - 1);
 		bad2.statusChangeTransitionBasedOnOrderChange();
 		Collections.swap(activities, i, k);
+		
+		//when activity order changes update status to draft
+		competenceData.setStatus(PublishedStatus.DRAFT);
 	}
 	
 	public void removeActivity() {
 		removeActivity(activityForRemovalIndex);
+		
+		//when activity is removed update status to draft
+		competenceData.setStatus(PublishedStatus.DRAFT);
 	}
 	
 	public void removeActivity(int index) {

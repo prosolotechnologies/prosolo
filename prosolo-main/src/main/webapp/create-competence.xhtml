@@ -39,6 +39,7 @@
 	<script src="https://use.typekit.net/zvv0dgl.js"></script>
     <script>try{Typekit.load({ async: true });}catch(e){}</script>
 	<script src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
+	<script src="#{request.contextPath}/resources/javascript2/createCompetence.js?#{applicationbean.loginTime}"></script>
     <div class="whiteBar">
 
     </div>
@@ -78,19 +79,26 @@
                                 <div class="formLine">
                                     <label>Title</label>
                                     <div class="formLineRight">
-                                    	<h:inputText value="#{competenceEditBean.competenceData.title}"></h:inputText>
+                                    	<h:inputText 
+                                    		styleClass="pasteable"
+                                    		value="#{competenceEditBean.competenceData.title}"
+                                    		onkeypress="updateStatusToDraft();"></h:inputText>
                                     </div>
                                 </div>
                                 <div class="formLine">
                                     <label>About competence</label>
                                     <div class="formLineRight">
-                                        <h:inputTextarea value="#{competenceEditBean.competenceData.description}"></h:inputTextarea>
+                                        <h:inputTextarea 
+                                        	styleClass="pasteable"
+                                        	value="#{competenceEditBean.competenceData.description}"
+                                        	onkeypress="updateStatusToDraft();"></h:inputTextarea>
                                     </div>
                                 </div>
                                 <div class="formLine">
                                     <label>Keywords</label>
                                     <div class="formLineRight">
                                     	<h:inputText styleClass="tagsInputCompTag"
+                                    		id="inputKeywords"
 		                                	value="#{competenceEditBean.competenceData.tagsString}"
 		                                	pt:placeholder="Type and press 'Enter'"
 		                                	pt:data-role="tagsinput">
@@ -110,7 +118,8 @@
                     		isEdit="true"
                     		showMarkedIfCompleted="false"
                     		isPreview="false"
-                    		encodedCompetenceId="#{param['id']}"/>
+                    		encodedCompetenceId="#{param['id']}"
+                    		toUpdate=":formMain:compSideBar"/>
                     		
                     		<ui:remove><h:link styleClass="activityItem addActivity"
                             	outcome="/create-activity">
@@ -124,6 +133,7 @@
             </div>
             <div class="col-md-4">
             	<courses:rightSideBar
+            		id="compSideBar"
             		chooseOptionText="Allow students to add activities"
             		chooseOptionValue="#{competenceEditBean.competenceData.studentAllowedToAddActivities}"
             		publishValues="#{competenceEditBean.compStatusArray}" 
@@ -165,7 +175,7 @@
                     		styleClass="btn btn-red"
                     		process="@this"
                     		action="#{competenceEditBean.removeActivity()}"
-                    		update=":formMain:activityList"
+                    		update=":formMain:activityList :formMain:compSideBar"
                     		oncomplete="$('#modalRemoveActivity').modal('hide');">
                     	</p:commandLink>
                         <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
