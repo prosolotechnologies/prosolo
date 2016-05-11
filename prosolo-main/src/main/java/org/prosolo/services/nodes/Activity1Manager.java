@@ -91,4 +91,6 @@ public interface Activity1Manager {
 	CompetenceData1 getFullTargetActivityOrActivityData(long credId, long compId, 
 			long actId, long userId) throws DbConnectionException;
 
+	void deleteAssignment(long targetActivityId) throws DbConnectionException;
+
 }

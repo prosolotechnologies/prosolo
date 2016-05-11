@@ -372,7 +372,8 @@
 	        fetchPageTitle([{name:'link', value: pastedData}, {name:'title', value: valTitle}]);
 	    });
     </script>
-    <courses:deleteModalDialog          	
+    <courses:deleteModalDialog     
+    			deleteActionMethodName="delete"     	
            		deleteAction="#{activityEditBean.delete}"
            		toUpdate=":formMain :panelTitle" 
            		modalDeleteTitle="Activity"

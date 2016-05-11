@@ -1333,4 +1333,22 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	public void deleteAssignment(long targetActivityId) throws DbConnectionException {
+		try {
+			String query = "UPDATE TargetActivity1 act SET " +
+						   "act.assignmentLink = :nullString, " +
+						   "act.assignmentTitle = :nullString " +
+						   "WHERE act.id = :id";
+			persistence.currentManager()
+				.createQuery(query)
+				.setLong("id", targetActivityId)
+				.setString("nullString", null)
+				.executeUpdate();
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while removing assignment");
+		}
+	}
+	
 }
