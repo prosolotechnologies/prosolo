@@ -30,7 +30,7 @@
 				styleClass="linkPreview"
 				action="#{cc.attrs.previewAction}"
 				update="#{cc.attrs.toUpdate}"
-				oncomplete="if(args &amp;&amp; !args.validationFailed) {document.getElementsByClassName('#{cc.attrs.linkPreviewClass}')[0].click();}"/>
+				oncomplete="if(args &amp;&amp; !args.validationFailed) {attachListenersForUpdatingStatus(); document.getElementsByClassName('#{cc.attrs.linkPreviewClass}')[0].click();}"/>
 			
 			<div class="clear"></div>
 			
@@ -61,7 +61,8 @@
 				<p:commandLink 
 					styleClass="btn btn-green" 
 					action="#{cc.attrs.saveAction}"
-					update="#{cc.attrs.toUpdate}">
+					update="#{cc.attrs.toUpdate}"
+					oncomplete="attachListenersForUpdatingStatus();">
 					Save changes
 				</p:commandLink>
 				<a href="#" class="linkRed" data-toggle="modal" data-target="#deleteModal">Delete</a>      

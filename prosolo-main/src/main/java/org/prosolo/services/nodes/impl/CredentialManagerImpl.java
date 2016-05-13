@@ -447,8 +447,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				if(!data.isPublishedChanged()) {
 					Map<String, String> params = new HashMap<>();
 				    CredentialChangeTracker changeTracker = new CredentialChangeTracker(data.isPublished(),
-				    		false, data.isTitleChanged(), data.isDescriptionChanged(), data.isTagsStringChanged(), 
-				    		data.isHashtagsStringChanged());
+				    		false, data.isTitleChanged(), data.isDescriptionChanged(), false,
+				    		data.isTagsStringChanged(), data.isHashtagsStringChanged(), 
+				    		data.isMandatoryFlowChanged());
 				    Gson gson = new GsonBuilder().create();
 				    String jsonChangeTracker = gson.toJson(changeTracker);
 				    params.put("changes", jsonChangeTracker);
@@ -468,7 +469,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				else {
 					Map<String, String> params = new HashMap<>();
 				    CredentialChangeTracker changeTracker = new CredentialChangeTracker(data.isPublished(),
-				    		true, true, true, true, true);
+				    		true, true, true, true, true, true, true);
 				    Gson gson = new GsonBuilder().create();
 				    String jsonChangeTracker = gson.toJson(changeTracker);
 				    params.put("changes", jsonChangeTracker);
@@ -482,8 +483,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				if(!data.isPublishedChanged()) {
 					Map<String, String> params = new HashMap<>();
 				    CredentialChangeTracker changeTracker = new CredentialChangeTracker(data.isPublished(),
-				    		false, data.isTitleChanged(), data.isDescriptionChanged(), data.isTagsStringChanged(), 
-				    		data.isHashtagsStringChanged());
+				    		false, data.isTitleChanged(), data.isDescriptionChanged(), false, 
+				    		data.isTagsStringChanged(), data.isHashtagsStringChanged(), 
+				    		data.isMandatoryFlowChanged());
 				    Gson gson = new GsonBuilder().create();
 				    String jsonChangeTracker = gson.toJson(changeTracker);
 				    params.put("changes", jsonChangeTracker);
@@ -948,7 +950,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Transactional(readOnly = true)
 	public List<Tag> getCredentialTags(long credentialId) 
 			throws DbConnectionException {
-		try {			
+		try {	
+			//if left join is used list with null element would be returned.
 			String query = "SELECT tag " +
 					       "FROM Credential1 cred " +
 					       "INNER JOIN cred.tags tag " +
@@ -974,7 +977,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Transactional(readOnly = true)
 	public List<Tag> getCredentialHashtags(long credentialId) 
 			throws DbConnectionException {
-		try {			
+		try {	
+			//if left join is used list with null element would be returned.
 			String query = "SELECT hashtag " +
 					       "FROM Credential1 cred " +
 					       "INNER JOIN cred.hashtags hashtag " +
@@ -997,21 +1001,25 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 			
 	@Transactional(readOnly = false)
-	private void updateTitleAndDescriptionForTargetCredentials(long credentialId) 
+	private void updateBasicDataForNotCompletedTargetCredentials(long credentialId) 
 			throws DbConnectionException {
 		try {	
 			Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, 
 					credentialId);
 			String query = "UPDATE TargetCredential1 targetCred " +
 					       "SET targetCred.title = :title, " +
-					       "targetCred.description = :description " +
-					       "WHERE targetCred.credential = :cred";					    
+					       "targetCred.description = :description, " +
+					       "targetCred.competenceOrderMandatory = :mandatory " +
+					       "WHERE targetCred.credential = :cred " +
+					       "AND targetCred.progress != :progress";					    
 
 			persistence.currentManager()
 				.createQuery(query)
 				.setString("title", cred.getTitle())
 				.setString("description", cred.getDescription())
 				.setEntity("cred", cred)
+				.setBoolean("mandatory", cred.isCompetenceOrderMandatory())
+				.setInteger("progress", 100)
 				.executeUpdate();
 		} catch(Exception e) {
 			logger.error(e);
@@ -1021,23 +1029,34 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 	
 	@Transactional(readOnly = true)
-	private List<TargetCredential1> getTargetCredentialsForCredential(long credentialId) 
+	private List<TargetCredential1> getTargetCredentialsForCredential(long credentialId, 
+			boolean justUncompleted) 
 			throws DbConnectionException {
 		try {		
 			Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, 
 					credentialId);
-			String query = "SELECT cred " +
-					       "FROM TargetCredential1 cred " +
-					       "WHERE cred.credential = :cred";					    
+			StringBuilder builder = new StringBuilder();
+			builder.append("SELECT cred " +
+				       	   "FROM TargetCredential1 cred " +
+				       	   "WHERE cred.credential = :cred ");
+			if(justUncompleted) {
+				builder.append("AND cred.progress != :progress");
+			}
+//			String query = "SELECT cred " +
+//					       "FROM TargetCredential1 cred " +
+//					       "WHERE cred.credential = :cred";					    
+			
+			Query q = persistence.currentManager()
+				.createQuery(builder.toString())
+				.setEntity("cred", cred);
+			if(justUncompleted) {
+				q.setInteger("progress", 100);
+			}
 			@SuppressWarnings("unchecked")
-			List<TargetCredential1> res = persistence.currentManager()
-				.createQuery(query)
-				.setEntity("cred", cred)
-				.list();
+			List<TargetCredential1> res = q.list();
 			if(res == null) {
 				return new ArrayList<>();
 			}
-			
 			return res;
 		} catch(Exception e) {
 			logger.error(e);
@@ -1047,10 +1066,11 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 	
 	@Transactional(readOnly = false)
-	private void updateTargetCredentialTags(long credentialId) 
+	private void updateTargetCredentialTagsForUncompletedCredentials(long credentialId) 
 			throws DbConnectionException {
 		try {
-			List<TargetCredential1> targetCredentials = getTargetCredentialsForCredential(credentialId);
+			List<TargetCredential1> targetCredentials = getTargetCredentialsForCredential(
+					credentialId, true);
 			List<Tag> tags = getCredentialTags(credentialId);
 			for(TargetCredential1 tc : targetCredentials) {
 				tc.getTags().clear();
@@ -1066,10 +1086,11 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 	
 	@Transactional(readOnly = false)
-	private void updateTargetCredentialHashtags(long credentialId) 
+	private void updateTargetCredentialHashtagsForUncompletedCredentials(long credentialId) 
 			throws DbConnectionException {
 		try {
-			List<TargetCredential1> targetCredentials = getTargetCredentialsForCredential(credentialId);
+			List<TargetCredential1> targetCredentials = getTargetCredentialsForCredential(
+					credentialId, true);
 			List<Tag> hashtags = getCredentialHashtags(credentialId);
 			for(TargetCredential1 tc : targetCredentials) {
 				tc.getHashtags().clear();
@@ -1090,13 +1111,14 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throws DbConnectionException {
 		if(changeTracker.isPublished()) {
 			if(changeTracker.isTagsChanged()) {
-				updateTargetCredentialTags(credentialId);
+				updateTargetCredentialTagsForUncompletedCredentials(credentialId);
 			}
 			if(changeTracker.isHashtagsChanged()) {
-				updateTargetCredentialHashtags(credentialId);
+				updateTargetCredentialHashtagsForUncompletedCredentials(credentialId);
 			}
-			if(changeTracker.isTitleChanged() || changeTracker.isDescriptionChanged()) {
-				updateTitleAndDescriptionForTargetCredentials(credentialId);
+			if(changeTracker.isTitleChanged() || changeTracker.isDescriptionChanged()
+					|| changeTracker.isMandatoryFlowChanged()) {
+				updateBasicDataForNotCompletedTargetCredentials(credentialId);
 			}
 		}
 	}
@@ -1269,6 +1291,26 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					.setParameterList("credIds", credIds)
 					.executeUpdate();
 			}
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating credential duration");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void updateTargetCredentialDuration(long id, long duration) throws DbConnectionException {
+		try {
+			String query = "UPDATE TargetCredential1 cred SET " +
+						   "cred.duration = :duration " +
+						   "WHERE cred.id = :credId";
+			
+			persistence.currentManager()
+				.createQuery(query)
+				.setLong("duration", duration)
+				.setLong("credId", id)
+				.executeUpdate();
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

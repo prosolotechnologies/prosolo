@@ -1,15 +1,5 @@
 $(function () {
-	$("#formMain\\:inputKeywords").on('itemAdded itemRemoved', function(event) {
-		updateStatusToDraft();
-	});
-	
-	$("#formMain\\:inputHashtags").on('itemAdded itemRemoved', function(event) {
-		updateStatusToDraft();
-	});
-
-	$('.pasteable').on('paste', function() {
-		updateStatusToDraft();
-	});
+	attachListenersForUpdatingStatus();
 	
 	//setInitialValues();
 });
@@ -26,6 +16,20 @@ $(function () {
 
 function updateStatusToDraft() {
 	$('#formMain\\:credSidebar\\:selectStatus').val('DRAFT').change();
+}
+
+function attachListenersForUpdatingStatus() {
+	$("#formMain\\:inputKeywords").on('itemAdded itemRemoved', function(event) {
+		updateStatusToDraft();
+	});
+	
+	$("#formMain\\:inputHashtags").on('itemAdded itemRemoved', function(event) {
+		updateStatusToDraft();
+	});
+	
+	$('.pasteable').on('paste', function() {
+		updateStatusToDraft();
+	});
 }
 
 //function getFieldValue(label) {

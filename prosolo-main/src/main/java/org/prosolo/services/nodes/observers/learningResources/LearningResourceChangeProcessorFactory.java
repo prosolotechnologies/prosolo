@@ -45,8 +45,9 @@ public class LearningResourceChangeProcessorFactory {
 					CompetenceChangeTracker.class);
 			return new CompetenceChangeProcessor((Competence1) node, changeTracker, competenceManager);
 		} else if(node instanceof Activity1) {
-			//TODO
-			return null;
+			ActivityChangeTracker changeTracker = gson.fromJson(jsonChangeTracker, 
+					ActivityChangeTracker.class);
+			return new ActivityChangeProcessor((Activity1) node, changeTracker, activityManager);
 		}
 		
 		return null;

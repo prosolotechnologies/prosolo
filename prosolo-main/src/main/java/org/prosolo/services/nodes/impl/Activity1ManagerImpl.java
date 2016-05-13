@@ -568,15 +568,50 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	public Activity1 updateActivity(ActivityData data, long userId) throws DbConnectionException {
 		try {
 			Activity1 act = resourceFactory.updateActivity(data, userId);
-
+			Class<? extends Activity1> actClass = null;
+			if(act instanceof TextActivity1) {
+				actClass = TextActivity1.class;
+			} else if(act instanceof UrlActivity1) {
+				actClass = UrlActivity1.class;
+			} else if(act instanceof ExternalToolActivity1) {
+				actClass = ExternalToolActivity1.class;
+			}
+			
 			User user = new User();
 			user.setId(userId);
 			if(data.isPublished()) {
 				//activity remains published
 				if(!data.isPublishedChanged()) {
 					Map<String, String> params = new HashMap<>();
-				    ActivityChangeTracker changeTracker = new ActivityChangeTracker(data.isPublished(),
-				    		false, data.isTitleChanged(), data.isDescriptionChanged());
+					boolean linksChanged = false;
+					for(ResourceLinkData rl : data.getLinks()) {
+						if(rl.getStatus() != ObjectStatus.UP_TO_DATE) {
+							linksChanged = true;
+							break;
+						}
+					}
+					boolean filesChanged = false;
+					for(ResourceLinkData rl : data.getFiles()) {
+						if(rl.getStatus() != ObjectStatus.UP_TO_DATE) {
+							filesChanged = true;
+							break;
+						}
+					}
+				    ActivityChangeTracker changeTracker = new ActivityChangeTracker(
+				    		actClass, 
+				    		data.isPublished(), 
+				    		false, 
+				    		data.isTitleChanged(), 
+				    		data.isDescriptionChanged(), 
+				    		data.isDurationHoursChanged() || data.isDurationMinutesChanged(), 
+				    		linksChanged, 
+				    		filesChanged, 
+				    		data.isUploadAssignmentChanged(), 
+				    		data.isTextChanged(), 
+				    		data.isLinkChanged(), 
+				    		data.isLaunchUrlChanged(), 
+				    		data.isConsumerKeyChanged(), 
+				    		data.isSharedSecretChanged());
 				    Gson gson = new GsonBuilder().create();
 				    String jsonChangeTracker = gson.toJson(changeTracker);
 				    params.put("changes", jsonChangeTracker);
@@ -595,7 +630,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				 */
 				else {
 					Map<String, String> params = new HashMap<>();
-				    ActivityChangeTracker changeTracker = new ActivityChangeTracker(data.isPublished(),
+				    ActivityChangeTracker changeTracker = new ActivityChangeTracker(
+				    		actClass, true, true, true, true, true, true, true, true, true, true, 
 				    		true, true, true);
 				    Gson gson = new GsonBuilder().create();
 				    String jsonChangeTracker = gson.toJson(changeTracker);
@@ -608,12 +644,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				 * if activity remains draft
 				 */
 				if(!data.isPublishedChanged()) {
-					Map<String, String> params = new HashMap<>();
-				    ActivityChangeTracker changeTracker = new ActivityChangeTracker(data.isPublished(),
-				    		false, data.isTitleChanged(), data.isDescriptionChanged());
-				    Gson gson = new GsonBuilder().create();
-				    String jsonChangeTracker = gson.toJson(changeTracker);
-				    params.put("changes", jsonChangeTracker);
+					Map<String, String> params = null;				    
 					eventFactory.generateEvent(EventType.Edit_Draft, user, act, params);
 				} 
 				/*
@@ -1348,6 +1379,345 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while removing assignment");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void updateTargetActivitiesWithChangedData(long actId, ActivityChangeTracker changeTracker) 
+			throws DbConnectionException {
+		if(changeTracker.isPublished()) {
+			if(changeTracker.isLinksChanged()) {
+				updateTargetActivityLinks(actId);
+			}
+			if(changeTracker.isFilesChanged()) {
+				updateTargetActivityFiles(actId);
+			}
+			if(changeTracker.isTitleChanged() || changeTracker.isDescriptionChanged()
+					|| changeTracker.isDurationChanged() || changeTracker.isUploadResultChanged()
+					|| changeTracker.isTextChanged() || changeTracker.isUrlChanged() 
+					|| changeTracker.isLaunchUrlChanged() || changeTracker.isConsumerKeyChanged() 
+					|| changeTracker.isSharedSecretChanged()) {
+				updateTargetActivityBasicDataForUncompletedCredentials(actId, 
+						changeTracker.getActivityClass());
+				
+				if(changeTracker.isDurationChanged()) {		
+					recalculateTargetCompetencesAndCredentialsDuration(actId);
+				}
+			}
+		}
+	}
+	
+	@Transactional(readOnly = true)
+	private void recalculateTargetCompetencesAndCredentialsDuration(long actId) {
+		try {
+			String query1 = "SELECT cred.id " +
+					"FROM TargetActivity1 act " +
+					"INNER JOIN act.targetCompetence comp " +
+					"INNER JOIN comp.targetCredential cred " +
+						"WITH cred.progress != :progress " +
+					"WHERE act.activity.id = :actId";
+	
+			@SuppressWarnings("unchecked")
+			List<Long> credIds = persistence.currentManager()
+					.createQuery(query1)
+					.setInteger("progress", 100)
+					.setLong("actId", actId)
+					.list();
+			if(!credIds.isEmpty()) {
+				String query2 = "SELECT cred.id, comp.id, act.id, act.duration " +
+							    "FROM TargetCredential1 cred " +
+							    "LEFT JOIN cred.targetCompetences comp " +
+							    "LEFT JOIN comp.targetActivities tAct " +
+							    "INNER JOIN tAct.activity act " +
+							    "WHERE cred.id IN (:credIds) " +									    
+							    "ORDER BY cred.id, comp.id";
+			
+				@SuppressWarnings("unchecked")
+				List<Object[]> res = persistence.currentManager()
+						.createQuery(query2)
+						.setParameterList("credIds", credIds)
+						.list();
+				
+				if(res != null) {
+					long currentCredId = 0;
+					long currentCompId = 0;
+					long cumulativeCredDuration = 0;
+					long cumulativeCompDuration = 0;
+					boolean foundCompToUpdate = false;
+					for(Object[] row : res) {
+						long credId = (long) row[0];
+						long compId = (long) row[1];
+						long activityId = (long) row[2];
+						long duration = (long) row[3];
+						
+						if(credId == currentCredId) {
+							cumulativeCredDuration += duration;
+						} else {
+							if(currentCredId != 0) {
+								credManager.updateTargetCredentialDuration(currentCredId, 
+										cumulativeCredDuration);
+							}
+							currentCredId = credId;
+							cumulativeCredDuration = duration;
+						}
+						
+						if(compId == currentCompId) {
+							//if other than first activity in a competence is changed
+							if(activityId == actId) {
+								foundCompToUpdate = true;
+							}
+							cumulativeCompDuration += duration;
+						} else {
+							if(foundCompToUpdate) {
+								compManager.updateTargetCompetenceDuration(currentCompId, 
+										cumulativeCompDuration);
+								foundCompToUpdate = false;
+							} 
+							currentCompId = compId;
+							cumulativeCompDuration = duration;
+							//if first activity in a competence is changed
+							if(activityId == actId) {
+								foundCompToUpdate = true;
+							}
+						}
+					}
+					if(currentCredId != 0) {
+						credManager.updateTargetCredentialDuration(currentCredId, 
+								cumulativeCredDuration);
+					}
+					if(foundCompToUpdate) {
+						compManager.updateTargetCompetenceDuration(currentCompId, 
+								cumulativeCompDuration);
+						foundCompToUpdate = false;
+					} 
+				}
+			}
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while recalculating duration");
+		}
+	}
+
+	@Transactional(readOnly = false)
+	private void updateTargetActivityLinks(long actId) 
+			throws DbConnectionException {
+		try {
+			List<TargetActivity1> targetActivities = getTargetActivitiesForActivity(actId, true);
+			List<ResourceLink> links = getActivityLinks(actId);
+			for(TargetActivity1 ta : targetActivities) {
+				ta.getLinks().clear();
+				for(ResourceLink rl : links) {
+					ResourceLink rl1 = new ResourceLink();
+					rl1.setUrl(rl.getUrl());
+					rl1.setLinkName(rl.getLinkName());
+					saveEntity(rl1);
+					ta.getLinks().add(rl1);
+				}
+			}
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating user activities");
+		}
+	}
+	
+	@Transactional(readOnly = false)
+	private void updateTargetActivityFiles(long actId) 
+			throws DbConnectionException {
+		try {
+			List<TargetActivity1> targetActivities = getTargetActivitiesForActivity(actId, true);
+			List<ResourceLink> files = getActivityFiles(actId);
+			for(TargetActivity1 ta : targetActivities) {
+				ta.getFiles().clear();
+				for(ResourceLink rl : files) {
+					ResourceLink rl1 = new ResourceLink();
+					rl1.setUrl(rl.getUrl());
+					rl1.setLinkName(rl.getLinkName());
+					saveEntity(rl1);
+					ta.getFiles().add(rl1);
+				}
+			}
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating user activities");
+		}
+	}
+	
+	@Transactional(readOnly = true)
+	private List<ResourceLink> getActivityLinks(long actId) 
+			throws DbConnectionException {
+		try {		
+			//if left join is used list with null element would be returned.
+			String query = "SELECT link " +
+					       "FROM Activity1 act " +
+					       "INNER JOIN act.links link " +
+					       "WHERE act.id = :actId";					    
+			@SuppressWarnings("unchecked")
+			List<ResourceLink> res = persistence.currentManager()
+				.createQuery(query)
+				.setLong("actId", actId)
+				.list();
+			if(res == null) {
+				return new ArrayList<>();
+			}
+			
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading activity links");
+		}
+	}
+	
+	@Transactional(readOnly = true)
+	private List<ResourceLink> getActivityFiles(long actId) 
+			throws DbConnectionException {
+		try {			
+			//if left join is used list with null element would be returned.
+			String query = "SELECT file " +
+					       "FROM Activity1 act " +
+					       "INNER JOIN act.files file " +
+					       "WHERE act.id = :actId";					    
+			@SuppressWarnings("unchecked")
+			List<ResourceLink> res = persistence.currentManager()
+				.createQuery(query)
+				.setLong("actId", actId)
+				.list();
+			if(res == null) {
+				return new ArrayList<>();
+			}
+			
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading activity files");
+		}
+	}
+	
+	@Transactional(readOnly = false)
+	private void updateTargetActivityBasicDataForUncompletedCredentials(long actId, 
+			Class<? extends Activity1> activityClass) 
+			throws DbConnectionException {
+		try {			
+			Activity1 act = (Activity1) persistence.currentManager().load(activityClass, 
+					actId);
+			List<Long> ids = getTargetActivityIdsForUncompletedCredentials(actId);
+			
+			if(!ids.isEmpty()) {
+				StringBuilder builder = new StringBuilder();
+				builder.append("UPDATE TargetActivity1 act SET " +
+						       "act.title = :title, " +
+						       "act.description = :description, " +
+						       "act.duration = :duration, " +
+						       "act.uploadAssignment = :uploadAssignment ");
+				if(activityClass == TextActivity1.class) {
+					builder.append(",act.text = :text ");
+				} else if(activityClass == UrlActivity1.class) {
+					builder.append(",act.url = :url ");
+				} else if(activityClass == ExternalToolActivity1.class) {
+					builder.append(",act.launchUrl = :launchUrl " +
+							       ",act.sharedSecret = :sharedSecret " +
+							       ",act.consumerKey = :consumerKey ");
+				}
+				builder.append("WHERE act.id IN (:actIds)");				    
+	
+				Query q = persistence.currentManager()
+					.createQuery(builder.toString())
+					.setString("title", act.getTitle())
+					.setString("description", act.getDescription())
+					.setBoolean("uploadAssignment", act.isUploadAssignment())
+					.setLong("duration", act.getDuration())
+					.setParameterList("actIds", ids);
+				if(activityClass == TextActivity1.class) {
+					TextActivity1 ta = (TextActivity1) act;
+					q.setString("text", ta.getText());
+				} else if(activityClass == UrlActivity1.class) {
+					UrlActivity1 urlAct = (UrlActivity1) act;
+					q.setString("url", urlAct.getUrl());
+				} else if(activityClass == ExternalToolActivity1.class) {
+					ExternalToolActivity1 extAct = (ExternalToolActivity1) act;
+					q.setString("launchUrl", extAct.getLaunchUrl())
+					 .setString("sharedSecret", extAct.getSharedSecret())
+					 .setString("consumerKey", extAct.getConsumerKey());
+				}
+					
+				q.executeUpdate();
+			}
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating user activities");
+		}
+	}
+	
+	@Transactional(readOnly = true)
+	private List<Long> getTargetActivityIdsForUncompletedCredentials(long actId) {
+		try {	
+			Activity1 act = (Activity1) persistence.currentManager().load(Activity1.class, 
+					actId);
+			
+			String query = "SELECT act.id FROM TargetActivity1 act " +
+						   "INNER JOIN act.targetCompetence comp " +
+				       	   "INNER JOIN comp.targetCredential cred " +
+				       			"WITH cred.progress != :progress " +
+				       	   "WHERE act.activity = :act";					    
+
+			@SuppressWarnings("unchecked")
+			List<Long> res = persistence.currentManager()
+				.createQuery(query)
+				.setEntity("act", act)
+				.setInteger("progress", 100)
+				.list();
+			
+			if(res == null) {
+				return new ArrayList<>();
+			}
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving activity ids");
+		}
+	}
+
+	@Transactional(readOnly = true)
+	private List<TargetActivity1> getTargetActivitiesForActivity(long actId, 
+			boolean justUncompleted) 
+			throws DbConnectionException {
+		try {		
+			Activity1 act = (Activity1) persistence.currentManager().load(Activity1.class, 
+					actId);
+			StringBuilder builder = new StringBuilder();
+			builder.append("SELECT act " +
+				           "FROM TargetActivity1 act ");
+			if(justUncompleted) {
+				builder.append("INNER JOIN act.targetCompetence comp " +
+			       		       "INNER JOIN comp.targetCredential cred " +
+									"WITH cred.progress != :progress ");
+			}
+			builder.append("WHERE act.activity = :act");
+				    
+			Query q = persistence.currentManager()
+				.createQuery(builder.toString())
+				.setEntity("act", act);
+			if(justUncompleted) {
+				q.setInteger("progress", 100);
+			}
+			@SuppressWarnings("unchecked")
+			List<TargetActivity1> res = q.list();
+			if(res == null) {
+				return new ArrayList<>();
+			}
+			
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading user activities");
 		}
 	}
 	

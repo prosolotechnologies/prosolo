@@ -11,17 +11,19 @@ public class LearningResourceChangeTracker {
 	private boolean versionChanged;
 	private boolean titleChanged;
 	private boolean descriptionChanged;
+	private boolean durationChanged;
 	
 	public LearningResourceChangeTracker() {
 		
 	}
 	
 	public LearningResourceChangeTracker(boolean published, boolean versionChanged, boolean titleChanged, 
-			boolean descriptionChanged) {
+			boolean descriptionChanged, boolean durationChanged) {
 		this.published = published;
 		this.versionChanged = versionChanged;
 		this.titleChanged = titleChanged;
 		this.descriptionChanged = descriptionChanged;
+		this.durationChanged = durationChanged;
 	}
 	
 	public boolean isPublished() {
@@ -48,6 +50,14 @@ public class LearningResourceChangeTracker {
 	}
 	public void setVersionChanged(boolean versionChanged) {
 		this.versionChanged = versionChanged;
+	}
+
+	public boolean isDurationChanged() {
+		return durationChanged;
+	}
+
+	public void setDurationChanged(boolean durationChanged) {
+		this.durationChanged = durationChanged;
 	}
 
 }

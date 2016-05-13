@@ -31,7 +31,7 @@
                	   <h:inputText 
                	   		styleClass="pasteable"
                	   		value="#{cc.attrs.activity.link}"
-               	   		onkeypress="updateStatusToDraft();"/>
+               	   		onkeyup="updateStatusToDraft();"/>
                </div>
            </div>
         </h:panelGroup>
@@ -44,7 +44,7 @@
               	  <h:inputTextarea 
               	  	value="#{cc.attrs.activity.text}"
               	  	styleClass="textareaBig pasteable"
-              	  	onkeypress="updateStatusToDraft();"/>
+              	  	onkeyup="updateStatusToDraft();"/>
               </div>
           </div>
      	</h:panelGroup>
@@ -56,7 +56,7 @@
 	                   <h:inputText 
 	                   		styleClass="pasteable"
 	                   		value="#{cc.attrs.activity.link}"
-	                   		onkeypress="updateStatusToDraft();"/>
+	                   		onkeyup="updateStatusToDraft();"/>
 	              </div>
 	          </div>
 	     </h:panelGroup>
@@ -137,7 +137,7 @@
 	                 	pt:data-toggle="modal"
 	                 	action="#{cc.attrs.prepareAddingResLinkMethod}"
 	                 	update="#{cc.attrs.toUpdateModalAddLink}"
-	                 	oncomplete="$('##{cc.attrs.addLinkModalId}').modal('show')">Add New URL
+	                 	oncomplete="attachListenerForFetchingPageTitle(); $('##{cc.attrs.addLinkModalId}').modal('show')">Add New URL
 	                 </p:commandLink>
 
 	             </div>	          
@@ -171,7 +171,7 @@
                      <h:inputText 
                      	styleClass="pasteable"
                      	value="#{cc.attrs.activity.launchUrl}"
-                     	onkeypress="updateStatusToDraft();"/>
+                     	onkeyup="updateStatusToDraft();"/>
                 </div>
             </div>
             <div class="formLine">
@@ -180,7 +180,7 @@
                      <h:inputText 
                      	styleClass="pasteable"
                      	value="#{cc.attrs.activity.sharedSecret}"
-                     	onkeypress="updateStatusToDraft();"/>
+                     	onkeyup="updateStatusToDraft();"/>
                 </div>
             </div>
             <div class="formLine">
@@ -189,7 +189,7 @@
                      <h:inputText 
                      	styleClass="pasteable"
                      	value="#{cc.attrs.activity.consumerKey}"
-                     	onkeypress="updateStatusToDraft();"/>
+                     	onkeyup="updateStatusToDraft();"/>
                 </div>
             </div>
             <div class="formLine">

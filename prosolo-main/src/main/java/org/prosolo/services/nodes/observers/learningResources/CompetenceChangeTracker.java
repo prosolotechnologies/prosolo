@@ -3,15 +3,18 @@ package org.prosolo.services.nodes.observers.learningResources;
 public class CompetenceChangeTracker extends LearningResourceChangeTracker {
 	
 	private boolean tagsChanged;
+	private boolean studentAllowedToAddActivitiesChanged;
 	
 	public CompetenceChangeTracker() {
 		
 	}
 	
 	public CompetenceChangeTracker(boolean published, boolean versionChanged, boolean titleChanged, 
-			boolean descriptionChanged, boolean tagsChanged) {
-		super(published, versionChanged, titleChanged, descriptionChanged);
+			boolean descriptionChanged, boolean durationChanged, boolean tagsChanged, 
+			boolean studentAllowedToAddActivitiesChanged) {
+		super(published, versionChanged, titleChanged, descriptionChanged, durationChanged);
 		this.tagsChanged = tagsChanged;
+		this.studentAllowedToAddActivitiesChanged = studentAllowedToAddActivitiesChanged;
 	}
 
 	public boolean isTagsChanged() {
@@ -19,6 +22,14 @@ public class CompetenceChangeTracker extends LearningResourceChangeTracker {
 	}
 	public void setTagsChanged(boolean tagsChanged) {
 		this.tagsChanged = tagsChanged;
+	}
+
+	public boolean isStudentAllowedToAddActivitiesChanged() {
+		return studentAllowedToAddActivitiesChanged;
+	}
+
+	public void setStudentAllowedToAddActivitiesChanged(boolean studentAllowedToAddActivitiesChanged) {
+		this.studentAllowedToAddActivitiesChanged = studentAllowedToAddActivitiesChanged;
 	}
 	
 }

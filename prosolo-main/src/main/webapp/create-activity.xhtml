@@ -110,7 +110,7 @@
                                     	<h:inputText 
                                     		styleClass="pasteable"
                                     		value="#{activityEditBean.activityData.title}"
-                                    		onkeypress="updateStatusToDraft();">
+                                    		onkeyup="updateStatusToDraft();">
                                     	</h:inputText>
                                     </div>
                                 </div>
@@ -120,7 +120,7 @@
                                     	<h:inputTextarea
                                     		styleClass="pasteable"
                                     		value="#{activityEditBean.activityData.description}"
-                                    		onkeypress="updateStatusToDraft();">
+                                    		onkeyup="updateStatusToDraft();">
                                     	</h:inputTextarea>
                                     </div>
                                 </div>
@@ -186,7 +186,7 @@
 						styleClass="linkPreview"
 						action="#{activityEditBean.preview()}"
 						update=":formMain"
-						oncomplete="if(args &amp;&amp; !args.validationFailed) { document.getElementsByClassName('hiddenLinkPreview')[0].click();}"/>
+						oncomplete="if(args &amp;&amp; !args.validationFailed) {bindPasteEventForUpdatingStatus(); document.getElementsByClassName('hiddenLinkPreview')[0].click();}"/>
 					<h:link
 						style="display: none;"
 						styleClass="hiddenLinkPreview"
@@ -252,7 +252,8 @@
                     	<p:commandLink 
 		              	  	styleClass="btn btn-green" 
 		              	  	action="#{activityEditBean.save()}"
-		              	  	update=":formMain :panelTitle">
+		              	  	update=":formMain :panelTitle"
+		              	  	oncomplete="bindPasteEventForUpdatingStatus();">
 		              	  		Save changes
 		              	</p:commandLink>
                         <a href="#" class="linkRed" data-toggle="modal" data-target="#deleteModal">Delete</a>

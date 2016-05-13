@@ -1,4 +1,12 @@
 $(function () {
+	attachListenersForUpdatingStatus();
+});
+
+function updateStatusToDraft() {
+	$('#formMain\\:compSideBar\\:selectStatus').val('DRAFT').change();
+}
+
+function attachListenersForUpdatingStatus() {
 	$("#formMain\\:inputKeywords").on('itemAdded itemRemoved', function(event) {
 		updateStatusToDraft();
 	});
@@ -6,8 +14,4 @@ $(function () {
 	$('.pasteable').on('paste', function() {
 		updateStatusToDraft();
 	});
-});
-
-function updateStatusToDraft() {
-	$('#formMain\\:compSideBar\\:selectStatus').val('DRAFT').change();
 }

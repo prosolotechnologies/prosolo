@@ -436,19 +436,63 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		try {
 			Competence1 updatedComp = resourceFactory.updateCompetence(data);		  
 		    
-		    if(data.isPublished()) {
-				if(data.isPublishedChanged() && !data.isDraft()) {
-					eventFactory.generateEvent(EventType.Create, user, updatedComp);
-				} else {
+			 if(data.isPublished()) {
+				//competence remains published
+				if(!data.isPublishedChanged()) {
 					Map<String, String> params = new HashMap<>();
-				    CompetenceChangeTracker changeTracker = new CompetenceChangeTracker(data.isPublished(), false,
-				    		data.isTitleChanged(), data.isDescriptionChanged(), data.isTagsStringChanged());
+				    CompetenceChangeTracker changeTracker = new CompetenceChangeTracker(data.isPublished(),
+				    		false, data.isTitleChanged(), data.isDescriptionChanged(), false, 
+				    		data.isTagsStringChanged(), data.isStudentAllowedToAddActivitiesChanged());
 				    Gson gson = new GsonBuilder().create();
 				    String jsonChangeTracker = gson.toJson(changeTracker);
 				    params.put("changes", jsonChangeTracker);
 				    eventFactory.generateEvent(EventType.Edit, user, updatedComp, params);
+				} 
+				/*
+				 * this means that competence is published for the first time
+				 */
+				else if(!data.isDraft()) {
+					eventFactory.generateEvent(EventType.Create, user, updatedComp);
+				}
+				/*
+				 * Competence becomes published again. Because data can show what has changed
+				 * based on draft version, we can't use that. We need to know what has changed based on
+				 * original competence, so all fields are treated as changed.
+				 */
+				else {
+					Map<String, String> params = new HashMap<>();
+				    CompetenceChangeTracker changeTracker = new CompetenceChangeTracker(data.isPublished(),
+				    		true, true, true, true, true, true);
+				    Gson gson = new GsonBuilder().create();
+				    String jsonChangeTracker = gson.toJson(changeTracker);
+				    params.put("changes", jsonChangeTracker);
+				    params.put("draftVersionId", data.getCompetenceId() + "");
+				    eventFactory.generateEvent(EventType.Edit, user, updatedComp, params);
+				}
+			} else {
+				/*
+				 * if competence remains draft
+				 */
+				if(!data.isPublishedChanged()) {
+					Map<String, String> params = new HashMap<>();
+				    CompetenceChangeTracker changeTracker = new CompetenceChangeTracker(data.isPublished(),
+				    		false, data.isTitleChanged(), data.isDescriptionChanged(), false, 
+				    		data.isTagsStringChanged(), data.isStudentAllowedToAddActivitiesChanged());
+				    Gson gson = new GsonBuilder().create();
+				    String jsonChangeTracker = gson.toJson(changeTracker);
+				    params.put("changes", jsonChangeTracker);
+					eventFactory.generateEvent(EventType.Edit_Draft, user, updatedComp, params);
+				} 
+				/*
+				 * This means that competence was published before so draft version is created.
+				 */
+				else {
+					Map<String, String> params = new HashMap<>();
+					params.put("originalVersionId", data.getCompetenceId() + "");
+					eventFactory.generateEvent(EventType.Create_Draft, user, updatedComp, params);
 				}
 			}
+
 		    return updatedComp;
 		} catch (EventException e) {
 			logger.error(e);
@@ -517,6 +561,14 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				compToUpdate.setHasDraft(false);
 				compToUpdate.setDraftVersion(null);
 		    	delete(comp);
+		    	/*
+		    	 * old duration is taken from original competence and new duration is
+		    	 * taken from draft version and not from data object because competence
+		    	 * duration can be updated from other places (when activity is updated)
+		    	 * and data object may not capture last changes
+		    	 */
+		    	updateCredentialsDuration(compToUpdate.getId(), comp.getDuration(), 
+		    			compToUpdate.getDuration());
 		    	break;
 			case NO_TRANSITION:
 				compToUpdate = comp;
@@ -618,6 +670,20 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	    return compToUpdate;
 	}
 	
+	private void updateCredentialsDuration(long compId, long newDuration, long oldDuration) {
+		long durationChange = newDuration - oldDuration;
+    	Operation op = null;
+    	if(durationChange > 0) {
+    		op = Operation.Add;
+    	} else {
+    		durationChange = -durationChange;
+    		op = Operation.Subtract;
+    	}
+		credentialManager.updateDurationForCredentialsWithCompetence(compId, 
+    			durationChange, op);
+		
+	}
+
 	private void deleteCompetenceActivities(long compId) throws DbConnectionException {
 		try {
 			Competence1 comp = (Competence1) persistence.currentManager().load(
@@ -805,7 +871,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Transactional(readOnly = true)
 	public List<Tag> getCompetenceTags(long compId) 
 			throws DbConnectionException {
-		try {			
+		try {		
+			//if left join is used list with null element would be returned.
 			String query = "SELECT tag " +
 					       "FROM Competence1 comp " +
 					       "INNER JOIN comp.tags tag " +
@@ -828,22 +895,29 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	}
 			
 	@Transactional(readOnly = false)
-	private void updateTitleAndDescriptionForTargetCompetences(long compId) 
+	private void updateTargetCompetenceBasicDataForUncompletedCredentials(long compId) 
 			throws DbConnectionException {
 		try {	
 			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, 
 					compId);
-			String query = "UPDATE TargetCompetence1 targetComp " +
-					       "SET targetComp.title = :title, " +
-					       "targetComp.description = :description " +
-					       "WHERE targetComp.competence = :comp";					    
-
-			persistence.currentManager()
-				.createQuery(query)
-				.setString("title", comp.getTitle())
-				.setString("description", comp.getDescription())
-				.setEntity("comp", comp)
-				.executeUpdate();
+			
+			List<Long> ids = getTargetCompetenceIdsForUncompletedCredentials(compId);
+			
+			if(!ids.isEmpty()) {
+				String query = "UPDATE TargetCompetence1 targetComp " +
+						       "SET targetComp.title = :title, " +
+						       "targetComp.description = :description, " +
+						       "targetComp.studentAllowedToAddActivities = :studentAllowedToAddActivities " +
+						       "WHERE targetComp.id IN (:compIds)";					    
+	
+				persistence.currentManager()
+					.createQuery(query)
+					.setString("title", comp.getTitle())
+					.setString("description", comp.getDescription())
+					.setBoolean("studentAllowedToAddActivities", comp.isStudentAllowedToAddActivities())
+					.setParameterList("compIds", ids)
+					.executeUpdate();
+			}
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -852,19 +926,62 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	}
 	
 	@Transactional(readOnly = true)
-	private List<TargetCompetence1> getTargetCompetencesForCompetence(long compId) 
+	private List<Long> getTargetCompetenceIdsForUncompletedCredentials(long compId) {
+		try {	
+			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, 
+					compId);
+			
+			String query = "SELECT comp.id FROM TargetCompetence1 comp " +
+				       	   "INNER JOIN comp.targetCredential cred " +
+				       			"WITH cred.progress != :progress " +
+				       	   "WHERE comp.competence = :comp";					    
+
+			@SuppressWarnings("unchecked")
+			List<Long> res = persistence.currentManager()
+				.createQuery(query)
+				.setEntity("comp", comp)
+				.setInteger("progress", 100)
+				.list();
+			
+			if(res == null) {
+				return new ArrayList<>();
+			}
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving competence ids");
+		}
+	}
+
+	@Transactional(readOnly = true)
+	private List<TargetCompetence1> getTargetCompetencesForCompetence(long compId, 
+			boolean justUncompleted) 
 			throws DbConnectionException {
 		try {		
 			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, 
 					compId);
-			String query = "SELECT comp " +
-					       "FROM TargetCompetence1 comp " +
-					       "WHERE comp.competence = :comp";					    
+			StringBuilder builder = new StringBuilder();
+			builder.append("SELECT comp " +
+				           "FROM TargetCompetence1 comp ");
+			if(justUncompleted) {
+				builder.append("INNER JOIN comp.targetCredential cred " +
+			       		          "WITH cred.progress != :progress ");
+			}
+			builder.append("WHERE comp.competence = :comp");
+//			String query = "SELECT comp " +
+//					       "FROM TargetCompetence1 comp " +
+//					       "INNER JOIN comp.targetCredential cred " +
+//					       		"WITH cred.progress != :progress " +
+//					       "WHERE comp.competence = :comp";					    
+			Query q = persistence.currentManager()
+				.createQuery(builder.toString())
+				.setEntity("comp", comp);
+			if(justUncompleted) {
+				q.setInteger("progress", 100);
+			}
 			@SuppressWarnings("unchecked")
-			List<TargetCompetence1> res = persistence.currentManager()
-				.createQuery(query)
-				.setEntity("comp", comp)
-				.list();
+			List<TargetCompetence1> res = q.list();
 			if(res == null) {
 				return new ArrayList<>();
 			}
@@ -881,7 +998,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	private void updateTargetCompetencesTags(long compId) 
 			throws DbConnectionException {
 		try {
-			List<TargetCompetence1> targetComps = getTargetCompetencesForCompetence(compId);
+			List<TargetCompetence1> targetComps = getTargetCompetencesForCompetence(compId, true);
 			List<Tag> tags = getCompetenceTags(compId);
 			for(TargetCompetence1 tc : targetComps) {
 				tc.getTags().clear();
@@ -904,11 +1021,81 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			if(changeTracker.isTagsChanged()) {
 				updateTargetCompetencesTags(compId);
 			}
-			if(changeTracker.isTitleChanged() || changeTracker.isDescriptionChanged()) {
-				updateTitleAndDescriptionForTargetCompetences(compId);
+			if(changeTracker.isTitleChanged() || changeTracker.isDescriptionChanged() 
+					|| changeTracker.isStudentAllowedToAddActivitiesChanged()) {
+				updateTargetCompetenceBasicDataForUncompletedCredentials(compId);
+				
+				/**
+				 * not needed because if duration is changed here (when draft version
+				 * of competence is published that means that new activities were added
+				 * to competence and that should not be propagated
+				 */
+//				if(changeTracker.isDurationChanged()) {
+//					recalculateTargetCompetencesAndCredentialsDuration(compId);
+//				}
 			}
 		}
 	}
+	
+//	@Transactional(readOnly = true)
+//	private void recalculateTargetCompetencesAndCredentialsDuration(long compId) {
+//		try {
+//			String query1 = "SELECT cred.id " +
+//					"FROM TargetCompetence1 comp " +
+//					"INNER JOIN comp.targetCredential cred " +
+//						"WITH cred.progress != :progress " +
+//					"WHERE comp.competence.id = :compId";
+//	
+//			@SuppressWarnings("unchecked")
+//			List<Long> credIds = persistence.currentManager()
+//					.createQuery(query1)
+//					.setInteger("progress", 100)
+//					.setLong("compId", compId)
+//					.list();
+//			
+//			if(!credIds.isEmpty()) {
+//				String query2 = "SELECT cred.id, comp.duration " +
+//							    "FROM TargetCredential1 cred " +
+//							    "LEFT JOIN cred.targetCompetences comp " +
+//							    "WHERE cred.id IN (:credIds) " +									    
+//							    "ORDER BY cred.id";
+//			
+//				@SuppressWarnings("unchecked")
+//				List<Object[]> res = persistence.currentManager()
+//						.createQuery(query2)
+//						.setParameterList("credIds", credIds)
+//						.list();
+//				
+//				if(res != null) {
+//					long currentCredId = 0;					
+//					long cumulativeCredDuration = 0;
+//					for(Object[] row : res) {
+//						long credId = (long) row[0];
+//						long duration = (long) row[1];
+//						
+//						if(credId == currentCredId) {
+//							cumulativeCredDuration += duration;
+//						} else {
+//							if(currentCredId != 0) {
+//								credentialManager.updateTargetCredentialDuration(currentCredId, 
+//										cumulativeCredDuration);
+//							}
+//							currentCredId = credId;
+//							cumulativeCredDuration = duration;
+//						}				
+//					}
+//					if(currentCredId != 0) {
+//						credentialManager.updateTargetCredentialDuration(currentCredId, 
+//								cumulativeCredDuration);
+//					}
+//				}
+//			}
+//		} catch(Exception e) {
+//			logger.error(e);
+//			e.printStackTrace();
+//			throw new DbConnectionException("Error while recalculating duration");
+//		}
+//	}
 
 	@Override
 	@Transactional(readOnly = false)
@@ -1043,6 +1230,26 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				.executeUpdate();
 			
 			credentialManager.updateDurationForCredentialsWithCompetence(id, duration, op);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating competence duration");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void updateTargetCompetenceDuration(long id, long duration) throws DbConnectionException {
+		try {
+			String query = "UPDATE TargetCompetence1 comp SET " +
+						   "comp.duration = :duration " +
+						   "WHERE comp.id = :compId";
+			
+			persistence.currentManager()
+				.createQuery(query)
+				.setLong("duration", duration)
+				.setLong("compId", id)
+				.executeUpdate();
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

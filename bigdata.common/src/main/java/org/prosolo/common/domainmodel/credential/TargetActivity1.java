@@ -3,6 +3,7 @@ package org.prosolo.common.domainmodel.credential;
 import java.util.Date;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -95,7 +96,7 @@ public class TargetActivity1 extends BaseEntity {
 		this.added = added;
 	}
 
-	@OneToMany
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	public Set<ResourceLink> getLinks() {
 		return links;
 	}
@@ -104,7 +105,7 @@ public class TargetActivity1 extends BaseEntity {
 		this.links = links;
 	}
 
-	@OneToMany
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	public Set<ResourceLink> getFiles() {
 		return files;
 	}

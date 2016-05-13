@@ -128,8 +128,25 @@ public interface CredentialManager extends AbstractManager {
 	
 	Optional<Long> getDraftVersionIdIfExists(long credId) throws DbConnectionException;
 
+	/**
+	 * Duration for all credentials with competence specified by {@code compId} is updated
+	 * by adding/subtracting {@code duration} value.
+	 * @param compId
+	 * @param duration
+	 * @param op
+	 * @throws DbConnectionException
+	 */
 	void updateDurationForCredentialsWithCompetence(long compId, long duration, Operation op)
 			throws DbConnectionException;
+	
+	/**
+	 * Target credential duration is updated by setting new duration value specified by
+	 * {@code duration}
+	 * @param id
+	 * @param duration
+	 * @throws DbConnectionException
+	 */
+	void updateTargetCredentialDuration(long id, long duration) throws DbConnectionException;
 
 	void updateProgressForTargetCredentialWithCompetence(long targetCompId) throws DbConnectionException;
 	
