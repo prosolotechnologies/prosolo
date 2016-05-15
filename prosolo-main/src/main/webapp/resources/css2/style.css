@@ -3,8 +3,8 @@ TABLE OF CONTENTS:
 01. General
 02. Header
 03. Main
-04. Footer
-05. Media Queries
+04. Manager
+05. Footer
 */
 /*---------------------------------------------------------------------*/
 /*--- 01. GENERAL ---*/
@@ -2173,8 +2173,15 @@ header {
   background: url("../images2/iconNotifMention20.svg") no-repeat; }
 
 /*---------------------------------------------------------------------*/
-/*--- 04. FOOTER ---*/
+/*--- 04. MANAGER ---*/
 /*---------------------------------------------------------------------*/
+/* line 2192, style.scss */
+#manage header {
+  background: #3A3C3C; }
+  /* line 2194, style.scss */
+  #manage header #logo {
+    background: url("../images2/logo-manage.svg") no-repeat; }
+
 /*---------------------------------------------------------------------*/
-/*--- 05. MEDIA QUERIES ---*/
+/*--- 05. FOOTER ---*/
 /*---------------------------------------------------------------------*/

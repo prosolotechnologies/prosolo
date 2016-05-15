@@ -5,8 +5,8 @@ TABLE OF CONTENTS:
 01. General
 02. Header
 03. Main
-04. Footer
-05. Media Queries
+04. Manager
+05. Footer
 */
 
 /*---------------------------------------------------------------------*/
@@ -386,7 +386,7 @@ input{
 	&.activityLinksBox,
 	&.activityFilesBox,
 	&.activityResultBox,
-	&.incomingActivity{
+	&.profileNotifications{
 		padding: 0;
 		.innerWrapper{
 			padding: 30px 30px 0 30px;
@@ -1016,7 +1016,7 @@ header{
 				height: 32px;
 				margin-right: 20px;
 				.dropdown-menu{
-					width: 250px;
+					width: 280px;
 					padding-bottom: 0;
 					li{
 						border-bottom: 1px solid #EEEFF3;
@@ -1029,7 +1029,6 @@ header{
 							left: 20px;
 							width: 20px;
 							height: 20px;
-							background: red;
 						}
 						.line01,
 						.line02{
@@ -1048,7 +1047,7 @@ header{
 							}
 						}
 					}
-					.linkAllActivity{
+					.linkAllNotifications{
 						text-align: center;
 						border-bottom: none;
 						a{
@@ -2118,7 +2117,7 @@ header{
 	}
 }
 
-.incomingActivity{
+.profileNotifications{
 	ul{
 		list-style: none;
 		li{
@@ -2135,7 +2134,6 @@ header{
 				display: block;
 				width: 20px;
 				height: 20px;
-				background: red;
 				margin-right: 10px;
 				flex-shrink: 0;
 			}
@@ -2159,14 +2157,50 @@ header{
 	}
 }
 
+.checkLinks{
+	padding-bottom: 30px;
+	span{
+		margin: 0 7px;
+	}
+}
+
+.notifFollowed .icon{
+	background: url("../images2/iconNotifFollowed20.svg") no-repeat;
+}
+
+.notifComment .icon{
+	background: url("../images2/iconNotifComment20.svg") no-repeat;
+}
+
+.notifLikeComment .icon{
+	background: url("../images2/iconNotifLikeComment20.svg") no-repeat;
+}
+
+.notifLearning .icon{
+	background: url("../images2/iconNotifLearning20.svg") no-repeat;
+}
+
+.notifMention .icon{
+	background: url("../images2/iconNotifMention20.svg") no-repeat;
+}
+
 /*---------------------------------------------------------------------*/
-/*--- 04. FOOTER ---*/
+/*--- 04. MANAGER ---*/
+/*---------------------------------------------------------------------*/
+
+#manage{
+	header{
+		background: #3A3C3C;
+		#logo{
+			background: url("../images2/logo-manage.svg") no-repeat;
+		}
+	}
+}
+
+/*---------------------------------------------------------------------*/
+/*--- 05. FOOTER ---*/
 /*---------------------------------------------------------------------*/
 
 footer{
 
 }
-
-/*---------------------------------------------------------------------*/
-/*--- 05. MEDIA QUERIES ---*/
-/*---------------------------------------------------------------------*/
