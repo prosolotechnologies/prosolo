@@ -156,12 +156,13 @@ public class ProfileSettingsBean implements Serializable {
 				eventFactory.generateEvent(EventType.Edit_Profile, loggedUser.getUser());
 			} catch (EventException e) {
 				logger.error(e);
+				PageUtil.fireErrorMessage("Changes are not saved!");
 			}
-			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 
 			initializeAccountData();
 			asyncUpdateUserDataInSocialActivities(accountData);
 		}
+		PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 	}
 
 	public void handleFileUpload(FileUploadEvent event) {
@@ -257,10 +258,10 @@ public class ProfileSettingsBean implements Serializable {
 						}
 
 						MessagesBean messagesBean = (MessagesBean) userSession.getAttribute("messagesBean");
-						
+
 						if (messagesBean != null) {
 							List<MessagesThreadData> messages = messagesBean.getMessagesThreads();
-							
+
 							if (messages != null) {
 								for (MessagesThreadData messageData : messages) {
 									updateUserData(accountData, messageData.getLatest().getActor());
@@ -357,17 +358,17 @@ public class ProfileSettingsBean implements Serializable {
 
 				}
 			}
-		} catch (DbConnectionException e) {
-			PageUtil.fireErrorMessage("Custom error.");
-		}
-
-		if (newSocialNetworkAccountIsAdded) {
-			socialNetworksManager.saveEntity(userSocialNetworks);
-			try {
-				eventFactory.generateEvent(EventType.UpdatedSocialNetworks, loggedUser.getUser());
-			} catch (EventException e) {
-				logger.error(e);
+			if (newSocialNetworkAccountIsAdded) {
+				socialNetworksManager.saveEntity(userSocialNetworks);
+				try {
+					eventFactory.generateEvent(EventType.UpdatedSocialNetworks, loggedUser.getUser());
+				} catch (EventException e) {
+					logger.error(e);
+				}
 			}
+			PageUtil.fireSuccessfulInfoMessage("Social networks updated!");
+		} catch (DbConnectionException e) {
+			PageUtil.fireErrorMessage("There was an error changing profile photo.");
 		}
 
 	}

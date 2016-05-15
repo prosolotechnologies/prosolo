@@ -19,14 +19,17 @@
 		<h:panelGroup id="panelTitle">
 			<h1>Account settings</h1>
 			<ul class="nav nav-tabs headerSubmenu">
-				<li role="presentation" class="active"><h:link
+				<li role="presentation"
+					class="#{util:getPagePath(view.viewId)  == 'settings' ? 'active' : ''}"><h:link
 						onclick="sendLogPageNavigation('settings','mainmenu');"
 						value="Personal info" outcome="/settings" /></li>
-				<li role="presentation" class="active"><h:link
+				<li role="presentation"
+					class="#{util:getPagePath(view.viewId) == 'email' ? 'active' : ''}"><h:link
 						onclick="sendLogPageNavigation('settings/email','mainmenu');"
 						value="Email
 						Notifications" outcome="/settings/email" /></li>
-				<li role="presentation" class="active"><h:link
+				<li role="presentation"
+					class="#{util:getPagePath(view.viewId)  == 'password' ? 'active' : ''}"><h:link
 						onclick="sendLogPageNavigation('settings/password','mainmenu');"
 						value="Change
 						Password" outcome="/settings/password" /></li>
@@ -39,22 +42,20 @@
 
 		<!-- Internal resources -->
 
-		<link rel="stylesheet" type="text/css" media="all"
+		<!--  	<link rel="stylesheet" type="text/css" media="all"
 			href="#{request.contextPath}/resources/css2/bootstrap-tagsinput.css" />
-		<link rel="stylesheet" type="text/css" media="all"
-			href="#{request.contextPath}/resources/css2/awesome-bootstrap-checkbox.css" />
 
 		<script
 			src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
 		<script
-			src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput-angular.min.js"></script>
+			src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput-angular.min.js"></script>  -->
 
 
 		<!-- External resources -->
-		<script
+		<!-- 	<script
 			src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 		<script src="https://use.typekit.net/zvv0dgl.js"></script>
-		<script>try{Typekit.load({ async: true });}catch(e){}</script>
+		<script>try{Typekit.load({ async: true });}catch(e){}</script>  -->
 
 		<div class="whiteBar"></div>
 
@@ -63,75 +64,97 @@
 				<div class="col-md-12">
 					<div class="whiteBox settingsEmailNotifications">
 						<h2>Email me when:</h2>
-						<div class="checkbox checkLine">
-							<input type="checkbox" id="emailNotification01" checked="" /> <label
-								for="emailNotification01">Somebody requested to join my
-								learning goal</label>
-						</div>
-						<div class="checkbox checkLine">
-							<input type="checkbox" id="emailNotification02" checked="" /> <label
-								for="emailNotification02">My request to join someone
-								else's learning goal has been accepted</label>
-						</div>
-						<div class="checkbox checkLine">
-							<input type="checkbox" id="emailNotification03" checked="" /> <label
-								for="emailNotification03">My request to join someone
-								else's learning goal has been denied</label>
-						</div>
-						<div class="checkbox checkLine">
-							<input type="checkbox" id="emailNotification04" checked="" /> <label
-								for="emailNotification04">I’m invited to join someone
-								else's learning goal</label>
-						</div>
-						<div class="checkbox checkLine">
-							<input type="checkbox" id="emailNotification05" checked="" /> <label
-								for="emailNotification05">My invitation to someone to
-								join my learning goal has been accepted</label>
-						</div>
-						<div class="checkbox checkLine">
-							<input type="checkbox" id="emailNotification06" checked="" /> <label
-								for="emailNotification06">Somebody sent me a request for
-								an assessment</label>
-						</div>
-						<div class="checkbox checkLine">
-							<input type="checkbox" id="emailNotification07" checked="" /> <label
-								for="emailNotification07">My request for an assessment
-								has been accepted</label>
-						</div>
-						<div class="checkbox checkLine">
-							<input type="checkbox" id="emailNotification08" checked="" /> <label
-								for="emailNotification08">A new assessment has been
-								given to me</label>
-						</div>
-						<div class="checkbox checkLine">
-							<input type="checkbox" id="emailNotification09" checked="" /> <label
-								for="emailNotification09">Somebody started following me</label>
-						</div>
-						<div class="checkbox checkLine">
-							<input type="checkbox" id="emailNotification10" checked="" /> <label
-								for="emailNotification10">New activity report is
-								available</label>
-						</div>
-						<div class="checkbox checkLine">
-							<input type="checkbox" id="emailNotification11" checked="" /> <label
-								for="emailNotification11">My activity on Status Wall or
-								in my competence has been commented on</label>
-						</div>
-						<div class="checkbox checkLine">
-							<input type="checkbox" id="emailNotification12" checked="" /> <label
-								for="emailNotification12">My post on Status Wall or
-								activity in my competence has been liked</label>
-						</div>
-						<div class="checkbox checkLine">
-							<input type="checkbox" id="emailNotification13" checked="" /> <label
-								for="emailNotification13">My post on Status Wall or
-								activity in my competence has been disliked</label>
-						</div>
-						<div class="checkbox checkLine">
-							<input type="checkbox" id="emailNotification14" checked="" /> <label
-								for="emailNotification14">I’m mentioned in a post</label>
-						</div>
-						<a href="#" class="btn btn-green">Save Changes</a>
+
+						<h:form id="emailNotificationsSettingsForm">
+							<p:growl id="emailNotificationsSettingsFormGrowl"
+								showDetail="true" />
+							<ui:repeat
+								value="#{notificationsSettingsBean.notificationsSettings.settings}"
+								var="notificationSettings">
+								<div class="checkbox checkLine">
+									<h:selectBooleanCheckbox id="notificationSettings"
+										value="#{notificationSettings.subscribedEmail}" />
+									<h:outputLabel for="notificationSettings"
+										value="#{msg['settings.notifications.'.concat(notificationSettings.type.name())]}">
+									</h:outputLabel>
+								</div>
+							</ui:repeat>
+							<p:commandLink styleClass="btn btn-green" value="Save changed"
+							process=""
+								action="#{notificationsSettingsBean.saveChanges}"
+								update=":emailNotificationsSettingsForm" />
+						</h:form>
+						<ui:remove>
+							<div class="checkbox checkLine">
+								<input type="checkbox" id="emailNotification01" checked="" /> <label
+									for="emailNotification01">Somebody requested to join my
+									learning goal</label>
+							</div>
+							<div class="checkbox checkLine">
+								<input type="checkbox" id="emailNotification02" checked="" /> <label
+									for="emailNotification02">My request to join someone
+									else's learning goal has been accepted</label>
+							</div>
+							<div class="checkbox checkLine">
+								<input type="checkbox" id="emailNotification03" checked="" /> <label
+									for="emailNotification03">My request to join someone
+									else's learning goal has been denied</label>
+							</div>
+							<div class="checkbox checkLine">
+								<input type="checkbox" id="emailNotification04" checked="" /> <label
+									for="emailNotification04">I’m invited to join someone
+									else's learning goal</label>
+							</div>
+							<div class="checkbox checkLine">
+								<input type="checkbox" id="emailNotification05" checked="" /> <label
+									for="emailNotification05">My invitation to someone to
+									join my learning goal has been accepted</label>
+							</div>
+							<div class="checkbox checkLine">
+								<input type="checkbox" id="emailNotification06" checked="" /> <label
+									for="emailNotification06">Somebody sent me a request
+									for an assessment</label>
+							</div>
+							<div class="checkbox checkLine">
+								<input type="checkbox" id="emailNotification07" checked="" /> <label
+									for="emailNotification07">My request for an assessment
+									has been accepted</label>
+							</div>
+							<div class="checkbox checkLine">
+								<input type="checkbox" id="emailNotification08" checked="" /> <label
+									for="emailNotification08">A new assessment has been
+									given to me</label>
+							</div>
+							<div class="checkbox checkLine">
+								<input type="checkbox" id="emailNotification09" checked="" /> <label
+									for="emailNotification09">Somebody started following me</label>
+							</div>
+							<div class="checkbox checkLine">
+								<input type="checkbox" id="emailNotification10" checked="" /> <label
+									for="emailNotification10">New activity report is
+									available</label>
+							</div>
+							<div class="checkbox checkLine">
+								<input type="checkbox" id="emailNotification11" checked="" /> <label
+									for="emailNotification11">My activity on Status Wall or
+									in my competence has been commented on</label>
+							</div>
+							<div class="checkbox checkLine">
+								<input type="checkbox" id="emailNotification12" checked="" /> <label
+									for="emailNotification12">My post on Status Wall or
+									activity in my competence has been liked</label>
+							</div>
+							<div class="checkbox checkLine">
+								<input type="checkbox" id="emailNotification13" checked="" /> <label
+									for="emailNotification13">My post on Status Wall or
+									activity in my competence has been disliked</label>
+							</div>
+							<div class="checkbox checkLine">
+								<input type="checkbox" id="emailNotification14" checked="" /> <label
+									for="emailNotification14">I’m mentioned in a post</label>
+							</div>
+							<a href="#" class="btn btn-green">Save Changes</a>
+						</ui:remove>
 					</div>
 				</div>
 			</div>

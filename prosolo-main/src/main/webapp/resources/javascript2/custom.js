@@ -84,3 +84,11 @@ function hideLoader(comp) {
 	loaderContainer.hide();
 	loaderContainer.empty();
 };
+
+function roundImages(){ //needed as a separate function because of a partial page reload
+	$('img.imageRound').each(function() {
+		var imgClass = $(this).attr('class');
+		$(this).wrap('<span class="image-wrap ' + imgClass + '" style="width: auto; height: auto;"/>');
+		$(this).removeAttr('class');
+	});
+};
