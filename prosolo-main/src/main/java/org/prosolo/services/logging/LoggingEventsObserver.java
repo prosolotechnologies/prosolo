@@ -48,82 +48,87 @@ public class LoggingEventsObserver extends EventObserver {
 		String objectType = "";
 		long objectId = 0;
 		String objectTitle = "";
-
-		//adding for migration to new context approach
-		LearningContext learningContext = contextJsonParserService.
-				parseCustomContextString(event.getPage(), event.getContext(), event.getService());
 		
-		BaseEntity object = event.getObject();
-		if (object != null) {
-			object = HibernateUtil.initializeAndUnproxy(object);
+		try {
+			//adding for migration to new context approach
+			LearningContext learningContext = contextJsonParserService.
+					parseCustomContextString(event.getPage(), event.getContext(), event.getService());
 			
-			objectType = object.getClass().getSimpleName();
-			objectId = object.getId();
-			objectTitle = object.getTitle();
-		} else {
-			Map<String, String> params = event.getParameters();
-			if(params != null) {
-				objectType = event.getParameters().get("objectType");
-			}
-		}
-
-		String targetType = "";
-		long targetId = 0;
-
-		BaseEntity target = event.getTarget();
-		if (target != null) {
-			target = HibernateUtil.initializeAndUnproxy(target);
-			
-			targetType = target.getClass().getSimpleName();
-			targetId = target.getId();
-		}
-
-		String reasonType = "";
-		long reasonId = 0;
-
-		if (event.getReason() != null) {
-			reasonType = event.getReason().getClass().getSimpleName();
-			reasonId = event.getReason().getId();
-		}
-		
-		String ipAddress = null;
-		
-		Map<String, String> params = event.getParameters();
-		if(params != null && params.containsKey("ip")) {
-			ipAddress = event.getParameters().get("ip");
-		} else if (event.getActor() != null) {
-			HttpSession httpSession = applicationBean.getUserSession(event
-					.getActor().getId());
-			
-
-			if (httpSession != null) {
-				LoggedUserBean loggedUserBean = (LoggedUserBean) httpSession
-						.getAttribute("loggeduser");
+			BaseEntity object = event.getObject();
+			if (object != null) {
+				object = HibernateUtil.initializeAndUnproxy(object);
 				
-				if(loggedUserBean != null) {
-					if(!loggedUserBean.isInitialized()) {
-						loggedUserBean.initializeSessionData(httpSession);
-					}
-				
-					//LoggedUserBean loggedUserBean = ServiceLocator.getInstance().getService(LoggedUserBean.class);
-					ipAddress = loggedUserBean.getIpAddress();
-				} else {
-					Map<String, Object> userData = (Map<String, Object>) httpSession.getAttribute("user");
-					if(userData != null){
-						ipAddress = (String) userData.get("ipAddress");
-					}
+				objectType = object.getClass().getSimpleName();
+				objectId = object.getId();
+				objectTitle = object.getTitle();
+			} else {
+				Map<String, String> params = event.getParameters();
+				if(params != null) {
+					objectType = event.getParameters().get("objectType");
 				}
 			}
-		} else {
-			logger.debug("Event without actor:"+event.getAction().name()+" "+event.getObject().getClass().getName());
-		}
-
-		try {
-			loggingService.logEventObserved(event.getAction(), event.getActor(),
-					objectType, objectId, objectTitle, targetType, targetId,
-					reasonType, reasonId, event.getParameters(), ipAddress, learningContext);
-		} catch (LoggingException e) {
+	
+			String targetType = "";
+			long targetId = 0;
+	
+			BaseEntity target = event.getTarget();
+			if (target != null) {
+				target = HibernateUtil.initializeAndUnproxy(target);
+				
+				targetType = target.getClass().getSimpleName();
+				targetId = target.getId();
+			}
+	
+			String reasonType = "";
+			long reasonId = 0;
+	
+			if (event.getReason() != null) {
+				reasonType = event.getReason().getClass().getSimpleName();
+				reasonId = event.getReason().getId();
+			}
+			
+			String ipAddress = null;
+			
+			Map<String, String> params = event.getParameters();
+			if(params != null && params.containsKey("ip")) {
+				ipAddress = event.getParameters().get("ip");
+			} else if (event.getActor() != null) {
+				HttpSession httpSession = applicationBean.getUserSession(event
+						.getActor().getId());
+				
+	
+				if (httpSession != null) {
+					LoggedUserBean loggedUserBean = (LoggedUserBean) httpSession
+							.getAttribute("loggeduser");
+					
+					if(loggedUserBean != null) {
+						if(!loggedUserBean.isInitialized()) {
+							loggedUserBean.initializeSessionData(httpSession);
+						}
+					
+						//LoggedUserBean loggedUserBean = ServiceLocator.getInstance().getService(LoggedUserBean.class);
+						ipAddress = loggedUserBean.getIpAddress();
+					} else {
+						Map<String, Object> userData = (Map<String, Object>) httpSession.getAttribute("user");
+						if(userData != null){
+							ipAddress = (String) userData.get("ipAddress");
+						}
+					}
+				}
+			} else {
+				logger.debug("Event without actor:"+event.getAction().name()+" "+event.getObject().getClass().getName());
+			}
+	
+			try {
+				loggingService.logEventObserved(event.getAction(), event.getActor(),
+						objectType, objectId, objectTitle, targetType, targetId,
+						reasonType, reasonId, event.getParameters(), ipAddress, learningContext);
+			} catch (LoggingException e) {
+				logger.error(e);
+			}
+		} catch(Exception e) {
 			logger.error(e);
+			e.printStackTrace();
 		}
 	}
 

@@ -96,5 +96,7 @@ public interface Activity1Manager {
 	
 	void updateTargetActivitiesWithChangedData(long actId, ActivityChangeTracker changeTracker) 
 			throws DbConnectionException;
+	
+	Long getCompetenceIdForActivity(long actId) throws DbConnectionException;
 
 }

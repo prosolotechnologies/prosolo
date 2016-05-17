@@ -30,6 +30,8 @@
 		href="#{request.contextPath}/resources/css2/bootstrap-select.css" />
 	<link rel="stylesheet" type="text/css" media="all"
 		href="#{request.contextPath}/resources/css2/style.css?#{applicationbean.loginTime}" />
+	<link rel="stylesheet" type="text/css" media="all"
+		href="#{request.contextPath}/resources/css2/dropdowns-enhancement.css?#{applicationbean.loginTime}" />
 
 	<script
 		src="#{request.contextPath}/resources/javascript/prosolo.logging.js"></script>
@@ -40,6 +42,8 @@
 		src="#{request.contextPath}/resources/javascript2/bootstrap-select.min.js"></script>
 	<script
 		src="#{request.contextPath}/resources/javascript2/custom.js?#{applicationbean.loginTime}"></script>
+	<script
+		src="#{request.contextPath}/resources/javascript2/dropdowns-enhancement.js"></script>
 </h:head>
 
 <h:body>
@@ -82,8 +86,50 @@
 						</ul>
 					</div>
 					<a class="iconMessages active" href="#">Messages<span
-						class="unreadDot">unreadDot</span></a> <a class="iconNotifications"
-						href="#">Notifications</a>
+						class="unreadDot">unreadDot</span></a> 
+					<div class="dropdown notificationsMenu">
+                        <a class="iconNotifications" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">Notifications</a>
+                        <ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenuNotifications">
+                            <li class="notifFollowed">
+                                <div class="line01">
+                                    <span class="icon"></span>
+                                    <a href="#">Gustavo Fring</a> followed you
+                                </div>
+                                <div class="line02">5 minutes ago</div>
+                            </li>
+                            <li class="notifComment">
+                                <div class="line01">
+                                    <span class="icon"></span>
+                                    <a href="#">Gustavo Fring</a> commented on <a href="#">Define social network analysis</a>
+                                </div>
+                                <div class="line02">Yesterday</div>
+                            </li>
+                            <li class="notifLikeComment">
+                                <div class="line01">
+                                    <span class="icon"></span>
+                                    <a href="#">Gustavo Fring</a> liked a comment on <a href="#">Define social network analysis</a>
+                                </div>
+                                <div class="line02">Yesterday</div>
+                            </li>
+                            <li class="notifLearning">
+                                <div class="line01">
+                                    <span class="icon"></span>
+                                    <a href="#">Gustavo Fring</a> started learning <a href="#">Define social network analysis</a>
+                                </div>
+                                <div class="line02">Yesterday</div>
+                            </li>
+                            <li class="notifMention">
+                                <div class="line01">
+                                    <span class="icon"></span>
+                                    <a href="#">Gustavo Fring</a> mentioned you on <a href="#">Define social network analysis</a>
+                                </div>
+                                <div class="line02">Yesterday</div>
+                            </li>
+                            <li class="linkAllNotifications">
+                            	<h:link outcome="/profile-notifications" value="View all"/>
+                            </li>
+                        </ul>
+                    </div>
 					<h:form>
 						<div class="dropdown userMenu">
 							<a data-toggle="dropdown" aria-haspopup="true"

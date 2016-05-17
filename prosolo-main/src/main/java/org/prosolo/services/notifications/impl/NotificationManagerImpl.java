@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.inject.Inject;
 import javax.mail.MessagingException;
@@ -16,35 +17,24 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.prosolo.app.Settings;
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activities.requests.Request;
 import org.prosolo.common.domainmodel.activities.requests.RequestStatus;
-import org.prosolo.common.domainmodel.activitywall.SocialActivity;
-import org.prosolo.common.domainmodel.activitywall.comments.Comment;
-import org.prosolo.common.domainmodel.content.Post;
-import org.prosolo.common.domainmodel.evaluation.Evaluation;
-import org.prosolo.common.domainmodel.evaluation.EvaluationSubmission;
-import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.notifications.CommentNotification;
-import org.prosolo.common.domainmodel.user.notifications.EvaluationNotification;
-import org.prosolo.common.domainmodel.user.notifications.EvaluationSubmissionNotification;
 import org.prosolo.common.domainmodel.user.notifications.Notification;
+import org.prosolo.common.domainmodel.user.notifications.Notification1;
 import org.prosolo.common.domainmodel.user.notifications.NotificationAction;
-import org.prosolo.common.domainmodel.user.notifications.PostNotification;
-import org.prosolo.common.domainmodel.user.notifications.RequestNotification;
-import org.prosolo.common.domainmodel.user.notifications.SActivityNotification;
-import org.prosolo.common.domainmodel.user.reminders.PersonalCalendar;
+import org.prosolo.common.domainmodel.user.notifications.NotificationType;
+import org.prosolo.common.domainmodel.user.notifications.ObjectType;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.reminders.dal.PersonalCalendarManager;
 import org.prosolo.services.email.EmailSender;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.emailgenerators.NotificationEmailContentGenerator;
-import org.prosolo.services.notifications.util.RequestTypeToNotificationActionMapping;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.prosolo.services.notifications.emailgenerators.NotificationEmailContentGenerator1;
+import org.prosolo.services.notifications.eventprocessing.data.NotificationData;
+import org.prosolo.services.notifications.factory.NotificationDataFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service("org.prosolo.services.notifications.NotificationManager")
@@ -54,7 +44,8 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 	
 	private static Logger logger = Logger.getLogger(NotificationManager.class);
 	
-	private @Autowired PersonalCalendarManager calendarManager;
+	@Inject
+	private NotificationDataFactory notificationDataFactory;
 	@Inject
 	private EmailSender emailSender;
  	
@@ -193,64 +184,64 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 		}
 		return successful;
 	}
-	private Notification createNotificationForResource(BaseEntity resource){
-		Notification notification = null;
-		
-		if (resource instanceof Request) {
-			notification = new RequestNotification();
-			((RequestNotification) notification).setRequest((Request) resource);
-		} else if (resource instanceof EvaluationSubmission) {
-			notification = new EvaluationSubmissionNotification();
-			((EvaluationSubmissionNotification) notification).setEvaluationSubmission((EvaluationSubmission) resource);
-		} else if (resource instanceof Evaluation) {
-			notification = new EvaluationNotification();
-			((EvaluationNotification) notification).setEvaluation((Evaluation) resource);
-		} else if (resource instanceof Comment) {
-			notification = new CommentNotification();
-			((CommentNotification) notification).setComment((Comment) resource);
-		} else if (resource instanceof SocialActivity) {
-			notification = new SActivityNotification();
-			((SActivityNotification) notification).setSocialActivity((SocialActivity) resource);
-		} else if (resource instanceof Post) {
-			notification = new PostNotification();
-			((PostNotification) notification).setPost((Post) resource);
-		} else {
-			notification = new Notification();
-		}
-		
-		return notification;
-	}
+//	private Notification createNotificationForResource(BaseEntity resource){
+//		Notification notification = null;
+//		
+//		if (resource instanceof Request) {
+//			notification = new RequestNotification();
+//			((RequestNotification) notification).setRequest((Request) resource);
+//		} else if (resource instanceof EvaluationSubmission) {
+//			notification = new EvaluationSubmissionNotification();
+//			((EvaluationSubmissionNotification) notification).setEvaluationSubmission((EvaluationSubmission) resource);
+//		} else if (resource instanceof Evaluation) {
+//			notification = new EvaluationNotification();
+//			((EvaluationNotification) notification).setEvaluation((Evaluation) resource);
+//		} else if (resource instanceof Comment1) {
+//			notification = new CommentNotification();
+//			((CommentNotification) notification).setComment((Comment1) resource);
+//		} else if (resource instanceof SocialActivity) {
+//			notification = new SActivityNotification();
+//			((SActivityNotification) notification).setSocialActivity((SocialActivity) resource);
+//		} else if (resource instanceof Post) {
+//			notification = new PostNotification();
+//			((PostNotification) notification).setPost((Post) resource);
+//		} else {
+//			notification = new Notification();
+//		}
+//		
+//		return notification;
+//	}
 	
-	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-	public Notification createNotification(BaseEntity resource, User creator, 
-			User receiver, EventType type, String message, Date date, boolean notifyByUI, 
-			boolean notifyByEmail, Session session) {
-
-		Notification notification = createNotificationForResource(resource);
-		notification.setNotifyByUI(notifyByUI);
-		notification.setNotifyByEmail(notifyByEmail);
-		notification.setDateCreated(date);
-		notification.setUpdated(date);
-		notification.setMessage(message);
-		notification.setActor(creator);
-		notification.setReceiver(receiver);
-		notification.setRead(false);
-		notification.setType(type);
-		notification.setActions(RequestTypeToNotificationActionMapping.getNotificationActions(type));
-		notification.setActinable(!notification.getActions().isEmpty());;
-		session.save(notification);
-		
-		receiver = (User) session.merge(receiver);
-		
-		PersonalCalendar pCalendar = calendarManager.getOrCreateCalendar(receiver, session);
-		pCalendar=(PersonalCalendar) session.merge(pCalendar);
-		pCalendar.addNotification(notification);
-		session.saveOrUpdate(pCalendar);
-
-		session.flush();
-		return notification;
-	}
+//	@Override
+//	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+//	public Notification createNotification(BaseEntity resource, User creator, 
+//			User receiver, EventType type, String message, Date date, boolean notifyByUI, 
+//			boolean notifyByEmail, Session session) {
+//
+//		Notification notification = createNotificationForResource(resource);
+//		notification.setNotifyByUI(notifyByUI);
+//		notification.setNotifyByEmail(notifyByEmail);
+//		notification.setDateCreated(date);
+//		notification.setUpdated(date);
+//		notification.setMessage(message);
+//		notification.setActor(creator);
+//		notification.setReceiver(receiver);
+//		notification.setRead(false);
+//		notification.setType(type);
+//		notification.setActions(RequestTypeToNotificationActionMapping.getNotificationActions(type));
+//		notification.setActinable(!notification.getActions().isEmpty());;
+//		session.save(notification);
+//		
+//		receiver = (User) session.merge(receiver);
+//		
+//		PersonalCalendar pCalendar = calendarManager.getOrCreateCalendar(receiver, session);
+//		pCalendar=(PersonalCalendar) session.merge(pCalendar);
+//		pCalendar.addNotification(notification);
+//		session.saveOrUpdate(pCalendar);
+//
+//		session.flush();
+//		return notification;
+//	}
 	
 	@Override
 	public Notification markNotificationStatus(long notificationId, NotificationAction status) throws ResourceCouldNotBeLoadedException {
@@ -292,7 +283,7 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 				link = Settings.getInstance().config.application.domain + "communications/notifications";
 			}
 			
-			NotificationEmailContentGenerator generator = new NotificationEmailContentGenerator(receiverName, actor, 
+			NotificationEmailContentGenerator1 generator = new NotificationEmailContentGenerator1(receiverName, actor, 
 					notificationType, notificationShortType, resourceTitle, message, date, link);
 			
 			emailSender.sendEmail(generator,  email, "ProSolo Notification");
@@ -311,6 +302,202 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 			logger.error(e);
 		}
 		return false;
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public Notification1 createNotification(long actorId, 
+			long receiverId, NotificationType type, Date date, 
+			long objectId, ObjectType objectType, String link,
+			boolean notifyByEmail, Session session) throws DbConnectionException {
+		try {
+			User actor = (User) persistence.currentManager().load(User.class, actorId);
+			User receiver = (User) persistence.currentManager().load(User.class, receiverId);
+			Notification1 notification = new Notification1();
+			notification.setNotifyByEmail(notifyByEmail);
+			notification.setDateCreated(date);
+			notification.setActor(actor);
+			notification.setReceiver(receiver);
+			notification.setRead(false);
+			notification.setType(type);
+			notification.setObjectId(objectId);
+			notification.setObjectType(objectType);
+			notification.setLink(link);
+			session.save(notification);
+			
+			return notification;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while saving notification");
+		}
+	}
+	
+	@Override
+	@Transactional (readOnly = true)
+	public List<NotificationData> getNotificationsForUser(long userId, int page, int limit, 
+			List<NotificationType> typesToInclude, Locale locale) throws DbConnectionException {
+		try {
+			boolean shouldFilterTypes = typesToInclude != null && !typesToInclude.isEmpty();
+			StringBuilder queryBuilder = new StringBuilder();
+			queryBuilder.append("SELECT DISTINCT notification " +
+								"FROM Notification1 notification " +
+								"INNER JOIN FETCH notification.actor actor " +
+								"WHERE notification.receiver.id = :userId ");
+			if(shouldFilterTypes) {
+				queryBuilder.append("AND notification.type IN (:types) ");
+			}
+			queryBuilder.append("ORDER BY notification.dateCreated DESC");
+		  	
+			Query q = persistence.currentManager().createQuery(queryBuilder.toString())
+			  	.setLong("userId", userId);
+			
+			if(shouldFilterTypes) {
+				q.setParameterList("types", typesToInclude);
+			}
+			if(limit != 0) {
+				q.setFirstResult(page * limit)
+				 .setMaxResults(limit);
+			}
+			
+			@SuppressWarnings("unchecked")
+			List<Notification1> result = q.list();
+		  	
+			List<NotificationData> notificationData = new ArrayList<>();
+		  	if (result != null) {
+		  		for(Notification1 notification : result) {
+		  			String objectTitle = null;
+		  			if(notification.getObjectId() > 0) {
+			  			objectTitle = getObjectTitle(notification.getObjectId(), 
+			  					notification.getObjectType(), persistence.currentManager());
+		  			}
+		  			NotificationData nd = notificationDataFactory.getNotificationData(notification, 
+		  					objectTitle, locale);
+		  			notificationData.add(nd);
+		  		}
+		  	}
+		  	return notificationData;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving notifications");
+		}
+	}
+	
+	@Override
+	@Transactional (readOnly = true)
+	public NotificationData getNotificationData(long notificationId, Locale locale) 
+			throws DbConnectionException {
+		return getNotificationData(notificationId, persistence.currentManager(), locale);
+	}
+	
+	@Override
+	@Transactional (readOnly = true)
+	public NotificationData getNotificationData(long notificationId, Session session, Locale locale) 
+			throws DbConnectionException {
+		String query=
+			"SELECT notification " +
+			"FROM Notification1 notification " +
+			"INNER JOIN FETCH notification.actor actor " +
+			"WHERE notification.id = :id";
+	  	
+		Notification1 result = (Notification1) session
+			.createQuery(query)
+		  	.setLong("id", notificationId)
+	  		.uniqueResult();
+	  	
+	  	return getNotificationData(result, session, locale);
+	}
+	
+	@Override
+	@Transactional (readOnly = true)
+	public NotificationData getNotificationData(Notification1 notification, Session session, Locale locale) 
+			throws DbConnectionException {
+		try {
+		  	if (notification != null) {
+		  		String objectTitle = null;
+	  			if(notification.getObjectId() > 0) {
+	  				objectTitle = getObjectTitle(notification.getObjectId(), 
+	  					notification.getObjectType(), session);
+	  			}
+	  			return notificationDataFactory.getNotificationData(notification, 
+	  					objectTitle, locale);
+		  	}
+		  	return null;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving notification data");
+		}
+	}
+
+	private String getObjectTitle(long objectId, ObjectType objectType, Session session) {
+		String query = "SELECT obj.title " +
+					   "FROM " + objectType.getDbTableName() + " obj " +
+					   "WHERE obj.id = :id";
+		
+		String title = (String) session
+				.createQuery(query)
+				.setLong("id", objectId)
+				.uniqueResult();
+		
+		return title;
+	}
+	
+	@Override
+	public boolean sendNotificationByEmail(String email, String receiverName, String actor, 
+			String predicate, String objectTitle, String link, String date) {
+		email = email.toLowerCase();
+		
+		try {
+			NotificationEmailContentGenerator generator = new NotificationEmailContentGenerator(
+					receiverName, actor, predicate, objectTitle, date, link);
+			
+			emailSender.sendEmail(generator,  email, "ProSolo Notification");
+			return true;
+		} catch (AddressException e) {
+			logger.error(e);
+		} catch (MessagingException e) {
+			logger.error(e);
+		} catch (UnsupportedEncodingException e) {
+			logger.error(e);
+		} catch (FileNotFoundException e) {
+			logger.error(e);
+		} catch (IOException e) {
+			logger.error(e);
+		} catch(Exception e) {
+			logger.error(e);
+		}
+		return false;
+	}
+	
+	@Override
+	@Transactional (readOnly = true)
+	public int getNumberOfNotificationsForUser(long userId, List<NotificationType> types) 
+			throws DbConnectionException {
+		try {
+			StringBuilder queryBuilder = new StringBuilder();
+		    queryBuilder.append("SELECT cast(COUNT(notification.id) as int) " +
+							    "FROM Notification1 notification " +
+								"WHERE notification.receiver.id = :userId ");
+		    
+		    if(types != null && !types.isEmpty()) {
+		    	queryBuilder.append("AND notification.type IN (:types)");
+		    }
+			
+			Query q = persistence.currentManager().createQuery(queryBuilder.toString())
+			  	.setLong("userId", userId);
+			if(types != null && !types.isEmpty()) {
+				q.setParameterList("types", types);
+			}
+			
+			Integer resNumber = (Integer) q.uniqueResult();
+		  	return resNumber;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving notification data");
+		}
 	}
 	
 }

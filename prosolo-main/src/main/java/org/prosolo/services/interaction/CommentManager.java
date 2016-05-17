@@ -54,5 +54,11 @@ public interface CommentManager {
 	
 	void updateComment(CommentData data, long userId, LearningContextData context) 
 			throws DbConnectionException;
+	
+	List<Long> getIdsOfUsersThatCommentedResource(CommentedResourceType resourceType, long resourceId, 
+			List<Long> usersToExclude) throws DbConnectionException;
+	
+	Long getCommentedResourceCreatorId(CommentedResourceType resourceType, long resourceId) 
+			throws DbConnectionException;
 
 }

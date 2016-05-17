@@ -13,6 +13,7 @@ public enum EventType {
 	AddNote,
 	PostShare,
 	Comment, 
+	Comment_Reply,
 	Tag, 
 	Attach,
 	AttachAll,

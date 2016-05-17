@@ -1,4 +1,4 @@
-package org.prosolo.services.notifications.eventprocessing;
+package org.prosolo.services.notifications.eventprocessing.deprecated;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +12,7 @@ import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.notifications.NotificationManager;
 
+@Deprecated
 public class FollowEventProcessor extends NotificationEventProcessor {
 	
 	private static Logger logger = Logger.getLogger(FollowEventProcessor.class);

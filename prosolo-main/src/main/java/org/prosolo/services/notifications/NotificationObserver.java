@@ -13,7 +13,7 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.notifications.Notification;
+import org.prosolo.common.domainmodel.user.notifications.Notification1;
 import org.prosolo.common.messaging.data.ServiceType;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.event.CentralEventDispatcher;
@@ -24,9 +24,8 @@ import org.prosolo.services.messaging.SessionMessageDistributer;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.notifications.eventprocessing.NotificationEventProcessor;
 import org.prosolo.services.notifications.eventprocessing.NotificationEventProcessorFactory;
+import org.prosolo.services.notifications.eventprocessing.data.NotificationData;
 import org.prosolo.web.ApplicationBean;
-import org.prosolo.web.notification.data.NotificationData;
-import org.prosolo.web.notification.util.NotificationDataConverter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
@@ -63,6 +62,7 @@ public class NotificationObserver extends EventObserver {
 				EventType.Follow,
 				EventType.ACTIVITY_REPORT_AVAILABLE,
 				EventType.Comment,
+				EventType.Comment_Reply,
 				EventType.Like,
 				EventType.Dislike,
 				EventType.Post,
@@ -80,78 +80,57 @@ public class NotificationObserver extends EventObserver {
 		try {
 			NotificationEventProcessor processor = notificationEventProcessorFactory
 					.getNotificationEventProcessor(event, session);
-			List<Notification> notifications = processor.getNotificationList();
+			List<Notification1> notifications = processor.getNotificationList();
 			// make sure all data is persisted to the database
 			session.flush();
 			
 			
 			/*
-			 * After all notifications have been generated, them to their
+			 * After all notifications have been generated, send them to their
 			 * receivers. If those users are logged in, their notification cache
 			 * will be updated with these new notifications.
 			 */
 			if (!notifications.isEmpty()) {
 				
-				for (Notification notification : notifications) {
-					if(notification.isNotifyByUI()) {
-						if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
-							messageDistributer.distributeMessage(
-									ServiceType.ADD_NOTIFICATION, 
-									notification.getReceiver().getId(),
-									notification.getId(), 
-									null, 
-									null);
-						} else {
-							HttpSession httpSession = applicationBean.getUserSession(notification.getReceiver().getId());
-							
-							notificationCacheUpdater.updateNotificationData(
-									notification.getId(), 
-									httpSession, 
-									session);
-						}
-					} 
-					
+				for (Notification1 notification : notifications) {					
+					if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
+						messageDistributer.distributeMessage(
+								ServiceType.ADD_NOTIFICATION, 
+								notification.getReceiver().getId(),
+								notification.getId(), 
+								null, 
+								null);
+					} else {
+						HttpSession httpSession = applicationBean.getUserSession(notification.getReceiver().getId());
+						
+						notificationCacheUpdater.updateNotificationData(
+								notification.getId(), 
+								httpSession, 
+								session);
+					}
+				 				
 					if (notification.isNotifyByEmail() && CommonSettings.getInstance().config.emailNotifier.activated) {
 						try {
 							User receiver = notification.getReceiver();
 							UserSettings userSettings = interfaceSettingsManager.
 									getOrCreateUserSettings(receiver, session);
 							Locale locale = getLocale(userSettings);
-							NotificationData notificationData = NotificationDataConverter.convertNotification(
-									receiver, 
-									notification, 
-									session, 
-									locale);
+						    NotificationData notificationData = notificationManager
+						    		.getNotificationData(notification, session, locale);
 							
-							String resourceTitle = null;
-							String resourceShortType = null;
-							
-							if(notificationData.getResource() != null) {
-								resourceTitle = notificationData.getResource().getTitle();
-								resourceShortType = notificationData.getResource().getShortType();
-							}
-							
-							final String resTitle = resourceTitle;
-							final String resShortType = resourceShortType;
 							final String email = receiver.getEmail();
 							taskExecutor.execute(new Runnable() {
 								@Override
 								public void run() {
-									notificationManager.sendNotificationByEmail(
-											email, 
+									notificationManager.sendNotificationByEmail(email, 
 											receiver.getName(), 
-											notificationData.getActor().getName(), 
-											notificationData.getType(), 
-											resShortType, 
-											resTitle, 
-											notificationData.getMessage(), 
-											notificationData.getDate(), 
-											notification.isNotifyByUI());
+											notificationData.getActor().getFullName(), 
+											notificationData.getPredicate(),
+											notificationData.getObjectTitle(),
+											notificationData.getLink(),
+											notificationData.getDate());
 								}
 							});
-							
-							
-							
 						} catch (Exception e) {
 							logger.error(e);
 							e.printStackTrace();
