@@ -27,6 +27,7 @@ import org.prosolo.common.domainmodel.user.User;
 @Entity
 //@Table(name="user_Notification")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@Deprecated
 public class Notification extends BaseEntity { 
 
 	private static final long serialVersionUID = -7422502818042864822L;

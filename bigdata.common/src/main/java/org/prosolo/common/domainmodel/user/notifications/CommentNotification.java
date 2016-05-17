@@ -12,6 +12,7 @@ import org.prosolo.common.domainmodel.activitywall.comments.Comment;
  */
 @Entity
 @DiscriminatorValue("CommentNotification")
+@Deprecated
 public class CommentNotification extends Notification {
 	
 	private static final long serialVersionUID = 7450319370700629949L;

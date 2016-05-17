@@ -52,7 +52,7 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 			UserNotificationsSettings notificationsSettings = new UserNotificationsSettings();
 			notificationsSettings.setUser(user);
 			
-			notificationsSettings.setNotificationsSettings(getDefaultSubscribedEventTypes());
+			notificationsSettings.setNotifications(getDefaultSubscribedEventTypes());
 			
 			//this.persistence.save(notificationsSettings);
 			session.saveOrUpdate(notificationsSettings);
@@ -81,7 +81,7 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 	@Transactional (readOnly = false)
 	public UserNotificationsSettings updateNotificationSettings(UserNotificationsSettings notificationsSettings, UserNotificationSettingsData notificationsSettingsData) {
 		Iterator<NotificationSettingsData> notDataIterator = notificationsSettingsData.getSettings().iterator();
-		Iterator<NotificationSettings> notIterator = notificationsSettings.getNotificationsSettings().iterator();
+		Iterator<NotificationSettings> notIterator = notificationsSettings.getNotifications().iterator();
 		
 		while (notDataIterator.hasNext()) {
 			NotificationSettingsData notificationSettingsData = (NotificationSettingsData) notDataIterator.next();

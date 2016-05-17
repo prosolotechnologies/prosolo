@@ -17,33 +17,24 @@
 		<meta charset="utf-8"></meta>
 		<meta http-equiv="X-UA-Compatible" content="IE=edge"></meta>
 		<meta name="viewport" content="width=device-width, initial-scale=1"></meta>
-		<link rel="icon" href="#{request.contextPath}/favicon.ico"
-			type="image/x-icon" />
+		<script src="https://use.typekit.net/zvv0dgl.js"></script>
+		<script>try{Typekit.load({ async: true });}catch(e){}</script>
+		<link rel="icon" href="#{request.contextPath}/favicon.ico" type="image/x-icon" />
 		<title><ui:insert name="windowTitle" /></title>
 	</f:facet>
 
-	<link rel="stylesheet" type="text/css" media="all"
-		href="#{request.contextPath}/resources/css2/bootstrap.min.css" />
-	<link rel="stylesheet" type="text/css" media="all"
-		href="#{request.contextPath}/resources/css2/awesome-bootstrap-checkbox.css" />
-	<link rel="stylesheet" type="text/css" media="all"
-		href="#{request.contextPath}/resources/css2/bootstrap-select.css" />
-	<link rel="stylesheet" type="text/css" media="all"
-		href="#{request.contextPath}/resources/css2/style.css?#{applicationbean.loginTime}" />
-	<link rel="stylesheet" type="text/css" media="all"
-		href="#{request.contextPath}/resources/css2/dropdowns-enhancement.css?#{applicationbean.loginTime}" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/bootstrap.min.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/awesome-bootstrap-checkbox.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/bootstrap-select.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/style.css?#{applicationbean.loginTime}" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/dropdowns-enhancement.css" />
 
-	<script
-		src="#{request.contextPath}/resources/javascript/prosolo.logging.js"></script>
+	<script src="#{request.contextPath}/resources/javascript/prosolo.logging.js"></script>
 	<!-- Include all compiled plugins (below), or include individual files as needed -->
-	<script
-		src="#{request.contextPath}/resources/javascript2/bootstrap.min.js"></script>
-	<script
-		src="#{request.contextPath}/resources/javascript2/bootstrap-select.min.js"></script>
-	<script
-		src="#{request.contextPath}/resources/javascript2/custom.js?#{applicationbean.loginTime}"></script>
-	<script
-		src="#{request.contextPath}/resources/javascript2/dropdowns-enhancement.js"></script>
+	<script src="#{request.contextPath}/resources/javascript2/bootstrap.min.js"></script>
+	<script src="#{request.contextPath}/resources/javascript2/bootstrap-select.min.js"></script>
+	<script src="#{request.contextPath}/resources/javascript2/dropdowns-enhancement.js"></script>
+	<script src="#{request.contextPath}/resources/javascript2/custom.js?#{applicationbean.loginTime}"></script>
 </h:head>
 
 <h:body>
@@ -53,83 +44,86 @@
 		<div class="container">
 			<div class="headerTop">
 				<div class="headerTopLeft">
-					<a href="#" id="logo">ProSolo</a>
+					<h:link id="logo" onclick="sendLogPageNavigation('index','mainmenu');" outcome="/index">
+						ProSolo
+					</h:link>
 
 					<nav>
 						<ul class="nav nav-pills">
-							<li role="presentation"
-								class="#{util:getPagePath(view.viewId)  == 'index' ? 'active' : ''}">
-								<h:link onclick="sendLogPageNavigation('index','mainmenu');"
-									value="Home" outcome="/index" />
+							<li role="presentation" class="#{util:getPagePath(view.viewId)  == 'index' ? 'active' : ''}">
+								<h:link onclick="sendLogPageNavigation('index','mainmenu');" value="Home" outcome="/index" />
 							</li>
-							<li role="presentation"
-								class="#{util:getPagePath(view.viewId)  == 'library' ? 'active' : ''}">
-								<h:link onclick="sendLogPageNavigation('library','mainmenu');"
-									value="Library" outcome="/credentialLibrary" />
+							<li role="presentation"	class="#{util:getPagePath(view.viewId)  == 'library' ? 'active' : ''}">
+								<h:link onclick="sendLogPageNavigation('library','mainmenu');" value="Library" outcome="/credentialLibrary" />
 							</li>
-							<li role="presentation"
-								class="#{util:getPagePath(view.viewId)  == 'people' ? 'active' : ''}">
-								<h:link onclick="sendLogPageNavigation('people','mainmenu');"
-									value="People" />
+							<li role="presentation"	class="#{util:getPagePath(view.viewId)  == 'people' ? 'active' : ''}">
+								<h:link onclick="sendLogPageNavigation('people','mainmenu');" value="People" />
 							</li>
 						</ul>
 					</nav>
 				</div>
 				<div class="headerTopRight">
 					<div class="dropdown createMenu">
-						<a class="btn btn-orange btn-sm" data-toggle="dropdown"
-							aria-haspopup="true" aria-expanded="true">Create</a>
-						<ul class="dropdown-menu">
-							<li><h:link value="New Credential"
-									outcome="/create-credential.xhtml" /></li>
-							<li><h:link value="New Competence" /></li>
+						<a class="btn btn-orange btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+							Create
+						</a>
+						<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
+							<li>
+								<h:link value="New Credential" outcome="/create-credential.xhtml" />
+							</li>
+							<li>
+								<h:link value="New Competence" outcome="/create-competence.xhtml" />
+							</li>
 						</ul>
 					</div>
-					<a class="iconMessages active" href="#">Messages<span
-						class="unreadDot">unreadDot</span></a> 
+					
+					<h:link class="iconMessages active" onclick="sendLogPageNavigation('messages','mainmenu');" outcome="/messages">
+						Messages
+						<span class="unreadDot">unreadDot</span>
+					</h:link>
+					
 					<div class="dropdown notificationsMenu">
                         <a class="iconNotifications" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">Notifications</a>
                         <ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenuNotifications">
                             <li class="notifFollowed">
-                                <div class="line01">
+                                <a href="#">
                                     <span class="icon"></span>
-                                    <a href="#">Gustavo Fring</a> followed you
-                                </div>
-                                <div class="line02">5 minutes ago</div>
+                                    <h3>Gustavo Fring</h3> followed you
+                                    <span class="timestamp">5 minutes ago</span>
+                                </a>
                             </li>
                             <li class="notifComment">
-                                <div class="line01">
+                                <a href="#">
                                     <span class="icon"></span>
-                                    <a href="#">Gustavo Fring</a> commented on <a href="#">Define social network analysis</a>
-                                </div>
-                                <div class="line02">Yesterday</div>
+                                    <h3>Gustavo Fring</h3> commented on a competence <h3>Define social network analysis</h3>
+                                    <span class="timestamp">Yesterday</span>
+                                </a>
                             </li>
                             <li class="notifLikeComment">
-                                <div class="line01">
+                                <a href="#">
                                     <span class="icon"></span>
-                                    <a href="#">Gustavo Fring</a> liked a comment on <a href="#">Define social network analysis</a>
-                                </div>
-                                <div class="line02">Yesterday</div>
-                            </li>
-                            <li class="notifLearning">
-                                <div class="line01">
-                                    <span class="icon"></span>
-                                    <a href="#">Gustavo Fring</a> started learning <a href="#">Define social network analysis</a>
-                                </div>
-                                <div class="line02">Yesterday</div>
+                                    <h3>Gustavo Fring</h3> liked your comment on a competence <h3>Define social network analysis</h3>
+                                    <span class="timestamp">Yesterday</span>
+                                </a>
                             </li>
                             <li class="notifMention">
-                                <div class="line01">
+                                <a href="#">
                                     <span class="icon"></span>
-                                    <a href="#">Gustavo Fring</a> mentioned you on <a href="#">Define social network analysis</a>
-                                </div>
-                                <div class="line02">Yesterday</div>
+                                    <h3>Gustavo Fring</h3> mentioned you in a comment/post
+                                    <span class="timestamp">Yesterday</span>
+                                </a>
                             </li>
-                            <li class="linkAllNotifications">
-                            	<h:link outcome="/profile-notifications" value="View all"/>
+                            <li class="notifAssessment">
+                                <a href="#">
+                                    <span class="icon"></span>
+                                    <h3>Gustavo Fring</h3> gave you an assessment for a competence <h3>Define social network analysis</h3>
+                                    <span class="timestamp">Yesterday</span>
+                                </a>
                             </li>
+                            <li class="linkAllNotifications"><a href="profile-notifications.html">View all</a></li>
                         </ul>
                     </div>
+                    
 					<h:form>
 						<div class="dropdown userMenu">
 							<a data-toggle="dropdown" aria-haspopup="true"
@@ -139,16 +133,20 @@
 								class="arrowDown">arrowDown</span>
 							</a>
 
-							<ul class="dropdown-menu dropdown-menu-right"
-								aria-labelledby="dropdownMenu1">
-								<li><a href="#">Profile</a></li>
-								<li><h:link
-										onclick="sendLogPageNavigation('settings','mainmenu');"
-										value="Settings" outcome="/settings" /></li>
-								<li><a href="#">Achievements</a></li>
-								<li><h:commandLink id="userLogout" value="Sign Out"
-										action="#{loggeduser.userLogout()}">
-									</h:commandLink></li>
+							<ul class="dropdown-menu dropdown-menu-right bullet pull-right" aria-labelledby="dropdownMenu1">
+								<li>
+									<a href="#">Profile</a>
+								</li>
+								<li>
+									<h:link onclick="sendLogPageNavigation('settings','mainmenu');"
+										value="Settings" outcome="/settings" />
+								</li>
+								<li>
+									<a href="#">Achievements</a>
+								</li>
+								<li>
+									<h:commandLink id="userLogout" value="Sign Out"  action="#{loggeduser.userLogout()}" />
+								</li>
 							</ul>
 
 						</div>
@@ -173,8 +171,5 @@
 			</p:idleMonitor>
 		</h:form>
 	</c:if>
-
-
 </h:body>
-
 </html>

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 @ManagedBean(name = "settings")
 @Component("settings")
 @Scope("view")
+@Deprecated
 public class SettingsBean implements Serializable {
 
 	private static final long serialVersionUID = 6612878418440619553L;

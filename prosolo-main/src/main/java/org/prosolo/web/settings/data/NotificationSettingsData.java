@@ -19,7 +19,6 @@ public class NotificationSettingsData implements Serializable {
 	
 	public NotificationSettingsData(NotificationSettings notificationSettings) {
 		this.type = notificationSettings.getType();
-		//this.subscribedUI = notificationSettings.isSubscribedUI();
 		this.subscribedEmail = notificationSettings.isSubscribedEmail();
 	}
 
