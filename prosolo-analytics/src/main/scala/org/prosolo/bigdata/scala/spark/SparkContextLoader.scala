@@ -27,18 +27,21 @@ object SparkContextLoader {
 
   val numOfCores=Runtime.getRuntime.availableProcessors()
   //val numOfCores=2
-  val dbConfig = Settings.getInstance().config.dbConfig.dbServerConfig;
+  val dbConfig = Settings.getInstance().config.dbConfig.dbServerConfig
+  val sparkConfig = Settings.getInstance().config.sparkConfig
+
 	val dbHost = dbConfig.dbHost
 	val dbPort = dbConfig.dbPort
-  val maxCores=if(numOfCores>4) 4 else numOfCores
+  val maxCores=if(numOfCores>sparkConfig.maxCores) sparkConfig.maxCores else numOfCores
+  val master=if(sparkConfig.mode.equals("local")) "local["+numOfCores+"]" else sparkConfig.master
  //val numOfCores=1;
   val sparkConf = new SparkConf()
-    .setMaster("local["+numOfCores+"]")
+    .setMaster(master)
 
       .set("spark.cores_max",maxCores.toString)
-      .set("spark.executor.memory","4g")
+      .set("spark.executor.memory",sparkConfig.executorMemory)
       .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-      .setAppName("prosolo.bigdata")
+      .setAppName(sparkConfig.appName)
       //added for spark cassandra connection
       .set("spark.cassandra.connection.host", dbHost)
       .set("spark.cassandra.connection.port", dbPort.toString())

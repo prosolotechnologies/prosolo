@@ -14,7 +14,7 @@
 		<resteasy.version>3.0.9.Final</resteasy.version>
 		<jetty.version>9.3.7.v20160115</jetty.version>
 		<!--jetty.version>8.1.16.v20140903</jetty.version-->
-		<spark.version>1.6.0</spark.version>
+		<spark.version>1.6.1</spark.version>
 		<scala.version>2.11.6</scala.version>
 		<quartz.version>2.2.1</quartz.version>
 		<twitter4j.version>4.0.4</twitter4j.version>

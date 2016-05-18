@@ -11,7 +11,13 @@
 			<db-replication-factor>1</db-replication-factor>
 		</db-server>
 	</db-config>
-	 
+	<spark-config>
+		<type>local</type>
+		<master>spark://127.0.0.1:7077</master>
+		<max-cores>4</max-cores>
+		<executor-memory>4g</executor-memory>
+		<app-name>prosolo.bigdata</app-name>
+	</spark-config>
 
 	 
 	<scheduler-config>
