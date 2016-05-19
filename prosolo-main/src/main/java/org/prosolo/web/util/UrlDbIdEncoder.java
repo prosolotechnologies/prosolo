@@ -8,4 +8,8 @@ public class UrlDbIdEncoder {
 	public static String encodeId(long id){
 		return ServiceLocator.getInstance().getService(UrlIdEncoder.class).encodeId(id);
 	}
+	
+	public static long decodeId(String id){
+		return ServiceLocator.getInstance().getService(UrlIdEncoder.class).decodeId(id);
+	}
 }

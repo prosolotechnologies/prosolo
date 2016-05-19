@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.prosolo.web.settings;
 
 import java.io.Serializable;
@@ -11,7 +8,6 @@ import javax.faces.bean.ManagedBean;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.authentication.AuthenticationService;
-import org.prosolo.services.authentication.PasswordEncrypter;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.settings.data.AccountData;
@@ -42,9 +38,6 @@ public class AccountSettingsBean implements Serializable {
 	private String currentPassword;
 
 	@Autowired
-	private PasswordEncrypter passwordEncrypter;
-
-	@Autowired
 	private AuthenticationService authenticationService;
 
 	@PostConstruct
@@ -60,23 +53,6 @@ public class AccountSettingsBean implements Serializable {
 	 * ACTIONS
 	 */
 	public void savePassChange() {
-		if (accountData.getPassword().equals(accountData.getPasswordConfirm())) {
-			if (accountData.getNewPassword().length() < 6) {
-				PageUtil.fireErrorMessage(":accountForm:accountFormGrowl",
-						"Password is too short. It has to contain more that 6 characters.");
-				return;
-			}
-
-			User user = userManager.changePassword(loggedUser.getUser(), accountData.getPassword());
-			loggedUser.setUser(user);
-
-			PageUtil.fireSuccessfulInfoMessage(":accountForm:accountFormGrowl", "Password updated!");
-		} else {
-			PageUtil.fireErrorMessage(":accountForm:accountFormGrowl", "Passwords do not match.");
-		}
-	}
-
-	public void savePassChangeRedesign() {
 		if (authenticationService.checkPassword(loggedUser.getUser().getPassword(), accountData.getPassword())) {
 			if (accountData.getNewPassword().length() < 6) {
 				PageUtil.fireErrorMessage(":settingsPasswordForm:settingsPasswordGrowl",

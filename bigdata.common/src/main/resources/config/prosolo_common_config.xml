@@ -91,9 +91,9 @@
       <monthly>false</monthly>
       <smtp-config>
          <host>email-smtp.us-east-1.amazonaws.com</host>
-         <user>AKIAINKX6ZZIXRMUOLQQ</user>
+         <user>AKIAIRVUOFTL2RVQF5FA</user>
          <full-email>prosolo.webmaster@gmail.com</full-email>
-         <pass>Aj7I5cNTT/dMel7rlfXxHc6Zc0ipxQsQrUihj2lY9uPj</pass>
+         <pass>Arb2KHbgyZjNgP7k2FtHZ/MX0pAbf7hXT/puRa+EsA/e</pass>
          <port>587</port>
          <starttls-enable>true</starttls-enable>
          <auth>true</auth>

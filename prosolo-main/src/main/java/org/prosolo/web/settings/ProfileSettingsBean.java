@@ -11,7 +11,6 @@ import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
@@ -21,7 +20,6 @@ import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkAccount;
-import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
 import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
@@ -97,7 +95,6 @@ public class ProfileSettingsBean implements Serializable {
 
 	@PostConstruct
 	public void initializeAccountData() {
-		// loggedUser.refreshUser();
 		initAccountData();
 		initSocialNetworksData();
 	}
@@ -111,7 +108,6 @@ public class ProfileSettingsBean implements Serializable {
 	}
 
 	private void initAccountData() {
-
 		accountData = new AccountDataToPageMapper(loggedUser).mapDataToPageObject(accountData);
 	}
 

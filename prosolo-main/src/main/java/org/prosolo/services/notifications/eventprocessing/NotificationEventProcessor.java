@@ -4,109 +4,97 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.interfacesettings.NotificationSettings;
 import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.notifications.Notification;
+import org.prosolo.common.domainmodel.user.notifications.Notification1;
+import org.prosolo.common.domainmodel.user.notifications.NotificationType;
+import org.prosolo.common.domainmodel.user.notifications.ObjectType;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.notifications.NotificationManager;
-import org.prosolo.services.notifications.eventprocessing.data.NotificationDeliveryTypes;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
 
 public abstract class NotificationEventProcessor {
 
 	protected Event event;
-	protected EventType notificationType;
-	protected BaseEntity resource;
 	protected Session session;
 	
 	protected NotificationManager notificationManager;
 	private NotificationsSettingsManager notificationsSettingsManager;
+	protected UrlIdEncoder idEncoder;
 	
 	public NotificationEventProcessor(Event event, Session session, 
 			NotificationManager notificationManager, 
-			NotificationsSettingsManager notificationsSettingsManager) {
+			NotificationsSettingsManager notificationsSettingsManager,
+			UrlIdEncoder idEncoder) {
 		this.event = event;
 		this.session = session;
 		this.notificationManager = notificationManager;
 		this.notificationsSettingsManager = notificationsSettingsManager;
-		setResource();
-		setNotificationType();
-		
-	}
-	
-	protected void setNotificationType() {
-		this.notificationType = event.getAction();
+		this.idEncoder = idEncoder;
 	}
 
-	protected void setResource() {
-		this.resource = event.getObject();
-	}
-
-	public List<Notification> getNotificationList() {
-		List<Notification> notifications = new ArrayList<>();
-		List<User> receivers = getReceivers();
+	public List<Notification1> getNotificationList() {
+		List<Notification1> notifications = new ArrayList<>();
+		List<Long> receivers = getReceiverIds();
 		
-		for(User receiver : receivers) {
-			User sender = getSender();
-			if(isConditionMet(sender, receiver)) {
-				NotificationDeliveryTypes ndt = getNotificationDeliveryTypesForUser(receiver);
-				if(ndt.isUi() || ndt.isEmail()) {
-					Notification notification = notificationManager.createNotification(
-							resource,
-							sender, 
-							receiver,
-							notificationType, 
-							getNotificationMessage(),
-							event.getDateCreated(), 
-							ndt.isUi(),
-							ndt.isEmail(),
-							session);
-					
-					notifications.add(notification);
-				}
+		for(long receiver : receivers) {
+			long sender = getSenderId();
+			if(isConditionMet(sender, receiver)) {			
+				Notification1 notification = notificationManager.createNotification(
+						sender, 
+						receiver,
+						getNotificationType(), 
+						event.getDateCreated(),
+						getObjectId(),
+						getObjectType(),
+						getNotificationLink(),
+						shouldUserBeNotifiedByEmail(receiver),
+						session);
+				
+				notifications.add(notification);
 			}
 		}
 		
 		return notifications;
 	}
 	
-	private NotificationDeliveryTypes getNotificationDeliveryTypesForUser(User receiver) {
+	private boolean shouldUserBeNotifiedByEmail(long receiverId) {
 		
 		UserNotificationsSettings userNotificationSettings = notificationsSettingsManager
-				.getOrCreateNotificationsSettings(receiver, session);
+				.getOrCreateNotificationsSettings(receiverId, session);
 
 		if(userNotificationSettings != null) {
 			List<NotificationSettings> settings = userNotificationSettings
-					.getNotificationsSettings();
-			return getNotificationDeliveryTypesFromNotificationSettingsList(settings);
+					.getNotifications();
+			return determineIfUserShouldBeNotifiedByEmail(settings);
 		}
-		return new NotificationDeliveryTypes();
+		return false;
 	}
 
-	private NotificationDeliveryTypes getNotificationDeliveryTypesFromNotificationSettingsList(List<NotificationSettings> settings) {
-		NotificationDeliveryTypes ndt = new NotificationDeliveryTypes();
-		
+	private boolean determineIfUserShouldBeNotifiedByEmail(List<NotificationSettings> settings) {
 		if(settings != null) {
 			for(NotificationSettings ns : settings) {
-				if(event.getAction() == ns.getType()) {
-					ndt.setUi(ns.isSubscribedUI());
-					ndt.setEmail(ns.isSubscribedEmail());
-					return ndt;
+				if(getNotificationType() == ns.getType()) {
+					return ns.isSubscribedEmail();
 				}
 			}
 		}
-		return ndt;
+		return false;
 	}
 
-	abstract boolean isConditionMet(User sender, User receiver);
+	abstract boolean isConditionMet(long sender, long receiver);
 
-	abstract List<User> getReceivers();
+	abstract List<Long> getReceiverIds();
 	
-	abstract User getSender();
+	abstract long getSenderId();
 	
-	abstract String getNotificationMessage();
+	abstract NotificationType getNotificationType();
+	
+	abstract ObjectType getObjectType();
+	
+	abstract long getObjectId();
+	
+	abstract String getNotificationLink();
 	
 }

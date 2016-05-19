@@ -32,6 +32,7 @@ import org.springframework.stereotype.Component;
 @ManagedBean(name = "feedsBean")
 @Component("feedsBean")
 @Scope("view")
+@Deprecated
 public class FeedsBean {
 
 	@SuppressWarnings("unused")

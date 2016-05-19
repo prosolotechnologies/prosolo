@@ -14,6 +14,7 @@ import org.prosolo.common.domainmodel.user.notifications.Notification;
  */
 @Entity
 @DiscriminatorValue("EvalSubmissionNotification")
+@Deprecated
 public class EvaluationSubmissionNotification extends Notification {
 
 	private static final long serialVersionUID = 9131914889833107245L;

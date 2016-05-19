@@ -17,6 +17,9 @@ public class Config {
 	@Element(name = "db-config", required = true)
 	public DBConfig dbConfig;
 
+	@Element(name = "spark-config", required = true)
+	public SparkConfig sparkConfig;
+
 	//@Element(name = "app-config", required = true)
 	//public AppConfig appConfig;
 

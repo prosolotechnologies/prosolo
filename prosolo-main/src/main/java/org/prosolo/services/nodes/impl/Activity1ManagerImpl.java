@@ -1721,4 +1721,28 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Override
+	@Transactional(readOnly = true)
+	public Long getCompetenceIdForActivity(long actId) throws DbConnectionException {
+		try {	
+			String query = "SELECT comp.id " +
+						   "FROM CompetenceActivity1 compActivity " +
+						   "INNER JOIN compActivity.competence comp " +
+						   		"WITH comp.draft = :draft " +
+				       	   "WHERE compActivity.activity.id = :actId";					    
+
+			Long id = (Long) persistence.currentManager()
+				.createQuery(query)
+				.setLong("actId", actId)
+				.setBoolean("draft", false)
+				.uniqueResult();
+			
+			return id;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving competence id");
+		}
+	}
+	
 }

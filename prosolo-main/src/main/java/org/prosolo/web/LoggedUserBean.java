@@ -180,7 +180,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	}
 
 	public void refreshNotificationsSettings() {
-		setNotificationsSettings(notificationsSettingsManager.getOrCreateNotificationsSettings(getUser()));
+		setNotificationsSettings(notificationsSettingsManager.getOrCreateNotificationsSettings(getUser().getId()));
 	}
 
 	public void loginOpenId(String email) {

@@ -11,6 +11,7 @@ import org.prosolo.common.domainmodel.user.notifications.Notification;
  * @author Zoran Jeremic Dec 29, 2013
  */
 @Entity
+@Deprecated
 public class RequestNotification extends Notification {
 
 	private static final long serialVersionUID = 970150513877263846L;

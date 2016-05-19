@@ -9,7 +9,7 @@
 	xmlns:util="http://www.prosolo.com/util">
 
 	<ui:define name="windowTitle">
-		Account settings
+		Account Settings
 	</ui:define>
 
 	<ui:define name="metadata">
@@ -20,7 +20,7 @@
 
 	<ui:define name="resourceTitle">
 		<h:panelGroup id="panelTitle">
-			<h1>Account settings</h1>
+			<h1>Account Settings</h1>
 			<ul class="nav nav-tabs headerSubmenu">
 				<li role="presentation"
 					class="#{util:getPagePath(view.viewId)  == 'settings' ? 'active' : ''}"><h:link
@@ -175,8 +175,7 @@
 									<div class="formLine">
 										<label>Blog URL</label>
 										<div class="formLineRight">
-											<h:inputText
-												value="#{profileSettings.socialNetworksData.socialNetworkAccountDatas['BLOG'].linkEdit}" />
+											<h:inputText value="#{profileSettings.socialNetworksData.socialNetworkAccountDatas['BLOG'].linkEdit}" />
 										</div>
 									</div>
 									<div class="formLine">

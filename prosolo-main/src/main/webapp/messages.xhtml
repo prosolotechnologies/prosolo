@@ -119,7 +119,7 @@
 			                		 		class="#{messageThreadData.id == messagesBean.threadData.id ? 'active' : ''} #{messageThreadData.readed == false ? 'unreadMessage' : ''}">
 			                		 	<p:commandLink 
 											action="#{messagesBean.changeThread(messageThreadData)}"
-											update=":rowDiv :topInboxForm"
+											update=":rowDiv :messagesLink"
 											onclick="changeConversation(#{messageThreadData.id})"
 											oncomplete="resetPeopleSearchParameters()">
 										<div class="media">
@@ -306,7 +306,7 @@
 	                            To:
 	                        </div>
 	                    <h:inputText autocomplete="off" onkeyup="return this.value.length >= 3" 
-	                    			onfocus="this.value = this.value;"
+	                    			
 	                    			value="#{searchPeopleBean.query}" 
 	                    			id="messageRecievingUserName" name="messageRecievingUserName">
 	                    	<f:ajax

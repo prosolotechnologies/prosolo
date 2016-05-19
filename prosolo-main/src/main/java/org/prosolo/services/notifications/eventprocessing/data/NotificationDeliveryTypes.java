@@ -1,5 +1,6 @@
 package org.prosolo.services.notifications.eventprocessing.data;
 
+@Deprecated
 public class NotificationDeliveryTypes {
 
 	private boolean ui;

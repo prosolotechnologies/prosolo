@@ -19,13 +19,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+@Deprecated
 @ManagedBean(name = "notificationsBean")
 @Component("notificationsBean")
 @Scope("view")
-public class NotificationsBean implements Serializable {
+public class NotificationsBean1 implements Serializable {
 	
 	private static final long serialVersionUID = 1560861635204558368L;
-	private static Logger logger = Logger.getLogger(NotificationsBean.class);
+	private static Logger logger = Logger.getLogger(NotificationsBean1.class);
 	
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private NotificationManager notificationsManager;

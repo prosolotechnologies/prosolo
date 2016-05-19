@@ -1,44 +1,46 @@
-package org.prosolo.services.notifications.eventprocessing;
+package org.prosolo.services.notifications.eventprocessing.deprecated;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.evaluation.EvaluationSubmission;
+import org.prosolo.common.domainmodel.activities.requests.Request;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.notifications.NotificationManager;
 
-public class EvaluationGivenProcessor extends NotificationEventProcessor {
+@Deprecated
+public class RequestWithoutCommentEventProcessor extends NotificationEventProcessor {
 	
-	public EvaluationGivenProcessor(Event event, Session session, 
-					NotificationManager notificationManager, 
+	public RequestWithoutCommentEventProcessor(Event event, Session session, 
+					NotificationManager notificationManager,
 					NotificationsSettingsManager notificationsSettingsManager) {
 		super(event, session, notificationManager, notificationsSettingsManager);
+	}
+
+	@Override
+	protected void setResource() {
+		this.resource = (Request) session.merge(event.getObject());
 	}
 
 	@Override
 	List<User> getReceivers() {
 		List<User> users = new ArrayList<>();
 
-		EvaluationSubmission evSubmission = (EvaluationSubmission) resource;	
-		User receiver = evSubmission.getRequest().getMaker();
-		users.add(receiver);
-		
+		Request request = (Request) resource;
+		users.add(request.getMaker());
 		return users;
 	}
 
 	@Override
 	User getSender() {
-		EvaluationSubmission evSubmission = (EvaluationSubmission) resource;	
-		return evSubmission.getMaker();
+		return event.getActor();
 	}
 
 	@Override
 	String getNotificationMessage() {
-		EvaluationSubmission evSubmission = (EvaluationSubmission) resource;
-		return evSubmission.getMessage();
+		return null;
 	}
 
 	@Override

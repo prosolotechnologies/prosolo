@@ -13,6 +13,7 @@ import org.prosolo.common.domainmodel.user.notifications.Notification;
  */
 @Entity
 @DiscriminatorValue("SActivityNotification")
+@Deprecated
 public class SActivityNotification extends Notification {
 	
 	private static final long serialVersionUID = -3570393712747791441L;

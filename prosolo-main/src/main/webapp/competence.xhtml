@@ -22,6 +22,7 @@
 			<f:viewParam name="credId" value="#{competenceViewBean.credId}" default="null"/>
 			<f:viewParam name="compId" value="#{competenceViewBean.compId}" default="null"/>
 			<f:viewParam name="mode" value="#{competenceViewBean.mode}" default="null"/>
+			<f:viewParam name="comment" default="null"/>
 			<f:viewAction action="#{competenceViewBean.init()}" />
 		</f:metadata>
 	</ui:define>
@@ -149,5 +150,11 @@
         </div>
 	
     </div>
+    <ui:fragment rendered="#{not empty param['comment']}">
+    	<script>
+	    	scrollTo('comment_' + #{util:decodeId(param['comment'])});
+	    </script>
+    </ui:fragment>
+    
 </ui:define>
 </ui:composition>
