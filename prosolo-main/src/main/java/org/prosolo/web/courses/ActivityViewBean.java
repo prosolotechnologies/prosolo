@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
+import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
@@ -104,22 +105,6 @@ public class ActivityViewBean implements Serializable {
 	public boolean isPreview() {
 		return "preview".equals(mode);
 	}
-	
-	public void handleFileUpload(FileUploadEvent event) {
-		UploadedFile uploadedFile = event.getFile();
-		
-		try {
-			String fileName = uploadedFile.getFileName();
-			String fullPath = uploadManager.storeFile(null, uploadedFile, fileName);
-			activityManager.saveAssignment(competenceData.getActivityToShowWithDetails()
-					.getTargetActivityId(), fileName, fullPath);
-			competenceData.getActivityToShowWithDetails().setAssignmentTitle(fileName);
-			competenceData.getActivityToShowWithDetails().setAssignmentLink(fullPath);
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-			PageUtil.fireErrorMessage("Error while uploading assignment");
-		}
-	}
 
 	/*
 	 * ACTIONS
@@ -141,6 +126,34 @@ public class ActivityViewBean implements Serializable {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			PageUtil.fireErrorMessage("Error while marking activity as completed");
+		}
+	}
+	
+	public void handleFileUpload(FileUploadEvent event) {
+		UploadedFile uploadedFile = event.getFile();
+		
+		try {
+			String fileName = uploadedFile.getFileName();
+			String fullPath = uploadManager.storeFile(null, uploadedFile, fileName);
+			activityManager.saveAssignment(competenceData.getActivityToShowWithDetails()
+					.getTargetActivityId(), fileName, fullPath);
+			competenceData.getActivityToShowWithDetails().setAssignmentTitle(fileName);
+			competenceData.getActivityToShowWithDetails().setAssignmentLink(fullPath);
+		} catch (Exception e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error while uploading assignment");
+		}
+	}
+	
+	public void deleteAssignment() {
+		try {
+			activityManager.deleteAssignment(competenceData.getActivityToShowWithDetails()
+					.getTargetActivityId());
+			competenceData.getActivityToShowWithDetails().setAssignmentTitle(null);
+			competenceData.getActivityToShowWithDetails().setAssignmentLink(null);
+		} catch(DbConnectionException e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage(e.getMessage());
 		}
 	}
 	

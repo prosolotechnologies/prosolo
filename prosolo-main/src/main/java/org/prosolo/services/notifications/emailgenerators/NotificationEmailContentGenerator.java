@@ -4,12 +4,7 @@
 package org.prosolo.services.notifications.emailgenerators;
 
 import org.prosolo.common.email.generators.EmailContentGenerator;
-import org.prosolo.common.email.generators.MoustacheUtil;
 
-/**
- * @author "Nikola Milikic"
- *
- */
 public class NotificationEmailContentGenerator extends EmailContentGenerator {
 	
 	@Override
@@ -19,22 +14,17 @@ public class NotificationEmailContentGenerator extends EmailContentGenerator {
 	
 	private String name;
 	private String actor;
-	private String notificationType;
-	private String notificationShortType;
-	private String resourceTitle;
-	private String message;
+	private String predicate;
+	private String objectTitle;
 	private String date;
 	private String link;
 	
-	public NotificationEmailContentGenerator(String name, String actor, String notificationType, 
-			String notificationShortType, String resourceTitle,
-			String message, String date, String link) {
+	public NotificationEmailContentGenerator(String name, String actor, String predicate,
+			String objectTitle, String date, String link) {
 		this.name = name;
 		this.actor = actor;
-		this.notificationType = notificationType;
-		this.notificationShortType = notificationShortType;
-		this.resourceTitle = resourceTitle;
-		this.message = message;
+		this.predicate = predicate;
+		this.objectTitle = objectTitle;
 		this.date = date;
 		this.link = link;
 	}
@@ -55,38 +45,6 @@ public class NotificationEmailContentGenerator extends EmailContentGenerator {
 		this.actor = actor;
 	}
 
-	public String getNotificationType() {
-		return notificationType;
-	}
-
-	public void setNotificationType(String notificationType) {
-		this.notificationType = notificationType;
-	}
-
-	public String getNotificationShortType() {
-		return notificationShortType;
-	}
-
-	public void setNotificationShortType(String notificationShortType) {
-		this.notificationShortType = notificationShortType;
-	}
-
-	public String getResourceTitle() {
-		return resourceTitle;
-	}
-
-	public void setResourceTitle(String resourceTitle) {
-		this.resourceTitle = resourceTitle;
-	}
-
-	public String getMessage() {
-		return message;
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
-	}
-
 	public String getDate() {
 		return date;
 	}
@@ -102,9 +60,21 @@ public class NotificationEmailContentGenerator extends EmailContentGenerator {
 	public void setLink(String link) {
 		this.link = link;
 	}
-	
-	
-	
-	
+
+	public String getPredicate() {
+		return predicate;
+	}
+
+	public void setPredicate(String predicate) {
+		this.predicate = predicate;
+	}
+
+	public String getObjectTitle() {
+		return objectTitle;
+	}
+
+	public void setObjectTitle(String objectTitle) {
+		this.objectTitle = objectTitle;
+	}
 
 }

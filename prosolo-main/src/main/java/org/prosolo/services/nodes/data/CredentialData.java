@@ -53,6 +53,10 @@ public class CredentialData extends StandardObservable implements Serializable {
 		this.listenChanges = listenChanges;
 	}
 	
+	/**
+	 * This method needed to be overriden to deal with collection of competences because
+	 * super method does not take into account collections
+	 */
 	@Override
 	public boolean hasObjectChanged() {
 		boolean changed = super.hasObjectChanged();

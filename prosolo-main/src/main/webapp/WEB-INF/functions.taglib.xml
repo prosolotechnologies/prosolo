@@ -85,6 +85,12 @@
 	</function>
 	
 	<function>
+		<function-name>decodeId</function-name>
+		<function-class>org.prosolo.web.util.UrlDbIdEncoder</function-class>
+		<function-signature>long decodeId(java.lang.String)</function-signature>
+	</function>
+	
+	<function>
 		<function-name>addSubContext</function-name>
 		<function-class>org.prosolo.web.util.LearningContextUtil</function-class>
 		<function-signature>java.lang.String addSubContext(java.lang.String, java.lang.String)</function-signature>

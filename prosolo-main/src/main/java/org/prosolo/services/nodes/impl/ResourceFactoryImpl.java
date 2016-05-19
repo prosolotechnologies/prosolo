@@ -24,6 +24,7 @@ import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.UploadAssignmentActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.CompetenceType;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
@@ -36,6 +37,7 @@ import org.prosolo.common.domainmodel.course.CoursePortfolio;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.course.Status;
 import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
@@ -62,6 +64,7 @@ import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.PostManager;
+import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -963,8 +966,39 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data) 
+    public Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data, long userId) 
 			throws DbConnectionException {
-    	return activityManager.updateActivity(data);
+    	return activityManager.updateActivityData(data, userId);
     }
+    
+    @Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+	public Comment1 saveNewComment(CommentData data, long userId, CommentedResourceType resource) 
+			throws DbConnectionException {
+		try {
+			Comment1 comment = new Comment1();
+			comment.setDescription(data.getComment());
+			comment.setCommentedResourceId(data.getCommentedResourceId());
+			comment.setResourceType(resource);
+			comment.setInstructor(data.isInstructor());
+			//comment.setDateCreated(data.getDateCreated());
+			comment.setPostDate(data.getDateCreated());
+			User user = (User) persistence.currentManager().load(User.class, userId);
+			comment.setUser(user);
+			if(data.getParent() != null) {
+				Comment1 parent = (Comment1) persistence.currentManager().load(Comment1.class, 
+						data.getParent().getCommentId());
+				comment.setParentComment(parent);
+			}
+			
+			saveEntity(comment);
+			
+			return comment;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while saving comment");
+		}
+		
+	}
 }

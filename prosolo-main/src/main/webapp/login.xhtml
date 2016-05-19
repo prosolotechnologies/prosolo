@@ -72,14 +72,14 @@
 	        <c:if test="#{applicationbean.config.application.registration.selfRegistration}">
 				<form method="POST" action='loginspring'>
 					<c:if test="${not empty SPRING_SECURITY_LAST_EXCEPTION}">
-      					<font color="red">
-        					<h:outputText value="Email or password incorrect" />
-      					</font>
+						<div class="alert alert-danger" role="alert">
+							Wrong email or password! Please try again.
+						</div>
 					</c:if>
 					<c:if test="${not empty param.error}">
-						<font color="red">
-							<h:outputText value="#{param['error']}" />
-						</font>
+						<div class="alert alert-danger" role="alert">
+							Wrong email or password! Please try again.
+						</div>
 					</c:if>
 					<p:messages id="loginMessage" showDetail="false" autoUpdate="true" closable="true" />
 					
@@ -91,7 +91,7 @@
 	                
 					<div class="loginOpt">
 						<div class="checkbox checkLine">
-							<input type="checkbox" id="checkRemember" name="remember-me" />
+							<input type="checkbox" id="checkRemember" name="remember-me" checked="checked" />
 							<label for="checkRemember">Remember me</label>
 						</div>
 						<a href="login-forgot-password.html">Forgot Password?</a>
@@ -108,7 +108,7 @@
                 <li><a href="#">Terms</a></li>
                 <li><a href="#">Support</a></li>
             </ul>
-            <p>ProSolo Technologies Inc @ 2016</p>
+            <p>ProSolo Technologies Inc &#169; 2016</p>
         </div>
     </div>
 

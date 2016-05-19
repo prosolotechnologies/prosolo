@@ -26,7 +26,7 @@ public class UserNotificationSettingsData implements Serializable {
 		this.id = notificationsSettings.getId();
 		this.settings = new ArrayList<NotificationSettingsData>();
 		
-		for (NotificationSettings notificationSettingsData : notificationsSettings.getNotificationsSettings()) {
+		for (NotificationSettings notificationSettingsData : notificationsSettings.getNotifications()) {
 			this.settings.add(new NotificationSettingsData(notificationSettingsData));
 		}
 	}

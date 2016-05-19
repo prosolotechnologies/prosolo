@@ -1,5 +1,6 @@
 package org.prosolo.common.domainmodel.credential;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 
 @Entity
@@ -28,6 +29,7 @@ public class ExternalToolActivity1 extends Activity1 {
 		this.sharedSecret = sharedSecret;
 	}
 	
+	@Column(columnDefinition = "char(1) DEFAULT 'F'")
 	public boolean isAcceptGrades() {
 		return acceptGrades;
 	}

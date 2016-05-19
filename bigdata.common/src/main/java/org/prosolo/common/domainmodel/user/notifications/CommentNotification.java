@@ -6,13 +6,13 @@ import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
 import org.prosolo.common.domainmodel.activitywall.comments.Comment;
-import org.prosolo.common.domainmodel.user.notifications.Notification;
 
 /**
  * @author Zoran Jeremic Dec 29, 2013
  */
 @Entity
 @DiscriminatorValue("CommentNotification")
+@Deprecated
 public class CommentNotification extends Notification {
 	
 	private static final long serialVersionUID = 7450319370700629949L;

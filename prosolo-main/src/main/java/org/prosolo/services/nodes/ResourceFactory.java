@@ -10,12 +10,14 @@ import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CourseCompetence;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
@@ -34,6 +36,7 @@ import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.general.AbstractManager;
+import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
@@ -128,7 +131,10 @@ public interface ResourceFactory extends AbstractManager {
 	Activity1 createActivity(org.prosolo.services.nodes.data.ActivityData activityData, 
 			long userId) throws DbConnectionException;
 
-	Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data) 
+	Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data, long userId) 
+			throws DbConnectionException;
+	
+	Comment1 saveNewComment(CommentData data, long userId, CommentedResourceType resource) 
 			throws DbConnectionException;
 
 }

@@ -11,7 +11,6 @@ import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
@@ -21,7 +20,6 @@ import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkAccount;
-import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
 import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
@@ -97,7 +95,6 @@ public class ProfileSettingsBean implements Serializable {
 
 	@PostConstruct
 	public void initializeAccountData() {
-		// loggedUser.refreshUser();
 		initAccountData();
 		initSocialNetworksData();
 	}
@@ -111,7 +108,6 @@ public class ProfileSettingsBean implements Serializable {
 	}
 
 	private void initAccountData() {
-
 		accountData = new AccountDataToPageMapper(loggedUser).mapDataToPageObject(accountData);
 	}
 
@@ -156,12 +152,13 @@ public class ProfileSettingsBean implements Serializable {
 				eventFactory.generateEvent(EventType.Edit_Profile, loggedUser.getUser());
 			} catch (EventException e) {
 				logger.error(e);
+				PageUtil.fireErrorMessage("Changes are not saved!");
 			}
-			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 
 			initializeAccountData();
 			asyncUpdateUserDataInSocialActivities(accountData);
 		}
+		PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 	}
 
 	public void handleFileUpload(FileUploadEvent event) {
@@ -257,10 +254,10 @@ public class ProfileSettingsBean implements Serializable {
 						}
 
 						MessagesBean messagesBean = (MessagesBean) userSession.getAttribute("messagesBean");
-						
+
 						if (messagesBean != null) {
 							List<MessagesThreadData> messages = messagesBean.getMessagesThreads();
-							
+
 							if (messages != null) {
 								for (MessagesThreadData messageData : messages) {
 									updateUserData(accountData, messageData.getLatest().getActor());
@@ -357,17 +354,17 @@ public class ProfileSettingsBean implements Serializable {
 
 				}
 			}
-		} catch (DbConnectionException e) {
-			PageUtil.fireErrorMessage("Custom error.");
-		}
-
-		if (newSocialNetworkAccountIsAdded) {
-			socialNetworksManager.saveEntity(userSocialNetworks);
-			try {
-				eventFactory.generateEvent(EventType.UpdatedSocialNetworks, loggedUser.getUser());
-			} catch (EventException e) {
-				logger.error(e);
+			if (newSocialNetworkAccountIsAdded) {
+				socialNetworksManager.saveEntity(userSocialNetworks);
+				try {
+					eventFactory.generateEvent(EventType.UpdatedSocialNetworks, loggedUser.getUser());
+				} catch (EventException e) {
+					logger.error(e);
+				}
 			}
+			PageUtil.fireSuccessfulInfoMessage("Social networks updated!");
+		} catch (DbConnectionException e) {
+			PageUtil.fireErrorMessage("There was an error changing profile photo.");
 		}
 
 	}

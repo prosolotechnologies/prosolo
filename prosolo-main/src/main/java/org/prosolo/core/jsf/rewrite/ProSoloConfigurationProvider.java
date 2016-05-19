@@ -54,8 +54,8 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/competences/new").to("/create-competence.xhtml"))
 				.addRule(Join.path("/credentials/{credId}/{compId}").to("/competence.xhtml"))
 				.addRule(Join.path("/competences/{compId}").to("/competence.xhtml"))
-				.addRule(Join.path("/activities/{id}/edit").to("/create-activity.xhtml"))
-				.addRule(Join.path("/activities/new").to("/create-activity.xhtml"))
+				.addRule(Join.path("/competences/{compId}/{id}/edit").to("/create-activity.xhtml"))
+				.addRule(Join.path("/competences/{compId}/newActivity").to("/create-activity.xhtml"))
 				.addRule(Join.path("/credentials/{credId}/{compId}/{actId}").to("/activity.xhtml"))
 				.addRule(Join.path("/competences/{compId}/{actId}").to("/activity.xhtml"))
 				.addRule(Join.path("/digest").to("/digest.xhtml"))
@@ -74,6 +74,8 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/library").to("/credentialLibrary.xhtml"))
 				.addRule(Join.path("/library/credentials").to("/credentialLibrary.xhtml"))
 				.addRule(Join.path("/library/competences").to("/competenceLibrary.xhtml"))
+				.addRule(Join.path("/notifications").to("/profile-notifications.xhtml"))
+				
 				
 				.addRule(Join.path("/manage/competences/{compId}/activities").to("/manage/competence-activities.xhtml"))
 				.addRule(Join.path("/manage/competences/{compId}").to("/manage/competence-overall.xhtml"))

@@ -1,22 +1,19 @@
-package org.prosolo.services.notifications.eventprocessing;
+package org.prosolo.services.notifications.eventprocessing.deprecated;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.content.Post;
+import org.prosolo.common.domainmodel.activities.requests.Request;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.notifications.NotificationManager;
 
-public class PostEventProcessor extends NotificationEventProcessor {
+@Deprecated
+public class RequestWithCommentEventProcessor extends NotificationEventProcessor {
 
-	private static Logger logger = Logger.getLogger(PostEventProcessor.class);
-
-	public PostEventProcessor(Event event, Session session,
+	public RequestWithCommentEventProcessor(Event event, Session session, 
 			NotificationManager notificationManager,
 			NotificationsSettingsManager notificationsSettingsManager) {
 		super(event, session, notificationManager, notificationsSettingsManager);
@@ -24,24 +21,15 @@ public class PostEventProcessor extends NotificationEventProcessor {
 
 	@Override
 	protected void setResource() {
-		this.resource = (Post) event.getObject();
+		this.resource = (Request) session.merge(event.getObject());
 	}
 
-	@Override
-	protected void setNotificationType() {
-		this.notificationType = EventType.MENTIONED;
-	}
-	
 	@Override
 	List<User> getReceivers() {
 		List<User> users = new ArrayList<>();
 
-		Post post = (Post) resource;
-		if (post.getMentionedUsers() != null) {
-			for (User user : post.getMentionedUsers()) {
-				users.add(user);
-			}
-		}
+		Request request = (Request) resource;
+		users.add(request.getSentTo());
 		return users;
 	}
 
@@ -52,12 +40,13 @@ public class PostEventProcessor extends NotificationEventProcessor {
 
 	@Override
 	String getNotificationMessage() {
-		return null;
+		return ((Request) resource).getComment();
 	}
 
 	@Override
 	boolean isConditionMet(User sender, User receiver) {
 		return true;
 	}
+	
 
 }

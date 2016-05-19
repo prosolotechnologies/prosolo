@@ -12,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
@@ -31,10 +32,10 @@ public class UserNotificationsSettings implements Serializable {
 	
 	private long id;
 	private User user;
-	private List<NotificationSettings> notificationsSettings;
+	private List<NotificationSettings> notifications;
 	
 	public UserNotificationsSettings() {
-		this.notificationsSettings = new ArrayList<NotificationSettings>();
+		this.notifications = new ArrayList<NotificationSettings>();
 	}
 	
 	@Id
@@ -59,18 +60,18 @@ public class UserNotificationsSettings implements Serializable {
 	}
 	
 	@OneToMany (fetch = FetchType.EAGER)
-	@Column (name = "UserNotificationsSettings_notificationsSettings")
+	@Column (name = "user_notifications_settings_collection")
 	@Cascade({ CascadeType.MERGE, CascadeType.SAVE_UPDATE, CascadeType.DELETE })
-	public List<NotificationSettings> getNotificationsSettings() {
-		return notificationsSettings;
+	public List<NotificationSettings> getNotifications() {
+		return notifications;
 	}
 
-	public void setNotificationsSettings(List<NotificationSettings> notificationsSettings) {
-		this.notificationsSettings = notificationsSettings;
+	public void setNotifications(List<NotificationSettings> notifications) {
+		this.notifications = notifications;
 	}
 
-	public void addNotificationSettings(NotificationSettings notificationSettings) {
-		this.notificationsSettings.add(notificationSettings);
+	public void addNotification(NotificationSettings notificationSettings) {
+		this.notifications.add(notificationSettings);
 	}
 	
 }

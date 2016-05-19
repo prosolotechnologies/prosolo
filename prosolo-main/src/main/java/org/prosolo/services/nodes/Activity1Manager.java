@@ -9,6 +9,7 @@ import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.observers.learningResources.ActivityChangeTracker;
 
 public interface Activity1Manager {
 	
@@ -50,7 +51,7 @@ public interface Activity1Manager {
 	
 	Activity1 updateActivity(ActivityData data, long userId) throws DbConnectionException;
 	
-	Activity1 updateActivity(ActivityData data);
+	Activity1 updateActivityData(ActivityData data, long userId);
 	
 	Activity1 getOriginalActivityForDraft(long draftActivityId) throws DbConnectionException;
 	
@@ -90,5 +91,12 @@ public interface Activity1Manager {
 	
 	CompetenceData1 getFullTargetActivityOrActivityData(long credId, long compId, 
 			long actId, long userId) throws DbConnectionException;
+
+	void deleteAssignment(long targetActivityId) throws DbConnectionException;
+	
+	void updateTargetActivitiesWithChangedData(long actId, ActivityChangeTracker changeTracker) 
+			throws DbConnectionException;
+	
+	Long getCompetenceIdForActivity(long actId) throws DbConnectionException;
 
 }

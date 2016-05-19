@@ -5,10 +5,11 @@
 	xmlns:p="http://primefaces.org/ui"
 	template="templates/masterLayout2.xhtml"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-	xmlns:c="http://java.sun.com/jsp/jstl/core">
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:util="http://www.prosolo.com/util">
 
 	<ui:define name="windowTitle">
-		Account settings
+		Account Settings
 	</ui:define>
 
 	<ui:define name="metadata">
@@ -19,16 +20,19 @@
 
 	<ui:define name="resourceTitle">
 		<h:panelGroup id="panelTitle">
-			<h1>Account settings</h1>
+			<h1>Account Settings</h1>
 			<ul class="nav nav-tabs headerSubmenu">
-				<li role="presentation" class="active"><h:link
+				<li role="presentation"
+					class="#{util:getPagePath(view.viewId)  == 'settings' ? 'active' : ''}"><h:link
 						onclick="sendLogPageNavigation('settings','mainmenu');"
 						value="Personal info" outcome="/settings" /></li>
-				<li role="presentation" class="active"><h:link
+				<li role="presentation"
+					class="#{util:getPagePath(view.viewId) == 'email' ? 'active' : ''}"><h:link
 						onclick="sendLogPageNavigation('settings/email','mainmenu');"
 						value="Email
 						Notifications" outcome="/settings/email" /></li>
-				<li role="presentation" class="active"><h:link
+				<li role="presentation"
+					class="#{util:getPagePath(view.viewId)  == 'password' ? 'active' : ''}"><h:link
 						onclick="sendLogPageNavigation('settings/password','mainmenu');"
 						value="Change
 						Password" outcome="/settings/password" /></li>
@@ -40,21 +44,25 @@
 
 		<!-- Internal resources -->
 
-		<link rel="stylesheet" type="text/css" media="all"
+		<!--  <link rel="stylesheet" type="text/css" media="all"
 			href="#{request.contextPath}/resources/css2/bootstrap-tagsinput.css" />
 
 		<script
 			src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
 		<script
-			src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput-angular.min.js"></script>
+			src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput-angular.min.js"></script> -->
 
+		<link rel="stylesheet" type="text/css" media="all"
+			href="#{request.contextPath}/resources/css2/icropper.css" />
+		<script
+			src="#{request.contextPath}/resources/javascript2/icropper/icropper-min.js"></script>
 
 		<!-- External resources -->
-		<script
+		<!-- 	<script
 			src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 		<script src="https://use.typekit.net/zvv0dgl.js"></script>
 		<script>try{Typekit.load({ async: true });}catch(e){}</script>
-
+ -->
 
 		<div class="whiteBar"></div>
 
@@ -118,7 +126,7 @@
 					<div class="whiteBox socialNetworks">
 						<h2>Social Profiles</h2>
 						<div class="formWrapper">
-							<h:form id="socialNetworksForm">
+							<h:form id="socialNetworksSettingsForm">
 								<p:growl id="settingsSocialNetworksGrowl" showDetail="true"></p:growl>
 								<h:panelGroup layout="block" id="socialNetworksContainer"
 									class="socialNetworksContainer">
@@ -135,9 +143,25 @@
 											<h:inputText
 												value="#{profileSettings.socialNetworksData.socialNetworkAccountDatas['TWITTER'].linkEdit}" />
 											<div class="twitterBtnBox">
-												<a href="#" class="btn btnTwitterConnect btn-sm"><span></span>Connect
-													to Twitter</a> <small>Connect your Twitter account and
-													republish your tweets to your ProSolo followers.</small>
+												<h:panelGroup id="twitter">
+													<h:panelGroup rendered="#{!twitterBean.OK}">
+														<p:commandLink styleClass="btn btnTwitterConnect btn-sm"
+															action="#{twitterBean.startTweeterOauthAuthProcess}"
+															update=":socialNetworksSettingsForm:twitter settingsSocialNetworksGrowl">
+															<span></span>Connect to Twitter
+														</p:commandLink>
+														<small>Connect your Twitter account and republish
+															your tweets to your ProSolo followers.</small>
+													</h:panelGroup>
+													<h:panelGroup rendered="#{twitterBean.OK}">
+														<p:commandLink styleClass="btn btnTwitterConnect btn-sm"
+															action="#{twitterBean.disconnectUserAccount}"
+															update=":socialNetworksSettingsForm:twitter settingsSocialNetworksGrowl">
+															<span></span>Disconnect from Twitter
+														</p:commandLink>
+													</h:panelGroup>
+												</h:panelGroup>
+
 											</div>
 										</div>
 									</div>
@@ -151,8 +175,7 @@
 									<div class="formLine">
 										<label>Blog URL</label>
 										<div class="formLineRight">
-											<h:inputText
-												value="#{profileSettings.socialNetworksData.socialNetworkAccountDatas['BLOG'].linkEdit}" />
+											<h:inputText value="#{profileSettings.socialNetworksData.socialNetworkAccountDatas['BLOG'].linkEdit}" />
 										</div>
 									</div>
 									<div class="formLine">
@@ -161,7 +184,7 @@
 											<p:commandLink styleClass="btn btn-green"
 												value="Save Changes"
 												action="#{profileSettings.saveSocialNetworkChanges}"
-												update=":socialNetworksForm :panelTitle" />
+												update="settingsSocialNetworksGrowl :panelTitle" />
 										</div>
 									</div>
 								</h:panelGroup>
@@ -172,16 +195,75 @@
 				<div class="col-md-4">
 					<div class="whiteBox yourPhotoBox">
 						<h2>Your Photo</h2>
-						<div class="yourPhotoContent">
-							<img src="images/temp-walter.png" class="img-circle" width="100"
-								height="100" alt="Walter White" />
-							<div class="chooseBtnBox">
-								<a href="#" class="btn btn-green">Choose File</a>
-								<div class="clear"></div>
-								<small>JPG or PNG,<br></br>Min 400x400 px.
-								</small>
-							</div>
-						</div>
+						<h:form id="settingsAvatarForm">
+							<p:growl id="settingsAvatarFormGrowl" showDetail="true"
+								enctype="multipart/form-data" />
+							<h:panelGroup layout="block" id="avatar" class="avatar">
+								<h:panelGroup layout="block" id="displayAvatar"
+									class="#{profileSettings.newAvatar != null ? 'hidden' : ''}">
+
+									<div class="yourPhotoContent">
+										<h:graphicImage styleClass="img-circle" width="100"
+											height="100" alt=""
+											value="#{profileSettings.accountData.avatarPath}" />
+										<div class="chooseBtnBox">
+											<utilcomp:simpleFileUpload id="simpleFileUploadAvatar"
+												fileUploadListenerMethodName="handleFileUpload"
+												fileUploadListenerMethod="#{profileSettings.handleFileUpload}"
+												toUpdate=":settingsAvatarForm:editAvatar :settingsAvatarForm:displayAvatar"
+												uploadButtonStyle="btn btn-green" />
+											<div class="clear"></div>
+											<small>JPG or PNG,<br />Min 400x400 px.
+											</small>
+										</div>
+									</div>
+
+								</h:panelGroup>
+								<h:panelGroup layout="block" id="editAvatar"
+									class="#{profileSettings.newAvatar == null ? 'hidden' : ''}">
+									<div class="second">
+										<div class="cropperContainer">
+											<div id="croppedImage"></div>
+											<div class="previewSmallContainer">
+												<span class="center">Preview:</span>
+												<div id="previewSmall"></div>
+											</div>
+										</div>
+
+										<div class="clear"></div>
+										<p:commandLink styleClass="btn" value="Crop and Save"
+											onclick="$('.avatar .hiddenCoordinates').val(ic.getInfo().t+'_'+ic.getInfo().l+'_'+ic.getInfo().w+'_'+ic.getInfo().h);"
+											action="#{profileSettings.crop()}"
+											process="hiddenCoordinates"
+											update=":settingsAvatarForm:avatar :settingsAvatarForm:settingsAvatarFormGrowl" />
+
+										<p:commandLink styleClass="btn" value="Cancel"
+											action="#{profileSettings.cancelCrop()}"
+											update=":settingsAvatarForm:avatar" />
+
+										<h:inputText id="hiddenCoordinates" class="hiddenCoordinates"
+											style="display:none;"
+											value="#{profileSettings.cropCoordinates}" />
+
+										<script type="text/javascript">
+								var ic = new ICropper('croppedImage',{
+										minWidth: 100,
+										minHeight: 100,
+										keepSquare: true,
+										image: '#{profileSettings.newAvatar}',
+										preview: [
+											'previewSmall'
+										]
+									});
+							</script>
+									</div>
+								</h:panelGroup>
+								<script>
+						$('.avatar').fadeIn();
+						roundImages();
+					</script>
+							</h:panelGroup>
+						</h:form>
 					</div>
 				</div>
 			</div>

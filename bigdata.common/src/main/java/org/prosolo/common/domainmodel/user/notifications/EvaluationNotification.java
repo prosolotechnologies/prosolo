@@ -9,7 +9,7 @@ import org.prosolo.common.domainmodel.user.notifications.Notification;
 /**
  * @author Zoran Jeremic Dec 29, 2013
  */
-
+@Deprecated
 public class EvaluationNotification extends Notification {
 
 	private static final long serialVersionUID = -697733081902131220L;

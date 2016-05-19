@@ -85,7 +85,8 @@ public class UserSessionDataLoader implements Serializable{
 			registerNewUserSession(user, session);
 			
 			UserSettings userSettings = interfaceSettingsManager.getOrCreateUserSettings(user);
-			UserNotificationsSettings notificationsSettings = notificationsSettingsManager.getOrCreateNotificationsSettings(user);
+			UserNotificationsSettings notificationsSettings = notificationsSettingsManager
+					.getOrCreateNotificationsSettings(user.getId());
 	
 			FilterType chosenFilterType = userSettings.getActivityWallSettings().getChosenFilter();
 	

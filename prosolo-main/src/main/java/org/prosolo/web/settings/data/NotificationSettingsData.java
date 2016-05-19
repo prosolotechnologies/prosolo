@@ -2,8 +2,8 @@ package org.prosolo.web.settings.data;
 
 import java.io.Serializable;
 
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.interfacesettings.NotificationSettings;
+import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 
 /**
  * @author Nikola Milikic
@@ -14,30 +14,20 @@ public class NotificationSettingsData implements Serializable {
 	
 	private static final long serialVersionUID = 7178102238090170803L;
 	
-	private EventType type;
-	private boolean subscribedUI;
+	private NotificationType type;
 	private boolean subscribedEmail;
 	
 	public NotificationSettingsData(NotificationSettings notificationSettings) {
 		this.type = notificationSettings.getType();
-		this.subscribedUI = notificationSettings.isSubscribedUI();
 		this.subscribedEmail = notificationSettings.isSubscribedEmail();
 	}
 
-	public EventType getType() {
+	public NotificationType getType() {
 		return type;
 	}
 	
-	public void setType(EventType type) {
+	public void setType(NotificationType type) {
 		this.type = type;
-	}
-	
-	public boolean isSubscribedUI() {
-		return subscribedUI;
-	}
-
-	public void setSubscribedUI(boolean subscribedUI) {
-		this.subscribedUI = subscribedUI;
 	}
 
 	public boolean isSubscribedEmail() {

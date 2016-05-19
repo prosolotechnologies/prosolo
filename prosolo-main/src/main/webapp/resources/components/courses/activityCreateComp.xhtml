@@ -12,6 +12,13 @@
 	<composite:interface>
 		<composite:attribute name="activity" required="true" />
 		<composite:attribute name="bean" required="true" />
+		<composite:attribute name="uploadFileModalId" required="true" />
+		<composite:attribute name="addLinkModalId" required="true" />
+		<composite:attribute name="prepareAddingResLinkMethodName" required="true" />
+		<composite:attribute name="prepareAddingResLinkMethod" required="true" method-signature="void #{cc.attrs.prepareAddingResLinkMethodName}()" />
+		<composite:attribute name="toUpdate" default="" />
+		<composite:attribute name="toUpdateModalUploadFile" default="" />
+		<composite:attribute name="toUpdateModalAddLink" default="" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -21,7 +28,10 @@
            <div class="formLine">
                <label>Video URL</label>
                <div class="formLineRight">
-               	   <h:inputText value="#{cc.attrs.activity.link}"/>
+               	   <h:inputText 
+               	   		styleClass="pasteable"
+               	   		value="#{cc.attrs.activity.link}"
+               	   		onkeyup="updateStatusToDraft();"/>
                </div>
            </div>
         </h:panelGroup>
@@ -33,7 +43,8 @@
               <div class="formLineRight">
               	  <h:inputTextarea 
               	  	value="#{cc.attrs.activity.text}"
-              	  	styleClass="textareaBig"/>
+              	  	styleClass="textareaBig pasteable"
+              	  	onkeyup="updateStatusToDraft();"/>
               </div>
           </div>
      	</h:panelGroup>
@@ -42,7 +53,10 @@
 	          <div class="formLine">
 	              <label>Slideshare URL</label>
 	              <div class="formLineRight">
-	                   <h:inputText value="#{cc.attrs.activity.link}"/>
+	                   <h:inputText 
+	                   		styleClass="pasteable"
+	                   		value="#{cc.attrs.activity.link}"
+	                   		onkeyup="updateStatusToDraft();"/>
 	              </div>
 	          </div>
 	     </h:panelGroup>
@@ -57,42 +71,34 @@
 	                 	<ui:repeat var="file" value="#{cc.attrs.activity.files}">
 	                 		<ui:fragment rendered="#{file.status != 'REMOVED'}">
 	                 			<li>
-			                         <a href="#{file.url}" target="_blank">#{file.linkName}</a>
-			                         <p:commandLink 
+	                 				<h3>#{file.linkName}</h3>
+                                    <p:commandLink 
 			                         	styleClass="removeX" 
 			                         	pt:data-toggle="tooltip" 
 			                         	pt:title="Remove"
 			                         	process="@this"
 			                         	action="#{cc.attrs.bean.removeFile(file)}"
-			                         	update=":#{cc.clientId}:panelFiles">
+			                         	update=":#{cc.clientId}:panelFiles #{cc.attrs.toUpdate}">
 			                         	remove
 			                         </p:commandLink>
+                                    <div class="clear">
+                                    </div>
+			                        <a href="#{file.url}" target="_blank">#{file.fetchedTitle}</a>
+			                         
 	                     		</li>
 	                 		</ui:fragment>
 	                 	</ui:repeat>
 	                 </ul>
 	                 </h:panelGroup>
-	                 <p:fileUpload id="fileUploadActivityFile" 
-	                 		process="@this"
-               				style="display: none;"
-               				styleClass="fileUploadActivityFile"
-							fileUploadListener="#{activityEditBean.handleFileUpload}"  
-				            dragDropSupport="true"
-				            fileLimit="1"
-				        	auto="true"
-				            label="Choose a file"
-				            update=":#{cc.clientId}:panelFiles"
-				            onstart="showLoader('#loaderContainerFileUpload');"
-				            oncomplete="hideLoader('#loaderContainerFileUpload');"
-		             />
-	                 <a href="javascript:void(0);" id="linkTriggerFileUpload" class="btn btn-green">Choose File</a>
-	                 <div id="loaderContainerFileUpload"/>
-	                 <script>
-	                 	$('#linkTriggerFileUpload').on('click', function(e){
-					 		e.stopPropagation();
-							$('.fileUploadActivityFile :input').trigger('click');
-						});
-	                 </script>
+	                      
+	                 <p:commandLink 
+	                 	styleClass="btn btn-green btn-sm" 
+	                 	pt:data-toggle="modal"
+	                 	action="#{cc.attrs.prepareAddingResLinkMethod}"
+	                 	update="#{cc.attrs.toUpdateModalUploadFile}"
+	                 	oncomplete="$('##{cc.attrs.uploadFileModalId}').modal('show');">Upload New File
+	                 </p:commandLink>
+	                
 	                 </h:panelGroup>
 	             </div>
 	         </div>
@@ -105,16 +111,20 @@
 	                 	<ui:repeat var="link" value="#{cc.attrs.activity.links}">
 	                 		<ui:fragment rendered="#{link.status != 'REMOVED'}">
 		                 		<li>
-			                         <a href="#{link.url}" target="_blank">#{link.url}</a>
-			                         <p:commandLink 
+		                 			<h3>#{link.linkName}</h3>
+                                    <p:commandLink 
 			                         	styleClass="removeX" 
 			                         	pt:data-toggle="tooltip" 
 			                         	pt:title="Remove"
 			                         	process="@this"
 			                         	action="#{cc.attrs.bean.removeLink(link)}"
-			                         	update=":#{cc.clientId}:panelLinks">
+			                         	update=":#{cc.clientId}:panelLinks #{cc.attrs.toUpdate}">
 			                         	remove
 			                         </p:commandLink>
+                                    <div class="clear">
+                                    </div>
+			                        <a href="#{link.url}" target="_blank">#{link.url}</a>
+			                         
 		                     	</li>
 		                     </ui:fragment>
 	                 	</ui:repeat>
@@ -122,34 +132,24 @@
 	                 </h:panelGroup>
 	                 </h:panelGroup>
 	                 
-	                 <p:remoteCommand
-	                 	name="addLinkRC"
-	                 	process="inputLink"
-	                 	action="#{cc.attrs.bean.addLink()}"
-	                 	update=":#{cc.clientId}:panelLinks :#{cc.clientId}:inputLink">
-	                 </p:remoteCommand>
-	                 <h:inputText 
-	                 	id="inputLink"
-	                 	placeholder="Type URL and press 'Enter'"
-	                 	value="#{cc.attrs.bean.linkToAdd}"
-	                 	onkeypress="addLinkOnEnter();"/>
-	                 	
-	                 
-	             </div>
-	             <script>
-	             	function addLinkOnEnter() {
-	             		if (event.keyCode == 13) {
-	             			addLinkRC();
-	             		}
-	             	}
-	             </script>
+	                 <p:commandLink 
+	                 	styleClass="btn btn-green btn-sm" 
+	                 	pt:data-toggle="modal"
+	                 	action="#{cc.attrs.prepareAddingResLinkMethod}"
+	                 	update="#{cc.attrs.toUpdateModalAddLink}"
+	                 	oncomplete="attachListenerForFetchingPageTitle(); $('##{cc.attrs.addLinkModalId}').modal('show')">Add New URL
+	                 </p:commandLink>
+
+	             </div>	          
 	         </div>
 	         <div class="formLine">
 	             <label>Upload result</label>
 	             <div class="formLineRight">
 	                 <div class="checkbox checkLine">
-	                 	 <h:selectBooleanCheckbox id="checkUploadResult"
-                    		value="#{cc.attrs.activity.uploadAssignment}">
+	                 	 <h:selectBooleanCheckbox 
+	                 	 	id="checkUploadResult"
+                    		value="#{cc.attrs.activity.uploadAssignment}"
+                    		onchange="updateStatusToDraft();">
                     	 </h:selectBooleanCheckbox>
 	                     <label for="#{cc.clientId}:checkUploadResult">Show "Upload Result" option</label>
 	                 </div>
@@ -168,19 +168,28 @@
             <div class="formLine">
                 <label>Launch URL</label>
                 <div class="formLineRight">
-                     <h:inputText value="#{cc.attrs.activity.launchUrl}"/>
+                     <h:inputText 
+                     	styleClass="pasteable"
+                     	value="#{cc.attrs.activity.launchUrl}"
+                     	onkeyup="updateStatusToDraft();"/>
                 </div>
             </div>
             <div class="formLine">
                 <label>Shared secred</label>
                 <div class="formLineRight">
-                     <h:inputText value="#{cc.attrs.activity.sharedSecret}"/>
+                     <h:inputText 
+                     	styleClass="pasteable"
+                     	value="#{cc.attrs.activity.sharedSecret}"
+                     	onkeyup="updateStatusToDraft();"/>
                 </div>
             </div>
             <div class="formLine">
                 <label>Consumer key (optional)</label>
                 <div class="formLineRight">
-                     <h:inputText value="#{cc.attrs.activity.consumerKey}"/>
+                     <h:inputText 
+                     	styleClass="pasteable"
+                     	value="#{cc.attrs.activity.consumerKey}"
+                     	onkeyup="updateStatusToDraft();"/>
                 </div>
             </div>
             <div class="formLine">
@@ -188,7 +197,8 @@
                 <div class="formLineRight">
                     <div class="checkbox checkLine">
                     	<h:selectBooleanCheckbox id="checkAcceptGrades"
-                    		value="#{cc.attrs.activity.acceptGrades}">
+                    		value="#{cc.attrs.activity.acceptGrades}"
+                    		onchange="updateStatusToDraft();">
                     	</h:selectBooleanCheckbox>
                         <label for="#{cc.clientId}:checkAcceptGrades">Accept grades</label>
                     </div>

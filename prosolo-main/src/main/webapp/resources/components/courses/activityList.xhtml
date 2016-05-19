@@ -19,6 +19,7 @@
 		<composite:attribute name="isEdit" required="true" type="java.lang.Boolean" />
 		<composite:attribute name="showMarkedIfCompleted" required="true" type="java.lang.Boolean" />
 		<composite:attribute name="isPreview" required="true" type="java.lang.Boolean" />
+		<composite:attribute name="toUpdate" default="" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -64,6 +65,7 @@
                    				value="Edit" 
                    				outcome="/create-activity">
                    				<f:param name="id" value="#{util:encodeId(act.activityId)}" />
+                   				<f:param name="compId" value="#{cc.attrs.encodedCompetenceId}"></f:param>
                    			</h:link> 
                         </li>
                         <li>
@@ -88,7 +90,7 @@
 					rendered="#{status.index != cc.attrs.bean.currentNumberOfActivities - 1}"
 					process="@this"
 					action="#{cc.attrs.bean.moveDown(status.index)}"
-					update=":#{cc.clientId}">
+					update=":#{cc.clientId} #{cc.attrs.toUpdate}">
 					down
 				</p:commandLink>
 				
@@ -101,7 +103,7 @@
 					rendered="#{status.index != 0}"
 					process="@this"
 					action="#{cc.attrs.bean.moveUp(status.index)}"
-					update=":#{cc.clientId}">
+					update=":#{cc.clientId} #{cc.attrs.toUpdate}">
 					up
 				</p:commandLink>
                 </h:panelGroup>
@@ -114,6 +116,14 @@
             </div>
          </ui:repeat>
         
+         <ui:fragment rendered="#{cc.attrs.isEdit}">
+         	 <p:commandLink
+         	  	styleClass="activityItem addActivity"
+         	 	action="#{cc.attrs.bean.saveAndNavigateToCreateActivity()}">
+         	 	<span class="iconPlus"></span>
+	            Add Activity
+         	 </p:commandLink>
+	     </ui:fragment>
         </div>
 	</composite:implementation>
 </ui:component>

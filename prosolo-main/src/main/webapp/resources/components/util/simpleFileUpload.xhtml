@@ -1,0 +1,46 @@
+<ui:component
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post">
+
+	<composite:interface>
+		<composite:attribute name="uploadFileButtonText" default="Choose File"/>
+		<composite:attribute name="fileUploadListenerMethodName" required="true"/>
+		<composite:attribute name="fileUploadListenerMethod" method-signature="void #{cc.attrs.fileUploadListenerMethodName}(
+			org.primefaces.event.FileUploadEvent)"/>
+		<composite:attribute name="toUpdate" default="" />
+		<composite:attribute name="toUpdate" default="btn btn-green" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<div id="#{cc.clientId}">
+			<p:fileUpload id="fileUploadFile" 
+          		process="@this"
+   				style="display: none;"
+   				styleClass="fileUploadFile"
+				fileUploadListener="#{cc.attrs.fileUploadListenerMethod}"  
+	            dragDropSupport="true"
+	            fileLimit="1"
+	        	auto="true"
+	            label="Choose a file"
+	            update="#{cc.attrs.toUpdate}"
+	            onstart="showLoader('#loaderContainerFileUpload');"
+	            oncomplete="hideLoader('#loaderContainerFileUpload');"
+            />
+            <div id="loaderContainerFileUpload"/>
+	        <a href="javascript:void(0);" id="linkTriggerFileUpload" class="#{cc.attrs.uploadButtonStyle}">Choose File</a>
+            <script>
+            	$('#linkTriggerFileUpload').on('click', function(e){
+			 		e.stopPropagation();
+					$('.fileUploadFile :input').trigger('click');
+				});
+            </script>
+        </div>
+	</composite:implementation>
+</ui:component>

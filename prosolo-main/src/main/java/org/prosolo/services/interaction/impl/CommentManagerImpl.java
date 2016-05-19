@@ -22,6 +22,7 @@ import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.interaction.data.CommentSortField;
 import org.prosolo.services.interaction.data.factory.CommentDataFactory;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.util.SortingOption;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +41,8 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 	private CommentDataFactory commentFactory;
 	@Inject
 	private Annotation1Manager annotationManager;
+	@Inject
+	private ResourceFactory resourceFactory;
 
 	@Override
 	@Transactional(readOnly = true)
@@ -190,29 +193,15 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 	public Comment1 saveNewComment(CommentData data, long userId, CommentedResourceType resource,
 			LearningContextData context) throws DbConnectionException {
 		try {
-			Comment1 comment = new Comment1();
-			comment.setDescription(data.getComment());
-			comment.setCommentedResourceId(data.getCommentedResourceId());
-			comment.setResourceType(resource);
-			comment.setInstructor(data.isInstructor());
-			//comment.setDateCreated(data.getDateCreated());
-			comment.setPostDate(data.getDateCreated());
-			User user = (User) persistence.currentManager().load(User.class, userId);
-			comment.setUser(user);
-			if(data.getParent() != null) {
-				Comment1 parent = (Comment1) persistence.currentManager().load(Comment1.class, 
-						data.getParent().getCommentId());
-				comment.setParentComment(parent);
-			}
-			
-			saveEntity(comment);
+			Comment1 comment = resourceFactory.saveNewComment(data, userId, resource);
 			
 			//avoid queries to db
 			User actor = new User();
 			actor.setId(userId);
 			
 			//TODO check with Nikola if target (Competence, Activity) is needed
-			eventFactory.generateEvent(EventType.Comment, actor, comment, null, 
+			EventType eventType = data.getParent() != null ? EventType.Comment_Reply : EventType.Comment;
+			eventFactory.generateEvent(eventType, actor, comment, null, 
 					context.getPage(), context.getLearningContext(), context.getService(), null);
 			
 			return comment;
@@ -243,6 +232,60 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while updating comment");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> getIdsOfUsersThatCommentedResource(CommentedResourceType resourceType, long resourceId, 
+			List<Long> usersToExclude) throws DbConnectionException {
+		try {
+			String query = "SELECT distinct comment.user.id FROM Comment1 comment " +
+						   "WHERE comment.resourceType = :resType " +
+						   "AND comment.commentedResourceId = :resourceId " +
+						   "AND comment.user.id NOT IN (:usersToExclude)";
+			
+			@SuppressWarnings("unchecked")
+			List<Long> res = persistence.currentManager()
+					.createQuery(query)
+					.setParameter("resType", resourceType)
+					.setLong("resourceId", resourceId)
+					.setParameterList("usersToExclude", usersToExclude)
+					.list();
+			
+			if(res == null) {
+				return new ArrayList<>();
+			}
+	
+			return res;
+			
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading user ids");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Long getCommentedResourceCreatorId(CommentedResourceType resourceType, long resourceId) 
+			throws DbConnectionException {
+		try {
+			//TODO when comments are implemented for socialactivity this method should be changed
+			//because socialactivity maybe won't have createdBy relationship
+			String query = "SELECT res.createdBy.id FROM " + resourceType.getDbTableName() + " res " +
+						   "WHERE res.id = :resId";
+			
+			Long id = (Long) persistence.currentManager()
+					.createQuery(query)
+					.setLong("resId", resourceId)
+					.uniqueResult();
+
+			return id;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading user id");
 		}
 	}
 	

@@ -49,6 +49,7 @@ import twitter4j.TwitterException;
 @ManagedBean(name = "twitterBean")
 @Component("twitterBean")
 @Scope("view")
+@Deprecated
 public class TwitterBean implements Serializable {
 
 	private static final long serialVersionUID = -4161095810221302021L;

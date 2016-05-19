@@ -11,7 +11,8 @@
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 
 	<composite:interface>
-		<composite:attribute name="deleteAction" required="true" method-signature="void delete()"/>
+	    <composite:attribute name="deleteActionMethodName" required="true"/>
+		<composite:attribute name="deleteAction" required="true" method-signature="void #{cc.attrs.deleteActionMethodName}()"/>
 		<composite:attribute name="toUpdate" required="true" />
 		<composite:attribute name="modalDeleteTitle" required="true"/>
 		<composite:attribute name="modalDeleteText" required="true"/>

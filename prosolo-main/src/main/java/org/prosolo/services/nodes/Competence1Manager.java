@@ -88,7 +88,23 @@ public interface Competence1Manager {
 	
 	void addActivityToCompetence(long compId, Activity1 act) throws DbConnectionException;
 
+	/**
+	 * Duration for competence with id is updated by adding/subtracting {@code duration} value.
+	 * Duration for all credentials that include this competence is also updated.
+	 * @param id
+	 * @param duration
+	 * @param op
+	 * @throws DbConnectionException
+	 */
 	void updateDuration(long id, long duration, Operation op) throws DbConnectionException;
+	
+	/**
+	 * New duration for target competence is set. Duration of target credential is not updated.
+	 * @param id
+	 * @param duration
+	 * @throws DbConnectionException
+	 */
+	void updateTargetCompetenceDuration(long id, long duration) throws DbConnectionException;
 	
 	String getCompetenceTitle(long id) throws DbConnectionException;
 

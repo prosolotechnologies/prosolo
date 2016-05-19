@@ -47,6 +47,7 @@ public class ActivityDataFactory {
 		act.setHasDraft(activity.isHasDraft());
 		act.setActivityStatus();
 		act.setUploadAssignment(activity.isUploadAssignment());
+		act.setDateCreated(activity.getDateCreated());
 		
 		if(links != null) {
 			List<ResourceLinkData> activityLinks = new ArrayList<>();
@@ -68,6 +69,7 @@ public class ActivityDataFactory {
 				rlData.setId(rl.getId());
 				rlData.setLinkName(rl.getLinkName());
 				rlData.setUrl(rl.getUrl());
+				rlData.setFetchedTitle(rl.getUrl().substring(rl.getUrl().lastIndexOf("/") + 1));
 				rlData.setStatus(ObjectStatus.UP_TO_DATE);
 				activityFiles.add(rlData);
 			}
@@ -227,6 +229,7 @@ public class ActivityDataFactory {
 				rlData.setId(rl.getId());
 				rlData.setLinkName(rl.getLinkName());
 				rlData.setUrl(rl.getUrl());
+				rlData.setFetchedTitle(rl.getUrl().substring(rl.getUrl().lastIndexOf("/") + 1));
 				rlData.setStatus(ObjectStatus.UP_TO_DATE);
 				activityFiles.add(rlData);
 			}
@@ -336,6 +339,7 @@ public class ActivityDataFactory {
 		act.setDuration(activity.getDurationHours() * 60 + activity.getDurationMinutes());
 		act.setPublished(activity.isPublished());
 		act.setUploadAssignment(activity.isUploadAssignment());
+		act.setDateCreated(activity.getDateCreated());
 	}
 	
 	public Activity1 getActivityFromActivityData(ActivityData activity) {
@@ -373,6 +377,25 @@ public class ActivityDataFactory {
 				extAct.setAcceptGrades(activity.isAcceptGrades());
 				return extAct;
 			default: 
+				return null;
+		}
+	}
+	
+	public Activity1 getObjectForActivityType(ActivityType type) {
+		switch(type) {
+			case TEXT:
+				return new TextActivity1();
+			case VIDEO:
+				UrlActivity1 actVideo = new UrlActivity1();
+				actVideo.setType(UrlActivityType.Video);
+				return actVideo;
+			case SLIDESHARE:
+				UrlActivity1 actSlides = new UrlActivity1();
+				actSlides.setType(UrlActivityType.Slides);
+				return actSlides;
+			case EXTERNAL_TOOL:
+				return new ExternalToolActivity1();
+			default:
 				return null;
 		}
 	}

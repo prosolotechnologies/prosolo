@@ -11,8 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import org.hibernate.annotations.Type;
-import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.interfacesettings.NotificationSettings;
+import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 
 /**
  * @author Nikola Milikic
@@ -25,15 +24,13 @@ public class NotificationSettings implements Serializable {
 	private static final long serialVersionUID = 7481670064380351424L;
 
 	private long id;
-	private EventType type;
-	private boolean subscribedUI;
+	private NotificationType type;
 	private boolean subscribedEmail;
 	
 	public NotificationSettings() { }
 	
-	public NotificationSettings(EventType type, boolean subscribedUI, boolean subscribedEmail) {
+	public NotificationSettings(NotificationType type, boolean subscribedEmail) {
 		this.type = type;
-		this.subscribedUI = subscribedUI;
 		this.subscribedEmail = subscribedEmail;
 	}
 
@@ -50,22 +47,12 @@ public class NotificationSettings implements Serializable {
 	}
 
 	@Enumerated (EnumType.STRING)
-	public EventType getType() {
+	public NotificationType getType() {
 		return type;
 	}
 
-	public void setType(EventType type) {
+	public void setType(NotificationType type) {
 		this.type = type;
-	}
-
-	@Type(type = "true_false")
-	@Column(columnDefinition = "char(1) DEFAULT 'F'")
-	public boolean isSubscribedUI() {
-		return subscribedUI;
-	}
-
-	public void setSubscribedUI(boolean subscribedUI) {
-		this.subscribedUI = subscribedUI;
 	}
 
 	@Type(type = "true_false")
@@ -102,7 +89,7 @@ public class NotificationSettings implements Serializable {
 
 	@Override
 	public String toString() {
-		return "NotificationSettings [id=" + id + ", type=" + type + ", subscribedUI=" + subscribedUI + ", subscribedEmail=" + subscribedEmail + "]";
+		return "NotificationSettings [id=" + id + ", type=" + type + ", subscribedEmail=" + subscribedEmail + "]";
 	}
 
 }
