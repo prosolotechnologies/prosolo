@@ -64,7 +64,10 @@ public class MessagesObserver extends EventObserver {
 				for (ThreadParticipant participant : participants) {
 					User user = participant.getUser();
 					if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
-						messageDistributer.distributeMessage(ServiceType.DIRECT_MESSAGE, user.getId(), message.getId(), null, null);
+						//don't send message to the sender of the original message
+						if(user.getId() != message.getSender().getId()){
+							messageDistributer.distributeMessage(ServiceType.DIRECT_MESSAGE, user.getId(), message.getId(), null, null);
+						}
 					} else {
 						HttpSession httpSession = applicationBean.getUserSession(user.getId());
 						

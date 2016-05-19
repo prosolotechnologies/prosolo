@@ -306,7 +306,7 @@
 	                            To:
 	                        </div>
 	                    <h:inputText autocomplete="off" onkeyup="return this.value.length >= 3" 
-	                    			
+	                    			onfocus="this.value = this.value;"
 	                    			value="#{searchPeopleBean.query}" 
 	                    			id="messageRecievingUserName" name="messageRecievingUserName">
 	                    	<f:ajax
