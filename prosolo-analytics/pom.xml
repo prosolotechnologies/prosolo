@@ -23,10 +23,10 @@
 	</properties>
 	<repositories>
 		<!-- boilerpipe repo -->
-		<repository>
+		<!--repository>
 			<id>boilerpipe-m2-repo</id>
 			<url>https://boilerpipe.googlecode.com/svn/repo/</url>
-		</repository>
+		</repository-->
 		<repository>
 			<id>clojars.org</id>
 			<url>http://clojars.org/repo</url>
