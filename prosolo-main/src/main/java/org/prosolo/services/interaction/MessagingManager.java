@@ -1,8 +1,8 @@
 package org.prosolo.services.interaction;
 
+import java.util.Date;
 import java.util.List;
 
-import org.hibernate.Session;
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.domainmodel.messaging.ThreadParticipant;
@@ -15,56 +15,35 @@ import org.prosolo.web.messaging.data.MessagesThreadData;
 
 public interface MessagingManager extends AbstractManager {
 	
-//	List<SimpleOfflineMessage> sendMessages(long senderId, List<UserData> receivers, String text, long threadId, String context) throws ResourceCouldNotBeLoadedException;
-
-	Message sendMessages(long senderId, List<UserData> receivers, String text, long threadId, String context) throws ResourceCouldNotBeLoadedException;
+	Message sendMessages(long senderId, List<UserData> receivers, String text, Long threadId, String context) throws ResourceCouldNotBeLoadedException;
 	
-	Message sendSimpleOfflineMessage(long senderId, long receiverId,
-			String content, long threadId, String context) throws ResourceCouldNotBeLoadedException;
-
-	Message sendSimpleOfflineMessage(User sender, long receiverId,
-			String content, MessageThread messagesThread, String context) throws ResourceCouldNotBeLoadedException;
+	List<Message> getMessagesForThread(long threadId, int page, int limit, Date fromTime);
 	
-//	List<Message> getUnreadSimpleOfflineMessages(User user,
-//			int page, int limit);
-
-	List<Message> getMessages(User user, int page, int limit);
-
-	List<MessageThread> getUserMessagesThreads(User user, int page, int limit);
-
-	MessageThread getMessagesThreadForPrevoiusMessage(
-			Message previousMessage);
-
-	MessageThread createNewMessagesThread(User creator, List<Long> participantIds, String subject);
-
-	List<Message> getMessagesForThread(long threadId, int page, int limit);
+	public MessageThread createNewMessagesThread(User creator, List<Long> participantIds, String subject);
 
 	List<MessagesThreadData> convertMessagesThreadsToMessagesThreadData(List<MessageThread> mThreads, User user);
 
 	MessagesThreadData convertMessagesThreadToMessagesThreadData(
 			MessageThread mThread, User user);
 
-	//boolean markAsRead(long[] messageIds, User user, Session session) throws ResourceCouldNotBeLoadedException;
-
-	Message markAsRead(Message message, User user, Session session);
-
-	MessageThread findMessagesThreadForUsers(long user1Id, long user2Id);
-
 	List<MessageThread> getLatestUserMessagesThreads(User user, int page, int limit, boolean archived);
 
 	boolean markThreadAsRead(long threadId, long userId);
 
-	List<Message> getMessagesForThread(MessageThread thread,
-			int page, int limit, Session session);
-
-	MessageThread getLatestMessageThread(User user);
+	MessageThread getLatestMessageThread(User user, boolean archived);
 	
-	public Message sendMessage(long senderId, long receiverId, String msg) throws DbConnectionException;
+	public Message sendMessage(long senderId,  long recieverId, String msg) throws DbConnectionException;
 	
 	public ThreadParticipant findParticipation(long threadId, long userId);
 	
-	public List<Message> getUnreadMessages(long threadId, Message lastReadMessage);
+	public List<Message> getUnreadMessages(long threadId, Message lastReadMessage, Date fromTime);
 	
-	public List<Message> getMessagesBeforeMessage(long threadId, Message message, int numberOfMessages);
+	public List<Message> getMessagesBeforeMessage(long threadId, Message message, int numberOfMessages, Date fromTime);
 	
+	public void archiveThread(long threadId, long userId);
+
+	void markThreadDeleted(long threadId, long userId);
+
+	List<MessageThread> getUnreadMessageThreads(long id);
+
 }

@@ -172,4 +172,18 @@ public class UserData implements Serializable, Comparable<UserData> {
 		this.lastAction = lastAction;
 	}
 	
+	public String getInitials() {
+		if(name != null && name.length() >= 2) {
+			String[] firstAndLastName = name.split(" ");
+			//if we only have name or last name, return first two characters uppercased
+			if(firstAndLastName.length == 1) {
+				return name.substring(0, 1).toUpperCase();
+			}
+			else return (firstAndLastName[0].charAt(0) + "" + firstAndLastName[1].charAt(0)).toUpperCase();
+		}
+		else {
+			return "N/A";
+		}
+	}
+	
 }

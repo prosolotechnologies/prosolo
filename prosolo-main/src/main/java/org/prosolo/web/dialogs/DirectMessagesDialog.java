@@ -2,7 +2,6 @@ package org.prosolo.web.dialogs;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,9 +11,7 @@ import javax.faces.bean.ManagedBean;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.messaging.Message;
-import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
@@ -75,29 +72,10 @@ public class DirectMessagesDialog implements Serializable {
 	}
 	
 	public void sendMessage() {
-		MessageThread messagesThread = null;
 		
 		try {
-			messagesThread = messagingManager.findMessagesThreadForUsers(loggedUser.getUser().getId(), receiver.getId());
 			
-			if (messagesThread == null) {
-				List<Long> participantsIds = new ArrayList<Long>();
-				participantsIds.add(receiver.getId());
-				participantsIds.add(loggedUser.getUser().getId());
-				
-				messagesThread = messagingManager.createNewMessagesThread(
-					loggedUser.getUser(), 
-					participantsIds, 
-					this.messageContent);
-			}
-			
-			Message message = messagingManager.sendSimpleOfflineMessage(
-					loggedUser.getUser(), 
-					receiver.getId(), 
-					this.messageContent, 
-					messagesThread,
-					context);
-
+			Message message = messagingManager.sendMessage(loggedUser.getUser().getId(), receiver.getId(), this.messageContent);
 			logger.debug("User "+loggedUser.getUser()+" sent a message to "+receiver+" with content: '"+this.messageContent+"'");
 			
 			List<UserData> participants = new ArrayList<UserData>();

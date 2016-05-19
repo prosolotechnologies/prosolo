@@ -203,4 +203,10 @@ public class SearchPeopleBean implements Serializable{
 		this.context = context;
 	}
 	
+	public void resetSearch() {
+		users = new ArrayList<>();
+		query = "";
+		userSize = 0;
+	}
+	
 }

@@ -14,22 +14,23 @@
 		<h:form id="inboxForm">
 			<p:growl id="messagesGrowl" showDetail="true" />
 
-			<p:poll interval="#{messagesBean.refreshRate}"
+			<p:poll interval="#{topInboxBean.refreshRate}"
 				oncomplete="roundImages" update=":inboxForm"
 				widgetVar="messagesPoll" autoStart="true" />
 				
 			<p:commandLink styleClass="faded" pt:aria-expanded="false"
 				pt:aria-haspopup="true" pt:role="button" pt:data-toggle="dropdown"
-				action="#{messagesBean.readMessages()}"
+				action="#{topInboxBean.readMessagesAndRedirect()}"
 				actionListener="#{messagesBean.logInboxServiceUse()}" async="true"
 				update=":inboxForm:messagesPanelContent @this">
 
 				<i class="fa fa-envelope-o fa-lg"></i>
-
-				<h:panelGroup styleClass="bdg"
-					rendered="#{messagesBean.unreadThreadsNo > 0}">
-					#{messagesBean.unreadThreadsNo}
-				</h:panelGroup>
+				<ui:remove>
+					<h:panelGroup styleClass="bdg"
+						rendered="#{messagesBean.unreadThreadsNo > 0}">
+						#{messagesBean.unreadThreadsNo}
+					</h:panelGroup>
+				</ui:remove>
 			</p:commandLink>
 
 

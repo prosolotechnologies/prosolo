@@ -81,9 +81,18 @@
 							<li><h:link value="New Competence" /></li>
 						</ul>
 					</div>
-					<a class="iconMessages active" href="#">Messages<span
-						class="unreadDot">unreadDot</span></a> <a class="iconNotifications"
-						href="#">Notifications</a>
+					<h:form id="topInboxForm" prependId="false">
+						<p:commandLink ajax="false" action="#{topInboxBean.readMessagesAndRedirect()}" 
+						styleClass="iconMessages active">Messages<span
+							class="#{topInboxBean.unreadThreadIds.size() > 0 ? 'unreadDot' : ''}">unreadDot</span></p:commandLink>
+						<p:poll interval="#{topInboxBean.refreshRate}"
+								update=":topInboxForm"
+								widgetVar="messagesPoll" autoStart="true" />
+					</h:form>
+					<div class="dropdown notificationsMenu">
+						<a class="iconNotifications" href="#">Notifications</a>
+                    </div>
+
 					<h:form>
 						<div class="dropdown userMenu">
 							<a data-toggle="dropdown" aria-haspopup="true"
