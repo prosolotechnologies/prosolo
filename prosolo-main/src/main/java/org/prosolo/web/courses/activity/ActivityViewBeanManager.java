@@ -1,4 +1,4 @@
-package org.prosolo.web.courses;
+package org.prosolo.web.courses.activity;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -11,10 +11,14 @@ import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
+import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.Activity1Manager;
+import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.Mode;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
@@ -23,20 +27,22 @@ import org.prosolo.web.util.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-@ManagedBean(name = "activityViewBean")
-@Component("activityViewBean")
+@ManagedBean(name = "activityViewBeanManager")
+@Component("activityViewBeanManager")
 @Scope("view")
-public class ActivityViewBean implements Serializable {
+public class ActivityViewBeanManager implements Serializable {
 
-	private static final long serialVersionUID = -8910052333513137853L;
+	private static final long serialVersionUID = -4768101723720055132L;
 
-	private static Logger logger = Logger.getLogger(ActivityViewBean.class);
+	private static Logger logger = Logger.getLogger(ActivityViewBeanManager.class);
 	
 	@Inject private LoggedUserBean loggedUser;
 	@Inject private Activity1Manager activityManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private CommentBean commentBean;
 	@Inject private UploadManager uploadManager;
+	@Inject private CredentialManager credManager;
+	@Inject private Competence1Manager compManager;
 
 	private String actId;
 	private long decodedActId;
@@ -53,22 +59,17 @@ public class ActivityViewBean implements Serializable {
 		decodedCompId = idEncoder.decodeId(compId);
 		if (decodedActId > 0 && decodedCompId > 0) {
 			try {
-				decodedCredId = idEncoder.decodeId(credId);
-				if(decodedCredId > 0) {
-					competenceData = activityManager
-							.getFullTargetActivityOrActivityData(decodedCredId,
-									decodedCompId, decodedActId, loggedUser.getUser().getId());
-				} else {
-					boolean shouldReturnDraft = false;
-					long creatorId = 0;
-					if("preview".equals(mode)) {
-						shouldReturnDraft = false;
-						creatorId = loggedUser.getUser().getId();
-					} 
-					competenceData = activityManager
-							.getCompetenceActivitiesWithSpecifiedActivityInFocus(decodedActId, 
-									creatorId, 0, shouldReturnDraft);
+				Mode mode = Mode.View;
+				/*
+				 * when preview it is like getting data for edit.
+				 * Just university activities can be previewed.
+				 */
+				if("preview".equals(mode)) {
+					mode = Mode.Edit;
 				}
+				competenceData = activityManager
+						.getCompetenceActivitiesWithActivityDetailsForManager(decodedActId, mode);
+				
 				if(competenceData == null) {
 					try {
 						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
@@ -76,8 +77,16 @@ public class ActivityViewBean implements Serializable {
 						logger.error(e);
 					}
 				} else {
+					/*
+					 * check if user has instructor capability and if has, we should mark his comments as
+					 * instructor comments
+					 */
+					boolean hasInstructorCapability = loggedUser.hasCapability("BASIC.INSTRUCTOR.ACCESS");
 					commentBean.init(CommentedResourceType.Activity, 
-							competenceData.getActivityToShowWithDetails().getActivityId());
+							competenceData.getActivityToShowWithDetails().getActivityId(), 
+							hasInstructorCapability);
+					
+					loadCompetenceAndCredentialTitle();
 				}
 			} catch(Exception e) {
 				logger.error(e);
@@ -93,6 +102,30 @@ public class ActivityViewBean implements Serializable {
 		}
 	}
 	
+	private void loadCompetenceAndCredentialTitle() {
+		String compTitle = null;
+		if(competenceData.getActivityToShowWithDetails().getType() 
+				== LearningResourceType.UNIVERSITY_CREATED) {
+			compTitle = compManager.getCompetenceDraftOrOriginalTitle(decodedCompId);
+		} else {
+			compTitle = compManager.getCompetenceTitle(decodedCompId);
+		}
+		competenceData.setTitle(compTitle);
+		decodedCredId = idEncoder.decodeId(credId);
+		if(decodedCredId > 0) {
+			String credTitle = null;
+			if(competenceData.getActivityToShowWithDetails().getType() 
+					== LearningResourceType.UNIVERSITY_CREATED) {
+				credTitle = credManager.getCredentialDraftOrOriginalTitle(decodedCredId);
+			} else {
+				credTitle = credManager.getCredentialTitle(decodedCredId);
+			}
+			competenceData.setCredentialId(decodedCredId);
+			competenceData.setCredentialTitle(credTitle);
+		}
+		
+	}
+
 	public boolean isActivityActive(ActivityData act) {
 		return competenceData.getActivityToShowWithDetails().getActivityId() == act.getActivityId();
 	}

@@ -48,6 +48,7 @@ public class ActivityDataFactory {
 		act.setActivityStatus();
 		act.setUploadAssignment(activity.isUploadAssignment());
 		act.setDateCreated(activity.getDateCreated());
+		act.setType(activity.getType());
 		
 		if(links != null) {
 			List<ResourceLinkData> activityLinks = new ArrayList<>();
@@ -107,7 +108,7 @@ public class ActivityDataFactory {
 			act.setText(ta.getText());
 		} else if(activity instanceof UrlActivity1) {
 			UrlActivity1 urlAct = (UrlActivity1) activity;
-			switch(urlAct.getType()) {
+			switch(urlAct.getUrlType()) {
 				case Video:
 					act.setActivityType(ActivityType.VIDEO);
 					try {
@@ -152,6 +153,7 @@ public class ActivityDataFactory {
 		act.setPublished(activity.isPublished());
 		act.setDraft(activity.isDraft());
 		act.setHasDraft(activity.isHasDraft());
+		act.setType(activity.getType());
 		
 		act.setActivityType(determineActivityType(activity));
 		
@@ -169,7 +171,7 @@ public class ActivityDataFactory {
 			return ActivityType.TEXT;
 		} else if(activity instanceof UrlActivity1) {
 			UrlActivity1 urlAct = (UrlActivity1) activity;
-			switch(urlAct.getType()) {
+			switch(urlAct.getUrlType()) {
 				case Video:
 					return ActivityType.VIDEO;
 				case Slides:
@@ -340,6 +342,7 @@ public class ActivityDataFactory {
 		act.setPublished(activity.isPublished());
 		act.setUploadAssignment(activity.isUploadAssignment());
 		act.setDateCreated(activity.getDateCreated());
+		act.setType(activity.getType());
 	}
 	
 	public Activity1 getActivityFromActivityData(ActivityData activity) {
@@ -360,9 +363,9 @@ public class ActivityDataFactory {
 			case SLIDESHARE:
 				UrlActivity1 urlAct = new UrlActivity1();
 				if(activity.getActivityType() == ActivityType.VIDEO) {
-					urlAct.setType(UrlActivityType.Video);
+					urlAct.setUrlType(UrlActivityType.Video);
 				} else {
-					urlAct.setType(UrlActivityType.Slides);
+					urlAct.setUrlType(UrlActivityType.Slides);
 				}
 				populateCommonData(urlAct, activity);
 				urlAct.setUrl(activity.getLink());
@@ -387,11 +390,11 @@ public class ActivityDataFactory {
 				return new TextActivity1();
 			case VIDEO:
 				UrlActivity1 actVideo = new UrlActivity1();
-				actVideo.setType(UrlActivityType.Video);
+				actVideo.setUrlType(UrlActivityType.Video);
 				return actVideo;
 			case SLIDESHARE:
 				UrlActivity1 actSlides = new UrlActivity1();
-				actSlides.setType(UrlActivityType.Slides);
+				actSlides.setUrlType(UrlActivityType.Slides);
 				return actSlides;
 			case EXTERNAL_TOOL:
 				return new ExternalToolActivity1();

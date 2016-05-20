@@ -12,6 +12,7 @@ import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.Mode;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 
@@ -153,6 +154,23 @@ public interface CredentialManager extends AbstractManager {
 	void updateCredentialAndCompetenceProgressAndNextActivityToLearn(long credId, 
 			long targetCompId, long targetActId, long userId) throws DbConnectionException;
 	
+	String getCredentialTitle(long id) throws DbConnectionException;
+	
 	String getCredentialDraftOrOriginalTitle(long id) throws DbConnectionException;
+	
+	/**
+	 * Returns current version of credential for edit if edit mode - draft version if exists
+	 * but only if credential is university based, otherwise null is returned.
+	 * If view mode, again draft version is returned if exists and credential is university based, 
+	 * otherwise published version is returned.
+	 * @param credentialId
+	 * @param loadCreator
+	 * @param loadCompetences
+	 * @param mode
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	CredentialData getCredentialForManager(long credentialId, boolean loadCreator,
+			boolean loadCompetences, Mode mode) throws DbConnectionException;
 	
 }

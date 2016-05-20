@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 
@@ -81,5 +82,27 @@ public class PageUtil {
 	public static void sendToAccessDeniedPage() throws IOException {
 		FacesContext context = FacesContext.getCurrentInstance();
 		context.getExternalContext().dispatch("accessDenied");
+	}
+	
+	/**
+	 * Returns section for current view.
+	 * Example: if current view is '/manage/credential.xhtml method will return 
+	 * /manage.
+	 * @return
+	 */
+	public static String getSectionForView() {
+		String viewId = FacesContext.getCurrentInstance().getViewRoot().getViewId();
+		logger.info("VIEWID " + viewId);
+		/*
+		 * find section by returning viewId substring from the beggining to the second
+		 * occurrence of '/' character. That is because viewId always starts with 
+		 * "/section/page" (if there is a section)
+		 */
+		int secondSlashIndex = StringUtils.ordinalIndexOf(viewId, "/", 2);
+		String section = "";
+		if(secondSlashIndex != -1) {
+			section = viewId.substring(0, secondSlashIndex);
+		}
+		return section;
 	}
 }

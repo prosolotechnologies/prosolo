@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.credential.CredentialType1;
+import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.services.common.observable.StandardObservable;
 import org.prosolo.services.nodes.util.TimeUtil;
 
@@ -25,7 +25,7 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private boolean published;
 	private PublishedStatus status;
 	private String typeString;
-	private CredentialType1 type;
+	private LearningResourceType type;
 	private boolean mandatoryFlow;
 	private long duration;
 	private String durationString;
@@ -94,15 +94,15 @@ public class CredentialData extends StandardObservable implements Serializable {
 	}
 	
 	private void setCredentialTypeFromString() {
-		type = CredentialType1.valueOf(typeString.toUpperCase());
+		type = LearningResourceType.valueOf(typeString.toUpperCase());
 	}
 	
 	public boolean isUniversityCreated() {
-		return type == CredentialType1.UNIVERSITY_CREATED;
+		return type == LearningResourceType.UNIVERSITY_CREATED;
 	}
 	
 	public boolean isUserCreated() {
-		return type == CredentialType1.USER_CREATED;
+		return type == LearningResourceType.USER_CREATED;
 	}
 	
 	public boolean isCompleted() {
@@ -163,11 +163,11 @@ public class CredentialData extends StandardObservable implements Serializable {
 		setPublished();
 	}
 
-	public CredentialType1 getType() {
+	public LearningResourceType getType() {
 		return type;
 	}
 
-	public void setType(CredentialType1 type) {
+	public void setType(LearningResourceType type) {
 		this.type = type;
 	}
 

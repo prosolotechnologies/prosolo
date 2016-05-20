@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.services.common.observable.StandardObservable;
 import org.prosolo.services.nodes.util.TimeUtil;
 
@@ -37,6 +38,8 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private List<ResourceLinkData> links;
 	private List<ResourceLinkData> files;
 	private boolean uploadAssignment;
+	private String typeString;
+	private LearningResourceType type;
 	
 	private ObjectStatus objectStatus;
 	
@@ -83,6 +86,10 @@ public class ActivityData extends StandardObservable implements Serializable {
 			}
 		}
 		return changed;
+	}
+	
+	private void setActivityTypeFromString() {
+		type = LearningResourceType.valueOf(typeString.toUpperCase());
 	}
 	
 	public long getTargetOrRegularActivityId() {
@@ -403,6 +410,31 @@ public class ActivityData extends StandardObservable implements Serializable {
 		this.embedId = embedId;
 	}
 	
+	public Date getDateCreated() {
+		return dateCreated;
+	}
+
+	public void setDateCreated(Date dateCreated) {
+		this.dateCreated = dateCreated;
+	}
+	
+	public String getTypeString() {
+		return typeString;
+	}
+
+	public void setTypeString(String typeString) {
+		this.typeString = typeString;
+		setActivityTypeFromString();
+	}
+	
+	public LearningResourceType getType() {
+		return type;
+	}
+
+	public void setType(LearningResourceType type) {
+		this.type = type;
+	}
+	
 	//change tracking get methods
 
 	public boolean isTitleChanged() {
@@ -486,14 +518,6 @@ public class ActivityData extends StandardObservable implements Serializable {
 		} else {
 			return Optional.of(dur);
 		}
-	}
-
-	public Date getDateCreated() {
-		return dateCreated;
-	}
-
-	public void setDateCreated(Date dateCreated) {
-		this.dateCreated = dateCreated;
 	}
 	
 }

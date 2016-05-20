@@ -20,7 +20,7 @@ import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
-import org.prosolo.common.domainmodel.credential.CredentialType1;
+import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
@@ -35,6 +35,7 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.Mode;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
@@ -736,7 +737,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			
 			Map<String, String> params = null;
 			
-			if(cred.getType() == CredentialType1.UNIVERSITY_CREATED) {
+			if(cred.getType() == LearningResourceType.UNIVERSITY_CREATED) {
 	    		//TODO assign student to instructor automatically if automatic assign is turned on
 	    	}
 			CredentialData cd = credentialFactory.getCredentialData(targetCred.getCreatedBy(), 
@@ -1491,6 +1492,27 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Override
 	@Transactional(readOnly = true)
+	public String getCredentialTitle(long id) throws DbConnectionException {
+		try {
+			String query = "SELECT cred.title " +
+						   "FROM Credential1 cred " +
+						   "WHERE cred.id = :credId";
+			
+			String title = (String) persistence.currentManager()
+				.createQuery(query)
+				.setLong("credId", id)
+				.uniqueResult();
+			
+			return title;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credential title");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
 	public String getCredentialDraftOrOriginalTitle(long id) throws DbConnectionException {
 		try {
 			String query = "SELECT coalesce(draftCred.title, cred.title) " +
@@ -1510,5 +1532,147 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while retrieving credential title");
 		}
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public CredentialData getCredentialForManager(long credentialId, boolean loadCreator,
+			boolean loadCompetences, Mode mode) throws DbConnectionException {
+		try {
+			StringBuilder queryBuilder = new StringBuilder();
+			queryBuilder.append("SELECT cred " +
+					   "FROM Credential1 cred " + 
+					   "LEFT JOIN fetch cred.tags tags " +
+					   "LEFT JOIN fetch cred.hashtags hashtags ");
+
+			if(loadCreator) {
+				queryBuilder.append("INNER JOIN fetch cred.createdBy ");
+			}
+			
+			StringBuilder queryBuilder1 = new StringBuilder(queryBuilder.toString());
+			queryBuilder1.append("WHERE cred.id = :credentialId " +
+					"AND cred.deleted = :deleted " +
+					"AND cred.draft = :draft ");
+			if(mode == Mode.Edit) {
+				queryBuilder1.append("AND cred.type = :type ");
+			} else {
+				queryBuilder1.append("AND (cred.type = :type  OR (cred.published = :published " +
+					"OR cred.hasDraft = :hasDraft))");
+			}
+						   
+			Query q = persistence.currentManager()
+					.createQuery(queryBuilder1.toString())
+					.setLong("credentialId", credentialId)
+					.setBoolean("deleted", false)
+					.setParameter("type", LearningResourceType.UNIVERSITY_CREATED)
+					.setBoolean("draft", false);
+			
+			if(mode == Mode.View) {
+				q.setBoolean("published", true)
+				 .setBoolean("hasDraft", true);
+			}
+			
+			Credential1 res = (Credential1) q.uniqueResult();
+			
+			if(res != null) {
+				CredentialData credData = null;
+				if(res.isHasDraft() && (mode == Mode.Edit  
+						|| (mode == Mode.View && 
+						res.getType() == LearningResourceType.UNIVERSITY_CREATED))) {
+					String query2 = queryBuilder.toString() + 
+							" WHERE cred = :draftVersion";
+					Credential1 draftCred = (Credential1) persistence.currentManager()
+							.createQuery(query2)
+							.setEntity("draftVersion", res.getDraftVersion())
+							.uniqueResult();
+					if(draftCred != null) {
+						User creator = loadCreator ? draftCred.getCreatedBy() : null;
+						credData = credentialFactory.getCredentialData(creator, draftCred, 
+								draftCred.getTags(), draftCred.getHashtags(), true);
+					}	
+				} else {
+					User creator = loadCreator ? res.getCreatedBy() : null;
+					credData = credentialFactory.getCredentialData(creator, res, res.getTags(),
+							res.getHashtags(), true);
+				}
+				if(credData != null && loadCompetences) {
+					List<CompetenceData1> compsData = compManager.getCredentialCompetencesData(
+							credData.getId(), true, false, false, true);
+					credData.setCompetences(compsData);
+				}
+				return credData;
+			}
+			
+			return null;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading credential data");
+		}
+	}
+	
+//	@Override
+//	@Transactional(readOnly = true)
+//	public CredentialData getCurrentVersionOfCredentialForManager(long credentialId,
+//			boolean loadCompetences) throws DbConnectionException {
+//		try {	
+//			String commonQuery = "SELECT cred " +
+//						   "FROM Credential1 cred " + 
+//						   "INNER JOIN fetch cred.createdBy " +
+//						   "LEFT JOIN fetch cred.tags tags " +
+//						   "LEFT JOIN fetch cred.hashtags hashtags ";
+//			
+//			String query1 = commonQuery + 
+//					"WHERE cred.id = :credentialId " +
+//					"AND cred.deleted = :deleted " +
+//					"AND cred.draft = :draft " +
+//					"AND (cred.type = :type  OR (cred.published = :published " +
+//					"OR cred.hasDraft = :hasDraft))";
+//						   
+//			Credential1 res = (Credential1) persistence.currentManager()
+//					.createQuery(query1)
+//					.setLong("credentialId", credentialId)
+//					.setBoolean("deleted", false)
+//					.setBoolean("draft", false)
+//					.setBoolean("published", true)
+//					.setBoolean("hasDraft", true)
+//					.setParameter("type", LearningResourceType.UNIVERSITY_CREATED)
+//					.uniqueResult();
+//			
+//			if(res != null) {
+//				CredentialData credData = null;
+//				/*
+//				 * if there is a draft version for a credential and it is university based credential
+//				 * it this draft version should be loaded and returned
+//				 */
+//				if(res.isHasDraft() && res.getType() == LearningResourceType.UNIVERSITY_CREATED) {
+//					String query2 = commonQuery + 
+//							" WHERE cred = :draftVersion";
+//					Credential1 draftCred = (Credential1) persistence.currentManager()
+//							.createQuery(query2)
+//							.setEntity("draftVersion", res.getDraftVersion())
+//							.uniqueResult();
+//					if(draftCred != null) {
+//						credData = credentialFactory.getCredentialData(draftCred.getCreatedBy(), 
+//								draftCred, draftCred.getTags(), draftCred.getHashtags(), true);
+//					}	
+//				} else {
+//					credData = credentialFactory.getCredentialData(res.getCreatedBy(), res, res.getTags(),
+//							res.getHashtags(), true);
+//				}
+//				if(credData != null && loadCompetences) {
+//					List<CompetenceData1> compsData = compManager.getCredentialCompetencesData(
+//							credData.getId(), true, false, false, true);
+//					credData.setCompetences(compsData);
+//				}
+//				return credData;
+//			}
+//			
+//			return null;
+//		} catch (Exception e) {
+//			logger.error(e);
+//			e.printStackTrace();
+//			throw new DbConnectionException("Error while loading credential data");
+//		}
+//	}
 	
 }

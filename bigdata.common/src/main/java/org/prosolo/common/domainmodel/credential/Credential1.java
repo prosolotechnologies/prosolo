@@ -37,7 +37,7 @@ public class Credential1 extends BaseEntity {
 	private boolean studentsCanAddCompetences;
 	private boolean manuallyAssignStudents;
 	private int defaultNumberOfStudentsPerInstructor;
-	private CredentialType1 type;
+	private LearningResourceType type;
 	private Credential1 draftVersion;
 	private Credential1 originalVersion;
 	private List<TargetCredential1> targetCredentials;
@@ -149,11 +149,11 @@ public class Credential1 extends BaseEntity {
 	}
 
 	@Enumerated(EnumType.STRING)
-	public CredentialType1 getType() {
+	public LearningResourceType getType() {
 		return type;
 	}
 
-	public void setType(CredentialType1 type) {
+	public void setType(LearningResourceType type) {
 		this.type = type;
 	}
 

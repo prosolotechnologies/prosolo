@@ -35,7 +35,7 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CreatorType;
-import org.prosolo.common.domainmodel.credential.CredentialType1;
+import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.reminders.Reminder;
@@ -45,11 +45,11 @@ import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.util.ESSortOption;
 import org.prosolo.search.util.ESSortOrderTranslator;
-import org.prosolo.search.util.course.CourseMembersSortOption;
-import org.prosolo.search.util.course.CourseMembersSortOptionTranslator;
-import org.prosolo.search.util.course.InstructorAssignedFilter;
+import org.prosolo.search.util.credential.CredentialMembersSortOption;
+import org.prosolo.search.util.credential.CredentialMembersSortOptionTranslator;
 import org.prosolo.search.util.credential.CredentialSearchFilter;
 import org.prosolo.search.util.credential.CredentialSortOption;
+import org.prosolo.search.util.credential.InstructorAssignedFilter;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexNames;
 import org.prosolo.services.indexing.ESIndexer;
@@ -649,7 +649,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	@Override
 	public Map<String, Object> searchCourseMembers (
 			String searchTerm, InstructorAssignedFilter filter, int page, int limit, long courseId, 
-			long instructorId, CourseMembersSortOption sortOption) {
+			long instructorId, CredentialMembersSortOption sortOption) {
 		
 		Map<String, Object> resultMap = new HashMap<>();
 		try {
@@ -702,7 +702,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				
 				
 				//add sorting
-				ESSortOption esSortOption = CourseMembersSortOptionTranslator.getSortOption(sortOption);
+				ESSortOption esSortOption = CredentialMembersSortOptionTranslator.getSortOption(sortOption);
 				SortOrder sortOrder = esSortOption.getSortOrder();
 				List<String> sortFields = esSortOption.getFields();
 				for(String field : sortFields) {
@@ -1103,11 +1103,11 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					 * is to use match query that would analyze term passed.
 					 */
 					bQueryBuilder.must(termQuery("type", 
-							CredentialType1.USER_CREATED.toString().toLowerCase()));
+							LearningResourceType.USER_CREATED.toString().toLowerCase()));
 					break;
 				case UNIVERSITY:
 					bQueryBuilder.must(termQuery("type", 
-							CredentialType1.UNIVERSITY_CREATED.toString().toLowerCase()));
+							LearningResourceType.UNIVERSITY_CREATED.toString().toLowerCase()));
 					break;
 			}
 			

@@ -15,9 +15,9 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.search.TextSearch;
-import org.prosolo.search.util.course.CourseMembersSortField;
-import org.prosolo.search.util.course.CourseMembersSortOption;
-import org.prosolo.search.util.course.InstructorAssignedFilter;
+import org.prosolo.search.util.credential.CredentialMembersSortField;
+import org.prosolo.search.util.credential.CredentialMembersSortOption;
+import org.prosolo.search.util.credential.InstructorAssignedFilter;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
@@ -61,7 +61,7 @@ public class CourseMembersBean implements Serializable {
 	private int courseMembersNumber;
 	private int page = 1;
 	private int limit = 10;
-	private CourseMembersSortField sortField = CourseMembersSortField.STUDENT_NAME;
+	private CredentialMembersSortField sortField = CredentialMembersSortField.STUDENT_NAME;
 	private SortingOption sortOrder = SortingOption.ASC;
 	private List<PaginationLink> paginationLinks;
 	private int numberOfPages;
@@ -145,7 +145,7 @@ public class CourseMembersBean implements Serializable {
 	}
 
 	public void getCourseMembers() {
-		CourseMembersSortOption sortOption = new CourseMembersSortOption(sortField, sortOrder);
+		CredentialMembersSortOption sortOption = new CredentialMembersSortOption(sortField, sortOrder);
 		
 		Map<String, Object> searchResponse = textSearch.searchCourseMembers(searchTerm, 
 				instructorAssignedFilter, 
@@ -252,18 +252,18 @@ public class CourseMembersBean implements Serializable {
 	}
 	
 	public void setSortByStudentName() {
-		setSortField(CourseMembersSortField.STUDENT_NAME);
+		setSortField(CredentialMembersSortField.STUDENT_NAME);
 	}
 	
 	public void setSortByCourseProgress() {
-		setSortField(CourseMembersSortField.PROGRESS);
+		setSortField(CredentialMembersSortField.PROGRESS);
 	}
 	
 	public void setSortByProfileType() {
-		setSortField(CourseMembersSortField.PROFILE_TYPE);
+		setSortField(CredentialMembersSortField.PROFILE_TYPE);
 	}
 	
-	public void setSortField(CourseMembersSortField field) {
+	public void setSortField(CredentialMembersSortField field) {
 		if(sortField == field) {
 			changeSortOrder();
 		} else {
@@ -288,20 +288,20 @@ public class CourseMembersBean implements Serializable {
 	}
 	
 	public void resetSortOptions() {
-		this.sortField = CourseMembersSortField.STUDENT_NAME;
+		this.sortField = CredentialMembersSortField.STUDENT_NAME;
 		this.sortOrder = SortingOption.ASC;
 	}
 	
 	public boolean isSortByStudent() {
-		return sortField == CourseMembersSortField.STUDENT_NAME;
+		return sortField == CredentialMembersSortField.STUDENT_NAME;
 	}
 	
 	public boolean isSortByCourseProgress() {
-		return sortField == CourseMembersSortField.PROGRESS;
+		return sortField == CredentialMembersSortField.PROGRESS;
 	}
 	
 	public boolean isSortByProfileType() {
-		return sortField == CourseMembersSortField.PROFILE_TYPE;
+		return sortField == CredentialMembersSortField.PROFILE_TYPE;
 	}
 	
 	public boolean isASCOrder() {
@@ -363,7 +363,7 @@ public class CourseMembersBean implements Serializable {
 		this.limit = limit;
 	}
 
-	public CourseMembersSortField getSortField() {
+	public CredentialMembersSortField getSortField() {
 		return sortField;
 	}
 

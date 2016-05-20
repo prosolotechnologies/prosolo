@@ -2,12 +2,14 @@ $(function () {
 	attachListenersForUpdatingStatus();
 });
 
+var containerId;
+
 function updateStatusToDraft() {
-	$('#formMain\\:compSideBar\\:selectStatus').val('DRAFT').change();
+	$('#' + containerId + '\\:formMain\\:compSideBar\\:selectStatus').val('DRAFT').change();
 }
 
 function attachListenersForUpdatingStatus() {
-	$("#formMain\\:inputKeywords").on('itemAdded itemRemoved', function(event) {
+	$("#" + containerId + "\\:formMain\\:inputKeywords").on('itemAdded itemRemoved', function(event) {
 		updateStatusToDraft();
 	});
 	

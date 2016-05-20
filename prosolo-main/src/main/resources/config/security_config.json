@@ -28,11 +28,17 @@
                 "Admin"
             ]
         },
+        {
+            "name": "basic.instructor.access",
+            "description": "Basic instructor access",
+            "roles": [
+                "Instructor"
+            ]
+        },
 		{
             "name": "basic.manager.access",
             "description": "Basic manager access",
             "roles": [
-                "Instructor",
                 "Manager"
             ]
         },
@@ -121,7 +127,7 @@
             ]
         },
         {
-            "name": "student.observatin.create",
+            "name": "student.observation.create",
             "description": "Create an observation for a student",
             "roles": [
                 "Manager",

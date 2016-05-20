@@ -21,7 +21,7 @@ import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
-import org.prosolo.common.domainmodel.credential.CredentialType1;
+import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
@@ -114,10 +114,11 @@ public interface ResourceFactory extends AbstractManager {
 			throws DbConnectionException;
 
 	Credential1 createCredential(String title, String description, Set<Tag> tags, Set<Tag> hashtags, User createdBy,
-			CredentialType1 type, boolean compOrderMandatory, boolean published, long duration);
+			LearningResourceType type, boolean compOrderMandatory, boolean published, long duration);
 
 	Competence1 createCompetence(String title, String description, Set<Tag> hashSet, User createdBy,
-			boolean studentAllowedToAddActivities, boolean published, long duration);
+			boolean studentAllowedToAddActivities, LearningResourceType type, boolean published, 
+			long duration);
 
 	Credential1 updateCredential(CredentialData data);
 

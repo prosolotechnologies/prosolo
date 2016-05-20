@@ -1,4 +1,4 @@
-package org.prosolo.web.courses;
+package org.prosolo.web.courses.competence;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -20,6 +20,7 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.Mode;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.PublishedStatus;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -86,8 +87,13 @@ public class CompetenceEditBean implements Serializable {
 	}
 	
 	private void loadCompetenceData(long id) {
-		competenceData = compManager.getCompetenceDataForEdit(id, 
-				loggedUser.getUser().getId(), true);
+		String section = PageUtil.getSectionForView();
+		if("/manage".equals(section)) {
+			competenceData = compManager.getCompetenceForManager(id, false, true, Mode.Edit);
+		} else {
+			competenceData = compManager.getCompetenceDataForEdit(id, 
+					loggedUser.getUser().getId(), true);
+		}
 		
 		if(competenceData == null) {
 			competenceData = new CompetenceData1(false);
@@ -126,7 +132,14 @@ public class CompetenceEditBean implements Serializable {
 			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
 			try {
 				StringBuilder builder = new StringBuilder();
-				builder.append(extContext.getRequestContextPath() + "/competences/" + id + "/newActivity");
+				/*
+				 * this will not work if there are multiple levels of directories in current view path
+				 * example: /credentials/create-credential will return /credentials as a section but this
+				 * may not be what we really want.
+				 */
+				String section = PageUtil.getSectionForView();
+				logger.info("SECTION " + section);
+				builder.append(extContext.getRequestContextPath() + section + "/competences/" + id + "/newActivity");
 
 				if(credId != null && !credId.isEmpty()) {
 					builder.append("?credId=" + credId);
@@ -143,7 +156,14 @@ public class CompetenceEditBean implements Serializable {
 		if(saved && addToCredential) {
 			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
 			try {
-				extContext.redirect(extContext.getRequestContextPath() + 
+				/*
+				 * this will not work if there are multiple levels of directories in current view path
+				 * example: /credentials/create-credential will return /credentials as a section but this
+				 * may not be what we really want.
+				 */
+				String section = PageUtil.getSectionForView();
+				logger.info("SECTION " + section);
+				extContext.redirect(extContext.getRequestContextPath() + section +
 						"/create-credential.xhtml?id=" + credId);
 			} catch (IOException e) {
 				logger.error(e);

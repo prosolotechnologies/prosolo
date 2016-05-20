@@ -42,7 +42,7 @@
 	                   	<ui:fragment rendered="#{!cc.attrs.isEdit and !cc.attrs.isPreview}">
                    			<h:link
 			            		value="#{act.title}"
-			            		outcome="/activity">
+			            		outcome="activity">
 			            		<f:param name="actId" value="#{util:encodeId(act.activityId)}"></f:param>
 			            		<f:param name="compId" value="#{cc.attrs.encodedCompetenceId}" disable="#{empty cc.attrs.encodedCompetenceId}"></f:param>
             					<f:param name="credId" value="#{cc.attrs.encodedCredentialId}" disable="#{empty cc.attrs.encodedCredentialId}"></f:param>
@@ -63,7 +63,7 @@
                         <li>	
                         	<h:link 
                    				value="Edit" 
-                   				outcome="/create-activity">
+                   				outcome="create-activity">
                    				<f:param name="id" value="#{util:encodeId(act.activityId)}" />
                    				<f:param name="compId" value="#{cc.attrs.encodedCompetenceId}"></f:param>
                    			</h:link> 

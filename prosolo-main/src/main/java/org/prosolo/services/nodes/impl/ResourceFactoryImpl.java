@@ -41,7 +41,7 @@ import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
-import org.prosolo.common.domainmodel.credential.CredentialType1;
+import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.ResourceLink;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.general.Node;
@@ -844,7 +844,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Override
     @Transactional(readOnly = false)
     public Credential1 createCredential(String title, String description, Set<Tag> tags, 
-    		Set<Tag> hashtags, User createdBy, CredentialType1 type, 
+    		Set<Tag> hashtags, User createdBy, LearningResourceType type, 
     		boolean compOrderMandatory, boolean published, long duration) {
     	try {
 			 Credential1 cred = new Credential1();
@@ -871,7 +871,8 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     }
     
     public Competence1 createCompetence(String title, String description, Set<Tag> tags, User createdBy,
-			boolean studentAllowedToAddActivities, boolean published, long duration) {
+			boolean studentAllowedToAddActivities, LearningResourceType type, boolean published, 
+			long duration) {
     	try {
 			 Competence1 comp = new Competence1();
 			 comp.setTitle(title);
@@ -880,6 +881,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 			 comp.setTags(tags);
 		     comp.setCreatedBy(createdBy);
 		     comp.setStudentAllowedToAddActivities(studentAllowedToAddActivities);
+		     comp.setType(type);
 		     comp.setPublished(published);
 		     comp.setDuration(duration);
 		     saveEntity(comp);

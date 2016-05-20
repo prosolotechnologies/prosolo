@@ -9,6 +9,7 @@ import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.Mode;
 import org.prosolo.services.nodes.observers.learningResources.ActivityChangeTracker;
 
 public interface Activity1Manager {
@@ -48,6 +49,17 @@ public interface Activity1Manager {
 			throws DbConnectionException;
 	
 	ActivityData getActivityDataForEdit(long activityId, long creatorId) throws DbConnectionException;
+	
+	/**
+	 * Returns most current version of activity (draft if exists) and competence activity from 
+	 * draft competence if exists(otherwise from original version)
+	 * @param activityId
+	 * @param creatorId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	ActivityData getCompetenceActivityCurrentVersionData(long activityId, long creatorId) 
+			throws DbConnectionException;
 	
 	Activity1 updateActivity(ActivityData data, long userId) throws DbConnectionException;
 	
@@ -98,5 +110,21 @@ public interface Activity1Manager {
 			throws DbConnectionException;
 	
 	Long getCompetenceIdForActivity(long actId) throws DbConnectionException;
+	
+	/**
+	 * Returns current version of activity for edit if edit mode - draft version if exists
+	 * but only if activity is university based, otherwise null is returned.
+	 * If view mode, again draft version is returned if exists and activity is university based, 
+	 * otherwise published version is returned.
+	 * @param activityId
+	 * @param mode
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	ActivityData getActivityForManager(long activityId, Mode mode) 
+			throws DbConnectionException;
+	
+	CompetenceData1 getCompetenceActivitiesWithActivityDetailsForManager(long activityId, Mode mode) 
+			throws DbConnectionException;
 
 }

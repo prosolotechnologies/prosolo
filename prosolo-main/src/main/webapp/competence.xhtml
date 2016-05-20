@@ -10,8 +10,7 @@
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:util="http://www.prosolo.com/util"
-	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
-	xmlns:post="http://java.sun.com/jsf/composite/components/post">
+	xmlns:competences="http://java.sun.com/jsf/composite/components/competences">
 
 	<ui:define name="windowTitle">
 		ProSolo - Competence
@@ -32,129 +31,9 @@
     </ui:define>
     
 	<ui:define name="content">
-
-	<script src="https://use.typekit.net/zvv0dgl.js"></script>
-    <script>try{Typekit.load({ async: true });}catch(e){}</script>
-
-	<ui:param name="isPreview" value="#{competenceViewBean.isPreview()}" />
-	<ui:param name="learningContext" value="name:base_competence|id:#{competenceViewBean.competenceData.competenceId}" />
-    <div class="whiteBar">
-        <div class="container">
-            <div class="whiteBarContent">
-                <div class="whiteBarLeft">
-                	<ui:fragment rendered="#{competenceViewBean.competenceData.enrolled and 
-                		competenceViewBean.competenceData.progress lt 100 and !isPreview}">
-                		<h:link 
-                			value="#{competenceViewBean.competenceData.progress != 0 ? 'Resume' : 'Start'}"
-                			styleClass="btn btn-green btn-sm"
-                			outcome="/activity">
-                			<f:param name="actId" value="#{util:encodeId(competenceViewBean.competenceData.nextActivityToLearnId)}"></f:param>
-			            	<f:param name="compId" value="#{param['compId']}"></f:param>
-			            	<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}"></f:param>
-                		</h:link>
-                	
-	                    <div class="progressBar">
-	                        <span>#{competenceViewBean.competenceData.progress}%</span>
-	                        <div class="progress">
-	                            <div class="progress-bar" role="progressbar" aria-valuenow="#{competenceViewBean.competenceData.progress}" aria-valuemin="0" aria-valuemax="100" style="width: #{competenceViewBean.competenceData.progress}%;">
-	                            </div>
-	                        </div>
-	                    </div>
-                	</ui:fragment>
-                	
-                	<ui:fragment rendered="#{competenceViewBean.competenceData.enrolled and 
-                		competenceViewBean.competenceData.progress == 100}">
-                		<div class="tagCompleted">Completed</div>
-                	</ui:fragment>
-                    
-                </div>
-                <div class="whiteBarRight">
-                    <div class="duration item">#{competenceViewBean.competenceData.durationString}</div>
-                    <h:link 
-                    	rendered="#{competenceViewBean.isCurrentUserCreator() and !isPreview}"
-                    	value="Edit Competence"
-                    	styleClass="btn btn-green-stroke btn-sm item"
-                    	outcome="/create-competence">
-                    	<f:param name="id" value="#{param['compId']}"></f:param>
-                    </h:link>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="container">
-    	<ui:fragment rendered="#{competenceViewBean.competenceData.credentialId != 0}">
-    		<ol class="breadcrumb">
-	            <li>
-	            	<h:link value="Credentials" outcome="/credentialLibrary"/>
-	            </li>
-	            <li>
-	            	<h:link 
-	            		value="#{competenceViewBean.competenceData.credentialTitle}"
-	            		outcome="/credential">
-	            		<f:param name="id" value="#{util:encodeId(competenceViewBean.competenceData.credentialId)}"></f:param>
-	            	</h:link>
-	            </li>
-	            <li class="active">#{competenceViewBean.competenceData.title}</li>
-	        </ol>
-    	</ui:fragment>
-        <ui:fragment rendered="#{competenceViewBean.competenceData.credentialId == 0}">
-    		<ol class="breadcrumb">	
-    			<li>
-	            	<a href="javascript:void(0);">Competences</a>
-	            </li>          
-	            <li class="active">#{competenceViewBean.competenceData.title}</li>
-	        </ol>
-    	</ui:fragment>
-    </div>
-
-    <div class="container">
-        <div class="row">
-            <div class="col-md-8">
-                <h2>About Competence</h2>
-                <p>#{competenceViewBean.competenceData.description}</p>
-                <div class="whiteBox activitiesList">
-	                <courses:activityList
-	                    		activities="#{competenceViewBean.competenceData.activities}"
-	                    		encodedCredentialId="#{param['credId']}"
-	                    		encodedCompetenceId="#{param['compId']}"
-	                    		bean="#{competenceViewBean}"
-	                    		isEdit="false"
-	                    		showMarkedIfCompleted="true"
-	                    		isPreview="#{isPreview}"
-	                />
-               </div>
-               <post:comments 
-               		id="comments"
-               		learningContext="#{learningContext}"
-               />
-            </div>
-            <div class="col-md-4">
-                <h2>Keywords</h2>
-                <ul class="tags">
-                	<ui:repeat var="tag" value="#{competenceViewBean.competenceData.tags}">
-                		<li><a href="javascript:void(0)">#{tag.title}</a></li>
-                	</ui:repeat>               
-                </ul>
-                <h2>Created by</h2>
-                <div class="user32">
-                    <a href="#">
-                    	<h:graphicImage value="#{competenceViewBean.competenceData.creator.avatar}"
-										   alt="#{competenceViewBean.competenceData.creator.name}" 
-										   styleClass="img-circle"
-										   width="32" height="32"/> 
-                    </a>
-                    <h3><a href="#">#{competenceViewBean.competenceData.creator.name}</a></h3>
-                </div>
-            </div>
-        </div>
-	
-    </div>
-    <ui:fragment rendered="#{not empty param['comment']}">
-    	<script>
-	    	scrollTo('comment_' + #{util:decodeId(param['comment'])});
-	    </script>
-    </ui:fragment>
-    
-</ui:define>
+    	<competences:competence
+    		id="competence"
+			bean="#{competenceViewBean}"
+    	/>
+	</ui:define>
 </ui:composition>

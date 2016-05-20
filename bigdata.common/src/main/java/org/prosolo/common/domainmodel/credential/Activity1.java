@@ -5,6 +5,8 @@ import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
@@ -26,6 +28,7 @@ public class Activity1 extends BaseEntity {
 	private Set<ResourceLink> links;
 	private Set<ResourceLink> files;
 	private boolean uploadAssignment;
+	private LearningResourceType type;
 	
 	private Activity1 draftVersion;
 	/** 
@@ -122,5 +125,14 @@ public class Activity1 extends BaseEntity {
 
 	public void setCreatedBy(User createdBy) {
 		this.createdBy = createdBy;
+	}
+	
+	@Enumerated(EnumType.STRING)
+	public LearningResourceType getType() {
+		return type;
+	}
+
+	public void setType(LearningResourceType type) {
+		this.type = type;
 	}
 }

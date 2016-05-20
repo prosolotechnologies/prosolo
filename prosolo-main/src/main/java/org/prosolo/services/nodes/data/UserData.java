@@ -2,7 +2,6 @@ package org.prosolo.services.nodes.data;
 
 import java.io.Serializable;
 
-import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.web.util.AvatarUtils;
@@ -13,7 +12,8 @@ public class UserData implements Serializable {
 	
 	private long id;
 	private String fullName;
-	private String avatarUrl = "/" + CommonSettings.getInstance().config.services.userService.defaultAvatarPath + "size60x60.png";
+	private String avatarUrl;
+	private String position;
 	
 	public UserData() {}
 	
@@ -21,6 +21,7 @@ public class UserData implements Serializable {
 		this.id = user.getId();
 		setFullName(user.getName(), user.getLastname());
 		this.avatarUrl = AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size60x60);
+		this.position = user.getPosition();
 	}
 	
 	public void setFullName(String name, String lastName) {
@@ -49,6 +50,14 @@ public class UserData implements Serializable {
 
 	public void setAvatarUrl(String avatarUrl) {
 		this.avatarUrl = avatarUrl;
+	}
+
+	public String getPosition() {
+		return position;
+	}
+
+	public void setPosition(String position) {
+		this.position = position;
 	}
 
 }

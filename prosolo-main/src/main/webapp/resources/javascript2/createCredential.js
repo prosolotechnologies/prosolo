@@ -13,13 +13,14 @@ $(function () {
 //			"hashtags" : getFieldValue('hashtags'),
 //			"mandatory" : getFieldValue('mandatory')};
 //}
+var containerId;
 
 function updateStatusToDraft() {
-	$('#formMain\\:credSidebar\\:selectStatus').val('DRAFT').change();
+	$('#' + containerId + '\\:formMain\\:credSidebar\\:selectStatus').val('DRAFT').change();
 }
 
 function attachListenersForUpdatingStatus() {
-	$("#formMain\\:inputKeywords").on('itemAdded itemRemoved', function(event) {
+	$("#" + containerId + "\\:formMain\\:inputKeywords").on('itemAdded itemRemoved', function(event) {
 		updateStatusToDraft();
 	});
 	

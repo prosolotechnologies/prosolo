@@ -10,7 +10,7 @@
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:util="http://www.prosolo.com/util"
-	xmlns:courses="http://java.sun.com/jsf/composite/components/courses">
+	xmlns:competences="http://java.sun.com/jsf/composite/components/competences">
 
 	<ui:define name="windowTitle">
 		ProSolo - #{competenceEditBean.pageHeaderTitle}
@@ -35,161 +35,10 @@
     </ui:define>
     
 	<ui:define name="content">
-
-	<script src="https://use.typekit.net/zvv0dgl.js"></script>
-    <script>try{Typekit.load({ async: true });}catch(e){}</script>
-	<script src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
-	<script src="#{request.contextPath}/resources/javascript2/createCompetence.js?#{applicationbean.loginTime}"></script>
-    <div class="whiteBar">
-
-    </div>
-	<h:form id="formMain">
-	<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-8">
-                <div class="whiteBox">
-                    <ul class="nav nav-tabs pageSubmenu" role="tablist">
-                        <li role="presentation" class="active"><a href="#info" aria-controls="info" role="tab" data-toggle="tab">Competence Info</a></li>
-                        <li role="presentation"><a href="#activities" aria-controls="activities" role="tab" data-toggle="tab">Activities</a></li>
-                    </ul>
-                </div>
-                <div class="tab-content">
-                    <div role="tabpanel" class="tab-pane fade in active" id="info">
-                        <div class="whiteBox">
-                            <h2>Competence Info</h2>
-                            <div class="formWrapper">
-                                <div class="formLine">
-                                    <label>Parent credential(s)</label>
-                                    <div class="formLineRight">
-                                        <ul class="addedItems">
-                                        	<ui:repeat var="cred" value="#{competenceEditBean.competenceData.credentialsWithIncludedCompetence}">
-                                        		<li>
-                                        			<h:link value="#{cred.title}"
-                                        				outcome="/credential.xhtml">
-                                        				<f:param name="id" value="#{util:encodeId(cred.id)}" />
-                                        			</h:link>
-	                                                <a href="#" class="removeX" data-toggle="tooltip" title="Remove">remove</a>
-	                                            </li>
-                                        	</ui:repeat>                                     
-                                        </ul>
-                                        <input type="text" placeholder="Assign to credential..."></input>
-                                    </div>
-                                </div>
-                                <div class="formLine">
-                                    <label>Title</label>
-                                    <div class="formLineRight">
-                                    	<h:inputText 
-                                    		styleClass="pasteable"
-                                    		value="#{competenceEditBean.competenceData.title}"
-                                    		onkeyup="updateStatusToDraft();"></h:inputText>
-                                    </div>
-                                </div>
-                                <div class="formLine">
-                                    <label>About competence</label>
-                                    <div class="formLineRight">
-                                        <h:inputTextarea 
-                                        	styleClass="pasteable"
-                                        	value="#{competenceEditBean.competenceData.description}"
-                                        	onkeyup="updateStatusToDraft();"></h:inputTextarea>
-                                    </div>
-                                </div>
-                                <div class="formLine">
-                                    <label>Keywords</label>
-                                    <div class="formLineRight">
-                                    	<h:inputText styleClass="tagsInputCompTag"
-                                    		id="inputKeywords"
-		                                	value="#{competenceEditBean.competenceData.tagsString}"
-		                                	pt:placeholder="Type and press 'Enter'"
-		                                	pt:data-role="tagsinput">
-	                                	</h:inputText>
-                                    </div>
-                                </div>
-                                <script>$('.tagsInputCompTag').tagsinput();</script>
-                            </div>
-                        </div>
-                    </div>
-                    <div role="tabpanel" class="tab-pane fade" id="activities">
-                    <div class="whiteBox activitiesList">
-                    	<courses:activityList
-                    		id="activityList"
-                    		activities="#{competenceEditBean.competenceData.activities}"
-                    		bean="#{competenceEditBean}"
-                    		isEdit="true"
-                    		showMarkedIfCompleted="false"
-                    		isPreview="false"
-                    		encodedCompetenceId="#{param['id']}"
-                    		toUpdate=":formMain:compSideBar"/>
-                    		
-                    		<ui:remove><h:link styleClass="activityItem addActivity"
-                            	outcome="/create-activity">
-                                <span class="iconPlus"></span>
-                                Add Activity
-                                <f:param name="compId" value="#{param['id']}"></f:param>
-                            </h:link></ui:remove>
-                    </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-            	<courses:rightSideBar
-            		id="compSideBar"
-            		chooseOptionText="Allow students to add activities"
-            		chooseOptionValue="#{competenceEditBean.competenceData.studentAllowedToAddActivities}"
-            		publishValues="#{competenceEditBean.compStatusArray}" 
-            		publishValue="#{competenceEditBean.competenceData.status}"
-            		saveAction="#{competenceEditBean.save}"
-            		toUpdate=":formMain :panelTitle" 
-            		previewAction="#{competenceEditBean.preview}"
-            		linkPreviewClass="hiddenLinkPreview"/>
-            		
-            	<h:link
-					style="display: none;"
-					styleClass="hiddenLinkPreview"
-					target="_blank"
-					outcome="/competence">
-					<f:param name="compId" value="#{competenceEditBean.id}"></f:param>
-					<f:param name="mode" value="preview"></f:param>
-				</h:link>
-            </div>
-        </div>
-
-    </div>
-    </h:form>
-    
-    <h:form id="formRemoveActivityModal">
-    	<div class="modal fade" id="modalRemoveActivity" tabindex="-1" role="dialog" aria-labelledby="removeActivity">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-                        <h2 class="modal-title" id="removeActivity1">Remove Activity?</h2>
-                    </div>
-                    <div class="modal-body">
-                        <p>Are you sure you want to remove this activity from competence?<br></br><br></br>
-                        <small>Note: Activity will not be deleted entirely. In order to do that, go to activity Edit > Delete.</small></p>
-                    </div>
-                    <div class="modal-footer">
-                    	<p:commandLink
-                    		value="Remove"
-                    		styleClass="btn btn-red"
-                    		process="@this"
-                    		action="#{competenceEditBean.removeActivity()}"
-                    		update=":formMain:activityList :formMain:compSideBar"
-                    		oncomplete="$('#modalRemoveActivity').modal('hide');">
-                    	</p:commandLink>
-                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </h:form>
-    
-     <courses:deleteModalDialog  
-     	deleteActionMethodName="delete"      	
-		deleteAction="#{competenceEditBean.delete}"
-		toUpdate=":formMain :panelTitle" 
-		modalDeleteTitle="Competence"
-		modalDeleteText="competence"/>
-</ui:define>
+		<competences:createCompetence
+			role="MANAGER"
+			id="createCompetence"
+			toUpdate=":panelTitle"
+		/>
+	</ui:define>
 </ui:composition>

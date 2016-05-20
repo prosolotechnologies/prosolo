@@ -1,4 +1,4 @@
-package org.prosolo.search.util.course;
+package org.prosolo.search.util.credential;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -7,9 +7,9 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.prosolo.search.util.ESSortOption;
 import org.prosolo.search.util.ESSortOrderTranslator;
 
-public class CourseMembersSortOptionTranslator {
+public class CredentialMembersSortOptionTranslator {
 
-	public static ESSortOption getSortOption(CourseMembersSortOption sortOption) {
+	public static ESSortOption getSortOption(CredentialMembersSortOption sortOption) {
 	    ESSortOption esSortOption = new ESSortOption();
 		
 		SortOrder sortOrder = ESSortOrderTranslator.getSortOrder(sortOption.getSortOption());
