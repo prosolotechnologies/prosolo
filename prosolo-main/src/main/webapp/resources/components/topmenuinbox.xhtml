@@ -9,7 +9,7 @@
 	<h:form id="inboxForm">
 		<p:growl id="messagesGrowl" showDetail="true" />
 
-		<p:poll interval="#{messagesBean.refreshRate}"
+		<p:poll interval="#{topInboxBean.refreshRate}"
 			oncomplete="roundImages" update=":inboxForm:messagesInboxPanel"
 			widgetVar="messagesPoll" autoStart="true" />
 			
@@ -26,9 +26,11 @@
 					
 					<i class="fa fa-envelope-o fa-lg"></i>
 					
-					<h:panelGroup layout="block" class="inboxCircle" rendered="#{messagesBean.unreadThreadsNo > 0}">
-						#{messagesBean.unreadThreadsNo}
-					</h:panelGroup>
+					<ui:remove> 
+						<h:panelGroup layout="block" class="inboxCircle" rendered="#{messagesBean.unreadThreadsNo > 0}">
+							#{messagesBean.unreadThreadsNo}
+						</h:panelGroup> 
+					</ui:remove>
 				</p:commandLink>
 			</div>
 			

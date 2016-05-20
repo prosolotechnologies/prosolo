@@ -125,7 +125,7 @@
 					action="#{userDetailsBean.initializeUserDetailsByUserData(cc.attrs.userData)}"
 					process="@this"
 					oncomplete="userDetailsControl#{cc.attrs.userData.id}P#{cc.attrs.idPrefix}.show();"
-					update=":#{p:component('userDetailsTooltip')}" />
+					update="@all" />
 					
 				<script>
 					$('#userDetails#{cc.attrs.user != null ? cc.attrs.user.id : cc.attrs.userData.id}-#{cc.attrs.idPrefix} .userDetailsRefresh').on('click', function(e) {

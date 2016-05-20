@@ -1,6 +1,7 @@
 package org.prosolo.common.domainmodel.messaging;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,6 +11,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.user.User;
@@ -25,6 +28,8 @@ public class ThreadParticipant implements Serializable {
 	private User user;
 	private Message lastReadMessage;
 	private MessageThread messageThread;
+	private boolean deleted;
+	private Date showMessagesFrom;
 	
 	@Id
 	@Column(name = "id",nullable = false, insertable = false, updatable = false)
@@ -84,6 +89,33 @@ public class ThreadParticipant implements Serializable {
 
 	public void setMessageThread(MessageThread messageThread) {
 		this.messageThread = messageThread;
+	}
+
+	@Type(type = "true_false")
+	@Column(name="deleted", columnDefinition = "char(1) DEFAULT 'F'")
+	public boolean isDeleted() {
+		return deleted;
+	}
+
+	public void setDeleted(boolean deleted) {
+		this.deleted = deleted;
+	}
+
+	@Column(name = "show_messages_from", columnDefinition="DATETIME")
+	@Temporal(TemporalType.TIMESTAMP)
+	public Date getShowMessagesFrom() {
+		return showMessagesFrom;
+	}
+
+	public void setShowMessagesFrom(Date showMessagesFrom) {
+		this.showMessagesFrom = showMessagesFrom;
+	}
+
+	@Override
+	public String toString() {
+		return "ThreadParticipant [id=" + id + ", read=" + read + ", archived=" + archived + ", user=" + user
+				+ ", lastReadMessage=" + lastReadMessage + ", messageThread=" + messageThread + ", deleted=" + deleted
+				+ ", showMessagesFrom=" + showMessagesFrom + "]";
 	}
 	
 }

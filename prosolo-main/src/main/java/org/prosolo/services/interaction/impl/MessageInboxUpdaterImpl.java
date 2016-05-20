@@ -24,15 +24,8 @@ public class MessageInboxUpdaterImpl implements MessageInboxUpdater, Serializabl
 	@Override
 	public void updateOnNewMessage(Message message, MessageThread messagesThread, HttpSession httpSession) {
 		if (httpSession != null) {
-			MessagesBean messagesBean = (MessagesBean) httpSession.getAttribute("messagesBean");
-
-			if (messagesBean != null) {
-				messagesBean.updateMessageThread(messagesThread);
-			}
-
-			if (messagesBean.getThreadData().getId() == messagesThread.getId()) {
-				messagesBean.addMessage(message);
-			}
+			TopInboxBean topInboxBean = (TopInboxBean) httpSession.getAttribute("topInboxBean");
+			topInboxBean.addUnreadThread(messagesThread.getId());
 		}
 	}
 
@@ -40,11 +33,8 @@ public class MessageInboxUpdaterImpl implements MessageInboxUpdater, Serializabl
 	@Override
 	public void addNewMessageThread(MessageThread messagesThread, HttpSession httpSession) {
 		if (httpSession != null) {
-			MessagesBean messagesBean = (MessagesBean) httpSession.getAttribute("messagesBean");
-
-			if (messagesBean != null) {
-				messagesBean.addNewMessageThread(messagesThread);
-			}
+			TopInboxBean topInboxBean = (TopInboxBean) httpSession.getAttribute("topInboxBean");
+			topInboxBean.addUnreadThread(messagesThread.getId());
 		}
 	}
 
