@@ -11,7 +11,7 @@ public class UrlActivity1 extends Activity1 {
 	
 	private String url;
 	private String linkName;
-	private UrlActivityType type;
+	private UrlActivityType urlType;
 	
 	public UrlActivity1() {
 		
@@ -34,12 +34,12 @@ public class UrlActivity1 extends Activity1 {
 	}
 
 	@Enumerated(EnumType.STRING)
-	public UrlActivityType getType() {
-		return type;
+	public UrlActivityType getUrlType() {
+		return urlType;
 	}
 
-	public void setType(UrlActivityType type) {
-		this.type = type;
+	public void setUrlType(UrlActivityType type) {
+		this.urlType = type;
 	}
 	
 	

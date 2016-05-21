@@ -1,4 +1,4 @@
-package org.prosolo.web.courses;
+package org.prosolo.web.courses.credential;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -10,7 +10,6 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import javax.faces.event.AjaxBehaviorEvent;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
@@ -23,6 +22,7 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.Mode;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.PublishedStatus;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -79,8 +79,13 @@ public class CredentialEditBean implements Serializable {
 	}
 	
 	private void loadCredentialData(long id) {
-		credentialData = credentialManager.getCredentialDataForEdit(id, 
-				loggedUser.getUser().getId(), true);
+		String section = PageUtil.getSectionForView();
+		if("/manage".equals(section)) {
+			credentialData = credentialManager.getCredentialForManager(id, false, true, Mode.Edit);
+		} else {
+			credentialData = credentialManager.getCredentialDataForEdit(id, 
+					loggedUser.getUser().getId(), true);
+		}
 		
 		if(credentialData == null) {
 			credentialData = new CredentialData(false);
@@ -128,14 +133,21 @@ public class CredentialEditBean implements Serializable {
 		if(saved) {
 			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
 			try {
-				extContext.redirect(extContext.getRequestContextPath() + 
+				/*
+				 * this will not work if there are multiple levels of directories in current view path
+				 * example: /credentials/create-credential will return /credentials as a section but this
+				 * may not be what we really want.
+				 */
+				String section = PageUtil.getSectionForView();
+				logger.info("SECTION " + section);
+				extContext.redirect(extContext.getRequestContextPath() + section +
 						"/competences/new?credId=" + id);
 			} catch (IOException e) {
 				logger.error(e);
 			}
 		}
 	}
-	
+
 	public void preview() {
 		saveCredentialData(true, true);
 	}
@@ -317,10 +329,10 @@ public class CredentialEditBean implements Serializable {
 		}
 	}
 	
-	public void listener(AjaxBehaviorEvent event) {
-	     System.out.println("listener");
-	     System.out.println(credentialData.isMandatoryFlow());
-	}
+//	public void listener(AjaxBehaviorEvent event) {
+//	     System.out.println("listener");
+//	     System.out.println(credentialData.isMandatoryFlow());
+//	}
 	 
 	public String getPageHeaderTitle() {
 		return credentialData.getId() > 0 ? "Edit Credential" : "New Credential";

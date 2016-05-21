@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.prosolo.web.courses;
+package org.prosolo.web.courses.credential;
 
 import java.io.IOException;
 import java.io.Serializable;

@@ -1,4 +1,4 @@
-package org.prosolo.web.courses;
+package org.prosolo.web.courses.credential;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -28,11 +28,11 @@ import org.springframework.stereotype.Component;
 @ManagedBean(name = "credentialViewBean")
 @Component("credentialViewBean")
 @Scope("view")
-public class CredentialViewBean implements Serializable {
+public class CredentialViewBeanUser implements Serializable {
 
 	private static final long serialVersionUID = 2225577288550403383L;
 
-	private static Logger logger = Logger.getLogger(CredentialViewBean.class);
+	private static Logger logger = Logger.getLogger(CredentialViewBeanUser.class);
 	
 	@Inject private LoggedUserBean loggedUser;
 	@Inject private CredentialManager credentialManager;

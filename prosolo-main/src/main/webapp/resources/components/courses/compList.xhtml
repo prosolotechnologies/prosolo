@@ -19,6 +19,7 @@
 		<composite:attribute name="startedLearning" required="true" type="java.lang.Boolean" />
 		<composite:attribute name="isPreview" type="java.lang.Boolean" default="false"/>
 		<composite:attribute name="toUpdate" default=""/>
+		<composite:attribute name="role" default="USER"/>
 	</composite:interface>
 	
 	<composite:implementation>
@@ -34,7 +35,7 @@
                         	<ui:fragment rendered="#{!cc.attrs.isEdit and !cc.attrs.isPreview}">
                         		<h:link
                         			value="#{comp.title}"
-                        			outcome="/competence">
+                        			outcome="competence">
                         			<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"/>
                         			<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"/>
                         		</h:link>                 
@@ -75,14 +76,15 @@
                         <p>#{comp.description}</p>
                         <div class="metaBox">
                             <div class="metaLeft">
-                            	<ui:fragment rendered="#{cc.attrs.isEdit and cc.attrs.bean.isCompetenceCreator(comp)}">
+                            	<ui:fragment rendered="#{cc.attrs.isEdit and (cc.attrs.role == 'MANAGER' and comp.type == 'UNIVERSITY_CREATED' || cc.attrs.bean.isCompetenceCreator(comp))}">
                         			<h:link 
                         				styleClass="btn btn-green-stroke btn-sm"
                         				value="Edit" 
-                        				outcome="/create-competence">
+                        				outcome="create-competence">
                         				<f:param name="id" value="#{util:encodeId(comp.competenceId)}" />
                         			</h:link> 
                         		</ui:fragment>
+                        		
                         		<ui:fragment rendered="#{cc.attrs.isEdit}">
 	                        		<p:commandLink
                         				value="Remove"
@@ -99,7 +101,7 @@
                         				<h:link rendered="#{comp.progress lt 100}"
 				                			value="#{comp.progress != 0 ? 'Resume' : 'Start'}"
 				                			styleClass="btn btn-green btn-sm"
-				                			outcome="/activity">
+				                			outcome="activity">
 				                			<f:param name="actId" value="#{util:encodeId(comp.nextActivityToLearnId)}"></f:param>
 							            	<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"></f:param>
 							            	<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"></f:param>
@@ -141,7 +143,7 @@
                             	<ui:fragment rendered="#{!cc.attrs.isEdit}">
                             		<ui:repeat var="act" value="#{comp.activities}">
 	                            		<li class="#{styleUtilBean.getStyleClassBasedOnActivityType(act.activityType)}">
-		                                    <h:link outcome="/activity">
+		                                    <h:link outcome="activity">
 		                                        <span class="iconType"></span>
 		                                        #{act.title}
 		                                        <ui:fragment rendered="#{act.completed}">

@@ -11,6 +11,7 @@ import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.Mode;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 
@@ -107,6 +108,8 @@ public interface Competence1Manager {
 	void updateTargetCompetenceDuration(long id, long duration) throws DbConnectionException;
 	
 	String getCompetenceTitle(long id) throws DbConnectionException;
+	
+	String getCompetenceDraftOrOriginalTitle(long id) throws DbConnectionException;
 
 	void updateProgressForTargetCompetenceWithActivity(long targetActId) 
 			throws DbConnectionException;
@@ -122,5 +125,20 @@ public interface Competence1Manager {
 	 */
 	CompetenceData1 getFullTargetCompetenceOrCompetenceData(long credId, long compId, 
 			long userId) throws DbConnectionException;
+	
+	/**
+	 * Returns current version of competence for edit if edit mode - draft version if exists
+	 * but only if competence is university based, otherwise null is returned.
+	 * If view mode, again draft version is returned if exists and competence is university based, 
+	 * otherwise published version is returned.
+	 * @param competenceId
+	 * @param loadCreator
+	 * @param loadActivities
+	 * @param mode
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	CompetenceData1 getCompetenceForManager(long competenceId, boolean loadCreator, 
+			boolean loadActivities, Mode mode) throws DbConnectionException;
 
 }

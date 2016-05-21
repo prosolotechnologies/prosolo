@@ -19,6 +19,7 @@ import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
+import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
@@ -35,6 +36,7 @@ import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.Mode;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
@@ -74,8 +76,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		try {
 			comp = resourceFactory.createCompetence(data.getTitle(), data.getDescription(),
 					new HashSet<Tag>(tagManager.parseCSVTagsAndSave(data.getTagsString())),
-					createdBy, data.isStudentAllowedToAddActivities(), data.isPublished(), 
-					data.getDuration());
+					createdBy, data.isStudentAllowedToAddActivities(), data.getType(), 
+					data.isPublished(), data.getDuration());
 			
 			if(data.getActivities() != null) {
 				for(ActivityData bad : data.getActivities()) {
@@ -282,6 +284,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		targetComp.setStudentAllowedToAddActivities(comp.isStudentAllowedToAddActivities());
 		targetComp.setOrder(cc.getOrder());
 		targetComp.setCreatedBy(comp.getCreatedBy());
+		targetComp.setType(comp.getType());
 		
 		if(comp.getTags() != null) {
 			Set<Tag> tags = new HashSet<>();
@@ -529,7 +532,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					publishTransition;
 		}
 		
-		return updateComptenceData(comp, publishTransition, data);		   
+		return updateCompetenceData(comp, publishTransition, data);		   
 	}
 	
 	/**
@@ -545,7 +548,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	 * @param publishTransition
 	 * @param data
 	 */
-	private Competence1 updateComptenceData(Competence1 comp, EntityPublishTransition publishTransition,
+	private Competence1 updateCompetenceData(Competence1 comp, EntityPublishTransition publishTransition,
 			CompetenceData1 data) {
 		Competence1 compToUpdate = null;
 		switch(publishTransition) {
@@ -553,6 +556,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				compToUpdate = new Competence1();
 				compToUpdate.setDraft(true);
 				compToUpdate.setCreatedBy(comp.getCreatedBy());
+				compToUpdate.setType(comp.getType());
 				comp.setHasDraft(true);
 				comp.setPublished(false);
 				break;
@@ -1189,6 +1193,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		draftComp.setDescription(originalComp.getDescription());
 		draftComp.setStudentAllowedToAddActivities(originalComp.isStudentAllowedToAddActivities());
 		draftComp.setDuration(originalComp.getDuration());
+		draftComp.setType(originalComp.getType());
 	    
 		if(originalComp.getTags() != null) {
 			for(Tag tag : originalComp.getTags()) {
@@ -1263,6 +1268,28 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		try {
 			String query = "SELECT comp.title " +
 						   "FROM Competence1 comp " +
+						   "WHERE comp.id = :compId";
+			
+			String title = (String) persistence.currentManager()
+				.createQuery(query)
+				.setLong("compId", id)
+				.uniqueResult();
+			
+			return title;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving competence title");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public String getCompetenceDraftOrOriginalTitle(long id) throws DbConnectionException {
+		try {
+			String query = "SELECT coalesce(draftComp.title, comp.title) " +
+						   "FROM Competence1 comp " +
+						   "LEFT JOIN comp.draftVersion draftComp " +
 						   "WHERE comp.id = :compId";
 			
 			String title = (String) persistence.currentManager()
@@ -1418,6 +1445,84 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				}
 				return compData;
 			}
+			return null;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading competence data");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public CompetenceData1 getCompetenceForManager(long competenceId, boolean loadCreator, 
+			boolean loadActivities, Mode mode) throws DbConnectionException {
+		try {
+			StringBuilder queryBuilder = new StringBuilder();
+			queryBuilder.append("SELECT comp " +
+					   "FROM Competence1 comp " + 
+					   "LEFT JOIN fetch comp.tags tags ");
+
+			if(loadCreator) {
+				queryBuilder.append("INNER JOIN fetch comp.createdBy ");
+			}
+			
+			StringBuilder queryBuilder1 = new StringBuilder(queryBuilder.toString());
+			queryBuilder1.append("WHERE comp.id = :compId " +
+					"AND comp.deleted = :deleted " +
+					"AND comp.draft = :draft ");
+			if(mode == Mode.Edit) {
+				queryBuilder1.append("AND comp.type = :type ");
+			} else {
+				queryBuilder1.append("AND (comp.type = :type  OR (comp.published = :published " +
+					"OR comp.hasDraft = :hasDraft))");
+			}
+						   
+			Query q = persistence.currentManager()
+					.createQuery(queryBuilder1.toString())
+					.setLong("compId", competenceId)
+					.setBoolean("deleted", false)
+					.setParameter("type", LearningResourceType.UNIVERSITY_CREATED)
+					.setBoolean("draft", false);
+			
+			if(mode == Mode.View) {
+				q.setBoolean("published", true)
+				 .setBoolean("hasDraft", true);
+			}
+			
+			Competence1 res = (Competence1) q.uniqueResult();
+			
+			if(res != null) {
+				CompetenceData1 cd = null;
+				if(res.isHasDraft() && (mode == Mode.Edit  || (mode == Mode.View 
+						&& res.getType() == LearningResourceType.UNIVERSITY_CREATED))) {
+					String query2 = queryBuilder.toString() + 
+							" WHERE comp = :draftVersion";
+					Competence1 draftComp = (Competence1) persistence.currentManager()
+							.createQuery(query2)
+							.setEntity("draftVersion", res.getDraftVersion())
+							.uniqueResult();
+					if(draftComp != null) {
+						User creator = loadCreator ? draftComp.getCreatedBy() : null;
+						cd = competenceFactory.getCompetenceData(creator, draftComp, 
+								draftComp.getTags(), true);
+					}	
+				} else {
+					User creator = loadCreator ? res.getCreatedBy() : null;
+					cd = competenceFactory.getCompetenceData(creator, res, res.getTags(), true);
+				}
+				if(cd != null && loadActivities) {
+					List<ActivityData> activities = activityManager
+							.getCompetenceActivitiesData(cd.getCompetenceId());
+					cd.setActivities(activities);
+				}
+				
+				List<CredentialData> credentials = credentialManager
+						.getCredentialsWithIncludedCompetenceBasicData(res.getId());
+				cd.setCredentialsWithIncludedCompetence(credentials);
+				return cd;
+			}
+			
 			return null;
 		} catch (Exception e) {
 			logger.error(e);

@@ -1,4 +1,4 @@
-package org.prosolo.web.courses;
+package org.prosolo.web.courses.competence;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -9,10 +9,10 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.ResourceCreator;
+import org.prosolo.services.nodes.data.Mode;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.useractions.CommentBean;
@@ -20,16 +20,17 @@ import org.prosolo.web.util.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-@ManagedBean(name = "competenceViewBean")
-@Component("competenceViewBean")
+@ManagedBean(name = "competenceViewBeanManager")
+@Component("competenceViewBeanManager")
 @Scope("view")
-public class CompetenceViewBean implements Serializable {
+public class CompetenceViewBeanManager implements Serializable {
 
-	private static final long serialVersionUID = 9208762722353804216L;
+	private static final long serialVersionUID = 1186517158327288554L;
 
-	private static Logger logger = Logger.getLogger(CompetenceViewBean.class);
+	private static Logger logger = Logger.getLogger(CompetenceViewBeanManager.class);
 	
 	@Inject private LoggedUserBean loggedUser;
+	@Inject private CredentialManager credManager;
 	@Inject private Competence1Manager competenceManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private CommentBean commentBean;
@@ -46,24 +47,17 @@ public class CompetenceViewBean implements Serializable {
 		decodedCompId = idEncoder.decodeId(compId);
 		if (decodedCompId > 0) {
 			try {
-				decodedCredId = idEncoder.decodeId(credId);
-				if(decodedCredId > 0) {
-					competenceData = competenceManager.getFullTargetCompetenceOrCompetenceData(
-							decodedCredId, decodedCompId, loggedUser.getUser().getId());
-				} else {
-					if("preview".equals(mode)) {
-						competenceData = competenceManager.getCompetenceDataForEdit(decodedCompId, 
-								loggedUser.getUser().getId(), true);
-						ResourceCreator rc = new ResourceCreator();
-						User user = loggedUser.getUser();
-						rc.setFullName(user.getName(), user.getLastname());
-						rc.setAvatarUrl(user.getAvatarUrl());
-						competenceData.setCreator(rc);
-					} else {
-						competenceData = competenceManager.getCompetenceData(decodedCompId, true, true, 
-								true, true);
-					}
+				Mode mode = Mode.View;
+				/*
+				 * when preview it is like getting data for edit.
+				 * Just university competences can be previewed.
+				 */
+				if("preview".equals(mode)) {
+					mode = Mode.Edit;
 				}
+				competenceData = competenceManager
+						.getCompetenceForManager(decodedCompId, true, true, mode);
+				
 				if(competenceData == null) {
 					try {
 						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
@@ -71,7 +65,19 @@ public class CompetenceViewBean implements Serializable {
 						logger.error(e);
 					}
 				} else {
-					commentBean.init(CommentedResourceType.Competence, competenceData.getCompetenceId());
+					/*
+					 * check if user has instructor capability and if has, we should mark his comments as
+					 * instructor comments
+					 */
+					boolean hasInstructorCapability = loggedUser.hasCapability("BASIC.INSTRUCTOR.ACCESS");
+					commentBean.init(CommentedResourceType.Competence, competenceData.getCompetenceId(),
+							hasInstructorCapability);
+					decodedCredId = idEncoder.decodeId(credId);
+					if(decodedCredId > 0) {
+						String credTitle = credManager.getCredentialDraftOrOriginalTitle(decodedCredId);
+						competenceData.setCredentialId(decodedCredId);
+						competenceData.setCredentialTitle(credTitle);
+					}
 				}
 			} catch(Exception e) {
 				logger.error(e);

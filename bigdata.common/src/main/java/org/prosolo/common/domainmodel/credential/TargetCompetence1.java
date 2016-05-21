@@ -8,6 +8,8 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
@@ -30,6 +32,7 @@ public class TargetCompetence1 extends BaseEntity {
 	private Competence1 competence;
 	private List<TargetActivity1> targetActivities;
 	private boolean hiddenFromProfile;
+    private LearningResourceType type;
 	
 	private long duration;
 	private Set<Tag> tags;
@@ -161,5 +164,14 @@ public class TargetCompetence1 extends BaseEntity {
 
 	public void setNextActivityToLearnId(long nextActivityToLearnId) {
 		this.nextActivityToLearnId = nextActivityToLearnId;
+	}
+	
+	@Enumerated(EnumType.STRING)
+	public LearningResourceType getType() {
+		return type;
+	}
+
+	public void setType(LearningResourceType type) {
+		this.type = type;
 	}
 }

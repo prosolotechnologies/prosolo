@@ -43,7 +43,7 @@ public class TargetCredential1 extends BaseEntity {
 	
 	private boolean hiddenFromProfile;
 	
-	private CredentialType1 credentialType;
+	private LearningResourceType credentialType;
 	private Set<Tag> tags;
 	private Set<Tag> hashtags;
 	private long duration;
@@ -195,11 +195,11 @@ public class TargetCredential1 extends BaseEntity {
 	}
 	
 	@Enumerated(EnumType.STRING)
-	public CredentialType1 getCredentialType() {
+	public LearningResourceType getCredentialType() {
 		return credentialType;
 	}
 
-	public void setCredentialType(CredentialType1 credentialType) {
+	public void setCredentialType(LearningResourceType credentialType) {
 		this.credentialType = credentialType;
 	}
 

@@ -7,6 +7,8 @@ import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
@@ -30,6 +32,7 @@ public class Competence1 extends BaseEntity {
 	private Set<Tag> tags;
 	private boolean studentAllowedToAddActivities;
 	private boolean published;
+	private LearningResourceType type;
 	private Competence1 draftVersion;
 	private List<TargetCompetence1> targetCompetences;
 	/** 
@@ -147,6 +150,15 @@ public class Competence1 extends BaseEntity {
 
 	public void setTargetCompetences(List<TargetCompetence1> targetCompetences) {
 		this.targetCompetences = targetCompetences;
+	}
+	
+	@Enumerated(EnumType.STRING)
+	public LearningResourceType getType() {
+		return type;
+	}
+
+	public void setType(LearningResourceType type) {
+		this.type = type;
 	}
 	
 }

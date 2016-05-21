@@ -34,6 +34,7 @@ public class CompetenceDataFactory {
 		comp.setDuration(competence.getDuration());
 		comp.setDraft(competence.isDraft());
 		comp.setPublished(competence.isPublished());
+		comp.setType(competence.getType());
 		comp.setCompStatus();
 		if(user != null) {
 			ResourceCreator creator = new ResourceCreator(user.getId(), 
@@ -70,6 +71,7 @@ public class CompetenceDataFactory {
 		comp.setTitle(competence.getTitle());
 		comp.setDescription(competence.getDescription());
 		comp.setDuration(competence.getDuration());
+		comp.setType(competence.getType());
 		comp.setTargetCompId(competence.getId());
 		comp.setEnrolled(true);
 		comp.setProgress(competence.getProgress());

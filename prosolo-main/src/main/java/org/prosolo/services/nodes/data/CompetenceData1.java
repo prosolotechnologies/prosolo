@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.services.common.observable.StandardObservable;
 import org.prosolo.services.nodes.util.TimeUtil;
 
@@ -28,6 +29,8 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	private Set<Tag> tags;
 	private String tagsString;
 	private boolean studentAllowedToAddActivities;
+	private String typeString;
+	private LearningResourceType type;
 	//true if this is data for draft version of credential
 	private boolean draft;
 	
@@ -62,6 +65,10 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 			}
 		}
 		return changed;
+	}
+	
+	private void setCompetenceTypeFromString() {
+		type = LearningResourceType.valueOf(typeString.toUpperCase());
 	}
 	
 	/** 
@@ -347,4 +354,20 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 		this.nextActivityToLearnId = nextActivityToLearnId;
 	}
 
+	public String getTypeString() {
+		return typeString;
+	}
+
+	public void setTypeString(String typeString) {
+		this.typeString = typeString;
+		setCompetenceTypeFromString();
+	}
+	
+	public LearningResourceType getType() {
+		return type;
+	}
+
+	public void setType(LearningResourceType type) {
+		this.type = type;
+	}
 }

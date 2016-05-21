@@ -99,19 +99,28 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/manage/course.xhtml").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/competence.xhtml").hasAuthority("BASIC.MANAGER.ACCESS")
 		   // remove end
-		   .antMatchers("/manage/css/**").hasAnyAuthority("BASIC.MANAGER.ACCESS")
-		   .antMatchers("/manage/js/**").hasAuthority("BASIC.MANAGER.ACCESS")
-		   .antMatchers("/manage/images/**").hasAuthority("BASIC.MANAGER.ACCESS")
+		   .antMatchers("/manage/css/**").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
+		   .antMatchers("/manage/js/**").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
+		   .antMatchers("/manage/images/**").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
+		   //manage competence
+		   .antMatchers("/manage/competences/*/edit").hasAuthority("COURSE.CREATE")
+		   .antMatchers("/manage/credentials/*/competences/new").hasAuthority("COURSE.CREATE")
+		   .antMatchers("/manage/competences/new").hasAuthority("COURSE.CREATE")
 		   .antMatchers("/manage/competences/*/tools").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/competences/*").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
-		   .antMatchers("/manage/competences/*/activities").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
+		   //.antMatchers("/manage/competences/*/activities").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
 		   .antMatchers("/manage/competences").hasAuthority("COMPETENCES.VIEW")
-		   .antMatchers("/manage/credentials/*/students/*").hasAuthority("BASIC.MANAGER.ACCESS")
-		   .antMatchers("/manage/credentials/*/competences").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
+		   .antMatchers("/manage/credentials/*/students/*").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
+		   //.antMatchers("/manage/credentials/*/competences").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
 		   .antMatchers("/manage/credentials/*/feeds").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
 		   .antMatchers("/manage/credentials/*/students").hasAnyAuthority("COURSE.MEMBERS.VIEW", "COURSE.MEMBERS.VIEW.PERSONALIZED")
-		   .antMatchers("/manage/credentials/create/").hasAnyAuthority("COURSE.CREATE")
+		   .antMatchers("/manage/credentials/*/edit").hasAuthority("COURSE.CREATE")
+		   .antMatchers("/manage/credentials/new").hasAnyAuthority("COURSE.CREATE")
 		   //capability for external tool?
+		   //for manage competence 
+		   .antMatchers("/manage/credentials/*/*").hasAuthority("COMPETENCES.VIEW")
+		  
+		   
 		   .antMatchers("/manage/credentials/*/tools").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/credentials/*/instructors/*/reassignStudents").hasAuthority("STUDENT.ASSIGN.INSTRUCTOR")
 		   .antMatchers("/manage/credentials/*/instructors/*/edit").hasAuthority("COURSE.ASSIGNINSTRUCTOR")
@@ -119,6 +128,11 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/manage/credentials/*/instructors").hasAuthority("COURSE.INSTRUCTORS.VIEW")
 		   .antMatchers("/manage/credentials/*/rss").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
 		   .antMatchers("/manage/credentials/**").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
+		   //manage activity
+		   .antMatchers("/manage/competences/*/*/edit").hasAnyAuthority("COURSE.CREATE")
+		   .antMatchers("/manage/competences/*/newActivity").hasAnyAuthority("COURSE.CREATE")
+		   .antMatchers("/manage/credentials/*/*/*").hasAnyAuthority("COMPETENCES.VIEW")
+		   .antMatchers("/manage/competences/*/*").hasAnyAuthority("COMPETENCES.VIEW")
 		   
 		   .antMatchers("/manage/tools/*/*/*/create").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/tools/*").hasAuthority("BASIC.MANAGER.ACCESS")

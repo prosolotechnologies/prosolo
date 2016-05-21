@@ -1,0 +1,164 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post">
+
+	<composite:interface>
+		<composite:attribute name="bean" required="true"/>
+		<composite:attribute name="role" type="java.lang.String" default="USER"/>
+		<composite:attribute name="learningContext" default=""/>
+		<composite:attribute name="service" default="" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<script src="https://use.typekit.net/zvv0dgl.js"></script>
+    	<script>try{Typekit.load({ async: true });}catch(e){}</script>
+
+		<ui:param name="isPreview" value="#{cc.attrs.bean.isPreview()}" />
+		<ui:param name="learningContext" value="name:base_activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.activityId}" />
+     	<ui:param name="canEdit" value="#{cc.attrs.role == 'MANAGER' and cc.attrs.bean.competenceData.activityToShowWithDetails.type == 'UNIVERSITY_CREATED' || cc.attrs.role != 'MANAGER' and cc.attrs.bean.isCurrentUserCreator()}"></ui:param>
+     	
+     	<div id="#{cc.clientId}">
+	    	<div class="whiteBar">
+	        <div class="container">
+	         <h:form id="formMain">
+	            <div class="whiteBarContent">
+	                <h:panelGroup layout="block" id="panelComplete" styleClass="whiteBarLeft">
+	                	<p:commandLink
+	                		rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled 
+	                			and !isPreview and !cc.attrs.bean.competenceData.activityToShowWithDetails.completed}"
+	                		styleClass="btn btn-green btn-sm"
+	                		value="Mark as Complete"
+	                		process="@this"
+	                		action="#{cc.attrs.bean.completeActivity()}"
+	                		update=":#{cc.clientId}:formMain:panelComplete :#{cc.clientId}:panelCompProgress">
+	                	</p:commandLink>
+	                	<ui:fragment rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled 
+	                		and !isPreview and cc.attrs.bean.competenceData.activityToShowWithDetails.completed}">
+	                    	<div class="tagCompleted">Completed</div>
+	                    </ui:fragment>
+	                </h:panelGroup>
+	                <div class="whiteBarRight">
+	                    <div class="duration item">#{cc.attrs.bean.competenceData.activityToShowWithDetails.durationString}</div>
+	                    <h:link 
+	                    	rendered="#{canEdit and !isPreview}"
+	                    	value="Edit Activity"
+	                    	styleClass="btn btn-green-stroke btn-sm item"
+	                    	outcome="create-activity">
+	                    	<f:param name="id" value="#{param['actId']}"></f:param>
+	                    </h:link>
+	                </div>
+	            </div>
+	         </h:form>
+	        </div>
+	    	</div>
+	
+		    <div class="container">
+		    	<ui:fragment rendered="#{cc.attrs.bean.competenceData.credentialId != 0}">
+		    		<ol class="breadcrumb">
+			            <li>
+			            	<h:link value="Credentials" outcome="/credentialLibrary"/>
+			            </li>
+			            <li>
+			            	<h:link 
+			            		value="#{cc.attrs.bean.competenceData.credentialTitle}"
+			            		outcome="credential">
+			            		<f:param name="id" value="#{param['credId']}"></f:param>
+			            	</h:link>
+			            </li>
+			            <li>
+			            	<h:link 
+			            		value="#{cc.attrs.bean.competenceData.title}"
+			            		outcome="competence">
+			            		<f:param name="compId" value="#{param['compId']}"></f:param>
+			            		<f:param name="credId" value="#{param['credId']}"></f:param>
+			            	</h:link>
+			            </li>
+			            <li class="active">#{cc.attrs.bean.competenceData.activityToShowWithDetails.title}</li>
+			        </ol>
+		    	</ui:fragment>
+		        <ui:fragment rendered="#{cc.attrs.bean.competenceData.credentialId == 0}">
+		    		<ol class="breadcrumb">	 
+		    			<li>
+			            	<a href="javascript:void(0);">Competences</a>
+			            </li> 
+		    			<li>
+			            	<h:link 
+			            		value="#{cc.attrs.bean.competenceData.title}"
+			            		outcome="competence">
+			            		<f:param name="compId" value="#{param['compId']}"></f:param>  
+			            	</h:link>
+			            </li>         
+			            <li class="active">#{cc.attrs.bean.competenceData.activityToShowWithDetails.title}</li>
+			        </ol>
+		    	</ui:fragment>
+		    </div>
+	
+		    <div class="container">
+		        <div class="row">
+		            <div class="col-md-8">
+		            	<courses:activityDetails 
+		            		id="activityDetails"
+		            		activity="#{cc.attrs.bean.competenceData.activityToShowWithDetails}"
+		            		bean="#{cc.attrs.bean}"
+		            		isPreview="#{isPreview}"
+		            		learningContext="#{learningContext}"
+		            	/>
+		                
+		                <post:comments 
+		               		id="comments"
+		               		learningContext="#{learningContext}"
+		               />
+		            </div>
+		            <h:panelGroup layout="block" id="panelCompProgress" styleClass="col-md-4">
+		                <h2>Competence Progress</h2>
+		                <ul class="competenceProgressList">
+		                	<ui:repeat var="act" value="#{cc.attrs.bean.competenceData.activities}">
+		                		<li class="#{styleUtilBean.getStyleClassBasedOnActivityType(act.activityType)} 
+		                			#{cc.attrs.bean.isActivityActive(act) ? 'active' : ''}">
+		                        	<h:panelGroup 
+					          			rendered="#{!isPreview and act.completed}"
+					          			styleClass="check">    
+					          		</h:panelGroup>
+				            		<h:panelGroup
+				            			rendered="#{!act.completed || isPreview}"
+				            			styleClass="iconType">
+				            		</h:panelGroup>
+		                       		<h3>
+		                       			<ui:fragment rendered="#{!isPreview and !cc.attrs.bean.isActivityActive(act)}">
+				                   			<h:link
+							            		value="#{act.title}"
+							            		outcome="activity">
+							            		<f:param name="actId" value="#{util:encodeId(act.activityId)}"></f:param>
+							            		<f:param name="compId" value="#{param['compId']}" disable="#{empty param['compId']}"></f:param>
+				            					<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}"></f:param>
+				            				</h:link>   
+					                   	</ui:fragment>
+					                   	<ui:fragment rendered="#{isPreview || cc.attrs.bean.isActivityActive(act)}">
+					                   		#{act.title}
+					                   	</ui:fragment>
+		                       		</h3>
+		                    	</li>
+		                	</ui:repeat>
+		                </ul>
+		            </h:panelGroup>
+		        </div>
+		
+		    </div>
+		    <ui:fragment rendered="#{not empty param['comment']}">
+		    	<script>
+			    	scrollTo('comment_' + #{util:decodeId(param['comment'])});
+			    </script>
+		    </ui:fragment>
+		</div>
+	</composite:implementation>
+</ui:component>

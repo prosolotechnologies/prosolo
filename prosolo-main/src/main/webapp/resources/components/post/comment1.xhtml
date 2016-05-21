@@ -29,7 +29,9 @@
             <div class="media-body">
             	<div class="commentMain">
                  	<span class="commentTime">#{comment.formattedDate}</span>
-                <h3 class="media-heading">#{comment.creator.fullName}</h3>
+                <h3 class="media-heading">#{comment.creator.fullName}
+                	<ui:fragment rendered="#{comment.instructor}"><span>INSTRUCTOR</span></ui:fragment>
+                </h3>
                 <p class="commentText">#{comment.comment}</p>
                 <h:panelGroup layout="block" rendered="#{commentBean.isCurrentUserCommentCreator(comment)}" class="editComment hidden">
                 	 <h:inputTextarea 

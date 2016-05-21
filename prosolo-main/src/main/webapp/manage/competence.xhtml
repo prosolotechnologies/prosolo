@@ -4,35 +4,37 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:comp="http://java.sun.com/jsf/composite/components"
-	xmlns:compcompetences="http://java.sun.com/jsf/composite/components/competences"
-	template="templates/masterLayout.xhtml"
+	template="templates/masterLayout2.xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
 	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
-	xmlns:dlgportfolio="http://java.sun.com/jsf/composite/components/dialogs/portfolio">
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:competences="http://java.sun.com/jsf/composite/components/competences">
 
 	<ui:define name="windowTitle">
-		Create Competence
+		ProSolo - Competence
 	</ui:define>
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewParam name="id" value="#{manageCompetenceBean.id}" default="null" />
-			<f:viewParam name="cred" default="null" />
-			<f:viewParam name="origin" value="#{manageCompetenceBean.origin}" />
-			<f:viewAction action="#{manageCompetenceBean.init}" />
+			<f:viewParam name="credId" value="#{competenceViewBeanManager.credId}" default="null"/>
+			<f:viewParam name="compId" value="#{competenceViewBeanManager.compId}" default="null"/>
+			<f:viewParam name="mode" value="#{competenceViewBeanManager.mode}" default="null"/>
+			<f:viewParam name="comment" default="null"/>
+			<f:viewAction action="#{competenceViewBeanManager.init()}" />
 		</f:metadata>
 	</ui:define>
 
+    <ui:define name="resourceTitle">
+    	<h1>#{competenceViewBeanManager.competenceData.title} #{competenceViewBeanManager.isPreview() ? '(Preview)' : ''}</h1>
+    </ui:define>
+    
 	<ui:define name="content">
-		<div class="container competence">
-			<div class="content wide">
-				<compcompetences:editCompetence id="managerCreateCompetence"
-					pageTitle="Create/Edit competence" role="MANAGER"
-					courseBean="#{manageCompetenceBean}" />
-
-			</div>
-			<!-- .content -->
-		</div>
-		<!-- .container end -->
+    	<competences:competence
+    		id="competence"
+			bean="#{competenceViewBeanManager}"
+			role="MANAGER"
+    	/>
 	</ui:define>
-	
 </ui:composition>

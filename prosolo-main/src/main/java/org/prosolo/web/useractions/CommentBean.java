@@ -38,6 +38,7 @@ public class CommentBean implements Serializable {
 
 	private String topLevelComment;
 	
+	private boolean isInstructor;
 	private List<CommentData> comments;
 	private CommentedResourceType resourceType;
 	private long resourceId;
@@ -47,11 +48,12 @@ public class CommentBean implements Serializable {
 	
 	private long newestCommentId;
 	
-	public void init(CommentedResourceType resourceType, long resourceId) {
+	public void init(CommentedResourceType resourceType, long resourceId, boolean isInstructor) {
 		try {
 			sortOptions = CommentSortOption.values();
 			this.resourceType = resourceType;
 			this.resourceId = resourceId;
+			this.isInstructor = isInstructor;
 			loadComments();
 			logger.info("Comments for resource " + resourceType.toString() + 
 					" with id " + resourceId + " is loaded");
@@ -96,6 +98,7 @@ public class CommentBean implements Serializable {
 		newComment.setDateCreated(new Date());
 		UserData creator = new UserData(loggedUser.getUser());
 		newComment.setCreator(creator);
+		newComment.setInstructor(isInstructor);
 		
 		String page = PageUtil.getPostParameter("page");
 		String lContext = PageUtil.getPostParameter("learningContext");
@@ -237,6 +240,14 @@ public class CommentBean implements Serializable {
 
 	public void setNewestCommentId(long newestCommentId) {
 		this.newestCommentId = newestCommentId;
+	}
+
+	public boolean isInstructor() {
+		return isInstructor;
+	}
+
+	public void setInstructor(boolean isInstructor) {
+		this.isInstructor = isInstructor;
 	}
 	
 }

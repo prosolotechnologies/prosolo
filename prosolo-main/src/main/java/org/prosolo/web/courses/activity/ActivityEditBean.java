@@ -1,4 +1,4 @@
-package org.prosolo.web.courses;
+package org.prosolo.web.courses.activity;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -21,6 +21,7 @@ import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityType;
+import org.prosolo.services.nodes.data.Mode;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.PublishedStatus;
 import org.prosolo.services.nodes.data.ResourceLinkData;
@@ -66,18 +67,21 @@ public class ActivityEditBean implements Serializable {
 	public void init() {
 		initializeValues();
 		try {
-			if(id == null) {
+			if(compId == null) {
 				activityData = new ActivityData(false);
-				if(compId != null) {
-					decodedCompId = idEncoder.decodeId(compId);
-					activityData.setCompetenceId(decodedCompId);
-				}
+				PageUtil.fireErrorMessage("Competence id must be passed");
 			} else {
-				decodedId = idEncoder.decodeId(id);
-				logger.info("Editing activity with id " + decodedId);
-				loadActivityData(decodedId);
+				if(id == null) {
+					activityData = new ActivityData(false);
+				} else {
+					decodedId = idEncoder.decodeId(id);
+					logger.info("Editing activity with id " + decodedId);
+					loadActivityData(decodedId);
+				}
+				decodedCompId = idEncoder.decodeId(compId);
+				activityData.setCompetenceId(decodedCompId);
+				loadCompAndCredTitle();
 			}
-			loadCompAndCredTitle();
 		} catch(Exception e) {
 			logger.error(e);
 			activityData = new ActivityData(false);
@@ -92,17 +96,21 @@ public class ActivityEditBean implements Serializable {
 	}
 
 	private void loadCompAndCredTitle() {
-		if(activityData.getCompetenceId() > 0) {
-			competenceName = compManager.getCompetenceTitle(activityData.getCompetenceId());
-			activityData.setCompetenceName(competenceName);
-		}
+		competenceName = compManager.getCompetenceDraftOrOriginalTitle(activityData.getCompetenceId());
+		activityData.setCompetenceName(competenceName);
+		
 		if(credId != null) {
 			credentialTitle = credManager.getCredentialDraftOrOriginalTitle(idEncoder.decodeId(credId));
 		}
 	}
 
 	private void loadActivityData(long id) {
-		activityData = activityManager.getActivityDataForEdit(id, loggedUser.getUser().getId());
+		String section = PageUtil.getSectionForView();
+		if("/manage".equals(section)) {
+			activityData = activityManager.getActivityForManager(id, Mode.Edit);
+		} else {
+			activityData = activityManager.getActivityDataForEdit(id, loggedUser.getUser().getId());
+		}
 		
 		if(activityData == null) {
 			activityData = new ActivityData(false);
@@ -254,7 +262,14 @@ public class ActivityEditBean implements Serializable {
 		if(saved && isNew) {
 			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
 			try {
-				extContext.redirect(extContext.getRequestContextPath() + 
+				/*
+				 * this will not work if there are multiple levels of directories in current view path
+				 * example: /credentials/create-credential will return /credentials as a section but this
+				 * may not be what we really want.
+				 */
+				String section = PageUtil.getSectionForView();
+				logger.info("SECTION " + section);
+				extContext.redirect(extContext.getRequestContextPath() + section +
 						"/competences/" + compId + "/edit" );
 			} catch (IOException e) {
 				logger.error(e);
