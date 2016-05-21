@@ -134,7 +134,7 @@ public class Settings {
 			serializer.write(config, source);
 			logger.info("Settings saved!");
 		} catch (Exception e) {
-			logger.error("Could not save the configuration file: " + configFileName, e);
+			logger.error("Could not save the configuration file: " + configFileName+" full path:"+homeConfigFile, e);
 		}
 	}
 	public String getAbsoluteConfigPath(){

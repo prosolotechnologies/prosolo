@@ -129,7 +129,7 @@ public class CommonSettings {
 			serializer.write(object, source);
 			LOGGER.info("Settings saved!");
 		} catch (Exception e) {
-			LOGGER.error("Could not save the configuration file: " + fileName,
+			LOGGER.error("Could not save the configuration file: " + fileName+" full path:"+homeConfigFile,
 					e);
 		}
 	}
