@@ -12,7 +12,7 @@
 		</db-server>
 	</db-config>
 	<spark-config>
-		<type>local</type>
+		<mode>local</mode>
 		<master>spark://127.0.0.1:7077</master>
 		<max-cores>4</max-cores>
 		<executor-memory>4g</executor-memory>
