@@ -29,7 +29,7 @@
 	</ui:define>
 
     <ui:define name="resourceTitle">
-    	<h1>#{activityViewBeanManager.competenceData.activityToShowWithDetails.title} #{activityViewBeanManager.isPreview() ? '(Preview)' : ''}</h1>
+    	<h1>#{activityViewBeanManager.competenceData.activityToShowWithDetails.title} #{activityViewBeanManager.getLabelForActivity()}</h1>
     </ui:define>
     
 	<ui:define name="content">

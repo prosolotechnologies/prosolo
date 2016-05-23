@@ -21,7 +21,6 @@ import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityType;
-import org.prosolo.services.nodes.data.Mode;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.PublishedStatus;
 import org.prosolo.services.nodes.data.ResourceLinkData;
@@ -96,18 +95,18 @@ public class ActivityEditBean implements Serializable {
 	}
 
 	private void loadCompAndCredTitle() {
-		competenceName = compManager.getCompetenceDraftOrOriginalTitle(activityData.getCompetenceId());
+		competenceName = compManager.getCompetenceTitle(activityData.getCompetenceId());
 		activityData.setCompetenceName(competenceName);
 		
 		if(credId != null) {
-			credentialTitle = credManager.getCredentialDraftOrOriginalTitle(idEncoder.decodeId(credId));
+			credentialTitle = credManager.getCredentialTitle(idEncoder.decodeId(credId));
 		}
 	}
 
 	private void loadActivityData(long id) {
 		String section = PageUtil.getSectionForView();
 		if("/manage".equals(section)) {
-			activityData = activityManager.getActivityForManager(id, Mode.Edit);
+			activityData = activityManager.getCurrentVersionOfActivityForManager(id);
 		} else {
 			activityData = activityManager.getActivityDataForEdit(id, loggedUser.getUser().getId());
 		}

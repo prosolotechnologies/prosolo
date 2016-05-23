@@ -36,9 +36,9 @@ import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.Mode;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.Operation;
+import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.impl.util.EntityPublishTransition;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
@@ -378,40 +378,64 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Transactional(readOnly = true)
 	public CompetenceData1 getCompetenceDataForEdit(long competenceId, long creatorId, 
 			boolean loadActivities) throws DbConnectionException {
+		return getCurrentVersionOfCompetenceBasedOnRole(competenceId, creatorId, false, 
+				loadActivities, Role.User);
+	}
+	
+	@Transactional(readOnly = true)
+	private CompetenceData1 getCurrentVersionOfCompetenceBasedOnRole(long competenceId, long creatorId,
+			boolean loadCreator, boolean loadActivities, Role role) throws DbConnectionException {
 		try {
-			User user = (User) persistence.currentManager().load(User.class, creatorId);
-					
-			String commonQuery = "SELECT comp " +
-						   "FROM Competence1 comp " + 
-						   "LEFT JOIN fetch comp.tags tags ";
+			StringBuilder queryBuilder = new StringBuilder();
+			queryBuilder.append("SELECT comp " +
+					   "FROM Competence1 comp " + 
+					   "LEFT JOIN fetch comp.tags tags ");
+
+			if(loadCreator) {
+				queryBuilder.append("INNER JOIN fetch comp.createdBy ");
+			}
 			
-			String query1 = commonQuery + 
-					" WHERE comp.id = :compId" +
-					" AND comp.deleted = :deleted" +
-					" AND comp.createdBy = :user";
+			StringBuilder queryBuilder1 = new StringBuilder(queryBuilder.toString());
+			queryBuilder1.append("WHERE comp.id = :compId " +
+					"AND comp.deleted = :deleted " +
+					"AND comp.draft = :draft ");
+			if(role == Role.User) {
+				queryBuilder1.append("AND comp.createdBy.id = :user");
+			} else {
+				queryBuilder1.append("AND comp.type = :type ");
+			}
 						   
-			Competence1 res = (Competence1) persistence.currentManager()
-					.createQuery(query1)
+			Query q = persistence.currentManager()
+					.createQuery(queryBuilder1.toString())
 					.setLong("compId", competenceId)
 					.setBoolean("deleted", false)
-					.setEntity("user", user)
-					.uniqueResult();
+					.setBoolean("draft", false);
+			
+			if(role == Role.User) {
+				q.setLong("user", creatorId);
+			} else {
+				q.setParameter("type", LearningResourceType.UNIVERSITY_CREATED);
+			}
+			
+			Competence1 res = (Competence1) q.uniqueResult();
 			
 			if(res != null) {
 				CompetenceData1 cd = null;
 				if(res.isHasDraft()) {
-					String query2 = commonQuery + 
+					String query2 = queryBuilder.toString() + 
 							" WHERE comp = :draftVersion";
 					Competence1 draftComp = (Competence1) persistence.currentManager()
 							.createQuery(query2)
 							.setEntity("draftVersion", res.getDraftVersion())
 							.uniqueResult();
 					if(draftComp != null) {
-						cd = competenceFactory.getCompetenceData(null, draftComp, 
+						User creator = loadCreator ? draftComp.getCreatedBy() : null;
+						cd = competenceFactory.getCompetenceData(creator, draftComp, 
 								draftComp.getTags(), true);
 					}	
 				} else {
-					cd = competenceFactory.getCompetenceData(null, res, res.getTags(), true);
+					User creator = loadCreator ? res.getCreatedBy() : null;
+					cd = competenceFactory.getCompetenceData(creator, res, res.getTags(), true);
 				}
 				if(cd != null && loadActivities) {
 					List<ActivityData> activities = activityManager
@@ -1285,6 +1309,27 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = true)
+	public String getTargetCompetenceTitle(long targetCompId) throws DbConnectionException {
+		try {
+			String query = "SELECT comp.title " +
+						   "FROM TargetCompetence1 comp " +
+						   "WHERE comp.id = :compId";
+			
+			String title = (String) persistence.currentManager()
+				.createQuery(query)
+				.setLong("compId", targetCompId)
+				.uniqueResult();
+			
+			return title;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving competence title");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
 	public String getCompetenceDraftOrOriginalTitle(long id) throws DbConnectionException {
 		try {
 			String query = "SELECT coalesce(draftComp.title, comp.title) " +
@@ -1367,32 +1412,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		CompetenceData1 compData = null;
 		try {
 			compData = getTargetCompetenceData(credId, compId, userId, true, true);
-			String credTitle = null;
 			if (compData == null) {
 				compData = getCompetenceData(compId, true, true, true, true);
-				String query = "SELECT cred.title " +
-						   "FROM Credential1 cred " +
-						   "WHERE cred.id = :credId";
-			
-				credTitle = (String) persistence.currentManager()
-						.createQuery(query)
-						.setLong("credId", credId)
-						.uniqueResult();
-			} else {
-				String query = "SELECT targetCred.title " +
-						   "FROM TargetCredential1 targetCred " +
-						   "WHERE targetCred.credential.id = :credId " + 
-						   "AND targetCred.user.id = :userId";
-			
-				credTitle = (String) persistence.currentManager()
-						.createQuery(query)
-						.setLong("credId", credId)
-						.setLong("userId", userId)
-						.uniqueResult();
 			}
-			
-			compData.setCredentialId(credId);
-			compData.setCredentialTitle(credTitle);
 				
 			return compData;
 		} catch (Exception e) {
@@ -1455,79 +1477,87 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = true)
-	public CompetenceData1 getCompetenceForManager(long competenceId, boolean loadCreator, 
-			boolean loadActivities, Mode mode) throws DbConnectionException {
-		try {
-			StringBuilder queryBuilder = new StringBuilder();
-			queryBuilder.append("SELECT comp " +
-					   "FROM Competence1 comp " + 
-					   "LEFT JOIN fetch comp.tags tags ");
-
-			if(loadCreator) {
-				queryBuilder.append("INNER JOIN fetch comp.createdBy ");
-			}
-			
-			StringBuilder queryBuilder1 = new StringBuilder(queryBuilder.toString());
-			queryBuilder1.append("WHERE comp.id = :compId " +
-					"AND comp.deleted = :deleted " +
-					"AND comp.draft = :draft ");
-			if(mode == Mode.Edit) {
-				queryBuilder1.append("AND comp.type = :type ");
-			} else {
-				queryBuilder1.append("AND (comp.type = :type  OR (comp.published = :published " +
-					"OR comp.hasDraft = :hasDraft))");
-			}
-						   
-			Query q = persistence.currentManager()
-					.createQuery(queryBuilder1.toString())
-					.setLong("compId", competenceId)
-					.setBoolean("deleted", false)
-					.setParameter("type", LearningResourceType.UNIVERSITY_CREATED)
-					.setBoolean("draft", false);
-			
-			if(mode == Mode.View) {
-				q.setBoolean("published", true)
-				 .setBoolean("hasDraft", true);
-			}
-			
-			Competence1 res = (Competence1) q.uniqueResult();
-			
-			if(res != null) {
-				CompetenceData1 cd = null;
-				if(res.isHasDraft() && (mode == Mode.Edit  || (mode == Mode.View 
-						&& res.getType() == LearningResourceType.UNIVERSITY_CREATED))) {
-					String query2 = queryBuilder.toString() + 
-							" WHERE comp = :draftVersion";
-					Competence1 draftComp = (Competence1) persistence.currentManager()
-							.createQuery(query2)
-							.setEntity("draftVersion", res.getDraftVersion())
-							.uniqueResult();
-					if(draftComp != null) {
-						User creator = loadCreator ? draftComp.getCreatedBy() : null;
-						cd = competenceFactory.getCompetenceData(creator, draftComp, 
-								draftComp.getTags(), true);
-					}	
-				} else {
-					User creator = loadCreator ? res.getCreatedBy() : null;
-					cd = competenceFactory.getCompetenceData(creator, res, res.getTags(), true);
-				}
-				if(cd != null && loadActivities) {
-					List<ActivityData> activities = activityManager
-							.getCompetenceActivitiesData(cd.getCompetenceId());
-					cd.setActivities(activities);
-				}
-				
-				List<CredentialData> credentials = credentialManager
-						.getCredentialsWithIncludedCompetenceBasicData(res.getId());
-				cd.setCredentialsWithIncludedCompetence(credentials);
-				return cd;
-			}
-			
-			return null;
-		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while loading competence data");
-		}
+	public CompetenceData1 getCurrentVersionOfCompetenceForManager(long competenceId,
+			boolean loadCreator, boolean loadActivities) throws DbConnectionException {
+			return getCurrentVersionOfCompetenceBasedOnRole(competenceId, 0, loadCreator, 
+					loadActivities, Role.Manager);
 	}
+	
+//	@Override
+//	@Transactional(readOnly = true)
+//	public CompetenceData1 getCompetenceForManager(long competenceId, boolean loadCreator, 
+//			boolean loadActivities, Mode mode) throws DbConnectionException {
+//		try {
+//			StringBuilder queryBuilder = new StringBuilder();
+//			queryBuilder.append("SELECT comp " +
+//					   "FROM Competence1 comp " + 
+//					   "LEFT JOIN fetch comp.tags tags ");
+//
+//			if(loadCreator) {
+//				queryBuilder.append("INNER JOIN fetch comp.createdBy ");
+//			}
+//			
+//			StringBuilder queryBuilder1 = new StringBuilder(queryBuilder.toString());
+//			queryBuilder1.append("WHERE comp.id = :compId " +
+//					"AND comp.deleted = :deleted " +
+//					"AND comp.draft = :draft ");
+//			if(mode == Mode.Edit) {
+//				queryBuilder1.append("AND comp.type = :type ");
+//			} else {
+//				queryBuilder1.append("AND (comp.type = :type  OR (comp.published = :published " +
+//					"OR comp.hasDraft = :hasDraft))");
+//			}
+//						   
+//			Query q = persistence.currentManager()
+//					.createQuery(queryBuilder1.toString())
+//					.setLong("compId", competenceId)
+//					.setBoolean("deleted", false)
+//					.setParameter("type", LearningResourceType.UNIVERSITY_CREATED)
+//					.setBoolean("draft", false);
+//			
+//			if(mode == Mode.View) {
+//				q.setBoolean("published", true)
+//				 .setBoolean("hasDraft", true);
+//			}
+//			
+//			Competence1 res = (Competence1) q.uniqueResult();
+//			
+//			if(res != null) {
+//				CompetenceData1 cd = null;
+//				if(res.isHasDraft() && (mode == Mode.Edit  || (mode == Mode.View 
+//						&& res.getType() == LearningResourceType.UNIVERSITY_CREATED))) {
+//					String query2 = queryBuilder.toString() + 
+//							" WHERE comp = :draftVersion";
+//					Competence1 draftComp = (Competence1) persistence.currentManager()
+//							.createQuery(query2)
+//							.setEntity("draftVersion", res.getDraftVersion())
+//							.uniqueResult();
+//					if(draftComp != null) {
+//						User creator = loadCreator ? draftComp.getCreatedBy() : null;
+//						cd = competenceFactory.getCompetenceData(creator, draftComp, 
+//								draftComp.getTags(), true);
+//					}	
+//				} else {
+//					User creator = loadCreator ? res.getCreatedBy() : null;
+//					cd = competenceFactory.getCompetenceData(creator, res, res.getTags(), true);
+//				}
+//				if(cd != null && loadActivities) {
+//					List<ActivityData> activities = activityManager
+//							.getCompetenceActivitiesData(cd.getCompetenceId());
+//					cd.setActivities(activities);
+//				}
+//				
+//				List<CredentialData> credentials = credentialManager
+//						.getCredentialsWithIncludedCompetenceBasicData(res.getId());
+//				cd.setCredentialsWithIncludedCompetence(credentials);
+//				return cd;
+//			}
+//			
+//			return null;
+//		} catch (Exception e) {
+//			logger.error(e);
+//			e.printStackTrace();
+//			throw new DbConnectionException("Error while loading competence data");
+//		}
+//	}
 }

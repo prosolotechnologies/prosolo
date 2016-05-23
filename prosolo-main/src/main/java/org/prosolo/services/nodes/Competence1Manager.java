@@ -11,7 +11,6 @@ import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.Mode;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 
@@ -109,6 +108,8 @@ public interface Competence1Manager {
 	
 	String getCompetenceTitle(long id) throws DbConnectionException;
 	
+	String getTargetCompetenceTitle(long targetCompId) throws DbConnectionException;
+	
 	String getCompetenceDraftOrOriginalTitle(long id) throws DbConnectionException;
 
 	void updateProgressForTargetCompetenceWithActivity(long targetActId) 
@@ -127,18 +128,29 @@ public interface Competence1Manager {
 			long userId) throws DbConnectionException;
 	
 	/**
-	 * Returns current version of competence for edit if edit mode - draft version if exists
-	 * but only if competence is university based, otherwise null is returned.
-	 * If view mode, again draft version is returned if exists and competence is university based, 
-	 * otherwise published version is returned.
+	 * Returns draft version of competence if exists, original version otherwise
 	 * @param competenceId
 	 * @param loadCreator
 	 * @param loadActivities
-	 * @param mode
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	CompetenceData1 getCompetenceForManager(long competenceId, boolean loadCreator, 
-			boolean loadActivities, Mode mode) throws DbConnectionException;
+	CompetenceData1 getCurrentVersionOfCompetenceForManager(long competenceId,
+			boolean loadCreator, boolean loadActivities) throws DbConnectionException;
+	
+//	/**
+//	 * Returns current version of competence for edit if edit mode - draft version if exists
+//	 * but only if competence is university based, otherwise null is returned.
+//	 * If view mode, again draft version is returned if exists and competence is university based, 
+//	 * otherwise published version is returned.
+//	 * @param competenceId
+//	 * @param loadCreator
+//	 * @param loadActivities
+//	 * @param mode
+//	 * @return
+//	 * @throws DbConnectionException
+//	 */
+//	CompetenceData1 getCompetenceForManager(long competenceId, boolean loadCreator, 
+//			boolean loadActivities, Mode mode) throws DbConnectionException;
 
 }

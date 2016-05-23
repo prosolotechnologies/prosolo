@@ -35,9 +35,9 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.Mode;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.Operation;
+import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.CredentialDataFactory;
 import org.prosolo.services.nodes.impl.util.EntityPublishTransition;
@@ -317,8 +317,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
+	@Override
 	@Transactional(readOnly = true)
-	private CredentialData getCredentialData(long credentialId, boolean loadCreatorData,
+	public CredentialData getCredentialData(long credentialId, boolean loadCreatorData,
 			boolean loadCompetences) throws DbConnectionException {
 		try {
 			Credential1 cred = getCredential(credentialId, loadCreatorData);
@@ -384,41 +385,65 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Transactional(readOnly = true)
 	public CredentialData getCredentialDataForEdit(long credentialId, long creatorId, 
 			boolean loadCompetences) throws DbConnectionException {
-		try {
-			User user = (User) persistence.currentManager().load(User.class, creatorId);
-					
-			String commonQuery = "SELECT cred " +
-						   "FROM Credential1 cred " + 
-						   "LEFT JOIN fetch cred.tags tags " +
-						   "LEFT JOIN fetch cred.hashtags hashtags ";
+		return getCurrentVersionOfCredentialBasedOnRole(credentialId, creatorId, false, 
+				loadCompetences, Role.User);
+	}
+	
+	@Transactional(readOnly = true)
+	private CredentialData getCurrentVersionOfCredentialBasedOnRole(long credentialId, long creatorId, 
+			boolean loadCreator, boolean loadCompetences, Role role) throws DbConnectionException {
+		try {		
+			StringBuilder commonQueryBuilder = new StringBuilder("SELECT cred " +
+					   "FROM Credential1 cred " + 
+					   "LEFT JOIN fetch cred.tags tags " +
+					   "LEFT JOIN fetch cred.hashtags hashtags ");
 			
-			String query1 = commonQuery + 
-					" WHERE cred.id = :credentialId" +
-					" AND cred.deleted = :deleted" +
-					" AND cred.createdBy = :user";
+			if(loadCreator) {
+				commonQueryBuilder.append("INNER JOIN fetch cred.createdBy ");
+			}
+			
+			StringBuilder queryBuilder = new StringBuilder(commonQueryBuilder.toString() + 
+					"WHERE cred.id = :credentialId " +
+					"AND cred.deleted = :deleted " +
+					"AND cred.draft = :draft ");
+			
+			if(role == Role.User) {
+				queryBuilder.append("AND cred.createdBy.id = :user");
+			} else {
+				queryBuilder.append("AND cred.type = :type");
+			}
 						   
-			Credential1 res = (Credential1) persistence.currentManager()
-					.createQuery(query1)
+			Query q = persistence.currentManager()
+					.createQuery(queryBuilder.toString())
 					.setLong("credentialId", credentialId)
 					.setBoolean("deleted", false)
-					.setEntity("user", user)
-					.uniqueResult();
+					.setBoolean("draft", false);
+			
+			if(role == Role.User) {
+				q.setLong("user", creatorId);
+			} else {
+				q.setParameter("type", LearningResourceType.UNIVERSITY_CREATED);
+			}
+					
+			Credential1 res = (Credential1) q.uniqueResult();
 			
 			if(res != null) {
 				CredentialData credData = null;
 				if(res.isHasDraft()) {
-					String query2 = commonQuery + 
+					String query2 = commonQueryBuilder.toString() + 
 							" WHERE cred = :draftVersion";
 					Credential1 draftCred = (Credential1) persistence.currentManager()
 							.createQuery(query2)
 							.setEntity("draftVersion", res.getDraftVersion())
 							.uniqueResult();
 					if(draftCred != null) {
-						credData = credentialFactory.getCredentialData(null, draftCred, 
+						User creator = loadCreator ? draftCred.getCreatedBy() : null;
+						credData = credentialFactory.getCredentialData(creator, draftCred, 
 								draftCred.getTags(), draftCred.getHashtags(), true);
 					}	
 				} else {
-					credData = credentialFactory.getCredentialData(null, res, res.getTags(),
+					User creator = loadCreator ? res.getCreatedBy() : null;
+					credData = credentialFactory.getCredentialData(creator, res, res.getTags(),
 							res.getHashtags(), true);
 				}
 				if(credData != null && loadCompetences) {
@@ -915,7 +940,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throws DbConnectionException {
 		try {
 			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, compId);
-			String query = "SELECT coalesce(originalCred.id, cred.id), cred.title " +
+			String query = "SELECT coalesce(originalCred.id, cred.id), coalesce(originalCred.title, cred.title) " +
 					       "FROM CredentialCompetence1 credComp " +
 					       "INNER JOIN credComp.credential cred " +
 					       "LEFT JOIN cred.originalVersion originalCred " +
@@ -1513,6 +1538,29 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Override
 	@Transactional(readOnly = true)
+	public String getTargetCredentialTitle(long credId, long userId) throws DbConnectionException {
+		try {
+			String query = "SELECT cred.title " +
+						   "FROM TargetCredential1 cred " +
+						   "WHERE cred.user.id = :userId " +
+						   "AND cred.credential.id = :credId";
+			
+			String title = (String) persistence.currentManager()
+				.createQuery(query)
+				.setLong("userId", userId)
+				.setLong("credId", credId)
+				.uniqueResult();
+			
+			return title;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credential title");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
 	public String getCredentialDraftOrOriginalTitle(long id) throws DbConnectionException {
 		try {
 			String query = "SELECT coalesce(draftCred.title, cred.title) " +
@@ -1535,80 +1583,88 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Override
 	@Transactional(readOnly = true)
-	public CredentialData getCredentialForManager(long credentialId, boolean loadCreator,
-			boolean loadCompetences, Mode mode) throws DbConnectionException {
-		try {
-			StringBuilder queryBuilder = new StringBuilder();
-			queryBuilder.append("SELECT cred " +
-					   "FROM Credential1 cred " + 
-					   "LEFT JOIN fetch cred.tags tags " +
-					   "LEFT JOIN fetch cred.hashtags hashtags ");
-
-			if(loadCreator) {
-				queryBuilder.append("INNER JOIN fetch cred.createdBy ");
-			}
-			
-			StringBuilder queryBuilder1 = new StringBuilder(queryBuilder.toString());
-			queryBuilder1.append("WHERE cred.id = :credentialId " +
-					"AND cred.deleted = :deleted " +
-					"AND cred.draft = :draft ");
-			if(mode == Mode.Edit) {
-				queryBuilder1.append("AND cred.type = :type ");
-			} else {
-				queryBuilder1.append("AND (cred.type = :type  OR (cred.published = :published " +
-					"OR cred.hasDraft = :hasDraft))");
-			}
-						   
-			Query q = persistence.currentManager()
-					.createQuery(queryBuilder1.toString())
-					.setLong("credentialId", credentialId)
-					.setBoolean("deleted", false)
-					.setParameter("type", LearningResourceType.UNIVERSITY_CREATED)
-					.setBoolean("draft", false);
-			
-			if(mode == Mode.View) {
-				q.setBoolean("published", true)
-				 .setBoolean("hasDraft", true);
-			}
-			
-			Credential1 res = (Credential1) q.uniqueResult();
-			
-			if(res != null) {
-				CredentialData credData = null;
-				if(res.isHasDraft() && (mode == Mode.Edit  
-						|| (mode == Mode.View && 
-						res.getType() == LearningResourceType.UNIVERSITY_CREATED))) {
-					String query2 = queryBuilder.toString() + 
-							" WHERE cred = :draftVersion";
-					Credential1 draftCred = (Credential1) persistence.currentManager()
-							.createQuery(query2)
-							.setEntity("draftVersion", res.getDraftVersion())
-							.uniqueResult();
-					if(draftCred != null) {
-						User creator = loadCreator ? draftCred.getCreatedBy() : null;
-						credData = credentialFactory.getCredentialData(creator, draftCred, 
-								draftCred.getTags(), draftCred.getHashtags(), true);
-					}	
-				} else {
-					User creator = loadCreator ? res.getCreatedBy() : null;
-					credData = credentialFactory.getCredentialData(creator, res, res.getTags(),
-							res.getHashtags(), true);
-				}
-				if(credData != null && loadCompetences) {
-					List<CompetenceData1> compsData = compManager.getCredentialCompetencesData(
-							credData.getId(), true, false, false, true);
-					credData.setCompetences(compsData);
-				}
-				return credData;
-			}
-			
-			return null;
-		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while loading credential data");
-		}
+	public CredentialData getCurrentVersionOfCredentialForManager(long credentialId,
+			boolean loadCreator, boolean loadCompetences) throws DbConnectionException {
+			return getCurrentVersionOfCredentialBasedOnRole(credentialId, 0, loadCreator, 
+					loadCompetences, Role.Manager);
 	}
+	
+//	@Override
+//	@Transactional(readOnly = true)
+//	public CredentialData getCredentialForManager(long credentialId, boolean loadCreator,
+//			boolean loadCompetences, Mode mode) throws DbConnectionException {
+//		try {
+//			StringBuilder queryBuilder = new StringBuilder();
+//			queryBuilder.append("SELECT cred " +
+//					   "FROM Credential1 cred " + 
+//					   "LEFT JOIN fetch cred.tags tags " +
+//					   "LEFT JOIN fetch cred.hashtags hashtags ");
+//
+//			if(loadCreator) {
+//				queryBuilder.append("INNER JOIN fetch cred.createdBy ");
+//			}
+//			
+//			StringBuilder queryBuilder1 = new StringBuilder(queryBuilder.toString());
+//			queryBuilder1.append("WHERE cred.id = :credentialId " +
+//					"AND cred.deleted = :deleted " +
+//					"AND cred.draft = :draft ");
+//			if(mode == Mode.Edit) {
+//				queryBuilder1.append("AND cred.type = :type ");
+//			} else {
+//				queryBuilder1.append("AND (cred.type = :type  OR (cred.published = :published " +
+//					"OR cred.hasDraft = :hasDraft))");
+//			}
+//						   
+//			Query q = persistence.currentManager()
+//					.createQuery(queryBuilder1.toString())
+//					.setLong("credentialId", credentialId)
+//					.setBoolean("deleted", false)
+//					.setParameter("type", LearningResourceType.UNIVERSITY_CREATED)
+//					.setBoolean("draft", false);
+//			
+//			if(mode == Mode.View) {
+//				q.setBoolean("published", true)
+//				 .setBoolean("hasDraft", true);
+//			}
+//			
+//			Credential1 res = (Credential1) q.uniqueResult();
+//			
+//			if(res != null) {
+//				CredentialData credData = null;
+//				if(res.isHasDraft() && (mode == Mode.Edit  
+//						|| (mode == Mode.View && 
+//						res.getType() == LearningResourceType.UNIVERSITY_CREATED))) {
+//					String query2 = queryBuilder.toString() + 
+//							" WHERE cred = :draftVersion";
+//					Credential1 draftCred = (Credential1) persistence.currentManager()
+//							.createQuery(query2)
+//							.setEntity("draftVersion", res.getDraftVersion())
+//							.uniqueResult();
+//					if(draftCred != null) {
+//						User creator = loadCreator ? draftCred.getCreatedBy() : null;
+//						credData = credentialFactory.getCredentialData(creator, draftCred, 
+//								draftCred.getTags(), draftCred.getHashtags(), true);
+//					}	
+//				} else {
+//					User creator = loadCreator ? res.getCreatedBy() : null;
+//					credData = credentialFactory.getCredentialData(creator, res, res.getTags(),
+//							res.getHashtags(), true);
+//				}
+//				if(credData != null && loadCompetences) {
+//					List<CompetenceData1> compsData = compManager.getCredentialCompetencesData(
+//							credData.getId(), true, false, false, true);
+//					credData.setCompetences(compsData);
+//				}
+//				return credData;
+//			}
+//			
+//			return null;
+//		} catch (Exception e) {
+//			logger.error(e);
+//			e.printStackTrace();
+//			throw new DbConnectionException("Error while loading credential data");
+//		}
+//	}
 	
 //	@Override
 //	@Transactional(readOnly = true)

@@ -13,8 +13,11 @@ import org.primefaces.model.UploadedFile;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.Activity1Manager;
+import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
@@ -37,6 +40,8 @@ public class ActivityViewBeanUser implements Serializable {
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private CommentBean commentBean;
 	@Inject private UploadManager uploadManager;
+	@Inject private Competence1Manager compManager;
+	@Inject private CredentialManager credManager;
 
 	private String actId;
 	private long decodedActId;
@@ -67,7 +72,7 @@ public class ActivityViewBeanUser implements Serializable {
 					} 
 					competenceData = activityManager
 							.getCompetenceActivitiesWithSpecifiedActivityInFocus(decodedActId, 
-									creatorId, 0, shouldReturnDraft);
+									creatorId, shouldReturnDraft, Role.User);
 				}
 				if(competenceData == null) {
 					try {
@@ -78,6 +83,8 @@ public class ActivityViewBeanUser implements Serializable {
 				} else {
 					commentBean.init(CommentedResourceType.Activity, 
 							competenceData.getActivityToShowWithDetails().getActivityId(), false);
+					
+					loadCompetenceAndCredentialTitle();
 				}
 			} catch(Exception e) {
 				logger.error(e);
@@ -93,14 +100,47 @@ public class ActivityViewBeanUser implements Serializable {
 		}
 	}
 	
+	private void loadCompetenceAndCredentialTitle() {
+		String compTitle = null;
+		String credTitle = null;
+		decodedCredId = idEncoder.decodeId(credId);
+		if(competenceData.getActivityToShowWithDetails().isEnrolled()) {
+			compTitle = compManager.getTargetCompetenceTitle(competenceData
+					.getActivityToShowWithDetails().getCompetenceId());
+			if(decodedCredId > 0) {
+				credTitle = credManager.getTargetCredentialTitle(decodedCredId, loggedUser
+						.getUser().getId());
+			}
+		} else {
+			compTitle = compManager.getCompetenceTitle(decodedCompId);
+			if(decodedCredId > 0) {
+				credTitle = credManager.getCredentialTitle(decodedCredId);
+			}
+		}
+		competenceData.setTitle(compTitle);
+		competenceData.setCredentialId(decodedCredId);
+		competenceData.setCredentialTitle(credTitle);
+		
+	}
+	
 	public boolean isActivityActive(ActivityData act) {
 		return competenceData.getActivityToShowWithDetails().getActivityId() == act.getActivityId();
 	}
 	
 	public boolean isCurrentUserCreator() {
-		return competenceData == null || competenceData.getCreator() == null ? false : 
-			competenceData.getCreator().getId() == loggedUser.getUser().getId();
+		return competenceData.getActivityToShowWithDetails().getCreatorId() == loggedUser.getUser().getId();
 	}
+	
+	public String getLabelForActivity() {
+ 		if(isPreview()) {
+ 			return "(Preview)";
+ 		} else if(isCurrentUserCreator() && !competenceData.getActivityToShowWithDetails().isEnrolled() 
+ 				&& !competenceData.getActivityToShowWithDetails().isPublished()) {
+ 			return "(Draft)";
+ 		} else {
+ 			return "";
+ 		}
+ 	}
 	
 	public boolean isPreview() {
 		return "preview".equals(mode);

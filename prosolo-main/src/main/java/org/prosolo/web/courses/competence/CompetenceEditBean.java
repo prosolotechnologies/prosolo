@@ -20,7 +20,6 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.Mode;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.PublishedStatus;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -89,7 +88,8 @@ public class CompetenceEditBean implements Serializable {
 	private void loadCompetenceData(long id) {
 		String section = PageUtil.getSectionForView();
 		if("/manage".equals(section)) {
-			competenceData = compManager.getCompetenceForManager(id, false, true, Mode.Edit);
+			competenceData = compManager
+					.getCurrentVersionOfCompetenceForManager(id, false, true);
 		} else {
 			competenceData = compManager.getCompetenceDataForEdit(id, 
 					loggedUser.getUser().getId(), true);

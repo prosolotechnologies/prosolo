@@ -22,7 +22,6 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.Mode;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.PublishedStatus;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -81,7 +80,7 @@ public class CredentialEditBean implements Serializable {
 	private void loadCredentialData(long id) {
 		String section = PageUtil.getSectionForView();
 		if("/manage".equals(section)) {
-			credentialData = credentialManager.getCredentialForManager(id, false, true, Mode.Edit);
+			credentialData = credentialManager.getCurrentVersionOfCredentialForManager(id, false, true);
 		} else {
 			credentialData = credentialManager.getCredentialDataForEdit(id, 
 					loggedUser.getUser().getId(), true);

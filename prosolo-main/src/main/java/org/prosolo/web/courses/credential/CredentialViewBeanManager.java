@@ -9,12 +9,12 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.Mode;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.PageUtil;
@@ -45,16 +45,13 @@ public class CredentialViewBeanManager implements Serializable {
 		decodedId = idEncoder.decodeId(id);
 		if (decodedId > 0) {
 			try {
-				Mode mode = Mode.View;
-				/*
-				 * when preview it is like getting data for edit.
-				 * Just university credentials can be previewed.
-				 */
 				if("preview".equals(mode)) {
-					mode = Mode.Edit;
+					credentialData = credentialManager
+							.getCurrentVersionOfCredentialForManager(decodedId, true, true);
+				} else {
+					credentialData = credentialManager
+							.getCredentialData(decodedId, true, true);
 				}
-				credentialData = credentialManager
-						.getCredentialForManager(decodedId, true, true, mode);
 				
 				if(credentialData == null) {
 					try {
@@ -81,6 +78,17 @@ public class CredentialViewBeanManager implements Serializable {
 		return credentialData == null || credentialData.getCreator() == null ? false : 
 			credentialData.getCreator().getId() == loggedUser.getUser().getId();
 	}
+	
+	public String getLabelForCredential() {
+ 		if(isPreview()) {
+ 			return "(Preview)";
+ 		} else if(!credentialData.isPublished() && 
+ 				credentialData.getType() == LearningResourceType.UNIVERSITY_CREATED) {
+ 			return "(Draft)";
+ 		} else {
+ 			return "";
+ 		}
+ 	}
 	
 	public boolean isPreview() {
 		return "preview".equals(mode);

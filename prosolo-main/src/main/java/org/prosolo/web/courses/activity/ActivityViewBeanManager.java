@@ -8,18 +8,14 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.primefaces.event.FileUploadEvent;
-import org.primefaces.model.UploadedFile;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.Mode;
-import org.prosolo.services.upload.UploadManager;
+import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.useractions.CommentBean;
@@ -40,7 +36,6 @@ public class ActivityViewBeanManager implements Serializable {
 	@Inject private Activity1Manager activityManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private CommentBean commentBean;
-	@Inject private UploadManager uploadManager;
 	@Inject private CredentialManager credManager;
 	@Inject private Competence1Manager compManager;
 
@@ -59,16 +54,13 @@ public class ActivityViewBeanManager implements Serializable {
 		decodedCompId = idEncoder.decodeId(compId);
 		if (decodedActId > 0 && decodedCompId > 0) {
 			try {
-				Mode mode = Mode.View;
-				/*
-				 * when preview it is like getting data for edit.
-				 * Just university activities can be previewed.
-				 */
+				boolean shouldReturnDraft = false;
 				if("preview".equals(mode)) {
-					mode = Mode.Edit;
-				}
+					shouldReturnDraft = true;
+				} 
 				competenceData = activityManager
-						.getCompetenceActivitiesWithActivityDetailsForManager(decodedActId, mode);
+						.getCompetenceActivitiesWithSpecifiedActivityInFocus(decodedActId, 
+								0, shouldReturnDraft, Role.Manager);
 				
 				if(competenceData == null) {
 					try {
@@ -103,23 +95,11 @@ public class ActivityViewBeanManager implements Serializable {
 	}
 	
 	private void loadCompetenceAndCredentialTitle() {
-		String compTitle = null;
-		if(competenceData.getActivityToShowWithDetails().getType() 
-				== LearningResourceType.UNIVERSITY_CREATED) {
-			compTitle = compManager.getCompetenceDraftOrOriginalTitle(decodedCompId);
-		} else {
-			compTitle = compManager.getCompetenceTitle(decodedCompId);
-		}
+		String compTitle = compManager.getCompetenceTitle(decodedCompId);
 		competenceData.setTitle(compTitle);
 		decodedCredId = idEncoder.decodeId(credId);
 		if(decodedCredId > 0) {
-			String credTitle = null;
-			if(competenceData.getActivityToShowWithDetails().getType() 
-					== LearningResourceType.UNIVERSITY_CREATED) {
-				credTitle = credManager.getCredentialDraftOrOriginalTitle(decodedCredId);
-			} else {
-				credTitle = credManager.getCredentialTitle(decodedCredId);
-			}
+			String credTitle = credManager.getCredentialTitle(decodedCredId);
 			competenceData.setCredentialId(decodedCredId);
 			competenceData.setCredentialTitle(credTitle);
 		}
@@ -131,64 +111,25 @@ public class ActivityViewBeanManager implements Serializable {
 	}
 	
 	public boolean isCurrentUserCreator() {
-		return competenceData == null || competenceData.getCreator() == null ? false : 
-			competenceData.getCreator().getId() == loggedUser.getUser().getId();
+		return competenceData.getActivityToShowWithDetails().getCreatorId() == loggedUser.getUser().getId();
 	}
+	
+	public String getLabelForActivity() {
+ 		if(isPreview()) {
+ 			return "(Preview)";
+ 		} else if(!competenceData.getActivityToShowWithDetails().isPublished() && 
+ 				competenceData.getActivityToShowWithDetails().getType() 
+ 					== LearningResourceType.UNIVERSITY_CREATED) {
+ 			return "(Draft)";
+ 		} else {
+ 			return "";
+ 		}
+ 	}
 	
 	public boolean isPreview() {
 		return "preview".equals(mode);
 	}
-
-	/*
-	 * ACTIONS
-	 */
 	
-	public void completeActivity() {
-		try {
-			activityManager.completeActivity(
-					competenceData.getActivityToShowWithDetails().getTargetActivityId(), 
-					competenceData.getActivityToShowWithDetails().getCompetenceId(), 
-					decodedCredId, 
-					loggedUser.getUser().getId());
-			competenceData.getActivityToShowWithDetails().setCompleted(true);
-			for(ActivityData ad : competenceData.getActivities()) {
-				if(ad.getActivityId() == competenceData.getActivityToShowWithDetails().getActivityId()) {
-					ad.setCompleted(true);
-				}
-			}
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-			PageUtil.fireErrorMessage("Error while marking activity as completed");
-		}
-	}
-	
-	public void handleFileUpload(FileUploadEvent event) {
-		UploadedFile uploadedFile = event.getFile();
-		
-		try {
-			String fileName = uploadedFile.getFileName();
-			String fullPath = uploadManager.storeFile(null, uploadedFile, fileName);
-			activityManager.saveAssignment(competenceData.getActivityToShowWithDetails()
-					.getTargetActivityId(), fileName, fullPath);
-			competenceData.getActivityToShowWithDetails().setAssignmentTitle(fileName);
-			competenceData.getActivityToShowWithDetails().setAssignmentLink(fullPath);
-		} catch (Exception e) {
-			logger.error(e);
-			PageUtil.fireErrorMessage("Error while uploading assignment");
-		}
-	}
-	
-	public void deleteAssignment() {
-		try {
-			activityManager.deleteAssignment(competenceData.getActivityToShowWithDetails()
-					.getTargetActivityId());
-			competenceData.getActivityToShowWithDetails().setAssignmentTitle(null);
-			competenceData.getActivityToShowWithDetails().setAssignmentLink(null);
-		} catch(DbConnectionException e) {
-			logger.error(e);
-			PageUtil.fireErrorMessage(e.getMessage());
-		}
-	}
 	
 	/*
 	 * GETTERS / SETTERS

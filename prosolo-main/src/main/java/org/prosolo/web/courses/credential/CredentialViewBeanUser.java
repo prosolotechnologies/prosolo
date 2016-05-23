@@ -92,6 +92,16 @@ public class CredentialViewBeanUser implements Serializable {
 			credentialData.getCreator().getId() == loggedUser.getUser().getId();
 	}
 	
+ 	public String getLabelForCredential() {
+ 		if(isPreview()) {
+ 			return "(Preview)";
+ 		} else if(isCurrentUserCreator() && !credentialData.isEnrolled() && !credentialData.isPublished()) {
+ 			return "(Draft)";
+ 		} else {
+ 			return "";
+ 		}
+ 	}
+ 	
 	public boolean isPreview() {
 		return "preview".equals(mode);
 	}

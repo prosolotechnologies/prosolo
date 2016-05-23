@@ -49,6 +49,7 @@ public class ActivityDataFactory {
 		act.setUploadAssignment(activity.isUploadAssignment());
 		act.setDateCreated(activity.getDateCreated());
 		act.setType(activity.getType());
+		act.setCreatorId(activity.getCreatedBy().getId());
 		
 		if(links != null) {
 			List<ResourceLinkData> activityLinks = new ArrayList<>();

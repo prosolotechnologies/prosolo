@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.ResourceCreator;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -33,6 +34,7 @@ public class CompetenceViewBeanUser implements Serializable {
 	@Inject private Competence1Manager competenceManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private CommentBean commentBean;
+	@Inject private CredentialManager credManager;
 
 	private String credId;
 	private long decodedCredId;
@@ -73,6 +75,18 @@ public class CompetenceViewBeanUser implements Serializable {
 				} else {
 					commentBean.init(CommentedResourceType.Competence, competenceData.getCompetenceId(),
 							false);
+					
+					if(decodedCredId > 0) {
+						String credTitle = null;
+						if(competenceData.isEnrolled()) {
+							credTitle = credManager.getTargetCredentialTitle(decodedCredId,
+									loggedUser.getUser().getId());
+						} else {
+							credManager.getCredentialTitle(decodedCredId);
+						}
+						competenceData.setCredentialId(decodedCredId);
+						competenceData.setCredentialTitle(credTitle);
+					}
 				}
 			} catch(Exception e) {
 				logger.error(e);
@@ -96,6 +110,16 @@ public class CompetenceViewBeanUser implements Serializable {
 	public boolean hasMoreActivities(int index) {
 		return competenceData.getActivities().size() != index + 1;
 	}
+	
+	public String getLabelForCompetence() {
+ 		if(isPreview()) {
+ 			return "(Preview)";
+ 		} else if(isCurrentUserCreator() && !competenceData.isEnrolled() && !competenceData.isPublished()) {
+ 			return "(Draft)";
+ 		} else {
+ 			return "";
+ 		}
+ 	}
 	
 	public boolean isPreview() {
 		return "preview".equals(mode);

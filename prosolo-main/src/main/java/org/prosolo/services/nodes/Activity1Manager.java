@@ -9,7 +9,7 @@ import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.Mode;
+import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.observers.learningResources.ActivityChangeTracker;
 
 public interface Activity1Manager {
@@ -50,25 +50,11 @@ public interface Activity1Manager {
 	
 	ActivityData getActivityDataForEdit(long activityId, long creatorId) throws DbConnectionException;
 	
-	/**
-	 * Returns most current version of activity (draft if exists) and competence activity from 
-	 * draft competence if exists(otherwise from original version)
-	 * @param activityId
-	 * @param creatorId
-	 * @return
-	 * @throws DbConnectionException
-	 */
-	ActivityData getCompetenceActivityCurrentVersionData(long activityId, long creatorId) 
-			throws DbConnectionException;
-	
 	Activity1 updateActivity(ActivityData data, long userId) throws DbConnectionException;
 	
 	Activity1 updateActivityData(ActivityData data, long userId);
 	
 	Activity1 getOriginalActivityForDraft(long draftActivityId) throws DbConnectionException;
-	
-//	CompetenceData1 getTargetCompetenceActivitiesWithSpecifiedActivityInFocus(long targetActivityId) 
-//			throws DbConnectionException;
 	
 	/**
 	 * Returns activity with all details for specified id as well as all competence
@@ -76,14 +62,14 @@ public interface Activity1Manager {
 	 * @param activityId
 	 * @param creatorId id of a logged in user that should be creator of activity if {@code shouldReturnDraft}
 	 * is true. If this id doesn not match activity creator id, null will be returned.
-	 * @param credId if greater than 0, credential title and id will be set in return result
 	 * @param shouldReturnDraft true if draft updates for activity with specified id should
 	 * be returned
+	 * @param role
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	 CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocus(long activityId, 
-				long creatorId, long credId, boolean shouldReturnDraft) throws DbConnectionException;
+	CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocus(long activityId, 
+			long creatorId, boolean shouldReturnDraft, Role role) throws DbConnectionException;
 
 	void saveAssignment(long targetActId, String fileName, String path) 
 			throws DbConnectionException;
@@ -112,19 +98,12 @@ public interface Activity1Manager {
 	Long getCompetenceIdForActivity(long actId) throws DbConnectionException;
 	
 	/**
-	 * Returns current version of activity for edit if edit mode - draft version if exists
-	 * but only if activity is university based, otherwise null is returned.
-	 * If view mode, again draft version is returned if exists and activity is university based, 
-	 * otherwise published version is returned.
+	 * Returns draft version of activity if exists, original version otherwise
 	 * @param activityId
-	 * @param mode
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	ActivityData getActivityForManager(long activityId, Mode mode) 
-			throws DbConnectionException;
-	
-	CompetenceData1 getCompetenceActivitiesWithActivityDetailsForManager(long activityId, Mode mode) 
+	ActivityData getCurrentVersionOfActivityForManager(long activityId) 
 			throws DbConnectionException;
 
 }

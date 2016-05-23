@@ -41,11 +41,11 @@ import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.Mode;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.data.ResourceCreator;
 import org.prosolo.services.nodes.data.ResourceLinkData;
+import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.nodes.impl.util.EntityPublishTransition;
 import org.prosolo.services.nodes.observers.learningResources.ActivityChangeTracker;
@@ -472,28 +472,43 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Transactional(readOnly = true)
 	public ActivityData getActivityDataForEdit(long activityId, long creatorId) 
 			throws DbConnectionException {
-		try {			   
-			User user = (User) persistence.currentManager().load(User.class, creatorId);
-			
+		return getCurrentVersionOfActivityBasedOnRole(activityId, creatorId, Role.User);
+	}
+	
+	@Transactional(readOnly = true)
+	private ActivityData getCurrentVersionOfActivityBasedOnRole(long activityId, long creatorId, 
+			Role role) throws DbConnectionException {
+		try {
 			String query = "SELECT act " +
 					   "FROM Activity1 act " + 
 					   "LEFT JOIN fetch act.links link " +
 					   "LEFT JOIN fetch act.files file ";
 			
-			String query1 = query +
-					"WHERE act.id = :actId " +
+			StringBuilder queryBuilder1 = new StringBuilder(query);
+			queryBuilder1.append("WHERE act.id = :actId " +
 					"AND act.deleted = :deleted " +
-					"AND act.draft = :draft " +
-					"AND act.createdBy = :user";
+					"AND act.draft = :draft ");
 			
-			Activity1 res = (Activity1) persistence.currentManager()
-					.createQuery(query1)
+			if(role == Role.User) {
+				queryBuilder1.append("AND act.createdBy.id = :user");
+			} else {
+				queryBuilder1.append("AND act.type = :type ");
+			}
+				   
+			Query q = persistence.currentManager()
+					.createQuery(queryBuilder1.toString())
 					.setLong("actId", activityId)
 					.setBoolean("deleted", false)
-					.setBoolean("draft", false)
-					.setEntity("user", user)
-					.uniqueResult();
+					.setBoolean("draft", false);
 			
+			if(role == Role.User) {
+				q.setLong("user", creatorId);
+			} else {
+				q.setParameter("type", LearningResourceType.UNIVERSITY_CREATED);
+			}
+			
+			Activity1 res = (Activity1) q.uniqueResult();
+
 			if(res != null) {
 				ActivityData actData = null;
 				if(res.isHasDraft()) {
@@ -503,24 +518,22 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					 * object with hql so instanceof will give expected result
 					 */
 					persistence.currentManager().evict(res.getDraftVersion());
-					String query2 = query +
-							   "WHERE act.id = :draftVersion";
-				
+					String query2 = query + 
+							" WHERE act.id = :draftVersion";
 					Activity1 draftAct = (Activity1) persistence.currentManager()
 							.createQuery(query2)
 							.setLong("draftVersion", draftVersionId)
 							.uniqueResult();
 					if(draftAct != null) {
-						actData = activityFactory.getActivityData(draftAct, 0, 0, draftAct.getLinks(), 
-								draftAct.getFiles(), true);
+						actData = activityFactory.getActivityData(draftAct, 0, 0,
+								draftAct.getLinks(), draftAct.getFiles(), true);
 					}	
 				} else {
-					actData = activityFactory.getActivityData(res, 0, 0, res.getLinks(), 
+					actData = activityFactory.getActivityData(res, 0, 0, res.getLinks(),
 							res.getFiles(), true);
 				}
 				return actData;
 			}
-			
 			return null;
 		} catch (Exception e) {
 			logger.error(e);
@@ -529,12 +542,21 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
-	@Override
+	/**
+	 * Returns most current version of activity (draft if exists) and competence activity from 
+     * draft competence if exists(otherwise from original version)
+	 * @param activityId
+	 * @param creatorId
+	 * @param role
+	 * @return
+	 * @throws DbConnectionException
+	 */
 	@Transactional(readOnly = true)
-	public ActivityData getCompetenceActivityCurrentVersionData(long activityId, long creatorId) 
-			throws DbConnectionException {
+	private ActivityData getCompetenceActivityCurrentVersionData(long activityId, long creatorId, 
+			Role role) throws DbConnectionException {
 		try {			   
-			CompetenceActivity1 res = getCompetenceActivityForCreator(activityId, creatorId, true);
+			CompetenceActivity1 res = getCompetenceActivityBasedOnRole(activityId, creatorId, true, role);
+					//getCompetenceActivityForCreator(activityId, creatorId, true);
 			
 			if(res != null) {
 				ActivityData actData = null;
@@ -576,21 +598,68 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 
+//	/**
+//	 * It will return competence activity from draft version of a competence if it exists and from
+//	 * original version otherwise.
+//	 * @param activityId
+//	 * @param userId
+//	 * @param loadLinks
+//	 * @return
+//	 * @throws DbConnectionException
+//	 */
+//	@Transactional(readOnly = true)
+//	private CompetenceActivity1 getCompetenceActivityForCreator(long activityId, long userId, 
+//			boolean loadLinks) throws DbConnectionException {
+//		try {
+//			User user = (User) persistence.currentManager().load(User.class, userId);
+//				
+//			StringBuilder builder = new StringBuilder();
+//			builder.append("SELECT compAct " +
+//					   	   "FROM CompetenceActivity1 compAct " + 
+//					       "INNER JOIN fetch compAct.activity act " +
+//					   	   "INNER JOIN compAct.competence comp ");
+//			
+//			if(loadLinks) {
+//				builder.append("LEFT JOIN fetch act.links link " +
+//						       "LEFT JOIN fetch act.files file ");
+//			}
+//			builder.append("WHERE act.id = :actId " +
+//					       "AND act.deleted = :boolFalse " +
+//						   "AND comp.hasDraft = :boolFalse ");
+//			
+//			if(userId > 0) {
+//				builder.append("AND act.createdBy = :user");
+//			}
+//						
+//			Query q = persistence.currentManager()
+//					.createQuery(builder.toString())
+//					.setLong("actId", activityId)
+//					.setBoolean("boolFalse", false);
+//			if(userId > 0) {
+//				q.setEntity("user", user);
+//			}
+//			return (CompetenceActivity1) q.uniqueResult();
+//		} catch (Exception e) {
+//			logger.error(e);
+//			e.printStackTrace();
+//			throw new DbConnectionException("Error while loading activity");
+//		}
+//	}
+	
 	/**
 	 * It will return competence activity from draft version of a competence if it exists and from
 	 * original version otherwise.
 	 * @param activityId
 	 * @param userId
 	 * @param loadLinks
+	 * @param role
 	 * @return
 	 * @throws DbConnectionException
 	 */
 	@Transactional(readOnly = true)
-	private CompetenceActivity1 getCompetenceActivityForCreator(long activityId, long userId, 
-			boolean loadLinks) throws DbConnectionException {
+	private CompetenceActivity1 getCompetenceActivityBasedOnRole(long activityId, long creatorId, 
+			boolean loadLinks, Role role) throws DbConnectionException {
 		try {
-			User user = (User) persistence.currentManager().load(User.class, userId);
-				
 			StringBuilder builder = new StringBuilder();
 			builder.append("SELECT compAct " +
 					   	   "FROM CompetenceActivity1 compAct " + 
@@ -605,16 +674,21 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					       "AND act.deleted = :boolFalse " +
 						   "AND comp.hasDraft = :boolFalse ");
 			
-			if(userId > 0) {
-				builder.append("AND act.createdBy = :user");
+			if(role == Role.User) {
+				builder.append("AND act.createdBy.id = :user");
+			} else {
+				builder.append("AND act.type = :type ");
 			}
 						
 			Query q = persistence.currentManager()
 					.createQuery(builder.toString())
 					.setLong("actId", activityId)
 					.setBoolean("boolFalse", false);
-			if(userId > 0) {
-				q.setEntity("user", user);
+			
+			if(role == Role.User) {
+				q.setLong("user", creatorId);
+			} else {
+				q.setParameter("type", LearningResourceType.UNIVERSITY_CREATED);
 			}
 			return (CompetenceActivity1) q.uniqueResult();
 		} catch (Exception e) {
@@ -1126,89 +1200,24 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Override
 	@Transactional(readOnly = true)
 	public CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocus(long activityId, 
-			long creatorId, long credId, boolean shouldReturnDraft) throws DbConnectionException {
+			long creatorId, boolean shouldReturnDraft, Role role) throws DbConnectionException {
 		CompetenceData1 compData = null;
 		try {
 			ActivityData activityWithDetails = null;
 			if(shouldReturnDraft) {
-				activityWithDetails = getCompetenceActivityCurrentVersionData(activityId, creatorId);
+				activityWithDetails = getCompetenceActivityCurrentVersionData(activityId, creatorId, role);
 						//getActivityDataForEdit(activityId, creatorId);
 			} else {
 				activityWithDetails = getCompetenceActivityData(activityId, true);
 			}
 
 			if (activityWithDetails != null) {
-				Object[] res1 = null;
-				if(credId == 0) {
-					String query1 = "SELECT comp.id, comp.title, comp.createdBy.id, comp.draft " +
-									"FROM Competence1 comp " +
-									"WHERE comp.id = :compId";
-					res1 = (Object[]) persistence.currentManager()
-							.createQuery(query1)
-							.setLong("compId", activityWithDetails.getCompetenceId())
-							.uniqueResult();
-				} else {
-					String query1 = "SELECT comp.id, comp.title, comp.createdBy.id, comp.draft, cred.title " +
-							"FROM CredentialCompetence1 credComp " +
-							"INNER JOIN credComp.competence comp " +
-							"INNER JOIN credComp.credential cred " +
-							"WHERE comp.id = :compId " +
-							"AND credComp.credential.id = :credId";
-					
-					res1 = (Object[]) persistence.currentManager()
-							.createQuery(query1)
-							.setLong("compId", activityWithDetails.getCompetenceId())
-							.setLong("credId", credId)
-							.uniqueResult();
-				}
-				if(res1 != null) {
-					boolean isDraftVersion = (boolean) res1[3];
-					long compId = (long) res1[0];
-					if(isDraftVersion) {
-						if(credId == 0) {
-							String query2 = "SELECT comp.id, comp.title, comp.createdBy.id " +
-											"FROM Competence1 comp " +
-											"WHERE comp.draftVersion.id = :draftCompId";
-							
-							res1 = (Object[]) persistence.currentManager()
-									.createQuery(query2)
-									.setLong("draftCompId", compId)
-									.uniqueResult();
-						} else {
-							String query2 = "SELECT comp.id, comp.title, comp.createdBy.id, cred.title " +
-									"FROM CredentialCompetence1 credComp " +
-									"INNER JOIN credComp.competence comp " +
-									"INNER JOIN credComp.credential cred " +
-									"WHERE comp.draftVersion.id = :draftCompId " +
-									"AND credComp.credential.id = :credId";
-							
-							res1 = (Object[]) persistence.currentManager()
-									.createQuery(query2)
-									.setLong("draftCompId", compId)
-									.setLong("credId", credId)
-									.uniqueResult();
-						}
-					}
 					compData = new CompetenceData1(false);
-					compData.setCompetenceId((long) res1[0]);					
-					compData.setTitle((String) res1[1]);
-					/*
-					 * competence creator id is set because creator of a competence
-					 * is also a creator of all activities for that competence.
-					 */
-					ResourceCreator rc = new ResourceCreator();
-					rc.setId((long) res1[2]);
-					compData.setCreator(rc);
-					if(credId > 0) {
-						compData.setCredentialId(credId);
-						compData.setCredentialTitle((String) res1[4]);
-					}
 					compData.setActivityToShowWithDetails(activityWithDetails);
 					List<ActivityData> activities = getCompetenceActivitiesData(
 							activityWithDetails.getCompetenceId());
 					compData.setActivities(activities);
 					return compData;
-				}
 			}
 			return null;
 		} catch (Exception e) {
@@ -1218,6 +1227,13 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	 
+	/**
+	 * Returns competence activity from original version of competence
+	 * @param activityId
+	 * @param loadResourceLinks
+	 * @return
+	 * @throws DbConnectionException
+	 */
 	@Transactional(readOnly = true)
 	private ActivityData getCompetenceActivityData(long activityId, boolean loadResourceLinks) 
 			throws DbConnectionException {
@@ -1225,7 +1241,10 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			StringBuilder builder = new StringBuilder();
 			builder.append("SELECT compAct " +
 					   	   "FROM CompetenceActivity1 compAct " +
-						   "INNER JOIN fetch compAct.activity act ");
+						   "INNER JOIN fetch compAct.activity act " +				   	 
+					   	   "INNER JOIN compAct.competence comp " +
+						   		"WITH (comp.published = :published " +
+							        "OR comp.hasDraft = :hasDraft)");
 			if(loadResourceLinks) {
 				builder.append("LEFT JOIN fetch act.links link " + 
 						       "LEFT JOIN fetch act.files files ");
@@ -1234,11 +1253,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 						   "AND act.deleted = :deleted " +
 						   "AND (act.published = :published " +
 						        "OR act.hasDraft = :hasDraft)");
-//			String query = "SELECT targetAct " +
-//						   "FROM TargetActivity1 targetAct " + 
-//						   "LEFT JOIN fetch targetAct.links link " + 
-//						   "LEFT JOIN fetch targetAct.files files " +
-//						   "WHERE targetAct.id = :id";
 
 			CompetenceActivity1 res = (CompetenceActivity1) persistence.currentManager()
 					.createQuery(builder.toString())
@@ -1322,7 +1336,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					compId, actId, userId);
 			if (compData == null) {
 				compData = getCompetenceActivitiesWithSpecifiedActivityInFocus(actId, userId, 
-						credId, false);
+					false, Role.User);
 			}
 				
 			return compData;
@@ -1809,171 +1823,177 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = true)
-	public ActivityData getActivityForManager(long activityId, Mode mode) 
+	public ActivityData getCurrentVersionOfActivityForManager(long activityId) 
 			throws DbConnectionException {
-		try {
-			String query = "SELECT act " +
-					   "FROM Activity1 act " + 
-					   "LEFT JOIN fetch act.links link " +
-					   "LEFT JOIN fetch act.files file ";
-			
-			StringBuilder queryBuilder1 = new StringBuilder(query);
-			queryBuilder1.append("WHERE act.id = :actId " +
-					"AND act.deleted = :deleted " +
-					"AND act.draft = :draft ");
-			
-			if(mode == Mode.Edit) {
-				queryBuilder1.append("AND act.type = :type ");
-			} else {
-				queryBuilder1.append("AND (act.type = :type  OR (act.published = :published " +
-					"OR act.hasDraft = :hasDraft))");
-			}
-						   
-			Query q = persistence.currentManager()
-					.createQuery(queryBuilder1.toString())
-					.setLong("actId", activityId)
-					.setBoolean("deleted", false)
-					.setParameter("type", LearningResourceType.UNIVERSITY_CREATED)
-					.setBoolean("draft", false);
-			
-			if(mode == Mode.View) {
-				q.setBoolean("published", true)
-				 .setBoolean("hasDraft", true);
-			}
-			
-			Activity1 res = (Activity1) q.uniqueResult();
-
-			if(res != null) {
-				ActivityData actData = null;
-				if(res.isHasDraft() && (mode == Mode.Edit  || (mode == Mode.View 
-						&& res.getType() == LearningResourceType.UNIVERSITY_CREATED))) {
-					long draftVersionId = res.getDraftVersion().getId();
-					/*
-					 * remove proxy object from session to be able to retrieve real
-					 * object with hql so instanceof will give expected result
-					 */
-					persistence.currentManager().evict(res.getDraftVersion());
-					String query2 = query + 
-							" WHERE act.id = :draftVersion";
-					Activity1 draftAct = (Activity1) persistence.currentManager()
-							.createQuery(query2)
-							.setLong("draftVersion", draftVersionId)
-							.uniqueResult();
-					if(draftAct != null) {
-						actData = activityFactory.getActivityData(draftAct, 0, 0,
-								draftAct.getLinks(), draftAct.getFiles(), true);
-					}	
-				} else {
-					actData = activityFactory.getActivityData(res, 0, 0, res.getLinks(),
-							res.getFiles(), true);
-				}
-				return actData;
-			}
-			return null;
-		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while loading activity data");
-		}
+			return getCurrentVersionOfActivityBasedOnRole(activityId, 0, Role.Manager);
 	}
 	
-	@Transactional(readOnly = true)
-	private ActivityData getCompetenceActivityDataForManager(long activityId, Mode mode) 
-			throws DbConnectionException {
-		try {
-			StringBuilder queryBuilder = new StringBuilder("SELECT compAct " +
-					   "FROM CompetenceActivity1 compAct " +
-					   "INNER JOIN fetch compAct.activity act " +
-					   "INNER JOIN compAct.competence comp " +
-					   		"WITH comp.hasDraft = :boolFalse " +
-					   "LEFT JOIN fetch act.links link " +
-					   "LEFT JOIN fetch act.files file " +
-					   "WHERE act.id = :actId " +
-					   "AND act.deleted = :boolFalse " +
-					   "AND act.draft = :boolFalse " +
-					   "AND comp.hasDraft = :boolFalse ");
-			
-			if(mode == Mode.Edit) {
-				queryBuilder.append("AND act.type = :type ");
-			} else {
-				queryBuilder.append("AND (act.type = :type  OR (act.published = :boolTrue " +
-					"OR act.hasDraft = :boolTrue))");
-			}
-						   
-			Query q = persistence.currentManager()
-					.createQuery(queryBuilder.toString())
-					.setLong("actId", activityId)
-					.setBoolean("boolFalse", false)
-					.setParameter("type", LearningResourceType.UNIVERSITY_CREATED);
-			
-			if(mode == Mode.View) {
-				q.setBoolean("boolTrue", true);
-			}
-			
-			CompetenceActivity1 res = (CompetenceActivity1) q.uniqueResult();
-
-			if(res != null) {
-				ActivityData actData = null;
-				Activity1 act = res.getActivity();
-				if(act.isHasDraft() && (mode == Mode.Edit  || (mode == Mode.View 
-						&& act.getType() == LearningResourceType.UNIVERSITY_CREATED))) {
-					long draftVersionId = act.getDraftVersion().getId();
-					/*
-					 * remove proxy object from session to be able to retrieve real
-					 * object with hql so instanceof will give expected result
-					 */
-					persistence.currentManager().evict(act.getDraftVersion());
-					String query2 = "SELECT act " +
-							   "FROM Activity1 act " + 
-							   "LEFT JOIN fetch act.links link " +
-							   "LEFT JOIN fetch act.files file " + 
-							   "WHERE act.id = :draftVersion";
-					Activity1 draftAct = (Activity1) persistence.currentManager()
-							.createQuery(query2)
-							.setLong("draftVersion", draftVersionId)
-							.uniqueResult();
-					if(draftAct != null) {
-						actData = activityFactory.getActivityData(draftAct, res.getCompetence().getId(),
-								res.getOrder(), draftAct.getLinks(), 
-								draftAct.getFiles(), true);
-					}	
-				} else {
-					actData = activityFactory.getActivityData(res, res.getActivity().getLinks(), 
-							res.getActivity().getFiles(), true);
-				}
-				return actData;
-			}
-			return null;
-		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while loading activity data");
-		}
-	}
+//	@Override
+//	@Transactional(readOnly = true)
+//	public ActivityData getActivityForManager(long activityId, Mode mode) 
+//			throws DbConnectionException {
+//		try {
+//			String query = "SELECT act " +
+//					   "FROM Activity1 act " + 
+//					   "LEFT JOIN fetch act.links link " +
+//					   "LEFT JOIN fetch act.files file ";
+//			
+//			StringBuilder queryBuilder1 = new StringBuilder(query);
+//			queryBuilder1.append("WHERE act.id = :actId " +
+//					"AND act.deleted = :deleted " +
+//					"AND act.draft = :draft ");
+//			
+//			if(mode == Mode.Edit) {
+//				queryBuilder1.append("AND act.type = :type ");
+//			} else {
+//				queryBuilder1.append("AND (act.type = :type  OR (act.published = :published " +
+//					"OR act.hasDraft = :hasDraft))");
+//			}
+//						   
+//			Query q = persistence.currentManager()
+//					.createQuery(queryBuilder1.toString())
+//					.setLong("actId", activityId)
+//					.setBoolean("deleted", false)
+//					.setParameter("type", LearningResourceType.UNIVERSITY_CREATED)
+//					.setBoolean("draft", false);
+//			
+//			if(mode == Mode.View) {
+//				q.setBoolean("published", true)
+//				 .setBoolean("hasDraft", true);
+//			}
+//			
+//			Activity1 res = (Activity1) q.uniqueResult();
+//
+//			if(res != null) {
+//				ActivityData actData = null;
+//				if(res.isHasDraft() && (mode == Mode.Edit  || (mode == Mode.View 
+//						&& res.getType() == LearningResourceType.UNIVERSITY_CREATED))) {
+//					long draftVersionId = res.getDraftVersion().getId();
+//					/*
+//					 * remove proxy object from session to be able to retrieve real
+//					 * object with hql so instanceof will give expected result
+//					 */
+//					persistence.currentManager().evict(res.getDraftVersion());
+//					String query2 = query + 
+//							" WHERE act.id = :draftVersion";
+//					Activity1 draftAct = (Activity1) persistence.currentManager()
+//							.createQuery(query2)
+//							.setLong("draftVersion", draftVersionId)
+//							.uniqueResult();
+//					if(draftAct != null) {
+//						actData = activityFactory.getActivityData(draftAct, 0, 0,
+//								draftAct.getLinks(), draftAct.getFiles(), true);
+//					}	
+//				} else {
+//					actData = activityFactory.getActivityData(res, 0, 0, res.getLinks(),
+//							res.getFiles(), true);
+//				}
+//				return actData;
+//			}
+//			return null;
+//		} catch (Exception e) {
+//			logger.error(e);
+//			e.printStackTrace();
+//			throw new DbConnectionException("Error while loading activity data");
+//		}
+//	}
 	
-	@Override
-	@Transactional(readOnly = true)
-	public CompetenceData1 getCompetenceActivitiesWithActivityDetailsForManager(
-			long activityId, Mode mode) throws DbConnectionException {
-		CompetenceData1 compData = null;
-		try {
-			ActivityData activityWithDetails = getCompetenceActivityDataForManager(activityId, mode);
-
-			if (activityWithDetails != null) {
-					compData = new CompetenceData1(false);
-					compData.setActivityToShowWithDetails(activityWithDetails);
-					//for now
-					List<ActivityData> activities = getCompetenceActivitiesData(
-							activityWithDetails.getCompetenceId());
-					compData.setActivities(activities);
-					return compData;
-			}
-			return null;
-		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while loading competence data");
-		}
-	}
+//	@Transactional(readOnly = true)
+//	private ActivityData getCompetenceActivityDataForManager(long activityId, Mode mode) 
+//			throws DbConnectionException {
+//		try {
+//			StringBuilder queryBuilder = new StringBuilder("SELECT compAct " +
+//					   "FROM CompetenceActivity1 compAct " +
+//					   "INNER JOIN fetch compAct.activity act " +
+//					   "INNER JOIN compAct.competence comp " +
+//					   		"WITH comp.hasDraft = :boolFalse " +
+//					   "LEFT JOIN fetch act.links link " +
+//					   "LEFT JOIN fetch act.files file " +
+//					   "WHERE act.id = :actId " +
+//					   "AND act.deleted = :boolFalse " +
+//					   "AND act.draft = :boolFalse");
+//			
+//			if(mode == Mode.Edit) {
+//				queryBuilder.append("AND act.type = :type ");
+//			} else {
+//				queryBuilder.append("AND (act.type = :type  OR (act.published = :boolTrue " +
+//					"OR act.hasDraft = :boolTrue))");
+//			}
+//						   
+//			Query q = persistence.currentManager()
+//					.createQuery(queryBuilder.toString())
+//					.setLong("actId", activityId)
+//					.setBoolean("boolFalse", false)
+//					.setParameter("type", LearningResourceType.UNIVERSITY_CREATED);
+//			
+//			if(mode == Mode.View) {
+//				q.setBoolean("boolTrue", true);
+//			}
+//			
+//			CompetenceActivity1 res = (CompetenceActivity1) q.uniqueResult();
+//
+//			if(res != null) {
+//				ActivityData actData = null;
+//				Activity1 act = res.getActivity();
+//				if(act.isHasDraft() && (mode == Mode.Edit  || (mode == Mode.View 
+//						&& act.getType() == LearningResourceType.UNIVERSITY_CREATED))) {
+//					long draftVersionId = act.getDraftVersion().getId();
+//					/*
+//					 * remove proxy object from session to be able to retrieve real
+//					 * object with hql so instanceof will give expected result
+//					 */
+//					persistence.currentManager().evict(act.getDraftVersion());
+//					String query2 = "SELECT act " +
+//							   "FROM Activity1 act " + 
+//							   "LEFT JOIN fetch act.links link " +
+//							   "LEFT JOIN fetch act.files file " + 
+//							   "WHERE act.id = :draftVersion";
+//					Activity1 draftAct = (Activity1) persistence.currentManager()
+//							.createQuery(query2)
+//							.setLong("draftVersion", draftVersionId)
+//							.uniqueResult();
+//					if(draftAct != null) {
+//						actData = activityFactory.getActivityData(draftAct, res.getCompetence().getId(),
+//								res.getOrder(), draftAct.getLinks(), 
+//								draftAct.getFiles(), true);
+//					}	
+//				} else {
+//					actData = activityFactory.getActivityData(res, res.getActivity().getLinks(), 
+//							res.getActivity().getFiles(), true);
+//				}
+//				return actData;
+//			}
+//			return null;
+//		} catch (Exception e) {
+//			logger.error(e);
+//			e.printStackTrace();
+//			throw new DbConnectionException("Error while loading activity data");
+//		}
+//	}
+//	
+//	@Override
+//	@Transactional(readOnly = true)
+//	public CompetenceData1 getCompetenceActivitiesWithActivityDetailsForManager(
+//			long activityId, Mode mode) throws DbConnectionException {
+//		CompetenceData1 compData = null;
+//		try {
+//			ActivityData activityWithDetails = getCompetenceActivityDataForManager(activityId, mode);
+//
+//			if (activityWithDetails != null) {
+//					compData = new CompetenceData1(false);
+//					compData.setActivityToShowWithDetails(activityWithDetails);
+//					//for now
+//					List<ActivityData> activities = getCompetenceActivitiesData(
+//							activityWithDetails.getCompetenceId());
+//					compData.setActivities(activities);
+//					return compData;
+//			}
+//			return null;
+//		} catch (Exception e) {
+//			logger.error(e);
+//			e.printStackTrace();
+//			throw new DbConnectionException("Error while loading competence data");
+//		}
+//	}
 	
 }

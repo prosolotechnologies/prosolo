@@ -9,10 +9,10 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
+import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.Mode;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.useractions.CommentBean;
@@ -47,16 +47,13 @@ public class CompetenceViewBeanManager implements Serializable {
 		decodedCompId = idEncoder.decodeId(compId);
 		if (decodedCompId > 0) {
 			try {
-				Mode mode = Mode.View;
-				/*
-				 * when preview it is like getting data for edit.
-				 * Just university competences can be previewed.
-				 */
 				if("preview".equals(mode)) {
-					mode = Mode.Edit;
+					competenceData = competenceManager
+							.getCurrentVersionOfCompetenceForManager(decodedCompId, true, true);
+				} else {
+					competenceData = competenceManager
+							.getCompetenceData(decodedCompId, true, true, true, false);
 				}
-				competenceData = competenceManager
-						.getCompetenceForManager(decodedCompId, true, true, mode);
 				
 				if(competenceData == null) {
 					try {
@@ -74,7 +71,7 @@ public class CompetenceViewBeanManager implements Serializable {
 							hasInstructorCapability);
 					decodedCredId = idEncoder.decodeId(credId);
 					if(decodedCredId > 0) {
-						String credTitle = credManager.getCredentialDraftOrOriginalTitle(decodedCredId);
+						String credTitle = credManager.getCredentialTitle(decodedCredId);
 						competenceData.setCredentialId(decodedCredId);
 						competenceData.setCredentialTitle(credTitle);
 					}
@@ -101,6 +98,17 @@ public class CompetenceViewBeanManager implements Serializable {
 	public boolean hasMoreActivities(int index) {
 		return competenceData.getActivities().size() != index + 1;
 	}
+	
+	public String getLabelForCompetence() {
+ 		if(isPreview()) {
+ 			return "(Preview)";
+ 		} else if(!competenceData.isPublished() && 
+ 				competenceData.getType() == LearningResourceType.UNIVERSITY_CREATED) {
+ 			return "(Draft)";
+ 		} else {
+ 			return "";
+ 		}
+ 	}
 	
 	public boolean isPreview() {
 		return "preview".equals(mode);

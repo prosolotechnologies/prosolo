@@ -34,6 +34,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private boolean draft;
 	private boolean hasDraft;
 	private PublishedStatus status;
+	private long creatorId;
 	
 	private List<ResourceLinkData> links;
 	private List<ResourceLinkData> files;
@@ -433,6 +434,14 @@ public class ActivityData extends StandardObservable implements Serializable {
 
 	public void setType(LearningResourceType type) {
 		this.type = type;
+	}
+	
+	public long getCreatorId() {
+		return creatorId;
+	}
+	
+	public void setCreatorId(long creatorId) {
+		this.creatorId = creatorId;
 	}
 	
 	//change tracking get methods
