@@ -828,7 +828,7 @@
 					<!-- Enable for JRebel -->
 					<reload>manual</reload>
 					<httpConnector>
-						<port>8082</port>
+						<port>8080</port>
 					</httpConnector>
 					<!--connectors>
 						<connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
