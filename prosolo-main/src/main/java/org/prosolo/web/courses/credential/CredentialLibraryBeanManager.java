@@ -3,17 +3,15 @@
  */
 package org.prosolo.web.courses.credential;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.hibernate.hql.internal.ast.tree.FromClause;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.credential.CredentialSearchFilter;
@@ -22,7 +20,6 @@ import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.util.pagination.PaginationLink;
 import org.prosolo.web.courses.util.pagination.Paginator;
@@ -30,19 +27,18 @@ import org.prosolo.web.util.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-@ManagedBean(name = "credentialLibraryBean")
-@Component("credentialLibraryBean")
+@ManagedBean(name = "credentialLibraryBeanManager")
+@Component("credentialLibraryBeanManager")
 @Scope("view")
-public class CredentialLibraryBean implements Serializable {
+public class CredentialLibraryBeanManager implements Serializable {
 
-	private static final long serialVersionUID = 5019552987111259682L;
+	private static final long serialVersionUID = -7737382507101880012L;
 
-	private static Logger logger = Logger.getLogger(CredentialLibraryBean.class);
+	private static Logger logger = Logger.getLogger(CredentialLibraryBeanManager.class);
 
 	@Inject private TextSearch textSearch;
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private CredentialManager credentialManager;
-	@Inject private UrlIdEncoder idEncoder;
 
 	private List<CredentialData> credentials;
 	
@@ -58,16 +54,23 @@ public class CredentialLibraryBean implements Serializable {
 	
 	private CredentialSortOption[] sortOptions;
 	private CredentialSearchFilter[] searchFilters;
-	
+
 	public void init() {
 		sortOptions = CredentialSortOption.values();
 		searchFilters = Arrays.stream(CredentialSearchFilter.values()).filter(
-				f -> f != CredentialSearchFilter.FROM_STUDENTS &&
-					 f != CredentialSearchFilter.YOUR_CREDENTIALS)
+				f -> shouldIncludeSearchFilter(f))
 				.toArray(CredentialSearchFilter[]::new);
 		searchCredentials();
 	}
-
+	
+	public boolean shouldIncludeSearchFilter(CredentialSearchFilter f) {
+		boolean isInstructor = loggedUserBean.hasCapability("BASIC.INSTRUCTOR.ACCESS");
+		boolean canCreateContent = loggedUserBean.hasCapability("MANAGE.CONTENT.EDIT");
+		return f != CredentialSearchFilter.FROM_OTHER_STUDENTS &&
+				 (f != CredentialSearchFilter.YOUR_CREDENTIALS || isInstructor) &&
+				 (f != CredentialSearchFilter.FROM_CREATOR || canCreateContent);
+	}
+	
 	public void searchCredentials() {
 		try {
 			getCredentialSearchResults();
@@ -92,8 +95,8 @@ public class CredentialLibraryBean implements Serializable {
 	}
 
 	public void getCredentialSearchResults() {
-		TextSearchResponse1<CredentialData> response = textSearch.searchCredentials(searchTerm, page - 1, 
-				limit, loggedUserBean.getUser().getId(), searchFilter, sortOption);
+		TextSearchResponse1<CredentialData> response = textSearch.searchCredentialsForManager(
+				searchTerm, page - 1, limit, loggedUserBean.getUser().getId(), searchFilter, sortOption);
 		credentialsNumber = (int) response.getHitsNumber();
 		credentials = response.getFoundNodes();
 	}
@@ -157,30 +160,6 @@ public class CredentialLibraryBean implements Serializable {
 			cred.setBookmarkedByCurrentUser(!cred.isBookmarkedByCurrentUser());
 		} catch(DbConnectionException e) {
 			PageUtil.fireErrorMessage(e.getMessage());
-		}
-	}
-	
-	public void enrollInCredential(CredentialData cred) {
-		try {
-			if(!cred.isFirstTimeDraft()) {
-				String page = PageUtil.getPostParameter("page");
-				String lContext = PageUtil.getPostParameter("learningContext");
-				String service = PageUtil.getPostParameter("service");
-				LearningContextData context = new LearningContextData(page, lContext, service);
-				
-				credentialManager.enrollInCredential(cred.getId(), loggedUserBean.getUser().getId(), context);
-				
-				ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-				try {
-					extContext.redirect(extContext.getRequestContextPath() + 
-							"/credentials/" + idEncoder.encodeId(cred.getId()) + "?justEnrolled=true");
-				} catch (IOException e) {
-					logger.error(e);
-				}
-			} 
-		} catch(Exception e) {
-			logger.error(e);
-			PageUtil.fireErrorMessage("Error while enrolling in a credential");
 		}
 	}
 

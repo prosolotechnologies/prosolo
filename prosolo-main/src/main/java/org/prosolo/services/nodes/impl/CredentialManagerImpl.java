@@ -161,8 +161,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		CredentialData credData = null;
 		try {
 			User user = (User) persistence.currentManager().load(User.class, userId);
-			String query = "SELECT cred, targetCred.progress, bookmark.id, targetCred.nextCompetenceToLearnId, targetCred.nextActivityToLearnId " +
+			String query = "SELECT cred, creator, targetCred.progress, bookmark.id, targetCred.nextCompetenceToLearnId, targetCred.nextActivityToLearnId " +
 						   "FROM Credential1 cred " + 
+						   "INNER JOIN cred.createdBy creator " +
 						   "LEFT JOIN cred.targetCredentials targetCred " + 
 						   "WITH targetCred.user.id = :user " +
 						   "LEFT JOIN cred.bookmarks bookmark " +
@@ -177,16 +178,17 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			if (res != null) {
 				Credential1 cred = (Credential1) res[0];
-				Integer paramProgress = (Integer) res[1];
-				Long paramBookmarkId = (Long) res[2];
-				Long nextCompId = (Long) res[3];
-				Long nextActId = (Long) res[4];
+				User creator = (User) res[1];
+				Integer paramProgress = (Integer) res[2];
+				Long paramBookmarkId = (Long) res[3];
+				Long nextCompId = (Long) res[4];
+				Long nextActId = (Long) res[5];
 				if(paramProgress != null) {
-					credData = credentialFactory.getCredentialDataWithProgress(null, cred, null, 
+					credData = credentialFactory.getCredentialDataWithProgress(creator, cred, null, 
 							null, false, paramProgress.intValue(), nextCompId.longValue(),
 							nextActId.longValue());
 				} else {
-					credData = credentialFactory.getCredentialData(null, cred, null, null, false);
+					credData = credentialFactory.getCredentialData(creator, cred, null, null, false);
 				}
 				if(paramBookmarkId != null) {
 					credData.setBookmarkedByCurrentUser(true);
@@ -202,18 +204,72 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+//	@Override
+//	@Transactional(readOnly = true)
+//	public CredentialData getDraftVersionCredentialDataWithProgressIfExists(long originalVersionId, 
+//			long userId) throws DbConnectionException {
+//		CredentialData credData = null;
+//		try {
+//			User user = (User) persistence.currentManager().load(User.class, userId);
+//			String query = "SELECT draftCred, targetCred.progress, bookmark.id, targetCred.nextCompetenceToLearnId, targetCred.nextActivityToLearnId " +
+//						   "FROM Credential1 cred " + 
+//						   "LEFT JOIN cred.draftVersion draftCred " +
+//						   "LEFT JOIN cred.targetCredentials targetCred " + 
+//						   "WITH targetCred.user.id = :user " +
+//						   "LEFT JOIN cred.bookmarks bookmark " +
+//						   "WITH bookmark.user.id = :user " +
+//						   "WHERE cred.id = :credId";
+//
+//			Object[] res = (Object[]) persistence.currentManager()
+//					.createQuery(query)
+//					.setLong("user", user.getId())
+//					.setLong("credId", originalVersionId)
+//					.uniqueResult();
+//
+//			if (res != null) {
+//				Credential1 cred = (Credential1) res[0];
+//				Integer paramProgress = (Integer) res[1];
+//				Long paramBookmarkId = (Long) res[2];
+//				Long nextCompId = (Long) res[3];
+//				Long nextActId = (Long) res[4];
+//				
+//				if(paramProgress != null) {
+//					credData = credentialFactory.getCredentialDataWithProgress(null, cred, 
+//							null, null, false, paramProgress.intValue(), nextCompId.longValue(),
+//							nextActId.longValue());
+//				} else {
+//					credData = credentialFactory.getCredentialData(null, cred, 
+//							null, null, false);
+//				}
+//				if(paramBookmarkId != null) {
+//					credData.setBookmarkedByCurrentUser(true);
+//				}
+//				
+//				
+//				/*
+//				 * id of original credential version is set
+//				 */
+//				credData.setId(originalVersionId);
+//				return credData;
+//			}
+//			return null;
+//		} catch (Exception e) {
+//			logger.error(e);
+//			e.printStackTrace();
+//			throw new DbConnectionException("Error while loading credential data");
+//		}
+//	}
+	
 	@Override
 	@Transactional(readOnly = true)
-	public CredentialData getDraftVersionCredentialDataWithProgressIfExists(long originalVersionId, 
-			long userId) throws DbConnectionException {
+	public CredentialData getBasicCredentialData(long credentialId, long userId) 
+					throws DbConnectionException {
 		CredentialData credData = null;
 		try {
 			User user = (User) persistence.currentManager().load(User.class, userId);
-			String query = "SELECT draftCred, targetCred.progress, bookmark.id, targetCred.nextCompetenceToLearnId, targetCred.nextActivityToLearnId " +
+			String query = "SELECT cred, creator, bookmark.id " +
 						   "FROM Credential1 cred " + 
-						   "LEFT JOIN cred.draftVersion draftCred " +
-						   "LEFT JOIN cred.targetCredentials targetCred " + 
-						   "WITH targetCred.user.id = :user " +
+						   "INNER JOIN cred.createdBy creator " +
 						   "LEFT JOIN cred.bookmarks bookmark " +
 						   "WITH bookmark.user.id = :user " +
 						   "WHERE cred.id = :credId";
@@ -221,33 +277,20 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			Object[] res = (Object[]) persistence.currentManager()
 					.createQuery(query)
 					.setLong("user", user.getId())
-					.setLong("credId", originalVersionId)
+					.setLong("credId", credentialId)
 					.uniqueResult();
 
 			if (res != null) {
 				Credential1 cred = (Credential1) res[0];
-				Integer paramProgress = (Integer) res[1];
+				User creator = (User) res[1];
 				Long paramBookmarkId = (Long) res[2];
-				Long nextCompId = (Long) res[3];
-				Long nextActId = (Long) res[4];
-				
-				if(paramProgress != null) {
-					credData = credentialFactory.getCredentialDataWithProgress(null, cred, 
-							null, null, false, paramProgress.intValue(), nextCompId.longValue(),
-							nextActId.longValue());
-				} else {
-					credData = credentialFactory.getCredentialData(null, cred, 
-							null, null, false);
-				}
+
+				credData = credentialFactory.getCredentialData(creator, cred, null, null, false);
+
 				if(paramBookmarkId != null) {
 					credData.setBookmarkedByCurrentUser(true);
 				}
 				
-				
-				/*
-				 * id of original credential version is set
-				 */
-				credData.setId(originalVersionId);
 				return credData;
 			}
 			return null;
@@ -257,6 +300,51 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while loading credential data");
 		}
 	}
+	
+//	@Override
+//	@Transactional(readOnly = true)
+//	public CredentialData getDraftVersionBasicCredentialData(long originalVersionId, 
+//			long userId) throws DbConnectionException {
+//		CredentialData credData = null;
+//		try {
+//			User user = (User) persistence.currentManager().load(User.class, userId);
+//			String query = "SELECT draftCred, bookmark.id " +
+//						   "FROM Credential1 cred " + 
+//						   "LEFT JOIN cred.draftVersion draftCred " +
+//						   "LEFT JOIN cred.bookmarks bookmark " +
+//						   "WITH bookmark.user.id = :user " +
+//						   "WHERE cred.id = :credId";
+//
+//			Object[] res = (Object[]) persistence.currentManager()
+//					.createQuery(query)
+//					.setLong("user", user.getId())
+//					.setLong("credId", originalVersionId)
+//					.uniqueResult();
+//
+//			if (res != null) {
+//				Credential1 cred = (Credential1) res[0];
+//				Long paramBookmarkId = (Long) res[1];
+//		
+//				credData = credentialFactory.getCredentialData(null, cred, 
+//						null, null, false);
+//
+//				if(paramBookmarkId != null) {
+//					credData.setBookmarkedByCurrentUser(true);
+//				}
+//				
+//				/*
+//				 * id of original credential version is set
+//				 */
+//				credData.setId(originalVersionId);
+//				return credData;
+//			}
+//			return null;
+//		} catch (Exception e) {
+//			logger.error(e);
+//			e.printStackTrace();
+//			throw new DbConnectionException("Error while loading credential data");
+//		}
+//	}
 	
 	@Override
 	@Transactional(readOnly = true)
@@ -346,7 +434,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 	
 	@Transactional(readOnly = true)
-	private Credential1 getCredential(long credentialId, boolean loadCreatorData) throws DbConnectionException {
+	private Credential1 getCredential(long credentialId, boolean loadCreatorData) 
+			throws DbConnectionException {
 		try {
 			StringBuilder builder = new StringBuilder();
 			builder.append("SELECT cred FROM Credential1 cred ");

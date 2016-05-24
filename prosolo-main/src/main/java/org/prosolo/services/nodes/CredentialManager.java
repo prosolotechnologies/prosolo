@@ -58,16 +58,14 @@ public interface CredentialManager extends AbstractManager {
 			throws DbConnectionException;
 	
 	/**
-	 * Returns Credential's draft version data for credential with id: {@code credentialId} 
-	 * with user's progress for that credential if user is enrolled. However, id that will be 
-	 * set for {@code CredentialData} object is id of original credential version.
-	 * @param originalVersionId
+	 * Returns basic credential data with info whether credential is bookmarked by user or not.
+	 * @param credentialId
 	 * @param userId
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	CredentialData getDraftVersionCredentialDataWithProgressIfExists(long originalVersionId, 
-			long userId) throws DbConnectionException;
+	CredentialData getBasicCredentialData(long credentialId, long userId) 
+			throws DbConnectionException;
 	
 	/** Returns credential data for edit. If there is a draft version for a credential
 	 *  that version data will be returned

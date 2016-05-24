@@ -96,4 +96,8 @@ public interface TextSearch extends AbstractManager {
 	TextSearchResponse1<CredentialData> searchCredentials(
 			String searchTerm, int page, int limit, long userId, 
 			CredentialSearchFilter filter, CredentialSortOption sortOption);
+	
+	TextSearchResponse1<CredentialData> searchCredentialsForManager(
+			String searchTerm, int page, int limit, long userId, 
+			CredentialSearchFilter filter, CredentialSortOption sortOption);
 }

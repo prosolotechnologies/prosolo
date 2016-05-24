@@ -92,6 +92,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/competences/**").hasAuthority("BASIC.USER.ACCESS")
 		   //.antMatchers("/activities/new").hasAuthority("BASIC.USER.ACCESS")
 		  //.antMatchers("/activities/**").hasAuthority("BASIC.USER.ACCESS")
+		   .antMatchers("/library").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/library/credentials").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/library/competences").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/notifications").hasAuthority("BASIC.USER.ACCESS")
@@ -133,6 +134,10 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/manage/competences/*/newActivity").hasAnyAuthority("COURSE.CREATE")
 		   .antMatchers("/manage/credentials/*/*/*").hasAnyAuthority("COMPETENCES.VIEW")
 		   .antMatchers("/manage/competences/*/*").hasAnyAuthority("COMPETENCES.VIEW")
+		   //manage library
+		   .antMatchers("/manage/library").hasAuthority("MANAGE.LIBRARY.VIEW")
+		   .antMatchers("/manage/library/credentials").hasAuthority("MANAGE.LIBRARY.VIEW")
+		   .antMatchers("/manage/library/competences").hasAuthority("MANAGE.LIBRARY.VIEW")
 		   
 		   .antMatchers("/manage/tools/*/*/*/create").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/tools/*").hasAuthority("BASIC.MANAGER.ACCESS")

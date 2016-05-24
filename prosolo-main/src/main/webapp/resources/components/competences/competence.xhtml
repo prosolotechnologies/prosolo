@@ -25,7 +25,8 @@
 	
 		<ui:param name="isPreview" value="#{cc.attrs.bean.isPreview()}" />
 		<ui:param name="learningContext" value="name:base_competence|id:#{cc.attrs.bean.competenceData.competenceId}" />
-     	<ui:param name="canEdit" value="#{cc.attrs.role == 'MANAGER' and cc.attrs.bean.competenceData.type == 'UNIVERSITY_CREATED' || cc.attrs.role != 'MANAGER' and cc.attrs.bean.isCurrentUserCreator()}"></ui:param>
+     	<ui:param name="canEdit" value="#{cc.attrs.role == 'MANAGER' and cc.attrs.bean.competenceData.type == 'UNIVERSITY_CREATED' 
+     		and request.isUserInRole('MANAGE.CONTENT.EDIT') || cc.attrs.role != 'MANAGER' and cc.attrs.bean.isCurrentUserCreator()}"></ui:param>
      	<div id="#{cc.clientId}">
 	    
 		    <div class="whiteBar">

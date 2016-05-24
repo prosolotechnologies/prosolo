@@ -154,6 +154,21 @@
             "roles": [
                 "Instructor"
             ]
+        },
+        {
+            "name": "manage.content.edit",
+            "description": "Create/Edit learning content in manage section",
+            "roles": [
+                "Manager"
+            ]
+        },
+        {
+            "name": "manage.library.view",
+            "description": "View credential/competence library in manage section",
+            "roles": [
+                "Manager",
+                "Instructor"
+            ]
         }
     ]
 }
