@@ -77,6 +77,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
+@Deprecated
 @ManagedBean(name = "topNotificationsBean")
 @Component("topNotificationsBean")
 @Scope("session")

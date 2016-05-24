@@ -18,14 +18,12 @@ public class FollowUserEventProcessor extends NotificationEventProcessor {
 	private static Logger logger = Logger.getLogger(FollowUserEventProcessor.class);
 
 	private FollowResourceManager followResourceManager;
-//	private FollowedEntity followedEntity;
 
 	public FollowUserEventProcessor(Event event, Session session, NotificationManager notificationManager,
 			NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
 			FollowResourceManager followResourceManager) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
 		this.followResourceManager = followResourceManager;
-//		this.followedEntity = (FollowedEntity) session.merge(event.getObject());
 	}
 
 	@Override
@@ -37,8 +35,6 @@ public class FollowUserEventProcessor extends NotificationEventProcessor {
 	List<Long> getReceiverIds() {
 		List<Long> users = new ArrayList<>();
 		try {
-//			long id = followResourceManager.getFollowedEntity(event.getActor(),
-//					followedResourceEntity.getFollowedNode(), session).getId();
 			users.add(event.getObject().getId());
 		} catch (Exception e) {
 			e.printStackTrace();

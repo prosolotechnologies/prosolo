@@ -92,3 +92,25 @@ function roundImages(){ //needed as a separate function because of a partial pag
 		$(this).removeAttr('class');
 	});
 };
+
+function removeCssClassesFromElement(elementId, cssClasses) {
+	//If desired class/classes are not provided, this function removes all of them from supplied element
+	
+	if(elementId) { 
+		var element = $('#' + elementId);
+		if(cssClasses) {
+			if($.isArray(cssClasses)) { 
+				$.each(cssClasses, function(i, value) {
+					element.removeClass(value);
+				});
+			} else {
+				element.removeClass(cssClasses);
+			}  
+		} else {
+			element.removeClass();
+		}
+	}
+};
+
+
+

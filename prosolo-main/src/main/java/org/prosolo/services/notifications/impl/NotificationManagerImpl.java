@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
@@ -14,6 +15,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.prosolo.app.Settings;
@@ -52,23 +54,18 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 	@Override
 	@Transactional (readOnly = true)
 	public Integer getNumberOfUnreadNotifications(User user) {
-		String query=
-			"SELECT cast(COUNT(notification) as int) " +
-			"FROM PersonalCalendar calendar " +
-			"LEFT JOIN calendar.user user " +
-			"LEFT JOIN calendar.notifications notification "+
-			"WHERE user = :user " +
-				"AND notification.read = false " +
-				"AND notification.notifyByUI = :notifyByUI " +
-			"ORDER BY notification.dateCreated DESC" ;
-		
-		Integer resNumber = (Integer) persistence.currentManager().createQuery(query)
-		  	.setEntity("user", user)
-		  	.setBoolean("notifyByUI", true)
-		  	.uniqueResult();
-		
-	  	return resNumber;
-	}
+		  String query=
+		   "SELECT COUNT(notification1) " +
+		   "FROM Notification1 notification1 " +
+		   "WHERE notification1.receiver = :user " +
+		    "AND notification1.read = false " ;
+		  
+		  long resNumber = (long) persistence.currentManager().createQuery(query)
+		     .setEntity("user", user)
+		     .uniqueResult();
+		  
+		    return (int) resNumber;
+		 }
 	
 	@Override
 	@Transactional (readOnly = true)
@@ -363,7 +360,7 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 			@SuppressWarnings("unchecked")
 			List<Notification1> result = q.list();
 		  	
-			List<NotificationData> notificationData = new ArrayList<>();
+			List<NotificationData> notificationData = new LinkedList<>();
 		  	if (result != null) {
 		  		for(Notification1 notification : result) {
 		  			String objectTitle = null;
@@ -396,16 +393,18 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 	public NotificationData getNotificationData(long notificationId, Session session, Locale locale) 
 			throws DbConnectionException {
 		String query=
-			"SELECT notification " +
-			"FROM Notification1 notification " +
-			"INNER JOIN FETCH notification.actor actor " +
-			"WHERE notification.id = :id";
+			"SELECT notification1 " +
+			"FROM Notification1 notification1 " +
+			"INNER JOIN FETCH notification1.actor actor " +
+			"WHERE notification1.id = :id";
 	  	
 		Notification1 result = (Notification1) session
 			.createQuery(query)
 		  	.setLong("id", notificationId)
 	  		.uniqueResult();
-	  	
+		
+		session.update(result.getActor());
+		
 	  	return getNotificationData(result, session, locale);
 	}
 	

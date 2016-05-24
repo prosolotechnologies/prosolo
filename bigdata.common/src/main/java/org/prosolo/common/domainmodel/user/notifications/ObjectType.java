@@ -5,7 +5,7 @@ public enum ObjectType {
 	Competence("Competence1"),
 	Activity("Activity1"),
 	Comment("Comment1"),
-	Follow("Follow");
+	Follow("Followed_entity");
 	
 	
 	private String dbTableName;

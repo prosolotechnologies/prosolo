@@ -94,7 +94,7 @@ public class ProfileSettingsBean implements Serializable {
 	private UserSocialNetworks userSocialNetworks;
 
 	@PostConstruct
-	public void initializeAccountData() {
+	public void init() {
 		initAccountData();
 		initSocialNetworksData();
 	}
@@ -155,7 +155,7 @@ public class ProfileSettingsBean implements Serializable {
 				PageUtil.fireErrorMessage("Changes are not saved!");
 			}
 
-			initializeAccountData();
+			init();
 			asyncUpdateUserDataInSocialActivities(accountData);
 		}
 		PageUtil.fireSuccessfulInfoMessage("Changes are saved");
@@ -325,7 +325,7 @@ public class ProfileSettingsBean implements Serializable {
 
 			PageUtil.fireSuccessfulInfoMessage(":profileForm:profileFormGrowl", "Profile photo updated!");
 
-			initializeAccountData();
+			init();
 			asyncUpdateUserDataInSocialActivities(accountData);
 		} catch (IOException e) {
 			logger.error(e);

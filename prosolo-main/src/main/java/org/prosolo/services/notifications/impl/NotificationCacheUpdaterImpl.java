@@ -17,6 +17,7 @@ import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.notification.TopNotificationsBean;
+import org.prosolo.web.notification.TopNotificationsBean1;
 import org.prosolo.web.notification.exceptions.NotificationNotSupported;
 import org.prosolo.web.notification.util.NotificationDataConverter;
 import org.springframework.stereotype.Service;
@@ -65,19 +66,15 @@ public class NotificationCacheUpdaterImpl implements NotificationCacheUpdater, S
 	@Override
 	public void updateNotificationData(long notificationId, HttpSession userSession, Session session) throws ResourceCouldNotBeLoadedException {
 		if (userSession != null) {
-			TopNotificationsBean topNotificationsBean = (TopNotificationsBean) userSession.getAttribute("topNotificationsBean");
+			TopNotificationsBean1 topNotificationsBean1 = (TopNotificationsBean1) userSession.getAttribute("topNotificationsBean1");
 			LoggedUserBean loggedUserBean = (LoggedUserBean) userSession.getAttribute("loggeduser");
 
-			if (topNotificationsBean != null) {
+			if (topNotificationsBean1 != null) {
 				try {
-					NotificationData notification = (NotificationData) notificationManager
+					NotificationData notificationData = (NotificationData) notificationManager
 							.getNotificationData(notificationId, session, loggedUserBean.getLocale());
 					
-					//notification.setNotificationTextBasedOnUserLocale(loggedUserBean.getLocale());
-					
-					//TODO for Musa - implement method addNotification in topNotificationsBean to 
-					//work with org.prosolo.services.notifications.eventprocessing.data.NotificationData object
-					//topNotificationsBean.addNotification(notification, session);
+					topNotificationsBean1.addNotification(notificationData, session);
 				} catch (DbConnectionException e) {
 					logger.error(e);
 				}
