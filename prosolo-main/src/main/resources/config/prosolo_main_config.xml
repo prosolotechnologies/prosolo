@@ -5,8 +5,8 @@
 		<!-- based on this setting, appropriate messages.properties file will be used -->
 		<bc-name>dd</bc-name>
 		<formatDB>false</formatDB>
-		<importData>false</importData>
 		<importCapabilities>false</importCapabilities>
+		<importData>false</importData>
 		<indexTrainingSet>false</indexTrainingSet>
 		<default-user>
 			<name>Admin</name>

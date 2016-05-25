@@ -34,11 +34,18 @@ public class NotificationDataFactory {
 	
 	public void setNotificationPredicateBasedOnLocale(NotificationData data, Locale locale) {
 		try {
-			String type = ResourceBundleUtil.getMessage(
+			String predicate = "";
+					
+			predicate += ResourceBundleUtil.getMessage(
 					"notification.type." + data.getNotificationType().name(), 
 					locale);
-			String objectType = ResourceBundleUtil.getResourceType(data.getObjectType().name(), locale);
-			data.setPredicate(type + " " + objectType);
+			
+			if (data.getObjectType() != null) {
+				String objectType = ResourceBundleUtil.getResourceType(data.getObjectType().name(), locale);
+				
+				predicate += " " + objectType;
+			}
+			data.setPredicate(predicate);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

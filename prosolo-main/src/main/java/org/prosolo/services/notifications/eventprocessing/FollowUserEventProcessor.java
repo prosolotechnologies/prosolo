@@ -55,7 +55,7 @@ public class FollowUserEventProcessor extends NotificationEventProcessor {
 
 	@Override
 	ObjectType getObjectType() {
-		return ObjectType.Follow;
+		return null;
 	}
 
 	@Override

@@ -24,73 +24,80 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service("org.prosolo.config.security.SecurityService")
-public class SecurityServiceImpl extends AbstractManagerImpl implements SecurityService{
+public class SecurityServiceImpl extends AbstractManagerImpl implements SecurityService {
 
 	private static final long serialVersionUID = 3396186868274027142L;
 
-	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(SecurityServiceImpl.class);
-	
+
 	@Inject
 	private RoleManager roleManager;
 	@Inject
 	private CapabilityManager capabilityManager;
-	
-	/* (non-Javadoc)
-	 * @see org.prosolo.config.security.impl.SecurityService#initializeRolesAndCapabilities()
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.prosolo.config.security.impl.SecurityService#
+	 * initializeRolesAndCapabilities()
 	 */
 	@Override
 	@Transactional
-	public void initializeRolesAndCapabilities(){
-		try{
+	public void initializeRolesAndCapabilities() {
+		logger.info("Importing capabilities and roles");
+		
+		try {
 			SecurityContainer sc = SecurityConfigLoader.loadRolesAndCapabilities();
 			List<Role> roles = new ArrayList<>();
-			for(RoleConfig role:sc.getRoles()){
+			
+			for (RoleConfig role : sc.getRoles()) {
 				Role r = roleManager.getRoleByName(role.getName());
-				if(r!=null){
+				
+				if (r != null) {
 					r.setDescription(role.getDescription());
 					roles.add(r);
-					logger.info("Role "+ r.getTitle() + " updated from file");
-				}else{
+					logger.info("Role " + r.getTitle() + " updated from file");
+				} else {
 					boolean isSystem = false;
-					if("Admin".equals(role.getName())){
+					if ("Admin".equals(role.getName())) {
 						isSystem = true;
 					}
 					roles.add(roleManager.saveRole(role.getName(), role.getDescription(), isSystem));
-					logger.info("Role "+ role.getName() + " inserted from file");
+					logger.info("Role " + role.getName() + " inserted from file");
 				}
 			}
-			
-				
+
 			List<Capability> caps = capabilityManager.getAllCapabilities();
-			for(Capability c:caps){
+			
+			for (Capability c : caps) {
 				CapabilityConfig cc = getCapabilityConfigIfExists(c, sc.getCapabilities());
-				if(cc != null){
+				
+				if (cc != null) {
 					Capability cap = getCapability(cc, roles);
 					c.setDescription(cap.getDescription());
 					c.setRoles(cap.getRoles());
 					sc.getCapabilities().remove(cc);
-					logger.info("Capability "+ cap.getName() + " updated from file");
-				}else{
+					logger.info("Capability " + cap.getName() + " updated from file");
+				} else {
 					persistence.delete(c);
-					logger.info("Capability "+ c.getName() + " deleted");
+					logger.info("Capability " + c.getName() + " deleted");
 				}
 			}
-			for(CapabilityConfig cc:sc.getCapabilities()){
+			
+			for (CapabilityConfig cc : sc.getCapabilities()) {
 				Capability cap = getCapability(cc, roles);
 				capabilityManager.saveCapability(cap);
-				logger.info("Capability "+ cap.getName() + " inserted from file");
+				logger.info("Capability " + cap.getName() + " inserted from file");
 			}
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 			throw new DbConnectionException("Error while initializing roles and capabilities");
 		}
-		
 	}
 
 	private CapabilityConfig getCapabilityConfigIfExists(Capability c, List<CapabilityConfig> capabilities) {
-		for(CapabilityConfig cc:capabilities){
-			if(cc.getName().equals(c.getName())){
+		for (CapabilityConfig cc : capabilities) {
+			if (cc.getName().equals(c.getName())) {
 				return cc;
 			}
 		}
@@ -98,23 +105,25 @@ public class SecurityServiceImpl extends AbstractManagerImpl implements Security
 	}
 
 	private Capability getCapability(CapabilityConfig capability, List<Role> roles) throws NonexistentRoleException {
-			Capability c = new Capability();
-			c.setName(capability.getName());
-			c.setDescription(capability.getDescription());
-			c.setRoles(getRolesForCapability(capability, roles));
-			return c;
+		Capability c = new Capability();
+		c.setName(capability.getName());
+		c.setDescription(capability.getDescription());
+		c.setRoles(getRolesForCapability(capability, roles));
+		return c;
 	}
-	
-	private Set<Role> getRolesForCapability(CapabilityConfig capConfig, List<Role> roles) throws NonexistentRoleException {
+
+	private Set<Role> getRolesForCapability(CapabilityConfig capConfig, List<Role> roles)
+			throws NonexistentRoleException {
 		Set<Role> capabilityRoles = new HashSet<>();
-		for(String roleName:capConfig.getRoles()){
-			try{
+		
+		for (String roleName : capConfig.getRoles()) {
+			try {
 				Role role = findRoleByName(roles, roleName);
-				if(role == null){
+				if (role == null) {
 					throw new NonexistentRoleException("Nonexistent role defined for capability");
 				}
 				capabilityRoles.add(role);
-			}catch(NonexistentRoleException e){
+			} catch (NonexistentRoleException e) {
 				logger.error(e);
 			}
 		}
@@ -122,12 +131,12 @@ public class SecurityServiceImpl extends AbstractManagerImpl implements Security
 	}
 
 	private Role findRoleByName(List<Role> roles, String roleName) {
-		for(Role r:roles){
-			if(roleName.equals(r.getTitle())){
+		for (Role r : roles) {
+			if (roleName.equals(r.getTitle())) {
 				return r;
 			}
 		}
 		return null;
 	}
-	
+
 }

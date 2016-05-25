@@ -8,11 +8,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.Type;
-import org.prosolo.common.domainmodel.general.BaseEntity;
  
 @MappedSuperclass
 public class BaseEntity implements Serializable { 
@@ -55,9 +52,9 @@ public class BaseEntity implements Serializable {
 		this.description = description;
 	}
 	
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "created", length = 19)
-	@Type(type="date")
+//	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "created")
+//	@Type(type="date")
 	public Date getDateCreated() {
 		return dateCreated;
 	}
