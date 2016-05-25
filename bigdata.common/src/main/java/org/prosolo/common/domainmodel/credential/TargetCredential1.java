@@ -57,6 +57,9 @@ public class TargetCredential1 extends BaseEntity {
 	private long nextCompetenceToLearnId;
 	private long nextActivityToLearnId;
 	
+	private String description;
+	private String title;
+	
 	public TargetCredential1() {
 		tags = new HashSet<>();
 		hashtags = new HashSet<>();
@@ -242,6 +245,22 @@ public class TargetCredential1 extends BaseEntity {
 
 	public void setNextCompetenceToLearnId(long nextCompetenceToLearnId) {
 		this.nextCompetenceToLearnId = nextCompetenceToLearnId;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
 	}
 	
 }

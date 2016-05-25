@@ -8,22 +8,17 @@ import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.portfolio.data.SocialNetworksData;
 
-public class SocialNetworksDataToPageMapper implements IDataToPageMapper<SocialNetworksData> {
-	UserSocialNetworks userSocialNetworks;
-
-	public SocialNetworksDataToPageMapper(UserSocialNetworks userSocialNetworks) {
-		this.userSocialNetworks = userSocialNetworks;
-	}
+public class SocialNetworksDataToPageMapper implements IDataToPageMapper<SocialNetworksData, UserSocialNetworks> {
 
 	/**
 	 * Maps supplied data to object that is shown on page
 	 */
 	@Override
-	public SocialNetworksData mapDataToPageObject(SocialNetworksData socialNetworksData) {
+	public SocialNetworksData mapDataToPageObject(UserSocialNetworks userSocialNetworks) {
 
 		Set<SocialNetworkAccount> socialNetworkAccounts = userSocialNetworks.getSocialNetworkAccounts();
 
-		socialNetworksData = new SocialNetworksData();
+		SocialNetworksData socialNetworksData = new SocialNetworksData();
 		socialNetworksData.setId(userSocialNetworks.getId());
 
 		for (SocialNetworkAccount account : socialNetworkAccounts) {

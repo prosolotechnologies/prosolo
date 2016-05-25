@@ -263,8 +263,8 @@ public class StudentProfileBean implements Serializable {
 	public void initSocialNetworks() {
 		if (socialNetworksData == null) {
 			userSocialNetworks = socialNetworksManager.getSocialNetworks(loggedUserBean.getUser());
-			socialNetworksData = new SocialNetworksDataToPageMapper(userSocialNetworks)
-					.mapDataToPageObject(socialNetworksData);
+			socialNetworksData = new SocialNetworksDataToPageMapper()
+					.mapDataToPageObject(userSocialNetworks);
 		}
 	}
 

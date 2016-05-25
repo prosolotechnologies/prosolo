@@ -238,8 +238,7 @@ public class PortfolioBean implements Serializable {
 	public void initSocialNetworks() {
 		if (socialNetworksData == null) {
 			userSocialNetworks = socialNetworksManager.getSocialNetworks(loggedUser.getUser());
-			socialNetworksData = new SocialNetworksDataToPageMapper(userSocialNetworks)
-					.mapDataToPageObject(socialNetworksData);
+			socialNetworksData = new SocialNetworksDataToPageMapper().mapDataToPageObject(userSocialNetworks);
 		}
 	}
 

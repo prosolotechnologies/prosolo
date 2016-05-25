@@ -3,17 +3,11 @@ package org.prosolo.web.datatopagemappers;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.settings.data.AccountData;
 
-public class AccountDataToPageMapper implements IDataToPageMapper<AccountData> {
-
-	private LoggedUserBean loggedUser;
-
-	public AccountDataToPageMapper(LoggedUserBean loggedUser) {
-		this.loggedUser = loggedUser;
-	}
+public class AccountDataToPageMapper implements IDataToPageMapper<AccountData, LoggedUserBean> {
 
 	@Override
-	public AccountData mapDataToPageObject(AccountData accountData) {
-		accountData = new AccountData();
+	public AccountData mapDataToPageObject(LoggedUserBean loggedUser) {
+		AccountData accountData = new AccountData();
 		accountData.setId(loggedUser.getUser().getId());
 		accountData.setAvatarPath(loggedUser.getBigAvatar());
 		accountData.setFirstName(loggedUser.getUser().getName());

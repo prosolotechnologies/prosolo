@@ -102,13 +102,13 @@ public class ProfileSettingsBean implements Serializable {
 	public void initSocialNetworksData() {
 		if (socialNetworksData == null) {
 			userSocialNetworks = socialNetworksManager.getSocialNetworks(loggedUser.getUser());
-			socialNetworksData = new SocialNetworksDataToPageMapper(userSocialNetworks)
-					.mapDataToPageObject(socialNetworksData);
+			socialNetworksData = new SocialNetworksDataToPageMapper()
+					.mapDataToPageObject(userSocialNetworks);
 		}
 	}
 
 	private void initAccountData() {
-		accountData = new AccountDataToPageMapper(loggedUser).mapDataToPageObject(accountData);
+		accountData = new AccountDataToPageMapper().mapDataToPageObject(loggedUser);
 	}
 
 	/*

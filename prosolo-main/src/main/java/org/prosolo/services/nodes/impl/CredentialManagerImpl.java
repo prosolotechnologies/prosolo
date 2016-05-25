@@ -24,6 +24,7 @@ import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.notifications.Notification1;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
@@ -1676,6 +1677,29 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			boolean loadCreator, boolean loadCompetences) throws DbConnectionException {
 			return getCurrentVersionOfCredentialBasedOnRole(credentialId, 0, loadCreator, 
 					loadCompetences, Role.Manager);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	@Transactional
+	public List<TargetCredential1> getAllCompletedCredentials(Long userid) throws DbConnectionException {
+		List<TargetCredential1> result = new ArrayList();
+		try {
+			String query=
+					"SELECT targetCredential1 " +
+					"FROM TargetCredential1 targetCredential1 " +
+					"WHERE targetCredential1.user.id = :userid";
+			  	
+			
+			result = persistence.currentManager()
+					.createQuery(query)
+					.setLong("userid", userid)
+				  	.list();
+		} catch (DbConnectionException e) {
+			e.printStackTrace();
+			throw new DbConnectionException();
+		}
+		return result;
 	}
 	
 //	@Override
