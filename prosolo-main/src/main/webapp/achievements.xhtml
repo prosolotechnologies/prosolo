@@ -50,8 +50,7 @@
 
 		<div class="container">
 			<div class="row">
-				<ui:repeat
-					var="targetCredential"
+				<ui:repeat var="targetCredential"
 					value="#{targetCredentialBean.credentialAchievementsData.targetCredentialDataList}">
 					<div class="col-md-6">
 						<article class="whiteBox summaryCard">
@@ -64,8 +63,14 @@
 							<div class="metaBox">
 								<div class="metaLeft">
 									<div class="checkbox checkLine">
-										<input type="checkbox" id="checkHide1" /><label
-											for="checkHide1">Hide from Public Profile</label>
+										<h:form>
+										<h:inputHidden value="#{targetCredential.id}"></h:inputHidden>
+											<h:selectBooleanCheckbox id="credentialAchievements"
+												value="#{targetCredential.hiddenFromProfile}">
+												<f:ajax event="click" execute="@form" listener="#{targetCredentialBean.hideTargetCredentialFromProfile(targetCredential.id)}" />
+											</h:selectBooleanCheckbox>
+											<h:outputLabel for="credentialAchievements">Hide from Public Profile</h:outputLabel>
+										</h:form>
 									</div>
 								</div>
 								<div class="metaRight"></div>

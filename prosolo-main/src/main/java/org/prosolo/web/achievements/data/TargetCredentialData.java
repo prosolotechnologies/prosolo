@@ -20,14 +20,14 @@ public class TargetCredentialData implements Serializable {
 	private String description;
 	private String title;
 	private boolean hiddenFromProfile;
-	private String link;
-	
+	private String link;	
 	
 
-	public TargetCredentialData(long id, String title, String description, UrlIdEncoder idEncoder) {
+	public TargetCredentialData(long id, String title, String description, boolean hiddenFromProfile, UrlIdEncoder idEncoder) {
 		this.id = id;
 		this.title = title;
 		this.description = description;
+		this.hiddenFromProfile = hiddenFromProfile;
 		link =  "/credentials.xhtml?id=" + idEncoder.encodeId(id);
 	}
 

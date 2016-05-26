@@ -1702,6 +1702,25 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return result;
 	}
 	
+	@Override
+	@Transactional
+	public void updateHiddenTargetCredentialFromProfile(long id, boolean hiddenFromProfile)
+			throws DbConnectionException {
+		String query = "SELECT targetCredential " + "FROM TargetCredential1 targetCredential "
+				+ "WHERE targetCredential.id = :id ";
+
+		TargetCredential1 targetCredential = (TargetCredential1) persistence.currentManager().createQuery(query)
+				.setLong("id", id).uniqueResult();
+
+		targetCredential.setHiddenFromProfile(hiddenFromProfile);
+		try {
+			saveEntity(targetCredential);
+		} catch (DbConnectionException e) {
+			e.printStackTrace();
+			throw new DbConnectionException();
+		}
+	}
+	
 //	@Override
 //	@Transactional(readOnly = true)
 //	public CredentialData getCredentialForManager(long credentialId, boolean loadCreator,

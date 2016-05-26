@@ -180,7 +180,13 @@ public interface CredentialManager extends AbstractManager {
 	 */
 	List<TargetCredential1> getAllCompletedCredentials(Long userId) throws DbConnectionException;
 		
-	
+	/**
+	 * Updated hidden_from_profile_field
+	 * @param id
+	 * @param duration
+	 * @throws DbConnectionException
+	 */
+	void updateHiddenTargetCredentialFromProfile(long id, boolean hiddenFromProfile) throws DbConnectionException;
 	
 //	/**
 //	 * Returns current version of credential for edit if edit mode - draft version if exists
