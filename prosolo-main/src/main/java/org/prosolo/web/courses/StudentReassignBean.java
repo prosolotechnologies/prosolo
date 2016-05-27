@@ -129,18 +129,19 @@ public class StudentReassignBean implements Serializable {
 		otherInstructorsList = new ArrayList<>();
 		List<Long> excluded = new ArrayList<>();
 		excluded.add(instructor.getUserId());
-		Map<String, Object> searchResponse = textSearch.searchInstructors(instructorSearchTerm, 
-				-1, -1, decodedCourseId, SortingOption.ASC, excluded);
-		
-		if (searchResponse != null) {
-			@SuppressWarnings("unchecked")
-			List<Map<String, Object>> data = (List<Map<String, Object>>) searchResponse.get("data");
-			if(data != null) {
-				for (Map<String, Object> resMap : data) {
-					otherInstructorsList.add(new CourseInstructorData(resMap));
-				}
-			}
-		}
+		//TODO
+//		Map<String, Object> searchResponse = textSearch.searchInstructors(instructorSearchTerm, 
+//				-1, -1, decodedCourseId, SortingOption.ASC, excluded);
+//		
+//		if (searchResponse != null) {
+//			@SuppressWarnings("unchecked")
+//			List<Map<String, Object>> data = (List<Map<String, Object>>) searchResponse.get("data");
+//			if(data != null) {
+//				for (Map<String, Object> resMap : data) {
+//					otherInstructorsList.add(new CourseInstructorData(resMap));
+//				}
+//			}
+//		}
 	}
 	
 	public void reassignStudentsTemp() {

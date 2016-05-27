@@ -177,13 +177,9 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	private void updateCredentialBookmarks(long credId, long userId, String script) {
 		try {
 			Map<String, Object> params = new HashMap<>();
-			XContentBuilder bookmarkDoc = XContentFactory.jsonBuilder()
-		            .startArray()
-		            .startObject()
-		            .field("id", userId)
-		            .endObject()
-		            .endArray();
-			params.put("bookmark", bookmarkDoc.toString());
+			Map<String, Object> param = new HashMap<>();
+			param.put("id", userId + "");
+			params.put("bookmark", param);
 			
 			partialUpdateByScript(ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL, 
 					credId+"", script, params);
@@ -199,19 +195,7 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			UpdateRequest updateRequest = new UpdateRequest(indexName, 
 					indexType, docId)
 			        .doc(partialDoc);
-			ElasticSearchFactory.getClient().update(updateRequest).get();
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-		}
-	}
-	
-	public void partialUpdateByScript(String indexName, String indexType, String docId,
-			String script, Map<String, Object> scriptParams) {
-		try {
-			UpdateRequest updateRequest = new UpdateRequest(indexName, indexType, docId)
-			        .script(script)
-			        .scriptParams(scriptParams);
+			updateRequest.retryOnConflict(5);
 			ElasticSearchFactory.getClient().update(updateRequest).get();
 		} catch(Exception e) {
 			logger.error(e);

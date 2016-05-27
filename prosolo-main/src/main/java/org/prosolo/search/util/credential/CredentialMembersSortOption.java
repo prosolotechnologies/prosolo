@@ -1,36 +1,35 @@
 package org.prosolo.search.util.credential;
 
-import org.prosolo.web.search.data.SortingOption;
+import org.prosolo.services.util.SortingOption;
 
-public class CredentialMembersSortOption {
+public enum CredentialMembersSortOption {
 
-	private CredentialMembersSortField sortField;
+	STUDENT_NAME("Alphabetically", new String[] {"name", "lastname"}, SortingOption.ASC),  
+	DATE("Recent", new String[] {"credentials.dateEnrolled"}, SortingOption.DESC);
+	
+	//ui label
+	private String label;
+	//fields in elasticsearch corresponding to sort option
+	private String[] sortFields;
 	private SortingOption sortOrder;
 	
-	public CredentialMembersSortOption() {
-		
-	}
-
-	public CredentialMembersSortOption(CredentialMembersSortField sortField, SortingOption sortOrder) {
-		this.sortField = sortField;
+	private CredentialMembersSortOption(String label, String[] sortFields, SortingOption sortOrder) {
+		this.label = label;
+		this.sortFields = sortFields;
 		this.sortOrder = sortOrder;
 	}
 
-	public CredentialMembersSortField getSortField() {
-		return sortField;
+	public String getLabel() {
+		return label;
 	}
 
-	public void setSortField(CredentialMembersSortField sortField) {
-		this.sortField = sortField;
+	public String[] getSortFields() {
+		return sortFields;
 	}
 
-	public SortingOption getSortOption() {
+	public SortingOption getSortOrder() {
 		return sortOrder;
 	}
 
-	public void setSortOption(SortingOption sortOption) {
-		this.sortOrder = sortOption;
-	}
-	
 	
 }

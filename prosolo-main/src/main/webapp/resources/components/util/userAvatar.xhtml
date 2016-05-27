@@ -12,16 +12,18 @@
 	<composite:interface>
 		<composite:attribute name="avatar" required="true"/>
 		<composite:attribute name="fullName" default=""/>
+		<composite:attribute name="width" default="32"/>
+		<composite:attribute name="height" default="32"/>
 	</composite:interface>
 	
 	<composite:implementation>
 		<ui:fragment rendered="#{empty cc.attrs.avatar}">
-			<span class="letterAvatar letterAvatar32 img-circle">WW</span>
+			<span class="letterAvatar letterAvatar#{cc.attrs.width} img-circle">WW</span>
 		</ui:fragment>
 		<ui:fragment rendered="#{not empty cc.attrs.avatar}">
 			<h:graphicImage
 				value="#{cc.attrs.avatar}" alt="#{cc.attrs.fullName}"
-				styleClass="img-circle" width="32" height="32" />
+				styleClass="img-circle" width="#{cc.attrs.width}" height="#{cc.attrs.height}" />
 		</ui:fragment>
 	</composite:implementation>
 </ui:component>

@@ -1,6 +1,7 @@
 package org.prosolo.services.indexing.impl.elasticSearchObserver;
 
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.CredentialESService;
 
@@ -21,17 +22,17 @@ public class BookmarkNodeChangeProcessor implements NodeChangeProcessor {
 	@Override
 	public void process() {
 		Credential1 cred = (Credential1) event.getTarget();
-		//User actor = (User) event.getActor();
+		User actor = (User) event.getActor();
 		/*
 		 * for now until scripts are enabled and working, bookmarks are updated by updating
 		 * whole nested document
 		 */
-		credentialESService.updateCredentialBookmarks(cred.getId());
-//		if(operation == NodeOperation.Save) {
-//			credentialESService.addBookmarkToCredentialIndex(cred.getId(), actor.getId());
-//		} else if(operation == NodeOperation.Delete) {
-//			credentialESService.removeBookmarkFromCredentialIndex(cred.getId(), actor.getId());
-//		}
+		//credentialESService.updateCredentialBookmarks(cred.getId());
+		if(operation == NodeOperation.Save) {
+			credentialESService.addBookmarkToCredentialIndex(cred.getId(), actor.getId());
+		} else if(operation == NodeOperation.Delete) {
+			credentialESService.removeBookmarkFromCredentialIndex(cred.getId(), actor.getId());
+		}
 	}
 
 }

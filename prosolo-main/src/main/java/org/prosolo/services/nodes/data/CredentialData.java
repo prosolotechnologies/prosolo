@@ -2,6 +2,7 @@ package org.prosolo.services.nodes.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -46,6 +47,8 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private long nextActivityToLearnId;
 	
 	private boolean bookmarkedByCurrentUser;
+	private long instructorId;
+	private Date date;
 	
 	public CredentialData(boolean listenChanges) {
 		this.status = PublishedStatus.DRAFT;
@@ -367,6 +370,22 @@ public class CredentialData extends StandardObservable implements Serializable {
 
 	public void setNextCompetenceToLearnId(long nextCompetenceToLearnId) {
 		this.nextCompetenceToLearnId = nextCompetenceToLearnId;
+	}
+
+	public long getInstructorId() {
+		return instructorId;
+	}
+
+	public void setInstructorId(long instructorId) {
+		this.instructorId = instructorId;
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
 	}
 	
 }

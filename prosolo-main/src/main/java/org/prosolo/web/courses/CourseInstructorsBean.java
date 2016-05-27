@@ -119,11 +119,12 @@ public class CourseInstructorsBean implements Serializable {
 		paginationLinks = paginator.generatePaginationLinks();
 	}
 
+	//TODO
 	public void getCourseInstructors() {
-		Map<String, Object> searchResponse = textSearch.searchInstructors(
-				searchTerm, page - 1, limit, decodedId, sortOrder, null); 
-
-		populateInstructorsData(searchResponse);
+//		Map<String, Object> searchResponse = textSearch.searchInstructors(
+//				searchTerm, page - 1, limit, decodedId, sortOrder, null); 
+//	
+//		populateInstructorsData(searchResponse);
 	}
 
 	private void populateInstructorsData(Map<String, Object> searchResponse) {

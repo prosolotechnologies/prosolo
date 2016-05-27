@@ -11,7 +11,6 @@ import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.hibernate.hql.internal.ast.tree.FromClause;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.credential.CredentialSearchFilter;
@@ -21,6 +20,7 @@ import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.courses.util.pagination.Paginable;
 import org.prosolo.web.courses.util.pagination.PaginationLink;
 import org.prosolo.web.courses.util.pagination.Paginator;
 import org.prosolo.web.util.PageUtil;
@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component;
 @ManagedBean(name = "credentialLibraryBeanManager")
 @Component("credentialLibraryBeanManager")
 @Scope("view")
-public class CredentialLibraryBeanManager implements Serializable {
+public class CredentialLibraryBeanManager implements Serializable, Paginable {
 
 	private static final long serialVersionUID = -7737382507101880012L;
 
@@ -80,7 +80,11 @@ public class CredentialLibraryBeanManager implements Serializable {
 			logger.error(e);
 		}
 	}
-
+	
+	public void resetAndSearch() {
+		this.page = 1;
+		searchCredentials();
+	}
 
 	private void generatePagination() {
 		//if we don't want to generate all links
@@ -113,14 +117,17 @@ public class CredentialLibraryBeanManager implements Serializable {
 		searchCredentials();
 	}
 	
+	@Override
 	public boolean isCurrentPageFirst() {
 		return page == 1 || numberOfPages == 0;
 	}
 	
+	@Override
 	public boolean isCurrentPageLast() {
 		return page == numberOfPages || numberOfPages == 0;
 	}
 	
+	@Override
 	public void changePage(int page) {
 		if(this.page != page) {
 			this.page = page;
@@ -128,14 +135,17 @@ public class CredentialLibraryBeanManager implements Serializable {
 		}
 	}
 	
+	@Override
 	public void goToPreviousPage() {
 		changePage(page - 1);
 	}
 	
+	@Override
 	public void goToNextPage() {
 		changePage(page + 1);
 	}
 	
+	@Override
 	public boolean isResultSetEmpty() {
 		return credentialsNumber == 0;
 	}

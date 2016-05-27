@@ -21,9 +21,10 @@ public class HomePageResolver {
 	     	case "basic.admin.access":
 	     		return "/admin/users";
 	     	case "basic.manager.access":
-	     		return "/manage/credentials";
+	     	case "basic.instructor.access":
+	     		return "/manage/library";
 	     	case "basic.user.access":
-	     		return "/";
+	     		return "/library";
 	     	default:
 	     		return "/terms";
 	     }
@@ -36,9 +37,10 @@ public class HomePageResolver {
 			 	case "basic.admin.access":
 			 		return "/admin/users";
 			 	case "basic.manager.access":
-			 		return "/manage/credentials";
+			 	case "basic.instructor.access":
+			 		return "/manage/library";
 			 	case "basic.user.access":
-			 		return "/";
+			 		return "/library";
 			 	default:
 			 		return "/terms";
 			 }

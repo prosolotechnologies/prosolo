@@ -1,5 +1,6 @@
 package org.prosolo.common.domainmodel.credential;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -18,13 +19,14 @@ import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.user.User;
 
 @Entity
-public class CourseInstructor1 {
+public class CredentialInstructor {
 
 	private long id;
 	private int maxNumberOfStudents;
 	private User user;
 	private Credential1 credential;
 	private List<TargetCredential1> assignedStudents;
+	private Date dateAssigned;
 	
 	@Id
 	@Column(name = "id", unique = true, nullable = false, insertable = false, updatable = false)
@@ -70,6 +72,13 @@ public class CourseInstructor1 {
 	
 	public void setAssignedStudents(List<TargetCredential1> assignedStudents) {
 		this.assignedStudents = assignedStudents;
+	}
+	
+	public Date getDateAssigned() {
+		return dateAssigned;
+	}
+	public void setDateAssigned(Date dateAssigned) {
+		this.dateAssigned = dateAssigned;
 	}
 	
 }

@@ -12,87 +12,80 @@
 	<composite:interface>
 		<composite:attribute name="title" required="true" />
 		<composite:attribute name="bean" required="true" />
-		<composite:attribute name="searchListener" required="true" />
 		<composite:attribute name="instructorList" required="true" />
-		<composite:attribute name="updateRegion" required="true" />
-		<composite:attribute name="page" />
-		<composite:attribute name="service" default="" />
+		<composite:attribute name="toUpdate" required="true" />
 	</composite:interface>
 
 	<composite:implementation>
-
-		<h:form id="modalForm">
-			<div id="assignInstructorModal" class="modal fade assignInstructor" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
-				<div class="modal-dialog">
-					<h:panelGroup layout="block" id="assignInstructorModalContent" styleClass="modal-content">
-						<div class="modal-header">
-							<button aria-label="Close" data-dismiss="modal" class="close" type="button">
-								<span aria-hidden="true">×</span>
-							</button>
-							<h4 id="myLargeModalLabel" class="modal-title">#{cc.attrs.title}</h4>
-						</div>
-						
-						<div class="row narrow filterModal">
-							<div class="col-md-12">
-								<p:remoteCommand name="execInstructorSearch"
-									process="inputInstructorSearch"
-									update=":#{cc.attrs.id}:modalForm:instructorSearchResults"
-									action="#{cc.attrs.bean.loadCourseInstructors()}" />
-									
-								<div class="form-group">
-									<label>Search</label>
-									<h:inputText id="inputInstructorSearch"
-										value="#{cc.attrs.bean.instructorSearchTerm}"
-										pt:placeholder=" Start typing..." styleClass="form-control"
-										onclick="$(this).select();"
-										onkeydown="#{cc.attrs.searchListener}(execInstructorSearch);" />
-								</div>
-							</div>
-						</div>
-						
-						<h:panelGroup layout="block" id="instructorSearchResults" styleClass="modal-body userList">
-							<table width="100%" border="0" cellspacing="0" cellpadding="0">
-								<ui:repeat var="instructor" value="#{cc.attrs.instructorList}">
-									<tr>
-										<td>
-											<div class="userInfo">
-												<span class="userProfileImage">
-													<h:graphicImage	value="#{instructor.avatarUrl}" title="#{instructor.name}" alt="#{instructor.name}" />
-												</span> #{instructor.name}
-											</div>
-										</td>
-										<td class="affiliation">#{instructor.position}</td>
-										<td>
-											<span class="assigned #{instructor.full ? 'full' : ''}"
-												data-toggle="tooltip" data-placement="top"
-												title="Assigned/Limit">
-												#{instructor.numberOfAssignedStudents}/#{instructor.maxNumberOfStudents}
-											</span>
-										</td>
-										<td class="assign">
-											<ui:fragment rendered="#{!instructor.full}">
-												<p:commandLink value="Select" styleClass="btn btn-default"
-													pt:role="button"
-													action="#{cc.attrs.bean.selectInstructor(instructor)}"
-													update="#{cc.attrs.updateRegion}"
-													oncomplete="$('#assignInstructorModal').modal('hide');">
-													<f:param name="page" value="#{cc.attrs.page}" />
-													<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
-													<f:param name="service" value="name:INSTRUCTOR_DIALOG|id:#{instructor.instructorId}" />
-												</p:commandLink>
-											</ui:fragment>
-											
-											<ui:fragment rendered="#{instructor.full}">
-				                        		Load limit reached
-				                        	</ui:fragment>
-				                        </td>
-									</tr>
-								</ui:repeat>
-							</table>
-						</h:panelGroup>
-					</h:panelGroup>
-				</div>
-			</div>
+		<h:form id="formAssignInstructor">
+			<div class="modal fade assignInstructorModal" id="assignInstructorModal1" tabindex="-1" role="dialog" aria-labelledby="assignInstructorModal">
+	          <div class="modal-dialog modal-lg">
+	              <h:panelGroup layout="block" id="assignInstructorModalContent" styleClass="modal-content">
+	                  <div class="modal-header alignLeft">
+	                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+	                      <h2 class="modal-title">#{cc.attrs.title}</h2>
+	                  </div>
+	                  <div class="searchInstructors">
+	                  	    <p:remoteCommand 
+	                    		name="execSearchInstructors" 
+	                    		process="inputInstructorSearch"
+								update=":#{cc.clientId}:formAssignInstructor:searchResults"
+								action="#{cc.attrs.bean.loadCredentialInstructors()}" />							
+							<h:inputText id="inputInstructorSearch"
+								type="search"
+								placeholder="Search Instructors"
+								value="#{cc.attrs.bean.instructorSearchTerm}"
+								onclick="$(this).select();"
+								onkeyup="searchListener(execSearchInstructors);">
+							</h:inputText>     
+	                  </div>
+	                  <h:panelGroup id="searchResults">
+	                  	<ul>
+	                  		<ui:repeat var="instructor" value="#{cc.attrs.instructorList}">
+	                  		  <li>
+		                          <div class="instructorInfo">
+		                          	  <utilcomp:userAvatar
+											avatar="#{instructor.user.avatarUrl}"
+											fullName="#{instructor.user.fullName}"	
+											width="48"
+											height="48"
+									  />
+		                              <div class="infoWrap">
+		                                  <h3>#{instructor.user.fullName}</h3>
+		                                  <span>#{instructor.user.position}</span>
+		                              </div>
+		                          </div>
+		                          <div class="assignOpt">
+		                              <span class="#{instructor.full ? 'redText' : ''}">
+		                              	#{instructor.numberOfAssignedStudents}/#{instructor.maxNumberOfStudents}
+		                              </span>
+		                              <div class="buttonWrapper">
+		                              	  <ui:fragment 
+		                              	  	rendered="#{instructor.full 
+		                              	  		|| (cc.attrs.bean.doesStudentHaveInstructorAssigned()
+		                              	  		and !cc.attrs.bean.isInstructorCurrentlyAssignedToStudent(instructor))}">
+		                              	  	<a href="javascript:void(0);" class="btn btn-green btn-sm disabled">Assign</a>
+		                              	  </ui:fragment>
+		                              	  <ui:fragment rendered="#{cc.attrs.bean.isInstructorCurrentlyAssignedToStudent(instructor) 
+		                              	  		|| (!cc.attrs.bean.doesStudentHaveInstructorAssigned() and !instructor.full)}">
+		                              	  	<p:commandLink value="Assign#{cc.attrs.bean.isInstructorCurrentlyAssignedToStudent(instructor) ? 'ed' : ''}" 
+		                              	  		styleClass="btn btn-green#{cc.attrs.bean.isInstructorCurrentlyAssignedToStudent(instructor) ? '-stroke' : ''} btn-sm"
+												action="#{cc.attrs.bean.selectInstructor(instructor)}"
+												update="#{cc.attrs.toUpdate}"
+												oncomplete="$('#assignInstructorModal1').modal('hide');">
+												<f:param name="page" value="#{cc.attrs.page}" />
+												<f:param name="service" value="name:INSTRUCTOR_DIALOG|id:#{instructor.instructorId}" />
+											</p:commandLink>
+		                              	  </ui:fragment>
+		                              </div>
+		                          </div>
+		                      </li>
+	                  		</ui:repeat>
+	                  	</ul>
+	                 </h:panelGroup>
+	              </h:panelGroup>
+	          </div>
+	      </div>
 		</h:form>
 	</composite:implementation>
 </ui:component>

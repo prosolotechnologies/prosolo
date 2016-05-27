@@ -34,7 +34,7 @@ public class TargetCredential1 extends BaseEntity {
 	private Date dateStarted;
 	private Date dateFinished;
 	private boolean assignedToInstructor;
-	private CourseInstructor1 instructor;
+	private CredentialInstructor instructor;
 	private String cluster;
 	private String clusterName;
 	
@@ -51,8 +51,6 @@ public class TargetCredential1 extends BaseEntity {
 	private boolean competenceOrderMandatory;
 	
 	private User createdBy;
-	
-	private Date dateCompleted;
 	
 	private long nextCompetenceToLearnId;
 	private long nextActivityToLearnId;
@@ -95,11 +93,11 @@ public class TargetCredential1 extends BaseEntity {
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	public CourseInstructor1 getInstructor() {
+	public CredentialInstructor getInstructor() {
 		return instructor;
 	}
 
-	public void setInstructor(CourseInstructor1 instructor) {
+	public void setInstructor(CredentialInstructor instructor) {
 		this.instructor = instructor;
 	}
 
@@ -221,14 +219,6 @@ public class TargetCredential1 extends BaseEntity {
 
 	public void setCreatedBy(User createdBy) {
 		this.createdBy = createdBy;
-	}
-	
-	public Date getDateCompleted() {
-		return dateCompleted;
-	}
-
-	public void setDateCompleted(Date dateCompleted) {
-		this.dateCompleted = dateCompleted;
 	}
 
 	public long getNextActivityToLearnId() {

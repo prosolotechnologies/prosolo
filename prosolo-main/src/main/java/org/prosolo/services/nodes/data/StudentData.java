@@ -6,7 +6,7 @@ public class StudentData {
 
 	private UserData user;
 	private InstructorData instructor;
-	private int courseProgress;
+	private int credProgress;
 	
 	public StudentData() {
 		
@@ -35,12 +35,12 @@ public class StudentData {
 		this.instructor = instructor;
 	}
 
-	public int getCourseProgress() {
-		return courseProgress;
+	public int getCredProgress() {
+		return credProgress;
 	}
 
-	public void setCourseProgress(int courseProgress) {
-		this.courseProgress = courseProgress;
+	public void setCredProgress(int credProgress) {
+		this.credProgress = credProgress;
 	}
 
 	public UserData getUser() {

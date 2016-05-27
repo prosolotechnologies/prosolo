@@ -24,6 +24,7 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.courses.util.pagination.Paginable;
 import org.prosolo.web.courses.util.pagination.PaginationLink;
 import org.prosolo.web.courses.util.pagination.Paginator;
 import org.prosolo.web.util.PageUtil;
@@ -33,7 +34,7 @@ import org.springframework.stereotype.Component;
 @ManagedBean(name = "credentialLibraryBean")
 @Component("credentialLibraryBean")
 @Scope("view")
-public class CredentialLibraryBean implements Serializable {
+public class CredentialLibraryBean implements Serializable, Paginable {
 
 	private static final long serialVersionUID = 5019552987111259682L;
 
@@ -78,6 +79,10 @@ public class CredentialLibraryBean implements Serializable {
 		}
 	}
 
+	public void resetAndSearch() {
+		this.page = 1;
+		searchCredentials();
+	}
 
 	private void generatePagination() {
 		//if we don't want to generate all links
@@ -110,14 +115,17 @@ public class CredentialLibraryBean implements Serializable {
 		searchCredentials();
 	}
 	
+	@Override
 	public boolean isCurrentPageFirst() {
 		return page == 1 || numberOfPages == 0;
 	}
 	
+	@Override
 	public boolean isCurrentPageLast() {
 		return page == numberOfPages || numberOfPages == 0;
 	}
 	
+	@Override
 	public void changePage(int page) {
 		if(this.page != page) {
 			this.page = page;
@@ -125,14 +133,17 @@ public class CredentialLibraryBean implements Serializable {
 		}
 	}
 	
+	@Override
 	public void goToPreviousPage() {
 		changePage(page - 1);
 	}
 	
+	@Override
 	public void goToNextPage() {
 		changePage(page + 1);
 	}
 	
+	@Override
 	public boolean isResultSetEmpty() {
 		return credentialsNumber == 0;
 	}

@@ -15,10 +15,12 @@ import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.credential.CredentialMembersSortOption;
 import org.prosolo.search.util.credential.CredentialSearchFilter;
 import org.prosolo.search.util.credential.CredentialSortOption;
-import org.prosolo.search.util.credential.InstructorAssignedFilter;
+import org.prosolo.search.util.credential.InstructorAssignFilterValue;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.InstructorData;
+import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.web.search.data.SortingOption;
 
 /**
@@ -74,12 +76,12 @@ public interface TextSearch extends AbstractManager {
 	TextSearchResponse searchTags(String searchQuery, int page, int limit,
 			boolean loadOneMore, Collection<Tag> tagsToExclude);
 	
-	Map<String, Object> searchCourseMembers (
-			String searchTerm, InstructorAssignedFilter filter, int page, int limit, long courseId, 
+	TextSearchResponse1<StudentData> searchCredentialMembers (
+			String searchTerm, InstructorAssignFilterValue filter, int page, int limit, long credId, 
 			long instructorId, CredentialMembersSortOption sortOption);
 	
-	Map<String, Object> searchInstructors (
-			String searchTerm, int page, int limit, long courseId, 
+	TextSearchResponse1<InstructorData> searchInstructors (
+			String searchTerm, int page, int limit, long credId, 
 			SortingOption sortingOption, List<Long> excludedIds);
 	
 	Map<String, Object> searchUnassignedCourseMembers (
