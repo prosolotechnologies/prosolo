@@ -40,7 +40,7 @@ public enum ApplicationPage {
 	USER_CREDENTIAL("/credential.xhtml"),
 	USER_COMPETENCE("/competence.xhtml"),
 	CREDENTIAL_LIBRARY("/credentialLibrary.xhtml"),
-	ACHIEVEMENTS("/achievements.xhtml"),
+	ACHIEVEMENTS_CREDENTIALS("/achievements-credentials.xhtml"),
 	ACHIEVEMENTS_COMPETENCES("/achievements-competences.xhtml"),
 	ACHIEVEMENTS_EXTERNAL_COMPETENCES("/achievements-externalcompetences.xhtml"),
 	ACHIEVEMENTS_INPROGRESS("/achievements-inprogress.xhtml");

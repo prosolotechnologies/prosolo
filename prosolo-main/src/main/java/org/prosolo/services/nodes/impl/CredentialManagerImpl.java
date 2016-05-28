@@ -1720,12 +1720,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			String query=
 					"SELECT targetCredential1 " +
 					"FROM TargetCredential1 targetCredential1 " +
-					"WHERE targetCredential1.user.id = :userid";
+					"WHERE targetCredential1.user.id = :userid " +
+					"AND targetCredential1.progress = :progress ";
 			  	
-			
 			result = persistence.currentManager()
 					.createQuery(query)
 					.setLong("userid", userid)
+					.setInteger("progress", 100)
 				  	.list();
 		} catch (DbConnectionException e) {
 			e.printStackTrace();
