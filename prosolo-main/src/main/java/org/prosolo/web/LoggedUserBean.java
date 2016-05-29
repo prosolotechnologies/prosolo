@@ -358,6 +358,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	}
 
 	public void setEmail(String email) {
+		logger.debug("setting email:"+email);
 		getSessionData().setEmail(email);
 	}
 
