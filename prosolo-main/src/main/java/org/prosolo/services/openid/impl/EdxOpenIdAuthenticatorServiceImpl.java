@@ -135,6 +135,7 @@ public class EdxOpenIdAuthenticatorServiceImpl implements EdxOpenIdAuthenticator
 			}
 			logger.info("ReceivingURL:" + receivingURL.toString());
 			logger.info("Response:" + response.toString());
+			if(discovered!=null)
 			logger.info("Discovered:" + discovered.toString());
 			VerificationResult verification = manager.verify(receivingURL.toString(), response, discovered);
 

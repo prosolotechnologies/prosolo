@@ -99,15 +99,12 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		FacesContext currentInstance = FacesContext.getCurrentInstance();
 		HttpSession session = null;
 		if(currentInstance != null){
-			logger.debug("initializeSession data started");
 			session = (HttpSession) currentInstance.getExternalContext().getSession(false);
 			initializeSessionData(session);
-			logger.debug("initializeSession data finished");
 		}
 		
 	}
 	public void initializeSessionData(HttpSession session) {
-		logger.debug("initializeSession data for session");
 		@SuppressWarnings("unchecked")
 		Map<String, Object> sData = (Map<String, Object>) session.getAttribute("user");
 		initializeData(sData);
@@ -117,9 +114,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	
 	@SuppressWarnings("unchecked")
 	private void initializeData(Map<String, Object> userData) {
-		logger.debug("initialize data");
 		if(userData != null){
-			logger.debug("user data not null");
 			sessionData = new SessionData();
 			sessionData.setUser((User) userData.get("user"));
 			sessionData.setBigAvatar((String) userData.get("avatar")); 
@@ -132,8 +127,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			sessionData.setFullName(setFullName(sessionData.getUser().getName(), 
 					sessionData.getUser().getLastname()));
 			initialized = true;
-			logger.debug("initialized");
-		}else logger.debug("user data was null");
+		}
 	}
 	
 	public void init(String email) {
@@ -196,7 +190,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 
 			if (loggedIn) {
 				logger.info("LOGGED IN:" + email);
-				setEmail(email);
+				//setEmail(email);
 				
 				
 				init(email);
@@ -345,15 +339,9 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	 */
 	
 	public SessionData getSessionData() {
-		logger.debug("getSession data:initialized:"+initialized);
-		if(sessionData==null)
-		logger.debug(" sessionData is null before init");
 		if(!initialized){
 			initializeSessionData();
 		}
-		logger.debug(" after init getSession data:initialized:"+initialized);
-		if(sessionData==null)
-			logger.debug(" sessionData is null after init");
 		return sessionData;
 	}
 
@@ -366,12 +354,8 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	}
 
 	public void setEmail(String email) {
-		logger.debug("setting email:"+email);
 		SessionData sData=getSessionData();
-		logger.debug("sData");
-		if(sData==null) logger.debug("sData is null");
 		sData.setEmail(email);
-		logger.debug("set email finished");
 	}
 
 	public String getPassword() {
