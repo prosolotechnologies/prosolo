@@ -117,7 +117,9 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	
 	@SuppressWarnings("unchecked")
 	private void initializeData(Map<String, Object> userData) {
+		logger.debug("initialize data");
 		if(userData != null){
+			logger.debug("user data not null");
 			sessionData = new SessionData();
 			sessionData.setUser((User) userData.get("user"));
 			sessionData.setBigAvatar((String) userData.get("avatar")); 
@@ -130,7 +132,8 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			sessionData.setFullName(setFullName(sessionData.getUser().getName(), 
 					sessionData.getUser().getLastname()));
 			initialized = true;
-		}
+			logger.debug("initialized");
+		}else logger.debug("user data was null");
 	}
 	
 	public void init(String email) {
@@ -343,12 +346,14 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	
 	public SessionData getSessionData() {
 		logger.debug("getSession data:initialized:"+initialized);
-		logger.debug(" is sessionData null:"+sessionData==null);
+		if(sessionData==null)
+		logger.debug(" sessionData is null before init");
 		if(!initialized){
 			initializeSessionData();
 		}
 		logger.debug(" after init getSession data:initialized:"+initialized);
-		logger.debug(" after init is sessionData null:"+sessionData==null);
+		if(sessionData==null)
+			logger.debug(" sessionData is null after init");
 		return sessionData;
 	}
 
