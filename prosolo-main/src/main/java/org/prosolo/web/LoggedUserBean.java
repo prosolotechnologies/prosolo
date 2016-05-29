@@ -99,12 +99,15 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		FacesContext currentInstance = FacesContext.getCurrentInstance();
 		HttpSession session = null;
 		if(currentInstance != null){
+			logger.debug("initializeSession data started");
 			session = (HttpSession) currentInstance.getExternalContext().getSession(false);
 			initializeSessionData(session);
+			logger.debug("initializeSession data finished");
 		}
 		
 	}
 	public void initializeSessionData(HttpSession session) {
+		logger.debug("initializeSession data for session");
 		@SuppressWarnings("unchecked")
 		Map<String, Object> sData = (Map<String, Object>) session.getAttribute("user");
 		initializeData(sData);
@@ -339,6 +342,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	 */
 	
 	public SessionData getSessionData() {
+		logger.debug("getSession data:initialized:"+initialized+" is sessionData null:"+sessionData==null);
 		if(!initialized){
 			initializeSessionData();
 		}
