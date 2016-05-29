@@ -3,18 +3,18 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui"
-	template="templates/masterLayout2.xhtml"
+	template="../templates/masterLayout2.xhtml"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:c="http://java.sun.com/jsp/jstl/core"
 	xmlns:util="http://www.prosolo.com/util">
 
 	<ui:define name="windowTitle">
-		Achievements
+		Achievements competences
 	</ui:define>
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewParam name="id" value="#{profileSettings.accountData.id}"></f:viewParam>
+
 		</f:metadata>
 	</ui:define>
 
@@ -22,13 +22,15 @@
 		<h:panelGroup id="panelTitle">
 			<ul class="nav nav-tabs headerSubmenu">
 				<li role="presentation"
-					class="#{util:getPagePath(view.viewId)  == 'achievements' ? 'active' : ''}"><h:link
-						onclick="sendLogPageNavigation('achievements','mainmenu');"
-						value="Credentials" outcome="/achievements" /></li>
+					class="#{util:getPagePath(view.viewId)  == 'achievements-credentials' ? 'active' : ''}"><h:link
+						onclick="sendLogPageNavigation('achievements-credentials','mainmenu');"
+						value="Credentials"
+						outcome="/achievements/achievements-credentials" /></li>
 				<li role="presentation"
-					class="#{util:getPagePath(view.viewId) == 'competences' ? 'active' : ''}"><h:link
-						onclick="sendLogPageNavigation('/achievements/competences','mainmenu');"
-						value="Competences" outcome="/achievements/competences" /></li>
+					class="#{util:getPagePath(view.viewId) == 'achievements-competences' ? 'active' : ''}"><h:link
+						onclick="sendLogPageNavigation('achievements-competences','mainmenu');"
+						value="Competences"
+						outcome="/achievements/achievements-competences" /></li>
 				<li role="presentation"
 					class="#{util:getPagePath(view.viewId)  == 'externalcompetences' ? 'active' : ''}"><h:link
 						onclick="sendLogPageNavigation('/achievements/externalcompetences','mainmenu');"
@@ -50,22 +52,28 @@
 
 		<div class="container">
 			<div class="row">
-				<ui:repeat
-					var="targetCredential"
-					value="#{targetCredentialBean.credentialAchievementsData.targetCredentialDataList}">
+				<ui:repeat var="targetCompetence"
+					value="#{targetCompetenceBean.competenceAchievementsData.targetCompetenceDataList}">
 					<div class="col-md-6">
 						<article class="whiteBox summaryCard">
 							<h2>
-								<h:link value="#{targetCredential.title}"
-									outcome="#{targetCredential.link}" />
+								<h:link value="#{targetCompetence.title}"
+									outcome="#{targetCompetence.link}" />
 							</h2>
 							<div class="clear"></div>
-							<p>#{targetCredential.description}</p>
+							<p>#{targetCompetence.description}</p>
 							<div class="metaBox">
 								<div class="metaLeft">
 									<div class="checkbox checkLine">
-										<input type="checkbox" id="checkHide1" /><label
-											for="checkHide1">Hide from Public Profile</label>
+										<h:form>
+											<h:inputHidden value="#{targetCompetence.id}"></h:inputHidden>
+											<h:selectBooleanCheckbox id="competenceAchievements"
+												value="#{targetCompetence.hiddenFromProfile}">
+												<f:ajax event="click" execute="@form"
+													listener="#{targetCompetenceBean.hideTargetCompetenceFromProfile(targetCompetence.id)}" />
+											</h:selectBooleanCheckbox>
+											<h:outputLabel for="competenceAchievements">Hide from Public Profile</h:outputLabel>
+										</h:form>
 									</div>
 								</div>
 								<div class="metaRight"></div>
@@ -87,7 +95,7 @@
 							<div class="metaBox">
 								<div class="metaLeft">
 									<div class="checkbox checkLine">
-										<input type="checkbox" id="checkHide1" /><label
+										<input type="checkbox" id="checkHide1" /> <label
 											for="checkHide1">Hide from Public Profile</label>
 									</div>
 								</div>
@@ -108,7 +116,7 @@
 							<div class="metaBox">
 								<div class="metaLeft">
 									<div class="checkbox checkLine">
-										<input type="checkbox" id="checkHide2" /><label
+										<input type="checkbox" id="checkHide2" /> <label
 											for="checkHide2">Hide from Public Profile</label>
 									</div>
 								</div>
@@ -129,7 +137,7 @@
 							<div class="metaBox">
 								<div class="metaLeft">
 									<div class="checkbox checkLine">
-										<input type="checkbox" id="checkHide3" /><label
+										<input type="checkbox" id="checkHide3" /> <label
 											for="checkHide3">Hide from Public Profile</label>
 									</div>
 								</div>
@@ -153,7 +161,5 @@
 			</nav>
 
 		</div>
-
-
 	</ui:define>
 </ui:composition>

@@ -13,6 +13,7 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.achievements.data.CredentialAchievementsData;
+import org.prosolo.web.achievements.data.TargetCredentialData;
 import org.prosolo.web.datatopagemappers.CredentialAchievementsDataToPageMapper;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,19 @@ public class TargetCredentialBean implements Serializable {
 			PageUtil.fireErrorMessage("Credential data could not be loaded!");
 			logger.error("Error while loading target credentials with progress == 100 Error:\n" + e);
 		}
+	}
+
+	public void hideTargetCredentialFromProfile(Long id) {
+		TargetCredentialData data = credentialAchievementsData.getTargetCredentialDataByid(id);
+		boolean hideFromProfile = data.isHiddenFromProfile();
+		try {
+			credentialManager.updateHiddenTargetCredentialFromProfile(id, hideFromProfile);
+			PageUtil.fireSuccessfulInfoMessage("Credential is successfully hidden from profile.");
+		} catch (DbConnectionException e) {
+			PageUtil.fireErrorMessage("Error while hidding redential from profile!");
+			logger.error("Error while hidding redential from profile!\n" + e);
+		}
+
 	}
 
 	public CredentialAchievementsData getCredentialAchievementsData() {

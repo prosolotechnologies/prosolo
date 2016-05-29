@@ -1,5 +1,7 @@
 package org.prosolo.services.indexing;
 
+import java.util.Map;
+
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 
@@ -18,6 +20,9 @@ public interface AbstractBaseEntityESService {
 	public void deleteNodeFromES(BaseEntity resource);
 
 	String getIndexNameForNode(BaseEntity resource);
+	
+	void partialUpdateByScript(String indexName, String indexType, String docId,
+			String script, Map<String, Object> scriptParams);
 
 	 
  

@@ -1,6 +1,7 @@
 package org.prosolo.services.indexing;
 
 import java.io.IOException;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -10,6 +11,7 @@ import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -131,5 +133,25 @@ public abstract class AbstractBaseEntityESServiceImpl implements AbstractBaseEnt
 			indexName = ESIndexNames.INDEX_NODES;
 		}
 		return indexName;
+	}
+	
+	@Override
+	public void partialUpdateByScript(String indexName, String indexType, String docId,
+			String script, Map<String, Object> scriptParams) {
+		try {
+			UpdateRequest updateRequest = new UpdateRequest(indexName, indexType, docId)
+			        .script(script);
+			if(scriptParams != null) {
+//				for(Entry<String, Object> param : scriptParams.entrySet()) {
+//					updateRequest.addScriptParam(param.getKey(), param.getValue());
+//				}
+				updateRequest.scriptParams(scriptParams);
+				updateRequest.retryOnConflict(5);
+			}
+			ElasticSearchFactory.getClient().update(updateRequest).get();
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
 	}
 }

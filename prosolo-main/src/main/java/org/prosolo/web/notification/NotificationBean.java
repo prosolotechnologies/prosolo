@@ -14,6 +14,7 @@ import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationData;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.courses.util.pagination.Paginable;
 import org.prosolo.web.courses.util.pagination.PaginationLink;
 import org.prosolo.web.courses.util.pagination.Paginator;
 import org.prosolo.web.notification.data.FilterNotificationType;
@@ -24,7 +25,7 @@ import org.springframework.stereotype.Component;
 @ManagedBean(name = "notificationBean")
 @Component("notificationBean")
 @Scope("view")
-public class NotificationBean implements Serializable {
+public class NotificationBean implements Serializable, Paginable {
 	
 	private static final long serialVersionUID = 8874333324943561974L;
 
@@ -128,14 +129,17 @@ public class NotificationBean implements Serializable {
 	
 	//pagination helper methods
 
+	@Override
 	public boolean isCurrentPageFirst() {
 		return page == 1 || numberOfPages == 0;
 	}
 	
+	@Override
 	public boolean isCurrentPageLast() {
 		return page == numberOfPages || numberOfPages == 0;
 	}
 	
+	@Override
 	public void changePage(int page) {
 		if(this.page != page) {
 			this.page = page;
@@ -143,14 +147,17 @@ public class NotificationBean implements Serializable {
 		}
 	}
 	
+	@Override
 	public void goToPreviousPage() {
 		changePage(page - 1);
 	}
 	
+	@Override
 	public void goToNextPage() {
 		changePage(page + 1);
 	}
 	
+	@Override
 	public boolean isResultSetEmpty() {
 		return notificationNumber == 0;
 	}

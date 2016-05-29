@@ -14,6 +14,8 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.course.CreatorType;
+import org.prosolo.common.domainmodel.credential.TargetCompetence1;
+import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -100,5 +102,20 @@ public interface CompetenceManager extends AbstractManager {
 			LearningContextData context) throws DbConnectionException;
 	
 	void updateOrderOfCompetenceActivities(List<ActivityData> activities) throws DbConnectionException;
+	
+	/**
+	 * Method for getting all completed competences (competences that has progress == 100)
+	 * @return 
+	 * @throws DbConnectionException
+	 */
+	List<TargetCompetence1> getAllCompletedCompetences(Long userId) throws DbConnectionException;
+	
+	/**
+	 * Updated hidden_from_profile_field
+	 * @param id
+	 * @param duration
+	 * @throws DbConnectionException
+	 */
+	void updateHiddenTargetCompetenceFromProfile(long id, boolean hiddenFromProfile) throws DbConnectionException;
 	
 }

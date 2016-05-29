@@ -2,33 +2,31 @@ package org.prosolo.web.achievements.data;
 
 import java.io.Serializable;
 
-import javax.inject.Inject;
-
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * 
  * @author "Musa Paljos"
  *
  */
-public class TargetCredentialData implements Serializable {
 
-	private static final long serialVersionUID = 3744828596870425737L;
+public class TargetCompetenceData implements Serializable {
+
+	private static final long serialVersionUID = 3744828592870425737L;
 
 	private Long id;
 	private String description;
 	private String title;
 	private boolean hiddenFromProfile;
-	private String link;	
-	
+	private String link;
 
-	public TargetCredentialData(long id, String title, String description, boolean hiddenFromProfile, UrlIdEncoder idEncoder) {
+	public TargetCompetenceData(Long id, String description, String title, boolean hiddenFromProfile,
+			UrlIdEncoder idEncoder) {
 		this.id = id;
-		this.title = title;
 		this.description = description;
+		this.title = title;
 		this.hiddenFromProfile = hiddenFromProfile;
-		link =  "/credentials.xhtml?id=" + idEncoder.encodeId(id);
+		link = "/competences.xhtml?id=" + idEncoder.encodeId(id);
 	}
 
 	public Long getId() {
@@ -70,6 +68,5 @@ public class TargetCredentialData implements Serializable {
 	public void setLink(String link) {
 		this.link = link;
 	}
-
 
 }

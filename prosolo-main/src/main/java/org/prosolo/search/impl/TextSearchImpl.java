@@ -5,6 +5,7 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -22,12 +23,16 @@ import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.FilteredQueryBuilder;
+import org.elasticsearch.index.query.NestedFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.index.query.support.QueryInnerHitBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.nested.Nested;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.sort.SortOrder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.domainmodel.activities.Activity;
@@ -43,24 +48,26 @@ import org.prosolo.common.domainmodel.user.reminders.ReminderStatus;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.search.TextSearch;
-import org.prosolo.search.util.ESSortOption;
 import org.prosolo.search.util.ESSortOrderTranslator;
 import org.prosolo.search.util.credential.CredentialMembersSortOption;
-import org.prosolo.search.util.credential.CredentialMembersSortOptionTranslator;
 import org.prosolo.search.util.credential.CredentialSearchFilter;
 import org.prosolo.search.util.credential.CredentialSortOption;
-import org.prosolo.search.util.credential.InstructorAssignedFilter;
+import org.prosolo.search.util.credential.InstructorAssignFilter;
+import org.prosolo.search.util.credential.InstructorAssignFilterValue;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexNames;
 import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CourseManager;
+import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.InstructorData;
+import org.prosolo.services.nodes.data.StudentData;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.web.search.data.SortingOption;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -79,9 +86,9 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	
 	@Autowired private DefaultManager defaultManager;
 	@Autowired private ESIndexer esIndexer;
-	@Inject private CourseManager courseManager;
 	@Inject private Competence1Manager compManager;
 	@Inject private CredentialManager credentialManager;
+	@Inject private CredentialInstructorManager credInstructorManager;
 
 	@Override
 	@Transactional
@@ -647,47 +654,39 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	}
 	
 	@Override
-	public Map<String, Object> searchCourseMembers (
-			String searchTerm, InstructorAssignedFilter filter, int page, int limit, long courseId, 
+	public TextSearchResponse1<StudentData> searchCredentialMembers (
+			String searchTerm, InstructorAssignFilterValue filter, int page, int limit, long credId, 
 			long instructorId, CredentialMembersSortOption sortOption) {
-		
-		Map<String, Object> resultMap = new HashMap<>();
+		TextSearchResponse1<StudentData> response = new TextSearchResponse1<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);
 		
-			
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
 			
-			QueryBuilder qb = QueryBuilders
-					.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
-					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
-					.field("name").field("lastname");
-			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			if(searchTerm != null && !searchTerm.isEmpty()) {
+				QueryBuilder qb = QueryBuilders
+						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.field("name").field("lastname");
+				
+				bQueryBuilder.must(qb);
+			}
+			
 			//bQueryBuilder.minimumNumberShouldMatch(1);
 			
 			BoolQueryBuilder nestedBQBuilder = QueryBuilders.boolQuery();
-			nestedBQBuilder.must(QueryBuilders.matchQuery("courses.id", courseId));
+			nestedBQBuilder.must(termQuery("credentials.id", credId));
 			if(instructorId != -1) {
-				nestedBQBuilder.must(QueryBuilders.matchQuery("courses.instructorId", instructorId));
+				nestedBQBuilder.must(termQuery("credentials.instructorId", instructorId));
 			}
-			if(filter != InstructorAssignedFilter.All) {
-				QueryBuilder qBuilder = termQuery("courses.instructorId", 0);
-				if(filter == InstructorAssignedFilter.Assigned) {
-					nestedBQBuilder.mustNot(qBuilder);
-				} else {
-					nestedBQBuilder.must(qBuilder);
-				}
-			}
+			
 			QueryBuilder nestedQB = QueryBuilders.nestedQuery(
-			        "courses", nestedBQBuilder).innerHit(new QueryInnerHitBuilder());
-
-			bQueryBuilder.must(qb);
+			        "credentials", nestedBQBuilder).innerHit(new QueryInnerHitBuilder());
 			bQueryBuilder.must(nestedQB);
 			//bQueryBuilder.must(termQuery("courses.id", courseId));
-			
 			
 			try {
 				String[] includes = {"id", "name", "lastname", "avatar", "position"};
@@ -695,31 +694,46 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						.setTypes(ESIndexTypes.USER)
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 						.setQuery(bQueryBuilder)
+						.addAggregation(AggregationBuilders.nested("nestedAgg").path("credentials")
+								.subAggregation(
+										AggregationBuilders.terms("unassigned")
+										.field("credentials.instructorId")
+										.include(new long[] {0})))
 						.setFetchSource(includes, null);
 				
+				/*
+				 * set instructor assign filter as a post filter so it does not influence
+				 * aggregation results
+				 */
+				if(filter == InstructorAssignFilterValue.Unassigned) {
+					BoolFilterBuilder assignFilter = FilterBuilders.boolFilter();
+					assignFilter.must(FilterBuilders.termFilter("credentials.instructorId", 0));
+					NestedFilterBuilder nestedFilter = FilterBuilders.nestedFilter("credentials", 
+							assignFilter);
+					searchRequestBuilder.setPostFilter(nestedFilter);
+//					QueryBuilder qBuilder = termQuery("credentials.instructorId", 0);
+//					nestedBQBuilder.must(qBuilder);
+				}
 				
-				searchRequestBuilder.setFrom(start).setSize(limit);
-				
+				searchRequestBuilder.setFrom(start).setSize(limit);	
 				
 				//add sorting
-				ESSortOption esSortOption = CredentialMembersSortOptionTranslator.getSortOption(sortOption);
-				SortOrder sortOrder = esSortOption.getSortOrder();
-				List<String> sortFields = esSortOption.getFields();
-				for(String field : sortFields) {
+				for(String field : sortOption.getSortFields()) {
+					SortOrder sortOrder = sortOption.getSortOrder() == 
+							org.prosolo.services.util.SortingOption.ASC ? 
+							SortOrder.ASC : SortOrder.DESC;
 					searchRequestBuilder.addSort(field, sortOrder);
 				}
 				//System.out.println(searchRequestBuilder.toString());
 				SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
+				
 				if(sResponse != null) {
 					SearchHits searchHits = sResponse.getHits();
-					
-					resultMap.put("resultNumber", searchHits.getTotalHits());
-					
-					List<Map<String, Object>> data = new LinkedList<>();
+					response.setHitsNumber(searchHits.getTotalHits());
 					
 					if(searchHits != null) {
 						for(SearchHit sh : searchHits) {
-							Map<String, Object> resMap = new HashMap<>();
+							StudentData student = new StudentData();
 							Map<String, Object> fields = sh.getSource();
 							User user = new User();
 							user.setId(Long.parseLong(fields.get("id") + ""));
@@ -727,45 +741,62 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 							user.setLastname((String) fields.get("lastname"));
 							user.setAvatarUrl((String) fields.get("avatar"));
 							user.setPosition((String) fields.get("position"));
+							UserData userData = new UserData(user);
+							student.setUser(userData);
 							
-							resMap.put("user", user);
-							
-							SearchHits innerHits = sh.getInnerHits().get("courses");
+							SearchHits innerHits = sh.getInnerHits().get("credentials");
 							long totalInnerHits = innerHits.getTotalHits();
 							if(totalInnerHits == 1) {
-								Map<String, Object> course = innerHits.getAt(0).getSource();
+								Map<String, Object> credential = innerHits.getAt(0).getSource();
 								
-								if(course != null) {
-									long instrId = Long.parseLong(course.get("instructorId").toString());
-									Map<String, Object> instructor = null;
+								if(credential != null) {
+									long instrId = Long.parseLong(credential.get("instructorId").toString());
+									InstructorData instructor = null;
 									if(instrId != 0) {
 										try {
-											instructor = courseManager.getCourseInstructor(instrId, courseId);
+											instructor = credInstructorManager.getCredentialInstructor(
+													instrId, credId, false);
 										} catch(Exception e) {
 											e.printStackTrace();
 											logger.error(e);
 										}
 									}
-									resMap.put("instructor", instructor);
-									resMap.put("courseProgress", course.get("progress"));
-									@SuppressWarnings("unchecked")
-									Map<String, Object> profile = (Map<String, Object>) course.get("profile");
-								    if(profile != null && !profile.isEmpty()) {
-								    	resMap.put("profileType", profile.get("profileType"));
-								    	resMap.put("profileTitle", profile.get("profileTitle"));
-								    }
+									student.setInstructor(instructor);
+									student.setCredProgress(Integer.parseInt(
+											credential.get("progress").toString()));
+//									@SuppressWarnings("unchecked")
+//									Map<String, Object> profile = (Map<String, Object>) course.get("profile");
+//								    if(profile != null && !profile.isEmpty()) {
+//								    	resMap.put("profileType", profile.get("profileType"));
+//								    	resMap.put("profileTitle", profile.get("profileTitle"));
+//								    }
+									response.addFoundNode(student);
 								}
-							}
-							
-												
-							data.add(resMap);
+							}				
 						}
+						
+						//get number of unassigned students
+						Nested nestedAgg = sResponse.getAggregations().get("nestedAgg");
+						Terms terms = nestedAgg.getAggregations().get("unassigned");
+						Iterator<Terms.Bucket> it = terms.getBuckets().iterator();
+						long unassignedNo = 0;
+						if(it.hasNext()) {
+							unassignedNo = it.next().getDocCount();
+						}
+						
+						InstructorAssignFilter[] filters = new InstructorAssignFilter[2];
+						filters[0] = new InstructorAssignFilter(InstructorAssignFilterValue.All, 
+								nestedAgg.getDocCount());
+						filters[1] = new InstructorAssignFilter(InstructorAssignFilterValue.Unassigned, 
+								unassignedNo);
+						Map<String, Object> additionalInfo = new HashMap<>();
+						additionalInfo.put("filters", filters);
+						additionalInfo.put("selectedFilter", filters[0].getFilter() == filter
+								? filters[0] : filters[1]);
+						response.setAdditionalInfo(additionalInfo);
+						
+						return response;
 					}
-					
-					resultMap.put("data", data);
-					
-					
-				
 				}
 			} catch (SearchPhaseExecutionException spee) {
 				spee.printStackTrace();
@@ -775,7 +806,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 		} catch (NoNodeAvailableException e1) {
 			logger.error(e1);
 		}
-		return resultMap;
+		return null;
 	}
 	
 	/*
@@ -783,27 +814,29 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	 * -1 should be passed as a page parameter 
 	 */
 	@Override
-	public Map<String, Object> searchInstructors (
-			String searchTerm, int page, int limit, long courseId, 
+	public TextSearchResponse1<InstructorData> searchInstructors (
+			String searchTerm, int page, int limit, long credId, 
 			SortingOption sortingOption, List<Long> excludedIds) {
 		
-		Map<String, Object> resultMap = new HashMap<>();
+		TextSearchResponse1<InstructorData> response = new TextSearchResponse1<>();
 		try {
-			
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
 			
-			QueryBuilder qb = QueryBuilders
-					.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
-					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
-					.field("name").field("lastname");
-			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			
+			if(searchTerm != null && !searchTerm.isEmpty()) {
+				QueryBuilder qb = QueryBuilders
+						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.field("name").field("lastname");
+				bQueryBuilder.must(qb);
+			}
+
 			//bQueryBuilder.minimumNumberShouldMatch(1);
 			
-			bQueryBuilder.must(termQuery("coursesWithInstructorRole.id", courseId));
-			bQueryBuilder.must(qb);
-			
+			bQueryBuilder.must(termQuery("credentialsWithInstructorRole.id", credId));
+
 			if (excludedIds != null) {
 				for (long id : excludedIds) {
 					bQueryBuilder.mustNot(QueryBuilders.matchQuery("id", id));
@@ -836,22 +869,19 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				if(sResponse != null) {
 					SearchHits searchHits = sResponse.getHits();
 					
-					resultMap.put("resultNumber", searchHits.getTotalHits());
-					
-					List<Map<String, Object>> data = new LinkedList<>();
+					response.setHitsNumber(searchHits.getTotalHits());
 					
 					if(searchHits != null) {
 						for(SearchHit sh : searchHits) {
 							Map<String, Object> fields = sh.getSource();
 							long id = Long.parseLong(fields.get("id") + "");
-							Map<String, Object> instructorData = courseManager.getCourseInstructor(id, courseId);
-							if(instructorData != null) {
-								data.add(instructorData);
+							InstructorData instructor = credInstructorManager.getCredentialInstructor(
+									id, credId, true);
+							if(instructor != null) {
+								response.addFoundNode(instructor);
 							}
 						}
 					}
-					
-					resultMap.put("data", data);
 				}
 			} catch (SearchPhaseExecutionException spee) {
 				spee.printStackTrace();
@@ -863,7 +893,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 		} catch(DbConnectionException dbce) {
 			logger.error(dbce);
 		}
-		return resultMap;
+		return response;
 	}
 	
 	@Override
@@ -1160,7 +1190,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			FilteredQueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder, 
 					boolFilter);
 			
-			System.out.println("QUERY: " + filteredQueryBuilder.toString());
+			//System.out.println("QUERY: " + filteredQueryBuilder.toString());
 			
 			String[] includes = {"id", "originalVersionId"};
 			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_NODES)
@@ -1335,7 +1365,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			FilteredQueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder, 
 					boolFilter);
 			
-			System.out.println("QUERY: " + filteredQueryBuilder.toString());
+			//System.out.println("QUERY: " + filteredQueryBuilder.toString());
 			
 			String[] includes = {"id", "originalVersionId"};
 			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_NODES)

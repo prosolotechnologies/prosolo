@@ -13,9 +13,9 @@ import org.prosolo.web.data.IData;
 public class CredentialAchievementsData implements Serializable, IData {
 
 	private static final long serialVersionUID = 2744828596870425737L;
-	
+
 	private List<TargetCredentialData> targetCredentialDataList;
-	
+
 	public CredentialAchievementsData() {
 		targetCredentialDataList = new ArrayList<>();
 	}
@@ -31,7 +31,14 @@ public class CredentialAchievementsData implements Serializable, IData {
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
-	
-	
-	
+
+	public TargetCredentialData getTargetCredentialDataByid(long id) {
+		for (TargetCredentialData data : targetCredentialDataList) {
+			if (data.getId() == id) {
+				return data;
+			}
+		}
+		return null;
+	}
+
 }

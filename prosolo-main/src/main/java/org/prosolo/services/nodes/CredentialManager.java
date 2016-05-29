@@ -3,10 +3,12 @@ package org.prosolo.services.nodes;
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.Session;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
+import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.context.data.LearningContextData;
@@ -172,7 +174,6 @@ public interface CredentialManager extends AbstractManager {
 	CredentialData getCurrentVersionOfCredentialForManager(long credentialId,
 			boolean loadCreator, boolean loadCompetences) throws DbConnectionException;
 	
-	
 	/**
 	 * Method for getting all completed credentials (credentials that has progress == 100)
 	 * @return 
@@ -180,7 +181,24 @@ public interface CredentialManager extends AbstractManager {
 	 */
 	List<TargetCredential1> getAllCompletedCredentials(Long userId) throws DbConnectionException;
 		
+	/**
+	 * Updated hidden_from_profile_field
+	 * @param id
+	 * @param duration
+	 * @throws DbConnectionException
+	 */
+	void updateHiddenTargetCredentialFromProfile(long id, boolean hiddenFromProfile) throws DbConnectionException;
+
+	String getCredentialTitleForCredentialWithType(long id, LearningResourceType type) 
+			throws DbConnectionException;
 	
+	TargetCredential1 getTargetCredential(long credentialId, long userId, 
+			boolean loadCreator, boolean loadTags) throws DbConnectionException;
+	
+	List<CredentialData> getTargetCredentialsProgressAndInstructorInfoForUser(long userId) throws DbConnectionException;
+	
+	List<CredentialData> getTargetCredentialsProgressAndInstructorInfoForUser(long userId, Session session) 
+			throws DbConnectionException;
 	
 //	/**
 //	 * Returns current version of credential for edit if edit mode - draft version if exists

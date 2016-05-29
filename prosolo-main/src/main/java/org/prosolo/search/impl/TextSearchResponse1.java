@@ -3,6 +3,7 @@ package org.prosolo.search.impl;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class TextSearchResponse1<T> implements Serializable {
 
@@ -10,6 +11,7 @@ public class TextSearchResponse1<T> implements Serializable {
 	
 	private long hitsNumber;
 	private List<T> foundNodes = new ArrayList<T>();
+	private Map<String, Object> additionalInfo;
 
 	public TextSearchResponse1(List<T> foundUsers, long hits) {
 		foundNodes = foundUsers;
@@ -42,6 +44,14 @@ public class TextSearchResponse1<T> implements Serializable {
 		if (!this.foundNodes.contains(node)) {
 			this.foundNodes.add(node);
 		}
+	}
+
+	public Map<String, Object> getAdditionalInfo() {
+		return additionalInfo;
+	}
+
+	public void setAdditionalInfo(Map<String, Object> additionalInfo) {
+		this.additionalInfo = additionalInfo;
 	}
 
 }

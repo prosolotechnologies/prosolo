@@ -34,6 +34,19 @@
 				"store": false,
 				"type": "boolean"
 			},
+			"learninggoals": {
+				"properties": {
+					"title": {
+						"store": false,
+						"type": "string"
+					},
+					"description": {
+						"store": false,
+						"type": "string"
+					}
+				}
+			},
+
 			"avatar": {
 				"store": false,
 				"type": "string"
@@ -53,7 +66,7 @@
 				}
 			},
 
-			"credentials": {
+			"courses": {
 				"type": "nested",
 				"properties": {
 					"id": {
@@ -64,27 +77,29 @@
 						"store": false,
 						"type": "integer"
 					},
+					"profile": {
+						"properties": {
+							"profileType": {
+								"store": false,
+								"type": "string"
+							},
+							"profileTitle": {
+								"store": false,
+								"type": "string"
+							}
+						}
+					},
 					"instructorId": {
 						"store": false,
 						"type": "long"
-					},
-					"dateEnrolled":{
-						"store": false,
-						"type":"date",
-						"format":"yyyy/MM/dd HH:mm:ss"
 					}
 				}
 			},
-			"credentialsWithInstructorRole": {
+			"coursesWithInstructorRole": {
 				"properties": {
 					"id": {
 						"store": false,
 						"type": "long"
-					},
-					"dateAssigned":{
-						"store": false,
-						"type":"date",
-						"format":"yyyy/MM/dd HH:mm:ss"
 					}
 				}
 			}

@@ -1,14 +1,21 @@
 package org.prosolo.services.nodes.data;
 
+import java.util.Date;
+
 public class InstructorData {
 
 	private UserData user;
 	private long instructorId;
 	private Integer maxNumberOfStudents;
 	private int numberOfAssignedStudents;
+	private Date dateAssigned;
 	
 	public InstructorData() {
 		
+	}
+	
+	public boolean isFull() {
+		return numberOfAssignedStudents == maxNumberOfStudents;
 	}
 	
 //	public CourseInstructorData(Map<String, Object> instructorMap) {
@@ -28,10 +35,6 @@ public class InstructorData {
 //			this.userId = instructorUserId;
 //		}
 //	}
-
-	public boolean isFull() {
-		return numberOfAssignedStudents == maxNumberOfStudents;
-	}
 	
 	public long getInstructorId() {
 		return instructorId;
@@ -64,6 +67,14 @@ public class InstructorData {
 
 	public void setUser(UserData user) {
 		this.user = user;
+	}
+
+	public Date getDateAssigned() {
+		return dateAssigned;
+	}
+
+	public void setDateAssigned(Date dateAssigned) {
+		this.dateAssigned = dateAssigned;
 	}
 
 }

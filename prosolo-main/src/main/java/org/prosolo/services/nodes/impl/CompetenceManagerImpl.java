@@ -20,6 +20,8 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.course.CreatorType;
+import org.prosolo.common.domainmodel.credential.TargetCompetence1;
+import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -672,5 +674,60 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 			e.printStackTrace();
 			throw new DbConnectionException("Error while updating activities");
 		}
+	}
+
+	@Transactional
+	@Override
+	public void updateHiddenTargetCompetenceFromProfile(long id, boolean hiddenFromProfile)
+			throws DbConnectionException {
+		String query = "SELECT targetComptence1 " + "FROM TargetCompetence1 targetComptence1 "
+				+ "WHERE targetComptence1.id = :id ";
+
+		TargetCompetence1 targetComptence1 = (TargetCompetence1) persistence.currentManager().createQuery(query)
+				.setLong("id", id).uniqueResult();
+
+		targetComptence1.setHiddenFromProfile(hiddenFromProfile);
+		try {
+			saveEntity(targetComptence1);
+		} catch (DbConnectionException e) {
+			e.printStackTrace();
+			throw new DbConnectionException();
+		}
+		
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Transactional
+	@Override
+	public List<TargetCompetence1> getAllCompletedCompetences(Long userId) throws DbConnectionException {
+		List<TargetCompetence1> result = new ArrayList();
+		List<Long> listOfCredentialIds = new ArrayList();
+		try {
+			String query;
+			query = "SELECT targetCredential1.id " +
+					"FROM TargetCredential1  targetCredential1 " + 
+					"WHERE targetCredential1.user.id = :userId ";
+			
+			listOfCredentialIds = persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", userId)
+				  	.list();
+			
+			query =
+					"SELECT targetComptence1 " +
+					"FROM TargetCompetence1 targetComptence1 " +
+					"WHERE targetComptence1.targetCredential.id in (:listOfCredentialIds) " + 
+				    "AND targetComptence1.progress = :progress ";
+			  	
+			result = persistence.currentManager()
+					.createQuery(query)
+					.setParameterList("listOfCredentialIds", listOfCredentialIds)
+					.setInteger("progress", 100)
+				  	.list();
+		} catch (DbConnectionException e) {
+			e.printStackTrace();
+			throw new DbConnectionException();
+		}
+		return result;
 	}
 }

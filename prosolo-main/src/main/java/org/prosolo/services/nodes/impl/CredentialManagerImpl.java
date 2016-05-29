@@ -1,5 +1,7 @@
 package org.prosolo.services.nodes.impl;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -14,6 +16,7 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Competence1;
@@ -24,7 +27,6 @@ import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.notifications.Notification1;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
@@ -32,10 +34,12 @@ import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.InstructorData;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.data.Role;
@@ -68,7 +72,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	private CredentialDataFactory credentialFactory;
 	@Inject
 	private CompetenceDataFactory competenceFactory;
-	
+	@Inject
+	private CredentialInstructorManager credInstructorManager;
 	
 	@Override
 	@Transactional(readOnly = false)
@@ -370,22 +375,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			boolean loadCompetences) throws DbConnectionException {
 		CredentialData credData = null;
 		try {
-			User user = (User) persistence.currentManager().load(User.class, userId);
-			Credential1 cred = (Credential1) persistence.currentManager().load(
-					Credential1.class, credentialId);
-			String query = "SELECT targetCred " +
-						   "FROM TargetCredential1 targetCred " + 
-						   "INNER JOIN fetch targetCred.createdBy user " + 
-						   "LEFT JOIN fetch targetCred.tags tags " +
-						   "LEFT JOIN fetch targetCred.hashtags hashtags " +
-						   "WHERE targetCred.credential = :cred " +
-						   "AND targetCred.user = :student";
-
-			TargetCredential1 res = (TargetCredential1) persistence.currentManager()
-					.createQuery(query)
-					.setEntity("cred", cred)
-					.setEntity("student", user)
-					.uniqueResult();
+			TargetCredential1 res = getTargetCredential(credentialId, userId, true, true);
 
 			if (res != null) {
 				credData = credentialFactory.getCredentialData(res.getCreatedBy(), 
@@ -404,6 +394,42 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			e.printStackTrace();
 			throw new DbConnectionException("Error while loading credential data");
 		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public TargetCredential1 getTargetCredential(long credentialId, long userId, 
+			boolean loadCreator, boolean loadTags) throws DbConnectionException {
+		User user = (User) persistence.currentManager().load(User.class, userId);
+		Credential1 cred = (Credential1) persistence.currentManager().load(
+				Credential1.class, credentialId);
+		StringBuilder queryBuilder = new StringBuilder(
+				"SELECT targetCred " +
+				"FROM TargetCredential1 targetCred ");
+		if(loadCreator) {
+			queryBuilder.append("INNER JOIN fetch targetCred.createdBy user ");
+		}
+		if(loadTags) {
+			queryBuilder.append("LEFT JOIN fetch targetCred.tags tags " +
+					   		    "LEFT JOIN fetch targetCred.hashtags hashtags ");
+		}
+		queryBuilder.append("WHERE targetCred.credential = :cred " +
+				   			"AND targetCred.user = :student");
+//			String query = "SELECT targetCred " +
+//						   "FROM TargetCredential1 targetCred " + 
+//						   "INNER JOIN fetch targetCred.createdBy user " + 
+//						   "LEFT JOIN fetch targetCred.tags tags " +
+//						   "LEFT JOIN fetch targetCred.hashtags hashtags " +
+//						   "WHERE targetCred.credential = :cred " +
+//						   "AND targetCred.user = :student";
+
+		TargetCredential1 res = (TargetCredential1) persistence.currentManager()
+				.createQuery(queryBuilder.toString())
+				.setEntity("cred", cred)
+				.setEntity("student", user)
+				.uniqueResult();
+
+		return res;
 	}
 
 	@Override
@@ -849,11 +875,22 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			
 			Credential1 cred = getCredential(credentialId, false);
 			TargetCredential1 targetCred = createTargetCredential(cred, user);
-			
-			Map<String, String> params = null;
-			
-			if(cred.getType() == LearningResourceType.UNIVERSITY_CREATED) {
-	    		//TODO assign student to instructor automatically if automatic assign is turned on
+			long instructorId = 0;
+			if(cred.getType() == LearningResourceType.UNIVERSITY_CREATED && 
+					!cred.isManuallyAssignStudents()) {
+				List<Long> targetCredIds = new ArrayList<>();
+				targetCredIds.add(targetCred.getId());
+				Map<String, Object> res = credInstructorManager.assignStudentsToInstructorAutomatically(
+						credentialId, targetCredIds, 0);
+				@SuppressWarnings("unchecked")
+				Map<Long, InstructorData> assigned = (Map<Long, InstructorData>) res.get("assigned");
+				if(assigned != null) {
+					InstructorData instructor = assigned.get(targetCred.getId());
+					if(instructor != null) {
+						//we need user id, not instructor id
+						instructorId = instructor.getUser().getId();
+					}
+				}
 	    	}
 			CredentialData cd = credentialFactory.getCredentialData(targetCred.getCreatedBy(), 
 					targetCred, targetCred.getTags(), targetCred.getHashtags(), true);
@@ -882,6 +919,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			 */
 			User actor = new User();
 			actor.setId(userId);
+			Map<String, String> params = new HashMap<>();
+			params.put("instructorId", instructorId + "");
+			String dateString = null;
+			Date date = targetCred.getDateCreated();
+			if(date != null) {
+				DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+				dateString = df.format(date);
+			}
+			params.put("dateEnrolled", dateString);
 			eventFactory.generateEvent(EventType.ENROLL_COURSE, actor, cred, null, 
 					page, lContext, service, params);
 			
@@ -900,6 +946,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		targetCred.setDescription(cred.getDescription());
 		targetCred.setCredential(cred);
 		targetCred.setUser(user);
+		targetCred.setDateCreated(new Date());
 		targetCred.setDateStarted(new Date());
 		targetCred.setCredentialType(cred.getType());
 
@@ -1608,22 +1655,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public String getCredentialTitle(long id) throws DbConnectionException {
-		try {
-			String query = "SELECT cred.title " +
-						   "FROM Credential1 cred " +
-						   "WHERE cred.id = :credId";
-			
-			String title = (String) persistence.currentManager()
-				.createQuery(query)
-				.setLong("credId", id)
-				.uniqueResult();
-			
-			return title;
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving credential title");
-		}
+		return getCredentialTitleForCredentialWithType(id, null);
 	}
 	
 	@Override
@@ -1688,18 +1720,38 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			String query=
 					"SELECT targetCredential1 " +
 					"FROM TargetCredential1 targetCredential1 " +
-					"WHERE targetCredential1.user.id = :userid";
+					"WHERE targetCredential1.user.id = :userid " +
+					"AND targetCredential1.progress = :progress ";
 			  	
-			
 			result = persistence.currentManager()
 					.createQuery(query)
 					.setLong("userid", userid)
+					.setInteger("progress", 100)
 				  	.list();
 		} catch (DbConnectionException e) {
 			e.printStackTrace();
 			throw new DbConnectionException();
 		}
 		return result;
+	}
+	
+	@Override
+	@Transactional
+	public void updateHiddenTargetCredentialFromProfile(long id, boolean hiddenFromProfile)
+			throws DbConnectionException {
+		String query = "SELECT targetCredential " + "FROM TargetCredential1 targetCredential "
+				+ "WHERE targetCredential.id = :id ";
+
+		TargetCredential1 targetCredential = (TargetCredential1) persistence.currentManager().createQuery(query)
+				.setLong("id", id).uniqueResult();
+
+		targetCredential.setHiddenFromProfile(hiddenFromProfile);
+		try {
+			saveEntity(targetCredential);
+		} catch (DbConnectionException e) {
+			e.printStackTrace();
+			throw new DbConnectionException();
+		}
 	}
 	
 //	@Override
@@ -1843,5 +1895,83 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 //			throw new DbConnectionException("Error while loading credential data");
 //		}
 //	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public String getCredentialTitleForCredentialWithType(long id, LearningResourceType type) 
+			throws DbConnectionException {
+		try {
+			StringBuilder queryBuilder = new StringBuilder(
+				   "SELECT cred.title " +
+				   "FROM Credential1 cred " +
+				   "WHERE cred.id = :credId ");
+			
+			if(type != null) {
+				queryBuilder.append("AND cred.type = :type");
+			}
+			
+			Query q = persistence.currentManager()
+				.createQuery(queryBuilder.toString())
+				.setLong("credId", id);
+			
+			if(type != null) {
+				q.setParameter("type", type);
+			}
+			
+			String title = (String) q.uniqueResult();
+			
+			return title;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credential title");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<CredentialData> getTargetCredentialsProgressAndInstructorInfoForUser(long userId) 
+			throws DbConnectionException {  
+		return getTargetCredentialsProgressAndInstructorInfoForUser(userId, persistence.currentManager());
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<CredentialData> getTargetCredentialsProgressAndInstructorInfoForUser(long userId, Session session) 
+			throws DbConnectionException {  
+		try {
+			List<CredentialData> data = new ArrayList<>();
+			String query = "SELECT cred.id, targetCred.progress, instructor.user.id, targetCred.dateCreated " +
+					   "FROM TargetCredential1 targetCred " + 
+					   "INNER JOIN targetCred.credential cred " +
+					   "LEFT JOIN targetCred.instructor instructor " +
+					   "WHERE targetCred.user.id = :userId";
+			
+			@SuppressWarnings("unchecked")
+			List<Object[]> res = session
+					.createQuery(query)
+					.setLong("userId", userId)
+					.list();
+			
+			if(res != null) {
+				for(Object[] row : res) {
+					if(row != null) {
+						CredentialData cred = new CredentialData(false);
+						cred.setId((long) row[0]);
+						cred.setProgress((int) row[1]);
+						Long instId = (Long) row[2];
+						cred.setInstructorId(instId == null ? 0 : instId);
+						cred.setDate((Date) row[3]);
+						data.add(cred);
+					}
+				}
+			}
+			return data;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving user credentials");
+		}
+	}
 	
 }
