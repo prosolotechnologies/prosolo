@@ -94,7 +94,7 @@
 						</ul>
 					</div>
 					<h:form id="messagePollingForm">
-						<p:poll interval="#{topInboxBean.refreshRate}"
+						<p:poll interval="#{topInboxBean.refreshRate}" process="@this"
 							update=":messagesLink" widgetVar="messagesPoll" autoStart="true" />
 					</h:form>
 					<h:link id="messagesLink" class="iconMessages active"
@@ -198,7 +198,9 @@
 
 							<ul class="dropdown-menu dropdown-menu-right bullet pull-right"
 								aria-labelledby="dropdownMenu1">
-								<li><a href="#">Profile</a></li>
+								<li><h:link
+										onclick="sendLogPageNavigation('profile','mainmenu');"
+										value="Profile" outcome="/profile1" /></li>
 								<li><h:link
 										onclick="sendLogPageNavigation('settings','mainmenu');"
 										value="Settings" outcome="/settings" /></li>

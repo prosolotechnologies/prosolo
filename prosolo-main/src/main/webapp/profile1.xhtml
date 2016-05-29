@@ -1,0 +1,302 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	template="templates/masterLayout2.xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks">
+	
+	<ui:define name="windowTitle">
+		Prosolo - Profile
+	</ui:define>
+	
+	<ui:define name="resourceTitle">
+    	<div class="profileHeader">
+    			<ui:fragment rendered="#{not empty loggeduser.sessionData.bigAvatar}" >
+    				<img src="#{loggeduser.sessionData.bigAvatar}" class="img-circle" width="120" height="120" alt="#{loggeduser.sessionData.fullName}" />
+    			</ui:fragment>
+    			<ui:fragment rendered="#{empty loggeduser.sessionData.bigAvatar}" >
+    				<span class="letterAvatar letterAvatar120 img-circle">#{loggeduser.sessionData.initials}</span>
+    			</ui:fragment>
+                <div class="profileHeaderInfo">
+                    <h1>#{loggeduser.sessionData.fullName}</h1>
+                    <div>Chemistry Teacher at JP Wynne High School</div>
+                    <div>Albuquerque, New Mexico</div>
+                    <ul class="socialLinks">
+                    	<ui:repeat value="#{profile1.socialNetworksData.socialNetworkAccountDatas.entrySet().toArray()}" 
+                    			var="socialNetworkData" varStatus="iterator">
+                    		<ui:fragment rendered="#{not empty socialNetworkData.value.link}" >
+		                        <li class="#{profile1.getAlternativeName(socialNetworkData.value.socialNetworkName)}">
+		                        	<a href="#{socialNetworkData.value.link}">#{socialNetworkData.value.socialNetworkName}</a>
+		                        </li>
+	                        </ui:fragment>
+                        </ui:repeat>
+                    </ul>
+                </div>
+                <div class="clear"></div>
+            </div>
+    </ui:define>
+
+	<ui:define name="content">
+		<div class="whiteBar">
+	        <div class="container">
+	            <div class="whiteBarContent">
+	                <div class="whiteBarLeft">
+	                    <a href="settings-personal.html" class="btn btn-green-stroke btn-sm">Edit Profile</a>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+	
+	    <div class="container">
+	        <div class="row">
+	            <div class="col-md-12">
+	                <div class="alert alert-info alert-dismissible" role="alert">
+	                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+	                    You can choose which achievements you want to display on your public profile page <a href="achievements.html">here</a>.
+	                </div>
+	            </div>
+	            <div class="col-md-12">
+	                <div class="whiteBox">
+	                    <ul class="nav nav-tabs pageSubmenu" role="tablist">
+	                        <li role="presentation" class="active"><a href="#credentials" aria-controls="info" role="tab" data-toggle="tab">Credentials</a></li>
+	                        <li role="presentation"><a href="#competences" aria-controls="competences" role="tab" data-toggle="tab">Competences</a></li>
+	                        <li role="presentation"><a href="#externalcompetences" aria-controls="competences" role="tab" data-toggle="tab">External Competences</a></li>
+	                        <li role="presentation"><a href="#inprogress" aria-controls="competences" role="tab" data-toggle="tab">In Progress</a></li>
+	                    </ul>
+	                </div>
+	            </div>
+	            <div class="tab-content">
+	                <div role="tabpanel" class="tab-pane fade in active" id="credentials">
+	                    <div class="col-md-6">
+	                        <article class="whiteBox summaryCard">
+	                            <h2><a href="credential.html">Introduction to Learning Analytics</a></h2>
+	                            <div class="clear"></div>
+	                            <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu…</p>
+	                            <div class="metaBox">
+	                                <div class="metaLeft">
+	                                    <div class="tagCompleted">Completed</div>
+	                                </div>
+	                                <div class="metaRight">
+	                                    <a href="" class="madeByUniversity" data-toggle="tooltip"
+	                    title="Made by University">made by university</a>
+	                                    <div class="duration">35 minutes</div>
+	                                </div>
+	                            </div>
+	                            <a href="javascript:void(0)" class="bookmarkStar" data-toggle="tooltip" title="Bookmark">bookmark</a>
+	                        </article>
+	                    </div>
+	                    <div class="col-md-6">
+	                        <article class="whiteBox summaryCard">
+	                            <h2><a href="credential.html">Introduction to Learning Analytics</a></h2>
+	                            <div class="clear"></div>
+	                            <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu…</p>
+	                            <div class="metaBox">
+	                                <div class="metaLeft">
+	                                    <div class="tagCompleted">Completed</div>
+	                                </div>
+	                                <div class="metaRight">
+	                                    <a href="" class="madeByUniversity" data-toggle="tooltip"
+	                    title="Made by University">made by university</a>
+	                                    <div class="duration">35 minutes</div>
+	                                </div>
+	                            </div>
+	                            <a href="javascript:void(0)" class="bookmarkStar" data-toggle="tooltip" title="Bookmark">bookmark</a>
+	                        </article>
+	                    </div>
+	                    <div class="col-md-6">
+	                        <article class="whiteBox summaryCard">
+	                            <h2><a href="credential.html">Introduction to Learning Analytics</a></h2>
+	                            <div class="clear"></div>
+	                            <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu…</p>
+	                            <div class="metaBox">
+	                                <div class="metaLeft">
+	                                    <div class="tagCompleted">Completed</div>
+	                                </div>
+	                                <div class="metaRight">
+	                                    <a href="" class="madeByUniversity" data-toggle="tooltip"
+	                    title="Made by University">made by university</a>
+	                                    <div class="duration">35 minutes</div>
+	                                </div>
+	                            </div>
+	                            <a href="javascript:void(0)" class="bookmarkStar" data-toggle="tooltip" title="Bookmark">bookmark</a>
+	                        </article>
+	                    </div>
+	                </div>
+	                <div role="tabpanel" class="tab-pane fade" id="competences">
+	                    <div class="col-md-6">
+	                        <article class="whiteBox summaryCard">
+	                            <h2><a href="credential.html">Introduction to Learning Analytics</a></h2>
+	                            <div class="clear"></div>
+	                            <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu…</p>
+	                            <div class="metaBox">
+	                                <div class="metaLeft">
+	                                    <div class="tagCompleted">Completed</div>
+	                                </div>
+	                                <div class="metaRight">
+	                                    <a href="" class="madeByUniversity" data-toggle="tooltip"
+	                    title="Made by University">made by university</a>
+	                                    <div class="duration">35 minutes</div>
+	                                </div>
+	                            </div>
+	                            <a href="javascript:void(0)" class="bookmarkStar" data-toggle="tooltip" title="Bookmark">bookmark</a>
+	                        </article>
+	                    </div>
+	                    <div class="col-md-6">
+	                        <article class="whiteBox summaryCard">
+	                            <h2><a href="credential.html">Introduction to Learning Analytics</a></h2>
+	                            <div class="clear"></div>
+	                            <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu…</p>
+	                            <div class="metaBox">
+	                                <div class="metaLeft">
+	                                    <div class="tagCompleted">Completed</div>
+	                                </div>
+	                                <div class="metaRight">
+	                                    <a href="" class="madeByUniversity" data-toggle="tooltip"
+	                    title="Made by University">made by university</a>
+	                                    <div class="duration">35 minutes</div>
+	                                </div>
+	                            </div>
+	                            <a href="javascript:void(0)" class="bookmarkStar" data-toggle="tooltip" title="Bookmark">bookmark</a>
+	                        </article>
+	                    </div>
+	                    <div class="col-md-6">
+	                        <article class="whiteBox summaryCard">
+	                            <h2><a href="credential.html">Introduction to Learning Analytics</a></h2>
+	                            <div class="clear"></div>
+	                            <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu…</p>
+	                            <div class="metaBox">
+	                                <div class="metaLeft">
+	                                    <div class="tagCompleted">Completed</div>
+	                                </div>
+	                                <div class="metaRight">
+	                                    <a href="" class="madeByUniversity" data-toggle="tooltip"
+	                    title="Made by University">made by university</a>
+	                                    <div class="duration">35 minutes</div>
+	                                </div>
+	                            </div>
+	                            <a href="javascript:void(0)" class="bookmarkStar" data-toggle="tooltip" title="Bookmark">bookmark</a>
+	                        </article>
+	                    </div>
+	                </div>
+	                <div role="tabpanel" class="tab-pane fade" id="externalcompetences">
+	                    <div class="col-md-6">
+	                        <article class="whiteBox summaryCard">
+	                            <h2>Introduction to Learning Analytics</h2>
+	                            <div class="clear"></div>
+	                            <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu…</p>
+	                            <div class="metaBox">
+	                                <div class="metaLeft">
+	                                    <a href="#" class="linkViewEvidence">View Evidence</a>
+	                                </div>
+	                                <div class="metaRight">
+	                                    <div class="dateCompleted">Jan 25, 2015</div>
+	                                </div>
+	                            </div>
+	                        </article>
+	                    </div>
+	                    <div class="col-md-6">
+	                        <article class="whiteBox summaryCard">
+	                            <h2>Introduction to Learning Analytics</h2>
+	                            <div class="clear"></div>
+	                            <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu…</p>
+	                            <div class="metaBox">
+	                                <div class="metaLeft">
+	                                    <a href="#" class="linkViewEvidence">View Evidence</a>
+	                                </div>
+	                                <div class="metaRight">
+	                                    <div class="dateCompleted">Jan 25, 2015</div>
+	                                </div>
+	                            </div>
+	                        </article>
+	                    </div>
+	                </div>
+	                <div role="tabpanel" class="tab-pane fade" id="inprogress">
+	                    <div class="col-md-6">
+	                        <article class="whiteBox summaryCard">
+	                            <h2><a href="credential.html">Introduction to Learning Analytics</a></h2>
+	                            <div class="clear"></div>
+	                            <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu…</p>
+	                            <div class="metaBox">
+	                                <div class="metaLeft">
+	                                    <a href="#" class="btn btn-green btn-sm">Resume</a>
+	                                    <div class="progressBar">
+	                                        <span>70%</span>
+	                                        <div class="progress">
+	                                            <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 70%;">
+	                                            </div>
+	                                        </div>
+	                                    </div>
+	                                </div>
+	                                <div class="metaRight">
+	                                    <a href="" class="madeByUniversity" data-toggle="tooltip"
+	                    title="Made by University">made by university</a>
+	                                    <div class="duration">35 minutes</div>
+	                                </div>
+	                            </div>
+	                            <a href="javascript:void(0)" class="bookmarkStar active" data-toggle="tooltip" title="Bookmark">bookmark</a>
+	                        </article>
+	                    </div>
+	                    <div class="col-md-6">
+	                        <article class="whiteBox summaryCard">
+	                            <h2><a href="credential.html">Introduction to Learning Analytics</a></h2>
+	                            <div class="clear"></div>
+	                            <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu…</p>
+	                            <div class="metaBox">
+	                                <div class="metaLeft">
+	                                    <a href="#" class="btn btn-green btn-sm">Resume</a>
+	                                    <div class="progressBar">
+	                                        <span>70%</span>
+	                                        <div class="progress">
+	                                            <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 70%;">
+	                                            </div>
+	                                        </div>
+	                                    </div>
+	                                </div>
+	                                <div class="metaRight">
+	                                    <a href="" class="madeByUniversity" data-toggle="tooltip"
+	                    title="Made by University">made by university</a>
+	                                    <div class="duration">35 minutes</div>
+	                                </div>
+	                            </div>
+	                            <a href="javascript:void(0)" class="bookmarkStar active" data-toggle="tooltip" title="Bookmark">bookmark</a>
+	                        </article>
+	                    </div>
+	                    <div class="col-md-6">
+	                        <article class="whiteBox summaryCard">
+	                            <h2><a href="credential.html">Introduction to Learning Analytics</a></h2>
+	                            <div class="clear"></div>
+	                            <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu…</p>
+	                            <div class="metaBox">
+	                                <div class="metaLeft">
+	                                    <a href="#" class="btn btn-green btn-sm">Resume</a>
+	                                    <div class="progressBar">
+	                                        <span>70%</span>
+	                                        <div class="progress">
+	                                            <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 70%;">
+	                                            </div>
+	                                        </div>
+	                                    </div>
+	                                </div>
+	                                <div class="metaRight">
+	                                    <a href="" class="madeByUniversity" data-toggle="tooltip"
+	                    title="Made by University">made by university</a>
+	                                    <div class="duration">35 minutes</div>
+	                                </div>
+	                            </div>
+	                            <a href="javascript:void(0)" class="bookmarkStar active" data-toggle="tooltip" title="Bookmark">bookmark</a>
+	                        </article>
+	                    </div>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+	    <!-- Include all compiled plugins (below), or include individual files as needed -->
+	    <script src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
+	    <script src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput-angular.min.js"></script>
+	</ui:define>
+</ui:composition>
