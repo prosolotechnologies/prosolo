@@ -45,9 +45,9 @@ public class LearningEventsMatcherDaoImpl implements EventMatcherDao<LogEvent> {
 	}
 
 	private static void initializeListOfMatchers(String learningEventsFile, String milestoneTypesFile) {
-		try (InputStream milestonesStream = LearningEventsMatcherDaoImpl.class.getClassLoader()
+		try (InputStream milestonesStream = Thread.currentThread().getContextClassLoader()
 				.getResourceAsStream(milestoneTypesFile);
-				InputStream learningEventsStreamStream = LearningEventsMatcherDaoImpl.class.getClassLoader()
+				InputStream learningEventsStreamStream = Thread.currentThread().getContextClassLoader()
 						.getResourceAsStream(learningEventsFile)) {
 
 			JSONArray learningEventRules = (JSONArray) new JSONParser().parse(new InputStreamReader(learningEventsStreamStream));
