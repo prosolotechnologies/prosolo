@@ -54,13 +54,10 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 				String uri = request.getRequestURI() + 
 						(request.getQueryString() != null ? "?" + request.getQueryString() : "");
 				uri = uri.substring(request.getContextPath().length());
-				//uri = uri.startsWith("/") ? uri : "/" + uri;
-//				String url = request.getRequestURL().toString();
 				setDefaultTargetUrl(uri);
 			} else {
 				setDefaultTargetUrl(new HomePageResolver().getHomeUrl());
 			}
-			// setAlwaysUseDefaultTargetUrl(true);
 			super.onAuthenticationSuccess(request, response, authentication);
 		} else {
 			authentication = null;
@@ -69,7 +66,6 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 			setDefaultTargetUrl("/login?error=Incorrect email or password");
 			super.onAuthenticationSuccess(request, response, authentication);
 		}
-		
 	}
 	
 }
