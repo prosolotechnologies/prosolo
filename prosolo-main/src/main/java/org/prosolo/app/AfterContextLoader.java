@@ -226,7 +226,7 @@ public class AfterContextLoader implements ServletContextListener {
 			ServiceLocator.getInstance().getService(BusinessCase3_Statistics.class)
 					.initRepository();
 			break;
-		case BusinessCase.EXD:
+		case BusinessCase.EDX:
 			ServiceLocator.getInstance().getService(BusinessCase4_EDX.class)
 			.initRepository();
 	break;

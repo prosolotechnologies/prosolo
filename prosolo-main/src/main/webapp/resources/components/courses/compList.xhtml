@@ -73,7 +73,7 @@
 				
                         </h:panelGroup>
                         <div class="clear"></div>
-                        <p>#{comp.description}</p>
+                        <p class="cardDescription">#{comp.description}</p>
                         <div class="metaBox">
                             <div class="metaLeft">
                             	<ui:fragment rendered="#{cc.attrs.isEdit and (cc.attrs.role == 'MANAGER' and comp.type == 'UNIVERSITY_CREATED' || cc.attrs.bean.isCompetenceCreator(comp))}">

@@ -84,77 +84,89 @@
 				<div class="headerTopRight">
 					<div class="dropdown createMenu">
 						<a class="btn btn-orange btn-sm" data-toggle="dropdown"
-							aria-haspopup="true" aria-expanded="true"> Create </a>
-						<ul class="dropdown-menu bullet pull-center"
-							aria-labelledby="dropdownMenu1">
-							<li><h:link value="New Credential"
-									outcome="/create-credential.xhtml" /></li>
-							<li><h:link value="New Competence"
-									outcome="/create-competence.xhtml" /></li>
+							aria-haspopup="true" aria-expanded="true">
+							Create
+						</a>
+						
+						<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
+							<li>
+								<h:link value="New Credential"
+									outcome="/create-credential.xhtml" />
+							</li>
+							<li>
+								<h:link value="New Competence"
+									outcome="/create-competence.xhtml" />
+							</li>
 						</ul>
 					</div>
+					
 					<h:form id="messagePollingForm">
-						<p:poll interval="#{topInboxBean.refreshRate}" process="@this"
-							update=":messagesLink" widgetVar="messagesPoll" autoStart="true" />
+						<p:poll interval="#{topInboxBean.refreshRate}" 
+							process="@this"
+							update=":messagesLink" 
+							widgetVar="messagesPoll" 
+							autoStart="true" />
 					</h:form>
+					
 					<h:link id="messagesLink" class="iconMessages active"
 						onclick="sendLogPageNavigation('messages','mainmenu');"
 						outcome="/messages">
 						Messages
-						<span
-							class="#{topInboxBean.unreadThreadIds.size() > 0 ? 'unreadDot' : ''}">unreadDot</span>
+						<span class="#{topInboxBean.unreadThreadIds.size() > 0 ? 'unreadDot' : ''}">
+							unreadDot
+						</span>
 					</h:link>
 
 					<h:form id="dropdownMenuNotificationsForm">
-						<h:panelGroup layout="block" class="dropdown notificationsMenu"
-							id="dropDownNotificationsMenuId">
+						<h:panelGroup layout="block" class="dropdown notificationsMenu" id="dropDownNotificationsMenuId">
 							<p:poll interval="#{topNotificationsBean1.refreshRate}"
 								update=":dropdownMenuNotificationsForm:iconNotificationsId"
 								widgetVar="notificationsPoll" autoStart="true" />
+								
 							<p:poll interval="#{topNotificationsBean1.refreshRate}"
 								update=":dropdownMenuNotificationsForm:dropDownNotificationsMenuId"
 								widgetVar="notificationsListPoll" autoStart="true" />
+								
 							<h:commandLink class="iconNotifications" id="iconNotificationsId"
 								data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"
 								action="#{topNotificationsBean1.fetchNotifications}">
-								<f:ajax execute="@form" render="dropdownMenuNotificationsForm"
-									onevent="function(data) { if (data.status === 'complete') { 
-   												 };
-   										}" />
+								<f:ajax execute="@form" render="dropdownMenuNotificationsForm" />
 								Notifications
-							<h:panelGroup id="unreadNotificationsId">
+								
+								<h:panelGroup id="unreadNotificationsId">
 									<span id="unreadNotificationsSpanId"
-										class="#{topNotificationsBean1.unreadNotificationsNo >
-								0 ? 'unreadDot' :
-								''}">unreadDot</span>
+										class="#{topNotificationsBean1.unreadNotificationsNo > 0 ? 'unreadDot' : ''}">unreadDot</span>
 								</h:panelGroup>
-
 							</h:commandLink>
-							<ul class="dropdown-menu bullet pull-center"
-								aria-labelledby="dropdownMenuNotifications">
-								<ui:repeat var="notificationData"
-									value="#{topNotificationsBean1.notificationDatas}">
 
-									<li
-										class="#{(notificationData.notificationType eq 'Follow_User') ? 'notifFollowed' : 
+							<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenuNotifications">
+								<ui:repeat var="notificationData" value="#{topNotificationsBean1.notificationDatas}">
+									<li class="#{(notificationData.notificationType eq 'Follow_User') ? 'notifFollowed' : 
 										(notificationData.notificationType eq 'Comment') ? 'notifComment': 
 										(notificationData.notificationType eq 'Comment_Like') ? 'notifLikeComment':
 										(notificationData.notificationType eq 'Mention') ? 'notifMention':
-										(notificationData.notificationType eq 'Assessment_Given') ? 'notifAssessment': 'notifLearning'}"><h:link
-											outcome="#{notificationData.link}">
+										(notificationData.notificationType eq 'Assessment_Given') ? 'notifAssessment': 'notifLearning'}">
+										
+										<h:link outcome="#{notificationData.link}">
 											<span class="icon"></span>
 											<h3>#{notificationData.actor.fullName}</h3> 
 											#{notificationData.predicate}
 											<h3>#{notificationData.objectTitle}</h3>
 											<span class="timestamp">#{notificationData.date}</span>
-										</h:link></li>
+										</h:link>
+									</li>
 								</ui:repeat>
-								<li class="linkAllNotifications"><a
-									href="profile-notifications.html">View all</a></li>
+								
+								<li class="linkAllNotifications">
+									<h:link value="View all"
+										onclick="sendLogPageNavigation('notifications','mainmenu');"
+										outcome="/notifications" />
+								</li>
 							</ul>
 
 						</h:panelGroup>
 					</h:form>
+					
 					<div class="dropdown notificationsMenu">
 						<a class="iconNotifications" data-toggle="dropdown"
 							aria-haspopup="true" aria-expanded="true">Notifications</a>
@@ -183,30 +195,43 @@
 									<h3>Gustavo Fring</h3> gave you an assessment for a competence
 									<h3>Define social network analysis</h3> <span class="timestamp">Yesterday</span>
 							</a></li>
-							<li class="linkAllNotifications"><a
-								href="profile-notifications.html">View all</a></li>
+							<li class="linkAllNotifications">
+								<a href="profile-notifications.xhtml">View all</a>
+							</li>
 						</ul>
 					</div>
 
 					<h:form>
 						<div class="dropdown userMenu">
-							<a data-toggle="dropdown" aria-haspopup="true"
-								aria-expanded="true"> <utilcomp:userAvatar
+							<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+								<utilcomp:userAvatar
 									avatar="#{loggedUser.bigAvatar}"
-									fullName="#{loggeduser.fullName}" /> <span class="arrowDown">arrowDown</span>
+									fullName="#{loggeduser.fullName}" />
+									
+								<span class="arrowDown">arrowDown</span>
 							</a>
 
-							<ul class="dropdown-menu dropdown-menu-right bullet pull-right"
-								aria-labelledby="dropdownMenu1">
-								<li><h:link
+							<ul class="dropdown-menu dropdown-menu-right bullet pull-right" aria-labelledby="dropdownMenu1">
+								<li>
+									<h:link value="Profile"
 										onclick="sendLogPageNavigation('profile','mainmenu');"
-										value="Profile" outcome="/profile1" /></li>
-								<li><h:link
+										outcome="/profile1" />
+								</li>
+								<li>
+									<h:link value="Settings" 
 										onclick="sendLogPageNavigation('settings','mainmenu');"
-										value="Settings" outcome="/settings" /></li>
-								<li><a href="#">Achievements</a></li>
-								<li><h:commandLink id="userLogout" value="Sign Out"
-										action="#{loggeduser.userLogout()}" /></li>
+										outcome="/settings" />
+								</li>
+								<li>
+									<h:link value="Achievements" 
+										onclick="sendLogPageNavigation('achievements','mainmenu');"
+										outcome="/achievements/credentials" />
+								</li>
+								<li>
+									<h:commandLink id="userLogout" 
+										value="Sign Out" 
+										action="#{loggeduser.userLogout()}" />
+								</li>
 							</ul>
 
 						</div>

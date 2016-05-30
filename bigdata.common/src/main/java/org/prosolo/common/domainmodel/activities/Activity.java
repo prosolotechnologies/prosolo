@@ -7,7 +7,6 @@ import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.general.Node;
 
 @Entity
-////@Table(name="act_Activity")
 public class Activity extends Node {
 
 	private static final long serialVersionUID = 5698106325669307105L;

@@ -1,0 +1,83 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	template="../templates/masterLayout2.xhtml"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:util="http://www.prosolo.com/util">
+
+	<ui:define name="windowTitle">
+		Achievements credentials
+	</ui:define>
+
+	<ui:define name="resourceTitle">
+		<h1>Achievements</h1>
+		
+		<ul class="nav nav-tabs headerSubmenu">
+			<li role="presentation"	class="#{util:getPagePath(view.viewId)  == 'achievements-credentials' ? 'active' : ''}">
+				<h:link value="Credentials" 
+					onclick="sendLogPageNavigation('achievements-credentials','mainmenu');"
+					outcome="/achievements/credentials" />
+			</li>
+			<li role="presentation" class="#{util:getPagePath(view.viewId) == 'achievements-competences' ? 'active' : ''}">
+				<h:link value="Competences" 
+					onclick="sendLogPageNavigation('achievements-competences','mainmenu');"
+					outcome="/achievements/competences" />
+			</li>
+			<ui:remove>
+			<li role="presentation" class="#{util:getPagePath(view.viewId)  == 'externalcompetences' ? 'active' : ''}">
+				<h:link value="External Competences"
+					onclick="sendLogPageNavigation('/achievements/externalcompetences','mainmenu');"
+					outcome="/achievements/externalcompetences" />
+			</li>
+			</ui:remove>
+			<li role="presentation" class="#{util:getPagePath(view.viewId)  == 'inprogress' ? 'active' : ''}">
+				<h:link	value="In Progress" 
+					onclick="sendLogPageNavigation('/achievements/inprogress','mainmenu');"
+					outcome="/achievements/inprogress" />
+			</li>
+		</ul>
+	</ui:define>
+
+	<ui:define name="content">
+
+		<div class="whiteBar"></div>
+
+		<div class="container">
+			<div class="row">
+				<ui:repeat var="targetCredential"
+					value="#{targetCredentialBean.credentialAchievementsData.targetCredentialDataList}">
+					<div class="col-md-6">
+						<article class="whiteBox summaryCard">
+							<h2>
+								<h:link value="#{targetCredential.title}" outcome="#{targetCredential.link}" />
+							</h2>
+							
+							<div class="clear"></div>
+							<p class="cardDescription">#{targetCredential.description}</p>
+							
+							<div class="metaBox">
+								<div class="metaLeft">
+									<div class="checkbox checkLine">
+										<h:form>
+											<h:inputHidden value="#{targetCredential.id}"></h:inputHidden>
+											<h:selectBooleanCheckbox id="credentialAchievements"
+												value="#{targetCredential.hiddenFromProfile}">
+												<f:ajax event="click" execute="@form" listener="#{targetCredentialBean.hideTargetCredentialFromProfile(targetCredential.id)}" />
+											</h:selectBooleanCheckbox>
+											<h:outputLabel for="credentialAchievements">Hide from Public Profile</h:outputLabel>
+										</h:form>
+									</div>
+								</div>
+								<div class="metaRight"></div>
+							</div>
+						</article>
+					</div>
+				</ui:repeat>
+				
+			</div>
+		</div>
+	</ui:define>
+</ui:composition>
