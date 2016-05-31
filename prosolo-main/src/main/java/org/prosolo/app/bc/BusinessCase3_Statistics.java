@@ -6,12 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
@@ -27,7 +24,6 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.following.FollowedEntity;
 import org.prosolo.common.domainmodel.user.following.FollowedUserEntity;
 import org.prosolo.core.spring.ServiceLocator;
-import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.authentication.RegistrationManager;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.interaction.PostManager;
@@ -49,17 +45,8 @@ import org.springframework.stereotype.Service;
 @Service("org.prosolo.app.bc.BusinessCase3_Statistics")
 public class BusinessCase3_Statistics extends BusinessCase {
 
-public Map<String, Tag> allTags = new HashMap<String, Tag>();
+	public Map<String, Tag> allTags = new HashMap<String, Tag>();
 	
-	private Tag getTag(String tagString) throws Exception {
-		if (!allTags.containsKey(tagString)) {
-			Tag t = getOrCreateTag(tagString);
-			allTags.put(tagString, t);
-			return t;
-		} else
-			return allTags.get(tagString);
-	}
-
 	public void setFollowedUser(User user, User followedUser) {
 
 		FollowedEntity fe = new FollowedUserEntity();
@@ -67,13 +54,12 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 		fe.setFollowedResource(followedUser);
 		fe = ServiceLocator.getInstance().getService(DefaultManager.class)
 				.saveEntity(fe);
-		//user.addFollowedEntity(fe);
 		user = ServiceLocator.getInstance().getService(DefaultManager.class)
 				.saveEntity(user);
 	}
 
 	public void initRepository() {
-		System.out.println("BusinessCaseTest - initRepository() with BC 4");
+		System.out.println("BusinessCaseTest - initRepository() with BC 3");
 		
 		RegistrationKey regKey0 = new RegistrationKey();
 		regKey0.setUid("reg793442b86584b46f7bd8a0dae72f31");
@@ -100,507 +86,54 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 		Role roleAdmin = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(roleAdminTitle);
 
 		
- 		String fictitiousUser = "System analyst";
-
-		User userNickPowell = null;
-		try {
-			userNickPowell = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser("Nick", "Powell", "nick.powell@gmail.com",
-							true, "prosolo@2014", fictitiousUser, getAvatarInputStream("male1.png"), "male1.png");
-			
-			userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleAdmin, userNickPowell);
-			userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleManager, userNickPowell);
-		} catch (UserAlreadyRegisteredException e1) {
-			logger.error(e1.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
-		}
 		
-		User userRichardAnderson = null;
-		try {
-			userRichardAnderson = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser("Richard", "Anderson", "richard.anderson@gmail.com",
-							true, "prosolo@2014", fictitiousUser, getAvatarInputStream("male2.png"), "male2.png");
-		} catch (UserAlreadyRegisteredException e1) {
-			logger.error(e1.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
-		}
-		
-		User userKevinMitchell = null;
-		try {
-			userKevinMitchell = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser("Kevin", "Mitchell", "kevin.mitchell@gmail.com",
-							true, "prosolo@2014", fictitiousUser, getAvatarInputStream("male3.png"), "male3.png");
-		} catch (UserAlreadyRegisteredException e1) {
-			logger.error(e1.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
-		}
 		
 		/*
 		 * CREATING USERS
 		 */
-
-		User userPaulEdwards = null;
-		try {
-			userPaulEdwards = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser("Paul", "Edwards", "paul.edwards@gmail.com",
-							true, "prosolo@2014", fictitiousUser, getAvatarInputStream("male4.png"), "male4.png");
-		} catch (UserAlreadyRegisteredException e) {
-			logger.error(e.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
-		}
-
-		userPaulEdwards = ServiceLocator
-				.getInstance()
-				.getService(RoleManager.class)
-				.assignRoleToUser(roleUser, userPaulEdwards);
-
-		User userStevenTurner = null;
-		try {
-			userStevenTurner = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser("Steven", "Turner",
-							"steven.turner@gmail.com", true, "prosolo@2014", fictitiousUser,
-							getAvatarInputStream("male5.png"), "male5.png");
-		} catch (UserAlreadyRegisteredException e1) {
-			logger.error(e1.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
-		}
-
-		userStevenTurner = ServiceLocator
-				.getInstance()
-				.getService(RoleManager.class)
-				.assignRoleToUser(roleUser, userStevenTurner);
-
-		User userGeorgeYoung = null;
-		try {
-			userGeorgeYoung = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser("George", "Young", "george.young@gmail.com",
-							true, "prosolo@2014", fictitiousUser, getAvatarInputStream("male6.png"), "male6.png");
-		} catch (UserAlreadyRegisteredException e) {
-			logger.error(e.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
-		}
-
-		userGeorgeYoung = ServiceLocator
-				.getInstance()
-				.getService(RoleManager.class)
-				.assignRoleToUser(roleUser, userGeorgeYoung);
-
-		User userPhillAmstrong = null;
-		try {
-			userPhillAmstrong = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser("Phill", "Amstrong",
-							"phill.amstrong@gmail.com", true, "prosolo@2014", fictitiousUser,
-							getAvatarInputStream("male7.png"), "male7.png");
-		} catch (UserAlreadyRegisteredException e1) {
-			logger.error(e1.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
-		}
+		String fictitiousUser = "System analyst";
+		String password = "prosolo@2014";
 		
-		User userJosephGarcia = null;
-		try {
-			userJosephGarcia = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser("Joseph", "Garcia",
-							"joseph.garcia@gmail.com", true, "prosolo@2014", fictitiousUser,
-							getAvatarInputStream("male8.png"), "male8.png");
-		} catch (UserAlreadyRegisteredException e1) {
-			logger.error(e1.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
-		}
+
 		
-		User userTimothyRivera = null;
-		try {
-			userTimothyRivera = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser("Timothy", "Rivera",
-							"timothy.rivera@gmail.com", true, "prosolo@2014", fictitiousUser,
-							getAvatarInputStream("male9.png"), "male9.png");
-		} catch (UserAlreadyRegisteredException e) {
-			logger.error(e.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
-		}
-		logger.info("initRepository");
-
-		userPhillAmstrong = ServiceLocator.getInstance()
-				.getService(RoleManager.class)
-				.assignRoleToUser(roleUser, userPhillAmstrong);
-		userJosephGarcia = ServiceLocator.getInstance()
-				.getService(RoleManager.class)
-				.assignRoleToUser(roleUser, userJosephGarcia);
-		userTimothyRivera = ServiceLocator.getInstance()
-				.getService(RoleManager.class)
-				.assignRoleToUser(roleUser, userTimothyRivera);
-
-		User userKevinHall = null;
-		try {
-			userKevinHall = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser("Kevin", "Hall", "kevin.hall@gmail.com",
-							true, "prosolo@2014", fictitiousUser, getAvatarInputStream("male10.png"), "male10.png");
-		} catch (UserAlreadyRegisteredException e) {
-			logger.error(e.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
-		}
-
-		userKevinHall = ServiceLocator.getInstance()
-				.getService(RoleManager.class)
-				.assignRoleToUser(roleUser, userKevinHall);
-
-		User userKennethCarter = null;
-		try {
-			userKennethCarter = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser("Kenneth", "Carter",
-							"kenneth.carter@gmail.com", true, "prosolo@2014", fictitiousUser,
-							getAvatarInputStream("male11.png"), "male11.png");
-		} catch (UserAlreadyRegisteredException e) {
-			logger.error(e.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
-		}
-
-		userKennethCarter = ServiceLocator.getInstance()
-				.getService(RoleManager.class)
-				.assignRoleToUser(roleUser, userKennethCarter);
-
-		User userKarenWhite = null;
-		try {
-			userKarenWhite = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser("Karen", "White", "karen.white@gmail.com",
-							true, "prosolo@2014", fictitiousUser, getAvatarInputStream("female10.png"), "female10.png");
-		} catch (UserAlreadyRegisteredException e) {
-			logger.error(e.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
-		}
-
-		userKarenWhite = ServiceLocator.getInstance()
-				.getService(RoleManager.class)
-				.assignRoleToUser(roleUser, userKarenWhite);
-
-		User userHelenCampbell = null;
-		try {
-			userHelenCampbell = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser("Helen", "Campbell",
-							"helen.campbell@gmail.com", true, "prosolo@2014", fictitiousUser,
-							getAvatarInputStream("female13.png"), "female13.png");
-		} catch (UserAlreadyRegisteredException e) {
-			logger.error(e.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
-		}
-
-		userHelenCampbell = ServiceLocator.getInstance()
-				.getService(RoleManager.class)
-				.assignRoleToUser(roleUser, userHelenCampbell);
-
-		User userAnthonyMoore = null;
-		try {
-			userAnthonyMoore = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser("Anthony", "Moore",
-							"anthony.moore@gmail.com", true, "prosolo@2014", fictitiousUser,
-							getAvatarInputStream("male12.png"), "male12.png");
-		} catch (UserAlreadyRegisteredException e) {
-			logger.error(e.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
-		}
-
-		userAnthonyMoore = ServiceLocator.getInstance()
-				.getService(RoleManager.class)
-				.assignRoleToUser(roleUser, userAnthonyMoore);
-
-		User userRichardRodriges = null;
-		try {
-			userRichardRodriges = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser("Richard", "Rodrigues",
-							"richard.rodrigues@gmail.com", true, "prosolo@2014", fictitiousUser,
-							getAvatarInputStream("male12.png"), "male12.png");
-		} catch (UserAlreadyRegisteredException e) {
-			logger.error(e.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
-		}
-
-		userRichardRodriges = ServiceLocator.getInstance()
-				.getService(RoleManager.class)
-				.assignRoleToUser(roleUser, userRichardRodriges);
-		logger.info("initRepository");
-		User userTaniaCortese = null;
-		try {
-			userTaniaCortese = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser("Tania", "Cortese",
-							"tania.cortese@gmail.com", true, "prosolo@2014", fictitiousUser,
-							getAvatarInputStream("female1.png"), "female1.png");
-		} catch (UserAlreadyRegisteredException e) {
-			logger.error(e.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
-		}
-
-		userTaniaCortese = ServiceLocator.getInstance()
-				.getService(RoleManager.class)
-				.assignRoleToUser(roleUser, userTaniaCortese);
-
-		User userIdaFritz = null;
-		try {
-			userIdaFritz = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser("Ida", "Fritz", "ida.fritz@gmail.com",
-							true, "prosolo@2014", fictitiousUser, getAvatarInputStream("female17.png"), "female17.png");
-		} catch (UserAlreadyRegisteredException e) {
-			logger.error(e.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
-		}
-
-		userIdaFritz = ServiceLocator.getInstance()
-				.getService(RoleManager.class)
-				.assignRoleToUser(roleUser, userIdaFritz);
-
-		User userSonyaElston = null;
-		try {
-			userSonyaElston = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser("Sonya", "Elston", "sonya.elston@gmail.com",
-							true, "prosolo@2014", fictitiousUser, getAvatarInputStream("female2.png"), "female2.png");
-		} catch (UserAlreadyRegisteredException e) {
-			logger.error(e.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
-		}
-
-		userSonyaElston = ServiceLocator.getInstance()
-				.getService(RoleManager.class)
-				.assignRoleToUser(roleUser, userSonyaElston);
-
-		User userLoriAbner = null;
-		try {
-			userLoriAbner = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser("Lori", "Abner", "lori.abner@gmail.com",
-							true, "prosolo@2014", fictitiousUser, getAvatarInputStream("female3.png"), "female3.png");
-		} catch (UserAlreadyRegisteredException e) {
-			logger.error(e.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
-		}
-
-		userLoriAbner = ServiceLocator.getInstance()
-				.getService(RoleManager.class)
-				.assignRoleToUser(roleUser, userLoriAbner);
-
-		User userSamanthaDell = null;
-		try {
-			userSamanthaDell = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser("Samantha", "Dell",
-							"samantha.dell@gmail.com", true, "prosolo@2014", fictitiousUser,
-							getAvatarInputStream("female4.png"), "female4.png");
-		} catch (UserAlreadyRegisteredException e) {
-			logger.error(e.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
-		}
-
-		userSamanthaDell = ServiceLocator.getInstance()
-				.getService(RoleManager.class)
-				.assignRoleToUser(roleUser, userSamanthaDell);
-		logger.info("initRepository");
-		User userAnnaHallowell = null;
-		try {
-			userAnnaHallowell = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser("Anna", "Hallowell",
-							"anna.hallowell@gmail.com", true, "prosolo@2014", fictitiousUser,
-							getAvatarInputStream("female11.png"), "female11.png");
-		} catch (UserAlreadyRegisteredException e) {
-			logger.error(e.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
-		}
-
-		userAnnaHallowell = ServiceLocator.getInstance()
-				.getService(RoleManager.class)
-				.assignRoleToUser(roleUser, userAnnaHallowell);
-
-		User userSheriLaureano = null;
-		try {
-			userSheriLaureano = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser("Sheri", "Laureano",
-							"sheri.laureano@gmail.com", true, "prosolo@2014", fictitiousUser,
-							getAvatarInputStream("female14.png"), "female14.png");
-		} catch (UserAlreadyRegisteredException e) {
-			logger.error(e.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
-		}
-
-		userSheriLaureano = ServiceLocator.getInstance()
-				.getService(RoleManager.class)
-				.assignRoleToUser(roleUser, userSheriLaureano);
-
-		User userErikaAmes = null;
-		try {
-			userErikaAmes = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser("Erika", "Ames", "erika.ames@gmail.com",
-							true, "prosolo@2014", fictitiousUser, getAvatarInputStream("female10.png"), "female10.png");
-		} catch (UserAlreadyRegisteredException e) {
-			logger.error(e.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
-		}
-
-		userErikaAmes = ServiceLocator.getInstance()
-				.getService(RoleManager.class)
-				.assignRoleToUser(roleUser, userErikaAmes);
-
-		User userAkikoKido = null;
-		try {
-			userAkikoKido = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser("Akiko", "Kido", "akiko.kido@gmail.com",
-							true, "prosolo@2014", fictitiousUser, getAvatarInputStream("female7.png"), "female7.png");
-		} catch (UserAlreadyRegisteredException e) {
-			logger.error(e.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
-		}
-
-		userAkikoKido = ServiceLocator.getInstance()
-				.getService(RoleManager.class)
-				.assignRoleToUser(roleUser, userAkikoKido);
-
-		User userAngelicaFallon = null;
-		try {
-			userAngelicaFallon = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser("Angelica", "Fallon",
-							"angelica.fallon@gmail.com", true, "prosolo@2014", fictitiousUser,
-							getAvatarInputStream("female16.png"), "female16.png");
-		} catch (UserAlreadyRegisteredException e) {
-			logger.error(e.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
-		}
-
-		userAngelicaFallon = ServiceLocator.getInstance()
-				.getService(RoleManager.class)
-				.assignRoleToUser(roleUser, userAngelicaFallon);
-
-		User userRachelWiggins = null;
-		try {
-			userRachelWiggins = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser("Rachel", "Wiggins",
-							"rachel.wiggins@gmail.com", true, "prosolo@2014", fictitiousUser,
-							getAvatarInputStream("female20.png"), "female20.png");
-		} catch (UserAlreadyRegisteredException e) {
-			logger.error(e.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
-		}
-
-		userRachelWiggins = ServiceLocator.getInstance()
-				.getService(RoleManager.class)
-				.assignRoleToUser(roleUser, userRachelWiggins);
-		logger.info("initRepository");
-		User userAndrewCamper = null;
-		try {
-			userAndrewCamper = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser("Andrew", "Camper",
-							"andrew.camper@gmail.com", true, "prosolo@2014", fictitiousUser,
-							getAvatarInputStream("male6.png"), "male6.png");
-		} catch (UserAlreadyRegisteredException e) {
-			logger.error(e.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
-		}
-
-		userAndrewCamper = ServiceLocator.getInstance()
-				.getService(RoleManager.class)
-				.assignRoleToUser(roleUser, userAndrewCamper);
+		User userNickPowell = createUser("Nick", "Powell", "nick.powell@gmail.com", password, fictitiousUser, "male1.png", roleUser);
+		userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleAdmin, userNickPowell);
+		userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleManager, userNickPowell);
+		
+		User userRichardAnderson = 	createUser("Richard", "Anderson", "richard.anderson@gmail.com", password, fictitiousUser, "male2.png", roleUser);
+		User userKevinMitchell = 	createUser("Kevin", "Mitchell", "kevin.mitchell@gmail.com", password, fictitiousUser, "male3.png", roleUser);
+		User userPaulEdwards = 		createUser("Paul", "Edwards", "paul.edwards@gmail.com", password, fictitiousUser, "male4.png", roleUser);
+		User userStevenTurner = 	createUser("Steven", "Turner", "steven.turner@gmail.com", password, fictitiousUser, "male5.png", roleUser);
+		User userGeorgeYoung = 		createUser("George", "Young", "george.young@gmail.com", password, fictitiousUser, "male6.png", roleUser);
+		User userPhillAmstrong = 	createUser("Phill", "Amstrong", "phill.amstrong@gmail.com", password, fictitiousUser, "male7.png", roleUser);
+		User userJosephGarcia = 	createUser("Joseph", "Garcia", "joseph.garcia@gmail.com", password, fictitiousUser, "male8.png", roleUser);
+		User userTimothyRivera = 	createUser("Timothy", "Rivera", "timothy.rivera@gmail.com", password, fictitiousUser, "male9.png", roleUser);
+		User userKevinHall = 		createUser("Kevin", "Hall", "kevin.hall@gmail.com", password, fictitiousUser, "male10.png", roleUser);
+		User userKennethCarter = 	createUser("Kenneth", "Carter", "kenneth.carter@gmail.com", password, fictitiousUser, "male11.png", roleUser);
+		User userAnthonyMoore = 	createUser("Anthony", "Moore", "anthony.moore@gmail.com", password, fictitiousUser, "male12.png", roleUser);
+		
+		
+		User userTaniaCortese = 	createUser("Tania", "Cortese", "tania.cortese@gmail.com", password, fictitiousUser, "female1.png", roleUser);
+		User userSonyaElston = 		createUser("Sonya", "Elston", "sonya.elston@gmail.com", password, fictitiousUser, "female2.png", roleUser);
+		User userLoriAbner = 		createUser("Lori", "Abner", "lori.abner@gmail.com", password, fictitiousUser, "female3.png", roleUser);
+		User userSamanthaDell = 	createUser("Samantha", "Dell", "samantha.dell@gmail.com", password, fictitiousUser, "female4.png", roleUser);
+		User userAkikoKido = 		createUser("Akiko", "Kido", "akiko.kido@gmail.com", password, fictitiousUser, "female7.png", roleUser);
+		User userKarenWhite = 		createUser("Karen", "White", "karen.white@gmail.com", password, fictitiousUser, "female10.png", roleUser);
+		User userAnnaHallowell = 	createUser("Anna", "Hallowell", "anna.hallowell@gmail.com", password, fictitiousUser, "female11.png", roleUser);
+		User userErikaAmes = 		createUser("Erika", "Ames", "erika.ames@gmail.com", password, fictitiousUser, "female12.png", roleUser);
+		User userHelenCampbell = 	createUser("Helen", "Campbell", "helen.campbell@gmail.com", password, fictitiousUser, "female13.png", roleUser);
+		User userSheriLaureano = 	createUser("Sheri", "Laureano", "sheri.laureano@gmail.com", password, fictitiousUser, "female14.png", roleUser);
+		User userAngelicaFallon = 	createUser("Angelica", "Fallon", "angelica.fallon@gmail.com", password, fictitiousUser, "female16.png", roleUser);
+		User userIdaFritz = 		createUser("Ida", "Fritz", "ida.fritz@gmail.com", password, fictitiousUser, "female17.png", roleUser);
+		User userRachelWiggins = 	createUser("Rachel", "Wiggins", "rachel.wiggins@gmail.com", password, fictitiousUser, "female20.png", roleUser);
 
 		/*
 		 * END CRETAING USERS
 		 */
 
-		Collection<Tag> nickPowellPreferences = new HashSet<Tag>();
-		try {
-			nickPowellPreferences.add(getTag("Statistics"));
-			nickPowellPreferences.add(getTag("Descriptive data"));
-			nickPowellPreferences.add(getTag("Data analysis"));
-			nickPowellPreferences.add(getTag("Probability"));
-		} catch (Exception e5) {
-			logger.error(e5.getLocalizedMessage());
-		}
-	
- 
-		
 		// ////////////////////////////
 		// Credential for Nick Powell
 		// ///////////////////////////////
-		Set<Tag> cred1Tags = new HashSet<Tag>();
-		try {
-			cred1Tags.add(getTag("data"));
-			cred1Tags.add(getTag("statistics"));
-			cred1Tags.add(getTag("exploring data"));
-		} catch (Exception e) {
-			logger.error(e);
-		}
-		
 		Credential1 cred1 = createCredential(
 			"Preparing Statistical Data for Analysis", 
 			"This section provides an example of the programming code needed to read "
@@ -611,7 +144,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 				+ "SAS, and Microsoft ACCESS. The concepts illustrated are applicable to state-level "
 				+ "data sets and transferable to other software.",
 			userNickPowell, 
-			cred1Tags);
+			"data, statistics, exploring data");
 		
 
 		Competence1 comp1cred1 = null;
@@ -624,11 +157,10 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 								+ "statistics are distinguished from inferential statistics (or inductive statistics), "
 								+ "in that descriptive statistics aim to summarize a sample, rather than use the data to "
 								+ "learn about the population that the sample of data is thought to represent.",
-						cred1.getId());
+						cred1.getId(),
+						"descriptive statistics, statistics");
 			
-			ServiceLocator
-					.getInstance()
-					.getService(CredentialManager.class).addCompetenceToCredential(cred1.getId(), comp1cred1);
+			addCompetenceToCredential(cred1, comp1cred1, userNickPowell);
 			
 			Activity1 a1 = createActivity(
 					userNickPowell, 
@@ -670,7 +202,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 						+ "Exploratory data analysis was promoted by John Tukey to encourage statisticians visually to examine "
 						+ "their data sets, to formulate hypotheses that could be tested on new data-sets.",
 				userNickPowell,
-				cred1Tags);
+				"data, statistics, exploring data");
 
 		Competence1 comp1cred2 = null;
 		try {
@@ -682,11 +214,10 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 							+ "the data has come from a type of probability distribution and makes "
 							+ "inferences about the parameters of the distribution. Most well-known "
 							+ "elementary statistical methods are parametric.",
-					cred2.getId());
+					cred2.getId(),
+					"parametric statistics, statistics");
 			
-			ServiceLocator
-					.getInstance()
-					.getService(CredentialManager.class).addCompetenceToCredential(cred2.getId(), comp1cred2);
+			addCompetenceToCredential(cred2, comp1cred2, userNickPowell);
 			
 			Activity1 a5 = createActivity(
 					userNickPowell, 
@@ -730,11 +261,10 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 							+ "computation. Presentation graphs include the familiar bar graph, pie chart, "
 							+ "line graph, scatterplot, and statistical map. Data analysis employs these graphical "
 							+ "forms as well as others.",
-					cred2.getId());
+					cred2.getId(),
+					"data, statistics");
 			
-			ServiceLocator
-					.getInstance()
-					.getService(CredentialManager.class).addCompetenceToCredential(cred2.getId(), comp2cred2);
+			addCompetenceToCredential(cred2, comp2cred2, userNickPowell);
 			
 			Activity1 a9 = createActivity(
 					userNickPowell, 
@@ -774,7 +304,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 				"Understanding of Applications of Learning Analytics in Education",
 				"This is a credential provides a set of competences for the EdX Data Analytics and Learning MOOC",
 				userNickPowell,
-				cred1Tags);
+				"learning analytics, education");
 		
 		Competence1 comp1cred3;
 		try {
@@ -782,11 +312,10 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 					userNickPowell,
 					"Define social network analysis",
 					"Define networks and articulate why they are important for education and educational research.",
-					cred3.getId());
+					cred3.getId(),
+					"social network analysis, sna");
 			
-			ServiceLocator
-			.getInstance()
-			.getService(CredentialManager.class).addCompetenceToCredential(cred3.getId(), comp1cred3);
+			addCompetenceToCredential(cred3, comp1cred3, userNickPowell);
 		} catch (EventException e) {
 			logger.error(e);
 		}
@@ -798,11 +327,10 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 					userNickPowell,
 					"Perform social network analysis centrality measures using Gephi",
 					"See the title. This also includes being able to import data in to Gephi.",
-					cred3.getId());
+					cred3.getId(),
+					"social network analysis, sna, centrality measures, gephi");
 			
-			ServiceLocator
-			.getInstance()
-			.getService(CredentialManager.class).addCompetenceToCredential(cred3.getId(), comp2cred3);
+			addCompetenceToCredential(cred3, comp2cred3, userNickPowell);
 			
 			
 			Activity1 a13 = createActivity(
@@ -834,11 +362,10 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 					userNickPowell,
 					"Interpret results of social network analysis",
 					"Interpret detailed meaning of SNA result and importance of the position of actors in social networks for information flow. Discuss implications for educational research and practice. ",
-					cred3.getId());
+					cred3.getId(),
+					"social network analysis, sna");
 
-			ServiceLocator
-					.getInstance()
-					.getService(CredentialManager.class).addCompetenceToCredential(cred3.getId(), comp3cred3);
+			addCompetenceToCredential(cred3, comp3cred3, userNickPowell);
 		} catch (EventException e) {
 			logger.error(e);
 		}
@@ -857,7 +384,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 						+ "variables or measured data values, which includes the Pearson correlation "
 						+ "coefficient as a special case.",
 				userNickPowell,
-				cred1Tags);
+				"statistics, correlation");
 
 		// enroll phillAmstrong to cred 4
 			
@@ -873,11 +400,10 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 							+ "the closer the value is to 1. The relationship can be positive or negative; in positive "
 							+ "relationship, as one value increases, another value increases with it. In the negative "
 							+ "relationship, as one value increases, the other one decreases.",
-					cred4.getId());
+					cred4.getId(),
+					"bivariate correlations");
 
-			ServiceLocator
-					.getInstance()
-					.getService(CredentialManager.class).addCompetenceToCredential(cred4.getId(), comp1cred4);
+			addCompetenceToCredential(cred4, comp1cred4, userNickPowell);
 
 			Activity1 a16 = createActivity(
 					userNickPowell,
@@ -928,11 +454,10 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 					"Partial correlation is the relationship between two variables while controlling "
 							+ "for a third variable. The purpose is to find the unique variance between two "
 							+ "variables while eliminating the variance from a third variables.",
-					cred4.getId());
+					cred4.getId(),
+					"partial correlations, correlations");
 			
-			ServiceLocator
-					.getInstance()
-					.getService(CredentialManager.class).addCompetenceToCredential(cred4.getId(), comp2cred4);
+			addCompetenceToCredential(cred4, comp2cred4, userNickPowell);
 
 			Activity1 a22 = createActivity(
 					userNickPowell,
@@ -968,7 +493,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 						+ "simple comparisons of proportions through linear regression. The difference between "
 						+ "association and causation must accompany this conceptual development throughout.",
 				userNickPowell,
-				cred1Tags);
+				"data, statistics, exploring data");
 
 		Competence1 comp1cred5;
 		try {
@@ -976,11 +501,10 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 					userNickPowell,
 					"Analyze Data",
 					"Know how to take raw data, extract meaningful information and use statistical tools.",
-					cred5.getId());
+					cred5.getId(),
+					"data analysis, data");
 			
-			ServiceLocator
-					.getInstance()
-					.getService(CredentialManager.class).addCompetenceToCredential(cred5.getId(), comp1cred5);
+			addCompetenceToCredential(cred5, comp1cred5, userNickPowell);
 			
 			Activity1 a24 = createActivity(
 					userNickPowell, 
@@ -1010,7 +534,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 						+ "test hypotheses and compute confidence intervals regarding proportions or means, computer correlations and "
 						+ "fit simple linear regressions.  Topics covered also include chi-square goodness-of-fit and paired comparisons.",
 				userNickPowell,
-				cred1Tags);
+				"inference, statistics, association");
 			
 		Competence1 comp1cred6;
 		try {
@@ -1025,11 +549,10 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 							+ "some sort of finding or conclusion. There are a variety of specific "
 							+ "data analysis method, some of which include data mining, text analytics, "
 							+ "business intelligence, and data visualizations.",
-					cred6.getId());
+					cred6.getId(),
+					"statistics, data, analysis");
 
-			ServiceLocator
-					.getInstance()
-					.getService(CredentialManager.class).addCompetenceToCredential(cred6.getId(), comp1cred6);
+			addCompetenceToCredential(cred6, comp1cred6, userNickPowell);
 		} catch (EventException e) {
 			logger.error(e);
 		}
@@ -1045,7 +568,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 						+ "identifying clusters, measures of spatial association, geographically weighted regression "
 						+ "and surface procession.",
 				userNickPowell,
-				cred1Tags);
+				"r, statistics, spatial analysis");
 		
 		Competence1 comp1cred7;
 		try {
@@ -1060,11 +583,10 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 							+ "some sort of finding or conclusion. There are a variety of specific "
 							+ "data analysis method, some of which include data mining, text analytics, "
 							+ "business intelligence, and data visualizations.",
-					cred7.getId());
+					cred7.getId(),
+					"data analysis, data, statistics");
 
-			ServiceLocator
-					.getInstance()
-					.getService(CredentialManager.class).addCompetenceToCredential(cred7.getId(), comp1cred7);
+			addCompetenceToCredential(cred7, comp1cred7, userNickPowell);
 		} catch (EventException e) {
 			logger.error(e);
 		}
@@ -1079,7 +601,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 				+ "probability distribution and makes inferences about the parameters of the distribution. Most "
 				+ "well-known elementary statistical methods are parametric",
 			userNickPowell,
-			cred1Tags);
+			"statistics, parametric statistics");
 
 		Competence1 comp1cred8;
 		try {
@@ -1091,11 +613,10 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 					+ "a non-parametric test is one that makes no such assumptions. In this strict sense, \"non-parametric\" is "
 					+ "essentially a null category, since virtually all statistical tests assume one thing or another about the "
 					+ "properties of the source population(s).",
-					cred8.getId());
+					cred8.getId(),
+					"parametric statistics, non-parametric statistics, statistics");
 			
-			ServiceLocator
-					.getInstance()
-					.getService(CredentialManager.class).addCompetenceToCredential(cred8.getId(), comp1cred8);
+			addCompetenceToCredential(cred8, comp1cred8, userNickPowell);
 			
 			Activity1 ab1 = createActivity(
 					userNickPowell, 
@@ -1127,7 +648,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 						+ "SAS, and Microsoft ACCESS. The concepts illustrated are applicable to state-level "
 						+ "data sets and transferable to other software.",
 				userNickPowell,
-				cred1Tags);
+				"statistics, data analysis, data");
 
 		Competence1 comp1cred9;
 		try {
@@ -1139,11 +660,10 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 							+ "a non-parametric test is one that makes no such assumptions. In this strict sense, \"non-parametric\" is "
 							+ "essentially a null category, since virtually all statistical tests assume one thing or another about the "
 							+ "properties of the source population(s).",
-							cred9.getId());
+							cred9.getId(),
+							"data preparation, data, statistics");
 			
-			ServiceLocator
-					.getInstance()
-					.getService(CredentialManager.class).addCompetenceToCredential(cred9.getId(), comp1cred9);
+			addCompetenceToCredential(cred9, comp1cred9, userNickPowell);
 			
 			
 			Activity1 ba1 = createActivity(
@@ -1184,7 +704,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 						+ "to independenly evaluate the flood of numbers served up by advertisers, "
 						+ "politicians,  experts , and yes— by other scientists.",
 				userNickPowell,
-				cred1Tags);
+				"statistics, data analysis, data");
  
 		Competence1 comp1cred10;
 		try {
@@ -1195,11 +715,10 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 							+ "discovering useful information, suggesting conclusions, and supporting decision-making. Data analysis "
 							+ "has multiple facets and approaches, encompassing diverse techniques under a variety of names, in"
 							+ " different business, science, and social science domains.",
-					cred10.getId());
+					cred10.getId(),
+					"data analysis, data, statistics");
 			
-			ServiceLocator
-					.getInstance()
-					.getService(CredentialManager.class).addCompetenceToCredential(cred10.getId(), comp1cred10);
+			addCompetenceToCredential(cred10, comp1cred10, userNickPowell);
 			
 			
 			Activity1 bb1 = createActivity(
@@ -1234,7 +753,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 						+ "to independenly evaluate the flood of numbers served up by advertisers, "
 						+ "politicians,  experts , and yes— by other scientists.",
 				userNickPowell,
-				cred1Tags);
+				"statistics, descriptive statistics");
 
 		Competence1 comp1cred11 = null;
 		try {
@@ -1244,11 +763,10 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 					"Descriptive statistics are used to describe the basic features of the data in a study. "
 							+ "They provide simple summaries about the sample and the measures. Together with simple graphics "
 							+ "analysis, they form the basis of virtually every quantitative analysis of data.",
-					cred11.getId());
+					cred11.getId(),
+					"descriptive statistics, statistics");
 			
-			ServiceLocator
-					.getInstance()
-					.getService(CredentialManager.class).addCompetenceToCredential(cred11.getId(), comp1cred11);
+			addCompetenceToCredential(cred11, comp1cred11, userNickPowell);
 			
 			
 			Activity1 bc1 = createActivity(
@@ -1280,11 +798,9 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 						+ "data is thought to represent. This generally means that descriptive statistics, unlike "
 						+ "inferential statistics, are not developed on the basis of probability theory.",
 				userNickPowell,
-				cred1Tags);
+				"statistics, descriptive statistics");
 
-		ServiceLocator
-				.getInstance()
-				.getService(CredentialManager.class).addCompetenceToCredential(cred12.getId(), comp1cred11);
+		addCompetenceToCredential(cred12, comp1cred11, userNickPowell);
 
  
 		try {
@@ -1306,12 +822,50 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 		}
  	}
 
+	private void addCompetenceToCredential(Credential1 credential, Competence1 competence, User user) {
+		ServiceLocator
+				.getInstance()
+				.getService(CredentialManager.class).addCompetenceToCredential(credential.getId(), competence);
+		
+		CredentialManager credentialManager = ServiceLocator
+				.getInstance()
+				.getService(CredentialManager.class);
+		
+		CredentialData credentialData = credentialManager.getCredentialDataForEdit(credential.getId(), user.getId(), true);
+		credentialData.setPublished(true);
+		
+		credentialManager.updateCredential(credentialData, user);
+	}
+
+	private User createUser(String name, String lastname, String emailAddress, String password, String fictitiousUser,
+			String avatar, Role roleUser) {
+		try {
+			User newUser = ServiceLocator
+					.getInstance()
+					.getService(UserManager.class)
+					.createNewUser(name, lastname, emailAddress,
+							true, password, fictitiousUser, getAvatarInputStream(avatar), avatar);
+			
+			newUser = ServiceLocator
+					.getInstance()
+					.getService(RoleManager.class)
+					.assignRoleToUser(roleUser, newUser);
+			
+			return newUser;
+		} catch (UserAlreadyRegisteredException e) {
+			logger.error(e.getLocalizedMessage());
+		} catch (EventException e) {
+			logger.error(e.getMessage());
+		}
+		return null;
+	}
+
 	private Activity1 createActivity(User userNickPowell, String title, String... links) {
 		ActivityData actData = new ActivityData(false);
 		actData.setTitle(title);
-		actData.setType(LearningResourceType.UNIVERSITY_CREATED);
 		actData.setPublished(true);
 		actData.setActivityType(ActivityType.TEXT);
+		actData.setType(LearningResourceType.UNIVERSITY_CREATED);
 		
 		if (links != null) {
 			List<ResourceLinkData> activityLinks = new ArrayList<>();
@@ -1335,15 +889,15 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 		return act;
 	}
 
-	private Credential1 createCredential(String title, String description, User userNickPowell, Set<Tag> lg2Tags) {
-		Credential1 credNP1;
+	private Credential1 createCredential(String title, String description, User userNickPowell, String tags) {
 		CredentialData credentialData = new CredentialData(false);
 		credentialData.setTitle(title);
 		credentialData.setDescription(description);
-		credentialData.setTags(lg2Tags);
+		credentialData.setTagsString(tags);
 		credentialData.setPublished(true);
+		credentialData.setType(LearningResourceType.UNIVERSITY_CREATED);
 		
-		credNP1 = ServiceLocator
+		Credential1 credNP1 = ServiceLocator
 				.getInstance()
 				.getService(CredentialManager.class)
 				.saveNewCredential(credentialData, userNickPowell);
@@ -1351,13 +905,15 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 		return credNP1;
 	}
 
-	public Competence1 createCompetence(User user, String title, String description, long credentialId)
+	public Competence1 createCompetence(User user, String title, String description, long credentialId, String tags)
 			throws EventException {
 		
 		CompetenceData1 compData = new CompetenceData1(false);
 		compData.setTitle(title);
 		compData.setDescription(description);
+		compData.setTagsString(tags);
 		compData.setPublished(true);
+		compData.setType(LearningResourceType.UNIVERSITY_CREATED);
 		
 		Competence1 comp = ServiceLocator
 				.getInstance()
@@ -1381,11 +937,5 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 		}
 		return null;
 	}
-
-
-	protected Tag getOrCreateTag(String tagTitle) throws Exception {
-		return ServiceLocator.getInstance().getService(TagManager.class)
-				.getOrCreateTag(tagTitle);
-	}
-
+	
 }
