@@ -175,8 +175,8 @@
                     parent = parent.parent();
                 }
             }
-
-            parent.find('.' + openClass).removeClass(openClass);
+            
+            //parent.find('.' + openClass).removeClass(openClass);
 
             if (parent.hasClass(openClass))
                 parent.removeClass(openClass);

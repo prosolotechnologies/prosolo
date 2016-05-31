@@ -55,7 +55,9 @@
 					itemValue="#{status}" itemLabel="#{status.label}" />
 			</h:selectOneMenu>
 			
+			<ui:remove>
 			<script>$('.selectpicker').selectpicker('refresh');</script>
+			</ui:remove>
 			
 			<div class="publishRow">
 				<p:commandLink 
