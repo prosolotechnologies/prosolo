@@ -8,6 +8,7 @@
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
 	xmlns:util="http://www.prosolo.com/util"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 <ui:insert name="metadata" />
@@ -103,7 +104,7 @@
 					<h:form id="messagePollingForm">
 						<p:poll interval="#{topInboxBean.refreshRate}" 
 							process="@this"
-							update=":messagesLink" 
+							update=":messagesLink :unreadNotificationsDot" 
 							widgetVar="messagesPoll" 
 							autoStart="true" />
 					</h:form>
@@ -117,6 +118,7 @@
 						</span>
 					</h:link>
 
+					<ui:repeat>
 					<h:form id="dropdownMenuNotificationsForm">
 						<h:panelGroup layout="block" class="dropdown notificationsMenu" id="dropDownNotificationsMenuId">
 							<p:poll interval="#{topNotificationsBean1.refreshRate}"
@@ -166,37 +168,49 @@
 
 						</h:panelGroup>
 					</h:form>
+					</ui:repeat>
 					
 					<div class="dropdown notificationsMenu">
-						<a class="iconNotifications" data-toggle="dropdown"
-							aria-haspopup="true" aria-expanded="true">Notifications</a>
+						<p:commandLink id="iconNotificationsId"
+							styleClass="iconNotifications active" 
+							pt:data-toggle="dropdown" 
+							pt:aria-haspopup="true" 
+							pt:aria-expanded="true"
+							action="#{topNotificationsBean1.fetchNotifications}"
+							process="@this"
+							update="notificationLoop @this">
+							
+							Notifications
+							
+							<h:panelGroup id="unreadNotificationsDot">
+								<span id="unreadNotificationsSpanId"
+									class="#{topNotificationsBean1.unreadNotificationsNo > 0 ? 'unreadDot' : ''}">unreadDot</span>
+							</h:panelGroup>
+						</p:commandLink>
+					
 						<ul class="dropdown-menu bullet pull-center"
 							aria-labelledby="dropdownMenuNotifications">
-							<li class="notifFollowed"><a href="#"> <span
-									class="icon"></span>
-									<h3>Gustavo Fring</h3> followed you <span class="timestamp">5
-										minutes ago</span>
-							</a></li>
-							<li class="notifComment"><a href="#"> <span class="icon"></span>
-									<h3>Gustavo Fring</h3> commented on a competence
-									<h3>Define social network analysis</h3> <span class="timestamp">Yesterday</span>
-							</a></li>
-							<li class="notifLikeComment"><a href="#"> <span
-									class="icon"></span>
-									<h3>Gustavo Fring</h3> liked your comment on a competence
-									<h3>Define social network analysis</h3> <span class="timestamp">Yesterday</span>
-							</a></li>
-							<li class="notifMention"><a href="#"> <span class="icon"></span>
-									<h3>Gustavo Fring</h3> mentioned you in a comment/post <span
-									class="timestamp">Yesterday</span>
-							</a></li>
-							<li class="notifAssessment"><a href="#"> <span
-									class="icon"></span>
-									<h3>Gustavo Fring</h3> gave you an assessment for a competence
-									<h3>Define social network analysis</h3> <span class="timestamp">Yesterday</span>
-							</a></li>
+							
+							<ui:repeat id="notificationLoop" var="notificationData" value="#{topNotificationsBean1.notificationDatas}">
+								<li class="#{(notificationData.notificationType eq 'Follow_User') ? 'notifFollowed' : 
+										(notificationData.notificationType eq 'Comment') ? 'notifComment': 
+										(notificationData.notificationType eq 'Comment_Like') ? 'notifLikeComment':
+										(notificationData.notificationType eq 'Mention') ? 'notifMention':
+										(notificationData.notificationType eq 'Assessment_Given') ? 'notifAssessment': 'notifLearning'}">
+									<h:link outcome="#{notificationData.link}">
+										<span class="icon"></span>
+										<h3>#{notificationData.actor.fullName}</h3> 
+										#{notificationData.predicate}
+										<h3>#{notificationData.objectTitle}</h3>
+										<span class="timestamp">#{notificationData.datePretty}</span>
+									</h:link>
+								</li>
+							</ui:repeat>
+							
 							<li class="linkAllNotifications">
-								<a href="profile-notifications.xhtml">View all</a>
+								<h:link value="View all"
+									onclick="sendLogPageNavigation('notifications','mainmenu');"
+									outcome="/notifications" />
 							</li>
 						</ul>
 					</div>

@@ -17,7 +17,7 @@ public class NotificationDataFactory {
 		NotificationData n = new NotificationData();
 		n.setId(notification.getId());
 		n.setRead(notification.isRead());
-		n.setDate(DateUtil.getTimeAgoFromNow(notification.getDateCreated()));
+		n.setDate(notification.getDateCreated());
 		n.setNotificationType(notification.getType());
 		UserData actor = new UserData(notification.getActor());
 		n.setActor(actor);

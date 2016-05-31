@@ -1,9 +1,11 @@
 package org.prosolo.services.notifications.eventprocessing.data;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ObjectType;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.nodes.data.UserData;
 
 public class NotificationData implements Serializable {
@@ -12,7 +14,7 @@ public class NotificationData implements Serializable {
 	
 	private long id;
 	private boolean read;
-	private String date;
+	private Date date;
 	private NotificationType notificationType;
 	
 	private UserData actor;
@@ -48,12 +50,16 @@ public class NotificationData implements Serializable {
 		this.notificationType = notificationType;
 	}
 	
-	public String getDate() {
+	public Date getDate() {
 		return date;
 	}
 
-	public void setDate(String date) {
+	public void setDate(Date date) {
 		this.date = date;
+	}
+	
+	public String getDatePretty() {
+		return DateUtil.getTimeAgoFromNow(date);
 	}
 
 	public String getLink() {
