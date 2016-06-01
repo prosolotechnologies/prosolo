@@ -190,5 +190,47 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			e.printStackTrace();
 		}
 	}
+	
+	@Override
+	public void addInstructorToCredential(long credId, long userId, String dateAssigned) {
+		try {
+			String script = "if (ctx._source[\"credentialsWithInstructorRole\"] == null) { " +
+					"ctx._source.credentialsWithInstructorRole = cred " +
+					"} else { " +
+					"ctx._source.credentialsWithInstructorRole += cred " +
+					"}";
+			
+			Map<String, Object> params = new HashMap<>();
+			Map<String, Object> param = new HashMap<>();
+			param.put("id", credId);
+			param.put("dateAssigned", dateAssigned);
+			params.put("cred", param);
+			partialUpdateByScript(ESIndexNames.INDEX_USERS, ESIndexTypes.USER, 
+					userId+"", script, params);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void removeInstructorFromCredential(long credId, long userId) {
+		try {
+			String script = "credToRemove = null; "
+					+ "for (cred in ctx._source.credentialsWithInstructorRole) {"
+					+ "if (cred['id'] == credId) "
+					+ "{ credToRemove = cred; break; } }; "
+					+ "if (credToRemove != null) "
+					+ "{ ctx._source.credentialsWithInstructorRole.remove(credToRemove); }";
+			
+			Map<String, Object> params = new HashMap<>();
+			params.put("credId", credId);
+			partialUpdateByScript(ESIndexNames.INDEX_USERS, ESIndexTypes.USER, 
+					userId+"", script, params);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
 
 }

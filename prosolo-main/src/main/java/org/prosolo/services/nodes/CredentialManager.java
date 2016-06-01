@@ -215,4 +215,15 @@ public interface CredentialManager extends AbstractManager {
 //	CredentialData getCredentialForManager(long credentialId, boolean loadCreator,
 //			boolean loadCompetences, Mode mode) throws DbConnectionException;
 	
+	boolean areStudentsManuallyAssignedToInstructor(long credId) throws DbConnectionException;
+
+	List<Long> getTargetCredentialIdsForInstructor(long instructorId) throws DbConnectionException;
+	
+	long getUserIdForTargetCredential(long targetCredId) throws DbConnectionException;
+	
+	List<Long> getUserIdsForTargetCredentials(List<Long> targetCredIds) throws DbConnectionException;
+	
+	List<Long> getTargetCredentialIdsForUsers(List<Long> userIds, long credId) 
+			throws DbConnectionException;
+	
 }

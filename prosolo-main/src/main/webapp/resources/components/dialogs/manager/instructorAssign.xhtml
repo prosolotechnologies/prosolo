@@ -40,7 +40,7 @@
 							</h:inputText>     
 	                  </div>
 	                  <h:panelGroup id="searchResults">
-	                  	<ul>
+	                  	<ul class="list">
 	                  		<ui:repeat var="instructor" value="#{cc.attrs.instructorList}">
 	                  		  <li>
 		                          <div class="instructorInfo">
@@ -57,7 +57,7 @@
 		                          </div>
 		                          <div class="assignOpt">
 		                              <span class="#{instructor.full ? 'redText' : ''}">
-		                              	#{instructor.numberOfAssignedStudents}/#{instructor.maxNumberOfStudents}
+		                              	#{instructor.numberOfAssignedStudents}/#{instructor.maxNumberOfStudentsString}
 		                              </span>
 		                              <div class="buttonWrapper">
 		                              	  <ui:fragment 

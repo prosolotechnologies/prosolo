@@ -41,19 +41,28 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 			userEntityESService.addCredentialToUserIndex(cred.getId(), event.getActor().getId(), 
 					instructorId, dateEnrolledString);
 		} else if(eventType == EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR
-				|| eventType == EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR) {
+				|| eventType == EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR
+				|| eventType == EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR) {
 			long credId = Long.parseLong(params.get("credId"));
 			/*
 			 * if unassigned, we should set instructorId to 0 in user index for this credential,
 			 * if assigned, we should set id of instructor that is assigned
 			 */
 			long instructorId = 0;
-			if(eventType == EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR) {
+			if(eventType == EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR 
+					|| eventType == EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR) {
 				instructorId = event.getTarget().getId();
 			}
 			userEntityESService.assignInstructorToUserInCredential(event.getObject().getId(), 
 					credId, instructorId);
-		} else {
+		} else if(eventType == EventType.INSTRUCTOR_ASSIGNED_TO_COURSE) {
+			String dateAssigned = params.get("dateAssigned");
+			userEntityESService.addInstructorToCredential(event.getTarget().getId(), 
+					event.getObject().getId(), dateAssigned);
+	    } else if(eventType == EventType.INSTRUCTOR_REMOVED_FROM_COURSE) {
+			userEntityESService.removeInstructorFromCredential(event.getTarget().getId(), 
+					event.getObject().getId());
+	    } else {
 			if(userRole == EventUserRole.Subject) {
 				long userId = event.getActor().getId();
 				user = (User) session.load(User.class, userId);

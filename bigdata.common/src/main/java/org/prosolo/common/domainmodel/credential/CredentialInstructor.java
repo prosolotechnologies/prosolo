@@ -77,6 +77,7 @@ public class CredentialInstructor {
 	public Date getDateAssigned() {
 		return dateAssigned;
 	}
+	
 	public void setDateAssigned(Date dateAssigned) {
 		this.dateAssigned = dateAssigned;
 	}

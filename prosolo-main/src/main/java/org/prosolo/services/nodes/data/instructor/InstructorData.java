@@ -1,21 +1,42 @@
-package org.prosolo.services.nodes.data;
+package org.prosolo.services.nodes.data.instructor;
 
 import java.util.Date;
+import java.util.Optional;
 
-public class InstructorData {
+import org.prosolo.services.common.observable.StandardObservable;
+import org.prosolo.services.nodes.data.UserData;
+
+public class InstructorData extends StandardObservable {
 
 	private UserData user;
 	private long instructorId;
-	private Integer maxNumberOfStudents;
+	private int maxNumberOfStudents;
 	private int numberOfAssignedStudents;
 	private Date dateAssigned;
 	
-	public InstructorData() {
-		
+	public InstructorData(boolean listenChanges) {
+		this.listenChanges = listenChanges;
+	}
+	
+	public void setMaxNumberOfStudentsToOriginalValue() {
+		Optional<Integer> res = getMaxNumberOfStudentsBeforeUpdate();
+		if(res.isPresent()) {
+			this.maxNumberOfStudents = res.get();
+		}
 	}
 	
 	public boolean isFull() {
+		if(maxNumberOfStudents == 0) {
+			return false;
+		}
 		return numberOfAssignedStudents == maxNumberOfStudents;
+	}
+	
+	public String getMaxNumberOfStudentsString() {
+		if(maxNumberOfStudents == 0) {
+			return "unlimited";
+		}
+			return maxNumberOfStudents + "";
 	}
 	
 //	public CourseInstructorData(Map<String, Object> instructorMap) {
@@ -45,11 +66,12 @@ public class InstructorData {
 		this.instructorId = instructorId;
 	}
 
-	public Integer getMaxNumberOfStudents() {
+	public int getMaxNumberOfStudents() {
 		return maxNumberOfStudents;
 	}
 
-	public void setMaxNumberOfStudents(Integer maxNumberOfStudents) {
+	public void setMaxNumberOfStudents(int maxNumberOfStudents) {
+		observeAttributeChange("maxNumberOfStudents", this.maxNumberOfStudents, maxNumberOfStudents);
 		this.maxNumberOfStudents = maxNumberOfStudents;
 	}
 
@@ -75,6 +97,15 @@ public class InstructorData {
 
 	public void setDateAssigned(Date dateAssigned) {
 		this.dateAssigned = dateAssigned;
+	}
+	
+	public Optional<Integer> getMaxNumberOfStudentsBeforeUpdate() {
+		Integer no = (Integer) changedAttributes.get("maxNumberOfStudents");
+		if(no == null) {
+			return Optional.empty();
+		} else {
+			return Optional.of(no);
+		}
 	}
 
 }

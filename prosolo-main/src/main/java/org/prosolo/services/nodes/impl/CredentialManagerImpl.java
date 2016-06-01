@@ -39,10 +39,11 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.InstructorData;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.data.Role;
+import org.prosolo.services.nodes.data.instructor.StudentAssignData;
+import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.CredentialDataFactory;
 import org.prosolo.services.nodes.impl.util.EntityPublishTransition;
@@ -880,16 +881,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					!cred.isManuallyAssignStudents()) {
 				List<Long> targetCredIds = new ArrayList<>();
 				targetCredIds.add(targetCred.getId());
-				Map<String, Object> res = credInstructorManager.assignStudentsToInstructorAutomatically(
+				StudentAssignData res = credInstructorManager.assignStudentsToInstructorAutomatically(
 						credentialId, targetCredIds, 0);
-				@SuppressWarnings("unchecked")
-				Map<Long, InstructorData> assigned = (Map<Long, InstructorData>) res.get("assigned");
-				if(assigned != null) {
-					InstructorData instructor = assigned.get(targetCred.getId());
-					if(instructor != null) {
-						//we need user id, not instructor id
-						instructorId = instructor.getUser().getId();
-					}
+				List<StudentInstructorPair> assigned = res.getAssigned();
+				if(assigned.size() == 1) {
+					StudentInstructorPair pair = assigned.get(0);
+					//we need user id, not instructor id
+					instructorId = pair.getInstructor().getUser().getId();
 				}
 	    	}
 			CredentialData cd = credentialFactory.getCredentialData(targetCred.getCreatedBy(), 
@@ -1971,6 +1969,136 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving user credentials");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public boolean areStudentsManuallyAssignedToInstructor(long credId) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT cred.manuallyAssignStudents " +
+					"FROM Credential1 cred " +
+					"WHERE cred.id = :credId";
+			
+				Boolean res = (Boolean) persistence.currentManager().createQuery(query).
+						setLong("credId", credId).
+						uniqueResult();
+				if(res == null) {
+					throw new Exception();
+				} 
+				return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading credential data");
+		}
+
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> getTargetCredentialIdsForInstructor(long instructorId) 
+			throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT cred.id " +
+					"FROM TargetCredential1 cred " +
+					"WHERE cred.instructor.id = :instructorId";
+			
+				@SuppressWarnings("unchecked")
+				List<Long> credIds = persistence.currentManager().createQuery(query).
+						setLong("instructorId", instructorId).
+						list();
+				if(credIds == null) {
+					return new ArrayList<>();
+				}
+				return credIds;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading target credential ids");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public long getUserIdForTargetCredential(long targetCredId) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT cred.user.id " +
+					"FROM TargetCredential1 cred " +
+					"WHERE cred.id = :targetCredId";
+			
+			Long res = (Long) persistence.currentManager().createQuery(query).
+					setLong("targetCredId", targetCredId).
+					uniqueResult();
+			if(res == null) {
+				return 0;
+			}
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading user id");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> getUserIdsForTargetCredentials(List<Long> targetCredIds) 
+			throws DbConnectionException {
+		try {
+			if(targetCredIds == null || targetCredIds.isEmpty()) {
+				return null;
+			}
+			String query = 
+					"SELECT cred.user.id " +
+					"FROM TargetCredential1 cred " +
+					"WHERE cred.id IN (:targetCredIds)";
+			
+			@SuppressWarnings("unchecked")
+			List<Long> res = persistence.currentManager().createQuery(query)
+					.setParameterList("targetCredIds", targetCredIds)
+					.list();
+			if(res == null) {
+				return new ArrayList<>();
+			} 
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading user ids");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> getTargetCredentialIdsForUsers(List<Long> userIds, long credId) 
+			throws DbConnectionException {
+		try {
+			if(userIds == null || userIds.isEmpty()) {
+				return null;
+			}
+			String query = 
+					"SELECT cred.id " +
+					"FROM TargetCredential1 cred " +
+					"WHERE cred.credential.id = :credId " +
+					"AND cred.user.id IN (:userIds)";
+			
+			@SuppressWarnings("unchecked")
+			List<Long> res = persistence.currentManager().createQuery(query)
+					.setLong("credId", credId)
+					.setParameterList("userIds", userIds)
+					.list();
+			if(res == null) {
+				return new ArrayList<>();
+			} 
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading user credential ids");
 		}
 	}
 	

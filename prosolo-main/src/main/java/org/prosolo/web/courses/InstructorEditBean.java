@@ -33,6 +33,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
+@Deprecated
 @ManagedBean(name = "instructorEditBean")
 @Component("instructorEditBean")
 @Scope("view")
@@ -152,24 +153,24 @@ public class InstructorEditBean implements Serializable {
 	}
 
 	public void searchInstructors() {
-		try {
-			instructors = new ArrayList<>();
-			
-			if (instructorSearchTerm != null && !"".equals(instructorSearchTerm)) {
-				Map<String, Object> result = textSearch.searchUsersWithInstructorRole(instructorSearchTerm, decodedCourseId, instructorRoleId);
-				@SuppressWarnings("unchecked")
-				List<Map<String, Object>> users = (List<Map<String, Object>>) result.get("data");
-				
-				if (users != null) {
-					for (Map<String, Object> user : users) {
-						BasicUserData data = new BasicUserData(user);
-						instructors.add(data);
-					}
-				}
-			}
-		} catch(Exception e) {
-			logger.error(e);
-		}
+//		try {
+//			instructors = new ArrayList<>();
+//			
+//			if (instructorSearchTerm != null && !"".equals(instructorSearchTerm)) {
+//				Map<String, Object> result = textSearch.searchUsersWithInstructorRole(instructorSearchTerm, decodedCourseId, instructorRoleId);
+//				@SuppressWarnings("unchecked")
+//				List<Map<String, Object>> users = (List<Map<String, Object>>) result.get("data");
+//				
+//				if (users != null) {
+//					for (Map<String, Object> user : users) {
+//						BasicUserData data = new BasicUserData(user);
+//						instructors.add(data);
+//					}
+//				}
+//			}
+//		} catch(Exception e) {
+//			logger.error(e);
+//		}
 	}
 	
 	public void searchUnassignedStudents() {

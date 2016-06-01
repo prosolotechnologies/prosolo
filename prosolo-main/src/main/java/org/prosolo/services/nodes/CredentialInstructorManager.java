@@ -1,17 +1,19 @@
 package org.prosolo.services.nodes;
 
 import java.util.List;
-import java.util.Map;
 
+import org.prosolo.common.domainmodel.credential.CredentialInstructor;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.InstructorData;
+import org.prosolo.services.nodes.data.instructor.InstructorData;
+import org.prosolo.services.nodes.data.instructor.StudentAssignData;
 
 public interface CredentialInstructorManager {
 
-	InstructorData getCredentialInstructor(long userId, long credentialId,
-			boolean returnNumberOfCurrentlyAssignedStudents) throws DbConnectionException;
-;
+	InstructorData getCredentialInstructor(long userId, long credentialId, 
+			boolean returnNumberOfCurrentlyAssignedStudents, boolean trackChanges) 
+					throws DbConnectionException;
+
 	void assignStudentToInstructor(long studentId, long instructorId, long credId) throws DbConnectionException;
 
 	void assignStudentToInstructor(long instructorId, long targetCredId) 
@@ -20,17 +22,14 @@ public interface CredentialInstructorManager {
 	/**
 	 * Assigns students with target credential ids to instructors that currently have lowest 
 	 * number of students assigned. 
-	 * Returns map with two entries: entry with key assigned gives Map<Long, Long> with id of a 
-	 * target credential of student that is assigned and instructor id, and second entry List<Long>
-	 * with ids of target credentials of students that are not assigned because instructors are full.
 	 * @param credId
 	 * @param targetCredIds
 	 * @param instructorToExcludeId
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	Map<String, Object> assignStudentsToInstructorAutomatically(long credId, 
-    		List<Long> targetCredIds, long instructorToExcludeId) throws DbConnectionException;
+	StudentAssignData assignStudentsToInstructorAutomatically(long credId, 
+			List<Long> targetCredIds, long instructorToExcludeId) throws DbConnectionException;
 	
 	List<InstructorData> getCredentialInstructorsWithLowestNumberOfStudents(long credentialId, 
 			int numberOfInstructorsToReturn, long instructorToExcludeId) throws DbConnectionException;
@@ -39,4 +38,19 @@ public interface CredentialInstructorManager {
 			throws DbConnectionException;
 	
 	void unassignStudentFromInstructor(long userId, long credId) throws DbConnectionException;
+	
+	StudentAssignData reassignStudentsAutomatically(long instructorId, long credId) 
+			throws DbConnectionException;
+	
+	StudentAssignData removeInstructorFromCredential(long instructorId, long credId, 
+			boolean reassignAutomatically) throws DbConnectionException;
+	
+	CredentialInstructor addInstructorToCredential(long decodedId, long id, int maxNumberOfStudents) 
+			throws DbConnectionException;
+	
+	void updateInstructorAndStudentsAssigned(long credId, InstructorData id, List<Long> studentsToAssign, 
+			List<Long> studentsToUnassign) throws DbConnectionException;
+	
+	void updateStudentsAssignedToInstructor(long instructorId, long credId, 
+			List<Long> studentsToAssign, List<Long> studentsToUnassign) throws DbConnectionException;
 }

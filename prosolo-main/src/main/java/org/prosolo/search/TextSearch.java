@@ -16,11 +16,13 @@ import org.prosolo.search.util.credential.CredentialMembersSortOption;
 import org.prosolo.search.util.credential.CredentialSearchFilter;
 import org.prosolo.search.util.credential.CredentialSortOption;
 import org.prosolo.search.util.credential.InstructorAssignFilterValue;
+import org.prosolo.search.util.credential.InstructorSortOption;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.InstructorData;
 import org.prosolo.services.nodes.data.StudentData;
+import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.web.search.data.SortingOption;
 
 /**
@@ -82,12 +84,13 @@ public interface TextSearch extends AbstractManager {
 	
 	TextSearchResponse1<InstructorData> searchInstructors (
 			String searchTerm, int page, int limit, long credId, 
-			SortingOption sortingOption, List<Long> excludedIds);
+			InstructorSortOption sortOption, List<Long> excludedIds);
 	
 	Map<String, Object> searchUnassignedCourseMembers (
 			String searchTerm, long courseId);
 	
-	Map<String, Object> searchUsersWithInstructorRole (String searchTerm, long courseId, long roleId);
+	TextSearchResponse1<UserData> searchUsersWithInstructorRole (String searchTerm, 
+			long credId, long roleId, List<Long> excludedUserIds);
 	
 	List<Long> getInstructorCourseIds (long userId);
 	
@@ -102,4 +105,8 @@ public interface TextSearch extends AbstractManager {
 	TextSearchResponse1<CredentialData> searchCredentialsForManager(
 			String searchTerm, int page, int limit, long userId, 
 			CredentialSearchFilter filter, CredentialSortOption sortOption);
+	
+	TextSearchResponse1<StudentData> searchUnassignedAndStudentsAssignedToInstructor(
+			String searchTerm, long credId, long instructorId, InstructorAssignFilterValue filter,
+			int page, int limit);
 }

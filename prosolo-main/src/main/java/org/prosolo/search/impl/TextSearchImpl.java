@@ -48,12 +48,12 @@ import org.prosolo.common.domainmodel.user.reminders.ReminderStatus;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.search.TextSearch;
-import org.prosolo.search.util.ESSortOrderTranslator;
 import org.prosolo.search.util.credential.CredentialMembersSortOption;
 import org.prosolo.search.util.credential.CredentialSearchFilter;
 import org.prosolo.search.util.credential.CredentialSortOption;
 import org.prosolo.search.util.credential.InstructorAssignFilter;
 import org.prosolo.search.util.credential.InstructorAssignFilterValue;
+import org.prosolo.search.util.credential.InstructorSortOption;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexNames;
 import org.prosolo.services.indexing.ESIndexer;
@@ -65,9 +65,9 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.InstructorData;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.web.search.data.SortingOption;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -755,7 +755,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 									if(instrId != 0) {
 										try {
 											instructor = credInstructorManager.getCredentialInstructor(
-													instrId, credId, false);
+													instrId, credId, false, false);
 										} catch(Exception e) {
 											e.printStackTrace();
 											logger.error(e);
@@ -816,8 +816,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	@Override
 	public TextSearchResponse1<InstructorData> searchInstructors (
 			String searchTerm, int page, int limit, long credId, 
-			SortingOption sortingOption, List<Long> excludedIds) {
-		
+			InstructorSortOption sortOption, List<Long> excludedIds) {
 		TextSearchResponse1<InstructorData> response = new TextSearchResponse1<>();
 		try {
 			Client client = ElasticSearchFactory.getClient();
@@ -858,11 +857,14 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					size = limit;
 				}
 				searchRequestBuilder.setFrom(start).setSize(size);
+
 				//add sorting
-				SortOrder sortOrder = ESSortOrderTranslator.getSortOrder(sortingOption);
-				
-				searchRequestBuilder.addSort("name" , sortOrder);
-				searchRequestBuilder.addSort("lastname" , sortOrder);
+				for(String field : sortOption.getSortFields()) {
+					SortOrder sortOrder = sortOption.getSortOrder() == 
+							org.prosolo.services.util.SortingOption.ASC ? 
+							SortOrder.ASC : SortOrder.DESC;
+					searchRequestBuilder.addSort(field, sortOrder);
+				}
 			
 				//System.out.println(searchRequestBuilder.toString());
 				SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
@@ -876,7 +878,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 							Map<String, Object> fields = sh.getSource();
 							long id = Long.parseLong(fields.get("id") + "");
 							InstructorData instructor = credInstructorManager.getCredentialInstructor(
-									id, credId, true);
+									id, credId, true, true);
 							if(instructor != null) {
 								response.addFoundNode(instructor);
 							}
@@ -970,25 +972,32 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	}
 	
 	@Override
-	public Map<String, Object> searchUsersWithInstructorRole (String searchTerm, long courseId, long roleId) {
-		
-		Map<String, Object> resultMap = new HashMap<>();
+	public TextSearchResponse1<UserData> searchUsersWithInstructorRole (String searchTerm, 
+			long credId, long roleId, List<Long> excludedUserIds) {
+		TextSearchResponse1<UserData> response = new TextSearchResponse1<>();
 		try {
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
 			
-			QueryBuilder qb = QueryBuilders
-					.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
-					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
-					.field("name").field("lastname");
-			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-			//bQueryBuilder.minimumNumberShouldMatch(1);
-				
 			
-			bQueryBuilder.must(qb);
-			bQueryBuilder.mustNot(QueryBuilders.matchQuery("coursesWithInstructorRole.id", courseId));
-			bQueryBuilder.must(QueryBuilders.matchQuery("roles.id", roleId));
+			if(searchTerm != null && !searchTerm.isEmpty()) {
+				QueryBuilder qb = QueryBuilders
+						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.field("name").field("lastname");
+				
+				bQueryBuilder.must(qb);
+			}
+			
+			for (Long id : excludedUserIds) {
+				bQueryBuilder.mustNot(termQuery("id", id));
+			}
+			
+			//bQueryBuilder.minimumNumberShouldMatch(1);
+			
+			bQueryBuilder.mustNot(termQuery("coursesWithInstructorRole.id", credId));
+			bQueryBuilder.must(termQuery("roles.id", roleId));
 
 			try {
 				String[] includes = {"id", "name", "lastname", "avatar", "position"};
@@ -1006,27 +1015,21 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				if(sResponse != null) {
 					SearchHits searchHits = sResponse.getHits();
 					
-					resultMap.put("resultNumber", searchHits.getTotalHits());
-					
-					List<Map<String, Object>> data = new LinkedList<>();
+					response.setHitsNumber(searchHits.getTotalHits());
 					
 					if(searchHits != null) {
 						for(SearchHit sh : searchHits) {
-							Map<String, Object> resMap = new HashMap<>();
 							Map<String, Object> fields = sh.getSource();
-							
-							resMap.put("id", Long.parseLong(fields.get("id") + ""));
-				    		resMap.put("firstName", (String) fields.get("name"));
-				    		resMap.put("lastName", (String) fields.get("lastname"));
-				    		resMap.put("avatarUrl", (String) fields.get("avatar"));
-				    		resMap.put("position", (String) fields.get("position"));
+							User user = new User();
+							user.setId(Long.parseLong(fields.get("id") + ""));
+				    		user.setName((String) fields.get("name"));
+				    		user.setLastname((String) fields.get("lastname"));
+				    		user.setAvatarUrl((String) fields.get("avatar"));
+				    		user.setPosition((String) fields.get("position"));
 					
-							data.add(resMap);
+							response.addFoundNode(new UserData(user));
 						}
-					}
-					
-					resultMap.put("data", data);
-				
+					}		
 				}
 			} catch (SearchPhaseExecutionException spee) {
 				spee.printStackTrace();
@@ -1036,7 +1039,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 		} catch (NoNodeAvailableException e1) {
 			logger.error(e1);
 		}
-		return resultMap;
+		return response;
 	}
 		
 	@Override
@@ -1425,6 +1428,169 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			}
 		} catch (Exception e1) {
 			e1.printStackTrace();
+			logger.error(e1);
+		}
+		return response;
+	}
+	
+	@Override
+	public TextSearchResponse1<StudentData> searchUnassignedAndStudentsAssignedToInstructor(
+			String searchTerm, long credId, long instructorId, InstructorAssignFilterValue filter,
+			int page, int limit) {
+		TextSearchResponse1<StudentData> response = new TextSearchResponse1<>();
+		try {
+			int start = 0;
+			start = setStart(page, limit);
+			
+			Client client = ElasticSearchFactory.getClient();
+			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			
+			if(searchTerm != null && !searchTerm.isEmpty()) {
+				QueryBuilder qb = QueryBuilders
+						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.field("name").field("lastname");
+				
+				bQueryBuilder.must(qb);
+			}
+				
+			//bQueryBuilder.minimumNumberShouldMatch(1);
+			
+			BoolFilterBuilder credFilter = FilterBuilders.boolFilter();
+			credFilter.must(FilterBuilders.termFilter("credentials.id", credId));
+			/*
+			 * unassigned or assigned to instructor specified by instructorId
+			 */
+			BoolFilterBuilder unassignedOrWithSpecifiedInstructorFilter = FilterBuilders.boolFilter();
+			unassignedOrWithSpecifiedInstructorFilter.should(FilterBuilders.termFilter(
+					"credentials.instructorId", 0));
+			unassignedOrWithSpecifiedInstructorFilter.should(FilterBuilders.termFilter(
+					"credentials.instructorId", instructorId));
+			credFilter.must(unassignedOrWithSpecifiedInstructorFilter);
+			NestedFilterBuilder nestedCredFilter = FilterBuilders.nestedFilter("credentials", 
+					credFilter);
+			
+			
+			FilteredQueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder, 
+					nestedCredFilter);
+
+			try {
+				String[] includes = {"id", "name", "lastname", "avatar", "position"};
+				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
+						.setTypes(ESIndexTypes.USER)
+						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+						.setQuery(filteredQueryBuilder)
+						.addAggregation(AggregationBuilders.nested("nestedAgg").path("credentials")
+								.subAggregation(
+										AggregationBuilders.terms("unassigned")
+										.field("credentials.instructorId")
+										.include(new long[] {0})))
+						.setFetchSource(includes, null)
+						.setFrom(0).setSize(Integer.MAX_VALUE)
+						.setFrom(start).setSize(limit);
+				
+				/*
+				 * set instructor assign filter as a post filter so it does not influence
+				 * aggregation results
+				 */
+				BoolFilterBuilder filterBuilder = null;
+				switch(filter) {
+					case All:
+						nestedCredFilter.innerHit(new QueryInnerHitBuilder());
+						break;
+					case Assigned:
+						filterBuilder = FilterBuilders.boolFilter();
+						filterBuilder.must(FilterBuilders.termFilter("credentials.instructorId", 
+								instructorId));
+						break;
+					case Unassigned:
+						filterBuilder = FilterBuilders.boolFilter();
+						filterBuilder.must(FilterBuilders.termFilter("credentials.instructorId", 0));
+						break;
+				}
+				if(filterBuilder != null) {
+					NestedFilterBuilder nestedFilter = FilterBuilders.nestedFilter("credentials", 
+							filterBuilder).innerHit(new QueryInnerHitBuilder());
+					searchRequestBuilder.setPostFilter(nestedFilter);
+				}
+				searchRequestBuilder.addSort("credentials.instructorId", SortOrder.DESC);
+				searchRequestBuilder.addSort("name", SortOrder.ASC);
+				searchRequestBuilder.addSort("lastname", SortOrder.ASC);
+				//System.out.println(searchRequestBuilder.toString());
+				SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
+				if(sResponse != null) {
+					SearchHits searchHits = sResponse.getHits();
+					
+					response.setHitsNumber(searchHits.getTotalHits());
+					
+					if(searchHits != null) {
+						for(SearchHit sh : searchHits) {
+							Map<String, Object> fields = sh.getSource();
+							StudentData student = new StudentData();
+							User user = new User();
+							user.setId(Long.parseLong(fields.get("id") + ""));
+				    		user.setName((String) fields.get("name"));
+				    		user.setLastname((String) fields.get("lastname"));
+				    		user.setAvatarUrl((String) fields.get("avatar"));
+				    		user.setPosition((String) fields.get("position"));
+				    		student.setUser(new UserData(user));
+				    		
+				    		SearchHits innerHits = sh.getInnerHits().get("credentials");
+							long totalInnerHits = innerHits.getTotalHits();
+							if(totalInnerHits == 1) {
+								Map<String, Object> credential = innerHits.getAt(0).getSource();
+								student.setCredProgress(Integer.parseInt(
+										credential.get("progress") + ""));
+								long instId = Long.parseLong(credential.get("instructorId") + "");
+								if(instId != 0) {
+									InstructorData id = new InstructorData(false);
+									UserData ud = new UserData();
+									ud.setId(instId);
+									id.setUser(ud);
+									student.setInstructor(id);
+									student.setAssigned(true);
+								}
+							}
+							response.addFoundNode(student);
+						}
+					}
+					
+					//get number of unassigned students
+					Nested nestedAgg = sResponse.getAggregations().get("nestedAgg");
+					Terms terms = nestedAgg.getAggregations().get("unassigned");
+					Iterator<Terms.Bucket> it = terms.getBuckets().iterator();
+					long unassignedNo = 0;
+					if(it.hasNext()) {
+						unassignedNo = it.next().getDocCount();
+					}
+					long allNo = nestedAgg.getDocCount();
+					InstructorAssignFilter[] filters = new InstructorAssignFilter[3];
+					filters[0] = new InstructorAssignFilter(InstructorAssignFilterValue.All, 
+							allNo);
+					filters[1] = new InstructorAssignFilter(InstructorAssignFilterValue.Assigned, 
+							allNo - unassignedNo);
+					filters[2] = new InstructorAssignFilter(InstructorAssignFilterValue.Unassigned, 
+							unassignedNo);
+					InstructorAssignFilter selectedFilter = null;
+					for(InstructorAssignFilter f : filters) {
+						if(f.getFilter() == filter) {
+							selectedFilter = f;
+							break;
+						}
+					}
+					Map<String, Object> additionalInfo = new HashMap<>();
+					additionalInfo.put("filters", filters);
+					additionalInfo.put("selectedFilter", selectedFilter);
+					response.setAdditionalInfo(additionalInfo);
+				}
+			} catch (SearchPhaseExecutionException spee) {
+				spee.printStackTrace();
+				logger.error(spee);
+			}
+	
+		} catch (NoNodeAvailableException e1) {
 			logger.error(e1);
 		}
 		return response;

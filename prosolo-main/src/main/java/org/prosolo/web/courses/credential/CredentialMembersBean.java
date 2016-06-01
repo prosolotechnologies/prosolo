@@ -22,19 +22,19 @@ import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.credential.CredentialMembersSortOption;
 import org.prosolo.search.util.credential.InstructorAssignFilter;
 import org.prosolo.search.util.credential.InstructorAssignFilterValue;
+import org.prosolo.search.util.credential.InstructorSortOption;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.data.InstructorData;
 import org.prosolo.services.nodes.data.StudentData;
+import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.util.pagination.Paginable;
 import org.prosolo.web.courses.util.pagination.PaginationLink;
 import org.prosolo.web.courses.util.pagination.Paginator;
-import org.prosolo.web.search.data.SortingOption;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -98,33 +98,31 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		if (decodedId > 0) {
 			context = "name:CREDENTIAL|id:" + decodedId;
 			try {
-				if(credentialTitle == null) {
-					String title = credManager.getCredentialTitleForCredentialWithType(
-							decodedId, LearningResourceType.UNIVERSITY_CREATED);
-					if(title != null) {
-						credentialTitle = title;	
-					} else {
-						try {
-							FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-						} catch (IOException e) {
-							logger.error(e);
+				String title = credManager.getCredentialTitleForCredentialWithType(
+						decodedId, LearningResourceType.UNIVERSITY_CREATED);
+				if(title != null) {
+					credentialTitle = title;
+					boolean showAll = loggedUserBean.hasCapability("COURSE.MEMBERS.VIEW");
+					if(!showAll) {
+						personalizedForUserId = loggedUserBean.getUser().getId();
+					}
+					searchCredentialMembers();
+					if(searchFilters == null) {
+						InstructorAssignFilterValue[] values = InstructorAssignFilterValue.values();
+						int size = values.length;
+						searchFilters = new InstructorAssignFilter[size];
+						for(int i = 0; i < size; i++) {
+							InstructorAssignFilter filter = new InstructorAssignFilter(values[i], 0);
+							searchFilters[i] = filter;
 						}
 					}
-				}
-				boolean showAll = loggedUserBean.hasCapability("COURSE.MEMBERS.VIEW");
-				if(!showAll) {
-					personalizedForUserId = loggedUserBean.getUser().getId();
-				}
-				searchCredentialMembers();
-				if(searchFilters == null) {
-					InstructorAssignFilterValue[] values = InstructorAssignFilterValue.values();
-					int size = values.length;
-					searchFilters = new InstructorAssignFilter[size];
-					for(int i = 0; i < size; i++) {
-						InstructorAssignFilter filter = new InstructorAssignFilter(values[i], 0);
-						searchFilters[i] = filter;
+				} else {
+					try {
+						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+					} catch (IOException e) {
+						logger.error(e);
 					}
-				}
+				}	
 			} catch (Exception e) {
 				PageUtil.fireErrorMessage(e.getMessage());
 			}
@@ -192,7 +190,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	
 	public void loadCredentialInstructors() {
 		TextSearchResponse1<InstructorData> searchResponse = textSearch.searchInstructors(
-				instructorSearchTerm, -1, -1, decodedId, SortingOption.ASC, null);
+				instructorSearchTerm, -1, -1, decodedId, InstructorSortOption.Date, null);
 		
 		if (searchResponse != null) {
 			credentialInstructors = searchResponse.getFoundNodes();
