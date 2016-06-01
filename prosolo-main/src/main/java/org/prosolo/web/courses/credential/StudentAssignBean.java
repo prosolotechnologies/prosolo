@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
@@ -80,13 +81,21 @@ public class StudentAssignBean implements Serializable, Paginable {
 	}
 	
 	public boolean isLimitExceeded() {
-		if(maxNumberOfStudents == 0) {
+		return isLimitExceeded(maxNumberOfStudents);
+	}
+	
+	public boolean isLimitExceeded(int max) {
+		if(max == 0) {
 			return false;
 		}
+		int currentNumberOfAssignedStudents = getCurrentNumberOfAssignedStudents();
+		return currentNumberOfAssignedStudents > max;
+	}
+	
+	public int getCurrentNumberOfAssignedStudents() {
 		int numberOfAffectedStudents = studentsToAssign.size() - studentsToUnassign.size();
-		int currentNumberOfAssignedStudents = instructorForStudentAssign.getNumberOfAssignedStudents() 
+		return instructorForStudentAssign.getNumberOfAssignedStudents() 
 				+ numberOfAffectedStudents;
-		return currentNumberOfAssignedStudents > maxNumberOfStudents;
 	}
 	
 	public void prepareStudentAssign(InstructorData id) {
@@ -139,6 +148,10 @@ public class StudentAssignBean implements Serializable, Paginable {
 	public void assignStudents() {
 		try {
 			if(isLimitExceeded()) {
+				FacesContext context = FacesContext.getCurrentInstance();
+				UIInput input = (UIInput) context.getViewRoot().findComponent(
+						"formAssignStudents:inputTextMaxNumberOfStudents");
+				input.setValid(false);
 				FacesContext.getCurrentInstance().validationFailed();
 			} else {
 				instructorForStudentAssign.setMaxNumberOfStudents(maxNumberOfStudents);
@@ -153,7 +166,7 @@ public class StudentAssignBean implements Serializable, Paginable {
 				int numberOfAffectedStudents = studentsToAssign.size() - studentsToUnassign.size();
 				instructorForStudentAssign.setNumberOfAssignedStudents(
 						instructorForStudentAssign.getNumberOfAssignedStudents() + numberOfAffectedStudents);
-				instructorForStudentAssign = null;
+				//instructorForStudentAssign = null;
 				PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			}
 		} catch(DbConnectionException e) {
@@ -234,6 +247,39 @@ public class StudentAssignBean implements Serializable, Paginable {
 			}
 		}
 	}
+	
+	//VALIDATOR METHODS
+	
+//	public void validateMaxNumberOfStudents(FacesContext context, UIComponent component, Object value) 
+//			throws ValidatorException {
+//		String msg = null;
+//		try {
+//			int max = Integer.parseInt(value.toString());
+//			boolean exceeded = isLimitExceeded(max);
+//			if(exceeded) {
+//				msg = "You have exceeded limit for maximum number of students that can be assigned";
+//			}
+//		} catch (NumberFormatException nfe){
+//			msg = "Only numbers allowed";
+//		}
+//		if(msg != null) {
+//			throw new ValidatorException(new FacesMessage(FacesMessage.SEVERITY_ERROR, 
+//					msg, null));
+//		}
+//			
+//	}
+//	
+//	public void validateStudentAssign(FacesContext context, UIComponent component, Object value) 
+//			throws ValidatorException {
+//		boolean assigned = (boolean) value;
+//		int currentNumberOfAssigned = getCurrentNumberOfAssignedStudents();
+//		currentNumberOfAssigned += assigned ? 1 : -1;
+//		
+//		if(currentNumberOfAssigned > maxNumberOfStudents) {
+//			throw new ValidatorException(new FacesMessage(FacesMessage.SEVERITY_ERROR, 
+//					"You have exceeded limit for maximum number of students that can be assigned", null));
+//		}	
+//	}
 	
 	@Override
 	public boolean isCurrentPageFirst() {
