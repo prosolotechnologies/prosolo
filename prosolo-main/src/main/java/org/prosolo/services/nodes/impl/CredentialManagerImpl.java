@@ -39,6 +39,7 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.data.Role;
@@ -361,7 +362,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		try {
 			credData = getTargetCredentialData(credentialId, userId, true);
 			if (credData == null) {
-				credData = getCredentialData(credentialId, true, true);
+				credData = getCredentialDataForUser(credentialId, true, true, userId);
 			}
 			return credData;
 		} catch (Exception e) {
@@ -436,9 +437,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialData getCredentialData(long credentialId, boolean loadCreatorData,
-			boolean loadCompetences) throws DbConnectionException {
+			boolean loadCompetences, long userId, LearningResourceReturnResultType returnType) 
+					throws DbConnectionException {
 		try {
-			Credential1 cred = getCredential(credentialId, loadCreatorData);
+			Credential1 cred = getCredential(credentialId, loadCreatorData, userId, returnType);
 
 			if (cred != null) {
 				User createdBy = loadCreatorData ? cred.getCreatedBy() : null;
@@ -447,7 +449,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				
 				if(loadCompetences) {
 					List<CompetenceData1> compsData = compManager.getCredentialCompetencesData(
-							credentialId, false, false , false, false);
+							credentialId, false, false , false, true);
 					credData.setCompetences(compsData);
 				}
 				
@@ -461,9 +463,40 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Override
 	@Transactional(readOnly = true)
-	private Credential1 getCredential(long credentialId, boolean loadCreatorData) 
-			throws DbConnectionException {
+	public CredentialData getCredentialDataForUser(long credentialId, boolean loadCreatorData,
+			boolean loadCompetences, long userId) throws DbConnectionException {
+			return getCredentialData(credentialId, loadCreatorData, loadCompetences, userId, 
+					LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public CredentialData getCredentialDataForManager(long credentialId, boolean loadCreatorData,
+			boolean loadCompetences) throws DbConnectionException {
+			return getCredentialData(credentialId, loadCreatorData, loadCompetences, 0, 
+					LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_MANAGER);
+	}
+	
+	/**
+	 * Returns credential with specified id. 
+	 * If LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER is passed for {@code returnType}
+	 * parameter credential will be returned even if it is first time draft if creator of credential
+	 * is user specified by {@code userId}.
+	 * If LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_MANAGER is passed for {@code returnType}
+	 * parameter credential will be returned even if it is first time draft if credential is created by
+	 * university.
+	 * @param credentialId
+	 * @param loadCreatorData
+	 * @param userId
+	 * @param returnType
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	@Transactional(readOnly = true)
+	private Credential1 getCredential(long credentialId, boolean loadCreatorData, long userId,
+			LearningResourceReturnResultType returnType) throws DbConnectionException {
 		try {
 			StringBuilder builder = new StringBuilder();
 			builder.append("SELECT cred FROM Credential1 cred ");
@@ -474,20 +507,36 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			builder.append("LEFT JOIN fetch cred.tags tags "); 
 			builder.append("LEFT JOIN fetch cred.hashtags hashtags ");
 			builder.append("WHERE cred.id = :credentialId AND cred.deleted = :deleted "
-					+ "AND cred.draft = :draft "
-					+ "AND (cred.published = :published  OR (cred.published = :notPublished "
-					+ "AND cred.hasDraft = :hasDraft))");
-
+					+ "AND cred.draft = :draft ");
+			
+			if(returnType == LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER) {
+				builder.append("AND (cred.createdBy.id = :userId OR (cred.published = :published  OR (cred.published = :notPublished "
+						+ "AND cred.hasDraft = :hasDraft)))");
+			} else if(returnType == LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_MANAGER) {
+				builder.append("AND (cred.type = :type OR (cred.published = :published  OR (cred.published = :notPublished "
+						+ "AND cred.hasDraft = :hasDraft)))");
+			}
+				
 			logger.info("GET CREDENTIAL DATA QUERY: " + builder.toString());
-			Credential1 cred = (Credential1) persistence.currentManager()
+			Query q = persistence.currentManager()
 					.createQuery(builder.toString())
 					.setLong("credentialId", credentialId)
 					.setBoolean("deleted", false)
-					.setBoolean("published", true)
-					.setBoolean("notPublished", false)
-					.setBoolean("draft", false)
-					.setBoolean("hasDraft", true)
-					.uniqueResult();
+					.setBoolean("draft", false);
+			
+			if(returnType == LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER) {
+				q.setLong("userId", userId)
+				 .setBoolean("published", true)
+				 .setBoolean("notPublished", false)
+				 .setBoolean("hasDraft", true);
+			} else if(returnType == LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_MANAGER) {
+				q.setParameter("type", LearningResourceType.UNIVERSITY_CREATED)
+				 .setBoolean("published", true)
+				 .setBoolean("notPublished", false)
+				 .setBoolean("hasDraft", true);
+			}
+			
+			Credential1 cred = (Credential1) q.uniqueResult();
 
 			return cred;
 		} catch (Exception e) {
@@ -874,7 +923,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		try {
 			User user = (User) persistence.currentManager().load(User.class, userId);
 			
-			Credential1 cred = getCredential(credentialId, false);
+			Credential1 cred = getCredential(credentialId, false, 0, 
+					LearningResourceReturnResultType.PUBLISHED_VERSION);
 			TargetCredential1 targetCred = createTargetCredential(cred, user);
 			long instructorId = 0;
 			if(cred.getType() == LearningResourceType.UNIVERSITY_CREATED && 
@@ -1029,7 +1079,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 	
 	private Credential1 createDraftVersionOfCredential(long originalCredentialId) {
-		Credential1 originalCred = getCredential(originalCredentialId, false);
+		Credential1 originalCred = getCredential(originalCredentialId, false, 0, 
+				LearningResourceReturnResultType.PUBLISHED_VERSION);
 		
 		Credential1 draftCred = new Credential1();
 		draftCred.setDraft(true);

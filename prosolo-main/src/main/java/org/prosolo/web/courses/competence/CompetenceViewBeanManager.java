@@ -52,7 +52,7 @@ public class CompetenceViewBeanManager implements Serializable {
 							.getCurrentVersionOfCompetenceForManager(decodedCompId, true, true);
 				} else {
 					competenceData = competenceManager
-							.getCompetenceData(decodedCompId, true, true, true, false);
+							.getCompetenceDataForManager(decodedCompId, true, true, true, false);
 				}
 				
 				if(competenceData == null) {

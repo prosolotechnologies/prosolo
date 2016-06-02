@@ -41,6 +41,7 @@ import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.data.ResourceCreator;
@@ -1200,7 +1201,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Override
 	@Transactional(readOnly = true)
 	public CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocus(long activityId, 
-			long creatorId, boolean shouldReturnDraft, Role role) throws DbConnectionException {
+			long creatorId, boolean shouldReturnDraft, Role role, 
+			LearningResourceReturnResultType returnType) throws DbConnectionException {
 		CompetenceData1 compData = null;
 		try {
 			ActivityData activityWithDetails = null;
@@ -1208,7 +1210,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				activityWithDetails = getCompetenceActivityCurrentVersionData(activityId, creatorId, role);
 						//getActivityDataForEdit(activityId, creatorId);
 			} else {
-				activityWithDetails = getCompetenceActivityData(activityId, true);
+				activityWithDetails = getCompetenceActivityData(activityId, true, creatorId, returnType);
 			}
 
 			if (activityWithDetails != null) {
@@ -1226,6 +1228,23 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			throw new DbConnectionException("Error while loading competence data");
 		}
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocusForUser(long activityId, 
+			long creatorId, boolean shouldReturnDraft) throws DbConnectionException {
+		return getCompetenceActivitiesWithSpecifiedActivityInFocus(activityId, creatorId, 
+				shouldReturnDraft, Role.User, LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocusForManager(long activityId, 
+			boolean shouldReturnDraft) throws DbConnectionException {
+		return getCompetenceActivitiesWithSpecifiedActivityInFocus(activityId, 0, 
+				shouldReturnDraft, Role.Manager, 
+				LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_MANAGER);
+	}
 	 
 	/**
 	 * Returns competence activity from original version of competence
@@ -1235,32 +1254,58 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	 * @throws DbConnectionException
 	 */
 	@Transactional(readOnly = true)
-	private ActivityData getCompetenceActivityData(long activityId, boolean loadResourceLinks) 
-			throws DbConnectionException {
+	private ActivityData getCompetenceActivityData(long activityId, boolean loadResourceLinks,
+			long userId, LearningResourceReturnResultType returnType) throws DbConnectionException {
 		try {	
 			StringBuilder builder = new StringBuilder();
 			builder.append("SELECT compAct " +
 					   	   "FROM CompetenceActivity1 compAct " +
 						   "INNER JOIN fetch compAct.activity act " +				   	 
-					   	   "INNER JOIN compAct.competence comp " +
-						   		"WITH (comp.published = :published " +
-							        "OR comp.hasDraft = :hasDraft)");
+					   	   "INNER JOIN compAct.competence comp ");
+			
+			String compCondition = "(comp.published = :published " +
+							       "OR comp.hasDraft = :hasDraft) ";
+			String actCondition = "AND (act.published = :published " +
+						          "OR act.hasDraft = :hasDraft ";
+			switch(returnType) {
+				case PUBLISHED_VERSION:
+					actCondition += ")";
+					break;
+				case FIRST_TIME_DRAFT_FOR_USER:
+					compCondition += "OR comp.createdBy.id = :userId ";
+					actCondition += "OR act.createdBy.id = :userId) ";
+					break;
+				case FIRST_TIME_DRAFT_FOR_MANAGER:
+					compCondition += "OR comp.type = :type ";
+					actCondition += "OR act.type = :type) ";
+					break;
+			}
+			
+			builder.append("WITH " + compCondition);
+			
 			if(loadResourceLinks) {
 				builder.append("LEFT JOIN fetch act.links link " + 
 						       "LEFT JOIN fetch act.files files ");
 			}
 			builder.append("WHERE act.id = :id " +
-						   "AND act.deleted = :deleted " +
-						   "AND (act.published = :published " +
-						        "OR act.hasDraft = :hasDraft)");
+						   "AND act.deleted = :deleted ");
+			
+			builder.append(actCondition);
 
-			CompetenceActivity1 res = (CompetenceActivity1) persistence.currentManager()
+			Query q = persistence.currentManager()
 					.createQuery(builder.toString())
 					.setLong("id", activityId)
 					.setBoolean("deleted", false)
 					.setBoolean("published", true)
-					.setBoolean("hasDraft", true)
-					.uniqueResult();
+					.setBoolean("hasDraft", true);
+			
+			if(returnType == LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER) {
+				q.setLong("userId", userId);
+			} else if(returnType == LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_MANAGER) {
+				q.setParameter("type", LearningResourceType.UNIVERSITY_CREATED);
+			}
+			
+			CompetenceActivity1 res = (CompetenceActivity1) q.uniqueResult();
 
 			if (res != null) {
 					Set<ResourceLink> links = loadResourceLinks ? res.getActivity().getLinks() : null;
@@ -1336,7 +1381,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					compId, actId, userId);
 			if (compData == null) {
 				compData = getCompetenceActivitiesWithSpecifiedActivityInFocus(actId, userId, 
-					false, Role.User);
+					false, Role.User, LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER);
 			}
 				
 			return compData;

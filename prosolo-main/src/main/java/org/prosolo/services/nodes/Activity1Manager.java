@@ -9,6 +9,7 @@ import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
 import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.observers.learningResources.ActivityChangeTracker;
 
@@ -65,11 +66,40 @@ public interface Activity1Manager {
 	 * @param shouldReturnDraft true if draft updates for activity with specified id should
 	 * be returned
 	 * @param role
+	 * @param returnType
 	 * @return
 	 * @throws DbConnectionException
 	 */
 	CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocus(long activityId, 
-			long creatorId, boolean shouldReturnDraft, Role role) throws DbConnectionException;
+			long creatorId, boolean shouldReturnDraft, Role role, 
+			LearningResourceReturnResultType returnType) throws DbConnectionException;
+	
+	/**
+	 * Returns activity with all details for specified id as all competence
+	 * activities and competence basic info (title). 
+	 * If activity is first time draft, it is only returned if
+	 * creator of activity is user specified by {@code userId}
+	 * @param activityId
+	 * @param creatorId
+	 * @param shouldReturnDraft
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocusForUser(long activityId, 
+			long creatorId, boolean shouldReturnDraft) throws DbConnectionException;
+	
+	/**
+	 * Returns activity with all details for specified id as all competence
+	 * activities and competence basic info (title). 
+	 * If activity is first time draft, it is only returned if
+	 * activity is created by university
+	 * @param activityId
+	 * @param shouldReturnDraft
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocusForManager(long activityId, 
+			boolean shouldReturnDraft) throws DbConnectionException;
 
 	void saveAssignment(long targetActId, String fileName, String path) 
 			throws DbConnectionException;

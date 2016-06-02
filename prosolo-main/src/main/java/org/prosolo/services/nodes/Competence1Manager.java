@@ -11,6 +11,7 @@ import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 
@@ -55,7 +56,55 @@ public interface Competence1Manager {
 	List<TargetCompetence1> createTargetCompetences(long credId, TargetCredential1 targetCred) 
 			throws DbConnectionException;
 	
+	/**
+	 * Returns competence data with specified id. 
+	 * If LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER is passed for {@code returnType}
+	 * parameter competence will be returned even if it is first time draft if creator of competence
+	 * is user specified by {@code userId}.
+	 * If LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_MANAGER is passed for {@code returnType}
+	 * parameter competence will be returned even if it is first time draft if competence is created by
+	 * university.
+	 * @param compId
+	 * @param loadCreator
+	 * @param loadTags
+	 * @param loadActivities
+	 * @param userId
+	 * @param returnType
+	 * @param shouldTrackChanges
+	 * @return
+	 * @throws DbConnectionException
+	 */
 	CompetenceData1 getCompetenceData(long compId, boolean loadCreator, boolean loadTags, 
+			boolean loadActivities, long userId, LearningResourceReturnResultType returnType,
+			boolean shouldTrackChanges) throws DbConnectionException;
+	
+	/**
+	 * Returns competence with specified id. If competence is first time draft, it is only returned if
+	 * creator of competence is user specified by {@code userId}
+	 * @param compId
+	 * @param loadCreator
+	 * @param loadTags
+	 * @param loadActivities
+	 * @param userId
+	 * @param shouldTrackChanges
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	CompetenceData1 getCompetenceDataForUser(long compId, boolean loadCreator, boolean loadTags, 
+			boolean loadActivities, long userId, boolean shouldTrackChanges) throws DbConnectionException;
+	
+	/**
+	 * Returns competence with specified id. If competence is first time draft, it is only returned if
+	 * competence is created by university
+	 * @param compId
+	 * @param loadCreator
+	 * @param loadTags
+	 * @param loadActivities
+	 * @param shouldTrackChanges
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	CompetenceData1 getCompetenceDataForManager(long compId, boolean loadCreator, boolean loadTags, 
 			boolean loadActivities, boolean shouldTrackChanges) throws DbConnectionException;
 	
 	CompetenceData1 getCompetenceDataForEdit(long competenceId, long creatorId, 

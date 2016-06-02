@@ -36,6 +36,7 @@ import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.data.Role;
@@ -310,22 +311,25 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Override
 	@Transactional(readOnly = true)
 	public CompetenceData1 getCompetenceData(long compId, boolean loadCreator, boolean loadTags, 
-			boolean loadActivities, boolean shouldTrackChanges) throws DbConnectionException {
+			boolean loadActivities, long userId, LearningResourceReturnResultType returnType,
+			boolean shouldTrackChanges) throws DbConnectionException {
 		try {
-			Competence1 comp = getCompetence(compId, loadCreator, loadTags);
-		
-			User creator = loadCreator ? comp.getCreatedBy() : null;
-			Set<Tag> tags = loadTags ? comp.getTags() : null;
-			
-			CompetenceData1 compData = competenceFactory.getCompetenceData(
-					creator, comp, tags, shouldTrackChanges);
-			
-			if(loadActivities) {
-				List<ActivityData> activities = activityManager.getCompetenceActivitiesData(compId);
-				compData.setActivities(activities);
-			}
-			
-			return compData;
+			Competence1 comp = getCompetence(compId, loadCreator, loadTags, userId, returnType);
+		    if(comp != null) {
+				User creator = loadCreator ? comp.getCreatedBy() : null;
+				Set<Tag> tags = loadTags ? comp.getTags() : null;
+				
+				CompetenceData1 compData = competenceFactory.getCompetenceData(
+						creator, comp, tags, shouldTrackChanges);
+				
+				if(loadActivities) {
+					List<ActivityData> activities = activityManager.getCompetenceActivitiesData(compId);
+					compData.setActivities(activities);
+				}
+				
+				return compData;
+		    } 
+		    return null;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -333,8 +337,40 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
+	@Override
 	@Transactional(readOnly = true)
-	private Competence1 getCompetence(long compId, boolean loadCreator, boolean loadTags) {
+	public CompetenceData1 getCompetenceDataForUser(long compId, boolean loadCreator, boolean loadTags, 
+			boolean loadActivities, long userId, boolean shouldTrackChanges) throws DbConnectionException {
+			return getCompetenceData(compId, loadCreator, loadTags, loadActivities, userId, 
+					LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER, shouldTrackChanges);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public CompetenceData1 getCompetenceDataForManager(long compId, boolean loadCreator, boolean loadTags, 
+			boolean loadActivities, boolean shouldTrackChanges) throws DbConnectionException {
+			return getCompetenceData(compId, loadCreator, loadTags, loadActivities, 0, 
+					LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_MANAGER, shouldTrackChanges);
+	}
+	
+	/**
+	 * Returns competence with specified id. 
+	 * If LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER is passed for {@code returnType}
+	 * parameter competence will be returned even if it is first time draft if creator of competence
+	 * is user specified by {@code userId}.
+	 * If LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_MANAGER is passed for {@code returnType}
+	 * parameter competence will be returned even if it is first time draft if competence is created by
+	 * university.
+	 * @param compId
+	 * @param loadCreator
+	 * @param loadTags
+	 * @param userId
+	 * @param returnType
+	 * @return
+	 */
+	@Transactional(readOnly = true)
+	private Competence1 getCompetence(long compId, boolean loadCreator, boolean loadTags,
+			long userId, LearningResourceReturnResultType returnType) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("SELECT comp " + 
 					   "FROM Competence1 comp ");
@@ -350,9 +386,17 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 //		}
 		builder.append("WHERE comp.id = :compId " +
 				   "AND comp.deleted = :deleted " + 
-				   "AND (comp.published = :published OR (comp.published = :notPublished " +
-				   "AND comp.hasDraft = :hasDraft)) " +
 				   "AND comp.draft = :draft ");
+		
+		if(returnType == LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER) {
+			builder.append("AND (comp.createdBy.id = :userId OR " +
+				   "(comp.published = :published OR (comp.published = :notPublished " +
+				   "AND comp.hasDraft = :hasDraft)))");
+		} else if(returnType == LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_MANAGER) {
+			builder.append("AND (comp.type = :type OR " + 
+				   "(comp.published = :published OR (comp.published = :notPublished " +
+				   "AND comp.hasDraft = :hasDraft)))");
+		}
 //		if(loadActivities) {
 //			builder.append("AND (act is null or " +
 //				   "(act.deleted = :deleted " +
@@ -362,16 +406,25 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 //		}
 
 		logger.info("QUERY: " + builder.toString());
-		Competence1 res = (Competence1) persistence.currentManager()
+		Query q = persistence.currentManager()
 			.createQuery(builder.toString())
 			.setLong("compId", compId)
 			.setBoolean("deleted", false)
-			.setBoolean("published", true)
-			.setBoolean("notPublished", false)
-			.setBoolean("draft", false)
-			.setBoolean("hasDraft", true)
-			.uniqueResult();
+			.setBoolean("draft", false);
+		
+		if(returnType == LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER) {
+			q.setLong("userId", userId)
+			 .setBoolean("published", true)
+			 .setBoolean("notPublished", false)
+			 .setBoolean("hasDraft", true);
+		} else if(returnType == LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_MANAGER) {
+			q.setParameter("type", LearningResourceType.UNIVERSITY_CREATED)
+			 .setBoolean("published", true)
+			 .setBoolean("notPublished", false)
+			 .setBoolean("hasDraft", true);
+		}
 
+		Competence1 res = (Competence1) q.uniqueResult();
 		return res;
 	}
 	
@@ -1208,7 +1261,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	}
 	
 	private Competence1 createDraftVersionOfCompetence(long originalCompId) {
-		Competence1 originalComp = getCompetence(originalCompId, false, true);
+		Competence1 originalComp = getCompetence(originalCompId, false, true, 0, 
+				LearningResourceReturnResultType.PUBLISHED_VERSION);
 		
 		Competence1 draftComp = new Competence1();
 		draftComp.setDraft(true);
@@ -1414,7 +1468,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		try {
 			compData = getTargetCompetenceData(credId, compId, userId, true, true);
 			if (compData == null) {
-				compData = getCompetenceData(compId, true, true, true, true);
+				compData = getCompetenceData(compId, true, true, true, userId,
+						LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER, true);
 			}
 				
 			return compData;

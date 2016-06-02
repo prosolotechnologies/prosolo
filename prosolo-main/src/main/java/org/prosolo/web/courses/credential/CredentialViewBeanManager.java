@@ -50,7 +50,7 @@ public class CredentialViewBeanManager implements Serializable {
 							.getCurrentVersionOfCredentialForManager(decodedId, true, true);
 				} else {
 					credentialData = credentialManager
-							.getCredentialData(decodedId, true, true);
+							.getCredentialDataForManager(decodedId, true, true);
 				}
 				
 				if(credentialData == null) {

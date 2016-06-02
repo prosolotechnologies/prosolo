@@ -15,6 +15,7 @@ import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 
@@ -46,7 +47,47 @@ public interface CredentialManager extends AbstractManager {
 	CredentialData getFullTargetCredentialOrCredentialData(long credentialId, long userId)
 			throws DbConnectionException;
 	
-	CredentialData getCredentialData(long credentialId, boolean loadCreatorData,
+	/**
+	 * Returns credential data with specified id. 
+	 * If LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER is passed for {@code returnType}
+	 * parameter credential will be returned even if it is first time draft if creator of credential
+	 * is user specified by {@code userId}.
+	 * If LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_MANAGER is passed for {@code returnType}
+	 * parameter credential will be returned even if it is first time draft if credential is created by
+	 * university.
+	 * @param credentialId
+	 * @param loadCreatorData
+	 * @param loadCompetences
+	 * @param userId
+	 * @param returnType
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	CredentialData getCredentialData(long credentialId, boolean loadCreatorData, boolean loadCompetences, 
+			long userId, LearningResourceReturnResultType returnType) throws DbConnectionException;
+	/**
+	 * Returns credential with specified id. If credential is first time draft, it is only returned if
+	 * creator of credential is user specified by {@code userId}
+	 * @param credentialId
+	 * @param loadCreatorData
+	 * @param loadCompetences
+	 * @param userId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	CredentialData getCredentialDataForUser(long credentialId, boolean loadCreatorData,
+			boolean loadCompetences, long userId) throws DbConnectionException;
+	
+	/**
+	 * Returns credential with specified id. If credential is first time draft, it is only returned if
+	 * credential is created by university
+	 * @param credentialId
+	 * @param loadCreatorData
+	 * @param loadCompetences
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	CredentialData getCredentialDataForManager(long credentialId, boolean loadCreatorData,
 			boolean loadCompetences) throws DbConnectionException;
 	
 	/**
@@ -232,5 +273,5 @@ public interface CredentialManager extends AbstractManager {
 	
 	List<Long> getTargetCredentialIdsForUsers(List<Long> userIds, long credId) 
 			throws DbConnectionException;
-	
+
 }

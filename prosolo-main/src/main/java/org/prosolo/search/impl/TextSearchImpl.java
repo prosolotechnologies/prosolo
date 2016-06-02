@@ -65,6 +65,7 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
@@ -379,7 +380,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					
 					try {
 						CompetenceData1 cd = compManager.getCompetenceData(id, true, 
-								false, false, false);
+								false, false, 0, LearningResourceReturnResultType.PUBLISHED_VERSION, 
+								false);
 						
 						if (cd != null) {
 							response.addFoundNode(cd);
