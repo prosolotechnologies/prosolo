@@ -109,11 +109,11 @@
 			<artifactId>myfaces-api</artifactId>
 			<version>${myfaces.version}</version>
 		</dependency>
-		<!--dependency>
+		<dependency>
 			<groupId>org.apache.myfaces.core</groupId>
 			<artifactId>myfaces-impl</artifactId>
 			<version>${myfaces.version}</version>
-		</dependency-->
+		</dependency>
 
 		<dependency>
 			<groupId>org.omnifaces</groupId>
@@ -163,11 +163,11 @@
 		</dependency-->
 
 		<!-- MySQL Database dependencies -->
-		<!--dependency>
+		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.1.19</version>
-		</dependency-->
+		</dependency>
 
 		<!-- JSON dependencies -->
 		<!--dependency>
@@ -241,11 +241,11 @@
 		<!-- dependency> <groupId>org.apache.lucene</groupId> <artifactId>lucene-analyzers</artifactId> 
 			<version>3.6.1</version> </dependency> <dependency> <groupId>org.apache.lucene</groupId> 
 			<artifactId>lucene-queries</artifactId> <version>3.6.1</version> </dependency -->
-		<!--dependency>
+		<dependency>
 			<groupId>org.apache.tika</groupId>
 			<artifactId>tika-parsers</artifactId>
 			<version>1.2</version>
-		</dependency-->
+		</dependency>
 		<!--dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-validator</artifactId>
@@ -338,13 +338,13 @@
 		<!--dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-expression</artifactId>
-			<version>${spring.version}</version>
+			<version>${spring.version}</version
 		</dependency-->
-		<!--dependency>
+		<dependency>
 			<groupId>org.springframework.retry</groupId>
 			<artifactId>spring-retry</artifactId>
 			<version>1.1.0.RELEASE</version>
-		</dependency-->
+		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
@@ -357,11 +357,11 @@
 			<artifactId>aspectjrt</artifactId>
 			<version>${aspectj.version}</version>
 		</dependency>
-		<!--dependency>
+		<dependency>
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjweaver</artifactId>
 			<version>${aspectj.version}</version>
-		</dependency-->
+		</dependency>
 
 		<!--dependency>
 			<groupId>javax.inject</groupId>
