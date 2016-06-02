@@ -13,7 +13,8 @@ public class ResponseUtils {
 				.entity(new Gson().toJson(counts))
 				.header("Access-Control-Allow-Origin", "*")
 				.header("Access-Control-Allow-Methods",
-						"GET, POST, DELETE, PUT").allow("OPTIONS").build();
+						"GET, POST, DELETE, PUT, OPTIONS").build();
+				//.allow("OPTIONS").build();
 	}
 
 }

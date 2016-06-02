@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.http.ParseException;
+//import org.apache.http.ParseException;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.config.DBConfig;
 import org.prosolo.bigdata.config.DBServerConfig;
@@ -53,9 +53,9 @@ public class CronSchedulerImpl implements CronScheduler {
 			if (Settings.getInstance().config.schedulerConfig.autoStart) {
 				startScheduler();
 			}
-		} catch (ParseException e) {
+		//} catch (ParseException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
 		} catch (SchedulerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -186,7 +186,7 @@ public class CronSchedulerImpl implements CronScheduler {
 		}
 	}
 
-	public void startScheduler() throws SchedulerException, ParseException {
+	public void startScheduler() throws SchedulerException  {
 		// System.getProperties()
 		// .put("org.quartz.properties", "quartz.properties");
 		// DBConfig dbConfig=Settings.getInstance().config.dbConfig;

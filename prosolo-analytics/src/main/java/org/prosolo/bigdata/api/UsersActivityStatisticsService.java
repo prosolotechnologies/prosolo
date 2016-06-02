@@ -117,7 +117,8 @@ public class UsersActivityStatisticsService {
 	@GET
 	@Path("/statistics")
 	@Produces({ MediaType.APPLICATION_JSON })
-	public Response getStatistics(@QueryParam("dateFrom") String dateFrom, @QueryParam("dateTo") String dateTo, @QueryParam("period") String period, @QueryParam("stats[]") String[] stats) throws ParseException {
+	public Response getStatistics(@QueryParam("dateFrom") String dateFrom, @QueryParam("dateTo") String dateTo, @QueryParam("period") String period, @QueryParam("stats[]") List<String> statsList) throws ParseException {
+		String[] stats=statsList.toArray(new String[statsList.size()]);
 		logger.debug("Service 'getStatistics' called with parameters dateFrom: {}, dateTo: {}, period: {} and stats: {}.", dateFrom, dateTo, period, StringUtils.join(stats, ", "));
 		
 		long daysFrom = getDaysSinceEpoch(parse(dateFrom));

@@ -62,7 +62,7 @@ public class SocialInteractionStatisticsService {
 	}
 	
 	@GET
-	@Path("/")
+	//@Path("/")
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getInteractions(@QueryParam("courseId") Long courseId, @QueryParam("studentId") Long studentId) {
 		Random generator = new Random(courseId * studentId);
@@ -191,7 +191,9 @@ public class SocialInteractionStatisticsService {
 	@GET
 	@Path("/data")
 	@Produces({ MediaType.APPLICATION_JSON })
-	public Response getStudentData(@QueryParam("students[]") Long[] students) {
+	//public Response getStudentData(@QueryParam("students[]") Long[] students) {
+		public Response getStudentData(@QueryParam("students[]") List<Long> studentslist) {
+		Long[] students=studentslist.toArray(new Long[studentslist.size()]);
 		logger.debug("Service 'getStudentData' called.");
 		Map<Long, Map<String, String>> studentsData = userDao.getUsersData(students);
 		studentsData.keySet().forEach(new Consumer<Long>() {

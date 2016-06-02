@@ -42,8 +42,9 @@ public class TwitterHashtagStatisticsService {
 	@Path("/statistics")
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getStatistics(@QueryParam("dateFrom") String dateFrom, @QueryParam("dateTo") String dateTo,
-			@QueryParam("hashtags[]") String[] hashtags, @QueryParam("period") String period) throws ParseException {
-
+		//	@QueryParam("hashtags[]") String[] hashtags, @QueryParam("period") String period) throws ParseException {
+		@QueryParam("hashtags[]") List<String> hashtagsList, @QueryParam("period") String period) throws ParseException {
+		String[] hashtags=hashtagsList.toArray(new String[hashtagsList.size()]);
 		long daysFrom = DateUtil.getDaysSinceEpoch(parse(dateFrom));
 		long daysTo = DateUtil.getDaysSinceEpoch(parse(dateTo));
 
