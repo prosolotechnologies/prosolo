@@ -50,7 +50,7 @@
 			<artifactId>boilerpipe-1.2.0</artifactId>
 			<version>1.0.0</version>
 		</dependency>
-		<dependency>
+		<!--dependency>
 			<groupId>org.jboss.logging</groupId>
 			<artifactId>jboss-logging</artifactId>
 			<version>3.2.1.Final</version>
@@ -64,9 +64,9 @@
 			<groupId>org.jboss.logging</groupId>
 			<artifactId>jboss-logging-annotations</artifactId>
 			<version>2.0.0.Alpha2</version>
-		</dependency>
+		</dependency-->
 		<!-- REST easy API dependencies -->
-		<dependency>
+		<!--dependency>
 			<groupId>org.jboss.resteasy</groupId>
 			<artifactId>jaxrs-api</artifactId>
 			<version>${resteasy.version}</version>
@@ -85,7 +85,7 @@
 			<groupId>org.jboss.resteasy</groupId>
 			<artifactId>resteasy-jackson-provider</artifactId>
 			<version>${resteasy.version}</version>
-		</dependency>
+		</dependency-->
 
 		<dependency>
 			<groupId>joda-time</groupId>
