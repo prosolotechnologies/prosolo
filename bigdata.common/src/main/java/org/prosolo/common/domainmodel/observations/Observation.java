@@ -13,9 +13,8 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
-
 import org.hibernate.annotations.Type;
-import org.prosolo.common.domainmodel.user.TargetLearningGoal;
+import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
 
 @Entity
@@ -29,7 +28,7 @@ public class Observation {
 	private User createdBy;
 	private User createdFor;
 	private Date creationDate;
-	private TargetLearningGoal targetLearningGoal;
+	private TargetCredential1 targetCredential;
 	
 	@Id
 	@Column(name = "id", unique = true, nullable = false, insertable = false, updatable = false)
@@ -108,12 +107,12 @@ public class Observation {
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	public TargetLearningGoal getTargetLearningGoal() {
-		return targetLearningGoal;
+	public TargetCredential1 getTargetCredential() {
+		return targetCredential;
 	}
 
-	public void setTargetLearningGoal(TargetLearningGoal targetLearningGoal) {
-		this.targetLearningGoal = targetLearningGoal;
+	public void setTargetCredential(TargetCredential1 targetCredential) {
+		this.targetCredential = targetCredential;
 	}
 	
 	

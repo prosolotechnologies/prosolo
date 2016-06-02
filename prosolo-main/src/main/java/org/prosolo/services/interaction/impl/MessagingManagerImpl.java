@@ -535,24 +535,32 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	}
 	
 	private Query createMultipleThreadparticipantsQuery(List<Long> userIds) {
-		StringBuilder queryBuilder = new StringBuilder("SELECT DISTINCT thread " + "FROM MessageThread thread ");
-		//create join clauses
-		for(int i = 0; i < userIds.size(); i++) {
-			queryBuilder.append(" LEFT JOIN thread.participants participant").append(i);
-		}
-		//create where clauses and named parameters
-		for(int i = 0; i < userIds.size(); i++) {
-			queryBuilder.append(" WHERE participant").append(i).append("user.id").append(" =: userid").append(i);
-			if(i < userIds.size()-1) {
-				queryBuilder.append(" AND ");
-			}
-		}
-		Query query = persistence.currentManager().createQuery(queryBuilder.toString());
-		//bind parameters
-		for(int i = 0; i < userIds.size(); i++) {
-			query.setLong("userid", userIds.get(i));
-		}
-		return query;
+		String queryString = 
+				"SELECT DISTINCT thread " + 
+				"FROM MessageThread thread " +
+				"LEFT JOIN thread.participants participant " +
+				"WHERE participant.id IN (:userIds)";
+		
+		return persistence.currentManager().createQuery(queryString).
+				setParameterList("userIds", userIds);
+//		StringBuilder queryBuilder = new StringBuilder("SELECT DISTINCT thread " + "FROM MessageThread thread ");
+//		//create join clauses
+//		for(int i = 0; i < userIds.size(); i++) {
+//			queryBuilder.append(" LEFT JOIN thread.participants participant").append(i);
+//		}
+//		//create where clauses and named parameters
+//		for(int i = 0; i < userIds.size(); i++) {
+//			queryBuilder.append(" WHERE participant").append(i).append("user.id").append(" =: userid").append(i);
+//			if(i < userIds.size()-1) {
+//				queryBuilder.append(" AND ");
+//			}
+//		}
+//		Query query = persistence.currentManager().createQuery(queryBuilder.toString());
+//		//bind parameters
+//		for(int i = 0; i < userIds.size(); i++) {
+//			query.setLong("userid", userIds.get(i));
+//		}
+//		return query;
 	}
 
 }

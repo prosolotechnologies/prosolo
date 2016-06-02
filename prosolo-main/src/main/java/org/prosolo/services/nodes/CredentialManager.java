@@ -180,6 +180,13 @@ public interface CredentialManager extends AbstractManager {
 	 * @throws DbConnectionException
 	 */
 	List<TargetCredential1> getAllCompletedCredentials(Long userId) throws DbConnectionException;
+	
+	/**
+	 * Method for getting all credentials (nevertheless the progress)
+	 * @return 
+	 * @throws DbConnectionException
+	 */
+	List<TargetCredential1> getAllCredentials(Long userId) throws DbConnectionException;
 		
 	/**
 	 * Updated hidden_from_profile_field

@@ -22,19 +22,19 @@
 			<p:growl id="userRolesFormGrowl" showDetail="true" />
 
 			<p>
-				Roles for the user #{units.userToEdit.name} #{units.userToEdit.lastName}.
+				Roles for the user #{roles.userToEdit.name} #{roles.userToEdit.lastName}.
 			</p>
 			
-			<h:selectManyCheckbox rendered="#{units.selectedRoles != null}" 
-				value="#{units.selectedRoles}" layout="pageDirection">
-				<f:selectItems value="#{units.allRoles}" var="role"
+			<h:selectManyCheckbox rendered="#{roles.selectedRoles != null}" 
+				value="#{roles.selectedRoles}" layout="pageDirection">
+				<f:selectItems value="#{roles.allRolesItems}" var="role"
 					itemValue="role" selected="true" />
 			</h:selectManyCheckbox>
 
 			<div class="actions">
 				<p:commandLink value="Save"
 					styleClass="button green size30 right"
-					action="#{units.updateUserRoles}"
+					action="#{roles.updateUserRoles}"
 					onclick='$("#userRolesModalDialog").dialog("close");'
 					update="userRolesFormGrowl"/>
 

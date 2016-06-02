@@ -62,7 +62,7 @@ public class CredentialViewBeanUser implements Serializable {
 					credentialData = credentialManager.getFullTargetCredentialOrCredentialData(decodedId, 
 							loggedUser.getUser().getId());
 					if(justEnrolled) {
-						PageUtil.fireSuccessfulInfoMessage("You have enrolled to the credential " + 
+						PageUtil.fireSuccessfulInfoMessage("You have enrolled in the credential " + 
 								credentialData.getTitle());
 					}
 				}

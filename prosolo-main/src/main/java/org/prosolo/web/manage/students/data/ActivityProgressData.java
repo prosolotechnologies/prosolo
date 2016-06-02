@@ -1,10 +1,10 @@
-package org.prosolo.web.students.data.learning;
+package org.prosolo.web.manage.students.data;
 
 import java.io.Serializable;
 
-import org.prosolo.common.domainmodel.activities.TargetActivity;
+import org.prosolo.services.nodes.data.ActivityData;
 
-public class ActivityData implements Serializable{
+public class ActivityProgressData implements Serializable{
 
 	private static final long serialVersionUID = -2867249023190387624L;
 
@@ -13,11 +13,11 @@ public class ActivityData implements Serializable{
 	private String description;
 	private boolean completed;
 	
-	public ActivityData(TargetActivity ta) {
-		this.id = ta.getId();
-		this.name = ta.getTitle();
-		this.description = ta.getDescription();
-		this.completed = ta.isCompleted();
+	public ActivityProgressData(ActivityData actData) {
+		this.id = actData.getActivityId();
+		this.name = actData.getTitle();
+		this.description = actData.getDescription();
+		this.completed = actData.isCompleted();
 	}
 
 	public long getId() {

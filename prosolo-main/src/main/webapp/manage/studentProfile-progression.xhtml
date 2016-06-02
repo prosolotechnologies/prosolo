@@ -38,22 +38,22 @@
 
 			
 			<div class="slides">
-				<ui:repeat var="goal" value="#{studentProfileBean.lGoals}">
+				<ui:repeat var="cred" value="#{studentProfileBean.credentials}">
 				
 					<p:commandLink
-						styleClass="progressBlock #{goal.id == studentProfileBean.selectedGoal.id ? 'selected' : ''}"
-						action="#{studentProfileBean.selectGoal(goal)}"
+						styleClass="progressBlock #{cred.id == studentProfileBean.selectedCredential.id ? 'selected' : ''}"
+						action="#{studentProfileBean.selectCredential(cred)}"
 						update=":competencesBlock :lastObservationPanel :svgContainer"
 						onclick="$('#credentials .slides .progressBlock').removeClass('selected');$(this).addClass('selected');"
 						oncomplete="hideObservationPanel();">
 	
 						<div class="progress">
 							<div class="progression bgGreen"
-								style="height: #{goal.progress}%"></div>
+								style="height: #{cred.progress}%"></div>
 							<div class="progressMask"></div>
-							<div class="percentage">#{goal.progress}%</div>
+							<div class="percentage">#{cred.progress}%</div>
 						</div>
-						<h3>#{goal.name}</h3>
+						<h3>#{cred.name}</h3>
 					</p:commandLink>
 				</ui:repeat>
 			</div>
@@ -89,10 +89,10 @@
 			</p:commandLink>
 			
 			<div class="slides">
-				<ui:repeat var="comp" value="#{studentProfileBean.selectedGoal.competences}">
+				<ui:repeat var="comp" value="#{studentProfileBean.selectedCredential.competences}">
 	
 					<h:panelGroup layout="block" id="competencePanel"
-						styleClass="progressBlock competence #{comp.id == studentProfileBean.selectedGoal.selectedCompetence.id ? 'selected' : ''}">
+						styleClass="progressBlock competence #{comp.id == studentProfileBean.selectedCredential.selectedCompetence.id ? 'selected' : ''}">
 						
 						<p:commandLink
 							onclick="$('#competencesBlock .slides .progressBlock').removeClass('selected');$(this).parent().addClass('selected');"
@@ -218,7 +218,7 @@
 				<div class="panel-group" id="activities" role="tablist"
 					aria-multiselectable="true">
 
-					<ui:repeat var="act" value="#{studentProfileBean.selectedGoal.selectedCompetence.activities}">
+					<ui:repeat var="act" value="#{studentProfileBean.selectedCredential.selectedCompetence.activities}">
 					
 						<div class="panel panel-default">
 							<h:inputHidden value="#{act.id}"></h:inputHidden>

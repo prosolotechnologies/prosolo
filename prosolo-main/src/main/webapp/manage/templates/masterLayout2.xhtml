@@ -8,6 +8,7 @@
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
 	xmlns:util="http://www.prosolo.com/util"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 <ui:insert name="metadata" />
@@ -59,13 +60,15 @@
 						<ul class="nav nav-pills">
 							<li role="presentation"
 								class="#{util:getPagePath(view.viewId)  == 'index' ? 'active' : ''}">
-								<h:link onclick="sendLogPageNavigation('index','mainmenu');"
-									value="Home" outcome="/index" />
+								<a onclick="sendLogPageNavigation('index','mainmenu');" href="library">
+									Home
+								</a>
 							</li>
 							<li role="presentation"
 								class="#{util:getPagePath(view.viewId)  == 'manage-credentialLibrary' ? 'active' : ''}">
-								<h:link onclick="sendLogPageNavigation('manage-credentialLibrary','mainmenu');"
-									value="Library" outcome="/credentialLibrary" />
+								<a onclick="sendLogPageNavigation('manage-credentialLibrary','mainmenu');" href="library">
+									Library
+								</a>
 							</li>
 							<li role="presentation"
 								class="#{util:getPagePath(view.viewId)  == 'manage-students' ? 'active' : ''}">
@@ -91,51 +94,55 @@
 								    outcome="/manage/create-competence.xhtml" /></li>
 						</ul>
 					</div>
-					<a class="iconMessages active" href="#">Messages<span
+					
+					<a class="iconMessages active" href="messages">Messages<span
 						class="unreadDot">unreadDot</span></a> 
+	
 					<div class="dropdown notificationsMenu">
-                        <a class="iconNotifications" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">Notifications</a>
-                        <ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenuNotifications">
-                            <li class="notifFollowed">
-                                <div class="line01">
-                                    <span class="icon"></span>
-                                    <a href="#">Gustavo Fring</a> followed you
-                                </div>
-                                <div class="line02">5 minutes ago</div>
-                            </li>
-                            <li class="notifComment">
-                                <div class="line01">
-                                    <span class="icon"></span>
-                                    <a href="#">Gustavo Fring</a> commented on <a href="#">Define social network analysis</a>
-                                </div>
-                                <div class="line02">Yesterday</div>
-                            </li>
-                            <li class="notifLikeComment">
-                                <div class="line01">
-                                    <span class="icon"></span>
-                                    <a href="#">Gustavo Fring</a> liked a comment on <a href="#">Define social network analysis</a>
-                                </div>
-                                <div class="line02">Yesterday</div>
-                            </li>
-                            <li class="notifLearning">
-                                <div class="line01">
-                                    <span class="icon"></span>
-                                    <a href="#">Gustavo Fring</a> started learning <a href="#">Define social network analysis</a>
-                                </div>
-                                <div class="line02">Yesterday</div>
-                            </li>
-                            <li class="notifMention">
-                                <div class="line01">
-                                    <span class="icon"></span>
-                                    <a href="#">Gustavo Fring</a> mentioned you on <a href="#">Define social network analysis</a>
-                                </div>
-                                <div class="line02">Yesterday</div>
-                            </li>
-                            <li class="linkAllNotifications">
-                            	<h:link outcome="/profile-notifications" value="View all"/>
-                            </li>
-                        </ul>
-                    </div>
+						<p:commandLink id="iconNotificationsId"
+							styleClass="iconNotifications active" 
+							pt:data-toggle="dropdown" 
+							pt:aria-haspopup="true" 
+							pt:aria-expanded="true"
+							action="#{topNotificationsBean1.fetchNotifications}"
+							process="@this"
+							update="notificationLoop @this">
+							
+							Notifications
+							
+							<h:panelGroup id="unreadNotificationsDot">
+								<span id="unreadNotificationsSpanId"
+									class="#{topNotificationsBean1.unreadNotificationsNo > 0 ? 'unreadDot' : ''}">unreadDot</span>
+							</h:panelGroup>
+						</p:commandLink>
+					
+						<ul class="dropdown-menu bullet pull-center"
+							aria-labelledby="dropdownMenuNotifications">
+							
+							<ui:repeat id="notificationLoop" var="notificationData" value="#{topNotificationsBean1.notificationDatas}">
+								<li class="#{(notificationData.notificationType eq 'Follow_User') ? 'notifFollowed' : 
+										(notificationData.notificationType eq 'Comment') ? 'notifComment': 
+										(notificationData.notificationType eq 'Comment_Like') ? 'notifLikeComment':
+										(notificationData.notificationType eq 'Mention') ? 'notifMention':
+										(notificationData.notificationType eq 'Assessment_Given') ? 'notifAssessment': 'notifLearning'}">
+									<h:link outcome="#{notificationData.link}">
+										<span class="icon"></span>
+										<h3>#{notificationData.actor.fullName}</h3> 
+										#{notificationData.predicate}
+										<h3>#{notificationData.objectTitle}</h3>
+										<span class="timestamp">#{notificationData.datePretty}</span>
+									</h:link>
+								</li>
+							</ui:repeat>
+							
+							<li class="linkAllNotifications">
+								<h:link value="View all"
+									onclick="sendLogPageNavigation('notifications','mainmenu');"
+									outcome="/notifications" />
+							</li>
+						</ul>
+					</div>
+				
 					<h:form>
 						<div class="dropdown userMenu">
 							<a data-toggle="dropdown" aria-haspopup="true"

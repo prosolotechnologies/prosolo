@@ -978,8 +978,11 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		 * set first competence and first activity in first competence as next to learn
 		 */
 		targetCred.setNextCompetenceToLearnId(targetComps.get(0).getCompetence().getId());
-		targetCred.setNextActivityToLearnId(targetComps.get(0).getTargetActivities()
-				.get(0).getActivity().getId());
+		
+		if (!targetComps.isEmpty() && !targetComps.get(0).getTargetActivities().isEmpty()) {
+			targetCred.setNextActivityToLearnId(targetComps.get(0).getTargetActivities()
+					.get(0).getActivity().getId());
+		}
 		return targetCred;
 	}
 	
@@ -1726,6 +1729,28 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					.setLong("userid", userid)
 					.setInteger("progress", 100)
 				  	.list();
+		} catch (DbConnectionException e) {
+			e.printStackTrace();
+			throw new DbConnectionException();
+		}
+		return result;
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	@Transactional
+	public List<TargetCredential1> getAllCredentials(Long userid) throws DbConnectionException {
+		List<TargetCredential1> result = new ArrayList();
+		try {
+			String query=
+				"SELECT targetCredential1 " +
+				"FROM TargetCredential1 targetCredential1 " +
+				"WHERE targetCredential1.user.id = :userid ";
+			
+			result = persistence.currentManager()
+					.createQuery(query)
+					.setLong("userid", userid)
+					.list();
 		} catch (DbConnectionException e) {
 			e.printStackTrace();
 			throw new DbConnectionException();

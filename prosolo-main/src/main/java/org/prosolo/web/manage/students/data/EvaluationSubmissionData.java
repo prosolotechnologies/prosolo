@@ -1,4 +1,4 @@
-package org.prosolo.web.students.data.learning;
+package org.prosolo.web.manage.students.data;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

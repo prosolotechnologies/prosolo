@@ -11,11 +11,11 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
+import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.observations.Observation;
 import org.prosolo.common.domainmodel.observations.Suggestion;
 import org.prosolo.common.domainmodel.observations.Symptom;
-import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.MessagingManager;
@@ -29,6 +29,7 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 
 	private static final long serialVersionUID = -7710666335405883922L;
 	
+	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(ObservationManagerImpl.class);
 	
 	@Inject
@@ -36,7 +37,7 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 
 	@Override
 	@Transactional(readOnly = true)
-	public Observation getLastObservationForUser(long userId, long targetLearningGoalId) throws DbConnectionException{
+	public Observation getLastObservationForUser(long userId, long targetCredentialId) throws DbConnectionException{
 		try{
 			String queryString = 
 					"SELECT o " +
@@ -45,18 +46,18 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 					"INNER JOIN fetch o.createdBy user " +
 					"LEFT JOIN fetch o.symptoms sy " +
 					"LEFT JOIN fetch o.suggestions su " +
-					"LEFT JOIN o.targetLearningGoal tGoal " +
+					"LEFT JOIN o.targetCredential targetCred " +
 					"WHERE student.id = :id " +
-					"AND tGoal.id = :targetGoalId " +
+						"AND targetCred.id = :targetCredentialId " +
 					"ORDER BY o.creationDate desc";
 	
-			Query query = persistence.currentManager().createQuery(queryString);
-			query.setLong("id", userId)
-				.setLong("targetGoalId", targetLearningGoalId);
-			query.setMaxResults(1);
+			Query query = persistence.currentManager().createQuery(queryString)
+					.setLong("id", userId)
+					.setLong("targetCredentialId", targetCredentialId)
+					.setMaxResults(1);
 			
 			return (Observation) query.uniqueResult();	
-		}catch(Exception e){
+		} catch (Exception e) {
 			throw new DbConnectionException("Observation cannot be loaded at the moment");
 		}
 	}
@@ -64,11 +65,11 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 	@Override
 	@Transactional
 	public Map<String, Object> saveObservation(long id, String message, String note, List<Long> symptomIds,
-			List<Long> suggestionIds, long creatorId, long studentId, long targetGoalId) throws DbConnectionException {
-		try{
+			List<Long> suggestionIds, long creatorId, long studentId, long targetCredentialId) throws DbConnectionException {
+		try {
 			boolean insert = true;
 			Observation observation = new Observation();
-			if(id > 0){
+			if (id > 0) {
 				insert = false;
 				observation.setId(id);
 			}
@@ -83,24 +84,24 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 		    observation.setCreatedFor(student);
 		    
 		    Set<Symptom> symptoms = new HashSet<>();
-		    for(long sid:symptomIds){
-		    	Symptom s = new Symptom();
-		    	s.setId(sid);
-		    	symptoms.add(s);
-		    }
+			for (long sid : symptomIds) {
+				Symptom s = new Symptom();
+				s.setId(sid);
+				symptoms.add(s);
+			}
 		    observation.setSymptoms(symptoms);
 		    
-		    Set<Suggestion> suggestions = new HashSet<>();
-		    for(long sid:suggestionIds){
-		    	Suggestion s = new Suggestion();
-		    	s.setId(sid);
-		    	suggestions.add(s);
-		    }
+			Set<Suggestion> suggestions = new HashSet<>();
+			for (long sid : suggestionIds) {
+				Suggestion s = new Suggestion();
+				s.setId(sid);
+				suggestions.add(s);
+			}
 		    observation.setSuggestions(suggestions);
 		    
-		    TargetLearningGoal tGoal = new TargetLearningGoal();
-		    tGoal.setId(targetGoalId);
-		    observation.setTargetLearningGoal(tGoal);
+		    TargetCredential1 targetCred = new TargetCredential1();
+		    targetCred.setId(targetCredentialId);
+		    observation.setTargetCredential(targetCred);
 		    
 			observation =  saveEntity(observation);
 			persistence.currentManager().evict(observation);
@@ -108,42 +109,44 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 			Map<String, Object> result = new HashMap<>();
 			result.put("observationId", observation.getId());
 			
-			if(insert && message != null && !message.isEmpty() && creatorId != studentId){
+			if (insert && message != null && !message.isEmpty() && creatorId != studentId) {
 				Message msg = msgManager.sendMessage(creatorId, studentId, message);
 				result.put("message", msg);
 			}
 
 			return result;
-		}catch(DbConnectionException dbce){
+		} catch (DbConnectionException dbce) {
 			dbce.printStackTrace();
 			throw dbce;
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 			throw new DbConnectionException("Error while saving observation");
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly = true)
-	public List<Observation> getObservations(long userId, long targetLearningGoalId) throws DbConnectionException{
-		try{
+	public List<Observation> getObservations(long userId, long targetCredentialId) throws DbConnectionException{
+		try {
 			String queryString = 
-					"SELECT distinct o " +
+					"SELECT DISTINCT o " +
 					"FROM Observation o " +
-					"INNER JOIN fetch o.createdFor student " +
-					"INNER JOIN fetch o.createdBy user " +
-					"LEFT JOIN fetch o.symptoms sy " +
-					"LEFT JOIN fetch o.suggestions su " +
-					"LEFT JOIN o.targetLearningGoal tGoal " +
+					"INNER JOIN FETCH o.createdFor student " +
+					"INNER JOIN FETCH o.createdBy user " +
+					"LEFT JOIN FETCH o.symptoms sy " +
+					"LEFT JOIN FETCH o.suggestions su " +
+					"LEFT JOIN o.targetCredential targetCred " +
 					"WHERE student.id = :id " +
-					"AND tGoal.id = :targetGoalId " +
+						"AND targetCred.id = :targetCredentialId " +
 					"ORDER BY o.creationDate desc";
 	
 			Query query = persistence.currentManager().createQuery(queryString);
 			query.setLong("id", userId);
+			query.setLong("targetCredentialId", targetCredentialId);
 			
 			return query.list();	
-		}catch(Exception e){
+		} catch (Exception e) {
 			throw new DbConnectionException("Observations cannot be loaded at the moment");
 		}
 	}

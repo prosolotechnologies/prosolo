@@ -302,7 +302,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		/*
 		 * set first activity as next to learn
 		 */
-		targetComp.setNextActivityToLearnId(targetActivities.get(0).getActivity().getId());
+		if (!targetActivities.isEmpty())
+			targetComp.setNextActivityToLearnId(targetActivities.get(0).getActivity().getId());
 		return targetComp;
 	}
 	

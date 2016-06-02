@@ -17,6 +17,7 @@ public class SuggestionManagerImpl extends AbstractManagerImpl implements Sugges
 
 	private static final long serialVersionUID = 3794586060152562963L;
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly = true)
 	public List<Suggestion> getAllSuggestions() throws DbConnectionException {
