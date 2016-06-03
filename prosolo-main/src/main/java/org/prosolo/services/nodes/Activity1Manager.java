@@ -6,7 +6,7 @@ import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
@@ -31,12 +31,12 @@ public interface Activity1Manager {
 			throws DbConnectionException;
 
 	/**
-	 * Sets published to true for all competence activities that do not have
-	 * draft version
+	 * Publishes all activities from competence with specified id.
 	 * @param compId
 	 * @throws DbConnectionException
 	 */
-	void publishAllCompetenceActivitiesWithoutDraftVersion(Long compId) throws DbConnectionException;
+	void publishActivitiesFromCompetence(long compId) 
+			throws DbConnectionException;
 	
 	/**
 	 * Sets published to true for all activities from the list that do not have
@@ -134,6 +134,9 @@ public interface Activity1Manager {
 	 * @throws DbConnectionException
 	 */
 	ActivityData getCurrentVersionOfActivityForManager(long activityId) 
+			throws DbConnectionException;
+	
+	void publishDraftActivities(List<Long> actIds) 
 			throws DbConnectionException;
 
 }

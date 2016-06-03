@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.prosolo.common.domainmodel.lti.LtiTool;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.lti.filter.Filter;
 
 

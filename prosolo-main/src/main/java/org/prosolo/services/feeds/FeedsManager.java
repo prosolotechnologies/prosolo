@@ -10,10 +10,10 @@ import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.user.TimeFrame;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.FeedsPreferences;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.feeds.data.CourseFeedsData;
 import org.prosolo.services.feeds.data.UserFeedSourceAggregate;
 import org.prosolo.services.general.AbstractManager;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.web.settings.data.FeedSourceData;
 
 /**

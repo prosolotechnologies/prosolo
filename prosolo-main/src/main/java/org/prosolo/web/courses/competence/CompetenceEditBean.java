@@ -14,7 +14,8 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.common.exception.CompetenceEmptyException;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
@@ -200,9 +201,9 @@ public class CompetenceEditBean implements Serializable {
 			}
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			return true;
-		} catch(DbConnectionException e) {
+		} catch(DbConnectionException | CompetenceEmptyException e) {
 			logger.error(e);
-			e.printStackTrace();
+			//e.printStackTrace();
 			PageUtil.fireErrorMessage(e.getMessage());
 			return false;
 		}

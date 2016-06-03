@@ -28,11 +28,12 @@ import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.annotation.TagManager;
-import org.prosolo.services.event.EventException;
+import org.prosolo.services.common.exception.CompetenceEmptyException;
+import org.prosolo.services.common.exception.CredentialEmptyException;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -82,6 +83,12 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	public Credential1 saveNewCredential(CredentialData data, User createdBy) throws DbConnectionException {
 		Credential1 cred = null;
 		try {
+			/*
+			 * if credential has no competences, it can't be published
+			 */
+			if(data.isPublished() && (data.getCompetences() == null || data.getCompetences().isEmpty())) {
+				throw new CredentialEmptyException();
+			}
 			cred = resourceFactory.createCredential(data.getTitle(), data.getDescription(),
 					new HashSet<Tag>(tagManager.parseCSVTagsAndSave(data.getTagsString())),
 					new HashSet<Tag>(tagManager.parseCSVTagsAndSave(data.getHashtagsString())), createdBy,
@@ -106,15 +113,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			}
 
 			return cred;
-		} catch (EventException e) {
+		} catch(CredentialEmptyException cee) {
+			logger.error(cee);
+			//cee.printStackTrace();
+			throw cee;
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while saving credential");
-		} catch (DbConnectionException dbe) {
-			logger.error(dbe);
-			dbe.printStackTrace();
-			throw dbe;
-		}
+		} 
 	}
 
 	@Override
@@ -509,13 +516,24 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			builder.append("WHERE cred.id = :credentialId AND cred.deleted = :deleted "
 					+ "AND cred.draft = :draft ");
 			
-			if(returnType == LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER) {
-				builder.append("AND (cred.createdBy.id = :userId OR (cred.published = :published  OR (cred.published = :notPublished "
-						+ "AND cred.hasDraft = :hasDraft)))");
-			} else if(returnType == LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_MANAGER) {
-				builder.append("AND (cred.type = :type OR (cred.published = :published  OR (cred.published = :notPublished "
-						+ "AND cred.hasDraft = :hasDraft)))");
+			String condition = "AND (cred.published = :published OR  "
+						+ "cred.hasDraft = :hasDraft ";
+			switch(returnType) {
+				case ANY:
+					condition = "";
+					break;
+				case PUBLISHED_VERSION:
+					condition += ") ";
+					break;
+				case FIRST_TIME_DRAFT_FOR_USER:
+					condition += "OR cred.createdBy.id = :userId) ";
+					break;
+				case FIRST_TIME_DRAFT_FOR_MANAGER:
+					condition += "OR cred.type = :type) ";
+					break;
 			}
+
+			builder.append(condition);
 				
 			logger.info("GET CREDENTIAL DATA QUERY: " + builder.toString());
 			Query q = persistence.currentManager()
@@ -524,16 +542,14 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					.setBoolean("deleted", false)
 					.setBoolean("draft", false);
 			
+			if(returnType != LearningResourceReturnResultType.ANY) {
+				q.setBoolean("published", true)
+				 .setBoolean("hasDraft", true);
+			}
 			if(returnType == LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER) {
-				q.setLong("userId", userId)
-				 .setBoolean("published", true)
-				 .setBoolean("notPublished", false)
-				 .setBoolean("hasDraft", true);
+				q.setLong("userId", userId);
 			} else if(returnType == LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_MANAGER) {
-				q.setParameter("type", LearningResourceType.UNIVERSITY_CREATED)
-				 .setBoolean("published", true)
-				 .setBoolean("notPublished", false)
-				 .setBoolean("hasDraft", true);
+				q.setParameter("type", LearningResourceType.UNIVERSITY_CREATED);
 			}
 			
 			Credential1 cred = (Credential1) q.uniqueResult();
@@ -630,9 +646,24 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Override
 	@Transactional(readOnly = false)
-	public Credential1 updateCredential(CredentialData data, User user) throws DbConnectionException {
+	public Credential1 updateCredential(CredentialData data, User user, Role role) 
+			throws DbConnectionException, CredentialEmptyException, CompetenceEmptyException {
 		try {
-			Credential1 cred = resourceFactory.updateCredential(data);
+			/*
+			 * if credential has no competences (that are not removed), it can't be published
+			 */
+			if(data.isPublished()) {
+				if(data.getCompetences() == null) {
+					throw new CredentialEmptyException();
+				}
+				long numberOfComps = data.getCompetences().stream().filter(
+						comp -> comp.getObjectStatus() != ObjectStatus.REMOVED).count();
+				if(numberOfComps == 0) {
+					throw new CredentialEmptyException();
+				}
+			}
+			
+			Credential1 cred = resourceFactory.updateCredential(data, user.getId(), role);
 
 			if(data.isPublished()) {
 				//credential remains published
@@ -694,20 +725,24 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			}
 
 		    return cred;
-		} catch (EventException e) {
+		} catch(CredentialEmptyException cee) {
+			logger.error(cee);
+			//cee.printStackTrace();
+			throw cee;
+		} catch(CompetenceEmptyException ceex) {
+			logger.error(ceex);
+			//ceex.printStackTrace();
+			throw ceex;
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while saving credential");
-		} catch (DbConnectionException dbe) {
-			logger.error(dbe);
-			dbe.printStackTrace();
-			throw dbe;
+			throw new DbConnectionException("Error while updating credential");
 		}
 	}
 	
 	@Override
 	@Transactional(readOnly = false)
-	public Credential1 updateCredential(CredentialData data) {
+	public Credential1 updateCredential(CredentialData data, long creatorId, Role role) {
 		Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, 
 				data.getId());
 		/*
@@ -729,7 +764,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					publishTransition;
 		}
 		
-		return updateCredentialData(cred, publishTransition, data);
+		return updateCredentialData(cred, publishTransition, data, creatorId, role);
 	}
 	
 	/**
@@ -744,10 +779,12 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	 * @param cred
 	 * @param publishTransition
 	 * @param data
+	 * @param creatorId needed only if {@code role} value is Role.USER, otherwise 0 can be passed
+	 * @param role 
 	 */
 	@Transactional(readOnly = false)
 	private Credential1 updateCredentialData(Credential1 cred, EntityPublishTransition publishTransition,
-			CredentialData data) {
+			CredentialData data, long creatorId, Role role) {
 		Credential1 credToUpdate = null;
 		switch(publishTransition) {
 			case FROM_PUBLISHED_TO_DRAFT_VERSION:
@@ -777,6 +814,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		credToUpdate.setStudentsCanAddCompetences(data.isStudentsCanAddCompetences());
 		credToUpdate.setManuallyAssignStudents(data.isManuallyAssingStudents());
 		credToUpdate.setDefaultNumberOfStudentsPerInstructor(data.getDefaultNumberOfStudentsPerInstructor());
+		//TODO duration should probably be fetched from database to be sure that most recent duration is used
 		credToUpdate.setDuration(data.getDuration());
 		
 	    if(publishTransition == EntityPublishTransition.NO_TRANSITION) {
@@ -860,14 +898,19 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    		}
 	    	}
 	    	
-	    	/*
-	    	 * if draft version is published or original version becomes published for the 
-	    	 * first time, publish all draft competences that were never published.
-	    	 */
-	    	if(publishTransition == EntityPublishTransition.FROM_DRAFT_VERSION_TO_PUBLISHED
-	    			|| (publishTransition == EntityPublishTransition.NO_TRANSITION
-	    			&& data.isPublished() && data.isPublishedChanged())) {
-    			compManager.publishDraftCompetencesWithoutDraftVersion(compIds);
+//	    	/*
+//	    	 * if draft version is published or original version becomes published for the 
+//	    	 * first time, publish all draft competences that were never published.
+//	    	 */
+//	    	if(publishTransition == EntityPublishTransition.FROM_DRAFT_VERSION_TO_PUBLISHED
+//	    			|| (publishTransition == EntityPublishTransition.NO_TRANSITION
+//	    			&& data.isPublished() && data.isPublishedChanged())) {
+//    			//compManager.publishDraftCompetencesWithoutDraftVersion(compIds);
+//	    		compManager.publishDraftCompetences(compIds, creatorId, role);
+//    		}
+	    	if(data.isPublished()) {
+    			//compManager.publishDraftCompetencesWithoutDraftVersion(compIds);
+	    		compManager.publishDraftCompetences(compIds, creatorId, role);
     		}
 	    }
 	    

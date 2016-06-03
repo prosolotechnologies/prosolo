@@ -32,12 +32,12 @@ import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.interaction.data.CommentData;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.activity.ActivityData;
@@ -120,7 +120,8 @@ public interface ResourceFactory extends AbstractManager {
 			boolean studentAllowedToAddActivities, LearningResourceType type, boolean published, 
 			long duration);
 
-	Credential1 updateCredential(CredentialData data);
+	Credential1 updateCredential(CredentialData data, long creatorId, 
+			org.prosolo.services.nodes.data.Role role);
 
 	Competence1 updateCompetence(CompetenceData1 data);
 	

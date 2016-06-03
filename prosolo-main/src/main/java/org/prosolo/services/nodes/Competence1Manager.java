@@ -9,10 +9,12 @@ import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.common.exception.CompetenceEmptyException;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
 import org.prosolo.services.nodes.data.Operation;
+import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 
 public interface Competence1Manager {
@@ -46,7 +48,8 @@ public interface Competence1Manager {
 	Competence1 deleteCompetence(long originalCompId, CompetenceData1 data, User user) 
 			throws DbConnectionException;
 	
-	Competence1 updateCompetence(CompetenceData1 data, User user) throws DbConnectionException;
+	Competence1 updateCompetence(CompetenceData1 data, User user) 
+			throws DbConnectionException, CompetenceEmptyException;
 	
 	Competence1 updateCompetence(CompetenceData1 data) throws DbConnectionException;
 	
@@ -186,6 +189,9 @@ public interface Competence1Manager {
 	 */
 	CompetenceData1 getCurrentVersionOfCompetenceForManager(long competenceId,
 			boolean loadCreator, boolean loadActivities) throws DbConnectionException;
+	
+	void publishDraftCompetences(List<Long> compIds, long creatorId, Role role) 
+			throws DbConnectionException, CompetenceEmptyException;
 	
 //	/**
 //	 * Returns current version of competence for edit if edit mode - draft version if exists

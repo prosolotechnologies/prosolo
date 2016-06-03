@@ -11,12 +11,15 @@ import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.services.common.exception.CompetenceEmptyException;
+import org.prosolo.services.common.exception.CredentialEmptyException;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.general.AbstractManager;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
 import org.prosolo.services.nodes.data.Operation;
+import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 
 public interface CredentialManager extends AbstractManager {
@@ -124,9 +127,10 @@ public interface CredentialManager extends AbstractManager {
 	CredentialData getCredentialDataForEdit(long credentialId, long creatorId, boolean loadCompetences) 
 			throws DbConnectionException;
 	
-	Credential1 updateCredential(CredentialData data, User user) throws DbConnectionException;
+	Credential1 updateCredential(CredentialData data, User user, Role role) throws DbConnectionException, 
+		CredentialEmptyException, CompetenceEmptyException;
 	
-	Credential1 updateCredential(CredentialData data);
+	Credential1 updateCredential(CredentialData data, long creatorId, Role role);
 	
 	CredentialData enrollInCredential(long credentialId, long userId, LearningContextData context) 
 			throws DbConnectionException;

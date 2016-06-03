@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
 import org.primefaces.event.RowEditEvent;
 import org.prosolo.common.domainmodel.observations.Suggestion;
 import org.prosolo.common.domainmodel.observations.Symptom;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.studentProfile.observations.SuggestionManager;
 import org.prosolo.services.studentProfile.observations.SymptomManager;
 import org.prosolo.web.manage.students.data.observantions.SuggestionData;
