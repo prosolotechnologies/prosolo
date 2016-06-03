@@ -663,20 +663,25 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				compToUpdate.setType(comp.getType());
 				comp.setHasDraft(true);
 				comp.setPublished(false);
+				//TODO duration should probably be fetched from database to be sure that most recent duration is used
+				compToUpdate.setDuration(getCompetenceDuration(comp.getId()));
 				break;
 			case FROM_DRAFT_VERSION_TO_PUBLISHED:
 				compToUpdate = getOriginalCompetenceForDraft(comp.getId());
 				compToUpdate.setHasDraft(false);
 				compToUpdate.setDraftVersion(null);
-		    	delete(comp);
 		    	/*
 		    	 * old duration is taken from original competence and new duration is
-		    	 * taken from draft version and not from data object because competence
+		    	 * fetched from db and not from data object because competence
 		    	 * duration can be updated from other places (when activity is updated)
 		    	 * and data object may not capture last changes
 		    	 */
-		    	updateCredentialsDuration(compToUpdate.getId(), comp.getDuration(), 
+				//logger.info("DURATION " + comp.getDuration());
+				long mostRecentDuration = comp.getDuration();
+		    	updateCredentialsDuration(compToUpdate.getId(), mostRecentDuration, 
 		    			compToUpdate.getDuration());
+				compToUpdate.setDuration(mostRecentDuration);
+		    	delete(comp);
 		    	break;
 			case NO_TRANSITION:
 				compToUpdate = comp;
@@ -687,8 +692,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		compToUpdate.setDescription(data.getDescription());
 		compToUpdate.setPublished(data.isPublished());
 		compToUpdate.setStudentAllowedToAddActivities(data.isStudentAllowedToAddActivities());
-		//TODO duration should probably be fetched from database to be sure that most recent duration is used
-		compToUpdate.setDuration(data.getDuration());
 	    if(publishTransition == EntityPublishTransition.NO_TRANSITION) {
 	    	if(data.isTagsStringChanged()) {
 	    		compToUpdate.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(
@@ -765,21 +768,32 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		    		}
 	    		}
 	    	}
-//	    	/*
-//	    	 * if draft version is published or original version becomes published for the 
-//	    	 * first time, publish all draft activities that were never published.
-//	    	 */
-//	    	if(publishTransition == EntityPublishTransition.FROM_DRAFT_VERSION_TO_PUBLISHED
-//	    			|| (publishTransition == EntityPublishTransition.NO_TRANSITION
-//	    			&& data.isPublished() && data.isPublishedChanged())) {
-//	    		activityManager.publishDraftActivities(actIds);
-//    		}
 	    	if(data.isPublished()) {
 	    		activityManager.publishDraftActivities(actIds);
 	    	}
 	    }
 	    
 	    return compToUpdate;
+	}
+	
+	@Transactional(readOnly = true)
+	public long getCompetenceDuration(long compId) throws DbConnectionException {  
+		try {
+			String query = "SELECT comp.duration " +
+					   "FROM Competence1 comp " + 
+					   "WHERE comp.id = :compId";
+			
+			Long duration = (Long) persistence.currentManager()
+					.createQuery(query)
+					.setLong("compId", compId)
+					.uniqueResult();
+			
+			return duration;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving competence duration");
+		}
 	}
 	
 	private void updateCredentialsDuration(long compId, long newDuration, long oldDuration) {
@@ -1249,8 +1263,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					Competence1.class, compId);
 			
 			/*
-			 * if credential has draft version, that version is loaded and if credential 
-			 * is published draft version will be created and attached to original credential
+			 * if competence has draft version, that version is loaded and if competence 
+			 * is published draft version will be created and attached to original competence
 			 */
 			Competence1 draftComp = null;
 			if(comp.isHasDraft()) {
@@ -1280,7 +1294,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				if(draftComp != null) {
 					compToUpdate.setDuration(compToUpdate.getDuration() + act.getDuration());
 				} else {
-					updateDuration(compToUpdate.getId(), act.getDuration(), Operation.Add);
+					updateDurationForCompetencesWithActivity(act.getId(), act.getDuration(), Operation.Add);
 				}
 			}
 		} catch(Exception e) {
@@ -1331,20 +1345,35 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = false)
-	public void updateDuration(long id, long duration, Operation op) throws DbConnectionException {
+	public void updateDurationForCompetencesWithActivity(long actId, long duration, Operation op) 
+			throws DbConnectionException {
 		try {
-			String opString = op == Operation.Add ? "+" : "-";
-			String query = "UPDATE Competence1 comp SET " +
-						   "comp.duration = comp.duration " + opString + " :duration " +
-						   "WHERE comp.id = :compId";
-			
-			persistence.currentManager()
-				.createQuery(query)
-				.setLong("duration", duration)
-				.setLong("compId", id)
-				.executeUpdate();
-			
-			credentialManager.updateDurationForCredentialsWithCompetence(id, duration, op);
+			List<CompetenceData1> compIdsWithActivity = getCompetenceIdsAndVersionInfoWithActivity(actId);
+			long originalVersionId = 0;
+			List<Long> compIds = new ArrayList<>();
+			for(CompetenceData1 cd : compIdsWithActivity) {
+				if(!cd.isDraft()) {
+					originalVersionId = cd.getCompetenceId();
+				}
+				compIds.add(cd.getCompetenceId());
+			}
+			if(!compIds.isEmpty()) {
+				String opString = op == Operation.Add ? "+" : "-";
+				String query = "UPDATE Competence1 comp SET " +
+							   "comp.duration = comp.duration " + opString + " :duration " +
+							   "WHERE comp.id IN (:compIds)";
+				
+				persistence.currentManager()
+					.createQuery(query)
+					.setLong("duration", duration)
+					.setParameterList("compIds", compIds)
+					.executeUpdate();
+				
+				if(originalVersionId > 0) {
+					credentialManager.updateDurationForCredentialsWithCompetence(originalVersionId, 
+							duration, op);
+				}
+			}
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1352,6 +1381,35 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
+	private List<CompetenceData1> getCompetenceIdsAndVersionInfoWithActivity(long actId) {
+		String query = "SELECT comp.id, comp.draft FROM CompetenceActivity1 cAct " +
+				"INNER JOIN cAct.competence comp " +
+				"WHERE cAct.activity.id = :actId";
+		
+		@SuppressWarnings("unchecked")
+		List<Object[]> res = persistence.currentManager()
+			.createQuery(query)
+			.setLong("actId", actId)	
+			.list();
+		
+		List<CompetenceData1> comps = new ArrayList<>();
+		if(res != null) {
+			for(Object[] row : res) {
+				if(row != null) {
+					long id = (long) row[0];
+					boolean draft = (boolean) row[1];
+					CompetenceData1 cd = new CompetenceData1(false);
+					cd.setCompetenceId(id);
+					cd.setDraft(draft);
+					comps.add(cd);
+				}
+			}
+		}
+		
+		return comps;
+				
+	}
+
 	@Override
 	@Transactional(readOnly = false)
 	public void updateTargetCompetenceDuration(long id, long duration) throws DbConnectionException {

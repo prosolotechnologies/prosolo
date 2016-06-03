@@ -144,19 +144,24 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			       	   "FROM CompetenceActivity1 compAct " + 
 			       	   "WHERE compAct.activity = :act";
 
-		CompetenceActivity1 compAct = (CompetenceActivity1) persistence.currentManager()
+		@SuppressWarnings("unchecked")
+		List<CompetenceActivity1> res = persistence.currentManager()
 			.createQuery(query)
 			.setEntity("act", act)
-			.uniqueResult();
+			.list();
 		
-		long competenceId = compAct.getCompetence().getId();
-		if(compAct != null) {
-			shiftOrderOfActivitiesUp(competenceId, compAct.getOrder());
-			delete(compAct);
+		if(res != null) {
+			for(CompetenceActivity1 ca : res) {
+				if(ca != null) {
+					long competenceId = ca.getCompetence().getId();
+					shiftOrderOfActivitiesUp(competenceId, ca.getOrder());
+					delete(ca);
+				}
+			}
 		}
 		
 		if(duration != 0) {
-			compManager.updateDuration(competenceId, duration, Operation.Subtract);
+			compManager.updateDurationForCompetencesWithActivity(actId, duration, Operation.Subtract);
 		}
 		
 	}
@@ -935,7 +940,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					actToUpdate.setDraftVersion(null);
 			    	delete(act);
 			    	long newDuration = data.getDurationHours() * 60 + data.getDurationMinutes();
-			    	updateCompDuration(data.getCompetenceId(), newDuration, actToUpdate.getDuration());
+			    	updateCompDuration(actToUpdate.getId(), newDuration, actToUpdate.getDuration());
 			    	break;
 				case NO_TRANSITION:
 					actToUpdate = act;
@@ -959,7 +964,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 						long oldDuration = oldHours * 60 + 
 								oldMinutes;
 						long newDuration1 = data.getDurationHours() * 60 + data.getDurationMinutes();
-						updateCompDuration(data.getCompetenceId(), newDuration1, oldDuration);
+						updateCompDuration(actToUpdate.getId(), newDuration1, oldDuration);
 					}
 					break;
 			}
@@ -1009,7 +1014,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
-	private void updateCompDuration(long competenceId, long newDuration, long oldDuration) {
+	private void updateCompDuration(long actId, long newDuration, long oldDuration) {
 		long durationChange = newDuration - oldDuration;
     	Operation op = null;
     	if(durationChange > 0) {
@@ -1018,10 +1023,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
     		durationChange = -durationChange;
     		op = Operation.Subtract;
     	}
-    	compManager.updateDuration(competenceId, durationChange, op);
+    	compManager.updateDurationForCompetencesWithActivity(actId, durationChange, op);
 	}
-
-
 
 	/**
 	 * This method will save resource link (insert or update), add or remove it when needed from
@@ -1252,10 +1255,11 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			builder.append("SELECT compAct " +
 					   	   "FROM CompetenceActivity1 compAct " +
 						   "INNER JOIN fetch compAct.activity act " +				   	 
-					   	   "INNER JOIN compAct.competence comp ");
+					   	   "INNER JOIN compAct.competence comp " +
+						   		"WITH comp.draft = :draft ");
 			
-			String compCondition = "WITH (comp.published = :published " +
-							       "OR comp.hasDraft = :hasDraft) ";
+			String compCondition = "AND (comp.published = :published " +
+							       "OR comp.hasDraft = :hasDraft ";
 			String actCondition = "AND (act.published = :published " +
 						          "OR act.hasDraft = :hasDraft ";
 			switch(returnType) {
@@ -1264,14 +1268,15 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					actCondition = "";
 					break;
 				case PUBLISHED_VERSION:
+					compCondition += ")";
 					actCondition += ")";
 					break;
 				case FIRST_TIME_DRAFT_FOR_USER:
-					compCondition += "OR comp.createdBy.id = :userId ";
+					compCondition += "OR comp.createdBy.id = :userId) ";
 					actCondition += "OR act.createdBy.id = :userId) ";
 					break;
 				case FIRST_TIME_DRAFT_FOR_MANAGER:
-					compCondition += "OR comp.type = :type ";
+					compCondition += "OR comp.type = :type) ";
 					actCondition += "OR act.type = :type) ";
 					break;
 			}
@@ -1290,7 +1295,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			Query q = persistence.currentManager()
 					.createQuery(builder.toString())
 					.setLong("id", activityId)
-					.setBoolean("deleted", false);
+					.setBoolean("deleted", false)
+					.setBoolean("draft", false);
 			
 			if(returnType != LearningResourceReturnResultType.ANY) {
 				q.setBoolean("published", true)

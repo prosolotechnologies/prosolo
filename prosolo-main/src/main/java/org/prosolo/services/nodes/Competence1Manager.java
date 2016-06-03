@@ -141,14 +141,16 @@ public interface Competence1Manager {
 	void addActivityToCompetence(long compId, Activity1 act) throws DbConnectionException;
 
 	/**
-	 * Duration for competence with id is updated by adding/subtracting {@code duration} value.
-	 * Duration for all credentials that include this competence is also updated.
-	 * @param id
+	 * Duration for competences with activity specified by {@code actId} are updated by adding/subtracting {@code duration} value.
+	 * One or two competences will be updated - draft and/or original version of one competence actually.
+	 * If original version of competence is updated, duration for all credentials that include 
+	 * this competence is also updated.
+	 * @param actId
 	 * @param duration
 	 * @param op
 	 * @throws DbConnectionException
 	 */
-	void updateDuration(long id, long duration, Operation op) throws DbConnectionException;
+	void updateDurationForCompetencesWithActivity(long actId, long duration, Operation op) throws DbConnectionException;
 	
 	/**
 	 * New duration for target competence is set. Duration of target credential is not updated.

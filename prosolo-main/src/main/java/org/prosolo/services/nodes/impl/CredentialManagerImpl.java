@@ -795,11 +795,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				credToUpdate.setDateCreated(cred.getDateCreated());
 				cred.setHasDraft(true);
 				cred.setPublished(false);
+		        
+		    	credToUpdate.setDuration(cred.getDuration());
 				break;
 			case FROM_DRAFT_VERSION_TO_PUBLISHED:
 				credToUpdate = getOriginalCredentialForDraft(cred.getId());
 				credToUpdate.setHasDraft(false);
 		    	credToUpdate.setDraftVersion(null);
+		    	//logger.info("DURATION " + cred.getDuration());
+		    	credToUpdate.setDuration(cred.getDuration());
 		    	delete(cred);
 		    	break;
 			case NO_TRANSITION:
@@ -814,8 +818,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		credToUpdate.setStudentsCanAddCompetences(data.isStudentsCanAddCompetences());
 		credToUpdate.setManuallyAssignStudents(data.isManuallyAssingStudents());
 		credToUpdate.setDefaultNumberOfStudentsPerInstructor(data.getDefaultNumberOfStudentsPerInstructor());
-		//TODO duration should probably be fetched from database to be sure that most recent duration is used
-		credToUpdate.setDuration(data.getDuration());
 		
 	    if(publishTransition == EntityPublishTransition.NO_TRANSITION) {
 	    	if(data.isTagsStringChanged()) {
@@ -898,16 +900,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    		}
 	    	}
 	    	
-//	    	/*
-//	    	 * if draft version is published or original version becomes published for the 
-//	    	 * first time, publish all draft competences that were never published.
-//	    	 */
-//	    	if(publishTransition == EntityPublishTransition.FROM_DRAFT_VERSION_TO_PUBLISHED
-//	    			|| (publishTransition == EntityPublishTransition.NO_TRANSITION
-//	    			&& data.isPublished() && data.isPublishedChanged())) {
-//    			//compManager.publishDraftCompetencesWithoutDraftVersion(compIds);
-//	    		compManager.publishDraftCompetences(compIds, creatorId, role);
-//    		}
 	    	if(data.isPublished()) {
     			//compManager.publishDraftCompetencesWithoutDraftVersion(compIds);
 	    		compManager.publishDraftCompetences(compIds, creatorId, role);
@@ -915,6 +907,26 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    }
 	    
 	    return credToUpdate;
+	}
+	
+	@Transactional(readOnly = true)
+	public long getCredentialDuration(long credId) throws DbConnectionException {  
+		try {
+			String query = "SELECT cred.duration " +
+					   "FROM Credential1 cred " + 
+					   "WHERE cred.id = :credId";
+			
+			Long duration = (Long) persistence.currentManager()
+					.createQuery(query)
+					.setLong("credId", credId)
+					.uniqueResult();
+			
+			return duration;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credential duration");
+		}
 	}
 
 	@Override
