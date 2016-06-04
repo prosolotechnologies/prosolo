@@ -1,4 +1,4 @@
-package org.prosolo.web.students.data;
+package org.prosolo.web.manage.students.data.observantions;
 
 import org.prosolo.common.domainmodel.observations.Symptom;
 

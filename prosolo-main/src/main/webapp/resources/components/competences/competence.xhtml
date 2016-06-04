@@ -121,21 +121,26 @@
 		               />
 		            </div>
 		            <div class="col-md-4">
-		                <h2>Keywords</h2>
-		                <ul class="tags">
-		                	<ui:repeat var="tag" value="#{cc.attrs.bean.competenceData.tags}">
-		                		<li><a href="javascript:void(0)">#{tag.title}</a></li>
-		                	</ui:repeat>               
-		                </ul>
-		                <h2>Created by</h2>
-		                <div class="user32">
-		                    <a href="#">
-		                    	<h:graphicImage value="#{cc.attrs.bean.competenceData.creator.avatar}"
-												   alt="#{cc.attrs.bean.competenceData.creator.name}" 
-												   styleClass="img-circle"
-												   width="32" height="32"/> 
-		                    </a>
-		                    <h3><a href="#">#{cc.attrs.bean.competenceData.creator.name}</a></h3>
+						<div class="sidebarBlock">
+			                <h2>Keywords</h2>
+			                <ul class="tags">
+			                	<ui:repeat var="tag" value="#{cc.attrs.bean.competenceData.tags}">
+			                		<li><a href="javascript:void(0)">#{tag.title}</a></li>
+			                	</ui:repeat>               
+			                </ul>
+		                </div>
+		                
+		                <div class="sidebarBlock">
+			                <h2>Created by</h2>
+			                <div class="user32">
+			                    <a href="#">
+			                    	<h:graphicImage value="#{cc.attrs.bean.competenceData.creator.avatar}"
+													   alt="#{cc.attrs.bean.competenceData.creator.name}" 
+													   styleClass="img-circle"
+													   width="32" height="32"/> 
+			                    </a>
+			                    <h3><a href="#">#{cc.attrs.bean.competenceData.creator.name}</a></h3>
+			                </div>
 		                </div>
 		            </div>
 		        </div>

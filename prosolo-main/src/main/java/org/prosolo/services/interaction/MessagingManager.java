@@ -9,8 +9,8 @@ import org.prosolo.common.domainmodel.messaging.ThreadParticipant;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.general.AbstractManager;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.web.messaging.data.MessagesThreadData;
 
 public interface MessagingManager extends AbstractManager {

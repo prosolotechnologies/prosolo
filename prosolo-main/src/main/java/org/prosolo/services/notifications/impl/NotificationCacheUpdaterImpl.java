@@ -10,7 +10,7 @@ import org.hibernate.Session;
 import org.prosolo.common.domainmodel.user.notifications.Notification;
 import org.prosolo.common.domainmodel.user.notifications.Notification1;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.notifications.NotificationCacheUpdater;
 import org.prosolo.services.notifications.NotificationManager;

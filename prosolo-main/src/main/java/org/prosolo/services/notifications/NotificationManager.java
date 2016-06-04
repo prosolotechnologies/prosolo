@@ -13,8 +13,8 @@ import org.prosolo.common.domainmodel.user.notifications.NotificationAction;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ObjectType;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.general.AbstractManager;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationData;
 
 public interface NotificationManager extends AbstractManager {

@@ -12,9 +12,9 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.feeds.FeedsManager;
 import org.prosolo.services.feeds.data.CourseFeedsData;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.PageUtil;

@@ -834,7 +834,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		CredentialData credentialData = credentialManager.getCredentialDataForEdit(credential.getId(), user.getId(), true);
 		credentialData.setPublished(true);
 		
-		credentialManager.updateCredential(credentialData, user);
+		credentialManager.updateCredential(credentialData, user, org.prosolo.services.nodes.data.Role.User);
 	}
 
 	private User createUser(String name, String lastname, String emailAddress, String password, String fictitiousUser,

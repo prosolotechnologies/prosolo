@@ -14,7 +14,7 @@ import javax.ws.rs.core.Response;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.core.spring.ServiceLocator;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.services.nodes.ActivityTimeSpentPercentileService;
 import org.prosolo.services.nodes.CompetenceManager;

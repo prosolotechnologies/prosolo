@@ -62,8 +62,8 @@ public class CompetenceViewBeanUser implements Serializable {
 						rc.setAvatarUrl(user.getAvatarUrl());
 						competenceData.setCreator(rc);
 					} else {
-						competenceData = competenceManager.getCompetenceData(decodedCompId, true, true, 
-								true, true);
+						competenceData = competenceManager.getCompetenceDataForUser(decodedCompId, true, 
+								true, true, loggedUser.getUser().getId(), true);
 					}
 				}
 				if(competenceData == null) {
@@ -82,7 +82,7 @@ public class CompetenceViewBeanUser implements Serializable {
 							credTitle = credManager.getTargetCredentialTitle(decodedCredId,
 									loggedUser.getUser().getId());
 						} else {
-							credManager.getCredentialTitle(decodedCredId);
+							credTitle = credManager.getCredentialTitle(decodedCredId);
 						}
 						competenceData.setCredentialId(decodedCredId);
 						competenceData.setCredentialTitle(credTitle);

@@ -54,17 +54,18 @@ import org.prosolo.search.util.credential.CredentialSortOption;
 import org.prosolo.search.util.credential.InstructorAssignFilter;
 import org.prosolo.search.util.credential.InstructorAssignFilterValue;
 import org.prosolo.search.util.credential.InstructorSortOption;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexNames;
 import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.indexing.ElasticSearchFactory;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
@@ -379,7 +380,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					
 					try {
 						CompetenceData1 cd = compManager.getCompetenceData(id, true, 
-								false, false, false);
+								false, false, 0, LearningResourceReturnResultType.PUBLISHED_VERSION, 
+								false);
 						
 						if (cd != null) {
 							response.addFoundNode(cd);

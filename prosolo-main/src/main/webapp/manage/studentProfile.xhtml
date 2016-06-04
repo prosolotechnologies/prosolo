@@ -217,11 +217,14 @@
 				
 				<div class="col-md-2">
 			      <div class="observationPanel">
-			      	<div class="oProfileType">
-			            Profile type
-			            <span class="">1</span>
-			         </div>
-			         <div class="observationBox">
+
+					<ui:remove>
+						<div class="oProfileType">
+							Profile type <span class="">1</span>
+						</div>
+					</ui:remove>
+						
+					<div class="observationBox">
 			         	<h:panelGroup id="lastObservationPanel">
 							<h:panelGroup
 								rendered="#{studentProfileBean.observationBean.lastObservation == null}">

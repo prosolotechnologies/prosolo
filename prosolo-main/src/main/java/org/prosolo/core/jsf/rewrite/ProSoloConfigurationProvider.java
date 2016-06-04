@@ -81,7 +81,7 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/achievements/externalcompetences").to("/achievements/externalcompetences.xhtml"))
 				.addRule(Join.path("/achievements").to("/achievements/credentials"))
 				
-				//tools
+				.addRule(Join.path("/manage/").to("/manage/credentialLibrary.xhtml"))
 				.addRule(Join.path("/manage/competences/{compId}/tools").to("/manage/tools.xhtml"))
 				.addRule(Join.path("/manage/credentials/{credId}/tools").to("/manage/tools.xhtml"))
 				.addRule(Join.path("/manage/tools/{credId}/{compId}/{actId}/create").to("/manage/externalTools/toolDetails.xhtml"))
@@ -91,6 +91,7 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/manage/credentials/new").to("/manage/create-credential.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}").to("/manage/credential.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}/students").to("/manage/credential-students.xhtml"))
+				.addRule(Join.path("/manage/students/{id}").to("/manage/studentProfile.xhtml"))
 				//.addRule(Join.path("/manage/credentials/{courseId}/competences").to("/manage/credential-competences.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}/instructors").to("/manage/credential-instructors.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}/feeds").to("/manage/courseFeeds.xhtml"))

@@ -141,30 +141,32 @@
 								</h:panelGroup>
 							</h:commandLink>
 
-							<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenuNotifications">
-								<ui:repeat var="notificationData" value="#{topNotificationsBean1.notificationDatas}">
-									<li class="#{(notificationData.notificationType eq 'Follow_User') ? 'notifFollowed' : 
-										(notificationData.notificationType eq 'Comment') ? 'notifComment': 
-										(notificationData.notificationType eq 'Comment_Like') ? 'notifLikeComment':
-										(notificationData.notificationType eq 'Mention') ? 'notifMention':
-										(notificationData.notificationType eq 'Assessment_Given') ? 'notifAssessment': 'notifLearning'}">
-										
-										<h:link outcome="#{notificationData.link}">
-											<span class="icon"></span>
-											<h3>#{notificationData.actor.fullName}</h3> 
-											#{notificationData.predicate}
-											<h3>#{notificationData.objectTitle}</h3>
-											<span class="timestamp">#{notificationData.date}</span>
-										</h:link>
+							<div class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenuNotifications">
+								<ul>
+									<ui:repeat var="notificationData" value="#{topNotificationsBean1.notificationDatas}">
+										<li class="#{(notificationData.notificationType eq 'Follow_User') ? 'notifFollowed' : 
+											(notificationData.notificationType eq 'Comment') ? 'notifComment': 
+											(notificationData.notificationType eq 'Comment_Like') ? 'notifLikeComment':
+											(notificationData.notificationType eq 'Mention') ? 'notifMention':
+											(notificationData.notificationType eq 'Assessment_Given') ? 'notifAssessment': 'notifLearning'}">
+											
+											<h:link outcome="#{notificationData.link}">
+												<span class="icon"></span>
+												<h3>#{notificationData.actor.fullName}</h3> 
+												#{notificationData.predicate}
+												<h3>#{notificationData.objectTitle}</h3>
+												<span class="timestamp">#{notificationData.date}</span>
+											</h:link>
+										</li>
+									</ui:repeat>
+									
+									<li class="linkAllNotifications">
+										<h:link value="View all"
+											onclick="sendLogPageNavigation('notifications','mainmenu');"
+											outcome="/notifications" />
 									</li>
-								</ui:repeat>
-								
-								<li class="linkAllNotifications">
-									<h:link value="View all"
-										onclick="sendLogPageNavigation('notifications','mainmenu');"
-										outcome="/notifications" />
-								</li>
-							</ul>
+								</ul>
+							</div>
 
 						</h:panelGroup>
 					</h:form>

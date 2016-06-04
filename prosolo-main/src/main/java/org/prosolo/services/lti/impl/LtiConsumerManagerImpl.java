@@ -7,10 +7,10 @@ import java.util.Set;
 import org.hibernate.Query;
 import org.prosolo.common.domainmodel.lti.LtiConsumer;
 import org.prosolo.common.domainmodel.lti.LtiService;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.lti.LtiConsumerManager;
 import org.prosolo.services.lti.exceptions.ConsumerAlreadyRegisteredException;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

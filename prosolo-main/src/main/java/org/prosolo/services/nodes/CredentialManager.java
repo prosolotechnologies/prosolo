@@ -11,11 +11,15 @@ import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.services.common.exception.CompetenceEmptyException;
+import org.prosolo.services.common.exception.CredentialEmptyException;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.general.AbstractManager;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
 import org.prosolo.services.nodes.data.Operation;
+import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 
 public interface CredentialManager extends AbstractManager {
@@ -46,7 +50,47 @@ public interface CredentialManager extends AbstractManager {
 	CredentialData getFullTargetCredentialOrCredentialData(long credentialId, long userId)
 			throws DbConnectionException;
 	
-	CredentialData getCredentialData(long credentialId, boolean loadCreatorData,
+	/**
+	 * Returns credential data with specified id. 
+	 * If LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER is passed for {@code returnType}
+	 * parameter credential will be returned even if it is first time draft if creator of credential
+	 * is user specified by {@code userId}.
+	 * If LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_MANAGER is passed for {@code returnType}
+	 * parameter credential will be returned even if it is first time draft if credential is created by
+	 * university.
+	 * @param credentialId
+	 * @param loadCreatorData
+	 * @param loadCompetences
+	 * @param userId
+	 * @param returnType
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	CredentialData getCredentialData(long credentialId, boolean loadCreatorData, boolean loadCompetences, 
+			long userId, LearningResourceReturnResultType returnType) throws DbConnectionException;
+	/**
+	 * Returns credential with specified id. If credential is first time draft, it is only returned if
+	 * creator of credential is user specified by {@code userId}
+	 * @param credentialId
+	 * @param loadCreatorData
+	 * @param loadCompetences
+	 * @param userId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	CredentialData getCredentialDataForUser(long credentialId, boolean loadCreatorData,
+			boolean loadCompetences, long userId) throws DbConnectionException;
+	
+	/**
+	 * Returns credential with specified id. If credential is first time draft, it is only returned if
+	 * credential is created by university
+	 * @param credentialId
+	 * @param loadCreatorData
+	 * @param loadCompetences
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	CredentialData getCredentialDataForManager(long credentialId, boolean loadCreatorData,
 			boolean loadCompetences) throws DbConnectionException;
 	
 	/**
@@ -83,9 +127,10 @@ public interface CredentialManager extends AbstractManager {
 	CredentialData getCredentialDataForEdit(long credentialId, long creatorId, boolean loadCompetences) 
 			throws DbConnectionException;
 	
-	Credential1 updateCredential(CredentialData data, User user) throws DbConnectionException;
+	Credential1 updateCredential(CredentialData data, User user, Role role) throws DbConnectionException, 
+		CredentialEmptyException, CompetenceEmptyException;
 	
-	Credential1 updateCredential(CredentialData data);
+	Credential1 updateCredential(CredentialData data, long creatorId, Role role);
 	
 	CredentialData enrollInCredential(long credentialId, long userId, LearningContextData context) 
 			throws DbConnectionException;
@@ -180,6 +225,13 @@ public interface CredentialManager extends AbstractManager {
 	 * @throws DbConnectionException
 	 */
 	List<TargetCredential1> getAllCompletedCredentials(Long userId) throws DbConnectionException;
+	
+	/**
+	 * Method for getting all credentials (nevertheless the progress)
+	 * @return 
+	 * @throws DbConnectionException
+	 */
+	List<TargetCredential1> getAllCredentials(Long userId) throws DbConnectionException;
 		
 	/**
 	 * Updated hidden_from_profile_field
@@ -225,5 +277,5 @@ public interface CredentialManager extends AbstractManager {
 	
 	List<Long> getTargetCredentialIdsForUsers(List<Long> userIds, long credId) 
 			throws DbConnectionException;
-	
+
 }

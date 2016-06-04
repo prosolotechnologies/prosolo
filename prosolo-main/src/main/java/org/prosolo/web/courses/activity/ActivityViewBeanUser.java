@@ -11,13 +11,12 @@ import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
@@ -65,14 +64,12 @@ public class ActivityViewBeanUser implements Serializable {
 									decodedCompId, decodedActId, loggedUser.getUser().getId());
 				} else {
 					boolean shouldReturnDraft = false;
-					long creatorId = 0;
 					if("preview".equals(mode)) {
 						shouldReturnDraft = true;
-						creatorId = loggedUser.getUser().getId();
 					} 
 					competenceData = activityManager
-							.getCompetenceActivitiesWithSpecifiedActivityInFocus(decodedActId, 
-									creatorId, shouldReturnDraft, Role.User);
+							.getCompetenceActivitiesWithSpecifiedActivityInFocusForUser(
+									decodedActId,  loggedUser.getUser().getId(), shouldReturnDraft);
 				}
 				if(competenceData == null) {
 					try {

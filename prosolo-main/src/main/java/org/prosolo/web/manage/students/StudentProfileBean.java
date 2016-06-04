@@ -10,42 +10,36 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
-import com.google.gson.Gson;
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
-
-import org.prosolo.bigdata.common.rest.exceptions.ConnectException;
-import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
-import org.prosolo.common.domainmodel.user.TargetLearningGoal;
+import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.evaluation.Evaluation;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
-//import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkAccount;
-//import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
 import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
-//import org.prosolo.common.domainmodel.workflow.evaluation.Evaluation;
-import org.prosolo.common.domainmodel.evaluation.Evaluation;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
-import org.prosolo.services.nodes.CompetenceManager;
+import org.prosolo.services.common.exception.DbConnectionException;
+import org.prosolo.services.nodes.Activity1Manager;
+import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.EvaluationManager;
-import org.prosolo.services.nodes.PortfolioManager;
 import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.services.nodes.UserManager;
-//import org.prosolo.services.rest.clients.RecommendationServicesRest;
+import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.datatopagemappers.SocialNetworksDataToPageMapper;
+import org.prosolo.web.manage.students.data.ActivityProgressData;
+import org.prosolo.web.manage.students.data.CompetenceProgressData;
+import org.prosolo.web.manage.students.data.CredentialProgressData;
+import org.prosolo.web.manage.students.data.EvaluationSubmissionData;
+import org.prosolo.web.manage.students.data.observantions.StudentData;
 import org.prosolo.web.portfolio.data.SocialNetworksData;
-import org.prosolo.web.students.data.StudentData;
-import org.prosolo.web.students.data.learning.ActivityData;
-import org.prosolo.web.students.data.learning.CompetenceData;
-import org.prosolo.web.students.data.learning.EvaluationSubmissionData;
-import org.prosolo.web.students.data.learning.LearningGoalData;
 import org.prosolo.web.util.PageUtil;
-//import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -69,15 +63,13 @@ public class StudentProfileBean implements Serializable {
 	@Inject
 	private LoggedUserBean loggedUserBean;
 	@Inject
-	private PortfolioManager portfolioManager;
+	private CredentialManager credentialManager;
 	@Inject
-	private CompetenceManager compManager;
+	private Competence1Manager compManager;
+	@Inject
+	private Activity1Manager activityManager;
 	@Inject
 	private EvaluationManager evalManager;
-
-
-
-
 
 
 	private String id;
@@ -88,8 +80,8 @@ public class StudentProfileBean implements Serializable {
 	
 	private UserSocialNetworks userSocialNetworks;
 
-	private List<LearningGoalData> lGoals;
-	private LearningGoalData selectedGoal;
+	private List<CredentialProgressData> credentials;
+	private CredentialProgressData selectedCredential;
 
 
 	public void initStudent() {
@@ -100,12 +92,11 @@ public class StudentProfileBean implements Serializable {
 				User user = userManager.loadResource(User.class, decodedId, true);
 				student = new StudentData(user);
 
-				initLearningGoals();
+				initCredentials();
 
 				observationBean.setStudentId(decodedId);
 				observationBean.setStudentName(student.getName());
-				System.out.println("Student Profile Bean has selected goal:"+selectedGoal.getId());
-				observationBean.setTargetGoalId(selectedGoal.getId());
+				observationBean.setTargetCredentialId(selectedCredential.getId());
 				observationBean.initializeObservationData();
 
 
@@ -157,66 +148,67 @@ public class StudentProfileBean implements Serializable {
 		}
 	}
 
-	private void initLearningGoals() {
+	private void initCredentials() {
 		try {
-			lGoals = new ArrayList<>();
-			List<TargetLearningGoal> goals = portfolioManager.getAllGoals(decodedId);
+			credentials = new ArrayList<>();
+			List<TargetCredential1> userCredentials = credentialManager.getAllCredentials(decodedId);
 			boolean first = true;
 
-			for (TargetLearningGoal tg : goals) {
-				LearningGoalData lgd = new LearningGoalData(tg);
-				lGoals.add(lgd);
+			for (TargetCredential1 targetCred : userCredentials) {
+				CredentialProgressData credProgressData = new CredentialProgressData(targetCred);
+				credentials.add(credProgressData);
 
 				if (first) {
-					selectGoal(lgd);
+					selectCredential(credProgressData);
 					first = false;
 				}
 			}
 		} catch (DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error loading learning goals.");
+			PageUtil.fireErrorMessage("Error loading credentials.");
 		}
 	}
 
-	public void selectGoal(LearningGoalData goal) {
+	public void selectCredential(CredentialProgressData credProgressData) {
 		try {
-			if (selectedGoal != null) {
-				selectedGoal.setCompetences(null);
+			if (selectedCredential != null) {
+				selectedCredential.setCompetences(null);
 			}
-			selectedGoal = goal;
+			selectedCredential = credProgressData;
 
-			List<TargetCompetence> competences = compManager.getTargetCompetencesForTargetLearningGoal(goal.getId());
-			List<CompetenceData> compData = new ArrayList<>();
+			List<CompetenceData1> competences = compManager.getTargetCompetencesData(credProgressData.getId(), false);
 			boolean first = true;
+			
+			List<CompetenceProgressData> competenecesProgress = new ArrayList<>();
 
-			for (TargetCompetence tg : competences) {
-				CompetenceData cd = new CompetenceData(tg);
-				long acceptedSubmissions = evalManager.getApprovedEvaluationCountForResource(TargetCompetence.class,
-						cd.getId());
-				cd.setApprovedSubmissionNumber(acceptedSubmissions);
-				long rejectedSubmissions = evalManager.getRejectedEvaluationCountForResource(TargetCompetence.class,
-						cd.getId());
-				cd.setRejectedSubmissionNumber(rejectedSubmissions);
-				boolean trophy = evalManager.hasAnyBadge(TargetCompetence.class, cd.getId());
-				cd.setTrophyWon(trophy);
-				compData.add(cd);
+			for (CompetenceData1 comp : competences) {
+				CompetenceProgressData compProgress = new CompetenceProgressData(comp);
+				
+				long acceptedSubmissions = evalManager.getApprovedEvaluationCountForResource(TargetCompetence.class, comp.getTargetCompId());
+				compProgress.setApprovedSubmissionNumber(acceptedSubmissions);
+				long rejectedSubmissions = evalManager.getRejectedEvaluationCountForResource(TargetCompetence.class, comp.getTargetCompId());
+				compProgress.setRejectedSubmissionNumber(rejectedSubmissions);
+				boolean trophy = evalManager.hasAnyBadge(TargetCompetence.class, comp.getTargetCompId());
+				compProgress.setTrophyWon(trophy);
 
 				if (first) {
-					selectCompetence(cd);
+					selectCompetence(compProgress);
 					first = false;
 				}
+				
+				competenecesProgress.add(compProgress);
 			}
-			selectedGoal.setCompetences(compData);
+			selectedCredential.setCompetences(competenecesProgress);
 
-			// set selected target goal id to observation bean
-			observationBean.resetObservationData(selectedGoal.getId());
+			// set selected target credential id to observation bean
+			observationBean.resetObservationData(selectedCredential.getId());
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error loading competences.");
 		}
 	}
 
-	public void loadSubmissions(CompetenceData cd) {
+	public void loadSubmissions(CompetenceProgressData cd) {
 		try {
 			if (cd.getSubmissions() == null) {
 				cd.setSubmissions(new ArrayList<EvaluationSubmissionData>());
@@ -232,22 +224,21 @@ public class StudentProfileBean implements Serializable {
 		}
 	}
 
-	public void selectCompetence(CompetenceData cd) {
+	public void selectCompetence(CompetenceProgressData cd) {
 		try {
-			if (selectedGoal.getSelectedCompetence() != null) {
-				selectedGoal.getSelectedCompetence().setActivities(null);
+			if (selectedCredential.getSelectedCompetence() != null) {
+				selectedCredential.getSelectedCompetence().setActivities(null);
 			}
 
-			selectedGoal.setSelectedCompetence(cd);
-			List<TargetActivity> activities = compManager.getTargetActivities(cd.getId());
-			List<ActivityData> actData = new ArrayList<>();
-
-			for (TargetActivity ta : activities) {
-				if (ta != null) {
-					actData.add(new ActivityData(ta));
-				}
+			selectedCredential.setSelectedCompetence(cd);
+			List<ActivityData> activities = activityManager.getTargetActivitiesData(cd.getId());
+			
+			List<ActivityProgressData> activitiesProgressData = new ArrayList<>();
+			
+			for (ActivityData activityData : activities) {
+				activitiesProgressData.add(new ActivityProgressData(activityData));
 			}
-			cd.setActivities(actData);
+			cd.setActivities(activitiesProgressData);
 		} catch (Exception e) {
 			throw new DbConnectionException("Error while loading activities");
 		}
@@ -269,7 +260,11 @@ public class StudentProfileBean implements Serializable {
 	}
 
 	public String getCompletedActivitiesServicePath() {
-		long compId = selectedGoal.getSelectedCompetence() != null ? selectedGoal.getSelectedCompetence().getId() : 0;
+		long compId = 0;
+		
+		if (selectedCredential != null) {
+			compId = selectedCredential.getSelectedCompetence() != null ? selectedCredential.getSelectedCompetence().getId() : 0;
+		}
 		return Settings.getInstance().config.application.domain + "api/competences/" + compId + "/activities";
 	}
 
@@ -317,20 +312,20 @@ public class StudentProfileBean implements Serializable {
 		this.socialNetworksData = socialNetworksData;
 	}
 
-	public List<LearningGoalData> getlGoals() {
-		return lGoals;
+	public List<CredentialProgressData> getCredentials() {
+		return credentials;
 	}
 
-	public void setlGoals(List<LearningGoalData> lGoals) {
-		this.lGoals = lGoals;
+	public void setCredentials(List<CredentialProgressData> credentials) {
+		this.credentials = credentials;
 	}
 
-	public LearningGoalData getSelectedGoal() {
-		return selectedGoal;
+	public CredentialProgressData getSelectedCredential() {
+		return selectedCredential;
 	}
 
-	public void setSelectedGoal(LearningGoalData selectedGoal) {
-		this.selectedGoal = selectedGoal;
+	public void setSelectedCredential(CredentialProgressData selectedCredential) {
+		this.selectedCredential = selectedCredential;
 	}
 
 }

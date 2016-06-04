@@ -30,10 +30,11 @@ import org.prosolo.common.domainmodel.credential.UrlActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivityType;
 import org.prosolo.common.domainmodel.credential.UrlTargetActivity1;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -41,6 +42,7 @@ import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.data.ResourceCreator;
@@ -142,19 +144,24 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			       	   "FROM CompetenceActivity1 compAct " + 
 			       	   "WHERE compAct.activity = :act";
 
-		CompetenceActivity1 compAct = (CompetenceActivity1) persistence.currentManager()
+		@SuppressWarnings("unchecked")
+		List<CompetenceActivity1> res = persistence.currentManager()
 			.createQuery(query)
 			.setEntity("act", act)
-			.uniqueResult();
+			.list();
 		
-		long competenceId = compAct.getCompetence().getId();
-		if(compAct != null) {
-			shiftOrderOfActivitiesUp(competenceId, compAct.getOrder());
-			delete(compAct);
+		if(res != null) {
+			for(CompetenceActivity1 ca : res) {
+				if(ca != null) {
+					long competenceId = ca.getCompetence().getId();
+					shiftOrderOfActivitiesUp(competenceId, ca.getOrder());
+					delete(ca);
+				}
+			}
 		}
 		
 		if(duration != 0) {
-			compManager.updateDuration(competenceId, duration, Operation.Subtract);
+			compManager.updateDurationForCompetencesWithActivity(actId, duration, Operation.Subtract);
 		}
 		
 	}
@@ -402,19 +409,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			throw new DbConnectionException("Error while loading activities");
 		}
 	}
-	
-	public void publishAllCompetenceActivitiesWithoutDraftVersion(Long compId) 
-			throws DbConnectionException {
-		try {
-			List<Long> actIds = getAllCompetenceActivitiesIds(compId);
-			publishDraftActivitiesWithoutDraftVersion(actIds);
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while updating activities");
-		}
-	}
 
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public void publishDraftActivitiesWithoutDraftVersion(List<Long> actIds) 
@@ -441,32 +437,32 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 
-	private List<Long> getAllCompetenceActivitiesIds(Long compId) {
-		try {
-			String query = "Select act.id " +
-						   "FROM CompetenceActivity1 compAct " + 
-						   "INNER JOIN compAct.competence comp " +
-						   "INNER JOIN compAct.activity act " +
-						   "WHERE act.deleted = :deleted " +
-						   "AND comp.id = :compId";
-			
-			@SuppressWarnings("unchecked")
-			List<Long> actIds = persistence.currentManager()
-				.createQuery(query)
-				.setBoolean("deleted", false)
-				.setLong("compId", compId)
-				.list();
-			
-			if(actIds == null) {
-				return new ArrayList<>();
-			}
-			return actIds;
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while updating activities");
-		}
-	}
+//	private List<Long> getAllCompetenceActivitiesIds(Long compId) {
+//		try {
+//			String query = "Select act.id " +
+//						   "FROM CompetenceActivity1 compAct " + 
+//						   "INNER JOIN compAct.competence comp " +
+//						   "INNER JOIN compAct.activity act " +
+//						   "WHERE act.deleted = :deleted " +
+//						   "AND comp.id = :compId";
+//			
+//			@SuppressWarnings("unchecked")
+//			List<Long> actIds = persistence.currentManager()
+//				.createQuery(query)
+//				.setBoolean("deleted", false)
+//				.setLong("compId", compId)
+//				.list();
+//			
+//			if(actIds == null) {
+//				return new ArrayList<>();
+//			}
+//			return actIds;
+//		} catch(Exception e) {
+//			logger.error(e);
+//			e.printStackTrace();
+//			throw new DbConnectionException("Error while updating activities");
+//		}
+//	}
 	
 	@Override
 	@Transactional(readOnly = true)
@@ -524,6 +520,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 							.createQuery(query2)
 							.setLong("draftVersion", draftVersionId)
 							.uniqueResult();
+					//Activity1 draftAct = getActivity(draftVersionId, true);
 					if(draftAct != null) {
 						actData = activityFactory.getActivityData(draftAct, 0, 0,
 								draftAct.getLinks(), draftAct.getFiles(), true);
@@ -943,7 +940,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					actToUpdate.setDraftVersion(null);
 			    	delete(act);
 			    	long newDuration = data.getDurationHours() * 60 + data.getDurationMinutes();
-			    	updateCompDuration(data.getCompetenceId(), newDuration, actToUpdate.getDuration());
+			    	updateCompDuration(actToUpdate.getId(), newDuration, actToUpdate.getDuration());
 			    	break;
 				case NO_TRANSITION:
 					actToUpdate = act;
@@ -967,7 +964,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 						long oldDuration = oldHours * 60 + 
 								oldMinutes;
 						long newDuration1 = data.getDurationHours() * 60 + data.getDurationMinutes();
-						updateCompDuration(data.getCompetenceId(), newDuration1, oldDuration);
+						updateCompDuration(actToUpdate.getId(), newDuration1, oldDuration);
 					}
 					break;
 			}
@@ -1017,7 +1014,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
-	private void updateCompDuration(long competenceId, long newDuration, long oldDuration) {
+	private void updateCompDuration(long actId, long newDuration, long oldDuration) {
 		long durationChange = newDuration - oldDuration;
     	Operation op = null;
     	if(durationChange > 0) {
@@ -1026,10 +1023,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
     		durationChange = -durationChange;
     		op = Operation.Subtract;
     	}
-    	compManager.updateDuration(competenceId, durationChange, op);
+    	compManager.updateDurationForCompetencesWithActivity(actId, durationChange, op);
 	}
-
-
 
 	/**
 	 * This method will save resource link (insert or update), add or remove it when needed from
@@ -1200,7 +1195,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Override
 	@Transactional(readOnly = true)
 	public CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocus(long activityId, 
-			long creatorId, boolean shouldReturnDraft, Role role) throws DbConnectionException {
+			long creatorId, boolean shouldReturnDraft, Role role, 
+			LearningResourceReturnResultType returnType) throws DbConnectionException {
 		CompetenceData1 compData = null;
 		try {
 			ActivityData activityWithDetails = null;
@@ -1208,7 +1204,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				activityWithDetails = getCompetenceActivityCurrentVersionData(activityId, creatorId, role);
 						//getActivityDataForEdit(activityId, creatorId);
 			} else {
-				activityWithDetails = getCompetenceActivityData(activityId, true);
+				activityWithDetails = getCompetenceActivityData(activityId, true, creatorId, returnType);
 			}
 
 			if (activityWithDetails != null) {
@@ -1226,6 +1222,23 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			throw new DbConnectionException("Error while loading competence data");
 		}
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocusForUser(long activityId, 
+			long creatorId, boolean shouldReturnDraft) throws DbConnectionException {
+		return getCompetenceActivitiesWithSpecifiedActivityInFocus(activityId, creatorId, 
+				shouldReturnDraft, Role.User, LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocusForManager(long activityId, 
+			boolean shouldReturnDraft) throws DbConnectionException {
+		return getCompetenceActivitiesWithSpecifiedActivityInFocus(activityId, 0, 
+				shouldReturnDraft, Role.Manager, 
+				LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_MANAGER);
+	}
 	 
 	/**
 	 * Returns competence activity from original version of competence
@@ -1235,32 +1248,67 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	 * @throws DbConnectionException
 	 */
 	@Transactional(readOnly = true)
-	private ActivityData getCompetenceActivityData(long activityId, boolean loadResourceLinks) 
-			throws DbConnectionException {
+	private ActivityData getCompetenceActivityData(long activityId, boolean loadResourceLinks,
+			long userId, LearningResourceReturnResultType returnType) throws DbConnectionException {
 		try {	
 			StringBuilder builder = new StringBuilder();
 			builder.append("SELECT compAct " +
 					   	   "FROM CompetenceActivity1 compAct " +
 						   "INNER JOIN fetch compAct.activity act " +				   	 
 					   	   "INNER JOIN compAct.competence comp " +
-						   		"WITH (comp.published = :published " +
-							        "OR comp.hasDraft = :hasDraft)");
+						   		"WITH comp.draft = :draft ");
+			
+			String compCondition = "AND (comp.published = :published " +
+							       "OR comp.hasDraft = :hasDraft ";
+			String actCondition = "AND (act.published = :published " +
+						          "OR act.hasDraft = :hasDraft ";
+			switch(returnType) {
+				case ANY:
+					compCondition = "";
+					actCondition = "";
+					break;
+				case PUBLISHED_VERSION:
+					compCondition += ")";
+					actCondition += ")";
+					break;
+				case FIRST_TIME_DRAFT_FOR_USER:
+					compCondition += "OR comp.createdBy.id = :userId) ";
+					actCondition += "OR act.createdBy.id = :userId) ";
+					break;
+				case FIRST_TIME_DRAFT_FOR_MANAGER:
+					compCondition += "OR comp.type = :type) ";
+					actCondition += "OR act.type = :type) ";
+					break;
+			}
+			
+			builder.append(compCondition);
+			
 			if(loadResourceLinks) {
 				builder.append("LEFT JOIN fetch act.links link " + 
 						       "LEFT JOIN fetch act.files files ");
 			}
 			builder.append("WHERE act.id = :id " +
-						   "AND act.deleted = :deleted " +
-						   "AND (act.published = :published " +
-						        "OR act.hasDraft = :hasDraft)");
+						   "AND act.deleted = :deleted ");
+			
+			builder.append(actCondition);
 
-			CompetenceActivity1 res = (CompetenceActivity1) persistence.currentManager()
+			Query q = persistence.currentManager()
 					.createQuery(builder.toString())
 					.setLong("id", activityId)
 					.setBoolean("deleted", false)
-					.setBoolean("published", true)
-					.setBoolean("hasDraft", true)
-					.uniqueResult();
+					.setBoolean("draft", false);
+			
+			if(returnType != LearningResourceReturnResultType.ANY) {
+				q.setBoolean("published", true)
+				 .setBoolean("hasDraft", true);
+			}
+			if(returnType == LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER) {
+				q.setLong("userId", userId);
+			} else if(returnType == LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_MANAGER) {
+				q.setParameter("type", LearningResourceType.UNIVERSITY_CREATED);
+			}
+			
+			CompetenceActivity1 res = (CompetenceActivity1) q.uniqueResult();
 
 			if (res != null) {
 					Set<ResourceLink> links = loadResourceLinks ? res.getActivity().getLinks() : null;
@@ -1336,7 +1384,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					compId, actId, userId);
 			if (compData == null) {
 				compData = getCompetenceActivitiesWithSpecifiedActivityInFocus(actId, userId, 
-					false, Role.User);
+					false, Role.User, LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER);
 			}
 				
 			return compData;
@@ -1826,6 +1874,193 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	public ActivityData getCurrentVersionOfActivityForManager(long activityId) 
 			throws DbConnectionException {
 			return getCurrentVersionOfActivityBasedOnRole(activityId, 0, Role.Manager);
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void publishActivitiesFromCompetence(long compId) 
+			throws DbConnectionException {
+		try {
+			List<Activity1> acts = getDraftActivitiesFromCompetence(compId);
+			//publishDraftActivitiesWithoutDraftVersion(actIds);
+			publishDraftActivitiesFromList(acts);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while publishing activities");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void publishDraftActivities(List<Long> actIds) 
+			throws DbConnectionException {
+		try {
+			//get all draft activities
+			List<Activity1> acts = getDraftActivitiesFromList(actIds);
+			publishDraftActivitiesFromList(acts);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while publishing activities");
+		}
+	}
+	
+	/**
+	 * expecting list of draft activities as parameter
+	 * @param activities
+	 * @throws DbConnectionException
+	 */
+	@Transactional(readOnly = false)
+	private void publishDraftActivitiesFromList(List<Activity1> activities) 
+			throws DbConnectionException {
+		//iterate through list and if activity does not have draft version set to published, 
+		//if it has, copy data from draft version to original and set published to true
+		for(Activity1 a : activities) {
+			if(a.isHasDraft()) {
+				long draftVersionId = a.getDraftVersion().getId();
+				//persistence.currentManager().evict(a.getDraftVersion());
+				Activity1 draftA = getActivity(draftVersionId, true);
+				draftA = HibernateUtil.initializeAndUnproxy(draftA);
+				publishDraftVersion(a, draftA);
+			} else {
+				a.setPublished(true);
+			}
+		}
+	}
+	
+	@Transactional(readOnly = true)
+	private List<Activity1> getDraftActivitiesFromCompetence(long compId) {
+		String query = "SELECT act FROM CompetenceActivity1 cAct " +
+					   "INNER JOIN cAct.activity act " +
+					   "WHERE cAct.competence.id = :compId " +
+					   "AND act.published = :published";
+		
+		
+		Query q = persistence.currentManager()
+				.createQuery(query)
+				.setLong("compId", compId)
+				.setBoolean("published", false);
+		
+		@SuppressWarnings("unchecked")
+		List<Activity1> activities = q.list();
+		if(activities == null) {
+			return new ArrayList<>();
+		}
+		return activities;
+	}
+	
+	@Transactional(readOnly = true)
+	private List<Activity1> getDraftActivitiesFromList(List<Long> actIds) {
+		if(actIds == null || actIds.isEmpty()) {
+			return new ArrayList<>();
+		}
+		String query = "SELECT act FROM Activity1 act " +
+					    "WHERE act.id IN (:ids) " +
+					    "AND act.published = :published ";
+		
+		Query q = persistence.currentManager()
+				.createQuery(query)
+				.setParameterList("ids", actIds)
+				.setBoolean("published", false);
+		
+		@SuppressWarnings("unchecked")
+		List<Activity1> activities = q.list();
+		if(activities == null) {
+			return new ArrayList<>();
+		}
+		return activities;
+	}
+	
+	private Activity1 publishDraftVersion(Activity1 originalActivity, Activity1 draftActivity) {
+		originalActivity.setTitle(draftActivity.getTitle());
+		originalActivity.setDescription(draftActivity.getDescription());
+		originalActivity.setDuration(draftActivity.getDuration());
+		originalActivity.setUploadAssignment(draftActivity.isUploadAssignment());	
+	    
+	    originalActivity.setHasDraft(false);
+		originalActivity.setDraftVersion(null);
+		originalActivity.setPublished(true);
+
+    	updateCompDuration(originalActivity.getId(), draftActivity.getDuration(), 
+    			originalActivity.getDuration());
+    	
+    	Set<ResourceLink> links = draftActivity.getLinks();
+    	originalActivity.getLinks().clear();
+    	if(links != null) {
+    		for(ResourceLink rl : links) {
+    			ResourceLink link = new ResourceLink();
+				link.setLinkName(rl.getLinkName());
+				link.setUrl(rl.getUrl());
+				saveEntity(link);
+				originalActivity.getLinks().add(link);
+    		}
+    	}
+    	
+    	Set<ResourceLink> files = draftActivity.getFiles();
+    	originalActivity.getFiles().clear();
+    	if(files != null) {
+    		for(ResourceLink rl : files) {
+    			ResourceLink file = new ResourceLink();
+				file.setLinkName(rl.getLinkName());
+				file.setUrl(rl.getUrl());
+				saveEntity(file);
+				originalActivity.getFiles().add(file);
+    		}
+    	}
+		
+		if(originalActivity instanceof TextActivity1) {
+			TextActivity1 ta = (TextActivity1) originalActivity;
+			ta.setText(((TextActivity1) draftActivity).getText());
+		} else if(originalActivity instanceof UrlActivity1) {
+			UrlActivity1 urlAct = (UrlActivity1) originalActivity;
+			urlAct.setUrl(((UrlActivity1) draftActivity).getUrl());
+			urlAct.setLinkName(((UrlActivity1) draftActivity).getLinkName());
+		} else if(originalActivity instanceof ExternalToolActivity1) {
+			ExternalToolActivity1 extAct = (ExternalToolActivity1) originalActivity;
+			ExternalToolActivity1 extDraftAct = (ExternalToolActivity1) draftActivity;
+			extAct.setLaunchUrl(extDraftAct.getLaunchUrl());
+			extAct.setSharedSecret(extDraftAct.getSharedSecret());
+			extAct.setConsumerKey(extDraftAct.getConsumerKey());
+			extAct.setAcceptGrades(extDraftAct.isAcceptGrades());
+		}
+		delete(draftActivity);
+		return originalActivity;
+	}
+	
+	/**
+	 * Returns activity with specified id and no other condition. It will return activity
+	 * no matter if it is draft, draft version, published or deleted.
+	 * @param actId
+	 * @param loadResourceLinks
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	@Transactional(readOnly = true)
+	private Activity1 getActivity(long actId, boolean loadResourceLinks) 
+			throws DbConnectionException {
+		try {	
+			StringBuilder builder = new StringBuilder();
+			builder.append("SELECT act " +
+					   	   "FROM Activity1 act ");
+			
+			if(loadResourceLinks) {
+				builder.append("LEFT JOIN fetch act.links link " + 
+						       "LEFT JOIN fetch act.files files ");
+			}
+			builder.append("WHERE act.id = :id ");
+
+			Activity1 act = (Activity1) persistence.currentManager()
+					.createQuery(builder.toString())
+					.setLong("id", actId)
+					.uniqueResult();
+
+			return act;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading activity");
+		}
 	}
 	
 //	@Override

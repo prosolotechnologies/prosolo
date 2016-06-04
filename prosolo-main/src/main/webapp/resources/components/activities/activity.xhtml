@@ -121,40 +121,43 @@
 		               />
 		            </div>
 		            <h:panelGroup layout="block" id="panelCompProgress" styleClass="col-md-4">
-		                <h2>Competence Progress</h2>
-		                <ul class="competenceProgressList">
-		                	<ui:repeat var="act" value="#{cc.attrs.bean.competenceData.activities}">
-		                		<li class="#{styleUtilBean.getStyleClassBasedOnActivityType(act.activityType)} 
-		                			#{cc.attrs.bean.isActivityActive(act) ? 'active' : ''}">
-		                        	<h:panelGroup 
-					          			rendered="#{!isPreview and act.completed}"
-					          			styleClass="check">    
-					          		</h:panelGroup>
-				            		<h:panelGroup
-				            			rendered="#{!act.completed || isPreview}"
-				            			styleClass="iconType">
-				            		</h:panelGroup>
-		                       		<h3>
-		                       			<ui:fragment rendered="#{!isPreview and !cc.attrs.bean.isActivityActive(act)}">
-				                   			<h:link
-							            		value="#{act.title}"
-							            		outcome="activity">
-							            		<f:param name="actId" value="#{util:encodeId(act.activityId)}"></f:param>
-							            		<f:param name="compId" value="#{param['compId']}" disable="#{empty param['compId']}"></f:param>
-				            					<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}"></f:param>
-				            				</h:link>   
-					                   	</ui:fragment>
-					                   	<ui:fragment rendered="#{isPreview || cc.attrs.bean.isActivityActive(act)}">
-					                   		#{act.title}
-					                   	</ui:fragment>
-		                       		</h3>
-		                    	</li>
-		                	</ui:repeat>
-		                </ul>
-		            </h:panelGroup>
-		        </div>
-		
+						<div class="sidebarBlock">
+			                <h2>Competence Progress</h2>
+		            	
+			                <ul class="competenceProgressList">
+			                	<ui:repeat var="act" value="#{cc.attrs.bean.competenceData.activities}">
+			                		<li class="#{styleUtilBean.getStyleClassBasedOnActivityType(act.activityType)} 
+			                			#{cc.attrs.bean.isActivityActive(act) ? 'active' : ''}">
+			                        	<h:panelGroup 
+						          			rendered="#{!isPreview and act.completed}"
+						          			styleClass="check">    
+						          		</h:panelGroup>
+					            		<h:panelGroup
+					            			rendered="#{!act.completed || isPreview}"
+					            			styleClass="iconType">
+					            		</h:panelGroup>
+			                       		<h3>
+			                       			<ui:fragment rendered="#{!isPreview and !cc.attrs.bean.isActivityActive(act)}">
+					                   			<h:link
+								            		value="#{act.title}"
+								            		outcome="activity">
+								            		<f:param name="actId" value="#{util:encodeId(act.activityId)}"></f:param>
+								            		<f:param name="compId" value="#{param['compId']}" disable="#{empty param['compId']}"></f:param>
+					            					<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}"></f:param>
+					            				</h:link>   
+						                   	</ui:fragment>
+						                   	<ui:fragment rendered="#{isPreview || cc.attrs.bean.isActivityActive(act)}">
+						                   		#{act.title}
+						                   	</ui:fragment>
+			                       		</h3>
+			                    	</li>
+			                	</ui:repeat>
+			                </ul>
+						</div>
+					</h:panelGroup>
+				</div>
 		    </div>
+		    
 		    <ui:fragment rendered="#{not empty param['comment']}">
 		    	<script>
 			    	scrollTo('comment_' + #{util:decodeId(param['comment'])});

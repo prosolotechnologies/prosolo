@@ -1,18 +1,18 @@
-package org.prosolo.web.students.data.learning;
+package org.prosolo.web.manage.students.data;
 
 import java.io.Serializable;
 import java.util.List;
 
-import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.services.nodes.data.CompetenceData1;
 
-public class CompetenceData implements Serializable{
+public class CompetenceProgressData implements Serializable{
 
 	private static final long serialVersionUID = -2605340288766333695L;
 
 	private long id;
 	private String name;
 	private int progress;
-	private List<ActivityData> activities;
+	private List<ActivityProgressData> activities;
 	
 	private long approvedSubmissionNumber;
 	private long rejectedSubmissionNumber;
@@ -28,14 +28,14 @@ public class CompetenceData implements Serializable{
 		this.trophyWon = trophyWon;
 	}
 	
-	public CompetenceData() {
+	public CompetenceProgressData() {
 		
 	}
 	
-	public CompetenceData(TargetCompetence tCompetence){
-		this.id = tCompetence.getId();
-		this.name = tCompetence.getTitle();
-		this.progress = tCompetence.getProgress();
+	public CompetenceProgressData(CompetenceData1 compData){
+		this.id = compData.getTargetCompId();
+		this.name = compData.getTitle();
+		this.progress = compData.getProgress();
 	}
 
 	public long getId() {
@@ -61,11 +61,11 @@ public class CompetenceData implements Serializable{
 		this.progress = progress;
 	}
 
-	public List<ActivityData> getActivities() {
+	public List<ActivityProgressData> getActivities() {
 		return activities;
 	}
 
-	public void setActivities(List<ActivityData> activities) {
+	public void setActivities(List<ActivityProgressData> activities) {
 		this.activities = activities;
 	}
 

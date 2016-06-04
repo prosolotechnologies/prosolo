@@ -17,17 +17,17 @@ import org.prosolo.common.domainmodel.observations.Observation;
 import org.prosolo.common.domainmodel.observations.Suggestion;
 import org.prosolo.common.domainmodel.observations.Symptom;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.studentProfile.observations.ObservationManager;
 import org.prosolo.services.studentProfile.observations.SuggestionManager;
 import org.prosolo.services.studentProfile.observations.SymptomManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.students.data.EditObservationData;
-import org.prosolo.web.students.data.ObservationData;
-import org.prosolo.web.students.data.SuggestionData;
-import org.prosolo.web.students.data.SymptomData;
+import org.prosolo.web.manage.students.data.observantions.EditObservationData;
+import org.prosolo.web.manage.students.data.observantions.ObservationData;
+import org.prosolo.web.manage.students.data.observantions.SuggestionData;
+import org.prosolo.web.manage.students.data.observantions.SymptomData;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -59,7 +59,7 @@ public class ObservationBean implements Serializable {
 
 	private long studentId;
 	private String studentName;
-	private long targetGoalId;
+	private long targetCredentialId;
 
 	private ObservationData lastObservation;
 
@@ -73,7 +73,7 @@ public class ObservationBean implements Serializable {
 
 	public void initializeObservationData() {
 		try {
-			Observation observation = observationManager.getLastObservationForUser(studentId, targetGoalId);
+			Observation observation = observationManager.getLastObservationForUser(studentId, targetCredentialId);
 			if (observation != null) {
 				lastObservation = new ObservationData(observation);
 			}
@@ -83,7 +83,7 @@ public class ObservationBean implements Serializable {
 	}
 	
 	public void loadObservationHistory() {
-		List<Observation> observations = observationManager.getObservations(studentId, targetGoalId);
+		List<Observation> observations = observationManager.getObservations(studentId, targetCredentialId);
 		observationHistory = new ArrayList<>();
 		for(Observation ob:observations){
 			observationHistory.add(new ObservationData(ob));
@@ -101,7 +101,7 @@ public class ObservationBean implements Serializable {
 			Map<String, Object> result = observationManager.saveObservation(editObservation.getEditObservation().getId(),
 					editObservation.getEditObservation().getMessage(), editObservation.getEditObservation().getNote(),
 					editObservation.getSelectedSymptoms(), editObservation.getSelectedSuggestions(), creatorId,
-					studentId, targetGoalId);
+					studentId, targetCredentialId);
 			
 			logger.info("User with id "+creatorId + " created observation for student with id "+studentId);
 			
@@ -129,7 +129,7 @@ public class ObservationBean implements Serializable {
 			}
 			
 			editObservation = null;
-			Observation observation = observationManager.getLastObservationForUser(studentId, targetGoalId);
+			Observation observation = observationManager.getLastObservationForUser(studentId, targetCredentialId);
 			if (observation != null) {
 				lastObservation = new ObservationData(observation);
 			}
@@ -298,10 +298,10 @@ public class ObservationBean implements Serializable {
 		return s;
 	}
 	
-	public void resetObservationData(long targetGoalId) {
+	public void resetObservationData(long targetCredentialId) {
 		editObservation = null;
 		lastObservation = null;
-		setTargetGoalId(targetGoalId);
+		setTargetCredentialId(targetCredentialId);
 		initializeObservationData();
 	}
 
@@ -369,12 +369,12 @@ public class ObservationBean implements Serializable {
 		this.observationHistory = observationHistory;
 	}
 
-	public long getTargetGoalId() {
-		return targetGoalId;
+	public long getTargetCredentialId() {
+		return targetCredentialId;
 	}
 
-	public void setTargetGoalId(long targetGoalId) {
-		this.targetGoalId = targetGoalId;
+	public void setTargetCredentialId(long targetCredentialId) {
+		this.targetCredentialId = targetCredentialId;
 	}
 	
 	

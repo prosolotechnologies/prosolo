@@ -58,6 +58,7 @@ import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.spring.TransactionDebugUtil;
 import org.prosolo.services.authentication.PasswordEncrypter;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventObserver;
@@ -65,7 +66,6 @@ import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.PostManager;
 import org.prosolo.services.interaction.data.CommentData;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CourseManager;
@@ -897,8 +897,9 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public Credential1 updateCredential(CredentialData data) {
-    	return credentialManager.updateCredential(data);
+    public Credential1 updateCredential(CredentialData data, long creatorId, 
+    		org.prosolo.services.nodes.data.Role role) {
+    	return credentialManager.updateCredential(data, creatorId, role);
     }
     
     @Override

@@ -16,18 +16,25 @@ import javax.faces.validator.ValidatorException;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.organization.Capability;
 import org.prosolo.common.domainmodel.organization.Role;
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.common.exception.DbConnectionException;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.CapabilityManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.administration.data.CapabilityData;
 import org.prosolo.web.administration.data.RoleData;
+import org.prosolo.web.administration.data.UserData;
 import org.prosolo.web.util.PageUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.prosolo.web.util.ResourceBundleUtil;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 @ManagedBean(name="roles")
@@ -39,9 +46,11 @@ public class RolesBean implements Serializable {
 
 	protected static Logger logger = Logger.getLogger(RolesBean.class);
 
-	@Autowired private RoleManager roleManager;
-	@Autowired private LoggedUserBean loggedUser;
+	@Inject private RoleManager roleManager;
+	@Inject private LoggedUserBean loggedUser;
 	@Inject private CapabilityManager capabilityManager;
+	@Inject private EventFactory eventFactory;
+	@Inject @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 
 	private RoleData formData;
 	private List<RoleData> roles;
@@ -54,6 +63,7 @@ public class RolesBean implements Serializable {
 	private SelectItem[] allCapabilities;
 	
 	private List<CapabilityData> capabilities;
+	
 
 
 	@PostConstruct
@@ -253,6 +263,73 @@ public class RolesBean implements Serializable {
 		this.setFormData(new RoleData());
 	}
 	
+	
+	private UserData userToEdit;
+	private SelectItem[] allRolesItems;
+	private List<String> selectedRoles;
+	
+	public void prepareEditUserRoles(UserData userToEdit) {
+		this.userToEdit = userToEdit;
+		
+		try {
+			User user = roleManager.loadResource(User.class, this.userToEdit.getId());
+			List<Role> allRoles = roleManager.getAllRoles();
+			
+			if (allRoles != null && !allRoles.isEmpty()) {
+				List<Role> list = new ArrayList<Role>(allRoles);
+				this.allRolesItems = new SelectItem[list.size()];
+				this.selectedRoles = new ArrayList<String>();
+				
+				for (int i = 0; i < allRoles.size(); i++) {
+					Role role = list.get(i);
+					SelectItem selectItem = new SelectItem(role.getId(), role.getTitle());
+					this.allRolesItems[i] = selectItem;
+					
+					if (user.getRoles().contains(role)) {
+						this.selectedRoles.add(String.valueOf(role.getId()));
+					}
+				}
+			}
+		} catch (ResourceCouldNotBeLoadedException e) {
+			logger.error(e);
+		}
+	}
+	
+	public void updateUserRoles() {
+		if (this.selectedRoles != null) {
+			try {
+				User user = roleManager.updateUserRoles(userToEdit.getId(), selectedRoles);
+				taskExecutor.execute(new Runnable() {
+					@Override
+					public void run() {
+						try{
+							eventFactory.generateEvent(EventType.USER_ROLES_UPDATED, loggedUser.getUser(), user, null, 
+								null, null, null, null);
+						} catch(Exception e) {
+							logger.error(e);
+						}
+								
+					}
+				});
+				if (user.equals(loggedUser.getUser())) {
+					loggedUser.refreshUser();
+					//loggedUser.initializeRoles(user);
+				}
+
+				PageUtil.fireSuccessfulInfoMessage(
+						"unitUserRolesFormGrowl", 
+						ResourceBundleUtil.getMessage(
+								"admin.units.update", 
+								loggedUser.getLocale(), 
+								userToEdit.getName()+" "+user.getLastname()));
+			} catch (ResourceCouldNotBeLoadedException e1) {
+				logger.error(e1);
+			} catch (KeyNotFoundInBundleException e) {
+				logger.error(e);
+			}
+		}
+	}
+	
 	/*
 	 * GETTERS / SETTERS
 	 */
@@ -300,7 +377,21 @@ public class RolesBean implements Serializable {
 	public void setCapabilities(List<CapabilityData> capabilities) {
 		this.capabilities = capabilities;
 	}
-	
-	
+
+	public UserData getUserToEdit() {
+		return userToEdit;
+	}
+
+	public SelectItem[] getAllRolesItems() {
+		return allRolesItems;
+	}
+
+	public List<String> getSelectedRoles() {
+		return selectedRoles;
+	}
+
+	public void setSelectedRoles(List<String> selectedRoles) {
+		this.selectedRoles = selectedRoles;
+	}
 	
 }

@@ -15,7 +15,6 @@ import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.useractions.CommentBean;
@@ -59,8 +58,8 @@ public class ActivityViewBeanManager implements Serializable {
 					shouldReturnDraft = true;
 				} 
 				competenceData = activityManager
-						.getCompetenceActivitiesWithSpecifiedActivityInFocus(decodedActId, 
-								0, shouldReturnDraft, Role.Manager);
+						.getCompetenceActivitiesWithSpecifiedActivityInFocusForManager(
+								decodedActId, shouldReturnDraft);
 				
 				if(competenceData == null) {
 					try {

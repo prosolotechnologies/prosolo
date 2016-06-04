@@ -6,8 +6,8 @@ import java.util.List;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.observations.Suggestion;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.studentProfile.observations.SuggestionManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +17,7 @@ public class SuggestionManagerImpl extends AbstractManagerImpl implements Sugges
 
 	private static final long serialVersionUID = 3794586060152562963L;
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly = true)
 	public List<Suggestion> getAllSuggestions() throws DbConnectionException {
