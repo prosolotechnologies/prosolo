@@ -33,6 +33,13 @@ function attachListenersForUpdatingStatus() {
 	});
 }
 
+function showOrHideMandatoryArrows() {
+	if($('#' + containerId + '\\:formMain\\:credSidebar\\:checkMandatory').is(':checked'))
+	    $(".mandatoryArrow").show();
+	else
+	    $(".mandatoryArrow").hide(); 
+}
+
 //function getFieldValue(label) {
 //	switch(label) {
 //		case 'title':
