@@ -871,7 +871,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		StringBuilder builder = new StringBuilder();
 		builder.append("UPDATE activity1 SET dtype = :type ");
 		if(isUrlActivity) {
-			builder.append(", type = :urlType ");
+			builder.append(", url_type = :urlType ");
 		}
 		builder.append("WHERE id = :id");
 
@@ -880,7 +880,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			.setString("type", act.getClass().getSimpleName())
 			.setLong("id", activityId);
 		if(isUrlActivity) {
-			q.setString("urlType", ((UrlActivity1) act).getType().toString());
+			q.setString("urlType", ((UrlActivity1) act).getUrlType().toString());
 		}
 		
 		q.executeUpdate();

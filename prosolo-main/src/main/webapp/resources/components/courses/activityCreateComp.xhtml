@@ -19,6 +19,7 @@
 		<composite:attribute name="toUpdate" default="" />
 		<composite:attribute name="toUpdateModalUploadFile" default="" />
 		<composite:attribute name="toUpdateModalAddLink" default="" />
+		<composite:attribute name="mainForm" default="" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -29,9 +30,20 @@
                <label>Video URL</label>
                <div class="formLineRight">
                	   <h:inputText 
+               	   		id="inputVideoUrl"
                	   		styleClass="pasteable"
                	   		value="#{cc.attrs.activity.link}"
-               	   		onkeyup="updateStatusToDraft();"/>
+               	   		onkeyup="updateStatusToDraft();"
+               	   		validator="youtubeValidator"
+               	   		required="true"
+						requiredMessage="Video URL is required"/>
+				   <h:panelGroup 
+                    	layout="block" 
+                    	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputVideoUrl'))}" 
+                    	styleClass="alert alert-danger" 
+                    	pt:role="alert">
+                        <h:message for="inputVideoUrl"></h:message>
+                    </h:panelGroup>
                </div>
            </div>
         </h:panelGroup>
@@ -42,9 +54,19 @@
               <label>Text</label>
               <div class="formLineRight">
               	  <h:inputTextarea 
+              	  	id="inputTextActText"
               	  	value="#{cc.attrs.activity.text}"
               	  	styleClass="textareaBig pasteable"
-              	  	onkeyup="updateStatusToDraft();"/>
+              	  	onkeyup="updateStatusToDraft();"
+              	  	required="true"
+					requiredMessage="Text is required"/>
+			   <h:panelGroup 
+                   	layout="block" 
+                   	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputTextActText'))}" 
+                   	styleClass="alert alert-danger" 
+                   	pt:role="alert">
+                       <h:message for="inputTextActText"></h:message>
+               </h:panelGroup>
               </div>
           </div>
      	</h:panelGroup>
@@ -54,9 +76,20 @@
 	              <label>Slideshare URL</label>
 	              <div class="formLineRight">
 	                   <h:inputText 
+	                   		id="inputSlideshareUrl"
 	                   		styleClass="pasteable"
 	                   		value="#{cc.attrs.activity.link}"
-	                   		onkeyup="updateStatusToDraft();"/>
+	                   		onkeyup="updateStatusToDraft();"
+	                   		validator="slideshareValidator"
+	                   		required="true"
+	        				requiredMessage="Slideshare URL is required"/>
+       				   <h:panelGroup 
+                           	layout="block" 
+                           	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputSlideshareUrl'))}" 
+                           	styleClass="alert alert-danger" 
+                           	pt:role="alert">
+                               <h:message for="inputSlideshareUrl"></h:message>
+                       </h:panelGroup>
 	              </div>
 	          </div>
 	     </h:panelGroup>
@@ -169,18 +202,39 @@
                 <label>Launch URL</label>
                 <div class="formLineRight">
                      <h:inputText 
+                     	id="inputLaunchUrl"
                      	styleClass="pasteable"
                      	value="#{cc.attrs.activity.launchUrl}"
-                     	onkeyup="updateStatusToDraft();"/>
+                     	onkeyup="updateStatusToDraft();"
+                     	validator="urlValidator"
+                     	required="true"
+        				requiredMessage="Launch URL is required"/>
+   				     <h:panelGroup 
+                       	layout="block" 
+                       	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputLaunchUrl'))}" 
+                       	styleClass="alert alert-danger" 
+                       	pt:role="alert">
+                           <h:message for="inputLaunchUrl"></h:message>
+                     </h:panelGroup>
                 </div>
             </div>
             <div class="formLine">
                 <label>Shared secred</label>
                 <div class="formLineRight">
                      <h:inputText 
+                     	id="inputSecret"
                      	styleClass="pasteable"
                      	value="#{cc.attrs.activity.sharedSecret}"
-                     	onkeyup="updateStatusToDraft();"/>
+                     	onkeyup="updateStatusToDraft();"
+                     	required="true"
+        				requiredMessage="Shared secret is required"/>
+   				     <h:panelGroup 
+                       	layout="block" 
+                       	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputSecret'))}" 
+                       	styleClass="alert alert-danger" 
+                       	pt:role="alert">
+                           <h:message for="inputSecret"></h:message>
+                     </h:panelGroup>
                 </div>
             </div>
             <div class="formLine">

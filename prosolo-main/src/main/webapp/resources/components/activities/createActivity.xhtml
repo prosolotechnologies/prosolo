@@ -94,10 +94,19 @@
 	                                    <label>Title</label>
 	                                    <div class="formLineRight">
 	                                    	<h:inputText 
+	                                    		id="inputTitle"
 	                                    		styleClass="pasteable"
 	                                    		value="#{activityEditBean.activityData.title}"
-	                                    		onkeyup="updateStatusToDraft();">
-	                                    	</h:inputText>
+	                                    		onkeyup="updateStatusToDraft();"
+	                                    		required="true"
+												requiredMessage="Title is required"/>
+											<h:panelGroup 
+					                        	layout="block" 
+					                        	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formMain:inputTitle'))}" 
+					                        	styleClass="alert alert-danger" 
+					                        	pt:role="alert">
+					                            <h:message for="inputTitle"></h:message>
+					                        </h:panelGroup>
 	                                    </div>
 	                                </div>
 	                                <div class="formLine">
@@ -158,6 +167,7 @@
 	                                	toUpdate=":#{cc.clientId}:formMain:panelStatus"
 	                                	toUpdateModalUploadFile=":#{cc.clientId}:formModalUploadFile"
 	                                	toUpdateModalAddLink=":#{cc.clientId}:formModalAddUrl"
+	                                	mainForm=":#{cc.clientId}:formMain"
 	                                />
 	                            </div>
 	                        </div>

@@ -151,9 +151,9 @@ public class ActivityEditBean implements Serializable {
 	
 	public void updateType(ActivityType type) {
 		ActivityType oldType = activityData.getActivityType();
-		if(oldType == ActivityType.SLIDESHARE || oldType == ActivityType.VIDEO) {
-			 activityData.setLink(null);
-		}
+//		if(oldType == ActivityType.SLIDESHARE || oldType == ActivityType.VIDEO) {
+//			 activityData.setLink(null);
+//		}
 		activityData.setActivityType(type);
 		
 		//change status to draft
