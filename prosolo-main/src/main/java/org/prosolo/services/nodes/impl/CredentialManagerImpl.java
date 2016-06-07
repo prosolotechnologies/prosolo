@@ -139,6 +139,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					delete(draftVersion);
 					//eventFactory.generateEvent(EventType.Delete_Draft, user, draftVersion);
 				}
+				
+				deleteCredentialCompetences(originalCredId);
 	
 				/*
 				 * if credential was once published delete event is generated
@@ -952,16 +954,14 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 
 	@Transactional(readOnly = false)
-	private void deleteCredentialCompetences(long credentialId) {
+	private void deleteCredentialCompetences(long credId) {
 		try {
-			Credential1 cred = (Credential1) persistence.currentManager().load(
-					Credential1.class, credentialId);
 			String query = "DELETE CredentialCompetence1 comp " +
-						   "WHERE comp.credential = :cred";
+						   "WHERE comp.credential.id = :credId";
 			
 			persistence.currentManager()
 				.createQuery(query)
-				.setEntity("cred", cred)
+				.setLong("credId", credId)
 				.executeUpdate();
 			
 		} catch(Exception e) {

@@ -136,6 +136,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					delete(draftVersion);
 				}
 				
+				deleteCompetenceActivities(originalCompId);
+				
 				deleteAllCredentialCompetencesForCompetence(comp.getId());
 	
 				if(data.isPublished() || data.isDraft()) {
@@ -844,14 +846,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 	private void deleteCompetenceActivities(long compId) throws DbConnectionException {
 		try {
-			Competence1 comp = (Competence1) persistence.currentManager().load(
-					Competence1.class, compId);
 			String query = "DELETE CompetenceActivity1 compAct " +
-			       	       "WHERE compAct.competence = :comp";
+			       	       "WHERE compAct.competence.id = :compId";
 			
 			persistence.currentManager()
 				.createQuery(query)
-				.setEntity("comp", comp)
+				.setLong("compId", compId)
 				.executeUpdate();
 			
 		} catch(Exception e) {
