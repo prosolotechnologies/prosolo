@@ -67,17 +67,21 @@ public class ActivityEditBean implements Serializable {
 		initializeValues();
 		try {
 			if(compId == null) {
-				activityData = new ActivityData(false);
-				PageUtil.fireErrorMessage("Competence id must be passed");
+				try {
+					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+				} catch (IOException ioe) {
+					ioe.printStackTrace();
+					logger.error(ioe);
+				}
 			} else {
+				decodedCompId = idEncoder.decodeId(compId);
 				if(id == null) {
 					activityData = new ActivityData(false);
 				} else {
 					decodedId = idEncoder.decodeId(id);
 					logger.info("Editing activity with id " + decodedId);
-					loadActivityData(decodedId);
+					loadActivityData(decodedCompId, decodedId);
 				}
-				decodedCompId = idEncoder.decodeId(compId);
 				activityData.setCompetenceId(decodedCompId);
 				loadCompAndCredTitle();
 			}
@@ -103,12 +107,13 @@ public class ActivityEditBean implements Serializable {
 		}
 	}
 
-	private void loadActivityData(long id) {
+	private void loadActivityData(long compId, long actId) {
 		String section = PageUtil.getSectionForView();
 		if("/manage".equals(section)) {
-			activityData = activityManager.getCurrentVersionOfActivityForManager(id);
+			activityData = activityManager.getCurrentVersionOfActivityForManager(compId, actId);
 		} else {
-			activityData = activityManager.getActivityDataForEdit(id, loggedUser.getUser().getId());
+			activityData = activityManager.getActivityDataForEdit(compId, actId, 
+					loggedUser.getUser().getId());
 		}
 		
 		if(activityData == null) {
@@ -150,7 +155,7 @@ public class ActivityEditBean implements Serializable {
 	}
 	
 	public void updateType(ActivityType type) {
-		ActivityType oldType = activityData.getActivityType();
+//		ActivityType oldType = activityData.getActivityType();
 //		if(oldType == ActivityType.SLIDESHARE || oldType == ActivityType.VIDEO) {
 //			 activityData.setLink(null);
 //		}
@@ -298,7 +303,7 @@ public class ActivityEditBean implements Serializable {
 			
 			if(reloadData && activityData.hasObjectChanged()) {
 				//reload data
-				loadActivityData(decodedId);
+				loadActivityData(decodedCompId, decodedId);
 				activityData.setCompetenceName(competenceName);
 			}
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");

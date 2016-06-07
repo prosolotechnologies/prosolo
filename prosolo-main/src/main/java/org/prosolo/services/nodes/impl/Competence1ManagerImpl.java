@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -316,11 +317,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = true)
-	public CompetenceData1 getCompetenceData(long compId, boolean loadCreator, boolean loadTags, 
+	public CompetenceData1 getCompetenceData(long credId, long compId, boolean loadCreator, boolean loadTags, 
 			boolean loadActivities, long userId, LearningResourceReturnResultType returnType,
 			boolean shouldTrackChanges) throws DbConnectionException {
 		try {
-			Competence1 comp = getCompetence(compId, loadCreator, loadTags, userId, returnType, false);
+			Competence1 comp = getCompetence(credId, compId, loadCreator, loadTags, userId, 
+					returnType, false);
 		    if(comp != null) {
 				User creator = loadCreator ? comp.getCreatedBy() : null;
 				Set<Tag> tags = loadTags ? comp.getTags() : null;
@@ -345,17 +347,19 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = true)
-	public CompetenceData1 getCompetenceDataForUser(long compId, boolean loadCreator, boolean loadTags, 
-			boolean loadActivities, long userId, boolean shouldTrackChanges) throws DbConnectionException {
-			return getCompetenceData(compId, loadCreator, loadTags, loadActivities, userId, 
+	public CompetenceData1 getCompetenceDataForUser(long credId, long compId, boolean loadCreator, 
+			boolean loadTags, boolean loadActivities, long userId, boolean shouldTrackChanges) 
+					throws DbConnectionException {
+			return getCompetenceData(credId, compId, loadCreator, loadTags, loadActivities, userId, 
 					LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER, shouldTrackChanges);
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public CompetenceData1 getCompetenceDataForManager(long compId, boolean loadCreator, boolean loadTags, 
-			boolean loadActivities, boolean shouldTrackChanges) throws DbConnectionException {
-			return getCompetenceData(compId, loadCreator, loadTags, loadActivities, 0, 
+	public CompetenceData1 getCompetenceDataForManager(long credId, long compId, boolean loadCreator, 
+			boolean loadTags, boolean loadActivities, boolean shouldTrackChanges) 
+					throws DbConnectionException {
+			return getCompetenceData(credId, compId, loadCreator, loadTags, loadActivities, 0, 
 					LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_MANAGER, shouldTrackChanges);
 	}
 	
@@ -367,6 +371,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	 * If LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_MANAGER is passed for {@code returnType}
 	 * parameter competence will be returned even if it is first time draft if competence is created by
 	 * university.
+	 * @param credId
 	 * @param compId
 	 * @param loadCreator
 	 * @param loadTags
@@ -375,27 +380,24 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	 * @return
 	 */
 	@Transactional(readOnly = true)
-	private Competence1 getCompetence(long compId, boolean loadCreator, boolean loadTags,
+	private Competence1 getCompetence(long credId, long compId, boolean loadCreator, boolean loadTags,
 			long userId, LearningResourceReturnResultType returnType, boolean returnIfDraftVersion) {
 		StringBuilder builder = new StringBuilder();
-		builder.append("SELECT comp " + 
-					   "FROM Competence1 comp ");
-		if(loadCreator) {
-			builder.append("INNER JOIN fetch comp.createdBy user ");
+		builder.append("SELECT comp ");
+		/* 
+		 * if credential id is passed need to make sure that competence really is in credential with 
+		 * specified id
+		 */
+		if(credId > 0) {
+			builder.append("FROM CredentialCompetence1 credComp " +
+						   "INNER JOIN credComp.competence comp " +
+						   		"WITH comp.id = :compId " +
+						   		"AND comp.deleted = :deleted ");
+		} else {
+			builder.append("FROM Competence1 comp ");
 		}
-		if(loadTags) {
-			builder.append("LEFT JOIN fetch comp.tags tags ");
-		}
-//		if(loadActivities) {
-//			builder.append("LEFT JOIN fetch comp.activities compAct " +
-//					       "INNER JOIN fetch compAct.activity act ");
-//		}
-		builder.append("WHERE comp.id = :compId " +
-				   "AND comp.deleted = :deleted ");
-		
-		if(!returnIfDraftVersion) {
-			builder.append("AND comp.draft = :draft ");
-		}
+//		builder.append("SELECT comp " + 
+//					   "FROM Competence1 comp ");
 		
 		String condition = "AND (comp.published = :published OR  "
 				+ "comp.hasDraft = :hasDraft ";
@@ -413,14 +415,44 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				condition += "OR comp.type = :type) ";
 				break;
 		}
-	
-		builder.append(condition);
-
+		
+		if(credId > 0) {
+			if(!returnIfDraftVersion) {
+				builder.append("AND comp.draft = :draft ");
+			}
+			builder.append(condition);
+		}
+		
+		if(loadCreator) {
+			builder.append("INNER JOIN fetch comp.createdBy user ");
+		}
+		if(loadTags) {
+			builder.append("LEFT JOIN fetch comp.tags tags ");
+		}
+//		if(loadActivities) {
+//			builder.append("LEFT JOIN fetch comp.activities compAct " +
+//					       "INNER JOIN fetch compAct.activity act ");
+//		}
+		if(credId > 0) {
+			builder.append("WHERE credComp.credential.id = :credId");
+		} else {
+			builder.append("WHERE comp.id = :compId " +
+					   "AND comp.deleted = :deleted ");
+			if(!returnIfDraftVersion) {
+				builder.append("AND comp.draft = :draft ");
+			}
+			builder.append(condition);
+		}
+		
 		logger.info("QUERY: " + builder.toString());
 		Query q = persistence.currentManager()
 			.createQuery(builder.toString())
 			.setLong("compId", compId)
 			.setBoolean("deleted", false);
+		
+		if(credId > 0) {
+			q.setLong("credId", credId);
+		}
 		
 		if(!returnIfDraftVersion) {
 			q.setBoolean("draft", false);
@@ -893,7 +925,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					credentialId);
 			
 			StringBuilder builder = new StringBuilder();
-			builder.append("SELECT credComp " + 
+			builder.append("SELECT distinct credComp " + 
 						   "FROM CredentialCompetence1 credComp " +
 						   "INNER JOIN fetch credComp.competence comp ");
 			if(loadCreator) {
@@ -1306,7 +1338,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	}
 	
 	private Competence1 createDraftVersionOfCompetence(long originalCompId) {
-		Competence1 originalComp = getCompetence(originalCompId, false, true, 0, 
+		Competence1 originalComp = getCompetence(0, originalCompId, false, true, 0, 
 				LearningResourceReturnResultType.PUBLISHED_VERSION, false);
 		
 		Competence1 draftComp = new Competence1();
@@ -1557,8 +1589,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		try {
 			compData = getTargetCompetenceData(credId, compId, userId, true, true);
 			if (compData == null) {
-				compData = getCompetenceData(compId, true, true, true, userId,
-						LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER, true);
+//				compData = getCompetenceData(compId, true, true, true, userId,
+//						LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER, true);
+				compData = getCompetenceDataForUser(credId, compId, true, true, true, userId, true);
 			}
 				
 			return compData;
@@ -1639,7 +1672,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			//if it has, copy data from draft version to original and set published to true
 			for(Competence1 c : comps) {
 				if(c.isHasDraft()) {
-					Competence1 draftC = getCompetence(c.getDraftVersion().getId(), false, true, 
+					Competence1 draftC = getCompetence(0, c.getDraftVersion().getId(), false, true, 
 							0, LearningResourceReturnResultType.ANY, true);
 					publishDraftVersion(c, draftC);
 				} else {
@@ -1743,6 +1776,29 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
     			originalComp.getDuration());
 	    
 		return originalComp;
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Optional<Long> getCompetenceDraftVersionIdForOriginal(long competenceId) throws DbConnectionException {
+		try {
+			String query = "SELECT comp.draftVersion.id " +
+					"FROM Competence1 comp " +
+					"WHERE comp.id = :compId";
+			
+			Long draftVersionId = (Long) persistence.currentManager()
+					.createQuery(query)
+					.setLong("compId", competenceId)
+					.uniqueResult();
+			if(draftVersionId == null) {
+				return Optional.empty();
+			}
+			return Optional.of(draftVersionId);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading competence id");
+		}
 	}
 	
 //	@Override

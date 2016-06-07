@@ -69,7 +69,8 @@ public class ActivityViewBeanUser implements Serializable {
 					} 
 					competenceData = activityManager
 							.getCompetenceActivitiesWithSpecifiedActivityInFocusForUser(
-									decodedActId,  loggedUser.getUser().getId(), shouldReturnDraft);
+									0, decodedCompId, decodedActId,  loggedUser.getUser().getId(), 
+									shouldReturnDraft);
 				}
 				if(competenceData == null) {
 					try {

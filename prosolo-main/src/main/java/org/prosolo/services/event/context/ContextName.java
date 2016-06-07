@@ -2,10 +2,10 @@ package org.prosolo.services.event.context;
 
 public enum ContextName {
 
-	CREDENTIAL("Credential"),
+	CREDENTIAL("Credential1"),
 	GOAL_WALL(""),
-	COMPETENCE("TargetCompetence"),
-	ACTIVITY("TargetActivity"),
+	TARGET_COMPETENCE("TargetCompetence1"),
+	TARGET_ACTIVITY("TargetActivity1"),
 	POST_DIALOG("Post"),
 	INSTRUCTOR("CourseInstructor"),
 	INSTRUCTOR_DIALOG("CourseInstructor"),
@@ -13,7 +13,7 @@ public enum ContextName {
 	ACTIVITY_SEARCH("Activity"),
 	NODE_COMMENT("NodeComment"),
 	SOCIAL_ACTIVITY_COMMENT("SocialActivityComment"),
-	LEARNING_GOAL("TargetLearningGoal"),
+	//LEARNING_GOAL("TargetLearningGoal"),
 	SOCIAL_ACTIVITY("SocialActivity"),
 	STATUS_WALL(""),
 	ASSESSMENT_DIALOG(""),
@@ -23,7 +23,7 @@ public enum ContextName {
 	LTI_LAUNCH(""),
 	LTI_TOOL("LtiTool"),
 	ADD_ACTIVITY_DIALOG("Activity"),
-	BASE_COMPETENCE("Competence"),
+	COMPETENCE("Competence1"),
 	ACTIVITY_SEARCH_BOX("Activity"),
 	DELETE_COMPETENCE_ACTIVITY_DIALOG("CompetenceActivity"),
 	PERSONAL_FEEDS("FeedEntry"), 
@@ -32,9 +32,10 @@ public enum ContextName {
 	PERSONAL_TWEETS("TwitterPostSocialActivity"), 
 	COURSE_TWEETS("TwitterPostSocialActivity"),
 	NEWS_DIGEST("FeedsDigest"),
-	COMMENT("Comment"),
+	COMMENT("Comment1"),
 	LIBRARY(""),
-	BASE_ACTIVITY("Activity");
+	ACTIVITY("Activity1"),
+	TARGET_CREDENTIAL("TargetCredential1");
 	
 	
     private String objectType; 

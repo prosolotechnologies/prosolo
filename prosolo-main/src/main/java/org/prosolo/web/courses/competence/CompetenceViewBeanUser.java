@@ -62,7 +62,7 @@ public class CompetenceViewBeanUser implements Serializable {
 						rc.setAvatarUrl(user.getAvatarUrl());
 						competenceData.setCreator(rc);
 					} else {
-						competenceData = competenceManager.getCompetenceDataForUser(decodedCompId, true, 
+						competenceData = competenceManager.getCompetenceDataForUser(0, decodedCompId, true, 
 								true, true, loggedUser.getUser().getId(), true);
 					}
 				}

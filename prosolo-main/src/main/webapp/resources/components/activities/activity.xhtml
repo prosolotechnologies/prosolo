@@ -24,7 +24,7 @@
     	<script>try{Typekit.load({ async: true });}catch(e){}</script>
 
 		<ui:param name="isPreview" value="#{cc.attrs.bean.isPreview()}" />
-		<ui:param name="learningContext" value="name:base_activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.activityId}" />
+		<ui:param name="learningContext" value="name:activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.activityId}" />
      	<ui:param name="canEdit" value="#{cc.attrs.role == 'MANAGER' and cc.attrs.bean.competenceData.activityToShowWithDetails.type == 'UNIVERSITY_CREATED' 
      		and request.isUserInRole('MANAGE.CONTENT.EDIT') || cc.attrs.role != 'MANAGER' and cc.attrs.bean.isCurrentUserCreator()}"></ui:param>
      	
@@ -56,6 +56,8 @@
 	                    	styleClass="btn btn-green-stroke btn-sm item"
 	                    	outcome="create-activity">
 	                    	<f:param name="id" value="#{param['actId']}"></f:param>
+	                    	<f:param name="compId" value="#{param['compId']}"></f:param>
+	                    	<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}"></f:param>
 	                    </h:link>
 	                </div>
 	            </div>

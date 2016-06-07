@@ -379,7 +379,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					Long id = ((Integer) hit.getSource().get("id")).longValue();
 					
 					try {
-						CompetenceData1 cd = compManager.getCompetenceData(id, true, 
+						CompetenceData1 cd = compManager.getCompetenceData(0, id, true, 
 								false, false, 0, LearningResourceReturnResultType.PUBLISHED_VERSION, 
 								false);
 						
