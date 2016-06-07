@@ -5,7 +5,9 @@ $(function() {
 function initializeYouTubeAPI(options) {
 	var defaults = {
 		container: '.youtubevideodiv',
-		context: null,
+		page: null,
+		learningContext: null,
+		service: null,
 		height : '270',
 		width : '380'
 	}
@@ -53,17 +55,15 @@ function initializeYouTubeAPI(options) {
 			sendServiceUse("VIDEO", {
 				"action" : "PLAYING",
 				"time" : time,
-				"videoUrl" : videoUrl,
-				"context" : opts.context
-			});
+				"videoUrl" : videoUrl
+			}, opts.page, opts.learningContext, opts.service);
 		}
 		if (event.data == endedState) {
 			sendServiceUse("VIDEO", {
 				"action" : "ENDED",
 				"time" : time,
-				"videoUrl" : videoUrl,
-				"context" : opts.context
-			});
+				"videoUrl" : videoUrl
+			}, opts.page, opts.learningContext, opts.service);
 		}
 		if (event.data == pausedState) {
 			PAUSE_EVT_STACK++;
@@ -71,33 +71,29 @@ function initializeYouTubeAPI(options) {
 				sendServiceUse("VIDEO", {
 					"action" : "PAUSE",
 					"time" : time,
-					"videoUrl" : videoUrl,
-					"context" : opts.context
-				});
+					"videoUrl" : videoUrl
+				}, opts.page, opts.learningContext, opts.service);
 			} else if (PAUSE_EVT_STACK > 1) {
 				sendServiceUse("VIDEO", {
 					"action" : "FAST-FORWARD",
 					"time" : time,
-					"videoUrl" : videoUrl,
-					"context" : opts.context
-				});
+					"videoUrl" : videoUrl
+				}, opts.page, opts.learningContext, opts.service);
 			}
 		}
 		if (event.data == bufferingState) {
 			sendServiceUse("VIDEO", {
 				"action" : "BUFFERING",
 				"time" : time,
-				"videoUrl" : videoUrl,
-				"context" : opts.context
-			});
+				"videoUrl" : videoUrl
+			}, opts.page, opts.learningContext, opts.service);
 		}
 		if (event.data == cuedState) {
 			sendServiceUse("VIDEO", {
 				"action" : "CUED",
 				"time" : time,
-				"videoUrl" : videoUrl,
-				"context" : opts.context
-			});
+				"videoUrl" : videoUrl
+			}, opts.page, opts.learningContext, opts.service);
 		}
 	}
 

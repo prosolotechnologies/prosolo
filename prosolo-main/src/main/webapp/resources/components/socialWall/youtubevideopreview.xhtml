@@ -27,7 +27,9 @@
 					width: '#{cc.attrs.width}', 
 					height: '#{cc.attrs.height}',
 					container: '.youtubevideodiv',
-					context: '#{cc.attrs.context}',
+					page: '#{facesContext.viewRoot.viewId}',
+					learningContext: '#{cc.attrs.context}',
+					service: null
 				});
 		  	}
 		</script>

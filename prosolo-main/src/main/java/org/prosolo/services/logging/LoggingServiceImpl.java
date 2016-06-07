@@ -161,7 +161,8 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 
 	@Override
 	public void logNavigationFromContext(User user, String link,
-			String context, String parametersString, String ipAddress) throws LoggingException {
+			String context, String page, String learningContext, String service, 
+			String parametersString, String ipAddress) throws LoggingException {
 
 		Map<String, String> parameters = convertToMap(parametersString);
 		
@@ -172,7 +173,8 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		parameters.put("link", link);
 		
 		try {
-			eventFactory.generateEvent(EventType.NAVIGATE, user, null, parameters);
+			eventFactory.generateEvent(EventType.NAVIGATE, user, null, null,
+					page, learningContext, service, parameters);
 		} catch (EventException e) {
 			logger.error("Generate event failed.", e);
 		}

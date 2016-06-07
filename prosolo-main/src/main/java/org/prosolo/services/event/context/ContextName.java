@@ -35,7 +35,9 @@ public enum ContextName {
 	COMMENT("Comment1"),
 	LIBRARY(""),
 	ACTIVITY("Activity1"),
-	TARGET_CREDENTIAL("TargetCredential1");
+	TARGET_CREDENTIAL("TargetCredential1"),
+	ACTIVITY_LINK("ResourceLink"),
+	ACTIVITY_FILE("ResourceLink");
 	
 	
     private String objectType; 
