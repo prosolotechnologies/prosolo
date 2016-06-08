@@ -2,8 +2,8 @@ package org.prosolo.services.notifications.factory;
 
 import java.util.Locale;
 
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.notifications.Notification1;
-import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationData;
 import org.prosolo.web.util.ResourceBundleUtil;
@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class NotificationDataFactory {
 
-	public NotificationData getNotificationData(Notification1 notification, String objectTitle,
-			Locale locale) {
+	public NotificationData getNotificationData(Notification1 notification, User receiver, 
+			String objectTitle, Locale locale) {
 		NotificationData n = new NotificationData();
 		n.setId(notification.getId());
 		n.setRead(notification.isRead());
@@ -21,6 +21,10 @@ public class NotificationDataFactory {
 		n.setNotificationType(notification.getType());
 		UserData actor = new UserData(notification.getActor());
 		n.setActor(actor);
+		if(receiver != null) {
+			UserData rec = new UserData(receiver);
+			n.setReceiver(rec);
+		}
 		n.setLink(notification.getLink());
 		n.setObjectType(notification.getObjectType());
 		n.setObjectTitle(objectTitle != null ? objectTitle : "");

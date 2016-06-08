@@ -18,6 +18,7 @@ public class NotificationData implements Serializable {
 	private NotificationType notificationType;
 	
 	private UserData actor;
+	private UserData receiver;
 	private String link;
 	private ObjectType objectType;
 	private String objectTitle;
@@ -100,6 +101,14 @@ public class NotificationData implements Serializable {
 
 	public void setObjectTitle(String objectTitle) {
 		this.objectTitle = objectTitle;
+	}
+
+	public UserData getReceiver() {
+		return receiver;
+	}
+
+	public void setReceiver(UserData receiver) {
+		this.receiver = receiver;
 	} 
 
 }

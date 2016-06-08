@@ -14,6 +14,7 @@ public class UserData implements Serializable {
 	private String fullName;
 	private String avatarUrl;
 	private String position;
+	private String email;
 	
 	public UserData() {}
 	
@@ -22,6 +23,7 @@ public class UserData implements Serializable {
 		setFullName(user.getName(), user.getLastname());
 		this.avatarUrl = AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size60x60);
 		this.position = user.getPosition();
+		this.email = user.getEmail();
 	}
 	
 	public void setFullName(String name, String lastName) {
@@ -58,6 +60,14 @@ public class UserData implements Serializable {
 
 	public void setPosition(String position) {
 		this.position = position;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 }
