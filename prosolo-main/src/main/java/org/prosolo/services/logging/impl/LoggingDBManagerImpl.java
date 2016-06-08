@@ -1,5 +1,5 @@
 package org.prosolo.services.logging.impl;
-
+/*
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -11,8 +11,7 @@ import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.web.activitywall.data.UserData;
-import org.prosolo.services.logging.AbstractDB;
-import org.prosolo.services.logging.LoggingDBManager;
+
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.logging.exception.LoggingException;
 import org.prosolo.web.reports.LogParameter;
@@ -23,20 +22,23 @@ import org.springframework.stereotype.Service;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
+import com.mongodb.DBObject;*/
+import org.prosolo.services.logging.AbstractDB;
+import org.prosolo.services.logging.LoggingDBManager;
 
 /**
 @author Zoran Jeremic Jan 28, 2014
  */
-@Service("org.prosolo.services.logging.LoggingDBManager")
+@Deprecated
+//@Service("org.prosolo.services.logging.LoggingDBManager")
 public class LoggingDBManagerImpl extends AbstractDB implements LoggingDBManager {
 	
-	@Autowired
-	LoggingService loggingService;
+	//@Autowired
+	//LoggingService loggingService;
 	
-	private static Logger logger = Logger.getLogger(LoggingDBManager.class.getName());
+	//private static Logger logger = Logger.getLogger(LoggingDBManager.class.getName());
 	
-	@Override
+	/*@Override
 	public int getLogsCount(DBObject filterQuery) {
 		DBCollection eventsCollection = this.getEventObservedCollection();
 		int count = 0;
@@ -196,7 +198,7 @@ public class LoggingDBManagerImpl extends AbstractDB implements LoggingDBManager
 	
 	@Override
 	public long getMostActiveUsersLastActivityTimestamp(long userid) {
-		DBObject query = new BasicDBObject();
+		/*DBObject query = new BasicDBObject();
 		query.put("userid", userid);
 		DBCollection collection = this.getUserLatestActivityTimeCollection();
 		DBObject dbObject = collection.findOne(query);
@@ -224,6 +226,7 @@ public class LoggingDBManagerImpl extends AbstractDB implements LoggingDBManager
 			}
 		}
 		return timestamp;
+		return 0l;
 	}
 	
 	@Override
@@ -272,6 +275,6 @@ public class LoggingDBManagerImpl extends AbstractDB implements LoggingDBManager
 			e.printStackTrace();
 		}
 		return result;
-	}
+	}*/
 	
 }

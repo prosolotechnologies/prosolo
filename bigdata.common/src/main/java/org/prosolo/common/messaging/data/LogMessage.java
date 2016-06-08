@@ -1,6 +1,8 @@
 package org.prosolo.common.messaging.data;
 
-import com.mongodb.DBObject;
+//import com.mongodb.DBObject;
+
+import org.json.simple.JSONObject;
 
 /**
 @author Zoran Jeremic Apr 4, 2015
@@ -28,8 +30,8 @@ public class LogMessage extends SimpleMessage{
 	private long targetUserId;
 
 
-	private DBObject learningContext;
-	private DBObject parameters;
+	private JSONObject learningContext;
+	private JSONObject parameters;
 	public void setCourseId(long courseId) {this.courseId = courseId;}
 	public long getCourseId() {	return courseId;}
 
@@ -105,15 +107,15 @@ public class LogMessage extends SimpleMessage{
 	public void setLink(String link) {
 		this.link = link;
 	}
-	public DBObject getParameters() {
+	public JSONObject getParameters() {
 		return parameters;
 	}
-	public void setParameters(DBObject parameters) {
+	public void setParameters(JSONObject parameters) {
 		this.parameters = parameters;
 	}
 	public void setTargetUserId(long targetUserId){this.targetUserId=targetUserId;}
 	public long getTargetUserId(){return this.targetUserId;}
-	public DBObject getLearningContext() {return learningContext;}
-	public void setLearningContext(DBObject learningContext) {this.learningContext = learningContext;}
+	public JSONObject getLearningContext() {return learningContext;}
+	public void setLearningContext(JSONObject learningContext) {this.learningContext = learningContext;}
 }
 

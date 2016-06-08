@@ -12,7 +12,7 @@ import org.prosolo.services.event.context.LearningContext;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.logging.exception.LoggingException;
 
-import com.mongodb.DBObject;
+//import com.mongodb.DBObject;
 
 /**
  * @author Zoran Jeremic 2013-10-07
@@ -53,22 +53,22 @@ public interface LoggingService {
 	void logEventObserved(EventType eventType, User actor, String objectType, long objectId,
 			Map<String, String> parameters, String ipAddress);
 
-	void recordActivityReportGenerated(List<Long> userIds,
-			Date reportGenerationDate);
+//	void recordActivityReportGenerated(List<Long> userIds,
+	//		Date reportGenerationDate);
 
-	List<Date> getReportDays(Date start, Date end, Long userId);
+	//List<Date> getReportDays(Date start, Date end, Long userId);
 
-	Map<Long, Collection<LoggedEvent>> getAllLoggedEvents(Date start, Date end);
+	//Map<Long, Collection<LoggedEvent>> getAllLoggedEvents(Date start, Date end);
 
-	Map<Long, Collection<LoggedEvent>> getAllLoggedEvents(DBObject filterQuery);
+//	Map<Long, Collection<LoggedEvent>> getAllLoggedEvents(DBObject filterQuery);
 
-	boolean collectionExists(String collectionName);
+	//boolean collectionExists(String collectionName);
 
-	boolean reportDatesCollectionExists();
+	//boolean reportDatesCollectionExists();
 
-	Long getOldestObservedEventTime();
+	//Long getOldestObservedEventTime();
 
-	Collection<LoggedEvent> getLoggedEventsList(DBObject filterQuery);
+	//Collection<LoggedEvent> getLoggedEventsList(DBObject filterQuery);
 	
 	void logSessionEnded(EventType eventType, User actor, String ipAddress);
 

@@ -31,10 +31,10 @@ import org.prosolo.services.nodes.UserManager;
 import org.prosolo.similarity.ResourceTokenizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+/*
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.MongoException;
+import com.mongodb.MongoException;*/
 
 @Service("org.prosolo.recommendation.CollaboratorsRecommendation")
 public class CollaboratorsRecommendationImpl implements CollaboratorsRecommendation {
@@ -44,7 +44,7 @@ public class CollaboratorsRecommendationImpl implements CollaboratorsRecommendat
 	@Autowired private MoreUsersLikeThis mult;
 	@Autowired private ResourceTokenizer resTokenizer;
 	@Autowired private LearningGoalManager learningGoalManager; 
-	@Autowired private LoggingDBManager loggingDBManager;
+	//@Autowired private LoggingDBManager loggingDBManager;
 	@Autowired private UserManager userManager;
 	@Autowired private FollowResourceManager followResourceManager;
 	@Autowired private RecommendedResourcesSearch recommendedResourcesSearch;
@@ -173,7 +173,7 @@ public class CollaboratorsRecommendationImpl implements CollaboratorsRecommendat
 		return users;
 	}*/
 	
-	@Override
+	/*@Override
 	public void initializeMostActiveRecommendedUsers(){
 		new Thread(new Runnable() {
 			@Override
@@ -236,7 +236,7 @@ public class CollaboratorsRecommendationImpl implements CollaboratorsRecommendat
 			throw new LoggingException("Mongo store is not available");
 		}
 	}
-	
+	*/
 	public static <K extends Comparable, V extends Comparable> Map<K, V> sortByValues(Map<K, V> map) {
 		List<Map.Entry<K, V>> entries = new LinkedList<Map.Entry<K, V>>(map.entrySet());
 		

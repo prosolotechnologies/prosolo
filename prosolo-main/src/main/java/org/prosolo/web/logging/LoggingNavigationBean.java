@@ -9,6 +9,9 @@ import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.EventException;
@@ -23,8 +26,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.util.JSON;
+//import com.mongodb.BasicDBObject;
+//import com.mongodb.util.JSON;
 
 /**
  * @author Zoran Jeremic 2013-10-13
@@ -241,12 +244,17 @@ public class LoggingNavigationBean implements Serializable {
 		Map<String, String> parameters = new HashMap<String, String>();
 		
 		if (parametersJson != null && parametersJson.length() > 0) {
-			BasicDBObject parametersObject = (BasicDBObject) JSON.parse(parametersJson);
-			Set<String> keys = parametersObject.keySet();
-			
-			for (String key : keys) {
-				parameters.put(key, parametersObject.getString(key));
+			try{
+				JSONObject parametersObject = (JSONObject) new JSONParser().parse(parametersJson);
+				Set<String> keys = parametersObject.keySet();
+
+				for (String key : keys) {
+					parameters.put(key, parametersObject.get(key).toString());
+				}
+			}catch(ParseException pe){
+				logger.error(pe);
 			}
+
 		}
 		return parameters;
 	}

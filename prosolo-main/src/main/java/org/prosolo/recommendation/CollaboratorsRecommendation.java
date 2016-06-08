@@ -14,6 +14,6 @@ public interface CollaboratorsRecommendation {
 	
 	List<User> getMostActiveRecommendedUsers(User loggedUser, int limit);
 	
-	void initializeMostActiveRecommendedUsers();
+	//void initializeMostActiveRecommendedUsers();
 	
 }

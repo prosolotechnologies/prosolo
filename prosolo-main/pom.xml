@@ -175,11 +175,7 @@
 			<artifactId>json</artifactId>
 			<version>20090211</version>
 		</dependency-->
-		<dependency>
-			<groupId>com.googlecode.json-simple</groupId>
-			<artifactId>json-simple</artifactId>
-			<version>1.1.1</version>
-		</dependency>
+
 
 		<!-- Gson dependencies -->
 		<dependency>
@@ -527,11 +523,11 @@
 			<version>2.6</version>
 		</dependency>
 		<!-- MongoDb dependencies -->
-		<dependency>
+		<!--dependency>
 			<groupId>org.mongodb</groupId>
 			<artifactId>mongo-java-driver</artifactId>
 			<version>2.11.3</version>
-		</dependency>
+		</dependency-->
 		<!-- For image resizing <dependency> <groupId>org.imgscalr</groupId> <artifactId>imgscalr-lib</artifactId> 
 			<version>4.2</version> <type>jar</type> <scope>compile</scope> </dependency> -->
 		<!-- Used for image resizing -->

@@ -1,5 +1,5 @@
 package org.prosolo.services.logging;
-
+/*
 import java.util.Date;
 import java.util.List;
 
@@ -8,14 +8,14 @@ import org.prosolo.web.reports.LogRow;
 
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-
+*/
 /**
 @author Zoran Jeremic Jan 28, 2014
  */
-
+@Deprecated
 public interface LoggingDBManager {
 
-	List<LogRow> loadLogsForPage(int skip, int limit, DBObject filterQuery);
+	/*List<LogRow> loadLogsForPage(int skip, int limit, DBObject filterQuery);
 
 	int getLogsCount(DBObject filterQuery);
 	
@@ -31,6 +31,6 @@ public interface LoggingDBManager {
 	long getMostActiveUsersLastActivityTimestamp(long userid);
 	
 	List<DBObject> getAllEventsFromUserSession(long userid);
-
+*/
 
 }

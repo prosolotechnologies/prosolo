@@ -111,7 +111,7 @@ public class AfterContextLoader implements ServletContextListener {
 	
 	private void initApplicationServices(){
 		System.out.println("Init application services...");
-		ServiceLocator.getInstance().getService(CollaboratorsRecommendation.class).initializeMostActiveRecommendedUsers();
+		//ServiceLocator.getInstance().getService(CollaboratorsRecommendation.class).initializeMostActiveRecommendedUsers();
 	//	Settings settings = Settings.getInstance(); 
 		if(CommonSettings.getInstance().config.rabbitMQConfig.distributed){
 			

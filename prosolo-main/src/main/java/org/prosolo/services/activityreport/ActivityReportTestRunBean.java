@@ -24,7 +24,7 @@ public class ActivityReportTestRunBean {
 			@Override
 			public void run() {
 				started=true;
-				exportManager.runActivityExport();
+			//	exportManager.runActivityExport();
 				started=false;
 			}}).start();
 	}

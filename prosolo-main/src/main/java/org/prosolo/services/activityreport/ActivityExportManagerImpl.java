@@ -1,5 +1,5 @@
 package org.prosolo.services.activityreport;
-
+/*
 import static org.joda.time.DateTimeZone.UTC;
 import static org.prosolo.services.activityreport.ArchiveExportUtil.createArchivePath;
 import static org.prosolo.services.activityreport.ArchiveExportUtil.formatDate;
@@ -51,7 +51,7 @@ import org.prosolo.util.urigenerator.MD5HashUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.mongodb.DBObject;
+import com.mongodb.DBObject;*/
 
 /**
  * Class that does the extraction of Prosolo activity reports for each user and creating of CSV files. The results of
@@ -59,10 +59,11 @@ import com.mongodb.DBObject;
  * 
  * @author vita
  */
-@Service("org.prosolo.services.nodes.ActivityExportManager")
-public class ActivityExportManagerImpl extends AbstractManagerImpl implements ActivityExportManager {
+//@Service("org.prosolo.services.nodes.ActivityExportManager")
+@Deprecated
+public class ActivityExportManagerImpl  {
 
-	// excel requires that all csv files with unicode characters start with Byte Order Marker,
+/*	// excel requires that all csv files with unicode characters start with Byte Order Marker,
 	// otherwise it does not display UTF characters properly
 	private static final char UNICODE_BOM = '\ufeff';
 
@@ -464,8 +465,8 @@ public class ActivityExportManagerImpl extends AbstractManagerImpl implements Ac
 	 * @param query
 	 *            , should return two values, first is id, the second is the string value that gets mapped.
 	 */
-	@SuppressWarnings("unchecked")
-    private Map<Long, String> mapIdToVal(String query, Session session) {
+
+ /*   private Map<Long, String> mapIdToVal(String query, Session session) {
 //		System.out.println("RUNNING QUERY: " + query);
 		List<Object> r = (List<Object>) session.createSQLQuery(query).list();
 //		System.out.println("DONE");
@@ -516,5 +517,5 @@ public class ActivityExportManagerImpl extends AbstractManagerImpl implements Ac
 	private Map<Long, String> initAllUsers(Session session) {
 		return createUsersIdNameMap(userManager.getAllUsers());
 	}
-
+*/
 }

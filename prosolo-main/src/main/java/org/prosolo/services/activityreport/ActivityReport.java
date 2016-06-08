@@ -1,6 +1,6 @@
 package org.prosolo.services.activityreport;
 
-import static org.prosolo.services.activityreport.ActivityExportManager.REPORTING_PERIOD_DAYS;
+//import static org.prosolo.services.activityreport.ActivityExportManager.REPORTING_PERIOD_DAYS;
 import static org.prosolo.services.activityreport.ArchiveExportUtil.createArchivePath;
 import static org.prosolo.services.activityreport.ArchiveExportUtil.formatDateForm;
 import static org.prosolo.util.urigenerator.AmazonS3Utility.createFullPathFromRelativePath;
@@ -20,7 +20,7 @@ public class ActivityReport {
 	public ActivityReport(Date from, Long userId) {
 		super();
 		this.from = from;
-		this.to = new LocalDate(from).plusDays(REPORTING_PERIOD_DAYS-1).toDate(); // should be 1 day less as we substracted 1 millisecond when we started generating reports
+	//	this.to = new LocalDate(from).plusDays(REPORTING_PERIOD_DAYS-1).toDate(); // should be 1 day less as we substracted 1 millisecond when we started generating reports
 		this.userId = userId;
 	}
 

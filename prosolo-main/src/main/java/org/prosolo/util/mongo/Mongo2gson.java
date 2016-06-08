@@ -6,22 +6,22 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.bson.types.ObjectId;
+//import org.bson.types.ObjectId;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
+//import com.mongodb.BasicDBList;
+//import com.mongodb.BasicDBObject;
+//import com.mongodb.DBObject;
 /**
 @author Zoran Jeremic Jan 28, 2014
  */
-
+@Deprecated
 public final class Mongo2gson {
 
-    private static DateFormat defaultDateFormat =
+   /* private static DateFormat defaultDateFormat =
             new SimpleDateFormat("MM-dd-yyyy-HH-mm-ss-SSS");
 
     private DateFormat dateFormat;
@@ -41,7 +41,7 @@ public final class Mongo2gson {
      * @param object BasicDBList
      * @return JsonArray
      */
-    public JsonArray getAsJsonArray(DBObject object) {
+   /* public JsonArray getAsJsonArray(DBObject object) {
         if (!(object instanceof BasicDBList)) {
             throw new IllegalArgumentException("Expected BasicDBList as argument type!");
         }
@@ -58,7 +58,7 @@ public final class Mongo2gson {
             }
         }
         return jsonArray;
-    }
+    }*/
 
     /**
      * Convert the given mongo BasicDBObject to JsonObject.
@@ -66,7 +66,7 @@ public final class Mongo2gson {
      * @param object BasicDBObject
      * @return JsonObject
      */
-    public JsonObject getAsJsonObject(DBObject object) {
+ /*   public JsonObject getAsJsonObject(DBObject object) {
         if (!(object instanceof BasicDBObject)) {
             throw new IllegalArgumentException("Expected BasicDBObject as argument type!");
         }
@@ -86,7 +86,7 @@ public final class Mongo2gson {
             }
         }
         return jsonObject;
-    }
+    }*/
 
     /**
      * Convert the given object to Json primitive JsonElement based on the type.
@@ -94,7 +94,7 @@ public final class Mongo2gson {
      * @param value Object
      * @return JsonElement
      */
-    public JsonElement getAsJsonPrimitive(Object value) {
+  /*  public JsonElement getAsJsonPrimitive(Object value) {
         if (value instanceof String) {
             return new JsonPrimitive((String) value);
         } else if (value instanceof Character) {
@@ -113,5 +113,5 @@ public final class Mongo2gson {
                 return new JsonPrimitive(dateFormat.format((Date)value));
         }
         throw new IllegalArgumentException("Unsupported value type for: " + value);
-    }
+    }*/
 }
