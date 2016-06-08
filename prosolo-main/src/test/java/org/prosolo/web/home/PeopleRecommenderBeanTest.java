@@ -52,8 +52,8 @@ public class PeopleRecommenderBeanTest  extends TestContext{
 						UserData userData =  UserDataFactory.createUserData(user);
 						
 						// TODO: Zoran - put here last activity date
-						long timestamp=loggingDBManager.getMostActiveUsersLastActivityTimestamp(user.getId());
-						userData.setLastAction(new Date(timestamp));
+						//long timestamp=loggingDBManager.getMostActiveUsersLastActivityTimestamp(user.getId());
+						//userData.setLastAction(new Date(timestamp));
 						
 						activityRecommendedUsers.add(userData);
 					}
