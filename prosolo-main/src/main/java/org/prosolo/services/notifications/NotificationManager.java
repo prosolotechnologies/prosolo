@@ -62,13 +62,14 @@ public interface NotificationManager extends AbstractManager {
 	List<NotificationData> getNotificationsForUser(long userId, int page, int limit, 
 			List<NotificationType> typesToInclude, Locale locale) throws DbConnectionException;
 	
-	NotificationData getNotificationData(long notificationId, Locale locale) throws DbConnectionException;
-	
-	NotificationData getNotificationData(Notification1 notification, Session session, Locale locale) 
+	NotificationData getNotificationData(long notificationId, boolean loadReceiver, Locale locale) 
 			throws DbConnectionException;
 	
-	NotificationData getNotificationData(long notificationId, Session session, Locale locale) 
-			throws DbConnectionException;
+	NotificationData getNotificationData(Notification1 notification, User receiver, 
+			Session session, Locale locale) throws DbConnectionException;
+	
+	NotificationData getNotificationData(long notificationId, boolean loadReceiver, 
+			Session session, Locale locale) throws DbConnectionException;
 	
 	boolean sendNotificationByEmail(String email, String receiverName, String actor, 
 			String predicate, String objectTitle, String link, String date);

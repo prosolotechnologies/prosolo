@@ -7,6 +7,7 @@ import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.services.common.exception.DbConnectionException;
+import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
@@ -121,8 +122,8 @@ public interface Activity1Manager {
 	 * @param userId
 	 * @throws DbConnectionException
 	 */
-	void completeActivity(long targetActId, long targetCompId, long credId, long userId) 
-			throws DbConnectionException;
+	void completeActivity(long targetActId, long targetCompId, long credId, long userId, 
+			LearningContextData contextData) throws DbConnectionException;
 	
 	CompetenceData1 getFullTargetActivityOrActivityData(long credId, long compId, 
 			long actId, long userId) throws DbConnectionException;

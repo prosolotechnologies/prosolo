@@ -8,11 +8,11 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.prosolo.app.Settings;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.notifications.Notification1;
 import org.prosolo.common.messaging.data.ServiceType;
 import org.prosolo.common.util.date.DateUtil;
@@ -113,23 +113,34 @@ public class NotificationObserver extends EventObserver {
 					 				
 						if (notification.isNotifyByEmail() && CommonSettings.getInstance().config.emailNotifier.activated) {
 							try {
-								User receiver = notification.getReceiver();
 								UserSettings userSettings = interfaceSettingsManager.
-										getOrCreateUserSettings(receiver, session);
+										getOrCreateUserSettings(notification.getReceiver(), session);
 								Locale locale = getLocale(userSettings);
-							    NotificationData notificationData = notificationManager
-							    		.getNotificationData(notification, session, locale);
-								
-								final String email = receiver.getEmail();
+								/*
+								 * get all notification data in one query insted of issuing session.update
+								 * for sender and receiver - all in order to avoid lazy initialization exception
+								 */
+								NotificationData notificationData = notificationManager
+										.getNotificationData(notification.getId(), true, 
+												session, locale);
+								//session.update(notification.getActor());
+								//session.update(receiver);						 
+								String domain = Settings.getInstance().config.application.domain;
+								if(domain.endsWith("/")) {
+									domain = domain.substring(0, domain.length() - 1);
+								}
+								final String urlPrefix = domain;
 								taskExecutor.execute(new Runnable() {
 									@Override
 									public void run() {
-										notificationManager.sendNotificationByEmail(email, 
-												receiver.getName(), 
+										
+										notificationManager.sendNotificationByEmail(
+												notificationData.getReceiver().getEmail(), 
+												notificationData.getReceiver().getFullName(), 
 												notificationData.getActor().getFullName(), 
 												notificationData.getPredicate(),
 												notificationData.getObjectTitle(),
-												notificationData.getLink(),
+												urlPrefix + notificationData.getLink(),
 												DateUtil.getTimeAgoFromNow(notificationData.getDate()));
 									}
 								});

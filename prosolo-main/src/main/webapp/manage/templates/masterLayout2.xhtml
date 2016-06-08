@@ -86,7 +86,7 @@
 					</nav>
 				</div>
 				<div class="headerTopRight">
-					<div class="dropdown createMenu">
+					<h:panelGroup rendered="#{request.isUserInRole('MANAGE.CONTENT.EDIT')}" styleClass="dropdown createMenu">
 						<a class="btn btn-orange btn-sm" data-toggle="dropdown"
 							aria-haspopup="true" aria-expanded="true">Create</a>
 						<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
@@ -95,7 +95,7 @@
 							<li><h:link value="New Competence"
 								    outcome="/manage/create-competence.xhtml" /></li>
 						</ul>
-					</div>
+					</h:panelGroup>
 					
 					<a class="iconMessages active" href="messages">Messages<span
 						class="unreadDot">unreadDot</span></a> 

@@ -72,7 +72,7 @@ public class NotificationCacheUpdaterImpl implements NotificationCacheUpdater, S
 			if (topNotificationsBean1 != null) {
 				try {
 					NotificationData notificationData = (NotificationData) notificationManager
-							.getNotificationData(notificationId, session, loggedUserBean.getLocale());
+							.getNotificationData(notificationId, false, session, loggedUserBean.getLocale());
 					
 					topNotificationsBean1.addNotification(notificationData, session);
 				} catch (DbConnectionException e) {

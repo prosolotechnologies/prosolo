@@ -56,6 +56,8 @@
 	                		process="@this"
 	                		action="#{cc.attrs.bean.completeActivity()}"
 	                		update=":#{cc.clientId}:formMain:panelComplete :#{cc.clientId}:panelCompProgress">
+	                		<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+	                    	<f:param name="learningContext" value="#{learningContext}"></f:param>
 	                	</p:commandLink>
 	                	<ui:fragment rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled 
 	                		and !isPreview and cc.attrs.bean.competenceData.activityToShowWithDetails.completed}">

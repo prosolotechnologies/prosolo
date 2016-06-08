@@ -8,6 +8,7 @@ import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.nodes.Activity1Manager;
+import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,8 @@ public class NotificationEventProcessorFactory {
 	private CommentManager commentManager;
 	@Autowired 
 	private FollowResourceManager followResourceManager;
+	@Inject
+	private RoleManager roleManager;
 
 	public NotificationEventProcessor getNotificationEventProcessor(Event event, Session session) {
 		switch (event.getAction()) {
@@ -38,8 +41,8 @@ public class NotificationEventProcessorFactory {
 		 */
 		case Comment:
 		case Comment_Reply:
-			return new CommentEventProcessing(event, session, notificationManager, notificationsSettingsManager,
-					idEncoder, activityManager, commentManager);
+			return new CommentEventProcessing(event, session, notificationManager,
+					notificationsSettingsManager, idEncoder, activityManager, commentManager, roleManager);
 		/*
 		 * Someone liked or disliked a resource. We need to determine whether it
 		 * was generated on the Status Wall (liked/disliked a SocialActivity

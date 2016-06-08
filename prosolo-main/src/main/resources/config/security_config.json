@@ -169,6 +169,13 @@
                 "Manager",
                 "Instructor"
             ]
+        },
+        {
+            "name": "manage.credential.rssFeeds",
+            "description": "Edit RSS Feeds in manage section",
+            "roles": [
+                "Manager"
+            ]
         }
     ]
 }

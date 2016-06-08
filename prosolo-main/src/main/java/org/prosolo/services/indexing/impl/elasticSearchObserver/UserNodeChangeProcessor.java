@@ -8,6 +8,7 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.services.event.ChangeProgressEvent;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.UserEntityESService;
 
@@ -62,6 +63,10 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 	    } else if(eventType == EventType.INSTRUCTOR_REMOVED_FROM_COURSE) {
 			userEntityESService.removeInstructorFromCredential(event.getTarget().getId(), 
 					event.getObject().getId());
+	    } else if(eventType == EventType.ChangeProgress) {
+	    	ChangeProgressEvent cpe = (ChangeProgressEvent) event;
+	    	userEntityESService.changeCredentialProgress(cpe.getActor().getId(), cpe.getObject().getId(), 
+	    			cpe.getNewProgressValue());
 	    } else {
 			if(userRole == EventUserRole.Subject) {
 				long userId = event.getActor().getId();
