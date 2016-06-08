@@ -4,8 +4,9 @@ package org.prosolo.services.interaction.impl;/**
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.mongodb.*;
+//import com.mongodb.*;
 import org.apache.log4j.Logger;
+import org.json.simple.JSONObject;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -172,8 +173,8 @@ public class MoocLogsExporterTest {
         }*/
         return 1l;
     }
-    private void wrapMessageAndSend(ReliableProducerImpl reliableProducer, DBObject logObject){
-        LogMessage message = new LogMessage();
+    private void wrapMessageAndSend(ReliableProducerImpl reliableProducer, JSONObject logObject){
+      /*  LogMessage message = new LogMessage();
         Gson g=new Gson();
         DBObject parameters=(DBObject) logObject.get("parameters");
         String ip="";
@@ -213,10 +214,10 @@ public class MoocLogsExporterTest {
         wrapper.setTimecreated(System.currentTimeMillis());
         String msg = gson.create().toJson(wrapper);
 
-        reliableProducer.send(msg);
+        reliableProducer.send(msg);*/
     }
-    private Long extractSocialInteractionTargetUser(DBObject logObject, EventType eventType){
-        long actorId=(long) logObject.get("actorId");
+    //private Long extractSocialInteractionTargetUser(DBObject logObject, EventType eventType){
+       /* long actorId=(long) logObject.get("actorId");
         String objectType=(String) logObject.get("objectType");
         long objectId= (long) logObject.get("objectId");
         String targetType=   (String) logObject.get("targetType");
@@ -252,8 +253,8 @@ public class MoocLogsExporterTest {
             }
         }
 
-        return targetUserId;
-    }
+        return targetUserId;*/
+   // }
     private long getSocialActivityMaker(long actorId, long objectId){
         long makerId=0;
         Statement stmt = null;
