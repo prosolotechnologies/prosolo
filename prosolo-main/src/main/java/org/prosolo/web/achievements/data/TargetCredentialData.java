@@ -2,10 +2,8 @@ package org.prosolo.web.achievements.data;
 
 import java.io.Serializable;
 
-import javax.inject.Inject;
-
+import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * 
@@ -20,15 +18,19 @@ public class TargetCredentialData implements Serializable {
 	private String description;
 	private String title;
 	private boolean hiddenFromProfile;
-	private String link;	
-	
+	private String link;
+	private long duration = 0l;
+	private LearningResourceType learningResourceType;
 
-	public TargetCredentialData(long id, String title, String description, boolean hiddenFromProfile, UrlIdEncoder idEncoder) {
+	public TargetCredentialData(long id, String title, String description, boolean hiddenFromProfile, 
+			UrlIdEncoder idEncoder,long duration, LearningResourceType learningResourceType) {
 		this.id = id;
 		this.title = title;
 		this.description = description;
 		this.hiddenFromProfile = hiddenFromProfile;
-		link =  "/credentials.xhtml?id=" + idEncoder.encodeId(id);
+		link =  "/credential.xhtml?id=" + idEncoder.encodeId(id);
+		this.duration = duration;
+		this.learningResourceType = learningResourceType;
 	}
 
 	public Long getId() {
@@ -71,5 +73,16 @@ public class TargetCredentialData implements Serializable {
 		this.link = link;
 	}
 
+	public long getDuration() {
+		return duration;
+	}
 
+	public void setDuration(long duration) {
+		this.duration = duration;
+	}
+
+	public boolean madeByUniversity() {
+		return learningResourceType.equals(LearningResourceType.UNIVERSITY_CREATED);
+	}
+	
 }
