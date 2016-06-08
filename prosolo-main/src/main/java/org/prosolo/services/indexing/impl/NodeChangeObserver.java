@@ -57,7 +57,8 @@ public class NodeChangeObserver extends EventObserver {
 			EventType.COURSE_WITHDRAWN,
 			EventType.ACTIVATE_COURSE,
 			EventType.Bookmark,
-			EventType.RemoveBookmark
+			EventType.RemoveBookmark,
+			EventType.ChangeProgress
 		};
 	}
 

@@ -109,7 +109,7 @@ public class EventFactory {
 
 	@Transactional(readOnly = false)
 	public ChangeProgressEvent generateChangeProgressEvent(User creator,
-			Node resource, double newProgress)
+			Node resource, int newProgress)
 			throws EventException {
 
 		return generateChangeProgressEvent(creator, resource, newProgress, null);
@@ -117,7 +117,7 @@ public class EventFactory {
 	
 	@Transactional(readOnly = false)
 	public ChangeProgressEvent generateChangeProgressEvent(User creator,
-			Node resource, double newProgress, Map<String, String> parameters)
+			Node resource, int newProgress, Map<String, String> parameters)
 					throws EventException {
 		
 		if (creator != null && resource != null ) {
@@ -131,6 +131,38 @@ public class EventFactory {
 			changeProgressEvent.setDateCreated(new Date());
 			changeProgressEvent.setObject(resource);
 			changeProgressEvent.setNewProgressValue(newProgress);
+			
+			if (parameters == null) {
+				parameters = new HashMap<String, String>();
+			}
+			parameters.put("progress", String.valueOf(newProgress));
+			
+			changeProgressEvent.setParameters(parameters);
+			return changeProgressEvent;
+		} else
+			throw new EventException(
+					"Error occured while creating new ChangeProgressEvent. Parameters given can not be null.");
+	}
+	
+	@Transactional(readOnly = false)
+	public ChangeProgressEvent generateChangeProgressEvent(User creator,
+			BaseEntity resource, int newProgress, String page, String lContext, String service,
+			Map<String, String> parameters) throws EventException {
+		
+		if (creator != null && resource != null ) {
+			logger.debug("Generating ChangeProgressEvent because progress of "
+					+ newProgress + " (on the scale "
+					+ ") has been made on the resource " + resource.getId()
+					+ ", created by the user " + creator.getId());
+			
+			ChangeProgressEvent changeProgressEvent = new ChangeProgressEvent();
+			changeProgressEvent.setActor(creator);
+			changeProgressEvent.setDateCreated(new Date());
+			changeProgressEvent.setObject(resource);
+			changeProgressEvent.setNewProgressValue(newProgress);
+			changeProgressEvent.setPage(page);
+			changeProgressEvent.setContext(lContext);
+			changeProgressEvent.setService(service);
 			
 			if (parameters == null) {
 				parameters = new HashMap<String, String>();

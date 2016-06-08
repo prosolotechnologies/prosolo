@@ -1656,7 +1656,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = false)
 	public void updateCredentialAndCompetenceProgressAndNextActivityToLearn(long credId, 
-			long targetCompId, long targetActIda, long userId) throws DbConnectionException {
+			long targetCompId, long targetActIda, long userId, LearningContextData contextData) 
+					throws DbConnectionException {
 		try {
 			String query = "SELECT tCred.id, comp.id, tComp.id, act.id, tComp.progress, tAct.completed " +
 						   "FROM TargetCredential1 tCred " +
@@ -1751,6 +1752,16 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					q.setLong("nextActToLearnId", nextActToLearnInACompetenceId);
 				}
 				q.executeUpdate();
+				
+				User user = new User();
+				user.setId(userId);
+				Credential1 cred = new Credential1();
+				cred.setId(credId);
+				String lcPage = contextData != null ? contextData.getPage() : null; 
+				String lcContext = contextData != null ? contextData.getLearningContext() : null; 
+				String lcService = contextData != null ? contextData.getService() : null; 
+				eventFactory.generateChangeProgressEvent(user, cred, finalCredProgress, 
+						lcPage, lcContext, lcService, null);
 			}
 		} catch(Exception e) {
 			logger.error(e);

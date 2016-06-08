@@ -9,18 +9,18 @@ public class ChangeProgressEvent extends Event {
 
 	private static final long serialVersionUID = -1270293076196460170L;
 
-	private double newProgressValue;
+	private int newProgressValue;
 
 	public ChangeProgressEvent() {
 		super(EventType.ChangeProgress);
 	}
 
 	@Column(nullable = true)
-	public double getNewProgressValue() {
+	public int getNewProgressValue() {
 		return newProgressValue;
 	}
 
-	public void setNewProgressValue(double newProgressValue) {
+	public void setNewProgressValue(int newProgressValue) {
 		this.newProgressValue = newProgressValue;
 	}
 	

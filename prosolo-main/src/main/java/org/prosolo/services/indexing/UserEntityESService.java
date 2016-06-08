@@ -18,5 +18,7 @@ public interface UserEntityESService  extends AbstractBaseEntityESService {
 	void addInstructorToCredential(long credId, long userId, String dateAssigned);
 	
 	void removeInstructorFromCredential(long credId, long userId);
+	
+	void changeCredentialProgress(long userId, long credId, int progress);
 
 }

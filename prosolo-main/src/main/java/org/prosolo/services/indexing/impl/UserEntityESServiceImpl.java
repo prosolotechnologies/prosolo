@@ -232,5 +232,22 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			e.printStackTrace();
 		}
 	}
+	
+	@Override
+	public void changeCredentialProgress(long userId, long credId, int progress) {
+		try {
+			String script = "ctx._source.credentials.findAll {it.id == credId } " +
+					".each {it.progress = progress }";
+			
+			Map<String, Object> params = new HashMap<>();
+			params.put("credId", credId);
+			params.put("progress", progress);
+			partialUpdateByScript(ESIndexNames.INDEX_USERS, ESIndexTypes.USER, 
+					userId+"", script, params);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
 
 }

@@ -34,6 +34,7 @@ import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -1427,8 +1428,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = false)
-	public void completeActivity(long targetActId, long targetCompId, long credId, long userId) 
-			throws DbConnectionException {
+	public void completeActivity(long targetActId, long targetCompId, long credId, long userId,
+			LearningContextData contextData) throws DbConnectionException {
 		try {
 			String query = "UPDATE TargetActivity1 act SET " +
 						   "act.completed = :completed, " +
@@ -1443,7 +1444,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				.executeUpdate();
 			
 			credManager.updateCredentialAndCompetenceProgressAndNextActivityToLearn(credId, 
-					targetCompId, targetActId, userId);
+					targetCompId, targetActId, userId, contextData);
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();

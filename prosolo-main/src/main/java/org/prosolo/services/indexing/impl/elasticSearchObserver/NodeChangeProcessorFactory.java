@@ -39,7 +39,9 @@ public class NodeChangeProcessorFactory {
 			case ENROLL_COURSE:
 			case COURSE_WITHDRAWN:
 			case ACTIVATE_COURSE:
-				 return new UserNodeChangeProcessor(event, session, userEntityESService, EventUserRole.Subject);
+			case ChangeProgress:
+				 return new UserNodeChangeProcessor(event, session, userEntityESService, 
+						 EventUserRole.Subject);
 			case Create:
 			case Create_Draft:
 			case Edit:
