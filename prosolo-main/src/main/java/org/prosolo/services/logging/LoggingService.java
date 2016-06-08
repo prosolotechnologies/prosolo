@@ -34,8 +34,9 @@ public interface LoggingService {
 
 	void logNavigation(User user, String link, String ipAddress) throws LoggingException;
 
-	void logNavigationFromContext(User user, String link, String context, String parameters,
-			String ipAddress) throws LoggingException;
+	void logNavigationFromContext(User user, String link,
+			String context, String page, String learningContext, String service, 
+			String parametersString, String ipAddress) throws LoggingException;
 	
 	void logEmailNavigation(User user, String link,
 			String parametersString, String ipAddress,

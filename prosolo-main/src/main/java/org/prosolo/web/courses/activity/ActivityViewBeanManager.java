@@ -52,6 +52,9 @@ public class ActivityViewBeanManager implements Serializable {
 		decodedActId = idEncoder.decodeId(actId);
 		decodedCompId = idEncoder.decodeId(compId);
 		if (decodedActId > 0 && decodedCompId > 0) {
+			if(credId != null) {
+				decodedCredId = idEncoder.decodeId(credId);
+			}
 			try {
 				boolean shouldReturnDraft = false;
 				if("preview".equals(mode)) {
@@ -59,7 +62,7 @@ public class ActivityViewBeanManager implements Serializable {
 				} 
 				competenceData = activityManager
 						.getCompetenceActivitiesWithSpecifiedActivityInFocusForManager(
-								decodedActId, shouldReturnDraft);
+								decodedCredId, decodedCompId, decodedActId, shouldReturnDraft);
 				
 				if(competenceData == null) {
 					try {
@@ -96,7 +99,6 @@ public class ActivityViewBeanManager implements Serializable {
 	private void loadCompetenceAndCredentialTitle() {
 		String compTitle = compManager.getCompetenceTitle(decodedCompId);
 		competenceData.setTitle(compTitle);
-		decodedCredId = idEncoder.decodeId(credId);
 		if(decodedCredId > 0) {
 			String credTitle = credManager.getCredentialTitle(decodedCredId);
 			competenceData.setCredentialId(decodedCredId);

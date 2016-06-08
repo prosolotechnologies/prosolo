@@ -14,6 +14,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.user.User;
 
 @Entity
 public class TargetActivity1 extends BaseEntity {
@@ -38,6 +39,8 @@ public class TargetActivity1 extends BaseEntity {
 	private String assignmentTitle;
 	
 	private long timeSpent;
+	
+	private User createdBy;
 	
 	public TargetActivity1() {
 		
@@ -153,6 +156,15 @@ public class TargetActivity1 extends BaseEntity {
 
 	public void setTimeSpent(long timeSpent) {
 		this.timeSpent = timeSpent;
+	}
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	public User getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(User createdBy) {
+		this.createdBy = createdBy;
 	}
 	
 }

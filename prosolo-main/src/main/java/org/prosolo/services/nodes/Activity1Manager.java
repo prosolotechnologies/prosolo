@@ -49,7 +49,8 @@ public interface Activity1Manager {
 	List<CompetenceActivity1> getCompetenceActivities(long competenceId, boolean loadResourceLinks) 
 			throws DbConnectionException;
 	
-	ActivityData getActivityDataForEdit(long activityId, long creatorId) throws DbConnectionException;
+	ActivityData getActivityDataForEdit(long competenceId, long activityId, long creatorId) 
+			throws DbConnectionException;
 	
 	Activity1 updateActivity(ActivityData data, long userId) throws DbConnectionException;
 	
@@ -60,6 +61,8 @@ public interface Activity1Manager {
 	/**
 	 * Returns activity with all details for specified id as well as all competence
 	 * activities and competence basic info (title). 
+	 * @param credId
+	 * @param compId
 	 * @param activityId
 	 * @param creatorId id of a logged in user that should be creator of activity if {@code shouldReturnDraft}
 	 * is true. If this id doesn not match activity creator id, null will be returned.
@@ -70,36 +73,40 @@ public interface Activity1Manager {
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocus(long activityId, 
-			long creatorId, boolean shouldReturnDraft, Role role, 
+	CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocus(long credId, 
+			long compId, long activityId, long creatorId, boolean shouldReturnDraft, Role role, 
 			LearningResourceReturnResultType returnType) throws DbConnectionException;
 	
 	/**
-	 * Returns activity with all details for specified id as all competence
+	 * Returns activity with all details for specified id as well as all competence
 	 * activities and competence basic info (title). 
 	 * If activity is first time draft, it is only returned if
 	 * creator of activity is user specified by {@code userId}
+	 * @param credId
+	 * @param compid
 	 * @param activityId
 	 * @param creatorId
 	 * @param shouldReturnDraft
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocusForUser(long activityId, 
-			long creatorId, boolean shouldReturnDraft) throws DbConnectionException;
+	 CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocusForUser(long credId,long compId, 
+			 long activityId, long creatorId, boolean shouldReturnDraft) throws DbConnectionException;
 	
 	/**
 	 * Returns activity with all details for specified id as all competence
 	 * activities and competence basic info (title). 
 	 * If activity is first time draft, it is only returned if
 	 * activity is created by university
+	 * @param credId
+	 * @param compId
 	 * @param activityId
 	 * @param shouldReturnDraft
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocusForManager(long activityId, 
-			boolean shouldReturnDraft) throws DbConnectionException;
+	 CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocusForManager(long credId, 
+				long compId, long activityId, boolean shouldReturnDraft) throws DbConnectionException;
 
 	void saveAssignment(long targetActId, String fileName, String path) 
 			throws DbConnectionException;
@@ -129,11 +136,12 @@ public interface Activity1Manager {
 	
 	/**
 	 * Returns draft version of activity if exists, original version otherwise
+	 * @param competenceId
 	 * @param activityId
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	ActivityData getCurrentVersionOfActivityForManager(long activityId) 
+	ActivityData getCurrentVersionOfActivityForManager(long competenceId, long activityId) 
 			throws DbConnectionException;
 	
 	void publishDraftActivities(List<Long> actIds) 

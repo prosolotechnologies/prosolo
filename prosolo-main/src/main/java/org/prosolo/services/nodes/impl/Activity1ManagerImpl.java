@@ -45,7 +45,6 @@ import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.Operation;
-import org.prosolo.services.nodes.data.ResourceCreator;
 import org.prosolo.services.nodes.data.ResourceLinkData;
 import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
@@ -326,6 +325,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			targetAct.setOrder(compActivity.getOrder());
 			targetAct.setDuration(act.getDuration());
 			targetAct.setUploadAssignment(act.isUploadAssignment());
+			targetAct.setCreatedBy(act.getCreatedBy());
 			
 			if(act.getLinks() != null) {
     			Set<ResourceLink> activityLinks = new HashSet<>();
@@ -466,24 +466,36 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = true)
-	public ActivityData getActivityDataForEdit(long activityId, long creatorId) 
+	public ActivityData getActivityDataForEdit(long competenceId, long activityId, long creatorId) 
 			throws DbConnectionException {
-		return getCurrentVersionOfActivityBasedOnRole(activityId, creatorId, Role.User);
+		return getCurrentVersionOfActivityBasedOnRole(competenceId, activityId, creatorId, Role.User);
 	}
 	
 	@Transactional(readOnly = true)
-	private ActivityData getCurrentVersionOfActivityBasedOnRole(long activityId, long creatorId, 
-			Role role) throws DbConnectionException {
+	private ActivityData getCurrentVersionOfActivityBasedOnRole(long competenceId, long activityId, 
+			long creatorId, Role role) throws DbConnectionException {
 		try {
+			/*
+			 * we need to make sure that activity is bound to competence with passed id or its draft version
+			 */
+			Optional<Long> draftVersionCompId = compManager
+					.getCompetenceDraftVersionIdForOriginal(competenceId);
+			List<Long> compIds = new ArrayList<>();
+			compIds.add(competenceId);
+			if(draftVersionCompId.isPresent()) {
+				compIds.add(draftVersionCompId.get());
+			}
 			String query = "SELECT act " +
-					   "FROM Activity1 act " + 
+					   "FROM CompetenceActivity1 compAct " +
+					   "INNER JOIN compAct.activity act " +
 					   "LEFT JOIN fetch act.links link " +
 					   "LEFT JOIN fetch act.files file ";
 			
 			StringBuilder queryBuilder1 = new StringBuilder(query);
 			queryBuilder1.append("WHERE act.id = :actId " +
 					"AND act.deleted = :deleted " +
-					"AND act.draft = :draft ");
+					"AND act.draft = :draft " +
+					"AND compAct.competence.id IN (:compIds)");
 			
 			if(role == Role.User) {
 				queryBuilder1.append("AND act.createdBy.id = :user");
@@ -494,6 +506,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			Query q = persistence.currentManager()
 					.createQuery(queryBuilder1.toString())
 					.setLong("actId", activityId)
+					.setParameterList("compIds", compIds)
 					.setBoolean("deleted", false)
 					.setBoolean("draft", false);
 			
@@ -549,10 +562,11 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	 * @throws DbConnectionException
 	 */
 	@Transactional(readOnly = true)
-	private ActivityData getCompetenceActivityCurrentVersionData(long activityId, long creatorId, 
-			Role role) throws DbConnectionException {
+	private ActivityData getCompetenceActivityCurrentVersionData(long credId, long compId, 
+			long activityId, long creatorId, Role role) throws DbConnectionException {
 		try {			   
-			CompetenceActivity1 res = getCompetenceActivityBasedOnRole(activityId, creatorId, true, role);
+			CompetenceActivity1 res = getCompetenceActivityBasedOnRole(credId, compId, activityId, 
+					creatorId, true, role);
 					//getCompetenceActivityForCreator(activityId, creatorId, true);
 			
 			if(res != null) {
@@ -654,22 +668,48 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	 * @throws DbConnectionException
 	 */
 	@Transactional(readOnly = true)
-	private CompetenceActivity1 getCompetenceActivityBasedOnRole(long activityId, long creatorId, 
-			boolean loadLinks, Role role) throws DbConnectionException {
+	private CompetenceActivity1 getCompetenceActivityBasedOnRole(long credId, long compId, 
+			long activityId, long creatorId, boolean loadLinks, Role role) throws DbConnectionException {
 		try {
+			long competenceId = compId;
+			Optional<Long> draftVersionCompId = compManager
+					.getCompetenceDraftVersionIdForOriginal(compId);
+			if(draftVersionCompId.isPresent()) {
+				competenceId = draftVersionCompId.get();
+			}
 			StringBuilder builder = new StringBuilder();
-			builder.append("SELECT compAct " +
-					   	   "FROM CompetenceActivity1 compAct " + 
-					       "INNER JOIN fetch compAct.activity act " +
-					   	   "INNER JOIN compAct.competence comp ");
+			builder.append("SELECT compAct ");
+			if(credId > 0) {
+				builder.append("FROM CredentialCompetence1 credComp " +
+							   "INNER JOIN credComp.competence comp " +
+							   		"WITH comp.id = :compId " +
+							   "INNER JOIN comp.activities compAct " +
+					   	   	  		"WITH compAct.activity.id = :actId " +
+							   "INNER JOIN fetch compAct.activity act ");
+			} else {
+				builder.append("FROM CompetenceActivity1 compAct " +
+						      "INNER JOIN fetch compAct.activity act " +				   	 
+					   	   	  "INNER JOIN compAct.competence comp " +
+					   	   			"WITH comp.id = :compId ");
+			}
+			
+//			builder.append("SELECT compAct " +
+//					   	   "FROM CompetenceActivity1 compAct " + 
+//					       "INNER JOIN fetch compAct.activity act " +
+//					   	   "INNER JOIN compAct.competence comp ");
 			
 			if(loadLinks) {
 				builder.append("LEFT JOIN fetch act.links link " +
 						       "LEFT JOIN fetch act.files file ");
 			}
-			builder.append("WHERE act.id = :actId " +
-					       "AND act.deleted = :boolFalse " +
-						   "AND comp.hasDraft = :boolFalse ");
+			
+			if(credId > 0) {
+				builder.append("WHERE credComp.credential.id = :credId " +
+							   "AND act.deleted = :boolFalse ");
+			} else {
+				builder.append("WHERE act.id = :actId " +
+						       "AND act.deleted = :boolFalse ");
+			}
 			
 			if(role == Role.User) {
 				builder.append("AND act.createdBy.id = :user");
@@ -680,7 +720,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			Query q = persistence.currentManager()
 					.createQuery(builder.toString())
 					.setLong("actId", activityId)
-					.setBoolean("boolFalse", false);
+					.setBoolean("boolFalse", false)
+					.setLong("compId", competenceId);
+			
+			if(credId > 0) {
+				q.setLong("credId", credId);
+			}
 			
 			if(role == Role.User) {
 				q.setLong("user", creatorId);
@@ -871,7 +916,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		StringBuilder builder = new StringBuilder();
 		builder.append("UPDATE activity1 SET dtype = :type ");
 		if(isUrlActivity) {
-			builder.append(", type = :urlType ");
+			builder.append(", url_type = :urlType ");
 		}
 		builder.append("WHERE id = :id");
 
@@ -880,7 +925,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			.setString("type", act.getClass().getSimpleName())
 			.setLong("id", activityId);
 		if(isUrlActivity) {
-			q.setString("urlType", ((UrlActivity1) act).getType().toString());
+			q.setString("urlType", ((UrlActivity1) act).getUrlType().toString());
 		}
 		
 		q.executeUpdate();
@@ -1194,17 +1239,19 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = true)
-	public CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocus(long activityId, 
-			long creatorId, boolean shouldReturnDraft, Role role, 
+	public CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocus(long credId, 
+			long compId, long activityId, long creatorId, boolean shouldReturnDraft, Role role, 
 			LearningResourceReturnResultType returnType) throws DbConnectionException {
 		CompetenceData1 compData = null;
 		try {
 			ActivityData activityWithDetails = null;
 			if(shouldReturnDraft) {
-				activityWithDetails = getCompetenceActivityCurrentVersionData(activityId, creatorId, role);
+				activityWithDetails = getCompetenceActivityCurrentVersionData(credId, compId, activityId, 
+						creatorId, role);
 						//getActivityDataForEdit(activityId, creatorId);
 			} else {
-				activityWithDetails = getCompetenceActivityData(activityId, true, creatorId, returnType);
+				activityWithDetails = getCompetenceActivityData(credId, compId, activityId, true, 
+						creatorId, returnType);
 			}
 
 			if (activityWithDetails != null) {
@@ -1225,17 +1272,18 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = true)
-	public CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocusForUser(long activityId, 
-			long creatorId, boolean shouldReturnDraft) throws DbConnectionException {
-		return getCompetenceActivitiesWithSpecifiedActivityInFocus(activityId, creatorId, 
+	public CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocusForUser(long credId,
+			long compId, long activityId, long creatorId, boolean shouldReturnDraft) 
+					throws DbConnectionException {
+		return getCompetenceActivitiesWithSpecifiedActivityInFocus(credId, compId, activityId, creatorId, 
 				shouldReturnDraft, Role.User, LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER);
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocusForManager(long activityId, 
-			boolean shouldReturnDraft) throws DbConnectionException {
-		return getCompetenceActivitiesWithSpecifiedActivityInFocus(activityId, 0, 
+	public CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocusForManager(long credId, 
+			long compId, long activityId, boolean shouldReturnDraft) throws DbConnectionException {
+		return getCompetenceActivitiesWithSpecifiedActivityInFocus(credId, compId, activityId, 0, 
 				shouldReturnDraft, Role.Manager, 
 				LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_MANAGER);
 	}
@@ -1248,15 +1296,29 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	 * @throws DbConnectionException
 	 */
 	@Transactional(readOnly = true)
-	private ActivityData getCompetenceActivityData(long activityId, boolean loadResourceLinks,
-			long userId, LearningResourceReturnResultType returnType) throws DbConnectionException {
+	private ActivityData getCompetenceActivityData(long credId, long compId, long activityId, 
+			boolean loadResourceLinks, long userId, LearningResourceReturnResultType returnType) 
+					throws DbConnectionException {
 		try {	
 			StringBuilder builder = new StringBuilder();
-			builder.append("SELECT compAct " +
-					   	   "FROM CompetenceActivity1 compAct " +
-						   "INNER JOIN fetch compAct.activity act " +				   	 
-					   	   "INNER JOIN compAct.competence comp " +
-						   		"WITH comp.draft = :draft ");
+			builder.append("SELECT compAct ");
+			if(credId > 0) {
+				builder.append("FROM CredentialCompetence1 credComp " +
+							   "INNER JOIN credComp.competence comp " +
+							  		"WITH comp.id = :compId " +
+							   "AND comp.draft = :draft ");
+			} else {
+				builder.append("FROM CompetenceActivity1 compAct " +
+						   	   "INNER JOIN fetch compAct.activity act " +				   	 
+						   	   "INNER JOIN compAct.competence comp " +
+					   	   			"WITH comp.id = :compId " +
+						   			"AND comp.draft = :draft ");
+			}
+			
+//			builder.append("FROM CompetenceActivity1 compAct " +
+//						   "INNER JOIN fetch compAct.activity act " +				   	 
+//					   	   "INNER JOIN compAct.competence comp " +
+//						   		"WITH comp.draft = :draft ");
 			
 			String compCondition = "AND (comp.published = :published " +
 							       "OR comp.hasDraft = :hasDraft ";
@@ -1283,20 +1345,35 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			
 			builder.append(compCondition);
 			
+			if(credId > 0) {
+				builder.append("INNER JOIN comp.activities compAct " +
+						"WITH compAct.activity.id = :actId " +
+						"INNER JOIN fetch compAct.activity act ");
+			}
 			if(loadResourceLinks) {
 				builder.append("LEFT JOIN fetch act.links link " + 
 						       "LEFT JOIN fetch act.files files ");
 			}
-			builder.append("WHERE act.id = :id " +
-						   "AND act.deleted = :deleted ");
+			if(credId > 0) {
+				builder.append("WHERE credComp.credential.id = :credId " +
+							   "AND act.deleted = :deleted ");
+			} else {
+				builder.append("WHERE act.id = :actId " +
+						   	   "AND act.deleted = :deleted ");
+			}
 			
 			builder.append(actCondition);
 
 			Query q = persistence.currentManager()
 					.createQuery(builder.toString())
-					.setLong("id", activityId)
+					.setLong("actId", activityId)
+					.setLong("compId", compId)
 					.setBoolean("deleted", false)
 					.setBoolean("draft", false);
+			
+			if(credId > 0) {
+				q.setLong("credId", credId);
+			}
 			
 			if(returnType != LearningResourceReturnResultType.ANY) {
 				q.setBoolean("published", true)
@@ -1383,8 +1460,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			compData = getTargetCompetenceActivitiesWithSpecifiedActivityInFocus(credId, 
 					compId, actId, userId);
 			if (compData == null) {
-				compData = getCompetenceActivitiesWithSpecifiedActivityInFocus(actId, userId, 
-					false, Role.User, LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER);
+				compData = getCompetenceActivitiesWithSpecifiedActivityInFocus(credId, compId, actId, 
+						userId, false, Role.User, 
+						LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER);
 			}
 				
 			return compData;
@@ -1399,40 +1477,41 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	private CompetenceData1 getTargetCompetenceActivitiesWithSpecifiedActivityInFocus(
 			long credId, long compId, long actId, long userId) 
 					throws DbConnectionException {
+		//TODO test if EDIT activity button is enabled, if creator id is set in data object
 		CompetenceData1 compData = null;
 		try {			
 			ActivityData activityWithDetails = getTargetActivityData(credId, compId, actId, userId);
 
 			if (activityWithDetails != null) {
-				String query1 = "SELECT targetComp.title, targetCred.title, targetComp.createdBy.id " +
-								"FROM TargetCompetence1 targetComp " +
-								"INNER JOIN targetComp.targetCredential targetCred " +
-								"WHERE targetComp.id = :compId";
-				Object[] res1 = (Object[]) persistence.currentManager()
-						.createQuery(query1)
-						.setLong("compId", activityWithDetails.getCompetenceId())
-						.uniqueResult();
-				
-				if(res1 != null) {
-					compData = new CompetenceData1(false);
-					compData.setCompetenceId(compId);
-					compData.setTitle((String) res1[0]);
-					compData.setCredentialId(credId);
-					compData.setCredentialTitle((String) res1[1]);
-					/*
-					 * competence creator id is set because creator of a competence
-					 * is also a creator of all activities for that competence.
-					 */
-					ResourceCreator rc = new ResourceCreator();
-					rc.setId((long) res1[2]);
-					compData.setCreator(rc);
-					
-					compData.setActivityToShowWithDetails(activityWithDetails);
-					//compId is id of a competence and activityWithDetails.getCompetenceId() is id of a target competence
-					List<ActivityData> activities = getTargetActivitiesData(activityWithDetails.getCompetenceId());
-					compData.setActivities(activities);
-					return compData;
-				}
+//				String query1 = "SELECT targetComp.title, targetCred.title, targetComp.createdBy.id " +
+//								"FROM TargetCompetence1 targetComp " +
+//								"INNER JOIN targetComp.targetCredential targetCred " +
+//								"WHERE targetComp.id = :compId";
+//				Object[] res1 = (Object[]) persistence.currentManager()
+//						.createQuery(query1)
+//						.setLong("compId", activityWithDetails.getCompetenceId())
+//						.uniqueResult();
+//				
+//				if(res1 != null) {
+//					compData = new CompetenceData1(false);
+//					compData.setCompetenceId(compId);
+//					compData.setTitle((String) res1[0]);
+//					compData.setCredentialId(credId);
+//					compData.setCredentialTitle((String) res1[1]);
+//					/*
+//					 * competence creator id is set because creator of a competence
+//					 * is also a creator of all activities for that competence.
+//					 */
+//					ResourceCreator rc = new ResourceCreator();
+//					rc.setId((long) res1[2]);
+//					compData.setCreator(rc);
+				compData = new CompetenceData1(false);
+				compData.setActivityToShowWithDetails(activityWithDetails);
+				//compId is id of a competence and activityWithDetails.getCompetenceId() is id of a target competence
+				List<ActivityData> activities = getTargetActivitiesData(activityWithDetails.getCompetenceId());
+				compData.setActivities(activities);
+				return compData;
+				//}
 			}
 			return null;
 		} catch (Exception e) {
@@ -1465,7 +1544,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			   		   "LEFT JOIN fetch targetAct.links link " + 
 				       "LEFT JOIN fetch targetAct.files files " +
 			   		   "WHERE targetAct.activity.id = :actId";
-
 
 			TargetActivity1 res = (TargetActivity1) persistence.currentManager()
 					.createQuery(query)
@@ -1871,9 +1949,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = true)
-	public ActivityData getCurrentVersionOfActivityForManager(long activityId) 
+	public ActivityData getCurrentVersionOfActivityForManager(long competenceId, long activityId) 
 			throws DbConnectionException {
-			return getCurrentVersionOfActivityBasedOnRole(activityId, 0, Role.Manager);
+			return getCurrentVersionOfActivityBasedOnRole(competenceId, activityId, 0, Role.Manager);
 	}
 	
 	@Override

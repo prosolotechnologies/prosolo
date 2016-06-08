@@ -81,63 +81,65 @@ public class NotificationObserver extends EventObserver {
 		try {
 			NotificationEventProcessor processor = notificationEventProcessorFactory
 					.getNotificationEventProcessor(event, session);
-			List<Notification1> notifications = processor.getNotificationList();
-			// make sure all data is persisted to the database
-			session.flush();
-			
-			
-			/*
-			 * After all notifications have been generated, send them to their
-			 * receivers. If those users are logged in, their notification cache
-			 * will be updated with these new notifications.
-			 */
-			if (!notifications.isEmpty()) {
+			if(processor != null) {
+				List<Notification1> notifications = processor.getNotificationList();
+				// make sure all data is persisted to the database
+				session.flush();
 				
-				for (Notification1 notification : notifications) {					
-					if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
-						messageDistributer.distributeMessage(
-								ServiceType.ADD_NOTIFICATION, 
-								notification.getReceiver().getId(),
-								notification.getId(), 
-								null, 
-								null);
-					} else {
-						HttpSession httpSession = applicationBean.getUserSession(notification.getReceiver().getId());
-						
-						notificationCacheUpdater.updateNotificationData(
-								notification.getId(), 
-								httpSession, 
-								session);
-					}
-				 				
-					if (notification.isNotifyByEmail() && CommonSettings.getInstance().config.emailNotifier.activated) {
-						try {
-							User receiver = notification.getReceiver();
-							UserSettings userSettings = interfaceSettingsManager.
-									getOrCreateUserSettings(receiver, session);
-							Locale locale = getLocale(userSettings);
-						    NotificationData notificationData = notificationManager
-						    		.getNotificationData(notification, session, locale);
-							
-							final String email = receiver.getEmail();
-							taskExecutor.execute(new Runnable() {
-								@Override
-								public void run() {
-									notificationManager.sendNotificationByEmail(email, 
-											receiver.getName(), 
-											notificationData.getActor().getFullName(), 
-											notificationData.getPredicate(),
-											notificationData.getObjectTitle(),
-											notificationData.getLink(),
-											DateUtil.getTimeAgoFromNow(notificationData.getDate()));
-								}
-							});
-						} catch (Exception e) {
-							logger.error(e);
-							e.printStackTrace();
-						}
-					}
+				
+				/*
+				 * After all notifications have been generated, send them to their
+				 * receivers. If those users are logged in, their notification cache
+				 * will be updated with these new notifications.
+				 */
+				if (!notifications.isEmpty()) {
 					
+					for (Notification1 notification : notifications) {					
+						if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
+							messageDistributer.distributeMessage(
+									ServiceType.ADD_NOTIFICATION, 
+									notification.getReceiver().getId(),
+									notification.getId(), 
+									null, 
+									null);
+						} else {
+							HttpSession httpSession = applicationBean.getUserSession(notification.getReceiver().getId());
+							
+							notificationCacheUpdater.updateNotificationData(
+									notification.getId(), 
+									httpSession, 
+									session);
+						}
+					 				
+						if (notification.isNotifyByEmail() && CommonSettings.getInstance().config.emailNotifier.activated) {
+							try {
+								User receiver = notification.getReceiver();
+								UserSettings userSettings = interfaceSettingsManager.
+										getOrCreateUserSettings(receiver, session);
+								Locale locale = getLocale(userSettings);
+							    NotificationData notificationData = notificationManager
+							    		.getNotificationData(notification, session, locale);
+								
+								final String email = receiver.getEmail();
+								taskExecutor.execute(new Runnable() {
+									@Override
+									public void run() {
+										notificationManager.sendNotificationByEmail(email, 
+												receiver.getName(), 
+												notificationData.getActor().getFullName(), 
+												notificationData.getPredicate(),
+												notificationData.getObjectTitle(),
+												notificationData.getLink(),
+												DateUtil.getTimeAgoFromNow(notificationData.getDate()));
+									}
+								});
+							} catch (Exception e) {
+								logger.error(e);
+								e.printStackTrace();
+							}
+						}
+						
+					}
 				}
 			}
 		} catch (Exception e) {

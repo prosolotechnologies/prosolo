@@ -1,6 +1,7 @@
 package org.prosolo.services.nodes;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Activity1;
@@ -67,6 +68,8 @@ public interface Competence1Manager {
 	 * If LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_MANAGER is passed for {@code returnType}
 	 * parameter competence will be returned even if it is first time draft if competence is created by
 	 * university.
+	 * @param credId when you want to return comeptence that is in a credential id of that credential should
+	 * be passed, otherwise pass 0
 	 * @param compId
 	 * @param loadCreator
 	 * @param loadTags
@@ -77,13 +80,14 @@ public interface Competence1Manager {
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	CompetenceData1 getCompetenceData(long compId, boolean loadCreator, boolean loadTags, 
+	CompetenceData1 getCompetenceData(long credId, long compId, boolean loadCreator, boolean loadTags, 
 			boolean loadActivities, long userId, LearningResourceReturnResultType returnType,
 			boolean shouldTrackChanges) throws DbConnectionException;
 	
 	/**
 	 * Returns competence with specified id. If competence is first time draft, it is only returned if
 	 * creator of competence is user specified by {@code userId}
+	 * @param credId
 	 * @param compId
 	 * @param loadCreator
 	 * @param loadTags
@@ -93,12 +97,14 @@ public interface Competence1Manager {
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	CompetenceData1 getCompetenceDataForUser(long compId, boolean loadCreator, boolean loadTags, 
-			boolean loadActivities, long userId, boolean shouldTrackChanges) throws DbConnectionException;
+	CompetenceData1 getCompetenceDataForUser(long credId, long compId, boolean loadCreator, 
+			boolean loadTags, boolean loadActivities, long userId, boolean shouldTrackChanges) 
+					throws DbConnectionException;
 	
 	/**
 	 * Returns competence with specified id. If competence is first time draft, it is only returned if
 	 * competence is created by university
+	 * @param credId
 	 * @param compId
 	 * @param loadCreator
 	 * @param loadTags
@@ -107,8 +113,9 @@ public interface Competence1Manager {
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	CompetenceData1 getCompetenceDataForManager(long compId, boolean loadCreator, boolean loadTags, 
-			boolean loadActivities, boolean shouldTrackChanges) throws DbConnectionException;
+	CompetenceData1 getCompetenceDataForManager(long credId, long compId, boolean loadCreator, 
+			boolean loadTags, boolean loadActivities, boolean shouldTrackChanges) 
+					throws DbConnectionException;
 	
 	CompetenceData1 getCompetenceDataForEdit(long competenceId, long creatorId, 
 			boolean loadActivities) throws DbConnectionException;
@@ -194,6 +201,8 @@ public interface Competence1Manager {
 	
 	void publishDraftCompetences(List<Long> compIds, long creatorId, Role role) 
 			throws DbConnectionException, CompetenceEmptyException;
+
+	Optional<Long> getCompetenceDraftVersionIdForOriginal(long competenceId) throws DbConnectionException;
 	
 //	/**
 //	 * Returns current version of competence for edit if edit mode - draft version if exists
