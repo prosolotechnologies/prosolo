@@ -67,16 +67,6 @@
         <url-pattern>/*</url-pattern>
         <dispatcher>REQUEST</dispatcher>
     </filter-mapping>
-    <!--
-    <filter>
-      <filter-name>PrimeFaces FileUpload Filter</filter-name>
-      <filter-class>org.prosolo.core.jsf.primefaces.FileUploadFilter</filter-class>
-    </filter>
-    <filter-mapping>
-      <filter-name>PrimeFaces FileUpload Filter</filter-name>
-      <servlet-name>Faces Servlet</servlet-name>
-    </filter-mapping>
-    -->
     <filter>
         <filter-name>gzipResponseFilter</filter-name>
         <filter-class>org.omnifaces.filter.GzipResponseFilter</filter-class>
@@ -168,7 +158,7 @@
         <param-name>org.apache.el.parser.SKIP_IDENTIFIER_CHECK</param-name>
         <param-value>true</param-value>
     </context-param>
-    <context-param>
+    <!--context-param>
         <param-name>primefaces.THEME</param-name>
         <param-value>none</param-value>
     </context-param>
@@ -179,7 +169,7 @@
     <context-param>
         <param-name>primefaces.PRIVATE_CAPTCHA_KEY</param-name>
         <param-value>6LdzjOkSAAAAAKxdu4ZxcDFYAnryLiQO0nmjQ7gO</param-value>
-    </context-param>
+    </context-param-->
     <context-param>
         <param-name>org.apache.myfaces.NUMBER_OF_VIEWS_IN_SESSION</param-name>
         <param-value>20</param-value>
@@ -237,7 +227,7 @@
         <filter-name>OCPsoft Rewrite Filter</filter-name>
         <filter-class>org.ocpsoft.rewrite.servlet.RewriteFilter</filter-class>
         <async-supported>true</async-supported>
-    </filter>
+    </filter>1
     <filter-mapping>
         <filter-name>OCPsoft Rewrite Filter</filter-name>
         <url-pattern>/*</url-pattern>
@@ -246,14 +236,4 @@
         <dispatcher>INCLUDE</dispatcher>
         <dispatcher>ERROR</dispatcher>
     </filter-mapping>
-    <!-- <filter>
-     <filter-name>Save Page Url In Session Filter</filter-name>
-     <filter-class>org.prosolo.core.jsf.SavePageUrlInSessionFilter</filter-class>
-   </filter>
-   <filter-mapping>
-     <filter-name>Save Page Url In Session Filter</filter-name>
-     <url-pattern>/*</url-pattern>
-     <dispatcher>FORWARD</dispatcher>
-     <dispatcher>REQUEST</dispatcher>
-   </filter-mapping> -->
 </web-app>

@@ -53,7 +53,8 @@
             "name": "competences.view",
             "description": "Access the page for listing competences (manage/competences)",
             "roles": [
-                "Manager"
+                "Manager",
+                "Instructor"
             ]
         },
         {

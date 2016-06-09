@@ -290,4 +290,25 @@ public class EventFactory {
 		return genericEvent;
 	}
 	
+	@Transactional(readOnly = false)
+	public Event generateEvent(EventData event) throws EventException {
+		
+	 	logger.debug("Generating "+event.getEventType().name()+" " +
+				"event " + (event.getObject() != null ? " object: "+event.getObject().getId() : "") + 
+				(event.getTarget() != null ? ", target: "+event.getTarget().getId() : "") + 
+				", created by the user " + event.getActor());
+		Event genericEvent = new Event(event.getEventType());
+		genericEvent.setActor(event.getActor());
+		genericEvent.setDateCreated(new Date());
+		genericEvent.setObject(event.getObject());
+		genericEvent.setTarget(event.getTarget());
+		genericEvent.setReason(event.getReason());
+		genericEvent.setPage(event.getPage());
+		genericEvent.setContext(event.getContext());
+		genericEvent.setService(event.getService());
+		genericEvent.setObserversToExclude(event.getObserversToExclude());
+		genericEvent.setParameters(event.getParameters());
+		return genericEvent;
+	}
+	
 }

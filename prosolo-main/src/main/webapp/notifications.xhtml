@@ -62,7 +62,7 @@
                 <div class="whiteBox">
                     <h2>Show</h2>
                     <h:panelGroup id="panelFilters">
-	                    <ui:repeat var="filter" value="#{notificationBean.filters}">
+	                    <ui:remove><ui:repeat var="filter" value="#{notificationBean.filters}">
 	                    	<div class="checkbox checkLine">
 		                    	<h:selectBooleanCheckbox id="checkboxFilter#{filter.filter}" value="#{filter.applied}">
 									<p:ajax event="click" process="@this"
@@ -70,7 +70,16 @@
 								</h:selectBooleanCheckbox>
 								<label for="checkboxFilter#{filter.filter}">#{filter.filter.label}</label>
 							</div>
-	                    </ui:repeat>
+	                    </ui:repeat></ui:remove>
+	                    <c:forEach items="#{notificationBean.filters}" var="filter" varStatus="status">
+	                    	<div class="checkbox checkLine">
+		                    	<h:selectBooleanCheckbox id="checkboxFilter#{filter.filter}" value="#{filter.applied}">
+									<p:ajax event="click" process="@this"
+										listener="#{notificationBean.filterChanged(filter)}" update=":formMain:panelNotifications :formMain:pagination" />
+								</h:selectBooleanCheckbox>
+								<label for="formMain:checkboxFilter#{filter.filter}">#{filter.filter.label}</label>
+							</div>
+	                    </c:forEach>
 	                </h:panelGroup>
                     <div class="checkLinks">
                     	<p:commandLink

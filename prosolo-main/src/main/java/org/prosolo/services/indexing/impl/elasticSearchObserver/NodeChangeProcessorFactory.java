@@ -67,7 +67,7 @@ public class NodeChangeProcessorFactory {
 					return new CredentialNodeChangeProcessor(event, credentialESService, operation);
 				} else if(node instanceof Competence1) {
 					NodeOperation operation = null;
-					if(type == EventType.Create) {
+					if(type == EventType.Create || type == EventType.Create_Draft) {
 						operation = NodeOperation.Save;
 					} else {
 						operation = NodeOperation.Update;

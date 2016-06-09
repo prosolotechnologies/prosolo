@@ -48,7 +48,7 @@ public class CredentialDataFactory {
 			cred.setCreator(creator);
 		}
 		cred.setStudentsCanAddCompetences(credential.isStudentsCanAddCompetences());
-		cred.setManuallyAssingStudents(credential.isManuallyAssignStudents());
+		cred.setAutomaticallyAssingStudents(!credential.isManuallyAssignStudents());
 		cred.setDefaultNumberOfStudentsPerInstructor(credential.getDefaultNumberOfStudentsPerInstructor());
 
 		if(shouldTrackChanges) {

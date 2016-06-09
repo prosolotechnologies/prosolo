@@ -5,8 +5,18 @@ import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTr
 
 public interface CompetenceESService  extends AbstractBaseEntityESService {
 
-	void saveCompetenceNode(Competence1 comp);
+	void saveCompetenceNode(Competence1 comp, long originalVersionId);
 	
-	void updateCompetenceNode(Competence1 comp, CompetenceChangeTracker changeTracker);
+	/**
+	 * 
+	 * @param comp
+	 * @param originalVersionId when {@code comp} is a draft version
+	 * originalVersionId is needed. Otherwise 0 should be passed.
+	 * @param changeTracker
+	 */
+	void updateCompetenceNode(Competence1 comp, long originalVersionId, 
+			CompetenceChangeTracker changeTracker);
+	
+	void updateCompetenceDraftVersionCreated(String id);
 
 }

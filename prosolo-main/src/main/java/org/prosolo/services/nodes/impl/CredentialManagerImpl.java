@@ -31,6 +31,9 @@ import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.common.exception.CompetenceEmptyException;
 import org.prosolo.services.common.exception.CredentialEmptyException;
 import org.prosolo.services.common.exception.DbConnectionException;
+import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventData;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
@@ -90,21 +93,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				throw new CredentialEmptyException();
 			}
 			cred = resourceFactory.createCredential(data.getTitle(), data.getDescription(),
-					new HashSet<Tag>(tagManager.parseCSVTagsAndSave(data.getTagsString())),
-					new HashSet<Tag>(tagManager.parseCSVTagsAndSave(data.getHashtagsString())), createdBy,
-					data.getType(), data.isMandatoryFlow(), data.isPublished(), data.getDuration());
-
-			if(data.getCompetences() != null) {
-				for(CompetenceData1 cd : data.getCompetences()) {
-					CredentialCompetence1 cc = new CredentialCompetence1();
-					cc.setOrder(cd.getOrder());
-					cc.setCredential(cred);
-					Competence1 comp = (Competence1) persistence.currentManager().load(
-							Competence1.class, cd.getCompetenceId());
-					cc.setCompetence(comp);
-					saveEntity(cc);
-				}
-			}
+					data.getTagsString(), data.getHashtagsString(), createdBy,
+					data.getType(), data.isMandatoryFlow(), data.isPublished(), data.getDuration(),
+					!data.isAutomaticallyAssingStudents(), data.getCompetences());
+			
 			//generate create event only if credential is published
 			if(data.isPublished()) {
 				eventFactory.generateEvent(EventType.Create, createdBy, cred);
@@ -648,7 +640,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Override
 	@Transactional(readOnly = false)
-	public Credential1 updateCredential(CredentialData data, User user, Role role) 
+	public Credential1 updateCredential(long originalCredId, CredentialData data, User user, Role role) 
 			throws DbConnectionException, CredentialEmptyException, CompetenceEmptyException {
 		try {
 			/*
@@ -665,20 +657,17 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				}
 			}
 			
-			Credential1 cred = resourceFactory.updateCredential(data, user.getId(), role);
-
-			if(data.isPublished()) {
+			Result<Credential1> res = resourceFactory.updateCredential(data, user.getId(), role);
+			Credential1 cred = res.getResult();
+			
+			for(EventData ev : res.getEvents()) {
+				eventFactory.generateEvent(ev);
+			}
+			
+ 			if(data.isPublished()) {
 				//credential remains published
 				if(!data.isPublishedChanged()) {
-					Map<String, String> params = new HashMap<>();
-				    CredentialChangeTracker changeTracker = new CredentialChangeTracker(data.isPublished(),
-				    		false, data.isTitleChanged(), data.isDescriptionChanged(), false,
-				    		data.isTagsStringChanged(), data.isHashtagsStringChanged(), 
-				    		data.isMandatoryFlowChanged());
-				    Gson gson = new GsonBuilder().create();
-				    String jsonChangeTracker = gson.toJson(changeTracker);
-				    params.put("changes", jsonChangeTracker);
-				    eventFactory.generateEvent(EventType.Edit, user, cred, params);
+					fireSameVersionCredEditEvent(data, user, cred, 0);
 				} 
 				/*
 				 * this means that credential is published for the first time
@@ -692,37 +681,25 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				 * original credential, so all fields are treated as changed.
 				 */
 				else {
-					Map<String, String> params = new HashMap<>();
-				    CredentialChangeTracker changeTracker = new CredentialChangeTracker(data.isPublished(),
-				    		true, true, true, true, true, true, true);
-				    Gson gson = new GsonBuilder().create();
-				    String jsonChangeTracker = gson.toJson(changeTracker);
-				    params.put("changes", jsonChangeTracker);
-				    params.put("draftVersionId", data.getId() + "");
-				    eventFactory.generateEvent(EventType.Edit, user, cred, params);
+					fireCredPublishedAgainEditEvent(user, cred, data.getId());
 				}
 			} else {
 				/*
 				 * if credential remains draft
 				 */
 				if(!data.isPublishedChanged()) {
-					Map<String, String> params = new HashMap<>();
-				    CredentialChangeTracker changeTracker = new CredentialChangeTracker(data.isPublished(),
-				    		false, data.isTitleChanged(), data.isDescriptionChanged(), false, 
-				    		data.isTagsStringChanged(), data.isHashtagsStringChanged(), 
-				    		data.isMandatoryFlowChanged());
-				    Gson gson = new GsonBuilder().create();
-				    String jsonChangeTracker = gson.toJson(changeTracker);
-				    params.put("changes", jsonChangeTracker);
-					eventFactory.generateEvent(EventType.Edit_Draft, user, cred, params);
+					long originalVersionId = 0;
+					if(data.isDraft()) {
+						originalVersionId = originalCredId;
+					}
+					fireSameVersionCredEditEvent(data, user, cred, originalVersionId);
 				} 
 				/*
 				 * This means that credential was published before so draft version is created.
 				 */
 				else {
-					Map<String, String> params = new HashMap<>();
-					params.put("originalVersionId", data.getId() + "");
-					eventFactory.generateEvent(EventType.Create_Draft, user, cred, params);
+					EventData ev = fireDraftVersionCredCreatedEvent(cred, user, data.getId());
+					eventFactory.generateEvent(ev);
 				}
 			}
 
@@ -742,9 +719,50 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	private void fireSameVersionCredEditEvent(CredentialData data, User user, 
+			Credential1 cred, long originalVersionId) throws EventException {   
+	    Map<String, String> params = new HashMap<>();
+	    CredentialChangeTracker changeTracker = new CredentialChangeTracker(data.isPublished(),
+	    		false, data.isTitleChanged(), data.isDescriptionChanged(), false,
+	    		data.isTagsStringChanged(), data.isHashtagsStringChanged(), 
+	    		data.isMandatoryFlowChanged());
+	    Gson gson = new GsonBuilder().create();
+	    String jsonChangeTracker = gson.toJson(changeTracker);
+	    params.put("changes", jsonChangeTracker);
+	    if(originalVersionId > 0) {
+	    	params.put("originalVersionId", originalVersionId + "");
+	    }
+	    EventType event = data.isPublished() ? EventType.Edit : EventType.Edit_Draft;
+	    eventFactory.generateEvent(event, user, cred, params);
+	}
+	
+	private void fireCredPublishedAgainEditEvent(User user, 
+			Credential1 cred, long draftVersionId) throws EventException {
+	    Map<String, String> params = new HashMap<>();
+	    CredentialChangeTracker changeTracker = new CredentialChangeTracker(true,
+	    		true, true, true, true, true, true, true);
+	    Gson gson = new GsonBuilder().create();
+	    String jsonChangeTracker = gson.toJson(changeTracker);
+	    params.put("changes", jsonChangeTracker);
+	    params.put("draftVersionId", draftVersionId + "");
+	    eventFactory.generateEvent(EventType.Edit, user, cred, params);
+	}
+	
+	private EventData fireDraftVersionCredCreatedEvent(Credential1 cred, User user, 
+			long originalVersionId) throws EventException {
+		Map<String, String> params = new HashMap<>();
+		params.put("originalVersionId", originalVersionId + "");
+		EventData event = new EventData();
+		event.setEventType(EventType.Create_Draft);
+		event.setActor(user);
+		event.setObject(cred);
+		event.setParameters(params);
+		return event;
+	}
+	
 	@Override
 	@Transactional(readOnly = false)
-	public Credential1 updateCredential(CredentialData data, long creatorId, Role role) {
+	public Result<Credential1> updateCredential(CredentialData data, long creatorId, Role role) {
 		Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, 
 				data.getId());
 		/*
@@ -778,15 +796,18 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	 * it is checked if credential has been published once and if 
 	 * it has, that means that draft version exists and this version
 	 * is deleted.
+	 *  
 	 * @param cred
 	 * @param publishTransition
 	 * @param data
-	 * @param creatorId needed only if {@code role} value is Role.USER, otherwise 0 can be passed
-	 * @param role 
+	 * @param creatorId
+	 * @param role
+	 * @return
 	 */
 	@Transactional(readOnly = false)
-	private Credential1 updateCredentialData(Credential1 cred, EntityPublishTransition publishTransition,
+	private Result<Credential1> updateCredentialData(Credential1 cred, EntityPublishTransition publishTransition,
 			CredentialData data, long creatorId, Role role) {
+		Result<Credential1> res = new Result<>();
 		Credential1 credToUpdate = null;
 		switch(publishTransition) {
 			case FROM_PUBLISHED_TO_DRAFT_VERSION:
@@ -818,7 +839,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		credToUpdate.setCompetenceOrderMandatory(data.isMandatoryFlow());
 		credToUpdate.setPublished(data.isPublished());
 		credToUpdate.setStudentsCanAddCompetences(data.isStudentsCanAddCompetences());
-		credToUpdate.setManuallyAssignStudents(data.isManuallyAssingStudents());
+		credToUpdate.setManuallyAssignStudents(!data.isAutomaticallyAssingStudents());
 		credToUpdate.setDefaultNumberOfStudentsPerInstructor(data.getDefaultNumberOfStudentsPerInstructor());
 		
 	    if(publishTransition == EntityPublishTransition.NO_TRANSITION) {
@@ -904,11 +925,12 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    	
 	    	if(data.isPublished()) {
     			//compManager.publishDraftCompetencesWithoutDraftVersion(compIds);
-	    		compManager.publishDraftCompetences(compIds, creatorId, role);
+	    		List<EventData> events = compManager.publishCompetences(compIds, creatorId, role);
+	    		res.setEvents(events);
     		}
 	    }
-	    
-	    return credToUpdate;
+	    res.setResult(credToUpdate);
+	    return res;
 	}
 	
 	@Transactional(readOnly = true)
@@ -1093,24 +1115,25 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Override
 	@Transactional(readOnly = false)
-	public void addCompetenceToCredential(long credentialId, Competence1 comp) 
+	public EventData addCompetenceToCredential(long credId, Competence1 comp, long userId) 
 			throws DbConnectionException {
 		try {
 			Credential1 cred = (Credential1) persistence.currentManager().load(
-					Credential1.class, credentialId);
-			
+					Credential1.class, credId);
 			/*
 			 * if credential has draft version, that version is loaded and if credential 
 			 * is published draft version will be created and attached to original credential
 			 */
+			boolean draftVersionCreated = false;
 			Credential1 draftCred = null;
 			if(cred.isHasDraft()) {
 				draftCred = cred.getDraftVersion();
 			} else if(cred.isPublished()) {
-				draftCred = createDraftVersionOfCredential(credentialId);
+				draftCred = createDraftVersionOfCredential(credId);
 				cred.setHasDraft(true);
 				cred.setPublished(false);
 				cred.setDraftVersion(draftCred);
+				draftVersionCreated = true;
 			}
 			
 			Credential1 credToUpdate = draftCred != null ? draftCred : cred;
@@ -1127,8 +1150,21 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			if(comp.getDuration() > 0) {
 				credToUpdate.setDuration(credToUpdate.getDuration() + comp.getDuration());
 			}
-		} catch(Exception e) {
-			throw new DbConnectionException("Error while adding competence to credential");
+			
+			/*
+			 * if draft version is created event should be generated
+			 */
+			if(draftVersionCreated) {
+				User user = new User();
+				user.setId(userId);
+				return fireDraftVersionCredCreatedEvent(credToUpdate, user, 
+						credId);
+			}
+			return null;
+		} catch(Exception e) { 
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while adding activity to competence");
 		}
 		
 	}

@@ -103,8 +103,9 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	public void updateCredentialNode(Credential1 cred, long originalVersionId, 
 			CredentialChangeTracker changeTracker) {
 		if(changeTracker != null &&
-				(changeTracker.isTitleChanged() || changeTracker.isDescriptionChanged() ||
-				 changeTracker.isTagsChanged() || changeTracker.isHashtagsChanged())) {
+				(changeTracker.isVersionChanged() || changeTracker.isTitleChanged() || 
+						changeTracker.isDescriptionChanged() || changeTracker.isTagsChanged() 
+						|| changeTracker.isHashtagsChanged())) {
 			saveCredentialNode(cred, originalVersionId);
 		}
 	}
@@ -183,20 +184,6 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			
 			partialUpdateByScript(ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL, 
 					credId+"", script, params);
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-		}
-	}
-	
-	private void partialUpdate(String indexName, String indexType, String docId, 
-			XContentBuilder partialDoc) {
-		try {
-			UpdateRequest updateRequest = new UpdateRequest(indexName, 
-					indexType, docId)
-			        .doc(partialDoc);
-			updateRequest.retryOnConflict(5);
-			ElasticSearchFactory.getClient().update(updateRequest).get();
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

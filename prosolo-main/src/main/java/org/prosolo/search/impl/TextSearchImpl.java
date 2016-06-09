@@ -326,13 +326,16 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1);
 			
-			QueryBuilder qb = QueryBuilders
-					.queryStringQuery(searchString.toLowerCase() + "*").useDisMax(true)
-					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
-					.field("title");
-	
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-			bQueryBuilder.should(qb);
+			
+			if(searchString != null && !searchString.isEmpty()) {
+				QueryBuilder qb = QueryBuilders
+						.queryStringQuery(searchString.toLowerCase() + "*").useDisMax(true)
+						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.field("title");
+				
+				bQueryBuilder.should(qb);
+			}
 		
 			if (filterTags != null) {
 				for (Tag tag : filterTags) {
@@ -350,11 +353,28 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				}
 			}
 			
+			BoolFilterBuilder boolFilter = FilterBuilders.boolFilter();
+			
+			/*
+			 * include all published competences and draft competences that have draft version
+			 */
+			BoolFilterBuilder publishedOrHasDraft = FilterBuilders.boolFilter();
+			publishedOrHasDraft.should(FilterBuilders.termFilter("published", true));
+			BoolFilterBuilder hasDraft = FilterBuilders.boolFilter();
+			hasDraft.must(FilterBuilders.termFilter("published", false));
+			hasDraft.must(FilterBuilders.termFilter("hasDraft", true));
+			publishedOrHasDraft.should(hasDraft);
+			
+			boolFilter.must(publishedOrHasDraft);
+			
+			FilteredQueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder, 
+					boolFilter);
+			
 			SearchRequestBuilder searchResultBuilder = client
 					.prepareSearch(ESIndexNames.INDEX_NODES)
 					.setTypes(ESIndexTypes.COMPETENCE1)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-					.setQuery(bQueryBuilder).setFrom(start).setSize(limit);
+					.setQuery(filteredQueryBuilder).setFrom(start).setSize(limit);
 			
 			if (!sortTitleAsc.equals(SortingOption.NONE)) {
 				switch (sortTitleAsc) {
@@ -1110,8 +1130,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
 						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
-						.field("title").field("description")
-						.field("tags.title").field("hashtags.title");
+						.field("title").field("description");
+						//.field("tags.title").field("hashtags.title");
 				
 				bQueryBuilder.must(qb);
 			}
@@ -1280,8 +1300,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
 						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
-						.field("title").field("description")
-						.field("tags.title").field("hashtags.title");
+						.field("title").field("description");
+						//.field("tags.title").field("hashtags.title");
 				
 				bQueryBuilder.must(qb);
 			}
@@ -1332,7 +1352,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			
 			/*
 			 * include all published credentials and draft credentials that have draft version
-			 * by created by users
+			 * created by users
 			 */
 			BoolFilterBuilder publishedCredentialsByStudentsFilter = FilterBuilders.boolFilter();
 			publishedCredentialsByStudentsFilter.must(FilterBuilders.termFilter(

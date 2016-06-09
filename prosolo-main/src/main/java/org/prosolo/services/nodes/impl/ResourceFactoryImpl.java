@@ -39,8 +39,10 @@ import org.prosolo.common.domainmodel.course.Status;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
+import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.ResourceLink;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
@@ -57,9 +59,12 @@ import org.prosolo.common.domainmodel.user.UserType;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.spring.TransactionDebugUtil;
+import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.authentication.PasswordEncrypter;
 import org.prosolo.services.common.exception.DbConnectionException;
+import org.prosolo.services.data.Result;
 import org.prosolo.services.event.Event;
+import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.feeds.FeedSourceManager;
@@ -108,6 +113,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Inject private Competence1Manager competenceManager;
     @Inject private Activity1Manager activityManager;
     @Inject private ActivityDataFactory activityFactory;
+    @Inject private TagManager tagManager;
     
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -842,10 +848,11 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 	}
     
     @Override
-    @Transactional(readOnly = false)
-    public Credential1 createCredential(String title, String description, Set<Tag> tags, 
-    		Set<Tag> hashtags, User createdBy, LearningResourceType type, 
-    		boolean compOrderMandatory, boolean published, long duration) {
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    public Credential1 createCredential(String title, String description, String tagsString, 
+    		String hashtagsString, User createdBy, LearningResourceType type, 
+    		boolean compOrderMandatory, boolean published, long duration, 
+    		boolean manuallyAssign, List<CompetenceData1> comps) {
     	try {
 			 Credential1 cred = new Credential1();
 		     cred.setCreatedBy(createdBy);
@@ -853,13 +860,26 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 		     cred.setTitle(title);
 		     cred.setDescription(description);
 		     cred.setDateCreated(new Date());
-		     cred.setTags(tags);		     
-		     cred.setHashtags(hashtags);
 		     cred.setCompetenceOrderMandatory(compOrderMandatory);
 		     cred.setPublished(published);
 		     cred.setDuration(duration);
+		     cred.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(tagsString)));
+		     cred.setHashtags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(hashtagsString)));
+		     cred.setManuallyAssignStudents(manuallyAssign);
 		     
 		     saveEntity(cred);
+		     
+		     if(comps != null) {
+				for(CompetenceData1 cd : comps) {
+					CredentialCompetence1 cc = new CredentialCompetence1();
+					cc.setOrder(cd.getOrder());
+					cc.setCredential(cred);
+					Competence1 comp = (Competence1) persistence.currentManager().load(
+							Competence1.class, cd.getCompetenceId());
+					cc.setCompetence(comp);
+					saveEntity(cc);
+				}
+			 }
 		
 		     logger.info("New credential is created with id " + cred.getId());
 		     return cred;
@@ -870,24 +890,49 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     	}
     }
     
-    public Competence1 createCompetence(String title, String description, Set<Tag> tags, User createdBy,
+    @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    public Result<Competence1> createCompetence(String title, String description, String tagsString, User createdBy,
 			boolean studentAllowedToAddActivities, LearningResourceType type, boolean published, 
-			long duration) {
+			long duration, List<org.prosolo.services.nodes.data.ActivityData> activities, 
+			long credentialId) {
     	try {
+    		 Result<Competence1> result = new Result<>();
 			 Competence1 comp = new Competence1();
 			 comp.setTitle(title);
 			 comp.setDateCreated(new Date());
 			 comp.setDescription(description);
-			 comp.setTags(tags);
 		     comp.setCreatedBy(createdBy);
 		     comp.setStudentAllowedToAddActivities(studentAllowedToAddActivities);
 		     comp.setType(type);
 		     comp.setPublished(published);
 		     comp.setDuration(duration);
+		     comp.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(tagsString)));
 		     saveEntity(comp);
+		     
+		     if(activities != null) {
+				for(org.prosolo.services.nodes.data.ActivityData bad : activities) {
+					CompetenceActivity1 ca = new CompetenceActivity1();
+					ca.setOrder(bad.getOrder());
+					ca.setCompetence(comp);
+					Activity1 act = (Activity1) persistence.currentManager().load(
+							Activity1.class, bad.getActivityId());
+					ca.setActivity(act);
+					saveEntity(ca);
+				}
+			 }
+				
+		     if(credentialId > 0) {
+		    	 EventData event = credentialManager.addCompetenceToCredential(credentialId, comp, 
+		    			 createdBy.getId());
+		    	 if(event != null) {
+		    		 result.addEvent(event);
+		    	 }
+		     }
 		
 		     logger.info("New competence is created with id " + comp.getId());
-		     return comp;
+		     result.setResult(comp);
+		     return result;
    	} catch(Exception e) {
    		e.printStackTrace();
    		logger.error(e);
@@ -897,7 +942,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public Credential1 updateCredential(CredentialData data, long creatorId, 
+    public Result<Credential1> updateCredential(CredentialData data, long creatorId, 
     		org.prosolo.services.nodes.data.Role role) {
     	return credentialManager.updateCredential(data, creatorId, role);
     }
@@ -923,9 +968,10 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public Activity1 createActivity(org.prosolo.services.nodes.data.ActivityData activityData, 
+    public Result<Activity1> createActivity(org.prosolo.services.nodes.data.ActivityData activityData, 
     		long userId) throws DbConnectionException {
     	try {
+    		Result<Activity1> res = new Result<>();
     		Activity1 act = activityFactory.getActivityFromActivityData(activityData);
     		if(activityData.getLinks() != null) {
     			Set<ResourceLink> activityLinks = new HashSet<>();
@@ -956,10 +1002,14 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     		saveEntity(act);
     		
     		if(activityData.getCompetenceId() > 0) {
-				competenceManager.addActivityToCompetence(activityData.getCompetenceId(), act);
+				EventData ev = competenceManager.addActivityToCompetence(activityData.getCompetenceId(), 
+						act, userId);
+				if(ev != null) {
+		    		 res.addEvent(ev);
+		    	}
 			}
-    		
-    		return act;
+    		res.setResult(act);
+    		return res;
     	} catch(Exception e) {
     		logger.error(e);
     		e.printStackTrace();
@@ -1004,4 +1054,5 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 		}
 		
 	}
+    
 }
