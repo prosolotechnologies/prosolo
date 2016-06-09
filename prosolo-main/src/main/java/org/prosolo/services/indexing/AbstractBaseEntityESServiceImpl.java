@@ -154,4 +154,19 @@ public abstract class AbstractBaseEntityESServiceImpl implements AbstractBaseEnt
 			e.printStackTrace();
 		}
 	}
+	
+	@Override
+	public void partialUpdate(String indexName, String indexType, String docId, 
+			XContentBuilder partialDoc) {
+		try {
+			UpdateRequest updateRequest = new UpdateRequest(indexName, 
+					indexType, docId)
+			        .doc(partialDoc);
+			updateRequest.retryOnConflict(5);
+			ElasticSearchFactory.getClient().update(updateRequest).get();
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
 }

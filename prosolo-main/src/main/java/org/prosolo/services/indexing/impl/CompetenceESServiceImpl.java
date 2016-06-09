@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
@@ -28,10 +29,14 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	
 	@Override
 	@Transactional
-	public void saveCompetenceNode(Competence1 comp) {
+	public void saveCompetenceNode(Competence1 comp, long originalVersionId) {
 	 	try {
 			XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
 			builder.field("id", comp.getId());
+			builder.field("originalVersionId", originalVersionId);
+			builder.field("published", comp.isPublished());
+			builder.field("isDraft", comp.isDraft());
+			builder.field("hasDraft", comp.isHasDraft());
 			builder.field("title", comp.getTitle());
 			builder.field("description", comp.getDescription());
 			
@@ -57,11 +62,28 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	
 	@Override
 	@Transactional
-	public void updateCompetenceNode(Competence1 comp, CompetenceChangeTracker changeTracker) {
-		if(changeTracker != null && changeTracker.isPublished() &&
-				(changeTracker.isTitleChanged() || changeTracker.isDescriptionChanged() ||
-				 changeTracker.isTagsChanged())) {
-			saveCompetenceNode(comp);
+	public void updateCompetenceNode(Competence1 comp, long originalVersionId, 
+			CompetenceChangeTracker changeTracker) {
+		if(changeTracker != null &&
+				(changeTracker.isVersionChanged() || changeTracker.isTitleChanged() || 
+						changeTracker.isDescriptionChanged() || changeTracker.isTagsChanged())) {
+			saveCompetenceNode(comp, originalVersionId);
+		}
+	}
+	
+	@Override
+	@Transactional
+	public void updateCompetenceDraftVersionCreated(String id) {
+		try {
+			XContentBuilder doc = XContentFactory.jsonBuilder()
+		            .startObject()
+	                .field("hasDraft", true)
+	                .field("published", false)
+	                .endObject();
+			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, id, doc);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
 		}
 	}
 }

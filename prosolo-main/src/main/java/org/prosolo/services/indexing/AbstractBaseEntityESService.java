@@ -23,6 +23,9 @@ public interface AbstractBaseEntityESService {
 	
 	void partialUpdateByScript(String indexName, String indexType, String docId,
 			String script, Map<String, Object> scriptParams);
+	
+	void partialUpdate(String indexName, String indexType, String docId, 
+			XContentBuilder partialDoc);
 
 	 
  

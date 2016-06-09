@@ -14,6 +14,8 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.common.exception.CompetenceEmptyException;
 import org.prosolo.services.common.exception.CredentialEmptyException;
 import org.prosolo.services.common.exception.DbConnectionException;
+import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.CredentialData;
@@ -127,10 +129,10 @@ public interface CredentialManager extends AbstractManager {
 	CredentialData getCredentialDataForEdit(long credentialId, long creatorId, boolean loadCompetences) 
 			throws DbConnectionException;
 	
-	Credential1 updateCredential(CredentialData data, User user, Role role) throws DbConnectionException, 
-		CredentialEmptyException, CompetenceEmptyException;
+	Credential1 updateCredential(long originalCredId, CredentialData data, User user, Role role) 
+			throws DbConnectionException, CredentialEmptyException, CompetenceEmptyException;
 	
-	Credential1 updateCredential(CredentialData data, long creatorId, Role role);
+	Result<Credential1> updateCredential(CredentialData data, long creatorId, Role role);
 	
 	CredentialData enrollInCredential(long credentialId, long userId, LearningContextData context) 
 			throws DbConnectionException;
@@ -140,11 +142,14 @@ public interface CredentialManager extends AbstractManager {
 	 * for credential is created, competence is added to that draft version and original credential becomes draft. 
 	 * If draft version for credential already exists, competence will be attached to existing draft version.
 	 * 
-	 * @param credentialId
+	 * Returns data for event that should be generated when transaction is commited.
+	 * 
+	 * @param credId
 	 * @param comp
+	 * @param userId
 	 * @throws DbConnectionException
 	 */
-	void addCompetenceToCredential(long credentialId, Competence1 comp) 
+	EventData addCompetenceToCredential(long credId, Competence1 comp, long userId) 
 			throws DbConnectionException;
 	
 	List<CredentialData> getCredentialsWithIncludedCompetenceBasicData(long compId) 

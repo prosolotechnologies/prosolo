@@ -12,6 +12,7 @@ import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.common.exception.CompetenceEmptyException;
 import org.prosolo.services.common.exception.DbConnectionException;
+import org.prosolo.services.event.EventData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
 import org.prosolo.services.nodes.data.Operation;
@@ -49,7 +50,7 @@ public interface Competence1Manager {
 	Competence1 deleteCompetence(long originalCompId, CompetenceData1 data, User user) 
 			throws DbConnectionException;
 	
-	Competence1 updateCompetence(CompetenceData1 data, User user) 
+	Competence1 updateCompetence(long originalCompId, CompetenceData1 data, User user) 
 			throws DbConnectionException, CompetenceEmptyException;
 	
 	Competence1 updateCompetence(CompetenceData1 data) throws DbConnectionException;
@@ -145,7 +146,18 @@ public interface Competence1Manager {
 	 */
 	void publishDraftCompetencesWithoutDraftVersion(List<Long> compIds) throws DbConnectionException;
 	
-	void addActivityToCompetence(long compId, Activity1 act) throws DbConnectionException;
+	/**
+	 * Call this method when you want to add activity to competence.
+	 * 
+	 * Returns data for event that should be generated after transaction is commited.
+	 * 
+	 * @param compId
+	 * @param act
+	 * @param userId id of a user that created activity
+	 * @throws DbConnectionException
+	 */
+	EventData addActivityToCompetence(long compId, Activity1 act, long userId) 
+			throws DbConnectionException;
 
 	/**
 	 * Duration for competences with activity specified by {@code actId} are updated by adding/subtracting {@code duration} value.
@@ -199,7 +211,18 @@ public interface Competence1Manager {
 	CompetenceData1 getCurrentVersionOfCompetenceForManager(long competenceId,
 			boolean loadCreator, boolean loadActivities) throws DbConnectionException;
 	
-	void publishDraftCompetences(List<Long> compIds, long creatorId, Role role) 
+	/**
+	 * this is the method that should be called when you want to publish competences
+	 * 
+	 * Returns List of data for events that should be generated after transaction commits.
+	 * 
+	 * @param compIds
+	 * @param creatorId
+	 * @param role
+	 * @throws DbConnectionException
+	 * @throws CompetenceEmptyException
+	 */
+	List<EventData> publishCompetences(List<Long> compIds, long creatorId, Role role) 
 			throws DbConnectionException, CompetenceEmptyException;
 
 	Optional<Long> getCompetenceDraftVersionIdForOriginal(long competenceId) throws DbConnectionException;

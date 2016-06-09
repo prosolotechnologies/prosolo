@@ -169,7 +169,7 @@ public class CredentialEditBean implements Serializable {
 					if(saveAsDraft) {
 						credentialData.setStatus(PublishedStatus.DRAFT);
 					}
-					credentialManager.updateCredential(credentialData, 
+					credentialManager.updateCredential(decodedId, credentialData, 
 							loggedUser.getUser(), role);
 				}
 			} else {

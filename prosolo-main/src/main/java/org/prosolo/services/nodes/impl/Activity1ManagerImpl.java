@@ -32,6 +32,8 @@ import org.prosolo.common.domainmodel.credential.UrlTargetActivity1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.common.exception.DbConnectionException;
+import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.context.data.LearningContextData;
@@ -75,11 +77,16 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	public Activity1 saveNewActivity(ActivityData data, long userId) 
 			throws DbConnectionException {
 		try {
-			Activity1 act = resourceFactory.createActivity(data, userId);
+			Result<Activity1> res = resourceFactory.createActivity(data, userId);
+			
+			Activity1 act = res.getResult();
 
+			for(EventData ev : res.getEvents()) {
+				eventFactory.generateEvent(ev);
+			}
+			
 			User user = new User();
 			user.setId(userId);
-			
 			if(act.isPublished()) {
 				eventFactory.generateEvent(EventType.Create, user, act);
 			} else {

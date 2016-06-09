@@ -180,7 +180,7 @@ public class CompetenceEditBean implements Serializable {
 					if(saveAsDraft) {
 						competenceData.setStatus(PublishedStatus.DRAFT);
 					}
-					compManager.updateCompetence(competenceData, 
+					compManager.updateCompetence(decodedId, competenceData, 
 							loggedUser.getUser());
 				}
 			} else {

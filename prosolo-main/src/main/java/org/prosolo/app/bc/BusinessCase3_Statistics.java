@@ -25,7 +25,9 @@ import org.prosolo.common.domainmodel.user.following.FollowedEntity;
 import org.prosolo.common.domainmodel.user.following.FollowedUserEntity;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.authentication.RegistrationManager;
+import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interaction.PostManager;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -163,28 +165,32 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			Activity1 a1 = createActivity(
 					userNickPowell, 
 					"Read introduction to Descriptive statistics",
+					comp1cred1.getId(),
 					"http://www.socialresearchmethods.net/kb/statdesc.php");
 			
 			Activity1 a2 = createActivity(
 					userNickPowell, 
 					"Univariate analysis",
+					comp1cred1.getId(),
 					"http://www.slideshare.net/christineshearer/univariate-analysis");
 			
 			Activity1 a3 = createActivity(
 					userNickPowell, 
 					"Data collection",
+					comp1cred1.getId(),
 					"http://en.wikipedia.org/wiki/Data_collection");
 			
 			Activity1 a4 = createActivity(
 					userNickPowell, 
 					"Probability through simulation",
+					comp1cred1.getId(),
 					"http://www.stat.yale.edu/Courses/1997-98/101/sampinf.htm");
 			
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred1.getId(), a1);
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred1.getId(), a2);
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred1.getId(), a3);
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred1.getId(), a4);
-		
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred1.getId(), a1, userNickPowell.getId());
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred1.getId(), a2, userNickPowell.getId());
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred1.getId(), a3, userNickPowell.getId());
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred1.getId(), a4, userNickPowell.getId());
+			
 			publishCredential(cred1, cred1.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
@@ -220,27 +226,31 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			Activity1 a5 = createActivity(
 					userNickPowell, 
 					"Parametric and Resampling Statistics",
+					comp1cred2.getId(),
 					"http://www.uvm.edu/~dhowell/StatPages/Resampling/Resampling.html");
 			
 			Activity1 a6 = createActivity(
 					userNickPowell, 
 					"Read about Parametric statistics",
+					comp1cred2.getId(),
 					"http://laboratory-manager.advanceweb.com/Columns/Interpreting-Statistics/Non-Parametric-Statistics.aspx");
 			
 			Activity1 a7 = createActivity(
 					userNickPowell, 
 					"Read about Probability distribution",
+					comp1cred2.getId(),
 					"http://isomorphismes.tumblr.com/post/18913494015/probability-distributions");
 			
 			Activity1 a8 = createActivity(
 					userNickPowell, 
 					"List of probability distributions",
+					comp1cred2.getId(),
 					"http://www.mathwave.com/articles/distribution-fitting-graphs.html");
 			
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred2.getId(), a5);
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred2.getId(), a6);
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred2.getId(), a7);
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred2.getId(), a8);
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred2.getId(), a5, userNickPowell.getId());
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred2.getId(), a6, userNickPowell.getId());
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred2.getId(), a7, userNickPowell.getId());
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred2.getId(), a8, userNickPowell.getId());
 		} catch (EventException e) {
 			logger.error(e);
 		}
@@ -265,27 +275,31 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			Activity1 a9 = createActivity(
 					userNickPowell, 
 					"An Introductory Handbook to Probability, Statistics and Excel",
+					comp2cred2.getId(),
 					"http://records.viu.ca/~johnstoi/maybe/maybe3.htm");
 			
 			Activity1 a10 = createActivity(
 					userNickPowell, 
 					"Box Plot: Display of Distribution",
+					comp2cred2.getId(),
 					"http://www.physics.csbsju.edu/stats/box2.html");
 			
 			Activity1 a11 = createActivity(
 					userNickPowell, 
 					"Data Types",
+					comp2cred2.getId(),
 					"http://wiki.stat.ucla.edu/socr/index.php/AP_Statistics_Curriculum_2007_EDA_DataTypes");
 			
 			Activity1 a12 = createActivity(
 					userNickPowell, 
 					"Probability through simulation",
+					comp2cred2.getId(),
 					"http://wiki.stat.ucla.edu/socr/index.php/AP_Statistics_Curriculum_2007_Prob_Simul");
 			
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp2cred2.getId(), a9);
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp2cred2.getId(), a10);
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp2cred2.getId(), a11);
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp2cred2.getId(), a12);
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp2cred2.getId(), a9, userNickPowell.getId());
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp2cred2.getId(), a10, userNickPowell.getId());
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp2cred2.getId(), a11, userNickPowell.getId());
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp2cred2.getId(), a12, userNickPowell.getId());
 		
 			publishCredential(cred2, cred2.getCreatedBy());
 		} catch (EventException e) {
@@ -316,9 +330,10 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			Activity1 a121 = createActivity(
 					userNickPowell, 
 					"An Introductory Handbook to Probability, Statistics and Excel 2",
+					comp1cred3.getId(),
 					"http://records.viu.ca/~johnstoi/maybe/maybe3.htm");
 			
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred3.getId(), a121);
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred3.getId(), a121, userNickPowell.getId());
 			
 		} catch (EventException e) {
 			logger.error(e);
@@ -337,21 +352,24 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			Activity1 a13 = createActivity(
 					userNickPowell, 
 					"Gephi",
+					comp2cred3.getId(),
 					"https://gephi.org");
 			
 			Activity1 a14 = createActivity(
 					userNickPowell, 
 					"Gephi Demo 920",
+					comp2cred3.getId(),
 					"http://www.youtube.com/watch?v=JgDYV5ArXgw");
 			
 			Activity1 a15 = createActivity(
 					userNickPowell, 
 					"Paper: 'Gephi: An Open Source Software for Exploring and Manipulating Networks'",
+					comp2cred3.getId(),
 					"http://www.aaai.org/ocs/index.php/ICWSM/09/paper/view/154");
 			
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp2cred3.getId(), a13);
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp2cred3.getId(), a14);
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp2cred3.getId(), a15);
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp2cred3.getId(), a13, userNickPowell.getId());
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp2cred3.getId(), a14, userNickPowell.getId());
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp2cred3.getId(), a15, userNickPowell.getId());
 		
 		} catch (EventException e) {
 			logger.error(e);
@@ -370,9 +388,10 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			Activity1 a122 = createActivity(
 					userNickPowell, 
 					"An Introductory Handbook to Probability, Statistics and Excel 3",
+					comp3cred3.getId(),
 					"http://records.viu.ca/~johnstoi/maybe/maybe3.htm");
 			
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp3cred3.getId(), a122);
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp3cred3.getId(), a122, userNickPowell.getId());
 			
 			publishCredential(cred3, cred3.getCreatedBy());
 		} catch (EventException e) {
@@ -415,39 +434,45 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			Activity1 a16 = createActivity(
 					userNickPowell,
 					"Pearson's Correlation Coeeficient",
+					comp1cred4.getId(),
 					"http://hsc.uwe.ac.uk/dataanalysis/quantinfasspear.asp");
 
 			Activity1 a17 = createActivity(
 					userNickPowell,
 					"Instructions for Covariance, Correlation, and Bivariate Graphs",
+					comp1cred4.getId(),
 					"http://www.math.uah.edu/stat/sample/Covariance.html");
 
 			Activity1 a18 = createActivity(
 					userNickPowell,
 					"Coefficient of determination",
+					comp1cred4.getId(),
 					"http://www.statisticshowto.com/articles/how-to-find-the-coefficient-of-determination/");
 
 			Activity1 a19 = createActivity(
 					userNickPowell,
 					"Spearman's rank correlation coefficient",
+					comp1cred4.getId(),
 					"http://udel.edu/~mcdonald/statspearman.html");
 
 			Activity1 a20 = createActivity(
 					userNickPowell,
 					"Kendall tau rank correlation coefficient",
+					comp1cred4.getId(),
 					"http://www.statisticssolutions.com/academic-solutions/resources/directory-of-statistical-analyses/kendalls-tau-and-spearmans-rank-correlation-coefficient/");
 
 			Activity1 a21 = createActivity(
 					userNickPowell,
 					"Biserial and Point-Biserial Correlations",
+					comp1cred4.getId(),
 					"http://www.apexdissertations.com/articles/point-biserial_correlation.html");
 
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred4.getId(), a16);
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred4.getId(), a17);
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred4.getId(), a18);
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred4.getId(), a19);
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred4.getId(), a20);
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred4.getId(), a21);
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred4.getId(), a16, userNickPowell.getId());
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred4.getId(), a17, userNickPowell.getId());
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred4.getId(), a18, userNickPowell.getId());
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred4.getId(), a19, userNickPowell.getId());
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred4.getId(), a20, userNickPowell.getId());
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred4.getId(), a21, userNickPowell.getId());
 		
 		} catch (EventException e) {
 			logger.error(e);
@@ -468,15 +493,17 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			Activity1 a22 = createActivity(
 					userNickPowell,
 					"Partial and Semi-Partial Correlations",
+					comp2cred4.getId(),
 					"http://www.apexdissertations.com/articles/point-biserial_correlation.html");
 
 			Activity1 a23 = createActivity(
 					userNickPowell,
 					"Partial Correlation Analysis",
+					comp2cred4.getId(),
 					"http://explorable.com/partial-correlation-analysis.html");
 
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp2cred4.getId(), a22);
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp2cred4.getId(), a23);
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp2cred4.getId(), a22, userNickPowell.getId());
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp2cred4.getId(), a23, userNickPowell.getId());
 		
 			publishCredential(cred4, cred4.getCreatedBy());
 		} catch (EventException e) {
@@ -515,15 +542,17 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			Activity1 a24 = createActivity(
 					userNickPowell, 
 					"Sampling activity",
+					comp1cred5.getId(),
 					"http://exploringdata.net/sampling.htm");
 			
 			Activity1 a25 = createActivity(
 					userNickPowell, 
 					"Normal Distribution",
+					comp1cred5.getId(),
 					"http://www.khanacademy.org/math/statistics/v/introduction-to-the-normal-distribution");
 			
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred5.getId(), a24);
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred5.getId(), a25);
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred5.getId(), a24, userNickPowell.getId());
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred5.getId(), a25, userNickPowell.getId());
 		
 			publishCredential(cred5, cred5.getCreatedBy());
 		} catch (EventException e) {
@@ -563,9 +592,10 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			Activity1 a123 = createActivity(
 					userNickPowell, 
 					"An Introductory Handbook to Probability, Statistics and Excel 4",
+					comp1cred6.getId(),
 					"http://records.viu.ca/~johnstoi/maybe/maybe3.htm");
 			
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred6.getId(), a123);
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred6.getId(), a123, userNickPowell.getId());
 
 			publishCredential(cred6, cred6.getCreatedBy());
 		} catch (EventException e) {
@@ -604,9 +634,10 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			Activity1 a124 = createActivity(
 					userNickPowell, 
 					"An Introductory Handbook to Probability, Statistics and Excel 5",
+					comp1cred7.getId(),
 					"http://records.viu.ca/~johnstoi/maybe/maybe3.htm");
 			
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred7.getId(), a124);
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred7.getId(), a124, userNickPowell.getId());
 
 			publishCredential(cred7, cred7.getCreatedBy());
 		} catch (EventException e) {
@@ -641,15 +672,17 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			Activity1 ab1 = createActivity(
 					userNickPowell, 
 					"Parametric statistics, From Wikipedia, the free encyclopedia",
+					comp1cred8.getId(),
 					"http://www.mathsisfun.com/data/standard-normal-distribution.html");
 			
 			Activity1 ab2 = createActivity(
 					userNickPowell, 
 					"Non-parametric statistics, From Wikipedia, the free encyclopedia",
+					comp1cred8.getId(),
 					"http://laboratory-manager.advanceweb.com/Columns/Interpreting-Statistics/Non-Parametric-Statistics.aspx");
 			
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred8.getId(), ab1);
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred8.getId(), ab2);
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred8.getId(), ab1, userNickPowell.getId());
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred8.getId(), ab2, userNickPowell.getId());
 		
 			publishCredential(cred8, cred8.getCreatedBy());
 		} catch (EventException e) {
@@ -689,21 +722,24 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			Activity1 ba1 = createActivity(
 					userNickPowell, 
 					"Extracting Data from Incident-Based Systems and NIBRS",
+					comp1cred9.getId(),
 					"http://www.jrsa.org/ibrrc/using-data/preparing_data/preparing-file/index.shtml");
 			
 			Activity1 ba2 = createActivity(
 					userNickPowell, 
 					"PREPARING A FILE FOR ANALYSIS",
+					comp1cred9.getId(),
 					"http://www.jrsa.org/ibrrc/using-data/preparing_data/preparing-file/preparing_data.shtml");
 			
 			Activity1 ba3 = createActivity(
 					userNickPowell, 
 					"Reading a Multilevel Data File",
+					comp1cred9.getId(),
 					"http://www.jrsa.org/ibrrc/using-data/preparing_data/preparing-file/reading_data.shtml");
 			
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred9.getId(), ba1);
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred9.getId(), ba2);
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred9.getId(), ba3);
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred9.getId(), ba1, userNickPowell.getId());
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred9.getId(), ba2, userNickPowell.getId());
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred9.getId(), ba3, userNickPowell.getId());
 		
 			publishCredential(cred9, cred9.getCreatedBy());
 		} catch (EventException e) {
@@ -743,15 +779,17 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			Activity1 bb1 = createActivity(
 					userNickPowell, 
 					"Drawing conclusions from data",
+					comp1cred10.getId(),
 					"http://www.chem1.com/acad/webtext/matmeasure/mm5.html");
 			
 			Activity1 bb2 = createActivity(
 					userNickPowell, 
 					"Understanding the units of scientific measurement",
+					comp1cred10.getId(),
 					"http://www.chem1.com/acad/webtext/matmeasure/mm1.html");
 			
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred10.getId(), bb1);
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred10.getId(), bb2);
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred10.getId(), bb1, userNickPowell.getId());
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred10.getId(), bb2, userNickPowell.getId());
 		
 			publishCredential(cred10, cred10.getCreatedBy());
 		} catch (EventException e) {
@@ -790,15 +828,17 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			Activity1 bc1 = createActivity(
 					userNickPowell,
 					"Understanding Descriptive Statistics",
+					comp1cred11.getId(),
 					"http://www.nationalatlas.gov/articles/mapping/a_statistics.html");
 			
 			Activity1 bc2 = createActivity(
 					userNickPowell,
 					"Teaching Prediction Intervals",
+					comp1cred11.getId(),
 					"http://www.amstat.org/publications/jse/secure/v8n3/preston.cfm");
 			
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred11.getId(), bc1);
-			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred11.getId(), bc2);
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred11.getId(), bc1, userNickPowell.getId());
+//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred11.getId(), bc2, userNickPowell.getId());
 		
 			publishCredential(cred11, cred11.getCreatedBy());
 		} catch (EventException e) {
@@ -850,14 +890,23 @@ public class BusinessCase3_Statistics extends BusinessCase {
 				creator.getId(), true);
 		credentialData.setPublished(true);
 		
-		credentialManager.updateCredential(credentialData, creator, 
+		credentialManager.updateCredential(cred.getId(), credentialData, creator, 
 				org.prosolo.services.nodes.data.Role.Manager);
 	}
 
 	private void addCompetenceToCredential(Credential1 credential, Competence1 competence, User user) {
-		ServiceLocator
+		EventData ev = ServiceLocator
 				.getInstance()
-				.getService(CredentialManager.class).addCompetenceToCredential(credential.getId(), competence);
+				.getService(CredentialManager.class).addCompetenceToCredential(credential.getId(), competence, 
+						user.getId());
+		try {
+			if(ev != null) {
+				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(ev);
+			}
+		} catch (EventException e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
 		
 		CredentialManager credentialManager = ServiceLocator
 				.getInstance()
@@ -866,7 +915,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		CredentialData credentialData = credentialManager.getCredentialDataForEdit(credential.getId(), user.getId(), true);
 		credentialData.setPublished(true);
 		
-		credentialManager.updateCredential(credentialData, user, org.prosolo.services.nodes.data.Role.User);
+		credentialManager.updateCredential(credential.getId(), credentialData, user, org.prosolo.services.nodes.data.Role.User);
 	}
 
 	private User createUser(String name, String lastname, String emailAddress, String password, String fictitiousUser,
@@ -892,12 +941,13 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		return null;
 	}
 
-	private Activity1 createActivity(User userNickPowell, String title, String... links) {
+	private Activity1 createActivity(User userNickPowell, String title, long compId, String... links) {
 		ActivityData actData = new ActivityData(false);
 		actData.setTitle(title);
 		actData.setPublished(true);
 		actData.setActivityType(ActivityType.TEXT);
 		actData.setType(LearningResourceType.UNIVERSITY_CREATED);
+		actData.setCompetenceId(compId);
 		
 		if (links != null) {
 			List<ResourceLinkData> activityLinks = new ArrayList<>();
