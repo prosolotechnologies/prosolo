@@ -22,9 +22,9 @@ public class HomePageResolver {
 	     		return "/admin/users";
 	     	case "basic.manager.access":
 	     	case "basic.instructor.access":
-	     		return "/manage/library";
+	     		return "/manage";
 	     	case "basic.user.access":
-	     		return "/library";
+	     		return "/";
 	     	default:
 	     		return "/terms";
 	     }
@@ -38,9 +38,9 @@ public class HomePageResolver {
 			 		return "/admin/users";
 			 	case "basic.manager.access":
 			 	case "basic.instructor.access":
-			 		return "/manage/library";
+			 		return "/manage";
 			 	case "basic.user.access":
-			 		return "/library";
+			 		return "/";
 			 	default:
 			 		return "/terms";
 			 }
@@ -57,22 +57,23 @@ public class HomePageResolver {
 		while(it.hasNext()) {
 			GrantedAuthority ga = it.next();
 			switch (ga.getAuthority().toLowerCase()) {
-			case "basic.admin.access":
-				return ga.getAuthority().toLowerCase();
-			case "basic.manager.access":
-				if(isHigherPriority(current, MANAGE, priority)) {
-					current = ga.getAuthority().toLowerCase();
-					priority = MANAGE;
-				}
-				break;
-			case "basic.user.access":
-				if(isHigherPriority(current, USER, priority)) {
-					current = ga.getAuthority().toLowerCase();
-					priority = USER;
-				}
-				break;
-			default:
-				continue;
+				case "basic.admin.access":
+					return ga.getAuthority().toLowerCase();
+				case "basic.manager.access":
+				case "basic.instructor.access":
+					if(isHigherPriority(current, MANAGE, priority)) {
+						current = ga.getAuthority().toLowerCase();
+						priority = MANAGE;
+					}
+					break;
+				case "basic.user.access":
+					if(isHigherPriority(current, USER, priority)) {
+						current = ga.getAuthority().toLowerCase();
+						priority = USER;
+					}
+					break;
+				default:
+					continue;
 			}
 		}
 		return current;
