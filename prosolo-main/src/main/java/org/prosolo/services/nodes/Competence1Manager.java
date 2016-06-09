@@ -204,6 +204,22 @@ public interface Competence1Manager {
 
 	Optional<Long> getCompetenceDraftVersionIdForOriginal(long competenceId) throws DbConnectionException;
 	
+	/**
+	 * Method for getting all completed competences (competences that has progress == 100)
+	 * and a hiddenFromProfile flag set to a certain value
+	 * @return 
+	 * @throws DbConnectionException
+	 */
+	List<TargetCompetence1> getAllCompletedCompetences(Long userId, boolean hiddenFromProfile) throws DbConnectionException;
+	
+	/**
+	 * Method for getting all unfinished competences (competences that has progress != 100)
+	 * and a hiddenFromProfile flag set to a certain value
+	 * @return 
+	 * @throws DbConnectionException
+	 */
+	List<TargetCompetence1> getAllUnfinishedCompetences(Long userId, boolean hiddenFromProfile) throws DbConnectionException;
+	
 //	/**
 //	 * Returns current version of competence for edit if edit mode - draft version if exists
 //	 * but only if competence is university based, otherwise null is returned.

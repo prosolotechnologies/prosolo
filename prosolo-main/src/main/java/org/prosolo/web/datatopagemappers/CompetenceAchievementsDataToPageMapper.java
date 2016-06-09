@@ -31,7 +31,11 @@ public class CompetenceAchievementsDataToPageMapper
 			if (targetCompetence1 != null) {
 				targetCompetenceData = new TargetCompetenceData(targetCompetence1.getId(),
 						targetCompetence1.getDescription(), targetCompetence1.getTitle(),
-						targetCompetence1.isHiddenFromProfile(), idEncoder);
+						targetCompetence1.isHiddenFromProfile(), 
+						targetCompetence1.getDuration(), 
+						targetCompetence1.getType(),
+						targetCompetence1.getProgress(),
+						idEncoder);
 				competenceAchievementsData.getTargetCompetenceDataList().add(targetCompetenceData);
 			}
 		}

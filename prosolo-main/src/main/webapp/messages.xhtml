@@ -38,6 +38,18 @@
 			setQueryParam('id', threadId);
 		}
 		
+		function handleTyping(id) {
+			var item = $("#"+id)
+			if(item.val().length >= 3) {
+				$('#usersList').show();
+				return true;
+			}
+			//if we got some results, then backspaced back to, say, 2 letters, reset list
+			$('#usersList').empty();
+			$('#usersList').hide();
+			return false;
+		}
+		
 		function hideConfirmDialog(dialogId) {
 			$('#'+dialogId).modal('hide');
 			$("body").removeAttr("class").removeAttr("style")
@@ -305,31 +317,33 @@
 	                        <div class="toBox">
 	                            To:
 	                        </div>
-	                    <h:inputText autocomplete="off" onkeyup="return this.value.length >= 3" 
+	                    <h:inputText autocomplete="off" onkeyup="return handleTyping('messageRecievingUserName')" 
 	                    			onfocus="this.value = this.value;"
 	                    			value="#{searchPeopleBean.query}" 
 	                    			id="messageRecievingUserName" name="messageRecievingUserName">
-	                    	<f:ajax
-        						event="keyup"
+	                    	<p:ajax
+        						event="keyup" delay="500" 
         						execute="messageRecievingUserName"
         						listener="#{searchPeopleBean.searchPeople()}"
-        						render="writeNewMessageContainer" />
+        						update="usersListPanel" />
 	                    </h:inputText>
-	                    <h:panelGroup rendered="#{searchPeopleBean.userSize > 0}">
-	   						<ul id="usersList" class="dropdown-menu searchResultsDrop" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="display:block;">
-	   							<ui:repeat value="#{searchPeopleBean.users}" var="user" varStatus="iterator">
-	                            	<li>
-		                                <a style="cursor:pointer;" onclick="setRecipient('#{user.name}','#{user.id}')" id="userlink-#{user.id}">
-		                                	<h:panelGroup styleClass="letterAvatar letterAvatar32 img-circle" rendered="#{empty user.avatarUrl}" >
-		                                		#{user.initials}
-		                                	</h:panelGroup>
-		                                	<h:graphicImage  rendered="#{not empty user.avatarUrl}" value="#{user.avatarUrl}" styleClass="img-circle media-object" width="32" height="32" alt="#{user.name}" />
-		                                    <h3>#{user.name}</h3>
-		                                </a>
-	                            	</li>
-	                            </ui:repeat>
-                        	</ul>
-	                        <input type="hidden" id="messageRecipientIds"></input>
+	                    <h:panelGroup id="usersListPanel">
+		                    <h:panelGroup  rendered="#{searchPeopleBean.userSize > 0}">
+		   						<ul id="usersList" class="dropdown-menu searchResultsDrop" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="display:block;">
+		   							<ui:repeat value="#{searchPeopleBean.users}" var="user" varStatus="iterator">
+		                            	<li>
+			                                <a style="cursor:pointer;" onclick="setRecipient('#{user.name}','#{user.id}')" id="userlink-#{user.id}">
+			                                	<h:panelGroup styleClass="letterAvatar letterAvatar32 img-circle" rendered="#{empty user.avatarUrl}" >
+			                                		#{user.initials}
+			                                	</h:panelGroup>
+			                                	<h:graphicImage  rendered="#{not empty user.avatarUrl}" value="#{user.avatarUrl}" styleClass="img-circle media-object" width="32" height="32" alt="#{user.name}" />
+			                                    <h3>#{user.name}</h3>
+			                                </a>
+		                            	</li>
+		                            </ui:repeat>
+	                        	</ul>
+		                        <input type="hidden" id="messageRecipientIds"></input>
+	 						</h:panelGroup>
  						</h:panelGroup>
 	                    </div>
 	                </section>

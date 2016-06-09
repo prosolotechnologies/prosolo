@@ -1853,6 +1853,34 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return result;
 	}
 	
+	@Override
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public List<TargetCredential1> getAllCompletedCredentials(Long userId, boolean hiddenFromProfile)
+			throws DbConnectionException {
+		List<TargetCredential1> result = new ArrayList<>();
+		try {
+			String query=
+					"SELECT targetCredential1 " +
+					"FROM TargetCredential1 targetCredential1 " +
+					"WHERE targetCredential1.user.id = :userid " +
+					"AND targetCredential1.hiddenFromProfile = :hidden " +
+					"AND targetCredential1.progress = :progress " + 
+					"ORDER BY targetCredential1.title";
+			  	
+			result = persistence.currentManager()
+					.createQuery(query)
+					.setLong("userid", userId)
+					.setInteger("progress", 100)
+					.setBoolean("hidden", hiddenFromProfile)
+				  	.list();
+		} catch (DbConnectionException e) {
+			e.printStackTrace();
+			throw new DbConnectionException();
+		}
+		return result;
+	}
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	@Transactional

@@ -2,8 +2,7 @@ package org.prosolo.web.datatopagemappers;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
+import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.achievements.data.CredentialAchievementsData;
@@ -27,7 +26,8 @@ public class CredentialAchievementsDataToPageMapper
 		for (TargetCredential1 targetCredential1 : targetCredential1List) {
 			if (targetCredential1 != null) {
 				targetCredentialData = new TargetCredentialData(targetCredential1.getId(), targetCredential1.getTitle(),
-						targetCredential1.getDescription(), targetCredential1.isHiddenFromProfile(), idEncoder);
+						targetCredential1.getDescription(), targetCredential1.isHiddenFromProfile(), 
+						idEncoder,targetCredential1.getDuration(), targetCredential1.getCredentialType());
 				credentialAchievementsData.getTargetCredentialDataList().add(targetCredentialData);
 			}
 		}
