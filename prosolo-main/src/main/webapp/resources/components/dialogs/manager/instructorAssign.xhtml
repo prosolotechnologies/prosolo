@@ -61,9 +61,8 @@
 		                              </span>
 		                              <div class="buttonWrapper">
 		                              	  <ui:fragment 
-		                              	  	rendered="#{instructor.full 
-		                              	  		|| (cc.attrs.bean.doesStudentHaveInstructorAssigned()
-		                              	  		and !cc.attrs.bean.isInstructorCurrentlyAssignedToStudent(instructor))}">
+		                              	  	rendered="#{!cc.attrs.bean.isInstructorCurrentlyAssignedToStudent(instructor) and (instructor.full 
+		                              	  		|| cc.attrs.bean.doesStudentHaveInstructorAssigned())}">
 		                              	  	<a href="javascript:void(0);" class="btn btn-green btn-sm disabled">Assign</a>
 		                              	  </ui:fragment>
 		                              	  <ui:fragment rendered="#{cc.attrs.bean.isInstructorCurrentlyAssignedToStudent(instructor) 
