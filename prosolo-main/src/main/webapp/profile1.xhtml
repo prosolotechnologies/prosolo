@@ -160,7 +160,7 @@
 	                    			var="targetCredential" varStatus="iterator">
 			                <div class="col-md-6">
 		                        <article class="whiteBox summaryCard">
-		                            <h2><h:link outcome="#{targetCredential.link}">#{targetCredential.title}</h:link></h2>
+		                            <h2><a href="#{targetCredential.link}">#{targetCredential.title}</a></h2>
 		                            <div class="clear"></div>
 		                            <p>#{targetCredential.description}</p>
 		                            <div class="metaBox">
@@ -189,7 +189,7 @@
 	                    			var="targetCompetence" varStatus="iterator">
 		                    <div class="col-md-6">
 		                        <article class="whiteBox summaryCard">
-		                            <h2><h:link outcome="#{targetCompetence.link}">#{targetCompetence.title}</h:link></h2>
+		                            <h2><a href="#{targetCompetence.link}">#{targetCompetence.title}</a></h2>
 		                            <div class="clear"></div>
 		                            <p>#{targetCompetence.description}</p>
 		                            <div class="metaBox">
@@ -234,12 +234,12 @@
 	                    			var="unfinishedCompetence" varStatus="iterator">
 		                    <div class="col-md-6">
 		                        <article class="whiteBox summaryCard">
-		                           <h2><h:link outcome="#{unfinishedCompetence.link}">#{unfinishedCompetence.title}</h:link></h2>
+		                           <h2><a href="#{unfinishedCompetence.link}">#{unfinishedCompetence.title}</a></h2>
 		                            <div class="clear"></div>
 		                            <p>#{unfinishedCompetence.description}</p>
 		                            <div class="metaBox">
 		                                <div class="metaLeft">
-		                                    <h:link outcome="#{unfinishedCompetence.link}" styleClass="btn btn-green btn-sm">Resume</h:link>
+		                                    <a href="#{unfinishedCompetence.activityLink}" class="btn btn-green btn-sm">Resume</a>
 		                                    <div class="progressBar">
 		                                        <span>#{unfinishedCompetence.progress}%</span>
 		                                        <div class="progress">
