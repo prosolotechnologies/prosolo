@@ -95,7 +95,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			cred = resourceFactory.createCredential(data.getTitle(), data.getDescription(),
 					data.getTagsString(), data.getHashtagsString(), createdBy,
 					data.getType(), data.isMandatoryFlow(), data.isPublished(), data.getDuration(),
-					data.getCompetences());
+					!data.isAutomaticallyAssingStudents(), data.getCompetences());
 			
 			//generate create event only if credential is published
 			if(data.isPublished()) {
@@ -839,7 +839,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		credToUpdate.setCompetenceOrderMandatory(data.isMandatoryFlow());
 		credToUpdate.setPublished(data.isPublished());
 		credToUpdate.setStudentsCanAddCompetences(data.isStudentsCanAddCompetences());
-		credToUpdate.setManuallyAssignStudents(data.isManuallyAssingStudents());
+		credToUpdate.setManuallyAssignStudents(!data.isAutomaticallyAssingStudents());
 		credToUpdate.setDefaultNumberOfStudentsPerInstructor(data.getDefaultNumberOfStudentsPerInstructor());
 		
 	    if(publishTransition == EntityPublishTransition.NO_TRANSITION) {

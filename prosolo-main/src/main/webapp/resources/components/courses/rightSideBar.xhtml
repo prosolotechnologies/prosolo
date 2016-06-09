@@ -8,7 +8,8 @@
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
 	xmlns:post="http://java.sun.com/jsf/composite/components/post"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
 
 	<composite:interface>
         <composite:attribute name="chooseOptionText" required="true" />
@@ -20,6 +21,8 @@
 		<composite:attribute name="toUpdate" required="true" />
 		<composite:attribute name="previewAction" required="true" method-signature="void preview()"/>
 		<composite:attribute name="linkPreviewClass" required="true" />
+		<composite:attribute name="automaticAssignOptionValue" default="" />
+		<composite:attribute name="role" default="" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -48,7 +51,18 @@
 					#{cc.attrs.chooseOptionText}
 				</label>
 			</div>
-			
+			<c:if test="#{cc.attrs.role eq 'MANAGER'}">
+				<div class="checkbox checkLine">
+					<h:selectBooleanCheckbox 
+						id="checkAutomaticAssign"
+						value="#{cc.attrs.automaticAssignOptionValue}"
+						onchange="updateStatusToDraft();">
+					</h:selectBooleanCheckbox>
+	                <label for="#{cc.clientId}:checkAutomaticAssign">
+						Assign instructor to students automatically
+					</label>
+	            </div>
+            </c:if>
 			<h:selectOneMenu 
 				id="selectStatus" styleClass="selectpicker" 
 				value="#{cc.attrs.publishValue}">

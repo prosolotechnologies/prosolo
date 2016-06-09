@@ -851,7 +851,8 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public Credential1 createCredential(String title, String description, String tagsString, 
     		String hashtagsString, User createdBy, LearningResourceType type, 
-    		boolean compOrderMandatory, boolean published, long duration, List<CompetenceData1> comps) {
+    		boolean compOrderMandatory, boolean published, long duration, 
+    		boolean manuallyAssign, List<CompetenceData1> comps) {
     	try {
 			 Credential1 cred = new Credential1();
 		     cred.setCreatedBy(createdBy);
@@ -864,6 +865,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 		     cred.setDuration(duration);
 		     cred.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(tagsString)));
 		     cred.setHashtags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(hashtagsString)));
+		     cred.setManuallyAssignStudents(manuallyAssign);
 		     
 		     saveEntity(cred);
 		     
