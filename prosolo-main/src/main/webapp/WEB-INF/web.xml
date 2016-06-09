@@ -227,7 +227,7 @@
         <filter-name>OCPsoft Rewrite Filter</filter-name>
         <filter-class>org.ocpsoft.rewrite.servlet.RewriteFilter</filter-class>
         <async-supported>true</async-supported>
-    </filter>1
+    </filter>
     <filter-mapping>
         <filter-name>OCPsoft Rewrite Filter</filter-name>
         <url-pattern>/*</url-pattern>

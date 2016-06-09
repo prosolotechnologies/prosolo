@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.common.exception.DbConnectionException;
@@ -16,6 +18,7 @@ import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.AssessmentRequestData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ResourceCreator;
@@ -45,6 +48,7 @@ public class CredentialViewBeanUser implements Serializable {
 	private boolean justEnrolled;
 	
 	private CredentialData credentialData;
+	private AssessmentRequestData assessmentRequestData = new AssessmentRequestData();
 
 	public void init() {	
 		decodedId = idEncoder.decodeId(id);
@@ -143,6 +147,31 @@ public class CredentialViewBeanUser implements Serializable {
 		return credentialData.getCompetences().size() != index + 1;
 	}
 	
+	public void setupAssessmentRequestRecepient() {
+		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+		String id = params.get("assessmentRecipient");
+		if(StringUtils.isNotBlank(id)){
+			assessmentRequestData.setAssessorId(Long.valueOf(id));
+		}
+	}
+	
+	public void submitAssessment() {
+		if(credentialData.isInstructorPresent()) {
+			//there is instructor, set it from existing data
+			assessmentRequestData.setAssessorId(credentialData.getInstructorId());
+		}
+		//at this point, assessor should be set either from credential data or user-submitted peer id
+		if(assessmentRequestData.isAssessorSet()) {
+				assessmentRequestData.setStudentId(loggedUser.getUser().getId());
+				assessmentRequestData.setCredentialId(credentialData.getId());
+				assessmentRequestData.setTargetCredentialId(credentialData.getTargetCredId());
+			
+		}
+		else {
+			PageUtil.fireErrorMessage("No assessor set");
+		}
+	}
+	
 	/*
 	 * GETTERS / SETTERS
 	 */
@@ -187,4 +216,12 @@ public class CredentialViewBeanUser implements Serializable {
 		this.justEnrolled = justEnrolled;
 	}
 
+	public AssessmentRequestData getAssessmentRequestData() {
+		return assessmentRequestData;
+	}
+
+	public void setAssessmentRequestData(AssessmentRequestData assessmentRequestData) {
+		this.assessmentRequestData = assessmentRequestData;
+	}
+	
 }

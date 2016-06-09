@@ -48,7 +48,10 @@ public class CredentialData extends StandardObservable implements Serializable {
 	
 	private boolean bookmarkedByCurrentUser;
 	private long instructorId;
+	private String instructorAvatarUrl;
+	private String instructorFullName;
 	private Date date;
+	private boolean instructorPresent;
 	
 	public CredentialData(boolean listenChanges) {
 		this.status = PublishedStatus.DRAFT;
@@ -389,5 +392,29 @@ public class CredentialData extends StandardObservable implements Serializable {
 	public void setDate(Date date) {
 		this.date = date;
 	}
-	
+
+	public String getInstructorAvatarUrl() {
+		return instructorAvatarUrl;
+	}
+
+	public void setInstructorAvatarUrl(String instructorAvatarUrl) {
+		this.instructorAvatarUrl = instructorAvatarUrl;
+	}
+
+	public String getInstructorFullName() {
+		return instructorFullName;
+	}
+
+	public void setInstructorFullName(String instructorFullName) {
+		this.instructorFullName = instructorFullName;
+	}
+
+	public boolean isInstructorPresent() {
+		return instructorPresent;
+	}
+
+	public void setInstructorPresent(boolean instructorPresent) {
+		this.instructorPresent = instructorPresent;
+	}
+
 }
