@@ -26,6 +26,7 @@ import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.common.exception.CompetenceEmptyException;
@@ -36,6 +37,7 @@ import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.context.data.LearningContextData;
+import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
@@ -56,6 +58,7 @@ import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTr
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.amazonaws.services.identitymanagement.model.EntityAlreadyExistsException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -80,6 +83,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	private CompetenceDataFactory competenceFactory;
 	@Inject
 	private CredentialInstructorManager credInstructorManager;
+	@Inject
+	private FeedSourceManager feedSourceManager;
 	
 	@Override
 	@Transactional(readOnly = false)
@@ -2306,6 +2311,62 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			e.printStackTrace();
 			throw new DbConnectionException("Error while loading user credential ids");
 		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void removeFeed(long credId, long feedSourceId) throws DbConnectionException {
+		try {
+			Credential1 cred = getCredentialWithBlogs(credId);
+			FeedSource feedSource = (FeedSource) persistence.currentManager().load(FeedSource.class, feedSourceId);
+			cred.getBlogs().remove(feedSource);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while removing blog from the credential");
+		}
+	}
+	
+	//returns true if new blog is added to the course, false if it already exists
+	@Override
+	@Transactional(readOnly = false)
+	public boolean saveNewCredentialFeed(long credId, String feedLink) 
+			throws DbConnectionException, EntityAlreadyExistsException {
+		try {
+			Credential1 cred = getCredentialWithBlogs(credId);
+			
+			if(cred != null) {
+				FeedSource feedSource = feedSourceManager.getOrCreateFeedSource(null, feedLink);
+				List<FeedSource> blogs = cred.getBlogs();
+				if(!blogs.contains(feedSource)) {
+					blogs.add(feedSource);
+					return true;
+				} else {
+					throw new EntityAlreadyExistsException("That Feed Source already exists");
+				}
+			}
+			return false;
+		} catch(EntityAlreadyExistsException eae) {
+			throw eae;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while adding new credential feed source");
+		}
+	}
+	
+	private Credential1 getCredentialWithBlogs(long credId) {
+		String query = "SELECT cred " +
+				   "FROM Credential1 cred " +
+				   "LEFT JOIN fetch cred.blogs " +
+				   "WHERE cred.id = :credId";
+	
+		Credential1 cred = (Credential1) persistence.currentManager()
+				.createQuery(query)
+				.setLong("credId", credId)
+				.uniqueResult();
+		
+		return cred;
 	}
 	
 }

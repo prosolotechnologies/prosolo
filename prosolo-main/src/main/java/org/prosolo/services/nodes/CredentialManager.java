@@ -24,6 +24,8 @@ import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 
+import com.amazonaws.services.identitymanagement.model.EntityAlreadyExistsException;
+
 public interface CredentialManager extends AbstractManager {
 
 	Credential1 saveNewCredential(CredentialData data, User createdBy) throws DbConnectionException;
@@ -285,5 +287,10 @@ public interface CredentialManager extends AbstractManager {
 	
 	List<Long> getTargetCredentialIdsForUsers(List<Long> userIds, long credId) 
 			throws DbConnectionException;
+	
+	boolean saveNewCredentialFeed(long credId, String feedLink) 
+			throws DbConnectionException, EntityAlreadyExistsException;
+	
+	void removeFeed(long credId, long feedSourceId) throws DbConnectionException;
 
 }

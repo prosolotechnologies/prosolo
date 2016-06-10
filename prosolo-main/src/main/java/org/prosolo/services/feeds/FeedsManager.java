@@ -11,7 +11,7 @@ import org.prosolo.common.domainmodel.user.TimeFrame;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.FeedsPreferences;
 import org.prosolo.services.common.exception.DbConnectionException;
-import org.prosolo.services.feeds.data.CourseFeedsData;
+import org.prosolo.services.feeds.data.CredentialFeedsData;
 import org.prosolo.services.feeds.data.UserFeedSourceAggregate;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.web.settings.data.FeedSourceData;
@@ -62,9 +62,9 @@ public interface FeedsManager extends AbstractManager {
 
 	List<FeedEntry> getFeedEntriesFromSources(List<FeedSource> subscribedRssSources, User user, Date dateFrom);
 
-	List<CourseFeedsData> getUserFeedsForCourse(long courseId) throws DbConnectionException;
+	List<CredentialFeedsData> getUserFeedsForCredential(long credId) throws DbConnectionException;
 	
-	List<CourseFeedsData> getCourseFeeds(long courseId) throws DbConnectionException;
+	List<CredentialFeedsData> getCredentialFeeds(long credId) throws DbConnectionException;
 	
-	void updateFeedLink(CourseFeedsData feed) throws DbConnectionException;
+	void updateFeedLink(CredentialFeedsData feed) throws DbConnectionException;
 }

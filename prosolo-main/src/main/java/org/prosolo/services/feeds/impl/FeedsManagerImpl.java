@@ -30,7 +30,7 @@ import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.email.EmailSender;
 import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.feeds.FeedsManager;
-import org.prosolo.services.feeds.data.CourseFeedsData;
+import org.prosolo.services.feeds.data.CredentialFeedsData;
 import org.prosolo.services.feeds.data.UserFeedSourceAggregate;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
@@ -714,31 +714,42 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 	
 	@Override
 	@Transactional (readOnly = true)
-	public List<CourseFeedsData> getUserFeedsForCourse(long courseId) throws DbConnectionException {
+	public List<CredentialFeedsData> getUserFeedsForCredential(long credId) throws DbConnectionException {
 		try {
-			logger.debug("Loading feed sources for the course: " + courseId);
-	
+			logger.debug("Loading feed sources for the credential with id: " + credId);
+//			
+//			String query1 = "SELECT feed.id " +
+//						    "FROM Credential1 cred " +
+//						    "INNER JOIN cred.excludedFeedSources feed " +
+//						    "WHERE cred.id = :credId";
+//			
+//			@SuppressWarnings("unchecked")
+//			List<Long> excludedIds = persistence.currentManager()
+//					.createQuery(query1)
+//					.setLong("credId", credId)
+//					.list();
+			
 			String query = 
 				"SELECT user.name, user.lastname, personalBlog.link, personalBlog.id, " + 
-			    "case when (personalBlog in (excludedFeeds)) then false else true end as included " +
-				"FROM FeedsPreferences feedPreferences, CourseEnrollment enrollment " + 
+			    "case when (personalBlog.id in (excludedFeeds)) then false else true end as included " +
+				"FROM FeedsPreferences feedPreferences, TargetCredential1 targetCred " + 
 				"LEFT JOIN feedPreferences.user user " + 
 				"LEFT JOIN feedPreferences.personalBlogSource personalBlog " +
-				"LEFT JOIN enrollment.course course " +
-				"LEFT JOIN course.excludedFeedSources excludedFeeds " +
-				"WHERE feedPreferences.class IN ('FeedsPreferences') "	+
-					"AND user.id = enrollment.user " +
-					"AND course.id = :courseId "	+
+				"LEFT JOIN targetCred.credential cred " +
+					"WITH cred.id = :credId " +
+				"LEFT JOIN cred.excludedFeedSources excludedFeeds " +
+				"WHERE user.id = targetCred.user.id " +
 					"AND personalBlog IS NOT NULL "	+
 				"ORDER BY personalBlog.title";
 			
 			@SuppressWarnings("unchecked")
 			List<Object[]> result = persistence.currentManager().createQuery(query)
-				.setLong("courseId", courseId)
+				.setLong("credId", credId)
+				//.setParameterList("excludedFeedsIds", excludedIds)
 				.list();
 			
 			if (result != null && !result.isEmpty()) {
-				List<CourseFeedsData> userFeedSources = new ArrayList<CourseFeedsData>();
+				List<CredentialFeedsData> userFeedSources = new ArrayList<CredentialFeedsData>();
 				
 				//Course course = loadResource(Course.class, courseId);
 			
@@ -752,7 +763,7 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 					// could not find the proper way to extract this data in the query
 					//boolean excluded = course.getExcludedFeedSources().contains(feedSource);
 					
-					userFeedSources.add(new CourseFeedsData(firstName, lastName, id, feedLink, included));
+					userFeedSources.add(new CredentialFeedsData(firstName, lastName, id, feedLink, included));
 				}
 				
 				return userFeedSources;
@@ -762,34 +773,34 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while loading course feeds");
+			throw new DbConnectionException("Error while loading credential feeds");
 		}
 	}
 	
 	
 	@Override
 	@Transactional (readOnly = true)
-	public List<CourseFeedsData> getCourseFeeds(long courseId) throws DbConnectionException {
+	public List<CredentialFeedsData> getCredentialFeeds(long credId) throws DbConnectionException {
 		try {
-			logger.debug("Loading feed sources for the course: " + courseId);
+			logger.debug("Loading feed sources for the credential: " + credId);
 	
 			String query = 
 				"SELECT feed " + 
-				"FROM Course course " + 
-				"INNER JOIN course.blogs feed " + 
-				"WHERE course.id = :courseId";
+				"FROM Credential1 cred " + 
+				"INNER JOIN cred.blogs feed " + 
+				"WHERE cred.id = :credId";
 			
 			@SuppressWarnings("unchecked")
 			List<FeedSource> result = persistence.currentManager().createQuery(query)
-				.setLong("courseId", courseId)
+				.setLong("credId", credId)
 				.list();
 			
 				if(result == null) {
 					return new ArrayList<>();
 				}
-				List<CourseFeedsData> feeds = new ArrayList<>();
+				List<CredentialFeedsData> feeds = new ArrayList<>();
 				for(FeedSource fs : result) {
-					CourseFeedsData data = new CourseFeedsData();
+					CredentialFeedsData data = new CredentialFeedsData();
 					data.setId(fs.getId());
 					data.setFeedLink(fs.getLink());
 					feeds.add(data);
@@ -798,15 +809,16 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while loading course feeds");
+			throw new DbConnectionException("Error while loading credential feeds");
 		}
 	}
 	
 	@Override
 	@Transactional(readOnly = false)
-	public void updateFeedLink(CourseFeedsData feed) throws DbConnectionException {
+	public void updateFeedLink(CredentialFeedsData feed) throws DbConnectionException {
 		try {
-			FeedSource feedSource = (FeedSource) persistence.currentManager().load(FeedSource.class, feed.getId());
+			FeedSource feedSource = (FeedSource) persistence.currentManager().load(FeedSource.class, 
+					feed.getId());
 			feedSource.setLink(feed.getFeedLink());
 		} catch(Exception e) {
 			logger.error(e);
