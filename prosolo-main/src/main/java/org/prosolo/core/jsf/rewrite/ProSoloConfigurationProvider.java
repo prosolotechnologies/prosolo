@@ -74,7 +74,7 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/library").to("/credentialLibrary.xhtml"))
 				.addRule(Join.path("/library/credentials").to("/credentialLibrary.xhtml"))
 				.addRule(Join.path("/library/competences").to("/competenceLibrary.xhtml"))
-				.addRule(Join.path("/notifications").to("/profile-notifications.xhtml"))
+				.addRule(Join.path("/notifications").to("/notifications.xhtml"))
 				.addRule(Join.path("/achievements/credentials").to("/achievements/credentials.xhtml"))
 				.addRule(Join.path("/achievements/competences").to("/achievements/competences.xhtml"))
 				.addRule(Join.path("/achievements/inprogress").to("/achievements/inprogress.xhtml"))
@@ -83,6 +83,9 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				
 				.addRule(Join.path("/manage").to("/manage/credentialLibrary.xhtml"))
 				.addRule(Join.path("/manage/").to("/manage/credentialLibrary.xhtml"))
+				.addRule(Join.path("/manage/notifications").to("/manage/notifications.xhtml"))
+				.addRule(Join.path("/manage/messages/{id}").to("/manage/messages.xhtml"))
+				.addRule(Join.path("/manage/messages").to("/manage/messages.xhtml"))
 				.addRule(Join.path("/manage/competences/{compId}/tools").to("/manage/tools.xhtml"))
 				.addRule(Join.path("/manage/credentials/{credId}/tools").to("/manage/tools.xhtml"))
 				.addRule(Join.path("/manage/tools/{credId}/{compId}/{actId}/create").to("/manage/externalTools/toolDetails.xhtml"))

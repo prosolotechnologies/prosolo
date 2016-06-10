@@ -1,0 +1,89 @@
+<ui:composition 
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	
+	<utilcomp:messagesBundle var="msg" />
+	
+	<h:outputScript library="javascript" name="prosolo.overlay.js" target="head" />
+	
+	<div id="notificationsList">
+		<h2>#{msg['communications.notifications.title']}</h2>
+
+		<h:form id="notificationsForm" >
+			<ui:repeat value="#{notificationsBean.notifications}" var="notificationData" varStatus="iterator">
+				
+				<div class="box">
+					<div class="avatar">
+						<link:user value="notificationActorAvatar" 
+		    				userData="#{notificationData.actor}"
+		    				mode="image"
+		    				imageSize="30"
+		    				idPrefix="notActor#{iterator.index}"
+		    				context="notifications.image"/>
+					</div>
+					
+					<div class="textWrapper">
+						<div class="user">
+							<span class="name">
+								<link:user value="notificationActorName" 
+				    				userData="#{notificationData.actor}"
+				    				mode="name"
+				    				idPrefix="notActorName#{iterator.index}"
+				    				context="notifications.name"/>
+							</span>
+							#{notificationData.type} 
+							<span class="name">
+								<link:resourceLink
+									resourceId="#{notificationData.resource.id}" 
+									type="#{notificationData.resource.clazz.simpleName}" 
+									title="#{notificationData.resource.title}" />
+							</span>
+						</div>
+						<div class="clear"></div>
+						
+						<h:panelGroup layout="group" class="message" rendered="#{notificationData.message != null}">
+							"#{notificationData.message}"
+							<div class="clear"></div>
+						</h:panelGroup>
+						
+						<h:panelGroup layout="block" styleClass="links">
+							<div class="clear"></div>
+							<p:growl id="notificationsListGrowl" showDetail="true" />
+							
+							<h:panelGroup rendered="#{notificationData.chosenAction == null}">
+								<ui:repeat value="#{notificationData.actions}" var="notificationAction" varStatus="notificationActionStatus">
+									<p:commandLink value="#{topNotificationsBean.getNotificationActionName(notificationAction)}"
+										onclick="prosolo.overlay.activate();"
+										actionListener="#{topNotificationsBean.logNotificationsAction(notificationAction, notificationData)}"
+										action="#{topNotificationsBean.invokeAction(notificationAction, notificationData)}" 
+										update="@form"
+										oncomplete="prosolo.overlay.reset();"
+										async="true"/>
+									<h:panelGroup class="bullet" rendered="#{notificationActionStatus.index != notificationData.actions.size()-1}" />
+								</ui:repeat>
+							</h:panelGroup>
+							
+							<h:panelGroup rendered="#{notificationData.chosenAction != null}"
+								class="textInactive">
+								#{notificationData.chosenAction}
+							</h:panelGroup>
+							
+						</h:panelGroup>
+					</div>
+					<div class="date">#{notificationData.date}</div>
+	            </div>
+				
+				<div class="separator clear"></div>
+			</ui:repeat>
+			<p:commandLink id="loadMore" rendered="#{notificationsBean.moreToLoad}" styleClass="loadMore"
+						actionListener="#{notificationsBean.loadMoreNotifications}"
+						update=":notificationsForm">
+						<h:outputText value="SHOW MORE" />
+					</p:commandLink>
+		</h:form>
+	</div>
+</ui:composition>
