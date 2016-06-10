@@ -268,7 +268,7 @@
 			<!-- If idle 300 seconds, run 'idleDialog' -->
 			<p:idleMonitor timeout="3600000"
 				onidle="sendLogPageNavigation('login','SESSIONTIMEOUT');">
-				<p:ajax event="idle" listener="#{loggeduser.userLogout}"></p:ajax>
+				<p:ajax event="idle" listener="#{loggeduser.userLogout()}"></p:ajax>
 			</p:idleMonitor>
 		</h:form>
 	</c:if>

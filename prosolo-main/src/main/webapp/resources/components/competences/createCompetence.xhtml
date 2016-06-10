@@ -16,6 +16,7 @@
 		<composite:attribute name="toUpdate" default=""></composite:attribute>
 		<composite:attribute name="learningContext" default=""/>
 		<composite:attribute name="service" default="" />
+		<composite:attribute name="actAdded" type="java.lang.Boolean" default="false" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -39,12 +40,12 @@
             <div class="col-md-8">
                 <div class="whiteBox">
                     <ul class="nav nav-tabs pageSubmenu" role="tablist">
-                        <li role="presentation" class="active"><a href="#info" aria-controls="info" role="tab" data-toggle="tab">Competence Info</a></li>
-                        <li role="presentation"><a href="#activities" aria-controls="activities" role="tab" data-toggle="tab">Activities</a></li>
+                        <li role="presentation" class="#{!cc.attrs.actAdded ? 'active' : ''}"><a href="#info" aria-controls="info" role="tab" data-toggle="tab">Competence Info</a></li>
+                        <li role="presentation" class="#{cc.attrs.actAdded ? 'active' : ''}"><a href="#activities" aria-controls="activities" role="tab" data-toggle="tab">Activities</a></li>
                     </ul>
                 </div>
                 <div class="tab-content">
-                    <div role="tabpanel" class="tab-pane fade in active" id="info">
+                    <div role="tabpanel" class="tab-pane fade #{!cc.attrs.actAdded ? 'active in' : ''}" id="info">
                         <div class="whiteBox">
                             <h2>Competence Info</h2>
                             <div class="formWrapper">
@@ -109,7 +110,7 @@
                             </div>
                         </div>
                     </div>
-                    <div role="tabpanel" class="tab-pane fade" id="activities">
+                    <div role="tabpanel" class="tab-pane fade #{cc.attrs.actAdded ? 'active in' : ''}" id="activities">
                     <div class="whiteBox activitiesList">
                     	<courses:activityList
                     		id="activityList"

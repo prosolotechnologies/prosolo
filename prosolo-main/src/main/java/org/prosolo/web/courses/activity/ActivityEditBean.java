@@ -274,7 +274,7 @@ public class ActivityEditBean implements Serializable {
 				String section = PageUtil.getSectionForView();
 				logger.info("SECTION " + section);
 				extContext.redirect(extContext.getRequestContextPath() + section +
-						"/competences/" + compId + "/edit" );
+						"/competences/" + compId + "/edit?actAdded=true" );
 			} catch (IOException e) {
 				logger.error(e);
 			}
