@@ -25,9 +25,7 @@ import org.prosolo.common.domainmodel.user.following.FollowedEntity;
 import org.prosolo.common.domainmodel.user.following.FollowedUserEntity;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.authentication.RegistrationManager;
-import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interaction.PostManager;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -159,44 +157,37 @@ public class BusinessCase3_Statistics extends BusinessCase {
 								+ "statistics are distinguished from inferential statistics (or inductive statistics), "
 								+ "in that descriptive statistics aim to summarize a sample, rather than use the data to "
 								+ "learn about the population that the sample of data is thought to represent.",
-						0,
+						cred1.getId(),
 						"descriptive statistics, statistics");
 			
-			Activity1 a1 = createActivity(
+			createActivity(
 					userNickPowell, 
 					"Read introduction to Descriptive statistics",
 					comp1cred1.getId(),
 					"http://www.socialresearchmethods.net/kb/statdesc.php");
 			
-			Activity1 a2 = createActivity(
+			createActivity(
 					userNickPowell, 
 					"Univariate analysis",
 					comp1cred1.getId(),
 					"http://www.slideshare.net/christineshearer/univariate-analysis");
 			
-			Activity1 a3 = createActivity(
+			createActivity(
 					userNickPowell, 
 					"Data collection",
 					comp1cred1.getId(),
 					"http://en.wikipedia.org/wiki/Data_collection");
 			
-			Activity1 a4 = createActivity(
+			createActivity(
 					userNickPowell, 
 					"Probability through simulation",
 					comp1cred1.getId(),
 					"http://www.stat.yale.edu/Courses/1997-98/101/sampinf.htm");
 			
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred1.getId(), a1, userNickPowell.getId());
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred1.getId(), a2, userNickPowell.getId());
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred1.getId(), a3, userNickPowell.getId());
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred1.getId(), a4, userNickPowell.getId());
-			
 			publishCredential(cred1, cred1.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
 		}
-		
-		
 		
 
 		// CREDENTIAL 1
@@ -220,37 +211,32 @@ public class BusinessCase3_Statistics extends BusinessCase {
 							+ "the data has come from a type of probability distribution and makes "
 							+ "inferences about the parameters of the distribution. Most well-known "
 							+ "elementary statistical methods are parametric.",
-					0,
+					cred2.getId(),
 					"parametric statistics, statistics");
 			
-			Activity1 a5 = createActivity(
+			createActivity(
 					userNickPowell, 
 					"Parametric and Resampling Statistics",
 					comp1cred2.getId(),
 					"http://www.uvm.edu/~dhowell/StatPages/Resampling/Resampling.html");
 			
-			Activity1 a6 = createActivity(
+			createActivity(
 					userNickPowell, 
 					"Read about Parametric statistics",
 					comp1cred2.getId(),
 					"http://laboratory-manager.advanceweb.com/Columns/Interpreting-Statistics/Non-Parametric-Statistics.aspx");
 			
-			Activity1 a7 = createActivity(
+			createActivity(
 					userNickPowell, 
 					"Read about Probability distribution",
 					comp1cred2.getId(),
 					"http://isomorphismes.tumblr.com/post/18913494015/probability-distributions");
 			
-			Activity1 a8 = createActivity(
+			createActivity(
 					userNickPowell, 
 					"List of probability distributions",
 					comp1cred2.getId(),
 					"http://www.mathwave.com/articles/distribution-fitting-graphs.html");
-			
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred2.getId(), a5, userNickPowell.getId());
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred2.getId(), a6, userNickPowell.getId());
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred2.getId(), a7, userNickPowell.getId());
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred2.getId(), a8, userNickPowell.getId());
 		} catch (EventException e) {
 			logger.error(e);
 		}
@@ -269,38 +255,33 @@ public class BusinessCase3_Statistics extends BusinessCase {
 							+ "computation. Presentation graphs include the familiar bar graph, pie chart, "
 							+ "line graph, scatterplot, and statistical map. Data analysis employs these graphical "
 							+ "forms as well as others.",
-					0,
+					cred2.getId(),
 					"data, statistics");
 			
-			Activity1 a9 = createActivity(
+			createActivity(
 					userNickPowell, 
 					"An Introductory Handbook to Probability, Statistics and Excel",
 					comp2cred2.getId(),
 					"http://records.viu.ca/~johnstoi/maybe/maybe3.htm");
 			
-			Activity1 a10 = createActivity(
+			createActivity(
 					userNickPowell, 
 					"Box Plot: Display of Distribution",
 					comp2cred2.getId(),
 					"http://www.physics.csbsju.edu/stats/box2.html");
 			
-			Activity1 a11 = createActivity(
+			createActivity(
 					userNickPowell, 
 					"Data Types",
 					comp2cred2.getId(),
 					"http://wiki.stat.ucla.edu/socr/index.php/AP_Statistics_Curriculum_2007_EDA_DataTypes");
 			
-			Activity1 a12 = createActivity(
+			createActivity(
 					userNickPowell, 
 					"Probability through simulation",
 					comp2cred2.getId(),
 					"http://wiki.stat.ucla.edu/socr/index.php/AP_Statistics_Curriculum_2007_Prob_Simul");
-			
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp2cred2.getId(), a9, userNickPowell.getId());
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp2cred2.getId(), a10, userNickPowell.getId());
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp2cred2.getId(), a11, userNickPowell.getId());
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp2cred2.getId(), a12, userNickPowell.getId());
-		
+
 			publishCredential(cred2, cred2.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
@@ -324,17 +305,14 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					userNickPowell,
 					"Define social network analysis",
 					"Define networks and articulate why they are important for education and educational research.",
-					0,
+					cred3.getId(),
 					"social network analysis, sna");
 			
-			Activity1 a121 = createActivity(
+			createActivity(
 					userNickPowell, 
 					"An Introductory Handbook to Probability, Statistics and Excel 2",
 					comp1cred3.getId(),
 					"http://records.viu.ca/~johnstoi/maybe/maybe3.htm");
-			
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred3.getId(), a121, userNickPowell.getId());
-			
 		} catch (EventException e) {
 			logger.error(e);
 		}
@@ -346,31 +324,26 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					userNickPowell,
 					"Perform social network analysis centrality measures using Gephi",
 					"See the title. This also includes being able to import data in to Gephi.",
-					0,
+					cred3.getId(),
 					"social network analysis, sna, centrality measures, gephi");
 			
-			Activity1 a13 = createActivity(
+			createActivity(
 					userNickPowell, 
 					"Gephi",
 					comp2cred3.getId(),
 					"https://gephi.org");
 			
-			Activity1 a14 = createActivity(
+			createActivity(
 					userNickPowell, 
 					"Gephi Demo 920",
 					comp2cred3.getId(),
 					"http://www.youtube.com/watch?v=JgDYV5ArXgw");
 			
-			Activity1 a15 = createActivity(
+			createActivity(
 					userNickPowell, 
 					"Paper: 'Gephi: An Open Source Software for Exploring and Manipulating Networks'",
 					comp2cred3.getId(),
 					"http://www.aaai.org/ocs/index.php/ICWSM/09/paper/view/154");
-			
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp2cred3.getId(), a13, userNickPowell.getId());
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp2cred3.getId(), a14, userNickPowell.getId());
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp2cred3.getId(), a15, userNickPowell.getId());
-		
 		} catch (EventException e) {
 			logger.error(e);
 		}
@@ -382,23 +355,20 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					userNickPowell,
 					"Interpret results of social network analysis",
 					"Interpret detailed meaning of SNA result and importance of the position of actors in social networks for information flow. Discuss implications for educational research and practice. ",
-					0,
+					cred3.getId(),
 					"social network analysis, sna");
 			
-			Activity1 a122 = createActivity(
+			createActivity(
 					userNickPowell, 
 					"An Introductory Handbook to Probability, Statistics and Excel 3",
 					comp3cred3.getId(),
 					"http://records.viu.ca/~johnstoi/maybe/maybe3.htm");
-			
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp3cred3.getId(), a122, userNickPowell.getId());
 			
 			publishCredential(cred3, cred3.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
 		}
 			
-		
 		
 		
 		///////////////////////////////////////
@@ -428,51 +398,44 @@ public class BusinessCase3_Statistics extends BusinessCase {
 							+ "the closer the value is to 1. The relationship can be positive or negative; in positive "
 							+ "relationship, as one value increases, another value increases with it. In the negative "
 							+ "relationship, as one value increases, the other one decreases.",
-					0,
+					cred4.getId(),
 					"bivariate correlations");
 
-			Activity1 a16 = createActivity(
+			createActivity(
 					userNickPowell,
 					"Pearson's Correlation Coeeficient",
 					comp1cred4.getId(),
 					"http://hsc.uwe.ac.uk/dataanalysis/quantinfasspear.asp");
 
-			Activity1 a17 = createActivity(
+			createActivity(
 					userNickPowell,
 					"Instructions for Covariance, Correlation, and Bivariate Graphs",
 					comp1cred4.getId(),
 					"http://www.math.uah.edu/stat/sample/Covariance.html");
 
-			Activity1 a18 = createActivity(
+			createActivity(
 					userNickPowell,
 					"Coefficient of determination",
 					comp1cred4.getId(),
 					"http://www.statisticshowto.com/articles/how-to-find-the-coefficient-of-determination/");
 
-			Activity1 a19 = createActivity(
+			createActivity(
 					userNickPowell,
 					"Spearman's rank correlation coefficient",
 					comp1cred4.getId(),
 					"http://udel.edu/~mcdonald/statspearman.html");
 
-			Activity1 a20 = createActivity(
+			createActivity(
 					userNickPowell,
 					"Kendall tau rank correlation coefficient",
 					comp1cred4.getId(),
 					"http://www.statisticssolutions.com/academic-solutions/resources/directory-of-statistical-analyses/kendalls-tau-and-spearmans-rank-correlation-coefficient/");
 
-			Activity1 a21 = createActivity(
+			createActivity(
 					userNickPowell,
 					"Biserial and Point-Biserial Correlations",
 					comp1cred4.getId(),
 					"http://www.apexdissertations.com/articles/point-biserial_correlation.html");
-
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred4.getId(), a16, userNickPowell.getId());
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred4.getId(), a17, userNickPowell.getId());
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred4.getId(), a18, userNickPowell.getId());
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred4.getId(), a19, userNickPowell.getId());
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred4.getId(), a20, userNickPowell.getId());
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred4.getId(), a21, userNickPowell.getId());
 		
 		} catch (EventException e) {
 			logger.error(e);
@@ -487,24 +450,21 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					"Partial correlation is the relationship between two variables while controlling "
 							+ "for a third variable. The purpose is to find the unique variance between two "
 							+ "variables while eliminating the variance from a third variables.",
-					0,
+					cred4.getId(),
 					"partial correlations, correlations");
 
-			Activity1 a22 = createActivity(
+			createActivity(
 					userNickPowell,
 					"Partial and Semi-Partial Correlations",
 					comp2cred4.getId(),
 					"http://www.apexdissertations.com/articles/point-biserial_correlation.html");
 
-			Activity1 a23 = createActivity(
+			createActivity(
 					userNickPowell,
 					"Partial Correlation Analysis",
 					comp2cred4.getId(),
 					"http://explorable.com/partial-correlation-analysis.html");
 
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp2cred4.getId(), a22, userNickPowell.getId());
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp2cred4.getId(), a23, userNickPowell.getId());
-		
 			publishCredential(cred4, cred4.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
@@ -536,24 +496,21 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					userNickPowell,
 					"Analyze Data",
 					"Know how to take raw data, extract meaningful information and use statistical tools.",
-					0,
+					cred5.getId(),
 					"data analysis, data");
 			
-			Activity1 a24 = createActivity(
+			createActivity(
 					userNickPowell, 
 					"Sampling activity",
 					comp1cred5.getId(),
 					"http://exploringdata.net/sampling.htm");
 			
-			Activity1 a25 = createActivity(
+			createActivity(
 					userNickPowell, 
 					"Normal Distribution",
 					comp1cred5.getId(),
 					"http://www.khanacademy.org/math/statistics/v/introduction-to-the-normal-distribution");
 			
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred5.getId(), a24, userNickPowell.getId());
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred5.getId(), a25, userNickPowell.getId());
-		
 			publishCredential(cred5, cred5.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
@@ -586,17 +543,15 @@ public class BusinessCase3_Statistics extends BusinessCase {
 							+ "some sort of finding or conclusion. There are a variety of specific "
 							+ "data analysis method, some of which include data mining, text analytics, "
 							+ "business intelligence, and data visualizations.",
-					0,
+					cred6.getId(),
 					"statistics, data, analysis");
 			
-			Activity1 a123 = createActivity(
+			createActivity(
 					userNickPowell, 
 					"An Introductory Handbook to Probability, Statistics and Excel 4",
 					comp1cred6.getId(),
 					"http://records.viu.ca/~johnstoi/maybe/maybe3.htm");
 			
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred6.getId(), a123, userNickPowell.getId());
-
 			publishCredential(cred6, cred6.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
@@ -628,17 +583,15 @@ public class BusinessCase3_Statistics extends BusinessCase {
 							+ "some sort of finding or conclusion. There are a variety of specific "
 							+ "data analysis method, some of which include data mining, text analytics, "
 							+ "business intelligence, and data visualizations.",
-					0,
+					cred7.getId(),
 					"data analysis, data, statistics");
 			
-			Activity1 a124 = createActivity(
+			createActivity(
 					userNickPowell, 
 					"An Introductory Handbook to Probability, Statistics and Excel 5",
 					comp1cred7.getId(),
 					"http://records.viu.ca/~johnstoi/maybe/maybe3.htm");
 			
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred7.getId(), a124, userNickPowell.getId());
-
 			publishCredential(cred7, cred7.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
@@ -662,28 +615,25 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					userNickPowell,
 					"Parametric and Non-parametric statistics",
 					"In the literal meaning of the terms, a parametric statistical test is one that makes assumptions about the "
-					+ "parameters (defining properties) of the population distribution(s) from which one's data are drawn, while "
-					+ "a non-parametric test is one that makes no such assumptions. In this strict sense, \"non-parametric\" is "
-					+ "essentially a null category, since virtually all statistical tests assume one thing or another about the "
-					+ "properties of the source population(s).",
-					0,
+						+ "parameters (defining properties) of the population distribution(s) from which one's data are drawn, while "
+						+ "a non-parametric test is one that makes no such assumptions. In this strict sense, \"non-parametric\" is "
+						+ "essentially a null category, since virtually all statistical tests assume one thing or another about the "
+						+ "properties of the source population(s).",
+					cred8.getId(),
 					"parametric statistics, non-parametric statistics, statistics");
 			
-			Activity1 ab1 = createActivity(
+			createActivity(
 					userNickPowell, 
 					"Parametric statistics, From Wikipedia, the free encyclopedia",
 					comp1cred8.getId(),
 					"http://www.mathsisfun.com/data/standard-normal-distribution.html");
 			
-			Activity1 ab2 = createActivity(
+			createActivity(
 					userNickPowell, 
 					"Non-parametric statistics, From Wikipedia, the free encyclopedia",
 					comp1cred8.getId(),
 					"http://laboratory-manager.advanceweb.com/Columns/Interpreting-Statistics/Non-Parametric-Statistics.aspx");
 			
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred8.getId(), ab1, userNickPowell.getId());
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred8.getId(), ab2, userNickPowell.getId());
-		
 			publishCredential(cred8, cred8.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
@@ -715,32 +665,28 @@ public class BusinessCase3_Statistics extends BusinessCase {
 							+ "a non-parametric test is one that makes no such assumptions. In this strict sense, \"non-parametric\" is "
 							+ "essentially a null category, since virtually all statistical tests assume one thing or another about the "
 							+ "properties of the source population(s).",
-							0,
-							"data preparation, data, statistics");
+					cred9.getId(),
+					"data preparation, data, statistics");
 			
 			
-			Activity1 ba1 = createActivity(
+			createActivity(
 					userNickPowell, 
 					"Extracting Data from Incident-Based Systems and NIBRS",
 					comp1cred9.getId(),
 					"http://www.jrsa.org/ibrrc/using-data/preparing_data/preparing-file/index.shtml");
 			
-			Activity1 ba2 = createActivity(
+			createActivity(
 					userNickPowell, 
-					"PREPARING A FILE FOR ANALYSIS",
+					"Preparing a File for Analysis",
 					comp1cred9.getId(),
 					"http://www.jrsa.org/ibrrc/using-data/preparing_data/preparing-file/preparing_data.shtml");
 			
-			Activity1 ba3 = createActivity(
+			createActivity(
 					userNickPowell, 
 					"Reading a Multilevel Data File",
 					comp1cred9.getId(),
 					"http://www.jrsa.org/ibrrc/using-data/preparing_data/preparing-file/reading_data.shtml");
 			
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred9.getId(), ba1, userNickPowell.getId());
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred9.getId(), ba2, userNickPowell.getId());
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred9.getId(), ba3, userNickPowell.getId());
-		
 			publishCredential(cred9, cred9.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
@@ -773,24 +719,21 @@ public class BusinessCase3_Statistics extends BusinessCase {
 							+ "discovering useful information, suggesting conclusions, and supporting decision-making. Data analysis "
 							+ "has multiple facets and approaches, encompassing diverse techniques under a variety of names, in"
 							+ " different business, science, and social science domains.",
-					0,
+					cred10.getId(),
 					"data analysis, data, statistics");
 			
-			Activity1 bb1 = createActivity(
+			createActivity(
 					userNickPowell, 
 					"Drawing conclusions from data",
 					comp1cred10.getId(),
 					"http://www.chem1.com/acad/webtext/matmeasure/mm5.html");
 			
-			Activity1 bb2 = createActivity(
+			createActivity(
 					userNickPowell, 
 					"Understanding the units of scientific measurement",
 					comp1cred10.getId(),
 					"http://www.chem1.com/acad/webtext/matmeasure/mm1.html");
 			
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred10.getId(), bb1, userNickPowell.getId());
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred10.getId(), bb2, userNickPowell.getId());
-		
 			publishCredential(cred10, cred10.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
@@ -822,45 +765,42 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					"Descriptive statistics are used to describe the basic features of the data in a study. "
 							+ "They provide simple summaries about the sample and the measures. Together with simple graphics "
 							+ "analysis, they form the basis of virtually every quantitative analysis of data.",
-					0,
+					cred11.getId(),
 					"descriptive statistics, statistics");
 
-			Activity1 bc1 = createActivity(
+			createActivity(
 					userNickPowell,
 					"Understanding Descriptive Statistics",
 					comp1cred11.getId(),
 					"http://www.nationalatlas.gov/articles/mapping/a_statistics.html");
 			
-			Activity1 bc2 = createActivity(
+			createActivity(
 					userNickPowell,
 					"Teaching Prediction Intervals",
 					comp1cred11.getId(),
 					"http://www.amstat.org/publications/jse/secure/v8n3/preston.cfm");
 			
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred11.getId(), bc1, userNickPowell.getId());
-//			ServiceLocator.getInstance().getService(Competence1Manager.class).addActivityToCompetence(comp1cred11.getId(), bc2, userNickPowell.getId());
-		
 			publishCredential(cred11, cred11.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
 		}
 			
 			
-		///////////////////////////////////////
-		// CREDENTIAL Understanding Descriptive Statistics
-		///////////////////////////////////////
-		Credential1 cred12 = createCredential(
-				"Learning Descriptive statistics",
-				"Descriptive statistics is the discipline of quantitatively describing the main features"
-						+ " of a collection of data.Descriptive statistics are distinguished from inferential "
-						+ "statistics (or inductive statistics), in that descriptive statistics aim to summarize "
-						+ "a sample, rather than use the data to learn about the population that the sample of "
-						+ "data is thought to represent. This generally means that descriptive statistics, unlike "
-						+ "inferential statistics, are not developed on the basis of probability theory.",
-				userNickPowell,
-				"statistics, descriptive statistics");
-
-		addCompetenceToCredential(cred12, comp1cred11, userNickPowell);
+//		///////////////////////////////////////
+//		// CREDENTIAL Understanding Descriptive Statistics
+//		///////////////////////////////////////
+//		Credential1 cred12 = createCredential(
+//				"Learning Descriptive statistics",
+//				"Descriptive statistics is the discipline of quantitatively describing the main features"
+//						+ " of a collection of data.Descriptive statistics are distinguished from inferential "
+//						+ "statistics (or inductive statistics), in that descriptive statistics aim to summarize "
+//						+ "a sample, rather than use the data to learn about the population that the sample of "
+//						+ "data is thought to represent. This generally means that descriptive statistics, unlike "
+//						+ "inferential statistics, are not developed on the basis of probability theory.",
+//				userNickPowell,
+//				"statistics, descriptive statistics");
+//
+//		addCompetenceToCredential(cred12, comp1cred11, userNickPowell);
 
  
 		try {
@@ -886,37 +826,39 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		CredentialManager credentialManager = ServiceLocator
 				.getInstance()
 				.getService(CredentialManager.class);
+		
 		CredentialData credentialData = credentialManager.getCredentialDataForEdit(cred.getId(), 
 				creator.getId(), true);
+		
 		credentialData.setPublished(true);
 		
 		credentialManager.updateCredential(cred.getId(), credentialData, creator, 
 				org.prosolo.services.nodes.data.Role.Manager);
 	}
 
-	private void addCompetenceToCredential(Credential1 credential, Competence1 competence, User user) {
-		EventData ev = ServiceLocator
-				.getInstance()
-				.getService(CredentialManager.class).addCompetenceToCredential(credential.getId(), competence, 
-						user.getId());
-		try {
-			if(ev != null) {
-				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(ev);
-			}
-		} catch (EventException e) {
-			logger.error(e);
-			e.printStackTrace();
-		}
-		
-		CredentialManager credentialManager = ServiceLocator
-				.getInstance()
-				.getService(CredentialManager.class);
-		
-		CredentialData credentialData = credentialManager.getCredentialDataForEdit(credential.getId(), user.getId(), true);
-		credentialData.setPublished(true);
-		
-		credentialManager.updateCredential(credential.getId(), credentialData, user, org.prosolo.services.nodes.data.Role.User);
-	}
+//	private void addCompetenceToCredential(Credential1 credential, Competence1 competence, User user) {
+//		EventData ev = ServiceLocator
+//				.getInstance()
+//				.getService(CredentialManager.class).addCompetenceToCredential(credential.getId(), competence, 
+//						user.getId());
+//		try {
+//			if(ev != null) {
+//				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(ev);
+//			}
+//		} catch (EventException e) {
+//			logger.error(e);
+//			e.printStackTrace();
+//		}
+//		
+//		CredentialManager credentialManager = ServiceLocator
+//				.getInstance()
+//				.getService(CredentialManager.class);
+//		
+//		CredentialData credentialData = credentialManager.getCredentialDataForEdit(credential.getId(), user.getId(), true);
+//		credentialData.setPublished(true);
+//		
+//		credentialManager.updateCredential(credential.getId(), credentialData, user, org.prosolo.services.nodes.data.Role.User);
+//	}
 
 	private User createUser(String name, String lastname, String emailAddress, String password, String fictitiousUser,
 			String avatar, Role roleUser) {
