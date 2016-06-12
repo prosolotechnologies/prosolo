@@ -15,83 +15,80 @@
 	</composite:interface>
 	
 	<composite:implementation>
-		<script src="https://use.typekit.net/zvv0dgl.js"></script>
-    	<script>try{Typekit.load({ async: true });}catch(e){}</script>
-
 		<h:form id="formMain">
 		    <p:growl id="growlMain" showDetail="true" globalOnly="true" />
-	     <div class="whiteBar"></div>
+	     	<div class="whiteBar"></div>
 	
-	    <div class="container">
-	        <div class="row">
-	            <div class="col-md-9">
-	                <h:panelGroup layout="block" id="panelNotifications" styleClass="whiteBox profileNotifications">
-	                    <ul>
-	                    	<ui:repeat var="notification" value="#{notificationBean.notifications}">
-	                    		 <li class="#{styleUtilBean.getStyleClassBasedOnNotificationType(notification.notificationType)}">
-		                            <h:link outcome="#{notification.link}">
-		                                <div class="icon"></div>
-		                                <utilcomp:userAvatar
-		                                	avatar="#{notification.actor.avatarUrl}"
-		                                	fullName="#{notification.actor.fullName}"
-		                                />
-		                                <div class="notContent">
-		                                    <h3>#{notification.actor.fullName}</h3> #{notification.predicate} <h3>#{notification.objectTitle}</h3>
-		                                </div>
-		                                <span class="timestamp">#{notification.date}</span>
-		                            </h:link>
-		                        </li>
-	                    	</ui:repeat>
-	                    </ul>
-	                </h:panelGroup>
-	
-					<utilcomp:pagination
-			        	id="pagination" 
-			        	bean="#{notificationBean}"
-			        	links="#{notificationBean.paginationLinks}"
-			        	toUpdate=":#{cc.clientId}:formMain:panelNotifications"
-			        />
-	            </div>
-	            <div class="col-md-3">
-	                <div class="whiteBox">
-	                    <h2>Show</h2>
-	                    <h:panelGroup id="panelFilters">
-		                    <ui:remove><ui:repeat var="filter" value="#{notificationBean.filters}">
-		                    	<div class="checkbox checkLine">
-			                    	<h:selectBooleanCheckbox id="checkboxFilter#{filter.filter}" value="#{filter.applied}">
-										<p:ajax event="click" process="@this"
-											listener="#{notificationBean.filterChanged(filter)}" update=":#{cc.clientId}:formMain:panelNotifications :#{cc.clientId}:formMain:pagination" />
-									</h:selectBooleanCheckbox>
-									<label for="checkboxFilter#{filter.filter}">#{filter.filter.label}</label>
-								</div>
-		                    </ui:repeat></ui:remove>
-		                    <c:forEach items="#{notificationBean.filters}" var="filter" varStatus="status">
-		                    	<div class="checkbox checkLine">
-			                    	<h:selectBooleanCheckbox id="checkboxFilter#{filter.filter}" value="#{filter.applied}">
-										<p:ajax event="click" process="@this"
-											listener="#{notificationBean.filterChanged(filter)}" update=":#{cc.clientId}:formMain:panelNotifications :#{cc.clientId}:formMain:pagination" />
-									</h:selectBooleanCheckbox>
-									<label for="#{cc.clientId}:formMain:checkboxFilter#{filter.filter}">#{filter.filter.label}</label>
-								</div>
-		                    </c:forEach>
+		    <div class="container">
+		        <div class="row">
+		            <div class="col-md-9">
+		                <h:panelGroup layout="block" id="panelNotifications" styleClass="whiteBox profileNotifications">
+		                    <ul>
+		                    	<ui:repeat var="notification" value="#{notificationBean.notifications}">
+		                    		 <li class="#{styleUtilBean.getStyleClassBasedOnNotificationType(notification.notificationType)}">
+			                            <h:link outcome="#{notification.link}">
+			                                <div class="icon"></div>
+			                                <utilcomp:userAvatar
+			                                	avatar="#{notification.actor.avatarUrl}"
+			                                	fullName="#{notification.actor.fullName}"
+			                                />
+			                                <div class="notContent">
+			                                    <h3>#{notification.actor.fullName}</h3> #{notification.predicate} <h3>#{notification.objectTitle}</h3>
+			                                </div>
+			                                <span class="timestamp">#{notification.date}</span>
+			                            </h:link>
+			                        </li>
+		                    	</ui:repeat>
+		                    </ul>
 		                </h:panelGroup>
-	                    <div class="checkLinks">
-	                    	<p:commandLink
-	                    		value="Check all"
-	                    		action="#{notificationBean.checkAllFilters()}"
-	                    		update=":#{cc.clientId}:formMain:panelNotifications :#{cc.clientId}:formMain:pagination :#{cc.clientId}:formMain:panelFilters">
-	                    	</p:commandLink>
-	                        <span>|</span>
-	                        <p:commandLink
-	                    		value="Clear all"
-	                    		action="#{notificationBean.uncheckAllFilters()}"
-	                    		update=":#{cc.clientId}:formMain:panelNotifications :#{cc.clientId}:formMain:pagination :#{cc.clientId}:formMain:panelFilters">
-	                    	</p:commandLink>
-	                    </div>
-	                </div>
-	            </div>
-	        </div>
-	    </div>
+		
+						<utilcomp:pagination
+				        	id="pagination" 
+				        	bean="#{notificationBean}"
+				        	links="#{notificationBean.paginationLinks}"
+				        	toUpdate=":#{cc.clientId}:formMain:panelNotifications"
+				        />
+		            </div>
+		            <div class="col-md-3">
+		                <div class="whiteBox">
+		                    <h2>Show</h2>
+		                    <h:panelGroup id="panelFilters">
+			                    <ui:remove><ui:repeat var="filter" value="#{notificationBean.filters}">
+			                    	<div class="checkbox checkLine">
+				                    	<h:selectBooleanCheckbox id="checkboxFilter#{filter.filter}" value="#{filter.applied}">
+											<p:ajax event="click" process="@this"
+												listener="#{notificationBean.filterChanged(filter)}" update=":#{cc.clientId}:formMain:panelNotifications :#{cc.clientId}:formMain:pagination" />
+										</h:selectBooleanCheckbox>
+										<label for="checkboxFilter#{filter.filter}">#{filter.filter.label}</label>
+									</div>
+			                    </ui:repeat></ui:remove>
+			                    <c:forEach items="#{notificationBean.filters}" var="filter" varStatus="status">
+			                    	<div class="checkbox checkLine">
+				                    	<h:selectBooleanCheckbox id="checkboxFilter#{filter.filter}" value="#{filter.applied}">
+											<p:ajax event="click" process="@this"
+												listener="#{notificationBean.filterChanged(filter)}" update=":#{cc.clientId}:formMain:panelNotifications :#{cc.clientId}:formMain:pagination" />
+										</h:selectBooleanCheckbox>
+										<label for="#{cc.clientId}:formMain:checkboxFilter#{filter.filter}">#{filter.filter.label}</label>
+									</div>
+			                    </c:forEach>
+			                </h:panelGroup>
+		                    <div class="checkLinks">
+		                    	<p:commandLink
+		                    		value="Check all"
+		                    		action="#{notificationBean.checkAllFilters()}"
+		                    		update=":#{cc.clientId}:formMain:panelNotifications :#{cc.clientId}:formMain:pagination :#{cc.clientId}:formMain:panelFilters">
+		                    	</p:commandLink>
+		                        <span>|</span>
+		                        <p:commandLink
+		                    		value="Clear all"
+		                    		action="#{notificationBean.uncheckAllFilters()}"
+		                    		update=":#{cc.clientId}:formMain:panelNotifications :#{cc.clientId}:formMain:pagination :#{cc.clientId}:formMain:panelFilters">
+		                    	</p:commandLink>
+		                    </div>
+		                </div>
+		            </div>
+		        </div>
+		    </div>
 		</h:form>
 	</composite:implementation>
 </ui:component>
