@@ -4,12 +4,15 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
+import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 
 @Entity
@@ -20,6 +23,7 @@ public class CompetenceAssessment extends BaseEntity {
 	private boolean approved;
 	private List<ActivityDiscussion> activityDiscussions;
 	private CredentialAssessment credentialAssessment;
+	private TargetCompetence1 targetCompetence;
 	
 	@ManyToOne
 	@JoinColumn(nullable = false,name="credential_assessment")
@@ -49,5 +53,16 @@ public class CompetenceAssessment extends BaseEntity {
 	public void setActivityDiscussions(List<ActivityDiscussion> activityDiscussions) {
 		this.activityDiscussions = activityDiscussions;
 	}
+
+	@OneToOne(fetch=FetchType.LAZY)
+	public TargetCompetence1 getTargetCompetence() {
+		return targetCompetence;
+	}
+
+	public void setTargetCompetence(TargetCompetence1 targetCompetence) {
+		this.targetCompetence = targetCompetence;
+	}
+	
+	
 
 }

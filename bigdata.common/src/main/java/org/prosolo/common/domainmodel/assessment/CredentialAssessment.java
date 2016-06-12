@@ -2,6 +2,7 @@ package org.prosolo.common.domainmodel.assessment;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -60,7 +61,7 @@ public class CredentialAssessment extends BaseEntity {
 		this.approved = approved;
 	}
 
-	@OneToMany(mappedBy="credentialAssessment")
+	@OneToMany(mappedBy="credentialAssessment",cascade={CascadeType.PERSIST})
 	public List<CompetenceAssessment> getCompetenceAssessments() {
 		return competenceAssessments;
 	}

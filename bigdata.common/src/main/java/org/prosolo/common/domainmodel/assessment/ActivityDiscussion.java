@@ -20,7 +20,7 @@ public class ActivityDiscussion extends BaseEntity{
 	private CompetenceAssessment assessment;
 	
 
-	@OneToOne(fetch = FetchType.LAZY)
+	@OneToOne(fetch = FetchType.LAZY)	
 	public Activity1 getActivity() {
 		return activity;
 	}
