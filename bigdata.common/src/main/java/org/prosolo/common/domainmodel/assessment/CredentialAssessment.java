@@ -1,6 +1,5 @@
 package org.prosolo.common.domainmodel.assessment;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -10,14 +9,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
 @Entity
-public class Assessment extends BaseEntity {
+public class CredentialAssessment extends BaseEntity {
 
 	private static final long serialVersionUID = -1120206934780603166L;
 	
@@ -25,7 +22,7 @@ public class Assessment extends BaseEntity {
 	private User assessedStudent;
 	private TargetCredential1 targetCredential;
 	private boolean approved;
-	private List<ActivityDiscussion> activityDiscussions = new ArrayList<>();
+	private List<CompetenceAssessment> competenceAssessments;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	public User getAssessor() {
@@ -63,14 +60,13 @@ public class Assessment extends BaseEntity {
 		this.approved = approved;
 	}
 
-	@OneToMany(mappedBy = "assessment")
-	@LazyCollection(LazyCollectionOption.EXTRA)
-	public List<ActivityDiscussion> getActivityDiscussions() {
-		return activityDiscussions;
+	@OneToMany(mappedBy="credentialAssessment")
+	public List<CompetenceAssessment> getCompetenceAssessments() {
+		return competenceAssessments;
 	}
 
-	public void setActivityDiscussions(List<ActivityDiscussion> activityDiscussions) {
-		this.activityDiscussions = activityDiscussions;
+	public void setCompetenceAssessments(List<CompetenceAssessment> competenceAssessments) {
+		this.competenceAssessments = competenceAssessments;
 	}
-	
+
 }

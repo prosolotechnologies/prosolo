@@ -16,6 +16,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.nodes.Activity1Manager;
+import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.AssessmentRequestData;
@@ -41,6 +42,7 @@ public class CredentialViewBeanUser implements Serializable {
 	@Inject private CredentialManager credentialManager;
 	@Inject private Activity1Manager activityManager;
 	@Inject private UrlIdEncoder idEncoder;
+	@Inject private AssessmentManager assessmentManager;
 
 	private String id;
 	private long decodedId;
@@ -157,19 +159,23 @@ public class CredentialViewBeanUser implements Serializable {
 	
 	public void submitAssessment() {
 		if(credentialData.isInstructorPresent()) {
-			//there is instructor, set it from existing data
+			//there is instructor, set it from existing data (it was set from getFullTargetCredentialOrCredentialData)
 			assessmentRequestData.setAssessorId(credentialData.getInstructorId());
 		}
 		//at this point, assessor should be set either from credential data or user-submitted peer id
 		if(assessmentRequestData.isAssessorSet()) {
-				assessmentRequestData.setStudentId(loggedUser.getUser().getId());
-				assessmentRequestData.setCredentialId(credentialData.getId());
-				assessmentRequestData.setTargetCredentialId(credentialData.getTargetCredId());
-			
+				populateAssessmentRequestFields();
+				assessmentManager.requestAssessment(assessmentRequestData);
 		}
 		else {
 			PageUtil.fireErrorMessage("No assessor set");
 		}
+	}
+
+	private void populateAssessmentRequestFields() {
+		assessmentRequestData.setStudentId(loggedUser.getUser().getId());
+		assessmentRequestData.setCredentialId(credentialData.getId());
+		assessmentRequestData.setTargetCredentialId(credentialData.getTargetCredId());
 	}
 	
 	/*
@@ -222,6 +228,14 @@ public class CredentialViewBeanUser implements Serializable {
 
 	public void setAssessmentRequestData(AssessmentRequestData assessmentRequestData) {
 		this.assessmentRequestData = assessmentRequestData;
+	}
+
+	public AssessmentManager getAssessmentManager() {
+		return assessmentManager;
+	}
+
+	public void setAssessmentManager(AssessmentManager assessmentManager) {
+		this.assessmentManager = assessmentManager;
 	}
 	
 }

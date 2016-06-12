@@ -17,7 +17,7 @@ public class ActivityDiscussion extends BaseEntity{
 	
 	private Activity1 activity;
 	private MessageThread messageThread;
-	private Assessment assessment;
+	private CompetenceAssessment assessment;
 	
 
 	@OneToOne(fetch = FetchType.LAZY)
@@ -39,12 +39,12 @@ public class ActivityDiscussion extends BaseEntity{
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(nullable = false)
-	public Assessment getAssessment() {
+	@JoinColumn(nullable = false,name="competence_assessment")
+	public CompetenceAssessment getAssessment() {
 		return assessment;
 	}
 
-	public void setAssessment(Assessment assessment) {
+	public void setAssessment(CompetenceAssessment assessment) {
 		this.assessment = assessment;
 	}
 	
