@@ -157,7 +157,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 								+ "statistics are distinguished from inferential statistics (or inductive statistics), "
 								+ "in that descriptive statistics aim to summarize a sample, rather than use the data to "
 								+ "learn about the population that the sample of data is thought to represent.",
-						cred1.getId(),
+						0,
 						"descriptive statistics, statistics");
 			
 			addCompetenceToCredential(cred1, comp1cred1, userNickPowell);
@@ -214,7 +214,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 							+ "the data has come from a type of probability distribution and makes "
 							+ "inferences about the parameters of the distribution. Most well-known "
 							+ "elementary statistical methods are parametric.",
-					cred2.getId(),
+					0,
 					"parametric statistics, statistics");
 			
 			addCompetenceToCredential(cred2, comp1cred2, userNickPowell);
@@ -261,7 +261,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 							+ "computation. Presentation graphs include the familiar bar graph, pie chart, "
 							+ "line graph, scatterplot, and statistical map. Data analysis employs these graphical "
 							+ "forms as well as others.",
-					cred2.getId(),
+					0,
 					"data, statistics");
 			
 			addCompetenceToCredential(cred2, comp2cred2, userNickPowell);
@@ -312,7 +312,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					userNickPowell,
 					"Define social network analysis",
 					"Define networks and articulate why they are important for education and educational research.",
-					cred3.getId(),
+					0,
 					"social network analysis, sna");
 			
 			addCompetenceToCredential(cred3, comp1cred3, userNickPowell);
@@ -327,7 +327,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					userNickPowell,
 					"Perform social network analysis centrality measures using Gephi",
 					"See the title. This also includes being able to import data in to Gephi.",
-					cred3.getId(),
+					0,
 					"social network analysis, sna, centrality measures, gephi");
 			
 			addCompetenceToCredential(cred3, comp2cred3, userNickPowell);
@@ -362,7 +362,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					userNickPowell,
 					"Interpret results of social network analysis",
 					"Interpret detailed meaning of SNA result and importance of the position of actors in social networks for information flow. Discuss implications for educational research and practice. ",
-					cred3.getId(),
+					0,
 					"social network analysis, sna");
 
 			addCompetenceToCredential(cred3, comp3cred3, userNickPowell);
@@ -400,7 +400,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 							+ "the closer the value is to 1. The relationship can be positive or negative; in positive "
 							+ "relationship, as one value increases, another value increases with it. In the negative "
 							+ "relationship, as one value increases, the other one decreases.",
-					cred4.getId(),
+					0,
 					"bivariate correlations");
 
 			addCompetenceToCredential(cred4, comp1cred4, userNickPowell);
@@ -454,7 +454,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					"Partial correlation is the relationship between two variables while controlling "
 							+ "for a third variable. The purpose is to find the unique variance between two "
 							+ "variables while eliminating the variance from a third variables.",
-					cred4.getId(),
+					0,
 					"partial correlations, correlations");
 			
 			addCompetenceToCredential(cred4, comp2cred4, userNickPowell);
@@ -501,7 +501,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					userNickPowell,
 					"Analyze Data",
 					"Know how to take raw data, extract meaningful information and use statistical tools.",
-					cred5.getId(),
+					0,
 					"data analysis, data");
 			
 			addCompetenceToCredential(cred5, comp1cred5, userNickPowell);
@@ -549,7 +549,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 							+ "some sort of finding or conclusion. There are a variety of specific "
 							+ "data analysis method, some of which include data mining, text analytics, "
 							+ "business intelligence, and data visualizations.",
-					cred6.getId(),
+					0,
 					"statistics, data, analysis");
 
 			addCompetenceToCredential(cred6, comp1cred6, userNickPowell);
@@ -583,7 +583,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 							+ "some sort of finding or conclusion. There are a variety of specific "
 							+ "data analysis method, some of which include data mining, text analytics, "
 							+ "business intelligence, and data visualizations.",
-					cred7.getId(),
+					0,
 					"data analysis, data, statistics");
 
 			addCompetenceToCredential(cred7, comp1cred7, userNickPowell);
@@ -613,7 +613,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					+ "a non-parametric test is one that makes no such assumptions. In this strict sense, \"non-parametric\" is "
 					+ "essentially a null category, since virtually all statistical tests assume one thing or another about the "
 					+ "properties of the source population(s).",
-					cred8.getId(),
+					0,
 					"parametric statistics, non-parametric statistics, statistics");
 			
 			addCompetenceToCredential(cred8, comp1cred8, userNickPowell);
@@ -660,7 +660,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 							+ "a non-parametric test is one that makes no such assumptions. In this strict sense, \"non-parametric\" is "
 							+ "essentially a null category, since virtually all statistical tests assume one thing or another about the "
 							+ "properties of the source population(s).",
-							cred9.getId(),
+							0,
 							"data preparation, data, statistics");
 			
 			addCompetenceToCredential(cred9, comp1cred9, userNickPowell);
@@ -715,7 +715,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 							+ "discovering useful information, suggesting conclusions, and supporting decision-making. Data analysis "
 							+ "has multiple facets and approaches, encompassing diverse techniques under a variety of names, in"
 							+ " different business, science, and social science domains.",
-					cred10.getId(),
+					0,
 					"data analysis, data, statistics");
 			
 			addCompetenceToCredential(cred10, comp1cred10, userNickPowell);
@@ -763,7 +763,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					"Descriptive statistics are used to describe the basic features of the data in a study. "
 							+ "They provide simple summaries about the sample and the measures. Together with simple graphics "
 							+ "analysis, they form the basis of virtually every quantitative analysis of data.",
-					cred11.getId(),
+					0,
 					"descriptive statistics, statistics");
 			
 			addCompetenceToCredential(cred11, comp1cred11, userNickPowell);
