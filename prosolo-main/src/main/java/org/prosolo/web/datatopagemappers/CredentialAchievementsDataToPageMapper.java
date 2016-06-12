@@ -27,7 +27,8 @@ public class CredentialAchievementsDataToPageMapper
 			if (targetCredential1 != null) {
 				targetCredentialData = new TargetCredentialData(targetCredential1.getId(), targetCredential1.getTitle(),
 						targetCredential1.getDescription(), targetCredential1.isHiddenFromProfile(), 
-						idEncoder,targetCredential1.getDuration(), targetCredential1.getCredentialType());
+						idEncoder,targetCredential1.getDuration(), targetCredential1.getCredentialType(),
+						targetCredential1.getCredential().getId());
 				credentialAchievementsData.getTargetCredentialDataList().add(targetCredentialData);
 			}
 		}

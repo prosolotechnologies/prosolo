@@ -21,16 +21,18 @@ public class TargetCredentialData implements Serializable {
 	private String link;
 	private long duration = 0l;
 	private LearningResourceType learningResourceType;
+	private long credentialId;
 
 	public TargetCredentialData(long id, String title, String description, boolean hiddenFromProfile, 
-			UrlIdEncoder idEncoder,long duration, LearningResourceType learningResourceType) {
+			UrlIdEncoder idEncoder,long duration, LearningResourceType learningResourceType, long credentialId) {
 		this.id = id;
 		this.title = title;
 		this.description = description;
 		this.hiddenFromProfile = hiddenFromProfile;
-		link =  "/credential.xhtml?id=" + idEncoder.encodeId(id);
 		this.duration = duration;
 		this.learningResourceType = learningResourceType;
+		this.credentialId = credentialId;
+		link =  "/credential.xhtml?id=" + idEncoder.encodeId(credentialId);
 	}
 
 	public Long getId() {
@@ -83,6 +85,14 @@ public class TargetCredentialData implements Serializable {
 
 	public boolean madeByUniversity() {
 		return learningResourceType.equals(LearningResourceType.UNIVERSITY_CREATED);
+	}
+
+	public long getCredentialId() {
+		return credentialId;
+	}
+
+	public void setCredentialId(long credentialId) {
+		this.credentialId = credentialId;
 	}
 	
 }
