@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.6.1 (26313) - http://www.bohemiancoding.com/sketch -->
+    <title>iconEnvelope20White</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Assets" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="iconEnvelope20White">
+            <g id="icon-messages">
+                <path d="M0,5.00947762 C0,3.34738902 1.34331197,2 2.99420208,2 L17.0057979,2 C18.6594501,2 20,3.33663106 20,5.00947762 L20,14.9905224 C20,16.652611 18.656688,18 17.0057979,18 L2.99420208,18 C1.34054993,18 0,16.6633689 0,14.9905224 L0,5.00947762 Z M2,5.00947762 L2,14.9905224 C2,15.5562537 2.44258678,16 2.99420208,16 L17.0057979,16 C17.5510745,16 18,15.5490715 18,14.9905224 L18,5.00947762 C18,4.44374631 17.5574132,4 17.0057979,4 L2.99420208,4 C2.44892555,4 2,4.45092851 2,5.00947762 Z" id="Rectangle-41" fill="#FFFFFF"></path>
+                <path d="M1,11.3462978 L8.32826133,6.46079026 C9.2515371,5.84527308 10.751855,5.84753446 11.6717387,6.46079026 L19,11.3462978" id="Triangle-1" stroke="#FFFFFF" stroke-width="2" transform="translate(10.000000, 8.673149) scale(1, -1) translate(-10.000000, -8.673149) "></path>
+            </g>
+        </g>
+    </g>
+</svg>

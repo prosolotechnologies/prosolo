@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.6.1 (26313) - http://www.bohemiancoding.com/sketch -->
+    <title>iconStar20Yellow</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Assets" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="iconStar20Yellow" fill="#EFDD00">
+            <g id="icon-star">
+                <path d="M10,16 L5.88569705,18.1630171 C4.91171551,18.6750695 4.27354225,18.2074707 4.45895547,17.1264286 L5.24471742,12.545085 L1.91617641,9.30055937 C1.1282088,8.53248078 1.3757153,7.78104597 2.4611432,7.62332406 L7.06107374,6.95491503 L9.11822522,2.78667086 C9.60521598,1.79991979 10.3963567,1.80310634 10.8817748,2.78667086 L12.9389263,6.95491503 L17.5388568,7.62332406 C18.6278013,7.78155695 18.8692466,8.53496116 18.0838236,9.30055937 L14.7552826,12.545085 L15.5410445,17.1264286 C15.7270584,18.210973 15.0851392,18.6734159 14.114303,18.1630171 L10,16 Z" id="Star-1"></path>
+            </g>
+        </g>
+    </g>
+</svg>

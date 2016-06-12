@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.8.2 (29753) - http://www.bohemiancoding.com/sketch -->
+    <title>iconNotifAssessment16</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <path d="M8,13.0960533 L5.08852294,14.6160658 C3.6245106,15.3803915 2.66558537,14.6805296 2.94706691,13.0507762 L3.5,9.84934222 L1.15773784,7.58207408 C-0.0339478614,6.42854349 0.334098715,5.30091405 1.96371674,5.06576299 L5.21884705,4.59605331 L6.66644467,1.68329245 C7.40294694,0.201350949 8.59662708,0.200493834 9.33355533,1.68329245 L10.7811529,4.59605331 L14.0362833,5.06576299 C15.6730988,5.30195264 16.0346371,6.42787632 14.8422622,7.58207408 L12.5,9.84934222 L13.0529331,13.0507762 C13.3342519,14.6795875 12.3690517,15.3770306 10.9114771,14.6160658 L8,13.0960533 Z" id="path-1"></path>
+        <mask id="mask-2" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="15.0878187" height="14.3540439" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+    </defs>
+    <g id="Assets" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
+        <g id="iconNotifAssessment16" stroke="#64C0CD" stroke-width="4">
+            <use id="Star-1" mask="url(#mask-2)" xlink:href="#path-1"></use>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="12px" height="12px" viewBox="0 0 12 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.6.1 (26313) - http://www.bohemiancoding.com/sketch -->
+    <title>iconReply12</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Assets" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="iconReply12">
+            <g id="icon-reply">
+                <path d="M5.24264069,6 L1.24264069,6 L1.24264069,8 L6.24264069,8 L7.24264069,8 L7.24264069,2 L5.24264069,2 L5.24264069,6 Z" id="Rectangle-3" fill="#AAB1B5" transform="translate(4.242641, 5.000000) rotate(-225.000000) translate(-4.242641, -5.000000) "></path>
+                <path d="M2,5 C2,5 6,4.51427106 8,6 C10,7.48572894 10,10 10,10" id="Line" stroke="#AAB1B5" stroke-width="2" stroke-linecap="square"></path>
+            </g>
+        </g>
+    </g>
+</svg>

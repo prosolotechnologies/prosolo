@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.6.1 (26313) - http://www.bohemiancoding.com/sketch -->
+    <title>iconBell20White</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Assets" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="iconBell20White" fill="#FFFFFF">
+            <g id="icon-notification">
+                <path d="M10,20 C11.1045695,20 12,19.1045695 12,18 C12,17.6400348 11.7384615,17.0104902 11.7384615,17.0104902 L8.26681087,17.0013037 C8.26681087,17.0013037 8,17.6362509 8,18 C8,19.1045695 8.8954305,20 10,20 Z" id="Oval-35"></path>
+                <path d="M3,13.5 L3,9.99496885 C3,6.12623293 6.13400675,3 10,3 C13.8581267,3 17,6.13175423 17,9.99496885 L17,13.5 L19.4438171,17.1657257 C19.7497821,17.6246731 19.5559546,18 19.0081969,18 L0.99180311,18 C0.455305576,18 0.249011549,17.6264827 0.556182861,17.1657257 L3,13.5 L3,13.5 Z M15.3358994,14.6094004 L15,14.1055513 L15,13.5 L15,9.99496885 C15,7.2397064 12.7569429,5 10,5 C7.23610126,5 5,7.2332758 5,9.99496885 L5,13.5 L5,14.1055513 L4.66410059,14.6094004 L3.75,16 L16.25,16 L15.3358994,14.6094004 Z" id="Rectangle-130"></path>
+                <circle id="Oval-34" cx="10" cy="2" r="2"></circle>
+            </g>
+        </g>
+    </g>
+</svg>
