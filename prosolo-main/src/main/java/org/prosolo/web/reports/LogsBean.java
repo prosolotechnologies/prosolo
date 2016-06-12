@@ -1,7 +1,7 @@
 package org.prosolo.web.reports;
 
 import java.io.Serializable;
-
+/*
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
@@ -11,19 +11,20 @@ import org.prosolo.services.activityreport.ActivityExportManager;
 import org.prosolo.services.logging.LoggingDBManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Component;*/
 
-import com.mongodb.DBObject;
+//import com.mongodb.DBObject;
 
 /**
 @author Zoran Jeremic Jan 27, 2014
  */
-@ManagedBean(name = "logsBean")
-@Component("logsBean")
-@Scope("view")
+//@ManagedBean(name = "logsBean")
+//@Component("logsBean")
+//@Scope("view")
+@Deprecated
 public class LogsBean   implements Serializable {
 
-	private static final long serialVersionUID = -2855916520900836884L;
+/*	private static final long serialVersionUID = -2855916520900836884L;
 	private static Logger logger = Logger.getLogger(LogsBean.class.getName());
 	
 	@Autowired private LazyLogsDataModelImpl<LogRow> lazyModel; 
@@ -87,7 +88,7 @@ public class LogsBean   implements Serializable {
 	}
 
 	
-	private void prepareData(int totalRowCount){		
+	/*private void prepareData(int totalRowCount){
 		DBObject filterQuery = loggingDBManager.createFilterQuery(logsFilterBean.getUsersList(), 
 				logsFilterBean.isTwitterPosts(),
 				logsFilterBean.getSelectedEventTypes(),
@@ -101,10 +102,11 @@ public class LogsBean   implements Serializable {
 		exportDataLink = activityExport.exportCompleteLog(filterQuery);
 		System.out.println("export data link...");
 		exportDataLabel = "Click to download";						
-	}
+	}*/
 	/*
 	 * GETTERS / SETTERS
 	 */
+	/*
 	public LazyDataModel<LogRow> getLazyModel() {
 		return lazyModel;
 	}
@@ -115,5 +117,5 @@ public class LogsBean   implements Serializable {
 
 	public void setSelectedLog(LogRow selectedLog) {
 		this.selectedLog = selectedLog;
-	}
+	}*/
 }

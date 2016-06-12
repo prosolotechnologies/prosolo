@@ -39,7 +39,9 @@ public class NodeChangeProcessorFactory {
 			case ENROLL_COURSE:
 			case COURSE_WITHDRAWN:
 			case ACTIVATE_COURSE:
-				 return new UserNodeChangeProcessor(event, session, userEntityESService, EventUserRole.Subject);
+			case ChangeProgress:
+				 return new UserNodeChangeProcessor(event, session, userEntityESService, 
+						 EventUserRole.Subject);
 			case Create:
 			case Create_Draft:
 			case Edit:
@@ -65,7 +67,7 @@ public class NodeChangeProcessorFactory {
 					return new CredentialNodeChangeProcessor(event, credentialESService, operation);
 				} else if(node instanceof Competence1) {
 					NodeOperation operation = null;
-					if(type == EventType.Create) {
+					if(type == EventType.Create || type == EventType.Create_Draft) {
 						operation = NodeOperation.Save;
 					} else {
 						operation = NodeOperation.Update;

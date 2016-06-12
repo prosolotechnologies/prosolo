@@ -15,14 +15,13 @@ import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.general.AbstractManager;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.data.activity.ActivityData;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.web.activitywall.data.ActivityWallData;
@@ -109,6 +108,22 @@ public interface CompetenceManager extends AbstractManager {
 	 * @throws DbConnectionException
 	 */
 	List<TargetCompetence1> getAllCompletedCompetences(Long userId) throws DbConnectionException;
+	
+	/**
+	 * Method for getting all completed competences (competences that has progress == 100)
+	 * and a hiddenFromProfile flag set to a certain value
+	 * @return 
+	 * @throws DbConnectionException
+	 */
+	List<TargetCompetence1> getAllCompletedCompetences(Long userId, boolean hiddenFromProfile) throws DbConnectionException;
+	
+	/**
+	 * Method for getting all unfinished competences (competences that has progress != 100)
+	 * and a hiddenFromProfile flag set to a certain value
+	 * @return 
+	 * @throws DbConnectionException
+	 */
+	List<TargetCompetence1> getAllUnfinishedCompetences(Long userId, boolean hiddenFromProfile) throws DbConnectionException;
 	
 	/**
 	 * Updated hidden_from_profile_field

@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
@@ -32,12 +31,13 @@ import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.services.common.exception.DbConnectionException;
+import org.prosolo.services.data.Result;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.interaction.data.CommentData;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.activity.ActivityData;
@@ -113,14 +113,32 @@ public interface ResourceFactory extends AbstractManager {
     String getLinkForObjectType(String simpleClassName, long id, String linkField) 
 			throws DbConnectionException;
 
-	Credential1 createCredential(String title, String description, Set<Tag> tags, Set<Tag> hashtags, User createdBy,
-			LearningResourceType type, boolean compOrderMandatory, boolean published, long duration);
+	Credential1 createCredential(String title, String description, String tagsString, String hashtagsString, 
+			User createdBy, LearningResourceType type, boolean compOrderMandatory, boolean published, 
+			long duration, boolean manuallyAssign, List<CompetenceData1> comps);
 
-	Competence1 createCompetence(String title, String description, Set<Tag> hashSet, User createdBy,
+	/**
+	 * Returns Result with saved competence that can be accessed using {@link Result#getResult()} method
+	 * and events data that can be accessed using {@link Result#getEvents()}
+	 * @param title
+	 * @param description
+	 * @param tagsString
+	 * @param createdBy
+	 * @param studentAllowedToAddActivities
+	 * @param type
+	 * @param published
+	 * @param duration
+	 * @param activities
+	 * @param credentialId
+	 * @return
+	 */
+	Result<Competence1> createCompetence(String title, String description, String tagsString, User createdBy,
 			boolean studentAllowedToAddActivities, LearningResourceType type, boolean published, 
-			long duration);
+			long duration, List<org.prosolo.services.nodes.data.ActivityData> activities, 
+			long credentialId);
 
-	Credential1 updateCredential(CredentialData data);
+	Result<Credential1> updateCredential(CredentialData data, long creatorId, 
+    		org.prosolo.services.nodes.data.Role role);
 
 	Competence1 updateCompetence(CompetenceData1 data);
 	
@@ -129,8 +147,16 @@ public interface ResourceFactory extends AbstractManager {
 	CredentialBookmark bookmarkCredential(long credId, long userId) 
 			throws DbConnectionException;
 
-	Activity1 createActivity(org.prosolo.services.nodes.data.ActivityData activityData, 
-			long userId) throws DbConnectionException;
+	/**
+	 * Returns Result with saved activity that can be accessed using {@link Result#getResult()} method
+	 * and events data that can be accessed using {@link Result#getEvents()}
+	 * @param activityData
+	 * @param userId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	Result<Activity1> createActivity(org.prosolo.services.nodes.data.ActivityData activityData, 
+    		long userId) throws DbConnectionException;
 
 	Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data, long userId) 
 			throws DbConnectionException;

@@ -15,7 +15,6 @@ import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.prosolo.app.Settings;
@@ -28,9 +27,9 @@ import org.prosolo.common.domainmodel.user.notifications.NotificationAction;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ObjectType;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.email.EmailSender;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.emailgenerators.NotificationEmailContentGenerator;
 import org.prosolo.services.notifications.emailgenerators.NotificationEmailContentGenerator1;
@@ -308,8 +307,8 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 			long objectId, ObjectType objectType, String link,
 			boolean notifyByEmail, Session session) throws DbConnectionException {
 		try {
-			User actor = (User) persistence.currentManager().load(User.class, actorId);
-			User receiver = (User) persistence.currentManager().load(User.class, receiverId);
+			User actor = (User) session.load(User.class, actorId);
+			User receiver = (User) session.load(User.class, receiverId);
 			Notification1 notification = new Notification1();
 			notification.setNotifyByEmail(notifyByEmail);
 			notification.setDateCreated(date);
@@ -368,7 +367,7 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 			  			objectTitle = getObjectTitle(notification.getObjectId(), 
 			  					notification.getObjectType(), persistence.currentManager());
 		  			}
-		  			NotificationData nd = notificationDataFactory.getNotificationData(notification, 
+		  			NotificationData nd = notificationDataFactory.getNotificationData(notification, null,
 		  					objectTitle, locale);
 		  			notificationData.add(nd);
 		  		}
@@ -383,35 +382,40 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 	
 	@Override
 	@Transactional (readOnly = true)
-	public NotificationData getNotificationData(long notificationId, Locale locale) 
+	public NotificationData getNotificationData(long notificationId, boolean loadReceiver, Locale locale) 
 			throws DbConnectionException {
-		return getNotificationData(notificationId, persistence.currentManager(), locale);
+		return getNotificationData(notificationId, loadReceiver, persistence.currentManager(), locale);
 	}
 	
 	@Override
 	@Transactional (readOnly = true)
-	public NotificationData getNotificationData(long notificationId, Session session, Locale locale) 
-			throws DbConnectionException {
-		String query=
+	public NotificationData getNotificationData(long notificationId, boolean loadReceiver, 
+			Session session, Locale locale) throws DbConnectionException {
+		StringBuilder query = new StringBuilder(
 			"SELECT notification1 " +
 			"FROM Notification1 notification1 " +
-			"INNER JOIN FETCH notification1.actor actor " +
-			"WHERE notification1.id = :id";
+			"INNER JOIN fetch notification1.actor actor ");
+		
+		if(loadReceiver) {
+			query.append("INNER JOIN fetch notification1.receiver ");
+		}
 	  	
+        query.append("WHERE notification1.id = :id");
+        
 		Notification1 result = (Notification1) session
-			.createQuery(query)
+			.createQuery(query.toString())
 		  	.setLong("id", notificationId)
 	  		.uniqueResult();
 		
-		session.update(result.getActor());
-		
-	  	return getNotificationData(result, session, locale);
+		//session.update(result.getActor());
+		User receiver = loadReceiver ? result.getReceiver() : null;
+	  	return getNotificationData(result, receiver, session, locale);
 	}
 	
 	@Override
 	@Transactional (readOnly = true)
-	public NotificationData getNotificationData(Notification1 notification, Session session, Locale locale) 
-			throws DbConnectionException {
+	public NotificationData getNotificationData(Notification1 notification, User receiver, 
+			Session session, Locale locale) throws DbConnectionException {
 		try {
 		  	if (notification != null) {
 		  		String objectTitle = null;
@@ -419,7 +423,7 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 	  				objectTitle = getObjectTitle(notification.getObjectId(), 
 	  					notification.getObjectType(), session);
 	  			}
-	  			return notificationDataFactory.getNotificationData(notification, 
+	  			return notificationDataFactory.getNotificationData(notification, receiver,
 	  					objectTitle, locale);
 		  	}
 		  	return null;

@@ -10,7 +10,7 @@ import java.util.Set;
 public class LoggingServiceAdmin extends AbstractDB {
 	
 	public boolean dropAllCollections() {
-		Set<String> collections = this.get_collection_names();
+	/*	Set<String> collections = this.get_collection_names();
 	
 		if (collections != null) {
 			for (String collection : collections) {
@@ -18,7 +18,7 @@ public class LoggingServiceAdmin extends AbstractDB {
 					this.getCollection(collection).drop();
 				}
 			}
-		}
+		}*/
 		return true;
 	}
 }

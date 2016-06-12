@@ -1,6 +1,5 @@
 package org.prosolo.web.datatopagemappers;
 
-import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.web.data.IData;
 
 public interface IDataToPageMapper<T extends IData, D> {

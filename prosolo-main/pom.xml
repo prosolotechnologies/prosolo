@@ -1,5 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
@@ -98,11 +98,11 @@
 			<artifactId>primefaces</artifactId>
 			<version>${primefaces.version}</version>
 		</dependency>
-		<!-- <dependency> <groupId>com.sun.faces</groupId> <artifactId>jsf-api</artifactId> 
-			<version>${jsf.version}</version> </dependency> <dependency> <groupId>com.sun.faces</groupId> 
+		<!-- <dependency> <groupId>com.sun.faces</groupId> <artifactId>jsf-api</artifactId>
+			<version>${jsf.version}</version> </dependency> <dependency> <groupId>com.sun.faces</groupId>
 			<artifactId>jsf-impl</artifactId> </dependency> -->
-		<!-- dependency> <groupId>javax.faces</groupId> <artifactId>javax.faces-api</artifactId> 
-			<version>2.2</version> </dependency> <dependency> <groupId>org.glassfish</groupId> 
+		<!-- dependency> <groupId>javax.faces</groupId> <artifactId>javax.faces-api</artifactId>
+			<version>2.2</version> </dependency> <dependency> <groupId>org.glassfish</groupId>
 			<artifactId>javax.faces</artifactId> <version>${jsf.version}</version> </dependency -->
 		<dependency>
 			<groupId>org.apache.myfaces.core</groupId>
@@ -118,7 +118,7 @@
 		<dependency>
 			<groupId>org.omnifaces</groupId>
 			<artifactId>omnifaces</artifactId>
-			<version>1.7</version>
+			<version>1.10</version>
 		</dependency>
 
 		<dependency>
@@ -127,22 +127,22 @@
 			<version>3.1.0</version>
 		</dependency>
 
-		<dependency>
+		<!--dependency>
 			<groupId>org.glassfish.web</groupId>
 			<artifactId>el-impl</artifactId>
 			<version>2.2.1-b05</version>
-		</dependency>
+		</dependency-->
 
 		<dependency>
 			<groupId>javax.annotation</groupId>
 			<artifactId>jsr250-api</artifactId>
 			<version>1.0</version>
 		</dependency>
-		<dependency>
+		<!--dependency>
 			<groupId>jstl</groupId>
 			<artifactId>jstl</artifactId>
 			<version>1.2</version>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>javax.mail</groupId>
 			<artifactId>mail</artifactId>
@@ -170,16 +170,12 @@
 		</dependency>
 
 		<!-- JSON dependencies -->
-		<dependency>
+		<!--dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
 			<version>20090211</version>
-		</dependency>
-		<dependency>
-			<groupId>com.googlecode.json-simple</groupId>
-			<artifactId>json-simple</artifactId>
-			<version>1.1.1</version>
-		</dependency>
+		</dependency-->
+
 
 		<!-- Gson dependencies -->
 		<dependency>
@@ -187,11 +183,11 @@
 			<artifactId>gson</artifactId>
 			<version>2.2.2</version>
 		</dependency>
-		<dependency>
+		<!--dependency>
 			<groupId>cglib</groupId>
 			<artifactId>cglib</artifactId>
 			<version>3.2.0</version>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
@@ -199,16 +195,16 @@
 		</dependency>
 
 		<!-- Open csv -->
-		<dependency>
+		<!--dependency>
 			<groupId>net.sf.opencsv</groupId>
 			<artifactId>opencsv</artifactId>
 			<version>2.3</version>
-		</dependency>
-		<dependency>
+		</dependency-->
+		<!--dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-mapper-asl</artifactId>
 			<version>1.9.13</version>
-		</dependency>
+		</dependency-->
 
 
 		<!-- Simpleframework dependencies -->
@@ -217,7 +213,7 @@
 			<artifactId>simple-xml</artifactId>
 			<version>2.3.6</version>
 		</dependency>
-		<!-- dependency> <groupId>dom4j</groupId> <artifactId>dom4j</artifactId> 
+		<!-- dependency> <groupId>dom4j</groupId> <artifactId>dom4j</artifactId>
 			<version>1.6.1</version> </dependency -->
 
 
@@ -225,28 +221,28 @@
 
 
 
-		<!-- <dependency> <groupId>javax.persistence</groupId> <artifactId>persistence-api</artifactId> 
+		<!-- <dependency> <groupId>javax.persistence</groupId> <artifactId>persistence-api</artifactId>
 			<version>1.0.2</version> </dependency> -->
-		<!-- <dependency> <groupId>org.hibernate.javax.persistence</groupId> <artifactId>hibernate-jpa-2.1-api</artifactId> 
+		<!-- <dependency> <groupId>org.hibernate.javax.persistence</groupId> <artifactId>hibernate-jpa-2.1-api</artifactId>
 			<version>1.0.0.Final</version> </dependency> -->
 
-		<!-- dependency> <groupId>org.hibernate</groupId> <artifactId>hibernate-search</artifactId> 
+		<!-- dependency> <groupId>org.hibernate</groupId> <artifactId>hibernate-search</artifactId>
 			<version>${hibernate-search.version}</version> </dependency -->
-		<!-- dependency> <groupId>org.hibernate</groupId> <artifactId>hibernate-search-analyzers</artifactId> 
-			<version>${hibernate-search.version}</version> <exclusions> <exclusion> <groupId>org.apache.lucene</groupId> 
-			<artifactId>lucene-core</artifactId> </exclusion> <exclusion> <groupId>org.apache.lucene</groupId> 
+		<!-- dependency> <groupId>org.hibernate</groupId> <artifactId>hibernate-search-analyzers</artifactId>
+			<version>${hibernate-search.version}</version> <exclusions> <exclusion> <groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-core</artifactId> </exclusion> <exclusion> <groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-analyzers</artifactId> </exclusion> </exclusions> </dependency -->
-		<!-- dependency> <groupId>org.apache.lucene</groupId> <artifactId>lucene-core</artifactId> 
+		<!-- dependency> <groupId>org.apache.lucene</groupId> <artifactId>lucene-core</artifactId>
 			<version>3.6.1</version> </dependency -->
-		<!-- dependency> <groupId>org.apache.lucene</groupId> <artifactId>lucene-analyzers</artifactId> 
-			<version>3.6.1</version> </dependency> <dependency> <groupId>org.apache.lucene</groupId> 
+		<!-- dependency> <groupId>org.apache.lucene</groupId> <artifactId>lucene-analyzers</artifactId>
+			<version>3.6.1</version> </dependency> <dependency> <groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-queries</artifactId> <version>3.6.1</version> </dependency -->
 		<dependency>
 			<groupId>org.apache.tika</groupId>
 			<artifactId>tika-parsers</artifactId>
 			<version>1.2</version>
 		</dependency>
-		<dependency>
+		<!--dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-validator</artifactId>
 			<exclusions>
@@ -265,21 +261,21 @@
 			</exclusions>
 
 			<version>5.1.1.Final</version>
-		</dependency>
+		</dependency-->
 
 		<!-- EL 2.2 -->
-		<dependency>
+		<!--dependency>
 			<groupId>javax.el</groupId>
 			<artifactId>el-api</artifactId>
-			<version>${el.version}</version>
-			<!-- scope>provided</scope -->
-		</dependency>
+			<version>${el.version}</version-->
+		<!-- scope>provided</scope -->
+		<!--/dependency-->
 
-		<dependency>
+		<!--dependency>
 			<groupId>c3p0</groupId>
 			<artifactId>c3p0</artifactId>
 			<version>0.9.1.2</version>
-		</dependency>
+		</dependency-->
 
 
 		<!--SPRING -->
@@ -294,11 +290,11 @@
 			<version>${spring.version}</version>
 		</dependency>
 
-		<dependency>
+		<!--dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-aop</artifactId>
 			<version>${spring.version}</version>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
@@ -330,16 +326,16 @@
 			<artifactId>spring-web</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
-		<dependency>
+		<!--dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-aspects</artifactId>
 			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
+		</dependency-->
+		<!--dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-expression</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
+			<version>${spring.version}</version
+		</dependency-->
 		<dependency>
 			<groupId>org.springframework.retry</groupId>
 			<artifactId>spring-retry</artifactId>
@@ -363,11 +359,11 @@
 			<version>${aspectj.version}</version>
 		</dependency>
 
-		<dependency>
+		<!--dependency>
 			<groupId>javax.inject</groupId>
 			<artifactId>javax.inject</artifactId>
 			<version>1</version>
-		</dependency>
+		</dependency-->
 
 		<!-- Spring Security -->
 		<dependency>
@@ -389,13 +385,13 @@
 			<artifactId>spring-security-config</artifactId>
 			<version>${spring.security.version}</version>
 		</dependency>
-		<dependency>
+		<!--dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-taglibs</artifactId>
 			<version>${spring.security.version}</version>
 			<type>jar</type>
 			<scope>compile</scope>
-		</dependency>
+		</dependency-->
 		<!-- End Spring dependencies -->
 
 		<!-- Jasypt - Java Simplified Encryption -->
@@ -447,23 +443,23 @@
 		</dependency>
 
 		<!-- Jersey REST services -->
-		<dependency>
+		<!--dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-core</artifactId>
 			<version>${jersey.version}</version>
-		</dependency>
+		</dependency-->
 
-		<dependency>
+		<!--dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-server</artifactId>
 			<version>${jersey.version}</version>
-		</dependency>
+		</dependency-->
 
-		<dependency>
+		<!--dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-servlet</artifactId>
 			<version>${jersey.version}</version>
-		</dependency>
+		</dependency-->
 
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
@@ -492,11 +488,11 @@
 			<artifactId>elasticsearch</artifactId>
 			<version>1.6.0</version>
 		</dependency>
-		<dependency>
+		<!--dependency>
 			<groupId>org.elasticsearch</groupId>
 			<artifactId>elasticsearch-mapper-attachments</artifactId>
 			<version>2.6.0</version>
-		</dependency>
+		</dependency-->
 		<!-- Jackson dependencies -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -511,28 +507,28 @@
 		</dependency>
 		<!-- boilerpipe -->
 
-		<dependency>
+		<!--dependency>
 			<groupId>net.sourceforge.nekohtml</groupId>
 			<artifactId>nekohtml</artifactId>
 			<version>1.9.18</version>
-		</dependency>
-		<dependency>
+		</dependency-->
+		<!--dependency>
 			<groupId>xerces</groupId>
 			<artifactId>xercesImpl</artifactId>
 			<version>2.11.0</version>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 			<version>2.6</version>
 		</dependency>
 		<!-- MongoDb dependencies -->
-		<dependency>
+		<!--dependency>
 			<groupId>org.mongodb</groupId>
 			<artifactId>mongo-java-driver</artifactId>
 			<version>2.11.3</version>
-		</dependency>
-		<!-- For image resizing <dependency> <groupId>org.imgscalr</groupId> <artifactId>imgscalr-lib</artifactId> 
+		</dependency-->
+		<!-- For image resizing <dependency> <groupId>org.imgscalr</groupId> <artifactId>imgscalr-lib</artifactId>
 			<version>4.2</version> <type>jar</type> <scope>compile</scope> </dependency> -->
 		<!-- Used for image resizing -->
 		<dependency>
@@ -556,21 +552,21 @@
 			<artifactId>amqp-client</artifactId>
 			<version>3.5.1</version>
 		</dependency>
-		<dependency>
+		<!--dependency>
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>
 			<version>4.0-beta5</version>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>net.oauth.core</groupId>
 			<artifactId>oauth</artifactId>
 			<version>20100527</version>
 		</dependency>
-		<dependency>
+		<!--dependency>
 			<groupId>jaxen</groupId>
 			<artifactId>jaxen</artifactId>
 			<version>1.1.6</version>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>org.jdom</groupId>
 			<artifactId>jdom2</artifactId>
@@ -601,7 +597,7 @@
 			<version>1.0.1</version>
 		</dependency>
 		<!-- Used for google signin -->
-	    <dependency>
+		<dependency>
 			<groupId>com.google.apis</groupId>
 			<artifactId>google-api-services-oauth2</artifactId>
 			<version>v2-rev98-1.20.0</version>
@@ -735,7 +731,7 @@
 		<outputDirectory>target/classes</outputDirectory>
 		<sourceDirectory>src/main/java</sourceDirectory>
 		<testSourceDirectory>src/test/java</testSourceDirectory>
-		<finalName>${project.artifactId}-${project.version}-${timestamp}</finalName>
+		<finalName>prosolo</finalName>
 		<resources>
 			<resource>
 				<filtering>false</filtering>
@@ -899,17 +895,17 @@
 			</plugin>
 
 			<!-- JRebel support -->
-			<!-- plugin> <groupId>org.zeroturnaround</groupId> <artifactId>jrebel-maven-plugin</artifactId> 
-				<version>1.1.5</version> <executions> <execution> <id>generate-rebel-xml</id> 
-				<phase>process-resources</phase> <goals> <goal>generate</goal> </goals> </execution> 
+			<!-- plugin> <groupId>org.zeroturnaround</groupId> <artifactId>jrebel-maven-plugin</artifactId>
+				<version>1.1.5</version> <executions> <execution> <id>generate-rebel-xml</id>
+				<phase>process-resources</phase> <goals> <goal>generate</goal> </goals> </execution>
 				</executions> </plugin -->
 
-			<!-- Enable when Wro4J is set up <plugin> <groupId>ro.isdc.wro4j</groupId> 
-				<artifactId>wro4j-maven-plugin</artifactId> <version>${wro4j.version}</version> 
-				<executions> <execution> <phase>compile</phase> <goals> <goal>run</goal> 
-				</goals> </execution> <execution> <goals> <goal>csslint</goal> </goals> </execution> 
-				</executions> <configuration> <targetGroups>all</targetGroups> <destinationFolder>${basedir}/src/main/webapp/wro/</destinationFolder> 
-				<contextFolder>${basedir}/src/main/webapp/</contextFolder> <options>box-model</options> 
+			<!-- Enable when Wro4J is set up <plugin> <groupId>ro.isdc.wro4j</groupId>
+				<artifactId>wro4j-maven-plugin</artifactId> <version>${wro4j.version}</version>
+				<executions> <execution> <phase>compile</phase> <goals> <goal>run</goal>
+				</goals> </execution> <execution> <goals> <goal>csslint</goal> </goals> </execution>
+				</executions> <configuration> <targetGroups>all</targetGroups> <destinationFolder>${basedir}/src/main/webapp/wro/</destinationFolder>
+				<contextFolder>${basedir}/src/main/webapp/</contextFolder> <options>box-model</options>
 				</configuration> </plugin> -->
 		</plugins>
 		<extensions>

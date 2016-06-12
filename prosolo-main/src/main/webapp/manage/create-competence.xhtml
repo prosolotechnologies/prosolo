@@ -20,6 +20,7 @@
 		<f:metadata>
 			<f:viewParam name="id" value="#{competenceEditBean.id}" default="null" />
 			<f:viewParam name="credId" value="#{competenceEditBean.credId}" default="null"/>
+			<f:viewParam name="actAdded"></f:viewParam>
 			<f:viewAction action="#{competenceEditBean.init()}" />
 		</f:metadata>
 	</ui:define>
@@ -39,6 +40,7 @@
 			role="MANAGER"
 			id="createCompetence"
 			toUpdate=":panelTitle"
+			actAdded="#{param['actAdded']}"
 		/>
 	</ui:define>
 </ui:composition>

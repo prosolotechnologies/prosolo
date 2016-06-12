@@ -21,9 +21,11 @@ import org.springframework.stereotype.Component;
  * 
  * @author vita
  */
-@ManagedBean(name = "activityReportArchiveBean")
-@Component("activityReportArchiveBean")
-@Scope("view")
+//@ManagedBean(name = "activityReportArchiveBean")
+//@Component("activityReportArchiveBean")
+//@Scope("view")
+
+	@Deprecated
 public class ActivityReportArchiveBean implements Serializable {
 
 	private static final long serialVersionUID = -403990870683147690L;
@@ -47,10 +49,10 @@ public class ActivityReportArchiveBean implements Serializable {
 			if(userId == 1)
 				userId = -1l;// for system user use report which was generated for all user (userId=-1)
 			
-			List<Date> reportDates = loggingService.getReportDays(start.toDate(), end.toDate(), userId);
+		//	List<Date> reportDates = loggingService.getReportDays(start.toDate(), end.toDate(), userId);
 			
-			for(Date reportDay: reportDates)
-				reports.add(new ActivityReport(reportDay, userId));
+		//	for(Date reportDay: reportDates)
+			//	reports.add(new ActivityReport(reportDay, userId));
 		}
 		return reports;
 	}

@@ -40,7 +40,8 @@ public abstract class NotificationEventProcessor {
 		
 		for(long receiver : receivers) {
 			long sender = getSenderId();
-			if(isConditionMet(sender, receiver)) {			
+			if(isConditionMet(sender, receiver)) {
+				String section = getUrlSection(receiver);
 				Notification1 notification = notificationManager.createNotification(
 						sender, 
 						receiver,
@@ -48,7 +49,7 @@ public abstract class NotificationEventProcessor {
 						event.getDateCreated(),
 						getObjectId(),
 						getObjectType(),
-						getNotificationLink(),
+						section + getNotificationLink(),
 						shouldUserBeNotifiedByEmail(receiver),
 						session);
 				
@@ -81,6 +82,16 @@ public abstract class NotificationEventProcessor {
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * When it is important to include section when forming url based on user role, method should be 
+	 * overriden in concrete event processor. 
+	 * @param userId
+	 * @return
+	 */
+	protected String getUrlSection(long userId) {
+		return "";
 	}
 
 	abstract boolean isConditionMet(long sender, long receiver);

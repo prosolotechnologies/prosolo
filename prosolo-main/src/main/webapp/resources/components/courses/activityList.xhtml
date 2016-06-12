@@ -20,6 +20,7 @@
 		<composite:attribute name="showMarkedIfCompleted" required="true" type="java.lang.Boolean" />
 		<composite:attribute name="isPreview" required="true" type="java.lang.Boolean" />
 		<composite:attribute name="toUpdate" default="" />
+		<composite:attribute name="mainForm" default="" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -119,10 +120,14 @@
          <ui:fragment rendered="#{cc.attrs.isEdit}">
          	 <p:commandLink
          	  	styleClass="activityItem addActivity"
-         	 	action="#{cc.attrs.bean.saveAndNavigateToCreateActivity()}">
+         	 	action="#{cc.attrs.bean.saveAndNavigateToCreateActivity()}"
+         	 	oncomplete="if (args &amp;&amp; args.validationFailed) { document.getElementById('#{cc.clientId}:hiddenLinkFailure').click();};">
          	 	<span class="iconPlus"></span>
 	            Add Activity
          	 </p:commandLink>
+         	 <p:commandLink style="display:none" id="hiddenLinkFailure"
+				update="#{cc.attrs.mainForm}"
+			/>
 	     </ui:fragment>
         </div>
 	</composite:implementation>

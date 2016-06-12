@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
 import org.prosolo.config.MongoDBServerConfig;
 import org.prosolo.config.MongoDBServersConfig;
-
+/*
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -22,14 +22,14 @@ import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
 import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
-
+*/
 /**
  * @author zoran
  *
  */
 public abstract class AbstractDB {
 	private static Logger logger = Logger.getLogger(AbstractDB.class.getName());
-	protected static DB db = null;
+	/*protected static DB db = null;
 	protected static MongoClient mongoClient;
 	//private MongoManager mongoManager;
 	private final String ERROR = "{'err':'true', 'ok':0}";
@@ -53,13 +53,13 @@ public abstract class AbstractDB {
 			 db=mongoClient.getDB(Settings.getInstance().config.mongoDatabase.dbName);
 		}
 		return  db;
-	}
+	}*/
 	
 	/**
 	 * Initiate the connection to MongoDB servers. An array with the servers on a replicaSet architecture is provided.
 	 *@throws UnknownHostException
 	 **/
-	public AbstractDB() {
+	/*public AbstractDB() {
 		try {
 			if (mongoClient == null)
 			{
@@ -79,23 +79,23 @@ public abstract class AbstractDB {
 			logger.error("UnknownHostException:"+e.getMessage());
 		}
 	}
-
+*/
 	/**
 	 * Get a set of collection names
 	 * @return	colls collection names
 	 */
-	public Set<String> get_collection_names() {
+/*	public Set<String> get_collection_names() {
 		Set < String > colls = getDb().getCollectionNames();
 		return colls;
 	}
-
+*/
 	/**
 	 * insert a document to a collection
 	 * @param	collection Collection name	
 	 * @param	json JSON string
 	 * @return	result The result is a WriteResult object that is converted to JSON text.
 	 */
-	public String put(String collection, String json) {
+/*	public String put(String collection, String json) {
 		try { 
 			 
 			WriteResult wr = getCollection(collection).insert(query(json));
@@ -104,7 +104,7 @@ public abstract class AbstractDB {
 			return ERROR;
 		}
 	}
-
+*/
 	/**
 	 * UPDATE the first document is the collection that matches the query and return.
 	 * @param	collection Collection name	
@@ -112,7 +112,7 @@ public abstract class AbstractDB {
 	 * @param	update JSON update string	
 	 * @return	result The result is a WriteResult object that is converted to JSON text.
 	 */
-	public String set(String collection, String query, String update) {
+/*	public String set(String collection, String query, String update) {
 		try {
 			 WriteResult wr = getCollection(collection).update(query(query), query(update));
 			return (wr.toString());
@@ -120,7 +120,7 @@ public abstract class AbstractDB {
 			return ERROR;
 		}
 	}
-
+*/
 	/**
 	 * UPDATE all documents that match the query. 
 	 * @param	collection Collection name	
@@ -129,7 +129,7 @@ public abstract class AbstractDB {
 	 * @param	all passed to indicate a Multi-Update Vs single-update. see set(c,q,u) for single update
 	 * @return	result The result is a WriteResult object that is converted to JSON text.
 	 */
-	public String set(String collection, String query, String update, boolean all) {
+/*	public String set(String collection, String query, String update, boolean all) {
 		try {
 			 
 			BasicDBObject set = new BasicDBObject("$set", query(update));
@@ -138,7 +138,7 @@ public abstract class AbstractDB {
 		} catch (Exception e) {
 			return ERROR;
 		}
-	}
+	}*/
 
 	/**
 	 * Update and return the document.
@@ -152,7 +152,7 @@ public abstract class AbstractDB {
     * @param upsert - do upsert (insert if document not present)
 	* @return	string - A DBCursor that is converted to pure String of JSON.
 	*/
-	public String setget(String collection, String query, String update, String fields, String sort, boolean remove, boolean returnNew, boolean upsert){
+/*	public String setget(String collection, String query, String update, String fields, String sort, boolean remove, boolean returnNew, boolean upsert){
 			DBObject dbo = getCollection(collection).findAndModify(query(query), query(fields), query(sort), remove, query(update), returnNew, upsert);
 			try {
 
@@ -164,7 +164,7 @@ public abstract class AbstractDB {
 
 			}
 	}
-
+*/
 
 	/**
 	 * Remove documents that match the query. 
@@ -172,7 +172,7 @@ public abstract class AbstractDB {
 	 * @param	query JSON query string
 	 * @return	result The result is a WriteResult object that is converted to JSON text.
 	 */
-	public String remove(String collection, String query) {
+/*	public String remove(String collection, String query) {
 		try {
 			WriteResult wr = getCollection(collection).remove(query(query));
 			return (wr.toString());
@@ -180,7 +180,7 @@ public abstract class AbstractDB {
 			return ERROR;
 		}
 	}
-
+*/
 
 
 	/**
@@ -188,7 +188,7 @@ public abstract class AbstractDB {
 	 * @param	collection Collection name
 	 * @return	boolean
 	 */
-	public Boolean drop(String collection) {
+/*	public Boolean drop(String collection) {
 		try {
 			getCollection(collection).drop();
 			return true;
@@ -196,7 +196,7 @@ public abstract class AbstractDB {
 			return false;
 		}
 	}
-
+*/
 
 
 	/**
@@ -205,7 +205,7 @@ public abstract class AbstractDB {
 	 * @param	query JSON query. e.g: {"a":1} or {"a":-1} or {"a":1, "a":-1, "b":1}	
 	 * @return	boolean
 	 */
-	public Boolean index(String collection, String query) {
+/*	public Boolean index(String collection, String query) {
 		try {
 			getCollection(collection).ensureIndex(query(query));
 			return true;
@@ -213,7 +213,7 @@ public abstract class AbstractDB {
 			return false;
 		}
 	}
-
+*/
 
 
 	/**
@@ -222,7 +222,7 @@ public abstract class AbstractDB {
 	 * @param	query JSON query. e.g: {"a":1}	
 	 * @return	boolean
 	 */
-	public Boolean dropindex(String collection, String query) {
+/*	public Boolean dropindex(String collection, String query) {
 		try {
 			getCollection(collection).dropIndex(query(query));
 			return true;
@@ -230,7 +230,7 @@ public abstract class AbstractDB {
 			return false;
 		}
 	}
-
+*/
 
 
 	/**
@@ -239,7 +239,7 @@ public abstract class AbstractDB {
 	 * @param	query JSON
 	 * @return	long
 	 */
-	public long count(String collection, String query) {
+/*	public long count(String collection, String query) {
 		long count = getCollection(collection).count(query(query));
 		try {
 			return (count);
@@ -247,7 +247,7 @@ public abstract class AbstractDB {
 			return 0;
 		}
 	}
-
+*/
 //public JsonObject getOne(String collection, String query, String fields){
 //	DBObject dbObject=getCollection(collection).findOne(query(query), query(fields));
 //	JsonObject jsonObject =MongoGsonUtils.convertDBObject2JsonObject(dbObject);
@@ -260,7 +260,7 @@ public abstract class AbstractDB {
 	 * @param	query JSON query to match
 	 * @return	string - A DBCursor that is converted to pure String of JSON.
 	 */
-	public String get(String collection, String query) {
+/*	public String get(String collection, String query) {
 		DBCursor cursor = getCollection(collection).find(query(query));
 		try {
 			return (result(cursor));
@@ -270,13 +270,13 @@ public abstract class AbstractDB {
 			cursor.close();
 		}
 	}
- 
+ */
 	/**
 	 * Get all documents in a collection
 	 * @param	collection Collection name
 	 * @return	string - A DBCursor that is converted to pure String of JSON.
 	 */
-	public String get(String collection) {
+/*	public String get(String collection) {
 		DBCursor cursor = getCollection(collection).find();
 		try {
 			return (result(cursor));
@@ -286,53 +286,53 @@ public abstract class AbstractDB {
 			cursor.close();
 		}
 	}
+*/
+	/**
+	 * Convert a DBCursor to json
+	 * @param	query JSON query
+	 * @return	json
+	 */
+/*	public String result(DBCursor result) {
+		return JSON.serialize(result);
+	}
+*/
+
 
 	/**
 	 * Convert a DBCursor to json
 	 * @param	query JSON query
 	 * @return	json
 	 */
-	public String result(DBCursor result) {
+/*	public String result(DBObject result) {
 		return JSON.serialize(result);
 	}
-
-
-
-	/**
-	 * Convert a DBCursor to json
-	 * @param	query JSON query
-	 * @return	json
-	 */
-	public String result(DBObject result) {
-		return JSON.serialize(result);
-	}
-
+*/
 
 	/**
 	 * Convert a JSON string to DBObject
 	 * @param	query JSON string
 	 * @return	DBObject 
 	 */
-	public DBObject query(String query) {
+/*	public DBObject query(String query) {
 		return (DBObject) JSON.parse(query);
 	}
 
-
+*/
 
 	/**
 	 * Convert a JSON string to DBObject
 	 * @param	query JSON Object
 	 * @return	DBObject 
 	 */
-	public DBObject query(Object query) {
+/*	public DBObject query(Object query) {
 		return (DBObject) JSON.parse(query.toString());
-	}
+	}*/
 	/**
 	 * Returns an instance of DBCollection based on its name
 	 * @param c
 	 * @return
 	 */
-	public DBCollection getCollection(String collectionName){
+/*	public DBCollection getCollection(String collectionName){
 		return  getDb().getCollection(collectionName);
 	}
 	
@@ -341,7 +341,7 @@ public abstract class AbstractDB {
 		//JsonObject jsonObject =MongoGsonUtils.convertDBObject2JsonObject(dbObject);
 		return dbObject;
 	}
-
+*/
 
 	 
  

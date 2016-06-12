@@ -18,6 +18,8 @@
 		<meta charset="utf-8"></meta>
 		<meta http-equiv="X-UA-Compatible" content="IE=edge"></meta>
 		<meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+		<script src="https://use.typekit.net/zvv0dgl.js"></script>
+		<script>try{Typekit.load({ async: true });}catch(e){}</script>
 		<link rel="icon" href="#{request.contextPath}/favicon.ico"
 			type="image/x-icon" />
 		<title><ui:insert name="windowTitle" /></title>
@@ -84,7 +86,7 @@
 					</nav>
 				</div>
 				<div class="headerTopRight">
-					<div class="dropdown createMenu">
+					<h:panelGroup rendered="#{request.isUserInRole('MANAGE.CONTENT.EDIT')}" styleClass="dropdown createMenu">
 						<a class="btn btn-orange btn-sm" data-toggle="dropdown"
 							aria-haspopup="true" aria-expanded="true">Create</a>
 						<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
@@ -93,7 +95,7 @@
 							<li><h:link value="New Competence"
 								    outcome="/manage/create-competence.xhtml" /></li>
 						</ul>
-					</div>
+					</h:panelGroup>
 					
 					<a class="iconMessages active" href="messages">Messages<span
 						class="unreadDot">unreadDot</span></a> 
@@ -138,7 +140,7 @@
 							<li class="linkAllNotifications">
 								<h:link value="View all"
 									onclick="sendLogPageNavigation('notifications','mainmenu');"
-									outcome="/notifications" />
+									outcome="/manage/notifications" />
 							</li>
 						</ul>
 					</div>
@@ -154,7 +156,6 @@
 							</a>
 
 							<ul class="dropdown-menu dropdown-menu-right bullet pull-right" aria-labelledby="dropdownMenu1">
-								<li><a href="#">Profile</a></li>
 								<li><h:link
 										onclick="sendLogPageNavigation('settings','mainmenu');"
 										value="Settings" outcome="/settings" /></li>

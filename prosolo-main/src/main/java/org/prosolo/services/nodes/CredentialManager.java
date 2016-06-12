@@ -11,13 +11,20 @@ import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.services.common.exception.CompetenceEmptyException;
+import org.prosolo.services.common.exception.CredentialEmptyException;
+import org.prosolo.services.common.exception.DbConnectionException;
+import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.general.AbstractManager;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
 import org.prosolo.services.nodes.data.Operation;
+import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
+
+import com.amazonaws.services.identitymanagement.model.EntityAlreadyExistsException;
 
 public interface CredentialManager extends AbstractManager {
 
@@ -124,9 +131,10 @@ public interface CredentialManager extends AbstractManager {
 	CredentialData getCredentialDataForEdit(long credentialId, long creatorId, boolean loadCompetences) 
 			throws DbConnectionException;
 	
-	Credential1 updateCredential(CredentialData data, User user) throws DbConnectionException;
+	Credential1 updateCredential(long originalCredId, CredentialData data, User user, Role role) 
+			throws DbConnectionException, CredentialEmptyException, CompetenceEmptyException;
 	
-	Credential1 updateCredential(CredentialData data);
+	Result<Credential1> updateCredential(CredentialData data, long creatorId, Role role);
 	
 	CredentialData enrollInCredential(long credentialId, long userId, LearningContextData context) 
 			throws DbConnectionException;
@@ -136,11 +144,14 @@ public interface CredentialManager extends AbstractManager {
 	 * for credential is created, competence is added to that draft version and original credential becomes draft. 
 	 * If draft version for credential already exists, competence will be attached to existing draft version.
 	 * 
-	 * @param credentialId
+	 * Returns data for event that should be generated when transaction is commited.
+	 * 
+	 * @param credId
 	 * @param comp
+	 * @param userId
 	 * @throws DbConnectionException
 	 */
-	void addCompetenceToCredential(long credentialId, Competence1 comp) 
+	EventData addCompetenceToCredential(long credId, Competence1 comp, long userId) 
 			throws DbConnectionException;
 	
 	List<CredentialData> getCredentialsWithIncludedCompetenceBasicData(long compId) 
@@ -196,7 +207,8 @@ public interface CredentialManager extends AbstractManager {
 	void updateProgressForTargetCredentialWithCompetence(long targetCompId) throws DbConnectionException;
 	
 	void updateCredentialAndCompetenceProgressAndNextActivityToLearn(long credId, 
-			long targetCompId, long targetActId, long userId) throws DbConnectionException;
+			long targetCompId, long targetActId, long userId, LearningContextData contextData) 
+					throws DbConnectionException;
 	
 	String getCredentialTitle(long id) throws DbConnectionException;
 	
@@ -221,6 +233,8 @@ public interface CredentialManager extends AbstractManager {
 	 * @throws DbConnectionException
 	 */
 	List<TargetCredential1> getAllCompletedCredentials(Long userId) throws DbConnectionException;
+	
+	List<TargetCredential1> getAllCompletedCredentials(Long userId, boolean hiddenFromProfile) throws DbConnectionException;
 	
 	/**
 	 * Method for getting all credentials (nevertheless the progress)
@@ -273,5 +287,10 @@ public interface CredentialManager extends AbstractManager {
 	
 	List<Long> getTargetCredentialIdsForUsers(List<Long> userIds, long credId) 
 			throws DbConnectionException;
+	
+	boolean saveNewCredentialFeed(long credId, String feedLink) 
+			throws DbConnectionException, EntityAlreadyExistsException;
+	
+	void removeFeed(long credId, long feedSourceId) throws DbConnectionException;
 
 }

@@ -19,8 +19,8 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
+//import com.mongodb.BasicDBObject;
+//import com.mongodb.DBObject;
 
 /**
  * This class represents a single line of the prosolo activity log which is
@@ -132,7 +132,7 @@ public class LoggedEvent {
 
 	}
 
-	public LoggedEvent(DBObject o) {
+	/*public LoggedEvent(DBObject o) {
 
 		this.eventType = (String) o.get("eventType");
 		this.timestamp = (Long) o.get("timestamp");
@@ -162,7 +162,7 @@ public class LoggedEvent {
 					val = "";
 				parameters.put(key, (String) val.toString());
 			}
-	}
+	}*/
 
 	@Override
 	public String toString() {

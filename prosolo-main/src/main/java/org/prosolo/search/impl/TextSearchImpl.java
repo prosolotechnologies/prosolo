@@ -54,11 +54,11 @@ import org.prosolo.search.util.credential.CredentialSortOption;
 import org.prosolo.search.util.credential.InstructorAssignFilter;
 import org.prosolo.search.util.credential.InstructorAssignFilterValue;
 import org.prosolo.search.util.credential.InstructorSortOption;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexNames;
 import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.indexing.ElasticSearchFactory;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -326,13 +326,16 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1);
 			
-			QueryBuilder qb = QueryBuilders
-					.queryStringQuery(searchString.toLowerCase() + "*").useDisMax(true)
-					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
-					.field("title");
-	
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-			bQueryBuilder.should(qb);
+			
+			if(searchString != null && !searchString.isEmpty()) {
+				QueryBuilder qb = QueryBuilders
+						.queryStringQuery(searchString.toLowerCase() + "*").useDisMax(true)
+						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.field("title");
+				
+				bQueryBuilder.should(qb);
+			}
 		
 			if (filterTags != null) {
 				for (Tag tag : filterTags) {
@@ -350,11 +353,28 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				}
 			}
 			
+			BoolFilterBuilder boolFilter = FilterBuilders.boolFilter();
+			
+			/*
+			 * include all published competences and draft competences that have draft version
+			 */
+			BoolFilterBuilder publishedOrHasDraft = FilterBuilders.boolFilter();
+			publishedOrHasDraft.should(FilterBuilders.termFilter("published", true));
+			BoolFilterBuilder hasDraft = FilterBuilders.boolFilter();
+			hasDraft.must(FilterBuilders.termFilter("published", false));
+			hasDraft.must(FilterBuilders.termFilter("hasDraft", true));
+			publishedOrHasDraft.should(hasDraft);
+			
+			boolFilter.must(publishedOrHasDraft);
+			
+			FilteredQueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder, 
+					boolFilter);
+			
 			SearchRequestBuilder searchResultBuilder = client
 					.prepareSearch(ESIndexNames.INDEX_NODES)
 					.setTypes(ESIndexTypes.COMPETENCE1)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-					.setQuery(bQueryBuilder).setFrom(start).setSize(limit);
+					.setQuery(filteredQueryBuilder).setFrom(start).setSize(limit);
 			
 			if (!sortTitleAsc.equals(SortingOption.NONE)) {
 				switch (sortTitleAsc) {
@@ -379,7 +399,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					Long id = ((Integer) hit.getSource().get("id")).longValue();
 					
 					try {
-						CompetenceData1 cd = compManager.getCompetenceData(id, true, 
+						CompetenceData1 cd = compManager.getCompetenceData(0, id, true, 
 								false, false, 0, LearningResourceReturnResultType.PUBLISHED_VERSION, 
 								false);
 						
@@ -1110,8 +1130,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
 						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
-						.field("title").field("description")
-						.field("tags.title").field("hashtags.title");
+						.field("title").field("description");
+						//.field("tags.title").field("hashtags.title");
 				
 				bQueryBuilder.must(qb);
 			}
@@ -1280,8 +1300,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
 						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
-						.field("title").field("description")
-						.field("tags.title").field("hashtags.title");
+						.field("title").field("description");
+						//.field("tags.title").field("hashtags.title");
 				
 				bQueryBuilder.must(qb);
 			}
@@ -1332,7 +1352,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			
 			/*
 			 * include all published credentials and draft credentials that have draft version
-			 * by created by users
+			 * created by users
 			 */
 			BoolFilterBuilder publishedCredentialsByStudentsFilter = FilterBuilders.boolFilter();
 			publishedCredentialsByStudentsFilter.must(FilterBuilders.termFilter(

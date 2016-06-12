@@ -1,89 +1,97 @@
-<ui:composition 
-	xmlns:ui="http://java.sun.com/jsf/facelets"
+<ui:component
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
 	xmlns:p="http://primefaces.org/ui"
-	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
-	
-	<utilcomp:messagesBundle var="msg" />
-	
-	<h:outputScript library="javascript" name="prosolo.overlay.js" target="head" />
-	
-	<div id="notificationsList">
-		<h2>#{msg['communications.notifications.title']}</h2>
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:util="http://www.prosolo.com/util">
 
-		<h:form id="notificationsForm" >
-			<ui:repeat value="#{notificationsBean.notifications}" var="notificationData" varStatus="iterator">
-				
-				<div class="box">
-					<div class="avatar">
-						<link:user value="notificationActorAvatar" 
-		    				userData="#{notificationData.actor}"
-		    				mode="image"
-		    				imageSize="30"
-		    				idPrefix="notActor#{iterator.index}"
-		    				context="notifications.image"/>
-					</div>
-					
-					<div class="textWrapper">
-						<div class="user">
-							<span class="name">
-								<link:user value="notificationActorName" 
-				    				userData="#{notificationData.actor}"
-				    				mode="name"
-				    				idPrefix="notActorName#{iterator.index}"
-				    				context="notifications.name"/>
-							</span>
-							#{notificationData.type} 
-							<span class="name">
-								<link:resourceLink
-									resourceId="#{notificationData.resource.id}" 
-									type="#{notificationData.resource.clazz.simpleName}" 
-									title="#{notificationData.resource.title}" />
-							</span>
-						</div>
-						<div class="clear"></div>
-						
-						<h:panelGroup layout="group" class="message" rendered="#{notificationData.message != null}">
-							"#{notificationData.message}"
-							<div class="clear"></div>
-						</h:panelGroup>
-						
-						<h:panelGroup layout="block" styleClass="links">
-							<div class="clear"></div>
-							<p:growl id="notificationsListGrowl" showDetail="true" />
-							
-							<h:panelGroup rendered="#{notificationData.chosenAction == null}">
-								<ui:repeat value="#{notificationData.actions}" var="notificationAction" varStatus="notificationActionStatus">
-									<p:commandLink value="#{topNotificationsBean.getNotificationActionName(notificationAction)}"
-										onclick="prosolo.overlay.activate();"
-										actionListener="#{topNotificationsBean.logNotificationsAction(notificationAction, notificationData)}"
-										action="#{topNotificationsBean.invokeAction(notificationAction, notificationData)}" 
-										update="@form"
-										oncomplete="prosolo.overlay.reset();"
-										async="true"/>
-									<h:panelGroup class="bullet" rendered="#{notificationActionStatus.index != notificationData.actions.size()-1}" />
-								</ui:repeat>
-							</h:panelGroup>
-							
-							<h:panelGroup rendered="#{notificationData.chosenAction != null}"
-								class="textInactive">
-								#{notificationData.chosenAction}
-							</h:panelGroup>
-							
-						</h:panelGroup>
-					</div>
-					<div class="date">#{notificationData.date}</div>
+	<composite:interface>
+	
+	</composite:interface>
+	
+	<composite:implementation>
+		<script src="https://use.typekit.net/zvv0dgl.js"></script>
+    	<script>try{Typekit.load({ async: true });}catch(e){}</script>
+
+		<h:form id="formMain">
+		    <p:growl id="growlMain" showDetail="true" globalOnly="true" />
+	     <div class="whiteBar"></div>
+	
+	    <div class="container">
+	        <div class="row">
+	            <div class="col-md-9">
+	                <h:panelGroup layout="block" id="panelNotifications" styleClass="whiteBox profileNotifications">
+	                    <ul>
+	                    	<ui:repeat var="notification" value="#{notificationBean.notifications}">
+	                    		 <li class="#{styleUtilBean.getStyleClassBasedOnNotificationType(notification.notificationType)}">
+		                            <h:link outcome="#{notification.link}">
+		                                <div class="icon"></div>
+		                                <utilcomp:userAvatar
+		                                	avatar="#{notification.actor.avatarUrl}"
+		                                	fullName="#{notification.actor.fullName}"
+		                                />
+		                                <div class="notContent">
+		                                    <h3>#{notification.actor.fullName}</h3> #{notification.predicate} <h3>#{notification.objectTitle}</h3>
+		                                </div>
+		                                <span class="timestamp">#{notification.date}</span>
+		                            </h:link>
+		                        </li>
+	                    	</ui:repeat>
+	                    </ul>
+	                </h:panelGroup>
+	
+					<utilcomp:pagination
+			        	id="pagination" 
+			        	bean="#{notificationBean}"
+			        	links="#{notificationBean.paginationLinks}"
+			        	toUpdate=":#{cc.clientId}:formMain:panelNotifications"
+			        />
 	            </div>
-				
-				<div class="separator clear"></div>
-			</ui:repeat>
-			<p:commandLink id="loadMore" rendered="#{notificationsBean.moreToLoad}" styleClass="loadMore"
-						actionListener="#{notificationsBean.loadMoreNotifications}"
-						update=":notificationsForm">
-						<h:outputText value="SHOW MORE" />
-					</p:commandLink>
+	            <div class="col-md-3">
+	                <div class="whiteBox">
+	                    <h2>Show</h2>
+	                    <h:panelGroup id="panelFilters">
+		                    <ui:remove><ui:repeat var="filter" value="#{notificationBean.filters}">
+		                    	<div class="checkbox checkLine">
+			                    	<h:selectBooleanCheckbox id="checkboxFilter#{filter.filter}" value="#{filter.applied}">
+										<p:ajax event="click" process="@this"
+											listener="#{notificationBean.filterChanged(filter)}" update=":#{cc.clientId}:formMain:panelNotifications :#{cc.clientId}:formMain:pagination" />
+									</h:selectBooleanCheckbox>
+									<label for="checkboxFilter#{filter.filter}">#{filter.filter.label}</label>
+								</div>
+		                    </ui:repeat></ui:remove>
+		                    <c:forEach items="#{notificationBean.filters}" var="filter" varStatus="status">
+		                    	<div class="checkbox checkLine">
+			                    	<h:selectBooleanCheckbox id="checkboxFilter#{filter.filter}" value="#{filter.applied}">
+										<p:ajax event="click" process="@this"
+											listener="#{notificationBean.filterChanged(filter)}" update=":#{cc.clientId}:formMain:panelNotifications :#{cc.clientId}:formMain:pagination" />
+									</h:selectBooleanCheckbox>
+									<label for="#{cc.clientId}:formMain:checkboxFilter#{filter.filter}">#{filter.filter.label}</label>
+								</div>
+		                    </c:forEach>
+		                </h:panelGroup>
+	                    <div class="checkLinks">
+	                    	<p:commandLink
+	                    		value="Check all"
+	                    		action="#{notificationBean.checkAllFilters()}"
+	                    		update=":#{cc.clientId}:formMain:panelNotifications :#{cc.clientId}:formMain:pagination :#{cc.clientId}:formMain:panelFilters">
+	                    	</p:commandLink>
+	                        <span>|</span>
+	                        <p:commandLink
+	                    		value="Clear all"
+	                    		action="#{notificationBean.uncheckAllFilters()}"
+	                    		update=":#{cc.clientId}:formMain:panelNotifications :#{cc.clientId}:formMain:pagination :#{cc.clientId}:formMain:panelFilters">
+	                    	</p:commandLink>
+	                    </div>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
 		</h:form>
-	</div>
-</ui:composition>
+	</composite:implementation>
+</ui:component>

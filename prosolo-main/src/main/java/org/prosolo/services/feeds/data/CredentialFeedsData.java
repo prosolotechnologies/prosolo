@@ -1,17 +1,17 @@
 package org.prosolo.services.feeds.data;
 
-public class CourseFeedsData {
+public class CredentialFeedsData {
 	
 	private String userFullName;
 	private long id;
 	private String feedLink;
 	private boolean included;
 	
-	public CourseFeedsData() {
+	public CredentialFeedsData() {
 		
 	}
 	
-	public CourseFeedsData(String firstName, String lastName, long id, String feed, boolean included) {
+	public CredentialFeedsData(String firstName, String lastName, long id, String feed, boolean included) {
 		setFullName(firstName, lastName);
 		this.id = id;
 		this.feedLink = feed;

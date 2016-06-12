@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
 @Scope("view")
 public class CredentialViewBeanManager implements Serializable {
 
-	private static final long serialVersionUID = -1885207938203658902L;
+	private static final long serialVersionUID = -8080252106493765017L;
 
 	private static Logger logger = Logger.getLogger(CredentialViewBeanManager.class);
 	

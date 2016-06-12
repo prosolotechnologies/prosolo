@@ -12,7 +12,7 @@ import org.prosolo.services.event.context.LearningContext;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.logging.exception.LoggingException;
 
-import com.mongodb.DBObject;
+//import com.mongodb.DBObject;
 
 /**
  * @author Zoran Jeremic 2013-10-07
@@ -34,8 +34,9 @@ public interface LoggingService {
 
 	void logNavigation(User user, String link, String ipAddress) throws LoggingException;
 
-	void logNavigationFromContext(User user, String link, String context, String parameters,
-			String ipAddress) throws LoggingException;
+	void logNavigationFromContext(User user, String link,
+			String context, String page, String learningContext, String service, 
+			String parametersString, String ipAddress) throws LoggingException;
 	
 	void logEmailNavigation(User user, String link,
 			String parametersString, String ipAddress,
@@ -53,22 +54,22 @@ public interface LoggingService {
 	void logEventObserved(EventType eventType, User actor, String objectType, long objectId,
 			Map<String, String> parameters, String ipAddress);
 
-	void recordActivityReportGenerated(List<Long> userIds,
-			Date reportGenerationDate);
+//	void recordActivityReportGenerated(List<Long> userIds,
+	//		Date reportGenerationDate);
 
-	List<Date> getReportDays(Date start, Date end, Long userId);
+	//List<Date> getReportDays(Date start, Date end, Long userId);
 
-	Map<Long, Collection<LoggedEvent>> getAllLoggedEvents(Date start, Date end);
+	//Map<Long, Collection<LoggedEvent>> getAllLoggedEvents(Date start, Date end);
 
-	Map<Long, Collection<LoggedEvent>> getAllLoggedEvents(DBObject filterQuery);
+//	Map<Long, Collection<LoggedEvent>> getAllLoggedEvents(DBObject filterQuery);
 
-	boolean collectionExists(String collectionName);
+	//boolean collectionExists(String collectionName);
 
-	boolean reportDatesCollectionExists();
+	//boolean reportDatesCollectionExists();
 
-	Long getOldestObservedEventTime();
+	//Long getOldestObservedEventTime();
 
-	Collection<LoggedEvent> getLoggedEventsList(DBObject filterQuery);
+	//Collection<LoggedEvent> getLoggedEventsList(DBObject filterQuery);
 	
 	void logSessionEnded(EventType eventType, User actor, String ipAddress);
 

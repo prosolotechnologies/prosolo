@@ -12,8 +12,10 @@ import org.prosolo.services.event.Event;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.nodes.Activity1Manager;
+import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.util.roles.RoleNames;
 
 public class CommentEventProcessing extends NotificationEventProcessor {
 
@@ -23,14 +25,16 @@ public class CommentEventProcessing extends NotificationEventProcessor {
 	private ObjectType objectType;
 	private Activity1Manager activityManager;
 	private CommentManager commentManager;
+	private RoleManager roleManager;
 
 	public CommentEventProcessing(Event event, Session session,
 			NotificationManager notificationManager, 
 			NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
-			Activity1Manager activityManager, CommentManager commentManager) {
+			Activity1Manager activityManager, CommentManager commentManager, RoleManager roleManager) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
 		this.activityManager = activityManager;
 		this.commentManager = commentManager;
+		this.roleManager = roleManager;
 		setResource();
 		setObjectType();
 	}
@@ -121,7 +125,18 @@ public class CommentEventProcessing extends NotificationEventProcessor {
 				break;
 		}
 		return null;
-		
+	}
+	
+	@Override
+	protected String getUrlSection(long userId) {
+		List<String> roles = new ArrayList<>();
+		roles.add(RoleNames.MANAGER);
+		roles.add(RoleNames.INSTRUCTOR);
+		boolean hasManagerOrInstructorRole = roleManager.hasAnyRole(userId, roles);
+		if(hasManagerOrInstructorRole) {
+			return "/manage";
+		} 
+		return "";
 	}
 
 }

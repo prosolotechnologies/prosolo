@@ -24,11 +24,26 @@
 	    <script>try{Typekit.load({ async: true });}catch(e){}</script>
 	
 		<ui:param name="isPreview" value="#{cc.attrs.bean.isPreview()}" />
-		<ui:param name="learningContext" value="name:base_competence|id:#{cc.attrs.bean.competenceData.competenceId}" />
      	<ui:param name="canEdit" value="#{cc.attrs.role == 'MANAGER' and cc.attrs.bean.competenceData.type == 'UNIVERSITY_CREATED' 
      		and request.isUserInRole('MANAGE.CONTENT.EDIT') || cc.attrs.role != 'MANAGER' and cc.attrs.bean.isCurrentUserCreator()}"></ui:param>
+     	
+     	<c:choose>
+		    <c:when test="#{cc.attrs.bean.competenceData.enrolled}">
+		         <c:set var="learningContext" value="name:credential|id:#{cc.attrs.bean.decodedCredId}|context:/name:competence|id:#{cc.attrs.bean.decodedCompId}|context:/name:target_competence|id:#{cc.attrs.bean.competenceData.targetCompId}//"/>
+		    </c:when>
+		    <c:otherwise>
+		    	 <c:choose>
+		    	 	 <c:when test="#{cc.attrs.bean.decodedCredId ne 0}">
+			         	   <c:set var="learningContext" value="name:credential|id:#{cc.attrs.bean.decodedCredId}|context:/name:competence|id:#{cc.attrs.bean.decodedCompId}/"/>
+			         </c:when>
+			         <c:otherwise>
+			         	   <c:set var="learningContext" value="name:competence|id:#{cc.attrs.bean.decodedCompId}"/>
+		         	 </c:otherwise>
+		    	 </c:choose>
+		    </c:otherwise>
+		</c:choose>
+     	
      	<div id="#{cc.clientId}">
-	    
 		    <div class="whiteBar">
 		        <div class="container">
 		            <div class="whiteBarContent">

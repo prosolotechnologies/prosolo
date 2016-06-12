@@ -1,4 +1,4 @@
-package org.prosolo.services.lti.exceptions;
+package org.prosolo.services.common.exception;
 
 public class DbConnectionException extends RuntimeException{
 

@@ -10,7 +10,7 @@ import org.hibernate.Session;
 import org.prosolo.common.domainmodel.user.notifications.Notification;
 import org.prosolo.common.domainmodel.user.notifications.Notification1;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.notifications.NotificationCacheUpdater;
 import org.prosolo.services.notifications.NotificationManager;
@@ -72,7 +72,7 @@ public class NotificationCacheUpdaterImpl implements NotificationCacheUpdater, S
 			if (topNotificationsBean1 != null) {
 				try {
 					NotificationData notificationData = (NotificationData) notificationManager
-							.getNotificationData(notificationId, session, loggedUserBean.getLocale());
+							.getNotificationData(notificationId, false, session, loggedUserBean.getLocale());
 					
 					topNotificationsBean1.addNotification(notificationData, session);
 				} catch (DbConnectionException e) {

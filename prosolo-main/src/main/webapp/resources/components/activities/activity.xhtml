@@ -24,10 +24,24 @@
     	<script>try{Typekit.load({ async: true });}catch(e){}</script>
 
 		<ui:param name="isPreview" value="#{cc.attrs.bean.isPreview()}" />
-		<ui:param name="learningContext" value="name:base_activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.activityId}" />
      	<ui:param name="canEdit" value="#{cc.attrs.role == 'MANAGER' and cc.attrs.bean.competenceData.activityToShowWithDetails.type == 'UNIVERSITY_CREATED' 
      		and request.isUserInRole('MANAGE.CONTENT.EDIT') || cc.attrs.role != 'MANAGER' and cc.attrs.bean.isCurrentUserCreator()}"></ui:param>
      	
+     	<c:choose>
+		    <c:when test="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled}">
+		         <c:set var="learningContext" value="name:credential|id:#{cc.attrs.bean.decodedCredId}|context:/name:competence|id:#{cc.attrs.bean.decodedCompId}|context:/name:activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.activityId}|context:/name:target_activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.targetActivityId}///"/>
+		    </c:when>
+		    <c:otherwise>
+		    	 <c:choose>
+		    	 	 <c:when test="#{cc.attrs.bean.decodedCredId ne 0}">
+			         	  <c:set var="learningContext" value="name:credential|id:#{cc.attrs.bean.decodedCredId}|context:/name:competence|id:#{cc.attrs.bean.decodedCompId}|context:/name:activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.activityId}//"/>
+			         </c:when>
+			         <c:otherwise>
+			         	  <c:set var="learningContext" value="name:competence|id:#{cc.attrs.bean.decodedCompId}|context:/name:activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.activityId}//"/>
+		         	 </c:otherwise>
+		    	 </c:choose>
+		    </c:otherwise>
+		</c:choose>
      	<div id="#{cc.clientId}">
 	    	<div class="whiteBar">
 	        <div class="container">
@@ -42,6 +56,8 @@
 	                		process="@this"
 	                		action="#{cc.attrs.bean.completeActivity()}"
 	                		update=":#{cc.clientId}:formMain:panelComplete :#{cc.clientId}:panelCompProgress">
+	                		<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+	                    	<f:param name="learningContext" value="#{learningContext}"></f:param>
 	                	</p:commandLink>
 	                	<ui:fragment rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled 
 	                		and !isPreview and cc.attrs.bean.competenceData.activityToShowWithDetails.completed}">
@@ -56,6 +72,8 @@
 	                    	styleClass="btn btn-green-stroke btn-sm item"
 	                    	outcome="create-activity">
 	                    	<f:param name="id" value="#{param['actId']}"></f:param>
+	                    	<f:param name="compId" value="#{param['compId']}"></f:param>
+	                    	<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}"></f:param>
 	                    </h:link>
 	                </div>
 	            </div>

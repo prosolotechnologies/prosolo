@@ -205,6 +205,7 @@ public class ActivityDataFactory {
 		act.setEnrolled(true);
 		act.setAssignmentLink(activity.getAssignmentLink());
 		act.setAssignmentTitle(activity.getAssignmentTitle());
+		act.setCreatorId(activity.getCreatedBy().getId());
 		
 		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
 		

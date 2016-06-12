@@ -8,11 +8,11 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.prosolo.app.Settings;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.notifications.Notification1;
 import org.prosolo.common.messaging.data.ServiceType;
 import org.prosolo.common.util.date.DateUtil;
@@ -81,63 +81,76 @@ public class NotificationObserver extends EventObserver {
 		try {
 			NotificationEventProcessor processor = notificationEventProcessorFactory
 					.getNotificationEventProcessor(event, session);
-			List<Notification1> notifications = processor.getNotificationList();
-			// make sure all data is persisted to the database
-			session.flush();
-			
-			
-			/*
-			 * After all notifications have been generated, send them to their
-			 * receivers. If those users are logged in, their notification cache
-			 * will be updated with these new notifications.
-			 */
-			if (!notifications.isEmpty()) {
+			if(processor != null) {
+				List<Notification1> notifications = processor.getNotificationList();
+				// make sure all data is persisted to the database
+				session.flush();
 				
-				for (Notification1 notification : notifications) {					
-					if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
-						messageDistributer.distributeMessage(
-								ServiceType.ADD_NOTIFICATION, 
-								notification.getReceiver().getId(),
-								notification.getId(), 
-								null, 
-								null);
-					} else {
-						HttpSession httpSession = applicationBean.getUserSession(notification.getReceiver().getId());
-						
-						notificationCacheUpdater.updateNotificationData(
-								notification.getId(), 
-								httpSession, 
-								session);
-					}
-				 				
-					if (notification.isNotifyByEmail() && CommonSettings.getInstance().config.emailNotifier.activated) {
-						try {
-							User receiver = notification.getReceiver();
-							UserSettings userSettings = interfaceSettingsManager.
-									getOrCreateUserSettings(receiver, session);
-							Locale locale = getLocale(userSettings);
-						    NotificationData notificationData = notificationManager
-						    		.getNotificationData(notification, session, locale);
-							
-							final String email = receiver.getEmail();
-							taskExecutor.execute(new Runnable() {
-								@Override
-								public void run() {
-									notificationManager.sendNotificationByEmail(email, 
-											receiver.getName(), 
-											notificationData.getActor().getFullName(), 
-											notificationData.getPredicate(),
-											notificationData.getObjectTitle(),
-											notificationData.getLink(),
-											DateUtil.getTimeAgoFromNow(notificationData.getDate()));
-								}
-							});
-						} catch (Exception e) {
-							logger.error(e);
-							e.printStackTrace();
-						}
-					}
+				
+				/*
+				 * After all notifications have been generated, send them to their
+				 * receivers. If those users are logged in, their notification cache
+				 * will be updated with these new notifications.
+				 */
+				if (!notifications.isEmpty()) {
 					
+					for (Notification1 notification : notifications) {					
+						if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
+							messageDistributer.distributeMessage(
+									ServiceType.ADD_NOTIFICATION, 
+									notification.getReceiver().getId(),
+									notification.getId(), 
+									null, 
+									null);
+						} else {
+							HttpSession httpSession = applicationBean.getUserSession(notification.getReceiver().getId());
+							
+							notificationCacheUpdater.updateNotificationData(
+									notification.getId(), 
+									httpSession, 
+									session);
+						}
+					 				
+						if (notification.isNotifyByEmail() && CommonSettings.getInstance().config.emailNotifier.activated) {
+							try {
+								UserSettings userSettings = interfaceSettingsManager.
+										getOrCreateUserSettings(notification.getReceiver(), session);
+								Locale locale = getLocale(userSettings);
+								/*
+								 * get all notification data in one query insted of issuing session.update
+								 * for sender and receiver - all in order to avoid lazy initialization exception
+								 */
+								NotificationData notificationData = notificationManager
+										.getNotificationData(notification.getId(), true, 
+												session, locale);
+								//session.update(notification.getActor());
+								//session.update(receiver);						 
+								String domain = Settings.getInstance().config.application.domain;
+								if(domain.endsWith("/")) {
+									domain = domain.substring(0, domain.length() - 1);
+								}
+								final String urlPrefix = domain;
+								taskExecutor.execute(new Runnable() {
+									@Override
+									public void run() {
+										
+										notificationManager.sendNotificationByEmail(
+												notificationData.getReceiver().getEmail(), 
+												notificationData.getReceiver().getFullName(), 
+												notificationData.getActor().getFullName(), 
+												notificationData.getPredicate(),
+												notificationData.getObjectTitle(),
+												urlPrefix + notificationData.getLink(),
+												DateUtil.getTimeAgoFromNow(notificationData.getDate()));
+									}
+								});
+							} catch (Exception e) {
+								logger.error(e);
+								e.printStackTrace();
+							}
+						}
+						
+					}
 				}
 			}
 		} catch (Exception e) {

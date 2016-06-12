@@ -11,8 +11,8 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.context.data.LearningContextData;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;

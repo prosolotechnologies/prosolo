@@ -1,7 +1,7 @@
 package org.prosolo.services.lti;
 
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.common.exception.DbConnectionException;
 
 public interface LtiUserManager {
 

@@ -109,7 +109,7 @@ public class EventFactory {
 
 	@Transactional(readOnly = false)
 	public ChangeProgressEvent generateChangeProgressEvent(User creator,
-			Node resource, double newProgress)
+			Node resource, int newProgress)
 			throws EventException {
 
 		return generateChangeProgressEvent(creator, resource, newProgress, null);
@@ -117,7 +117,7 @@ public class EventFactory {
 	
 	@Transactional(readOnly = false)
 	public ChangeProgressEvent generateChangeProgressEvent(User creator,
-			Node resource, double newProgress, Map<String, String> parameters)
+			Node resource, int newProgress, Map<String, String> parameters)
 					throws EventException {
 		
 		if (creator != null && resource != null ) {
@@ -145,13 +145,45 @@ public class EventFactory {
 	}
 	
 	@Transactional(readOnly = false)
+	public ChangeProgressEvent generateChangeProgressEvent(User creator,
+			BaseEntity resource, int newProgress, String page, String lContext, String service,
+			Map<String, String> parameters) throws EventException {
+		
+		if (creator != null && resource != null ) {
+			logger.debug("Generating ChangeProgressEvent because progress of "
+					+ newProgress + " (on the scale "
+					+ ") has been made on the resource " + resource.getId()
+					+ ", created by the user " + creator.getId());
+			
+			ChangeProgressEvent changeProgressEvent = new ChangeProgressEvent();
+			changeProgressEvent.setActor(creator);
+			changeProgressEvent.setDateCreated(new Date());
+			changeProgressEvent.setObject(resource);
+			changeProgressEvent.setNewProgressValue(newProgress);
+			changeProgressEvent.setPage(page);
+			changeProgressEvent.setContext(lContext);
+			changeProgressEvent.setService(service);
+			
+			if (parameters == null) {
+				parameters = new HashMap<String, String>();
+			}
+			parameters.put("progress", String.valueOf(newProgress));
+			
+			changeProgressEvent.setParameters(parameters);
+			return changeProgressEvent;
+		} else
+			throw new EventException(
+					"Error occured while creating new ChangeProgressEvent. Parameters given can not be null.");
+	}
+	
+	@Transactional(readOnly = false)
 	public Event generateEvent(EventType eventType, User actor, BaseEntity object) throws EventException {
 		return generateEvent(eventType, actor, object, null, null, null, null);
 	}
 	
 	@Transactional(readOnly = false)
 	public Event generateEvent(EventType eventType, User actor, BaseEntity object, Map<String, String> parameters) throws EventException {
-		System.out.println("PARAMETERS SIZE:"+parameters.size());
+		//System.out.println("PARAMETERS SIZE:"+parameters.size());
 		return generateEvent(eventType, actor, object, null, null, null, parameters);
 	}
 
@@ -255,6 +287,27 @@ public class EventFactory {
 		genericEvent.setService(service);
 		genericEvent.setObserversToExclude(observersToExclude);
 		genericEvent.setParameters(parameters);
+		return genericEvent;
+	}
+	
+	@Transactional(readOnly = false)
+	public Event generateEvent(EventData event) throws EventException {
+		
+	 	logger.debug("Generating "+event.getEventType().name()+" " +
+				"event " + (event.getObject() != null ? " object: "+event.getObject().getId() : "") + 
+				(event.getTarget() != null ? ", target: "+event.getTarget().getId() : "") + 
+				", created by the user " + event.getActor());
+		Event genericEvent = new Event(event.getEventType());
+		genericEvent.setActor(event.getActor());
+		genericEvent.setDateCreated(new Date());
+		genericEvent.setObject(event.getObject());
+		genericEvent.setTarget(event.getTarget());
+		genericEvent.setReason(event.getReason());
+		genericEvent.setPage(event.getPage());
+		genericEvent.setContext(event.getContext());
+		genericEvent.setService(event.getService());
+		genericEvent.setObserversToExclude(event.getObserversToExclude());
+		genericEvent.setParameters(event.getParameters());
 		return genericEvent;
 	}
 	

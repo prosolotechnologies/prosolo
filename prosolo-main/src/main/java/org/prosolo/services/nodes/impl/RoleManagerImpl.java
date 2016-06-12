@@ -14,8 +14,8 @@ import org.prosolo.common.domainmodel.organization.Capability;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CapabilityManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
@@ -315,6 +315,7 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 					"INNER JOIN user.roles role " +
 					"WHERE role IN (:roles)";
 				
+			@SuppressWarnings("unchecked")
 			List<Object[]> result = persistence.currentManager().createQuery(query).
 					setParameterList("roles", roles).
 					list();
@@ -359,6 +360,34 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 		}catch(Exception e){
 			e.printStackTrace();
 			throw new DbConnectionException("Error while loading capabilities");
+		}
+	}
+	
+	@Override
+	@Transactional (readOnly = false)
+	public boolean hasAnyRole(long userId, List<String> roleNames) throws DbConnectionException {
+		try {
+			String query = 
+				"SELECT role.id " +
+				"FROM User user " +
+				"LEFT JOIN user.roles role " +
+				"WHERE user.id = :userId " +
+				"AND role.title IN (:roleNames)";
+			
+			@SuppressWarnings("unchecked")
+			List<Long> res = persistence.currentManager().createQuery(query)
+				.setLong("userId", userId)
+				.setParameterList("roleNames", roleNames)
+				.list();
+			
+			if(res == null || res.isEmpty()) {
+				return false;
+			}
+			return true;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while checking user roles");
 		}
 	}
 }

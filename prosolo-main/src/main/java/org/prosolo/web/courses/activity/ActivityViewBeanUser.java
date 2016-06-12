@@ -11,7 +11,8 @@ import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.common.exception.DbConnectionException;
+import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -69,7 +70,8 @@ public class ActivityViewBeanUser implements Serializable {
 					} 
 					competenceData = activityManager
 							.getCompetenceActivitiesWithSpecifiedActivityInFocusForUser(
-									decodedActId,  loggedUser.getUser().getId(), shouldReturnDraft);
+									0, decodedCompId, decodedActId,  loggedUser.getUser().getId(), 
+									shouldReturnDraft);
 				}
 				if(competenceData == null) {
 					try {
@@ -149,11 +151,15 @@ public class ActivityViewBeanUser implements Serializable {
 	
 	public void completeActivity() {
 		try {
+			String page = PageUtil.getPostParameter("page");
+			String learningContext = PageUtil.getPostParameter("learningContext");
+			String service = PageUtil.getPostParameter("service");
+			LearningContextData lcd = new LearningContextData(page, learningContext, service);
 			activityManager.completeActivity(
 					competenceData.getActivityToShowWithDetails().getTargetActivityId(), 
 					competenceData.getActivityToShowWithDetails().getCompetenceId(), 
 					decodedCredId, 
-					loggedUser.getUser().getId());
+					loggedUser.getUser().getId(), lcd);
 			competenceData.getActivityToShowWithDetails().setCompleted(true);
 			for(ActivityData ad : competenceData.getActivities()) {
 				if(ad.getActivityId() == competenceData.getActivityToShowWithDetails().getActivityId()) {

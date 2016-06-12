@@ -53,7 +53,8 @@
             "name": "competences.view",
             "description": "Access the page for listing competences (manage/competences)",
             "roles": [
-                "Manager"
+                "Manager",
+                "Instructor"
             ]
         },
         {
@@ -168,6 +169,13 @@
             "roles": [
                 "Manager",
                 "Instructor"
+            ]
+        },
+        {
+            "name": "manage.credential.rssFeeds",
+            "description": "Edit RSS Feeds in manage section",
+            "roles": [
+                "Manager"
             ]
         }
     ]

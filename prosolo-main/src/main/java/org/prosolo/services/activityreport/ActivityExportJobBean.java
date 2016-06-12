@@ -22,6 +22,6 @@ public class ActivityExportJobBean implements JobInterface {
 	@Transactional
 	public void execute() throws JobExecutionException {
 		logger.info("EXECUTING ACTIVITY EXPORT JOB BEAN");
-		exportManager.runActivityExport();
+		//exportManager.runActivityExport();
 	}
 }

@@ -21,15 +21,14 @@ import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.ResourceFactory;
@@ -724,6 +723,86 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 					.setParameterList("listOfCredentialIds", listOfCredentialIds)
 					.setInteger("progress", 100)
 				  	.list();
+		} catch (DbConnectionException e) {
+			e.printStackTrace();
+			throw new DbConnectionException();
+		}
+		return result;
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Transactional
+	@Override
+	public List<TargetCompetence1> getAllCompletedCompetences(Long userId, boolean hiddenFromProfile) throws DbConnectionException {
+		List<TargetCompetence1> result = new ArrayList<>();
+		List<Long> listOfCredentialIds = new ArrayList<>();
+		try {
+			String query;
+			query = "SELECT targetCredential1.id " +
+					"FROM TargetCredential1  targetCredential1 " + 
+					"WHERE targetCredential1.user.id = :userId ";
+			
+			listOfCredentialIds = persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", userId)
+				  	.list();
+			
+			query =
+					"SELECT targetComptence1 " +
+					"FROM TargetCompetence1 targetComptence1 " +
+					"WHERE targetComptence1.targetCredential.id in (:listOfCredentialIds) " + 
+				    "AND targetComptence1.progress = :progress "+ 
+					"AND targetComptence1.hiddenFromProfile = :hiddenFromProfile";
+			
+			if(!listOfCredentialIds.isEmpty()) {
+				result = persistence.currentManager()
+						.createQuery(query)
+						.setParameterList("listOfCredentialIds", listOfCredentialIds)
+						.setInteger("progress", 100)
+						.setBoolean("hiddenFromProfile", hiddenFromProfile)
+					  	.list();
+			}
+			  	
+		} catch (DbConnectionException e) {
+			e.printStackTrace();
+			throw new DbConnectionException();
+		}
+		return result;
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Transactional
+	@Override
+	public List<TargetCompetence1> getAllUnfinishedCompetences(Long userId, boolean hiddenFromProfile)
+			throws DbConnectionException {
+		List<TargetCompetence1> result = new ArrayList<>();
+		List<Long> listOfCredentialIds = new ArrayList<>();
+		try {
+			String query;
+			query = "SELECT targetCredential1.id " +
+					"FROM TargetCredential1  targetCredential1 " + 
+					"WHERE targetCredential1.user.id = :userId ";
+			
+			listOfCredentialIds = persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", userId)
+				  	.list();
+			
+			query =
+					"SELECT targetComptence1 " +
+					"FROM TargetCompetence1 targetComptence1 " +
+					"WHERE targetComptence1.targetCredential.id in (:listOfCredentialIds) " + 
+				    "AND targetComptence1.progress != 100 "+ 
+					"AND targetComptence1.hiddenFromProfile = :hiddenFromProfile";
+			
+			if(!listOfCredentialIds.isEmpty()) {
+				result = persistence.currentManager()
+						.createQuery(query)
+						.setParameterList("listOfCredentialIds", listOfCredentialIds)
+						.setBoolean("hiddenFromProfile", hiddenFromProfile)
+					  	.list();
+			}
+			  	
 		} catch (DbConnectionException e) {
 			e.printStackTrace();
 			throw new DbConnectionException();

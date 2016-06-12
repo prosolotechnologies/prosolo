@@ -46,13 +46,17 @@ public class CompetenceViewBeanManager implements Serializable {
 	public void init() {	
 		decodedCompId = idEncoder.decodeId(compId);
 		if (decodedCompId > 0) {
+			if(credId != null) {
+				decodedCredId = idEncoder.decodeId(credId);
+			}
 			try {
 				if("preview".equals(mode)) {
 					competenceData = competenceManager
 							.getCurrentVersionOfCompetenceForManager(decodedCompId, true, true);
 				} else {
 					competenceData = competenceManager
-							.getCompetenceDataForManager(decodedCompId, true, true, true, false);
+							.getCompetenceDataForManager(decodedCredId, decodedCompId, true, true, 
+									true, false);
 				}
 				
 				if(competenceData == null) {
@@ -69,7 +73,6 @@ public class CompetenceViewBeanManager implements Serializable {
 					boolean hasInstructorCapability = loggedUser.hasCapability("BASIC.INSTRUCTOR.ACCESS");
 					commentBean.init(CommentedResourceType.Competence, competenceData.getCompetenceId(),
 							hasInstructorCapability);
-					decodedCredId = idEncoder.decodeId(credId);
 					if(decodedCredId > 0) {
 						String credTitle = credManager.getCredentialTitle(decodedCredId);
 						competenceData.setCredentialId(decodedCredId);

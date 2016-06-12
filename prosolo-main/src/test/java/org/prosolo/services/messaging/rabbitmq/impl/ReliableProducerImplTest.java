@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.json.simple.JSONObject;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -47,13 +48,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import com.mongodb.BasicDBObject;
+/*import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
-import com.mongodb.ServerAddress;
+import com.mongodb.ServerAddress;*/
 import org.prosolo.services.nodes.CourseManager;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -75,7 +76,7 @@ public class ReliableProducerImplTest{
 	@Ignore
 	@Test
 	public void generateAnalyticsFromMongoTest() {
-		ReliableProducerImpl reliableProducer = new ReliableProducerImpl();
+	/*	ReliableProducerImpl reliableProducer = new ReliableProducerImpl();
 		reliableProducer.setQueue(QueueNames.ANALYTICS.name().toLowerCase());
 		reliableProducer.startAsynchronousPublisher();
 
@@ -146,7 +147,7 @@ public class ReliableProducerImplTest{
 			Thread.sleep(5 * 60 * 1000);
 		} catch (InterruptedException e) {
 			fail("Thread interrupted.");
-		}
+		}*/
 	}
 
 	private MessageWrapper wrap(String ip, AnalyticalServiceMessage message) {
@@ -198,7 +199,7 @@ public class ReliableProducerImplTest{
 
 	@Test
 	public void generateLogsFromMongoTest(){
-		ReliableProducerImpl reliableProducer=new ReliableProducerImpl();
+		/*ReliableProducerImpl reliableProducer=new ReliableProducerImpl();
 		 reliableProducer.setQueue(QueueNames.LOGS.name().toLowerCase());
 		 reliableProducer.startAsynchronousPublisher();
 		 
@@ -243,14 +244,14 @@ public class ReliableProducerImplTest{
 					wrapMessageAndSend(reliableProducer, dbObject);
 				}
 			}
-		}
+		}*/
 	}
 	
 
 	
 	@Test
 	public void generateActivityInteractionsLogsFromMongoTest(){
-		ReliableProducerImpl reliableProducer=new ReliableProducerImpl();
+	/*	ReliableProducerImpl reliableProducer=new ReliableProducerImpl();
 		 reliableProducer.setQueue(QueueNames.LOGS.name().toLowerCase());
 		 reliableProducer.startAsynchronousPublisher();
 		 
@@ -293,7 +294,7 @@ public class ReliableProducerImplTest{
 					System.out.println("LOG OBJECT:" + logObject.toString());
 				}
 			}
-		}	 
+		}*/
 	}
 	
 	public void createActivityInteractionData(ReliableProducerImpl reliableProducer,long competenceId, long activityId) {
@@ -317,8 +318,8 @@ public class ReliableProducerImplTest{
 		
 	}
 
-	private void wrapMessageAndSend(ReliableProducerImpl reliableProducer,DBObject logObject){
-		LogMessage message = new LogMessage();
+	private void wrapMessageAndSend(ReliableProducerImpl reliableProducer, JSONObject logObject){
+	/*	LogMessage message = new LogMessage();
 		Gson g=new Gson();
 		DBObject parameters=(DBObject) logObject.get("parameters");
 		String ip="";
@@ -339,7 +340,7 @@ public class ReliableProducerImplTest{
 			message.setLink((String) logObject.get("link"));
 		if(logObject.get("eventType").equals("SEND_MESSAGE")){
 			System.out.println("MESSAGE");
-		}
+		}*/
 	/*	long courseId=extractCourseIdForUsedResource((String) logObject.get("objectType"), (long) logObject.get("objectId"),
 				(String) logObject.get("targetType"), (long) logObject.get("targetId"), (String) logObject.get("reasonType"), (long) logObject.get("reasonId"));
 		message.setCourseId(courseId);
@@ -350,7 +351,7 @@ public class ReliableProducerImplTest{
 					(String) logObject.get("targetType"), (long) logObject.get("targetId"), (String) logObject.get("reasonType"), (long) logObject.get("reasonId"));
 		}*/
 
-			message.setParameters(parameters);
+	/*		message.setParameters(parameters);
 			//wrapMessageAndSend(reliableProducer, message, ip);
 		GsonBuilder gson = new GsonBuilder();
 		 gson.registerTypeAdapter(MessageWrapper.class, new MessageWrapperAdapter());
@@ -360,7 +361,7 @@ public class ReliableProducerImplTest{
 		wrapper.setTimecreated(System.currentTimeMillis());
 		String msg = gson.create().toJson(wrapper);
 
-		reliableProducer.send(msg);
+		reliableProducer.send(msg);*/
 	}
 
 

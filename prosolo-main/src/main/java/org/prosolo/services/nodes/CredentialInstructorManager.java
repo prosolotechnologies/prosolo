@@ -3,7 +3,7 @@ package org.prosolo.services.nodes;
 import java.util.List;
 
 import org.prosolo.common.domainmodel.credential.CredentialInstructor;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.nodes.data.instructor.StudentAssignData;

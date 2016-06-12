@@ -40,7 +40,7 @@ public class PeopleRecommenderBean implements Serializable {
 	
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private CollaboratorsRecommendation cRecommendation;
-	@Autowired private LoggingDBManager loggingDBManager;
+	//@Autowired private LoggingDBManager loggingDBManager;
 	
 	private List<UserData> locationRecommendedUsers;
 	private List<UserData> activityRecommendedUsers;
@@ -114,8 +114,8 @@ public class PeopleRecommenderBean implements Serializable {
 					UserData userData = UserDataFactory.createUserData(user);
 					
 					// TODO: Zoran - put here last activity date
-					long timestamp=loggingDBManager.getMostActiveUsersLastActivityTimestamp(user.getId());
-					userData.setLastAction(new Date(timestamp));
+				//	long timestamp=loggingDBManager.getMostActiveUsersLastActivityTimestamp(user.getId());
+					//userData.setLastAction(new Date(timestamp));
 					
 					activityRecommendedUsers.add(userData);
 				}

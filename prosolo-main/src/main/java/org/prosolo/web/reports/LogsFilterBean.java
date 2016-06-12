@@ -23,15 +23,16 @@ import org.springframework.stereotype.Component;
 /**
 @author Zoran Jeremic Feb 1, 2014
  */
-@ManagedBean(name = "logsFilterBean")
-@Component("logsFilterBean")
-@Scope("view")
+//@ManagedBean(name = "logsFilterBean")
+//@Component("logsFilterBean")
+//@Scope("view")
+	@Deprecated
 public class LogsFilterBean implements Serializable {
 
 	private static final long serialVersionUID = -5452146059271122076L;
 
 	@Autowired private TextSearch textSearch;
-	@Autowired private LoggingDBManager loggingDBManager;
+	//@Autowired private LoggingDBManager loggingDBManager;
 	
 	private List<UserData> usersList;
 	private String searchText;
@@ -49,8 +50,8 @@ public class LogsFilterBean implements Serializable {
 		System.out.println("Logs filter bean...init");
 		usersList = new ArrayList<UserData>();
 		userSearchResults = new ArrayList<UserData>();
-		setEventTypes(loggingDBManager.getAllDistinctValuesOfEventField("eventType"));
-		setObjectTypes(loggingDBManager.getAllDistinctValuesOfEventField("objectType"));
+		//setEventTypes(loggingDBManager.getAllDistinctValuesOfEventField("eventType"));
+		//setObjectTypes(loggingDBManager.getAllDistinctValuesOfEventField("objectType"));
 		selectedEventTypes = new ArrayList<String>();
 		selectedObjectTypes = new ArrayList<String>();
 		startDate = null;

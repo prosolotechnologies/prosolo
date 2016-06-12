@@ -16,7 +16,9 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
-import org.prosolo.services.lti.exceptions.DbConnectionException;
+import org.prosolo.services.common.exception.CompetenceEmptyException;
+import org.prosolo.services.common.exception.CredentialEmptyException;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
@@ -24,6 +26,7 @@ import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.PublishedStatus;
+import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.search.data.SortingOption;
@@ -58,6 +61,7 @@ public class CredentialEditBean implements Serializable {
 	private int competenceForRemovalIndex;
 	
 	private PublishedStatus[] courseStatusArray;
+	private Role role;
 	
 	public void init() {
 		initializeValues();
@@ -80,8 +84,10 @@ public class CredentialEditBean implements Serializable {
 	private void loadCredentialData(long id) {
 		String section = PageUtil.getSectionForView();
 		if("/manage".equals(section)) {
+			role = Role.Manager;
 			credentialData = credentialManager.getCurrentVersionOfCredentialForManager(id, false, true);
 		} else {
+			role = Role.User;
 			credentialData = credentialManager.getCredentialDataForEdit(id, 
 					loggedUser.getUser().getId(), true);
 		}
@@ -163,8 +169,8 @@ public class CredentialEditBean implements Serializable {
 					if(saveAsDraft) {
 						credentialData.setStatus(PublishedStatus.DRAFT);
 					}
-					credentialManager.updateCredential(credentialData, 
-							loggedUser.getUser());
+					credentialManager.updateCredential(decodedId, credentialData, 
+							loggedUser.getUser(), role);
 				}
 			} else {
 				if(saveAsDraft) {
@@ -182,9 +188,9 @@ public class CredentialEditBean implements Serializable {
 			}
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			return true;
-		} catch(DbConnectionException e) {
+		} catch(DbConnectionException | CredentialEmptyException | CompetenceEmptyException e) {
 			logger.error(e);
-			e.printStackTrace();
+			//e.printStackTrace();
 			PageUtil.fireErrorMessage(e.getMessage());
 			return false;
 		}

@@ -28,18 +28,7 @@
 		<servlet-name>fileServlet</servlet-name>
 		<url-pattern>/files/*</url-pattern>
 	</servlet-mapping>
-	<!-- servlet>
-      <servlet-name>Resteasy</servlet-name>
-      <servlet-class>
-         org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher
-      </servlet-class>
-   </servlet>
 
-   <servlet-mapping>
-      <servlet-name>Resteasy</servlet-name>
-      <url-pattern>/api/*</url-pattern>
-   </servlet-mapping-->
-   
 	<!-- FILTERS -->
 	
 	<filter>

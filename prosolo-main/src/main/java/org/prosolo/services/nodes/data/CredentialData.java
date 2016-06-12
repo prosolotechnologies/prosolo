@@ -36,7 +36,7 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private boolean draft;
 	private boolean hasDraft;
 	private boolean studentsCanAddCompetences;
-	private boolean manuallyAssingStudents;
+	private boolean automaticallyAssingStudents;
 	private int defaultNumberOfStudentsPerInstructor;
 	
 	//target credential data
@@ -314,12 +314,14 @@ public class CredentialData extends StandardObservable implements Serializable {
 		this.studentsCanAddCompetences = studentsCanAddCompetences;
 	}
 
-	public boolean isManuallyAssingStudents() {
-		return manuallyAssingStudents;
+	public boolean isAutomaticallyAssingStudents() {
+		return automaticallyAssingStudents;
 	}
 
-	public void setManuallyAssingStudents(boolean manuallyAssingStudents) {
-		this.manuallyAssingStudents = manuallyAssingStudents;
+	public void setAutomaticallyAssingStudents(boolean automaticallyAssingStudents) {
+		observeAttributeChange("automaticallyAssingStudents", this.automaticallyAssingStudents, 
+				automaticallyAssingStudents);
+		this.automaticallyAssingStudents = automaticallyAssingStudents;
 	}
 
 	public int getDefaultNumberOfStudentsPerInstructor() {

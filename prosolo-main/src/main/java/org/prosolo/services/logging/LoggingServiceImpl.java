@@ -35,6 +35,9 @@ import org.apache.log4j.Logger;
 import org.joda.time.Days;
 import org.joda.time.DurationFieldType;
 import org.joda.time.LocalDate;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
@@ -67,7 +70,7 @@ import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.mongodb.BasicDBList;
+/*import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBCollection;
@@ -76,7 +79,7 @@ import com.mongodb.DBObject;
 import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
-
+*/
 /**
  * @author Zoran Jeremic 2013-10-07
  * 
@@ -112,12 +115,12 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	}
 
 	private void ensureIndexes() {
-		this.index(userLatestActivityTimeCollection, "{userid:1}");
-		this.index(userActivitiesCollection, "{userid:1, date:1}");
+		//this.index(userLatestActivityTimeCollection, "{userid:1}");
+		//this.index(userActivitiesCollection, "{userid:1, date:1}");
 
 	}
 	
-	@Override
+	/*@Override
 	public Collection<LoggedEvent> getLoggedEventsList(DBObject filterQuery) {		
 		
 		DBCursor res = getEventObservedCollection().find(filterQuery);
@@ -129,7 +132,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			eventCollection.add(currentEvent);
 		}
 		return eventCollection;
-	}
+	}*/
 
 	@Override
 	public void logServiceUse(User user, String componentName,
@@ -161,7 +164,8 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 
 	@Override
 	public void logNavigationFromContext(User user, String link,
-			String context, String parametersString, String ipAddress) throws LoggingException {
+			String context, String page, String learningContext, String service, 
+			String parametersString, String ipAddress) throws LoggingException {
 
 		Map<String, String> parameters = convertToMap(parametersString);
 		
@@ -172,7 +176,8 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		parameters.put("link", link);
 		
 		try {
-			eventFactory.generateEvent(EventType.NAVIGATE, user, null, parameters);
+			eventFactory.generateEvent(EventType.NAVIGATE, user, null, null,
+					page, learningContext, service, parameters);
 		} catch (EventException e) {
 			logger.error("Generate event failed.", e);
 		}
@@ -257,7 +262,8 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	
 			parameters.put("ip", ipAddress);
 	
-			DBObject logObject = new BasicDBObject();
+			//DBObject logObject = new BasicDBObject();
+			JSONObject logObject=new JSONObject();
 			logObject.put("timestamp", System.currentTimeMillis());
 			logObject.put("eventType", eventType.name());
 	
@@ -296,7 +302,8 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			if (parameters != null && !parameters.isEmpty()) {
 				Iterator<Map.Entry<String, String>> it = parameters.entrySet()
 						.iterator();
-				DBObject parametersObject = new BasicDBObject();
+				//DBObject parametersObject = new BasicDBObject();
+				JSONObject parametersObject = new JSONObject();
 	
 				while (it.hasNext()) {
 					Map.Entry<String, String> pairs = (Map.Entry<String, String>) it
@@ -335,17 +342,17 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			
 			logsMessageDistributer.distributeMessage(logObject);
 				
-			try {
+		/*	try {
 				@SuppressWarnings("unused")
 				WriteResult wr = this.getEventObservedCollection().insert(logObject);
 			} catch (Exception e) {
 				logger.error("Exception to log observed event for:" + logObject.toString(), e);
 			}
-
+*/
 		}
 	}
 
-	private Long extractSocialInteractionTargetUser(DBObject logObject, EventType eventType){
+	private Long extractSocialInteractionTargetUser(JSONObject logObject, EventType eventType){
 		long actorId=(long) logObject.get("actorId");
 		String objectType=(String) logObject.get("objectType");
 		long objectId= (long) logObject.get("objectId");
@@ -360,7 +367,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			targetUserId=logsDataManager.getEvaluationSubmissionRequestMaker(actorId,objectId);
 		}else {
 			if(eventType.equals(EventType.SEND_MESSAGE)){
-				DBObject parameters=(DBObject) logObject.get("parameters");
+				JSONObject parameters=(JSONObject) logObject.get("parameters");
 				if(logObject==null){
 					System.out.println("X");
 				}
@@ -435,7 +442,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	@Override
 	public void recordUserActivity(long userid, long time) throws LoggingException {
 		if (!Settings.getInstance().config.init.formatDB) {
-			DBObject query = new BasicDBObject();
+			/*DBObject query = new BasicDBObject();
 			query.put("userid", userid);
 	
 			DBObject update = new BasicDBObject();
@@ -447,14 +454,14 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 				collection.update(query, update, true, true);
 			} catch (MongoException me) {
 				throw new LoggingException("Mongo store is not available");
-			}
+			}*/
 		}
 	}
 
 	@Override
 	public void increaseUserActivityLog(long userid, long date) {
 		if (!Settings.getInstance().config.init.formatDB) {
-			DBObject query = new BasicDBObject();
+		/*	DBObject query = new BasicDBObject();
 			query.put("userid", userid);
 			query.put("date", date);
 			
@@ -469,10 +476,11 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 				DBObject incQuery = new BasicDBObject("$inc", modifier);
 				collection.update(query, incQuery);
 			}
+			*/
 		}
 	}
 
-	public DBCollection getPageNavigationCollection() {
+	/*public DBCollection getPageNavigationCollection() {
 		return this.getCollection(pageNavigationCollection);
 	}
 
@@ -485,22 +493,28 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	}
 	public DBCollection getReportDatesCollection() {
 		return this.getCollection(logReportDatesCollection);
-	}
+	}*/
 	private Map<String, String> convertToMap(String parametersJson) {
 		Map<String, String> parameters = new HashMap<String, String>();
 		
 		if (parametersJson != null && parametersJson.length() > 0) {
-			BasicDBObject parametersObject = (BasicDBObject) JSON.parse(parametersJson);
-			Set<String> keys = parametersObject.keySet();
-			
-			for (String key : keys) {
-				parameters.put(key, parametersObject.getString(key));
+			//BasicDBObject parametersObject = (BasicDBObject) JSON.parse(parametersJson);
+			try{
+				JSONObject parametersObject=(JSONObject) new JSONParser().parse(parametersJson);
+				Set<String> keys = parametersObject.keySet();
+
+				for (String key : keys) {
+					parameters.put(key, parametersObject.get(key).toString());
+				}
+			}catch(ParseException x){
+				logger.error(x);
 			}
+
 		}
 		return parameters;
 	}
 
-	@Override
+/*	@Override
 	public Map<Long, Collection<LoggedEvent>> getAllLoggedEvents(Date start, Date end) {
 		BasicDBObject query = new BasicDBObject("timestamp", new BasicDBObject("$gt", start.getTime()).append("$lte", end.getTime())).append("actorId", new BasicDBObject("$ne", 0));
 
@@ -523,9 +537,9 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		}
 		return result;
 	}
-
+*/
 	
-	@Override
+	/*@Override
 	public Map<Long, Collection<LoggedEvent>> getAllLoggedEvents(DBObject filterQuery) {		
 
 		DBCursor res = getEventObservedCollection().find(filterQuery);
@@ -546,9 +560,9 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			currentCol.add(currentEvent);
 		}
 		return result;
-	}
+	}*/
 	
-	@Override
+/*	@Override
 	public void recordActivityReportGenerated(List<Long> userIds, Date reportGenerationDate) {
 		Calendar reportDate = Calendar.getInstance();
 		reportDate.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -561,8 +575,8 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			getReportDatesCollection().update(queryTemplate.add("actorId", userId).get(), updateObject, true, true);
 		}
 	}
-	
-	@Override
+	*/
+/*	@Override
 	public List<Date> getReportDays(Date start, Date end, Long userId) {
 		
 		List<LocalDate> dates = getDaysBetween(start, end); // get all dates in the range
@@ -575,8 +589,8 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 				result.add(d.toDateTimeAtStartOfDay().toDate());
 		
 		return result;
-	}
-	@Override
+	}*/
+	/*@Override
 	public boolean collectionExists(String collectionName) { 
 		return getDb().collectionExists(collectionName);
 	}
@@ -586,7 +600,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		return collectionExists(logReportDatesCollection);
 	}
 
-
+*/
 	private static List<LocalDate> getDaysBetween(Date start, Date end) {
 		List<LocalDate> dates = new ArrayList<LocalDate>();
 
@@ -596,14 +610,14 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		return dates;
 	}
 	
-	private HashMap<String, List<Integer>> getMonthReportDaysMap(Long userId, List<LocalDate> dates) {
+	/*private HashMap<String, List<Integer>> getMonthReportDaysMap(Long userId, List<LocalDate> dates) {
 		HashMap<String, List<Integer>> reportDays = new HashMap<String, List<Integer>>();
 		
 		for(String monthYear : getUniqueMonths(dates)) // typically 2-3 months are covering the whole period
 			reportDays.put(monthYear, getReportDaysForMonth(userId, monthYear)); // for each of them find all dates which are having activity reports
 		
 		return reportDays;
-	}
+	}*/
 
 	private Set<String> getUniqueMonths(List<LocalDate> dates) {
 		Set<String> months = new HashSet<String>();
@@ -617,7 +631,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	private static final String getMonthYear(LocalDate d) {
 		return Integer.toString(d.getYear()) + format("%02d", d.getMonthOfYear());	
 	}
-	
+	/*
 	private List<Integer> getReportDaysForMonth(Long userId, String monthYear) {
 		DBObject dbResult = getReportDatesCollection().findOne(new BasicDBObject("actorId", userId).append("month", monthYear));
 
@@ -627,8 +641,8 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 				days.add((Integer) day);
 		
 		return days;
-	}
-	@Override
+	}*/
+	/*@Override
 
     public Long getOldestObservedEventTime() {
 		return (Long) getEventObservedCollection().find(new BasicDBObject("actorId", new BasicDBObject("$ne", 0)))
@@ -636,7 +650,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 				.limit(1)
 				.next().get("timestamp");
     }
-
+*/
 	@Override
 	public void logSessionEnded(EventType eventType, User actor, String ipAddress) {
 		Map<String, String> parameters = new HashMap<>();
@@ -664,7 +678,8 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	
 			parameters.put("ip", ipAddress);
 	
-			DBObject logObject = new BasicDBObject();
+			//DBObject logObject = new BasicDBObject();
+			JSONObject logObject=new JSONObject();
 			logObject.put("timestamp", System.currentTimeMillis());
 			logObject.put("eventType", eventType.name());
 	
@@ -697,9 +712,14 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			if(learningContext != null) {
 				Gson gson = new GsonBuilder().create();
 				String learningContextJson = gson.toJson(learningContext);
-				DBObject lContext = (DBObject) JSON.parse(learningContextJson);
-				logObject.put("learningContext", lContext);
-				System.out.println("HAS LEARNING CONTEXT...:"+lContext.toString());
+				//DBObject lContext = (DBObject) JSON.parse(learningContextJson);
+				try {
+					JSONObject lContext = (JSONObject) new JSONParser().parse(learningContextJson);
+					logObject.put("learningContext", lContext);
+					System.out.println("HAS LEARNING CONTEXT...:" + lContext.toString());
+				}catch(ParseException e){
+					logger.error(e);
+				}
 			}
 
 			logObject.put("courseId",extractCourseIdForUsedResource(objectType, objectId, targetType, targetId, reasonType, reasonId,learningContext));
@@ -708,7 +728,8 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			if (parameters != null && !parameters.isEmpty()) {
 				Iterator<Map.Entry<String, String>> it = parameters.entrySet()
 						.iterator();
-				DBObject parametersObject = new BasicDBObject();
+				//DBObject parametersObject = new BasicDBObject();
+				JSONObject parametersObject=new JSONObject();
 	
 				while (it.hasNext()) {
 					Map.Entry<String, String> pairs = (Map.Entry<String, String>) it
@@ -753,13 +774,13 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			logger.info(timestamp + "," + eventType + "," + objectType + "," + targetTypeString + "," + link + "," + context + "," + action);
 			
 			logsMessageDistributer.distributeMessage(logObject);
-				
+			/*
 			try {
 				@SuppressWarnings("unused")
 				WriteResult wr = this.getEventObservedCollection().insert(logObject);
 			} catch (Exception e) {
 				logger.error("Exception to log observed event for:" + logObject.toString(), e);
-			}
+			}*/
 
 		}
 	}

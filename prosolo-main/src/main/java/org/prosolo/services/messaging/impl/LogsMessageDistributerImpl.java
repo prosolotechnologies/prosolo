@@ -2,6 +2,7 @@ package org.prosolo.services.messaging.impl;
 
 
 import org.apache.log4j.Logger;
+import org.json.simple.JSONObject;
 import org.prosolo.common.messaging.MessageWrapperAdapter;
 import org.prosolo.common.messaging.data.LogMessage;
 import org.prosolo.common.messaging.data.MessageWrapper;
@@ -14,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.GsonBuilder;
-import com.mongodb.DBObject;
+import org.json.simple.JSONObject;
 
 /**
 @author Zoran Jeremic Apr 4, 2015
@@ -35,7 +36,7 @@ public class LogsMessageDistributerImpl implements LogsMessageDistributer{
 	}
 	
 	@Override
-	public void distributeMessage(DBObject logObject){
+	public void distributeMessage(JSONObject logObject){
 		if(reliableProducer==null){
 			 reliableProducer=new ReliableProducerImpl();
 			 reliableProducer.setQueue(QueueNames.LOGS.name().toLowerCase());
@@ -70,8 +71,8 @@ public class LogsMessageDistributerImpl implements LogsMessageDistributer{
 		message.setLink((String) logObject.get("link"));
 		message.setCourseId((long)logObject.get("courseId"));
 		message.setTargetUserId((long) logObject.get("targetUserId"));
-		message.setLearningContext((DBObject)logObject.get("learningContext"));
-		message.setParameters((DBObject) logObject.get("parameters"));
+		message.setLearningContext((JSONObject)logObject.get("learningContext"));
+		message.setParameters((JSONObject) logObject.get("parameters"));
 		
 		wrapMessageAndSend(message);
 		

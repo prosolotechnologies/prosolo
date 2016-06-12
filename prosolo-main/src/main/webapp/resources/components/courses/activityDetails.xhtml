@@ -10,7 +10,8 @@
 	xmlns:post="http://java.sun.com/jsf/composite/components/post"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
-	xmlns:socialWall="http://java.sun.com/jsf/composite/components/socialWall">
+	xmlns:socialWall="http://java.sun.com/jsf/composite/components/socialWall"
+	xmlns:util="http://www.prosolo.com/util">
 
 	<composite:interface>
 		<composite:attribute name="activity" required="true" />
@@ -78,7 +79,15 @@
 		                        <h3>#{link.linkName}</h3>
 		                        <span>#{link.url}</span>
 		                    </div>
-		                    <a href="#{link.url}" target="_blank" class="btn btn-green btn-sm">Open</a>
+		                    <a href="#{link.url}" 
+	                    		target="_blank" 
+	                    		class="btn btn-green btn-sm"
+	                    		onclick="sendLogPageNavigation('#{link.url}', 
+	                    				'#{facesContext.viewRoot.viewId}', 
+	                    				'#{util:addSubContext(cc.attrs.learningContext, &#34;name:activity_link|id:&#34;.concat(link.id))}', 
+	                    				null);">
+	                    		Open
+		                    </a>
 		                </li>
 	            	</ui:repeat>    
 	            </ul>
@@ -89,7 +98,15 @@
 		                        <h3>#{file.linkName}</h3>
 		                        <span>#{file.linkName}</span>
 		                    </div>
-		                    <a href="#{file.url}" target="_blank" class="btn btn-green btn-sm">Download</a>
+		                    <a href="#{file.url}" 
+		                    	target="_blank" 
+		                    	class="btn btn-green btn-sm"
+		                    	onclick="sendLogPageNavigation('#{file.url}', 
+	                    				'#{facesContext.viewRoot.viewId}', 
+	                    				'#{util:addSubContext(cc.attrs.learningContext, &#34;name:activity_file|id:&#34;.concat(file.id))}', 
+	                    				null);">
+		                    	Download
+		                    </a>
 		                </li>
 	            	</ui:repeat>    	             
 	            </ul>

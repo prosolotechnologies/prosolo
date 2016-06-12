@@ -19,6 +19,7 @@ import javax.persistence.OneToOne;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
@@ -56,10 +57,15 @@ public class Credential1 extends BaseEntity {
 	
 	private List<CredentialBookmark> bookmarks;
 	
+	private List<FeedSource> blogs;
+	private List<FeedSource> excludedFeedSources;
+	
 	public Credential1() {
 		tags = new HashSet<>();
 		hashtags = new HashSet<>();
 		competences = new ArrayList<>();
+		blogs = new ArrayList<FeedSource>();
+		excludedFeedSources = new ArrayList<FeedSource>();
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -207,6 +213,24 @@ public class Credential1 extends BaseEntity {
 
 	public void setBookmarks(List<CredentialBookmark> bookmarks) {
 		this.bookmarks = bookmarks;
+	}
+	
+	@ManyToMany
+	public List<FeedSource> getBlogs() {
+		return blogs;
+	}
+
+	public void setBlogs(List<FeedSource> blogs) {
+		this.blogs = blogs;
+	}
+	
+	@ManyToMany
+	public List<FeedSource> getExcludedFeedSources() {
+		return excludedFeedSources;
+	}
+
+	public void setExcludedFeedSources(List<FeedSource> excludedFeedSources) {
+		this.excludedFeedSources = excludedFeedSources;
 	}
 	
 }
