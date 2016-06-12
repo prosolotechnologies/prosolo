@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -54,6 +55,8 @@ public class TargetCredential1 extends BaseEntity {
 	
 	private long nextCompetenceToLearnId;
 	private long nextActivityToLearnId;
+	
+	private String finalReview;
 	
 	//private String description;
 	//private String title;
@@ -236,6 +239,16 @@ public class TargetCredential1 extends BaseEntity {
 	public void setNextCompetenceToLearnId(long nextCompetenceToLearnId) {
 		this.nextCompetenceToLearnId = nextCompetenceToLearnId;
 	}
+
+	@Column(name="final_review")
+	public String getFinalReview() {
+		return finalReview;
+	}
+
+	public void setFinalReview(String finalReview) {
+		this.finalReview = finalReview;
+	}
+	
 /*
 	public String getDescription() {
 		return description;

@@ -29,7 +29,7 @@ public class ActivityDiscussion extends BaseEntity{
 		this.activity = activity;
 	}
 
-	@OneToOne(fetch = FetchType.LAZY, mappedBy="activityDiscussion")
+	@OneToOne(fetch = FetchType.LAZY, mappedBy="activityDiscussion",optional=true)
 	public MessageThread getMessageThread() {
 		return messageThread;
 	}

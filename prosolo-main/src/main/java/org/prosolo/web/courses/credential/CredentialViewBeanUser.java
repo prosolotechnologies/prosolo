@@ -178,6 +178,17 @@ public class CredentialViewBeanUser implements Serializable {
 		assessmentRequestData.setTargetCredentialId(credentialData.getTargetCredId());
 	}
 	
+	public boolean userHasAssessmentForCredential() {
+		Long assessmentCount = assessmentManager.countAssessmentsForUserAndCredential(loggedUser.getUser().getId(), 
+				decodedId);
+		if(assessmentCount > 0) {
+			logger.debug("We found "+assessmentCount+" assessments for user "
+						+ loggedUser.getUser().getId() + "for credential"+decodedId);
+			return true;
+		}
+		return false;
+	}
+	
 	/*
 	 * GETTERS / SETTERS
 	 */

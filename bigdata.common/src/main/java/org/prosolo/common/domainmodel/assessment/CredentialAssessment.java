@@ -61,7 +61,7 @@ public class CredentialAssessment extends BaseEntity {
 		this.approved = approved;
 	}
 
-	@OneToMany(mappedBy="credentialAssessment",cascade={CascadeType.PERSIST})
+	@OneToMany(mappedBy="credentialAssessment",cascade = CascadeType.ALL, orphanRemoval = true)
 	public List<CompetenceAssessment> getCompetenceAssessments() {
 		return competenceAssessments;
 	}

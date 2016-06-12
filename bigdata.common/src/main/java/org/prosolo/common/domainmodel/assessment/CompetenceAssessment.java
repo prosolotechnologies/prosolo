@@ -63,6 +63,15 @@ public class CompetenceAssessment extends BaseEntity {
 		this.targetCompetence = targetCompetence;
 	}
 	
-	
+	public ActivityDiscussion getDiscussionByActivityId(long activityId) {
+		if(activityDiscussions != null && !activityDiscussions.isEmpty()) {
+			for(ActivityDiscussion discussion : activityDiscussions) {
+				if(discussion.getActivity().getId() == activityId){
+					return discussion;
+				}
+			}
+		}
+		return null;
+	}
 
 }
