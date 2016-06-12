@@ -47,7 +47,6 @@ public class TargetCompetenceBean implements Serializable {
 	private UrlIdEncoder idEncoder;
 	CompetenceAchievementsData competenceAchievementsData;
 
-	@PostConstruct
 	public void init() {
 		try {
 			List<TargetCompetence1> targetCompetence1List = competenceManager
@@ -66,7 +65,8 @@ public class TargetCompetenceBean implements Serializable {
 		boolean hiddenFromProfile = data.isHiddenFromProfile();
 		try {
 			competenceManager.updateHiddenTargetCompetenceFromProfile(id, hiddenFromProfile);
-			PageUtil.fireSuccessfulInfoMessage("Competence is successfully hidden from profile.");
+			String hiddenOrShown = hiddenFromProfile ? "shown in" : "hidden from";;
+			PageUtil.fireSuccessfulInfoMessage("Competence is successfully " + hiddenOrShown + " profile.");
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage("Error while hidding competence from profile!");
 			logger.error("Error while hidding competence from profile!\n" + e);

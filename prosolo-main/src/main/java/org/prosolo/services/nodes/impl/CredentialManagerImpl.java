@@ -2369,4 +2369,27 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return cred;
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	@Transactional
+	public List<TargetCredential1> getAllInProgressCredentials(Long userid) throws DbConnectionException {
+		List<TargetCredential1> result = new ArrayList();
+		try {
+			String query=
+					"SELECT targetCredential1 " +
+					"FROM TargetCredential1 targetCredential1 " +
+					"WHERE targetCredential1.user.id = :userid " +
+					"AND targetCredential1.progress < :progress ";
+			  	
+			result = persistence.currentManager()
+					.createQuery(query)
+					.setLong("userid", userid)
+					.setInteger("progress", 100)
+				  	.list();
+		} catch (DbConnectionException e) {
+			e.printStackTrace();
+			throw new DbConnectionException();
+		}
+		return result;
+	}
 }
