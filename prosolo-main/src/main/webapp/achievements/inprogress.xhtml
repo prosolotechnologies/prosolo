@@ -9,36 +9,36 @@
 	xmlns:util="http://www.prosolo.com/util">
 
 	<ui:define name="windowTitle">
-		Achievements credentials
+		Achievements in progress
+	</ui:define>
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewAction
+				action="#{targetCredentialBean.initInProgressCredentials()}" />
+		</f:metadata>
 	</ui:define>
 
 	<ui:define name="resourceTitle">
 		<h1>Achievements</h1>
-		
-		<ul class="nav nav-tabs headerSubmenu">
-			<li role="presentation"	class="#{util:getPagePath(view.viewId)  == 'achievements-credentials' ? 'active' : ''}">
-				<h:link value="Credentials" 
-					onclick="sendLogPageNavigation('achievements-credentials','mainmenu');"
-					outcome="/achievements/credentials" />
-			</li>
-			<li role="presentation" class="#{util:getPagePath(view.viewId) == 'achievements-competences' ? 'active' : ''}">
-				<h:link value="Competences" 
-					onclick="sendLogPageNavigation('achievements-competences','mainmenu');"
-					outcome="/achievements/competences" />
-			</li>
-			<ui:remove>
-			<li role="presentation" class="#{util:getPagePath(view.viewId)  == 'externalcompetences' ? 'active' : ''}">
-				<h:link value="External Competences"
-					onclick="sendLogPageNavigation('/achievements/externalcompetences','mainmenu');"
-					outcome="/achievements/externalcompetences" />
-			</li>
-			</ui:remove>
-			<li role="presentation" class="#{util:getPagePath(view.viewId)  == 'inprogress' ? 'active' : ''}">
-				<h:link	value="In Progress" 
-					onclick="sendLogPageNavigation('/achievements/inprogress','mainmenu');"
-					outcome="/achievements/inprogress" />
-			</li>
-		</ul>
+
+		<h:panelGroup id="panelTitle">
+			<ul class="nav nav-tabs headerSubmenu">
+				<li role="presentation"
+					class="#{util:getPagePath(view.viewId)  == 'credentials' ? 'active' : ''}"><h:link
+						onclick="sendLogPageNavigation('credentials','mainmenu');"
+						value="Credentials" outcome="/achievements/credentials" /></li>
+				<li role="presentation"
+					class="#{util:getPagePath(view.viewId) == 'competences' ? 'active' : ''}"><h:link
+						onclick="sendLogPageNavigation('competences','mainmenu');"
+						value="Competences" outcome="/achievements/competences" /></li>
+				<li role="presentation"
+					class="#{util:getPagePath(view.viewId)  == 'inprogress' ? 'active' : ''}"><h:link
+						onclick="sendLogPageNavigation('/achievements/inprogress','mainmenu');"
+						value="In
+						Progress" outcome="/achievements/inprogress" /></li>
+			</ul>
+		</h:panelGroup>
 	</ui:define>
 
 	<ui:define name="content">
@@ -47,36 +47,42 @@
 
 		<div class="container">
 			<div class="row">
-				<ui:repeat var="targetCredential"
-					value="#{targetCredentialBean.credentialAchievementsData.targetCredentialDataList}">
-					<div class="col-md-6">
-						<article class="whiteBox summaryCard">
-							<h2>
-								<h:link value="#{targetCredential.title}" outcome="#{targetCredential.link}" />
-							</h2>
-							
-							<div class="clear"></div>
-							<p class="cardDescription">#{targetCredential.description}</p>
-							
-							<div class="metaBox">
-								<div class="metaLeft">
-									<div class="checkbox checkLine">
-										<h:form>
+				<h:form id="inProgressCredentialsForm">
+					<p:growl id="inProgressCredentialsGrowl" showDetail="true"></p:growl>
+					<ui:repeat var="targetCredential"
+						value="#{targetCredentialBean.inProgressCredentialAchievementsData.targetCredentialDataList}">
+						<div class="col-md-6">
+							<article class="whiteBox summaryCard">
+								<h2>
+									<h:link value="#{targetCredential.title}"
+										outcome="#{targetCredential.link}" />
+								</h2>
+
+								<div class="clear"></div>
+								<p class="cardDescription">#{targetCredential.description}</p>
+
+								<div class="metaBox">
+									<div class="metaLeft">
+										<div class="checkbox checkLine">
+
 											<h:inputHidden value="#{targetCredential.id}"></h:inputHidden>
-											<h:selectBooleanCheckbox id="credentialAchievements"
+											<h:selectBooleanCheckbox
+												id="inProgresscredentialAchievements"
 												value="#{targetCredential.hiddenFromProfile}">
-												<f:ajax event="click" execute="@form" listener="#{targetCredentialBean.hideTargetCredentialFromProfile(targetCredential.id)}" />
+												<f:ajax event="click" execute="@form"
+													listener="#{targetCredentialBean.hideInProgressTargetCredentialFromProfile(targetCredential.id)}"
+													render="inProgressCredentialsForm" />
 											</h:selectBooleanCheckbox>
-											<h:outputLabel for="credentialAchievements">Hide from Public Profile</h:outputLabel>
-										</h:form>
+											<h:outputLabel for="inProgresscredentialAchievements">Hide from Public Profile</h:outputLabel>
+
+										</div>
 									</div>
+									<div class="metaRight"></div>
 								</div>
-								<div class="metaRight"></div>
-							</div>
-						</article>
-					</div>
-				</ui:repeat>
-				
+							</article>
+						</div>
+					</ui:repeat>
+				</h:form>
 			</div>
 		</div>
 	</ui:define>

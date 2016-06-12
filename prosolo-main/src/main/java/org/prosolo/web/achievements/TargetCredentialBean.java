@@ -39,14 +39,14 @@ public class TargetCredentialBean implements Serializable {
 	private LoggedUserBean loggedUser;
 	@Autowired
 	private UrlIdEncoder idEncoder;
-	CredentialAchievementsData credentialAchievementsData;
+	private CredentialAchievementsData completedCredentialAchievementsData;
+	private CredentialAchievementsData inProgressCredentialAchievementsData;
 
-	@PostConstruct
-	public void init() {
+	public void initCompletedCredentials() {
 		try {
 			List<TargetCredential1> targetCredential1List = credentialManager
 					.getAllCompletedCredentials(loggedUser.getUser().getId());
-			credentialAchievementsData = new CredentialAchievementsDataToPageMapper(idEncoder)
+			completedCredentialAchievementsData = new CredentialAchievementsDataToPageMapper(idEncoder)
 					.mapDataToPageObject(targetCredential1List);
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage("Credential data could not be loaded!");
@@ -54,12 +54,38 @@ public class TargetCredentialBean implements Serializable {
 		}
 	}
 
-	public void hideTargetCredentialFromProfile(Long id) {
-		TargetCredentialData data = credentialAchievementsData.getTargetCredentialDataByid(id);
+	public void initInProgressCredentials() {
+		try {
+			List<TargetCredential1> targetCredential1List = credentialManager
+					.getAllInProgressCredentials(loggedUser.getUser().getId());
+			inProgressCredentialAchievementsData = new CredentialAchievementsDataToPageMapper(idEncoder)
+					.mapDataToPageObject(targetCredential1List);
+		} catch (DbConnectionException e) {
+			PageUtil.fireErrorMessage("Credential data could not be loaded!");
+			logger.error("Error while loading target credentials with progress < 100 Error:\n" + e);
+		}
+	}
+
+	public void hideCompletedTargetCredentialFromProfile(Long id) {
+		TargetCredentialData data = completedCredentialAchievementsData.getTargetCredentialDataByid(id);
 		boolean hideFromProfile = data.isHiddenFromProfile();
+		String hiddenOrShown = hideFromProfile ? "shown in" : "hidden from";
 		try {
 			credentialManager.updateHiddenTargetCredentialFromProfile(id, hideFromProfile);
-			PageUtil.fireSuccessfulInfoMessage("Credential is successfully hidden from profile.");
+			PageUtil.fireSuccessfulInfoMessage("Credential is successfully " + hiddenOrShown + " profile.");
+		} catch (DbConnectionException e) {
+			PageUtil.fireErrorMessage("Error while hidding redential from profile!");
+			logger.error("Error while hidding redential from profile!\n" + e);
+		}
+	}
+
+	public void hideInProgressTargetCredentialFromProfile(Long id) {
+		TargetCredentialData data = inProgressCredentialAchievementsData.getTargetCredentialDataByid(id);
+		boolean hideFromProfile = data.isHiddenFromProfile();
+		String hiddenOrShown = hideFromProfile ? "shown in" : "hidden from";
+		try {
+			credentialManager.updateHiddenTargetCredentialFromProfile(id, hideFromProfile);
+			PageUtil.fireSuccessfulInfoMessage("Credential is successfully " + hiddenOrShown + " profile.");
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage("Error while hidding redential from profile!");
 			logger.error("Error while hidding redential from profile!\n" + e);
@@ -67,12 +93,21 @@ public class TargetCredentialBean implements Serializable {
 
 	}
 
-	public CredentialAchievementsData getCredentialAchievementsData() {
-		return credentialAchievementsData;
+	public CredentialAchievementsData getCompletedCredentialAchievementsData() {
+		return completedCredentialAchievementsData;
 	}
 
-	public void setCredentialAchievementsData(CredentialAchievementsData credentialAchievementsData) {
-		this.credentialAchievementsData = credentialAchievementsData;
+	public void setCompletedCredentialAchievementsData(CredentialAchievementsData completedCredentialAchievementsData) {
+		this.completedCredentialAchievementsData = completedCredentialAchievementsData;
+	}
+
+	public CredentialAchievementsData getInProgressCredentialAchievementsData() {
+		return inProgressCredentialAchievementsData;
+	}
+
+	public void setInProgressCredentialAchievementsData(
+			CredentialAchievementsData inProgressCredentialAchievementsData) {
+		this.inProgressCredentialAchievementsData = inProgressCredentialAchievementsData;
 	}
 
 	public UrlIdEncoder getIdEncoder() {

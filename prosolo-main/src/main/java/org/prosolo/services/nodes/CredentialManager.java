@@ -292,5 +292,12 @@ public interface CredentialManager extends AbstractManager {
 			throws DbConnectionException, EntityAlreadyExistsException;
 	
 	void removeFeed(long credId, long feedSourceId) throws DbConnectionException;
+	
+	/**
+	 * Method for getting all uncompleted credentials (credentials that has progress < 100)
+	 * @return 
+	 * @throws DbConnectionException
+	 */
+	List<TargetCredential1> getAllInProgressCredentials(Long userId) throws DbConnectionException;
 
 }

@@ -700,27 +700,18 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 	@Override
 	public List<TargetCompetence1> getAllCompletedCompetences(Long userId) throws DbConnectionException {
 		List<TargetCompetence1> result = new ArrayList();
-		List<Long> listOfCredentialIds = new ArrayList();
 		try {
 			String query;
-			query = "SELECT targetCredential1.id " +
-					"FROM TargetCredential1  targetCredential1 " + 
-					"WHERE targetCredential1.user.id = :userId ";
-			
-			listOfCredentialIds = persistence.currentManager()
-					.createQuery(query)
-					.setLong("userId", userId)
-				  	.list();
-			
-			query =
-					"SELECT targetComptence1 " +
-					"FROM TargetCompetence1 targetComptence1 " +
-					"WHERE targetComptence1.targetCredential.id in (:listOfCredentialIds) " + 
-				    "AND targetComptence1.progress = :progress ";
+			query = "SELECT targetComp " +
+					"FROM TargetCredential1 targetCred " + 
+					"LEFT JOIN targetCred.targetCompetences targetComp " + 
+					"WHERE targetCred.user.id = :userId " +
+					"AND targetComp.progress = :progress " +
+					"ORDER BY targetComp.title";
 			  	
 			result = persistence.currentManager()
 					.createQuery(query)
-					.setParameterList("listOfCredentialIds", listOfCredentialIds)
+					.setLong("userId", userId)
 					.setInteger("progress", 100)
 				  	.list();
 		} catch (DbConnectionException e) {
