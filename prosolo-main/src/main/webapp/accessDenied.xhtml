@@ -1,45 +1,36 @@
-<html xmlns="http://www.w3.org/1999/xhtml"
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
 	xmlns:comp="http://java.sun.com/jsf/composite/components"
-	xmlns:p="http://primefaces.org/ui">
+	template="templates/masterLayout2.xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:courses="http://java.sun.com/jsf/composite/components/courses">
 
-<f:view contentType="text/html">
-	<h:head>
-		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-		<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/style.css" />
-		<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-		<link rel="icon" href="#{request.contextPath}/favicon.ico" type="image/x-icon" />
-		<title>Access Denied | ProSolo</title>
-	</h:head>
+	<ui:define name="windowTitle">
+		Error - Access Denied
+	</ui:define>
+
+    <ui:define name="resourceTitle">
+    	<h1>Error</h1>
+    </ui:define>
+    
+	<ui:define name="content">
 	
-	<div class="signContainer passwordReset">
-		<div class="signTop">
-			<h1>
-				<h:link outcome="/login">
-					<span class="logo"></span>
-				</h:link>
-			</h1>
-		</div>
+		<div class="whiteBar"></div>
 		
-		<div class="signMain">
-			<h3>Access Denied</h3>
-			<p>You don't have permissions to access this page.</p>
-			
-			<div id="link"></div>
-			
-			<script>
-			if (document.referrer.length > 0) {
-				$('#link').append('<a href="'+document.referrer+'" class="button grey size30 left">Back</a>');
-			}
-			</script>
-		</div><!-- .main end -->
-		
-		<div class="clear"></div>
-	</div><!-- .signContainer end -->
-	
-	<comp:footer styleClass="public" />
-</f:view>
-</html>
-	
+		<div class="container">
+	        <div class="row">
+	            <div class="col-md-12">
+	                <h2>Access Denied</h2>
+	                <p>You do not have permissions to access this page.</p>
+	            </div>
+	        </div>
+	    </div>
+	</ui:define>
+</ui:composition>

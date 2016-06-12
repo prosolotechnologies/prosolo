@@ -156,12 +156,16 @@
 							</a>
 
 							<ul class="dropdown-menu dropdown-menu-right bullet pull-right" aria-labelledby="dropdownMenu1">
-								<li><h:link
-										onclick="sendLogPageNavigation('settings','mainmenu');"
-										value="Settings" outcome="/settings" /></li>
-								<li><h:commandLink id="userLogout" value="Sign Out"
-										action="#{loggeduser.userLogout()}">
-									</h:commandLink></li>
+								<li>
+									<h:link onclick="sendLogPageNavigation('settings','mainmenu');"
+										value="Account Settings" 
+										outcome="/settings" />
+								</li>
+								<li>
+									<h:commandLink id="userLogout" 
+										value="Sign Out"
+										action="#{loggeduser.userLogout()}" />
+								</li>
 							</ul>
 
 						</div>
