@@ -28,7 +28,7 @@ public class LoginPartialResponseRedirectFilter implements Filter {
 	        + "<partial-response><redirect url=\"%s\"></redirect></partial-response>";
 
 	private static String[] allowedAccessPages = new String[]{
-		"passwordReset",
+		"reset",
 		"recovery",
 		"terms",
 		"profile",

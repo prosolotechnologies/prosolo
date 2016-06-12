@@ -14,7 +14,7 @@
 		<intercept-url pattern="/login.xhtml" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		<intercept-url pattern="/register.xhtml" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		<intercept-url pattern="/verify.xhtml" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-		<intercept-url pattern="/passwordReset.xhtml" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<intercept-url pattern="/reset.xhtml" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		<intercept-url pattern="/recovery.xhtml" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		<intercept-url pattern="/terms.xhtml" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		<intercept-url pattern="/publicprofile.xhtml" access="IS_AUTHENTICATED_ANONYMOUSLY"/>

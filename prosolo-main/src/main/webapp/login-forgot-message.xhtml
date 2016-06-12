@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+	
+<f:view transient="true" contentType="text/html">
+<h:head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ProSolo - Forgot Password?</title>
+    <link href="#{request.contextPath}/resources/css2/bootstrap.min.css" rel="stylesheet" />
+    <link href="#{request.contextPath}/resources/css2/awesome-bootstrap-checkbox.css" rel="stylesheet" />
+    <link href="#{request.contextPath}/resources/css2/style.css" rel="stylesheet" />
+</h:head>
+
+<f:metadata>
+	<f:viewParam name="email" value="#{passwordreset.email}" />
+</f:metadata>
+
+<h:body>
+
+    <div class="loginBox">
+        <div class="logo"></div>
+        <div class="whiteBox">
+            <div class="loginTop">
+                <h1>Check your inbox</h1>
+                <p>We've sent you an email with instructions to <strong>#{passwordreset.email}</strong> on how to reset your password.</p>
+                <div class="clear">&#160;</div>
+            </div>
+        </div>
+        
+        <div class="loginFooter">
+            <ul>
+                <li><a href="about">About</a></li>
+                <li><a href="terms">Terms</a></li>
+                <li><a href="https://bitbucket.org/prosolo/prosolo/issues">Support</a></li>
+            </ul>
+            <p>ProSolo Technologies Inc &#169; 2016</p>
+        </div>
+    </div>
+
+	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<!-- Include all compiled plugins (below), or include individual files as needed -->
+	<script src="#{request.contextPath}/resources/javascript2/bootstrap.min.js"></script>
+</h:body>
+</f:view>
+</html>

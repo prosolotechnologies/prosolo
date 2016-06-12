@@ -1,9 +1,13 @@
 package org.prosolo.web.unauthorized;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.net.URLEncoder;
 import java.util.Locale;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
@@ -13,7 +17,6 @@ import org.prosolo.services.authentication.PasswordResetManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.util.PageUtil;
 import org.prosolo.web.util.ResourceBundleUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -26,8 +29,8 @@ public class PasswordReset implements Serializable {
 
 	private static Logger logger = Logger.getLogger(PasswordReset.class);
 	
-	@Autowired private UserManager userManager;
-	@Autowired private PasswordResetManager passwordResetManager;
+	@Inject private UserManager userManager;
+	@Inject private PasswordResetManager passwordResetManager;
 	
 	private String email;
 	
@@ -38,7 +41,14 @@ public class PasswordReset implements Serializable {
 			boolean resetLinkSent = passwordResetManager.resetPassword(user, email, Settings.getInstance().config.application.domain + "recovery");
 			
 			if (resetLinkSent) {
-				PageUtil.fireSuccessfulInfoMessage("resetMessage", "Reset instructions have ben sent to "+email);  
+				PageUtil.fireSuccessfulInfoMessage("resetMessage", "Reset instructions have ben sent to "+email);
+				try {
+					FacesContext.getCurrentInstance().getExternalContext().redirect("reset/successful/" + URLEncoder.encode(email, "utf-8"));
+				} catch (IOException e) {
+					logger.error(e);
+				}
+			} else {
+				PageUtil.fireErrorMessage("resetMessage", "Error reseting the password");
 			}
 		} else {
 			try {

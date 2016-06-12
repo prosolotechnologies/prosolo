@@ -9,7 +9,7 @@
 
 	<!-- http auto-config='true' access-denied-page='/accessDenied.jsf'>
 		<intercept-url pattern="/login.jsf" access="IS_AUTHENTICATED_ANONYMOUSLY" requires-channel="https"/>
-		<intercept-url pattern="/passwordReset.jsf" access="IS_AUTHENTICATED_ANONYMOUSLY" requires-channel="https"/>
+		<intercept-url pattern="/reset.jsf" access="IS_AUTHENTICATED_ANONYMOUSLY" requires-channel="https"/>
 		<intercept-url pattern="/resources/css/style.css" access="IS_AUTHENTICATED_ANONYMOUSLY" requires-channel="https"/>
 		<intercept-url pattern="/resources/javascript/jquery-1.8.2.min.js" access="IS_AUTHENTICATED_ANONYMOUSLY" requires-channel="https"/>
 		<intercept-url pattern="/resources/images/favicon.png" access="IS_AUTHENTICATED_ANONYMOUSLY" requires-channel="https"/>
@@ -63,7 +63,7 @@
 		<intercept-url pattern="/openid.xhtml" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		<intercept-url pattern="/register" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		<intercept-url pattern="/verify" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-		<intercept-url pattern="/passwordReset" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<intercept-url pattern="/reset" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		<!-- intercept-url pattern="/javax.faces.resource/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/-->
 		<intercept-url pattern="/recovery" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		<intercept-url  pattern="/digest"  access="IS_AUTHENTICATED_ANONYMOUSLY"/>
