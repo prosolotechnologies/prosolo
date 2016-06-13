@@ -61,12 +61,11 @@
 		                              </span>
 		                              <div class="buttonWrapper">
 		                              	  <ui:fragment 
-		                              	  	rendered="#{!cc.attrs.bean.isInstructorCurrentlyAssignedToStudent(instructor) and (instructor.full 
-		                              	  		|| cc.attrs.bean.doesStudentHaveInstructorAssigned())}">
+		                              	  	rendered="#{!cc.attrs.bean.isInstructorCurrentlyAssignedToStudent(instructor) and instructor.full}">
 		                              	  	<a href="javascript:void(0);" class="btn btn-green btn-sm disabled">Assign</a>
 		                              	  </ui:fragment>
 		                              	  <ui:fragment rendered="#{cc.attrs.bean.isInstructorCurrentlyAssignedToStudent(instructor) 
-		                              	  		|| (!cc.attrs.bean.doesStudentHaveInstructorAssigned() and !instructor.full)}">
+		                              	  		|| !instructor.full}">
 		                              	  	<p:commandLink value="Assign#{cc.attrs.bean.isInstructorCurrentlyAssignedToStudent(instructor) ? 'ed' : ''}" 
 		                              	  		styleClass="btn btn-green#{cc.attrs.bean.isInstructorCurrentlyAssignedToStudent(instructor) ? '-stroke' : ''} btn-sm"
 												action="#{cc.attrs.bean.selectInstructor(instructor)}"

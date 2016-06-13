@@ -201,10 +201,19 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	public void selectInstructor(InstructorData instructor) {
 		try {
 			EventType event = null;
-			if(studentToAssignInstructor.getInstructor() == null) {
+			Map<String, String> params = new HashMap<>();
+			if(studentToAssignInstructor.getInstructor() == null 
+					|| studentToAssignInstructor.getInstructor().getInstructorId() 
+						!= instructor.getInstructorId()) {
 				credInstructorManager.assignStudentToInstructor(studentToAssignInstructor.getUser().getId(), 
 						instructor.getInstructorId(), decodedId);
-				event = EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR;
+				if(studentToAssignInstructor.getInstructor() == null) {
+					event = EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR;
+				} else {
+					event = EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR;
+					params.put("reassignedFromInstructorUserId", 
+							studentToAssignInstructor.getInstructor().getUser().getId() + "");
+				}
 			} else {
 				credInstructorManager.unassignStudentFromInstructor(
 						studentToAssignInstructor.getUser().getId(), decodedId);
@@ -218,7 +227,6 @@ public class CredentialMembersBean implements Serializable, Paginable {
 				target.setId(instructor.getUser().getId());
 				User object = new User();
 				object.setId(studentToAssignInstructor.getUser().getId());
-				Map<String, String> params = new HashMap<>();
 				params.put("credId", decodedId + "");
 				eventFactory.generateEvent(event, loggedUserBean.getUser(), object, target, 
 						page, context, service, params);
@@ -226,9 +234,10 @@ public class CredentialMembersBean implements Serializable, Paginable {
 				logger.error(e);
 			}
 			String action = null;
-			if(event == EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR) {
+			if(event == EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR 
+					|| event == EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR) {
 				studentToAssignInstructor.setInstructor(instructor);
-				action = "assigned";
+				action = (event == EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR ? "re" : "") + "assigned";
 			} else {
 				studentToAssignInstructor.setInstructor(null);
 				action = "unassigned";
