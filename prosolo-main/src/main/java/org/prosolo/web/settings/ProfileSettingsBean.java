@@ -253,17 +253,17 @@ public class ProfileSettingsBean implements Serializable {
 							}
 						}
 
-						MessagesBean messagesBean = (MessagesBean) userSession.getAttribute("messagesBean");
-
-						if (messagesBean != null) {
-							List<MessagesThreadData> messages = messagesBean.getMessagesThreads();
-
-							if (messages != null) {
-								for (MessagesThreadData messageData : messages) {
-									updateUserData(accountData, messageData.getLatest().getActor());
-								}
-							}
-						}
+//						MessagesBean messagesBean = (MessagesBean) userSession.getAttribute("messagesBean");
+//
+//						if (messagesBean != null) {
+//							List<MessagesThreadData> messages = messagesBean.getMessagesThreads();
+//
+//							if (messages != null) {
+//								for (MessagesThreadData messageData : messages) {
+//									updateUserData(accountData, messageData.getLatest().getActor());
+//								}
+//							}
+//						}
 					}
 				}
 			}
@@ -319,7 +319,7 @@ public class ProfileSettingsBean implements Serializable {
 			loggedUser.setUser(updatedUser);
 			loggedUser.initializeAvatar();
 
-			accountData.setAvatarPath(loggedUser.getBigAvatar());
+			accountData.setAvatarPath(loggedUser.getAvatar());
 
 			newAvatar = null;
 

@@ -63,7 +63,8 @@ public class ColleguesBean implements Serializable {
 	
 	public String avatarUrlByUserId(long userId, String size) {
 		if (userId == 0) {
-			return AvatarUtils.getDefaultAvatarUrl();
+//			return AvatarUtils.getDefaultAvatarUrl();
+			return null;
 		}
 		
 		try {
@@ -71,7 +72,8 @@ public class ColleguesBean implements Serializable {
 			return AvatarUtils.getAvatarUrlInFormat(user, ImageFormat.size60x60);
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
-			return AvatarUtils.getDefaultAvatarUrl();
+//			return AvatarUtils.getDefaultAvatarUrl();
+			return null;
 		}
  
 	}

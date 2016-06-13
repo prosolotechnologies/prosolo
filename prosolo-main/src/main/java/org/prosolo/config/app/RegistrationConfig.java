@@ -14,9 +14,6 @@ public class RegistrationConfig {
 	@Element(name = "edx")
 	public boolean edx;
 	
-	@Element(name = "yahoo")
-	public boolean yahoo;
-	
 	@Element(name = "self-registration")
 	public boolean selfRegistration;
 
@@ -26,10 +23,6 @@ public class RegistrationConfig {
 
 	public boolean isEdx() {
 		return edx;
-	}
-
-	public boolean isYahoo() {
-		return yahoo;
 	}
 
 	public boolean isSelfRegistration() {

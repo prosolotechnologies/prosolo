@@ -159,9 +159,18 @@
 									class="#{profileSettings.newAvatar != null ? 'hidden' : ''}">
 
 									<div class="yourPhotoContent">
-										<h:graphicImage styleClass="img-circle" width="100"
+										<h:graphicImage styleClass="img-circle"
+											rendered="#{not empty profileSettings.accountData.avatarPath}"
+											width="100"
 											height="100" alt=""
 											value="#{profileSettings.accountData.avatarPath}" />
+											
+										<h:panelGroup
+											rendered="#{empty profileSettings.accountData.avatarPath}"
+											class="letterAvatar letterAvatar100 img-circle">
+											#{util:initials(profileSettings.accountData.firstName.concat(" ").concat(profileSettings.accountData.lastName))}
+										</h:panelGroup>
+											
 										<div class="chooseBtnBox">
 											<utilcomp:simpleFileUpload id="simpleFileUploadAvatar"
 												fileUploadListenerMethodName="handleFileUpload"

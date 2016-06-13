@@ -88,7 +88,6 @@ import org.prosolo.services.nodes.data.activity.mapper.activity.ActivityMapper;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.web.competences.data.ActivityFormData;
 import org.prosolo.web.competences.data.ActivityType;
-import org.prosolo.web.util.AvatarUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -548,7 +547,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
             user.setPasswordLength(password.length());
         }
         
-        user.setAvatarUrl(AvatarUtils.getDefaultAvatarUrl());
         user.setSystem(system);
         user.setPosition(position);
             

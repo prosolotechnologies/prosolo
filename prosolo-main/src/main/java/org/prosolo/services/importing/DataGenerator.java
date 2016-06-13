@@ -7,7 +7,6 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.web.util.AvatarUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,13 +44,10 @@ public class DataGenerator {
 		uPreferences.setTitle("test");
 		uPreferences.setUser(user);
 		userManager.saveEntity(uPreferences);
-		//user.addPreference(uPreferences);
 		 
 		user.setPassword(oldUser.getPassword());
 		user.setPasswordLength(oldUser.getPassword().length());
-		//Portfolio oldPortfolio=oldUser.getPortfolio();
 		
-		user.setAvatarUrl(AvatarUtils.getDefaultAvatarUrl());
 		user.setSystem(false);
 		userManager.saveEntity(user);
 		userEntityESService.saveUserNode(user,(Session) userManager.getPersistence().currentManager());

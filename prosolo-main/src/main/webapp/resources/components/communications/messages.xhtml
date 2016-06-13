@@ -108,17 +108,18 @@
 			                	<ui:repeat value="#{messagesBean.messagesThreads}" var="messageThreadData" varStatus="iterator">
 			                		 <li thread-readed="#{messageThreadData.readed}" thread-id="#{messageThreadData.id}" 
 			                		 		class="#{messageThreadData.id == messagesBean.threadData.id ? 'active' : ''} #{messageThreadData.readed == false ? 'unreadMessage' : ''}">
+			                		 	
 			                		 	<p:commandLink 
 											action="#{messagesBean.changeThread(messageThreadData)}"
-											update=":#{cc.clientId}:rowDiv :#{cc.clientId}:messagesLink"
+											update=":#{cc.clientId}:rowDiv"
 											onclick="changeConversation(#{messageThreadData.id})"
 											oncomplete="resetPeopleSearchParameters()">
+											
 										<div class="media">
 			                                <div class="media-left">
-			                                    <img src="#{messageThreadData.participantsWithoutLoggedUser.get(0).avatarUrl != null 
-			                                    				? messageThreadData.participantsWithoutLoggedUser.get(0).avatarUrl 
-			                                    				: colleguesBean.avatarUrlByUserId(messageThreadData.participantsWithoutLoggedUser.get(0).id, 60)}" 
-			                                    class="img-circle media-object" width="36" height="36" alt="#{messageThreadData.participantsWithoutLoggedUser.get(0).name}" />
+			                                    <utilcomp:userAvatar
+				                                	avatar="#{messageThreadData.participantsWithoutLoggedUser.get(0).avatarUrl}"
+				                                	fullName="#{messageThreadData.participantsWithoutLoggedUser.get(0).name}" />
 			                                </div>
 			                                <div class="media-body">
 			                                    <h3 class="media-heading">#{messageThreadData.participantsWithoutLoggedUser.get(0).name}</h3>
@@ -277,16 +278,20 @@
 		                    	<div class="typeBox">
 			                        <div class="media">
 			                            <div class="media-left">
-			                                <h:graphicImage
-											value="#{loggeduser.bigAvatar}" alt="#{loggeduser.fullName}"
-											styleClass="img-circle" width="32" height="32" />
+											<utilcomp:userAvatar
+												avatar="#{loggeduser.avatar}"
+												fullName="#{loggeduser.fullName}" />
+												
 			                            </div>
 			                            <div class="media-body">
 			                                <div class="">
-			                                    <p:inputTextarea placeholder="Write message..." value="#{messagesBean.messageText}" id="messageContentTextarea" >
-			                                    </p:inputTextarea>
+			                                    <p:inputTextarea placeholder="Write message..." value="#{messagesBean.messageText}" id="messageContentTextarea" />
 			                                    <script>try{expandTextarea("messageContentTextarea")}catch(e){}</script>
-			                                    <p:commandLink update=":#{cc.clientId}:rowDiv" action="#{messagesBean.sendMessage()}" styleClass="btn btn-green btn-sm">Send</p:commandLink>
+			                                    <p:commandLink value="Send"
+			                                    	styleClass="btn btn-green btn-sm" 
+			                                    	action="#{messagesBean.sendMessage()}" 
+			                                    	update=":#{cc.clientId}:rowDiv" 
+		                                    	/>
 			                                </div>
 			                            </div>
 			                        </div>
@@ -321,7 +326,10 @@
 					                                	<h:panelGroup styleClass="letterAvatar letterAvatar32 img-circle" rendered="#{empty user.avatarUrl}" >
 					                                		#{user.initials}
 					                                	</h:panelGroup>
-					                                	<h:graphicImage  rendered="#{not empty user.avatarUrl}" value="#{user.avatarUrl}" styleClass="img-circle media-object" width="32" height="32" alt="#{user.name}" />
+					                                	<h:graphicImage rendered="#{not empty user.avatarUrl}" value="#{user.avatarUrl}" 
+					                                		styleClass="img-circle media-object" 
+				                                			width="32" height="32" 
+					                                		alt="#{user.name}" />
 					                                    <h3>#{user.name}</h3>
 					                                </a>
 				                            	</li>
