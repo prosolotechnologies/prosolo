@@ -418,32 +418,32 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 
-	@Deprecated
-	@Override
-	@Transactional(readOnly = false)
-	public void publishDraftActivitiesWithoutDraftVersion(List<Long> actIds) 
-			throws DbConnectionException {
-		try {
-			if(actIds == null || actIds.isEmpty()) {
-				return;
-			}
-			
-			String query = "UPDATE Activity1 act " +
-						   "SET act.published = :published " + 
-						   "WHERE act.hasDraft = :hasDraft " +
-						   "AND act.id IN :actIds";
-			persistence.currentManager()
-				.createQuery(query)
-				.setBoolean("published", true)
-				.setBoolean("hasDraft", false)
-				.setParameterList("actIds", actIds)
-				.executeUpdate();
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while updating activities");
-		}
-	}
+//	@Deprecated
+//	@Override
+//	@Transactional(readOnly = false)
+//	public void publishDraftActivitiesWithoutDraftVersion(List<Long> actIds) 
+//			throws DbConnectionException {
+//		try {
+//			if(actIds == null || actIds.isEmpty()) {
+//				return;
+//			}
+//			
+//			String query = "UPDATE Activity1 act " +
+//						   "SET act.published = :published " + 
+//						   "WHERE act.hasDraft = :hasDraft " +
+//						   "AND act.id IN :actIds";
+//			persistence.currentManager()
+//				.createQuery(query)
+//				.setBoolean("published", true)
+//				.setBoolean("hasDraft", false)
+//				.setParameterList("actIds", actIds)
+//				.executeUpdate();
+//		} catch(Exception e) {
+//			logger.error(e);
+//			e.printStackTrace();
+//			throw new DbConnectionException("Error while updating activities");
+//		}
+//	}
 
 //	private List<Long> getAllCompetenceActivitiesIds(Long compId) {
 //		try {
@@ -535,8 +535,11 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					 * object with hql so instanceof will give expected result
 					 */
 					persistence.currentManager().evict(res.getDraftVersion());
-					String query2 = query + 
-							" WHERE act.id = :draftVersion";
+					String query2 = "SELECT act " +
+							   		"FROM Activity1 act " +
+							   		"LEFT JOIN fetch act.links link " +
+							   		"LEFT JOIN fetch act.files file " +
+							   		"WHERE act.id = :draftVersion";
 					Activity1 draftAct = (Activity1) persistence.currentManager()
 							.createQuery(query2)
 							.setLong("draftVersion", draftVersionId)
@@ -750,7 +753,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = false)
-	public Activity1 updateActivity(ActivityData data, long userId) throws DbConnectionException {
+	public Activity1 updateActivity(long originalActivityId, ActivityData data, long userId) 
+			throws DbConnectionException {
 		try {
 			Activity1 act = resourceFactory.updateActivity(data, userId);
 			Class<? extends Activity1> actClass = null;
@@ -767,46 +771,13 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			if(data.isPublished()) {
 				//activity remains published
 				if(!data.isPublishedChanged()) {
-					Map<String, String> params = new HashMap<>();
-					boolean linksChanged = false;
-					for(ResourceLinkData rl : data.getLinks()) {
-						if(rl.getStatus() != ObjectStatus.UP_TO_DATE) {
-							linksChanged = true;
-							break;
-						}
-					}
-					boolean filesChanged = false;
-					for(ResourceLinkData rl : data.getFiles()) {
-						if(rl.getStatus() != ObjectStatus.UP_TO_DATE) {
-							filesChanged = true;
-							break;
-						}
-					}
-				    ActivityChangeTracker changeTracker = new ActivityChangeTracker(
-				    		actClass, 
-				    		data.isPublished(), 
-				    		false, 
-				    		data.isTitleChanged(), 
-				    		data.isDescriptionChanged(), 
-				    		data.isDurationHoursChanged() || data.isDurationMinutesChanged(), 
-				    		linksChanged, 
-				    		filesChanged, 
-				    		data.isUploadAssignmentChanged(), 
-				    		data.isTextChanged(), 
-				    		data.isLinkChanged(), 
-				    		data.isLaunchUrlChanged(), 
-				    		data.isConsumerKeyChanged(), 
-				    		data.isSharedSecretChanged());
-				    Gson gson = new GsonBuilder().create();
-				    String jsonChangeTracker = gson.toJson(changeTracker);
-				    params.put("changes", jsonChangeTracker);
-				    eventFactory.generateEvent(EventType.Edit, user, act, params);
+					fireSameVersionActivityEditEvent(actClass, data, user, act, 0);
 				} 
 				/*
 				 * this means that activity is published for the first time
 				 */
 				else if(!data.isDraft()) {
-					eventFactory.generateEvent(EventType.Create, user, act);
+					eventFactory.generateEvent(fireFirstTimePublishActivityEvent(user, act));
 				}
 				/*
 				 * Activity becomes published again. Because data can show what has changed
@@ -814,23 +785,19 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				 * original activity, so all fields are treated as changed.
 				 */
 				else {
-					Map<String, String> params = new HashMap<>();
-				    ActivityChangeTracker changeTracker = new ActivityChangeTracker(
-				    		actClass, true, true, true, true, true, true, true, true, true, true, 
-				    		true, true, true);
-				    Gson gson = new GsonBuilder().create();
-				    String jsonChangeTracker = gson.toJson(changeTracker);
-				    params.put("changes", jsonChangeTracker);
-				    params.put("draftVersionId", data.getActivityId() + "");
-				    eventFactory.generateEvent(EventType.Edit, user, act, params);
+				    eventFactory.generateEvent(fireActivityPublishedAgainEditEvent(actClass, user, act, 
+				    		data.getActivityId()));
 				}
 			} else {
 				/*
 				 * if activity remains draft
 				 */
 				if(!data.isPublishedChanged()) {
-					Map<String, String> params = null;				    
-					eventFactory.generateEvent(EventType.Edit_Draft, user, act, params);
+					long originalVersionId = 0;
+					if(data.isDraft()) {
+						originalVersionId = originalActivityId;
+					}
+					fireSameVersionActivityEditEvent(actClass, data, user, act, originalVersionId);
 				} 
 				/*
 				 * This means that activity was published before so draft version is created.
@@ -852,6 +819,75 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			dbe.printStackTrace();
 			throw dbe;
 		}
+	}
+	
+	private void fireSameVersionActivityEditEvent(Class<? extends Activity1> actClass, 
+			ActivityData data, User user, Activity1 act, long originalVersionId) throws EventException {
+		Map<String, String> params = new HashMap<>();
+		boolean linksChanged = false;
+		for(ResourceLinkData rl : data.getLinks()) {
+			if(rl.getStatus() != ObjectStatus.UP_TO_DATE) {
+				linksChanged = true;
+				break;
+			}
+		}
+		boolean filesChanged = false;
+		for(ResourceLinkData rl : data.getFiles()) {
+			if(rl.getStatus() != ObjectStatus.UP_TO_DATE) {
+				filesChanged = true;
+				break;
+			}
+		}
+	    ActivityChangeTracker changeTracker = new ActivityChangeTracker(
+	    		actClass, 
+	    		data.isPublished(), 
+	    		false, 
+	    		data.isTitleChanged(), 
+	    		data.isDescriptionChanged(), 
+	    		data.isDurationHoursChanged() || data.isDurationMinutesChanged(), 
+	    		linksChanged, 
+	    		filesChanged, 
+	    		data.isUploadAssignmentChanged(), 
+	    		data.isTextChanged(), 
+	    		data.isLinkChanged(), 
+	    		data.isLaunchUrlChanged(), 
+	    		data.isConsumerKeyChanged(), 
+	    		data.isSharedSecretChanged());
+	    Gson gson = new GsonBuilder().create();
+	    String jsonChangeTracker = gson.toJson(changeTracker);
+	    params.put("changes", jsonChangeTracker);
+	  
+	    if(originalVersionId > 0) {
+	    	params.put("originalVersionId", originalVersionId + "");
+	    }
+	    EventType event = data.isPublished() ? EventType.Edit : EventType.Edit_Draft;
+	    eventFactory.generateEvent(event, user, act, params);
+	}
+	
+	private EventData fireFirstTimePublishActivityEvent(User user, Activity1 act) {
+		EventData ev = new EventData();
+		ev.setEventType(EventType.Create);
+		ev.setActor(user);
+		ev.setObject(act);
+		return ev;
+	}
+	
+	private EventData fireActivityPublishedAgainEditEvent(Class<? extends Activity1> actClass, User user, 
+			Activity1 act, long draftVersionId) {
+		Map<String, String> params = new HashMap<>();
+	    ActivityChangeTracker changeTracker = new ActivityChangeTracker(
+	    		actClass, true, true, true, true, true, true, true, true, true, true, 
+	    		true, true, true);
+	    Gson gson = new GsonBuilder().create();
+	    String jsonChangeTracker = gson.toJson(changeTracker);
+	    params.put("changes", jsonChangeTracker);
+	    params.put("draftVersionId", draftVersionId + "");
+	    EventData ev = new EventData();
+	    ev.setEventType(EventType.Edit);
+	    ev.setActor(user);
+	    ev.setObject(act);
+	    ev.setParameters(params);
+	    return ev;
 	}
 	
 	@Override
@@ -1964,12 +2000,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = false)
-	public void publishActivitiesFromCompetence(long compId) 
+	public List<EventData> publishActivitiesFromCompetences(List<Long> compIds) 
 			throws DbConnectionException {
 		try {
-			List<Activity1> acts = getDraftActivitiesFromCompetence(compId);
+			List<Activity1> acts = getDraftActivitiesFromCompetences(compIds);
 			//publishDraftActivitiesWithoutDraftVersion(actIds);
-			publishDraftActivitiesFromList(acts);
+			return publishDraftActivitiesFromList(acts);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1979,12 +2015,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = false)
-	public void publishDraftActivities(List<Long> actIds) 
+	public List<EventData> publishDraftActivities(List<Long> actIds) 
 			throws DbConnectionException {
 		try {
 			//get all draft activities
 			List<Activity1> acts = getDraftActivitiesFromList(actIds);
-			publishDraftActivitiesFromList(acts);
+			return publishDraftActivitiesFromList(acts);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1998,34 +2034,48 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	 * @throws DbConnectionException
 	 */
 	@Transactional(readOnly = false)
-	private void publishDraftActivitiesFromList(List<Activity1> activities) 
+	private List<EventData> publishDraftActivitiesFromList(List<Activity1> activities) 
 			throws DbConnectionException {
 		//iterate through list and if activity does not have draft version set to published, 
 		//if it has, copy data from draft version to original and set published to true
+		List<EventData> events = new ArrayList<>();
 		for(Activity1 a : activities) {
+			User user = new User();
+			user.setId(a.getId());
 			if(a.isHasDraft()) {
+				Class<? extends Activity1> actClass = null;
+				if(a instanceof TextActivity1) {
+					actClass = TextActivity1.class;
+				} else if(a instanceof UrlActivity1) {
+					actClass = UrlActivity1.class;
+				} else if(a instanceof ExternalToolActivity1) {
+					actClass = ExternalToolActivity1.class;
+				}
 				long draftVersionId = a.getDraftVersion().getId();
 				//persistence.currentManager().evict(a.getDraftVersion());
 				Activity1 draftA = getActivity(draftVersionId, true);
 				draftA = HibernateUtil.initializeAndUnproxy(draftA);
 				publishDraftVersion(a, draftA);
+			    events.add(fireActivityPublishedAgainEditEvent(actClass, user, a, 
+			    		draftVersionId));
 			} else {
 				a.setPublished(true);
+				events.add(fireFirstTimePublishActivityEvent(user, a));
 			}
 		}
+		return events;
 	}
 	
 	@Transactional(readOnly = true)
-	private List<Activity1> getDraftActivitiesFromCompetence(long compId) {
+	private List<Activity1> getDraftActivitiesFromCompetences(List<Long> compIds) {
 		String query = "SELECT act FROM CompetenceActivity1 cAct " +
 					   "INNER JOIN cAct.activity act " +
-					   "WHERE cAct.competence.id = :compId " +
+					   "WHERE cAct.competence.id IN (:compIds) " +
 					   "AND act.published = :published";
-		
 		
 		Query q = persistence.currentManager()
 				.createQuery(query)
-				.setLong("compId", compId)
+				.setParameterList("compIds", compIds)
 				.setBoolean("published", false);
 		
 		@SuppressWarnings("unchecked")

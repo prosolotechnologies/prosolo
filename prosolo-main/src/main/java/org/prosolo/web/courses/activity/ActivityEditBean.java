@@ -288,7 +288,7 @@ public class ActivityEditBean implements Serializable {
 					if(saveAsDraft) {
 						activityData.setStatus(PublishedStatus.DRAFT);
 					}
-					activityManager.updateActivity(activityData, 
+					activityManager.updateActivity(decodedId, activityData, 
 							loggedUser.getUser().getId());
 				}
 			} else {

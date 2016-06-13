@@ -1298,36 +1298,36 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 //		}
 //	}
 
-	@Deprecated
-	@Override
-	@Transactional(readOnly = false)
-	public void publishDraftCompetencesWithoutDraftVersion(List<Long> compIds) 
-			throws DbConnectionException {
-		try {
-			if(compIds == null || compIds.isEmpty()) {
-				return;
-			}
-			
-			String query = "UPDATE Competence1 comp " +
-						   "SET comp.published = :published " + 
-						   "WHERE comp.hasDraft = :hasDraft " +
-						   "AND comp.id IN :compIds";
-			persistence.currentManager()
-				.createQuery(query)
-				.setBoolean("published", true)
-				.setBoolean("hasDraft", false)
-				.setParameterList("compIds", compIds)
-				.executeUpdate();
-			
-			for(Long compId : compIds) {
-				activityManager.publishActivitiesFromCompetence(compId);
-			}
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while updating competences");
-		}
-	}
+//	@Deprecated
+//	@Override
+//	@Transactional(readOnly = false)
+//	public void publishDraftCompetencesWithoutDraftVersion(List<Long> compIds) 
+//			throws DbConnectionException {
+//		try {
+//			if(compIds == null || compIds.isEmpty()) {
+//				return;
+//			}
+//			
+//			String query = "UPDATE Competence1 comp " +
+//						   "SET comp.published = :published " + 
+//						   "WHERE comp.hasDraft = :hasDraft " +
+//						   "AND comp.id IN :compIds";
+//			persistence.currentManager()
+//				.createQuery(query)
+//				.setBoolean("published", true)
+//				.setBoolean("hasDraft", false)
+//				.setParameterList("compIds", compIds)
+//				.executeUpdate();
+//			
+//			for(Long compId : compIds) {
+//				activityManager.publishActivitiesFromCompetence(compId);
+//			}
+//		} catch(Exception e) {
+//			logger.error(e);
+//			e.printStackTrace();
+//			throw new DbConnectionException("Error while updating competences");
+//		}
+//	}
 	
 	@Override
 	@Transactional(readOnly = false)
@@ -1745,12 +1745,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				if(numberOfActivities == 0) {
 					throw new CompetenceEmptyException();
 				}
-				/*
-				 * all activities should be passed because competence creator is creator 
-				 * of all activities in that competence
-				 */
-				activityManager.publishActivitiesFromCompetence(c.getId());
 			}
+			
+			List<EventData> actEvents = activityManager.publishActivitiesFromCompetences(compIds);
+			events.addAll(actEvents);
 			return events;
 		} catch(CompetenceEmptyException cee) {
 			logger.error(cee);
@@ -1763,6 +1761,15 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
+	/**
+	 * Return all draft competences that satisfy condition:
+	 * for user role if competence creator id equals {@code userId},
+	 * for manager role if competence is created by university
+	 * @param compIds
+	 * @param userId
+	 * @param role
+	 * @return
+	 */
 	@Transactional(readOnly = true)
 	private List<Competence1> getDraftCompetencesFromList(List<Long> compIds, long userId, Role role) {
 		StringBuilder queryB = new StringBuilder("SELECT comp FROM Competence1 comp " +

@@ -142,13 +142,13 @@ public interface Competence1Manager {
 	List<Tag> getCompetenceTags(long compId, Session session) 
 			throws DbConnectionException;
 
-	/**
-	 * Sets published to true for all competences from the list that do not have
-	 * draft version
-	 * @param compIds
-	 * @throws DbConnectionException
-	 */
-	void publishDraftCompetencesWithoutDraftVersion(List<Long> compIds) throws DbConnectionException;
+//	/**
+//	 * Sets published to true for all competences from the list that do not have
+//	 * draft version
+//	 * @param compIds
+//	 * @throws DbConnectionException
+//	 */
+//	void publishDraftCompetencesWithoutDraftVersion(List<Long> compIds) throws DbConnectionException;
 	
 	/**
 	 * Call this method when you want to add activity to competence.

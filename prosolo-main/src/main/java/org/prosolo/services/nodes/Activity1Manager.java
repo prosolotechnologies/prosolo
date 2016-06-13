@@ -7,6 +7,7 @@ import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.services.common.exception.DbConnectionException;
+import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
@@ -32,20 +33,20 @@ public interface Activity1Manager {
 			throws DbConnectionException;
 
 	/**
-	 * Publishes all activities from competence with specified id.
-	 * @param compId
+	 * Publishes all activities from competences with specified ids.
+	 * @param compIds
 	 * @throws DbConnectionException
 	 */
-	void publishActivitiesFromCompetence(long compId) 
+	List<EventData> publishActivitiesFromCompetences(List<Long> compIds) 
 			throws DbConnectionException;
 	
-	/**
-	 * Sets published to true for all activities from the list that do not have
-	 * draft version
-	 * @param actIds
-	 * @throws DbConnectionException
-	 */
-	void publishDraftActivitiesWithoutDraftVersion(List<Long> actIds) throws DbConnectionException;
+//	/**
+//	 * Sets published to true for all activities from the list that do not have
+//	 * draft version
+//	 * @param actIds
+//	 * @throws DbConnectionException
+//	 */
+//	void publishDraftActivitiesWithoutDraftVersion(List<Long> actIds) throws DbConnectionException;
 	
 	List<CompetenceActivity1> getCompetenceActivities(long competenceId, boolean loadResourceLinks) 
 			throws DbConnectionException;
@@ -53,7 +54,8 @@ public interface Activity1Manager {
 	ActivityData getActivityDataForEdit(long competenceId, long activityId, long creatorId) 
 			throws DbConnectionException;
 	
-	Activity1 updateActivity(ActivityData data, long userId) throws DbConnectionException;
+	Activity1 updateActivity(long originalActivityId, ActivityData data, long userId) 
+			throws DbConnectionException;
 	
 	Activity1 updateActivityData(ActivityData data, long userId);
 	
@@ -145,7 +147,7 @@ public interface Activity1Manager {
 	ActivityData getCurrentVersionOfActivityForManager(long competenceId, long activityId) 
 			throws DbConnectionException;
 	
-	void publishDraftActivities(List<Long> actIds) 
+	List<EventData> publishDraftActivities(List<Long> actIds) 
 			throws DbConnectionException;
 
 }
