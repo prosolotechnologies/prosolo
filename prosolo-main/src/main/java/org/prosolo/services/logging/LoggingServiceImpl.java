@@ -1,7 +1,6 @@
 package org.prosolo.services.logging;
 
 import static java.lang.String.format;
-import static java.util.Calendar.DAY_OF_MONTH;
 import static org.prosolo.common.domainmodel.activities.events.EventType.Comment;
 import static org.prosolo.common.domainmodel.activities.events.EventType.Dislike;
 import static org.prosolo.common.domainmodel.activities.events.EventType.EVALUATION_ACCEPTED;
@@ -18,8 +17,6 @@ import static org.prosolo.common.domainmodel.activities.events.EventType.SEND_ME
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,7 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 
 import javax.annotation.PostConstruct;
 
@@ -48,12 +44,9 @@ import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.UserSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.comments.NodeComment;
 import org.prosolo.common.domainmodel.activitywall.comments.SocialActivityComment;
-import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.content.Post;
 import org.prosolo.common.domainmodel.evaluation.EvaluationSubmission;
-import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.activityreport.LoggedEvent;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.context.ContextName;
@@ -62,7 +55,6 @@ import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.logging.exception.LoggingException;
 import org.prosolo.services.messaging.LogsMessageDistributer;
 import org.prosolo.services.nodes.CourseManager;
-import org.prosolo.web.ApplicationPage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -292,7 +284,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			logObject.put("reasonId", reasonId);
 			logObject.put("link", link);
 
-			logObject.put("courseId",extractCourseIdForUsedResource(objectType, objectId, targetType, targetId, reasonType, reasonId,null));
+			//logObject.put("courseId",extractCourseIdForUsedResource(objectType, objectId, targetType, targetId, reasonType, reasonId,null));
 			Long targetUserId=(long) 0;
 			if(Arrays.asList(interactions).contains(eventType)){
 				//System.out.println("INTERACTION SHOULD BE PROCESSED:"+logObject.toString());
@@ -407,34 +399,14 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		return targetUserId;
 	}
 
-	private Long extractCourseIdForUsedResource(String objectType, long objectId, String targetType, long targetId, String reasonType, long reasonId,LearningContext learningContext) {
-		Map<String, Long> types=new HashMap<String, Long>();
-		types.put(objectType, objectId);
-		types.put(targetType, targetId);
-		types.put(reasonType, reasonId);
+	private Long extractCourseIdForUsedResource(LearningContext learningContext) {
 		Long courseId=0l;
-		if(types.containsKey(TargetLearningGoal.class.getSimpleName())){
-			courseId= courseManager.findCourseIdForTargetLearningGoal(types.get(TargetLearningGoal.class.getSimpleName()));
-		}else if(types.containsKey(TargetCompetence.class.getSimpleName())){
-			courseId= courseManager.findCourseIdForTargetCompetence(types.get(TargetCompetence.class.getSimpleName()));
-		}else if(types.containsKey(TargetActivity.class.getSimpleName())){
-			courseId= courseManager.findCourseIdForTargetActivity(types.get(TargetActivity.class.getSimpleName()));
-		}/*else  if(types.containsKey("NodeRequest ...")){
-			System.out.println("Node request ...");
-		}else  if(types.containsKey("PostSocialActivity")){
-			System.out.println("Post Social Activity ...");
-		}else if(types.containsKey("SocialActivityComment")){
-			System.out.println("SHOULD GET SOCIAL ACTIVITY COMMENT");
-		}*/
-		if(courseId==0 && learningContext!=null && learningContext.getPage()!=null){
-			if(learningContext.getPage().equals(ApplicationPage.LEARN)){
-				if(learningContext.getContext().getName().equals(ContextName.CREDENTIAL)){
+		if(learningContext != null && learningContext.getContext() != null) { 
+			if(learningContext.getContext().getName().equals(ContextName.CREDENTIAL)){
 					courseId=learningContext.getContext().getId();
-				}
+					System.out.println("ExtractedCourse id:"+courseId);
 			}
 		}
-			System.out.println("ExtractedCourse id:"+courseId);
-
 		return courseId;
 	}
 
@@ -722,7 +694,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 				}
 			}
 
-			logObject.put("courseId",extractCourseIdForUsedResource(objectType, objectId, targetType, targetId, reasonType, reasonId,learningContext));
+			logObject.put("courseId",extractCourseIdForUsedResource(learningContext));
 			Long targetUserId=(long) 0;
 
 			if (parameters != null && !parameters.isEmpty()) {
