@@ -23,25 +23,25 @@
 			}
 			
 			function handleTyping(id) {
-				var item = $("#"+id)
+				var item = $("#messages\\:"+id)
 				if(item.val().length >= 3) {
-					$('#usersList').show();
+					$('#messages\\:usersList').show();
 					return true;
 				}
 				//if we got some results, then backspaced back to, say, 2 letters, reset list
-				$('#usersList').empty();
-				$('#usersList').hide();
+				$('#messages\\:usersList').empty();
+				$('#messages\\:usersList').hide();
 				return false;
 			}
 			
 			function hideConfirmDialog(dialogId) {
-				$('#'+dialogId).modal('hide');
+				$('#messages\\:'+dialogId).modal('hide');
 				$("body").removeAttr("class").removeAttr("style")
 				$("div.modal-backdrop.fade.in").remove()
 			}
 			
 			function expandTextarea(id) {
-			    var $element = $('#'+id).get(0);  
+			    var $element = $('#messages\\:'+id).get(0);  
 			    $element.addEventListener('keyup', function() {
 			        this.style.overflow = 'hidden';
 			        this.style.height = 0;
@@ -50,13 +50,13 @@
 			}
 			
 			function returnFocusMessageText() {
-				$("#messageContentTextarea").focus();
+				$("#messages\\:messageContentTextarea").focus();
 			}
 			
 			function setRecipient(name,id) {
-				$("#messageRecievingUserName").val(name)
+				$("#messages\\:messageRecievingUserName").val(name)
 				setupNewMessageThread([{name:'newThreadRecipients', value:id}])
-				$("#newMessageContentTextarea").focus()
+				$("#messages\\:newMessageContentTextarea").focus()
 				resetPeopleSearchParameters()
 			}
 		</script>
@@ -110,7 +110,7 @@
 			                		 		class="#{messageThreadData.id == messagesBean.threadData.id ? 'active' : ''} #{messageThreadData.readed == false ? 'unreadMessage' : ''}">
 			                		 	<p:commandLink 
 											action="#{messagesBean.changeThread(messageThreadData)}"
-											update=":#{cc.clientId}:rowDiv :#{cc.clientId}:messagesLink"
+											update=":#{cc.clientId}:rowDiv"
 											onclick="changeConversation(#{messageThreadData.id})"
 											oncomplete="resetPeopleSearchParameters()">
 										<div class="media">
