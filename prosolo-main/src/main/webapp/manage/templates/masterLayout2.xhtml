@@ -65,13 +65,13 @@
 								</a>
 							</li>
 							<li role="presentation"
-								class="#{util:getPagePath(view.viewId)  == 'manage-credentialLibrary' ? 'active' : ''}">
+								class="#{util:getPagePath(view.viewId)  == 'credentialLibrary' ? 'active' : ''}">
 								<a onclick="sendLogPageNavigation('manage-credentialLibrary','mainmenu');" href="/manage/library">
 									Library
 								</a>
 							</li>
 							<li role="presentation"
-								class="#{util:getPagePath(view.viewId)  == 'manage-students' ? 'active' : ''}">
+								class="#{util:getPagePath(view.viewId)  == 'credential-students' ? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('manage-students','mainmenu');"
 									value="Students" />
 							</li>
@@ -157,7 +157,7 @@
 								<li>
 									<h:link onclick="sendLogPageNavigation('settings','mainmenu');"
 										value="Account Settings" 
-										outcome="/settings" />
+										outcome="/manage/settings" />
 								</li>
 								<li>
 									<h:commandLink id="userLogout" 

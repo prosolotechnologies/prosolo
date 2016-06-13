@@ -1,0 +1,228 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:util="http://www.prosolo.com/util">
+
+	<composite:interface>
+		<composite:attribute name="toUpdate" default="" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<link rel="stylesheet" type="text/css" media="all"
+			href="#{request.contextPath}/resources/css2/icropper.css" />
+		<script
+			src="#{request.contextPath}/resources/javascript2/icropper/icropper-min.js"></script>
+
+		<div class="whiteBar"></div>
+
+		<div class="container">
+
+			<div class="row">
+				<div class="col-md-8">
+					<div class="whiteBox">
+						<h2>Personal Info</h2>
+						<div class="formWrapper">
+							<h:form id="settingsPersonalForm">
+								<p:growl id="settingsPersonalGrowl" showDetail="true"></p:growl>
+								<div class="formLine">
+									<label>First name</label>
+									<div class="formLineRight">
+										<h:inputText id="editName" class="editName"
+											value="#{profileSettings.accountData.firstName}" />
+									</div>
+								</div>
+								<div class="formLine">
+									<label>Last name</label>
+									<div class="formLineRight">
+										<h:inputText id="editLastName" class="editLastName"
+											value="#{profileSettings.accountData.lastName}" />
+									</div>
+								</div>
+								<div class="formLine">
+									<label>Email</label>
+									<div class="formLineRight">
+										<h:inputText id="editEmail" class="editEmail"
+											value="#{profileSettings.accountData.email}" />
+										<small>Email will not be publicly displayed.</small>
+									</div>
+								</div>
+								<div class="formLine">
+									<label>Position</label>
+									<div class="formLineRight">
+										<h:inputText id="editPosition" class="editPosition"
+											value="#{profileSettings.accountData.position}" />
+									</div>
+								</div>
+								<div class="formLine">
+									<label>Location</label>
+									<div class="formLineRight">
+										<h:inputText id="editLocationName"
+											class="searchLocationTextField" size="50"
+											value="#{profileSettings.accountData.locationName}" />
+									</div>
+								</div>
+								<div class="formLine">
+									<label>&#160;</label>
+									<div class="formLineRight">
+										<p:commandLink styleClass="btn btn-green" value="Save Changes"
+											action="#{profileSettings.saveAccountChanges}"
+											update=":#{cc.clientId}:settingsPersonalForm #{cc.attrs.toUpdate}" />
+									</div>
+								</div>
+							</h:form>
+						</div>
+					</div>
+					<div class="whiteBox socialNetworks">
+						<h2>Social Profiles</h2>
+						<div class="formWrapper">
+							<h:form id="socialNetworksSettingsForm">
+								<p:growl id="settingsSocialNetworksGrowl" showDetail="true"></p:growl>
+								<h:panelGroup layout="block" id="socialNetworksContainer"
+									class="socialNetworksContainer">
+									<div class="formLine">
+										<label>LinkedIn username</label>
+										<div class="formLineRight">
+											<h:inputText
+												value="#{profileSettings.socialNetworksData.socialNetworkAccountDatas['LINKEDIN'].linkEdit}" />
+										</div>
+									</div>
+									<div class="formLine">
+										<label>Twitter username</label>
+										<div class="formLineRight">
+											<h:inputText
+												value="#{profileSettings.socialNetworksData.socialNetworkAccountDatas['TWITTER'].linkEdit}" />
+											<div class="twitterBtnBox">
+												<h:panelGroup id="twitter">
+													<h:panelGroup rendered="#{!twitterBean.OK}">
+														<p:commandLink styleClass="btn btnTwitterConnect btn-sm"
+															action="#{twitterBean.startTweeterOauthAuthProcess}"
+															update=":#{cc.clientId}:socialNetworksSettingsForm:twitter settingsSocialNetworksGrowl">
+															<span></span>Connect to Twitter
+														</p:commandLink>
+														<small>Connect your Twitter account and republish
+															your tweets to your ProSolo followers.</small>
+													</h:panelGroup>
+													<h:panelGroup rendered="#{twitterBean.OK}">
+														<p:commandLink styleClass="btn btnTwitterConnect btn-sm"
+															action="#{twitterBean.disconnectUserAccount}"
+															update=":#{cc.clientId}:socialNetworksSettingsForm:twitter settingsSocialNetworksGrowl">
+															<span></span>Disconnect from Twitter
+														</p:commandLink>
+													</h:panelGroup>
+												</h:panelGroup>
+
+											</div>
+										</div>
+									</div>
+									<div class="formLine">
+										<label>Facebook username</label>
+										<div class="formLineRight">
+											<h:inputText
+												value="#{profileSettings.socialNetworksData.socialNetworkAccountDatas['FACEBOOK'].linkEdit}" />
+										</div>
+									</div>
+									<div class="formLine">
+										<label>Blog URL</label>
+										<div class="formLineRight">
+											<h:inputText value="#{profileSettings.socialNetworksData.socialNetworkAccountDatas['BLOG'].linkEdit}" />
+										</div>
+									</div>
+									<div class="formLine">
+										<label>&#160;</label>
+										<div class="formLineRight">
+											<p:commandLink styleClass="btn btn-green"
+												value="Save Changes"
+												action="#{profileSettings.saveSocialNetworkChanges}"
+												update="settingsSocialNetworksGrowl #{cc.attrs.toUpdate}" />
+										</div>
+									</div>
+								</h:panelGroup>
+							</h:form>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-4">
+					<div class="whiteBox yourPhotoBox">
+						<h2>Your Photo</h2>
+						<h:form id="settingsAvatarForm">
+							<p:growl id="settingsAvatarFormGrowl" showDetail="true"
+								enctype="multipart/form-data" />
+							<h:panelGroup layout="block" id="avatar" class="avatar">
+								<h:panelGroup layout="block" id="displayAvatar"
+									class="#{profileSettings.newAvatar != null ? 'hidden' : ''}">
+
+									<div class="yourPhotoContent">
+										<h:graphicImage styleClass="img-circle" width="100"
+											height="100" alt=""
+											value="#{profileSettings.accountData.avatarPath}" />
+										<div class="chooseBtnBox">
+											<utilcomp:simpleFileUpload id="simpleFileUploadAvatar"
+												fileUploadListenerMethodName="handleFileUpload"
+												fileUploadListenerMethod="#{profileSettings.handleFileUpload}"
+												toUpdate=":#{cc.clientId}:settingsAvatarForm:editAvatar :#{cc.clientId}:settingsAvatarForm:displayAvatar"
+												uploadButtonStyle="btn btn-green" />
+											<div class="clear"></div>
+											<small>JPG or PNG,<br />Min 400x400 px.
+											</small>
+										</div>
+									</div>
+
+								</h:panelGroup>
+								<h:panelGroup layout="block" id="editAvatar"
+									class="#{profileSettings.newAvatar == null ? 'hidden' : ''}">
+									<div class="second">
+										<div class="cropperContainer">
+											<div id="croppedImage"></div>
+											<div class="previewSmallContainer">
+												<span class="center">Preview:</span>
+												<div id="previewSmall"></div>
+											</div>
+										</div>
+
+										<div class="clear"></div>
+										<p:commandLink styleClass="btn" value="Crop and Save"
+											onclick="$('.avatar .hiddenCoordinates').val(ic.getInfo().t+'_'+ic.getInfo().l+'_'+ic.getInfo().w+'_'+ic.getInfo().h);"
+											action="#{profileSettings.crop()}"
+											process="hiddenCoordinates"
+											update=":#{cc.clientId}:settingsAvatarForm:avatar :#{cc.clientId}:settingsAvatarForm:settingsAvatarFormGrowl" />
+
+										<p:commandLink styleClass="btn" value="Cancel"
+											action="#{profileSettings.cancelCrop()}"
+											update=":#{cc.clientId}:settingsAvatarForm:avatar" />
+
+										<h:inputText id="hiddenCoordinates" class="hiddenCoordinates"
+											style="display:none;"
+											value="#{profileSettings.cropCoordinates}" />
+
+										<script type="text/javascript">
+								var ic = new ICropper('croppedImage',{
+										minWidth: 100,
+										minHeight: 100,
+										keepSquare: true,
+										image: '#{profileSettings.newAvatar}',
+										preview: [
+											'previewSmall'
+										]
+									});
+							</script>
+									</div>
+								</h:panelGroup>
+								<script>
+						$('.avatar').fadeIn();
+						roundImages();
+					</script>
+							</h:panelGroup>
+						</h:form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</composite:implementation>
+</ui:component>

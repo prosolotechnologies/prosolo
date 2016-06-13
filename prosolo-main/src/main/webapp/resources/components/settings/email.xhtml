@@ -1,0 +1,48 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:util="http://www.prosolo.com/util">
+
+	<composite:interface>
+
+	</composite:interface>
+	
+	<composite:implementation>
+		<div class="whiteBar"></div>
+
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="whiteBox settingsEmailNotifications">
+						<h2>Email me when:</h2>
+
+						<h:form id="emailNotificationsSettingsForm">
+							<p:growl id="emailNotificationsSettingsFormGrowl" showDetail="true" />
+							
+							<ui:repeat
+								value="#{notificationsSettingsBean.notificationsSettings.settings}"
+								var="notificationSettings">
+								<div class="checkbox checkLine">
+									<h:selectBooleanCheckbox id="notificationSettings" value="#{notificationSettings.subscribedEmail}" />
+									<h:outputLabel for="notificationSettings"
+										value="#{msg['settings.notifications.'.concat(notificationSettings.type.name())]}" />
+								</div>
+							</ui:repeat>
+							<p:commandLink styleClass="btn btn-green" value="Save Changes"
+								process=""
+								action="#{notificationsSettingsBean.saveChanges}"
+								update=":#{cc.clientId}:emailNotificationsSettingsForm" />
+						</h:form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</composite:implementation>
+</ui:component>

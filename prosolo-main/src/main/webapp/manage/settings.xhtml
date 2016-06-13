@@ -3,7 +3,10 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui"
-	template="../templates/masterLayout2.xhtml"
+	template="templates/masterLayout2.xhtml"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:util="http://www.prosolo.com/util"
 	xmlns:settings="http://java.sun.com/jsf/composite/components/settings">
 
 	<ui:define name="windowTitle">
@@ -23,23 +26,25 @@
 				<li role="presentation"
 					class="#{util:getPagePath(view.viewId)  == 'settings' ? 'active' : ''}"><h:link
 						onclick="sendLogPageNavigation('settings','mainmenu');"
-						value="Personal info" outcome="/settings" /></li>
+						value="Personal info" outcome="/manage/settings" /></li>
 				<li role="presentation"
 					class="#{util:getPagePath(view.viewId) == 'email' ? 'active' : ''}"><h:link
-						onclick="sendLogPageNavigation('settings/email','mainmenu');"
+						onclick="sendLogPageNavigation('/manage/settings/email','mainmenu');"
 						value="Email
-						Notifications" outcome="/settings/email" /></li>
+						Notifications" outcome="/manage/settings/email" /></li>
 				<li role="presentation"
 					class="#{util:getPagePath(view.viewId)  == 'password' ? 'active' : ''}"><h:link
 						onclick="sendLogPageNavigation('settings/password','mainmenu');"
 						value="Change
-						Password" outcome="/settings/password" /></li>
+						Password" outcome="/manage/settings/password" /></li>
 			</ul>
 		</h:panelGroup>
 	</ui:define>
 
-
 	<ui:define name="content">
-		<settings:email id="email" />
+		<settings:settings 
+			id="settings" 
+			toUpdate=":panelTitle"/>
 	</ui:define>
+
 </ui:composition>
