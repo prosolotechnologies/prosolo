@@ -102,6 +102,12 @@
 		<function-signature>java.lang.String addSubService(java.lang.String, java.lang.String)</function-signature>
 	</function>
 	
+	<function>
+		<function-name>initials</function-name>
+		<function-class>org.prosolo.web.util.AvatarUtils</function-class>
+		<function-signature>java.lang.String getInitials(java.lang.String)</function-signature>
+	</function>
+	
 	<!-- Components -->
 	
 	<tag>

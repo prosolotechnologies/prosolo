@@ -30,12 +30,12 @@
 			                                <div class="icon"></div>
 			                                <utilcomp:userAvatar
 			                                	avatar="#{notification.actor.avatarUrl}"
-			                                	fullName="#{notification.actor.fullName}"
-			                                />
+			                                	fullName="#{notification.actor.fullName}" />
+			                                	
 			                                <div class="notContent">
 			                                    <h3>#{notification.actor.fullName}</h3> #{notification.predicate} <h3>#{notification.objectTitle}</h3>
 			                                </div>
-			                                <span class="timestamp">#{notification.date}</span>
+			                                <span class="timestamp">#{notification.datePretty}</span>
 			                            </h:link>
 			                        </li>
 		                    	</ui:repeat>

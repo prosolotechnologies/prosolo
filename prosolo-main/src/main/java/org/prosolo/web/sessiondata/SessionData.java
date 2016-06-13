@@ -16,7 +16,7 @@ public class SessionData {
 	private String fullName;
 	private String email;
 	private String password;
-	private String bigAvatar;
+	private String avatar;
 	private boolean doNotShowTutorial;
 	private Set<String> pagesTutorialPlayed = new HashSet<String>();
 	private String ipAddress;
@@ -71,12 +71,12 @@ public class SessionData {
 		return userSettings.getLocaleSettings().createLocale();
 	}
 
-	public String getBigAvatar() {
-		return bigAvatar;
+	public String getAvatar() {
+		return avatar;
 	}
 
-	public void setBigAvatar(String bigAvatar) {
-		this.bigAvatar = bigAvatar;
+	public void setAvatar(String avatar) {
+		this.avatar = avatar;
 	}
 
 	public boolean isDoNotShowTutorial() {

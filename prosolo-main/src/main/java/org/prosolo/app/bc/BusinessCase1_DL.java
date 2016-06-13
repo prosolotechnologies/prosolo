@@ -21,7 +21,6 @@ import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.web.util.AvatarUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -130,7 +129,6 @@ public class BusinessCase1_DL extends BusinessCase {
 		 
 			//us.setSocialStream(sStream);
 			//ServiceLocator1.getInstance().getService(DefaultManager.class).saveEntity(us);
-		us.setAvatarUrl(AvatarUtils.getDefaultAvatarUrl());
 		 setFollowedUser(us,nikolaDamjanovic);
 		 setFollowedUser(us,jelenaJovanovic);
 		 setFollowedUser(us,viktorPocajt);

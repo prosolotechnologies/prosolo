@@ -23,26 +23,27 @@
 		<h:panelGroup id="panelTitle">
 			<h1>Account Settings</h1>
 			<ul class="nav nav-tabs headerSubmenu">
-				<li role="presentation"
-					class="#{util:getPagePath(view.viewId)  == 'settings' ? 'active' : ''}"><h:link
-						onclick="sendLogPageNavigation('settings','mainmenu');"
-						value="Personal info" outcome="/manage/settings" /></li>
-				<li role="presentation"
-					class="#{util:getPagePath(view.viewId) == 'email' ? 'active' : ''}"><h:link
-						onclick="sendLogPageNavigation('/manage/settings/email','mainmenu');"
-						value="Email
-						Notifications" outcome="/manage/settings/email" /></li>
-				<li role="presentation"
-					class="#{util:getPagePath(view.viewId)  == 'password' ? 'active' : ''}"><h:link
-						onclick="sendLogPageNavigation('settings/password','mainmenu');"
-						value="Change
-						Password" outcome="/manage/settings/password" /></li>
+				<li role="presentation" class="#{util:getPagePath(view.viewId)  == 'settings' ? 'active' : ''}">
+					<h:link onclick="sendLogPageNavigation('settings','mainmenu');"
+						value="Personal info"
+						outcome="/manage/settings" />
+				</li>
+				<li role="presentation" class="#{util:getPagePath(view.viewId) == 'email' ? 'active' : ''}">
+					<h:link onclick="sendLogPageNavigation('/manage/settings/email','mainmenu');"
+						value="Email Notifications"
+						outcome="/manage/settings/email" />
+				</li>
+				<li role="presentation" class="#{util:getPagePath(view.viewId)  == 'password' ? 'active' : ''}">
+					<h:link onclick="sendLogPageNavigation('settings/password','mainmenu');"
+						value="Change Password"
+						outcome="/manage/settings/password" />
+				</li>
 			</ul>
 		</h:panelGroup>
 	</ui:define>
 
 	<ui:define name="content">
-		<settings:settings 
+		<settings:personal
 			id="settings" 
 			toUpdate=":panelTitle"/>
 	</ui:define>

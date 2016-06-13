@@ -87,10 +87,10 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	//System.out.println("FIND COURSE ID FOR TARGET GOAL:"+targetGoalId);
 		String query =
 				"SELECT DISTINCT course.id " +
-						"FROM CourseEnrollment enrollment " +
-						"LEFT JOIN enrollment.course course " +
-						"LEFT JOIN enrollment.targetGoal tGoal "+
-					 	"WHERE tGoal.id=:targetGoalId";
+				"FROM CourseEnrollment enrollment " +
+				"LEFT JOIN enrollment.course course " +
+				"LEFT JOIN enrollment.targetGoal tGoal "+
+			 	"WHERE tGoal.id=:targetGoalId";
 		Long courseId=  (Long) persistence.currentManager().createQuery(query).
 				setLong("targetGoalId", targetGoalId).
 				uniqueResult();

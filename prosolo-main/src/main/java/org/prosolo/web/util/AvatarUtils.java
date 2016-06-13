@@ -26,9 +26,9 @@ public class AvatarUtils {
 		return "resources/images/users/" + org + "/format/" + UUID.randomUUID() + "." + imageType;
 	}
 	
-	public static String getDefaultAvatarUrl(){
-		return CommonSettings.getInstance().config.services.userService.defaultAvatarName;
-	}
+//	public static String getDefaultAvatarUrl(){
+//		return CommonSettings.getInstance().config.services.userService.defaultAvatarName;
+//	}
 	
 	public static String getAvatarUrlInFormat(User user, ImageFormat format) {
 		
@@ -44,17 +44,19 @@ public class AvatarUtils {
 				user = ServiceLocator.getInstance().getService(DefaultManager.class).merge(user);
 			}
 			avatarUrl = user.getAvatarUrl();
-		} else {
-			avatarUrl = getDefaultAvatarUrl();
+			return getAvatarUrlInFormat(avatarUrl, format);
+//		} else {
+//			avatarUrl = getDefaultAvatarUrl();
 		}
-		return getAvatarUrlInFormat(avatarUrl, format);
+		return null;
 	}
 	
 	public static String getAvatarUrlInFormat(String avatarUrl, ImageFormat format) {
 		String url;
 
-		if (avatarUrl == null || avatarUrl.equals("") || avatarUrl.equals(getDefaultAvatarUrl())) {
-			url = "/" + CommonSettings.getInstance().config.services.userService.defaultAvatarPath + format + ".png";
+		if (avatarUrl == null || avatarUrl.equals("")) {
+//			url = "/" + CommonSettings.getInstance().config.services.userService.defaultAvatarPath + format + ".png";
+			url = null;
 		} else {
 			FileStoreConfig filesConfig=CommonSettings.getInstance().config.fileStore;
 			url = filesConfig.fileStoreServiceUrl + "/" + 
@@ -83,20 +85,6 @@ public class AvatarUtils {
 		return true;
 	}
 	
-//	public static int getImageFormatHeight(ImageFormat imageFormat) {
-//		String input = imageFormat.toString();
-//		String extracted = input.substring(input.indexOf('e') + 1, input.lastIndexOf('x'));
-//		int x = Integer.valueOf(extracted);
-//		return x;
-//	}
-	
-//	public static int getImageFormatWidth(ImageFormat imageFormat) {
-//		String input = imageFormat.toString();
-//		String extracted = input.substring(input.indexOf('x') + 1, input.length());
-//		int x = Integer.valueOf(extracted);
-//		return x;
-//	}
-
 	public static String getUrlFromPath(String path) {
 		String link = path.replaceFirst(Settings.getInstance().config.fileManagement.uploadPath, "");
 		link = Settings.getInstance().config.fileManagement.urlPrefixFolder + link;
@@ -106,6 +94,16 @@ public class AvatarUtils {
 	public static String getPathFromUrl(String url) {
 		String path = url.replaceFirst(Settings.getInstance().config.fileManagement.urlPrefixFolder, Settings.getInstance().config.fileManagement.uploadPath);
 		return path;
+	}
+	
+	public static String getInitials(String fullName) {
+		String[] parts = fullName.split(" ");
+		
+		String initials = "";
+		for (String namePart : parts) {
+			initials += namePart.charAt(0);
+		}
+		return initials.toUpperCase();
 	}
 	
 }

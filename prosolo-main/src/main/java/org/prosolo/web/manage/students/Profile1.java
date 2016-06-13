@@ -81,7 +81,7 @@ public class Profile1 {
 	private String studentId;
 	private String message;
 	
-	private String bigAvatarUrl;
+	private String avatarUrl;
 	private String smallAvatarUrl;
 	private String studentInitials;
 	private String studentFullName;
@@ -161,7 +161,7 @@ public class Profile1 {
 
 	private void initializeStudentData(User student) {
 		studentId = String.valueOf(student.getId());
-		bigAvatarUrl = AvatarUtils.getAvatarUrlInFormat(student, ImageFormat.size120x120);
+		avatarUrl = AvatarUtils.getAvatarUrlInFormat(student, ImageFormat.size120x120);
 		smallAvatarUrl = AvatarUtils.getAvatarUrlInFormat(student, ImageFormat.size34x34);
 		studentInitials = getInitials(student);
 		studentFullName = student.getName()+" "+student.getLastname();
@@ -315,12 +315,12 @@ public class Profile1 {
 		this.userManager = userManager;
 	}
 
-	public String getBigAvatarUrl() {
-		return bigAvatarUrl;
+	public String getAvatarUrl() {
+		return avatarUrl;
 	}
 
-	public void setBigAvatarUrl(String bigAvatarUrl) {
-		this.bigAvatarUrl = bigAvatarUrl;
+	public void setAvatarUrl(String avatarUrl) {
+		this.avatarUrl = avatarUrl;
 	}
 
 	public String getStudentInitials() {

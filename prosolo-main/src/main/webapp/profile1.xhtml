@@ -23,10 +23,10 @@
 	
 	<ui:define name="resourceTitle">
     	<div class="profileHeader">
-    			<ui:fragment rendered="#{not empty profile1.bigAvatarUrl}" >
-    				<img src="#{profile1.bigAvatarUrl}" class="img-circle" width="120" height="120" alt="#{profile1.studentFullName}" />
+    			<ui:fragment rendered="#{not empty profile1.avatarUrl}" >
+    				<img src="#{profile1.avatarUrl}" class="img-circle" width="120" height="120" alt="#{profile1.studentFullName}" />
     			</ui:fragment>
-    			<ui:fragment rendered="#{empty profile1.bigAvatarUrl}" >
+    			<ui:fragment rendered="#{empty profile1.avatarUrl}" >
     				<span class="letterAvatar letterAvatar120 img-circle">#{profile1.studentInitials}</span>
     			</ui:fragment>
                 <div class="profileHeaderInfo">

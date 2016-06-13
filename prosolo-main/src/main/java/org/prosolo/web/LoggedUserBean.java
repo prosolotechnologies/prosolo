@@ -42,7 +42,6 @@ import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.sessiondata.SessionData;
 import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.web.util.PageUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -61,25 +60,25 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 
 	private static Logger logger = Logger.getLogger(LoggedUserBean.class);
 
-	@Autowired
+	@Inject
 	private UserManager userManager;
-	@Autowired
+	@Inject
 	private AuthenticationService authenticationService;
-	@Autowired
+	@Inject
 	private InterfaceSettingsManager interfaceSettingsManager;
-	@Autowired
+	@Inject
 	private NotificationsSettingsManager notificationsSettingsManager;
-	@Autowired
+	@Inject
 	private ApplicationBean applicationBean;
-	@Autowired
+	@Inject
 	@Qualifier("taskExecutor")
 	private ThreadPoolTaskExecutor taskExecutor;
-	@Autowired
+	@Inject
 	private LoggingService loggingService;
 	@Inject
 	private UserSessionDataLoader sessionDataLoader;
 
-	@Autowired
+	@Inject
 	private LearningGoalManager learningGoalManager;
 	@Inject
 	private EventFactory eventFactory;
@@ -117,7 +116,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		if(userData != null){
 			sessionData = new SessionData();
 			sessionData.setUser((User) userData.get("user"));
-			sessionData.setBigAvatar((String) userData.get("avatar")); 
+			sessionData.setAvatar((String) userData.get("avatar")); 
 			sessionData.setPagesTutorialPlayed((Set<String>) userData.get("pagesTutorialPlayed"));
 			sessionData.setIpAddress((String) userData.get("ipAddress"));
 			sessionData.setSelectedStatusWallFilter((Filter) userData.get("statusWallFilter"));
@@ -143,7 +142,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	}
 	
 	public void initializeAvatar() {
-		setBigAvatar(AvatarUtils.getAvatarUrlInFormat(getUser().getAvatarUrl(), ImageFormat.size120x120));
+		setAvatar(AvatarUtils.getAvatarUrlInFormat(getUser().getAvatarUrl(), ImageFormat.size120x120));
 	}
 
 	public boolean isLoggedIn() {
@@ -394,12 +393,12 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		}
 	}
 
-	public String getBigAvatar() {
-		return getSessionData() == null ? null : getSessionData().getBigAvatar();
+	public String getAvatar() {
+		return getSessionData() == null ? null : getSessionData().getAvatar();
 	}
 
-	public void setBigAvatar(String bigAvatar) {
-		getSessionData().setBigAvatar(bigAvatar);
+	public void setAvatar(String avatar) {
+		getSessionData().setAvatar(avatar);
 	}
 
 	public boolean isDoNotShowTutorial() {
@@ -452,12 +451,15 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	public void setUserSettings(UserSettings userSettings) {
 		getSessionData().setUserSettings(userSettings);
 	}
+
 	public LearningContext getLearningContext() {
 		return learningContext;
 	}
+
 	public void setLearningContext(LearningContext learningContext) {
 		this.learningContext = learningContext;
 	}
+
 	public String getFullName() {
 		return getSessionData() == null ? null : getSessionData().getFullName();
 	}

@@ -218,13 +218,18 @@
 						<div class="dropdown userMenu">
 							<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
 								<utilcomp:userAvatar
-									avatar="#{loggedUser.bigAvatar}"
+									avatar="#{loggeduser.avatar}"
 									fullName="#{loggeduser.fullName}" />
 									
 								<span class="arrowDown">arrowDown</span>
 							</a>
 
 							<ul class="dropdown-menu dropdown-menu-right bullet pull-right" aria-labelledby="dropdownMenu1">
+								<li>
+									<h:link value="Achievements" 
+										onclick="sendLogPageNavigation('achievements','mainmenu');"
+										outcome="/achievements/credentials" />
+								</li>
 								<li>
 									<h:link value="Profile"
 										onclick="sendLogPageNavigation('profile','mainmenu');"
@@ -234,11 +239,6 @@
 									<h:link value="Settings" 
 										onclick="sendLogPageNavigation('settings','mainmenu');"
 										outcome="/settings" />
-								</li>
-								<li>
-									<h:link value="Achievements" 
-										onclick="sendLogPageNavigation('achievements','mainmenu');"
-										outcome="/achievements/credentials" />
 								</li>
 								<li>
 									<h:commandLink id="userLogout" 

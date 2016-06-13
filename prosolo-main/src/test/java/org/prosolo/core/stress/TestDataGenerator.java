@@ -16,7 +16,6 @@ import org.prosolo.services.authentication.impl.JasyptStrongPasswordEncryptor;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
-import org.prosolo.web.util.AvatarUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -118,7 +117,6 @@ public class TestDataGenerator extends TestContext{
 			user.setVerificationKey(UUID.randomUUID().toString().replace("-", ""));
  			user.setPassword(passwordEncrypter.encodePassword(password, null));
 			user.setPasswordLength(password.length());
-			user.setAvatarUrl(AvatarUtils.getDefaultAvatarUrl());
 			user.setSystem(false);
 			user.setPosition(position);
 				

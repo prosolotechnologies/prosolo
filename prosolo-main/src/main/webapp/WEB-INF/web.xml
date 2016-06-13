@@ -158,11 +158,11 @@
         <param-name>org.apache.el.parser.SKIP_IDENTIFIER_CHECK</param-name>
         <param-value>true</param-value>
     </context-param>
-    <!--context-param>
+    <context-param>
         <param-name>primefaces.THEME</param-name>
         <param-value>none</param-value>
     </context-param>
-    <context-param>
+    <!--context-param>
         <param-name>primefaces.PUBLIC_CAPTCHA_KEY</param-name>
         <param-value>6LdzjOkSAAAAANuMplC8-ReBgDO4N7d-hYGk9obt</param-value>
     </context-param>
@@ -227,7 +227,7 @@
         <filter-name>OCPsoft Rewrite Filter</filter-name>
         <filter-class>org.ocpsoft.rewrite.servlet.RewriteFilter</filter-class>
         <async-supported>true</async-supported>
-    </filter>1
+    </filter>
     <filter-mapping>
         <filter-name>OCPsoft Rewrite Filter</filter-name>
         <url-pattern>/*</url-pattern>

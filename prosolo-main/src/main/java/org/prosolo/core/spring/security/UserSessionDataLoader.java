@@ -67,7 +67,7 @@ public class UserSessionDataLoader implements Serializable{
 	
 	
 	//private User user;
-	//private String bigAvatar;
+	//private String avatar;
 	//private Set<String> pagesTutorialPlayed = new HashSet<String>();
 	//private String ipAddress;
 	//private Filter selectedStatusWallFilter;
@@ -116,7 +116,7 @@ public class UserSessionDataLoader implements Serializable{
 	}
 	
 	private String initializeAvatar(String avatarUrl) {
-		return AvatarUtils.getAvatarUrlInFormat(avatarUrl, ImageFormat.size120x120);
+		return AvatarUtils.getAvatarUrlInFormat(avatarUrl, ImageFormat.size60x60);
 	}
 
 	private void registerNewUserSession(User user, HttpSession session) {

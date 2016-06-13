@@ -9,7 +9,7 @@ public class AccountDataToPageMapper implements IDataToPageMapper<AccountData, L
 	public AccountData mapDataToPageObject(LoggedUserBean loggedUser) {
 		AccountData accountData = new AccountData();
 		accountData.setId(loggedUser.getUser().getId());
-		accountData.setAvatarPath(loggedUser.getBigAvatar());
+		accountData.setAvatarPath(loggedUser.getAvatar());
 		accountData.setFirstName(loggedUser.getUser().getName());
 		accountData.setLastName(loggedUser.getUser().getLastname());
 

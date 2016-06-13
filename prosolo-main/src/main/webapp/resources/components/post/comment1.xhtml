@@ -7,7 +7,8 @@
 	xmlns:composite="http://java.sun.com/jsf/composite"
 	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:post="http://java.sun.com/jsf/composite/components/post">
+	xmlns:post="http://java.sun.com/jsf/composite/components/post"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 	<composite:interface>
 		<composite:attribute name="comment" required="true"/>
@@ -21,10 +22,9 @@
 		<ui:param name="comment" value="#{cc.attrs.comment}" />
 		<div id="comment_#{comment.commentId}">
             <div class="media-left">
-            	 <h:graphicImage value="#{comment.creator.avatarUrl}"
-					alt="#{comment.creator.fullName}" 
-					styleClass="img-circle"
-					width="32" height="32"/>           
+				<utilcomp:userAvatar
+					avatar="#{comment.creator.avatarUrl}"
+					fullName="#{comment.creator.fullName}" />
             </div>
             <div class="media-body">
             	<div class="commentMain">
@@ -78,10 +78,9 @@
                 </div>
                 <div class="media replyInput hidden">
                     <div class="media-left">
-                    	 <h:graphicImage value="#{loggeduser.bigAvatar}"
-							alt="#{loggeduser.fullName}" 
-							styleClass="img-circle"
-							width="32" height="32"/>
+						<utilcomp:userAvatar
+							avatar="#{loggeduser.avatar}"
+							fullName="#{loggeduser.fullName}" />
                     </div>
                     <div class="media-body replyComment">
                         <div class="commentForm">
