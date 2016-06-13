@@ -64,7 +64,7 @@ public class NodeChangeProcessorFactory {
 					} else {
 						operation = NodeOperation.Update;
 					}
-					return new CredentialNodeChangeProcessor(event, credentialESService, operation);
+					return new CredentialNodeChangeProcessor(event, credentialESService, operation, session);
 				} else if(node instanceof Competence1) {
 					NodeOperation operation = null;
 					if(type == EventType.Create || type == EventType.Create_Draft) {
@@ -72,7 +72,7 @@ public class NodeChangeProcessorFactory {
 					} else {
 						operation = NodeOperation.Update;
 					}
-					return new CompetenceNodeChangeProcessor(event, competenceESService, operation);
+					return new CompetenceNodeChangeProcessor(event, competenceESService, operation, session);
 				}
 				else {
 					return new RegularNodeChangeProcessor(event, nodeEntityESService, NodeOperation.Save);
@@ -81,10 +81,10 @@ public class NodeChangeProcessorFactory {
 			case Delete:
 				if(node instanceof Credential1) {
 					return new CredentialNodeChangeProcessor(event, credentialESService, 
-							NodeOperation.Delete);
+							NodeOperation.Delete, session);
 				} else if(node instanceof Competence1) {
 					return new CompetenceNodeChangeProcessor(event, competenceESService, 
-							NodeOperation.Delete);
+							NodeOperation.Delete, session);
 				}
 				return new RegularNodeChangeProcessor(event, nodeEntityESService, NodeOperation.Delete);
 			case Attach:

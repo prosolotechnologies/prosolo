@@ -163,10 +163,19 @@ public interface CredentialManager extends AbstractManager {
 	List<Tag> getCredentialTags(long credentialId) 
 			throws DbConnectionException;
 	
+	List<Tag> getCredentialTags(long credentialId, Session session) 
+			throws DbConnectionException;
+	
 	List<Tag> getCredentialHashtags(long credentialId) 
 			throws DbConnectionException;
+	
+	 List<Tag> getCredentialHashtags(long credentialId, Session session) 
+				throws DbConnectionException;
 
 	List<CredentialBookmark> getBookmarkedByIds(long id) throws DbConnectionException;
+	
+	List<CredentialBookmark> getBookmarkedByIds(long credId, Session session) 
+			throws DbConnectionException;
 	
 	Credential1 getOriginalCredentialForDraft(long draftCredId) throws DbConnectionException;
 	
@@ -299,5 +308,8 @@ public interface CredentialManager extends AbstractManager {
 	 * @throws DbConnectionException
 	 */
 	List<TargetCredential1> getAllInProgressCredentials(Long userId) throws DbConnectionException;
+	
+	List<Credential1> getAllCredentialsWithTheirDraftVersions(Session session) 
+			throws DbConnectionException;
 
 }

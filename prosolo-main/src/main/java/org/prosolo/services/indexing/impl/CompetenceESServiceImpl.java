@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.hibernate.Session;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Competence1;
@@ -29,7 +30,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	
 	@Override
 	@Transactional
-	public void saveCompetenceNode(Competence1 comp, long originalVersionId) {
+	public void saveCompetenceNode(Competence1 comp, long originalVersionId, Session session) {
 	 	try {
 			XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
 			builder.field("id", comp.getId());
@@ -41,7 +42,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.field("description", comp.getDescription());
 			
 			builder.startArray("tags");
-			List<Tag> tags = compManager.getCompetenceTags(comp.getId());
+			List<Tag> tags = compManager.getCompetenceTags(comp.getId(), session);
 			for(Tag tag : tags){
 				builder.startObject();
  				builder.field("title", tag.getTitle());
@@ -63,11 +64,11 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	@Override
 	@Transactional
 	public void updateCompetenceNode(Competence1 comp, long originalVersionId, 
-			CompetenceChangeTracker changeTracker) {
+			CompetenceChangeTracker changeTracker, Session session) {
 		if(changeTracker != null &&
 				(changeTracker.isVersionChanged() || changeTracker.isTitleChanged() || 
 						changeTracker.isDescriptionChanged() || changeTracker.isTagsChanged())) {
-			saveCompetenceNode(comp, originalVersionId);
+			saveCompetenceNode(comp, originalVersionId, session);
 		}
 	}
 	

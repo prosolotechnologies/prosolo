@@ -2,6 +2,7 @@ package org.prosolo.services.indexing.impl.elasticSearchObserver;
 
 import java.util.Map;
 
+import org.hibernate.Session;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Competence1;
@@ -18,13 +19,15 @@ public class CompetenceNodeChangeProcessor implements NodeChangeProcessor {
 	private Event event;
 	private CompetenceESService competenceESService;
 	private NodeOperation operation;
+	private Session session;
 	
 	
 	public CompetenceNodeChangeProcessor(Event event, CompetenceESService competenceESService, 
-			NodeOperation operation) {
+			NodeOperation operation, Session session) {
 		this.event = event;
 		this.competenceESService = competenceESService;
 		this.operation = operation;
+		this.session = session;
 	}
 	
 	@Override
@@ -42,7 +45,8 @@ public class CompetenceNodeChangeProcessor implements NodeChangeProcessor {
 					Gson gson = new GsonBuilder().create();
 					CompetenceChangeTracker changeTracker = gson.fromJson(jsonChangeTracker, 
 							 CompetenceChangeTracker.class);
-					competenceESService.updateCompetenceNode(comp, originalVersionId, changeTracker);
+					competenceESService.updateCompetenceNode(comp, originalVersionId, changeTracker,
+							session);
 					/*
 					 * this means that draft version is published so draft version should
 					 * be deleted
@@ -57,7 +61,7 @@ public class CompetenceNodeChangeProcessor implements NodeChangeProcessor {
 				}
 			}
 		} else if(operation == NodeOperation.Save) {
-			competenceESService.saveCompetenceNode(comp, originalVersionId);
+			competenceESService.saveCompetenceNode(comp, originalVersionId, session);
 			/*
 			 * if draft version is created original version hasDraft property
 			 * should be updated to true

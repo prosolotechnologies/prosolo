@@ -12,9 +12,9 @@ import java.util.Optional;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.hibernate.Session;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Credential1;
@@ -22,7 +22,6 @@ import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.CredentialESService;
 import org.prosolo.services.indexing.ESIndexNames;
-import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 import org.springframework.stereotype.Service;
@@ -38,7 +37,7 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	
 	@Override
 	@Transactional
-	public void saveCredentialNode(Credential1 cred, long originalVersionId) {
+	public void saveCredentialNode(Credential1 cred, long originalVersionId, Session session) {
 	 	try {
 			XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
 			builder.field("id", cred.getId());
@@ -54,7 +53,7 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.field("dateCreated", df.format(date));
 			
 			builder.startArray("tags");
-			List<Tag> tags = credentialManager.getCredentialTags(cred.getId());
+			List<Tag> tags = credentialManager.getCredentialTags(cred.getId(), session);
 			for(Tag tag : tags){
 				builder.startObject();
  				builder.field("title", tag.getTitle());
@@ -63,7 +62,7 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.endArray();
 			
 			builder.startArray("hashtags");
-			List<Tag> hashtags = credentialManager.getCredentialHashtags(cred.getId());
+			List<Tag> hashtags = credentialManager.getCredentialHashtags(cred.getId(), session);
 			for(Tag hashtag : hashtags){
 				builder.startObject();
  				builder.field("title", hashtag.getTitle());
@@ -81,7 +80,7 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			 */
 			long credIdForBookmarkSearch = originalVersionId != 0 ? originalVersionId : cred.getId();
 			List<CredentialBookmark> bookmarks = credentialManager.getBookmarkedByIds(
-					credIdForBookmarkSearch);
+					credIdForBookmarkSearch, session);
 			for(CredentialBookmark cb : bookmarks) {
 				builder.startObject();
 				builder.field("id", cb.getUser().getId());
@@ -101,12 +100,12 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	@Override
 	@Transactional
 	public void updateCredentialNode(Credential1 cred, long originalVersionId, 
-			CredentialChangeTracker changeTracker) {
+			CredentialChangeTracker changeTracker, Session session) {
 		if(changeTracker != null &&
 				(changeTracker.isVersionChanged() || changeTracker.isTitleChanged() || 
 						changeTracker.isDescriptionChanged() || changeTracker.isTagsChanged() 
 						|| changeTracker.isHashtagsChanged())) {
-			saveCredentialNode(cred, originalVersionId);
+			saveCredentialNode(cred, originalVersionId, session);
 		}
 	}
 	
@@ -143,13 +142,13 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	}
 	
 	@Override
-	public void updateCredentialBookmarks(long credId) {
+	public void updateCredentialBookmarks(long credId, Session session) {
 		try {
 			XContentBuilder builder = XContentFactory.jsonBuilder()
 		            .startObject();
 			builder.startArray("bookmarkedBy");
 			List<CredentialBookmark> bookmarks = credentialManager.getBookmarkedByIds(
-					credId);
+					credId, session);
 			for(CredentialBookmark cb : bookmarks) {
 				builder.startObject();
 				builder.field("id", cb.getUser().getId());

@@ -2,6 +2,7 @@ package org.prosolo.services.indexing.impl.elasticSearchObserver;
 
 import java.util.Map;
 
+import org.hibernate.Session;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Credential1;
@@ -18,13 +19,15 @@ public class CredentialNodeChangeProcessor implements NodeChangeProcessor {
 	private Event event;
 	private CredentialESService credentialESService;
 	private NodeOperation operation;
+	private Session session;
 	
 	
 	public CredentialNodeChangeProcessor(Event event, CredentialESService credentialESService, 
-			NodeOperation operation) {
+			NodeOperation operation, Session session) {
 		this.event = event;
 		this.credentialESService = credentialESService;
 		this.operation = operation;
+		this.session = session;
 	}
 	
 	@Override
@@ -42,7 +45,8 @@ public class CredentialNodeChangeProcessor implements NodeChangeProcessor {
 					Gson gson = new GsonBuilder().create();
 					CredentialChangeTracker changeTracker = gson.fromJson(jsonChangeTracker, 
 							 CredentialChangeTracker.class);
-					credentialESService.updateCredentialNode(cred, originalVersionId, changeTracker);
+					credentialESService.updateCredentialNode(cred, originalVersionId, changeTracker,
+							session);
 					/*
 					 * this means that draft version is published so draft version should
 					 * be deleted
@@ -56,7 +60,7 @@ public class CredentialNodeChangeProcessor implements NodeChangeProcessor {
 				}
 			}
 		} else if(operation == NodeOperation.Save) {
-			credentialESService.saveCredentialNode(cred, originalVersionId);
+			credentialESService.saveCredentialNode(cred, originalVersionId, session);
 			/*
 			 * if draft version is created original version hasDraft property
 			 * should be updated to true

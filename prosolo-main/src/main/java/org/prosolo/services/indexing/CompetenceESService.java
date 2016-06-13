@@ -1,11 +1,12 @@
 package org.prosolo.services.indexing;
 
+import org.hibernate.Session;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 
 public interface CompetenceESService  extends AbstractBaseEntityESService {
 
-	void saveCompetenceNode(Competence1 comp, long originalVersionId);
+	void saveCompetenceNode(Competence1 comp, long originalVersionId, Session session);
 	
 	/**
 	 * 
@@ -15,7 +16,7 @@ public interface CompetenceESService  extends AbstractBaseEntityESService {
 	 * @param changeTracker
 	 */
 	void updateCompetenceNode(Competence1 comp, long originalVersionId, 
-			CompetenceChangeTracker changeTracker);
+			CompetenceChangeTracker changeTracker, Session session);
 	
 	void updateCompetenceDraftVersionCreated(String id);
 

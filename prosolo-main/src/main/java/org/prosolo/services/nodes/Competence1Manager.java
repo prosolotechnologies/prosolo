@@ -3,6 +3,7 @@ package org.prosolo.services.nodes;
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.Session;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.Competence1;
@@ -137,6 +138,9 @@ public interface Competence1Manager {
 	
 	List<Tag> getCompetenceTags(long compId) 
 			throws DbConnectionException;
+	
+	List<Tag> getCompetenceTags(long compId, Session session) 
+			throws DbConnectionException;
 
 	/**
 	 * Sets published to true for all competences from the list that do not have
@@ -242,6 +246,9 @@ public interface Competence1Manager {
 	 * @throws DbConnectionException
 	 */
 	List<TargetCompetence1> getAllUnfinishedCompetences(Long userId, boolean hiddenFromProfile) throws DbConnectionException;
+	
+	List<Competence1> getAllCompetencesWithTheirDraftVersions(Session session) 
+			throws DbConnectionException;
 	
 //	/**
 //	 * Returns current version of competence for edit if edit mode - draft version if exists

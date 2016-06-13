@@ -13,6 +13,7 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Activity1;
@@ -1064,6 +1065,13 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Transactional(readOnly = true)
 	public List<Tag> getCompetenceTags(long compId) 
 			throws DbConnectionException {
+		return getCompetenceTags(compId, persistence.currentManager());
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Tag> getCompetenceTags(long compId, Session session) 
+			throws DbConnectionException {
 		try {		
 			//if left join is used list with null element would be returned.
 			String query = "SELECT tag " +
@@ -1071,7 +1079,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					       "INNER JOIN comp.tags tag " +
 					       "WHERE comp.id = :compId";					    
 			@SuppressWarnings("unchecked")
-			List<Tag> res = persistence.currentManager()
+			List<Tag> res = session
 				.createQuery(query)
 				.setLong("compId", compId)
 				.list();
@@ -1931,6 +1939,36 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throw new DbConnectionException();
 		}
 		return result;
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Competence1> getAllCompetencesWithTheirDraftVersions(Session session) 
+			throws DbConnectionException {
+		try {
+			String query=
+					"SELECT comp " +
+					"FROM Competence1 comp " +
+					"LEFT JOIN fetch comp.draftVersion " +
+					"WHERE comp.deleted = :deleted " +
+					"AND comp.draft = :draft";
+			  	
+			@SuppressWarnings("unchecked")
+			List<Competence1> result = session
+					.createQuery(query)
+					.setBoolean("deleted", false)
+					.setBoolean("draft", false)
+				  	.list();
+			
+			if(result == null) {
+				return new ArrayList<>();
+			}
+			return result;
+		} catch (DbConnectionException e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving competences");
+		}
 	}
 	
 //	@Override

@@ -1260,6 +1260,14 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public List<Tag> getCredentialTags(long credentialId) 
+			throws DbConnectionException {	
+		return getCredentialTags(credentialId, persistence.currentManager());
+
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Tag> getCredentialTags(long credentialId, Session session) 
 			throws DbConnectionException {
 		try {	
 			//if left join is used list with null element would be returned.
@@ -1268,7 +1276,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					       "INNER JOIN cred.tags tag " +
 					       "WHERE cred.id = :credentialId";					    
 			@SuppressWarnings("unchecked")
-			List<Tag> res = persistence.currentManager()
+			List<Tag> res = session
 				.createQuery(query)
 				.setLong("credentialId", credentialId)
 				.list();
@@ -1288,6 +1296,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Transactional(readOnly = true)
 	public List<Tag> getCredentialHashtags(long credentialId) 
 			throws DbConnectionException {
+		return getCredentialHashtags(credentialId, persistence.currentManager());
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Tag> getCredentialHashtags(long credentialId, Session session) 
+			throws DbConnectionException {
 		try {	
 			//if left join is used list with null element would be returned.
 			String query = "SELECT hashtag " +
@@ -1295,7 +1310,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					       "INNER JOIN cred.hashtags hashtag " +
 					       "WHERE cred.id = :credentialId";					    
 			@SuppressWarnings("unchecked")
-			List<Tag> res = persistence.currentManager()
+			List<Tag> res = session
 				.createQuery(query)
 				.setLong("credentialId", credentialId)
 				.list();
@@ -1437,14 +1452,21 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public List<CredentialBookmark> getBookmarkedByIds(long credId) throws DbConnectionException {
+		return getBookmarkedByIds(credId, persistence.currentManager());
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<CredentialBookmark> getBookmarkedByIds(long credId, Session session) 
+			throws DbConnectionException {
 		try {
-			Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, credId);
+			Credential1 cred = (Credential1) session.load(Credential1.class, credId);
 			String query = "SELECT bookmark " +
 						   "FROM CredentialBookmark bookmark " +
 						   "WHERE bookmark.credential = :cred";
 			
 			@SuppressWarnings("unchecked")
-			List<CredentialBookmark> bookmarks = persistence.currentManager()
+			List<CredentialBookmark> bookmarks = session
 					.createQuery(query)
 					.setEntity("cred", cred)
 					.list();
@@ -2391,5 +2413,35 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException();
 		}
 		return result;
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Credential1> getAllCredentialsWithTheirDraftVersions(Session session) 
+			throws DbConnectionException {
+		try {
+			String query=
+					"SELECT cred " +
+					"FROM Credential1 cred " +
+					"LEFT JOIN fetch cred.draftVersion " +
+					"WHERE cred.deleted = :deleted " +
+					"AND cred.draft = :draft";
+			  	
+			@SuppressWarnings("unchecked")
+			List<Credential1> result = session
+					.createQuery(query)
+					.setBoolean("deleted", false)
+					.setBoolean("draft", false)
+				  	.list();
+			
+			if(result == null) {
+				return new ArrayList<>();
+			}
+			return result;
+		} catch (DbConnectionException e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credentials");
+		}
 	}
 }

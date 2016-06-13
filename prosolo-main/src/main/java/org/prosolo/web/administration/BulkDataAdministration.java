@@ -6,38 +6,38 @@ import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.app.AfterContextLoader;
-import org.prosolo.common.domainmodel.activities.Activity;
-import org.prosolo.common.domainmodel.competences.Competence;
+import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.domainmodel.content.ContentType;
 import org.prosolo.common.domainmodel.content.RichContent;
-import org.prosolo.common.domainmodel.course.Course;
-import org.prosolo.common.domainmodel.general.Node;
-import org.prosolo.common.domainmodel.user.LearningGoal;
+import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.util.net.HTTPSConnectionValidator;
 import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.services.indexing.CompetenceESService;
+import org.prosolo.services.indexing.CredentialESService;
 import org.prosolo.services.indexing.ESAdministration;
 import org.prosolo.services.indexing.ESIndexNames;
 import org.prosolo.services.indexing.FileESIndexer;
-import org.prosolo.services.indexing.NodeEntityESService;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.interaction.PostManager;
 import org.prosolo.services.nodes.ActivityManager;
+import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -57,10 +57,13 @@ public class BulkDataAdministration implements Serializable {
 	@Autowired private UserManager userManager;
 	@Autowired private DefaultManager defaultManager;
 	@Autowired private UserEntityESService userEntityESService;
-	@Autowired private NodeEntityESService nodeEntityESService;
 	@Autowired private PostManager postManager;
 	@Autowired private ActivityManager activityManager;
 	@Autowired private FileESIndexer fileESIndexer;
+	@Inject private CredentialManager credManager;
+	@Inject private Competence1Manager compManager;
+	@Inject private CredentialESService credESService;
+	@Inject private CompetenceESService compESService;
 
 	private static Logger logger = Logger.getLogger(AfterContextLoader.class.getName());
 
@@ -198,8 +201,8 @@ public class BulkDataAdministration implements Serializable {
 
 	private void indexDBData() {
 		Session session = (Session) defaultManager.getPersistence().openSession();
-		Collection<User> users = userManager.getAllUsers();
 		try {
+			Collection<User> users = userManager.getAllUsers();
 			for (User user : users) {
 				if (!user.isSystem()) {
 					user = (User) session.merge(user);
@@ -208,39 +211,56 @@ public class BulkDataAdministration implements Serializable {
 				}
 			}
 
-			List<Node> nodes = new ArrayList<Node>();
-			List<Activity> resourceActivities = defaultManager.getAllResources(Activity.class);
+//			List<Node> nodes = new ArrayList<Node>();
+//			List<Activity> resourceActivities = defaultManager.getAllResources(Activity.class);
+//			
+//			for (Activity activity : resourceActivities) {
+//				if (!activity.isDeleted()) {
+//					nodes.add(activity);
+//				}
+//			}
+//
+//			List<LearningGoal> learningGoals = defaultManager.getAllResources(LearningGoal.class);
+//			
+//			for (LearningGoal goal : learningGoals) {
+//				if (!goal.isDeleted()) {
+//					nodes.add(goal);
+//				}
+//			}
+//
+//			List<Competence> competences = defaultManager.getAllResources(Competence.class);
+//			
+//			for (Competence competence : competences) {
+//				if (!competence.isDeleted()) {
+//					nodes.add(competence);
+//				}
+//			}
+//			indexNodes(nodes);
+//
+//			List<Course> courses = defaultManager.getAllResources(Course.class);
+//			
+//			for (Course course : courses) {
+//				logger.debug("indexing course:" + course.getId() + "/" + course.getTitle());
+//				
+//				if (!course.isDeleted()) {
+//					nodeEntityESService.saveNodeToES(course);
+//				}
+//			}
 			
-			for (Activity activity : resourceActivities) {
-				if (!activity.isDeleted()) {
-					nodes.add(activity);
+			//index credentials
+			List<Credential1> credentials = credManager.getAllCredentialsWithTheirDraftVersions(session);
+			for(Credential1 cred : credentials) {
+				credESService.saveCredentialNode(cred, 0, session);
+				if(cred.getDraftVersion() != null) {
+					credESService.saveCredentialNode(cred.getDraftVersion(), cred.getId(), session);
 				}
 			}
-
-			List<LearningGoal> learningGoals = defaultManager.getAllResources(LearningGoal.class);
-			
-			for (LearningGoal goal : learningGoals) {
-				if (!goal.isDeleted()) {
-					nodes.add(goal);
-				}
-			}
-
-			List<Competence> competences = defaultManager.getAllResources(Competence.class);
-			
-			for (Competence competence : competences) {
-				if (!competence.isDeleted()) {
-					nodes.add(competence);
-				}
-			}
-			indexNodes(nodes);
-
-			List<Course> courses = defaultManager.getAllResources(Course.class);
-			
-			for (Course course : courses) {
-				logger.debug("indexing course:" + course.getId() + "/" + course.getTitle());
-				
-				if (!course.isDeleted()) {
-					nodeEntityESService.saveNodeToES(course);
+			//index competences
+			List<Competence1> comps = compManager.getAllCompetencesWithTheirDraftVersions(session);
+			for(Competence1 comp : comps) {
+				compESService.saveCompetenceNode(comp, 0, session);
+				if(comp.getDraftVersion() != null) {
+					compESService.saveCompetenceNode(comp.getDraftVersion(), comp.getId(), session);
 				}
 			}
 		} catch (Exception e) {
@@ -250,12 +270,12 @@ public class BulkDataAdministration implements Serializable {
 		}
 	}
 
-	private void indexNodes(List<Node> nodes) {
-		for (Node node : nodes) {
-			logger.debug("indexing node:" + node.getClass() + "///" + node.getId() + "." + node.getTitle() + " ");
-			nodeEntityESService.saveNodeToES(node);
-		}
-	}
+//	private void indexNodes(List<Node> nodes) {
+//		for (Node node : nodes) {
+//			logger.debug("indexing node:" + node.getClass() + "///" + node.getId() + "." + node.getTitle() + " ");
+//			nodeEntityESService.saveNodeToES(node);
+//		}
+//	}
 
 	public void deleteOldTwitterPosts() {
 		deleteOldPostsBeforeDays(0);
