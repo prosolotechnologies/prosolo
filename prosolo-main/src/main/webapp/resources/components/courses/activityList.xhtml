@@ -38,7 +38,7 @@
             		<h3>
 	            		<ui:fragment rendered="#{cc.attrs.isEdit}">
 	                   		#{act.title}
-	                   		<h:panelGroup rendered="#{!act.published}">(Draft)</h:panelGroup>
+	                   		<h:panelGroup rendered="#{!act.published}"><span>(Draft)</span></h:panelGroup>
 	                   	</ui:fragment>
 	                   	<ui:fragment rendered="#{!cc.attrs.isEdit and !cc.attrs.isPreview}">
                    			<h:link
