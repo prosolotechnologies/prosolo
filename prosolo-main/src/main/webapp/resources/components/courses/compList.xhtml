@@ -34,20 +34,11 @@
                         	</ui:fragment>
                         	<ui:fragment rendered="#{!cc.attrs.isEdit and !cc.attrs.isPreview}">
                         		<h:link
-                        			rendered="#{!cc.attrs.startedLearning or !cc.attrs.bean.credentialData.mandatoryFlow or comp.competenceId eq cc.attrs.bean.credentialData.nextCompetenceToLearnId or comp.progress eq 100}"
                         			value="#{comp.title}"
                         			outcome="competence">
                         			<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"/>
                         			<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"/>
-                        		</h:link>           
-                        		<ui:fragment rendered="#{cc.attrs.startedLearning and cc.attrs.bean.credentialData.mandatoryFlow and comp.competenceId != cc.attrs.bean.credentialData.nextCompetenceToLearnId and comp.progress lt 100}">
-			                		<a href="javascript:void(0);" 
-			                			disabled="disabled" 
-			                			data-toggle="tooltip" 
-			                			title="In order to learn this competence, previous tasks need to be completed.">
-			                			#{comp.title}
-			                		</a>
-		                		</ui:fragment>      
+                        		</h:link>             
                         	</ui:fragment>
                         	<ui:fragment rendered="#{!cc.attrs.isEdit and cc.attrs.isPreview}">
                         		#{comp.title}     
@@ -121,7 +112,7 @@
 					                			disabled="disabled" 
 					                			data-toggle="tooltip" 
 					                			title="In order to start this competence, previous tasks need to be completed.">
-					                			Start
+					                			#{comp.progress != 0 ? 'Resume' : 'Start'}
 					                		</a>
 				                		</ui:fragment>
 				                		<h:panelGroup layout="block" rendered="#{comp.progress lt 100}" styleClass="progressBar">
@@ -161,8 +152,7 @@
                             	<ui:fragment rendered="#{!cc.attrs.isEdit}">
                             		<ui:repeat var="act" value="#{comp.activities}">
 	                            		<li class="#{styleUtilBean.getStyleClassBasedOnActivityType(act.activityType)}">
-		                                    <h:link outcome="activity"
-		                                    	rendered="#{!cc.attrs.startedLearning or !cc.attrs.bean.credentialData.mandatoryFlow or comp.competenceId eq cc.attrs.bean.credentialData.nextCompetenceToLearnId or comp.progress eq 100 or act.completed}">
+		                                    <h:link outcome="activity">
 		                                        <span class="iconType"></span>
 		                                        #{act.title}
 		                                        <ui:fragment rendered="#{act.completed}">
@@ -172,15 +162,6 @@
 		                                        <f:param name="compId" value="#{util:encodeId(comp.competenceId)}"/>
 	                        					<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"/>
 		                                    </h:link>
-		                                    <ui:fragment rendered="#{cc.attrs.startedLearning and cc.attrs.bean.credentialData.mandatoryFlow and comp.competenceId != cc.attrs.bean.credentialData.nextCompetenceToLearnId and comp.progress lt 100 and !act.completed}">
-						                		<a href="javascript:void(0);" 
-						                		   disabled="disabled" 
-						                		   data-toggle="tooltip" 
-						                		   title="In order to start this activity previous tasks need to be completed.">
-						                		   <span class="iconType"></span>	
-						                		   #{act.title}
-						                		</a>
-				                			</ui:fragment>
 	                                	</li>
 	                            	</ui:repeat>   
                             	</ui:fragment>                 

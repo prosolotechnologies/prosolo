@@ -2444,4 +2444,37 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while retrieving credentials");
 		}
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public CredentialData getTargetCredentialTitleAndNextCompToLearn(long credId, long userId) 
+			throws DbConnectionException {
+		try {
+			String query = "SELECT cred.title, cred.nextCompetenceToLearnId " +
+						   "FROM TargetCredential1 cred " +
+						   "WHERE cred.user.id = :userId " +
+						   "AND cred.credential.id = :credId";
+			
+			Object[] res = (Object[]) persistence.currentManager()
+				.createQuery(query)
+				.setLong("userId", userId)
+				.setLong("credId", credId)
+				.uniqueResult();
+			
+			if(res != null) {
+				String title = (String) res[0];
+				long nextComp = (long) res[1];
+				
+				CredentialData cd = new CredentialData(false);
+				cd.setTitle(title);
+				cd.setNextCompetenceToLearnId(nextComp);
+				return cd;
+			}
+			return null;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credential data");
+		}
+	}
 }

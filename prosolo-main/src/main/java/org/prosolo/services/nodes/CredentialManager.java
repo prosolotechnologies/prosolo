@@ -311,5 +311,8 @@ public interface CredentialManager extends AbstractManager {
 	
 	List<Credential1> getAllCredentialsWithTheirDraftVersions(Session session) 
 			throws DbConnectionException;
+	
+	CredentialData getTargetCredentialTitleAndNextCompToLearn(long credId, long userId) 
+			throws DbConnectionException;
 
 }

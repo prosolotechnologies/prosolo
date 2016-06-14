@@ -18,6 +18,7 @@ import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
@@ -52,6 +53,8 @@ public class ActivityViewBeanUser implements Serializable {
 	private String mode;
 	
 	private CompetenceData1 competenceData;
+
+	private long nextCompToLearn;
 
 	public void init() {	
 		decodedActId = idEncoder.decodeId(actId);
@@ -107,8 +110,13 @@ public class ActivityViewBeanUser implements Serializable {
 			compTitle = compManager.getTargetCompetenceTitle(competenceData
 					.getActivityToShowWithDetails().getCompetenceId());
 			if(decodedCredId > 0) {
-				credTitle = credManager.getTargetCredentialTitle(decodedCredId, loggedUser
-						.getUser().getId());
+//				credTitle = credManager.getTargetCredentialTitle(decodedCredId, loggedUser
+//						.getUser().getId());
+				CredentialData cd = credManager
+						.getTargetCredentialTitleAndNextCompToLearn(decodedCredId, 
+								loggedUser.getUser().getId());
+				credTitle = cd.getTitle();
+				nextCompToLearn = cd.getNextCompetenceToLearnId();
 			}
 		} else {
 			compTitle = compManager.getCompetenceTitle(decodedCompId);
@@ -120,6 +128,10 @@ public class ActivityViewBeanUser implements Serializable {
 		competenceData.setCredentialId(decodedCredId);
 		competenceData.setCredentialTitle(credTitle);
 		
+	}
+	
+	public boolean isNextToLearn() {
+		return decodedCompId == nextCompToLearn;
 	}
 	
 	public boolean isActivityActive(ActivityData act) {
