@@ -177,6 +177,14 @@
             "roles": [
                 "Manager"
             ]
+        },
+        {
+            "name": "manage.credential.assessments",
+            "description": "Assess student credentials/competences",
+            "roles": [
+                "Manager",
+                "Instructor"
+            ]
         }
     ]
 }
