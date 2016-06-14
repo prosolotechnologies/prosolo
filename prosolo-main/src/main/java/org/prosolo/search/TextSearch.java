@@ -20,6 +20,7 @@ import org.prosolo.search.util.credential.InstructorSortOption;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
@@ -94,7 +95,7 @@ public interface TextSearch extends AbstractManager {
 	
 	List<Long> getInstructorCourseIds (long userId);
 	
-	TextSearchResponse1<CompetenceData1> searchCompetences1(
+	TextSearchResponse1<CompetenceData1> searchCompetences1(long userId, Role role,
 			String searchString, int page, int limit, boolean loadOneMore,
 			long[] toExclude, List<Tag> filterTags, SortingOption sortTitleAsc);
 	

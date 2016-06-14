@@ -67,6 +67,7 @@
                    				outcome="create-activity">
                    				<f:param name="id" value="#{util:encodeId(act.activityId)}" />
                    				<f:param name="compId" value="#{cc.attrs.encodedCompetenceId}"></f:param>
+                   				<f:param name="credId" value="#{cc.attrs.encodedCredentialId}" disable="#{empty cc.attrs.encodedCredentialId}"></f:param>
                    			</h:link> 
                         </li>
                         <li>

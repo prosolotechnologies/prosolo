@@ -57,7 +57,9 @@
 	                		<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
 	                    	<f:param name="learningContext" value="#{learningContext}"></f:param>
 	                	</p:commandLink>
-	                	<ui:fragment rendered="#{!cc.attrs.bean.nextToLearn}">
+	                	<ui:fragment rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled 
+	                			and !isPreview and !cc.attrs.bean.competenceData.activityToShowWithDetails.completed 
+	                			and !cc.attrs.bean.nextToLearn}">
 	                		<a href="javascript:void(0);" 
 	                			class="btn btn-green btn-sm" 
 	                			disabled="disabled" 

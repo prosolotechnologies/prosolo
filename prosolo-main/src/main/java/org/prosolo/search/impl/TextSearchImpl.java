@@ -66,6 +66,7 @@ import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
+import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
@@ -313,7 +314,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	//query for new competence
 	@Override
 	@Transactional
-	public TextSearchResponse1<CompetenceData1> searchCompetences1(
+	public TextSearchResponse1<CompetenceData1> searchCompetences1(long userId, Role role,
 			String searchString, int page, int limit, boolean loadOneMore,
 			long[] toExclude, List<Tag> filterTags, SortingOption sortTitleAsc) {
 		
@@ -353,19 +354,29 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				}
 			}
 			
-			BoolFilterBuilder boolFilter = FilterBuilders.boolFilter();
+			//BoolFilterBuilder boolFilter = FilterBuilders.boolFilter();
 			
 			/*
-			 * include all published competences and draft competences that have draft version
+			 * include all published competences, draft competences that have draft version and first time
+			 * drafts
 			 */
-			BoolFilterBuilder publishedOrHasDraft = FilterBuilders.boolFilter();
-			publishedOrHasDraft.should(FilterBuilders.termFilter("published", true));
+			BoolFilterBuilder boolFilter = FilterBuilders.boolFilter();
+			boolFilter.should(FilterBuilders.termFilter("published", true));
 			BoolFilterBuilder hasDraft = FilterBuilders.boolFilter();
 			hasDraft.must(FilterBuilders.termFilter("published", false));
 			hasDraft.must(FilterBuilders.termFilter("hasDraft", true));
-			publishedOrHasDraft.should(hasDraft);
-			
-			boolFilter.must(publishedOrHasDraft);
+			boolFilter.should(hasDraft);
+			BoolFilterBuilder firstTimeDraft = FilterBuilders.boolFilter();
+			if(role == Role.Manager) {
+				firstTimeDraft.must(FilterBuilders.termFilter(
+						"type", LearningResourceType.UNIVERSITY_CREATED.toString().toLowerCase()));
+			} else {
+				firstTimeDraft.must(FilterBuilders.termFilter("creatorId", userId));
+			}
+			firstTimeDraft.must(FilterBuilders.termFilter("isDraft", false));
+			firstTimeDraft.must(FilterBuilders.termFilter("published", false));
+			firstTimeDraft.must(FilterBuilders.termFilter("hasDraft", false));
+			boolFilter.should(firstTimeDraft);
 			
 			FilteredQueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder, 
 					boolFilter);
@@ -400,7 +411,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					
 					try {
 						CompetenceData1 cd = compManager.getCompetenceData(0, id, true, 
-								false, false, 0, LearningResourceReturnResultType.PUBLISHED_VERSION, 
+								false, false, 0, LearningResourceReturnResultType.ANY, 
 								false);
 						
 						if (cd != null) {

@@ -62,9 +62,13 @@ public class CredentialEditBean implements Serializable {
 	
 	private PublishedStatus[] courseStatusArray;
 	private Role role;
+
+	private boolean manageSection;
 	
 	public void init() {
 		initializeValues();
+		String section = PageUtil.getSectionForView();
+		manageSection = "/manage".equals(section);
 		if(id == null) {
 			credentialData = new CredentialData(false);
 		} else {
@@ -82,8 +86,7 @@ public class CredentialEditBean implements Serializable {
 	}
 	
 	private void loadCredentialData(long id) {
-		String section = PageUtil.getSectionForView();
-		if("/manage".equals(section)) {
+		if(manageSection) {
 			role = Role.Manager;
 			credentialData = credentialManager.getCurrentVersionOfCredentialForManager(id, false, true);
 		} else {
@@ -224,7 +227,10 @@ public class CredentialEditBean implements Serializable {
 			for(int i = 0; i < size; i++) {
 				toExclude[i] = compsToExcludeFromSearch.get(i);
 			}
+			Role role = manageSection ? Role.Manager : Role.User;
 			TextSearchResponse1<CompetenceData1> searchResponse = textSearch.searchCompetences1(
+					loggedUser.getUser().getId(),
+					role,
 					compSearchTerm,
 					0, 
 					Integer.MAX_VALUE,

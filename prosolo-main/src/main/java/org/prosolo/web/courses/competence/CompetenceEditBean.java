@@ -152,7 +152,7 @@ public class CompetenceEditBean implements Serializable {
 				String section = PageUtil.getSectionForView();
 				logger.info("SECTION " + section);
 				builder.append(extContext.getRequestContextPath() + section + "/competences/" + id + "/newActivity");
-
+				
 				if(credId != null && !credId.isEmpty()) {
 					builder.append("?credId=" + credId);
 				}

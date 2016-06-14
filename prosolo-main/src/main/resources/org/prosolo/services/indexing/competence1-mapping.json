@@ -40,6 +40,10 @@
 			"type":{
 				"store": false,
 				"type":"string"
+			},
+			"creatorId":{
+				"store": false,
+				"type":"long"
 			}
 		}
 			

@@ -88,6 +88,7 @@
 		                    	styleClass="btn btn-green-stroke btn-sm item"
 		                    	outcome="create-competence">
 		                    	<f:param name="id" value="#{param['compId']}"></f:param>
+		                    	<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}"></f:param>
 		                    </h:link>
 		                </div>
 		            </div>
