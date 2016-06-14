@@ -1225,17 +1225,25 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throws DbConnectionException {
 		try {
 			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, compId);
-			String query = "SELECT coalesce(originalCred.id, cred.id), coalesce(originalCred.title, cred.title) " +
-					       "FROM CredentialCompetence1 credComp " +
-					       "INNER JOIN credComp.credential cred " +
-					       "LEFT JOIN cred.originalVersion originalCred " +
-					       "WHERE credComp.competence = :comp " +
-					       "AND cred.hasDraft = :boolFalse " +
-					       "AND cred.deleted = :boolFalse";
+//			String query = "SELECT coalesce(originalCred.id, cred.id), coalesce(originalCred.title, cred.title) " +
+//					       "FROM CredentialCompetence1 credComp " +
+//					       "INNER JOIN credComp.credential cred " +
+//					       "LEFT JOIN cred.originalVersion originalCred " +
+//					       "WHERE credComp.competence = :comp " +
+//					       "AND cred.hasDraft = :boolFalse " +
+//					       "AND cred.deleted = :boolFalse";
+			String query = "SELECT distinct coalesce(originalCred.id, cred.id), coalesce(originalCred.title, cred.title) " +
+				       "FROM CredentialCompetence1 credComp " +
+				       "INNER JOIN credComp.credential cred " +
+				       "LEFT JOIN cred.originalVersion originalCred " +
+				       "WHERE credComp.competence = :comp " +
+				       "AND (cred.published = :boolTrue OR cred.hasDraft = :boolTrue OR cred.draft = :boolTrue) " +
+				       "AND cred.deleted = :boolFalse";
 			@SuppressWarnings("unchecked")
 			List<Object[]> res = persistence.currentManager()
 					.createQuery(query)
 					.setEntity("comp", comp)
+					.setBoolean("boolTrue", true)
 					.setBoolean("boolFalse", false)
 					.list();
 			if(res == null) {
