@@ -1228,7 +1228,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			
 			//System.out.println("QUERY: " + filteredQueryBuilder.toString());
 			
-			String[] includes = {"id", "originalVersionId"};
+			String[] includes = {"id", "originalVersionId", "title", "description"};
 			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_NODES)
 					.setTypes(ESIndexTypes.CREDENTIAL)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
@@ -1275,6 +1275,14 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 							 */
 						    if(cd.getCreator().getId() != userId) {
 						    	cd.setPublished(true);
+						    }
+						    
+						    /*
+						     * if draft version, set title and description from draft version
+						     */
+						    if(originalCredId > 0) {
+						    	cd.setTitle(hit.getSource().get("title").toString());
+						    	cd.setDescription(hit.getSource().get("description").toString());
 						    }
 						    
 							if (cd != null) {
@@ -1403,7 +1411,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			
 			//System.out.println("QUERY: " + filteredQueryBuilder.toString());
 			
-			String[] includes = {"id", "originalVersionId"};
+			String[] includes = {"id", "originalVersionId", "title", "description"};
 			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_NODES)
 					.setTypes(ESIndexTypes.CREDENTIAL)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
@@ -1450,6 +1458,13 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 							if(cd.getType() == LearningResourceType.USER_CREATED) {
 							    cd.setPublished(true);
 							}
+							/*
+						     * if credential draft version, set title and description from draft version
+						     */
+						    if(originalCredId > 0) {
+						    	cd.setTitle(hit.getSource().get("title").toString());
+						    	cd.setDescription(hit.getSource().get("description").toString());
+						    }
 							if (cd != null) {
 								response.addFoundNode(cd);
 							}
