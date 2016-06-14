@@ -37,7 +37,6 @@ public class MessageThread extends BaseEntity {
 	private String subject;
 	private Set<ThreadParticipant> participants;
 	private List<Message> messages;
-	private ActivityDiscussion activityDiscussion;
 
 	public MessageThread() {
 		setParticipants(new HashSet<ThreadParticipant>());
@@ -119,16 +118,5 @@ public class MessageThread extends BaseEntity {
 
 	public void setSubject(String subject) {
 		this.subject = subject;
-	}
-
-	@OneToOne
-	public ActivityDiscussion getActivityDiscussion() {
-		return activityDiscussion;
-	}
-
-	public void setActivityDiscussion(ActivityDiscussion activityDiscussion) {
-		this.activityDiscussion = activityDiscussion;
-	}
-	
-	
+	}	
 }

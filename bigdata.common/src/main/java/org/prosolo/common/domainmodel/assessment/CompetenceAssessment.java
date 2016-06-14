@@ -66,7 +66,7 @@ public class CompetenceAssessment extends BaseEntity {
 	public ActivityDiscussion getDiscussionByActivityId(long activityId) {
 		if(activityDiscussions != null && !activityDiscussions.isEmpty()) {
 			for(ActivityDiscussion discussion : activityDiscussions) {
-				if(discussion.getActivity().getId() == activityId){
+				if(discussion.getTargetActivity().getActivity().getId() == activityId){
 					return discussion;
 				}
 			}

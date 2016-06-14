@@ -1,41 +1,36 @@
 package org.prosolo.common.domainmodel.assessment;
 
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
-import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.messaging.MessageThread;
 
 @Entity
-public class ActivityDiscussion extends BaseEntity{
+public class ActivityDiscussion extends BaseEntity {
 
 	private static final long serialVersionUID = -2026612306127154692L;
 	
-	private Activity1 activity;
-	private MessageThread messageThread;
+	private TargetActivity1 targetActivity;
 	private CompetenceAssessment assessment;
+	private List<ActivityDiscussionParticipant> participants;
+	private List<ActivityDiscussionMessage> messages;
+
 	
-
-	@OneToOne(fetch = FetchType.LAZY)	
-	public Activity1 getActivity() {
-		return activity;
+	@OneToOne(fetch = FetchType.LAZY)
+	public TargetActivity1 getTargetActivity() {
+		return targetActivity;
 	}
 
-	public void setActivity(Activity1 activity) {
-		this.activity = activity;
-	}
-
-	@OneToOne(fetch = FetchType.LAZY, mappedBy="activityDiscussion",optional=true)
-	public MessageThread getMessageThread() {
-		return messageThread;
-	}
-
-	public void setMessageThread(MessageThread messageThread) {
-		this.messageThread = messageThread;
+	public void setTargetActivity(TargetActivity1 targetActivity) {
+		this.targetActivity = targetActivity;
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -46,6 +41,24 @@ public class ActivityDiscussion extends BaseEntity{
 
 	public void setAssessment(CompetenceAssessment assessment) {
 		this.assessment = assessment;
+	}
+
+	@OneToMany(cascade=CascadeType.ALL, mappedBy="activityDiscussion",fetch= FetchType.LAZY)
+	public List<ActivityDiscussionParticipant> getParticipants() {
+		return participants;
+	}
+
+	public void setParticipants(List<ActivityDiscussionParticipant> participants) {
+		this.participants = participants;
+	}
+
+	@OneToMany(mappedBy="discussion")
+	public List<ActivityDiscussionMessage> getMessages() {
+		return messages;
+	}
+
+	public void setMessages(List<ActivityDiscussionMessage> messages) {
+		this.messages = messages;
 	}
 	
 }

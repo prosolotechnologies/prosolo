@@ -33,7 +33,7 @@ public class AssessmentData {
 		OptionalInt number = assessment.getCompetenceAssessments().stream()
 			.map(competenceAssessment -> competenceAssessment.getActivityDiscussions())
 			.flatMap(discussions -> discussions.stream())
-			.mapToInt(discussion -> discussion.getMessageThread().getMessages().size())
+			.mapToInt(discussion -> discussion.getMessages().size())
 			.reduce(Integer::sum);
 		data.setTotalNumberOfMessages(number.orElse(0));
 		data.setInitials(getInitialsFromName(data.getStudentFullName()));

@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussion;
+import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
-import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 
 public class ActivityAssessmentData {
@@ -25,9 +25,9 @@ public class ActivityAssessmentData {
 		ActivityDiscussion activityDiscussion = compAssessment.getDiscussionByActivityId(targetActivity.getActivity().getId());
 		if(activityDiscussion != null) {
 			data.setEncodedDiscussionId(encoder.encodeId(activityDiscussion.getId()));
-			List<Message> messages = activityDiscussion.getMessageThread().getMessages();
+			List<ActivityDiscussionMessage> messages = activityDiscussion.getMessages();
 			if(CollectionUtils.isNotEmpty(messages)) {
-				data.setNumberOfMessages(activityDiscussion.getMessageThread().getMessages().size());
+				data.setNumberOfMessages(activityDiscussion.getMessages().size());
 			}
 		}
 		return data;
