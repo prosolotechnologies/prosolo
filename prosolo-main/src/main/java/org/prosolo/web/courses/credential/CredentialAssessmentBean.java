@@ -107,6 +107,7 @@ public class CredentialAssessmentBean implements Serializable {
 			assessmentManager.approveCredential(idEncoder.decodeId(fullAssessmentData.getEncodedId()),
 					fullAssessmentData.getTargetCredentialId(),reviewText);
 			markCredentialApproved();
+			PageUtil.fireSuccessfulInfoMessage("assessCredentialFormGrowl","You have sucessfully approved credential for "+fullAssessmentData.getStudentFullName());
 		}
 		catch (Exception e) {
 			logger.error("Error aproving assessment data", e);

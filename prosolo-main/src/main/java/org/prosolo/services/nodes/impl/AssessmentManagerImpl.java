@@ -40,7 +40,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	private static final String ASSESSMENT_FOR_USER_CREDENTIAL_NUMBER = "SELECT COUNT(*) from CredentialAssessment AS credentialAssessment "
 			+ "WHERE credentialAssessment.targetCredential.credential.id = :credentialId AND "
 			+ "credentialAssessment.assessedStudent.id = :assessedStudentId";
-	private static final String APPROVE_CREDENTIAL_QUERY = "UPDATE CredentialAssessment set approved = true, " +
+	private static final String APPROVE_CREDENTIAL_QUERY = "UPDATE CredentialAssessment set approved = true " +
     				" where id = :credentialAssessmentId";
 	private static final String APPROVE_COMPETENCES_QUERY = "UPDATE CompetenceAssessment set approved = true" +
 			" where credentialAssessment.id = :credentialAssessmentId";

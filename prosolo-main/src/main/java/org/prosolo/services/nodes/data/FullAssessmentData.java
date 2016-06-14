@@ -35,8 +35,8 @@ public class FullAssessmentData {
 		data.setTitle(assessment.getTargetCredential().getTitle());
 		data.setApproved(assessment.isApproved());
 		data.setEncodedId(encoder.encodeId(assessment.getId()));
-		data.setMandatoryFlow(assessment.getTargetCredential().getCredential().isCompetenceOrderMandatory());
-		data.setDuration(assessment.getTargetCredential().getCredential().getDuration());
+		data.setMandatoryFlow(assessment.getTargetCredential().isCompetenceOrderMandatory());
+		data.setDuration(assessment.getTargetCredential().getDuration());
 		data.setTargetCredentialId(assessment.getTargetCredential().getId());
 		
 		List<CompetenceAssessmentData> compDatas = new ArrayList<>();
