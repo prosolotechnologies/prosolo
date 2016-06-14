@@ -5,13 +5,45 @@ TABLE OF CONTENTS:
 01. General
 02. Header
 03. Main
-04. Managervvvvvvvvvvvvv
+04. Manager
 05. Footer
 */
 
 /*---------------------------------------------------------------------*/
 /*--- 01. GENERAL ---*/
 /*---------------------------------------------------------------------*/
+
+@font-face {
+    font-family: 'prosolo_bold';
+    src: url('font/prosolo-bold-webfont.woff2') format('woff2'),
+         url('font/prosolo-bold-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'prosolo_regular';
+    src: url('font/prosolo-reg-webfont.woff2') format('woff2'),
+         url('font/prosolo-reg-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'prosolo_regular_italic';
+    src: url('font/prosolo-regitalic-webfont.woff2') format('woff2'),
+         url('font/prosolo-regitalic-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'prosolo_semibold';
+    src: url('font/prosolo-sbold-webfont.woff2') format('woff2'),
+         url('font/prosolo-sbold-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
 
 $darkText: #363636;
 $normalText: #859095;
@@ -49,9 +81,28 @@ $lineHeight: 1.5em;
 	opacity: 0.5;
 }
 
+//maintain aspect ratio
+@mixin aspect-ratio($width, $height){
+	position: relative;
+	&:before {
+    	display: block;
+    	content: "";
+    	width: 100%;
+    	padding-top: ($height / $width) * 100%;
+  	}
+	> .content {
+    	position: absolute;
+    	top: 0;
+    	left: 0;
+    	right: 0;
+    	bottom: 0;
+	}
+}
+
 body{
 	background: #F8F9FB;
-	font: 14px/22px 'proxima-nova', "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/22px 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-weight: 400;
 	color: $normalText;
 	-webkit-font-smoothing: antialiased;
 }
@@ -62,6 +113,7 @@ p{
 
 a, a:focus{
 	color: $green;
+	font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-weight: 600;
 	text-decoration: none;
 	transition: all 0.2s ease;
@@ -96,6 +148,7 @@ ul{
 	padding: 0 18px;
 	font-size: 13px;
 	line-height: 38px;
+	font-family: 'prosolo_bold', "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-weight: 700;
 	border: none;
 	@include rounded-corners(5px);
@@ -104,6 +157,7 @@ ul{
 		opacity: .5;
 	}
 	&:focus{
+		font-family: 'prosolo_bold', "Helvetica Neue", Helvetica, Arial, sans-serif;
 		font-weight: 700;
 		-webkit-box-shadow: none;
 		-moz-box-shadow: none;
@@ -207,6 +261,7 @@ ul{
 	line-height: 24px;
 	color: $normalText;
 	font-size: 13px;
+	font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-weight: 600;
 	padding-right: 34px;
 	background: url("../images2/icon-approved.svg") no-repeat right center;
@@ -229,7 +284,8 @@ h1, h2, h3, h1 a, h2 a, h3 a, h1 a:focus, h2 a:focus, h3 a:focus{
 	margin-bottom: 30px;
 	margin-top: 0;
 	color: $darkText;
-	font-weight: 500;
+	font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-weight: 600;
 	line-height: $lineHeight;
 }
 
@@ -259,6 +315,11 @@ h3{
 	clear: both;
 }
 
+.clear1px{
+    clear: both;
+    height: 1px;
+}
+
 a:focus, :focus, input:focus { outline: none; text-decoration: none;}
 input::-moz-focus-inner { border: 0; }
 
@@ -271,6 +332,7 @@ input{
 	color: $normalText;
 	text-transform: uppercase;
 	text-align: center;
+	font-family: 'prosolo_bold', "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-weight: 700;
 	display: block;
 }
@@ -314,6 +376,7 @@ input{
 	display: flex;
 	align-items: center;
 	cursor: pointer;
+	font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-weight: 400;
 	.arrowDown{
 		display: block;
@@ -341,7 +404,8 @@ input{
 	border: none;
 	> li > a{
 		font-size: 13px;
-		font-weight: 500;
+		font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+		font-weight: 400;
 		line-height: 20px;
 		color: $normalText;
 		padding: 5px 20px;
@@ -371,6 +435,7 @@ input{
 	.btn{
 		margin-bottom: 0;
 		&:focus{
+			font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
 			font-weight: 400;
 		}
 	}
@@ -388,6 +453,7 @@ input{
 			font-size: 12px;
 			line-height: 46px;
 			color: #fff;
+			font-family: 'prosolo_bold', "Helvetica Neue", Helvetica, Arial, sans-serif;
 			font-weight: 700;
 			text-transform: uppercase;
 			padding: 0;
@@ -434,6 +500,7 @@ input{
 	background: none;
 	font-size: 12px;
 	a{
+		font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
 		font-weight: 400;
 		color: $lightText;
 		&:hover{
@@ -448,7 +515,7 @@ input{
 
 .whiteBox{
 	margin-bottom: 30px;
-	padding: 30px 30px 0 30px;
+	padding: 30px 30px 0px 30px;
 	background: #fff;
 	-webkit-box-shadow: 0px 1px 2px 0px rgba(0,0,0,0.15);
 	-moz-box-shadow: 0px 1px 2px 0px rgba(0,0,0,0.15);
@@ -461,7 +528,10 @@ input{
 	&.activityResultBox,
 	&.profileNotifications,
 	&.peopleList,
-	&.rssList{
+	&.rssList,
+	&.newWallPost,
+	&.wallPost,
+    &.observationsList{
 		padding: 0;
 		.innerWrapper{
 			padding: 30px 30px 0 30px;
@@ -521,7 +591,8 @@ input{
 	background: #1e1e1e;
 	padding: 15px;
 	font-size: 13px;
-	font-weight: 500;
+	font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-weight: 600;
 }
 
 .tooltip.top .tooltip-arrow{
@@ -567,6 +638,7 @@ input{
 .tagCompleted{
 	color: $green;
 	font-size: 13px;
+	font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-weight: 600;
 	padding-left: 30px;
 	line-height: 32px;
@@ -575,6 +647,7 @@ input{
 
 .linkViewEvidence{
 	font-size: 13px;
+	font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-weight: 600;
 	padding-left: 30px;
 	line-height: 32px;
@@ -583,6 +656,7 @@ input{
 
 .linkCompare{
 	font-size: 13px;
+	font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-weight: 600;
 	padding-left: 30px;
 	line-height: 32px;
@@ -663,7 +737,8 @@ input{
 				line-height: 30px;
 				padding: 0;
 				font-size: 13px;
-				font-weight: 500;
+				font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+				font-weight: 400;
 				color: $lightText;
 				text-align: center;
 				background: none;
@@ -702,6 +777,7 @@ input{
 			background: #E9EBEF;
 			@include rounded-corners(5px);
 			color: $normalText;
+			font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
 			font-weight: 400;
 			font-size: 13px;
 			&:hover{
@@ -980,6 +1056,7 @@ textarea{
 		padding-bottom: 30px;
 		> label{
 			min-width: 170px;
+			font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
 			font-weight: 600;
 			color: $darkText;
 			line-height: 40px;
@@ -1043,6 +1120,7 @@ textarea{
 	line-height: 30px;
 	padding: 5px;
 	font-size: 13px;
+	font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-weight: 400;
 }
 .bootstrap-tagsinput .tag [data-role="remove"] {
@@ -1091,6 +1169,7 @@ header{
 					font-size: 12px;
 					line-height: 30px;
 					color: #fff;
+					font-family: 'prosolo_bold', "Helvetica Neue", Helvetica, Arial, sans-serif;
 					font-weight: 700;
 					text-transform: uppercase;
 				}
@@ -1160,6 +1239,7 @@ header{
 				margin-right: 20px;
 				> a{
 					margin: 0;
+					font-family: 'prosolo_bold', "Helvetica Neue", Helvetica, Arial, sans-serif;
 					font-weight: 700;
 				}
 			}
@@ -1174,6 +1254,7 @@ header{
 						a{
 							padding: 10px 20px 10px 45px;
 							position: relative;
+							font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
 							font-weight: 400;
 							white-space: normal;
 							&:hover{
@@ -1396,6 +1477,122 @@ header{
 	}
 }
 
+.wallTimeline{
+	padding-bottom: 50px;
+}
+
+.newWallPost{
+	input[type="text"]{
+		width: 100%;
+		line-height: 30px;
+		padding: 10px 30px;
+		border: none;
+		-webkit-box-shadow: none;
+		-moz-box-shadow: none;
+		box-shadow: none;
+	}
+}
+
+.wallPost{
+	.wallPostHead{
+		padding: 30px;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		.user32{
+			margin: 0;
+		}
+		.timestamp{
+			font-size: 12px;
+			color: $lightText;
+			font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+			font-weight: 400;
+			margin-top: 1px;
+			&:hover{
+				color: $normalText;
+			}
+		}
+	}
+	.wallPostBody{
+		> p{
+			margin-bottom: 20px;
+			padding: 0 30px;
+		}
+		.linkPreview{
+			.imageHolder{
+				display: block;
+				margin-bottom: 20px;
+				overflow: hidden;
+				img{
+					width: 100%;
+				}
+			}
+			h2{
+				margin: 0 30px 10px 30px;
+			}
+			p{
+				margin: 0 30px 20px 30px;
+			}
+		}
+	}
+	.wallPostFooter{
+		display: flex;
+		padding: 0 30px 30px 30px;
+		a{
+			display: flex;
+			align-items: center;
+			color: $normalText;
+			font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+			font-weight: 400;
+			font-size: 13px;
+			margin-right: 20px;
+			.icon{
+				display: inline-block;
+				width: 12px;
+				height: 12px;
+				margin-right: 5px;
+				margin-bottom: 2px;
+				#triangle{
+					transition: all 0.2s ease;
+					-webkit-transition: all 0.2s ease;
+				}
+			}
+			&.commentsNumber{
+				.icon{
+					background: url("../images2/iconComments12.svg") no-repeat;
+					opacity: .5;
+					transition: all 0.2s ease;
+					-webkit-transition: all 0.2s ease;
+				}
+				&:hover .icon{
+					opacity: 1;
+				}
+			}
+			&:hover{
+				color: $darkText;
+				#triangle{
+					fill: $orange;
+				}
+			}
+			&.liked{
+				#triangle{
+					fill: $orange;
+				}
+			}
+		}
+	}
+	.discussion{
+		padding: 30px 30px 0 30px;
+		border-top: 1px solid #EEEFF3;
+		.comments{
+			margin: 0;
+			ul{
+				margin: 0;
+			}
+		}
+	}
+}
+
 .whiteBarContent{
 	.whiteBarLeft{
 		display: flex;
@@ -1594,6 +1791,7 @@ header{
 				transition: all 0.2s ease;
 				-webkit-transition: all 0.2s ease;
 				color: $lightText;
+				font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
 				font-weight: 400;
 			}
 			.arrowUp,
@@ -1661,6 +1859,7 @@ header{
 					display: block;
 					line-height: 20px;
 					padding: 10px 30px;
+					font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
 					font-weight: 400;
 					color: $normalText;
 					background: #F8F9FB;
@@ -1691,6 +1890,7 @@ header{
 					margin-right: 20px;
 				}
 				> a{
+					font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
 					font-weight: 400;
 					color: $normalText;
 
@@ -2059,7 +2259,8 @@ header{
 			}
 			.studentsNum span{
 				font-size: 18px;
-				font-weight: 500;
+				font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
+				font-weight: 600;
 				&.redText{
 					color: $red;
 				}
@@ -2203,7 +2404,8 @@ header{
 				}
 				span{
 					font-size: 18px;
-					font-weight: 500;
+					font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
+					font-weight: 600;
 					&.redText{
 						color: $red;
 					}
@@ -2258,10 +2460,11 @@ header{
 	.addComment{
 		display: flex;
 		margin-bottom: 30px;
+		justify-content: space-between;
 	}
 	.commentForm,
 	.editComment{
-		width: 100%;
+		flex-grow: 1;
 		textarea{
 			float: left;
 			width: 100%;
@@ -2327,6 +2530,7 @@ header{
 						display: flex;
 						align-items: center;
 						color: $normalText;
+						font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
 						font-weight: 400;
 						font-size: 13px;
 						margin-right: 20px;
@@ -2584,7 +2788,8 @@ header{
 				-moz-box-shadow: none;
 				box-shadow: none;
 				color: $darkText;
-				font-weight: 500;
+				font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
+				font-weight: 600;
 			}
 			.searchResultsDrop{
 				top: 60px;
@@ -2650,7 +2855,8 @@ header{
 			height: 20px;
 			line-height: 20px;
 			font-size: 10px;
-			font-weight: 500;
+			font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
+			font-weight: 600;
 			text-transform: uppercase;
 			color: $orange;
 			background: url("../images2/newMessagesLine.svg") no-repeat 85px 9px;
@@ -2694,6 +2900,7 @@ header{
 				padding: 0 30px;
 				align-items: center;
 				color: $normalText;
+				font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
 				font-weight: 400;
 				&:hover{
 					background: #F8F9FB;
@@ -2761,6 +2968,30 @@ header{
 	background: url("../images2/iconNotifAssessment16.svg") no-repeat;
 }
 
+#termsPage{
+    header{
+        background: none;
+        height: 60px;
+        -webkit-box-shadow: none;
+		-moz-box-shadow: none;
+		box-shadow: none;
+        #logo{
+            float: left;
+            display: block;
+            width: 86px;
+            height: 30px;
+            margin: 15px 0 0 0;
+            background: url("../images2/logo-black.svg") no-repeat;
+            background-size: 86px 30px;
+            text-indent: -10000px;
+        }
+        .btn{
+            float: right;
+            margin-top: 14px;
+        }
+    }
+}
+
 /*---------------------------------------------------------------------*/
 /*--- 04. MANAGER ---*/
 /*---------------------------------------------------------------------*/
@@ -2789,7 +3020,7 @@ header{
 
 .blockRow {
 	margin-bottom: 80px;
-	margin-left: 46px;
+    padding: 0 46px;
 	position: relative;
 }
 
@@ -2823,7 +3054,8 @@ header{
 .progressBlock h3 {
 	color:#333333;
 	font-size: 12px;
-	font-weight: bold;
+	font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-weight: 600;
 	margin: 15px;
 	margin-bottom: 0;
 }
@@ -2861,9 +3093,10 @@ header{
 
 .progressBlock .progress .percentage {
 	position: absolute;
-	top: 40px;
+	top: 45px;
 	color: #333333;
-	font-weight: bold;
+	font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-weight: 600;
 	font-size: 25px;
 	display: block;
 	width: 100%;
@@ -2966,7 +3199,8 @@ header{
 	padding: 0;
 	text-transform: uppercase;
 	color: #000;
-	font-weight: 100;
+	font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-weight: 400;
 	font-size: 12px;
 	float: left;
 }
@@ -2988,7 +3222,8 @@ header{
 
 .assessment p {
 	color: #212121;
-	font-weight: 100;
+	font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-weight: 400;
 	font-size: 12px;
 	line-height: 14px;
 	margin-bottom: 2px;
@@ -3022,7 +3257,7 @@ header{
 .activities {
 	border: 5px solid #dddddd;
 	margin-top: 20px;
-	margin-left: 46px;
+    margin-bottom: 30px;
 }
 
 
@@ -3057,7 +3292,7 @@ header{
 	font-size: 14px;
 	color: #666;
 	display: block;
-	padding: 14px 45px 14px 42px;
+	padding: 10px 40px 10px 10px;
 	background-color: #fff;
 	position: relative;
 	border: 1px solid #ddd;
@@ -3086,19 +3321,19 @@ border: 1px solid #ddd;
 
 /* activities accordion collapse icons */
 #activities h4 a::after {
-  content: "\f106";
+  content: "";
   display: block;
-  font-family: FontAwesome;
-  height: 22px;
+  height: 8px;
   position: absolute;
   right: 10px;
   top: 12px;
-  width: 14px;
-  font-size: 17px;
+  width: 12px;
+  background: url("../images2/arrowUp.svg") no-repeat center center;
 }
 
 #activities h4 a.collapsed::after {
-  content: "\f107";
+  content: "";
+  background: url("../images2/arrowDown.svg") no-repeat center center;
 }
 
 #activities .panel-default {
@@ -3120,6 +3355,10 @@ border: 1px solid #ddd;
 	font-size: 13px;
 }
 
+#activities .panel-body p{
+	margin: 0;
+}
+
 #activities .panel-default > .panel-heading {
 	border-radius: 0px;
 	padding: 0px;
@@ -3133,17 +3372,6 @@ border: 1px solid #ddd;
 
 #activities h4 {
 	position: relative;
-}
-
-#activities h4::before {
-  background-color: #dddddd;
-  content: "";
-  display: block;
-  height: 5px;
-  left: -52px;
-  position: absolute;
-  top: 19px;
-  width: 52px;
 }
 
 
@@ -3230,12 +3458,14 @@ border: 1px solid #ddd;
 
 .fileContainer h5 a {
 	font-size: 14px;
-	font-weight: bold;
+	font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-weight: 600;
 }
 
 .fileSizeTime {
 	font-size: 18px;
-	font-weight: 100;
+	font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-weight: 400;
 	color: #666666;
 	text-align: right;
 	line-height: 48px;
@@ -3263,47 +3493,44 @@ border: 1px solid #ddd;
 
 .sliderIconLeft {
 	position: absolute;
-	left: -46px;
+	left: 0;
 	height: 210px;
 	width: 40px;
 	line-height: 210px;
 	text-align: center;
+    background: url("../images2/sliderArrowLeft.svg") no-repeat center center;
+    opacity: .5;
 }
 .sliderIconLeft:hover {
-	background: #fafafa;
-}
-
-.sliderIconLeft .fa {
-	font-size: 36px;
+	opacity: 1;
 }
 
 .sliderIconRight {
 	position: absolute;
-	right: -46px;
+	right: 0;
 	height: 210px;
 	width: 40px;
 	line-height: 210px;
 	text-align: center;
+    background: url("../images2/sliderArrowRight.svg") no-repeat center center;
+    opacity: .5;
 }
 .sliderIconRight:hover {
-	background: #fafafa;
+	opacity: 1;
 }
-
-.sliderIconRight .fa {
-	font-size: 36px;
-}
-
 
 .sliderIconLeftCred {
 	position: absolute;
-	left: -46px;
+	left: 0;
 	height: 250px;
 	width: 40px;
 	line-height: 250px;
 	text-align: center;
+    background: url("../images2/sliderArrowLeft.svg") no-repeat center center;
+    opacity: .5;
 }
 .sliderIconLeftCred:hover {
-	background: #fafafa;
+	opacity: 1;
 }
 
 .sliderIconLeftCred .fa {
@@ -3312,21 +3539,116 @@ border: 1px solid #ddd;
 
 .sliderIconRightCred {
 	position: absolute;
-	right: -46px;
+	right: 0;
 	height: 250px;
 	width: 40px;
 	line-height: 250px;
 	text-align: center;
+    background: url("../images2/sliderArrowRight.svg") no-repeat center center;
+    opacity: .5;
 }
 .sliderIconRightCred:hover {
-	background: #fafafa;
-}
-
-.sliderIconRightCred .fa {
-	font-size: 36px;
+	opacity: 1;
 }
 
 
+.observationBox{
+	position: relative;
+    .observationInfo{
+        margin-bottom: 20px;
+        p{
+            margin-bottom: 10px;
+        }
+    }
+    .subHead{
+        margin-bottom: 10px;
+    }
+    .observationOpt{
+        padding-top: 10px;
+        border-top: 1px solid #ECEDF1;
+        .bullet{
+            display: inline-block;
+            width: 3px;
+            height: 10px;
+            margin: 0 5px;
+            background: url("../images2/bulletGrey.svg") no-repeat center center;
+        }
+    }
+}
+
+#newObservation,
+#editObservation{
+    .panel{
+        border: 1px solid #EEEFF3;
+        -webkit-box-shadow: none;
+		-moz-box-shadow: none;
+		box-shadow: none;
+        .panel-heading{
+            background: #F8F9FB;
+            .panel-title{
+                font-size: 14px;
+            }
+        }
+        .panel-body{
+            border-top: none;
+            textarea{
+                display: 100%;
+                width: 100%;
+            }
+        }
+    }
+}
+
+.observationBtn{
+    margin-bottom: 10px;
+}
+
+.observationBox .userInfo {
+	margin: 0 auto;
+	width: 165px;
+	margin-bottom: 15px;
+}
+
+.observationBox .labels{
+	margin-bottom: 10px;
+}
+
+.dottedDivider {
+	border-top: 1px dotted #e8e8e8;
+	margin-bottom: 15px;
+}
+
+
+.observationBox .labels span{
+	width: 100%;
+}
+
+.observationsList{
+    .observationLine{
+        border-bottom: 1px solid #EEEFF3;
+        &:last-child{
+            border: none;
+        }
+        .user32{
+            padding-bottom: 20px;
+        }
+        .obsBlocks{
+            float: left;
+            width: 33%;
+            display: inline-block;
+            h3{
+                margin-bottom: 10px;
+            }
+            .bullet{
+                display: inline-block;
+                width: 3px;
+                height: 10px;
+                margin: 0 5px;
+                background: url("../images2/bulletGrey.svg") no-repeat center center;
+            }
+        }
+    }
+}
 
 
 /*---------------------------------------------------------------------*/
