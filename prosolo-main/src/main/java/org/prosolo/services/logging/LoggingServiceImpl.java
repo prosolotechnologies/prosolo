@@ -1,19 +1,7 @@
 package org.prosolo.services.logging;
 
 import static java.lang.String.format;
-import static org.prosolo.common.domainmodel.activities.events.EventType.Comment;
-import static org.prosolo.common.domainmodel.activities.events.EventType.Dislike;
-import static org.prosolo.common.domainmodel.activities.events.EventType.EVALUATION_ACCEPTED;
-import static org.prosolo.common.domainmodel.activities.events.EventType.EVALUATION_GIVEN;
-import static org.prosolo.common.domainmodel.activities.events.EventType.EVALUATION_REQUEST;
-import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_INVITATION;
-import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_INVITATION_ACCEPTED;
-import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_REQUEST;
-import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_REQUEST_APPROVED;
-import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_REQUEST_DENIED;
-import static org.prosolo.common.domainmodel.activities.events.EventType.Like;
-import static org.prosolo.common.domainmodel.activities.events.EventType.PostShare;
-import static org.prosolo.common.domainmodel.activities.events.EventType.SEND_MESSAGE;
+import static org.prosolo.common.domainmodel.activities.events.EventType.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,11 +32,13 @@ import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.UserSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.comments.NodeComment;
 import org.prosolo.common.domainmodel.activitywall.comments.SocialActivityComment;
+import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.content.Post;
 import org.prosolo.common.domainmodel.evaluation.EvaluationSubmission;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.event.context.Context;
 import org.prosolo.services.event.context.ContextName;
 import org.prosolo.services.event.context.LearningContext;
 import org.prosolo.services.event.context.data.LearningContextData;
@@ -99,7 +89,8 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			Comment, EVALUATION_REQUEST,EVALUATION_ACCEPTED, EVALUATION_GIVEN,
 			JOIN_GOAL_INVITATION, JOIN_GOAL_INVITATION_ACCEPTED,JOIN_GOAL_REQUEST,
 			JOIN_GOAL_REQUEST_APPROVED, JOIN_GOAL_REQUEST_DENIED,
-			Like,Dislike, SEND_MESSAGE, PostShare};
+			Like,Dislike, SEND_MESSAGE, PostShare,
+			Comment_Reply, RemoveLike};
 	
 	@PostConstruct
 	public void init() {
@@ -287,8 +278,9 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			//logObject.put("courseId",extractCourseIdForUsedResource(objectType, objectId, targetType, targetId, reasonType, reasonId,null));
 			Long targetUserId=(long) 0;
 			if(Arrays.asList(interactions).contains(eventType)){
-				//System.out.println("INTERACTION SHOULD BE PROCESSED:"+logObject.toString());
+				 System.out.println("TARGET USER SHOULD BE PROVIDED:"+logObject.toString());
 				 targetUserId=extractSocialInteractionTargetUser(logObject, eventType);
+				System.out.println("TARGET USER IS:"+targetUserId);
 			}
 			logObject.put("targetUserId", targetUserId);
 			if (parameters != null && !parameters.isEmpty()) {
@@ -357,18 +349,16 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			targetUserId=logsDataManager.getRequestMaker(actorId, objectId);
 		}else if(objectType.equals(EvaluationSubmission.class.getSimpleName())){
 			targetUserId=logsDataManager.getEvaluationSubmissionRequestMaker(actorId,objectId);
-		}else {
+		}else if(objectType.equals(Comment1.class.getSimpleName())){
+			if(eventType.equals(EventType.Like) || eventType.equals(EventType.RemoveLike)){
+				targetUserId=logsDataManager.getCommentMaker(objectId);
+			}else targetUserId=logsDataManager.getParentCommentMaker(objectId);
+		}
+
+
+		else {
 			if(eventType.equals(EventType.SEND_MESSAGE)){
 				JSONObject parameters=(JSONObject) logObject.get("parameters");
-				if(logObject==null){
-					System.out.println("X");
-				}
-				if(parameters==null){
-					System.out.println("Y");
-				}
-				if(parameters.get("user")==null){
-					System.out.println("Z");
-				}
 				System.out.println("SEND MESSAGE:"+logObject.toString()+" USER:"+parameters.get("user"));
 				targetUserId=  Long.valueOf(parameters.get("user").toString());
 			}else if(eventType.equals(EventType.Like) || eventType.equals(EventType.Dislike)){
@@ -400,14 +390,22 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	}
 
 	private Long extractCourseIdForUsedResource(LearningContext learningContext) {
-		Long courseId=0l;
-		if(learningContext != null && learningContext.getContext() != null) { 
-			if(learningContext.getContext().getName().equals(ContextName.CREDENTIAL)){
-					courseId=learningContext.getContext().getId();
+		Long courseId=extractCourseIdFromContext(learningContext.getContext());
+		/*if(learningContext != null && learningContext.getContext() != null) {
+			if(learningContext.getContext().getContext().getName().equals(ContextName.CREDENTIAL)){
+					courseId=learningContext.getContext().getContext().getId();
 					System.out.println("ExtractedCourse id:"+courseId);
 			}
-		}
+		}*/
+		System.out.println("EXTRACTED COURSE ID:"+courseId);
 		return courseId;
+	}
+	private Long extractCourseIdFromContext(Context context){
+		if(context==null){
+			return 0l;
+		}else	if(context.getName().equals(ContextName.CREDENTIAL)){
+			return context.getId();
+		}else return extractCourseIdFromContext(context.getContext());
 	}
 
 
@@ -711,8 +709,9 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 				logObject.put("parameters", parametersObject);
 			}
 			if(Arrays.asList(interactions).contains(eventType)){
-				System.out.println("INTERACTION SHOULD BE PROCESSED:"+logObject.toString());
+				System.out.println("TARGET USER SHOULD BE EXTRACTED FOR THIS EVENT:"+logObject.toString());
 				targetUserId=extractSocialInteractionTargetUser(logObject, eventType);
+
 			}else{
 				System.out.println("We are not interested in this interaction:"+eventType.name());
 			}

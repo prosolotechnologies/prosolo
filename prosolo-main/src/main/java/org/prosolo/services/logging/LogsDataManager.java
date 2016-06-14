@@ -19,4 +19,8 @@ public interface LogsDataManager {
     Long getEvaluationSubmissionRequestMaker(long actorId, long objectId);
 
     Long getRequestMaker(long actorId, long objectId);
+
+    Long getParentCommentMaker(long commentId);
+
+    Long getCommentMaker(long commentId);
 }

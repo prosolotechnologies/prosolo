@@ -111,4 +111,34 @@ public class LogsDataManagerImpl extends AbstractManagerImpl implements LogsData
 			return makerid;
 		}
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Long getParentCommentMaker(long commentId) {
+        String query =
+                "SELECT maker.id " +
+                        "FROM Comment1 comment " +
+                        "LEFT JOIN comment.parentComment parentcomment "+
+                        "LEFT JOIN parentcomment.user maker "+
+                        "WHERE comment.id = :commentId";
+
+        return  (Long) persistence.currentManager().createQuery(query)
+                .setParameter("commentId", commentId)
+                .uniqueResult();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Long getCommentMaker(long commentId) {
+        String query =
+                "SELECT maker.id " +
+                        "FROM Comment1 comment " +
+                        "LEFT JOIN comment.user maker "+
+                        "WHERE comment.id = :commentId";
+
+        return  (Long) persistence.currentManager().createQuery(query)
+                .setParameter("commentId", commentId)
+                .uniqueResult();
+    }
+
 }
