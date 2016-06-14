@@ -34,10 +34,14 @@ function attachListenersForUpdatingStatus() {
 }
 
 function showOrHideMandatoryArrows() {
-	if($('#' + containerId + '\\:formMain\\:credSidebar\\:checkMandatory').is(':checked'))
+	if($('#' + containerId + '\\:formMain\\:credSidebar\\:checkMandatory').is(':checked')) {
 	    $(".mandatoryArrow").show();
-	else
+		addClassToElement("competences", "mandatoryFlow");
+	} else {
 	    $(".mandatoryArrow").hide(); 
+		removeCssClassesFromElement("competences", "mandatoryFlow");
+	}
+	
 }
 
 //function getFieldValue(label) {

@@ -213,8 +213,8 @@
                		</article>
                		<h:panelGroup 
                			layout="block" 
-               			rendered="#{cc.attrs.bean.credentialData.mandatoryFlow}" 
-               			styleClass="mandatoryArrow">
+               			styleClass="mandatoryArrow"
+               			style="#{cc.attrs.bean.credentialData.mandatoryFlow ? '' : 'display:none;'}">
                		</h:panelGroup>
                 </ui:repeat>
                 </div>
