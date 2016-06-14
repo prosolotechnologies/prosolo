@@ -61,28 +61,30 @@ public class CompetenceEditBean implements Serializable {
 	private PublishedStatus[] compStatusArray;
 	
 	public void init() {
-		initializeValues();
-		if(id == null) {
-			competenceData = new CompetenceData1(false);
-			if(credId != null) {
-				decodedCredId = idEncoder.decodeId(credId);
-				addToCredential = true;
+		try {
+			initializeValues();
+			decodedCredId = idEncoder.decodeId(credId);
+			if(id == null) {
+				competenceData = new CompetenceData1(false);
+				if(decodedCredId > 0) {
+					addToCredential = true;
+				}
+			} else {
+				decodedId = idEncoder.decodeId(id);
+				logger.info("Editing competence with id " + decodedId);
+				loadCompetenceData(decodedId);
+			}
+			if(decodedCredId > 0) {
 				String credTitle = credManager.getCredentialDraftOrOriginalTitle(decodedCredId);
 				CredentialData cd = new CredentialData(false);
 				cd.setId(decodedCredId);
 				cd.setTitle(credTitle);
 				competenceData.getCredentialsWithIncludedCompetence().add(cd);
 			}
-		} else {
-			try {
-				decodedId = idEncoder.decodeId(id);
-				logger.info("Editing competence with id " + decodedId);
-				loadCompetenceData(decodedId);
-			} catch(Exception e) {
-				logger.error(e);
-				competenceData = new CompetenceData1(false);
-				PageUtil.fireErrorMessage(e.getMessage());
-			}
+		} catch(Exception e) {
+			logger.error(e);
+			competenceData = new CompetenceData1(false);
+			PageUtil.fireErrorMessage("Error while loading competence data");
 		}
 	}
 	

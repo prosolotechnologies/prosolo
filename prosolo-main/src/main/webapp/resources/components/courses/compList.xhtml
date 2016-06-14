@@ -82,6 +82,7 @@
                         				value="Edit" 
                         				outcome="create-competence">
                         				<f:param name="id" value="#{util:encodeId(comp.competenceId)}" />
+                        				<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"/>
                         			</h:link> 
                         		</ui:fragment>
                         		
