@@ -23,8 +23,45 @@
 		<script src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
 		<script src="#{request.contextPath}/resources/javascript2/createCompetence.js"></script>
 	   
+	    
 	    <div class="whiteBar">
 	
+	    </div>
+	    
+	    <div class="container">
+	    	<ui:fragment rendered="#{not empty param['credId']}">
+	    		<ol class="breadcrumb">
+		            <li>
+		            	<h:link value="Credentials" outcome="credentialLibrary"/>
+		            </li>
+		            <li>
+		            	<h:link 
+		            		value="#{competenceEditBean.credTitle}"
+		            		outcome="credential">
+		            		<f:param name="id" value="#{param['credId']}"></f:param>
+		            	</h:link>
+		            </li>
+		            <ui:fragment rendered="#{!competenceEditBean.isCreateUseCase()}">
+		            	<li class="active">#{competenceEditBean.competenceData.title}</li>
+		            </ui:fragment>
+		            <ui:fragment rendered="#{competenceEditBean.isCreateUseCase()}">
+		            	<li class="active">New Competence</li>
+		            </ui:fragment>
+		        </ol>
+	    	</ui:fragment>
+	        <ui:fragment rendered="#{empty param['credId']}">
+	    		<ol class="breadcrumb">	 
+	    			<li>
+		            	<a href="javascript:void(0);">Competences</a>
+		            </li> 
+	    			<ui:fragment rendered="#{!competenceEditBean.isCreateUseCase()}">
+		            	<li class="active">#{competenceEditBean.competenceData.title}</li>
+		            </ui:fragment>
+		            <ui:fragment rendered="#{competenceEditBean.isCreateUseCase()}">
+		            	<li class="active">New Competence</li>
+		            </ui:fragment>
+		        </ol>
+	    	</ui:fragment>
 	    </div>
 	    
 	    <div id="#{cc.clientId}">

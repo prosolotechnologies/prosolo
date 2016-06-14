@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.ExternalContext;
@@ -60,6 +61,8 @@ public class CompetenceEditBean implements Serializable {
 	
 	private PublishedStatus[] compStatusArray;
 	
+	private String credTitle;
+	
 	public void init() {
 		try {
 			initializeValues();
@@ -75,11 +78,17 @@ public class CompetenceEditBean implements Serializable {
 				loadCompetenceData(decodedId);
 			}
 			if(decodedCredId > 0) {
-				String credTitle = credManager.getCredentialDraftOrOriginalTitle(decodedCredId);
-				CredentialData cd = new CredentialData(false);
-				cd.setId(decodedCredId);
-				cd.setTitle(credTitle);
-				competenceData.getCredentialsWithIncludedCompetence().add(cd);
+				Optional<CredentialData> res = competenceData.getCredentialsWithIncludedCompetence()
+						.stream().filter(cd -> cd.getId() == decodedCredId).findFirst();
+				if(res.isPresent()) {
+					credTitle = res.get().getTitle();
+				} else {
+					credTitle = credManager.getCredentialTitle(decodedCredId);
+					CredentialData cd = new CredentialData(false);
+					cd.setId(decodedCredId);
+					cd.setTitle(credTitle);
+					competenceData.getCredentialsWithIncludedCompetence().add(cd);
+				}
 			}
 		} catch(Exception e) {
 			logger.error(e);
@@ -324,6 +333,10 @@ public class CompetenceEditBean implements Serializable {
 		return competenceData.getCompetenceId() > 0 ? "Edit Competence" : "New Competence";
 	}
 	
+	public boolean isCreateUseCase() {
+		return competenceData.getCompetenceId() == 0;
+	}
+	
 	/*
 	 * GETTERS / SETTERS
 	 */
@@ -390,6 +403,14 @@ public class CompetenceEditBean implements Serializable {
 
 	public void setActivityForRemovalIndex(int activityForRemovalIndex) {
 		this.activityForRemovalIndex = activityForRemovalIndex;
+	}
+
+	public String getCredTitle() {
+		return credTitle;
+	}
+
+	public void setCredTitle(String credTitle) {
+		this.credTitle = credTitle;
 	}
 
 }

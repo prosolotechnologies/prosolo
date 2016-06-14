@@ -343,6 +343,10 @@ public class CredentialEditBean implements Serializable {
 		return credentialData.getId() > 0 ? "Edit Credential" : "New Credential";
 	}
 	
+	public boolean isCreateUseCase() {
+		return credentialData.getId() == 0;
+	}
+	
 	/*
 	 * GETTERS / SETTERS
 	 */
