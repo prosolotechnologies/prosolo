@@ -302,6 +302,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			String linkString = logObject.get("link") != null ? "\nlink: " + logObject.get("link") : "";
 			String context = parameters.get("context") != null ? parameters.get("context") : "";
 			String action = parameters.get("action") != null ? parameters.get("action") : "";
+			Long courseId = parameters.get("courseId") != null ? Long.parseLong(parameters.get("courseId")) : 0;
 			
 			logger.info("\ntimestamp: " + timestamp + 
 		 			"\neventType: " + eventType + 
@@ -312,7 +313,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		 			(logObject.get("objectTitle") != null ? "\nobjectTitle: " + logObject.get("objectTitle") : "") + 
 		 			(logObject.get("targetType") != null ? "\ntargetType: " + logObject.get("targetType") : "") + 
 					(((Long) logObject.get("targetId")) > 0 ? "\ntargetId: " + logObject.get("targetId") : "") +
-					(((Long) logObject.get("courseId")) > 0 ? "\ncourseId: " + logObject.get("courseId") : "") +
+					(courseId > 0 ? "\ncourseId: " + courseId : "") +
 					(((Long) logObject.get("targetUserId")) > 0 ? "\ntargetUserId: " + logObject.get("targetUserId") : "") +
 					(logObject.get("reasonType") != null ? "\nreasonType: " + logObject.get("reasonType") : "") + 
 					(((Long) logObject.get("reasonId")) > 0 ? "\nreasonId: " + logObject.get("reasonId") : "") + 

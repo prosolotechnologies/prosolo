@@ -40,6 +40,7 @@ public class TopNotificationsBean1 {
 	@PostConstruct
 	public void init() {
 		initNotificationsNo();
+		fetchNotifications();
 	}
 
 	private void initNotificationsNo() {
@@ -75,18 +76,19 @@ public class TopNotificationsBean1 {
 		}
 	}
 
-	public void fetchNotifications() {
-		if (notificationDatas == null) {
-			logger.debug("Initializing notifications.");
-
-			try {
-				this.notificationDatas = (LinkedList<NotificationData>) notificationsManager.getNotificationsForUser(
-						loggedUser.getUser().getId(), 0, notificationsLimit, null, loggedUser.getLocale());
-			} catch (DbConnectionException e) {
-				logger.error(e);
-			}
-		}
+	public void markNotificationsAsRead() {
 		unreadNotificationsNo = 0;
+	}
+	
+	public void fetchNotifications() {
+		logger.debug("Initializing notifications.");
+
+		try {
+			this.notificationDatas = (LinkedList<NotificationData>) notificationsManager.getNotificationsForUser(
+					loggedUser.getUser().getId(), 0, notificationsLimit, null, loggedUser.getLocale());
+		} catch (DbConnectionException e) {
+			logger.error(e);
+		}
 	}
 
 	public LinkedList<NotificationData> getNotificationDatas() {

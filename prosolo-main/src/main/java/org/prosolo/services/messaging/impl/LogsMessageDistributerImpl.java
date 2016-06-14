@@ -69,7 +69,7 @@ public class LogsMessageDistributerImpl implements LogsMessageDistributer{
 		message.setReasonType((String) logObject.get("reasonType"));
 		message.setReasonId((long) logObject.get("reasonId"));
 		message.setLink((String) logObject.get("link"));
-		message.setCourseId((long)logObject.get("courseId"));
+		message.setCourseId(logObject.get("courseId") != null ? (long) logObject.get("courseId") : 0);
 		message.setTargetUserId((long) logObject.get("targetUserId"));
 		message.setLearningContext((JSONObject)logObject.get("learningContext"));
 		message.setParameters((JSONObject) logObject.get("parameters"));
