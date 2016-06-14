@@ -1232,12 +1232,11 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 //					       "WHERE credComp.competence = :comp " +
 //					       "AND cred.hasDraft = :boolFalse " +
 //					       "AND cred.deleted = :boolFalse";
-			String query = "SELECT distinct coalesce(originalCred.id, cred.id), coalesce(originalCred.title, cred.title) " +
+			String query = "SELECT cred.id, cred.title " +
 				       "FROM CredentialCompetence1 credComp " +
 				       "INNER JOIN credComp.credential cred " +
-				       "LEFT JOIN cred.originalVersion originalCred " +
+				       		"WITH (cred.published = :boolTrue OR cred.hasDraft = :boolTrue) AND cred.draft = :boolFalse " +
 				       "WHERE credComp.competence = :comp " +
-				       "AND (cred.published = :boolTrue OR cred.hasDraft = :boolTrue OR cred.draft = :boolTrue) " +
 				       "AND cred.deleted = :boolFalse";
 			@SuppressWarnings("unchecked")
 			List<Object[]> res = persistence.currentManager()
