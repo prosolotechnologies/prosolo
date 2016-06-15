@@ -10,6 +10,7 @@ public class CredentialProgressData implements Serializable {
 	private static final long serialVersionUID = 6996079592796982824L;
 	
 	private long id;
+	private long credentialId;
 	private String name;
 	private int progress;
 	private List<CompetenceProgressData> competences;
@@ -21,6 +22,7 @@ public class CredentialProgressData implements Serializable {
 	
 	public CredentialProgressData(TargetCredential1 credential){
 		this.id = credential.getId();
+		this.credentialId=credential.getCredential().getId();
 		this.name = credential.getTitle();
 		this.progress = credential.getProgress();
 	}
@@ -33,6 +35,8 @@ public class CredentialProgressData implements Serializable {
 	public void setId(long id) {
 		this.id = id;
 	}
+
+	public long getCredentialId(){return credentialId;}
 
 	public String getName() {
 		return name;

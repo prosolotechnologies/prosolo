@@ -143,7 +143,7 @@ public class SpringSecurityAuthenticationServiceImpl implements AuthenticationSe
 				
 			// authenticate = new UsernamePasswordAuthenticationToken(email, null,AuthorityUtils.createAuthorityList("ROLE_USER"));
 			}else{
-				System.out.println("Existing user");
+				System.out.println("w2Existing user");
 				List<Role> roles=roleManager.getUserRoles(email);
 				//String[] roleNames=new String[3];
 				for (Role role : roles) {

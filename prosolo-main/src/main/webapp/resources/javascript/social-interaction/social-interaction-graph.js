@@ -1,6 +1,7 @@
 var socialInteractionGraph = (function () {
 
 	function readClusterInteractions(config) {
+		console.log("read cluster interactions:"+"http://" + config.host + "/api/social/interactions/cluster");
 		return $.ajax({
 			url : "http://" + config.host + "/api/social/interactions/cluster",
 			data : {"studentId" : config.studentId, "courseId" : config.courseId},

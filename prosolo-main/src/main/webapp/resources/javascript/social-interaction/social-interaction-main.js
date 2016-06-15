@@ -2,7 +2,7 @@ $(function () {
 	var root = document.getElementById("social-interaction");
 
 	var graphWidth = $(".tab-content").width() / 12 * 9 - 50;
-	
+	console.log("should load social interactions:"+root.dataset.api);
 	socialInteractionGraph.load({
 		host: root.dataset.api,
 		courseId : root.dataset.courseId,

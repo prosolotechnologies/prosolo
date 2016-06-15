@@ -297,6 +297,8 @@ public class StudentProfileBean implements Serializable {
 	}
 
 	public long getDecodedId(String id) {
+
+		System.out.println("DECODED ID FROM:"+id+" is:"+idEncoder.decodeId(id));
 		return idEncoder.decodeId(id);
 	}
 
@@ -323,6 +325,10 @@ public class StudentProfileBean implements Serializable {
 	public CredentialProgressData getSelectedCredential() {
 		return selectedCredential;
 	}
+
+	public long getSelectedCredentialId(){
+		System.out.println("SELECTED CREDENTIAL IS:"+selectedCredential.getCredentialId()+" name:"+selectedCredential.getName());
+		return selectedCredential.getCredentialId();}
 
 	public void setSelectedCredential(CredentialProgressData selectedCredential) {
 		this.selectedCredential = selectedCredential;
