@@ -8,7 +8,6 @@ import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.primefaces.context.RequestContext;
 import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.common.exception.DbConnectionException;
@@ -51,6 +50,17 @@ public class TopNotificationsBean1 {
 		if (user != null)
 			this.unreadNotificationsNo = notificationsManager.getNumberOfUnreadNotifications(user);
 	}
+	
+	public void fetchNotifications() {
+		logger.debug("Initializing notifications.");
+
+		try {
+			this.notificationDatas = (LinkedList<NotificationData>) notificationsManager.getNotificationsForUser(
+					loggedUser.getUser().getId(), 0, notificationsLimit, null, loggedUser.getLocale());
+		} catch (DbConnectionException e) {
+			logger.error(e);
+		}
+	}
 
 	public synchronized void addNotification(NotificationData notificationData, Session session) {
 		if (notificationDatas == null) {
@@ -80,17 +90,6 @@ public class TopNotificationsBean1 {
 		unreadNotificationsNo = 0;
 	}
 	
-	public void fetchNotifications() {
-		logger.debug("Initializing notifications.");
-
-		try {
-			this.notificationDatas = (LinkedList<NotificationData>) notificationsManager.getNotificationsForUser(
-					loggedUser.getUser().getId(), 0, notificationsLimit, null, loggedUser.getLocale());
-		} catch (DbConnectionException e) {
-			logger.error(e);
-		}
-	}
-
 	public LinkedList<NotificationData> getNotificationDatas() {
 		return notificationDatas;
 	}

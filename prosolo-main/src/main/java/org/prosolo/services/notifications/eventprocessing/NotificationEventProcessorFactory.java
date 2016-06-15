@@ -52,7 +52,7 @@ public class NotificationEventProcessorFactory {
 		case Like:
 		case Dislike:
 			return new LikeEventProcessing(event, session, notificationManager, notificationsSettingsManager,
-					idEncoder);
+					activityManager, idEncoder);
 		case Follow:
 			return new FollowUserEventProcessor(event, session, notificationManager, notificationsSettingsManager,
 					idEncoder, followResourceManager);

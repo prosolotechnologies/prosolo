@@ -2,6 +2,7 @@ package org.prosolo.services.notifications.factory;
 
 import java.util.Locale;
 
+import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.notifications.Notification1;
 import org.prosolo.services.nodes.data.UserData;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class NotificationDataFactory {
+	
+	private static Logger logger = Logger.getLogger(NotificationDataFactory.class);
 
 	public NotificationData getNotificationData(Notification1 notification, User receiver, 
 			String objectTitle, Locale locale) {
@@ -21,15 +24,17 @@ public class NotificationDataFactory {
 		n.setNotificationType(notification.getType());
 		UserData actor = new UserData(notification.getActor());
 		n.setActor(actor);
-		if(receiver != null) {
+		
+		if (receiver != null) {
 			UserData rec = new UserData(receiver);
 			n.setReceiver(rec);
 		}
+		
 		n.setLink(notification.getLink());
 		n.setObjectType(notification.getObjectType());
 		n.setObjectTitle(objectTitle != null ? objectTitle : "");
-		
-		if(locale != null) {
+
+		if (locale != null) {
 			setNotificationPredicateBasedOnLocale(n, locale);
 		}
 		
@@ -51,7 +56,7 @@ public class NotificationDataFactory {
 			}
 			data.setPredicate(predicate);
 		} catch(Exception e) {
-			e.printStackTrace();
+			logger.error(e);
 		}
 	}
 }
