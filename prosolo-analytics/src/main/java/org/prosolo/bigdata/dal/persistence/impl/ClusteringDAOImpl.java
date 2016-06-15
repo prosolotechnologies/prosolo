@@ -45,6 +45,29 @@ public class ClusteringDAOImpl extends GenericDAOImpl implements
         return new ArrayList<Long>();
     }
 
+    @SuppressWarnings({ "unchecked" })
+    @Override
+    public List<Long> getAllCredentialsIds() {
+        //Session session=openSession();
+        String query =
+                "SELECT credential.id " +
+                        "FROM Credential1 credential " +
+                        "WHERE credential.deleted = :deleted AND credential.published = :published";
+        List<Long> result =null;
+        try{
+            result = session.createQuery(query)
+                    .setParameter("deleted", false)
+                    .setParameter("published",true)
+                    .list();
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+        if (result != null) {
+            return result;
+        }
+        return new ArrayList<Long>();
+    }
+
     public void updateUserCourseProfile(Long courseId, Long userId, String currentCluster , String clusterName ){
         System.out.println("UPDATE USER COURSE PROFILE:"+courseId+" userId:"+userId+" cluster:"+currentCluster+" clusterFullName:"+clusterName);
         String query =

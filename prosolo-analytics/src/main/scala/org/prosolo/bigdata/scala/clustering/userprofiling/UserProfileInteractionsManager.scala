@@ -24,35 +24,35 @@ object UserProfileInteractionsManager {
 
   def runAnalyser() = {
     println("RUN ANALYZER")
-    val coursesIds = clusteringDAOManager.getAllCoursesIds
-    val coursesIdsScala: Seq[java.lang.Long] = coursesIds.asScala.toSeq
-     val coursesRDD: RDD[Long] = sc.parallelize(coursesIdsScala.map {
+    val credentialsIds = clusteringDAOManager.getAllCredentialsIds
+    val credentialsIdsScala: Seq[java.lang.Long] = credentialsIds.asScala.toSeq
+     val credentialsRDD: RDD[Long] = sc.parallelize(credentialsIdsScala.map {
       Long2long
     })
-   /* coursesIdsScala.foreach { courseid =>
-      println("RUNNING USER PROFILE ANALYZER FOR COURSE:" + courseid)
-      runStudentInteractionsGeneralOverviewAnalysis(courseid)
-    //  runStudentInteractionsByTypeOverviewAnalysis(courseid)
-      println("FINISHED ANALYZER FOR COURSE:"+courseid)
+   /* credentialsIdsScala.foreach { credentialid =>
+      println("RUNNING USER PROFILE ANALYZER FOR credential:" + credentialid)
+      runStudentInteractionsGeneralOverviewAnalysis(credentialid)
+    //  runStudentInteractionsByTypeOverviewAnalysis(credentialid)
+      println("FINISHED ANALYZER FOR credential:"+credentialid)
     }*/
-     coursesRDD.foreachPartition {
-       courses => {
-         courses.foreach { courseid => {
-           println("RUNNING USER PROFILE ANALYZER FOR COURSE:" + courseid)
-           runStudentInteractionsGeneralOverviewAnalysis(courseid)
-            runStudentInteractionsByTypeOverviewAnalysis(courseid)
-           println("FINISHED ANALYZER FOR COURSE:" + courseid)
+     credentialsRDD.foreachPartition {
+       credentials => {
+         credentials.foreach { credentialid => {
+           println("RUNNING USER PROFILE ANALYZER FOR credential:" + credentialid)
+           runStudentInteractionsGeneralOverviewAnalysis(credentialid)
+            runStudentInteractionsByTypeOverviewAnalysis(credentialid)
+           println("FINISHED ANALYZER FOR credential:" + credentialid)
          }
          }
        }
      }
   }
-  case class SocialInteractionCount(course:Long, source:Long, target:Long, count:Int)
-  def runStudentInteractionsGeneralOverviewAnalysis(courseId: Long) = {
+  case class SocialInteractionCount(credential:Long, source:Long, target:Long, count:Int)
+  def runStudentInteractionsGeneralOverviewAnalysis(credentialId: Long) = {
     val socialInteractions_table=sc.cassandraTable(dbName, "sna_socialinteractionscount")
-   // val rows=socialInteractions_table.map(r=>new SocialInteractionCount(r.getLong("course"),r.getLong("source"),r.getLong("target"),r.getInt("count")))
+   // val rows=socialInteractions_table.map(r=>new SocialInteractionCount(r.getLong("credential"),r.getLong("source"),r.getLong("target"),r.getInt("count")))
     val socialInteractionsCountDataRDD =socialInteractions_table.map(row=> new Tuple3(row.getLong("source"), row.getLong("target"), row.getLong("count")) )
-    ///val rows: java.util.List[Row] = dbManager.getSocialInteractions(courseId)
+    ///val rows: java.util.List[Row] = dbManager.getSocialInteractions(credentialId)
    // val socialInteractionsCountData: Array[Tuple3[Long, Long, Long]] = rows.toArray.map { row: Row => new Tuple3(row.getLong("source"), row.getLong("target"), row.getLong("count")) }
     //val socialInteractionsCountDataRDD = sc.parallelize(socialInteractionsCountData) //.map(tuple=>(tuple._1,))
     val mapOut = socialInteractionsCountDataRDD.map(t => (t._1, ("OUT", t._2, t._3))).groupByKey() //groups by studentid -> interactions TO to other students and count
@@ -74,9 +74,9 @@ object UserProfileInteractionsManager {
         }.toList)
     }.map{
       case(student, interactions) =>
-        val studentinteractionbypeer=new StudentInteractionsInCourse(courseId,student,interactions)
+        val studentinteractionbypeer=new StudentInteractionsInCourse(credentialId,student,interactions)
        studentinteractionbypeer
-          //dbManager.insertStudentInteractionsByPeer(courseId, student, interactions)
+          //dbManager.insertStudentInteractionsByPeer(credentialId, student, interactions)
      }
     println("CALCULATED PERCENTAGE OF INTERACTIONS BY PEERS:" + calculatedInteractionsForDB.collect.mkString(", "))
     calculatedInteractionsForDB.saveToCassandra(dbName,"sna_studentinteractionbypeersoverview")
@@ -84,14 +84,14 @@ object UserProfileInteractionsManager {
    // println("CALCULATED PERCENTAGE OF INTERACTIONS:" + calculatedpercentage.collect.mkString(", "))
 
   }
-  case class StudentInteractionsInCourse(course:Long, student:Long, interactions:List[String])
+  case class StudentInteractionsInCourse(credential:Long, student:Long, interactions:List[String])
 
-  def runStudentInteractionsByTypeOverviewAnalysis(courseId: Long) = {
+  def runStudentInteractionsByTypeOverviewAnalysis(credentialId: Long) = {
 
-    //val rows: java.util.List[Row] = dbManager.getSocialInteractionsByType(courseId)
-    val socialInteractionsbytype_table=sc.cassandraTable(dbName, "sna_interactionsbytypeforstudent").where("course=?",courseId)
+    //val rows: java.util.List[Row] = dbManager.getSocialInteractionsByType(credentialId)
+    val socialInteractionsbytype_table=sc.cassandraTable(dbName, "sna_interactionsbytypeforstudent").where("course=?",credentialId)
     val socialInteractionsCountDataRDD = socialInteractionsbytype_table.map(row=>new Tuple4(row.getLong("student"), row.getString("interactiontype"), row.getLong("fromuser"),  row.getLong("touser") ))
-    println("FOUND ROWS:"+socialInteractionsCountDataRDD.collect.size+" for course:"+courseId)
+    println("FOUND ROWS:"+socialInteractionsCountDataRDD.collect.size+" for credential:"+credentialId)
    // val socialInteractionsCountData:Array[Tuple4[Long,String,Long,Long]]=rows.asScala.toArray.map{row: Row=>new Tuple4(row.getLong("student"), row.getString("interactiontype"), row.getLong("fromuser"), row.getLong("touser"))}
   //  println("data:"+socialInteractionsCountData.size)
    // val socialInteractionsCountDataRDD = sc.parallelize(socialInteractionsCountData)
@@ -114,12 +114,12 @@ object UserProfileInteractionsManager {
         }.toList)
     }.map{
       case(student,interactions)=>
-        val studentinteractionsbytype=new StudentInteractionsInCourse(courseId,student,interactions)
+        val studentinteractionsbytype=new StudentInteractionsInCourse(credentialId,student,interactions)
         studentinteractionsbytype
     }
       /*.foreach{
       case(student, interactions) =>
-        dbManager.insertStudentInteractionsByType(courseId, student, interactions)
+        dbManager.insertStudentInteractionsByType(credentialId, student, interactions)
     }*/
     println("CALCULATED PERCENTAGE OF INTERACTIONS BY TYPE:" + calculatedInteractionsForDB.collect.mkString(", "))
     calculatedInteractionsForDB.saveToCassandra(dbName,"sna_studentinteractionbytypeoverview")

@@ -225,6 +225,7 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 
 	@Override
 	public void updateToFromInteraction(Long courseId, Long actorId, Long targetUserId, ObservationType observationType) {
+		System.out.println("Update to from interaction:"+courseId+" actor:"+actorId+" targetUser:"+targetUserId+" observationType:"+observationType.name());
 		try {
 			PreparedStatement preparedOutStatement=getStatement(getSession(), SocialInteractionsStatements.UPDATE_FROMINTERACTION);
 
