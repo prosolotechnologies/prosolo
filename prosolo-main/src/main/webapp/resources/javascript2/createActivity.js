@@ -21,3 +21,14 @@ function attachListenerForFetchingPageTitle() {
         fetchPageTitle([{name:'link', value: pastedData}, {name:'title', value: valTitle}]);
     });
 }
+
+function onStatusChange() {
+	var status = $('#' + containerId + '\\:formMain\\:selectStatus').val();
+	if(status === "DRAFT") {
+		$('#noteDraft').show();
+		$('#' + containerId + '\\:formMain\\:linkPreview').text('Preview Draft');
+	} else {
+		$('#noteDraft').hide();
+		$('#' + containerId + '\\:formMain\\:linkPreview').text('Preview');
+	}
+}

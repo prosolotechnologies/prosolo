@@ -346,7 +346,7 @@ public class CredentialEditBean implements Serializable {
 //	}
 	 
 	public String getPageHeaderTitle() {
-		return credentialData.getId() > 0 ? "Edit Credential" : "New Credential";
+		return credentialData.getId() > 0 ? credentialData.getTitle() : "New Credential";
 	}
 	
 	public boolean isCreateUseCase() {

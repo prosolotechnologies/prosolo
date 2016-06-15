@@ -174,10 +174,16 @@
 	                </div>
 	            </div>
 	            <div class="col-md-4">
+	            	<div id="noteDraft" class="alert alert-warning alert-dismissible" role="alert" style="#{activityEditBean.activityData.published ? 'display:none' : ''}">
+	                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+	                    Your activity is now <strong>Draft</strong>. In order for changes to be available to others, change status to <strong>Published</strong>.
+	                </div>
+	                
 	                <div class="whiteBox publishBox">
 	                    <h2>Publish</h2>
 	                    <p:commandLink
-							value="Preview"
+	                    	id="linkPreview"
+							value="Preview #{activityEditBean.activityData.status eq 'DRAFT' ? 'Draft' : ''}"
 							styleClass="linkPreview"
 							action="#{activityEditBean.preview()}"
 							update=":#{cc.clientId}:formMain"
@@ -236,7 +242,8 @@
 	                    <h:panelGroup id="panelStatus">
 		                    <h:selectOneMenu id="selectStatus"
 			                	styleClass="selectpicker"
-			               		value="#{activityEditBean.activityData.status}">
+			               		value="#{activityEditBean.activityData.status}"
+			               		onchange="onStatusChange();">
 			               		<f:selectItems value="#{activityEditBean.actStatusArray}" var="status"
 		    						itemValue="#{status}" itemLabel="#{status.label}" />
 			                </h:selectOneMenu>

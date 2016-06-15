@@ -44,6 +44,18 @@ function showOrHideMandatoryArrows() {
 	
 }
 
+function onStatusChange() {
+	var status = $('#' + containerId + '\\:formMain\\:credSidebar\\:selectStatus').val();
+	if(status === "DRAFT") {
+		$('#noteDraft').show();
+		$('#' + containerId + '\\:formMain\\:credSidebar\\:linkPreview').text('Preview Draft');
+	} else {
+		$('#noteDraft').hide();
+		$('#' + containerId + '\\:formMain\\:credSidebar\\:linkPreview').text('Preview');
+	}
+	
+}
+
 //function getFieldValue(label) {
 //	switch(label) {
 //		case 'title':

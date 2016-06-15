@@ -330,7 +330,7 @@ public class CompetenceEditBean implements Serializable {
 	}
 	 
 	public String getPageHeaderTitle() {
-		return competenceData.getCompetenceId() > 0 ? "Edit Competence" : "New Competence";
+		return competenceData.getCompetenceId() > 0 ? competenceData.getTitle() : "New Competence";
 	}
 	
 	public boolean isCreateUseCase() {

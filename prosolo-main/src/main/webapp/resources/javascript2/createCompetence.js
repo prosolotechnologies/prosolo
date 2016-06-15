@@ -17,3 +17,14 @@ function attachListenersForUpdatingStatus() {
 		updateStatusToDraft();
 	});
 }
+
+function onStatusChange() {
+	var status = $('#' + containerId + '\\:formMain\\:compSideBar\\:selectStatus').val();
+	if(status === "DRAFT") {
+		$('#noteDraft').show();
+		$('#' + containerId + '\\:formMain\\:compSideBar\\:linkPreview').text('Preview Draft');
+	} else {
+		$('#noteDraft').hide();
+		$('#' + containerId + '\\:formMain\\:compSideBar\\:linkPreview').text('Preview');
+	}
+}
