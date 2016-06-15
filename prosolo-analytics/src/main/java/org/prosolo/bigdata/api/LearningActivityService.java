@@ -52,7 +52,7 @@ public class LearningActivityService {
 				"Marking an activity as completed","Activity complete");
 		setMilestone(22, learningEventsData, MilestoneType.Competences, "learn.goal.complete", "SRL.Planning.GoalSetting", 
 				"Marking a learning goal as completed","Goal completed");
-		setMilestone(27, learningEventsData, MilestoneType.Activities, "learn.activity.complete", "SRL.Engagement.WorkingOnTheTask", 
+		setMilestone(26, learningEventsData, MilestoneType.Activities, "learn.activity.complete", "SRL.Engagement.WorkingOnTheTask", 
 				"Marking an activity as completed","Activity complete");
 		
 		

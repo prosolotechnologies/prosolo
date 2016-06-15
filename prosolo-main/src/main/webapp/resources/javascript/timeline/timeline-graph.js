@@ -404,7 +404,7 @@ var timelineGraph = (function () {
 			});
 			//show tooltips, given a array of "active" events
 			$.each(events, function( index, value ) {
-					 $("line[event-type="+value+"], g[event-type="+value+"]").fadeIn("fast")
+					 $("line[event-type="+value+"], g[event-type="+value+"], circle[event-type="+value+"]").fadeIn("fast")
 				});
 				
 		}
