@@ -58,18 +58,21 @@
 
 					<nav>
 						<ul class="nav nav-pills">
+							<ui:remove>
 							<li role="presentation"
 								class="#{util:getPagePath(view.viewId)  == 'index' ? 'active' : ''}">
 								<a onclick="sendLogPageNavigation('index','mainmenu');" href="/manage/library">
 									Home
 								</a>
 							</li>
+							</ui:remove>
 							<li role="presentation"
 								class="#{util:getPagePath(view.viewId)  == 'credentialLibrary' ? 'active' : ''}">
 								<a onclick="sendLogPageNavigation('manage-credentialLibrary','mainmenu');" href="/manage/library">
 									Library
 								</a>
 							</li>
+							<ui:remove>
 							<li role="presentation"
 								class="#{util:getPagePath(view.viewId)  == 'credential-students' ? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('manage-students','mainmenu');"
@@ -80,6 +83,7 @@
 								<h:link onclick="sendLogPageNavigation('manage-reports','mainmenu');"
 									value="Reports" />
 							</li>
+							</ui:remove>
 						</ul>
 					</nav>
 				</div>

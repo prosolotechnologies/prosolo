@@ -61,21 +61,25 @@
 
 					<nav>
 						<ul class="nav nav-pills">
+							<ui:remove>
 							<li role="presentation"
 								class="#{util:getPagePath(view.viewId)  == 'index' ? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('index','mainmenu');"
 									value="Home" outcome="/index" />
 							</li>
+							</ui:remove>
 							<li role="presentation"
 								class="#{util:getPagePath(view.viewId)  == 'credentialLibrary' ? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('library','mainmenu');"
 									value="Library" outcome="/credentialLibrary" />
 							</li>
+							<ui:remove>
 							<li role="presentation"
 								class="#{util:getPagePath(view.viewId)  == 'people' ? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('people','mainmenu');"
 									value="People" />
 							</li>
+							</ui:remove>
 						</ul>
 					</nav>
 				</div>

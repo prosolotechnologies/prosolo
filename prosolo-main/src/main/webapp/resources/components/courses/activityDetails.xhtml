@@ -68,7 +68,7 @@
             </div>
             <p>#{cc.attrs.activity.description}</p>
             <h:panelGroup layout="block" rendered="#{cc.attrs.activity.activityType == 'TEXT'}" styleClass="whiteBox activityTextBox">
-                <p>#{cc.attrs.activity.text}</p>
+				<h:outputText escape="false" value="#{cc.attrs.activity.text}"/>
             </h:panelGroup>
             
             <ui:fragment rendered="#{cc.attrs.activity.activityType != 'EXTERNAL_TOOL'}">
