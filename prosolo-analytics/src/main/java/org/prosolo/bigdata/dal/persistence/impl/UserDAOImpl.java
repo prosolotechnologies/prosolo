@@ -16,7 +16,14 @@ public class UserDAOImpl extends GenericDAOImpl implements UserDAO {
 	private static Logger logger = Logger.getLogger(UserDAO.class);
 	
 	public UserDAOImpl() {
-		setSession(HibernateUtil.getSessionFactory().openSession());
+		 setSession(HibernateUtil.getSessionFactory().openSession());
+		//setSession(HibernateUtil.getSessionFactory().getCurrentSession());
+	}
+	public static class UserDAOImplHolder {
+		public static final UserDAOImpl INSTANCE = new UserDAOImpl();
+	}
+	public static UserDAOImpl getInstance() {
+		return UserDAOImplHolder.INSTANCE;
 	}
 
 	private List<Long[]> partitions(int length, int size) {

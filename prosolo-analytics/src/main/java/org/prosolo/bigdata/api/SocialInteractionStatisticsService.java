@@ -36,7 +36,7 @@ public class SocialInteractionStatisticsService {
 	
 	private SocialInteractionStatisticsDBManager  dbManager = SocialInteractionStatisticsDBManagerImpl.getInstance();
 	
-	private UserDAO userDao = new UserDAOImpl();
+	private UserDAO userDao = UserDAOImpl.getInstance();
 	@GET
 	@Path("/ping")
 	public String ping() {
