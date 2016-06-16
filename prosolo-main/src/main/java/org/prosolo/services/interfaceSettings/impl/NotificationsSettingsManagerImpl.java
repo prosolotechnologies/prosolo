@@ -65,7 +65,7 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 	@Override
 	@Transactional
 	public UserNotificationsSettings getNotificationsSettings(long userId) {
-		String query = 
+		String query =
 			"SELECT settings " + 
 			"FROM UserNotificationsSettings settings " + 
 				"LEFT JOIN settings.user user " + 
