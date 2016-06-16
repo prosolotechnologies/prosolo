@@ -1,0 +1,1681 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	template="templates/masterLayout2.xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
+	xmlns:mngComp="http://java.sun.com/jsf/composite/components/manage">
+
+	<ui:define name="windowTitle">
+		ProSolo - Credential
+	</ui:define>
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewParam name="id" value="#{credentialFeedsBean.id}" default="null" />
+			<f:viewParam name="assId" value="#{credentialFeedsBean.id}" default="null" />
+		</f:metadata>
+	</ui:define>
+
+    <ui:define name="resourceTitle">
+    	<h1>Basics of Social Network Analysis</h1>
+    </ui:define>
+    
+    <ui:define name="navLinks">
+		<mngComp:credentialsHeaderNavLinks
+			id="headerNavLinks"
+			credEncodedId="#{param['id']}"
+			credType="UNIVERSITY_CREATED"
+		/>
+	</ui:define>
+    
+	<ui:define name="content">
+	    <div class="whiteBar">
+	        <div class="container">
+	            <div class="whiteBarContent">
+	                <div class="whiteBarLeft">
+	                    <a href="#" class="btn btn-green btn-sm" data-toggle="modal" data-target="#approveAssessment">Approve</a>
+	                    <div class="modal fade" id="approveAssessment" tabindex="-1" role="dialog" aria-labelledby="apprAssessment">
+	                        <div class="modal-dialog" role="document">
+	                            <div class="modal-content">
+	                                <div class="modal-header alignLeft">
+	                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+	                                    <h2 class="modal-title" id="apprAssessment">Approve Assessment</h2>
+	                                </div>
+	                                <div class="assessmentModalMeta">
+	                                    <div class="assessmentModalMetaLine">
+	                                        <div class="assessmentModalMetaLeft">
+	                                            Credential:
+	                                        </div>
+	                                        <div class="assessmentModalMetaRight">
+	                                            <h3>Basics of Social Network Analysis</h3>
+	                                        </div>
+	                                    </div>
+	                                    <div class="assessmentModalMetaLine">
+	                                        <div class="assessmentModalMetaLeft">
+	                                            Student:
+	                                        </div>
+	                                        <div class="assessmentModalMetaRight">
+	                                        	<utilcomp:userAvatar
+													avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+													fullName="Kevin Mitchell" />
+	                                        </div>
+	                                    </div>
+	                                </div>
+	                                <div class="modal-body alignLeft">
+	                                    <textarea placeholder="Type a review that will be shown on student's profile..."></textarea>
+	                                </div>
+	                                <div class="modal-footer alignLeft">
+	                                    <a href="#" class="btn btn-green">Submit</a>
+	                                </div>
+	                            </div>
+	                        </div>
+	                    </div>
+	                </div>
+	                <div class="whiteBarRight">
+	                    <div class="mandatoryTag item">Mandatory flow</div>
+	                    <div class="duration item">4 hours 46 minutes</div>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+	
+	    <div class="container">
+	        <div class="row">
+	            <div class="col-md-8 mandatoryFlow">
+	                <p>
+	                    Kevin Mitchell has asked you for assessment. You can review his results and write comments for each activity before approving a competence or credential. All comments between Kevin Mitchell and you are private.<br/><br/>When you decide to approve the creddential, you will be asked for a public review that will be shown on student's profile.
+	                </p>
+	                <article class="whiteBox summaryCard summaryCompetence summaryAssessments">
+	                    <div class="innerWrapper">
+	                        <h2><a href="#">Social Network Analysis</a></h2>
+	                        <div class="tagApproved">Approved</div>
+	                        <div class="clear"></div>
+	                    </div>
+	                    <div class="assessmentActivityList">
+	                        <ul>
+	                            <li class="activityVideo hasNewComments">
+	                                <span class="iconType"></span>
+	                                <a href="#" target="_blank">Introduction to Social Network Analysis</a>
+	                                <a href="#" class="commentsIcon" data-toggle="modal" data-target="#assessmentCommentsModal1">5</a>
+	                                <div class="modal fade assessmentCommentsModal" id="assessmentCommentsModal1" tabindex="-1" role="dialog" aria-labelledby="assessmentCommentsModal">
+	                                    <div class="modal-dialog modal-lg">
+	                                        <div class="modal-content">
+	                                            <div class="modal-header alignLeft">
+	                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+	                                                <h2 class="modal-title">Comments</h2>
+	                                            </div>
+	                                            <div class="discussion">
+	                                                <div class="addComment">
+	                                                    <utilcomp:userAvatar
+															avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+															fullName="Kevin Mitchell" />
+	                                                    <div class="commentForm">
+	                                                        <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                        <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                    </div>
+	                                                </div>
+	                                                <div class="comments">
+	                                                    <ul class="media-list">
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">Edited: 1 minute ago</span>
+	                                                                    <h3 class="media-heading">Kevin Mitchell</h3>
+	                                                                    <p class="commentText">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                    <div class="editComment hidden">
+	                                                                        <textarea name="name" rows="8" cols="40">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</textarea>
+	                                                                        <button type="button" class="btn btn-sm btn-green" name="button">Submit</button>
+	                                                                        <a href="javascript:void(0)" class="btn btn-sm btn-green-stroke" onclick="hideEditComment(this)">Cancel</a>
+	                                                                    </div>
+	                                                                    <div class="commentOptions">
+	                                                                        <a href="javascript:void(0)" class="edit" onclick="showEditComment(this)"><span class="icon"></span>Edit</a>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/1f0e3dad99908345f7439f8ffabdffc4/1466061013144/size60x60.png"
+																		fullName="Karen White" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">15 minutes ago</span>
+	                                                                    <h3 class="media-heading">Karen White<span>INSTRUCTOR</span></h3>
+	                                                                    <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                </div>
+	                                                                <div class="media replyInput hidden">
+	                                                                    <div class="media-left">
+	                                                                        <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                                    </div>
+	                                                                    <div class="media-body replyComment">
+	                                                                        <div class="commentForm">
+	                                                                            <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                                            <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                    </ul>
+	                                                </div>
+	                                            </div>
+	                                        </div>
+	                                    </div>
+	                                </div>
+	                            </li>
+	                            <li class="activityText">
+	                                <span class="iconType"></span>
+	                                <a href="#" target="_blank">Example dataset</a>
+	                                <a href="#" class="commentsIcon" data-toggle="modal" data-target="#assessmentCommentsModal2">0</a>
+	                                <div class="modal fade assessmentCommentsModal" id="assessmentCommentsModal2" tabindex="-1" role="dialog" aria-labelledby="assessmentCommentsModal">
+	                                    <div class="modal-dialog modal-lg">
+	                                        <div class="modal-content">
+	                                            <div class="modal-header alignLeft">
+	                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+	                                                <h2 class="modal-title">Comments</h2>
+	                                            </div>
+	                                            <div class="discussion">
+	                                                <div class="addComment">
+	                                                    <utilcomp:userAvatar
+															avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+															fullName="Kevin Mitchell" />
+	                                                    <div class="commentForm">
+	                                                        <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                        <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                    </div>
+	                                                </div>
+	                                                <div class="comments">
+	                                                    <ul class="media-list">
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																		fullName="Kevin Mitchell" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">Edited: 1 minute ago</span>
+	                                                                    <h3 class="media-heading">Kevin Mitchell</h3>
+	                                                                    <p class="commentText">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                    <div class="editComment hidden">
+	                                                                        <textarea name="name" rows="8" cols="40">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</textarea>
+	                                                                        <button type="button" class="btn btn-sm btn-green" name="button">Submit</button>
+	                                                                        <a href="javascript:void(0)" class="btn btn-sm btn-green-stroke" onclick="hideEditComment(this)">Cancel</a>
+	                                                                    </div>
+	                                                                    <div class="commentOptions">
+	                                                                        <a href="javascript:void(0)" class="edit" onclick="showEditComment(this)"><span class="icon"></span>Edit</a>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/1f0e3dad99908345f7439f8ffabdffc4/1466061013144/size60x60.png"
+																		fullName="Karen White" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">15 minutes ago</span>
+	                                                                    <h3 class="media-heading">Karen White<span>INSTRUCTOR</span></h3>
+	                                                                    <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                </div>
+	                                                                <div class="media replyInput hidden">
+	                                                                    <div class="media-left">
+	                                                                        <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                                    </div>
+	                                                                    <div class="media-body replyComment">
+	                                                                        <div class="commentForm">
+	                                                                            <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                                            <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/1f0e3dad99908345f7439f8ffabdffc4/1466061013144/size60x60.png"
+																		fullName="Karen White" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">15 minutes ago</span>
+	                                                                    <h3 class="media-heading">Karen White<span>INSTRUCTOR</span></h3>
+	                                                                    <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                </div>
+	                                                                <div class="media replyInput hidden">
+	                                                                    <div class="media-left">
+	                                                                        <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                                    </div>
+	                                                                    <div class="media-body replyComment">
+	                                                                        <div class="commentForm">
+	                                                                            <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                                            <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                    </ul>
+	                                                </div>
+	                                            </div>
+	                                        </div>
+	                                    </div>
+	                                </div>
+	                                <a href="#" class="download" data-toggle="tooltip" title="Download Result">Download</a>
+	                            </li>
+	                            <li class="activityText">
+	                                <span class="iconType"></span>
+	                                <a href="#" target="_blank">CCK11 dataset</a>
+	                                <a href="#" class="commentsIcon" data-toggle="modal" data-target="#assessmentCommentsModal3">3</a>
+	                                <div class="modal fade assessmentCommentsModal" id="assessmentCommentsModal3" tabindex="-1" role="dialog" aria-labelledby="assessmentCommentsModal">
+	                                    <div class="modal-dialog modal-lg">
+	                                        <div class="modal-content">
+	                                            <div class="modal-header alignLeft">
+	                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+	                                                <h2 class="modal-title">Comments</h2>
+	                                            </div>
+	                                            <div class="discussion">
+	                                                <div class="addComment">
+	                                                    <utilcomp:userAvatar
+															avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+															fullName="Kevin Mitchell" />
+	                                                    <div class="commentForm">
+	                                                        <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                        <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                    </div>
+	                                                </div>
+	                                                <div class="comments">
+	                                                    <ul class="media-list">
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																		fullName="Kevin Mitchell" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">Edited: 1 minute ago</span>
+	                                                                    <h3 class="media-heading">Kevin Mitchell</h3>
+	                                                                    <p class="commentText">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                    <div class="editComment hidden">
+	                                                                        <textarea name="name" rows="8" cols="40">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</textarea>
+	                                                                        <button type="button" class="btn btn-sm btn-green" name="button">Submit</button>
+	                                                                        <a href="javascript:void(0)" class="btn btn-sm btn-green-stroke" onclick="hideEditComment(this)">Cancel</a>
+	                                                                    </div>
+	                                                                    <div class="commentOptions">
+	                                                                        <a href="javascript:void(0)" class="edit" onclick="showEditComment(this)"><span class="icon"></span>Edit</a>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/1f0e3dad99908345f7439f8ffabdffc4/1466061013144/size60x60.png"
+																		fullName="Karen White" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">15 minutes ago</span>
+	                                                                    <h3 class="media-heading">Karen White<span>INSTRUCTOR</span></h3>
+	                                                                    <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                </div>
+	                                                                <div class="media replyInput hidden">
+	                                                                    <div class="media-left">
+	                                                                        <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                                    </div>
+	                                                                    <div class="media-body replyComment">
+	                                                                        <div class="commentForm">
+	                                                                            <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                                            <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/1f0e3dad99908345f7439f8ffabdffc4/1466061013144/size60x60.png"
+																		fullName="Karen White" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">15 minutes ago</span>
+	                                                                    <h3 class="media-heading">Karen White<span>INSTRUCTOR</span></h3>
+	                                                                    <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                </div>
+	                                                                <div class="media replyInput hidden">
+	                                                                    <div class="media-left">
+	                                                                        <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                                    </div>
+	                                                                    <div class="media-body replyComment">
+	                                                                        <div class="commentForm">
+	                                                                            <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                                            <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                    </ul>
+	                                                </div>
+	                                            </div>
+	                                        </div>
+	                                    </div>
+	                                </div>
+	                                <a href="#" class="download" data-toggle="tooltip" title="Download Result">Download</a>
+	                            </li>
+	                            <li class="activityVideo">
+	                                <span class="iconType"></span>
+	                                <a href="#" target="_blank">Network measures</a>
+	                                <a href="#" class="commentsIcon" data-toggle="modal" data-target="#assessmentCommentsModal4">0</a>
+	                                <div class="modal fade assessmentCommentsModal" id="assessmentCommentsModal4" tabindex="-1" role="dialog" aria-labelledby="assessmentCommentsModal">
+	                                    <div class="modal-dialog modal-lg">
+	                                        <div class="modal-content">
+	                                            <div class="modal-header alignLeft">
+	                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+	                                                <h2 class="modal-title">Comments</h2>
+	                                            </div>
+	                                            <div class="discussion">
+	                                                <div class="addComment">
+	                                                    <utilcomp:userAvatar
+															avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+															fullName="Kevin Mitchell" />
+	                                                    <div class="commentForm">
+	                                                        <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                        <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                    </div>
+	                                                </div>
+	                                                <div class="comments">
+	                                                    <ul class="media-list">
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																		fullName="Kevin Mitchell" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">Edited: 1 minute ago</span>
+	                                                                    <h3 class="media-heading">Kevin Mitchell</h3>
+	                                                                    <p class="commentText">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                    <div class="editComment hidden">
+	                                                                        <textarea name="name" rows="8" cols="40">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</textarea>
+	                                                                        <button type="button" class="btn btn-sm btn-green" name="button">Submit</button>
+	                                                                        <a href="javascript:void(0)" class="btn btn-sm btn-green-stroke" onclick="hideEditComment(this)">Cancel</a>
+	                                                                    </div>
+	                                                                    <div class="commentOptions">
+	                                                                        <a href="javascript:void(0)" class="edit" onclick="showEditComment(this)"><span class="icon"></span>Edit</a>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/1f0e3dad99908345f7439f8ffabdffc4/1466061013144/size60x60.png"
+																		fullName="Karen White" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">15 minutes ago</span>
+	                                                                    <h3 class="media-heading">Karen White<span>INSTRUCTOR</span></h3>
+	                                                                    <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                </div>
+	                                                                <div class="media replyInput hidden">
+	                                                                    <div class="media-left">
+	                                                                        <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                                    </div>
+	                                                                    <div class="media-body replyComment">
+	                                                                        <div class="commentForm">
+	                                                                            <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                                            <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/1f0e3dad99908345f7439f8ffabdffc4/1466061013144/size60x60.png"
+																		fullName="Karen White" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">15 minutes ago</span>
+	                                                                    <h3 class="media-heading">Karen White<span>INSTRUCTOR</span></h3>
+	                                                                    <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                </div>
+	                                                                <div class="media replyInput hidden">
+	                                                                    <div class="media-left">
+	                                                                        <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                                    </div>
+	                                                                    <div class="media-body replyComment">
+	                                                                        <div class="commentForm">
+	                                                                            <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                                            <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                    </ul>
+	                                                </div>
+	                                            </div>
+	                                        </div>
+	                                    </div>
+	                                </div>
+	                            </li>
+	                            <li class="activityVideo">
+	                                <span class="iconType"></span>
+	                                <a href="#" target="_blank">Network Modularity and Community Identification</a>
+	                                <a href="#" class="commentsIcon" data-toggle="modal" data-target="#assessmentCommentsModal4">0</a>
+	                                <div class="modal fade assessmentCommentsModal" id="assessmentCommentsModal4" tabindex="-1" role="dialog" aria-labelledby="assessmentCommentsModal">
+	                                    <div class="modal-dialog modal-lg">
+	                                        <div class="modal-content">
+	                                            <div class="modal-header alignLeft">
+	                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+	                                                <h2 class="modal-title">Comments</h2>
+	                                            </div>
+	                                            <div class="discussion">
+	                                                <div class="addComment">
+	                                                    <utilcomp:userAvatar
+															avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+															fullName="Kevin Mitchell" />
+	                                                    <div class="commentForm">
+	                                                        <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                        <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                    </div>
+	                                                </div>
+	                                                <div class="comments">
+	                                                    <ul class="media-list">
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																		fullName="Kevin Mitchell" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">Edited: 1 minute ago</span>
+	                                                                    <h3 class="media-heading">Kevin Mitchell</h3>
+	                                                                    <p class="commentText">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                    <div class="editComment hidden">
+	                                                                        <textarea name="name" rows="8" cols="40">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</textarea>
+	                                                                        <button type="button" class="btn btn-sm btn-green" name="button">Submit</button>
+	                                                                        <a href="javascript:void(0)" class="btn btn-sm btn-green-stroke" onclick="hideEditComment(this)">Cancel</a>
+	                                                                    </div>
+	                                                                    <div class="commentOptions">
+	                                                                        <a href="javascript:void(0)" class="edit" onclick="showEditComment(this)"><span class="icon"></span>Edit</a>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/1f0e3dad99908345f7439f8ffabdffc4/1466061013144/size60x60.png"
+																		fullName="Karen White" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">15 minutes ago</span>
+	                                                                    <h3 class="media-heading">Karen White<span>INSTRUCTOR</span></h3>
+	                                                                    <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                </div>
+	                                                                <div class="media replyInput hidden">
+	                                                                    <div class="media-left">
+	                                                                        <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                                    </div>
+	                                                                    <div class="media-body replyComment">
+	                                                                        <div class="commentForm">
+	                                                                            <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                                            <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/1f0e3dad99908345f7439f8ffabdffc4/1466061013144/size60x60.png"
+																		fullName="Karen White" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">15 minutes ago</span>
+	                                                                    <h3 class="media-heading">Karen White<span>INSTRUCTOR</span></h3>
+	                                                                    <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                </div>
+	                                                                <div class="media replyInput hidden">
+	                                                                    <div class="media-left">
+	                                                                        <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                                    </div>
+	                                                                    <div class="media-body replyComment">
+	                                                                        <div class="commentForm">
+	                                                                            <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                                            <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                    </ul>
+	                                                </div>
+	                                            </div>
+	                                        </div>
+	                                    </div>
+	                                </div>
+	                            </li>
+	                            <li class="activityText">
+	                                <span class="iconType"></span>
+	                                <a href="#" target="_blank">Assignment: Reflection and discussion on social network analysis</a>
+	                                <a href="#" class="commentsIcon" data-toggle="modal" data-target="#assessmentCommentsModal4">0</a>
+	                                <div class="modal fade assessmentCommentsModal" id="assessmentCommentsModal4" tabindex="-1" role="dialog" aria-labelledby="assessmentCommentsModal">
+	                                    <div class="modal-dialog modal-lg">
+	                                        <div class="modal-content">
+	                                            <div class="modal-header alignLeft">
+	                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+	                                                <h2 class="modal-title">Comments</h2>
+	                                            </div>
+	                                            <div class="discussion">
+	                                                <div class="addComment">
+	                                                    <utilcomp:userAvatar
+															avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+															fullName="Kevin Mitchell" />
+	                                                    <div class="commentForm">
+	                                                        <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                        <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                    </div>
+	                                                </div>
+	                                                <div class="comments">
+	                                                    <ul class="media-list">
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																		fullName="Kevin Mitchell" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">Edited: 1 minute ago</span>
+	                                                                    <h3 class="media-heading">Kevin Mitchell</h3>
+	                                                                    <p class="commentText">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                    <div class="editComment hidden">
+	                                                                        <textarea name="name" rows="8" cols="40">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</textarea>
+	                                                                        <button type="button" class="btn btn-sm btn-green" name="button">Submit</button>
+	                                                                        <a href="javascript:void(0)" class="btn btn-sm btn-green-stroke" onclick="hideEditComment(this)">Cancel</a>
+	                                                                    </div>
+	                                                                    <div class="commentOptions">
+	                                                                        <a href="javascript:void(0)" class="edit" onclick="showEditComment(this)"><span class="icon"></span>Edit</a>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/1f0e3dad99908345f7439f8ffabdffc4/1466061013144/size60x60.png"
+																		fullName="Karen White" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">15 minutes ago</span>
+	                                                                    <h3 class="media-heading">Karen White<span>INSTRUCTOR</span></h3>
+	                                                                    <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                </div>
+	                                                                <div class="media replyInput hidden">
+	                                                                    <div class="media-left">
+	                                                                        <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                                    </div>
+	                                                                    <div class="media-body replyComment">
+	                                                                        <div class="commentForm">
+	                                                                            <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                                            <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/1f0e3dad99908345f7439f8ffabdffc4/1466061013144/size60x60.png"
+																		fullName="Karen White" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">15 minutes ago</span>
+	                                                                    <h3 class="media-heading">Karen White<span>INSTRUCTOR</span></h3>
+	                                                                    <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                </div>
+	                                                                <div class="media replyInput hidden">
+	                                                                    <div class="media-left">
+	                                                                        <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                                    </div>
+	                                                                    <div class="media-body replyComment">
+	                                                                        <div class="commentForm">
+	                                                                            <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                                            <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                    </ul>
+	                                                </div>
+	                                            </div>
+	                                        </div>
+	                                    </div>
+	                                </div>
+	                            </li>
+	                        </ul>
+	                    </div>
+	                </article>
+	                <div class="mandatoryArrow"></div>
+	                <article class="whiteBox summaryCard summaryCompetence summaryAssessments">
+	                    <div class="innerWrapper">
+	                        <h2><a href="#">Social Network Analysis with Gephi</a></h2>
+	                        <a href="#" class="linkApprove">Approve<span></span></a><!-- when mentor clicks "Approve", add a class 'approved' to this element and change text to 'Approved' -->
+	                        <div class="clear"></div>
+	                    </div>
+	                    <div class="assessmentActivityList">
+	                        <ul>
+	                            <li class="activityVideo hasNewComments">
+	                                <span class="iconType"></span>
+	                                <a href="#" target="_blank">Gephi Community Introduction</a>
+	                                <a href="#" class="commentsIcon" data-toggle="modal" data-target="#assessmentCommentsModal1">5</a>
+	                                <div class="modal fade assessmentCommentsModal" id="assessmentCommentsModal1" tabindex="-1" role="dialog" aria-labelledby="assessmentCommentsModal">
+	                                    <div class="modal-dialog modal-lg">
+	                                        <div class="modal-content">
+	                                            <div class="modal-header alignLeft">
+	                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+	                                                <h2 class="modal-title">Comments</h2>
+	                                            </div>
+	                                            <div class="discussion">
+	                                                <div class="addComment">
+	                                                    <utilcomp:userAvatar
+															avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+															fullName="Kevin Mitchell" />
+	                                                    <div class="commentForm">
+	                                                        <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                        <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                    </div>
+	                                                </div>
+	                                                <div class="comments">
+	                                                    <ul class="media-list">
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																		fullName="Kevin Mitchell" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">Edited: 1 minute ago</span>
+	                                                                    <h3 class="media-heading">Kevin Mitchell</h3>
+	                                                                    <p class="commentText">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                    <div class="editComment hidden">
+	                                                                        <textarea name="name" rows="8" cols="40">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</textarea>
+	                                                                        <button type="button" class="btn btn-sm btn-green" name="button">Submit</button>
+	                                                                        <a href="javascript:void(0)" class="btn btn-sm btn-green-stroke" onclick="hideEditComment(this)">Cancel</a>
+	                                                                    </div>
+	                                                                    <div class="commentOptions">
+	                                                                        <a href="javascript:void(0)" class="edit" onclick="showEditComment(this)"><span class="icon"></span>Edit</a>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/1f0e3dad99908345f7439f8ffabdffc4/1466061013144/size60x60.png"
+																		fullName="Karen White" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">15 minutes ago</span>
+	                                                                    <h3 class="media-heading">Karen White<span>INSTRUCTOR</span></h3>
+	                                                                    <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                </div>
+	                                                                <div class="media replyInput hidden">
+	                                                                    <div class="media-left">
+	                                                                        <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                                    </div>
+	                                                                    <div class="media-body replyComment">
+	                                                                        <div class="commentForm">
+	                                                                            <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                                            <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                    </ul>
+	                                                </div>
+	                                            </div>
+	                                        </div>
+	                                    </div>
+	                                </div>
+	                            </li>
+	                            <li class="activityText">
+	                                <span class="iconType"></span>
+	                                <a href="#" target="_blank">Download and install Gephi</a>
+	                                <a href="#" class="commentsIcon" data-toggle="modal" data-target="#assessmentCommentsModal2">0</a>
+	                                <div class="modal fade assessmentCommentsModal" id="assessmentCommentsModal2" tabindex="-1" role="dialog" aria-labelledby="assessmentCommentsModal">
+	                                    <div class="modal-dialog modal-lg">
+	                                        <div class="modal-content">
+	                                            <div class="modal-header alignLeft">
+	                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+	                                                <h2 class="modal-title">Comments</h2>
+	                                            </div>
+	                                            <div class="discussion">
+	                                                <div class="addComment">
+	                                                    <utilcomp:userAvatar
+															avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+															fullName="Kevin Mitchell" />
+	                                                    <div class="commentForm">
+	                                                        <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                        <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                    </div>
+	                                                </div>
+	                                                <div class="comments">
+	                                                    <ul class="media-list">
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																		fullName="Kevin Mitchell" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">Edited: 1 minute ago</span>
+	                                                                    <h3 class="media-heading">Kevin Mitchell</h3>
+	                                                                    <p class="commentText">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                    <div class="editComment hidden">
+	                                                                        <textarea name="name" rows="8" cols="40">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</textarea>
+	                                                                        <button type="button" class="btn btn-sm btn-green" name="button">Submit</button>
+	                                                                        <a href="javascript:void(0)" class="btn btn-sm btn-green-stroke" onclick="hideEditComment(this)">Cancel</a>
+	                                                                    </div>
+	                                                                    <div class="commentOptions">
+	                                                                        <a href="javascript:void(0)" class="edit" onclick="showEditComment(this)"><span class="icon"></span>Edit</a>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/1f0e3dad99908345f7439f8ffabdffc4/1466061013144/size60x60.png"
+																		fullName="Karen White" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">15 minutes ago</span>
+	                                                                    <h3 class="media-heading">Karen White<span>INSTRUCTOR</span></h3>
+	                                                                    <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                </div>
+	                                                                <div class="media replyInput hidden">
+	                                                                    <div class="media-left">
+	                                                                        <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                                    </div>
+	                                                                    <div class="media-body replyComment">
+	                                                                        <div class="commentForm">
+	                                                                            <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                                            <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/1f0e3dad99908345f7439f8ffabdffc4/1466061013144/size60x60.png"
+																		fullName="Karen White" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">15 minutes ago</span>
+	                                                                    <h3 class="media-heading">Karen White<span>INSTRUCTOR</span></h3>
+	                                                                    <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                </div>
+	                                                                <div class="media replyInput hidden">
+	                                                                    <div class="media-left">
+	                                                                        <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                                    </div>
+	                                                                    <div class="media-body replyComment">
+	                                                                        <div class="commentForm">
+	                                                                            <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                                            <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                    </ul>
+	                                                </div>
+	                                            </div>
+	                                        </div>
+	                                    </div>
+	                                </div>
+	                                <a href="#" class="download" data-toggle="tooltip" title="Download Result">Download</a>
+	                            </li>
+	                            <li class="activityVideo">
+	                                <span class="iconType"></span>
+	                                <a href="#" target="_blank">Gephi - An Introduction tour</a>
+	                                <a href="#" class="commentsIcon" data-toggle="modal" data-target="#assessmentCommentsModal3">3</a>
+	                                <div class="modal fade assessmentCommentsModal" id="assessmentCommentsModal3" tabindex="-1" role="dialog" aria-labelledby="assessmentCommentsModal">
+	                                    <div class="modal-dialog modal-lg">
+	                                        <div class="modal-content">
+	                                            <div class="modal-header alignLeft">
+	                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+	                                                <h2 class="modal-title">Comments</h2>
+	                                            </div>
+	                                            <div class="discussion">
+	                                                <div class="addComment">
+	                                                    <utilcomp:userAvatar
+															avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+															fullName="Kevin Mitchell" />
+	                                                    <div class="commentForm">
+	                                                        <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                        <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                    </div>
+	                                                </div>
+	                                                <div class="comments">
+	                                                    <ul class="media-list">
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																		fullName="Kevin Mitchell" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">Edited: 1 minute ago</span>
+	                                                                    <h3 class="media-heading">Kevin Mitchell</h3>
+	                                                                    <p class="commentText">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                    <div class="editComment hidden">
+	                                                                        <textarea name="name" rows="8" cols="40">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</textarea>
+	                                                                        <button type="button" class="btn btn-sm btn-green" name="button">Submit</button>
+	                                                                        <a href="javascript:void(0)" class="btn btn-sm btn-green-stroke" onclick="hideEditComment(this)">Cancel</a>
+	                                                                    </div>
+	                                                                    <div class="commentOptions">
+	                                                                        <a href="javascript:void(0)" class="edit" onclick="showEditComment(this)"><span class="icon"></span>Edit</a>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/1f0e3dad99908345f7439f8ffabdffc4/1466061013144/size60x60.png"
+																		fullName="Karen White" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">15 minutes ago</span>
+	                                                                    <h3 class="media-heading">Karen White<span>INSTRUCTOR</span></h3>
+	                                                                    <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                </div>
+	                                                                <div class="media replyInput hidden">
+	                                                                    <div class="media-left">
+	                                                                        <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                                    </div>
+	                                                                    <div class="media-body replyComment">
+	                                                                        <div class="commentForm">
+	                                                                            <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                                            <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/1f0e3dad99908345f7439f8ffabdffc4/1466061013144/size60x60.png"
+																		fullName="Karen White" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">15 minutes ago</span>
+	                                                                    <h3 class="media-heading">Karen White<span>INSTRUCTOR</span></h3>
+	                                                                    <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                </div>
+	                                                                <div class="media replyInput hidden">
+	                                                                    <div class="media-left">
+	                                                                        <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                                    </div>
+	                                                                    <div class="media-body replyComment">
+	                                                                        <div class="commentForm">
+	                                                                            <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                                            <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                    </ul>
+	                                                </div>
+	                                            </div>
+	                                        </div>
+	                                    </div>
+	                                </div>
+	                                <a href="#" class="download" data-toggle="tooltip" title="Download Result">Download</a>
+	                            </li>
+	                            <li class="activityVideo">
+	                                <span class="iconType"></span>
+	                                <a href="#" target="_blank">Gephi - Modularity Analysis</a>
+	                                <a href="#" class="commentsIcon" data-toggle="modal" data-target="#assessmentCommentsModal4">0</a>
+	                                <div class="modal fade assessmentCommentsModal" id="assessmentCommentsModal4" tabindex="-1" role="dialog" aria-labelledby="assessmentCommentsModal">
+	                                    <div class="modal-dialog modal-lg">
+	                                        <div class="modal-content">
+	                                            <div class="modal-header alignLeft">
+	                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+	                                                <h2 class="modal-title">Comments</h2>
+	                                            </div>
+	                                            <div class="discussion">
+	                                                <div class="addComment">
+	                                                    <utilcomp:userAvatar
+															avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+															fullName="Kevin Mitchell" />
+	                                                    <div class="commentForm">
+	                                                        <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                        <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                    </div>
+	                                                </div>
+	                                                <div class="comments">
+	                                                    <ul class="media-list">
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																		fullName="Kevin Mitchell" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">Edited: 1 minute ago</span>
+	                                                                    <h3 class="media-heading">Kevin Mitchell</h3>
+	                                                                    <p class="commentText">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                    <div class="editComment hidden">
+	                                                                        <textarea name="name" rows="8" cols="40">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</textarea>
+	                                                                        <button type="button" class="btn btn-sm btn-green" name="button">Submit</button>
+	                                                                        <a href="javascript:void(0)" class="btn btn-sm btn-green-stroke" onclick="hideEditComment(this)">Cancel</a>
+	                                                                    </div>
+	                                                                    <div class="commentOptions">
+	                                                                        <a href="javascript:void(0)" class="edit" onclick="showEditComment(this)"><span class="icon"></span>Edit</a>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/1f0e3dad99908345f7439f8ffabdffc4/1466061013144/size60x60.png"
+																		fullName="Karen White" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">15 minutes ago</span>
+	                                                                    <h3 class="media-heading">Karen White<span>INSTRUCTOR</span></h3>
+	                                                                    <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                </div>
+	                                                                <div class="media replyInput hidden">
+	                                                                    <div class="media-left">
+	                                                                        <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                                    </div>
+	                                                                    <div class="media-body replyComment">
+	                                                                        <div class="commentForm">
+	                                                                            <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                                            <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/1f0e3dad99908345f7439f8ffabdffc4/1466061013144/size60x60.png"
+																		fullName="Karen White" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">15 minutes ago</span>
+	                                                                    <h3 class="media-heading">Karen White<span>INSTRUCTOR</span></h3>
+	                                                                    <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                </div>
+	                                                                <div class="media replyInput hidden">
+	                                                                    <div class="media-left">
+	                                                                        <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                                    </div>
+	                                                                    <div class="media-body replyComment">
+	                                                                        <div class="commentForm">
+	                                                                            <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                                            <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                    </ul>
+	                                                </div>
+	                                            </div>
+	                                        </div>
+	                                    </div>
+	                                </div>
+	                            </li>
+	                            <li class="activityVideo">
+	                                <span class="iconType"></span>
+	                                <a href="#" target="_blank">Gephi - Modularity tutorial</a>
+	                                <a href="#" class="commentsIcon" data-toggle="modal" data-target="#assessmentCommentsModal4">0</a>
+	                                <div class="modal fade assessmentCommentsModal" id="assessmentCommentsModal4" tabindex="-1" role="dialog" aria-labelledby="assessmentCommentsModal">
+	                                    <div class="modal-dialog modal-lg">
+	                                        <div class="modal-content">
+	                                            <div class="modal-header alignLeft">
+	                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+	                                                <h2 class="modal-title">Comments</h2>
+	                                            </div>
+	                                            <div class="discussion">
+	                                                <div class="addComment">
+	                                                    <utilcomp:userAvatar
+															avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+															fullName="Kevin Mitchell" />
+	                                                    <div class="commentForm">
+	                                                        <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                        <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                    </div>
+	                                                </div>
+	                                                <div class="comments">
+	                                                    <ul class="media-list">
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																		fullName="Kevin Mitchell" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">Edited: 1 minute ago</span>
+	                                                                    <h3 class="media-heading">Kevin Mitchell</h3>
+	                                                                    <p class="commentText">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                    <div class="editComment hidden">
+	                                                                        <textarea name="name" rows="8" cols="40">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</textarea>
+	                                                                        <button type="button" class="btn btn-sm btn-green" name="button">Submit</button>
+	                                                                        <a href="javascript:void(0)" class="btn btn-sm btn-green-stroke" onclick="hideEditComment(this)">Cancel</a>
+	                                                                    </div>
+	                                                                    <div class="commentOptions">
+	                                                                        <a href="javascript:void(0)" class="edit" onclick="showEditComment(this)"><span class="icon"></span>Edit</a>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/1f0e3dad99908345f7439f8ffabdffc4/1466061013144/size60x60.png"
+																		fullName="Karen White" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">15 minutes ago</span>
+	                                                                    <h3 class="media-heading">Karen White<span>INSTRUCTOR</span></h3>
+	                                                                    <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                </div>
+	                                                                <div class="media replyInput hidden">
+	                                                                    <div class="media-left">
+	                                                                        <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                                    </div>
+	                                                                    <div class="media-body replyComment">
+	                                                                        <div class="commentForm">
+	                                                                            <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                                            <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/1f0e3dad99908345f7439f8ffabdffc4/1466061013144/size60x60.png"
+																		fullName="Karen White" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">15 minutes ago</span>
+	                                                                    <h3 class="media-heading">Karen White<span>INSTRUCTOR</span></h3>
+	                                                                    <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                </div>
+	                                                                <div class="media replyInput hidden">
+	                                                                    <div class="media-left">
+	                                                                        <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                                    </div>
+	                                                                    <div class="media-body replyComment">
+	                                                                        <div class="commentForm">
+	                                                                            <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                                            <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                    </ul>
+	                                                </div>
+	                                            </div>
+	                                        </div>
+	                                    </div>
+	                                </div>
+	                            </li>
+	                            <li class="activitySlide">
+	                                <span class="iconType"></span>
+	                                <a href="#" target="_blank">Gephi Tutorial Quick start</a>
+	                                <a href="#" class="commentsIcon" data-toggle="modal" data-target="#assessmentCommentsModal4">0</a>
+	                                <div class="modal fade assessmentCommentsModal" id="assessmentCommentsModal4" tabindex="-1" role="dialog" aria-labelledby="assessmentCommentsModal">
+	                                    <div class="modal-dialog modal-lg">
+	                                        <div class="modal-content">
+	                                            <div class="modal-header alignLeft">
+	                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+	                                                <h2 class="modal-title">Comments</h2>
+	                                            </div>
+	                                            <div class="discussion">
+	                                                <div class="addComment">
+	                                                    <utilcomp:userAvatar
+															avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+															fullName="Kevin Mitchell" />
+	                                                    <div class="commentForm">
+	                                                        <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                        <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                    </div>
+	                                                </div>
+	                                                <div class="comments">
+	                                                    <ul class="media-list">
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																		fullName="Kevin Mitchell" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">Edited: 1 minute ago</span>
+	                                                                    <h3 class="media-heading">Kevin Mitchell</h3>
+	                                                                    <p class="commentText">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                    <div class="editComment hidden">
+	                                                                        <textarea name="name" rows="8" cols="40">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</textarea>
+	                                                                        <button type="button" class="btn btn-sm btn-green" name="button">Submit</button>
+	                                                                        <a href="javascript:void(0)" class="btn btn-sm btn-green-stroke" onclick="hideEditComment(this)">Cancel</a>
+	                                                                    </div>
+	                                                                    <div class="commentOptions">
+	                                                                        <a href="javascript:void(0)" class="edit" onclick="showEditComment(this)"><span class="icon"></span>Edit</a>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/1f0e3dad99908345f7439f8ffabdffc4/1466061013144/size60x60.png"
+																		fullName="Karen White" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">15 minutes ago</span>
+	                                                                    <h3 class="media-heading">Karen White<span>INSTRUCTOR</span></h3>
+	                                                                    <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                </div>
+	                                                                <div class="media replyInput hidden">
+	                                                                    <div class="media-left">
+	                                                                        <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                                    </div>
+	                                                                    <div class="media-body replyComment">
+	                                                                        <div class="commentForm">
+	                                                                            <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                                            <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/1f0e3dad99908345f7439f8ffabdffc4/1466061013144/size60x60.png"
+																		fullName="Karen White" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">15 minutes ago</span>
+	                                                                    <h3 class="media-heading">Karen White<span>INSTRUCTOR</span></h3>
+	                                                                    <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                </div>
+	                                                                <div class="media replyInput hidden">
+	                                                                    <div class="media-left">
+	                                                                        <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                                    </div>
+	                                                                    <div class="media-body replyComment">
+	                                                                        <div class="commentForm">
+	                                                                            <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                                            <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                    </ul>
+	                                                </div>
+	                                            </div>
+	                                        </div>
+	                                    </div>
+	                                </div>
+	                            </li>
+	                            <li class="activitySlide">
+	                                <span class="iconType"></span>
+	                                <a href="#" target="_blank">Gephi Tutorial Visualization</a>
+	                                <a href="#" class="commentsIcon" data-toggle="modal" data-target="#assessmentCommentsModal4">0</a>
+	                                <div class="modal fade assessmentCommentsModal" id="assessmentCommentsModal4" tabindex="-1" role="dialog" aria-labelledby="assessmentCommentsModal">
+	                                    <div class="modal-dialog modal-lg">
+	                                        <div class="modal-content">
+	                                            <div class="modal-header alignLeft">
+	                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+	                                                <h2 class="modal-title">Comments</h2>
+	                                            </div>
+	                                            <div class="discussion">
+	                                                <div class="addComment">
+	                                                    <utilcomp:userAvatar
+															avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+															fullName="Kevin Mitchell" />
+	                                                    <div class="commentForm">
+	                                                        <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                        <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                    </div>
+	                                                </div>
+	                                                <div class="comments">
+	                                                    <ul class="media-list">
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																		fullName="Kevin Mitchell" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">Edited: 1 minute ago</span>
+	                                                                    <h3 class="media-heading">Kevin Mitchell</h3>
+	                                                                    <p class="commentText">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                    <div class="editComment hidden">
+	                                                                        <textarea name="name" rows="8" cols="40">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</textarea>
+	                                                                        <button type="button" class="btn btn-sm btn-green" name="button">Submit</button>
+	                                                                        <a href="javascript:void(0)" class="btn btn-sm btn-green-stroke" onclick="hideEditComment(this)">Cancel</a>
+	                                                                    </div>
+	                                                                    <div class="commentOptions">
+	                                                                        <a href="javascript:void(0)" class="edit" onclick="showEditComment(this)"><span class="icon"></span>Edit</a>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/1f0e3dad99908345f7439f8ffabdffc4/1466061013144/size60x60.png"
+																		fullName="Karen White" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">15 minutes ago</span>
+	                                                                    <h3 class="media-heading">Karen White<span>INSTRUCTOR</span></h3>
+	                                                                    <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                </div>
+	                                                                <div class="media replyInput hidden">
+	                                                                    <div class="media-left">
+	                                                                        <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                                    </div>
+	                                                                    <div class="media-body replyComment">
+	                                                                        <div class="commentForm">
+	                                                                            <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                                            <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/1f0e3dad99908345f7439f8ffabdffc4/1466061013144/size60x60.png"
+																		fullName="Karen White" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">15 minutes ago</span>
+	                                                                    <h3 class="media-heading">Karen White<span>INSTRUCTOR</span></h3>
+	                                                                    <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                </div>
+	                                                                <div class="media replyInput hidden">
+	                                                                    <div class="media-left">
+	                                                                        <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                                    </div>
+	                                                                    <div class="media-body replyComment">
+	                                                                        <div class="commentForm">
+	                                                                            <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                                            <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                    </ul>
+	                                                </div>
+	                                            </div>
+	                                        </div>
+	                                    </div>
+	                                </div>
+	                            </li>
+	                            <li class="activityText">
+	                                <span class="iconType"></span>
+	                                <a href="#" target="_blank">Hands-on - Import the example dataset and perform the SNA analysis methods</a>
+	                                <a href="#" class="commentsIcon" data-toggle="modal" data-target="#assessmentCommentsModal4">0</a>
+	                                <div class="modal fade assessmentCommentsModal" id="assessmentCommentsModal4" tabindex="-1" role="dialog" aria-labelledby="assessmentCommentsModal">
+	                                    <div class="modal-dialog modal-lg">
+	                                        <div class="modal-content">
+	                                            <div class="modal-header alignLeft">
+	                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+	                                                <h2 class="modal-title">Comments</h2>
+	                                            </div>
+	                                            <div class="discussion">
+	                                                <div class="addComment">
+	                                                    <utilcomp:userAvatar
+															avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+															fullName="Kevin Mitchell" />
+	                                                    <div class="commentForm">
+	                                                        <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                        <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                    </div>
+	                                                </div>
+	                                                <div class="comments">
+	                                                    <ul class="media-list">
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																		fullName="Kevin Mitchell" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">Edited: 1 minute ago</span>
+	                                                                    <h3 class="media-heading">Kevin Mitchell</h3>
+	                                                                    <p class="commentText">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                    <div class="editComment hidden">
+	                                                                        <textarea name="name" rows="8" cols="40">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</textarea>
+	                                                                        <button type="button" class="btn btn-sm btn-green" name="button">Submit</button>
+	                                                                        <a href="javascript:void(0)" class="btn btn-sm btn-green-stroke" onclick="hideEditComment(this)">Cancel</a>
+	                                                                    </div>
+	                                                                    <div class="commentOptions">
+	                                                                        <a href="javascript:void(0)" class="edit" onclick="showEditComment(this)"><span class="icon"></span>Edit</a>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/1f0e3dad99908345f7439f8ffabdffc4/1466061013144/size60x60.png"
+																		fullName="Karen White" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">15 minutes ago</span>
+	                                                                    <h3 class="media-heading">Karen White<span>INSTRUCTOR</span></h3>
+	                                                                    <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                </div>
+	                                                                <div class="media replyInput hidden">
+	                                                                    <div class="media-left">
+	                                                                        <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                                    </div>
+	                                                                    <div class="media-body replyComment">
+	                                                                        <div class="commentForm">
+	                                                                            <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                                            <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/1f0e3dad99908345f7439f8ffabdffc4/1466061013144/size60x60.png"
+																		fullName="Karen White" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">15 minutes ago</span>
+	                                                                    <h3 class="media-heading">Karen White<span>INSTRUCTOR</span></h3>
+	                                                                    <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                </div>
+	                                                                <div class="media replyInput hidden">
+	                                                                    <div class="media-left">
+	                                                                        <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                                    </div>
+	                                                                    <div class="media-body replyComment">
+	                                                                        <div class="commentForm">
+	                                                                            <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                                            <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                    </ul>
+	                                                </div>
+	                                            </div>
+	                                        </div>
+	                                    </div>
+	                                </div>
+	                            </li>
+	                            <li class="activityText">
+	                                <span class="iconType"></span>
+	                                <a href="#" target="_blank">Hands-on -  Visualization of the results of social network analysis in Gephi</a>
+	                                <a href="#" class="commentsIcon" data-toggle="modal" data-target="#assessmentCommentsModal4">0</a>
+	                                <div class="modal fade assessmentCommentsModal" id="assessmentCommentsModal4" tabindex="-1" role="dialog" aria-labelledby="assessmentCommentsModal">
+	                                    <div class="modal-dialog modal-lg">
+	                                        <div class="modal-content">
+	                                            <div class="modal-header alignLeft">
+	                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+	                                                <h2 class="modal-title">Comments</h2>
+	                                            </div>
+	                                            <div class="discussion">
+	                                                <div class="addComment">
+	                                                    <utilcomp:userAvatar
+															avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+															fullName="Kevin Mitchell" />
+	                                                    <div class="commentForm">
+	                                                        <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                        <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                    </div>
+	                                                </div>
+	                                                <div class="comments">
+	                                                    <ul class="media-list">
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																		fullName="Kevin Mitchell" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">Edited: 1 minute ago</span>
+	                                                                    <h3 class="media-heading">Kevin Mitchell</h3>
+	                                                                    <p class="commentText">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                    <div class="editComment hidden">
+	                                                                        <textarea name="name" rows="8" cols="40">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</textarea>
+	                                                                        <button type="button" class="btn btn-sm btn-green" name="button">Submit</button>
+	                                                                        <a href="javascript:void(0)" class="btn btn-sm btn-green-stroke" onclick="hideEditComment(this)">Cancel</a>
+	                                                                    </div>
+	                                                                    <div class="commentOptions">
+	                                                                        <a href="javascript:void(0)" class="edit" onclick="showEditComment(this)"><span class="icon"></span>Edit</a>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/1f0e3dad99908345f7439f8ffabdffc4/1466061013144/size60x60.png"
+																		fullName="Karen White" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">15 minutes ago</span>
+	                                                                    <h3 class="media-heading">Karen White<span>INSTRUCTOR</span></h3>
+	                                                                    <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                </div>
+	                                                                <div class="media replyInput hidden">
+	                                                                    <div class="media-left">
+	                                                                        <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                                    </div>
+	                                                                    <div class="media-body replyComment">
+	                                                                        <div class="commentForm">
+	                                                                            <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                                            <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                        <li class="media">
+	                                                            <div class="media-left">
+	                                                                <utilcomp:userAvatar
+																		avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/1f0e3dad99908345f7439f8ffabdffc4/1466061013144/size60x60.png"
+																		fullName="Karen White" />
+	                                                            </div>
+	                                                            <div class="media-body">
+	                                                                <div class="commentMain">
+	                                                                    <span class="commentTime">15 minutes ago</span>
+	                                                                    <h3 class="media-heading">Karen White<span>INSTRUCTOR</span></h3>
+	                                                                    <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+	                                                                </div>
+	                                                                <div class="media replyInput hidden">
+	                                                                    <div class="media-left">
+	                                                                        <utilcomp:userAvatar
+																				avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+																				fullName="Kevin Mitchell" />
+	                                                                    </div>
+	                                                                    <div class="media-body replyComment">
+	                                                                        <div class="commentForm">
+	                                                                            <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+	                                                                            <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </li>
+	                                                    </ul>
+	                                                </div>
+	                                            </div>
+	                                        </div>
+	                                    </div>
+	                                </div>
+	                            </li>
+	                        </ul>
+	                    </div>
+	                </article>
+	            </div>
+	            <div class="col-md-4">
+	                <div class="sidebarBlock">
+	                    <h2>Student</h2>
+	                    <div class="user32">
+	                        <a href="assessment-preview.html">
+	                        	<utilcomp:userAvatar
+									avatar="https://s3.amazonaws.com/prosolo.nikola/images/users/a87ff679a2f3e71d9181a67b7542122c/1466061000756/size60x60.png"
+									fullName="Kevin Mitchell" />
+	                        </a>
+	                        <h3><a href="assessment-preview.html">Kevin Mitchell</a></h3>
+	                    </div>
+	                </div>
+	                <div class="sidebarBlock">
+	                    <h2>Requested</h2>
+	                    <p>May 25, 2016</p>
+	                </div>
+	            </div>
+	        </div>
+	
+	    </div>
+	</ui:define>
+</ui:composition>
