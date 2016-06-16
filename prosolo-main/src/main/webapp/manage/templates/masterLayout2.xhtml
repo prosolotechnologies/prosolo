@@ -68,9 +68,9 @@
 							</ui:remove>
 							<li role="presentation"
 								class="#{util:getPagePath(view.viewId)  == 'credentialLibrary' ? 'active' : ''}">
-								<a onclick="sendLogPageNavigation('manage-credentialLibrary','mainmenu');" href="/manage/library">
-									Library
-								</a>
+								<h:link onclick="sendLogPageNavigation('manage-credentialLibrary','mainmenu');"
+									outcome="/manage/credentialLibrary"
+									value="Library" />
 							</li>
 							<ui:remove>
 							<li role="presentation"
