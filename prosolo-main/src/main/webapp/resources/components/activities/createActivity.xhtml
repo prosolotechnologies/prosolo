@@ -253,7 +253,7 @@
 			                    <div class="publishRow">
 			                    	<p:commandLink 
 					              	  	styleClass="btn btn-green"
-					              	  	onclick="$('.fieldsText textarea').val(tinyMCE.activeEditor.getContent());"
+					              	  	onclick="if ($('.fieldsText').length>0)$('.fieldsText textarea').val(tinyMCE.activeEditor.getContent());"
 					              	  	action="#{activityEditBean.save()}"
 					              	  	update=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}"
 					              	  	oncomplete="bindPasteEventForUpdatingStatus();">
