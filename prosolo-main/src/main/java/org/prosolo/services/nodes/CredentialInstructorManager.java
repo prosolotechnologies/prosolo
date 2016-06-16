@@ -45,7 +45,7 @@ public interface CredentialInstructorManager {
 	StudentAssignData removeInstructorFromCredential(long instructorId, long credId, 
 			boolean reassignAutomatically) throws DbConnectionException;
 	
-	CredentialInstructor addInstructorToCredential(long decodedId, long id, int maxNumberOfStudents) 
+	CredentialInstructor addInstructorToCredential(long credId, long userId, int maxNumberOfStudents) 
 			throws DbConnectionException;
 	
 	void updateInstructorAndStudentsAssigned(long credId, InstructorData id, List<Long> studentsToAssign, 

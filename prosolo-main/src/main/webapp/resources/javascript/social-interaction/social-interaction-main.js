@@ -8,7 +8,7 @@ $(function () {
 		courseId : root.dataset.courseId,
 		studentId : root.dataset.studentId,
 		width : graphWidth,
-		height : 640,
+		height : 400,
 		selector : "#social-interaction #graph",
 		charge : -60,
 		distance : 260,
@@ -18,8 +18,8 @@ $(function () {
 		focusPoints : [
 			{x: 0, y: 0},
 			{x: graphWidth, y: 0},
-			{x: 0, y: 640},
-			{x: graphWidth, y: 640}
+			{x: 0, y: 400},
+			{x: graphWidth, y: 400}
 		],
 		relations : [
 			{ lower: 0, upper: 33, type: "twofive" },
@@ -80,7 +80,7 @@ var getStudentsData=function(peers){
 					getStudentsData(peers))
 					.then(function(studentsData){
 							$("#social-interactions-bypeer-table").remove();
-						var innerHtml="<table id='social-interactions-bypeer-table'><tr style='font-weight:bold'><td style='width:120px'>Student</td><td style='width:80px'>OUT</td><td style='width:80px'>IN</td></tr>";
+						var innerHtml="<table id='social-interactions-bypeer-table'><tr style='font-weight:bold'><td>Student</td><td>OUT</td><td>IN</td></tr>";
 
 						for(var peerId in peersinteractions){
 							var interaction=peersinteractions[peerId];
@@ -94,14 +94,10 @@ var getStudentsData=function(peers){
 
 						};
 
-
 						innerHtml=innerHtml+"</table>";
 								$("#social-interactions-bypeers").append(innerHtml);
 						$("social-interactions-by-peer-panel").show();
-
 					});
-
-
 			}
 		});
 
@@ -113,28 +109,24 @@ var getStudentsData=function(peers){
 			dataType: 'json'
 		}).done(function(data){
 			console.log("INTERACTIONSBYTYPE:"+JSON.stringify(data));
-			for(var i=0;i<data[0].interactions.length;i++){
-				data[0].interactions[i]=JSON.parse(data[0].interactions[i]);
+			for (var i = 0; i < data[0].interactions.length; i++) {
+				data[0].interactions[i] = JSON
+						.parse(data[0].interactions[i]);
 			}
-			var interactions=data[0].interactions;
-			if(interactions.length>0){
+			var interactions = data[0].interactions;
+			if (interactions.length > 0) {
 				$("#social-interactions-bytype-table").remove();
-				var innerHtml="<table id='social-interactions-bytype-table'><tr style='font-weight:bold'><td style='width:100px'>Type</td><td style='width:80px'>OUT</td><td style='width:80px'>IN</td></tr>";
+				var innerHtml="<table id='social-interactions-bytype-table'><tr style='font-weight:bold'><td>Type</td><td>OUT</td><td>IN</td></tr>";
 				interactions.forEach(function(interaction){
 						innerHtml=innerHtml+"<tr><td>"+interaction.type+"</td><td>"
 						+interaction.fromusercount+"("+Math.round(interaction.fromuserpercentage*100)+" %)</td><td>"
 						+interaction.tousercount+"("+Math.round(interaction.touserpercentage*100)+" %)"+
 						"</td>";
-
-
 				});
 				innerHtml=innerHtml+"</table>";
 				$("#social-interactions-bytype").append(innerHtml);
 				$("social-interactions-by-type-panel").show();
-
 			}
-
 		});
 	};
-
 });

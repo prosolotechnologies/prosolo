@@ -22,6 +22,7 @@ import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.CredentialInstructor;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
@@ -37,6 +38,7 @@ import org.prosolo.services.interaction.PostManager;
 import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.RoleManager;
@@ -91,12 +93,10 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 		
 		
 		// get ROLES
-		String roleUserTitle = "User";
-		String roleManagerTitle = "Manager";
-		String roleAdminTitle = "Admin";
-		Role roleUser = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(roleUserTitle);
-		Role roleManager = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(roleManagerTitle);
-		Role roleAdmin = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(roleAdminTitle);
+		Role roleUser = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName("User");
+		Role roleManager = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName("Manager");
+		Role roleInstructor = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName("Instructor");
+		Role roleAdmin = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName("Admin");
 
 		
 		
@@ -109,18 +109,15 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 		
 
 		
-		User userNickPowell = createUser("Nick", "Powell", "nick.powell@gmail.com", password, fictitiousUser, "male1.png", roleUser);
-		userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleAdmin, userNickPowell);
-		userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleManager, userNickPowell);
-		
+		User userNickPowell = 		createUser("Nick", "Powell", "nick.powell@gmail.com", password, fictitiousUser, "male1.png", roleUser);
 //		User userRichardAnderson = 	createUser("Richard", "Anderson", "richard.anderson@gmail.com", password, fictitiousUser, "male2.png", roleUser);
 		User userKevinMitchell = 	createUser("Kevin", "Mitchell", "kevin.mitchell@gmail.com", password, fictitiousUser, "male3.png", roleUser);
 //		User userPaulEdwards = 		createUser("Paul", "Edwards", "paul.edwards@gmail.com", password, fictitiousUser, "male4.png", roleUser);
 //		User userStevenTurner = 	createUser("Steven", "Turner", "steven.turner@gmail.com", password, fictitiousUser, "male5.png", roleUser);
 //		User userGeorgeYoung = 		createUser("George", "Young", "george.young@gmail.com", password, fictitiousUser, "male6.png", roleUser);
-//		User userPhillAmstrong = 	createUser("Phill", "Amstrong", "phill.amstrong@gmail.com", password, fictitiousUser, "male7.png", roleUser);
+		User userPhillAmstrong = 	createUser("Phill", "Amstrong", "phill.amstrong@gmail.com", password, fictitiousUser, "male7.png", roleUser);
 //		User userJosephGarcia = 	createUser("Joseph", "Garcia", "joseph.garcia@gmail.com", password, fictitiousUser, "male8.png", roleUser);
-//		User userTimothyRivera = 	createUser("Timothy", "Rivera", "timothy.rivera@gmail.com", password, fictitiousUser, "male9.png", roleUser);
+		User userTimothyRivera = 	createUser("Timothy", "Rivera", "timothy.rivera@gmail.com", password, fictitiousUser, "male9.png", roleUser);
 //		User userKevinHall = 		createUser("Kevin", "Hall", "kevin.hall@gmail.com", password, fictitiousUser, "male10.png", roleUser);
 //		User userKennethCarter = 	createUser("Kenneth", "Carter", "kenneth.carter@gmail.com", password, fictitiousUser, "male11.png", roleUser);
 		User userAnthonyMoore = 	createUser("Anthony", "Moore", "anthony.moore@gmail.com", password, fictitiousUser, "male12.png", roleUser);
@@ -132,13 +129,26 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 //		User userSamanthaDell = 	createUser("Samantha", "Dell", "samantha.dell@gmail.com", password, fictitiousUser, "female4.png", roleUser);
 //		User userAkikoKido = 		createUser("Akiko", "Kido", "akiko.kido@gmail.com", password, fictitiousUser, "female7.png", roleUser);
 		User userKarenWhite = 		createUser("Karen", "White", "karen.white@gmail.com", password, fictitiousUser, "female10.png", roleUser);
-//		User userAnnaHallowell = 	createUser("Anna", "Hallowell", "anna.hallowell@gmail.com", password, fictitiousUser, "female11.png", roleUser);
-//		User userErikaAmes = 		createUser("Erika", "Ames", "erika.ames@gmail.com", password, fictitiousUser, "female12.png", roleUser);
+		User userAnnaHallowell = 	createUser("Anna", "Hallowell", "anna.hallowell@gmail.com", password, fictitiousUser, "female11.png", roleUser);
+		User userErikaAmes = 		createUser("Erika", "Ames", "erika.ames@gmail.com", password, fictitiousUser, "female12.png", roleUser);
 //		User userHelenCampbell = 	createUser("Helen", "Campbell", "helen.campbell@gmail.com", password, fictitiousUser, "female13.png", roleUser);
 //		User userSheriLaureano = 	createUser("Sheri", "Laureano", "sheri.laureano@gmail.com", password, fictitiousUser, "female14.png", roleUser);
 //		User userAngelicaFallon = 	createUser("Angelica", "Fallon", "angelica.fallon@gmail.com", password, fictitiousUser, "female16.png", roleUser);
 		User userIdaFritz = 		createUser("Ida", "Fritz", "ida.fritz@gmail.com", password, fictitiousUser, "female17.png", roleUser);
 //		User userRachelWiggins = 	createUser("Rachel", "Wiggins", "rachel.wiggins@gmail.com", password, fictitiousUser, "female20.png", roleUser);
+		
+		// Adding roles to the users
+		
+		userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleAdmin, userNickPowell);
+		userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleManager, userNickPowell);
+
+		userPhillAmstrong = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userPhillAmstrong);
+		userAnnaHallowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userAnnaHallowell);
+		userTimothyRivera = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userTimothyRivera);
+		userErikaAmes = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userErikaAmes);
+
+		userKarenWhite = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleManager, userKarenWhite);
+		
 
 		/*
 		 * END CRETAING USERS
@@ -266,6 +276,12 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 		} catch (EventException e) {
 			logger.error(e);
 		}
+		
+		// Adding instrucotrs
+		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userPhillAmstrong.getId(), 10);
+		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userAnnaHallowell.getId(), 10);
+		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userTimothyRivera.getId(), 0);
+		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userErikaAmes.getId(), 0);
 		
 //		Competence1 comp2cred1 = null;
 //		try {
@@ -664,10 +680,10 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 			CommentData comment3Data = new CommentData();
 			comment3Data.setComment("anthony - I would add to information overload and decision quality, the issue with multitasking and shorter attention spans (a la twitter)");
 			comment3Data.setCommentedResourceId(act1comp1cred1.getId());
-			comment3Data.setCreator(new UserData(userKarenWhite));
+			comment3Data.setCreator(new UserData(userErikaAmes));
 			comment3Data.setDateCreated(dateFormatter.parse("13.06.2016. 13:02"));
 			
-			Comment1 comment3 = commentManager.saveNewComment(comment3Data, userKarenWhite.getId(), 
+			Comment1 comment3 = commentManager.saveNewComment(comment3Data, userErikaAmes.getId(), 
 					CommentedResourceType.Activity, new LearningContextData("/activity.xhtml", "name:credential|id:1|context:/name:competence|id:1|context:/name:activity|id:1|context:/context:/name:comment/|name:target_activity|id:1///", null));
 		
 			comment3.setParentComment(comment2);

@@ -378,6 +378,8 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 		}
 	}
 	
+	@Override
+	@Transactional(readOnly = false)
 	public CredentialInstructor addInstructorToCredential(long credId, long userId, 
 			int maxNumberOfStudents) throws DbConnectionException {
 		try {
@@ -397,7 +399,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while assigning student to an instructor");
+			throw new DbConnectionException("Error while assigning instructor to a credential");
 		}
 	}
 	

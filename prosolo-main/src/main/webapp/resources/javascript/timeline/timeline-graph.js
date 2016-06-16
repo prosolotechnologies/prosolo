@@ -62,7 +62,7 @@ var timelineGraph = (function () {
 		    .y(function(d) { return y2(d.value); });
 	
 		var svg = d3.select("#"+element.id).append("svg")
-		    .attr("width", width + margin.left + margin.right)
+		    .attr("width", "100%")
 		    .attr("height", height + margin.top + margin.bottom);
 		
 		var defs = svg.append("defs");
@@ -369,12 +369,12 @@ var timelineGraph = (function () {
 
 	function eventColor(eventType) {
 	    if(eventType == "Credentials") 
-	    	return "#0E9C57"
+	    	return "#64BFCD"
 	    else if(eventType == "Competences")
-	    	return "#428BCA"
+	    	return "#FCA567"
 	    else if(eventType == "Activities")
-	    	return  "#D9534F"
-    	return "#D9534F"
+	    	return  "#9b59b6"
+    	return "#9b59b6"
 	}
 	
 	function getDataExtendInDays(data) {

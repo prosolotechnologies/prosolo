@@ -12,34 +12,27 @@
 		<div class="whiteBox">
 		<h2>Timeline</h2>
 		
-		<div class="row">
-			<div class="col-md-11">
-				<div id="timeline-graph" 
-					 student-data-id="#{studentProfileBean.decodedId}"
-					 data-api="#{socialInteractionBean.apiHost}">
-				</div>
-			</div>
-			<div id="timeline-event-types" class="col-md-1">
-				<div class="checkbox checkbox-success">
+		<div class="timelineGraph">
+			<div class="timelineGraphFilters">
+				<div class="checkbox">
 					<input id="timeline-credential-checkbox" event-type="Credentials" type="checkbox" checked="checked"/>
 					<label for="timeline-credential-checkbox">Credentials</label>
 				</div>
-				<div class="separator" />
-				
-				<div class="checkbox checkbox-primary">
+				<div class="checkbox">
 					<input id="timeline-competence-checkbox" event-type="Competences" type="checkbox" checked="checked"/>
 					<label for="timeline-competence-checkbox">Competences</label>
 				</div>
-				<div class="separator" />
-				
-				<div class="checkbox checkbox-danger">
+				<div class="checkbox">
 					<input id="timeline-activities-checkbox" event-type="Activities" type="checkbox" checked="checked"/>
 					<label for="timeline-activities-checkbox">Activities</label>
 				</div>
 			</div>
-		</div>
 			
-		<div id="tooltip-holder" />
+			<div id="timeline-graph" 
+				 student-data-id="#{studentProfileBean.decodedId}"
+				 data-api="#{socialInteractionBean.apiHost}">
+			</div>
+		</div>
 	</div>
 	</div>
 </ui:composition>
