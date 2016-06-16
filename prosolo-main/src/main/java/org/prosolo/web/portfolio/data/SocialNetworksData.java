@@ -19,6 +19,10 @@ public class SocialNetworksData implements Serializable, IData {
 
 	private static final long serialVersionUID = 2744838596870425737L;
 
+	private static final String FACEBOOK = "https://www.facebook.com/"; 
+	private static final String TWITTER = "https://twitter.com/"; 
+	private static final String LINKEDIN = "https://www.linkedin.com/in/"; 
+	
 	private long id;
 
 	private Map<String, SocialNetworkAccountData> socialNetworkAccountDatas;
@@ -54,9 +58,25 @@ public class SocialNetworksData implements Serializable, IData {
 	public void setAccount(SocialNetworkAccount account) {
 		SocialNetworkAccountData socialNetworkAccountData = socialNetworkAccountDatas
 				.get(account.getSocialNetwork().toString());
+		String prefixUrl = getPrefixUrlForSocialNetwork(account.getSocialNetwork());
 		socialNetworkAccountData.setLinkEdit(account.getLink());
-		socialNetworkAccountData.setLink(account.getLink());
+		socialNetworkAccountData.setLink(prefixUrl + account.getLink());
 		socialNetworkAccountData.setId(account.getId());
+	}
+
+	private String getPrefixUrlForSocialNetwork(SocialNetworkName name) {
+		switch(name) {
+			case BLOG:
+				return "";
+			case FACEBOOK:
+				return FACEBOOK;
+			case TWITTER:
+				return TWITTER;
+			case LINKEDIN:
+				return LINKEDIN;
+			default:
+				return "";
+		}
 	}
 
 }

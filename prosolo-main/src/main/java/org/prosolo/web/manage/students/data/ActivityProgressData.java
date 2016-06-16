@@ -3,6 +3,7 @@ package org.prosolo.web.manage.students.data;
 import java.io.Serializable;
 
 import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.ActivityType;
 
 public class ActivityProgressData implements Serializable{
 
@@ -12,12 +13,14 @@ public class ActivityProgressData implements Serializable{
 	private String name;
 	private String description;
 	private boolean completed;
+	private ActivityType type;
 	
 	public ActivityProgressData(ActivityData actData) {
-		this.id = actData.getActivityId();
+		this.id = actData.getTargetActivityId();
 		this.name = actData.getTitle();
 		this.description = actData.getDescription();
 		this.completed = actData.isCompleted();
+		this.type = actData.getActivityType();
 	}
 
 	public long getId() {
@@ -50,6 +53,14 @@ public class ActivityProgressData implements Serializable{
 
 	public void setCompleted(boolean completed) {
 		this.completed = completed;
+	}
+
+	public ActivityType getType() {
+		return type;
+	}
+
+	public void setType(ActivityType type) {
+		this.type = type;
 	}
 	
 }

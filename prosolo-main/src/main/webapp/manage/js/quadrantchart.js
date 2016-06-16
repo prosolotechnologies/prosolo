@@ -184,17 +184,19 @@ function draw(data) {
 		//console.log(e);
 		hoveredId = e.aggField[0];
 		dimple._showPointTooltip(e, this, ch, series);
-		$("#activity"+hoveredId).toggleClass("bgRed");
+		//$("#act"+hoveredId).toggleClass("bgRed");
 	});
 	series.shapes.on("click", function(e) {
 		//console.log(e);
-		$("#act" + selectedId).toggle();
+		//$("#act" + selectedId).toggle();
+		toggleActivity(e.aggField[0]);
 		if(selectedId == e.aggField[0]) {
 			//dimple._removeTooltip(e,this,ch,series);
 			selectedId = null;
 		} else {
 			selectedId = e.aggField[0];
-			$("#act" + selectedId).toggle();
+			//selectActivity(selectedId, true);
+			//$("#act" + selectedId).toggle();
 			//dimple._showPointTooltip(e, this, ch, series);
 		}
 	});
@@ -203,7 +205,7 @@ function draw(data) {
 	  series.shapes.on("mouseleave", function (e) {
 		  //$("#act"+selectedId).toggle(); 
 		  dimple._removeTooltip(e,this,ch,series);
-		  $("#activity"+hoveredId).toggleClass("bgRed");
+		  //$("#act"+hoveredId).toggleClass("bgRed");
 		  hoveredId = null;
 	  });
 

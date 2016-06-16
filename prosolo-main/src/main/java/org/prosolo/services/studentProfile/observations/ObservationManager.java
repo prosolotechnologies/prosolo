@@ -8,10 +8,10 @@ import org.prosolo.services.common.exception.DbConnectionException;
 
 public interface ObservationManager {
 
-	Observation getLastObservationForUser(long userId, long targetLearningGoalId) throws DbConnectionException;
+	Observation getLastObservationForUser(long userId) throws DbConnectionException;
 
 	public Map<String, Object> saveObservation(long id, String message, String note, List<Long> symptomIds,
-			List<Long> suggestionIds, long creatorId, long studentId, long targetGoalId) throws DbConnectionException;
+			List<Long> suggestionIds, long creatorId, long studentId) throws DbConnectionException;
 	
-	public List<Observation> getObservations(long userId, long targetLearningGoalId) throws DbConnectionException;
+	public List<Observation> getObservations(long userId) throws DbConnectionException;
 }

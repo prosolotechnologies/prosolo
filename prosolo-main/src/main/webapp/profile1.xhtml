@@ -38,7 +38,7 @@
                     			var="socialNetworkData" varStatus="iterator">
                     		<ui:fragment rendered="#{not empty socialNetworkData.value.link}" >
 		                        <li class="#{profile1.getAlternativeName(socialNetworkData.value.socialNetworkName)}">
-		                        	<a href="#{socialNetworkData.value.link}">#{socialNetworkData.value.socialNetworkName}</a>
+		                        	<a href="#{socialNetworkData.value.link}" target="_blank">#{socialNetworkData.value.socialNetworkName}</a>
 		                        </li>
 	                        </ui:fragment>
                         </ui:repeat>

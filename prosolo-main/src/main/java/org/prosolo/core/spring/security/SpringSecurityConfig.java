@@ -131,7 +131,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   //for manage competence 
 		   .antMatchers("/manage/credentials/*/*").hasAuthority("COMPETENCES.VIEW")
 		  
-		   .antMatchers("/manage/students/*").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
+		   .antMatchers("/manage/students/*").hasAnyAuthority("MANAGE.STUDENTPROFILE.VIEW")
 		   
 		   .antMatchers("/manage/credentials/*/tools").hasAuthority("BASIC.MANAGER.ACCESS")
 		   //.antMatchers("/manage/credentials/*/instructors/*/reassignStudents").hasAuthority("STUDENT.ASSIGN.INSTRUCTOR")

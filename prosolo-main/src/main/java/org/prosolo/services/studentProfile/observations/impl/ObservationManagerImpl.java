@@ -11,7 +11,6 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.observations.Observation;
 import org.prosolo.common.domainmodel.observations.Suggestion;
@@ -37,7 +36,7 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 
 	@Override
 	@Transactional(readOnly = true)
-	public Observation getLastObservationForUser(long userId, long targetCredentialId) throws DbConnectionException{
+	public Observation getLastObservationForUser(long userId) throws DbConnectionException{
 		try{
 			String queryString = 
 					"SELECT o " +
@@ -46,14 +45,14 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 					"INNER JOIN fetch o.createdBy user " +
 					"LEFT JOIN fetch o.symptoms sy " +
 					"LEFT JOIN fetch o.suggestions su " +
-					"LEFT JOIN o.targetCredential targetCred " +
+					//"LEFT JOIN o.targetCredential targetCred " +
 					"WHERE student.id = :id " +
-						"AND targetCred.id = :targetCredentialId " +
+						//"AND targetCred.id = :targetCredentialId " +
 					"ORDER BY o.creationDate desc";
 	
 			Query query = persistence.currentManager().createQuery(queryString)
 					.setLong("id", userId)
-					.setLong("targetCredentialId", targetCredentialId)
+					//.setLong("targetCredentialId", targetCredentialId)
 					.setMaxResults(1);
 			
 			return (Observation) query.uniqueResult();	
@@ -65,7 +64,8 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 	@Override
 	@Transactional
 	public Map<String, Object> saveObservation(long id, String message, String note, List<Long> symptomIds,
-			List<Long> suggestionIds, long creatorId, long studentId, long targetCredentialId) throws DbConnectionException {
+			List<Long> suggestionIds, long creatorId, long studentId) 
+					throws DbConnectionException {
 		try {
 			boolean insert = true;
 			Observation observation = new Observation();
@@ -99,9 +99,9 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 			}
 		    observation.setSuggestions(suggestions);
 		    
-		    TargetCredential1 targetCred = new TargetCredential1();
-		    targetCred.setId(targetCredentialId);
-		    observation.setTargetCredential(targetCred);
+//		    TargetCredential1 targetCred = new TargetCredential1();
+//		    targetCred.setId(targetCredentialId);
+//		    observation.setTargetCredential(targetCred);
 		    
 			observation =  saveEntity(observation);
 			persistence.currentManager().evict(observation);
@@ -127,7 +127,7 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly = true)
-	public List<Observation> getObservations(long userId, long targetCredentialId) throws DbConnectionException{
+	public List<Observation> getObservations(long userId) throws DbConnectionException{
 		try {
 			String queryString = 
 					"SELECT DISTINCT o " +
@@ -138,12 +138,12 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 					"LEFT JOIN FETCH o.suggestions su " +
 					"LEFT JOIN o.targetCredential targetCred " +
 					"WHERE student.id = :id " +
-						"AND targetCred.id = :targetCredentialId " +
+						//"AND targetCred.id = :targetCredentialId " +
 					"ORDER BY o.creationDate desc";
 	
 			Query query = persistence.currentManager().createQuery(queryString);
 			query.setLong("id", userId);
-			query.setLong("targetCredentialId", targetCredentialId);
+			//query.setLong("targetCredentialId", targetCredentialId);
 			
 			return query.list();	
 		} catch (Exception e) {

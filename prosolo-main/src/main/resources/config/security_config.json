@@ -177,6 +177,14 @@
             "roles": [
                 "Manager"
             ]
+        },
+        {
+            "name": "manage.studentProfile.view",
+            "description": "Edit RSS Feeds in manage section",
+            "roles": [
+                "Manager",
+                "Instructor"
+            ]
         }
     ]
 }

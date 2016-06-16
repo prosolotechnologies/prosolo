@@ -4,8 +4,6 @@ import java.util.Set;
 
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkAccount;
 import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
-import org.prosolo.services.nodes.SocialNetworksManager;
-import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.portfolio.data.SocialNetworksData;
 
 public class SocialNetworksDataToPageMapper implements IDataToPageMapper<SocialNetworksData, UserSocialNetworks> {

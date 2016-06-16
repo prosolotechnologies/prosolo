@@ -149,5 +149,8 @@ public interface Activity1Manager {
 	
 	List<EventData> publishDraftActivities(List<Long> actIds) 
 			throws DbConnectionException;
+	
+	List<TargetActivity1> getTargetActivities(long targetCompId) 
+			throws DbConnectionException;
 
 }

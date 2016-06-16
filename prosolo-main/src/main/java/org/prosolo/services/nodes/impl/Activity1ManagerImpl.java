@@ -389,8 +389,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Override
 	@Transactional(readOnly = true)
-	private List<TargetActivity1> getTargetActivities(long targetCompId) 
+	public List<TargetActivity1> getTargetActivities(long targetCompId) 
 			throws DbConnectionException {
 		try {
 			TargetCompetence1 targetComp = (TargetCompetence1) persistence.currentManager().load(

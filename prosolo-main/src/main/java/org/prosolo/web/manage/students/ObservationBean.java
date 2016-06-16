@@ -59,7 +59,7 @@ public class ObservationBean implements Serializable {
 
 	private long studentId;
 	private String studentName;
-	private long targetCredentialId;
+	//private long targetCredentialId;
 
 	private ObservationData lastObservation;
 
@@ -73,7 +73,7 @@ public class ObservationBean implements Serializable {
 
 	public void initializeObservationData() {
 		try {
-			Observation observation = observationManager.getLastObservationForUser(studentId, targetCredentialId);
+			Observation observation = observationManager.getLastObservationForUser(studentId);
 			if (observation != null) {
 				lastObservation = new ObservationData(observation);
 			}
@@ -83,7 +83,7 @@ public class ObservationBean implements Serializable {
 	}
 	
 	public void loadObservationHistory() {
-		List<Observation> observations = observationManager.getObservations(studentId, targetCredentialId);
+		List<Observation> observations = observationManager.getObservations(studentId);
 		observationHistory = new ArrayList<>();
 		for(Observation ob:observations){
 			observationHistory.add(new ObservationData(ob));
@@ -101,7 +101,7 @@ public class ObservationBean implements Serializable {
 			Map<String, Object> result = observationManager.saveObservation(editObservation.getEditObservation().getId(),
 					editObservation.getEditObservation().getMessage(), editObservation.getEditObservation().getNote(),
 					editObservation.getSelectedSymptoms(), editObservation.getSelectedSuggestions(), creatorId,
-					studentId, targetCredentialId);
+					studentId);
 			
 			logger.info("User with id "+creatorId + " created observation for student with id "+studentId);
 			
@@ -129,7 +129,7 @@ public class ObservationBean implements Serializable {
 			}
 			
 			editObservation = null;
-			Observation observation = observationManager.getLastObservationForUser(studentId, targetCredentialId);
+			Observation observation = observationManager.getLastObservationForUser(studentId);
 			if (observation != null) {
 				lastObservation = new ObservationData(observation);
 			}
@@ -298,12 +298,12 @@ public class ObservationBean implements Serializable {
 		return s;
 	}
 	
-	public void resetObservationData(long targetCredentialId) {
-		editObservation = null;
-		lastObservation = null;
-		setTargetCredentialId(targetCredentialId);
-		initializeObservationData();
-	}
+//	public void resetObservationData(long targetCredentialId) {
+//		editObservation = null;
+//		lastObservation = null;
+//		setTargetCredentialId(targetCredentialId);
+//		initializeObservationData();
+//	}
 
 	public ObservationData getLastObservation() {
 		return lastObservation;
@@ -369,13 +369,13 @@ public class ObservationBean implements Serializable {
 		this.observationHistory = observationHistory;
 	}
 
-	public long getTargetCredentialId() {
-		return targetCredentialId;
-	}
-
-	public void setTargetCredentialId(long targetCredentialId) {
-		this.targetCredentialId = targetCredentialId;
-	}
+//	public long getTargetCredentialId() {
+//		return targetCredentialId;
+//	}
+//
+//	public void setTargetCredentialId(long targetCredentialId) {
+//		this.targetCredentialId = targetCredentialId;
+//	}
 	
 	
 }

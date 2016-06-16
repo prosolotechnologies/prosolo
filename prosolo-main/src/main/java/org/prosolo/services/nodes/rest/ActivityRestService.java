@@ -3,6 +3,7 @@ package org.prosolo.services.nodes.rest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -13,10 +14,13 @@ import javax.ws.rs.core.Response;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
+import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.common.exception.DbConnectionException;
+import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.services.nodes.ActivityTimeSpentPercentileService;
+import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.rest.data.ActivityJsonData;
 
@@ -33,38 +37,57 @@ public class ActivityRestService {
 	@Produces("application/json")
 	public String getCompletedActivities(@PathParam("competence") long competenceId) {
 		try {
-			List<TargetActivity> activities = ServiceLocator.getInstance()
-					.getService(CompetenceManager.class)
+			List<TargetActivity1> activities = ServiceLocator.getInstance()
+					.getService(Activity1Manager.class)
 						.getTargetActivities(competenceId);
 			
 			List<ActivityJsonData> jsonActivities = new ArrayList<>();
-			for(TargetActivity ta : activities) {
+			for(TargetActivity1 ta : activities) {
 				long timeSpent = ta.getTimeSpent();
 				if(timeSpent != 0 || ta.isCompleted()) {
-					long activityId = ta.getActivity().getId();
-					List<Long> usersTimes = ServiceLocator.getInstance()
-							.getService(ActivityManager.class)
-								.getTimeSpentOnActivityForAllUsersSorted(activityId);
-					
-					int timeSpentGroup = ServiceLocator.getInstance()
-							.getService(ActivityTimeSpentPercentileService.class)
-							.getPercentileGroup(usersTimes, timeSpent);
-					
-					ActivityJsonData jsonActivity = new ActivityJsonData();
-					jsonActivity.setId(ta.getId());
-					jsonActivity.setName(ta.getTitle());
-					jsonActivity.setCompleted(ta.isCompleted());
-					jsonActivity.setTimeNeeded(timeSpentGroup);
+					//TODO uncomment when fixed
+//					long activityId = ta.getActivity().getId();
+//					List<Long> usersTimes = ServiceLocator.getInstance()
+//							.getService(ActivityManager.class)
+//								.getTimeSpentOnActivityForAllUsersSorted(activityId);
+//					
+//					int timeSpentGroup = ServiceLocator.getInstance()
+//							.getService(ActivityTimeSpentPercentileService.class)
+//							.getPercentileGroup(usersTimes, timeSpent);
+//					
+//					ActivityJsonData jsonActivity = new ActivityJsonData();
+//					jsonActivity.setId(ta.getId());
+//					jsonActivity.setName(ta.getTitle());
+//					jsonActivity.setCompleted(ta.isCompleted());
+					//jsonActivity.setTimeNeeded(timeSpentGroup);
 					
 					//to be changed when complexity algorithm is implemented
-					int min = 1;
-					int max = 5;
-					
-					Random r = new Random();
-					double randomVal = min + (max - min) * r.nextDouble();
-					jsonActivity.setComplexity(randomVal);
-					jsonActivities.add(jsonActivity);
-				}
+//					int min = 1;
+//					int max = 5;
+//					
+//					Random r = new Random();
+//					double randomVal = min + (max - min) * r.nextDouble();
+//					jsonActivity.setComplexity(randomVal);
+//					jsonActivities.add(jsonActivity);
+				} 
+				//TODO comment all when fixed
+				ActivityJsonData jsonActivity = new ActivityJsonData();
+				jsonActivity.setId(ta.getId());
+				jsonActivity.setName(ta.getTitle());
+				jsonActivity.setCompleted(ta.isCompleted());
+				
+				//TODO return to time spent calculations when fixed
+				//Random random = new Random();
+				//int randomNumber = random.nextInt(maxTime - minTime + 1) + minTime;
+				//to be changed when complexity algorithm is implemented
+				int min = 1;
+				int max = 5;
+				jsonActivity.setTimeNeeded(ThreadLocalRandom.current().nextInt(min, max + 1));
+				jsonActivity.setComplexity(ThreadLocalRandom.current().nextInt(min, max + 1));
+//				Random r = new Random();
+//				double randomVal = min + (max - min) * r.nextDouble();
+//				jsonActivity.setComplexity(randomVal);
+				jsonActivities.add(jsonActivity);
 			}
 			
 			final GsonBuilder builder = new GsonBuilder();

@@ -51,7 +51,10 @@ public class ObservationData {
 	}
 	
 	public String getFormattedDate(){
-		SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+		if(dateCreated == null) {
+			return null;
+		}
+		SimpleDateFormat sdf = new SimpleDateFormat("MMMM dd, yyyy");
 		return sdf.format(dateCreated);
 	}
 

@@ -3,8 +3,9 @@ package org.prosolo.web.manage.students;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
@@ -12,12 +13,11 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
-import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.evaluation.Evaluation;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
+import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
 import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
@@ -82,6 +82,8 @@ public class StudentProfileBean implements Serializable {
 
 	private List<CredentialProgressData> credentials;
 	private CredentialProgressData selectedCredential;
+	
+	private Map<String, String> nameMap = new HashMap<>();
 
 
 	public void initStudent() {
@@ -91,14 +93,14 @@ public class StudentProfileBean implements Serializable {
 			try {
 				User user = userManager.loadResource(User.class, decodedId, true);
 				student = new StudentData(user);
-
+				loadSocialNetworkData();
+				initializeSocialNetworkNameMap();
 				initCredentials();
 
 				observationBean.setStudentId(decodedId);
 				observationBean.setStudentName(student.getName());
-				observationBean.setTargetCredentialId(selectedCredential.getId());
+				//observationBean.setTargetCredentialId(selectedCredential.getId());
 				observationBean.initializeObservationData();
-
 
 				logger.info("User with id "+ 
 						loggedUserBean.getUser().getId() + 
@@ -129,16 +131,16 @@ public class StudentProfileBean implements Serializable {
 
 	public void loadSocialNetworkData() {
 		try {
-			if (student.getInterests() == null) {
-				User user = new User();
-				user.setId(decodedId);
-
-				TopicPreference topicPreference = (TopicPreference) userManager.getUserPreferences(user,
-						TopicPreference.class);
-				Set<Tag> preferredKeywords = topicPreference.getPreferredKeywords();
-
-				student.addInterests(preferredKeywords);
-			}
+//			if (student.getInterests() == null) {
+//				User user = new User();
+//				user.setId(decodedId);
+//
+//				TopicPreference topicPreference = (TopicPreference) userManager.getUserPreferences(user,
+//						TopicPreference.class);
+//				Set<Tag> preferredKeywords = topicPreference.getPreferredKeywords();
+//
+//				student.addInterests(preferredKeywords);
+//			}
 			if (socialNetworksData == null) {
 				initSocialNetworks();
 			}
@@ -184,12 +186,12 @@ public class StudentProfileBean implements Serializable {
 			for (CompetenceData1 comp : competences) {
 				CompetenceProgressData compProgress = new CompetenceProgressData(comp);
 				
-				long acceptedSubmissions = evalManager.getApprovedEvaluationCountForResource(TargetCompetence.class, comp.getTargetCompId());
-				compProgress.setApprovedSubmissionNumber(acceptedSubmissions);
-				long rejectedSubmissions = evalManager.getRejectedEvaluationCountForResource(TargetCompetence.class, comp.getTargetCompId());
-				compProgress.setRejectedSubmissionNumber(rejectedSubmissions);
-				boolean trophy = evalManager.hasAnyBadge(TargetCompetence.class, comp.getTargetCompId());
-				compProgress.setTrophyWon(trophy);
+//				long acceptedSubmissions = evalManager.getApprovedEvaluationCountForResource(TargetCompetence.class, comp.getTargetCompId());
+//				compProgress.setApprovedSubmissionNumber(acceptedSubmissions);
+//				long rejectedSubmissions = evalManager.getRejectedEvaluationCountForResource(TargetCompetence.class, comp.getTargetCompId());
+//				compProgress.setRejectedSubmissionNumber(rejectedSubmissions);
+//				boolean trophy = evalManager.hasAnyBadge(TargetCompetence.class, comp.getTargetCompId());
+//				compProgress.setTrophyWon(trophy);
 
 				if (first) {
 					selectCompetence(compProgress);
@@ -201,7 +203,7 @@ public class StudentProfileBean implements Serializable {
 			selectedCredential.setCompetences(competenecesProgress);
 
 			// set selected target credential id to observation bean
-			observationBean.resetObservationData(selectedCredential.getId());
+			//observationBean.resetObservationData(selectedCredential.getId());
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error loading competences.");
@@ -253,7 +255,9 @@ public class StudentProfileBean implements Serializable {
 
 	public void initSocialNetworks() {
 		if (socialNetworksData == null) {
-			userSocialNetworks = socialNetworksManager.getSocialNetworks(loggedUserBean.getUser());
+			User user = new User();
+			user.setId(student.getId());
+			userSocialNetworks = socialNetworksManager.getSocialNetworks(user);
 			socialNetworksData = new SocialNetworksDataToPageMapper()
 					.mapDataToPageObject(userSocialNetworks);
 		}
@@ -266,6 +270,18 @@ public class StudentProfileBean implements Serializable {
 			compId = selectedCredential.getSelectedCompetence() != null ? selectedCredential.getSelectedCompetence().getId() : 0;
 		}
 		return Settings.getInstance().config.application.domain + "api/competences/" + compId + "/activities";
+	}
+	
+	private void initializeSocialNetworkNameMap() {
+		nameMap.put(SocialNetworkName.BLOG.toString(), "website");
+		nameMap.put(SocialNetworkName.FACEBOOK.toString(), "facebook");
+		nameMap.put(SocialNetworkName.GPLUS.toString(), "gplus");
+		nameMap.put(SocialNetworkName.LINKEDIN.toString(), "linkedIn");
+		nameMap.put(SocialNetworkName.TWITTER.toString(), "twitter");
+	}
+	
+	public String getAlternativeName(SocialNetworkName name) {
+		return nameMap.get(name.toString());
 	}
 
 	public ObservationBean getObservationBean() {
@@ -328,7 +344,8 @@ public class StudentProfileBean implements Serializable {
 
 	public long getSelectedCredentialId(){
 		System.out.println("SELECTED CREDENTIAL IS:"+selectedCredential.getCredentialId()+" name:"+selectedCredential.getName());
-		return selectedCredential.getCredentialId();}
+		return selectedCredential.getCredentialId();
+	}
 
 	public void setSelectedCredential(CredentialProgressData selectedCredential) {
 		this.selectedCredential = selectedCredential;
