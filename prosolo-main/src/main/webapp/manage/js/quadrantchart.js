@@ -1,5 +1,7 @@
 var series;
 
+var selectedId;
+
 function drawQuadrantChart(servicePath) {
 	$.ajax({
 		url : servicePath
@@ -21,7 +23,6 @@ function drawQuadrantChart(servicePath) {
 
 function draw(data) {
 	//console.log(data);
-	var selectedId;
 	var hoveredId;
 	
 	var xFrom = 1;
@@ -30,7 +31,7 @@ function draw(data) {
 	var yFrom = 1;
 	var yTo = 5;
 	
-	var width = 430;
+	var width = 390;
 	var height = 330;
 	var widthLeftMargin = 60;
 	var widthRightMargin = 50;
@@ -189,12 +190,14 @@ function draw(data) {
 	series.shapes.on("click", function(e) {
 		//console.log(e);
 		//$("#act" + selectedId).toggle();
-		toggleActivity(e.aggField[0]);
 		if(selectedId == e.aggField[0]) {
 			//dimple._removeTooltip(e,this,ch,series);
+			toggleActivity(selectedId);
 			selectedId = null;
 		} else {
+			deselectActivity(selectedId);
 			selectedId = e.aggField[0];
+			toggleActivity(selectedId);
 			//selectActivity(selectedId, true);
 			//$("#act" + selectedId).toggle();
 			//dimple._showPointTooltip(e, this, ch, series);

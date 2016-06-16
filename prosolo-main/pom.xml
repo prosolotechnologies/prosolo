@@ -22,6 +22,8 @@
 		<jetty.version>9.3.7.v20160115</jetty.version>
 
 		<jersey.version>1.19</jersey.version>
+		<jersey2.version>2.23</jersey2.version>
+		<jaxrs.version>2.0.1</jaxrs.version>
 		<resteasy.version>3.0.9.Final</resteasy.version>
 		<spring.version>4.1.4.RELEASE</spring.version>
 		<spring.security.version>3.2.5.RELEASE</spring.security.version>
@@ -86,7 +88,6 @@
 			<artifactId>resteasy-jackson-provider</artifactId>
 			<version>${resteasy.version}</version>
 		</dependency-->
-
 		<dependency>
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
@@ -443,28 +444,57 @@
 		</dependency>
 
 		<!-- Jersey REST services -->
+		<!-- comment start -->
 		<!--dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-core</artifactId>
 			<version>${jersey.version}</version>
-		</dependency-->
+		</dependency>
 
-		<!--dependency>
+		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-server</artifactId>
 			<version>${jersey.version}</version>
-		</dependency-->
+		</dependency>
 
-		<!--dependency>
+		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-servlet</artifactId>
 			<version>${jersey.version}</version>
-		</dependency-->
+		</dependency>
 
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-client</artifactId>
 			<version>${jersey.version}</version>
+		</dependency-->
+		
+		<!-- comment end -->
+		
+		<dependency>
+			<groupId>javax.ws.rs</groupId>
+			<artifactId>javax.ws.rs-api</artifactId>
+			<version>${jaxrs.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.containers</groupId>
+			<artifactId>jersey-container-servlet</artifactId>
+			<version>${jersey2.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.core</groupId>
+			<artifactId>jersey-server</artifactId>
+			<version>${jersey2.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.core</groupId>
+			<artifactId>jersey-client</artifactId>
+			<version>${jersey2.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.ext</groupId>
+			<artifactId>jersey-bean-validation</artifactId>
+			<version>${jersey2.version}</version>
 		</dependency>
 
 		<!-- jsoup - URL Scrapper -->

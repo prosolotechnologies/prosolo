@@ -137,11 +137,16 @@ function expandNonValidRegions() {
 function selectActivity(actId) {
 	$('.activitiesBlockLeft h3').removeClass("selected");
 	$('#act' + actId).addClass("selected");
+	selectedId = actId;
 	hoverActivity(actId);
 }
 
 function toggleActivity(actId) {
 	$('#act' + actId).toggleClass("selected");
+}
+
+function deselectActivity(actId) {
+	$('#act' + actId).removeClass("selected");
 }
 
 $(function() {
