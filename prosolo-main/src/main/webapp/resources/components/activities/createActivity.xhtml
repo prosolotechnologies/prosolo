@@ -20,375 +20,388 @@
 	
 	<composite:implementation>
 	    <script src="#{request.contextPath}/resources/javascript2/createActivity.js"></script>
+	    
 	    <div class="whiteBar">
-	
 	    </div>
+	    
 		<div id="#{cc.clientId}">
-		<script>
-			containerId = '#{cc.clientId}';
-		</script>
-		<h:form id="formMain">
-		<p:growl id="growlMain" globalOnly="true" showDetail="true"/>
-		<h:inputHidden id="hiddenType" value="#{activityEditBean.activityData.typeString}" />
-	    <div class="container">
-	    	<ui:fragment rendered="#{not empty param['credId']}">
-	    		<ol class="breadcrumb">
-		            <li>
-		            	<h:link value="Credentials" outcome="credentialLibrary"/>
-		            </li>
-		            <li>
-		            	<h:link 
-		            		value="#{activityEditBean.credentialTitle}"
-		            		outcome="create-credential">
-		            		<f:param name="id" value="#{param['credId']}"></f:param>
-		            	</h:link>
-		            </li>
-		            <li>
-		            	<h:link 
-		            		value="#{activityEditBean.activityData.competenceName}"
-		            		outcome="create-competence">
-		            		<f:param name="id" value="#{param['compId']}"></f:param>
-		            	</h:link>
-		            </li>
-		            <ui:fragment rendered="#{!activityEditBean.isCreateUseCase()}">
-		            	<li class="active">#{activityEditBean.activityData.title}</li>
-		            </ui:fragment>
-		            <ui:fragment rendered="#{activityEditBean.isCreateUseCase()}">
-		            	<li class="active">New Activity</li>
-		            </ui:fragment>
-		        </ol>
-	    	</ui:fragment>
-	        <ui:fragment rendered="#{empty param['credId']}">
-	    		<ol class="breadcrumb">	 
-	    			<li>
-		            	<a href="javascript:void(0);">Competences</a>
-		            </li> 
-	    			<li>
-		            	<h:link 
-		            		value="#{activityEditBean.activityData.competenceName}"
-		            		outcome="create-competence">
-		            		<f:param name="id" value="#{param['compId']}"></f:param>
-		            	</h:link>
-		            </li>
-		            <ui:fragment rendered="#{!activityEditBean.isCreateUseCase()}">
-		            	<li class="active">#{activityEditBean.activityData.title}</li>
-		            </ui:fragment>
-		            <ui:fragment rendered="#{activityEditBean.isCreateUseCase()}">
-		            	<li class="active">New Activity</li>
-		            </ui:fragment>
-		        </ol>
-	    	</ui:fragment>
-	    </div>
-	
-	    <div class="container">
-	        <div class="row">
-	            <div class="col-md-8">
-	                <div class="tab-content">
-	                    <div role="tabpanel" class="tab-pane fade in active" id="info">
-	                        <div class="whiteBox">
-	                            <h2>Activity Info</h2>
-	                            <div class="formWrapper">
-	                                <div class="formLine">
-	                                    <label>Title</label>
-	                                    <div class="formLineRight">
-	                                    	<h:inputText 
-	                                    		id="inputTitle"
-	                                    		styleClass="pasteable"
-	                                    		value="#{activityEditBean.activityData.title}"
-	                                    		onkeyup="updateStatusToDraft();"
-	                                    		required="true"
-												requiredMessage="Title is required"/>
-											<h:panelGroup 
-					                        	layout="block" 
-					                        	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formMain:inputTitle'))}" 
-					                        	styleClass="alert alert-danger" 
-					                        	pt:role="alert">
-					                            <h:message for="inputTitle"></h:message>
-					                        </h:panelGroup>
-	                                    </div>
-	                                </div>
-	                                <div class="formLine">
-	                                    <label>Description</label>
-	                                    <div class="formLineRight">
-	                                    	<h:inputTextarea
-	                                    		styleClass="pasteable"
-	                                    		value="#{activityEditBean.activityData.description}"
-	                                    		onkeyup="updateStatusToDraft();">
-	                                    	</h:inputTextarea>
-	                                    </div>
-	                                </div>
-	                                <div class="formLine">
-	                                    <label>Activity type</label>
-	                                    <h:panelGroup 
-	                                    	layout="block" 
-	                                    	id="panelSelectActivity" 
-	                                    	styleClass="formLineRight"
-	                                    	rendered="#{activityEditBean.isCreateUseCaseOrFirstTimeDraft()}">
-	                                        <ul class="nav nav-tabs innerSubmenu" role="tablist">
-	                                        	<ui:repeat var="type" value="#{activityEditBean.activityTypes}">
-	                                        		<li role="presentation" class="#{activityEditBean.isActivityTypeSelected(type) ? 'active' : ''}">
-	                                        			<p:commandLink 
-	                           								value="#{type.label}"
-	                                        				pt:aria-controls="activities" 
-	                                        				pt:role="tab" 
-	                                        				pt:data-toggle="tab"
-	                                        				process="@this"
-	                                        				action="#{activityEditBean.updateType(type)}"
-	                                        				update=":#{cc.clientId}:formMain:panelSelectActivity :#{cc.clientId}:formMain:activityPanel :#{cc.clientId}:formMain:panelStatus"
-	                                        				oncomplete="bindPasteEventForUpdatingStatus();">
-	                                        			</p:commandLink>
-	                                        		</li>
-	                                        	</ui:repeat>   
-	                                        </ul>
-	                                    </h:panelGroup>
-	                                    <h:panelGroup 
-	                                    	layout="block" 
-	                                    	id="panelActivityType" 
-	                                    	styleClass="formLineRight"
-	                                    	rendered="#{!activityEditBean.isCreateUseCaseOrFirstTimeDraft()}">
-	                                         <ul class="addedItems">
-	                                             <li>
-	                                                 #{activityEditBean.activityData.activityType.label}
-	                                             </li>
-	                                         </ul>        
-	                                    </h:panelGroup>
-	                                </div>
-	                                
-	                                <courses:activityCreateComp
-	                                	id="activityPanel"
-	                                	activity="#{activityEditBean.activityData}"
-	                                	bean="#{activityEditBean}"
-	                                	uploadFileModalId="uploadFile"
-	                                	addLinkModalId="addURL"
-	                                	prepareAddingResLinkMethodName="prepareAddingResourceLink"
-	                                	prepareAddingResLinkMethod="#{activityEditBean.prepareAddingResourceLink}"
-	                                	toUpdate=":#{cc.clientId}:formMain:panelStatus"
-	                                	toUpdateModalUploadFile=":#{cc.clientId}:formModalUploadFile"
-	                                	toUpdateModalAddLink=":#{cc.clientId}:formModalAddUrl"
-	                                	mainForm=":#{cc.clientId}:formMain"
-	                                />
-	                            </div>
-	                        </div>
-	                    </div>
-	                </div>
-	            </div>
-	            <div class="col-md-4">
-	                <div class="whiteBox publishBox">
-	                    <h2>Publish</h2>
-	                    <p:commandLink
-							value="Preview"
-							styleClass="linkPreview"
-							action="#{activityEditBean.preview()}"
-							update=":#{cc.clientId}:formMain"
-							oncomplete="if(args &amp;&amp; !args.validationFailed) {bindPasteEventForUpdatingStatus(); document.getElementsByClassName('hiddenLinkPreview')[0].click();}"/>
-						<h:link
-							style="display: none;"
-							styleClass="hiddenLinkPreview"
-							target="_blank"
-							outcome="activity">
-							<f:param name="compId" value="#{util:encodeId(activityEditBean.activityData.competenceId)}"></f:param>
-							<f:param name="actId" value="#{activityEditBean.id}"></f:param>
-							<f:param name="mode" value="preview"></f:param>
-						</h:link>
-	                    <div class="clear"></div>
-	                    <div class="estimatedTime">
-	                        <p>Estimated time to complete:</p>
-	                        <div class="selectRow">
-	                        	<h:selectOneMenu styleClass="selectpicker pickHours"
-	                        		value="#{activityEditBean.activityData.durationHours}"
-	                        		onchange="updateStatusToDraft();">
-	                        		<f:selectItem itemValue="0"/>
-	                        		<f:selectItem itemValue="1"/>
-	                        		<f:selectItem itemValue="2"/>
-	                        		<f:selectItem itemValue="3"/>
-	                        		<f:selectItem itemValue="4"/>
-	                        		<f:selectItem itemValue="5"/>
-	                        		<f:selectItem itemValue="6"/>
-	                        		<f:selectItem itemValue="7"/>
-	                        		<f:selectItem itemValue="8"/>
-	                        		<f:selectItem itemValue="9"/>
-	                        		<f:selectItem itemValue="10"/>
-	                        		<f:selectItem itemValue="11"/>
-	                        		<f:selectItem itemValue="12"/>
-	                        	</h:selectOneMenu>
-	                            <p>hours</p>
-	                            <h:selectOneMenu styleClass="selectpicker pickMinutes"
-	                        		value="#{activityEditBean.activityData.durationMinutes}"
-	                        		onchange="updateStatusToDraft();">
-	                        		<f:selectItem itemValue="0"/>
-	                        		<f:selectItem itemValue="5"/>
-	                        		<f:selectItem itemValue="10"/>
-	                        		<f:selectItem itemValue="15"/>
-	                        		<f:selectItem itemValue="20"/>
-	                        		<f:selectItem itemValue="25"/>
-	                        		<f:selectItem itemValue="30"/>
-	                        		<f:selectItem itemValue="35"/>
-	                        		<f:selectItem itemValue="40"/>
-	                        		<f:selectItem itemValue="45"/>
-	                        		<f:selectItem itemValue="50"/>
-	                        		<f:selectItem itemValue="55"/>
-	                        	</h:selectOneMenu>
-	                            <p>minutes</p>
-	                        </div>
-	                        <script>$('.selectpicker').selectpicker('refresh');</script>
-	                    </div>
-	                    <h:panelGroup id="panelStatus">
-		                    <h:selectOneMenu id="selectStatus"
-			                	styleClass="selectpicker"
-			               		value="#{activityEditBean.activityData.status}">
-			               		<f:selectItems value="#{activityEditBean.actStatusArray}" var="status"
-		    						itemValue="#{status}" itemLabel="#{status.label}" />
-			                </h:selectOneMenu>
-			                <script>$('.selectpicker').selectpicker('refresh');</script>
-			            </h:panelGroup>
-	          
-	                    <div class="publishRow">
-	                    	<p:commandLink 
-			              	  	styleClass="btn btn-green" 
-			              	  	action="#{activityEditBean.save()}"
-			              	  	update=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}"
-			              	  	oncomplete="bindPasteEventForUpdatingStatus();">
-			              	  		Save changes
-			              	</p:commandLink>
-	                        <a href="#" class="linkRed" data-toggle="modal" data-target="#deleteModal">Delete</a>
-	                        
-	                    </div>
-	                </div>
-	            </div>
-	        </div>
-	    </div>
-	    <script>  
-        	var type = null;
-        	if('#{cc.attrs.role}' === "USER") {
-        		type = "user_created";
-        	} else {
-        		type = "university_created";
-        	}
-			document.getElementById('#{cc.clientId}:formMain:hiddenType').value = type;
-        </script>
-	    </h:form>
-	    
-	    <h:form id="formModalUploadFile" enctype="multipart/form-data">
-	        <div class="modal fade" id="uploadFile" tabindex="-1" role="dialog" aria-labelledby="uploadNewFile">
-	            <div class="modal-dialog" role="document">
-	                <h:panelGroup layout="block" id="panelUploadFile" styleClass="modal-content">
-	                    <div class="modal-header alignLeft">
-	                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-	                        <h2 class="modal-title" id="uploadNewFile">Upload New File</h2>
-	                    </div>
-	                    <div class="modal-body alignLeft">
-	                        <h:inputText id="inputFileTitle"
-	                        	placeholder="File title..."
-								value="#{activityEditBean.resLinkToAdd.linkName}">
-	                        </h:inputText>
-	                        <div class="chooseFileBox">
-	                        	<utilcomp:simpleFileUpload
-	                        		id="simpleFileUpload"
-				            		fileUploadListenerMethodName="handleFileUpload"
-				            		fileUploadListenerMethod="#{activityEditBean.handleFileUpload}"
-				            		toUpdate=":#{cc.clientId}:formModalUploadFile:panelFileName"
-				            		uploadButtonStyle="btn btn-green btn-sm"
-	                        	/>
-	                            <h:panelGroup id="panelFileName">
-	                            	#{activityEditBean.resLinkToAdd.fetchedTitle}
-	                            </h:panelGroup>
-	                        </div>
-							
-							<h:panelGroup layout="block" rendered="#{activityEditBean.resLinkToAdd.linkNameInvalid}" styleClass="alert alert-warning">							
-								 File title must be entered
-							</h:panelGroup>
-							
-							<h:panelGroup layout="block" rendered="#{activityEditBean.resLinkToAdd.urlInvalid}" styleClass="alert alert-warning">
-								  File must be uploaded
-							</h:panelGroup>
-	      
-	                       
-	                    </div>
-	                    <div class="modal-footer alignLeft">
-	                    	<p:commandLink 
-	                    		styleClass="btn btn-green"
-	                    		value="Save"
-	                    		action="#{activityEditBean.addUploadedFile()}"
-	                    		update=":#{cc.clientId}:formModalUploadFile:panelUploadFile :#{cc.clientId}:formMain:activityPanel:panelFiles :#{cc.clientId}:formMain:panelStatus"
-	                    		oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#uploadFile').modal('hide'); }">               
-	                    	</p:commandLink>
-	                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
-	                    </div>
-	                </h:panelGroup>
-	            </div>
-	        </div>
-	    </h:form>
-	    
-	    <h:form id="formModalAddUrl">
-	    	<div class="modal fade" id="addURL" tabindex="-1" role="dialog" aria-labelledby="addNewURL">
-	            <div class="modal-dialog" role="document">
-	                <h:panelGroup layout="block" id="panelAddUrlContent" styleClass="modal-content">
-	                    <div class="modal-header alignLeft">
-	                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-	                        <h2 class="modal-title" id="addNewURL">Add New URL</h2>
-	                    </div>
-	                    <div class="modal-body alignLeft">
-	                        <h:inputText id="inputUrlTitle"
-	                        	placeholder="URL title..."
-	                        	value="#{activityEditBean.resLinkToAdd.linkName}"
-	                        	required="true"
-	                        	requiredMessage="Url title must be entered">
-	                        </h:inputText>
-	                        <div id="loaderContainerUrlTitle"/>
-	                        <h:inputText id="inputUrl"
-	                        	placeholder="http://..."
-	                        	value="#{activityEditBean.resLinkToAdd.url}"
-	                        	required="true"
-	                        	requiredMessage="Url must be entered"
-	                        	validator="urlValidator">
-	                        </h:inputText>
-	                        <p:remoteCommand
-	                        	name="fetchPageTitle"
-	                        	process="@this"
-	                        	action="#{activityEditBean.fetchLinkTitle()}"
-	                        	onstart="showLoader('#loaderContainerUrlTitle');"
-		            			oncomplete="hideLoader('#loaderContainerUrlTitle');"
-	                        	update="inputUrlTitle">
-	                        </p:remoteCommand>
-	                        
-	                        <h:panelGroup 
-	                        	layout="block" 
-	                        	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formModalAddUrl:inputUrlTitle'))}" 
-	                        	styleClass="alert alert-warning" 
-	                        	pt:role="alert">
-	                            <h:message for="inputUrlTitle"></h:message>
-	                        </h:panelGroup>
-	                        <h:panelGroup 
-	                        	layout="block" 
-	                        	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formModalAddUrl:inputUrl'))}" 
-	                        	styleClass="alert alert-warning" 
-	                        	pt:role="alert">
-	                            <h:message for="inputUrl"></h:message>
-	                        </h:panelGroup>
-	                    </div>
-	                    <div class="modal-footer alignLeft">
-	                    	<p:commandLink 
-	                    		process="inputUrlTitle inputUrl"
-	                    		styleClass="btn btn-green"
-	                    		value="Save"
-	                    		action="#{activityEditBean.addLink()}"
-	                    		update=":#{cc.clientId}:formModalAddUrl:panelAddUrlContent :#{cc.clientId}:formMain:activityPanel:panelLinks :#{cc.clientId}:formMain:panelStatus"
-	                    		oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#addURL').modal('hide'); }">               
-	                    	</p:commandLink>
-	                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
-	                    </div>
-	                </h:panelGroup>
-	            </div>
-	        </div>
-	    </h:form>
-	    
-	    <courses:deleteModalDialog     
-	    			deleteActionMethodName="delete"     	
-	           		deleteAction="#{activityEditBean.delete}"
-	           		toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}" 
-	           		modalDeleteTitle="Activity"
-	           		modalDeleteText="activity"/>
-			
+			<script>
+				containerId = '#{cc.clientId}';
+			</script>
+			<h:form id="formMain">
+				<p:growl id="growlMain" globalOnly="true" showDetail="true"/>
+				<h:inputHidden id="hiddenType" value="#{activityEditBean.activityData.typeString}" />
+				<div class="container">
+			    	<ui:fragment rendered="#{not empty param['credId']}">
+			    		<ol class="breadcrumb">
+				            <li>
+				            	<h:link value="Credentials" outcome="credentialLibrary"/>
+				            </li>
+				            <li>
+				            	<h:link value="#{activityEditBean.credentialTitle}"
+				            		outcome="credential">
+				            		<f:param name="id" value="#{param['credId']}"></f:param>
+				            	</h:link>
+				            </li>
+				            <li>
+				            	<h:link 
+				            		value="#{activityEditBean.activityData.competenceName}"
+				            		outcome="competence">
+				            		<f:param name="compId" value="#{param['compId']}"></f:param>
+				            		<f:param name="credId" value="#{param['credId']}"></f:param>
+				            	</h:link>
+				            </li>
+				            <ui:fragment rendered="#{!activityEditBean.isCreateUseCase()}">
+				            	<li class="active">#{activityEditBean.activityData.title}</li>
+				            </ui:fragment>
+				            <ui:fragment rendered="#{activityEditBean.isCreateUseCase()}">
+				            	<li class="active">New Activity</li>
+				            </ui:fragment>
+				        </ol>
+			    	</ui:fragment>
+			        <ui:fragment rendered="#{empty param['credId']}">
+			    		<ol class="breadcrumb">	 
+			    			<li>
+				            	<a href="javascript:void(0);">Competences</a>
+				            </li> 
+			    			<li>
+				            	<h:link 
+				            		value="#{activityEditBean.activityData.competenceName}"
+				            		outcome="competence">
+				            		<f:param name="compId" value="#{param['compId']}"></f:param>
+				            	</h:link>
+				            </li>
+				            <ui:fragment rendered="#{!activityEditBean.isCreateUseCase()}">
+				            	<li class="active">#{activityEditBean.activityData.title}</li>
+				            </ui:fragment>
+				            <ui:fragment rendered="#{activityEditBean.isCreateUseCase()}">
+				            	<li class="active">New Activity</li>
+				            </ui:fragment>
+				        </ol>
+			    	</ui:fragment>
+			    </div>
+		
+			    <div class="container">
+			        <div class="row">
+			            <div class="col-md-8">
+			                <div class="tab-content">
+			                    <div role="tabpanel" class="tab-pane fade in active" id="info">
+			                        <div class="whiteBox">
+			                            <h2>Activity Info</h2>
+			                            <div class="formWrapper">
+			                                <div class="formLine">
+			                                    <label>Title</label>
+			                                    <div class="formLineRight">
+			                                    	<h:inputText 
+			                                    		id="inputTitle"
+			                                    		styleClass="pasteable"
+			                                    		value="#{activityEditBean.activityData.title}"
+			                                    		onkeyup="updateStatusToDraft();"
+			                                    		required="true"
+														requiredMessage="Title is required"/>
+													<h:panelGroup 
+							                        	layout="block" 
+							                        	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formMain:inputTitle'))}" 
+							                        	styleClass="alert alert-danger" 
+							                        	pt:role="alert">
+							                            <h:message for="inputTitle"></h:message>
+							                        </h:panelGroup>
+			                                    </div>
+			                                </div>
+			                                <div class="formLine">
+			                                    <label>Description</label>
+			                                    <div class="formLineRight">
+			                                    	<h:inputTextarea
+			                                    		styleClass="pasteable"
+			                                    		value="#{activityEditBean.activityData.description}"
+			                                    		onkeyup="updateStatusToDraft();">
+			                                    	</h:inputTextarea>
+			                                    </div>
+			                                </div>
+			                                <div class="formLine">
+			                                    <label>Activity type</label>
+			                                    <h:panelGroup 
+			                                    	layout="block" 
+			                                    	id="panelSelectActivity" 
+			                                    	styleClass="formLineRight"
+			                                    	rendered="#{activityEditBean.isCreateUseCaseOrFirstTimeDraft()}">
+			                                        <ul class="nav nav-tabs innerSubmenu" role="tablist">
+			                                        	<ui:repeat var="type" value="#{activityEditBean.activityTypes}">
+			                                        		<li role="presentation" class="#{activityEditBean.isActivityTypeSelected(type) ? 'active' : ''}">
+			                                        			<p:commandLink 
+			                           								value="#{type.label}"
+			                                        				pt:aria-controls="activities" 
+			                                        				pt:role="tab" 
+			                                        				pt:data-toggle="tab"
+			                                        				process="@this"
+			                                        				action="#{activityEditBean.updateType(type)}"
+			                                        				update=":#{cc.clientId}:formMain:panelSelectActivity :#{cc.clientId}:formMain:activityPanel :#{cc.clientId}:formMain:panelStatus"
+			                                        				oncomplete="bindPasteEventForUpdatingStatus();">
+			                                        			</p:commandLink>
+			                                        		</li>
+			                                        	</ui:repeat>   
+			                                        </ul>
+			                                    </h:panelGroup>
+			                                    <h:panelGroup 
+			                                    	layout="block" 
+			                                    	id="panelActivityType" 
+			                                    	styleClass="formLineRight"
+			                                    	rendered="#{!activityEditBean.isCreateUseCaseOrFirstTimeDraft()}">
+			                                         <ul class="addedItems">
+			                                             <li>
+			                                                 #{activityEditBean.activityData.activityType.label}
+			                                             </li>
+			                                         </ul>        
+			                                    </h:panelGroup>
+			                                </div>
+			                                
+			                                <courses:activityCreateComp
+			                                	id="activityPanel"
+			                                	activity="#{activityEditBean.activityData}"
+			                                	bean="#{activityEditBean}"
+			                                	uploadFileModalId="uploadFile"
+			                                	addLinkModalId="addURL"
+			                                	prepareAddingResLinkMethodName="prepareAddingResourceLink"
+			                                	prepareAddingResLinkMethod="#{activityEditBean.prepareAddingResourceLink}"
+			                                	toUpdate=":#{cc.clientId}:formMain:panelStatus"
+			                                	toUpdateModalUploadFile=":#{cc.clientId}:formModalUploadFile"
+			                                	toUpdateModalAddLink=":#{cc.clientId}:formModalAddUrl"
+			                                	mainForm=":#{cc.clientId}:formMain"
+			                                />
+			                            </div>
+			                        </div>
+			                    </div>
+			                </div>
+			            </div>
+			            <div class="col-md-4">
+			            	<div id="noteDraft" class="alert alert-warning alert-dismissible" role="alert" style="#{activityEditBean.activityData.published ? 'display:none' : ''}">
+			                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+			                    Your activity is now <strong>Draft</strong>. In order for changes to be available to others, change status to <strong>Published</strong>.
+			                </div>
+			                
+			                <div class="whiteBox publishBox">
+			                    <h2>Publish</h2>
+			                    <p:commandLink
+			                    	id="linkPreview"
+									value="Preview #{activityEditBean.activityData.status eq 'DRAFT' ? 'Draft' : ''}"
+									styleClass="linkPreview"
+									action="#{activityEditBean.preview()}"
+									update=":#{cc.clientId}:formMain"
+									oncomplete="if(args &amp;&amp; !args.validationFailed) {bindPasteEventForUpdatingStatus(); document.getElementsByClassName('hiddenLinkPreview')[0].click();}"/>
+								<h:link
+									style="display: none;"
+									styleClass="hiddenLinkPreview"
+									target="_blank"
+									outcome="activity">
+									<f:param name="compId" value="#{util:encodeId(activityEditBean.activityData.competenceId)}"></f:param>
+									<f:param name="actId" value="#{activityEditBean.id}"></f:param>
+									<f:param name="mode" value="preview"></f:param>
+								</h:link>
+			                    <div class="clear"></div>
+			                    <div class="estimatedTime">
+			                        <p>Estimated time to complete:</p>
+			                        <div class="selectRow">
+			                        	<h:selectOneMenu styleClass="selectpicker pickHours"
+			                        		value="#{activityEditBean.activityData.durationHours}"
+			                        		onchange="updateStatusToDraft();">
+			                        		<f:selectItem itemValue="0"/>
+			                        		<f:selectItem itemValue="1"/>
+			                        		<f:selectItem itemValue="2"/>
+			                        		<f:selectItem itemValue="3"/>
+			                        		<f:selectItem itemValue="4"/>
+			                        		<f:selectItem itemValue="5"/>
+			                        		<f:selectItem itemValue="6"/>
+			                        		<f:selectItem itemValue="7"/>
+			                        		<f:selectItem itemValue="8"/>
+			                        		<f:selectItem itemValue="9"/>
+			                        		<f:selectItem itemValue="10"/>
+			                        		<f:selectItem itemValue="11"/>
+			                        		<f:selectItem itemValue="12"/>
+			                        	</h:selectOneMenu>
+			                            <p>hours</p>
+			                            <h:selectOneMenu styleClass="selectpicker pickMinutes"
+			                        		value="#{activityEditBean.activityData.durationMinutes}"
+			                        		onchange="updateStatusToDraft();">
+			                        		<f:selectItem itemValue="0"/>
+			                        		<f:selectItem itemValue="5"/>
+			                        		<f:selectItem itemValue="10"/>
+			                        		<f:selectItem itemValue="15"/>
+			                        		<f:selectItem itemValue="20"/>
+			                        		<f:selectItem itemValue="25"/>
+			                        		<f:selectItem itemValue="30"/>
+			                        		<f:selectItem itemValue="35"/>
+			                        		<f:selectItem itemValue="40"/>
+			                        		<f:selectItem itemValue="45"/>
+			                        		<f:selectItem itemValue="50"/>
+			                        		<f:selectItem itemValue="55"/>
+			                        	</h:selectOneMenu>
+			                            <p>minutes</p>
+			                        </div>
+			                        <script>$('.selectpicker').selectpicker('refresh');</script>
+			                    </div>
+			                    <h:panelGroup id="panelStatus">
+				                    <h:selectOneMenu id="selectStatus"
+					                	styleClass="selectpicker"
+					               		value="#{activityEditBean.activityData.status}"
+					               		onchange="onStatusChange();">
+					               		<f:selectItems value="#{activityEditBean.actStatusArray}" var="status"
+				    						itemValue="#{status}" itemLabel="#{status.label}" />
+					                </h:selectOneMenu>
+					                <script>$('.selectpicker').selectpicker('refresh');</script>
+					            </h:panelGroup>
+			          
+			                    <div class="publishRow">
+			                    	<p:commandLink 
+					              	  	styleClass="btn btn-green"
+					              	  	onclick="$('.fieldsText textarea').val(tinyMCE.activeEditor.getContent());"
+					              	  	action="#{activityEditBean.save()}"
+					              	  	update=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}"
+					              	  	oncomplete="bindPasteEventForUpdatingStatus();">
+					              	  		Save changes
+					              	</p:commandLink>
+			                        <a href="#" class="linkRed" data-toggle="modal" data-target="#deleteModal">Delete</a>
+			                        
+			                    </div>
+			                </div>
+			            </div>
+			        </div>
+			    </div>
+			    <script>  
+		        	var type = null;
+		        	if('#{cc.attrs.role}' === "USER") {
+		        		type = "user_created";
+		        	} else {
+		        		type = "university_created";
+		        	}
+					document.getElementById('#{cc.clientId}:formMain:hiddenType').value = type;
+		        </script>
+		    </h:form>
+		    
+		    <h:form id="formModalUploadFile" enctype="multipart/form-data">
+		        <div class="modal fade" id="uploadFile" tabindex="-1" role="dialog" aria-labelledby="uploadNewFile">
+		            <div class="modal-dialog" role="document">
+		                <h:panelGroup layout="block" id="panelUploadFile" styleClass="modal-content">
+		                    <div class="modal-header alignLeft">
+		                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+		                        <h2 class="modal-title" id="uploadNewFile">Upload New File</h2>
+		                    </div>
+		                    
+		                    <div class="modal-body alignLeft">
+		                        <h:inputText id="inputFileTitle"
+		                        	placeholder="File title..."
+									value="#{activityEditBean.resLinkToAdd.linkName}">
+		                        </h:inputText>
+		                        
+		                        <div class="chooseFileBox">
+		                        	<utilcomp:simpleFileUpload
+		                        		id="simpleFileUpload"
+					            		fileUploadListenerMethodName="handleFileUpload"
+					            		fileUploadListenerMethod="#{activityEditBean.handleFileUpload}"
+					            		toUpdate=":#{cc.clientId}:formModalUploadFile:panelFileName"
+					            		uploadButtonStyle="btn btn-green btn-sm"
+		                        	/>
+		                            <h:panelGroup id="panelFileName">
+		                            	#{activityEditBean.resLinkToAdd.fetchedTitle}
+		                            </h:panelGroup>
+		                        </div>
+								
+								<h:panelGroup layout="block" rendered="#{activityEditBean.resLinkToAdd.linkNameInvalid}" styleClass="alert alert-warning">							
+									 File title must be entered
+								</h:panelGroup>
+								
+								<h:panelGroup layout="block" rendered="#{activityEditBean.resLinkToAdd.urlInvalid}" styleClass="alert alert-warning">
+									  File must be uploaded
+								</h:panelGroup>
+		                    </div>
+		                    
+		                    <div class="modal-footer alignLeft">
+		                    	<p:commandLink 
+		                    		styleClass="btn btn-green"
+		                    		value="Save"
+		                    		action="#{activityEditBean.addUploadedFile()}"
+		                    		update=":#{cc.clientId}:formModalUploadFile:panelUploadFile :#{cc.clientId}:formMain:activityPanel:panelFiles :#{cc.clientId}:formMain:panelStatus"
+		                    		oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#uploadFile').modal('hide'); }">               
+		                    	</p:commandLink>
+		                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+		                    </div>
+		                </h:panelGroup>
+		            </div>
+		        </div>
+		    </h:form>
+		    
+		    <h:form id="formModalAddUrl">
+		    	<div class="modal fade" id="addURL" tabindex="-1" role="dialog" aria-labelledby="addNewURL">
+		            <div class="modal-dialog" role="document">
+		                <h:panelGroup layout="block" id="panelAddUrlContent" styleClass="modal-content">
+		                    <div class="modal-header alignLeft">
+		                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+		                        <h2 class="modal-title" id="addNewURL">Add New URL</h2>
+		                    </div>
+		                    
+		                    <div class="modal-body alignLeft">
+		                        <h:inputText id="inputUrlTitle"
+		                        	placeholder="URL title..."
+		                        	value="#{activityEditBean.resLinkToAdd.linkName}"
+		                        	required="true"
+		                        	requiredMessage="Url title must be entered">
+		                        </h:inputText>
+		                        
+		                        <div id="loaderContainerUrlTitle"/>
+		                        
+		                        <h:inputText id="inputUrl"
+		                        	placeholder="http://..."
+		                        	value="#{activityEditBean.resLinkToAdd.url}"
+		                        	required="true"
+		                        	requiredMessage="Url must be entered"
+		                        	validator="urlValidator">
+		                        </h:inputText>
+		                        <p:remoteCommand
+		                        	name="fetchPageTitle"
+		                        	process="@this"
+		                        	action="#{activityEditBean.fetchLinkTitle()}"
+		                        	onstart="showLoader('#loaderContainerUrlTitle');"
+			            			oncomplete="hideLoader('#loaderContainerUrlTitle');"
+		                        	update="inputUrlTitle">
+		                        </p:remoteCommand>
+		                        
+		                        <h:panelGroup 
+		                        	layout="block" 
+		                        	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formModalAddUrl:inputUrlTitle'))}" 
+		                        	styleClass="alert alert-warning" 
+		                        	pt:role="alert">
+		                            <h:message for="inputUrlTitle"></h:message>
+		                        </h:panelGroup>
+		                        <h:panelGroup 
+		                        	layout="block" 
+		                        	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formModalAddUrl:inputUrl'))}" 
+		                        	styleClass="alert alert-warning" 
+		                        	pt:role="alert">
+		                            <h:message for="inputUrl"></h:message>
+		                        </h:panelGroup>
+		                    </div>
+		                    
+		                    <div class="modal-footer alignLeft">
+		                    	<p:commandLink 
+		                    		process="inputUrlTitle inputUrl"
+		                    		styleClass="btn btn-green"
+		                    		value="Save"
+		                    		action="#{activityEditBean.addLink()}"
+		                    		update=":#{cc.clientId}:formModalAddUrl:panelAddUrlContent :#{cc.clientId}:formMain:activityPanel:panelLinks :#{cc.clientId}:formMain:panelStatus"
+		                    		oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#addURL').modal('hide'); }">               
+		                    	</p:commandLink>
+		                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+		                    </div>
+		                </h:panelGroup>
+		            </div>
+		        </div>
+		    </h:form>
+		    
+		    <courses:deleteModalDialog     
+    			deleteActionMethodName="delete"     	
+           		deleteAction="#{activityEditBean.delete}"
+           		toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}" 
+           		modalDeleteTitle="Activity"
+           		modalDeleteText="activity"/>
 		</div>
 	</composite:implementation>
 </ui:component>

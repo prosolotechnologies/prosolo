@@ -50,9 +50,9 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				//.addRule(Join.path("/credentials/{id}").to("/course.xhtml"))
 				.addRule(Join.path("/credentials/{id}").to("/credential.xhtml"))
 				//TODO validate these competence patterns 
-				.addRule(Join.path("/credentials/{credId}/competences/new").to("/create-competence.xhtml"))
 				.addRule(Join.path("/competences/{id}/edit").to("/create-competence.xhtml"))
 				.addRule(Join.path("/competences/new").to("/create-competence.xhtml"))
+				.addRule(Join.path("/credentials/{credId}/competences/new").to("/create-competence.xhtml"))
 				.addRule(Join.path("/credentials/{credId}/{compId}").to("/competence.xhtml"))
 				.addRule(Join.path("/competences/{compId}").to("/competence.xhtml"))
 				.addRule(Join.path("/competences/{compId}/{id}/edit").to("/create-activity.xhtml"))
@@ -105,8 +105,8 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/manage/credentials/{id}/feeds").to("/manage/courseFeeds.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}/rss").to("/manage/credential-rss.xhtml"))
 				
-				.addRule(Join.path("/manage/credentials/{credId}/competences/new").to("/manage/create-competence.xhtml"))
 				.addRule(Join.path("/manage/competences/{id}/edit").to("/manage/create-competence.xhtml"))
+				.addRule(Join.path("/manage/credentials/{credId}/competences/new").to("/manage/create-competence.xhtml"))
 				.addRule(Join.path("/manage/competences/new").to("/manage/create-competence.xhtml"))
 				//.addRule(Join.path("/manage/competences/{compId}/activities").to("/manage/competence-activities.xhtml"))
 				//.addRule(Join.path("/manage/competences/{compId}").to("/manage/competence-overall.xhtml"))

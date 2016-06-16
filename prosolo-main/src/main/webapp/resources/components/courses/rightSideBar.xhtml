@@ -29,8 +29,8 @@
 		<div id="#{cc.clientId}" class="whiteBox publishBox">
 			<h2>Publish</h2>
 			
-			<p:commandLink
-				value="Preview"
+			<p:commandLink id="linkPreview"
+				value="Preview #{cc.attrs.publishValue eq 'DRAFT' ? 'Draft' : ''}"
 				styleClass="linkPreview"
 				action="#{cc.attrs.previewAction}"
 				update="#{cc.attrs.toUpdate}"
@@ -65,7 +65,8 @@
             </c:if>
 			<h:selectOneMenu 
 				id="selectStatus" styleClass="selectpicker" 
-				value="#{cc.attrs.publishValue}">
+				value="#{cc.attrs.publishValue}"
+				onchange="onStatusChange();">
 				<f:selectItems value="#{cc.attrs.publishValues}" var="status"
 					itemValue="#{status}" itemLabel="#{status.label}" />
 			</h:selectOneMenu>

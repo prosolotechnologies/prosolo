@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.ExternalContext;
@@ -60,29 +61,39 @@ public class CompetenceEditBean implements Serializable {
 	
 	private PublishedStatus[] compStatusArray;
 	
+	private String credTitle;
+	
 	public void init() {
-		initializeValues();
-		if(id == null) {
-			competenceData = new CompetenceData1(false);
-			if(credId != null) {
-				decodedCredId = idEncoder.decodeId(credId);
-				addToCredential = true;
-				String credTitle = credManager.getCredentialDraftOrOriginalTitle(decodedCredId);
-				CredentialData cd = new CredentialData(false);
-				cd.setId(decodedCredId);
-				cd.setTitle(credTitle);
-				competenceData.getCredentialsWithIncludedCompetence().add(cd);
-			}
-		} else {
-			try {
+		try {
+			initializeValues();
+			decodedCredId = idEncoder.decodeId(credId);
+			if(id == null) {
+				competenceData = new CompetenceData1(false);
+				if(decodedCredId > 0) {
+					addToCredential = true;
+				}
+			} else {
 				decodedId = idEncoder.decodeId(id);
 				logger.info("Editing competence with id " + decodedId);
 				loadCompetenceData(decodedId);
-			} catch(Exception e) {
-				logger.error(e);
-				competenceData = new CompetenceData1(false);
-				PageUtil.fireErrorMessage(e.getMessage());
 			}
+			if(decodedCredId > 0) {
+				Optional<CredentialData> res = competenceData.getCredentialsWithIncludedCompetence()
+						.stream().filter(cd -> cd.getId() == decodedCredId).findFirst();
+				if(res.isPresent()) {
+					credTitle = res.get().getTitle();
+				} else {
+					credTitle = credManager.getCredentialTitle(decodedCredId);
+					CredentialData cd = new CredentialData(false);
+					cd.setId(decodedCredId);
+					cd.setTitle(credTitle);
+					competenceData.getCredentialsWithIncludedCompetence().add(cd);
+				}
+			}
+		} catch(Exception e) {
+			logger.error(e);
+			competenceData = new CompetenceData1(false);
+			PageUtil.fireErrorMessage("Error while loading competence data");
 		}
 	}
 	
@@ -141,7 +152,7 @@ public class CompetenceEditBean implements Serializable {
 				String section = PageUtil.getSectionForView();
 				logger.info("SECTION " + section);
 				builder.append(extContext.getRequestContextPath() + section + "/competences/" + id + "/newActivity");
-
+				
 				if(credId != null && !credId.isEmpty()) {
 					builder.append("?credId=" + credId);
 				}
@@ -319,7 +330,11 @@ public class CompetenceEditBean implements Serializable {
 	}
 	 
 	public String getPageHeaderTitle() {
-		return competenceData.getCompetenceId() > 0 ? "Edit Competence" : "New Competence";
+		return competenceData.getCompetenceId() > 0 ? competenceData.getTitle() : "New Competence";
+	}
+	
+	public boolean isCreateUseCase() {
+		return competenceData.getCompetenceId() == 0;
 	}
 	
 	/*
@@ -388,6 +403,14 @@ public class CompetenceEditBean implements Serializable {
 
 	public void setActivityForRemovalIndex(int activityForRemovalIndex) {
 		this.activityForRemovalIndex = activityForRemovalIndex;
+	}
+
+	public String getCredTitle() {
+		return credTitle;
+	}
+
+	public void setCredTitle(String credTitle) {
+		this.credTitle = credTitle;
 	}
 
 }

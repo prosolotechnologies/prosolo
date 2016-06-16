@@ -47,7 +47,7 @@
 		                <div class="whiteBarLeft">
 		                	<ui:fragment rendered="#{cc.attrs.bean.competenceData.enrolled and 
 		                		cc.attrs.bean.competenceData.progress lt 100 and !isPreview}">
-		                		<h:link 
+		                		<h:link rendered="#{cc.attrs.bean.competenceNextToLearn}"
 		                			value="#{cc.attrs.bean.competenceData.progress != 0 ? 'Resume' : 'Start'}"
 		                			styleClass="btn btn-green btn-sm"
 		                			outcome="activity">
@@ -55,6 +55,15 @@
 					            	<f:param name="compId" value="#{param['compId']}"></f:param>
 					            	<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}"></f:param>
 		                		</h:link>
+		                		<ui:fragment rendered="#{!cc.attrs.bean.competenceNextToLearn}">
+			                		<a href="javascript:void(0);" 
+			                			class="btn btn-green btn-sm" 
+			                			disabled="disabled" 
+			                			data-toggle="tooltip" 
+			                			title="In order to start this competence, previous tasks need to be completed.">
+			                			#{cc.attrs.bean.competenceData.progress != 0 ? 'Resume' : 'Start'}
+			                		</a>
+		                		</ui:fragment>
 		                	
 			                    <div class="progressBar">
 			                        <span>#{cc.attrs.bean.competenceData.progress}%</span>
@@ -79,6 +88,7 @@
 		                    	styleClass="btn btn-green-stroke btn-sm item"
 		                    	outcome="create-competence">
 		                    	<f:param name="id" value="#{param['compId']}"></f:param>
+		                    	<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}"></f:param>
 		                    </h:link>
 		                </div>
 		            </div>

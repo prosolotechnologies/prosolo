@@ -342,7 +342,7 @@ public class ActivityEditBean implements Serializable {
 
 	 
 	public String getPageHeaderTitle() {
-		return activityData.getActivityId() > 0 ? "Edit Activity" : "New Activity";
+		return activityData.getActivityId() > 0 ? activityData.getTitle() : "New Activity";
 	}
 	
 	/*

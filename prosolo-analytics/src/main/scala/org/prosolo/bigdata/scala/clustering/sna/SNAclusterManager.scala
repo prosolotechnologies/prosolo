@@ -40,7 +40,7 @@ val edgesToRemove=2
    // val allCourses=clusteringDAOManager.getAllCoursesIds
     allCourses.foreach(courseid=> {
       println("RUNNING SNA FAKE CLUSTERING FOR COURSE:" + courseid)
-      identifyClustersInCourse(timestamp,courseid)
+      identifyClustersInCredential(timestamp,courseid)
       updateTimestamp(timestamp)
     })
   }
@@ -48,10 +48,11 @@ val edgesToRemove=2
 def identifyClusters(): Unit ={
   val timestamp=System.currentTimeMillis()
     val clusteringDAOManager=new ClusteringDAOImpl
-  val allCourses=clusteringDAOManager.getAllCoursesIds
-  allCourses.asScala.foreach(courseid=> {
-    println("RUNNING SNA CLUSTERING FOR COURSE:" + courseid+ " timestamp:"+timestamp)
-    identifyClustersInCourse(timestamp, courseid)
+ // val allCredentials=clusteringDAOManager.getAllCoursesIds
+  val allCredentials=clusteringDAOManager.getAllCredentialsIds
+  allCredentials.asScala.foreach(credentialid=> {
+    println("RUNNING SNA CLUSTERING FOR CREDENTIAL:" + credentialid+ " timestamp:"+timestamp)
+    identifyClustersInCredential(timestamp, credentialid)
     updateTimestamp(timestamp)
   })
 }
@@ -60,8 +61,9 @@ def identifyClusters(): Unit ={
     dbManager.updateCurrentTimestamp(TableNames.OUTSIDE_CLUSTER_INTERACTIONS,timestamp)
     dbManager.updateCurrentTimestamp(TableNames.STUDENT_CLUSTER,timestamp)
   }
-  def identifyClustersInCourse(timestamp:Long, courseId:Long): Unit ={
-    val socialInteractionsData=readCourseData(courseId)
+  def identifyClustersInCredential(timestamp:Long, credentialId:Long): Unit ={
+    println("identify clusters in credential:"+credentialId)
+    val socialInteractionsData=readCourseData(credentialId)
     val directedNetwork=new DirectedNetwork()
     socialInteractionsData.foreach {
       row =>
@@ -76,7 +78,7 @@ def identifyClusters(): Unit ={
         directedNetwork.calculateEdgeBetweennessClustering(directedNetwork.getLinks().size)
       }else directedNetwork.calculateEdgeBetweennessClustering(edgesToRemove)
       //val finalUserNodes:ArrayBuffer[UserNode]=directedNetwork.calculateEdgeBetweennessClustering(edgesToRemove)
-      storeUserNodesClustersForCourse(timestamp, courseId,finalUserNodes, directedNetwork.getLinks())
+      storeUserNodesClustersForCourse(timestamp, credentialId,finalUserNodes, directedNetwork.getLinks())
     }
 
   }

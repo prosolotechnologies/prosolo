@@ -10,4 +10,5 @@ import java.util.List;
 public interface ClusteringDAO {
     @SuppressWarnings({ "unchecked" })
     List<Long> getAllCoursesIds();
+    List<Long> getAllCredentialsIds();
 }

@@ -183,7 +183,7 @@ public class SocialInteractionStatisticsService {
 	@Path("/cluster")
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getClusterInteractions(@QueryParam("courseId") Long courseId, @QueryParam("studentId") Long studentId) {
-		logger.debug("Service 'getClusterInteractions' called.");
+		logger.debug("Service 'getClusterInteractions' called:courseId:"+courseId+" student:"+studentId);
 		return ResponseUtils.corsOk(dbManager.getClusterInteractions(courseId, studentId));
 		// return ResponseUtils.corsOk(randomClusterInteractions(courseId, studentId));
 	}

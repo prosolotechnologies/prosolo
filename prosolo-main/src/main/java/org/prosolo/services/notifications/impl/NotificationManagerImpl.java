@@ -360,18 +360,21 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 			List<Notification1> result = q.list();
 		  	
 			List<NotificationData> notificationData = new LinkedList<>();
-		  	if (result != null) {
-		  		for(Notification1 notification : result) {
-		  			String objectTitle = null;
-		  			if(notification.getObjectId() > 0) {
-			  			objectTitle = getObjectTitle(notification.getObjectId(), 
-			  					notification.getObjectType(), persistence.currentManager());
-		  			}
-		  			NotificationData nd = notificationDataFactory.getNotificationData(notification, null,
-		  					objectTitle, locale);
-		  			notificationData.add(nd);
-		  		}
-		  	}
+			if (result != null) {
+				for (Notification1 notification : result) {
+					String objectTitle = null;
+					if (notification.getObjectId() > 0) {
+						objectTitle = getObjectTitle(notification.getObjectId(),
+								notification.getObjectType(), persistence.currentManager());
+					}
+					NotificationData nd = notificationDataFactory.getNotificationData(
+							notification, 
+							null,
+							objectTitle, 
+							locale);
+					notificationData.add(nd);
+				}
+			}
 		  	return notificationData;
 		} catch(Exception e) {
 			logger.error(e);

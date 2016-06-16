@@ -112,5 +112,12 @@ function removeCssClassesFromElement(elementId, cssClasses) {
 	}
 };
 
+function addClassToElement(elementId, cssClass) {
+	if(elementId) {
+		var element = $('#' + elementId);
+		element.addClass(cssClass);
+	}
+};
+
 
 

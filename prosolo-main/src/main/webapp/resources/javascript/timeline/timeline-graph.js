@@ -228,20 +228,20 @@ var timelineGraph = (function () {
 			.text(function(d){return d.milestones[0].description})
 			.call(wrap)
 		  //create link text
-		  singleTooltipGroup.append("a")
-		     .attr("xlink:href", function (d) { return d.milestones[0].link; })
-		  singleTooltipGroup.selectAll("a").append("text")
-		  		 .attr("class", "timeline-link")
-		  		 .text(function (d) { return d.milestones[0].linkText; })
-		  		 .attr("y", function(d){return (tooltipMainRectHeight + tooltipTitleRectHeight - 5)})
-		         .attr("x", function(d){return x(d.date) + tooltipWidth/4 - 5})
-		  singleTooltipGroup.selectAll("a").append("rect")
-		         .attr("class", "timeline-link-rect")
-		         .attr("y", function(d){return (tooltipMainRectHeight + tooltipTitleRectHeight - 15)})
-		         .attr("x", function(d){return x(d.date) + tooltipWidth/4 - 5})
-		         .attr("width", function(d){return d.milestones[0].link.length})
-		         .attr("height", 12)
-		         .style("fill-opacity", 0);
+//		  singleTooltipGroup.append("a")
+//		     .attr("xlink:href", function (d) { return d.milestones[0].link; })
+//		  singleTooltipGroup.selectAll("a").append("text")
+//		  		 .attr("class", "timeline-link")
+//		  		 .text(function (d) { return d.milestones[0].linkText; })
+//		  		 .attr("y", function(d){return (tooltipMainRectHeight + tooltipTitleRectHeight - 5)})
+//		         .attr("x", function(d){return x(d.date) + tooltipWidth/4 - 5})
+//		  singleTooltipGroup.selectAll("a").append("rect")
+//		         .attr("class", "timeline-link-rect")
+//		         .attr("y", function(d){return (tooltipMainRectHeight + tooltipTitleRectHeight - 15)})
+//		         .attr("x", function(d){return x(d.date) + tooltipWidth/4 - 5})
+//		         .attr("width", function(d){return d.milestones[0].link.length})
+//		         .attr("height", 12)
+//		         .style("fill-opacity", 0);
 			
 		  lineGroup.selectAll("line")
 		    .data(data.filter(function(d) { 
@@ -404,7 +404,7 @@ var timelineGraph = (function () {
 			});
 			//show tooltips, given a array of "active" events
 			$.each(events, function( index, value ) {
-					 $("line[event-type="+value+"], g[event-type="+value+"]").fadeIn("fast")
+					 $("line[event-type="+value+"], g[event-type="+value+"], circle[event-type="+value+"]").fadeIn("fast")
 				});
 				
 		}

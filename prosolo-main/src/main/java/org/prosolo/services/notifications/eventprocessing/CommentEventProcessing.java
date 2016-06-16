@@ -68,7 +68,6 @@ public class CommentEventProcessing extends NotificationEventProcessor {
 				users.add(resCreatorId);
 			}
 		} catch(Exception e) {
-			e.printStackTrace();
 			logger.error(e);
 			return null;
 		}

@@ -29,7 +29,8 @@
 	</ui:define>
 
     <ui:define name="resourceTitle">
-    	<h1>#{activityViewBeanManager.competenceData.activityToShowWithDetails.title} #{activityViewBeanManager.getLabelForActivity()}</h1>
+    	<h1>#{activityViewBeanManager.competenceData.activityToShowWithDetails.title} 
+    		<span>#{activityViewBeanManager.getLabelForActivity()}</span></h1>
     </ui:define>
     
 	<ui:define name="content">

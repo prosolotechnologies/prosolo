@@ -34,16 +34,16 @@ object UserProfileClusteringManager {
   def runClustering()={
     println("INITIALIZE USER PROFILE CLUSTERING ")
     val sc=SparkContextLoader.getSC
-    val coursesIds=clusteringDAOManager.getAllCoursesIds
-    val coursesIdsScala:Seq[java.lang.Long]=coursesIds.asScala.toSeq
-    val coursesRDD:RDD[Long]=sc.parallelize(coursesIdsScala.map { Long2long})
-    coursesRDD.foreachPartition {
-      courses => {
-        courses.foreach { courseid => {
-          println("RUNNING USER PROFILE CLUSTERING FOR COURSE:" + courseid)
+    val credentialsIds=clusteringDAOManager.getAllCredentialsIds
+    val credentialsIdsScala:Seq[java.lang.Long]=credentialsIds.asScala.toSeq
+    val credentialsRDD:RDD[Long]=sc.parallelize(credentialsIdsScala.map { Long2long})
+    credentialsRDD.foreachPartition {
+      credentials => {
+        credentials.foreach { credentialid => {
+          println("RUNNING USER PROFILE CLUSTERING FOR CREDENTIAL:" + credentialid)
          // println("TEMPORARY DISABLED")
-          runPeriodicalKMeansClustering(startDate, endDate, courseid)
-          runPeriodicalHmmClustering(startDate, endDate, courseid)
+          runPeriodicalKMeansClustering(startDate, endDate, credentialid)
+          runPeriodicalHmmClustering(startDate, endDate, credentialid)
         }
         }
       }
@@ -64,12 +64,12 @@ object UserProfileClusteringManager {
     * @param startDate
     * @param endDate
     */
-  def runPeriodicalKMeansClustering(startDate:Date, endDate:Date, courseId:Long): Unit ={
-    println("RUN PERIODICAL KMeans Clustering for course:"+courseId+" between dates:"+startDate.toString+" and "+endDate.toString)
+  def runPeriodicalKMeansClustering(startDate:Date, endDate:Date, credentialId:Long): Unit ={
+    println("RUN PERIODICAL KMeans Clustering for course:"+credentialId+" between dates:"+startDate.toString+" and "+endDate.toString)
     var tempDate=startDate
      val usersClustering:UsersClustering=new UsersClustering()
     while(endDate.compareTo(tempDate)>0){
-      usersClustering.performKMeansClusteringForPeriod(tempDate,addDaysToDate(tempDate,periodToCalculate), courseId)
+      usersClustering.performKMeansClusteringForPeriod(tempDate,addDaysToDate(tempDate,periodToCalculate), credentialId)
       tempDate=addDaysToDate(tempDate, periodToCalculate+1)
     }
   }
@@ -79,11 +79,11 @@ object UserProfileClusteringManager {
     * @param startDate
     * @param endDate
     */
-  def runPeriodicalHmmClustering(startDate:Date, endDate:Date, courseId:Long): Unit ={
+  def runPeriodicalHmmClustering(startDate:Date, endDate:Date, credentialId:Long): Unit ={
     var tempDate=startDate
     val hmmClustering:HmmClustering=new HmmClustering()
     while(endDate.compareTo(tempDate)>0){
-      hmmClustering.performHmmClusteringForPeriod(tempDate,addDaysToDate(tempDate,periodToCalculate), courseId)
+      hmmClustering.performHmmClusteringForPeriod(tempDate,addDaysToDate(tempDate,periodToCalculate), credentialId)
       tempDate=addDaysToDate(tempDate, periodToCalculate+1)
 
     }

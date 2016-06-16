@@ -13,6 +13,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ResourceCreator;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
@@ -43,6 +44,8 @@ public class CompetenceViewBeanUser implements Serializable {
 	private String mode;
 	
 	private CompetenceData1 competenceData;
+
+	private long nextCompToLearn;
 
 	public void init() {	
 		decodedCompId = idEncoder.decodeId(compId);
@@ -79,8 +82,15 @@ public class CompetenceViewBeanUser implements Serializable {
 					if(decodedCredId > 0) {
 						String credTitle = null;
 						if(competenceData.isEnrolled()) {
-							credTitle = credManager.getTargetCredentialTitle(decodedCredId,
-									loggedUser.getUser().getId());
+							CredentialData cd = credManager
+									.getTargetCredentialTitleAndNextCompToLearn(decodedCredId, 
+											loggedUser.getUser().getId());
+							if(cd != null) {
+								credTitle = cd.getTitle();
+								nextCompToLearn = cd.getNextCompetenceToLearnId();
+							}
+//							credTitle = credManager.getTargetCredentialTitle(decodedCredId,
+//									loggedUser.getUser().getId());
 						} else {
 							credTitle = credManager.getCredentialTitle(decodedCredId);
 						}
@@ -100,6 +110,10 @@ public class CompetenceViewBeanUser implements Serializable {
 				logger.error(ioe);
 			}
 		}
+	}
+	
+	public boolean isCompetenceNextToLearn() {
+		return decodedCompId == nextCompToLearn;
 	}
 	
 	public boolean isCurrentUserCreator() {

@@ -1225,17 +1225,24 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throws DbConnectionException {
 		try {
 			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, compId);
-			String query = "SELECT coalesce(originalCred.id, cred.id), coalesce(originalCred.title, cred.title) " +
-					       "FROM CredentialCompetence1 credComp " +
-					       "INNER JOIN credComp.credential cred " +
-					       "LEFT JOIN cred.originalVersion originalCred " +
-					       "WHERE credComp.competence = :comp " +
-					       "AND cred.hasDraft = :boolFalse " +
-					       "AND cred.deleted = :boolFalse";
+//			String query = "SELECT coalesce(originalCred.id, cred.id), coalesce(originalCred.title, cred.title) " +
+//					       "FROM CredentialCompetence1 credComp " +
+//					       "INNER JOIN credComp.credential cred " +
+//					       "LEFT JOIN cred.originalVersion originalCred " +
+//					       "WHERE credComp.competence = :comp " +
+//					       "AND cred.hasDraft = :boolFalse " +
+//					       "AND cred.deleted = :boolFalse";
+			String query = "SELECT cred.id, cred.title " +
+				       "FROM CredentialCompetence1 credComp " +
+				       "INNER JOIN credComp.credential cred " +
+				       		"WITH (cred.published = :boolTrue OR cred.hasDraft = :boolTrue) AND cred.draft = :boolFalse " +
+				       "WHERE credComp.competence = :comp " +
+				       "AND cred.deleted = :boolFalse";
 			@SuppressWarnings("unchecked")
 			List<Object[]> res = persistence.currentManager()
 					.createQuery(query)
 					.setEntity("comp", comp)
+					.setBoolean("boolTrue", true)
 					.setBoolean("boolFalse", false)
 					.list();
 			if(res == null) {
@@ -2442,6 +2449,39 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving credentials");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public CredentialData getTargetCredentialTitleAndNextCompToLearn(long credId, long userId) 
+			throws DbConnectionException {
+		try {
+			String query = "SELECT cred.title, cred.nextCompetenceToLearnId " +
+						   "FROM TargetCredential1 cred " +
+						   "WHERE cred.user.id = :userId " +
+						   "AND cred.credential.id = :credId";
+			
+			Object[] res = (Object[]) persistence.currentManager()
+				.createQuery(query)
+				.setLong("userId", userId)
+				.setLong("credId", credId)
+				.uniqueResult();
+			
+			if(res != null) {
+				String title = (String) res[0];
+				long nextComp = (long) res[1];
+				
+				CredentialData cd = new CredentialData(false);
+				cd.setTitle(title);
+				cd.setNextCompetenceToLearnId(nextComp);
+				return cd;
+			}
+			return null;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credential data");
 		}
 	}
 }

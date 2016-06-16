@@ -23,8 +23,45 @@
 		<script src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
 		<script src="#{request.contextPath}/resources/javascript2/createCompetence.js"></script>
 	   
+	    
 	    <div class="whiteBar">
 	
+	    </div>
+	    
+	    <div class="container">
+	    	<ui:fragment rendered="#{not empty param['credId']}">
+	    		<ol class="breadcrumb">
+		            <li>
+		            	<h:link value="Credentials" outcome="credentialLibrary"/>
+		            </li>
+		            <li>
+		            	<h:link 
+		            		value="#{competenceEditBean.credTitle}"
+		            		outcome="credential">
+		            		<f:param name="id" value="#{param['credId']}"></f:param>
+		            	</h:link>
+		            </li>
+		            <ui:fragment rendered="#{!competenceEditBean.isCreateUseCase()}">
+		            	<li class="active">#{competenceEditBean.competenceData.title}</li>
+		            </ui:fragment>
+		            <ui:fragment rendered="#{competenceEditBean.isCreateUseCase()}">
+		            	<li class="active">New Competence</li>
+		            </ui:fragment>
+		        </ol>
+	    	</ui:fragment>
+	        <ui:fragment rendered="#{empty param['credId']}">
+	    		<ol class="breadcrumb">	 
+	    			<li>
+		            	<a href="javascript:void(0);">Competences</a>
+		            </li> 
+	    			<ui:fragment rendered="#{!competenceEditBean.isCreateUseCase()}">
+		            	<li class="active">#{competenceEditBean.competenceData.title}</li>
+		            </ui:fragment>
+		            <ui:fragment rendered="#{competenceEditBean.isCreateUseCase()}">
+		            	<li class="active">New Competence</li>
+		            </ui:fragment>
+		        </ol>
+	    	</ui:fragment>
 	    </div>
 	    
 	    <div id="#{cc.clientId}">
@@ -60,11 +97,9 @@
 			                                        				outcome="credential.xhtml">
 			                                        				<f:param name="id" value="#{util:encodeId(cred.id)}" />
 			                                        			</h:link>
-				                                                <a href="#" class="removeX" data-toggle="tooltip" title="Remove">remove</a>
 				                                            </li>
 			                                        	</ui:repeat>                                     
 			                                        </ul>
-			                                        <input type="text" placeholder="Assign to credential..."></input>
 			                                    </div>
 			                                </div>
 			                                <div class="formLine">
@@ -121,6 +156,7 @@
 			                    		showMarkedIfCompleted="false"
 			                    		isPreview="false"
 			                    		encodedCompetenceId="#{param['id']}"
+			                    		encodedCredentialId="#{param['credId']}"
 			                    		toUpdate=":#{cc.clientId}:formMain:compSideBar"
 			                    		mainForm=":#{cc.clientId}:formMain"/>
 			                    		
@@ -129,6 +165,12 @@
 			                </div>
 			            </div>
 			            <div class="col-md-4">
+			            
+			            	<div id="noteDraft" class="alert alert-warning alert-dismissible" role="alert" style="#{competenceEditBean.competenceData.published ? 'display:none' : ''}">
+			                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+			                    Your competence is now <strong>Draft</strong>. In order for changes to be available to others, change status to <strong>Published</strong>.
+			                </div>
+			                
 			            	<courses:rightSideBar
 			            		id="compSideBar"
 			            		chooseOptionText="Allow students to add activities"

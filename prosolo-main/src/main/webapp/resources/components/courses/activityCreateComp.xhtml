@@ -23,6 +23,18 @@
 	</composite:interface>
 	
 	<composite:implementation>
+		<script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
+		<script>
+		tinymce.init({
+			theme: "modern",
+		    skin: 'light',
+			selector:'.fieldsText textarea',
+			menubar:false,
+		    statusbar: false,
+		    toolbar: 'undo redo | bold italic | link image | alignleft aligncenter alignright alignfull | bullist numlist |  outdent indent'
+		});
+		</script>
+	
 		<div id="#{cc.clientId}">
 		<!-- video activity start -->
 	    <h:panelGroup layout="block" rendered="#{cc.attrs.activity.activityType == 'VIDEO'}" styleClass="fieldsVideo">
@@ -56,17 +68,14 @@
               	  <h:inputTextarea 
               	  	id="inputTextActText"
               	  	value="#{cc.attrs.activity.text}"
-              	  	styleClass="textareaBig pasteable"
-              	  	onkeyup="updateStatusToDraft();"
-              	  	required="true"
-					requiredMessage="Text is required"/>
-			   <h:panelGroup 
-                   	layout="block" 
-                   	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputTextActText'))}" 
-                   	styleClass="alert alert-danger" 
-                   	pt:role="alert">
-                       <h:message for="inputTextActText"></h:message>
-               </h:panelGroup>
+              	  	styleClass="textareaBig pasteable"/>
+				   <h:panelGroup 
+	                   	layout="block" 
+	                   	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputTextActText'))}" 
+	                   	styleClass="alert alert-danger" 
+	                   	pt:role="alert">
+	                       <h:message for="inputTextActText"></h:message>
+	               </h:panelGroup>
               </div>
           </div>
      	</h:panelGroup>

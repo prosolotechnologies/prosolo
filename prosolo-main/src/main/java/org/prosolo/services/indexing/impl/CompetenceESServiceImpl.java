@@ -50,6 +50,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			}
 			builder.endArray();
 			builder.field("type", comp.getType());
+			builder.field("creatorId", comp.getCreatedBy().getId());
 		
 			builder.endObject();
 			System.out.println("JSON: " + builder.prettyPrint().string());
