@@ -2,9 +2,11 @@ package org.prosolo.web.manage.students;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.model.SelectItem;
@@ -83,10 +85,12 @@ public class ObservationBean implements Serializable {
 	}
 	
 	public void loadObservationHistory() {
-		List<Observation> observations = observationManager.getObservations(studentId);
-		observationHistory = new ArrayList<>();
-		for(Observation ob:observations){
-			observationHistory.add(new ObservationData(ob));
+		if(observationHistory == null) {
+			List<Observation> observations = observationManager.getObservations(studentId);
+			observationHistory = new ArrayList<>();
+			for(Observation ob:observations){
+				observationHistory.add(new ObservationData(ob));
+			}
 		}
 	}
 	
@@ -97,9 +101,9 @@ public class ObservationBean implements Serializable {
 	public void saveObservation() {
 		try {
 			long creatorId = loggedUserBean.getUser().getId();
-			
+			Date date = isNew ? new Date() : editObservation.getEditObservation().getDateCreated();
 			Map<String, Object> result = observationManager.saveObservation(editObservation.getEditObservation().getId(),
-					editObservation.getEditObservation().getMessage(), editObservation.getEditObservation().getNote(),
+					date, editObservation.getEditObservation().getMessage(), editObservation.getEditObservation().getNote(),
 					editObservation.getSelectedSymptoms(), editObservation.getSelectedSuggestions(), creatorId,
 					studentId);
 			
@@ -132,6 +136,22 @@ public class ObservationBean implements Serializable {
 			Observation observation = observationManager.getLastObservationForUser(studentId);
 			if (observation != null) {
 				lastObservation = new ObservationData(observation);
+				if(observationHistory != null) {
+					if(isNew) {
+						observationHistory.add(0, lastObservation);
+					} else {
+						Optional<ObservationData> obsData = observationHistory.stream().filter(obs -> 
+							obs.getId() == lastObservation.getId())
+							.findFirst();
+						if(obsData.isPresent()) {
+							ObservationData obs = obsData.get();
+							obs.setNote(lastObservation.getNote());
+							obs.removeCurrentAndAddSymptomsFromList(lastObservation.getSymptoms());
+							obs.removeCurrentAndAddSuggestionsFromList(lastObservation.getSuggestions());
+						}
+						
+					}
+				}
 			}
 			
 			PageUtil.fireSuccessfulInfoMessage("Observation saved");

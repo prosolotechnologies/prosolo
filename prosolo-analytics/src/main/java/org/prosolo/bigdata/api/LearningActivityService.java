@@ -45,7 +45,7 @@ public class LearningActivityService {
 			learningEventsData.get(i).setValue(eventValues[i % eventValues.length]);
 		}
 		setMilestone(5, learningEventsData, MilestoneType.Credentials, "course.enroll", "SRL.Planning.GoalSetting", 
-				"Enrolling a credential","Enroll course");
+				"Enrolling a credential","Enroll credential");
 		setMilestone(10, learningEventsData, MilestoneType.Competences, "learn.competence.complete", "SRL.Evaluation.Reflection.Evaluation", 
 				"Marking a competence as completed","Competence completed");
 		setMilestone(17, learningEventsData, MilestoneType.Activities, "learn.activity.complete", "SRL.Engagement.WorkingOnTheTask", 

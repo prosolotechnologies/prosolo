@@ -9,151 +9,107 @@
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 
 	<div role="tabpanel" class="tab-pane fade" id="observationsTab">
-            <div class="whiteBox observationsList">
-                <div class="observationLine">
+		<h:form id="formLoadObservationHistory">
+			<p:remoteCommand 
+				name="loadObservationHistory"
+				process="@this"
+				action="#{observationBean.loadObservationHistory()}"
+				update=":panelObsHistory">
+			</p:remoteCommand>
+		</h:form>
+            <h:panelGroup id="panelObsHistory" layout="block" styleClass="whiteBox observationsList">
+            	<ui:repeat var="obs"
+					value="#{observationBean.observationHistory}">
+					<div class="observationLine">
                     <div class="innerWrapper">
                         <div class="user32">
-                            On Jun 10, 2016 by:&#160;&#160;&#160;
+                            On #{obs.formattedDate} by:&#160;&#160;&#160;
                             <a href="#">
-                            	<utilcomp:userAvatar
-									avatar="#{studentProfileBean.student.avatar}"
-									fullName="#{studentProfileBean.student.name}"	
-								/> 
+                              	<utilcomp:userAvatar
+									avatar="#{obs.createdBy.avatar}"
+									fullName="#{obs.createdBy.name}"	
+						    	/> 
                             </a>
-                            <h3><a href="#">Walter White</a></h3>
+                            <h3><a href="#">#{obs.createdBy.name}</a></h3>
                         </div>
                         <div class="clear"></div>
                         <div class="obsBlocks">
                             <h3>Symptoms</h3>
                             <ul class="symptoms">
-                                <li>Lacks social interaction</li>
-                                <li>No assessments</li>
-                                <li>Lacks social interaction</li>
+                                <ui:repeat var="symptom"
+									value="#{obs.symptoms}">
+									<li>#{symptom.description}</li>
+							    </ui:repeat>
                             </ul>
                         </div>
                         <div class="obsBlocks">
                             <h3>Suggestions</h3>
                             <ul class="suggestions">
-                                <li>Work with others</li>
-                                <li>Use assessment feature</li>
+                                <ui:repeat var="suggestion"
+									value="#{obs.suggestions}">
+									<li>#{suggestion.description}</li>
+							    </ui:repeat>
                             </ul>
                         </div>
                         <div class="obsBlocks">
-                            <a href="#" data-toggle="modal" data-target="#viewMessage01">View Message</a>
-                            <div class="modal fade" id="viewMessage01" tabindex="-1" role="dialog" aria-labelledby="viewMess01">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header alignLeft">
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-                                            <h2 class="modal-title" id="viewMess01">Message</h2>
-                                        </div>
-                                        <div class="modal-body alignLeft">
-                                            <p>
-                                                Morbi maximus eleifend mauris nec iaculis. Sed luctus eget tellus a pretium. In in feugiat urna, non viverra nibh. In pellentesque nisi sit amet massa consequat, sit amet viverra enim pulvinar. Duis volutpat felis metus, et varius erat fringilla varius. Praesent placerat dapibus ultrices.
-                                            </p>
-                                        </div>
-                                        <div class="modal-footer alignLeft">
-                                            <a href="#" class="btn btn-default" data-dismiss="modal">Close</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <ui:fragment
+								rendered="#{empty obs.message}">
+								<span>No message</span>
+							</ui:fragment>
+							<ui:fragment
+								rendered="#{not empty obs.message}">
+	                            <a href="#" data-toggle="modal" data-target="#viewMessage01">View Message</a>
+	                            <div class="modal fade" id="viewMessage01" tabindex="-1" role="dialog" aria-labelledby="viewMess01">
+	                                <div class="modal-dialog" role="document">
+	                                    <div class="modal-content">
+	                                        <div class="modal-header alignLeft">
+	                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+	                                            <h2 class="modal-title" id="viewMess01">Message</h2>
+	                                        </div>
+	                                        <div class="modal-body alignLeft">
+	                                            <p>
+	                                               #{obs.message}
+	                                            </p>
+	                                        </div>
+	                                        <div class="modal-footer alignLeft">
+	                                            <a href="#" class="btn btn-default" data-dismiss="modal">Close</a>
+	                                        </div>
+	                                    </div>
+	                                </div>
+	                            </div>
+	                        </ui:fragment>
                             <span class="bullet"></span>
-                            <a href="#" data-toggle="modal" data-target="#viewNote01">View Note</a>
-                            <div class="modal fade" id="viewNote01" tabindex="-1" role="dialog" aria-labelledby="viewNot01">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header alignLeft">
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-                                            <h2 class="modal-title" id="viewNot01">Note</h2>
-                                        </div>
-                                        <div class="modal-body alignLeft">
-                                            <p>
-                                                Morbi maximus eleifend mauris nec iaculis. Sed luctus eget tellus a pretium. In in feugiat urna, non viverra nibh. In pellentesque nisi sit amet massa consequat, sit amet viverra enim pulvinar. Duis volutpat felis metus, et varius erat fringilla varius. Praesent placerat dapibus ultrices.
-                                            </p>
-                                        </div>
-                                        <div class="modal-footer alignLeft">
-                                            <a href="#" class="btn btn-default" data-dismiss="modal">Close</a>
+                            <ui:fragment
+								rendered="#{empty obs.note}">
+                           		<span>No note</span>
+                            </ui:fragment>
+                            <ui:fragment
+								rendered="#{not empty obs.note}">
+						 		<a href="#" data-toggle="modal" data-target="#viewNote01">View Note</a>
+                                <div class="modal fade" id="viewNote01" tabindex="-1" role="dialog" aria-labelledby="viewNot01">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header alignLeft">
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                                                <h2 class="modal-title" id="viewNot01">Note</h2>
+                                            </div>
+                                            <div class="modal-body alignLeft">
+                                                <p>
+                                                   #{obs.note}
+                                                </p>
+                                            </div>
+                                            <div class="modal-footer alignLeft">
+                                                <a href="#" class="btn btn-default" data-dismiss="modal">Close</a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+							</ui:fragment>
                         </div>
                         <div class="clear"></div>
                     </div>
                 </div>
-                <div class="observationLine">
-                    <div class="innerWrapper">
-                        <div class="user32">
-                            On Jun 10, 2016 by:&#160;&#160;&#160;
-                            <a href="#">
-                            	<utilcomp:userAvatar
-									avatar="#{studentProfileBean.student.avatar}"
-									fullName="#{studentProfileBean.student.name}"	
- 							    /> 
-                            </a>
-                            <h3><a href="#">Walter White</a></h3>
-                        </div>
-                        <div class="clear"></div>
-                        <div class="obsBlocks">
-                            <h3>Symptoms</h3>
-                            <ul class="symptoms">
-                                <li>Lacks social interaction</li>
-                                <li>No assessments</li>
-                                <li>Lacks social interaction</li>
-                            </ul>
-                        </div>
-                        <div class="obsBlocks">
-                            <h3>Suggestions</h3>
-                            <ul class="suggestions">
-                                <li>Work with others</li>
-                                <li>Use assessment feature</li>
-                            </ul>
-                        </div>
-                        <div class="obsBlocks">
-                            <a href="#" data-toggle="modal" data-target="#viewMessage02">View Message</a>
-                            <div class="modal fade" id="viewMessage02" tabindex="-1" role="dialog" aria-labelledby="viewMess02">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header alignLeft">
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-                                            <h2 class="modal-title" id="viewMess02">Message</h2>
-                                        </div>
-                                        <div class="modal-body alignLeft">
-                                            <p>
-                                                Morbi maximus eleifend mauris nec iaculis. Sed luctus eget tellus a pretium. In in feugiat urna, non viverra nibh. In pellentesque nisi sit amet massa consequat, sit amet viverra enim pulvinar. Duis volutpat felis metus, et varius erat fringilla varius. Praesent placerat dapibus ultrices.
-                                            </p>
-                                        </div>
-                                        <div class="modal-footer alignLeft">
-                                            <a href="#" class="btn btn-default" data-dismiss="modal">Close</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <span class="bullet"></span>
-                            <a href="#" data-toggle="modal" data-target="#viewNote02">View Note</a>
-                            <div class="modal fade" id="viewNote02" tabindex="-1" role="dialog" aria-labelledby="viewNot02">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header alignLeft">
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-                                            <h2 class="modal-title" id="viewNot02">Note</h2>
-                                        </div>
-                                        <div class="modal-body alignLeft">
-                                            <p>
-                                                Morbi maximus eleifend mauris nec iaculis. Sed luctus eget tellus a pretium. In in feugiat urna, non viverra nibh. In pellentesque nisi sit amet massa consequat, sit amet viverra enim pulvinar. Duis volutpat felis metus, et varius erat fringilla varius. Praesent placerat dapibus ultrices.
-                                            </p>
-                                        </div>
-                                        <div class="modal-footer alignLeft">
-                                            <a href="#" class="btn btn-default" data-dismiss="modal">Close</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="clear"></div>
-                    </div>
-                </div>
-            </div>
+				</ui:repeat>
+            </h:panelGroup>
         </div>
 </ui:composition>

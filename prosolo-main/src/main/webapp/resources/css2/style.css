@@ -3540,23 +3540,62 @@ header {
 .sliderIconRightCred:hover {
   opacity: 1; }
 
-/* line 3486, style.scss */
+/* line 3487, style.scss */
+.timelineGraph .timelineGraphFilters .checkbox {
+  display: inline-block;
+  margin-right: 20px; }
+/* line 3492, style.scss */
+.timelineGraph #timeline-graph {
+  padding-bottom: 30px; }
+/* line 3495, style.scss */
+.timelineGraph .timeline-tooltip {
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px; }
+
+/* line 3500, style.scss */
+.socialGraph {
+  padding-bottom: 30px; }
+  /* line 3502, style.scss */
+  .socialGraph .socialLeft {
+    width: 35%;
+    float: left; }
+    /* line 3505, style.scss */
+    .socialGraph .socialLeft h2 {
+      margin-bottom: 10px; }
+    /* line 3508, style.scss */
+    .socialGraph .socialLeft .user32 {
+      margin-bottom: 30px; }
+    /* line 3511, style.scss */
+    .socialGraph .socialLeft #social-interactions-bytype-table,
+    .socialGraph .socialLeft #social-interactions-bypeer-table {
+      margin-bottom: 30px; }
+      /* line 3514, style.scss */
+      .socialGraph .socialLeft #social-interactions-bytype-table td,
+      .socialGraph .socialLeft #social-interactions-bypeer-table td {
+        padding: 0 10px; }
+  /* line 3519, style.scss */
+  .socialGraph .socialRight {
+    width: 65%;
+    float: right; }
+
+/* line 3525, style.scss */
 .observationBox {
   position: relative; }
-  /* line 3488, style.scss */
+  /* line 3527, style.scss */
   .observationBox .observationInfo {
     margin-bottom: 20px; }
-    /* line 3490, style.scss */
+    /* line 3529, style.scss */
     .observationBox .observationInfo p {
       margin-bottom: 10px; }
-  /* line 3494, style.scss */
+  /* line 3533, style.scss */
   .observationBox .subHead {
     margin-bottom: 10px; }
-  /* line 3497, style.scss */
+  /* line 3536, style.scss */
   .observationBox .observationOpt {
     padding-top: 10px;
     border-top: 1px solid #ECEDF1; }
-    /* line 3500, style.scss */
+    /* line 3539, style.scss */
     .observationBox .observationOpt .bullet {
       display: inline-block;
       width: 3px;
@@ -3564,72 +3603,72 @@ header {
       margin: 0 5px;
       background: url("../images2/bulletGrey.svg") no-repeat center center; }
 
-/* line 3512, style.scss */
+/* line 3551, style.scss */
 #newObservation .panel,
 #editObservation .panel {
   border: 1px solid #EEEFF3;
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
   box-shadow: none; }
-  /* line 3517, style.scss */
+  /* line 3556, style.scss */
   #newObservation .panel .panel-heading,
   #editObservation .panel .panel-heading {
     background: #F8F9FB; }
-    /* line 3519, style.scss */
+    /* line 3558, style.scss */
     #newObservation .panel .panel-heading .panel-title,
     #editObservation .panel .panel-heading .panel-title {
       font-size: 14px; }
-  /* line 3523, style.scss */
+  /* line 3562, style.scss */
   #newObservation .panel .panel-body,
   #editObservation .panel .panel-body {
     border-top: none; }
-    /* line 3525, style.scss */
+    /* line 3564, style.scss */
     #newObservation .panel .panel-body textarea,
     #editObservation .panel .panel-body textarea {
       display: 100%;
       width: 100%; }
 
-/* line 3533, style.scss */
+/* line 3572, style.scss */
 .observationBtn {
   margin-bottom: 10px; }
 
-/* line 3537, style.scss */
+/* line 3576, style.scss */
 .observationBox .userInfo {
   margin: 0 auto;
   width: 165px;
   margin-bottom: 15px; }
 
-/* line 3543, style.scss */
+/* line 3582, style.scss */
 .observationBox .labels {
   margin-bottom: 10px; }
 
-/* line 3547, style.scss */
+/* line 3586, style.scss */
 .dottedDivider {
   border-top: 1px dotted #e8e8e8;
   margin-bottom: 15px; }
 
-/* line 3553, style.scss */
+/* line 3592, style.scss */
 .observationBox .labels span {
   width: 100%; }
 
-/* line 3558, style.scss */
+/* line 3597, style.scss */
 .observationsList .observationLine {
   border-bottom: 1px solid #EEEFF3; }
-  /* line 3560, style.scss */
+  /* line 3599, style.scss */
   .observationsList .observationLine:last-child {
     border: none; }
-  /* line 3563, style.scss */
+  /* line 3602, style.scss */
   .observationsList .observationLine .user32 {
     padding-bottom: 20px; }
-  /* line 3566, style.scss */
+  /* line 3605, style.scss */
   .observationsList .observationLine .obsBlocks {
     float: left;
     width: 33%;
     display: inline-block; }
-    /* line 3570, style.scss */
+    /* line 3609, style.scss */
     .observationsList .observationLine .obsBlocks h3 {
       margin-bottom: 10px; }
-    /* line 3573, style.scss */
+    /* line 3612, style.scss */
     .observationsList .observationLine .obsBlocks .bullet {
       display: inline-block;
       width: 3px;

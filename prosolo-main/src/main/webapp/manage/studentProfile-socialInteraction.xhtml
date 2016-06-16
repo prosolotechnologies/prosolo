@@ -10,138 +10,44 @@
 
 	<div role="tabpanel" class="tab-pane fade" id="social">
 		<div class="whiteBox">
-		<h2>Social interaction graph</h2>
+			<h2>Social interaction graph</h2>
 		
-		<div class="row filter">
-			<div class="col-md-3">
-				<div class="panel panel-inner"  id="social-interactions-nonodeselected">
-					<div class="panel-body">
-						<div>Select one of the nodes to display more information
-							</div>
+			<div class="socialGraph">
+				<div class="socialLeft">
+					<p id="social-interactions-nonodeselected">Select one of the nodes to display more information</p>
+					
+					<div id="social-interactions-selectedstudent" style="display: none">
+						<h2>Selected student</h2>
+							<div id="social-interactions-selected" class="user32">
+							<a href="#"><img id="social-interactions-selected-avatar" style="display: none" class="img-circle" alt="Walter White" height="32" width="32" /></a>
+							<h3><a href="#" id="social-interactions-selected-name"></a></h3>
 						</div>
 					</div>
-				<div class="panel panel-inner"  id="social-interactions-selectedstudent"  style="display: none">
-					<div class="panel-body">
-						<div id="social-interactions-selected">
-							<h4>Selected student</h4>
-							<!--span id="social-interactions-selected-id">None</span><br /-->
-							<span id="social-interactions-selected-name"></span><br />
-							<!--span id="social-interactions-selected-cluster">None</span><br /-->
-							<img id="social-interactions-selected-avatar" style="display: none" />
-						</div>
-					</div>
-				</div>
-				<div class="panel panel-inner" id="social-interactions-by-type-panel"  style="display: none">
-					<div class="panel-body">
+					
+					<div id="social-interactions-by-type-panel" style="display: none">
 						<div id="social-interactions-bytype">
-							<h4>Social interactions by type</h4>
-							<!--table>
-								<tr><td>Type</td><td>OUT</td><td>IN</td></tr>
-								<tr><td>Comment:</td><td>4(12%)</td><td>8 (22%)</td></tr>
-								<tr><td>Like:</td><td>4(12%)</td><td>8 (22%)</td></tr>
-							</table-->
+							<h2>Social interactions by type</h2>
 						</div>
 					</div>
-				</div>
-				<div class="panel panel-inner"  id="social-interactions-by-peer-panel"  style="display: none">
-					<div class="panel-body">
+					
+					<div id="social-interactions-by-peer-panel" style="display: none">
 						<div id="social-interactions-bypeers">
-							<h4>Social interactions by peers</h4>
-							</div>
-					</div>
-				</div>
-			</div>
-
-			<ui:remove>
-			<div class="col-md-3">
-				<div class="panel panel-inner">
-					<div class="panel-body">
-						<div class="form-group">
-							<label>Type of user interaction</label>
-							
-							<select	class="form-control selectpicker">
-								<option>Communication</option>
-							</select>
-						</div>
-						
-						<h4>Most interaction with</h4>
-						<div class="row mostInteraction">
-							<div class="col-md-6">
-								<h3 class="title">In last week</h3>
-								<!-- <div class="userInfo">
-									<span class="userProfileImage">
-										<img title="Phill Amstrong" alt="Phill Amstrong" src="images/user3120x120.png" />
-									</span>
-									<a href="#">Phill Amstrong</a>
-								</div> -->
-									<!-- ... -->
-							</div>
-							<div class="col-md-6">
-								<h3 class="title">Overall</h3>
-								<!-- <div class="userInfo">
-									<span class="userProfileImage">
-										<img title="Anthony Moore" alt="Anthony Moore" src="images/user5120x120.png" />
-									</span>
-									<a href="#">Anthony Moore</a>
-								</div> -->
-								<!-- ... -->
-							</div>
-						</div>
-						
-						<h4>Highlight members of</h4>
-						
-						<div class="row toggleButtons">
-							<div class="col-md-6">
-								<h3 class="title">Credential</h3>
-								<button type="button" class="btn btn-credential" 
-									data-toggle="button" aria-pressed="false"
-									autocomplete="off">Basics of Social Network
-									Analysis
-								</button>
-								
-								<button type="button" class="btn btn-credential"
-									data-toggle="button" aria-pressed="false"
-									autocomplete="off">Introduction to Learning
-									Analytics
-								</button>
-							</div>
-							
-							<div class="col-md-6">
-								<h3 class="title">Competence</h3>
-								<button type="button" class="btn btn-competence"
-									data-toggle="button" aria-pressed="false"
-									autocomplete="off">Define Social Network analysis
-									and it's main analysis methods
-								</button>
-								
-								<button type="button" class="btn btn-competence"
-									data-toggle="button" aria-pressed="false"
-									autocomplete="off">Perform social network analysis
-									and visualize analysis results in Gebhi
-								</button>
-									
-								<button type="button" class="btn btn-competence"
-									data-toggle="button" aria-pressed="false"
-									autocomplete="off">Define Social Network analysis
-									and it's main analysis methods
-								</button>
-							</div>
+							<h2>Social interactions by peers</h2>
 						</div>
 					</div>
 				</div>
-			</div>
-			</ui:remove>
-			
-			<div class="col-md-9">
-				<div id="social-interaction"
-					data-api="#{socialInteractionBean.apiHost}"
-					data-student-id="#{studentProfileBean.decodedId}"
-					data-course-id="#{studentProfileBean.getSelectedCredentialId()}"
-					class="container manage">
-					<div id="graph"></div>
+				
+				<div class="socialRight">
+					<div id="social-interaction"
+						data-api="#{socialInteractionBean.apiHost}"
+						data-student-id="#{studentProfileBean.decodedId}"
+						data-course-id="#{studentProfileBean.getSelectedCredentialId()}"
+						class="container manage">
+						<div id="graph"></div>
+					</div>
 				</div>
+				<div class="clear"></div>
 			</div>
 		</div>
-	</div>
 	</div>
 </ui:composition>

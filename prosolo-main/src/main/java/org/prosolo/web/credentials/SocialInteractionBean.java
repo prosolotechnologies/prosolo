@@ -19,7 +19,7 @@ public class SocialInteractionBean implements Serializable {
 	
 	public String getApiHost() {
 		AnalyticalServerConfig config = Settings.getInstance().config.analyticalServerConfig;
-		return config.apiHost + ":" + config.apiPort;
+		return config.apiHost + ":" + config.apiPort+"/"+config.apiServicesPath;
 	}
 
 

@@ -22,39 +22,39 @@
 }
 
 .timeline-cred-ann-line {
-	stroke : #0E9C57;
+	stroke : #64BFCD;
 	stroke-width : 2;
 	fill : none;
 }
 
 .timeline-comp-ann-line {
-	stroke : #428BCA;
+	stroke : #FCA567;
 	stroke-width : 2;
 	fill : none;
 }
 
 .timeline-acti-ann-line {
-	stroke : #D9534F;
+	stroke : #9b59b6;
 	stroke-width : 2;
 	fill : none;
 }
 
 .timeline-cred-ann-dot {
-	stroke : #0E9C57;
+	stroke : #64BFCD;
 	stroke-width : 2;
-	fill : #0E9C57;
+	fill : #64BFCD;
 }
 
 .timeline-comp-ann-dot {
-	stroke : #428BCA;
+	stroke : #FCA567;
 	stroke-width : 2;
-	fill : #428BCA;
+	fill : #FCA567;
 }
 
 .timeline-acti-ann-dot {
-	stroke : #D9534F;
+	stroke : #9b59b6;
 	stroke-width : 2;
-	fill : #D9534F;
+	fill : #9b59b6;
 }
 
 .tooltip-text {

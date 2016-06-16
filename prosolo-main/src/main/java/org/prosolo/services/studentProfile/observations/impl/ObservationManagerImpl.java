@@ -28,7 +28,6 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 
 	private static final long serialVersionUID = -7710666335405883922L;
 	
-	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(ObservationManagerImpl.class);
 	
 	@Inject
@@ -63,7 +62,7 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 	
 	@Override
 	@Transactional
-	public Map<String, Object> saveObservation(long id, String message, String note, List<Long> symptomIds,
+	public Map<String, Object> saveObservation(long id, Date date, String message, String note, List<Long> symptomIds,
 			List<Long> suggestionIds, long creatorId, long studentId) 
 					throws DbConnectionException {
 		try {
@@ -72,8 +71,9 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 			if (id > 0) {
 				insert = false;
 				observation.setId(id);
-			}
-			observation.setCreationDate(new Date());
+				observation.setEdited(true);
+			} 
+			observation.setCreationDate(date);
 			observation.setMessage(message);
 			observation.setNote(note);
 		    User creator = new User();
@@ -136,7 +136,7 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 					"INNER JOIN FETCH o.createdBy user " +
 					"LEFT JOIN FETCH o.symptoms sy " +
 					"LEFT JOIN FETCH o.suggestions su " +
-					"LEFT JOIN o.targetCredential targetCred " +
+					//"LEFT JOIN o.targetCredential targetCred " +
 					"WHERE student.id = :id " +
 						//"AND targetCred.id = :targetCredentialId " +
 					"ORDER BY o.creationDate desc";
@@ -147,6 +147,8 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 			
 			return query.list();	
 		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e);
 			throw new DbConnectionException("Observations cannot be loaded at the moment");
 		}
 	}

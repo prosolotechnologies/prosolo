@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +16,9 @@ import java.util.UUID;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.app.RegistrationKey;
 import org.prosolo.common.domainmodel.app.RegistrationType;
+import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
@@ -26,9 +30,13 @@ import org.prosolo.common.domainmodel.user.following.FollowedUserEntity;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.authentication.RegistrationManager;
 import org.prosolo.services.event.EventException;
+import org.prosolo.services.event.context.data.LearningContextData;
+import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.PostManager;
+import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.RoleManager;
@@ -39,6 +47,7 @@ import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.ResourceLinkData;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.springframework.stereotype.Service;
 
@@ -82,12 +91,10 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 		
 		
 		// get ROLES
-		String roleUserTitle = "User";
-		String roleManagerTitle = "Manager";
-		String roleAdminTitle = "Admin";
-		Role roleUser = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(roleUserTitle);
-		Role roleManager = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(roleManagerTitle);
-		Role roleAdmin = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(roleAdminTitle);
+		Role roleUser = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName("User");
+		Role roleManager = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName("Manager");
+		Role roleInstructor = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName("Instructor");
+		Role roleAdmin = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName("Admin");
 
 		
 		
@@ -100,10 +107,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 		
 
 		
-		User userNickPowell = createUser("Nick", "Powell", "nick.powell@gmail.com", password, fictitiousUser, "male1.png", roleUser);
-		userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleAdmin, userNickPowell);
-		userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleManager, userNickPowell);
-		
+		User userNickPowell = 		createUser("Nick", "Powell", "nick.powell@gmail.com", password, fictitiousUser, "male1.png", roleUser);
 		User userRichardAnderson = 	createUser("Richard", "Anderson", "richard.anderson@gmail.com", password, fictitiousUser, "male2.png", roleUser);
 		User userKevinMitchell = 	createUser("Kevin", "Mitchell", "kevin.mitchell@gmail.com", password, fictitiousUser, "male3.png", roleUser);
 		User userPaulEdwards = 		createUser("Paul", "Edwards", "paul.edwards@gmail.com", password, fictitiousUser, "male4.png", roleUser);
@@ -130,6 +134,19 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 		User userAngelicaFallon = 	createUser("Angelica", "Fallon", "angelica.fallon@gmail.com", password, fictitiousUser, "female16.png", roleUser);
 		User userIdaFritz = 		createUser("Ida", "Fritz", "ida.fritz@gmail.com", password, fictitiousUser, "female17.png", roleUser);
 		User userRachelWiggins = 	createUser("Rachel", "Wiggins", "rachel.wiggins@gmail.com", password, fictitiousUser, "female20.png", roleUser);
+		
+		// Adding roles to the users
+		
+		userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleAdmin, userNickPowell);
+		userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleManager, userNickPowell);
+
+		userPhillAmstrong = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userPhillAmstrong);
+		userAnnaHallowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userAnnaHallowell);
+		userTimothyRivera = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userTimothyRivera);
+		userErikaAmes = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userErikaAmes);
+
+		userKarenWhite = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleManager, userKarenWhite);
+		
 
 		/*
 		 * END CRETAING USERS
@@ -147,6 +164,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 		
 
 		Competence1 comp1cred1 = null;
+		Activity1 act1comp1cred1 = null;
 		try {
 			comp1cred1 = createCompetence(
 						userNickPowell,
@@ -155,7 +173,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 						cred1.getId(),
 						"centrality measures, data collection, modularity analysis, network centrality, network structure, social network analysis");
 			
-			createActivity(
+			act1comp1cred1 = createActivity(
 					userNickPowell, 
 					"Introduction to Social Network Analysis",
 					"Introduction into social network analysis for week 3 of DALMOOC by Dragan Gasevic.",
@@ -166,7 +184,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 					5,
 					false,
 					"Slides",
-					"http://www.socialresearchmethods.net/kb/statdesc.php");
+					"https://www.slideshare.net/dgasevic/introduction-into-social-network-analysis/");
 			
 			createActivity(
 					userNickPowell, 
@@ -179,7 +197,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 					3,
 					false,
 					"Example datasets used in the videos",
-					"https://s3.amazonaws.com/prosoloedx/files/3f86bdfd0e8357f7c60c36b38c8fc2c0/Example datasets used in the videos.pdf");
+					"https://s3.amazonaws.com/prosoloedx2/files/3f86bdfd0e8357f7c60c36b38c8fc2c0/Example%20datasets%20used%20in%20the%20videos.pdf");
 			
 			createActivity(
 					userNickPowell, 
@@ -192,7 +210,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 					3,
 					false,
 					"CCK11 dataset for social network analysis",
-					"https://s3.amazonaws.com/prosoloedx/files/3d9a5e10d63678812f87b21ed593659a/CCK11 dataset for social network analysis.pdf");
+					"https://s3.amazonaws.com/prosoloedx2/files/3d9a5e10d63678812f87b21ed593659a/CCK11 dataset for social network analysis.pdf");
 			
 			createActivity(
 					userNickPowell, 
@@ -257,11 +275,17 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 			logger.error(e);
 		}
 		
+		// Adding instrucotrs
+		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userPhillAmstrong.getId(), 10);
+		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userAnnaHallowell.getId(), 10);
+		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userTimothyRivera.getId(), 0);
+		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userErikaAmes.getId(), 0);
+		
 		Competence1 comp2cred1 = null;
 		try {
 			comp2cred1 = createCompetence(
 					userNickPowell,
-					"Social Network Analysis with Gephi",
+					"Using Gephi for Social Network Analysis",
 					"Perform social network analysis and visualize analysis results in Gephi",
 					cred1.getId(),
 					"community identification, gephi, network centrality, network density, network diameter, network visualization, social network analysis");
@@ -422,12 +446,12 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 						"Reflecting on approaches to the use of SNA for the study of learning",
 						"Describe and critically reflect on possible approaches to the use of social network analysis for the study of learning",
 						cred2.getId(),
-						"academic performance, creative potential, social network analysis");
+						"academic performance, creative potential, learning analytics, learning design, MOOCs, sense of community, sensemaking, social network analysis");
 			
 			createActivity(
 					userNickPowell, 
-					"Introduction into sensemaking of social network analysis for the study of learning",
-					"Dragan Gasevic introduces us to week 4 of DALMOOC.",
+					"Introduction",
+					"Introduction into sensemaking of social network analysis for the study of learning. Dragan Gasevic introduces us to week 4 of DALMOOC.",
 					"https://www.youtube.com/watch?v=NPEeSArODQE",
 					ActivityType.VIDEO,
 					comp1cred2.getId(),
@@ -501,6 +525,30 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 					40,
 					false);
 			
+			publishCredential(cred2, cred2.getCreatedBy());
+		} catch (EventException e) {
+			logger.error(e);
+		}
+		
+		Competence1 comp2cred2 = null;
+		try {
+			comp2cred2 = createCompetence(
+					userNickPowell,
+					"Interpreting the results of SNA",
+					"Describe and interpret the results of social network analysis for the study of learning",
+					cred2.getId(),
+					"analytics interpretation, gephi, learning analytics, sensemaking, social network analysis, tableau");
+			
+			createActivity(
+					userNickPowell, 
+					"Bazaar assignment: Collaborative reflection on the interpretation of the results of social network analysis",
+					"",
+					"<p>Now that you have been learned about different perspectives how social network analysis can inform learning research and practice, you will collaboratively reflect with a partner on what you have learned and what ideas you have. Before you engage into this collaborative activity, it will be useful if you have imported the blogs and Twitter social networks (both Week 6 and Week 12) from the dataset for social network analysis into Gephi, computed density and centrality measures, and performed modularity analysis. <br>We would like you to do this portion of the assignment online with a partner student we will assign to you.&nbsp; You will use the Collaborative Chat tool.&nbsp; To access the chat tool, paste the following URL (https://bit.ly/dalchat4) into your browser.&nbsp; You will log in using your EdX id.&nbsp; When you log in, you will enter a lobby program that will assign you to a partner. If it turns out that a partner student is not available, after 5 minutes it will suggest that you try again later.</p><p>When you are matched with a partner, you will be given a link to the chat room.&nbsp; Click the link to enter, and follow the instructions in the chat.&nbsp; The collaborative exercise will require about 30 minutes to complete.</p><p>Instructions for the chat activity will come up in the right hand panel, and you can chat with your partner in the left hand panel. A computer agent will provide prompts to structure the chat activity.</p>",
+					ActivityType.TEXT,
+					comp2cred2.getId(),
+					0,
+					20,
+					false);
 			
 			publishCredential(cred2, cred2.getCreatedBy());
 		} catch (EventException e) {
@@ -602,7 +650,57 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 			logger.error(e1);
 		}
 		
- 
+		
+		// Generating comments for the act1comp1cred1
+		CommentManager commentManager = ServiceLocator.getInstance().getService(CommentManager.class);
+		
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy. HH:mm");
+		
+		try {
+			CommentData comment1Data = new CommentData();
+			comment1Data.setComment("Very good presentation. Wel suited for the novices like I am.");
+			comment1Data.setCommentedResourceId(act1comp1cred1.getId());
+			comment1Data.setCreator(new UserData(userKevinMitchell));
+			comment1Data.setDateCreated(dateFormatter.parse("10.06.2016. 15:24"));
+			
+			Comment1 comment1 = commentManager.saveNewComment(comment1Data, userIdaFritz.getId(), 
+					CommentedResourceType.Activity, new LearningContextData("/activity.xhtml", "name:credential|id:1|context:/name:competence|id:1|context:/name:activity|id:1|context:/context:/name:comment/|name:target_activity|id:1///", null));
+
+			CommentData comment2Data = new CommentData();
+			comment2Data.setComment("The video makes an important point of how individuals lay a data trail of interest that requires parties retrieving this information to proper understand the opportunities and confront “data overload” to best take advantage of this same data.");
+			comment2Data.setCommentedResourceId(act1comp1cred1.getId());
+			comment2Data.setCreator(new UserData(userAnthonyMoore));
+			comment2Data.setDateCreated(dateFormatter.parse("12.06.2016. 09:50"));
+			
+			Comment1 comment2 = commentManager.saveNewComment(comment2Data, userAnthonyMoore.getId(), 
+					CommentedResourceType.Activity, new LearningContextData("/activity.xhtml", "name:credential|id:1|context:/name:competence|id:1|context:/name:activity|id:1|context:/context:/name:comment/|name:target_activity|id:1///", null));
+			
+			CommentData comment3Data = new CommentData();
+			comment3Data.setComment("anthony - I would add to information overload and decision quality, the issue with multitasking and shorter attention spans (a la twitter)");
+			comment3Data.setCommentedResourceId(act1comp1cred1.getId());
+			comment3Data.setCreator(new UserData(userErikaAmes));
+			comment3Data.setDateCreated(dateFormatter.parse("13.06.2016. 13:02"));
+			
+			Comment1 comment3 = commentManager.saveNewComment(comment3Data, userErikaAmes.getId(), 
+					CommentedResourceType.Activity, new LearningContextData("/activity.xhtml", "name:credential|id:1|context:/name:competence|id:1|context:/name:activity|id:1|context:/context:/name:comment/|name:target_activity|id:1///", null));
+		
+			comment3.setParentComment(comment2);
+			ServiceLocator
+				.getInstance()
+				.getService(DefaultManager.class).saveEntity(comment3);
+
+			CommentData comment4Data = new CommentData();
+			comment4Data.setComment("The topics are well presented. Please take in account the fact that during the first week it is necessary for us, as learners, to become familiar with the dual-layer MOOC. This is important so every learner is building himself his knowledge.");
+			comment4Data.setCommentedResourceId(comp1cred1.getId());
+			comment4Data.setCreator(new UserData(userKarenWhite));
+			comment4Data.setDateCreated(dateFormatter.parse("05.06.2016. 11:46"));
+			
+			Comment1 comment4 = commentManager.saveNewComment(comment4Data, userKarenWhite.getId(), 
+					CommentedResourceType.Competence, new LearningContextData("/competence.xhtml", "name:credential|id:1|context:/context:/name:comment/|name:competence|id:1/", null));
+		} catch (ParseException e1) {
+			logger.error(e1);
+		}
+		
 		try {
 			ServiceLocator
 					.getInstance()
