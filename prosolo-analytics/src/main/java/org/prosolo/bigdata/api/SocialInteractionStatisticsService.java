@@ -37,7 +37,12 @@ public class SocialInteractionStatisticsService {
 	private SocialInteractionStatisticsDBManager  dbManager = SocialInteractionStatisticsDBManagerImpl.getInstance();
 	
 	private UserDAO userDao = new UserDAOImpl();
-	
+	@GET
+	@Path("/ping")
+	public String ping() {
+		return "Pong!";
+	}
+
 	@GET
 	@Path("/all")
 	@Produces({ MediaType.APPLICATION_JSON })
@@ -133,7 +138,7 @@ public class SocialInteractionStatisticsService {
 		return result;
 	}
 	
-	@SuppressWarnings("unused")
+/*	@SuppressWarnings("unused")
 	private Map<Long, Map<String, String>> randomStudentsData(Long[] students) {
 		String[] names = new String[] {
 				"Nick Powell",
@@ -169,7 +174,7 @@ public class SocialInteractionStatisticsService {
 		return result;
 	}
 
-
+*/
 	@GET
 	@Path("/outer")
 	@Produces({ MediaType.APPLICATION_JSON })
@@ -239,6 +244,7 @@ public class SocialInteractionStatisticsService {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getInteractionsByType(@PathParam("course") Long courseId, @PathParam("student") Long studentId) {
 		logger.debug("Service 'getInteractionsByType' called.");
+		System.out.println("INTERACTIONS BY TYPE:"+dbManager.getInteractionsByType(courseId, studentId));
 		return ResponseUtils.corsOk(dbManager.getInteractionsByType(courseId, studentId));
 		// return ResponseUtils.corsOk(randomOuterInteractions(courseId, studentId));
 	}

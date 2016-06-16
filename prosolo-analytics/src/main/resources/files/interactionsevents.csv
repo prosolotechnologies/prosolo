@@ -1,4 +1,5 @@
 COMMENT,Comment,NodeComment
+COMMENT, Comment_Reply, Comment1
 EVALUATION,EVALUATION_REQUEST,AchievedCompetenceRequest
 EVALUATION,EVALUATION_REQUEST,NodeRequest
 EVALUATION,SERVICEUSE,ASK_FOR_EVALUATION_DIALOG
@@ -18,6 +19,8 @@ LIKE,Like,ResourceActivity
 LIKE,Like,SocialActivityComment
 LIKE,Like,TwitterPostSocialActivity
 LIKE,Like,UserSocialActivity
+LIKE, RemoveLike, Comment1
+LIKE, Like, Comment1
 MESSAGE,SEND_MESSAGE,SimpleOfflineMessage
 MESSAGE,SERVICEUSE,DIRECT_MESSAGE_DIALOG
 MESSAGE,START_MESSAGE_THREAD,MessagesThread

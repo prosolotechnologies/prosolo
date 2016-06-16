@@ -62,7 +62,7 @@ public class HibernateUtil {
            // configuration.setProperty("hibernate.hbm2ddl.auto", "validate");
              
 
-            final Reflections reflections = new Reflections("org.prosolo.common.domainmodel");
+          final Reflections reflections = new Reflections("org.prosolo.common.domainmodel");
             final Set<Class<?>> classes = reflections.getTypesAnnotatedWith(Entity.class);
             for (final Class<?> clazz : classes) {
                 configuration.addAnnotatedClass(clazz);

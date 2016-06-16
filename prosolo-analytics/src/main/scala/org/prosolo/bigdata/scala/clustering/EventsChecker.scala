@@ -44,6 +44,7 @@ trait EventsChecker{
     jlEventTypes
   }
   def isEventObserved(event:LogEvent):Boolean={
+    println("is_event_observed:"+event.getEventType+"_"+event.getObjectType)
     eventsType.contains(eventsTypeKey(event.getEventType(),event.getObjectType))
   }
   def getObservationType(event:LogEvent):ObservationType={

@@ -25,8 +25,8 @@ object SparkContextLoader {
    */
 
 
-  val numOfCores=Runtime.getRuntime.availableProcessors()
-  //val numOfCores=2
+  //val numOfCores=Runtime.getRuntime.availableProcessors()
+  val numOfCores=1
   val dbConfig = Settings.getInstance().config.dbConfig.dbServerConfig
   val sparkConfig = Settings.getInstance().config.sparkConfig
 

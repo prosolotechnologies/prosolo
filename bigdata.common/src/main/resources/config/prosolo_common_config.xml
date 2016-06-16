@@ -118,6 +118,6 @@
 	</services>
    	<file-store>
     	<file-store-service-url>https://s3.amazonaws.com</file-store-service-url>
-    	<file-store-bucket-name>prosolo_nikola</file-store-bucket-name>
+    	<file-store-bucket-name>prosolo.nikola</file-store-bucket-name>
    	</file-store>
 </config>
