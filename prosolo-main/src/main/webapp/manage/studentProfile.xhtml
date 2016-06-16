@@ -108,7 +108,7 @@
 	                        <li role="presentation" class="active"><a href="#progression" aria-controls="progression" role="tab" data-toggle="tab">Progression</a></li>
 	                        <li role="presentation"><a href="#timeline" aria-controls="timeline" role="tab" data-toggle="tab">Timeline</a></li>
 	                        <li role="presentation"><a href="#social" aria-controls="social" role="tab" data-toggle="tab">Social</a></li>
-	                        <li role="presentation"><a href="#observationsTab" aria-controls="observationsTab" role="tab" data-toggle="tab">Observations</a></li>
+	                        <li role="presentation"><a href="#observationsTab" onclick="loadObservationHistory();" aria-controls="observationsTab" role="tab" data-toggle="tab">Observations</a></li>
 	                    </ul>
 	                </div>
 	                <div class="tab-content">
@@ -331,7 +331,7 @@
                         	<p:commandLink value="Save"
 									styleClass="btn btn-green"
 									action="#{observationBean.saveObservation()}"
-									update=":lastObservationPanel :growl :formObservation:msgValidationSymptom :formObservation:msgValidationSuggestion" 
+									update=":lastObservationPanel :growl :formObservation:msgValidationSymptom :formObservation:msgValidationSuggestion :panelObsHistory" 
 									oncomplete="if (args &amp;&amp; !args.validationFailed) {$('#newObservation').modal('hide');} else {expandNonValidRegions();}"/>
                             <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
                         </div>

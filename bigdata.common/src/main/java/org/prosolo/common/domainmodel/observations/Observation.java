@@ -27,6 +27,7 @@ public class Observation {
 	private User createdBy;
 	private User createdFor;
 	private Date creationDate;
+	private boolean edited;
 	//private TargetCredential1 targetCredential;
 	
 	@Id
@@ -103,6 +104,14 @@ public class Observation {
 
 	public void setCreationDate(Date creationDate) {
 		this.creationDate = creationDate;
+	}
+
+	public boolean isEdited() {
+		return edited;
+	}
+
+	public void setEdited(boolean edited) {
+		this.edited = edited;
 	}
 
 //	@ManyToOne(fetch = FetchType.LAZY)

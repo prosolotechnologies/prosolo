@@ -44,7 +44,7 @@ $(function () {
 	});
 var getStudentsData=function(peers){
 	return $.ajax({
-		url : "http://" + root.dataset.api + "/api/social/interactions/data",
+		url : "http://" + root.dataset.api + "/social/interactions/data",
 		data : {"students" : peers},
 		type : "GET",
 		crossDomain: true,
@@ -53,12 +53,13 @@ var getStudentsData=function(peers){
 }
 	var initializeDataForSelectedStudent=function(student, courseid){
 		$.ajax({
-			url : "http://" + root.dataset.api + "/api/social/interactions/interactionsbypeers/"+courseid+"/"+student.id,
+			url : "http://" + root.dataset.api + "/social/interactions/interactionsbypeers/"+courseid+"/"+student.id,
 			//data : {"students" : part},
 			type : "GET",
 			crossDomain: true,
 			dataType: 'json'
 		}).done(function(data){
+			console.log("INTERACTIONSBYPEERS:"+JSON.stringify(data));
 			for(var i=0;i<data[0].interactions.length;i++){
 				data[0].interactions[i]=JSON.parse(data[0].interactions[i]);
 			}
@@ -105,12 +106,13 @@ var getStudentsData=function(peers){
 		});
 
 		$.ajax({
-			url : "http://" + root.dataset.api + "/api/social/interactions/interactionsbytype/"+courseid+"/"+student.id,
+			url : "http://" + root.dataset.api + "/social/interactions/interactionsbytype/"+courseid+"/"+student.id,
 			//data : {"students" : part},
 			type : "GET",
 			crossDomain: true,
 			dataType: 'json'
 		}).done(function(data){
+			console.log("INTERACTIONSBYTYPE:"+JSON.stringify(data));
 			for(var i=0;i<data[0].interactions.length;i++){
 				data[0].interactions[i]=JSON.parse(data[0].interactions[i]);
 			}

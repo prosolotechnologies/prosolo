@@ -16,8 +16,8 @@ public class ObservationData {
 	private Date dateCreated;
 	private String message;
 	private String note;
-	private List<SymptomData> symptoms;
-	private List<SuggestionData> suggestions;
+	private List<SymptomData> symptoms = new ArrayList<>();
+	private List<SuggestionData> suggestions = new ArrayList<>();
 	private ObservationCreatorData createdBy;
 	
 	public ObservationData(Observation observation){
@@ -48,6 +48,16 @@ public class ObservationData {
 			s.add(new SymptomData(sy));
 		}
 		return s;
+	}
+	
+	public void removeCurrentAndAddSymptomsFromList(List<SymptomData> symptoms) {
+		this.symptoms.clear();
+		this.symptoms.addAll(symptoms);
+	}
+	
+	public void removeCurrentAndAddSuggestionsFromList(List<SuggestionData> suggestions) {
+		this.suggestions.clear();
+		this.suggestions.addAll(suggestions);
 	}
 	
 	public String getFormattedDate(){

@@ -122,7 +122,7 @@ var timelineGraph = (function () {
 		var dateTo = new Date().ddmmyyyy()+". UTC";
 		var dateFrom = new Date(new Date().setDate(new Date().getDate()-30)).ddmmyyyy() + ". UTC"
 	
-		d3.json("http://" + config.apiHost + "/api/learning/activity/student/" + config.studentId + "?dateFrom="+dateFrom+"&dateTo="+dateTo, function(error, data) {
+		d3.json("http://" + config.apiHost + "/learning/activity/student/" + config.studentId + "?dateFrom="+dateFrom+"&dateTo="+dateTo, function(error, data) {
 			data = data.sort(function(a,b){
 				  return new Date(b.date) - new Date(a.date);
 			})
