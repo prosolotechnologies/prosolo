@@ -6,58 +6,40 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.prosolo.common.domainmodel.activities.Activity;
-import org.prosolo.common.domainmodel.activities.CompetenceActivity;
-import org.prosolo.common.domainmodel.activities.RecommendationType;
-import org.prosolo.common.domainmodel.activities.TargetActivity;
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.app.RegistrationKey;
 import org.prosolo.common.domainmodel.app.RegistrationType;
-import org.prosolo.common.domainmodel.competences.Competence;
-import org.prosolo.common.domainmodel.competences.TargetCompetence;
-import org.prosolo.common.domainmodel.course.Course;
-import org.prosolo.common.domainmodel.course.CourseCompetence;
-import org.prosolo.common.domainmodel.course.CreatorType;
+import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
-import org.prosolo.common.domainmodel.user.LearningGoal;
-import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.following.FollowedEntity;
 import org.prosolo.common.domainmodel.user.following.FollowedUserEntity;
-import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.core.spring.ServiceLocator;
-import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.authentication.RegistrationManager;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.htmlparser.HTMLParser;
 import org.prosolo.services.interaction.PostManager;
-import org.prosolo.services.nodes.ActivityManager;
-import org.prosolo.services.nodes.CompetenceManager;
-import org.prosolo.services.nodes.CourseManager;
+import org.prosolo.services.nodes.Activity1Manager;
+import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.DefaultManager;
-import org.prosolo.services.nodes.LearningGoalManager;
-import org.prosolo.services.nodes.NodeRecommendationManager;
-import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.nodes.VisibilityManager;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
+import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.ActivityType;
+import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.ObjectStatus;
+import org.prosolo.services.nodes.data.ResourceLinkData;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
-import org.prosolo.services.nodes.exceptions.VisibilityCoercionError;
-import org.prosolo.web.competences.data.ActivityType;
 import org.springframework.stereotype.Service;
 
 /**
@@ -67,17 +49,8 @@ import org.springframework.stereotype.Service;
 @Service("org.prosolo.app.bc.BusinessCase4_EDX")
 public class BusinessCase4_EDX extends BusinessCase {
 
-	public Map<String, Tag> allTags = new HashMap<String, Tag>();
+public Map<String, Tag> allTags = new HashMap<String, Tag>();
 	
-	private Tag getTag(String tagString) throws Exception {
-		if (!allTags.containsKey(tagString)) {
-			Tag t = getOrCreateTag(tagString);
-			allTags.put(tagString, t);
-			return t;
-		} else
-			return allTags.get(tagString);
-	}
-
 	public void setFollowedUser(User user, User followedUser) {
 
 		FollowedEntity fe = new FollowedUserEntity();
@@ -85,2927 +58,688 @@ public class BusinessCase4_EDX extends BusinessCase {
 		fe.setFollowedResource(followedUser);
 		fe = ServiceLocator.getInstance().getService(DefaultManager.class)
 				.saveEntity(fe);
-		//user.addFollowedEntity(fe);
 		user = ServiceLocator.getInstance().getService(DefaultManager.class)
 				.saveEntity(user);
 	}
 
 	public void initRepository() {
-		System.out.println("BusinessCaseTest - initRepository() with BC 4");
-		RegistrationKey regKey0=new RegistrationKey();
+		System.out.println("BusinessCaseTest - initRepository() with BC 3");
+		
+		RegistrationKey regKey0 = new RegistrationKey();
 		regKey0.setUid("reg793442b86584b46f7bd8a0dae72f31");
 		regKey0.setRegistrationType(RegistrationType.NO_APPROVAL_ACCESS);
-		logger.info("initRepository");
-		try{
 		ServiceLocator.getInstance().getService(RegistrationManager.class).saveEntity(regKey0);
-		}catch(Exception ex){
-			ex.getStackTrace();
-		}
-		RegistrationKey regKey=new RegistrationKey();
+		
+		RegistrationKey regKey = new RegistrationKey();
 		regKey.setUid(UUID.randomUUID().toString().replace("-", ""));
 		regKey.setRegistrationType(RegistrationType.NO_APPROVAL_ACCESS);
 		ServiceLocator.getInstance().getService(RegistrationManager.class).saveEntity(regKey);
-		logger.info("initRepository");
-		RegistrationKey regKey2=new RegistrationKey();
+
+		RegistrationKey regKey2 = new RegistrationKey();
 		regKey2.setUid(UUID.randomUUID().toString().replace("-", ""));
 		regKey2.setRegistrationType(RegistrationType.NO_APPROVAL_ACCESS);
 		ServiceLocator.getInstance().getService(RegistrationManager.class).saveEntity(regKey2);
-		logger.info("initRepository");
 		
-		logger.info("initRepository");
-//		String goodOldAiChair = "Senior Data Scientist";
-		//String dataApplicationDeveloperOrgPosition = "Data Application Developer";
- 		String fictitiousUser = "System analyst";
-
- 		logger.info("initRepository");
-		User userNickPowell=null;
-		try {
-			userNickPowell = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser("Zoran", "Jeremic", "zoran.jeremic@gmail.com",
-							true, "prosolo@2014", fictitiousUser, getAvatarInputStream("male1.png"), "male1.png");
-		} catch (UserAlreadyRegisteredException e1) {
-			logger.error(e1.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
-		}
 		
- 
-		logger.info("initRepository");
-		// create default ROLES
+		// get ROLES
 		String roleUserTitle = "User";
 		String roleManagerTitle = "Manager";
 		String roleAdminTitle = "Admin";
-		
-		@SuppressWarnings("unused")
 		Role roleUser = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(roleUserTitle);
 		Role roleManager = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(roleManagerTitle);
 		Role roleAdmin = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(roleAdminTitle);
 
-//		ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleAdmin, userNickPowell, headOfficeOrgUnit, fosSeniorProgrammerOrgPosition);
- 		 userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleAdmin, userNickPowell);
- 		 userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleManager, userNickPowell);
 		
- 
- 
-		logger.info("initRepository");
-//		String fosTeachingAssistantPosition = "Teaching Assistant";
-  
-
-			Collection<Tag> nickPowellPreferences = new ArrayList<Tag>();
-			try {
-				nickPowellPreferences.add(getTag("Statistics"));
-				nickPowellPreferences.add(getTag("Descriptive data"));
-				nickPowellPreferences.add(getTag("Data analysis"));
-				nickPowellPreferences.add(getTag("Probability"));
-			} catch (Exception e5) {
-				
-				logger.error(e5.getLocalizedMessage());
-			}
-	
- 
-			
-			// ////////////////////////////
-			// LearningGoal for Nick Powell
-			// ///////////////////////////////
-			// activity A1
-			List<Tag> lg2Tags = new ArrayList<Tag>();
-			try {
-				lg2Tags.add(getTag("data"));
-				lg2Tags.add(getTag("statistics"));
-				lg2Tags.add(getTag("exploring data"));
-			} catch (Exception e1) {
-				
-				logger.error(e1.getLocalizedMessage());
-			}
-			logger.info("initRepository");
-			Date currentDate = new Date();
-			Calendar deadlineCal = Calendar.getInstance();
-			deadlineCal.setTime(currentDate);
-			deadlineCal.add(Calendar.DATE, 5);
-
-			LearningGoal lgnp1 = null;
-			try {
-				lgnp1 = ServiceLocator
-						.getInstance()
-						.getService(LearningGoalManager.class)
-						.createNewLearningGoal(
-								userNickPowell,
-								"Preparing Statistical Data for Analysis",
-								"This section provides an example of the programming code needed to read "
-										+ "in a multilevel data file, to create an incident-level aggregated flat file "
-										+ "for summary-level analysis, and to prepare individual data segments for detailed "
-										+ "analysis. For illustration purposes, a National Incident-Based Reporting System "
-										+ "(NIBRS) data file obtained from the FBI is read into and restructured in SPSS, "
-										+ "SAS, and Microsoft ACCESS. The concepts illustrated are applicable to state-level "
-										+ "data sets and transferable to other software.",
-								deadlineCal.getTime(), lg2Tags);
-			} catch (EventException e) {
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			TargetLearningGoal lgnp1NickPowell = null; 
-			try {
-				lgnp1NickPowell =
-					ServiceLocator
-					.getInstance()
-					.getService(LearningGoalManager.class)
-					.createNewTargetLearningGoal(userNickPowell, lgnp1);
-			} catch (EventException e) {
-				logger.error(e.getMessage());
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e.getMessage());
-			}
-			logger.info("initRepository");
-//			userNickPowell = ServiceLocator.getInstance().getService(DefaultManager.class).merge(userNickPowell);
-			
-			try {
-				ServiceLocator
-					.getInstance()
-					.getService(VisibilityManager.class)
-					.setResourceVisibility(userNickPowell, lgnp1, VisibilityType.PUBLIC.toString(), null);
-			} catch (VisibilityCoercionError e) {
-				
-				logger.error(e.getLocalizedMessage());
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			lgnp1 = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(lgnp1);
-			
-			try {
-				ServiceLocator
-					.getInstance()
-					.getService(LearningGoalManager.class)
-					.createNewTargetLearningGoal(userNickPowell, lgnp1);
-			} catch (EventException e) {
-				logger.error(e.getMessage());
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e.getMessage());
-			}
-			
-			
-			try {
-				ServiceLocator
-					.getInstance()
-					.getService(LearningGoalManager.class)
-					.createNewTargetLearningGoal(userNickPowell, lgnp1);
-			} catch (EventException e) {
-				logger.error(e.getMessage());
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e.getMessage());
-			}
-			logger.info("initRepository");
-			
-		/////////////////////////////////////////////////////////////
-			TargetCompetence tc3 = null;
-			try {
-				tc3 = createTargetCompetence(
-						userNickPowell,
-						"Outline Descriptive statistics",
-						"Descriptive statistics is the discipline of quantitatively "
-								+ "describing the main features of a collection of data.Descriptive "
-								+ "statistics are distinguished from inferential statistics (or inductive statistics), "
-								+ "in that descriptive statistics aim to summarize a sample, rather than use the data to "
-								+ "learn about the population that the sample of data is thought to represent.",
-						12,
-						9);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			// activity A9
-//			RichContent rcA9 = ServiceLocator
-//					.getInstance()
-//					.getService(PostManager.class)
-//					.createRichContent("http://www.socialresearchmethods.net/kb/statdesc.php");
-			AttachmentPreview rcA9 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://www.socialresearchmethods.net/kb/statdesc.php");
-
-			Collection<Tag> a9Tags = new ArrayList<Tag>();
-
-			try {
-				a9Tags.add(getTag("statistics"));
-				a9Tags.add(getTag("parametric data"));
-				a9Tags.add(getTag("resampling"));
-			} catch (Exception e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			logger.info("initRepository");
-
-			Activity a9 = null;
-			try {
-				a9 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell,
-								"Read introduction to Descriptive statistics", null,
-								rcA9, VisibilityType.PUBLIC, a9Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-		 
-			// activity A10
-			AttachmentPreview rcA10 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://www.slideshare.net/christineshearer/univariate-analysis");
-//			RichContent rcA10 = ServiceLocator
-//					.getInstance()
-//					.getService(PostManager.class)
-//					.createRichContent("http://www.socqrl.niu.edu/myers/univariate.htm");
- 
-			Collection<Tag> a10Tags = new ArrayList<Tag>();
-			try {
-				a10Tags.add(getTag("statistics"));
-				a10Tags.add(getTag("parametric data"));
-				a10Tags.add(getTag("resampling"));
-			} catch (Exception e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
+		
+		
+		/*
+		 * CREATING USERS
+		 */
+		String fictitiousUser = "System analyst";
+		String password = "prosolo@2014";
 		
 
-			Activity a10 = null;
-			try {
-				a10 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell, "Univariate analysis", null,
-								rcA10, VisibilityType.PUBLIC, a10Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-			// activity A11
-			AttachmentPreview rcA11 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://en.wikipedia.org/wiki/Data_collection");
-//			RichContent rcA11 = ServiceLocator
-//					.getInstance()
-//					.getService(PostManager.class)
-//					.createRichContent("http://people.uwec.edu/piercech/researchmethods/data%20collection%20methods/data%20collection%20methods.htm");
-			logger.info("initRepository");
-
-			Collection<Tag> a11Tags = new ArrayList<Tag>();
-			try {
-				a11Tags.add(getTag("statistics"));
-				a11Tags.add(getTag("parametric data"));
-				a11Tags.add(getTag("resampling"));
-			} catch (Exception e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-
-			Activity a11 = null;
-			try {
-				a11 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell, "Data collection", null,
-								rcA11, VisibilityType.PUBLIC, a11Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			// activity A12
-			AttachmentPreview rcA12 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://www.stat.yale.edu/Courses/1997-98/101/sampinf.htm");
-//			RichContent rcA12 = ServiceLocator
-//					.getInstance()
-//					.getService(PostManager.class)
-//					.createRichContent("http://www.stat.yale.edu/Courses/1997-98/101/sampinf.htm");
- 
- 
-			Collection<Tag> a12Tags = new ArrayList<Tag>();
-			try {
-				a12Tags.add(getTag("statistics"));
-				a12Tags.add(getTag("parametric data"));
-				a12Tags.add(getTag("resampling"));
-			} catch (Exception e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			
-
-			Activity a12 = null;
-			try {
-				a12 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell,
-								"Probability through simulation", null, rcA12,
-								VisibilityType.PUBLIC, a12Tags);
-			} catch (EventException e) {
-				logger.error(e.getLocalizedMessage());
-			}
-
- 
-			logger.info("initRepository");
-			TargetCompetence tcnp2 = ServiceLocator
-					.getInstance()
-					.getService(ResourceFactory.class)
-					.createNewTargetCompetence(userNickPowell,
-							tc3.getCompetence(), VisibilityType.PRIVATE);
-			
-			try {
-				tcnp2 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tcnp2, a9, true);
-				tcnp2 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tcnp2, a10, true);
-				tcnp2 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tcnp2, a11, true);
-				tcnp2 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tcnp2, a12, true);
-			} catch (EventException e) {
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			tcnp2 = ServiceLocator.getInstance().getService(DefaultManager.class).merge(tcnp2);
-			
-			try {
-				tcnp2 = (TargetCompetence) ServiceLocator.getInstance().getService(LearningGoalManager.class)
-						.addTargetCompetenceToGoal(userNickPowell, lgnp1NickPowell, tcnp2, false, null).getNode();
-			} catch (EventException e) {
-				logger.error(e.getLocalizedMessage());
-			}
-			lgnp1 = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(lgnp1);
-			
-			AttachmentPreview rcA1 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://www.uvm.edu/~dhowell/StatPages/Resampling/Resampling.html");
- 
-		 
-			
-			Collection<Tag> a1Tags = new ArrayList<Tag>();
-			try {
-				a1Tags.add(getTag("statistics"));
-				a1Tags.add(getTag("parametric data"));
-				a1Tags.add(getTag("resampling"));
-			} catch (Exception e) {
-				logger.error(e.getLocalizedMessage());
-			}
-			logger.info("initRepository");
-
-			Activity a1 = null;
-			try {
-				a1 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell,
-								"Parametric and Resampling Statistics", null, rcA1,
-								VisibilityType.PUBLIC, a1Tags);
-			} catch (EventException e) {
-				logger.error(e.getLocalizedMessage());
-			}
-			// activity A2
-			AttachmentPreview rcA2 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://laboratory-manager.advanceweb.com/Columns/Interpreting-Statistics/Non-Parametric-Statistics.aspx");
- 
- 
-
-			Collection<Tag> a2Tags = new ArrayList<Tag>();
-			try {
-				a2Tags.add(getTag("statistics"));
-				a2Tags.add(getTag("parametric data"));
-				a2Tags.add(getTag("resampling"));
-			} catch (Exception e) {
-				logger.error(e.getLocalizedMessage());
-			}
-	
-
-			Activity a2 = null;
-			try {
-				a2 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell,
-								"Read about Parametric statistics", null, rcA2,
-								VisibilityType.PUBLIC, a2Tags);
-			} catch (EventException e) {
-				logger.error(e.getLocalizedMessage());
-			}
-
-			// activity A3
-			AttachmentPreview rcA3 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://isomorphismes.tumblr.com/post/18913494015/probability-distributions");
- 
- 
-			
-			Collection<Tag> a3Tags = new ArrayList<Tag>();
-			try {
-				a3Tags.add(getTag("statistics"));
-				a3Tags.add(getTag("parametric data"));
-				a3Tags.add(getTag("resampling"));
-			} catch (Exception e) {
-				logger.error(e.getLocalizedMessage());
-			}
-			logger.info("initRepository");
-
-			Activity a3 = null;
-			try {
-				a3 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell,
-								"Read about Probability distribution", null, rcA3,
-								VisibilityType.PUBLIC, a3Tags);
-			} catch (EventException e) {
-				logger.error(e.getLocalizedMessage());
-			}
-
-			// activity A4
-			AttachmentPreview rcA4 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://www.mathwave.com/articles/distribution-fitting-graphs.html");
- 			Collection<Tag> a4Tags = new ArrayList<Tag>();
-			try {
-				a4Tags.add(getTag("statistics"));
-				a4Tags.add(getTag("parametric data"));
-				a4Tags.add(getTag("resampling"));
-			} catch (Exception e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-
-			Activity a4 = null;
-			try {
-				a4 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell,
-								"List of probability distributions", null, rcA4,
-								VisibilityType.PUBLIC, a4Tags);
-			} catch (EventException e) {
-				logger.error(e.getLocalizedMessage());
-			}
-
-			List<Tag> lg1Tags = new ArrayList<Tag>();
-			try {
-				lg1Tags.add(getTag("data"));
-				lg1Tags.add(getTag("statistics"));
-				lg1Tags.add(getTag("exploring data"));
-			} catch (Exception e) {
-				logger.error(e.getLocalizedMessage());
-			}
-
-
-			LearningGoal lg1 = null;
-			try {
-				lg1 = ServiceLocator
-						.getInstance()
-						.getService(LearningGoalManager.class)
-						.createNewLearningGoal(
-								userNickPowell,
-								"Learn how to explore data in statistics",
-								"Learn the first steps in analyzing data: exploring it.In statistics, exploratory data analysis (EDA) "
-										+ "is an approach to analyzing data sets to summarize their main characteristics in easy-to-understand form, "
-										+ "often with visual graphs, without using a statistical model or having formulated a hypothesis. "
-										+ "Exploratory data analysis was promoted by John Tukey to encourage statisticians visually to examine "
-										+ "their data sets, to formulate hypotheses that could be tested on new data-sets.",
-								deadlineCal.getTime(), lg1Tags);
-			} catch (EventException e) {
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			try {
-				ServiceLocator.getInstance().getService(VisibilityManager.class)
-					.setResourceVisibility(userNickPowell, lg1,	VisibilityType.PUBLIC.toString(), null);
-			} catch (VisibilityCoercionError e) {
-				logger.error(e.getLocalizedMessage());
-			} catch (EventException e) {
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			lg1 = ServiceLocator.getInstance().getService(LearningGoalManager.class).merge(lg1);
-			
-			userNickPowell = ServiceLocator.getInstance().getService(DefaultManager.class).merge(userNickPowell);
-			logger.info("initRepository");
-			TargetLearningGoal lg1NickPowell = null;
-			try {
-				lg1NickPowell =
-					ServiceLocator
-					.getInstance()
-					.getService(LearningGoalManager.class)
-					.createNewTargetLearningGoal(userNickPowell, lg1);
-			} catch (EventException e) {
-				logger.error(e.getMessage());
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e.getMessage());
-			}
-			
-			try {
-				ServiceLocator
-					.getInstance()
-					.getService(LearningGoalManager.class)
-					.createNewTargetLearningGoal(userNickPowell, lg1);
-			} catch (EventException e) {
-				logger.error(e.getMessage());
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e.getMessage());
-			}
-			
-			try {
-				ServiceLocator
-					.getInstance()
-					.getService(LearningGoalManager.class)
-					.createNewTargetLearningGoal(userNickPowell, lg1);
-			} catch (EventException e) {
-				logger.error(e.getMessage());
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e.getMessage());
-			}
-			
-			lg1 = ServiceLocator.getInstance().getService(LearningGoalManager.class).merge(lg1);
-			logger.info("initRepository");
-			TargetCompetence tc1 = null;
-			try {
-				tc1 = ServiceLocator
-						.getInstance()
-						.getService(CompetenceManager.class)
-						.createNewTargetCompetence(
-								userNickPowell,
-								"Differentiate Parametric Data",
-								"Familiarity with parametric tests and parametric data. "
-										+ "Parametric statistics is a branch of statistics that assumes that "
-										+ "the data has come from a type of probability distribution and makes "
-										+ "inferences about the parameters of the distribution. Most well-known "
-										+ "elementary statistical methods are parametric.",
-								12,
-								8,
-								null, 
-								VisibilityType.PRIVATE);
-			} catch (EventException e) {
-				logger.error(e.getLocalizedMessage());
-			}
- 			logger.info("initRepository");
-			try {
-				tc1 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tc1, a1, true);
-				tc1 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tc1, a2, true);
-				tc1 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tc1, a3, true);
-				tc1 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tc1, a4, true);
-			} catch (EventException e) {
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			lg1 = ServiceLocator.getInstance().getService(LearningGoalManager.class).merge(lg1);
-			
-			try {
-				tc1 = (TargetCompetence) ServiceLocator.getInstance().getService(LearningGoalManager.class)
-						.addTargetCompetenceToGoal(userNickPowell, lg1NickPowell, tc1, false, null).getNode();
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			// activity A5
-			AttachmentPreview rcA5 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://records.viu.ca/~johnstoi/maybe/maybe3.htm");
-  
- 
-			Collection<Tag> a5Tags = new ArrayList<Tag>();
-			try {
-				a5Tags.add(getTag("statistics"));
-				a5Tags.add(getTag("parametric data"));
-				a5Tags.add(getTag("resampling"));
-			} catch (Exception e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-
-			Activity a5 = null;
-			try {
-				a5 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(
-								userNickPowell,
-								"An Introductory Handbook to Probability, Statistics and Excel", null,
-								rcA5, VisibilityType.PUBLIC, a5Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			// activity A6
-			AttachmentPreview rcA6 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://www.physics.csbsju.edu/stats/box2.html");
-  
- 
-			Collection<Tag> a6Tags = new ArrayList<Tag>();
-			try {
-				a6Tags.add(getTag("statistics"));
-				a6Tags.add(getTag("parametric data"));
-				a6Tags.add(getTag("resampling"));
-			} catch (Exception e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
 		
-			logger.info("initRepository");
-			Activity a6 = null;
-			try {
-				a6 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell,
-								"Box Plot: Display of Distribution", null, rcA6,
-								VisibilityType.PUBLIC, a6Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			// activity A7
-			AttachmentPreview rcA7 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://wiki.stat.ucla.edu/socr/index.php/AP_Statistics_Curriculum_2007_EDA_DataTypes");
-  
-			Collection<Tag> a7Tags = new ArrayList<Tag>();
-			try {
-				a7Tags.add(getTag("statistics"));
-				a7Tags.add(getTag("parametric data"));
-				a7Tags.add(getTag("resampling"));
-			} catch (Exception e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			logger.info("initRepository");
-
-			Activity a7 = null;
-			try {
-				a7 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell, "Data Types", null, rcA7,
-								VisibilityType.PUBLIC, a7Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-			// activity A8
-			AttachmentPreview rcA8 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://wiki.stat.ucla.edu/socr/index.php/AP_Statistics_Curriculum_2007_Prob_Simul");
-  
-
-			Collection<Tag> a8Tags = new ArrayList<Tag>();
-			try {
-				a8Tags.add(getTag("statistics"));
-				a8Tags.add(getTag("parametric data"));
-				a8Tags.add(getTag("resampling"));
-			} catch (Exception e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-	
-
-			Activity a8 = null;
-			try {
-				a8 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell,
-								"Probability through simulation", null, rcA8,
-								VisibilityType.PUBLIC, a8Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-			TargetCompetence tc2 = null;
-			try {
-				tc2 = ServiceLocator
-						.getInstance()
-						.getService(CompetenceManager.class)
-						.createNewTargetCompetence(
-								userNickPowell,
-								"Illustrate and Prepare Data",
-								"Knowledge in Using frequency distributions, other graphs and "
-										+ "descriptive statistics to screen our data. Statistical graphs "
-										+ "present data and the results of statistical analysis, assist in "
-										+ "the analysis of data, and occasionally are used to facilitate statistical "
-										+ "computation. Presentation graphs include the familiar bar graph, pie chart, "
-										+ "line graph, scatterplot, and statistical map. Data analysis employs these graphical "
-										+ "forms as well as others.", 
-								12,
-								15,
-								null, 
-								VisibilityType.PRIVATE);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
- 			
-			try {
-				tc2 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tc2, a5, true);
-				tc2 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tc2, a6, true);
-				tc2 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tc2, a7, true);
-				tc2 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tc2, a8, true);
-
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			lg1 = ServiceLocator.getInstance().getService(LearningGoalManager.class).merge(lg1);
-			
-			try {
-				tc2 = (TargetCompetence) ServiceLocator.getInstance().getService(LearningGoalManager.class)
-						.addTargetCompetenceToGoal(userNickPowell, lg1NickPowell, tc2, false, null).getNode();
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-			lg1 = ServiceLocator.getInstance().getService(LearningGoalManager.class).merge(lg1);
-			
-			try {
-				tc3 = (TargetCompetence) ServiceLocator.getInstance().getService(LearningGoalManager.class)
-				 		.addTargetCompetenceToGoal(userNickPowell, lg1NickPowell, tc3, false, null).getNode();
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			////////////////////////////////////////////////
-			///Defining the course 'Understanding of Applications of Learning Analytics in Education'
-			HashSet<Tag> tags = new HashSet<Tag>();
-			try {
-				tags.add(getOrCreateTag("big data"));
-				tags.add(getOrCreateTag("educational data"));
-				tags.add(getOrCreateTag("learning analytics"));
-			} catch (Exception e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-			List<CourseCompetence> courseCompetences = new ArrayList<CourseCompetence>();
+		User userNickPowell = createUser("Nick", "Powell", "nick.powell@gmail.com", password, fictitiousUser, "male1.png", roleUser);
+		userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleAdmin, userNickPowell);
+		userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleManager, userNickPowell);
 		
-			Competence comp1 = null;
-			try {
-				comp1 = ServiceLocator.getInstance().getService(CompetenceManager.class).createCompetence(userNickPowell, 
-						"Define social network analysis", 
-						"Define networks and articulate why they are important for education and educational research.", 
-						3, 
-						21, null, null, null);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			logger.info("initRepository");
-			CourseCompetence oc1=new CourseCompetence(comp1);
-			oc1.setDaysOffset(14);
-			oc1.setDuration(14);
-			ServiceLocator.getInstance().getService(CompetenceManager.class).saveEntity(oc1);
-			courseCompetences.add(oc1);
-			
-			
-			String c2title="Perform social network analysis centrality measures using Gephi";
-			String c2description="See the title. This also includes being able to import data in to Gephi.";
-			Competence comp2 = null;
-			try {
-				comp2 = ServiceLocator.getInstance().getService(CompetenceManager.class).createCompetence(userNickPowell, 
-						c2title, c2description, 1, 
-						7, null, null, null);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			AttachmentPreview gephiHomepage = ServiceLocator.getInstance().getService(HTMLParser.class).
-					extractAttachmentPreview(StringUtil.cleanHtml("https://gephi.org"));
-			
-			try {
-				ServiceLocator.getInstance().getService(CompetenceManager.class).
-				createNewActivityAndAddToCompetence(
+		User userRichardAnderson = 	createUser("Richard", "Anderson", "richard.anderson@gmail.com", password, fictitiousUser, "male2.png", roleUser);
+		User userKevinMitchell = 	createUser("Kevin", "Mitchell", "kevin.mitchell@gmail.com", password, fictitiousUser, "male3.png", roleUser);
+		User userPaulEdwards = 		createUser("Paul", "Edwards", "paul.edwards@gmail.com", password, fictitiousUser, "male4.png", roleUser);
+		User userStevenTurner = 	createUser("Steven", "Turner", "steven.turner@gmail.com", password, fictitiousUser, "male5.png", roleUser);
+		User userGeorgeYoung = 		createUser("George", "Young", "george.young@gmail.com", password, fictitiousUser, "male6.png", roleUser);
+		User userPhillAmstrong = 	createUser("Phill", "Amstrong", "phill.amstrong@gmail.com", password, fictitiousUser, "male7.png", roleUser);
+		User userJosephGarcia = 	createUser("Joseph", "Garcia", "joseph.garcia@gmail.com", password, fictitiousUser, "male8.png", roleUser);
+		User userTimothyRivera = 	createUser("Timothy", "Rivera", "timothy.rivera@gmail.com", password, fictitiousUser, "male9.png", roleUser);
+		User userKevinHall = 		createUser("Kevin", "Hall", "kevin.hall@gmail.com", password, fictitiousUser, "male10.png", roleUser);
+		User userKennethCarter = 	createUser("Kenneth", "Carter", "kenneth.carter@gmail.com", password, fictitiousUser, "male11.png", roleUser);
+		User userAnthonyMoore = 	createUser("Anthony", "Moore", "anthony.moore@gmail.com", password, fictitiousUser, "male12.png", roleUser);
+		
+		
+		User userTaniaCortese = 	createUser("Tania", "Cortese", "tania.cortese@gmail.com", password, fictitiousUser, "female1.png", roleUser);
+		User userSonyaElston = 		createUser("Sonya", "Elston", "sonya.elston@gmail.com", password, fictitiousUser, "female2.png", roleUser);
+		User userLoriAbner = 		createUser("Lori", "Abner", "lori.abner@gmail.com", password, fictitiousUser, "female3.png", roleUser);
+		User userSamanthaDell = 	createUser("Samantha", "Dell", "samantha.dell@gmail.com", password, fictitiousUser, "female4.png", roleUser);
+		User userAkikoKido = 		createUser("Akiko", "Kido", "akiko.kido@gmail.com", password, fictitiousUser, "female7.png", roleUser);
+		User userKarenWhite = 		createUser("Karen", "White", "karen.white@gmail.com", password, fictitiousUser, "female10.png", roleUser);
+		User userAnnaHallowell = 	createUser("Anna", "Hallowell", "anna.hallowell@gmail.com", password, fictitiousUser, "female11.png", roleUser);
+		User userErikaAmes = 		createUser("Erika", "Ames", "erika.ames@gmail.com", password, fictitiousUser, "female12.png", roleUser);
+		User userHelenCampbell = 	createUser("Helen", "Campbell", "helen.campbell@gmail.com", password, fictitiousUser, "female13.png", roleUser);
+		User userSheriLaureano = 	createUser("Sheri", "Laureano", "sheri.laureano@gmail.com", password, fictitiousUser, "female14.png", roleUser);
+		User userAngelicaFallon = 	createUser("Angelica", "Fallon", "angelica.fallon@gmail.com", password, fictitiousUser, "female16.png", roleUser);
+		User userIdaFritz = 		createUser("Ida", "Fritz", "ida.fritz@gmail.com", password, fictitiousUser, "female17.png", roleUser);
+		User userRachelWiggins = 	createUser("Rachel", "Wiggins", "rachel.wiggins@gmail.com", password, fictitiousUser, "female20.png", roleUser);
+
+		/*
+		 * END CRETAING USERS
+		 */
+
+		// ////////////////////////////
+		// Credential for Nick Powell
+		// ///////////////////////////////
+		Credential1 cred1 = createCredential(
+			"Basics of Social Network Analysis", 
+			"This credential defines social network analysis and its main analysis methods and "
+					+ "introduces how to peform social network analysis and visualize analysis results in Gephi",
+			userNickPowell, 
+			"network structure, data collection, learning analytics, network measures, network modularity, social network analysis");
+		
+
+		Competence1 comp1cred1 = null;
+		try {
+			comp1cred1 = createCompetence(
 						userNickPowell,
-						"Gephi",
-						"Gephi, an open source graph visualization and manipulation software",
-						ActivityType.RESOURCE,
-						true,
-						gephiHomepage,
-						0,
-						true,
-						0,
-						comp2);
-			} catch (EventException e) {
-				logger.error(e.getLocalizedMessage());
-			}
+						"Social Network Analysis",
+						"Define social network analysis and its main analysis methods.",
+						cred1.getId(),
+						"centrality measures, data collection, modularity analysis, network centrality, network structure, social network analysis");
 			
-			AttachmentPreview gephiDemoYoutubeLink= ServiceLocator.getInstance().getService(HTMLParser.class).
-					extractAttachmentPreview(StringUtil.cleanHtml("http://www.youtube.com/watch?v=JgDYV5ArXgw"));
+			createActivity(
+					userNickPowell, 
+					"Introduction to Social Network Analysis",
+					"Introduction into social network analysis for week 3 of DALMOOC by Dragan Gasevic.",
+					"https://www.youtube.com/watch?v=2uibqSdHSag",
+					ActivityType.VIDEO,
+					comp1cred1.getId(),
+					0,
+					5,
+					false,
+					"Slides",
+					"http://www.socialresearchmethods.net/kb/statdesc.php");
 			
-			try {
-				ServiceLocator.getInstance().getService(CompetenceManager.class).
-					createNewActivityAndAddToCompetence(
+			createActivity(
+					userNickPowell, 
+					"Example dataset",
+					null,
+					"<p>Download the example dataset used in the videos and familiarize with the data.</p>",
+					ActivityType.TEXT,
+					comp1cred1.getId(),
+					0,
+					3,
+					false,
+					"Example datasets used in the videos",
+					"https://s3.amazonaws.com/prosoloedx/files/3f86bdfd0e8357f7c60c36b38c8fc2c0/Example datasets used in the videos.pdf");
+			
+			createActivity(
+					userNickPowell, 
+					"CCK11 dataset",
+					"",
+					"<p>Download the CCK11 dataset and familiarize with the data</p>",
+					ActivityType.TEXT,
+					comp1cred1.getId(),
+					0,
+					3,
+					false,
+					"CCK11 dataset for social network analysis",
+					"https://s3.amazonaws.com/prosoloedx/files/3d9a5e10d63678812f87b21ed593659a/CCK11 dataset for social network analysis.pdf");
+			
+			createActivity(
+					userNickPowell, 
+					"Network measures",
+					"Dragan Gasevic discusses network measures (degree centrality, betweenness centrality, closeness centrality, degree, diameter)  for week 3 of DALMOOC.",
+					"https://www.youtube.com/watch?v=Gq-4ErYLuLA",
+					ActivityType.VIDEO,
+					comp1cred1.getId(),
+					0,
+					8,
+					false,
+					"Slides",
+					"http://www.slideshare.net/dgasevic/network-measures-used-in-social-network-analysis");
+			
+			createActivity(
+					userNickPowell, 
+					"Network Modularity and Community Identification",
+					"Dragan Gasevic discusses network modularity and community identification in social network analysis for week 3 of DALMOOC.",
+					"https://www.youtube.com/watch?v=2_Q7uPAl34M",
+					ActivityType.VIDEO,
+					comp1cred1.getId(),
+					0,
+					6,
+					false,
+					"Slides",
+					"http://www.slideshare.net/dgasevic/network-modularity-and-community-identification/1");
+			
+			createActivity(
+					userNickPowell, 
+					"Assignment: Reflection and discussion on social network analysis",
+					"",
+					"<p>After the introduction into social network analysis, its main analysis techniques, and data collection "
+					+ "methods, it would be useful to reflect on what you have learned so far. Please, prepare a reflection "
+					+ "piece (about 300 words) in which you will address the following issues:</p><ul><li>Outline your "
+					+ "understanding of social network structure and main methods for social network analysis (centrality, "
+					+ "density, and modularity);</li><li>Discus potential benefits of the use of social network analysis for "
+					+ "the study of learning and learning contexts</li><li>Describe potential applications of social network "
+					+ "analysis for the study of learning. Reflect on the methods that could be used for data collection, "
+					+ "steps to be taken for the analysis, potential conclusions, and possible issues (e.g., incomplete "
+					+ "network, triangulation with other types of analysis, or ethics) that would need to be addressed in "
+					+ "the process.</li></ul><p>Please, share your reflection as a blog post (preferred as it allows for "
+					+ "the broader reach). Once you have created your blog post, please, share the blog reference (URL) on "
+					+ "Twitter with the <strong>#dalmooc</strong> hashtag and ProSolo.</p><ul><li>Once you have posted and "
+					+ "shared your blog on social media, please, read and engage into conversation of the blogs posted by "
+					+ "at least two our participants of the course. The conversation can be done as direct comments on the "
+					+ "blogs and/or via other social media used in the course.</li><li>When connecting with other peers, "
+					+ "try to compare the findings presented in their reports, connect their findings with the readings you "
+					+ "found in the course and/or elsewhere in the web. Ideally, you will also reflect on the applicability "
+					+ "of each other’s results in the real-world studies/contexts.</li></ul><p><em>Note: In case you do not "
+					+ "have a blog and would not like to set up a blog, please, initiate a discussion thread on the edX forum, "
+					+ "or create a ProSolo status post, and share the post reference (URL) on Twitter and ProSolo as described "
+					+ "above.</em></p>",
+					ActivityType.TEXT,
+					comp1cred1.getId(),
+					1,
+					0,
+					true);
+			
+			
+			publishCredential(cred1, cred1.getCreatedBy());
+		} catch (EventException e) {
+			logger.error(e);
+		}
+		
+		Competence1 comp2cred1 = null;
+		try {
+			comp2cred1 = createCompetence(
+					userNickPowell,
+					"Social Network Analysis with Gephi",
+					"Perform social network analysis and visualize analysis results in Gephi",
+					cred1.getId(),
+					"community identification, gephi, network centrality, network density, network diameter, network visualization, social network analysis");
+			
+			createActivity(
+					userNickPowell, 
+					"Gephi Community Introduction",
+					"A YouTube video introducing the Gephi tool",
+					"https://www.youtube.com/watch?v=bXCBh6QH5W0",
+					ActivityType.VIDEO,
+					comp2cred1.getId(),
+					0,
+					4,
+					false);
+			
+			createActivity(
+					userNickPowell, 
+					"Download and install Gephi",
+					"",
+					"<p><strong>Windows</strong></p><ol><li>Make sure you have the latest version of JAVA runtime "
+					+ "installed</li><li>Install Gephi</li><li>Open Gephi and try to open the <em>Les Miserables.gexf</em> "
+					+ "sample</li><li>If you see a picture you are good to go, if not:</li><ol><li>If you see a grey window "
+					+ "with no picture, go windows -&gt; graph and open the graph window</li><li>If no menus are working "
+					+ "uninstall everything and try again</li></ol><li>If it doesn't work a second time, look and/or ask "
+					+ "for a solution on the Gephi forum. Also, you may ask for assistance on the edX discussion forums, "
+					+ "social media (Twitter and Pro Solo), and QuickHelper.</li></ol><p><strong>Mac</strong></p><ol><li>"
+					+ "Install the latest version of JAVA</li><li>Re-install JAVA through the Mac site (don't ask me why "
+					+ "you need to do this twice, it is some kind of magic)</li><li>Install Gephi</li><li>Open Gephi and "
+					+ "try to open the <em>Les Miserables.gexf</em> sample</li><li>If you see a picture you are good to go, "
+					+ "if not:</li><ol><li>If you see a grey window with no picture, go windows -&gt; graph and open the "
+					+ "graph window</li><li>If no menus are working uninstall everything and try again</li></ol><li>If it "
+					+ "doesn't work a second time, look and/or ask for a solution on the Gephi forum. Also, you may ask "
+					+ "for assistance on the edX discussion forums, social media (Twitter and Pro Solo), and QuickHelper."
+					+ "</li></ol>",
+					ActivityType.TEXT,
+					comp2cred1.getId(),
+					0,
+					15,
+					false);
+			
+			createActivity(
+					userNickPowell, 
+					"Gephi - An Introduction tour",
+					"Dragan Gasevic gives an introductory tour of Gephi for week 3 of DALMOOC.",
+					"https://www.youtube.com/watch?v=L0C_D68E1Q0",
+					ActivityType.VIDEO,
+					comp2cred1.getId(),
+					0,
+					17,
+					false);
+			
+			createActivity(
+					userNickPowell, 
+					"Gephi - Modularity Analysis",
+					"Dragan Gasevic discusses modularity analysis in Gephi for week 3 of DALMOOC.",
+					"https://www.youtube.com/watch?v=D1soIxZ61As",
+					ActivityType.VIDEO,
+					comp2cred1.getId(),
+					0,
+					11,
+					false);
+			
+			createActivity(
+					userNickPowell, 
+					"Gephi - Modularity tutorial",
+					"A quick tutorial by Jennifer Golbeck  on how to use gephi's modularity feature to detect communities and color code them in graphs.",
+					"https://www.youtube.com/watch?v=7LMnpM0p4cM",
+					ActivityType.VIDEO,
+					comp2cred1.getId(),
+					0,
+					9,
+					false);
+			
+			createActivity(
+					userNickPowell, 
+					"Gephi Tutorial Quick start",
+					"Explore slide presentation: Gephi Tutorial Quick start",
+					"http://www.slideshare.net/gephi/gephi-quick-start",
+					ActivityType.SLIDESHARE,
+					comp2cred1.getId(),
+					0,
+					10,
+					false);
+			
+			createActivity(
+					userNickPowell, 
+					"Gephi Tutorial Visualization",
+					"Explore slide presentation: Gephi Tutorial Visualization",
+					"http://www.slideshare.net/gephi/gephi-tutorial-visualization",
+					ActivityType.SLIDESHARE,
+					comp2cred1.getId(),
+					0,
+					15,
+					false);
+			
+			createActivity(
+					userNickPowell, 
+					"Hands-on - Import the example dataset and perform the SNA analysis methods",
+					"",
+					"<p><strong>Hands-on activity: Import the example dataset into Gephi and perform the SNA analysis "
+					+ "methods</strong></p><p>After you have studied the resources on how to visualize social networks "
+					+ "and performed main analysis method in Gephi, it is now time to perform some hands-on activities:"
+					+ "</p><p></p><ul><li>Download the example dataset available used in this course for the description "
+					+ "of social network measures and use both files (example_1.csv and example_2.csv from example dataset)."
+					+ "</li><li>Perform the following operations on the network in Gephi as undirected files:</li><ul><li>"
+					+ "Compute the density measure of the networks</li><li>Compute centrality measures (betweenness and "
+					+ "degree) introduced in the course</li><li>Apply the Giant Component filter to filter out all the "
+					+ "disconnected nodes and identify communities by using the modularity algorithm.</li></ul><li>Save "
+					+ "the results of your analysis as Gephi projects, one separate project for either of the two examples."
+					+ "</li><li>Share your experience with other course participants on social media (blog, Twitter, and "
+					+ "ProSolo, edX discussion forum)<br></li></ul>",
+					ActivityType.TEXT,
+					comp2cred1.getId(),
+					1,
+					0,
+					false);
+			
+			createActivity(
+					userNickPowell, 
+					"Hands-on -  Visualization of the results of social network analysis in Gephi",
+					"",
+					"<p>Hands-on activity – Visualization of the results of social network analysis in Gephi (example "
+					+ "dataset)</p><p>After you have studied the resources on how to use Gephi, it is now time to perform "
+					+ "some hands-on activities:</p><ul><li>Perform the following visualizations on the networks from the "
+					+ "example dataset. The visualizations are to be performed in the Gephi projects, which you created in "
+					+ "the previous hands-on activity when you performed the main network analyses (density, centrality, "
+					+ "and modularity):</li><ul><li>Explore different layouts for the representation of the network (e.g., "
+					+ "Fruchterman Reingold and Yinfan Hu) and experiment with their configuration parameters</li><li>Size "
+					+ "the network nodes based on centrality measures</li><li>Size the network edges based on their weight"
+					+ "</li><li>Explore how to visualize the labels of the network nodes and edges</li><li>Used different "
+					+ "color to visualize the communities identified in the networks</li></ul><li>Share your experience "
+					+ "(e.g., blogs and figures based on your visualizations) with other credential participants on social "
+					+ "media (blog, Twitter, and Pro Solo, edX discussion forum).&nbsp; <br></li></ul>",
+					ActivityType.TEXT,
+					comp2cred1.getId(),
+					1,
+					0,
+					false);
+			
+			publishCredential(cred1, cred1.getCreatedBy());
+		} catch (EventException e) {
+			logger.error(e);
+		}
+		
+		
+		
+		Credential1 cred2 = createCredential(
+				"Sensemaking of Social Network Analysis for Learning", 
+				"This credential defines describes and critically reflects on possible approaches to the use of social network analysis for the study of learning. The credential also describes and interprets the results of social network analysis for the study of learning",
+				userNickPowell, 
+				"academic performance, creative potential, dalmooc, learning design, MOOCs, sense of community, social network analysis");
+			
+
+		Competence1 comp1cred2 = null;
+		try {
+			comp1cred2 = createCompetence(
 						userNickPowell,
-						"Gephi Demo 920",
-						"",
-						ActivityType.RESOURCE,
-						true,
-						gephiDemoYoutubeLink,
-						0,
-						true,
-						0,
-						comp2);
-			} catch (EventException e) {
-				logger.error(e.getLocalizedMessage());
-			}
+						"Reflecting on approaches to the use of SNA for the study of learning",
+						"Describe and critically reflect on possible approaches to the use of social network analysis for the study of learning",
+						cred2.getId(),
+						"academic performance, creative potential, social network analysis");
 			
-			AttachmentPreview gephiPaper = ServiceLocator.getInstance().getService(HTMLParser.class).
-					extractAttachmentPreview(StringUtil.cleanHtml("http://www.aaai.org/ocs/index.php/ICWSM/09/paper/view/154"));
+			createActivity(
+					userNickPowell, 
+					"Introduction into sensemaking of social network analysis for the study of learning",
+					"Dragan Gasevic introduces us to week 4 of DALMOOC.",
+					"https://www.youtube.com/watch?v=NPEeSArODQE",
+					ActivityType.VIDEO,
+					comp1cred2.getId(),
+					0,
+					4,
+					false);
 			
-			try {
-				ServiceLocator.getInstance().getService(CompetenceManager.class).
-					createNewActivityAndAddToCompetence(
+			createActivity(
+					userNickPowell, 
+					"Social Network Analysis and Learning Design",
+					"Dragan Gasevic discusses social network analysis and learning design for week 4 of DALMOOC.",
+					"https://www.youtube.com/watch?v=-JuBDu_YVoo",
+					ActivityType.VIDEO,
+					comp1cred2.getId(),
+					0,
+					6,
+					false);
+			
+			createActivity(
+					userNickPowell, 
+					"Social Network Analysis and Sense of Community",
+					"Dragan Gasevic discusses social network analysis and sense of community for week 4 of DALMOOC.",
+					"https://www.youtube.com/watch?v=lUEeppG_6So",
+					ActivityType.VIDEO,
+					comp1cred2.getId(),
+					0,
+					5,
+					false);
+			
+			createActivity(
+					userNickPowell, 
+					"Social Network Analysis and Creative Potential",
+					"Dragan Gasevic discusses social network analysis and creative potential for week 4 of DALMOOC.",
+					"https://www.youtube.com/watch?v=VTGvvHpC5IQ",
+					ActivityType.VIDEO,
+					comp1cred2.getId(),
+					0,
+					4,
+					false);
+			
+			createActivity(
+					userNickPowell, 
+					"Social Network Analysis and Academic Peformance",
+					"Dragan Gasevic discusses social network analysis and academic performance for week 4 of DALMOOC.",
+					"https://www.youtube.com/watch?v=F9jLV7hS2AE",
+					ActivityType.VIDEO,
+					comp1cred2.getId(),
+					0,
+					6,
+					false);
+			
+			createActivity(
+					userNickPowell, 
+					"Social Network Analysis and Social Presence",
+					"Dragan Gasevic discusses social network analysis and social presence for week 4 of DALMOOC.",
+					"https://www.youtube.com/watch?v=bZhRuo8nz7A",
+					ActivityType.VIDEO,
+					comp1cred2.getId(),
+					0,
+					6,
+					false);
+			
+			createActivity(
+					userNickPowell, 
+					"Hands-on activity: Integration of social network analysis in Gephi and Tableau analysis",
+					"Dragan Gasevic discusses social network analysis and social presence for week 4 of DALMOOC.",
+					"<p>Now that you have performed social network analysis in Gephi and started working on their interpretation of relevance for the understanding of learning, it is time to learn to integrate knowledge and skills gained in weeks 1-2 with Tableau. Specifically, in this hands-on activity, you are asked to:</p><ul><li>Export the results of social network analyses (centrality and modularity) of the networks available in the example dataset from Gephi – via the Data Laboratory tab of Gephi - in the format (i.e., CSV) that can be imported into Tableau</li><li>Plot the data to show the distribution of each centrality measure for each of the two networks</li><li>Plot the data to show the distribution of centrality measures across communities identified in each of the two networks</li><li>Share your experience (e.g., blogs and figures based on your visualizations from both Gephi and Tableau) with other course participants on social media (blog, Twitter, and Pro Solo, edX discussion forum).</li></ul>",
+					ActivityType.TEXT,
+					comp1cred2.getId(),
+					0,
+					40,
+					false);
+			
+			
+			publishCredential(cred2, cred2.getCreatedBy());
+		} catch (EventException e) {
+			logger.error(e);
+		}
+		
+		
+		Credential1 cred3 = createCredential(
+				"Introduction to Learning Analytics", 
+				"The proliferation of data in digital environments has to date been largely unexplored in education. A new academic field - learning analytics - has developed to gain insight into learner generated data and how this can be used to improve learning and teaching practices",
+				userNickPowell, 
+				"academic performance, creative potential, dalmooc, learning design, MOOCs, sense of community, social network analysis");
+		
+		Competence1 comp1cred3 = null;
+		try {
+			comp1cred3 = createCompetence(
 						userNickPowell,
-						"Paper: 'Gephi: An Open Source Software for Exploring and Manipulating Networks'",
-						"Gephi is an open source software for graph and network analysis. It uses a " +
-						"3D render engine to display large networks in real-time and to speed up the " +
-						"exploration.",
-						ActivityType.RESOURCE,
-						true,
-						gephiPaper,
-						0,
-						true,
-						0,
-						comp2);
-			} catch (EventException e) {
-				logger.error(e.getLocalizedMessage());
-			}
+						"Tools for Learning Analytics",
+						"Identify proprietary and open source tools commonly used in learning analytics",
+						cred3.getId(),
+						"academic performance, creative potential, social network analysis");
 			
-			try {
-				Activity uplaodGephiAssignment = ServiceLocator.getInstance().getService(ResourceFactory.class).createNewActivity(
-						userNickPowell, 
-						"Upload your own visualisation",
-						"Find some example data and create a visualisation using Gephi. Compress all visualisation files and uplaod it here.", 
-						ActivityType.ASSIGNMENTUPLOAD, 
-						true, 
-						null, 
-						1, 
-						true, 
-						15, 
-						VisibilityType.PUBLIC);
-				
-				comp2 = ServiceLocator.getInstance().getService(DefaultManager.class).merge(comp2);
-				CompetenceActivity uplaodGephiAssignmentCompActivity = new CompetenceActivity(comp2,
-						4, uplaodGephiAssignment);
-				uplaodGephiAssignmentCompActivity = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(uplaodGephiAssignmentCompActivity);
-				
-				//comp2.addActivity(uplaodGephiAssignmentCompActivity);
-				//comp2 = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(comp2);
-			} catch (EventException e5) {
-				logger.error(e5.getLocalizedMessage());
-			}
+			createActivity(
+					userNickPowell, 
+					"Getting Started With Data Analytics Tools",
+					"A basic overview of the Data Anlytics tools by George Siemens",
+					"https://www.youtube.com/watch?v=XOckgFlLqwU",
+					ActivityType.VIDEO,
+					comp1cred3.getId(),
+					0,
+					30,
+					false);
 			
-			CourseCompetence oc2=new CourseCompetence();
-			oc2.setCompetence(comp2);
-			oc2.setDaysOffset(7);
-			oc2.setDuration(21);
-			ServiceLocator.getInstance().getService(CompetenceManager.class).saveEntity(oc2);
-			courseCompetences.add(oc2);
+			publishCredential(cred3, cred2.getCreatedBy());
+		} catch (EventException e1) {
+			logger.error(e1);
+		}
 			
-			String c3title="Interpret results of social network analysis";
-			String c3description="Interpret detailed meaning of SNA result and importance of the position of actors in social networks for information flow. Discuss implications for educational research and practice. ";
-			Competence comp3 = null;
-			try {
-				comp3 = ServiceLocator.getInstance().getService(CompetenceManager.class).createCompetence(userNickPowell, 
-						c3title, c3description, 12, 
-						7, null, null, null);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			CourseCompetence oc3=new CourseCompetence();
-			oc3.setDaysOffset(5);
-			oc3.setDuration(30);
-			oc3.setCompetence(comp3);
-			ServiceLocator.getInstance().getService(CompetenceManager.class).saveEntity(oc3);
-			courseCompetences.add(oc3);
+		
+		Credential1 cred4 = createCredential(
+				"Text mining nuts and bolts", 
+				"This credential introduces how to i) prepare data for use in LightSIDE and use LightSIDE to extract a wide range of feature types; ii) build and evaluate models using alternative feature spaces; iii) compare the performance of different models; iv) inspect models and interpret the weights assigned to different features as well as to reason about what these weights signify and whether they make sense; v) examine texts from different categories and notice characteristics they might want to include in feature space for models and then use this reasoning to start to make tentative decisions about what kinds of features to include in their models",
+				userNickPowell, 
+				"academic performance, creative potential, dalmooc, learning design, MOOCs, sense of community, social network analysis");
+		
+		Competence1 comp1cred4 = null;
+		try {
+			comp1cred4 = createCompetence(
+						userNickPowell,
+						"Basic use of LightSIDE",
+						"Prepare data for use in LightSIDE and use LightSIDE to extract a wide range of feature types",
+						cred4.getId(),
+						"academic performance, creative potential, social network analysis");
 			
+			createActivity(
+					userNickPowell, 
+					"Data Preparation",
+					"Data Preparation in LightSIDE",
+					"https://www.youtube.com/watch?v=jz5pwR0moL0",
+					ActivityType.VIDEO,
+					comp1cred4.getId(),
+					0,
+					45,
+					false);
 			
-			try {
-				@SuppressWarnings("unused")
-				Course nickActiveCourse = ServiceLocator.getInstance().getService(CourseManager.class).saveNewCourse(
-						"Understanding of Applications of Learning Analytics in Education",
-						"This is a credential provides a set of competences for the EdX Data Analytics and Learning MOOC", 
-						null, 
-						courseCompetences, 
-						tags,
-						null,
-						userNickPowell, 
-						CreatorType.MANAGER, 
-						true, 
-						true);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
- 			 
-			logger.info("initRepository");
+			publishCredential(cred4, cred4.getCreatedBy());
+		} catch (EventException e1) {
+			logger.error(e1);
+		}
+		
+		Credential1 cred5 = createCredential(
+				"Prediction modeling", 
+				"The credential introduces how to conduct prediction modeling effectively and appropriately and describe core uses of prediction modeling in education.",
+				userNickPowell, 
+				"academic performance, creative potential, dalmooc, learning design, MOOCs, sense of community, social network analysis");
+		
+		Competence1 comp1cred5 = null;
+		try {
+			comp1cred5 = createCompetence(
+						userNickPowell,
+						"Basic of Prediction Modeling",
+						"Conduct prediction modeling effectively and appropriately",
+						cred5.getId(),
+						"academic performance, creative potential, social network analysis");
+			
+			createActivity(
+					userNickPowell, 
+					"Introduction in prediction modeling and regressors",
+					"Ryan Baker introduces prediction modeling and discusses regressors for week 5 of DALMOOC.",
+					"https://www.youtube.com/watch?v=1ZkUyFtCNIk",
+					ActivityType.VIDEO,
+					comp1cred5.getId(),
+					0,
+					37,
+					false);
+			
+			publishCredential(cred5, cred5.getCreatedBy());
+		} catch (EventException e1) {
+			logger.error(e1);
+		}
+		
  
-			try {
-				ServiceLocator
-						.getInstance()
-						.getService(PostManager.class)
-						.createNewPost(userNickPowell,
-								"Learning parametric data.", VisibilityType.PUBLIC, null, null, true, null, null, null, null);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			try {
-				ServiceLocator
+		try {
+			ServiceLocator
 					.getInstance()
 					.getService(PostManager.class)
 					.createNewPost(userNickPowell,
 							"Learning parametric data.", VisibilityType.PUBLIC, null, null, true, null, null, null, null);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
- 
-	 		AttachmentPreview rcA13 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://hsc.uwe.ac.uk/dataanalysis/quantinfasspear.asp");
- 
-			Collection<Tag> a13Tags = new ArrayList<Tag>();
-		
-			try {
-				a13Tags.add(getTag("statistics"));
-				a13Tags.add(getTag("parametric data"));
-				a13Tags.add(getTag("resampling"));
-			} catch (Exception e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			
- 
-			Activity a13 = null;
-			try {
-				a13 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell,
-								"Pearson's Correlation Coeeficient", null, rcA13,
-								VisibilityType.PUBLIC, a13Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
- 		
-			AttachmentPreview rcA14 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://www.math.uah.edu/stat/sample/Covariance.html");
- 			Collection<Tag> a14Tags = new ArrayList<Tag>();
-			try {
-				a14Tags.add(getTag("statistics"));
-				a14Tags.add(getTag("parametric data"));
-				a14Tags.add(getTag("resampling"));
-			} catch (Exception e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-		
-
-			Activity a14 = null;
-			try {
-				a14 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(
-								userNickPowell,
-								"Instructions for Covariance, Correlation, and Bivariate Graphs", null,
-								rcA14, VisibilityType.PUBLIC, a14Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-  
-			AttachmentPreview rcA15 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://www.statisticshowto.com/articles/how-to-find-the-coefficient-of-determination/");
- 			Collection<Tag> a15Tags = new ArrayList<Tag>();
-			try {
-				a15Tags.add(getTag("statistics"));
-				a15Tags.add(getTag("parametric data"));
-				a15Tags.add(getTag("resampling"));
-			} catch (Exception e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-		
-
-			Activity a15 = null;
-			try {
-				a15 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell,
-								"Coefficient of determination", null, rcA15,
-								VisibilityType.PUBLIC, a15Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
- 
-			AttachmentPreview rcA16 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://udel.edu/~mcdonald/statspearman.html");
-  
-
-			Collection<Tag> a16Tags = new ArrayList<Tag>();
-			try {
-				a16Tags.add(getTag("statistics"));
-				a16Tags.add(getTag("parametric data"));
-				a16Tags.add(getTag("resampling"));
-			} catch (Exception e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-
-			Activity a16 = null;
-			try {
-				a16 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell,
-								"Spearman's rank correlation coefficient", null, rcA16,
-								VisibilityType.PUBLIC, a16Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
- 			
-			AttachmentPreview rcA17 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://www.statisticssolutions.com/academic-solutions/resources/directory-of-statistical-analyses/kendalls-tau-and-spearmans-rank-correlation-coefficient/");
- 
-			Collection<Tag> a17Tags = new ArrayList<Tag>();
-			try {
-				a17Tags.add(getTag("statistics"));
-				a17Tags.add(getTag("parametric data"));
-				a17Tags.add(getTag("resampling"));
-			} catch (Exception e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-	
-
-			Activity a17 = null;
-			try {
-				a17 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell,
-								"Kendall tau rank correlation coefficient", null, rcA17,
-								VisibilityType.PUBLIC, a17Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-  			AttachmentPreview rcA18 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://www.apexdissertations.com/articles/point-biserial_correlation.html");
- 
-			Collection<Tag> a18Tags = new ArrayList<Tag>();
-			try {
-				a18Tags.add(getTag("statistics"));
-				a18Tags.add(getTag("parametric data"));
-				a18Tags.add(getTag("resampling"));
-			} catch (Exception e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-	
-			logger.info("initRepository");
-			Activity a18 = null;
-			try {
-				a18 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell,
-								"Biserial and Point-Biserial Correlations", null, rcA18,
-								VisibilityType.PUBLIC, a18Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-			deadlineCal.setTime(currentDate);
-			deadlineCal.add(Calendar.DATE, 15);
-
-			LearningGoal lg2 = null;
-			try {
-				lg2 = ServiceLocator
-						.getInstance()
-						.getService(LearningGoalManager.class)
-						.createNewLearningGoal(
-								userNickPowell,
-								"Learning Statistical Correlation",
-								"Learn how to identify relationship between two or "
-										+ "more variable and what are the most usually used relationships. "
-										+ "Correlation is a measure of relationship between two mathematical "
-										+ "variables or measured data values, which includes the Pearson correlation "
-										+ "coefficient as a special case.",
-								deadlineCal.getTime(), lg2Tags);
-			} catch (EventException e) {
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			userNickPowell = ServiceLocator.getInstance().getService(DefaultManager.class).merge(userNickPowell);
-
-			try {
-				ServiceLocator
-					.getInstance()
-					.getService(VisibilityManager.class)
-					.setResourceVisibility(userNickPowell, lg2, VisibilityType.PUBLIC.toString(), null);
-			} catch (VisibilityCoercionError e) {
-				logger.error(e.getLocalizedMessage());
-			} catch (EventException e) {
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			lg2 = ServiceLocator.getInstance().getService(DefaultManager.class).merge(lg2);
-			
-			try {
-				ServiceLocator
-					.getInstance()
-					.getService(LearningGoalManager.class)
-					.createNewTargetLearningGoal(userNickPowell, lg2);
-			} catch (EventException e) {
-				logger.error(e.getMessage());
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e.getMessage());
-			}
-			
-			TargetLearningGoal lg2PhillAmstrong = null;
-			try {
-				lg2PhillAmstrong =
-					ServiceLocator
-					.getInstance()
-					.getService(LearningGoalManager.class)
-					.createNewTargetLearningGoal(userNickPowell, lg2);
-			} catch (EventException e) {
-				logger.error(e.getMessage());
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e.getMessage());
-			}
-				
-			try {
-				ServiceLocator
-					.getInstance()
-					.getService(LearningGoalManager.class)
-					.createNewTargetLearningGoal(userNickPowell, lg2);
-			} catch (EventException e) {
-				logger.error(e.getMessage());
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e.getMessage());
-			}
- 
-
-			TargetCompetence tc4 = null;
-			try {
-				tc4 = ServiceLocator
-						.getInstance()
-						.getService(CompetenceManager.class)
-						.createNewTargetCompetence(
-								userNickPowell,
-								"Construct Bivariate Correlations",
-								"A statistical test that measures the association or relationship between two "
-										+ "continuous/interval/ordinal level variables. Bivariate correlation is a measure "
-										+ "of the relationship between the two variables; it measures the strength of their "
-										+ "relationship, which can range from absolute value 1 to 0. The stronger the relationship, "
-										+ "the closer the value is to 1. The relationship can be positive or negative; in positive "
-										+ "relationship, as one value increases, another value increases with it. In the negative "
-										+ "relationship, as one value increases, the other one decreases.",
-								12,
-								23,
-								null, 
-								VisibilityType.PRIVATE);
-			} catch (EventException e) {
-				logger.error(e.getLocalizedMessage());
-			}
-
- 
-			
-			try {
-				tc4 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tc4, a13, true);
-				tc4 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tc4, a14, true);
-				tc4 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tc4, a15, true);
-				tc4 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tc4, a16, true);
-				tc4 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tc4, a17, true);
-				tc4 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tc4, a18, true);
-			} catch (EventException e) {
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			try {
-				tc4 = (TargetCompetence) ServiceLocator.getInstance().getService(LearningGoalManager.class)
-						.addTargetCompetenceToGoal(userNickPowell, lg2PhillAmstrong, tc4, false, null).getNode();
-			} catch (EventException e) {
-			}
-			logger.info("initRepository");
-			// activity A19
- 
-			AttachmentPreview rcA19 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://www.apexdissertations.com/articles/point-biserial_correlation.html");
- 
-			Collection<Tag> a19Tags = new ArrayList<Tag>();
-			try {
-				a19Tags.add(getTag("statistics"));
-				a19Tags.add(getTag("parametric data"));
-				a19Tags.add(getTag("resampling"));
-			} catch (Exception e) {
-				logger.error(e.getLocalizedMessage());
-			}
-	
-
-			Activity a19 = null;
-			try {
-				a19 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell,
-								"Partial and Semi-Partial Correlations", null, rcA19,
-								VisibilityType.PUBLIC, a19Tags);
-			} catch (EventException e) {
-				logger.error(e.getLocalizedMessage());
-			}
-
- 
-			AttachmentPreview rcA20 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://explorable.com/partial-correlation-analysis.html");
- 
-			Collection<Tag> a20Tags = new ArrayList<Tag>();
-			try {
-				a20Tags.add(getTag("statistics"));
-				a20Tags.add(getTag("parametric data"));
-				a20Tags.add(getTag("resampling"));
-			} catch (Exception e) {
-				logger.error(e.getLocalizedMessage());
-			}
-	
-
-			Activity a20 = null;
-			try {
-				a20 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell,
-								"Partial Correlation Analysis", null, rcA20,
-								VisibilityType.PUBLIC, a20Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-			TargetCompetence tc5 = null;
-			try {
-				tc5 = ServiceLocator
-						.getInstance()
-						.getService(CompetenceManager.class)
-						.createNewTargetCompetence(
-								userNickPowell,
-								"Construct Partial Correlations",
-								"Partial correlation is the relationship between two variables while controlling "
-										+ "for a third variable. The purpose is to find the unique variance between two "
-										+ "variables while eliminating the variance from a third variables.",
-								12,
-								11,
-								null, 
-								VisibilityType.PRIVATE);
-			} catch (EventException e) {
-				logger.error(e.getLocalizedMessage());
-			}
-			logger.info("initRepository");
- 			
-			try {
-				tc5 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tc5, a19, true);
-				tc5 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tc5, a20, true);
-			} catch (EventException e) {
-				logger.error(e.getLocalizedMessage());
-			}
-		
-			try {
-				tc5 = (TargetCompetence) ServiceLocator.getInstance().getService(LearningGoalManager.class)
-						.addTargetCompetenceToGoal(userNickPowell, lg2PhillAmstrong, tc5, false, null).getNode();
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			AttachmentPreview rcA21 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://exploringdata.net/sampling.htm");
- 			
-
-			Collection<Tag> a21Tags = new ArrayList<Tag>();
-			try {
-				a21Tags.add(getTag("statistics"));
-				a21Tags.add(getTag("parametric data"));
-				a21Tags.add(getTag("resampling"));
-			} catch (Exception e) {
-				logger.error(e.getLocalizedMessage());
-			}
-	
-
-			Activity a21 = null;
-			try {
-				a21 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell, "Sampling activity", null, rcA21,
-								VisibilityType.PUBLIC, a21Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-  
-			AttachmentPreview rcA22 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://www.khanacademy.org/math/statistics/v/introduction-to-the-normal-distribution");
- 			
-			Collection<Tag> a22Tags = new ArrayList<Tag>();
-			try {
-				a22Tags.add(getTag("statistics"));
-				a22Tags.add(getTag("parametric data"));
-				a22Tags.add(getTag("resampling"));
-			} catch (Exception e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-
-			Activity a22 = null;
-			try {
-				a22 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell, "Normal Distribution", null,
-								rcA22, VisibilityType.PUBLIC, a22Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
- 
-
-			deadlineCal.add(Calendar.DATE, -3);
-			logger.info("initRepository");
-			LearningGoal lg3 = null;
-			try {
-				lg3 = ServiceLocator
-						.getInstance()
-						.getService(LearningGoalManager.class)
-						.createNewLearningGoal(
-								userNickPowell,
-								"Exploratory analysis of data",
-								"Exploratory analysis of data makes use of graphical and numerical techniques to "
-										+ "study patterns and departures from patterns. In examining distributions of data, "
-										+ "students should be able to detect important characteristics, such as shape, location, "
-										+ "variability, and unusual values. From careful observations of patterns in data, "
-										+ "students can generate conjectures about relationships among variables. The notion of "
-										+ "how one variable may be associated with another permeates almost all of statistics, from "
-										+ "simple comparisons of proportions through linear regression. The difference between "
-										+ "association and causation must accompany this conceptual development throughout.",
-								deadlineCal.getTime(), lg2Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-			//userKevinHall = ServiceLocator.getInstance().getService(DefaultManager.class).merge(userKevinHall);
-			
-			TargetCompetence tc6 = null;
-			try {
-				tc6 = ServiceLocator
-						.getInstance()
-						.getService(CompetenceManager.class)
-						.createNewTargetCompetence(
-								userNickPowell,
-								"Analyze Data",
-								"Know how to take raw data, extract meaningful information and use statistical tools.",
-								12,
-								7,
-								null, 
-								VisibilityType.PRIVATE);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
- 			
-			try {
-				tc6 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tc6, a21, true);
-				tc6= ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tc6, a22, true);
-
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			TargetLearningGoal lg3KevinHall = null;
-			try {
-				lg3KevinHall =
-					ServiceLocator
-					.getInstance()
-					.getService(LearningGoalManager.class)
-					.createNewTargetLearningGoal(userNickPowell, lg3);
-			} catch (EventException e) {
-				logger.error(e.getMessage());
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e.getMessage());
-			}
-			
-			try {
-				tc6 = (TargetCompetence) ServiceLocator.getInstance().getService(LearningGoalManager.class)
-						.addTargetCompetenceToGoal(userNickPowell, lg3KevinHall, tc6, false, null).getNode();
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-			LearningGoal lgtac1 = null;
-			try {
-				lgtac1 = ServiceLocator
-						.getInstance()
-						.getService(LearningGoalManager.class)
-						.createNewLearningGoal(
-								userNickPowell,
-								"Statistics 2 – Inference and Association",
-								"This course, the second in a three-course sequence, "
-										+ "provides an easy introduction to inference and association through a series of practical applications, "
-										+ "based on the resampling/simulation approach. Once you have completed this course you will be able to "
-										+ "test hypotheses and compute confidence intervals regarding proportions or means, computer correlations and "
-										+ "fit simple linear regressions.  Topics covered also include chi-square goodness-of-fit and paired comparisons.",
-								deadlineCal.getTime(), lg2Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			//userAnthonyMoore = ServiceLocator.getInstance().getService(DefaultManager.class).merge(userAnthonyMoore);
-
-			TargetCompetence tac1 = null;
-			try {
-				tac1 = ServiceLocator
-						.getInstance()
-						.getService(CompetenceManager.class)
-						.createNewTargetCompetence(
-								userNickPowell,
-								"Analyse statistical data",
-								"The process of evaluating data using analytical and logical "
-									+ "reasoning to examine each component of the data provided. "
-									+ "This form of analysis is just one of the many steps that must "
-									+ "be completed when conducting a research experiment. Data from "
-									+ "various sources is gathered, reviewed, and then analyzed to form "
-									+ "some sort of finding or conclusion. There are a variety of specific "
-									+ "data analysis method, some of which include data mining, text analytics, "
-									+ "business intelligence, and data visualizations.",
-								12,
-								7,
-								null, 
-								VisibilityType.PRIVATE);
-			} catch (EventException e) {
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			TargetLearningGoal lgtac1AnthonyMoore = null;
-			try {
-				lgtac1AnthonyMoore =
-					ServiceLocator
-					.getInstance()
-					.getService(LearningGoalManager.class)
-					.createNewTargetLearningGoal(userNickPowell, lgtac1);
-			} catch (EventException e) {
-				logger.error(e.getMessage());
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e.getMessage());
-			}
-			
-			try {
-				tac1 = (TargetCompetence) ServiceLocator.getInstance().getService(LearningGoalManager.class).
-						addTargetCompetenceToGoal(userNickPowell, lgtac1AnthonyMoore, tac1, false, null).getNode();
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			
-		//	userAnthonyMoore = ServiceLocator.getInstance().getService(DefaultManager.class).merge(userAnthonyMoore);
-			
-			try {
-				@SuppressWarnings("unused")
-				LearningGoal lgtac2 = ServiceLocator
-						.getInstance()
-						.getService(LearningGoalManager.class)
-						.createNewLearningGoal(
-								userNickPowell,
-								"Spatial Analysis Techniques in R taught by Dave Unwin",
-								"This course will teach users how to implement spatial statistical "
-										+ "analysis procedures using R software. Topics covered include point pattern analysis, "
-										+ "identifying clusters, measures of spatial association, geographically weighted regression "
-										+ "and surface procession.",
-								deadlineCal.getTime(), lg2Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			TargetCompetence tac2 = ServiceLocator.getInstance()
-					.getService(ResourceFactory.class)
-					.createNewTargetCompetence(userNickPowell, tac1.getCompetence(), 
-							VisibilityType.PRIVATE);
- 
-			List<Activity> acts=new ArrayList<Activity>();
-			for(TargetActivity ta:tac1.getTargetActivities()){
-				acts.add(ta.getActivity());
-			}
-			try {
-				ServiceLocator
-						.getInstance()
-						.getService(LearningGoalManager.class)
-						.cloneActivitiesAndAddToTargetCompetence(
-								userNickPowell, tac2, acts, false, null);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			tac2 = ServiceLocator.getInstance().getService(DefaultManager.class).merge(tac2);
- 
-			
-			try {
-				tac2 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tac2, a14, true);
-				tac2 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tac2, a19, true);
-				
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-				tac2 = ServiceLocator.getInstance().getService(DefaultManager.class).merge(tac2);
-				logger.info("initRepository");
-			// post status
-			try {
-				ServiceLocator
-						.getInstance()
-						.getService(PostManager.class)
-						.createNewPost(
-								userNickPowell,
-								"Can anybody recommend me a good book for SPSS basics? Thanks!",
-								VisibilityType.PUBLIC, null, null, true, null, null, null, null);
-			} catch (EventException e4) {
-				
-				logger.error(e4.getLocalizedMessage());
-			}
- 
-			LearningGoal lg4 = null;
-			try {
-				lg4 = ServiceLocator
-						.getInstance()
-						.getService(LearningGoalManager.class)
-						.createNewLearningGoal(
-								userNickPowell,
-								"Learning Parametric statistics",
-								"Parametric statistics is a branch of statistics that assumes that the data has come from a type of probability distribution and makes inferences about the parameters of the distribution. Most well-known elementary statistical methods are parametric",
-								deadlineCal.getTime(), lg2Tags);
-			} catch (EventException e4) {
-				
-				logger.error(e4.getLocalizedMessage());
-			}
- 
-			
-			try {
-				ServiceLocator
-						.getInstance()
-						.getService(VisibilityManager.class)
-						.setResourceVisibility(userNickPowell, lg4, VisibilityType.PUBLIC.toString(), null);
-			} catch (VisibilityCoercionError e4) {
-				
-				logger.error(e4.getLocalizedMessage());
-			} catch (EventException e4) {
-				
-				logger.error(e4.getLocalizedMessage());
-			}
-			lg4 = ServiceLocator.getInstance().getService(DefaultManager.class).merge(lg4);
-
-			TargetCompetence tc7 = ServiceLocator
-					.getInstance()
-					.getService(ResourceFactory.class)
-					.createNewTargetCompetence(userNickPowell,
-							tc1.getCompetence(), 
-							VisibilityType.PRIVATE);
-
-			try {
-				ServiceLocator.getInstance().getService(EventFactory.class)
-						.generateEvent(EventType.Create, userNickPowell, tc7);
-			} catch (EventException e4) {
-				
-				logger.error(e4.getLocalizedMessage());
-			}
-			logger.info("initRepository");
- 
-			AttachmentPreview rcAB1 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://www.mathsisfun.com/data/standard-normal-distribution.html");
- 
-
-			Collection<Tag> ab1Tags = new ArrayList<Tag>();
-			try {
-				ab1Tags.add(getTag("statistics"));
-				ab1Tags.add(getTag("parametric data"));
-				ab1Tags.add(getTag("resampling"));
-			} catch (Exception e4) {
-				
-				logger.error(e4.getLocalizedMessage());
-			}
-	
-
-			Activity ab1 = null;
-			try {
-				ab1 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(
-								userNickPowell,
-								"Parametric statistics, From Wikipedia, the free encyclopedia", null,
-								rcAB1, VisibilityType.PUBLIC, ab1Tags);
-			} catch (EventException e4) {
-				
-				logger.error(e4.getLocalizedMessage());
-			}
-			
-			AttachmentPreview rcAB2 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://laboratory-manager.advanceweb.com/Columns/Interpreting-Statistics/Non-Parametric-Statistics.aspx");
-			
-			try {
-				@SuppressWarnings("unused")
-				Activity ab2 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(
-								userNickPowell,
-								"Non-parametric statistics, From Wikipedia, the free encyclopedia", null,
-								rcAB2, VisibilityType.PUBLIC, ab1Tags);
-			} catch (EventException e4) {
-				
-				logger.error(e4.getLocalizedMessage());
-			}
-			
-			try {
-				tc7 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tc7, ab1, true);
-			} catch (EventException e3) {
-				logger.error(e3.getLocalizedMessage());
-			}
-			
-			TargetLearningGoal lg4NickPowell = null;
-			try {
-				lg4NickPowell =
-					ServiceLocator
-					.getInstance()
-					.getService(LearningGoalManager.class)
-					.createNewTargetLearningGoal(userNickPowell, lg4);
-			} catch (EventException e) {
-				logger.error(e.getMessage());
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e.getMessage());
-			}
-
-			try {
-				tc7 = (TargetCompetence) ServiceLocator.getInstance().getService(LearningGoalManager.class)
-						.addTargetCompetenceToGoal(userNickPowell, lg4NickPowell, tc7, false, null).getNode();
-			} catch (EventException e2) {
-				
-				logger.error(e2.getLocalizedMessage());
-			}
-			
-			lg4 = ServiceLocator.getInstance().getService(DefaultManager.class).merge(lg4);
-
-			// /Andrew Camper activities
-			LearningGoal lg5 = null;
-			try {
-				lg5 = ServiceLocator
-						.getInstance()
-						.getService(LearningGoalManager.class)
-						.createNewLearningGoal(
-								userNickPowell,
-								"Learning Probability theory",
-								"Probability theory is the branch of mathematics concerned with probability, "
-										+ "the analysis of random phenomena.The central objects of probability theory are random variables, "
-										+ "stochastic processes, and events: mathematical abstractions of non-deterministic events or measured quantities "
-										+ "that may either be single occurrences or evolve over time in an apparently random fashion. If an individual coin toss "
-										+ "or the roll of dice is considered to be a random event, then if repeated many times the sequence of random events will "
-										+ "exhibit certain patterns, which can be studied and predicted."
-										+ "Two representative mathematical results describing such patterns are the law of large numbers and the central limit theorem.",
-								deadlineCal.getTime(), lg2Tags);
-			} catch (EventException e1) {
-				
-				logger.error(e1.getLocalizedMessage());
-			}
-			logger.info("initRepository");
-			try {
-				ServiceLocator
-						.getInstance()
-						.getService(VisibilityManager.class)
-						.setResourceVisibility(userNickPowell, lg5, VisibilityType.PRIVATE.toString(), null);
-			} catch (VisibilityCoercionError e1) {
-				
-				logger.error(e1.getLocalizedMessage());
-			} catch (EventException e1) {
-				
-				logger.error(e1.getLocalizedMessage());
-			}
-			
-			lg5 = ServiceLocator.getInstance().getService(DefaultManager.class).merge(lg5);
-			
-			//userAndrewCamper = ServiceLocator.getInstance().getService(DefaultManager.class).merge(userAndrewCamper);
-
-			TargetCompetence tc8 = ServiceLocator
-					.getInstance()
-					.getService(ResourceFactory.class)
-					.createNewTargetCompetence(userNickPowell,
-							tc1.getCompetence(), 
-							VisibilityType.PRIVATE);
-
-			try {
-				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Create, userNickPowell, tc8);
-			} catch (EventException e1) {
-				
-				logger.error(e1.getLocalizedMessage());
-			}
-
- 	
-			AttachmentPreview rcACs = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://www.probabilitytheory.info/");
- 
-
-			Activity ac1 = null;
-			try {
-				ac1 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(
-								userNickPowell,
-								"Probability theory, From Wikipedia, the free encyclopedia", null,
-								rcACs, VisibilityType.PUBLIC, ab1Tags);
-			} catch (EventException e1) {
-				
-				logger.error(e1.getLocalizedMessage());
-			}
-	 		AttachmentPreview rcAC2 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://www.vosesoftware.com/ModelRiskHelp/index.htm#Probability_theory_and_statistics/The_basics/Probability_equations/Probability_mass_function_%28pmf%29.htm");
-
-			Activity ac2 = null;
-			try {
-				ac2 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(
-								userNickPowell,
-								"Probability mass function, From Wikipedia, the free encyclopedia", null,
-								rcAC2, VisibilityType.PUBLIC, ab1Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			List<Activity> acts2=new ArrayList<Activity>();
-			for(TargetActivity ta:tac1.getTargetActivities()){
-				acts2.add(ta.getActivity());
-			}
-			try {
-				ServiceLocator
-						.getInstance()
-						.getService(LearningGoalManager.class)
-						.cloneActivitiesAndAddToTargetCompetence(
-								userNickPowell, tc8, acts2, false, null);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			tc8 = ServiceLocator.getInstance().getService(DefaultManager.class).merge(tc8);
-			logger.info("initRepository");
- 
-			
-			try {
-				tc8 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tc8, ac1, true);
-				tc8 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tc8, ac2, true);
-				
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-				tc8 = ServiceLocator.getInstance().getService(DefaultManager.class).merge(tc8);
-			
- 
-
-			TargetLearningGoal lg5NickPowell = null;
-			try {
-				lg5NickPowell =
-					ServiceLocator
-					.getInstance()
-					.getService(LearningGoalManager.class)
-					.createNewTargetLearningGoal(userNickPowell, lg5);
-			} catch (EventException e) {
-				logger.error(e.getMessage());
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e.getMessage());
-			}
-				
-			try {
-				tc8 = (TargetCompetence) ServiceLocator.getInstance().getService(LearningGoalManager.class)
-						.addTargetCompetenceToGoal(userNickPowell, lg5NickPowell, tc8, false, null).getNode();
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-			// /Andrew Camper activities
-			LearningGoal lg6 = null;
-			try {
-				lg6 = ServiceLocator
-						.getInstance()
-						.getService(LearningGoalManager.class)
-						.createNewLearningGoal(
-								userNickPowell,
-								"Learning Regression Analyses",
-								"Parametric statistics assume more about the quality of the data, "
-										+ "but in return they can tell us more about what is going on with those data.  "
-										+ "The most common parametric statistics assume the “General Linear Model”—that is, "
-										+ "they assume that the “true,” underlying distribution of the data can be described "
-										+ "by a straight line (or one of its variants).  We will look particularly at correlation "
-										+ "and analysis of variance.",
-								deadlineCal.getTime(), lg2Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-			try {
-				ServiceLocator
-						.getInstance()
-						.getService(VisibilityManager.class)
-						.setResourceVisibility(userNickPowell, lg6,	VisibilityType.PRIVATE.toString(), null);
-			} catch (VisibilityCoercionError e) {
-				
-				logger.error(e.getLocalizedMessage());
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			lg6 = ServiceLocator.getInstance().getService(DefaultManager.class).merge(lg6);
-			
-			//userAkikoKido = ServiceLocator.getInstance().getService(DefaultManager.class).merge(userAkikoKido);
 
 			ServiceLocator
 					.getInstance()
-					.getService(NodeRecommendationManager.class)
-					.sendRecommendation(userNickPowell, userNickPowell, lg6,
-							RecommendationType.USER);
-
-			TargetCompetence tc9 = ServiceLocator
-					.getInstance()
-					.getService(ResourceFactory.class)
-					.createNewTargetCompetence(userNickPowell,
-							tc1.getCompetence(), 
-							VisibilityType.PRIVATE);
-			logger.info("initRepository");
-			try {
-				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Create, userNickPowell, tc9);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
- 		
-			AttachmentPreview rcAD1 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://krypton.mnsu.edu/~tony/courses/502/Regression.html");
- 
-			
- 
-
-			Activity ad1 = null;
-			try {
-				ad1 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell,
-								"URBS 502:  Regression Analyses", null, rcAD1,
-								VisibilityType.PUBLIC, ab1Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
- 
-			AttachmentPreview rcAD2 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://www.csse.monash.edu.au/~smarkham/resources/param.htm");
- 
-			
-			
-			Activity ad2 = null;
-			try {
-				ad2 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell,
-								"Parametric versus non-parametric", null, rcAD2,
-								VisibilityType.PUBLIC, ab1Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
- 
-			
-			try {
-				tc9 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tc9, ad1, true);
-				tc9 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tc9, ad2, true);
-
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
- 
-			
-			TargetLearningGoal lg6NickPowell = null;
-			try {
-				lg6NickPowell =
-					ServiceLocator
-					.getInstance()
-					.getService(LearningGoalManager.class)
-					.createNewTargetLearningGoal(userNickPowell, lg6);
-			} catch (EventException e) {
-				logger.error(e.getMessage());
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e.getMessage());
-			}
-			
-			try {
-				tc9 = (TargetCompetence) ServiceLocator.getInstance().getService(LearningGoalManager.class)
-						.addTargetCompetenceToGoal(userNickPowell, lg6NickPowell, tc9, false, null).getNode();
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			logger.info("initRepository");
-			lg1 = ServiceLocator.getInstance().getService(LearningGoalManager.class).merge(lg1);
-			
-			try {
-				ServiceLocator
-					.getInstance()
-					.getService(LearningGoalManager.class)
-					.createNewTargetLearningGoal(userNickPowell, lg1);
-			} catch (EventException e) {
-				logger.error(e.getMessage());
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e.getMessage());
-			}
-				
-			try {
-				ServiceLocator
-					.getInstance()
-					.getService(LearningGoalManager.class)
-					.createNewTargetLearningGoal(userNickPowell, lg1);
-			} catch (EventException e) {
-				logger.error(e.getMessage());
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e.getMessage());
-			}
-			
-			// ///////////////////////////////
-			// LearningPlans for Ilustrate and Prepare Data
-			// ////////////////////////////////////////////
-
-			// ///Erica Ames activities
-
-			LearningGoal lgd1 = null;
-			try {
-				lgd1 = ServiceLocator
-						.getInstance()
-						.getService(LearningGoalManager.class)
-						.createNewLearningGoal(
-								userNickPowell,
-								"Preparing Data for Analysis",
-								"This section provides an example of the programming code needed to read "
-										+ "in a multilevel data file, to create an incident-level aggregated flat file "
-										+ "for summary-level analysis, and to prepare individual data segments for detailed "
-										+ "analysis. For illustration purposes, a National Incident-Based Reporting System "
-										+ "(NIBRS) data file obtained from the FBI is read into and restructured in SPSS, "
-										+ "SAS, and Microsoft ACCESS. The concepts illustrated are applicable to state-level "
-										+ "data sets and transferable to other software.",
-								deadlineCal.getTime(), lg2Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-			try {
-				ServiceLocator
-						.getInstance()
-						.getService(VisibilityManager.class)
-						.setResourceVisibility(userNickPowell, lgd1, VisibilityType.PUBLIC.toString(), null);
-			} catch (VisibilityCoercionError e) {
-				
-				logger.error(e.getLocalizedMessage());
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			lgd1 = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(lgd1);
- 
-
-			TargetCompetence tcd1 = ServiceLocator
-					.getInstance()
-					.getService(ResourceFactory.class)
-					.createNewTargetCompetence(userNickPowell,
-							tc2.getCompetence(), 
-							VisibilityType.PRIVATE);
-			
-			try {
-				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Create, userNickPowell, tcd1);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-			TargetCompetence tcnp1 = ServiceLocator
-					.getInstance()
-					.getService(ResourceFactory.class)
-					.createNewTargetCompetence(userNickPowell,
-							tc2.getCompetence(), 
-							VisibilityType.PRIVATE);
-			try {
-				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Create, userNickPowell, tcnp1);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			
- 		
-			AttachmentPreview rcBA1 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://www.jrsa.org/ibrrc/using-data/preparing_data/preparing-file/index.shtml");
- 
- 
-			logger.info("initRepository");
-			Collection<Tag> ba1Tags = new ArrayList<Tag>();
-			try {
-				ab1Tags.add(getTag("statistics"));
-				ab1Tags.add(getTag("parametric data"));
-				ab1Tags.add(getTag("resampling"));
-			} catch (Exception e2) {
-				
-				logger.error(e2.getLocalizedMessage());
-			}
-		
-
-			Activity ba1 = null;
-			try {
-				ba1 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(
-								userNickPowell,
-								"Extracting Data from Incident-Based Systems and NIBRS", null,
-								rcBA1, VisibilityType.PUBLIC, ba1Tags);
-			} catch (EventException e1) {
-				
-				logger.error(e1.getLocalizedMessage());
-			}
-
- 
-			AttachmentPreview rcBA2 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://www.jrsa.org/ibrrc/using-data/preparing_data/preparing-file/preparing_data.shtml");
- 
-			
-			Activity ba2 = null;
-			try {
-				ba2 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell,
-								"PREPARING A FILE FOR ANALYSIS", null, rcBA2,
-								VisibilityType.PUBLIC, ba1Tags);
-			} catch (EventException e1) {
-				
-				logger.error(e1.getLocalizedMessage());
-			}
-
- 			
-			AttachmentPreview rcBA3 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://www.jrsa.org/ibrrc/using-data/preparing_data/preparing-file/reading_data.shtml");
- 
- 
-
-			Activity ba3 = null;
-			try {
-				ba3 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell,
-								"Reading a Multilevel Data File", null, rcBA3,
-								VisibilityType.PUBLIC, ba1Tags);
-			} catch (EventException e1) {
-				
-				logger.error(e1.getLocalizedMessage());
-			}
-
- 
-
-			try {
-				tcnp1 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tcnp1, ba1, true);
-				tcnp1 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tcnp1, ba2, true);
-				tcnp1 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tcnp1, ba3, true);
-				
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			tcnp1 = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(tcnp1);
-			
-			TargetLearningGoal lgd1RachelWiggins = null;
-			try {
-				lgd1RachelWiggins =
-					ServiceLocator
-					.getInstance()
-					.getService(LearningGoalManager.class)
-					.createNewTargetLearningGoal(userNickPowell, lgd1);
-			} catch (EventException e) {
-				logger.error(e.getMessage());
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e.getMessage());
-			}
-			
-			try {
-				tcd1 = (TargetCompetence) ServiceLocator.getInstance().getService(LearningGoalManager.class)
-						.addTargetCompetenceToGoal(userNickPowell, lgd1RachelWiggins, tcd1, false, null).getNode();
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-			// /Janie Biggs activities
-			LearningGoal lgd2 = null;
-			try {
-				lgd2 = ServiceLocator
-						.getInstance()
-						.getService(LearningGoalManager.class)
-						.createNewLearningGoal(
-								userNickPowell,
-								"Drawing conclusions from data ",
-								"How well do measurements of mercury concentrations in ten "
-										+ "cans of tuna reflect the composition of the factory's entire output? "
-										+ "Why can't you just use the average of these measurements? "
-										+ "How much better would the results of 100 such tests be? This "
-										+ "final lesson on measurement will examine these questions and introduce "
-										+ "you to some of the methods of dealing with data. This stuff is important "
-										+ "not only for scientists, but also for any intelligent citizen who wishes "
-										+ "to independenly evaluate the flood of numbers served up by advertisers, "
-										+ "politicians,  experts , and yes— by other scientists.",
-								deadlineCal.getTime(), lg2Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-			try {
-				ServiceLocator
-						.getInstance()
-						.getService(VisibilityManager.class)
-						.setResourceVisibility(userNickPowell, lgd2, VisibilityType.PRIVATE.toString(), null);
-			} catch (VisibilityCoercionError e) {
-				
-				logger.error(e.getLocalizedMessage());
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			lgd2 = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(lgd2);
- 
-
-			TargetCompetence tcd2 = ServiceLocator
-					.getInstance()
-					.getService(ResourceFactory.class)
-					.createNewTargetCompetence(userNickPowell,
-							tcd1.getCompetence(), 
-							VisibilityType.PRIVATE);
-
-			try {
-				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Create, userNickPowell, tcd2);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-			logger.info("initRepository");
-			AttachmentPreview rcBB2 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://www.chem1.com/acad/webtext/matmeasure/mm5.html");
- 
- 
-
-			Activity bb1 = null;
-			try {
-				bb1 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell,
-								"Drawing conclusions from data", null, rcBB2,
-								VisibilityType.PUBLIC, ab1Tags);
-			} catch (EventException e2) {
-				
-				logger.error(e2.getLocalizedMessage());
-			}
-
- 			
-			AttachmentPreview rcBB3 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://www.chem1.com/acad/webtext/matmeasure/mm1.html");
- 
- 
-
-			Activity bb2 = null;
-			try {
-				bb2 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(
-								userNickPowell,
-								"Understanding the units of scientific measurement", null,
-								rcBB3, VisibilityType.PUBLIC, ab1Tags);
-			} catch (EventException e1) {
-				
-				logger.error(e1.getLocalizedMessage());
-			}
-			List<Activity> acts3=new ArrayList<Activity>();
-			for(TargetActivity ta:tac1.getTargetActivities()){
-				acts3.add(ta.getActivity());
-			}
-			try {
-				ServiceLocator
-						.getInstance()
-						.getService(LearningGoalManager.class)
-						.cloneActivitiesAndAddToTargetCompetence(
-								userNickPowell, tcd2, acts3, false, null);
-			} catch (EventException e1) {
-				
-				logger.error(e1.getLocalizedMessage());
-			}
-			
-			tcd2 = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(tcd2);
-			
- 
-			
-			try {
-				tcd2 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tcd2, bb1, true);
-				tcd2 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tcd2, bb2, true);
-			} catch (EventException e1) {
-				logger.error(e1.getLocalizedMessage());
-			}
-			
-			TargetLearningGoal lgd2AkikoKido = null;
-			try {
-				lgd2AkikoKido =
-					ServiceLocator
-					.getInstance()
-					.getService(LearningGoalManager.class)
-					.createNewTargetLearningGoal(userNickPowell, lgd2);
-			} catch (EventException e) {
-				logger.error(e.getMessage());
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e.getMessage());
-			}
-			
-			try {
-				tcd2 = (TargetCompetence) ServiceLocator.getInstance().getService(LearningGoalManager.class)
-						.addTargetCompetenceToGoal(userNickPowell, lgd2AkikoKido, tcd2, false, null).getNode();
-			} catch (EventException e1) {
-				
-				logger.error(e1.getLocalizedMessage());
-			}
-
-			// /Angelica Fallou activities
-			LearningGoal lgd3 = null;
-			try {
-				lgd3 = ServiceLocator
-						.getInstance()
-						.getService(LearningGoalManager.class)
-						.createNewLearningGoal(
-								userNickPowell,
-								"Understanding Descriptive Statistics ",
-								"Descriptive statistics can include graphical summaries that show the "
-										+ "spread of the data, and numerical summaries that either measure the central "
-										+ "tendency (a 'typical' data value) of a data set or that describe the spread of the data.",
-								deadlineCal.getTime(), lg2Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-			try {
-				ServiceLocator
-						.getInstance()
-						.getService(VisibilityManager.class)
-						.setResourceVisibility(userNickPowell, lgd3, VisibilityType.PRIVATE.toString(), null);
-			} catch (VisibilityCoercionError e) {
-				
-				logger.error(e.getLocalizedMessage());
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			lgd3 = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(lgd3);
- 
-
-			TargetCompetence tcd3 = ServiceLocator
-					.getInstance()
-					.getService(ResourceFactory.class)
-					.createNewTargetCompetence(userNickPowell,
-							tcd1.getCompetence(), 
-							VisibilityType.PRIVATE);
-			logger.info("initRepository");
-			try {
-				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Create, userNickPowell, tcd3);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-  
-			AttachmentPreview rcBC1 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://www.nationalatlas.gov/articles/mapping/a_statistics.html");
- 
-			
-			
-			Activity bc1 = null;
-			try {
-				bc1 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell,
-								"Understanding Descriptive Statistics", null, rcBC1,
-								VisibilityType.PUBLIC, ab1Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
- 
-			
-			AttachmentPreview rcBC2 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://www.amstat.org/publications/jse/secure/v8n3/preston.cfm");
- 
-			
-
-			Activity bc2 = null;
-			try {
-				bc2 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell,
-								"Teaching Prediction Intervals", null, rcBC2,
-								VisibilityType.PUBLIC, ab1Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
- 
-			
-			try {
-				tcd3 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tcd3, bc1, true);
-				tcd3 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tcd3, bc2, true);
-
-			} catch (EventException e) {
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			tcd3 = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(tcd3);
-			
-			TargetLearningGoal lgd3IdaFritz = null;
-			try {
-				lgd3IdaFritz =
-					ServiceLocator
-					.getInstance()
-					.getService(LearningGoalManager.class)
-					.createNewTargetLearningGoal(userNickPowell, lgd3);
-			} catch (EventException e) {
-				logger.error(e.getMessage());
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e.getMessage());
-			}
-			
-			try {
-				tcd3 = (TargetCompetence) ServiceLocator.getInstance().getService(LearningGoalManager.class)
-						.addTargetCompetenceToGoal(userNickPowell, lgd3IdaFritz, tcd3, false, null).getNode();
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			try {
-				ServiceLocator
-					.getInstance()
-					.getService(LearningGoalManager.class)
-					.createNewTargetLearningGoal(userNickPowell, lgd1);
-			} catch (EventException e) {
-				logger.error(e.getMessage());
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e.getMessage());
-			}
-			
-			// ///////////////////////////////
-			// LearningPlans for Outline Descriptive Statistic
-			// ////////////////////////////////////////////
-
-			// ///Erica Ames activities
-
-			LearningGoal lge1 = null;
-			try {
-				lge1 = ServiceLocator
-						.getInstance()
-						.getService(LearningGoalManager.class)
-						.createNewLearningGoal(
-								userNickPowell,
-								"Learning Descriptive statistics",
-								"Descriptive statistics is the discipline of quantitatively describing the main features"
-										+ " of a collection of data.Descriptive statistics are distinguished from inferential "
-										+ "statistics (or inductive statistics), in that descriptive statistics aim to summarize "
-										+ "a sample, rather than use the data to learn about the population that the sample of "
-										+ "data is thought to represent. This generally means that descriptive statistics, unlike "
-										+ "inferential statistics, are not developed on the basis of probability theory.",
-								deadlineCal.getTime(), lg2Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-			try {
-				ServiceLocator
-						.getInstance()
-						.getService(VisibilityManager.class)
-						.setResourceVisibility(userNickPowell, lge1, VisibilityType.PUBLIC.toString(), null);
-			} catch (VisibilityCoercionError e) {
-				
-				logger.error(e.getLocalizedMessage());
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			lge1 = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(lge1);
- 
-
-			LearningGoal lge2 = null;
-			try {
-				lge2 = ServiceLocator
-						.getInstance()
-						.getService(LearningGoalManager.class)
-						.createNewLearningGoal(
-								userNickPowell,
-								"Learning about Partial Correlations",
-								"In probability theory and statistics, partial correlation measures "
-										+ "the degree of association between two random variables, with the effect "
-										+ "of a set of controlling random variables removed.",
-								deadlineCal.getTime(), lg2Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-			try {
-				ServiceLocator
-						.getInstance()
-						.getService(VisibilityManager.class)
-						.setResourceVisibility(userNickPowell, lge2, VisibilityType.PUBLIC.toString(), null);
-			} catch (VisibilityCoercionError e) {
-				
-				logger.error(e.getLocalizedMessage());
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			lge2 = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(lge2);
- 
-
-			LearningGoal lge3 = null;
-			try {
-				lge3 = ServiceLocator
-						.getInstance()
-						.getService(LearningGoalManager.class)
-						.createNewLearningGoal(
-								userNickPowell,
-								"Learning about Approximation theory",
-								"In mathematics, approximation theory is concerned with how "
-										+ "functions can best be approximated with simpler functions, "
-										+ "and with quantitatively characterizing the errors introduced thereby. "
-										+ "Note that what is meant by best and simpler will depend on the "
-										+ "application..", deadlineCal.getTime(),
-								lg2Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-			try {
-				ServiceLocator
-						.getInstance()
-						.getService(VisibilityManager.class)
-						.setResourceVisibility(userNickPowell, lge3, VisibilityType.PRIVATE.toString(), null);
-			} catch (VisibilityCoercionError e) {
-				
-				logger.error(e.getLocalizedMessage());
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			lge3 = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(lge3);
- 
-
-			TargetCompetence tce1 = ServiceLocator
-					.getInstance()
-					.getService(ResourceFactory.class)
-					.createNewTargetCompetence(userNickPowell,
-							tc3.getCompetence(), 
-							VisibilityType.PRIVATE);
-			try {
-				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Create, userNickPowell, tce1);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-			TargetCompetence tce2 = ServiceLocator
-					.getInstance()
-					.getService(ResourceFactory.class)
-					.createNewTargetCompetence(userNickPowell,
-							tc5.getCompetence(), 
-							VisibilityType.PRIVATE);
-			try {
-				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Create, userNickPowell, tce2);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-			TargetCompetence tce3 = ServiceLocator
-					.getInstance()
-					.getService(ResourceFactory.class)
-					.createNewTargetCompetence(userNickPowell,
-							tc5.getCompetence(), 
-							VisibilityType.PRIVATE);
-			try {
-				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Create, userNickPowell, tce3);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-			logger.info("initRepository");
-			AttachmentPreview rcCA1 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://mste.illinois.edu/hill/dstat/dstat.html");
- 
- 
-
-			Collection<Tag> ca1Tags = new ArrayList<Tag>();
-			try {
-				ab1Tags.add(getTag("statistics"));
-				ab1Tags.add(getTag("parametric data"));
-				ab1Tags.add(getTag("resampling"));
-			} catch (Exception e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-		
-
-			Activity ca1 = null;
-			try {
-				ca1 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell,
-								"Descriptive statistics", null, rcCA1,
-								VisibilityType.PUBLIC, ba1Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
- 		
-			
-			AttachmentPreview rcCA2 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://psychology.ucdavis.edu/sommerb/sommerdemo/stat_inf/intro.htm");
- 
- 
-
-			Activity ca2 = null;
-			try {
-				ca2 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell,
-								"Statistical inference", null, rcCA2,
-								VisibilityType.PUBLIC, ba1Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
- 
-			AttachmentPreview rcCA3 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://www.rgs.org/OurWork/Schools/Fieldwork+and+local+learning/Fieldwork+techniques/Sampling+techniques.htm");
-
-			Activity ca3 = null;
-			try {
-				ca3 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell,
-								"Sampling (statistics)", null, rcCA3,
-								VisibilityType.PUBLIC, ca1Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			
- 
-			
-			try {
-				tce1 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tce1, ca1, true);
-				tce1 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tce1, ca2, true);
-				tce1 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tce1, ca3, true);
-
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			tce1 = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(tce1);
-			logger.info("initRepository");
-			TargetLearningGoal lge1AnnaHallowell = null;
-			try {
-				lge1AnnaHallowell =
-					ServiceLocator
-					.getInstance()
-					.getService(LearningGoalManager.class)
-					.createNewTargetLearningGoal(userNickPowell, lge1);
-			} catch (EventException e) {
-				logger.error(e.getMessage());
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e.getMessage());
-			}
-			
-			try {
-				tce1 = (TargetCompetence) ServiceLocator.getInstance().getService(LearningGoalManager.class)
-						.addTargetCompetenceToGoal(userNickPowell, lge1AnnaHallowell, tce1, false, null).getNode();
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
- 
-			AttachmentPreview rcCC1 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://www.psychwiki.com/wiki/Inferential_Statistics");
- 
-			
-			
-			Activity cc1 = null;
-			try {
-				cc1 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell,
-								"Inferential Statistics", null, rcCC1,
-								VisibilityType.PUBLIC, ba1Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
- 			
-			AttachmentPreview rcCC2 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://www.psychwiki.com/wiki/What_is_%22normality%22%3F");
- 
- 
-
-			Activity cc2 = null;
-			try {
-				cc2 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell, "What is normality?", null,
-								rcCC2, VisibilityType.PUBLIC, ca1Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
- 
-			logger.info("initRepository");
-			try {
-				tce2 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tce2, cc1, true);
-				tce2 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tce2, cc2, true);
-				
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-			logger.info("initRepository");
-			tce2 = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(tce2);
-			
-			AttachmentPreview rcCD1 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://www.psychwiki.com/wiki/Inferential_Statistics");
- 
-			logger.info("initRepository");
-			Activity cd1 = null;
-			try {
-				cd1 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell,
-								"Approximation theory", null, rcCD1,
-								VisibilityType.PUBLIC, ba1Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			}
-
-			logger.info("initRepository");
- 
-			AttachmentPreview rcCD2 = ServiceLocator
-					.getInstance()
-					.getService(HTMLParser.class)
-					.extractAttachmentPreview("http://en.wikipedia.org/wiki/Approximation_theory");
-			logger.info("initRepository");
-			 Activity cd2 = null;
-			try {
-				cd2 = ServiceLocator
-						.getInstance()
-						.getService(ActivityManager.class)
-						.createNewActivity(userNickPowell,
-								"Information theory", null, rcCD2,
-								VisibilityType.PUBLIC, ca1Tags);
-			} catch (EventException e) {
-				
-				logger.error(e.getLocalizedMessage());
-			} 
-			logger.info("initRepository");
-			
-			try {
-				tce3 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tce3, cd1, true);
-			 	tce3 = ServiceLocator.getInstance().getService(LearningGoalManager.class).addActivityToTargetCompetence(userNickPowell, tce3, cd2, true);
-			} catch (EventException e) {
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			tce3 = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(tce3);
-			logger.info("initRepository");
-
-			try {
-				tce1 = (TargetCompetence) ServiceLocator.getInstance().getService(LearningGoalManager.class).
-						addTargetCompetenceToGoal(userNickPowell, lge1AnnaHallowell, tce1, false, null).getNode();
-			} catch (EventException e) {
-				logger.error(e.getLocalizedMessage());
-			}
-			logger.info("initRepository");
-			lge1 = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(lge1);
-			
-			try {
-				tce2 = (TargetCompetence) ServiceLocator.getInstance().getService(LearningGoalManager.class).
-						addTargetCompetenceToGoal(userNickPowell, lge1AnnaHallowell, tce2, false, null).getNode();
-			} catch (EventException e) {
-				logger.error(e.getLocalizedMessage());
-			}
-			
-			lge1 = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(lge1);
-			logger.info("initRepository");
-			TargetLearningGoal lge3StevenTurner = null;
-			try {
-				lge3StevenTurner =
-					ServiceLocator
-					.getInstance()
-					.getService(LearningGoalManager.class)
-					.createNewTargetLearningGoal(userNickPowell, lge3);
-			} catch (EventException e) {
-				logger.error(e.getMessage());
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e.getMessage());
-			}
-			
-			try {
-				tce3 = (TargetCompetence) ServiceLocator.getInstance().getService(LearningGoalManager.class).
-						addTargetCompetenceToGoal(userNickPowell, lge3StevenTurner, tce3, false, null).getNode();
-			} catch (EventException e) {
-				logger.error(e.getLocalizedMessage());
-			}
-			lge3 = ServiceLocator.getInstance().getService(DefaultManager.class).saveEntity(lge3);
-
-			try {
-				ServiceLocator
-					.getInstance()
-					.getService(LearningGoalManager.class)
-					.createNewTargetLearningGoal(userNickPowell, lge3);
-			} catch (EventException e) {
-				logger.error(e.getMessage());
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e.getMessage());
-			}
-			
- 
-			logger.info("initRepository");
-			ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("prosolo.admin@gmail.com", true);
-			ServiceLocator.getInstance().getService(RegistrationManager.class).setUserAsVerified("nick.powell@gmail.com", true);
+					.getService(PostManager.class)
+					.createNewPost(
+							userNickPowell,
+							"Can anybody recommend me a good book for SPSS basics? Thanks!",
+							VisibilityType.PUBLIC, null, null, true, null, null, null, null);
+		} catch (EventException e) {
+			logger.error(e);
+		}
  	}
+	
+	private void publishCredential(Credential1 cred, User creator) {
+		CredentialManager credentialManager = ServiceLocator
+				.getInstance()
+				.getService(CredentialManager.class);
+		
+		CredentialData credentialData = credentialManager.getCredentialDataForEdit(cred.getId(), 
+				creator.getId(), true);
+		
+		credentialData.setPublished(true);
+		
+		credentialManager.updateCredential(cred.getId(), credentialData, creator, 
+				org.prosolo.services.nodes.data.Role.Manager);
+	}
 
-	public TargetCompetence createTargetCompetence(User user, String title, String description, int validity, int duration)
+	private User createUser(String name, String lastname, String emailAddress, String password, String fictitiousUser,
+			String avatar, Role roleUser) {
+		try {
+			User newUser = ServiceLocator
+					.getInstance()
+					.getService(UserManager.class)
+					.createNewUser(name, lastname, emailAddress,
+							true, password, fictitiousUser, getAvatarInputStream(avatar), avatar);
+			
+			newUser = ServiceLocator
+					.getInstance()
+					.getService(RoleManager.class)
+					.assignRoleToUser(roleUser, newUser);
+			
+			return newUser;
+		} catch (UserAlreadyRegisteredException e) {
+			logger.error(e.getLocalizedMessage());
+		} catch (EventException e) {
+			logger.error(e.getMessage());
+		}
+		return null;
+	}
+
+	private Activity1 createActivity(User userNickPowell, String title, String description, String url, ActivityType type, 
+			long compId, int durationHours, int durationMinutes, boolean uploadAssignment, String... nameLink) {
+		ActivityData actData = new ActivityData(false);
+		actData.setTitle(title);
+		actData.setDescription(description);
+		actData.setPublished(true);
+		actData.setActivityType(type);
+		
+		switch (type) {
+		case VIDEO:
+		case SLIDESHARE:
+			actData.setLink(url);
+			break;
+		case TEXT:
+			actData.setText(url);
+			break;
+		}
+		actData.setType(LearningResourceType.UNIVERSITY_CREATED);
+		actData.setCompetenceId(compId);
+		actData.setDurationMinutes(durationMinutes);
+		actData.setDurationHours(durationHours);
+		actData.setUploadAssignment(uploadAssignment);
+		
+		if (nameLink != null) {
+			List<ResourceLinkData> activityLinks = new ArrayList<>();
+			
+			for (int i = 0; i < nameLink.length; i+=2) {
+				ResourceLinkData rlData = new ResourceLinkData();
+				rlData.setLinkName(nameLink[i]);
+				rlData.setUrl(nameLink[i+1]);
+				rlData.setStatus(ObjectStatus.UP_TO_DATE);
+				activityLinks.add(rlData);
+			}
+			
+			actData.setLinks(activityLinks);
+		}
+		
+		Activity1 act = ServiceLocator
+				.getInstance()
+				.getService(Activity1Manager.class)
+				.saveNewActivity(
+						actData,
+						userNickPowell.getId());
+		return act;
+	}
+
+	private Credential1 createCredential(String title, String description, User userNickPowell, String tags) {
+		CredentialData credentialData = new CredentialData(false);
+		credentialData.setTitle(title);
+		credentialData.setDescription(description);
+		credentialData.setTagsString(tags);
+		credentialData.setPublished(false);
+		credentialData.setType(LearningResourceType.UNIVERSITY_CREATED);
+		
+		Credential1 credNP1 = ServiceLocator
+				.getInstance()
+				.getService(CredentialManager.class)
+				.saveNewCredential(credentialData, userNickPowell);
+		
+		return credNP1;
+	}
+
+	public Competence1 createCompetence(User user, String title, String description, long credentialId, String tags)
 			throws EventException {
 		
-		TargetCompetence tComp = ServiceLocator
-				.getInstance()
-				.getService(CompetenceManager.class)
-				.createNewTargetCompetence(
-						user,
-						title,
-						description,
-						validity,
-						duration,
-						null, 
-						VisibilityType.PRIVATE);
+		CompetenceData1 compData = new CompetenceData1(false);
+		compData.setTitle(title);
+		compData.setDescription(description);
+		compData.setTagsString(tags);
+		compData.setPublished(false);
+		compData.setType(LearningResourceType.UNIVERSITY_CREATED);
 		
-		return tComp;
+		Competence1 comp = ServiceLocator
+				.getInstance()
+				.getService(Competence1Manager.class)
+				.saveNewCompetence(
+						compData,
+						user,
+						credentialId);
+		
+		return comp;
 	}
 
 	private InputStream getAvatarInputStream(String avatarName) {
@@ -3018,12 +752,6 @@ public class BusinessCase4_EDX extends BusinessCase {
 			logger.error(e.getLocalizedMessage());
 		}
 		return null;
-	}
-
-
-	protected Tag getOrCreateTag(String tagTitle) throws Exception {
-		return ServiceLocator.getInstance().getService(TagManager.class)
-				.getOrCreateTag(tagTitle);
 	}
 
 }
