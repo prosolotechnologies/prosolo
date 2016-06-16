@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <g fill="none" fill-rule="evenodd">
+    <path fill="#FCA567" d="M14.4294024,5.55222105 C15.2968195,4.14266829 16.7081449,4.15073547 17.5705976,5.55222105 L30.4294024,26.4477789 C31.2968195,27.8573317 30.6657405,29 29.0038998,29 L2.99610022,29 C1.34139976,29 0.708144903,27.8492645 1.57059757,26.4477789 L14.4294024,5.55222105 Z"/>
+    <text fill="#FFFFFF" font-family="Georgia-Bold, Georgia" font-size="18" font-weight="bold">
+      <tspan x="12.612" y="25">!</tspan>
+    </text>
+  </g>
+</svg>
