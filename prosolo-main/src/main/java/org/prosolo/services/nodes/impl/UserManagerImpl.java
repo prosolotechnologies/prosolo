@@ -1,6 +1,5 @@
 package org.prosolo.services.nodes.impl;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -103,43 +102,18 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Override
 	@Transactional (readOnly = false)
 	public User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified, 
-			String password, String position, InputStream avatar, 
+			String password, String position, InputStream avatarStream, 
 			String avatarFilename) throws UserAlreadyRegisteredException, EventException {
-		User newUser = createNewUser(name, lastname, emailAddress, emailVerified, password, position);
-		newUser = updateUserAvatar(newUser, avatar, avatarFilename);
-		return newUser;
-	}
-	
-	@Override
-	//@Transactional (readOnly = false)
-	public User createNewUser(String name, String lastname,	String emailAddress, boolean emailVerified, 
-			String password, String position) 
-					throws UserAlreadyRegisteredException, EventException {
 		if (checkIfUserExists(emailAddress)) {
 			throw new UserAlreadyRegisteredException("User with email address "+emailAddress+" is already registered.");
 		}
 		// it is called in a new transaction
-		User newUser = resourceFactory.createNewUser(name, lastname, emailAddress, emailVerified, password, position, false);
+		User newUser = resourceFactory.createNewUser(name, lastname, emailAddress, emailVerified, password, position, false, avatarStream, avatarFilename);
+		
 		eventFactory.generateEvent(EventType.Registered, newUser);
 		
 		return newUser;
 	}
-
-	@Override
-	@Transactional (readOnly = false)
-	public User updateUserAvatar(User user, InputStream imageInputStream, String avatarFilename){
-		if (imageInputStream != null) {
-			try {
-			//	user = merge(user);
-				user.setAvatarUrl(avatarProcessor.storeUserAvatar(user, imageInputStream, avatarFilename, true));
-				return saveEntity(user);
-			} catch (IOException e) {
-				logger.error(e);
-			}
-		} 
-		return user;
-	}
-
 	
 	@Transactional (readOnly = false)
 	public void addTopicPreferences(User user, Collection<Tag> tags) {

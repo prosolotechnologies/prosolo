@@ -20,12 +20,8 @@ public interface UserManager extends AbstractManager {
 
 	Collection<User> getAllUsers();
 	
-	User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified, String password, String position) throws UserAlreadyRegisteredException, EventException;
-
 	User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified, String password, String position, InputStream avatar, String avatarName) throws UserAlreadyRegisteredException, EventException;
 
-	User updateUserAvatar(User user, InputStream imageInputStream, String originalName);
-	
 	void addTopicPreferences(User user, Collection<Tag> tags);
 	
 	User changePassword(User user, String newPassword);

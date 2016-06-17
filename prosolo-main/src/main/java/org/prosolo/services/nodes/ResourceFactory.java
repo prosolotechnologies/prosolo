@@ -1,5 +1,6 @@
 package org.prosolo.services.nodes;
 
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -85,7 +86,7 @@ public interface ResourceFactory extends AbstractManager {
             Class<? extends EventObserver>[] observersToExclude) throws EventException;
 
     User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified, String password, 
-            String position, boolean system) throws EventException;
+            String position, boolean system, InputStream imageInputStream, String avatarFilename) throws EventException;
 
     Activity createNewActivity(User currentUser,
             ActivityFormData activityFormData, VisibilityType vis)
@@ -163,5 +164,7 @@ public interface ResourceFactory extends AbstractManager {
 	
 	Comment1 saveNewComment(CommentData data, long userId, CommentedResourceType resource) 
 			throws DbConnectionException;
+
+	User updateUserAvatar(User user, InputStream imageInputStream, String avatarFilename);
 
 }

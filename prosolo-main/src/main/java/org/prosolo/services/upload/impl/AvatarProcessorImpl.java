@@ -17,7 +17,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
 import org.prosolo.common.config.CommonSettings;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.upload.AmazonS3UploadManager;
 import org.prosolo.services.upload.AvatarProcessor;
@@ -43,8 +42,10 @@ public class AvatarProcessorImpl implements AvatarProcessor, Serializable {
 	@Autowired private AmazonS3UploadManager amazonS3UploadManager;
 
 	@Override
-	public String storeUserAvatar(User user, InputStream imageInputStream, String avatarFilename, boolean createResizedCopies) throws IOException {
-		String userFolder = AvatarUtils.getUserFolderPath(user);
+	public String storeUserAvatar(long userId, InputStream imageInputStream, String avatarFilename, boolean createResizedCopies) throws IOException {
+		logger.debug("Storing avatar for user " + userId);
+		
+		String userFolder = AvatarUtils.getUserFolderPath(userId);
 		String avatarUploadFolder = Settings.getInstance().config.fileManagement.uploadPath + CommonSettings.getInstance().config.services.userService.userAvatarPath + userFolder;
 		
 		String imageExtension = ImageUtil.getExtension(avatarFilename);
@@ -68,8 +69,8 @@ public class AvatarProcessorImpl implements AvatarProcessor, Serializable {
 	}
 
 	@Override
-	public String storeTempAvatar(User user, InputStream imageInputStream, String avatarFilename, int scaledWidth, int scaledHeight) throws IOException {
-		String avatarUrl = "temp" + '/' + CommonSettings.getInstance().config.services.userService.userAvatarPath + AvatarUtils.getUserFolderPath(user);
+	public String storeTempAvatar(long userId, InputStream imageInputStream, String avatarFilename, int scaledWidth, int scaledHeight) throws IOException {
+		String avatarUrl = "temp" + '/' + CommonSettings.getInstance().config.services.userService.userAvatarPath + AvatarUtils.getUserFolderPath(userId);
 		String avatarUploadFolder = Settings.getInstance().config.fileManagement.uploadPath + avatarUrl;
 		
 		AvatarUtils.createDirectoryIfDoesNotExist(avatarUploadFolder);
@@ -191,14 +192,14 @@ public class AvatarProcessorImpl implements AvatarProcessor, Serializable {
     }
 	
 	@Override
-	public String cropImage(User user, String imagePath, int left, int top, int width, int height) throws IOException{
+	public String cropImage(long userId, String imagePath, int left, int top, int width, int height) throws IOException{
 		BufferedImage originalBufferedImage = ImageIO.read(new File(imagePath));
 		BufferedImage dest = originalBufferedImage.getSubimage(left, top, width, height);
 		
 		String[] pathTokens = imagePath.split("\\.");
 		String format =  pathTokens[pathTokens.length - 1];
 		
-		String userFolder = AvatarUtils.getUserFolderPath(user);
+		String userFolder = AvatarUtils.getUserFolderPath(userId);
 		String avatarUploadFolder = Settings.getInstance().config.fileManagement.uploadPath + CommonSettings.getInstance().config.services.userService.userAvatarPath + userFolder;
 		
 		AvatarUtils.createDirectoryIfDoesNotExist(avatarUploadFolder);

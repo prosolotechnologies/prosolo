@@ -156,7 +156,9 @@ public class AfterContextLoader implements ServletContextListener {
 							true,
 							Settings.getInstance().config.init.defaultUser.pass,
 							null, 
-							true);
+							true,
+							null,
+							null);
 	
 			String roleAdminTitle = "Admin";
 			

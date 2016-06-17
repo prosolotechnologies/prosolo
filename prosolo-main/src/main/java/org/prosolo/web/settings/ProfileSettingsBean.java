@@ -164,7 +164,7 @@ public class ProfileSettingsBean implements Serializable {
 	public void handleFileUpload(FileUploadEvent event) {
 		try {
 			UploadedFile uploadedFile = event.getFile();
-			String relativePath = avatarProcessor.storeTempAvatar(loggedUser.getUser(), uploadedFile.getInputstream(),
+			String relativePath = avatarProcessor.storeTempAvatar(loggedUser.getUser().getId(), uploadedFile.getInputstream(),
 					uploadedFile.getFileName(), 300, 300);
 			newAvatar = Settings.getInstance().config.fileManagement.urlPrefixFolder + relativePath;
 		} catch (IOException ioe) {
@@ -313,7 +313,7 @@ public class ProfileSettingsBean implements Serializable {
 		}
 
 		try {
-			String newAvatarPath = avatarProcessor.cropImage(loggedUser.getUser(), imagePath, left, top, width, height);
+			String newAvatarPath = avatarProcessor.cropImage(loggedUser.getUser().getId(), imagePath, left, top, width, height);
 			User updatedUser = userManager.changeAvatar(loggedUser.getUser(), newAvatarPath);
 
 			loggedUser.setUser(updatedUser);
