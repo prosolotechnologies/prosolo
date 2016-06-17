@@ -11,6 +11,12 @@ $(function () {
 
 var context = '';
 
+var custom = {
+	setContext: function(ctx) {
+		context = ctx;
+	}
+}
+
 //comment form hide/show
 function displaySubmitButton(inputElem) {
     if ($(inputElem).val().length==0) {

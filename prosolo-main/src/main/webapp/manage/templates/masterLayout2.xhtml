@@ -42,9 +42,13 @@
 	<script
 		src="#{request.contextPath}/resources/javascript2/bootstrap-select.min.js"></script>
 	<script
-		src="#{request.contextPath}/resources/javascript2/custom.js?#{applicationbean.loginTime}"></script>
+		src="#{request.contextPath}/resources/javascript2/custom.js"></script>
 	<script
 		src="#{request.contextPath}/resources/javascript2/dropdowns-enhancement.js"></script>
+		
+	<script>
+		custom.setContext('#{request.contextPath}');
+	</script>
 </h:head>
 
 <h:body id="manage">
