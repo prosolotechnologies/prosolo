@@ -2325,26 +2325,27 @@ header {
     .activityFilesBox li .deleteLink,
     .activityResultBox li .actBoxLeft > span,
     .activityResultBox li .deleteLink {
-      font-size: 12px; }
-    /* line 2220, style.scss */
+      font-size: 12px;
+      word-break: break-word; }
+    /* line 2221, style.scss */
     .activityLinksBox li a,
     .activityFilesBox li a,
     .activityResultBox li a {
       width: 100px; }
 
-/* line 2226, style.scss */
+/* line 2227, style.scss */
 .activityLinksBox li {
   background: url("../images2/iconLink20.svg") no-repeat 30px center; }
 
-/* line 2230, style.scss */
+/* line 2231, style.scss */
 .activityFilesBox li {
   background: url("../images2/iconFile20.svg") no-repeat 30px center; }
 
-/* line 2234, style.scss */
+/* line 2235, style.scss */
 .activityResultBox li {
   background: url("../images2/iconResult20.svg") no-repeat 30px center; }
 
-/* line 2238, style.scss */
+/* line 2239, style.scss */
 .uploadResultBox {
   display: flex;
   flex-direction: column;
@@ -2356,113 +2357,113 @@ header {
   border-radius: 5px;
   justify-content: center;
   align-items: center; }
-  /* line 2247, style.scss */
+  /* line 2248, style.scss */
   .uploadResultBox h3, .uploadResultBox p {
     margin-bottom: 10px; }
 
-/* line 2252, style.scss */
+/* line 2253, style.scss */
 .peopleList {
   list-style: none; }
-  /* line 2254, style.scss */
+  /* line 2255, style.scss */
   .peopleList > li {
     display: flex;
     align-items: center;
     height: 120px;
     padding: 0 30px;
     border-bottom: 1px solid #EEEFF3; }
-    /* line 2260, style.scss */
+    /* line 2261, style.scss */
     .peopleList > li:last-child {
       border: none; }
-    /* line 2263, style.scss */
+    /* line 2264, style.scss */
     .peopleList > li .peopleListLeft {
       width: 50%;
       display: flex;
       align-items: center; }
-      /* line 2267, style.scss */
+      /* line 2268, style.scss */
       .peopleList > li .peopleListLeft img, .peopleList > li .peopleListLeft .letterAvatar {
         margin-right: 20px; }
-      /* line 2270, style.scss */
+      /* line 2271, style.scss */
       .peopleList > li .peopleListLeft h2 {
         margin: 0 20px 0 0; }
-    /* line 2274, style.scss */
+    /* line 2275, style.scss */
     .peopleList > li .peopleListRight {
       width: 50%;
       display: flex;
       align-items: center; }
-      /* line 2278, style.scss */
+      /* line 2279, style.scss */
       .peopleList > li .peopleListRight > .progressBar,
       .peopleList > li .peopleListRight .studentsNum {
         width: 50%;
         margin-right: 20px; }
-      /* line 2283, style.scss */
+      /* line 2284, style.scss */
       .peopleList > li .peopleListRight .studentsNum span {
         font-size: 18px;
         font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
         font-weight: 600; }
-        /* line 2287, style.scss */
+        /* line 2288, style.scss */
         .peopleList > li .peopleListRight .studentsNum span.redText {
           color: #E45E5E; }
-      /* line 2291, style.scss */
+      /* line 2292, style.scss */
       .peopleList > li .peopleListRight .assignedTo {
         width: 40%; }
-        /* line 2293, style.scss */
+        /* line 2294, style.scss */
         .peopleList > li .peopleListRight .assignedTo > .btn {
           margin-right: 20px; }
-        /* line 2296, style.scss */
+        /* line 2297, style.scss */
         .peopleList > li .peopleListRight .assignedTo p {
           margin: 0; }
-          /* line 2298, style.scss */
+          /* line 2299, style.scss */
           .peopleList > li .peopleListRight .assignedTo p span {
             font-size: 12px; }
-  /* line 2307, style.scss */
+  /* line 2308, style.scss */
   .peopleList.peopleListDefaut > li .peopleListLeft {
     width: 100%; }
 
-/* line 2314, style.scss */
+/* line 2315, style.scss */
 .rssList {
   list-style: none; }
-  /* line 2316, style.scss */
+  /* line 2317, style.scss */
   .rssList > li {
     display: flex;
     align-items: center;
     height: 120px;
     padding: 0 30px;
     border-bottom: 1px solid #EEEFF3; }
-    /* line 2322, style.scss */
+    /* line 2323, style.scss */
     .rssList > li:last-child {
       border: none; }
-    /* line 2325, style.scss */
+    /* line 2326, style.scss */
     .rssList > li .rssListLeft {
       width: 75%;
       display: flex;
       align-items: center; }
-      /* line 2329, style.scss */
+      /* line 2330, style.scss */
       .rssList > li .rssListLeft a {
         margin: 0 20px 0 0; }
-    /* line 2333, style.scss */
+    /* line 2334, style.scss */
     .rssList > li .rssListRight {
       width: 25%;
       display: flex;
       align-items: center; }
-      /* line 2338, style.scss */
+      /* line 2339, style.scss */
       .rssList > li .rssListRight .buttons > .btn {
         margin-right: 20px; }
-  /* line 2345, style.scss */
+  /* line 2346, style.scss */
   .rssList.participants > li {
     flex-direction: column;
     align-items: baseline;
     justify-content: center; }
-    /* line 2349, style.scss */
+    /* line 2350, style.scss */
     .rssList.participants > li h2 {
       margin-bottom: 10px; }
 
-/* line 2357, style.scss */
+/* line 2358, style.scss */
 .assignInstructorModal .maxStudents {
   margin: 0 0 30px 30px; }
-  /* line 2359, style.scss */
+  /* line 2360, style.scss */
   .assignInstructorModal .maxStudents input {
     width: 50px; }
-/* line 2363, style.scss */
+/* line 2364, style.scss */
 .assignInstructorModal .searchInstructors {
   height: 46px;
   margin: 0;
@@ -2470,159 +2471,159 @@ header {
   border-top: 1px solid #EEEFF3;
   border-bottom: 1px solid #EEEFF3;
   background: #F8F9FB url("../images2/iconSearch20.svg") no-repeat 30px center; }
-  /* line 2370, style.scss */
+  /* line 2371, style.scss */
   .assignInstructorModal .searchInstructors input {
     width: 600px;
     line-height: 32px;
     padding: 8px 0;
     border: none;
     background: none; }
-  /* line 2377, style.scss */
+  /* line 2378, style.scss */
   .assignInstructorModal .searchInstructors .showDrop {
     float: right;
     padding: 7px 0; }
-/* line 2382, style.scss */
+/* line 2383, style.scss */
 .assignInstructorModal ul.list {
   max-height: 400px;
   padding-bottom: 30px;
   overflow: scroll;
   list-style: none; }
-  /* line 2387, style.scss */
+  /* line 2388, style.scss */
   .assignInstructorModal ul.list li {
     display: flex;
     justify-content: space-between;
     flex-shrink: 0;
     padding: 10px 30px;
     border-bottom: 1px solid #EEEFF3; }
-    /* line 2393, style.scss */
+    /* line 2394, style.scss */
     .assignInstructorModal ul.list li .instructorInfo {
       display: flex; }
-      /* line 2395, style.scss */
+      /* line 2396, style.scss */
       .assignInstructorModal ul.list li .instructorInfo .checkbox {
         float: left;
         padding-top: 5px;
         margin-right: 10px; }
-        /* line 2399, style.scss */
+        /* line 2400, style.scss */
         .assignInstructorModal ul.list li .instructorInfo .checkbox label {
           width: 0;
           padding: 0; }
-      /* line 2404, style.scss */
+      /* line 2405, style.scss */
       .assignInstructorModal ul.list li .instructorInfo .letterAvatar, .assignInstructorModal ul.list li .instructorInfo img {
         float: left;
         margin-right: 20px; }
-      /* line 2408, style.scss */
+      /* line 2409, style.scss */
       .assignInstructorModal ul.list li .instructorInfo .infoWrap {
         display: flex;
         flex-direction: column;
         justify-content: center; }
-        /* line 2412, style.scss */
+        /* line 2413, style.scss */
         .assignInstructorModal ul.list li .instructorInfo .infoWrap h3 {
           margin: 0; }
-    /* line 2417, style.scss */
+    /* line 2418, style.scss */
     .assignInstructorModal ul.list li .progressWrapper {
       display: flex;
       align-items: center; }
-    /* line 2421, style.scss */
+    /* line 2422, style.scss */
     .assignInstructorModal ul.list li .assignOpt {
       display: flex;
       align-items: center; }
-      /* line 2424, style.scss */
+      /* line 2425, style.scss */
       .assignInstructorModal ul.list li .assignOpt .buttonWrapper {
         width: 150px;
         text-align: right; }
-      /* line 2428, style.scss */
+      /* line 2429, style.scss */
       .assignInstructorModal ul.list li .assignOpt span {
         font-size: 18px;
         font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
         font-weight: 600; }
-        /* line 2432, style.scss */
+        /* line 2433, style.scss */
         .assignInstructorModal ul.list li .assignOpt span.redText {
           color: #E45E5E; }
 
-/* line 2442, style.scss */
+/* line 2443, style.scss */
 .newFeedModal input[type="text"] {
   width: 540px;
   margin-bottom: 30px; }
 
-/* line 2449, style.scss */
+/* line 2450, style.scss */
 .removeInstructorModal p {
   margin-bottom: 20px !important; }
-/* line 2452, style.scss */
+/* line 2453, style.scss */
 .removeInstructorModal .radioGroup {
   width: 350px;
   text-align: left;
   margin: 0 auto 30px auto; }
 
-/* line 2460, style.scss */
+/* line 2461, style.scss */
 .assessmentCommentsModal .discussion {
   padding: 0 30px 30px 30px; }
-  /* line 2462, style.scss */
+  /* line 2463, style.scss */
   .assessmentCommentsModal .discussion .comments {
     padding: 0; }
-    /* line 2464, style.scss */
+    /* line 2465, style.scss */
     .assessmentCommentsModal .discussion .comments ul {
       margin: 0; }
 
-/* line 2472, style.scss */
+/* line 2473, style.scss */
 .discussion h2 {
   display: inline-block; }
-/* line 2475, style.scss */
+/* line 2476, style.scss */
 .discussion .sortDrop {
   float: right;
   padding: 0; }
-/* line 2479, style.scss */
+/* line 2480, style.scss */
 .discussion img,
 .discussion .letterAvatar {
   margin: 9px 20px 0 0; }
-/* line 2483, style.scss */
+/* line 2484, style.scss */
 .discussion .addComment {
   display: flex;
   margin-bottom: 30px;
   justify-content: space-between; }
-/* line 2488, style.scss */
+/* line 2489, style.scss */
 .discussion .commentForm,
 .discussion .editComment {
   flex-grow: 1; }
-  /* line 2491, style.scss */
+  /* line 2492, style.scss */
   .discussion .commentForm textarea,
   .discussion .editComment textarea {
     float: left;
     width: 100%;
     height: 50px;
     padding: 15px; }
-  /* line 2497, style.scss */
+  /* line 2498, style.scss */
   .discussion .commentForm .btn,
   .discussion .editComment .btn {
     margin: 15px 10px 0 0; }
-/* line 2501, style.scss */
+/* line 2502, style.scss */
 .discussion .commentForm {
   min-height: 50px; }
-/* line 2504, style.scss */
+/* line 2505, style.scss */
 .discussion .editComment {
   padding-bottom: 20px; }
-/* line 2507, style.scss */
+/* line 2508, style.scss */
 .discussion .comments {
   padding-bottom: 30px; }
-  /* line 2509, style.scss */
+  /* line 2510, style.scss */
   .discussion .comments ul {
     margin-bottom: 30px; }
-  /* line 2512, style.scss */
+  /* line 2513, style.scss */
   .discussion .comments .media-left, .discussion .comments .media > .pull-left {
     padding: 0; }
-  /* line 2515, style.scss */
+  /* line 2516, style.scss */
   .discussion .comments .media-body {
     padding-top: 16px; }
-    /* line 2517, style.scss */
+    /* line 2518, style.scss */
     .discussion .comments .media-body.replyComment {
       padding-top: 0; }
-    /* line 2520, style.scss */
+    /* line 2521, style.scss */
     .discussion .comments .media-body .commentMain {
       position: relative; }
-      /* line 2522, style.scss */
+      /* line 2523, style.scss */
       .discussion .comments .media-body .commentMain h3 {
         margin-bottom: 10px;
         position: relative; }
-        /* line 2525, style.scss */
+        /* line 2526, style.scss */
         .discussion .comments .media-body .commentMain h3 span {
           display: inline-block;
           margin-left: 10px;
@@ -2634,7 +2635,7 @@ header {
           -webkit-border-radius: 5px;
           -moz-border-radius: 5px;
           border-radius: 5px; }
-      /* line 2536, style.scss */
+      /* line 2537, style.scss */
       .discussion .comments .media-body .commentMain .commentTime {
         position: absolute;
         top: 0;
@@ -2642,16 +2643,16 @@ header {
         font-size: 12px;
         color: #AAB1B5;
         display: none; }
-      /* line 2544, style.scss */
+      /* line 2545, style.scss */
       .discussion .comments .media-body .commentMain:hover > .commentTime {
         display: block; }
-      /* line 2547, style.scss */
+      /* line 2548, style.scss */
       .discussion .comments .media-body .commentMain p {
         margin-bottom: 10px; }
-      /* line 2550, style.scss */
+      /* line 2551, style.scss */
       .discussion .comments .media-body .commentMain .commentOptions {
         display: flex; }
-        /* line 2552, style.scss */
+        /* line 2553, style.scss */
         .discussion .comments .media-body .commentMain .commentOptions a {
           display: flex;
           align-items: center;
@@ -2660,61 +2661,61 @@ header {
           font-weight: 400;
           font-size: 13px;
           margin-right: 20px; }
-          /* line 2560, style.scss */
+          /* line 2561, style.scss */
           .discussion .comments .media-body .commentMain .commentOptions a .icon {
             display: inline-block;
             width: 12px;
             height: 12px;
             margin-right: 5px;
             margin-bottom: 2px; }
-            /* line 2566, style.scss */
+            /* line 2567, style.scss */
             .discussion .comments .media-body .commentMain .commentOptions a .icon #triangle {
               transition: all 0.2s ease;
               -webkit-transition: all 0.2s ease; }
-          /* line 2572, style.scss */
+          /* line 2573, style.scss */
           .discussion .comments .media-body .commentMain .commentOptions a.reply .icon {
             background: url("../images2/iconReply12.svg") no-repeat;
             opacity: .5;
             transition: all 0.2s ease;
             -webkit-transition: all 0.2s ease; }
-          /* line 2578, style.scss */
+          /* line 2579, style.scss */
           .discussion .comments .media-body .commentMain .commentOptions a.reply:hover .icon {
             opacity: 1; }
-          /* line 2583, style.scss */
+          /* line 2584, style.scss */
           .discussion .comments .media-body .commentMain .commentOptions a.edit .icon {
             background: url("../images2/iconEdit12.svg") no-repeat;
             opacity: .5;
             transition: all 0.2s ease;
             -webkit-transition: all 0.2s ease; }
-          /* line 2589, style.scss */
+          /* line 2590, style.scss */
           .discussion .comments .media-body .commentMain .commentOptions a.edit:hover .icon {
             opacity: 1; }
-          /* line 2593, style.scss */
+          /* line 2594, style.scss */
           .discussion .comments .media-body .commentMain .commentOptions a:hover {
             color: #363636; }
-            /* line 2595, style.scss */
+            /* line 2596, style.scss */
             .discussion .comments .media-body .commentMain .commentOptions a:hover #triangle {
               fill: #FCA567; }
-          /* line 2600, style.scss */
+          /* line 2601, style.scss */
           .discussion .comments .media-body .commentMain .commentOptions a.liked #triangle {
             fill: #FCA567; }
 
-/* line 2611, style.scss */
+/* line 2612, style.scss */
 .twitterBtnBox {
   padding-top: 20px; }
-  /* line 2613, style.scss */
+  /* line 2614, style.scss */
   .twitterBtnBox .btnTwitterConnect, .twitterBtnBox .btnTwitterConnect:focus {
     float: left;
     margin-right: 10px;
     color: #fff;
     background: #55ACEE;
     border: 1px solid #55ACEE; }
-    /* line 2619, style.scss */
+    /* line 2620, style.scss */
     .twitterBtnBox .btnTwitterConnect:hover, .twitterBtnBox .btnTwitterConnect:focus:hover {
       color: #fff;
       background: #3ea1ec;
       border-color: #3ea1ec; }
-    /* line 2624, style.scss */
+    /* line 2625, style.scss */
     .twitterBtnBox .btnTwitterConnect span, .twitterBtnBox .btnTwitterConnect:focus span {
       float: left;
       margin: 8px 10px 0 0;
@@ -2724,68 +2725,68 @@ header {
       background: url("../images2/iconTwitter.svg") no-repeat;
       transition: all 0.2s ease;
       -webkit-transition: all 0.2s ease; }
-    /* line 2634, style.scss */
+    /* line 2635, style.scss */
     .twitterBtnBox .btnTwitterConnect.btnDisconnect, .twitterBtnBox .btnTwitterConnect.btnDisconnect:focus, .twitterBtnBox .btnTwitterConnect:focus.btnDisconnect, .twitterBtnBox .btnTwitterConnect:focus.btnDisconnect:focus {
       color: #55ACEE;
       background: #fff; }
-      /* line 2637, style.scss */
+      /* line 2638, style.scss */
       .twitterBtnBox .btnTwitterConnect.btnDisconnect span, .twitterBtnBox .btnTwitterConnect.btnDisconnect:focus span, .twitterBtnBox .btnTwitterConnect:focus.btnDisconnect span, .twitterBtnBox .btnTwitterConnect:focus.btnDisconnect:focus span {
         background: url("../images2/iconTwitterBlue.svg") no-repeat; }
-      /* line 2640, style.scss */
+      /* line 2641, style.scss */
       .twitterBtnBox .btnTwitterConnect.btnDisconnect:hover, .twitterBtnBox .btnTwitterConnect.btnDisconnect:focus:hover, .twitterBtnBox .btnTwitterConnect:focus.btnDisconnect:hover, .twitterBtnBox .btnTwitterConnect:focus.btnDisconnect:focus:hover {
         color: #fff;
         background: #3ea1ec;
         border-color: #3ea1ec; }
-        /* line 2644, style.scss */
+        /* line 2645, style.scss */
         .twitterBtnBox .btnTwitterConnect.btnDisconnect:hover span, .twitterBtnBox .btnTwitterConnect.btnDisconnect:focus:hover span, .twitterBtnBox .btnTwitterConnect:focus.btnDisconnect:hover span, .twitterBtnBox .btnTwitterConnect:focus.btnDisconnect:focus:hover span {
           background: url("../images2/iconTwitter.svg") no-repeat; }
-  /* line 2650, style.scss */
+  /* line 2651, style.scss */
   .twitterBtnBox small {
     line-height: 16px;
     display: block; }
 
-/* line 2656, style.scss */
+/* line 2657, style.scss */
 .yourPhotoContent {
   display: flex;
   padding-bottom: 30px; }
-  /* line 2659, style.scss */
+  /* line 2660, style.scss */
   .yourPhotoContent img,
   .yourPhotoContent .letterAvatar {
     margin-right: 20px; }
-  /* line 2664, style.scss */
+  /* line 2665, style.scss */
   .yourPhotoContent .chooseBtnBox .btn {
     margin-bottom: 20px; }
 
-/* line 2670, style.scss */
+/* line 2671, style.scss */
 .settingsEmailNotifications .checkLine {
   margin-bottom: 20px; }
 
-/* line 2674, style.scss */
+/* line 2675, style.scss */
 .settingsChangePassword .formLine {
   width: 400px; }
 
-/* line 2678, style.scss */
+/* line 2679, style.scss */
 .messagesListHead {
   height: 50px; }
-  /* line 2680, style.scss */
+  /* line 2681, style.scss */
   .messagesListHead .showDrop {
     float: left;
     padding: 10px 0; }
-    /* line 2683, style.scss */
+    /* line 2684, style.scss */
     .messagesListHead .showDrop > a {
       margin: 0;
       font-size: 13px; }
-    /* line 2687, style.scss */
+    /* line 2688, style.scss */
     .messagesListHead .showDrop .dropdown-menu {
       top: 40px; }
-  /* line 2691, style.scss */
+  /* line 2692, style.scss */
   .messagesListHead .newMessageBtn {
     float: right;
     height: 30px;
     line-height: 30px;
     margin-top: 10px;
     font-size: 13px; }
-    /* line 2697, style.scss */
+    /* line 2698, style.scss */
     .messagesListHead .newMessageBtn span {
       width: 12px;
       height: 12px;
@@ -2796,47 +2797,47 @@ header {
       background: url("../images2/iconEdit12.svg") no-repeat;
       transition: all 0.2s ease;
       -webkit-transition: all 0.2s ease; }
-    /* line 2708, style.scss */
+    /* line 2709, style.scss */
     .messagesListHead .newMessageBtn:hover span {
       opacity: 1; }
 
-/* line 2715, style.scss */
+/* line 2716, style.scss */
 .messagesList ul {
   list-style: none;
   padding: 0;
   border-top: 1px solid #ECEDF1; }
-  /* line 2719, style.scss */
+  /* line 2720, style.scss */
   .messagesList ul li {
     position: relative;
     height: 68px;
     padding: 16px 8px;
     border-bottom: 1px solid #ECEDF1;
     border-left: 2px solid #F8F9FB; }
-    /* line 2725, style.scss */
+    /* line 2726, style.scss */
     .messagesList ul li.active {
       border-left: 2px solid #FCA567; }
-    /* line 2728, style.scss */
+    /* line 2729, style.scss */
     .messagesList ul li .media {
       margin: 0; }
-      /* line 2731, style.scss */
+      /* line 2732, style.scss */
       .messagesList ul li .media .media-body h3 {
         float: left;
         margin-top: 0;
         margin-bottom: 0;
         line-height: 20px; }
-      /* line 2737, style.scss */
+      /* line 2738, style.scss */
       .messagesList ul li .media .media-body span {
         float: right;
         margin-top: 0;
         font-size: 12px;
         line-height: 20px;
         color: #AAB1B5; }
-      /* line 2744, style.scss */
+      /* line 2745, style.scss */
       .messagesList ul li .media .media-body p {
         font-size: 13px;
         margin: 0;
         line-height: 20px; }
-    /* line 2751, style.scss */
+    /* line 2752, style.scss */
     .messagesList ul li .unread {
       display: block;
       position: absolute;
@@ -2845,54 +2846,54 @@ header {
       background: url("../images2/unreadDot.svg") no-repeat;
       top: 42px;
       right: 8px; }
-    /* line 2760, style.scss */
+    /* line 2761, style.scss */
     .messagesList ul li.unreadMessage .unread {
       display: block !important; }
-/* line 2765, style.scss */
+/* line 2766, style.scss */
 .messagesList .noMessagesList {
   border-top: 1px solid #ECEDF1;
   text-align: center;
   padding-top: 30px;
   font-size: 13px; }
 
-/* line 2773, style.scss */
+/* line 2774, style.scss */
 .messageColumn {
   display: flex;
   /* set height based on browser height */ }
-  /* line 2776, style.scss */
+  /* line 2777, style.scss */
   .messageColumn .messagesPane {
     width: 100%; }
-    /* line 2778, style.scss */
+    /* line 2779, style.scss */
     .messageColumn .messagesPane.noSelected {
       min-height: 300px;
       display: flex;
       justify-content: center;
       align-items: center;
       flex-direction: column; }
-      /* line 2784, style.scss */
+      /* line 2785, style.scss */
       .messageColumn .messagesPane.noSelected > h2 {
         color: #AAB1B5; }
-    /* line 2788, style.scss */
+    /* line 2789, style.scss */
     .messageColumn .messagesPane .messagePaneHead {
       position: relative;
       display: flex;
       height: 60px;
       justify-content: space-between; }
-      /* line 2793, style.scss */
+      /* line 2794, style.scss */
       .messageColumn .messagesPane .messagePaneHead > h2 {
         float: left;
         margin: 18px 0 0 30px; }
-      /* line 2797, style.scss */
+      /* line 2798, style.scss */
       .messageColumn .messagesPane .messagePaneHead .messageMenu {
         float: right;
         margin: 20px 30px; }
-      /* line 2801, style.scss */
+      /* line 2802, style.scss */
       .messageColumn .messagesPane .messagePaneHead .toBox {
         display: inline-block;
         line-height: 60px;
         width: 20px;
         margin: 0 10px 0 30px; }
-      /* line 2807, style.scss */
+      /* line 2808, style.scss */
       .messageColumn .messagesPane .messagePaneHead input[type="text"] {
         width: 100%;
         border: none;
@@ -2902,63 +2903,63 @@ header {
         color: #363636;
         font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
         font-weight: 600; }
-      /* line 2817, style.scss */
+      /* line 2818, style.scss */
       .messageColumn .messagesPane .messagePaneHead .searchResultsDrop {
         top: 60px; }
-        /* line 2819, style.scss */
+        /* line 2820, style.scss */
         .messageColumn .messagesPane .messagePaneHead .searchResultsDrop li a {
           height: 52px; }
-          /* line 2821, style.scss */
+          /* line 2822, style.scss */
           .messageColumn .messagesPane .messagePaneHead .searchResultsDrop li a img,
           .messageColumn .messagesPane .messagePaneHead .searchResultsDrop li a .letterAvatar {
             float: left;
             margin-right: 15px; }
-          /* line 2826, style.scss */
+          /* line 2827, style.scss */
           .messageColumn .messagesPane .messagePaneHead .searchResultsDrop li a h3 {
             margin: 7px 0 0 0; }
-    /* line 2832, style.scss */
+    /* line 2833, style.scss */
     .messageColumn .messagesPane .greyBar {
       padding: 1px 30px;
       background: #F8F9FB;
       border-top: 1px solid #EEEFF3;
       border-bottom: 1px solid #EEEFF3; }
-      /* line 2837, style.scss */
+      /* line 2838, style.scss */
       .messageColumn .messagesPane .greyBar .assessmentModalMetaLine {
         display: flex;
         padding-top: 10px; }
-        /* line 2840, style.scss */
+        /* line 2841, style.scss */
         .messageColumn .messagesPane .greyBar .assessmentModalMetaLine:last-child {
           padding-bottom: 10px; }
-        /* line 2843, style.scss */
+        /* line 2844, style.scss */
         .messageColumn .messagesPane .greyBar .assessmentModalMetaLine .assessmentModalMetaLeft,
         .messageColumn .messagesPane .greyBar .assessmentModalMetaLine .assessmentModalMetaRight {
           display: flex;
           line-height: 32px;
           align-items: center; }
-          /* line 2848, style.scss */
+          /* line 2849, style.scss */
           .messageColumn .messagesPane .greyBar .assessmentModalMetaLine .assessmentModalMetaLeft h3,
           .messageColumn .messagesPane .greyBar .assessmentModalMetaLine .assessmentModalMetaRight h3 {
             margin: 0; }
-        /* line 2852, style.scss */
+        /* line 2853, style.scss */
         .messageColumn .messagesPane .greyBar .assessmentModalMetaLine .assessmentModalMetaLeft {
           width: 80px; }
-        /* line 2855, style.scss */
+        /* line 2856, style.scss */
         .messageColumn .messagesPane .greyBar .assessmentModalMetaLine .assessmentModalMetaRight img {
           margin-right: 10px; }
-    /* line 2862, style.scss */
+    /* line 2863, style.scss */
     .messageColumn .messagesPane .media .media-body h3 {
       float: left;
       margin-top: 7px; }
-    /* line 2866, style.scss */
+    /* line 2867, style.scss */
     .messageColumn .messagesPane .media .media-body span {
       float: right;
       margin-top: 7px;
       font-size: 12px;
       color: #AAB1B5; }
-    /* line 2872, style.scss */
+    /* line 2873, style.scss */
     .messageColumn .messagesPane .media .media-body p {
       margin-bottom: 20px; }
-    /* line 2877, style.scss */
+    /* line 2878, style.scss */
     .messageColumn .messagesPane .newMessagesSeparator {
       height: 20px;
       line-height: 20px;
@@ -2968,19 +2969,19 @@ header {
       text-transform: uppercase;
       color: #FCA567;
       background: url("../images2/newMessagesLine.svg") no-repeat 85px 9px; }
-    /* line 2887, style.scss */
+    /* line 2888, style.scss */
     .messageColumn .messagesPane .typeBox {
       min-height: 32px;
       padding: 20px 30px; }
-      /* line 2890, style.scss */
+      /* line 2891, style.scss */
       .messageColumn .messagesPane .typeBox .media-body > div {
         display: flex;
         justify-content: space-between; }
-        /* line 2893, style.scss */
+        /* line 2894, style.scss */
         .messageColumn .messagesPane .typeBox .media-body > div .btn {
           height: 32px;
           margin-left: 10px; }
-        /* line 2897, style.scss */
+        /* line 2898, style.scss */
         .messageColumn .messagesPane .typeBox .media-body > div textarea {
           width: 100%;
           height: 32px;
@@ -2990,17 +2991,17 @@ header {
           -moz-box-shadow: none;
           box-shadow: none; }
 
-/* line 2912, style.scss */
+/* line 2913, style.scss */
 .profileNotifications ul {
   list-style: none; }
-  /* line 2914, style.scss */
+  /* line 2915, style.scss */
   .profileNotifications ul li {
     border-bottom: 1px solid #EEEFF3; }
-    /* line 2916, style.scss */
+    /* line 2917, style.scss */
     .profileNotifications ul li:last-child {
       border: none;
       flex-shrink: 0; }
-    /* line 2920, style.scss */
+    /* line 2921, style.scss */
     .profileNotifications ul li a {
       display: flex;
       height: 90px;
@@ -3009,29 +3010,29 @@ header {
       color: #859095;
       font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
       font-weight: 400; }
-      /* line 2928, style.scss */
+      /* line 2929, style.scss */
       .profileNotifications ul li a:hover {
         background: #F8F9FB; }
-    /* line 2932, style.scss */
+    /* line 2933, style.scss */
     .profileNotifications ul li .icon {
       display: block;
       width: 16px;
       height: 16px;
       margin-right: 10px;
       flex-shrink: 0; }
-    /* line 2939, style.scss */
+    /* line 2940, style.scss */
     .profileNotifications ul li img, .profileNotifications ul li .letterAvatar {
       margin-right: 10px;
       flex-shrink: 0; }
-    /* line 2943, style.scss */
+    /* line 2944, style.scss */
     .profileNotifications ul li .notContent {
       margin: 0;
       flex-grow: 1; }
-      /* line 2946, style.scss */
+      /* line 2947, style.scss */
       .profileNotifications ul li .notContent h3 {
         display: inline;
         margin: 0; }
-    /* line 2951, style.scss */
+    /* line 2952, style.scss */
     .profileNotifications ul li .timestamp {
       font-size: 12px;
       color: #AAB1B5;
@@ -3040,45 +3041,45 @@ header {
       flex-shrink: 0;
       text-align: right; }
 
-/* line 2963, style.scss */
+/* line 2964, style.scss */
 .checkLinks {
   padding-bottom: 30px; }
-  /* line 2965, style.scss */
+  /* line 2966, style.scss */
   .checkLinks span {
     margin: 0 7px; }
 
-/* line 2970, style.scss */
+/* line 2971, style.scss */
 .notifFollowed .icon {
   background: url("../images2/iconNotifFollow16.svg") no-repeat; }
 
-/* line 2974, style.scss */
+/* line 2975, style.scss */
 .notifComment .icon {
   background: url("../images2/iconNotifComment16.svg") no-repeat; }
 
-/* line 2978, style.scss */
+/* line 2979, style.scss */
 .notifLikeComment .icon {
   background: url("../images2/iconNotifLikeComment16.svg") no-repeat; }
 
-/* line 2982, style.scss */
+/* line 2983, style.scss */
 .notifLearning .icon {
   background: url("../images2/iconNotifLearning16.svg") no-repeat; }
 
-/* line 2986, style.scss */
+/* line 2987, style.scss */
 .notifMention .icon {
   background: url("../images2/iconNotifMention16.svg") no-repeat; }
 
-/* line 2990, style.scss */
+/* line 2991, style.scss */
 .notifAssessment .icon {
   background: url("../images2/iconNotifAssessment16.svg") no-repeat; }
 
-/* line 2995, style.scss */
+/* line 2996, style.scss */
 #termsPage header {
   background: none;
   height: 60px;
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
   box-shadow: none; }
-  /* line 3001, style.scss */
+  /* line 3002, style.scss */
   #termsPage header #logo {
     float: left;
     display: block;
@@ -3088,7 +3089,7 @@ header {
     background: url("../images2/logo-black.svg") no-repeat;
     background-size: 86px 30px;
     text-indent: -10000px; }
-  /* line 3011, style.scss */
+  /* line 3012, style.scss */
   #termsPage header .btn {
     float: right;
     margin-top: 14px; }
@@ -3096,29 +3097,29 @@ header {
 /*---------------------------------------------------------------------*/
 /*--- 04. MANAGER ---*/
 /*---------------------------------------------------------------------*/
-/* line 3023, style.scss */
+/* line 3024, style.scss */
 #manage header {
   background: #3A3C3C; }
-  /* line 3025, style.scss */
+  /* line 3026, style.scss */
   #manage header #logo {
     background: url("../images2/logo-manage.svg") no-repeat; }
 
 /* progression page blocks */
-/* line 3036, style.scss */
+/* line 3037, style.scss */
 .bgGreen {
   background: #64BFCD; }
 
-/* line 3040, style.scss */
+/* line 3041, style.scss */
 .bgBlue {
   background: #FCA567; }
 
-/* line 3044, style.scss */
+/* line 3045, style.scss */
 .blockRow {
   margin-bottom: 80px;
   padding: 0 46px;
   position: relative; }
 
-/* line 3050, style.scss */
+/* line 3051, style.scss */
 .progressBlock {
   width: 180px;
   height: 210px;
@@ -3129,20 +3130,20 @@ header {
   margin-right: 40px;
   position: relative; }
 
-/* line 3061, style.scss */
+/* line 3062, style.scss */
 .progressBlock:hover {
   text-decoration: none;
   cursor: pointer; }
 
-/* line 3066, style.scss */
+/* line 3067, style.scss */
 .progressBlock.competence {
   height: 250px; }
 
-/* line 3071, style.scss */
+/* line 3072, style.scss */
 .progressBlock.selected {
   background-color: #fff; }
 
-/* line 3075, style.scss */
+/* line 3076, style.scss */
 .progressBlock h3 {
   color: #333333;
   font-size: 12px;
@@ -3151,7 +3152,7 @@ header {
   margin: 15px;
   margin-bottom: 0; }
 
-/* line 3084, style.scss */
+/* line 3085, style.scss */
 .progressBlock .progress {
   position: relative;
   width: 100px;
@@ -3160,13 +3161,13 @@ header {
   border-radius: 0;
   margin: 20px auto 0; }
 
-/* line 3094, style.scss */
+/* line 3095, style.scss */
 .progressBlock .progress .progression {
   position: absolute;
   bottom: 0;
   width: 100%; }
 
-/* line 3101, style.scss */
+/* line 3102, style.scss */
 .progressBlock .progress .progressMask {
   background-image: url(../images2/progressMask.png);
   background-repeat: no-repeat;
@@ -3177,11 +3178,11 @@ header {
   top: 0;
   width: 100%; }
 
-/* line 3112, style.scss */
+/* line 3113, style.scss */
 .progressBlock.selected .progress .progressMask {
   background-position: 0 0; }
 
-/* line 3116, style.scss */
+/* line 3117, style.scss */
 .progressBlock .progress .percentage {
   position: absolute;
   top: 45px;
@@ -3193,7 +3194,7 @@ header {
   width: 100%;
   text-align: center; }
 
-/* line 3129, style.scss */
+/* line 3130, style.scss */
 .blockBar {
   background-color: #FFF;
   height: 32px;
@@ -3203,11 +3204,11 @@ header {
   width: 100%;
   line-height: 30px; }
 
-/* line 3139, style.scss */
+/* line 3140, style.scss */
 .blockBar:hover {
   cursor: auto; }
 
-/* line 3144, style.scss */
+/* line 3145, style.scss */
 .blockBar .assessments {
   width: 145px;
   border-right: 1px solid #f1f1f1;
@@ -3218,53 +3219,53 @@ header {
   padding-left: 10px;
   float: left; }
 
-/* line 3155, style.scss */
+/* line 3156, style.scss */
 .progressBlock .assessments .count {
   float: right;
   font-weight: 900;
   font-size: 12px; }
 
-/* line 3161, style.scss */
+/* line 3162, style.scss */
 .good {
   margin-right: 5px;
   color: #00ae0c; }
 
-/* line 3166, style.scss */
+/* line 3167, style.scss */
 .bad {
   margin-right: 10px;
   color: #ff0000; }
 
-/* line 3171, style.scss */
+/* line 3172, style.scss */
 .assessmentExpand {
   float: right;
   text-align: center;
   width: 33px; }
 
-/* line 3177, style.scss */
+/* line 3178, style.scss */
 .trophy.achieved {
   color: #ffcc00; }
 
-/* line 3181, style.scss */
+/* line 3182, style.scss */
 .icons {
   font-size: 14px; }
 
-/* line 3185, style.scss */
+/* line 3186, style.scss */
 .icons .trophy {
   position: inherit;
   color: #d8d8d8;
   font-size: 14px; }
 
-/* line 3191, style.scss */
+/* line 3192, style.scss */
 .icons .trophy.achieved {
   color: #ffcc00; }
 
-/* line 3197, style.scss */
+/* line 3198, style.scss */
 .assessmentExpand .dropdown-menu {
   border-radius: 3px;
   padding: 0;
   width: 390px; }
 
-/* line 3203, style.scss */
+/* line 3204, style.scss */
 .ddPanelHeader {
   background-color: #f7f7f7;
   height: 30px;
@@ -3272,7 +3273,7 @@ header {
   padding-top: 8px;
   padding-left: 10px; }
 
-/* line 3211, style.scss */
+/* line 3212, style.scss */
 .ddPanelHeader h4 {
   margin: 0;
   padding: 0;
@@ -3283,21 +3284,21 @@ header {
   font-size: 12px;
   float: left; }
 
-/* line 3221, style.scss */
+/* line 3222, style.scss */
 .ddPanelHeader .close {
   margin-top: -3px;
   margin-right: 10px; }
 
-/* line 3226, style.scss */
+/* line 3227, style.scss */
 .assessment {
   border-bottom: 1px solid #f1f1f1;
   padding: 10px; }
 
-/* line 3232, style.scss */
+/* line 3233, style.scss */
 .assessmentExpand .dropdown-menu .assessment:last-of-type {
   border-bottom: 0; }
 
-/* line 3237, style.scss */
+/* line 3238, style.scss */
 .assessment p {
   color: #212121;
   font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -3306,39 +3307,39 @@ header {
   line-height: 14px;
   margin-bottom: 2px; }
 
-/* line 3246, style.scss */
+/* line 3247, style.scss */
 .userInfo {
   font-size: 12px;
   color: #999;
   margin-bottom: 7px; }
 
-/* line 3252, style.scss */
+/* line 3253, style.scss */
 .date {
   color: #212121; }
 
-/* line 3256, style.scss */
+/* line 3257, style.scss */
 .userInfo .icons {
   float: right; }
 
-/* line 3259, style.scss */
+/* line 3260, style.scss */
 .userInfo .icons .fa {
   margin-right: 5px; }
 
-/* line 3265, style.scss */
+/* line 3266, style.scss */
 .fa-check-circle:hover,
 .fa-trophy:hover {
   cursor: pointer; }
 
-/* line 3272, style.scss */
+/* line 3273, style.scss */
 .activitiesBlock .activitiesBlockLeft {
   float: left;
   width: 50%;
   margin-bottom: 20px; }
-  /* line 3276, style.scss */
+  /* line 3277, style.scss */
   .activitiesBlock .activitiesBlockLeft h3 {
     margin-right: 15px;
     margin-bottom: 10px; }
-    /* line 3279, style.scss */
+    /* line 3280, style.scss */
     .activitiesBlock .activitiesBlockLeft h3 a {
       position: relative;
       display: block;
@@ -3349,25 +3350,25 @@ header {
       -webkit-border-radius: 5px;
       -moz-border-radius: 5px;
       border-radius: 5px; }
-      /* line 3287, style.scss */
+      /* line 3288, style.scss */
       .activitiesBlock .activitiesBlockLeft h3 a .iconType,
       .activitiesBlock .activitiesBlockLeft h3 a .check {
         position: absolute;
         left: 10px;
         top: 10px; }
-    /* line 3294, style.scss */
+    /* line 3295, style.scss */
     .activitiesBlock .activitiesBlockLeft h3.selected a {
       background: #fff; }
-/* line 3299, style.scss */
+/* line 3300, style.scss */
 .activitiesBlock .activitiesBlockRight {
   float: right;
   width: 50%; }
-  /* line 3302, style.scss */
+  /* line 3303, style.scss */
   .activitiesBlock .activitiesBlockRight .graph {
     margin-left: 15px; }
 
 /* Activities hexagon */
-/* line 3311, style.scss */
+/* line 3312, style.scss */
 .hexagon {
   position: relative;
   width: 22px;
@@ -3380,7 +3381,7 @@ header {
   left: 10px;
   top: 15px; }
 
-/* line 3324, style.scss */
+/* line 3325, style.scss */
 .hexagon:before,
 .hexagon:after {
   content: "";
@@ -3394,37 +3395,37 @@ header {
   background-color: inherit;
   left: 2.2218px; }
 
-/* line 3338, style.scss */
+/* line 3339, style.scss */
 .hexagon:before {
   top: -7.7782px;
   border-top: solid 1.4142px #e7e7e7;
   border-right: solid 1.4142px #e7e7e7; }
 
-/* line 3344, style.scss */
+/* line 3345, style.scss */
 .hexagon:after {
   bottom: -7.7782px;
   border-bottom: solid 1.4142px #e7e7e7;
   border-left: solid 1.4142px #e7e7e7; }
 
-/* line 3352, style.scss */
+/* line 3353, style.scss */
 .hexagon.done {
   background-color: #e45b68;
   border-left: solid 1px #e45b68;
   border-right: solid 1px #e45b68; }
 
-/* line 3358, style.scss */
+/* line 3359, style.scss */
 .hexagon.done:before {
   top: -7.7782px;
   border-top: solid 1.4142px #e45b68;
   border-right: solid 1.4142px #e45b68; }
 
-/* line 3364, style.scss */
+/* line 3365, style.scss */
 .hexagon.done:after {
   bottom: -7.7782px;
   border-bottom: solid 1.4142px #e45b68;
   border-left: solid 1.4142px #e45b68; }
 
-/* line 3370, style.scss */
+/* line 3371, style.scss */
 .fileContainer {
   border: 1px solid #eeeeee;
   background-color: #FFF;
@@ -3432,25 +3433,25 @@ header {
   font-size: 13px;
   color: #999999; }
 
-/* line 3378, style.scss */
+/* line 3379, style.scss */
 .fileUrl {
   margin-left: 52px; }
 
-/* line 3382, style.scss */
+/* line 3383, style.scss */
 .fileContainer .col-md-10 {
   padding-left: 0; }
 
-/* line 3386, style.scss */
+/* line 3387, style.scss */
 .fileContainer h5 {
   margin: 7px 0 1px 0; }
 
-/* line 3390, style.scss */
+/* line 3391, style.scss */
 .fileContainer h5 a {
   font-size: 14px;
   font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 600; }
 
-/* line 3396, style.scss */
+/* line 3397, style.scss */
 .fileSizeTime {
   font-size: 18px;
   font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -3459,24 +3460,24 @@ header {
   text-align: right;
   line-height: 48px; }
 
-/* line 3405, style.scss */
+/* line 3406, style.scss */
 .fileIcon {
   float: left;
   margin-right: 15px; }
 
-/* line 3410, style.scss */
+/* line 3411, style.scss */
 .fileIcon .fa {
   font-size: 48px; }
 
-/* line 3415, style.scss */
+/* line 3416, style.scss */
 .youtube {
   color: #E62117; }
 
-/* line 3419, style.scss */
+/* line 3420, style.scss */
 .pdf {
   color: #ed1b24; }
 
-/* line 3425, style.scss */
+/* line 3426, style.scss */
 .sliderIconLeft {
   position: absolute;
   left: 0;
@@ -3487,11 +3488,11 @@ header {
   background: url("../images2/sliderArrowLeft.svg") no-repeat center center;
   opacity: .5; }
 
-/* line 3435, style.scss */
+/* line 3436, style.scss */
 .sliderIconLeft:hover {
   opacity: 1; }
 
-/* line 3439, style.scss */
+/* line 3440, style.scss */
 .sliderIconRight {
   position: absolute;
   right: 0;
@@ -3502,11 +3503,11 @@ header {
   background: url("../images2/sliderArrowRight.svg") no-repeat center center;
   opacity: .5; }
 
-/* line 3449, style.scss */
+/* line 3450, style.scss */
 .sliderIconRight:hover {
   opacity: 1; }
 
-/* line 3453, style.scss */
+/* line 3454, style.scss */
 .sliderIconLeftCred {
   position: absolute;
   left: 0;
@@ -3517,15 +3518,15 @@ header {
   background: url("../images2/sliderArrowLeft.svg") no-repeat center center;
   opacity: .5; }
 
-/* line 3463, style.scss */
+/* line 3464, style.scss */
 .sliderIconLeftCred:hover {
   opacity: 1; }
 
-/* line 3467, style.scss */
+/* line 3468, style.scss */
 .sliderIconLeftCred .fa {
   font-size: 36px; }
 
-/* line 3471, style.scss */
+/* line 3472, style.scss */
 .sliderIconRightCred {
   position: absolute;
   right: 0;
@@ -3536,66 +3537,66 @@ header {
   background: url("../images2/sliderArrowRight.svg") no-repeat center center;
   opacity: .5; }
 
-/* line 3481, style.scss */
+/* line 3482, style.scss */
 .sliderIconRightCred:hover {
   opacity: 1; }
 
-/* line 3487, style.scss */
+/* line 3488, style.scss */
 .timelineGraph .timelineGraphFilters .checkbox {
   display: inline-block;
   margin-right: 20px; }
-/* line 3492, style.scss */
+/* line 3493, style.scss */
 .timelineGraph #timeline-graph {
   padding-bottom: 30px; }
-/* line 3495, style.scss */
+/* line 3496, style.scss */
 .timelineGraph .timeline-tooltip {
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px; }
 
-/* line 3500, style.scss */
+/* line 3501, style.scss */
 .socialGraph {
   padding-bottom: 30px; }
-  /* line 3502, style.scss */
+  /* line 3503, style.scss */
   .socialGraph .socialLeft {
     width: 35%;
     float: left; }
-    /* line 3505, style.scss */
+    /* line 3506, style.scss */
     .socialGraph .socialLeft h2 {
       margin-bottom: 10px; }
-    /* line 3508, style.scss */
+    /* line 3509, style.scss */
     .socialGraph .socialLeft .user32 {
       margin-bottom: 30px; }
-    /* line 3511, style.scss */
+    /* line 3512, style.scss */
     .socialGraph .socialLeft #social-interactions-bytype-table,
     .socialGraph .socialLeft #social-interactions-bypeer-table {
       margin-bottom: 30px; }
-      /* line 3514, style.scss */
+      /* line 3515, style.scss */
       .socialGraph .socialLeft #social-interactions-bytype-table td,
       .socialGraph .socialLeft #social-interactions-bypeer-table td {
         padding: 0 10px; }
-  /* line 3519, style.scss */
+  /* line 3520, style.scss */
   .socialGraph .socialRight {
     width: 65%;
     float: right; }
 
-/* line 3525, style.scss */
+/* line 3526, style.scss */
 .observationBox {
   position: relative; }
-  /* line 3527, style.scss */
+  /* line 3528, style.scss */
   .observationBox .observationInfo {
     margin-bottom: 20px; }
-    /* line 3529, style.scss */
+    /* line 3530, style.scss */
     .observationBox .observationInfo p {
       margin-bottom: 10px; }
-  /* line 3533, style.scss */
+  /* line 3534, style.scss */
   .observationBox .subHead {
     margin-bottom: 10px; }
-  /* line 3536, style.scss */
+  /* line 3537, style.scss */
   .observationBox .observationOpt {
     padding-top: 10px;
     border-top: 1px solid #ECEDF1; }
-    /* line 3539, style.scss */
+    /* line 3540, style.scss */
     .observationBox .observationOpt .bullet {
       display: inline-block;
       width: 3px;
@@ -3603,72 +3604,72 @@ header {
       margin: 0 5px;
       background: url("../images2/bulletGrey.svg") no-repeat center center; }
 
-/* line 3551, style.scss */
+/* line 3552, style.scss */
 #newObservation .panel,
 #editObservation .panel {
   border: 1px solid #EEEFF3;
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
   box-shadow: none; }
-  /* line 3556, style.scss */
+  /* line 3557, style.scss */
   #newObservation .panel .panel-heading,
   #editObservation .panel .panel-heading {
     background: #F8F9FB; }
-    /* line 3558, style.scss */
+    /* line 3559, style.scss */
     #newObservation .panel .panel-heading .panel-title,
     #editObservation .panel .panel-heading .panel-title {
       font-size: 14px; }
-  /* line 3562, style.scss */
+  /* line 3563, style.scss */
   #newObservation .panel .panel-body,
   #editObservation .panel .panel-body {
     border-top: none; }
-    /* line 3564, style.scss */
+    /* line 3565, style.scss */
     #newObservation .panel .panel-body textarea,
     #editObservation .panel .panel-body textarea {
       display: 100%;
       width: 100%; }
 
-/* line 3572, style.scss */
+/* line 3573, style.scss */
 .observationBtn {
   margin-bottom: 10px; }
 
-/* line 3576, style.scss */
+/* line 3577, style.scss */
 .observationBox .userInfo {
   margin: 0 auto;
   width: 165px;
   margin-bottom: 15px; }
 
-/* line 3582, style.scss */
+/* line 3583, style.scss */
 .observationBox .labels {
   margin-bottom: 10px; }
 
-/* line 3586, style.scss */
+/* line 3587, style.scss */
 .dottedDivider {
   border-top: 1px dotted #e8e8e8;
   margin-bottom: 15px; }
 
-/* line 3592, style.scss */
+/* line 3593, style.scss */
 .observationBox .labels span {
   width: 100%; }
 
-/* line 3597, style.scss */
+/* line 3598, style.scss */
 .observationsList .observationLine {
   border-bottom: 1px solid #EEEFF3; }
-  /* line 3599, style.scss */
+  /* line 3600, style.scss */
   .observationsList .observationLine:last-child {
     border: none; }
-  /* line 3602, style.scss */
+  /* line 3603, style.scss */
   .observationsList .observationLine .user32 {
     padding-bottom: 20px; }
-  /* line 3605, style.scss */
+  /* line 3606, style.scss */
   .observationsList .observationLine .obsBlocks {
     float: left;
     width: 33%;
     display: inline-block; }
-    /* line 3609, style.scss */
+    /* line 3610, style.scss */
     .observationsList .observationLine .obsBlocks h3 {
       margin-bottom: 10px; }
-    /* line 3612, style.scss */
+    /* line 3613, style.scss */
     .observationsList .observationLine .obsBlocks .bullet {
       display: inline-block;
       width: 3px;

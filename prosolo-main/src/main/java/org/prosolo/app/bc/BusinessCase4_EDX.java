@@ -210,7 +210,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 					3,
 					false,
 					"CCK11 dataset for social network analysis",
-					"https://s3.amazonaws.com/prosoloedx2/files/3d9a5e10d63678812f87b21ed593659a/CCK11 dataset for social network analysis.pdf");
+					"https://s3.amazonaws.com/prosoloedx2/files/3d9a5e10d63678812f87b21ed593659a/CCK11%20dataset%20for%20social%20network%20analysis.pdf");
 			
 			createActivity(
 					userNickPowell, 

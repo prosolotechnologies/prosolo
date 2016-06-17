@@ -22,51 +22,58 @@
 	
 	<composite:implementation>
 		<div id="#{cc.clientId}">
-			<p:growl id="growlDetails" globalOnly="true" showDetail="true"></p:growl>
-		 	<div class="activityMain">
-                <ui:fragment rendered="#{cc.attrs.activity.activityType == 'VIDEO'}">
-                	<socialWall:youtubevideopreview
-           				embedId="#{cc.attrs.activity.embedId}"
-           				width="731"
-           				height="413"
-           				context="#{cc.attrs.learningContext}"
-           			/>
-                </ui:fragment>
-                <ui:fragment rendered="#{cc.attrs.activity.activityType == 'SLIDESHARE'}">
-                	<iframe src="#{cc.attrs.activity.embedId}"
-						width="731" height="413" frameborder="0"
-						marginwidth="0" marginheight="0" scrolling="no"
-						style="border: 1px solid #CCC; border-width: 1px 1px 0; margin-bottom: 5px">
-					</iframe>
-                </ui:fragment>
-                <ui:fragment rendered="#{cc.attrs.activity.activityType == 'EXTERNAL_TOOL'}">
-                	<h:link 
-                		style="display:none;"
-                		value="Load"
-                		styleClass="linkLoadExternalActivity"
-                		outcome="/lti" 
-                		target="extActivityFrame"
-						onclick="sendLogPageNavigationWithParameters('/lti', {});">
-							<f:param name="launchUrl" value="#{cc.attrs.activity.launchUrl}"/>
-							<f:param name="sharedSecret" value="#{cc.attrs.activity.sharedSecret}"/>
-							<f:param name="consumerKey" value="#{cc.attrs.activity.consumerKey}"/>
-							<f:param name="targetActivityId" value="#{cc.attrs.activity.targetActivityId}"/>
-							<f:param name="activityId" value="#{cc.attrs.activity.activityId}"/>
-					</h:link>
-					
-                	<iframe name="extActivityFrame"
-						width="731" height="413" frameborder="0"
-						marginwidth="0" marginheight="0" scrolling="yes"
-						style="border: 1px solid #CCC; border-width: 1px 1px 0; margin-bottom: 5px">
-					</iframe>
-					<script>
-						$(function(){
-							document.getElementsByClassName("linkLoadExternalActivity")[0].click();
-						});
-					</script>
-                </ui:fragment>
-            </div>
-            <p>#{cc.attrs.activity.description}</p>
+			<p:growl id="growlDetails" globalOnly="true" showDetail="true" />
+			
+            <ui:fragment rendered="#{cc.attrs.activity.activityType == 'VIDEO'}">
+				<div class="activityMain">
+					<socialWall:youtubevideopreview
+						embedId="#{cc.attrs.activity.embedId}"
+						width="731"
+						height="413"
+						context="#{cc.attrs.learningContext}" />
+				</div>
+			</ui:fragment>
+			
+			<ui:fragment rendered="#{cc.attrs.activity.activityType == 'SLIDESHARE'}">
+				<iframe src="#{cc.attrs.activity.embedId}"
+					width="731" height="413" frameborder="0"
+					marginwidth="0" marginheight="0" scrolling="no"
+					style="border: 1px solid #CCC; border-width: 1px 1px 0; margin-bottom: 5px">
+				</iframe>
+			</ui:fragment>
+			
+			<ui:fragment rendered="#{cc.attrs.activity.activityType == 'EXTERNAL_TOOL'}">
+				<h:link 
+					style="display:none;"
+					value="Load"
+					styleClass="linkLoadExternalActivity"
+					outcome="/lti" 
+					target="extActivityFrame"
+					onclick="sendLogPageNavigationWithParameters('/lti', {});">
+					<f:param name="launchUrl" value="#{cc.attrs.activity.launchUrl}"/>
+					<f:param name="sharedSecret" value="#{cc.attrs.activity.sharedSecret}"/>
+					<f:param name="consumerKey" value="#{cc.attrs.activity.consumerKey}"/>
+					<f:param name="targetActivityId" value="#{cc.attrs.activity.targetActivityId}"/>
+					<f:param name="activityId" value="#{cc.attrs.activity.activityId}"/>
+				</h:link>
+			
+				<iframe name="extActivityFrame"
+					width="731" height="413" frameborder="0"
+					marginwidth="0" marginheight="0" scrolling="yes"
+					style="border: 1px solid #CCC; border-width: 1px 1px 0; margin-bottom: 5px">
+				</iframe>
+				
+				<script>
+				$(function(){
+					document.getElementsByClassName("linkLoadExternalActivity")[0].click();
+				});
+				</script>
+			</ui:fragment>
+           
+            <ui:fragment rendered="#{not empty cc.attrs.activity.description}">
+            	<p>#{cc.attrs.activity.description}</p>
+            </ui:fragment>
+            
             <h:panelGroup layout="block" rendered="#{cc.attrs.activity.activityType == 'TEXT'}" styleClass="whiteBox activityTextBox">
 				<h:outputText escape="false" value="#{cc.attrs.activity.text}"/>
             </h:panelGroup>
