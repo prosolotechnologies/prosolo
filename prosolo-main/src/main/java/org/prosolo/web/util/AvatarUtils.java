@@ -70,8 +70,8 @@ public class AvatarUtils {
 		return url;
 	}
 	
-	public static String getUserFolderPath(User user){
-		String hashedUserId = StringUtils.getHashValue(String.valueOf(user.getId()));
+	public static String getUserFolderPath(long userId){
+		String hashedUserId = StringUtils.getHashValue(String.valueOf(userId));
 		String timestamp = String.valueOf(new Date().getTime());
 		return hashedUserId + '/' + timestamp;
 	}

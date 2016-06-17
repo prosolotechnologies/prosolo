@@ -1,5 +1,7 @@
 package org.prosolo.services.nodes.impl;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -86,6 +88,7 @@ import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPrev
 import org.prosolo.services.nodes.data.activity.mapper.ActivityMapperFactory;
 import org.prosolo.services.nodes.data.activity.mapper.activity.ActivityMapper;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
+import org.prosolo.services.upload.AvatarProcessor;
 import org.prosolo.web.competences.data.ActivityFormData;
 import org.prosolo.web.competences.data.ActivityType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,6 +116,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Inject private Activity1Manager activityManager;
     @Inject private ActivityDataFactory activityFactory;
     @Inject private TagManager tagManager;
+    @Inject private AvatarProcessor avatarProcessor;
     
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -529,8 +533,22 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     
     @Override
     @Transactional (readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    public User updateUserAvatar(User user, InputStream imageInputStream, String avatarFilename) { 
+    	if (imageInputStream != null) {
+			try {
+				user.setAvatarUrl(avatarProcessor.storeUserAvatar(user.getId(), imageInputStream, avatarFilename, true));
+				return saveEntity(user);
+			} catch (IOException e) {
+				logger.error(e);
+			}
+		} 
+		return user;
+	}
+
+    @Override
+    @Transactional (readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified, 
-            String password, String position, boolean system) throws EventException {
+            String password, String position, boolean system, InputStream avatarStream, String avatarFilename) throws EventException {
         
     	emailAddress = emailAddress.toLowerCase();
         
@@ -553,6 +571,15 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         user.setUserType(UserType.REGULAR_USER);
         user.addRole(roleManager.getRoleByName("User"));
         user = saveEntity(user);
+        
+        try {
+        	if (avatarStream != null) {
+        		user.setAvatarUrl(avatarProcessor.storeUserAvatar(user.getId(), avatarStream, avatarFilename, true));
+        		user = saveEntity(user);
+        	}
+		} catch (IOException e) {
+			logger.error(e);
+		}
     
         this.flush();
         return user;

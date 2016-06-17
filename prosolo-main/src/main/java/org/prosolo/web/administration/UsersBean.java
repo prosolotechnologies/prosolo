@@ -153,7 +153,9 @@ public class UsersBean implements Serializable {
 					formData.getEmail(),
 					true,
 					formData.getPassword(), 
-					formData.getPosition());
+					formData.getPosition(),
+					null,
+					null);
 
 			if (formData.isSendEmail()) {
 				emailSenderManager.sendEmailAboutNewAccount(user,
