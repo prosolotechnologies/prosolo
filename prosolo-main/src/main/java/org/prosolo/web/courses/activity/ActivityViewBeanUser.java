@@ -135,7 +135,7 @@ public class ActivityViewBeanUser implements Serializable {
 	}
 	
 	public boolean isActivityActive(ActivityData act) {
-		return competenceData.getActivityToShowWithDetails().getActivityId() == act.getActivityId();
+		return decodedActId == act.getActivityId();
 	}
 	
 	public boolean isCurrentUserCreator() {
