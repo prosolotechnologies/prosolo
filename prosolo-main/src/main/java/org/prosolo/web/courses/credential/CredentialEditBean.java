@@ -184,6 +184,7 @@ public class CredentialEditBean implements Serializable {
 				credentialData.setId(cred.getId());
 				decodedId = credentialData.getId();
 				id = idEncoder.encodeId(decodedId);
+				credentialData.startObservingChanges();
 			}
 			if(reloadData && credentialData.hasObjectChanged()) {
 				initializeValues();

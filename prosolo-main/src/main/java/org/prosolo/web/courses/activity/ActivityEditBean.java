@@ -308,6 +308,7 @@ public class ActivityEditBean implements Serializable {
 						loggedUser.getUser().getId());
 				decodedId = act.getId();
 				id = idEncoder.encodeId(decodedId);
+				activityData.startObservingChanges();
 			}
 			
 			if(reloadData && activityData.hasObjectChanged()) {
