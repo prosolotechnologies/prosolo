@@ -277,8 +277,13 @@ public class ActivityEditBean implements Serializable {
 				 */
 				String section = PageUtil.getSectionForView();
 				logger.info("SECTION " + section);
-				extContext.redirect(extContext.getRequestContextPath() + section +
-						"/competences/" + compId + "/edit?actAdded=true" );
+				
+				StringBuilder url = new StringBuilder(extContext.getRequestContextPath() + section +
+						"/competences/" + compId + "/edit?actAdded=true");
+				if(credId != null && !credId.isEmpty()) {
+					url.append("&credId=" + credId);
+				}
+				extContext.redirect(url.toString());
 			} catch (IOException e) {
 				logger.error(e);
 			}

@@ -21,6 +21,7 @@ import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
 import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.config.AnalyticalServerConfig;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -267,9 +268,17 @@ public class StudentProfileBean implements Serializable {
 		long compId = 0;
 		
 		if (selectedCredential != null) {
-			compId = selectedCredential.getSelectedCompetence() != null ? selectedCredential.getSelectedCompetence().getId() : 0;
+			compId = selectedCredential.getSelectedCompetence() != null ? 
+					selectedCredential.getSelectedCompetence().getId() : 0;
 		}
-		return Settings.getInstance().config.application.domain + "api/competences/" + compId + "/activities";
+		//TODO it is maybe better to include scheme in config file too instead of hardcoding.
+		return "http://" + getApiHost() + "/competences/" + compId + "/activities";
+				//Settings.getInstance().config.application.domain + "api/competences/" + compId + "/activities";
+	}
+	
+	private String getApiHost() {
+		AnalyticalServerConfig config = Settings.getInstance().config.analyticalServerConfig;
+		return config.apiHost + ":" + config.apiPort+"/"+config.apiServicesPath;
 	}
 	
 	private void initializeSocialNetworkNameMap() {

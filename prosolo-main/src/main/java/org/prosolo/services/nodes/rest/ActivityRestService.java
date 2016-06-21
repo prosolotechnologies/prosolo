@@ -2,7 +2,6 @@ package org.prosolo.services.nodes.rest;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import javax.ws.rs.GET;
@@ -13,20 +12,16 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.nodes.Activity1Manager;
-import org.prosolo.services.nodes.ActivityManager;
-import org.prosolo.services.nodes.ActivityTimeSpentPercentileService;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.rest.data.ActivityJsonData;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+@Deprecated
 @Path("/")
 public class ActivityRestService {
 

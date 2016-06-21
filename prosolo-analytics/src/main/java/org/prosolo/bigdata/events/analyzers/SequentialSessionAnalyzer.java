@@ -15,8 +15,10 @@ public class SequentialSessionAnalyzer extends GroupingLogEventSessionAnalyzer {
 
 	@Override
 	public Collection<SessionAnalyzer<LogEvent>> getAnalyzers() {
-		return Arrays.asList(LearningEventsSessionAnalyzer.getInstance(), 
-			TimeSpentOnActivitySessionAnalyzer.getInstance());
+		return Arrays.asList(
+				TimeSpentOnActivitySessionAnalyzer.getInstance(),
+				LearningEventsSessionAnalyzer.getInstance()
+			);
 	}
 
 }
