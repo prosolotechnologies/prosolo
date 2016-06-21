@@ -39,6 +39,7 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.indexing.impl.NodeChangeObserver;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -998,6 +999,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly = false)
 	public CredentialData enrollInCredential(long credentialId, long userId, LearningContextData context) 
@@ -1009,6 +1011,14 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					LearningResourceReturnResultType.PUBLISHED_VERSION);
 			TargetCredential1 targetCred = createTargetCredential(cred, user);
 			long instructorId = 0;
+			String page = null;
+			String lContext = null;
+			String service = null;
+			if(context != null) {
+				page = context.getPage();
+				lContext = context.getLearningContext();
+				service = context.getService();
+			}
 			if(cred.getType() == LearningResourceType.UNIVERSITY_CREATED && 
 					!cred.isManuallyAssignStudents()) {
 				List<Long> targetCredIds = new ArrayList<>();
@@ -1020,6 +1030,16 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					StudentInstructorPair pair = assigned.get(0);
 					//we need user id, not instructor id
 					instructorId = pair.getInstructor().getUser().getId();
+					
+					User target = new User();
+					target.setId(instructorId);
+					User object = new User();
+					object.setId(userId);
+					Map<String, String> params = new HashMap<>();
+					params.put("credId", credentialId + "");
+					eventFactory.generateEvent(EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR, 
+							object, object, target, null,
+							page, lContext, service, new Class[] {NodeChangeObserver.class}, params);
 				}
 	    	}
 			CredentialData cd = credentialFactory.getCredentialData(targetCred.getCreatedBy(), 
@@ -1032,15 +1052,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 							null, true);
 					cd.getCompetences().add(compData);
 				}
-			}
-			
-			String page = null;
-			String lContext = null;
-			String service = null;
-			if(context != null) {
-				page = context.getPage();
-				lContext = context.getLearningContext();
-				service = context.getService();
 			}
 			
 			/*

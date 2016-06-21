@@ -32,7 +32,7 @@ public class InstructorStudentsEmailServiceImpl implements InstructorStudentsEma
 		String instructorName = res.get("name");
 		String email = res.get("email");
 		if(email != null) {
-			String courseName = courseDAO.getCourseTitle(courseId);
+			String courseName = courseDAO.getCredentialTitle(courseId);
 			List<String> assigned = userDAO.getUserNames(assignedStudents);
 			List<String> unassigned = userDAO.getUserNames(unassignedStudents);
 			

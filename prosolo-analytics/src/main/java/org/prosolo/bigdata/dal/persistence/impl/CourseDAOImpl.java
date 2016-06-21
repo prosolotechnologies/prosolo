@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.dal.persistence.CourseDAO;
 import org.prosolo.bigdata.dal.persistence.HibernateUtil;
+import org.prosolo.common.domainmodel.credential.LearningResourceType;
 
 public class CourseDAOImpl extends GenericDAOImpl implements CourseDAO {
 
@@ -18,17 +19,21 @@ public class CourseDAOImpl extends GenericDAOImpl implements CourseDAO {
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public  List<Long> getAllCourseIds() {
+	public  List<Long> getAllCredentialIds() {
 		String query = 
-			"SELECT course.id " +
-			"FROM Course course " +
-			"WHERE course.deleted = :deleted " +
-			"AND course.published = :published";
+			"SELECT cred.id " +
+			"FROM Credential1 cred " +
+			"WHERE cred.deleted = :deleted " +
+			"AND (cred.published = :published " +
+			"OR cred.hasDraft = :hasDraft) " +
+			"AND cred.type = :type";
 		List<Long> result =null;
 		try {
 			 result = session.createQuery(query)
-					 .setParameter("deleted", false)
-					 .setParameter("published", true)
+					 .setBoolean("deleted", false)
+					 .setBoolean("published", true)
+					 .setBoolean("hasDraft", true)
+					 .setParameter("type", LearningResourceType.UNIVERSITY_CREATED)
 					 .list();
 		} catch(Exception ex) {
 			logger.error(ex);
@@ -41,15 +46,15 @@ public class CourseDAOImpl extends GenericDAOImpl implements CourseDAO {
 	}
 	
 	@Override
-	public String getCourseTitle(long courseId) {
+	public String getCredentialTitle(long credId) {
 		String title = null;
 		String query = 
-			"SELECT course.title " +
-			"FROM Course course " +
-			"WHERE course.id = :courseId";
+			"SELECT cred.title " +
+			"FROM Credential1 cred " +
+			"WHERE cred.id = :credId";
 		try {
 			 title = (String) session.createQuery(query)
-					 .setParameter("courseId", courseId)
+					 .setParameter("credId", credId)
 					 .uniqueResult();
 		} catch(Exception ex) {
 			logger.error(ex);
