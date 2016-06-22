@@ -137,10 +137,6 @@
       {
         "eventType": "NAVIGATE",
         "context": "userDetails"
-      },
-      {
-        "eventType": "NAVIGATE",
-        "context": "userDetails"
       }
     ]
   },

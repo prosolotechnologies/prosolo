@@ -264,8 +264,7 @@ public class MessagesBean implements Serializable {
 			logger.debug("User "+loggedUser.getUser()+" sent a message to thread " + threadData.getId() + " with content: '"+this.messageText+"'");
 			publishSentMessage(loggedUser.getUser(), threadData.getParticipants(), message);
 
-			PageUtil.fireSuccessfulInfoMessage("messagesFormGrowl", 
-					"You have sent a message to " + threadData.getParticipantsListWithoutLoggedUser());
+			PageUtil.fireSuccessfulInfoMessage("messagesFormGrowl", "Message sent");
 			//set archived to false, as sending messge unarchives thread
 			archiveView = false;
 			init();

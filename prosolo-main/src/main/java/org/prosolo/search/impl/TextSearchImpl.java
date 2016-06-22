@@ -1186,7 +1186,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				case FROM_CREATOR:
 					bQueryBuilder.must(termQuery("creatorId", userId));
 					break;
-				case FROM_OTHER_STUDENTS:
+				case BY_OTHER_STUDENTS:
 					bQueryBuilder.mustNot(termQuery("creatorId", userId));
 					/*
 					 * Because lowercased strings are always stored in index. Alternative
@@ -1364,7 +1364,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				case FROM_CREATOR:
 					bQueryBuilder.must(termQuery("creatorId", userId));
 					break;
-				case FROM_STUDENTS:
+				case BY_STUDENTS:
 					//bQueryBuilder.mustNot(termQuery("creatorId", userId));
 					/*
 					 * Because lowercased strings are always stored in index. Alternative

@@ -72,9 +72,7 @@ public class DirectMessagesDialog implements Serializable {
 	}
 	
 	public void sendMessage() {
-		
 		try {
-			
 			Message message = messagingManager.sendMessage(loggedUser.getUser().getId(), receiver.getId(), this.messageContent);
 			logger.debug("User "+loggedUser.getUser()+" sent a message to "+receiver+" with content: '"+this.messageContent+"'");
 			
@@ -99,9 +97,7 @@ public class DirectMessagesDialog implements Serializable {
 	            }
 			});
 			
-			PageUtil.fireSuccessfulInfoMessage("dmcomp:newDirectMessageFormGrowl", 
-					"You have sent a message to " + receiver.getName());
-		//TODO ovde je bio ResoureCouldNotBeFound ex
+			PageUtil.fireSuccessfulInfoMessage("dmcomp:newDirectMessageFormGrowl", "Message sent");
 		} catch (Exception e) {
 			logger.error(e);
 		}

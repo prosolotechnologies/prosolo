@@ -63,7 +63,7 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 	public void init() {
 		sortOptions = CredentialSortOption.values();
 		searchFilters = Arrays.stream(CredentialSearchFilter.values()).filter(
-				f -> f != CredentialSearchFilter.FROM_STUDENTS &&
+				f -> f != CredentialSearchFilter.BY_STUDENTS &&
 					 f != CredentialSearchFilter.YOUR_CREDENTIALS)
 				.toArray(CredentialSearchFilter[]::new);
 		searchCredentials();

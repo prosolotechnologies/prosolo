@@ -141,8 +141,7 @@ public class Profile1 {
 			            }
 					});
 					this.message = "";
-					PageUtil.fireSuccessfulInfoMessage("profileGrowl", 
-							"You have sent a message to " + studentFullName);
+					PageUtil.fireSuccessfulInfoMessage("profileGrowl", "Message sent");
 				} catch (Exception e) {
 					logger.error(e);
 				}
