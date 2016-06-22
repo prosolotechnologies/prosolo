@@ -4,13 +4,13 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.web.ApplicationBean;
 import org.springframework.stereotype.Service;
 
+@Deprecated
 @Service
 public class ActivityStartEventProcessorFactory {
 	
