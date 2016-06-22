@@ -144,14 +144,14 @@ public interface CredentialManager extends AbstractManager {
 	 * for credential is created, competence is added to that draft version and original credential becomes draft. 
 	 * If draft version for credential already exists, competence will be attached to existing draft version.
 	 * 
-	 * Returns data for event that should be generated when transaction is commited.
+	 * Returns data for events that should be generated when transaction is commited.
 	 * 
 	 * @param credId
 	 * @param comp
 	 * @param userId
 	 * @throws DbConnectionException
 	 */
-	EventData addCompetenceToCredential(long credId, Competence1 comp, long userId) 
+	List<EventData> addCompetenceToCredential(long credId, Competence1 comp, long userId) 
 			throws DbConnectionException;
 	
 	List<CredentialData> getCredentialsWithIncludedCompetenceBasicData(long compId) 

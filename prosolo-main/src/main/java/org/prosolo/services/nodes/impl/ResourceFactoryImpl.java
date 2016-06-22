@@ -948,11 +948,9 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 			 }
 				
 		     if(credentialId > 0) {
-		    	 EventData event = credentialManager.addCompetenceToCredential(credentialId, comp, 
+		    	 List<EventData> events = credentialManager.addCompetenceToCredential(credentialId, comp, 
 		    			 createdBy.getId());
-		    	 if(event != null) {
-		    		 result.addEvent(event);
-		    	 }
+		    	 result.addEvents(events);
 		     }
 		
 		     logger.info("New competence is created with id " + comp.getId());

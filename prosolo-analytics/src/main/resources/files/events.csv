@@ -7,7 +7,7 @@ PROGRESS,Completion,TargetCompetence
 PROGRESS,Completion,TargetLearningGoal
 PROGRESS,ENROLL_COURSE,CourseEnrollment
 PROGRESS,COURSE_WITHDRAWN,CourseEnrollment
-PROGRESS,COURSE_COMPLETED,CourseEnrollment
+PROGRESS,CREDENTIAL_COMPLETED,CourseEnrollment
 COMMENT,Comment,NodeComment
 COMMENT,Comment,SocialActivityComment
 CREATING,Create,LearningGoal

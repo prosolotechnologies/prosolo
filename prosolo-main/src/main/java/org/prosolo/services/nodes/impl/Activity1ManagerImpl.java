@@ -1489,6 +1489,16 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			
 			credManager.updateCredentialAndCompetenceProgressAndNextActivityToLearn(credId, 
 					targetCompId, targetActId, userId, contextData);
+			
+			User user = new User();
+			user.setId(userId);
+			TargetActivity1 tAct = new TargetActivity1();
+			tAct.setId(targetActId);
+			String lcPage = contextData != null ? contextData.getPage() : null; 
+			String lcContext = contextData != null ? contextData.getLearningContext() : null; 
+			String lcService = contextData != null ? contextData.getService() : null;
+			eventFactory.generateEvent(EventType.Completion, user, tAct, null,
+					lcPage, lcContext, lcService, null);
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();

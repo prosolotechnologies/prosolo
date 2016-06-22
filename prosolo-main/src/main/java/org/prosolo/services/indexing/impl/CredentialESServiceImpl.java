@@ -49,8 +49,10 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.field("title", cred.getTitle());
 			builder.field("description", cred.getDescription());
 			Date date = cred.getDateCreated();
-			DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-			builder.field("dateCreated", df.format(date));
+			if(date != null) {
+				DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+				builder.field("dateCreated", df.format(date));
+			}
 			
 			builder.startArray("tags");
 			List<Tag> tags = credentialManager.getCredentialTags(cred.getId(), session);

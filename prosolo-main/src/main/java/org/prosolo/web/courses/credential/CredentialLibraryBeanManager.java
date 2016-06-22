@@ -5,18 +5,24 @@ package org.prosolo.web.courses.credential;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.credential.CredentialSearchFilter;
 import org.prosolo.search.util.credential.CredentialSortOption;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.context.data.LearningContextData;
+import org.prosolo.services.logging.ComponentName;
+import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.web.LoggedUserBean;
@@ -39,6 +45,7 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 	@Inject private TextSearch textSearch;
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private CredentialManager credentialManager;
+	@Inject private LoggingService loggingService;
 
 	private List<CredentialData> credentials;
 	
@@ -55,12 +62,14 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 	private CredentialSortOption[] sortOptions;
 	private CredentialSearchFilter[] searchFilters;
 
+	private String context = "name:library";
+
 	public void init() {
 		sortOptions = CredentialSortOption.values();
 		searchFilters = Arrays.stream(CredentialSearchFilter.values()).filter(
 				f -> shouldIncludeSearchFilter(f))
 				.toArray(CredentialSearchFilter[]::new);
-		searchCredentials();
+		searchCredentials(false);
 	}
 	
 	public boolean shouldIncludeSearchFilter(CredentialSearchFilter f) {
@@ -71,10 +80,26 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 				 (f != CredentialSearchFilter.FROM_CREATOR || canCreateContent);
 	}
 	
-	public void searchCredentials() {
+	public void searchCredentials(boolean userSearch) {
 		try {
 			getCredentialSearchResults();
 			generatePagination();
+			
+			if(userSearch) {
+				String page = FacesContext.getCurrentInstance().getViewRoot().getViewId();
+				LearningContextData lcd = new LearningContextData(page, context, null);
+				User user = new User();
+				user.setId(loggedUserBean.getUser().getId());
+				Map<String, String> params = new HashMap<>();
+				params.put("query", searchTerm);
+				try {
+					loggingService.logServiceUse(user, 
+							ComponentName.SEARCH_CREDENTIALS, 
+							params, loggedUserBean.getIpAddress(), lcd);
+				} catch(Exception e) {
+					logger.error(e);
+				}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e);
@@ -83,7 +108,7 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 	
 	public void resetAndSearch() {
 		this.page = 1;
-		searchCredentials();
+		searchCredentials(true);
 	}
 
 	private void generatePagination() {
@@ -108,13 +133,13 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 	public void applySearchFilter(CredentialSearchFilter filter) {
 		this.searchFilter = filter;
 		this.page = 1;
-		searchCredentials();
+		searchCredentials(true);
 	}
 	
 	public void applySortOption(CredentialSortOption sortOption) {
 		this.sortOption = sortOption;
 		this.page = 1;
-		searchCredentials();
+		searchCredentials(true);
 	}
 	
 	@Override
@@ -131,7 +156,7 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 	public void changePage(int page) {
 		if(this.page != page) {
 			this.page = page;
-			searchCredentials();
+			searchCredentials(true);
 		}
 	}
 	
