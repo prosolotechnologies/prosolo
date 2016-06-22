@@ -65,22 +65,22 @@
 									<polygon id="Triangle-5" points="6 1 12 11 0 11 "></polygon>
 								</g>
 							</svg>
-							#{comment.likedByCurrentUser ? 'Like' : comment.likeCount}
+							#{comment.likeCount == 0 ? 'Like' : comment.likeCount}
 							<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
 							<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment|id:'.concat(comment.commentId))}"/>
 						</p:commandLink>
 						
 						<a href="javascript:void(0)" class="reply" onclick="toggleReplyInput(this)">
 							<span class="icon"></span>Reply
-						</a>        
-	            
+						</a> 
+						
 						<p:commandLink
 							rendered="#{commentBean.isCurrentUserCommentCreator(comment)}"
 							styleClass="edit"
 							onclick="showEditComment(this)">
 							<span class="icon"></span>
 							Edit
-						</p:commandLink>                           
+						</p:commandLink>                            
 					</div>
 				</div>
                 
