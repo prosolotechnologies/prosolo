@@ -1,5 +1,4 @@
-<ui:component
-	xmlns:h="http://java.sun.com/jsf/html"
+<ui:component xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:composite="http://java.sun.com/jsf/composite"
@@ -13,12 +12,16 @@
 	<composite:interface>
 		<composite:attribute name="toUpdate" default="" />
 	</composite:interface>
-	
+
 	<composite:implementation>
 		<link rel="stylesheet" type="text/css" media="all"
 			href="#{request.contextPath}/resources/css2/icropper.css" />
 		<script
 			src="#{request.contextPath}/resources/javascript2/icropper/icropper-min.js"></script>
+		<script type="text/javascript"
+			src="https://maps.googleapis.com/maps/api/js?v=3.exp&amp;sensor=false&amp;libraries=places&amp;key=AIzaSyCBFHHgHrjX9AUW-BZhUDj5O4fIt9omEqQ"></script>
+		<script
+			src="#{request.contextPath}/resources/javascript2/settings.profile.location.js"></script>
 
 		<div class="whiteBar"></div>
 
@@ -62,11 +65,25 @@
 								</div>
 								<div class="formLine">
 									<label>Location</label>
-									<div class="formLineRight">
-										<h:inputText id="editLocationName"
-											class="searchLocationTextField" size="50"
-											value="#{profileSettings.accountData.locationName}" />
-									</div>
+									<h:panelGroup layout="block" id="location"
+										class="location formLineRight">
+										<h:inputText
+											value="#{profileSettings.accountData.locationName}"
+											id="editLocationName" class="searchLocationTextField"
+											size="50" />
+										<h:inputText value="#{profileSettings.accountData.latitude}"
+											class="latitude" style="display: none;" />
+										<h:inputText value="#{profileSettings.accountData.longitude}"
+											class="longitude" style="display: none;" />
+										<f:view contentType="text/html">
+											<div class="map-canvas"></div>
+										</f:view>
+										<script>
+											$(function(){
+												initializeMap('#{profileSettings.accountData.locationName}', '#{profileSettings.accountData.latitude}', '#{profileSettings.accountData.longitude}');
+											});
+										</script>
+									</h:panelGroup>
 								</div>
 								<div class="formLine">
 									<label>&#160;</label>
@@ -131,7 +148,8 @@
 									<div class="formLine">
 										<label>Blog URL</label>
 										<div class="formLineRight">
-											<h:inputText value="#{profileSettings.socialNetworksData.socialNetworkAccountDatas['BLOG'].linkEdit}" />
+											<h:inputText
+												value="#{profileSettings.socialNetworksData.socialNetworkAccountDatas['BLOG'].linkEdit}" />
 										</div>
 									</div>
 									<div class="formLine">
@@ -161,16 +179,15 @@
 									<div class="yourPhotoContent">
 										<h:graphicImage styleClass="img-circle"
 											rendered="#{not empty profileSettings.accountData.avatarPath}"
-											width="100"
-											height="100" alt=""
+											width="100" height="100" alt=""
 											value="#{profileSettings.accountData.avatarPath}" />
-											
+
 										<h:panelGroup
 											rendered="#{empty profileSettings.accountData.avatarPath}"
 											class="letterAvatar letterAvatar100 img-circle">
 											#{util:initials(profileSettings.accountData.firstName.concat(" ").concat(profileSettings.accountData.lastName))}
 										</h:panelGroup>
-											
+
 										<div class="chooseBtnBox">
 											<utilcomp:simpleFileUpload id="simpleFileUploadAvatar"
 												fileUploadListenerMethodName="handleFileUpload"
