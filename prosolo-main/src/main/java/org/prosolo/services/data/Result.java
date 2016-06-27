@@ -24,7 +24,15 @@ public class Result<T> {
 	}
 	
 	public void addEvent(EventData ev) {
-		events.add(ev);
+		if(ev != null) {
+			events.add(ev);
+		}
+	}
+	
+	public void addEvents(List<EventData> events) {
+		if(events != null) {
+			this.events.addAll(events);
+		}
 	}
 	
 	public void addResult(T res) {

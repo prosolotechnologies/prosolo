@@ -111,7 +111,7 @@ public class SearchCoursesBean implements Serializable {
 		
 		if (searchQuery != null && searchQuery.length() > 0) {
 			loggingNavigationBean.logServiceUse(
-					ComponentName.SEARCH_COURSE, 
+					ComponentName.SEARCH_CREDENTIALS, 
 					"query", searchQuery,
 					"context", "plan.browse");
 		}

@@ -418,7 +418,7 @@ public class CoursePortfolioBean implements Serializable {
 		
 		try {
 			final CourseEnrollment enrollment = courseManager.loadResource(CourseEnrollment.class, enrollmentId);
-			eventFactory.generateEvent(EventType.COURSE_COMPLETED, loggedUser.getUser(), enrollment);
+			eventFactory.generateEvent(EventType.CREDENTIAL_COMPLETED, loggedUser.getUser(), enrollment);
 			
 			taskExecutor.execute(new Runnable() {
 				@Override

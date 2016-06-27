@@ -77,5 +77,8 @@ public interface LoggingService {
 			String objectType, long objectId, String objectTitle,
 			String targetType, long targetId, String reasonType, long reasonId,
 			Map<String, String> parameters, String ipAddress, LearningContext learningContext) throws LoggingException;
+	
+	void logServiceUse(User user, ComponentName component, Map<String, String> params, 
+			String ipAddress, LearningContextData context) throws LoggingException;
 
 }

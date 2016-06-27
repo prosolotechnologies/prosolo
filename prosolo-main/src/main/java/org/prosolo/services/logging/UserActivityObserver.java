@@ -69,7 +69,7 @@ public class UserActivityObserver extends EventObserver {
 				EventType.SEND_MESSAGE,
 				EventType.START_MESSAGE_THREAD,
 				EventType.ENROLL_COURSE,
-				EventType.COURSE_COMPLETED,
+				EventType.CREDENTIAL_COMPLETED,
 				EventType.RemoveLike,
 				EventType.UPDATE_HASHTAGS
 			};

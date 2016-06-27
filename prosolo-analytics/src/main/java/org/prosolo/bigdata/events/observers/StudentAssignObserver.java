@@ -58,7 +58,7 @@ public class StudentAssignObserver implements EventObserver {
 		long studentId = event.getObjectId();
 		
 		JsonObject parametersJson = event.getParameters();
-		JsonElement courseEl = parametersJson.get("courseId");
+		JsonElement courseEl = parametersJson.get("credId");
 		long courseId = courseEl.getAsLong();
 		
 		switch(event.getEventType()) {

@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.ExternalContext;
@@ -14,11 +16,15 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.common.exception.CompetenceEmptyException;
 import org.prosolo.services.common.exception.CredentialEmptyException;
 import org.prosolo.services.common.exception.DbConnectionException;
+import org.prosolo.services.event.context.data.LearningContextData;
+import org.prosolo.services.logging.ComponentName;
+import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
@@ -48,6 +54,7 @@ public class CredentialEditBean implements Serializable {
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private TextSearch textSearch;
 	@Inject private Activity1Manager activityManager;
+	@Inject private LoggingService loggingService;
 
 	private String id;
 	private long decodedId;
@@ -64,6 +71,8 @@ public class CredentialEditBean implements Serializable {
 	private Role role;
 
 	private boolean manageSection;
+
+	private String context;
 	
 	public void init() {
 		initializeValues();
@@ -74,6 +83,7 @@ public class CredentialEditBean implements Serializable {
 		} else {
 			try {
 				decodedId = idEncoder.decodeId(id);
+				setContext();
 				logger.info("Editing credential with id " + decodedId);
 
 				loadCredentialData(decodedId);
@@ -85,6 +95,12 @@ public class CredentialEditBean implements Serializable {
 		}
 	}
 	
+	private void setContext() {
+		if(decodedId > 0) {
+			context = "name:CREDENTIAL|id:" + decodedId;
+		}
+	}
+
 	private void loadCredentialData(long id) {
 		if(manageSection) {
 			role = Role.Manager;
@@ -184,6 +200,8 @@ public class CredentialEditBean implements Serializable {
 				credentialData.setId(cred.getId());
 				decodedId = credentialData.getId();
 				id = idEncoder.encodeId(decodedId);
+				credentialData.startObservingChanges();
+				setContext();
 			}
 			if(reloadData && credentialData.hasObjectChanged()) {
 				initializeValues();
@@ -242,6 +260,20 @@ public class CredentialEditBean implements Serializable {
 			List<CompetenceData1> comps = searchResponse.getFoundNodes();
 			if(comps != null) {
 				compSearchResults = comps;
+			}
+			
+			String page = FacesContext.getCurrentInstance().getViewRoot().getViewId();
+			LearningContextData lcd = new LearningContextData(page, context, null);
+			User user = new User();
+			user.setId(loggedUser.getUser().getId());
+			Map<String, String> params = new HashMap<>();
+			params.put("query", compSearchTerm);
+			try {
+				loggingService.logServiceUse(user, 
+						ComponentName.SEARCH_COMPETENCES, 
+						params, loggedUser.getIpAddress(), lcd);
+			} catch(Exception e) {
+				logger.error(e);
 			}
 		} 
 	}

@@ -41,7 +41,7 @@ public enum ApplicationPage {
 	USER_COMPETENCE("/competence.xhtml"),
 	USER_ACTIVITY("/activity.xhtml"),
 	USER_CREDENTIAL_LIBRARY("/credentialLibrary.xhtml"),
-	MANAGER_CREDENTIAL_LIBRARY("/credentialLibrary.xhtml"),
+	MANAGER_CREDENTIAL_LIBRARY("/manage/credentialLibrary.xhtml"),
 	ACHIEVEMENTS_CREDENTIALS("/achievements-credentials.xhtml"),
 	ACHIEVEMENTS_COMPETENCES("/achievements-competences.xhtml"),
 	ACHIEVEMENTS_EXTERNAL_COMPETENCES("/achievements-externalcompetences.xhtml"),

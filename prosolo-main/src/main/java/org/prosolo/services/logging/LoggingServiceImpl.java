@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.joda.time.Days;
@@ -36,6 +37,7 @@ import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.content.Post;
 import org.prosolo.common.domainmodel.evaluation.EvaluationSubmission;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.context.Context;
@@ -73,6 +75,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	@Autowired
 	CourseManager courseManager;
 	@Autowired LogsDataManager logsDataManager;
+	@Inject private ContextJsonParserService contextJsonParserService;
 
 	private static Logger logger = Logger.getLogger(LoggingService.class.getName());
 	
@@ -755,6 +758,19 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			}*/
 
 		}
+	}
+	
+	@Override
+	public void logServiceUse(User user, ComponentName component, Map<String, String> params, 
+			String ipAddress, LearningContextData context) throws LoggingException {
+		LearningContext learningContext = null;
+		if(context != null) {
+			learningContext = contextJsonParserService
+					.parseCustomContextString(context.getPage(), context.getLearningContext(), 
+							context.getService());
+		}
+		logEventObserved(EventType.SERVICEUSE, user, component.name(), 0, null,
+				null, 0, null, 0, params, ipAddress, learningContext);
 	}
 
 }

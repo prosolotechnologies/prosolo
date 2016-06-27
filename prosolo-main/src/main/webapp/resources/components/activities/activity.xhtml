@@ -173,8 +173,11 @@
 					            					<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}"></f:param>
 					            				</h:link>   
 						                   	</ui:fragment>
-						                   	<ui:fragment rendered="#{isPreview || cc.attrs.bean.isActivityActive(act)}">
+						                   	<ui:fragment rendered="#{cc.attrs.bean.isActivityActive(act)}">
 						                   		#{act.title}
+						                   	</ui:fragment>
+						                   	<ui:fragment rendered="#{isPreview and !cc.attrs.bean.isActivityActive(act)}">
+						                   		<a href="javascript:void(0);">#{act.title}</a>
 						                   	</ui:fragment>
 			                       		</h3>
 			                    	</li>

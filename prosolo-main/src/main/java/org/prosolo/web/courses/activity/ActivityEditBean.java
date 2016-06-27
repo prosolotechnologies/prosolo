@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.htmlparser.HTMLParser;
 import org.prosolo.services.nodes.Activity1Manager;
@@ -120,7 +121,7 @@ public class ActivityEditBean implements Serializable {
 			activityData = new ActivityData(false);
 			PageUtil.fireErrorMessage("Activity data can not be found");
 		}
-		
+	
 		logger.info("Loaded activity data for activity with id "+ id);
 	}
 	
@@ -215,6 +216,7 @@ public class ActivityEditBean implements Serializable {
 	}
 	
 	public void addLink() {
+		resLinkToAdd.setUrl(StringUtil.encodeUrl(resLinkToAdd.getUrl()));
 		activityData.getLinks().add(resLinkToAdd);
 		resLinkToAdd = null;
 		
@@ -228,7 +230,9 @@ public class ActivityEditBean implements Serializable {
 			String link =  params.get("link");
 			String linkTitle = params.get("title");
 			if(linkTitle == null || linkTitle.isEmpty()) {
-				String pageTitle = htmlParser.getPageTitle(link);
+				String encodedLink = StringUtil.encodeUrl(link);
+				System.out.println("ENCODED LINK " + encodedLink);
+				String pageTitle = htmlParser.getPageTitle(encodedLink);
 				resLinkToAdd.setLinkName(pageTitle);
 			} else {
 				resLinkToAdd.setLinkName(linkTitle);
@@ -273,8 +277,13 @@ public class ActivityEditBean implements Serializable {
 				 */
 				String section = PageUtil.getSectionForView();
 				logger.info("SECTION " + section);
-				extContext.redirect(extContext.getRequestContextPath() + section +
-						"/competences/" + compId + "/edit?actAdded=true" );
+				
+				StringBuilder url = new StringBuilder(extContext.getRequestContextPath() + section +
+						"/competences/" + compId + "/edit?actAdded=true");
+				if(credId != null && !credId.isEmpty()) {
+					url.append("&credId=" + credId);
+				}
+				extContext.redirect(url.toString());
 			} catch (IOException e) {
 				logger.error(e);
 			}
@@ -299,6 +308,7 @@ public class ActivityEditBean implements Serializable {
 						loggedUser.getUser().getId());
 				decodedId = act.getId();
 				id = idEncoder.encodeId(decodedId);
+				activityData.startObservingChanges();
 			}
 			
 			if(reloadData && activityData.hasObjectChanged()) {

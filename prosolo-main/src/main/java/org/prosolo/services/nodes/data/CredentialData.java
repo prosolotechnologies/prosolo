@@ -73,6 +73,10 @@ public class CredentialData extends StandardObservable implements Serializable {
 		return changed;
 	}
 	
+	public boolean hasMoreCompetences(int index) {
+		return index < competences.size() - 1;
+	}
+	
 	/**
 	 * Returns true if credential is draft and it is not a draft version, so it
 	 * means that it is original version that is created as draft - has never been published

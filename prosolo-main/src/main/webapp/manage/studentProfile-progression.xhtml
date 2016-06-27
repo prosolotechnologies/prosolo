@@ -35,7 +35,7 @@
 						<p:commandLink
 							styleClass="progressBlock #{cred.id == studentProfileBean.selectedCredential.id ? 'selected' : ''}"
 							action="#{studentProfileBean.selectCredential(cred)}"
-							update=":competencesBlock :svgContainer"
+							update=":competencesBlock :activitiesBlock :svgContainer"
 							onclick="$('#credentials .progressBlock').removeClass('selected');$(this).addClass('selected');">
 		
 							<div class="progress">

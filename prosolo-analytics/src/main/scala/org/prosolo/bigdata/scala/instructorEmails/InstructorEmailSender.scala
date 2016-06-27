@@ -34,7 +34,7 @@ object InstructorEmailSender {
       val dbName = Settings.getInstance().config.dbConfig.dbServerConfig.dbName + 
           CommonSettings.getInstance().config.getNamespaceSufix();
       
-      val courseIds: java.util.List[java.lang.Long] = courseDAO.getAllCourseIds
+      val courseIds: java.util.List[java.lang.Long] = courseDAO.getAllCredentialIds
       if(courseIds != null && !courseIds.isEmpty()) {
         val scalaCourseIds: Seq[java.lang.Long] = courseIds.asScala.toSeq
         
@@ -51,7 +51,7 @@ object InstructorEmailSender {
               SomeColumns("courseid" as "courseId", "timestamp", "instructorid" as "instructorId", "assigned", "unassigned"))
               .where("timestamp = " + bucket)
         
-        //wait for all updates in cassandra with old bucket value to finish
+        //wait for all eventual updates in cassandra with old bucket value to finish
         Thread.sleep(2000)
         
         sendEmails(joinedCourseRDD)

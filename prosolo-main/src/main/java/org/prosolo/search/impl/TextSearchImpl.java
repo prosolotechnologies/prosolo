@@ -31,6 +31,7 @@ import org.elasticsearch.index.query.support.QueryInnerHitBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.filter.Filter;
 import org.elasticsearch.search.aggregations.bucket.nested.Nested;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.sort.SortOrder;
@@ -710,28 +711,41 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			
 			//bQueryBuilder.minimumNumberShouldMatch(1);
 			
-			BoolQueryBuilder nestedBQBuilder = QueryBuilders.boolQuery();
-			nestedBQBuilder.must(termQuery("credentials.id", credId));
-			if(instructorId != -1) {
-				nestedBQBuilder.must(termQuery("credentials.instructorId", instructorId));
-			}
+			//using filter instead
+//			BoolQueryBuilder nestedBQBuilder = QueryBuilders.boolQuery();
+//			nestedBQBuilder.must(termQuery("credentials.id", credId));
+//			if(instructorId != -1) {
+//				nestedBQBuilder.must(termQuery("credentials.instructorId", instructorId));
+//			}
+//			QueryBuilder nestedQB = QueryBuilders.nestedQuery(
+//	        "credentials", nestedBQBuilder).innerHit(new QueryInnerHitBuilder());
+//			bQueryBuilder.must(nestedQB);
 			
-			QueryBuilder nestedQB = QueryBuilders.nestedQuery(
-			        "credentials", nestedBQBuilder).innerHit(new QueryInnerHitBuilder());
-			bQueryBuilder.must(nestedQB);
-			//bQueryBuilder.must(termQuery("courses.id", courseId));
+			BoolFilterBuilder nestedFB = FilterBuilders.boolFilter();
+			nestedFB.must(FilterBuilders.termFilter("credentials.id", credId));
+			if(instructorId != -1) {
+				nestedFB.must(FilterBuilders.termFilter("credentials.instructorId", instructorId));
+			}
+			NestedFilterBuilder nestedFilter1 = FilterBuilders.nestedFilter("credentials", 
+					nestedFB);
+//					.innerHit(new QueryInnerHitBuilder());
+			FilteredQueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder, 
+					nestedFilter1);
+			//bQueryBuilder.must(termQuery("credentials.id", credId));
 			
 			try {
 				String[] includes = {"id", "name", "lastname", "avatar", "position"};
 				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
 						.setTypes(ESIndexTypes.USER)
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-						.setQuery(bQueryBuilder)
+						.setQuery(filteredQueryBuilder)
 						.addAggregation(AggregationBuilders.nested("nestedAgg").path("credentials")
+								.subAggregation(AggregationBuilders.filter("filtered")
+										.filter(FilterBuilders.termFilter("credentials.id", credId))
 								.subAggregation(
 										AggregationBuilders.terms("unassigned")
 										.field("credentials.instructorId")
-										.include(new long[] {0})))
+										.include(new long[] {0}))))
 						.setFetchSource(includes, null);
 				
 				/*
@@ -741,11 +755,18 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				if(filter == InstructorAssignFilterValue.Unassigned) {
 					BoolFilterBuilder assignFilter = FilterBuilders.boolFilter();
 					assignFilter.must(FilterBuilders.termFilter("credentials.instructorId", 0));
+					/*
+					 * need to add this condition again or post filter will be applied on other 
+					 * credentials for users matched by query
+					 */
+					assignFilter.must(FilterBuilders.termFilter("credentials.id", credId));
 					NestedFilterBuilder nestedFilter = FilterBuilders.nestedFilter("credentials", 
-							assignFilter);
+							assignFilter).innerHit(new QueryInnerHitBuilder());
 					searchRequestBuilder.setPostFilter(nestedFilter);
 //					QueryBuilder qBuilder = termQuery("credentials.instructorId", 0);
 //					nestedBQBuilder.must(qBuilder);
+				} else {
+					nestedFilter1.innerHit(new QueryInnerHitBuilder());
 				}
 				
 				searchRequestBuilder.setFrom(start).setSize(limit);	
@@ -810,7 +831,9 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						
 						//get number of unassigned students
 						Nested nestedAgg = sResponse.getAggregations().get("nestedAgg");
-						Terms terms = nestedAgg.getAggregations().get("unassigned");
+						Filter filtered = nestedAgg.getAggregations().get("filtered");
+						Terms terms = filtered.getAggregations().get("unassigned");
+						//Terms terms = nestedAgg.getAggregations().get("unassigned");
 						Iterator<Terms.Bucket> it = terms.getBuckets().iterator();
 						long unassignedNo = 0;
 						if(it.hasNext()) {
@@ -819,7 +842,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						
 						InstructorAssignFilter[] filters = new InstructorAssignFilter[2];
 						filters[0] = new InstructorAssignFilter(InstructorAssignFilterValue.All, 
-								nestedAgg.getDocCount());
+								filtered.getDocCount());
+								//nestedAgg.getDocCount());
 						filters[1] = new InstructorAssignFilter(InstructorAssignFilterValue.Unassigned, 
 								unassignedNo);
 						Map<String, Object> additionalInfo = new HashMap<>();
@@ -1162,7 +1186,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				case FROM_CREATOR:
 					bQueryBuilder.must(termQuery("creatorId", userId));
 					break;
-				case FROM_OTHER_STUDENTS:
+				case BY_OTHER_STUDENTS:
 					bQueryBuilder.mustNot(termQuery("creatorId", userId));
 					/*
 					 * Because lowercased strings are always stored in index. Alternative
@@ -1340,7 +1364,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				case FROM_CREATOR:
 					bQueryBuilder.must(termQuery("creatorId", userId));
 					break;
-				case FROM_STUDENTS:
+				case BY_STUDENTS:
 					//bQueryBuilder.mustNot(termQuery("creatorId", userId));
 					/*
 					 * Because lowercased strings are always stored in index. Alternative
@@ -1520,7 +1544,6 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			NestedFilterBuilder nestedCredFilter = FilterBuilders.nestedFilter("credentials", 
 					credFilter);
 			
-			
 			FilteredQueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder, 
 					nestedCredFilter);
 
@@ -1532,9 +1555,12 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						.setQuery(filteredQueryBuilder)
 						.addAggregation(AggregationBuilders.nested("nestedAgg").path("credentials")
 								.subAggregation(
-										AggregationBuilders.terms("unassigned")
-										.field("credentials.instructorId")
-										.include(new long[] {0})))
+										AggregationBuilders.filter("filtered")
+										.filter(credFilter)
+										.subAggregation(
+												AggregationBuilders.terms("unassigned")
+												.field("credentials.instructorId")
+												.include(new long[] {0}))))
 						.setFetchSource(includes, null)
 						.setFrom(0).setSize(Integer.MAX_VALUE)
 						.setFrom(start).setSize(limit);
@@ -1550,11 +1576,13 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						break;
 					case Assigned:
 						filterBuilder = FilterBuilders.boolFilter();
+						filterBuilder.must(FilterBuilders.termFilter("credentials.id", credId));
 						filterBuilder.must(FilterBuilders.termFilter("credentials.instructorId", 
 								instructorId));
 						break;
 					case Unassigned:
 						filterBuilder = FilterBuilders.boolFilter();
+						filterBuilder.must(FilterBuilders.termFilter("credentials.id", credId));
 						filterBuilder.must(FilterBuilders.termFilter("credentials.instructorId", 0));
 						break;
 				}
@@ -1607,13 +1635,14 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					
 					//get number of unassigned students
 					Nested nestedAgg = sResponse.getAggregations().get("nestedAgg");
-					Terms terms = nestedAgg.getAggregations().get("unassigned");
+					Filter filtered = nestedAgg.getAggregations().get("filtered");
+					Terms terms = filtered.getAggregations().get("unassigned");
 					Iterator<Terms.Bucket> it = terms.getBuckets().iterator();
 					long unassignedNo = 0;
 					if(it.hasNext()) {
 						unassignedNo = it.next().getDocCount();
 					}
-					long allNo = nestedAgg.getDocCount();
+					long allNo = filtered.getDocCount();
 					InstructorAssignFilter[] filters = new InstructorAssignFilter[3];
 					filters[0] = new InstructorAssignFilter(InstructorAssignFilterValue.All, 
 							allNo);

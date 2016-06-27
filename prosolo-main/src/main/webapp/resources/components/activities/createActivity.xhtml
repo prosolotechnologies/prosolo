@@ -193,8 +193,9 @@
 									styleClass="hiddenLinkPreview"
 									target="_blank"
 									outcome="activity">
-									<f:param name="compId" value="#{util:encodeId(activityEditBean.activityData.competenceId)}"></f:param>
-									<f:param name="actId" value="#{activityEditBean.id}"></f:param>
+									<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}"></f:param>
+									<f:param name="compId" value="#{param['compId']}"></f:param>
+									<f:param name="actId" value="#{param['id']}"></f:param>
 									<f:param name="mode" value="preview"></f:param>
 								</h:link>
 			                    <div class="clear"></div>

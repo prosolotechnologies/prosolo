@@ -205,6 +205,7 @@ public class CompetenceEditBean implements Serializable {
 				competenceData.setCompetenceId(comp.getId());
 				decodedId = competenceData.getCompetenceId();
 				id = idEncoder.encodeId(decodedId);
+				competenceData.startObservingChanges();
 			}
 			if(reloadData && competenceData.hasObjectChanged()) {
 				initializeValues();

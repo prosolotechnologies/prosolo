@@ -39,6 +39,7 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.indexing.impl.NodeChangeObserver;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -893,6 +894,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		    				cc1.setCompetence(comp);
 		    				saveEntity(cc1);
 		    				compIds.add(cd.getCompetenceId());
+		    				
+		    				//if competence is added to credential
+		    				User user = new User();
+		    				user.setId(creatorId);
+		    				Competence1 competence = new Competence1();
+		    				competence.setId(comp.getId());
+		    				res.addEvent(generateEvent(EventType.Attach, user, competence, credToUpdate));
 		    				break;
 		    			case CHANGED:
 		    				CredentialCompetence1 cc2 = (CredentialCompetence1) persistence.currentManager().load(
@@ -924,6 +932,14 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    				cc1.setCompetence(comp);
 	    				saveEntity(cc1);
 	    				compIds.add(cd.getCompetenceId());
+	    				
+	    				if(cd.getObjectStatus() == ObjectStatus.CREATED) {
+	    					User user = new User();
+		    				user.setId(creatorId);
+		    				Competence1 competence = new Competence1();
+		    				competence.setId(comp.getId());
+		    				res.addEvent(generateEvent(EventType.Attach, user, competence, credToUpdate));
+	    				}
 		    		}
 	    		}
 	    	}
@@ -931,7 +947,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    	if(data.isPublished()) {
     			//compManager.publishDraftCompetencesWithoutDraftVersion(compIds);
 	    		List<EventData> events = compManager.publishCompetences(compIds, creatorId, role);
-	    		res.setEvents(events);
+	    		res.addEvents(events);
     		}
 	    }
 	    res.setResult(credToUpdate);
@@ -998,6 +1014,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly = false)
 	public CredentialData enrollInCredential(long credentialId, long userId, LearningContextData context) 
@@ -1009,6 +1026,14 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					LearningResourceReturnResultType.PUBLISHED_VERSION);
 			TargetCredential1 targetCred = createTargetCredential(cred, user);
 			long instructorId = 0;
+			String page = null;
+			String lContext = null;
+			String service = null;
+			if(context != null) {
+				page = context.getPage();
+				lContext = context.getLearningContext();
+				service = context.getService();
+			}
 			if(cred.getType() == LearningResourceType.UNIVERSITY_CREATED && 
 					!cred.isManuallyAssignStudents()) {
 				List<Long> targetCredIds = new ArrayList<>();
@@ -1020,6 +1045,16 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					StudentInstructorPair pair = assigned.get(0);
 					//we need user id, not instructor id
 					instructorId = pair.getInstructor().getUser().getId();
+					
+					User target = new User();
+					target.setId(instructorId);
+					User object = new User();
+					object.setId(userId);
+					Map<String, String> params = new HashMap<>();
+					params.put("credId", credentialId + "");
+					eventFactory.generateEvent(EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR, 
+							object, object, target, null,
+							page, lContext, service, new Class[] {NodeChangeObserver.class}, params);
 				}
 	    	}
 			CredentialData cd = credentialFactory.getCredentialData(targetCred.getCreatedBy(), 
@@ -1032,15 +1067,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 							null, true);
 					cd.getCompetences().add(compData);
 				}
-			}
-			
-			String page = null;
-			String lContext = null;
-			String service = null;
-			if(context != null) {
-				page = context.getPage();
-				lContext = context.getLearningContext();
-				service = context.getService();
 			}
 			
 			/*
@@ -1120,9 +1146,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Override
 	@Transactional(readOnly = false)
-	public EventData addCompetenceToCredential(long credId, Competence1 comp, long userId) 
+	public List<EventData> addCompetenceToCredential(long credId, Competence1 comp, long userId) 
 			throws DbConnectionException {
 		try {
+			List<EventData> events = new ArrayList<>();
 			Credential1 cred = (Credential1) persistence.currentManager().load(
 					Credential1.class, credId);
 			/*
@@ -1156,16 +1183,20 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				credToUpdate.setDuration(credToUpdate.getDuration() + comp.getDuration());
 			}
 			
+			User user = new User();
+			user.setId(userId);
+			Competence1 competence = new Competence1();
+			competence.setId(comp.getId());
+			events.add(generateEvent(EventType.Attach, user, competence, cred));
+			
 			/*
 			 * if draft version is created event should be generated
 			 */
 			if(draftVersionCreated) {
-				User user = new User();
-				user.setId(userId);
-				return fireDraftVersionCredCreatedEvent(credToUpdate, user, 
-						credId);
+				 events.add(fireDraftVersionCredCreatedEvent(credToUpdate, user, 
+						credId));
 			}
-			return null;
+			return events;
 		} catch(Exception e) { 
 			logger.error(e);
 			e.printStackTrace();
@@ -1174,6 +1205,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		
 	}
 	
+	private EventData generateEvent(EventType attach, User user, Competence1 comp, Credential1 cred) {
+		EventData event = new EventData();
+		event.setEventType(EventType.Attach);
+		event.setActor(user);
+		event.setObject(comp);
+		event.setTarget(cred);
+		return event;
+	}
+
 	private Credential1 createDraftVersionOfCredential(long originalCredentialId) {
 		Credential1 originalCred = getCredential(originalCredentialId, false, 0, 
 				LearningResourceReturnResultType.PUBLISHED_VERSION);
@@ -1782,7 +1822,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 						nextCompToLearnId = compId;
 					}
 				}
-				
+				long targetCredId = (long) res.get(0)[0];
 				int finalCompProgress = cumulativeCompProgress / numberOfActivitiesInACompetence;
 				int finalCredProgress = (cumulativeCredProgress + finalCompProgress) 
 						/ numberOfCompetencesInCredential;
@@ -1798,7 +1838,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					.setInteger("progress", finalCredProgress)
 					.setLong("nextCompToLearnId", nextCompToLearnId)
 					.setLong("nextActToLearnId", nextActToLearnId)
-					.setLong("targetCredId", (long) res.get(0)[0])
+					.setLong("targetCredId", targetCredId)
 					.executeUpdate();
 				
 				/*
@@ -1825,13 +1865,17 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				
 				User user = new User();
 				user.setId(userId);
-				Credential1 cred = new Credential1();
-				cred.setId(credId);
+				TargetCredential1 cred = new TargetCredential1();
+				cred.setId(targetCredId);
 				String lcPage = contextData != null ? contextData.getPage() : null; 
 				String lcContext = contextData != null ? contextData.getLearningContext() : null; 
 				String lcService = contextData != null ? contextData.getService() : null; 
 				eventFactory.generateChangeProgressEvent(user, cred, finalCredProgress, 
 						lcPage, lcContext, lcService, null);
+				if(finalCredProgress == 100) {
+					eventFactory.generateEvent(EventType.CREDENTIAL_COMPLETED, user, cred, null,
+							lcPage, lcContext, lcService, null);
+				}
 			}
 		} catch(Exception e) {
 			logger.error(e);

@@ -4,8 +4,8 @@ import java.util.List;
 
 public interface CourseDAO {
 
-	List<Long> getAllCourseIds();
+	List<Long> getAllCredentialIds();
 	
-	String getCourseTitle(long courseId);
+	String getCredentialTitle(long courseId);
 
 }

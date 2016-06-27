@@ -187,7 +187,8 @@
 								styleClass="hiddenLinkPreview"
 								target="_blank"
 								outcome="competence">
-								<f:param name="compId" value="#{competenceEditBean.id}"></f:param>
+								<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}"></f:param>
+								<f:param name="compId" value="#{param['id']}"></f:param>
 								<f:param name="mode" value="preview"></f:param>
 							</h:link>
 			            </div>

@@ -6,8 +6,8 @@ public enum CredentialSearchFilter {
 	BOOKMARKS("Bookmarks"),
 	UNIVERSITY("University"),
 	FROM_CREATOR("Created by you"),
-	FROM_OTHER_STUDENTS("From other students"),
-	FROM_STUDENTS("By students"),
+	BY_OTHER_STUDENTS("By other students"),
+	BY_STUDENTS("By students"),
 	YOUR_CREDENTIALS("Your credentials");
 	
 	private String label;

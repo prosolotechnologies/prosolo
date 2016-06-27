@@ -96,5 +96,17 @@ public class StringUtil {
 			return array;
 		}
 	}
+	
+	/**
+	 * This method currently covers only space encoding. Should be revisited
+	 * to cover all posible cases.
+	 * @param url
+	 */
+	public static String encodeUrl(String url) {
+		if(url != null) {
+			return url.trim().replaceAll(" ", "%20");
+		}
+		return null;
+	}
 
 }

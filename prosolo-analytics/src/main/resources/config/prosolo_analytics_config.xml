@@ -89,6 +89,13 @@
 					<schedule>0 0 0/6 1/1 * ? *</schedule><!--0 0 0/6 1/1 * ? * Execute every 6 hours-->
 				</job>
 			</class>
+			<class name="org.prosolo.bigdata.jobs.InstructorEmailSenderJob">
+				<job>
+					<activated>false</activated>
+					<on-startup>false</on-startup>
+					<schedule>0 0 7 * * ?</schedule><!--0 0 7 * * ? Executes every day at 7AM-->
+				</job>
+			</class>
 		</quartz-jobs>
 		<streaming-jobs>
 			<twitterStreaming>true</twitterStreaming>

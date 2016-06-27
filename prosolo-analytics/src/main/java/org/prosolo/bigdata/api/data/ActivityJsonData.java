@@ -1,8 +1,7 @@
-package org.prosolo.services.nodes.rest.data;
+package org.prosolo.bigdata.api.data;
 
 import com.google.gson.annotations.SerializedName;
 
-@Deprecated
 public class ActivityJsonData {
 
 	private long id;
