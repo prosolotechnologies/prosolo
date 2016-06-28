@@ -476,9 +476,9 @@
 			<artifactId>javax.ws.rs-api</artifactId>
 			<version>${jaxrs.version}</version>
 		</dependency>
-		<dependency>
+		<!--dependency>
 			<groupId>org.glassfish.jersey.containers</groupId>
-			<artifactId>jersey-container-servlet</artifactId>
+			<artifactId>jersey-contaigoogle-api-clientner-servlet</artifactId>
 			<version>${jersey2.version}</version>
 		</dependency>
 		<dependency>
@@ -495,7 +495,7 @@
 			<groupId>org.glassfish.jersey.ext</groupId>
 			<artifactId>jersey-bean-validation</artifactId>
 			<version>${jersey2.version}</version>
-		</dependency>
+		</dependency-->
 
 		<!-- jsoup - URL Scrapper -->
 		<dependency>
@@ -621,6 +621,12 @@
 			<groupId>com.google.api-client</groupId>
 			<artifactId>google-api-client</artifactId>
 			<version>1.20.0</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>guava-jdk5</artifactId>
+					<groupId>com.google.guava</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<!-- Used for url validation -->
 		<dependency>
