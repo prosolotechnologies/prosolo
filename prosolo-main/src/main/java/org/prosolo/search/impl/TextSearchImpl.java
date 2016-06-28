@@ -19,11 +19,12 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
-import org.elasticsearch.index.query.BoolFilterBuilder;
+//import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
+//import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.FilteredQueryBuilder;
-import org.elasticsearch.index.query.NestedFilterBuilder;
+import org.elasticsearch.index.query.NestedQueryBuilder;
+//import org.elasticsearch.index.query.NestedFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
@@ -227,6 +228,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	public TextSearchResponse searchCompetences(
 			String searchString, int page, int limit, boolean loadOneMore,
 			long[] toExclude, List<Tag> filterTags, SortingOption sortTitleAsc) {
+		System.out.println("searchCompetences:"+page+" limit:"+limit);
 		
 		TextSearchResponse response = new TextSearchResponse();
 		
@@ -318,7 +320,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	public TextSearchResponse1<CompetenceData1> searchCompetences1(long userId, Role role,
 			String searchString, int page, int limit, boolean loadOneMore,
 			long[] toExclude, List<Tag> filterTags, SortingOption sortTitleAsc) {
-		
+		System.out.println("searchCompetences1:"+page+" limit:"+limit);
 		TextSearchResponse1<CompetenceData1> response = new TextSearchResponse1<>();
 		
 		try {
@@ -355,31 +357,31 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				}
 			}
 			
-			//BoolFilterBuilder boolFilter = FilterBuilders.boolFilter();
+			//BoolQueryBuilder boolFilter = QueryBuilders.boolQuery();
 			
 			/*
 			 * include all published competences, draft competences that have draft version and first time
 			 * drafts
 			 */
-			BoolFilterBuilder boolFilter = FilterBuilders.boolFilter();
-			boolFilter.should(FilterBuilders.termFilter("published", true));
-			BoolFilterBuilder hasDraft = FilterBuilders.boolFilter();
-			hasDraft.must(FilterBuilders.termFilter("published", false));
-			hasDraft.must(FilterBuilders.termFilter("hasDraft", true));
+			BoolQueryBuilder boolFilter = QueryBuilders.boolQuery();
+			boolFilter.should(QueryBuilders.termQuery("published", true));
+			BoolQueryBuilder hasDraft = QueryBuilders.boolQuery();
+			hasDraft.must(QueryBuilders.termQuery("published", false));
+			hasDraft.must(QueryBuilders.termQuery("hasDraft", true));
 			boolFilter.should(hasDraft);
-			BoolFilterBuilder firstTimeDraft = FilterBuilders.boolFilter();
+			BoolQueryBuilder firstTimeDraft = QueryBuilders.boolQuery();
 			if(role == Role.Manager) {
-				firstTimeDraft.must(FilterBuilders.termFilter(
+				firstTimeDraft.must(QueryBuilders.termQuery(
 						"type", LearningResourceType.UNIVERSITY_CREATED.toString().toLowerCase()));
 			} else {
-				firstTimeDraft.must(FilterBuilders.termFilter("creatorId", userId));
+				firstTimeDraft.must(QueryBuilders.termQuery("creatorId", userId));
 			}
-			firstTimeDraft.must(FilterBuilders.termFilter("isDraft", false));
-			firstTimeDraft.must(FilterBuilders.termFilter("published", false));
-			firstTimeDraft.must(FilterBuilders.termFilter("hasDraft", false));
+			firstTimeDraft.must(QueryBuilders.termQuery("isDraft", false));
+			firstTimeDraft.must(QueryBuilders.termQuery("published", false));
+			firstTimeDraft.must(QueryBuilders.termQuery("hasDraft", false));
 			boolFilter.should(firstTimeDraft);
 			
-			FilteredQueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder, 
+			QueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder,
 					boolFilter);
 			
 			SearchRequestBuilder searchResultBuilder = client
@@ -721,12 +723,12 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 //	        "credentials", nestedBQBuilder).innerHit(new QueryInnerHitBuilder());
 //			bQueryBuilder.must(nestedQB);
 			
-			BoolFilterBuilder nestedFB = FilterBuilders.boolFilter();
-			nestedFB.must(FilterBuilders.termFilter("credentials.id", credId));
+			BoolQueryBuilder nestedFB = QueryBuilders.boolQuery();
+			nestedFB.must(QueryBuilders.termQuery("credentials.id", credId));
 			if(instructorId != -1) {
-				nestedFB.must(FilterBuilders.termFilter("credentials.instructorId", instructorId));
+				nestedFB.must(QueryBuilders.termQuery("credentials.instructorId", instructorId));
 			}
-			NestedFilterBuilder nestedFilter1 = FilterBuilders.nestedFilter("credentials", 
+			NestedQueryBuilder nestedFilter1 = QueryBuilders.nestedQuery("credentials",
 					nestedFB);
 //					.innerHit(new QueryInnerHitBuilder());
 			FilteredQueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder, 
@@ -741,7 +743,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						.setQuery(filteredQueryBuilder)
 						.addAggregation(AggregationBuilders.nested("nestedAgg").path("credentials")
 								.subAggregation(AggregationBuilders.filter("filtered")
-										.filter(FilterBuilders.termFilter("credentials.id", credId))
+										.filter(QueryBuilders.termQuery("credentials.id", credId))
 								.subAggregation(
 										AggregationBuilders.terms("unassigned")
 										.field("credentials.instructorId")
@@ -753,14 +755,14 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				 * aggregation results
 				 */
 				if(filter == InstructorAssignFilterValue.Unassigned) {
-					BoolFilterBuilder assignFilter = FilterBuilders.boolFilter();
-					assignFilter.must(FilterBuilders.termFilter("credentials.instructorId", 0));
+					BoolQueryBuilder assignFilter = QueryBuilders.boolQuery();
+					assignFilter.must(QueryBuilders.termQuery("credentials.instructorId", 0));
 					/*
 					 * need to add this condition again or post filter will be applied on other 
 					 * credentials for users matched by query
 					 */
-					assignFilter.must(FilterBuilders.termFilter("credentials.id", credId));
-					NestedFilterBuilder nestedFilter = FilterBuilders.nestedFilter("credentials", 
+					assignFilter.must(QueryBuilders.termQuery("credentials.id", credId));
+					NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("credentials",
 							assignFilter).innerHit(new QueryInnerHitBuilder());
 					searchRequestBuilder.setPostFilter(nestedFilter);
 //					QueryBuilder qBuilder = termQuery("credentials.instructorId", 0);
@@ -908,7 +910,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						.setFetchSource(includes, null);
 				
 				int start = 0;
-				int size = Integer.MAX_VALUE;
+				int size = 1000;
 				if(page != -1) {
 					start = setStart(page, limit);
 					size = limit;
@@ -987,7 +989,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 						.setQuery(bQueryBuilder)
 						.setFetchSource(includes, null)
-						.setFrom(0).setSize(Integer.MAX_VALUE);
+						.setFrom(0).setSize(1000);
 				
 				searchRequestBuilder.addSort("name", SortOrder.ASC);
 				searchRequestBuilder.addSort("lastname", SortOrder.ASC);
@@ -1063,7 +1065,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 						.setQuery(bQueryBuilder)
 						.setFetchSource(includes, null)
-						.setFrom(0).setSize(Integer.MAX_VALUE);
+						.setFrom(0).setSize(1000);
 				
 				searchRequestBuilder.addSort("name", SortOrder.ASC);
 				searchRequestBuilder.addSort("lastname", SortOrder.ASC);
@@ -1121,7 +1123,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bQueryBuilder)
 					.setFetchSource(includes, null)
-					.setFrom(0).setSize(Integer.MAX_VALUE);
+					.setFrom(0).setSize(1000);
 			
 			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
 			if(sResponse != null) {
@@ -1211,19 +1213,19 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 //			                                                           OR (isDraft = true)) 
 //			                                                           OR published = true))
 			
-			BoolFilterBuilder boolFilter = FilterBuilders.boolFilter();
+			BoolQueryBuilder boolFilter = QueryBuilders.boolQuery();
 			
 			/*
 			 * include all published credentials and draft credentials that have draft version
 			 * by other users
 			 */
-			BoolFilterBuilder publishedCredentialsByOthersFilter = FilterBuilders.boolFilter();
-			publishedCredentialsByOthersFilter.mustNot(FilterBuilders.termFilter("creatorId", userId));
-			BoolFilterBuilder publishedOrHasDraft = FilterBuilders.boolFilter();
-			publishedOrHasDraft.should(FilterBuilders.termFilter("published", true));
-			BoolFilterBuilder hasDraft = FilterBuilders.boolFilter();
-			hasDraft.must(FilterBuilders.termFilter("published", false));
-			hasDraft.must(FilterBuilders.termFilter("hasDraft", true));
+			BoolQueryBuilder publishedCredentialsByOthersFilter = QueryBuilders.boolQuery();
+			publishedCredentialsByOthersFilter.mustNot(QueryBuilders.termQuery("creatorId", userId));
+			BoolQueryBuilder publishedOrHasDraft = QueryBuilders.boolQuery();
+			publishedOrHasDraft.should(QueryBuilders.termQuery("published", true));
+			BoolQueryBuilder hasDraft = QueryBuilders.boolQuery();
+			hasDraft.must(QueryBuilders.termQuery("published", false));
+			hasDraft.must(QueryBuilders.termQuery("hasDraft", true));
 			publishedOrHasDraft.should(hasDraft);
 			publishedCredentialsByOthersFilter.must(publishedOrHasDraft);
 			
@@ -1233,16 +1235,16 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			 * include all draft credentials created first time as draft (never been published),
 			 * draft versions of credentials instead of original versions and published credentials
 			 */
-			BoolFilterBuilder currentUsersCredentials = FilterBuilders.boolFilter();
-			currentUsersCredentials.must(FilterBuilders.termFilter("creatorId", userId));
-			BoolFilterBuilder correctlySelectedPublishedAndDraftVersions = FilterBuilders.boolFilter();
-			BoolFilterBuilder firstTimeDraft = FilterBuilders.boolFilter();
-			firstTimeDraft.must(FilterBuilders.termFilter("isDraft", false));
-			firstTimeDraft.must(FilterBuilders.termFilter("published", false));
-			firstTimeDraft.must(FilterBuilders.termFilter("hasDraft", false));
+			BoolQueryBuilder currentUsersCredentials = QueryBuilders.boolQuery();
+			currentUsersCredentials.must(QueryBuilders.termQuery("creatorId", userId));
+			BoolQueryBuilder correctlySelectedPublishedAndDraftVersions = QueryBuilders.boolQuery();
+			BoolQueryBuilder firstTimeDraft = QueryBuilders.boolQuery();
+			firstTimeDraft.must(QueryBuilders.termQuery("isDraft", false));
+			firstTimeDraft.must(QueryBuilders.termQuery("published", false));
+			firstTimeDraft.must(QueryBuilders.termQuery("hasDraft", false));
 			correctlySelectedPublishedAndDraftVersions.should(firstTimeDraft);
-			correctlySelectedPublishedAndDraftVersions.should(FilterBuilders.termFilter("isDraft", true));
-			correctlySelectedPublishedAndDraftVersions.should(FilterBuilders.termFilter("published", true));
+			correctlySelectedPublishedAndDraftVersions.should(QueryBuilders.termQuery("isDraft", true));
+			correctlySelectedPublishedAndDraftVersions.should(QueryBuilders.termQuery("published", true));
 			currentUsersCredentials.must(correctlySelectedPublishedAndDraftVersions);
 			
 			boolFilter.should(currentUsersCredentials);
@@ -1391,20 +1393,20 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 //			                                                           OR (isDraft = true)) 
 //			                                                           OR published = true))
 			
-			BoolFilterBuilder boolFilter = FilterBuilders.boolFilter();
+			BoolQueryBuilder boolFilter = QueryBuilders.boolQuery();
 			
 			/*
 			 * include all published credentials and draft credentials that have draft version
 			 * created by users
 			 */
-			BoolFilterBuilder publishedCredentialsByStudentsFilter = FilterBuilders.boolFilter();
-			publishedCredentialsByStudentsFilter.must(FilterBuilders.termFilter(
+			BoolQueryBuilder publishedCredentialsByStudentsFilter = QueryBuilders.boolQuery();
+			publishedCredentialsByStudentsFilter.must(QueryBuilders.termQuery(
 					"type", LearningResourceType.USER_CREATED.toString().toLowerCase()));
-			BoolFilterBuilder publishedOrHasDraft = FilterBuilders.boolFilter();
-			publishedOrHasDraft.should(FilterBuilders.termFilter("published", true));
-			BoolFilterBuilder hasDraft = FilterBuilders.boolFilter();
-			hasDraft.must(FilterBuilders.termFilter("published", false));
-			hasDraft.must(FilterBuilders.termFilter("hasDraft", true));
+			BoolQueryBuilder publishedOrHasDraft = QueryBuilders.boolQuery();
+			publishedOrHasDraft.should(QueryBuilders.termQuery("published", true));
+			BoolQueryBuilder hasDraft = QueryBuilders.boolQuery();
+			hasDraft.must(QueryBuilders.termQuery("published", false));
+			hasDraft.must(QueryBuilders.termQuery("hasDraft", true));
 			publishedOrHasDraft.should(hasDraft);
 			publishedCredentialsByStudentsFilter.must(publishedOrHasDraft);
 			
@@ -1415,22 +1417,22 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			 * draft versions of credentials instead of original versions and published credentials
 			 * created by university
 			 */
-			BoolFilterBuilder currentUsersCredentials = FilterBuilders.boolFilter();
-			currentUsersCredentials.must(FilterBuilders.termFilter(
+			BoolQueryBuilder currentUsersCredentials = QueryBuilders.boolQuery();
+			currentUsersCredentials.must(QueryBuilders.termQuery(
 					"type", LearningResourceType.UNIVERSITY_CREATED.toString().toLowerCase()));
-			BoolFilterBuilder correctlySelectedPublishedAndDraftVersions = FilterBuilders.boolFilter();
-			BoolFilterBuilder firstTimeDraft = FilterBuilders.boolFilter();
-			firstTimeDraft.must(FilterBuilders.termFilter("isDraft", false));
-			firstTimeDraft.must(FilterBuilders.termFilter("published", false));
-			firstTimeDraft.must(FilterBuilders.termFilter("hasDraft", false));
+			BoolQueryBuilder correctlySelectedPublishedAndDraftVersions = QueryBuilders.boolQuery();
+			BoolQueryBuilder firstTimeDraft = QueryBuilders.boolQuery();
+			firstTimeDraft.must(QueryBuilders.termQuery("isDraft", false));
+			firstTimeDraft.must(QueryBuilders.termQuery("published", false));
+			firstTimeDraft.must(QueryBuilders.termQuery("hasDraft", false));
 			correctlySelectedPublishedAndDraftVersions.should(firstTimeDraft);
-			correctlySelectedPublishedAndDraftVersions.should(FilterBuilders.termFilter("isDraft", true));
-			correctlySelectedPublishedAndDraftVersions.should(FilterBuilders.termFilter("published", true));
+			correctlySelectedPublishedAndDraftVersions.should(QueryBuilders.termQuery("isDraft", true));
+			correctlySelectedPublishedAndDraftVersions.should(QueryBuilders.termQuery("published", true));
 			currentUsersCredentials.must(correctlySelectedPublishedAndDraftVersions);
 			
 			boolFilter.should(currentUsersCredentials);
 			
-			FilteredQueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder, 
+			QueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder, 
 					boolFilter);
 			
 			//System.out.println("QUERY: " + filteredQueryBuilder.toString());
@@ -1530,21 +1532,21 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				
 			//bQueryBuilder.minimumNumberShouldMatch(1);
 			
-			BoolFilterBuilder credFilter = FilterBuilders.boolFilter();
-			credFilter.must(FilterBuilders.termFilter("credentials.id", credId));
+			BoolQueryBuilder credFilter = QueryBuilders.boolQuery();
+			credFilter.must(QueryBuilders.termQuery("credentials.id", credId));
 			/*
 			 * unassigned or assigned to instructor specified by instructorId
 			 */
-			BoolFilterBuilder unassignedOrWithSpecifiedInstructorFilter = FilterBuilders.boolFilter();
-			unassignedOrWithSpecifiedInstructorFilter.should(FilterBuilders.termFilter(
+			BoolQueryBuilder unassignedOrWithSpecifiedInstructorFilter = QueryBuilders.boolQuery();
+			unassignedOrWithSpecifiedInstructorFilter.should(QueryBuilders.termQuery(
 					"credentials.instructorId", 0));
-			unassignedOrWithSpecifiedInstructorFilter.should(FilterBuilders.termFilter(
+			unassignedOrWithSpecifiedInstructorFilter.should(QueryBuilders.termQuery(
 					"credentials.instructorId", instructorId));
 			credFilter.must(unassignedOrWithSpecifiedInstructorFilter);
-			NestedFilterBuilder nestedCredFilter = FilterBuilders.nestedFilter("credentials", 
+			NestedQueryBuilder nestedCredFilter = QueryBuilders.nestedQuery("credentials",
 					credFilter);
 			
-			FilteredQueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder, 
+			QueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder,
 					nestedCredFilter);
 
 			try {
@@ -1562,32 +1564,32 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 												.field("credentials.instructorId")
 												.include(new long[] {0}))))
 						.setFetchSource(includes, null)
-						.setFrom(0).setSize(Integer.MAX_VALUE)
+						.setFrom(0).setSize(1000)
 						.setFrom(start).setSize(limit);
 				
 				/*
 				 * set instructor assign filter as a post filter so it does not influence
 				 * aggregation results
 				 */
-				BoolFilterBuilder filterBuilder = null;
+				BoolQueryBuilder filterBuilder = null;
 				switch(filter) {
 					case All:
 						nestedCredFilter.innerHit(new QueryInnerHitBuilder());
 						break;
 					case Assigned:
-						filterBuilder = FilterBuilders.boolFilter();
-						filterBuilder.must(FilterBuilders.termFilter("credentials.id", credId));
-						filterBuilder.must(FilterBuilders.termFilter("credentials.instructorId", 
+						filterBuilder = QueryBuilders.boolQuery();
+						filterBuilder.must(QueryBuilders.termQuery("credentials.id", credId));
+						filterBuilder.must(QueryBuilders.termQuery("credentials.instructorId",
 								instructorId));
 						break;
 					case Unassigned:
-						filterBuilder = FilterBuilders.boolFilter();
-						filterBuilder.must(FilterBuilders.termFilter("credentials.id", credId));
-						filterBuilder.must(FilterBuilders.termFilter("credentials.instructorId", 0));
+						filterBuilder = QueryBuilders.boolQuery();
+						filterBuilder.must(QueryBuilders.termQuery("credentials.id", credId));
+						filterBuilder.must(QueryBuilders.termQuery("credentials.instructorId", 0));
 						break;
 				}
 				if(filterBuilder != null) {
-					NestedFilterBuilder nestedFilter = FilterBuilders.nestedFilter("credentials", 
+					NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("credentials",
 							filterBuilder).innerHit(new QueryInnerHitBuilder());
 					searchRequestBuilder.setPostFilter(nestedFilter);
 				}

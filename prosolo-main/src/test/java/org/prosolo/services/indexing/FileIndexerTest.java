@@ -3,7 +3,8 @@ package org.prosolo.services.indexing;
 import static org.elasticsearch.client.Requests.indexRequest;
 import static org.elasticsearch.client.Requests.putMappingRequest;
 import static org.elasticsearch.client.Requests.refreshRequest;
-import static org.elasticsearch.common.io.Streams.copyToStringFromClasspath;
+//import static org.elasticsearch.common.io.Streams.copyToStringFromClasspath;
+import static org.prosolo.common.util.ElasticsearchUtil.copyToStringFromClasspath;
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 import java.io.BufferedReader;
@@ -24,13 +25,13 @@ import java.util.UUID;
 
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.action.mlt.MoreLikeThisRequest;
-import org.elasticsearch.action.mlt.MoreLikeThisRequestBuilder;
+//import org.elasticsearch.action.mlt.MoreLikeThisRequest;
+//import org.elasticsearch.action.mlt.MoreLikeThisRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -88,7 +89,7 @@ public class FileIndexerTest {
 	  public void getAllIndexes() {
 		 System.out.println("starting test");
 		 
-			documents.add(new Document("WpkcK-ZjSMi_l6iRq0Vuhg","Ethnobiology"));
+		/*	documents.add(new Document("WpkcK-ZjSMi_l6iRq0Vuhg","Ethnobiology"));
 			documents.add(new Document("ZJodHJOYRMSwgMUXNNNGLA","Complex_systems"));
 		//  Client client = getESClient();
 		  
@@ -121,12 +122,12 @@ public class FileIndexerTest {
 
 			}
 			
-		  }
+		  }*/
 		 System.out.println("ENDING TEST");
 	  }
  		private static void getESClient() {
 			//ElasticSearchConfig elasticSearchConfig = Settings.getInstance().config.elasticSearch;
- 			if(client==null){
+ 		/*	if(client==null){
 			org.elasticsearch.common.settings.Settings settings = ImmutableSettings
 					.settingsBuilder().put("cluster.name", "elasticsearch").build();
 			 client = new TransportClient(settings)
@@ -135,7 +136,7 @@ public class FileIndexerTest {
 		//	ClusterHealthResponse clusterHealth = client.admin().cluster().health(clusterHealthRequest().waitForGreenStatus()).actionGet();
 			client.admin().cluster().prepareHealth().setWaitForGreenStatus().execute().actionGet(); 
  			}
-			 
+		*/
 		} 
  		 @Test
  		public void indexTrainingSetDirectory(){
@@ -416,7 +417,8 @@ public class FileIndexerTest {
 		String indexName = ESIndexNames.INDEX_DOCUMENTS;
 		String indexType = ESIndexTypes.DOCUMENT;
 		String mapping = copyToStringFromClasspath("/org/prosolo/services/indexing/document-mapping.json");
-		byte[] txt = org.elasticsearch.common.io.Streams.copyToByteArray(file);
+	byte[] txt=null;
+			//byte[] txt = org.elasticsearch.common.io.Streams.copyToByteArray(file);
 		FileInputStream fis = new FileInputStream(file.getAbsolutePath());
 		String content = tika.parseInputStream(fis).getContent();
 		// String txt2= org.elasticsearch.common.io.Streams.copyToString(new

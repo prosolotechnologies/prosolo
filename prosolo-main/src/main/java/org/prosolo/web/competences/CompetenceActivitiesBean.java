@@ -145,7 +145,7 @@ public class CompetenceActivitiesBean implements Serializable {
 			TextSearchResponse searchResponse = textSearch.searchActivities(
 					actSearchTerm, 
 					0, 
-					Integer.MAX_VALUE, 
+					1000,
 					false, 
 					toExclude);
 			

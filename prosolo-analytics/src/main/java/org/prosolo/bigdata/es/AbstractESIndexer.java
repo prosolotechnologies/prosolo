@@ -1,7 +1,8 @@
 package org.prosolo.bigdata.es;
 
 import static org.elasticsearch.client.Requests.putMappingRequest;
-import static org.elasticsearch.common.io.Streams.copyToStringFromClasspath;
+//import static org.elasticsearch.common.io.Streams.copyToStringFromClasspath;
+import static org.prosolo.common.util.ElasticsearchUtil.copyToStringFromClasspath;
 
 import java.io.IOException;
 
@@ -40,9 +41,10 @@ public abstract class AbstractESIndexer {
 			}
 		} catch (ElasticsearchException e) {
 			logger.error(e);
-		} catch (IndexingServiceNotAvailable e) {
+			//} catch (IndexingServiceNotAvailable e) {
 			// TODO Auto-generated catch block
-			logger.error(e);
+			//		logger.error(e);
+			//}
 		}
 	}
 

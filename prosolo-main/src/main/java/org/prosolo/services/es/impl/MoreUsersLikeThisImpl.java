@@ -12,8 +12,9 @@ import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.common.geo.GeoDistance;
 import org.elasticsearch.common.unit.DistanceUnit;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
+//import org.elasticsearch.index.query.FilterBuilder;
+//import org.elasticsearch.index.query.FilterBuilders;
+
 import org.elasticsearch.index.query.FilteredQueryBuilder;
 import org.elasticsearch.index.query.MatchAllQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -167,7 +168,7 @@ public class MoreUsersLikeThisImpl extends AbstractManagerImpl implements MoreUs
 					bQueryBuilder.mustNot(termQuery("id", ignUser.getId()));
 				}
 			}
-	    	FilterBuilder filter = FilterBuilders.geoDistanceFilter("user.location.pin")
+	    	QueryBuilder filter = QueryBuilders.geoDistanceQuery("user.location.pin")
 					.point(lat, lon)
 					.distance(200, DistanceUnit.KILOMETERS)
 					.optimizeBbox("memory")

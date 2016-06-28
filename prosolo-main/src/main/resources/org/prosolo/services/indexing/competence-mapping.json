@@ -3,7 +3,7 @@
 		"properties":{
 			"id":{
 				"store": false,
-				"type":"integer"
+				"type":"long"
 				},
 				"url":{
 					"store": false,

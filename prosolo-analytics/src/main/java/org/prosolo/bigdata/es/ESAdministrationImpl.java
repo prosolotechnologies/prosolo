@@ -4,7 +4,9 @@ import static org.elasticsearch.client.Requests.clusterHealthRequest;
 import static org.elasticsearch.client.Requests.createIndexRequest;
 import static org.elasticsearch.client.Requests.deleteIndexRequest;
 import static org.elasticsearch.client.Requests.putMappingRequest;
-import static org.elasticsearch.common.io.Streams.copyToStringFromClasspath;
+//import static org.elasticsearch.common.io.Streams.copyToStringFromClasspath;
+import static org.prosolo.common.util.ElasticsearchUtil.copyToStringFromClasspath;
+import org.elasticsearch.common.settings.Settings;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,9 +15,9 @@ import org.apache.log4j.Logger;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
-import org.elasticsearch.common.settings.ImmutableSettings;
+
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
-import org.prosolo.bigdata.config.Settings;
+//import org.prosolo.bigdata.config.Settings;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.config.ElasticSearchConfig;
@@ -49,7 +51,7 @@ public class ESAdministrationImpl extends AbstractESIndexer implements
 		if (!exists) {
 			ElasticSearchConfig elasticSearchConfig = CommonSettings
 					.getInstance().config.elasticSearch;
-			ImmutableSettings.Builder elasticsearchSettings = ImmutableSettings
+			 Settings.Builder elasticsearchSettings =  Settings
 					.settingsBuilder()
 					.put("http.enabled", "false")
 					.put("cluster.name", elasticSearchConfig.clusterName)
@@ -95,6 +97,8 @@ public class ESAdministrationImpl extends AbstractESIndexer implements
 	public void deleteIndex(String indexName)
 			throws IndexingServiceNotAvailable {
 		logger.debug("deleting index [" + indexName + "]");
+try{
+
 
 		Client client = ElasticSearchConnector.getClient();
 		boolean exists = client.admin().indices().prepareExists(indexName)
@@ -103,6 +107,9 @@ public class ESAdministrationImpl extends AbstractESIndexer implements
 			client.admin().indices().delete(deleteIndexRequest(indexName))
 					.actionGet();
 		}
+}catch(Exception ex){
+	ex.printStackTrace();
+}
 		// client.close();
 	}
 

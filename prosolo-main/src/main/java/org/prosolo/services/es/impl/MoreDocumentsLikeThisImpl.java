@@ -8,13 +8,10 @@ import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
-import org.elasticsearch.index.query.AndFilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.FilteredQueryBuilder;
-import org.elasticsearch.index.query.OrFilterBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.AndQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.TermFilterBuilder;
+import org.elasticsearch.index.query.OrQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.prosolo.recommendation.impl.RecommendedDocument;
@@ -95,13 +92,13 @@ public class MoreDocumentsLikeThisImpl extends AbstractManagerImpl implements
 					.likeText(likeText).minTermFreq(1).minDocFreq(1)
 					.maxQueryTerms(1);
 			
-			TermFilterBuilder publicVisibilityTerm = FilterBuilders.termFilter("visibility", "public");
-			TermFilterBuilder privateVisibilityTerm = FilterBuilders.termFilter("visibility", "private");
-			TermFilterBuilder ownerIdTerm = FilterBuilders.termFilter("ownerId", userId);
+			TermQueryBuilder publicVisibilityTerm = QueryBuilders.termQuery("visibility", "public");
+			TermQueryBuilder privateVisibilityTerm = QueryBuilders.termQuery("visibility", "private");
+			TermQueryBuilder ownerIdTerm = QueryBuilders.termQuery("ownerId", userId);
 	
-			AndFilterBuilder andFilterBuilder = FilterBuilders.andFilter(privateVisibilityTerm, ownerIdTerm);
+			AndQueryBuilder andFilterBuilder = QueryBuilders.andQuery(privateVisibilityTerm, ownerIdTerm);
 			// create OR filter
-			OrFilterBuilder filterBuilder = FilterBuilders.orFilter(publicVisibilityTerm, andFilterBuilder);
+			OrQueryBuilder filterBuilder = QueryBuilders.orQuery(publicVisibilityTerm, andFilterBuilder);
 			FilteredQueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(qb, filterBuilder);
 			Client client = ElasticSearchFactory.getClient();
 			String indexName = ESIndexNames.INDEX_DOCUMENTS;

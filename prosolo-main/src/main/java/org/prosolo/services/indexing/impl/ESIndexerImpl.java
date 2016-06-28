@@ -1,7 +1,8 @@
 package org.prosolo.services.indexing.impl;
 
 import static org.elasticsearch.client.Requests.putMappingRequest;
-import static org.elasticsearch.common.io.Streams.copyToStringFromClasspath;
+//import static org.elasticsearch.common.io.Streams.copyToStringFromClasspath;
+import static org.prosolo.common.util.ElasticsearchUtil.copyToStringFromClasspath;
 
 import java.io.File;
 import java.io.FileInputStream;

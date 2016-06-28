@@ -7,7 +7,7 @@ import static org.prosolo.util.urigenerator.AmazonS3Utility.createFullPathFromRe
 
 import java.util.Date;
 
-import org.elasticsearch.common.joda.time.LocalDate;
+//import org.elasticsearch.common.joda.time.LocalDate;
 
 public class ActivityReport {
 

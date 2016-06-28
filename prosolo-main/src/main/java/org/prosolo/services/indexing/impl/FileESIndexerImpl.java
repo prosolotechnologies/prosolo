@@ -3,7 +3,8 @@ package org.prosolo.services.indexing.impl;
 import static org.elasticsearch.client.Requests.indexRequest;
 import static org.elasticsearch.client.Requests.putMappingRequest;
 import static org.elasticsearch.client.Requests.refreshRequest;
-import static org.elasticsearch.common.io.Streams.copyToStringFromClasspath;
+//import static org.elasticsearch.common.io.Streams.copyToStringFromClasspath;
+import static org.prosolo.common.util.ElasticsearchUtil.copyToStringFromClasspath;
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 //import java.io.File;
@@ -19,6 +20,8 @@ import org.apache.log4j.Logger;
 //import org.elasticsearch.ElasticsearchException;
 //import org.elasticsearch.action.deletebyquery.DeleteByQueryResponse;
 //import org.elasticsearch.action.deletebyquery.IndexDeleteByQueryResponse;
+import org.elasticsearch.action.deletebyquery.DeleteByQueryAction;
+import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -182,11 +185,14 @@ public class FileESIndexerImpl implements FileESIndexer{
 		Client client = ElasticSearchFactory.getClient();
 		String indexName = ESIndexNames.INDEX_DOCUMENTS;
 		String indexType = ESIndexTypes.DOCUMENT;
-		client.prepareDeleteByQuery(indexName)
-		        .setQuery(boolQuery)
-		        .setTypes(indexType)
-		        .execute()
-		        .actionGet();		
+		//client.prepareDeleteByQuery(indexName)
+		  //      .setQuery(boolQuery)
+		   //     .setTypes(indexType)
+		   //     .execute()
+		   //     .actionGet();
+		DeleteByQueryRequestBuilder requestBuilder=new DeleteByQueryRequestBuilder(client, DeleteByQueryAction.INSTANCE);
+		requestBuilder.setQuery(boolQuery).execute().actionGet();
+
 	}
 	
 }

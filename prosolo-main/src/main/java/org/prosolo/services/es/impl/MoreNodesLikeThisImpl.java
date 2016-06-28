@@ -11,11 +11,11 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.FilteredQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.TermFilterBuilder;
+import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.hibernate.NonUniqueResultException;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
@@ -112,7 +112,7 @@ public class MoreNodesLikeThisImpl extends AbstractManagerImpl implements MoreNo
 			
 			qb = QueryBuilders.moreLikeThisQuery(moreNodesLikeThisFields).likeText(likeText).minTermFreq(1).minDocFreq(1).maxQueryTerms(1);
 			
-			TermFilterBuilder competenceIdFilterTerm = FilterBuilders.termFilter("competences.id", competenceId);
+			TermQueryBuilder competenceIdFilterTerm = QueryBuilders.termQuery("competences.id", competenceId);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			bQueryBuilder.should(qb);

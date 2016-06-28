@@ -273,12 +273,7 @@
 			<artifactId>scalatest_2.11</artifactId>
 			<version>3.0.0-M7</version>
 		</dependency>
-		<!-- ElasticSearch dependencies -->
-		<dependency>
-			<groupId>org.elasticsearch</groupId>
-			<artifactId>elasticsearch</artifactId>
-			<version>1.4.4</version>
-		</dependency>
+
 		<!-- Quartz dependencies -->
 		<dependency>
 			<groupId>org.quartz-scheduler</groupId>

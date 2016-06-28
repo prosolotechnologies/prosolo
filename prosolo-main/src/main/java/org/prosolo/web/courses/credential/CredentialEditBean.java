@@ -251,7 +251,7 @@ public class CredentialEditBean implements Serializable {
 					role,
 					compSearchTerm,
 					0, 
-					Integer.MAX_VALUE,
+					1000,
 					false,
 					toExclude,
 					null,

@@ -6,7 +6,8 @@ import static org.elasticsearch.client.Requests.deleteIndexRequest;
 import static org.elasticsearch.client.Requests.indexRequest;
 import static org.elasticsearch.client.Requests.putMappingRequest;
 import static org.elasticsearch.client.Requests.refreshRequest;
-import static org.elasticsearch.common.io.Streams.copyToStringFromClasspath;
+//import static org.elasticsearch.common.io.Streams.copyToStringFromClasspath;
+import static org.prosolo.common.util.ElasticsearchUtil.copyToStringFromClasspath;
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 import java.io.BufferedReader;
@@ -26,7 +27,7 @@ import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
-import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
@@ -73,7 +74,7 @@ public class ESAdministrationImpl implements ESAdministration {
 			
 			if (!exists) {
 				ElasticSearchConfig elasticSearchConfig = CommonSettings.getInstance().config.elasticSearch;
-				ImmutableSettings.Builder elasticsearchSettings = ImmutableSettings.settingsBuilder()
+				Settings.Builder elasticsearchSettings = Settings.settingsBuilder()
 		                  .put("http.enabled", "false")
 		                  .put("cluster.name", elasticSearchConfig.clusterName)
 		                  .put("index.number_of_replicas", elasticSearchConfig.replicasNumber) 
@@ -89,7 +90,9 @@ public class ESAdministrationImpl implements ESAdministration {
 						.actionGet();
 				logger.debug("Done Cluster Health, status "
 						+ clusterHealth.getStatus());
-				
+
+
+
 				if (indexName.equals(ESIndexNames.INDEX_DOCUMENTS)) {
 					this.addMapping(client,  indexName, ESIndexTypes.DOCUMENT);
 				} else if (indexName.equals(ESIndexNames.INDEX_NODES)) {
@@ -98,12 +101,15 @@ public class ESAdministrationImpl implements ESAdministration {
 					this.addMapping(client, indexName, ESIndexTypes.COURSE);
 					this.addMapping(client, indexName, ESIndexTypes.LEARNINGGOAL);
 					this.addMapping(client, indexName, ESIndexTypes.TAGS);
-				} else if (indexName.equals(ESIndexNames.INDEX_USERS)) {
+					} else if (indexName.equals(ESIndexNames.INDEX_USERS)) {
 					this.addMapping(client,  indexName, ESIndexTypes.USER);
 				}
+
 			}
 		} catch (NoNodeAvailableException e) {
 			logger.error(e);
+		}catch (Exception ex){
+			logger.error(ex);
 		}
 	}
 	
@@ -136,15 +142,15 @@ public class ESAdministrationImpl implements ESAdministration {
 
 		try {
 			Client client = ElasticSearchFactory.getClient();
-			
 			boolean exists = client.admin().indices().prepareExists(indexName).execute().actionGet().isExists();
-			
 			if (exists) {
 				client.admin().indices().delete(deleteIndexRequest(indexName)).actionGet();
 			}
 		} catch (NoNodeAvailableException e) {
 			logger.error(e);
 			return;
+		}catch(Exception ex){
+			ex.printStackTrace();
 		}
 	}
 	

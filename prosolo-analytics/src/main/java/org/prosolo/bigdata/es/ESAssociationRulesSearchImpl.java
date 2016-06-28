@@ -31,11 +31,11 @@ public class ESAssociationRulesSearchImpl implements ESAssociationRulesSearch {
 			int limit) {
 		List<ActivityAccessCount> recommendedActivities = new ArrayList<ActivityAccessCount>();
 		Client client = null;
-		try {
+	//	try {
 			client = ElasticSearchConnector.getClient();
-		} catch (IndexingServiceNotAvailable e) {
-			e.printStackTrace();
-		}
+	//	} catch (IndexingServiceNotAvailable e) {
+	//		e.printStackTrace();
+	//	}
 		BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 		bQueryBuilder.must(termQuery("id", competenceId));
 		if (alreadyAddedActivities != null) {
@@ -95,11 +95,11 @@ public class ESAssociationRulesSearchImpl implements ESAssociationRulesSearch {
 			Long activityId, int limit) {
 		List<ActivityAccessCount> relatedActivities = new ArrayList<ActivityAccessCount>();
 		Client client = null;
-		try {
+	//	try {
 			client = ElasticSearchConnector.getClient();
-		} catch (IndexingServiceNotAvailable e) {
-			e.printStackTrace();
-		}
+		//} catch (IndexingServiceNotAvailable e) {
+	//		e.printStackTrace();
+	//	}
 		BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 		bQueryBuilder.must(termQuery("id", competenceId));
 		bQueryBuilder.must(termQuery("itemset1.id", activityId));

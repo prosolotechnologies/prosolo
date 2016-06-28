@@ -7,6 +7,8 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.elasticsearch.action.deletebyquery.DeleteByQueryAction;
+import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
@@ -105,16 +107,22 @@ public class AssociationRulesIndexerImpl extends AbstractESIndexer implements
 				competenceid);
 		QueryBuilder boolQuery = QueryBuilders.boolQuery().must(termCompetence);
 		Client client = null;
-		try {
+		//try {
 			client = ElasticSearchConnector.getClient();
-		} catch (IndexingServiceNotAvailable e) {
+		//} catch (IndexingServiceNotAvailable e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		//	e.printStackTrace();
+		//}
 		String indexName = ESIndexNames.INDEX_ASSOCRULES;
 		String indexType = ESIndexTypes.COMPETENCE_ACTIVITIES;
-		client.prepareDeleteByQuery(indexName).setQuery(boolQuery)
-				.setTypes(indexType).execute().actionGet();
+		System.out.println("THIS IS REMOVED FOR TRANSFER TO 2.3");
+
+		//client.prepareDeleteByQuery(indexName).setQuery(boolQuery)
+		//		.setTypes(indexType).execute().actionGet();
+		DeleteByQueryRequestBuilder requestBuilder=new DeleteByQueryRequestBuilder(client, DeleteByQueryAction.INSTANCE);
+		requestBuilder.setQuery(boolQuery).execute().actionGet();
+
+
 	}
 
 }

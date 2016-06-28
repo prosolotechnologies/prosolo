@@ -4,11 +4,11 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.geo.GeoDistance;
-import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.unit.DistanceUnit;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.MatchAllQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.sort.GeoDistanceSortBuilder;
@@ -33,13 +33,13 @@ public class MoreUsersLikeThisImplTest {
 	}
 	@Test
 	public void testGetRecommendedCollaboratorsBasedOnLocation() {
-			FilterBuilder filter = FilterBuilders.geoDistanceFilter("user.location.pin")
+			/*FilterBuilder filter = FilterBuilders.geoDistanceFilter("user.location.pin")
 				.point(43.723611, 20.6875)
 				.distance(200, DistanceUnit.KILOMETERS)
 				.optimizeBbox("memory")
 				.geoDistance(GeoDistance.ARC);
-		
-		this.launchSearch(filter);
+		*/
+		//this.launchSearch(filter);
 	}
 	@Test
 	public void testGetCollaboratorsBasedOnLocation() {
@@ -58,7 +58,7 @@ public class MoreUsersLikeThisImplTest {
 				 .addSort(sortBuilder)
 		 .execute().actionGet();
 	}
-	 private SearchResponse launchSearch(FilterBuilder filter) {
+	/* private SearchResponse launchSearch(FilterBuilder filter) {
 		 String indexName = ESIndexNames.INDEX_USERS;
 		 String filterS=filter.toString();
 		 System.out.println("FILTER:"+filterS);
@@ -66,12 +66,12 @@ public class MoreUsersLikeThisImplTest {
 		 .execute().actionGet();
 		 return sr;
 		 }
-	
+	*/
 	
 	private static void getESClient() {
 		//ElasticSearchConfig elasticSearchConfig = Settings.getInstance().config.elasticSearch;
-			if(client==null){
-		org.elasticsearch.common.settings.Settings settings = ImmutableSettings
+			//if(client==null){
+		/*org.elasticsearch.common.settings.Settings settings = ImmutableSettings
 				.settingsBuilder().put("cluster.name", "elasticsearch").build();
 		 client = new TransportClient(settings)
 				.addTransportAddress(new InetSocketTransportAddress(
@@ -79,7 +79,7 @@ public class MoreUsersLikeThisImplTest {
 	//	ClusterHealthResponse clusterHealth = client.admin().cluster().health(clusterHealthRequest().waitForGreenStatus()).actionGet();
 		client.admin().cluster().prepareHealth().setWaitForGreenStatus().execute().actionGet(); 
 			}
-		 
-	} 
+		 */
+	 }
 
 }

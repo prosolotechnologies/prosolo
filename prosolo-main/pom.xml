@@ -510,19 +510,9 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>14.0.1</version>
+			<version>18.0</version>
 		</dependency>
-		<!-- ElasticSearch dependencies -->
-		<dependency>
-			<groupId>org.elasticsearch</groupId>
-			<artifactId>elasticsearch</artifactId>
-			<version>1.6.0</version>
-		</dependency>
-		<!--dependency>
-			<groupId>org.elasticsearch</groupId>
-			<artifactId>elasticsearch-mapper-attachments</artifactId>
-			<version>2.6.0</version>
-		</dependency-->
+
 		<!-- Jackson dependencies -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>

@@ -55,11 +55,11 @@ public class TestESSearchQueryForAssociationRules {
 		long activityId = 2;
 		int limit = 10;
 		Client client = null;
-		try {
+		//try {
 			client = ElasticSearchConnector.getClient();
-		} catch (IndexingServiceNotAvailable e) {
-			e.printStackTrace();
-		}
+		//} catch (IndexingServiceNotAvailable e) {
+		//	e.printStackTrace();
+	//	}
 		BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 		bQueryBuilder.must(termQuery("id", competenceId));
 		bQueryBuilder.must(termQuery("itemset1.id", activityId));
@@ -86,11 +86,11 @@ public class TestESSearchQueryForAssociationRules {
 			Collection<Long> alreadyAddedActivities, long competenceId,
 			int limit) {
 		Client client = null;
-		try {
+		//try {
 			client = ElasticSearchConnector.getClient();
-		} catch (IndexingServiceNotAvailable e) {
-			e.printStackTrace();
-		}
+		//} catch (IndexingServiceNotAvailable e) {
+		//	e.printStackTrace();
+		//}
 		BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 		bQueryBuilder.must(termQuery("id", competenceId));
 

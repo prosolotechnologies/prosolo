@@ -130,7 +130,7 @@ public class CourseCompetencesBean implements Serializable {
 			TextSearchResponse searchResponse = textSearch.searchCompetences(
 					compSearchTerm,
 					0, 
-					Integer.MAX_VALUE,
+					1000,
 					false,
 					toExclude,
 					null,
