@@ -109,6 +109,13 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 				.withRetryPolicy(DowngradingConsistencyRetryPolicy.INSTANCE)
 				.withReconnectionPolicy(new ConstantReconnectionPolicy(100L))
 				.addContactPoint(node).build();
+		Metadata metadata = cluster.getMetadata();
+		System.out.printf("Connected to cluster: %s\n",
+				metadata.getClusterName());
+		for ( Host host : metadata.getAllHosts() ) {
+			System.out.printf("Datacenter: %s; Host: %s; Rack: %s\n",
+					host.getDatacenter(), host.getAddress(), host.getRack());
+		}
 		if (keyspace != null) {
 			try {
 				this.session = this.cluster.connect(keyspace);
