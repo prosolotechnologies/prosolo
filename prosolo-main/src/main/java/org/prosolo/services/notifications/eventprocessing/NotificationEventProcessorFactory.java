@@ -56,6 +56,11 @@ public class NotificationEventProcessorFactory {
 		case Follow:
 			return new FollowUserEventProcessor(event, session, notificationManager, notificationsSettingsManager,
 					idEncoder, followResourceManager);
+		case AssessmentApproved:
+			return new AssessmentApprovedEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder);
+		case AssessmentRequested:
+			return new AssessmentRequestEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder);
+			
 		default:
 			return null;
 		}

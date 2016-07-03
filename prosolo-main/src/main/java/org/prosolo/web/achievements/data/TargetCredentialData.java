@@ -95,4 +95,5 @@ public class TargetCredentialData implements Serializable {
 		this.credentialId = credentialId;
 	}
 	
+	
 }

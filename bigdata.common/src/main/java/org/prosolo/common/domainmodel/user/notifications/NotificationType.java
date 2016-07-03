@@ -6,6 +6,7 @@ public enum NotificationType {
 	Comment,
 	Comment_Like,
 	Mention,
-	Assessment_Given,
+	Assessment_Requested,
+	Assessment_Approved,
 	Started_Learning;
 }

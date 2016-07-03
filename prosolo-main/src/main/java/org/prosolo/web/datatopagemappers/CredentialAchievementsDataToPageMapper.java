@@ -2,7 +2,6 @@ package org.prosolo.web.datatopagemappers;
 
 import java.util.List;
 
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.achievements.data.CredentialAchievementsData;

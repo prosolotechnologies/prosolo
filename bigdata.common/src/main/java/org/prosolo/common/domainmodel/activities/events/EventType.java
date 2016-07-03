@@ -108,7 +108,9 @@ public enum EventType {
 	USER_ROLES_UPDATED,
 	
 	Bookmark,
-	RemoveBookmark;
+	RemoveBookmark, 
+	AssessmentRequested, 
+	AssessmentApproved;
 	
 	private String customText;
 	
