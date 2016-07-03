@@ -4,12 +4,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.messaging.Message;
-import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.domainmodel.user.User;
 
 @Entity
@@ -20,7 +17,7 @@ public class ActivityDiscussionParticipant extends BaseEntity {
 
 	private boolean read;
 	private User participant;
-	private ActivityDiscussionMessage lastReadMessage;
+	//private ActivityDiscussionMessage lastReadMessage;
 	private ActivityDiscussion activityDiscussion;
 	
 	
@@ -43,14 +40,14 @@ public class ActivityDiscussionParticipant extends BaseEntity {
 		this.participant = participant;
 	}
 
-	@OneToOne
-	public ActivityDiscussionMessage getLastReadMessage() {
-		return lastReadMessage;
-	}
-
-	public void setLastReadMessage(ActivityDiscussionMessage lastReadMessage) {
-		this.lastReadMessage = lastReadMessage;
-	}
+//	@OneToOne
+//	public ActivityDiscussionMessage getLastReadMessage() {
+//		return lastReadMessage;
+//	}
+//
+//	public void setLastReadMessage(ActivityDiscussionMessage lastReadMessage) {
+//		this.lastReadMessage = lastReadMessage;
+//	}
 
 	@ManyToOne
 	@JoinColumn(referencedColumnName="id")

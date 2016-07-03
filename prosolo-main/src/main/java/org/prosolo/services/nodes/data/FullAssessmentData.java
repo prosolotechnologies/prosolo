@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
@@ -14,6 +15,8 @@ public class FullAssessmentData {
 
 	private String studentFullName;
 	private String studentAvatarUrl;
+	private long assessorId;
+	private long assessedStrudentId;
 	private String dateValue;
 	private String title;
 	private boolean approved;
@@ -22,11 +25,12 @@ public class FullAssessmentData {
 	private boolean mandatoryFlow;
 	private long duration;
 	private long targetCredentialId;
+	private long credentialId;
 
-	private List<CompetenceAssessmentData> competenceAssesmentData;
+	private List<CompetenceAssessmentData> competenceAssessmentData;
 
 	public static FullAssessmentData fromAssessment(CredentialAssessment assessment, UrlIdEncoder encoder,
-			DateFormat dateFormat) {
+			User user, DateFormat dateFormat) {
 		
 		FullAssessmentData data = new FullAssessmentData();
 		data.setStudentFullName(assessment.getAssessedStudent().getName()+" "+assessment.getAssessedStudent().getLastname());
@@ -34,17 +38,20 @@ public class FullAssessmentData {
 		data.setDateValue(dateFormat.format(assessment.getDateCreated()));
 		data.setTitle(assessment.getTargetCredential().getTitle());
 		data.setApproved(assessment.isApproved());
+		data.setCredentialId(assessment.getTargetCredential().getCredential().getId());
 		data.setEncodedId(encoder.encodeId(assessment.getId()));
 		data.setMandatoryFlow(assessment.getTargetCredential().isCompetenceOrderMandatory());
 		data.setDuration(assessment.getTargetCredential().getDuration());
 		data.setTargetCredentialId(assessment.getTargetCredential().getId());
+		data.setAssessedStrudentId(assessment.getAssessedStudent().getId());
+		data.setAssessorId(assessment.getAssessor().getId());
 		
 		List<CompetenceAssessmentData> compDatas = new ArrayList<>();
 		for(CompetenceAssessment compAssessment : assessment.getCompetenceAssessments()) {
-			CompetenceAssessmentData compData = CompetenceAssessmentData.from(compAssessment,encoder,dateFormat);
+			CompetenceAssessmentData compData = CompetenceAssessmentData.from(compAssessment,encoder, user, dateFormat);
 			compDatas.add(compData);
 		}
-		data.setCompetenceAssesmentData(compDatas);
+		data.setCompetenceAssessmentData(compDatas);
 		data.setInitials(getInitialsFromName(data.getStudentFullName()));
 		return data;
 		
@@ -120,12 +127,12 @@ public class FullAssessmentData {
 		this.initials = initials;
 	}
 
-	public List<CompetenceAssessmentData> getCompetenceAssesmentData() {
-		return competenceAssesmentData;
+	public List<CompetenceAssessmentData> getCompetenceAssessmentData() {
+		return competenceAssessmentData;
 	}
 
-	public void setCompetenceAssesmentData(List<CompetenceAssessmentData> competenceAssesmentData) {
-		this.competenceAssesmentData = competenceAssesmentData;
+	public void setCompetenceAssessmentData(List<CompetenceAssessmentData> competenceAssessmentData) {
+		this.competenceAssessmentData = competenceAssessmentData;
 	}
 
 	public boolean isMandatoryFlow() {
@@ -151,7 +158,29 @@ public class FullAssessmentData {
 	public void setTargetCredentialId(long targetCredentialId) {
 		this.targetCredentialId = targetCredentialId;
 	}
-	
-	
+
+	public long getAssessorId() {
+		return assessorId;
+	}
+
+	public void setAssessorId(long assessorId) {
+		this.assessorId = assessorId;
+	}
+
+	public long getAssessedStrudentId() {
+		return assessedStrudentId;
+	}
+
+	public void setAssessedStrudentId(long assessedStrudentId) {
+		this.assessedStrudentId = assessedStrudentId;
+	}
+
+	public long getCredentialId() {
+		return credentialId;
+	}
+
+	public void setCredentialId(long credentialId) {
+		this.credentialId = credentialId;
+	}
 	
 }

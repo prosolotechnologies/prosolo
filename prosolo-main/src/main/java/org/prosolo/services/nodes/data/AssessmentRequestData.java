@@ -12,6 +12,7 @@ public class AssessmentRequestData implements Serializable {
 	private long credentialId;
 	private long targetCredentialId;
 	private boolean assessorSet;
+	private String credentialTitle;
 
 	public String getMessageText() {
 		return messageText;
@@ -56,6 +57,14 @@ public class AssessmentRequestData implements Serializable {
 
 	public boolean isAssessorSet() {
 		return assessorSet;
+	}
+
+	public String getCredentialTitle() {
+		return credentialTitle;
+	}
+
+	public void setCredentialTitle(String credentialTitle) {
+		this.credentialTitle = credentialTitle;
 	}
 
 }

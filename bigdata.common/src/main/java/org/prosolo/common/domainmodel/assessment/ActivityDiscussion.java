@@ -60,5 +60,16 @@ public class ActivityDiscussion extends BaseEntity {
 	public void setMessages(List<ActivityDiscussionMessage> messages) {
 		this.messages = messages;
 	}
+
+	public ActivityDiscussionParticipant getParticipantByUserId(long id) {
+		if(participants != null && participants.size() > 0) {
+			for(ActivityDiscussionParticipant participant : participants) {
+				if(participant.getParticipant().getId() == id) {
+					return participant;
+				}
+			}
+		}
+		return null;
+	}
 	
 }

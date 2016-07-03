@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 
 public class CompetenceAssessmentData {
@@ -17,7 +18,7 @@ public class CompetenceAssessmentData {
 	private List<ActivityAssessmentData> activityAssessmentData;
 
 	public static CompetenceAssessmentData from(CompetenceAssessment compAssessment, UrlIdEncoder encoder,
-			DateFormat dateFormat) {
+			User user, DateFormat dateFormat) {
 		
 		CompetenceAssessmentData data = new CompetenceAssessmentData();
 		data.setTitle(compAssessment.getTitle());
@@ -27,7 +28,7 @@ public class CompetenceAssessmentData {
 		List<TargetActivity1> targetActivities = compAssessment.getTargetCompetence().getTargetActivities();
 		List<ActivityAssessmentData> activityAssessmentData = new ArrayList<>();
 		for(TargetActivity1 targetActivity : targetActivities) {
-			ActivityAssessmentData assessmentData = ActivityAssessmentData.from(targetActivity, compAssessment, encoder);
+			ActivityAssessmentData assessmentData = ActivityAssessmentData.from(targetActivity, compAssessment, encoder, user);
 			activityAssessmentData.add(assessmentData);
 		}
 		data.setActivityAssessmentData(activityAssessmentData);

@@ -148,15 +148,16 @@
 											(notificationData.notificationType eq 'Comment') ? 'notifComment': 
 											(notificationData.notificationType eq 'Comment_Like') ? 'notifLikeComment':
 											(notificationData.notificationType eq 'Mention') ? 'notifMention':
-											(notificationData.notificationType eq 'Assessment_Given') ? 'notifAssessment': 'notifLearning'}">
+											(notificationData.notificationType eq 'Assessment_Requested' or notificationData.notificationType eq 'Assessment_Approved') ? 'notifAssessment': 'notifLearning'}">
 											
-											<h:link outcome="#{notificationData.link}">
-												<span class="icon"></span>
-												<h3>#{notificationData.actor.fullName}</h3> 
-												#{notificationData.predicate}
-												<h3>#{notificationData.objectTitle}</h3>
-												<span class="timestamp">#{notificationData.date}</span>
-											</h:link>
+												<h:link outcome="#{notificationData.link}">
+													<span class="icon"></span>
+													<h3>#{notificationData.actor.fullName}</h3> 
+													#{notificationData.predicate}
+													<h3>#{notificationData.objectTitle}</h3>
+													<span class="timestamp">#{notificationData.date}</span>
+												</h:link>
+											
 										</li>
 									</ui:repeat>
 									
@@ -198,7 +199,7 @@
 										(notificationData.notificationType eq 'Comment') ? 'notifComment': 
 										(notificationData.notificationType eq 'Comment_Like') ? 'notifLikeComment':
 										(notificationData.notificationType eq 'Mention') ? 'notifMention':
-										(notificationData.notificationType eq 'Assessment_Given') ? 'notifAssessment': 'notifLearning'}">
+										(notificationData.notificationType eq 'Assessment_Requested' or notificationData.notificationType eq 'Assessment_Approved') ? 'notifAssessment': 'notifLearning'}">
 									<h:link outcome="#{notificationData.link}">
 										<span class="icon"></span>
 										<h3>#{notificationData.actor.fullName}</h3> 
