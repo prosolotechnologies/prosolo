@@ -79,7 +79,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/recovery").permitAll()
 		   .antMatchers("/javax.faces.resource/**").permitAll()
 		   //.antMatchers("/notfound").permitAll()
-
+		   
+		   .antMatchers("/people").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/achievements/achievements-competences").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/achievements/achievements-credentials").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/settings/email").hasAuthority("BASIC.USER.ACCESS")

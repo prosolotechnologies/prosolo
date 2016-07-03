@@ -54,7 +54,8 @@ public enum ApplicationPage {
 	MANAGER_EDIT_ACTIVITY("/manage/create-activity.xhtml"),
 	USER_EDIT_CREDENTIAL("/create-credential.xhtml"),
 	USER__EDIT_COMPETENCE("/create-competence.xhtml"),
-	USER_EDIT_ACTIVITY("/create-activity.xhtml");
+	USER_EDIT_ACTIVITY("/create-activity.xhtml"),
+	PEOPLE("/people.xhtml");
 	
     private String uri; 
     
