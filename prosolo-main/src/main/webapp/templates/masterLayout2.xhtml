@@ -73,13 +73,11 @@
 								<h:link onclick="sendLogPageNavigation('library','mainmenu');"
 									value="Library" outcome="/credentialLibrary" />
 							</li>
-							<ui:remove>
 							<li role="presentation"
 								class="#{util:getPagePath(view.viewId)  == 'people' ? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('people','mainmenu');"
-									value="People" />
+									value="People" outcome="/people" />
 							</li>
-							</ui:remove>
 						</ul>
 					</nav>
 				</div>

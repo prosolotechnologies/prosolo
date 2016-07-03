@@ -16,6 +16,7 @@ import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.home.ColleguesBean;
+import org.prosolo.web.people.PeopleBean;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -36,6 +37,7 @@ public class PeopleActionBean implements Serializable{
 
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private ColleguesBean colleguesBean;
+	@Autowired private PeopleBean peopleBean;
 	@Autowired private FollowResourceManager followResourceManager;
 	@Autowired private FollowResourceAsyncManager followResourceAsyncManager;
 	
@@ -57,8 +59,9 @@ public class PeopleActionBean implements Serializable{
 		followResourceAsyncManager.asyncFollowUser(loggedUser.getUser(), userToFollow, context);
 		//followResourceManager.followUser(loggedUser.getUser(), userToFollow);
 		colleguesBean.addFollowingUser(UserDataFactory.createUserData(userToFollow));
+		peopleBean.addFollowingUser(UserDataFactory.createUserData(userToFollow));
 		PageUtil.fireSuccessfulInfoMessage("Started following "+userToFollow.getName()+" "+userToFollow.getLastname()+".");
-		Ajax.update("userDetailsForm:userDetailsGrowl", "listFollowingPeopleForm", "listfollowersform");
+		Ajax.update("userDetailsForm:userDetailsGrowl", "listFollowingPeopleForm", "listfollowersform", "formMainFollowingUsers");
 		//Ajax.update("listpeople:listfollowedpeopleform:followedUsersPanel");
 	}
 	
@@ -88,9 +91,10 @@ public class PeopleActionBean implements Serializable{
 		followResourceAsyncManager.asyncUnfollowUser(loggedUser.getUser(), userToUnfollow, context);
  		colleguesBean.removeFollowingUserById(userToUnfollow.getId());
  		colleguesBean.updateFollowingPage();
-		
+		peopleBean.removeFollowingUserById(userToUnfollow.getId());
+ 		
 		PageUtil.fireSuccessfulInfoMessage("Stopped following "+userToUnfollow.getName()+" "+userToUnfollow.getLastname()+".");
-		Ajax.update("userDetailsForm:userDetailsGrowl", "listFollowingPeopleForm", "listfollowersform");
+		Ajax.update("userDetailsForm:userDetailsGrowl", "listFollowingPeopleForm", "listfollowersform", "formMainFollowingUsers");
 		//Ajax.update("listpeople:listfollowedpeopleform:followedUsersPanel");
 	}
 	

@@ -46,5 +46,7 @@ public interface FollowResourceManager extends AbstractManager {
 
 	boolean isUserFollowingUser(User followerUser, User followedUser);
 
+	List<User> getFollowingUsers(User user, int page, int limit);
+
 
 }

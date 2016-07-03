@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
@@ -261,6 +262,32 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 			return deleted > 0;
 		}
 		return false;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<User> getFollowingUsers(User user, int page, int limit) {
+		String query = 
+				"SELECT DISTINCT fUser " + 
+				"FROM FollowedEntity fEnt " + 
+				"LEFT JOIN fEnt.user user "+
+				"JOIN fEnt.followedUser fUser " + 
+				"WHERE user = :user " +
+				"ORDER BY fUser.name, fUser.lastname";
+			
+			Query q = persistence.currentManager().createQuery(query).setEntity("user", user);
+			
+			if(limit != 0) {
+				q.setFirstResult(page * limit)
+				 .setMaxResults(limit);
+			}
+			
+			List<User> users = q.list();
+			
+			if (users != null) {
+				return users;
+			}
+			return new ArrayList<User>();
 	}
 	
 }

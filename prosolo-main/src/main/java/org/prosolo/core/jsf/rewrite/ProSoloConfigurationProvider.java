@@ -82,6 +82,7 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/achievements/inprogress").to("/achievements/inprogress.xhtml"))
 				.addRule(Join.path("/achievements/externalcompetences").to("/achievements/externalcompetences.xhtml"))
 				.addRule(Join.path("/achievements").to("/achievements/credentials"))
+				.addRule(Join.path("/people").to("/people.xhtml"))
 				
 				.addRule(Join.path("/manage").to("/manage/credentialLibrary.xhtml"))
 				.addRule(Join.path("/manage/").to("/manage/credentialLibrary.xhtml"))
