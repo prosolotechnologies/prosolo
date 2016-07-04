@@ -40,6 +40,7 @@ public class StyleUtilBean implements Serializable {
 			case Comment_Like:
 				return "notifLikeComment";
 			case Assessment_Approved:
+			case Assessment_Comment:
 			case Assessment_Requested:
 				return "notifAssessment";
 			case Mention:

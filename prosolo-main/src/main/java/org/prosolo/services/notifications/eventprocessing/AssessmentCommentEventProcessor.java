@@ -12,18 +12,18 @@ import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 
-public class AssessmentRequestEventProcessor extends NotificationEventProcessor {
+public class AssessmentCommentEventProcessor extends NotificationEventProcessor {
 	
-	private static Logger logger = Logger.getLogger(AssessmentRequestEventProcessor.class);
-	
-	public AssessmentRequestEventProcessor(Event event, Session session, NotificationManager notificationManager,
+	private static Logger logger = Logger.getLogger(AssessmentCommentEventProcessor.class);
+
+	public AssessmentCommentEventProcessor(Event event, Session session, NotificationManager notificationManager,
 			NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
 	}
 
 	@Override
 	boolean isConditionMet(long sender, long receiver) {
-		return true;
+		return sender != receiver;
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class AssessmentRequestEventProcessor extends NotificationEventProcessor 
 
 	@Override
 	NotificationType getNotificationType() {
-		return NotificationType.Assessment_Requested;
+		return NotificationType.Assessment_Comment;
 	}
 
 	@Override
@@ -60,11 +60,20 @@ public class AssessmentRequestEventProcessor extends NotificationEventProcessor 
 
 	@Override
 	String getNotificationLink() {
-		//request notifications will be read by assessors, prefix url with "manage"
-		return "/manage/credential-assessment.xhtml?id=" +
-				idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialId"))) +
-				"&assessmentId=" +
-				idEncoder.encodeId(event.getTarget().getId());
+		boolean isRecieverAssessor = Boolean.parseBoolean(event.getParameters().get("isRecepientAssessor"));
+		if(isRecieverAssessor) {
+			//this notification will be read by assessor, prefix url with "manage"
+			return "/manage/credential-assessment.xhtml?id=" +
+					idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialId"))) +
+					"&assessmentId=" +
+					idEncoder.encodeId(event.getTarget().getId());
+		}
+		else {
+			return "credential-assessment.xhtml?id=" +
+					idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialId"))) +
+					"&assessmentId=" +
+					idEncoder.encodeId(event.getTarget().getId());
+		}
 	}
 
 }

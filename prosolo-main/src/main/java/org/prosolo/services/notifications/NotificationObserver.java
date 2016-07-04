@@ -69,7 +69,8 @@ public class NotificationObserver extends EventObserver {
 				EventType.Dislike,
 				EventType.Post,
 				EventType.AssessmentRequested,
-				EventType.AssessmentApproved
+				EventType.AssessmentApproved,
+				EventType.AssessmentComment
 		};
 	}
 

@@ -8,5 +8,6 @@ public enum NotificationType {
 	Mention,
 	Assessment_Requested,
 	Assessment_Approved,
+	Assessment_Comment,
 	Started_Learning;
 }

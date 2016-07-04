@@ -13,6 +13,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.primefaces.context.RequestContext;
@@ -208,10 +209,13 @@ public class CredentialAssessmentBean implements Serializable {
 	}
 
 	private Optional<ActivityAssessmentData> getActivityAssessmentByEncodedId(String encodedActivityDiscussionId) {
-		for(CompetenceAssessmentData comp : fullAssessmentData.getCompetenceAssessmentData()) {
-			for(ActivityAssessmentData act : comp.getActivityAssessmentData()) {
-				if(act.getEncodedDiscussionId().equals(encodedActivityDiscussionId)) {
-					return Optional.of(act);
+		List<CompetenceAssessmentData> competenceAssessmentData = fullAssessmentData.getCompetenceAssessmentData();
+		if(CollectionUtils.isNotEmpty(competenceAssessmentData)) {
+			for(CompetenceAssessmentData comp : competenceAssessmentData) {
+				for(ActivityAssessmentData act : comp.getActivityAssessmentData()) {
+					if(act.getEncodedDiscussionId().equals(encodedActivityDiscussionId)) {
+						return Optional.of(act);
+					}
 				}
 			}
 		}
@@ -248,6 +252,13 @@ public class CredentialAssessmentBean implements Serializable {
 		try {
 			ActivityDiscussionMessageData newComment = assessmentManager.addCommentToDiscussion(actualDiscussionId, loggedUserBean.getUser().getId(), newCommentValue);
 			addNewCommentToAssessmentData(newComment,actualDiscussionId,competenceAssessmentId);
+			
+			String page = PageUtil.getPostParameter("page");
+			String lContext = PageUtil.getPostParameter("learningContext");
+			String service = PageUtil.getPostParameter("service");
+			notifyAssessmentCommentAsync(decodedAssessmentId, page, lContext, service,
+					getCommentRecepientId(),fullAssessmentData.getCredentialId());
+			
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error("Error saving assessment message", e);
 			PageUtil.fireErrorMessage("Error while adding new assessment message");
@@ -262,12 +273,44 @@ public class CredentialAssessmentBean implements Serializable {
 		newCommentActivity.ifPresent(data -> data.getActivityDiscussionMessageData().add(newComment));
 		
 	}
+	
+	private void notifyAssessmentCommentAsync(long decodedAssessmentId, String page, String lContext,
+			String service, long recepientId, long credentialId) {
+		taskExecutor.execute(() -> {
+			User recipient = new User();
+			recipient.setId(recepientId);
+			CredentialAssessment assessment = new CredentialAssessment();
+			assessment.setId(decodedAssessmentId);
+			Map<String,String> parameters = new HashMap<>();
+			parameters.put("credentialId", credentialId+"");
+			//in order to construct a link, we will need info if the notification recipient is assessor (to prepend "manage")
+			parameters.put("isRecepientAssessor", ((Boolean)(fullAssessmentData.getAssessorId() == recepientId)).toString());
+			try {
+				eventFactory.generateEvent(EventType.AssessmentComment, loggedUserBean.getUser(), 
+						recipient, assessment, 
+						page, lContext, service, parameters);
+			} catch (Exception e) {
+				logger.error("Eror sending notification for assessment request", e);
+			}
+		});
+	}
 
 	public boolean isCurrentUserAssessor() {
 		if(fullAssessmentData == null) {
 			return false;
 		}
 		else return loggedUserBean.getUser().getId() == fullAssessmentData.getAssessorId();
+	}
+	
+	private long getCommentRecepientId() {
+		//logged user is either assessor or assessee
+		long currentUserId = loggedUserBean.getUser().getId();
+		if(fullAssessmentData.getAssessorId() == currentUserId) {
+			//current user is assessor, get the other id
+			return fullAssessmentData.getAssessedStrudentId();
+		}
+		else return fullAssessmentData.getAssessorId();
+		
 	}
 
 	private long createDiscussion(String encodedTargetActivityId, String encodedCompetenceAssessmentId) {

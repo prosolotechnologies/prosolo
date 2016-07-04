@@ -25,7 +25,7 @@ public class ActivityAssessmentData {
 	private String encodedDiscussionId;
 	private String encodedTargetActivityId;
 	private boolean allRead;
-	private List<ActivityDiscussionMessageData> activityDiscussionMessageData;
+	private List<ActivityDiscussionMessageData> activityDiscussionMessageData = new ArrayList<>();
 	private List<String> downloadResourceUrls;
 
 	public static ActivityAssessmentData from(TargetActivity1 targetActivity, CompetenceAssessment compAssessment,
