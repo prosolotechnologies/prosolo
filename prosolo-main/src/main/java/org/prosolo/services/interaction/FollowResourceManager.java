@@ -11,6 +11,7 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.following.FollowedEntity;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 
@@ -30,7 +31,7 @@ public interface FollowResourceManager extends AbstractManager {
 	
 	Collection<User> getResourceFollowers(BaseEntity resource, Session session);
 	
-	List<User> getFollowingUsers(User user);
+	List<User> getFollowingUsers(User user) throws DbConnectionException;
 	
 	List<User> getUserFollowers(User user, Session session);
 
@@ -46,7 +47,9 @@ public interface FollowResourceManager extends AbstractManager {
 
 	boolean isUserFollowingUser(User followerUser, User followedUser);
 
-	List<User> getFollowingUsers(User user, int page, int limit);
+	List<User> getFollowingUsers(User user, int page, int limit) throws DbConnectionException;
+	
+	int getNumberOfFollowingUsers(User user) throws DbConnectionException;
 
 
 }
