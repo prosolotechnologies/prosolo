@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.prosolo.app.bc.BusinessCase;
+import org.prosolo.app.bc.BusinessCase0_Blank;
 import org.prosolo.app.bc.BusinessCase1_DL;
 import org.prosolo.app.bc.BusinessCase2_AU;
 import org.prosolo.app.bc.BusinessCase3_Statistics;
@@ -43,12 +44,11 @@ public class AfterContextLoader implements ServletContextListener {
 		final Settings settings = Settings.getInstance();
 			logger.debug("Initialized settings");
 			
-		if(settings.config.init.importCapabilities){
+		if (settings.config.init.formatDB || settings.config.init.importCapabilities){
 			try{
 				ServiceLocator.getInstance().getService(SecurityService.class).initializeRolesAndCapabilities();
 			}catch(Exception e){
 			    logger.error(e);
-			    e.printStackTrace();
 			}
 		}
 		
@@ -68,21 +68,20 @@ public class AfterContextLoader implements ServletContextListener {
 					Settings.getInstance().config.admin.selectedUsersCanDoEvaluation, 
 					Settings.getInstance().config.admin.userCanCreateCompetence,
 					Settings.getInstance().config.admin.individualCompetencesCanNotBeEvaluated);
-			settings.config.init.formatDB=false;
+			settings.config.init.formatDB = false;
 		}
 	
 		if (Settings.getInstance().config.init.importData) {
 			logger.info("Importing external data");
-			// ServiceLocator.getInstance().getService(ResourcesImporter.class).batchImportExternalCompetences();
 			logger.info("External data import finished!");
-			ServiceLocator.getInstance().getService(DataGenerator.class)
-					.populateDBWithTestData();
-
+			ServiceLocator.getInstance().getService(DataGenerator.class).populateDBWithTestData();
 		}
-		if (settings.config.init.indexTrainingSet){
-			ESAdministration esAdmin=new ESAdministrationImpl();
+		
+		if (settings.config.init.indexTrainingSet) {
+			ESAdministration esAdmin = new ESAdministrationImpl();
 			esAdmin.indexTrainingSet();
 		}
+		
 		logger.debug("Initialize thread to start elastic search");
 		new Thread(new Runnable() {
 			@SuppressWarnings("unused")
@@ -93,58 +92,44 @@ public class AfterContextLoader implements ServletContextListener {
 				} catch (NoNodeAvailableException e) {
 					logger.error(e);
 				}
+				
 				System.out.println("Finished ElasticSearch initialization:" + CommonSettings.getInstance().config.rabbitMQConfig.distributed + " .."
 						+ CommonSettings.getInstance().config.rabbitMQConfig.masterNode);
 				if (!CommonSettings.getInstance().config.rabbitMQConfig.distributed || CommonSettings.getInstance().config.rabbitMQConfig.masterNode) {
 					System.out.println("Initializing Twitter Streams Manager here. REMOVED");
-				//	ServiceLocator.getInstance().getService(TwitterStreamsManager.class).start();
 				}
-			
 			}
 		}).start();
 		logger.debug("initialize Application services");
+		
 		initApplicationServices();
 		logger.debug("Services initialized");
-		//ServiceLocator.getInstance().getService(AnalyticalServiceCollector.class).testCreateTargetCompetenceActivitiesAnalyticalData();
-		
 	}
 	
 	private void initApplicationServices(){
 		System.out.println("Init application services...");
-		//ServiceLocator.getInstance().getService(CollaboratorsRecommendation.class).initializeMostActiveRecommendedUsers();
-	//	Settings settings = Settings.getInstance(); 
-		if(CommonSettings.getInstance().config.rabbitMQConfig.distributed){
-			
 		
-		ReliableConsumer systemConsumer=new ReliableConsumerImpl();
-		systemConsumer.setWorker(new DefaultMessageWorker());
-		systemConsumer.setQueue(QueueNames.SYSTEM.name().toLowerCase());
-		systemConsumer.StartAsynchronousConsumer();
-	//	systemConsumer.init(QueueNames.SYSTEM);
-		//ServiceLocator.getInstance().getService(ReliableConsumer.class).init(QueueNames.SYSTEM);
-		ReliableConsumer sessionConsumer=new ReliableConsumerImpl();
-		sessionConsumer.setWorker(new DefaultMessageWorker());
-		sessionConsumer.setQueue(QueueNames.SESSION.name().toLowerCase());
-		sessionConsumer.StartAsynchronousConsumer();
-	//	sessionConsumer.init(QueueNames.SESSION);
-		//ServiceLocator.getInstance().getService(ReliableConsumer.class).init(QueueNames.SESSION);
-		
-		ReliableConsumer broadcastConsumer=new ReliableConsumerImpl();
-		broadcastConsumer.setWorker(new DefaultMessageWorker());
-		broadcastConsumer.setQueue(QueueNames.BROADCAST.name().toLowerCase());
-		broadcastConsumer.StartAsynchronousConsumer();
-		
-		
-		//ServiceLocator.getInstance().getService(ReliableProducer.class).init();
-		if(CommonSettings.getInstance().config.rabbitMQConfig.masterNode){
-			System.out.println("Init MasterNodeReliableConsumer...");
-			
-			//ServiceLocator.getInstance().getService(MasterNodeReliableConsumer.class).init();
-		} 
+		if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
+
+			ReliableConsumer systemConsumer = new ReliableConsumerImpl();
+			systemConsumer.setWorker(new DefaultMessageWorker());
+			systemConsumer.setQueue(QueueNames.SYSTEM.name().toLowerCase());
+			systemConsumer.StartAsynchronousConsumer();
+			ReliableConsumer sessionConsumer = new ReliableConsumerImpl();
+			sessionConsumer.setWorker(new DefaultMessageWorker());
+			sessionConsumer.setQueue(QueueNames.SESSION.name().toLowerCase());
+			sessionConsumer.StartAsynchronousConsumer();
+
+			ReliableConsumer broadcastConsumer = new ReliableConsumerImpl();
+			broadcastConsumer.setWorker(new DefaultMessageWorker());
+			broadcastConsumer.setQueue(QueueNames.BROADCAST.name().toLowerCase());
+			broadcastConsumer.StartAsynchronousConsumer();
+
+			if (CommonSettings.getInstance().config.rabbitMQConfig.masterNode) {
+				System.out.println("Init MasterNodeReliableConsumer...");
+			}
 		}
-		//ServiceLocator.getInstance().getService(AnalyticalServiceCollector.class).testCreateActivityInteractionData();
 	}
- 
 	
 	private void initStaticData() {
 		try {
@@ -164,40 +149,14 @@ public class AfterContextLoader implements ServletContextListener {
 			
 			Role adminRole = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(roleAdminTitle);
 			
-			/*String roleUserTitle = "User";
-			String roleManagerTitle = "Manager";
-			String roleAdminTitle = "Admin";
-	
-			ServiceLocator.getInstance().getService(RoleManager.class).createNewRole(
-							roleUserTitle, 
-							"Regular user", 
-							false);
-			
-			ServiceLocator.getInstance().getService(RoleManager.class).createNewRole(
-							roleManagerTitle, 
-							"Manage learning artifacts",
-							false);
-			
-			Role adminRole = ServiceLocator.getInstance().getService(RoleManager.class)
-					.createNewRole(roleAdminTitle,
-							"Administrator has maximumum priviledges", 
-							true);*/
-	
-	//		ServiceLocator
-	//		.getInstance()
-	//		.getService(RoleManager.class)
-	//		.assignRoleToUser(adminRole, adminUser, systemOrgUnit,
-	//				"System administrator");
 			adminUser = ServiceLocator.getInstance().getService(RoleManager.class)
 					.assignRoleToUser(
 							adminRole, 
 							adminUser);
 	
-			// instantiate badges
-			ServiceLocator.getInstance().getService(BadgeManager.class)
-					.createBadge(BadgeType.STAR, "Excellence Badge");
-			
-		
+//			// instantiate badges
+//			ServiceLocator.getInstance().getService(BadgeManager.class)
+//					.createBadge(BadgeType.STAR, "Excellence Badge");
 		} catch (EventException e) {
 			logger.error(e);
 		}
@@ -208,11 +167,18 @@ public class AfterContextLoader implements ServletContextListener {
 	
 	void initRepository(int bc) {
 		switch (bc) {
+		
+		case BusinessCase.BLANK:
+			try {
+				ServiceLocator.getInstance().getService(BusinessCase0_Blank.class).initRepository();
+			} catch (Exception e) {
+				logger.error("Could not initialise Repository for BC BLANK:", e);
+			}
+			break;
 
 		case BusinessCase.DL_TEST:
 			try {
-				ServiceLocator.getInstance().getService(BusinessCase1_DL.class)
-						.initRepository();
+				ServiceLocator.getInstance().getService(BusinessCase1_DL.class).initRepository();
 			} catch (Exception e) {
 				logger.error("Could not initialise Repository for BC DL_TEST:", e);
 			}
@@ -225,12 +191,10 @@ public class AfterContextLoader implements ServletContextListener {
 			}
 			break;
 		case BusinessCase.STATISTICS:
-			ServiceLocator.getInstance().getService(BusinessCase3_Statistics.class)
-					.initRepository();
+			ServiceLocator.getInstance().getService(BusinessCase3_Statistics.class).initRepository();
 			break;
 		case BusinessCase.EDX:
-			ServiceLocator.getInstance().getService(BusinessCase4_EDX.class)
-			.initRepository();
+			ServiceLocator.getInstance().getService(BusinessCase4_EDX.class).initRepository();
 	break;
 		default:
 			break;
