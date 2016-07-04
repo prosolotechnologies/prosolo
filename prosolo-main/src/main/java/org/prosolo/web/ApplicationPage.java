@@ -33,6 +33,9 @@ public enum ApplicationPage {
 	ANALYTICS_SETTINGS("/admin/analyticsSettings.xhtml"),
 	//INSTRUCTOR_DETAILS("/manage/credential-instructors-add.xhtml"),
 	INSTRUCTOR_LIST("/manage/credential-instructors.xhtml"),
+	CREDENTIAL_ASSESSMENT_LIST("/manage/credential-assessments.xhtml"),
+	CREDENTIAL_ASSESSMENT_MANAGE("/manage/credential-assessment.xhtml"),
+	CREDENTIAL_ASSESSMENT("/credential-assessment.xhtml"),
 	//STUDENT_REASSIGN("/manage/credential-instructors-reassign.xhtml"),
 	LTI_PROVIDER_LAUNCH("/ltiproviderlaunch.xhtml"),
 	//COMPETENCE_ACTIVITIES("/manage/competence-activities.xhtml"),
@@ -54,7 +57,8 @@ public enum ApplicationPage {
 	MANAGER_EDIT_ACTIVITY("/manage/create-activity.xhtml"),
 	USER_EDIT_CREDENTIAL("/create-credential.xhtml"),
 	USER__EDIT_COMPETENCE("/create-competence.xhtml"),
-	USER_EDIT_ACTIVITY("/create-activity.xhtml");
+	USER_EDIT_ACTIVITY("/create-activity.xhtml"),
+	PEOPLE("/people.xhtml");
 	
     private String uri; 
     

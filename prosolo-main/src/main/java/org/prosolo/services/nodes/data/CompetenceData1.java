@@ -46,6 +46,7 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	private ObjectStatus objectStatus;
 	
 	private List<CredentialData> credentialsWithIncludedCompetence;
+	private long instructorId;
 	
 	public CompetenceData1(boolean listenChanges) {
 		this.status = PublishedStatus.DRAFT;
@@ -370,4 +371,14 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	public void setType(LearningResourceType type) {
 		this.type = type;
 	}
+
+	public long getInstructorId() {
+		return instructorId;
+	}
+
+	public void setInstructorId(long instructorId) {
+		this.instructorId = instructorId;
+	}
+	
+	
 }

@@ -73,13 +73,11 @@
 								<h:link onclick="sendLogPageNavigation('library','mainmenu');"
 									value="Library" outcome="/credentialLibrary" />
 							</li>
-							<ui:remove>
 							<li role="presentation"
 								class="#{util:getPagePath(view.viewId)  == 'people' ? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('people','mainmenu');"
-									value="People" />
+									value="People" outcome="/people" />
 							</li>
-							</ui:remove>
 						</ul>
 					</nav>
 				</div>
@@ -146,7 +144,7 @@
 										(notificationData.notificationType eq 'Comment') ? 'notifComment': 
 										(notificationData.notificationType eq 'Comment_Like') ? 'notifLikeComment':
 										(notificationData.notificationType eq 'Mention') ? 'notifMention':
-										(notificationData.notificationType eq 'Assessment_Given') ? 'notifAssessment': 'notifLearning'}">
+										(notificationData.notificationType eq 'Assessment_Requested' or notificationData.notificationType eq 'Assessment_Approved') ? 'notifAssessment': 'notifLearning'}">
 									<h:link outcome="#{notificationData.link}">
 										<span class="icon"></span>
 										<h3>#{notificationData.actor.fullName}</h3> 

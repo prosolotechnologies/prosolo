@@ -116,5 +116,5 @@ public class MessageThread extends BaseEntity {
 
 	public void setSubject(String subject) {
 		this.subject = subject;
-	}
+	}	
 }

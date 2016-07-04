@@ -56,6 +56,7 @@ public class NotificationObserver extends EventObserver {
 				EventType.JOIN_GOAL_REQUEST_DENIED,
 				EventType.JOIN_GOAL_INVITATION,
 				EventType.JOIN_GOAL_INVITATION_ACCEPTED,
+				//TODO is it safe do delete these? Now we use assessments
 				EventType.EVALUATION_REQUEST, 
 				EventType.EVALUATION_ACCEPTED,
 				EventType.EVALUATION_GIVEN, 
@@ -67,6 +68,8 @@ public class NotificationObserver extends EventObserver {
 				EventType.Like,
 				EventType.Dislike,
 				EventType.Post,
+				EventType.AssessmentRequested,
+				EventType.AssessmentApproved
 		};
 	}
 

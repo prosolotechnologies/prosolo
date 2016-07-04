@@ -99,7 +99,8 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 		List<NotificationSettings> notificationTypes = new ArrayList<NotificationSettings>();
 		
 		notificationTypes.add(new NotificationSettings(NotificationType.Follow_User, true));
-		notificationTypes.add(new NotificationSettings(NotificationType.Assessment_Given, true));
+		notificationTypes.add(new NotificationSettings(NotificationType.Assessment_Requested, true));
+		notificationTypes.add(new NotificationSettings(NotificationType.Assessment_Approved, true));
 		notificationTypes.add(new NotificationSettings(NotificationType.Comment, true));
 		notificationTypes.add(new NotificationSettings(NotificationType.Comment_Like, true));
 		notificationTypes.add(new NotificationSettings(NotificationType.Mention, true));

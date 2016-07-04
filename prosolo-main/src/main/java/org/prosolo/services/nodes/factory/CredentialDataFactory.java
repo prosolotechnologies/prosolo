@@ -90,7 +90,16 @@ public class CredentialDataFactory {
 		cred.setProgress(credential.getProgress());
 		cred.setNextCompetenceToLearnId(credential.getNextCompetenceToLearnId());
 		cred.setNextActivityToLearnId(credential.getNextActivityToLearnId());
-		
+		if(credential.getInstructor() != null && credential.getInstructor().getUser() != null) {
+			cred.setInstructorPresent(true);
+			cred.setInstructorId(credential.getInstructor().getUser().getId());
+			cred.setInstructorAvatarUrl(
+					AvatarUtils.getAvatarUrlInFormat(credential.getInstructor().getUser().getAvatarUrl(),
+					ImageFormat.size60x60));
+			cred.setInstructorFullName(credential.getInstructor().getUser().getName()
+					+ " " 
+					+ credential.getInstructor().getUser().getLastname());
+		}
 		if(shouldTrackChanges) {
 			cred.startObservingChanges();
 		}
