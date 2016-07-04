@@ -60,7 +60,7 @@ public class ActivityAssessmentData {
 
 
 	private static void populateDownloadResourceLink(TargetActivity1 targetActivity, ActivityAssessmentData data) {
-		if(CollectionUtils.isNotEmpty(targetActivity.getFiles())) {
+		if(CollectionUtils.isNotEmpty(targetActivity.getFiles()) && targetActivity.isUploadAssignment()) {
 			data.setDownloadResourceUrls(new ArrayList<>());
 			for(ResourceLink link : targetActivity.getFiles()) {
 				data.getDownloadResourceUrls().add(link.getUrl());

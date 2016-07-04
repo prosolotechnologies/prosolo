@@ -142,12 +142,12 @@
 		                                <a href="#" target="_blank">#{activityAssessment.title}</a>
 		                                
 			                                <a onclick="markDiscussionAsSeen('#{activityAssessment.encodedDiscussionId}',this.parentElement)" 
-			                                		href="#" class="commentsIcon" data-toggle="modal" data-target="#assessmentCommentsModal#{compAssIndex.index + actAssIndex.index}">#{activityAssessment.numberOfMessages}</a>
-			                                <div class="modal fade assessmentCommentsModal" id="assessmentCommentsModal#{compAssIndex.index + actAssIndex.index}" tabindex="-1" role="dialog" aria-labelledby="assessmentCommentsModal">
+			                                		href="#" class="commentsIcon" data-toggle="modal" data-target="#assessmentCommentsModal#{compAssIndex.index}#{actAssIndex.index}">#{activityAssessment.numberOfMessages}</a>
+			                                <div class="modal fade assessmentCommentsModal" id="assessmentCommentsModal#{compAssIndex.index}#{actAssIndex.index}" tabindex="-1" role="dialog" aria-labelledby="assessmentCommentsModal">
 			                                    <div class="modal-dialog modal-lg">
 			                                        <div class="modal-content">
 			                                            <div class="modal-header alignLeft">
-			                                                <button onclick="updateNumberOfMessages('assessmentCommentsModal#{compAssIndex.index + actAssIndex.index}')" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+			                                                <button onclick="updateNumberOfMessages('assessmentCommentsModal#{compAssIndex.index}#{actAssIndex.index}')" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
 			                                                <h2 class="modal-title">Comments</h2>
 			                                            </div>
 			                                            <h:form id="newCommentForm-#{activityAssessment.encodedDiscussionId}" prependId="false">
@@ -229,7 +229,11 @@
 			                                        </div>
 			                                    </div>
 			                                </div>
-		                               
+			                                <ui:fragment rendered="#{not empty activityAssessment.downloadResourceUrls}">
+			                                	 <ui:repeat  var="url" value="#{activityAssessment.downloadResourceUrls}">
+			                                	 	<a href="#{url}" target="_blank" class="download" data-toggle="tooltip" title="" data-original-title="Download Result" download="#{url}">Download</a>
+			                                	 </ui:repeat>
+			                                </ui:fragment>
 		                            </li>
 		                        </ul>
 		                   </ui:repeat>
