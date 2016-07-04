@@ -43,18 +43,15 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 	@Override
 	@Transactional (readOnly = false)
 	public UserNotificationsSettings getOrCreateNotificationsSettings(long userId, Session session) {
-		User user = (User) session.load(User.class, userId);
 		UserNotificationsSettings result = getNotificationsSettings(userId);
 		
 		if (result != null) {
 			return result;
 		} else {
+			User user = (User) session.load(User.class, userId);
 			UserNotificationsSettings notificationsSettings = new UserNotificationsSettings();
 			notificationsSettings.setUser(user);
-			
 			notificationsSettings.setNotifications(getDefaultSubscribedEventTypes());
-			
-			//this.persistence.save(notificationsSettings);
 			session.saveOrUpdate(notificationsSettings);
 			session.flush();
 			

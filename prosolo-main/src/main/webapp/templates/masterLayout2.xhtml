@@ -55,7 +55,7 @@
 				<div class="headerTopLeft">
 					<h:link id="logo"
 						onclick="sendLogPageNavigation('index','mainmenu');"
-						outcome="/index">
+						outcome="/credentialLibrary">
 						ProSolo
 					</h:link>
 
@@ -65,7 +65,7 @@
 							<li role="presentation"
 								class="#{util:getPagePath(view.viewId)  == 'index' ? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('index','mainmenu');"
-									value="Home" outcome="/index" />
+									value="Home" outcome="/" />
 							</li>
 							</ui:remove>
 							<li role="presentation"
