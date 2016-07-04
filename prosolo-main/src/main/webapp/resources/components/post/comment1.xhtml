@@ -20,103 +20,131 @@
 	
 	<composite:implementation>
 		<ui:param name="comment" value="#{cc.attrs.comment}" />
+		
 		<div id="comment_#{comment.commentId}">
-            <div class="media-left">
+			<div class="media-left">
 				<utilcomp:userAvatar
 					avatar="#{comment.creator.avatarUrl}"
 					fullName="#{comment.creator.fullName}" />
-            </div>
-            <div class="media-body">
-            	<div class="commentMain">
-                 	<span class="commentTime">#{comment.formattedDate}</span>
-                <h3 class="media-heading">#{comment.creator.fullName}
-                	<ui:fragment rendered="#{comment.instructor}"><span>INSTRUCTOR</span></ui:fragment>
-                </h3>
-                <p class="commentText">#{comment.comment}</p>
-                <h:panelGroup layout="block" rendered="#{commentBean.isCurrentUserCommentCreator(comment)}" class="editComment hidden">
-                	 <h:inputTextarea 
-                	 	rows="8"
-                	 	cols="40"
-                	 	value="#{comment.comment}">
-                	 </h:inputTextarea> 
-                	 <p:commandButton
-			       	 	styleClass="btn btn-sm btn-green"
-			       	 	value="Submit"
-			       	 	action="#{commentBean.editComment(comment)}"
-			       	 	update="#{cc.attrs.toUpdate}">
-			       	 	<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
-                 	 	<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment|id:'.concat(comment.commentId))}"/>
-			       	 </p:commandButton>          
-                    <a href="javascript:void(0)" class="btn btn-sm btn-green-stroke" onclick="hideEditComment(this)">Cancel</a>
-                </h:panelGroup>
-                <div class="commentOptions">
-                	 <p:commandLink
-                	 	styleClass="like #{comment.likedByCurrentUser ? 'liked' : ''}"
-                	 	action="#{commentBean.likeAction(comment)}"
-                	 	update="@this">
-                	 	<svg class="icon" width="12px" height="12px" viewBox="0 0 12 12" version="1.1">
-                            <g id="triangle" stroke="none" stroke-width="1" fill="#D5D8DA" fill-rule="evenodd">
-                                <polygon id="Triangle-5" points="6 1 12 11 0 11 "></polygon>
-                            </g>
-                        </svg>
-                        #{comment.likedByCurrentUser ? 'Like' : comment.likeCount}
-                        <f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
-                 	 	<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment|id:'.concat(comment.commentId))}"/>
-                	 </p:commandLink>
-                	 <a href="javascript:void(0)" class="reply" onclick="toggleReplyInput(this)">
-                	 	<span class="icon"></span>Reply
-                	 </a>        
-            
-                	 <p:commandLink
-                	 	rendered="#{commentBean.isCurrentUserCommentCreator(comment)}"
-                	 	styleClass="edit"
-                	 	onclick="showEditComment(this)">
-                	 	<span class="icon"></span>
-                	 	Edit
-                	 </p:commandLink>                           
-                </div>
-                </div>
-                <div class="media replyInput hidden">
-                    <div class="media-left">
+			</div>
+			
+			<div class="media-body">
+				<div class="commentMain">
+					<span class="commentTime">#{comment.formattedDate}</span>
+                 	
+					<h3 class="media-heading">#{comment.creator.fullName}
+						<ui:fragment rendered="#{comment.instructor}"><span>INSTRUCTOR</span></ui:fragment>
+					</h3>
+					<p class="commentText">#{comment.comment}</p>
+                	
+					<h:panelGroup layout="block" rendered="#{commentBean.isCurrentUserCommentCreator(comment)}" class="editComment hidden">
+						<h:inputTextarea 
+							rows="8"
+							cols="40"
+							value="#{comment.comment}">
+						</h:inputTextarea>
+						
+						<p:commandButton
+							styleClass="btn btn-sm btn-green"
+							value="Submit"
+							action="#{commentBean.editComment(comment)}"
+							update="#{cc.attrs.toUpdate}">
+							<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
+							<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment|id:'.concat(comment.commentId))}"/>
+						</p:commandButton>          
+						<a href="javascript:void(0)" class="btn btn-sm btn-green-stroke" onclick="hideEditComment(this)">Cancel</a>
+					</h:panelGroup>
+	                
+					<div class="commentOptions">
+						<p:commandLink
+							styleClass="like #{comment.likedByCurrentUser ? 'liked' : ''}"
+							action="#{commentBean.likeAction(comment)}"
+							update="@this">
+							<svg class="icon" width="12px" height="12px" viewBox="0 0 12 12" version="1.1">
+								<g id="triangle" stroke="none" stroke-width="1" fill="#D5D8DA" fill-rule="evenodd">
+									<polygon id="Triangle-5" points="6 1 12 11 0 11 "></polygon>
+								</g>
+							</svg>
+							#{comment.likedByCurrentUser ? 'Like' : comment.likeCount}
+							<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
+							<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment|id:'.concat(comment.commentId))}"/>
+						</p:commandLink>
+						
+						<a href="javascript:void(0)" class="reply" onclick="toggleReplyInput(this)">
+							<span class="icon"></span>Reply
+						</a>        
+	            
+						<p:commandLink
+							rendered="#{commentBean.isCurrentUserCommentCreator(comment)}"
+							styleClass="edit"
+							onclick="showEditComment(this)">
+							<span class="icon"></span>
+							Edit
+						</p:commandLink>                           
+					</div>
+				</div>
+                
+				<div class="media replyInput hidden">
+					<div class="media-left">
 						<utilcomp:userAvatar
 							avatar="#{loggeduser.avatar}"
 							fullName="#{loggeduser.fullName}" />
-                    </div>
-                    <div class="media-body replyComment">
-                        <div class="commentForm">
-                            <h:inputTextarea 
-                            	value="#{comment.replyToComment}"
-                            	pt:placeholder="Add Comment..."  
-                            	onkeyup="displaySubmitButton(this)">
-                            </h:inputTextarea>
-                            <p:commandButton 
-                            	styleClass="btn btn-sm btn-green hidden"
-                            	value="Submit"
-                            	action="#{commentBean.saveNewComment(comment)}"
-                            	update="#{cc.attrs.toUpdate}"
-                            	oncomplete="scrollToNewestComment();">
-                            	<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
-                            	<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment')}"/>
-                            </p:commandButton>
-                        </div>
-                    </div>
+					</div>
+					
+					<div class="media-body replyComment">
+						<div class="commentForm">
+							<h:inputTextarea class="hidden"
+								value="#{comment.replyToComment}" />
+							
+							<div class="contentEditableComment" placeholder="Add Comment..." 
+								strip-br="true" contenteditable="true"
+								onkeyup="displaySubmitButton(this);"></div>
+								
+							<p:commandButton 
+								styleClass="btn btn-sm btn-green hidden"
+								value="Submit"
+								action="#{commentBean.saveNewComment(comment)}"
+								update="#{cc.attrs.toUpdate}"
+								oncomplete="scrollToNewestComment();">
+								<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
+								<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment')}"/>
+							</p:commandButton>
+							
+							<script>
+							$('#' + escapeColons('comment_#{comment.commentId}') + ' .replyComment .contentEditableComment').on('keyup', function(e) {
+								$(this).prev('textarea').val($(this).html());
+							});
+							</script>
+						</div>
+					</div>
                 </div>
-                
-                <c:if test="#{cc.attrs.isTopLevel}">
-                	<ui:repeat var="child" value="#{comment.childComments}">
-		                <div class="media">
-		                    <post:comment1
-		                    	id="childComment"
-		                    	comment="#{child}"
-		                    	isTopLevel="false"
-		                    	toUpdate="#{cc.attrs.toUpdate}"
-		                    	learningContext="#{cc.attrs.learningContext}"/>
-		                </div>
-                	</ui:repeat>
-                </c:if>
-                
+
+				<c:if test="#{cc.attrs.isTopLevel}">
+					<ui:fragment rendered="#{not empty comment.childComments}">
+						<a href="javascript:void(0)" class="loadReplies" onclick="showCommentReplies(this)">View #{comment.childComments.size()} replies</a>
+					</ui:fragment>
+				
+					<ui:repeat var="child" value="#{comment.childComments}">
+						<div class="media" style="display: none" data-newest-comment="#{commentBean.newestCommentId == child.commentId ? 'true': 'false'}">
+							<post:comment1
+								id="childComment"
+								comment="#{child}"
+								isTopLevel="false"
+								toUpdate="#{cc.attrs.toUpdate}"
+								learningContext="#{cc.attrs.learningContext}"/>
+						</div>
+					</ui:repeat>
+					
+					<script>
+					var newestComment = $('[data-newest-comment="true"');
+					if (newestComment.length) {
+						newestComment.show();
+						newestComment.prevAll('.media').show();
+						$('.loadReplies').hide();
+					}
+					</script>
+				</c:if>
             </div>
-                     
 		</div>
 	</composite:implementation>
 </ui:component>

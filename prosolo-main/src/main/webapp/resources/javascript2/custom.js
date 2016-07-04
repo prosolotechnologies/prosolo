@@ -19,7 +19,8 @@ var custom = {
 
 //comment form hide/show
 function displaySubmitButton(inputElem) {
-    if ($(inputElem).val().length==0) {
+    if (($(inputElem).is('input') && $(inputElem).val().length == 0) ||
+    		($(inputElem).is('div') && $(inputElem).html().length == 0)) {
         $(inputElem).next('button.btn-green').addClass('hidden');
     } else {
         $(inputElem).next('button.btn-green').removeClass('hidden');
@@ -28,6 +29,7 @@ function displaySubmitButton(inputElem) {
 
 function toggleReplyInput(replyBtn) {
 	$(replyBtn).parent().parent().next('.replyInput').toggleClass('hidden');
+	$(replyBtn).parent().parent().next('.replyInput').get(0).focus();
     return false;
 }
 
@@ -50,6 +52,11 @@ function hideEditComment(cancelBtn) {
 
     $(cancelBtn).parent().next('.commentOptions').find('a.edit').removeClass('hidden');
     return false;
+}
+
+function showCommentReplies(elem) {
+	$(elem).hide();
+	$(elem).nextAll('.media').show();
 }
 
 function setQueryParam(key, value) {
@@ -125,5 +132,7 @@ function addClassToElement(elementId, cssClass) {
 	}
 };
 
-
+function escapeColons(text){
+	return text.replace(/:/g, '\\:');
+}
 
