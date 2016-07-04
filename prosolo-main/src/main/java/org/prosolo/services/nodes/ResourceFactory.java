@@ -9,10 +9,12 @@ import java.util.Map;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.content.RichContent1;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CourseCompetence;
 import org.prosolo.common.domainmodel.course.CreatorType;
@@ -166,5 +168,10 @@ public interface ResourceFactory extends AbstractManager {
 			throws DbConnectionException;
 
 	User updateUserAvatar(User user, InputStream imageInputStream, String avatarFilename);
+	
+	PostSocialActivity1 createNewPost(long userId, String text, RichContent1 richContent) 
+			throws DbConnectionException;
+	
+	PostSocialActivity1 updatePost(long postId, String newText) throws DbConnectionException;
 
 }

@@ -72,7 +72,8 @@ public class GoalWallBean implements Serializable {
 	public void init() {
 		logger.debug("Initializing Goal Wall");
 		goalWallDisplayer = ServiceLocator.getInstance().getService(GoalWallSocialActivitiesDisplayer.class);
-		goalWallDisplayer.init(loggedUser.getUser(), loggedUser.getLocale(), loggedUser.getSelectedLearningGoalFilter());
+		//TODO commented
+		//goalWallDisplayer.init(loggedUser.getUser(), loggedUser.getLocale(), loggedUser.getSelectedLearningGoalFilter());
 	}
 	
 	public void initializeActivities() {
@@ -166,15 +167,16 @@ public class GoalWallBean implements Serializable {
 	// filter Goal Wall activities by user 
 	public void setUserFilter(UserData userFilter) {
 		logger.debug("Filtering Goal Wall by user " + userFilter);
-		
-		loggedUser.getSelectedLearningGoalFilter().setSelectedParticipant(userFilter.getId());
+		//TODO commented
+		//loggedUser.getSelectedLearningGoalFilter().setSelectedParticipant(userFilter.getId());
 		
 		this.userFilterData = userFilter;
 		
 		GoalDataCache selectedGoalData = goalsBean.getSelectedGoalData();
 		
 		if (goalsBean != null && selectedGoalData != null) {
-			goalWallDisplayer.setFilter(loggedUser.getSelectedLearningGoalFilter());
+			//TODO commented
+			//goalWallDisplayer.setFilter(loggedUser.getSelectedLearningGoalFilter());
 			goalWallDisplayer.resetActivities();
 			goalWallDisplayer.initializeActivities();
 
@@ -200,9 +202,9 @@ public class GoalWallBean implements Serializable {
 		this.userFilterData = null;
 		
 		if (goalsBean != null && goalsBean.getSelectedGoalData() != null) {
-			loggedUser.getSelectedLearningGoalFilter().setSelectedParticipant(0);
-			
-			goalWallDisplayer.setFilter(loggedUser.getSelectedLearningGoalFilter());
+			//TODO commented two lines
+			//loggedUser.getSelectedLearningGoalFilter().setSelectedParticipant(0);
+			//goalWallDisplayer.setFilter(loggedUser.getSelectedLearningGoalFilter());
 			goalWallDisplayer.resetActivities();
 			goalWallDisplayer.initializeActivities();
 		}

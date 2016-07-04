@@ -1,6 +1,6 @@
 package org.prosolo.web.digest.data;
 
-import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
+import org.prosolo.common.domainmodel.activitywall.old.TwitterPostSocialActivity;
 import org.prosolo.common.domainmodel.feeds.FeedEntry;
 import org.prosolo.common.domainmodel.feeds.FeedsDigest;
 import org.prosolo.common.web.digest.data.FeedsDigestData;

@@ -2,7 +2,7 @@ package org.prosolo.web.activitywall.displayers;
 
 import java.util.List;
 
-import org.prosolo.common.domainmodel.activitywall.SocialStreamSubViewType;
+import org.prosolo.common.domainmodel.activitywall.old.SocialStreamSubViewType;
 import org.prosolo.services.activityWall.filters.LearningGoalFilter;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
 import org.springframework.context.annotation.Scope;
@@ -19,12 +19,14 @@ public class GoalWallSocialActivitiesDisplayer extends DefaultWallSocialActiviti
 	
 	@Override
 	protected List<SocialActivityData> fetchActivities(int offset, int limit) {
-		return activityWallManager.getLearningGoalSocialActivities(
-				loggedUser.getId(), 
-				offset, 
-				limit,
-				((LearningGoalFilter) filter).getGoalId(),
-				((LearningGoalFilter) filter).getSelectedParticipant());
+		//TODO commented
+//		return activityWallManager.getLearningGoalSocialActivities(
+//				loggedUser.getId(), 
+//				offset, 
+//				limit,
+//				((LearningGoalFilter) filter).getGoalId(),
+//				((LearningGoalFilter) filter).getSelectedParticipant());
+		return null;
 	}
 	
 	@Override

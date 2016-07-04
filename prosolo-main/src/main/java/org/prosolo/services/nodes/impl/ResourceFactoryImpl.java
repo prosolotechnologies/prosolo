@@ -25,12 +25,14 @@ import org.prosolo.common.domainmodel.activities.ResourceActivity;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.UploadAssignmentActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.CompetenceType;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.content.RichContent;
+import org.prosolo.common.domainmodel.content.RichContent1;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CourseCompetence;
 import org.prosolo.common.domainmodel.course.CourseEnrollment;
@@ -1074,6 +1076,46 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while saving comment");
+		}
+		
+	}
+    
+    @Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+	public PostSocialActivity1 createNewPost(long userId, String text, RichContent1 richContent) 
+			throws DbConnectionException {
+		try {
+			User user = (User) persistence.currentManager().load(User.class, userId);
+			PostSocialActivity1 post = new PostSocialActivity1();
+			post.setDateCreated(new Date());
+			post.setLastAction(new Date());
+			post.setActor(user);
+			post.setText(text);
+			post.setRichContent(richContent);
+			post = saveEntity(post);
+			
+			return post;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while saving new post");
+		}
+		
+	}
+    
+    @Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+	public PostSocialActivity1 updatePost(long postId, String newText) throws DbConnectionException {
+		try {
+			PostSocialActivity1 post = (PostSocialActivity1) persistence.currentManager()
+					.load(PostSocialActivity1.class, postId);
+			post.setLastAction(new Date());
+			post.setText(newText);
+			return post;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating post");
 		}
 		
 	}

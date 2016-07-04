@@ -3,7 +3,7 @@ package org.prosolo.services.activityWall;
 import java.util.Date;
 import java.util.List;
 
-import org.prosolo.common.domainmodel.activitywall.SocialActivityNotification;
+import org.prosolo.common.domainmodel.activitywall.old.SocialActivityNotification;
 
 public interface GoalActivityWallManager {
 

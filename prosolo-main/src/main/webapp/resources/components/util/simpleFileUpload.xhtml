@@ -15,7 +15,7 @@
 		<composite:attribute name="fileUploadListenerMethod" method-signature="void #{cc.attrs.fileUploadListenerMethodName}(
 			org.primefaces.event.FileUploadEvent)"/>
 		<composite:attribute name="toUpdate" default="" />
-		<composite:attribute name="toUpdate" default="btn btn-green" />
+		<composite:attribute name="uploadButtonStyle" default="btn btn-green" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -30,11 +30,11 @@
 	        	auto="true"
 	            label="Choose a file"
 	            update="#{cc.attrs.toUpdate}"
-	            onstart="showLoader('#loaderContainerFileUpload');"
-	            oncomplete="hideLoader('#loaderContainerFileUpload');"
+	            onstart="$('#loaderSimpleFileUpload').show();"
+	            oncomplete="$('#loaderSimpleFileUpload').hide();"
             />
-            <div id="loaderContainerFileUpload"/>
 	        <a href="javascript:void(0);" id="linkTriggerFileUpload" class="#{cc.attrs.uploadButtonStyle}">Choose File</a>
+	        <img class="loaderSvg" id="loaderSimpleFileUpload" src="#{request.contextPath}/resources/images2/loader.svg" width="20" height="20" style="display:none;"/>
             <script>
             	$('#linkTriggerFileUpload').on('click', function(e){
 			 		e.stopPropagation();

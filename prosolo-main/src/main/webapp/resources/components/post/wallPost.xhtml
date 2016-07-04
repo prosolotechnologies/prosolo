@@ -1,0 +1,238 @@
+<ui:component
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+	<composite:interface>
+	    <composite:attribute name="socialActivity" required="true" 
+	    	type="org.prosolo.services.activityWall.impl.data.SocialActivityData1"/>
+		<composite:attribute name="learningContext" default=""/>
+		<composite:attribute name="service" default="" />
+		<composite:attribute name="toUpdate" default=""/>
+	</composite:interface>
+	
+	<composite:implementation>
+		<article class="whiteBox wallPost">
+           <div class="wallPostHead">
+               <div class="user32">
+                   <h:link outcome="/profile">
+                   		<utilcomp:userAvatar
+							avatar="#{cc.attrs.socialActivity.actor.avatar}"
+							fullName="#{cc.attrs.socialActivity.actor.fullName}"	
+							width="32"
+							height="32"
+					    />    
+					    <f:param name="id" value="#{util:encodeId(cc.attrs.socialActivity.actor.id)}"></f:param>
+                   </h:link>
+                   <h3>
+                   		<h:link outcome="/profile">
+                   			#{cc.attrs.socialActivity.actor.fullName}
+                   			<f:param name="id" value="#{util:encodeId(cc.attrs.socialActivity.actor.id)}"></f:param>
+                   		</h:link>
+                   		<span>
+                   			#{cc.attrs.socialActivity.predicate}
+                   			<ui:fragment rendered="#{not empty cc.attrs.socialActivity.object}">
+                   				#{cc.attrs.socialActivity.object.shortType}
+                   				<ui:fragment rendered="#{not empty cc.attrs.socialActivity.object.creator.fullName}">
+                   					#{cc.attrs.socialActivity.object.creator.fullName}'s
+                   				</ui:fragment>
+                   				<ui:fragment rendered="#{cc.attrs.socialActivity.object.id > 0}">
+                   					<h:link outcome="#{pageUtilBean.getViewPageForObjectType(cc.attrs.socialActivity.object.type)}"
+                   						target="_blank">
+                   						#{cc.attrs.socialActivity.object.title}
+                   						<f:param name="#{pageUtilBean.getParamNameForObjectType(cc.attrs.socialActivity.object.type)}"
+                   							value="#{util:encodeId(cc.attrs.socialActivity.object.id)}">
+                 						</f:param>
+                   					</h:link>
+                   				</ui:fragment>
+                   				<ui:fragment rendered="#{cc.attrs.socialActivity.object.id eq 0}">
+                   					#{cc.attrs.socialActivity.object.title}
+                   				</ui:fragment>
+                   			</ui:fragment>
+                   			#{cc.attrs.socialActivity.relationToTarget}
+                   			<ui:fragment rendered="#{not empty cc.attrs.socialActivity.target}">
+                   				#{cc.attrs.socialActivity.target.shortType}
+                   				<ui:fragment rendered="#{not empty cc.attrs.socialActivity.target.creator.fullName}">
+                   					#{cc.attrs.socialActivity.target.creator.fullName}'s
+                   				</ui:fragment>
+                   				<ui:fragment rendered="#{cc.attrs.socialActivity.target.id > 0}">
+                   					<h:link outcome="#{pageUtilBean.getViewPageForObjectType(cc.attrs.socialActivity.target.type)}"
+                   						target="_blank">
+                   						#{cc.attrs.socialActivity.target.title}
+                   						<f:param name="#{pageUtilBean.getParamNameForObjectType(cc.attrs.socialActivity.target.type)}"
+                   							value="#{util:encodeId(cc.attrs.socialActivity.target.id)}">
+                 						</f:param>
+                   					</h:link>
+                   				</ui:fragment>
+                   				<ui:fragment rendered="#{cc.attrs.socialActivity.target.id eq 0}">
+                   					#{cc.attrs.socialActivity.target.title}
+                   				</ui:fragment>
+                   			</ui:fragment>
+                   		</span>
+                   </h3>
+               </div>
+               <div class="wallPostHeadRight">
+                   <a href="wall-post-view.html" class="timestamp">#{cc.attrs.socialActivity.datePretty}</a>
+                   <div class="dropdown optDrop">
+                       <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                           <span class="arrowDown">arrowDown</span>
+                       </a>
+                       <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
+                           <li><a href="#">Hide post</a></li>
+                           <li><a href="#">Delete post</a></li>
+                           <li><a href="#">Disable comments</a></li>
+                       </ul>
+                   </div>
+               </div>
+           </div>
+           <div class="wallPostBody">
+               <p class="#{styleUtilBean.getClassForSocialActivityText(cc.attrs.socialActivity.type)}">
+               		<h:outputText escape="false" value="#{cc.attrs.socialActivity.text}"></h:outputText>
+                   
+               </p>
+               <post:attachmentPreview id="link"
+					attachmentPreview="#{cc.attrs.socialActivity.attachmentPreview}"
+					viewUseCase="true"
+			   />
+           </div>
+           <div class="wallPostFooter">
+               <a href="#" class="like">
+                   <svg class="icon" width="12px" height="12px" viewBox="0 0 12 12" version="1.1">
+                       <g id="triangle" stroke="none" stroke-width="1" fill="#D5D8DA" fill-rule="evenodd">
+                           <polygon id="Triangle-5" points="6 1 12 11 0 11 "></polygon>
+                       </g>
+                   </svg>
+                   Like
+               </a>
+               <a class="commentsNumber" role="button" data-toggle="collapse" href="#collapseComments1" aria-expanded="false" aria-controls="collapseComments1"><span class="icon"></span>10 comments</a>
+           </div>
+           <div class="discussion collapse" id="collapseComments1">
+               <div class="addComment">
+                   <span class="letterAvatar letterAvatar32 img-circle">WW</span>
+                   <div class="commentForm">
+                       <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+                       <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+                   </div>
+               </div>
+               <div class="comments">
+                   <ul class="media-list">
+                       <li class="media">
+                           <div class="media-left">
+                               <span class="letterAvatar letterAvatar32 img-circle">WW</span>
+                           </div>
+                           <div class="media-body">
+                               <div class="commentMain">
+                                   <span class="commentTime">Apr 10, 2016</span>
+                                   <h3 class="media-heading">Walter White</h3>
+                                   <p class="commentText">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+                                   <div class="editComment hidden">
+                                       <textarea name="name" rows="8" cols="40">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</textarea>
+                                       <button type="button" class="btn btn-sm btn-green" name="button">Submit</button>
+                                       <a href="javascript:void(0)" class="btn btn-sm btn-green-stroke" onclick="hideEditComment(this)">Cancel</a>
+                                   </div>
+                                   <div class="commentOptions">
+                                       <a href="#" class="like">
+                                           <svg class="icon" width="12px" height="12px" viewBox="0 0 12 12" version="1.1">
+                                               <g id="triangle" stroke="none" stroke-width="1" fill="#D5D8DA" fill-rule="evenodd">
+                                                   <polygon id="Triangle-5" points="6 1 12 11 0 11 "></polygon>
+                                               </g>
+                                           </svg>
+                                           Like
+                                       </a>
+                                       <a href="javascript:void(0)" class="reply" onclick="toggleReplyInput(this)"><span class="icon"></span>Reply</a>
+                                       <a href="javascript:void(0)" class="edit" onclick="showEditComment(this)"><span class="icon"></span>Edit</a>
+                                   </div>
+                               </div>
+                               <div class="media replyInput hidden">
+                                   <div class="media-left">
+                                       <span class="letterAvatar letterAvatar32 img-circle">WW</span>
+                                   </div>
+                                   <div class="media-body replyComment">
+                                       <div class="commentForm">
+                                           <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+                                           <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+                                       </div>
+                                   </div>
+                               </div>
+                               <div class="media">
+                                   <div class="media-left">
+                                       <img src="images2/temp-walter.png" class="img-circle" width="32" height="32" alt="Walter White" />
+                                   </div>
+                                   <div class="media-body">
+                                       <div class="commentMain">
+                                           <span class="commentTime">Yesterday</span>
+                                           <h3 class="media-heading">Walter White<span>INSTRUCTOR</span></h3>
+                                           <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+                                           <div class="commentOptions">
+                                               <a href="#" class="like liked">
+                                                   <svg class="icon" width="12px" height="12px" viewBox="0 0 12 12" version="1.1">
+                                                       <g id="triangle" stroke="none" stroke-width="1" fill="#D5D8DA" fill-rule="evenodd">
+                                                           <polygon id="Triangle-5" points="6 1 12 11 0 11 "></polygon>
+                                                       </g>
+                                                   </svg>
+                                                   3
+                                               </a>
+                                               <a href="javascript:void(0)" class="reply" onclick="toggleReplyInput(this)"><span class="icon"></span>Reply</a>
+                                           </div>
+                                       </div>
+                                       <div class="media replyInput hidden">
+                                           <div class="media-left">
+                                               <img src="images2/temp-walter.png" class="img-circle" width="32" height="32" alt="Walter White" />
+                                           </div>
+                                           <div class="media-body replyComment">
+                                               <div class="commentForm">
+                                                   <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+                                                   <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+                                               </div>
+                                           </div>
+                                       </div>
+                                   </div>
+                               </div>
+                           </div>
+                       </li>
+                       <li class="media">
+                           <div class="media-left">
+                               <img src="images2/temp-walter.png" class="img-circle" width="32" height="32" alt="Walter White" />
+                           </div>
+                           <div class="media-body">
+                               <div class="commentMain">
+                                   <span class="commentTime">15 minutes ago</span>
+                                   <h3 class="media-heading">Walter White</h3>
+                                   <p>Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</p>
+                                   <div class="commentOptions">
+                                       <a href="#" class="like">
+                                           <svg class="icon" width="12px" height="12px" viewBox="0 0 12 12" version="1.1">
+                                               <g id="triangle" stroke="none" stroke-width="1" fill="#D5D8DA" fill-rule="evenodd">
+                                                   <polygon id="Triangle-5" points="6 1 12 11 0 11 "></polygon>
+                                               </g>
+                                           </svg>
+                                           Like
+                                       </a>
+                                       <a href="javascript:void(0)" class="reply" onclick="toggleReplyInput(this)"><span class="icon"></span>Reply</a>
+                                   </div>
+                               </div>
+                               <div class="media replyInput hidden">
+                                   <div class="media-left">
+                                       <img src="images2/temp-walter.png" class="img-circle" width="32" height="32" alt="Walter White" />
+                                   </div>
+                                   <div class="media-body replyComment">
+                                       <div class="commentForm">
+                                           <textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
+                                           <button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
+                                       </div>
+                                   </div>
+                               </div>
+                           </div>
+                       </li>
+                   </ul>
+               </div>
+           </div>
+       </article>
+	</composite:implementation>
+</ui:component>

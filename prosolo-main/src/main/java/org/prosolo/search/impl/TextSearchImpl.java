@@ -1295,23 +1295,23 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 							cd = credentialManager
 									.getCredentialDataWithProgressIfExists(credId, userId);
 							
-							/*
-							 * if credential is created by some other user, this user should not 
-							 * be aware that credential is draft
-							 */
-						    if(cd.getCreator().getId() != userId) {
-						    	cd.setPublished(true);
-						    }
-						    
-						    /*
-						     * if draft version, set title and description from draft version
-						     */
-						    if(originalCredId > 0) {
-						    	cd.setTitle(hit.getSource().get("title").toString());
-						    	cd.setDescription(hit.getSource().get("description").toString());
-						    }
-						    
-							if (cd != null) {
+							if(cd != null) {
+								/*
+								 * if credential is created by some other user, this user should not 
+								 * be aware that credential is draft
+								 */
+							    if(cd.getCreator().getId() != userId) {
+							    	cd.setPublished(true);
+							    }
+							    
+							    /*
+							     * if draft version, set title and description from draft version
+							     */
+							    if(originalCredId > 0) {
+							    	cd.setTitle(hit.getSource().get("title").toString());
+							    	cd.setDescription(hit.getSource().get("description").toString());
+							    }
+							    
 								response.addFoundNode(cd);
 							}
 						} catch (DbConnectionException e) {
@@ -1477,21 +1477,22 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 							}
 							cd = credentialManager
 									.getBasicCredentialData(credId, userId);
-							/*
-							 * if credential is user created manager should not 
-							 * be aware that credential is draft
-							 */
-							if(cd.getType() == LearningResourceType.USER_CREATED) {
-							    cd.setPublished(true);
-							}
-							/*
-						     * if credential draft version, set title and description from draft version
-						     */
-						    if(originalCredId > 0) {
-						    	cd.setTitle(hit.getSource().get("title").toString());
-						    	cd.setDescription(hit.getSource().get("description").toString());
-						    }
-							if (cd != null) {
+							
+							if(cd != null) {
+								/*
+								 * if credential is user created manager should not 
+								 * be aware that credential is draft
+								 */
+								if(cd.getType() == LearningResourceType.USER_CREATED) {
+								    cd.setPublished(true);
+								}
+								/*
+							     * if credential draft version, set title and description from draft version
+							     */
+							    if(originalCredId > 0) {
+							    	cd.setTitle(hit.getSource().get("title").toString());
+							    	cd.setDescription(hit.getSource().get("description").toString());
+							    }
 								response.addFoundNode(cd);
 							}
 						} catch (DbConnectionException e) {

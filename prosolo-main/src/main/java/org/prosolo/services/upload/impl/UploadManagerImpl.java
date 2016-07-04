@@ -10,8 +10,10 @@ import org.apache.commons.io.FileUtils;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.content.ContentType;
+import org.prosolo.common.domainmodel.content.ContentType1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
 import org.prosolo.services.upload.AmazonS3UploadManager;
 import org.prosolo.services.upload.ImageUtil;
 import org.prosolo.services.upload.UploadManager;
@@ -56,6 +58,39 @@ public class UploadManagerImpl implements UploadManager {
 		}
 		
 		attachmentPreview.setContentType(ContentType.UPLOAD);
+		
+		return attachmentPreview;
+	}
+	
+	@Override
+	public AttachmentPreview1 uploadFile(User user, String fileName, UploadedFile uploadedFile) 
+			throws IOException {
+		AttachmentPreview1 attachmentPreview = new AttachmentPreview1();
+		attachmentPreview.setInitialized(true);
+		String fullPath = storeFile(user, uploadedFile, fileName);
+
+		// link
+		attachmentPreview.setLink(fullPath);
+		
+		attachmentPreview.setFileName(fileName);
+		
+		// title
+		String title = fileName;
+		int lastDotIndex = title.lastIndexOf(".");
+		
+		if (lastDotIndex != -1) {
+			title = title.substring(0, lastDotIndex);
+		}
+		attachmentPreview.setTitle(title);
+		
+		// description
+		//htmlPage.setDescription("Document description");
+		
+		if (ImageUtil.checkIfImage(fullPath)) {
+			attachmentPreview.setImageUrl(fullPath);
+		}
+		
+		attachmentPreview.setContentType(ContentType1.FILE);
 		
 		return attachmentPreview;
 	}

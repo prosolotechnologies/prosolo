@@ -26,6 +26,17 @@ public class UserData implements Serializable {
 		this.email = user.getEmail();
 	}
 	
+	public UserData(long id, String firstName, String lastName, String avatar, String position,
+			String email) {
+		this.id = id;
+		setFullName(firstName, lastName);
+		if(avatar != null) {
+			this.avatarUrl = AvatarUtils.getAvatarUrlInFormat(avatar, ImageFormat.size60x60);
+		}
+		this.position = position;
+		this.email = email;
+	}
+	
 	public void setFullName(String name, String lastName) {
 		this.fullName = name + (lastName != null ? " " + lastName : "");
 	}

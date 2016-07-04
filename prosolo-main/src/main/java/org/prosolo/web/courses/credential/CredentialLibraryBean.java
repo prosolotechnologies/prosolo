@@ -67,7 +67,7 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 	private CredentialSearchFilter[] searchFilters;
 
 	private String context = "name:library";
-	
+
 	public void init() {
 		sortOptions = CredentialSortOption.values();
 		searchFilters = Arrays.stream(CredentialSearchFilter.values()).filter(

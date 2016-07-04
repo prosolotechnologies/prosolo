@@ -7,9 +7,9 @@ import java.util.Date;
 import java.util.List;
 
 import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.activitywall.SocialActivity;
-import org.prosolo.common.domainmodel.activitywall.SocialStreamSubViewType;
-import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
+import org.prosolo.common.domainmodel.activitywall.old.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.old.SocialStreamSubViewType;
+import org.prosolo.common.domainmodel.activitywall.old.TwitterPostSocialActivity;
 import org.prosolo.common.domainmodel.content.ContentType;
 import org.prosolo.common.domainmodel.content.GoalNote;
 import org.prosolo.common.domainmodel.content.Post;

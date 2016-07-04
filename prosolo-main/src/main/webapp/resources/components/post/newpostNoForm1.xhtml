@@ -1,0 +1,208 @@
+<ui:component
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post">
+
+	<composite:interface>
+		<composite:attribute name="watermark" type="java.lang.String" default=""/>
+		<composite:attribute name="content" type="org.prosolo.web.useractions.data.NewPostData" required="true"/>
+		<composite:attribute name="actionButtonName" type="java.lang.String" default="post"/>
+		<composite:attribute name="afterCreatePostCallback" type="java.lang.String"/>
+		<composite:attribute name="containerDiv" type="java.lang.String" required="true"/>
+		<composite:attribute name="refreshCommand" type="java.lang.String"/>
+		<composite:attribute name="regionToRefresh" type="java.lang.String"/>
+		<composite:attribute name="refreshDelay" default="0"/>
+		<composite:attribute name="linkEnabled" default="true"/>
+		<composite:attribute name="hideActions" default="false"/>
+		<composite:attribute name="postToStatusWall" />
+		<composite:attribute name="visibilityFixed" />
+		<composite:attribute name="limitedVisibilityTooltipText" />
+		<composite:attribute name="displayLimitedInsteadOfPrivateVisibility" />
+		<composite:attribute name="cancelCallback" type="java.lang.String" />
+		<composite:attribute name="createPostAction"
+			method-signature="void createNewPost()"
+		/>
+		<composite:attribute name="setNewPostData"
+			method-signature="void setNewPostData(org.prosolo.web.useractions.data.NewPostData)"
+		/>
+		<composite:attribute name="handleFileUpload"
+			method-signature="void handleFileUpload(org.primefaces.event.FileUploadEvent)"
+		/>
+	</composite:interface>
+	
+	<composite:implementation>
+		<h:outputScript library="javascript" name="prosolo.newpost1.js" target="head" />
+		<h:outputScript library="javascript" name="jquery.autosize.min.js" target="head" />
+	
+		<div class="addNoteBox">
+			<div class="clear"></div>
+		
+			<div class="inactiveBox">
+				<div class="watermark"></div>
+			</div>
+	
+			<div class="expandableInputBox collapsed">
+				<div class="watermark"></div>
+				<div class='inputTextField' contenteditable="true"></div>
+				
+				<h:inputTextarea class="inputTextFieldHidden hidden" value="#{cc.attrs.content.text}" />
+				<h:inputText class="selectedUsers hidden" value="#{cc.attrs.content.mentionedUsers}" />
+				
+				<h:panelGroup rendered="#{!cc.attrs.hideActions}" 
+					class="hideInputBox"
+					onclick="#{cc.attrs.cancelCallback}">x</h:panelGroup>
+				
+				<div class="noteSeparator clear"></div>
+
+				<div class="userSuggestions">
+					<p:remoteCommand 
+						name="#{cc.clientId.replace(':','i')}SearchColleaguesAjaxical" 
+						update="userSuggestResults"
+						process="userSuggestInput"
+						action="#{searchPeopleBean.executeSearch}"/>
+						
+					<h:inputText id="userSuggestInput" size="20"
+						styleClass="userSuggestSearchInput"
+						value="#{searchPeopleBean.query}" />
+					
+					<h:panelGroup id="userSuggestResults" class="userSearchInput">
+						<h:panelGroup layout="block" styleClass="results" rendered="#{!searchPeopleBean.query.isEmpty() and not empty searchPeopleBean.users}" >
+					
+							<ui:repeat value="#{searchPeopleBean.users}" var="user" id="userList">
+														
+								<div class="resultContainer" data-id="#{user.id}" onclick="#{cc.attrs.value}NewPost.selectSuggestedUser(this)">
+					    			
+									<div class="result">
+										<h:graphicImage styleClass="imageRound image30 avatar"
+											value="#{user.avatarUrl}"
+											width="22" height="22" alt="" />
+										
+										<div class="infoContainer" style="float: left">
+											<div class="title">#{user.name}</div>
+											<div class="position">#{user.position}</div>
+										</div>
+									</div>
+								</div>
+								<div class="clear"></div>
+							</ui:repeat>
+						</h:panelGroup>
+					</h:panelGroup>
+					
+					<div class="noteSeparator clear"></div>
+				</div>
+
+				<h:panelGroup rendered="#{cc.attrs.postToStatusWall != null}">
+					<label>
+						<h:selectBooleanCheckbox value="#{cc.attrs.postToStatusWall}" /> Post to Status Wall
+					</label>
+					<div class="noteSeparator clear"></div>
+				</h:panelGroup>
+				
+				<div class="loaderContainer"></div>
+				
+				<post:linkPreview id="link"
+					attachmentPreview="#{cc.attrs.content.attachmentPreview}"
+					onclickHideLink="#{cc.attrs.value}NewPost.hideLinkPreview();"
+				/>
+				
+				<script>
+					$('#{cc.attrs.containerDiv} .addNoteBox .linkPreview .atcDesc textarea').autosize();
+				</script>
+				
+				<post:uploadDetails id="upload"
+					attachmentPreview="#{cc.attrs.content.attachmentPreview}"
+					containerDiv="#{cc.attrs.containerDiv}"
+					onclickHideLink="#{cc.attrs.value}NewPost.hideLinkPreview();"
+				/>
+				
+				<h:panelGroup layout="block" class="postButtonBox">
+					<p:growl id="uploadMessages" showDetail="true"/>  
+	
+					<div class="actionsContaioner">
+						<h:panelGroup rendered="#{cc.attrs.linkEnabled}" class="showLinkForm">add link</h:panelGroup>
+						<h:panelGroup rendered="#{cc.attrs.handleFileUpload != null}" class="browseFile">UP</h:panelGroup>
+					</div>
+					
+					<div class="linkContainer">
+						<span class="hideLinkForm">x</span>
+						<h:inputText type="text" class="linkInput" value="#{cc.attrs.content.link}" />
+						<p:commandLink styleClass="addLinkBtn button blue size20" 
+							value="ADD LINK"
+							actionListener="#{postaction.fetchLinkContents(cc.attrs.content)}"
+							oncomplete="#{cc.attrs.value}NewPost.afterAddLinkBtnCallback();"
+							update="newPostGrowl link:linkPreview"
+						/>
+					</div>
+					
+					<div class="uploadContainer">
+						<span class="hideUploadForm">x</span>
+						<p:fileUpload styleClass="browseFile"
+							fileUploadListener="#{cc.attrs.handleFileUpload}"  
+				            mode="advanced"  
+				            fileLimit="1"
+				            auto="true"
+				            onstart="#{cc.attrs.value}NewPost.showUploadLoader();"
+				            update="upload:uploadDetails uploadMessages link:hiddenActUrlFull"
+				            label="Choose a file"
+			            />
+					</div>
+					
+					<p:commandLink rendered="#{!cc.attrs.hideActions and !empty cc.getValueExpression('setNewPostData')}"
+						styleClass="postButton button green size25" 
+						value="#{cc.attrs.actionButtonName}"
+						actionListener="#{cc.attrs.setNewPostData}"
+						action="#{cc.attrs.createPostAction}"
+						process="@form"
+						oncomplete="$('#{cc.attrs.refreshCommand}').trigger('click'); #{cc.attrs.afterCreatePostCallback};"
+						update="newPostGrowl #{cc.attrs.regionToRefresh}"
+					/>
+					<p:commandLink rendered="#{!cc.attrs.hideActions and empty cc.getValueExpression('setNewPostData')}"
+						styleClass="postButton button green size25" 
+						value="#{cc.attrs.actionButtonName}"
+						action="#{cc.attrs.createPostAction}"
+						process="@form"
+						oncomplete="$('#{cc.attrs.refreshCommand}').trigger('click'); #{cc.attrs.afterCreatePostCallback};"
+						update="newPostGrowl #{cc.attrs.regionToRefresh}"
+					/>
+				
+					<utilcomp:visibility id="postVisibility"
+						visibility="#{cc.attrs.visibilityFixed != null ? cc.attrs.visibilityFixed : cc.attrs.content.visibility}"
+						containerDiv="#{cc.attrs.containerDiv}"
+						readOnly="#{cc.attrs.visibilityFixed != null ? true : false}"
+						limitedTooltipText="#{cc.attrs.limitedVisibilityTooltipText}"
+						displayLimitedInsteadOfPrivate="#{cc.attrs.displayLimitedInsteadOfPrivateVisibility}"
+						changePostVisibility="#{visibilityaction.changeVisibility(cc.attrs.content)}"
+					/>
+						
+					<script>
+						$(function(){
+							enableDropdown('#'+escapeColons('#{cc.clientId}') + ' .addNoteBox .drop');
+							$('#{cc.attrs.containerDiv} .addNoteBox .atcDesc textarea').autosize(); 
+						});
+					</script>
+				</h:panelGroup>
+				
+				<div class="clear"></div>
+			</div>
+			<p:growl id="newPostGrowl" showDetail="true" />
+		</div>
+		
+		<script>
+		var #{cc.attrs.value}NewPost;
+		$(function() {
+			$('#{cc.attrs.containerDiv} .addNoteBox').newpost({
+				watermark:'<h:outputText value="#{cc.attrs.watermark}" />',
+				hideActions: #{cc.attrs.hideActions},
+				userSearchAction: #{cc.clientId.replace(':','i')}SearchColleaguesAjaxical,
+				userSearchInput: '.userSuggestSearchInput',
+			});
+			#{cc.attrs.value}NewPost = $('#{cc.attrs.containerDiv} .addNoteBox').data('newpost');
+		});
+		</script>
+	</composite:implementation>
+</ui:component>

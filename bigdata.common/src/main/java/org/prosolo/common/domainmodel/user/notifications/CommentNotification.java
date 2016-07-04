@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
-import org.prosolo.common.domainmodel.activitywall.comments.Comment;
+import org.prosolo.common.domainmodel.activitywall.old.comments.Comment;
 
 /**
  * @author Zoran Jeremic Dec 29, 2013

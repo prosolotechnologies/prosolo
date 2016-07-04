@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
-import org.prosolo.common.domainmodel.activitywall.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.old.SocialActivity;
 import org.prosolo.common.domainmodel.user.notifications.Notification;
 
 /**

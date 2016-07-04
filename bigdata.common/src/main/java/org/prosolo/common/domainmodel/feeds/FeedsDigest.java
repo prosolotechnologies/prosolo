@@ -18,8 +18,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.Type;
-import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
 import org.prosolo.common.domainmodel.user.TimeFrame;
+import org.prosolo.common.domainmodel.activitywall.old.TwitterPostSocialActivity;
 import org.prosolo.common.domainmodel.feeds.FeedEntry;
 
 /**

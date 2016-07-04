@@ -13,8 +13,9 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.Recommendation;
-import org.prosolo.common.domainmodel.activitywall.SocialActivity;
-import org.prosolo.common.domainmodel.activitywall.comments.Comment;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
+import org.prosolo.common.domainmodel.activitywall.old.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.old.comments.Comment;
 import org.prosolo.common.domainmodel.course.CourseEnrollment;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.messaging.Message;
@@ -179,10 +180,10 @@ public class SessionMessageHandlerImpl implements MessageHandler<SessionMessage>
 				// }
 
 				try {
-					SocialActivity socialActivity = defaultManager.loadResource(SocialActivity.class, socialActivityId,
+					SocialActivity1 socialActivity = defaultManager.loadResource(SocialActivity1.class, socialActivityId,
 							session);
 					socialActivity = HibernateUtil.initializeAndUnproxy(socialActivity);
-					socialActivityFiltering.checkSocialActivity(socialActivity);
+					socialActivityFiltering.checkSocialActivity(socialActivity, session);
 					// saNotification=(SocialActivityNotification)
 					// session.merge(saNotification);
 					/*

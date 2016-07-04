@@ -21,10 +21,14 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.prosolo.common.domainmodel.content.ContentType;
+import org.prosolo.common.domainmodel.content.ContentType1;
+import org.prosolo.common.domainmodel.content.ImageSize;
 import org.prosolo.common.util.net.HTTPSConnectionValidator;
 import org.prosolo.services.htmlparser.HTMLParser;
 import org.prosolo.services.htmlparser.Image;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
+import org.prosolo.services.util.url.URLUtil;
 import org.springframework.stereotype.Service;
 
 /**
@@ -61,6 +65,56 @@ public class JSOUPParser implements HTMLParser {
 		}
 		
 		return extractAttachmentPreview(url, withImages);
+	}
+	
+	@Override
+	public AttachmentPreview1 extractAttachmentPreview1(String url) {
+		boolean withImage = true;
+		
+		if (url.contains("www.slideshare.net/")) {
+			withImage = false;
+		}
+		
+		return extractAttachmentPreview1(url, withImage);
+	}
+	
+	private AttachmentPreview1 extractAttachmentPreview1(String url, boolean withImage) {
+		Document document = parseUrl(url);
+		
+		if (document == null) {
+			return null;
+		}
+		
+		AttachmentPreview1 htmlPage = new AttachmentPreview1();
+		htmlPage.setInitialized(true);
+		
+		// link
+		htmlPage.setLink(url.toString());
+		
+		htmlPage.setDomain(URLUtil.getDomainFromUrl(htmlPage.getLink()));
+		
+		// title
+		htmlPage.setTitle(getHeadTag(document, "title"));
+		
+		// description
+		htmlPage.setDescription(getMetaTag(document, "description"));
+		
+		// images
+		if (withImage) {
+			Image image = getLargestImage(document);
+			if(image != null) {
+				htmlPage.setImageUrl(image.getUrl());
+				if(image.getWidth() > 300) {
+					htmlPage.setImageSize(ImageSize.Large);
+				} else {
+					htmlPage.setImageSize(ImageSize.Small);
+				}
+			}
+		}
+		
+		htmlPage.setContentType(ContentType1.LINK);
+		
+		return htmlPage;
 	}
 
 	public AttachmentPreview extractAttachmentPreview(String url, boolean withImages) {
@@ -203,8 +257,9 @@ public class JSOUPParser implements HTMLParser {
 								&& (width / height) < 3 
 								&& (width / height) > 0.2) {
 							
-							if (!images.contains(imageDetails.getUrl()))
+							if (!images.contains(imageDetails.getUrl())) {
 								images.add(imageDetails.getUrl());
+							}
 						}
 					}
 				} catch (Exception e) {
@@ -213,6 +268,35 @@ public class JSOUPParser implements HTMLParser {
 			}
 		}
 		return images;
+	}
+	
+	public Image getLargestImage(Document document) {
+		Elements images = document.select("img[src]");
+		int largestWidth = -1;
+		Image largestImage = null;
+		for (Element imgElement : images) {
+			String imgSrc = imgElement.attr("src");
+			
+			if (!imgSrc.endsWith(".gif")) {
+				imgSrc = imgElement.absUrl("src");
+				
+				try {
+					Image imageDetails = getImage(imgSrc);
+					if (imageDetails != null) {
+					
+						//int height = imageDetails.getHeight();
+						int width = imageDetails.getWidth();
+						if(width > largestWidth) {
+							largestWidth = width;
+							largestImage = imageDetails;
+						}
+					}
+				} catch (Exception e) {
+					logger.info("Error fetching image form URL '"+imgSrc+"'."+e.getLocalizedMessage());
+				}
+			}
+		}
+		return largestImage;
 	}
 	
 	@Override

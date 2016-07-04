@@ -8,10 +8,14 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.domainmodel.annotation.AnnotatedResource;
 import org.prosolo.common.domainmodel.annotation.AnnotationType;
 import org.prosolo.common.domainmodel.comment.Comment1;
+import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
+import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.annotation.Annotation1Manager;
 import org.prosolo.services.common.exception.DbConnectionException;
@@ -198,10 +202,23 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 			//avoid queries to db
 			User actor = new User();
 			actor.setId(userId);
+			BaseEntity target = null;
+			switch(resource) {
+				case Activity:
+					target = new Activity1();
+					break;
+				case Competence:
+					target = new Competence1();
+					break;
+				case SocialActivity:
+					target = new SocialActivity1();
+					break;
+			}
+			target.setId(data.getCommentedResourceId());
 			
 			//TODO check with Nikola if target (Competence, Activity) is needed
 			EventType eventType = data.getParent() != null ? EventType.Comment_Reply : EventType.Comment;
-			eventFactory.generateEvent(eventType, actor, comment, null, 
+			eventFactory.generateEvent(eventType, actor, comment, target, 
 					context.getPage(), context.getLearningContext(), context.getService(), null);
 			
 			return comment;

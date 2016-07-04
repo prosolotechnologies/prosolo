@@ -1,6 +1,7 @@
 package org.prosolo.services.activityWall;
 
-import org.prosolo.common.domainmodel.activitywall.SocialActivity;
+import org.hibernate.Session;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 
 /**
 @author Zoran Jeremic Jan 25, 2015
@@ -9,7 +10,7 @@ import org.prosolo.common.domainmodel.activitywall.SocialActivity;
 
 public interface SocialActivityFiltering {
 
-	void checkSocialActivity(SocialActivity socialActivity);
+	void checkSocialActivity(SocialActivity1 socialActivity, Session session);
 
 }
 

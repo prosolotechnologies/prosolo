@@ -2,7 +2,7 @@ package org.prosolo.services.messaging.impl;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.activitywall.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.messaging.data.BroadcastMessage;
 import org.prosolo.common.messaging.rabbitmq.WorkerException;
 import org.prosolo.core.hibernate.HibernateUtil;
@@ -28,9 +28,9 @@ public class BroadcastMessageHandlerImpl  implements MessageHandler<BroadcastMes
 		switch (message.getServiceType()) {
 		case BROADCAST_SOCIAL_ACTIVITY:
 			long socialActivityId = Long.parseLong(message.getParameters().get("socialActivityId"));
-			SocialActivity socialActivity = defaultManager.loadResource(SocialActivity.class, socialActivityId, session);
+			SocialActivity1 socialActivity = defaultManager.loadResource(SocialActivity1.class, socialActivityId, session);
 			socialActivity = HibernateUtil.initializeAndUnproxy(socialActivity);
-			socialActivityFiltering.checkSocialActivity(socialActivity);
+			socialActivityFiltering.checkSocialActivity(socialActivity, session);
 			break;
 		
 		}

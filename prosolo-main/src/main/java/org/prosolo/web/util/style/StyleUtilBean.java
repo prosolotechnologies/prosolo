@@ -4,7 +4,9 @@ import java.io.Serializable;
 
 import javax.faces.bean.ManagedBean;
 
+import org.prosolo.common.domainmodel.content.ImageSize;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
+import org.prosolo.services.activityWall.impl.data.SocialActivityType;
 import org.prosolo.services.nodes.data.ActivityType;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -48,6 +50,27 @@ public class StyleUtilBean implements Serializable {
 			default:
 				return "";	
 		}
+	}
+	
+	public String getPreviewLinkStyleClassBasedOnImageSize(ImageSize size) {
+		if(size == null) {
+			return "previewLinkSmall";
+		}
+		switch(size) {
+			case Large:
+				return "previewLinkBig";
+			case Small:
+				return "previewLinkSmall";
+			default:
+				return "";
+		}
+	}
+	
+	public String getClassForSocialActivityText(SocialActivityType type) {
+		if(type == SocialActivityType.Comment) {
+			return "commentPreview";
+		} 
+		return "";
 	}
 
 }

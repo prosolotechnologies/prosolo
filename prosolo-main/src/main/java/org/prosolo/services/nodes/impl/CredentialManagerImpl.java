@@ -1865,15 +1865,18 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				
 				User user = new User();
 				user.setId(userId);
-				TargetCredential1 cred = new TargetCredential1();
-				cred.setId(targetCredId);
+				TargetCredential1 tCred = new TargetCredential1();
+				tCred.setId(targetCredId);
+				Credential1 cred = new Credential1();
+				cred.setId(credId);
+				tCred.setCredential(cred);
 				String lcPage = contextData != null ? contextData.getPage() : null; 
 				String lcContext = contextData != null ? contextData.getLearningContext() : null; 
 				String lcService = contextData != null ? contextData.getService() : null; 
-				eventFactory.generateChangeProgressEvent(user, cred, finalCredProgress, 
+				eventFactory.generateChangeProgressEvent(user, tCred, finalCredProgress, 
 						lcPage, lcContext, lcService, null);
 				if(finalCredProgress == 100) {
-					eventFactory.generateEvent(EventType.CREDENTIAL_COMPLETED, user, cred, null,
+					eventFactory.generateEvent(EventType.CREDENTIAL_COMPLETED, user, tCred, null,
 							lcPage, lcContext, lcService, null);
 				}
 			}

@@ -10,8 +10,8 @@ import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.activitywall.SocialActivity;
-import org.prosolo.common.domainmodel.activitywall.comments.Comment;
+import org.prosolo.common.domainmodel.activitywall.old.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.old.comments.Comment;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.user.User;

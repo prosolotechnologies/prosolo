@@ -4,132 +4,163 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:comp="http://java.sun.com/jsf/composite/components"
-	xmlns:util="http://www.prosolo.com/util"
-	xmlns:post="http://java.sun.com/jsf/composite/components/post"
-	xmlns:comphome="http://java.sun.com/jsf/composite/components/home"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	template="templates/masterLayout2.xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
 	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
-	template="templates/masterLayout.xhtml">
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post">
 
 	<ui:define name="windowTitle">
-		ProSolo
+		ProSolo - Home
 	</ui:define>
 
+	<ui:define name="metadata">
+		
+	</ui:define>
+
+    <ui:define name="resourceTitle">
+    	<h1>Home</h1>
+    </ui:define>
+    
 	<ui:define name="content">
-	
-		<utilcomp:messagesBundle var="msg" />
-	
-		<div class="container">
-			<div class="leftSidebar">
-				<div class="userDetails">
-					<div class="avatarContainer">
-						<h:graphicImage styleClass="imageRound image60"
-							value="#{loggeduser.avatar}" width="60"
-							height="60" alt="" />
-					</div>
-					
-					<div class="infoContainer">
-						<h2 class="name">
-							<h:link value="#{loggeduser.name} #{loggeduser.user.lastname}" outcome="/publicprofile" >
-								<f:param name="id" value="#{util:encodeId(loggeduser.user.id)}" />
-							</h:link>
-						</h2>
-						<div class="position">#{loggeduser.user.position}</div>
-					</div>
-				</div>
-				
-				<ui:include src="/resources/components/listpeople.xhtml" />
-				
-				<ui:remove>
-				<comp:listpeopleNew 
-					updateAfterUnfollow=
-						":locationRecommendForm:locationRecommendPanel
-						:activityRecommendForm:activityRecommendPanel
-						:similarityRecommendForm:similarityRecommendPanel
-						:listFollowingPeopleForm:followingUsersPanelGrowl"
-				/>
-				</ui:remove>
-				
-				<ui:include src="/resources/components/home/recommendpeople.xhtml" />
-				
-				<dlg:appendedActivities id="appActivities"/>
-			</div><!-- .leftSidebar -->
-			
-			<div>
-				<ui:include src="/resources/components/home/learningProgress.xhtml" />
-			</div>
-			
-			<div class="content">
-				<div class="main">
-					<div class="indexTripStep19">
-						<post:newpost value="statusUpdate" id="statusUpdate" 
-							content="#{postaction.newPostData}" 
-							createPostAction="#{postaction.createNewPost()}"
-							handleFileUpload="#{postaction.handleFileUpload}"
-							containerDiv=".main"
-							refreshCommand="form.mainActivityWallForm a.refreshAllHanler"
-							watermark="What are you doing?"
-						/>
-					</div>
-					
-					<ui:include src="/resources/components/activitywallfilter.xhtml" />
-						
-					<div class="statusWallContainer indexTripStep20">
-					
-						<comp:activitywall id="mainActivityWall"
-							value="mainActivityWall"
-							refreshRate="#{activitywall.refreshRate}"
-							moreToLoadIndicator="#{activitywall.moreToLoad}"
-							allActivities="#{activitywall.allActivities}"
-							initializeHandler="#{activitywall.initializeActivities()}"
-							loadMoreHandler="#{activitywall.loadMoreActivities()}"
-							refreshHandler="#{activitywall.refresh()}"
-							scrollPositionHolder="#{activitywall.scrollPosition}"
-							updateAfterUnfollow=":listFollowingPeopleForm:followingUsersPanel :listfollowersform:followersPanel"
-							context="statusWall"
-							learningContext="name:status_wall"/>
-					</div>
-				</div><!-- .main end -->
-				
-				<div class="rightSidebar">
-					<ui:include src="/resources/components/home/activeCourseStatus.xhtml" />
-				
-					<ui:include src="/resources/components/reminders.xhtml" />
-					<div class="clear separator"></div>
-					
-					<ui:include src="/resources/components/featurednews.xhtml" />
-					<div class="clear separator"></div>
-					
-					<ui:remove>
-					<!-- If removing/hiding suggested learning, then messages.properties file should be updated
-						and tooltip.tutorial.index.step24 should be commented out. Then other steps's indexes should be updated
-						and also regions on which they apply to. 
-						Nikola  
-					-->
-					</ui:remove>
-					<ui:include src="/resources/components/suggestedlearning.xhtml" />
-				</div><!-- .rightSidebar -->
-				
-				<div class="clear"></div>
-			</div><!-- .content -->
-		
-			<div class="clear"></div>
-		</div><!-- .container end -->
-		
-		<span class="indexTripStep1 indexTripStep15 indexTripStep25 indexTripStep28" position="screen-center"></span>
-		<dlg:introTutorial page="index" steps="28"/>
-		<ui:include src="/resources/components/dialogs/courseDetails.xhtml" />
-		
-		<script>
-			tutorialControl.getSettings().onTripEnd = function(i, tripObject) {
-				if (i == 7) {
-					$('#headerRight #name .arrow').click();
-				}
-				if (i == 12) {
-					$(document).click();
-				}
-			};
-		</script>
-	</ui:define>
 
+    <div class="whiteBar"></div>
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 wallTimeline">
+                <div class="timelineHead">
+                    <h2>What's happening</h2>
+                    <div class="dropdown showDrop item">
+                        <span>Show:</span>
+                        <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            #{activityWallBean.filter.label}
+                            <span class="arrowDown">arrowDown</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
+                        	<ui:repeat var="filter" value="#{activityWallBean.filters}">
+                        		<li>
+                        			<p:commandLink 
+	                        			process="@this"
+	                        			value="#{filter.label}"
+			                        	action="#{activityWallBean.changeFilter(filter)}"
+			                        	update="">
+			                        </p:commandLink>
+                        		</li>
+                        	</ui:repeat>
+                        </ul>
+                    </div>
+                </div>
+
+				
+          		<post:newPost id="newPost"
+          			learningContext="name:status_wall"
+          			toUpdate=":statusWall"
+          		/>
+				
+				<h:panelGroup id="statusWall">
+					<ui:repeat var="sa" value="#{activityWallBean.socialActivities}">
+						<post:wallPost
+							socialActivity="#{sa}"
+							learningContext="name:status_wall"
+						/>
+					</ui:repeat>
+				</h:panelGroup>
+				
+				<h:form>
+					<p:poll interval="5" 
+							process="@this"
+							update=":statusWall" 
+							autoStart="true" />
+				</h:form>
+				
+				<p:commandLink
+					value="Load more..."
+					styleClass="btn btn-sm btn-green-stroke btnFullWidth"
+					action="#{activityWallBean.loadMoreActivities()}"
+					update=":statusWall">
+				</p:commandLink>
+
+            </div>
+            <div class="col-md-6">
+                <div class="sidebarBlock">
+                    <div class="inProgressHead">
+                        <h2>In Progress</h2>
+                        <a href="achievements-inprogress.html">View All</a>
+                    </div>
+                    <article class="whiteBox summaryCard">
+                        <h2><a href="credential.html">Introduction to Learning Analytics</a></h2>
+                        <div class="clear"></div>
+                        <p class="cardDescription">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu…</p>
+                        <div class="metaBox">
+                            <div class="metaLeft">
+                                <a href="#" class="btn btn-green btn-sm">Resume</a>
+                                <div class="progressBar">
+                                    <span>70%</span>
+                                    <div class="progress">
+                                        <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 70%;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="metaRight">
+                                <a href="" class="madeByUniversity" data-toggle="tooltip"
+                title="Made by University">made by university</a>
+                                <div class="duration">35 minutes</div>
+                            </div>
+                        </div>
+                        <a href="javascript:void(0)" class="bookmarkStar active" data-toggle="tooltip" title="Bookmark">bookmark</a>
+                    </article>
+                    <article class="whiteBox summaryCard">
+                        <h2><a href="credential.html">Introduction to Learning Analytics</a></h2>
+                        <div class="clear"></div>
+                        <p class="cardDescription">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu…</p>
+                        <div class="metaBox">
+                            <div class="metaLeft">
+                                <a href="#" class="btn btn-green btn-sm">Resume</a>
+                                <div class="progressBar">
+                                    <span>70%</span>
+                                    <div class="progress">
+                                        <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 70%;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="metaRight">
+                                <a href="" class="madeByUniversity" data-toggle="tooltip"
+                title="Made by University">made by university</a>
+                                <div class="duration">35 minutes</div>
+                            </div>
+                        </div>
+                        <a href="javascript:void(0)" class="bookmarkStar active" data-toggle="tooltip" title="Bookmark">bookmark</a>
+                    </article>
+                </div>
+                <div class="sidebarBlock">
+                    <h2>Who to Follow</h2>
+                    <ul class="listWhoToFollow">
+                        <li>
+                            <div class="user32">
+                                <a href="people-profile.html"><img src="images2/temp-walter.png" class="img-circle" width="32" height="32" alt="Walter White" /></a>
+                                <h3><a href="people-profile.html">Walter White</a></h3>
+                            </div>
+                            <a href="#" class="btn btn-green btn-xs">Follow</a>
+                        </li>
+                        <li>
+                            <div class="user32">
+                                <a href="people-profile.html"><img src="images2/temp-walter.png" class="img-circle" width="32" height="32" alt="Walter White" /></a>
+                                <h3><a href="people-profile.html">Walter White</a></h3>
+                            </div>
+                            <a href="#" class="btn btn-green-stroke btn-xs">Following</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+                
+
+    </ui:define>
 </ui:composition>

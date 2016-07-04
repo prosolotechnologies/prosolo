@@ -12,7 +12,7 @@ import javax.mail.MessagingException;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.prosolo.app.Settings;
-import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
+import org.prosolo.common.domainmodel.activitywall.old.TwitterPostSocialActivity;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.feeds.FeedEntry;
 import org.prosolo.common.domainmodel.feeds.FeedSource;

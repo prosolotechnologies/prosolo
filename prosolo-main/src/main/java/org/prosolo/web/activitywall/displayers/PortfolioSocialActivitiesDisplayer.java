@@ -3,7 +3,7 @@ package org.prosolo.web.activitywall.displayers;
 import java.util.List;
 import java.util.Locale;
 
-import org.prosolo.common.domainmodel.activitywall.SocialStreamSubViewType;
+import org.prosolo.common.domainmodel.activitywall.old.SocialStreamSubViewType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.activityWall.filters.Filter;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;

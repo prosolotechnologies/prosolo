@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.activitywall.comments.Comment;
+import org.prosolo.common.domainmodel.activitywall.old.comments.Comment;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;

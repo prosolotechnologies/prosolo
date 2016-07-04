@@ -5,9 +5,10 @@ public enum ObjectType {
 	Competence("Competence1"),
 	Activity("Activity1"),
 	Comment("Comment1"),
-	CredentialAssessment("CredentialAssessment");
-	
-	
+	CredentialAssessment("CredentialAssessment"),
+	Credential("Credential1"),
+	PostSocialActivity("PostSocialActivity1");
+
 	private String dbTableName;
 	
 	private ObjectType(String dbTableName) {
