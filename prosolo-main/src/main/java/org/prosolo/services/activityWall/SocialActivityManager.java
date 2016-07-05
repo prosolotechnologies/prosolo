@@ -15,7 +15,7 @@ import org.prosolo.services.event.context.data.LearningContextData;
 public interface SocialActivityManager {
 	
 	List<SocialActivityData1> getSocialActivities(long userId, Filter filter, int offset, 
-			int limit, Date beforeThan, Locale locale) throws DbConnectionException;
+			int limit, long previousId, Date previousDate, Locale locale) throws DbConnectionException;
 	
 	SocialActivity1 saveNewSocialActivity(SocialActivity1 socialActivity, Session session) 
 			throws DbConnectionException;

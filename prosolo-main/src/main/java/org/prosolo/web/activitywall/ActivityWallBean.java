@@ -59,7 +59,8 @@ public class ActivityWallBean {
 
 	private int offset = 0;
 	private int limit = 7;
-	private Date beforeThan;
+	private long previousId;
+	private Date previousDate;
 	
 	private List<SocialActivityData1> socialActivities = new ArrayList<>();
 	
@@ -99,7 +100,8 @@ public class ActivityWallBean {
 					filter.getFilter(),
 					offset, 
 					limit,
-					beforeThan,
+					previousId,
+					previousDate,
 					loggedUser.getLocale());
 			
 			if(acts.size() == limit + 1) {
@@ -119,7 +121,8 @@ public class ActivityWallBean {
 		if(moreToLoad) {
 			synchronized(socialActivities) {
 				SocialActivityData1 lastSocialActivity = socialActivities.get(socialActivities.size() - 1);
-				beforeThan = lastSocialActivity.getDateCreated();
+				previousId = lastSocialActivity.getId();
+				previousDate = lastSocialActivity.getDateCreated();
 			}
 			List<SocialActivityData1> acts = retrieveSocialActivities();
 			synchronized(socialActivities) {

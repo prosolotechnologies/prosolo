@@ -73,20 +73,20 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	@Override
 	@Transactional (readOnly = true)
 	public List<SocialActivityData1> getSocialActivities(long userId, Filter filter, int offset, 
-			int limit, Date beforeThan, Locale locale) throws DbConnectionException {
+			int limit, long previousId, Date previousDate, Locale locale) throws DbConnectionException {
 		try {
 			switch (filter.getFilterType()) {
 				case MY_ACTIVITIES:
-					return getUserSocialActivities(userId, offset, limit, beforeThan, locale);
+					return getUserSocialActivities(userId, offset, limit, previousId, previousDate, locale);
 				case MY_NETWORK:
-					return getMyNetworkSocialActivities(userId, offset, limit, beforeThan, locale);
+					return getMyNetworkSocialActivities(userId, offset, limit, previousId, previousDate, locale);
 				case TWITTER:
 					//return getTwitterSocialActivities(user, offset, limit);
 					return new ArrayList<>();
 				case ALL_PROSOLO:
-					return getAllProSoloSocialActivities(userId, offset, limit, beforeThan, locale);
+					return getAllProSoloSocialActivities(userId, offset, limit, previousId, previousDate, locale);
 				case ALL:
-					return getAllSocialActivities(userId, offset, limit, beforeThan, locale);
+					return getAllSocialActivities(userId, offset, limit, previousId, previousDate, locale);
 				default:
 					return new ArrayList<>();
 			}
@@ -98,10 +98,10 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	}
 	
 	private List<SocialActivityData1> getUserSocialActivities(long user, int offset, int limit,
-			Date beforeThan, Locale locale) {
+			long previousId, Date previousDate, Locale locale) {
 		String specificCondition = "AND sa.actor = :userId \n ";
-		Query q = createQueryWithCommonParametersSet(user, limit, offset, specificCondition, beforeThan, 
-				locale);
+		Query q = createQueryWithCommonParametersSet(user, limit, offset, specificCondition, previousId, 
+				previousDate, locale);
 		@SuppressWarnings("unchecked")
 		List<SocialActivityData1> res = q.list();
 		if(res == null) {
@@ -111,14 +111,14 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	}
 		
 	private List<SocialActivityData1> getMyNetworkSocialActivities(long user, int offset, int limit,
-			Date beforeThan, Locale locale) {
+			long previousId, Date previousDate, Locale locale) {
 		String specificCondition = "AND sa.actor IN ( \n" + 
 				"					SELECT fe.followed_user \n" +
 				"					FROM followed_entity AS fe \n" +
 				"					WHERE fe.user = :userId \n" +
 				"				) \n";
-		Query q = createQueryWithCommonParametersSet(user, limit, offset, specificCondition, beforeThan, 
-				locale);
+		Query q = createQueryWithCommonParametersSet(user, limit, offset, specificCondition, previousId, 
+				previousDate, locale);
 		@SuppressWarnings("unchecked")
 		List<SocialActivityData1> res = q.list();
 		if(res == null) {
@@ -189,10 +189,10 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 //	}
 	
 	private List<SocialActivityData1> getAllProSoloSocialActivities(long user, int offset, int limit,
-			Date beforeThan, Locale locale) {
+			long previousId, Date previousDate, Locale locale) {
 		String specificCondition = "AND sa.dtype != :twitterPostDType \n ";
-		Query q = createQueryWithCommonParametersSet(user, limit, offset, specificCondition, beforeThan, 
-				locale);
+		Query q = createQueryWithCommonParametersSet(user, limit, offset, specificCondition, previousId,
+				previousDate, locale);
 		q.setParameter("twitterPostDType", TwitterPostSocialActivity1.class.getSimpleName());
 		@SuppressWarnings("unchecked")
 		List<SocialActivityData1> res = q.list();
@@ -203,8 +203,9 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	}
 
 	private List<SocialActivityData1> getAllSocialActivities(long user, int offset, int limit,
-			Date beforeThan, Locale locale) {
-		Query q = createQueryWithCommonParametersSet(user, limit, offset, "", beforeThan, locale);
+			long previousId, Date previousDate, Locale locale) {
+		Query q = createQueryWithCommonParametersSet(user, limit, offset, "", previousId, 
+				previousDate, locale);
 		@SuppressWarnings("unchecked")
 		List<SocialActivityData1> res = q.list();
 		if(res == null) {
@@ -289,7 +290,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"IF (annotation.id > 0, true, false) AS liked \n ";
 	}
 	
-	private String getTablesString(String specificPartOfTheCondition, Date beforeThan) {
+	private String getTablesString(String specificPartOfTheCondition, long previousId, Date previousDate) {
 		String q =
 				"FROM social_activity1 sa \n" +
 				"	LEFT JOIN social_activity_config AS config \n" +
@@ -345,18 +346,19 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"WHERE sa.deleted = :boolFalse \n" +
 				"	AND config.id IS NULL \n";
 		
-				if(beforeThan != null) {
-					q += "AND sa.created < :date \n";
+				if(previousDate != null && previousId > 0) {
+					q += "AND sa.last_action <= :date \n " +
+						 "AND NOT (sa.last_action = :date AND sa.id >= :previousId) ";
 				}
 				return q + specificPartOfTheCondition +		
-					"ORDER BY sa.last_action DESC \n" +
+					"ORDER BY sa.last_action DESC, sa.id DESC \n" +
 					"LIMIT :limit \n" +
 					"OFFSET :offset";
 	}
 	
 	private Query createQueryWithCommonParametersSet(long userId, int limit, int offset, 
-			String specificCondition, Date beforeThan, Locale locale) {
-		String query = getSelectPart() + getTablesString(specificCondition, beforeThan);
+			String specificCondition, long previousId, Date previousDate, Locale locale) {
+		String query = getSelectPart() + getTablesString(specificCondition, previousId, previousDate);
 		
 		Query q = persistence.currentManager().createSQLQuery(query)
 			.setLong("userId", userId)
@@ -447,8 +449,9 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				public List transformList(List collection) {return collection;}
 			});
 		
-		if(beforeThan != null) {
-			q.setTimestamp("date", beforeThan);
+		if(previousDate != null && previousId > 0) {
+			q.setTimestamp("date", previousDate);
+			q.setLong("previousId", previousId);
 		}
 		
 		return q;
