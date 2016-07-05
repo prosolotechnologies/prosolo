@@ -65,7 +65,7 @@ public abstract class NotificationEventProcessor {
 		UserNotificationsSettings userNotificationSettings = notificationsSettingsManager
 				.getOrCreateNotificationsSettings(receiverId, session);
 
-		if(userNotificationSettings != null) {
+		if (userNotificationSettings != null) {
 			List<NotificationSettings> settings = userNotificationSettings
 					.getNotifications();
 			return determineIfUserShouldBeNotifiedByEmail(settings);

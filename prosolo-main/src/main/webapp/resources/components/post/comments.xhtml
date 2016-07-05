@@ -47,6 +47,12 @@
 
 					<div class="comments">
 						<ul class="media-list">
+								<li class="loadMoreComments">
+									<p:commandLink
+										value="View previous comments"
+										update=":#{cc.clientId}:formComments" />
+								</li>
+							
 							<ui:repeat var="comment" value="#{bean.comments}">
 								<li class="media">
 									<post:comment1 id="comment"

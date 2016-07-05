@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.prosolo.common.domainmodel.interfacesettings.NotificationSettings;
 import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
 import org.prosolo.common.domainmodel.user.User;
@@ -48,11 +49,14 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 		if (result != null) {
 			return result;
 		} else {
+			Transaction t = session.beginTransaction();
 			User user = (User) session.load(User.class, userId);
 			UserNotificationsSettings notificationsSettings = new UserNotificationsSettings();
 			notificationsSettings.setUser(user);
 			notificationsSettings.setNotifications(getDefaultSubscribedEventTypes());
 			session.saveOrUpdate(notificationsSettings);
+			t.commit();
+			
 			session.flush();
 			
 			return notificationsSettings;
