@@ -16,20 +16,23 @@ public interface AssessmentManager {
 
 	public long requestAssessment(AssessmentRequestData assessmentRequestData);
 
-	public List<AssessmentData> getAllAssessmentsForCredential(long credentialId, long assessorId, boolean searchForPending,
-			boolean searchForApproved, UrlIdEncoder idEncoder, DateFormat simpleDateFormat);
-	
+	public List<AssessmentData> getAllAssessmentsForCredential(long credentialId, long assessorId,
+			boolean searchForPending, boolean searchForApproved, UrlIdEncoder idEncoder, DateFormat simpleDateFormat);
+
 	public FullAssessmentData getFullAssessmentData(long id, UrlIdEncoder encoder, User user, DateFormat dateFormat);
 
 	public Long countAssessmentsForUserAndCredential(long userId, long credentialId);
 
-	public void approveCredential(long credentialAssessmentId,  long targetCredentialId, String reviewText);
+	public void approveCredential(long credentialAssessmentId, long targetCredentialId, String reviewText);
 
-	public long createActivityDiscussion(long targetActivityId, long competenceAssessmentId, List<Long> participantIds,long senderId);
+	public long createActivityDiscussion(long targetActivityId, long competenceAssessmentId, List<Long> participantIds,
+			long senderId);
 
-	public ActivityDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment) throws ResourceCouldNotBeLoadedException;
+	public ActivityDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment)
+			throws ResourceCouldNotBeLoadedException;
 
-	public void editCommentContent(long activityMessageId, long userId, String newContent) throws ResourceCouldNotBeLoadedException;
+	public void editCommentContent(long activityMessageId, long userId, String newContent)
+			throws ResourceCouldNotBeLoadedException;
 
 	public void approveCompetence(long decodedCompetenceAssessmentId);
 
@@ -38,6 +41,12 @@ public interface AssessmentManager {
 	public Long getAssessmentIdForUser(long userId, long targetCredentialId);
 
 	public List<AssessmentData> getAllAssessmentsForStudent(long id, boolean searchForPending,
-			boolean searchForApproved, UrlIdEncoder idEncoder, SimpleDateFormat simpleDateFormat);
+			boolean searchForApproved, UrlIdEncoder idEncoder, SimpleDateFormat simpleDateFormat, int page,
+			int numberPerPage);
+
+	public int countAssessmentsForUser(long id, boolean searchForPending, boolean searchForApproved);
+
+	public int countAssessmentsForAssessorAndCredential(long decodedCredentialId, long assessorId, boolean searchForPending,
+			boolean searchForApproved);
 
 }

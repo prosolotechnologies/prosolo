@@ -29,48 +29,56 @@
 	<h:form id="filterAssessmentsForm">
     <div class="container">
         <div class="row">
-        	<ui:repeat var="assessmentData" value="#{cc.attrs.bean.assessmentData}">
         		<div class="col-md-9">
-                <article class="whiteBox assessmentItem">
-                    <h2>
-                    	<ui:fragment rendered="#{cc.attrs.assessor}">
-	                    	<h:link outcome="/manage/credential-assessment">#{assessmentData.title}
-		                    	<f:param value="#{assessmentData.encodedAssessmentId}" name="assessmentId"></f:param>
-		                    	<f:param value="#{assessmentData.encodedCredentialId}" name="id"></f:param>
-		                    </h:link>
-                    	</ui:fragment>
-	                    <ui:fragment rendered="#{not cc.attrs.assessor}">
-	                    	<h:link outcome="/credential-assessment">#{assessmentData.title}
-		                    	<f:param value="#{assessmentData.encodedAssessmentId}" name="assessmentId"></f:param>
-		                    	<f:param value="#{assessmentData.encodedCredentialId}" name="id"></f:param>
-		                    </h:link>
-                    	</ui:fragment>
-                    </h2>
-                     <ui:fragment rendered="#{assessmentData.approved}">
-                     	<div class="tagApproved">Approved</div>
-                     </ui:fragment>
-                     <ui:fragment rendered="#{not assessmentData.approved}">
-                     	<div class="tagPending">Pending</div>
-                     </ui:fragment>
-                    <div class="clear"></div>
-                    <div class="user32">
-                        Student:<h:outputText value="&#160;" /><h:outputText value="&#160;" /><h:outputText value="&#160;" />
-                        		<!-- when avatar is null, display initials div -->
-                        		 <utilcomp:userAvatar avatar="#{assessmentData.studentAvatarUrl}"
-												fullName="#{assessmentData.studentFullName}"/>
-                        <h3>#{assessmentData.studentFullName}</h3>
-                    </div>
-                    <div class="commentsNumber">
-                        Comments: #{assessmentData.totalNumberOfMessages}
-                    </div>
-                    <div class="clear"></div>
-                    <div class="date">
-                        Requested: #{assessmentData.dateValue}
-                    </div>
-                </article>
-              
+        		<ui:repeat var="assessmentData" value="#{cc.attrs.bean.assessmentData}">
+	                <article class="whiteBox assessmentItem">
+	                    <h2>
+	                    	<ui:fragment rendered="#{cc.attrs.assessor}">
+		                    	<h:link outcome="/manage/credential-assessment">#{assessmentData.title}
+			                    	<f:param value="#{assessmentData.encodedAssessmentId}" name="assessmentId"></f:param>
+			                    	<f:param value="#{assessmentData.encodedCredentialId}" name="id"></f:param>
+			                    </h:link>
+	                    	</ui:fragment>
+		                    <ui:fragment rendered="#{not cc.attrs.assessor}">
+		                    	<h:link outcome="/credential-assessment">#{assessmentData.title}
+			                    	<f:param value="#{assessmentData.encodedAssessmentId}" name="assessmentId"></f:param>
+			                    	<f:param value="#{assessmentData.encodedCredentialId}" name="id"></f:param>
+			                    </h:link>
+	                    	</ui:fragment>
+	                    </h2>
+	                     <ui:fragment rendered="#{assessmentData.approved}">
+	                     	<div class="tagApproved">Approved</div>
+	                     </ui:fragment>
+	                     <ui:fragment rendered="#{not assessmentData.approved}">
+	                     	<div class="tagPending">Pending</div>
+	                     </ui:fragment>
+	                    <div class="clear"></div>
+	                    <div class="user32">
+	                        Student:<h:outputText value="&#160;" /><h:outputText value="&#160;" /><h:outputText value="&#160;" />
+	                        		<!-- when avatar is null, display initials div -->
+	                        		 <utilcomp:userAvatar avatar="#{assessmentData.studentAvatarUrl}"
+													fullName="#{assessmentData.studentFullName}"/>
+	                        <h3>#{assessmentData.studentFullName}</h3>
+	                    </div>
+	                    <div class="commentsNumber">
+	                        Comments: #{assessmentData.totalNumberOfMessages}
+	                    </div>
+	                    <div class="clear"></div>
+	                    <div class="date">
+	                        Requested: #{assessmentData.dateValue}
+	                    </div>
+	                </article>
+              </ui:repeat>
+              <utilcomp:pagination
+		        	id="pagination" 
+		        	bean="#{cc.attrs.bean}"
+		        	links="#{cc.attrs.bean.paginationLinks}"
+		        	toUpdate=":#{cc.attrs.id}:filterAssessmentsForm" />
             </div>
-            </ui:repeat>
+            
+          
+
+            
             <div class="col-md-3 pull-right">
                 <div class="whiteBox">
                     <h2>Show</h2>

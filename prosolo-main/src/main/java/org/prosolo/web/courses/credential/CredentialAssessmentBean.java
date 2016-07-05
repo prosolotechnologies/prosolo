@@ -32,6 +32,9 @@ import org.prosolo.services.nodes.data.CompetenceAssessmentData;
 import org.prosolo.services.nodes.data.FullAssessmentData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.courses.util.pagination.Paginable;
+import org.prosolo.web.courses.util.pagination.PaginationLink;
+import org.prosolo.web.courses.util.pagination.Paginator;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -40,7 +43,7 @@ import org.springframework.stereotype.Component;
 @ManagedBean(name = "credentialAssessmentBean")
 @Component("credentialAssessmentBean")
 @Scope("view")
-public class CredentialAssessmentBean implements Serializable {
+public class CredentialAssessmentBean implements Serializable, Paginable {
 
 	private static final long serialVersionUID = 7344090333263528353L;
 	private static Logger logger = Logger.getLogger(CredentialAssessmentBean.class);
@@ -53,6 +56,10 @@ public class CredentialAssessmentBean implements Serializable {
 	private AssessmentManager assessmentManager;
 	@Inject
 	private LoggedUserBean loggedUserBean;
+	@Inject
+	private ThreadPoolTaskExecutor taskExecutor;
+	@Inject
+	private EventFactory eventFactory;
 
 	// PARAMETERS
 	private String id;
@@ -70,14 +77,15 @@ public class CredentialAssessmentBean implements Serializable {
 	private List<AssessmentData> assessmentData;
 	private boolean searchForPending = true;
 	private boolean searchForApproved = true;
-	
-	//adding new comment
+
+	private List<PaginationLink> paginationLinks;
+	private int page = 1;
+	private int limit = 5;
+	private int numberOfPages;
+	private int assessmentsNumber;
+
+	// adding new comment
 	private String newCommentValue;
-	
-	@Inject
-	private ThreadPoolTaskExecutor taskExecutor;
-	@Inject
-	private EventFactory eventFactory;
 
 	public void init() {
 
@@ -90,10 +98,12 @@ public class CredentialAssessmentBean implements Serializable {
 						LearningResourceType.UNIVERSITY_CREATED);
 				if (title != null) {
 					credentialTitle = title;
+					assessmentsNumber = assessmentManager.countAssessmentsForAssessorAndCredential(
+							decodedId,loggedUserBean.getUser().getId(), searchForPending, searchForApproved);
 					assessmentData = assessmentManager.getAllAssessmentsForCredential(decodedId,
 							loggedUserBean.getUser().getId(), searchForPending, searchForApproved, idEncoder,
 							new SimpleDateFormat("MMMM dd, yyyy"));
-
+					generatePagination();
 				} else {
 					try {
 						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
@@ -111,11 +121,11 @@ public class CredentialAssessmentBean implements Serializable {
 	public void initAssessment() {
 		decodedAssessmentId = idEncoder.decodeId(assessmentId);
 		if (decodedAssessmentId > 0) {
-			
+
 			try {
-					fullAssessmentData = assessmentManager.getFullAssessmentData(decodedAssessmentId, 
-							idEncoder, loggedUserBean.getUser(), new SimpleDateFormat("MMMM dd, yyyy"));
-					credentialTitle = fullAssessmentData.getTitle();
+				fullAssessmentData = assessmentManager.getFullAssessmentData(decodedAssessmentId, idEncoder,
+						loggedUserBean.getUser(), new SimpleDateFormat("MMMM dd, yyyy"));
+				credentialTitle = fullAssessmentData.getTitle();
 
 			} catch (Exception e) {
 				logger.error("Error while loading assessment data", e);
@@ -124,22 +134,22 @@ public class CredentialAssessmentBean implements Serializable {
 		}
 
 	}
-	
+
 	public void approveCredential() {
 		try {
 			assessmentManager.approveCredential(idEncoder.decodeId(fullAssessmentData.getEncodedId()),
-					fullAssessmentData.getTargetCredentialId(),reviewText);
+					fullAssessmentData.getTargetCredentialId(), reviewText);
 			markCredentialApproved();
-			
+
 			String page = PageUtil.getPostParameter("page");
 			String lContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
 			notifyAssessmentApprovedAsync(decodedAssessmentId, page, lContext, service,
-					fullAssessmentData.getAssessedStrudentId(),fullAssessmentData.getCredentialId());
-			
-			PageUtil.fireSuccessfulInfoMessage("You have sucessfully approved credential for "+fullAssessmentData.getStudentFullName());
-		}
-		catch (Exception e) {
+					fullAssessmentData.getAssessedStrudentId(), fullAssessmentData.getCredentialId());
+
+			PageUtil.fireSuccessfulInfoMessage(
+					"You have sucessfully approved credential for " + fullAssessmentData.getStudentFullName());
+		} catch (Exception e) {
 			logger.error("Error aproving assessment data", e);
 			PageUtil.fireErrorMessage("Error while approving assessment data");
 		}
@@ -147,35 +157,34 @@ public class CredentialAssessmentBean implements Serializable {
 
 	private void markCredentialApproved() {
 		fullAssessmentData.setApproved(true);
-		for(CompetenceAssessmentData compAssessmentData : fullAssessmentData.getCompetenceAssessmentData()) {
+		for (CompetenceAssessmentData compAssessmentData : fullAssessmentData.getCompetenceAssessmentData()) {
 			compAssessmentData.setApproved(true);
 		}
 	}
-	
+
 	public void approveCompetence(String encodedCompetenceAssessmentId) {
 		try {
 			assessmentManager.approveCompetence(idEncoder.decodeId(encodedCompetenceAssessmentId));
 			markCompetenceApproved(encodedCompetenceAssessmentId);
-			PageUtil.fireSuccessfulInfoMessage("assessCredentialFormGrowl","You have sucessfully approved competence for "+fullAssessmentData.getStudentFullName());
-		}
-		catch (Exception e) {
+			PageUtil.fireSuccessfulInfoMessage("assessCredentialFormGrowl",
+					"You have sucessfully approved competence for " + fullAssessmentData.getStudentFullName());
+		} catch (Exception e) {
 			logger.error("Error aproving assessment data", e);
 			PageUtil.fireErrorMessage("Error while approving assessment data");
 		}
 	}
-	
-	private void notifyAssessmentApprovedAsync(long decodedAssessmentId, String page, String lContext,
-			String service, long assessedStudentId, long credentialId) {
+
+	private void notifyAssessmentApprovedAsync(long decodedAssessmentId, String page, String lContext, String service,
+			long assessedStudentId, long credentialId) {
 		taskExecutor.execute(() -> {
 			User student = new User();
 			student.setId(assessedStudentId);
 			CredentialAssessment assessment = new CredentialAssessment();
 			assessment.setId(decodedAssessmentId);
-			Map<String,String> parameters = new HashMap<>();
-			parameters.put("credentialId", credentialId+""); 
+			Map<String, String> parameters = new HashMap<>();
+			parameters.put("credentialId", credentialId + "");
 			try {
-				eventFactory.generateEvent(EventType.AssessmentApproved, loggedUserBean.getUser(), 
-						student, assessment, 
+				eventFactory.generateEvent(EventType.AssessmentApproved, loggedUserBean.getUser(), student, assessment,
 						page, lContext, service, parameters);
 			} catch (Exception e) {
 				logger.error("Eror sending notification for assessment request", e);
@@ -184,34 +193,35 @@ public class CredentialAssessmentBean implements Serializable {
 	}
 
 	private void markCompetenceApproved(String encodedCompetenceAssessmentId) {
-		for(CompetenceAssessmentData competenceAssessment : fullAssessmentData.getCompetenceAssessmentData()) {
-			if(competenceAssessment.getCompetenceAssessmentEncodedId().equals(encodedCompetenceAssessmentId)) {
+		for (CompetenceAssessmentData competenceAssessment : fullAssessmentData.getCompetenceAssessmentData()) {
+			if (competenceAssessment.getCompetenceAssessmentEncodedId().equals(encodedCompetenceAssessmentId)) {
 				competenceAssessment.setApproved(true);
 			}
 		}
-		
+
 	}
-	
+
 	public void markDiscussionRead() {
 		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
 		String encodedActivityDiscussionId = params.get("encodedActivityDiscussionId");
-		if(StringUtils.isBlank(encodedActivityDiscussionId)){
-			logger.error("User "+loggedUserBean.getUser().getId()+" tried to add comment without discussion id");
+		if (StringUtils.isBlank(encodedActivityDiscussionId)) {
+			logger.error("User " + loggedUserBean.getUser().getId() + " tried to add comment without discussion id");
 			PageUtil.fireErrorMessage("Unable to add comment");
-		}
-		else {
-			assessmentManager.markDiscussionAsSeen(loggedUserBean.getUser().getId(), idEncoder.decodeId(encodedActivityDiscussionId));
-			Optional<ActivityAssessmentData> seenActivityAssessment = getActivityAssessmentByEncodedId(encodedActivityDiscussionId);
+		} else {
+			assessmentManager.markDiscussionAsSeen(loggedUserBean.getUser().getId(),
+					idEncoder.decodeId(encodedActivityDiscussionId));
+			Optional<ActivityAssessmentData> seenActivityAssessment = getActivityAssessmentByEncodedId(
+					encodedActivityDiscussionId);
 			seenActivityAssessment.ifPresent(data -> data.setAllRead(true));
 		}
 	}
 
 	private Optional<ActivityAssessmentData> getActivityAssessmentByEncodedId(String encodedActivityDiscussionId) {
 		List<CompetenceAssessmentData> competenceAssessmentData = fullAssessmentData.getCompetenceAssessmentData();
-		if(CollectionUtils.isNotEmpty(competenceAssessmentData)) {
-			for(CompetenceAssessmentData comp : competenceAssessmentData) {
-				for(ActivityAssessmentData act : comp.getActivityAssessmentData()) {
-					if(act.getEncodedDiscussionId().equals(encodedActivityDiscussionId)) {
+		if (CollectionUtils.isNotEmpty(competenceAssessmentData)) {
+			for (CompetenceAssessmentData comp : competenceAssessmentData) {
+				for (ActivityAssessmentData act : comp.getActivityAssessmentData()) {
+					if (act.getEncodedDiscussionId().equals(encodedActivityDiscussionId)) {
 						return Optional.of(act);
 					}
 				}
@@ -220,72 +230,76 @@ public class CredentialAssessmentBean implements Serializable {
 		return Optional.empty();
 	}
 
-	public void addCommentToActivityDiscussion(String encodedActivityDiscussionId, String encodedTargetActivityId,String encodedCompetenceAssessmentId) {
+	public void addCommentToActivityDiscussion(String encodedActivityDiscussionId, String encodedTargetActivityId,
+			String encodedCompetenceAssessmentId) {
 		long actualDiscussionId;
-		if(StringUtils.isBlank(encodedActivityDiscussionId)) {
-			actualDiscussionId = createDiscussion(encodedTargetActivityId,encodedCompetenceAssessmentId);
-		}
-		else {
+		if (StringUtils.isBlank(encodedActivityDiscussionId)) {
+			actualDiscussionId = createDiscussion(encodedTargetActivityId, encodedCompetenceAssessmentId);
+		} else {
 			actualDiscussionId = idEncoder.decodeId(encodedActivityDiscussionId);
 		}
-		addComment(actualDiscussionId,idEncoder.decodeId(encodedCompetenceAssessmentId));
+		addComment(actualDiscussionId, idEncoder.decodeId(encodedCompetenceAssessmentId));
 		cleanupCommentData();
 	}
-	
+
 	public boolean isCurrentUserMessageSender(ActivityDiscussionMessageData messageData) {
 		return idEncoder.encodeId(loggedUserBean.getUser().getId()).equals(messageData.getEncodedSenderId());
 	}
-	
+
 	public void editComment(String newContent, String activityMessageEncodedId) {
 		long activityMessageId = idEncoder.decodeId(activityMessageEncodedId);
 		try {
 			assessmentManager.editCommentContent(activityMessageId, loggedUserBean.getUser().getId(), newContent);
 		} catch (ResourceCouldNotBeLoadedException e) {
-			logger.error("Error editing message with id : "+activityMessageId, e);
+			logger.error("Error editing message with id : " + activityMessageId, e);
 			PageUtil.fireErrorMessage("Error editing message");
 		}
 	}
 
 	private void addComment(long actualDiscussionId, long competenceAssessmentId) {
 		try {
-			ActivityDiscussionMessageData newComment = assessmentManager.addCommentToDiscussion(actualDiscussionId, loggedUserBean.getUser().getId(), newCommentValue);
-			addNewCommentToAssessmentData(newComment,actualDiscussionId,competenceAssessmentId);
-			
+			ActivityDiscussionMessageData newComment = assessmentManager.addCommentToDiscussion(actualDiscussionId,
+					loggedUserBean.getUser().getId(), newCommentValue);
+			addNewCommentToAssessmentData(newComment, actualDiscussionId, competenceAssessmentId);
+
 			String page = PageUtil.getPostParameter("page");
 			String lContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
-			notifyAssessmentCommentAsync(decodedAssessmentId, page, lContext, service,
-					getCommentRecepientId(),fullAssessmentData.getCredentialId());
-			
+			notifyAssessmentCommentAsync(decodedAssessmentId, page, lContext, service, getCommentRecepientId(),
+					fullAssessmentData.getCredentialId());
+
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error("Error saving assessment message", e);
 			PageUtil.fireErrorMessage("Error while adding new assessment message");
 		}
 	}
 
-	private void addNewCommentToAssessmentData(ActivityDiscussionMessageData newComment, long actualDiscussionId, long competenceAssessmentId) {
-		if(isCurrentUserAssessor()) {
+	private void addNewCommentToAssessmentData(ActivityDiscussionMessageData newComment, long actualDiscussionId,
+			long competenceAssessmentId) {
+		if (isCurrentUserAssessor()) {
 			newComment.setSenderInsructor(true);
 		}
-		Optional<ActivityAssessmentData> newCommentActivity = getActivityAssessmentByEncodedId(idEncoder.encodeId(actualDiscussionId));
+		Optional<ActivityAssessmentData> newCommentActivity = getActivityAssessmentByEncodedId(
+				idEncoder.encodeId(actualDiscussionId));
 		newCommentActivity.ifPresent(data -> data.getActivityDiscussionMessageData().add(newComment));
-		
+
 	}
-	
-	private void notifyAssessmentCommentAsync(long decodedAssessmentId, String page, String lContext,
-			String service, long recepientId, long credentialId) {
+
+	private void notifyAssessmentCommentAsync(long decodedAssessmentId, String page, String lContext, String service,
+			long recepientId, long credentialId) {
 		taskExecutor.execute(() -> {
 			User recipient = new User();
 			recipient.setId(recepientId);
 			CredentialAssessment assessment = new CredentialAssessment();
 			assessment.setId(decodedAssessmentId);
-			Map<String,String> parameters = new HashMap<>();
-			parameters.put("credentialId", credentialId+"");
-			//in order to construct a link, we will need info if the notification recipient is assessor (to prepend "manage")
-			parameters.put("isRecepientAssessor", ((Boolean)(fullAssessmentData.getAssessorId() == recepientId)).toString());
+			Map<String, String> parameters = new HashMap<>();
+			parameters.put("credentialId", credentialId + "");
+			// in order to construct a link, we will need info if the
+			// notification recipient is assessor (to prepend "manage")
+			parameters.put("isRecepientAssessor",
+					((Boolean) (fullAssessmentData.getAssessorId() == recepientId)).toString());
 			try {
-				eventFactory.generateEvent(EventType.AssessmentComment, loggedUserBean.getUser(), 
-						recipient, assessment, 
+				eventFactory.generateEvent(EventType.AssessmentComment, loggedUserBean.getUser(), recipient, assessment,
 						page, lContext, service, parameters);
 			} catch (Exception e) {
 				logger.error("Eror sending notification for assessment request", e);
@@ -294,52 +308,64 @@ public class CredentialAssessmentBean implements Serializable {
 	}
 
 	public boolean isCurrentUserAssessor() {
-		if(fullAssessmentData == null) {
+		if (fullAssessmentData == null) {
 			return false;
-		}
-		else return loggedUserBean.getUser().getId() == fullAssessmentData.getAssessorId();
+		} else
+			return loggedUserBean.getUser().getId() == fullAssessmentData.getAssessorId();
 	}
-	
+
 	private long getCommentRecepientId() {
-		//logged user is either assessor or assessee
+		// logged user is either assessor or assessee
 		long currentUserId = loggedUserBean.getUser().getId();
-		if(fullAssessmentData.getAssessorId() == currentUserId) {
-			//current user is assessor, get the other id
+		if (fullAssessmentData.getAssessorId() == currentUserId) {
+			// current user is assessor, get the other id
 			return fullAssessmentData.getAssessedStrudentId();
-		}
-		else return fullAssessmentData.getAssessorId();
-		
+		} else
+			return fullAssessmentData.getAssessorId();
+
 	}
 
 	private long createDiscussion(String encodedTargetActivityId, String encodedCompetenceAssessmentId) {
 		long targetActivityId = idEncoder.decodeId(encodedTargetActivityId);
 		long competenceAssessmentId = idEncoder.decodeId(encodedCompetenceAssessmentId);
-		return assessmentManager.createActivityDiscussion(targetActivityId,competenceAssessmentId,
-				Arrays.asList(fullAssessmentData.getAssessorId(),fullAssessmentData.getAssessedStrudentId()),
+		return assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
+				Arrays.asList(fullAssessmentData.getAssessorId(), fullAssessmentData.getAssessedStrudentId()),
 				loggedUserBean.getUser().getId());
 	}
 
 	private void cleanupCommentData() {
 		newCommentValue = "";
-		
+
 	}
 
 	public void searchForAll() {
-		//only reinitialize when at least one is already false
-		if(!searchForApproved || !searchForPending) {
+		// only reinitialize when at least one is already false
+		if (!searchForApproved || !searchForPending) {
 			searchForApproved = true;
 			searchForPending = true;
+			page = 1;
 			init();
 		}
 	}
 
 	public void searchForNone() {
-		//only reinitialize when at least one is true
-		if(searchForApproved || searchForPending) {
+		// only reinitialize when at least one is true
+		if (searchForApproved || searchForPending) {
 			searchForApproved = false;
 			searchForPending = false;
+			page = 1;
 			init();
 		}
+	}
+	
+	private void generatePagination() {
+		// if we don't want to generate all links
+		Paginator paginator = new Paginator(assessmentsNumber, limit, page, 1, "...");
+		// if we want to genearte all links in paginator
+		// Paginator paginator = new Paginator(courseMembersNumber, limit, page,
+		// true, "...");
+		numberOfPages = paginator.getNumberOfPages();
+		paginationLinks = paginator.generatePaginationLinks();
 	}
 
 	public UrlIdEncoder getIdEncoder() {
@@ -404,6 +430,7 @@ public class CredentialAssessmentBean implements Serializable {
 
 	public void setSearchForPending(boolean searchForPending) {
 		this.searchForPending = searchForPending;
+		page = 1;
 		init();
 		RequestContext.getCurrentInstance().update("assessmentList:filterAssessmentsForm");
 	}
@@ -414,6 +441,7 @@ public class CredentialAssessmentBean implements Serializable {
 
 	public void setSearchForApproved(boolean searchForApproved) {
 		this.searchForApproved = searchForApproved;
+		page = 1;
 		init();
 		RequestContext.getCurrentInstance().update("assessmentList:filterAssessmentsForm");
 	}
@@ -465,7 +493,47 @@ public class CredentialAssessmentBean implements Serializable {
 	public void setEventFactory(EventFactory eventFactory) {
 		this.eventFactory = eventFactory;
 	}
-	
+
+	@Override
+	public boolean isCurrentPageFirst() {
+		return page == 1 || numberOfPages == 0;
+	}
+
+	@Override
+	public boolean isCurrentPageLast() {
+		return page == numberOfPages || numberOfPages == 0;
+	}
+
+	@Override
+	public void changePage(int page) {
+		if (this.page != page) {
+			this.page = page;
+			init();
+		}
+	}
+
+	@Override
+	public void goToPreviousPage() {
+		changePage(page - 1);
+	}
+
+	@Override
+	public void goToNextPage() {
+		changePage(page + 1);
+	}
+
+	@Override
+	public boolean isResultSetEmpty() {
+		return assessmentsNumber == 0;
+	}
+
+	public List<PaginationLink> getPaginationLinks() {
+		return paginationLinks;
+	}
+
+	public void setPaginationLinks(List<PaginationLink> paginationLinks) {
+		this.paginationLinks = paginationLinks;
+	}
 	
 	
 }
