@@ -1,6 +1,7 @@
 package org.prosolo.services.nodes.impl;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -47,6 +48,16 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	private static final String ALL_ASSESSMENTS_QUERY = "FROM CredentialAssessment AS credentialAssessment "
 			+ "WHERE credentialAssessment.targetCredential.credential.id = :credentialId AND "
 			+ "credentialAssessment.assessor.id = :assessorId";
+	
+	private static final String ALL_ASSESSMENTS_FOR_USER_QUERY = "FROM CredentialAssessment AS credentialAssessment "
+			+ "WHERE credentialAssessment.assessedStudent.id = :studentId";
+	private static final String ALL_PENDING_ASSESSMENTS_FOR_USER_QUERY = "FROM CredentialAssessment AS credentialAssessment "
+			+ "WHERE credentialAssessment.assessedStudent.id = :studentId "
+			+ "AND credentialAssessment.approved = false";
+	private static final String ALL_APPROVED_ASSESSMENTS_FOR_USER_QUERY = "FROM CredentialAssessment AS credentialAssessment "
+			+ "WHERE credentialAssessment.assessedStudent.id = :studentId AND "
+			+ "credentialAssessment.approved = true";
+	
 	private static final String ASSESSMENT_FOR_USER_CREDENTIAL_NUMBER = "SELECT COUNT(*) from CredentialAssessment AS credentialAssessment "
 			+ "WHERE credentialAssessment.targetCredential.credential.id = :credentialId AND "
 			+ "credentialAssessment.assessedStudent.id = :assessedStudentId";
@@ -122,6 +133,38 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			return assesmentData;
 		}
 
+	}
+	
+	@Override
+	@Transactional
+	public List<AssessmentData> getAllAssessmentsForStudent(long studentId, boolean searchForPending,
+			boolean searchForApproved, UrlIdEncoder idEncoder, SimpleDateFormat simpleDateFormat) {
+		Query query = getAssessmentForCredentialQuery(studentId, searchForPending, searchForApproved);
+		// if we don't search for pending or for approved, return empty list
+		if (query == null) {
+			logger.info("Searching for assessments that are not pending and not approved, returning empty list");
+			return Lists.newArrayList();
+		} else {
+			@SuppressWarnings("unchecked")
+			List<CredentialAssessment> assessments = query.list();
+			List<AssessmentData> assesmentData = new ArrayList<>(assessments.size());
+			for (CredentialAssessment credAssessment : assessments) {
+				assesmentData.add(AssessmentData.fromAssessment(credAssessment, idEncoder, simpleDateFormat));
+			}
+			return assesmentData;
+		}
+	}
+
+	private Query getAssessmentForCredentialQuery(long studentId, boolean searchForPending, boolean searchForApproved) {
+		Query query = null;
+		if (searchForApproved && searchForPending) {
+			query = persistence.currentManager().createQuery(ALL_ASSESSMENTS_FOR_USER_QUERY).setLong("studentId", studentId);
+		} else if (searchForApproved && !searchForPending) {
+			query = persistence.currentManager().createQuery(ALL_APPROVED_ASSESSMENTS_FOR_USER_QUERY).setLong("studentId", studentId);
+		} else if (!searchForApproved && searchForPending) {
+			query = persistence.currentManager().createQuery(ALL_PENDING_ASSESSMENTS_FOR_USER_QUERY).setLong("studentId", studentId);
+		}
+		return query;
 	}
 
 	private Query getAssessmentForCredentialQuery(long credentialId, long assessorId, boolean searchForPending,
@@ -287,7 +330,5 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				.setLong("assessedStudentId", userId);
 		return (Long) query.uniqueResult();
 	}
-	
-	
 
 }

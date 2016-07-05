@@ -18,32 +18,24 @@
 	xmlns:assessments="http://java.sun.com/jsf/composite/components/assessments">
 
 	<ui:define name="windowTitle">
-		ProSolo - Credential
+		ProSolo - Assessments
 	</ui:define>
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewParam name="id" value="#{credentialAssessmentBean.id}" default="null" />
-			<f:viewAction action="#{credentialAssessmentBean.init()}" />
+			<f:viewAction action="#{studentAssessmentBean.init()}" />
 		</f:metadata>
 	</ui:define>
 
     <ui:define name="resourceTitle">
-    	<h1>#{credentialAssessmentBean.credentialTitle}</h1>
+    	<h1>All assessment requests</h1>
     </ui:define>
     
-    <ui:define name="navLinks">
-		<mngComp:credentialsHeaderNavLinks
-			id="headerNavLinks"
-			credEncodedId="#{param['id']}"
-			credType="UNIVERSITY_CREATED"
-		/>
-	</ui:define>
     
 	<ui:define name="content">
 		<assessments:assessmentsList
 					id="assessmentList"
-					bean="#{credentialAssessmentBean}"
-					assessor="true"/>
+					bean="#{studentAssessmentBean}"
+					assessor="false"/>
 	</ui:define>
 </ui:composition>

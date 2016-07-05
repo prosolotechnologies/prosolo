@@ -33,8 +33,6 @@ import org.prosolo.services.nodes.data.FullAssessmentData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.PageUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -407,7 +405,7 @@ public class CredentialAssessmentBean implements Serializable {
 	public void setSearchForPending(boolean searchForPending) {
 		this.searchForPending = searchForPending;
 		init();
-		RequestContext.getCurrentInstance().update("filterAssessmentsForm");
+		RequestContext.getCurrentInstance().update("assessmentList:filterAssessmentsForm");
 	}
 
 	public boolean isSearchForApproved() {
@@ -417,7 +415,7 @@ public class CredentialAssessmentBean implements Serializable {
 	public void setSearchForApproved(boolean searchForApproved) {
 		this.searchForApproved = searchForApproved;
 		init();
-		RequestContext.getCurrentInstance().update("filterAssessmentsForm");
+		RequestContext.getCurrentInstance().update("assessmentList:filterAssessmentsForm");
 	}
 
 	public String getId() {

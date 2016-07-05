@@ -1,6 +1,7 @@
 package org.prosolo.services.nodes;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import org.prosolo.common.domainmodel.user.User;
@@ -35,5 +36,8 @@ public interface AssessmentManager {
 	public void markDiscussionAsSeen(long userId, long discussionId);
 
 	public Long getAssessmentIdForUser(long userId, long targetCredentialId);
+
+	public List<AssessmentData> getAllAssessmentsForStudent(long id, boolean searchForPending,
+			boolean searchForApproved, UrlIdEncoder idEncoder, SimpleDateFormat simpleDateFormat);
 
 }

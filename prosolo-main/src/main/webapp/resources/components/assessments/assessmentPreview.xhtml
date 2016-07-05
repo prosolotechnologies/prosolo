@@ -231,7 +231,7 @@
 			                                </div>
 			                                <ui:fragment rendered="#{not empty activityAssessment.downloadResourceUrls}">
 			                                	 <ui:repeat  var="url" value="#{activityAssessment.downloadResourceUrls}">
-			                                	 	<a href="#{url}" target="_blank" class="download" data-toggle="tooltip" title="" data-original-title="Download Result" download="#{url}">Download</a>
+			                                	 	<a href="#{url}" target="_blank" class="download" data-toggle="tooltip" title="" data-original-title="Download Result" download="download">Download</a>
 			                                	 </ui:repeat>
 			                                </ui:fragment>
 		                            </li>
