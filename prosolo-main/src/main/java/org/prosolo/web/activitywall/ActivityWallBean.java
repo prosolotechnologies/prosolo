@@ -382,5 +382,13 @@ public class ActivityWallBean {
 	public void setUploadFile(AttachmentPreview1 uploadFile) {
 		this.uploadFile = uploadFile;
 	}
+
+	public boolean isMoreToLoad() {
+		return moreToLoad;
+	}
+
+	public void setMoreToLoad(boolean moreToLoad) {
+		this.moreToLoad = moreToLoad;
+	}
 	
 }

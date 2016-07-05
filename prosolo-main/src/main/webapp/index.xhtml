@@ -70,19 +70,15 @@
 					</ui:repeat>
 				</h:panelGroup>
 				
-				<h:form>
-					<p:poll interval="5" 
-							process="@this"
-							update=":statusWall" 
-							autoStart="true" />
-				</h:form>
+				<h:panelGroup id="panelLoadMore">
+					<p:commandLink rendered="#{activityWallBean.moreToLoad}"
+						value="Load more..."
+						styleClass="btn btn-sm btn-green-stroke btnFullWidth"
+						action="#{activityWallBean.loadMoreActivities()}"
+						update=":panelLoadMore :statusWall">
+					</p:commandLink>
+				</h:panelGroup>
 				
-				<p:commandLink
-					value="Load more..."
-					styleClass="btn btn-sm btn-green-stroke btnFullWidth"
-					action="#{activityWallBean.loadMoreActivities()}"
-					update=":statusWall">
-				</p:commandLink>
 
             </div>
             <div class="col-md-6">

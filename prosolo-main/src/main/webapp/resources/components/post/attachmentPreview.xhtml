@@ -41,7 +41,12 @@
 								onclick="#{cc.attrs.onclickHideLink}"
 								update=":#{cc.clientId}"
 							 />
-		                     <h2><a href="#">#{cc.attrs.attachmentPreview.title}</a></h2>
+		                     <h2>
+		                     	<a target="_blank"
+	                            	href="#{cc.attrs.attachmentPreview.link}">
+	                            	#{cc.attrs.attachmentPreview.title}
+	                            </a>
+	                         </h2>
 		                     <p>
 		                         #{cc.attrs.attachmentPreview.description}
 		                     </p>
@@ -61,7 +66,12 @@
 								update=":#{cc.clientId}"
 							 />
 	                         <span class="fileName">#{cc.attrs.attachmentPreview.fileName}</span>
-	                         <h2><a href="#">#{cc.attrs.attachmentPreview.title}</a></h2>
+	                         <h2>
+	                         	<a target="_blank"
+	                            	href="#{cc.attrs.attachmentPreview.link}">
+	                            	#{cc.attrs.attachmentPreview.title}
+	                            </a>
+	                         </h2>
 	                         <p>
 	                             #{cc.attrs.attachmentPreview.description}
 	                         </p>
@@ -71,16 +81,16 @@
 
 				<!-- show posts -->
 				<c:if test="#{cc.attrs.viewUseCase}">
-					<ui:fragment rendered="#{cc.attrs.attachmentPreview.mediaType eq 'Credential'}">
+					<ui:fragment rendered="#{cc.attrs.attachmentPreview.mediaType eq 'Credential'
+						or cc.attrs.attachmentPreview.mediaType eq 'Competence'}">
 					<!-- preview credential -->
 	                <div class="previewCredComp">
                         <div class="content">
                             <h2>
-	                            <h:link 
-	                            	outcome="/credential">
-	                            	<span class="iconCredential"></span>
+	                            <h:link target="_blank"
+	                            	outcome="/#{cc.attrs.attachmentPreview.link}">
+	                            	<span class="#{styleUtilBean.getIconStyleClassBasedOnMediaType(cc.attrs.attachmentPreview.mediaType)}"></span>
 	                            	#{cc.attrs.attachmentPreview.title}
-	                            	<f:param name="id" value="#{util:encodeId(cc.attrs.attachmentPreview.id)}"/>
 	                            </h:link>
                             </h2>
                             <p>
@@ -99,82 +109,61 @@
                             </div>
                         </div>
                     </div>
-				</ui:fragment>
+					</ui:fragment>
 				
-				<ui:fragment rendered="#{cc.attrs.attachmentPreview.mediaType eq 'Competence'}">
-					<!-- preview competence -->
-	                <div class="previewCredComp">
-                        <div class="content">
-                            <h2>
-	                            <h:link 
-	                            	outcome="/competence">
-	                            	<span class="iconCompetence"></span>
-	                            	#{cc.attrs.attachmentPreview.title}
-	                            	<f:param name="compId" value="#{util:encodeId(cc.attrs.attachmentPreview.id)}"/>
-	                            </h:link>
-                            </h2>
-                            <p>
-                               #{cc.attrs.attachmentPreview.description}
-                            </p>
-                            <div class="meta">
-                            	<ui:fragment rendered="#{!cc.attrs.attachmentPreview.universityCreated}">
-		                    		<a href="javascript:void(0);" class="madeByUser" data-toggle="tooltip"
-		    						title="Made by #{cc.attrs.attachmentPreview.creatorName}">made by user</a>
-		                    	</ui:fragment>
-								<ui:fragment rendered="#{cc.attrs.attachmentPreview.universityCreated}">
-		                    		<a href="javascript:void(0);" class="madeByUniversity" data-toggle="tooltip"
-		            					title="Made by University">made by university</a>
-		                    	</ui:fragment>
-                                <div class="duration">#{cc.attrs.attachmentPreview.duration}</div>
-                            </div>
-                        </div>
-                    </div>
-				</ui:fragment>
+					<ui:fragment rendered="#{cc.attrs.attachmentPreview.mediaType eq 'Activity'}">
+						<!-- preview credential -->
+		                <div class="previewCredComp">
+	                        <div class="content">
+	                            <h2>
+		                            <h:link target="_blank"
+	                            		outcome="/#{cc.attrs.attachmentPreview.link}">
+		                            	<span class="#{styleUtilBean.getStyleClassBasedOnActivityType(cc.attrs.attachmentPreview.activityType)}"></span>
+		                            	#{cc.attrs.attachmentPreview.title}
+		                            </h:link>  
+	                            </h2>
+	                            <p>
+	                               #{cc.attrs.attachmentPreview.description}
+	                            </p>
+	                            <div class="meta">
+	                            	<ui:fragment rendered="#{!cc.attrs.attachmentPreview.universityCreated}">
+			                    		<a href="javascript:void(0);" class="madeByUser" data-toggle="tooltip"
+			    						title="Made by #{cc.attrs.attachmentPreview.creatorName}">made by user</a>
+			                    	</ui:fragment>
+									<ui:fragment rendered="#{cc.attrs.attachmentPreview.universityCreated}">
+			                    		<a href="javascript:void(0);" class="madeByUniversity" data-toggle="tooltip"
+			            					title="Made by University">made by university</a>
+			                    	</ui:fragment>
+	                                <div class="duration">#{cc.attrs.attachmentPreview.duration}</div>
+	                            </div>
+	                        </div>
+	                    </div>
+					</ui:fragment>
 				
-				<ui:fragment rendered="#{cc.attrs.attachmentPreview.mediaType eq 'Activity'}">
-					<!-- preview credential -->
-	                <div class="previewCredComp">
-                        <div class="content">
-                            <h2>
-                            	
-	                            <h:link
-	                            	outcome="/activity">
-	                            	<span class="#{styleUtilBean.getStyleClassBasedOnActivityType(cc.attrs.attachmentPreview.activityType)}"></span>
-	                            	#{cc.attrs.attachmentPreview.title}
-	                            	<f:param name="actId" value="#{util:encodeId(cc.attrs.attachmentPreview.id)}"/>
-	                            	<f:param name="compId" value="#{util:encodeId(cc.attrs.attachmentPreview.compId)}"/>
-	                            	<f:param name="credId" value="#{util:encodeId(cc.attrs.attachmentPreview.credId)}" disable="#{cc.attrs.attachmentPreview.credId eq 0}"/>
-	                            </h:link>  
-                            </h2>
-                            <p>
-                               #{cc.attrs.attachmentPreview.description}
-                            </p>
-                            <div class="meta">
-                            	<ui:fragment rendered="#{!cc.attrs.attachmentPreview.universityCreated}">
-		                    		<a href="javascript:void(0);" class="madeByUser" data-toggle="tooltip"
-		    						title="Made by #{cc.attrs.attachmentPreview.creatorName}">made by user</a>
-		                    	</ui:fragment>
-								<ui:fragment rendered="#{cc.attrs.attachmentPreview.universityCreated}">
-		                    		<a href="javascript:void(0);" class="madeByUniversity" data-toggle="tooltip"
-		            					title="Made by University">made by university</a>
-		                    	</ui:fragment>
-                                <div class="duration">#{cc.attrs.attachmentPreview.duration}</div>
-                            </div>
-                        </div>
-                    </div>
-				</ui:fragment>
-				
-				<ui:fragment rendered="#{cc.attrs.attachmentPreview.mediaType eq 'Tweet'}">
-				 <div class="previewLink previewTweet">
-                     <div class="content">
-                         <a href="#" class="twitterUsername">username</a>
-                         <p>
-                             Integer ante dui, vestibulum sit amet risus at, lobortis volutpat quam. In accumsan ultricies egestas.
-                         </p>
-                         <small>View on <a href="#">twitter.com</a></small>
-                     </div>
-                 </div>
-                </ui:fragment>
+					<ui:remove><ui:fragment rendered="#{cc.attrs.attachmentPreview.mediaType eq 'Tweet'}">
+					 <div class="previewLink previewTweet">
+	                     <div class="content">
+	                         <a href="#" class="twitterUsername">username</a>
+	                         <p>
+	                             Integer ante dui, vestibulum sit amet risus at, lobortis volutpat quam. In accumsan ultricies egestas.
+	                         </p>
+	                         <small>View on <a href="#">twitter.com</a></small>
+	                     </div>
+	                 </div>
+	                </ui:fragment></ui:remove>
+                
+	                <ui:fragment rendered="#{cc.attrs.attachmentPreview.mediaType eq 'CompetenceComment' 
+	                		or cc.attrs.attachmentPreview.mediaType eq 'ActivityComment'}">
+		                 <div class="previewCredCompLine">
+		                     <h2><span class="iconCompetence"></span>#{cc.attrs.attachmentPreview.title}</h2>
+		                 </div>
+		                 <p class="commentPreview">
+		                    #{cc.attrs.attachmentPreview.description}
+		                 </p>
+		                 <p>
+		                     <h:link target="_blank" outcome="#{cc.attrs.attachmentPreview.link}">View discussion</h:link>
+		                 </p>
+	                </ui:fragment>
 				</c:if>
 			</h:panelGroup>
 		</div>

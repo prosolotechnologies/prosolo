@@ -31,7 +31,7 @@ public class CredentialObjectSocialActivityProcessor extends SocialActivityProce
 			act = new CredentialEnrollSocialActivity();
 			((CredentialEnrollSocialActivity) act).setCredentialObject(cred);
 			
-		} else if(event.getAction() == EventType.CREDENTIAL_COMPLETED) {
+		} else if(event.getAction() == EventType.Completion) {
 			TargetCredential1 tc = (TargetCredential1) event.getObject();
 			Credential1 cred = null;
 			if(tc != null) {

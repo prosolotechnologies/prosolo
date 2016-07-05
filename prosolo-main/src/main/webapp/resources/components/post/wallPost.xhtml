@@ -42,18 +42,7 @@
                    				<ui:fragment rendered="#{not empty cc.attrs.socialActivity.object.creator.fullName}">
                    					#{cc.attrs.socialActivity.object.creator.fullName}'s
                    				</ui:fragment>
-                   				<ui:fragment rendered="#{cc.attrs.socialActivity.object.id > 0}">
-                   					<h:link outcome="#{pageUtilBean.getViewPageForObjectType(cc.attrs.socialActivity.object.type)}"
-                   						target="_blank">
-                   						#{cc.attrs.socialActivity.object.title}
-                   						<f:param name="#{pageUtilBean.getParamNameForObjectType(cc.attrs.socialActivity.object.type)}"
-                   							value="#{util:encodeId(cc.attrs.socialActivity.object.id)}">
-                 						</f:param>
-                   					</h:link>
-                   				</ui:fragment>
-                   				<ui:fragment rendered="#{cc.attrs.socialActivity.object.id eq 0}">
-                   					#{cc.attrs.socialActivity.object.title}
-                   				</ui:fragment>
+                   				#{cc.attrs.socialActivity.object.title}
                    			</ui:fragment>
                    			#{cc.attrs.socialActivity.relationToTarget}
                    			<ui:fragment rendered="#{not empty cc.attrs.socialActivity.target}">
@@ -61,18 +50,7 @@
                    				<ui:fragment rendered="#{not empty cc.attrs.socialActivity.target.creator.fullName}">
                    					#{cc.attrs.socialActivity.target.creator.fullName}'s
                    				</ui:fragment>
-                   				<ui:fragment rendered="#{cc.attrs.socialActivity.target.id > 0}">
-                   					<h:link outcome="#{pageUtilBean.getViewPageForObjectType(cc.attrs.socialActivity.target.type)}"
-                   						target="_blank">
-                   						#{cc.attrs.socialActivity.target.title}
-                   						<f:param name="#{pageUtilBean.getParamNameForObjectType(cc.attrs.socialActivity.target.type)}"
-                   							value="#{util:encodeId(cc.attrs.socialActivity.target.id)}">
-                 						</f:param>
-                   					</h:link>
-                   				</ui:fragment>
-                   				<ui:fragment rendered="#{cc.attrs.socialActivity.target.id eq 0}">
-                   					#{cc.attrs.socialActivity.target.title}
-                   				</ui:fragment>
+                   				#{cc.attrs.socialActivity.target.title}
                    			</ui:fragment>
                    		</span>
                    </h3>
@@ -92,9 +70,8 @@
                </div>
            </div>
            <div class="wallPostBody">
-               <p class="#{styleUtilBean.getClassForSocialActivityText(cc.attrs.socialActivity.type)}">
+               <p>
                		<h:outputText escape="false" value="#{cc.attrs.socialActivity.text}"></h:outputText>
-                   
                </p>
                <post:attachmentPreview id="link"
 					attachmentPreview="#{cc.attrs.socialActivity.attachmentPreview}"

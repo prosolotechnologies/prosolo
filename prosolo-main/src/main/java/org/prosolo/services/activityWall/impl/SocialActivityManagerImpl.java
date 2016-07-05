@@ -22,6 +22,7 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.ActivityCommentSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.ActivityCompleteSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.CompetenceCommentSocialActivity;
+import org.prosolo.common.domainmodel.activitywall.CompetenceCompleteSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.CredentialCompleteSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.CredentialEnrollSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
@@ -273,6 +274,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				//activity comment social activity
 				"sa.activity_target AS actTargetId, " +
 				"actTarget.title AS actTargetTitle, " +
+				"compActivity.competence AS actTargetCompId, " +
 				//activity complete
 				"tActObject.activity AS actObjectId, " +
 				"actObject.title AS actObjectTitle, " +
@@ -286,6 +288,16 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"actObject.url_type AS actObjectUrlType, " +
 				"tComp.competence AS actObjectCompetenceId, " +
 				"tCred.credential AS actObjectCredentialId, " +
+				//competence complete
+				"tCompObject.competence AS compObjectId, " +
+				"compObject.title AS compObjectTitle, " +
+				"compObject.duration AS compObjectDuration, " +
+				"compObject.type AS compObjectType, " +
+				"compObject.created_by AS compObjectActorId, " +
+				"compObjectActor.name AS compObjectActorName, " +
+				"compObjectActor.lastname AS compObjectActorLastname, " +
+				"compObject.description AS compObjectDescription, " +
+				"compObjectTCred.credential AS compObjectCredentialId, " +
 				
 				"IF (annotation.id > 0, true, false) AS liked \n ";
 	}
@@ -309,6 +321,16 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"		AND sa.credential_object = credObject.id \n " +
 				"   LEFT JOIN user AS credObjectActor " +
 				"       ON credObject.created_by = credObjectActor.id " +
+				//competence complete social activity
+				"	LEFT JOIN target_competence1 AS tCompObject \n" +
+				"		ON sa.dType = :compCompleteDType \n " +
+				"		AND sa.target_competence_object = tCompObject.id \n " +
+				"   LEFT JOIN competence1 compObject " +
+				"       ON tCompObject.competence = compObject.id " +
+				"   LEFT JOIN target_credential1 compObjectTCred " +
+				"       ON tCompObject.target_credential = compObjectTCred.id " +
+				"   LEFT JOIN user AS compObjectActor " +
+				"       ON compObject.created_by = compObjectActor.id " +
 				//comment social activity (competence and activity)
 				"	LEFT JOIN comment1 AS commentObject \n" +
 				"		ON (sa.dType = :competenceCommentDType " +
@@ -322,6 +344,11 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"	LEFT JOIN activity1 AS actTarget \n" +
 				"		ON sa.dType = :activityCommentDType \n" +
 				"       AND sa.activity_target = actTarget.id \n " +
+				"   LEFT JOIN (competence_activity1 compActivity \n " +   
+						"   INNER JOIN competence1 AS actTargetCompetence \n " +
+						"       ON compActivity.competence = actTargetCompetence.id \n " +
+						"       AND actTargetCompetence.draft = :boolFalse) \n " + 
+				"       ON actTarget.id = compActivity.activity \n " +
 				//activity complete social activity
 				"	LEFT JOIN target_activity1 AS tActObject \n" +
 				"		ON sa.dType = :activityCompleteDType \n" +
@@ -370,6 +397,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			.setString("competenceCommentDType", CompetenceCommentSocialActivity.class.getSimpleName())
 			.setString("activityCommentDType", ActivityCommentSocialActivity.class.getSimpleName())
 			.setString("activityCompleteDType", ActivityCompleteSocialActivity.class.getSimpleName())
+			.setString("compCompleteDType", CompetenceCompleteSocialActivity.class.getSimpleName())
 			.setString("annotatedResource", AnnotatedResource.SocialActivity.name())
 			.setString("annotationType", AnnotationType.Like.name())
 			.setBoolean("boolFalse", false)
@@ -427,20 +455,30 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 							(BigInteger) tuple[45], 
 							(String) tuple[46], 
 							(BigInteger) tuple[47], 
-							(String) tuple[48], 
-							(BigInteger) tuple[49], 
-							(String) tuple[50],
-							(BigInteger) tuple[51],
-							(String) tuple[52],
-							(BigInteger) tuple[53],
-							(String) tuple[54],
+							(String) tuple[48],
+							(BigInteger) tuple[49],
+							(BigInteger) tuple[50], 
+							(String) tuple[51],
+							(BigInteger) tuple[52],
+							(String) tuple[53],
+							(BigInteger) tuple[54],
 							(String) tuple[55],
 							(String) tuple[56],
 							(String) tuple[57],
 							(String) tuple[58],
-							(BigInteger) tuple[59],
+							(String) tuple[59],
 							(BigInteger) tuple[60],
-							(Integer) tuple[61],
+							(BigInteger) tuple[61],
+							(BigInteger) tuple[62], 
+							(String) tuple[63], 
+							(BigInteger) tuple[64],
+							(String) tuple[65],
+							(BigInteger) tuple[66],
+							(String) tuple[67],
+							(String) tuple[68],
+							(String) tuple[69],
+							(BigInteger) tuple[70],
+							(Integer) tuple[71],
 							locale);
 				}
 				
@@ -624,6 +662,29 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	}
 	
 	@Transactional(readOnly = true)
+	private SocialActivity1 getCompetenceCompleteSocialActivity(long id, Session session) 
+			throws DbConnectionException {
+		try {
+			String query = "SELECT sa " +
+						   "FROM CompetenceCompleteSocialActivity sa " +
+						   "INNER JOIN fetch sa.actor " +
+						   "INNER JOIN fetch sa.competenceObject obj " +
+						   "INNER JOIN fetch obj.createdBy " +
+						   "WHERE sa.id = :id";
+			CompetenceCompleteSocialActivity sa = (CompetenceCompleteSocialActivity) session
+					.createQuery(query)
+					.setLong("id", id)
+					.uniqueResult();
+			
+			return sa;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving social activity");
+		}
+	}
+	
+	@Transactional(readOnly = true)
 	private SocialActivity1 getActivityCompleteSocialActivity(long id, Session session) 
 			throws DbConnectionException {
 		try {
@@ -671,6 +732,8 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			sa = getActivityCommentSocialActivity(id, session);
 		} else if(clazz == ActivityCompleteSocialActivity.class) {
 			sa = getActivityCompleteSocialActivity(id, session);
+		} else if(clazz == CompetenceCompleteSocialActivity.class) {
+			sa = getCompetenceCompleteSocialActivity(id, session);
 		}
 		
 		boolean liked = hasUserLikedSocialActivity(userId, id);

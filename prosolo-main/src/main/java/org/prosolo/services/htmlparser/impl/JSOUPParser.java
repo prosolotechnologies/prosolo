@@ -89,7 +89,11 @@ public class JSOUPParser implements HTMLParser {
 		htmlPage.setInitialized(true);
 		
 		// link
-		htmlPage.setLink(url.toString());
+		String fullUrl = url;
+		if(!fullUrl.matches("^(https?|ftp)://.*$")) {
+			fullUrl = "http://" + fullUrl;
+		}
+		htmlPage.setLink(fullUrl);
 		
 		htmlPage.setDomain(URLUtil.getDomainFromUrl(htmlPage.getLink()));
 		

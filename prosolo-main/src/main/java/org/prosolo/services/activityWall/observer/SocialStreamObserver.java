@@ -60,8 +60,7 @@ public class SocialStreamObserver extends EventObserver {
 //			EventType.JOIN_GOAL_INVITATION_ACCEPTED,
 //			EventType.JOIN_GOAL_REQUEST_APPROVED,
 //			EventType.JoinedGoal,
-			EventType.ENROLL_COURSE,
-			EventType.CREDENTIAL_COMPLETED
+			EventType.ENROLL_COURSE
 		};
 	}
 

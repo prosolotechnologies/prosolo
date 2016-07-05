@@ -1,19 +1,26 @@
 package org.prosolo.services.activityWall.factory;
 
+import javax.inject.Inject;
+
 import org.prosolo.common.domainmodel.content.ContentType1;
 import org.prosolo.common.domainmodel.content.RichContent1;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.domainmodel.user.notifications.ObjectType;
 import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaData;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaType1;
 import org.prosolo.services.nodes.util.TimeUtil;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.util.page.ObjectToPageMapper;
 import org.prosolo.services.util.url.URLUtil;
 import org.springframework.stereotype.Component;
 
 @Component
 public class RichContentDataFactory {
 
+	@Inject private UrlIdEncoder idEncoder;
+	
 	public AttachmentPreview1 getAttachmentPreview(RichContent1 richContent) {
 		if(richContent == null) {
 			return null;
@@ -49,15 +56,26 @@ public class RichContentDataFactory {
 	public AttachmentPreview1 getAttachmentPreviewForCredential(long id, long duration,
 			String title, String description, LearningResourceType type, 
 			String creatorName, String creatorLastname) {
-		return getAttachmentPreviewForLearningResource(id, duration, title, description, 
+		AttachmentPreview1 ap = getAttachmentPreviewForLearningResource(id, duration, title, description, 
 				type, creatorName, creatorLastname, MediaType1.Credential);
+		String page = ObjectToPageMapper.getViewPageForObjectType(ObjectType.Credential);
+		ap.setLink(page + "?id=" + idEncoder.encodeId(id));
+		return ap;
 	}
 	
 	public AttachmentPreview1 getAttachmentPreviewForCompetence(long id, long duration,
 			String title, String description, LearningResourceType type, 
-			String creatorName, String creatorLastname) {
-		return getAttachmentPreviewForLearningResource(id, duration, title, description, 
+			String creatorName, String creatorLastname, long credId) {
+		AttachmentPreview1 ap = getAttachmentPreviewForLearningResource(id, duration, title, description, 
 				type, creatorName, creatorLastname, MediaType1.Competence);
+		String page = ObjectToPageMapper.getViewPageForObjectType(ObjectType.Competence);
+		StringBuilder url = new StringBuilder(page);
+		url.append("?compId=" + idEncoder.encodeId(id));
+		if(credId > 0) {
+			url.append("&credId=" + idEncoder.encodeId(credId));
+		}
+		ap.setLink(url.toString());
+		return ap;
 	}
 	
 	public AttachmentPreview1 getAttachmentPreviewForActivity(long id, long duration,
@@ -66,8 +84,16 @@ public class RichContentDataFactory {
 		AttachmentPreview1 ap = getAttachmentPreviewForLearningResource(id, duration, title, description, 
 				type, creatorName, creatorLastname, MediaType1.Activity);
 		ap.setActivityType(activityType);
-		ap.setCompId(compId);
-		ap.setCredId(credId);
+		String page = ObjectToPageMapper.getViewPageForObjectType(ObjectType.Activity);
+		StringBuilder url = new StringBuilder(page);
+		url.append("?actId=" + idEncoder.encodeId(id));
+		if(compId > 0) {
+			url.append("&compId=" + idEncoder.encodeId(compId));
+		}
+		if(credId > 0) {
+			url.append("&credId=" + idEncoder.encodeId(credId));
+		}
+		ap.setLink(url.toString());
 		return ap;
 	}
 	
@@ -82,6 +108,43 @@ public class RichContentDataFactory {
 		ap.setDescription(description);
 		ap.setUniversityCreated(type == LearningResourceType.UNIVERSITY_CREATED);
 		ap.setCreatorName(getFullName(creatorName, creatorLastname));
+		ap.setInitialized(true);
+		return ap;
+	}
+	
+	/**
+	 * Returns attachment preview for comment
+	 * @param id
+	 * @param type object type for which comment is created
+	 * @param title
+	 * @param comment
+	 * @param compId
+	 * @param actId
+	 * @return
+	 */
+	public AttachmentPreview1 getAttachmentPreviewForComment(long id,
+			ObjectType type, String title, String comment, long compId, long actId) {
+		AttachmentPreview1 ap = new AttachmentPreview1();
+		MediaType1 mediaType = null;
+		if(type == ObjectType.Competence) {
+			mediaType = MediaType1.CompetenceComment;
+		} else {
+			mediaType = MediaType1.ActivityComment;
+		}
+		ap.setMediaType(mediaType);
+		ap.setId(id);
+		ap.setTitle(title);
+		ap.setDescription(comment);
+		String page = ObjectToPageMapper.getViewPageForObjectType(type);
+		StringBuilder url = new StringBuilder(page);
+		url.append("?comment=" + idEncoder.encodeId(id));
+		if(compId > 0) {
+			url.append("&compId=" + idEncoder.encodeId(compId));
+		}
+		if(actId > 0) {
+			url.append("&actId=" + idEncoder.encodeId(actId));
+		}
+		ap.setLink(url.toString());
 		ap.setInitialized(true);
 		return ap;
 	}

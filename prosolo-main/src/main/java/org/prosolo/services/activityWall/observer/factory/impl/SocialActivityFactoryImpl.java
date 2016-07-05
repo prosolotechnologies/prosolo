@@ -6,10 +6,15 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
+import org.prosolo.common.domainmodel.credential.TargetActivity1;
+import org.prosolo.common.domainmodel.credential.TargetCompetence1;
+import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.activityWall.observer.factory.SocialActivityFactory;
 import org.prosolo.services.activityWall.observer.processor.ActivityCompletionSocialActivityProcessor;
 import org.prosolo.services.activityWall.observer.processor.CommentSocialActivityProcessor;
+import org.prosolo.services.activityWall.observer.processor.CompetenceObjectSocialActivityProcessor;
 import org.prosolo.services.activityWall.observer.processor.CredentialObjectSocialActivityProcessor;
 import org.prosolo.services.activityWall.observer.processor.PostShareSocialActivityProcessor;
 import org.prosolo.services.activityWall.observer.processor.PostSocialActivityProcessor;
@@ -49,10 +54,18 @@ public class SocialActivityFactoryImpl extends AbstractManagerImpl implements So
 				processor = new PostShareSocialActivityProcessor(session, event, socialActivityManager);
 				break;
 			case Completion:
-				processor = new ActivityCompletionSocialActivityProcessor(session, event, 
-						socialActivityManager);
+				BaseEntity be = event.getObject();
+				if(be instanceof TargetCredential1) {
+					processor = new CredentialObjectSocialActivityProcessor(session, event, 
+							socialActivityManager);
+				} else if(be instanceof TargetCompetence1) {
+					processor = new CompetenceObjectSocialActivityProcessor(session, event, 
+							socialActivityManager);
+				} else if(be instanceof TargetActivity1) {
+					processor = new ActivityCompletionSocialActivityProcessor(session, event, 
+							socialActivityManager);
+				}
 				break;
-			case CREDENTIAL_COMPLETED:
 			case ENROLL_COURSE:
 				processor = new CredentialObjectSocialActivityProcessor(session, event, 
 						socialActivityManager);

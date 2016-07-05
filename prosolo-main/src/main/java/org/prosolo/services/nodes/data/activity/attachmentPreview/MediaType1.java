@@ -10,5 +10,7 @@ public enum MediaType1 {
 	Credential,
 	Competence, 
 	Activity,
-	Tweet;
+	Tweet,
+	CompetenceComment,
+	ActivityComment;
 }

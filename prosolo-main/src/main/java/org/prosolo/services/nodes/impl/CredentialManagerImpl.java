@@ -1794,6 +1794,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			int cumulativeCompProgress = 0;
 			int numberOfActivitiesInACompetence = 0;
 			long nextActToLearnInACompetenceId = 0;
+			long changedCompId = 0;
 			if(res != null) {
 				for(Object[] obj : res) {
 					long compId = (long) obj[1];
@@ -1811,6 +1812,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 						}
 					}
 					if(tCompId == targetCompId) {
+						if(changedCompId == 0) {
+							changedCompId = compId;
+						}
 						cumulativeCompProgress += progress;
 						numberOfActivitiesInACompetence ++;
 						if(nextActToLearnInACompetenceId == 0 && !actCompleted) {
@@ -1876,9 +1880,20 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				eventFactory.generateChangeProgressEvent(user, tCred, finalCredProgress, 
 						lcPage, lcContext, lcService, null);
 				if(finalCredProgress == 100) {
-					eventFactory.generateEvent(EventType.CREDENTIAL_COMPLETED, user, tCred, null,
+					eventFactory.generateEvent(EventType.Completion, user, tCred, null,
 							lcPage, lcContext, lcService, null);
 				}
+				if(finalCompProgress == 100) {
+					TargetCompetence1 tComp = new TargetCompetence1();
+					tComp.setId(targetCompId);
+					Competence1 competence = new Competence1();
+					competence.setId(changedCompId);
+					tComp.setCompetence(competence);
+					
+					eventFactory.generateEvent(EventType.Completion, user, tComp, null,
+							lcPage, lcContext, lcService, null);
+				}
+				
 			}
 		} catch(Exception e) {
 			logger.error(e);
