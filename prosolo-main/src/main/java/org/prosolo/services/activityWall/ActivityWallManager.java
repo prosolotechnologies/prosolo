@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.activitywall.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.old.SocialActivity;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.content.Post;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;

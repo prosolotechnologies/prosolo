@@ -1,9 +1,8 @@
 package org.prosolo.services.activityWall.impl;
 
 
-import org.prosolo.common.domainmodel.activitywall.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;
-import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.activityWall.SocialActivityFilterProcessor;
 import org.prosolo.services.activityWall.filters.Filter;
@@ -18,18 +17,18 @@ import org.prosolo.services.activityWall.strategy.Strategy;
 public class MyNetworkFilterProcessor  implements SocialActivityFilterProcessor{
 
 	@Override
-	public boolean checkSocialActivity(SocialActivity socialActivity, User user,
+	public boolean checkSocialActivity(SocialActivity1 socialActivity, User user,
 			Filter filter) {
 		
-		VisibilityType visibility = socialActivity.getVisibility();
-		if (visibility.equals(VisibilityType.PRIVATE) && socialActivity.getMaker().getId() != user.getId()) {
-			return false;
-		}
+//		VisibilityType visibility = socialActivity.getVisibility();
+//		if (visibility.equals(VisibilityType.PRIVATE) && socialActivity.getMaker().getId() != user.getId()) {
+//			return false;
+//		}
 		
 		MyNetworkFilter myNetworkFilter = (MyNetworkFilter) filter;
 		
 		// need to check maker for null as TwitterPostSocialActivity does not have maker set
-		if (socialActivity.getMaker() != null && myNetworkFilter.isContainsUsersId(socialActivity.getMaker().getId())) {
+		if (socialActivity.getActor() != null && myNetworkFilter.isContainsUsersId(socialActivity.getActor().getId())) {
 			return true;
 		}
 		return false;

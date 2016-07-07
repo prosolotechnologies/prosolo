@@ -14,8 +14,8 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.news.FeaturedNewsObserver;
 import org.prosolo.recommendation.impl.RecommendationObserver;
 import org.prosolo.reminders.RemindersObserver;
-import org.prosolo.services.activityWall.SocialStreamObserver;
 import org.prosolo.services.activityWall.filters.FilterUpdaterObserver;
+import org.prosolo.services.activityWall.observer.SocialStreamObserver;
 import org.prosolo.services.indexing.impl.NodeChangeObserver;
 import org.prosolo.services.indexing.impl.UploadsObserver;
 import org.prosolo.services.interaction.impl.CourseInteractionObserver;
@@ -24,7 +24,6 @@ import org.prosolo.services.interfaceSettings.InterfaceCacheObserver;
 import org.prosolo.services.learningProgress.LearningProgressObserver;
 import org.prosolo.services.logging.LoggingEventsObserver;
 import org.prosolo.services.logging.UserActivityObserver;
-import org.prosolo.services.nodes.event.ActivityStartObserver;
 import org.prosolo.services.nodes.observers.learningResources.LearningResourceChangeObserver;
 import org.prosolo.services.notifications.NotificationObserver;
 import org.prosolo.services.reporting.TwitterHashtagStatisticsObserver;
@@ -64,7 +63,6 @@ public class CentralEventDispatcher {
 	@Autowired private UserActivityStatisticsObserver userActivityStatisticsObserver;
 	@Autowired private TwitterHashtagStatisticsObserver twitterHashtagStatisticsObserver;
 	//@Autowired private SocialInteractionStatisticsObserver socialInteractionStatisticsObserver;
-	@Autowired private ActivityStartObserver activityStartObserver;
 	@Autowired private LearningResourceChangeObserver learningResourceChangeObserver;
 
 	private Collection<EventObserver> getObservers() {
@@ -87,7 +85,7 @@ public class CentralEventDispatcher {
 			observers.add(userActivityStatisticsObserver);
 			observers.add(twitterHashtagStatisticsObserver);
 			//observers.add(socialInteractionStatisticsObserver);
-			observers.add(activityStartObserver);
+			//observers.add(activityStartObserver);
 			observers.add(learningResourceChangeObserver);
 		}
 		return observers;

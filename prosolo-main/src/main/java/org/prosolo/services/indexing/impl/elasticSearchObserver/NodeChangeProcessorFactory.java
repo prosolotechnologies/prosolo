@@ -3,9 +3,7 @@ package org.prosolo.services.indexing.impl.elasticSearchObserver;
 import javax.inject.Inject;
 
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
@@ -88,9 +86,10 @@ public class NodeChangeProcessorFactory {
 				}
 				return new RegularNodeChangeProcessor(event, nodeEntityESService, NodeOperation.Delete);
 			case Attach:
-				if(event.getObject() instanceof TargetActivity && event.getTarget() instanceof TargetCompetence) {
-					return new AttachActivityNodeChangeProcessor(event, nodeEntityESService);
-				}
+				//if(event.getObject() instanceof TargetActivity && event.getTarget() instanceof TargetCompetence) {
+				//	return new AttachActivityNodeChangeProcessor(event, nodeEntityESService);
+				//} 
+				return null;
 			case Bookmark:
 				return new BookmarkNodeChangeProcessor(event, credentialESService, NodeOperation.Save);
 			case RemoveBookmark:

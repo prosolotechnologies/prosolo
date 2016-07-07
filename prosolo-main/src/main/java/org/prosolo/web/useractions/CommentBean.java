@@ -42,7 +42,7 @@ public class CommentBean implements Serializable {
 	private List<CommentData> comments;
 	private CommentedResourceType resourceType;
 	private long resourceId;
-	private CommentSortOption sortOption = CommentSortOption.NEWEST_FIRST;
+	private CommentSortOption sortOption = CommentSortOption.MOST_RECENT;
 	
 	private CommentSortOption[] sortOptions;
 	
@@ -111,17 +111,18 @@ public class CommentBean implements Serializable {
         	
         	newComment.setCommentId(comment.getId());
         	newestCommentId = newComment.getCommentId();
-        	if(parent != null) {
-        		realParent.getChildComments().add(newComment);
-        	} else {
+        	
+			if (parent != null) {
+				realParent.getChildComments().add(newComment);
+			} else {
 	        	/* 
 	        	 * if selected sort option is newest first, add element to the
-	        	 * beggining of a list, otherwise add it to the end
+	        	 * end of a list, otherwise add it to the beginning
 	        	 */
-	        	if(sortOption == CommentSortOption.NEWEST_FIRST) {
-	        		comments.add(0, newComment);
-	        	} else {
+	        	if(sortOption == CommentSortOption.MOST_RECENT) {
 	        		comments.add(newComment);
+	        	} else {
+	        		comments.add(0, newComment);
 	        	}
         	}
         	PageUtil.fireSuccessfulInfoMessage("Comment posted");

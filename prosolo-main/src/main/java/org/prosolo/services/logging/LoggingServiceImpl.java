@@ -27,12 +27,12 @@ import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activities.requests.NodeRequest;
-import org.prosolo.common.domainmodel.activitywall.NodeSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.PostSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.UserSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.comments.NodeComment;
-import org.prosolo.common.domainmodel.activitywall.comments.SocialActivityComment;
+import org.prosolo.common.domainmodel.activitywall.old.NodeSocialActivity;
+import org.prosolo.common.domainmodel.activitywall.old.PostSocialActivity;
+import org.prosolo.common.domainmodel.activitywall.old.TwitterPostSocialActivity;
+import org.prosolo.common.domainmodel.activitywall.old.UserSocialActivity;
+import org.prosolo.common.domainmodel.activitywall.old.comments.NodeComment;
+import org.prosolo.common.domainmodel.activitywall.old.comments.SocialActivityComment;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.content.Post;
 import org.prosolo.common.domainmodel.evaluation.EvaluationSubmission;
@@ -390,7 +390,8 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			}
 		}
 		System.out.println("TARGET USER ID:"+targetUserId);
-		return targetUserId;
+		//TODO this method should be changed because domain model changed
+		return targetUserId != null ? targetUserId : 0;
 	}
 
 	private Long extractCourseIdForUsedResource(LearningContext learningContext) {

@@ -1794,6 +1794,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			int cumulativeCompProgress = 0;
 			int numberOfActivitiesInACompetence = 0;
 			long nextActToLearnInACompetenceId = 0;
+			long changedCompId = 0;
 			if(res != null) {
 				for(Object[] obj : res) {
 					long compId = (long) obj[1];
@@ -1811,6 +1812,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 						}
 					}
 					if(tCompId == targetCompId) {
+						if(changedCompId == 0) {
+							changedCompId = compId;
+						}
 						cumulativeCompProgress += progress;
 						numberOfActivitiesInACompetence ++;
 						if(nextActToLearnInACompetenceId == 0 && !actCompleted) {
@@ -1865,17 +1869,31 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				
 				User user = new User();
 				user.setId(userId);
-				TargetCredential1 cred = new TargetCredential1();
-				cred.setId(targetCredId);
+				TargetCredential1 tCred = new TargetCredential1();
+				tCred.setId(targetCredId);
+				Credential1 cred = new Credential1();
+				cred.setId(credId);
+				tCred.setCredential(cred);
 				String lcPage = contextData != null ? contextData.getPage() : null; 
 				String lcContext = contextData != null ? contextData.getLearningContext() : null; 
 				String lcService = contextData != null ? contextData.getService() : null; 
-				eventFactory.generateChangeProgressEvent(user, cred, finalCredProgress, 
+				eventFactory.generateChangeProgressEvent(user, tCred, finalCredProgress, 
 						lcPage, lcContext, lcService, null);
 				if(finalCredProgress == 100) {
-					eventFactory.generateEvent(EventType.CREDENTIAL_COMPLETED, user, cred, null,
+					eventFactory.generateEvent(EventType.Completion, user, tCred, null,
 							lcPage, lcContext, lcService, null);
 				}
+				if(finalCompProgress == 100) {
+					TargetCompetence1 tComp = new TargetCompetence1();
+					tComp.setId(targetCompId);
+					Competence1 competence = new Competence1();
+					competence.setId(changedCompId);
+					tComp.setCompetence(competence);
+					
+					eventFactory.generateEvent(EventType.Completion, user, tComp, null,
+							lcPage, lcContext, lcService, null);
+				}
+				
 			}
 		} catch(Exception e) {
 			logger.error(e);

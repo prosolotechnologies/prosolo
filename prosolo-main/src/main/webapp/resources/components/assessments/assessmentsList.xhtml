@@ -1,0 +1,118 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:util="http://www.prosolo.com/util">
+
+	<composite:interface>
+		<composite:attribute name="bean" required="true"/>
+		<composite:attribute type="java.lang.Boolean" name="assessor" required="true" />
+		<composite:attribute name="learningContext" default=""/>
+		<composite:attribute name="service" default="" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<script>
+	function flipCheckboxes(id1, id2, value) {
+		$('#'+id1).prop('checked', value);
+		$('#'+id2).prop('checked', value);
+	}
+	</script>
+		 <div class="whiteBar">
+    </div>
+	<h:form id="filterAssessmentsForm">
+    <div class="container">
+        <div class="row">
+        		<div class="col-md-9">
+        		<ui:repeat var="assessmentData" value="#{cc.attrs.bean.assessmentData}">
+	                <article class="whiteBox assessmentItem">
+	                    <h2>
+	                    	<ui:fragment rendered="#{cc.attrs.assessor}">
+		                    	<h:link outcome="/manage/credential-assessment">#{assessmentData.title}
+			                    	<f:param value="#{assessmentData.encodedAssessmentId}" name="assessmentId"></f:param>
+			                    	<f:param value="#{assessmentData.encodedCredentialId}" name="id"></f:param>
+			                    </h:link>
+	                    	</ui:fragment>
+		                    <ui:fragment rendered="#{not cc.attrs.assessor}">
+		                    	<h:link outcome="/credential-assessment">#{assessmentData.title}
+			                    	<f:param value="#{assessmentData.encodedAssessmentId}" name="assessmentId"></f:param>
+			                    	<f:param value="#{assessmentData.encodedCredentialId}" name="id"></f:param>
+			                    </h:link>
+	                    	</ui:fragment>
+	                    </h2>
+	                     <ui:fragment rendered="#{assessmentData.approved}">
+	                     	<div class="tagApproved">Approved</div>
+	                     </ui:fragment>
+	                     <ui:fragment rendered="#{not assessmentData.approved}">
+	                     	<div class="tagPending">Pending</div>
+	                     </ui:fragment>
+	                    <div class="clear"></div>
+	                    <div class="user32">
+	                        Student:<h:outputText value="&#160;" /><h:outputText value="&#160;" /><h:outputText value="&#160;" />
+	                        		<!-- when avatar is null, display initials div -->
+	                        		 <utilcomp:userAvatar avatar="#{assessmentData.studentAvatarUrl}"
+													fullName="#{assessmentData.studentFullName}"/>
+	                        <h3>#{assessmentData.studentFullName}</h3>
+	                    </div>
+	                    <div class="commentsNumber">
+	                        Comments: #{assessmentData.totalNumberOfMessages}
+	                    </div>
+	                    <div class="clear"></div>
+	                    <div class="date">
+	                        Requested: #{assessmentData.dateValue}
+	                    </div>
+	                </article>
+              </ui:repeat>
+              <utilcomp:pagination
+		        	id="pagination" 
+		        	bean="#{cc.attrs.bean}"
+		        	links="#{cc.attrs.bean.paginationLinks}"
+		        	toUpdate=":#{cc.attrs.id}:filterAssessmentsForm" />
+            </div>
+            
+          
+
+            
+            <div class="col-md-3 pull-right">
+                <div class="whiteBox">
+                    <h2>Show</h2>
+                    
+	                    <div class="checkbox checkLine">
+	                         <h:selectBooleanCheckbox id="searchForPendingCheckbox"  value="#{cc.attrs.bean.searchForPending}">
+            					<f:ajax execute="@this" event="change" update=":form"/>
+        					 </h:selectBooleanCheckbox>
+	                        <label for="checkPending">Pending</label>
+	                    </div>
+	                    <div class="checkbox checkLine">
+	                        <h:selectBooleanCheckbox id="searchForApprovedCheckbox" value="#{cc.attrs.bean.searchForApproved}">
+            					<f:ajax execute="@this" event="change" update=":form"/>
+        					</h:selectBooleanCheckbox>
+	                        <label for="checkApproved">Approved</label>
+	                    </div>
+	                    <div class="checkLinks">
+	                    	<p:commandLink oncomplete="flipCheckboxes('searchForPendingCheckbox','searchForApprovedCheckbox', true)" 
+	                    		process="@this" update="@form" action="#{cc.attrs.bean.searchForAll()}">Check all</p:commandLink>
+	                    		|
+	                    	<p:commandLink oncomplete="flipCheckboxes('searchForPendingCheckbox','searchForApprovedCheckbox', false)" 
+	                    		process="@this" update="@form" action="#{cc.attrs.bean.searchForNone()}">Clear all</p:commandLink>
+	                        
+	                    </div>
+	                
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    	$('label[for^=check]').click(function(){
+			$(this).parent().find('input[type=checkbox]').click()
+		})
+    </script>
+    </h:form>
+	</composite:implementation>
+</ui:component>

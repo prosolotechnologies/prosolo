@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.jsoup.nodes.Document;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
 
 
 /**
@@ -21,5 +22,7 @@ public interface HTMLParser {
 	AttachmentPreview extractAttachmentPreview(String url);
 
 	String getPageTitle(String url);
+	
+	AttachmentPreview1 extractAttachmentPreview1(String url);
 
 }

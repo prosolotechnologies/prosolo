@@ -31,7 +31,7 @@ import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.upload.AvatarProcessor;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.ActivityWallBean;
+import org.prosolo.web.activitywall.ActivityWallBean1;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.activitywall.data.SocialActivityCommentData;
 import org.prosolo.web.datatopagemappers.AccountDataToPageMapper;
@@ -188,7 +188,7 @@ public class ProfileSettingsBean implements Serializable {
 						HttpSession userSession = userSessionMap.getValue();
 
 						// updating Status Wall data
-						ActivityWallBean activityWallBean = (ActivityWallBean) userSession.getAttribute("activitywall");
+						ActivityWallBean1 activityWallBean = (ActivityWallBean1) userSession.getAttribute("activitywall");
 
 						if (activityWallBean != null) {
 							if (activityWallBean.getAllActivities() != null) {

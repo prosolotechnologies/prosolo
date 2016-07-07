@@ -6,7 +6,7 @@ package org.prosolo.web.activitywall.data;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.prosolo.common.domainmodel.activitywall.comments.Comment;
+import org.prosolo.common.domainmodel.activitywall.old.comments.Comment;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.activitywall.data.UserData;

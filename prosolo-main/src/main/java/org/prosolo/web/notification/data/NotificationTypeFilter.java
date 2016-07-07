@@ -10,6 +10,7 @@ public enum NotificationTypeFilter {
 	Mention(NotificationType.Mention, "Mentions"),
 	Assessment_Approved(NotificationType.Assessment_Approved, "Assessment Approved"),
 	Assessment_Requested(NotificationType.Assessment_Requested, "Assessment Requested"),
+	Assessment_Comment(NotificationType.Assessment_Comment, "Assessment Comment"),
 	Started_Learning(NotificationType.Started_Learning, "Start Learning");
 	
 	private NotificationType type;

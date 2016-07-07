@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.prosolo.common.domainmodel.interfacesettings.NotificationSettings;
 import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
 import org.prosolo.common.domainmodel.user.User;
@@ -43,19 +44,19 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 	@Override
 	@Transactional (readOnly = false)
 	public UserNotificationsSettings getOrCreateNotificationsSettings(long userId, Session session) {
-		User user = (User) session.load(User.class, userId);
 		UserNotificationsSettings result = getNotificationsSettings(userId);
 		
 		if (result != null) {
 			return result;
 		} else {
+			Transaction t = session.beginTransaction();
+			User user = (User) session.load(User.class, userId);
 			UserNotificationsSettings notificationsSettings = new UserNotificationsSettings();
 			notificationsSettings.setUser(user);
-			
 			notificationsSettings.setNotifications(getDefaultSubscribedEventTypes());
-			
-			//this.persistence.save(notificationsSettings);
 			session.saveOrUpdate(notificationsSettings);
+			t.commit();
+			
 			session.flush();
 			
 			return notificationsSettings;
@@ -101,6 +102,7 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 		notificationTypes.add(new NotificationSettings(NotificationType.Follow_User, true));
 		notificationTypes.add(new NotificationSettings(NotificationType.Assessment_Requested, true));
 		notificationTypes.add(new NotificationSettings(NotificationType.Assessment_Approved, true));
+		notificationTypes.add(new NotificationSettings(NotificationType.Assessment_Comment, true));
 		notificationTypes.add(new NotificationSettings(NotificationType.Comment, true));
 		notificationTypes.add(new NotificationSettings(NotificationType.Comment_Like, true));
 		notificationTypes.add(new NotificationSettings(NotificationType.Mention, true));

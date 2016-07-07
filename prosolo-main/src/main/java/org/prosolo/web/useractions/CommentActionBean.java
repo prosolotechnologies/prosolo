@@ -14,14 +14,14 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.activitywall.SocialActivity;
-import org.prosolo.common.domainmodel.activitywall.comments.Comment;
+import org.prosolo.common.domainmodel.activitywall.old.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.old.comments.Comment;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.hibernate.HibernateUtil;
-import org.prosolo.services.activityWall.SocialActivityFactory;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
+import org.prosolo.services.activityWall.observer.factory.SocialActivityFactory;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
@@ -110,7 +110,7 @@ public class CommentActionBean implements Serializable {
 								page, lContext, service, parameters);
 						
 						if (event != null) {
-							socialActivityFactory.createSocialActivity(event, session, null);
+							socialActivityFactory.createSocialActivity(event, session);
 						}
 
 		            	logger.debug("User \"" + loggedUser.getUser() +
@@ -204,7 +204,7 @@ public class CommentActionBean implements Serializable {
 					Event event = eventFactory.generateEvent(EventType.Comment, loggedUser.getUser(), comment, resource, parameters);
 					
 					if (event != null) {
-						socialActivityFactory.createSocialActivity(event, session, null);
+						socialActivityFactory.createSocialActivity(event, session);
 					}
 					
 					// Needs to be refactored

@@ -135,4 +135,5 @@ public class Activity1 extends BaseEntity {
 	public void setType(LearningResourceType type) {
 		this.type = type;
 	}
+	
 }

@@ -8,7 +8,7 @@ import org.prosolo.services.common.exception.DbConnectionException;
 public interface Annotation1Manager {
 
 	boolean hasUserAnnotatedResource(long userId, long resourceId, AnnotationType annotationType,
-			AnnotatedResource annotatedResource);
+			AnnotatedResource annotatedResource) throws DbConnectionException;
 	
 	Annotation1 createAnnotation(long userId, long resourceId, AnnotatedResource resource, 
 			AnnotationType annotationType);

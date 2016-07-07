@@ -28,7 +28,7 @@ import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.activityWall.SocialActivityHandler;
-import org.prosolo.services.activityWall.SocialStreamObserver;
+import org.prosolo.services.activityWall.observer.SocialStreamObserver;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventException;
@@ -132,7 +132,8 @@ public class LearnBean implements Serializable {
 		GoalData goalData = newSelectedGoalCache.getData();
 		logger.info("select goal:" + goalData.getTargetGoalId());
 		selectedGoalData = newSelectedGoalCache;
-		loggedUser.loadGoalWallFilter(goalData.getTargetGoalId());
+		//TODO commented
+		//loggedUser.loadGoalWallFilter(goalData.getTargetGoalId());
 
 		if (selectedGoalData != null) {
 			selectedGoalData.setSelectedCompetence(null);

@@ -44,6 +44,9 @@
 		src="#{request.contextPath}/resources/javascript2/bootstrap-select.min.js"></script>
 	<script
 		src="#{request.contextPath}/resources/javascript2/custom.js?#{applicationbean.loginTime}"></script>
+		
+	<script src="https://www.youtube.com/iframe_api"/>
+	<script	src="#{request.contextPath}/resources/javascript/youtubevideo.js"></script>
 </h:head>
 
 <h:body>
@@ -55,7 +58,7 @@
 				<div class="headerTopLeft">
 					<h:link id="logo"
 						onclick="sendLogPageNavigation('index','mainmenu');"
-						outcome="/index">
+						outcome="/credentialLibrary">
 						ProSolo
 					</h:link>
 
@@ -65,7 +68,7 @@
 							<li role="presentation"
 								class="#{util:getPagePath(view.viewId)  == 'index' ? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('index','mainmenu');"
-									value="Home" outcome="/index" />
+									value="Home" outcome="/" />
 							</li>
 							</ui:remove>
 							<li role="presentation"
@@ -144,7 +147,9 @@
 										(notificationData.notificationType eq 'Comment') ? 'notifComment': 
 										(notificationData.notificationType eq 'Comment_Like') ? 'notifLikeComment':
 										(notificationData.notificationType eq 'Mention') ? 'notifMention':
-										(notificationData.notificationType eq 'Assessment_Requested' or notificationData.notificationType eq 'Assessment_Approved') ? 'notifAssessment': 'notifLearning'}">
+										(notificationData.notificationType eq 'Assessment_Requested' or 
+											notificationData.notificationType eq 'Assessment_Approved' or 
+											notificationData.notificationType eq 'Assessment_Comment') ? 'notifAssessment': 'notifLearning'}">
 									<h:link outcome="#{notificationData.link}">
 										<span class="icon"></span>
 										<h3>#{notificationData.actor.fullName}</h3> 
@@ -178,6 +183,11 @@
 									<h:link value="Achievements" 
 										onclick="sendLogPageNavigation('achievements','mainmenu');"
 										outcome="/achievements/credentials" />
+								</li>
+								<li>
+									<h:link value="Assessments" 
+										onclick="sendLogPageNavigation('assessments','mainmenu');"
+										outcome="/assessments" />
 								</li>
 								<li>
 									<h:link value="Profile"

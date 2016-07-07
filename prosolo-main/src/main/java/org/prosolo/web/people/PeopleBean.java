@@ -13,7 +13,7 @@ import org.omnifaces.util.Ajax;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
-import org.prosolo.recommendation.impl.CollaboratorsRecommendationImpl;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.interaction.FollowResourceAsyncManager;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.web.LoggedUserBean;
@@ -44,9 +44,6 @@ public class PeopleBean implements Serializable, Paginable {
 	private FollowResourceManager followResourceManager;
 	@Autowired
 	private FollowResourceAsyncManager followResourceAsyncManager;
-
-	@Autowired
-	private CollaboratorsRecommendationImpl collaboratorsRecommendation;
 	@Autowired
 	private LoggedUserBean loggedUser;
 
@@ -59,32 +56,34 @@ public class PeopleBean implements Serializable, Paginable {
 	private int numberOfPages;
 	private List<PaginationLink> paginationLinks;
 
-	@PostConstruct
 	public void initPeopleBean() {
 		initFollowingUsers();
 	}
 
 	public void initFollowingUsers() {
-		followingUsers = new ArrayList<UserData>();
-		logger.debug("Initializing following users for a user '" + loggedUser.getUser() + "'");
+		try {
 
-		List<User> followingUsersList = followResourceManager.getFollowingUsers(loggedUser.getUser(), page - 1, limit);
-		// List<User> followingUsersList =
-		// followResourceManager.getFollowingUsers(loggedUser.getUser());
-		usersNumber = followingUsersList.size();
+			followingUsers = new ArrayList<UserData>();
+			logger.debug("Initializing following users for a user '" + loggedUser.getUser() + "'");
 
-		if (followingUsersList != null && !followingUsersList.isEmpty()) {
-			for (User user : followingUsersList) {
-				UserData userData = UserDataFactory.createUserData(user);
-				followingUsers.add(userData);
+			usersNumber = followResourceManager.getNumberOfFollowingUsers(loggedUser.getUser());
+
+			List<User> followingUsersList = usersNumber > 0
+					? followResourceManager.getFollowingUsers(loggedUser.getUser(), page - 1, limit) : new ArrayList();
+
+			if (followingUsersList != null && !followingUsersList.isEmpty()) {
+				for (User user : followingUsersList) {
+					UserData userData = UserDataFactory.createUserData(user);
+					followingUsers.add(userData);
+				}
+				logger.debug("Following users initialized '" + loggedUser.getUser() + "'");
 			}
-			logger.debug("Following users initialized '" + loggedUser.getUser() + "'");
+			generatePagination();
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException(e.getMessage());
 		}
-		generatePagination();
-		System.out.println("KT-1 UNCOMMENT THIS");
-		//List<User> nearbyUsers=collaboratorsRecommendation.getRecommendedCollaboratorsBasedOnLocation(loggedUser.getUser(),10);
-		System.out.println("KT-2");
-
 	}
 
 	public void addFollowingUser(UserData user) {

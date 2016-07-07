@@ -12,7 +12,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;
 import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
@@ -22,7 +21,6 @@ import org.prosolo.core.spring.security.exceptions.SessionInitializationExceptio
 import org.prosolo.services.activityWall.ActivityWallManager;
 import org.prosolo.services.activityWall.filters.AllFilter;
 import org.prosolo.services.activityWall.filters.AllProsoloFilter;
-import org.prosolo.services.activityWall.filters.CourseFilter;
 import org.prosolo.services.activityWall.filters.Filter;
 import org.prosolo.services.activityWall.filters.MyActivitiesFilter;
 import org.prosolo.services.activityWall.filters.MyNetworkFilter;
@@ -31,7 +29,6 @@ import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.logging.AccessResolver;
-import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.SessionCountBean;
@@ -58,8 +55,6 @@ public class UserSessionDataLoader implements Serializable{
 	private ActivityWallManager activityWallManager;
 	@Autowired
 	private TagManager tagManager;
-	@Autowired
-	private CourseManager courseManager;
 	@Autowired
 	private InterfaceSettingsManager interfaceSettingsManager;
 	@Autowired
@@ -140,45 +135,46 @@ public class UserSessionDataLoader implements Serializable{
 			selectedStatusWallFilter = twitterFilter;
 		} else if (chosenFilterType.equals(FilterType.ALL_PROSOLO)) {
 			selectedStatusWallFilter = new AllProsoloFilter();
-		} else if (chosenFilterType.equals(FilterType.COURSE)) {
-			CourseFilter courseFilter = new CourseFilter();
-			try {
-				Course course = userManager.loadResource(Course.class, courseId);
-				courseFilter.setCourseId(courseId);
-				Map<String, Set<Long>> goalTargetGoals = courseManager.getTargetLearningGoalIdsForCourse(course);
-				// Long
-				// targetLearningGoalId=courseManager.getTargetLearningGoalIdForCourse(user,
-				// course);
-				courseFilter.setTargetLearningGoals(goalTargetGoals.get("targetGoals"));
-				// Long
-				// goalId=learningGoalManager.getGoalIdForTargetGoal(targetLearningGoalId);
-				courseFilter.setLearningGoals(goalTargetGoals.get("goals"));
-				Set<Long> tComps = courseManager.getTargetCompetencesForCourse(course);
-				courseFilter.setTargetCompetences(tComps);
-				Set<Long> tActivities = courseManager.getTargetActivitiesForCourse(course);
-				courseFilter.setTargetActivities(tActivities);
-				/*
-				 * Set<Long>
-				 * tComps=competenceManager.getTargetCompetencesIds(user.getId()
-				 * , goalId); courseFilter.setTargetCompetences(tComps);
-				 * Set<Long> targetActivities=new TreeSet<Long>(); for(Long
-				 * tc:tComps){ Set<Long>
-				 * ta=competenceManager.getTargetActivities(tc);
-				 * targetActivities.addAll(ta); }
-				 * courseFilter.setTargetActivities(targetActivities);
-				 */
-
-				Set<Tag> hashtags = course.getHashtags();
-				for (Tag tag : hashtags) {
-					courseFilter.addHashtag(tag.getTitle());
-				}
-				// courseFilter.setHashtags(course.getHashtags());
-			} catch (Exception e) {
-				logger.error(e);
-				e.printStackTrace();
-			}
-			selectedStatusWallFilter = courseFilter;
-		}
+		} 
+//		else if (chosenFilterType.equals(FilterType.COURSE)) {
+//			CourseFilter courseFilter = new CourseFilter();
+//			try {
+//				Course course = userManager.loadResource(Course.class, courseId);
+//				courseFilter.setCourseId(courseId);
+//				Map<String, Set<Long>> goalTargetGoals = courseManager.getTargetLearningGoalIdsForCourse(course);
+//				// Long
+//				// targetLearningGoalId=courseManager.getTargetLearningGoalIdForCourse(user,
+//				// course);
+//				courseFilter.setTargetLearningGoals(goalTargetGoals.get("targetGoals"));
+//				// Long
+//				// goalId=learningGoalManager.getGoalIdForTargetGoal(targetLearningGoalId);
+//				courseFilter.setLearningGoals(goalTargetGoals.get("goals"));
+//				Set<Long> tComps = courseManager.getTargetCompetencesForCourse(course);
+//				courseFilter.setTargetCompetences(tComps);
+//				Set<Long> tActivities = courseManager.getTargetActivitiesForCourse(course);
+//				courseFilter.setTargetActivities(tActivities);
+//				/*
+//				 * Set<Long>
+//				 * tComps=competenceManager.getTargetCompetencesIds(user.getId()
+//				 * , goalId); courseFilter.setTargetCompetences(tComps);
+//				 * Set<Long> targetActivities=new TreeSet<Long>(); for(Long
+//				 * tc:tComps){ Set<Long>
+//				 * ta=competenceManager.getTargetActivities(tc);
+//				 * targetActivities.addAll(ta); }
+//				 * courseFilter.setTargetActivities(targetActivities);
+//				 */
+//
+//				Set<Tag> hashtags = course.getHashtags();
+//				for (Tag tag : hashtags) {
+//					courseFilter.addHashtag(tag.getTitle());
+//				}
+//				// courseFilter.setHashtags(course.getHashtags());
+//			} catch (Exception e) {
+//				logger.error(e);
+//				e.printStackTrace();
+//			}
+//			selectedStatusWallFilter = courseFilter;
+//		}
 		
 		return selectedStatusWallFilter;
 	}

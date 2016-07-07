@@ -142,26 +142,16 @@
 		                                <a href="#" target="_blank">#{activityAssessment.title}</a>
 		                                
 			                                <a onclick="markDiscussionAsSeen('#{activityAssessment.encodedDiscussionId}',this.parentElement)" 
-			                                		href="#" class="commentsIcon" data-toggle="modal" data-target="#assessmentCommentsModal#{compAssIndex.index + actAssIndex.index}">#{activityAssessment.numberOfMessages}</a>
-			                                <div class="modal fade assessmentCommentsModal" id="assessmentCommentsModal#{compAssIndex.index + actAssIndex.index}" tabindex="-1" role="dialog" aria-labelledby="assessmentCommentsModal">
+			                                		href="#" class="commentsIcon" data-toggle="modal" data-target="#assessmentCommentsModal#{compAssIndex.index}#{actAssIndex.index}">#{activityAssessment.numberOfMessages}</a>
+			                                <div class="modal fade assessmentCommentsModal" id="assessmentCommentsModal#{compAssIndex.index}#{actAssIndex.index}" tabindex="-1" role="dialog" aria-labelledby="assessmentCommentsModal">
 			                                    <div class="modal-dialog modal-lg">
 			                                        <div class="modal-content">
 			                                            <div class="modal-header alignLeft">
-			                                                <button onclick="updateNumberOfMessages('assessmentCommentsModal#{compAssIndex.index + actAssIndex.index}')" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+			                                                <button onclick="updateNumberOfMessages('assessmentCommentsModal#{compAssIndex.index}#{actAssIndex.index}')" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
 			                                                <h2 class="modal-title">Comments</h2>
 			                                            </div>
 			                                            <h:form id="newCommentForm-#{activityAssessment.encodedDiscussionId}" prependId="false">
 			                                            <div class="discussion">
-			                                                <div class="addComment">
-			                                                   <utilcomp:userAvatar
-																		avatar="#{cc.attrs.bean.loggedUserBean.sessionData.bigAvatar}"
-																		fullName="#{cc.attrs.bean.loggedUserBean.sessionData.fullName}"/>
-			                                                    <div class="commentForm">
-				                                                        <p:inputTextarea value="#{cc.attrs.bean.newCommentValue}" placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></p:inputTextarea>
-				                                                        <p:commandLink update="@form" actionListener="#{cc.attrs.bean.addCommentToActivityDiscussion(activityAssessment.encodedDiscussionId,activityAssessment.encodedTargetActivityId,competenceAssessment.competenceAssessmentEncodedId)}" 
-				                                                        	type="button" styleClass="btn btn-green hidden" name="button">Submit</p:commandLink>
-			                                                    </div>
-			                                                </div>
 			                                                <div class="comments">
 			                                                	<ui:fragment rendered="#{not empty activityAssessment.activityDiscussionMessageData}">
 			                                                		<ul class="media-list">
@@ -183,7 +173,7 @@
 						                                                                    </h3>
 						                                                                    <p class="commentText">#{activityMessageData.content}</p>
 						                                                                    <div class="editComment hidden">
-						                                                                        <p:inputTextarea name="name" rows="8" cols="40" value="#{activityMessageData.content}"></p:inputTextarea>
+						                                                                        <p:inputTextarea name="name" styleClass="contentEditableComment" style="width:100%;" rows="1" value="#{activityMessageData.content}"></p:inputTextarea>
 						                                                                        <p:commandLink oncomplete="hideEditComment(this)" update="@form" 
 						                                                                        	actionListener="#{cc.attrs.bean.editComment(activityMessageData.content,activityMessageData.encodedMessageId)}" 
 						                                                                        	type="button" styleClass="btn btn-sm btn-green" name="button">Submit</p:commandLink>
@@ -224,12 +214,26 @@
 			                                                    </ul>
 			                                                	</ui:fragment>
 			                                                </div>
+			                                                <div class="addComment">
+			                                                   <utilcomp:userAvatar
+																		avatar="#{cc.attrs.bean.loggedUserBean.sessionData.avatar}"
+																		fullName="#{cc.attrs.bean.loggedUserBean.sessionData.fullName}"/>
+			                                                    <div class="commentForm">
+				                                                        <p:inputTextarea styleClass="contentEditableComment" style="width:100%;" rows="1" value="#{cc.attrs.bean.newCommentValue}" placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></p:inputTextarea>
+				                                                        <p:commandLink update="@form" actionListener="#{cc.attrs.bean.addCommentToActivityDiscussion(activityAssessment.encodedDiscussionId,activityAssessment.encodedTargetActivityId,competenceAssessment.competenceAssessmentEncodedId)}" 
+				                                                        	type="button" styleClass="btn btn-green hidden" name="button">Submit</p:commandLink>
+			                                                    </div>
+			                                                </div>
 			                                            </div>
 			                                            </h:form> 
 			                                        </div>
 			                                    </div>
 			                                </div>
-		                               
+			                                <ui:fragment rendered="#{not empty activityAssessment.downloadResourceUrls}">
+			                                	 <ui:repeat  var="url" value="#{activityAssessment.downloadResourceUrls}">
+			                                	 	<a href="#{url}" target="_blank" class="download" data-toggle="tooltip" title="" data-original-title="Download Result" download="download">Download</a>
+			                                	 </ui:repeat>
+			                                </ui:fragment>
 		                            </li>
 		                        </ul>
 		                   </ui:repeat>

@@ -23,6 +23,7 @@ import org.prosolo.web.goals.cache.CompetenceDataCache;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.goals.cache.LearningGoalPageDataCache;
 
+@Deprecated
 public abstract class ActivityStartEventProcessor {
 
 	private static Logger logger = Logger.getLogger(ActivityStartEventProcessor.class);

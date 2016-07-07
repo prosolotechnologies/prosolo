@@ -9,13 +9,13 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.Activity;
-import org.prosolo.common.domainmodel.activitywall.SocialActivity;
-import org.prosolo.common.domainmodel.activitywall.comments.Comment;
+import org.prosolo.common.domainmodel.activitywall.old.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.old.comments.Comment;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interfaceSettings.CommentUpdater;
-import org.prosolo.web.activitywall.ActivityWallBean;
+import org.prosolo.web.activitywall.ActivityWallBean1;
 import org.prosolo.web.goals.LearnBean;
 import org.springframework.stereotype.Service;
 
@@ -42,7 +42,7 @@ public class CommentUpdaterImpl extends AbstractManagerImpl implements CommentUp
 					learningGoalsBean.getData().updateCommentDataOfSocialActivity(commentedRes.getId(), comment, commentLikeCount, commentDislikeCount);
 				}
 				
-				ActivityWallBean activityWallBean = (ActivityWallBean) userSession.getAttribute("activitywall");
+				ActivityWallBean1 activityWallBean = (ActivityWallBean1) userSession.getAttribute("activitywall");
 				if (activityWallBean != null) {
 					activityWallBean.getActivityWallDisplayer().updateCommentDataOfSocialActivity(commentedRes.getId(), comment.getId(), commentLikeCount, commentDislikeCount);
 				}
@@ -60,7 +60,7 @@ public class CommentUpdaterImpl extends AbstractManagerImpl implements CommentUp
 			throws ResourceCouldNotBeLoadedException {
 		
 		if (userSession != null) {
-			ActivityWallBean activityWallBean = (ActivityWallBean) userSession.getAttribute("activitywall");
+			ActivityWallBean1 activityWallBean = (ActivityWallBean1) userSession.getAttribute("activitywall");
 			
 			if (activityWallBean != null) {
 				activityWallBean.getActivityWallDisplayer().addCommentToSocialActivity(socialActivityId, comment);

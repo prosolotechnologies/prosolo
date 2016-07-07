@@ -110,7 +110,8 @@ public enum EventType {
 	Bookmark,
 	RemoveBookmark, 
 	AssessmentRequested, 
-	AssessmentApproved;
+	AssessmentApproved,
+	AssessmentComment;
 	
 	private String customText;
 	

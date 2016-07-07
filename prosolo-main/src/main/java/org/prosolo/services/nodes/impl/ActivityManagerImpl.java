@@ -21,7 +21,7 @@ import org.prosolo.common.domainmodel.outcomes.Outcome;
 import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.services.activityWall.SocialStreamObserver;
+import org.prosolo.services.activityWall.observer.SocialStreamObserver;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;

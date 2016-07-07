@@ -18,6 +18,8 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.following.FollowedEntity;
 import org.prosolo.common.domainmodel.user.following.FollowedResourceEntity;
 import org.prosolo.common.domainmodel.user.following.FollowedUserEntity;
+import org.prosolo.common.domainmodel.user.notifications.NotificationType;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
@@ -165,21 +167,27 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 	
 	@Override
 	@Transactional 
-	public List<User> getFollowingUsers(User user) {
-		String query = 
-			"SELECT DISTINCT fUser " + 
-			"FROM FollowedEntity fEnt " + 
-			"LEFT JOIN fEnt.user user "+
-			"JOIN fEnt.followedUser fUser " + 
-			"WHERE user = :user " +
-			"ORDER BY fUser.name, fUser.lastname";
+	public List<User> getFollowingUsers(User user) throws DbConnectionException{
+		try {
+				String query = 
+					"SELECT DISTINCT fUser " + 
+							"FROM FollowedEntity fEnt " + 
+							"LEFT JOIN fEnt.user user "+
+							"JOIN fEnt.followedUser fUser " + 
+							"WHERE user = :user " +
+							"ORDER BY fUser.name, fUser.lastname";
 		
-		@SuppressWarnings("unchecked")
-		List<User> users = persistence.currentManager().createQuery(query)
-			.setEntity("user", user)
-			.list();
-		if (users != null) {
-			return users;
+			@SuppressWarnings("unchecked")
+			List<User> users = persistence.currentManager().createQuery(query)
+				.setEntity("user", user)
+				.list();
+			if (users != null) {
+				return users;
+			}
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving follwing users");
 		}
 		return new ArrayList<User>();
 	}
@@ -266,20 +274,21 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<User> getFollowingUsers(User user, int page, int limit) {
-		String query = 
-				"SELECT DISTINCT fUser " + 
-				"FROM FollowedEntity fEnt " + 
-				"LEFT JOIN fEnt.user user "+
-				"JOIN fEnt.followedUser fUser " + 
-				"WHERE user = :user " +
-				"ORDER BY fUser.name, fUser.lastname";
+	public List<User> getFollowingUsers(User user, int page, int limit) throws DbConnectionException {
+		try{
+			String query = 
+					"SELECT DISTINCT fUser " + 
+							"FROM FollowedEntity fEnt " + 
+							"LEFT JOIN fEnt.user user "+
+							"JOIN fEnt.followedUser fUser " + 
+							"WHERE user = :user " +
+							"ORDER BY fUser.name, fUser.lastname";
 			
 			Query q = persistence.currentManager().createQuery(query).setEntity("user", user);
 			
 			if(limit != 0) {
 				q.setFirstResult(page * limit)
-				 .setMaxResults(limit);
+				.setMaxResults(limit);
 			}
 			
 			List<User> users = q.list();
@@ -288,6 +297,34 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 				return users;
 			}
 			return new ArrayList<User>();
+		} catch(DbConnectionException e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving notification data");
+		}
+	}
+	
+	@Override
+	@Transactional (readOnly = true)
+	public int getNumberOfFollowingUsers(User user) 
+			throws DbConnectionException {
+		Integer resNumber = 0;
+			try {
+				String query = 
+					"SELECT cast( COUNT(DISTINCT fUser) as int) " + 
+							"FROM FollowedEntity fEnt " + 
+							"LEFT JOIN fEnt.user user "+
+							"JOIN fEnt.followedUser fUser " + 
+							"WHERE user = :user ";
+		
+			resNumber = (Integer) persistence.currentManager().createQuery(query)
+				.setEntity("user", user)
+				.uniqueResult();
+
+		} catch(Exception e) {
+			throw new DbConnectionException("Error while retrieving follwing users");
+		}
+		return resNumber;
 	}
 	
 }

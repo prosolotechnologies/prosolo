@@ -121,7 +121,8 @@ public class ActivityDataFactory {
 					break;
 				case Slides:
 					act.setActivityType(ActivityType.SLIDESHARE);
-					act.setEmbedId(SlideShareUtils.convertSlideShareURLToEmbededUrl(urlAct.getUrl()));
+					act.setEmbedId(SlideShareUtils.convertSlideShareURLToEmbededUrl(urlAct.getUrl(), null)
+							.getEmbedLink());
 					break;
 			}
 			act.setLink(urlAct.getUrl());
@@ -156,7 +157,7 @@ public class ActivityDataFactory {
 		act.setHasDraft(activity.isHasDraft());
 		act.setType(activity.getType());
 		
-		act.setActivityType(determineActivityType(activity));
+		act.setActivityType(getActivityType(activity));
 		
 		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
 		
@@ -167,7 +168,7 @@ public class ActivityDataFactory {
 		return act;
 	}
 
-	private ActivityType determineActivityType(Activity1 activity) {
+	public ActivityType getActivityType(Activity1 activity) {
 		if(activity instanceof TextActivity1) {
 			return ActivityType.TEXT;
 		} else if(activity instanceof UrlActivity1) {
@@ -179,6 +180,28 @@ public class ActivityDataFactory {
 					return ActivityType.SLIDESHARE;
 			}
 		} else if(activity instanceof ExternalToolActivity1) {
+			return ActivityType.EXTERNAL_TOOL;
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * returns activity type for String values for activity type and url type for UrlActivity1 from db
+	 * @param activityDType
+	 * @param urlType
+	 * @return
+	 */
+	public ActivityType getActivityType(String activityDType, String urlType) {
+		if(TextActivity1.class.getSimpleName().equals(activityDType)) {
+			return ActivityType.TEXT;
+		} else if(UrlActivity1.class.getSimpleName().equals(activityDType)) {
+			if(UrlActivityType.Video.name().equals(urlType)) {
+				return ActivityType.VIDEO;
+			} else {
+				return ActivityType.SLIDESHARE;
+			}
+		} else if(ExternalToolActivity1.class.getSimpleName().equals(activityDType)) {
 			return ActivityType.EXTERNAL_TOOL;
 		}
 		
@@ -273,7 +296,8 @@ public class ActivityDataFactory {
 					break;
 				case Slides:
 					act.setActivityType(ActivityType.SLIDESHARE);
-					act.setEmbedId(SlideShareUtils.convertSlideShareURLToEmbededUrl(urlAct.getUrl()));
+					act.setEmbedId(SlideShareUtils.convertSlideShareURLToEmbededUrl(urlAct.getUrl(), 
+							null).getEmbedLink());
 					break;
 			}
 			act.setLink(urlAct.getUrl());

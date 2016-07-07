@@ -17,7 +17,9 @@ import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.user.notifications.ObjectType;
 import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
+import org.prosolo.services.activityWall.impl.data.SocialActivityType;
 
 /**
  * class ResourceBundleUtil handles retrieving values from UIResources.properties file.
@@ -226,9 +228,13 @@ public class ResourceBundleUtil {
 	}
 
 	public static String getActionName(EventType action, Locale locale) {
+		return getActionName(action.toString(), locale);
+	}
+	
+	public static String getActionName(String action, Locale locale) {
 		try {
 			return ResourceBundleUtil.getMessage( 
-					"activitywall.actionname." + action.toString(), 
+					"activitywall.actionname." + action, 
 					locale);
 		} catch (KeyNotFoundInBundleException e) {
 			logger.error(e);
@@ -244,6 +250,21 @@ public class ResourceBundleUtil {
 					"activitywall.relationToTarget."+action.toString()+"."+
 						objectClass.getSimpleName()+"."+
 						targetClass.getSimpleName(), 
+					locale);
+		} catch (KeyNotFoundInBundleException e) {
+			logger.error(e);
+		}
+		return relationToTarget;
+	}
+    
+    public static String getRelationBetweenResources(Locale locale, SocialActivityType type, 
+    		ObjectType objectType, ObjectType targetType) {
+		String relationToTarget = "";
+		try {
+			relationToTarget = ResourceBundleUtil.getMessage( 
+					"activitywall.relationToTarget."+type.name()+"."+
+						objectType.name()+"."+
+						targetType.name(), 
 					locale);
 		} catch (KeyNotFoundInBundleException e) {
 			logger.error(e);

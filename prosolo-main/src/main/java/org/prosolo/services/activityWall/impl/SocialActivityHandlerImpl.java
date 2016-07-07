@@ -3,21 +3,25 @@ package org.prosolo.services.activityWall.impl;
 
 import java.util.Locale;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.activitywall.SocialActivity;
-import org.prosolo.common.domainmodel.activitywall.SocialStreamSubViewType;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
+import org.prosolo.common.domainmodel.activitywall.old.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.old.SocialStreamSubViewType;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.activityWall.SocialActivityFactory;
 import org.prosolo.services.activityWall.SocialActivityFiltering;
 import org.prosolo.services.activityWall.SocialActivityHandler;
+import org.prosolo.services.activityWall.factory.SocialActivityDataFactory;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
+import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
+import org.prosolo.services.activityWall.observer.factory.SocialActivityFactory;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.DefaultManager;
-import org.prosolo.web.activitywall.ActivityWallBean;
+import org.prosolo.web.activitywall.ActivityWallBean1;
 import org.prosolo.web.activitywall.util.WallActivityConverter;
 import org.prosolo.web.goals.GoalWallBean;
 import org.prosolo.web.goals.LearnBean;
@@ -38,24 +42,26 @@ public class SocialActivityHandlerImpl implements SocialActivityHandler{
 	private static Logger logger = Logger.getLogger(SocialActivityHandler.class);
 	
 	@Autowired private SocialActivityFactory socialActivityFactory;
-	@Autowired private WallActivityConverter wallActivityConverter;
+	//@Autowired private WallActivityConverter wallActivityConverter;
 	@Autowired private DefaultManager defaultManager;
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 	
 	@Autowired private SocialActivityFiltering socialActivityFiltering;
+	@Inject private SocialActivityDataFactory socialActivityDataFactory;
 	
 	@Override
-	public SocialActivity addSociaActivitySyncAndPropagateToStatusAndGoalWall(Event event) throws EventException {
+	public SocialActivity1 addSociaActivitySyncAndPropagateToStatusAndGoalWall(Event event) throws EventException {
 		Session session = (Session) defaultManager.getPersistence().currentManager();
-		final SocialActivity socialActivity = socialActivityFactory.createSocialActivity(event, session, null);
-		socialActivityFiltering.checkSocialActivity(socialActivity);
+		final SocialActivity1 socialActivity = socialActivityFactory.createSocialActivity(event, session);
+		socialActivityFiltering.checkSocialActivity(socialActivity, session);
 		return socialActivity;
 	}
 	
 	@Override
-	public void addSociaActivitySyncAndPropagateToGoalWall(Event event, GoalWallBean goalWallBean, User user, Locale locale) throws EventException {
+	public void addSociaActivitySyncAndPropagateToGoalWall(Event event, GoalWallBean goalWallBean, 
+			User user, Locale locale) throws EventException {
 		Session session = (Session) defaultManager.getPersistence().currentManager();
-		SocialActivity socialActivity = socialActivityFactory.createSocialActivity(event, session, null);
+		SocialActivity1 socialActivity = socialActivityFactory.createSocialActivity(event, session);
 		
 //		SocialActivityNotification saNotification = socialActivityFactory.createSocialActivityNotification(user, socialActivity, subViews, true, session);
 //		SocialActivityWallData wallData = wallActivityConverter.convertSocialActivityNotification(saNotification, user, SocialStreamSubViewType.GOAL_WALL, locale);
@@ -64,12 +70,13 @@ public class SocialActivityHandlerImpl implements SocialActivityHandler{
 // 			wallData.setGoal(goalData.getData().getAsNodeData());
 // 		}
 //		wallData.setWallOwner(new UserData(user));
-		
-		SocialActivityData socialActivityData = wallActivityConverter.convertSocialActivityToSocialActivityData(socialActivity, user, SocialStreamSubViewType.GOAL_WALL, locale);
+		//TODO
+		//SocialActivityData1 socialActivityData = socialActivityDataFactory.getSocialActivityData(socialActivity, locale);
 		// add to goal wall
 		
  		if (goalWallBean != null) {
- 			goalWallBean.getGoalWallDisplayer().addNewWallActivity(socialActivityData);
+ 			//TODO
+ 			//goalWallBean.getGoalWallDisplayer().addNewWallActivity(socialActivityData);
  		}
 	}
  //	Session session = (Session) defaultManager.getPersistence().currentManager();
@@ -132,7 +139,7 @@ public class SocialActivityHandlerImpl implements SocialActivityHandler{
 				learningGoalsBean.getData().updateSocialActivity(socialActivity);
 			}
 			
-			ActivityWallBean activityWallBean = (ActivityWallBean) userSession.getAttribute("activitywall");
+			ActivityWallBean1 activityWallBean = (ActivityWallBean1) userSession.getAttribute("activitywall");
 			
 			if (activityWallBean != null) {
 				activityWallBean.getActivityWallDisplayer().updateSocialActivity(socialActivity);
@@ -149,7 +156,7 @@ public class SocialActivityHandlerImpl implements SocialActivityHandler{
 				learningGoalsBean.getData().disableSharing(socialActivity);
 			}
 			
-			ActivityWallBean activityWallBean = (ActivityWallBean) userSession.getAttribute("activitywall");
+			ActivityWallBean1 activityWallBean = (ActivityWallBean1) userSession.getAttribute("activitywall");
 			
 			if (activityWallBean != null) {
 				activityWallBean.getActivityWallDisplayer().disableSharing(socialActivity);
@@ -166,7 +173,7 @@ public class SocialActivityHandlerImpl implements SocialActivityHandler{
 				learningGoalsBean.getData().removeWallActivityData(socialActivity.getId());
 			}
 			
-			ActivityWallBean activityWallBean = (ActivityWallBean) userSession.getAttribute("activitywall");
+			ActivityWallBean1 activityWallBean = (ActivityWallBean1) userSession.getAttribute("activitywall");
 			
 			if (activityWallBean != null) {
 				activityWallBean.getActivityWallDisplayer().removeSocialActivity(socialActivity.getId());

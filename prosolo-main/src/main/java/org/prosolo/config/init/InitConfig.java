@@ -25,12 +25,6 @@ public class InitConfig {
 	@Element(name = "default-user")
 	public DefaultUserConfig defaultUser;
 	
-
-	
-
-	
-	
-
 	public String getBcName() {
 		return bcName;
 	}

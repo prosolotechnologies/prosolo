@@ -12,10 +12,10 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.activitywall.SocialActivity;
-import org.prosolo.common.domainmodel.activitywall.SocialStreamSubViewType;
-import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.comments.Comment;
+import org.prosolo.common.domainmodel.activitywall.old.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.old.SocialStreamSubViewType;
+import org.prosolo.common.domainmodel.activitywall.old.TwitterPostSocialActivity;
+import org.prosolo.common.domainmodel.activitywall.old.comments.Comment;
 import org.prosolo.common.domainmodel.content.ContentType;
 import org.prosolo.common.domainmodel.content.Post;
 import org.prosolo.common.domainmodel.general.BaseEntity;
@@ -127,7 +127,7 @@ public class WallActivityConverter {
 			} 
 		}
 		if (SlideShareUtils.isSlideSharePresentation(attachmentPreview.getLink())) {
-			String embedLink = SlideShareUtils.convertSlideShareURLToEmbededUrl(attachmentPreview.getLink());
+			String embedLink = SlideShareUtils.convertSlideShareURLToEmbededUrl(attachmentPreview.getLink(), null).getEmbedLink();
 			
 			if (embedLink != null && embedLink.length() > 10) {
 				attachmentPreview.setMediaType(MediaType.SLIDESHARE);

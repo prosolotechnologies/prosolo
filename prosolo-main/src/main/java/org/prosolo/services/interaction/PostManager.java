@@ -5,8 +5,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.activitywall.SocialActivity;
-import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
+import org.prosolo.common.domainmodel.activitywall.old.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.old.TwitterPostSocialActivity;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.content.Post;
 import org.prosolo.common.domainmodel.content.RichContent;

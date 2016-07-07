@@ -4,6 +4,7 @@ import org.prosolo.services.event.Event;
 import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.web.ApplicationBean;
 
+@Deprecated
 public class ResourceLinkActivityStartEventProcessor extends ActivityStartEventProcessor {
 
 	

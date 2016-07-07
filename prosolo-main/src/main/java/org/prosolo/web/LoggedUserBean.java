@@ -29,7 +29,6 @@ import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.core.spring.security.HomePageResolver;
 import org.prosolo.core.spring.security.UserSessionDataLoader;
 import org.prosolo.services.activityWall.filters.Filter;
-import org.prosolo.services.activityWall.filters.LearningGoalFilter;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
@@ -37,7 +36,6 @@ import org.prosolo.services.event.context.LearningContext;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.logging.LoggingService;
-import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.sessiondata.SessionData;
 import org.prosolo.web.util.AvatarUtils;
@@ -78,8 +76,8 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	@Inject
 	private UserSessionDataLoader sessionDataLoader;
 
-	@Inject
-	private LearningGoalManager learningGoalManager;
+//	@Inject
+//	private LearningGoalManager learningGoalManager;
 	@Inject
 	private EventFactory eventFactory;
 
@@ -160,19 +158,19 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		setSelectedStatusWallFilter(filter);
 	}
 
-	public void loadGoalWallFilter(long targetLearningGoal) {
-		LearningGoalFilter filter = new LearningGoalFilter(targetLearningGoal);
-		Long goalId = learningGoalManager.getGoalIdForTargetGoal(targetLearningGoal);
-		filter.setGoalId(goalId);
-		Set<Long> collaborators = learningGoalManager.getCollaboratorsIdsByTargetGoalId(targetLearningGoal);
-		filter.setCollaborators(collaborators);
-		Set<Long> tComps = learningGoalManager.getTargetCompetencesForTargetLearningGoal(targetLearningGoal);
-		filter.setTargetCompetences(tComps);
-		Set<Long> tActivities = learningGoalManager.getTargetActivitiesForTargetLearningGoal(targetLearningGoal);
-		filter.setTargetActivities(tActivities);
-
-		setSelectedLearningGoalFilter(filter);
-	}
+//	public void loadGoalWallFilter(long targetLearningGoal) {
+//		LearningGoalFilter filter = new LearningGoalFilter(targetLearningGoal);
+//		Long goalId = learningGoalManager.getGoalIdForTargetGoal(targetLearningGoal);
+//		filter.setGoalId(goalId);
+//		Set<Long> collaborators = learningGoalManager.getCollaboratorsIdsByTargetGoalId(targetLearningGoal);
+//		filter.setCollaborators(collaborators);
+//		Set<Long> tComps = learningGoalManager.getTargetCompetencesForTargetLearningGoal(targetLearningGoal);
+//		filter.setTargetCompetences(tComps);
+//		Set<Long> tActivities = learningGoalManager.getTargetActivitiesForTargetLearningGoal(targetLearningGoal);
+//		filter.setTargetActivities(tActivities);
+//
+//		setSelectedLearningGoalFilter(filter);
+//	}
 
 	public void refreshUserSettings() {
 		setUserSettings(interfaceSettingsManager.getOrCreateUserSettings(getUser()));
@@ -417,13 +415,13 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		getSessionData().setSelectedStatusWallFilter(selectedStatusWallFilter);
 	}
 
-	public LearningGoalFilter getSelectedLearningGoalFilter() {
-		return getSessionData() == null ? null : getSessionData().getSelectedLearningGoalFilter();
-	}
-
-	public void setSelectedLearningGoalFilter(LearningGoalFilter selectedLearningGoalFilter) {
-		getSessionData().setSelectedLearningGoalFilter(selectedLearningGoalFilter);
-	}
+//	public LearningGoalFilter getSelectedLearningGoalFilter() {
+//		return getSessionData() == null ? null : getSessionData().getSelectedLearningGoalFilter();
+//	}
+//
+//	public void setSelectedLearningGoalFilter(LearningGoalFilter selectedLearningGoalFilter) {
+//		getSessionData().setSelectedLearningGoalFilter(selectedLearningGoalFilter);
+//	}
 
 	public UserNotificationsSettings getNotificationsSettings() {
 		return getSessionData() == null ? null : getSessionData().getNotificationsSettings();

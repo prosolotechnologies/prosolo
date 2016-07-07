@@ -30,7 +30,7 @@ import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.services.activityWall.SocialStreamObserver;
+import org.prosolo.services.activityWall.observer.SocialStreamObserver;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventException;

@@ -9,9 +9,9 @@ import java.util.Set;
 
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
-import org.prosolo.common.domainmodel.activitywall.SocialActivity;
-import org.prosolo.common.domainmodel.activitywall.SocialStreamSubView;
-import org.prosolo.common.domainmodel.activitywall.SocialStreamSubViewType;
+import org.prosolo.common.domainmodel.activitywall.old.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.old.SocialStreamSubView;
+import org.prosolo.common.domainmodel.activitywall.old.SocialStreamSubViewType;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.general.BaseEntity;

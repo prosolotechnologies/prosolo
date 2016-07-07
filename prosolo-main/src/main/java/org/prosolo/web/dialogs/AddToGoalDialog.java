@@ -13,7 +13,7 @@ import javax.faces.model.SelectItem;
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
-import org.prosolo.common.domainmodel.activitywall.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.old.SocialActivity;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.content.GoalNote;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;

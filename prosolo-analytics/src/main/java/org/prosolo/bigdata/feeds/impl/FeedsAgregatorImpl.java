@@ -28,7 +28,7 @@ import org.prosolo.bigdata.similarity.WebPageRelevance;
 import org.prosolo.bigdata.similarity.impl.WebPageRelevanceImpl;
 import org.prosolo.bigdata.utils.ResourceBundleUtil;
 import org.prosolo.common.config.CommonSettings;
-import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
+import org.prosolo.common.domainmodel.activitywall.old.TwitterPostSocialActivity;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.feeds.CourseRSSFeedsDigest;

@@ -22,24 +22,30 @@ public class Annotation1ManagerImpl extends AbstractManagerImpl implements Annot
 	@Override
 	@Transactional(readOnly = true)
 	public boolean hasUserAnnotatedResource(long userId, long resourceId, AnnotationType annotationType,
-			AnnotatedResource annotatedResource) {
-		User user = (User) persistence.currentManager().load(User.class, userId);
-		
-		String query = "SELECT COUNT(ann.id) FROM Annotation1 ann " +
-					   "WHERE ann.annotatedResourceId = :resourceId " +
-					   "AND ann.annotatedResource = :annotatedResource " +
-					   "AND ann.annotationType = :annotationType " +
-					   "AND ann.maker = :maker";
-		
-		long count = (long) persistence.currentManager()
-				.createQuery(query)
-				.setLong("resourceId", resourceId)
-				.setParameter("annotatedResource", annotatedResource)
-				.setParameter("annotationType", annotationType)
-				.setEntity("maker", user)
-				.uniqueResult();
-		
-		return count == 1;
+			AnnotatedResource annotatedResource) throws DbConnectionException {
+		try {
+			User user = (User) persistence.currentManager().load(User.class, userId);
+			
+			String query = "SELECT COUNT(ann.id) FROM Annotation1 ann " +
+						   "WHERE ann.annotatedResourceId = :resourceId " +
+						   "AND ann.annotatedResource = :annotatedResource " +
+						   "AND ann.annotationType = :annotationType " +
+						   "AND ann.maker = :maker";
+			
+			long count = (long) persistence.currentManager()
+					.createQuery(query)
+					.setLong("resourceId", resourceId)
+					.setParameter("annotatedResource", annotatedResource)
+					.setParameter("annotationType", annotationType)
+					.setEntity("maker", user)
+					.uniqueResult();
+			
+			return count == 1;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while checking if user liked resource");
+		}
 	}
 	
 	@Override

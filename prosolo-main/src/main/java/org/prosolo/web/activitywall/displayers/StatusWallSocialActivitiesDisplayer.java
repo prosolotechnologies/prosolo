@@ -2,7 +2,7 @@ package org.prosolo.web.activitywall.displayers;
 
 import java.util.List;
 
-import org.prosolo.common.domainmodel.activitywall.SocialStreamSubViewType;
+import org.prosolo.common.domainmodel.activitywall.old.SocialStreamSubViewType;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;

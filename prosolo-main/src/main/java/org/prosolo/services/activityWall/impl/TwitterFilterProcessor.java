@@ -2,8 +2,8 @@ package org.prosolo.services.activityWall.impl;
 
 import java.util.Set;
 
-import org.prosolo.common.domainmodel.activitywall.SocialActivity;
-import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
+import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity1;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;
 import org.prosolo.common.domainmodel.user.User;
@@ -20,12 +20,12 @@ import org.prosolo.services.activityWall.strategy.Strategy;
 public class TwitterFilterProcessor implements SocialActivityFilterProcessor {
 	
 	@Override
-	public boolean checkSocialActivity(SocialActivity socialActivity, User user, Filter filter) {
-		if (!(socialActivity instanceof TwitterPostSocialActivity)) {
+	public boolean checkSocialActivity(SocialActivity1 socialActivity, User user, Filter filter) {
+		if (!(socialActivity instanceof TwitterPostSocialActivity1)) {
 			return false;
 		}
 		
-		TwitterPostSocialActivity twitterPostSA = (TwitterPostSocialActivity) socialActivity;
+		TwitterPostSocialActivity1 twitterPostSA = (TwitterPostSocialActivity1) socialActivity;
 		Set<Tag> hashtags = twitterPostSA.getHashtags();
 		Set<Tag> filterHashtags = (Set<Tag>) ((TwitterFilter) filter).getHashtags();
 		

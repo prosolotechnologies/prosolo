@@ -15,8 +15,8 @@ import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.activitywall.SocialActivity;
-import org.prosolo.common.domainmodel.activitywall.SocialStreamSubViewType;
+import org.prosolo.common.domainmodel.activitywall.old.SocialActivity;
+import org.prosolo.common.domainmodel.activitywall.old.SocialStreamSubViewType;
 import org.prosolo.common.domainmodel.annotation.AnnotationType;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.content.Post;
@@ -69,8 +69,8 @@ public class ActivityWallManagerImpl extends AbstractManagerImpl implements Acti
 				return getAllProSoloSocialActivities(user, offset, limit);
 			case ALL:
 				return getAllSocialActivities(user, offset, limit);
-			case COURSE:
-				return getCourseSocialActivities(user, offset, limit, ((CourseFilter) filter).getCourseId());
+//			case COURSE:
+//				return getCourseSocialActivities(user, offset, limit, ((CourseFilter) filter).getCourseId());
 			default:
 				return new ArrayList<SocialActivityData>();
 		}

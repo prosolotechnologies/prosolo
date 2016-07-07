@@ -1,0 +1,161 @@
+<ui:component
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+	<composite:interface>
+		<composite:attribute name="learningContext" default=""/>
+		<composite:attribute name="service" default="" />
+		<composite:attribute name="toUpdate" default=""/>
+	</composite:interface>
+	
+	<composite:implementation>
+		<h:outputScript library="javascript" name="prosolo.newpost.js" target="head" />
+		<h:outputScript library="javascript" name="jquery.autosize.min.js" target="head" />
+		<h:form id="formPost">
+		 <p:growl id="newPostGrowl" showDetail="true" globalOnly="true"></p:growl>
+		 <div class="whiteBox newWallPost">
+             <div class="textAreaWrapper">
+                 <div class="contentEditable" contenteditable="true" placeholder="Write something..."></div>
+             	 <h:inputTextarea styleClass="postTextHidden" value="#{activityWallBean.newSocialActivity.text}" style="display: none;"></h:inputTextarea>
+             	 <h:inputText id="hiddenTextLink" styleClass="hiddenTextLink" value="#{activityWallBean.link}" style="display: none;"></h:inputText>
+             	 <p:commandLink styleClass="hiddenLinkFetchLinkContents" style="display: none;" 
+             	 	process="hiddenTextLink"
+					action="#{activityWallBean.fetchLinkContents()}"
+					update="link panelAfterAddLink"
+					oncomplete="afterAddLink();"
+				 />
+				 <h:panelGroup id="panelAfterAddLink" style="display:none;">
+				 	<script>
+				 		function afterAddLink() {
+				 			newPost.afterAddLinkBtnCallback(#{activityWallBean.newSocialActivity.attachmentPreview.initialized});
+				 		}
+				 	</script>
+				 </h:panelGroup>
+             </div>
+             <div class="linkLoaderContainer" style="display:none;"></div>
+             
+             <post:attachmentPreview id="link"
+				attachmentPreview="#{activityWallBean.newSocialActivity.attachmentPreview}"
+				onclickHideLink="newPost.hideLinkPreview();"
+				closePreviewAction="#{activityWallBean.deleteAttachmentPreview}"
+				viewUseCase="false"
+				learningContext="#{cc.attrs.learningContext}"
+			 />
+			 
+             <div class="postOptions" style="display: none;">
+             	 <p:commandLink
+             	 	style="display:none;"
+             	 	styleClass="btn btn-green btn-sm buttonSavePostSelector"
+             	 	value="Post"
+             	 	action="#{activityWallBean.createNewPost()}"
+             	 	update=":#{cc.clientId}:formPost #{cc.attrs.toUpdate}"
+             	 	oncomplete="initializeNewPostPlugin();">
+             	 	<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
+                 	<f:param name="learningContext" value="#{cc.attrs.learningContext}"/>
+             	 </p:commandLink>
+             	 <a href="javascript:void();" id="disabledPostButton" class="btn btn-green btn-sm disabled">Post</a>
+               
+                 <p:commandLink 
+                 	styleClass="btnUploadFile buttonPostUploadFileSelector" 
+                 	pt:data-toggle="modal"
+                 	process="@this"
+					update=":#{cc.clientId}:formUploadFile:panelUploadFileModalContent"
+               		oncomplete="$('#uploadFileModal').modal('show');">
+                 	<span></span>Upload file
+                 </p:commandLink>
+                 <ui:remove><a href="#" class="btnUploadFile" data-toggle="modal" data-target="#uploadFileModal"><span></span>Upload file</a></ui:remove>
+             </div>
+         </div>
+		</h:form>
+		
+		<h:form id="formUploadFile" enctype="multipart/form-data">
+			<p:growl id="growlFileUpload" showDetail="true" globalOnly="true"></p:growl>
+			<div class="modal fade uploadFileModalSelector" id="uploadFileModal" tabindex="-1" role="dialog" aria-labelledby="uploadFile">
+                <div class="modal-dialog" role="document">
+                    <h:panelGroup layout="block" id="panelUploadFileModalContent" styleClass="modal-content">
+                        <div class="modal-header alignLeft">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                            <h2 class="modal-title" id="uploadFile">Upload File</h2>
+                        </div>
+                        <div class="modal-body alignLeft">
+                            <div class="fileLine">
+                            	<utilcomp:simpleFileUpload
+	                        		id="simpleFileUpload"
+				            		fileUploadListenerMethodName="handleFileUpload"
+				            		fileUploadListenerMethod="#{activityWallBean.handleFileUpload}"
+				            		toUpdate=":#{cc.clientId}:formUploadFile:growlFileUpload :#{cc.clientId}:formUploadFile:panelFileName :#{cc.clientId}:formUploadFile:inputTextFileTitle"
+				            		uploadButtonStyle="btn btn-green btn-sm"
+	                        	/>
+                                <h:panelGroup id="panelFileName">
+                                	#{activityWallBean.uploadFile.fileName}
+                                </h:panelGroup>
+                            </div>
+                            
+                            <h:inputText id="inputTextFileTitle"
+                            	placeholder="Title"
+                            	value="#{activityWallBean.uploadFile.title}">
+                            </h:inputText>
+                            <h:inputTextarea 
+                            	placeholder="Description..."
+                            	value="#{activityWallBean.uploadFile.description}">
+                            </h:inputTextarea>
+                            
+                            <h:panelGroup layout="block" rendered="#{facesContext.validationFailed and empty activityWallBean.uploadFile.title}" styleClass="alert alert-warning">							
+								 File title must be entered
+							</h:panelGroup>
+							
+							<h:panelGroup layout="block" rendered="#{facesContext.validationFailed and empty activityWallBean.uploadFile.link}" styleClass="alert alert-warning">
+								  File must be uploaded
+							</h:panelGroup>
+                        </div>
+                        <div class="modal-footer alignLeft">
+                        	<p:commandLink
+		                  	  	value="Done"
+		                  	  	styleClass="btn btn-green"
+		                  	  	action="#{activityWallBean.saveUploadedFile()}"
+		                  	  	update=":#{cc.clientId}:formUploadFile:panelUploadFileModalContent :#{cc.clientId}:formPost:link"
+		                  	  	oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#uploadFileModal').modal('hide'); afterUploadFile();};">
+		                  	</p:commandLink>
+                            <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                             <h:panelGroup id="panelAfterUploadFile" style="display:none;">
+							 	<script>
+							 		function afterUploadFile() {
+							 			newPost.afterUploadFileBtnCallback(#{activityWallBean.newSocialActivity.attachmentPreview.initialized});
+							 		}
+							 	</script>
+							 </h:panelGroup>
+                        </div>
+                    </h:panelGroup>
+                </div>
+            </div>
+		</h:form>
+		<script>
+			var newPost;
+			$(function() {
+				initializeNewPostPlugin();
+			});
+			function initializeNewPostPlugin() {
+				$('.newWallPost').newpost({
+					editableDivSelector: '.textAreaWrapper .contentEditable',
+					textAreaSelector: '.textAreaWrapper .postTextHidden',
+					postOptionsSelector: '.postOptions',
+					postButtonEnabledSelector: '.buttonSavePostSelector',
+					postButtonDisabledSelector: '#disabledPostButton',
+					newPostContainerSelector: '.newWallPost',
+					uploadFileModalSelector: '.uploadFileModalSelector',
+					urlFieldSelector: '.textAreaWrapper .hiddenTextLink',
+					addUrlButtonSelector: '.textAreaWrapper .hiddenLinkFetchLinkContents',
+					linkLoaderContainerSelector: '.linkLoaderContainer'
+				});
+				newPost = $('.newWallPost').data('newpost');
+			}
+		</script>
+	</composite:implementation>
+</ui:component>
