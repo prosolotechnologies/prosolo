@@ -330,7 +330,7 @@ public class CompetenceActivitiesBean implements Serializable {
 	
 	public void addSlideshareLink() {
 		AttachmentPreview ap = resourceResData.getAttachmentPreview();
-		String embedLink = SlideShareUtils.convertSlideShareURLToEmbededUrl(ap.getLink());
+		String embedLink = SlideShareUtils.convertSlideShareURLToEmbededUrl(ap.getLink(), null).getEmbedLink();
 		if(embedLink != null) {
 			ap.setEmbedingLink(embedLink);
 			ap.setInitialized(true);

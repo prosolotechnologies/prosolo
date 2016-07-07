@@ -60,8 +60,14 @@ public class URLUtil {
 		return id;
 	}
 	
-	public static String getSlideshareEmbedLink(String link) {
-		return SlideShareUtils.convertSlideShareURLToEmbededUrl(link);
+	/**
+	 *
+	 * @param link
+	 * @param embedId if embedId is not known pass null
+	 * @return
+	 */
+	public static MediaData getSlideshareEmbedLink(String link, String embedId) {
+		return SlideShareUtils.convertSlideShareURLToEmbededUrl(link, embedId);
 	}
 	
 	public static String getDomainFromUrl(String url) {

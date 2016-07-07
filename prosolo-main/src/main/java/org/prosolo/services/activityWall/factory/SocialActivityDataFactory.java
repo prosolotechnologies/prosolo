@@ -69,6 +69,7 @@ public class SocialActivityDataFactory {
 			String postRichContentContentType,
 			String postRichContentImageUrl,
 			String postRichContentLink,
+			String postRichContentEmbedId,
 			String postRichContentImageSize,
 			BigInteger postObjectId,
 			String postObjectText,
@@ -77,6 +78,7 @@ public class SocialActivityDataFactory {
 			String postObjectRichContentContentType,
 			String postObjectRichContentImageUrl,
 			String postObjectRichContentLink,
+			String postObjectRichContentEmbedId,
 			String postObjectRichContentImageSize,
 			BigInteger postObjectActorId,
 			String postObjectActorName,
@@ -161,6 +163,7 @@ public class SocialActivityDataFactory {
 					rc.setImageSize(ImageSize.valueOf(postRichContentImageSize));
 				}
 				rc.setLink(postRichContentLink);
+				rc.setEmbedId(postRichContentEmbedId);
 				
 				ap = richContentFactory.getAttachmentPreview(rc);
 			}
@@ -180,6 +183,7 @@ public class SocialActivityDataFactory {
 					rc.setImageSize(ImageSize.valueOf(postObjectRichContentImageSize));
 				}
 				rc.setLink(postObjectRichContentLink);
+				rc.setEmbedId(postObjectRichContentEmbedId);
 				
 				ap = richContentFactory.getAttachmentPreview(rc);
 			}

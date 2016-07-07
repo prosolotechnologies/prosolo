@@ -9,6 +9,6 @@ public class SlideShareUtilsTest {
   @Test
   public void convertSlideShareURLToEmbededUrl() {
 	  String slideShareUrl="http://www.slideshare.net/jeremycod/consuming-restful-web-services-in-php";
-    SlideShareUtils.convertSlideShareURLToEmbededUrl(slideShareUrl);
+    SlideShareUtils.convertSlideShareURLToEmbededUrl(slideShareUrl, null);
   }
 }

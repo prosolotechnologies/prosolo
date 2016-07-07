@@ -33,6 +33,7 @@ public class PostSocialActivity1 extends SocialActivity1 {
 		@AttributeOverride(name="title", column=@Column(name="rich_content_title")),
 		@AttributeOverride(name="description", column=@Column(name="rich_content_description", length=9000)),
 	    @AttributeOverride(name="link", column=@Column(name="rich_content_link")),
+	    @AttributeOverride(name="embedId", column=@Column(name="rich_content_embed_id")),
 	    @AttributeOverride(name="imageUrl", column=@Column(name="rich_content_image_url")),
 	    @AttributeOverride(name="lastIndexingDate", column=@Column(name="rich_content_last_indexing_update")),
 	    @AttributeOverride(name="contentType", column=@Column(name="rich_content_content_type")),

@@ -121,7 +121,8 @@ public class ActivityDataFactory {
 					break;
 				case Slides:
 					act.setActivityType(ActivityType.SLIDESHARE);
-					act.setEmbedId(SlideShareUtils.convertSlideShareURLToEmbededUrl(urlAct.getUrl()));
+					act.setEmbedId(SlideShareUtils.convertSlideShareURLToEmbededUrl(urlAct.getUrl(), null)
+							.getEmbedLink());
 					break;
 			}
 			act.setLink(urlAct.getUrl());
@@ -295,7 +296,8 @@ public class ActivityDataFactory {
 					break;
 				case Slides:
 					act.setActivityType(ActivityType.SLIDESHARE);
-					act.setEmbedId(SlideShareUtils.convertSlideShareURLToEmbededUrl(urlAct.getUrl()));
+					act.setEmbedId(SlideShareUtils.convertSlideShareURLToEmbededUrl(urlAct.getUrl(), 
+							null).getEmbedLink());
 					break;
 			}
 			act.setLink(urlAct.getUrl());

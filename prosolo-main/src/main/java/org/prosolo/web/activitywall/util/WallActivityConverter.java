@@ -127,7 +127,7 @@ public class WallActivityConverter {
 			} 
 		}
 		if (SlideShareUtils.isSlideSharePresentation(attachmentPreview.getLink())) {
-			String embedLink = SlideShareUtils.convertSlideShareURLToEmbededUrl(attachmentPreview.getLink());
+			String embedLink = SlideShareUtils.convertSlideShareURLToEmbededUrl(attachmentPreview.getLink(), null).getEmbedLink();
 			
 			if (embedLink != null && embedLink.length() > 10) {
 				attachmentPreview.setMediaType(MediaType.SLIDESHARE);

@@ -19,6 +19,7 @@ public class RichContent1 implements Serializable {
 	private String title;
 	private String description;
 	private String link;
+	private String embedId;
 	private String imageUrl;
 	private ImageSize imageSize;
 	private Date lastIndexingDate;
@@ -96,6 +97,14 @@ public class RichContent1 implements Serializable {
 
 	public void setImageSize(ImageSize imageSize) {
 		this.imageSize = imageSize;
+	}
+
+	public String getEmbedId() {
+		return embedId;
+	}
+
+	public void setEmbedId(String embedId) {
+		this.embedId = embedId;
 	}
 
 }

@@ -243,6 +243,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"sa.rich_content_content_type AS richContentType, " +
 				"sa.rich_content_image_url AS richContentImageUrl, " +
 				"sa.rich_content_link AS richContentLink, " +
+				"sa.rich_content_embed_id AS richContentEmbedId, " +
 				"sa.rich_content_image_size AS richContentImageSize, " +
 				//post reshare 
 				"sa.post_object AS postObjectId, " +
@@ -252,6 +253,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"postObject.rich_content_content_type AS postObjectRichContentType, " +
 				"postObject.rich_content_image_url AS postObjectRichContentImageUrl, " +
 				"postObject.rich_content_link AS postObjectRichContentLink, " +
+				"postObject.rich_content_embed_id AS postObjectRichContentEmbedId, " +
 				"postObject.rich_content_image_size AS postObjectRichContentImageSize, " +
 				"postObject.actor AS postObjectActorId, " +
 				"postObjectActor.name AS postObjectActorName, " +
@@ -431,54 +433,56 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 							(String) tuple[21], 
 							(String) tuple[22],
 							(String) tuple[23],
-							(BigInteger) tuple[24], 
-							(String) tuple[25], 
+							(String) tuple[24],
+							(BigInteger) tuple[25], 
 							(String) tuple[26], 
 							(String) tuple[27], 
 							(String) tuple[28], 
 							(String) tuple[29], 
 							(String) tuple[30], 
-							(String) tuple[31],
-							(BigInteger) tuple[32], 
-							(String) tuple[33], 
-							(String) tuple[34], 
-							(BigInteger) tuple[35], 
+							(String) tuple[31], 
+							(String) tuple[32],
+							(String) tuple[33],
+							(BigInteger) tuple[34], 
+							(String) tuple[35], 
 							(String) tuple[36], 
-							(BigInteger) tuple[37],
-							(String) tuple[38],
+							(BigInteger) tuple[37], 
+							(String) tuple[38], 
 							(BigInteger) tuple[39],
 							(String) tuple[40],
-							(String) tuple[41],
+							(BigInteger) tuple[41],
 							(String) tuple[42],
-							(BigInteger) tuple[43], 
-							(String) tuple[44], 
+							(String) tuple[43],
+							(String) tuple[44],
 							(BigInteger) tuple[45], 
 							(String) tuple[46], 
 							(BigInteger) tuple[47], 
-							(String) tuple[48],
-							(BigInteger) tuple[49],
-							(BigInteger) tuple[50], 
-							(String) tuple[51],
-							(BigInteger) tuple[52],
+							(String) tuple[48], 
+							(BigInteger) tuple[49], 
+							(String) tuple[50],
+							(BigInteger) tuple[51],
+							(BigInteger) tuple[52], 
 							(String) tuple[53],
 							(BigInteger) tuple[54],
 							(String) tuple[55],
-							(String) tuple[56],
+							(BigInteger) tuple[56],
 							(String) tuple[57],
 							(String) tuple[58],
 							(String) tuple[59],
-							(BigInteger) tuple[60],
-							(BigInteger) tuple[61],
-							(BigInteger) tuple[62], 
-							(String) tuple[63], 
-							(BigInteger) tuple[64],
-							(String) tuple[65],
+							(String) tuple[60],
+							(String) tuple[61],
+							(BigInteger) tuple[62],
+							(BigInteger) tuple[63],
+							(BigInteger) tuple[64], 
+							(String) tuple[65], 
 							(BigInteger) tuple[66],
 							(String) tuple[67],
-							(String) tuple[68],
+							(BigInteger) tuple[68],
 							(String) tuple[69],
-							(BigInteger) tuple[70],
-							(Integer) tuple[71],
+							(String) tuple[70],
+							(String) tuple[71],
+							(BigInteger) tuple[72],
+							(Integer) tuple[73],
 							locale);
 				}
 				

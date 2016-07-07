@@ -29,6 +29,7 @@ public class RichContentDataFactory {
 		attachPreview.setTitle(richContent.getTitle());
 		attachPreview.setDescription(richContent.getDescription());
 		attachPreview.setLink(richContent.getLink());
+		attachPreview.setEmbedId(richContent.getEmbedId());
 		attachPreview.setContentType(richContent.getContentType());
 		if(attachPreview.getContentType() == ContentType1.LINK) {
 			attachPreview.setDomain(URLUtil.getDomainFromUrl(attachPreview.getLink()));
@@ -157,8 +158,7 @@ public class RichContentDataFactory {
 		if(attachPreview.getContentType() == ContentType1.LINK) {
 			String link = attachPreview.getLink();
 			if(URLUtil.checkIfSlideshareLink(link)) {
-				mediaType = MediaType1.Slideshare;
-				embedLink = URLUtil.getSlideshareEmbedLink(link);
+				return URLUtil.getSlideshareEmbedLink(link, attachPreview.getEmbedId());
 			} else if(URLUtil.checkIfYoutubeLink(link)) {
 				mediaType = MediaType1.Youtube;
 				embedId = URLUtil.getYoutubeEmbedId(link);
@@ -185,6 +185,7 @@ public class RichContentDataFactory {
 		richContent.setImageUrl(attachmentPreview.getImageUrl());
 		richContent.setImageSize(attachmentPreview.getImageSize());
 		richContent.setLink(attachmentPreview.getLink());
+		richContent.setEmbedId(attachmentPreview.getEmbedId());
 		richContent.setContentType(attachmentPreview.getContentType());
 		return richContent;
 	}
