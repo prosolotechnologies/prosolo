@@ -14,7 +14,7 @@ public enum ContextName {
 	NODE_COMMENT("NodeComment"),
 	SOCIAL_ACTIVITY_COMMENT("SocialActivityComment"),
 	//LEARNING_GOAL("TargetLearningGoal"),
-	SOCIAL_ACTIVITY("SocialActivity"),
+	SOCIAL_ACTIVITY("SocialActivity1"),
 	STATUS_WALL(""),
 	ASSESSMENT_DIALOG(""),
 	ACTIVATE_COURSE_DIALOG(""),

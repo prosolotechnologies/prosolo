@@ -1916,11 +1916,11 @@ header {
       .wallPost .wallPostHead .wallPostHeadRight .timestamp:hover {
         color: #859095; }
 /* line 1768, style.scss */
-.wallPost .wallPostBody > p {
+.wallPost .wallPostBody .wallPostContent {
   margin-bottom: 20px;
   padding: 0 30px; }
   /* line 1771, style.scss */
-  .wallPost .wallPostBody > p.commentPreview {
+  .wallPost .wallPostBody .wallPostContent.commentPreview {
     padding: 10px 30px 0 50px;
     background: url("../images2/iconQuote.svg") no-repeat 30px 0; }
 /* line 1777, style.scss */

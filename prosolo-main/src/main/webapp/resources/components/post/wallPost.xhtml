@@ -70,12 +70,14 @@
                </div>
            </div>
            <div class="wallPostBody">
-               <p>
+               <p class="wallPostContent">
                		<h:outputText escape="false" value="#{cc.attrs.socialActivity.text}"></h:outputText>
                </p>
                <post:attachmentPreview id="link"
+               		uniqueId="#{cc.attrs.socialActivity.id}"
 					attachmentPreview="#{cc.attrs.socialActivity.attachmentPreview}"
 					viewUseCase="true"
+					learningContext="#{cc.attrs.learningContext}"
 			   />
            </div>
            <div class="wallPostFooter">

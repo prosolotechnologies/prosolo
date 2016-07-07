@@ -25,6 +25,7 @@ public class AttachmentPreview1 implements Serializable {
 	private String fileName;
 	private ContentType1 contentType;
 	private String embedingLink;
+	private String embedId;
 	private MediaType1 mediaType;
 
 	// used for new post dialog
@@ -34,8 +35,6 @@ public class AttachmentPreview1 implements Serializable {
 	private boolean initialized = false;
 	
 	//for learning resource preview
-	private long credId;
-	private long compId;
 	private boolean universityCreated;
 	private String creatorName;
 	private String duration;
@@ -213,20 +212,12 @@ public class AttachmentPreview1 implements Serializable {
 		this.activityType = activityType;
 	}
 
-	public long getCredId() {
-		return credId;
+	public String getEmbedId() {
+		return embedId;
 	}
 
-	public void setCredId(long credId) {
-		this.credId = credId;
-	}
-
-	public long getCompId() {
-		return compId;
-	}
-
-	public void setCompId(long compId) {
-		this.compId = compId;
+	public void setEmbedId(String embedId) {
+		this.embedId = embedId;
 	}
 
 }

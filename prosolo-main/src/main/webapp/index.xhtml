@@ -65,7 +65,7 @@
 					<ui:repeat var="sa" value="#{activityWallBean.socialActivities}">
 						<post:wallPost
 							socialActivity="#{sa}"
-							learningContext="name:status_wall"
+							learningContext="name:status_wall|context:/name:social_activity|id:#{sa.id}/"
 						/>
 					</ui:repeat>
 				</h:panelGroup>

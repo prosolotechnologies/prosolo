@@ -3,8 +3,8 @@ package org.prosolo.services.media.util;
 import org.apache.log4j.Logger;
 import org.primefaces.json.JSONException;
 import org.primefaces.json.JSONObject;
-import org.prosolo.services.util.RESTEasyClientGet;
-import org.prosolo.services.util.impl.RESTEasyClientGetImpl;
+import org.prosolo.services.util.GetRequestClient;
+import org.prosolo.services.util.impl.GetRequestClientImpl;
 
 /**
  * @author Zoran Jeremic 2013-09-30
@@ -14,7 +14,7 @@ import org.prosolo.services.util.impl.RESTEasyClientGetImpl;
 public class SlideShareUtils {
 	private static Logger logger = Logger.getLogger(SlideShareUtils.class);
 	public static String convertSlideShareURLToEmbededUrl(String slideShareUrl){
-		RESTEasyClientGet client = new RESTEasyClientGetImpl();
+		GetRequestClient client = new GetRequestClientImpl();
 		String startingUrl = "http://www.slideshare.net/api/oembed/2?url=";
 		String format = "&format=json";
 		String url = startingUrl + slideShareUrl + format;

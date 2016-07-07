@@ -252,6 +252,7 @@ public class ActivityWallBean {
 				MediaData md = richContentFactory.getMediaData(attachmentPreview);
 				attachmentPreview.setMediaType(md.getMediaType());
 				attachmentPreview.setEmbedingLink(md.getEmbedLink());
+				attachmentPreview.setEmbedId(md.getEmbedId());
 				newSocialActivity.setAttachmentPreview(attachmentPreview);
 			} else {
 				newSocialActivity.getAttachmentPreview().setInvalidLink(true);

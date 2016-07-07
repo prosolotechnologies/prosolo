@@ -48,6 +48,7 @@ public class RichContentDataFactory {
 		MediaData md = getMediaData(attachPreview);
 		attachPreview.setMediaType(md.getMediaType());
 		attachPreview.setEmbedingLink(md.getEmbedLink());
+		attachPreview.setEmbedId(md.getEmbedId());
 		attachPreview.setInitialized(true);
 		
 		return attachPreview;
@@ -152,6 +153,7 @@ public class RichContentDataFactory {
 	public MediaData getMediaData(AttachmentPreview1 attachPreview) {
 		MediaType1 mediaType = MediaType1.Link_Other;
 		String embedLink = null;
+		String embedId = null;
 		if(attachPreview.getContentType() == ContentType1.LINK) {
 			String link = attachPreview.getLink();
 			if(URLUtil.checkIfSlideshareLink(link)) {
@@ -159,13 +161,14 @@ public class RichContentDataFactory {
 				embedLink = URLUtil.getSlideshareEmbedLink(link);
 			} else if(URLUtil.checkIfYoutubeLink(link)) {
 				mediaType = MediaType1.Youtube;
-				embedLink = URLUtil.getYoutubeEmbedLink(link);
+				embedId = URLUtil.getYoutubeEmbedId(link);
+				//return URLUtil.getYoutubeMediaData(link);
 			}
 		} else {
 			mediaType = MediaType1.File_Other;
 		}
 		//TODO if it is needed to differentiate file types do that here before setting media type
-		return new MediaData(mediaType, embedLink);
+		return new MediaData(mediaType, embedLink, embedId);
 	}
 	
 	private String getFullName(String name, String lastName) {

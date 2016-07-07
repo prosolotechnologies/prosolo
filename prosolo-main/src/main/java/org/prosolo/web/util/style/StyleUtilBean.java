@@ -54,7 +54,7 @@ public class StyleUtilBean implements Serializable {
 	
 	public String getPreviewLinkStyleClassBasedOnImageSize(ImageSize size) {
 		if(size == null) {
-			return "previewLinkSmall";
+			return "";
 		}
 		switch(size) {
 			case Large:
