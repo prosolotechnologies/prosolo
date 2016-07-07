@@ -123,7 +123,7 @@ public class MoreUsersLikeThisImpl extends AbstractManagerImpl implements MoreUs
 					bQueryBuilder.mustNot(termQuery("id", ignUser.getId()));
 				}
 			}
-			GeoDistanceSortBuilder sortBuilder = SortBuilders.geoDistanceSort("user.location")
+			GeoDistanceSortBuilder sortBuilder = SortBuilders.geoDistanceSort("location")
 					.point(lat, lon)
 					.unit(DistanceUnit.KILOMETERS)
 					.order(SortOrder.ASC);
@@ -167,7 +167,7 @@ public class MoreUsersLikeThisImpl extends AbstractManagerImpl implements MoreUs
 					bQueryBuilder.mustNot(termQuery("id", ignUser.getId()));
 				}
 			}
-	    	QueryBuilder filter = QueryBuilders.geoDistanceQuery("user.location")
+	    	QueryBuilder filter = QueryBuilders.geoDistanceQuery("location")
 					.point(lat, lon)
 					.distance(200, DistanceUnit.KILOMETERS)
 					.optimizeBbox("memory")

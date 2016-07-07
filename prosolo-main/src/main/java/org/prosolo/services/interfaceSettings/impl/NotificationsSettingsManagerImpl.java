@@ -49,13 +49,13 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 		if (result != null) {
 			return result;
 		} else {
-			Transaction t = session.beginTransaction();
+		//	Transaction t = session.beginTransaction();
 			User user = (User) session.load(User.class, userId);
 			UserNotificationsSettings notificationsSettings = new UserNotificationsSettings();
 			notificationsSettings.setUser(user);
 			notificationsSettings.setNotifications(getDefaultSubscribedEventTypes());
 			session.saveOrUpdate(notificationsSettings);
-			t.commit();
+		//	t.commit();
 			
 			session.flush();
 			

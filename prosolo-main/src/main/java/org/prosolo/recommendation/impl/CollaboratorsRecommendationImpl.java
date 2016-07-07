@@ -74,7 +74,6 @@ public class CollaboratorsRecommendationImpl implements CollaboratorsRecommendat
 	}
 	@Override
 	public List<User> getRecommendedCollaboratorsBasedOnLocation(User loggedUser, int limit) {
-		System.out.println("KT-cc");
 		List<User> users = null;
 		List<User> ignoredUsers = new ArrayList<User>();
 		ignoredUsers.add(loggedUser);
