@@ -13,6 +13,7 @@ import org.omnifaces.util.Ajax;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.recommendation.impl.CollaboratorsRecommendationImpl;
 import org.prosolo.services.interaction.FollowResourceAsyncManager;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.web.LoggedUserBean;
@@ -43,6 +44,9 @@ public class PeopleBean implements Serializable, Paginable {
 	private FollowResourceManager followResourceManager;
 	@Autowired
 	private FollowResourceAsyncManager followResourceAsyncManager;
+
+	@Autowired
+	private CollaboratorsRecommendationImpl collaboratorsRecommendation;
 	@Autowired
 	private LoggedUserBean loggedUser;
 
@@ -77,6 +81,10 @@ public class PeopleBean implements Serializable, Paginable {
 			logger.debug("Following users initialized '" + loggedUser.getUser() + "'");
 		}
 		generatePagination();
+		System.out.println("KT-1 UNCOMMENT THIS");
+		//List<User> nearbyUsers=collaboratorsRecommendation.getRecommendedCollaboratorsBasedOnLocation(loggedUser.getUser(),10);
+		System.out.println("KT-2");
+
 	}
 
 	public void addFollowingUser(UserData user) {

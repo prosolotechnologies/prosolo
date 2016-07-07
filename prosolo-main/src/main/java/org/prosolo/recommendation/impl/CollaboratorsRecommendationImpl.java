@@ -74,6 +74,7 @@ public class CollaboratorsRecommendationImpl implements CollaboratorsRecommendat
 	}
 	@Override
 	public List<User> getRecommendedCollaboratorsBasedOnLocation(User loggedUser, int limit) {
+		System.out.println("KT-cc");
 		List<User> users = null;
 		List<User> ignoredUsers = new ArrayList<User>();
 		ignoredUsers.add(loggedUser);
@@ -89,7 +90,9 @@ public class CollaboratorsRecommendationImpl implements CollaboratorsRecommendat
 			double lon = Double.valueOf(loggedUser.getLongitude());
 			users = mult.getCollaboratorsBasedOnLocation(ignoredUsers, lat, lon, limit);
 		}
-		
+		if(users==null){
+			System.out.println("USERS IS NULL");
+		}
 		return users;
 	}
 	
@@ -99,7 +102,6 @@ public class CollaboratorsRecommendationImpl implements CollaboratorsRecommendat
 		ignoredUsers.add(loggedUser);
 		
 		List<User> followingUsers = followResourceManager.getFollowingUsers(loggedUser);
-	
 		for (User fUser : followingUsers) {
 			if (!ignoredUsers.contains(fUser)) {
 				ignoredUsers.add(fUser);

@@ -112,7 +112,6 @@ public class MoreUsersLikeThisImpl extends AbstractManagerImpl implements MoreUs
 	@Override
 	public List<User> getCollaboratorsBasedOnLocation(Collection<User> ignoredUsers, double lat, double lon, int limit){
 		List<User> foundUsers = new ArrayList<User>();
-		
 		try {
 			Client client = ElasticSearchFactory.getClient();
 			QueryBuilder qb = new MatchAllQueryBuilder();
@@ -124,7 +123,7 @@ public class MoreUsersLikeThisImpl extends AbstractManagerImpl implements MoreUs
 					bQueryBuilder.mustNot(termQuery("id", ignUser.getId()));
 				}
 			}
-			GeoDistanceSortBuilder sortBuilder = SortBuilders.geoDistanceSort("user.location.pin")
+			GeoDistanceSortBuilder sortBuilder = SortBuilders.geoDistanceSort("user.location")
 					.point(lat, lon)
 					.unit(DistanceUnit.KILOMETERS)
 					.order(SortOrder.ASC);
@@ -168,7 +167,7 @@ public class MoreUsersLikeThisImpl extends AbstractManagerImpl implements MoreUs
 					bQueryBuilder.mustNot(termQuery("id", ignUser.getId()));
 				}
 			}
-	    	QueryBuilder filter = QueryBuilders.geoDistanceQuery("user.location.pin")
+	    	QueryBuilder filter = QueryBuilders.geoDistanceQuery("user.location")
 					.point(lat, lon)
 					.distance(200, DistanceUnit.KILOMETERS)
 					.optimizeBbox("memory")
@@ -176,7 +175,7 @@ public class MoreUsersLikeThisImpl extends AbstractManagerImpl implements MoreUs
 	    	
 	    	FilteredQueryBuilder filteredQueryBuilder = QueryBuilders
 					.filteredQuery(bQueryBuilder, filter);
-	
+	System.out.println("INDEX USERS:"+ESIndexNames.INDEX_USERS);
 			SearchResponse sResponse = client.prepareSearch(ESIndexNames.INDEX_USERS)
 	    		  	.setTypes(ESIndexTypes.USER)
 		  			.setQuery(filteredQueryBuilder)

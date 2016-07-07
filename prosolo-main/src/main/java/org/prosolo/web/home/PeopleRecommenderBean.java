@@ -52,7 +52,9 @@ public class PeopleRecommenderBean implements Serializable {
 	public void initLocationRecommend() {
 		//if (locationRecommendedUsers == null) {
 			locationRecommendedUsers = new ArrayList<UserData>();
-			List<User> users=cRecommendation.getRecommendedCollaboratorsBasedOnLocation(loggedUser.getUser(), 3);
+		List<User> users=null;
+		System.out.println("UNCOMMENT THIS....");
+			//List<User> users=cRecommendation.getRecommendedCollaboratorsBasedOnLocation(loggedUser.getUser(), 3);
 			 
 			if (users != null && !users.isEmpty()) {
 				for (User user : users) {
