@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -47,6 +48,7 @@ public class ActivityViewBeanManager implements Serializable {
 	private String mode;
 	
 	private CompetenceData1 competenceData;
+	private CommentsData commentsData;
 
 	public void init() {	
 		decodedActId = idEncoder.decodeId(actId);
@@ -76,9 +78,13 @@ public class ActivityViewBeanManager implements Serializable {
 					 * instructor comments
 					 */
 					boolean hasInstructorCapability = loggedUser.hasCapability("BASIC.INSTRUCTOR.ACCESS");
-					commentBean.init(CommentedResourceType.Activity, 
+					commentsData = new CommentsData(CommentedResourceType.Activity, 
 							competenceData.getActivityToShowWithDetails().getActivityId(), 
 							hasInstructorCapability);
+					commentBean.loadComments(commentsData);
+//					commentBean.init(CommentedResourceType.Activity, 
+//							competenceData.getActivityToShowWithDetails().getActivityId(), 
+//							hasInstructorCapability);
 					
 					loadCompetenceAndCredentialTitle();
 				}
@@ -198,6 +204,14 @@ public class ActivityViewBeanManager implements Serializable {
 
 	public void setMode(String mode) {
 		this.mode = mode;
+	}
+
+	public CommentsData getCommentsData() {
+		return commentsData;
+	}
+
+	public void setCommentsData(CommentsData commentsData) {
+		this.commentsData = commentsData;
 	}
 
 }

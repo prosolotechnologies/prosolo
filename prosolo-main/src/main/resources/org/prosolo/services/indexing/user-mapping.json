@@ -17,19 +17,6 @@
 				"store": false,
 				"type": "string"
 			},
-			"location": {
-				"properties": {
-					"id": {
-						"type": "string"
-					},
-					"name": {
-						"type": "string"
-					},
-					"pin": {
-						"type": "geo_point"
-					}
-				}
-			},
 			"system": {
 				"store": false,
 				"type": "boolean"
@@ -43,6 +30,11 @@
 				"store": false,
 				"type": "string"
 			},
+
+			"location": {
+				"type": "geo_point"
+			},
+
 			
 			"roles": {
 				"properties": {

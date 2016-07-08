@@ -55,11 +55,11 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.field("name", user.getName());
 			builder.field("lastname", user.getLastname());
 			builder.startObject("location");
-			builder.startObject("pin");
+			//builder.startObject("pin");
 			double latitude = (user.getLatitude() != null && user.getLatitude() != 0) ? user.getLatitude() : 0;
 			double longitude = (user.getLongitude() != null && user.getLongitude() != 0) ? user.getLongitude() : 0;
  			builder.field("lat", latitude).field("lon", longitude);
-			builder.endObject();
+			//builder.endObject();
 			builder.endObject();
 			builder.field("system", user.isSystem());
 			

@@ -4,20 +4,21 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.comment.Comment1;
-import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.interaction.data.CommentSortOption;
+import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.PageUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -32,58 +33,60 @@ public class CommentBean implements Serializable {
 
 	private static Logger logger = Logger.getLogger(CommentBean.class);
 	
-	@Autowired private LoggedUserBean loggedUser;
-	@Autowired private CommentManager commentManager;
-	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
-
-	private String topLevelComment;
-	
-	private boolean isInstructor;
-	private List<CommentData> comments;
-	private CommentedResourceType resourceType;
-	private long resourceId;
-	private CommentSortOption sortOption = CommentSortOption.MOST_RECENT;
+	@Inject private LoggedUserBean loggedUser;
+	@Inject private CommentManager commentManager;
+	@Inject @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 	
 	private CommentSortOption[] sortOptions;
 	
-	private long newestCommentId;
+	@PostConstruct
+	public void init() {
+		sortOptions = CommentSortOption.values();
+	}
 	
-	public void init(CommentedResourceType resourceType, long resourceId, boolean isInstructor) {
+//	public void init(CommentedResourceType resourceType, long resourceId, boolean isInstructor) {
+//		try {
+//			sortOptions = CommentSortOption.values();
+//			this.resourceType = resourceType;
+//			this.resourceId = resourceId;
+//			this.isInstructor = isInstructor;
+//			loadComments();
+//			logger.info("Comments for resource " + resourceType.toString() + 
+//					" with id " + resourceId + " is loaded");
+//		} catch(DbConnectionException e) {
+//			logger.error(e);
+//		}
+//	}
+
+	public void loadComments(CommentsData commentsData) {
 		try {
-			sortOptions = CommentSortOption.values();
-			this.resourceType = resourceType;
-			this.resourceId = resourceId;
-			this.isInstructor = isInstructor;
-			loadComments();
-			logger.info("Comments for resource " + resourceType.toString() + 
-					" with id " + resourceId + " is loaded");
+			List<CommentData> comments = commentManager.getAllComments(commentsData.getResourceType(), 
+					commentsData.getResourceId(), commentsData.getSortOption().getSortField(), 
+					commentsData.getSortOption().getSortOption(), loggedUser.getUserId());
+			commentsData.setComments(comments);
+			commentsData.setInitialized(true);
 		} catch(DbConnectionException e) {
 			logger.error(e);
 		}
 	}
 
-	private void loadComments() {
-		this.comments = commentManager.getAllComments(resourceType, resourceId, 
-				sortOption.getSortField(), sortOption.getSortOption(), loggedUser.getUserId());
-	}
-	
-	public void sortChanged(CommentSortOption sortOption) {
-		if(sortOption != this.sortOption) {
-			this.sortOption = sortOption;
-			loadComments();
+	public void sortChanged(CommentSortOption sortOption, CommentsData commentsData) {
+		if(sortOption != commentsData.getSortOption()) {
+			commentsData.setSortOption(sortOption);
+			loadComments(commentsData);
 		}
 	}
 	
-	public void saveTopLevelComment() {
-		saveNewComment(null);
+	public void saveTopLevelComment(CommentsData commentsData) {
+		saveNewComment(null, commentsData);
 	}
 	
-	public void saveNewComment(CommentData parent) {
+	public void saveNewComment(CommentData parent, CommentsData commentsData) {
 		CommentData newComment = new CommentData();
 		CommentData realParent = null;
 		if(parent == null) {
-			newComment.setComment(topLevelComment);
-			topLevelComment = null;
+			newComment.setComment(commentsData.getTopLevelComment());
+			commentsData.setTopLevelComment(null);
 		} else {
 			/*
 			 * if parent comment has parent, then that comment will be the
@@ -94,7 +97,7 @@ public class CommentBean implements Serializable {
 			newComment.setParent(realParent);
 			newComment.setComment(parent.getReplyToComment());
 		}
-		newComment.setCommentedResourceId(resourceId);
+		newComment.setCommentedResourceId(commentsData.getResourceId());
 		newComment.setDateCreated(new Date());
 		UserData creator = new UserData(
 				loggedUser.getUserId(), 
@@ -105,7 +108,7 @@ public class CommentBean implements Serializable {
 				loggedUser.getSessionData().getEmail());
 		
 		newComment.setCreator(creator);
-		newComment.setInstructor(isInstructor);
+		newComment.setInstructor(commentsData.isInstructor());
 		
 		String page = PageUtil.getPostParameter("page");
 		String lContext = PageUtil.getPostParameter("learningContext");
@@ -114,10 +117,10 @@ public class CommentBean implements Serializable {
 		try {
     		LearningContextData context = new LearningContextData(page, lContext, service);
     		Comment1 comment = commentManager.saveNewComment(newComment, loggedUser.getUserId(), 
-    				resourceType, context);
+    				commentsData.getResourceType(), context);
         	
         	newComment.setCommentId(comment.getId());
-        	newestCommentId = newComment.getCommentId();
+        	commentsData.setNewestCommentId(newComment.getCommentId());
         	
 			if (parent != null) {
 				realParent.getChildComments().add(newComment);
@@ -126,10 +129,10 @@ public class CommentBean implements Serializable {
 	        	 * if selected sort option is newest first, add element to the
 	        	 * end of a list, otherwise add it to the beginning
 	        	 */
-	        	if(sortOption == CommentSortOption.MOST_RECENT) {
-	        		comments.add(newComment);
+	        	if(commentsData.getSortOption() == CommentSortOption.MOST_RECENT) {
+	        		commentsData.addComment(newComment);
 	        	} else {
-	        		comments.add(0, newComment);
+	        		commentsData.addComment(0, newComment);
 	        	}
         	}
         	PageUtil.fireSuccessfulInfoMessage("Comment posted");
@@ -210,30 +213,6 @@ public class CommentBean implements Serializable {
 		return loggedUser.getUserId() == comment.getCreator().getId();
 	}
 
-	public String getTopLevelComment() {
-		return topLevelComment;
-	}
-
-	public void setTopLevelComment(String topLevelComment) {
-		this.topLevelComment = topLevelComment;
-	}
-
-	public List<CommentData> getComments() {
-		return comments;
-	}
-
-	public void setComments(List<CommentData> comments) {
-		this.comments = comments;
-	}
-
-	public CommentSortOption getSortOption() {
-		return sortOption;
-	}
-
-	public void setSortOption(CommentSortOption sortOption) {
-		this.sortOption = sortOption;
-	}
-
 	public CommentSortOption[] getSortOptions() {
 		return sortOptions;
 	}
@@ -242,20 +221,4 @@ public class CommentBean implements Serializable {
 		this.sortOptions = sortOptions;
 	}
 
-	public long getNewestCommentId() {
-		return newestCommentId;
-	}
-
-	public void setNewestCommentId(long newestCommentId) {
-		this.newestCommentId = newestCommentId;
-	}
-
-	public boolean isInstructor() {
-		return isInstructor;
-	}
-
-	public void setInstructor(boolean isInstructor) {
-		this.isInstructor = isInstructor;
-	}
-	
 }

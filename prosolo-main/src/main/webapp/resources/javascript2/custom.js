@@ -81,8 +81,8 @@ function scrollTo(elementId) {
     }, 2000);
 }
 
-function scrollToNewestComment() {
-	var id = document.getElementById('newestCommentId').value;
+function scrollToNewestComment(hiddenFieldId) {
+	var id = document.getElementById(hiddenFieldId).value;
 	scrollTo('comment_'+id);
 }
 
@@ -134,5 +134,14 @@ function addClassToElement(elementId, cssClass) {
 
 function escapeColons(text){
 	return text.replace(/:/g, '\\:');
+}
+
+function showJustPostedComment(topLevelCommentContainerSelector) {
+	var newestComment = $('[data-newest-comment="true"');
+	if (newestComment.length) {
+		newestComment.show();
+		newestComment.prevAll('.media').show();
+		$(topLevelCommentContainerSelector + ' .loadReplies').hide();
+	}
 }
 

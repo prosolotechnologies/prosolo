@@ -1,12 +1,11 @@
 package org.prosolo.services.activityWall.impl.data;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.prosolo.common.util.date.DateUtil;
-import org.prosolo.services.interaction.data.CommentData;
+import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
 
 public class SocialActivityData1 implements Serializable {
@@ -39,7 +38,7 @@ public class SocialActivityData1 implements Serializable {
 	
 	private String twitterPostUrl;
 	
-	private List<CommentData> comments = new ArrayList<CommentData>();
+	private CommentsData comments;
 	private String newComment;
 	private String mentionedUsersInComment;
 	
@@ -179,11 +178,11 @@ public class SocialActivityData1 implements Serializable {
 		this.object = object;
 	}
 
-	public List<CommentData> getComments() {
+	public CommentsData getComments() {
 		return comments;
 	}
 
-	public void setComments(List<CommentData> comments) {
+	public void setComments(CommentsData comments) {
 		this.comments = comments;
 	}
 

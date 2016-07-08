@@ -11,7 +11,9 @@
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 	<composite:interface>
+		<composite:attribute name="comments" required="true" type="org.prosolo.web.useractions.data.CommentsData"/>
 		<composite:attribute name="comment" required="true"/>
+		<composite:attribute name="newestCommentId" required="true" />
 		<composite:attribute name="isTopLevel" required="true" type="java.lang.Boolean" />
 		<composite:attribute name="learningContext" />
 		<composite:attribute name="service" default=""/>
@@ -20,7 +22,8 @@
 	
 	<composite:implementation>
 		<ui:param name="comment" value="#{cc.attrs.comment}" />
-		
+		<ui:param name="topLevelCommentId" value="#{cc.attrs.isTopLevel ? comment.commentId : comment.parent.commentId}"/>
+
 		<div id="comment_#{comment.commentId}">
 			<div class="media-left">
 				<utilcomp:userAvatar
@@ -29,7 +32,7 @@
 			</div>
 			
 			<div class="media-body">
-				<div class="commentMain">
+				<h:panelGroup layout="block" id="panelMainContent" styleClass="commentMain commentMainRegion_#{comment.commentId}">
 					<span class="commentTime">#{comment.formattedDate}</span>
                  	
 					<h3 class="media-heading">#{comment.creator.fullName}
@@ -37,18 +40,19 @@
 					</h3>
 					<p class="commentText">#{comment.comment}</p>
                 	
-					<h:panelGroup layout="block" rendered="#{commentBean.isCurrentUserCommentCreator(comment)}" class="editComment hidden">
-						<h:inputTextarea 
-							rows="8"
-							cols="40"
-							value="#{comment.comment}">
-						</h:inputTextarea>
+					<h:panelGroup layout="block" rendered="#{commentBean.isCurrentUserCommentCreator(comment)}" styleClass="editComment hidden">
+						<h:inputTextarea class="hidden"
+								value="#{comment.comment}" />
+							
+						<div class="contentEditableComment"
+							strip-br="true" contenteditable="true"
+							onkeyup="displaySubmitButton(this);">#{comment.comment}</div>
 						
 						<p:commandButton
 							styleClass="btn btn-sm btn-green"
 							value="Submit"
 							action="#{commentBean.editComment(comment)}"
-							update="#{cc.attrs.toUpdate}">
+							update="@(.commentMainRegion_#{comment.commentId})">
 							<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
 							<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment|id:'.concat(comment.commentId))}"/>
 						</p:commandButton>          
@@ -82,9 +86,9 @@
 							Edit
 						</p:commandLink>                            
 					</div>
-				</div>
+				</h:panelGroup>
                 
-				<div class="media replyInput hidden">
+				<h:panelGroup layout="block" id="panelReply" styleClass="media replyInput hidden">
 					<div class="media-left">
 						<utilcomp:userAvatar
 							avatar="#{loggeduser.avatar}"
@@ -103,9 +107,9 @@
 							<p:commandButton 
 								styleClass="btn btn-sm btn-green hidden"
 								value="Submit"
-								action="#{commentBean.saveNewComment(comment)}"
-								update="#{cc.attrs.toUpdate}"
-								oncomplete="scrollToNewestComment();">
+								action="#{commentBean.saveNewComment(comment, cc.attrs.comments)}"
+								update="@(.topLevelCommentChildren_#{topLevelCommentId}) panelReply #{cc.attrs.toUpdate}"
+								oncomplete="showJustPostedComment('.topLevelCommentChildren_#{topLevelCommentId}');scrollToNewestComment('#{cc.attrs.newestCommentId}');">
 								<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
 								<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment')}"/>
 							</p:commandButton>
@@ -117,31 +121,32 @@
 							</script>
 						</div>
 					</div>
-                </div>
+                </h:panelGroup>
 
 				<c:if test="#{cc.attrs.isTopLevel}">
-					<ui:fragment rendered="#{not empty comment.childComments}">
-						<a href="javascript:void(0)" class="loadReplies" onclick="showCommentReplies(this)">View #{comment.childComments.size()} replies</a>
-					</ui:fragment>
 				
-					<ui:repeat var="child" value="#{comment.childComments}">
-						<div class="media" style="display: none" data-newest-comment="#{commentBean.newestCommentId == child.commentId ? 'true': 'false'}">
-							<post:comment1
-								id="childComment"
-								comment="#{child}"
-								isTopLevel="false"
-								toUpdate="#{cc.attrs.toUpdate}"
-								learningContext="#{cc.attrs.learningContext}"/>
-						</div>
-					</ui:repeat>
+				    <h:panelGroup id="panelChildComments" styleClass="#{cc.attrs.isTopLevel ? 'topLevelCommentChildren_'.concat(comment.commentId) : ''}">
+					    <ui:fragment rendered="#{not empty comment.childComments}">
+							<a href="javascript:void(0)" class="loadReplies" onclick="showCommentReplies(this)">View #{comment.childComments.size()} replies</a>
+						</ui:fragment>
+				    	<ui:repeat var="child" value="#{comment.childComments}">
+							<div class="media" style="display: none" data-newest-comment="#{cc.attrs.comments.newestCommentId == child.commentId ? 'true': 'false'}">
+								<post:comment1
+									id="childComment"
+									comments="#{cc.attrs.comments}"
+									comment="#{child}"
+									newestCommentId="#{cc.attrs.newestCommentId}"
+									isTopLevel="false"
+									toUpdate="#{cc.attrs.toUpdate}"
+									learningContext="#{cc.attrs.learningContext}"/>
+							</div>
+						</ui:repeat>
+				    </h:panelGroup>
 					
 					<script>
-					var newestComment = $('[data-newest-comment="true"');
-					if (newestComment.length) {
-						newestComment.show();
-						newestComment.prevAll('.media').show();
-						$('.loadReplies').hide();
-					}
+					$('#comment_#{comment.commentId} .editComment .contentEditableComment').on('keyup', function(e) {
+						$(this).prev('textarea').val($(this).html());
+					});
 					</script>
 				</c:if>
             </div>

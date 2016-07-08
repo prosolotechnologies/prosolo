@@ -216,7 +216,6 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 			}
 			target.setId(data.getCommentedResourceId());
 			
-			//TODO check with Nikola if target (Competence, Activity) is needed
 			EventType eventType = data.getParent() != null ? EventType.Comment_Reply : EventType.Comment;
 			eventFactory.generateEvent(eventType, actor.getId(), comment, target, 
 					context.getPage(), context.getLearningContext(), context.getService(), null);
@@ -290,7 +289,8 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		try {
 			//TODO when comments are implemented for socialactivity this method should be changed
 			//because socialactivity maybe won't have createdBy relationship
-			String query = "SELECT res.createdBy.id FROM " + resourceType.getDbTableName() + " res " +
+			String creatorFieldName = getCreatorFieldNameForResourceType(resourceType);
+			String query = "SELECT res." + creatorFieldName + ".id FROM " + resourceType.getDbTableName() + " res " +
 						   "WHERE res.id = :resId";
 			
 			Long id = (Long) persistence.currentManager()
@@ -303,6 +303,18 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while loading user id");
+		}
+	}
+
+	private String getCreatorFieldNameForResourceType(CommentedResourceType resourceType) {
+		switch(resourceType) {
+			case Activity:
+			case Competence:
+				return "createdBy";
+			case SocialActivity:
+				return "actor";
+			default:
+				return null;
 		}
 	}
 	

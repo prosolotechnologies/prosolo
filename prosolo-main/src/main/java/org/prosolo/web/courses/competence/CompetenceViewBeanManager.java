@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
@@ -42,6 +43,7 @@ public class CompetenceViewBeanManager implements Serializable {
 	private String mode;
 	
 	private CompetenceData1 competenceData;
+	private CommentsData commentsData;
 
 	public void init() {	
 		decodedCompId = idEncoder.decodeId(compId);
@@ -71,8 +73,11 @@ public class CompetenceViewBeanManager implements Serializable {
 					 * instructor comments
 					 */
 					boolean hasInstructorCapability = loggedUser.hasCapability("BASIC.INSTRUCTOR.ACCESS");
-					commentBean.init(CommentedResourceType.Competence, competenceData.getCompetenceId(),
-							hasInstructorCapability);
+					commentsData = new CommentsData(CommentedResourceType.Competence, 
+							competenceData.getCompetenceId(), hasInstructorCapability);
+					commentBean.loadComments(commentsData);
+//					commentBean.init(CommentedResourceType.Competence, competenceData.getCompetenceId(),
+//							hasInstructorCapability);
 					if(decodedCredId > 0) {
 						String credTitle = credManager.getCredentialTitle(decodedCredId);
 						competenceData.setCredentialId(decodedCredId);
@@ -172,6 +177,14 @@ public class CompetenceViewBeanManager implements Serializable {
 
 	public void setMode(String mode) {
 		this.mode = mode;
+	}
+
+	public CommentsData getCommentsData() {
+		return commentsData;
+	}
+
+	public void setCommentsData(CommentsData commentsData) {
+		this.commentsData = commentsData;
 	}
 
 }

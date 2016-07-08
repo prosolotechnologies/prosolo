@@ -88,7 +88,9 @@ public class CollaboratorsRecommendationImpl implements CollaboratorsRecommendat
 			double lon = Double.valueOf(user.getLongitude());
 			users = mult.getCollaboratorsBasedOnLocation(ignoredUsers, lat, lon, limit);
 		}
-		
+		if(users==null){
+			System.out.println("USERS IS NULL");
+		}
 		return users;
 	}
 	

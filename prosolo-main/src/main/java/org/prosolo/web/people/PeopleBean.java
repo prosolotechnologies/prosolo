@@ -10,6 +10,7 @@ import javax.faces.bean.ManagedBean;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.recommendation.CollaboratorsRecommendation;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.interaction.FollowResourceAsyncManager;
 import org.prosolo.services.interaction.FollowResourceManager;
@@ -42,6 +43,8 @@ public class PeopleBean implements Serializable, Paginable {
 	@Autowired
 	private LoggedUserBean loggedUser;
 
+	@Autowired private CollaboratorsRecommendation cRecommendation;
+
 	private List<UserData> whoToFollowList;
 	private List<UserData> followingUsers;
 
@@ -59,8 +62,11 @@ public class PeopleBean implements Serializable, Paginable {
 		try {
 
 			followingUsers = new ArrayList<UserData>();
+
 			logger.debug("Initializing following users for a user '" + loggedUser.getUserId() + "'");
 
+			List<User> users=cRecommendation.getRecommendedCollaboratorsBasedOnLocation(loggedUser.getUserId(), 3);
+			System.out.println("USERS BY LOCATION..."+users.size());
 			usersNumber = followResourceManager.getNumberOfFollowingUsers(loggedUser.getUserId());
 
 			List<User> followingUsersList = usersNumber > 0

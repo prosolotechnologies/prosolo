@@ -73,7 +73,6 @@
 		<registration>
 			<google>true</google>
 			<edx>false</edx>
-			<yahoo>false</yahoo>
 			<self-registration>true</self-registration>
 		</registration>
 	</app-config>

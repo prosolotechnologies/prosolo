@@ -12,6 +12,7 @@
 	<composite:interface>
 	    <composite:attribute name="socialActivity" required="true" 
 	    	type="org.prosolo.services.activityWall.impl.data.SocialActivityData1"/>
+	    <composite:attribute name="growlToUpdate" default=""/>
 		<composite:attribute name="learningContext" default=""/>
 		<composite:attribute name="service" default="" />
 		<composite:attribute name="toUpdate" default=""/>
@@ -89,9 +90,36 @@
                    </svg>
                    Like
                </a>
-               <a class="commentsNumber" role="button" data-toggle="collapse" href="#collapseComments1" aria-expanded="false" aria-controls="collapseComments1"><span class="icon"></span>10 comments</a>
+               <h:panelGroup id="panelToggleComments">
+	               <p:commandLink rendered="#{!cc.attrs.socialActivity.comments.initialized}"
+	               		styleClass="commentsNumber" 
+	               		pt:role="button" 
+	               		pt:data-toggle="collapse" 
+	               		href="#commentsContainerDiv#{cc.attrs.socialActivity.id}" 
+	               		pt:aria-expanded="false" 
+	               		pt:aria-controls="#commentsContainerDiv#{cc.attrs.socialActivity.id}"
+	               		action="#{activityWallBean.initializeCommentsIfNotInitialized(cc.attrs.socialActivity)}"
+	               		update="comments panelToggleComments"
+	               		oncomplete="$('#commentsContainerDiv#{cc.attrs.socialActivity.id}').collapse();">
+	               		<span class="icon"></span>10 comments
+	               	</p:commandLink>
+	               	<ui:fragment rendered="#{cc.attrs.socialActivity.comments.initialized}">
+	               		<a class="commentsNumber" role="button" data-toggle="collapse" href="#commentsContainerDiv#{cc.attrs.socialActivity.id}" aria-expanded="false" aria-controls="collapseComments1"><span class="icon"></span>10 comments</a>
+	           		</ui:fragment>
+	            </h:panelGroup>
            </div>
-           <div class="discussion collapse" id="collapseComments1">
+           
+           <post:comments 
+           		id="comments"
+           		comments="#{cc.attrs.socialActivity.comments}"
+           		uniqueId="#{cc.attrs.socialActivity.id}"
+           		commentsContainerDivId="commentsContainerDiv#{cc.attrs.socialActivity.id}"
+           		showSortOptions="false"
+           		isCollapsible="true"
+           		growlToUpdate="#{cc.attrs.growlToUpdate}"
+           		learningContext="#{learningContext}"
+           />
+           <ui:remove><div class="discussion collapse" id="collapseComments1">
                <div class="addComment">
                    <span class="letterAvatar letterAvatar32 img-circle">WW</span>
                    <div class="commentForm">
@@ -211,7 +239,7 @@
                        </li>
                    </ul>
                </div>
-           </div>
+           </div></ui:remove>
        </article>
 	</composite:implementation>
 </ui:component>

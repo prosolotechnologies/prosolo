@@ -13,6 +13,7 @@ import org.primefaces.model.UploadedFile;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.context.data.LearningContextData;
+import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -53,6 +54,7 @@ public class ActivityViewBeanUser implements Serializable {
 	private String mode;
 	
 	private CompetenceData1 competenceData;
+	private CommentsData commentsData;
 
 	private long nextCompToLearn;
 
@@ -83,8 +85,11 @@ public class ActivityViewBeanUser implements Serializable {
 						logger.error(e);
 					}
 				} else {
-					commentBean.init(CommentedResourceType.Activity, 
+					commentsData = new CommentsData(CommentedResourceType.Activity, 
 							competenceData.getActivityToShowWithDetails().getActivityId(), false);
+					commentBean.loadComments(commentsData);
+//					commentBean.init(CommentedResourceType.Activity, 
+//							competenceData.getActivityToShowWithDetails().getActivityId(), false);
 					
 					loadCompetenceAndCredentialTitle();
 				}
@@ -280,4 +285,12 @@ public class ActivityViewBeanUser implements Serializable {
 		this.mode = mode;
 	}
 
+	public CommentsData getCommentsData() {
+		return commentsData;
+	}
+
+	public void setCommentsData(CommentsData commentsData) {
+		this.commentsData = commentsData;
+	}
+	
 }
