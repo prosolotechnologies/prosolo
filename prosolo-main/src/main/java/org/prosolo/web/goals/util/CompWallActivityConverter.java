@@ -57,13 +57,13 @@ public class CompWallActivityConverter {
 	@Autowired private CompetenceManager competenceManager;
 	
 	public List<ActivityWallData> convertToActivityInstances(CompetenceDataCache compData, List<TargetActivity> targetActivities, 
-			User loggedUser, boolean detailed, boolean unsavedActivity, Locale locale) {
+			long userId, boolean detailed, boolean unsavedActivity, Locale locale) {
 		
 		List<ActivityWallData> wallActivities = new ArrayList<ActivityWallData>();
 		
 		if (targetActivities != null && !targetActivities.isEmpty()) {
 			for (TargetActivity targetAct : targetActivities) {
-				ActivityWallData wallActivity = convertTargetActivityToActivityWallData(compData, targetAct, loggedUser, locale, detailed, unsavedActivity);
+				ActivityWallData wallActivity = convertTargetActivityToActivityWallData(compData, targetAct, userId, locale, detailed, unsavedActivity);
 				
 				if (wallActivity != null) {
 					wallActivities.add(wallActivity);
@@ -77,17 +77,17 @@ public class CompWallActivityConverter {
 	/**
 	 * @param compData 
 	 * @param targetActivity
-	 * @param loggedUser 
+	 * @param userId 
 	 * @param locale 
 	 * @param detailed 
 	 * @return
 	 */
-	public ActivityWallData convertTargetActivityToActivityWallData(CompetenceDataCache compData, TargetActivity targetActivity, User loggedUser, Locale locale, boolean detailed, boolean unsavedActivity) {
+	public ActivityWallData convertTargetActivityToActivityWallData(CompetenceDataCache compData, TargetActivity targetActivity, long userId, Locale locale, boolean detailed, boolean unsavedActivity) {
 		if (targetActivity != null) {
 			Activity activity = targetActivity.getActivity();
 			activity = HibernateUtil.initializeAndUnproxy(activity);
 
-			ActivityWallData wallActivity = convertActivityToActivityWallData(activity, loggedUser, locale, detailed, unsavedActivity);
+			ActivityWallData wallActivity = convertActivityToActivityWallData(activity, userId, locale, detailed, unsavedActivity);
 			wallActivity.setId(targetActivity.getId());
 			wallActivity.setCompData(compData);
 			
@@ -116,14 +116,14 @@ public class CompWallActivityConverter {
 		return null;
 	}
 	
-	public List<ActivityWallData> convertCompetenceActivities(List<CompetenceActivity> compActivities, User user, boolean detailed, boolean unsavedActivity) {
+	public List<ActivityWallData> convertCompetenceActivities(List<CompetenceActivity> compActivities, long userId, boolean detailed, boolean unsavedActivity) {
 		Locale locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
 		
 		List<ActivityWallData> wallActivities = new ArrayList<ActivityWallData>();
 		
 		if (compActivities != null && !compActivities.isEmpty()) {
 			for (CompetenceActivity compAct : compActivities) {
-				ActivityWallData wallActivity = convertActivityToActivityWallData(compAct.getActivity(), user, locale, detailed, unsavedActivity);
+				ActivityWallData wallActivity = convertActivityToActivityWallData(compAct.getActivity(), userId, locale, detailed, unsavedActivity);
 				
 				if (wallActivity != null) {
 					wallActivity.setPosition(compAct.getActivityPosition());
@@ -135,14 +135,14 @@ public class CompWallActivityConverter {
 		return wallActivities;
 	}
 
-	public List<ActivityWallData> convertActivities(List<Activity> activities, User user, Locale locale, boolean detailed, boolean unsavedActivity) {
+	public List<ActivityWallData> convertActivities(List<Activity> activities, long userId, Locale locale, boolean detailed, boolean unsavedActivity) {
 		List<ActivityWallData> wallActivities = new ArrayList<ActivityWallData>();
 		
 		if (activities != null && !activities.isEmpty()) {
 			int index = 0;
 			
 			for (Activity act : activities) {
-				ActivityWallData wallActivity = convertActivityToActivityWallData(act, user, locale, detailed, unsavedActivity);
+				ActivityWallData wallActivity = convertActivityToActivityWallData(act, userId, locale, detailed, unsavedActivity);
 				
 				if (wallActivity != null) {
 					wallActivity.setPosition(index++);
@@ -153,7 +153,7 @@ public class CompWallActivityConverter {
 		return wallActivities;
 	}
 	
-	public ActivityWallData convertActivityToActivityWallData(Activity activity, User loggedUser, Locale locale, boolean detailed,
+	public ActivityWallData convertActivityToActivityWallData(Activity activity, long userId, Locale locale, boolean detailed,
 			boolean unsavedActivity) {
 		ActivityWallData wallActivity = new ActivityWallData();
 		
@@ -178,14 +178,14 @@ public class CompWallActivityConverter {
 		// this is to avoid accessing comments of an unsaved activity instance. 
 		// In opposite, an error would occur: object references an unsaved transient instance
 		if (!unsavedActivity) {
-			wallActivity.setComments(wallActivityConverter.convertResourceComments(activity, loggedUser, wallActivity));
+			wallActivity.setComments(wallActivityConverter.convertResourceComments(activity, userId, wallActivity));
 		
 			if (detailed) {
 				wallActivity.setLikeCount(likeManager.likeCount(activity));
-				wallActivity.setLiked(likeManager.isLikedByUser(activity, loggedUser));
+				wallActivity.setLiked(likeManager.isLikedByUser(activity, userId));
 				
 				wallActivity.setDislikeCount(dislikeManager.dislikeCount(activity));
-				wallActivity.setDisliked(dislikeManager.isDislikedByUser(activity, loggedUser));
+				wallActivity.setDisliked(dislikeManager.isDislikedByUser(activity, userId));
 				
 				// TODO: set share count
 				wallActivity.setShareCount(0);
@@ -222,7 +222,7 @@ public class CompWallActivityConverter {
 		}else if(activity instanceof ExternalToolActivity){
 			wallActivity.setActivity(new NodeData(activity));
 		}
-		wallActivity.setComments(wallActivityConverter.convertResourceComments(activity, loggedUser, wallActivity));
+		wallActivity.setComments(wallActivityConverter.convertResourceComments(activity, userId, wallActivity));
 		return wallActivity;
 	}
 
@@ -268,7 +268,7 @@ public class CompWallActivityConverter {
 				ActivityWallData wallActivity = convertTargetActivityToActivityWallData(
 						null,
 						act,
-						act.getMaker(), 
+						act.getMaker().getId(), 
 						locale, 
 						false, 
 						false);

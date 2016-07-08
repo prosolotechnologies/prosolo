@@ -12,16 +12,12 @@ import org.prosolo.common.domainmodel.user.User;
  */
 public interface FileESIndexer {
 
-	//void index(File file, RichContent richContent, User postedBy);
-
-	//void index(File file, TargetActivity targetActivity, long userId);
-
 	void indexFileForRichContent(InputStream input, RichContent richContent,
-			User user);
+			long userId);
 
 	void indexFileForTargetActivity(InputStream input,
 			TargetActivity targetActivity, long userId);
 
-	void indexHTMLPage(InputStream input, RichContent richContent, User user);
+	void indexHTMLPage(InputStream input, RichContent richContent, long userId);
 
 }

@@ -2,8 +2,8 @@ package org.prosolo.web.digest.data;
 
 import org.prosolo.common.domainmodel.activitywall.old.TwitterPostSocialActivity;
 import org.prosolo.common.util.date.DateUtil;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.common.web.digest.data.FeedEntryData;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 /**
  * @author Zoran Jeremic, Sep 19, 2015
  *
@@ -18,7 +18,7 @@ public class FeedEntryDataFactory {
 		feedEntryData.setDate(DateUtil.getPrettyDate(tweetEntry.getDateCreated()));
 		
 		if (tweetEntry.getMaker() != null)
-			feedEntryData.setMaker(UserDataFactory.createUserData(tweetEntry.getMaker()));
+			feedEntryData.setMaker(new UserData(tweetEntry.getMaker()));
 		return feedEntryData;
 	}
  

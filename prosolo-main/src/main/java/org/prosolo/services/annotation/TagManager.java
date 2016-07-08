@@ -30,7 +30,7 @@ public interface TagManager extends AbstractManager {
 
 	Set<Tag> getHashtagsForResource(BaseEntity resource);
 	
-	List<Tag> getSubscribedHashtags(User user);
+	List<Tag> getSubscribedHashtags(long userId);
 
 	Map<String, StreamListData> readAllHashtagsAndLearningGoalsIds();
 

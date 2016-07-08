@@ -84,22 +84,27 @@ public class CoursePortfolioBean implements Serializable {
 	@PostConstruct
 	public void initializeCoursePortfolio() {
 		if (coursePortfolioId == 0 && loggedUser != null && loggedUser.isLoggedIn()) {
-			CoursePortfolio coursePortfolio = courseManager.getOrCreateCoursePortfolio(loggedUser.getUser());
-			this.coursePortfolioId = coursePortfolio.getId();
-			
-			this.activeCourses = CourseDataConverter.convertToCoursesData(coursePortfolio.findEnrollment(Status.ACTIVE));
-			Collections.sort(this.activeCourses);
-			
-			this.futureCourses = CourseDataConverter.convertToCoursesData(coursePortfolio.findEnrollment(Status.NOT_STARTED));
-			Collections.sort(this.futureCourses);
-			
-			this.completedCourses = CourseDataConverter.convertToCoursesData(coursePortfolio.findEnrollment(Status.COMPLETED));
-			Collections.sort(this.completedCourses);
-			
-			this.withdrawnCourses = CourseDataConverter.convertToCoursesData(coursePortfolio.findEnrollment(Status.WITHDRAWN));
-			Collections.sort(this.withdrawnCourses);
-			
-			checkIfPortfolioIsEmpty();
+			CoursePortfolio coursePortfolio;
+			try {
+				coursePortfolio = courseManager.getOrCreateCoursePortfolio(loggedUser.getUserId());
+				this.coursePortfolioId = coursePortfolio.getId();
+				
+				this.activeCourses = CourseDataConverter.convertToCoursesData(coursePortfolio.findEnrollment(Status.ACTIVE));
+				Collections.sort(this.activeCourses);
+				
+				this.futureCourses = CourseDataConverter.convertToCoursesData(coursePortfolio.findEnrollment(Status.NOT_STARTED));
+				Collections.sort(this.futureCourses);
+				
+				this.completedCourses = CourseDataConverter.convertToCoursesData(coursePortfolio.findEnrollment(Status.COMPLETED));
+				Collections.sort(this.completedCourses);
+				
+				this.withdrawnCourses = CourseDataConverter.convertToCoursesData(coursePortfolio.findEnrollment(Status.WITHDRAWN));
+				Collections.sort(this.withdrawnCourses);
+				
+				checkIfPortfolioIsEmpty();
+			} catch (ResourceCouldNotBeLoadedException e) {
+				logger.error(e);
+			}
 		}
 	}
 	
@@ -166,7 +171,7 @@ public class CoursePortfolioBean implements Serializable {
 						enrollment = courseManager.addCourseCompetencesToEnrollment(courseData.getId(), enrollment);
 					}
 					
-					enrollment = courseManager.activateCourseEnrollment(loggedUser.getUser(), enrollment, context,
+					enrollment = courseManager.activateCourseEnrollment(loggedUser.getUserId(), enrollment, context,
 							page, learningContext, service);
 					
 					GoalDataCache goalData = learningGoalsBean.getData().getDataForTargetGoal(courseData.getTargetGoalId());
@@ -175,28 +180,28 @@ public class CoursePortfolioBean implements Serializable {
 						goalData.getData().setCourse(courseData);
 						goalData.getData().setConnectedWithCourse(true);
 					} else {
-						learningGoalsBean.getData().addGoal(loggedUser.getUser(), enrollment.getTargetGoal());
+						learningGoalsBean.getData().addGoal(loggedUser.getUserId(), enrollment.getTargetGoal());
 					}
 				} catch (ResourceCouldNotBeLoadedException e) {
 					logger.error(e);
 				}
 			} else {
 				TargetLearningGoal newTargetGoal = goalManager.createNewCourseBasedLearningGoal(
-						loggedUser.getUser(), 
+						loggedUser.getUserId(), 
 						courseData.getId(),
 						null,
 						"");
 				
-				enrollment = courseManager.enrollInCourse(loggedUser.getUser(), courseData.getId(), newTargetGoal, 
+				enrollment = courseManager.enrollInCourse(loggedUser.getUserId(), courseData.getId(), newTargetGoal, 
 						context, page, learningContext, service);
 				
 				newTargetGoal.setCourseEnrollment(enrollment);
 				newTargetGoal = courseManager.saveEntity(newTargetGoal);
 				
-				eventFactory.generateChangeProgressEvent(loggedUser.getUser(), newTargetGoal, 0);
+//				eventFactory.generateChangeProgressEvent(loggedUser.getUser(), newTargetGoal, 0);
 				
 				if (learningGoalsBean != null) {
-					GoalDataCache goalData = learningGoalsBean.getData().addGoal(loggedUser.getUser(), newTargetGoal);
+					GoalDataCache goalData = learningGoalsBean.getData().addGoal(loggedUser.getUserId(), newTargetGoal);
 					courseData.setTargetGoalId(newTargetGoal.getId());
 					goalData.getData().setCourse(courseData);
 					goalData.getData().setConnectedWithCourse(true);
@@ -212,7 +217,7 @@ public class CoursePortfolioBean implements Serializable {
 			portfolioBean.initGoalStatistics();
 			addActiveCourse(enrollment);
 			
-			logger.debug("User " + loggedUser.getUser() + " is now enrollened in a course "+courseData.getId());
+			logger.debug("User " + loggedUser.getUserId() + " is now enrollened in a course "+courseData.getId());
 			
 			PageUtil.fireSuccessfulInfoMessage("coursesFormGrowl", 
 					ResourceBundleUtil.getMessage(
@@ -305,7 +310,7 @@ public class CoursePortfolioBean implements Serializable {
 			InterfaceCacheObserver cacheUpdater = ServiceLocator.getInstance().getService(InterfaceCacheObserver.class);
 	    	
 	    	if (cacheUpdater != null) {
-	    		cacheUpdater.asyncResetGoalCollaborators(goalData.getData().getGoalId(), loggedUser.getUser());
+	    		cacheUpdater.asyncResetGoalCollaborators(goalData.getData().getGoalId(), loggedUser.getUserId());
 	    	}
 		} else {
 			logger.error("This should not happen, there should be goal data gor target learnign goal: "+course.getTargetGoalId() );
@@ -366,11 +371,11 @@ public class CoursePortfolioBean implements Serializable {
 				Session session = (Session) courseManager.getPersistence().openSession();
 				
 				try {
-					courseManager.withdrawFromCourse(loggedUser.getUser(), courseData.getEnrollmentId(), 
+					courseManager.withdrawFromCourse(loggedUser.getUserId(), courseData.getEnrollmentId(), 
 							deleteLearningHistory, session, page, learningContext, service);
 				
 					Course course = courseManager.loadResource(Course.class, courseData.getId(), session);
-					eventFactory.generateEvent(EventType.COURSE_WITHDRAWN, loggedUser.getUser(), course);
+					eventFactory.generateEvent(EventType.COURSE_WITHDRAWN, loggedUser.getUserId(), loggedUser.getFullName(), course);
 					session.flush();
 				} catch (EventException e) {
 					logger.error(e);
@@ -418,7 +423,7 @@ public class CoursePortfolioBean implements Serializable {
 		
 		try {
 			final CourseEnrollment enrollment = courseManager.loadResource(CourseEnrollment.class, enrollmentId);
-			eventFactory.generateEvent(EventType.CREDENTIAL_COMPLETED, loggedUser.getUser(), enrollment);
+			eventFactory.generateEvent(EventType.CREDENTIAL_COMPLETED, loggedUser.getUserId(), loggedUser.getFullName(), enrollment);
 			
 			taskExecutor.execute(new Runnable() {
 				@Override

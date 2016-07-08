@@ -76,7 +76,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 	@Override
 	@Transactional(readOnly = false)
-	public Competence1 saveNewCompetence(CompetenceData1 data, User createdBy, long credentialId) 
+	public Competence1 saveNewCompetence(CompetenceData1 data, long creatorId, long credentialId) 
 			throws DbConnectionException {
 		Competence1 comp = null;
 		try {
@@ -87,7 +87,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				throw new CompetenceEmptyException();
 			}
 			Result<Competence1> res = resourceFactory.createCompetence(data.getTitle(), 
-					data.getDescription(), data.getTagsString(), createdBy, 
+					data.getDescription(), data.getTagsString(), creatorId, 
 					data.isStudentAllowedToAddActivities(), data.getType(), data.isPublished(), 
 					data.getDuration(), data.getActivities(), credentialId);
 			
@@ -101,9 +101,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			}
 
 			if(data.isPublished()) {
-				eventFactory.generateEvent(EventType.Create, createdBy, comp);
+				eventFactory.generateEvent(EventType.Create, creatorId, comp);
 			} else {
-				eventFactory.generateEvent(EventType.Create_Draft, createdBy, comp);
+				eventFactory.generateEvent(EventType.Create_Draft, creatorId, comp);
 			}
 
 			return comp;
@@ -120,7 +120,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 	@Override
 	@Transactional(readOnly = false)
-	public Competence1 deleteCompetence(long originalCompId, CompetenceData1 data, User user) 
+	public Competence1 deleteCompetence(long originalCompId, CompetenceData1 data, long userId) 
 			throws DbConnectionException {
 		try {
 			if(originalCompId > 0) {
@@ -140,7 +140,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				deleteAllCredentialCompetencesForCompetence(comp.getId());
 	
 				if(data.isPublished() || data.isDraft()) {
-					eventFactory.generateEvent(EventType.Delete, user, comp);
+					eventFactory.generateEvent(EventType.Delete, userId, comp);
 				}
 				
 				return comp;
@@ -557,7 +557,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = false)
-	public Competence1 updateCompetence(long originalCompId, CompetenceData1 data, User user) 
+	public Competence1 updateCompetence(long originalCompId, CompetenceData1 data, long userId) 
 			throws DbConnectionException, CompetenceEmptyException {
 		try {
 			/*
@@ -579,13 +579,13 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			 if(data.isPublished()) {
 				//competence remains published
 				if(!data.isPublishedChanged()) {
-					fireSameVersionCompEditEvent(data, user, updatedComp, 0);
+					fireSameVersionCompEditEvent(data, userId, updatedComp, 0);
 				} 
 				/*
 				 * this means that competence is published for the first time
 				 */
 				else if(!data.isDraft()) {
-					eventFactory.generateEvent(fireFirstTimePublishCompEvent(user, updatedComp));
+					eventFactory.generateEvent(fireFirstTimePublishCompEvent(userId, updatedComp));
 				}
 				/*
 				 * Competence becomes published again. Because data can show what has changed
@@ -593,7 +593,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				 * original competence, so all fields are treated as changed.
 				 */
 				else {
-					eventFactory.generateEvent(fireCompPublishedAgainEditEvent(user, updatedComp, 
+					eventFactory.generateEvent(fireCompPublishedAgainEditEvent(userId, updatedComp, 
 							data.getCompetenceId()));
 				}
 			} else {
@@ -605,13 +605,13 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					if(data.isDraft()) {
 						originalVersionId = originalCompId;
 					}
-					fireSameVersionCompEditEvent(data, user, updatedComp, originalVersionId);
+					fireSameVersionCompEditEvent(data, userId, updatedComp, originalVersionId);
 				} 
 				/*
 				 * This means that competence was published before so draft version is created.
 				 */
 				else {
-					EventData ev = fireDraftVersionCompCreatedEvent(updatedComp, user, 
+					EventData ev = fireDraftVersionCompCreatedEvent(updatedComp, userId, 
 							data.getCompetenceId());
 					eventFactory.generateEvent(ev);
 				}
@@ -629,15 +629,15 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
-	private EventData fireFirstTimePublishCompEvent(User user, Competence1 updatedComp) {
+	private EventData fireFirstTimePublishCompEvent(long userId, Competence1 updatedComp) {
 		EventData ev = new EventData();
 		ev.setEventType(EventType.Create);
-		ev.setActor(user);
+		ev.setActorId(userId);
 		ev.setObject(updatedComp);
 		return ev;
 	}
 
-	private void fireSameVersionCompEditEvent(CompetenceData1 data, User user, 
+	private void fireSameVersionCompEditEvent(CompetenceData1 data, long userId, 
 			Competence1 updatedComp, long originalVersionId) throws EventException {
 		Map<String, String> params = new HashMap<>();
 	    CompetenceChangeTracker changeTracker = new CompetenceChangeTracker(data.isPublished(),
@@ -650,10 +650,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	    	params.put("originalVersionId", originalVersionId + "");
 	    }
 	    EventType event = data.isPublished() ? EventType.Edit : EventType.Edit_Draft;
-	    eventFactory.generateEvent(event, user, updatedComp, params);
+	    eventFactory.generateEvent(event, userId, updatedComp, params);
 	}
 	
-	private EventData fireCompPublishedAgainEditEvent(User user, 
+	private EventData fireCompPublishedAgainEditEvent(long userId, 
 			Competence1 updatedComp, long draftVersionId) throws EventException {
 		Map<String, String> params = new HashMap<>();
 	    CompetenceChangeTracker changeTracker = new CompetenceChangeTracker(true,
@@ -664,19 +664,19 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	    params.put("draftVersionId", draftVersionId + "");
 	    EventData ev = new EventData();
 	    ev.setEventType(EventType.Edit);
-	    ev.setActor(user);
+	    ev.setActorId(userId);
 	    ev.setObject(updatedComp);
 	    ev.setParameters(params);
 	    return ev;
 	}
 	
-	private EventData fireDraftVersionCompCreatedEvent(Competence1 updatedComp, User user, 
+	private EventData fireDraftVersionCompCreatedEvent(Competence1 updatedComp, long userId, 
 			long originalVersionId) throws EventException {
 		Map<String, String> params = new HashMap<>();
 		params.put("originalVersionId", originalVersionId + "");
 		EventData event = new EventData();
 		event.setEventType(EventType.Create_Draft);
-		event.setActor(user);
+		event.setActorId(userId);
 		event.setObject(updatedComp);
 		event.setParameters(params);
 		return event;
@@ -1379,7 +1379,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			if(draftVersionCreated) {
 				User user = new User();
 				user.setId(userId);
-				return fireDraftVersionCompCreatedEvent(compToUpdate, user, 
+				return fireDraftVersionCompCreatedEvent(compToUpdate, userId, 
 						compId);
 			}
 			return null;
@@ -1733,10 +1733,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 							0, LearningResourceReturnResultType.ANY, true);
 					long draftCompId = draftC.getId();
 					publishDraftVersion(c, draftC);
-					events.add(fireCompPublishedAgainEditEvent(user, c, draftCompId));
+					events.add(fireCompPublishedAgainEditEvent(creatorId, c, draftCompId));
 				} else {
 					c.setPublished(true);
-					events.add(fireFirstTimePublishCompEvent(user, c));
+					events.add(fireFirstTimePublishCompEvent(creatorId, c));
 				}
 				/*
 				 * check if competence has at least one activity - if not, it can't be published

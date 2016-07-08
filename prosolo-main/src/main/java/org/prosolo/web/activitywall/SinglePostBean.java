@@ -58,12 +58,12 @@ public class SinglePostBean implements Serializable {
 //				} else {
 					socialActivityData = wallActivityConverter.convertSocialActivityToSocialActivityData(
 							socialActivity, 
-							loggedUser.getUser(),
+							loggedUser.getUserId(),
 							SocialStreamSubViewType.STATUS_WALL,
 							loggedUser.getLocale());
 
-					socialActivityData.setLiked(likeManager.isLikedByUser(socialActivity, loggedUser.getUser()));
-					socialActivityData.setDisliked(dislikeManager.isDislikedByUser(socialActivity, loggedUser.getUser()));
+					socialActivityData.setLiked(likeManager.isLikedByUser(socialActivity, loggedUser.getUserId()));
+					socialActivityData.setDisliked(dislikeManager.isDislikedByUser(socialActivity, loggedUser.getUserId()));
 //					socialActivityData.setOptionsDisabled(true);
 //				}
 				

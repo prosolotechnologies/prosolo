@@ -140,7 +140,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Override
 //  @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Transactional(readOnly = false)
-    public LearningGoal createNewLearningGoal(User currentUser,
+    public LearningGoal createNewLearningGoal(long currentUserId,
             String name, String description, Date deadline, 
             Collection<Tag> tags,
             Collection<Tag> hashtags) throws EventException {
@@ -152,7 +152,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         LearningGoal newLearningGoal = new LearningGoal();
         newLearningGoal.setTitle(name);
         newLearningGoal.setDescription(description);
-        newLearningGoal.setMaker(currentUser);
+//        newLearningGoal.setMaker(currentUser);
         newLearningGoal.setDateCreated(currentTime);
         newLearningGoal.setDeadline(deadline);
         
@@ -189,7 +189,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     
     @Override
     @Transactional (readOnly = false)
-    public TargetCompetence createNewTargetCompetence(User user, Competence comp, VisibilityType visibility) {
+    public TargetCompetence createNewTargetCompetence(long userId, Competence comp, VisibilityType visibility) throws ResourceCouldNotBeLoadedException {
         comp = merge(comp);
         
         TargetCompetence newTargetCompetence = new TargetCompetence();
@@ -197,7 +197,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         newTargetCompetence.setDateStarted(new Date());
         newTargetCompetence.setDateCreated(new Date());
         newTargetCompetence.setCompetence(comp);
-        newTargetCompetence.setMaker(user);
+        newTargetCompetence.setMaker(loadResource(User.class, userId));
         newTargetCompetence.setVisibility(visibility);
         newTargetCompetence.setTitle(comp.getTitle());
         newTargetCompetence.setDescription(comp.getDescription());
@@ -205,27 +205,28 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         
         List<CompetenceActivity> activities = comp.getActivities();
         
-        if (activities != null && !activities.isEmpty()) {
-            for (CompetenceActivity compActivity : activities) {
-                TargetActivity targetActivity = createNewTargetActivity(compActivity.getActivity(), user);
-                targetActivity.setTaPosition(compActivity.getActivityPosition());
-                targetActivity.setParentCompetence(newTargetCompetence);
-                targetActivity = saveEntity(targetActivity);
-                
-                newTargetCompetence.getTargetActivities().add(targetActivity);
-            }
-        }
-        
-        return saveEntity(newTargetCompetence);
+//        if (activities != null && !activities.isEmpty()) {
+//            for (CompetenceActivity compActivity : activities) {
+//                TargetActivity targetActivity = createNewTargetActivity(compActivity.getActivity(), user);
+//                targetActivity.setTaPosition(compActivity.getActivityPosition());
+//                targetActivity.setParentCompetence(newTargetCompetence);
+//                targetActivity = saveEntity(targetActivity);
+//                
+//                newTargetCompetence.getTargetActivities().add(targetActivity);
+//            }
+//        }
+//        
+//        return saveEntity(newTargetCompetence);
+        return null;
     }
     
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public Competence createCompetence(User user, String title,
+    public Competence createCompetence(long userId, String title,
             String description, int validity, int duration, Collection<Tag> tags, 
-            List<Competence> prerequisites, List<Competence> corequisites, Date dateCreated) {
+            List<Competence> prerequisites, List<Competence> corequisites, Date dateCreated) throws ResourceCouldNotBeLoadedException {
         Competence newCompetence = new Competence();
-        newCompetence.setMaker(user);
+        newCompetence.setMaker(loadResource(User.class, userId));
         newCompetence.setType(CompetenceType.USER_DEFINED);
         newCompetence.setDateCreated(dateCreated);
         newCompetence.setTitle(title);
@@ -245,29 +246,31 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     
     @Override
     @Transactional
-    public TargetActivity createNewTargetActivity(Activity activity, User maker) {
-        TargetActivity targetActivity = new TargetActivity();
-        targetActivity.setMaker(maker);
-        targetActivity.setActivity(activity);
-        targetActivity.setDateCreated(new Date());
-        targetActivity.setTitle(activity.getTitle());
+    public TargetActivity createNewTargetActivity(Activity activity, long makerId) {
+//        TargetActivity targetActivity = new TargetActivity();
+//        targetActivity.setMaker(maker);
+//        targetActivity.setActivity(activity);
+//        targetActivity.setDateCreated(new Date());
+//        targetActivity.setTitle(activity.getTitle());
+//        
+//        if (activity instanceof UploadAssignmentActivity) {
+//            UploadAssignmentActivity uploadActivity = (UploadAssignmentActivity) activity;
+//            
+//            targetActivity.setVisibility(uploadActivity.isVisibleToEveryone() ? VisibilityType.PUBLIC : VisibilityType.PRIVATE);
+//        }
+//        return saveEntity(targetActivity);
         
-        if (activity instanceof UploadAssignmentActivity) {
-            UploadAssignmentActivity uploadActivity = (UploadAssignmentActivity) activity;
-            
-            targetActivity.setVisibility(uploadActivity.isVisibleToEveryone() ? VisibilityType.PUBLIC : VisibilityType.PRIVATE);
-        }
-        return saveEntity(targetActivity);
+        return null;
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public Activity createNewResourceActivity(User currentUser, 
+    public Activity createNewResourceActivity(long userId, 
             String title, String description,
             AttachmentPreview attachmentPreview,
             VisibilityType vis,
             Collection<Tag> tags,
-            boolean save) throws EventException {
+            boolean save) throws EventException, ResourceCouldNotBeLoadedException {
         
         RichContent richContent = postManager.createRichContent(attachmentPreview);
         
@@ -275,7 +278,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         activity.setTitle(title);
         activity.setDescription(description);
         activity.setRichContent(richContent);
-        activity.setMaker(currentUser);
+        activity.setMaker(loadResource(User.class, userId));
         activity.setDateCreated(new Date());
             
         Set<Tag> tagsSet = new HashSet<Tag>();
@@ -298,8 +301,8 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public Activity createNewActivity(User currentUser,  ActivityFormData activityFormData, VisibilityType vis)
-            throws EventException {
+    public Activity createNewActivity(long userId,  ActivityFormData activityFormData, VisibilityType vis)
+            throws EventException, ResourceCouldNotBeLoadedException {
 
         String title = activityFormData.getTitle();
         String description = activityFormData.getDescription();
@@ -331,7 +334,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         activity.setTitle(title);
         activity.setDescription(description);
         activity.setMandatory(mandatory);
-        activity.setMaker(currentUser);
+        activity.setMaker(loadResource(User.class, userId));
         activity.setDateCreated(new Date());
         
         if (vis != null) {
@@ -406,15 +409,15 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Transactional(readOnly = false)
     public Course createCourse(String title, String description,
             Course basedOn, List<CourseCompetence> competences, 
-            Collection<Tag> tags, Collection<Tag> hashtags, User maker,
-            CreatorType creatorType, boolean studentsCanAddNewCompetences, boolean pubilshed) {
+            Collection<Tag> tags, Collection<Tag> hashtags, long makerId,
+            CreatorType creatorType, boolean studentsCanAddNewCompetences, boolean pubilshed) throws ResourceCouldNotBeLoadedException {
         
         Course newCourse = new Course();
         Date now = new Date();
         newCourse.setTitle(title);
         newCourse.setDescription(description);
         newCourse.setDateCreated(now);
-        newCourse.setMaker(maker);
+        newCourse.setMaker(loadResource(User.class, makerId));
         newCourse.setCreatorType(creatorType);
         
         Set<Tag> tagsSet = new HashSet<Tag>();
@@ -506,8 +509,9 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     public TargetActivity createNewTargetActivity(User maker, String title, String description, 
             AttachmentPreview attachmentPreview, VisibilityType vis,
             Collection<Tag> tags, boolean save) throws EventException {
-        Activity activity = createNewResourceActivity(maker, title, description, attachmentPreview, vis, tags, save);
-        return createNewTargetActivity(activity, maker);
+//        Activity activity = createNewResourceActivity(maker, title, description, attachmentPreview, vis, tags, save);
+//        return createNewTargetActivity(activity, maker);
+        return null;
     }
 
     @Override
@@ -519,11 +523,10 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
                     (target!=null?" and target "+target.getId():"") + 
                     " created by the user " + actor);
             Event genericEvent = new Event(eventType);
-            genericEvent.setActor(actor);
+            genericEvent.setActorId(actor.getId());
             genericEvent.setDateCreated(new Date());
             genericEvent.setObject(object);
             genericEvent.setTarget(target);
-            genericEvent.setReason(reason);
             genericEvent.setObserversToExclude(observersToExclude);
             genericEvent=saveEntity(genericEvent);
             flush();
@@ -605,19 +608,19 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public Map<String, Object> enrollUserInCourse(User user, Course course, TargetLearningGoal targetGoal, String context) {
-        return enrollUserInCourseInSameTransaction(user, course, targetGoal, context);
+    public Map<String, Object> enrollUserInCourse(long userId, Course course, TargetLearningGoal targetGoal, String context) throws ResourceCouldNotBeLoadedException {
+        return enrollUserInCourseInSameTransaction(userId, course, targetGoal, context);
     }
     
     @Override
     @Transactional(readOnly = false)
-    public Map<String, Object> enrollUserInCourseInSameTransaction(User user, Course course, TargetLearningGoal targetGoal, String context) {
+    public Map<String, Object> enrollUserInCourseInSameTransaction(long userId, Course course, TargetLearningGoal targetGoal, String context) throws ResourceCouldNotBeLoadedException {
         if (course != null) {
             // if user has previously been enrolled into this course, remove that enrollment
-            CourseEnrollment oldCourseEnrollment = courseManager.getCourseEnrollment(user, course);
+            CourseEnrollment oldCourseEnrollment = courseManager.getCourseEnrollment(userId, course);
             
             if (oldCourseEnrollment != null) {
-                courseManager.removeEnrollmentFromCoursePortfolio(user, oldCourseEnrollment.getId());
+                courseManager.removeEnrollmentFromCoursePortfolio(userId, oldCourseEnrollment.getId());
             }
             
             Date date = new Date();
@@ -638,14 +641,14 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
             
             CourseEnrollment enrollment = new CourseEnrollment();
             enrollment.setCourse(course);
-            enrollment.setUser(user);
+            enrollment.setUser(loadResource(User.class, userId));
             enrollment.setDateStarted(date);
             enrollment.setStatus(Status.ACTIVE);
 //            enrollment.setAddedCompetences(courseCompetences);
             enrollment.setTargetGoal(targetGoal);
             enrollment = saveEntity(enrollment);
             
-            CoursePortfolio portfolio = courseManager.getOrCreateCoursePortfolio(user);
+            CoursePortfolio portfolio = courseManager.getOrCreateCoursePortfolio(userId);
             portfolio.addEnrollment(enrollment);
             saveEntity(portfolio);
             
@@ -678,19 +681,20 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public Map<String, Object> enrollUserInCourse(User user, Course course) throws EventException, ResourceCouldNotBeLoadedException {
         
-        TargetLearningGoal targetLGoal = goalManager.createNewCourseBasedLearningGoal(user, course, null, "");
-        
-        //CourseEnrollment enrollment = enrollInCourse(user, course, targetLGoal, null);
-        Map<String, Object> res = enrollUserInCourseInSameTransaction(user, course, targetLGoal, null);
-        CourseEnrollment enrollment = null;
-        
-        if (res != null) {
-            enrollment = (CourseEnrollment) res.get("enrollment");
-        }
-        
-        targetLGoal.setCourseEnrollment(enrollment);
-        targetLGoal = saveEntity(targetLGoal);
-        return res;
+//        TargetLearningGoal targetLGoal = goalManager.createNewCourseBasedLearningGoal(user, course, null, "");
+//        
+//        //CourseEnrollment enrollment = enrollInCourse(user, course, targetLGoal, null);
+//        Map<String, Object> res = enrollUserInCourseInSameTransaction(user, course, targetLGoal, null);
+//        CourseEnrollment enrollment = null;
+//        
+//        if (res != null) {
+//            enrollment = (CourseEnrollment) res.get("enrollment");
+//        }
+//        
+//        targetLGoal.setCourseEnrollment(enrollment);
+//        targetLGoal = saveEntity(targetLGoal);
+//        return res;
+        return null;
     }
     
 //  @Override
@@ -877,12 +881,12 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public Credential1 createCredential(String title, String description, String tagsString, 
-    		String hashtagsString, User createdBy, LearningResourceType type, 
+    		String hashtagsString, long creatorId, LearningResourceType type, 
     		boolean compOrderMandatory, boolean published, long duration, 
     		boolean manuallyAssign, List<CompetenceData1> comps) {
     	try {
 			 Credential1 cred = new Credential1();
-		     cred.setCreatedBy(createdBy);
+		     cred.setCreatedBy(loadResource(User.class, creatorId));
 		     cred.setType(type);
 		     cred.setTitle(title);
 		     cred.setDescription(description);
@@ -919,7 +923,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public Result<Competence1> createCompetence(String title, String description, String tagsString, User createdBy,
+    public Result<Competence1> createCompetence(String title, String description, String tagsString, long creatorId,
 			boolean studentAllowedToAddActivities, LearningResourceType type, boolean published, 
 			long duration, List<org.prosolo.services.nodes.data.ActivityData> activities, 
 			long credentialId) {
@@ -929,7 +933,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 			 comp.setTitle(title);
 			 comp.setDateCreated(new Date());
 			 comp.setDescription(description);
-		     comp.setCreatedBy(createdBy);
+		     comp.setCreatedBy(loadResource(User.class, creatorId));
 		     comp.setStudentAllowedToAddActivities(studentAllowedToAddActivities);
 		     comp.setType(type);
 		     comp.setPublished(published);
@@ -951,7 +955,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 				
 		     if(credentialId > 0) {
 		    	 List<EventData> events = credentialManager.addCompetenceToCredential(credentialId, comp, 
-		    			 createdBy.getId());
+		    			 creatorId);
 		    	 result.addEvents(events);
 		     }
 		

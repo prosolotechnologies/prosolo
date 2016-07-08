@@ -62,17 +62,17 @@ public class RecommendLearningGoalBean extends MessagesBean {
 			e1.printStackTrace();
 		}
 //		for (User recommendedTo : getReceivers()) {
-			try {
-				nodeRecommendation.sendRecommendation(
-						loggedUser.getUser(), 
-						receiver.getId(), 
-						learningGoal, 
-						RecommendationType.USER);
+//			try {
+//				nodeRecommendation.sendRecommendation(
+//						loggedUser.getUserId(), 
+//						receiver.getId(), 
+//						learningGoal, 
+//						RecommendationType.USER);
 				
 				PageUtil.fireSuccessfulInfoMessage("You have sent recommendation to " + receiver.getName());
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e);
-			}
+//			} catch (ResourceCouldNotBeLoadedException e) {
+//				logger.error(e);
+//			}
 //		}
 	}
 	

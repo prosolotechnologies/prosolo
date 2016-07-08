@@ -4,29 +4,23 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.omnifaces.util.Ajax;
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.course.CourseCompetence;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.common.util.string.StringUtil;
+import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.recommendation.LearningPlanRecommendation;
 import org.prosolo.services.annotation.DislikeManager;
 import org.prosolo.services.annotation.LikeManager;
 import org.prosolo.services.annotation.TagManager;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interaction.FollowResourceAsyncManager;
 import org.prosolo.services.nodes.CompetenceManager;
@@ -98,62 +92,62 @@ public class CompetenceDialogBean implements Serializable {
 	}
 	
 	private void initializeFormData() {
-		competence = competenceManager.merge(competence);
-		
-		if (!Hibernate.isInitialized(competence.getTags())) {
-			competence = competenceManager.merge(competence);
-		}
-		
-		fillFormData();
-		
-		this.recommendedPlans = null;
-		
-		switch (mode) {
-			case TARGET_COMPETENCE:
-				Locale locale = loggedUser != null ? loggedUser.getLocale() : new Locale("en", "US");
-				usedActivities = compWallActivityConverter.generateCompWallActivitiesData(targetCompetence, locale);
-				break;
-			case RECOMMENDED_COMPETENCE:
-				initializeRecommendedPlans();
-				break;
-			default:
-				User user = loggedUser != null ? loggedUser.getUser() : null;
-				predefinedActivities = compWallActivityConverter.convertCompetenceActivities(competence.getActivities(), user, true, false);
-				break;
-		}
-		
-		this.canBeConnected = true;
+//		competence = competenceManager.merge(competence);
+//		
+//		if (!Hibernate.isInitialized(competence.getTags())) {
+//			competence = competenceManager.merge(competence);
+//		}
+//		
+//		fillFormData();
+//		
+//		this.recommendedPlans = null;
+//		
+//		switch (mode) {
+//			case TARGET_COMPETENCE:
+//				Locale locale = loggedUser != null ? loggedUser.getLocale() : new Locale("en", "US");
+//				usedActivities = compWallActivityConverter.generateCompWallActivitiesData(targetCompetence, locale);
+//				break;
+//			case RECOMMENDED_COMPETENCE:
+//				initializeRecommendedPlans();
+//				break;
+//			default:
+//				User user = loggedUser != null ? loggedUser.getUser() : null;
+//				predefinedActivities = compWallActivityConverter.convertCompetenceActivities(competence.getActivities(), user, true, false);
+//				break;
+//		}
+//		
+//		this.canBeConnected = true;
 	}
 
 	public void fillFormData() {
-		formData = new CompetenceFormData(competence);
-		formData.setAnalyticsData(compAnalyticsBean.createAnalyticsData(competence.getId()));
-		
-		User user = loggedUser != null ? loggedUser.getUser() : null;
-		
-		if (user != null) {
-			formData.setLikedByUser(likeManager.isLikedByUser(competence, user));
-			formData.setDislikedByUser(dislikeManager.isDislikedByUser(competence, user));
-			formData.setOwnedByUser(competenceManager.hasUserCompletedCompetence(competence, user));
-		}
-		formData.setCanEdit(user != null && (loggedUser.hasCapability("basic.manager.access") || user.getId() == competence.getMaker().getId()));
-		
-		this.owner = loggedUser.isLoggedIn() && loggedUser.getUser().getId() == competence.getMaker().getId();
+//		formData = new CompetenceFormData(competence);
+//		formData.setAnalyticsData(compAnalyticsBean.createAnalyticsData(competence.getId()));
+//		
+//		User user = loggedUser != null ? loggedUser.getUser() : null;
+//		
+//		if (user != null) {
+//			formData.setLikedByUser(likeManager.isLikedByUser(competence, user));
+//			formData.setDislikedByUser(dislikeManager.isDislikedByUser(competence, user));
+//			formData.setOwnedByUser(competenceManager.hasUserCompletedCompetence(competence, user));
+//		}
+//		formData.setCanEdit(user != null && (loggedUser.hasCapability("basic.manager.access") || user.getId() == competence.getMaker().getId()));
+//		
+//		this.owner = loggedUser.isLoggedIn() && loggedUser.getUserId() == competence.getMaker().getId();
 	}
 
 	public void initializeRecommendedPlans() {
-		if (recommendedPlans == null) {
-			
-			User user = loggedUser != null ? loggedUser.getUser() : null;
-			
-			recommendedPlans = availableLearningPlanConverter.packIntoAvailablePlan(
-					user,
-					null,
-					lpRecommender.recommendLearningPlansForCompetence(
-							user,
-							competence, 
-							4));
-		}
+//		if (recommendedPlans == null) {
+//			
+//			User user = loggedUser != null ? loggedUser.getUser() : null;
+//			
+//			recommendedPlans = availableLearningPlanConverter.packIntoAvailablePlan(
+//					user,
+//					null,
+//					lpRecommender.recommendLearningPlansForCompetence(
+//							user,
+//							competence, 
+//							4));
+//		}
 	}
 	
 	public boolean hasSetCompetence(){
@@ -165,22 +159,22 @@ public class CompetenceDialogBean implements Serializable {
 	 */
 	public void saveCompetence(){
 		if (competence == null) {
-			String title = StringUtil.cleanHtml(formData.getTitle());
-			try {
-				competence = competenceManager.createCompetence(
-						loggedUser.getUser(),
-						title,
-						StringUtil.cleanHtml(formData.getDescription()),
-						formData.getValidity(),
-						formData.getDuration(),
-						new HashSet<Tag>(tagManager.parseCSVTagsAndSave(formData.getTagsString())),
-						formData.getPrerequisites(),
-						formData.getCorequisites());
-
-				PageUtil.fireSuccessfulInfoMessage("newCompFormGrowl", "Competence '"+title+"' is created!");
-			} catch (EventException e) {
-				logger.error(e);
-			}
+//			String title = StringUtil.cleanHtml(formData.getTitle());
+//			try {
+//				competence = competenceManager.createCompetence(
+//						loggedUser.getUser(),
+//						title,
+//						StringUtil.cleanHtml(formData.getDescription()),
+//						formData.getValidity(),
+//						formData.getDuration(),
+//						new HashSet<Tag>(tagManager.parseCSVTagsAndSave(formData.getTagsString())),
+//						formData.getPrerequisites(),
+//						formData.getCorequisites());
+//
+//				PageUtil.fireSuccessfulInfoMessage("newCompFormGrowl", "Competence '"+title+"' is created!");
+//			} catch (EventException e) {
+//				logger.error(e);
+//			}
 		} else {
 			boolean titleChanged = !competence.getTitle().equals(formData.getTitle());
 			
@@ -197,11 +191,11 @@ public class CompetenceDialogBean implements Serializable {
 				false
 			);
 				
-			try {
-				eventFactory.generateEvent(EventType.Edit, loggedUser.getUser(), competence);
-			} catch (EventException e1) {
-				logger.error(e1);
-			}
+//			try {
+//				eventFactory.generateEvent(EventType.Edit, loggedUser.getUser(), competence);
+//			} catch (EventException e1) {
+//				logger.error(e1);
+//			}
 			
 			PageUtil.fireSuccessfulInfoMessage(null, "Competence data updated!");
 			
@@ -261,13 +255,13 @@ public class CompetenceDialogBean implements Serializable {
 	}
 	
 	public void startFollowingResource(Competence comp){
-		formData.setFollowedByUser(true);
-		followResourceAsyncManager.asyncFollowResource(loggedUser.getUser(), comp, generateContext());
+//		formData.setFollowedByUser(true);
+//		followResourceAsyncManager.asyncFollowResource(loggedUser.getUser(), comp, generateContext());
 	}
 	
 	public void stopFollowingResource(Competence comp){
-		formData.setFollowedByUser(false);
-		followResourceAsyncManager.asyncUnfollowResource(loggedUser.getUser(), comp, generateContext());
+//		formData.setFollowedByUser(false);
+//		followResourceAsyncManager.asyncUnfollowResource(loggedUser.getUser(), comp, generateContext());
 	}
 	
 	public void like(final long compId){

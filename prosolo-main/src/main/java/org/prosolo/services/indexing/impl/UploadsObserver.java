@@ -6,7 +6,6 @@ import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.content.RichContent;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
@@ -48,28 +47,27 @@ public class UploadsObserver extends EventObserver{
 	@Override
 	public void handleEvent(Event event) {
 		Session session = (Session) defaultManager.getPersistence().openSession();
-		// event=(Event) session.get(Event.class, event.getId());
 		try{
-		BaseEntity object = event.getObject();
-		User user= event.getActor();
-		try {
-			if (object instanceof RichContent) {
-				esIndexer.indexPost(event);
-			} else if (object instanceof TargetActivity) {
-				if (event.getAction().equals(EventType.AssignmentRemoved)) {
-					esIndexer.removeFileUploadedByTargetActivity((TargetActivity) object, user.getId());
-				}else{
-					
-					esIndexer.indexFileUploadedByTargetActivity((TargetActivity) object, user.getId());
+			BaseEntity object = event.getObject();
+			long userId = event.getActorId();
+			try {
+				if (object instanceof RichContent) {
+					esIndexer.indexPost(event);
+				} else if (object instanceof TargetActivity) {
+					if (event.getAction().equals(EventType.AssignmentRemoved)) {
+						esIndexer.removeFileUploadedByTargetActivity((TargetActivity) object, userId);
+					} else {
+
+						esIndexer.indexFileUploadedByTargetActivity((TargetActivity) object, userId);
+					}
 				}
+			} catch (Exception e) {
+				logger.error(e);
 			}
+			session.flush();
 		} catch (Exception e) {
-			logger.error(e);
-		}
-		session.flush();
-		}catch(Exception e){
-			logger.error("Exception in handling message",e);
-		}finally{
+			logger.error("Exception in handling message", e);
+		} finally {
 			HibernateUtil.close(session);
 		}
 	}

@@ -23,19 +23,19 @@ public interface AnnotationManager {
 	
 	int annotationCount(BaseEntity resource, AnnotationType annType);
 	
-	int annotationCount(BaseEntity resource, User user, AnnotationType annType);
+	int annotationCount(BaseEntity resource, long userId, AnnotationType annType);
 	
-	boolean isAnnotatedByUser(BaseEntity resource, User user, AnnotationType annType);
+	boolean isAnnotatedByUser(BaseEntity resource, long userId, AnnotationType annType);
 	
-	boolean removeAnnotation(long resourceId, Class<? extends BaseEntity> clazz, User user, AnnotationType annType, boolean deleteAll, Session session);
+	boolean removeAnnotation(long resourceId, Class<? extends BaseEntity> clazz, long userId, AnnotationType annType, boolean deleteAll, Session session);
 
-	boolean removeAnnotation(BaseEntity resource, User maker, AnnotationType annType, boolean deleteAll);
+	boolean removeAnnotation(BaseEntity resource, long userId, AnnotationType annType, boolean deleteAll);
 
-	boolean removeAnnotation(BaseEntity resource, User maker, AnnotationType annType, boolean deleteAll, Session session);
+	boolean removeAnnotation(BaseEntity resource, long userId, AnnotationType annType, boolean deleteAll, Session session);
 
-	int annotationCount(long resourceId, Class<? extends BaseEntity> clazz, User maker, AnnotationType annType);
+	int annotationCount(long resourceId, Class<? extends BaseEntity> clazz, long makerId, AnnotationType annType);
 	
-	int annotationCount(long resourceId, Class<? extends BaseEntity> clazz, User maker, AnnotationType annType, Session session);
+	int annotationCount(long resourceId, Class<? extends BaseEntity> clazz, long makerId, AnnotationType annType, Session session);
 
 	List<User> getPeopleWhoAnnotatedResource(BaseEntity resource,	AnnotationType annType);
 

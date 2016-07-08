@@ -4,12 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.recommendation.DocumentsRecommendation;
 import org.prosolo.services.es.MoreDocumentsLikeThis;
 import org.prosolo.similarity.ResourceTokenizer;
-import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,11 +24,11 @@ public class DocumentsRecommendationImpl implements DocumentsRecommendation {
 	@Autowired private ResourceTokenizer resTokenizer;
  
 	@Override
-	public List<RecommendedDocument> recommendDocuments(User user, TargetLearningGoal tGoal, int limit) {
-		String tokenizedString = resTokenizer.getTokenizedStringForUserLearningGoal(user, tGoal);
+	public List<RecommendedDocument> recommendDocuments(long userId, TargetLearningGoal tGoal, int limit) {
+		String tokenizedString = resTokenizer.getTokenizedStringForUserLearningGoal(tGoal);
 		
 		try {
-			return mdlt.getSuggestedDocumentsForLearningGoal(tokenizedString, user.getId(), limit);
+			return mdlt.getSuggestedDocumentsForLearningGoal(tokenizedString, userId, limit);
 		} catch (IndexingServiceNotAvailable e) {
 			logger.error(e);
 			return new ArrayList<RecommendedDocument>();

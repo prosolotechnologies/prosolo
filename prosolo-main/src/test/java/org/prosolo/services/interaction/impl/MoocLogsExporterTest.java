@@ -2,36 +2,40 @@ package org.prosolo.services.interaction.impl;/**
  * Created by zoran on 29/12/15.
  */
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import static org.prosolo.common.domainmodel.activities.events.EventType.Comment;
+import static org.prosolo.common.domainmodel.activities.events.EventType.EVALUATION_ACCEPTED;
+import static org.prosolo.common.domainmodel.activities.events.EventType.EVALUATION_GIVEN;
+import static org.prosolo.common.domainmodel.activities.events.EventType.EVALUATION_REQUEST;
+import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_INVITATION;
+import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_INVITATION_ACCEPTED;
+import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_REQUEST;
+import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_REQUEST_APPROVED;
+import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_REQUEST_DENIED;
+import static org.prosolo.common.domainmodel.activities.events.EventType.Like;
+import static org.prosolo.common.domainmodel.activities.events.EventType.SEND_MESSAGE;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.inject.Inject;
+
 //import com.mongodb.*;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.messaging.MessageWrapperAdapter;
-import org.prosolo.common.messaging.data.LogMessage;
-import org.prosolo.common.messaging.data.MessageWrapper;
-import org.prosolo.common.messaging.rabbitmq.QueueNames;
 import org.prosolo.common.messaging.rabbitmq.impl.ReliableProducerImpl;
-import org.prosolo.config.MongoDBServerConfig;
-import org.prosolo.config.MongoDBServersConfig;
 import org.prosolo.core.spring.SpringConfig;
 import org.prosolo.services.nodes.CourseManager;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import javax.inject.Inject;
-import java.net.UnknownHostException;
-import java.sql.*;
-import java.util.*;
-
-import static org.prosolo.common.domainmodel.activities.events.EventType.*;
-import static org.prosolo.common.domainmodel.activities.events.EventType.SEND_MESSAGE;
 
 /**
  * zoran 29/12/15
@@ -152,11 +156,10 @@ public class MoocLogsExporterTest {
 //            }
 //        }
 //    }
-    private Long extractCourseIdForUsedResource(String objectType, long objectId, String targetType, long targetId, String reasonType, long reasonId) {
+    private Long extractCourseIdForUsedResource(String objectType, long objectId, String targetType, long targetId) {
         Map<String, Long> types=new HashMap<String, Long>();
         types.put(objectType, objectId);
         types.put(targetType, targetId);
-        types.put(reasonType, reasonId);
         if(types.containsKey("TargetLearningGoal")){
             return courseManager.findCourseIdForTargetLearningGoal(types.get("TargetLearningGoal"));
         }else if(types.containsKey("TargetCompetence")){
@@ -184,17 +187,15 @@ public class MoocLogsExporterTest {
         message.setTimestamp((long) logObject.get("timestamp"));
         message.setEventType((String) logObject.get("eventType"));
         message.setActorId((long) logObject.get("actorId"));
-        message.setActorFullname((String) logObject.get("actorFullname"));
         message.setObjectType((String) logObject.get("objectType"));
         message.setObjectId((long) logObject.get("objectId"));
         message.setObjectTitle((String) logObject.get("objectTitle"));
         message.setTargetType((String) logObject.get("targetType"));
         message.setTargetId((long) logObject.get("targetId"));
         message.setReasonType((String) logObject.get("reasonType"));
-        message.setReasonId((long) logObject.get("reasonId"));
         message.setLink((String) logObject.get("link"));
        long courseId=extractCourseIdForUsedResource((String) logObject.get("objectType"), (long) logObject.get("objectId"),
-                (String) logObject.get("targetType"), (long) logObject.get("targetId"), (String) logObject.get("reasonType"), (long) logObject.get("reasonId"));
+                (String) logObject.get("targetType"), (long) logObject.get("targetId"), (String) logObject.get("reasonType"));
         message.setCourseId(courseId);
         long targetUserId =0;
         EventType eventType=EventType.valueOf((String) logObject.get("eventType"));
@@ -223,7 +224,6 @@ public class MoocLogsExporterTest {
         String targetType=   (String) logObject.get("targetType");
         long targetId= (long) logObject.get("targetId");
         String reasonType= (String) logObject.get("reasonType");
-        long reasonId=(long) logObject.get("reasonId");
 
         Long targetUserId=(long)0;
         if(objectType.equals("NodeRequest")){

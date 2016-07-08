@@ -104,7 +104,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 					credentialTitle = title;
 					boolean showAll = loggedUserBean.hasCapability("COURSE.MEMBERS.VIEW");
 					if(!showAll) {
-						personalizedForUserId = loggedUserBean.getUser().getId();
+						personalizedForUserId = loggedUserBean.getUserId();
 					}
 					searchCredentialMembers();
 					if(searchFilters == null) {
@@ -228,7 +228,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 				User object = new User();
 				object.setId(studentToAssignInstructor.getUser().getId());
 				params.put("credId", decodedId + "");
-				eventFactory.generateEvent(event, loggedUserBean.getUser(), object, target, 
+				eventFactory.generateEvent(event, loggedUserBean.getUserId(), object, target, 
 						page, context, service, params);
 			} catch (EventException e) {
 				logger.error(e);

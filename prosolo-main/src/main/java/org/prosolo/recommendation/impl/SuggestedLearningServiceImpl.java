@@ -14,6 +14,7 @@ import org.prosolo.common.domainmodel.portfolio.AchievedCompetence;
 import org.prosolo.common.domainmodel.portfolio.CompletedGoal;
 import org.prosolo.common.domainmodel.portfolio.Portfolio;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.recommendation.SuggestedLearningService;
 import org.prosolo.recommendation.dal.SuggestedLearningQueries;
 import org.prosolo.services.es.MoreNodesLikeThis;
@@ -39,30 +40,30 @@ public class SuggestedLearningServiceImpl implements SuggestedLearningService{
 	
 	@Override
 	public List<Recommendation> findSuggestedLearningResourcesByCollegues(
-			User currentUser, RecommendationType recType, int page, int limit) {
-		return suggestedLearningQueries.findSuggestedLearningResourcesByCollegues(currentUser, recType, page, limit);
+			long userId, RecommendationType recType, int page, int limit) {
+		return suggestedLearningQueries.findSuggestedLearningResourcesByCollegues(userId, recType, page, limit);
 	}
 	
 	@Override
-	public int findNumberOfSuggestedLearningResourcesByCollegues(User user, RecommendationType recType){
-		return suggestedLearningQueries.findNumberOfSuggestedLearningResourcesByCollegues(user, recType);
+	public int findNumberOfSuggestedLearningResourcesByCollegues(long userId, RecommendationType recType){
+		return suggestedLearningQueries.findNumberOfSuggestedLearningResourcesByCollegues(userId, recType);
 	}
 
 	@Override
-	public List<Node> findSuggestedLearningResourcesBySystem(User user,	int limit) {
-		
-		if(user==null){
+	public List<Node> findSuggestedLearningResourcesBySystem(long userId, int limit) throws ResourceCouldNotBeLoadedException {
+
+		if (userId == 0) {
 			return null;
 		}
 		Collection<Node> ignoredNodes = new ArrayList<Node>();
-		user = defaultManager.merge(user);
+		User user = defaultManager.loadResource(User.class, userId);
 		
 		try {
 			ignoredNodes.addAll(user.getLearningGoals());
 		} catch (LazyInitializationException exc) {
 			logger.error("Couldn't initialise users's learning goals due to the LeazyInitializationException");
 		}
-		Portfolio portfolio = portfolioManager.getOrCreatePortfolio(user);
+		Portfolio portfolio = portfolioManager.getOrCreatePortfolio(userId);
 		Set<CompletedGoal> completedGoals = portfolio.getCompletedGoals();
 		for (CompletedGoal compGoal : completedGoals) {
 			if (!ignoredNodes.contains(compGoal.getTargetGoal())) {
@@ -94,10 +95,10 @@ public class SuggestedLearningServiceImpl implements SuggestedLearningService{
 	}
 
 	@Override
-	public List<Node> findSuggestedLearningResourcesByCourse(User user,
+	public List<Node> findSuggestedLearningResourcesByCourse(long userId,
 			int defaultLikeThisItemsNumber) {
 		
-		List<Node> competences= courseManager.getCourseCompetencesFromActiveCourse(user);
+		List<Node> competences= courseManager.getCourseCompetencesFromActiveCourse(userId);
 		 
 		return competences;
 	}

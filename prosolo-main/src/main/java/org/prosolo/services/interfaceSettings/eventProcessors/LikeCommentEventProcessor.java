@@ -2,6 +2,7 @@ package org.prosolo.services.interfaceSettings.eventProcessors;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -57,10 +58,10 @@ public class LikeCommentEventProcessor extends InterfaceEventProcessor {
 	@Override
 	void process() {
 		Comment comment = (Comment) object;
-		updateCommentDataInCachesOfOnlineUsers(comment, event.getActor(), session);
+		updateCommentDataInCachesOfOnlineUsers(comment, event.getActorId(), session);
 	}
 	
-	private void updateCommentDataInCachesOfOnlineUsers(Comment comment, User user, Session session) {
+	private void updateCommentDataInCachesOfOnlineUsers(Comment comment, long userId, Session session) {
 		BaseEntity commentedRes = comment.getObject();
 		
 		commentedRes = (BaseEntity) session.merge(commentedRes);
@@ -77,7 +78,16 @@ public class LikeCommentEventProcessor extends InterfaceEventProcessor {
 			usersSubscribedToEvent = activityWallManager.getUsersSubscribedToSocialActivity((SocialActivity) commentedRes, session);
 		}
 		
-		usersSubscribedToEvent.remove(user);
+		Iterator<User> userIterator = usersSubscribedToEvent.iterator();
+		
+		while (userIterator.hasNext()) {
+			User u = (User) userIterator.next();
+			
+			if (u.getId() == userId) {
+				userIterator.remove();
+				break;
+			}
+		}
 		
 		for (User u : usersSubscribedToEvent) {
 			if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
@@ -111,7 +121,7 @@ public class LikeCommentEventProcessor extends InterfaceEventProcessor {
 		if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 			List<Long> notifiedUserIds = new ArrayList<Long>();
 			
-			notifiedUserIds.add(user.getId());
+			notifiedUserIds.add(userId);
 			
 	    	for (User u : usersSubscribedToEvent) {
 	    		notifiedUserIds.add(u.getId());

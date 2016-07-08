@@ -30,12 +30,10 @@ public class FeaturedNewsManagerImpl extends AbstractManagerImpl implements	Feat
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public LearningGoalFeaturedNews createPublicFeaturedNewsForEvent(Event event, Session session) {
-		//defaultManager.merge(event);
-//		event=(Event) session.merge(event);
 		LearningGoalFeaturedNews featuredNews = new LearningGoalFeaturedNews();
 //		featuredNews.setEvent(event);
 		
-		featuredNews.setActor(event.getActor());
+//		featuredNews.setActorId(event.getActorId());
 		featuredNews.setAction(event.getAction());
 		
 //		BaseEntity object = event.getObject();
@@ -49,7 +47,7 @@ public class FeaturedNewsManagerImpl extends AbstractManagerImpl implements	Feat
 		
 		featuredNews.setDate(new Date());
 		featuredNews.setResource((LearningGoal) event.getObject());
-		featuredNews.setActor(event.getActor());
+//		featuredNews.setActorId(event.getActorId());
 		featuredNews.setFeaturedNewsType(FeaturedNewsType.PUBLIC);
 		session.save(featuredNews);
 		return featuredNews;
@@ -57,18 +55,18 @@ public class FeaturedNewsManagerImpl extends AbstractManagerImpl implements	Feat
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<LearningGoalFeaturedNews> readPublicFeaturedNews(User user, int page, int limit) {
+	public List<LearningGoalFeaturedNews> readPublicFeaturedNews(long userId, int page, int limit) {
 		String query = 
 			"SELECT DISTINCT news " + 
 			"FROM LearningGoalFeaturedNews news " +
 			"WHERE news.featuredNewsType = :featuredNewsType " +
-			"AND news.actor != :user "  +
+			"AND news.actor.id != :userId "  +
 			"ORDER BY news.date DESC ";
 		//persistence.currentManager().clear();
 	 	@SuppressWarnings("unchecked")
 		List<LearningGoalFeaturedNews> fNews = persistence.currentManager().createQuery(query)
 				.setString("featuredNewsType", FeaturedNewsType.PUBLIC.toString())
-				.setEntity("user", user)
+				.setLong("userId", userId)
 				.setFirstResult(page * limit)
 				.setMaxResults(limit)
 				.list();

@@ -89,7 +89,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Override
 	@Transactional(readOnly = false)
-	public Credential1 saveNewCredential(CredentialData data, User createdBy) throws DbConnectionException {
+	public Credential1 saveNewCredential(CredentialData data, long creatorId) throws DbConnectionException {
 		Credential1 cred = null;
 		try {
 			/*
@@ -99,32 +99,30 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				throw new CredentialEmptyException();
 			}
 			cred = resourceFactory.createCredential(data.getTitle(), data.getDescription(),
-					data.getTagsString(), data.getHashtagsString(), createdBy,
+					data.getTagsString(), data.getHashtagsString(), creatorId,
 					data.getType(), data.isMandatoryFlow(), data.isPublished(), data.getDuration(),
 					!data.isAutomaticallyAssingStudents(), data.getCompetences());
 			
 			//generate create event only if credential is published
 			if(data.isPublished()) {
-				eventFactory.generateEvent(EventType.Create, createdBy, cred);
+				eventFactory.generateEvent(EventType.Create, creatorId, cred);
 			} else {
-				eventFactory.generateEvent(EventType.Create_Draft, createdBy, cred);
+				eventFactory.generateEvent(EventType.Create_Draft, creatorId, cred);
 			}
 
 			return cred;
 		} catch(CredentialEmptyException cee) {
 			logger.error(cee);
-			//cee.printStackTrace();
 			throw cee;
 		} catch (Exception e) {
 			logger.error(e);
-			e.printStackTrace();
 			throw new DbConnectionException("Error while saving credential");
 		} 
 	}
 
 	@Override
 	@Transactional(readOnly = false)
-	public Credential1 deleteCredential(long originalCredId, CredentialData data, User user) throws DbConnectionException {
+	public Credential1 deleteCredential(long originalCredId, CredentialData data, long userId) throws DbConnectionException {
 		try {
 			if(originalCredId > 0) {
 				Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, originalCredId);
@@ -149,14 +147,14 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 						params = new HashMap<>();
 						params.put("draftVersionId", data.getId() + "");
 					}
-					eventFactory.generateEvent(EventType.Delete, user, cred, params);
+					eventFactory.generateEvent(EventType.Delete, userId, cred, params);
 				}
 				/*
 				 * if credential is draft and it was never published delete_draft event
 				 * is generated
 				 */
 				else {
-					eventFactory.generateEvent(EventType.Delete_Draft, user, cred);
+					eventFactory.generateEvent(EventType.Delete_Draft, userId, cred);
 				}
 				
 				return cred;
@@ -646,7 +644,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Override
 	@Transactional(readOnly = false)
-	public Credential1 updateCredential(long originalCredId, CredentialData data, User user, Role role) 
+	public Credential1 updateCredential(long originalCredId, CredentialData data, long userId, Role role) 
 			throws DbConnectionException, CredentialEmptyException, CompetenceEmptyException {
 		try {
 			/*
@@ -663,7 +661,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				}
 			}
 			
-			Result<Credential1> res = resourceFactory.updateCredential(data, user.getId(), role);
+			Result<Credential1> res = resourceFactory.updateCredential(data, userId, role);
 			Credential1 cred = res.getResult();
 			
 			for(EventData ev : res.getEvents()) {
@@ -673,13 +671,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
  			if(data.isPublished()) {
 				//credential remains published
 				if(!data.isPublishedChanged()) {
-					fireSameVersionCredEditEvent(data, user, cred, 0);
+					fireSameVersionCredEditEvent(data, userId, cred, 0);
 				} 
 				/*
 				 * this means that credential is published for the first time
 				 */
 				else if(!data.isDraft()) {
-					eventFactory.generateEvent(EventType.Create, user, cred);
+					eventFactory.generateEvent(EventType.Create, userId, cred);
 				}
 				/*
 				 * Credential becomes published again. Because data can show what has changed
@@ -687,7 +685,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				 * original credential, so all fields are treated as changed.
 				 */
 				else {
-					fireCredPublishedAgainEditEvent(user, cred, data.getId());
+					fireCredPublishedAgainEditEvent(userId, cred, data.getId());
 				}
 			} else {
 				/*
@@ -698,13 +696,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					if(data.isDraft()) {
 						originalVersionId = originalCredId;
 					}
-					fireSameVersionCredEditEvent(data, user, cred, originalVersionId);
+					fireSameVersionCredEditEvent(data, userId, cred, originalVersionId);
 				} 
 				/*
 				 * This means that credential was published before so draft version is created.
 				 */
 				else {
-					EventData ev = fireDraftVersionCredCreatedEvent(cred, user, data.getId());
+					EventData ev = fireDraftVersionCredCreatedEvent(cred, userId, data.getId());
 					eventFactory.generateEvent(ev);
 				}
 			}
@@ -725,7 +723,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
-	private void fireSameVersionCredEditEvent(CredentialData data, User user, 
+	private void fireSameVersionCredEditEvent(CredentialData data, long userId, 
 			Credential1 cred, long originalVersionId) throws EventException {   
 	    Map<String, String> params = new HashMap<>();
 	    CredentialChangeTracker changeTracker = new CredentialChangeTracker(data.isPublished(),
@@ -739,10 +737,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    	params.put("originalVersionId", originalVersionId + "");
 	    }
 	    EventType event = data.isPublished() ? EventType.Edit : EventType.Edit_Draft;
-	    eventFactory.generateEvent(event, user, cred, params);
+	    eventFactory.generateEvent(event, userId, cred, params);
 	}
 	
-	private void fireCredPublishedAgainEditEvent(User user, 
+	private void fireCredPublishedAgainEditEvent(long userId, 
 			Credential1 cred, long draftVersionId) throws EventException {
 	    Map<String, String> params = new HashMap<>();
 	    CredentialChangeTracker changeTracker = new CredentialChangeTracker(true,
@@ -751,16 +749,17 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    String jsonChangeTracker = gson.toJson(changeTracker);
 	    params.put("changes", jsonChangeTracker);
 	    params.put("draftVersionId", draftVersionId + "");
-	    eventFactory.generateEvent(EventType.Edit, user, cred, params);
+	    eventFactory.generateEvent(EventType.Edit, userId, cred, params);
 	}
 	
-	private EventData fireDraftVersionCredCreatedEvent(Credential1 cred, User user, 
+	private EventData fireDraftVersionCredCreatedEvent(Credential1 cred, long userId, 
 			long originalVersionId) throws EventException {
 		Map<String, String> params = new HashMap<>();
 		params.put("originalVersionId", originalVersionId + "");
 		EventData event = new EventData();
 		event.setEventType(EventType.Create_Draft);
-		event.setActor(user);
+		
+		event.setActorId(userId);
 		event.setObject(cred);
 		event.setParameters(params);
 		return event;
@@ -1053,8 +1052,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					Map<String, String> params = new HashMap<>();
 					params.put("credId", credentialId + "");
 					eventFactory.generateEvent(EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR, 
-							object, object, target, null,
-							page, lContext, service, new Class[] {NodeChangeObserver.class}, params);
+							userId, object, target, page, lContext, service, new Class[] {NodeChangeObserver.class}, params);
 				}
 	    	}
 			CredentialData cd = credentialFactory.getCredentialData(targetCred.getCreatedBy(), 
@@ -1084,7 +1082,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				dateString = df.format(date);
 			}
 			params.put("dateEnrolled", dateString);
-			eventFactory.generateEvent(EventType.ENROLL_COURSE, actor, cred, null, 
+			eventFactory.generateEvent(EventType.ENROLL_COURSE, actor.getId(), cred, null, 
 					page, lContext, service, params);
 			
 			return cd;
@@ -1193,7 +1191,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			 * if draft version is created event should be generated
 			 */
 			if(draftVersionCreated) {
-				 events.add(fireDraftVersionCredCreatedEvent(credToUpdate, user, 
+				 events.add(fireDraftVersionCredCreatedEvent(credToUpdate, user.getId(), 
 						credId));
 			}
 			return events;
@@ -1208,7 +1206,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	private EventData generateEvent(EventType attach, User user, Competence1 comp, Credential1 cred) {
 		EventData event = new EventData();
 		event.setEventType(EventType.Attach);
-		event.setActor(user);
+		event.setActorId(user.getId());
 		event.setObject(comp);
 		event.setTarget(cred);
 		return event;
@@ -1547,7 +1545,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			Credential1 credential = new Credential1();
 			credential.setId(credId);
 			
-			eventFactory.generateEvent(EventType.Bookmark, actor, bookmark, credential, 
+			eventFactory.generateEvent(EventType.Bookmark, actor.getId(), bookmark, credential, 
 					context.getPage(), context.getLearningContext(), context.getService(), null);
 		} catch(Exception e) {
 			logger.error(e);
@@ -1591,7 +1589,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			Credential1 credential = new Credential1();
 			credential.setId(credId);
 			
-			eventFactory.generateEvent(EventType.RemoveBookmark, actor, cb, credential, 
+			eventFactory.generateEvent(EventType.RemoveBookmark, actor.getId(), cb, credential, 
 					context.getPage(), context.getLearningContext(), context.getService(), null);
 			
 		} catch(Exception e) {
@@ -1877,10 +1875,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				String lcPage = contextData != null ? contextData.getPage() : null; 
 				String lcContext = contextData != null ? contextData.getLearningContext() : null; 
 				String lcService = contextData != null ? contextData.getService() : null; 
-				eventFactory.generateChangeProgressEvent(user, tCred, finalCredProgress, 
+				eventFactory.generateChangeProgressEvent(user.getId(), tCred, finalCredProgress, 
 						lcPage, lcContext, lcService, null);
 				if(finalCredProgress == 100) {
-					eventFactory.generateEvent(EventType.Completion, user, tCred, null,
+					eventFactory.generateEvent(EventType.Completion, user.getId(), tCred, null,
 							lcPage, lcContext, lcService, null);
 				}
 				if(finalCompProgress == 100) {
@@ -1890,7 +1888,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					competence.setId(changedCompId);
 					tComp.setCompetence(competence);
 					
-					eventFactory.generateEvent(EventType.Completion, user, tComp, null,
+					eventFactory.generateEvent(EventType.Completion, user.getId(), tComp, null,
 							lcPage, lcContext, lcService, null);
 				}
 				

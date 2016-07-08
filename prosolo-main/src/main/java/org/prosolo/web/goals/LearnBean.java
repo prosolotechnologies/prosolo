@@ -105,13 +105,13 @@ public class LearnBean implements Serializable {
 
 	public void initializeGoals() {
 		if (!initialized) {
-			List<TargetLearningGoal> userGoals = goalManager.getUserTargetGoals(loggedUser.getUser());
+//			List<TargetLearningGoal> userGoals = goalManager.getUserTargetGoals(loggedUser.getUserId());
 //			for(TargetLearningGoal tglg:userGoals){
 //				targetLearningGoalsIds.add(tglg.getId());
 //			}
 			data = ServiceLocator.getInstance().getService(LearningGoalPageDataCache.class);
 			data.setLoggedUser(loggedUser);
-			selectedGoalData = data.init(loggedUser.getUser(), userGoals);
+//			selectedGoalData = data.init(loggedUser.getUserId(), userGoals);
 			initialized = true;
 		}
 	}
@@ -146,11 +146,10 @@ public class LearnBean implements Serializable {
 			}
 
 			try {
-				User user = loggedUser.getUser();
-				TargetLearningGoal goal = goalManager.getTargetGoal(goalData.getGoalId(), user.getId());
+				TargetLearningGoal goal = goalManager.getTargetGoal(goalData.getGoalId(), loggedUser.getUserId());
 				Map<String, String> parameters = new HashMap<String, String>();
 				parameters.put("context", "learn");
-				eventFactory.generateEvent(EventType.SELECT_GOAL, user, goal, parameters);
+				eventFactory.generateEvent(EventType.SELECT_GOAL, loggedUser.getUserId(), goal, parameters);
 			} catch (EventException e) {
 				logger.error("Generate event failed.", e);
 			}
@@ -167,17 +166,15 @@ public class LearnBean implements Serializable {
 	}
 
 	public void createNewLearningGoal() {
-		loggedUser.refreshUser();
-
 		logger.debug("Creating new learning goal for the user "
-				+ loggedUser.getUser());
+				+ loggedUser.getUserId());
 
 		try {
 			String keywords = newLearningGoalFormData.getKeywords();
 			String hashtags = newLearningGoalFormData.getHashtags();
 			
 			TargetLearningGoal newTargetGoal = goalManager.createNewLearningGoal(
-					loggedUser.getUser(), 
+					loggedUser.getUserId(), 
 					StringUtil.cleanHtml(newLearningGoalFormData.getName()), 
 					StringUtil.cleanHtml(newLearningGoalFormData.getDescription()), 
 					newLearningGoalFormData.getDeadline(),
@@ -185,15 +182,15 @@ public class LearnBean implements Serializable {
 					tagManager.getOrCreateTags(AnnotationUtil.getTrimmedSplitStrings(hashtags)),
 					false);
 			
-			eventFactory.generateEvent(EventType.Create, loggedUser.getUser(), newTargetGoal);
-			eventFactory.generateChangeProgressEvent(loggedUser.getUser(), newTargetGoal, 0);
+			eventFactory.generateEvent(EventType.Create, loggedUser.getUserId(), loggedUser.getFullName(), newTargetGoal);
+//			eventFactory.generateChangeProgressEvent(loggedUser.getUserId(), loggedUser.getFullName(), newTargetGoal, 0);
 
-			logger.debug("New learning goal (" + newTargetGoal.getTitle()	+ ") for the user " + loggedUser.getUser());
+			logger.debug("New learning goal (" + newTargetGoal.getTitle()	+ ") for the user " + loggedUser.getUserId());
 			PageUtil.fireSuccessfulInfoMessage("goalDetailsFormGrowl", "Learning goal " + newLearningGoalFormData.getName() + " is created!");
 
-			selectedGoalData = data.addGoal(loggedUser.getUser(), newTargetGoal);
+			selectedGoalData = data.addGoal(loggedUser.getUserId(), newTargetGoal);
 		} catch (EventException e) {
-			logger.error("Error creating new Learnign Goal by the user " + loggedUser.getUser() + " " + e.getMessage());
+			logger.error("Error creating new Learnign Goal by the user " + loggedUser.getUserId() + " " + e.getMessage());
 			PageUtil.fireErrorMessage("goalDetailsFormGrowl",
 					"There was an error creating learning goal " + newLearningGoalFormData.getName() + ".");
 		} catch (ResourceCouldNotBeLoadedException e) {
@@ -208,7 +205,7 @@ public class LearnBean implements Serializable {
 		
 		logger.debug("Updating learning goal "
 				+ targetGoalId + " by the user "
-				+ loggedUser.getUser());
+				+ loggedUser.getUserId());
 		
 		try {
 		
@@ -240,7 +237,7 @@ public class LearnBean implements Serializable {
 			}
 			
 			PageUtil.fireSuccessfulInfoMessage("goalDetailsFormGrowl", "Learning goal updated!");
-			logger.debug("Learning goal (" + updatedTargetGoal.getId()+ ") updated by the user " + loggedUser.getUser());
+			logger.debug("Learning goal (" + updatedTargetGoal.getId()+ ") updated by the user " + loggedUser.getUserId());
 			
 			
 			// update progress
@@ -255,8 +252,10 @@ public class LearnBean implements Serializable {
 				@SuppressWarnings("unchecked")
 				Event event = eventFactory.generateEvent(
 						EventType.Edit, 
-						loggedUser.getUser(),
-						updatedTargetGoal, 
+						loggedUser.getUserId(), 
+						loggedUser.getFullName(),
+						updatedTargetGoal,
+						null,
 						new Class[]{SocialStreamObserver.class},
 						parameters);
 				
@@ -286,7 +285,7 @@ public class LearnBean implements Serializable {
 					
 					if (!newHashtagsSet.equals(oldHashtags)) {
 				    	// update twitterStreamsManager if hashtags are updated
-				    	eventFactory.generateUpdateHashtagsEvent(loggedUser.getUser(), oldHashtags, newHashtags, updatedGoal, null, context);
+//				    	eventFactory.generateUpdateHashtagsEvent(loggedUser.getUserId(), oldHashtags, newHashtags, updatedGoal, null, context);
 					}
 					
 					// check if tags has been changed
@@ -298,20 +297,20 @@ public class LearnBean implements Serializable {
 					oldTagsSet.addAll(oldTags);
 					
 					if (!newTagsSet.equals(oldTagsSet)) {
-						eventFactory.generateUpdateTagsEvent(loggedUser.getUser(), oldTags, newTags, updatedGoal, null, context);
+//						eventFactory.generateUpdateTagsEvent(loggedUser.getUserId(), oldTags, newTags, updatedGoal, null, context);
 					}
 					
 					// check if progress has changed
-					try {
+//					try {
 						if (oldProgress != newProgress) {
 							Map<String, String> parameters = new HashMap<String, String>();
 							parameters.put("context", context);
 							
-							eventFactory.generateChangeProgressEvent(loggedUser.getUser(), updatedTargetGoal, newProgress, parameters);
+//							eventFactory.generateChangeProgressEvent(loggedUser.getUserId(), updatedTargetGoal, newProgress, parameters);
 						}
-					} catch (EventException e) {
-						logger.error(e);
-					}
+//					} catch (EventException e) {
+//						logger.error(e);
+//					}
 			    }
 			});
 		} catch (ResourceCouldNotBeLoadedException e) {
@@ -360,7 +359,7 @@ public class LearnBean implements Serializable {
 		TargetLearningGoal updatedGoal = markAsComplete(selectedGoalData.getData(), "learn");
 		
 		logger.debug("Learning goal (" + selectedGoalData.getData().getGoalId()
-				+ ") successfuly marked as completed by the user " + loggedUser.getUser());
+				+ ") successfuly marked as completed by the user " + loggedUser.getUserId());
 		
 		asyncRefreshCollaboratosData(updatedGoal);
 	}
@@ -370,7 +369,7 @@ public class LearnBean implements Serializable {
 	}
 	
 	public void recalculateGoalProgress(GoalDataCache goalData) {
-		if (goalData == null || loggedUser.getUser() == null) 
+		if (goalData == null || loggedUser.getUserId() > 0) 
 			return;
 		
 		if (goalData.getData().isProgressActivityDependent()) {
@@ -390,7 +389,7 @@ public class LearnBean implements Serializable {
 		
 		// update course progress
 		if (goalData.getData().getCourse() != null) {
-			CoursePortfolioBean coursePortfolioBean = (CoursePortfolioBean) applicationBean.getUserSession(loggedUser.getUser().getId()).getAttribute("coursePortfolioBean");
+			CoursePortfolioBean coursePortfolioBean = (CoursePortfolioBean) applicationBean.getUserSession(loggedUser.getUserId()).getAttribute("coursePortfolioBean");
 			
 			CourseData activeCourse = coursePortfolioBean.getActiveCourse(goalData.getData().getTargetGoalId());
 			
@@ -403,7 +402,7 @@ public class LearnBean implements Serializable {
 			markAsComplete(goalData.getData(), null);
 		}
 		
-		final PortfolioBean portfolioBean = (PortfolioBean) applicationBean.getUserSession(loggedUser.getUser().getId()).getAttribute("portfolio");
+		final PortfolioBean portfolioBean = (PortfolioBean) applicationBean.getUserSession(loggedUser.getUserId()).getAttribute("portfolio");
 		portfolioBean.populateWithActiveCompletedGoals();
 		portfolioBean.populateWithActiveCompletedCompetences();
 	}
@@ -442,7 +441,7 @@ public class LearnBean implements Serializable {
     	try {
     		final TargetLearningGoal targetGoal = goalManager.loadResource(TargetLearningGoal.class, selectedGoalData.getData().getTargetGoalId());
     		
-    		TargetLearningGoal updatedGoal = goalManager.markAsCompleted(loggedUser.getUser(), targetGoal, context);
+    		TargetLearningGoal updatedGoal = goalManager.markAsCompleted(loggedUser.getUserId(), targetGoal, context);
     	
     		// updating cache with the updated goal
     		updatedGoal = goalManager.merge(updatedGoal);
@@ -455,7 +454,7 @@ public class LearnBean implements Serializable {
         			remindersBean.resourceCompleted(goalData.getGoalId());
 
 	            	// update portfolio cache if exists
-	            	final PortfolioBean portfolioBean = (PortfolioBean) applicationBean.getUserSession(loggedUser.getUser().getId()).getAttribute("portfolio");
+	            	final PortfolioBean portfolioBean = (PortfolioBean) applicationBean.getUserSession(loggedUser.getUserId()).getAttribute("portfolio");
 	            	
 	            	if (portfolioBean != null) {
 	            		portfolioBean.populateWithActiveCompletedGoals();
@@ -512,7 +511,7 @@ public class LearnBean implements Serializable {
 			if (context != null)
 				parameters.put("context", context);
 
-			eventFactory.generateEvent(EventType.Detach, loggedUser.getUser(), targetGoal, parameters);
+			eventFactory.generateEvent(EventType.Detach, loggedUser.getUserId(), targetGoal, parameters);
 			
 			// user's Profile cache and collaborators' data will be updated by the InterfaceCacheUpdater
 		} catch (EventException e) {
@@ -531,10 +530,10 @@ public class LearnBean implements Serializable {
 	
 	public void archiveGoal(final GoalData goalData, boolean removeFromGoals) {
 		try {
-			final PortfolioData updatedPortfolioData = portfolioManager.sendGoalToPortfolio(goalData.getTargetGoalId(), loggedUser.refreshUser());
+			final PortfolioData updatedPortfolioData = portfolioManager.sendGoalToPortfolio(goalData.getTargetGoalId(), loggedUser.getUserId());
 			
 			if (!updatedPortfolioData.isEmpty()) {
-				logger.debug("Goal " + goalData.getGoalId() + " is sent to portfolio of a user " + loggedUser.getUser());
+				logger.debug("Goal " + goalData.getGoalId() + " is sent to portfolio of a user " + loggedUser.getUserId());
 				PageUtil.fireSuccessfulInfoMessage("goalDetailsFormGrowl", "Goal '" + goalData.getTitle() + "' is sent to your Profile!");
 			
 			
@@ -542,7 +541,7 @@ public class LearnBean implements Serializable {
 	    		CourseData courseData = goalData.getCourse();
 	    		
 				if (courseData != null) {
-					HttpSession session = applicationBean.getUserSession(loggedUser.getUser().getId());
+					HttpSession session = applicationBean.getUserSession(loggedUser.getUserId());
 					
 					if (session != null) {
 						CoursePortfolioBean coursePortfolioBean = (CoursePortfolioBean) session.getAttribute("coursePortfolioBean");
@@ -566,7 +565,7 @@ public class LearnBean implements Serializable {
 		            @Override
 		            public void run() {
 		            	// update Portfolio cache if exists
-		            	final PortfolioBean portfolioBean = (PortfolioBean) applicationBean.getUserSession(loggedUser.getUser().getId()).getAttribute("portfolio");
+		            	final PortfolioBean portfolioBean = (PortfolioBean) applicationBean.getUserSession(loggedUser.getUserId()).getAttribute("portfolio");
 		            	
 		            	if (portfolioBean != null) {
 		            		portfolioBean.getCompletedArchivedGoals().add(0, completedGoalDataConverter.convertCompletedGoal(updatedPortfolioData.getCompletedGoals().get(0)));
@@ -590,7 +589,7 @@ public class LearnBean implements Serializable {
 		            	// fire event
 		            	try {
 			            	TargetLearningGoal targetGoal = portfolioManager.loadResource(TargetLearningGoal.class, goalData.getTargetGoalId(), session);
-			            	eventFactory.generateEvent(EventType.ARCHIVE_GOAL, loggedUser.getUser(), targetGoal);
+			            	eventFactory.generateEvent(EventType.ARCHIVE_GOAL, loggedUser.getUserId(), loggedUser.getFullName(), targetGoal);
 		            	} catch (ResourceCouldNotBeLoadedException | EventException e) {
 							logger.error(e);
 						} finally {

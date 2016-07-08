@@ -3,7 +3,6 @@ package org.prosolo.web.home;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -15,7 +14,6 @@ import org.prosolo.core.stress.TestContext;
 import org.prosolo.recommendation.CollaboratorsRecommendation;
 import org.prosolo.services.logging.LoggingDBManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -45,11 +43,11 @@ public class PeopleRecommenderBeanTest  extends TestContext{
 
 				activityRecommendedUsers = new ArrayList<UserData>();
 				
-				List<User> users=cRecommendation.getMostActiveRecommendedUsers(cUser, 3);
+				List<User> users=cRecommendation.getMostActiveRecommendedUsers(cUser.getId(), 3);
 				System.out.println("FOUND USERS:"+users.size());
 				if (users != null && !users.isEmpty()) {
 					for (User user : users) {
-						UserData userData =  UserDataFactory.createUserData(user);
+						UserData userData = new UserData(user);
 						
 						// TODO: Zoran - put here last activity date
 						//long timestamp=loggingDBManager.getMostActiveUsersLastActivityTimestamp(user.getId());

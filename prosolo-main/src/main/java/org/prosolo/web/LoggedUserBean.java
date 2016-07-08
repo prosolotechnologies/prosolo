@@ -24,6 +24,7 @@ import org.prosolo.common.domainmodel.interfacesettings.FilterType;
 import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.core.spring.security.HomePageResolver;
@@ -95,12 +96,12 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	public void initializeSessionData() {
 		FacesContext currentInstance = FacesContext.getCurrentInstance();
 		HttpSession session = null;
-		if(currentInstance != null){
+		if (currentInstance != null) {
 			session = (HttpSession) currentInstance.getExternalContext().getSession(false);
 			initializeSessionData(session);
 		}
-		
 	}
+	
 	public void initializeSessionData(HttpSession session) {
 		@SuppressWarnings("unchecked")
 		Map<String, Object> sData = (Map<String, Object>) session.getAttribute("user");
@@ -111,18 +112,34 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	
 	@SuppressWarnings("unchecked")
 	private void initializeData(Map<String, Object> userData) {
-		if(userData != null){
+		if (userData != null) {
 			sessionData = new SessionData();
-			sessionData.setUser((User) userData.get("user"));
-			sessionData.setAvatar((String) userData.get("avatar")); 
+			sessionData.setUserId((long) userData.get("userId"));
+			sessionData.setAvatar((String) userData.get("avatar"));
+			sessionData.setPosition((String) userData.get("position"));
 			sessionData.setPagesTutorialPlayed((Set<String>) userData.get("pagesTutorialPlayed"));
 			sessionData.setIpAddress((String) userData.get("ipAddress"));
 			sessionData.setSelectedStatusWallFilter((Filter) userData.get("statusWallFilter"));
 			sessionData.setUserSettings((UserSettings) userData.get("userSettings"));
 			sessionData.setNotificationsSettings((UserNotificationsSettings) userData.get("notificationsSettings"));
 			sessionData.setEmail((String) userData.get("email"));
-			sessionData.setFullName(setFullName(sessionData.getUser().getName(), 
-					sessionData.getUser().getLastname()));
+			sessionData.setName((String) userData.get("name"));
+			sessionData.setLastName((String) userData.get("lastname"));
+			sessionData.setFullName(setFullName(sessionData.getName(), sessionData.getLastName()));
+			initialized = true;
+		}
+	}
+	
+	public void reinitializeSessionData(User user) {
+		if (user != null) {
+			sessionData = new SessionData();
+			sessionData.setUserId(user.getId());
+			sessionData.setAvatar(user.getAvatarUrl());
+			sessionData.setPosition(user.getPosition());
+			sessionData.setEmail(user.getEmail());
+			sessionData.setName(user.getName());
+			sessionData.setLastName(user.getLastname());
+			sessionData.setFullName(setFullName(user.getName(), user.getLastname()));
 			initialized = true;
 		}
 	}
@@ -140,21 +157,15 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	}
 	
 	public void initializeAvatar() {
-		setAvatar(AvatarUtils.getAvatarUrlInFormat(getUser().getAvatarUrl(), ImageFormat.size120x120));
+		setAvatar(AvatarUtils.getAvatarUrlInFormat(getSessionData().getAvatar(), ImageFormat.size120x120));
 	}
 
 	public boolean isLoggedIn() {
-		return getUser() != null;
+		return getSessionData() != null;
 	}
 
-	public User refreshUser() {
-		setUser(userManager.merge(getUser()));
-		refreshUserSettings();
-		return getUser();
-	}
-	
 	public void loadStatusWallFilter(FilterType chosenFilterType, long courseId) {
-		Filter filter = sessionDataLoader.loadStatusWallFilter(getUser(), chosenFilterType, courseId);
+		Filter filter = sessionDataLoader.loadStatusWallFilter(getUserId(), chosenFilterType, courseId);
 		setSelectedStatusWallFilter(filter);
 	}
 
@@ -173,11 +184,15 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 //	}
 
 	public void refreshUserSettings() {
-		setUserSettings(interfaceSettingsManager.getOrCreateUserSettings(getUser()));
+		try {
+			setUserSettings(interfaceSettingsManager.getOrCreateUserSettings(getUserId()));
+		} catch (ResourceCouldNotBeLoadedException e) {
+			logger.error(e);
+		}
 	}
 
 	public void refreshNotificationsSettings() {
-		setNotificationsSettings(notificationsSettingsManager.getOrCreateNotificationsSettings(getUser().getId()));
+		setNotificationsSettings(notificationsSettingsManager.getOrCreateNotificationsSettings(getUserId()));
 	}
 
 	public void loginOpenId(String email) {
@@ -197,7 +212,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 				//ipAddress = accessResolver.findRemoteIPAddress();
 				logger.info("LOGING EVENT");
 				// this.checkIpAddress();
-				loggingService.logEvent(EventType.LOGIN, getUser(), getIpAddress());
+				loggingService.logEvent(EventType.LOGIN, getUserId(), getIpAddress());
 				// return "index?faces-redirect=true";
 				logger.info("REDIRECTING TO INDEX");
 				
@@ -224,26 +239,22 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	
 	@Override
 	public void valueUnbound(HttpSessionBindingEvent event) {
-		User user = null;
 		if(initialized){
 			final String ipAddress = this.getIpAddress();
 			//loggingService.logEvent(EventType.LOGOUT, user, ipAddress);
 
 			userManager.fullCacheClear();
-			user = getUser();
-			if (user != null) {
-				//previously logEvent method was called
-				//loggingService.logSessionEnded(EventType.SESSIONENDED, user, getIpAddress());
+			if (getUserId() > 0) {
 				try {
 					Map<String, String> parameters = new HashMap<>();
 					parameters.put("ip", ipAddress);
-					eventFactory.generateEvent(EventType.SESSIONENDED, user, null, parameters);
+					eventFactory.generateEvent(EventType.SESSIONENDED, getUserId(), null, parameters);
 				} catch (EventException e) {
 					logger.error("Generate event failed.", e);
 				}
 				userManager.fullCacheClear();
 				logger.debug("UserSession unbound:" + event.getName() + " session:" + event.getSession().getId()
-						+ " for user:" + user.getId());
+						+ " for user:" + getUserId());
 			}
 		}
 		// else{
@@ -251,7 +262,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		// event.getSession().getId());
 		// }
 		applicationBean.unregisterSession(event.getSession());
-		applicationBean.unregisterUser(user);
+		applicationBean.unregisterUser(getUserId());
 	}
 
 	@Override
@@ -276,7 +287,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 					Session session = (Session) userManager.getPersistence().openSession();
 
 					try {
-						setUserSettings(interfaceSettingsManager.tutorialsPlayed(getUser().getId(), page, session));
+						setUserSettings(interfaceSettingsManager.tutorialsPlayed(getUserId(), page, session));
 						session.flush();
 					} catch (Exception e) {
 						logger.error("Exception in handling message", e);
@@ -319,8 +330,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	public void userLogout(){
 		try {
 			final String ipAddress = this.getIpAddress();
-			User user = getUser();
-			loggingService.logEvent(EventType.LOGOUT, user, ipAddress);
+			loggingService.logEvent(EventType.LOGOUT, getUserId(), ipAddress);
 			HttpServletRequest req = (HttpServletRequest) FacesContext.getCurrentInstance()
 					.getExternalContext().getRequest();
 			String contextP = req.getContextPath() == "/" ? "" : req.getContextPath();
@@ -362,21 +372,17 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	public void setPassword(String password) {
 		getSessionData().setPassword(password);
 	}
-
-	public User getUser() {
-		return getSessionData() == null ? null : getSessionData().getUser();
-	}
-
-	public void setUser(User user) {
-		getSessionData().setUser(user);
+	
+	public long getUserId() {
+		return getSessionData() == null ? 0 : getSessionData().getUserId();
 	}
 
 	public String getName() {
-		return getSessionData() == null ? null : getUser().getName();
+		return getSessionData() == null ? null : getSessionData().getName();
 	}
 
 	public String getLastName() {
-		return getSessionData() == null ? null : getUser().getLastname();
+		return getSessionData() == null ? null : getSessionData().getLastName();
 	}
 
 	public UserSettings getInterfaceSettings() {
@@ -461,4 +467,5 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	public String getFullName() {
 		return getSessionData() == null ? null : getSessionData().getFullName();
 	}
+	
 }

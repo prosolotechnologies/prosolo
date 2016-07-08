@@ -47,27 +47,22 @@ public class LogsMessageDistributerImpl implements LogsMessageDistributer{
 		logger.debug("\n timestamp: " + "));"+logObject.get("timestamp")+
 	 			"\n eventType: " + logObject.get("eventType") + 
 	 			"\n actorId: " + logObject.get("actorId") + 
-	 			"\n actorFullname: " + logObject.get("actorFullname") + 
 	 			"\n objectType: " + logObject.get("objectType") + 
 	 			(((Long) logObject.get("objectId")) > 0 ? "\n objectId: " + logObject.get("objectId") : "") + 
 	 			(logObject.get("objectTitle") != null ? "\n objectTitle: " + logObject.get("objectTitle") : "") + 
 	 			(logObject.get("targetType") != null ? "\n targetType: " + logObject.get("targetType") : "") + 
 				(((Long) logObject.get("targetId")) > 0 ? "\n targetId: " + logObject.get("targetId") : "") + 
-				(logObject.get("reasonType") != null ? "\n reasonType: " + logObject.get("reasonType") : "") + 
-				(((Long) logObject.get("reasonId")) > 0 ? "\n reasonId: " + logObject.get("reasonId") : "") + 
 				(logObject.get("link") != null ? "\n link: " + logObject.get("link") : "") +
 			 	"\n parameters: " + logObject.get("parameters"));
 		message.setTimestamp((long) logObject.get("timestamp"));
 		message.setEventType((String) logObject.get("eventType"));
 		message.setActorId((long) logObject.get("actorId"));
-		message.setActorFullname((String) logObject.get("actorFullname"));
 		message.setObjectType((String) logObject.get("objectType"));
 		message.setObjectId((long) logObject.get("objectId"));
 		message.setObjectTitle((String) logObject.get("objectTitle"));
 		message.setTargetType((String) logObject.get("targetType"));
 		message.setTargetId((long) logObject.get("targetId"));
 		message.setReasonType((String) logObject.get("reasonType"));
-		message.setReasonId((long) logObject.get("reasonId"));
 		message.setLink((String) logObject.get("link"));
 		message.setCourseId(logObject.get("courseId") != null ? (long) logObject.get("courseId") : 0);
 		message.setTargetUserId((long) logObject.get("targetUserId"));

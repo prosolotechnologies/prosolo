@@ -7,6 +7,7 @@ import javax.faces.context.FacesContext;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.authentication.PasswordResetManager;
 import org.prosolo.services.authentication.exceptions.AuthenticationException;
@@ -39,12 +40,12 @@ public class PasswordRecoveryBean {
 	private boolean toRedirect;
 	
 	public void login() {
-		this.user = userManager.changePassword(user, newPass);
-	
-		// invalidate reset key
-		passwordResetManager.invalidateResetKey(key);
-		
 		try {
+			this.user = userManager.changePassword(user.getId(), newPass);
+		
+			// invalidate reset key
+			passwordResetManager.invalidateResetKey(key);
+		
 			boolean loggedIn = authenticationService.login(user.getEmail(), newPass);
 			
 			if (loggedIn) {
@@ -52,8 +53,8 @@ public class PasswordRecoveryBean {
 				this.toRedirect = true;
 				PageUtil.fireInfoMessage("messages", "Password successfully changed. Redirecting...", "");
 			}
-		} catch (AuthenticationException e) {
-			e.printStackTrace();
+		} catch (AuthenticationException | ResourceCouldNotBeLoadedException e) {
+			logger.error(e);
 		}
 	}
 	

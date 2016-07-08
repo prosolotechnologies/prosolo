@@ -106,8 +106,8 @@ public class UserActivityObserver extends EventObserver {
 //		logger.info("comming in event with target: " + event.getTarget());
 		
  		try {
-			if (event.getActor() != null) {
-				long userid = event.getActor().getId();
+			if (event.getActorId() > 0) {
+				long userid = event.getActorId();
 				
 				BaseEntity object = (BaseEntity) session.merge(event.getObject());
 				if (Settings.getInstance().config.analyticalServerConfig.enabled) {

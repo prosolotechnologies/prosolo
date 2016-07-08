@@ -1,31 +1,31 @@
 package org.prosolo.web.datatopagemappers;
 
-import org.prosolo.web.LoggedUserBean;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.web.settings.data.AccountData;
 
-public class AccountDataToPageMapper implements IDataToPageMapper<AccountData, LoggedUserBean> {
+public class AccountDataToPageMapper implements IDataToPageMapper<AccountData, User> {
 
 	@Override
-	public AccountData mapDataToPageObject(LoggedUserBean loggedUser) {
+	public AccountData mapDataToPageObject(User user) {
 		AccountData accountData = new AccountData();
-		accountData.setId(loggedUser.getUser().getId());
-		accountData.setAvatarPath(loggedUser.getAvatar());
-		accountData.setFirstName(loggedUser.getUser().getName());
-		accountData.setLastName(loggedUser.getUser().getLastname());
+		accountData.setId(user.getId());
+		accountData.setAvatarPath(user.getAvatarUrl());
+		accountData.setFirstName(user.getName());
+		accountData.setLastName(user.getLastname());
 
 		// position
-		accountData.setPosition(loggedUser.getUser().getPosition());
+		accountData.setPosition(user.getPosition());
 
 		// location
-		accountData.setLocationName(loggedUser.getUser().getLocationName());
+		accountData.setLocationName(user.getLocationName());
 
 		String lat = null;
 		String lon = null;
-		if (loggedUser.getUser().getLatitude() != null) {
-			lat = String.valueOf(loggedUser.getUser().getLatitude());
+		if (user.getLatitude() != null) {
+			lat = String.valueOf(user.getLatitude());
 		}
-		if (loggedUser.getUser().getLongitude() != null) {
-			lon = String.valueOf(loggedUser.getUser().getLongitude());
+		if (user.getLongitude() != null) {
+			lon = String.valueOf(user.getLongitude());
 		}
 		accountData.setLatitude(lat);
 		accountData.setLongitude(lon);

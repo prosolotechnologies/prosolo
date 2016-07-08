@@ -18,7 +18,6 @@ import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.nodes.RoleManager;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.ResourceDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +62,7 @@ public class EvaluationSettingsBean implements Serializable {
 			
 			if (users != null && !users.isEmpty()) {
 				for (User user : users) {
-					selectedEvaluators.add(UserDataFactory.createUserData(user));
+					selectedEvaluators.add(new UserData(user));
 				}
 				
 				calculateUserNo();
@@ -101,7 +100,7 @@ public class EvaluationSettingsBean implements Serializable {
 			List<User> result = (List<User>) usersResponse.getFoundNodes();
 			
 			for (User user : result) {
-				UserData userData = UserDataFactory.createUserData(user);
+				UserData userData = new UserData(user);
 				
 				userSearchResults.add(userData);
 			}
@@ -111,7 +110,7 @@ public class EvaluationSettingsBean implements Serializable {
 	public void addUser(UserData userData) {
 		if (userData != null) {
 			selectedEvaluators.add(userData);
-			userData.setDisabled(true);
+//			userData.setDisabled(true);
 			
 			// check if this user is in removed evaluators
 			Iterator<UserData> iterator = this.removedEvaluators.iterator();
@@ -120,7 +119,7 @@ public class EvaluationSettingsBean implements Serializable {
 				UserData u = (UserData) iterator.next();
 				
 				if (u.equals(userData)) {
-					u.setDisabled(false);
+//					u.setDisabled(false);
 					iterator.remove();
 					break;
 				}
@@ -142,7 +141,7 @@ public class EvaluationSettingsBean implements Serializable {
 				UserData u = (UserData) iterator.next();
 				
 				if (u.equals(userData)) {
-					u.setDisabled(false);
+//					u.setDisabled(false);
 					iterator.remove();
 					break;
 				}

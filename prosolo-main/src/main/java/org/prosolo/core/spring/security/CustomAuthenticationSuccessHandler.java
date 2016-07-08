@@ -40,7 +40,7 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 			Map<String, Object> sessionData = sessionDataLoader.init(user.getUsername(), request, session);
 			session.setAttribute("user", sessionData);
 			try {
-				eventFactory.generateEvent(EventType.LOGIN, (org.prosolo.common.domainmodel.user.User) sessionData.get("user"));
+				eventFactory.generateEvent(EventType.LOGIN, (long) sessionData.get("userId"));
 			} catch (Exception e) {
 				logger.error(e);
 			}

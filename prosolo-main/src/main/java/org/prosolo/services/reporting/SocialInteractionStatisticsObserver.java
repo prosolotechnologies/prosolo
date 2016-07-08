@@ -37,7 +37,7 @@ public class SocialInteractionStatisticsObserver extends EventObserver {
 	public void handleEvent(Event event) {
 		System.out.println("SocialInteractionStatisticsObserver handling event");
 		logger.info("comming in event with action: " + event.getAction());
-		logger.info("comming in event with actor: " + event.getActor());
+		logger.info("comming in event with actor: " + event.getActorId());
 		logger.info("comming in event with object: " + event.getObject());
 		logger.info("comming in event with target: " + event.getTarget());
 		//TODO: to extract real course id here
@@ -74,7 +74,7 @@ SEARCH,SERVICEUSE,SEARCHPEOPLE
 SEARCH,SERVICEUSE,SEARCH_PEOPLE
 		 */
 		long courseid=1;
-		long source = event.getActor().getId();
+		long source = event.getActorId();
 		
 		long target;
 		if (event.getAction().equals(SEND_MESSAGE)){

@@ -198,7 +198,7 @@ public class CourseInstructorsBean implements Serializable {
 			User instr = new User();
 			instr.setId(instructorForRemoval.getUserId());
 			try {
-				eventFactory.generateEvent(EventType.INSTRUCTOR_REMOVED_FROM_COURSE, loggedUserBean.getUser(), 
+				eventFactory.generateEvent(EventType.INSTRUCTOR_REMOVED_FROM_COURSE, loggedUserBean.getUserId(), 
 						instr, course, appPage, context, service, null);
 				fireReassignEvents(instructorForRemoval, appPage, service, res, automatic);
 
@@ -238,8 +238,9 @@ public class CourseInstructorsBean implements Serializable {
 						User object = new User();
 						object.setId(studentUserId);
 						@SuppressWarnings("unchecked")
-						Event event = eventFactory.generateEvent(EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR, loggedUserBean.getUser(), object, target, 
-								null, appPage, lContext, service, 
+						Event event = eventFactory.generateEvent(EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR, loggedUserBean.getUserId(), 
+								object, target, 
+								appPage, lContext, service, 
 								new Class[] {NodeChangeObserver.class}, parameters);
 						nodeChangeObserver.handleEvent(event);
 					} catch(Exception e) {
@@ -264,8 +265,9 @@ public class CourseInstructorsBean implements Serializable {
 					object.setId(userId);
 					
 					@SuppressWarnings("unchecked")
-					Event event = eventFactory.generateEvent(EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR, loggedUserBean.getUser(), object, target, 
-							null, appPage, lContext, service, 
+					Event event = eventFactory.generateEvent(EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR, loggedUserBean.getUserId(), 
+							object, target, 
+							appPage, lContext, service, 
 							new Class[] {NodeChangeObserver.class} ,parameters);
 					nodeChangeObserver.handleEvent(event);
 				} catch (EventException e) {

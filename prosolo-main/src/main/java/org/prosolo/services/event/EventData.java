@@ -4,12 +4,11 @@ import java.util.Map;
 
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.user.User;
 
 public class EventData {
 
 	private EventType eventType; 
-	private User actor; 
+	private long actorId; 
 	private BaseEntity object; 
 	private BaseEntity target; 
 	private BaseEntity reason; 
@@ -25,11 +24,11 @@ public class EventData {
 	public void setEventType(EventType eventType) {
 		this.eventType = eventType;
 	}
-	public User getActor() {
-		return actor;
+	public long getActorId() {
+		return actorId;
 	}
-	public void setActor(User actor) {
-		this.actor = actor;
+	public void setActorId(long actorId) {
+		this.actorId = actorId;
 	}
 	public BaseEntity getObject() {
 		return object;

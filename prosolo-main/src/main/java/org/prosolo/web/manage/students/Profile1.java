@@ -31,7 +31,6 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.achievements.data.CompetenceAchievementsData;
 import org.prosolo.web.achievements.data.CredentialAchievementsData;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.datatopagemappers.CompetenceAchievementsDataToPageMapper;
 import org.prosolo.web.datatopagemappers.CredentialAchievementsDataToPageMapper;
 import org.prosolo.web.datatopagemappers.SocialNetworksDataToPageMapper;
@@ -114,17 +113,17 @@ public class Profile1 {
 	
 	public void sendMessage() {
 		if(StringUtils.isNotBlank(studentId)) {
-			if(Long.valueOf(studentId) != loggedUserBean.getUser().getId()) {
+			if(Long.valueOf(studentId) != loggedUserBean.getUserId()) {
 				try {
 					long decodedRecieverId = Long.valueOf(studentId);
-					Message message = messagingManager.sendMessage(loggedUserBean.getUser().getId(), decodedRecieverId, this.message);
-					logger.debug("User "+loggedUserBean.getUser()+" sent a message to "+decodedRecieverId+" with content: '"+message+"'");
+					Message message = messagingManager.sendMessage(loggedUserBean.getUserId(), decodedRecieverId, this.message);
+					logger.debug("User "+loggedUserBean.getUserId()+" sent a message to "+decodedRecieverId+" with content: '"+message+"'");
 					
 					List<UserData> participants = new ArrayList<UserData>();
-					participants.add(UserDataFactory.createUserData(loggedUserBean.getUser()));
+					
+					participants.add(new UserData(loggedUserBean.getUserId(), loggedUserBean.getFullName(), loggedUserBean.getAvatar()));
 					
 					final Message message1 = message;
-					final User user = loggedUserBean.getUser();
 					
 					taskExecutor.execute(new Runnable() {
 			            @Override
@@ -134,7 +133,7 @@ public class Profile1 {
 			            		parameters.put("context", createContext());
 			            		parameters.put("user", String.valueOf(decodedRecieverId));
 			            		parameters.put("message", String.valueOf(message1.getId()));
-			            		eventFactory.generateEvent(EventType.SEND_MESSAGE, user, message1, parameters);
+			            		eventFactory.generateEvent(EventType.SEND_MESSAGE, loggedUserBean.getUserId(), message1, parameters);
 			            	} catch (EventException e) {
 			            		logger.error(e);
 			            	}
@@ -148,7 +147,7 @@ public class Profile1 {
 			}
 			else {
 				PageUtil.fireErrorMessage("Canno't send message to self!");
-				logger.error("Error while sending message from profile page, studentId was the same as logged student id : "+loggedUserBean.getUser().getId());
+				logger.error("Error while sending message from profile page, studentId was the same as logged student id : "+loggedUserBean.getUserId());
 			}
 		}
 		else {
@@ -166,7 +165,7 @@ public class Profile1 {
 		studentFullName = student.getName()+" "+student.getLastname();
 		//studentAffiliation = student.get
 		studentLocation = student.getLocationName();
-		personalProfile = student.getId() == loggedUserBean.getUser().getId();
+		personalProfile = student.getId() == loggedUserBean.getUserId();
 		
 	}
 
@@ -224,7 +223,7 @@ public class Profile1 {
 	private User getUser() throws ResourceCouldNotBeLoadedException {
 		return StringUtils.isNotBlank(studentId) 
 				? userManager.get(User.class, idEncoder.decodeId(studentId)) 
-				: loggedUserBean.getUser();
+				: userManager.loadResource(User.class, loggedUserBean.getUserId());
 	}
 	
 	private String getInitials(User student) {

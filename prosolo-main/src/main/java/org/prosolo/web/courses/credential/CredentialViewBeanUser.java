@@ -67,15 +67,14 @@ public class CredentialViewBeanUser implements Serializable {
 			try {
 				if("preview".equals(mode)) {
 					credentialData = credentialManager.getCredentialDataForEdit(decodedId, 
-							loggedUser.getUser().getId(), true);
+							loggedUser.getUserId(), true);
 					ResourceCreator rc = new ResourceCreator();
-					User user = loggedUser.getUser();
-					rc.setFullName(user.getName(), user.getLastname());
-					rc.setAvatarUrl(user.getAvatarUrl());
+					rc.setFullName(loggedUser.getFullName());
+					rc.setAvatarUrl(loggedUser.getAvatar());
 					credentialData.setCreator(rc);
 				} else {
 					credentialData = credentialManager.getFullTargetCredentialOrCredentialData(decodedId, 
-							loggedUser.getUser().getId());
+							loggedUser.getUserId());
 					if(justEnrolled) {
 						PageUtil.fireSuccessfulInfoMessage("You have enrolled in the credential " + 
 								credentialData.getTitle());
@@ -104,7 +103,7 @@ public class CredentialViewBeanUser implements Serializable {
 	
 	public boolean isCurrentUserCreator() {
 		return credentialData == null || credentialData.getCreator() == null ? false : 
-			credentialData.getCreator().getId() == loggedUser.getUser().getId();
+			credentialData.getCreator().getId() == loggedUser.getUserId();
 	}
 	
  	public String getLabelForCredential() {
@@ -145,7 +144,7 @@ public class CredentialViewBeanUser implements Serializable {
 			lcd.setLearningContext(PageUtil.getPostParameter("context"));
 			lcd.setService(PageUtil.getPostParameter("service"));
 			CredentialData cd = credentialManager.enrollInCredential(decodedId, 
-					loggedUser.getUser().getId(), lcd);
+					loggedUser.getUserId(), lcd);
 			credentialData = cd;
 		} catch(DbConnectionException e) {
 			logger.error(e);
@@ -194,7 +193,7 @@ public class CredentialViewBeanUser implements Serializable {
 			Map<String,String> parameters = new HashMap<>();
 			parameters.put("credentialId", decodedId+""); 
 			try {
-				eventFactory.generateEvent(EventType.AssessmentRequested, loggedUser.getUser(), 
+				eventFactory.generateEvent(EventType.AssessmentRequested, loggedUser.getUserId(), 
 						instructor, assessment, 
 						page, lContext, service, parameters);
 			} catch (Exception e) {
@@ -206,24 +205,24 @@ public class CredentialViewBeanUser implements Serializable {
 
 	private void populateAssessmentRequestFields() {
 		assessmentRequestData.setCredentialTitle(credentialData.getTitle());
-		assessmentRequestData.setStudentId(loggedUser.getUser().getId());
+		assessmentRequestData.setStudentId(loggedUser.getUserId());
 		assessmentRequestData.setCredentialId(credentialData.getId());
 		assessmentRequestData.setTargetCredentialId(credentialData.getTargetCredId());
 	}
 	
 	public boolean userHasAssessmentForCredential() {
-		Long assessmentCount = assessmentManager.countAssessmentsForUserAndCredential(loggedUser.getUser().getId(), 
+		Long assessmentCount = assessmentManager.countAssessmentsForUserAndCredential(loggedUser.getUserId(), 
 				decodedId);
 		if(assessmentCount > 0) {
 			logger.debug("We found "+assessmentCount+" assessments for user "
-						+ loggedUser.getUser().getId() + "for credential"+decodedId);
+						+ loggedUser.getUserId() + "for credential"+decodedId);
 			return true;
 		}
 		return false;
 	}
 	
 	public String getAssessmentIdForUser() {
-		return idEncoder.encodeId(assessmentManager.getAssessmentIdForUser(loggedUser.getUser().getId(), 
+		return idEncoder.encodeId(assessmentManager.getAssessmentIdForUser(loggedUser.getUserId(), 
 				credentialData.getTargetCredId()));
 	}
 	

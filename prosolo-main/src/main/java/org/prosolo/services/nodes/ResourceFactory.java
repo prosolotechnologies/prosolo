@@ -52,30 +52,30 @@ public interface ResourceFactory extends AbstractManager {
 
     public Role createNewRole(String name, String description, boolean systemDefined, List<Long> capabilities);
 
-    LearningGoal createNewLearningGoal(User currentUser, String name, String description, Date deadline, 
+    LearningGoal createNewLearningGoal(long userId, String name, String description, Date deadline, 
             Collection<Tag> keywords, Collection<Tag> hashtags) throws EventException;
 
     TargetLearningGoal createNewTargetLearningGoal(LearningGoal goal, User currentUser, boolean progressActivityDependent) throws EventException;
 
     
-    TargetCompetence createNewTargetCompetence(User currentUser, Competence comp, VisibilityType visibilityType);
+    TargetCompetence createNewTargetCompetence(long userId, Competence comp, VisibilityType visibilityType) throws ResourceCouldNotBeLoadedException;
     
-    Activity createNewResourceActivity(User maker, String title,
+    Activity createNewResourceActivity(long userId, String title,
             String description, AttachmentPreview attachmentPreview, VisibilityType vis,
-            Collection<Tag> tags, boolean save) throws EventException;
+            Collection<Tag> tags, boolean save) throws EventException, ResourceCouldNotBeLoadedException;
 
-    Competence createCompetence(User user, String title, String description, int validity, int duration, 
-            Collection<Tag> tags, List<Competence> prerequisites, List<Competence> corequisites, Date dateCreated);
+    Competence createCompetence(long userId, String title, String description, int validity, int duration, 
+            Collection<Tag> tags, List<Competence> prerequisites, List<Competence> corequisites, Date dateCreated) throws ResourceCouldNotBeLoadedException;
 
     Course createCourse(String title, String description, Course basedOn, List<CourseCompetence> competences, 
-            Collection<Tag> tags, Collection<Tag> hashtags, User maker, CreatorType creatorType, boolean studentsCanAddNewCompetences, boolean pubilshed);
+            Collection<Tag> tags, Collection<Tag> hashtags, long makerId, CreatorType creatorType, boolean studentsCanAddNewCompetences, boolean pubilshed) throws ResourceCouldNotBeLoadedException;
 
     Course updateCourse(Course course, String title, String description, List<CourseCompetence> competences, 
             Collection<Tag> tags, Collection<Tag> hashtags, List<String> blogs, boolean studentsCanAddNewCompetences, boolean pubilshed) throws EventException;
 
     AnonUser createAnonUser(String nickname, String name, String avatarUrl, String profileUrl, ServiceType twitter);
 
-    TargetActivity createNewTargetActivity(Activity activity, User maker);
+    TargetActivity createNewTargetActivity(Activity activity, long userId);
 
     TargetActivity createNewTargetActivity(User maker, String title, String description, AttachmentPreview attachmentPreview, VisibilityType vis,
             Collection<Tag> tags, boolean save) throws EventException;
@@ -90,15 +90,15 @@ public interface ResourceFactory extends AbstractManager {
     User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified, String password, 
             String position, boolean system, InputStream imageInputStream, String avatarFilename) throws EventException;
 
-    Activity createNewActivity(User currentUser,
+    Activity createNewActivity(long userId,
             ActivityFormData activityFormData, VisibilityType vis)
-            throws EventException;
+            throws EventException, ResourceCouldNotBeLoadedException;
 
     SimpleOutcome createSimpleOutcome(double resultValue);
     
-    Map<String, Object> enrollUserInCourse(User user, Course course, TargetLearningGoal targetGoal, String context);
+    Map<String, Object> enrollUserInCourse(long userId, Course course, TargetLearningGoal targetGoal, String context) throws ResourceCouldNotBeLoadedException;
     
-    Map<String, Object> enrollUserInCourseInSameTransaction(User user, Course course, TargetLearningGoal targetGoal, String context);
+    Map<String, Object> enrollUserInCourseInSameTransaction(long userId, Course course, TargetLearningGoal targetGoal, String context) throws ResourceCouldNotBeLoadedException;
     
     Map<String, Object> assignStudentsToInstructorAutomatically(long courseId, List<Long> courseEnrollmentIds,
             long instructorToExcludeId);
@@ -117,7 +117,7 @@ public interface ResourceFactory extends AbstractManager {
 			throws DbConnectionException;
 
 	Credential1 createCredential(String title, String description, String tagsString, String hashtagsString, 
-			User createdBy, LearningResourceType type, boolean compOrderMandatory, boolean published, 
+			long creatorId, LearningResourceType type, boolean compOrderMandatory, boolean published, 
 			long duration, boolean manuallyAssign, List<CompetenceData1> comps);
 
 	/**
@@ -126,7 +126,7 @@ public interface ResourceFactory extends AbstractManager {
 	 * @param title
 	 * @param description
 	 * @param tagsString
-	 * @param createdBy
+	 * @param creatorId
 	 * @param studentAllowedToAddActivities
 	 * @param type
 	 * @param published
@@ -135,7 +135,7 @@ public interface ResourceFactory extends AbstractManager {
 	 * @param credentialId
 	 * @return
 	 */
-	Result<Competence1> createCompetence(String title, String description, String tagsString, User createdBy,
+	Result<Competence1> createCompetence(String title, String description, String tagsString, long creatorId,
 			boolean studentAllowedToAddActivities, LearningResourceType type, boolean published, 
 			long duration, List<org.prosolo.services.nodes.data.ActivityData> activities, 
 			long credentialId);

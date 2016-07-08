@@ -33,7 +33,6 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	private static Logger logger = Logger.getLogger(UserManager.class);
 	
 	@Autowired private PasswordEncrypter passwordEncrypter;
-	@Autowired private AvatarProcessor avatarProcessor; 
 	@Autowired private EventFactory eventFactory;
 	@Autowired private ResourceFactory resourceFactory;
 	 
@@ -110,7 +109,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		// it is called in a new transaction
 		User newUser = resourceFactory.createNewUser(name, lastname, emailAddress, emailVerified, password, position, false, avatarStream, avatarFilename);
 		
-		eventFactory.generateEvent(EventType.Registered, newUser);
+		eventFactory.generateEvent(EventType.Registered, newUser.getId());
 		
 		return newUser;
 	}
@@ -152,7 +151,9 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	
 	@Override
 	@Transactional (readOnly = false)
-	public User changePassword(User user, String newPassword) {
+	public User changePassword(long userId, String newPassword) throws ResourceCouldNotBeLoadedException {
+		User user = loadResource(User.class, userId);
+		
 		user.setPassword(passwordEncrypter.encodePassword(newPassword));
 		user.setPasswordLength(newPassword.length());
 		return saveEntity(user);
@@ -160,8 +161,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	
 	@Override
 	@Transactional (readOnly = false)
-	public User changeAvatar(User user, String newAvatarPath) {
-	//	user = merge(user);
+	public User changeAvatar(long userId, String newAvatarPath) throws ResourceCouldNotBeLoadedException {
+		User user = loadResource(User.class, userId);
 		user.setAvatarUrl(newAvatarPath);
 		return saveEntity(user);
 	}

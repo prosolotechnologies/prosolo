@@ -10,7 +10,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.LearningGoal;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.interfaceSettings.LearnPageCacheUpdater;
 import org.prosolo.web.goals.LearnBean;
@@ -30,7 +29,7 @@ public class LearnPageCacheUpdaterImpl implements LearnPageCacheUpdater, Seriali
 	private static Logger logger = Logger.getLogger(LearnPageCacheUpdaterImpl.class);
 	
 	@Override
-	public void removeCollaboratorFormGoal(User collaboratorToRemove, LearningGoal goal, HttpSession userSession) {
+	public void removeCollaboratorFormGoal(long collaboratorToRemoveId, LearningGoal goal, HttpSession userSession) {
 		if (userSession != null) {
 			LearnBean userLearningGoalBean = (LearnBean) userSession.getAttribute("learninggoals");
 			
@@ -43,7 +42,7 @@ public class LearnPageCacheUpdaterImpl implements LearnPageCacheUpdater, Seriali
 	        		collaboratorLoop: while (collaboratorIterator.hasNext()) {
 	        			UserData coll = (UserData) collaboratorIterator.next();
 	        			
-	        			if (coll.getId() == collaboratorToRemove.getId()) {
+	        			if (coll.getId() == collaboratorToRemoveId) {
 	        				collaboratorIterator.remove();
 	        				break collaboratorLoop;
 	        			}

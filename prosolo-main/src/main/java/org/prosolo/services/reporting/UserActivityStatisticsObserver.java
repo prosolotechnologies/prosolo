@@ -40,14 +40,14 @@ public class UserActivityStatisticsObserver extends EventObserver {
 	public void handleEvent(Event event) {
 		System.out.println("UserActivityStatisticsObserver handling event");
 		logger.info("comming in event with action: " + event.getAction());
-		logger.info("comming in event with actor: " + event.getActor());
+		logger.info("comming in event with actor: " + event.getActorId());
 		logger.info("comming in event with object: " + event.getObject());
 		logger.info("comming in event with target: " + event.getTarget());
 		
 		EventType eventType = event.getAction();
 		Map<String, String> parameters = event.getParameters();
 		long daysSinceEpoch = DateUtil.getDaysSinceEpoch();
-		long userId = event.getActor().getId();
+		long userId = event.getActorId();
 		
 		collector.increaseUserEventCount(eventType, parameters, daysSinceEpoch);
 		collector.increaseEventCount(userId, eventType, parameters, daysSinceEpoch);

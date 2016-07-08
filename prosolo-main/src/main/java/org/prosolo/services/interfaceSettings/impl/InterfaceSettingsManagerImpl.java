@@ -14,6 +14,7 @@ import org.prosolo.common.domainmodel.interfacesettings.LocaleSettings;
 import org.prosolo.common.domainmodel.interfacesettings.TermsOfUse;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.springframework.stereotype.Service;
@@ -33,25 +34,25 @@ public class InterfaceSettingsManagerImpl extends AbstractManagerImpl implements
 	
 	@Override
 	@Transactional
-	public UserSettings getOrCreateUserSettings(User user) {
-		return getOrCreateUserSettings(user, persistence.currentManager());
+	public UserSettings getOrCreateUserSettings(long userId) throws ResourceCouldNotBeLoadedException {
+		return getOrCreateUserSettings(userId, persistence.currentManager());
 	}
 	
 	@Override
 	@Transactional
-	public UserSettings getOrCreateUserSettings(User user, Session session) {
-		UserSettings result = getUserSettings(user.getId());
+	public UserSettings getOrCreateUserSettings(long userId, Session session) throws ResourceCouldNotBeLoadedException {
+		UserSettings result = getUserSettings(userId);
 		
 		if (result != null) {
 			return result;
 		} else {
+			User user = loadResource(User.class, userId);
+			
 			UserSettings userSettings = new UserSettings(user);
 			LocaleSettings ls = new LocaleSettings("en", "US"); 
 			session.saveOrUpdate(ls);
-			//saveEntity(new LocaleSettings("en", "US"));
 			userSettings.setLocaleSettings(ls);
 			userSettings.setUser(user);
-			//this.persistence.save(userSettings);
 			session.saveOrUpdate(userSettings);
 			session.flush();
 			

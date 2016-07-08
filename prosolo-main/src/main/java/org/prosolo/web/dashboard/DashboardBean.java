@@ -72,7 +72,7 @@ public class DashboardBean implements Serializable {
 	}
 
 	private String getIpAddress() {
-		return loggedUser.getUser() == null ? accessResolver.findRemoteIPAddress() : loggedUser.getIpAddress();
+		return loggedUser.isLoggedIn() ? accessResolver.findRemoteIPAddress() : loggedUser.getIpAddress();
 	}
 
 	public void disableHashtag() {
@@ -83,7 +83,7 @@ public class DashboardBean implements Serializable {
 		parameters.put("hashtag", hashtag);
 		parameters.put("ip", getIpAddress());
 		try {
-			eventFactory.generateEvent(EventType.HASHTAG_DISABLED, loggedUser.getUser(), null, parameters);
+			eventFactory.generateEvent(EventType.HASHTAG_DISABLED, loggedUser.getUserId(), null, parameters);
 		} catch (EventException e) {
 			logger.error("Generate event failed.", e);
 		}
@@ -97,7 +97,7 @@ public class DashboardBean implements Serializable {
 		parameters.put("hashtag", hashtag);
 		parameters.put("ip", getIpAddress());
 		try {
-			eventFactory.generateEvent(EventType.HASHTAG_ENABLED, loggedUser.getUser(), null, parameters);
+			eventFactory.generateEvent(EventType.HASHTAG_ENABLED, loggedUser.getUserId(), null, parameters);
 		} catch (EventException e) {
 			logger.error("Generate event failed.", e);
 		}

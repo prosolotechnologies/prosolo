@@ -11,7 +11,6 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.Event;
@@ -76,9 +75,7 @@ public abstract class ActivityStartEventProcessor {
 			    String tComp = m.group(2);
 			    String tAct = m.group(3);
 			    
-			    User user = event.getActor();
-			    
-			    HttpSession httpSession = applicationBean.getUserSession(user.getId());
+			    HttpSession httpSession = applicationBean.getUserSession(event.getActorId());
 				
 				if (httpSession != null) {
 					LearnBean learnBean = (LearnBean) httpSession.getAttribute("learninggoals");

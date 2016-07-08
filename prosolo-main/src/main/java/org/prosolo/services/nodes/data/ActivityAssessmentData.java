@@ -14,7 +14,6 @@ import org.prosolo.common.domainmodel.credential.ResourceLink;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TextActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivity1;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 
 public class ActivityAssessmentData {
@@ -29,23 +28,25 @@ public class ActivityAssessmentData {
 	private List<String> downloadResourceUrls;
 
 	public static ActivityAssessmentData from(TargetActivity1 targetActivity, CompetenceAssessment compAssessment,
-			UrlIdEncoder encoder, User user) {
+			UrlIdEncoder encoder, long userId) {
 		ActivityAssessmentData data = new ActivityAssessmentData();
 		populateTypeSpecificData(data, targetActivity.getActivity());
 		populateDownloadResourceLink(targetActivity,data);
 		data.setTitle(targetActivity.getTitle());
 		data.setEncodedTargetActivityId(encoder.encodeId(targetActivity.getId()));
 		ActivityDiscussion activityDiscussion = compAssessment.getDiscussionByActivityId(targetActivity.getActivity().getId());
-		if(activityDiscussion != null) {
+		
+		if (activityDiscussion != null) {
 			data.setEncodedDiscussionId(encoder.encodeId(activityDiscussion.getId()));
-			boolean isAllRead = hasUserReadAllMessages(activityDiscussion,user,encoder);
+			boolean isAllRead = hasUserReadAllMessages(activityDiscussion, userId, encoder);
 			data.setAllRead(isAllRead);
 			List<ActivityDiscussionMessage> messages = activityDiscussion.getMessages();
-			if(CollectionUtils.isNotEmpty(messages)) {
+			if (CollectionUtils.isNotEmpty(messages)) {
 				data.setActivityDiscussionMessageData(new ArrayList<>());
 				data.setNumberOfMessages(activityDiscussion.getMessages().size());
-				for(ActivityDiscussionMessage activityMessage : messages) {
-					ActivityDiscussionMessageData messageData = ActivityDiscussionMessageData.from(activityMessage,compAssessment,encoder);
+				for (ActivityDiscussionMessage activityMessage : messages) {
+					ActivityDiscussionMessageData messageData = ActivityDiscussionMessageData.from(activityMessage,
+							compAssessment, encoder);
 					data.getActivityDiscussionMessageData().add(messageData);
 				}
 			}
@@ -71,9 +72,9 @@ public class ActivityAssessmentData {
 
 
 
-	private static boolean hasUserReadAllMessages(ActivityDiscussion activityDiscussion, User user,
+	private static boolean hasUserReadAllMessages(ActivityDiscussion activityDiscussion, long userId,
 			UrlIdEncoder encoder) {
-		ActivityDiscussionParticipant currentParticipant = activityDiscussion.getParticipantByUserId(user.getId());
+		ActivityDiscussionParticipant currentParticipant = activityDiscussion.getParticipantByUserId(userId);
 		return currentParticipant.isRead();
 	}
 	

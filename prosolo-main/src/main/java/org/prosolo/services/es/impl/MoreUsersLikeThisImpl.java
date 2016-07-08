@@ -14,7 +14,6 @@ import org.elasticsearch.common.unit.DistanceUnit;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 //import org.elasticsearch.index.query.FilterBuilder;
 //import org.elasticsearch.index.query.FilterBuilders;
-
 import org.elasticsearch.index.query.FilteredQueryBuilder;
 import org.elasticsearch.index.query.MatchAllQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -46,9 +45,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class MoreUsersLikeThisImpl extends AbstractManagerImpl implements MoreUsersLikeThis{
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 8345103443587134183L;
  
 	@Autowired UserManager userManager;
@@ -58,7 +54,7 @@ public class MoreUsersLikeThisImpl extends AbstractManagerImpl implements MoreUs
 	
 	@Override
 	public List<User> getRecommendedCollaboratorsForLearningGoal(
-			String likeText, Collection<User> ignoredUsers, int limit) {
+			String likeText, Collection<Long> ignoredUsers, int limit) {
 		
 		List<User> foundUsers = new ArrayList<User>();
 		
@@ -77,9 +73,9 @@ public class MoreUsersLikeThisImpl extends AbstractManagerImpl implements MoreUs
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			bQueryBuilder.should(qb);
 			
-			for (User ignUser : ignoredUsers) {
-				if (ignUser != null) {
-					bQueryBuilder.mustNot(termQuery("id", ignUser.getId()));
+			for (long ignUser : ignoredUsers) {
+				if (ignUser > 0) {
+					bQueryBuilder.mustNot(termQuery("id", ignUser));
 				}
 			}
 			SearchResponse sResponse = client.prepareSearch(ESIndexNames.INDEX_USERS)

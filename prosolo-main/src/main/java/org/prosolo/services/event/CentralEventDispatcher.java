@@ -11,7 +11,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.news.FeaturedNewsObserver;
 import org.prosolo.recommendation.impl.RecommendationObserver;
 import org.prosolo.reminders.RemindersObserver;
 import org.prosolo.services.activityWall.filters.FilterUpdaterObserver;
@@ -48,7 +47,6 @@ public class CentralEventDispatcher {
 	
 	@Autowired private RemindersObserver remindersObserver;
 	@Autowired private SocialStreamObserver socialStreamObserver;
-	@Autowired private FeaturedNewsObserver featuredNewsObserver;
 	@Autowired private UploadsObserver uploadsObserver;
 	@Autowired private NotificationObserver notificationObserver;
 	@Autowired private MessagesObserver messagesObserver;
@@ -70,7 +68,6 @@ public class CentralEventDispatcher {
 			observers = new HashSet<EventObserver>();
 			observers.add(remindersObserver);
 			observers.add(socialStreamObserver);
-			observers.add(featuredNewsObserver);
 			observers.add(uploadsObserver);
 			observers.add(notificationObserver);
 			observers.add(messagesObserver);

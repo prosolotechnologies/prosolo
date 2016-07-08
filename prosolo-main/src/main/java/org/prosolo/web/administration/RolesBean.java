@@ -205,13 +205,11 @@ public class RolesBean implements Serializable {
 	}
 
 	public void saveNewRole(){
-		logger.debug("Creating new Role for the user "+ loggedUser.getUser() );
-
-		loggedUser.refreshUser();
+		logger.debug("Creating new Role for the user "+ loggedUser.getFullName() );
 		
 		Role role = roleManager.createNewRole(formData.getName(), formData.getDescription(), false, selectedCapabilities);
 
-		logger.debug("New Role ("+role.getTitle()+") for the user "+ loggedUser.getUser() );
+		logger.debug("New Role ("+role.getTitle()+") for the user "+ loggedUser.getFullName() );
 		PageUtil.fireSuccessfulInfoMessage("Role \""+role.getTitle()+"\" created!");
 		
 		resetFormData();
@@ -226,12 +224,12 @@ public class RolesBean implements Serializable {
 	}
 
 	public void updateRole(){
-		logger.debug("Updating Role "+ formData.getId() +" for the user "+ loggedUser.getUser());
+		logger.debug("Updating Role "+ formData.getId() +" for the user "+ loggedUser.getFullName());
 		
 		try {
 			Role role = roleManager.updateRole(formData.getId(), formData.getName(), formData.getDescription(), selectedCapabilities, initialCapabilities);
 			PageUtil.fireSuccessfulInfoMessage("Role updated!");
-			logger.debug("Role ("+role.getId()+") updated by the user "+ loggedUser.getUser());
+			logger.debug("Role ("+role.getId()+") updated by the user "+ loggedUser.getFullName());
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		}
@@ -303,18 +301,14 @@ public class RolesBean implements Serializable {
 					@Override
 					public void run() {
 						try{
-							eventFactory.generateEvent(EventType.USER_ROLES_UPDATED, loggedUser.getUser(), user, null, 
-								null, null, null, null);
+							eventFactory.generateEvent(EventType.USER_ROLES_UPDATED, loggedUser.getUserId(), loggedUser.getFullName(), null, 
+								null, null, null);
 						} catch(Exception e) {
 							logger.error(e);
 						}
 								
 					}
 				});
-				if (user.equals(loggedUser.getUser())) {
-					loggedUser.refreshUser();
-					//loggedUser.initializeRoles(user);
-				}
 
 				PageUtil.fireSuccessfulInfoMessage(
 						"unitUserRolesFormGrowl", 

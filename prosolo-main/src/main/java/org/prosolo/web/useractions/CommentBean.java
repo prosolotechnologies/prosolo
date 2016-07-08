@@ -64,7 +64,7 @@ public class CommentBean implements Serializable {
 
 	private void loadComments() {
 		this.comments = commentManager.getAllComments(resourceType, resourceId, 
-				sortOption.getSortField(), sortOption.getSortOption(), loggedUser.getUser().getId());
+				sortOption.getSortField(), sortOption.getSortOption(), loggedUser.getUserId());
 	}
 	
 	public void sortChanged(CommentSortOption sortOption) {
@@ -96,7 +96,14 @@ public class CommentBean implements Serializable {
 		}
 		newComment.setCommentedResourceId(resourceId);
 		newComment.setDateCreated(new Date());
-		UserData creator = new UserData(loggedUser.getUser());
+		UserData creator = new UserData(
+				loggedUser.getUserId(), 
+				loggedUser.getSessionData().getName(),
+				loggedUser.getSessionData().getLastName(),
+				loggedUser.getSessionData().getAvatar(),
+				loggedUser.getSessionData().getPosition(),
+				loggedUser.getSessionData().getEmail());
+		
 		newComment.setCreator(creator);
 		newComment.setInstructor(isInstructor);
 		
@@ -106,7 +113,7 @@ public class CommentBean implements Serializable {
 			
 		try {
     		LearningContextData context = new LearningContextData(page, lContext, service);
-    		Comment1 comment = commentManager.saveNewComment(newComment, loggedUser.getUser().getId(), 
+    		Comment1 comment = commentManager.saveNewComment(newComment, loggedUser.getUserId(), 
     				resourceType, context);
         	
         	newComment.setCommentId(comment.getId());
@@ -157,7 +164,7 @@ public class CommentBean implements Serializable {
             public void run() {	
             	try {
             		LearningContextData context = new LearningContextData(page, lContext, service);
-            		commentManager.updateComment(comment, loggedUser.getUser().getId(), context);
+            		commentManager.updateComment(comment, loggedUser.getUserId(), context);
             	} catch (DbConnectionException e) {
             		logger.error(e);
             	}
@@ -185,10 +192,10 @@ public class CommentBean implements Serializable {
             	try {
             		LearningContextData context = new LearningContextData(page, lContext, service);
             		if(liked) {
-	            		commentManager.likeComment(loggedUser.getUser().getId(), data.getCommentId(), 
+	            		commentManager.likeComment(loggedUser.getUserId(), data.getCommentId(), 
 	            				context);
             		} else {
-            			commentManager.unlikeComment(loggedUser.getUser().getId(), data.getCommentId(), 
+            			commentManager.unlikeComment(loggedUser.getUserId(), data.getCommentId(), 
 	            				context);
             		}
 	            	
@@ -200,7 +207,7 @@ public class CommentBean implements Serializable {
 	}
 	
 	public boolean isCurrentUserCommentCreator(CommentData comment) {
-		return loggedUser.getUser().getId() == comment.getCreator().getId();
+		return loggedUser.getUserId() == comment.getCreator().getId();
 	}
 
 	public String getTopLevelComment() {

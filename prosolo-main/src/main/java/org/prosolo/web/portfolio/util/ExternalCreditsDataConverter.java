@@ -66,7 +66,7 @@ public class ExternalCreditsDataConverter {
 		externalCreditData.setActivities(compWallActivityConverter.convertToActivityInstances(
 				null,
 				externalCredit.getTargetActivities(), 
-				loggedUser, 
+				loggedUser.getId(), 
 				true, 
 				false, 
 				locale));

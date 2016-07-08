@@ -1,5 +1,10 @@
 package org.prosolo.services.indexing;
 
+import static org.elasticsearch.client.Requests.clusterHealthRequest;
+
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
@@ -10,12 +15,6 @@ import org.junit.Test;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.config.ElasticSearchConfig;
 import org.prosolo.common.config.ElasticSearchHost;
-
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-
-import static org.elasticsearch.client.Requests.clusterHealthRequest;
-import static org.junit.Assert.*;
 
 /**
  * Created by zoran on 27/06/16.

@@ -14,7 +14,6 @@ import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.NodeData;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.notification.TopNotificationsBean;
 import org.prosolo.web.notification.data.GoalStatus;
 import org.prosolo.web.notification.data.NotificationData;
@@ -51,7 +50,7 @@ public class JoinGoalDialog implements Serializable {
 		
 		if (collabs != null && !collabs.isEmpty()) {
 			for (User user : collabs) {
-				collaborators.add(UserDataFactory.createUserData(user));
+				collaborators.add(new UserData(user));
 			}
 		}
 	}

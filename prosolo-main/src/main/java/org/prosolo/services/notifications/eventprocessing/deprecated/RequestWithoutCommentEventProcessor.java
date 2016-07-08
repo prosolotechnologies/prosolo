@@ -35,7 +35,8 @@ public class RequestWithoutCommentEventProcessor extends NotificationEventProces
 
 	@Override
 	User getSender() {
-		return event.getActor();
+//		return event.getActor();
+		return null;
 	}
 
 	@Override

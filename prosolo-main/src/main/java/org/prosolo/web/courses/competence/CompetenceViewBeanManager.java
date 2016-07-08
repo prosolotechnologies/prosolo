@@ -95,7 +95,7 @@ public class CompetenceViewBeanManager implements Serializable {
 	
 	public boolean isCurrentUserCreator() {
 		return competenceData == null || competenceData.getCreator() == null ? false : 
-			competenceData.getCreator().getId() == loggedUser.getUser().getId();
+			competenceData.getCreator().getId() == loggedUser.getUserId();
 	}
 	
 	public boolean hasMoreActivities(int index) {

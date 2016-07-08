@@ -199,7 +199,7 @@ public class CompetenceActivitiesBean implements Serializable {
 			int index = activities.indexOf(activityToEdit);
 			List<ActivityData> changedActivities = shiftOrderOfActivitiesUp(index);
 			competenceManager.deleteCompetenceActivity(activityToEdit, 
-					changedActivities, loggedUserBean.getUser(), context);
+					changedActivities, loggedUserBean.getUserId(), context);
 			activities.remove(activityToEdit);
 			currentNumberOfActivities--;
 			activitiesToExclude.remove(new Long(activityToEdit.getActivityId()));
@@ -236,7 +236,7 @@ public class CompetenceActivitiesBean implements Serializable {
 	
 	public void setActivityForEdit() {
 		setActivityForEdit(new ActivityData());
-		activityToEdit.setMakerId(loggedUserBean.getUser().getId());
+		activityToEdit.setMakerId(loggedUserBean.getUserId());
 	}
 
 	public void setActivityForEdit(ActivityData activityData) {
@@ -478,8 +478,7 @@ public class CompetenceActivitiesBean implements Serializable {
 		UploadedFile uploadedFile = event.getFile();
 		
 		try {
-			AttachmentPreview attachmentPreview = uploadManager.uploadFile(loggedUserBean.getUser(), 
-					uploadedFile, uploadedFile.getFileName());
+			AttachmentPreview attachmentPreview = uploadManager.uploadFile(uploadedFile, uploadedFile.getFileName());
 			attachmentPreview.setFileIcon(ImageUtil.getFileTypeIcon(attachmentPreview.getLink(), 
 					ImageSize.size0x100));
 			attachmentPreview.setTitle(attachmentPreview.getUploadTitle());

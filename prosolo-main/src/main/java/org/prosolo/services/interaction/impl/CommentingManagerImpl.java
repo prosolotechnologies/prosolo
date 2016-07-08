@@ -29,12 +29,13 @@ public class CommentingManagerImpl extends AbstractManagerImpl implements Commen
 	
 	@Override
 	@Transactional
-	public Comment addComment(BaseEntity resource, User user, 
+	public Comment addComment(BaseEntity resource, long userId, 
 			String commentText, Date created, String context, Session session) 
 			throws EventException, ResourceCouldNotBeLoadedException {
 	   	 
-		if (resource != null && user != null) {
-			logger.debug("Adding comment: \""+commentText+"\" to the resource "+resource.getId()+" by the user "+user.getId());
+		if (resource != null && userId > 0) {
+			logger.debug("Adding comment: \"" + commentText + "\" to the resource " + resource.getId() + " by the user "
+					+ userId);
 			
 			Comment comment = null;
 			
@@ -54,7 +55,7 @@ public class CommentingManagerImpl extends AbstractManagerImpl implements Commen
 			comment.setDateCreated(created);
 			comment.setObject(resource);
 			comment.setLastAction(created);
-			comment.setMaker(user);
+			comment.setMaker(loadResource(User.class, userId));
 			comment.setAction(EventType.Comment);
 			
 			session.save(comment);

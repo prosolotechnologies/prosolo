@@ -33,9 +33,9 @@ public class ResourceTokenizerImpl implements ResourceTokenizer {
 	
 	@Override
 	@Transactional(readOnly = true)
-	public String getTokenizedStringForUserLearningGoal(User user, TargetLearningGoal tGoal) {
+	public String getTokenizedStringForUserLearningGoal(TargetLearningGoal tGoal) {
 		StringBuffer userStringBuffer = new StringBuffer();
-		getTokenizedStringForUserLearningGoal(user, tGoal, userStringBuffer);
+		getTokenizedStringForUserLearningGoal(tGoal, userStringBuffer);
 		return userStringBuffer.toString();
 	}
 	
@@ -47,7 +47,7 @@ public class ResourceTokenizerImpl implements ResourceTokenizer {
 		Set<TargetLearningGoal> tLearningGoals = user.getLearningGoals();
 		
 		for (TargetLearningGoal tlg : tLearningGoals) {
-			getTokenizedStringForUserLearningGoal(user, tlg, userStringBuffer);
+			getTokenizedStringForUserLearningGoal(tlg, userStringBuffer);
 		}
 		
 		return userStringBuffer.toString();
@@ -55,7 +55,7 @@ public class ResourceTokenizerImpl implements ResourceTokenizer {
 	
 	@Override
 	@Transactional(readOnly = true)
-	public void getTokenizedStringForUserLearningGoal(User user, TargetLearningGoal tGoal, StringBuffer userTokensBuffer) {
+	public void getTokenizedStringForUserLearningGoal(TargetLearningGoal tGoal, StringBuffer userTokensBuffer) {
 		LearningGoal goal = tGoal.getLearningGoal();
 		
 		userTokensBuffer.append(goal.getTitle() + " ");

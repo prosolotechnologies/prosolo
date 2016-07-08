@@ -59,7 +59,7 @@ public class ActivityWallBean1 {
 	@PostConstruct
 	public void init() {
 		activityWallDisplayer = ServiceLocator.getInstance().getService(StatusWallSocialActivitiesDisplayer.class);
-		activityWallDisplayer.init(loggedUser.getUser(), loggedUser.getLocale(), loggedUser.getSelectedStatusWallFilter());
+		activityWallDisplayer.init(loggedUser.getUserId(), loggedUser.getLocale(), loggedUser.getSelectedStatusWallFilter());
 	}
 	
 	public void initializeActivities() {
@@ -82,7 +82,7 @@ public class ActivityWallBean1 {
 		
 		try {
 			final SocialActivity updatedSocialActivity = postManager.updatePost(
-					loggedUser.getUser(),
+					loggedUser.getUserId(),
 					socialActivityData.getSocialActivity().getId(),
 					updatedText, 
 					context);
@@ -98,7 +98,7 @@ public class ActivityWallBean1 {
 					parameters.put("newText", updatedText);
 					
 					try {
-						eventFactory.generateEvent(EventType.PostUpdate, loggedUser.getUser(), updatedSocialActivity, parameters);
+						eventFactory.generateEvent(EventType.PostUpdate, loggedUser.getUserId(), updatedSocialActivity, parameters);
 					} catch (EventException e) {
 						logger.error(e);
 					}
@@ -120,7 +120,7 @@ public class ActivityWallBean1 {
 			courseId = Long.parseLong(courseIdString);
 		}
 		
-		logger.debug("User "+loggedUser.getUser()+" is changing Activity Wall filter to '"+filterType+"'.");
+		logger.debug("User "+loggedUser.getFullName()+" is changing Activity Wall filter to '"+filterType+"'.");
 		
 		if (filterType != null) {
 			boolean successful = interfaceSettingsManager.changeActivityWallFilter(loggedUser.getInterfaceSettings(), filterType, courseId);
@@ -131,10 +131,10 @@ public class ActivityWallBean1 {
 			activityWallDisplayer.changeFilter(loggedUser.getSelectedStatusWallFilter());
 
 			if (successful) {
-				logger.debug("User "+loggedUser.getUser()+" successfully changed Activity Wall filter to '"+filterType+"'.");
+				logger.debug("User "+loggedUser.getFullName()+" successfully changed Activity Wall filter to '"+filterType+"'.");
 				PageUtil.fireSuccessfulInfoMessage("Activity Wall filter changed!");
 			} else {
-				logger.error("User "+loggedUser.getUser()+" could not change Activity Wall filter to '"+filterType+"'.");
+				logger.error("User "+loggedUser.getFullName()+" could not change Activity Wall filter to '"+filterType+"'.");
 				PageUtil.fireErrorMessage("There was an error with changing Activity Wall filter!");
 			}
 			
@@ -156,7 +156,7 @@ public class ActivityWallBean1 {
 				}
 			});
 		} else {
-			logger.error("Could not find FilterType for '"+filterType+" for changing Activity Wall filter of user "+loggedUser.getUser());
+			logger.error("Could not find FilterType for '"+filterType+" for changing Activity Wall filter of user "+loggedUser.getFullName());
 		}
 	}
 	

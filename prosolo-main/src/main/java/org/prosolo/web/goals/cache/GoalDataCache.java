@@ -43,7 +43,6 @@ import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.EvaluationManager;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.courses.data.CourseData;
 import org.prosolo.web.data.GoalData;
 import org.prosolo.web.goals.data.CompetenceData;
@@ -309,11 +308,11 @@ public class GoalDataCache implements Serializable {
 			
 			LearningGoalManager goalManager = ServiceLocator.getInstance().getService(LearningGoalManager.class);
 			
-			List<User> collab = goalManager.retrieveCollaborators(data.getGoalId(), loggedUser.getUser());
+			List<User> collab = goalManager.retrieveCollaborators(data.getGoalId(), loggedUser.getUserId());
 			List<UserData> collabData = new ArrayList<UserData>();
 			
 			for (User user : collab) {
-				collabData.add(UserDataFactory.createUserData(user));
+				collabData.add(new UserData(user));
 			}
 			collaborators = collabData;
 		}
@@ -321,14 +320,14 @@ public class GoalDataCache implements Serializable {
 	
 	public void initializeCollaboratorRecommendations(){
 		if (recommendedCollaborators == null) {
-			logger.debug("initializeCollaboratorsRecommendations for user:"+loggedUser.getUser().getId()+" targetGoal:"+data.getTargetGoalId());
+			logger.debug("initializeCollaboratorsRecommendations for user:"+loggedUser.getUserId()+" targetGoal:"+data.getTargetGoalId());
 			
 			CollaboratorsRecommendation collaboratorsRecommendation = ServiceLocator.getInstance().getService(CollaboratorsRecommendation.class);
 			SearchPeopleBean searchPeopleBean = ServiceLocator.getInstance().getService(SearchPeopleBean.class);
 			
 			List<User> collaborators = collaboratorsRecommendation
 					.getRecommendedCollaboratorsForLearningGoal(
-							loggedUser.getUser(), 
+							loggedUser.getUserId(), 
 							data.getTargetGoalId(),
 							Settings.getInstance().config.application.defaultLikeThisItemsNumber);
 			if (collaborators.size() > 3) {
@@ -359,7 +358,7 @@ public class GoalDataCache implements Serializable {
 				TargetLearningGoal targetGoal = goalManager.loadResource(TargetLearningGoal.class, data.getTargetGoalId(),true);
 				targetGoal=HibernateUtil.initializeAndUnproxy(targetGoal);
 				final List<Competence> comps = compRecommender.recommendCompetences(
-						loggedUser.refreshUser(), 
+						loggedUser.getUserId(), 
 						targetGoal, 
 						Settings.getInstance().config.application.defaultLikeThisItemsNumber);
 				
@@ -415,13 +414,13 @@ public class GoalDataCache implements Serializable {
 		
 		if (documents == null) {
 			try {
-				logger.debug("Recommended documents was null. Initializing:user:" + loggedUser.getUser()+" goal:" + data.getGoalId());
+				logger.debug("Recommended documents was null. Initializing:user:" + loggedUser.getUserId()+" goal:" + data.getGoalId());
 				
 				LearningGoalManager goalManager = ServiceLocator.getInstance().getService(LearningGoalManager.class);
 				DocumentsRecommendation documentsRecommendation = ServiceLocator.getInstance().getService(DocumentsRecommendation.class);
 				
 				TargetLearningGoal targetGoal = goalManager.loadResource(TargetLearningGoal.class, data.getTargetGoalId());
-					this.documents = documentsRecommendation.recommendDocuments(loggedUser.getUser(), goalManager.merge(targetGoal), 3);
+					this.documents = documentsRecommendation.recommendDocuments(loggedUser.getUserId(), goalManager.merge(targetGoal), 3);
 				logger.debug("Recommended documents:"+this.documents.size());
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error(e);
@@ -517,12 +516,11 @@ public class GoalDataCache implements Serializable {
 		if (this.selectedCompetence != null) {
 	    	Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("context", "learn.targetGoal." + data.getTargetGoalId());
-			User user = loggedUser.getUser();
 			long competenceId = selectedCompetence.getData().getCompetenceId();
-			TargetCompetence competence = competenceManager.getTargetCompetence(user.getId(), competenceId, data.getGoalId());
+			TargetCompetence competence = competenceManager.getTargetCompetence(loggedUser.getUserId(), competenceId, data.getGoalId());
 			
 			try {
-				eventFactory.generateEvent(EventType.SELECT_COMPETENCE, user, competence, parameters);
+				eventFactory.generateEvent(EventType.SELECT_COMPETENCE, loggedUser.getUserId(), competence, parameters);
 			} catch (EventException e) {
 				logger.error("Generate event failed.", e);
 			}

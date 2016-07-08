@@ -16,7 +16,6 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.credential.CredentialSearchFilter;
@@ -85,12 +84,10 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 			if(userSearch) {
 				String page = FacesContext.getCurrentInstance().getViewRoot().getViewId();
 				LearningContextData lcd = new LearningContextData(page, context, null);
-				User user = new User();
-				user.setId(loggedUserBean.getUser().getId());
 				Map<String, String> params = new HashMap<>();
 				params.put("query", searchTerm);
 				try {
-					loggingService.logServiceUse(user, 
+					loggingService.logServiceUse(loggedUserBean.getUserId(), 
 							ComponentName.SEARCH_CREDENTIALS, 
 							params, loggedUserBean.getIpAddress(), lcd);
 				} catch(Exception e) {
@@ -122,7 +119,7 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 
 	public void getCredentialSearchResults() {
 		TextSearchResponse1<CredentialData> response = textSearch.searchCredentials(searchTerm, page - 1, 
-				limit, loggedUserBean.getUser().getId(), searchFilter, sortOption);
+				limit, loggedUserBean.getUserId(), searchFilter, sortOption);
 		credentialsNumber = (int) response.getHitsNumber();
 		credentials = response.getFoundNodes();
 	}
@@ -184,9 +181,9 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 			LearningContextData context = new LearningContextData(page, lContext, service);
 			if(cred.isBookmarkedByCurrentUser()) {
 				credentialManager.deleteCredentialBookmark(cred.getId(), 
-						loggedUserBean.getUser().getId(), context);
+						loggedUserBean.getUserId(), context);
 			} else {
-				credentialManager.bookmarkCredential(cred.getId(), loggedUserBean.getUser().getId(),
+				credentialManager.bookmarkCredential(cred.getId(), loggedUserBean.getUserId(),
 						context);
 			}
 			cred.setBookmarkedByCurrentUser(!cred.isBookmarkedByCurrentUser());
@@ -203,7 +200,7 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 				String service = PageUtil.getPostParameter("service");
 				LearningContextData context = new LearningContextData(page, lContext, service);
 				
-				credentialManager.enrollInCredential(cred.getId(), loggedUserBean.getUser().getId(), context);
+				credentialManager.enrollInCredential(cred.getId(), loggedUserBean.getUserId(), context);
 				
 				ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
 				try {

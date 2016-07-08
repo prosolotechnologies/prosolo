@@ -22,7 +22,6 @@ import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.notifications.RequestManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.ActivityWallData;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.data.GoalData;
 import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.util.CompWallActivityConverter;
@@ -107,7 +106,7 @@ public class LearningGoalDialogBean implements Serializable {
 	public void initializeRecommendedGoalDialog(long goalId, long recommenderId) {
 		try {
 			this.goal = goalManager.loadResource(LearningGoal.class, goalId);
-			this.recommender = UserDataFactory.createUserData(goalManager.loadResource(User.class, recommenderId));
+			this.recommender = new UserData(goalManager.loadResource(User.class, recommenderId));
 			
 			mode = LearningGoalDialogMode.RECOMMENDED;
 			init();
@@ -157,7 +156,7 @@ public class LearningGoalDialogBean implements Serializable {
 	
 	private boolean checkIfUserHasSentRequestForGoal(LearningGoal goal) {
 		if (loggedUser.isLoggedIn()) {
-			return requestManager.existsRequestToJoinGoal(loggedUser.getUser(), goal);
+			return requestManager.existsRequestToJoinGoal(loggedUser.getUserId(), goal);
 		}
 		return false;
 	}
@@ -178,7 +177,7 @@ public class LearningGoalDialogBean implements Serializable {
 	
 	public void joinLearningGoal(LearningGoal goal) {
 		try {
-			goalManager.createNewTargetLearningGoal(loggedUser.getUser(), goal);
+			goalManager.createNewTargetLearningGoal(loggedUser.getUserId(), goal);
 			PageUtil.fireSuccessfulInfoMessage("goalDetailsDialogGrowl", "You have joined the goal '" + goal.getTitle()+"'.");
 		} catch (EventException e) {
 			logger.error(e);
@@ -206,7 +205,7 @@ public class LearningGoalDialogBean implements Serializable {
 						for (TargetActivity act : compActivities) {
 							ActivityWallData wallActivity = compWallActivityConverter
 									.convertTargetActivityToActivityWallData(null, act,
-											act.getMaker(), locale, false, false);
+											act.getMaker().getId(), locale, false, false);
 							
 							if (wallActivity != null) {
 								wallActivities.add(wallActivity);

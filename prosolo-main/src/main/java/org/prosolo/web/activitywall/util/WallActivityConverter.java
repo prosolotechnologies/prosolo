@@ -57,25 +57,25 @@ public class WallActivityConverter {
 	@Autowired private CommentingManager commentingManager;
 
 
-	public List<SocialActivityCommentData> convertResourceComments(BaseEntity resource, User loggedUser, SocialActivityData wallData) {
+	public List<SocialActivityCommentData> convertResourceComments(BaseEntity resource, long userId, SocialActivityData wallData) {
 		List<SocialActivityCommentData> wallActivities = new LinkedList<SocialActivityCommentData>();
 		List<Comment> comments = commentingManager.getComments(resource);
 		
 		if (comments != null && !comments.isEmpty()) {
 			for (Comment comment : comments) {
-				wallActivities.add(new SocialActivityCommentData(comment, likeManager.likeCount(comment), likeManager.isLikedByUser(comment, loggedUser), wallData));
+				wallActivities.add(new SocialActivityCommentData(comment, likeManager.likeCount(comment), likeManager.isLikedByUser(comment, userId), wallData));
 			}
 		}
 		return wallActivities;
 	}
 	
-	public List<SocialActivityCommentData> convertResourceComments(long socialActivityId, User loggedUser, SocialActivityData wallData) {
+	public List<SocialActivityCommentData> convertResourceComments(long socialActivityId, long userId, SocialActivityData wallData) {
 		List<SocialActivityCommentData> wallActivities = new LinkedList<SocialActivityCommentData>();
 		List<Comment> comments = commentingManager.getCommentsForSocialActivity(socialActivityId);
 		
 		if (comments != null && !comments.isEmpty()) {
 			for (Comment comment : comments) {
-				wallActivities.add(new SocialActivityCommentData(comment, likeManager.likeCount(comment), likeManager.isLikedByUser(comment, loggedUser), wallData));
+				wallActivities.add(new SocialActivityCommentData(comment, likeManager.likeCount(comment), likeManager.isLikedByUser(comment, userId), wallData));
 			}
 		}
 		return wallActivities;
@@ -289,7 +289,7 @@ public class WallActivityConverter {
 		
 		if (soialActivitiesData != null && !soialActivitiesData.isEmpty()) {
 			for (SocialActivityData socialActivityData : soialActivitiesData) {
-				SocialActivityData initializedSocialActivityData = initiailizeSocialActivityData(socialActivityData, loggedUser, subviewType, locale);
+				SocialActivityData initializedSocialActivityData = initiailizeSocialActivityData(socialActivityData, loggedUser.getId(), subviewType, locale);
 				
 				if (initializedSocialActivityData != null) {
 //					wallActivity.setLiked(likeManager.isLikedByUser(socialActivity.getSocialActivity().getId(), loggedUser));
@@ -304,7 +304,7 @@ public class WallActivityConverter {
 		return wallActivities;
 	}
 	
-	public SocialActivityData initiailizeSocialActivityData(SocialActivityData socialActivityData, User loggedUser, SocialStreamSubViewType subViewType, Locale locale) {
+	public SocialActivityData initiailizeSocialActivityData(SocialActivityData socialActivityData, long userId, SocialStreamSubViewType subViewType, Locale locale) {
 		if (socialActivityData != null) {
 			socialActivityData = HibernateUtil.initializeAndUnproxy(socialActivityData);
 			
@@ -319,9 +319,9 @@ public class WallActivityConverter {
 				logger.debug("actor avatar url " + actor.getAvatarUrl());
 			
 			// it can be null for TwitterPostSocialActivity
-			if (actor != null && loggedUser != null) {
+			if (actor != null && userId > 0) {
 				actor = HibernateUtil.initializeAndUnproxy(actor);
-				socialActivityData.setMaker(actor.getId() == loggedUser.getId());
+				socialActivityData.setMaker(actor.getId() == userId);
 			}
 			
 			if (TwitterPostSocialActivity.class.equals(socialActivityData.getSocialActivity().getClazz())
@@ -343,9 +343,9 @@ public class WallActivityConverter {
 			
 			// userCanBeUnfollowed
 			socialActivityData.setUserCanBeUnfollowed(!socialActivityData.isAnonUser() && 
-												loggedUser != null && 
+												userId > 0 && 
 												actor != null &&
-												actor.getId() != loggedUser.getId());
+												actor.getId() != userId);
 			
 			// object
 			NodeData object = socialActivityData.getObject();
@@ -378,8 +378,8 @@ public class WallActivityConverter {
 			
 			boolean creator = false;
 			
-			if (actor != null && loggedUser != null) {
-				creator = loggedUser.getId() == actor.getId();
+			if (actor != null && userId > 0) {
+				creator = userId == actor.getId();
 			}
 			
 			// sharable
@@ -436,29 +436,29 @@ public class WallActivityConverter {
 			}
 			
 			// comments
-			socialActivityData.setComments(convertResourceComments(socialActivityData.getSocialActivity().getId(), loggedUser, socialActivityData));
+			socialActivityData.setComments(convertResourceComments(socialActivityData.getSocialActivity().getId(), userId, socialActivityData));
 			
 			return socialActivityData;
 		}
 		return null;
 	}
 
-	public List<SocialActivityData> convertSocialActivities(List<SocialActivity> socialActivities, User loggedUser, SocialStreamSubViewType subViewType, Locale locale) {
+	public List<SocialActivityData> convertSocialActivities(List<SocialActivity> socialActivities, long userId, SocialStreamSubViewType subViewType, Locale locale) {
 		List<SocialActivityData> socialActivitiesData = new ArrayList<SocialActivityData>();
 		
 		for (SocialActivity socialActivity : socialActivities) {
-			socialActivitiesData.add(convertSocialActivityToSocialActivityData(socialActivity, loggedUser, subViewType, locale));
+			socialActivitiesData.add(convertSocialActivityToSocialActivityData(socialActivity, userId, subViewType, locale));
 		}
 		return socialActivitiesData;
 	}
 	
-	public SocialActivityData convertSocialActivityToSocialActivityData(SocialActivity socialActivity, User loggedUser, SocialStreamSubViewType subViewType, Locale locale) {
+	public SocialActivityData convertSocialActivityToSocialActivityData(SocialActivity socialActivity, long userId, SocialStreamSubViewType subViewType, Locale locale) {
 		SocialActivityData socialActivityData = new SocialActivityData(socialActivity);
 		
 		// initializing liked and disliked
-		socialActivityData.setLiked(likeManager.isLikedByUser(socialActivity, loggedUser));
-		socialActivityData.setDisliked(dislikeManager.isDislikedByUser(socialActivity, loggedUser));
+		socialActivityData.setLiked(likeManager.isLikedByUser(socialActivity, userId));
+		socialActivityData.setDisliked(dislikeManager.isDislikedByUser(socialActivity, userId));
 		
-		return initiailizeSocialActivityData(socialActivityData, loggedUser, subViewType, locale);
+		return initiailizeSocialActivityData(socialActivityData, userId, subViewType, locale);
 	}
 }

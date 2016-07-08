@@ -55,46 +55,46 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 	
 	@Override
 	@Transactional
-	public TargetCompetence createNewTargetCompetence(User user, String title, String description, 
-			int validity, int duration, Collection<Tag> tags, VisibilityType visibility) throws EventException {
+	public TargetCompetence createNewTargetCompetence(long userId, String title, String description, 
+			int validity, int duration, Collection<Tag> tags, VisibilityType visibility) throws EventException, ResourceCouldNotBeLoadedException {
 		
-		Competence newCompetence = resourceFactory.createCompetence(user, title, description,
+		Competence newCompetence = resourceFactory.createCompetence(userId, title, description,
 				validity, duration, tags, null, null, new Date());
-		TargetCompetence tc = resourceFactory.createNewTargetCompetence(user, newCompetence, visibility);
-		eventFactory.generateEvent(EventType.Create, user, newCompetence);
+		TargetCompetence tc = resourceFactory.createNewTargetCompetence(userId, newCompetence, visibility);
+		eventFactory.generateEvent(EventType.Create, userId, newCompetence);
 		return tc;
 	}
 
 	@Override
 	@Transactional
-	public Competence createCompetence(User user, String title,
+	public Competence createCompetence(long userId, String title,
 			String description, int validity, int duration, Collection<Tag> tags, 
-			List<Competence> prerequisites, List<Competence> corequisites) throws EventException {
-		Competence newCompetence = resourceFactory.createCompetence(user, title, description,
+			List<Competence> prerequisites, List<Competence> corequisites) throws EventException, ResourceCouldNotBeLoadedException {
+		Competence newCompetence = resourceFactory.createCompetence(userId, title, description,
 				validity, duration, tags, prerequisites, corequisites, new Date());
 
-		eventFactory.generateEvent(EventType.Create, user, newCompetence);
+		eventFactory.generateEvent(EventType.Create, userId, newCompetence);
 		
 		return newCompetence;
 	}
 	@Override
-	public Competence createCompetence(User user, String title,
+	public Competence createCompetence(long userId, String title,
 			String description, int validity, int duration, Collection<Tag> tags, 
-			List<Competence> prerequisites, List<Competence> corequisites, Date dateCreated) throws EventException {
+			List<Competence> prerequisites, List<Competence> corequisites, Date dateCreated) throws EventException, ResourceCouldNotBeLoadedException {
 		
-		Competence newCompetence = resourceFactory.createCompetence(user, title, description,
+		Competence newCompetence = resourceFactory.createCompetence(userId, title, description,
 				validity, duration, tags, prerequisites, corequisites, dateCreated);
 
-		eventFactory.generateEvent(EventType.Create, user, newCompetence);
+		eventFactory.generateEvent(EventType.Create, userId, newCompetence);
 		
 		return newCompetence;
 	}
 	
 	@Override
 	@Transactional(readOnly = false)
-	public Competence createNewUntitledCompetence(User maker, CreatorType creatorType) throws DbConnectionException {
+	public Competence createNewUntitledCompetence(long userId, CreatorType creatorType) throws DbConnectionException {
 		try {
-			return createCompetence(maker, "Untitled", "", 1, 1, null, null, null, new Date());
+			return createCompetence(userId, "Untitled", "", 1, 1, null, null, null, new Date());
 		} catch(Exception e) {
 			throw new DbConnectionException("Error while creating new competence");
 		}
@@ -171,7 +171,7 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 	
 	@Override
 	@Transactional (readOnly = true)
-	public boolean isUserAcquiringCompetence(long competenceId, User user) {
+	public boolean isUserAcquiringCompetence(long competenceId, long userId) {
 		String query = 
 			"SELECT COUNT(DISTINCT user) " +
 			"FROM User user " +
@@ -184,7 +184,7 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 		
 		Long result = (Long) persistence.currentManager().createQuery(query)
 				.setLong("competenceId", competenceId)
-				.setEntity("user", user)
+				.setLong("userId", userId)
 				.setBoolean("completed", false)
 				.uniqueResult();
 		
@@ -237,7 +237,7 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 	
 	@Override
 	@Transactional (readOnly = true)
-	public boolean hasUserCompletedCompetence(long competenceId, User user) {
+	public boolean hasUserCompletedCompetence(long competenceId, long userId) {
 		String query = 
 			"SELECT COUNT(DISTINCT user) " +
 			"FROM User user " +
@@ -246,11 +246,11 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 			"LEFT JOIN tComp.competence comp "+
 			"WHERE comp.id = :competenceId " +
 			"AND tComp.completed = :completed " +
-			"AND user = :user";
+			"AND user.id = :user";
 		
 		Long result = (Long) persistence.currentManager().createQuery(query)
 				.setLong("competenceId", competenceId)
-				.setEntity("user",user)
+				.setLong("userId",userId)
 				.setBoolean("completed", true)
 				.uniqueResult();
 		
@@ -624,7 +624,7 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 						load(Activity.class, activityData.getActivityId());
 			} else {
 				activity = resourceFactory.createNewActivity(activityData);
-				eventFactory.generateEvent(EventType.Create, activity.getMaker(), activity, null, 
+				eventFactory.generateEvent(EventType.Create, activity.getMaker().getId(), activity, null, 
 						context.getPage(), context.getLearningContext(), context.getService(), null);
 			}
 			compAct.setActivity(activity);
@@ -641,7 +641,7 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 	@Override
 	@Transactional(readOnly = false)
 	public void deleteCompetenceActivity(ActivityData activityData,
-			List<ActivityData> changedActivities, User user, 
+			List<ActivityData> changedActivities, long userId, 
 			LearningContextData context) throws DbConnectionException {
 		try {
 			resourceFactory.deleteCompetenceActivityInSeparateTransaction(
@@ -650,7 +650,7 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 			updateOrderOfCompetenceActivities(changedActivities);
 			boolean isReferenced = activityManager.checkIfActivityIsReferenced(activityId);
 			if(!isReferenced) {
-				activityManager.deleteActivity(activityId, activityData.getActivityClass(), user, context);
+				activityManager.deleteActivity(activityId, activityData.getActivityClass(), userId, context);
 			}
 		} catch(Exception e) {
 			logger.error(e);

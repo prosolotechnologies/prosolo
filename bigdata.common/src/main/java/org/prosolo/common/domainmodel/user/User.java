@@ -11,6 +11,7 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Type;
@@ -69,6 +70,11 @@ public class User extends BaseEntity {
 
 	public void setLastname(String lname) {
 		this.lastname = lname;
+	}
+	
+	@Transient
+	public String getFullName() {
+		return getName() + " " + getLastname();
 	}
 
 	@Column(name = "avatarUrl")

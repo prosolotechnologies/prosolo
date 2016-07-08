@@ -157,18 +157,18 @@ public abstract class AnnotationsManagerImpl extends AbstractManagerImpl impleme
 	@Override
 	@Transactional (readOnly = true)
 	public int annotationCount(BaseEntity resource, AnnotationType annType) {
-		return annotationCount(resource, null, annType);
+		return annotationCount(resource, 0, annType);
 	}
 
 	@Override
 	@Transactional (readOnly = true)
-	public int annotationCount(BaseEntity resource, User maker, AnnotationType annType) {
-		return annotationCount(resource.getId(), resource.getClass(),  maker, annType);
+	public int annotationCount(BaseEntity resource, long makerId, AnnotationType annType) {
+		return annotationCount(resource.getId(), resource.getClass(),  makerId, annType);
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Transactional (readOnly = true)
-	public List<Annotation> getAnnotation(long resourceId, Class<? extends BaseEntity> clazz, User maker, AnnotationType annType) {
+	public List<Annotation> getAnnotation(long resourceId, Class<? extends BaseEntity> clazz, long makerId, AnnotationType annType) {
 		String property = getAnnotationAttributeName(clazz);
 		
 		String queryString = 
@@ -181,8 +181,8 @@ public abstract class AnnotationsManagerImpl extends AbstractManagerImpl impleme
 			"WHERE res.id = :resourceId " +
 				"AND ann.annotationType = :annType ";
 		
-		if (maker != null) {
-			queryString += "AND maker = :maker ";
+		if (makerId > 0) {
+			queryString += "AND maker.id = :makerId ";
 		}
 		
 		Query query = persistence.currentManager().createQuery(queryString)
@@ -190,21 +190,21 @@ public abstract class AnnotationsManagerImpl extends AbstractManagerImpl impleme
 				.setLong("resourceId", resourceId)
 				.setString("annType", annType.name());
 		
-		if (maker != null) {
-			query.setEntity("maker", maker);
+		if (makerId > 0) {
+			query.setLong("makerId", makerId);
 		}
 		return query.list();
 	}
 	
 	@Override
 	@Transactional (readOnly = true)
-	public int annotationCount(long resourceId, Class<? extends BaseEntity> clazz, User maker, AnnotationType annType) {
-		return annotationCount(resourceId, clazz, maker, annType, getPersistence().currentManager());
+	public int annotationCount(long resourceId, Class<? extends BaseEntity> clazz, long makerId, AnnotationType annType) {
+		return annotationCount(resourceId, clazz, makerId, annType, getPersistence().currentManager());
 	}
 	
 	@Override
 	@Transactional (readOnly = true)
-	public int annotationCount(long resourceId, Class<? extends BaseEntity> clazz, User maker, 
+	public int annotationCount(long resourceId, Class<? extends BaseEntity> clazz, long makerId, 
 			AnnotationType annType, Session session) {
 		
 		String property = getAnnotationAttributeName(clazz);
@@ -219,8 +219,8 @@ public abstract class AnnotationsManagerImpl extends AbstractManagerImpl impleme
 			"WHERE res.id = :resourceId " +
 				"AND ann.annotationType = :annType ";
 		
-		if (maker != null) {
-			queryString += "AND maker = :maker ";
+		if (makerId > 0) {
+			queryString += "AND maker.id = :makerId ";
 		}
 		
 		Query query = session.createQuery(queryString)
@@ -228,8 +228,8 @@ public abstract class AnnotationsManagerImpl extends AbstractManagerImpl impleme
 				.setLong("resourceId", resourceId)
 				.setString("annType", annType.name());
 		
-		if (maker != null) {
-			query.setEntity("maker", maker);
+		if (makerId > 0) {
+			query.setLong("makerId", makerId);
 		}
 		Long result = (Long) query.uniqueResult();
 		
@@ -238,29 +238,29 @@ public abstract class AnnotationsManagerImpl extends AbstractManagerImpl impleme
 
 	@Override
 	@Transactional (readOnly = true)
-	public boolean isAnnotatedByUser(BaseEntity resource, User user,
+	public boolean isAnnotatedByUser(BaseEntity resource, long userId,
 			AnnotationType annType) {
 		// if count method returns number equals to 0, return false. Else, return true;
-		return annotationCount(resource, user, annType) == 0 ? false : true;
+		return annotationCount(resource, userId, annType) == 0 ? false : true;
 	}
 	
 	@Override
 	@Transactional (readOnly = false)
-	public boolean removeAnnotation(BaseEntity resource, User maker, AnnotationType annType, boolean deleteAll) {
+	public boolean removeAnnotation(BaseEntity resource, long userId, AnnotationType annType, boolean deleteAll) {
 		resource = HibernateUtil.initializeAndUnproxy(resource);
-		return removeAnnotation(resource.getId(), resource.getClass(), maker, annType, deleteAll, getPersistence().currentManager());
+		return removeAnnotation(resource.getId(), resource.getClass(), userId, annType, deleteAll, getPersistence().currentManager());
 	}
 
 	@Override
 	@Transactional (readOnly = false)
-	public boolean removeAnnotation(BaseEntity resource, User maker, AnnotationType annType, boolean deleteAll, Session session) {
+	public boolean removeAnnotation(BaseEntity resource, long userId, AnnotationType annType, boolean deleteAll, Session session) {
 		resource = HibernateUtil.initializeAndUnproxy(resource);
-		return removeAnnotation(resource.getId(), resource.getClass(), maker, annType, deleteAll, session);
+		return removeAnnotation(resource.getId(), resource.getClass(), userId, annType, deleteAll, session);
 	}
 	
 	@Override
 	@Transactional (readOnly = false)
-	public boolean removeAnnotation(long resourceId, Class<? extends BaseEntity> clazz, User maker, AnnotationType annType, boolean deleteAll, Session session) {
+	public boolean removeAnnotation(long resourceId, Class<? extends BaseEntity> clazz, long userId, AnnotationType annType, boolean deleteAll, Session session) {
 		String property = getAnnotationAttributeName(clazz);
 		
 		String query = 
@@ -270,13 +270,13 @@ public abstract class AnnotationsManagerImpl extends AbstractManagerImpl impleme
 			"LEFT JOIN ann.maker maker " +
 			"WHERE res.id = :resourceId " +
 				"AND ann.annotationType = :annType " +
-				"AND maker = :maker ";
+				"AND maker.id = :userId ";
 		
 		@SuppressWarnings("unchecked")
 		List<Annotation> annotations = session.createQuery(query)
 			.setLong("resourceId", resourceId)
 			.setString("annType", annType.name())
-			.setEntity("maker", maker)
+			.setLong("userId", userId)
 			.list();
 		
 		if (annotations != null && !annotations.isEmpty()) {

@@ -15,7 +15,6 @@ import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -58,14 +57,14 @@ public class SearchPeopleBean implements Serializable{
 	
 	public void searchPeople() {
 		List<Long> excludeUsers = new ArrayList<Long>();
-		excludeUsers.add(loggedUser.getUser().getId());
+		excludeUsers.add(loggedUser.getUserId());
 		
 		searchPeople(query, excludeUsers, true);
 	}
 	
 	public void searchPeople(String searchQuery) {
 		List<Long> excludeUsers = new ArrayList<Long>();
-		excludeUsers.add(loggedUser.getUser().getId());
+		excludeUsers.add(loggedUser.getUserId());
 		
 		searchPeople(searchQuery, excludeUsers, true);
 	}
@@ -89,7 +88,7 @@ public class SearchPeopleBean implements Serializable{
 	
 	public void refreshCurrentSearch() {
 		List<Long> excludeUsers = new ArrayList<Long>();
-		excludeUsers.add(loggedUser.getUser().getId());
+		excludeUsers.add(loggedUser.getUserId());
 		TextSearchResponse usersResponse=textSearch.searchUsers(
 				query,
 				-1, 
@@ -108,7 +107,7 @@ public class SearchPeopleBean implements Serializable{
 		page++;
 		
 		List<Long> excludeUsers = new ArrayList<Long>();
-		excludeUsers.add(loggedUser.getUser().getId());
+		excludeUsers.add(loggedUser.getUserId());
 		
 		fetchUsers(query, excludeUsers, this.limit, true);
 	}
@@ -155,8 +154,8 @@ public class SearchPeopleBean implements Serializable{
 		
 		if (users != null && !users.isEmpty()) {
 			for (User user : users) {
-				UserData userData = UserDataFactory.createUserData(user);
-				userData.setFollowed(followResourceManager.isUserFollowingUser(loggedUser.getUser(), user));
+				UserData userData = new UserData(user);
+//				userData.setFollowed(followResourceManager.isUserFollowingUser(loggedUser.getUserId(), user.getId()));
 				usersData.add(userData);
 			}
 		}

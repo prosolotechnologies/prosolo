@@ -6,14 +6,15 @@ import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.event.Event;
 
 public class PostShareSocialActivityProcessor extends SocialActivityProcessor {
 
-	public PostShareSocialActivityProcessor(Session session, Event event, 
+	public PostShareSocialActivityProcessor(Session session, Event event,  User actor,
 			SocialActivityManager socialActivityManager) {
-		super(session, event, socialActivityManager);
+		super(session, event, actor, socialActivityManager);
 	}
 	
 	@Override
@@ -26,7 +27,7 @@ public class PostShareSocialActivityProcessor extends SocialActivityProcessor {
 		Date now = new Date();
 		act.setDateCreated(now);
 		act.setLastAction(now);
-		act.setActor(event.getActor());
+		act.setActor(actor);
 		act.setPostObject(post);
 		return socialActivityManager.saveNewSocialActivity(act, session);
 	}

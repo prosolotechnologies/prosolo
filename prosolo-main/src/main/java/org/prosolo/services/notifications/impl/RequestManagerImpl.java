@@ -32,7 +32,8 @@ public class RequestManagerImpl extends AbstractManagerImpl implements RequestMa
 
 	@Autowired private EventFactory eventFactory;
 	
-	public Request requestToJoinTargetLearningGoal(long targetGoalId, User sentBy, long receiverId, String comment, String context) throws EventException, ResourceCouldNotBeLoadedException{
+	@Override
+	public Request requestToJoinTargetLearningGoal(long targetGoalId, long sentBy, long receiverId, String comment, String context) throws EventException, ResourceCouldNotBeLoadedException{
 		TargetLearningGoal taregtGoal = loadResource(TargetLearningGoal.class, targetGoalId);
 		User sentTo = loadResource(User.class, receiverId);
 		
@@ -47,15 +48,15 @@ public class RequestManagerImpl extends AbstractManagerImpl implements RequestMa
 	}
 
 	@Override
-	public Request inviteToJoinResource(Node resource, User sentBy, long receiverId, String comment) throws EventException, ResourceCouldNotBeLoadedException {
+	public Request inviteToJoinResource(Node resource, long sentById, long receiverId, String comment) throws EventException, ResourceCouldNotBeLoadedException {
 		User sentTo = loadResource(User.class, receiverId);
 
-		return createRequest(resource, sentBy, sentTo, comment, EventType.JOIN_GOAL_INVITATION);
+		return createRequest(resource, sentById, sentTo, comment, EventType.JOIN_GOAL_INVITATION);
 	}
 	
 	@Override
 	@Transactional
-	public Request createRequest(BaseEntity resource, User maker, User sentTo, String comment, EventType requestType) throws EventException{
+	public Request createRequest(BaseEntity resource, long makerId, User sentTo, String comment, EventType requestType) throws EventException, ResourceCouldNotBeLoadedException{
 		Request request = null;
 		
 		if (resource instanceof Node) {
@@ -67,7 +68,7 @@ public class RequestManagerImpl extends AbstractManagerImpl implements RequestMa
 		
 		request.setDateCreated(new Date());
 		request.setResource(resource);
-		request.setMaker(maker);
+		request.setMaker(loadResource(User.class, makerId));
 		request.setSentTo(sentTo);
 		request.setComment(comment);
 		request.setRequestType(requestType);
@@ -83,16 +84,16 @@ public class RequestManagerImpl extends AbstractManagerImpl implements RequestMa
 	
 	@Override
 	@Transactional (readOnly = true)
-	public boolean existsRequestToJoinGoal(User user, LearningGoal goal) {
+	public boolean existsRequestToJoinGoal(long userId, LearningGoal goal) {
 		String query = 
 			"SELECT COUNT(request) " +
 			"FROM Request request " +
-			"WHERE request.maker = :user " +
+			"WHERE request.maker.id = :userId " +
 				"AND request.nodeResource = :goal "+
 				"AND (request.status = :statusSent OR request.status = :statusIgnored)";
 		
 		Long result = (Long) persistence.currentManager().createQuery(query).
-			setEntity("user", user).
+			setLong("userId", userId).
 			setEntity("goal", goal).
 			setString("statusSent", RequestStatus.SENT.name()).
 			setString("statusIgnored", RequestStatus.IGNORED.name()).

@@ -23,18 +23,18 @@ public interface ActivityManager extends AbstractManager {
 
 	// TargetActivity toggleCompleted(TargetActivity activity) throws
 	// EventException;
-	Activity createNewActivity(User user, String title,
+	Activity createNewActivity(long userId, String title,
 			String description, AttachmentPreview attachmentPreview, VisibilityType visType, boolean sync,
-			String context, String page, String learningContext, String service) throws EventException;
+			String context, String page, String learningContext, String service) throws EventException, ResourceCouldNotBeLoadedException;
 
 	Activity createNewActivity(User user, String title, String description,
 			AttachmentPreview attachmentPreview, VisibilityType visType,
-			Collection<Tag> tags) throws EventException;
+			Collection<Tag> tags) throws EventException, ResourceCouldNotBeLoadedException;
 
-	Activity createNewResourceActivity(User user, String title,
+	Activity createNewResourceActivity(long actorId, String title,
 			String description, AttachmentPreview attachmentPreview, VisibilityType visType, 
 			Collection<Tag> tags, boolean propagateToSocialStreamManualy,
-			String context, String page, String learningContext, String service) throws EventException;
+			String context, String page, String learningContext, String service) throws EventException, ResourceCouldNotBeLoadedException;
 
 	boolean checkIfCompletedByUser(User user, Activity activity);
 
@@ -64,14 +64,13 @@ public interface ActivityManager extends AbstractManager {
 	 * @param maxNumberOfFiles
 	 * @param visibleToEveryone
 	 * @param duration
-	 * @param user
 	 * @return
 	 * @throws ResourceCouldNotBeLoadedException 
 	 */
 	Activity updateActivity(long id, String title, String description,
 			ActivityType type, boolean mandatory,
 			AttachmentPreview attachmentPreview, int maxNumberOfFiles,
-			boolean visibleToEveryone, int duration, User user) throws ResourceCouldNotBeLoadedException;
+			boolean visibleToEveryone, int duration) throws ResourceCouldNotBeLoadedException;
 
 	TargetActivity replaceTargetActivityOutcome(long targetActivityId, Outcome outcome,
 			Session session);
@@ -90,7 +89,7 @@ public interface ActivityManager extends AbstractManager {
 	
 	boolean checkIfActivityIsReferenced(long activityId) throws DbConnectionException;
 	
-	void deleteActivity(long activityId, Class<? extends Activity> activityClass, User user, 
+	void deleteActivity(long activityId, Class<? extends Activity> activityClass, long userId, 
 			LearningContextData data);
 	
 	void updateRichContent(long id, String title, String description) throws DbConnectionException;

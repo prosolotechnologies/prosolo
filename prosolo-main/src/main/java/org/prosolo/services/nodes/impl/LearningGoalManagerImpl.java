@@ -22,7 +22,6 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.course.Course;
-import org.prosolo.common.domainmodel.course.CourseCompetence;
 import org.prosolo.common.domainmodel.course.CourseEnrollment;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
@@ -39,7 +38,6 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.LearningGoalManager;
-import org.prosolo.services.nodes.PortfolioManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.util.nodes.AnnotationUtil;
@@ -60,7 +58,6 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 	@Autowired private EventFactory eventFactory;
 	@Autowired private ActivityManager activityManager;
 	@Autowired private CompetenceManager compManager;
-	@Autowired private PortfolioManager portfolioManager;
 	
 	@Override
 	@Transactional
@@ -95,8 +92,8 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 	
 	@Override
 	@Transactional
-	public List<Long> getUserGoalsIds(User user) {
-		if (user == null) {
+	public List<Long> getUserGoalsIds(long userId) {
+		if (userId == 0) {
 			return null;
 		}
 		
@@ -105,13 +102,13 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 			"FROM User user " +
 			"LEFT JOIN user.learningGoals tGoal " +
 			"LEFT JOIN tGoal.learningGoal goal " +
-			"WHERE user = :user " +
+			"WHERE user.id = :userId " +
 				"AND tGoal.deleted = :deleted " +
 			"ORDER BY tGoal.dateCreated ASC";
 		
 		@SuppressWarnings("unchecked")
 		List<Long> result = persistence.currentManager().createQuery(query).
-		setEntity("user",user).
+		setLong("userId", userId).
 		setBoolean("deleted", false).
 		list();
 		return result;
@@ -119,19 +116,19 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 
 	@Override
 	@Transactional (readOnly = false)
-	public TargetLearningGoal createNewLearningGoal(User user, String title, String description,
+	public TargetLearningGoal createNewLearningGoal(long userId, String title, String description,
 			Date deadline, Collection<Tag> tags, Collection<Tag> hashtags,
 			boolean progressActivityDependent) throws EventException, ResourceCouldNotBeLoadedException {
 		
 		LearningGoal newGoal = resourceFactory.createNewLearningGoal(
-				user, 
+				userId, 
 				title,
 				description,
 				deadline,
 				tags,
 				hashtags);
 		
-		TargetLearningGoal newTargetGoal = createNewTargetLearningGoal(user, newGoal);
+		TargetLearningGoal newTargetGoal = createNewTargetLearningGoal(userId, newGoal);
 		
 		// TODO: goal - check whether this should be called for Goal or TargetGoal
 		//twitterStreamsManager.addNewHashTagsForLearningGoalAndRestartStream(hashtags, newGoal.getId());
@@ -141,16 +138,16 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 	
 	@Override
 	@Transactional (readOnly = false)
-	public TargetLearningGoal createNewTargetLearningGoal(User user, long goalId) throws ResourceCouldNotBeLoadedException, EventException {
+	public TargetLearningGoal createNewTargetLearningGoal(long userId, long goalId) throws ResourceCouldNotBeLoadedException, EventException {
 		LearningGoal goal = loadResource(LearningGoal.class, goalId);
-		return createNewTargetLearningGoal(user, goal);
+		return createNewTargetLearningGoal(userId, goal);
 	}
 	
 	@Override
 	@Transactional (readOnly = false)
-	public TargetLearningGoal createNewTargetLearningGoal(User user,
+	public TargetLearningGoal createNewTargetLearningGoal(long userId,
 		LearningGoal goal) throws EventException, ResourceCouldNotBeLoadedException {
-		user = loadResource(User.class, user.getId());
+		User user = loadResource(User.class, userId);
 	
 		TargetLearningGoal newTargetGoal = resourceFactory.createNewTargetLearningGoal(goal, user, true);
 	
@@ -162,21 +159,21 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 	
 	@Override
 	@Transactional (readOnly = false)
-	public TargetLearningGoal createNewCourseBasedLearningGoal(User user, long courseId, LearningGoal courseGoal,
+	public TargetLearningGoal createNewCourseBasedLearningGoal(long userId, long courseId, LearningGoal courseGoal,
 			String context) throws EventException, ResourceCouldNotBeLoadedException {
 		
 		Course course = loadResource(Course.class, courseId);
 
-		return createNewCourseBasedLearningGoal(user, course, courseGoal, context);
+		return createNewCourseBasedLearningGoal(userId, course, courseGoal, context);
 	}
 	
 	@Override
 	@Transactional (readOnly = false)
-	public TargetLearningGoal createNewCourseBasedLearningGoal(User user, Course course, LearningGoal courseGoal,
+	public TargetLearningGoal createNewCourseBasedLearningGoal(long userId, Course course, LearningGoal courseGoal,
 			String context) throws EventException, ResourceCouldNotBeLoadedException {
 		if (courseGoal == null) {
 			courseGoal = resourceFactory.createNewLearningGoal(
-					user, 
+					userId, 
 					course.getTitle(),
 					course.getDescription(),
 					null,
@@ -186,23 +183,24 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 			courseGoal = merge(courseGoal);
 		}
 		
-		TargetLearningGoal targetGoal = resourceFactory.createNewTargetLearningGoal(courseGoal, user, true);
-		targetGoal = merge(targetGoal);
-		targetGoal = saveEntity(targetGoal);
-		
-		if (course.getCompetences() != null) {
-			for (CourseCompetence courseComp : course.getCompetences()) {
-				addCompetenceToGoal(user, targetGoal, courseComp.getCompetence(), true, context);
-			}
-		}
-		
-		user = merge(user);
-		user.addLearningGoal(targetGoal);
-		user = saveEntity(user);
-		
-		// not generating CREATE event as ENROLL_COURSE has already been created
-		
-		return targetGoal;
+//		TargetLearningGoal targetGoal = resourceFactory.createNewTargetLearningGoal(courseGoal, user, true);
+//		targetGoal = merge(targetGoal);
+//		targetGoal = saveEntity(targetGoal);
+//		
+//		if (course.getCompetences() != null) {
+//			for (CourseCompetence courseComp : course.getCompetences()) {
+//				addCompetenceToGoal(userId, targetGoal, courseComp.getCompetence(), true, context);
+//			}
+//		}
+//		
+//		User user = loadResource(User.class, userId);
+//		user.addLearningGoal(targetGoal);
+//		user = saveEntity(user);
+//		
+//		// not generating CREATE event as ENROLL_COURSE has already been created
+//		
+//		return targetGoal;
+		return null;
 	}
 	
 	@Override
@@ -338,7 +336,7 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 	
 	@Override
 	@Transactional (readOnly = false)
-	public TargetLearningGoal markAsCompleted(User user, TargetLearningGoal targetGoal, String context) throws EventException {
+	public TargetLearningGoal markAsCompleted(long userId, TargetLearningGoal targetGoal, String context) throws EventException {
 		logger.debug("Marking as complete Target Learning Goal with id " + targetGoal.getId());
 		targetGoal = merge(targetGoal);
 		
@@ -354,30 +352,32 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 			parameters.put("context", context);
 		}
 		
-		eventFactory.generateEvent(EventType.Completion, user, targetGoal, parameters);
+//		eventFactory.generateEvent(EventType.Completion, user, targetGoal, parameters);
 		return targetGoal;
 	}
 	
 	@Override
 	@Transactional (readOnly = false)
-	public NodeEvent addCompetenceToGoal(User user, TargetLearningGoal targetGoal, 
+	public NodeEvent addCompetenceToGoal(long userId, TargetLearningGoal targetGoal, 
 			Competence competence, boolean propagateEventAutomatically, String context) throws EventException {
 	
-		targetGoal = merge(targetGoal);
-		// this was causing two TargetCompetences to be created
-		// user = merge(user);
-		TargetCompetence tc = resourceFactory.createNewTargetCompetence(user, competence, targetGoal.getVisibility());
-		
-		return addTargetCompetenceToGoal(user, targetGoal, tc, propagateEventAutomatically, context);
+//		targetGoal = merge(targetGoal);
+//		// this was causing two TargetCompetences to be created
+//		// user = merge(user);
+//		TargetCompetence tc = resourceFactory.createNewTargetCompetence(user, competence, targetGoal.getVisibility());
+//		
+//		return addTargetCompetenceToGoal(user, targetGoal, tc, propagateEventAutomatically, context);
+		return null;
 	}
 		
 	@Override
 	@Transactional (readOnly = false)
-	public NodeEvent addCompetenceToGoal(User user, long targetGoalId, 
+	public NodeEvent addCompetenceToGoal(long userId, long targetGoalId, 
 			Competence competence, boolean propagateEventAutomatically, String context) throws EventException, ResourceCouldNotBeLoadedException {
-		TargetLearningGoal targetGoal = loadResource(TargetLearningGoal.class, targetGoalId);
-
-		return addCompetenceToGoal(user, targetGoal, competence, propagateEventAutomatically, context);
+//		TargetLearningGoal targetGoal = loadResource(TargetLearningGoal.class, targetGoalId);
+//
+//		return addCompetenceToGoal(user, targetGoal, competence, propagateEventAutomatically, context);
+		return null;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -400,14 +400,15 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 			if (propagateManuallyToSocialStream) {
 				event = eventFactory.generateEvent(
 						EventType.Attach, 
-						user, tComp, 
+						user.getId(), 
+						tComp, 
 						targetGoal, 
 						new Class[]{SocialStreamObserver.class}, 
 						parameters);
 			} else {
 				event = eventFactory.generateEvent(
 						EventType.Attach, 
-						user, 
+						user.getId(), 
 						tComp, 
 						targetGoal, 
 						parameters);
@@ -424,7 +425,7 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 		TargetCompetence targetCompetence = loadResource(TargetCompetence.class, targetCompetenceId);
 		
 		if (targetCompetence != null && activity != null) {
-			TargetActivity newTargetActivity = resourceFactory.createNewTargetActivity(activity, user);
+			TargetActivity newTargetActivity = resourceFactory.createNewTargetActivity(activity, user.getId());
 			
 			// set parent TargetCompetence for the TargetActivity
 			newTargetActivity.setParentCompetence(targetCompetence);
@@ -440,17 +441,17 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 	
 	@Override
 	@Transactional (readOnly = false)
-	public List<TargetActivity> cloneActivitiesAndAddToTargetCompetence(User user,
+	public List<TargetActivity> cloneActivitiesAndAddToTargetCompetence(long userId,
 			long targetCompId, List<Activity> activities,
 			boolean sync, String context) throws EventException, ResourceCouldNotBeLoadedException {
 		
 		TargetCompetence targetCompetence = loadResource(TargetCompetence.class, targetCompId);
-		return cloneActivitiesAndAddToTargetCompetence(user, targetCompetence, activities, sync, context);
+		return cloneActivitiesAndAddToTargetCompetence(userId, targetCompetence, activities, sync, context);
 	}
 	
 	@Override
 	@Transactional (readOnly = false)
-	public List<TargetActivity> cloneActivitiesAndAddToTargetCompetence(User user,
+	public List<TargetActivity> cloneActivitiesAndAddToTargetCompetence(long userId,
 			TargetCompetence targetComp, List<Activity> originalActivities, boolean sync,
 			String context) throws EventException {
 		
@@ -460,7 +461,7 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 			
 			for (Activity activity : originalActivities) {
 				activity = merge(activity);
-				TargetActivity newTargetActivity = resourceFactory.createNewTargetActivity(activity, user);
+				TargetActivity newTargetActivity = resourceFactory.createNewTargetActivity(activity, userId);
 				
 				// set parent TargetCompetence for the TargetActivity
 				newTargetActivity.setParentCompetence(targetComp);
@@ -473,7 +474,7 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 			parameters.put("context", context);
 			parameters.put("activities", NodeUtil.getCSVStringOfIds(originalActivities));
 			
-			eventFactory.generateEvent(EventType.AttachAll, user, null, targetComp, parameters);
+			eventFactory.generateEvent(EventType.AttachAll, userId, null, null, targetComp, parameters);
 			
 			targetComp.getTargetActivities().addAll(newActivities);
 			
@@ -486,14 +487,14 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 	
 	@Override
 	@Transactional (readOnly = false)
-	public TargetActivity createActivityAndAddToTargetCompetence(User user,
+	public TargetActivity createActivityAndAddToTargetCompetence(long userId,
 			String title, String description, AttachmentPreview attachmentPreview,
 			VisibilityType visType, long targetCompetenceId, boolean connectWithStatus,
 			String context, String page, String learningContext, String service) 
 					throws EventException, ResourceCouldNotBeLoadedException {
 		
 		Activity newActivity = activityManager.createNewActivity(
-				user, 
+				userId, 
 				title,
 				description,
 				attachmentPreview, 
@@ -504,20 +505,20 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 				learningContext,
 				service);
 		
-		return addActivityToTargetCompetence(user, targetCompetenceId, newActivity, context,
+		return addActivityToTargetCompetence(userId, targetCompetenceId, newActivity, context,
 				page, learningContext, service);
 	}
 	
 	@Override
 	@Transactional (readOnly = false)
-	public TargetActivity addActivityToTargetCompetence(User user,
+	public TargetActivity addActivityToTargetCompetence(long userId,
 			long targetCompetenceId, Activity activity, String context, String page,
 			String learningContext, String service)
 			throws EventException, ResourceCouldNotBeLoadedException {
 		
 		if (activity != null) {
 			TargetCompetence targetCompetence = loadResource(TargetCompetence.class, targetCompetenceId);
-			TargetActivity newTargetActivity = resourceFactory.createNewTargetActivity(activity, user);
+			TargetActivity newTargetActivity = resourceFactory.createNewTargetActivity(activity, userId);
 			
 			// set parent TargetCompetence for the TargetActivity
 			newTargetActivity.setParentCompetence(targetCompetence);
@@ -530,7 +531,7 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 			parameters.put("context", context);
 			
 			//migration to new context approach
-			eventFactory.generateEvent(EventType.Attach, user, newTargetActivity, targetCompetence, page, learningContext,
+			eventFactory.generateEvent(EventType.Attach, userId, newTargetActivity, targetCompetence, page, learningContext,
 					service, parameters);
 			return newTargetActivity;
 		}
@@ -539,11 +540,11 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 	
 	@Override
 	@Transactional (readOnly = false)
-	public TargetActivity addActivityToTargetCompetence(User user, long targetCompetenceId, long activityId, String context) 
+	public TargetActivity addActivityToTargetCompetence(long userId, long targetCompetenceId, long activityId, String context) 
 			throws EventException, ResourceCouldNotBeLoadedException {
 		
 		Activity activity = loadResource(Activity.class, activityId);
-		return addActivityToTargetCompetence(user, targetCompetenceId, activity, context, null, null, null);
+		return addActivityToTargetCompetence(userId, targetCompetenceId, activity, context, null, null, null);
 	}
 	
 	@Override
@@ -553,7 +554,7 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 			Activity activity, boolean sync) throws EventException {
 		
 		if (targetCompetence != null && activity != null) {
-			TargetActivity newTargetActivity = resourceFactory.createNewTargetActivity(activity, user);
+			TargetActivity newTargetActivity = resourceFactory.createNewTargetActivity(activity, user.getId());
 			
 			// set parent TargetCompetence for the TargetActivity
 			newTargetActivity.setParentCompetence(targetCompetence);
@@ -563,7 +564,7 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 			targetCompetence = saveEntity(targetCompetence);
 			
 			Map<String, String> parameters = new HashMap<String, String>();
-			eventFactory.generateEvent(EventType.Attach, user, newTargetActivity, targetCompetence, parameters);
+			eventFactory.generateEvent(EventType.Attach, user.getId(), newTargetActivity, targetCompetence, parameters);
 			return targetCompetence;
 		}
 		return null;
@@ -571,7 +572,7 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 
 	@Override
 	@Transactional (readOnly = false)
-	public GoalTargetCompetenceAnon deleteTargetCompetenceFromGoal(User user, long targetGoalId,
+	public GoalTargetCompetenceAnon deleteTargetCompetenceFromGoal(long userId, long targetGoalId,
 			long targetCompId)
 			throws EventException, ResourceCouldNotBeLoadedException {
 		
@@ -587,7 +588,7 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 	
 	@Override
 	@Transactional (readOnly = false)
-	public boolean detachActivityFromTargetCompetence(User user, TargetActivity targetActivity, 
+	public boolean detachActivityFromTargetCompetence(long userId, TargetActivity targetActivity, 
 			String context) throws EventException {
 		
 		if (targetActivity != null) {
@@ -599,7 +600,7 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("context", context);
 			
-			eventFactory.generateEvent(EventType.Detach, user, targetActivity, tComp, parameters);
+			eventFactory.generateEvent(EventType.Detach, userId, null, targetActivity, tComp, parameters);
 			
 			return true;
 		}
@@ -640,13 +641,14 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 	
 	@Override
 	@Transactional (readOnly = true)
-	public List<User> retrieveCollaborators(long goalId, User user){
-		return retrieveCollaborators(goalId, user, persistence.currentManager());
+	public List<User> retrieveCollaborators(long goalId, long userId){
+//		return retrieveCollaborators(goalId, user, persistence.currentManager());
+		return null;
 	}
 	
 	@Override
 	@Transactional (readOnly = true)
-	public List<User> retrieveCollaborators(long goalId, User user, Session session) {
+	public List<User> retrieveCollaborators(long goalId, long userId, Session session) {
 		String query =
 			"SELECT DISTINCT user "+
 			"FROM User user "+
@@ -655,15 +657,15 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 			"WHERE goal.id = :goalId " + 
 				"AND tGoal.deleted = false ";
 		
-		if (user != null) {
-			query += "AND user != :user";
+		if (userId > 0) {
+			query += "AND user.id != :userId";
 		}
 		
 		Query q = session.createQuery(query)
 			.setLong("goalId", goalId);
 		
-		if (user != null) {
-			q.setEntity("user", user);
+		if (userId > 0) {
+			q.setEntity("userId", userId);
 		}
 		
 		@SuppressWarnings("unchecked")
@@ -727,7 +729,8 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 	@Override
 	@Transactional (readOnly = true)
 	public List<User> retrieveLearningGoalMembers(long goalId, Session session){
-		return retrieveCollaborators(goalId, null, session);
+//		return retrieveCollaborators(goalId, null, session);
+		return null;
 	}
 	
 	@Override
@@ -794,25 +797,25 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 	
 	@Override
 	@Transactional (readOnly = true)
-	public boolean canUserJoinGoal(long goalId, User user) throws ResourceCouldNotBeLoadedException {
+	public boolean canUserJoinGoal(long goalId, long userId) throws ResourceCouldNotBeLoadedException {
 		LearningGoal goal = loadResource(LearningGoal.class, goalId);
 		
-		if (goal.getMaker().equals(user)) {
+		if (goal.getMaker().getId() == userId) {
 			return false;
 		}
-		if (isUserMemberOfLearningGoal(goal.getId(), user)) {
+		if (isUserMemberOfLearningGoal(goal.getId(), userId)) {
 			return false;
 		}
-		if (portfolioManager.hasUserCompletedGoal(user, goal.getId())) {
-			return false;
-		}
+//		if (portfolioManager.hasUserCompletedGoal(userId, goal.getId())) {
+//			return false;
+//		}
 		return true;
 	}
 	
 	@Override
 	@Transactional (readOnly = true)
-	public boolean isUserMemberOfLearningGoal(long goalId, User user) {
-		if (user == null) {
+	public boolean isUserMemberOfLearningGoal(long goalId, long userId) {
+		if (userId > 0) {
 			logger.warn("User passed can not be null");
 			return false;
 		} else {
@@ -822,12 +825,12 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 				"LEFT JOIN user.learningGoals tGoal " +
 				"LEFT JOIN tGoal.learningGoal goal " +
 				"WHERE goal.id = :goalId " +
-					"AND user = :user " + 
+					"AND user.id = :userId " + 
 					"AND tGoal.deleted = false";
 			
 			Integer result = (Integer) persistence.currentManager().createQuery(query)
 					.setLong("goalId", goalId)
-					.setEntity("user",user).uniqueResult();
+					.setLong("userId",userId).uniqueResult();
 			
 			return result > 0;
 		}
@@ -835,19 +838,21 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 	
 	@Override
 	@Transactional (readOnly = false)
-	public NodeEvent createCompetenceAndAddToGoal(User user,
+	public NodeEvent createCompetenceAndAddToGoal(long userId,
 			String title, String description, 
 			int validity, int duration, VisibilityType visibilityType, Collection<Tag> tags,
 			long targetGoalId, boolean propagateManuallyToSocialStream,
 			String context) throws EventException, ResourceCouldNotBeLoadedException {
 		
-		TargetCompetence newCompetence = compManager.createNewTargetCompetence(user, title, 
+		TargetCompetence newCompetence = compManager.createNewTargetCompetence(userId, title, 
 				description, validity, duration, tags, visibilityType);
 		
 		TargetLearningGoal goal = loadResource(TargetLearningGoal.class, targetGoalId);
 		
+		User user = loadResource(User.class, userId);
+		
 		NodeEvent nodeEvent = addTargetCompetenceToGoal(
-				merge(user), 
+				user, 
 				merge(goal), 
 				newCompetence, 
 				propagateManuallyToSocialStream,
@@ -858,7 +863,7 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 	
 	@Override
 	@Transactional (readOnly = true)
-	public List<TargetLearningGoal> getUserGoalsContainingCompetence(User user, Competence comp) {
+	public List<TargetLearningGoal> getUserGoalsContainingCompetence(long userId, Competence comp) {
 		if (comp == null) 
 			return new ArrayList<TargetLearningGoal>();
 			
@@ -870,11 +875,11 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 			"LEFT JOIN tGoal.targetCompetences tComp " +
 			"LEFT JOIN tComp.competence comp " +
 			"WHERE comp = :comp " +
-				"AND user = :user";
+				"AND user.id = :userId";
 		
 		@SuppressWarnings("unchecked")
 		List<TargetLearningGoal> result = persistence.currentManager().createQuery(query)
-				.setEntity("user", user)
+				.setLong("userId", userId)
 				.setEntity("comp",comp)
 				.list();
 		
@@ -886,18 +891,18 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 
 	@Override 
 	@Transactional (readOnly = true)
-	public int retrieveCollaboratorsNumber(long goalId, User user) {
+	public int retrieveCollaboratorsNumber(long goalId, long userId) {
 		String query=
 			"SELECT cast(COUNT(DISTINCT user) as int) " +
 			"FROM User user "+
 			"LEFT JOIN user.learningGoals tGoal " +
 			"LEFT JOIN tGoal.learningGoal goal " +
 			"WHERE goal.id = :goalId " +
-				"AND user != :user";
+				"AND user.id != :userId";
 		
 		Integer collNumber = (Integer) persistence.currentManager().createQuery(query)
 				.setLong("goalId", goalId)
-				.setEntity("user", user)
+				.setLong("userId", userId)
 				.uniqueResult();
 		
 		return collNumber;
@@ -946,16 +951,17 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 			String description, Date deadline, Collection<Tag> keywords)
 			throws EventException {
 		
-		LearningGoal newGoal = resourceFactory.createNewLearningGoal(
-				user, 
-				title,
-				description,
-				deadline,
-				keywords,
-				null);
-		
-		flush();
-		return newGoal;
+//		LearningGoal newGoal = resourceFactory.createNewLearningGoal(
+//				user, 
+//				title,
+//				description,
+//				deadline,
+//				keywords,
+//				null);
+//		
+//		flush();
+//		return newGoal;
+		return null;
 	}
 	
 	@Override

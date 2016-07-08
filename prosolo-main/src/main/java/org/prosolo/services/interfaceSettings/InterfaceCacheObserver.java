@@ -100,14 +100,14 @@ public class InterfaceCacheObserver extends EventObserver {
 		}
 	}
 
-	public void asyncResetGoalCollaborators(final long goalId, final User user) { 
+	public void asyncResetGoalCollaborators(final long goalId, final long userId) { 
 		taskExecutor.execute(new Runnable() {
 		    @Override
 		    public void run() {
 		    	Session session = (Session) goalManager.getPersistence().openSession();
 		    	
 		    	try {
-			    	List<User> collaborators = goalManager.retrieveCollaborators(goalId, user, session);
+			    	List<User> collaborators = goalManager.retrieveCollaborators(goalId, userId, session);
 			    	
 			    	for (User user : collaborators) {
 				    	HttpSession userSession = applicationBean.getUserSession(user.getId());

@@ -92,7 +92,7 @@ public class PortfolioUtilBean implements Serializable {
 		
 		try {
 			if (visibleRes != null) {
-				visibilityManager.setResourceVisibility(loggedUser.getUser(), visibleRes, visibility, context);
+				visibilityManager.setResourceVisibility(loggedUser.getUserId(), visibleRes, visibility, context);
 
 				visibleResourceData.setVisibility(visibility);
 				

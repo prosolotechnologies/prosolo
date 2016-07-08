@@ -140,7 +140,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 			Comment1 comment = new Comment1();
 			comment.setId(commentId);
 			
-			eventFactory.generateEvent(EventType.Like, user, comment, null, 
+			eventFactory.generateEvent(EventType.Like, user.getId(), comment, null, 
 					context.getPage(), context.getLearningContext(), context.getService(), null);
 		} catch(Exception e) {
 			logger.error(e);
@@ -170,7 +170,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 			Comment1 comment = new Comment1();
 			comment.setId(commentId);
 			
-			eventFactory.generateEvent(EventType.RemoveLike, user, comment, null, context.getPage(), 
+			eventFactory.generateEvent(EventType.RemoveLike, user.getId(), comment, null, context.getPage(), 
 					context.getLearningContext(), context.getService(), null);
 		} catch(Exception e) {
 			logger.error(e);
@@ -218,7 +218,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 			
 			//TODO check with Nikola if target (Competence, Activity) is needed
 			EventType eventType = data.getParent() != null ? EventType.Comment_Reply : EventType.Comment;
-			eventFactory.generateEvent(eventType, actor, comment, target, 
+			eventFactory.generateEvent(eventType, actor.getId(), comment, target, 
 					context.getPage(), context.getLearningContext(), context.getService(), null);
 			
 			return comment;
@@ -243,7 +243,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 			User actor = new User();
 			actor.setId(userId);
 			
-			eventFactory.generateEvent(EventType.Edit, actor, comment, null, 
+			eventFactory.generateEvent(EventType.Edit, actor.getId(), comment, null, 
 					context.getPage(), context.getLearningContext(), context.getService(), null);
 		} catch(Exception e) {
 			logger.error(e);

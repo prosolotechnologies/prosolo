@@ -52,9 +52,9 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 	public void init() {
 
 		try {
-			assessmentsNumber = assessmentManager.countAssessmentsForUser(loggedUserBean.getUser().getId(),
+			assessmentsNumber = assessmentManager.countAssessmentsForUser(loggedUserBean.getUserId(),
 					searchForPending, searchForApproved);
-			assessmentData = assessmentManager.getAllAssessmentsForStudent(loggedUserBean.getUser().getId(),
+			assessmentData = assessmentManager.getAllAssessmentsForStudent(loggedUserBean.getUserId(),
 					searchForPending, searchForApproved, idEncoder, new SimpleDateFormat("MMMM dd, yyyy"), page - 1,
 					limit);
 			generatePagination();

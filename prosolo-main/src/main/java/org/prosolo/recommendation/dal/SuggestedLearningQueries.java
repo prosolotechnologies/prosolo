@@ -15,7 +15,7 @@ import org.prosolo.common.domainmodel.workflow.LearningPlan;
 
 public interface SuggestedLearningQueries {
 	
-	List<Recommendation> findSuggestedLearningResourcesByCollegues(User user, RecommendationType recType,
+	List<Recommendation> findSuggestedLearningResourcesByCollegues(long userId, RecommendationType recType,
 			int page, int limit);
 
 	List<RichContent> findRichContentForLearningGoal(LearningGoal goal);
@@ -28,7 +28,7 @@ public interface SuggestedLearningQueries {
 
 	List<Activity> loadActivitiesForLearningPlan(LearningPlan plan);
 
-	int findNumberOfSuggestedLearningResourcesByCollegues(User user,
+	int findNumberOfSuggestedLearningResourcesByCollegues(long userId,
 			RecommendationType recType);
 
 	List<Node> findDismissedRecommendedResources(User user);

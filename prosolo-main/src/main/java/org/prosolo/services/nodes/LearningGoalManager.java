@@ -33,15 +33,15 @@ public interface LearningGoalManager extends AbstractManager {
 	LearningGoal createNewLearningGoal(User user, String title, String description, Date deadline, 
 			Collection<Tag> keywords) throws EventException;
 	
-	TargetLearningGoal createNewTargetLearningGoal(User user, long goalId) throws ResourceCouldNotBeLoadedException, EventException;
+	TargetLearningGoal createNewTargetLearningGoal(long userId, long goalId) throws ResourceCouldNotBeLoadedException, EventException;
 	
-	TargetLearningGoal createNewTargetLearningGoal(User user, LearningGoal goal) throws EventException, ResourceCouldNotBeLoadedException;
+	TargetLearningGoal createNewTargetLearningGoal(long userId, LearningGoal goal) throws EventException, ResourceCouldNotBeLoadedException;
 
-	TargetLearningGoal createNewLearningGoal(User user, String title, String description, Date deadline, 
+	TargetLearningGoal createNewLearningGoal(long userId, String title, String description, Date deadline, 
 			Collection<Tag> keywords, Collection<Tag> hashtags, boolean progressActivityDependent) 
 					throws EventException, ResourceCouldNotBeLoadedException;
 	
-	TargetLearningGoal createNewCourseBasedLearningGoal(User user,
+	TargetLearningGoal createNewCourseBasedLearningGoal(long userId,
 			long courseId, LearningGoal courseGoal,
 			String context) throws EventException, ResourceCouldNotBeLoadedException;
 	
@@ -53,15 +53,15 @@ public interface LearningGoalManager extends AbstractManager {
 
 	boolean deleteGoal(TargetLearningGoal targetGoal);
 	
-	TargetLearningGoal markAsCompleted(User user, TargetLearningGoal goal, String context) throws EventException;
+	TargetLearningGoal markAsCompleted(long userId, TargetLearningGoal goal, String context) throws EventException;
 	
 
 	
-	NodeEvent addCompetenceToGoal(User user, long targetGoalId,	Competence competence, 
+	NodeEvent addCompetenceToGoal(long userId, long targetGoalId,	Competence competence, 
 			boolean propagateEventAutomatically, String context) throws EventException, 
 			ResourceCouldNotBeLoadedException;
 	
-	NodeEvent addCompetenceToGoal(User user, TargetLearningGoal targetGoal,
+	NodeEvent addCompetenceToGoal(long userId, TargetLearningGoal targetGoal,
 			Competence competence, boolean propagateEventAutomatically,
 			String context) throws EventException;
 	
@@ -72,61 +72,61 @@ public interface LearningGoalManager extends AbstractManager {
 	TargetActivity cloneAndAttachActivityToTargetCompetence(User user, long targetCompetenceId, 
 			Activity activity, boolean sync) throws EventException, ResourceCouldNotBeLoadedException;
 	
-	List<TargetActivity> cloneActivitiesAndAddToTargetCompetence(User user, TargetCompetence tComp, 
+	List<TargetActivity> cloneActivitiesAndAddToTargetCompetence(long userId, TargetCompetence tComp, 
 			List<Activity> targetActivities, boolean sync, String context) throws EventException;
 
-	List<TargetActivity> cloneActivitiesAndAddToTargetCompetence(User user, long targetCompId, 
+	List<TargetActivity> cloneActivitiesAndAddToTargetCompetence(long userId, long targetCompId, 
 			List<Activity> targetActivities, boolean sync, String context) throws EventException, 
 			ResourceCouldNotBeLoadedException;
 
-	TargetActivity addActivityToTargetCompetence(User user,
+	TargetActivity addActivityToTargetCompetence(long userId,
 			long targetCompetenceId, Activity activity, String context, String page,
 			String learningContext, String service)
 			throws EventException, ResourceCouldNotBeLoadedException;
 	
-	TargetActivity addActivityToTargetCompetence(User user, long targetCompetenceId, long activityId, String context)
+	TargetActivity addActivityToTargetCompetence(long userId, long targetCompetenceId, long activityId, String context)
 			throws EventException, ResourceCouldNotBeLoadedException;
 
 	TargetCompetence addActivityToTargetCompetence(User user, TargetCompetence targetCompetence, 
 			Activity activity, boolean sync) throws EventException;
 	
-	GoalTargetCompetenceAnon deleteTargetCompetenceFromGoal(User user, long targetGoalId, 
+	GoalTargetCompetenceAnon deleteTargetCompetenceFromGoal(long userId, long targetGoalId, 
 			long targetCompId) throws EventException, ResourceCouldNotBeLoadedException;
 
-	boolean detachActivityFromTargetCompetence(User user, TargetActivity targetActivity, String context) 
+	boolean detachActivityFromTargetCompetence(long userId, TargetActivity targetActivity, String context) 
 			throws EventException;
 
 	List<User> getCollaboratorsByTargetGoalId(long taretGoalId);
 	
-	List<User> retrieveCollaborators(long goalId, User user);
+	List<User> retrieveCollaborators(long goalId, long userId);
 	
-	List<User> retrieveCollaborators(long goalId, User user, Session session);
+	List<User> retrieveCollaborators(long goalId, long userId, Session session);
 
 	List<User> retrieveLearningGoalMembers(long goalId, Session session);
 	
 	Map<User, Map<LearningGoal, List<Tag>>> getMembersOfLearningGoalsHavingHashtags(
 			Collection<String> hashtags, Session session);
 
-	boolean isUserMemberOfLearningGoal(long goalId, User user);
+	boolean isUserMemberOfLearningGoal(long goalId, long userId);
 
 	TargetLearningGoal recalculateGoalProgress(TargetLearningGoal targetGoal);
 
-	TargetActivity createActivityAndAddToTargetCompetence(User user,
+	TargetActivity createActivityAndAddToTargetCompetence(long userId,
 			String title, String description, AttachmentPreview attachmentPreview,
 			VisibilityType visType, long targetCompetenceId, boolean connectWithStatus,
 			String context, String page, String learningContext, String service) 
 					throws EventException, ResourceCouldNotBeLoadedException;
 	
-	NodeEvent createCompetenceAndAddToGoal(User user, String title, String description, 
+	NodeEvent createCompetenceAndAddToGoal(long userId, String title, String description, 
 			int validity, int duration, VisibilityType visibilityType, Collection<Tag> tags, 
 			long goalId, boolean propagateManuallyToSocialStream, String context) 
 				throws EventException, ResourceCouldNotBeLoadedException;
 
-	boolean canUserJoinGoal(long goalId, User user) throws ResourceCouldNotBeLoadedException;
+	boolean canUserJoinGoal(long goalId, long userId) throws ResourceCouldNotBeLoadedException;
 
-	List<TargetLearningGoal> getUserGoalsContainingCompetence(User user, Competence comp);
+	List<TargetLearningGoal> getUserGoalsContainingCompetence(long userId, Competence comp);
 
-	int retrieveCollaboratorsNumber(long goalId, User user);
+	int retrieveCollaboratorsNumber(long goalId, long userId);
 	
 	Map<Long, List<Long>> getCollaboratorsOfLearningGoals(List<LearningGoal> foundGoals);
 
@@ -177,9 +177,9 @@ public interface LearningGoalManager extends AbstractManager {
 
 	Set<Long> getTargetActivitiesForTargetLearningGoal(Long targetLearningGoalId);
 
-	List<Long> getUserGoalsIds(User user);
+	List<Long> getUserGoalsIds(long userId);
 	
-	TargetLearningGoal createNewCourseBasedLearningGoal(User user, Course course, LearningGoal courseGoal,
+	TargetLearningGoal createNewCourseBasedLearningGoal(long userId, Course course, LearningGoal courseGoal,
 			String context) throws EventException, ResourceCouldNotBeLoadedException;
 
 }

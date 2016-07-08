@@ -3,7 +3,6 @@ package org.prosolo.web.achievements;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
@@ -45,7 +44,7 @@ public class TargetCredentialBean implements Serializable {
 	public void initCompletedCredentials() {
 		try {
 			List<TargetCredential1> targetCredential1List = credentialManager
-					.getAllCompletedCredentials(loggedUser.getUser().getId());
+					.getAllCompletedCredentials(loggedUser.getUserId());
 			completedCredentialAchievementsData = new CredentialAchievementsDataToPageMapper(idEncoder)
 					.mapDataToPageObject(targetCredential1List);
 		} catch (DbConnectionException e) {
@@ -57,7 +56,7 @@ public class TargetCredentialBean implements Serializable {
 	public void initInProgressCredentials() {
 		try {
 			List<TargetCredential1> targetCredential1List = credentialManager
-					.getAllInProgressCredentials(loggedUser.getUser().getId());
+					.getAllInProgressCredentials(loggedUser.getUserId());
 			inProgressCredentialAchievementsData = new CredentialAchievementsDataToPageMapper(idEncoder)
 					.mapDataToPageObject(targetCredential1List);
 		} catch (DbConnectionException e) {

@@ -6,23 +6,23 @@ import java.util.Set;
 
 import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.activityWall.filters.Filter;
-import org.prosolo.services.activityWall.filters.LearningGoalFilter;
 
 public class SessionData {
 
-	private User user;
+	private long userId;
+	private String name;
+	private String lastName;
 	private String fullName;
 	private String email;
 	private String password;
 	private String avatar;
+	private String position;
 	private boolean doNotShowTutorial;
 	private Set<String> pagesTutorialPlayed = new HashSet<String>();
 	private String ipAddress;
 
 	private Filter selectedStatusWallFilter;
-	private LearningGoalFilter selectedLearningGoalFilter;
 
 	private UserSettings userSettings;
 	private UserNotificationsSettings notificationsSettings;
@@ -31,10 +31,18 @@ public class SessionData {
 	/*
 	 * GETTERS / SETTERS
 	 */
+	public long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(long userId) {
+		this.userId = userId;
+	}
+
 	public String getEmail() {
 		return email;
 	}
-
+	
 	public void setEmail(String email) {
 		this.email = email;
 	}
@@ -47,20 +55,12 @@ public class SessionData {
 		this.password = password;
 	}
 
-	public User getUser() {
-		return user;
-	}
-
-	public void setUser(User user) {
-		this.user = user;
-	}
-
 	public String getName() {
-		return getUser().getName();
+		return name;
 	}
-
-	public String getLastName() {
-		return getUser().getLastname();
+	
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public UserSettings getInterfaceSettings() {
@@ -93,14 +93,6 @@ public class SessionData {
 
 	public void setSelectedStatusWallFilter(Filter selectedStatusWallFilter) {
 		this.selectedStatusWallFilter = selectedStatusWallFilter;
-	}
-
-	public LearningGoalFilter getSelectedLearningGoalFilter() {
-		return selectedLearningGoalFilter;
-	}
-
-	public void setSelectedLearningGoalFilter(LearningGoalFilter selectedLearningGoalFilter) {
-		this.selectedLearningGoalFilter = selectedLearningGoalFilter;
 	}
 
 	public UserNotificationsSettings getNotificationsSettings() {
@@ -141,6 +133,22 @@ public class SessionData {
 
 	public void setFullName(String fullName) {
 		this.fullName = fullName;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+
+	public String getPosition() {
+		return position;
+	}
+
+	public void setPosition(String position) {
+		this.position = position;
 	}
 	
 }

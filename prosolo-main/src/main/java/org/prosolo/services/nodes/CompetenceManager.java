@@ -29,14 +29,14 @@ import org.prosolo.web.competences.data.ActivityType;
 
 public interface CompetenceManager extends AbstractManager {
 	
-	TargetCompetence createNewTargetCompetence(User user, String title, String description, int validity, int duration, Collection<Tag> tags, VisibilityType visibilityType) throws EventException;
+	TargetCompetence createNewTargetCompetence(long userId, String title, String description, int validity, int duration, Collection<Tag> tags, VisibilityType visibilityType) throws EventException, ResourceCouldNotBeLoadedException;
 
 	Competence updateCompetence(Competence competence, String title, String description,
 			int duration, int validity, Collection<Tag> tags,
 			List<Competence> corequisites, List<Competence> prerequisites,
 			List<ActivityWallData> activities, boolean updateActivities);
 	
-	boolean hasUserCompletedCompetence(long competenceId, User user);
+	boolean hasUserCompletedCompetence(long competenceId, long userId);
 
 	boolean hasUserCompletedCompetence(Competence comp, User user);
 	
@@ -44,11 +44,11 @@ public interface CompetenceManager extends AbstractManager {
 	
 	List<User> getMembersOfTargetCompetenceGoal(TargetCompetence tComp, Session session);
 
-	Competence createCompetence(User user, String title,
+	Competence createCompetence(long userId, String title,
 			String description, int validity, int duration, Collection<Tag> tags, 
-			List<Competence> prerequisites, List<Competence> corequisites) throws EventException;
+			List<Competence> prerequisites, List<Competence> corequisites) throws EventException, ResourceCouldNotBeLoadedException;
 
-	boolean isUserAcquiringCompetence(long competenceId, User user);
+	boolean isUserAcquiringCompetence(long competenceId, long userId);
 
 	boolean isUserAcquiringCompetence(Competence comp, User user);
 	
@@ -65,10 +65,10 @@ public interface CompetenceManager extends AbstractManager {
 
 	TargetCompetence getTargetCompetence(long userId, long compId, long goalId);
 
-	Competence createCompetence(User user, String title, String description,
+	Competence createCompetence(long userId, String title, String description,
 			int validity, int duration, Collection<Tag> tags,
 			List<Competence> prerequisites, List<Competence> corequisites,
-			Date dateCreated)throws EventException ;
+			Date dateCreated)throws EventException, ResourceCouldNotBeLoadedException ;
 
 	Set<Long> getTargetCompetencesIds(long userId, long goalId);
 
@@ -94,10 +94,10 @@ public interface CompetenceManager extends AbstractManager {
 	CompetenceActivity saveCompetenceActivity(long compId, ActivityData activityData,
 			LearningContextData context) throws DbConnectionException;
 
-	Competence createNewUntitledCompetence(User user, CreatorType manager);
+	Competence createNewUntitledCompetence(long userId, CreatorType manager);
 	
 	void deleteCompetenceActivity(ActivityData activityData,
-			List<ActivityData> changedActivities, User user, 
+			List<ActivityData> changedActivities, long userId, 
 			LearningContextData context) throws DbConnectionException;
 	
 	void updateOrderOfCompetenceActivities(List<ActivityData> activities) throws DbConnectionException;

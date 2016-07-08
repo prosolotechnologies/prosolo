@@ -11,14 +11,12 @@ import javax.faces.bean.ManagedBean;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.messaging.Message;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.messaging.data.MessageData;
 import org.prosolo.web.util.PageUtil;
@@ -57,7 +55,7 @@ public class DirectMessagesDialog implements Serializable {
 	private String context;
 	
 	public void addReceiverData(UserData user, String context) {
-		if (user.getId() != loggedUser.getUser().getId()) {
+		if (user.getId() != loggedUser.getUserId()) {
 			receiver = user;
 		}
 		
@@ -73,14 +71,13 @@ public class DirectMessagesDialog implements Serializable {
 	
 	public void sendMessage() {
 		try {
-			Message message = messagingManager.sendMessage(loggedUser.getUser().getId(), receiver.getId(), this.messageContent);
-			logger.debug("User "+loggedUser.getUser()+" sent a message to "+receiver+" with content: '"+this.messageContent+"'");
+			Message message = messagingManager.sendMessage(loggedUser.getUserId(), receiver.getId(), this.messageContent);
+			logger.debug("User "+loggedUser.getUserId()+" sent a message to "+receiver+" with content: '"+this.messageContent+"'");
 			
 			List<UserData> participants = new ArrayList<UserData>();
-			participants.add(UserDataFactory.createUserData(loggedUser.getUser()));
+			participants.add(new UserData(loggedUser.getUserId(), loggedUser.getFullName(), loggedUser.getAvatar()));
 			
 			final Message message1 = message;
-			final User user = loggedUser.getUser();
 			
 			taskExecutor.execute(new Runnable() {
 	            @Override
@@ -90,7 +87,7 @@ public class DirectMessagesDialog implements Serializable {
 	            		parameters.put("context", context);
 	            		parameters.put("user", String.valueOf(receiver.getId()));
 	            		parameters.put("message", String.valueOf(message1.getId()));
-	            		eventFactory.generateEvent(EventType.SEND_MESSAGE, user, message1, parameters);
+	            		eventFactory.generateEvent(EventType.SEND_MESSAGE, loggedUser.getUserId(), message1, parameters);
 	            	} catch (EventException e) {
 	            		logger.error(e);
 	            	}

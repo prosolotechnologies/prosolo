@@ -65,7 +65,7 @@ public class LoggingNavigationBean implements Serializable {
 	
 	public void logPageNavigation(User user, String link){
 		try {
-			loggingService.logNavigationFromContext(user, link, null, page, learningContext,
+			loggingService.logNavigationFromContext(user.getId(), link, null, page, learningContext,
 					service, null, getIpAddress());
 		} catch (LoggingException e) {
 			logger.error(e);
@@ -74,7 +74,7 @@ public class LoggingNavigationBean implements Serializable {
 	
 	public void logEmailNavigation(User user, String link, LearningContextData lContext){
 		try {
-			loggingService.logEmailNavigation(user, link, null, getIpAddress(), lContext);
+			loggingService.logEmailNavigation(user.getId(), link, null, getIpAddress(), lContext);
 		} catch (LoggingException e) {
 			logger.error(e);
 		}
@@ -82,7 +82,7 @@ public class LoggingNavigationBean implements Serializable {
 	
 	public void logPageNavigationFromContext(User user, String link, String context){
 		try {
-			loggingService.logNavigationFromContext(user,link, context, page, learningContext,
+			loggingService.logNavigationFromContext(user.getId(), link, context, page, learningContext,
 					service, null, getIpAddress());
 		} catch (LoggingException e) {
 			logger.error(e);
@@ -98,7 +98,7 @@ public class LoggingNavigationBean implements Serializable {
 		}
 		
 		try {
-			loggingService.logServiceUse(loggedUser.getUser(), component, link, parameters, ipAddress);
+			loggingService.logServiceUse(loggedUser.getUserId(), component, link, parameters, ipAddress);
 		} catch (LoggingException e) {
 			logger.error(e);
 		}  
@@ -121,7 +121,7 @@ public class LoggingNavigationBean implements Serializable {
 		parameters.put(parm1, value1);
 		
 		try {
-			loggingService.logServiceUse(loggedUser.getUser(), component, link, parameters, getIpAddress());
+			loggingService.logServiceUse(loggedUser.getUserId(), component, link, parameters, getIpAddress());
 		} catch (LoggingException e) {
 			logger.error(e);
 		}  
@@ -133,7 +133,7 @@ public class LoggingNavigationBean implements Serializable {
 		parameters.put(parm2, value2);
 		
 		try {
-			loggingService.logServiceUse(loggedUser.getUser(), component, link, parameters, getIpAddress());
+			loggingService.logServiceUse(loggedUser.getUserId(), component, link, parameters, getIpAddress());
 		} catch (LoggingException e) {
 			logger.error(e);
 		}  
@@ -148,7 +148,7 @@ public class LoggingNavigationBean implements Serializable {
 		parameters.put(parm3, value3);
 		
 		try {
-			loggingService.logServiceUse(loggedUser.getUser(), component, link, parameters, getIpAddress());
+			loggingService.logServiceUse(loggedUser.getUserId(), component, link, parameters, getIpAddress());
 		} catch (LoggingException e) {
 			logger.error(e);
 		}  
@@ -163,7 +163,7 @@ public class LoggingNavigationBean implements Serializable {
 		parameters.put(parm3, value3);
 		
 		try {
-			loggingService.logServiceUse(loggedUser.getUser(), component, link, parameters, ipAddress);
+			loggingService.logServiceUse(loggedUser.getUserId(), component, link, parameters, ipAddress);
 		} catch (LoggingException e) {
 			logger.error(e);
 		}  
@@ -179,27 +179,27 @@ public class LoggingNavigationBean implements Serializable {
 		parameters.put(parm4, value4);
 		
 		try {
-			loggingService.logServiceUse(loggedUser.getUser(), component, link, parameters, getIpAddress());
+			loggingService.logServiceUse(loggedUser.getUserId(), component, link, parameters, getIpAddress());
 		} catch (LoggingException e) {
 			logger.error(e);
 		}  
 	}
 	
 	public void logEvent(EventType eventType, Map<String, String> parameters) {
-		loggingService.logEventObserved(eventType, loggedUser.getUser(), null, 0, parameters, getIpAddress());
+		loggingService.logEventObserved(eventType, loggedUser.getUserId(), null, 0, parameters, getIpAddress());
 	}
 	
 	public void logEvent(EventType eventType, String objectType, Map<String, String> parameters) {
-		loggingService.logEventObserved(eventType, loggedUser.getUser(), objectType, 0, parameters, getIpAddress());
+		loggingService.logEventObserved(eventType, loggedUser.getUserId(), objectType, 0, parameters, getIpAddress());
 	}
 	
 	public void logEvent(EventType eventType, String objectType, long objectId, Map<String, String> parameters) {
-		loggingService.logEventObserved(eventType, loggedUser.getUser(), objectType, objectId, parameters, getIpAddress());
+		loggingService.logEventObserved(eventType, loggedUser.getUserId(), objectType, objectId, parameters, getIpAddress());
 	}
 	
 	public void submitPageNavigation(){
 		try {
-			loggingService.logNavigationFromContext(loggedUser.getUser(), link, context, page, 
+			loggingService.logNavigationFromContext(loggedUser.getUserId(), link, context, page, 
 					learningContext, service, parameters, getIpAddress());
 		} catch (LoggingException e) {
 			logger.error(e);
@@ -208,7 +208,7 @@ public class LoggingNavigationBean implements Serializable {
 	
 	public void submitTabNavigation(){
 		try {
-			loggingService.logTabNavigationFromContext(loggedUser.getUser(), link, context, parameters, getIpAddress());
+			loggingService.logTabNavigationFromContext(loggedUser.getUserId(), link, context, parameters, getIpAddress());
 		} catch (LoggingException e) {
 			logger.error(e);
 		}
@@ -218,7 +218,7 @@ public class LoggingNavigationBean implements Serializable {
 		try {
 			Map<String, String> params = convertToMap(parameters);
 			params.put("objectType", component);
-			eventFactory.generateEvent(EventType.SERVICEUSE, loggedUser.getUser(), null, null, page,
+			eventFactory.generateEvent(EventType.SERVICEUSE, loggedUser.getUserId(), null, null, page,
 					learningContext, service, params);
 			//loggingService.logServiceUse(loggedUser.getUser(), component, parameters, getIpAddress());
 		} catch (EventException e) {
@@ -228,7 +228,7 @@ public class LoggingNavigationBean implements Serializable {
 	
 	public void submitCancelComment() {
 		try {
-			eventFactory.generateEvent(EventType.COMMENT_CANCEL, loggedUser.getUser(), null, null, page,
+			eventFactory.generateEvent(EventType.COMMENT_CANCEL, loggedUser.getUserId(), null, null, page,
 					learningContext, service, null);
 		} catch (EventException e) {
 			logger.error(e);
@@ -238,7 +238,7 @@ public class LoggingNavigationBean implements Serializable {
 	private String getIpAddress() {
 		String ipAddress = loggedUser.getIpAddress();
 		
-		if (loggedUser.getUser() == null) {
+		if (loggedUser.isLoggedIn()) {
 			ipAddress = accessResolver.findRemoteIPAddress();
 		}
 		return ipAddress;

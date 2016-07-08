@@ -233,7 +233,7 @@ public class InstructorEditBean implements Serializable {
 							
 							eventFactory.generateEvent(
 									EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR, 
-									loggedUserBean.getUser(), 
+									loggedUserBean.getUserId(), 
 									object, 
 									target, 
 									page, 
@@ -253,7 +253,7 @@ public class InstructorEditBean implements Serializable {
 							object.setId(userId);
 							eventFactory.generateEvent(
 									EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR,
-									loggedUserBean.getUser(), 
+									loggedUserBean.getUserId(), 
 									object, 
 									target,
 									page, 
@@ -311,7 +311,7 @@ public class InstructorEditBean implements Serializable {
 						instr.setId(instructor.getUserId());
 						
 						try {
-							eventFactory.generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_COURSE, loggedUserBean.getUser(), instr, course, page, lContext, service, null);
+							eventFactory.generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_COURSE, loggedUserBean.getUserId(), instr, course, page, lContext, service, null);
 						} catch (EventException e) {
 								logger.error(e);
 						}

@@ -2,10 +2,10 @@ package org.prosolo.services.interfaceSettings.eventProcessors;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
@@ -41,12 +41,22 @@ public class SocialActivityUpdateEventProcessor extends InterfaceEventProcessor 
 	@Override
 	void process() {
 		SocialActivity socialActivity = (SocialActivity) event.getObject();
-		updateSocialActivityInCachesOfOnlineUsers(socialActivity, event.getActor(), session);
+		updateSocialActivityInCachesOfOnlineUsers(socialActivity, event.getActorId(), session);
 	}
 	
-	private void updateSocialActivityInCachesOfOnlineUsers(SocialActivity socialActivity, User actor, Session session) {
+	private void updateSocialActivityInCachesOfOnlineUsers(SocialActivity socialActivity, long userId, Session session) {
 		List<User> usersSubscribedToEvent = activityWallManager.getUsersSubscribedToSocialActivity(socialActivity, session);
-		usersSubscribedToEvent.remove(actor);
+		// removing user
+		Iterator<User> userIterator = usersSubscribedToEvent.iterator();
+		
+		while (userIterator.hasNext()) {
+			User u = (User) userIterator.next();
+			
+			if (u.getId() == userId) {
+				userIterator.remove();
+				break;
+			}
+		}
 		
 		for (User u : usersSubscribedToEvent) {
 			if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
@@ -68,7 +78,7 @@ public class SocialActivityUpdateEventProcessor extends InterfaceEventProcessor 
 		// update caches of all users who have ALL or ALL_PROSOLO filter set on their Status Wall
 		List<Long> notifiedUserIds = new ArrayList<Long>();
 		
-		notifiedUserIds.add(actor.getId());
+		notifiedUserIds.add(userId);
 		
     	for (User u : usersSubscribedToEvent) {
     		notifiedUserIds.add(u.getId());

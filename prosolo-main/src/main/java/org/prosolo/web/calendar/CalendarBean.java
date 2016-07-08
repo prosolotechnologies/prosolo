@@ -24,6 +24,7 @@ import org.prosolo.common.domainmodel.user.reminders.EventReminder;
 import org.prosolo.common.domainmodel.user.reminders.Reminder;
 import org.prosolo.common.domainmodel.user.reminders.ReminderStatus;
 import org.prosolo.common.domainmodel.user.reminders.ReminderType;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
@@ -33,7 +34,6 @@ import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.dialogs.LearningGoalDialogBean;
 import org.prosolo.web.home.RemindersBean;
 import org.prosolo.web.search.data.ReminderData;
@@ -113,13 +113,14 @@ public class CalendarBean implements Serializable {
 			eventModel.updateEvent(event);
 		}
 		
-		EventReminder eventReminder = personalCalendarManager.createScheduledEventReminder((ProsoloPersonalScheduleEvent) event, loggedUser.getUser());
-		remindersBean.addReminder(eventReminder);
-		
+		EventReminder eventReminder;
 		try {
-			eventFactory.generateEvent(EventType.CREATE_PERSONAL_SCHEDULE, loggedUser.getUser(),eventReminder);
-		} catch (EventException e) {
-			logger.error(e);
+			eventReminder = personalCalendarManager.createScheduledEventReminder((ProsoloPersonalScheduleEvent) event, loggedUser.getUserId());
+			remindersBean.addReminder(eventReminder);
+			
+			eventFactory.generateEvent(EventType.CREATE_PERSONAL_SCHEDULE, loggedUser.getUserId(), eventReminder);
+		} catch (ResourceCouldNotBeLoadedException | EventException e1) {
+			logger.error(e1);
 		}
 		event = new ProsoloPersonalScheduleEvent();
 	}
@@ -178,7 +179,7 @@ public class CalendarBean implements Serializable {
 		List<User> result = (List<User>) usersResponse.getFoundNodes();
 		
 		for (User user : result) {
-			UserData userData = UserDataFactory.createUserData(user);
+			UserData userData = new UserData(user);
 			userSearchResults.add(userData);
 		}
 	}

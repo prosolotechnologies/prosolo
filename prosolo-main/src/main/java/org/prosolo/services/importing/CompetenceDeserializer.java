@@ -12,6 +12,7 @@ import org.prosolo.common.domainmodel.activities.CompetenceActivity;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CompetenceManager;
@@ -29,7 +30,9 @@ import com.google.gson.JsonParseException;
  */
 
 public class CompetenceDeserializer  implements JsonDeserializer<Competence> {
+	
 	private static Logger logger = Logger.getLogger(CompetenceDeserializer.class);
+
 	@Override
 	public Competence deserialize(JsonElement json, Type typeOfT,
 			JsonDeserializationContext context) throws JsonParseException {
@@ -72,8 +75,8 @@ public class CompetenceDeserializer  implements JsonDeserializer<Competence> {
 		
 		try {
 			comp = ServiceLocator.getInstance().getService(CompetenceManager.class)
-					.createCompetence(maker, title, description, validity, duration, tags, prerequisites, corequisites, dateCreated);
-		} catch (EventException e) {
+					.createCompetence(maker.getId(), title, description, validity, duration, tags, prerequisites, corequisites, dateCreated);
+		} catch (EventException | ResourceCouldNotBeLoadedException e) {
 			logger.error(e.getLocalizedMessage());
 		}
 		for (int i = 0; i < compActivities.length; i++) {

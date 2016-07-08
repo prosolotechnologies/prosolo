@@ -16,7 +16,7 @@ import org.prosolo.services.activityWall.strategy.Strategy;
 public class AllFilterProcessor implements SocialActivityFilterProcessor {
 	
 	@Override
-	public boolean checkSocialActivity(SocialActivity1 socialActivity, User user, Filter filter) {
+	public boolean checkSocialActivity(SocialActivity1 socialActivity, long userId, Filter filter) {
 		// TODO Auto-generated method stub
 		// Ignore private posts
 		// Ignore private posts

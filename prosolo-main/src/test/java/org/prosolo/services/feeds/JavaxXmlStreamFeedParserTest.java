@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.prosolo.common.util.date.DateUtil;

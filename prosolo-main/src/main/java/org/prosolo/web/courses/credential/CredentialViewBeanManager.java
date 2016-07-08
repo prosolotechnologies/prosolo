@@ -76,7 +76,7 @@ public class CredentialViewBeanManager implements Serializable {
 	
 	public boolean isCurrentUserCreator() {
 		return credentialData == null || credentialData.getCreator() == null ? false : 
-			credentialData.getCreator().getId() == loggedUser.getUser().getId();
+			credentialData.getCreator().getId() == loggedUser.getUserId();
 	}
 	
 	public String getLabelForCredential() {

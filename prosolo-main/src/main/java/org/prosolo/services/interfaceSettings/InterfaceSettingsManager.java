@@ -6,7 +6,7 @@ package org.prosolo.services.interfaceSettings;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
-import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.AbstractManager;
 
 /**
@@ -15,9 +15,9 @@ import org.prosolo.services.general.AbstractManager;
  */
 public interface InterfaceSettingsManager extends AbstractManager {
 
-	UserSettings getOrCreateUserSettings(User user);
+	UserSettings getOrCreateUserSettings(long userId) throws ResourceCouldNotBeLoadedException;
 	
-	UserSettings getOrCreateUserSettings(User user, Session session);
+	UserSettings getOrCreateUserSettings(long userId, Session session) throws ResourceCouldNotBeLoadedException;
 	
 	boolean changeActivityWallFilter(UserSettings userSettings, FilterType filter, long courseId);
 	

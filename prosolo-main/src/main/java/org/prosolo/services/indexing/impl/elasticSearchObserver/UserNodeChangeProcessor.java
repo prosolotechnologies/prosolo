@@ -39,7 +39,7 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 			Credential1 cred = (Credential1) event.getObject();
 			long instructorId = Long.parseLong(params.get("instructorId"));
 			String dateEnrolledString = params.get("dateEnrolled");
-			userEntityESService.addCredentialToUserIndex(cred.getId(), event.getActor().getId(), 
+			userEntityESService.addCredentialToUserIndex(cred.getId(), event.getActorId(), 
 					instructorId, dateEnrolledString);
 		} else if(eventType == EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR
 				|| eventType == EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR
@@ -65,11 +65,11 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 					event.getObject().getId());
 	    } else if(eventType == EventType.ChangeProgress) {
 	    	ChangeProgressEvent cpe = (ChangeProgressEvent) event;
-	    	userEntityESService.changeCredentialProgress(cpe.getActor().getId(), cpe.getObject().getId(), 
+	    	userEntityESService.changeCredentialProgress(cpe.getActorId(), cpe.getObject().getId(), 
 	    			cpe.getNewProgressValue());
 	    } else {
 			if(userRole == EventUserRole.Subject) {
-				long userId = event.getActor().getId();
+				long userId = event.getActorId();
 				user = (User) session.load(User.class, userId);
 			} else if(userRole == EventUserRole.Object) {
 				BaseEntity node = event.getObject();

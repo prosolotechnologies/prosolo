@@ -94,7 +94,7 @@ public class CourseOverallBean implements Serializable {
 					courseData.getDescription(), 
 					new HashSet<Tag>(tagManager.parseCSVTagsAndSave(courseData.getTagsString())), 
 					new HashSet<Tag>(tagManager.parseCSVTagsAndSave(courseData.getHashtagsString())), 
-					courseData.isPublished(), loggedUser.getUser());
+					courseData.isPublished(), loggedUser.getUserId());
 			backupCourseData = BasicCourseData.copyBasicCourseData(courseData);
 			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getMessage(
 					"manager.courses.updateCourse.success", 

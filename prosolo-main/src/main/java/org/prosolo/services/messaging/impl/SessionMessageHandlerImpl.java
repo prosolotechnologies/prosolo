@@ -22,7 +22,6 @@ import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.domainmodel.outcomes.Outcome;
 import org.prosolo.common.domainmodel.user.LearningGoal;
-import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.messaging.data.SessionMessage;
@@ -41,7 +40,6 @@ import org.prosolo.services.notifications.EvaluationUpdater;
 import org.prosolo.services.notifications.NotificationCacheUpdater;
 import org.prosolo.util.StringUtils;
 import org.prosolo.web.ApplicationBean;
-import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.CoursePortfolioBean;
 import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.GoalDataCache;
@@ -349,15 +347,15 @@ public class SessionMessageHandlerImpl implements MessageHandler<SessionMessage>
 				break;
 			case ADD_GOAL:
 				if (httpSession != null) {
-					LearnBean learningGoalsBean = (LearnBean) httpSession.getAttribute("learninggoals");
-					LoggedUserBean loggedUser = (LoggedUserBean) httpSession.getAttribute("loggeduser");
-
-					if (learningGoalsBean != null) {
-						TargetLearningGoal targetGoal = defaultManager.loadResource(TargetLearningGoal.class,
-								resourceId, session);
-
-						learningGoalsBean.getData().addGoal(loggedUser.getUser(), targetGoal, session);
-					}
+//					LearnBean learningGoalsBean = (LearnBean) httpSession.getAttribute("learninggoals");
+//					LoggedUserBean loggedUser = (LoggedUserBean) httpSession.getAttribute("loggeduser");
+//
+//					if (learningGoalsBean != null) {
+//						TargetLearningGoal targetGoal = defaultManager.loadResource(TargetLearningGoal.class,
+//								resourceId, session);
+//
+//						learningGoalsBean.getData().addGoal(loggedUser.getUser(), targetGoal, session);
+//					}
 				}
 				break;
 			case UPDATE_SOCIAL_ACTIVITY:
@@ -418,7 +416,7 @@ public class SessionMessageHandlerImpl implements MessageHandler<SessionMessage>
 							session);
 					User collaboratorToRemove = defaultManager.loadResource(User.class, resourceId, session);
 
-					learnPageCacheUpdater.removeCollaboratorFormGoal(collaboratorToRemove, learningGoalToUpdate,
+					learnPageCacheUpdater.removeCollaboratorFormGoal(collaboratorToRemove.getId(), learningGoalToUpdate,
 							httpSession);
 				}
 				break;

@@ -88,12 +88,10 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 			if(userSearch) {
 				String page = FacesContext.getCurrentInstance().getViewRoot().getViewId();
 				LearningContextData lcd = new LearningContextData(page, context, null);
-				User user = new User();
-				user.setId(loggedUserBean.getUser().getId());
 				Map<String, String> params = new HashMap<>();
 				params.put("query", searchTerm);
 				try {
-					loggingService.logServiceUse(user, 
+					loggingService.logServiceUse(loggedUserBean.getUserId(), 
 							ComponentName.SEARCH_CREDENTIALS, 
 							params, loggedUserBean.getIpAddress(), lcd);
 				} catch(Exception e) {
@@ -125,7 +123,7 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 
 	public void getCredentialSearchResults() {
 		TextSearchResponse1<CredentialData> response = textSearch.searchCredentialsForManager(
-				searchTerm, page - 1, limit, loggedUserBean.getUser().getId(), searchFilter, sortOption);
+				searchTerm, page - 1, limit, loggedUserBean.getUserId(), searchFilter, sortOption);
 		credentialsNumber = (int) response.getHitsNumber();
 		credentials = response.getFoundNodes();
 	}
@@ -187,9 +185,9 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 			LearningContextData context = new LearningContextData(page, lContext, service);
 			if(cred.isBookmarkedByCurrentUser()) {
 				credentialManager.deleteCredentialBookmark(cred.getId(), 
-						loggedUserBean.getUser().getId(), context);
+						loggedUserBean.getUserId(), context);
 			} else {
-				credentialManager.bookmarkCredential(cred.getId(), loggedUserBean.getUser().getId(),
+				credentialManager.bookmarkCredential(cred.getId(), loggedUserBean.getUserId(),
 						context);
 			}
 			cred.setBookmarkedByCurrentUser(!cred.isBookmarkedByCurrentUser());

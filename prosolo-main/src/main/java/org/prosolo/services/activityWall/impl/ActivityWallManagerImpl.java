@@ -25,7 +25,6 @@ import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.activityWall.ActivityWallManager;
-import org.prosolo.services.activityWall.filters.CourseFilter;
 import org.prosolo.services.activityWall.filters.Filter;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
 import org.prosolo.services.activityWall.impl.util.SocialActivityDataResultTransformer;
@@ -672,7 +671,7 @@ public class ActivityWallManagerImpl extends AbstractManagerImpl implements Acti
 	@Override
 	@Transactional (readOnly = true)
 	// TODO Nikola
-	public Date getLastActivityForGoal(User user, TargetLearningGoal targetGoal, Session session) {
+	public Date getLastActivityForGoal(long userId, TargetLearningGoal targetGoal, Session session) {
 		String query =
 			"SELECT DISTINCT socialActivity.dateCreated " +
 			"FROM SocialActivityNotification activityNotification " +
@@ -684,11 +683,11 @@ public class ActivityWallManagerImpl extends AbstractManagerImpl implements Acti
 				"AND socialActivity.action NOT IN (:excludedEvents) " +
 				"AND subView.type = :subViewType " +
 				"AND :targetGoal IN elements(subView.relatedResources)  " +
-				"AND socialActivity.maker = :user " +
+				"AND socialActivity.maker.id = :userId " +
 			"ORDER BY socialActivity.dateCreated desc ";
 
 		Date date = (Date) session.createQuery(query.toString())
-				.setEntity("user", user)
+				.setLong("userId", userId)
 				.setBoolean("deleted", false)
 				.setParameterList("excludedEvents", new EventType[]{EventType.Comment})
 				.setString("subViewType", SocialStreamSubViewType.GOAL_WALL.name())

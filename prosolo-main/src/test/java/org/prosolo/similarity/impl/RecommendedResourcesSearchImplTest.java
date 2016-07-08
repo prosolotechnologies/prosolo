@@ -1,6 +1,5 @@
 package org.prosolo.similarity.impl;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -13,12 +12,8 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.junit.Test;
-import org.prosolo.bigdata.common.dal.pojo.Score;
 import org.prosolo.services.indexing.ESIndexNames;
 import org.prosolo.services.indexing.ElasticSearchFactory;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 /**
 @author Zoran Jeremic Jun 6, 2015

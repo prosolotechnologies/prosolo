@@ -22,16 +22,16 @@ public class BookmarkNodeChangeProcessor implements NodeChangeProcessor {
 	@Override
 	public void process() {
 		Credential1 cred = (Credential1) event.getTarget();
-		User actor = (User) event.getActor();
+		long actorId = event.getActorId();
 		/*
 		 * for now until scripts are enabled and working, bookmarks are updated by updating
 		 * whole nested document
 		 */
 		//credentialESService.updateCredentialBookmarks(cred.getId());
 		if(operation == NodeOperation.Save) {
-			credentialESService.addBookmarkToCredentialIndex(cred.getId(), actor.getId());
+			credentialESService.addBookmarkToCredentialIndex(cred.getId(), actorId);
 		} else if(operation == NodeOperation.Delete) {
-			credentialESService.removeBookmarkFromCredentialIndex(cred.getId(), actor.getId());
+			credentialESService.removeBookmarkFromCredentialIndex(cred.getId(), actorId);
 		}
 	}
 

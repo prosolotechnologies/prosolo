@@ -572,7 +572,12 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 		}
 		
 		if (toSendEmail) {
-			Locale locale = interfaceSettingsManager.getOrCreateUserSettings(user).getLocaleSettings().createLocale(); 
+			Locale locale = null;
+			try {
+				locale = interfaceSettingsManager.getOrCreateUserSettings(user.getId()).getLocaleSettings().createLocale();
+			} catch (ResourceCouldNotBeLoadedException e1) {
+				logger.error(e1);
+			} 
 			int limit = 10;
 			long userId = user.getId();
 			String dashedDate = DateUtil.getPrettyDate(new Date(), DateUtil.DASH_DATE);

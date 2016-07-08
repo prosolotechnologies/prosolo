@@ -1,7 +1,21 @@
 package org.prosolo.services.logging;
 
 import static java.lang.String.format;
-import static org.prosolo.common.domainmodel.activities.events.EventType.*;
+import static org.prosolo.common.domainmodel.activities.events.EventType.Comment;
+import static org.prosolo.common.domainmodel.activities.events.EventType.Comment_Reply;
+import static org.prosolo.common.domainmodel.activities.events.EventType.Dislike;
+import static org.prosolo.common.domainmodel.activities.events.EventType.EVALUATION_ACCEPTED;
+import static org.prosolo.common.domainmodel.activities.events.EventType.EVALUATION_GIVEN;
+import static org.prosolo.common.domainmodel.activities.events.EventType.EVALUATION_REQUEST;
+import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_INVITATION;
+import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_INVITATION_ACCEPTED;
+import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_REQUEST;
+import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_REQUEST_APPROVED;
+import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_REQUEST_DENIED;
+import static org.prosolo.common.domainmodel.activities.events.EventType.Like;
+import static org.prosolo.common.domainmodel.activities.events.EventType.PostShare;
+import static org.prosolo.common.domainmodel.activities.events.EventType.RemoveLike;
+import static org.prosolo.common.domainmodel.activities.events.EventType.SEND_MESSAGE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,7 +50,6 @@ import org.prosolo.common.domainmodel.activitywall.old.comments.SocialActivityCo
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.content.Post;
 import org.prosolo.common.domainmodel.evaluation.EvaluationSubmission;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
@@ -121,35 +134,34 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	}*/
 
 	@Override
-	public void logServiceUse(User user, String componentName,
+	public void logServiceUse(long actorId, String componentName,
 			String parametersJson, String ipAddress) throws LoggingException {
 
 		Map<String, String> parameters = convertToMap(parametersJson);
 		
-		logEventObserved(EventType.SERVICEUSE, user, componentName, 0, null,
-				null, 0, null, 0, parameters, ipAddress);
-	}
-
-	@Override
-	public void logServiceUse(User user, ComponentName component, String link,
-			Map<String, String> parameters, String ipAddress) throws LoggingException {
-
-		parameters.put("link", link);
-		logEventObserved(EventType.SERVICEUSE, user, component.name(), 0, link,
-				null, 0, null, 0, parameters, ipAddress);
-	}
-
-	@Override
-	public void logNavigation(User user, String link, String ipAddress) throws LoggingException {
-
-		Map<String, String> parameters = new HashMap<>();
-		parameters.put("link", link);
-		logEventObserved(EventType.NAVIGATE, user, "page", 0, link, null, 0,
+		logEventObserved(EventType.SERVICEUSE, actorId, componentName, 0, null,
 				null, 0, parameters, ipAddress);
 	}
 
 	@Override
-	public void logNavigationFromContext(User user, String link,
+	public void logServiceUse(long userId, ComponentName component, String link,
+			Map<String, String> parameters, String ipAddress) throws LoggingException {
+
+		parameters.put("link", link);
+		logEventObserved(EventType.SERVICEUSE, userId, component.name(), 0, link,
+				null, 0, parameters, ipAddress);
+	}
+
+	@Override
+	public void logNavigation(long userId, String link, String ipAddress) throws LoggingException {
+
+		Map<String, String> parameters = new HashMap<>();
+		parameters.put("link", link);
+		logEventObserved(EventType.NAVIGATE, userId, "page", 0, link, null, 0, parameters, ipAddress);
+	}
+
+	@Override
+	public void logNavigationFromContext(long userId, String link,
 			String context, String page, String learningContext, String service, 
 			String parametersString, String ipAddress) throws LoggingException {
 
@@ -162,7 +174,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		parameters.put("link", link);
 		
 		try {
-			eventFactory.generateEvent(EventType.NAVIGATE, user, null, null,
+			eventFactory.generateEvent(EventType.NAVIGATE, userId, null, null,
 					page, learningContext, service, parameters);
 		} catch (EventException e) {
 			logger.error("Generate event failed.", e);
@@ -170,7 +182,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	}
 	
 	@Override
-	public void logEmailNavigation(User user, String link,
+	public void logEmailNavigation(long actorId, String link,
 			String parametersString, String ipAddress,
 			LearningContextData lContext) throws LoggingException {
 
@@ -180,7 +192,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		parameters.put("link", link);
 		
 		try {
-			eventFactory.generateEvent(EventType.NAVIGATE, user, null, null, 
+			eventFactory.generateEvent(EventType.NAVIGATE, actorId, null, null, 
 					lContext.getPage(), lContext.getLearningContext(), lContext.getService(), parameters);
 		} catch (EventException e) {
 			logger.error("Generate event failed.", e);
@@ -188,7 +200,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	}
 
 	@Override
-	public void logTabNavigationFromContext(User user, String tabName,
+	public void logTabNavigationFromContext(long userId, String tabName,
 			String context, String parametersString, String ipAddress) throws LoggingException {
 
 		Map<String, String> parameters = convertToMap(parametersString);
@@ -199,45 +211,42 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		
 		parameters.put("link", tabName);
 		
-		logEventObserved(EventType.NAVIGATE, user, "tab", 0, null, null, 0,
-				null, 0, parameters, ipAddress);
+		logEventObserved(EventType.NAVIGATE, userId, "tab", 0, null, null, 0, parameters, ipAddress);
 	}
 
 	@Override
-	public void logEvent(final EventType eventType, final User actor, final String ipAddress) {
-		if (actor != null) {
-			taskExecutor.execute(new Runnable() {
-			    @Override
-			    public void run() {
-			    	try {
-						logEventObserved(eventType, actor, null, 0, null, null, 0, null, 0, null, ipAddress);
-					} catch (LoggingException e) {
-						logger.error(e);
-					}
-			    }
-			});
-		}
+	public void logEvent(final EventType eventType, final long actorId, final String ipAddress) {
+		taskExecutor.execute(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					logEventObserved(eventType, actorId, null, 0, null, null, 0, null, ipAddress);
+				} catch (LoggingException e) {
+					logger.error(e);
+				}
+			}
+		});
 	}
 	
 	@Override
-	public void logEventObserved(final EventType eventType, final User actor, final String objectType, final long objectId, 
+	public void logEventObserved(final EventType eventType, final long actorId, final String objectType, final long objectId, 
 			final Map<String, String> parameters, final String ipAddress) {
 		taskExecutor.execute(new Runnable() {
 		    @Override
 		    public void run() {
 		    	try {
-		    		logEventObserved(eventType, actor, objectType, objectId, null, null, 0, null, 0, parameters, ipAddress);
+		    		logEventObserved(eventType, actorId, objectType, objectId, null, null, 0, parameters, ipAddress);
 				} catch (LoggingException e) {
 					logger.error(e);
 				}
 		    }
 		});
 	}
-
+	
 	@Override
-	public void logEventObserved(EventType eventType, User actor,
+	public void logEventObserved(EventType eventType, long actorId,
 			String objectType, long objectId, String objectTitle,
-			String targetType, long targetId, String reasonType, long reasonId,
+			String targetType, long targetId,
 			Map<String, String> parameters, String ipAddress) throws LoggingException {
 
 		if (!Settings.getInstance().config.init.formatDB) {
@@ -253,32 +262,16 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			logObject.put("timestamp", System.currentTimeMillis());
 			logObject.put("eventType", eventType.name());
 	
-			long actorId = 0;
-			String actorName = "";
-	
-			if (actor != null) {
-				actorId = actor.getId();
-				actorName = actor.getName() + " " + actor.getLastname();
-				this.recordUserActivity(actorId, System.currentTimeMillis());
-			} else {
-				actorId = 0;
-				actorName = "ANONYMOUS";
-			}
-			
 			String link = parameters.get("link");
 	
 			logObject.put("actorId", actorId);
-			logObject.put("actorFullname", actorName);
 			logObject.put("objectType", objectType);
 			logObject.put("objectId", objectId);
 			logObject.put("objectTitle", objectTitle);
 			logObject.put("targetType", targetType);
 			logObject.put("targetId", targetId);
-			logObject.put("reasonType", reasonType);
-			logObject.put("reasonId", reasonId);
 			logObject.put("link", link);
 
-			//logObject.put("courseId",extractCourseIdForUsedResource(objectType, objectId, targetType, targetId, reasonType, reasonId,null));
 			Long targetUserId=(long) 0;
 			if(Arrays.asList(interactions).contains(eventType)){
 				 System.out.println("TARGET USER SHOULD BE PROVIDED:"+logObject.toString());
@@ -310,7 +303,6 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			logger.info("\ntimestamp: " + timestamp + 
 		 			"\neventType: " + eventType + 
 		 			"\nactorId: " + logObject.get("actorId") + 
-		 			"\nactorFullname: " + logObject.get("actorFullname") + 
 		 			"\nobjectType: " + objectType + 
 		 			(((Long) logObject.get("objectId")) > 0 ? "\nobjectId: " + logObject.get("objectId") : "") + 
 		 			(logObject.get("objectTitle") != null ? "\nobjectTitle: " + logObject.get("objectTitle") : "") + 
@@ -318,8 +310,6 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 					(((Long) logObject.get("targetId")) > 0 ? "\ntargetId: " + logObject.get("targetId") : "") +
 					(courseId > 0 ? "\ncourseId: " + courseId : "") +
 					(((Long) logObject.get("targetUserId")) > 0 ? "\ntargetUserId: " + logObject.get("targetUserId") : "") +
-					(logObject.get("reasonType") != null ? "\nreasonType: " + logObject.get("reasonType") : "") + 
-					(((Long) logObject.get("reasonId")) > 0 ? "\nreasonId: " + logObject.get("reasonId") : "") + 
 					linkString +
 				 	"\nparameters: " + logObject.get("parameters"));
 
@@ -346,8 +336,6 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		long objectId= (long) logObject.get("objectId");
 		String targetType=   (String) logObject.get("targetType");
 		long targetId= (long) logObject.get("targetId");
-		String reasonType= (String) logObject.get("reasonType");
-		long reasonId=(long) logObject.get("reasonId");
 		Long targetUserId=(long)0;
 		if(objectType.equals(NodeRequest.class.getSimpleName())){
 			targetUserId=logsDataManager.getRequestMaker(actorId, objectId);
@@ -627,12 +615,12 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
     }
 */
 	@Override
-	public void logSessionEnded(EventType eventType, User actor, String ipAddress) {
+	public void logSessionEnded(EventType eventType, long userId, String ipAddress) {
 		Map<String, String> parameters = new HashMap<>();
 		//parameters.put("ip", ipAddress);
 		try {
 			//ip address will be null
-			eventFactory.generateEvent(eventType, actor, null, parameters);
+			eventFactory.generateEvent(eventType, userId, null, parameters);
 		} catch (EventException e) {
 			logger.error("Generate event failed.", e);
 		}
@@ -640,9 +628,9 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 
 	//added for migration to new context approach
 	@Override
-	public void logEventObserved(EventType eventType, User actor,
+	public void logEventObserved(EventType eventType, long actorId,
 			String objectType, long objectId, String objectTitle,
-			String targetType, long targetId, String reasonType, long reasonId,
+			String targetType, long targetId,
 			Map<String, String> parameters, String ipAddress, LearningContext learningContext) throws LoggingException {
 
 		if (!Settings.getInstance().config.init.formatDB) {
@@ -658,29 +646,18 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			logObject.put("timestamp", System.currentTimeMillis());
 			logObject.put("eventType", eventType.name());
 	
-			long actorId = 0;
-			String actorName = "";
-	
-			if (actor != null) {
-				actorId = actor.getId();
-				actorName = actor.getName() + " " + actor.getLastname();
+			if (actorId > 0) {
 				this.recordUserActivity(actorId, System.currentTimeMillis());
-			} else {
-				actorId = 0;
-				actorName = "ANONYMOUS";
 			}
 			
 			String link = parameters.get("link");
 	
 			logObject.put("actorId", actorId);
-			logObject.put("actorFullname", actorName);
 			logObject.put("objectType", objectType);
 			logObject.put("objectId", objectId);
 			logObject.put("objectTitle", objectTitle);
 			logObject.put("targetType", targetType);
 			logObject.put("targetId", targetId);
-			logObject.put("reasonType", reasonType);
-			logObject.put("reasonId", reasonId);
 			logObject.put("link", link);
 
 			
@@ -731,7 +708,6 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			logger.info("\ntimestamp: " + timestamp + 
 		 			"\neventType: " + eventType + 
 		 			"\nactorId: " + logObject.get("actorId") + 
-		 			"\nactorFullname: " + logObject.get("actorFullname") + 
 		 			"\nobjectType: " + objectType + 
 		 			(((Long) logObject.get("objectId")) > 0 ? "\nobjectId: " + logObject.get("objectId") : "") + 
 		 			(logObject.get("objectTitle") != null ? "\nobjectTitle: " + logObject.get("objectTitle") : "") + 
@@ -739,8 +715,6 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 					(((Long) logObject.get("targetId")) > 0 ? "\ntargetId: " + logObject.get("targetId") : "") +
 					(((Long) logObject.get("courseId")) > 0 ? "\ncourseId: " + logObject.get("courseId") : "") +
 					(((Long) logObject.get("targetUserId")) > 0 ? "\ntargetUserId: " + logObject.get("targetUserId") : "") +
-					(logObject.get("reasonType") != null ? "\nreasonType: " + logObject.get("reasonType") : "") + 
-					(((Long) logObject.get("reasonId")) > 0 ? "\nreasonId: " + logObject.get("reasonId") : "") + 
 					linkString +
 				 	"\nparameters: " + logObject.get("parameters"));
 
@@ -762,7 +736,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	}
 	
 	@Override
-	public void logServiceUse(User user, ComponentName component, Map<String, String> params, 
+	public void logServiceUse(long userId, ComponentName component, Map<String, String> params, 
 			String ipAddress, LearningContextData context) throws LoggingException {
 		LearningContext learningContext = null;
 		if(context != null) {
@@ -770,8 +744,8 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 					.parseCustomContextString(context.getPage(), context.getLearningContext(), 
 							context.getService());
 		}
-		logEventObserved(EventType.SERVICEUSE, user, component.name(), 0, null,
-				null, 0, null, 0, params, ipAddress, learningContext);
+		logEventObserved(EventType.SERVICEUSE, userId, component.name(), 0, null,
+				null, 0, params, ipAddress, learningContext);
 	}
 
 }

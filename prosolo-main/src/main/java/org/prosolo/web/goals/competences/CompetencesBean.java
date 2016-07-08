@@ -18,11 +18,10 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.string.StringUtil;
+import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.activityWall.SocialActivityHandler;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.event.Event;
@@ -90,18 +89,15 @@ public class CompetencesBean implements Serializable {
 	// Creating new competence from the Competence Dialog
 	public void saveCompetence(){
 		logger.debug("Creating new Competence with the name \""+formData.getTitle()+"\" for the user "+ 
-				loggedUser.getUser());
+				loggedUser.getUserId());
 	
-		// put user into session
-		loggedUser.refreshUser();
-		
 		String context = PageUtil.getPostParameter("context");
 		
 		try {
 			long targetGoalId = goalBean.getSelectedGoalData().getData().getTargetGoalId();
 			
 			NodeEvent nodeEvent = goalManager.createCompetenceAndAddToGoal(
-					loggedUser.getUser(),
+					loggedUser.getUserId(),
 					StringUtil.cleanHtml(formData.getTitle()),
 					StringUtil.cleanHtml(formData.getDescription()),
 					formData.getValidity(),
@@ -117,7 +113,7 @@ public class CompetencesBean implements Serializable {
 			addTargetCompetence(newCompetence, goalBean.getSelectedGoalData(), nodeEvent.getEvent());
 			
 			logger.debug("New Competence \""+newCompetence.getTitle()+"\" ("+newCompetence.getId()+
-					") created for the user "+ loggedUser.getUser());
+					") created for the user "+ loggedUser.getUserId());
 			
 			PageUtil.fireSuccessfulInfoMessage("newCompForm:newCompFormGrowl", "Competence '"+formData.getTitle()+"' is created!");
 			
@@ -179,7 +175,7 @@ public class CompetencesBean implements Serializable {
 	public void connectCompetence(Competence competenceToConnect, GoalDataCache goalData, String context){
 		try {
 			NodeEvent nodeEvent = goalManager.addCompetenceToGoal(
-					loggedUser.getUser(), 
+					loggedUser.getUserId(), 
 					goalData.getData().getTargetGoalId(), 
 					competenceToConnect, 
 					true,
@@ -195,8 +191,7 @@ public class CompetencesBean implements Serializable {
 					"\" ("+competenceToConnect.getId()+") connected to the Learning Goal \""+
 					goalData.getData().getTitle()+"\" ("+
 					goalData.getData().getGoalId()+") of the user "+ 
-					loggedUser.getUser().getName()+" "+loggedUser.getUser().getLastname() + 
-					" ("+loggedUser.getUser().getId()+")" );
+					loggedUser.getUserId());
 			
 			PageUtil.fireSuccessfulInfoMessage("compSearchGrowl", "Competence '"+competenceToConnect.getTitle()+
 					"' is added to the learning goal '"+goalData.getData().getTitle()+"'.");
@@ -204,7 +199,7 @@ public class CompetencesBean implements Serializable {
 			logger.error("There was an error connecting Competence \""+competenceToConnect+" to the Learning Goal \""+
 					goalData.getData().getTitle()+"\" ("+
 					goalData.getData().getGoalId()+") of the user "+ 
-					loggedUser.getUser() + ". " + e);
+					loggedUser.getUserId() + ". " + e);
 			
 			PageUtil.fireErrorMessage("compSearchGrowl", "There was an error connecting competence "+competenceToConnect.getTitle()+".");
 		}
@@ -219,11 +214,11 @@ public class CompetencesBean implements Serializable {
 		competenceStatusCache.addInProgressCompetence(newCompetence.getCompetence().getId());
 		//SocialActivityWallData wallData=
 				socialActivityHandler.addSociaActivitySyncAndPropagateToStatusAndGoalWall(event);
-//				socialActivityHandler.addSociaActivitySyncAndPropagateToGoalWall(event, goalData, loggedUser.getUser(), 
+//				socialActivityHandler.addSociaActivitySyncAndPropagateToGoalWall(event, goalData, loggedUser.getUserId(), 
 //						 loggedUser.getLocale());
 		// add to status wall
 		//activityWallBean.addWallActivity(wallData);
-		//activityWallUtilBean.addSociaActivitySyncAndPropagate(event, goalData, loggedUser.getUser(), true, true);
+		//activityWallUtilBean.addSociaActivitySyncAndPropagate(event, goalData, loggedUser.getUserId(), true, true);
 	}
 
 	public void setCompletionOfSelectedCompetence(boolean completed, String context) {
@@ -258,13 +253,12 @@ public class CompetencesBean implements Serializable {
 		goalBean.recalculateSelectedGoalProgress();
 		
 		final CompetenceDataCache competenceDataCache1 = competenceDataCache;
-		final User user = loggedUser.getUser();
 		taskExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
 			 
 					// update Portfolio cache if exists
-			    	final PortfolioBean portfolioBean = (PortfolioBean) applicationBean.getUserSession(user.getId()).getAttribute("portfolio");
+			    	final PortfolioBean portfolioBean = (PortfolioBean) applicationBean.getUserSession(loggedUser.getUserId()).getAttribute("portfolio");
 			    	portfolioBean.populateWithActiveCompletedCompetences();
 
 			    	Session session = (Session) compManager.getPersistence().openSession();
@@ -293,7 +287,7 @@ public class CompetencesBean implements Serializable {
 						
 						EventType event = completed ? EventType.Completion : EventType.NotCompleted;
 						
-						eventFactory.generateEvent(event, user, tComp, parameters);
+						eventFactory.generateEvent(event, loggedUser.getUserId(), tComp, parameters);
 					} catch (EventException e) {
 						logger.error(e);
 					}
@@ -323,7 +317,7 @@ public class CompetencesBean implements Serializable {
 //							compWallBean.updateActivityDataInUserInboxAsync(activity);
 		
 							logger.debug("Setting as completed activity \""+activity+
-									"\" by the user "+ loggedUser.getUser());
+									"\" by the user "+ loggedUser.getUserId());
 						}
 					} catch (ResourceCouldNotBeLoadedException e) {
 						logger.error(e);
@@ -351,24 +345,24 @@ public class CompetencesBean implements Serializable {
 			logger.debug("Competence '"+compData.getData().getTitle()+"' is removed from the learning goal \""+
 					goalDataCache.getData().getTitle()+"\" ("+
 					goalDataCache.getData().getGoalId()+") by the user "+ 
-					loggedUser.getUser());
+					loggedUser.getUserId());
 			PageUtil.fireSuccessfulInfoMessage("deleteCompForm:deleteCompGrowl", "Competence '"+compData.getData().getTitle()+"' is removed!");
 		} else {
 			logger.error("Could not remove competence '"+compData.getData().getTitle()+"' from the learning goal \""+
 					goalDataCache.getData().getTitle()+"\" ("+
 					goalDataCache.getData().getGoalId()+") by the user "+ 
-					loggedUser.getUser() );
+					loggedUser.getUserId() );
 			PageUtil.fireErrorMessage(":deleteCompForm:deleteCompGrowl", "There was an error removing competence.");
 		}
 	}
 	
 	public boolean deleteCompetence(CompetenceDataCache compData, GoalDataCache goalDataCache) {
 		logger.debug("Deleting competence '"+compData.getData().getTitle()+"\" by the user "+ 
-				loggedUser.getUser());
+				loggedUser.getUserId());
 		
 		try {
 			GoalTargetCompetenceAnon goalComp = goalManager.deleteTargetCompetenceFromGoal(
-					loggedUser.getUser(), 
+					loggedUser.getUserId(), 
 					goalDataCache.getData().getTargetGoalId(), 
 					compData.getData().getId());
 
@@ -377,7 +371,7 @@ public class CompetencesBean implements Serializable {
 			
 			goalBean.recalculateGoalProgress(goalBean.getSelectedGoalData());
 			
-			eventFactory.generateEvent(EventType.Detach, loggedUser.getUser(), goalComp.getTargetCompetence(), goalComp.getTargetGoal());
+			eventFactory.generateEvent(EventType.Detach, loggedUser.getUserId(), loggedUser.getFullName(), goalComp.getTargetCompetence(), goalComp.getTargetGoal(), null);
 			
 			return true;
 		} catch (EventException e) {

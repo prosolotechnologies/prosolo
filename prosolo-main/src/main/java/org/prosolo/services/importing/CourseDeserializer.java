@@ -6,11 +6,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CourseCompetence;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CourseManager;
@@ -28,6 +30,8 @@ import com.google.gson.JsonParseException;
  */
 
 public class CourseDeserializer implements JsonDeserializer<Course> {
+	
+	private static Logger logger = Logger.getLogger(CourseDeserializer.class);
 
 	@Override
 	public Course deserialize(JsonElement json, Type arg1,
@@ -73,8 +77,8 @@ public class CourseDeserializer implements JsonDeserializer<Course> {
 					creatorType, 
 					studentsCanAddNewCompetences,
 					published);
-		} catch (EventException e) {
-			e.printStackTrace();
+		} catch (EventException | ResourceCouldNotBeLoadedException e) {
+			logger.error(e);
 		}
 		return restoredCourse;
 	}

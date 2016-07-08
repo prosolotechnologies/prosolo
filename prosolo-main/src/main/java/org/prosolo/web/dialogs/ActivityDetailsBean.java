@@ -89,7 +89,7 @@ public class ActivityDetailsBean implements Serializable {
 		setActivity(activity);
 		
 		Locale locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
-		this.activityData = compWallActivityConverter.convertActivityToActivityWallData(activity, loggedUser.getUser(), locale, true, false); 
+		this.activityData = compWallActivityConverter.convertActivityToActivityWallData(activity, loggedUser.getUserId(), locale, true, false); 
 		setMaker(activity.getMaker());
 	}
 	

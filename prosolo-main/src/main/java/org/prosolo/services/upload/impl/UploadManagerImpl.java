@@ -11,7 +11,6 @@ import org.primefaces.model.UploadedFile;
 import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.content.ContentType;
 import org.prosolo.common.domainmodel.content.ContentType1;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
 import org.prosolo.services.upload.AmazonS3UploadManager;
@@ -33,10 +32,10 @@ public class UploadManagerImpl implements UploadManager {
 	@Autowired private AmazonS3UploadManager s3Manager;
 	
 	@Override
-	public AttachmentPreview uploadFile(User user, UploadedFile uploadedFile, String fileName) throws IOException {
+	public AttachmentPreview uploadFile(UploadedFile uploadedFile, String fileName) throws IOException {
 		AttachmentPreview attachmentPreview = new AttachmentPreview();
 		attachmentPreview.setInitialized(true);
-		String fullPath = storeFile(user, uploadedFile, fileName);
+		String fullPath = storeFile(uploadedFile, fileName);
 
 		// link
 		attachmentPreview.setLink(fullPath);
@@ -63,11 +62,11 @@ public class UploadManagerImpl implements UploadManager {
 	}
 	
 	@Override
-	public AttachmentPreview1 uploadFile(User user, String fileName, UploadedFile uploadedFile) 
+	public AttachmentPreview1 uploadFile(String fileName, UploadedFile uploadedFile) 
 			throws IOException {
 		AttachmentPreview1 attachmentPreview = new AttachmentPreview1();
 		attachmentPreview.setInitialized(true);
-		String fullPath = storeFile(user, uploadedFile, fileName);
+		String fullPath = storeFile(uploadedFile, fileName);
 
 		// link
 		attachmentPreview.setLink(fullPath);
@@ -96,7 +95,7 @@ public class UploadManagerImpl implements UploadManager {
 	}
 	
 	@Override
-	public String storeFile(User user, UploadedFile uploadedFile, String fileName) throws IOException {
+	public String storeFile(UploadedFile uploadedFile, String fileName) throws IOException {
 		String key = MD5HashUtility.generateKeyForFilename(fileName);
 		//Don't delete this. It temporary stores files to
 		//local directory for later indexing

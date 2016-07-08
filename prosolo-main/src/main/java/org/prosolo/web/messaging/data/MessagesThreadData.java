@@ -12,7 +12,6 @@ import org.prosolo.common.domainmodel.messaging.ThreadParticipant;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 
 /*
  * @author Zoran Jeremic 2013-05-19
@@ -39,7 +38,7 @@ public class MessagesThreadData implements Serializable {
 		participantsWithoutLoggedUser = new ArrayList<UserData>();
 	}
 	
-	public MessagesThreadData(MessageThread thread, User loggedUser) {
+	public MessagesThreadData(MessageThread thread, long userId) {
 		this();
 		
 		this.id = thread.getId();
@@ -49,11 +48,11 @@ public class MessagesThreadData implements Serializable {
 		
 		for (ThreadParticipant participant : thread.getParticipants()) {
 			User user = participant.getUser();
-			UserData userData = UserDataFactory.createUserData(user);
+			UserData userData = new UserData(user);
 			
 			participants.add(userData);
 			
-			if (user.getId() != loggedUser.getId()) {
+			if (user.getId() != userId) {
 				participantsWithoutLoggedUser.add(userData);
 			}
 		}
@@ -78,7 +77,7 @@ public class MessagesThreadData implements Serializable {
 		List<MessageData> messagesData = new ArrayList<MessageData>();
 		
 		for (Message m : thread.getMessages()) {
-			messagesData.add(new MessageData(m, loggedUser));
+			messagesData.add(new MessageData(m, userId));
 		}
 		this.messages = messagesData;
 	}

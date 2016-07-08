@@ -9,7 +9,6 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.activityWall.SocialActivityFilterProcessor;
 import org.prosolo.services.activityWall.SocialActivityFiltering;
 import org.prosolo.services.activityWall.SocialActivityManager;
@@ -51,16 +50,16 @@ public class SocialActivityFilteringImpl implements SocialActivityFiltering {
 		for (HttpSession httpSession : sessions) {
 			if (httpSession != null) {				
 				LoggedUserBean loggedUserBean = (LoggedUserBean) httpSession.getAttribute("loggeduser");
-				User user = loggedUserBean.getUser();
+				long userId = loggedUserBean.getUserId();
 				//TODO check if it workds - if it is post social activity it is already added to creator's wall when he created post.
 				if(socialActivity instanceof PostSocialActivity1 
-						&& socialActivity.getActor().getId() == user.getId()) {
+						&& socialActivity.getActor().getId() == userId) {
 					continue;
 				}
 				Filter selectedStatusWallFilter = loggedUserBean.getSelectedStatusWallFilter();
 				SocialActivityFilterProcessor processor = strategyFactory.getFilterProcessor(
 						SocialActivityFilterProcessor.class, selectedStatusWallFilter.getFilterType());
-				boolean shouldBeDisplayedOnStatusWall=processor.checkSocialActivity(socialActivity, user, 
+				boolean shouldBeDisplayedOnStatusWall=processor.checkSocialActivity(socialActivity, userId, 
 						selectedStatusWallFilter);
 				
 				if (shouldBeDisplayedOnStatusWall) {
@@ -68,7 +67,7 @@ public class SocialActivityFilteringImpl implements SocialActivityFiltering {
 					if(activityWallBean!=null){
 						SocialActivityData1 socialActivityData = socialActivityManager
 								.getSocialActivity(socialActivity.getId(), socialActivity.getClass(), 
-										loggedUserBean.getUser().getId(), loggedUserBean.getLocale(), session);
+										loggedUserBean.getUserId(), loggedUserBean.getLocale(), session);
 						activityWallBean.addNewSocialActivity(socialActivityData);
 					}
 

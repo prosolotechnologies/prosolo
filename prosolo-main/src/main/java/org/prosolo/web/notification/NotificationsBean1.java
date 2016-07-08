@@ -48,8 +48,8 @@ public class NotificationsBean1 implements Serializable {
 		
 		try {
 			notificationData = NotificationDataConverter.convertNotifications(
-					loggedUser.getUser(),
-					notificationsManager.getNotifications(loggedUser.getUser(), page , limit+1),
+					loggedUser.getUserId(),
+					notificationsManager.getNotifications(loggedUser.getUserId(), page , limit+1),
 					(Session) defaultManager.getPersistence().currentManager(),
 					loggedUser.getLocale());
 		} catch (NotificationNotSupported e) {

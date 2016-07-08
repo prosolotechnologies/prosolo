@@ -39,7 +39,7 @@ public class SearchFeaturedNewsBean implements Serializable{
 	public void init() {
 		logger.debug("initializing");
 		
-		List<LearningGoalFeaturedNews> fNewsList = featuredNewsManager.readPublicFeaturedNews(loggedUser.getUser(), page, limit);
+		List<LearningGoalFeaturedNews> fNewsList = featuredNewsManager.readPublicFeaturedNews(loggedUser.getUserId(), page, limit);
 		featuredNewsList = FeaturedNewsConverter.convertFeaturedNewsToFeaturedNewsData(fNewsList);
 	}
  

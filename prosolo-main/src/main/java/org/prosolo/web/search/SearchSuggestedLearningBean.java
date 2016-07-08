@@ -14,6 +14,7 @@ import org.prosolo.common.domainmodel.activities.Recommendation;
 import org.prosolo.common.domainmodel.activities.RecommendationType;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.recommendation.SuggestedLearningService;
 import org.prosolo.services.nodes.NodeRecommendationManager;
 import org.prosolo.web.LoggedUserBean;
@@ -57,18 +58,22 @@ public class SearchSuggestedLearningBean implements Serializable {
 		logger.debug("initializing");
 		
 		List<Recommendation> colleguesRecommendations = suggestedLearningService.findSuggestedLearningResourcesByCollegues(
-					loggedUser.getUser(), 
+					loggedUser.getUserId(), 
 					RecommendationType.USER,
 					page, elementsPerPage);
 		
 		LinkedList<RecommendationData> colleguesRecData = recommendationConverter.convertRecommendationsToRecommendedData(colleguesRecommendations);
 		suggestedResources.addAll(colleguesRecData);
 		
-		List<Node> nodesSuggestedBySystem = suggestedLearningService.findSuggestedLearningResourcesBySystem(loggedUser.getUser(), elementsPerPage);
-		List<RecommendationData> systemRecommendation=recommendationConverter.convertNodesToRecommendedData(nodesSuggestedBySystem, loggedUser.getUser());
-		suggestedResources.addAll(systemRecommendation);
-		
-		updateChosenFilter(chosenFilter);
+		try {
+			List<Node> nodesSuggestedBySystem = suggestedLearningService.findSuggestedLearningResourcesBySystem(loggedUser.getUserId(), elementsPerPage);
+			List<RecommendationData> systemRecommendation=recommendationConverter.convertNodesToRecommendedData(nodesSuggestedBySystem, loggedUser.getUserId());
+			suggestedResources.addAll(systemRecommendation);
+			
+			updateChosenFilter(chosenFilter);
+		} catch (ResourceCouldNotBeLoadedException e) {
+			logger.error(e);
+		}
 	}
  
 	public void updateChosenFilter(SuggestedLearningFilterType filter) {
@@ -104,7 +109,11 @@ public class SearchSuggestedLearningBean implements Serializable {
 	public void dismissRecommendation(RecommendationData recommendationData) {
 		removeSuggestedRecommendation(recommendationData);
 		suggestedLearningBean.removeSuggestedResource(recommendationData.getRecommendationType(), recommendationData.getId());
-		recommendationManager.dismissRecommendation(recommendationData, loggedUser.getUser());
+		try {
+			recommendationManager.dismissRecommendation(recommendationData, loggedUser.getUserId());
+		} catch (ResourceCouldNotBeLoadedException e) {
+			logger.error(e);
+		}
 	}
 
 	/*

@@ -2,38 +2,22 @@ package org.prosolo.web.settings;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.user.LearningGoal;
-import org.prosolo.common.domainmodel.user.TargetLearningGoal;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.oauth.OauthAccessToken;
-import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
-import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
-import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interaction.AnalyticalServiceCollector;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.twitter.TwitterApiManager;
 import org.prosolo.services.twitter.UserOauthTokensManager;
-import org.prosolo.util.nodes.AnnotationUtil;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.portfolio.PortfolioBean;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -84,35 +68,35 @@ public class TwitterBean implements Serializable {
 	@PostConstruct
 	public boolean init() {
 		try {
-			ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
-			Map<String, String> parameterMap = (Map<String, String>) externalContext.getRequestParameterMap();
-			String oauthVerifier = parameterMap.get("oauth_verifier");
+//			ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+//			Map<String, String> parameterMap = (Map<String, String>) externalContext.getRequestParameterMap();
+//			String oauthVerifier = parameterMap.get("oauth_verifier");
+//
+//			// @SuppressWarnings("unused")
+//			OauthAccessToken accessToken = twitterApiManager.verifyAndGetTwitterAccessToken(loggedUser.getUser(),
+//					oauthVerifier);
+//
+//			String screenN = accessToken.getProfileName();
+//
+//			String twitterProfileUrl = "https://twitter.com/" + screenN;
+//			setScreenName(screenN);
+//			setTwitterProfile(twitterProfileUrl);
+//
+//			// set Twitter link if it is not already set
+//			PortfolioBean portfolio = PageUtil.getSessionScopedBean("portfolio", PortfolioBean.class);
 
-			// @SuppressWarnings("unused")
-			OauthAccessToken accessToken = twitterApiManager.verifyAndGetTwitterAccessToken(loggedUser.getUser(),
-					oauthVerifier);
-
-			String screenN = accessToken.getProfileName();
-
-			String twitterProfileUrl = "https://twitter.com/" + screenN;
-			setScreenName(screenN);
-			setTwitterProfile(twitterProfileUrl);
-
-			// set Twitter link if it is not already set
-			PortfolioBean portfolio = PageUtil.getSessionScopedBean("portfolio", PortfolioBean.class);
-
-			if (portfolio != null) {
-				String twitterLink = portfolio.getSocialNetworksData().getSocialNetworkAccountDatas()
-						.get(SocialNetworkName.TWITTER.toString()).getLink();
-
-				if (twitterLink == null || !twitterProfileUrl.equals(twitterLink)) {
-					portfolio.getSocialNetworksData().getSocialNetworkAccountDatas()
-							.get(SocialNetworkName.TWITTER.toString()).setLinkEdit(twitterProfileUrl);
-					portfolio.saveSocialNetworks();
-					PageUtil.fireSuccessfulInfoMessage("socialNetworksSettingsForm:socialNetworksFormGrowl",
-							"Social networks updated!");
-				}
-			}
+//			if (portfolio != null) {
+//				String twitterLink = portfolio.getSocialNetworksData().getSocialNetworkAccountDatas()
+//						.get(SocialNetworkName.TWITTER.toString()).getLink();
+//
+//				if (twitterLink == null || !twitterProfileUrl.equals(twitterLink)) {
+//					portfolio.getSocialNetworksData().getSocialNetworkAccountDatas()
+//							.get(SocialNetworkName.TWITTER.toString()).setLinkEdit(twitterProfileUrl);
+//					portfolio.saveSocialNetworks();
+//					PageUtil.fireSuccessfulInfoMessage("socialNetworksSettingsForm:socialNetworksFormGrowl",
+//							"Social networks updated!");
+//				}
+//			}
 
 			allOk = true;
 		} catch (java.lang.IllegalStateException e) {
@@ -121,8 +105,8 @@ public class TwitterBean implements Serializable {
 			// "+loggedUser.getUser().getLastname()+e.getLocalizedMessage());
 			allOk = false;
 		} catch (Exception e) {
-			logger.error("Exception in checking twitter status for user:" + loggedUser.getUser().getName() + " "
-					+ loggedUser.getUser().getLastname(), e);
+			logger.error("Exception in checking twitter status for user:" + loggedUser.getSessionData().getName() + " "
+					+ loggedUser.getSessionData().getLastName(), e);
 			allOk = false;
 		}
 		this.initAccountStatusMessage();
@@ -131,13 +115,13 @@ public class TwitterBean implements Serializable {
 	}
 
 	public void initHashTags() {
-		// User user = hashtagManager.merge(loggedUser.getUser());
-		// TopicPreference topicPreference =
-		// user.getPreferences(TopicPreference.class);
-		// Set<Annotation> preferredHashTags =
-		// topicPreference.getPreferredHashTags();
-		this.hashTags = AnnotationUtil
-				.getAnnotationsAsSortedCSV(tagManager.getSubscribedHashtags(loggedUser.getUser()));
+//		// User user = hashtagManager.merge(loggedUser.getUser());
+//		// TopicPreference topicPreference =
+//		// user.getPreferences(TopicPreference.class);
+//		// Set<Annotation> preferredHashTags =
+//		// topicPreference.getPreferredHashTags();
+//		this.hashTags = AnnotationUtil
+//				.getAnnotationsAsSortedCSV(tagManager.getSubscribedHashtags(loggedUser.getUser()));
 	}
 
 	public void initAccountStatusMessage() {
@@ -147,17 +131,17 @@ public class TwitterBean implements Serializable {
 	}
 
 	public void startTweeterOauthAuthProcess() throws TwitterException, IOException {
-		// check if we have the credentials id not redirect;
-		HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext()
-				.getRequest();
-		String callbackUrl = getCallbackUrl(request);
-		OauthAccessToken oauthAccessToken = twitterApiManager.getOauthAccessToken(loggedUser.getUser());
-
-		if (oauthAccessToken == null) {
-			String url = twitterApiManager.getTwitterTokenUrl(loggedUser.getUser(), callbackUrl);
-			ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
-			externalContext.redirect(url);
-		}
+//		// check if we have the credentials id not redirect;
+//		HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext()
+//				.getRequest();
+//		String callbackUrl = getCallbackUrl(request);
+//		OauthAccessToken oauthAccessToken = twitterApiManager.getOauthAccessToken(loggedUser.getUser());
+//
+//		if (oauthAccessToken == null) {
+//			String url = twitterApiManager.getTwitterTokenUrl(loggedUser.getUser(), callbackUrl);
+//			ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+//			externalContext.redirect(url);
+//		}
 	}
 
 	public String getCallbackUrl(HttpServletRequest request) {
@@ -172,93 +156,94 @@ public class TwitterBean implements Serializable {
 	}
 
 	public void disconnectUserAccount() {
-		logger.debug("disconnectUserAccount for:" + loggedUser.getUser().getId());
-
-		PortfolioBean portfolio = PageUtil.getSessionScopedBean("portfolio", PortfolioBean.class);
-
-		if (portfolio != null) {
-			String twitterLink = portfolio.getSocialNetworksData().getSocialNetworkAccountDatas()
-					.get(SocialNetworkName.TWITTER.toString()).getLinkEdit();
-
-			if (twitterLink != null && twitterLink.length() > 0) {
-				portfolio.getSocialNetworksData().getSocialNetworkAccountDatas().get(SocialNetworkName.TWITTER.toString())
-						.setLinkEdit("");
-				portfolio.saveSocialNetworks();
-			}
-		}
-
-		long deletedUserId = userOauthTokensManager.deleteUserOauthAccessToken(loggedUser.getUser(),
-				ServiceType.TWITTER);
-		analyticalServiceCollector.updateTwitterUser(deletedUserId, false);
-		this.disconnected = true;
-		this.setScreenName(null);
-		PageUtil.fireSuccessfulInfoMessage("socialNetworksSettingsForm:socialNetworksFormGrowl",
-				"Your ProSolo account is now disconnect from your Twitter account.");
-		allOk = false;
+//		logger.debug("disconnectUserAccount for:" + loggedUser.getUser().getId());
+//
+//		PortfolioBean portfolio = PageUtil.getSessionScopedBean("portfolio", PortfolioBean.class);
+//
+//		if (portfolio != null) {
+//			String twitterLink = portfolio.getSocialNetworksData().getSocialNetworkAccountDatas()
+//					.get(SocialNetworkName.TWITTER.toString()).getLinkEdit();
+//
+//			if (twitterLink != null && twitterLink.length() > 0) {
+//				portfolio.getSocialNetworksData().getSocialNetworkAccountDatas().get(SocialNetworkName.TWITTER.toString())
+//						.setLinkEdit("");
+//				portfolio.saveSocialNetworks();
+//			}
+//		}
+//
+//		long deletedUserId = userOauthTokensManager.deleteUserOauthAccessToken(loggedUser.getUser(),
+//				ServiceType.TWITTER);
+//		analyticalServiceCollector.updateTwitterUser(deletedUserId, false);
+//		this.disconnected = true;
+//		this.setScreenName(null);
+//		PageUtil.fireSuccessfulInfoMessage("socialNetworksSettingsForm:socialNetworksFormGrowl",
+//				"Your ProSolo account is now disconnect from your Twitter account.");
+//		allOk = false;
 	}
 
 	public void updateHashTagsAction() {
 		String context = PageUtil.getPostParameter("context");
-
-		loggedUser.refreshUser();
-		Set<Tag> hashTagList = tagManager.getOrCreateTags(AnnotationUtil.getTrimmedSplitStrings(hashTags));
-		TopicPreference topicPreference = (TopicPreference) userManager.getUserPreferences(loggedUser.getUser(),
-				TopicPreference.class);
-		List<Tag> oldHashTags = new ArrayList<Tag>();
-		oldHashTags.addAll(topicPreference.getPreferredHashtags());
-		topicPreference.setPreferredHashtags(new HashSet<Tag>(hashTagList));
-		tagManager.saveEntity(topicPreference);
-		System.out.println("UPDATING HASHTAGS FOR USER 1");
-		// twitterStreamsManager
-		// .updateHashTagsForUserAndRestartStream(oldHashTags,
-		// topicPreference.getPreferredHashtags(),
-		// loggedUser.getUser().getId());
-		eventFactory.generateUpdateHashtagsEvent(loggedUser.getUser(), oldHashTags,
-				topicPreference.getPreferredHashtags(), null, loggedUser.getUser(), context);
-		PageUtil.fireSuccessfulInfoMessage("Updated twitter hashtags!");
+//
+//		loggedUser.refreshUser();
+//		Set<Tag> hashTagList = tagManager.getOrCreateTags(AnnotationUtil.getTrimmedSplitStrings(hashTags));
+//		TopicPreference topicPreference = (TopicPreference) userManager.getUserPreferences(loggedUser.getUser(),
+//				TopicPreference.class);
+//		List<Tag> oldHashTags = new ArrayList<Tag>();
+//		oldHashTags.addAll(topicPreference.getPreferredHashtags());
+//		topicPreference.setPreferredHashtags(new HashSet<Tag>(hashTagList));
+//		tagManager.saveEntity(topicPreference);
+//		System.out.println("UPDATING HASHTAGS FOR USER 1");
+//		// twitterStreamsManager
+//		// .updateHashTagsForUserAndRestartStream(oldHashTags,
+//		// topicPreference.getPreferredHashtags(),
+//		// loggedUser.getUser().getId());
+//		eventFactory.generateUpdateHashtagsEvent(loggedUser.getUser(), oldHashTags,
+//				topicPreference.getPreferredHashtags(), null, loggedUser.getUser(), context);
+//		PageUtil.fireSuccessfulInfoMessage("Updated twitter hashtags!");
 	}
 
 	public Collection<Tag> unfollowHashtags(List<String> hashtags) {
-		User user = tagManager.merge(loggedUser.getUser());
-		TopicPreference topicPreference = (TopicPreference) userManager.getUserPreferences(user, TopicPreference.class);
-
-		Set<Tag> removedHashtags = new HashSet<Tag>();
-
-		Iterator<Tag> preferedHashTags = topicPreference.getPreferredHashtags().iterator();
-
-		for (String tag : hashtags) {
-			while (preferedHashTags.hasNext()) {
-				Tag hashtag = preferedHashTags.next();
-
-				if (hashtag.getTitle().equals(tag)) {
-					removedHashtags.add(hashtag);
-					preferedHashTags.remove();
-				}
-			}
-		}
-		tagManager.saveEntity(topicPreference);
-
-		Set<TargetLearningGoal> tGoals = user.getLearningGoals();
-
-		for (TargetLearningGoal tGoal : tGoals) {
-			LearningGoal lGoal = tGoal.getLearningGoal();
-			Iterator<Tag> lGoalHashTags = lGoal.getHashtags().iterator();
-
-			for (String tag : hashtags) {
-				while (lGoalHashTags.hasNext()) {
-
-					Tag hashtag = lGoalHashTags.next();
-
-					if (hashtag.getTitle().equals(tag)) {
-						removedHashtags.add(hashtag);
-						lGoalHashTags.remove();
-					}
-				}
-			}
-			tagManager.saveEntity(lGoal);
-		}
-
-		return removedHashtags;
+//		User user = tagManager.merge(loggedUser.getUser());
+//		TopicPreference topicPreference = (TopicPreference) userManager.getUserPreferences(user, TopicPreference.class);
+//
+//		Set<Tag> removedHashtags = new HashSet<Tag>();
+//
+//		Iterator<Tag> preferedHashTags = topicPreference.getPreferredHashtags().iterator();
+//
+//		for (String tag : hashtags) {
+//			while (preferedHashTags.hasNext()) {
+//				Tag hashtag = preferedHashTags.next();
+//
+//				if (hashtag.getTitle().equals(tag)) {
+//					removedHashtags.add(hashtag);
+//					preferedHashTags.remove();
+//				}
+//			}
+//		}
+//		tagManager.saveEntity(topicPreference);
+//
+//		Set<TargetLearningGoal> tGoals = user.getLearningGoals();
+//
+//		for (TargetLearningGoal tGoal : tGoals) {
+//			LearningGoal lGoal = tGoal.getLearningGoal();
+//			Iterator<Tag> lGoalHashTags = lGoal.getHashtags().iterator();
+//
+//			for (String tag : hashtags) {
+//				while (lGoalHashTags.hasNext()) {
+//
+//					Tag hashtag = lGoalHashTags.next();
+//
+//					if (hashtag.getTitle().equals(tag)) {
+//						removedHashtags.add(hashtag);
+//						lGoalHashTags.remove();
+//					}
+//				}
+//			}
+//			tagManager.saveEntity(lGoal);
+//		}
+//
+//		return removedHashtags;
+		return null;
 	}
 
 	/*

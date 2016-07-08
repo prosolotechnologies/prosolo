@@ -74,8 +74,8 @@ public class DigestBean implements Serializable{
 	
 	@PostConstruct
 	public void setDefaults() {
-		if (loggedUser != null && loggedUser.getUser() != null) {
-			this.userId = loggedUser.getUser().getId();
+		if (loggedUser != null && loggedUser.isLoggedIn()) {
+			this.userId = loggedUser.getUserId();
 			
 			if (filter == null) {
 				filter = FilterOption.myfeeds;
@@ -149,7 +149,7 @@ public class DigestBean implements Serializable{
 					parameters.put("interval", interval.toString());
 					parameters.put("filter", filter.toString());
 				
-					eventFactory.generateEvent(EventType.DIGEST_FILTER_UPDATED, loggedUser.getUser(), parameters);
+					eventFactory.generateEvent(EventType.DIGEST_FILTER_UPDATED, loggedUser.getUserId(), null, parameters);
 				} catch (EventException e) {
 					logger.error(e);
 				}

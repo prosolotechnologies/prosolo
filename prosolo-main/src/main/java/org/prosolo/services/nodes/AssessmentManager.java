@@ -4,7 +4,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
 import org.prosolo.services.nodes.data.AssessmentData;
@@ -19,7 +18,7 @@ public interface AssessmentManager {
 	public List<AssessmentData> getAllAssessmentsForCredential(long credentialId, long assessorId,
 			boolean searchForPending, boolean searchForApproved, UrlIdEncoder idEncoder, DateFormat simpleDateFormat);
 
-	public FullAssessmentData getFullAssessmentData(long id, UrlIdEncoder encoder, User user, DateFormat dateFormat);
+	public FullAssessmentData getFullAssessmentData(long id, UrlIdEncoder encoder, long userId, DateFormat dateFormat);
 
 	public Long countAssessmentsForUserAndCredential(long userId, long credentialId);
 

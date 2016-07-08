@@ -54,8 +54,8 @@ public abstract class DefaultWallSocialActivitiesDisplayer {
 	protected abstract List<SocialActivityData> fetchActivities(int offset, int limit); 
 	protected abstract SocialStreamSubViewType getSubViewType();
 	
-	public void init(User loggedUser, Locale locale, Filter filter) {
-		this.loggedUser = loggedUser;
+	public void init(long userId, Locale locale, Filter filter) {
+//		this.loggedUser = loggedUser;
 		this.locale = locale;
 		this.filter = filter;
 	}
@@ -181,7 +181,7 @@ public abstract class DefaultWallSocialActivitiesDisplayer {
 	
 	public synchronized void addSocialActivity(SocialActivity socialActivity, User loggedUser, Locale locale, boolean optionsDisabled) {
 		if (allActivities != null) {
-			SocialActivityData wallActivity = wallActivityConverter.convertSocialActivityToSocialActivityData(socialActivity, loggedUser, getSubViewType(), locale);
+			SocialActivityData wallActivity = wallActivityConverter.convertSocialActivityToSocialActivityData(socialActivity, loggedUser.getId(), getSubViewType(), locale);
 //			wallActivity.setWallOwner(new UserData(loggedUser.getUser()));
 //			wallActivity.setOptionsDisabled(true);
 //			

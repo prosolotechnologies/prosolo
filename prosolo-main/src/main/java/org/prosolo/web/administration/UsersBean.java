@@ -142,9 +142,7 @@ public class UsersBean implements Serializable {
 	}
 
 	public void saveNewUser() {
-		loggedUser.refreshUser();
-
-		logger.debug("Creating new User for the user " + loggedUser.getUser());
+		logger.debug("Creating new User for the user " + loggedUser.getUserId());
 
 		try {
 			User user = userManager.createNewUser(
@@ -164,7 +162,7 @@ public class UsersBean implements Serializable {
 
 			logger.debug("New User (" + user.getName() + " "
 					+ user.getLastname() + ") for the user "
-					+ loggedUser.getUser());
+					+ loggedUser.getUserId());
 			
 			try {
 				PageUtil.fireSuccessfulInfoMessage(
@@ -198,9 +196,8 @@ public class UsersBean implements Serializable {
 	}
 	
 	public void updateUser() {
-		loggedUser.refreshUser();
 		logger.debug("Updating User " + formData.getId() + " by the user "
-				+ loggedUser.getUser());
+				+ loggedUser.getUserId());
 
 		try {
 			User user = userManager.updateUser(
@@ -214,7 +211,7 @@ public class UsersBean implements Serializable {
 				this.formData.getPosition());
 
 			logger.debug("User (" + user.getId() + ") updated by the user "
-					+ loggedUser.getUser());
+					+ loggedUser.getUserId());
 
 			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getMessage(
 					"admin.users.updated", 

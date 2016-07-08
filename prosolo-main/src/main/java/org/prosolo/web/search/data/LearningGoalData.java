@@ -8,7 +8,6 @@ import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.util.nodes.AnnotationUtil;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 
 public class LearningGoalData implements Serializable {
 	
@@ -30,7 +29,7 @@ public class LearningGoalData implements Serializable {
 		this.id = goal.getId();
 		this.title = goal.getTitle();
 		this.description = goal.getDescription();
-		this.maker = UserDataFactory.createUserData(goal.getMaker());
+		this.maker = new UserData(goal.getMaker());
 		this.deadline = goal.getDeadline();
 		this.tagsString = AnnotationUtil.getAnnotationsAsSortedCSV(goal.getTags());
 	}

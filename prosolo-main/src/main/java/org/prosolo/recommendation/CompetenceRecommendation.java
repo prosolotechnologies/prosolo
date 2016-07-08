@@ -8,5 +8,5 @@ import org.prosolo.common.domainmodel.user.User;
 
 public interface CompetenceRecommendation {
 
-	List<Competence> recommendCompetences(User user, TargetLearningGoal tGoal, int limit);
+	List<Competence> recommendCompetences(long userId, TargetLearningGoal tGoal, int limit);
 }

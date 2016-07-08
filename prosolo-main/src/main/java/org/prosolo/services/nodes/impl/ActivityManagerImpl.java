@@ -51,30 +51,30 @@ public class ActivityManagerImpl extends AbstractManagerImpl implements	Activity
 	@Transactional
 	public Activity createNewActivity(User user, String title, String description, 
 			AttachmentPreview attachmentPreview, VisibilityType visType, Collection<Tag> tags) 
-					throws EventException {
-		return createNewResourceActivity(user, title, description, attachmentPreview, visType, null, false, null,
+					throws EventException, ResourceCouldNotBeLoadedException {
+		return createNewResourceActivity(user.getId(), title, description, attachmentPreview, visType, null, false, null,
 				null, null, null);
 	}
 	
 	@Override
 	@Transactional
-	public Activity createNewActivity(User user, String title,
+	public Activity createNewActivity(long userId, String title,
 			String description, AttachmentPreview attachmentPreview, VisibilityType visType, boolean sync,
-			String context, String page, String learningContext, String service) throws EventException {
-		return createNewResourceActivity(user, title, description, attachmentPreview, visType, null, sync, 
+			String context, String page, String learningContext, String service) throws EventException, ResourceCouldNotBeLoadedException {
+		return createNewResourceActivity(userId, title, description, attachmentPreview, visType, null, sync, 
 				context, page, learningContext, service);
 	}
 	
 	@Override
 	@Transactional(readOnly = false)
 	@SuppressWarnings("unchecked")
-	public Activity createNewResourceActivity(User user, String title,
+	public Activity createNewResourceActivity(long userId, String title,
 			String description, AttachmentPreview attachmentPreview, VisibilityType visType, 
 			Collection<Tag> tags, boolean propagateToSocialStreamManualy,
-			String context, String page, String learningContext, String service) throws EventException {
+			String context, String page, String learningContext, String service) throws EventException, ResourceCouldNotBeLoadedException {
 
 		Activity newActivity = resourceFactory.createNewResourceActivity(
-				user, 
+				userId, 
 				title,
 				description,
 				attachmentPreview, 
@@ -88,12 +88,12 @@ public class ActivityManagerImpl extends AbstractManagerImpl implements	Activity
 		if (propagateToSocialStreamManualy) {
 			//eventFactory.generateEvent(EventType.Create, user, newActivity, new Class[]{SocialStreamObserver.class}, parameters);
 			//migration to new context approach
-			eventFactory.generateEvent(EventType.Create, user, newActivity, null, null, page, learningContext,
+			eventFactory.generateEvent(EventType.Create, userId, newActivity, null, page, learningContext,
 					service, new Class[]{SocialStreamObserver.class}, parameters);
 		} else {
 			//eventFactory.generateEvent(EventType.Create, user, newActivity, parameters);
 			//migration to new context approach
-			eventFactory.generateEvent(EventType.Create, user, newActivity, null, 
+			eventFactory.generateEvent(EventType.Create, userId, newActivity, null, 
 					page, learningContext, service, parameters);
 		}
 		
@@ -292,7 +292,7 @@ public class ActivityManagerImpl extends AbstractManagerImpl implements	Activity
 	public Activity updateActivity(long id, String title, String description,
 			ActivityType type, boolean mandatory,
 			AttachmentPreview attachmentPreview, int maxNumberOfFiles,
-			boolean visibleToEveryone, int duration, User user) throws ResourceCouldNotBeLoadedException {
+			boolean visibleToEveryone, int duration) throws ResourceCouldNotBeLoadedException {
 
 		Activity activity = loadResource(Activity.class, id, true);
 		
@@ -494,7 +494,7 @@ public class ActivityManagerImpl extends AbstractManagerImpl implements	Activity
 	
 	@Override
 	@Transactional(readOnly = false)
-	public void deleteActivity(long activityId, Class<? extends Activity> activityClass, User user, 
+	public void deleteActivity(long activityId, Class<? extends Activity> activityClass, long userId, 
 			LearningContextData data) {
 		try {
 			//deleteById(Activity.class, activityId, persistence.currentManager());
@@ -503,8 +503,8 @@ public class ActivityManagerImpl extends AbstractManagerImpl implements	Activity
 			//activity.setId(activityId);
 			Activity act = (Activity) persistence.currentManager().load(Activity.class, activityId);
 			act.setDeleted(true);
-			eventFactory.generateEvent(EventType.Delete, user, act, null, 
-					data.getPage(), data.getLearningContext(), data.getService(), null);
+//			eventFactory.generateEvent(EventType.Delete, user, act, null, 
+//					data.getPage(), data.getLearningContext(), data.getService(), null);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

@@ -74,9 +74,9 @@ public class CommentActionBean implements Serializable {
 			final String commentText = wallData.getNewComment();
 			
 			final Date created = new Date();
-			final SocialActivityCommentData commentData = new SocialActivityCommentData(commentText, loggedUser.getUser(), created, wallData);
-			wallData.addComment(commentData);
-			wallData.setShowHiddenComments(true);
+//			final SocialActivityCommentData commentData = new SocialActivityCommentData(commentText, loggedUser.getUser(), created, wallData);
+//			wallData.addComment(commentData);
+//			wallData.setShowHiddenComments(true);
 			
 			String page = PageUtil.getPostParameter("page");
 			String lContext = PageUtil.getPostParameter("learningContext");
@@ -94,7 +94,7 @@ public class CommentActionBean implements Serializable {
 
 						Comment comment = commentManager.addComment(
 								resource.getActivity(), 
-								loggedUser.getUser(), 
+								loggedUser.getUserId(), 
 								commentText, 
 								created,
 								context,
@@ -106,17 +106,17 @@ public class CommentActionBean implements Serializable {
 						parameters.put("context", context);
 						session.flush();
 						
-						Event event = eventFactory.generateEvent(EventType.Comment, loggedUser.getUser(), comment, resource, 
+						Event event = eventFactory.generateEvent(EventType.Comment, loggedUser.getUserId(), comment, resource, 
 								page, lContext, service, parameters);
 						
 						if (event != null) {
 							socialActivityFactory.createSocialActivity(event, session);
 						}
 
-		            	logger.debug("User \"" + loggedUser.getUser() +
+		            	logger.debug("User \"" + loggedUser.getUserId() +
 		            			" commented on an resource "+targetActiviryId+")");
 		            	
-		            	commentData.setId(comment.getId());
+//		            	commentData.setId(comment.getId());
 		            	
 //		            	update of other registered users' walls is performed in InterfaceCacheUpdater
 	            	} catch (EventException e) {
@@ -134,16 +134,16 @@ public class CommentActionBean implements Serializable {
 		}
 	}
 	
-	public Set<User> interactions(List<Comment> comments, User maker, User actor) {
+	public Set<User> interactions(List<Comment> comments, User maker, long actorId) {
 		Set<User> result = new HashSet<User>();
-		if (maker != null && !maker.equals(actor)) {
+		if (maker != null && maker.getId() != actorId) {
 			result.add(maker);
 		}
 		if (comments == null || comments.size() == 0) {
 			return result;
 		}
 		for (SocialActivity comment : comments) {
-			if (comment.getMaker() != null && !comment.getMaker().equals(actor)) {
+			if (comment.getMaker() != null && comment.getMaker().getId() != actorId) {
 				result.add(comment.getMaker());
 			}
 		}
@@ -158,16 +158,16 @@ public class CommentActionBean implements Serializable {
 			try {
 				SocialActivity activity = defaultManager.get(SocialActivity.class, wallData.getSocialActivity().getId());
 				List<Comment> comments = commentManager.getComments(activity);
-				Set<User> interactions = interactions(comments, activity.getMaker(), loggedUser.getUser());
+				Set<User> interactions = interactions(comments, activity.getMaker(), loggedUser.getUserId());
 				
 				final Date created = new Date();
-				final SocialActivityCommentData commentData = new SocialActivityCommentData(commentText, loggedUser.getUser(), created, wallData);
-				wallData.addComment(commentData);
-				wallData.setShowHiddenComments(true);
-				
-				propagateCommentAsync(wallData.getSocialActivity().getId(), SocialActivity.class, context, commentText, created, commentData, interactions);
-				PageUtil.fireSuccessfulInfoMessage("New comment posted!");
-				wallData.setNewComment("");
+//				final SocialActivityCommentData commentData = new SocialActivityCommentData(commentText, loggedUser.getUser(), created, wallData);
+//				wallData.addComment(commentData);
+//				wallData.setShowHiddenComments(true);
+//				
+//				propagateCommentAsync(wallData.getSocialActivity().getId(), SocialActivity.class, context, commentText, created, commentData, interactions);
+//				PageUtil.fireSuccessfulInfoMessage("New comment posted!");
+//				wallData.setNewComment("");
 				init();
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error(e);
@@ -190,7 +190,7 @@ public class CommentActionBean implements Serializable {
 					
 					Comment comment = commentManager.addComment(
 							resource, 
-							loggedUser.getUser(), 
+							loggedUser.getUserId(), 
 							commentText, 
 							created,
 							context,
@@ -201,11 +201,11 @@ public class CommentActionBean implements Serializable {
 					Map<String, String> parameters = new HashMap<String, String>();
 					parameters.put("context", context);
 					
-					Event event = eventFactory.generateEvent(EventType.Comment, loggedUser.getUser(), comment, resource, parameters);
+//					Event event = eventFactory.generateEvent(EventType.Comment, loggedUser.getUserId(), loggedUser.getFullName(), comment, resource, parameters);
 					
-					if (event != null) {
-						socialActivityFactory.createSocialActivity(event, session);
-					}
+//					if (event != null) {
+//						socialActivityFactory.createSocialActivity(event, session);
+//					}
 					
 					// Needs to be refactored
 //					for(User interactedWith : interactions) {
@@ -217,7 +217,7 @@ public class CommentActionBean implements Serializable {
 //						event = eventFactory.generateEvent(EventType.MENTIONED, loggedUser.getUser(), interactedWith, comment, parameters);
 //					}
 					
-					logger.debug("User \"" + loggedUser.getUser() +
+					logger.debug("User \"" + loggedUser.getUserId() +
 							" commented on an resource "+resourceId+")");
 					
 					commentData.setId(comment.getId());

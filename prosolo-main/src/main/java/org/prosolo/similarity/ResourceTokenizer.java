@@ -7,9 +7,9 @@ import org.prosolo.common.domainmodel.user.User;
 
 public interface ResourceTokenizer {
 	
-	String getTokenizedStringForUserLearningGoal(User user, TargetLearningGoal tGoal);
+	String getTokenizedStringForUserLearningGoal(TargetLearningGoal tGoal);
 	
-	void getTokenizedStringForUserLearningGoal(User user, TargetLearningGoal tGoal, StringBuffer userTokensBuffer);
+	void getTokenizedStringForUserLearningGoal(TargetLearningGoal tGoal, StringBuffer userTokensBuffer);
 	
 	String getTokenizedStringForUser(User user);
 

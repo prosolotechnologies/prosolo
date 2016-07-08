@@ -112,7 +112,7 @@ public class ActivityViewBeanManager implements Serializable {
 	}
 	
 	public boolean isCurrentUserCreator() {
-		return competenceData.getActivityToShowWithDetails().getCreatorId() == loggedUser.getUser().getId();
+		return competenceData.getActivityToShowWithDetails().getCreatorId() == loggedUser.getUserId();
 	}
 	
 	public String getLabelForActivity() {

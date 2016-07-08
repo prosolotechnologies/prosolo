@@ -20,7 +20,6 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.portfolio.AchievedCompetence;
 import org.prosolo.common.domainmodel.portfolio.ExternalCredit;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.nodes.EvaluationManager;
 import org.prosolo.util.nodes.NodeTitleComparator;
@@ -150,7 +149,7 @@ public class EvaluationDataFactory implements Serializable {
 		return formData;
 	}
 	
-	public EvaluationFormData create(EvaluationSubmission evaluationSubmission, List<Badge> badges, Locale locale, User loggedUser) {
+	public EvaluationFormData create(EvaluationSubmission evaluationSubmission, List<Badge> badges, Locale locale, long userId) {
 		Request request = evaluationSubmission.getRequest();
 		
 		EvaluationFormData formData = create(request, badges, locale);
@@ -257,7 +256,8 @@ public class EvaluationDataFactory implements Serializable {
 		if (!formData.isDraft() && !formData.getPrimeEvaluatedResource().isAccepted() && 
 				!evaluationManager.isOtherSubmissionBasedOnThisSubmission(evaluationSubmission) &&
 				!formData.isWaitingForSubmission() &&
-				request.getMaker().getId() == loggedUser.getId()) {
+				request.getMaker().getId() == userId) {
+			
 			formData.setCanBeResubmitted(true);
 		}
 		

@@ -5,6 +5,7 @@ import java.io.Serializable;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.interaction.FollowResourceAsyncManager;
@@ -32,13 +33,13 @@ public class FollowResourceAsyncManagerImpl implements FollowResourceAsyncManage
 
 	@Override
 	@Transactional
-	public boolean asyncFollowUser(final User follower, final User userToFollow, final String context) {
+	public boolean asyncFollowUser(final long followerId, final User userToFollow, final String context) {
 		taskExecutor.execute(new Runnable() {
             @Override
             public void run() {
 	           	try {
-					followManager.followUser(follower, HibernateUtil.initializeAndUnproxy(userToFollow), context);
-				} catch (EventException e) {
+					followManager.followUser(followerId, userToFollow.getId(), context);
+				} catch (EventException | ResourceCouldNotBeLoadedException e) {
 					logger.error(e);
 				}
             }

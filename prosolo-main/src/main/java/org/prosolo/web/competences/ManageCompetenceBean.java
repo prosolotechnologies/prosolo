@@ -82,7 +82,7 @@ public class ManageCompetenceBean implements Serializable {
 				
 				List<ActivityWallData> actData = compWallActivityConverter.convertCompetenceActivities(
 						competence.getActivities(), 
-						loggedUser.getUser(), 
+						loggedUser.getUserId(), 
 						true, 
 						false);
 				System.out.println("INIT COMPETENCE activities:"+actData.size());
@@ -129,7 +129,7 @@ public class ManageCompetenceBean implements Serializable {
 			// activity is being created
 			if (activityFormData.getId() == 0) {
 				Activity activity = resourceFactory.createNewActivity(
-						loggedUser.getUser(), 
+						loggedUser.getUserId(), 
 						activityFormData,
 						VisibilityType.PUBLIC);
 				
@@ -140,8 +140,9 @@ public class ManageCompetenceBean implements Serializable {
 			else {
 				PageUtil.fireSuccessfulInfoMessage("managerCreateCompetence:newCompForm:newCompFormGrowl", "Activity updated");
 			}
-		} catch (EventException e) {
+		} catch (EventException | ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
+			PageUtil.fireSuccessfulInfoMessage("managerCreateCompetence:newCompForm:newCompFormGrowl", "Error updating activity");
 		}
 		autosave();
 	}
@@ -198,7 +199,7 @@ public class ManageCompetenceBean implements Serializable {
 		
 		ActivityWallData actData = compWallActivityConverter.convertActivityToActivityWallData(
 				activity, 
-				loggedUser.getUser(), 
+				loggedUser.getUserId(), 
 				loggedUser.getLocale(), 
 				true, 
 				false);
@@ -230,7 +231,7 @@ public class ManageCompetenceBean implements Serializable {
 		} else {
 			ActivityWallData actData = compWallActivityConverter.convertActivityToActivityWallData(
 					activity, 
-					loggedUser.getUser(), 
+					loggedUser.getUserId(), 
 					loggedUser.getLocale(), 
 					true, 
 					false);

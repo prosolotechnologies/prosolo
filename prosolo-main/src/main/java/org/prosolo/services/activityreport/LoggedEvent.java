@@ -37,7 +37,6 @@ public class LoggedEvent {
 	private String eventType;
 	private Long timestamp;
 
-	private String actorFullName;
 	private Long actorId;
 
 	private Map<String, String> parameters;
@@ -48,9 +47,6 @@ public class LoggedEvent {
 
 	private String targetType;
 	private Long targetId;
-
-	private String reasonType;
-	private Long reasonId;
 
 	private String link;
 
@@ -137,7 +133,6 @@ public class LoggedEvent {
 		this.eventType = (String) o.get("eventType");
 		this.timestamp = (Long) o.get("timestamp");
 
-		this.actorFullName = (String) o.get("actorFullname");
 		this.actorId = (Long) o.get("actorId");
 
 		this.objectTitle = (String) o.get("objectTitle");
@@ -146,9 +141,6 @@ public class LoggedEvent {
 
 		this.targetType = (String) o.get("targetType");
 		this.targetId = (Long) o.get("targetId");
-
-		this.reasonType = (String) o.get("reasonType");
-		this.reasonId = (Long) o.get("reasonId");
 
 		this.link = (String) o.get("link");
 
@@ -167,12 +159,11 @@ public class LoggedEvent {
 	@Override
 	public String toString() {
 		return "LoggedEvent [eventType=" + eventType + ", timestamp="
-				+ timestamp + ", actorFullName=" + actorFullName + ", actorId="
+				+ timestamp + ", actorId="
 				+ actorId + ", parameters=" + parameters + ", objectTitle="
 				+ objectTitle + ", objectType=" + objectType + ", objectId="
 				+ objectId + ", targetType=" + targetType + ", targetId="
-				+ targetId + ", reasonType=" + reasonType + ", reasonId="
-				+ reasonId + ", link=" + link + "]";
+				+ targetId + ", link=" + link + "]";
 	}
 
 	public static String getCSVHeaderRow() {
@@ -254,8 +245,7 @@ public class LoggedEvent {
 	private String getDebugCSV() {
 		return Q + parameters + QD + prepareForCSV(objectTitle) + D + Q
 				+ objectType + QD + objectId + D + Q + targetType + QD
-				+ targetId + D + Q + reasonType + QD + reasonId + D + Q + link
-				+ QD + prepareForCSV(actorFullName);
+				+ targetId + D + Q + link;
 
 	}
 

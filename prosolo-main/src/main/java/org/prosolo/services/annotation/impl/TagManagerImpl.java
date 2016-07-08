@@ -203,7 +203,7 @@ public class TagManagerImpl extends AbstractManagerImpl implements TagManager {
 	
 	@Override
 	@Transactional (readOnly = true)
-	public List<Tag> getSubscribedHashtags(User user) {
+	public List<Tag> getSubscribedHashtags(long userId) {
 		String query = 
 			"SELECT DISTINCT hashtag " + 
 			"FROM TopicPreference topicPreference " +
@@ -211,14 +211,14 @@ public class TagManagerImpl extends AbstractManagerImpl implements TagManager {
 			"LEFT JOIN topicPreference.preferredHashtags hashtag "+
 			"WHERE hashtag.id > 0";
 		
-		if (user != null) {
-			query += " AND user = :user";
+		if (userId > 0) {
+			query += " AND user.id = :userId";
 		}
 		
 		Query q = persistence.currentManager().createQuery(query);
 		
-		if (user != null) {
-			q.setEntity("user", user);
+		if (userId > 0) {
+			q.setEntity("userId", userId);
 		}
 		
 		@SuppressWarnings("unchecked")

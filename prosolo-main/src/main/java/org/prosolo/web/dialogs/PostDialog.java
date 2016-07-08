@@ -22,7 +22,6 @@ import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPrev
 import org.prosolo.services.nodes.data.activity.attachmentPreview.NodeData;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.activitywall.util.WallActivityConverter;
 import org.prosolo.web.dialogs.data.context.LearningContextData;
 import org.prosolo.web.logging.LoggingNavigationBean;
@@ -175,7 +174,7 @@ public class PostDialog implements Serializable {
 		
 		if (socialActivity != null) {
 			this.socialActivityToReshare = socialActivity;
-			this.sharedFrom = UserDataFactory.createUserData(socialActivity.getMaker());
+			this.sharedFrom = new UserData(socialActivity.getMaker());
 			
 			BaseEntity object = socialActivity.getObject();
 			
@@ -232,7 +231,7 @@ public class PostDialog implements Serializable {
 //    	String path = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/");
     	
 		try {
-			AttachmentPreview attachmentPreview = uploadManager.uploadFile(loggedUser.getUser(), uploadedFile, uploadedFile.getFileName());
+			AttachmentPreview attachmentPreview = uploadManager.uploadFile(uploadedFile, uploadedFile.getFileName());
 			
 			newPostData.setAttachmentPreview(attachmentPreview);
 		} catch (IOException ioe) {

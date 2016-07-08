@@ -38,24 +38,23 @@ public class CourseInteractionObserver  extends EventObserver {
 
 	@Override
 	public void handleEvent(Event event) {
-		 Session session = (Session) defaultManager.getPersistence().openSession();
-		 try{
-		// event=(Event) session.get(Event.class, event.getId());
-		if (event.getAction().equals(EventType.ENROLL_COURSE)){
-			//CourseEnrollment courseEnrollment=(CourseEnrollment) event.getObject();
-			User actor=event.getActor();
-			HttpSession httpSession=applicationBean.getUserSession(actor.getId());
-			if(httpSession!=null){
-				SuggestedLearningBean suggestedLearningBean=(SuggestedLearningBean) httpSession.getAttribute("suggestedLearningBean");
-				suggestedLearningBean.loadSuggestedByCourse();
-			}
-		}
-		session.flush();
-		 }catch(Exception e){
-				logger.error("Exception in handling message",e);
-			}finally{
-				HibernateUtil.close(session);
-			} 
+		Session session = (Session) defaultManager.getPersistence().openSession();
 		
+		try {
+			if (event.getAction().equals(EventType.ENROLL_COURSE)) {
+				HttpSession httpSession = applicationBean.getUserSession(event.getActorId());
+				
+				if (httpSession != null) {
+					SuggestedLearningBean suggestedLearningBean = (SuggestedLearningBean) httpSession
+							.getAttribute("suggestedLearningBean");
+					suggestedLearningBean.loadSuggestedByCourse();
+				}
+			}
+			session.flush();
+		} catch (Exception e) {
+			logger.error("Exception in handling message", e);
+		} finally {
+			HibernateUtil.close(session);
+		}
 	}
 }

@@ -205,7 +205,6 @@
 										action="#{loggeduser.userLogout()}" />
 								</li>
 							</ul>
-
 						</div>
 					</h:form>
 				</div>
@@ -219,7 +218,7 @@
 
 	<ui:include src="/resources/components/loggingForm.xhtml" />
 
-	<c:if test="#{loggeduser != null and loggeduser.loggedIn}">
+	<c:if test="#{loggeduser != null and loggeduser.isLoggedIn()}">
 		<h:form>
 			<!-- If idle 300 seconds, run 'idleDialog' -->
 			<p:idleMonitor timeout="3600000"

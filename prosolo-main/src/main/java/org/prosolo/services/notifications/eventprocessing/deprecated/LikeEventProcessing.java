@@ -43,7 +43,8 @@ public class LikeEventProcessing extends NotificationEventProcessor {
 
 	@Override
 	User getSender() {
-		return event.getActor();
+//		return event.getActor();
+		return null;
 	}
 
 	@Override

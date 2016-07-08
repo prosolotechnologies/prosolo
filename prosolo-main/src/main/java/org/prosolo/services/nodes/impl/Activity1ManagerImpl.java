@@ -88,9 +88,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			User user = new User();
 			user.setId(userId);
 			if(act.isPublished()) {
-				eventFactory.generateEvent(EventType.Create, user, act);
+				eventFactory.generateEvent(EventType.Create, user.getId(), act);
 			} else {
-				eventFactory.generateEvent(EventType.Create_Draft, user, act);
+				eventFactory.generateEvent(EventType.Create_Draft, user.getId(), act);
 			}
 
 			return act;
@@ -127,9 +127,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				User user = new User();
 				user.setId(userId);
 				if(data.isPublished() || data.isDraft()) {
-					eventFactory.generateEvent(EventType.Delete, user, act);
+					eventFactory.generateEvent(EventType.Delete, user.getId(), act);
 				} else {
-					eventFactory.generateEvent(EventType.Delete_Draft, user, act);
+					eventFactory.generateEvent(EventType.Delete_Draft, user.getId(), act);
 				}
 				
 				return act;
@@ -806,7 +806,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				else {
 					Map<String, String> params = new HashMap<>();
 					params.put("originalVersionId", data.getActivityId() + "");
-					eventFactory.generateEvent(EventType.Create_Draft, user, act, params);
+					eventFactory.generateEvent(EventType.Create_Draft, user.getId(), act, params);
 				}
 			}
 
@@ -862,13 +862,13 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	    	params.put("originalVersionId", originalVersionId + "");
 	    }
 	    EventType event = data.isPublished() ? EventType.Edit : EventType.Edit_Draft;
-	    eventFactory.generateEvent(event, user, act, params);
+	    eventFactory.generateEvent(event, user.getId(), act, params);
 	}
 	
 	private EventData fireFirstTimePublishActivityEvent(User user, Activity1 act) {
 		EventData ev = new EventData();
 		ev.setEventType(EventType.Create);
-		ev.setActor(user);
+		ev.setActorId(user.getId());
 		ev.setObject(act);
 		return ev;
 	}
@@ -883,9 +883,10 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	    String jsonChangeTracker = gson.toJson(changeTracker);
 	    params.put("changes", jsonChangeTracker);
 	    params.put("draftVersionId", draftVersionId + "");
+	    
 	    EventData ev = new EventData();
 	    ev.setEventType(EventType.Edit);
-	    ev.setActor(user);
+	    ev.setActorId(user.getId());
 	    ev.setObject(act);
 	    ev.setParameters(params);
 	    return ev;
@@ -1490,14 +1491,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			credManager.updateCredentialAndCompetenceProgressAndNextActivityToLearn(credId, 
 					targetCompId, targetActId, userId, contextData);
 			
-			User user = new User();
-			user.setId(userId);
 			TargetActivity1 tAct = new TargetActivity1();
 			tAct.setId(targetActId);
 			String lcPage = contextData != null ? contextData.getPage() : null; 
 			String lcContext = contextData != null ? contextData.getLearningContext() : null; 
 			String lcService = contextData != null ? contextData.getService() : null;
-			eventFactory.generateEvent(EventType.Completion, user, tAct, null,
+			eventFactory.generateEvent(EventType.Completion, userId, tAct, null,
 					lcPage, lcContext, lcService, null);
 		} catch (Exception e) {
 			logger.error(e);

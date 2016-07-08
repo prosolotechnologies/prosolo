@@ -26,7 +26,6 @@ import org.prosolo.web.courses.data.BasicUserData;
 import org.prosolo.web.courses.data.CourseInstructorData;
 import org.prosolo.web.courses.data.ExtendedUserData;
 import org.prosolo.web.courses.data.InstructorStudentsData;
-import org.prosolo.web.search.data.SortingOption;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -194,7 +193,7 @@ public class StudentReassignBean implements Serializable {
 									target.setId(inst.getInstructor().getUserId());
 									User object = new User();
 									object.setId(id);
-									eventFactory.generateEvent(EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR, loggedUserBean.getUser(), object, target, 
+									eventFactory.generateEvent(EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR, loggedUserBean.getUserId(), object, target, 
 											page, context, service, parameters);
 								} catch(Exception e) {
 									logger.error(e);

@@ -13,8 +13,11 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.common.domainmodel.lti.LtiToolSet;
 import org.prosolo.common.domainmodel.lti.ResourceType;
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.lti.LtiToolManager;
 import org.prosolo.services.lti.ToolSetManager;
+import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.lti.data.ExternalToolFormData;
@@ -43,8 +46,9 @@ public class ExternalToolDetailsBean implements Serializable {
 	
 	@Inject private LtiToolManager toolManager;
 	@Inject private ToolSetManager tsManager;
-	@Inject private LoggedUserBean user;
+	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private UrlIdEncoder idEncoder;
+	@Inject private DefaultManager defaultManager;
 
 	private String cred;
 	private String comp;
@@ -59,7 +63,7 @@ public class ExternalToolDetailsBean implements Serializable {
 	private ExternalToolFormData toolData;
 	
 	public void init() {
-		logger.info("User with email " + user.getUser().getEmail() +" redirected to the page manage/externalTools/toolDetails.xhtml");
+		logger.info("User with email " + loggedUserBean.getSessionData().getEmail() +" redirected to the page manage/externalTools/toolDetails.xhtml");
 		decodedCred = idEncoder.decodeId(cred);
 		decodedComp = idEncoder.decodeId(comp);
 		decodedAct = idEncoder.decodeId(act);
@@ -93,24 +97,30 @@ public class ExternalToolDetailsBean implements Serializable {
 			}
 		} else {
 			if (decodedCred > 0) {
-				tool.setLearningGoalId(decodedCred);
-				tool.setCompetenceId(decodedComp);
-				tool.setActivityId(decodedAct);
-				tool.setCreatedBy(user.getUser());
-				
 				try {
-					LtiToolSet ts = tsManager.saveToolSet(tool);
-					logger.info("LTI tool saved");
-					toolData.setConsumerKey(ts.getConsumer().getKeyLtiOne());
-					toolData.setConsumerSecret(ts.getConsumer().getSecretLtiOne());
-					Iterator<LtiTool> it = ts.getTools().iterator();
-					tool = it.next();
-					toolData.setLaunchUrl(tool.getFullLaunchURL());
-					toolData.setRegUrl(ts.getFullRegistrationURL());
-					PageUtil.fireSuccessfulInfoMessage("External tool saved");
-					toolData.setInitialized(true);
-				} catch (Exception e) {
-					PageUtil.fireErrorMessage(e.getMessage());
+					User user = defaultManager.loadResource(User.class, loggedUserBean.getUserId());
+				
+					tool.setCreatedBy(user);
+					tool.setLearningGoalId(decodedCred);
+					tool.setCompetenceId(decodedComp);
+					tool.setActivityId(decodedAct);
+					
+					try {
+						LtiToolSet ts = tsManager.saveToolSet(tool);
+						logger.info("LTI tool saved");
+						toolData.setConsumerKey(ts.getConsumer().getKeyLtiOne());
+						toolData.setConsumerSecret(ts.getConsumer().getSecretLtiOne());
+						Iterator<LtiTool> it = ts.getTools().iterator();
+						tool = it.next();
+						toolData.setLaunchUrl(tool.getFullLaunchURL());
+						toolData.setRegUrl(ts.getFullRegistrationURL());
+						PageUtil.fireSuccessfulInfoMessage("External tool saved");
+						toolData.setInitialized(true);
+					} catch (Exception e) {
+						PageUtil.fireErrorMessage(e.getMessage());
+					}
+				} catch (ResourceCouldNotBeLoadedException e1) {
+					logger.error(e1);
 				}
 			}
 		}

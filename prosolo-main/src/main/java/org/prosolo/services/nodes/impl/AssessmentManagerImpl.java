@@ -128,10 +128,10 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional
-	public FullAssessmentData getFullAssessmentData(long id, UrlIdEncoder encoder, User user, DateFormat dateFormat) {
+	public FullAssessmentData getFullAssessmentData(long id, UrlIdEncoder encoder, long userId, DateFormat dateFormat) {
 		CredentialAssessment assessment = (CredentialAssessment) persistence.currentManager()
 				.get(CredentialAssessment.class, id);
-		return FullAssessmentData.fromAssessment(assessment, encoder, user, dateFormat);
+		return FullAssessmentData.fromAssessment(assessment, encoder, userId, dateFormat);
 
 	}
 

@@ -7,17 +7,13 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.event.AjaxBehaviorEvent;
 
 import org.apache.log4j.Logger;
-import org.omnifaces.util.Ajax;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.interaction.FollowResourceAsyncManager;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.home.ColleguesBean;
 import org.prosolo.web.people.PeopleBean;
-import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -54,26 +50,26 @@ public class PeopleActionBean implements Serializable{
 	}
 	
 	public void followCollegue(User userToFollow, String context){
-		logger.debug("User '"+loggedUser.getUser()+"' is following user "+userToFollow);
-		
-		followResourceAsyncManager.asyncFollowUser(loggedUser.getUser(), userToFollow, context);
-		//followResourceManager.followUser(loggedUser.getUser(), userToFollow);
-		colleguesBean.addFollowingUser(UserDataFactory.createUserData(userToFollow));
-		peopleBean.addFollowingUser(UserDataFactory.createUserData(userToFollow));
-		PageUtil.fireSuccessfulInfoMessage("Started following "+userToFollow.getName()+" "+userToFollow.getLastname()+".");
-		Ajax.update("userDetailsForm:userDetailsGrowl", "listFollowingPeopleForm", "listfollowersform", "formMainFollowingUsers");
-		//Ajax.update("listpeople:listfollowedpeopleform:followedUsersPanel");
+//		logger.debug("User '"+loggedUser.getUserId()+"' is following user "+userToFollow);
+//		
+//		followResourceAsyncManager.asyncFollowUser(loggedUser.getUserId(), userToFollow, context);
+//		//followResourceManager.followUser(loggedUser.getUser(), userToFollow);
+//		colleguesBean.addFollowingUser(UserDataFactory.createUserData(userToFollow));
+//		peopleBean.addFollowingUser(UserDataFactory.createUserData(userToFollow));
+//		PageUtil.fireSuccessfulInfoMessage("Started following "+userToFollow.getName()+" "+userToFollow.getLastname()+".");
+//		Ajax.update("userDetailsForm:userDetailsGrowl", "listFollowingPeopleForm", "listfollowersform", "formMainFollowingUsers");
+//		//Ajax.update("listpeople:listfollowedpeopleform:followedUsersPanel");
 	}
 	
-	public void followCollegueData(UserData userDataToFollow, String context){
-		followCollegueById(userDataToFollow.getId(), context);
-		userDataToFollow.setFollowed(true);
-	}
+//	public void followCollegueData(UserData userDataToFollow, String context){
+//		followCollegueById(userDataToFollow.getId(), context);
+//		userDataToFollow.setFollowed(true);
+//	}
 	
-	public void unfollowCollegueData(UserData userDataToUnfollow, String context){
-		unfollowCollegueById(userDataToUnfollow.getId(), context);
-		userDataToUnfollow.setFollowed(false);
-	}
+//	public void unfollowCollegueData(UserData userDataToUnfollow, String context){
+//		unfollowCollegueById(userDataToUnfollow.getId(), context);
+//		userDataToUnfollow.setFollowed(false);
+//	}
 
 	public void unfollowCollegueById(long userToFollowId, String context){
 		try {
@@ -86,16 +82,16 @@ public class PeopleActionBean implements Serializable{
 	}
 	
 	public void unfollowCollegue(User userToUnfollow, String context){
-		logger.debug("User '"+loggedUser.getUser()+"' is unfollowing user "+userToUnfollow);
-
-		followResourceAsyncManager.asyncUnfollowUser(loggedUser.getUser(), userToUnfollow, context);
- 		colleguesBean.removeFollowingUserById(userToUnfollow.getId());
- 		colleguesBean.updateFollowingPage();
-		peopleBean.removeFollowingUserById(userToUnfollow.getId());
- 		
-		PageUtil.fireSuccessfulInfoMessage("Stopped following "+userToUnfollow.getName()+" "+userToUnfollow.getLastname()+".");
-		Ajax.update("userDetailsForm:userDetailsGrowl", "listFollowingPeopleForm", "listfollowersform", "formMainFollowingUsers");
-		//Ajax.update("listpeople:listfollowedpeopleform:followedUsersPanel");
+//		logger.debug("User '"+loggedUser.getUser()+"' is unfollowing user "+userToUnfollow);
+//
+//		followResourceAsyncManager.asyncUnfollowUser(loggedUser.getUser(), userToUnfollow, context);
+// 		colleguesBean.removeFollowingUserById(userToUnfollow.getId());
+// 		colleguesBean.updateFollowingPage();
+//		peopleBean.removeFollowingUserById(userToUnfollow.getId());
+// 		
+//		PageUtil.fireSuccessfulInfoMessage("Stopped following "+userToUnfollow.getName()+" "+userToUnfollow.getLastname()+".");
+//		Ajax.update("userDetailsForm:userDetailsGrowl", "listFollowingPeopleForm", "listfollowersform", "formMainFollowingUsers");
+//		//Ajax.update("listpeople:listfollowedpeopleform:followedUsersPanel");
 	}
 	
 	public boolean isLoggedUserFollowingCollegueById(long userId){

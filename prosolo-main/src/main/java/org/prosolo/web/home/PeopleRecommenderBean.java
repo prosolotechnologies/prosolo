@@ -5,25 +5,19 @@ package org.prosolo.web.home;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.recommendation.CollaboratorsRecommendation;
-import org.prosolo.services.logging.LoggingDBManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonPrimitive;
 
 /**
  * @author "Nikola Milikic"
@@ -50,68 +44,70 @@ public class PeopleRecommenderBean implements Serializable {
 	 * ACTIONS
 	 */
 	public void initLocationRecommend() {
-		//if (locationRecommendedUsers == null) {
 			locationRecommendedUsers = new ArrayList<UserData>();
-			List<User> users=cRecommendation.getRecommendedCollaboratorsBasedOnLocation(loggedUser.getUser(), 3);
-			 
+		try {
+			List<User> users = cRecommendation.getRecommendedCollaboratorsBasedOnLocation(loggedUser.getUserId(), 3);
+			
 			if (users != null && !users.isEmpty()) {
 				for (User user : users) {
-					UserData userData = UserDataFactory.createUserData(user);
+					UserData userData = new UserData(user);
 					locationRecommendedUsers.add(userData);
 				}
-				logger.debug("Location based user recommendations initialized '"+loggedUser.getUser()+"'");
+				logger.debug("Location based user recommendations initialized '" + loggedUser.getUserId() + "'");
 			}
-		//}
+		} catch (ResourceCouldNotBeLoadedException e) {
+			logger.error(e);
+		}
 	}
 	
 	public String getLocationRecommendedUsersAsJSON() {
-	
-		if (locationRecommendedUsers != null && loggedUser.getUser().getLocationName() != null) {
-			JsonArray mapData = new JsonArray();
-			
-			JsonArray loggedUserData = new JsonArray();
-			loggedUserData.add(new JsonPrimitive(loggedUser.getUser().getId()));
-			loggedUserData.add(new JsonPrimitive(Settings.getInstance().config.application.domain + "profile/"+loggedUser.getUser().getId()));
-			loggedUserData.add(new JsonPrimitive(loggedUser.getName() + " " + loggedUser.getLastName()));
-			if((loggedUser.getUser().getLocationName()!=null && !loggedUser.getUser().getLocationName().equals(""))){
-				loggedUserData.add(new JsonPrimitive(loggedUser.getUser().getLocationName()));
-			}
-			if(loggedUser.getUser().getLatitude()!=null && loggedUser.getUser().getLongitude()!=null){
-				loggedUserData.add(new JsonPrimitive(loggedUser.getUser().getLatitude()));
-				loggedUserData.add(new JsonPrimitive(loggedUser.getUser().getLongitude()));
-			}
-			mapData.add(loggedUserData);
-			
-			if (locationRecommendedUsers != null && !locationRecommendedUsers.isEmpty()) {
-				for (UserData locationUserData : locationRecommendedUsers) {
-					JsonArray jsonData = new JsonArray();
-					jsonData.add(new JsonPrimitive(locationUserData.getId()));
-					jsonData.add(new JsonPrimitive(Settings.getInstance().config.application.domain + "profile/"+locationUserData.getId()));
-					jsonData.add(new JsonPrimitive(locationUserData.getName()));
-					String locName=(locationUserData.getLocationName()!=null ? locationUserData.getLocationName() : "");
-						jsonData.add(new JsonPrimitive(locName));
-					String lat=(locationUserData.getLatitude()!=null ? locationUserData.getLatitude():"");
-					jsonData.add(new JsonPrimitive(lat));
-					String lon=(locationUserData.getLongitude()!=null ? locationUserData.getLongitude():"");
-					jsonData.add(new JsonPrimitive(lon));
-					mapData.add(jsonData);
-				}
-			}
-			return mapData.toString();
-		}
+//	
+//		if (locationRecommendedUsers != null && loggedUser.getSessionData().getLocationName() != null) {
+//			JsonArray mapData = new JsonArray();
+//			
+//			JsonArray loggedUserData = new JsonArray();
+//			loggedUserData.add(new JsonPrimitive(loggedUser.getUserId()));
+//			loggedUserData.add(new JsonPrimitive(Settings.getInstance().config.application.domain + "profile/"+loggedUser.getUserId()));
+//			loggedUserData.add(new JsonPrimitive(loggedUser.getName() + " " + loggedUser.getLastName()));
+//			if((loggedUser.getUser().getLocationName()!=null && !loggedUser.getUser().getLocationName().equals(""))){
+//				loggedUserData.add(new JsonPrimitive(loggedUser.getUser().getLocationName()));
+//			}
+//			if(loggedUser.getUser().getLatitude()!=null && loggedUser.getUser().getLongitude()!=null){
+//				loggedUserData.add(new JsonPrimitive(loggedUser.getUser().getLatitude()));
+//				loggedUserData.add(new JsonPrimitive(loggedUser.getUser().getLongitude()));
+//			}
+//			mapData.add(loggedUserData);
+//			
+//			if (locationRecommendedUsers != null && !locationRecommendedUsers.isEmpty()) {
+//				for (UserData locationUserData : locationRecommendedUsers) {
+//					JsonArray jsonData = new JsonArray();
+//					jsonData.add(new JsonPrimitive(locationUserData.getId()));
+//					jsonData.add(new JsonPrimitive(Settings.getInstance().config.application.domain + "profile/"+locationUserData.getId()));
+//					jsonData.add(new JsonPrimitive(locationUserData.getName()));
+//					String locName=(locationUserData.getLocationName()!=null ? locationUserData.getLocationName() : "");
+//						jsonData.add(new JsonPrimitive(locName));
+//					String lat=(locationUserData.getLatitude()!=null ? locationUserData.getLatitude():"");
+//					jsonData.add(new JsonPrimitive(lat));
+//					String lon=(locationUserData.getLongitude()!=null ? locationUserData.getLongitude():"");
+//					jsonData.add(new JsonPrimitive(lon));
+//					mapData.add(jsonData);
+//				}
+//			}
+//			return mapData.toString();
+//		}
 		return "[]";
 	}
 	
 	public void initActivityRecommend() {
 		if (activityRecommendedUsers == null) {
-			logger.debug("Initializing activity based user recommendation for a user '"+loggedUser.getUser()+"'");
+			logger.debug("Initializing activity based user recommendation for a user '"+loggedUser.getUserId()+"'");
 
 			activityRecommendedUsers = new ArrayList<UserData>();
 			
-			List<User> users=cRecommendation.getMostActiveRecommendedUsers(loggedUser.getUser(), 3);
+			List<User> users=cRecommendation.getMostActiveRecommendedUsers(loggedUser.getUserId(), 3);
 			if (users != null && !users.isEmpty()) {
 				for (User user : users) {
-					UserData userData = UserDataFactory.createUserData(user);
+					UserData userData = new UserData(user);
 					
 					// TODO: Zoran - put here last activity date
 				//	long timestamp=loggingDBManager.getMostActiveUsersLastActivityTimestamp(user.getId());
@@ -119,22 +115,28 @@ public class PeopleRecommenderBean implements Serializable {
 					
 					activityRecommendedUsers.add(userData);
 				}
-				logger.debug("Activity based user recommendations initialized '"+loggedUser.getUser()+"'");
+				logger.debug("Activity based user recommendations initialized '"+loggedUser.getUserId()+"'");
 			}
 		}
 	}
 	
 	public void initSimilarityRecommend() {
 		if (similarityRecommendedUsers == null) {
+			logger.debug("Initializing similarity based user recommendation for a user '" + loggedUser.getUserId() + "'");
+			
 			similarityRecommendedUsers = new ArrayList<UserData>();
-			logger.debug("Initializing similarity based user recommendation for a user '"+loggedUser.getUser()+"'");
-			List<User> users=cRecommendation.getRecommendedCollaboratorsBasedOnSimilarity(loggedUser.getUser(), 3);
-			if (users != null && !users.isEmpty()) {
-				for (User user : users) {
-					UserData userData = UserDataFactory.createUserData(user);
-					similarityRecommendedUsers.add(userData);
+			try {
+				List<User> users = cRecommendation.getRecommendedCollaboratorsBasedOnSimilarity(loggedUser.getUserId(), 3);
+				
+				if (users != null && !users.isEmpty()) {
+					for (User user : users) {
+						UserData userData = new UserData(user);
+						similarityRecommendedUsers.add(userData);
+					}
+					logger.debug("Similarity based user recommendations initialized '" + loggedUser.getUserId() + "'");
 				}
-				logger.debug("Similarity based user recommendations initialized '"+loggedUser.getUser()+"'");
+			} catch (ResourceCouldNotBeLoadedException e) {
+				logger.error(e);
 			}
 		}
 	}

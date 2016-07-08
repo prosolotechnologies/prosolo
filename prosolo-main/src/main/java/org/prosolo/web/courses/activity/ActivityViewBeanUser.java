@@ -65,7 +65,7 @@ public class ActivityViewBeanUser implements Serializable {
 				if(decodedCredId > 0) {
 					competenceData = activityManager
 							.getFullTargetActivityOrActivityData(decodedCredId,
-									decodedCompId, decodedActId, loggedUser.getUser().getId());
+									decodedCompId, decodedActId, loggedUser.getUserId());
 				} else {
 					boolean shouldReturnDraft = false;
 					if("preview".equals(mode)) {
@@ -73,7 +73,7 @@ public class ActivityViewBeanUser implements Serializable {
 					} 
 					competenceData = activityManager
 							.getCompetenceActivitiesWithSpecifiedActivityInFocusForUser(
-									0, decodedCompId, decodedActId,  loggedUser.getUser().getId(), 
+									0, decodedCompId, decodedActId,  loggedUser.getUserId(), 
 									shouldReturnDraft);
 				}
 				if(competenceData == null) {
@@ -114,7 +114,7 @@ public class ActivityViewBeanUser implements Serializable {
 //						.getUser().getId());
 				CredentialData cd = credManager
 						.getTargetCredentialTitleAndNextCompToLearn(decodedCredId, 
-								loggedUser.getUser().getId());
+								loggedUser.getUserId());
 				credTitle = cd.getTitle();
 				nextCompToLearn = cd.getNextCompetenceToLearnId();
 			}
@@ -139,7 +139,7 @@ public class ActivityViewBeanUser implements Serializable {
 	}
 	
 	public boolean isCurrentUserCreator() {
-		return competenceData.getActivityToShowWithDetails().getCreatorId() == loggedUser.getUser().getId();
+		return competenceData.getActivityToShowWithDetails().getCreatorId() == loggedUser.getUserId();
 	}
 	
 	public String getLabelForActivity() {
@@ -171,7 +171,7 @@ public class ActivityViewBeanUser implements Serializable {
 					competenceData.getActivityToShowWithDetails().getTargetActivityId(), 
 					competenceData.getActivityToShowWithDetails().getCompetenceId(), 
 					decodedCredId, 
-					loggedUser.getUser().getId(), lcd);
+					loggedUser.getUserId(), lcd);
 			competenceData.getActivityToShowWithDetails().setCompleted(true);
 			for(ActivityData ad : competenceData.getActivities()) {
 				if(ad.getActivityId() == competenceData.getActivityToShowWithDetails().getActivityId()) {
@@ -189,7 +189,7 @@ public class ActivityViewBeanUser implements Serializable {
 		
 		try {
 			String fileName = uploadedFile.getFileName();
-			String fullPath = uploadManager.storeFile(null, uploadedFile, fileName);
+			String fullPath = uploadManager.storeFile(uploadedFile, fileName);
 			activityManager.saveAssignment(competenceData.getActivityToShowWithDetails()
 					.getTargetActivityId(), fileName, fullPath);
 			competenceData.getActivityToShowWithDetails().setAssignmentTitle(fileName);

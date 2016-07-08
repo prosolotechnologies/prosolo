@@ -34,7 +34,6 @@ import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.rest.courses.CourseParser;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.courses.data.CourseCompetenceData;
 import org.prosolo.web.courses.data.CourseData;
 import org.prosolo.web.courses.util.CourseDataConverter;
@@ -99,7 +98,7 @@ public class ManageCourseBean implements Serializable {
 		if(id == null) {
 			this.creatingNew = true;
 			this.courseData.setCreatorType(CreatorType.MANAGER);
-			this.courseData.setMaker(UserDataFactory.createUserData(loggedUser.getUser()));
+//			this.courseData.setMaker(UserDataFactory.createUserData(loggedUser.getUserId()));
 		} else {
 			long decodedId = idEncoder.decodeId(id);
 			
@@ -159,7 +158,7 @@ public class ManageCourseBean implements Serializable {
 						courseData.getOriginalCompetences(),
 						new HashSet<Tag>(tagManager.parseCSVTagsAndSave(courseData.getTagsString())),
 						new HashSet<Tag>(tagManager.parseCSVTagsAndSave(courseData.getHashtagsString())),
-						loggedUser.getUser(), 
+						loggedUser.getUserId(), 
 						CreatorType.MANAGER,
 						courseData.isStudentsCanAddNewCompetences(),
 						courseData.isPublished());
@@ -209,7 +208,7 @@ public class ManageCourseBean implements Serializable {
 					new HashSet<Tag>(tagManager.parseCSVTagsAndSave(courseData.getTagsString())),
 					new HashSet<Tag>(tagManager.parseCSVTagsAndSave(courseData.getHashtagsString())),
 					courseData.getBlogs(),
-					loggedUser.getUser(),
+					loggedUser.getUserId(),
 					courseData.isStudentsCanAddNewCompetences(),
 					courseData.isPublished());
 		} catch (ResourceCouldNotBeLoadedException e) {
@@ -346,7 +345,7 @@ public class ManageCourseBean implements Serializable {
 		try {
 			String title = StringUtil.cleanHtml(competenceFormData.getTitle());
 			Competence competence = competenceManager.createCompetence(
-					loggedUser.getUser(),
+					loggedUser.getUserId(),
 					title,
 					StringUtil.cleanHtml(competenceFormData.getDescription()),
 					competenceFormData.getValidity(),
@@ -366,7 +365,7 @@ public class ManageCourseBean implements Serializable {
 			} catch (KeyNotFoundInBundleException e) {
 				logger.error(e);
 			}
-		} catch (EventException e) {
+		} catch (EventException | ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		}
 	}
@@ -403,8 +402,7 @@ public class ManageCourseBean implements Serializable {
 				suggestedCompetences = SearchCompetencesBean.convertToCompetenceData(
 						courseManager.getOtherUsersCompetences(
 								courseData.getId(), 
-								idsOfcompetencesToExclude, 
-								loggedUser.getUser()));
+								idsOfcompetencesToExclude));
 			}
 		}
 	}
@@ -443,7 +441,7 @@ public class ManageCourseBean implements Serializable {
 		try {
 			Course course = courseManager.deleteCourse(courseToDelete.getId());
 			
-			eventFactory.generateEvent(EventType.Delete, loggedUser.getUser(), course);
+			eventFactory.generateEvent(EventType.Delete, loggedUser.getUserId(), loggedUser.getFullName(), course);
 			
 			// TODO: Zoran, somehow synchronously delete course from indexes before courses form is refreshed
 			

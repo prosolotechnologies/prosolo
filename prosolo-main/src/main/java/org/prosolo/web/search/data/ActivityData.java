@@ -9,7 +9,6 @@ import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.ResourceActivity;
 import org.prosolo.common.domainmodel.content.RichContent;
 import org.prosolo.common.web.activitywall.data.UserData;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 
 /**
  * @author "Nikola Milikic"
@@ -40,7 +39,7 @@ public class ActivityData implements Serializable {
 		this.id = activity.getId();
 		this.title = activity.getTitle();
 		this.description = activity.getDescription();
-		this.creator = UserDataFactory.createUserData(activity.getMaker());
+		this.creator = new UserData(activity.getMaker());
 		this.activity = activity;
 		
 		if (activity instanceof ResourceActivity) {

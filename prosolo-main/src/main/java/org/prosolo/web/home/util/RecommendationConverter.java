@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
-import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.common.domainmodel.activities.Recommendation;
 import org.prosolo.common.domainmodel.activities.RecommendationType;
 import org.prosolo.common.domainmodel.competences.Competence;
@@ -16,7 +15,7 @@ import org.prosolo.common.domainmodel.course.CourseCompetence;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.user.LearningGoal;
-import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.web.home.data.RecommendationData;
 import org.prosolo.web.home.data.RecommendedResourceType;
@@ -65,14 +64,14 @@ public class RecommendationConverter {
 				node = (Node) session.merge(node);
 				rData.setId(node.getId());
 				Hibernate.initialize(node);
-				configureRecommendationType(rData, node, recommendation.getRecommendedTo());
+				configureRecommendationType(rData, node, recommendation.getRecommendedTo().getId());
 				rData.setRecommendationType(RecommendationType.USER);
 			}
 		}
 		return rData;
 	}
 
-	private void configureRecommendationType(RecommendationData rData, BaseEntity node, User recommendedTo) {
+	private void configureRecommendationType(RecommendationData rData, BaseEntity node, long recommendedToId) {
 		node = HibernateUtil.initializeAndUnproxy(node);
 		rData.setResource(node);
 		rData.setId(node.getId());
@@ -83,9 +82,9 @@ public class RecommendationConverter {
 			rData.setResourceType(RecommendedResourceType.LEARNINGGOAL);
 			LearningGoal goal = (LearningGoal) node;
 			
-			if (isLearningGoalFreeToJoin(goal, recommendedTo)) {
+			if (isLearningGoalFreeToJoin(goal, recommendedToId)) {
 				rData.setResourceAvailability(ResourceAvailability.IS_FREE_TO_JOIN);
-			} else if (canBeRequestedToJoin(goal, recommendedTo)) {
+			} else if (canBeRequestedToJoin(goal, recommendedToId)) {
 				rData.setResourceAvailability(ResourceAvailability.CAN_BE_REQUESTED_TO_JOIN);
 			}
 		} else if (node instanceof TargetCompetence || (node instanceof Competence)) {
@@ -93,23 +92,23 @@ public class RecommendationConverter {
 		}
 	}
 
-	private boolean isLearningGoalFreeToJoin(LearningGoal goal,	User recommendedTo) {
-		boolean memberOfGoal = goalManager.isUserMemberOfLearningGoal(goal.getId(),	recommendedTo);
+	private boolean isLearningGoalFreeToJoin(LearningGoal goal,	long recommendedToId) {
+		boolean memberOfGoal = goalManager.isUserMemberOfLearningGoal(goal.getId(),	recommendedToId);
 		return !memberOfGoal && goal.isFreeToJoin();
 	}
 
-	private boolean canBeRequestedToJoin(LearningGoal goal, User recommendedTo) {
-		boolean memberOfGoal = goalManager.isUserMemberOfLearningGoal(goal.getId(),	recommendedTo);
+	private boolean canBeRequestedToJoin(LearningGoal goal, long recommendedToId) {
+		boolean memberOfGoal = goalManager.isUserMemberOfLearningGoal(goal.getId(),	recommendedToId);
 		return !memberOfGoal && !goal.isFreeToJoin();
 	}
 
-	public List<RecommendationData> convertNodesToRecommendedData(Collection<Node> nodes, User recommendedTo) {
+	public List<RecommendationData> convertNodesToRecommendedData(Collection<Node> nodes, long recommendedToId) {
 		List<RecommendationData> recommendationData = new ArrayList<RecommendationData>();
 		
 		if (nodes != null) {
 			for (Node node : nodes) {
 				if (node != null) {
-					RecommendationData rData = convertNodeToRecommendedData(node, recommendedTo);
+					RecommendationData rData = convertNodeToRecommendedData(node, recommendedToId);
 					recommendationData.add(rData);
 				}
 			}
@@ -118,27 +117,27 @@ public class RecommendationConverter {
 	}
 	
 	public List<RecommendationData> convertCourseCompetenceToRecommendedData(Collection<CourseCompetence> nodes, 
-			User recommendedTo) {
+			long recommendedToId) {
 		List<RecommendationData> recommendationData = new ArrayList<RecommendationData>();
 		
 		for (CourseCompetence objCompetence : nodes) {
 			if (objCompetence != null) {
-				RecommendationData rData = convertCourseCompetenceToRecommendedData(objCompetence, recommendedTo);
+				RecommendationData rData = convertCourseCompetenceToRecommendedData(objCompetence, recommendedToId);
 				recommendationData.add(rData);
 			}
 		}
 		return recommendationData;
 	}
 	
-	private RecommendationData convertCourseCompetenceToRecommendedData(CourseCompetence objCompetence, User recommendedTo) {
+	private RecommendationData convertCourseCompetenceToRecommendedData(CourseCompetence objCompetence, long recommendedToId) {
 		RecommendationData rData = new RecommendationData();
 		rData.setMaker(objCompetence.getCompetence().getMaker());
 		rData.setRecommendationType(RecommendationType.COURSE);
-		configureRecommendationType(rData, objCompetence, recommendedTo);
+		configureRecommendationType(rData, objCompetence, recommendedToId);
 		return rData;
 	}
 	
-	private RecommendationData convertNodeToRecommendedData(Node node, User recommendedTo) {
+	private RecommendationData convertNodeToRecommendedData(Node node, long recommendedToId) {
 		RecommendationData rData = new RecommendationData();
  
 		if (node.getMaker() != null){
@@ -147,7 +146,7 @@ public class RecommendationConverter {
 		}
 
 		rData.setRecommendationType(RecommendationType.SYSTEM);
-		configureRecommendationType(rData, node, recommendedTo);
+		configureRecommendationType(rData, node, recommendedToId);
 		return rData;
 	}
 

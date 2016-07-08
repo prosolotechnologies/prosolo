@@ -72,7 +72,7 @@ public class SearchRemindersBean implements Serializable {
 	}
 	
 	public void fetchReminders(String searchQuery, boolean loadOneMore) {
-		List<Reminder> foundReminders = personalCalendarQueries.readReminders(loggedUser.getUser(), chosenFilter);
+		List<Reminder> foundReminders = personalCalendarQueries.readReminders(loggedUser.getUserId(), chosenFilter);
 		
 		// if there is more than limit, set moreToLoad to true
 		if (foundReminders.size() == limit + 1) {

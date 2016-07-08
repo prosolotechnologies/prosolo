@@ -1,17 +1,11 @@
 package org.prosolo.services.activityWall.filters;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.course.CourseEnrollment;
 import org.prosolo.common.domainmodel.general.BaseEntity;
@@ -25,7 +19,6 @@ import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.nodes.VisibilityManager;
-import org.prosolo.util.nodes.AnnotationUtil;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -128,12 +121,12 @@ public class FilterUpdaterObserver extends EventObserver {
 		//} else 
 		if (event.getAction().equals(EventType.Follow)) {
 			if (object instanceof User) {
-				this.updateFiltersOnFollowUser(event.getActor().getId(), event
+				this.updateFiltersOnFollowUser(event.getActorId(), event
 						.getObject().getId());
 			}
 		} else if (event.getAction().equals(EventType.Unfollow)) {
 			if (object instanceof User) {
-				this.updateFiltersOnUnfollowUser(event.getActor().getId(),
+				this.updateFiltersOnUnfollowUser(event.getActorId(),
 						object.getId());
 			}
 		} 

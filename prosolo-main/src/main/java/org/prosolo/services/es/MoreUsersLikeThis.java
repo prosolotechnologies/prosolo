@@ -14,7 +14,7 @@ import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 public interface MoreUsersLikeThis {
 
 	List<User> getRecommendedCollaboratorsForLearningGoal(String likeText,
-			Collection<User> ignoredUsers, int limit);
+			Collection<Long> ignoredUsers, int limit);
 
 	List<User> getRecommendedCollaboratorsBasedOnLocation(String likeText, Collection<User> ignoredUsers,
 			double lat, double lon, int limit);

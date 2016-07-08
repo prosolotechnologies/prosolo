@@ -38,7 +38,7 @@ public interface CourseManager extends AbstractManager {
 
 	Course updateCompetencesAndSaveNewCourse(String title, String description,
 											 long basedOnCourseId, List<CourseCompetenceData> courseCompetences,
-											 Collection<Tag> tags, Collection<Tag> hashtags, User maker,
+											 Collection<Tag> tags, Collection<Tag> hashtags, long makerId,
 											 CreatorType creatorType, boolean studentsCanAddNewCompetences,
 											 boolean pubilshed) throws EventException, ResourceCouldNotBeLoadedException;
 	
@@ -46,11 +46,11 @@ public interface CourseManager extends AbstractManager {
 			Course basedOn, List<CourseCompetence> courseCompetences, 
 			Set<Tag> tags, Set<Tag> hashtags, User maker, 
 			CreatorType creatorType, boolean studentsCanAddNewCompetences, 
-			boolean published) throws EventException;
+			boolean published) throws EventException, ResourceCouldNotBeLoadedException;
 	
 	Course updateCourse(long courseId, String title, String description,
 			List<CourseCompetenceData> courseCompetences, 
-			Collection<Tag> tags, Collection<Tag> hashtags, List<String> blogs, User user,
+			Collection<Tag> tags, Collection<Tag> hashtags, List<String> blogs, long userId,
 			boolean studentsCanAddNewCompetences, 
 			boolean pubilshed) throws EventException, ResourceCouldNotBeLoadedException;
 	
@@ -61,26 +61,26 @@ public interface CourseManager extends AbstractManager {
 	CourseCompetence updateCourseCompetence(CourseCompetence courseCompetence,
 			long modifiedDaysOffset, long modifiedDuration);
 
-	CoursePortfolio getCoursePortfolio(User user);
+	CoursePortfolio getCoursePortfolio(long userId);
 
-	CoursePortfolio getOrCreateCoursePortfolio(User user);
+	CoursePortfolio getOrCreateCoursePortfolio(long userId) throws ResourceCouldNotBeLoadedException;
 
 	List<CompetenceJsonData> getCourseComeptences(long id);
 
 	List<Competence> getOtherUsersCompetences(long courseId,
-			List<Long> idsOfcompetencesToExclude, User user);
+			List<Long> idsOfcompetencesToExclude);
 
-	List<Node> getCourseCompetencesFromActiveCourse(User user);
+	List<Node> getCourseCompetencesFromActiveCourse(long userId);
 
-	CourseEnrollment getCourseEnrollment(User user, Course course);
+	CourseEnrollment getCourseEnrollment(long userId, Course course);
 	
-	CourseEnrollment getCourseEnrollment(User user, Course course, Session session);
+	CourseEnrollment getCourseEnrollment(long userId, Course course, Session session);
 	
-	TargetLearningGoal getTargetLearningGoalForCourse(User user, Course course);
+	TargetLearningGoal getTargetLearningGoalForCourse(long userId, Course course);
 
 	Course deleteCourse(long courseId) throws ResourceCouldNotBeLoadedException;
 
-	CourseEnrollment enrollInCourse(User user, long courseId, TargetLearningGoal targetGoal, String context,
+	CourseEnrollment enrollInCourse(long userId, long courseId, TargetLearningGoal targetGoal, String context,
 			String page, String lContext, String service) throws ResourceCouldNotBeLoadedException;
 
 	CourseEnrollment updateEnrollment(long enrollmentId, List<CourseCompetence> competences) throws ResourceCouldNotBeLoadedException;
@@ -95,10 +95,10 @@ public interface CourseManager extends AbstractManager {
 
 	CourseEnrollment addCourseCompetencesToEnrollment(long courseId, CourseEnrollment enrollment) throws ResourceCouldNotBeLoadedException;
 
-	CourseEnrollment activateCourseEnrollment(User user, CourseEnrollment enrollment, String context,
+	CourseEnrollment activateCourseEnrollment(long userId, CourseEnrollment enrollment, String context,
 			String page, String learningContext, String service);
 	
-	CourseEnrollment withdrawFromCourse(User user, long enrollmentId, boolean deleteLearningHistory, 
+	CourseEnrollment withdrawFromCourse(long userId, long enrollmentId, boolean deleteLearningHistory, 
 			Session session, String page, String lContext, String service) throws ResourceCouldNotBeLoadedException;
 
 	CoursePortfolio addEnrollment(long portfolioId, CourseEnrollment enrollment) throws ResourceCouldNotBeLoadedException;
@@ -145,7 +145,7 @@ public interface CourseManager extends AbstractManager {
 
 	List<User> getUsersAssignedToInstructor(long instructorId) throws DbConnectionException;
 	
-	void removeEnrollmentFromCoursePortfolio(User user,	long enrollmentId);
+	void removeEnrollmentFromCoursePortfolio(long userId, long enrollmentId);
 	
 	List<Map<String, Object>> getCourseInstructors(long courseId) throws DbConnectionException;
 
@@ -181,10 +181,10 @@ public interface CourseManager extends AbstractManager {
 	
 	List<CourseCompetence> getCourseCompetences(long courseId) throws DbConnectionException;
 	
-	Course createNewUntitledCourse(User maker, CreatorType creatorType) throws DbConnectionException;
+	Course createNewUntitledCourse(long makerId, CreatorType creatorType) throws DbConnectionException;
 	
 	Course updateCourse(long courseId, String title, String description, Collection<Tag> tags, 
-			Collection<Tag> hashtags, boolean published, User user) throws DbConnectionException;
+			Collection<Tag> hashtags, boolean published, long userId) throws DbConnectionException;
 	
 	void removeFeed(long courseId, long feedSourceId) throws DbConnectionException;
 	

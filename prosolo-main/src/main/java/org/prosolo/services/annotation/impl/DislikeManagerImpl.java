@@ -37,7 +37,7 @@ public class DislikeManagerImpl extends AnnotationsManagerImpl implements Dislik
 	
 	@Override
 	@Transactional (readOnly = false)
-	public void dislikeSocialActivity(User user, long notificationId, long socialActivityId,
+	public void dislikeSocialActivity(long userId, long notificationId, long socialActivityId,
 			int newDislikeCount, Session session, String context, String page, 
 			String lContext, String service) 
 			throws EventException, ResourceCouldNotBeLoadedException {
@@ -52,37 +52,37 @@ public class DislikeManagerImpl extends AnnotationsManagerImpl implements Dislik
 		socialActivity.setDislikeCount(newDislikeCount);
 		session.save(socialActivity);
     	
-    	dislike(user, socialActivity, session, context, page, lContext, service);
+    	dislike(userId, socialActivity, session, context, page, lContext, service);
 	}
 	
 	@Override
-	public Annotation dislikeComment(User user, long commentId,
+	public Annotation dislikeComment(long userId, long commentId,
 			Session session, String context) throws EventException,
 			ResourceCouldNotBeLoadedException {
 		Comment resource = (Comment) session.get(Comment.class, commentId);
 		Annotation dislike = new CommentAnnotation(AnnotationType.Dislike);
-		return dislike(user, resource, dislike, session, context, null, null, null);
+		return dislike(userId, resource, dislike, session, context, null, null, null);
 	}
 	
 	//changed because of new context approach
 	@Override
-	public Annotation dislikeNode(User user, long resourceId, Session session,
+	public Annotation dislikeNode(long userId, long resourceId, Session session,
 			String context, String page, String lContext, String service) throws EventException,
 			ResourceCouldNotBeLoadedException {
 		Node resource = loadResource(Node.class, resourceId, session);
 		Annotation dislike = new NodeAnnotation(AnnotationType.Dislike);
-		return dislike(user, resource, dislike, session, context, page, lContext, service);
+		return dislike(userId, resource, dislike, session, context, page, lContext, service);
 	}
 	
 	//changed because of new context approach
 	@Override
-	public Annotation dislike(User user, BaseEntity resource, Annotation dislike,
+	public Annotation dislike(long userId, BaseEntity resource, Annotation dislike,
 			Session session, String context, String page, String lContext, String service) throws EventException,
 			ResourceCouldNotBeLoadedException {
-		logger.debug("Adding dislike of a resource "+resource.getId()+" by the user "+user);
+		logger.debug("Adding dislike of a resource " + resource.getId() + " by the user " + userId);
 		
-		if (user != null) {
-			user = (User) session.merge(user);
+		if (userId > 0) {
+			User user = loadResource(User.class, userId);
 			
 			dislike.setMaker(user);
 			dislike.setDateCreated(new Date());
@@ -92,7 +92,7 @@ public class DislikeManagerImpl extends AnnotationsManagerImpl implements Dislik
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("context", context);
 			
-			eventFactory.generateEvent(EventType.Dislike, user, resource, target(resource), page, lContext,
+			eventFactory.generateEvent(EventType.Dislike, userId, resource, target(resource), page, lContext,
 					service, parameters);
 			
 			return dislike;
@@ -112,15 +112,15 @@ public class DislikeManagerImpl extends AnnotationsManagerImpl implements Dislik
 	
 	@Override
 	@Transactional (readOnly = false)
-	public Annotation dislike(User user, BaseEntity resource, Session session, String context,
-			String page, String lContext, String service) throws EventException {
-		logger.debug("Adding dislike of a resource "+resource.getId()+" by the user "+user.getId());
+	public Annotation dislike(long userId, BaseEntity resource, Session session, String context,
+			String page, String lContext, String service) throws EventException, ResourceCouldNotBeLoadedException {
+		logger.debug("Adding dislike of a resource " + resource.getId() + " by the user " + userId);
 		
-		if (resource != null && user != null) {
+		if (resource != null && userId > 0) {
 			Annotation dislike = createAnnotation(resource, AnnotationType.Dislike);
 			
 			dislike.setDateCreated(new Date());
-			dislike.setMaker(user);
+			dislike.setMaker(loadResource(User.class, userId));
 			dislike.setResource(resource);
 			session.save(dislike);
 			
@@ -128,7 +128,7 @@ public class DislikeManagerImpl extends AnnotationsManagerImpl implements Dislik
 			parameters.put("context", context);
 				
 			//migration to new context approach
-			eventFactory.generateEvent(EventType.Dislike, user, resource, target(resource), page, 
+			eventFactory.generateEvent(EventType.Dislike, userId, resource, target(resource), page, 
 					lContext, service, parameters);
 			return dislike;
 		} 
@@ -146,25 +146,25 @@ public class DislikeManagerImpl extends AnnotationsManagerImpl implements Dislik
 	public int dislikeCount(BaseEntity resource, Session session) {
 		logger.debug("Calculating dislike count for the resource " + resource.getId());
 		
-		return super.annotationCount(resource.getId(), resource.getClass(), null, AnnotationType.Dislike, session);
+		return super.annotationCount(resource.getId(), resource.getClass(), 0, AnnotationType.Dislike, session);
 	}
 
 	@Override
 	@Transactional (readOnly = true)
 	public int dislikeCount(Class<? extends BaseEntity> clazz, long resourceId) {
-		return super.annotationCount(resourceId, clazz, null, AnnotationType.Dislike);
+		return super.annotationCount(resourceId, clazz, 0, AnnotationType.Dislike);
 	}
 	
 	@Override
 	@Transactional (readOnly = true)
-	public boolean isDislikedByUser(BaseEntity resource, User user) {
-		logger.debug("Returning boolean if the resource "+resource.getId()+" is disliked by the user "+user);
+	public boolean isDislikedByUser(BaseEntity resource, long userId) {
+		logger.debug("Returning boolean if the resource "+resource.getId()+" is disliked by the user "+userId);
 		
-		return super.isAnnotatedByUser(resource, user, AnnotationType.Dislike);
+		return super.isAnnotatedByUser(resource, userId, AnnotationType.Dislike);
 	}
 	
 	@Override
-	public void removeDislikeFromSocialActivity(User user, long notificationId, long socialActivityId,
+	public void removeDislikeFromSocialActivity(long userId, long notificationId, long socialActivityId,
 			int newDislikeCount, Session session, String context,
 			String page, String lContext, String service) throws EventException,
 			ResourceCouldNotBeLoadedException {
@@ -179,39 +179,39 @@ public class DislikeManagerImpl extends AnnotationsManagerImpl implements Dislik
 		socialActivity.setDislikeCount(newDislikeCount);
 		session.save(socialActivity);
     	
-    	removeDislike(user, socialActivity, session, context, page, lContext, service);
+    	removeDislike(userId, socialActivity, session, context, page, lContext, service);
 	}
 
 	@Override
-	public boolean removeDislikeFromNode(User user, long resourceId,
+	public boolean removeDislikeFromNode(long userId, long resourceId,
 			Session session, String context, String page, String lContext, String service) throws EventException,
 			ResourceCouldNotBeLoadedException {
 		Node resource = (Node) session.get(Node.class, resourceId);
-		return removeDislike(user, resource, session, context, page, lContext, service);
+		return removeDislike(userId, resource, session, context, page, lContext, service);
 	}
 	
 	@Override
-	public boolean removeDislikeFromComment(User user, long commentId,
+	public boolean removeDislikeFromComment(long userId, long commentId,
 			Session session, String context) throws EventException,
 			ResourceCouldNotBeLoadedException {
 		Comment comment = (Comment) session.get(Comment.class, commentId);
-		return removeDislike(user, comment, session, context, null, null, null);
+		return removeDislike(userId, comment, session, context, null, null, null);
 	}
 
 	@Override
 	@Transactional (readOnly = false)
-	public boolean removeDislike(User user, BaseEntity resource, Session session, String context,
+	public boolean removeDislike(long userId, BaseEntity resource, Session session, String context,
 			String page, String lContext, String service) throws EventException {
-		logger.debug("Removing dislike from a resource '"+resource.getId()+"' by the user "+user);
+		logger.debug("Removing dislike from a resource '"+resource.getId()+"' by the user "+userId);
 		
-		boolean successful = super.removeAnnotation(resource, user, AnnotationType.Dislike, true, session);
+		boolean successful = super.removeAnnotation(resource, userId, AnnotationType.Dislike, true, session);
 		
 		Map<String, String> parameters = new HashMap<String, String>();
 		parameters.put("context", context);
 		
 		//eventFactory.generateEvent(EventType.RemoveDislike, user, resource, parameters);
 		//changed new context approach
-		eventFactory.generateEvent(EventType.RemoveDislike, user, resource, null, page, lContext, 
+		eventFactory.generateEvent(EventType.RemoveDislike, userId, resource, null, page, lContext, 
 				service, parameters);
 		return successful;
 	}

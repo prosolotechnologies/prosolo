@@ -71,7 +71,7 @@ public class ActivityDialogBean implements Serializable {
 		UploadedFile uploadedFile = event.getFile();
 		
 		try {
-			AttachmentPreview attachmentPreview = uploadManager.uploadFile(loggedUser.getUser(), uploadedFile, uploadedFile.getFileName());
+			AttachmentPreview attachmentPreview = uploadManager.uploadFile(uploadedFile, uploadedFile.getFileName());
 			
 			this.activityFormData.setAttachmentPreview(attachmentPreview);
 		} catch (IOException ioe) {
@@ -88,7 +88,7 @@ public class ActivityDialogBean implements Serializable {
 		String linkString = this.activityFormData.getLink();
 
 		if (linkString != null && linkString.length() > 0) {
-			logger.debug("User " + loggedUser.getUser()	+ " is fetching contents of a link: " + linkString);
+			logger.debug("User " + loggedUser.getUserId()	+ " is fetching contents of a link: " + linkString);
 
 			AttachmentPreview attachmentPreview = htmlParser.extractAttachmentPreview(StringUtil.cleanHtml(linkString.trim()));
 
@@ -120,8 +120,7 @@ public class ActivityDialogBean implements Serializable {
 						activityFormData.getAttachmentPreview(), 
 						activityFormData.getMaxNumberOfFiles(), 
 						activityFormData.isVisibleToEveryone(), 
-						activityFormData.getDuration(),
-						loggedUser.getUser());
+						activityFormData.getDuration());
 				 
 				ManageCompetenceBean manageCompBean = PageUtil.getViewScopedBean("manageCompetenceBean", ManageCompetenceBean.class);
 				
@@ -133,7 +132,7 @@ public class ActivityDialogBean implements Serializable {
 			else {
 				activityFormData.setType(this.activityType);
 				 activity = resourceFactory.createNewActivity(
-						loggedUser.getUser(), 
+						loggedUser.getUserId(), 
 						activityFormData,
 						VisibilityType.PUBLIC);
 			
@@ -144,7 +143,7 @@ public class ActivityDialogBean implements Serializable {
 					PageUtil.fireSuccessfulInfoMessage("Activity added");
 				}
 			}
-			eventFactory.generateEvent(EventType.Create_Manager, loggedUser.getUser(), activity);
+			eventFactory.generateEvent(EventType.Create_Manager, loggedUser.getUserId(), activity);
 			
 			reset();
 		} catch (ResourceCouldNotBeLoadedException e) {

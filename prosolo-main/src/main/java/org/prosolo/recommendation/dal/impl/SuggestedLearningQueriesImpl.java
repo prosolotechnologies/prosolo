@@ -30,18 +30,18 @@ public class SuggestedLearningQueriesImpl extends AbstractManagerImpl implements
 	private static Logger logger = Logger.getLogger(SuggestedLearningQueries.class);
 	
 	@Override
-	public List<Recommendation> findSuggestedLearningResourcesByCollegues(User user, RecommendationType recType, int page, int limit) {
+	public List<Recommendation> findSuggestedLearningResourcesByCollegues(long userId, RecommendationType recType, int page, int limit) {
 		String query=
 			"SELECT DISTINCT recommendation " +
 			"FROM Recommendation recommendation "+
 			"JOIN FETCH recommendation.recommendedTo recommendedTo "+
-			"WHERE recommendedTo.id = :user " +
+			"WHERE recommendedTo.id = :userId " +
 				"AND recommendation.recommendationType = :rType "+
 				"AND recommendation.dismissed != :dismissed";
 		
 		@SuppressWarnings("unchecked")
 		List<Recommendation> recommendations= (List<Recommendation>) persistence.currentManager().createQuery(query)
-			.setLong("user", user.getId())
+			.setLong("userId", userId)
 			.setString("rType", recType.toString())
 			.setBoolean("dismissed", true)
 			.setFirstResult(page * limit)
@@ -71,19 +71,19 @@ public class SuggestedLearningQueriesImpl extends AbstractManagerImpl implements
 	}
 	
 	@Override
-	public int findNumberOfSuggestedLearningResourcesByCollegues(User user, RecommendationType recType) {
+	public int findNumberOfSuggestedLearningResourcesByCollegues(long userId, RecommendationType recType) {
 		String query=
 			"SELECT DISTINCT cast(COUNT(recommendation) as int) " +
 			"FROM Recommendation recommendation "+
 			"JOIN recommendation.recommendedTo recommendedTo "+
-			"WHERE recommendedTo = :user " +
+			"WHERE recommendedTo.id = :userId " +
 				"AND recommendation.recommendationType = :rType "+
 				"AND recommendation.dismissed != :dismissed";
 		
 		int number= (Integer) persistence.currentManager().createQuery(query)
 				.setString("rType", recType.toString())
 				.setBoolean("dismissed", true)
-				.setEntity("user", user)
+				.setLong("userId", userId)
 				.uniqueResult();
 		
 		return number;

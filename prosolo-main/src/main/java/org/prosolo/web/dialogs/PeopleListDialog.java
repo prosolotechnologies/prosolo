@@ -7,7 +7,6 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
-import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activitywall.old.SocialActivity;
@@ -24,9 +23,7 @@ import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.home.ColleguesBean;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.useractions.PeopleActionBean;
@@ -126,10 +123,10 @@ public class PeopleListDialog implements Serializable {
 		if (users != null) {
 			for (User user : users) {
 				boolean followed =  colleguesBean.isInFollowingUsers(user.getId());
-				boolean logged = user.getId() == loggedUser.getUser().getId();
-				UserData userData = UserDataFactory.createUserData(user);
-				userData.setFollowed(followed);
-				userData.setLoggedUser(logged);
+				boolean logged = user.getId() == loggedUser.getUserId();
+				UserData userData = new UserData(user);
+//				userData.setFollowed(followed);
+//				userData.setLoggedUser(logged);
 				people.add(userData);
 			}
 			
@@ -187,12 +184,12 @@ public class PeopleListDialog implements Serializable {
 	
 	public void followCollegue(UserData userToFollowData) {
 		peopleActionBean.followCollegueById(userToFollowData.getId(), "peoplelistdialog");
-		userToFollowData.setFollowed(true);
+//		userToFollowData.setFollowed(true);
 	}
 	
 	public void unfollowCollegue(UserData userToUnfollowData) {
 		peopleActionBean.unfollowCollegueById(userToUnfollowData.getId(), "peoplelistdialog");
-		userToUnfollowData.setFollowed(false);
+//		userToUnfollowData.setFollowed(false);
 	}
 
 	/*

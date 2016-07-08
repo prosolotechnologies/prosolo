@@ -1,19 +1,10 @@
 package org.prosolo.services.lti;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 import javax.inject.Inject;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.prosolo.common.domainmodel.lti.LtiConsumer;
 import org.prosolo.core.spring.SpringConfig;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;

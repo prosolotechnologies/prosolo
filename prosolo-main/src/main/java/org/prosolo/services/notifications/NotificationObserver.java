@@ -118,7 +118,7 @@ public class NotificationObserver extends EventObserver {
 						if (notification.isNotifyByEmail() && CommonSettings.getInstance().config.emailNotifier.activated) {
 							try {
 								UserSettings userSettings = interfaceSettingsManager.
-										getOrCreateUserSettings(notification.getReceiver(), session);
+										getOrCreateUserSettings(notification.getReceiver().getId(), session);
 								Locale locale = getLocale(userSettings);
 								/*
 								 * get all notification data in one query insted of issuing session.update
@@ -130,7 +130,7 @@ public class NotificationObserver extends EventObserver {
 								//session.update(notification.getActor());
 								//session.update(receiver);						 
 								String domain = Settings.getInstance().config.application.domain;
-								if(domain.endsWith("/")) {
+								if (domain.endsWith("/")) {
 									domain = domain.substring(0, domain.length() - 1);
 								}
 								final String urlPrefix = domain;

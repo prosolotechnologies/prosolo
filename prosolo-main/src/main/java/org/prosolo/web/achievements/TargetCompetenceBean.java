@@ -3,23 +3,17 @@ package org.prosolo.web.achievements;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.nodes.CompetenceManager;
-import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.achievements.data.CompetenceAchievementsData;
-import org.prosolo.web.achievements.data.CredentialAchievementsData;
 import org.prosolo.web.achievements.data.TargetCompetenceData;
-import org.prosolo.web.achievements.data.TargetCredentialData;
 import org.prosolo.web.datatopagemappers.CompetenceAchievementsDataToPageMapper;
-import org.prosolo.web.datatopagemappers.CredentialAchievementsDataToPageMapper;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -50,7 +44,7 @@ public class TargetCompetenceBean implements Serializable {
 	public void init() {
 		try {
 			List<TargetCompetence1> targetCompetence1List = competenceManager
-					.getAllCompletedCompetences(loggedUser.getUser().getId());
+					.getAllCompletedCompetences(loggedUser.getUserId());
 
 			competenceAchievementsData = new CompetenceAchievementsDataToPageMapper(idEncoder)
 					.mapDataToPageObject(targetCompetence1List);

@@ -5,24 +5,19 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-import org.omnifaces.util.Ajax;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.interaction.FollowResourceAsyncManager;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.courses.util.pagination.Paginable;
 import org.prosolo.web.courses.util.pagination.PaginationLink;
 import org.prosolo.web.courses.util.pagination.Paginator;
 import org.prosolo.web.settings.ProfileSettingsBean;
-import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -64,19 +59,19 @@ public class PeopleBean implements Serializable, Paginable {
 		try {
 
 			followingUsers = new ArrayList<UserData>();
-			logger.debug("Initializing following users for a user '" + loggedUser.getUser() + "'");
+			logger.debug("Initializing following users for a user '" + loggedUser.getUserId() + "'");
 
-			usersNumber = followResourceManager.getNumberOfFollowingUsers(loggedUser.getUser());
+			usersNumber = followResourceManager.getNumberOfFollowingUsers(loggedUser.getUserId());
 
 			List<User> followingUsersList = usersNumber > 0
-					? followResourceManager.getFollowingUsers(loggedUser.getUser(), page - 1, limit) : new ArrayList();
+					? followResourceManager.getFollowingUsers(loggedUser.getUserId(), page - 1, limit) : new ArrayList();
 
 			if (followingUsersList != null && !followingUsersList.isEmpty()) {
 				for (User user : followingUsersList) {
-					UserData userData = UserDataFactory.createUserData(user);
+					UserData userData = new UserData(user);
 					followingUsers.add(userData);
 				}
-				logger.debug("Following users initialized '" + loggedUser.getUser() + "'");
+				logger.debug("Following users initialized '" + loggedUser.getUserId() + "'");
 			}
 			generatePagination();
 		} catch (Exception e) {

@@ -46,7 +46,7 @@ public class EvaluationsBean implements Serializable {
 
 	public void fetchEvaluations() {
 		evaluations = EvaluationItemDataConverter.convertEvaluationSubmissions(
-				evaluationManager.getEvaluationsByUser(loggedUser.getUser(), sortDesc, filter), 
+				evaluationManager.getEvaluationsByUser(loggedUser.getUserId(), sortDesc, filter), 
 				loggedUser.getLocale());
 	}
 	

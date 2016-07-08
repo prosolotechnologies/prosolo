@@ -111,10 +111,8 @@ public class TopNotificationsBean {
 	public void initNotificationsNo() { 
 		logger.debug("Initializing unread notifications number.");
 		
-		User user = loggedUser.getUser();
-		
-		if (user != null)
-			this.unreadNotificationsNo = notificationsManager.getNumberOfUnreadNotifications(user);
+		if (loggedUser.isLoggedIn())
+			this.unreadNotificationsNo = notificationsManager.getNumberOfUnreadNotifications(loggedUser.getUserId());
 	}
 	
 	public void initNotifications() {
@@ -130,14 +128,13 @@ public class TopNotificationsBean {
 			}
 		}
 		
-		final User user = loggedUser.getUser();
 		if (unreadNotificationsNo > 0) {
 			taskExecutor.execute(new Runnable() {
 	            @Override
 	            public void run() {
 	            	Session session = (Session) notificationsManager.getPersistence().openSession();
 					try {
-						notificationsManager.markAsReadAllUnreadNotifications(user, session);
+						notificationsManager.markAsReadAllUnreadNotifications(loggedUser.getUserId(), session);
 					} finally {
 						HibernateUtil.close(session);
 					}
@@ -155,12 +152,12 @@ public class TopNotificationsBean {
 			
 			try {
 				List<Notification> latestNotifications = notificationsManager.getNotifications(
-						loggedUser.getUser(), 
+						loggedUser.getUserId(), 
 						0, 
 						notificationsLimit);
 				
 				this.notifications = NotificationDataConverter.convertNotifications(
-						loggedUser.getUser(),
+						loggedUser.getUserId(),
 						latestNotifications,
 						session,
 						loggedUser.getLocale());
@@ -280,29 +277,29 @@ public class TopNotificationsBean {
 			GoalStatus goalStatus = notificationData.getGoalStatus();
 			
 			if (goalStatus.equals(GoalStatus.HAS_ACTIVE_COURSE_BASED_GOAL) || goalStatus.equals(GoalStatus.HAS_INACTIVE_COURSE_BASED_GOAL)) {
-				newTargetGoal = joinUserToCourseBasedGoalWithLearningExperience(targetGoalInvited, loggedUser.getUser());
+				newTargetGoal = joinUserToCourseBasedGoalWithLearningExperience(targetGoalInvited, loggedUser.getUserId());
 			} else if (goalStatus.equals(GoalStatus.NO_GOAL_COURSE_CONNECTED)) {
-				newTargetGoal = joinUserToCourseBasedGoalForFirstTime(targetGoalInvited, loggedUser.getUser());
+				newTargetGoal = joinUserToCourseBasedGoalForFirstTime(targetGoalInvited, loggedUser.getUserId());
 			} else if (goalStatus.equals(GoalStatus.HAS_GOAL_REGULAR)) {
-				newTargetGoal = joinUserToRegularAlreadyHadGoal(targetGoalInvited, loggedUser.getUser());
+				newTargetGoal = joinUserToRegularAlreadyHadGoal(targetGoalInvited, loggedUser.getUserId());
 			} else if (goalStatus.equals(GoalStatus.NO_GOAL_REGULAR)) {
-				newTargetGoal = joinUserToRegularGoal(targetGoalInvited, loggedUser.getUser());
+				newTargetGoal = joinUserToRegularGoal(targetGoalInvited, loggedUser.getUserId());
 			}
 			
 			((NodeRequest) request).setResolutionResource(newTargetGoal);
 			request = goalManager.saveEntity(request);
 			goalManager.flush();
 
-			eventFactory.generateEvent(EventType.JOIN_GOAL_INVITATION_ACCEPTED, loggedUser.getUser(), request);
+			eventFactory.generateEvent(EventType.JOIN_GOAL_INVITATION_ACCEPTED, loggedUser.getUserId(), loggedUser.getFullName(), request);
 
 			
 			// add new goal to user's cache
-			HttpSession userSession = applicationBean.getUserSession(loggedUser.getUser().getId());
+			HttpSession userSession = applicationBean.getUserSession(loggedUser.getUserId());
 			LearnBean learningGoalsBean = (LearnBean) userSession.getAttribute("learninggoals");
 			
 			if (learningGoalsBean != null) {
 				learningGoalsBean.getData().addGoal(
-						loggedUser.getUser(), 
+						loggedUser.getUserId(), 
 						newTargetGoal, 
 						(Session) goalManager.getPersistence().currentManager());
 			}
@@ -312,7 +309,7 @@ public class TopNotificationsBean {
 			InterfaceCacheObserver cacheUpdater = ServiceLocator.getInstance().getService(InterfaceCacheObserver.class);
 			
 			if (cacheUpdater != null) {
-				cacheUpdater.asyncResetGoalCollaborators(newTargetGoal.getLearningGoal().getId(), loggedUser.getUser());
+				cacheUpdater.asyncResetGoalCollaborators(newTargetGoal.getLearningGoal().getId(), loggedUser.getUserId());
 			}
 			
 			PageUtil.fireSuccessfulInfoMessage("notificationsGrowl", "You accepted request to join learning goal '"+ request.getResource().getTitle()+"'.");
@@ -334,20 +331,20 @@ public class TopNotificationsBean {
 			User requestMaker = request.getMaker();
 			
 			GoalStatus goalStatus = NotificationDataConverter.getGoalStatus(
-					requestMaker, 
+					requestMaker.getId(), 
 					(Session) goalManager.getPersistence().currentManager(), 
 					targetGoalToJoin.getId());
 			
 			TargetLearningGoal newTargetGoal = null;
 			
 			if (goalStatus.equals(GoalStatus.HAS_ACTIVE_COURSE_BASED_GOAL) || goalStatus.equals(GoalStatus.HAS_INACTIVE_COURSE_BASED_GOAL)) {
-				newTargetGoal = joinUserToCourseBasedGoalWithLearningExperience(targetGoalToJoin, requestMaker);
+				newTargetGoal = joinUserToCourseBasedGoalWithLearningExperience(targetGoalToJoin, requestMaker.getId());
 			} else if (goalStatus.equals(GoalStatus.NO_GOAL_COURSE_CONNECTED)) {
-				newTargetGoal = joinUserToCourseBasedGoalForFirstTime(targetGoalToJoin, requestMaker);
+				newTargetGoal = joinUserToCourseBasedGoalForFirstTime(targetGoalToJoin, requestMaker.getId());
 			} else if (goalStatus.equals(GoalStatus.HAS_GOAL_REGULAR)) {
-				newTargetGoal = joinUserToRegularAlreadyHadGoal(targetGoalToJoin, requestMaker);
+				newTargetGoal = joinUserToRegularAlreadyHadGoal(targetGoalToJoin, requestMaker.getId());
 			} else if (goalStatus.equals(GoalStatus.NO_GOAL_REGULAR)) {
-				newTargetGoal = joinUserToRegularGoal(targetGoalToJoin, requestMaker);
+				newTargetGoal = joinUserToRegularGoal(targetGoalToJoin, requestMaker.getId());
 			}
 			
 			// update request
@@ -355,7 +352,7 @@ public class TopNotificationsBean {
 			request = goalManager.saveEntity(request);
 			goalManager.flush();
 
-			eventFactory.generateEvent(EventType.JOIN_GOAL_REQUEST_APPROVED, loggedUser.getUser(), request);
+			eventFactory.generateEvent(EventType.JOIN_GOAL_REQUEST_APPROVED, loggedUser.getUserId(), loggedUser.getFullName(), request);
 			
 			// add new goal to user's cache
 			messageDistributer.distributeMessage(
@@ -369,7 +366,7 @@ public class TopNotificationsBean {
 			InterfaceCacheObserver cacheUpdater = ServiceLocator.getInstance().getService(InterfaceCacheObserver.class);
 			
 			if (cacheUpdater != null) {
-				cacheUpdater.asyncResetGoalCollaborators(newTargetGoal.getLearningGoal().getId(), requestMaker);
+				cacheUpdater.asyncResetGoalCollaborators(newTargetGoal.getLearningGoal().getId(), requestMaker.getId());
 			}
 			
 			PageUtil.fireSuccessfulInfoMessage("notificationsGrowl", "You accepted "+requestMaker.getName()
@@ -384,10 +381,10 @@ public class TopNotificationsBean {
 			IOException {
 		try {
 			EvaluationSubmission evaluationSubmission = evaluationManager.createEvaluationSubmissionDraft(
-					loggedUser.getUser(), 
+					loggedUser.getUserId(), 
 					request);
 			
-			eventFactory.generateEvent(EventType.EVALUATION_ACCEPTED, loggedUser.getUser(), request);
+			eventFactory.generateEvent(EventType.EVALUATION_ACCEPTED, loggedUser.getUserId(), loggedUser.getFullName(), request);
 			
 			ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
 			
@@ -414,11 +411,11 @@ public class TopNotificationsBean {
 		}
 	}
 	
-	private TargetLearningGoal joinUserToCourseBasedGoalWithLearningExperience(final TargetLearningGoal targetGoalInvited, User user) throws EventException,
+	private TargetLearningGoal joinUserToCourseBasedGoalWithLearningExperience(final TargetLearningGoal targetGoalInvited, long userId) throws EventException,
 			ResourceCouldNotBeLoadedException {
-		TargetLearningGoal newTargetGoal = goalManager.createNewTargetLearningGoal(user, targetGoalInvited.getLearningGoal());
+		TargetLearningGoal newTargetGoal = goalManager.createNewTargetLearningGoal(userId, targetGoalInvited.getLearningGoal());
 		
-		TargetLearningGoal existingGoal = courseManager.getTargetLearningGoalForCourse(user, targetGoalInvited.getCourseEnrollment().getCourse());
+		TargetLearningGoal existingGoal = courseManager.getTargetLearningGoalForCourse(userId, targetGoalInvited.getCourseEnrollment().getCourse());
 		
 		newTargetGoal = goalManager.cloneTargetCompetencesFromOneGoalToAnother(existingGoal, newTargetGoal);
 		goalManager.markAsDeleted(existingGoal);
@@ -432,7 +429,7 @@ public class TopNotificationsBean {
 		newTargetGoal.setCourseEnrollment(enrollment);
 		newTargetGoal = goalManager.saveEntity(newTargetGoal);
 		
-		CoursePortfolio coursePortfolio = courseManager.getCoursePortfolio(user);
+		CoursePortfolio coursePortfolio = courseManager.getCoursePortfolio(userId);
 		
 		if (coursePortfolio != null)
 			courseManager.addEnrollment(coursePortfolio, enrollment);
@@ -441,7 +438,7 @@ public class TopNotificationsBean {
 		// update goals cache
 		messageDistributer.distributeMessage(
 			ServiceType.REMOVE_TARGET_GOAL, 
-			user.getId(), 
+			userId,
 			existingGoal.getId(), 
 			null, 
 			null);
@@ -452,7 +449,7 @@ public class TopNotificationsBean {
 
 		messageDistributer.distributeMessage(
 			ServiceType.ADD_ACTIVE_COURSE,
-			user.getId(),
+			userId,
 			enrollment.getCourse().getId(), 
 			null, 
 			parameters);
@@ -460,15 +457,15 @@ public class TopNotificationsBean {
 		return newTargetGoal;
 	}
 
-	private TargetLearningGoal joinUserToCourseBasedGoalForFirstTime(final TargetLearningGoal targetGoalInvited, User user) throws EventException, ResourceCouldNotBeLoadedException {
-		TargetLearningGoal newTargetGoal = goalManager.createNewCourseBasedLearningGoal(user, targetGoalInvited.getCourseEnrollment().getCourse().getId(), targetGoalInvited.getLearningGoal(), "notifications.accept");
+	private TargetLearningGoal joinUserToCourseBasedGoalForFirstTime(final TargetLearningGoal targetGoalInvited, long userId) throws EventException, ResourceCouldNotBeLoadedException {
+		TargetLearningGoal newTargetGoal = goalManager.createNewCourseBasedLearningGoal(userId, targetGoalInvited.getCourseEnrollment().getCourse().getId(), targetGoalInvited.getLearningGoal(), "notifications.accept");
 		
-		CourseEnrollment enrollment = courseManager.enrollInCourse(user, targetGoalInvited.getCourseEnrollment().getCourse().getId(), newTargetGoal, "notifications.accept", null, null, null);
+		CourseEnrollment enrollment = courseManager.enrollInCourse(userId, targetGoalInvited.getCourseEnrollment().getCourse().getId(), newTargetGoal, "notifications.accept", null, null, null);
 		
 		newTargetGoal.setCourseEnrollment(enrollment);
 		newTargetGoal = goalManager.saveEntity(newTargetGoal);
 		
-		CoursePortfolio coursePortfolio = courseManager.getCoursePortfolio(user);
+		CoursePortfolio coursePortfolio = courseManager.getCoursePortfolio(userId);
 		
 		if (coursePortfolio != null)
 			courseManager.addEnrollment(coursePortfolio, enrollment);
@@ -480,7 +477,7 @@ public class TopNotificationsBean {
 
 		messageDistributer.distributeMessage(
 			ServiceType.ADD_ACTIVE_COURSE,
-			user.getId(),
+			userId,
 			enrollment.getCourse().getId(), 
 			null, 
 			parameters);
@@ -488,18 +485,18 @@ public class TopNotificationsBean {
 		return newTargetGoal;
 	}
 	
-	private TargetLearningGoal joinUserToRegularAlreadyHadGoal(final TargetLearningGoal targetGoalInvited, User user) throws EventException,
+	private TargetLearningGoal joinUserToRegularAlreadyHadGoal(final TargetLearningGoal targetGoalInvited, long userId) throws EventException,
 		ResourceCouldNotBeLoadedException {
-		TargetLearningGoal existingGoal = goalManager.getTargetGoal(targetGoalInvited.getLearningGoal().getId(), user.getId());
+		TargetLearningGoal existingGoal = goalManager.getTargetGoal(targetGoalInvited.getLearningGoal().getId(), userId);
 		
-		TargetLearningGoal newTargetGoal = goalManager.createNewTargetLearningGoal(user, targetGoalInvited.getLearningGoal());
+		TargetLearningGoal newTargetGoal = goalManager.createNewTargetLearningGoal(userId, targetGoalInvited.getLearningGoal());
 		newTargetGoal = goalManager.cloneTargetCompetencesFromOneGoalToAnother(existingGoal, newTargetGoal);
 		goalManager.markAsDeleted(existingGoal);
 		
 		// update goals cache
 		messageDistributer.distributeMessage(
 			ServiceType.REMOVE_TARGET_GOAL, 
-			user.getId(), 
+			userId, 
 			existingGoal.getId(), 
 			null, 
 			null);
@@ -507,10 +504,10 @@ public class TopNotificationsBean {
 		return newTargetGoal;
 	}
 	
-	private TargetLearningGoal joinUserToRegularGoal(final TargetLearningGoal targetGoalInvited, User user) throws EventException,
+	private TargetLearningGoal joinUserToRegularGoal(final TargetLearningGoal targetGoalInvited, long userId) throws EventException,
 		ResourceCouldNotBeLoadedException {
 	
-		TargetLearningGoal newTargetGoal = goalManager.createNewTargetLearningGoal(user, targetGoalInvited.getLearningGoal());
+		TargetLearningGoal newTargetGoal = goalManager.createNewTargetLearningGoal(userId, targetGoalInvited.getLearningGoal());
 	
 		return newTargetGoal;
 	}
@@ -522,7 +519,7 @@ public class TopNotificationsBean {
 		notificationData.setUpdated(notification.getUpdated());
 		
 		try {
-			eventFactory.generateEvent(EventType.JOIN_GOAL_REQUEST_IGNORED, loggedUser.getUser(), (Request) notification.getObject());
+			eventFactory.generateEvent(EventType.JOIN_GOAL_REQUEST_IGNORED, loggedUser.getUserId(), loggedUser.getFullName(), (Request) notification.getObject());
 		} catch (EventException e) {
 			logger.error(e);
 		}
@@ -667,7 +664,7 @@ public class TopNotificationsBean {
 		if (notification.getType().equals(EventType.JOIN_GOAL_REQUEST)) {
 			Request request = (Request) notification.getObject();
 
-			eventFactory.generateEvent(EventType.JOIN_GOAL_REQUEST_DENIED, loggedUser.getUser(), request);
+			eventFactory.generateEvent(EventType.JOIN_GOAL_REQUEST_DENIED, loggedUser.getUserId(), loggedUser.getFullName(), request);
 		}
 		PageUtil.fireSuccessfulInfoMessage("notificationsGrowl", "You have denied this request.");
 	}

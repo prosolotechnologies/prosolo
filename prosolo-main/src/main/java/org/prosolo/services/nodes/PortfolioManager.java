@@ -22,18 +22,18 @@ import org.prosolo.services.nodes.impl.PortfolioData;
 
 public interface PortfolioManager extends AbstractManager {
 	
-	Portfolio getOrCreatePortfolio(User user);
+	Portfolio getOrCreatePortfolio(long userId) throws ResourceCouldNotBeLoadedException;
 	
-	CompletedResource getCompletedResource(User user, BaseEntity resource);
+	CompletedResource getCompletedResource(long userId, BaseEntity resource) throws ResourceCouldNotBeLoadedException;
 	
 	/*
 	 * completed goals
 	 */
-	PortfolioData sendGoalToPortfolio(long targetGoalId, User user) throws ResourceCouldNotBeLoadedException;
+	PortfolioData sendGoalToPortfolio(long targetGoalId, long userId) throws ResourceCouldNotBeLoadedException;
 	
 	TargetLearningGoal sendBackToGoals(long targetGoalId, User user, String context) throws ResourceCouldNotBeLoadedException;
 	
-	AchievedCompetence sendCompetenceToPortfolio(TargetCompetence goal, User user);
+	AchievedCompetence sendCompetenceToPortfolio(TargetCompetence goal, User user) throws ResourceCouldNotBeLoadedException;
 	
 	List<TargetLearningGoal> getPublicOngoingTargetLearningGoals(User user);
 	
@@ -62,7 +62,7 @@ public interface PortfolioManager extends AbstractManager {
 	
 	TargetCompetence getTargetCompetenceOfAchievedCompetence(long resourceId, Session session);
 	
-	boolean isCompetenceCompleted(long competenceId, User user);
+	boolean isCompetenceCompleted(long competenceId, long userId);
 	
 	boolean isCompetenceCompleted(Competence competence, User user);
 	
@@ -75,17 +75,17 @@ public interface PortfolioManager extends AbstractManager {
 	/*
 	 * external credits
 	 */
-	ExternalCredit createExternalCredit(User user, String title, String description, String certificateLink, Date start, Date end, 
-			List<TargetActivity> activities, List<Competence> competences, String context);
+	ExternalCredit createExternalCredit(long userId, String title, String description, String certificateLink, Date start, Date end, 
+			List<TargetActivity> activities, List<Competence> competences, String context) throws ResourceCouldNotBeLoadedException;
 	
-	List<ExternalCredit> deleteExternalCredit(User user, ExternalCredit externalCredit, String context);
+	List<ExternalCredit> deleteExternalCredit(User user, ExternalCredit externalCredit, String context) throws ResourceCouldNotBeLoadedException;
 	
 	List<ExternalCredit> getExternalCredits(User user);
 	
 	List<ExternalCredit> getVisibleExternalCredits(User profileOwner);
 	
 	ExternalCredit updateExternalCredit(ExternalCredit externalCredit, User user, String title, String description, Date start, 
-			Date end, String certificateLink, List<Competence> competences, List<TargetActivity> activities);
+			Date end, String certificateLink, List<Competence> competences, List<TargetActivity> activities) throws ResourceCouldNotBeLoadedException;
 
 	public List<TargetLearningGoal> getAllArchivedGoals(long userId) throws DbConnectionException;
 	

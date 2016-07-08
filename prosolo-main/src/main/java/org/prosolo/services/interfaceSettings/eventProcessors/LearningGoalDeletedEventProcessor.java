@@ -10,7 +10,6 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Session;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.messaging.data.ServiceType;
@@ -44,12 +43,12 @@ public class LearningGoalDeletedEventProcessor extends InterfaceEventProcessor {
 
 	@Override
 	void process() {
-		updateAfterGoalDeleted((TargetLearningGoal) object, event.getActor(), session);
+		updateAfterGoalDeleted((TargetLearningGoal) object, event.getActorId(), session);
 	}
 	
-	private void updateAfterGoalDeleted(TargetLearningGoal goal, User actor, Session session) {
+	private void updateAfterGoalDeleted(TargetLearningGoal goal, long actorId, Session session) {
 		// update Portfolio cache of online user if exists
-    	final PortfolioBean portfolioBean = (PortfolioBean) applicationBean.getUserSession(actor.getId()).getAttribute("portfolio");
+    	final PortfolioBean portfolioBean = (PortfolioBean) applicationBean.getUserSession(actorId).getAttribute("portfolio");
     	
     	if (portfolioBean != null)
     		portfolioBean.populateWithActiveCompletedCompetences();
@@ -59,14 +58,14 @@ public class LearningGoalDeletedEventProcessor extends InterfaceEventProcessor {
     	goal = activityManager.merge(goal, session);
     	
     	//for Nikola: goal id or target learning goal id
-    	List<User> collaborators = goalManager.retrieveCollaborators(goal.getId(), actor, session);
+    	List<User> collaborators = goalManager.retrieveCollaborators(goal.getId(), actorId, session);
     	
     	Iterator<User> iterator = collaborators.iterator();
 		
 		while (iterator.hasNext()) {
 			User user = (User) iterator.next();
 			
-			if (user.getId() == actor.getId()) {
+			if (user.getId() == actorId) {
 				iterator.remove();
 				break;
 			}
@@ -81,14 +80,14 @@ public class LearningGoalDeletedEventProcessor extends InterfaceEventProcessor {
 				messageDistributer.distributeMessage(
 						ServiceType.REMOVE_GOAL_COLLABORATOR,
 						user.getId(), 
-						actor.getId(), 
+						actorId, 
 						null, 
 						parameters);
 			} else {
 				HttpSession userSession = applicationBean.getUserSession(user.getId());
 				
 				//for Nikola: goal.getLearningGoal() ?
-				learnPageCacheUpdater.removeCollaboratorFormGoal(actor, goal.getLearningGoal(), userSession);
+				learnPageCacheUpdater.removeCollaboratorFormGoal(actorId, goal.getLearningGoal(), userSession);
 			}
 		}
 	}

@@ -49,7 +49,7 @@ public class LikeActionBean {
 	
 	public boolean isLikedByUser(Node resource) {
 		if (resource != null) {
-			return likeManager.isLikedByUser(resource, loggedUser.getUser());
+			return likeManager.isLikedByUser(resource, loggedUser.getUserId());
 		}
 		return false;
 	}
@@ -61,18 +61,18 @@ public class LikeActionBean {
 	
 	public boolean like(Node resource, Session session, String context) {
 		try {
-			Annotation ann = likeManager.like(loggedUser.getUser(), resource, session, context, null, null, null);
+			Annotation ann = likeManager.like(loggedUser.getUserId(), resource, session, context, null, null, null);
 			
 			if (ann != null) {
-				logger.debug("User "+loggedUser.getUser()+" liked resource ("+resource.getId()+")");
+				logger.debug("User "+loggedUser.getUserId()+" liked resource ("+resource.getId()+")");
 				return true;
 			} else {
 				logger.error("Could not like resource "+resource.getTitle()+" ("+resource.getId()+") " +
-						"by the user "+loggedUser.getUser());
+						"by the user "+loggedUser.getUserId());
 			}
-		} catch (EventException e) {
+		} catch (EventException | ResourceCouldNotBeLoadedException e) {
 			logger.error("There was an error in liking resource "+resource.getTitle()+" ("+resource.getId()+") " +
-					"when user "+loggedUser.getUser()+" tried to like it. " + e.getMessage());
+					"when user "+loggedUser.getUserId()+" tried to like it. " + e.getMessage());
 		}
 		return false;
 	}
@@ -83,22 +83,20 @@ public class LikeActionBean {
 	}
 	
 	public boolean removeLike(Node resource, Session session, String context) {
-		loggedUser.refreshUser();
-
 		boolean successful = false;
 		try {
-			successful = likeManager.removeLike(loggedUser.getUser(), resource, session, context, 
+			successful = likeManager.removeLike(loggedUser.getUserId(), resource, session, context, 
 					null, null, null);
 			
 			if (successful) {
-				logger.debug("User "+loggedUser.getUser()+" unliked resource ("+resource+")");
+				logger.debug("User "+loggedUser.getUserId()+" unliked resource ("+resource+")");
 			} else {
 				logger.error("Could not unlike resource "+resource.getTitle()+" ("+resource+") " +
-						"by the user "+loggedUser.getUser());
+						"by the user "+loggedUser.getUserId());
 			}
 		} catch (EventException e) {
 			logger.error("Error when trying to unlike resource "+resource.getTitle()+" ("+resource+") " +
-					"by the user "+loggedUser.getUser()+". "+e);
+					"by the user "+loggedUser.getUserId()+". "+e);
 		}
 		
 		return successful;
@@ -119,17 +117,17 @@ public class LikeActionBean {
 				Session session = (Session) defaultManager.getPersistence().openSession();
 				
 				try {
-					likeManager.likeNode(loggedUser.getUser(), targetActivityId, session, context,
+					likeManager.likeNode(loggedUser.getUserId(), targetActivityId, session, context,
 							page, lContext, service);
 					
-					logger.debug("User "+loggedUser.getUser()+" liked target activity ("+targetActivityId+")");
+					logger.debug("User "+loggedUser.getUserId()+" liked target activity ("+targetActivityId+")");
 					session.flush();
 				} catch (EventException e) {
 					logger.error("There was an error in liking target activity "+ targetActivityId +
-							"when user "+loggedUser.getUser()+" tried to like it. " + e.getMessage());
+							"when user "+loggedUser.getUserId()+" tried to like it. " + e.getMessage());
 				} catch (ResourceCouldNotBeLoadedException e) {
 					logger.error("There was an error in liking target activity "+ targetActivityId +
-							"when user "+loggedUser.getUser()+" tried to like it. " + e.getMessage());
+							"when user "+loggedUser.getUserId()+" tried to like it. " + e.getMessage());
 				} finally {
 					HibernateUtil.close(session);
 				}
@@ -171,17 +169,17 @@ public class LikeActionBean {
 				Session session = (Session) defaultManager.getPersistence().openSession();
 				
 				try {
-					likeManager.removeLikeFromNode(loggedUser.getUser(), targetActivityId, session, context,
+					likeManager.removeLikeFromNode(loggedUser.getUserId(), targetActivityId, session, context,
 							page, lContext, service);
 					
-					logger.debug("User "+loggedUser.getUser()+" unliked target activity ("+targetActivityId+")");
+					logger.debug("User "+loggedUser.getUserId()+" unliked target activity ("+targetActivityId+")");
 					session.flush();
 				} catch (EventException e) {
 					logger.error("There was an error in liking target activity "+ targetActivityId +
-							"when user "+loggedUser.getUser()+" tried to unlike it. " + e.getMessage());
+							"when user "+loggedUser.getUserId()+" tried to unlike it. " + e.getMessage());
 				} catch (ResourceCouldNotBeLoadedException e) {
 					logger.error("There was an error in liking target activity "+ targetActivityId +
-							"when user "+loggedUser.getUser()+" tried to unlike it. " + e.getMessage());
+							"when user "+loggedUser.getUserId()+" tried to unlike it. " + e.getMessage());
 				}
  
 				 finally{
@@ -210,16 +208,16 @@ public class LikeActionBean {
             	Session session = (Session) defaultManager.getPersistence().openSession();
             	
             	try {
-            		likeManager.likeSocialActivity(loggedUser.getUser(), wallData.getConfigId(), 
+            		likeManager.likeSocialActivity(loggedUser.getUserId(), wallData.getConfigId(), 
             				wallData.getSocialActivity().getId(), newLikeCount, session, context,
             				page, learningContext, service);
             		
-        			logger.debug("User "+loggedUser.getUser()+" liked Social Activity ("+socialActivityId+")");
+        			logger.debug("User "+loggedUser.getUserId()+" liked Social Activity ("+socialActivityId+")");
 
     				session.flush();
             	} catch (EventException e) {
             		logger.error("There was an error in liking social activity ("+socialActivityId+") " +
-            				"when user "+loggedUser.getUser()+" tried to like it. " + e.getMessage());
+            				"when user "+loggedUser.getUserId()+" tried to like it. " + e.getMessage());
             	} catch (ResourceCouldNotBeLoadedException e1) {
             		logger.error(e1);
             	}
@@ -250,15 +248,15 @@ public class LikeActionBean {
             	Session session = (Session) defaultManager.getPersistence().openSession();
             	
 				try {
-					likeManager.removeLikeFromSocialActivity(loggedUser.getUser(), wallData.getConfigId(), 
+					likeManager.removeLikeFromSocialActivity(loggedUser.getUserId(), wallData.getConfigId(), 
 							wallData.getSocialActivity().getId(), newLikeCount, session, context,
 							page, learningContext, service);
 
-					logger.debug("User "+loggedUser.getUser()+" unliked Social Activity ("+socialActivityId+")");
+					logger.debug("User "+loggedUser.getUserId()+" unliked Social Activity ("+socialActivityId+")");
 
 					session.flush();
 				} catch (EventException e) {
-					logger.error("Error when user "+loggedUser.getUser()+ " tried to unlike Social Activity "+socialActivityId+". "+e);
+					logger.error("Error when user "+loggedUser.getUserId()+ " tried to unlike Social Activity "+socialActivityId+". "+e);
 				} catch (ResourceCouldNotBeLoadedException e) {
 					logger.error(e);
 				}
@@ -298,17 +296,17 @@ public class LikeActionBean {
 			
 				try {
 					if (liked) {
-						likeManager.likeComment(loggedUser.getUser(), commentId, session, context,
+						likeManager.likeComment(loggedUser.getUserId(), commentId, session, context,
 								page, lContext, service);
-						logger.debug("User "+loggedUser.getUser()+" liked comment "+commentId);
+						logger.debug("User "+loggedUser.getUserId()+" liked comment "+commentId);
 					} else {
-						likeManager.removeLikeFromComment(loggedUser.getUser(), commentId, session, context,
+						likeManager.removeLikeFromComment(loggedUser.getUserId(), commentId, session, context,
 								page, lContext, service);
-						logger.debug("User "+loggedUser.getUser()+" unliked comment "+commentId);
+						logger.debug("User "+loggedUser.getUserId()+" unliked comment "+commentId);
 					}
 					session.flush();
 				} catch (EventException e) {
-					logger.error("Error when user "+loggedUser.getUser()+" tried to update like count of comment "+commentId+". "+e);
+					logger.error("Error when user "+loggedUser.getUserId()+" tried to update like count of comment "+commentId+". "+e);
 				} catch (ResourceCouldNotBeLoadedException e1) {
 					logger.error(e1);
 				}

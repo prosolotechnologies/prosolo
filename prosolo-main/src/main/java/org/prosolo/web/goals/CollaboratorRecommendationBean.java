@@ -42,7 +42,7 @@ public class CollaboratorRecommendationBean implements Serializable {
 		
 		if (selectedGoal != null) {
 			recommendedCollaborators = collaboratorsRecommendation
-					.getRecommendedCollaboratorsForLearningGoal(loggedUser.getUser(), selectedGoal.getId(),
+					.getRecommendedCollaboratorsForLearningGoal(loggedUser.getUserId(), selectedGoal.getId(),
 							Settings.getInstance().config.application.defaultLikeThisItemsNumber);
 			
 			if (recommendedCollaborators.size() > 2) {

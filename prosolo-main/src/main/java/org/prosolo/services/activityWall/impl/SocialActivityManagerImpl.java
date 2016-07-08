@@ -770,7 +770,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			String page = context != null ? context.getPage() : null;
 			String lContext = context != null ? context.getLearningContext() : null;
 			String service = context != null ? context.getService() : null;
-			eventFactory.generateEvent(EventType.Post, user, post, null, page, 
+			eventFactory.generateEvent(EventType.Post, user.getId(), post, null, page, 
 					lContext, service, null);
 	
 			
@@ -798,7 +798,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				String page = context != null ? context.getPage() : null;
 				String lContext = context != null ? context.getLearningContext() : null;
 				String service = context != null ? context.getService() : null;
-				eventFactory.generateEvent(EventType.PostUpdate, user, post, null,
+				eventFactory.generateEvent(EventType.PostUpdate, user.getId(), post, null,
 						page, lContext, service, parameters);
 			} catch (EventException e) {
 				logger.error(e);
@@ -825,12 +825,12 @@ private void generateEventForContent(final User user, final String text, final P
 		try {
 			switch (richContent.getContentType()) {
 			case LINK:
-				eventFactory.generateEvent(EventType.LinkAdded, user,
+				eventFactory.generateEvent(EventType.LinkAdded, user.getId(),
 						post);
 				addedLink = richContent.getLink();
 				break;
 			case FILE:
-				eventFactory.generateEvent(EventType.FileUploaded, user,
+				eventFactory.generateEvent(EventType.FileUploaded, user.getId(),
 						post);
 				break;
 			default:

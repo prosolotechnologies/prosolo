@@ -6,16 +6,15 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.notifications.RequestManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.courses.data.CourseData;
 import org.prosolo.web.data.GoalData;
 import org.prosolo.web.home.MessagesBean;
@@ -62,14 +61,14 @@ public class RequestToJoinGoalDialog extends MessagesBean{
 	
 	public void requestToJoinGoal(LearningGoal goal, String context) {
 		logger.debug("Opening Request to Join Goal dialog for a learning goal " +
-				"'"+goal.getTitle()+"'("+goal.getId()+") initiated by the user '"+loggedUser.getUser()+"'");
+				"'"+goal.getTitle()+"'("+goal.getId()+") initiated by the user '"+loggedUser.getUserId()+"'");
 		
 		this.learningGoal = new GoalData(goal);
 		
 		User user = HibernateUtil.initializeAndUnproxy(goal.getMaker());
 		
 		this.context = context;
-		this.receiver = UserDataFactory.createUserData(user);
+		this.receiver = new UserData(user);
 		this.messageContent = "I would like to join your goal";
 		
 		logDialogUse(goal.getId(), context);
@@ -77,7 +76,7 @@ public class RequestToJoinGoalDialog extends MessagesBean{
 	
 	public void requestToJoinLearningGoal(LearningGoalData goalData, String context) {
 		logger.debug("Opening Request to Join Goal dialog for a learning goal " +
-				"'"+goalData.getTitle()+"'("+goalData.getId()+") initiated by the user '"+loggedUser.getUser()+"'");
+				"'"+goalData.getTitle()+"'("+goalData.getId()+") initiated by the user '"+loggedUser.getUserId()+"'");
 		
 		this.context = context;
 		
@@ -96,13 +95,13 @@ public class RequestToJoinGoalDialog extends MessagesBean{
 		try {
 			this.context = context;
 			this.learningGoal = goalData;
-			this.canBeRequestedToJoin = learningGoalManager.canUserJoinGoal(goalData.getGoalId(), loggedUser.getUser());
+			this.canBeRequestedToJoin = learningGoalManager.canUserJoinGoal(goalData.getGoalId(), loggedUser.getUserId());
 			this.receiver = requestFrom;
 			this.messageContent = "I would like to join your goal";
 			
 			if (goalData.getTargetGoalId() > 0) {
 				this.goalStatus = NotificationDataConverter.getGoalStatus(
-					loggedUser.getUser(), 
+					loggedUser.getUserId(), 
 					(Session) defaultManager.getPersistence().currentManager(), 
 					goalData.getTargetGoalId());
 			}
@@ -116,7 +115,7 @@ public class RequestToJoinGoalDialog extends MessagesBean{
 	public void sendRequestToJoinGoal() {
 		try {
 			 requestManager.requestToJoinTargetLearningGoal(learningGoal.getTargetGoalId(),
-					loggedUserBean.getUser(), receiver.getId(),
+					loggedUserBean.getUserId(), receiver.getId(),
 					messageContent, context);
 			 
 			 PageUtil.fireSuccessfulInfoMessage("newRequestToJoinFormGrowl", "You have sent a request to "+ receiver.getName()+".");
@@ -131,7 +130,7 @@ public class RequestToJoinGoalDialog extends MessagesBean{
 		try {
 			requestManager.requestToJoinTargetLearningGoal(
 					goalId,
-					loggedUserBean.getUser(), 
+					loggedUserBean.getUserId(), 
 					receiverId, 
 					messageContent,
 					context);
@@ -147,7 +146,7 @@ public class RequestToJoinGoalDialog extends MessagesBean{
 
 	public boolean checkIfLearningGoalIsFreeToJoin(LearningGoalData goalData) {
 		if(goalData != null){
-			boolean result = learningGoalManager.isUserMemberOfLearningGoal(goalData.getId(), loggedUser.getUser());
+			boolean result = learningGoalManager.isUserMemberOfLearningGoal(goalData.getId(), loggedUser.getUserId());
 		
 			if (result == false) {
 				if (goalData.isFreeToJoin()) {

@@ -51,7 +51,7 @@ public class ActivitiesRecommendationBean implements Serializable {
 		if (recommendedActivities != null && !recommendedActivities.isEmpty()) {
 			List<ActivityWallData> convertedActivities = compWallActivityConverter.convertActivities(
 					recommendedActivities,
-					loggedUser.getUser(),
+					loggedUser.getUserId(),
 					loggedUser.getLocale(),
 					true, 
 					false);

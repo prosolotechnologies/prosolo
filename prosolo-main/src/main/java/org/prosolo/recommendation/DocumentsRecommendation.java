@@ -8,6 +8,6 @@ import org.prosolo.recommendation.impl.RecommendedDocument;
 
 public interface DocumentsRecommendation {
 	
-	List<RecommendedDocument> recommendDocuments(User user, TargetLearningGoal tGoal, int limit);
+	List<RecommendedDocument> recommendDocuments(long userId, TargetLearningGoal tGoal, int limit);
 	
 }

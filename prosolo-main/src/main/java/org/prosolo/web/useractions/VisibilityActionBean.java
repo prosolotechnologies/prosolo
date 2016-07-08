@@ -47,7 +47,7 @@ public class VisibilityActionBean {
 	
 	public Visible changeVisibility(long resId, VisibilityType visType, String context) {
 		try {
-			return visibilityManager.setResourceVisibility(loggedUser.getUser(), resId, visType, context);
+			return visibilityManager.setResourceVisibility(loggedUser.getUserId(), resId, visType, context);
 		} catch (EventException e) {
 			logger.error(e.getMessage());
 		} catch (ResourceCouldNotBeLoadedException e) {

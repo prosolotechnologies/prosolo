@@ -45,7 +45,7 @@ public class DislikeActionBean {
 	
 	public boolean isDislikedByUser(Node resource) {
 		if (resource != null) {
-			return dislikeManager.isDislikedByUser(resource, loggedUser.getUser());
+			return dislikeManager.isDislikedByUser(resource, loggedUser.getUserId());
 		}
 		return false;
 	}
@@ -57,19 +57,19 @@ public class DislikeActionBean {
 	
 	public boolean dislike(Node resource, Session session, String context) {
 		try {
-			Annotation ann = dislikeManager.dislike(loggedUser.getUser(), resource, session, context, 
+			Annotation ann = dislikeManager.dislike(loggedUser.getUserId(), resource, session, context, 
 					null, null, null);
 			
 			if (ann != null) {
-				logger.debug("User "+loggedUser.getUser()+" disliked resource ("+resource.getId()+")");
+				logger.debug("User "+loggedUser.getUserId()+" disliked resource ("+resource.getId()+")");
 				return true;
 			} else {
 				logger.error("Could not dislike resource "+resource.getTitle()+" ("+resource.getId()+") " +
-						"by the user "+loggedUser.getUser());
+						"by the user "+loggedUser.getUserId());
 			}
-		} catch (EventException e) {
+		} catch (EventException | ResourceCouldNotBeLoadedException e) {
 			logger.error("There was an error in disliking resource "+resource.getTitle()+" ("+resource.getId()+") " +
-					"when user "+loggedUser.getUser()+" tried to dislike it. " + e.getMessage());
+					"when user "+loggedUser.getUserId()+" tried to dislike it. " + e.getMessage());
 		}
 		return false;
 	}
@@ -80,22 +80,20 @@ public class DislikeActionBean {
 	}
 	
 	public boolean removeDislike(Node resource, Session session, String context) {
-		loggedUser.refreshUser();
-		
 		boolean successful = false;
 		try {
-			successful = dislikeManager.removeDislike(loggedUser.getUser(), resource, session, context,
+			successful = dislikeManager.removeDislike(loggedUser.getUserId(), resource, session, context,
 					null, null, null);
 			
 			if (successful) {
-				logger.debug("User "+loggedUser.getUser()+" removed disliked resource ("+resource+")");
+				logger.debug("User "+loggedUser.getUserId()+" removed disliked resource ("+resource+")");
 			} else {
 				logger.error("Could not remove dislike from a resource "+resource.getTitle()+" ("+resource+") " +
-						"by the user "+loggedUser.getUser());
+						"by the user "+loggedUser.getUserId());
 			}
 		} catch (EventException e) {
 			logger.error("Error when trying to remove dislike from resource "+resource.getTitle()+" ("+resource+") " +
-					"by the user "+loggedUser.getUser()+". "+e);
+					"by the user "+loggedUser.getUserId()+". "+e);
 		}
 		
 		return successful;
@@ -116,17 +114,17 @@ public class DislikeActionBean {
 				Session session = (Session) defaultManager.getPersistence().openSession();
 				
 				try {
-					dislikeManager.dislikeNode(loggedUser.getUser(), targetActivityId, session, context,
+					dislikeManager.dislikeNode(loggedUser.getUserId(), targetActivityId, session, context,
 							page, lContext, service);
 					
-					logger.debug("User "+loggedUser.getUser()+" disliked target activity ("+targetActivityId+")");
+					logger.debug("User "+loggedUser.getUserId()+" disliked target activity ("+targetActivityId+")");
 					session.flush();
 				} catch (EventException e) {
 					logger.error("There was an error in disliking target activity "+targetActivityId+
-							" when user "+loggedUser.getUser()+" tried to dislike it. " + e.getMessage());
+							" when user "+loggedUser.getUserId()+" tried to dislike it. " + e.getMessage());
 				} catch (ResourceCouldNotBeLoadedException e) {
 					logger.error("There was an error in disliking target activity "+targetActivityId+
-							" when user "+loggedUser.getUser()+" tried to dislike it. " + e.getMessage());
+							" when user "+loggedUser.getUserId()+" tried to dislike it. " + e.getMessage());
 				}
 				
 		
@@ -154,17 +152,17 @@ public class DislikeActionBean {
 				Session session = (Session) defaultManager.getPersistence().openSession();
 				
 				try {
-					dislikeManager.removeDislikeFromNode(loggedUser.getUser(), targetActivityId, session, context,
+					dislikeManager.removeDislikeFromNode(loggedUser.getUserId(), targetActivityId, session, context,
 							page, lContext, service);
 					
-					logger.debug("User "+loggedUser.getUser()+" removed dislike from target activity ("+targetActivityId+")");
+					logger.debug("User "+loggedUser.getUserId()+" removed dislike from target activity ("+targetActivityId+")");
 					session.flush();
 				} catch (EventException e) {
 					logger.error("There was an error in removing dislike from target activity "+targetActivityId+
-							" when user "+loggedUser.getUser() +" tried to remove dislike. " + e.getMessage());
+							" when user "+loggedUser.getUserId() +" tried to remove dislike. " + e.getMessage());
 				} catch (ResourceCouldNotBeLoadedException e) {
 					logger.error("There was an error in removing dislike from target activity "+targetActivityId+
-							" when user "+loggedUser.getUser() +" tried to remove dislike. " + e.getMessage());
+							" when user "+loggedUser.getUserId() +" tried to remove dislike. " + e.getMessage());
 				}
 				
 			
@@ -193,15 +191,15 @@ public class DislikeActionBean {
             public void run() {
             	Session session = (Session) defaultManager.getPersistence().openSession();
             	try {
-            		dislikeManager.dislikeSocialActivity(loggedUser.getUser(), wallData.getConfigId(), 
+            		dislikeManager.dislikeSocialActivity(loggedUser.getUserId(), wallData.getConfigId(), 
             				wallData.getSocialActivity().getId(), newDislikeCount, session, context,
             				page, learningContext, service);
             		
-        			logger.debug("User "+loggedUser.getUser()+" liked Social Activity ("+socialActivityId+")");
+        			logger.debug("User "+loggedUser.getUserId()+" liked Social Activity ("+socialActivityId+")");
         			session.flush();
             	} catch (EventException e) {
             		logger.error("There was an error in disliking social activity ("+socialActivityId+") " +
-            				"when user "+loggedUser.getUser()+" tried to dislike it. " + e.getMessage());
+            				"when user "+loggedUser.getUserId()+" tried to dislike it. " + e.getMessage());
             	} catch (ResourceCouldNotBeLoadedException e1) {
             		logger.error(e1);
             	}
@@ -233,15 +231,15 @@ public class DislikeActionBean {
             	Session session = (Session) defaultManager.getPersistence().openSession();
             	
 				try {
-					dislikeManager.removeDislikeFromSocialActivity(loggedUser.getUser(), 
+					dislikeManager.removeDislikeFromSocialActivity(loggedUser.getUserId(), 
 							wallData.getConfigId(), wallData.getSocialActivity().getId(), newDislikeCount, 
 							session, context, page, learningContext, service);
 					
-					logger.debug("User "+loggedUser.getUser()+" removed dislike from Social Activity ("+socialActivityId+")");
+					logger.debug("User "+loggedUser.getUserId()+" removed dislike from Social Activity ("+socialActivityId+")");
 					
 					session.flush();
 				} catch (EventException e) {
-					logger.error("Error when user "+loggedUser.getUser()+ " tried to remove dislike from Social Activity "+socialActivityId+". "+e);
+					logger.error("Error when user "+loggedUser.getUserId()+ " tried to remove dislike from Social Activity "+socialActivityId+". "+e);
 				} catch (ResourceCouldNotBeLoadedException e) {
 					logger.error(e);
 				}
@@ -279,14 +277,14 @@ public class DislikeActionBean {
 			
 				try {
 					if (disliked) {
-						dislikeManager.dislikeComment(loggedUser.getUser(), commentId, session, context);
-						logger.debug("User "+loggedUser.getUser()+" liked comment "+commentId);
+						dislikeManager.dislikeComment(loggedUser.getUserId(), commentId, session, context);
+						logger.debug("User "+loggedUser.getUserId()+" liked comment "+commentId);
 					} else {
-						dislikeManager.removeDislikeFromComment(loggedUser.getUser(), commentId, session, context);
-						logger.debug("User "+loggedUser.getUser()+" unliked comment "+commentId);
+						dislikeManager.removeDislikeFromComment(loggedUser.getUserId(), commentId, session, context);
+						logger.debug("User "+loggedUser.getUserId()+" unliked comment "+commentId);
 					}	
 				} catch (EventException e) {
-					logger.error("Error when user "+loggedUser.getUser()+" tried to update dislike count of comment "+commentId+". "+e);
+					logger.error("Error when user "+loggedUser.getUserId()+" tried to update dislike count of comment "+commentId+". "+e);
 				} catch (ResourceCouldNotBeLoadedException e1) {
 					logger.error(e1);
 				} finally{

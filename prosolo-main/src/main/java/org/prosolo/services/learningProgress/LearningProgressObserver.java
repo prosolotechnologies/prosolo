@@ -8,7 +8,6 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
 import org.prosolo.web.ApplicationBean;
@@ -47,11 +46,11 @@ public class LearningProgressObserver extends EventObserver {
 
 	@Override
 	public void handleEvent(Event event) {
-		User maker = event.getActor();
+		long makerId = event.getActorId();
 		BaseEntity object = event.getObject();
 		BaseEntity target = event.getTarget();
 		
-		HttpSession userSession = applicationBean.getUserSession(maker.getId());
+		HttpSession userSession = applicationBean.getUserSession(makerId);
 		
 		if (userSession != null) {
 			

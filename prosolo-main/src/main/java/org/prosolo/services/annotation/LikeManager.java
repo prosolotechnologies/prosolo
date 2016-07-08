@@ -11,16 +11,12 @@ import org.prosolo.services.event.EventException;
 
 public interface LikeManager {
 	
-	void likeSocialActivity(User user, long notificationId, long socialActivityId, 
+	void likeSocialActivity(long userId, long notificationId, long socialActivityId, 
 			int newLikeCount, Session session, String context, String page,
 			String lContext, String service) throws EventException, ResourceCouldNotBeLoadedException;
 
-	//Annotation like(User user, BaseEntity resource, String context) throws EventException;
-
-	Annotation like(User user, BaseEntity resource, Session session, String context,
-			String page, String lContext, String service) throws EventException;
-	
-	//Annotation like(User user, long resourceId, String context) throws ResourceCouldNotBeLoadedException, EventException;
+	Annotation like(long userId, BaseEntity resource, Session session, String context,
+			String page, String lContext, String service) throws EventException, ResourceCouldNotBeLoadedException;
 	
 	int likeCount(BaseEntity resource);
 	
@@ -28,34 +24,34 @@ public interface LikeManager {
 	
 	int likeCount(Class<? extends BaseEntity> clazz, long resourceId);
 
-	boolean isLikedByUser(BaseEntity resource, User user);
+	boolean isLikedByUser(BaseEntity resource, long userId);
 	
-	void removeLikeFromSocialActivity(User user, long notificationId, 
+	void removeLikeFromSocialActivity(long userId, long notificationId, 
 			long socialActivityId, int newLikeCount, Session session, String context,
 			String page, String lContext, String service) 
 			throws EventException, ResourceCouldNotBeLoadedException;
 
-	boolean removeLike(User user, BaseEntity resource, Session session, String context,
+	boolean removeLike(long userId, BaseEntity resource, Session session, String context,
 			String page, String lContext, String service) throws EventException;
 
-	 boolean removeLikeFromNode(User user, long resourceId, Session session, String context,
+	 boolean removeLikeFromNode(long userId, long resourceId, Session session, String context,
 				String page, String lContext, String service) throws EventException, ResourceCouldNotBeLoadedException;
 	
-	 boolean removeLikeFromComment(User user, long commentId, Session session, String context,
+	 boolean removeLikeFromComment(long userId, long commentId, Session session, String context,
 				String page, String learningContext, String service) throws EventException, ResourceCouldNotBeLoadedException;
 
 	int getLikeCountForSocialActivity(long id);
 	
 	List<User> getPeopleWhoLikedResource(long resourceId, Class<? extends BaseEntity> clazz);
 
-	Annotation likeComment(User user, long commentId, Session session, String context,
+	Annotation likeComment(long userId, long commentId, Session session, String context,
 			String page, String learningContext, String service) throws EventException, ResourceCouldNotBeLoadedException;
 
-	Annotation likeNode(User user, long resourceId, Session session, String context, String page,
+	Annotation likeNode(long userId, long resourceId, Session session, String context, String page,
 			String lContext, String service) throws EventException,
 			ResourceCouldNotBeLoadedException;
 
-	Annotation like(User user, BaseEntity resource, Annotation like, Session session, String context, 
+	Annotation like(long userId, BaseEntity resource, Annotation like, Session session, String context, 
 			String page, String lContext, String service)
 			throws EventException, ResourceCouldNotBeLoadedException;
 

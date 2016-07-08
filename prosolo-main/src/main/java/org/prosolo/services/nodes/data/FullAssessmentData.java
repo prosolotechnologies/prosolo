@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
@@ -30,7 +29,7 @@ public class FullAssessmentData {
 	private List<CompetenceAssessmentData> competenceAssessmentData;
 
 	public static FullAssessmentData fromAssessment(CredentialAssessment assessment, UrlIdEncoder encoder,
-			User user, DateFormat dateFormat) {
+			long userId, DateFormat dateFormat) {
 		
 		FullAssessmentData data = new FullAssessmentData();
 		data.setStudentFullName(assessment.getAssessedStudent().getName()+" "+assessment.getAssessedStudent().getLastname());
@@ -48,7 +47,7 @@ public class FullAssessmentData {
 		
 		List<CompetenceAssessmentData> compDatas = new ArrayList<>();
 		for(CompetenceAssessment compAssessment : assessment.getCompetenceAssessments()) {
-			CompetenceAssessmentData compData = CompetenceAssessmentData.from(compAssessment,encoder, user, dateFormat);
+			CompetenceAssessmentData compData = CompetenceAssessmentData.from(compAssessment,encoder, userId, dateFormat);
 			compDatas.add(compData);
 		}
 		data.setCompetenceAssessmentData(compDatas);

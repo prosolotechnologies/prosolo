@@ -51,13 +51,13 @@ public class ManageCourseBackupsBean implements Serializable{
 	
 	@PostConstruct
 	public void initBackups(){
-		setCourseBackups(courseBackupManager.readAllCourseBackupsForUser(loggedUser.getUser().getId()));
+		setCourseBackups(courseBackupManager.readAllCourseBackupsForUser(loggedUser.getUserId()));
 	}
 
 	public void backupCourse() {
 		courseBackupManager.createCourseBackup(
 				this.courseToBackup.getId(), 
-				loggedUser.getUser().getId(), 
+				loggedUser.getUserId(), 
 				includeCompetences, 
 				includeActivities,
 				includeKeywords, 
@@ -74,7 +74,7 @@ public class ManageCourseBackupsBean implements Serializable{
 	}
 			
 	public void deleteCourseBackup(CourseBackupData courseBackup) {
-		boolean deleted = courseBackupManager.deleteCourseBackup(loggedUser.getUser().getId(), courseBackup);
+		boolean deleted = courseBackupManager.deleteCourseBackup(loggedUser.getUserId(), courseBackup);
 		
 		if (deleted) {
 			this.courseBackups.remove(courseBackup);
@@ -92,7 +92,7 @@ public class ManageCourseBackupsBean implements Serializable{
 	}
 	
 	public void restoreCourseBackup(CourseBackupData backupData) {
-		boolean restored = courseBackupManager.restoreCourseBackup(loggedUser.getUser().getId(), backupData);
+		boolean restored = courseBackupManager.restoreCourseBackup(loggedUser.getUserId(), backupData);
 		if (restored) {
 			// this.courseBackups.remove(courseBackup);
 			searchCoursesBean.searchAllCourses();
@@ -119,7 +119,7 @@ public class ManageCourseBackupsBean implements Serializable{
 		FacesMessage msg = new FacesMessage("Succesful", event.getFile().getFileName() + " is uploaded.");
 		FacesContext.getCurrentInstance().addMessage(null, msg);
 		UploadedFile uploadedFile = event.getFile();
-		courseBackupManager.storeUploadedBackup(uploadedFile, loggedUser.getUser().getId());
+		courseBackupManager.storeUploadedBackup(uploadedFile, loggedUser.getUserId());
 		this.initBackups();
 	}
 	

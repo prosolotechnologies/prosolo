@@ -1,14 +1,10 @@
 package org.prosolo.services.lti;
 
-import static org.junit.Assert.*;
-
 import javax.inject.Inject;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.core.spring.SpringConfig;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;

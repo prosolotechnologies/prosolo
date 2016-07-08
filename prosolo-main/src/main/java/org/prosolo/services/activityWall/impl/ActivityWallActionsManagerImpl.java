@@ -59,7 +59,7 @@ public class ActivityWallActionsManagerImpl extends AbstractManagerImpl implemen
 		String lContext = context != null ? context.getLearningContext() : null;
 		String service = context != null ? context.getService() : null;
 		
-		eventFactory.generateEvent(EventType.HIDE_SOCIAL_ACTIVITY, user, config, null, page, lContext,
+		eventFactory.generateEvent(EventType.HIDE_SOCIAL_ACTIVITY, user.getId(), config, null, page, lContext,
 				service, null);
 		
 		return config;
@@ -77,7 +77,7 @@ public class ActivityWallActionsManagerImpl extends AbstractManagerImpl implemen
 		Map<String, String> parameters = new HashMap<String, String>();
 		parameters.put("context", context);
 		
-		eventFactory.generateEvent(EventType.Delete, user, socialActivity, parameters);
+		eventFactory.generateEvent(EventType.Delete, user.getId(), socialActivity, parameters);
 		return true;
 	}
 
@@ -92,7 +92,7 @@ public class ActivityWallActionsManagerImpl extends AbstractManagerImpl implemen
 		Map<String, String> parameters = new HashMap<String, String>();
 		parameters.put("context", context);
 		
-		eventFactory.generateEvent(EventType.CommentsEnabled, user, socialActivity, parameters);
+		eventFactory.generateEvent(EventType.CommentsEnabled, user.getId(), socialActivity, parameters);
 		
 		return true;
 	}
@@ -108,7 +108,7 @@ public class ActivityWallActionsManagerImpl extends AbstractManagerImpl implemen
 		Map<String, String> parameters = new HashMap<String, String>();
 		parameters.put("context", context);
 		
-		eventFactory.generateEvent(EventType.CommentsDisabled, user, socialActivity, parameters);
+		eventFactory.generateEvent(EventType.CommentsDisabled, user.getId(), socialActivity, parameters);
 		
 		return true;
 	}

@@ -55,7 +55,7 @@ public class NodeRecommendationManagerImpl extends AbstractManagerImpl implement
 			recommendation = saveEntity(recommendation);
 			try {
 				eventFactory.generateEvent(EventType.Create_recommendation,
-						maker, recommendation);
+						maker.getId(), recommendation);
 			} catch (EventException e) {
 				logger.error(e);
 			}
@@ -64,8 +64,10 @@ public class NodeRecommendationManagerImpl extends AbstractManagerImpl implement
 		return recommendation;
 	}
 	
-	public void dismissRecommendation(RecommendationData recommendationData, User user){
+	@Override
+	public void dismissRecommendation(RecommendationData recommendationData, long userId) throws ResourceCouldNotBeLoadedException{
 		Recommendation recommendation=null;
+		User user = loadResource(User.class, userId);
 		
 		if(recommendationData.getRecommendationType().equals(RecommendationType.USER)){
 			recommendation=recommendationData.getRecommendation();
@@ -80,7 +82,7 @@ public class NodeRecommendationManagerImpl extends AbstractManagerImpl implement
 			recommendation=saveEntity(recommendation);
 		}
 		try{
-			eventFactory.generateEvent(EventType.DISMISS_RECOMMENDATION, user, recommendation);
+			eventFactory.generateEvent(EventType.DISMISS_RECOMMENDATION, user.getId(), recommendation);
 		}catch(EventException e){
 			logger.error(e.getLocalizedMessage());
 		}

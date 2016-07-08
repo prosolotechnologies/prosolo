@@ -96,7 +96,7 @@ public class ActivityWallBean {
 	private List<SocialActivityData1> retrieveSocialActivities() {
 		try {
 			List<SocialActivityData1> acts = socialActivityManger.getSocialActivities(
-					loggedUser.getUser().getId(),
+					loggedUser.getUserId(),
 					filter.getFilter(),
 					offset, 
 					limit,
@@ -145,7 +145,7 @@ public class ActivityWallBean {
 			String service = PageUtil.getPostParameter("service");
 			LearningContextData lcd = new LearningContextData(page, lContext, service);
 			PostSocialActivity1 updatedPost = socialActivityManger.updatePost(
-					loggedUser.getUser().getId(),
+					loggedUser.getUserId(),
 					socialActivityData.getId(),
 					updatedText, 
 					lcd);
@@ -180,7 +180,7 @@ public class ActivityWallBean {
 		FilterType filterType = filter.getFilter().getFilterType();
 		
 		if (loggedUser.getSelectedStatusWallFilter().getFilterType() != filterType) {
-			logger.debug("User "+loggedUser.getUser()+" is changing Activity Wall filter to '"+filterType+"'.");
+			logger.debug("User "+loggedUser.getFullName()+" is changing Activity Wall filter to '"+filterType+"'.");
 			boolean successful = interfaceSettingsManager
 					.changeActivityWallFilter(loggedUser.getInterfaceSettings(), filterType, 0);
 			
@@ -191,10 +191,10 @@ public class ActivityWallBean {
 				this.filter = filter;
 				initializeActivities();
 				
-				logger.debug("User "+loggedUser.getUser()+" successfully changed Activity Wall filter to '"+filterType+"'.");
+				logger.debug("User "+loggedUser.getFullName()+" successfully changed Activity Wall filter to '"+filterType+"'.");
 				PageUtil.fireSuccessfulInfoMessage("Activity Wall filter changed!");
 			} else {
-				logger.error("User "+loggedUser.getUser()+" could not change Activity Wall filter to '"+filterType+"'.");
+				logger.error("User "+loggedUser.getFullName()+" could not change Activity Wall filter to '"+filterType+"'.");
 				PageUtil.fireErrorMessage("There was an error with changing Activity Wall filter!");
 			}
 			
@@ -222,13 +222,13 @@ public class ActivityWallBean {
 			String lContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
 			LearningContextData lcd = new LearningContextData(page, lContext, service);
-			PostSocialActivity1 post = socialActivityManger.createNewPost(loggedUser.getUser().getId(), 
+			PostSocialActivity1 post = socialActivityManger.createNewPost(loggedUser.getUserId(), 
 					newSocialActivity, lcd);
 			
 			PageUtil.fireSuccessfulInfoMessage("New status posted!");
 			newSocialActivity.setId(post.getId());
 			//set actor from session
-			newSocialActivity.setActor(new UserData(loggedUser.getUser().getId(), 
+			newSocialActivity.setActor(new UserData(loggedUser.getUserId(), 
 					loggedUser.getName(), loggedUser.getLastName(), loggedUser.getAvatar(), true));
 			newSocialActivity.setDateCreated(post.getDateCreated());
 			newSocialActivity.setLastAction(post.getLastAction());
@@ -243,7 +243,7 @@ public class ActivityWallBean {
 	
 	public void fetchLinkContents() {
 		if (link != null && !link.isEmpty()) {
-			logger.debug("User "+loggedUser.getUser()+" is fetching contents of a link: "+link);
+			logger.debug("User "+loggedUser.getFullName()+" is fetching contents of a link: "+link);
 			
 			AttachmentPreview1 attachmentPreview = htmlParser.extractAttachmentPreview1(
 					StringUtil.cleanHtml(link.trim()));
@@ -264,8 +264,7 @@ public class ActivityWallBean {
     	UploadedFile uploadedFile = event.getFile();
     	
 		try {
-			AttachmentPreview1 attachmentPreview = uploadManager.uploadFile(
-					loggedUser.getUser(), uploadedFile.getFileName(), uploadedFile);
+			AttachmentPreview1 attachmentPreview = uploadManager.uploadFile(uploadedFile.getFileName(), uploadedFile);
 			
 			if(attachmentPreview != null) {
 				uploadFile = attachmentPreview;

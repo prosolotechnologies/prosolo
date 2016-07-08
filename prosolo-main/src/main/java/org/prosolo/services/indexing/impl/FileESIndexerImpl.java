@@ -3,9 +3,9 @@ package org.prosolo.services.indexing.impl;
 import static org.elasticsearch.client.Requests.indexRequest;
 import static org.elasticsearch.client.Requests.putMappingRequest;
 import static org.elasticsearch.client.Requests.refreshRequest;
+import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 //import static org.elasticsearch.common.io.Streams.copyToStringFromClasspath;
 import static org.prosolo.common.util.ElasticsearchUtil.copyToStringFromClasspath;
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 //import java.io.File;
 //import java.io.FileInputStream;
@@ -34,7 +34,6 @@ import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.content.RichContent;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.core.hibernate.HibernateUtil;
 //import org.prosolo.common.domainmodel.content.ContentType;
 import org.prosolo.recommendation.impl.DocumentType;
@@ -50,7 +49,7 @@ import org.springframework.stereotype.Service;
  * @author Zoran Jeremic 2013-06-12
  */
 @Service("org.prosolo.services.indexing.FileESIndexer")
-public class FileESIndexerImpl implements FileESIndexer{
+public class FileESIndexerImpl implements FileESIndexer {
 	
 	private static Logger logger = Logger.getLogger(FileESIndexerImpl.class);
 	
@@ -58,15 +57,11 @@ public class FileESIndexerImpl implements FileESIndexer{
 	@Autowired private TikaExtractor tikaExtractor;
 	
 	@Override
-	public void indexHTMLPage(final InputStream input, final RichContent richContent, final User user) {
+	public void indexHTMLPage(final InputStream input, final RichContent richContent, final long userId) {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					long userId = 0;
-					if (user != null) {
-						userId = user.getId();
-					}
 					indexDocument(input, richContent.getLink(),
 							 richContent.getTitle(),
 							 richContent.getDescription(),
@@ -105,15 +100,11 @@ public class FileESIndexerImpl implements FileESIndexer{
 	}
 	
 	@Override
-	public void indexFileForRichContent(final InputStream input, final RichContent richContent, final User user) {
+	public void indexFileForRichContent(final InputStream input, final RichContent richContent, final long userId) {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					long userId = 0;
-					if (user != null) {
-						userId = user.getId();
-					}
 					indexDocument(input, richContent.getLink(), richContent.getTitle(), richContent.getDescription(), richContent.getDateCreated(),
 							richContent.getVisibility(), userId, richContent.getClass().getSimpleName().toLowerCase(), richContent.getId(),
 							DocumentType.DOCUMENT);

@@ -24,6 +24,6 @@ public interface NodeRecommendationManager {
 			Node resource, RecommendationType type);
 
 	public void dismissRecommendation(RecommendationData recommendationData,
-			User user);
+			long userId) throws ResourceCouldNotBeLoadedException;
 
 }

@@ -68,7 +68,7 @@ public class GlobalSearchBean implements Serializable {
 	
 	private void searchUsers(String query){
 		List<Long> excludeUsers = new ArrayList<Long>();
-		excludeUsers.add(loggedUser.getUser().getId());
+		excludeUsers.add(loggedUser.getUserId());
 		
 		// reset previous search result
 		searchPeopleBean.setPage(0);

@@ -10,21 +10,22 @@ import org.prosolo.common.domainmodel.user.reminders.PersonalCalendar;
 import org.prosolo.common.domainmodel.user.reminders.Reminder;
 import org.prosolo.common.domainmodel.user.reminders.ReminderStatus;
 import org.prosolo.common.domainmodel.user.reminders.ReminderType;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.web.calendar.ProsoloPersonalScheduleEvent;
 
 public interface PersonalCalendarManager extends AbstractManager {
 
-	Reminder loadExistingReminder(BaseEntity resource, User performedBy, ReminderType reminderType);
+	Reminder loadExistingReminder(BaseEntity resource, long userId, ReminderType reminderType);
 
-	List<Reminder> readNotDismissedReminders(User user);
+	List<Reminder> readNotDismissedReminders(long userId);
 
-	List<Reminder> readReminders(User user, ReminderStatus status);
+	List<Reminder> readReminders(long userId, ReminderStatus status);
 
-	PersonalCalendar getOrCreateCalendar(User user);
+	PersonalCalendar getOrCreateCalendar(User user) throws ResourceCouldNotBeLoadedException;
 
-	PersonalCalendar getOrCreateCalendar(User user, Session session);
+	PersonalCalendar getOrCreateCalendar(long userId, Session session) throws ResourceCouldNotBeLoadedException;
 
-	EventReminder createScheduledEventReminder(ProsoloPersonalScheduleEvent event, User author);
+	EventReminder createScheduledEventReminder(ProsoloPersonalScheduleEvent event, long authorId) throws ResourceCouldNotBeLoadedException;
 
 }

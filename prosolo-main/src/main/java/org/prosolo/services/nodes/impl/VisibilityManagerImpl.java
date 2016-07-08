@@ -7,7 +7,6 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.organization.Visible;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
@@ -28,22 +27,22 @@ public class VisibilityManagerImpl extends AbstractManagerImpl implements Visibi
 
 	@Override
 	@Transactional
-	public Visible setResourceVisibility(User user, long resId, VisibilityType visType, String context) throws EventException, ResourceCouldNotBeLoadedException {
+	public Visible setResourceVisibility(long userId, long resId, VisibilityType visType, String context) throws EventException, ResourceCouldNotBeLoadedException {
 		Node resource = loadResource(Node.class, resId);
-		return setResourceVisibility(user, (Visible) resource, visType, context);
+		return setResourceVisibility(userId, (Visible) resource, visType, context);
 	}
 	
 	@Override
 	@Transactional
-	public Visible setResourceVisibility(User user, Visible resource, String newVisibility, String context) throws VisibilityCoercionError, EventException {
+	public Visible setResourceVisibility(long userId, Visible resource, String newVisibility, String context) throws VisibilityCoercionError, EventException {
 		VisibilityType visType = VisibilityUtil.parseVisibilityType(newVisibility);
 		
-		return setResourceVisibility(user, resource, visType, context);
+		return setResourceVisibility(userId, resource, visType, context);
 	}
 	
 	@Override
 	@Transactional (readOnly = false)
-	public Visible setResourceVisibility(User user, Visible resource, VisibilityType visType, String context) throws EventException {
+	public Visible setResourceVisibility(long userId, Visible resource, VisibilityType visType, String context) throws EventException {
 		resource = (Visible) merge((BaseEntity) resource);
 		
 		if (visType.equals(VisibilityType.PRIVATE) || visType.equals(VisibilityType.PUBLIC)) {
@@ -54,7 +53,7 @@ public class VisibilityManagerImpl extends AbstractManagerImpl implements Visibi
 			parameters.put("context", context);
 			parameters.put("visibility", visType.name());
 			
-			eventFactory.generateChangeVisibilityEvent(user, (BaseEntity) resource, visType, parameters);
+//			eventFactory.generateChangeVisibilityEvent(userId, (BaseEntity) resource, visType, parameters);
 			return resource;
 		}
 		return null;

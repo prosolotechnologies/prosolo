@@ -22,7 +22,6 @@ public class LogRow implements Serializable {
 	private String id;
 	private Date time;
 	private long actorId;
-	private String actorFullname;
 	private String objectType;
 	private long objectId;
 	private String objectTitle;
@@ -58,14 +57,6 @@ public class LogRow implements Serializable {
 
 	public void setActorId(long actorId) {
 		this.actorId = actorId;
-	}
-
-	public String getActorFullname() {
-		return actorFullname;
-	}
-
-	public void setActorFullname(String actorFullname) {
-		this.actorFullname = actorFullname;
 	}
 
 	public String getObjectType() {

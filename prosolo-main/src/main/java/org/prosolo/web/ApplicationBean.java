@@ -56,18 +56,16 @@ public class ApplicationBean implements Serializable {
 		userSessions.put(userId, session);
 	}
 
-	public HttpSession unregisterUser(User user) {
-		if (user == null) {
+	public HttpSession unregisterUser(long userId) {
+		if (userId == 0) {
 			return null;
 		}
 		
-		long userid = user.getId();
-		
 		HttpSession sessionToReturn = null;
 		
-		if (userSessions.containsKey(userid)) {
-			sessionToReturn = userSessions.get(userid);
-			userSessions.remove(userid);
+		if (userSessions.containsKey(userId)) {
+			sessionToReturn = userSessions.get(userId);
+			userSessions.remove(userId);
 		}
 		
 		return sessionToReturn;

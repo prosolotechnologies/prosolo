@@ -6,19 +6,14 @@ import java.util.Date;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
 
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
-import org.prosolo.services.logging.LoggingDBManager;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.util.ResourceDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 /**
 @author Zoran Jeremic Feb 1, 2014
@@ -76,7 +71,7 @@ public class LogsFilterBean implements Serializable {
 		List<User> result = (List<User>) usersResponse.getFoundNodes();
 		
 		for (User user : result) {
-			UserData userData = UserDataFactory.createUserData(user);
+			UserData userData = new UserData(user);
 			userSearchResults.add(userData);
 		}
 	}

@@ -27,10 +27,10 @@ import org.prosolo.web.communications.evaluation.data.EvaluationFilter;
  */
 public interface EvaluationManager extends AbstractManager {
 
-	Collection<Request> sendEvaluationRequests(User maker, Collection<Long> evaluatorIds, 
+	Collection<Request> sendEvaluationRequests(long userId, Collection<Long> evaluatorIds, 
 			BaseEntity resource, String text) throws EventException;
 
-	Request resubmitEvaluationRequest(User maker, EvaluationSubmission previousSubmission, String text) throws EventException;
+	Request resubmitEvaluationRequest(long makerId, EvaluationSubmission previousSubmission, String text) throws EventException;
 
 //	EvaluationSubmission createEvaluationSubmission(User maker, Request evaluationRequest,
 //			List<EvaluatedResourceData> list,
@@ -38,7 +38,7 @@ public interface EvaluationManager extends AbstractManager {
 //			List<Badge> badges,
 //			String evaluationMessage) throws InvalidParameterException, EventException;
 	
-	EvaluationSubmission createEvaluationSubmissionDraft(User maker, Request evaluationRequest) throws InvalidParameterException, EventException, EvaluationNotSupportedException, ResourceCouldNotBeLoadedException;
+	EvaluationSubmission createEvaluationSubmissionDraft(long userId, Request evaluationRequest) throws InvalidParameterException, EventException, EvaluationNotSupportedException, ResourceCouldNotBeLoadedException;
 
 	EvaluationSubmission editEvaluationSubmissionDraft(
 			EvaluationSubmission evaluationSubmission,
@@ -65,11 +65,11 @@ public interface EvaluationManager extends AbstractManager {
 	
 	long getEvaluationCountForResource(Class<? extends BaseEntity> clazz, long resourceId, boolean approved, Session session);
 	
-	List<EvaluationSubmission> getEvaluationsByUser(User user, boolean sortDesc, EvaluationFilter filter);
+	List<EvaluationSubmission> getEvaluationsByUser(long userId, boolean sortDesc, EvaluationFilter filter);
 	
-	List<User> getEvaluatorsWhoAcceptedResource(User user, BaseEntity resource);
+	List<User> getEvaluatorsWhoAcceptedResource(long userId, BaseEntity resource);
 
-	List<User> getEvaluatorsWhoIgnoredResource(User user, BaseEntity resource);
+	List<User> getEvaluatorsWhoIgnoredResource(long userId, BaseEntity resource);
 
 	EvaluationSubmission finalizeEvaluationSubmission(
 			EvaluationSubmission evaluationSubmission,
@@ -81,7 +81,7 @@ public interface EvaluationManager extends AbstractManager {
 
 	boolean isThereEvaluationSubmissionForRequest(Request request);
 
-	boolean hasUserRequestedEvaluation(User user, BaseEntity resource);
+	boolean hasUserRequestedEvaluation(long userId, BaseEntity resource);
 
 	boolean isOtherSubmissionBasedOnThisSubmission(EvaluationSubmission evaluationSubmission);
 

@@ -1,8 +1,8 @@
 package org.prosolo.services.messaging.rabbitmq.impl;
 
 import org.junit.Test;
-import org.prosolo.core.stress.TestContext;
 import org.prosolo.common.messaging.rabbitmq.ReliableConsumer;
+import org.prosolo.core.stress.TestContext;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class ReliableConsumerImplTest  extends TestContext {

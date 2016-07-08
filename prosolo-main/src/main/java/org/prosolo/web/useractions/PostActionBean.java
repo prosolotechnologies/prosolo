@@ -15,7 +15,6 @@ import org.prosolo.common.domainmodel.activitywall.old.SocialActivity;
 import org.prosolo.common.domainmodel.content.Post;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.activityWall.SocialActivityHandler;
@@ -72,10 +71,9 @@ public class PostActionBean implements Serializable {
 			String learningContext, String service) {
 		try {
 			System.out.println("Create new post with data");
-			User user = loggedUser.refreshUser();
 			
 			PostEvent postEvent = postManager.createNewPost(
-					user, 
+					loggedUser.getUserId(), 
 					newPostData.getText(), 
 					newPostData.getVisibility(), 
 					newPostData.getAttachmentPreview(),
@@ -89,7 +87,7 @@ public class PostActionBean implements Serializable {
 			Post post = postEvent.getPost();
 			
 			if (post != null) {
-				logger.debug("User \"" + user.getName()+" "+user.getLastname()+"\" ("+user.getId()+")" +
+				logger.debug("User \"" +loggedUser.getUserId()+")" +
 						" posted status \""+newPostData.getText()+"\" )"+post.getId()+")");
 				
 				socialActivityHandler.propagateSocialActivity(postEvent.getEvent());
@@ -98,7 +96,7 @@ public class PostActionBean implements Serializable {
 				
 				init();
 			}
-		} catch (EventException e) {
+		} catch (EventException | ResourceCouldNotBeLoadedException e) {
 			logger.error(e.getMessage());
 		}
 	}
@@ -131,11 +129,10 @@ public class PostActionBean implements Serializable {
 	
 	public void shareResource(Node resource, String text, String context, String page,
 			String learningContext, String service) {
-		User user = loggedUser.getUser();
 		
 		try {
 			PostEvent postEvent = postManager.shareResource(
-				user, 
+				loggedUser.getUserId(), 
 				text, 
 				VisibilityType.PUBLIC, 
 				resource, 
@@ -148,14 +145,14 @@ public class PostActionBean implements Serializable {
 			Post post = postEvent.getPost();
 			
 			if (post != null) {
-				logger.debug("User \"" + loggedUser.getUser() +
+				logger.debug("User \"" + loggedUser.getUserId() +
 						" reposted new status \""+newPostData.getText()+"\" )"+post.getId()+")");
 				
 				socialActivityHandler.propagateSocialActivity(postEvent.getEvent());
 				
 				PageUtil.fireSuccessfulInfoMessage("New status posted!");
 			}
-		} catch (EventException e) {
+		} catch (EventException | ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		}
 	}
@@ -164,9 +161,8 @@ public class PostActionBean implements Serializable {
 	public void resharePost(NewPostData newPostData, SocialActivity originalSocialActivity, String context,
 			String page, String learningContext, String service) {
 		try {
-			User user = loggedUser.getUser();
 			PostEvent postEvent = postManager.reshareSocialActivity(
-					user, 
+					loggedUser.getUserId(), 
 					newPostData.getText(), 
 					newPostData.getVisibility(), 
 					newPostData.getAttachmentPreview(), 
@@ -179,7 +175,7 @@ public class PostActionBean implements Serializable {
 			Post post = postEvent.getPost();
 			
 			if (post != null) {
-				logger.debug("User " + loggedUser.getUser() +
+				logger.debug("User " + loggedUser.getUserId() +
 						" reposted new status \""+newPostData.getText()+"\" ("+post.getId()+")");
 				
 				socialActivityHandler.propagateSocialActivity(postEvent.getEvent());
@@ -188,7 +184,7 @@ public class PostActionBean implements Serializable {
 //				originalSocialActivity = HibernateUtil.initializeAndUnproxy(originalSocialActivity);
 				
 				// update share count of original social activity
-				HttpSession userSession = applicationBean.getUserSession(user.getId());
+				HttpSession userSession = applicationBean.getUserSession(loggedUser.getUserId());
 				socialActivityHandler.updateSocialActivity(
 						originalSocialActivity, 
 						userSession, 
@@ -210,14 +206,13 @@ public class PostActionBean implements Serializable {
 	
 	public void resharePost(SocialActivityData wallData) {
 		try {
-			User user = loggedUser.getUser();
 			SocialActivity socialActivity = defaultManager.loadResource(SocialActivity.class, wallData.getSocialActivity().getId());
 			
-			PostEvent postEvent = postManager.resharePost(user, socialActivity, true);
+			PostEvent postEvent = postManager.resharePost(loggedUser.getUserId(), socialActivity, true);
 			
 			Post post = postEvent.getPost();
 			if (post != null) {
-				logger.debug("User \"" + loggedUser.getUser() +
+				logger.debug("User \"" +loggedUser.getUserId() +
 						" reposted new status \""+newPostData.getText()+"\" ("+post.getId()+")");
 				
 				socialActivityHandler.propagateSocialActivity(postEvent.getEvent());
@@ -235,7 +230,7 @@ public class PostActionBean implements Serializable {
     	UploadedFile uploadedFile = event.getFile();
     	
 		try {
-			AttachmentPreview attachmentPreview = uploadManager.uploadFile(loggedUser.getUser(), uploadedFile, uploadedFile.getFileName());
+			AttachmentPreview attachmentPreview = uploadManager.uploadFile(uploadedFile, uploadedFile.getFileName());
 			
 			newPostData.setAttachmentPreview(attachmentPreview);
 		} catch (IOException ioe) {
@@ -249,7 +244,7 @@ public class PostActionBean implements Serializable {
 		String linkString = newPostData.getLink();
 		
 		if (linkString != null && linkString.length() > 0) {
-			logger.debug("User "+loggedUser.getUser()+" is fetching contents of a link: "+linkString);
+			logger.debug("User "+loggedUser.getUserId()+" is fetching contents of a link: "+linkString);
 			
 			AttachmentPreview attachmentPreview = htmlParser.extractAttachmentPreview(StringUtil.cleanHtml(linkString.trim()));
 			

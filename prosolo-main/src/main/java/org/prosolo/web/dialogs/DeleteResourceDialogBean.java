@@ -34,7 +34,7 @@ public class DeleteResourceDialogBean {
 
 	public void deleteResource() {
 		if (resource != null) {
-			logger.debug("User "+loggedUser.getUser()+" is deleting a resource: "+resource);
+			logger.debug("User "+loggedUser.getUserId()+" is deleting a resource: "+resource);
 			defaultManager.delete(resource);
 		}
 	}

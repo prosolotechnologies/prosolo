@@ -21,6 +21,7 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkAccount;
 import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
 import org.prosolo.services.common.exception.DbConnectionException;
@@ -41,8 +42,6 @@ import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.CompetenceDataCache;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.home.PeopleRecommenderBean;
-import org.prosolo.web.messaging.MessagesBean;
-import org.prosolo.web.messaging.data.MessagesThreadData;
 import org.prosolo.web.notification.TopNotificationsBean;
 import org.prosolo.web.notification.data.NotificationData;
 import org.prosolo.web.portfolio.data.SocialNetworkAccountData;
@@ -101,70 +100,83 @@ public class ProfileSettingsBean implements Serializable {
 
 	public void initSocialNetworksData() {
 		if (socialNetworksData == null) {
-			userSocialNetworks = socialNetworksManager.getSocialNetworks(loggedUser.getUser());
+			userSocialNetworks = socialNetworksManager.getSocialNetworks(loggedUser.getUserId());
 			socialNetworksData = new SocialNetworksDataToPageMapper()
 					.mapDataToPageObject(userSocialNetworks);
 		}
 	}
 
 	private void initAccountData() {
-		accountData = new AccountDataToPageMapper().mapDataToPageObject(loggedUser);
+		try {
+			User user = userManager.loadResource(User.class, loggedUser.getUserId());
+			accountData = new AccountDataToPageMapper().mapDataToPageObject(user);
+		} catch (ResourceCouldNotBeLoadedException e) {
+			logger.error(e);
+		}
 	}
 
 	/*
 	 * ACTIONS
 	 */
 	public void saveAccountChanges() {
-		boolean changed = false;
-
-		User user = loggedUser.refreshUser();
-
-		if (!accountData.getFirstName().equals(loggedUser.getUser().getName())) {
-			user.setName(accountData.getFirstName());
-			changed = true;
-		}
-
-		if (!accountData.getLastName().equals(loggedUser.getUser().getLastname())) {
-			user.setLastname(accountData.getLastName());
-			changed = true;
-		}
-
-		if (!accountData.getPosition().equals(loggedUser.getUser().getPosition())) {
-			user.setPosition(accountData.getPosition());
-			changed = true;
-		}
-		if ((accountData.getLocationName() != null && loggedUser.getUser().getLocationName() == null)
-				|| (!accountData.getLocationName().equals(loggedUser.getUser().getLocationName()))) {
-			try {
-				user.setLocationName(accountData.getLocationName());
-				user.setLatitude(Double.valueOf(accountData.getLatitude()));
-				user.setLongitude(Double.valueOf(accountData.getLongitude()));
+		try {
+			User user = userManager.loadResource(User.class, loggedUser.getUserId());
+		
+		
+			boolean changed = false;
+	
+			if (!accountData.getFirstName().equals(user.getName())) {
+				user.setName(accountData.getFirstName());
 				changed = true;
-				peopleRecommenderBean.initLocationRecommend();
-			} catch (NumberFormatException nfe) {
-				logger.debug("Can not convert to double. " + nfe);
 			}
-		}
-
-		if (changed) {
-			loggedUser.setUser(userManager.saveEntity(user));
-			try {
-				eventFactory.generateEvent(EventType.Edit_Profile, loggedUser.getUser());
-			} catch (EventException e) {
-				logger.error(e);
-				PageUtil.fireErrorMessage("Changes are not saved!");
+	
+			if (!accountData.getLastName().equals(user.getLastname())) {
+				user.setLastname(accountData.getLastName());
+				changed = true;
 			}
-
-			init();
-			asyncUpdateUserDataInSocialActivities(accountData);
+	
+			if (!accountData.getPosition().equals(user.getPosition())) {
+				user.setPosition(accountData.getPosition());
+				changed = true;
+			}
+			if ((accountData.getLocationName() != null && user.getLocationName() == null)
+					|| (!accountData.getLocationName().equals(user.getLocationName()))) {
+				try {
+					user.setLocationName(accountData.getLocationName());
+					user.setLatitude(Double.valueOf(accountData.getLatitude()));
+					user.setLongitude(Double.valueOf(accountData.getLongitude()));
+					changed = true;
+					peopleRecommenderBean.initLocationRecommend();
+				} catch (NumberFormatException nfe) {
+					logger.debug("Can not convert to double. " + nfe);
+				}
+			}
+	
+			if (changed) {
+				userManager.saveEntity(user);
+				loggedUser.reinitializeSessionData(user);
+				
+				try {
+					eventFactory.generateEvent(EventType.Edit_Profile, loggedUser.getUserId(), loggedUser.getFullName());
+				} catch (EventException e) {
+					logger.error(e);
+					PageUtil.fireErrorMessage("Changes are not saved!");
+				}
+	
+				init();
+				asyncUpdateUserDataInSocialActivities(accountData);
+			}
+			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
+		} catch (ResourceCouldNotBeLoadedException e1) {
+			logger.error(e1);
+			PageUtil.fireErrorMessage("Changes are not saved!");
 		}
-		PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 	}
 
 	public void handleFileUpload(FileUploadEvent event) {
 		try {
 			UploadedFile uploadedFile = event.getFile();
-			String relativePath = avatarProcessor.storeTempAvatar(loggedUser.getUser().getId(), uploadedFile.getInputstream(),
+			String relativePath = avatarProcessor.storeTempAvatar(loggedUser.getUserId(), uploadedFile.getInputstream(),
 					uploadedFile.getFileName(), 300, 300);
 			newAvatar = Settings.getInstance().config.fileManagement.urlPrefixFolder + relativePath;
 		} catch (IOException ioe) {
@@ -313,10 +325,10 @@ public class ProfileSettingsBean implements Serializable {
 		}
 
 		try {
-			String newAvatarPath = avatarProcessor.cropImage(loggedUser.getUser().getId(), imagePath, left, top, width, height);
-			User updatedUser = userManager.changeAvatar(loggedUser.getUser(), newAvatarPath);
+			String newAvatarPath = avatarProcessor.cropImage(loggedUser.getUserId(), imagePath, left, top, width, height);
+			User updatedUser = userManager.changeAvatar(loggedUser.getUserId(), newAvatarPath);
 
-			loggedUser.setUser(updatedUser);
+			loggedUser.getSessionData().setAvatar(updatedUser.getAvatarUrl());
 			loggedUser.initializeAvatar();
 
 			accountData.setAvatarPath(loggedUser.getAvatar());
@@ -327,7 +339,7 @@ public class ProfileSettingsBean implements Serializable {
 
 			init();
 			asyncUpdateUserDataInSocialActivities(accountData);
-		} catch (IOException e) {
+		} catch (IOException | ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage(":profileForm:profileFormGrowl", "There was an error changing profile photo.");
 		}
@@ -357,7 +369,7 @@ public class ProfileSettingsBean implements Serializable {
 			if (newSocialNetworkAccountIsAdded) {
 				socialNetworksManager.saveEntity(userSocialNetworks);
 				try {
-					eventFactory.generateEvent(EventType.UpdatedSocialNetworks, loggedUser.getUser());
+					eventFactory.generateEvent(EventType.UpdatedSocialNetworks, loggedUser.getUserId(), loggedUser.getFullName());
 				} catch (EventException e) {
 					logger.error(e);
 				}

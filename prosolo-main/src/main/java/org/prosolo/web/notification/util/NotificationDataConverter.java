@@ -34,11 +34,11 @@ import org.prosolo.common.domainmodel.user.notifications.Notification;
 import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.NodeData;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.notification.data.GoalStatus;
 import org.prosolo.web.notification.data.NotificationData;
 import org.prosolo.web.notification.exceptions.NotificationNotSupported;
@@ -52,13 +52,13 @@ public class NotificationDataConverter {
 	
 	private static Logger logger = Logger.getLogger(NotificationDataConverter.class);
 	
-	public static LinkedList<NotificationData> convertNotifications(User loggedUser, List<Notification> notifications, Session session, Locale locale) throws NotificationNotSupported {
+	public static LinkedList<NotificationData> convertNotifications(long userId, List<Notification> notifications, Session session, Locale locale) throws NotificationNotSupported {
 		LinkedList<NotificationData> notData = new LinkedList<NotificationData>();
 		
 		if (notifications != null && !notifications.isEmpty()) {
 			for (Notification n : notifications) {
 				if (n != null)
-					notData.add(convertNotification(loggedUser, n, session, locale));
+					notData.add(convertNotification(userId, n, session, locale));
 			}
 		}
 		return notData;
@@ -70,7 +70,7 @@ public class NotificationDataConverter {
 	 * @param locale 
 	 * @return
 	 */
-	public static NotificationData convertNotification(User loggedUser, Notification notification, Session session, 
+	public static NotificationData convertNotification(long userId, Notification notification, Session session, 
 			Locale locale) throws NotificationNotSupported {
 
 		EventType notificationType = notification.getType();
@@ -90,7 +90,7 @@ public class NotificationDataConverter {
 				TargetLearningGoal targetGoal = (TargetLearningGoal) request.getResource();
 
 				try {
-					GoalStatus goalStatus = getGoalStatus(loggedUser, session, targetGoal.getId());
+					GoalStatus goalStatus = getGoalStatus(userId, session, targetGoal.getId());
 					notificationData.setGoalStatus(goalStatus);
 				} catch (ResourceCouldNotBeLoadedException e) {
 					logger.error(e);
@@ -106,7 +106,7 @@ public class NotificationDataConverter {
 		User maker = notification.getActor();
 		
 		if (maker != null)
-			notificationData.setActor(UserDataFactory.createUserData(maker));
+			notificationData.setActor(new UserData(maker));
 		
 		// type
 		try {
@@ -291,7 +291,7 @@ public class NotificationDataConverter {
 		return notificationData;
 	}
 
-	public static GoalStatus getGoalStatus(User loggedUser, Session session, long targetGoalId) throws ResourceCouldNotBeLoadedException {
+	public static GoalStatus getGoalStatus(long userId, Session session, long targetGoalId) throws ResourceCouldNotBeLoadedException {
 		CourseManager courseManager = ServiceLocator.getInstance().getService(CourseManager.class);
 		
 		TargetLearningGoal targetGoalInvited = courseManager.loadResource(TargetLearningGoal.class, targetGoalId, session);
@@ -302,7 +302,7 @@ public class NotificationDataConverter {
 		GoalStatus goalStatus = null;
 		
 		if (invitedCourseEnrollment != null) {
-			CourseEnrollment loggedUserCourseEnrollment = courseManager.getCourseEnrollment(loggedUser, invitedCourseEnrollment.getCourse(), session);
+			CourseEnrollment loggedUserCourseEnrollment = courseManager.getCourseEnrollment(userId, invitedCourseEnrollment.getCourse(), session);
 			
 			if (loggedUserCourseEnrollment != null) {
 				if (loggedUserCourseEnrollment.getStatus().equals(Status.ACTIVE)) {

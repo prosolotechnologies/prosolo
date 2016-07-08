@@ -25,7 +25,7 @@ public interface ActivityWallManager {
 
 //	SocialActivityNotification getSocialActivityNotification(SocialActivity socialActivity, User user);
 
-	Date getLastActivityForGoal(User user, TargetLearningGoal targetGoal, Session session);
+	Date getLastActivityForGoal(long userId, TargetLearningGoal targetGoal, Session session);
 
 	ArrayCount searchPublicSocialActivitiesWithHashtag(
 			String searchQuery, int offset, int limit, boolean loadOneMore, boolean calculateCount, boolean excludeTweets);

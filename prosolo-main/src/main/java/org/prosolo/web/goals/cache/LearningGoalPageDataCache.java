@@ -16,7 +16,6 @@ import org.prosolo.common.domainmodel.activitywall.old.comments.Comment;
 import org.prosolo.common.domainmodel.outcomes.Outcome;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.activityWall.ActivityWallManager;
 import org.prosolo.services.nodes.BadgeManager;
@@ -48,14 +47,14 @@ public class LearningGoalPageDataCache implements Serializable {
 	
 	private List<GoalDataCache> goals = new ArrayList<GoalDataCache>();
 	
-	public GoalDataCache init(User user, List<TargetLearningGoal> targetGoals) {
+	public GoalDataCache init(long userId, List<TargetLearningGoal> targetGoals) {
 		logger.debug("Init goal page data");
 		
 		if (targetGoals != null && !targetGoals.isEmpty()) {
 			// get last action on each goal or its competence or activity
 			
 			for (TargetLearningGoal targetGoal : targetGoals) {
-				addGoal(user, targetGoal);
+				addGoal(userId, targetGoal);
 			}
 			
 			return this.goals.get(0);
@@ -64,9 +63,9 @@ public class LearningGoalPageDataCache implements Serializable {
 	}
 	
 
-	public GoalDataCache addGoal(User user, TargetLearningGoal targetGoal, Session session) {
+	public GoalDataCache addGoal(long userId, TargetLearningGoal targetGoal, Session session) {
 		if (!containsDataForGoal(targetGoal.getLearningGoal())) {	
-			Date lastActivity = ServiceLocator.getInstance().getService(ActivityWallManager.class).getLastActivityForGoal(user, targetGoal, session);
+			Date lastActivity = ServiceLocator.getInstance().getService(ActivityWallManager.class).getLastActivityForGoal(userId, targetGoal, session);
 			
 			GoalData goalData = new GoalData(targetGoal);
 			goalData.setLastActivity(lastActivity);
@@ -85,9 +84,9 @@ public class LearningGoalPageDataCache implements Serializable {
 		return getDataForGoal(targetGoal.getLearningGoal());
 	}
 	
-	public GoalDataCache addGoal(User user, TargetLearningGoal targetGoal) {
+	public GoalDataCache addGoal(long userId, TargetLearningGoal targetGoal) {
 		return addGoal(
-				user, 
+				userId, 
 				targetGoal, 
 				(Session) evaluationManager.getPersistence().currentManager());
 	}

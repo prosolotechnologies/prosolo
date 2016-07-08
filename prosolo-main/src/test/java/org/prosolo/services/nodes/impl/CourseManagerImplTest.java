@@ -1,15 +1,15 @@
 package org.prosolo.services.nodes.impl;
 
+import static org.junit.Assert.assertEquals;
+
+import javax.inject.Inject;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.prosolo.core.spring.SpringConfig;
 import org.prosolo.services.nodes.CourseManager;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import javax.inject.Inject;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Created by Zoran on 13/12/15.

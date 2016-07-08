@@ -13,7 +13,6 @@ import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -58,8 +57,8 @@ public class UserDetailsDialog implements Serializable {
 			
 			if (loggedUser != null && 
 					loggedUser.isLoggedIn() && 
-					userData.getId() == loggedUser.getUser().getId()) {
-				userData.setLoggedUser(true);
+					userData.getId() == loggedUser.getUserId()) {
+//				userData.setLoggedUser(true);
 			}
 		}
 	}
@@ -75,11 +74,11 @@ public class UserDetailsDialog implements Serializable {
 	}
 
 	public void initializeData(User user) {
-		userData = UserDataFactory.createUserData(user);
+		userData = new UserData(user);
 		
-		if (user.equals(loggedUser.getUser())) {
-			userData.setLoggedUser(true);
-		}
+//		if (user.getId() == loggedUser.getUserId()) {
+//			userData.setLoggedUser(true);
+//		}
 	}
 	
 	/*

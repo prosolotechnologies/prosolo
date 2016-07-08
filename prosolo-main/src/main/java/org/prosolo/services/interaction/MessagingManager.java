@@ -6,7 +6,6 @@ import java.util.List;
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.domainmodel.messaging.ThreadParticipant;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.common.exception.DbConnectionException;
@@ -19,18 +18,18 @@ public interface MessagingManager extends AbstractManager {
 	
 	List<Message> getMessagesForThread(long threadId, int page, int limit, Date fromTime);
 	
-	public MessageThread createNewMessagesThread(User creator, List<Long> participantIds, String subject);
+	public MessageThread createNewMessagesThread(long creatorId, List<Long> participantIds, String subject) throws ResourceCouldNotBeLoadedException;
 
-	List<MessagesThreadData> convertMessagesThreadsToMessagesThreadData(List<MessageThread> mThreads, User user);
+	List<MessagesThreadData> convertMessagesThreadsToMessagesThreadData(List<MessageThread> mThreads, long userId);
 
 	MessagesThreadData convertMessagesThreadToMessagesThreadData(
-			MessageThread mThread, User user);
+			MessageThread mThread, long userId);
 
-	List<MessageThread> getLatestUserMessagesThreads(User user, int page, int limit, boolean archived);
+	List<MessageThread> getLatestUserMessagesThreads(long userId, int page, int limit, boolean archived);
 
 	boolean markThreadAsRead(long threadId, long userId);
 
-	MessageThread getLatestMessageThread(User user, boolean archived);
+	MessageThread getLatestMessageThread(long userId, boolean archived);
 	
 	public Message sendMessage(long senderId,  long recieverId, String msg) throws DbConnectionException;
 	

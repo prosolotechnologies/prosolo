@@ -2,6 +2,7 @@ package org.prosolo.services.interfaceSettings.eventProcessors;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -47,12 +48,23 @@ public class SocialActivityCommentEventProcessor extends InterfaceEventProcessor
 		Comment comment = (Comment) object;
 		BaseEntity commentedResource = comment.getObject();
 		addCommentToSocialActiviesInCachesOfOnlineUsers(comment, (SocialActivity) commentedResource, 
-				event.getActor(), session);
+				event.getActorId(), session);
 	}
 	
-	private void addCommentToSocialActiviesInCachesOfOnlineUsers(Comment comment, SocialActivity socialActivity, User user, Session session) {
+	private void addCommentToSocialActiviesInCachesOfOnlineUsers(Comment comment, SocialActivity socialActivity, long userId, Session session) {
 		List<User> usersSubscribedToEvent = activityWallManager.getUsersSubscribedToSocialActivity(socialActivity);
-		usersSubscribedToEvent.remove(user);
+
+		// removing user
+		Iterator<User> userIterator = usersSubscribedToEvent.iterator();
+		
+		while (userIterator.hasNext()) {
+			User u = (User) userIterator.next();
+			
+			if (u.getId() == userId) {
+				userIterator.remove();
+				break;
+			}
+		}
 		
 		for (User u : usersSubscribedToEvent) {
 			if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
@@ -83,7 +95,7 @@ public class SocialActivityCommentEventProcessor extends InterfaceEventProcessor
 		if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 			List<Long> notifiedUserIds = new ArrayList<Long>();
 			
-			notifiedUserIds.add(user.getId());
+			notifiedUserIds.add(userId);
 			
 	    	for (User u : usersSubscribedToEvent) {
 	    		notifiedUserIds.add(u.getId());

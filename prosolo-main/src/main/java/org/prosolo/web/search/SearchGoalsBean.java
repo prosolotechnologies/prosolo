@@ -11,7 +11,6 @@ import javax.faces.event.ValueChangeEvent;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.LearningGoal;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
@@ -115,7 +114,7 @@ public class SearchGoalsBean implements Serializable{
 			moreToLoad = false;
 		}
 		
-		goals.addAll(convertToGoalData(foundGoals, loggedUser.getUser()));
+		goals.addAll(convertToGoalData(foundGoals, loggedUser.getUserId()));
 		
 		if(foundGoals != null && !foundGoals.isEmpty()) {
 			Map<Long, List<Long>> counts = learningGoalManager.getCollaboratorsOfLearningGoals(foundGoals);
@@ -138,7 +137,7 @@ public class SearchGoalsBean implements Serializable{
 	
 	public String retrieveGoalMembersNumberById(long goalId) {
 		if (goalId > 0) {
-			Integer membersNumber = learningGoalManager.retrieveCollaboratorsNumber(goalId, loggedUser.getUser());
+			Integer membersNumber = learningGoalManager.retrieveCollaboratorsNumber(goalId, loggedUser.getUserId());
 			
 			if (membersNumber == 0) {
 				return "No members yet";
@@ -155,7 +154,7 @@ public class SearchGoalsBean implements Serializable{
 	/*
 	 * Utility
 	 */
-	public List<LearningGoalData> convertToGoalData(List<LearningGoal> goals, User loggedUser) {
+	public List<LearningGoalData> convertToGoalData(List<LearningGoal> goals, long userId) {
 		List<LearningGoalData> goalsData = new ArrayList<LearningGoalData>();
 		
 		if (goals != null && !goals.isEmpty()) {
@@ -163,7 +162,7 @@ public class SearchGoalsBean implements Serializable{
 				LearningGoalData learningGoalData = new LearningGoalData(goal);
 				
 				try {
-					learningGoalData.setCanBeRequestedToJoin(learningGoalManager.canUserJoinGoal(goal.getId(), loggedUser));
+					learningGoalData.setCanBeRequestedToJoin(learningGoalManager.canUserJoinGoal(goal.getId(), userId));
 				} catch (ResourceCouldNotBeLoadedException e) {
 					logger.error(e);
 				}

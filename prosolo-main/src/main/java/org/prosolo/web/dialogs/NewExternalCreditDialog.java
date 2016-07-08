@@ -78,7 +78,7 @@ public class NewExternalCreditDialog implements Serializable {
     	UploadedFile uploadedFile = event.getFile();
     	
 		try {
-			AttachmentPreview attachmentPreview = uploadManager.uploadFile(loggedUser.getUser(), uploadedFile, uploadedFile.getFileName());
+			AttachmentPreview attachmentPreview = uploadManager.uploadFile(uploadedFile, uploadedFile.getFileName());
 			
 			newActivityData.setAttachmentPreview(attachmentPreview);
 		} catch (IOException ioe) {
@@ -105,7 +105,6 @@ public class NewExternalCreditDialog implements Serializable {
 			
 			if (certificateToUpload != null) {
 				certificateLink = uploadManager.storeFile(
-						loggedUser.getUser(), 
 						certificateToUpload, 
 						certificateToUpload.getFileName());
 				
@@ -124,7 +123,7 @@ public class NewExternalCreditDialog implements Serializable {
 			}
 		
 			ExternalCredit newExternalCredit = portfolioManager.createExternalCredit(
-					loggedUser.refreshUser(), 
+					loggedUser.getUserId(), 
 					newCredit.getTitle(), 
 					newCredit.getDescription(), 
 					certificateLink, 
@@ -143,7 +142,7 @@ public class NewExternalCreditDialog implements Serializable {
 			reset();
 			
 			PageUtil.fireSuccessfulInfoMessage("New external credit added!");
-		} catch (IOException e) {
+		} catch (IOException | ResourceCouldNotBeLoadedException e) {
 			logger.error(e.getMessage());
 		}
 	}

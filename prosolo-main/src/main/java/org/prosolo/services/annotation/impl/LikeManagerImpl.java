@@ -37,7 +37,7 @@ public class LikeManagerImpl extends AnnotationsManagerImpl implements LikeManag
 	@Autowired private EventFactory eventFactory;
 	
 	@Override
-	public void likeSocialActivity(User user, long notificationId, long socialActivityId, 
+	public void likeSocialActivity(long userId, long notificationId, long socialActivityId, 
 			int newLikeCount, Session session, String context, String page,
 			String lContext, String service) throws EventException, ResourceCouldNotBeLoadedException {
 		
@@ -53,37 +53,37 @@ public class LikeManagerImpl extends AnnotationsManagerImpl implements LikeManag
 		socialActivity.setLikeCount(newLikeCount);
 		session.save(socialActivity);
     	
-    	like(user, socialActivity, session, context, page, lContext, service);
+    	like(userId, socialActivity, session, context, page, lContext, service);
 	}
 	
 	@Override
 	@Transactional (readOnly = false)
-	public Annotation likeComment(User user, long commentId, Session session, String context,
+	public Annotation likeComment(long userId, long commentId, Session session, String context,
 			String page, String learningContext, String service) throws EventException, ResourceCouldNotBeLoadedException {
 		Comment resource = (Comment) session.get(Comment.class, commentId);
 		Annotation like = new CommentAnnotation(AnnotationType.Like);
-		return like(user, resource, like, session, context, page, learningContext, service);
+		return like(userId, resource, like, session, context, page, learningContext, service);
 	}
 	
 	//changed because new context approach
 	@Override
 	@Transactional (readOnly = false)
-	public Annotation likeNode(User user, long resourceId, Session session, String context, String page,
+	public Annotation likeNode(long userId, long resourceId, Session session, String context, String page,
 			String lContext, String service) throws EventException, ResourceCouldNotBeLoadedException {
 		Node resource = loadResource(Node.class, resourceId, session);
 		Annotation like = new NodeAnnotation(AnnotationType.Like);
-		return like(user, resource, like, session, context, page, lContext, service);
+		return like(userId, resource, like, session, context, page, lContext, service);
 	}
 	
 	//changed because of new context approach
 	@Override
 	@Transactional (readOnly = false)
-	public Annotation like(User user, BaseEntity resource, Annotation like, Session session, String context,
+	public Annotation like(long userId, BaseEntity resource, Annotation like, Session session, String context,
 			String page, String lContext, String service) throws EventException, ResourceCouldNotBeLoadedException {
-		logger.debug("Adding like of a resource "+resource.getId()+" by the user "+user);
+		logger.debug("Adding like of a resource "+resource.getId()+" by the user "+userId);
 		
-		if (user != null) {
-			user = (User) session.merge(user);
+		if (userId > 0) {
+			User user = loadResource(User.class, userId);
 			
 			like.setMaker(user);
 			like.setDateCreated(new Date());
@@ -95,7 +95,7 @@ public class LikeManagerImpl extends AnnotationsManagerImpl implements LikeManag
 			parameters.put("context", context);
 			
 			//changed for migration to new context approach
-			eventFactory.generateEvent(EventType.Like, user, resource, target(resource), 
+			eventFactory.generateEvent(EventType.Like, userId, resource, target(resource), 
 					page, lContext, service, parameters);
 			
 			return like;
@@ -105,15 +105,15 @@ public class LikeManagerImpl extends AnnotationsManagerImpl implements LikeManag
 	
 	@Override
 	@Transactional (readOnly = false)
-	public Annotation like(User user, BaseEntity resource, Session session, String context,
-			String page, String lContext, String service) throws EventException {
-		logger.debug("Adding like of a resource "+resource.getId()+" by the user "+user);
+	public Annotation like(long userId, BaseEntity resource, Session session, String context,
+			String page, String lContext, String service) throws EventException, ResourceCouldNotBeLoadedException {
+		logger.debug("Adding like of a resource " + resource.getId() + " by the user " + userId);
 		
-		if (resource != null && user != null) {
+		if (resource != null && userId > 0) {
 			Annotation like = createAnnotation(resource, AnnotationType.Like);
 			
 			like.setDateCreated(new Date());
-			like.setMaker(user);
+			like.setMaker(loadResource(User.class, userId));
 			like.setResource(resource);
 			session.save(like);
 			
@@ -121,7 +121,7 @@ public class LikeManagerImpl extends AnnotationsManagerImpl implements LikeManag
 			parameters.put("context", context);
 			
 			//changed for migration to new context approach
-			eventFactory.generateEvent(EventType.Like, user, resource, target(resource), 
+			eventFactory.generateEvent(EventType.Like, userId, resource, target(resource), 
 					page, lContext, service, parameters);
 			return like;
 		}
@@ -149,25 +149,25 @@ public class LikeManagerImpl extends AnnotationsManagerImpl implements LikeManag
 	public int likeCount(BaseEntity resource, Session session) {
 		logger.debug("Calculating like count for the resource "+resource.getId());
 		
-		return super.annotationCount(resource.getId(), resource.getClass(), null, AnnotationType.Like, session);
+		return super.annotationCount(resource.getId(), resource.getClass(), 0, AnnotationType.Like, session);
 	}
  
 	@Override
 	@Transactional (readOnly = true)
 	public int likeCount(Class<? extends BaseEntity> clazz, long resourceId) {
-		return super.annotationCount(resourceId, clazz, null, AnnotationType.Like);
+		return super.annotationCount(resourceId, clazz, 0, AnnotationType.Like);
 	}
 	
 	@Override
 	@Transactional (readOnly = true)
-	public boolean isLikedByUser(BaseEntity resource, User user) {
+	public boolean isLikedByUser(BaseEntity resource, long user) {
 		logger.debug("Returning boolean if the resource "+resource.getId()+" is liked by the user "+user);
 		
 		return super.isAnnotatedByUser(resource, user, AnnotationType.Like);
 	}
 	
 	@Override
-	public void removeLikeFromSocialActivity(User user, long notificationId, 
+	public void removeLikeFromSocialActivity(long userId, long notificationId, 
 			long socialActivityId, int newLikeCount, Session session, String context,
 			String page, String lContext, String service) 
 			throws EventException, ResourceCouldNotBeLoadedException {
@@ -182,32 +182,32 @@ public class LikeManagerImpl extends AnnotationsManagerImpl implements LikeManag
 		socialActivity.setLikeCount(newLikeCount);
 		session.save(socialActivity);
     	
-    	removeLike(user, socialActivity, session, context, page, lContext, service);
+    	removeLike(userId, socialActivity, session, context, page, lContext, service);
 	}
 	
 	@Override
 	@Transactional (readOnly = false)
-	public boolean removeLikeFromNode(User user, long resourceId, Session session, String context,
+	public boolean removeLikeFromNode(long userId, long resourceId, Session session, String context,
 			String page, String lContext, String service) throws EventException, ResourceCouldNotBeLoadedException {
 		Node resource = (Node) session.get(Node.class, resourceId);
-		return removeLike(user, resource, session, context, page, lContext, service);
+		return removeLike(userId, resource, session, context, page, lContext, service);
 	}
 	
 	@Override
 	@Transactional (readOnly = false)
-	public boolean removeLikeFromComment(User user, long commentId, Session session, String context,
+	public boolean removeLikeFromComment(long userId, long commentId, Session session, String context,
 			String page, String learningContext, String service) throws EventException, ResourceCouldNotBeLoadedException {
 		Comment comment = (Comment) session.get(Comment.class, commentId);
-		return removeLike(user, comment, session, context, page, learningContext, service);
+		return removeLike(userId, comment, session, context, page, learningContext, service);
 	}
 
 	//changed because of new context approach
 	@Override
-	public boolean removeLike(User user, BaseEntity resource, Session session, String context,
+	public boolean removeLike(long userId, BaseEntity resource, Session session, String context,
 			String page, String lContext, String service) throws EventException {
-		logger.debug("Unliking resource "+resource.getId()+" by the user "+user);
+		logger.debug("Unliking resource "+resource.getId()+" by the user "+userId);
 		
-		boolean successful = super.removeAnnotation(resource, user, AnnotationType.Like, true, session);
+		boolean successful = super.removeAnnotation(resource, userId, AnnotationType.Like, true, session);
 		
 		session.flush();
 		
@@ -216,7 +216,7 @@ public class LikeManagerImpl extends AnnotationsManagerImpl implements LikeManag
 		
 		//eventFactory.generateEvent(EventType.RemoveLike, user, resource, parameters);
 		//changed because of migration to new context approach
-		eventFactory.generateEvent(EventType.RemoveLike, user, resource, null, page, lContext, 
+		eventFactory.generateEvent(EventType.RemoveLike, userId, resource, null, page, lContext, 
 				service, parameters);
 		return successful;
 	}

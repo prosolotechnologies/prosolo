@@ -189,14 +189,14 @@ public class AddToCompetenceDialog implements Serializable {
 		
 		if (activity != null) {
 			try {
-				TargetActivity newActivity = goalManager.addActivityToTargetCompetence(loggedUser.getUser(),
+				TargetActivity newActivity = goalManager.addActivityToTargetCompetence(loggedUser.getUserId(),
 						compData.getData().getId(), 
 						activity.getId(),
 						context);
 				
 				logger.debug("Activity \""+activity.getTitle()+"\" ("+newActivity.getId()+
 						") connected to the target competence \""+
-						compData.getData().getId()+"\" of the user "+ loggedUser.getUser() );
+						compData.getData().getId()+"\" of the user "+ loggedUser.getUserId() );
 				
 				PageUtil.fireSuccessfulInfoMessage("Activity "+activity.getTitle()+ " is added!");
 			} catch (EventException e) {
@@ -217,7 +217,7 @@ public class AddToCompetenceDialog implements Serializable {
 				try {
 					@SuppressWarnings("unused")
 					TargetActivity newActivity = goalManager.createActivityAndAddToTargetCompetence(
-							loggedUser.getUser(),
+							loggedUser.getUserId(),
 							title, 
 							description,
 							newPostData.getAttachmentPreview(),
@@ -261,7 +261,7 @@ public class AddToCompetenceDialog implements Serializable {
     	UploadedFile uploadedFile = event.getFile();
     	
 		try {
-			AttachmentPreview attachmentPreview = uploadManager.uploadFile(loggedUser.getUser(), uploadedFile, uploadedFile.getFileName());
+			AttachmentPreview attachmentPreview = uploadManager.uploadFile(uploadedFile, uploadedFile.getFileName());
 			
 			newPostData.setAttachmentPreview(attachmentPreview);
 		} catch (IOException ioe) {

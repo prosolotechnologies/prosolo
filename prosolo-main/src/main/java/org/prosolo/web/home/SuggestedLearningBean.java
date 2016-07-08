@@ -13,6 +13,7 @@ import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.activities.Recommendation;
 import org.prosolo.common.domainmodel.activities.RecommendationType;
 import org.prosolo.common.domainmodel.general.Node;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.recommendation.SuggestedLearningService;
 import org.prosolo.services.nodes.NodeRecommendationManager;
 import org.prosolo.web.ApplicationBean;
@@ -53,11 +54,11 @@ public class SuggestedLearningBean implements Serializable {
 	public void initializeSuggestedByColleagues(){
 		if (suggestedByColleagues == null) {
 	 		logger.debug("Initializing suggested by colleagues");
-			numberOfSuggestedByColleagues = suggestedLearningService.findNumberOfSuggestedLearningResourcesByCollegues(loggedUser.getUser(), RecommendationType.USER);
+			numberOfSuggestedByColleagues = suggestedLearningService.findNumberOfSuggestedLearningResourcesByCollegues(loggedUser.getUserId(), RecommendationType.USER);
 			
 			List<Recommendation> suggestedByColleaguesRecommendations = suggestedLearningService
 					.findSuggestedLearningResourcesByCollegues(
-							loggedUser.getUser(), 
+							loggedUser.getUserId(), 
 							RecommendationType.USER, 
 							page, 
 							elementsPerPage);
@@ -72,12 +73,12 @@ public class SuggestedLearningBean implements Serializable {
 			try{
 			List<Node> systemRecommendations = suggestedLearningService
 					.findSuggestedLearningResourcesBySystem(
-							loggedUser.getUser(), 
+							loggedUser.getUserId(), 
 							Settings.getInstance().config.application.defaultLikeThisItemsNumber);
 
 			logger.debug("Converting suggested by system");
 		
-			suggestedBySystem = recommendationConverter.convertNodesToRecommendedData(systemRecommendations,loggedUser.getUser());
+			suggestedBySystem = recommendationConverter.convertNodesToRecommendedData(systemRecommendations,loggedUser.getUserId());
 			}catch(Exception ex){
 				ex.getStackTrace();
 			}
@@ -96,10 +97,10 @@ public class SuggestedLearningBean implements Serializable {
 	public void loadSuggestedByCourse(){
 		List<Node> courseCompetences = suggestedLearningService
 				.findSuggestedLearningResourcesByCourse(
-						loggedUser.getUser(), 
+						loggedUser.getUserId(), 
 						Settings.getInstance().config.application.defaultLikeThisItemsNumber);
 		suggestedByCourse = recommendationConverter.convertNodesToRecommendedData(courseCompetences,
-				loggedUser.getUser());
+				loggedUser.getUserId());
 	}
 	
 	public void initializeSuggestedByCourse(){
@@ -145,14 +146,18 @@ public class SuggestedLearningBean implements Serializable {
 	}
 	
 	public void dismissRecommendation(RecommendationData recommendationData) {
-		SearchSuggestedLearningBean searchSuggestedLearningBean = (SearchSuggestedLearningBean) applicationBean.getUserSession(loggedUser.getUser().getId()).getAttribute("searchSuggestedLearningBean");
+		SearchSuggestedLearningBean searchSuggestedLearningBean = (SearchSuggestedLearningBean) applicationBean.getUserSession(loggedUser.getUserId()).getAttribute("searchSuggestedLearningBean");
 		
 		if (searchSuggestedLearningBean != null) {
 			searchSuggestedLearningBean.removeSuggestedRecommendation(recommendationData);
 		}
 		
 		removeSuggestedResource(recommendationData.getRecommendationType(), recommendationData.getId());
-		recommendationManager.dismissRecommendation(recommendationData, loggedUser.getUser());
+		try {
+			recommendationManager.dismissRecommendation(recommendationData, loggedUser.getUserId());
+		} catch (ResourceCouldNotBeLoadedException e) {
+			logger.error(e);
+		}
 	}
 
 	/*

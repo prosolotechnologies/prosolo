@@ -15,7 +15,6 @@ import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.util.AvatarUtils;
@@ -84,15 +83,15 @@ public class ColleguesBean implements Serializable {
 	public void initFollowingUsers() {
 		if (followingUsers == null) {
 			followingUsers = new ArrayList<UserData>();
-			logger.debug("Initializing following users for a user '"+loggedUser.getUser()+"'");
-			List<User> fUsers = followResourceManager.getFollowingUsers(loggedUser.getUser());
+			logger.debug("Initializing following users for a user '"+loggedUser.getUserId()+"'");
+			List<User> fUsers = followResourceManager.getFollowingUsers(loggedUser.getUserId());
 			
 			if (fUsers != null && !fUsers.isEmpty()) {
 				for (User user : fUsers) {
-					UserData userData = UserDataFactory.createUserData(user);
+					UserData userData = new UserData(user);
 					followingUsers.add(userData);
 				}
-				logger.debug("Following users initialized '"+loggedUser.getUser()+"'");
+				logger.debug("Following users initialized '"+loggedUser.getUserId()+"'");
 			}
 			
 			updateFollowingUsersToRender();
@@ -202,15 +201,15 @@ public class ColleguesBean implements Serializable {
 	 */
 	public void initFollowers() {
 		if (followers == null) {
-			logger.debug("Initializing followers of a user '"+loggedUser.getUser()+"'");
+			logger.debug("Initializing followers of a user '"+loggedUser.getUserId()+"'");
 
 			followers = new ArrayList<UserData>();
 			
-			List<User> followersUsers = followResourceManager.getUserFollowers(loggedUser.getUser().getId());
+			List<User> followersUsers = followResourceManager.getUserFollowers(loggedUser.getUserId());
 			
 			if (followersUsers != null && !followersUsers.isEmpty()) {
 				for (User user : followersUsers) {
-					UserData userData = UserDataFactory.createUserData(user);
+					UserData userData = new UserData(user);
 					followers.add(userData);
 				}
 			}

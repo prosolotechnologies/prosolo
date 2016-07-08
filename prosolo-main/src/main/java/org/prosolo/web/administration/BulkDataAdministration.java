@@ -167,7 +167,7 @@ public class BulkDataAdministration implements Serializable {
 					connection.connect();
 					InputStream inputStream = null;
 					inputStream = connection.getInputStream();
-					fileESIndexer.indexFileForRichContent(inputStream, richContent, null);
+					fileESIndexer.indexFileForRichContent(inputStream, richContent, 0);
 				} catch (MalformedURLException e) {
 					logger.error(e);
 				} catch (IOException e) {
@@ -189,7 +189,7 @@ public class BulkDataAdministration implements Serializable {
 					connection.connect();
 					InputStream inputStream = null;
 					inputStream = connection.getInputStream();
-					fileESIndexer.indexHTMLPage(inputStream, richContent, null);
+					fileESIndexer.indexHTMLPage(inputStream, richContent, 0);
 				} catch (MalformedURLException e) {
 					logger.error(e);
 				} catch (IOException e) {

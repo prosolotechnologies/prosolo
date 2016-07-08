@@ -65,7 +65,7 @@ public class ActivitiesComparisonBean implements Serializable {
 					ActivityWallData actData = compWallActivityConverter.convertTargetActivityToActivityWallData(
 							null, 
 							targetActivity, 
-							loggedUser.getUser(), 
+							loggedUser.getUserId(), 
 							loggedUser.getLocale(), 
 							true, 
 							false);

@@ -18,7 +18,6 @@ import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.observations.Observation;
 import org.prosolo.common.domainmodel.observations.Suggestion;
 import org.prosolo.common.domainmodel.observations.Symptom;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
@@ -100,7 +99,7 @@ public class ObservationBean implements Serializable {
 
 	public void saveObservation() {
 		try {
-			long creatorId = loggedUserBean.getUser().getId();
+			long creatorId = loggedUserBean.getUserId();
 			Date date = isNew ? new Date() : editObservation.getEditObservation().getDateCreated();
 			Map<String, Object> result = observationManager.saveObservation(editObservation.getEditObservation().getId(),
 					date, editObservation.getEditObservation().getMessage(), editObservation.getEditObservation().getNote(),
@@ -115,7 +114,6 @@ public class ObservationBean implements Serializable {
 				final String context = "studentProfile.observation." + Long.parseLong(result.get("observationId").toString());
 
 				final Message message1 = (Message) msg;
-				final User user = loggedUserBean.getUser();
 				taskExecutor.execute(new Runnable() {
 		            @Override
 		            public void run() {
@@ -124,7 +122,7 @@ public class ObservationBean implements Serializable {
 		            		parameters.put("context", context);
 		            		parameters.put("user", String.valueOf(studentId));
 		            		parameters.put("message", String.valueOf(message1.getId()));
-		            		eventFactory.generateEvent(EventType.SEND_MESSAGE, user, message1, parameters);
+		            		eventFactory.generateEvent(EventType.SEND_MESSAGE, loggedUserBean.getUserId(), message1, parameters);
 		            	} catch (EventException e) {
 		            		logger.error(e);
 		            	}

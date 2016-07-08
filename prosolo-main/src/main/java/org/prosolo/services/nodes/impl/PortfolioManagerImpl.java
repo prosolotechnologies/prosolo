@@ -45,18 +45,20 @@ public class PortfolioManagerImpl extends AbstractManagerImpl implements Portfol
 	
 	@Override
 	@Transactional (readOnly = false)
-	public Portfolio getOrCreatePortfolio(User user) {
+	public Portfolio getOrCreatePortfolio(long userId) throws ResourceCouldNotBeLoadedException {
 		String query = 
 			"SELECT DISTINCT portfolio " +
 			"FROM Portfolio portfolio " +
-			"LEFT JOIN portfolio.user user " +
+			"LEFT JOIN portfolio.user.id userId " +
 			"WHERE user = :user ";
 		
 		Portfolio portfolio = (Portfolio) persistence.currentManager().createQuery(query).
-			setEntity("user",user).
+			setLong("user",userId).
 			uniqueResult();
 		
 		if (portfolio == null) {
+			User user = loadResource(User.class, userId);
+			
 			portfolio = new Portfolio();
 			portfolio.setUser(user);
 			portfolio = saveEntity(portfolio);
@@ -182,13 +184,15 @@ public class PortfolioManagerImpl extends AbstractManagerImpl implements Portfol
 
 	@Override
 	@Transactional(readOnly = false)
-	public PortfolioData sendGoalToPortfolio(long targetGoalId, User user) throws ResourceCouldNotBeLoadedException {
-		logger.debug("Sending goal "+targetGoalId+" to portfolio of a user "+user);
+	public PortfolioData sendGoalToPortfolio(long targetGoalId, long userId) throws ResourceCouldNotBeLoadedException {
+		logger.debug("Sending goal "+targetGoalId+" to portfolio of a user " + userId);
 		
 		PortfolioData portfolioData = new PortfolioData();
 		
-		if (user != null) {
+		if (userId > 0) {
 			TargetLearningGoal targetGoal = loadResource(TargetLearningGoal.class, targetGoalId);
+			User user = loadResource(User.class, userId);
+			
 			Set<TargetLearningGoal> userGoals = user.getLearningGoals();
 			
 			if (userGoals.contains(targetGoal)) {
@@ -199,7 +203,7 @@ public class PortfolioManagerImpl extends AbstractManagerImpl implements Portfol
 			CompletedGoal completedGoal = getCompletedGoal(user, targetGoal);
 			
 			if (completedGoal == null) {
-				Portfolio portfolio = getOrCreatePortfolio(user);
+				Portfolio portfolio = getOrCreatePortfolio(user.getId());
 				completedGoal = createCompletedGoal(targetGoal, user);
 				portfolio.addCompletedGoal(completedGoal);
 				portfolio = saveEntity(portfolio);
@@ -269,7 +273,7 @@ public class PortfolioManagerImpl extends AbstractManagerImpl implements Portfol
 		user.addLearningGoal(targetOriginalGoal);
 		user = saveEntity(user);
 		
-		Portfolio portfolio = getOrCreatePortfolio(user);
+		Portfolio portfolio = getOrCreatePortfolio(user.getId());
 		
 		Set<CompletedGoal> goals = portfolio.getCompletedGoals();
 		
@@ -291,7 +295,7 @@ public class PortfolioManagerImpl extends AbstractManagerImpl implements Portfol
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("context", context);
 			
-			eventFactory.generateEvent(EventType.SEND_TO_LEARN, user, targetOriginalGoal, parameters);
+			eventFactory.generateEvent(EventType.SEND_TO_LEARN, user.getId(), targetOriginalGoal, parameters);
 		} catch (EventException e) {
 			logger.error(e);
 		}
@@ -322,7 +326,7 @@ public class PortfolioManagerImpl extends AbstractManagerImpl implements Portfol
 	
 	@Override
 	@Transactional (readOnly = false)
-	public AchievedCompetence sendCompetenceToPortfolio(TargetCompetence tComp, User user) {
+	public AchievedCompetence sendCompetenceToPortfolio(TargetCompetence tComp, User user) throws ResourceCouldNotBeLoadedException {
 		logger.debug("Sending targetCompetence "+tComp+" to portfolio of a user "+user);
 		
 		AchievedCompetence achievedCompetence = getAchievedCompetence(user, tComp.getCompetence());
@@ -330,7 +334,7 @@ public class PortfolioManagerImpl extends AbstractManagerImpl implements Portfol
 		if (tComp != null && user != null && achievedCompetence == null) {
 			achievedCompetence = createAchievedCompetence(tComp, user);
 			
-			Portfolio portfolio = getOrCreatePortfolio(user);
+			Portfolio portfolio = getOrCreatePortfolio(user.getId());
 			portfolio.addAchievedCompetence(achievedCompetence);
 			saveEntity(portfolio);
 		}
@@ -365,9 +369,9 @@ public class PortfolioManagerImpl extends AbstractManagerImpl implements Portfol
 	
 	@Override
 	@Transactional
-	public CompletedResource getCompletedResource(User user, BaseEntity resource) {
-		if (user != null && resource != null) {
-			user = merge(user);
+	public CompletedResource getCompletedResource(long userId, BaseEntity resource) throws ResourceCouldNotBeLoadedException {
+		if (userId > 0 && resource != null) {
+			User user = loadResource(User.class, userId);
 			
 			if (resource instanceof CompletedResource)
 				return (CompletedResource) merge(resource);
@@ -387,7 +391,7 @@ public class PortfolioManagerImpl extends AbstractManagerImpl implements Portfol
 				if (achievedComp == null) {
 					achievedComp = createAchievedCompetence(comp, tComp, user);
 					
-					Portfolio portfolio = getOrCreatePortfolio(user);
+					Portfolio portfolio = getOrCreatePortfolio(user.getId());
 					portfolio.addAchievedCompetence(achievedComp);
 					saveEntity(portfolio);
 				}
@@ -487,11 +491,11 @@ public class PortfolioManagerImpl extends AbstractManagerImpl implements Portfol
 	
 	@Override
 	@Transactional
-	public ExternalCredit createExternalCredit(User user, 
+	public ExternalCredit createExternalCredit(long userId, 
 			String title, String description, 
 			String certificateLink, Date start, Date end,
 			List<TargetActivity> targetActivities,
-			List<Competence> competences, String context) {
+			List<Competence> competences, String context) throws ResourceCouldNotBeLoadedException {
 		
 		ExternalCredit externalCredit = new ExternalCredit();
 		externalCredit.setTitle(title);
@@ -505,13 +509,13 @@ public class PortfolioManagerImpl extends AbstractManagerImpl implements Portfol
 			externalCredit.addTargetActivity(saveEntity(act));
 		}
 		for (Competence comp : competences) {
-			AchievedCompetence achievedComp = (AchievedCompetence) getCompletedResource(user, comp);
+			AchievedCompetence achievedComp = (AchievedCompetence) getCompletedResource(userId, comp);
 			externalCredit.addAchievedCompetence(achievedComp);
 		}
 		
 		externalCredit = saveEntity(externalCredit);
 		
-		Portfolio portfolio = getOrCreatePortfolio(user);
+		Portfolio portfolio = getOrCreatePortfolio(userId);
 		portfolio.addExternalCredit(externalCredit);
 		saveEntity(portfolio);
 		
@@ -519,7 +523,9 @@ public class PortfolioManagerImpl extends AbstractManagerImpl implements Portfol
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("context", context);
 			
-			eventFactory.generateEvent(EventType.Create, user, externalCredit, parameters);
+			User user = loadResource(User.class, userId);
+			
+			eventFactory.generateEvent(EventType.Create, user.getId(), externalCredit, parameters);
 		} catch (EventException e) {
 			logger.error(e);
 		}
@@ -529,8 +535,8 @@ public class PortfolioManagerImpl extends AbstractManagerImpl implements Portfol
 	
 	@Override
 	@Transactional
-	public List<ExternalCredit> deleteExternalCredit(User user, ExternalCredit externalCredit, String context) {
-		Portfolio portfolio = getOrCreatePortfolio(user);
+	public List<ExternalCredit> deleteExternalCredit(User user, ExternalCredit externalCredit, String context) throws ResourceCouldNotBeLoadedException {
+		Portfolio portfolio = getOrCreatePortfolio(user.getId());
 		portfolio.removeExternalCredit(externalCredit);
 		saveEntity(portfolio);
 		
@@ -538,7 +544,7 @@ public class PortfolioManagerImpl extends AbstractManagerImpl implements Portfol
 		parameters.put("context", context);
 		
 		try {
-			eventFactory.generateEvent(EventType.Delete, user, externalCredit, parameters);
+			eventFactory.generateEvent(EventType.Delete, user.getId(), externalCredit, parameters);
 		} catch (EventException e) {
 			logger.error(e);
 		}
@@ -600,7 +606,7 @@ public class PortfolioManagerImpl extends AbstractManagerImpl implements Portfol
 			User user,
 			String title, String description, Date start, Date end,
 			String certificateLink, List<Competence> competences,
-			List<TargetActivity> activities) {
+			List<TargetActivity> activities) throws ResourceCouldNotBeLoadedException {
 		
 		externalCredit = merge(externalCredit);
 		
@@ -630,7 +636,7 @@ public class PortfolioManagerImpl extends AbstractManagerImpl implements Portfol
 		externalCredit.getCompetences().clear();
 		
 		for (Competence comp : competences) {
-			AchievedCompetence achievedComp = (AchievedCompetence) getCompletedResource(user, comp);
+			AchievedCompetence achievedComp = (AchievedCompetence) getCompletedResource(user.getId(), comp);
 			externalCredit.addAchievedCompetence(achievedComp);
 		}
 		
@@ -679,7 +685,7 @@ public class PortfolioManagerImpl extends AbstractManagerImpl implements Portfol
 	
 	@Override
 	@Transactional (readOnly = true)
-	public boolean isCompetenceCompleted(long competenceId, User user) {
+	public boolean isCompetenceCompleted(long competenceId, long userId) {
 		String query = 
 			"SELECT COUNT(DISTINCT comp) " +
 			"FROM Portfolio portfolio " +
@@ -687,11 +693,11 @@ public class PortfolioManagerImpl extends AbstractManagerImpl implements Portfol
 			"LEFT JOIN portfolio.competences aComp " +
 			"LEFT JOIN aComp.competence comp " +
 			"WHERE comp.id = :competenceId " +
-				"AND user = :user ";
+				"AND user.id = :userId ";
 		
 		Long number = (Long) persistence.currentManager().createQuery(query)
 				.setLong("competenceId", competenceId)
-				.setEntity("user", user)
+				.setLong("userId", userId)
 				.uniqueResult();
 		
 		return number > 0;

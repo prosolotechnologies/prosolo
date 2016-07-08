@@ -30,37 +30,37 @@ public class PersonalCalendarManagerImpl extends AbstractManagerImpl implements 
 	private static Logger logger = Logger.getLogger(PersonalCalendarManager.class);
 	
 	@Override
-	public Reminder loadExistingReminder(BaseEntity resource, User performedBy, ReminderType reminderType){
+	public Reminder loadExistingReminder(BaseEntity resource, long userId, ReminderType reminderType){
 		String query =
 			"SELECT DISTINCT reminder " +
 			"FROM PersonalCalendar calendar " +
 			"LEFT JOIN calendar.user user " +
 			"LEFT JOIN calendar.reminders reminder "+
 			"LEFT JOIN reminder.resource resource "+
-			"WHERE user = :user " +
+			"WHERE user.id = :userId " +
 				"AND resource = :resource";
 		
 		return (Reminder) persistence.currentManager().createQuery(query)
-			.setEntity("user", performedBy)
+			.setLong("userId", userId)
 			.setEntity("resource", resource)
 			.uniqueResult();
 	}
 	
 	@Override
-	public List<Reminder> readNotDismissedReminders(User user){
+	public List<Reminder> readNotDismissedReminders(long userId){
 		String query =
 			"SELECT DISTINCT reminder " +
 			"FROM PersonalCalendar calendar " +
 			"LEFT JOIN calendar.user user " +
 			"LEFT JOIN calendar.reminders reminder " +
 			//"LEFT JOIN fetch reminder.resource " +
-			"WHERE user = :user " +
+			"WHERE user.id = :userId " +
 				"AND reminder.reminderStatus != :statusDismissed " +
 			"ORDER BY reminder.deadline ASC";
 		
 		@SuppressWarnings("unchecked")
 		List<Reminder> result = persistence.currentManager().createQuery(query)
-				.setEntity("user", user)
+				.setLong("userId", userId)
 				//.setString("type", ReminderType.DEADLINE.toString())
 				.setString("statusDismissed", ReminderStatus.DISMISSED.toString())
 				.list();
@@ -73,13 +73,13 @@ public class PersonalCalendarManagerImpl extends AbstractManagerImpl implements 
 	}
 	
 	@Override
-	public List<Reminder> readReminders(User user, ReminderStatus status){
+	public List<Reminder> readReminders(long userId, ReminderStatus status){
 		String query =
 			"SELECT DISTINCT reminder " +
 			"FROM PersonalCalendar calendar " +
 			"LEFT JOIN calendar.user user " +
 			"LEFT JOIN calendar.reminders reminder "+
-			"WHERE user = :user " ;
+			"WHERE user.id = :userId " ;
 		
 		if (status != null) {
 			query += "AND reminder.reminderStatus = :status ";
@@ -89,8 +89,7 @@ public class PersonalCalendarManagerImpl extends AbstractManagerImpl implements 
 		query += "ORDER BY reminder.deadline DESC";
 		
 		Query q = persistence.currentManager().createQuery(query)
-				.setEntity("user", user);
-				//.setString("type", ReminderType.DEADLINE.toString());
+				.setLong("userId", userId);
 		
 		if (status != null) {
 			q.setString("status", status.toString());
@@ -110,24 +109,29 @@ public class PersonalCalendarManagerImpl extends AbstractManagerImpl implements 
 	@Override
 	@Transactional(readOnly = false)
 	public PersonalCalendar getOrCreateCalendar(User user) {
-		return getOrCreateCalendar(user, persistence.currentManager());
+		try {
+			return getOrCreateCalendar(user.getId(), persistence.currentManager());
+		} catch (ResourceCouldNotBeLoadedException e) {
+			logger.error(e);
+		}
+		return null;
 	}
 	
 	@Override
 	@Transactional(readOnly = false)
-	public PersonalCalendar getOrCreateCalendar(User user, Session session) {
+	public PersonalCalendar getOrCreateCalendar(long userId, Session session) throws ResourceCouldNotBeLoadedException {
 		String query = 
 			"SELECT DISTINCT calendar " +
 			"FROM PersonalCalendar calendar " +
-			"WHERE calendar.user = :user";
+			"WHERE calendar.user.id = :userId";
 		
 		PersonalCalendar calendar = (PersonalCalendar) session.createQuery(query).
-				setEntity("user", user).
+				setLong("userId", userId).
 				uniqueResult();
 		
 		if (calendar == null) {
 			calendar = new PersonalCalendar();
-			calendar.setUser(user);
+			calendar.setUser(loadResource(User.class, userId));
 			session.save(calendar);
 		}
 		return calendar;
@@ -135,7 +139,9 @@ public class PersonalCalendarManagerImpl extends AbstractManagerImpl implements 
 	
 	@Override
 	@Transactional(readOnly=false)
-	public EventReminder createScheduledEventReminder(ProsoloPersonalScheduleEvent event, User author){
+	public EventReminder createScheduledEventReminder(ProsoloPersonalScheduleEvent event, long userId) throws ResourceCouldNotBeLoadedException{
+		User author = loadResource(User.class, userId);
+
 		EventReminder eventReminder = new EventReminder();
 		eventReminder.setTitle(event.getTitle());
 		eventReminder.setDescription(event.getDescription());

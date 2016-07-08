@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -20,23 +19,14 @@ import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.evaluation.Evaluation;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.portfolio.CompletedGoal;
-import org.prosolo.common.domainmodel.portfolio.ExternalCredit;
-import org.prosolo.common.domainmodel.user.TargetLearningGoal;
-import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkAccount;
-import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
 import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
-import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
-import org.prosolo.services.common.exception.DbConnectionException;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.EvaluationManager;
@@ -50,16 +40,12 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.ActivityWallData;
 import org.prosolo.web.activitywall.displayers.PortfolioSocialActivitiesDisplayer;
 import org.prosolo.web.data.GoalData;
-import org.prosolo.web.datatopagemappers.SocialNetworksDataToPageMapper;
 import org.prosolo.web.dialogs.data.ExternalCreditData;
 import org.prosolo.web.goals.LearnBean;
-import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.goals.util.CompWallActivityConverter;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.portfolio.data.AchievedCompetenceData;
-import org.prosolo.web.portfolio.data.CompletedGoalData;
 import org.prosolo.web.portfolio.data.GoalStatisticsData;
-import org.prosolo.web.portfolio.data.SocialNetworkAccountData;
 import org.prosolo.web.portfolio.data.SocialNetworksData;
 import org.prosolo.web.portfolio.util.AchievedCompetenceDataConverter;
 import org.prosolo.web.portfolio.util.CompletedGoalDataConverter;
@@ -138,24 +124,24 @@ public class PortfolioBean implements Serializable {
 	public void init() {
 		portfolioActivitiesDisplayer = ServiceLocator.getInstance()
 				.getService(PortfolioSocialActivitiesDisplayer.class);
-		portfolioActivitiesDisplayer.init(loggedUser.getUser(), loggedUser.getLocale(), null,
-				loggedUser.getUser().getId());
+//		portfolioActivitiesDisplayer.init(loggedUser.getUser(), loggedUser.getLocale(), null,
+//				loggedUser.getUser().getId());
 	}
 
 	@PostConstruct
 	public void initCompletedGoals() {
-		if (loggedUser.isLoggedIn() && completedGoals == null) {
-			this.completedArchivedGoals = new ArrayList<GoalData>();
-
-			List<CompletedGoal> completedGoals = portfolioManager.getCompletedGoals(loggedUser.refreshUser());
-
-			if (completedGoals != null && !completedGoals.isEmpty()) {
-				this.completedArchivedGoals = completedGoalDataConverter.convertCompletedGoals(completedGoals);
-			}
-
-			populateWithActiveCompletedGoals();
-			initGoalStatistics();
-		}
+//		if (loggedUser.isLoggedIn() && completedGoals == null) {
+//			this.completedArchivedGoals = new ArrayList<GoalData>();
+//
+//			List<CompletedGoal> completedGoals = portfolioManager.getCompletedGoals(loggedUser.refreshUser());
+//
+//			if (completedGoals != null && !completedGoals.isEmpty()) {
+//				this.completedArchivedGoals = completedGoalDataConverter.convertCompletedGoals(completedGoals);
+//			}
+//
+//			populateWithActiveCompletedGoals();
+//			initGoalStatistics();
+//		}
 	}
 
 	public void populateWithActiveCompletedGoals() {
@@ -202,8 +188,8 @@ public class PortfolioBean implements Serializable {
 		if (completedAchievedComps == null) {
 			completedAchievedComps = new ArrayList<AchievedCompetenceData>();
 
-			this.completedAchievedComps = achievedCompetenceDataConverter
-					.convertAchievedComps(portfolioManager.getAchievedCompetences(loggedUser.getUser()));
+//			this.completedAchievedComps = achievedCompetenceDataConverter
+//					.convertAchievedComps(portfolioManager.getAchievedCompetences(loggedUser.getUser()));
 
 			populateWithActiveCompletedCompetences();
 		}
@@ -226,27 +212,27 @@ public class PortfolioBean implements Serializable {
 	}
 
 	public void initExternalCredits() {
-		if (externalCredits == null) {
-			logger.debug("Initializing external credits for user " + loggedUser.getUser());
-
-			this.externalCredits = externalCreditsDataConverter.convertExternalCredits(
-					portfolioManager.getExternalCredits(loggedUser.refreshUser()), loggedUser.getUser(),
-					loggedUser.getLocale());
-		}
+//		if (externalCredits == null) {
+//			logger.debug("Initializing external credits for user " + loggedUser.getUser());
+//
+//			this.externalCredits = externalCreditsDataConverter.convertExternalCredits(
+//					portfolioManager.getExternalCredits(loggedUser.refreshUser()), loggedUser.getUser(),
+//					loggedUser.getLocale());
+//		}
 	}
 
 	public void initSocialNetworks() {
-		if (socialNetworksData == null) {
-			userSocialNetworks = socialNetworksManager.getSocialNetworks(loggedUser.getUser());
-			socialNetworksData = new SocialNetworksDataToPageMapper().mapDataToPageObject(userSocialNetworks);
-		}
+//		if (socialNetworksData == null) {
+//			userSocialNetworks = socialNetworksManager.getSocialNetworks(loggedUser.getUser());
+//			socialNetworksData = new SocialNetworksDataToPageMapper().mapDataToPageObject(userSocialNetworks);
+//		}
 	}
 
 	/*
 	 * ACTIONS
 	 */
 	public void updateSocialNetworks() {
-		logger.debug("Updating social networks data for user " + loggedUser.getUser());
+//		logger.debug("Updating social networks data for user " + loggedUser.getUser());
 
 		saveSocialNetworks();
 
@@ -268,71 +254,71 @@ public class PortfolioBean implements Serializable {
 	}
 
 	public void saveSocialNetworks() {
-		boolean newSocialNetworkAccountIsAdded = false;
-
-		Map<String, SocialNetworkAccountData> newSocialNetworkAccounts = socialNetworksData
-				.getSocialNetworkAccountDatas();
-		try {
-			for (SocialNetworkAccountData socialNetowrkAccountData : newSocialNetworkAccounts.values()) {
-				if (socialNetowrkAccountData.isChanged()) {
-					SocialNetworkAccount account;
-					if (socialNetowrkAccountData.getId() == 0) {
-						account = socialNetworksManager.createSocialNetworkAccount(
-								socialNetowrkAccountData.getSocialNetworkName(),
-								socialNetowrkAccountData.getLinkEdit());
-						userSocialNetworks.getSocialNetworkAccounts().add(account);
-						newSocialNetworkAccountIsAdded = true;
-					} else {
-						socialNetworksManager.updateSocialNetworkAccount(socialNetowrkAccountData);
-					}
-
-				}
-			}
-		} catch (DbConnectionException e) {
-			PageUtil.fireErrorMessage("Custom error.");
-		}
-
-		if (newSocialNetworkAccountIsAdded) {
-			socialNetworksManager.saveEntity(userSocialNetworks);
-			try {
-				eventFactory.generateEvent(EventType.UpdatedSocialNetworks, loggedUser.getUser());
-			} catch (EventException e) {
-				logger.error(e);
-			}
-		}
+//		boolean newSocialNetworkAccountIsAdded = false;
+//
+//		Map<String, SocialNetworkAccountData> newSocialNetworkAccounts = socialNetworksData
+//				.getSocialNetworkAccountDatas();
+//		try {
+//			for (SocialNetworkAccountData socialNetowrkAccountData : newSocialNetworkAccounts.values()) {
+//				if (socialNetowrkAccountData.isChanged()) {
+//					SocialNetworkAccount account;
+//					if (socialNetowrkAccountData.getId() == 0) {
+//						account = socialNetworksManager.createSocialNetworkAccount(
+//								socialNetowrkAccountData.getSocialNetworkName(),
+//								socialNetowrkAccountData.getLinkEdit());
+//						userSocialNetworks.getSocialNetworkAccounts().add(account);
+//						newSocialNetworkAccountIsAdded = true;
+//					} else {
+//						socialNetworksManager.updateSocialNetworkAccount(socialNetowrkAccountData);
+//					}
+//
+//				}
+//			}
+//		} catch (DbConnectionException e) {
+//			PageUtil.fireErrorMessage("Custom error.");
+//		}
+//
+//		if (newSocialNetworkAccountIsAdded) {
+//			socialNetworksManager.saveEntity(userSocialNetworks);
+//			try {
+//				eventFactory.generateEvent(EventType.UpdatedSocialNetworks, loggedUser.getUser());
+//			} catch (EventException e) {
+//				logger.error(e);
+//			}
+//		}
 	}
 
 	public void sendToGoals() {
-		try {
-			TargetLearningGoal retakenGoal = portfolioManager.sendBackToGoals(goalDataToBeSentToGoals.getTargetGoalId(),
-					loggedUser.refreshUser(), contextSendToGoals);
-
-			logger.debug("User \"" + loggedUser.getUser() + " send back to goals instance of TargetLearningGoal \""
-					+ goalDataToBeSentToGoals.getTitle() + "\" (" + goalDataToBeSentToGoals.getTargetGoalId() + ")");
-			PageUtil.fireSuccessfulInfoMessage(
-					"Goal '" + goalDataToBeSentToGoals.getTitle() + "' is sent back for learning!");
-
-			// update cache
-			Iterator<GoalData> iterator = this.completedArchivedGoals.iterator();
-
-			while (iterator.hasNext()) {
-				GoalData goalData = (GoalData) iterator.next();
-
-				if (goalData instanceof CompletedGoalData) {
-					CompletedGoalData completedGoalData = (CompletedGoalData) goalData;
-
-					if (completedGoalData.getTargetGoalId() == goalDataToBeSentToGoals.getTargetGoalId()) {
-						iterator.remove();
-						break;
-					}
-				}
-			}
-
-			GoalDataCache goalData = learningGoalsBean.getData().addGoal(loggedUser.getUser(), retakenGoal);
-
-			if (learningGoalsBean.getSelectedGoalData() == null) {
-				learningGoalsBean.setSelectedGoalData(goalData);
-			}
+//		try {
+//			TargetLearningGoal retakenGoal = portfolioManager.sendBackToGoals(goalDataToBeSentToGoals.getTargetGoalId(),
+//					loggedUser.refreshUser(), contextSendToGoals);
+//
+//			logger.debug("User \"" + loggedUser.getUser() + " send back to goals instance of TargetLearningGoal \""
+//					+ goalDataToBeSentToGoals.getTitle() + "\" (" + goalDataToBeSentToGoals.getTargetGoalId() + ")");
+//			PageUtil.fireSuccessfulInfoMessage(
+//					"Goal '" + goalDataToBeSentToGoals.getTitle() + "' is sent back for learning!");
+//
+//			// update cache
+//			Iterator<GoalData> iterator = this.completedArchivedGoals.iterator();
+//
+//			while (iterator.hasNext()) {
+//				GoalData goalData = (GoalData) iterator.next();
+//
+//				if (goalData instanceof CompletedGoalData) {
+//					CompletedGoalData completedGoalData = (CompletedGoalData) goalData;
+//
+//					if (completedGoalData.getTargetGoalId() == goalDataToBeSentToGoals.getTargetGoalId()) {
+//						iterator.remove();
+//						break;
+//					}
+//				}
+//			}
+//
+//			GoalDataCache goalData = learningGoalsBean.getData().addGoal(loggedUser.getUser(), retakenGoal);
+//
+//			if (learningGoalsBean.getSelectedGoalData() == null) {
+//				learningGoalsBean.setSelectedGoalData(goalData);
+//			}
 
 			initCompletedGoals();
 			populateWithActiveCompletedGoals();
@@ -344,9 +330,9 @@ public class PortfolioBean implements Serializable {
 					initGoalStatistics();
 				}
 			});
-		} catch (ResourceCouldNotBeLoadedException e) {
-			logger.error(e);
-		}
+//		} catch (ResourceCouldNotBeLoadedException e) {
+//			logger.error(e);
+//		}
 	}
 
 	public BaseEntity returnEvaluatedResource() {
@@ -380,39 +366,40 @@ public class PortfolioBean implements Serializable {
 	}
 
 	public ActivityWallData createNewActivity(NewPostData newActivityData) {
-		// clean html from text
-		String cleanedText = StringUtil.cleanHtml(newActivityData.getText());
-
-		try {
-			TargetActivity newActivity = resourceFactory.createNewTargetActivity(loggedUser.getUser(), cleanedText,
-					null, newActivityData.getAttachmentPreview(), newActivityData.getVisibility(), null, true);
-			eventFactory.generateEvent(EventType.Create, loggedUser.getUser(), newActivity);
-
-			newActivity.setCompleted(true);
-			newActivity = resourceFactory.saveEntity(newActivity);
-
-			Locale locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
-			ActivityWallData activityData = compWallActivityConverter.convertTargetActivityToActivityWallData(null,
-					newActivity, loggedUser.getUser(), locale, false, false);
-
-			return activityData;
-		} catch (EventException e) {
-			logger.error(e);
-		}
+//		// clean html from text
+//		String cleanedText = StringUtil.cleanHtml(newActivityData.getText());
+//
+//		try {
+//			TargetActivity newActivity = resourceFactory.createNewTargetActivity(loggedUser.getUser(), cleanedText,
+//					null, newActivityData.getAttachmentPreview(), newActivityData.getVisibility(), null, true);
+//			eventFactory.generateEvent(EventType.Create, loggedUser.getUser(), newActivity);
+//
+//			newActivity.setCompleted(true);
+//			newActivity = resourceFactory.saveEntity(newActivity);
+//
+//			Locale locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
+//			ActivityWallData activityData = compWallActivityConverter.convertTargetActivityToActivityWallData(null,
+//					newActivity, loggedUser.getUser(), locale, false, false);
+//
+//			return activityData;
+//		} catch (EventException e) {
+//			logger.error(e);
+//		}
 		return null;
 	}
 
 	public ActivityWallData addActivity(Activity activity) {
-		TargetActivity newActivity = resourceFactory.createNewTargetActivity(activity, loggedUser.getUser());
-
-		newActivity.setCompleted(true);
-		newActivity = resourceFactory.saveEntity(newActivity);
-
-		Locale locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
-		ActivityWallData activityData = compWallActivityConverter.convertTargetActivityToActivityWallData(null,
-				newActivity, loggedUser.getUser(), locale, false, false);
-
-		return activityData;
+//		TargetActivity newActivity = resourceFactory.createNewTargetActivity(activity, loggedUser.getUser());
+//
+//		newActivity.setCompleted(true);
+//		newActivity = resourceFactory.saveEntity(newActivity);
+//
+//		Locale locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
+//		ActivityWallData activityData = compWallActivityConverter.convertTargetActivityToActivityWallData(null,
+//				newActivity, loggedUser.getUserId(), locale, false, false);
+//
+//		return activityData;
+		return null;
 	}
 
 	// Called from the activity search
@@ -439,7 +426,7 @@ public class PortfolioBean implements Serializable {
 		UploadedFile uploadedFile = event.getFile();
 
 		try {
-			AttachmentPreview attachmentPreview = uploadManager.uploadFile(loggedUser.getUser(), uploadedFile,
+			AttachmentPreview attachmentPreview = uploadManager.uploadFile(uploadedFile,
 					uploadedFile.getFileName());
 
 			newActivityForExCreditData.setAttachmentPreview(attachmentPreview);
@@ -472,21 +459,21 @@ public class PortfolioBean implements Serializable {
 	}
 
 	public void deleteExternalCredit() {
-		if (exCreditDataToDelete != null) {
-			logger.debug(
-					"User '" + loggedUser.getUser() + "' deleted external credit " + exCreditDataToDelete.getTitle());
-
-			try {
-				externalCredits = externalCreditsDataConverter.convertExternalCredits(
-						portfolioManager.deleteExternalCredit(loggedUser.refreshUser(),
-								exCreditDataToDelete.getExternalCredit(), "profile.credits"),
-						loggedUser.getUser(), loggedUser.getLocale());
-			} catch (Exception e) {
-				logger.error("Error with deleting external credit: " + e);
-			}
-
-			PageUtil.fireSuccessfulInfoMessage("externalCreditsGrowl", "External credit deleted!");
-		}
+//		if (exCreditDataToDelete != null) {
+//			logger.debug(
+//					"User '" + loggedUser.getUser() + "' deleted external credit " + exCreditDataToDelete.getTitle());
+//
+//			try {
+//				externalCredits = externalCreditsDataConverter.convertExternalCredits(
+//						portfolioManager.deleteExternalCredit(loggedUser.refreshUser(),
+//								exCreditDataToDelete.getExternalCredit(), "profile.credits"),
+//						loggedUser.getUser(), loggedUser.getLocale());
+//			} catch (Exception e) {
+//				logger.error("Error with deleting external credit: " + e);
+//			}
+//
+//			PageUtil.fireSuccessfulInfoMessage("externalCreditsGrowl", "External credit deleted!");
+//		}
 	}
 
 	public void saveExternalCreditEdits() {
@@ -505,13 +492,13 @@ public class PortfolioBean implements Serializable {
 
 		String newCertificateLink = null;
 		if (newCertificateToUpload != null) {
-			try {
-				newCertificateLink = uploadManager.storeFile(loggedUser.getUser(), newCertificateToUpload,
-						newCertificateToUpload.getFileName());
-			} catch (IOException e) {
-				logger.error("Error saving new certificate for External credit '" + editedExternalCredit
-						+ "' being edited. " + e);
-			}
+//			try {
+//				newCertificateLink = uploadManager.storeFile(loggedUser.getUser(), newCertificateToUpload,
+//						newCertificateToUpload.getFileName());
+//			} catch (IOException e) {
+//				logger.error("Error saving new certificate for External credit '" + editedExternalCredit
+//						+ "' being edited. " + e);
+//			}
 		}
 
 		List<TargetActivity> activities = new ArrayList<TargetActivity>();
@@ -525,14 +512,14 @@ public class PortfolioBean implements Serializable {
 			}
 		}
 
-		ExternalCredit updatedExCredit = portfolioManager.updateExternalCredit(editedExternalCredit.getExternalCredit(),
-				loggedUser.getUser(), editedExternalCredit.getTitle(), editedExternalCredit.getDescription(),
-				editedExternalCredit.getStart(), editedExternalCredit.getEnd(),
-				noCertificate ? editedExternalCredit.getCertificateLink() : newCertificateLink,
-				editedExternalCredit.getCompetences(), activities);
+//		ExternalCredit updatedExCredit = portfolioManager.updateExternalCredit(editedExternalCredit.getExternalCredit(),
+//				loggedUser.getUser(), editedExternalCredit.getTitle(), editedExternalCredit.getDescription(),
+//				editedExternalCredit.getStart(), editedExternalCredit.getEnd(),
+//				noCertificate ? editedExternalCredit.getCertificateLink() : newCertificateLink,
+//				editedExternalCredit.getCompetences(), activities);
 
-		externalCredits.add(index, externalCreditsDataConverter.convertExternalCredit(updatedExCredit,
-				loggedUser.getUser(), loggedUser.getLocale()));
+//		externalCredits.add(index, externalCreditsDataConverter.convertExternalCredit(updatedExCredit,
+//				loggedUser.getUserId(), loggedUser.getLocale()));
 
 		PageUtil.fireSuccessfulInfoMessage("externalCreditsGrowl", "External credit edited!");
 	}

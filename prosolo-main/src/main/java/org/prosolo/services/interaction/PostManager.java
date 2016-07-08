@@ -22,12 +22,12 @@ import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPrev
 
 public interface PostManager extends AbstractManager{
 
-	PostEvent createNewPost(User user, String text, VisibilityType visibility, 
+	PostEvent createNewPost(long userId, String text, VisibilityType visibility, 
 			AttachmentPreview attachmentPreview, long[] mentionedUsers, 
 			boolean propagateManuallyToSocialStream, String context,
-			String page, String learningContext, String service) throws EventException;
+			String page, String learningContext, String service) throws EventException, ResourceCouldNotBeLoadedException;
 	
-	PostEvent createNewGoalNote(User user, long goalId, String text,
+	PostEvent createNewGoalNote(long userId, long goalId, String text,
 			AttachmentPreview attachmentPreview, VisibilityType visibility, 
 			boolean propagateManuallyToSocialStream, boolean connectNewPostWithStatus,
 			String context)	throws EventException, ResourceCouldNotBeLoadedException;
@@ -36,9 +36,9 @@ public interface PostManager extends AbstractManager{
 	
 //	Post resharePost(User user, String originalPostUri) throws EventException, ResourceCouldNotBeLoadedException;
 	
-	PostEvent resharePost(User user, SocialActivity socialActivity, boolean propagateManuallyToSocialStream) throws EventException;
+	PostEvent resharePost(long userId, SocialActivity socialActivity, boolean propagateManuallyToSocialStream) throws EventException, ResourceCouldNotBeLoadedException;
 	
-	PostEvent reshareSocialActivity(User user, String text,
+	PostEvent reshareSocialActivity(long userId, String text,
 			VisibilityType visibility, AttachmentPreview attachmentPreview,
 			SocialActivity originalSocialActivity,
 			boolean propagateManuallyToSocialStream, String page,
@@ -54,11 +54,11 @@ public interface PostManager extends AbstractManager{
 			String screenName, String userUrl, String profileImage, String text, VisibilityType visibility, 
 			Collection<String> hashtags, boolean toSave) throws EventException;
 
-	PostEvent shareResource(User user, String text,
+	PostEvent shareResource(long userId, String text,
 			VisibilityType visibility, Node resource,
 			boolean propagateManuallyToSocialStream,
 			String context, String page,
-			String learningContext, String service) throws EventException;
+			String learningContext, String service) throws EventException, ResourceCouldNotBeLoadedException;
 
 	int getNumberOfTwitterPostsCreatedBefore(Session session,Date createDate);
 
@@ -74,5 +74,5 @@ public interface PostManager extends AbstractManager{
 
 	List<TwitterPostSocialActivity> getTwitterPosts(Collection<Tag> hashtags, Date date);
 
-	SocialActivity updatePost(User user, long socialActivityId, String text, String context) throws ResourceCouldNotBeLoadedException;
+	SocialActivity updatePost(long userId, long socialActivityId, String text, String context) throws ResourceCouldNotBeLoadedException;
 }

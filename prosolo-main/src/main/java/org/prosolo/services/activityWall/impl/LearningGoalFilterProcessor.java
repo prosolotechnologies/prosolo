@@ -14,7 +14,7 @@ import org.prosolo.services.activityWall.filters.Filter;
 public class LearningGoalFilterProcessor implements SocialActivityFilterProcessor {
 	
 	@Override
-	public boolean checkSocialActivity(SocialActivity1 socialActivity, User user, Filter filter) {
+	public boolean checkSocialActivity(SocialActivity1 socialActivity, long userId, Filter filter) {
 		boolean shouldBeDisplayed = false;
 //		LearningGoalFilter goalFilter = (LearningGoalFilter) filter;
 //		

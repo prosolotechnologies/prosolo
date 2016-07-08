@@ -6,7 +6,6 @@ import java.util.Random;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.core.stress.TestContext;
 import org.prosolo.recommendation.CollaboratorsRecommendation;
 import org.prosolo.services.logging.LoggingService;
@@ -24,7 +23,7 @@ public class CollaboratorsRecommendationImplTest extends TestContext {
 	
 	@Test
 	public void testGetMostActiveRecommendedUsers() {
-		collaboratorsRecommendation.getMostActiveRecommendedUsers(new User(), 10);
+		collaboratorsRecommendation.getMostActiveRecommendedUsers(1, 10);
 	}
 	 @Ignore
 	@Test

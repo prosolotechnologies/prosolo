@@ -104,7 +104,7 @@ public class CompetenceEditBean implements Serializable {
 					.getCurrentVersionOfCompetenceForManager(id, false, true);
 		} else {
 			competenceData = compManager.getCompetenceDataForEdit(id, 
-					loggedUser.getUser().getId(), true);
+					loggedUser.getUserId(), true);
 		}
 		
 		if(competenceData == null) {
@@ -192,7 +192,7 @@ public class CompetenceEditBean implements Serializable {
 						competenceData.setStatus(PublishedStatus.DRAFT);
 					}
 					compManager.updateCompetence(decodedId, competenceData, 
-							loggedUser.getUser());
+							loggedUser.getUserId());
 				}
 			} else {
 				if(saveAsDraft) {
@@ -201,7 +201,7 @@ public class CompetenceEditBean implements Serializable {
 				long credentialId = addToCredential ? decodedCredId : 0;
 				//competenceData.setDuration(4);
 				Competence1 comp = compManager.saveNewCompetence(competenceData, 
-						loggedUser.getUser(), credentialId);
+						loggedUser.getUserId(), credentialId);
 				competenceData.setCompetenceId(comp.getId());
 				decodedId = competenceData.getCompetenceId();
 				id = idEncoder.encodeId(decodedId);
@@ -228,7 +228,7 @@ public class CompetenceEditBean implements Serializable {
 				 * passing decodedId because we need to pass id of
 				 * original competence and not id of a draft version
 				 */
-				compManager.deleteCompetence(decodedId, competenceData, loggedUser.getUser());
+				compManager.deleteCompetence(decodedId, competenceData, loggedUser.getUserId());
 				competenceData = new CompetenceData1(false);
 				PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			} else {

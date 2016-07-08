@@ -7,14 +7,15 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.CompetenceCompleteSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.event.Event;
 
 public class CompetenceObjectSocialActivityProcessor extends SocialActivityProcessor {
 
-	public CompetenceObjectSocialActivityProcessor(Session session, Event event, 
+	public CompetenceObjectSocialActivityProcessor(Session session, Event event,  User actor,
 			SocialActivityManager socialActivityManager) {
-		super(session, event, socialActivityManager);
+		super(session, event, actor, socialActivityManager);
 	}
 	
 	@Override
@@ -33,7 +34,7 @@ public class CompetenceObjectSocialActivityProcessor extends SocialActivityProce
 		Date now = new Date();
 		act.setDateCreated(now);
 		act.setLastAction(now);
-		act.setActor(event.getActor());
+		act.setActor(actor);
 		
 		return socialActivityManager.saveNewSocialActivity(act, session);
 	}

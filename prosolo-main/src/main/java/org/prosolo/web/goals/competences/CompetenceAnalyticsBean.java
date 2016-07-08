@@ -15,7 +15,6 @@ import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.annotation.DislikeManager;
 import org.prosolo.services.annotation.LikeManager;
 import org.prosolo.services.stats.CompetenceAnalytics;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.goals.data.CompetenceAnalyticsData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -53,7 +52,7 @@ public class CompetenceAnalyticsBean implements Serializable {
 			
 			if (!usersUsingCompetence.isEmpty()) {
 				for (User user : usersUsingCompetence) {
-					compAnalyticsData.addUsedBy(UserDataFactory.createUserData(user));
+					compAnalyticsData.addUsedBy(new UserData(user));
 				}
 			}
 			compAnalyticsData.setNumOfUsersAchieving(compAnalyticService.getNumberOfUsersAchievingCompetence(competenceId));

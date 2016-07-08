@@ -12,13 +12,11 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.messaging.Message;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -47,22 +45,22 @@ public class SendMessageBean implements Serializable {
 	private String message;
 
 	public void sendMessage(long receiverId, String receiverFullName) {
-		if(receiverId != loggedUserBean.getUser().getId()) {
+		if(receiverId != loggedUserBean.getUserId()) {
 			try {
-				Message message = messagingManager.sendMessage(loggedUserBean.getUser().getId(), 
+				Message message = messagingManager.sendMessage(loggedUserBean.getUserId(), 
 						receiverId, this.message);
-				logger.debug("User "+loggedUserBean.getUser()+" sent a message to " + receiverId +
+				logger.debug("User "+loggedUserBean.getUserId()+" sent a message to " + receiverId +
 						" with content: '"+message+"'");
 				
 				List<UserData> participants = new ArrayList<UserData>();
-				participants.add(UserDataFactory.createUserData(loggedUserBean.getUser()));
+				
+				participants.add(new UserData(loggedUserBean.getUserId(), loggedUserBean.getFullName(), loggedUserBean.getAvatar()));
 				
 				String page = PageUtil.getPostParameter("page");
 				String lContext = PageUtil.getPostParameter("learningContext");
 				String service = PageUtil.getPostParameter("service");
 				
 				final Message message1 = message;
-				final User user = loggedUserBean.getUser();
 				
 				taskExecutor.execute(new Runnable() {
 		            @Override
@@ -72,7 +70,7 @@ public class SendMessageBean implements Serializable {
 		            		//parameters.put("context", createContext());
 		            		parameters.put("user", String.valueOf(receiverId));
 		            		parameters.put("message", String.valueOf(message1.getId()));
-		            		eventFactory.generateEvent(EventType.SEND_MESSAGE, user, message1, 
+		            		eventFactory.generateEvent(EventType.SEND_MESSAGE, loggedUserBean.getUserId(), message1, 
 		            				null, page, lContext, service, parameters);
 		            	} catch (EventException e) {
 		            		logger.error(e);
@@ -87,7 +85,7 @@ public class SendMessageBean implements Serializable {
 		}
 		else {
 			PageUtil.fireErrorMessage("Canno't send message to yourself!");
-			logger.error("Error while sending message from profile page, studentId was the same as logged student id : "+loggedUserBean.getUser().getId());
+			logger.error("Error while sending message from profile page, studentId was the same as logged student id : "+loggedUserBean.getUserId());
 		}
 	}
 

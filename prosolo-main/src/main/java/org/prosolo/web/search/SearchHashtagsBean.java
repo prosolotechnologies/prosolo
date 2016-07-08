@@ -102,7 +102,7 @@ public class SearchHashtagsBean implements Serializable {
 		
 		activityWallItems.addAll(wallActivityConverter.convertSocialActivities(
 				foundActivityWallItems, 
-				loggedUser.getUser(),
+				loggedUser.getUserId(),
 				SocialStreamSubViewType.STATUS_WALL,
 				loggedUser.getLocale()));
 		

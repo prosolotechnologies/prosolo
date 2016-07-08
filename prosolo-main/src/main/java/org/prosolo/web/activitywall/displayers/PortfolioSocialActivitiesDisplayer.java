@@ -22,7 +22,7 @@ public class PortfolioSocialActivitiesDisplayer extends DefaultWallSocialActivit
 	private long wallOwner;
 	
 	public void init(User loggedUser, Locale locale, Filter filter, long wallOwner) {
-		super.init(loggedUser, locale, filter);
+		super.init(loggedUser.getId(), locale, filter);
 		this.wallOwner = wallOwner; 
 	}
 	

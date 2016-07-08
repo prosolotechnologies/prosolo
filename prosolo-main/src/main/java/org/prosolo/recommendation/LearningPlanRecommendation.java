@@ -9,7 +9,7 @@ import org.prosolo.common.domainmodel.workflow.LearningPlan;
 
 public interface LearningPlanRecommendation {
 
-	List<LearningPlan> recommendLearningPlans(User user, long targetCompId, int limit);
+	List<LearningPlan> recommendLearningPlans(long userId, long targetCompId, int limit);
 
 	boolean hasAppendedPlans(LearningPlan learningPlan, TargetCompetence selectedCompetence);
 

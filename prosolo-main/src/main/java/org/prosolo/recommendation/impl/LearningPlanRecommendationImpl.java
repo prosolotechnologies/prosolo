@@ -63,7 +63,7 @@ public class LearningPlanRecommendationImpl implements LearningPlanRecommendatio
 	}
 
 	@Override
-	public List<LearningPlan> recommendLearningPlans(User user, long targetCompId, int limit) {
+	public List<LearningPlan> recommendLearningPlans(long userId, long targetCompId, int limit) {
 		List<LearningPlan> recommendedPlans = new ArrayList<LearningPlan>();
 		if (plans.containsKey(targetCompId)) {
 			updateTargetCompetenceStoredPlan(targetCompId);

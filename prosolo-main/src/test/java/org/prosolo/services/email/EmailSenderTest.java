@@ -1,7 +1,5 @@
 package org.prosolo.services.email;
 
-import static org.junit.Assert.*;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Properties;
@@ -11,14 +9,12 @@ import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Session;
 import javax.mail.Transport;
-import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import org.junit.Test;
-import org.prosolo.app.Settings;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.config.SMTPConfig;
 import org.prosolo.common.email.generators.EmailVerificationEmailContentGenerator;

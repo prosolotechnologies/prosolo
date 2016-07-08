@@ -9,7 +9,6 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
@@ -54,19 +53,19 @@ public class CompetenceViewBeanUser implements Serializable {
 				decodedCredId = idEncoder.decodeId(credId);
 				if(decodedCredId > 0) {
 					competenceData = competenceManager.getFullTargetCompetenceOrCompetenceData(
-							decodedCredId, decodedCompId, loggedUser.getUser().getId());
+							decodedCredId, decodedCompId, loggedUser.getUserId());
 				} else {
 					if("preview".equals(mode)) {
 						competenceData = competenceManager.getCompetenceDataForEdit(decodedCompId, 
-								loggedUser.getUser().getId(), true);
+								loggedUser.getUserId(), true);
+
 						ResourceCreator rc = new ResourceCreator();
-						User user = loggedUser.getUser();
-						rc.setFullName(user.getName(), user.getLastname());
-						rc.setAvatarUrl(user.getAvatarUrl());
+						rc.setFullName(loggedUser.getFullName());
+						rc.setAvatarUrl(loggedUser.getAvatar());
 						competenceData.setCreator(rc);
 					} else {
 						competenceData = competenceManager.getCompetenceDataForUser(0, decodedCompId, true, 
-								true, true, loggedUser.getUser().getId(), true);
+								true, true, loggedUser.getUserId(), true);
 					}
 				}
 				if(competenceData == null) {
@@ -84,7 +83,7 @@ public class CompetenceViewBeanUser implements Serializable {
 						if(competenceData.isEnrolled()) {
 							CredentialData cd = credManager
 									.getTargetCredentialTitleAndNextCompToLearn(decodedCredId, 
-											loggedUser.getUser().getId());
+											loggedUser.getUserId());
 							if(cd != null) {
 								credTitle = cd.getTitle();
 								nextCompToLearn = cd.getNextCompetenceToLearnId();
@@ -118,7 +117,7 @@ public class CompetenceViewBeanUser implements Serializable {
 	
 	public boolean isCurrentUserCreator() {
 		return competenceData == null || competenceData.getCreator() == null ? false : 
-			competenceData.getCreator().getId() == loggedUser.getUser().getId();
+			competenceData.getCreator().getId() == loggedUser.getUserId();
 	}
 	
 	public boolean hasMoreActivities(int index) {

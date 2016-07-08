@@ -114,7 +114,7 @@ public class ActivityEditBean implements Serializable {
 			activityData = activityManager.getCurrentVersionOfActivityForManager(compId, actId);
 		} else {
 			activityData = activityManager.getActivityDataForEdit(compId, actId, 
-					loggedUser.getUser().getId());
+					loggedUser.getUserId());
 		}
 		
 		if(activityData == null) {
@@ -189,7 +189,7 @@ public class ActivityEditBean implements Serializable {
 		
 		try {
 			String fileName = uploadedFile.getFileName();
-			String fullPath = uploadManager.storeFile(null, uploadedFile, fileName);
+			String fullPath = uploadManager.storeFile(uploadedFile, fileName);
 			resLinkToAdd.setUrl(fullPath);
 			resLinkToAdd.setFetchedTitle(fileName);
 			//activityData.getFiles().add(rl);
@@ -298,14 +298,14 @@ public class ActivityEditBean implements Serializable {
 						activityData.setStatus(PublishedStatus.DRAFT);
 					}
 					activityManager.updateActivity(decodedId, activityData, 
-							loggedUser.getUser().getId());
+							loggedUser.getUserId());
 				}
 			} else {
 				if(saveAsDraft) {
 					activityData.setStatus(PublishedStatus.DRAFT);
 				}
 				Activity1 act = activityManager.saveNewActivity(activityData, 
-						loggedUser.getUser().getId());
+						loggedUser.getUserId());
 				decodedId = act.getId();
 				id = idEncoder.encodeId(decodedId);
 				activityData.startObservingChanges();
@@ -337,7 +337,7 @@ public class ActivityEditBean implements Serializable {
 				 * passing decodedId because we need to pass id of
 				 * original competence and not id of a draft version
 				 */
-				activityManager.deleteActivity(decodedId, activityData, loggedUser.getUser().getId());
+				activityManager.deleteActivity(decodedId, activityData, loggedUser.getUserId());
 				activityData = new ActivityData(false);
 				PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			} else {

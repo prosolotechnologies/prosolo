@@ -11,31 +11,33 @@ import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.event.Event;
 
 public class CommentSocialActivityProcessor extends SocialActivityProcessor {
 
-	public CommentSocialActivityProcessor(Session session, Event event, 
+	public CommentSocialActivityProcessor(Session session, Event event,  User actor,
 			SocialActivityManager socialActivityManager) {
-		super(session, event, socialActivityManager);
+		super(session, event, actor, socialActivityManager);
 	}
 	
 	@Override
 	public SocialActivity1 createSocialActivity() {
 		Comment1 comment = (Comment1) event.getObject();
 		BaseEntity target = event.getTarget();
-		if(target == null) {
+		if (target == null) {
 			return null;
 		}
 		CommentSocialActivity act = createNewSocialActivity(target);
-		if(act != null) {
+		
+		if (act != null) {
 			Date now = new Date();
 			act.setDateCreated(now);
 			act.setLastAction(now);
-			act.setActor(event.getActor());
+			act.setActor(actor);
 			act.setCommentObject(comment);
-			
+
 			return socialActivityManager.saveNewSocialActivity(act, session);
 		}
 		

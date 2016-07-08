@@ -103,7 +103,7 @@ public class CompetenceOverallBean implements Serializable {
 				@Override
 				public void run() {
 					try {
-						eventFactory.generateEvent(EventType.Edit, loggedUser.getUser(), comp);
+						eventFactory.generateEvent(EventType.Edit, loggedUser.getUserId(), loggedUser.getFullName(), comp);
 					} catch (EventException e1) {
 						logger.error(e1);
 					}

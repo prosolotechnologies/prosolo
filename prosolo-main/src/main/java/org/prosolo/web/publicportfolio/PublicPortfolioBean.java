@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
@@ -22,8 +21,6 @@ import org.prosolo.common.domainmodel.portfolio.AchievedCompetence;
 import org.prosolo.common.domainmodel.portfolio.CompletedGoal;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkAccount;
-import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
 import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
@@ -37,10 +34,8 @@ import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.activitywall.displayers.PortfolioSocialActivitiesDisplayer;
 import org.prosolo.web.data.GoalData;
-import org.prosolo.web.datatopagemappers.SocialNetworksDataToPageMapper;
 import org.prosolo.web.dialogs.data.ExternalCreditData;
 import org.prosolo.web.portfolio.data.AchievedCompetenceData;
 import org.prosolo.web.portfolio.data.GoalStatisticsData;
@@ -110,14 +105,14 @@ public class PublicPortfolioBean implements Serializable {
 		initializeUser();
 		portfolioActivitiesDisplayer = ServiceLocator.getInstance()
 				.getService(PortfolioSocialActivitiesDisplayer.class);
-		portfolioActivitiesDisplayer.init(loggedUser.getUser(), loggedUser.getLocale(), null, decodedId);
+//		portfolioActivitiesDisplayer.init(loggedUser.getUserId(), loggedUser.getLocale(), null, decodedId);
 	}
 
 	private void initializeUser() {
 		if (decodedId > 0) {
 			try {
 				profileOwner = userManager.loadResource(User.class, decodedId, true);
-				profileOwnerData = UserDataFactory.createUserData(profileOwner);
+				profileOwnerData = new UserData(profileOwner);
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error(e);
 				try {
@@ -248,26 +243,26 @@ public class PublicPortfolioBean implements Serializable {
 	}
 
 	public void initExternalCredits() {
-		if (profileOwner != null) {
-			if (externalCredits == null) {
-				logger.debug("Initializing external credits for user " + profileOwner);
-
-				User user = loggedUser != null ? loggedUser.getUser() : null;
-				Locale locale = loggedUser != null ? loggedUser.getLocale() : new Locale("en", "US");
-				;
-
-				this.externalCredits = externalCreditsDataConverter
-						.convertExternalCredits(portfolioManager.getVisibleExternalCredits(profileOwner), user, locale);
-			}
-		}
+//		if (profileOwner != null) {
+//			if (externalCredits == null) {
+//				logger.debug("Initializing external credits for user " + profileOwner);
+//
+//				User user = loggedUser != null ? loggedUser.getUser() : null;
+//				Locale locale = loggedUser != null ? loggedUser.getLocale() : new Locale("en", "US");
+//				;
+//
+//				this.externalCredits = externalCreditsDataConverter
+//						.convertExternalCredits(portfolioManager.getVisibleExternalCredits(profileOwner), user, locale);
+//			}
+//		}
 	}
 
 	public void initSocialNetworks() {
-		if (socialNetworksData == null) {
-			userSocialNetworks = socialNetworksManager.getSocialNetworks(loggedUser.getUser());
-			socialNetworksData = new SocialNetworksDataToPageMapper()
-					.mapDataToPageObject(userSocialNetworks);
-		}
+//		if (socialNetworksData == null) {
+//			userSocialNetworks = socialNetworksManager.getSocialNetworks(loggedUser.getUser());
+//			socialNetworksData = new SocialNetworksDataToPageMapper()
+//					.mapDataToPageObject(userSocialNetworks);
+//		}
 	}
 
 	// Status Wall

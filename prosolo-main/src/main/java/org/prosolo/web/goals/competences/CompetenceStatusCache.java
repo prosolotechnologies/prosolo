@@ -43,10 +43,10 @@ public class CompetenceStatusCache implements Serializable {
 		
 		StatusType status = null;
 		
-		if (portfolioManager.isCompetenceCompleted(competenceId, loggedUser.getUser())
-				|| competenceManager.hasUserCompletedCompetence(competenceId, loggedUser.getUser())) {
+		if (portfolioManager.isCompetenceCompleted(competenceId, loggedUser.getUserId())
+				|| competenceManager.hasUserCompletedCompetence(competenceId, loggedUser.getUserId())) {
 			status = StatusType.COMPLETED;
-		} else if (competenceManager.isUserAcquiringCompetence(competenceId, loggedUser.getUser())) {
+		} else if (competenceManager.isUserAcquiringCompetence(competenceId, loggedUser.getUserId())) {
 			status = StatusType.IN_PROGRESS;
 		} else {
 			status = StatusType.DO_NOT_HAVE;

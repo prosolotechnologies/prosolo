@@ -66,7 +66,7 @@ public class FeedsBean {
 
 	@PostConstruct
 	public void init() {
-		feedsPreferences = feedsManager.getFeedsPreferences(loggedUser.refreshUser());
+//		feedsPreferences = feedsManager.getFeedsPreferences(loggedUser.refreshUser());
 
 		initAllSources();
 	}

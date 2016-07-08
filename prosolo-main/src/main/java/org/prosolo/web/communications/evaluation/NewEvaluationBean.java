@@ -110,19 +110,17 @@ public class NewEvaluationBean implements Serializable {
 			User evaluator = evaluationSubmission.getRequest().getSentTo();
 			User evaluatee = evaluationSubmission.getRequest().getMaker();
 			
-			User loggedU = loggedUser.getUser();
-			
-			if (!(loggedU.getId() == evaluator.getId() || loggedU.getId() == evaluatee.getId())) {
+			if (!(loggedUser.getUserId() == evaluator.getId() || loggedUser.getUserId() == evaluatee.getId())) {
 				return false;
 			}
 			
-			if (loggedU.equals(evaluator)) {
+			if (loggedUser.getUserId() == evaluator.getId()) {
 				this.evaluator = true;
 			}
 			
 			this.allBadges = badgeManager.getAllResources(Badge.class);
 			
-			this.formData = evaluationDataFactory.create(this.evaluationSubmission, allBadges, loggedUser.getLocale(), loggedUser.getUser());
+			this.formData = evaluationDataFactory.create(this.evaluationSubmission, allBadges, loggedUser.getLocale(), loggedUser.getUserId());
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		}
@@ -141,7 +139,7 @@ public class NewEvaluationBean implements Serializable {
 					allEvaluatedResources, 
 					formData.getPrimeEvaluatedResource());
 			
-			eventFactory.generateEvent(EventType.EVALUATION_GIVEN, loggedUser.getUser(), evaluationSubmission);
+			eventFactory.generateEvent(EventType.EVALUATION_GIVEN, loggedUser.getUserId(), evaluationSubmission);
 			
 			try {
 				PageUtil.fireSuccessfulInfoMessage("evaluationForm:evaluationGrowl", 
@@ -276,7 +274,7 @@ public class NewEvaluationBean implements Serializable {
 	
 	public void resubmitEvaluationRequest() {
 		try {
-			Request request = evaluationManager.resubmitEvaluationRequest(loggedUser.refreshUser(), evaluationSubmission, "");
+			Request request = evaluationManager.resubmitEvaluationRequest(loggedUser.getUserId(), evaluationSubmission, "");
 			
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("context", resubmitContext);
@@ -284,7 +282,7 @@ public class NewEvaluationBean implements Serializable {
 			parameters.put("resourceType", formData.getPrimeEvaluatedResource().getResource().getClass().getSimpleName());
 			parameters.put("user", String.valueOf(request.getSentTo().getId()));
 			
-			eventFactory.generateEvent(request.getRequestType(), request.getMaker(), request, parameters);
+			eventFactory.generateEvent(request.getRequestType(), request.getMaker().getId(), request, parameters);
 			
 			formData.setWaitingForSubmission(true);
 			formData.setCanBeResubmitted(false);

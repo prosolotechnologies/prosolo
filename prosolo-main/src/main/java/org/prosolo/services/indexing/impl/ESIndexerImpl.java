@@ -25,7 +25,6 @@ import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.content.Post;
 import org.prosolo.common.domainmodel.content.RichContent;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.net.HTTPSConnectionValidator;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.core.hibernate.HibernateUtil;
@@ -59,9 +58,9 @@ public class ESIndexerImpl implements ESIndexer {
 		logger.debug("indexing event:" + event.getAction().name());
 		logger.debug("indexing event with object:" + event.getObject().getClass().getName());
 		
-		User postedBy = event.getActor();
+		long postedBy = event.getActorId();
 		if (event.getAction().equals(EventType.Post)) {
-			indexingPost(event,postedBy);
+			indexingPost(event);
 		} else if (event.getAction().equals(EventType.FileUploaded)) {
 			indexFileUploaded(event,postedBy);
 		} else if (event.getAction().equals(EventType.LinkAdded)) {
@@ -69,7 +68,7 @@ public class ESIndexerImpl implements ESIndexer {
 		}
 	}
 	
-	private void indexingPost(Event event, User postedBy) {
+	private void indexingPost(Event event) {
 		Post post=(Post) event.getObject();
 		String content=post.getContent();
 		@SuppressWarnings("unused")
@@ -116,7 +115,7 @@ public class ESIndexerImpl implements ESIndexer {
 		}
 		
 	}
-	private void indexFileUploaded(Event event,User postedBy){
+	private void indexFileUploaded(Event event, long postedBy){
 		RichContent richContent = (RichContent) event.getObject();
 		String contentLink = richContent.getLink();
 		if (contentLink.contains("+")) {
@@ -136,7 +135,7 @@ public class ESIndexerImpl implements ESIndexer {
 		}
 	}
 	
-	private void indexLinkAdded(Event event,User postedBy){
+	private void indexLinkAdded(Event event, long userId){
 		RichContent richContent = (RichContent) event.getObject();
 		String contentLink = richContent.getLink();
 		
@@ -151,25 +150,20 @@ public class ESIndexerImpl implements ESIndexer {
 			connection.setConnectTimeout(5000);
 			connection.setReadTimeout(10000);
 			HTTPSConnectionValidator.checkIfHttpsConnection((HttpURLConnection) connection);
-		//	String contentEncoding= connection.getContentEncoding();
-			 connection.connect();
-			 InputStream inputStream=null;
-			// Document document=null;
-			 try {
-					inputStream = connection.getInputStream();
-					
-				} catch (FileNotFoundException fileNotFoundException) {
-					logger.error("File not found for:" + url);
-				} catch (IOException ioException) {
-					logger.error("IO exception for:" + url + " cause:"
-							+ ioException.getLocalizedMessage()
-				);
+			connection.connect();
+			InputStream inputStream = null;
+			try {
+				inputStream = connection.getInputStream();
+
+			} catch (FileNotFoundException fileNotFoundException) {
+				logger.error("File not found for:" + url);
+			} catch (IOException ioException) {
+				logger.error("IO exception for:" + url + " cause:"
+						+ ioException.getLocalizedMessage());
 			}
-			//InputStream input = url.openStream();
-			 if(inputStream!=null){
-				 fileESIndexerImpl.indexHTMLPage(inputStream,richContent,postedBy);
+			if (inputStream != null) {
+				fileESIndexerImpl.indexHTMLPage(inputStream, richContent, userId);
 			}
-			//indexHTMLPage(input, richContent, postedBy);
 		} catch (MalformedURLException e) {
 			logger.error("MalformedURLException:" + contentLink);
 		} catch (ConnectException ce) {

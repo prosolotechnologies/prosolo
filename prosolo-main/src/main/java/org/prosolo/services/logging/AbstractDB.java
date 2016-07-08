@@ -1,28 +1,6 @@
 package org.prosolo.services.logging;
 
-
-
-
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.log4j.Logger;
-import org.prosolo.app.Settings;
-import org.prosolo.config.MongoDBServerConfig;
-import org.prosolo.config.MongoDBServersConfig;
-/*
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import com.mongodb.MongoClient;
-import com.mongodb.ServerAddress;
-import com.mongodb.WriteResult;
-import com.mongodb.util.JSON;
-*/
 /**
  * @author zoran
  *

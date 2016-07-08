@@ -211,7 +211,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 					params.put("dateAssigned", dateString);
 					try {
 						eventFactory.generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_COURSE, 
-								loggedUserBean.getUser(), instr, cred, page, lContext, service, params);
+								loggedUserBean.getUserId(), instr, cred, page, lContext, service, params);
 					} catch (EventException e) {
 							logger.error(e);
 					}
@@ -281,14 +281,11 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 			User instr = new User();
 			instr.setId(instructorForRemoval.getUser().getId());
 			try {
-//				eventFactory.generateEvent(EventType.INSTRUCTOR_REMOVED_FROM_COURSE, 
-//						loggedUserBean.getUser(), 
-//						instr, cred, appPage, context, service, null);
 				@SuppressWarnings("unchecked")
 				Event event = eventFactory.generateEvent(
 						EventType.INSTRUCTOR_REMOVED_FROM_COURSE, 
-						loggedUserBean.getUser(), instr, cred, 
-						null, appPage, lContext, service, 
+						loggedUserBean.getUserId(), instr, cred, 
+						appPage, lContext, service, 
 						new Class[] {NodeChangeObserver.class}, null);
 				nodeChangeObserver.handleEvent(event);
 				fireReassignEvents(instructorForRemoval, appPage, service, res, reassignAutomatically);
@@ -327,8 +324,8 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 						@SuppressWarnings("unchecked")
 						Event event = eventFactory.generateEvent(
 								EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR, 
-								loggedUserBean.getUser(), object, target, 
-								null, appPage, lContext, service, 
+								loggedUserBean.getUserId(), object, target, 
+								appPage, lContext, service, 
 								new Class[] {NodeChangeObserver.class}, parameters);
 						nodeChangeObserver.handleEvent(event);
 					} catch(Exception e) {
@@ -354,8 +351,8 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 					@SuppressWarnings("unchecked")
 					Event event = eventFactory.generateEvent(
 							EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR, 
-							loggedUserBean.getUser(), object, target, 
-							null, appPage, lContext, service, 
+							loggedUserBean.getUserId(), object, target, 
+							appPage, lContext, service, 
 							new Class[] {NodeChangeObserver.class}, parameters);
 					nodeChangeObserver.handleEvent(event);
 				} catch (EventException e) {

@@ -90,18 +90,18 @@ public class PostManagerImpl extends AbstractManagerImpl implements PostManager 
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = false)
-	public PostEvent createNewPost(User user, String text, VisibilityType visibility, 
+	public PostEvent createNewPost(long userId, String text, VisibilityType visibility, 
 			AttachmentPreview attachmentPreview, long[] mentionedUsers, 
 			boolean propagateManuallyToSocialStream, String context,
-			String page, String learningContext, String service) throws EventException {
+			String page, String learningContext, String service) throws EventException, ResourceCouldNotBeLoadedException {
 		
 		// mentioned users
 		Set<User> mentioned = new HashSet<User>();
 		
 		if (mentionedUsers != null) {
-			for (long userId : mentionedUsers) {
+			for (long mentionedUserId : mentionedUsers) {
 				try {
-					mentioned.add(loadResource(User.class, userId));
+					mentioned.add(loadResource(User.class, mentionedUserId));
 				} catch (ResourceCouldNotBeLoadedException e) {
 					logger.error(e);
 				}
@@ -112,17 +112,15 @@ public class PostManagerImpl extends AbstractManagerImpl implements PostManager 
 		
 		Post post = new Post();
 		post.setDateCreated(new Date());
-		post.setMaker(user);
+		post.setMaker(loadResource(User.class, userId));
 		post.setContent(text);
 		post.setRichContent(richContent);
 		post.setVisibility(visibility);
 		post.setMentionedUsers(mentioned);
 		post = saveEntity(post);
 		
-		user = saveEntity(user);
-		
 		// generate events related to the content
-		generateEventForContent(user, text, richContent);
+		generateEventForContent(userId, text, richContent);
 		
 		Map<String, String> parameters = new HashMap<String, String>();
 		parameters.put("context", context);
@@ -132,12 +130,12 @@ public class PostManagerImpl extends AbstractManagerImpl implements PostManager 
 		if (propagateManuallyToSocialStream) {
 			//event = eventFactory.generateEvent(EventType.Post, user, post, new Class[]{SocialStreamObserver.class}, parameters);
 			//changed for new context approach
-			event = eventFactory.generateEvent(EventType.Post, user, post, null, null, 
+			event = eventFactory.generateEvent(EventType.Post, userId, post, null, 
 					page, learningContext, service, new Class[]{SocialStreamObserver.class}, parameters);
 		} else {
 //			event = eventFactory.generateEvent(EventType.Post, user, post, parameters);
 			//changed for new context approach
-			event = eventFactory.generateEvent(EventType.Post, user, post, null, page, 
+			event = eventFactory.generateEvent(EventType.Post, userId, post, null, page, 
 					learningContext, service, parameters);
 		}
 		
@@ -149,19 +147,19 @@ public class PostManagerImpl extends AbstractManagerImpl implements PostManager 
 	 * @param text
 	 * @param richContent
 	 */
-	private void generateEventForContent(final User user, final String text, final RichContent richContent) {
+	private void generateEventForContent(final long userId, final String text, final RichContent richContent) {
 		String addedLink = null;
 
 		if (richContent != null && richContent.getContentType() != null) {
 			try {
 				switch (richContent.getContentType()) {
 				case LINK:
-					eventFactory.generateEvent(EventType.LinkAdded, user,
+					eventFactory.generateEvent(EventType.LinkAdded, userId,
 							richContent);
 					addedLink = richContent.getLink();
 					break;
 				case UPLOAD:
-					eventFactory.generateEvent(EventType.FileUploaded, user,
+					eventFactory.generateEvent(EventType.FileUploaded, userId,
 							richContent);
 					break;
 				default:
@@ -198,10 +196,10 @@ public class PostManagerImpl extends AbstractManagerImpl implements PostManager 
 
 		Event event = null;
 		if (propagateManuallyToSocialStream) {
-			event = eventFactory.generateEvent(EventType.Post, user, post,
+			event = eventFactory.generateEvent(EventType.Post, user.getId(), post,
 					new Class[] { SocialStreamObserver.class });
 		} else {
-			event = eventFactory.generateEvent(EventType.Post, user, post);
+			event = eventFactory.generateEvent(EventType.Post, user.getId(), post);
 		}
 
 		return new PostEvent(post, event);
@@ -243,7 +241,7 @@ public class PostManagerImpl extends AbstractManagerImpl implements PostManager 
 	@Override
 	@Transactional(readOnly = false)
 	@SuppressWarnings("unchecked")
-	public PostEvent createNewGoalNote(User user, long goalId, String text,
+	public PostEvent createNewGoalNote(long userId, long goalId, String text,
 			AttachmentPreview attachmentPreview,
 			VisibilityType visibility,
 			boolean connectNewPostWithStatus,
@@ -254,7 +252,7 @@ public class PostManagerImpl extends AbstractManagerImpl implements PostManager 
 		
 		GoalNote goalNote = new GoalNote();
 		goalNote.setDateCreated(new Date());
-		goalNote.setMaker(user);
+		goalNote.setMaker(loadResource(User.class, userId));
 		goalNote.setContent(text);
 		goalNote.setVisibility(visibility);
 		goalNote.setConnectWithStatus(connectNewPostWithStatus);
@@ -266,16 +264,16 @@ public class PostManagerImpl extends AbstractManagerImpl implements PostManager 
 		goalNote = saveEntity(goalNote);
 		
 		// generate events related to the content
-		generateEventForContent(user, text, richContent);
+		generateEventForContent(userId, text, richContent);
 		
 		Map<String, String> parameters = new HashMap<String, String>();
 		parameters.put("context", context);
 		
 		Event event = null;
 		if (propagateManuallyToSocialStream) {
-			event = eventFactory.generateEvent(EventType.AddNote, user, goalNote, goal, new Class[]{SocialStreamObserver.class}, parameters);
+			event = eventFactory.generateEvent(EventType.AddNote, userId, goalNote, goal, new Class[]{SocialStreamObserver.class}, parameters);
 		} else {
-			event = eventFactory.generateEvent(EventType.AddNote, user, goalNote, goal, parameters);
+			event = eventFactory.generateEvent(EventType.AddNote, userId, goalNote, goal, parameters);
 		}
 		
 		return new PostEvent(goalNote, event);
@@ -283,11 +281,11 @@ public class PostManagerImpl extends AbstractManagerImpl implements PostManager 
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public PostEvent shareResource(User user, String text,
+	public PostEvent shareResource(long userId, String text,
 			VisibilityType visibility, Node resource,
 			boolean propagateManuallyToSocialStream,
 			String context, String page,
-			String learningContext, String service) throws EventException {
+			String learningContext, String service) throws EventException, ResourceCouldNotBeLoadedException {
 		
 		RichContent richContent = null;
 		
@@ -325,7 +323,7 @@ public class PostManagerImpl extends AbstractManagerImpl implements PostManager 
 		
 		Post post = new Post();
 		post.setDateCreated(new Date());
-		post.setMaker(user);
+		post.setMaker(loadResource(User.class, userId));
 		post.setContent(text);
 		post.setRichContent(richContent);
 		post.setVisibility(visibility);
@@ -342,12 +340,12 @@ public class PostManagerImpl extends AbstractManagerImpl implements PostManager 
 		if (propagateManuallyToSocialStream) {
 			//event = eventFactory.generateEvent(EventType.PostShare, user, post, new Class[]{SocialStreamObserver.class}, parameters);
 			//changed for new context approach
-			event = eventFactory.generateEvent(EventType.PostShare, user, post, null, null, 
+			event = eventFactory.generateEvent(EventType.PostShare, userId, post, null, 
 					page, learningContext, service, new Class[]{SocialStreamObserver.class}, parameters);
 		} else {
 			//event = eventFactory.generateEvent(EventType.PostShare, user, post, parameters);
 			//changed for new context approach
-			event = eventFactory.generateEvent(EventType.PostShare, user, post, null, 
+			event = eventFactory.generateEvent(EventType.PostShare, userId, post, null, 
 					page, learningContext, service, parameters);
 		}
 		
@@ -370,7 +368,7 @@ public class PostManagerImpl extends AbstractManagerImpl implements PostManager 
 
 			user = saveEntity(user);
 
-			eventFactory.generateEvent(EventType.PostShare, user, post, originalPost.getMaker());
+			eventFactory.generateEvent(EventType.PostShare, user.getId(), post, originalPost.getMaker());
 
 			return post;
 		}
@@ -380,11 +378,11 @@ public class PostManagerImpl extends AbstractManagerImpl implements PostManager 
 	@Override
 	@Transactional(readOnly = false)
 	@SuppressWarnings("unchecked")
-	public PostEvent resharePost(User user, SocialActivity socialActivity,
-			boolean propagateManuallyToSocialStream) throws EventException {
+	public PostEvent resharePost(long userId, SocialActivity socialActivity,
+			boolean propagateManuallyToSocialStream) throws EventException, ResourceCouldNotBeLoadedException {
 
-		if (socialActivity != null && user != null) {
-			user = merge(user);
+		if (socialActivity != null && userId > 0) {
+			User user = loadResource(User.class, userId);
 			BaseEntity object = socialActivity.getObject();
 
 			if (object instanceof Post) {
@@ -407,10 +405,10 @@ public class PostManagerImpl extends AbstractManagerImpl implements PostManager 
 
 				Event event = null;
 				if (propagateManuallyToSocialStream) {
-					event = eventFactory.generateEvent(EventType.PostShare, user, post, originalPost.getMaker(),
+					event = eventFactory.generateEvent(EventType.PostShare, user.getId(), post, originalPost.getMaker(),
 							new Class[] { SocialStreamObserver.class });
 				} else {
-					event = eventFactory.generateEvent(EventType.PostShare, user, post, originalPost.getMaker());
+					event = eventFactory.generateEvent(EventType.PostShare, user.getId(), post, originalPost.getMaker());
 				}
 
 				return new PostEvent(post, event);
@@ -422,7 +420,7 @@ public class PostManagerImpl extends AbstractManagerImpl implements PostManager 
 	//changed for new context approach
 	@SuppressWarnings("unchecked")
 	@Override
-	public PostEvent reshareSocialActivity(User user, String text,
+	public PostEvent reshareSocialActivity(long userId, String text,
 			VisibilityType visibility, AttachmentPreview attachmentPreview,
 			SocialActivity originalSocialActivity,
 			boolean propagateManuallyToSocialStream, String page,
@@ -430,7 +428,7 @@ public class PostManagerImpl extends AbstractManagerImpl implements PostManager 
 		
 		if (originalSocialActivity != null) {
 			originalSocialActivity = merge(originalSocialActivity);
-			user = merge(user);
+			User user = loadResource(User.class, userId);
 			
 			BaseEntity object = originalSocialActivity.getObject();
 			
@@ -476,13 +474,13 @@ public class PostManagerImpl extends AbstractManagerImpl implements PostManager 
 //							new Class[] { SocialStreamObserver.class }, params);
 					
 					event = eventFactory.generateEvent(EventType.PostShare,
-							user, post, originalPost.getMaker(), null, page, learningContext,
+							user.getId(), post, originalPost.getMaker(), page, learningContext,
 							service, new Class[] { SocialStreamObserver.class }, params);
 				} else {
 //					event = eventFactory.generateEvent(EventType.PostShare,
 //							user, post, originalPost.getMaker(), params);
 					event = eventFactory.generateEvent(EventType.PostShare,
-							user, post, originalPost.getMaker(), page, learningContext,
+							user.getId(), post, originalPost.getMaker(), page, learningContext,
 							service, params);
 				}
 
@@ -909,7 +907,7 @@ public class PostManagerImpl extends AbstractManagerImpl implements PostManager 
 
 	@Override
 	@Transactional(readOnly = false)
-	public SocialActivity updatePost(User user, long socialActivityId, String updatedText, String context) throws ResourceCouldNotBeLoadedException {
+	public SocialActivity updatePost(long userId, long socialActivityId, String updatedText, String context) throws ResourceCouldNotBeLoadedException {
 		SocialActivity socialActivity = loadResource(SocialActivity.class, socialActivityId);
 		
 		if (socialActivity != null) {

@@ -12,7 +12,7 @@ public interface FeaturedNewsManager {
 	
 	LearningGoalFeaturedNews createPublicFeaturedNewsForEvent(Event event, Session session);
 
-	List<LearningGoalFeaturedNews> readPublicFeaturedNews(User user, int page, int limit);
+	List<LearningGoalFeaturedNews> readPublicFeaturedNews(long userId, int page, int limit);
 	
 	FeaturedNewsInbox getUserFeaturedNewsInbox(User user);
 

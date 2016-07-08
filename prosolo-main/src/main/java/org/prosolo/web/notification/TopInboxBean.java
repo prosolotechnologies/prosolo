@@ -38,7 +38,7 @@ public class TopInboxBean implements Serializable {
 	@PostConstruct
 	public void checkUnreadMessages() {
 
-		List<MessageThread> unreadThreads = messagingManager.getUnreadMessageThreads(loggedUser.getUser().getId());
+		List<MessageThread> unreadThreads = messagingManager.getUnreadMessageThreads(loggedUser.getUserId());
 
 		if (CollectionUtils.isNotEmpty(unreadThreads)) {
 			for(MessageThread thread : unreadThreads) {

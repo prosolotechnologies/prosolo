@@ -104,7 +104,7 @@ public class StudentProfileBean implements Serializable {
 				observationBean.initializeObservationData();
 
 				logger.info("User with id "+ 
-						loggedUserBean.getUser().getId() + 
+						loggedUserBean.getUserId() + 
 						" came to the studentProfile page for student with id " + decodedId);
 
 			} catch (ResourceCouldNotBeLoadedException e) {

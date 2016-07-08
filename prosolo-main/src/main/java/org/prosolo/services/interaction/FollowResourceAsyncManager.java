@@ -5,7 +5,7 @@ import org.prosolo.common.domainmodel.user.User;
 
 public interface FollowResourceAsyncManager {
 
-	boolean asyncFollowUser(User follower, User userToFollow, String context);
+	boolean asyncFollowUser(long followerId, User userToFollow, String context);
 
 	boolean asyncUnfollowUser(User user, User userToUnfollow, String context);
 

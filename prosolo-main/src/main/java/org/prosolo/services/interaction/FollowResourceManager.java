@@ -11,6 +11,7 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.following.FollowedEntity;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
@@ -21,7 +22,7 @@ import org.prosolo.services.general.AbstractManager;
  */
 public interface FollowResourceManager extends AbstractManager {
 
-	User followUser(User follower, User userToFollow, String context) throws EventException;
+	User followUser(long follower, long userToFollowId, String context) throws EventException, ResourceCouldNotBeLoadedException;
 
 	User followResource(User user, Node resourceToFollow, String context) throws EventException;
 	
@@ -31,7 +32,7 @@ public interface FollowResourceManager extends AbstractManager {
 	
 	Collection<User> getResourceFollowers(BaseEntity resource, Session session);
 	
-	List<User> getFollowingUsers(User user) throws DbConnectionException;
+	List<User> getFollowingUsers(long userId) throws DbConnectionException;
 	
 	List<User> getUserFollowers(User user, Session session);
 
@@ -45,11 +46,11 @@ public interface FollowResourceManager extends AbstractManager {
 
 	boolean unfollowResource(User user, Node resourceToUnfollow, String context) throws EventException;
 
-	boolean isUserFollowingUser(User followerUser, User followedUser);
+	boolean isUserFollowingUser(long followerUserId, long followedUserId);
 
-	List<User> getFollowingUsers(User user, int page, int limit) throws DbConnectionException;
+	List<User> getFollowingUsers(long userId, int page, int limit) throws DbConnectionException;
 	
-	int getNumberOfFollowingUsers(User user) throws DbConnectionException;
+	int getNumberOfFollowingUsers(long userId) throws DbConnectionException;
 
 
 }

@@ -4,28 +4,21 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
-import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.recommendation.CollaboratorsRecommendation;
 import org.prosolo.services.es.MoreUsersLikeThis;
 import org.prosolo.services.es.RecommendedResourcesSearch;
 import org.prosolo.services.interaction.FollowResourceManager;
-import org.prosolo.services.logging.LoggingDBManager;
-import org.prosolo.services.logging.exception.LoggingException;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.similarity.ResourceTokenizer;
@@ -52,18 +45,20 @@ public class CollaboratorsRecommendationImpl implements CollaboratorsRecommendat
 	private List<User> mostActiveRecommendedUsers = new ArrayList<User>();
 	
 	@Override
-	public List<User> getRecommendedCollaboratorsForLearningGoal(User loggedUser, long targetGoalId, int limit) {
+	public List<User> getRecommendedCollaboratorsForLearningGoal(long userId, long targetGoalId, int limit) {
 		try {
 			TargetLearningGoal targetGoal = learningGoalManager.loadResource(TargetLearningGoal.class, targetGoalId);
-			String inputText = resTokenizer.getTokenizedStringForUserLearningGoal(loggedUser, targetGoal);
-			Collection<User> ignoredUsers = new ArrayList<User>();
-			Collection<User> goalMembers = learningGoalManager.retrieveCollaborators(targetGoal.getLearningGoal().getId(), loggedUser);
+			String inputText = resTokenizer.getTokenizedStringForUserLearningGoal(targetGoal);
+			Collection<Long> ignoredUsers = new ArrayList<Long>();
+			Collection<User> goalMembers = learningGoalManager.retrieveCollaborators(targetGoal.getLearningGoal().getId(), userId);
 			
 			if (goalMembers != null && !goalMembers.isEmpty()) {
-				ignoredUsers.addAll(goalMembers);
+				for (User goalMember : goalMembers) {
+					ignoredUsers.add(goalMember.getId());
+				}
 			}
+			ignoredUsers.add(userId);
 			
-			ignoredUsers.add(loggedUser);
 			List<User> recommendedCollaborators = mult.getRecommendedCollaboratorsForLearningGoal(inputText, ignoredUsers,	limit);
 			
 			return recommendedCollaborators;
@@ -73,20 +68,24 @@ public class CollaboratorsRecommendationImpl implements CollaboratorsRecommendat
 		return null;
 	}
 	@Override
-	public List<User> getRecommendedCollaboratorsBasedOnLocation(User loggedUser, int limit) {
+	public List<User> getRecommendedCollaboratorsBasedOnLocation(long userId, int limit) throws ResourceCouldNotBeLoadedException {
+		User user = learningGoalManager.loadResource(User.class, userId);
+		
 		List<User> users = null;
 		List<User> ignoredUsers = new ArrayList<User>();
-		ignoredUsers.add(loggedUser);
-		List<User> followingUsers = followResourceManager.getFollowingUsers(loggedUser);
+		
+		ignoredUsers.add(user);
+		
+		List<User> followingUsers = followResourceManager.getFollowingUsers(userId);
 		for (User fUser : followingUsers) {
 			if (!ignoredUsers.contains(fUser)) {
 				ignoredUsers.add(fUser);
 			}
 		}
 		
-		if (loggedUser.getLatitude() != null && loggedUser.getLatitude() != 0) {
-			double lat = Double.valueOf(loggedUser.getLatitude());
-			double lon = Double.valueOf(loggedUser.getLongitude());
+		if (user.getLatitude() != null && user.getLatitude() != 0) {
+			double lat = Double.valueOf(user.getLatitude());
+			double lon = Double.valueOf(user.getLongitude());
 			users = mult.getCollaboratorsBasedOnLocation(ignoredUsers, lat, lon, limit);
 		}
 		
@@ -94,11 +93,13 @@ public class CollaboratorsRecommendationImpl implements CollaboratorsRecommendat
 	}
 	
 	@Override
-	public List<User> getRecommendedCollaboratorsBasedOnSimilarity(User loggedUser, int limit) {
-		List<User> ignoredUsers = new ArrayList<User>();
-		ignoredUsers.add(loggedUser);
+	public List<User> getRecommendedCollaboratorsBasedOnSimilarity(long userId, int limit) throws ResourceCouldNotBeLoadedException {
+		User user = learningGoalManager.loadResource(User.class, userId);
 		
-		List<User> followingUsers = followResourceManager.getFollowingUsers(loggedUser);
+		List<User> ignoredUsers = new ArrayList<User>();
+		ignoredUsers.add(user);
+		
+		List<User> followingUsers = followResourceManager.getFollowingUsers(userId);
 	
 		for (User fUser : followingUsers) {
 			if (!ignoredUsers.contains(fUser)) {
@@ -106,7 +107,7 @@ public class CollaboratorsRecommendationImpl implements CollaboratorsRecommendat
 			}
 		}
 		
-		String inputText = resTokenizer.getTokenizedStringForUser(loggedUser);
+		String inputText = resTokenizer.getTokenizedStringForUser(user);
 		
 		try {
 			return mult.getRecommendedCollaboratorsBasedOnSimilarity(inputText, ignoredUsers, limit);
@@ -116,11 +117,11 @@ public class CollaboratorsRecommendationImpl implements CollaboratorsRecommendat
 		}
 	}
 	@Override
-	public List<User> getMostActiveRecommendedUsers(User loggedUser, int limit){
+	public List<User> getMostActiveRecommendedUsers(long userId, int limit){
 		List<User> users = new ArrayList<User>();
 		List<Long> ignoredUsers = new ArrayList<Long>();
-		ignoredUsers.add(loggedUser.getId());
-		List<User> followingUsers = followResourceManager.getFollowingUsers(loggedUser);
+		ignoredUsers.add(userId);
+		List<User> followingUsers = followResourceManager.getFollowingUsers(userId);
 		
 		for (User fUser : followingUsers) {
 			if (!ignoredUsers.contains(fUser)) {
@@ -128,8 +129,8 @@ public class CollaboratorsRecommendationImpl implements CollaboratorsRecommendat
 			}
 		}
 		
-		List<Long> userGoalsIds = learningGoalManager.getUserGoalsIds(loggedUser);
-		users = recommendedResourcesSearch.findMostActiveRecommendedUsers(loggedUser.getId(), ignoredUsers, userGoalsIds, limit);
+		List<Long> userGoalsIds = learningGoalManager.getUserGoalsIds(userId);
+		users = recommendedResourcesSearch.findMostActiveRecommendedUsers(userId, ignoredUsers, userGoalsIds, limit);
 		return users;
 	}
 

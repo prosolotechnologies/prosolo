@@ -1,10 +1,7 @@
 package org.prosolo.services.lti;
 
-import static org.junit.Assert.*;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import javax.inject.Inject;
 
@@ -13,16 +10,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.prosolo.common.domainmodel.lti.LtiTool;
-import org.prosolo.common.domainmodel.lti.LtiToolSet;
 import org.prosolo.core.spring.SpringConfig;
-import org.prosolo.services.lti.filter.ToolSearchActivityFilter;
-import org.prosolo.services.lti.filter.ToolSearchCompetenceFilter;
-import org.prosolo.services.lti.filter.ToolSearchGeneralFilter;
-import org.prosolo.services.lti.util.EntityConstants;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes={ SpringConfig.class })

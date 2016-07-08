@@ -49,7 +49,7 @@ public class FollowEventProcessor extends NotificationEventProcessor {
 	@Override
 	User getSender() {
 		try {
-			return defaultManager.loadResource(User.class, event.getActor().getId(), session);
+			return defaultManager.loadResource(User.class, event.getActorId(), session);
 		} catch(ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 			return null;

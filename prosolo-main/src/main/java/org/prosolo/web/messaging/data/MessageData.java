@@ -4,10 +4,8 @@ import java.io.Serializable;
 import java.util.Date;
 
 import org.prosolo.common.domainmodel.messaging.Message;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 
 public class MessageData implements Serializable, Comparable<MessageData> {
 	
@@ -22,12 +20,12 @@ public class MessageData implements Serializable, Comparable<MessageData> {
 	private String message;
 	private String createdTimeValue;
 
-	public MessageData(Message message, User user) {
+	public MessageData(Message message, long userId) {
 		this.id = message.getId();
 		this.threadId = message.getMessageThread().getId();
-		this.actor = UserDataFactory.createUserData(message.getSender().getUser());
+		this.actor = new UserData(message.getSender().getUser());
 		this.message = message.getContent();
-		this.readed = checkIfRead(message, user);
+		this.readed = checkIfRead(message, userId);
 		this.created = message.getCreatedTimestamp();
 		this.createdTimeValue = DateUtil.createUpdateTime(this.created);
 		
@@ -41,10 +39,10 @@ public class MessageData implements Serializable, Comparable<MessageData> {
 		this.date = timeCreated;
 	}
 	
-	public MessageData(Message message, User user, boolean read) {
+	public MessageData(Message message, long userId, boolean read) {
 		this.id = message.getId();
 		this.threadId = message.getMessageThread().getId();
-		this.actor = UserDataFactory.createUserData(message.getSender().getUser());
+		this.actor = new UserData(message.getSender().getUser());
 		this.message = message.getContent();
 		this.readed = read;
 		this.created = message.getCreatedTimestamp();
@@ -60,7 +58,7 @@ public class MessageData implements Serializable, Comparable<MessageData> {
 		this.date = timeCreated;
 	}
 	
-	private boolean checkIfRead(Message message, User user) {
+	private boolean checkIfRead(Message message, long userId) {
 		//TODO how to check if this message is read, by using User entity?
 		return false;
 	}

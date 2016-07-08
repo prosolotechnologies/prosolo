@@ -5,11 +5,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.portfolio.AchievedCompetence;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
-import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.recommendation.CompetenceRecommendation;
 import org.prosolo.services.es.MoreNodesLikeThis;
 import org.prosolo.services.nodes.PortfolioManager;
@@ -20,13 +21,15 @@ import org.springframework.stereotype.Service;
 @Service("org.prosolo.recommendation.CompetenceRecommendation")
 public class CompetenceRecommendationImpl implements CompetenceRecommendation {
 	
+	private static Logger logger = Logger.getLogger(CompetenceRecommendationImpl.class);
+	
 	@Autowired private MoreNodesLikeThis mnlt;
 	@Autowired private ResourceTokenizer resTokenizer;
 	@Autowired private PortfolioManager portfolioManager;
 	 
 	@Override
-	public List<Competence> recommendCompetences(User user, TargetLearningGoal goal, int limit) {
-		String inputText = resTokenizer.getTokenizedStringForUserLearningGoal(user, goal);
+	public List<Competence> recommendCompetences(long userId, TargetLearningGoal goal, int limit) {
+		String inputText = resTokenizer.getTokenizedStringForUserLearningGoal( goal);
 		Collection<Competence> ignoredCompetences = new ArrayList<Competence>();
 		
 		// TODO: Zoran
@@ -35,11 +38,15 @@ public class CompetenceRecommendationImpl implements CompetenceRecommendation {
   			ignoredCompetences.add(tc.getCompetence());
   		}
 		
-		Set<AchievedCompetence> achievedCompetences = portfolioManager.getOrCreatePortfolio(user).getCompetences();
-		
-		for (AchievedCompetence achCompetence : achievedCompetences) {
-			ignoredCompetences.add(achCompetence.getCompetence());
+		try {
+			Set<AchievedCompetence> achievedCompetences = portfolioManager.getOrCreatePortfolio(userId).getCompetences();
+			for (AchievedCompetence achCompetence : achievedCompetences) {
+				ignoredCompetences.add(achCompetence.getCompetence());
+			}
+		} catch (ResourceCouldNotBeLoadedException e) {
+			logger.error(e);
 		}
+		
 		return mnlt.getCompetencesForUserAndLearningGoal(inputText, ignoredCompetences, limit);
 	}
 

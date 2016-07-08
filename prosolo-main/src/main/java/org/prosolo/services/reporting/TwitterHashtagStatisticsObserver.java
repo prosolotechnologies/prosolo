@@ -35,7 +35,7 @@ public class TwitterHashtagStatisticsObserver extends EventObserver {
 		System.out.println("TwitterHashtagStatisticsObserver handling event");
 		EventType type = event.getAction();
 		logger.info("comming in event with action: " + type);
-		logger.info("comming in event with actor: " + event.getActor());
+		logger.info("comming in event with actor: " + event.getActorId());
 		logger.info("comming in event with object: " + event.getObject());
 		logger.info("comming in event with target: " + event.getTarget());
 

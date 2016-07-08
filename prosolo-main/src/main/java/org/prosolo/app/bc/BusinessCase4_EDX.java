@@ -27,6 +27,7 @@ import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.following.FollowedEntity;
 import org.prosolo.common.domainmodel.user.following.FollowedUserEntity;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.authentication.RegistrationManager;
 import org.prosolo.services.event.EventException;
@@ -705,17 +706,17 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 			ServiceLocator
 					.getInstance()
 					.getService(PostManager.class)
-					.createNewPost(userNickPowell,
+					.createNewPost(userNickPowell.getId(),
 							"Learning parametric data.", VisibilityType.PUBLIC, null, null, true, null, null, null, null);
 
 			ServiceLocator
 					.getInstance()
 					.getService(PostManager.class)
 					.createNewPost(
-							userNickPowell,
+							userNickPowell.getId(),
 							"Can anybody recommend me a good book for SPSS basics? Thanks!",
 							VisibilityType.PUBLIC, null, null, true, null, null, null, null);
-		} catch (EventException e) {
+		} catch (EventException | ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		}
  	}
@@ -730,7 +731,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 		
 		credentialData.setPublished(true);
 		
-		credentialManager.updateCredential(cred.getId(), credentialData, creator, 
+		credentialManager.updateCredential(cred.getId(), credentialData, creator.getId(), 
 				org.prosolo.services.nodes.data.Role.Manager);
 	}
 
@@ -814,7 +815,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 		Credential1 credNP1 = ServiceLocator
 				.getInstance()
 				.getService(CredentialManager.class)
-				.saveNewCredential(credentialData, userNickPowell);
+				.saveNewCredential(credentialData, userNickPowell.getId());
 		
 		return credNP1;
 	}
@@ -834,7 +835,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 				.getService(Competence1Manager.class)
 				.saveNewCompetence(
 						compData,
-						user,
+						user.getId(),
 						credentialId);
 		
 		return comp;

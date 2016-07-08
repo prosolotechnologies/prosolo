@@ -12,7 +12,7 @@ import org.prosolo.services.event.EventException;
 
 public interface CommentingManager {
 
-	Comment addComment(BaseEntity resource, User user, String commentText, 
+	Comment addComment(BaseEntity resource, long userId, String commentText, 
 			Date created, String context, Session session) throws EventException, ResourceCouldNotBeLoadedException;
 	
 	List<Comment> getComments(BaseEntity resource);

@@ -178,7 +178,7 @@ public class SearchCompetencesBean implements Serializable {
 	
 	public String createNewCompetenceAndNavigate(String origin) {
 		try {
-			Competence competence = competenceManager.createNewUntitledCompetence(loggedUser.getUser(), CreatorType.MANAGER);
+			Competence competence = competenceManager.createNewUntitledCompetence(loggedUser.getUserId(), CreatorType.MANAGER);
 			String encodedId = idEncoder.encodeId(competence.getId());
 			String redirectUrl = "/manage/competence-overall?faces-redirect=true&compId=" + encodedId + "&origin=" + origin;
 			return redirectUrl;

@@ -125,7 +125,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	@Transactional (readOnly = false)
 	public Course updateCompetencesAndSaveNewCourse(String title, String description,
 			long basedOnCourseId, List<CourseCompetenceData> competences, 
-			Collection<Tag> tags, Collection<Tag> hashtags, User maker,
+			Collection<Tag> tags, Collection<Tag> hashtags, long makerId,
 			CreatorType creatorType,
 			boolean studentsCanAddNewCompetences, boolean pubilshed) throws EventException, ResourceCouldNotBeLoadedException {
 		
@@ -140,12 +140,12 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 				updatedCompetences, 
 				tags,
 				hashtags,
-				maker, 
+				makerId, 
 				creatorType, 
 				studentsCanAddNewCompetences,
 				pubilshed);
 		
-		eventFactory.generateEvent(EventType.Create, maker, newCourse);
+		eventFactory.generateEvent(EventType.Create, makerId, newCourse);
 		
 		return newCourse;
 	}
@@ -156,7 +156,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 			Course basedOn, List<CourseCompetence> courseCompetences, 
 			Set<Tag> tags, Set<Tag> hashtags, User maker, 
 			CreatorType creatorType, boolean studentsCanAddNewCompetences, 
-			boolean published) throws EventException {
+			boolean published) throws EventException, ResourceCouldNotBeLoadedException {
 		
 		Course newCourse = resourceFactory.createCourse(
 				title, 
@@ -165,12 +165,12 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 				courseCompetences, 
 				tags,
 				hashtags,
-				maker, 
+				maker.getId(), 
 				creatorType, 
 				studentsCanAddNewCompetences,
 				published);
 		
-		eventFactory.generateEvent(EventType.Create, maker, newCourse);
+		eventFactory.generateEvent(EventType.Create, maker.getId(), newCourse);
 		
 		return newCourse;
 	}
@@ -179,7 +179,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	@Transactional (readOnly = false)
 	public Course updateCourse(long courseId, String title, String description,
 			List<CourseCompetenceData> competences,
-			Collection<Tag> tags, Collection<Tag> hashtags, List<String> blogs, User user,
+			Collection<Tag> tags, Collection<Tag> hashtags, List<String> blogs, long userId,
 			boolean studentsCanAddNewCompetences, boolean pubilshed) throws EventException, ResourceCouldNotBeLoadedException {
 		
 		List<CourseCompetence> updatedCompetences = saveUnsavedCompetences(competences);
@@ -200,7 +200,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 			
 			updatedCourse = merge(updatedCourse);
 			
-			eventFactory.generateEvent(EventType.Edit, user, updatedCourse);
+			eventFactory.generateEvent(EventType.Edit, userId, updatedCourse);
 			
 			return updatedCourse;
 		}
@@ -226,7 +226,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 			
 			updatedCourse = merge(updatedCourse);
 			
-			eventFactory.generateEvent(EventType.Edit, user, updatedCourse);
+			eventFactory.generateEvent(EventType.Edit, user.getId(), updatedCourse);
 			
 			return updatedCourse;
 		}
@@ -295,24 +295,24 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional (readOnly = true)
-	public CoursePortfolio getCoursePortfolio(User user) {
-		return getCoursePortfolio(user, persistence.currentManager());
+	public CoursePortfolio getCoursePortfolio(long userId) {
+		return getCoursePortfolio(userId, persistence.currentManager());
 	}
 	
-	public CoursePortfolio getCoursePortfolio(User user, Session session) {
+	public CoursePortfolio getCoursePortfolio(long userId, Session session) {
 		String query = 
 			"SELECT DISTINCT coursePortfolio " +
 			"FROM CoursePortfolio coursePortfolio " +
-			"WHERE coursePortfolio.user = :user";
+			"WHERE coursePortfolio.user.id = :userId";
 
 		return (CoursePortfolio) session.createQuery(query).
-				setEntity("user", user).
+				setLong("userId", userId).
 				uniqueResult();
 	}
 	
 	@Override
 	@Transactional (readOnly = true)
-	public List<Node> getCourseCompetencesFromActiveCourse(User user) {
+	public List<Node> getCourseCompetencesFromActiveCourse(long userId) {
 		String query = 
 			"SELECT DISTINCT competence " +
 			"FROM CoursePortfolio coursePortfolio " +
@@ -322,23 +322,26 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 			"LEFT JOIN courseComp.competence competence "+
 			"LEFT JOIN enrollment.addedCompetences addedCourseComp "+
 			"LEFT JOIN addedCourseComp.competence competence "+
-			"WHERE coursePortfolio.user = :user " +
+			"WHERE coursePortfolio.user.id = :userId " +
 				"AND enrollment.status = :activeStatus";
 
 		@SuppressWarnings("unchecked")
 		List<Node> competences = persistence.currentManager().createQuery(query).
-				setEntity("user", user).
+				setLong("userId", userId).
 				setString("activeStatus", Status.ACTIVE.name()).
 				list();
 		return competences;
 	}
 	
 	@Override
-	public CoursePortfolio getOrCreateCoursePortfolio(User user) {
-		CoursePortfolio coursePortfolio = getCoursePortfolio(user);
+	public CoursePortfolio getOrCreateCoursePortfolio(long userId) throws ResourceCouldNotBeLoadedException {
+		CoursePortfolio coursePortfolio = getCoursePortfolio(userId);
 		
 		if (coursePortfolio == null) {
 			coursePortfolio = new CoursePortfolio();
+			
+			User user = loadResource(User.class, userId);
+			
 			coursePortfolio.setUser(user);
 			coursePortfolio = saveEntity(coursePortfolio);
 		}
@@ -405,7 +408,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	@Override
 	@Transactional (readOnly = true)
 	public List<Competence> getOtherUsersCompetences(long courseId,
-			List<Long> idsOfcompetencesToExclude, User user) {
+			List<Long> idsOfcompetencesToExclude) {
 		
 		String query = 
 			"SELECT DISTINCT comp " +
@@ -427,22 +430,22 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional (readOnly = true)
-	public CourseEnrollment getCourseEnrollment(User user, Course course) {
-		return getCourseEnrollment(user, course, persistence.currentManager());
+	public CourseEnrollment getCourseEnrollment(long userId, Course course) {
+		return getCourseEnrollment(userId, course, persistence.currentManager());
 	}
 	
 	@Override
 	@Transactional (readOnly = true)
-	public CourseEnrollment getCourseEnrollment(User user, Course course, Session session) {
+	public CourseEnrollment getCourseEnrollment(long userId, Course course, Session session) {
 		String query = 
 			"SELECT DISTINCT enrollment " +
 			"FROM CoursePortfolio coursePortfolio " +
 			"LEFT JOIN coursePortfolio.enrollments enrollment "+
-			"WHERE coursePortfolio.user = :user " +
+			"WHERE coursePortfolio.user.id = :userId " +
 				"AND enrollment.course = :course";
 		
 		CourseEnrollment result = (CourseEnrollment) session.createQuery(query).
-				setEntity("user", user).
+				setLong("userId", userId).
 				setEntity("course", course).
 				uniqueResult();
 		return result;
@@ -450,17 +453,17 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional (readOnly = true)
-	public TargetLearningGoal getTargetLearningGoalForCourse(User user, Course course) {
+	public TargetLearningGoal getTargetLearningGoalForCourse(long userId, Course course) {
 		String query = 
 				"SELECT DISTINCT targetGoal " +
 				"FROM CoursePortfolio coursePortfolio " +
 				"LEFT JOIN coursePortfolio.enrollments enrollment "+
 				"LEFT JOIN enrollment.targetGoal targetGoal "+
-				"WHERE coursePortfolio.user = :user " +
+				"WHERE coursePortfolio.user.id = :userId " +
 					"AND enrollment.course = :course";
 		
 		TargetLearningGoal result = (TargetLearningGoal) persistence.currentManager().createQuery(query).
-				setEntity("user", user).
+				setLong("userId", userId).
 				setEntity("course", course).
 				uniqueResult();
 		return result;
@@ -476,12 +479,12 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional(readOnly = false)
-	public CourseEnrollment enrollInCourse(User user, long courseId, TargetLearningGoal targetGoal, String context,
+	public CourseEnrollment enrollInCourse(long userId, long courseId, TargetLearningGoal targetGoal, String context,
 			String page, String lContext, String service) throws ResourceCouldNotBeLoadedException {
 		
 		Course course = loadResource(Course.class, courseId);
 		
-		Map<String, Object> res = resourceFactory.enrollUserInCourse(user, course, targetGoal, context);
+		Map<String, Object> res = resourceFactory.enrollUserInCourse(userId, course, targetGoal, context);
 		CourseEnrollment enrollment = null;
 		
 		if (res != null) {
@@ -489,17 +492,17 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 		}
 		
 		if (enrollment != null) {
-			try {
+//			try {
+//				
+//				Map<String, String> parameters = new HashMap<String, String>();
+//				parameters.put("context", context);
+//			
+//				eventFactory.generateEvent(EventType.ENROLL_COURSE, userId, enrollment, course, parameters);
 				
-				Map<String, String> parameters = new HashMap<String, String>();
-				parameters.put("context", context);
-			
-				eventFactory.generateEvent(EventType.ENROLL_COURSE, user, enrollment, course, parameters);
-				
-				fireInstructorAssignEvent(user, enrollment, course.getId(), res, page, lContext, service);
-			} catch (EventException e) {
-				logger.error(e);
-			}	
+//				fireInstructorAssignEvent(userId, enrollment, course.getId(), res, page, lContext, service);
+//			} catch (EventException e) {
+//				logger.error(e);
+//			}	
 		}
 		return enrollment;
 	}
@@ -598,7 +601,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional (readOnly = false)
-	public CourseEnrollment activateCourseEnrollment(User user, CourseEnrollment enrollment, String context,
+	public CourseEnrollment activateCourseEnrollment(long userId, CourseEnrollment enrollment, String context,
 			String page, String learningContext, String service) {
 		enrollment.setDateStarted(new Date());
 		enrollment.setStatus(Status.ACTIVE);
@@ -618,19 +621,19 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 				List<Long> ids = new ArrayList<>();
 				ids.add(enrollment.getId());
 				Map<String, Object> res = resourceFactory.assignStudentsToInstructorAutomatically(courseId, ids, 0);
-				fireInstructorAssignEvent(user, enrollment, courseId, res, page, learningContext, service);
+				fireInstructorAssignEvent(userId, enrollment, courseId, res, page, learningContext, service);
 			}
 		}
 		
 		Map<String, String> parameters = new HashMap<String, String>();
 		parameters.put("context", context);
 		
-		try {
-			System.out.println("ACTIVATE COURSE EVENT FIRED");
-			eventFactory.generateEvent(EventType.ACTIVATE_COURSE, user, enrollment, parameters);
-		} catch (EventException e) {
-			logger.error(e);
-		}
+//		try {
+//			System.out.println("ACTIVATE COURSE EVENT FIRED");
+//			eventFactory.generateEvent(EventType.ACTIVATE_COURSE, user, enrollment, parameters);
+//		} catch (EventException e) {
+//			logger.error(e);
+//		}
 		
 		enrollment = saveEntity(enrollment);
 		
@@ -670,20 +673,20 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional (readOnly = false)
-	public CourseEnrollment withdrawFromCourse(User user, long enrollmentId, boolean deleteLearningHistory, 
+	public CourseEnrollment withdrawFromCourse(long userId, long enrollmentId, boolean deleteLearningHistory, 
 			Session session, String page, String lContext, String service) throws ResourceCouldNotBeLoadedException {
 		logger.info("withdrawFromCourse");
 		CourseEnrollment enrollment = (CourseEnrollment) session.get(CourseEnrollment.class, enrollmentId);
 		logger.info("withdrawFromCourse");
-		boolean userHasWithdrawnFromCourse = hasUserAlreadyWithdrawnFromCourse(user, enrollment.getCourse(), session);
+//		boolean userHasWithdrawnFromCourse = hasUserAlreadyWithdrawnFromCourse(userId, enrollment.getCourse(), session);
 		logger.info("withdrawFromCourse");
-		if (userHasWithdrawnFromCourse) {
-			removeEnrollmentFromCoursePortfolio(user, enrollmentId, session);
-//			session.delete(enrollment);
-		} else {
-			enrollment.setStatus(Status.WITHDRAWN);
-			saveEntity(enrollment, session);
-		}
+//		if (userHasWithdrawnFromCourse) {
+//			removeEnrollmentFromCoursePortfolio(userId, enrollmentId, session);
+////			session.delete(enrollment);
+//		} else {
+//			enrollment.setStatus(Status.WITHDRAWN);
+//			saveEntity(enrollment, session);
+//		}
 		logger.info("withdrawFromCourse");
 		if (deleteLearningHistory) {
 			enrollment.setTargetGoal(null);
@@ -702,8 +705,11 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 				long instructorUserId = getInstructorUserIdForEnrollment(enrollment.getId());
 				User target = new User();
 				target.setId(instructorUserId);
-				eventFactory.generateEvent(EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR, user, user, target, 
-						null, page, lContext, service, new Class[] {NodeChangeObserver.class}, parameters);
+				
+				User user = loadResource(User.class, userId);
+				
+				eventFactory.generateEvent(EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR, userId, user, target, 
+						page, lContext, service, new Class[] {NodeChangeObserver.class}, parameters);
 			}
 		} catch (EventException e) {
 			logger.error(e);
@@ -737,31 +743,31 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	@Override
 	@Transactional (readOnly = false)
 	public void deleteEnrollmentForCourse(User user, Course course) {
-		CourseEnrollment enrollment = getCourseEnrollment(user, course);
+		CourseEnrollment enrollment = getCourseEnrollment(user.getId(), course);
 		
 		if (enrollment != null) {
 			enrollment.setStatus(Status.WITHDRAWN);
 			enrollment.setTargetGoal(null);
 			saveEntity(enrollment);
 			
-			removeEnrollmentFromCoursePortfolio(user, enrollment.getId());
+			removeEnrollmentFromCoursePortfolio(user.getId(), enrollment.getId());
 		}
 	}
 	
 	@Override
-	public void removeEnrollmentFromCoursePortfolio(User user,	long enrollmentId) {
-		removeEnrollmentFromCoursePortfolio(user, enrollmentId, persistence.currentManager());
+	public void removeEnrollmentFromCoursePortfolio(long userId, long enrollmentId) {
+//		removeEnrollmentFromCoursePortfolio(user, enrollmentId, persistence.currentManager());
 	}
 
-	private void removeEnrollmentFromCoursePortfolio(User user,
-			long enrollmentId, Session session) {
-		CoursePortfolio portfolio = getCoursePortfolio(user);
-		
-		if (portfolio != null) {
-			portfolio.removeEnrollment(enrollmentId);
-			saveEntity(portfolio, session);
-		}
-	}
+//	private void removeEnrollmentFromCoursePortfolio(long userId,
+//			long enrollmentId, Session session) {
+//		CoursePortfolio portfolio = getCoursePortfolio(userId);
+//		
+//		if (portfolio != null) {
+//			portfolio.removeEnrollment(enrollmentId);
+//			saveEntity(portfolio, session);
+//		}
+//	}
 	
 	@Override
 	@Transactional (readOnly = false)
@@ -1159,12 +1165,12 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 				if (enrollment != null) {
 					try {
 						Map<String, String> parameters = null;
-						eventFactory.generateEvent(EventType.ENROLL_COURSE, user, enrollment, course, parameters);
+						eventFactory.generateEvent(EventType.ENROLL_COURSE, user.getId(), enrollment, course, parameters);
 					} catch (EventException e) {
 						logger.error(e);
 					}
 
-					fireInstructorAssignEvent(user, enrollment, courseId, res, page, learningContext, service);
+//					fireInstructorAssignEvent(user, enrollment, courseId, res, page, learningContext, service);
 				}
 			}
 		} catch (Exception e) {
@@ -1175,7 +1181,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void fireInstructorAssignEvent(User user, CourseEnrollment enrollment, long courseId, 
+	private void fireInstructorAssignEvent(long userId, CourseEnrollment enrollment, long courseId, 
 			Map<String, Object> res, String page, String lContext, String service) {
 		Map<Long, Long> assigned = (Map<Long, Long>) res.get("assigned");
 		
@@ -1185,17 +1191,17 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 			if (instructorId != null) {
 				long insUserId = getUserIdForInstructor(instructorId);
 				
-				try {
-					Map<String, String> parameters = new HashMap<String, String>();
-					parameters.put("courseId", courseId + "");
-					User target = new User();
-					target.setId(insUserId);
-					eventFactory.generateEvent(EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR, user, user, target,
-							null, page, lContext, service, new Class[] { NodeChangeObserver.class }, parameters);
-				} catch (Exception e) {
-					e.printStackTrace();
-					logger.error(e);
-				}
+//				try {
+//					Map<String, String> parameters = new HashMap<String, String>();
+//					parameters.put("courseId", courseId + "");
+//					User target = new User();
+//					target.setId(insUserId);
+//					eventFactory.generateEvent(EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR, user, user, target,
+//							null, page, lContext, service, new Class[] { NodeChangeObserver.class }, parameters);
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//					logger.error(e);
+//				}
 			}
 		}
 	}
@@ -1343,11 +1349,11 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 			Course course = (Course) persistence.currentManager().load(Course.class, courseId);
 			CourseInstructor instructor = (CourseInstructor) persistence.currentManager().load(CourseInstructor.class, instructorId);
 			
-			CourseEnrollment enrollment = getCourseEnrollment(user, course);
-			if(enrollment != null) {
-				enrollment.setAssignedToInstructor(true);
-				enrollment.setInstructor(instructor);
-			}
+//			CourseEnrollment enrollment = getCourseEnrollment(user, course);
+//			if(enrollment != null) {
+//				enrollment.setAssignedToInstructor(true);
+//				enrollment.setInstructor(instructor);
+//			}
 		} catch(Exception e) {
 			throw new DbConnectionException("Error while assigning student to an instructor");
 		}
@@ -1855,18 +1861,19 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 	
 	@Override
 	@Transactional(readOnly = false)
-	public Course createNewUntitledCourse(User maker, CreatorType creatorType) throws DbConnectionException {
-		try {
-			return saveNewCourse("Untitled", null, null, null, null, null, maker, creatorType, false, false);
-		} catch(Exception e) {
-			throw new DbConnectionException("Error while creating new course");
-		}
+	public Course createNewUntitledCourse(long userId, CreatorType creatorType) throws DbConnectionException {
+//		try {
+//			return saveNewCourse("Untitled", null, null, null, null, null, userId, creatorType, false, false);
+//		} catch(Exception e) {
+//			throw new DbConnectionException("Error while creating new course");
+//		}
+		return null;
 	}
 	
 	@Override
 	@Transactional (readOnly = false)
 	public Course updateCourse(long courseId, String title, String description, Collection<Tag> tags, 
-			Collection<Tag> hashtags, boolean published, User user) throws DbConnectionException {
+			Collection<Tag> hashtags, boolean published, long userId) throws DbConnectionException {
 		try {
 			Course updatedCourse = resourceFactory.updateCourse(
 					courseId, 
@@ -1876,7 +1883,7 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 					hashtags,
 					published);
 			
-			eventFactory.generateEvent(EventType.Edit, user, updatedCourse);
+			eventFactory.generateEvent(EventType.Edit, userId, updatedCourse);
 			
 			return updatedCourse;
 		} catch(Exception e) {

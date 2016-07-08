@@ -2,18 +2,13 @@ package org.prosolo.services.activityreport;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-
-import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.web.LoggedUserBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 /**
  * Bean which is associated with a calendar component and shows days with
@@ -45,7 +40,7 @@ public class ActivityReportArchiveBean implements Serializable {
 
 			DateTime end = new DateTime();
 			DateTime start = end.minusYears(2);
-			Long userId = loggedUser.getUser().getId();
+			Long userId = loggedUser.getUserId();
 			if(userId == 1)
 				userId = -1l;// for system user use report which was generated for all user (userId=-1)
 			

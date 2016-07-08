@@ -4,15 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
-import org.prosolo.core.stress.TestContext;
-import org.prosolo.services.messaging.SessionMessageDistributer;
-import org.prosolo.common.messaging.data.ServiceType;
-import org.prosolo.common.messaging.rabbitmq.QueueNames;
 import org.prosolo.common.messaging.rabbitmq.ReliableConsumer;
 import org.prosolo.common.messaging.rabbitmq.ReliableProducer;
-import org.prosolo.services.messaging.rabbitmq.impl.DefaultMessageWorker;
 import org.prosolo.common.messaging.rabbitmq.impl.ReliableConsumerImpl;
 import org.prosolo.common.messaging.rabbitmq.impl.ReliableProducerImpl;
+import org.prosolo.core.stress.TestContext;
+import org.prosolo.services.messaging.SessionMessageDistributer;
+import org.prosolo.services.messaging.rabbitmq.impl.DefaultMessageWorker;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class SessionMessageDistributerTest extends TestContext{

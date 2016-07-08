@@ -1,13 +1,8 @@
 package org.prosolo.services.logging;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.activityreport.LoggedEvent;
 import org.prosolo.services.event.context.LearningContext;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.logging.exception.LoggingException;
@@ -21,64 +16,46 @@ import org.prosolo.services.logging.exception.LoggingException;
 
 public interface LoggingService {
 
-	void logEventObserved(EventType eventType, User actor, String objectType,
-			long objectId, String objectTitle, String targetType,
-			long targetId, String reasonType, long reasonId,
-			Map<String, String> parameters, String ipAddress) throws LoggingException;
-
-	void logServiceUse(User user, String componentName, String parametersJson,
+	void logServiceUse(long userId, String componentName, String parametersJson,
 			String ipAddress) throws LoggingException;
 
-	void logServiceUse(User user, ComponentName component, String link,
+	void logServiceUse(long userId, ComponentName component, String link,
 			Map<String, String> parameters, String ipAddress) throws LoggingException;
 
-	void logNavigation(User user, String link, String ipAddress) throws LoggingException;
+	void logNavigation(long actorId, String link, String ipAddress) throws LoggingException;
 
-	void logNavigationFromContext(User user, String link,
+	void logNavigationFromContext(long userId, String link,
 			String context, String page, String learningContext, String service, 
 			String parametersString, String ipAddress) throws LoggingException;
 	
-	void logEmailNavigation(User user, String link,
+	void logEmailNavigation(long actorId, String link,
 			String parametersString, String ipAddress,
 			LearningContextData lContext) throws LoggingException;
 
-	void logTabNavigationFromContext(User user, String tabName, String context,
+	void logTabNavigationFromContext(long userId, String tabName, String context,
 			String parameters, String ipAddress) throws LoggingException;
 
-	void logEvent(EventType eventType, User actor, String ipAddress);
+	void logEvent(EventType eventType, long actorId, String ipAddress);
 
 	void increaseUserActivityLog(long userid, long date);
 
 	void recordUserActivity(long userid, long time) throws LoggingException;
 
-	void logEventObserved(EventType eventType, User actor, String objectType, long objectId,
+	void logEventObserved(EventType eventType, long actorId, String objectType, long objectId,
 			Map<String, String> parameters, String ipAddress);
 
-//	void recordActivityReportGenerated(List<Long> userIds,
-	//		Date reportGenerationDate);
+	void logSessionEnded(EventType eventType, long actorId, String ipAddress);
 
-	//List<Date> getReportDays(Date start, Date end, Long userId);
-
-	//Map<Long, Collection<LoggedEvent>> getAllLoggedEvents(Date start, Date end);
-
-//	Map<Long, Collection<LoggedEvent>> getAllLoggedEvents(DBObject filterQuery);
-
-	//boolean collectionExists(String collectionName);
-
-	//boolean reportDatesCollectionExists();
-
-	//Long getOldestObservedEventTime();
-
-	//Collection<LoggedEvent> getLoggedEventsList(DBObject filterQuery);
-	
-	void logSessionEnded(EventType eventType, User actor, String ipAddress);
-
-	void logEventObserved(EventType eventType, User actor,
+	void logEventObserved(EventType eventType, long actorId,
 			String objectType, long objectId, String objectTitle,
-			String targetType, long targetId, String reasonType, long reasonId,
+			String targetType, long targetId,
 			Map<String, String> parameters, String ipAddress, LearningContext learningContext) throws LoggingException;
 	
-	void logServiceUse(User user, ComponentName component, Map<String, String> params, 
+	void logServiceUse(long userId, ComponentName component, Map<String, String> params, 
 			String ipAddress, LearningContextData context) throws LoggingException;
+
+	void logEventObserved(EventType eventType, long actorId, String objectType, long objectId,
+			String objectTitle,	String targetType, long targetId,
+			Map<String, String> parameters, String ipAddress) throws LoggingException;
 
 }

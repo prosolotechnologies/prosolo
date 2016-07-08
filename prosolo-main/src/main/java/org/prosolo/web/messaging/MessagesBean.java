@@ -24,7 +24,6 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.domainmodel.messaging.ThreadParticipant;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.event.EventException;
@@ -110,11 +109,11 @@ public class MessagesBean implements Serializable {
 				logger.debug("Initializing messages");
 				
 				List<MessageThread> mThreads = messagingManager.getLatestUserMessagesThreads(
-						loggedUser.getUser(), 
+						loggedUser.getUserId(), 
 						0,messagesLimit,archiveView);
 				
 				if (mThreads != null) {
-					this.messagesThreads = messagingManager.convertMessagesThreadsToMessagesThreadData(mThreads, loggedUser.getUser());
+					this.messagesThreads = messagingManager.convertMessagesThreadsToMessagesThreadData(mThreads, loggedUser.getUserId());
 				}
 			}
 	}
@@ -126,7 +125,7 @@ public class MessagesBean implements Serializable {
 		MessageThread thread = null;
 		
 		if (decodedThreadId == 0) {
-			thread = messagingManager.getLatestMessageThread(loggedUser.getUser(),archiveView);
+			thread = messagingManager.getLatestMessageThread(loggedUser.getUserId(),archiveView);
 			
 			if (thread != null) {
 				return initializeThreadData(thread);
@@ -140,7 +139,7 @@ public class MessagesBean implements Serializable {
 					thread = messagingManager.get(MessageThread.class, decodedThreadId);
 					
 					if (thread == null || userShouldSeeThread(thread)) {
-						logger.warn("User "+loggedUser.getUser()+" tried to access thread with id: " + threadId +" that either does not exist, is deleted for him, or is not hisown");
+						logger.warn("User "+loggedUser.getUserId()+" tried to access thread with id: " + threadId +" that either does not exist, is deleted for him, or is not hisown");
 						return MessageProcessingResult.FORBIDDEN;
 					}
 					else {
@@ -161,11 +160,11 @@ public class MessagesBean implements Serializable {
 
 
 	private MessageProcessingResult initializeThreadData(MessageThread thread) {
-		this.threadData = new MessagesThreadData(thread, loggedUser.getUser());
+		this.threadData = new MessagesThreadData(thread, loggedUser.getUserId());
 		this.receivers = threadData.getParticipants();
 		
-		if (!threadData.containsParticipant(loggedUser.getUser().getId())) {
-			logger.info("User "+loggedUser.getUser()+" doesn't have permisisons to view messages thread with id " + threadId);
+		if (!threadData.containsParticipant(loggedUser.getUserId())) {
+			logger.info("User "+loggedUser.getUserId()+" doesn't have permisisons to view messages thread with id " + threadId);
 			return MessageProcessingResult.FORBIDDEN;
 		} else {
 			this.messages = new LinkedList<MessageData>();
@@ -189,11 +188,11 @@ public class MessagesBean implements Serializable {
 	}
 	
 	public void addNewMessageThread(MessageThread thread) {
-		messagesThreads.add(0, new MessagesThreadData(thread, loggedUser.getUser()));
+		messagesThreads.add(0, new MessagesThreadData(thread, loggedUser.getUserId()));
 	}
 
 	private void loadMessages() {
-		ThreadParticipant userParticipent = messagingManager.findParticipation(threadData.getId(),loggedUser.getUser().getId());
+		ThreadParticipant userParticipent = messagingManager.findParticipation(threadData.getId(),loggedUser.getUserId());
 		if(!userParticipent.isDeleted()) {
 			List<Message> unreadMessages = messagingManager.getUnreadMessages(threadData.getId(), userParticipent.getLastReadMessage(), userParticipent.getShowMessagesFrom());
 			List<Message> readMessages = new ArrayList<>();
@@ -213,14 +212,14 @@ public class MessagesBean implements Serializable {
 			}
 		}
 		else {
-			logger.warn("User "+loggedUser.getUser()+" tried to access thread with id: " + threadId +" that is deleted for him");
+			logger.warn("User "+loggedUser.getUserId()+" tried to access thread with id: " + threadId +" that is deleted for him");
 		}
 		
 	}
 
 	private void markThreadRead() {
 		//save read info to database
-		messagingManager.markThreadAsRead(threadData.getId(), loggedUser.getUser().getId());
+		messagingManager.markThreadAsRead(threadData.getId(), loggedUser.getUserId());
 		//only mark t read in session if DB operation was a success
 		topInboxBean.markThreadRead(threadData.getId());
 		//mark current thread read
@@ -246,10 +245,10 @@ public class MessagesBean implements Serializable {
 		removeOverlappingmessages(unreadMessages, readMessages);
 		
 		for (Message message : unreadMessages) {
-			this.messages.add(new MessageData(message, loggedUser.getUser(),false));
+			this.messages.add(new MessageData(message, loggedUser.getUserId(), false));
 		}
 		for (Message message : readMessages) {
-			this.messages.add(new MessageData(message, loggedUser.getUser(),true));
+			this.messages.add(new MessageData(message, loggedUser.getUserId(), true));
 		}
 		//it can happen that sum of messages is > limit, (as +1 read is fetched, to set the flag), 
 		//cut them off (but beware that unread.size might be > limit, then we must display them all + 2 read ones)
@@ -259,10 +258,10 @@ public class MessagesBean implements Serializable {
 	public void sendMessage(){
 		try {
 			//TODO what is the context?
-			Message message = messagingManager.sendMessages(loggedUser.getUser().getId(), 
+			Message message = messagingManager.sendMessages(loggedUser.getUserId(), 
 					threadData.getParticipants(), messageText, threadData.getId(), "");
-			logger.debug("User "+loggedUser.getUser()+" sent a message to thread " + threadData.getId() + " with content: '"+this.messageText+"'");
-			publishSentMessage(loggedUser.getUser(), threadData.getParticipants(), message);
+			logger.debug("User "+loggedUser.getUserId()+" sent a message to thread " + threadData.getId() + " with content: '"+this.messageText+"'");
+			publishSentMessage(loggedUser.getUserId(), threadData.getParticipants(), message);
 
 			PageUtil.fireSuccessfulInfoMessage("messagesFormGrowl", "Message sent");
 			//set archived to false, as sending messge unarchives thread
@@ -277,24 +276,28 @@ public class MessagesBean implements Serializable {
 		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
 		String ids = params.get("newThreadRecipients");
 		if(StringUtils.isBlank(ids)){
-			logger.error("User "+loggedUser.getUser().getId()+" tried to send message with empty recipient list");
+			logger.error("User "+loggedUser.getUserId()+" tried to send message with empty recipient list");
 			PageUtil.fireErrorMessage("messagesFormGrowl", "Unable to send message");
 		}
 		else {
 			List<Long> participantIds = getRecieverIdsFromParameters(ids);
-			participantIds.add(loggedUser.getUser().getId());
-			MessageThread newMessageThread = messagingManager.createNewMessagesThread(loggedUser.getUser(), participantIds, "");
-			addNewMessageThread(newMessageThread);
-			//only trigger re-fetching if we were on archived view (new thread will not be archived, and we change set the view to inbox in any case)
-			if(archiveView){
-				messagesThreads = null;
+			participantIds.add(loggedUser.getUserId());
+			try {
+				MessageThread newMessageThread = messagingManager.createNewMessagesThread(loggedUser.getUserId(), participantIds, "");
+				addNewMessageThread(newMessageThread);
+				//only trigger re-fetching if we were on archived view (new thread will not be archived, and we change set the view to inbox in any case)
+				if(archiveView){
+					messagesThreads = null;
+				}
+				archiveView = false;
+				init();
+			} catch (ResourceCouldNotBeLoadedException e) {
+				logger.error(e);
 			}
-			archiveView = false;
-			init();
 		}
 	}
 	
-	private void publishSentMessage(User sender, List<UserData> participants, Message message) {
+	private void publishSentMessage(long senderId, List<UserData> participants, Message message) {
 		taskExecutor.execute(new Runnable() {
         @Override
         public void run() {
@@ -305,7 +308,7 @@ public class MessagesBean implements Serializable {
         		//DirectMessageDialog uses recipient as user param
         		parameters.put("user", String.valueOf(participants.get(0).getId()));
         		parameters.put("message", String.valueOf(message.getId()));
-        		eventFactory.generateEvent(EventType.SEND_MESSAGE, sender, message, parameters);
+        		eventFactory.generateEvent(EventType.SEND_MESSAGE, senderId, message, parameters);
         	} catch (EventException e) {
         		logger.error(e);
         	}
@@ -324,7 +327,7 @@ public class MessagesBean implements Serializable {
 	
 	
 	public void addMessage(Message message) {
-		messages.add(new MessageData(message, loggedUser.getUser()));
+		messages.add(new MessageData(message, loggedUser.getUserId()));
 	}
 	
 	/*
@@ -436,18 +439,18 @@ public class MessagesBean implements Serializable {
 	
 	public void archiveCurrentThread() {
 		messagesThreads = null;
-		messagingManager.archiveThread(threadData.getId(), loggedUser.getUser().getId());
+		messagingManager.archiveThread(threadData.getId(), loggedUser.getUserId());
 		init();
 	}
 	
 	public void deleteCurrentThread() {
 		messagesThreads = null;
-		messagingManager.markThreadDeleted(threadData.getId(), loggedUser.getUser().getId());
+		messagingManager.markThreadDeleted(threadData.getId(), loggedUser.getUserId());
 		init();
 	}
 	
 	private boolean userShouldSeeThread(MessageThread thread) {
-		ThreadParticipant userParticipent = thread.getParticipant(loggedUser.getUser().getId());
+		ThreadParticipant userParticipent = thread.getParticipant(loggedUser.getUserId());
 		return userParticipent != null && !(userParticipent.isDeleted());
 	}
 	

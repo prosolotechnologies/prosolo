@@ -16,7 +16,7 @@ import org.prosolo.services.activityWall.filters.Filter;
 public class CourseFilterProcessor implements SocialActivityFilterProcessor {
 	
 	@Override
-	public boolean checkSocialActivity(SocialActivity1 socialActivity, User user, Filter filter) {
+	public boolean checkSocialActivity(SocialActivity1 socialActivity, long userId, Filter filter) {
 //		VisibilityType visibility = socialActivity.getVisibility();
 //		
 //		if (visibility.equals(VisibilityType.PRIVATE) && socialActivity.getMaker().getId() != user.getId()) {

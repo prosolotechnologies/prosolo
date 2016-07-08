@@ -2,64 +2,36 @@ package org.prosolo.services.messaging.rabbitmq.impl;
 
  
 
-import static org.junit.Assert.fail;
-import static org.prosolo.common.domainmodel.activities.events.EventType.*;
-import static org.prosolo.common.domainmodel.activities.events.EventType.SEND_MESSAGE;
-
-import java.net.UnknownHostException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.events.pojo.DataName;
 import org.prosolo.bigdata.common.events.pojo.DataType;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.messaging.MessageWrapperAdapter;
 import org.prosolo.common.messaging.data.AnalyticalServiceMessage;
-import org.prosolo.common.messaging.data.LogMessage;
 import org.prosolo.common.messaging.data.MessageWrapper;
 import org.prosolo.common.messaging.rabbitmq.QueueNames;
 import org.prosolo.common.messaging.rabbitmq.ReliableConsumer;
 import org.prosolo.common.messaging.rabbitmq.impl.ReliableConsumerImpl;
 import org.prosolo.common.messaging.rabbitmq.impl.ReliableProducerImpl;
-import org.prosolo.config.MongoDBServerConfig;
-import org.prosolo.config.MongoDBServersConfig;
 import org.prosolo.core.spring.SpringConfig;
 import org.prosolo.services.interaction.impl.AnalyticalServiceDataFactoryImpl;
- 
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-/*import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import com.mongodb.MongoClient;
-import com.mongodb.ServerAddress;*/
-import org.prosolo.services.nodes.CourseManager;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.inject.Inject;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 /**
 @author Zoran Jeremic Sep 7, 2014
@@ -68,8 +40,6 @@ import javax.inject.Inject;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes={ SpringConfig.class })
 public class ReliableProducerImplTest{
-
-
 
 	private static Logger logger = Logger.getLogger(ReliableProducerImplTest.class);
 
@@ -329,26 +299,24 @@ public class ReliableProducerImplTest{
 			message.setTimestamp((long) logObject.get("timestamp"));
 			message.setEventType((String) logObject.get("eventType"));
 			message.setActorId((long) logObject.get("actorId"));
-			message.setActorFullname((String) logObject.get("actorFullname"));
 			message.setObjectType((String) logObject.get("objectType"));
 			message.setObjectId((long) logObject.get("objectId"));
 			message.setObjectTitle((String) logObject.get("objectTitle"));
 			message.setTargetType((String) logObject.get("targetType"));
 			message.setTargetId((long) logObject.get("targetId"));
 			message.setReasonType((String) logObject.get("reasonType"));
-			message.setReasonId((long) logObject.get("reasonId"));
 			message.setLink((String) logObject.get("link"));
 		if(logObject.get("eventType").equals("SEND_MESSAGE")){
 			System.out.println("MESSAGE");
 		}*/
 	/*	long courseId=extractCourseIdForUsedResource((String) logObject.get("objectType"), (long) logObject.get("objectId"),
-				(String) logObject.get("targetType"), (long) logObject.get("targetId"), (String) logObject.get("reasonType"), (long) logObject.get("reasonId"));
+				(String) logObject.get("targetType"), (long) logObject.get("targetId"), (String) logObject.get("reasonType"));
 		message.setCourseId(courseId);
 		long targetUserId =0;
 		if(Arrays.asList(interactions).contains(EventType.valueOf((String) logObject.get("eventType")))) {
 			System.out.println("INTERACTION SHOULD BE PROCESSED:" + logObject.toString());
 			 targetUserId = extractSocialInteractionTargetUser((String) logObject.get("objectType"), (long) logObject.get("objectId"),
-					(String) logObject.get("targetType"), (long) logObject.get("targetId"), (String) logObject.get("reasonType"), (long) logObject.get("reasonId"));
+					(String) logObject.get("targetType"), (long) logObject.get("targetId"), (String) logObject.get("reasonType"));
 		}*/
 
 	/*		message.setParameters(parameters);
@@ -428,7 +396,6 @@ public class ReliableProducerImplTest{
 				 System.out.println("Sent system message from reliable producer:"+msg2);
 				 
 				LogMessage sm3=new LogMessage();
-					sm3.setActorFullname("Zoran");
 					MessageWrapper mw3=new MessageWrapper();
 					mw3.setMessage(sm3);
 					String msg3=gson.create().toJson(mw3);

@@ -84,7 +84,7 @@ public class AppendedActivitiesBean implements Serializable {
  			 	AppendedLearningPlanData appendedLearningPlanData = new AppendedLearningPlanData();
 				appendedLearningPlanData.setActivities(compWallActivityConverter.convertActivities(
 						appendedActivities, 
-						loggedUser.getUser(),
+						loggedUser.getUserId(),
 						loggedUser.getLocale(),
 						true, 
 						false));
@@ -149,7 +149,7 @@ public class AppendedActivitiesBean implements Serializable {
 			return compWallActivityConverter.convertToActivityInstances(
 					null,
 					activities, 
-					loggedUser.getUser(), 
+					loggedUser.getUserId(), 
 					true, 
 					false,
 					loggedUser.getLocale());

@@ -18,7 +18,6 @@ import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.NodeData;
 import org.prosolo.util.nodes.AnnotationUtil;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.courses.data.CourseData;
 import org.prosolo.web.goals.data.LastActivityAware;
 
@@ -99,9 +98,9 @@ public class GoalData implements Visible, LastActivityAware, Serializable, Compa
 			
 			this.setConnectedWithCourse(!courseEnrollment.getStatus().equals(Status.WITHDRAWN));
 			this.competencesCanNotBeCreated = !this.course.isStudentsCanAddNewCompetences();
-			this.creator =  UserDataFactory.createUserData(courseEnrollment.getCourse().getMaker());
+			this.creator =  new UserData(courseEnrollment.getCourse().getMaker());
 		} else {
-			this.creator = UserDataFactory.createUserData(targetGoal.getLearningGoal().getMaker());
+			this.creator = new UserData(targetGoal.getLearningGoal().getMaker());
 		}
 	}
 	

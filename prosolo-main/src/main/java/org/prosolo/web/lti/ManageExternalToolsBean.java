@@ -53,7 +53,7 @@ public class ManageExternalToolsBean implements Serializable {
 	
 	@Autowired private DefaultManager defaultManager;
 	@Inject private LtiToolManager toolManager;
-	@Inject private LoggedUserBean userBean;
+	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private CompetenceManager competenceManager;
 
@@ -79,7 +79,7 @@ public class ManageExternalToolsBean implements Serializable {
 	private List<ExternalToolData> externalTools;
 	
 	public void init() {
-		logger.info("User with email " + userBean.getUser().getEmail() + " redirected the page manage/tools.xhtml");
+		logger.info("User with email " + loggedUserBean.getSessionData().getEmail() + " redirected the page manage/tools.xhtml");
 		
 		decodedCred = idEncoder.decodeId(cred);
 		decodedComp = idEncoder.decodeId(comp);
@@ -174,7 +174,7 @@ public class ManageExternalToolsBean implements Serializable {
 	
 	public void loadData() {
 		Map<String, Object> params = prepareSearchParameters();
-		List<LtiTool> tools = toolManager.searchTools(userBean.getUser().getId(), params, selectedFilter.getFilter());
+		List<LtiTool> tools = toolManager.searchTools(loggedUserBean.getUserId(), params, selectedFilter.getFilter());
 		externalTools = new LinkedList<>();
 		for (LtiTool t : tools) {
 			externalTools.add(new ExternalToolData(t));

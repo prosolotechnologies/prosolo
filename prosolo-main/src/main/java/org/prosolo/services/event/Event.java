@@ -10,7 +10,6 @@ import javax.persistence.Transient;
 
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.user.User;
 
 public class Event extends BaseEntity  {
 
@@ -21,7 +20,7 @@ public class Event extends BaseEntity  {
 	/**
 	 * User who has created the event.
 	 */
-	private User actor;
+	private long actorId;
 	
 	/**
 	 * Type of the event.
@@ -37,7 +36,6 @@ public class Event extends BaseEntity  {
 	 * User or resource for which the event is created for.
 	 */
 	private BaseEntity target;
-	private BaseEntity reason;
 	private Map<String, String> parameters;
 
 	private Class<? extends EventObserver>[] observersToExclude;
@@ -63,12 +61,12 @@ public class Event extends BaseEntity  {
 		this.dateCreated = dateCreated;
 	}
 
-	public User getActor() {
-		return actor;
+	public long getActorId() {
+		return actorId;
 	}
 
-	public void setActor(User actor) {
-		this.actor = actor;
+	public void setActorId(long actorId) {
+		this.actorId = actorId;
 	}
 
 	@Enumerated(EnumType.STRING)
@@ -105,14 +103,6 @@ public class Event extends BaseEntity  {
 
 	public void setTarget(BaseEntity target) {
 		this.target = target;
-	}
-
-	public BaseEntity getReason() {
-		return reason;
-	}
-
-	public void setReason(BaseEntity reason) {
-		this.reason = reason;
 	}
 
 	@Transient
@@ -158,8 +148,8 @@ public class Event extends BaseEntity  {
 
 	@Override
 	public String toString() {
-		return "Event [actor=" + actor + ", action=" + action + ", object="
-				+ object + ", target=" + target + ", reason=" + reason + ", parameters=" + parameters + "]";
+		return "Event [actorId=" + actorId + ", action=" + action + ", object="
+				+ object + ", target=" + target + ", parameters=" + parameters + "]";
 	}
 	
 }

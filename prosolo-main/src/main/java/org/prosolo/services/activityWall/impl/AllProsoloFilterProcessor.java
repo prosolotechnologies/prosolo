@@ -16,7 +16,7 @@ import org.prosolo.services.activityWall.strategy.Strategy;
 public class AllProsoloFilterProcessor implements SocialActivityFilterProcessor {
 	
 	@Override
-	public boolean checkSocialActivity(SocialActivity1 socialActivity, User user, Filter filter) {
+	public boolean checkSocialActivity(SocialActivity1 socialActivity, long userId, Filter filter) {
 		// Ignore Twitter posts
 		if (socialActivity instanceof TwitterPostSocialActivity1) {
 			return false;

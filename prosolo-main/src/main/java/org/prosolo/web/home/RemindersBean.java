@@ -46,7 +46,7 @@ public class RemindersBean  implements Serializable{
 			
 			reminders = new ArrayList<ReminderData>();
 
-			Collection<Reminder> personalReminders = personalCalendarQueries.readNotDismissedReminders(loggedUser.getUser());
+			Collection<Reminder> personalReminders = personalCalendarQueries.readNotDismissedReminders(loggedUser.getUserId());
 			
 			for (Reminder reminder : personalReminders) {
 				Date deadline = reminder.getDeadline();

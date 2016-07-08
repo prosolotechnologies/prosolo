@@ -113,7 +113,7 @@ public class CourseBean implements Serializable {
 		if (decodedId > 0) {
 			try {
 				Course course = courseManager.loadResource(Course.class, decodedId);
-				CourseEnrollment enrollment = courseManager.getCourseEnrollment(loggedUser.getUser(), course);
+				CourseEnrollment enrollment = courseManager.getCourseEnrollment(loggedUser.getUserId(), course);
 
 				courseData = new CourseData(course);
 				
@@ -418,7 +418,7 @@ public class CourseBean implements Serializable {
 		try {
 			String title = StringUtil.cleanHtml(competenceFormData.getTitle());
 			Competence competence = competenceManager.createCompetence(
-					loggedUser.getUser(),
+					loggedUser.getUserId(),
 					title,
 					StringUtil.cleanHtml(competenceFormData.getDescription()),
 					competenceFormData.getValidity(),
@@ -437,6 +437,8 @@ public class CourseBean implements Serializable {
 		} catch (EventException e) {
 			logger.error(e);
 		} catch (KeyNotFoundInBundleException e) {
+			logger.error(e);
+		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		}
 	}
@@ -461,8 +463,7 @@ public class CourseBean implements Serializable {
 				suggestedCompetences = SearchCompetencesBean.convertToCompetenceData(
 						courseManager.getOtherUsersCompetences(
 								courseData.getId(), 
-								idsOfcompetencesToExclude, 
-								loggedUser.getUser()));
+								idsOfcompetencesToExclude));
 			}
 		}
 	}

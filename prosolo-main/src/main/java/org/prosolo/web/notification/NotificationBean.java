@@ -68,11 +68,11 @@ public class NotificationBean implements Serializable, Paginable {
 						: notificationTypes;
 				if(recalculateTotalNumber) {
 					notificationNumber = notificationManager.getNumberOfNotificationsForUser(
-							loggedUser.getUser().getId(), filterTypes);
+							loggedUser.getUserId(), filterTypes);
 				}
 				if(notificationNumber > 0) {
 					notifications = notificationManager.getNotificationsForUser(
-							loggedUser.getUser().getId(), 
+							loggedUser.getUserId(), 
 							page - 1, limit, filterTypes, loggedUser.getLocale());
 				} else {
 					notifications = new ArrayList<>();

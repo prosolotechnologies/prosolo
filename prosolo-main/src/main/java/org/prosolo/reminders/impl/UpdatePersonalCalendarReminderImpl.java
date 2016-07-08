@@ -66,7 +66,7 @@ public class UpdatePersonalCalendarReminderImpl implements UpdatePersonalCalenda
 				resource = ((TargetLearningGoal) resource).getLearningGoal();
 			}
 			
-			reminder = personalCalendarQueries.loadExistingReminder(resource, event.getActor(), ReminderType.DEADLINE);
+			reminder = personalCalendarQueries.loadExistingReminder(resource, event.getActorId(), ReminderType.DEADLINE);
 		}
 		if ((reminder == null) || (event.getAction().equals(EventType.Create))) {
 			reminder = new Reminder();
@@ -83,10 +83,10 @@ public class UpdatePersonalCalendarReminderImpl implements UpdatePersonalCalenda
 		//Session session=persistence.openSession();
 		try{
 		if (checkEventTypesToProcess(event)) {
-			User user = event.getActor();
+			long userId = event.getActorId();
 			PersonalCalendar personalCalendar = null;
 			Reminder reminder = null;
-			HttpSession httpSession = applicationBean.getUserSession(user.getId());
+			HttpSession httpSession = applicationBean.getUserSession(userId);
 			BaseEntity resource = event.getObject();
 			
 			RemindersBean remindersBean = null;
@@ -107,7 +107,7 @@ public class UpdatePersonalCalendarReminderImpl implements UpdatePersonalCalenda
 				
 				reminder = getDeadlineReminderForResource(event);
 				
-				personalCalendar = calendarManager.getOrCreateCalendar(user, session);
+				personalCalendar = calendarManager.getOrCreateCalendar(userId, session);
 				
 				if (event.getAction().equals(EventType.Delete)) {
 					personalCalendar = (PersonalCalendar) session.merge(personalCalendar);
@@ -156,7 +156,7 @@ public class UpdatePersonalCalendarReminderImpl implements UpdatePersonalCalenda
 					if (status.equals(RequestStatus.SENT)) {
 						receiver = request.getSentTo();
 						
-						personalCalendar = calendarManager.getOrCreateCalendar(receiver, session);
+						personalCalendar = calendarManager.getOrCreateCalendar(receiver.getId(), session);
 							
 						reminder = new RequestReminder();
 						reminder.setReminderType(ReminderType.REQUEST);

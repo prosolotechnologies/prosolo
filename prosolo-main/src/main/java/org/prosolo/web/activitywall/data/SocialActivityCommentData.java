@@ -41,7 +41,7 @@ public class SocialActivityCommentData implements Serializable {
 	public SocialActivityCommentData(Comment comment, int likeCount, boolean liked, SocialActivityData wallData) {
 		this.id = comment.getId();
 		this.text = comment.getText();
-		this.maker = UserDataFactory.createUserData(comment.getMaker());
+		this.maker = new UserData(comment.getMaker());
 		this.created = comment.getDateCreated();
 		this.likeCount = likeCount;
 		this.liked = liked;
@@ -50,7 +50,7 @@ public class SocialActivityCommentData implements Serializable {
 	
 	public SocialActivityCommentData(String text, User maker, Date created, SocialActivityData wallData) {
 		this.text = text;
-		this.maker = UserDataFactory.createUserData(maker);
+//		this.maker = UserDataFactory.createUserData(maker);
 		this.created = created;
 		this.likeCount = 0;
 		this.dislikeCount = 0;

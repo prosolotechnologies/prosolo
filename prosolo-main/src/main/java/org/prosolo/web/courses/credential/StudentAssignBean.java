@@ -213,8 +213,8 @@ public class StudentAssignBean implements Serializable, Paginable {
 				@SuppressWarnings("unchecked")
 				Event event = eventFactory.generateEvent(
 						EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR, 
-						loggedUserBean.getUser(), object, target, 
-						null, page, context, service, 
+						loggedUserBean.getUserId(), object, target, 
+						page, context, service, 
 						new Class[] {NodeChangeObserver.class}, parameters);
 				nodeChangeObserver.handleEvent(event);
 			} catch (EventException e) {
@@ -238,8 +238,8 @@ public class StudentAssignBean implements Serializable, Paginable {
 				@SuppressWarnings("unchecked")
 				Event event = eventFactory.generateEvent(
 						EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR, 
-						loggedUserBean.getUser(), object, target, 
-						null, page, context, service, 
+						loggedUserBean.getUserId(), object, target, 
+						page, context, service, 
 						new Class[] {NodeChangeObserver.class}, parameters);
 				nodeChangeObserver.handleEvent(event);
 			} catch (EventException e) {

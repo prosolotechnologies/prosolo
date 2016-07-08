@@ -18,7 +18,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.following.FollowedEntity;
 import org.prosolo.common.domainmodel.user.following.FollowedResourceEntity;
 import org.prosolo.common.domainmodel.user.following.FollowedUserEntity;
-import org.prosolo.common.domainmodel.user.notifications.NotificationType;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
@@ -57,7 +57,7 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("context", context);
 			
-			eventFactory.generateEvent(EventType.Follow, user, resourceToFollow, parameters);
+			eventFactory.generateEvent(EventType.Follow, user.getId(), resourceToFollow, parameters);
 
 			return user;
 		}
@@ -66,8 +66,11 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 	
 	@Override
 	@Transactional 
-	public User followUser(User follower, User userToFollow, String context) throws EventException{
-		if (userToFollow != null && follower != null) {
+	public User followUser(long followerId, long userToFollowId, String context) throws EventException, ResourceCouldNotBeLoadedException{
+		if (userToFollowId > 0 && followerId > 0) {
+			User follower = loadResource(User.class, followerId);
+			User userToFollow = loadResource(User.class, userToFollowId);
+			
 			FollowedEntity followedEntity = new FollowedUserEntity();
 			followedEntity.setUser(follower);
 			followedEntity.setFollowedResource(userToFollow);
@@ -77,11 +80,12 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("context", context);
 			
-			eventFactory.generateEvent(EventType.Follow, follower, userToFollow, parameters);
+			eventFactory.generateEvent(EventType.Follow, followerId, userToFollow, parameters);
 			
 			logger.debug(follower.getName() + " started following user " + userToFollow.getId());
+			return follower;
 		}
-		return follower;
+		return null;
 	}
 	
 	@Override
@@ -167,26 +171,26 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 	
 	@Override
 	@Transactional 
-	public List<User> getFollowingUsers(User user) throws DbConnectionException{
+	public List<User> getFollowingUsers(long userId) throws DbConnectionException{
 		try {
-				String query = 
-					"SELECT DISTINCT fUser " + 
-							"FROM FollowedEntity fEnt " + 
-							"LEFT JOIN fEnt.user user "+
-							"JOIN fEnt.followedUser fUser " + 
-							"WHERE user = :user " +
-							"ORDER BY fUser.name, fUser.lastname";
+			String query = 
+				"SELECT DISTINCT fUser " + 
+				"FROM FollowedEntity fEnt " + 
+				"LEFT JOIN fEnt.user user "+
+				"JOIN fEnt.followedUser fUser " + 
+				"WHERE user.id = :userId " +
+				"ORDER BY fUser.name, fUser.lastname";
 		
 			@SuppressWarnings("unchecked")
 			List<User> users = persistence.currentManager().createQuery(query)
-				.setEntity("user", user)
+				.setLong("userId", userId)
 				.list();
+			
 			if (users != null) {
 				return users;
 			}
 		} catch(Exception e) {
 			logger.error(e);
-			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving follwing users");
 		}
 		return new ArrayList<User>();
@@ -211,17 +215,17 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 	
 	@Override 
 	@Transactional (readOnly = true)
-	public boolean isUserFollowingUser(User followerUser, User followedUser){
+	public boolean isUserFollowingUser(long followerUserId, long followedUserId){
 		String query = 
 			"SELECT cast(COUNT(DISTINCT fEnt) as int) "+
 			"FROM FollowedEntity fEnt " + 
 			"LEFT JOIN fEnt.user user "+
-			"WHERE fEnt.followedUser = :fUser " +
-				"AND user = :user ";
+			"WHERE fEnt.followedUser.id = :followedUserId " +
+				"AND user.id = :userId ";
 		
 		Integer followedEntNo = (Integer) persistence.currentManager().createQuery(query)
-			.setEntity("user", followerUser)
-			.setEntity("fUser", followedUser)
+			.setLong("userId", followerUserId)
+			.setLong("followedUserId", followedUserId)
 			.uniqueResult();
 		
  		return followedEntNo> 0;
@@ -243,7 +247,7 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 		Map<String, String> parameters = new HashMap<String, String>();
 		parameters.put("context", context);
 		
-		eventFactory.generateEvent(EventType.Unfollow, user, userToUnfollow, parameters);
+		eventFactory.generateEvent(EventType.Unfollow, user.getId(), userToUnfollow, parameters);
 		
 		return deleted > 0;
 	}
@@ -265,7 +269,7 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("context", context);
 			
-			eventFactory.generateEvent(EventType.Unfollow, user, resourceToUnfollow, parameters);
+			eventFactory.generateEvent(EventType.Unfollow, user.getId(), resourceToUnfollow, parameters);
 			
 			return deleted > 0;
 		}
@@ -274,17 +278,18 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<User> getFollowingUsers(User user, int page, int limit) throws DbConnectionException {
-		try{
+	public List<User> getFollowingUsers(long userId, int page, int limit) throws DbConnectionException {
+		try {
 			String query = 
 					"SELECT DISTINCT fUser " + 
-							"FROM FollowedEntity fEnt " + 
-							"LEFT JOIN fEnt.user user "+
-							"JOIN fEnt.followedUser fUser " + 
-							"WHERE user = :user " +
-							"ORDER BY fUser.name, fUser.lastname";
+					"FROM FollowedEntity fEnt " + 
+					"LEFT JOIN fEnt.user user "+
+					"JOIN fEnt.followedUser fUser " + 
+					"WHERE user = :user " +
+					"ORDER BY fUser.name, fUser.lastname";
 			
-			Query q = persistence.currentManager().createQuery(query).setEntity("user", user);
+			Query q = persistence.currentManager().createQuery(query)
+					.setLong("userId", userId);
 			
 			if(limit != 0) {
 				q.setFirstResult(page * limit)
@@ -299,27 +304,25 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 			return new ArrayList<User>();
 		} catch(DbConnectionException e) {
 			logger.error(e);
-			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving notification data");
 		}
 	}
 	
 	@Override
 	@Transactional (readOnly = true)
-	public int getNumberOfFollowingUsers(User user) 
-			throws DbConnectionException {
+	public int getNumberOfFollowingUsers(long userId) throws DbConnectionException {
 		Integer resNumber = 0;
-			try {
-				String query = 
-					"SELECT cast( COUNT(DISTINCT fUser) as int) " + 
-							"FROM FollowedEntity fEnt " + 
-							"LEFT JOIN fEnt.user user "+
-							"JOIN fEnt.followedUser fUser " + 
-							"WHERE user = :user ";
-		
-			resNumber = (Integer) persistence.currentManager().createQuery(query)
-				.setEntity("user", user)
-				.uniqueResult();
+		try {
+			String query = 
+				"SELECT cast( COUNT(DISTINCT fUser) as int) " + 
+				"FROM FollowedEntity fEnt " + 
+				"LEFT JOIN fEnt.user user "+
+				"JOIN fEnt.followedUser fUser " + 
+				"WHERE user.id = :userId ";
+	
+		resNumber = (Integer) persistence.currentManager().createQuery(query)
+			.setLong("userId", userId)
+			.uniqueResult();
 
 		} catch(Exception e) {
 			throw new DbConnectionException("Error while retrieving follwing users");

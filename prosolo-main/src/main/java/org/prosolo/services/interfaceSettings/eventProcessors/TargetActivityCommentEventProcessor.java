@@ -1,31 +1,19 @@
 package org.prosolo.services.interfaceSettings.eventProcessors;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
-import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
-import org.prosolo.common.domainmodel.activitywall.old.SocialActivity;
 import org.prosolo.common.domainmodel.activitywall.old.comments.Comment;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.common.messaging.data.ServiceType;
-import org.prosolo.services.activityWall.ActivityWallManager;
 import org.prosolo.services.event.Event;
-import org.prosolo.services.interfaceSettings.CommentUpdater;
-import org.prosolo.services.messaging.SessionMessageDistributer;
 import org.prosolo.services.nodes.ActivityManager;
-import org.prosolo.util.StringUtils;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.goals.LearnBean;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class TargetActivityCommentEventProcessor extends InterfaceEventProcessor {
 
@@ -44,12 +32,23 @@ public class TargetActivityCommentEventProcessor extends InterfaceEventProcessor
 		Comment comment = (Comment) object;
 		BaseEntity commentedResource = comment.getObject();
 		updateCommentsOfActivityInCachesOfOnlineUsers(comment, (TargetActivity) commentedResource, 
-				event.getActor(), session);
+				event.getActorId(), session);
 	}
 	
-	private void updateCommentsOfActivityInCachesOfOnlineUsers(Comment comment, TargetActivity activity, User user, Session session) {
+	private void updateCommentsOfActivityInCachesOfOnlineUsers(Comment comment, TargetActivity activity, long userId, Session session) {
 		List<User> usersSubscribedToEvent = activityManager.getUsersHavingTargetActivityInLearningGoal(activity, session);
-		usersSubscribedToEvent.remove(user);
+		
+		// removing user
+		Iterator<User> userIterator = usersSubscribedToEvent.iterator();
+		
+		while (userIterator.hasNext()) {
+			User u = (User) userIterator.next();
+			
+			if (u.getId() == userId) {
+				userIterator.remove();
+				break;
+			}
+		}
 		
 		List<HttpSession> usersSessions = applicationBean.getHttpSessionsOfUsers(usersSubscribedToEvent);
 		

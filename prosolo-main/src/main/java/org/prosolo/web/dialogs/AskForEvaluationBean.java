@@ -16,7 +16,6 @@ import javax.faces.context.FacesContext;
 
 import org.apache.log4j.Logger;
 import org.omnifaces.util.Ajax;
-import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.common.domainmodel.activities.requests.Request;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.general.Node;
@@ -25,6 +24,7 @@ import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.event.EventException;
@@ -34,7 +34,6 @@ import org.prosolo.services.nodes.EvaluationManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.administration.ResourceSettingsBean;
 import org.prosolo.web.communications.util.UserDataConverter;
 import org.prosolo.web.logging.LoggingNavigationBean;
@@ -117,7 +116,7 @@ public class AskForEvaluationBean implements Serializable {
 				List<User> evaluators = roleManager.getUsersWithRole(evaluatorRoleName);
 				
 				for (User user : evaluators) {
-					UserData userData = UserDataFactory.createUserData(user);
+					UserData userData = new UserData(user);
 					evaluatorList.add(userData);
 				}
 				recalculateUserNo();
@@ -141,7 +140,7 @@ public class AskForEvaluationBean implements Serializable {
 	
 	public void sendEvaluationRequests(){
 		try {
-			Collection<Request> requests = evaluationManager.sendEvaluationRequests(loggedUser.refreshUser(), ResourceDataUtil.getUserIds(evaluatorList), resource, message);
+			Collection<Request> requests = evaluationManager.sendEvaluationRequests(loggedUser.getUserId(), ResourceDataUtil.getUserIds(evaluatorList), resource, message);
 		
 			if (requests != null) {
 				String page = PageUtil.getPostParameter("page");
@@ -154,7 +153,7 @@ public class AskForEvaluationBean implements Serializable {
 					parameters.put("user", String.valueOf(request.getSentTo().getId()));
 					
 					//migration to new context approach
-					eventFactory.generateEvent(request.getRequestType(), request.getMaker(), request, null,
+					eventFactory.generateEvent(request.getRequestType(), request.getMaker().getId(), request, null,
 							page, learningContext, service, parameters);
 				}
 			
@@ -197,12 +196,12 @@ public class AskForEvaluationBean implements Serializable {
 		@SuppressWarnings("unchecked")
 		List<User> result = (List<User>) usersResponse.getFoundNodes();
 		for (User user : result) {
-			UserData userData = UserDataFactory.createUserData(user);
+			UserData userData = new UserData(user);
 			
 			// disable all users that have previously created an evaluation for this resource and this user
-			if (existingEvaluators.contains(user)) {
-				userData.setDisabled(true);
-			}
+//			if (existingEvaluators.contains(user)) {
+//				userData.setDisabled(true);
+//			}
 			userSearchResults.add(userData);
 		}
 	}
@@ -256,7 +255,7 @@ public class AskForEvaluationBean implements Serializable {
 		this.resource = resource;
 		
 		if (resourceSettings.getSettings().getSettings().isSelectedUsersCanDoEvaluation()) {
-			this.evaluationRequestAlreadySent = evaluationManager.hasUserRequestedEvaluation(loggedUser.getUser(), resource);
+			this.evaluationRequestAlreadySent = evaluationManager.hasUserRequestedEvaluation(loggedUser.getUserId(), resource);
 		} else {
 			this.evaluationRequestAlreadySent = false;
 		}
@@ -271,12 +270,12 @@ public class AskForEvaluationBean implements Serializable {
 				"id", String.valueOf(resource.getId()));
 		
 		if (!evaluationRequestAlreadySent) {
-			existingEvaluators = UserDataConverter.convertUsers(evaluationManager.getEvaluatorsWhoAcceptedResource(loggedUser.refreshUser(), resource));
-			ignoredEvaluators = UserDataConverter.convertUsers(evaluationManager.getEvaluatorsWhoIgnoredResource(loggedUser.refreshUser(), resource));
+			existingEvaluators = UserDataConverter.convertUsers(evaluationManager.getEvaluatorsWhoAcceptedResource(loggedUser.getUserId(), resource));
+			ignoredEvaluators = UserDataConverter.convertUsers(evaluationManager.getEvaluatorsWhoIgnoredResource(loggedUser.getUserId(), resource));
 			
 			excludedUsersForSearch = new ArrayList<Long>();
 			// exclude user making an evaluation request
-			excludedUsersForSearch.add(loggedUser.getUser().getId());
+			excludedUsersForSearch.add(loggedUser.getUserId());
 			excludedUsersForSearch.addAll(ResourceDataUtil.getUserIds(ignoredEvaluators));
 			excludedUsersForSearch.addAll(ResourceDataUtil.getUserIds(existingEvaluators));
 			

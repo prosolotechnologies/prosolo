@@ -30,7 +30,7 @@ public class ActivityReportAvailableEventProcessor extends NotificationEventProc
 	List<User> getReceivers() {
 		List<User> users = new ArrayList<>();
 
-		users.add(event.getActor());
+//		users.add(event.getActor());
 		return users;
 	}
 

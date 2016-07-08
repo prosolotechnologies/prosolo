@@ -118,9 +118,8 @@ public class GoalWallBean implements Serializable {
 	
 	public void createNewPost(GoalDataCache goalData, NewPostData newPostData) {
 		try {
-			User user = loggedUser.getUser();
 			PostEvent postEvent = postManager.createNewGoalNote(
-					user, 
+					loggedUser.getUserId(), 
 					goalData.getData().getGoalId(), 
 					StringUtil.cleanHtml(newPostData.getText()), 
 					newPostData.getAttachmentPreview(),
@@ -132,7 +131,7 @@ public class GoalWallBean implements Serializable {
 			GoalNote goalNote = (GoalNote) postEvent.getPost();
 			
 			if (goalNote != null) {
-				logger.debug("User \"" + user.getName()+" "+user.getLastname()+"\" ("+user.getId()+")" +
+				logger.debug("User \"" + loggedUser.getUserId()+")" +
 						" added a goal note \""+newPostData.getText()+"\" )"+goalNote.getId()+")");
 				
 				
@@ -153,7 +152,7 @@ public class GoalWallBean implements Serializable {
     	UploadedFile uploadedFile = event.getFile();
     	
 		try {
-			AttachmentPreview attachmentPreview = uploadManager.uploadFile(loggedUser.getUser(), uploadedFile, uploadedFile.getFileName());
+			AttachmentPreview attachmentPreview = uploadManager.uploadFile(uploadedFile, uploadedFile.getFileName());
 			
 			newPostData.setAttachmentPreview(attachmentPreview);
 

@@ -67,7 +67,7 @@ public class LikeEventProcessing extends NotificationEventProcessor {
 
 	@Override
 	long getSenderId() {
-		return event.getActor().getId();
+		return event.getActorId();
 	}
 
 	@Override

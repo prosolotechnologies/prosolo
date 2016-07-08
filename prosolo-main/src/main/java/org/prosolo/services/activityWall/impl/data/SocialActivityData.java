@@ -30,7 +30,6 @@ import org.prosolo.services.activityWall.impl.util.SocialActivityConverterUtil;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.NodeData;
 import org.prosolo.web.activitywall.data.SocialActivityCommentData;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.util.AvatarUtils;
 
 /**
@@ -173,7 +172,7 @@ public class SocialActivityData implements Serializable {
 			this.actor.setName(actorName + " " + actorLastname);
 			this.actor.setAvatarUrl(AvatarUtils.getAvatarUrlInFormat(actorAvatarUrl, ImageFormat.size120x120));
 			this.actor.setPosition(actorPosition);
-			this.actor.setProfileUrl(actorProfileUrl);;
+//			this.actor.setProfileUrl(actorProfileUrl);;
 		}
 		
 		if (socialActivityDType.equals("TwitterPostSocialActivity")) {
@@ -181,19 +180,19 @@ public class SocialActivityData implements Serializable {
 			if (twitterUserType.intValue() == UserType.TWITTER_USER.ordinal()) {
 				this.anonUser = true;
 				this.twitterUserType = UserType.TWITTER_USER;
-				this.actor.setExternalUser(true);
+//				this.actor.setExternalUser(true);
 			} else {
 				this.twitterUserType = UserType.REGULAR_USER;
-				this.actor.setExternalUser(false);
+//				this.actor.setExternalUser(false);
 			}
 
 			this.actor.setAvatarUrl(twitterPosterAvatarUrl);
-			this.actor.setProfileUrl(twitterPosterProfileUrl);
+//			this.actor.setProfileUrl(twitterPosterProfileUrl);
 			this.actor.setName(twitterPosterName);
 			
 			this.publishingService = new PublishingServiceData(ServiceType.TWITTER, twitterPosterNickname, twitterPosterProfileUrl);
 			
-			this.actor.setPublishingService(publishingService);
+//			this.actor.setPublishingService(publishingService);
 			
 			// since user.id is used on the interface to uniquely identify a user (e.g. for tooltip), we are setting socialActivity.id as an identifier
 //			wallActivity.getActor().setId(socialActivity.getId());
@@ -302,7 +301,7 @@ public class SocialActivityData implements Serializable {
 		this.dateCreated = socialActivity.getDateCreated();
 		
 		//this.actor = new UserData(socialActivity.getMaker());
-		this.actor=UserDataFactory.createUserData(socialActivity.getMaker());
+		this.actor = new UserData(socialActivity.getMaker());
 		
 		if (socialActivity instanceof TwitterPostSocialActivity) {
 			
@@ -310,7 +309,7 @@ public class SocialActivityData implements Serializable {
 			this.anonUser = true;
 			if(this.actor!=null){
 				this.actor.setAvatarUrl(twitterPostSocialActivity.getAvatarUrl());
-				this.actor.setProfileUrl(twitterPostSocialActivity.getProfileUrl());
+//				this.actor.setProfileUrl(twitterPostSocialActivity.getProfileUrl());
 				this.actor.setName(twitterPostSocialActivity.getName());
 			}else{
 				System.out.println("Actor is null here...");
@@ -322,7 +321,7 @@ public class SocialActivityData implements Serializable {
 					twitterPostSocialActivity.getNickname(), 
 					twitterPostSocialActivity.getProfileUrl());
 			
-			this.actor.setPublishingService(publishingService);
+//			this.actor.setPublishingService(publishingService);
 			
 			// since user.id is used on the interface to uniquely identify a user (e.g. for tooltip), we are setting socialActivity.id as an identifier
 //			wallActivity.getActor().setId(socialActivity.getId());
@@ -349,7 +348,7 @@ public class SocialActivityData implements Serializable {
 				}
 			} else if (socialActivity.getTarget() instanceof User) {
 				//this.targetActor = new UserData((User) socialActivity.getTarget());
-				this.targetActor = UserDataFactory.createUserData((User) socialActivity.getTarget());
+				this.targetActor = new UserData((User) socialActivity.getTarget());
 			}
 		}
 		

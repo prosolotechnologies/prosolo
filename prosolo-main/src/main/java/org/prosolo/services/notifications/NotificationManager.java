@@ -21,7 +21,7 @@ public interface NotificationManager extends AbstractManager {
 
 //	List<Notification> fetchNewNotifications(User user, int limit);
 
-	List<Notification> getNotifications(User user, int page, int limit);
+	List<Notification> getNotifications(long userId, int page, int limit);
 
 	List<Notification> getNotifications(User user, int limit, Collection<Notification> filterList);
 
@@ -33,9 +33,9 @@ public interface NotificationManager extends AbstractManager {
 //			String message, Date date, boolean notifyByUI, 
 //			boolean notifyByEmail, Session session);
 
-	Integer getNumberOfUnreadNotifications(User user);
+	Integer getNumberOfUnreadNotifications(long userId);
 
-	void markAsReadAllUnreadNotifications(User user, Session session);
+	void markAsReadAllUnreadNotifications(long userId, Session session);
 
 	Notification markNotificationStatus(long notificationId, NotificationAction status) throws ResourceCouldNotBeLoadedException;
 

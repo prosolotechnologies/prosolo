@@ -16,13 +16,13 @@ import org.prosolo.services.activityWall.strategy.Strategy;
 public class MyActivitiesFilterProcessor implements SocialActivityFilterProcessor {
 	
 	@Override
-	public boolean checkSocialActivity(SocialActivity1 socialActivity, User user, Filter filter) {
+	public boolean checkSocialActivity(SocialActivity1 socialActivity, long userId, Filter filter) {
 		if (socialActivity instanceof TwitterPostSocialActivity1) {
 			return false;
 		}
 		
 		// need to check maker for null as TwitterPostSocialActivity does not have maker set
-		if (socialActivity.getActor() != null && socialActivity.getActor().getId() == user.getId()) {
+		if (socialActivity.getActor() != null && socialActivity.getActor().getId() == userId) {
 			
 			return true;
 		}

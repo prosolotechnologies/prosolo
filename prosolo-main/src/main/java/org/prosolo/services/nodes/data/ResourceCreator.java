@@ -19,8 +19,8 @@ public class ResourceCreator {
 		this.avatar = creatorAvatar;
 	}
 	
-	public void setFullName(String name, String lastName) {
-		this.name = name + (lastName != null ? " " + lastName : "");
+	public void setFullName(String name) {
+		this.name = name;
 	}
 	
 	public void setAvatarUrl(String avatarUrl) {

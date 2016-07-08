@@ -80,7 +80,7 @@ public class SearchCoursesBean implements Serializable {
 		if(role.equals("MANAGER") && personalizedCourseIds == null) {
 			boolean showAll = loggedUserBean.hasCapability("COURSE.VIEW");
 			if(!showAll) {
-				long personalizedForUserId = loggedUserBean.getUser().getId();
+				long personalizedForUserId = loggedUserBean.getUserId();
 				List<Long> ids = textSearch.getInstructorCourseIds(personalizedForUserId);
 				personalizedCourseIds = (ids == null ? new ArrayList<>() : ids);
 			} else {
@@ -226,7 +226,7 @@ public class SearchCoursesBean implements Serializable {
 	
 	public String createNewCourseAndNavigate(String url) {
 		try {
-			Course course = courseManager.createNewUntitledCourse(loggedUserBean.getUser(), CreatorType.MANAGER);
+			Course course = courseManager.createNewUntitledCourse(loggedUserBean.getUserId(), CreatorType.MANAGER);
 			String encodedId = idEncoder.encodeId(course.getId());
 			String redirectUrl = url + "?faces-redirect=true&id=" + encodedId;
 			return redirectUrl;

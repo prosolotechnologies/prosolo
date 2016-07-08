@@ -151,9 +151,6 @@ public class LoggingDBManagerImpl extends AbstractDB implements LoggingDBManager
 			String eventType = (String) dbObject.get("eventType");
 			log.setAction(eventType);
 			
-			String actorFullname = (String) dbObject.get("actorFullname");
-			log.setActorFullname(actorFullname);
-			
 			String objectType = (String) dbObject.get("objectType");
 			log.setObjectType(objectType);
 			

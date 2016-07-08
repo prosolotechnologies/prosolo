@@ -52,15 +52,15 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
  	
 	@Override
 	@Transactional (readOnly = true)
-	public Integer getNumberOfUnreadNotifications(User user) {
+	public Integer getNumberOfUnreadNotifications(long userId) {
 		  String query=
 		   "SELECT COUNT(notification1) " +
 		   "FROM Notification1 notification1 " +
-		   "WHERE notification1.receiver = :user " +
+		   "WHERE notification1.receiver.id = :userId " +
 		    "AND notification1.read = false " ;
 		  
 		  long resNumber = (long) persistence.currentManager().createQuery(query)
-		     .setEntity("user", user)
+		     .setLong("userId", userId)
 		     .uniqueResult();
 		  
 		    return (int) resNumber;
@@ -97,20 +97,20 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 	}
 	
 	@Transactional (readOnly = true)
-	public List<Notification> getNotifications(User user, int page, int limit) {
+	public List<Notification> getNotifications(long userId, int page, int limit) {
 		String query=
 			"SELECT DISTINCT notification " +
 			"FROM PersonalCalendar calendar " +
 			"LEFT JOIN calendar.user user " +
 			"LEFT JOIN calendar.notifications notification "+
 			"LEFT JOIN FETCH notification.actor "+
-			"WHERE user = :user " +
+			"WHERE user.id = :userId " +
 			"AND notification.notifyByUI = :notifyByUI " +
 			"ORDER BY notification.dateCreated DESC";
 	  	
 		@SuppressWarnings("unchecked")
 		List<Notification> result = persistence.currentManager().createQuery(query)
-		  	.setEntity("user", user)
+		  	.setLong("userId", userId)
 		  	.setBoolean("notifyByUI", true)
 		  	.setFirstResult(page * limit)
 			.setMaxResults(limit)
@@ -135,18 +135,18 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 	
 	@Override
 	@Transactional (readOnly = false)
-	public void markAsReadAllUnreadNotifications(User user, Session session) {
+	public void markAsReadAllUnreadNotifications(long userId, Session session) {
 		String query =
 			"SELECT DISTINCT notification.id " +
 			"FROM PersonalCalendar calendar " +
 			"LEFT JOIN calendar.user user " +
 			"LEFT JOIN calendar.notifications notification "+
-				"WHERE user = :user " +
+				"WHERE user.id = :userId " +
 				"AND notification.read = false ";
 
 		@SuppressWarnings("unchecked")
 		List<Long> result = persistence.currentManager().createQuery(query)
-		  	.setEntity("user", user)
+		  	.setLong("userId", userId)
 	  		.list();
 		
 		if (result != null && !result.isEmpty()) {

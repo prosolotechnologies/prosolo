@@ -118,7 +118,7 @@ public class CompetenceDataCache implements Serializable, LastActivityAware, Com
 			this.activities = compWallActivityConverter.convertToActivityInstances(
 					this,
 					sortedActivities, 
-					loggedUser.getUser(), 
+					loggedUser.getUserId(), 
 					true, 
 					false,
 					loggedUser.getLocale());
@@ -157,7 +157,7 @@ public class CompetenceDataCache implements Serializable, LastActivityAware, Com
 		
 		if (recommendLearningPlans == null) {
 			recommendLearningPlans = lpRecommender.recommendLearningPlans(
-				loggedUser.getUser(), 
+				loggedUser.getUserId(), 
 				data.getId(), 
 				4);
 		}
@@ -253,7 +253,7 @@ public class CompetenceDataCache implements Serializable, LastActivityAware, Com
 			if (relatedActivities != null && !relatedActivities.isEmpty()) {
 				List<ActivityWallData> convertedRelatedActivities = compWallActivityConverter.convertActivities(
 						relatedActivities,
-						loggedUser.getUser(),
+						loggedUser.getUserId(),
 						loggedUser.getLocale(),
 						true, 
 						false);

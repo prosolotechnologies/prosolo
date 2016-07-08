@@ -60,19 +60,19 @@ public class EvaluationManagerImpl extends AbstractManagerImpl implements Evalua
 
 	@Override
 	@Transactional (readOnly = false)
-	public Collection<Request> sendEvaluationRequests(User maker, Collection<Long> evaluatorIds, BaseEntity resource, String text) throws EventException{
+	public Collection<Request> sendEvaluationRequests(long makerId, Collection<Long> evaluatorIds, BaseEntity resource, String text) throws EventException{
 		if (resource != null && evaluatorIds != null && !evaluatorIds.isEmpty()) {
 			
 			Collection<Request> requests = new ArrayList<Request>();
 			
 			for (Long evaluatorId : evaluatorIds) {
-				try {
-					User evaluator = loadResource(User.class, evaluatorId);
-					Request request = requestManager.createRequest(resource, maker, evaluator, text, EventType.EVALUATION_REQUEST);
-					requests.add(request);
-				} catch (ResourceCouldNotBeLoadedException e) {
-					logger.error(e);
-				}
+//				try {
+//					User evaluator = loadResource(User.class, evaluatorId);
+//					Request request = requestManager.createRequest(resource, maker, evaluator, text, EventType.EVALUATION_REQUEST);
+//					requests.add(request);
+//				} catch (ResourceCouldNotBeLoadedException e) {
+//					logger.error(e);
+//				}
 			}
 			return requests;
 		}
@@ -81,78 +81,80 @@ public class EvaluationManagerImpl extends AbstractManagerImpl implements Evalua
 	
 	@Override
 	@Transactional (readOnly = false)
-	public Request resubmitEvaluationRequest(User maker, EvaluationSubmission previousSubmission, String text) throws EventException{
-		User evaluator = merge(previousSubmission.getMaker());
-		Request request = previousSubmission.getRequest();
-		
-		return requestManager.createRequest(
-				request.getResource(), 
-				maker, 
-				evaluator, 
-				text, 
-				EventType.EVALUATION_REQUEST);
+	public Request resubmitEvaluationRequest(long makerId, EvaluationSubmission previousSubmission, String text) throws EventException{
+//		User evaluator = merge(previousSubmission.getMaker());
+//		Request request = previousSubmission.getRequest();
+//		
+//		return requestManager.createRequest(
+//				request.getResource(), 
+//				maker, 
+//				evaluator, 
+//				text, 
+//				EventType.EVALUATION_REQUEST);
+		return null;
 	}
 	
 	@Override
 	@Transactional (readOnly = false)
-	public EvaluationSubmission createEvaluationSubmissionDraft(User maker,
+	public EvaluationSubmission createEvaluationSubmissionDraft(long makerId,
 			Request evaluationRequest) throws InvalidParameterException, EventException, EvaluationNotSupportedException, ResourceCouldNotBeLoadedException {
 		
-		if (maker != null && evaluationRequest != null) {
-			// check whether this is evaluation resubmission
-			EvaluationSubmission previousSubmission = null;
-			
-			if (evaluationRequest.getBasedOn() != null) {
-				previousSubmission = getEvaluationSubmission(evaluationRequest.getBasedOn().getId());
-			}
-			
-			Date currentTime = new Date();
-			
-			BaseEntity resource = evaluationRequest.getResource();
-
-			EvaluationSubmission evaluationSubmission = new EvaluationSubmission();
-			evaluationSubmission.setMaker(maker);
-			evaluationSubmission.setDateCreated(currentTime);
-			evaluationSubmission.setMessage("");
-			evaluationSubmission.setRequest(evaluationRequest);
-			evaluationSubmission.setBasedOn(previousSubmission);
-			evaluationSubmission = saveEntity(evaluationSubmission);
-			
-			if (previousSubmission != null) {
-				previousSubmission.setBasedOnChild(evaluationSubmission);
-				previousSubmission = saveEntity(previousSubmission);
-			}
-			
-			// resource the evaluation has been requested for is marked as primary evaluation
-			Evaluation primaryEvaluation = creteEvaluation(maker, currentTime, evaluationSubmission, resource);
-			primaryEvaluation.setPrimaryEvaluation(true);
-			primaryEvaluation = saveEntity(primaryEvaluation);
-			
-			evaluationSubmission.setPrimaryEvaluation(primaryEvaluation);
-			evaluationSubmission.addEvaluation(primaryEvaluation);
-			
-			if (resource instanceof TargetLearningGoal) {
-				Collection<TargetCompetence> targetCompetences = ((TargetLearningGoal) resource).getTargetCompetences();
-				
-				for (TargetCompetence tComp : targetCompetences) {
-					Evaluation ev = creteEvaluation(maker, currentTime, evaluationSubmission, tComp);
-
-					evaluationSubmission.addEvaluation(ev);
-				}
-			} if (resource instanceof ExternalCredit) {
-				Collection<AchievedCompetence> competences = ((ExternalCredit) resource).getCompetences();
-				
-				for (AchievedCompetence achievedCompetence : competences) {
-					Evaluation ev1 = creteEvaluation(maker, currentTime, evaluationSubmission, achievedCompetence);
-					
-					evaluationSubmission.addEvaluation(ev1);
-				}
-			}
-			
-			return saveEntity(evaluationSubmission);
-		} else
-			throw new InvalidParameterException("Several of parameters passed have null value: " +
-					"maker ["+maker+"], evaluationRequest ["+evaluationRequest+"] ");
+//		if (maker != null && evaluationRequest != null) {
+//			// check whether this is evaluation resubmission
+//			EvaluationSubmission previousSubmission = null;
+//			
+//			if (evaluationRequest.getBasedOn() != null) {
+//				previousSubmission = getEvaluationSubmission(evaluationRequest.getBasedOn().getId());
+//			}
+//			
+//			Date currentTime = new Date();
+//			
+//			BaseEntity resource = evaluationRequest.getResource();
+//
+//			EvaluationSubmission evaluationSubmission = new EvaluationSubmission();
+//			evaluationSubmission.setMaker(maker);
+//			evaluationSubmission.setDateCreated(currentTime);
+//			evaluationSubmission.setMessage("");
+//			evaluationSubmission.setRequest(evaluationRequest);
+//			evaluationSubmission.setBasedOn(previousSubmission);
+//			evaluationSubmission = saveEntity(evaluationSubmission);
+//			
+//			if (previousSubmission != null) {
+//				previousSubmission.setBasedOnChild(evaluationSubmission);
+//				previousSubmission = saveEntity(previousSubmission);
+//			}
+//			
+//			// resource the evaluation has been requested for is marked as primary evaluation
+//			Evaluation primaryEvaluation = creteEvaluation(maker, currentTime, evaluationSubmission, resource);
+//			primaryEvaluation.setPrimaryEvaluation(true);
+//			primaryEvaluation = saveEntity(primaryEvaluation);
+//			
+//			evaluationSubmission.setPrimaryEvaluation(primaryEvaluation);
+//			evaluationSubmission.addEvaluation(primaryEvaluation);
+//			
+//			if (resource instanceof TargetLearningGoal) {
+//				Collection<TargetCompetence> targetCompetences = ((TargetLearningGoal) resource).getTargetCompetences();
+//				
+//				for (TargetCompetence tComp : targetCompetences) {
+//					Evaluation ev = creteEvaluation(maker, currentTime, evaluationSubmission, tComp);
+//
+//					evaluationSubmission.addEvaluation(ev);
+//				}
+//			} if (resource instanceof ExternalCredit) {
+//				Collection<AchievedCompetence> competences = ((ExternalCredit) resource).getCompetences();
+//				
+//				for (AchievedCompetence achievedCompetence : competences) {
+//					Evaluation ev1 = creteEvaluation(maker, currentTime, evaluationSubmission, achievedCompetence);
+//					
+//					evaluationSubmission.addEvaluation(ev1);
+//				}
+//			}
+//			
+//			return saveEntity(evaluationSubmission);
+//		} else
+//			throw new InvalidParameterException("Several of parameters passed have null value: " +
+//					"maker ["+maker+"], evaluationRequest ["+evaluationRequest+"] ");
+		return null;
 	}
 
 	private Evaluation creteEvaluation(User maker, Date currentTime, EvaluationSubmission evaluationSubmission, BaseEntity resource)
@@ -295,15 +297,15 @@ public class EvaluationManagerImpl extends AbstractManagerImpl implements Evalua
 				
 				// if reached here, that means that there is no Evaluation instance for this specific evaluatedResData
 				// this is probably because this is added Competence
-				CompletedResource completedRes = portfolioManager.getCompletedResource(evaluationSubmission.getRequest().getMaker(), evaluatedResData.getResource());
-				
+//				CompletedResource completedRes = portfolioManager.getCompletedResource(evaluationSubmission.getRequest().getMaker(), evaluatedResData.getResource());
+//				
 				BaseEntity resourceToBeEvaluated = null;
-				
-				if (completedRes.getResource() != null) {
-					resourceToBeEvaluated = completedRes.getResource();
-				} else {
-					resourceToBeEvaluated = completedRes;
-				}
+//				
+//				if (completedRes.getResource() != null) {
+//					resourceToBeEvaluated = completedRes.getResource();
+//				} else {
+//					resourceToBeEvaluated = completedRes;
+//				}
 				
 				Evaluation ev = instantiateEvaluation(resourceToBeEvaluated);
 				ev.setDateCreated(currentTime);
@@ -514,193 +516,196 @@ public class EvaluationManagerImpl extends AbstractManagerImpl implements Evalua
 	
 	@Override
 	@Transactional (readOnly = true)
-	public List<EvaluationSubmission> getEvaluationsByUser(User user, boolean sortDesc, EvaluationFilter filter) {
-		StringBuffer query = new StringBuffer(
-			"SELECT DISTINCT evSubm " +
-			"FROM EvaluationSubmission evSubm " +
-			"WHERE evSubm.maker = :user ");
-			
-		if (filter.equals(EvaluationFilter.DRAFT) || filter.equals(EvaluationFilter.SUBMITTED)) {
-			query.append("AND evSubm.finalized = :finalized");
-		}
-
-		query.append(" ORDER BY evSubm.dateSubmitted " + (sortDesc ? "DESC" : "ASC"));
-		
-		Query q = persistence.currentManager().createQuery(query.toString()).
-				setEntity("user", user);
-		
-		if (filter.equals(EvaluationFilter.DRAFT)) {
-			q.setBoolean("finalized", false);
-		} else if (filter.equals(EvaluationFilter.SUBMITTED)) {
-			q.setBoolean("finalized", true);
-		}
-		
-		@SuppressWarnings("unchecked")
-		List<EvaluationSubmission> result = q.list();
-		
-		if (result != null && !result.isEmpty()) {
-			return result;
-		}
+	public List<EvaluationSubmission> getEvaluationsByUser(long makerId, boolean sortDesc, EvaluationFilter filter) {
+//		StringBuffer query = new StringBuffer(
+//			"SELECT DISTINCT evSubm " +
+//			"FROM EvaluationSubmission evSubm " +
+//			"WHERE evSubm.maker = :user ");
+//			
+//		if (filter.equals(EvaluationFilter.DRAFT) || filter.equals(EvaluationFilter.SUBMITTED)) {
+//			query.append("AND evSubm.finalized = :finalized");
+//		}
+//
+//		query.append(" ORDER BY evSubm.dateSubmitted " + (sortDesc ? "DESC" : "ASC"));
+//		
+//		Query q = persistence.currentManager().createQuery(query.toString()).
+//				setEntity("user", user);
+//		
+//		if (filter.equals(EvaluationFilter.DRAFT)) {
+//			q.setBoolean("finalized", false);
+//		} else if (filter.equals(EvaluationFilter.SUBMITTED)) {
+//			q.setBoolean("finalized", true);
+//		}
+//		
+//		@SuppressWarnings("unchecked")
+//		List<EvaluationSubmission> result = q.list();
+//		
+//		if (result != null && !result.isEmpty()) {
+//			return result;
+//		}
 
 		return null;
 	}
 	
 	@Override
 	@Transactional (readOnly = true)
-	public List<User> getEvaluatorsWhoAcceptedResource(User user, BaseEntity resource) {
-		String property = resource.getClass().getSimpleName();
-		property = property.substring(0, 1).toLowerCase() + property.substring(1, property.length());
-		
-		String query = 
-			"SELECT maker " +
-			"FROM EvaluationSubmission evSubmission " +
-			"LEFT JOIN evSubmission.evaluations ev " +
-			"LEFT JOIN ev."+property+" res " +
-			"LEFT JOIN ev.maker maker " +
-			"LEFT JOIN ev.evaluationSubmission evSubmission " +
-			"LEFT JOIN evSubmission.request request " +
-			"LEFT JOIN request.maker user " +
-			"WHERE res.id = :resourceId " + 
-				"AND user = :user " +
-				"AND evSubmission.accepted = true " +
-				"AND evSubmission.finalized = true";
-
-		@SuppressWarnings("unchecked")
-		List<User> result = persistence.currentManager().createQuery(query).
-			setEntity("user", user).
-			setLong("resourceId", resource.getId()).
-			list();
-		
-		if (result == null) {
-			result = new ArrayList<User>();
-		}
-		
-		if (resource.getClass().equals(AchievedCompetence.class)) {
-			TargetCompetence tComp = portfolioManager.getTargetCompetenceOfAchievedCompetence(resource.getId());
-			
-			if (tComp != null) {
-				TargetCompetence targetCompetence = ((AchievedCompetence) resource).getTargetCompetence();
-				
-				if (targetCompetence != null) {
-					
-					List<User> tCompEvaluators = getEvaluatorsWhoAcceptedResource(user, targetCompetence);
-					
-					result.addAll(tCompEvaluators);
-				}
-			}
-		}
-		
-		return result;
-	}
-	
-	@Override
-	@Transactional (readOnly = true)
-	public boolean hasUserRequestedEvaluation(User user, BaseEntity resource) {
-		String requestProperty = resource.getClass().getSimpleName();
-		requestProperty = requestProperty.substring(0, 1).toLowerCase() + requestProperty.substring(1, requestProperty.length());
-		
-		if (Node.class.isAssignableFrom(resource.getClass())) {
-			requestProperty = "node";
-		}
-		requestProperty += "Resource";
-		
-		String query = 
-			"SELECT COUNT(request) " +
-			"FROM Request request " +
-			"WHERE request.maker = :user " +
-				"AND request."+requestProperty+" = :resource ";
-		
-		Long result = (Long) persistence.currentManager().createQuery(query).
-			setEntity("user", user).
-			setEntity("resource", resource).
-			uniqueResult();
-		
-		return result > 0;
-	}
-	
-	@Override
-	@Transactional (readOnly = true)
-	public List<User> getEvaluatorsWhoIgnoredResource(User user, BaseEntity resource) {
-		List<User> result = null;
-		
-//		if (resource instanceof Node || resource instanceof ExternalCredit) {
-			// get users who have ignored evaluation request
-			String requestProperty = resource.getClass().getSimpleName();
-			requestProperty = requestProperty.substring(0, 1).toLowerCase() + requestProperty.substring(1, requestProperty.length());
-			
-			if (Node.class.isAssignableFrom(resource.getClass())) {
-				requestProperty = "node";
-			}
-			requestProperty += "Resource";
-			
-			String query = 
-				"SELECT request.sentTo " +
-				"FROM Request request " +
-				"WHERE request.maker = :user " +
-					"AND request."+requestProperty+" = :resource " +
-					"AND request.requestType = :requestType " +
-					"AND request.status != :acceptedStatus ";
-			
-			@SuppressWarnings("unchecked")
-			List<User> users = persistence.currentManager().createQuery(query).
-				setEntity("user", user).
-				setEntity("resource", resource).
-				setString("requestType", EventType.EVALUATION_REQUEST.name()).
-				setString("acceptedStatus", RequestStatus.ACCEPTED.name()).
-				list();
-			
-			result = users;
+	public List<User> getEvaluatorsWhoAcceptedResource(long makerId, BaseEntity resource) {
+//		String property = resource.getClass().getSimpleName();
+//		property = property.substring(0, 1).toLowerCase() + property.substring(1, property.length());
+//		
+//		String query = 
+//			"SELECT maker " +
+//			"FROM EvaluationSubmission evSubmission " +
+//			"LEFT JOIN evSubmission.evaluations ev " +
+//			"LEFT JOIN ev."+property+" res " +
+//			"LEFT JOIN ev.maker maker " +
+//			"LEFT JOIN ev.evaluationSubmission evSubmission " +
+//			"LEFT JOIN evSubmission.request request " +
+//			"LEFT JOIN request.maker user " +
+//			"WHERE res.id = :resourceId " + 
+//				"AND user = :user " +
+//				"AND evSubmission.accepted = true " +
+//				"AND evSubmission.finalized = true";
+//
+//		@SuppressWarnings("unchecked")
+//		List<User> result = persistence.currentManager().createQuery(query).
+//			setEntity("user", user).
+//			setLong("resourceId", resource.getId()).
+//			list();
+//		
+//		if (result == null) {
+//			result = new ArrayList<User>();
 //		}
-		
-		if (result == null) {
-			result = new ArrayList<User>();
-		}
-		
-		// get users who have created unfinalised evaluation submissions
-		String evaluationProperty = resource.getClass().getSimpleName();
-		evaluationProperty = evaluationProperty.substring(0, 1).toLowerCase() + evaluationProperty.substring(1, evaluationProperty.length());
-		
-		String query1 = 
-			"SELECT maker " +
-			"FROM EvaluationSubmission evSubmission " +
-			"LEFT JOIN evSubmission.evaluations ev " +
-			"LEFT JOIN ev."+evaluationProperty+" res " +
-			"LEFT JOIN ev.maker maker " +
-			"LEFT JOIN ev.evaluationSubmission evSubmission " +
-			"LEFT JOIN evSubmission.request request " +
-			"LEFT JOIN request.maker user " +
-			"WHERE res.id = :resourceId " + 
-				"AND user = :user " +
-				"AND evSubmission.finalized = false";
-
-		@SuppressWarnings("unchecked")
-		List<User> result1 = persistence.currentManager().createQuery(query1).
-			setEntity("user", user).
-			setLong("resourceId", resource.getId()).
-			list();
-		
-		if (result1 == null) {
-			result1 = new ArrayList<User>();
-		}
-
-		result.addAll(result1);
-		
-		if (resource.getClass().equals(AchievedCompetence.class)) {
-			TargetCompetence tComp = portfolioManager.getTargetCompetenceOfAchievedCompetence(resource.getId());
-			
-			if (tComp != null) {
-				TargetCompetence targetCompetence = ((AchievedCompetence) resource).getTargetCompetence();
-				
-				if (targetCompetence != null) {
-					
-					List<User> tCompIgnoredEvaluators = getEvaluatorsWhoIgnoredResource(user, targetCompetence);
-					
-					result.addAll(tCompIgnoredEvaluators);
-				}
-			}
-		}
-		
-		return result;
+//		
+//		if (resource.getClass().equals(AchievedCompetence.class)) {
+//			TargetCompetence tComp = portfolioManager.getTargetCompetenceOfAchievedCompetence(resource.getId());
+//			
+//			if (tComp != null) {
+//				TargetCompetence targetCompetence = ((AchievedCompetence) resource).getTargetCompetence();
+//				
+//				if (targetCompetence != null) {
+//					
+//					List<User> tCompEvaluators = getEvaluatorsWhoAcceptedResource(user, targetCompetence);
+//					
+//					result.addAll(tCompEvaluators);
+//				}
+//			}
+//		}
+//		
+//		return result;
+		return null;
+	}
+	
+	@Override
+	@Transactional (readOnly = true)
+	public boolean hasUserRequestedEvaluation(long makerId, BaseEntity resource) {
+//		String requestProperty = resource.getClass().getSimpleName();
+//		requestProperty = requestProperty.substring(0, 1).toLowerCase() + requestProperty.substring(1, requestProperty.length());
+//		
+//		if (Node.class.isAssignableFrom(resource.getClass())) {
+//			requestProperty = "node";
+//		}
+//		requestProperty += "Resource";
+//		
+//		String query = 
+//			"SELECT COUNT(request) " +
+//			"FROM Request request " +
+//			"WHERE request.maker = :user " +
+//				"AND request."+requestProperty+" = :resource ";
+//		
+//		Long result = (Long) persistence.currentManager().createQuery(query).
+//			setEntity("user", user).
+//			setEntity("resource", resource).
+//			uniqueResult();
+//		
+//		return result > 0;
+		return false;
+	}
+	
+	@Override
+	@Transactional (readOnly = true)
+	public List<User> getEvaluatorsWhoIgnoredResource(long makerId, BaseEntity resource) {
+//		List<User> result = null;
+//		
+////		if (resource instanceof Node || resource instanceof ExternalCredit) {
+//			// get users who have ignored evaluation request
+//			String requestProperty = resource.getClass().getSimpleName();
+//			requestProperty = requestProperty.substring(0, 1).toLowerCase() + requestProperty.substring(1, requestProperty.length());
+//			
+//			if (Node.class.isAssignableFrom(resource.getClass())) {
+//				requestProperty = "node";
+//			}
+//			requestProperty += "Resource";
+//			
+//			String query = 
+//				"SELECT request.sentTo " +
+//				"FROM Request request " +
+//				"WHERE request.maker = :user " +
+//					"AND request."+requestProperty+" = :resource " +
+//					"AND request.requestType = :requestType " +
+//					"AND request.status != :acceptedStatus ";
+//			
+//			@SuppressWarnings("unchecked")
+//			List<User> users = persistence.currentManager().createQuery(query).
+//				setEntity("user", user).
+//				setEntity("resource", resource).
+//				setString("requestType", EventType.EVALUATION_REQUEST.name()).
+//				setString("acceptedStatus", RequestStatus.ACCEPTED.name()).
+//				list();
+//			
+//			result = users;
+////		}
+//		
+//		if (result == null) {
+//			result = new ArrayList<User>();
+//		}
+//		
+//		// get users who have created unfinalised evaluation submissions
+//		String evaluationProperty = resource.getClass().getSimpleName();
+//		evaluationProperty = evaluationProperty.substring(0, 1).toLowerCase() + evaluationProperty.substring(1, evaluationProperty.length());
+//		
+//		String query1 = 
+//			"SELECT maker " +
+//			"FROM EvaluationSubmission evSubmission " +
+//			"LEFT JOIN evSubmission.evaluations ev " +
+//			"LEFT JOIN ev."+evaluationProperty+" res " +
+//			"LEFT JOIN ev.maker maker " +
+//			"LEFT JOIN ev.evaluationSubmission evSubmission " +
+//			"LEFT JOIN evSubmission.request request " +
+//			"LEFT JOIN request.maker user " +
+//			"WHERE res.id = :resourceId " + 
+//				"AND user = :user " +
+//				"AND evSubmission.finalized = false";
+//
+//		@SuppressWarnings("unchecked")
+//		List<User> result1 = persistence.currentManager().createQuery(query1).
+//			setEntity("user", user).
+//			setLong("resourceId", resource.getId()).
+//			list();
+//		
+//		if (result1 == null) {
+//			result1 = new ArrayList<User>();
+//		}
+//
+//		result.addAll(result1);
+//		
+//		if (resource.getClass().equals(AchievedCompetence.class)) {
+//			TargetCompetence tComp = portfolioManager.getTargetCompetenceOfAchievedCompetence(resource.getId());
+//			
+//			if (tComp != null) {
+//				TargetCompetence targetCompetence = ((AchievedCompetence) resource).getTargetCompetence();
+//				
+//				if (targetCompetence != null) {
+//					
+//					List<User> tCompIgnoredEvaluators = getEvaluatorsWhoIgnoredResource(user, targetCompetence);
+//					
+//					result.addAll(tCompIgnoredEvaluators);
+//				}
+//			}
+//		}
+//		
+//		return result;
+		return null;
 	}
 	
 	@Override

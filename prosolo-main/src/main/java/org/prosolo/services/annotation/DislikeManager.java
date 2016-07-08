@@ -11,24 +11,24 @@ import org.prosolo.services.event.EventException;
 
 public interface DislikeManager {
 	
-	void dislikeSocialActivity(User user, long notificationId, long socialActivityId,
+	void dislikeSocialActivity(long userId, long notificationId, long socialActivityId,
 			int newDislikeCount, Session session, String context, String page, 
 			String lContext, String service) 
 			throws EventException, ResourceCouldNotBeLoadedException;
 
-	Annotation dislikeComment(User user, long commentId, Session session, String context) throws EventException,
+	Annotation dislikeComment(long userId, long commentId, Session session, String context) throws EventException,
 	ResourceCouldNotBeLoadedException;
 
-	Annotation dislikeNode(User user, long resourceId, Session session,
+	Annotation dislikeNode(long userId, long resourceId, Session session,
 			String context, String page, String lContext, String service) throws EventException,
 			ResourceCouldNotBeLoadedException;
 
-	Annotation dislike(User user, BaseEntity resource, Annotation dislike,
+	Annotation dislike(long userId, BaseEntity resource, Annotation dislike,
 			Session session, String context, String page, String lContext, String service) throws EventException,
 			ResourceCouldNotBeLoadedException;
 
-	Annotation dislike(User user, BaseEntity resource, Session session, String context,
-			String page, String lContext, String service) throws EventException;
+	Annotation dislike(long userId, BaseEntity resource, Session session, String context,
+			String page, String lContext, String service) throws EventException, ResourceCouldNotBeLoadedException;
 
 	int dislikeCount(BaseEntity resource);
 	
@@ -36,20 +36,20 @@ public interface DislikeManager {
 
 	int dislikeCount(Class<? extends BaseEntity> clazz, long resourceId);
 
-	boolean isDislikedByUser(BaseEntity resource, User user);
+	boolean isDislikedByUser(BaseEntity resource, long userId);
 
-	void removeDislikeFromSocialActivity(User user, long notificationId, long socialActivityId,
+	void removeDislikeFromSocialActivity(long userId, long notificationId, long socialActivityId,
 			int newDislikeCount, Session session, String context,
 			String page, String lContext, String service) throws EventException,
 			ResourceCouldNotBeLoadedException;
 	
-	boolean removeDislikeFromNode(User user, long resourceId,
+	boolean removeDislikeFromNode(long userId, long resourceId,
 			Session session, String context, String page, String lContext, String service) throws EventException,
 			ResourceCouldNotBeLoadedException;
 
-	boolean removeDislikeFromComment(User user, long commentId, Session session, String context) throws EventException, ResourceCouldNotBeLoadedException;
+	boolean removeDislikeFromComment(long userId, long commentId, Session session, String context) throws EventException, ResourceCouldNotBeLoadedException;
 
-	boolean removeDislike(User user, BaseEntity resource, Session session, String context,
+	boolean removeDislike(long userId, BaseEntity resource, Session session, String context,
 			String page, String lContext, String service) throws EventException;
 	
 	List<User> getPeopleWhoDislikedResource(long resourceId, Class<? extends BaseEntity> clazz);

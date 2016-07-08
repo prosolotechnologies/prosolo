@@ -48,7 +48,7 @@ public class FreeToJoinGoalDialog extends MessagesBean{
 			this.context = context;
 			this.id = goalData.getGoalId();
 			this.learningGoal = goalData;
-			this.canBeJoined = goalManager.canUserJoinGoal(goalData.getGoalId(), loggedUser.getUser());
+			this.canBeJoined = goalManager.canUserJoinGoal(goalData.getGoalId(), loggedUser.getUserId());
 			this.receiver = goalData.getCreator();
 			this.messageContent = "I would like to join your goal";
 
@@ -60,12 +60,12 @@ public class FreeToJoinGoalDialog extends MessagesBean{
 
 	public void joinGoal() {
 		try {
-			TargetLearningGoal targetGoal = goalManager.createNewTargetLearningGoal(loggedUser.getUser(), learningGoal.getGoalId());
+			TargetLearningGoal targetGoal = goalManager.createNewTargetLearningGoal(loggedUser.getUserId(), learningGoal.getGoalId());
 			
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("context", context);
 			
-			eventFactory.generateEvent(EventType.JoinedGoal, loggedUser.getUser(), targetGoal, parameters);
+			eventFactory.generateEvent(EventType.JoinedGoal, loggedUser.getUserId(), targetGoal, parameters);
 			
 			PageUtil.fireSuccessfulInfoMessage("goalDetailsDialogGrowl", "You have joined the goal '" + learningGoal.getTitle()+"'.");
 		} catch (ResourceCouldNotBeLoadedException e) {

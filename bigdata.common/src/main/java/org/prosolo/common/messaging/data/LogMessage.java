@@ -17,7 +17,6 @@ public class LogMessage extends SimpleMessage{
 	private long timestamp;
 	private String eventType;
 	private long actorId;
-	private String actorFullname;
 	private String objectType;
 	private long objectId;
 	private String objectTitle;
@@ -52,12 +51,6 @@ public class LogMessage extends SimpleMessage{
 	}
 	public void setActorId(long actorId) {
 		this.actorId = actorId;
-	}
-	public String getActorFullname() {
-		return actorFullname;
-	}
-	public void setActorFullname(String actorFullname) {
-		this.actorFullname = actorFullname;
 	}
 	public String getObjectType() {
 		return objectType;

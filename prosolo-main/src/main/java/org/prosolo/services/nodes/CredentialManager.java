@@ -10,7 +10,6 @@ import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.common.exception.CompetenceEmptyException;
 import org.prosolo.services.common.exception.CredentialEmptyException;
 import org.prosolo.services.common.exception.DbConnectionException;
@@ -28,7 +27,7 @@ import com.amazonaws.services.identitymanagement.model.EntityAlreadyExistsExcept
 
 public interface CredentialManager extends AbstractManager {
 
-	Credential1 saveNewCredential(CredentialData data, User createdBy) throws DbConnectionException;
+	Credential1 saveNewCredential(CredentialData data, long creatorId) throws DbConnectionException;
 	
 	/**
 	 * Deletes credential by setting deleted flag to true on original credential and 
@@ -42,7 +41,7 @@ public interface CredentialManager extends AbstractManager {
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	Credential1 deleteCredential(long originalCredId, CredentialData data, User user) throws DbConnectionException;
+	Credential1 deleteCredential(long originalCredId, CredentialData data, long userId) throws DbConnectionException;
 	
 	/**
 	 * Returns user target credential data if user is enrolled in a credential, or credential data 
@@ -131,7 +130,7 @@ public interface CredentialManager extends AbstractManager {
 	CredentialData getCredentialDataForEdit(long credentialId, long creatorId, boolean loadCompetences) 
 			throws DbConnectionException;
 	
-	Credential1 updateCredential(long originalCredId, CredentialData data, User user, Role role) 
+	Credential1 updateCredential(long originalCredId, CredentialData data, long makerId, Role role) 
 			throws DbConnectionException, CredentialEmptyException, CompetenceEmptyException;
 	
 	Result<Credential1> updateCredential(CredentialData data, long creatorId, Role role);

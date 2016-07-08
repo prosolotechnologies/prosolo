@@ -28,7 +28,6 @@ import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.notifications.RequestManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.data.UserDataFactory;
 import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.logging.LoggingNavigationBean;
@@ -84,7 +83,7 @@ public class InviteGoalCollaboratorDialogBean implements Serializable {
 		
 		if (invited != null && !invited.isEmpty()) {
 			for (User user : invited) {
-				invitedUsers.add(UserDataFactory.createUserData(user));
+				invitedUsers.add(new UserData(user));
 			}
 		}
 		
@@ -147,7 +146,7 @@ public class InviteGoalCollaboratorDialogBean implements Serializable {
 				for (UserData collabToInviteData : collabratorsToInvite) {
 					Request	invitation = requestManager.inviteToJoinResource(
 							targetGoal, 
-							loggedUser.getUser(), 
+							loggedUser.getUserId(), 
 							collabToInviteData.getId(),
 							message);
 					
@@ -156,9 +155,9 @@ public class InviteGoalCollaboratorDialogBean implements Serializable {
 					parameters.put("targetGoalId", String.valueOf(targetGoal.getId()));
 					parameters.put("user", String.valueOf(collabToInviteData.getId()));
 					
-					eventFactory.generateEvent(EventType.JOIN_GOAL_INVITATION, loggedUser.getUser(), invitation, parameters);
+					eventFactory.generateEvent(EventType.JOIN_GOAL_INVITATION, loggedUser.getUserId(), invitation, parameters);
 					
-					logger.debug("User "+loggedUser.getUser()+" sent invitation to user "+collabToInviteData+" to join target learning goal "+targetGoalId);
+					logger.debug("User "+loggedUser.getUserId()+" sent invitation to user "+collabToInviteData+" to join target learning goal "+targetGoalId);
 				}
 				
 				PageUtil.fireSuccessfulInfoMessage(collabratorsToInvite.size() + (collabratorsToInvite.size() == 1 ? " goal invitation is sent!" : " goal invitations are sent!"));
@@ -177,7 +176,7 @@ public class InviteGoalCollaboratorDialogBean implements Serializable {
 		excludedUsersForSearch.clear();
 		
 		List<Long> totalListToExclude = new ArrayList<Long>(excludedUsersForSearch);
-		totalListToExclude.add(loggedUser.getUser().getId());
+		totalListToExclude.add(loggedUser.getUserId());
 		
 		if (moreToExclude != null) {
 			for (long l : moreToExclude) {
@@ -202,7 +201,7 @@ public class InviteGoalCollaboratorDialogBean implements Serializable {
 			List<User> result = (List<User>) usersResponse.getFoundNodes();
 			
 			for (User user : result) {
-				UserData userData = UserDataFactory.createUserData(user);
+				UserData userData = new UserData(user);
 				
 				userSearchResults.add(userData);
 			}
@@ -212,7 +211,7 @@ public class InviteGoalCollaboratorDialogBean implements Serializable {
 	public void addUser(UserData userData) {
 		if (userData != null && !collabratorsToInvite.contains(userData)) {
 			collabratorsToInvite.add(userData);
-			userData.setDisabled(true);
+//			userData.setDisabled(true);
 			
 			recommendedCollaboratorsEdit.remove(userData);
 		}
@@ -229,7 +228,7 @@ public class InviteGoalCollaboratorDialogBean implements Serializable {
 				UserData u = (UserData) iterator.next();
 				
 				if (u.equals(userData)) {
-					u.setDisabled(false);
+//					u.setDisabled(false);
 					iterator.remove();
 					break;
 				}

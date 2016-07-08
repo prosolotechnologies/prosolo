@@ -54,10 +54,10 @@ public class RecommendedLearningPlansBean {
 	public void init(TargetCompetence targetCompetence) {
 		logger.debug("Initializing RecommendedLearningPlansBean");
 		this.selectedComp = activityManager.merge(targetCompetence);
-		recommendLearningPlans = lpRecommender.recommendLearningPlans(
-				loggedUser.getUser(), 
-				selectedComp.getId(), 
-				4);
+//		recommendLearningPlans = lpRecommender.recommendLearningPlans(
+//				loggedUser.getUser(), 
+//				selectedComp.getId(), 
+//				4);
 		convertToAvailableLearningPlans(this.selectedComp);
 		this.appendedActivitiesBean.init(this.selectedComp);
 	}
@@ -72,10 +72,10 @@ public class RecommendedLearningPlansBean {
 			activities.add(tgActivity.getActivity());
 		}
 		lPlan.setActivities(activities);
-		this.recommendedPlans = availableLearningPlanConverter.packIntoAvailablePlan(
-				loggedUser.getUser(),
-				lPlan,
-				recommendLearningPlans);
+//		this.recommendedPlans = availableLearningPlanConverter.packIntoAvailablePlan(
+//				loggedUser.getUser(),
+//				lPlan,
+//				recommendLearningPlans);
 		
 		calculateConnectAllFlagForAllPlans();
 	}

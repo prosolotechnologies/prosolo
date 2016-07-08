@@ -40,7 +40,7 @@ public class FeaturedNewsBean implements Serializable {
 			featuredNewsList = new LinkedList<FeaturedNewsData>();
 			
 			List<LearningGoalFeaturedNews> fNewsList = featuredNewsManager.readPublicFeaturedNews(
-					loggedUser.getUser(), 
+					loggedUser.getUserId(), 
 					0,
 					elementsPerPage);
 			

@@ -13,16 +13,16 @@ import org.prosolo.services.event.EventException;
 
 public interface RequestManager {
 	
-	Request requestToJoinTargetLearningGoal(long resourceId, User maker,
+	Request requestToJoinTargetLearningGoal(long resourceId, long userId,
 			long receiverId, String comment, String context) throws EventException, ResourceCouldNotBeLoadedException;
 
-	Request createRequest(BaseEntity resource, User maker, User sentTo,
-			String comment, EventType requestType) throws EventException;
+	Request createRequest(BaseEntity resource, long makerId, User sentTo,
+			String comment, EventType requestType) throws EventException, ResourceCouldNotBeLoadedException;
 
-	Request inviteToJoinResource(Node resource, User maker, long sentToId,
+	Request inviteToJoinResource(Node resource, long userId, long sentToId,
 			String comment) throws EventException, ResourceCouldNotBeLoadedException;
 
-	boolean existsRequestToJoinGoal(User user, LearningGoal goal);
+	boolean existsRequestToJoinGoal(long userId, LearningGoal goal);
 
 	List<User> getUsersWithUnansweredInvitationForGoal(long targetGoalId);
 	

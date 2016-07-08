@@ -99,9 +99,9 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 				if (title != null) {
 					credentialTitle = title;
 					assessmentsNumber = assessmentManager.countAssessmentsForAssessorAndCredential(
-							decodedId,loggedUserBean.getUser().getId(), searchForPending, searchForApproved);
+							decodedId, loggedUserBean.getUserId(), searchForPending, searchForApproved);
 					assessmentData = assessmentManager.getAllAssessmentsForCredential(decodedId,
-							loggedUserBean.getUser().getId(), searchForPending, searchForApproved, idEncoder,
+							loggedUserBean.getUserId(), searchForPending, searchForApproved, idEncoder,
 							new SimpleDateFormat("MMMM dd, yyyy"));
 					generatePagination();
 				} else {
@@ -124,7 +124,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 
 			try {
 				fullAssessmentData = assessmentManager.getFullAssessmentData(decodedAssessmentId, idEncoder,
-						loggedUserBean.getUser(), new SimpleDateFormat("MMMM dd, yyyy"));
+						loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"));
 				credentialTitle = fullAssessmentData.getTitle();
 
 			} catch (Exception e) {
@@ -184,7 +184,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 			Map<String, String> parameters = new HashMap<>();
 			parameters.put("credentialId", credentialId + "");
 			try {
-				eventFactory.generateEvent(EventType.AssessmentApproved, loggedUserBean.getUser(), student, assessment,
+				eventFactory.generateEvent(EventType.AssessmentApproved, loggedUserBean.getUserId(), student, assessment,
 						page, lContext, service, parameters);
 			} catch (Exception e) {
 				logger.error("Eror sending notification for assessment request", e);
@@ -204,11 +204,12 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	public void markDiscussionRead() {
 		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
 		String encodedActivityDiscussionId = params.get("encodedActivityDiscussionId");
+
 		if (StringUtils.isBlank(encodedActivityDiscussionId)) {
-			logger.error("User " + loggedUserBean.getUser().getId() + " tried to add comment without discussion id");
+			logger.error("User " + loggedUserBean.getUserId() + " tried to add comment without discussion id");
 			PageUtil.fireErrorMessage("Unable to add comment");
 		} else {
-			assessmentManager.markDiscussionAsSeen(loggedUserBean.getUser().getId(),
+			assessmentManager.markDiscussionAsSeen(loggedUserBean.getUserId(),
 					idEncoder.decodeId(encodedActivityDiscussionId));
 			Optional<ActivityAssessmentData> seenActivityAssessment = getActivityAssessmentByEncodedId(
 					encodedActivityDiscussionId);
@@ -243,13 +244,13 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	}
 
 	public boolean isCurrentUserMessageSender(ActivityDiscussionMessageData messageData) {
-		return idEncoder.encodeId(loggedUserBean.getUser().getId()).equals(messageData.getEncodedSenderId());
+		return idEncoder.encodeId(loggedUserBean.getUserId()).equals(messageData.getEncodedSenderId());
 	}
 
 	public void editComment(String newContent, String activityMessageEncodedId) {
 		long activityMessageId = idEncoder.decodeId(activityMessageEncodedId);
 		try {
-			assessmentManager.editCommentContent(activityMessageId, loggedUserBean.getUser().getId(), newContent);
+			assessmentManager.editCommentContent(activityMessageId, loggedUserBean.getUserId(), newContent);
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error("Error editing message with id : " + activityMessageId, e);
 			PageUtil.fireErrorMessage("Error editing message");
@@ -259,7 +260,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	private void addComment(long actualDiscussionId, long competenceAssessmentId) {
 		try {
 			ActivityDiscussionMessageData newComment = assessmentManager.addCommentToDiscussion(actualDiscussionId,
-					loggedUserBean.getUser().getId(), newCommentValue);
+					loggedUserBean.getUserId(), newCommentValue);
 			addNewCommentToAssessmentData(newComment, actualDiscussionId, competenceAssessmentId);
 
 			String page = PageUtil.getPostParameter("page");
@@ -299,7 +300,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 			parameters.put("isRecepientAssessor",
 					((Boolean) (fullAssessmentData.getAssessorId() == recepientId)).toString());
 			try {
-				eventFactory.generateEvent(EventType.AssessmentComment, loggedUserBean.getUser(), recipient, assessment,
+				eventFactory.generateEvent(EventType.AssessmentComment, loggedUserBean.getUserId(), recipient, assessment,
 						page, lContext, service, parameters);
 			} catch (Exception e) {
 				logger.error("Eror sending notification for assessment request", e);
@@ -311,12 +312,12 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		if (fullAssessmentData == null) {
 			return false;
 		} else
-			return loggedUserBean.getUser().getId() == fullAssessmentData.getAssessorId();
+			return loggedUserBean.getUserId() == fullAssessmentData.getAssessorId();
 	}
 
 	private long getCommentRecepientId() {
 		// logged user is either assessor or assessee
-		long currentUserId = loggedUserBean.getUser().getId();
+		long currentUserId = loggedUserBean.getUserId();
 		if (fullAssessmentData.getAssessorId() == currentUserId) {
 			// current user is assessor, get the other id
 			return fullAssessmentData.getAssessedStrudentId();
@@ -328,9 +329,10 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	private long createDiscussion(String encodedTargetActivityId, String encodedCompetenceAssessmentId) {
 		long targetActivityId = idEncoder.decodeId(encodedTargetActivityId);
 		long competenceAssessmentId = idEncoder.decodeId(encodedCompetenceAssessmentId);
+
 		return assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
 				Arrays.asList(fullAssessmentData.getAssessorId(), fullAssessmentData.getAssessedStrudentId()),
-				loggedUserBean.getUser().getId());
+				loggedUserBean.getUserId());
 	}
 
 	private void cleanupCommentData() {

@@ -16,7 +16,6 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.common.exception.CompetenceEmptyException;
@@ -108,7 +107,7 @@ public class CredentialEditBean implements Serializable {
 		} else {
 			role = Role.User;
 			credentialData = credentialManager.getCredentialDataForEdit(id, 
-					loggedUser.getUser().getId(), true);
+					loggedUser.getUserId(), true);
 		}
 		
 		if(credentialData == null) {
@@ -145,7 +144,7 @@ public class CredentialEditBean implements Serializable {
 	
 	public boolean isCompetenceCreator(CompetenceData1 comp) {
 		return comp.getCreator() == null ? false : 
-			comp.getCreator().getId() == loggedUser.getUser().getId();
+			comp.getCreator().getId() == loggedUser.getUserId();
 	}
 	
 	/*
@@ -189,14 +188,14 @@ public class CredentialEditBean implements Serializable {
 						credentialData.setStatus(PublishedStatus.DRAFT);
 					}
 					credentialManager.updateCredential(decodedId, credentialData, 
-							loggedUser.getUser(), role);
+							loggedUser.getUserId(), role);
 				}
 			} else {
 				if(saveAsDraft) {
 					credentialData.setStatus(PublishedStatus.DRAFT);
 				}
-				Credential1 cred = credentialManager.saveNewCredential(credentialData, 
-						loggedUser.getUser());
+				Credential1 cred = credentialManager.saveNewCredential(credentialData,
+						loggedUser.getUserId());
 				credentialData.setId(cred.getId());
 				decodedId = credentialData.getId();
 				id = idEncoder.encodeId(decodedId);
@@ -224,7 +223,7 @@ public class CredentialEditBean implements Serializable {
 				 * decoded id is passed because we want to pass id of original version
 				 * and not draft
 				 */
-				credentialManager.deleteCredential(decodedId, credentialData, loggedUser.getUser());
+				credentialManager.deleteCredential(decodedId, credentialData, loggedUser.getUserId());
 				credentialData = new CredentialData(false);
 				PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			} else {
@@ -247,7 +246,7 @@ public class CredentialEditBean implements Serializable {
 			}
 			Role role = manageSection ? Role.Manager : Role.User;
 			TextSearchResponse1<CompetenceData1> searchResponse = textSearch.searchCompetences1(
-					loggedUser.getUser().getId(),
+					loggedUser.getUserId(),
 					role,
 					compSearchTerm,
 					0, 
@@ -264,12 +263,10 @@ public class CredentialEditBean implements Serializable {
 			
 			String page = FacesContext.getCurrentInstance().getViewRoot().getViewId();
 			LearningContextData lcd = new LearningContextData(page, context, null);
-			User user = new User();
-			user.setId(loggedUser.getUser().getId());
 			Map<String, String> params = new HashMap<>();
 			params.put("query", compSearchTerm);
 			try {
-				loggingService.logServiceUse(user, 
+				loggingService.logServiceUse(loggedUser.getUserId(), 
 						ComponentName.SEARCH_COMPETENCES, 
 						params, loggedUser.getIpAddress(), lcd);
 			} catch(Exception e) {

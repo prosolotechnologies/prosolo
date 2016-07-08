@@ -13,7 +13,6 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;
-import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
@@ -27,13 +26,11 @@ import org.prosolo.services.activityWall.filters.MyNetworkFilter;
 import org.prosolo.services.activityWall.filters.TwitterFilter;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
-import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.logging.AccessResolver;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.SessionCountBean;
 import org.prosolo.web.util.AvatarUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -45,29 +42,18 @@ public class UserSessionDataLoader implements Serializable{
 	
 	@Inject
 	private UserManager userManager;
-	@Autowired
-	private NotificationsSettingsManager notificationsSettingsManager;
-	@Autowired
+	@Inject
 	private ApplicationBean applicationBean;
-	@Autowired
+	@Inject
 	private SessionCountBean sessionCounter;
-	@Autowired
+	@Inject
 	private ActivityWallManager activityWallManager;
-	@Autowired
+	@Inject
 	private TagManager tagManager;
-	@Autowired
+	@Inject
 	private InterfaceSettingsManager interfaceSettingsManager;
-	@Autowired
+	@Inject
 	private AccessResolver accessResolver;
-	
-	
-	//private User user;
-	//private String avatar;
-	//private Set<String> pagesTutorialPlayed = new HashSet<String>();
-	//private String ipAddress;
-	//private Filter selectedStatusWallFilter;
-	//private UserSettings userSettings;
-	//private UserNotificationsSettings notificationsSettings;
 	
 	public Map<String, Object> init(String email, HttpServletRequest request, HttpSession session) throws SessionInitializationException{
 		try{
@@ -79,33 +65,27 @@ public class UserSessionDataLoader implements Serializable{
 			
 			registerNewUserSession(user, session);
 			
-			UserSettings userSettings = interfaceSettingsManager.getOrCreateUserSettings(user);
-			UserNotificationsSettings notificationsSettings = notificationsSettingsManager
-					.getOrCreateNotificationsSettings(user.getId());
+			UserSettings userSettings = interfaceSettingsManager.getOrCreateUserSettings(user.getId());
 	
 			FilterType chosenFilterType = userSettings.getActivityWallSettings().getChosenFilter();
 	
-			Filter selectedFilter = loadStatusWallFilter(user, chosenFilterType, userSettings.getActivityWallSettings().getCourseId());
+			Filter selectedFilter = loadStatusWallFilter(user.getId(), chosenFilterType, userSettings.getActivityWallSettings().getCourseId());
 	
-			Set<String> pagesTutorialPlayed = userSettings.getPagesTutorialPlayed();
-			
 			String ipAddress = accessResolver.findRemoteIPAddress(request);
 			logger.debug("User \"" + email + "\" IP address:" + ipAddress);
 			
-			sessionData.put("user", user);
+			sessionData.put("userId", user.getId());
 			sessionData.put("avatar", avatar);
-			sessionData.put("pagesTutorialPlayed", pagesTutorialPlayed);
+			sessionData.put("position", user.getPosition());
 			sessionData.put("ipAddress", ipAddress);
 			sessionData.put("statusWallFilter", selectedFilter);
 			sessionData.put("userSettings", userSettings);
-			sessionData.put("notificationsSettings", notificationsSettings);
 			sessionData.put("email", email);
 			
 			logger.info("init finished");
 			return sessionData;
-		}catch(Exception e){
+		} catch (Exception e) {
 			logger.error(e);
-			e.printStackTrace();
 			throw new SessionInitializationException();
 		}
 	}
@@ -119,11 +99,11 @@ public class UserSessionDataLoader implements Serializable{
 		sessionCounter.addSession(session.getId());
 	}
 	
-	public Filter loadStatusWallFilter(User user, FilterType chosenFilterType, long courseId) {
+	public Filter loadStatusWallFilter(long userId, FilterType chosenFilterType, long courseId) {
 		Filter selectedStatusWallFilter = null;
 		if (chosenFilterType.equals(FilterType.MY_NETWORK)) {
 			selectedStatusWallFilter = new MyNetworkFilter();
-			Set<Long> myNetworkUsers = activityWallManager.getUsersInMyNetwork(user.getId());
+			Set<Long> myNetworkUsers = activityWallManager.getUsersInMyNetwork(userId);
 			((MyNetworkFilter) selectedStatusWallFilter).setUserIds(myNetworkUsers);
 		} else if (chosenFilterType.equals(FilterType.MY_ACTIVITIES)) {
 			selectedStatusWallFilter = new MyActivitiesFilter();
@@ -131,7 +111,7 @@ public class UserSessionDataLoader implements Serializable{
 			selectedStatusWallFilter = new AllFilter();
 		} else if (chosenFilterType.equals(FilterType.TWITTER)) {
 			TwitterFilter twitterFilter = new TwitterFilter();
-			twitterFilter.setHashtags(new TreeSet<Tag>(tagManager.getSubscribedHashtags(user)));
+			twitterFilter.setHashtags(new TreeSet<Tag>(tagManager.getSubscribedHashtags(userId)));
 			selectedStatusWallFilter = twitterFilter;
 		} else if (chosenFilterType.equals(FilterType.ALL_PROSOLO)) {
 			selectedStatusWallFilter = new AllProsoloFilter();

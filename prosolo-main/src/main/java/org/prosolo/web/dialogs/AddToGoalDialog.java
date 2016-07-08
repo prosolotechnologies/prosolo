@@ -17,7 +17,6 @@ import org.prosolo.common.domainmodel.activitywall.old.SocialActivity;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.content.GoalNote;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.activityWall.SocialActivityHandler;
@@ -130,7 +129,7 @@ public class AddToGoalDialog implements Serializable {
 		this.chosenGoal = -1;
 
 		if (userGoals != null && !userGoals.isEmpty()) {
-			List<TargetLearningGoal> goalWithThisCompetence = goalManager.getUserGoalsContainingCompetence(loggedUser.getUser(), comp);
+			List<TargetLearningGoal> goalWithThisCompetence = goalManager.getUserGoalsContainingCompetence(loggedUser.getUserId(), comp);
 
 			for (GoalDataCache goalCache : userGoals) {
 				GoalData goalData = goalCache.getData();
@@ -256,9 +255,8 @@ public class AddToGoalDialog implements Serializable {
 		
 		if (chosenGoalData != null) {
 			try {
-				User user = loggedUser.getUser();
 				PostEvent postEvent = postManager.createNewGoalNote(
-						user, 
+						loggedUser.getUserId(), 
 						chosenGoalData.getData().getGoalId(), 
 						StringUtil.cleanHtml(newPostData.getText()), 
 						newPostData.getAttachmentPreview(),
@@ -270,7 +268,7 @@ public class AddToGoalDialog implements Serializable {
 				GoalNote goalNote = (GoalNote) postEvent.getPost();
 				
 				if (goalNote != null) {
-					logger.debug("User \"" + user.getName()+" "+user.getLastname()+"\" ("+user.getId()+")" +
+					logger.debug("User \"" + loggedUser.getUserId() +
 							" added a goal note \""+newPostData.getText()+"\" )"+goalNote.getId()+")");
 					
 					
@@ -299,7 +297,7 @@ public class AddToGoalDialog implements Serializable {
     	UploadedFile uploadedFile = event.getFile();
     	
 		try {
-			AttachmentPreview attachmentPreview = uploadManager.uploadFile(loggedUser.getUser(), uploadedFile, uploadedFile.getFileName());
+			AttachmentPreview attachmentPreview = uploadManager.uploadFile(uploadedFile, uploadedFile.getFileName());
 			
 			newPostData.setAttachmentPreview(attachmentPreview);
 		} catch (IOException ioe) {
