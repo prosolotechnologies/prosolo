@@ -105,8 +105,7 @@ public class SocialActivity1 extends BaseEntity {
 				+ ", commentsDisabled="
 				+ commentsDisabled + ", comments=" + comments + ", lastAction="
 				+ lastAction + ", likeCount="
-				+ likeCount + ", actor=" + actor.getId()
-				+ "]";
+				+ likeCount + "]";
 	}
 	
 }

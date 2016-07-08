@@ -19,6 +19,7 @@ import org.primefaces.model.UploadedFile;
 import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
+import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.activityWall.SocialActivityManager;
@@ -28,6 +29,7 @@ import org.prosolo.services.activityWall.impl.data.UserData;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.htmlparser.HTMLParser;
+import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaData;
@@ -35,6 +37,7 @@ import org.prosolo.services.upload.UploadManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.StatusWallFilter;
 import org.prosolo.web.logging.LoggingNavigationBean;
+import org.prosolo.web.useractions.CommentBean;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -56,6 +59,7 @@ public class ActivityWallBean {
 	@Inject private HTMLParser htmlParser;
 	@Inject private UploadManager uploadManager;
 	@Inject private RichContentDataFactory richContentFactory;
+	@Inject private CommentBean commentBean;
 
 	private int offset = 0;
 	private int limit = 7;
@@ -114,6 +118,18 @@ public class ActivityWallBean {
 		} catch(Exception e) {
 			logger.error(e);
 			return null;
+		}
+	}
+	
+	public void initializeCommentsIfNotInitialized(SocialActivityData1 socialActivity) {
+		try {
+			if(socialActivity.getComments() == null || !socialActivity.getComments().isInitialized()) {
+				socialActivity.setComments(new CommentsData(CommentedResourceType.SocialActivity, 
+						socialActivity.getId(), false));
+				commentBean.loadComments(socialActivity.getComments());
+			}
+		} catch(Exception e) {
+			logger.error(e);
 		}
 	}
 	

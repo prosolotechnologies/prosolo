@@ -39,7 +39,7 @@
 		    	 </c:choose>
 		    </c:otherwise>
 		</c:choose>
-     	
+     	<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
      	<div id="#{cc.clientId}">
 		    <div class="whiteBar">
 		        <div class="container">
@@ -139,6 +139,9 @@
 		               </div>
 		               <post:comments 
 		               		id="comments"
+		               		comments="#{cc.attrs.bean.commentsData}"
+		               		commentsContainerDivId="commentsContainerDiv"
+		               		growlToUpdate=":#{cc.clientId}:growlMain"
 		               		learningContext="#{learningContext}"
 		               />
 		            </div>

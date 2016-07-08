@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
@@ -44,6 +45,7 @@ public class CompetenceViewBeanUser implements Serializable {
 	private String mode;
 	
 	private CompetenceData1 competenceData;
+	private CommentsData commentsData;
 
 	private long nextCompToLearn;
 
@@ -76,8 +78,9 @@ public class CompetenceViewBeanUser implements Serializable {
 						logger.error(e);
 					}
 				} else {
-					commentBean.init(CommentedResourceType.Competence, competenceData.getCompetenceId(),
-							false);
+					commentsData = new CommentsData(CommentedResourceType.Competence, 
+							competenceData.getCompetenceId(), false);
+					commentBean.loadComments(commentsData);
 					
 					if(decodedCredId > 0) {
 						String credTitle = null;
@@ -194,6 +197,14 @@ public class CompetenceViewBeanUser implements Serializable {
 
 	public void setMode(String mode) {
 		this.mode = mode;
+	}
+
+	public CommentsData getCommentsData() {
+		return commentsData;
+	}
+
+	public void setCommentsData(CommentsData commentsData) {
+		this.commentsData = commentsData;
 	}
 
 }

@@ -11,53 +11,68 @@
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 	<composite:interface>
-		<composite:attribute name="learningContext" />
+		<composite:attribute name="comments" required="true" type="org.prosolo.web.useractions.data.CommentsData"/>
+		<composite:attribute name="isCollapsible" default="false" type="java.lang.Boolean"/>
+		<composite:attribute name="uniqueId" default=""/>
+		<composite:attribute name="commentsContainerDivId" required="true"/>
+		<composite:attribute name="showSortOptions" default="true" type="java.lang.Boolean"/>
+		 <composite:attribute name="growlToUpdate" default=""/>
+		<composite:attribute name="learningContext" default=""/>
 		<composite:attribute name="service" default=""/>
 	</composite:interface>
 	
 	<composite:implementation>
 		<div id="#{cc.clientId}">
+			<script>var firstLoad#{cc.attrs.uniqueId} = true;</script>
 			<h:form id="formComments">
-				<p:growl id="growlComments" globalOnly="true" showDetail="true" />
-				<ui:param name="bean" value="#{commentBean}"></ui:param>
-
-				<input type="hidden" id="newestCommentId" value="#{commentBean.newestCommentId}" />
 				
-				<div class="discussion">
-					<h2>Discussion</h2>
-
-					<div class="dropdown sortDrop">
-						<a data-toggle="dropdown" aria-haspopup="true"
-							aria-expanded="true"> #{bean.sortOption.label} <span
-							class="arrowDown">arrowDown</span>
-						</a>
-						
-						<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
+				<ui:param name="bean" value="#{commentBean}"></ui:param>
+				
+				<h:panelGroup id="panelNewestCommentId" styleClass="panelNewestComment_#{cc.attrs.uniqueId}">
+					<input type="hidden" id="newestCommentId#{cc.attrs.uniqueId}" value="#{cc.attrs.comments.newestCommentId}" />
+				</h:panelGroup>
+				
+				
+				<div id="#{cc.attrs.commentsContainerDivId}" class="discussion #{cc.attrs.isCollapsible ? 'collapse' : ''}">
+					<c:if test="#{cc.attrs.showSortOptions}">
+						<h2>Discussion</h2>
+	
+						<div class="dropdown sortDrop">
+							<a data-toggle="dropdown" aria-haspopup="true"
+								aria-expanded="true"> #{cc.attrs.comments.sortOption.label} <span
+								class="arrowDown">arrowDown</span>
+							</a>
 							
-							<ui:repeat var="sortOption" value="#{bean.sortOptions}">
-								<li>
-									<p:commandLink value="#{sortOption.label}"
-										process="@this" action="#{bean.sortChanged(sortOption)}"
-										update=":#{cc.clientId}:formComments">
-									</p:commandLink>
-								</li>
-							</ui:repeat>
-						</ul>
-					</div>
+							<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
+								
+								<ui:repeat var="sortOption" value="#{bean.sortOptions}">
+									<li>
+										<p:commandLink value="#{sortOption.label}"
+											process="@this" action="#{bean.sortChanged(sortOption, cc.attrs.comments)}"
+											update=":#{cc.clientId}:formComments">
+										</p:commandLink>
+									</li>
+								</ui:repeat>
+							</ul>
+						</div>
+					</c:if>
+					
 
 					<div class="comments">
 						<ul class="media-list">
 								<li class="loadMoreComments">
 									<p:commandLink
 										value="View previous comments"
-										update=":#{cc.clientId}:formComments" />
+										update="formComments" />
 								</li>
 							
-							<ui:repeat var="comment" value="#{bean.comments}">
+							<ui:repeat var="comment" value="#{cc.attrs.comments.comments}">
 								<li class="media">
 									<post:comment1 id="comment"
+										comments="#{cc.attrs.comments}"
 										comment="#{comment}" isTopLevel="true"
-										toUpdate=":#{cc.clientId}:formComments"
+										newestCommentId="newestCommentId#{cc.attrs.uniqueId}"
+										toUpdate="@(.panelNewestComment_#{cc.attrs.uniqueId}) #{cc.attrs.growlToUpdate}"
 										learningContext="#{cc.attrs.learningContext}" />
 								</li>
 							</ui:repeat>
@@ -71,16 +86,16 @@
 
 						<div class="commentForm">
 							<h:inputTextarea class="hidden"
-								value="#{bean.topLevelComment}" />
+								value="#{cc.attrs.comments.topLevelComment}" />
 							
 							<div class="contentEditableComment" placeholder="Add Comment..." 
 								strip-br="true" contenteditable="true"
 								onkeyup="displaySubmitButton(this);"></div>
 
 							<p:commandButton styleClass="btn btn-sm btn-green hidden"
-								value="Submit" action="#{bean.saveTopLevelComment()}"
-								update=":#{cc.clientId}:formComments"
-								oncomplete="scrollToNewestComment();">
+								value="Submit" action="#{bean.saveTopLevelComment(cc.attrs.comments)}"
+								update="formComments #{cc.attrs.growlToUpdate}"
+								oncomplete="scrollToNewestComment('newestCommentId#{cc.attrs.uniqueId}');">
 								<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 								<f:param name="learningContext"
 									value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment')}" />
@@ -95,6 +110,12 @@
 					</div>
                     <div class="clear"></div>
 				</div>
+				<script>
+					if(#{cc.attrs.isCollapsible} &amp;&amp; !firstLoad#{cc.attrs.uniqueId}) {
+						$('##{cc.attrs.commentsContainerDivId}').addClass("in");
+					}
+					firstLoad#{cc.attrs.uniqueId} = false;
+				</script>
 			</h:form>
 		</div>
 	</composite:implementation>
