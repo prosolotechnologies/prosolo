@@ -98,7 +98,7 @@ public class ActivityWallBean1 {
 					parameters.put("newText", updatedText);
 					
 					try {
-						eventFactory.generateEvent(EventType.PostUpdate, loggedUser.getUserId(), updatedSocialActivity, parameters);
+						eventFactory.generateEvent(EventType.PostUpdate, loggedUser.getUserId(), updatedSocialActivity, null, parameters);
 					} catch (EventException e) {
 						logger.error(e);
 					}

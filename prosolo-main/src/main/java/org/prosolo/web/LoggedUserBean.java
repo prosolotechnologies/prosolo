@@ -248,7 +248,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 				try {
 					Map<String, String> parameters = new HashMap<>();
 					parameters.put("ip", ipAddress);
-					eventFactory.generateEvent(EventType.SESSIONENDED, getUserId(), null, parameters);
+					eventFactory.generateEvent(EventType.SESSIONENDED, getUserId(), null, null, parameters);
 				} catch (EventException e) {
 					logger.error("Generate event failed.", e);
 				}

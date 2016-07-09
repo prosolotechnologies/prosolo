@@ -290,7 +290,7 @@ public class TopNotificationsBean {
 			request = goalManager.saveEntity(request);
 			goalManager.flush();
 
-			eventFactory.generateEvent(EventType.JOIN_GOAL_INVITATION_ACCEPTED, loggedUser.getUserId(), loggedUser.getFullName(), request);
+			eventFactory.generateEvent(EventType.JOIN_GOAL_INVITATION_ACCEPTED, loggedUser.getUserId(), request);
 
 			
 			// add new goal to user's cache
@@ -352,7 +352,7 @@ public class TopNotificationsBean {
 			request = goalManager.saveEntity(request);
 			goalManager.flush();
 
-			eventFactory.generateEvent(EventType.JOIN_GOAL_REQUEST_APPROVED, loggedUser.getUserId(), loggedUser.getFullName(), request);
+			eventFactory.generateEvent(EventType.JOIN_GOAL_REQUEST_APPROVED, loggedUser.getUserId(), request);
 			
 			// add new goal to user's cache
 			messageDistributer.distributeMessage(
@@ -384,7 +384,7 @@ public class TopNotificationsBean {
 					loggedUser.getUserId(), 
 					request);
 			
-			eventFactory.generateEvent(EventType.EVALUATION_ACCEPTED, loggedUser.getUserId(), loggedUser.getFullName(), request);
+			eventFactory.generateEvent(EventType.EVALUATION_ACCEPTED, loggedUser.getUserId(), request);
 			
 			ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
 			
@@ -519,7 +519,7 @@ public class TopNotificationsBean {
 		notificationData.setUpdated(notification.getUpdated());
 		
 		try {
-			eventFactory.generateEvent(EventType.JOIN_GOAL_REQUEST_IGNORED, loggedUser.getUserId(), loggedUser.getFullName(), (Request) notification.getObject());
+			eventFactory.generateEvent(EventType.JOIN_GOAL_REQUEST_IGNORED, loggedUser.getUserId(), (Request) notification.getObject());
 		} catch (EventException e) {
 			logger.error(e);
 		}
@@ -664,7 +664,7 @@ public class TopNotificationsBean {
 		if (notification.getType().equals(EventType.JOIN_GOAL_REQUEST)) {
 			Request request = (Request) notification.getObject();
 
-			eventFactory.generateEvent(EventType.JOIN_GOAL_REQUEST_DENIED, loggedUser.getUserId(), loggedUser.getFullName(), request);
+			eventFactory.generateEvent(EventType.JOIN_GOAL_REQUEST_DENIED, loggedUser.getUserId(), request);
 		}
 		PageUtil.fireSuccessfulInfoMessage("notificationsGrowl", "You have denied this request.");
 	}

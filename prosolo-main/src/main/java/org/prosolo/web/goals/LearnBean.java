@@ -149,7 +149,7 @@ public class LearnBean implements Serializable {
 				TargetLearningGoal goal = goalManager.getTargetGoal(goalData.getGoalId(), loggedUser.getUserId());
 				Map<String, String> parameters = new HashMap<String, String>();
 				parameters.put("context", "learn");
-				eventFactory.generateEvent(EventType.SELECT_GOAL, loggedUser.getUserId(), goal, parameters);
+				eventFactory.generateEvent(EventType.SELECT_GOAL, loggedUser.getUserId(), goal, null, parameters);
 			} catch (EventException e) {
 				logger.error("Generate event failed.", e);
 			}
@@ -182,7 +182,7 @@ public class LearnBean implements Serializable {
 					tagManager.getOrCreateTags(AnnotationUtil.getTrimmedSplitStrings(hashtags)),
 					false);
 			
-			eventFactory.generateEvent(EventType.Create, loggedUser.getUserId(), loggedUser.getFullName(), newTargetGoal);
+			eventFactory.generateEvent(EventType.Create, loggedUser.getUserId(), newTargetGoal);
 //			eventFactory.generateChangeProgressEvent(loggedUser.getUserId(), loggedUser.getFullName(), newTargetGoal, 0);
 
 			logger.debug("New learning goal (" + newTargetGoal.getTitle()	+ ") for the user " + loggedUser.getUserId());
@@ -253,7 +253,6 @@ public class LearnBean implements Serializable {
 				Event event = eventFactory.generateEvent(
 						EventType.Edit, 
 						loggedUser.getUserId(), 
-						loggedUser.getFullName(),
 						updatedTargetGoal,
 						null,
 						new Class[]{SocialStreamObserver.class},
@@ -511,7 +510,7 @@ public class LearnBean implements Serializable {
 			if (context != null)
 				parameters.put("context", context);
 
-			eventFactory.generateEvent(EventType.Detach, loggedUser.getUserId(), targetGoal, parameters);
+			eventFactory.generateEvent(EventType.Detach, loggedUser.getUserId(), targetGoal, null, parameters);
 			
 			// user's Profile cache and collaborators' data will be updated by the InterfaceCacheUpdater
 		} catch (EventException e) {
@@ -589,7 +588,7 @@ public class LearnBean implements Serializable {
 		            	// fire event
 		            	try {
 			            	TargetLearningGoal targetGoal = portfolioManager.loadResource(TargetLearningGoal.class, goalData.getTargetGoalId(), session);
-			            	eventFactory.generateEvent(EventType.ARCHIVE_GOAL, loggedUser.getUserId(), loggedUser.getFullName(), targetGoal);
+			            	eventFactory.generateEvent(EventType.ARCHIVE_GOAL, loggedUser.getUserId(), targetGoal);
 		            	} catch (ResourceCouldNotBeLoadedException | EventException e) {
 							logger.error(e);
 						} finally {

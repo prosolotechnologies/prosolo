@@ -282,7 +282,7 @@ public class NewEvaluationBean implements Serializable {
 			parameters.put("resourceType", formData.getPrimeEvaluatedResource().getResource().getClass().getSimpleName());
 			parameters.put("user", String.valueOf(request.getSentTo().getId()));
 			
-			eventFactory.generateEvent(request.getRequestType(), request.getMaker().getId(), request, parameters);
+			eventFactory.generateEvent(request.getRequestType(), request.getMaker().getId(), request, null, parameters);
 			
 			formData.setWaitingForSubmission(true);
 			formData.setCanBeResubmitted(false);

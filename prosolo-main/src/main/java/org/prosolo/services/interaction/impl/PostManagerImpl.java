@@ -196,7 +196,7 @@ public class PostManagerImpl extends AbstractManagerImpl implements PostManager 
 
 		Event event = null;
 		if (propagateManuallyToSocialStream) {
-			event = eventFactory.generateEvent(EventType.Post, user.getId(), post,
+			event = eventFactory.generateEvent(EventType.Post, user.getId(), post, null, 
 					new Class[] { SocialStreamObserver.class });
 		} else {
 			event = eventFactory.generateEvent(EventType.Post, user.getId(), post);

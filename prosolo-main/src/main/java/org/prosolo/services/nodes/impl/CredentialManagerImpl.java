@@ -147,7 +147,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 						params = new HashMap<>();
 						params.put("draftVersionId", data.getId() + "");
 					}
-					eventFactory.generateEvent(EventType.Delete, userId, cred, params);
+					eventFactory.generateEvent(EventType.Delete, userId, cred, null, params);
 				}
 				/*
 				 * if credential is draft and it was never published delete_draft event
@@ -737,7 +737,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    	params.put("originalVersionId", originalVersionId + "");
 	    }
 	    EventType event = data.isPublished() ? EventType.Edit : EventType.Edit_Draft;
-	    eventFactory.generateEvent(event, userId, cred, params);
+	    eventFactory.generateEvent(event, userId, cred, null, params);
 	}
 	
 	private void fireCredPublishedAgainEditEvent(long userId, 
@@ -749,7 +749,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    String jsonChangeTracker = gson.toJson(changeTracker);
 	    params.put("changes", jsonChangeTracker);
 	    params.put("draftVersionId", draftVersionId + "");
-	    eventFactory.generateEvent(EventType.Edit, userId, cred, params);
+	    eventFactory.generateEvent(EventType.Edit, userId, cred, null, params);
 	}
 	
 	private EventData fireDraftVersionCredCreatedEvent(Credential1 cred, long userId, 

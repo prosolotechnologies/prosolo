@@ -474,7 +474,7 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 			parameters.put("context", context);
 			parameters.put("activities", NodeUtil.getCSVStringOfIds(originalActivities));
 			
-			eventFactory.generateEvent(EventType.AttachAll, userId, null, null, targetComp, parameters);
+			eventFactory.generateEvent(EventType.AttachAll, userId, null, targetComp, parameters);
 			
 			targetComp.getTargetActivities().addAll(newActivities);
 			
@@ -600,7 +600,7 @@ public class LearningGoalManagerImpl extends AbstractManagerImpl implements Lear
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("context", context);
 			
-			eventFactory.generateEvent(EventType.Detach, userId, null, targetActivity, tComp, parameters);
+			eventFactory.generateEvent(EventType.Detach, userId, targetActivity, tComp, parameters);
 			
 			return true;
 		}

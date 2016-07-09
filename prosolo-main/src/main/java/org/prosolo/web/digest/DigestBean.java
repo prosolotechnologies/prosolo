@@ -149,7 +149,7 @@ public class DigestBean implements Serializable{
 					parameters.put("interval", interval.toString());
 					parameters.put("filter", filter.toString());
 				
-					eventFactory.generateEvent(EventType.DIGEST_FILTER_UPDATED, loggedUser.getUserId(), null, parameters);
+					eventFactory.generateEvent(EventType.DIGEST_FILTER_UPDATED, loggedUser.getUserId(), null, null, parameters);
 				} catch (EventException e) {
 					logger.error(e);
 				}

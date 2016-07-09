@@ -806,7 +806,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				else {
 					Map<String, String> params = new HashMap<>();
 					params.put("originalVersionId", data.getActivityId() + "");
-					eventFactory.generateEvent(EventType.Create_Draft, user.getId(), act, params);
+					eventFactory.generateEvent(EventType.Create_Draft, user.getId(), act, null, params);
 				}
 			}
 
@@ -862,7 +862,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	    	params.put("originalVersionId", originalVersionId + "");
 	    }
 	    EventType event = data.isPublished() ? EventType.Edit : EventType.Edit_Draft;
-	    eventFactory.generateEvent(event, user.getId(), act, params);
+	    eventFactory.generateEvent(event, user.getId(), act, null, params);
 	}
 	
 	private EventData fireFirstTimePublishActivityEvent(User user, Activity1 act) {

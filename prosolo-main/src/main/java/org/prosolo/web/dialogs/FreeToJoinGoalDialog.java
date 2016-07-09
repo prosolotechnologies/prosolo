@@ -65,7 +65,7 @@ public class FreeToJoinGoalDialog extends MessagesBean{
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("context", context);
 			
-			eventFactory.generateEvent(EventType.JoinedGoal, loggedUser.getUserId(), targetGoal, parameters);
+			eventFactory.generateEvent(EventType.JoinedGoal, loggedUser.getUserId(), targetGoal, null, parameters);
 			
 			PageUtil.fireSuccessfulInfoMessage("goalDetailsDialogGrowl", "You have joined the goal '" + learningGoal.getTitle()+"'.");
 		} catch (ResourceCouldNotBeLoadedException e) {

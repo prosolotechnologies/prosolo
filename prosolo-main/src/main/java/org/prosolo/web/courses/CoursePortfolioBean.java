@@ -375,7 +375,7 @@ public class CoursePortfolioBean implements Serializable {
 							deleteLearningHistory, session, page, learningContext, service);
 				
 					Course course = courseManager.loadResource(Course.class, courseData.getId(), session);
-					eventFactory.generateEvent(EventType.COURSE_WITHDRAWN, loggedUser.getUserId(), loggedUser.getFullName(), course);
+					eventFactory.generateEvent(EventType.COURSE_WITHDRAWN, loggedUser.getUserId(), course);
 					session.flush();
 				} catch (EventException e) {
 					logger.error(e);
@@ -423,7 +423,7 @@ public class CoursePortfolioBean implements Serializable {
 		
 		try {
 			final CourseEnrollment enrollment = courseManager.loadResource(CourseEnrollment.class, enrollmentId);
-			eventFactory.generateEvent(EventType.CREDENTIAL_COMPLETED, loggedUser.getUserId(), loggedUser.getFullName(), enrollment);
+			eventFactory.generateEvent(EventType.CREDENTIAL_COMPLETED, loggedUser.getUserId(), enrollment);
 			
 			taskExecutor.execute(new Runnable() {
 				@Override

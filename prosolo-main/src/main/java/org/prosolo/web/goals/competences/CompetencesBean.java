@@ -287,7 +287,7 @@ public class CompetencesBean implements Serializable {
 						
 						EventType event = completed ? EventType.Completion : EventType.NotCompleted;
 						
-						eventFactory.generateEvent(event, loggedUser.getUserId(), tComp, parameters);
+						eventFactory.generateEvent(event, loggedUser.getUserId(), tComp, null, parameters);
 					} catch (EventException e) {
 						logger.error(e);
 					}
@@ -371,7 +371,7 @@ public class CompetencesBean implements Serializable {
 			
 			goalBean.recalculateGoalProgress(goalBean.getSelectedGoalData());
 			
-			eventFactory.generateEvent(EventType.Detach, loggedUser.getUserId(), loggedUser.getFullName(), goalComp.getTargetCompetence(), goalComp.getTargetGoal(), null);
+			eventFactory.generateEvent(EventType.Detach, loggedUser.getUserId(), goalComp.getTargetCompetence(), goalComp.getTargetGoal(), new HashMap());
 			
 			return true;
 		} catch (EventException e) {

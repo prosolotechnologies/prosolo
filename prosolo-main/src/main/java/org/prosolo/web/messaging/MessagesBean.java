@@ -308,7 +308,7 @@ public class MessagesBean implements Serializable {
         		//DirectMessageDialog uses recipient as user param
         		parameters.put("user", String.valueOf(participants.get(0).getId()));
         		parameters.put("message", String.valueOf(message.getId()));
-        		eventFactory.generateEvent(EventType.SEND_MESSAGE, senderId, message, parameters);
+        		eventFactory.generateEvent(EventType.SEND_MESSAGE, senderId, message, null, parameters);
         	} catch (EventException e) {
         		logger.error(e);
         	}

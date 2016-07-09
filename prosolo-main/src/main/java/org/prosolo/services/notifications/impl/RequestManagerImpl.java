@@ -43,7 +43,7 @@ public class RequestManagerImpl extends AbstractManagerImpl implements RequestMa
 		parameters.put("context", context);
 		parameters.put("targetGoalId", String.valueOf(targetGoalId));
 		
-		eventFactory.generateEvent(EventType.JOIN_GOAL_REQUEST, sentBy, request, parameters);
+		eventFactory.generateEvent(EventType.JOIN_GOAL_REQUEST, sentBy, request, null, parameters);
 		return request;
 	}
 

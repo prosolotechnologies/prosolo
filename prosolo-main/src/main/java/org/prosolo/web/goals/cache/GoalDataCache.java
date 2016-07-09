@@ -520,7 +520,7 @@ public class GoalDataCache implements Serializable {
 			TargetCompetence competence = competenceManager.getTargetCompetence(loggedUser.getUserId(), competenceId, data.getGoalId());
 			
 			try {
-				eventFactory.generateEvent(EventType.SELECT_COMPETENCE, loggedUser.getUserId(), competence, parameters);
+				eventFactory.generateEvent(EventType.SELECT_COMPETENCE, loggedUser.getUserId(), competence, null, parameters);
 			} catch (EventException e) {
 				logger.error("Generate event failed.", e);
 			}

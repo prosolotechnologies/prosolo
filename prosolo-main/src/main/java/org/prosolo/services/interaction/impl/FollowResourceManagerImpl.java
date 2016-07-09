@@ -57,7 +57,7 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("context", context);
 			
-			eventFactory.generateEvent(EventType.Follow, user.getId(), resourceToFollow, parameters);
+			eventFactory.generateEvent(EventType.Follow, user.getId(), resourceToFollow, null, parameters);
 
 			return user;
 		}
@@ -80,7 +80,7 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("context", context);
 			
-			eventFactory.generateEvent(EventType.Follow, followerId, userToFollow, parameters);
+			eventFactory.generateEvent(EventType.Follow, followerId, userToFollow, null, parameters);
 			
 			logger.debug(follower.getName() + " started following user " + userToFollow.getId());
 			return follower;
@@ -247,7 +247,7 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 		Map<String, String> parameters = new HashMap<String, String>();
 		parameters.put("context", context);
 		
-		eventFactory.generateEvent(EventType.Unfollow, user.getId(), userToUnfollow, parameters);
+		eventFactory.generateEvent(EventType.Unfollow, user.getId(), userToUnfollow, null, parameters);
 		
 		return deleted > 0;
 	}
@@ -269,7 +269,7 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("context", context);
 			
-			eventFactory.generateEvent(EventType.Unfollow, user.getId(), resourceToUnfollow, parameters);
+			eventFactory.generateEvent(EventType.Unfollow, user.getId(), resourceToUnfollow, null, parameters);
 			
 			return deleted > 0;
 		}

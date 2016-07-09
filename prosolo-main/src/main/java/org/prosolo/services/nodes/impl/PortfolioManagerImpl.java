@@ -295,7 +295,7 @@ public class PortfolioManagerImpl extends AbstractManagerImpl implements Portfol
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("context", context);
 			
-			eventFactory.generateEvent(EventType.SEND_TO_LEARN, user.getId(), targetOriginalGoal, parameters);
+			eventFactory.generateEvent(EventType.SEND_TO_LEARN, user.getId(), targetOriginalGoal, null, parameters);
 		} catch (EventException e) {
 			logger.error(e);
 		}
@@ -525,7 +525,7 @@ public class PortfolioManagerImpl extends AbstractManagerImpl implements Portfol
 			
 			User user = loadResource(User.class, userId);
 			
-			eventFactory.generateEvent(EventType.Create, user.getId(), externalCredit, parameters);
+			eventFactory.generateEvent(EventType.Create, user.getId(), externalCredit, null, parameters);
 		} catch (EventException e) {
 			logger.error(e);
 		}
@@ -544,7 +544,7 @@ public class PortfolioManagerImpl extends AbstractManagerImpl implements Portfol
 		parameters.put("context", context);
 		
 		try {
-			eventFactory.generateEvent(EventType.Delete, user.getId(), externalCredit, parameters);
+			eventFactory.generateEvent(EventType.Delete, user.getId(), externalCredit, null, parameters);
 		} catch (EventException e) {
 			logger.error(e);
 		}

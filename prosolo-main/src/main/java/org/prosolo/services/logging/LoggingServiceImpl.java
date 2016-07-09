@@ -620,7 +620,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		//parameters.put("ip", ipAddress);
 		try {
 			//ip address will be null
-			eventFactory.generateEvent(eventType, userId, null, parameters);
+			eventFactory.generateEvent(eventType, userId, null, null, parameters);
 		} catch (EventException e) {
 			logger.error("Generate event failed.", e);
 		}

@@ -650,7 +650,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	    	params.put("originalVersionId", originalVersionId + "");
 	    }
 	    EventType event = data.isPublished() ? EventType.Edit : EventType.Edit_Draft;
-	    eventFactory.generateEvent(event, userId, updatedComp, params);
+	    eventFactory.generateEvent(event, userId, updatedComp, null, params);
 	}
 	
 	private EventData fireCompPublishedAgainEditEvent(long userId, 

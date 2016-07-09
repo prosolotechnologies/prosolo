@@ -133,7 +133,7 @@ public class Profile1 {
 			            		parameters.put("context", createContext());
 			            		parameters.put("user", String.valueOf(decodedRecieverId));
 			            		parameters.put("message", String.valueOf(message1.getId()));
-			            		eventFactory.generateEvent(EventType.SEND_MESSAGE, loggedUserBean.getUserId(), message1, parameters);
+			            		eventFactory.generateEvent(EventType.SEND_MESSAGE, loggedUserBean.getUserId(), message1, null, parameters);
 			            	} catch (EventException e) {
 			            		logger.error(e);
 			            	}

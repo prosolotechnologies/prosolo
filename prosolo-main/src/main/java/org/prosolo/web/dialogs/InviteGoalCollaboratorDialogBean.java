@@ -155,7 +155,7 @@ public class InviteGoalCollaboratorDialogBean implements Serializable {
 					parameters.put("targetGoalId", String.valueOf(targetGoal.getId()));
 					parameters.put("user", String.valueOf(collabToInviteData.getId()));
 					
-					eventFactory.generateEvent(EventType.JOIN_GOAL_INVITATION, loggedUser.getUserId(), invitation, parameters);
+					eventFactory.generateEvent(EventType.JOIN_GOAL_INVITATION, loggedUser.getUserId(), invitation, null, parameters);
 					
 					logger.debug("User "+loggedUser.getUserId()+" sent invitation to user "+collabToInviteData+" to join target learning goal "+targetGoalId);
 				}

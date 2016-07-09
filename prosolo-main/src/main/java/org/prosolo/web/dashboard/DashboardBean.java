@@ -83,7 +83,7 @@ public class DashboardBean implements Serializable {
 		parameters.put("hashtag", hashtag);
 		parameters.put("ip", getIpAddress());
 		try {
-			eventFactory.generateEvent(EventType.HASHTAG_DISABLED, loggedUser.getUserId(), null, parameters);
+			eventFactory.generateEvent(EventType.HASHTAG_DISABLED, loggedUser.getUserId(), null, null, parameters);
 		} catch (EventException e) {
 			logger.error("Generate event failed.", e);
 		}
@@ -97,7 +97,7 @@ public class DashboardBean implements Serializable {
 		parameters.put("hashtag", hashtag);
 		parameters.put("ip", getIpAddress());
 		try {
-			eventFactory.generateEvent(EventType.HASHTAG_ENABLED, loggedUser.getUserId(), null, parameters);
+			eventFactory.generateEvent(EventType.HASHTAG_ENABLED, loggedUser.getUserId(), null, null, parameters);
 		} catch (EventException e) {
 			logger.error("Generate event failed.", e);
 		}

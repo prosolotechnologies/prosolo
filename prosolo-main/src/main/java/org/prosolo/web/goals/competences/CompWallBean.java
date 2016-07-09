@@ -339,7 +339,7 @@ public class CompWallBean implements Serializable {
 					
 					EventType eventType = activity.isCompleted() ? EventType.Completion : EventType.NotCompleted;
 					
-					eventFactory.generateEvent(eventType, loggedUser.getUserId(), activity1, paramaters);
+					eventFactory.generateEvent(eventType, loggedUser.getUserId(), activity1, null, paramaters);
 				} catch (EventException e) {
 					TargetCompetence parentTargetComp = (TargetCompetence) activity.getParentCompetence();
 					logger.error("Could not remove activity \""+activity+"\" from the learning plan \""+
@@ -567,7 +567,7 @@ public class CompWallBean implements Serializable {
 								Map<String, String> parameters = new HashMap<String, String>();
 								parameters.put("context", context);
 								parameters.put("targetActivityId", String.valueOf(targetActivity.getId()));
-								eventFactory.generateEvent(EventType.FileUploaded, loggedUser.getUserId(), targetActivity, parameters);
+								eventFactory.generateEvent(EventType.FileUploaded, loggedUser.getUserId(), targetActivity, null, parameters);
 							} catch (EventException e) {
 								logger.error(e);
 							}
@@ -615,7 +615,7 @@ public class CompWallBean implements Serializable {
 						parameters.put("context", context);
 						parameters.put("targetActivityId", String.valueOf(targetActivity.getId()));
 						
-						eventFactory.generateEvent(EventType.AssignmentRemoved, loggedUser.getUserId(), targetActivity, parameters);
+						eventFactory.generateEvent(EventType.AssignmentRemoved, loggedUser.getUserId(), targetActivity, null, parameters);
 					} catch (EventException e) {
 						logger.error(e);
 					}

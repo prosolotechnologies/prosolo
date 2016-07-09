@@ -441,7 +441,7 @@ public class ManageCourseBean implements Serializable {
 		try {
 			Course course = courseManager.deleteCourse(courseToDelete.getId());
 			
-			eventFactory.generateEvent(EventType.Delete, loggedUser.getUserId(), loggedUser.getFullName(), course);
+			eventFactory.generateEvent(EventType.Delete, loggedUser.getUserId(), course);
 			
 			// TODO: Zoran, somehow synchronously delete course from indexes before courses form is refreshed
 			

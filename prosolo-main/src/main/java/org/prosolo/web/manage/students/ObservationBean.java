@@ -122,7 +122,7 @@ public class ObservationBean implements Serializable {
 		            		parameters.put("context", context);
 		            		parameters.put("user", String.valueOf(studentId));
 		            		parameters.put("message", String.valueOf(message1.getId()));
-		            		eventFactory.generateEvent(EventType.SEND_MESSAGE, loggedUserBean.getUserId(), message1, parameters);
+		            		eventFactory.generateEvent(EventType.SEND_MESSAGE, loggedUserBean.getUserId(), message1, null, parameters);
 		            	} catch (EventException e) {
 		            		logger.error(e);
 		            	}
