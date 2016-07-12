@@ -1,6 +1,7 @@
 package org.prosolo.web.useractions;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -10,14 +11,19 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.comment.Comment1;
+import org.prosolo.common.domainmodel.credential.CommentedResourceType;
+import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentData;
+import org.prosolo.services.interaction.data.CommentReplyFetchMode;
+import org.prosolo.services.interaction.data.CommentSortData;
 import org.prosolo.services.interaction.data.CommentSortOption;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.useractions.util.ICommentBean;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -27,7 +33,7 @@ import org.springframework.stereotype.Component;
 @ManagedBean(name = "commentBean")
 @Component("commentBean")
 @Scope("view")
-public class CommentBean implements Serializable {
+public class CommentBean implements Serializable, ICommentBean {
 
 	private static final long serialVersionUID = -2948282414910224988L;
 
@@ -35,9 +41,11 @@ public class CommentBean implements Serializable {
 	
 	@Inject private LoggedUserBean loggedUser;
 	@Inject private CommentManager commentManager;
+	@Inject private SocialActivityManager socialActivityManager;
 	@Inject @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 	
 	private CommentSortOption[] sortOptions;
+	private int limit = 2;
 	
 	@PostConstruct
 	public void init() {
@@ -60,9 +68,7 @@ public class CommentBean implements Serializable {
 
 	public void loadComments(CommentsData commentsData) {
 		try {
-			List<CommentData> comments = commentManager.getAllComments(commentsData.getResourceType(), 
-					commentsData.getResourceId(), commentsData.getSortOption().getSortField(), 
-					commentsData.getSortOption().getSortOption(), loggedUser.getUser().getId());
+			List<CommentData> comments = retrieveComments(commentsData);
 			commentsData.setComments(comments);
 			commentsData.setInitialized(true);
 		} catch(DbConnectionException e) {
@@ -70,17 +76,86 @@ public class CommentBean implements Serializable {
 		}
 	}
 	
-	public void sortChanged(CommentSortOption sortOption, CommentsData commentsData) {
-		if(sortOption != commentsData.getSortOption()) {
-			commentsData.setSortOption(sortOption);
-			loadComments(commentsData);
+	private List<CommentData> retrieveComments(CommentsData commentsData) {
+		try {
+			CommentSortData csd = getCommentSortData(commentsData);
+			List<CommentData> comments = commentManager.getComments(commentsData.getResourceType(), 
+					commentsData.getResourceId(), true, limit, csd, 
+					CommentReplyFetchMode.FetchNumberOfReplies, loggedUser.getUser().getId());
+			
+			int commentsNumber = comments.size();
+			if(commentsNumber == limit + 1) {
+				commentsData.setMoreToLoad(true);
+				comments.remove(commentsNumber - 1);
+			} else {
+				commentsData.setMoreToLoad(false);
+			}
+			Collections.reverse(comments);
+			return comments;
+		} catch(Exception e) {
+			logger.error(e);
+			return null;
 		}
 	}
 	
+	private CommentSortData getCommentSortData(CommentsData commentsData) {
+		List<CommentData> comms = commentsData.getComments();
+		Date previousDate = null;
+		int previousLikeCount = 0;
+		long previousId = 0;
+		if(comms != null && !comms.isEmpty()) {
+			CommentData comment = comms.get(0);
+			previousDate = comment.getDateCreated();
+			previousLikeCount = comment.getLikeCount();
+			previousId = comment.getCommentId();
+		}
+		return new CommentSortData(commentsData.getSortOption().getSortField(), 
+				commentsData.getSortOption().getSortOption(), previousDate, previousLikeCount,
+				previousId);
+	}
+
+	public void loadMoreComments(CommentsData commentsData) {
+		if(commentsData.isMoreToLoad()) {
+			List<CommentData> comments = retrieveComments(commentsData);
+			if(comments != null) {
+				comments.addAll(commentsData.getComments());
+			}
+			commentsData.setComments(comments);
+		}
+	}
+	
+	public void loadRepliesIfNotLoaded(CommentsData commentsData, CommentData comment) {
+		if(comment.getNumberOfReplies() > 0 && (comment.getChildComments() == null
+				|| comment.getChildComments().isEmpty())) {
+			loadReplies(commentsData, comment);
+		}
+	}
+	
+	private void loadReplies(CommentsData commentsData, CommentData comment) {
+		try {
+			List<CommentData> replies = commentManager.getAllCommentReplies(comment, 
+					getCommentSortData(commentsData), loggedUser.getUser().getId());
+			Collections.reverse(replies);
+			comment.setChildComments(replies);
+		} catch(Exception e) {
+			logger.error(e);
+		}
+	}
+	
+	public void sortChanged(CommentSortOption sortOption, CommentsData commentsData) {
+		if(sortOption != commentsData.getSortOption()) {
+			commentsData.setSortOption(sortOption);
+			commentsData.setComments(null);
+			loadComments(commentsData);
+		}
+	}
+
+	@Override
 	public void saveTopLevelComment(CommentsData commentsData) {
 		saveNewComment(null, commentsData);
 	}
 	
+	@Override
 	public void saveNewComment(CommentData parent, CommentsData commentsData) {
 		CommentData newComment = new CommentData();
 		CommentData realParent = null;
@@ -109,24 +184,35 @@ public class CommentBean implements Serializable {
 			
 		try {
     		LearningContextData context = new LearningContextData(page, lContext, service);
-    		Comment1 comment = commentManager.saveNewComment(newComment, loggedUser.getUser().getId(), 
-    				commentsData.getResourceType(), context);
-        	
+    		Comment1 comment = null;
+    		if(commentsData.getResourceType() == CommentedResourceType.SocialActivity) {
+    			comment = socialActivityManager.saveSocialActivityComment(
+    					commentsData.getResourceId(), newComment, loggedUser.getUser().getId(), 
+    					commentsData.getResourceType(), context);
+    		} else {
+    			comment = commentManager.saveNewComment(newComment, loggedUser.getUser().getId(), 
+        				commentsData.getResourceType(), context);
+    		}
+    		
         	newComment.setCommentId(comment.getId());
         	commentsData.setNewestCommentId(newComment.getCommentId());
         	
 			if (parent != null) {
-				realParent.getChildComments().add(newComment);
+				loadReplies(commentsData, realParent);
+				//realParent.getChildComments().add(newComment);
+				//realParent.incrementNumberOfReplies();
 			} else {
 	        	/* 
 	        	 * if selected sort option is newest first, add element to the
 	        	 * end of a list, otherwise add it to the beginning
 	        	 */
-	        	if(commentsData.getSortOption() == CommentSortOption.MOST_RECENT) {
-	        		commentsData.addComment(newComment);
-	        	} else {
-	        		commentsData.addComment(0, newComment);
-	        	}
+//	        	if(commentsData.getSortOption() == CommentSortOption.MOST_RECENT) {
+//	        		commentsData.addComment(newComment);
+//	        	} else {
+//	        		commentsData.addComment(0, newComment);
+//	        	}
+				commentsData.addComment(newComment);
+				commentsData.incrementNumberOfComments();
         	}
         	PageUtil.fireSuccessfulInfoMessage("Comment posted");
     	} catch (DbConnectionException e) {
@@ -151,7 +237,7 @@ public class CommentBean implements Serializable {
 //        });
 	}
 	
-	public void editComment(CommentData comment) {
+	public void editComment(CommentData comment, CommentsData commentsData) {
 		String page = PageUtil.getPostParameter("page");
 		String lContext = PageUtil.getPostParameter("learningContext");
 		String service = PageUtil.getPostParameter("service");
@@ -160,7 +246,12 @@ public class CommentBean implements Serializable {
             public void run() {	
             	try {
             		LearningContextData context = new LearningContextData(page, lContext, service);
-            		commentManager.updateComment(comment, loggedUser.getUser().getId(), context);
+            		if(commentsData.getResourceType() == CommentedResourceType.SocialActivity) {
+            			socialActivityManager.updateSocialActivityComment(commentsData.getResourceId(), 
+            					comment, loggedUser.getUser().getId(), context);
+            		} else {
+            			commentManager.updateComment(comment, loggedUser.getUser().getId(), context);
+            		}
             	} catch (DbConnectionException e) {
             		logger.error(e);
             	}

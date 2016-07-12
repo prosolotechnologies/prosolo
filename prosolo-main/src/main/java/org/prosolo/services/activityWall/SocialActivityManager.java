@@ -7,10 +7,13 @@ import java.util.Locale;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
+import org.prosolo.common.domainmodel.comment.Comment1;
+import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.services.activityWall.filters.Filter;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.context.data.LearningContextData;
+import org.prosolo.services.interaction.data.CommentData;
 
 public interface SocialActivityManager {
 	
@@ -28,5 +31,17 @@ public interface SocialActivityManager {
 	
 	PostSocialActivity1 updatePost(long userId, long postId, String newText, 
 			LearningContextData context) throws DbConnectionException;
+	
+	Comment1 saveSocialActivityComment(long socialActivityId, CommentData data, long userId, 
+			CommentedResourceType resource, LearningContextData context) throws DbConnectionException;
+	
+	void updateSocialActivityComment(long id, CommentData data, long userId, 
+			LearningContextData context) throws DbConnectionException;
+	
+	void likeSocialActivity(long userId, long socialActivityId, LearningContextData context) 
+			throws DbConnectionException;
+	
+	void unlikeSocialActivity(long userId, long socialActivityId, LearningContextData context) 
+			throws DbConnectionException;
 
 }

@@ -7,8 +7,8 @@ import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.interaction.data.CommentData;
-import org.prosolo.services.interaction.data.CommentSortField;
-import org.prosolo.services.util.SortingOption;
+import org.prosolo.services.interaction.data.CommentReplyFetchMode;
+import org.prosolo.services.interaction.data.CommentSortData;
 
 public interface CommentManager {
 
@@ -16,32 +16,31 @@ public interface CommentManager {
 	 * Returns all comments for a resource
 	 * @param resourceType
 	 * @param resourceId
-	 * @param sortField
-	 * @param sortOption
+	 * @param commentSortData
 	 * @param userId
 	 * @return
 	 * @throws DbConnectionException
 	 */
 	List<CommentData> getAllComments(CommentedResourceType resourceType, long resourceId, 
-			CommentSortField sortField, SortingOption sortOption, long userId) 
-					throws DbConnectionException;
+			CommentSortData commentSortData, long userId) throws DbConnectionException;
 	/**
-	 * Returns number of comments specified by {@code maxResults} with all replies
-	 * to those comments
+	 * Returns number of comments specified by {@code maxResults} 
 	 * @param resourceType
 	 * @param resourceId
 	 * @param paginate
-	 * @param offset
 	 * @param maxResults
-	 * @param sortField
-	 * @param sortOption
+	 * @param commentSortData
+	 * @param replyFetchMode
 	 * @param userId
 	 * @return
 	 * @throws DbConnectionException
 	 */
 	List<CommentData> getComments(CommentedResourceType resourceType, long resourceId, 
-			boolean paginate, int offset, int maxResults, CommentSortField sortField, 
-			SortingOption sortOption, long userId) throws DbConnectionException;
+			boolean paginate, int maxResults, CommentSortData commentSortData, 
+			CommentReplyFetchMode replyFetchMode, long userId) throws DbConnectionException;
+	
+	 List<CommentData> getAllCommentReplies(CommentData parent, CommentSortData commentSortData, 
+				long userId) throws DbConnectionException;
 	
 	void likeComment(long userId, long commentId, LearningContextData context) 
 			throws DbConnectionException;

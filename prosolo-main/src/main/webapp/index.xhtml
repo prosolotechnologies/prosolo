@@ -64,7 +64,7 @@
 				
 				<h:panelGroup id="statusWall">
 					<ui:repeat var="sa" value="#{activityWallBean.socialActivities}">
-						<post:wallPost
+						<post:wallPost id="wallPost"
 							socialActivity="#{sa}"
 							growlToUpdate=":growlMain"
 							learningContext="name:status_wall|context:/name:social_activity|id:#{sa.id}/"

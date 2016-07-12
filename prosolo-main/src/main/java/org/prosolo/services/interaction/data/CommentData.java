@@ -22,10 +22,16 @@ public class CommentData {
 	private String formattedDate;
 	//text of a comment that represents reply to this comment
 	private String replyToComment;
+	private int numberOfReplies;
+	
 	
 	public CommentData() {
 		likedBy = new ArrayList<>();
 		childComments = new ArrayList<>();
+	}
+	
+	public void incrementNumberOfReplies() {
+		numberOfReplies ++;
 	}
 	
 	public long getCommentId() {
@@ -120,6 +126,14 @@ public class CommentData {
 
 	public void setReplyToComment(String replyToComment) {
 		this.replyToComment = replyToComment;
+	}
+
+	public int getNumberOfReplies() {
+		return numberOfReplies;
+	}
+
+	public void setNumberOfReplies(int numberOfReplies) {
+		this.numberOfReplies = numberOfReplies;
 	}
 	
 }

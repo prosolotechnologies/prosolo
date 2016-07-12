@@ -19,6 +19,8 @@
 		 <composite:attribute name="growlToUpdate" default=""/>
 		<composite:attribute name="learningContext" default=""/>
 		<composite:attribute name="service" default=""/>
+		<composite:attribute name="toUpdateOnSaveTopLevelComment" default=""/>
+		<composite:attribute name="toUpdateOnCommentSave" default=""/>
 	</composite:interface>
 	
 	<composite:implementation>
@@ -63,6 +65,7 @@
 								<li class="loadMoreComments">
 									<p:commandLink
 										value="View previous comments"
+										action="#{commentBean.loadMoreComments(cc.attrs.comments)}"
 										update="formComments" />
 								</li>
 							
@@ -72,7 +75,7 @@
 										comments="#{cc.attrs.comments}"
 										comment="#{comment}" isTopLevel="true"
 										newestCommentId="newestCommentId#{cc.attrs.uniqueId}"
-										toUpdate="@(.panelNewestComment_#{cc.attrs.uniqueId}) #{cc.attrs.growlToUpdate}"
+										toUpdate="@(.panelNewestComment_#{cc.attrs.uniqueId}) #{cc.attrs.growlToUpdate} #{cc.attrs.toUpdateOnCommentSave}"
 										learningContext="#{cc.attrs.learningContext}" />
 								</li>
 							</ui:repeat>
@@ -93,8 +96,8 @@
 								onkeyup="displaySubmitButton(this);"></div>
 
 							<p:commandButton styleClass="btn btn-sm btn-green hidden"
-								value="Submit" action="#{bean.saveTopLevelComment(cc.attrs.comments)}"
-								update="formComments #{cc.attrs.growlToUpdate}"
+								value="Submit" action="#{commentBean.saveTopLevelComment(cc.attrs.comments)}"
+								update="formComments #{cc.attrs.growlToUpdate} #{cc.attrs.toUpdateOnSaveTopLevelComment} #{cc.attrs.toUpdateOnCommentSave}"
 								oncomplete="scrollToNewestComment('newestCommentId#{cc.attrs.uniqueId}');">
 								<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 								<f:param name="learningContext"

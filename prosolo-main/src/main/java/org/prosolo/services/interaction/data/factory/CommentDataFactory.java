@@ -16,7 +16,8 @@ public class CommentDataFactory {
 	 * @param parentCommentId
 	 * @return
 	 */
-	public CommentData getCommentData(Comment1 comment, boolean likedByCurrentUser, CommentData parent) {
+	public CommentData getCommentData(Comment1 comment, boolean likedByCurrentUser, CommentData parent,
+			int numberOfReplies) {
 		if(comment == null) {
 			return null;
 		}
@@ -33,6 +34,7 @@ public class CommentDataFactory {
 		cd.setCommentedResourceId(comment.getCommentedResourceId());
 		cd.setDateCreated(comment.getPostDate());
 		cd.setFormattedDate(DateUtil.getTimeAgoFromNow(cd.getDateCreated()));
+		cd.setNumberOfReplies(numberOfReplies);
 		return cd;
 	}
 
