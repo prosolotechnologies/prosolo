@@ -39,18 +39,16 @@ public class PeopleBean implements Serializable, Paginable {
 
 	private static final long serialVersionUID = 1649841825781113183L;
 
-	protected static Logger logger = Logger.getLogger(ProfileSettingsBean.class);
+	protected static Logger logger = Logger.getLogger(PeopleBean.class);
 
 	@Autowired
 	private FollowResourceManager followResourceManager;
 	@Autowired
-	private FollowResourceAsyncManager followResourceAsyncManager;
-	@Autowired
 	private LoggedUserBean loggedUser;
+	@Autowired
+	private CollaboratorsRecommendation cRecommendation;
 
-	@Autowired private CollaboratorsRecommendation cRecommendation;
-
-	private List<UserData> whoToFollowList;
+	private List<UserData> usersToFollow;
 	private List<UserData> followingUsers;
 
 	private int usersNumber;
@@ -59,34 +57,46 @@ public class PeopleBean implements Serializable, Paginable {
 	private int numberOfPages;
 	private List<PaginationLink> paginationLinks;
 
+	@PostConstruct
 	public void initPeopleBean() {
 		initFollowingUsers();
 	}
 
 	public void initFollowingUsers() {
 		try {
-
 			followingUsers = new ArrayList<UserData>();
-			logger.debug("Initializing following users for a user '" + loggedUser.getUser() + "'");
-			List<User> users=cRecommendation.getRecommendedCollaboratorsBasedOnLocation(loggedUser.getUser(), 3);
-			System.out.println("USERS BY LOCATION..."+users.size());
 			usersNumber = followResourceManager.getNumberOfFollowingUsers(loggedUser.getUser());
 
 			List<User> followingUsersList = usersNumber > 0
-					? followResourceManager.getFollowingUsers(loggedUser.getUser(), page - 1, limit) : new ArrayList();
+					? followResourceManager.getFollowingUsers(loggedUser.getUser(), page - 1, limit)
+					: new ArrayList<User>();
 
-			if (followingUsersList != null && !followingUsersList.isEmpty()) {
+			if (!followingUsersList.isEmpty()) {
 				for (User user : followingUsersList) {
 					UserData userData = UserDataFactory.createUserData(user);
 					followingUsers.add(userData);
 				}
-				logger.debug("Following users initialized '" + loggedUser.getUser() + "'");
 			}
 			generatePagination();
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException(e.getMessage());
+		}
+		
+		try {
+			usersToFollow = new ArrayList<UserData>();
+			List<User> usersToFollowList = cRecommendation
+					.getRecommendedCollaboratorsBasedOnLocation(loggedUser.getUser(), 3);
+
+			if (!usersToFollowList.isEmpty()) {
+				for (User user : usersToFollowList) {
+					UserData userData = UserDataFactory.createUserData(user);
+					usersToFollow.add(userData);
+				}
+			}
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
 		}
 	}
 
@@ -152,12 +162,12 @@ public class PeopleBean implements Serializable, Paginable {
 		return numberOfPages == 0;
 	}
 
-	public List<UserData> getWhoToFollowList() {
-		return whoToFollowList;
+	public List<UserData> getUsersToFollow() {
+		return usersToFollow;
 	}
 
-	public void setWhoToFollowList(List<UserData> whoToFollowList) {
-		this.whoToFollowList = whoToFollowList;
+	public void setUsersToFollow(List<UserData> usersToFollow) {
+		this.usersToFollow = usersToFollow;
 	}
 
 	public List<UserData> getFollowingUsers() {
