@@ -139,6 +139,16 @@ public class LoggingNavigationBean implements Serializable {
 		}  
 	}
 	
+	public void logServiceUse(ComponentName component, String query, LearningContextData lContext){
+		try {
+			Map<String, String> params = new HashMap<>();
+			params.put("query", query);
+			loggingService.logServiceUse(loggedUser.getUser(), component, params, getIpAddress(), lContext);
+		} catch (LoggingException e) {
+			logger.error(e);
+		}
+	}
+	
 	public void logServiceUse(ComponentName component, String parm1, String value1, String parm2, 
 			String value2, String parm3, String value3) {
 		

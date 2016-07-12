@@ -36,6 +36,9 @@ public interface TextSearch extends AbstractManager {
 	TextSearchResponse searchUsers(String searchString,
 			int page, int limit, boolean loadOneMore,
 			Collection<Long> excludeUserIds);
+	
+	TextSearchResponse1<UserData> searchUsers1 (
+			String term, int page, int limit, boolean paginate, List<Long> excludeIds);
 
 	TextSearchResponse searchLearningGoals(
 			String searchString, int page, int limit, boolean loadOneMore,
